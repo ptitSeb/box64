@@ -531,16 +531,22 @@
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
 #define CALL_S(F, ret) call_c(dyn, ninst, F, x6, ret, 0, 0)
 
-#define MARK        dyn->insts[ninst].mark = dyn->native_size
-#define GETMARK     dyn->insts[ninst].mark
-#define MARK2       dyn->insts[ninst].mark2 = dyn->native_size
-#define GETMARK2    dyn->insts[ninst].mark2
-#define MARK3       dyn->insts[ninst].mark3 = dyn->native_size
-#define GETMARK3    dyn->insts[ninst].mark3
-#define MARKF       dyn->insts[ninst].markf = dyn->native_size
-#define GETMARKF    dyn->insts[ninst].markf
-#define MARKF2      dyn->insts[ninst].markf2 = dyn->native_size
-#define GETMARKF2   dyn->insts[ninst].markf2
+#define MARKi(i)   dyn->insts[ninst].mark[i] = dyn->native_size
+#define GETMARKi(i) dyn->insts[ninst].mark[i]
+#define MARK        MARKi(0)
+#define GETMARK     GETMARKi(0)
+#define MARK2       MARKi(1)
+#define GETMARK2    GETMARKi(1)
+#define MARK3       MARKi(2)
+#define GETMARK3    GETMARKi(2)
+
+#define MARKFi(i)   dyn->insts[ninst].markf[i] = dyn->native_size
+#define GETMARKFi(i) dyn->insts[ninst].markf[i]
+#define MARKF       MARKFi(0)
+#define GETMARKF    GETMARKFi(0)
+#define MARKF2      MARKFi(1)
+#define GETMARKF2   GETMARKFi(1)
+
 #define MARKSEG     dyn->insts[ninst].markseg = dyn->native_size
 #define GETMARKSEG  dyn->insts[ninst].markseg
 #define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
@@ -550,20 +556,31 @@
     j64 = GET##M - dyn->native_size;    \
     B##OP (reg1, reg2, j64)
 
+#define Bxx_geni(OP, M, reg1, reg2, i)      \
+    j64 = GET##M##i(i) - dyn->native_size;    \
+    B##OP (reg1, reg2, j64)
+
 // Branch to MARK if reg1==reg2 (use j64)
 #define BEQ_MARK(reg1, reg2) Bxx_gen(EQ, MARK, reg1, reg2)
+#define BEQ_MARKi(reg1, reg2, i) Bxx_geni(EQ, MARK, reg1, reg2, i)
 // Branch to MARK if reg1!=reg2 (use j64)
 #define BNE_MARK(reg1, reg2) Bxx_gen(NE, MARK, reg1, reg2)
+#define BNE_MARKi(reg1, reg2, i) Bxx_geni(NE, MARK, reg1, reg2, i)
 // Branch to MARK if reg1!=0 (use j64)
 #define BNEZ_MARK(reg) BNE_MARK(reg, xZR)
+#define BNEZ_MARKi(reg, i) BNE_MARKi(reg, xZR, i)
 // Branch to MARK instruction unconditionnal (use j64)
 #define B_MARK_nocond   Bxx_gen(__, MARK, 0, 0)
+#define B_MARKi_nocond   Bxx_geni(__, MARK, 0, 0, i)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
+#define BLT_MARKi(reg1, reg2) Bxx_geni(LT, MARK, reg1, reg2, i)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLTU_MARK(reg1, reg2) Bxx_gen(LTU, MARK, reg1, reg2)
+#define BLTU_MARKi(reg1, reg2) Bxx_geni(LTU, MARK, reg1, reg2, i)
 // Branch to MARK if reg1>=reg2 (use j64)
 #define BGE_MARK(reg1, reg2) Bxx_gen(GE, MARK, reg1, reg2)
+#define BGE_MARKi(reg1, reg2) Bxx_geni(GE, MARK, reg1, reg2, i)
 // Branch to MARK2 if reg1==reg2 (use j64)
 #define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1,reg2)
 // Branch to MARK2 if reg1!=reg2 (use j64)
