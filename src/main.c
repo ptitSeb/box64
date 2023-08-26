@@ -1701,6 +1701,9 @@ int main(int argc, const char **argv, char **env) {
         for(int i=nextarg; i<argc; ++i)
             argv[i] -= diff;    // adjust strings
     }
+    box64_isglibc234 = GetNeededVersionForLib(elf_header, "libc.so.6", "GLIBC_2.34");
+    if(box64_isglibc234)
+        printf_log(LOG_DEBUG, "Program linked with GLIBC 2.34+\n");
     // get and alloc stack size and align
     if(CalcStackSize(my_context)) {
         printf_log(LOG_NONE, "Error: allocating stack\n");
@@ -1726,9 +1729,6 @@ int main(int argc, const char **argv, char **env) {
 
     // export symbols
     AddSymbols(my_context->maplib, GetMapSymbols(elf_header), GetWeakSymbols(elf_header), GetLocalSymbols(elf_header), elf_header);
-    box64_isglibc234 = GetVersionIndice(elf_header, "GLIBC_2.34")?1:0;
-    if(box64_isglibc234)
-        printf_log(LOG_DEBUG, "Program linked with GLIBC 2.34+\n");
     if(wine_preloaded) {
         uintptr_t wineinfo = FindSymbol(GetMapSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
         if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);

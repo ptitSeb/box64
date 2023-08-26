@@ -467,3 +467,18 @@ const char* GetNeededVersionString(elfheader_t* h, const char* libname, int idx)
     }
     return NULL;
 }
+
+int GetNeededVersionForLib(elfheader_t* h, const char* libname, const char* ver)
+{
+    if(!libname || !ver)
+        return 0;
+    int n = GetNeededVersionCnt(h, libname);
+    if(!n)
+        return 0;
+    for(int i=0; i<n; ++i) {
+        const char* vername = GetNeededVersionString(h, libname, i);
+        if(vername && !strcmp(ver, vername))
+            return 1;
+    }
+    return 0;
+}

@@ -67,6 +67,7 @@ int SameVersionedSymbol(const char* name1, int ver1, const char* vername1, const
 int GetVersionIndice(elfheader_t* h, const char* vername);
 int GetNeededVersionCnt(elfheader_t* h, const char* libname);
 const char* GetNeededVersionString(elfheader_t* h, const char* libname, int idx);
+int GetNeededVersionForLib(elfheader_t* h, const char* libname, const char* ver);
 
 kh_mapsymbols_t* GetMapSymbols(elfheader_t* h);
 kh_mapsymbols_t* GetWeakSymbols(elfheader_t* h);
