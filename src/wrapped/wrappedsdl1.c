@@ -73,7 +73,7 @@ GO(4)
 static uintptr_t my_AudioCallback_fct_##A = 0;                                      \
 static void my_AudioCallback_##A(void *userdata, uint8_t *stream, int32_t len)      \
 {                                                                                   \
-    RunFunctionFmt(my_AudioCallback_fct_##A, "pCi", userdata, stream, len);   \
+    RunFunctionFmt(my_AudioCallback_fct_##A, "ppi", userdata, stream, len);   \
 }
 SUPER()
 #undef GO
