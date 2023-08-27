@@ -59,6 +59,7 @@ typedef struct needed_libs_s {
     int         size;
     char**      names;
     library_t** libs;
+    int         nb_done;
 } needed_libs_t;
 
 void free_neededlib(needed_libs_t* needed);

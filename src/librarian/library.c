@@ -209,7 +209,7 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
                     printf_log(LOG_NONE, "Error initializing native %s (last dlerror is %s)\n", lib->name, error_str);
                 return; // non blocker...
             }
-            printf_log(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
+            printf_dump(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
             lib->fini = wrappedlibs[i].fini;
             lib->getglobal = WrappedLib_GetGlobal;
             lib->getweak = WrappedLib_GetWeak;
@@ -225,12 +225,12 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
             linkmap_t *lm = addLinkMapLib(lib);
             if(!lm) {
                 // Crashed already
-                printf_log(LOG_DEBUG, "Failure to add lib %s linkmap\n", lib->name);
+                printf_dump(LOG_DEBUG, "Failure to add lib %s linkmap\n", lib->name);
                 break;
             }
             struct link_map real_lm;
             if(dlinfo(lib->w.lib, RTLD_DI_LINKMAP, &real_lm)) {
-                printf_log(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
+                printf_dump(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
             }
             lm->l_addr = real_lm.l_addr;
             lm->l_name = real_lm.l_name;
@@ -251,7 +251,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         }
         elfheader_t *elf_header = LoadAndCheckElfHeader(f, libname, 0);
         if(!elf_header) {
-            printf_log(LOG_DEBUG, "Error: reading elf header of %s\n", libname);    // this one can be too alarming...
+            printf_dump(LOG_DEBUG, "Error: reading elf header of %s\n", libname);    // this one can be too alarming...
             fclose(f);
             return 0;
         }
@@ -302,21 +302,21 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
                 lib->path = box_strdup(libname);
         }
 
-        printf_log(LOG_INFO, "Using emulated %s\n", libname);
+        printf_dump(LOG_INFO, "Using emulated %s\n", libname);
         #ifdef DYNAREC
         if(libname && box64_dynarec_bleeding_edge && strstr(libname, "libmonobdwgc-2.0.so")) {
-            printf_log(LOG_INFO, "MonoBleedingEdge detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
+            printf_dump(LOG_INFO, "MonoBleedingEdge detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
             box64_dynarec_bigblock = 0;
             box64_dynarec_strongmem = 1;
         }
         if(libname && box64_dynarec_jvm && strstr(libname, "libjvm.so")) {
-            printf_log(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
+            printf_dump(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
             box64_dynarec_bigblock = 0;
             box64_dynarec_strongmem = 1;
         }
         #endif
         if(libname && box64_libcef && strstr(libname, "libcef.so")) {
-            printf_log(LOG_INFO, "libcef detected, using malloc_hack_2\n");
+            printf_dump(LOG_INFO, "libcef detected, using malloc_hack_2\n");
             box64_malloc_hack = 2;
         }
         return 1;
@@ -370,7 +370,7 @@ static int isEssentialLib(const char* name) {
 
 library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* verneeded)
 {
-    printf_log(LOG_DEBUG, "Trying to load \"%s\"\n", path);
+    printf_dump(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     library_t *lib = (library_t*)box_calloc(1, sizeof(library_t));
     lib->path = box_realpath(path, NULL);
     if(!lib->path)
@@ -381,7 +381,7 @@ library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* ve
         lib->name = Path2Name(path);
     lib->nbdot = NbDot(lib->name);
     lib->type = LIB_UNNKNOW;
-    printf_log(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
+    printf_dump(LOG_DEBUG, "Simplified name is \"%s\"\n", lib->name);
     if(box64_nopulse) {
         if(strstr(lib->name, "libpulse.so")==lib->name || strstr(lib->name, "libpulse-simple.so")==lib->name) {
             box_free(lib->name);
@@ -466,12 +466,12 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* 
             int weak;
             if (GetGlobalSymbolStartEnd(local_maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL, NULL, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
+                printf_dump(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 box_free(trace_func);
                 trace_func = NULL;
             } else if(GetLibLocalSymbolStartEnd(lib, trace_func, &trace_start, &trace_end, 0, &weak, -1, NULL, 0, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
+                printf_dump(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 box_free(trace_func);
                 trace_func = NULL;
             }
@@ -544,7 +544,7 @@ void Free1Library(library_t **the_lib, x64emu_t* emu)
 
     library_t* lib = *the_lib;
 
-    printf_log(LOG_DEBUG, "Free1Library %s\n", lib->name);
+    printf_dump(LOG_DEBUG, "Free1Library %s\n", lib->name);
     // remove lib from maplib/local_maplib...
     if(my_context) {
         MapLibRemoveLib(my_context->maplib, lib);
@@ -653,7 +653,7 @@ int IsSameLib(library_t* lib, const char* path)
 }
 int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
 {
-    if(!name[0])
+    if(!lib || !name[0])
         return 0;
     khint_t k;
     kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
@@ -865,7 +865,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
             }
             if(!symbol) {
-                printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
+                printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                 return 0;
             }
             s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
@@ -921,7 +921,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                     symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
                 }
                 if(!symbol) {
-                    printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
+                    printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                     return 0;
                 }
                 s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
@@ -946,7 +946,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 if(!symbol)
                     symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
                 if(!symbol) {
-                    printf_log(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
+                    printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
                     return 0;
                 }
                 s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
@@ -981,7 +981,7 @@ int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *add
 int GetNeededLibsN(library_t* lib) {
     switch (lib->type) {
         case LIB_WRAPPED: return lib->w.needed?lib->w.needed->size:0;
-        case LIB_EMULATED: return lib->e.elf->needed->size;
+        case LIB_EMULATED: return lib->e.elf->needed?lib->e.elf->needed->size:0;
     }
     return 0;
 }
@@ -999,11 +999,11 @@ library_t* GetNeededLib(library_t* lib, int idx)
     }
     return NULL;
 }
-char** GetNeededLibs(library_t* lib)
+char** GetNeededLibsNames(library_t* lib)
 {
     switch (lib->type) {
         case LIB_WRAPPED: return lib->w.needed?lib->w.needed->names:NULL;
-        case LIB_EMULATED: return lib->e.elf->needed->names;
+        case LIB_EMULATED: return lib->e.elf->needed?lib->e.elf->needed->names:NULL;
     }
     return NULL;
 }

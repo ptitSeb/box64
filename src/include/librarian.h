@@ -37,6 +37,7 @@ elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, co
 int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername, const char* defver);
 
 void MapLibRemoveLib(lib_t* maplib, library_t* lib);
+void MapLibPrependLib(lib_t* maplib, library_t* lib, library_t* ref);
 
 const char* GetMaplibDefaultVersion(lib_t *maplib, lib_t *local_maplib, int isweak, const char* symname);
 
