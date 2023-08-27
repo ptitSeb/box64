@@ -514,7 +514,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 gd = (nextop&0x38)>>3;
                 gb1 = xRAX+(gd&3);
-                gb2 = ((gd&4)>>2);
+                gb2 = ((gd&4)<<1);
             }
             if(MODREG) {
                 if(rex.rex) {
@@ -538,7 +538,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDRB_REG(x4, wback, x4);
                 ed = x4;
             }
-            BFIx(gb1, ed, gb2*8, 8);
+            BFIx(gb1, ed, gb2, 8);
             break;
         case 0x89:
             INST_NAME("MOV Seg:Ed, Gd");

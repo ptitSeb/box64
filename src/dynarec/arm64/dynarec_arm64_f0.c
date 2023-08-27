@@ -887,12 +887,12 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     ed = (nextop&7);
                     eb1 = xRAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
+                    eb2 = ((ed&4)<<1);
                 }
-                UBFXw(x1, eb1, eb2*8, 8);
+                UBFXw(x1, eb1, eb2, 8);
                 // do the swap 14 -> ed, 1 -> gd
-                BFIx(gb1, x1, gb2*8, 8);
-                BFIx(eb1, x4, eb2*8, 8);
+                BFIx(gb1, x1, gb2, 8);
+                BFIx(eb1, x4, eb2, 8);
             } else {
                 SMDMB();
                 GETGB(x4);
@@ -904,7 +904,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STLXRB(x3, x4, ed);
                 CBNZx_MARKLOCK(x3);
                 SMDMB();
-                BFIx(gb1, x1, gb2*8, 8);
+                BFIx(gb1, x1, gb2, 8);
             }
             break;
         case 0x87:

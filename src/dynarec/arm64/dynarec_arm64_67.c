@@ -761,12 +761,12 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 gb2 = 0;
                 gb1 = xRAX + gd;
             } else {
-                gb2 = ((gd&4)>>2);
+                gb2 = ((gd&4)<<1);
                 gb1 = xRAX+(gd&3);
             }
             if(gb2) {
                 gd = x4;
-                UBFXw(gd, gb1, gb2*8, 8);
+                UBFXw(gd, gb1, gb2, 8);
             } else {
                 gd = gb1;   // no need to extract
             }

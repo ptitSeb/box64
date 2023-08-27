@@ -1045,12 +1045,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else {
                     ed = (nextop&7);
                     eb1 = xRAX+(ed&3);
-                    eb2 = ((ed&4)>>2);
+                    eb2 = ((ed&4)<<1);
                 }
-                UBFXw(x1, eb1, eb2*8, 8);
+                UBFXw(x1, eb1, eb2, 8);
                 // do the swap 14 -> ed, 1 -> gd
-                BFIx(gb1, x1, gb2*8, 8);
-                BFIx(eb1, x4, eb2*8, 8);
+                BFIx(gb1, x1, gb2, 8);
+                BFIx(eb1, x4, eb2, 8);
             } else {
                 SMDMB();
                 GETGB(x4);
@@ -1062,7 +1062,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STLXRB(x3, x4, ed);
                 CBNZx_MARKLOCK(x3);
                 SMDMB();
-                BFIx(gb1, x1, gb2*8, 8);
+                BFIx(gb1, x1, gb2, 8);
             }
             break;
         case 0x87:
@@ -1101,12 +1101,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 gb2 = 0;
                 gb1 = xRAX + gd;
             } else {
-                gb2 = ((gd&4)>>2);
+                gb2 = ((gd&4)<<1);
                 gb1 = xRAX+(gd&3);
             }
             if(gb2) {
                 gd = x4;
-                UBFXw(gd, gb1, gb2*8, 8);
+                UBFXw(gd, gb1, gb2, 8);
             } else {
                 gd = gb1;   // no need to extract
             }
@@ -1147,7 +1147,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 gd = (nextop&0x38)>>3;
                 gb1 = xRAX+(gd&3);
-                gb2 = ((gd&4)>>2);
+                gb2 = ((gd&4)<<1);
             }
             if(MODREG) {
                 if(rex.rex) {
@@ -1170,7 +1170,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDB(x4, wback, fixedaddress);
                 ed = x4;
             }
-            BFIx(gb1, ed, gb2*8, 8);
+            BFIx(gb1, ed, gb2, 8);
             break;
         case 0x8B:
             INST_NAME("MOV Gd, Ed");
