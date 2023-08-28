@@ -11,10 +11,10 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* libformwName = "libformw.so.5";
-#define LIBNAME libformw
+const char* libformw6Name = "libformw.so.6";
+#define LIBNAME libformw6
 
 #define CUSTOM_INIT \
-    SETALT(myw_);   \
+    SETALT(my6_);   \
 
 #include "wrappedlib_init.h"

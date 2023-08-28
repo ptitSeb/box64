@@ -4013,6 +4013,7 @@ wrappedlibegl:
   - eglGetProcAddress
 wrappedlibform:
 wrappedlibformw:
+wrappedlibformw6:
 wrappedlibfuse:
 - iFpp:
   - fuse_reply_entry
