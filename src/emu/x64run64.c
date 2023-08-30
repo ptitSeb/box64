@@ -272,6 +272,18 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                             return 0;
                     }
                     break;
+                case 0xB7:
+                    switch(rep) {
+                        case 0: /* MOVZX Gd, FS:Ew */
+                            nextop = F8;
+                            GETEW_OFFS(0, tlsdata);
+                            GETGD;
+                            GD->q[0] = EW->word[0];
+                            break;
+                        default:
+                            return 0;
+                    }
+                    break;
 
                 default:
                     return 0;
