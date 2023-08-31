@@ -425,7 +425,30 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VAND(d0, d0, q1);  // mask the index
                     VTBL1_8(q0, q0, d0);
                     break;
-
+                case 0x01:
+                    INST_NAME("PHADDW Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    VADDP_16(q0, q0, q1);
+                    break;
+                case 0x2:
+                    INST_NAME("PHADDD Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    VADDP_32(q0, q0, q1);
+                    break;
+                case 0x03:
+                    INST_NAME("PHADDSW Gm, Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VUZP1_16(v0, q0, q1);
+                    VUZP2_16(q0, q0, q1);
+                    SQADD_16(q0, q0, v0);
+                    break;
                 case 0x04:
                     INST_NAME("PMADDUBSW Gm,Em");
                     nextop = F8;
@@ -439,7 +462,36 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SADDLPQ_16(v1, v0);
                     SQXTN_16(q0, v1);
                     break;
-
+                case 0x05:
+                    INST_NAME("PHSUBW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VUZP1_16(v0, q0, q1);
+                    VUZP2_16(q0, q0, q1);
+                    VSUB_16(q0, v0, q0);
+                    break;
+                case 0x06:
+                    INST_NAME("PHSUBD Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VUZP1_32(v0, q0, q1);
+                    VUZP2_32(q0, q0, q1);
+                    VSUB_32(q0, v0, q0);
+                    break;
+                case 0x07:
+                    INST_NAME("PHSUBSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VUZP1_16(v0, q0, q1);
+                    VUZP2_16(q0, q0, q1);
+                    SQSUB_16(q0, v0, q0);
+                    break;
                 case 0x0B:
                     INST_NAME("PMULHRSW Gm,Em");
                     nextop = F8;
