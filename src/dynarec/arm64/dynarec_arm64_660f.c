@@ -326,7 +326,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0, 0);
                     VADDPQ_32(q0, q0, q1);
                     break;
-
+                case 0x03:
+                    INST_NAME("PHADDSW Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    VUZP1Q_16(v0, q0, q1);
+                    VUZP2Q_16(q0, q0, q1);
+                    SQADDQ_16(q0, q0, v0);
+                    break;
                 case 0x04:
                     INST_NAME("PMADDUBSW Gx,Ex");
                     nextop = F8;
@@ -667,7 +676,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX_empty(q0);
                     UXTL_32(q0, q1);     // 32bits->64bits
                     break;
-
+                case 0x37:
+                    INST_NAME("PCMPGTQ Gx, Ex"); // SSE4 opcode!
+                    nextop = F8;
+                    GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
+                    VCMGTQ_64(q0, q0, q1);
+                    break;
                 case 0x38:
                     INST_NAME("PMINSB Gx, Ex");  // SSE4 opcode!
                     nextop = F8;
