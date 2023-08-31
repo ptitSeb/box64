@@ -3,7 +3,10 @@ Usage
 ----
 
 There are many environment variables to control Box64 behaviour. 
-Env. var with * can also be put inside box64rc files
+Env. var with * can also be put inside box64rc files. 
+Box64 look for 2 places for rcfile: `/etc/box64.box64rc` and `~/.box64rc`
+The second takes precedence to the first, on an APP level 
+(that means if an [MYAPP] my appears in both file, only the settings in `~/.box64rc` will be applied)
 
 #### BOX64_LOG *
 Controls the Verbosity level of the logs
