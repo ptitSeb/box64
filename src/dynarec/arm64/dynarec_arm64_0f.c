@@ -492,6 +492,45 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VUZP2_16(q0, q0, q1);
                     SQSUB_16(q0, v0, q0);
                     break;
+                case 0x08:
+                    INST_NAME("PSIGNB Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    CMGT_0_8(v0, q1);
+                    VAND(v0, v0, q0);
+                    CMLT_0_8(v1, q1);
+                    VMUL_8(q0, q0, v1);
+                    VORR(q0, q0, v0);
+                    break;
+                case 0x09:
+                    INST_NAME("PSIGNW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    CMGT_0_16(v0, q1);
+                    VAND(v0, v0, q0);
+                    CMLT_0_16(v1, q1);
+                    VMUL_16(q0, q0, v1);
+                    VORR(q0, q0, v0);
+                    break;
+                case 0x0A:
+                    INST_NAME("PSIGND Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    CMGT_0_32(v0, q1);
+                    VAND(v0, v0, q0);
+                    CMLT_0_32(v1, q1);
+                    VMUL_32(q0, q0, v1);
+                    VORR(q0, q0, v0);
+                    break;
                 case 0x0B:
                     INST_NAME("PMULHRSW Gm,Em");
                     nextop = F8;
