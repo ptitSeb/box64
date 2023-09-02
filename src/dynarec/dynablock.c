@@ -171,7 +171,7 @@ dynablock_t *AddNewDynablock(uintptr_t addr)
 }
 
 //TODO: move this to dynrec_arm.c and track allocated structure to avoid memory leak
-static __thread struct __jmp_buf_tag dynarec_jmpbuf;
+static __thread JUMPBUFF dynarec_jmpbuf;
 
 void cancelFillBlock()
 {

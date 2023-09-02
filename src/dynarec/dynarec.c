@@ -103,9 +103,9 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
 void DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
-    struct __jmp_buf_tag jmpbuf[1] = {0};
+    JUMPBUFF jmpbuf[1] = {0};
     int skip = 0;
-    struct __jmp_buf_tag *old_jmpbuf = emu->jmpbuf;
+    JUMPBUFF *old_jmpbuf = emu->jmpbuf;
     emu->flags.jmpbuf_ready = 0;
 
     while(!(emu->quit)) {
