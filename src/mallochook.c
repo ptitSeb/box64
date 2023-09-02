@@ -133,12 +133,14 @@ typedef void* (*pFpLLp_t)(void*, size_t, size_t, void*);
 
 #ifdef ANDROID
 void*(*__libc_malloc)(size_t) = NULL;
-void*(*__libc_realloc)(size_t, void*) = NULL;
+void*(*__libc_realloc)(void*, size_t) = NULL;
 void*(*__libc_calloc)(size_t, size_t) = NULL;
 void (*__libc_free)(void*) = NULL;
 void*(*__libc_memalign)(size_t, size_t) = NULL;
-#endif
+size_t(*box_malloc_usable_size)(const void*) = NULL;
+#else
 size_t(*box_malloc_usable_size)(void*) = NULL;
+#endif
 
 int GetTID();
 uint32_t getProtection(uintptr_t addr);
