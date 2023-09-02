@@ -305,7 +305,11 @@ EXPORT void cfree(void* p)
     box_free(p);
 }
 
+#ifdef ANDROID
+EXPORT size_t malloc_usable_size(const void* p)
+#else
 EXPORT size_t malloc_usable_size(void* p)
+#endif
 {
     if(malloc_hack_2 && real_malloc_usable_size) {
         if(getMmapped((uintptr_t)p))
