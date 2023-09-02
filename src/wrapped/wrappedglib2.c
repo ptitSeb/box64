@@ -664,6 +664,28 @@ static void* reverseGOptionArgFct(void* fct)
     #undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, iFpppp, fct, 0, "GOptionArgFunc");
 }
+// GOptionParse ...
+#define GO(A)   \
+static uintptr_t my_GOptionParse_fct_##A = 0;                                            \
+static int my_GOptionParse_##A(void* a, void* b, void* c, void* d)                       \
+{                                                                                      \
+    return (int)RunFunctionFmt(my_GOptionParse_fct_##A, "pppp", a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* findGOptionParseFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GOptionParse_fct_##A == (uintptr_t)fct) return my_GOptionParse_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GOptionParse_fct_##A == 0) {my_GOptionParse_fct_##A = (uintptr_t)fct; return my_GOptionParse_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for glib2 GOptionParse callback\n");
+    return NULL;
+}
 // GNodeTraverseFunc ...
 #define GO(A)   \
 static uintptr_t my_GNodeTraverseFunc_fct_##A = 0;                                    \
@@ -1391,6 +1413,11 @@ EXPORT void my_g_slist_free_full(x64emu_t* emu, void* list, void* f)
 EXPORT void* my_g_list_insert_sorted_with_data(x64emu_t* emu, void* list, void* data, void* f, void* user)
 {
     return my->g_list_insert_sorted_with_data(list, data, findGCompareDataFuncFct(f), user);
+}
+
+EXPORT void my_g_option_group_set_parse_hooks(x64emu_t* emu, void* group, void* preparse, void* postparse)
+{
+    my->g_option_group_set_parse_hooks(group, findGOptionParseFct(preparse), findGOptionParseFct(postparse));
 }
 
 #define PRE_INIT    \

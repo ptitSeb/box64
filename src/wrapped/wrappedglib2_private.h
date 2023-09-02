@@ -785,7 +785,7 @@ GO(g_option_group_free, vFp)
 GOM(g_option_group_new, pFEppppp)
 GO(g_option_group_ref, pFp) // 2.44+
 //GOM(g_option_group_set_error_hook, vFEpB)
-//GOM(g_option_group_set_parse_hooks, vFEpBB)
+GOM(g_option_group_set_parse_hooks, vFEppp)
 //GOM(g_option_group_set_translate_func, vFEpBpB)
 GO(g_option_group_set_translation_domain, vFpp)
 GO(g_option_group_unref, vFp)   // 2.44+
