@@ -103,11 +103,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
 void DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
-    #ifdef ANDROID
-    JUMPBUFF jmpbuf = {0};
-    #else
     JUMPBUFF jmpbuf[1] = {0};
-    #endif
     int skip = 0;
     JUMPBUFF *old_jmpbuf = emu->jmpbuf;
     emu->flags.jmpbuf_ready = 0;
@@ -116,7 +112,12 @@ void DynaRun(x64emu_t* emu)
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
             emu->flags.jmpbuf_ready = 1;
-            if((skip=sigsetjmp(emu->jmpbuf, 1))) {
+            #ifdef ANDROID
+            if((skip=sigsetjmp(*(JUMPBUFF*)emu->jmpbuf, 1))) 
+            #else
+            if((skip=sigsetjmp(emu->jmpbuf, 1))) 
+            #endif
+            {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
                 #ifdef DYNAREC
                 if(box64_dynarec_test) {

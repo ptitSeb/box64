@@ -1060,6 +1060,10 @@ uintptr_t GetLastByte(elfheader_t* h)
     return (uintptr_t)h->memory/* + h->delta*/ + h->memsz;
 }
 
+#ifndef STB_GNU_UNIQUE
+#define STB_GNU_UNIQUE	10
+#endif
+
 void checkHookedSymbols(elfheader_t* h); // in mallochook.c
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h)
 {
