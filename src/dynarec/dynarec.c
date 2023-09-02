@@ -134,7 +134,7 @@ void DynaRun(x64emu_t* emu)
         else {
             int is32bits = (emu->segs[_CS]==0x23);
             dynablock_t* block = (skip)?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
-            if(!block || !block->block || !block->done) {
+            if(!block || !block->block || !block->done || ACCESS_FLAG(F_TF)) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)
                 // Use interpreter (should use single instruction step...)

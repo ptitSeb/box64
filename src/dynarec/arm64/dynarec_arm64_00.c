@@ -1296,10 +1296,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             if(box64_wine) {    // should this be done all the time?
                 TBZ_NEXT(xFlags, F_TF);
-                MOV64x(x1, addr);
-                STORE_XEMU_CALL(x1);
-                CALL(native_singlestep, -1);
-                BFCw(xFlags, F_TF, 1);
+                // go to epilog, TF should trigger at end of next opcode, so using Interpretor only
+                jump_to_epilog(dyn, addr, 0, ninst);
             }
             break;
         case 0x9E:

@@ -874,15 +874,6 @@ x64emurun:
         case 0x9D:                      /* POPF */
             emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
-            #ifndef TEST_INTERPRETER
-            if(ACCESS_FLAG(F_TF)) {
-                R_RIP = addr;
-                emit_signal(emu, SIGTRAP, (void*)addr, 1);
-                if(emu->quit) goto fini;
-                CLEAR_FLAG(F_TF);
-                STEP;
-            }
-            #endif
             break;
         case 0x9E:                      /* SAHF */
             CHECK_FLAGS(emu);
@@ -2009,11 +2000,27 @@ x64emurun:
             unimp = 1;
             goto fini;
         }
+#ifndef TEST_INTERPRETER
+        // check the TRACE flag before going to next
+        if(ACCESS_FLAG(F_TF)) {
+            R_RIP = addr;
+            emit_signal(emu, SIGTRAP, (void*)addr, 1);
+            if(emu->quit) goto fini;
+        }
+#endif
         R_RIP = addr;
     }
 
 
 fini:
+#ifndef TEST_INTERPRETER
+    // check the TRACE flag before going to out, in case it's a step by step scenario
+    if(!emu->quit && !emu->fork && !emu->uc_link && ACCESS_FLAG(F_TF)) {
+        R_RIP = addr;
+        emit_signal(emu, SIGTRAP, (void*)addr, 1);
+        if(emu->quit) goto fini;
+    }
+#endif
 if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, CS is not default value: 0x%x\n", emu->segs[_CS]);
 #ifndef TEST_INTERPRETER
     printf_log(LOG_DEBUG, "End of X86 run (%p), RIP=%p, Stack=%p, unimp=%d, emu->fork=%d, emu->uc_link=%p, emu->quit=%d\n", emu, (void*)R_RIP, (void*)R_RSP, unimp, emu->fork, emu->uc_link, emu->quit);

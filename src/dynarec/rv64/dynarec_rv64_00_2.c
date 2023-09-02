@@ -499,10 +499,8 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if(box64_wine) {    // should this be done all the time?
                 ANDI(x1, xFlags, 1 << F_TF);
                 CBZ_NEXT(x1);
-                MOV64x(xRIP, addr);
-                STORE_XEMU_CALL();
-                CALL(native_singlestep, -1);
-                ANDI(xFlags, xFlags, ~(1 << F_TF));
+                // go to epilog, TF should trigger at end of next opcode, so using Interpretor only
+                jump_to_epilog(dyn, addr, 0, ninst);
             }
             break;
         case 0x9F:
