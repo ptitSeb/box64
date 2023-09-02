@@ -41,7 +41,7 @@ void EXPORT my___libc_init(x64emu_t* emu, void* raw_args __unused, void (*onexit
     // should call structors->preinit_array and structors->init_array!
     // call main and finish
     PushExit(emu);
-    R_RIP=(untptr_t)main;
+    R_RIP=(uintptr_t)main;
 
     DynaRun(emu);
 
