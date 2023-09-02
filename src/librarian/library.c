@@ -229,9 +229,11 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
                 break;
             }
             struct link_map real_lm;
+            #ifndef ANDROID
             if(dlinfo(lib->w.lib, RTLD_DI_LINKMAP, &real_lm)) {
                 printf_dump(LOG_DEBUG, "Failed to dlinfo lib %s\n", lib->name);
             }
+            #endif
             lm->l_addr = real_lm.l_addr;
             lm->l_name = real_lm.l_name;
             lm->l_ld = real_lm.l_ld;

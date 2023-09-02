@@ -75,7 +75,9 @@ typedef struct x64_unwind_buff_s {
 typedef void(*vFv_t)();
 
 KHASH_MAP_INIT_INT64(threadstack, threadstack_t*)
+#ifndef ANDROID
 KHASH_MAP_INIT_INT64(cancelthread, __pthread_unwind_buf_t*)
+#endif
 
 void CleanStackSize(box64context_t* context)
 {
@@ -142,6 +144,8 @@ static void FreeCancelThread(box64context_t* context)
 	if(!context)
 		return;
 }
+
+#ifndef ANDROID
 static __pthread_unwind_buf_t* AddCancelThread(x64_unwind_buff_t* buff)
 {
 	__pthread_unwind_buf_t* r = (__pthread_unwind_buf_t*)box_calloc(1, sizeof(__pthread_unwind_buf_t));
@@ -160,6 +164,7 @@ static void DelCancelThread(x64_unwind_buff_t* buff)
 	box_free(r);
 	buff->__pad[3] = NULL;
 }
+#endif
 
 typedef struct emuthread_s {
 	uintptr_t 	fnc;
@@ -526,6 +531,7 @@ void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet
 
 void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
+#ifndef ANDROID
 #define CANCEL_MAX 8
 static __thread x64emu_t* cancel_emu[CANCEL_MAX] = {0};
 static __thread x64_unwind_buff_t* cancel_buff[CANCEL_MAX] = {0};
@@ -578,6 +584,7 @@ EXPORT void my___pthread_unwind_next(x64emu_t* emu, x64_unwind_buff_t* buff)
 	// just in case it does return
 	emu->quit = 1;
 }
+#endif
 
 KHASH_MAP_INIT_INT(once, int)
 
@@ -724,6 +731,7 @@ EXPORT int my_pthread_cond_clockwait(x64emu_t *emu, pthread_cond_t* cond, void* 
 	return ret;
 }
 
+#ifndef ANDROID
 EXPORT void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg)
 {
     (void)emu;
@@ -769,6 +777,7 @@ EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpu
 
     return ret;
 }
+#endif
 
 //EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 //{

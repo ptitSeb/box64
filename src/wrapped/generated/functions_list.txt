@@ -3897,6 +3897,8 @@ wrappedlibc:
   - __vsyslog_chk
 - vFpLLp:
   - qsort
+- vFpppp:
+  - __libc_init
 - iFiiip:
   - epoll_ctl
 - iFiiiN:

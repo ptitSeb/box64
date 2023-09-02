@@ -13,7 +13,9 @@
 #include <setjmp.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#ifndef ANDROID
 #include <execinfo.h>
+#endif
 
 #include "box64context.h"
 #include "debug.h"
@@ -1206,6 +1208,7 @@ exit(-1);
             }
         }
         print_cycle_log(log_minimum);
+#ifndef ANDROID
         if((box64_showbt || sig==SIGABRT) && log_minimum<=box64_log) {
             // show native bt
             #define BT_BUF_SIZE 100
@@ -1274,6 +1277,7 @@ exit(-1);
             GO(RIP);
             #undef GO
         }
+#endif
         if(log_minimum<=box64_log) {
             static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
             static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};

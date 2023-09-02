@@ -28,6 +28,26 @@
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
 
+#ifdef ANDROID
+void EXPORT my___libc_init(x86emu_t* emu, void* raw_args __unused, void (*onexit)(void) __unused, int (*main)(int, char**, char**), void const * const structors __unused)
+{
+    //TODO: register fini
+    // let's cheat and set all args...
+    SetRDX(emu, (uint32_t)my_context->envv);
+    SetRSI(emu, (uint32_t)my_context->argv);
+    SetRDI(emu, (uint32_t)my_context->argc);
+
+    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_init\n", my_context->argc, my_context->argv, my_context->envv, main);
+    // should call structors->preinit_array and structors->init_array!
+    // call main and finish
+    PushExit(emu);
+    R_RIP=(untptr_t)main;
+
+    DynaRun(emu);
+
+    emu->quit = 1; // finished!
+}
+#else
 int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
     (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
@@ -80,6 +100,7 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, c
     }
     return (int)GetEAX(emu);
 }
+#endif
 
 const char* GetNativeName(void* p)
 {

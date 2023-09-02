@@ -65,7 +65,13 @@
 #include "rcfile.h"
 
 #define LIBNAME libc
-const char* libcName = "libc.so.6";
+const char* libcName = 
+#ifdef ANDROID
+    "libc.so"
+#else
+    "libc.so.6"
+#endif
+    ;
 
 typedef int (*iFi_t)(int);
 typedef int (*iFp_t)(void*);
@@ -1271,6 +1277,50 @@ EXPORT int my_statfs64(const char* path, void* buf)
 }
 #endif
 
+#ifdef ANDROID
+typedef int (*__compar_d_fn_t)(const void*, const void*, void*);
+
+static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar, void* arg, size_t lo, size_t hi)
+{
+    void* tmp = alloca(size);
+    void* pivot = ((char*)base) + lo * size;
+    size_t i = lo;
+    for (size_t j = lo; j <= hi; j++)
+    {
+        void* base_i = ((char*)base) + i * size;
+        void* base_j = ((char*)base) + j * size;
+        if (compar(base_j, pivot, arg) < 0)
+        {
+            memcpy(tmp, base_i, size);
+            memcpy(base_i, base_j, size);
+            memcpy(base_j, tmp, size);
+            i++;
+        }
+    }
+    void* base_i = ((char *)base) + i * size;
+    void* base_hi = ((char *)base) + hi * size;
+    memcpy(tmp, base_i, size);
+    memcpy(base_i, base_hi, size);
+    memcpy(base_hi, tmp, size);
+    return i;
+}
+
+static void qsort_r_helper(void* base, size_t size, __compar_d_fn_t compar, void* arg, ssize_t lo, ssize_t hi)
+{
+    if (lo < hi)
+    {
+        size_t p = qsort_r_partition(base, size, compar, arg, lo, hi);
+        qsort_r_helper(base, size, compar, arg, lo, p - 1);
+        qsort_r_helper(base, size, compar, arg, p + 1, hi);
+    }
+}
+
+static void qsort_r(void* base, size_t nmemb, size_t size, __compar_d_fn_t compar, void* arg)
+{
+    return qsort_r_helper(base, size, compar, arg, 0, nmemb - 1);
+}
+#endif
+
 typedef struct compare_r_s {
     x64emu_t* emu;
     uintptr_t f;
@@ -1601,6 +1651,15 @@ void CreateCPUInfoFile(int fd)
     #undef P
 }
 
+#ifdef ANDROID
+static int shm_open(const char *name, int oflag, mode_t mode) {
+    return -1;
+}
+static int shm_unlink(const char *name) {
+    return -1;
+}
+#endif
+
 #define TMP_CPUINFO "box64_tmpcpuinfo"
 #define TMP_CPUTOPO "box64_tmpcputopo%d"
 #endif
@@ -1843,12 +1902,14 @@ EXPORT int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t
 }
 #endif
 
+#ifndef ANDROID
 EXPORT int32_t my_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     (void)emu;
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
 EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob) __attribute__((alias("my_glob64")));
+#endif
 
 EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
@@ -2439,6 +2500,11 @@ void InitCpuModel()
 }
 #endif
 
+#ifdef ANDROID
+void ctSetup()
+{
+}
+#else
 EXPORT const unsigned short int *my___ctype_b;
 EXPORT const int32_t *my___ctype_tolower;
 EXPORT const int32_t *my___ctype_toupper;
@@ -2449,6 +2515,7 @@ void ctSetup()
     my___ctype_toupper = *(__ctype_toupper_loc());
     my___ctype_tolower = *(__ctype_tolower_loc());
 }
+#endif
 
 EXPORT void my___register_frame_info(void* a, void* b)
 {
@@ -2759,6 +2826,7 @@ EXPORT int my_getopt_long_only(int argc, char* const argv[], const char* optstri
     return ret;
 }
 
+#ifndef ANDROID
 typedef struct {
    void  *read;
    void *write;
@@ -2806,6 +2874,7 @@ EXPORT void* my_fopencookie(x64emu_t* emu, void* cookie, void* mode, my_cookie_i
     cb->cookie = cookie;
     return fopencookie(cb, mode, io_funcs);
 }
+#endif
 
 #if 0
 
@@ -2869,8 +2938,13 @@ EXPORT int my_nanosleep(const struct timespec *req, struct timespec *rem)
 }
 #endif
 
+#ifdef ANDROID
+void obstackSetup() {
+}
+#else
 // all obstack function defined in obstack.c file
 void obstackSetup();
+#endif
 
 EXPORT void* my_malloc(unsigned long size)
 {
@@ -2959,6 +3033,7 @@ EXPORT void my_mcount(void* frompc, void* selfpc)
 }
 #endif
 
+#ifndef ANDROID
 union semun {
   int              val;    /* Value for SETVAL */
   struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
@@ -2966,6 +3041,7 @@ union semun {
   struct seminfo  *__buf;  /* Buffer for IPC_INFO
                               (Linux-specific) */
 };
+#endif
 #ifndef SEM_STAT_ANY
 #define SEM_STAT_ANY 20
 #endif
@@ -3002,6 +3078,7 @@ EXPORT int my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, void* da
 
 // Backtrace stuff
 
+#ifndef ANDROID
 #include "elfs/elfdwarf_private.h"
 EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 {
@@ -3127,6 +3204,7 @@ EXPORT void my_backtrace_symbols_fd(x64emu_t* emu, uintptr_t* buffer, int size, 
         (void)dummy;
     }
 }
+#endif
 
 EXPORT int my_iopl(x64emu_t* emu, int level)
 {
@@ -3320,6 +3398,27 @@ EXPORT char my___libc_single_threaded = 0;
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
 
+#ifdef ANDROID
+#define NEEDED_LIBS   0
+#define NEEDED_LIBS_234 3,  \
+    "libpthread.so.0",      \
+    "libdl.so.2" ,          \
+    "libm.so"
+#else
+#define NEEDED_LIBS   4,\
+    "ld-linux-x86-64.so.2", \
+    "libpthread.so.0",      \
+    "libutil.so.1",         \
+    "librt.so.1"
+#define NEEDED_LIBS_234 6,  \
+    "ld-linux-x86-64.so.2", \
+    "libpthread.so.0",      \
+    "libdl.so.2",           \
+    "libutil.so.1",         \
+    "libresolv.so.2",       \
+    "librt.so.1"
+#endif
+
 #define CUSTOM_INIT         \
     box64->libclib = lib;   \
     /*InitCpuModel();*/         \
@@ -3331,19 +3430,9 @@ EXPORT char my___libc_single_threaded = 0;
         strrchr(box64->argv[0], '/') + 1;                                       \
     getMy(lib);                                                                 \
     if(box64_isglibc234)                                                        \
-        setNeededLibs(lib, 6,                                                   \
-            "ld-linux-x86-64.so.2",                                             \
-            "libpthread.so.0",                                                  \
-            "libdl.so.2",                                                       \
-            "libutil.so.1",                                                     \
-            "libresolv.so.2",                                                   \
-            "librt.so.1");                                                      \
+        setNeededLibs(lib, NEEDED_LIBS_234);                                    \
     else                                                                        \
-        setNeededLibs(lib, 4,                                                   \
-            "ld-linux-x86-64.so.2",                                             \
-            "libpthread.so.0",                                                  \
-            "libutil.so.1",                                                     \
-            "librt.so.1");
+        setNeededLibs(lib, NEEDED_LIBS);
 
 #define CUSTOM_FINI \
     freeMy();
