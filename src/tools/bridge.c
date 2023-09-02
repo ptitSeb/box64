@@ -6,7 +6,6 @@
 #include <pthread.h>
 #include <sys/mman.h>
 #include <errno.h>
-#include <execinfo.h>
 
 #include <wrappedlibs.h>
 #include "custommem.h"

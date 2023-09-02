@@ -21,6 +21,7 @@ option(RV64 "Set to ON if targeting an RISC-V RV64GC based device" ${RV64})
 option(PPC64LE "Set to ON if targeting an PowerPC 64 LE based device" ${PPC64LE})
 option(LX2160A "Set to ON if targeting an LX2160A based device" ${LX2160A})
 option(ARM64 "Set to ON if targeting a generic ARM64 based device" ${ARM64})
+option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
@@ -67,6 +68,10 @@ if(SW64)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(PAGE8K ON CACHE BOOL "")
+endif()
+if(ANDROID)
+    set(NOLOADADDR ON CACHE BOOL "")
+    set(BAD_SIGNAL ON CACHE BOOL "")
 endif()
 
 option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" ${LD80BITS})
@@ -174,9 +179,13 @@ elseif(ARM64)
     #add_definitions(-pipe -march=native)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+simd")
 elseif(ARM_DYNAREC)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto")
+    if(NOT ANDROID)
+        set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto")
+    endif()
 endif()
-
+if(ANDROID)
+    add_definitions(-DANDROID)
+endif()
 if(BAD_SIGNAL)
     add_definitions(-DBAD_SIGNAL)
 endif()
@@ -268,7 +277,6 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/mallochook.c"
     "${BOX64_ROOT}/src/steam.c"
     "${BOX64_ROOT}/src/dynarec/dynarec.c"
-    "${BOX64_ROOT}/src/elfs/elfdwarf_private.c"
     "${BOX64_ROOT}/src/elfs/elfloader.c"
     "${BOX64_ROOT}/src/elfs/elfparser.c"
     "${BOX64_ROOT}/src/elfs/elfload_dump.c"
@@ -287,7 +295,6 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/librarian/globalsymbols.c"
     "${BOX64_ROOT}/src/librarian/symbols.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
-    "${BOX64_ROOT}/src/libtools/obstack.c"
     "${BOX64_ROOT}/src/libtools/myalign.c"
     "${BOX64_ROOT}/src/libtools/sdl1rwops.c"
     "${BOX64_ROOT}/src/libtools/sdl2rwops.c"
@@ -305,6 +312,12 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/wine_tools.c"
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
 )
+if(NOT ANDROID)
+    list(APPEND ELFLOADER_SRC 
+        "${BOX64_ROOT}/src/libtools/obstack.c"
+        "${BOX64_ROOT}/src/elfs/elfdwarf_private.c"
+    )
+endif()
 
 set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64run.c"
@@ -531,6 +544,11 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedicuuc72.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n72.c"
 )
+if(ANDROID)
+    list(APPEND WRAPPEDS
+        "${BOX64_ROOT}/src/wrapped/wrappedandroidshmem.c"
+    )
+endif()
 
 # If BOX64_ROOT contains a ".c", the build breaks...
 string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
@@ -549,7 +567,7 @@ add_custom_command(
     OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
     COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
     "${BOX64_ROOT}"
-    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "--"
+    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "--"
     ${WRAPPEDS_HEAD}
     MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
     DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
@@ -726,7 +744,11 @@ add_dependencies(${BOX64} WRAPPERS)
 if(STATICBUILD)
     set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-static -Wl,--no-as-needed -Wl,--whole-archive -Wl,--allow-multiple-definition -lm -ldl -lrt -lpthread -lresolv -lc -Wl,-defsym,_DYNAMIC=0 -pthread")
 else()
-    set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -Wl,--as-needed -pthread")
+    if(ANDROID)
+        target_link_libraries(${BOX64} c m dl)
+    else()
+        set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -Wl,--as-needed -pthread")
+    endif()
 endif()
 if(DYNAREC)
     target_link_libraries(${BOX64} dynarec)

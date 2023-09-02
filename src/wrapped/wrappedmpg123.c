@@ -17,7 +17,13 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* mpg123Name = "libmpg123.so.0";
+const char* mpg123Name = 
+#ifdef ANDROID
+    "libmpg123.so"
+#else
+    "libmpg123.so.0"
+#endif
+    ;
 #define LIBNAME mpg123
 
 #define ADDED_FUNCTIONS()           \

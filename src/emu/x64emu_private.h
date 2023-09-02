@@ -44,6 +44,13 @@ typedef struct emu_flags_s {
     uint32_t    jmpbuf_ready:1;   // the jmpbuf in the emu is ok and don't need refresh
 } emu_flags_t;
 
+#ifdef ANDROID
+#include <setjmp.h>
+#define JUMPBUFF sigjmp_buf
+#else
+#define JUMPBUFF struct __jmp_buf_tag
+#endif
+
 typedef struct x64emu_s {
     // cpu
 	reg64_t     regs[16];
@@ -104,7 +111,7 @@ typedef struct x64emu_s {
     void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
-    struct __jmp_buf_tag *jmpbuf;
+    JUMPBUFF*   jmpbuf;
 
     x64_ucontext_t *uc_link; // to handle setcontext
 

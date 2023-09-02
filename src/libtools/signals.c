@@ -13,7 +13,9 @@
 #include <setjmp.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#ifndef ANDROID
 #include <execinfo.h>
+#endif
 
 #include "box64context.h"
 #include "debug.h"
@@ -858,7 +860,11 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             if(Locks & is_dyndump_locked)
                 CancelBlock64(1);
             #endif
+            #ifdef ANDROID
+            siglongjmp(*emu->jmpbuf, 1);
+            #else
             siglongjmp(emu->jmpbuf, 1);
+            #endif
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
@@ -1041,7 +1047,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 if(Locks & is_dyndump_locked)
                     CancelBlock64(1);
                 emu->test.clean = 0;
+                #ifdef ANDROID
+                siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
+                #else
                 siglongjmp(emu->jmpbuf, 2);
+                #endif
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }
@@ -1206,6 +1216,7 @@ exit(-1);
             }
         }
         print_cycle_log(log_minimum);
+#ifndef ANDROID
         if((box64_showbt || sig==SIGABRT) && log_minimum<=box64_log) {
             // show native bt
             #define BT_BUF_SIZE 100
@@ -1274,6 +1285,7 @@ exit(-1);
             GO(RIP);
             #undef GO
         }
+#endif
         if(log_minimum<=box64_log) {
             static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
             static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};

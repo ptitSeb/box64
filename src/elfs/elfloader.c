@@ -1060,6 +1060,10 @@ uintptr_t GetLastByte(elfheader_t* h)
     return (uintptr_t)h->memory/* + h->delta*/ + h->memsz;
 }
 
+#ifndef STB_GNU_UNIQUE
+#define STB_GNU_UNIQUE	10
+#endif
+
 void checkHookedSymbols(elfheader_t* h); // in mallochook.c
 void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h)
 {
@@ -1391,6 +1395,10 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
     if(!h || h->fini_done || !h->init_done)
         return;
     h->fini_done = 1;
+#ifdef ANDROID
+    // TODO: Fix .fini_array on Android
+    printf_log(LOG_DEBUG, "Android does not support Fini for %s\n", ElfName(h));
+#else
     // first check fini array
     Elf64_Addr *addr = (Elf64_Addr*)(h->finiarray + h->delta);
     for (int i=h->finiarray_sz-1; i>=0; --i) {
@@ -1405,6 +1413,7 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
     }
     h->init_done = 0;   // can be re-inited again...
     return;
+#endif
 }
 
 uintptr_t GetElfInit(elfheader_t* h)

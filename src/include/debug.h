@@ -104,14 +104,15 @@ void printf_ftrace(const char* fmt, ...);
 #endif
 
 void init_malloc_hook(void);
-extern size_t(*box_malloc_usable_size)(void*);
 #ifdef ANDROID
+extern size_t(*box_malloc_usable_size)(const void*);
 extern void*(*__libc_malloc)(size_t);
 extern void*(*__libc_realloc)(void*, size_t);
 extern void*(*__libc_calloc)(size_t, size_t);
 extern void (*__libc_free)(void*);
 extern void*(*__libc_memalign)(size_t, size_t);
 #else
+extern size_t(*box_malloc_usable_size)(void*);
 extern void* __libc_malloc(size_t);
 extern void* __libc_realloc(void*, size_t);
 extern void* __libc_calloc(size_t, size_t);
