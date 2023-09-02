@@ -9,7 +9,7 @@
 #include "wrapper.h"
 #include "bridge.h"
 #include "librarian/library_private.h"
-#include "x86emu.h"
+#include "x64emu.h"
 
 const char* androidshmemName = "libandroid-shmem.so";
 #define LIBNAME androidshmem
