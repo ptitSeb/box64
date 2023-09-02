@@ -402,6 +402,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							 or match("libGL", "libEGL") \
 							 or match("libc", "tcmallocminimal") \
 							 or match("libc", "tbbmallocproxy") \
+							 or match("libc", "androidshmem") \
 							 or match("tcmallocminimal", "tbbmallocproxy"):
 								continue
 							
