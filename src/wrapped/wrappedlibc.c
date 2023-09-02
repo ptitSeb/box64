@@ -2545,7 +2545,11 @@ typedef struct jump_buff_x64_s {
 typedef struct __jmp_buf_tag_s {
     jump_buff_x64_t __jmpbuf;
     int              __mask_was_saved;
+    #ifdef ANDROID
+    sigset_t         __saved_mask;
+    #else
     __sigset_t       __saved_mask;
+    #endif
 } __jmp_buf_tag_t;
 
 void EXPORT my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val)
