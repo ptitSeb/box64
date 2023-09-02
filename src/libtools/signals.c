@@ -1047,7 +1047,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 if(Locks & is_dyndump_locked)
                     CancelBlock64(1);
                 emu->test.clean = 0;
+                #ifdef ANDROID
+                siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
+                #else
                 siglongjmp(emu->jmpbuf, 2);
+                #endif
             }
             dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
         }

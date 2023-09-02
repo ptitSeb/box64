@@ -61,7 +61,11 @@ typedef struct jump_buff_x64_s {
 typedef struct __jmp_buf_tag_s {
     jump_buff_x64_t  __jmpbuf;
     int              __mask_was_saved;
+	#ifdef ANDROID
+	sigset_t       	 __saved_mask;
+	#else
     __sigset_t       __saved_mask;
+	#endif
 } __jmp_buf_tag_t;
 
 typedef struct x64_unwind_buff_s {
@@ -393,11 +397,13 @@ EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 	(void)emu;
 	return pthread_attr_init(getAlignedAttrWithInit(attr, 0));
 }
+#ifndef ANDROID
 EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
 	(void)emu;
 	return pthread_attr_setaffinity_np(getAlignedAttr(attr), cpusize, cpuset);
 }
+#endif
 EXPORT int my_pthread_attr_setdetachstate(x64emu_t* emu, pthread_attr_t* attr, int state)
 {
 	(void)emu;
@@ -435,6 +441,7 @@ EXPORT int my_pthread_attr_setstackaddr(x64emu_t* emu, pthread_attr_t* attr, voi
 	return pthread_attr_setstack(getAlignedAttr(attr), addr, size);
 	//return pthread_attr_setstackaddr(getAlignedAttr(attr), addr);
 }
+#ifndef ANDROID
 EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_attr_t* attr)
 {
 	(void)emu;
@@ -467,6 +474,7 @@ EXPORT int my_pthread_setattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
 	(void)emu;
 	return pthread_setattr_default_np(getAlignedAttr(attr));
 }
+#endif	//!ANDROID
 #endif
 
 EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg)
@@ -854,6 +862,7 @@ EXPORT int my_pthread_mutexattr_gettype(x64emu_t* emu, my_mutexattr_t *attr, voi
 	attr->x86 = mattr.x86;
 	return ret;
 }
+#ifndef ANDROID
 EXPORT int my_pthread_mutexattr_getrobust(x64emu_t* emu, my_mutexattr_t *attr, void* p)
 {
 	my_mutexattr_t mattr = {0};
@@ -862,6 +871,7 @@ EXPORT int my_pthread_mutexattr_getrobust(x64emu_t* emu, my_mutexattr_t *attr, v
 	attr->x86 = mattr.x86;
 	return ret;
 }
+#endif
 EXPORT int my_pthread_mutexattr_init(x64emu_t* emu, my_mutexattr_t *attr)
 {
 	my_mutexattr_t mattr = {0};
@@ -905,6 +915,7 @@ EXPORT int my_pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int
 	return ret;
 }
 EXPORT int my___pthread_mutexattr_settype(x64emu_t* emu, my_mutexattr_t *attr, int t) __attribute__((alias("my_pthread_mutexattr_settype")));
+#ifndef ANDROID
 EXPORT int my_pthread_mutexattr_setrobust(x64emu_t* emu, my_mutexattr_t *attr, int t)
 {
 	my_mutexattr_t mattr = {0};
@@ -913,6 +924,7 @@ EXPORT int my_pthread_mutexattr_setrobust(x64emu_t* emu, my_mutexattr_t *attr, i
 	attr->x86 = mattr.x86;
 	return ret;
 }
+#endif
 
 #ifdef __SIZEOF_PTHREAD_MUTEX_T
 #if __SIZEOF_PTHREAD_MUTEX_T == 48
