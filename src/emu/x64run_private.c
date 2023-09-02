@@ -29,13 +29,13 @@
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
 
 #ifdef ANDROID
-void EXPORT my___libc_init(x86emu_t* emu, void* raw_args __unused, void (*onexit)(void) __unused, int (*main)(int, char**, char**), void const * const structors __unused)
+void EXPORT my___libc_init(x64emu_t* emu, void* raw_args __unused, void (*onexit)(void) __unused, int (*main)(int, char**, char**), void const * const structors __unused)
 {
     //TODO: register fini
     // let's cheat and set all args...
-    SetRDX(emu, (uint32_t)my_context->envv);
-    SetRSI(emu, (uint32_t)my_context->argv);
-    SetRDI(emu, (uint32_t)my_context->argc);
+    SetRDX(emu, (uintptr_t)my_context->envv);
+    SetRSI(emu, (uintptr_t)my_context->argv);
+    SetRDI(emu, (uintptr_t)my_context->argc);
 
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_init\n", my_context->argc, my_context->argv, my_context->envv, main);
     // should call structors->preinit_array and structors->init_array!
