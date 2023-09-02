@@ -51,7 +51,7 @@ jobs:
             if [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
               wget https://dl.google.com/android/repository/android-ndk-r23b-linux.zip
               unzip android-ndk-r23b-linux.zip
-              echo "BOX64_COMPILER=$PWD/android-ndk-r23b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-androideabi31-clang" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=$PWD/android-ndk-r23b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DNOLOADADDR=1" >> $GITHUB_ENV
             else
               sudo apt-get -y install git gcc-aarch64-linux-gnu
