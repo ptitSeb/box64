@@ -45,6 +45,7 @@ typedef struct emu_flags_s {
 } emu_flags_t;
 
 #ifdef ANDROID
+#include <setjmp.h>
 #define JUMPBUFF sigjmp_buf
 #else
 #define JUMPBUFF struct __jmp_buf_tag

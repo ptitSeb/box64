@@ -860,7 +860,11 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             if(Locks & is_dyndump_locked)
                 CancelBlock64(1);
             #endif
+            #ifdef ANDROID
+            siglongjmp(*emu->jmpbuf, 1);
+            #else
             siglongjmp(emu->jmpbuf, 1);
+            #endif
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }

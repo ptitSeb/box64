@@ -172,10 +172,15 @@ dynablock_t *AddNewDynablock(uintptr_t addr)
 
 //TODO: move this to dynrec_arm.c and track allocated structure to avoid memory leak
 static __thread JUMPBUFF dynarec_jmpbuf;
+#ifdef ANDROID
+#define DYN_JMPBUF dynarec_jmpbuf
+#else
+#define DYN_JMPBUF &dynarec_jmpbuf
+#endif
 
 void cancelFillBlock()
 {
-    longjmp(&dynarec_jmpbuf, 1);
+    longjmp(DYN_JMPBUF, 1);
 }
 
 /* 
@@ -208,7 +213,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
 
     // fill the block
     block->x64_addr = (void*)addr;
-    if(sigsetjmp(&dynarec_jmpbuf, 1)) {
+    if(sigsetjmp(DYN_JMPBUF, 1)) {
         printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, canceling\n", (void*)addr);
         FreeDynablock(block, 0);
         if(need_lock)

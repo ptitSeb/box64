@@ -103,7 +103,11 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
 void DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
+    #ifdef ANDROID
+    JUMPBUFF jmpbuf = {0};
+    #else
     JUMPBUFF jmpbuf[1] = {0};
+    #endif
     int skip = 0;
     JUMPBUFF *old_jmpbuf = emu->jmpbuf;
     emu->flags.jmpbuf_ready = 0;
