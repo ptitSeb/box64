@@ -393,6 +393,15 @@ int my_dlclose(x64emu_t* emu, void *handle)
     DecRefCount(&dl->dllibs[nlib].lib, emu);
     return 0;
 }
+#ifdef ANDROID
+#ifndef RTLD_DL_SYMENT
+#define RTLD_DL_SYMENT 1
+#endif
+#ifndef RTLD_DL_LINKMAP
+#define RTLD_DL_LINKMAP 2
+#endif
+#endif
+
 int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
 {
     //int dladdr(void *addr, Dl_info *info);
