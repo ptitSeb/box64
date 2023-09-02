@@ -277,6 +277,15 @@ static void trimString(char* s)
         memmove(s, s+1, strlen(s));
 }
 
+#ifdef ANDROID
+static int shm_open(const char *name, int oflag, mode_t mode) {
+    return -1;
+}
+static int shm_unlink(const char *name) {
+    return -1;
+}
+#endif
+
 void LoadRCFile(const char* filename)
 {
     FILE *f = NULL;
