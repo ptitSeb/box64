@@ -107,7 +107,7 @@ jobs:
           fi
 
           cd build
-          if [[ ${{ matrix.platform }} != 'ANDRDOID' ]]; then
+          if [[ ${{ matrix.platform }} != 'ANDROID' ]]; then
             if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
               QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
             elif [[ ${{ matrix.platform }} != 'X64' ]]; then
