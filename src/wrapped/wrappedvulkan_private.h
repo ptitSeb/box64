@@ -829,3 +829,6 @@ GO(vkGetDescriptorSetLayoutSizeEXT, vFpUp)
 GO(vkGetImageOpaqueCaptureDescriptorDataEXT, vFppp)
 GO(vkGetImageViewOpaqueCaptureDescriptorDataEXT, vFppp)
 GO(vkGetSamplerOpaqueCaptureDescriptorDataEXT, vFppp)
+
+// VK_KHR_cooperative_matrix
+GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR, iFppp)
