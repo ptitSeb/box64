@@ -421,7 +421,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETGM(q0);
                     GETEM(q1, 0);
                     d0 = fpu_get_scratch(dyn);
-                    MOVI_8(d0, 0b10001111);
+                    MOVI_8(d0, 0b10000111);
                     VAND(d0, d0, q1);  // mask the index
                     VTBL1_8(q0, q0, d0);
                     break;
