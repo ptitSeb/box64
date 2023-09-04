@@ -538,7 +538,27 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEM(q1, 0);
                     SQRDMULH_16(q0, q0, q1);
                     break;
-
+                case 0x1C:
+                    INST_NAME("PABSB Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    ABS_8(q0, q1);
+                    break;
+                case 0x1D:
+                    INST_NAME("PABSW Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    ABS_16(q0, q1);
+                    break;
+                case 0x1E:
+                    INST_NAME("PABSD Gm,Em");
+                    nextop = F8;
+                    GETGM(q0);
+                    GETEM(q1, 0);
+                    ABS_32(q0, q1);
+                    break;
                 case 0xF0:
                     INST_NAME("MOVBE Gd, Ed");
                     nextop=F8;
