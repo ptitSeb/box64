@@ -1570,32 +1570,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                 } else if(u8==0x00) {
                     // duplicate lower 32bits to all spot
-                    if(v0!=v1) {
-                        VMOVeS(v0, 0, v1, 0);
-                    }
-                    VMOVeS(v0, 1, v1, 0);
-                    VMOVeD(v0, 1, v0, 0);
+                    VDUPQ_32(v0, v1, 0);
                 } else if(u8==0x55) {
                     // duplicate slot 1 to all spot
-                    if(v0!=v1) {
-                        VMOVeS(v0, 1, v1, 1);
-                    }
-                    VMOVeS(v0, 0, v1, 1);
-                    VMOVeD(v0, 1, v0, 0);
+                    VDUPQ_32(v0, v1, 1);
                 } else if(u8==0xAA) {
                     // duplicate slot 2 to all spot
-                    if(v0!=v1) {
-                        VMOVeS(v0, 2, v1, 2);
-                    }
-                    VMOVeS(v0, 3, v1, 2);
-                    VMOVeD(v0, 0, v0, 1);
+                    VDUPQ_32(v0, v1, 2);
                 } else if(u8==0xFF) {
                     // duplicate slot 3 to all spot
-                    if(v0!=v1) {
-                        VMOVeS(v0, 3, v1, 3);
-                    }
-                    VMOVeS(v0, 2, v1, 3);
-                    VMOVeD(v0, 0, v0, 1);
+                    VDUPQ_32(v0, v1, 3);
                 } else if(v0!=v1) {
                     VMOVeS(v0, 0, v1, (u8>>(0*2))&3);
                     VMOVeS(v0, 1, v1, (u8>>(1*2))&3);
@@ -1836,7 +1820,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VORRQ(q1, q1, v1);      // NAN -> -NAN
             }
             break;
-
+        case 0x7D:
+            INST_NAME("HSUBPD Gx, Ex");  // SSE4 opcode!
+            nextop = F8;
+            GETEX(q1, 0, 0);
+            GETGX(q0, 1);
+            v0 = fpu_get_scratch(dyn);
+            VUZP1Q_64(v0, q0, q1);
+            VUZP2Q_64(q0, q0, q1);
+            VFSUBQD(q0, v0, q0);
+            break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
             nextop = F8;
@@ -2305,6 +2298,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             NEG_32(v0, v0);         // neg to do shr
             VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_16(q0, q0, v0);   // SHR x8
+            break;
+        case 0xD0:
+            INST_NAME("ADDSUBPD Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            VFSUBQD(v0, q0, q1);
+            VFADDQD(q0, q0, q1);
+            VMOVeD(q0, 0, v0, 0);
             break;
         case 0xD2:
             INST_NAME("PSRLD Gx,Ex");
