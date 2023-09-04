@@ -1836,7 +1836,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VORRQ(q1, q1, v1);      // NAN -> -NAN
             }
             break;
-
+        case 0x7D:
+            INST_NAME("HSUBPD Gx, Ex");  // SSE4 opcode!
+            nextop = F8;
+            GETEX(q1, 0, 0);
+            GETGX(q0, 1);
+            v0 = fpu_get_scratch(dyn);
+            VUZP1Q_64(v0, q0, q1);
+            VUZP2Q_64(q0, q0, q1);
+            VFSUBQD(q0, v0, q0);
+            break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
             nextop = F8;
@@ -2305,6 +2314,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             NEG_32(v0, v0);         // neg to do shr
             VDUPQ_16(v0, v0, 0);    // only the low 8bits will be used anyway
             USHLQ_16(q0, q0, v0);   // SHR x8
+            break;
+        case 0xD0:
+            INST_NAME("ADDSUBPD Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            VFSUBQD(v0, q0, q1);
+            VFADDQD(q0, q0, q1);
+            VMOVeD(q0, 0, v0, 0);
             break;
         case 0xD2:
             INST_NAME("PSRLD Gx,Ex");

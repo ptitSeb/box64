@@ -376,7 +376,22 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             VFADDPQS(v0, v0, v1);
             break;
-            
+        case 0x7D:
+            INST_NAME("HSUBPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                v1 = fpu_get_scratch(dyn);
+                VLD128(v1, ed, fixedaddress);
+            }
+            d0 = fpu_get_scratch(dyn);
+            VUZP1Q_32(d0, v0, v1);
+            VUZP2Q_32(v0, v0, v1);
+            VFSUBQS(v0, d0, v0);
+            break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
