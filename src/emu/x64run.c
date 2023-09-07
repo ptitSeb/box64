@@ -1525,6 +1525,22 @@ x64emurun:
             }
             break;
 
+        case 0xD4:                      /* AAM Ib */
+            if(rex.is32bits) {
+                R_AX = aam16(emu, R_AL, F8);
+            } else {
+                unimp = 1;
+                goto fini;
+            };
+            break;
+        case 0xD5:                      /* AAD Ib */
+            if(rex.is32bits) {
+                R_AX = aad16(emu, R_AX, F8);
+            } else {
+                unimp = 1;
+                goto fini;
+            };
+            break;
         case 0xD6:                      /* SALC */
             if(rex.is32bits) {
                 CHECK_FLAGS(emu);
