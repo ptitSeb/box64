@@ -30,7 +30,7 @@
 #include "dynarec/native_lock.h"
 #include "dynarec/dynarec_next.h"
 
-//#define USE_MMAP
+#define USE_MMAP
 
 // init inside dynablocks.c
 static mmaplist_t          *mmaplist = NULL;
