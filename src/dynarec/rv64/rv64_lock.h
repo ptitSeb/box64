@@ -44,6 +44,9 @@ extern int rv64_lock_decifnot0(void*p);
 // atomic store (with memory barrier)
 extern void rv64_lock_store(void*p, uint32_t v);
 
+// atomic store (with memory barrier)
+extern void rv64_lock_store_dd(void*p, uint64_t v);
+
 // (mostly) Atomically store val1 and val2 at [p] if old [p] is ref. Return 0 if OK, 1 is not. p needs to be aligned
 extern int rv64_lock_cas_dq(void* p, uint64_t ref, uint64_t val1, uint64_t val2);
 

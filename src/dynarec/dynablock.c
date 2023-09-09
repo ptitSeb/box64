@@ -41,10 +41,10 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
         if(db->gone)
             return NULL; // already in the process of deletion!
         dynarec_log(LOG_DEBUG, "InvalidDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
+        // remove jumptable without waiting
+        setJumpTableDefault64(db->x64_addr);
         if(need_lock)
             mutex_lock(&my_context->mutex_dyndump);
-        // remove jumptable
-        setJumpTableDefault64(db->x64_addr);
         db->done = 0;
         db->gone = 1;
         if(need_lock)
@@ -74,10 +74,10 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         if(db->gone)
             return; // already in the process of deletion!
         dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
+        // remove jumptable without waiting
+        setJumpTableDefault64(db->x64_addr);
         if(need_lock)
             mutex_lock(&my_context->mutex_dyndump);
-        // remove jumptable
-        setJumpTableDefault64(db->x64_addr);
         dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->actual_block, db->size);
         db->done = 0;
         db->gone = 1;

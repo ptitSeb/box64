@@ -28,6 +28,7 @@
 #define native_lock_incif0(A)               arm64_lock_incif0(A)
 #define native_lock_decifnot0(A)            arm64_lock_decifnot0(A)
 #define native_lock_store(A, B)             arm64_lock_store(A, B)
+#define native_lock_store_dd(A, B)          arm64_lock_store_dd(A, B)
 
 #elif defined(RV64)
 #include "rv64/rv64_lock.h"
@@ -50,6 +51,7 @@
 #define native_lock_incif0(A)               rv64_lock_incif0(A)
 #define native_lock_decifnot0(A)            rv64_lock_decifnot0(A)
 #define native_lock_store(A, B)             rv64_lock_store(A, B)
+#define native_lock_store_dd(A, B)          rv64_lock_store_dd(A, B)
 #define native_lock_cas_d(A, B, C)          rv64_lock_cas_d(A, B, C)
 #define native_lock_cas_dd(A, B, C)         rv64_lock_cas_dd(A, B, C)
 

@@ -29,6 +29,7 @@
 .global arm64_lock_incif0
 .global arm64_lock_decifnot0
 .global arm64_lock_store
+.global arm64_lock_store_dd
 
 arm64_lock_read_b:
     dmb     ish
@@ -252,5 +253,10 @@ arm64_lock_incif0:
 
 arm64_lock_store:
     str     w1, [x0]
+    dmb     ish
+    ret
+
+arm64_lock_store_dd:
+    str     x1, [x0]
     dmb     ish
     ret

@@ -748,7 +748,7 @@ void setJumpTableDefault64(void* addr)
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0)
         return;
     idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
-    box64_jmptbl3[idx3][idx2][idx1][idx0] = (uintptr_t)native_next;
+    native_lock_store_dd(&box64_jmptbl3[idx3][idx2][idx1][idx0], (uintptr_t)native_next);
 }
 void setJumpTableDefaultRef64(void* addr, void* jmp)
 {

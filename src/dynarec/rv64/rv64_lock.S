@@ -17,6 +17,7 @@
 .global rv64_lock_incif0
 .global rv64_lock_decifnot0
 .global rv64_lock_store
+.global rv64_lock_store_dd
 .global rv64_lock_cas_d
 .global rv64_lock_cas_dd
 .global rv64_lock_cas_dq
@@ -199,6 +200,11 @@ rv64_lock_incif0:
 
 rv64_lock_store:
     sw      a1, 0(a0)
+    fence   rw, rw
+    ret
+
+rv64_lock_store_dd:
+    sd      a1, 0(a0)
     fence   rw, rw
     ret
 

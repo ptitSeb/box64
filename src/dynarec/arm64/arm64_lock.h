@@ -69,4 +69,7 @@ extern int arm64_lock_decifnot0(void*p);
 // atomic store (with memory barrier)
 extern void arm64_lock_store(void*p, uint32_t v);
 
+// atomic store (with memory barrier)
+extern void arm64_lock_store_dd(void*p, uint64_t v);
+
 #endif  //__ARM64_LOCK__H__
