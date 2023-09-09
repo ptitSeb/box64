@@ -22,6 +22,9 @@
 
 // default rcfile
 static const char default_rcfile[] = 
+"[bash]\n"
+"BOX64_LOG=0\n"
+"\n"
 "[deadcells]\n"
 "BOX64_PREFER_EMULATED=1\n"
 "\n"

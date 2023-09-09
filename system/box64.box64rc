@@ -22,6 +22,10 @@ BOX64_DYNAREC_BIGBLOCK=2
 BOX64_DYNAREC_FORWARD=512
 BOX64_DYNAREC_CALLRET=1
 
+[bash]
+# LOG tend to mess up script execution in bash
+BOX64_LOG=0
+
 [chrome]
 BOX64_MALLOC_HACK=2
 
@@ -78,6 +82,13 @@ BOX64_DYNAREC_JVM=0
 # This is needed or the physics engine will not behave correctly
 BOX64_DYNAREC_FASTROUND=0
 
+[spotify]
+BOX64_NOSANDBOX=1
+BOX64_DYNAREC_STRONGMEM=1
+BOX64_MALLOC_HACK=2
+# this is to save some memory
+BOX64_DYNAREC_BIGBLOCK=0
+
 [steam]
 BOX64_CRASHHANDLER=1
 BOX64_EMULATED_LIBS=libudev.so.0
@@ -91,8 +102,6 @@ BOX64_LOG=0
 BOX64_MALLOC_HACK=2
 # this is to save some memory
 BOX64_DYNAREC_BIGBLOCK=0
-# if steamwebhelper takes too much memory, enable next line to disable it
-#BOX64_EXIT=1
 
 [steam-runtime-check-requirements]
 BOX64_EXIT=1
