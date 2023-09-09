@@ -11,26 +11,34 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFppA_t)(void*, void*, va_list);
+typedef uint32_t (*uFppp_t)(void*, void*, void*);
 typedef void* (*pFppV_t)(void*, void*, ...);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFppip_t)(void*, void*, int32_t, void*);
+typedef uint32_t (*uFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void* (*pFiplllpp_t)(int32_t, void*, intptr_t, intptr_t, intptr_t, void*, void*);
 typedef void (*vFpippippV_t)(void*, int32_t, void*, void*, int32_t, void*, void*, ...);
 typedef void (*vFpippippA_t)(void*, int32_t, void*, void*, int32_t, void*, void*, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(gst_plugin_load_file, pFpp_t) \
+	GO(gst_bin_add_many, vFppV_t) \
 	GO(gst_caps_set_simple, vFppV_t) \
 	GO(gst_structure_remove_fields, vFppV_t) \
 	GO(gst_caps_set_simple_valist, vFppA_t) \
 	GO(gst_structure_remove_fields_valist, vFppA_t) \
 	GO(gst_caps_foreach, iFppp_t) \
+	GO(gst_init_check, iFppp_t) \
+	GO(gst_element_link_many, iFppV_t) \
 	GO(gst_structure_get, iFppV_t) \
 	GO(gst_structure_get_valist, iFppA_t) \
+	GO(gst_bus_add_watch, uFppp_t) \
 	GO(gst_caps_new_simple, pFppV_t) \
 	GO(gst_structure_new, pFppV_t) \
 	GO(gst_bus_set_sync_handler, vFpppp_t) \
@@ -41,6 +49,7 @@ typedef void (*vFpippippA_t)(void*, int32_t, void*, void*, int32_t, void*, void*
 	GO(gst_pad_set_getrange_function_full, vFpppp_t) \
 	GO(gst_pad_set_query_function_full, vFpppp_t) \
 	GO(gst_registry_feature_filter, pFppip_t) \
+	GO(gst_bus_add_watch_full, uFpippp_t) \
 	GO(gst_buffer_new_wrapped_full, pFiplllpp_t) \
 	GO(gst_debug_log, vFpippippV_t) \
 	GO(gst_debug_log_valist, vFpippippA_t)

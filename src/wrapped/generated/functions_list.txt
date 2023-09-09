@@ -1975,6 +1975,7 @@
 #() iFpppppp
 #() uFEiippp
 #() uFEiuppp
+#() uFEpippp
 #() uFEpCppp
 #() uFEpuppp
 #() uFuuuuuu
@@ -3495,7 +3496,10 @@ wrappedgstaudio:
 wrappedgstbase:
 wrappedgstgl:
 wrappedgstreamer:
+- pFpp:
+  - gst_plugin_load_file
 - vFppV:
+  - gst_bin_add_many
   - gst_caps_set_simple
   - gst_structure_remove_fields
 - vFppA:
@@ -3503,10 +3507,14 @@ wrappedgstreamer:
   - gst_structure_remove_fields_valist
 - iFppp:
   - gst_caps_foreach
+  - gst_init_check
 - iFppV:
+  - gst_element_link_many
   - gst_structure_get
 - iFppA:
   - gst_structure_get_valist
+- uFppp:
+  - gst_bus_add_watch
 - pFppV:
   - gst_caps_new_simple
   - gst_structure_new
@@ -3520,6 +3528,8 @@ wrappedgstreamer:
   - gst_pad_set_query_function_full
 - pFppip:
   - gst_registry_feature_filter
+- uFpippp:
+  - gst_bus_add_watch_full
 - pFiplllpp:
   - gst_buffer_new_wrapped_full
 - vFpippippV:

@@ -18,6 +18,7 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 #include "gtkclass.h"
+#include "fileutils.h"
 
 const char* gstreamerName = "libgstreamer-1.0.so.0";
 #define LIBNAME gstreamer
@@ -38,6 +39,8 @@ typedef int     (*iFpp_t)(void*, void*);
     GO(gst_caps_new_empty, pFv_t)           \
     GO(gst_caps_replace, iFpp_t)            \
     GO(gst_caps_append_structure, vFpp_t)   \
+    GO(gst_bin_add, iFpp_t)                 \
+    GO(gst_element_link, iFpp_t)            \
 
 #include "generated/wrappedgstreamertypes.h"
 
@@ -205,6 +208,27 @@ static void* findGstBusSyncHandlerFct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstBusSyncHandler callback\n");
+    return NULL;
+}
+//GstBusFunc
+#define GO(A)   \
+static uintptr_t my_GstBusFunc_fct_##A = 0;                             \
+static int my_GstBusFunc_##A(void* a, void* b, void* c)                 \
+{                                                                       \
+    return (int)RunFunctionFmt(my_GstBusFunc_fct_##A, "ppp", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* findGstBusFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_GstBusFunc_fct_##A == (uintptr_t)fct) return my_GstBusFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstBusFunc_fct_##A == 0) {my_GstBusFunc_fct_##A = (uintptr_t)fct; return my_GstBusFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstBusFunc callback\n");
     return NULL;
 }
 
@@ -388,6 +412,61 @@ EXPORT void* my_gst_registry_feature_filter(x64emu_t* emu, void* reg, void* filt
 EXPORT int my_gst_caps_foreach(x64emu_t* emu, void* caps, void* f, void* data)
 {
     return my->gst_caps_foreach(caps, findGstCapsFilterMapFuncFct(f), data);
+}
+
+EXPORT uint32_t my_gst_bus_add_watch(x64emu_t* emu, void* bus, void* f, void* data)
+{
+    return my->gst_bus_add_watch(bus, findGstBusFuncFct(f), data);
+}
+
+EXPORT uint32_t my_gst_bus_add_watch_full(x64emu_t* emu, void* bus, int priority, void* f, void* data, void* d)
+{
+    return my->gst_bus_add_watch_full(bus, priority, findGstBusFuncFct(f), data, findDestroyFct(d));
+}
+
+EXPORT int my_gst_bin_add_many(x64emu_t* emu, void* bin, void* first, void** b)
+{
+    int ret = my->gst_bin_add(bin, first);
+    while(ret && *b) {
+        ret = my->gst_bin_add(bin, *b);
+        ++b;
+    }
+    return ret;
+}
+
+EXPORT int my_gst_element_link_many(x64emu_t* emu, void* e1, void* e2, void** b)
+{
+    int ret = my->gst_element_link(e1, e2);
+    void* a = e2;
+    while(ret && *b) {
+        ret = my->gst_element_link(a, *b);
+        a = *b;
+        ++b;
+    }
+    return ret;
+}
+
+EXPORT void* my_gst_plugin_load_file(x64emu_t* emu, const char* filename, void** error)
+{
+printf_log(LOG_INFO, "using gst_plugin_load_file, file %s (is x86_64=%d)\n", filename, FileIsX64ELF(filename));
+    return my->gst_plugin_load_file((void*)filename, error);
+}
+
+EXPORT int my_gst_init_check(x64emu_t* emu, int* argc, char*** argv, void** error)
+{
+printf_log(LOG_INFO, "will call gst_init_check(%o, %p, %p)\n", argc, argv, error);
+if(argc && argv) {
+    printf_log(LOG_INFO, " argc=%d, argv=[", *argc);
+    for(int i=0; i<*argc; ++i)
+        printf_log(LOG_INFO, "%s\"%s\"", i?", ":"", (*argv)[i]);
+    printf_log(LOG_INFO, "]");
+}
+if(getenv("GST_PLUGIN_LOADING_WHITELIST"))
+    printf_log(LOG_INFO, "\nGST_PLUGIN_LOADING_WHITELIST=%s", getenv("GST_PLUGIN_LOADING_WHITELIST"));
+printf_log(LOG_INFO, "\n");
+    int ret = my->gst_init_check(argc, argv, error);
+printf_log(LOG_INFO, "gst_init_check(...) return = %d\n", ret);
+    return ret;
 }
 
 #define PRE_INIT    \

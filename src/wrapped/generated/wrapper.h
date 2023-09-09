@@ -2012,6 +2012,7 @@ void iFpppppL(x64emu_t *emu, uintptr_t fnc);
 void iFpppppp(x64emu_t *emu, uintptr_t fnc);
 void uFEiippp(x64emu_t *emu, uintptr_t fnc);
 void uFEiuppp(x64emu_t *emu, uintptr_t fnc);
+void uFEpippp(x64emu_t *emu, uintptr_t fnc);
 void uFEpCppp(x64emu_t *emu, uintptr_t fnc);
 void uFEpuppp(x64emu_t *emu, uintptr_t fnc);
 void uFuuuuuu(x64emu_t *emu, uintptr_t fnc);

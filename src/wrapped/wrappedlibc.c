@@ -2082,6 +2082,9 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         int ret = execve(path, (char* const*)newargv, envp);
         return ret;
     }
+    /*if(!strcmp(path + strlen(path) - strlen("/bwrap"), "/bwrap")) {
+        printf_log(LOG_NONE, "\n\n*********\n\nCalling bwrap!\n\n**********\n\n");
+    }*/
     #endif
 
     return execve(path, argv, envp);

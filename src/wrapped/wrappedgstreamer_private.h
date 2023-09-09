@@ -22,7 +22,7 @@ GO(gst_atomic_queue_push, vFpp)
 GO(gst_atomic_queue_ref, vFp)
 GO(gst_atomic_queue_unref, vFp)
 GO(gst_bin_add, iFpp)
-//GOM(gst_bin_add_many, vFppV)
+GOM(gst_bin_add_many, vFEppV)
 GO(gst_bin_find_unlinked_pad, pFpi)
 GO(gst_bin_flags_get_type, pFv)
 GO(gst_bin_get_by_interface, pFpL)
@@ -151,8 +151,8 @@ GO(gst_buffer_unref, vFp)
 GO(gst_buffer_unset_flags, iFpi)
 GO(gst_bus_add_signal_watch, vFp)
 GO(gst_bus_add_signal_watch_full, vFpi)
-//GOM(gst_bus_add_watch, uFEpBp)
-//GOM(gst_bus_add_watch_full, iFEpiBpB)
+GOM(gst_bus_add_watch, uFEppp)
+GOM(gst_bus_add_watch_full, uFEpippp)
 GO(gst_bus_async_signal_func, iFppp)
 GO(gst_bus_create_watch, pFp)
 GO(gst_bus_disable_sync_message_emission, vFp)
@@ -467,7 +467,7 @@ GO(gst_device_get_properties, pFp)
 //GO(gst_device_get_type, 
 GO(gst_device_has_classes, iFpp)
 GO(gst_device_has_classesv, iFpp)
-//GO(gst_device_monitor_add_filter, 
+GO(gst_device_monitor_add_filter, uFppp)
 GO(gst_device_monitor_get_bus, pFp)
 GO(gst_device_monitor_get_devices, pFp)
 GO(gst_device_monitor_get_providers, pFp)
@@ -476,7 +476,7 @@ GO(gst_device_monitor_get_show_all_devices, iFp)
 GO(gst_device_monitor_new, pFv)
 GO(gst_device_monitor_remove_filter, iFpu)
 GO(gst_device_monitor_set_show_all_devices, vFpi)
-//GO(gst_device_monitor_start, 
+GO(gst_device_monitor_start, iFp)
 //GO(gst_device_monitor_stop, 
 //GO(gst_device_provider_can_monitor, 
 //GO(gst_device_provider_class_add_metadata, 
@@ -582,7 +582,7 @@ GO(gst_element_iterate_sink_pads, pFp)
 GO(gst_element_iterate_src_pads, pFp)
 GO(gst_element_link, iFpp)
 GO(gst_element_link_filtered, iFppp)
-//GOM(gst_element_link_many, iFEppV)
+GOM(gst_element_link_many, iFEppV)
 GO(gst_element_link_pads, iFpppp)
 GO(gst_element_link_pads_filtered, iFppppp)
 GO(gst_element_link_pads_full, iFppppu)
@@ -722,7 +722,7 @@ GO(gst_get_main_executable_path, pFv)
 //GO(gst_ghost_pad_get_target, 
 //GO(gst_ghost_pad_get_type, 
 //GO(gst_ghost_pad_internal_activate_mode_default, 
-//GO(gst_ghost_pad_new, 
+GO(gst_ghost_pad_new, pFpp)
 //GO(gst_ghost_pad_new_from_template, 
 //GO(gst_ghost_pad_new_no_target, 
 //GO(gst_ghost_pad_new_no_target_from_template, 
@@ -732,7 +732,7 @@ GO(gst_get_main_executable_path, pFv)
 //GO(gst_info_strdup_vprintf, 
 //GO(gst_info_vasprintf, 
 GO(gst_init, vFpp)
-GO(gst_init_check, iFppp)
+GOM(gst_init_check, iFEppp)
 GO(gst_init_get_option_group, pFv)
 //GO(gst_int64_range_get_type, 
 //DATAB(_gst_int64_range_type, 
@@ -1122,7 +1122,7 @@ GO(gst_plugin_is_loaded, iFp)
 GO(gst_plugin_load, pFp)
 GO(gst_plugin_load_by_name, pFp)
 //GO(_gst_plugin_loader_client_run, 
-GO(gst_plugin_load_file, pFpp)
+GOM(gst_plugin_load_file, pFEpp)
 //GO(gst_plugin_register_static, 
 //GO(gst_plugin_register_static_full, 
 GO(gst_plugin_set_cache_data, vFpp)
