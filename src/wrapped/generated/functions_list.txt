@@ -3496,8 +3496,6 @@ wrappedgstaudio:
 wrappedgstbase:
 wrappedgstgl:
 wrappedgstreamer:
-- pFpp:
-  - gst_plugin_load_file
 - vFppV:
   - gst_bin_add_many
   - gst_caps_set_simple
@@ -3507,7 +3505,6 @@ wrappedgstreamer:
   - gst_structure_remove_fields_valist
 - iFppp:
   - gst_caps_foreach
-  - gst_init_check
 - iFppV:
   - gst_element_link_many
   - gst_structure_get

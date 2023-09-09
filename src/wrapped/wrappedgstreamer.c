@@ -445,7 +445,7 @@ EXPORT int my_gst_element_link_many(x64emu_t* emu, void* e1, void* e2, void** b)
     }
     return ret;
 }
-
+/*
 EXPORT void* my_gst_plugin_load_file(x64emu_t* emu, const char* filename, void** error)
 {
 printf_log(LOG_INFO, "using gst_plugin_load_file, file %s (is x86_64=%d)\n", filename, FileIsX64ELF(filename));
@@ -468,7 +468,7 @@ printf_log(LOG_INFO, "\n");
 printf_log(LOG_INFO, "gst_init_check(...) return = %d\n", ret);
     return ret;
 }
-
+*/
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;

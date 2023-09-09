@@ -732,7 +732,7 @@ GO(gst_ghost_pad_new, pFpp)
 //GO(gst_info_strdup_vprintf, 
 //GO(gst_info_vasprintf, 
 GO(gst_init, vFpp)
-GOM(gst_init_check, iFEppp)
+GO(gst_init_check, iFppp)
 GO(gst_init_get_option_group, pFv)
 //GO(gst_int64_range_get_type, 
 //DATAB(_gst_int64_range_type, 
@@ -1122,7 +1122,7 @@ GO(gst_plugin_is_loaded, iFp)
 GO(gst_plugin_load, pFp)
 GO(gst_plugin_load_by_name, pFp)
 //GO(_gst_plugin_loader_client_run, 
-GOM(gst_plugin_load_file, pFEpp)
+GO(gst_plugin_load_file, pFpp)
 //GO(gst_plugin_register_static, 
 //GO(gst_plugin_register_static_full, 
 GO(gst_plugin_set_cache_data, vFpp)

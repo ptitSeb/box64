@@ -11,7 +11,6 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
@@ -27,14 +26,12 @@ typedef void (*vFpippippV_t)(void*, int32_t, void*, void*, int32_t, void*, void*
 typedef void (*vFpippippA_t)(void*, int32_t, void*, void*, int32_t, void*, void*, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(gst_plugin_load_file, pFpp_t) \
 	GO(gst_bin_add_many, vFppV_t) \
 	GO(gst_caps_set_simple, vFppV_t) \
 	GO(gst_structure_remove_fields, vFppV_t) \
 	GO(gst_caps_set_simple_valist, vFppA_t) \
 	GO(gst_structure_remove_fields_valist, vFppA_t) \
 	GO(gst_caps_foreach, iFppp_t) \
-	GO(gst_init_check, iFppp_t) \
 	GO(gst_element_link_many, iFppV_t) \
 	GO(gst_structure_get, iFppV_t) \
 	GO(gst_structure_get_valist, iFppA_t) \
