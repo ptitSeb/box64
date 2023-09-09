@@ -12,32 +12,49 @@
 void pressure_vessel(int argc, const char** argv, int nextarg)
 {
     // skip all the parameter, but parse some of them
+    const char* runtime = getenv("PRESSURE_VESSEL_RUNTIME");
+    int ld_lib_path = 0;
+    // look for the comand first
+    const char* cmd = argv[nextarg];
+    int i = 0;
+    while(cmd[0]=='-' && cmd[1]=='-') cmd=argv[nextarg+(++i)];
+    int is_usr = (cmd && strlen(cmd)>5 && strstr(cmd, "/usr/")==cmd)?1:0;
     if(argv[nextarg][0]=='-' && argv[nextarg][1]=='-')
         while(argv[nextarg][0]=='-' && argv[nextarg][1]=='-') {
             if(strstr(argv[nextarg], "--env-if-host=PRESSURE_VESSEL_APP_LD_LIBRARY_PATH=")==argv[nextarg]) {
-                // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
-                char tmp[strlen(argv[nextarg])];
-                strcpy(tmp, "");
-                strcat(tmp, argv[nextarg]+strlen("--env-if-host=PRESSURE_VESSEL_APP_"));
-                char *p = strchr(tmp, '=');
-                *p ='\0'; ++p;
-                setenv(tmp, p, 1);
-                printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                if(is_usr) {
+                    // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
+                    char tmp[strlen(argv[nextarg])+(runtime?(strlen(runtime)+1):0)];
+                    strcpy(tmp, "");
+                    strcat(tmp, argv[nextarg]+strlen("--env-if-host=PRESSURE_VESSEL_APP_"));
+                    char *p = strchr(tmp, '=');
+                    *p ='\0'; ++p;
+                    if(runtime) {
+                        memmove(p+strlen(runtime), p, strlen(p));
+                        memmove(p, runtime, strlen(runtime));
+                        p[strlen(runtime)]= ':';
+                    }
+                    ld_lib_path = 1;
+                    setenv(tmp, p, 1);
+                    printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                }
             } else if(strstr(argv[nextarg], "--env-if-host=STEAM_RUNTIME_LIBRARY_PATH=")==argv[nextarg]) {
-                // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
-                char tmp[strlen(argv[nextarg])+150];
-                strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
-                strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
-                char *p = strchr(tmp, '=');
-                *p ='\0'; ++p;
-                setenv(tmp, p, 1);
-                printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
-                strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:");
-                strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
-                p = strchr(tmp, '=');
-                *p ='\0'; ++p;
-                setenv(tmp, p, 1);
-                printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                if(is_usr) {
+                    // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
+                    char tmp[strlen(argv[nextarg])+150];
+                    strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
+                    strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
+                    char *p = strchr(tmp, '=');
+                    *p ='\0'; ++p;
+                    setenv(tmp, p, 1);
+                    printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                    strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:");
+                    strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
+                    p = strchr(tmp, '=');
+                    *p ='\0'; ++p;
+                    setenv(tmp, p, 1);
+                    printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                }
             } else if(!strcmp(argv[nextarg], "--")) {
                 printf_log(LOG_DEBUG, "End of pressure-vessel-wrap parameters\n");
             }else {
@@ -45,6 +62,10 @@ void pressure_vessel(int argc, const char** argv, int nextarg)
             }
             ++nextarg;
         }
+    if(runtime && !ld_lib_path) {
+        setenv("LD_LIBRARY_PATH", runtime, 1);
+        printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "LD_LIBRARY_PATH", runtime);
+    }
     printf_log(LOG_DEBUG, "Ready to launch \"%s\", nextarg=%d, argc=%d\n", argv[nextarg], nextarg, argc);
     const char* prog = argv[nextarg];
     my_context = NewBox64Context(argc - nextarg);
@@ -92,7 +113,8 @@ void pressure_vessel(int argc, const char** argv, int nextarg)
         // parent process, wait the end of child
         FreeBox64Context(&my_context);
         int wstatus;
-        waitpid(v, &wstatus, 0);
+        wait(&wstatus);
+        //waitpid(v, &wstatus, 0);
         exit(0);
     }
 }
