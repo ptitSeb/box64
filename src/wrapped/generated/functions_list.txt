@@ -3853,6 +3853,8 @@ wrappedlibc:
   - execve
 - iFppV:
   - __asprintf
+  - __isoc23_fscanf
+  - __isoc23_sscanf
   - __isoc99_fscanf
   - __isoc99_sscanf
   - __isoc99_swscanf
