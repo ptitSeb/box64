@@ -6,6 +6,7 @@
 
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <sys/signalfd.h>
+#include <sys/eventfd.h>
 #include <unistd.h>
 #include <time.h>
 #include <sys/mman.h>
@@ -746,6 +747,12 @@ void EXPORT x64Syscall(x64emu_t *emu)
                     R_EAX = -errno;
             }
             break;
+        #ifndef _NR_eventfd
+        case 284:   // sys_eventfd
+            R_EAX = eventfd((int)R_EDI, 0);
+            if(R_EAX==-1)
+                R_EAX = -errno;
+        #endif
         case 317:   // sys_seccomp
             R_RAX = 0;  // ignoring call
             break;
@@ -1006,6 +1013,10 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                 return signalfd((int)R_ESI, set, 0);
             }
             break;
+        #ifndef _NR_eventfd
+        case 284:   // sys_eventfd
+            return eventfd((int)R_ESI, 0);
+        #endif
         case 317:   // sys_seccomp
             return 0;  // ignoring call
         #ifndef __NR_fchmodat4
