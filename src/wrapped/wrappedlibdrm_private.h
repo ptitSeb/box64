@@ -78,7 +78,7 @@ GO(drmGetNodeTypeFromFd, iFi)
 //GO(drmGetReservedContextList, 
 //GO(drmGetStats, 
 GO(drmGetVersion, pFi)
-//GO(drmHandleEvent, 
+GO(drmHandleEvent, iFip)    //warning, p is *drmHandleEvent that needs wrapping, plenty of function pointer there
 GO(drmHashCreate, pFv)
 GO(drmHashDelete, iFpL)
 GO(drmHashDestroy, iFp)
@@ -92,7 +92,7 @@ GO(drmIoctl, iFiLp)
 //GO(drmMap, 
 //GO(drmMapBufs, 
 //GO(drmMarkBufs, 
-//GO(drmModeAddFB, 
+GO(drmModeAddFB, iFiuuCCuup)
 //GO(drmModeAddFB2, 
 //GO(drmModeAddFB2WithModifiers, 
 //GO(drmModeAtomicAddProperty, 
@@ -112,9 +112,9 @@ GO(drmIoctl, iFiLp)
 //GO(drmModeDestroyPropertyBlob, 
 //GO(drmModeDetachMode, 
 //GO(drmModeDirtyFB, 
-//GO(drmModeFreeConnector, 
-//GO(drmModeFreeCrtc, 
-//GO(drmModeFreeEncoder, 
+GO(drmModeFreeConnector, vFp)
+GO(drmModeFreeCrtc, vFp)
+GO(drmModeFreeEncoder, vFp)
 //GO(drmModeFreeFB, 
 //GO(drmModeFreeModeInfo, 
 //GO(drmModeFreeObjectProperties, 
@@ -122,27 +122,27 @@ GO(drmIoctl, iFiLp)
 //GO(drmModeFreePlaneResources, 
 //GO(drmModeFreeProperty, 
 //GO(drmModeFreePropertyBlob, 
-//GO(drmModeFreeResources, 
-//GO(drmModeGetConnector, 
+GO(drmModeFreeResources, vFp)
+GO(drmModeGetConnector, pFiu)
 //GO(drmModeGetConnectorCurrent, 
-//GO(drmModeGetCrtc, 
-//GO(drmModeGetEncoder, 
+GO(drmModeGetCrtc, pFiu)
+GO(drmModeGetEncoder, pFiu)
 //GO(drmModeGetFB, 
 //GO(drmModeGetLease, 
 //GO(drmModeGetPlane, 
 //GO(drmModeGetPlaneResources, 
 //GO(drmModeGetProperty, 
 //GO(drmModeGetPropertyBlob, 
-//GO(drmModeGetResources, 
+GO(drmModeGetResources, pFi)
 //GO(drmModeListLessees, 
 //GO(drmModeMoveCursor, 
 //GO(drmModeObjectGetProperties, 
 //GO(drmModeObjectSetProperty, 
-//GO(drmModePageFlip, 
+GO(drmModePageFlip, iFiuuup)
 //GO(drmModePageFlipTarget, 
 //GO(drmModeRevokeLease, 
-//GO(drmModeRmFB, 
-//GO(drmModeSetCrtc, 
+GO(drmModeRmFB, iFiu)
+GO(drmModeSetCrtc, iFiuuuupip)
 //GO(drmModeSetCursor, 
 //GO(drmModeSetCursor2, 
 //GO(drmModeSetPlane, 

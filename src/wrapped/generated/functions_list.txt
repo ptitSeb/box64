@@ -1438,6 +1438,7 @@
 #() iFiiupp
 #() iFiipup
 #() iFiuuuu
+#() iFiuuup
 #() iFiuLip
 #() iFillLL
 #() iFipiii
@@ -2434,6 +2435,8 @@
 #() iFEppppipp
 #() iFiiiiiiip
 #() iFiiupiupi
+#() iFiuuCCuup
+#() iFiuuuupip
 #() iFipippppp
 #() iFuuuuuuuu
 #() iFdiippppL
@@ -3136,6 +3139,8 @@ wrappedfreetype:
 - iFpuuLppp:
   - FTC_Manager_New
 wrappedgbm:
+- vFppp:
+  - gbm_bo_set_user_data
 wrappedgconf2:
 - uFpppppp:
   - gconf_client_notify_add
