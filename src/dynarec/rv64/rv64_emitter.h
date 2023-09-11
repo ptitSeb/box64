@@ -650,5 +650,158 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Single-bit Set (Immediate)
 #define BSETI(rd, rs1, imm)         EMIT(R_type(0b0010100, imm, rs1, 0b001, rd, 0b0010011))
 
+/// THead vendor extension
+/// https://github.com/T-head-Semi/thead-extension-spec/releases
+
+// XTheadBa - Address calculation instructions
+
+// Add a shifted operand to a second operand.
+// reg[rd] := reg[rs1] + (reg[rs2] << imm2)
+#define TH_ADDSL(rd, rs1, rs2, imm2) EMIT(R_type(imm2&0b11, rs2, rs1, 0b001, rd, 0b0001011))
+
+// XTheadBb - Basic bit-manipulation
+
+// Perform a cyclic right shift.
+// reg[rd] := (reg[rs1] >> imm6) | (reg[rs1] << (xlen - imm6))
+#define TH_SRRI(rd, rs1, imm6) EMIT(I_type(0b000100000000|(imm6&0x3f), rs1, 0b001, rd, 0b0001011))
+
+// TODO
+// th.srriw rd, rs1, imm5 Cyclic right shift on word operand
+// th.ext rd, rs1, imm1, imm2 Extract and sign-extend bits
+// th.extu rd, rs1, imm1, imm2 Extract and zero-extend bits
+// th.ff0 rd, rs1 Find first '0'-bit
+// th.ff1 rd, rs1 Find first '1'-bit
+// th.rev rd, rs1 Reverse byte order
+// th.revw rd, rs1 Reverse byte order of word operand
+// th.tstnbz rd, rs1 Test for NUL bytes
+
+// XTheadBs - Single-bit instructions
+
+// Tests if a single bit is set.
+// if (reg[rs1] & (1 << imm6))
+//   rd := 1
+// else
+//   rd := 0
+#define TH_TST(rd, rs1, imm6) EMIT(I_type(0b100010000000|(imm6&0x3f), rs1, 0b001, rd, 0b0001011))
+
+
+// XTheadCondMov -  Conditional move
+
+// Move if equal zero.
+// if (reg[rs2] == 0x0)
+//   reg[rd] := reg[rs1]
+#define TH_MVEQZ(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b001, rd, 0b0001011))
+
+// Move if not equal zero.
+// if (reg[rs2] != 0x0)
+//   reg[rd] := reg[rs1]
+#define TH_MVNEZ(rd, rs1, rs2) EMIT(R_type(0b0100001, rs2, rs1, 0b001, rd, 0b0001011))
+
+// XTheadMemIdx -  Indexed memory operations
+
+// Load indexed byte, increment address after loading.
+// rd := sign_extend(mem[rs1])
+// rs1 := rs1 + (sign_extend(imm5) << imm2)
+#define TH_LBIA(rd, rs1, imm5, imm2) EMIT(I_type(0b000110000000|((imm2&0b11)<<5)|(imm5&0x1f), rs1, 0b100, rd, 0b0001011))
+
+// TODO
+// th.lbib rd, (rs1), imm5, imm2 Load indexed byte
+// th.lbuia rd, (rs1), imm5, imm2 Load indexed unsigned byte
+// th.lbuib rd, (rs1), imm5, imm2 Load indexed unsigned byte
+// th.lhia rd, (rs1), imm5, imm2 Load indexed half-word
+// th.lhib rd, (rs1), imm5, imm2 Load indexed half-word
+// th.lhuia rd, (rs1), imm5, imm2 Load indexed unsigned half-word
+// th.lhuib rd, (rs1), imm5, imm2 Load indexed unsigned half-word
+// th.lwia rd, (rs1), imm5, imm2 Load indexed word
+// th.lwib rd, (rs1), imm5, imm2 Load indexed word
+// th.lwuia rd, (rs1), imm5, imm2 Load indexed unsigned word
+// th.lwuib rd, (rs1), imm5, imm2 Load indexed unsigned word
+// th.ldia rd, (rs1), imm5, imm2 Load indexed double-word
+// th.ldib rd, (rs1), imm5, imm2 Load indexed double-word
+// th.sbia rd, (rs1), imm5, imm2 Store indexed byte
+// th.sbib rd, (rs1), imm5, imm2 Store indexed byte
+// th.shia rd, (rs1), imm5, imm2 Store indexed half-word
+// th.shib rd, (rs1), imm5, imm2 Store indexed half-word
+// th.swia rd, (rs1), imm5, imm2 Store indexed word
+// th.swib rd, (rs1), imm5, imm2 Store indexed word
+// th.sdia rd, (rs1), imm5, imm2 Store indexed double-word
+// th.sdib rd, (rs1), imm5, imm2 Store indexed double-word
+// th.lrb rd, rs1, rs2, imm2 Load indexed byte
+// th.lrbu rd, rs1, rs2, imm2 Load indexed unsigned byte
+// th.lrh rd, rs1, rs2, imm2 Load indexed half-word
+// th.lrhu rd, rs1, rs2, imm2 Load indexed unsigned half-word
+// th.lrw rd, rs1, rs2, imm2 Load indexed word
+// th.lrwu rd, rs1, rs2, imm2 Load indexed unsigned word
+// th.lrd rd, rs1, rs2, imm2 Load indexed double-word
+// th.srb rd, rs1, rs2, imm2 Store indexed byte
+// th.srh rd, rs1, rs2, imm2 Store indexed half-word
+// th.srw rd, rs1, rs2, imm2 Store indexed word
+// th.srd rd, rs1, rs2, imm2 Store indexed double-word
+// th.lurb rd, rs1, rs2, imm2 Load unsigned indexed byte
+// th.lurbu rd, rs1, rs2, imm2 Load unsigned indexed unsigned byte
+// th.lurh rd, rs1, rs2, imm2 Load unsigned indexed half-word
+// th.lurhu rd, rs1, rs2, imm2 Load unsigned indexed unsigned half-word
+// th.lurw rd, rs1, rs2, imm2 Load unsigned indexed word
+// th.lurwu rd, rs1, rs2, imm2 Load unsigned indexed unsigned word
+// th.lurd rd, rs1, rs2, imm2 Load unsigned indexed double-word
+// th.surb rd, rs1, rs2, imm2 Store unsigned indexed byte
+// th.surh rd, rs1, rs2, imm2 Store unsigned indexed half-word
+// th.surw rd, rs1, rs2, imm2 Store unsigned indexed word
+// th.surd rd, rs1, rs2, imm2 Store unsigned indexed double-word
+
+// XTheadMemPair - Two-GPR memory operations
+
+
+// Load two 64-bit values from memory into two GPRs.
+// addr := rs1 + (zero_extend(imm2) << 4)
+// rd1 := mem[addr+7:addr]
+// rd2 := mem[addr+15:addr+8]
+#define TH_LDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100|(imm2&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
+
+// TODO
+// th.lwd rd1, rd2, (rs1), imm2, 3 Load two signed 32-bit values
+// th.lwud rd1, rd2, (rs1), imm2, 3 Load two unsigned 32-bit values
+// th.sdd rd1, rd2, (rs1), imm2, 4 Store two 64-bit values
+// th.swd rd1, rd2, (rs1), imm2, 3 Store two 32-bit values
+
+// XTheadFMemIdx - Indexed memory operations for floating-point registers
+
+// Load indexed double-precision floating point value.
+// addr := rs1 + (rs2 << imm2)
+// rd := fmem[addr+7:addr]
+#define TH_FLRD(rd, rs1, rs2, imm2) EMIT(R_type(0b0110000|(imm2&0b11), rs2, rs1, 0b110, rd, 0b0001011))
+
+// TODO
+// th.flrw rd, rs1, rs2, imm2 Load indexed float
+// th.flurd rd, rs1, rs2, imm2 Load unsigned indexed double
+// th.flurw rd, rs1, rs2, imm2 Load unsigned indexed float
+// th.fsrd rd, rs1, rs2, imm2 Store indexed double
+// th.fsrw rd, rs1, rs2, imm2 Load indexed float
+// th.fsurd rd, rs1, rs2, imm2 Store unsigned indexed double
+// th.fsurw rd, rs1, rs2, imm2 Load unsigned indexed float
+
+// XTheadMac - Multiply-accumulate instructions
+
+// Compute multiply-add result of double-word operands.
+// M := reg[rs1] * reg[rs2]
+// reg[rd] := reg[rd] + M
+#define TH_MULA(rd, rs1, rs2) EMIT(R_type(0b0010000, rs2, rs1, 0b001, rd, 0b0001011))
+
+// TODO
+// th.mulah rd, rs1, rs2 Multiply-add half-words
+// th.mulaw rd, rs1, rs2 Multiply-add words
+// th.muls rd, rs1, rs2 Multiply-subtract double-words
+// th.mulsh rd, rs1, rs2 Multiply-subtract half-words
+// th.mulsw rd, rs1, rs2 Multiply-subtract words
+
+// XTheadFmv - Double-precision floating-point high-bit data transmission instructions
+
+// Read double-precision floating-point high-bit data
+// rd := fs1[63:32]
+#define TH_FMV_X_HW(rd, fs1) EMIT(R_type(0b1100000, 0, fs1, 0b001, rd, 0b0001011))
+
+// Write double-precision floating-point high-bit data
+// fs1[63:32] := rd
+#define TH_FMV_HW_X(rd, fs1) EMIT(R_type(0b1010000, 0, fs1, 0b001, rd, 0b0001011))
 
 #endif //__RV64_EMITTER_H__
