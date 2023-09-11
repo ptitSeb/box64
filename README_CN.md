@@ -14,7 +14,7 @@ Box64 可以在非 x86_64 Linux 系统（比如 ARM64）上运行 x86_64 Linux �
 
 由于 Box64 使用一些“系统”库的原生版本，如 libc、libm、SDL 和 OpenGL 等，因此很容易与大多数应用程序集成和使用，并且在许多情况下性能会相当不错。可以在[这里](https://box86.org/index.php/2021/06/game-performances/)查看一些性能测试的样例。
 
-Box64 集成了适用于 `ARM64` 和 `RV64` 平台的 DynaRec（动态重编译器），速度可以比纯解释模式快 5 到 10 倍。可以在[这里](https://box86.org/2021/07/inner-workings-a-high%E2%80%91level-view-of-box86-and-a-low%E2%80%91level-view-of-the-dynarec/)找到有关 DynaRec 工作原理的一些信息。
+Box64 集成了适用于 ARM64 和 RV64 平台的 DynaRec（动态重编译器），速度可以比纯解释模式快 5 到 10 倍。可以在[这里](https://box86.org/2021/07/inner-workings-a-high%E2%80%91level-view-of-box86-and-a-low%E2%80%91level-view-of-the-dynarec/)找到有关 DynaRec 工作原理的一些信息。
 
 一些 x64 内部操作码使用 “Realmode X86 Emulator Library” 的部分内容，有关版权详细信息，请参见 [x64primop.c](../src/emu/x64primop.c)。
 
