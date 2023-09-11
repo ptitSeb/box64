@@ -387,7 +387,7 @@ HWCAP2_ECV
     if(rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
     if(rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
     if(rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
-    if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadfMemIdx");
+    if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
     if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
     if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
 
