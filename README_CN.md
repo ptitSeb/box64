@@ -14,7 +14,7 @@ Box64 可以在非 x86_64 Linux 系统（比如 ARM64）上运行 x86_64 Linux �
 
 由于 Box64 使用一些“系统”库的原生版本，如 libc、libm、SDL 和 OpenGL 等，因此很容易与大多数应用程序集成和使用，并且在许多情况下性能会相当不错。可以在[这里](https://box86.org/index.php/2021/06/game-performances/)查看一些性能测试的样例。
 
-Box64 集成了适用于 ARM64 平台的 DynaRec（动态重编译器），速度可以比纯解释模式快 5 到 10 倍。可以在[这里](https://box86.org/2021/07/inner-workings-a-high%E2%80%91level-view-of-box86-and-a-low%E2%80%91level-view-of-the-dynarec/)找到有关 DynaRec 工作原理的一些信息。
+Box64 集成了适用于 ARM64 和 RV64 平台的 DynaRec（动态重编译器），速度可以比纯解释模式快 5 到 10 倍。可以在[这里](https://box86.org/2021/07/inner-workings-a-high%E2%80%91level-view-of-box86-and-a-low%E2%80%91level-view-of-the-dynarec/)找到有关 DynaRec 工作原理的一些信息。
 
 一些 x64 内部操作码使用 “Realmode X86 Emulator Library” 的部分内容，有关版权详细信息，请参见 [x64primop.c](../src/emu/x64primop.c)。
 
@@ -54,7 +54,7 @@ LOGO 由 @grayduck 制作，感谢！
 
 因为 Box64 的工作原理是直接将函数调用从 x86_64 转换为主机系统，所以主机系统（运行 Box64 的系统）需要有 64 位库。Box64 不包含任何 64 位 <-> 32 位的转换。
 
-所以 box64 只能运行 64 位的 Linux 二进制。对于 32 位二进制则需要使用 box86 来运行（它在 64 位操作系统上使用了 multiarch 和 proot 等技巧来实现运行）。请注意，许多（基于 mojo 的）安装程序在检测到 ARM64 操作系统时将回退到 “x86”，因此即使存在 x86_64 版本，也会尝试使用 box86。这时你可以使用一个假的 `uname`，当它的参数为 `-m` 时返回 `x86_64`。
+所以 box64 只能运行 64 位的 Linux 二进制。对于 32 位二进制则需要使用 box86 来运行（它在 64 位操作系统上使用了 multiarch 和 proot 等技巧来实现运行）。请注意，许多（基于 mojo 的）安装程序在检测到 ARM64 操作系统时将回退到 “x86”，因此即使存在 x86_64 版本，也会尝试使用 box86。这时你可以使用一个假的 `uname` ，并使它在运行参数为 `-m` 时返回 `x86_64`。
 
 ----
 
@@ -77,7 +77,7 @@ box64 封装了 GTK，包括 gtk2 和 gtk3。
 关于 Steam 的注意事项
 ----
 
-请注意，Steam 是 32/64 位的混合体，所以还需要 box86 才能运行，因为客户端应用程序是 32 位的。它还使用 64 位本地服务器，但与大多数使用 libcef/chromium 的东西一样，它目前无法在 box64 上正常工作。所以，现在 box64 上暂时不能运行 Steam。
+请注意，Steam 是 32/64 位混合的应用，所以你需要 box86 才能运行，因为客户端应用程序是 32 位的。它还使用 64 位本地服务器，它的 steamwebhelper 无法被关闭（即使是在最小模式）而且会吃掉大量的内存。对于内存小于 6 GB 的机型，你将会需要创建 swapfile 来运行 Steam。
 
 ----
 
