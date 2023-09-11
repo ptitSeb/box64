@@ -79,6 +79,15 @@ int rv64_zba = 0;
 int rv64_zbb = 0;
 int rv64_zbc = 0;
 int rv64_zbs = 0;
+int rv64_xtheadba = 0;
+int rv64_xtheadbb = 0;
+int rv64_xtheadbs = 0;
+int rv64_xtheadcondmov = 0;
+int rv64_xtheadmemidx = 0;
+int rv64_xtheadmempair = 0;
+int rv64_xtheadfmemidx = 0;
+int rv64_xtheadmac = 0;
+int rv64_xtheadfmv = 0;
 #endif
 #else   //DYNAREC
 int box64_dynarec = 0;
@@ -208,7 +217,7 @@ void my_child_fork()
 {
     if(ftrace_has_pid) {
         // open a new ftrace...
-        if(!ftrace_name) 
+        if(!ftrace_name)
             fclose(ftrace);
         openFTrace(NULL);
     }
@@ -372,6 +381,16 @@ HWCAP2_ECV
     if(rv64_zbb) printf_log(LOG_INFO, " Zbb");
     if(rv64_zbc) printf_log(LOG_INFO, " Zbc");
     if(rv64_zbs) printf_log(LOG_INFO, " Zbs");
+    if(rv64_xtheadba) printf_log(LOG_INFO, " XTheadBa");
+    if(rv64_xtheadbb) printf_log(LOG_INFO, " XTheadBb");
+    if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
+    if(rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
+    if(rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
+    if(rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
+    if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
+    if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
+    if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
+
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #else
 #error Unsupported architecture
@@ -888,7 +907,7 @@ int GatherEnv(char*** dest, char** env, char* prog)
 {
     // Add all but BOX64_* environnement
     // but add 2 for default BOX64_PATH and BOX64_LD_LIBRARY_PATH
-    char** p = env;    
+    char** p = env;
     int idx = 0;
     int path = 0;
     int ld_path = 0;
@@ -1200,7 +1219,7 @@ void endBox64()
 {
     if(!my_context || box64_quit)
         return;
-    
+
     endMallocHook();
     x64emu_t* emu = thread_get_emu();
     // atexit first
@@ -1323,7 +1342,7 @@ int main(int argc, const char **argv, char **env) {
             }
         }
     }
-    
+
     const char* prog = argv[1];
     int nextarg = 1;
     // check if some options are passed
@@ -1351,7 +1370,7 @@ int main(int argc, const char **argv, char **env) {
     if(!box64_nobanner)
         PrintBox64Version();
     // precheck, for win-preload
-    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader")) 
+    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))
      || strstr(prog, "wine64-preloader")==(prog+strlen(prog)-strlen("wine64-preloader"))) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
         int x64 = (nextarg<argc)?FileIsX64ELF(argv[nextarg]):0;
@@ -1372,8 +1391,8 @@ int main(int argc, const char **argv, char **env) {
     int ld_libs_args = -1;
     // check if this is wine
     if(!strcmp(prog, "wine64")
-     || !strcmp(prog, "wine64-development") 
-     || !strcmp(prog, "wine") 
+     || !strcmp(prog, "wine64-development")
+     || !strcmp(prog, "wine")
      || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))
      || (strlen(prog)>7 && !strcmp(prog+strlen(prog)-strlen("/wine64"), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
@@ -1391,7 +1410,7 @@ int main(int argc, const char **argv, char **env) {
             }
         }
         box64_wine = 1;
-    } else 
+    } else
     // check if ld-musl-x86_64.so.1 is used
     if(strstr(prog, "ld-musl-x86_64.so.1")) {
         printf_log(LOG_INFO, "BOX64: ld-musl detected, trying to workaround and use system ld-linux\n");

@@ -40,6 +40,15 @@ extern int rv64_zba;
 extern int rv64_zbb;
 extern int rv64_zbc;
 extern int rv64_zbs;
+extern int rv64_xtheadba;
+extern int rv64_xtheadbb;
+extern int rv64_xtheadbs;
+extern int rv64_xtheadcondmov;
+extern int rv64_xtheadmemidx;
+extern int rv64_xtheadmempair;
+extern int rv64_xtheadfmemidx;
+extern int rv64_xtheadmac;
+extern int rv64_xtheadfmv;
 #endif
 #endif
 extern int box64_libcef;
@@ -100,7 +109,7 @@ void printf_ftrace(const char* fmt, ...);
 #ifdef BUILD_DYNAMIC
 #define EXPORTDYN __attribute__((visibility("default")))
 #else
-#define EXPORTDYN 
+#define EXPORTDYN
 #endif
 
 void init_malloc_hook(void);
@@ -123,7 +132,7 @@ extern void* __libc_memalign(size_t, size_t);
 #define box_realloc     __libc_realloc
 #define box_calloc      __libc_calloc
 #define box_free        __libc_free
-#define box_memalign    __libc_memalign 
+#define box_memalign    __libc_memalign
 extern char* box_strdup(const char* s);
 extern char* box_realpath(const char* path, char* ret);
 
