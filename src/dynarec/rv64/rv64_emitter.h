@@ -311,7 +311,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define ADDIz(rd, rs1, imm12)       EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, rex.is32bits?0b0011011:0b0010011))
 
 // rd = rs1 + (rs2 << imm2)
-#define ADDSL(rd, rs1, rs2, imm2, scratch) if (!imm2) { \
+#define ADDSL(rd, rs1, rs2, imm2, scratch) if (!(imm2)) { \
         ADD(rd, rs1, rs2);              \
     } else if (rv64_zba) {              \
         SHxADD(rd, rs2, imm2, rs1);     \
