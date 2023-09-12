@@ -11,6 +11,9 @@ endif( NOT TEST_OUTPUT )
 if( NOT TEST_REFERENCE )
   message( FATAL_ERROR "Require TEST_REFERENCE to be defined" )
 endif( NOT TEST_REFERENCE )
+if(NOT DEFINED ENV{INTERPRETER})
+    set(ENV{INTERPRETER} "")
+endif()
 
 set(ENV{BOX64_LOG} 0)
 set(ENV{BOX64_NOBANNER} 1)
@@ -24,7 +27,7 @@ endif( EXISTS ${CMAKE_SOURCE_DIR}/x64lib )
 
 # run the test program, capture the stdout/stderr and the result var
 execute_process(
-  COMMAND ${TEST_PROGRAM} ${TEST_ARGS} ${TEST_ARGS2}
+  COMMAND $ENV{INTERPRETER} ${TEST_PROGRAM} ${TEST_ARGS} ${TEST_ARGS2}
   OUTPUT_FILE ${TEST_OUTPUT}
   ERROR_VARIABLE TEST_ERROR
   RESULT_VARIABLE TEST_RESULT
