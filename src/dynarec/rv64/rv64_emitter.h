@@ -310,6 +310,16 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 + imm12
 #define ADDIz(rd, rs1, imm12)       EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, rex.is32bits?0b0011011:0b0010011))
 
+// rd = rs1 + (rs2 << imm2), rs2 might be used as scratch.
+#define ADDSL(rd, rs1, rs2, imm2) if (rv64_zba) {   \
+        SHxADD(rd, rs2, imm2, rs1);                 \
+    } else if (rv64_xtheadba) {                     \
+        TH_ADDSL(rd, rs1, rs2, imm2);               \
+    } else {                                        \
+        SLLI(rs2, rs2, imm2);                       \
+        ADD(rd, rs1, rs2);                          \
+    }                                               \
+
 #define SEXT_W(rd, rs1)             ADDIW(rd, rs1, 0)
 
 // rd = rs1<<rs2
