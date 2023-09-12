@@ -110,6 +110,7 @@ jobs:
           if [[ ${{ matrix.platform }} != 'ANDROID' ]]; then
             if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
               QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
+              QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,x-zba=true,x-zbb=true,x-zbc=true,x-zbs=true ctest -j$(nproc) --rerun-failed --output-on-failure
             elif [[ ${{ matrix.platform }} != 'X64' ]]; then
               QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
             else
