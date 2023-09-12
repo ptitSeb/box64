@@ -59,6 +59,8 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                         if((sib>>6)) {
                             if(rv64_zba) {
                                 SHxADD(ret, xRAX+sib_reg, sib>>6, scratch);
+                            } else if (rv64_xtheadba) {
+                                TH_ADDSL(ret, scratch, xRAX+sib_reg, sib>>6);
                             } else {
                                 SLLI(ret, xRAX+sib_reg, (sib>>6));
                                 ADD(ret, ret, scratch);
@@ -85,6 +87,8 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     if(sib>>6) {
                         if(rv64_zba) {
                             SHxADD(ret, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
+                        } else if (rv64_xtheadba) {
+                            TH_ADDSL(ret, xRAX+sib_reg2, xRAX+sib_reg, sib>>6);
                         } else {
                             SLLI(scratch, xRAX+sib_reg, (sib>>6));
                             ADD(ret, xRAX+sib_reg2, scratch);
@@ -149,6 +153,8 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     if(sib>>6) {
                         if(rv64_zba) {
                             SHxADD(ret, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
+                        } else if (rv64_xtheadba) {
+                            TH_ADDSL(ret, xRAX+sib_reg2, xRAX+sib_reg, sib>>6);
                         } else {
                             SLLI(scratch, xRAX+sib_reg, (sib>>6));
                             ADD(ret, xRAX+sib_reg2, scratch);
@@ -168,6 +174,8 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                         if(sib>>6) {
                             if(rv64_zba) {
                                 SHxADD(scratch, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
+                            } else if (rv64_xtheadba) {
+                                TH_ADDSL(scratch, xRAX+sib_reg2, xRAX+sib_reg, sib>>6);
                             } else {
                                 SLLI(scratch, xRAX+sib_reg, (sib>>6));
                                 ADD(scratch, xRAX+sib_reg2, scratch);
@@ -189,6 +197,8 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                         if(sib>>6) {
                             if(rv64_zba) {
                                 SHxADD(ret, xRAX+sib_reg, sib>>6, scratch);
+                            } else if (rv64_xtheadba) {
+                                TH_ADDSL(ret, scratch, xRAX+sib_reg, sib>>6);
                             } else {
                                 SLLI(ret, xRAX+sib_reg, (sib>>6));
                                 ADD(ret, scratch, ret);
