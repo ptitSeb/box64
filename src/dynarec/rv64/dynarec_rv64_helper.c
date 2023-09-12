@@ -56,16 +56,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<-2048) || (tmp>maxval) || !i12)) {
                         MOV64x(scratch, tmp);
-                        if((sib>>6)) {
-                            if(rv64_zba) {
-                                SHxADD(ret, xRAX+sib_reg, sib>>6, scratch);
-                            } else {
-                                SLLI(ret, xRAX+sib_reg, (sib>>6));
-                                ADD(ret, ret, scratch);
-                            }
-                        } else {
-                            ADD(ret, xRAX+sib_reg, scratch);
-                        }
+                        ADDSL(ret, scratch, xRAX+sib_reg, sib>>6, ret);
                     } else {
                         if(sib>>6) {
                             SLLI(ret, xRAX+sib_reg, (sib>>6));
@@ -82,16 +73,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 }
             } else {
                 if (sib_reg!=4) {
-                    if(sib>>6) {
-                        if(rv64_zba) {
-                            SHxADD(ret, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
-                        } else {
-                            SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                            ADD(ret, xRAX+sib_reg2, scratch);
-                        }
-                    } else {
-                        ADD(ret, xRAX+sib_reg2, xRAX+sib_reg);
-                    }
+                    ADDSL(ret, xRAX+sib_reg2, xRAX+sib_reg, sib>>6, scratch);
                 } else {
                     ret = xRAX+sib_reg2;
                 }
@@ -146,16 +128,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             *fixaddress = i64;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
-                    if(sib>>6) {
-                        if(rv64_zba) {
-                            SHxADD(ret, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
-                        } else {
-                            SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                            ADD(ret, xRAX+sib_reg2, scratch);
-                        }
-                    } else {
-                        ADD(ret, xRAX+sib_reg2, xRAX+sib_reg);
-                    }
+                    ADDSL(ret, xRAX+sib_reg2, xRAX+sib_reg, sib>>6, scratch);
                 } else {
                     ret = xRAX+sib_reg2;
                 }
@@ -165,16 +138,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if(i64>=-2048 && i64<=2047) {
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
-                        if(sib>>6) {
-                            if(rv64_zba) {
-                                SHxADD(scratch, xRAX+sib_reg, sib>>6, xRAX+sib_reg2);
-                            } else {
-                                SLLI(scratch, xRAX+sib_reg, (sib>>6));
-                                ADD(scratch, xRAX+sib_reg2, scratch);
-                            }
-                        } else {
-                            ADD(scratch, xRAX+sib_reg2, xRAX+sib_reg);
-                        }
+                        ADDSL(scratch, xRAX+sib_reg2, xRAX+sib_reg, sib>>6, scratch);
                     } else {
                         scratch = xRAX+sib_reg2;
                     }
@@ -186,16 +150,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         ADD(scratch, scratch, xRAX+sib_reg2);
-                        if(sib>>6) {
-                            if(rv64_zba) {
-                                SHxADD(ret, xRAX+sib_reg, sib>>6, scratch);
-                            } else {
-                                SLLI(ret, xRAX+sib_reg, (sib>>6));
-                                ADD(ret, scratch, ret);
-                            }
-                        } else {
-                            ADD(ret, scratch, xRAX+sib_reg);
-                        }
+                        ADDSL(ret, scratch, xRAX+sib_reg, sib>>6, ret);
                     } else {
                         PASS3(int tmp = xRAX+sib_reg2);
                         ADD(ret, tmp, scratch);

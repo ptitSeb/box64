@@ -418,7 +418,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SRLI(x3, gd, 8);
                             SLLI(x4, x2, 16);
                             AND(x3, x3, x4);
-                            OR(x1, x1, x3);                     
+                            OR(x1, x1, x3);
                             SLLI(x3, gd, 8);
                             SLLI(x4, x2, 24);
                             AND(x3, x3, x4);
@@ -436,7 +436,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             LUI(x2, 0xff0);
                             AND(gd, gd, x2);
                             OR(gd, gd, x1);
-                        }                        
+                        }
                     }
                     break;
                 case 0xF1:
@@ -477,7 +477,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SRLI(x3, gd, 8);
                             SLLI(x4, x2, 16);
                             AND(x3, x3, x4);
-                            OR(x1, x1, x3);                     
+                            OR(x1, x1, x3);
                             SLLI(x3, gd, 8);
                             SLLI(x4, x2, 24);
                             AND(x3, x3, x4);
@@ -1097,8 +1097,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
                 SRAIxw(x1, gd, 5+rex.w); // r1 = (gd>>5)
-                SLLI(x1, x1, 2+rex.w);
-                ADD(x3, wback, x1); //(&ed)+=r1*4;
+                ADDSL(x3, wback, x1, 2+rex.w, x1);
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
             }
@@ -1131,8 +1130,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
                 SRAI(x1, gd, 5+rex.w);
-                SLLI(x1, x1, 2+rex.w);
-                ADD(x3, wback, x1);
+                ADDSL(x3, wback, x1, 2+rex.w, x1);
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1279,8 +1277,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 SRAI(x1, gd, 5+rex.w);
-                SLLI(x1, x1, 2+rex.w);
-                ADD(x3, wback, x1);
+                ADDSL(x3, wback, x1, 2+rex.w, x1);
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
@@ -1449,8 +1446,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
                 SRAI(x1, gd, 5+rex.w);
-                SLLI(x1, x1, 2+rex.w);
-                ADD(x3, wback, x1);
+                ADDSL(x3, wback, x1, 2+rex.w, x1);
                 LDxw(x1, x3, fixedaddress);
                 ed = x1;
                 wback = x3;
