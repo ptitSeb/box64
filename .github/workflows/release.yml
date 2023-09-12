@@ -102,20 +102,23 @@ jobs:
       - name: "Test Box64"
         if: ${{ matrix.platform != 'TEGRAX1' }}
         run: |
-          if [[ ${{ matrix.platform }} != 'X64' ]]; then
-            sudo apt-get -y install qemu-user
+          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'ANDROID' ]]; then
+            mkdir qemu8.1.0
+            wget -O- -q https://london.mirror.pkgbuild.com/extra/os/x86_64/qemu-user-static-8.1.0-2-x86_64.pkg.tar.zst | tar -I zstd -C qemu8.1.0 -xf -
+            sudo cp qemu8.1.0/usr/bin/* /usr/bin/
           fi
 
           cd build
-          if [[ ${{ matrix.platform }} != 'ANDROID' ]]; then
-            if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
-              QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
-              QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,x-zba=true,x-zbb=true,x-zbc=true,x-zbs=true ctest -j$(nproc) --rerun-failed --output-on-failure
-            elif [[ ${{ matrix.platform }} != 'X64' ]]; then
-              QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
-            else
-              ctest -j$(nproc) --rerun-failed --output-on-failure
-            fi
+          if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,zba=true,zbb=true,zbc=true,zbs=true ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest -j$(nproc) --rerun-failed --output-on-failure
+          elif [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'ANDROID' ]]; then # AArch64
+            INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
+          elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
+            true
+          else
+            ctest -j$(nproc) --rerun-failed --output-on-failure
           fi
 
       - name: "Upload Artifact"
