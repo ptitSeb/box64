@@ -210,7 +210,15 @@
                         wb2 = (wback>>2)*8;     \
                         wback = xRAX+(wback&3); \
                     }                           \
-                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else {ANDI(i, wback, 0xff);}   \
+                    if (wb2) {                  \
+                        if (rv64_xtheadbb) {    \
+                            TH_EXTU(i, wback, 15, 8);   \
+                        } else {                \
+                            MV(i, wback);       \
+                            SRLI(i, i, wb2);    \
+                            ANDI(i, i, 0xff);   \
+                        }                       \
+                    } else ANDI(i, wback, 0xff);\
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
@@ -230,7 +238,15 @@
                         wb2 = (wback>>2)*8;     \
                         wback = xRAX+(wback&3); \
                     }                           \
-                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else {ANDI(i, wback, 0xff);}   \
+                    if (wb2) {                  \
+                        if (rv64_xtheadbb) {    \
+                            TH_EXTU(i, wback, 15, 8);   \
+                        } else {                \
+                            MV(i, wback);       \
+                            SRLI(i, i, wb2);    \
+                            ANDI(i, i, 0xff);   \
+                        }                       \
+                    } else ANDI(i, wback, 0xff);\
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
@@ -274,7 +290,15 @@
                         wb2 = (wback>>2)*8;     \
                         wback = xRAX+(wback&3); \
                     }                           \
-                    if (wb2) {MV(i, wback); SRLI(i, i, wb2); ANDI(i, i, 0xff);} else {ANDI(i, wback, 0xff);}   \
+                    if (wb2) {                  \
+                        if (rv64_xtheadbb) {    \
+                            TH_EXTU(i, wback, 15, 8);   \
+                        } else {                \
+                            MV(i, wback);       \
+                            SRLI(i, i, wb2);    \
+                            ANDI(i, i, 0xff);   \
+                        }                       \
+                    } else ANDI(i, wback, 0xff);\
                     wb1 = 0;                    \
                     ed = i;                     \
                 } else {                        \
@@ -286,16 +310,24 @@
                 }
 
 //GETGB will use i for gd
-#define GETGB(i) if(rex.rex) {                                \
-                    gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3); \
-                    gb2 = 0;                                  \
-                } else {                                      \
-                    gd = (nextop&0x38)>>3;                    \
-                    gb2 = ((gd&4)>>2);                        \
-                    gb1 = xRAX+(gd&3);                        \
-                }                                             \
-                gd = i;                                       \
-                if (gb2) {MV(gd, gb1); SRLI(gd, gd, 8); ANDI(gd, gd, 0xff);} else {ANDI(gd, gb1, 0xff);}
+#define GETGB(i) if(rex.rex) {  \
+                    gb1 = xRAX+((nextop&0x38)>>3)+(rex.r<<3);   \
+                    gb2 = 0;                    \
+                } else {                        \
+                    gd = (nextop&0x38)>>3;      \
+                    gb2 = ((gd&4)>>2);          \
+                    gb1 = xRAX+(gd&3);          \
+                }                               \
+                gd = i;                         \
+                if (gb2) {                      \
+                    if (rv64_xtheadbb) {        \
+                        TH_EXTU(gd, gb1, 15, 8);\
+                    } else {                    \
+                        MV(gd, gb1);            \
+                        SRLI(gd, gd, 8);        \
+                        ANDI(gd, gd, 0xff);     \
+                    }                           \
+                } else ANDI(gd, gb1, 0xff);
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK(s1) if(gb2) {                            \
