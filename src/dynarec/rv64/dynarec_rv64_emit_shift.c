@@ -421,6 +421,8 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
     if(rv64_zbb) {
         RORIxw(s1, s1, (rex.w?64:32)-c);
+    } else if (rv64_xtheadbb) {
+        TH_SRRIxw(s1, s1, (rex.w?64:32)-c);
     } else {
         SLLIxw(s3, s1, c);
         SRLIxw(s1, s1, (rex.w?64:32)-c);
@@ -466,6 +468,8 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
     if(rv64_zbb) {
         RORIxw(s1, s1, c);
+    } else if (rv64_xtheadbb) {
+        TH_SRRIxw(s1, s1, c);
     } else {
         SRLIxw(s3, s1, c);
         SLLIxw(s1, s1, (rex.w?64:32)-c);
