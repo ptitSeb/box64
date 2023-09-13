@@ -677,15 +677,54 @@ f28–31  ft8–11  FP temporaries                  Caller
 // reg[rd] := (reg[rs1] >> imm6) | (reg[rs1] << (xlen - imm6))
 #define TH_SRRI(rd, rs1, imm6) EMIT(I_type(0b000100000000|(imm6&0x3f), rs1, 0b001, rd, 0b0001011))
 
-// TODO
-// th.srriw rd, rs1, imm5 Cyclic right shift on word operand
-// th.ext rd, rs1, imm1, imm2 Extract and sign-extend bits
-// th.extu rd, rs1, imm1, imm2 Extract and zero-extend bits
-// th.ff0 rd, rs1 Find first '0'-bit
-// th.ff1 rd, rs1 Find first '1'-bit
-// th.rev rd, rs1 Reverse byte order
-// th.revw rd, rs1 Reverse byte order of word operand
-// th.tstnbz rd, rs1 Test for NUL bytes
+// Perform a cyclic right shift on word operand.
+// data := zext.w(reg[rs1])
+// reg[rd] := (data >> imm5) | (data << (32 - imm5))
+#define TH_SRRIW(rd, rs1, imm5) EMIT(I_type(0b000101000000|(imm5&0x1f), rs1, 0b001, rd, 0b0001011))
+
+// Extract and sign-extend bits.
+// reg[rd] := sign_extend(reg[rs1][imm1:imm2])
+#define TH_EXT(rd, rs1, imm1, imm2) EMIT(I_type(((imm1&0x1f)<<6)|(imm2&0x1f), rs1, 0b010, rd, 0b0001011))
+
+// Extract and zero-extend bits.
+// reg[rd] := zero_extend(reg[rs1][imm1:imm2])
+#define TH_EXTU(rd, rs1, imm1, imm2) EMIT(I_type(((imm1&0x1f)<<6)|(imm2&0x1f), rs1, 0b011, rd, 0b0001011))
+
+// Find first '0'-bit
+// for i=xlen..0:
+//   if reg[rs1][i] == 0:
+//     break;
+// reg[rd] = (xlen - 1) - i
+#define TH_FF0(rd, rs1) EMIT(I_type(0b100001000000, rs1, 0b001, rd, 0b0001011))
+
+// Find first '1'-bit
+// for i=xlen..0:
+//   if reg[rs1][i] == 1:
+//     break;
+// reg[rd] = (xlen - 1) - i
+#define TH_FF1(rd, rs1) EMIT(I_type(0b100001100000, rs1, 0b001, rd, 0b0001011))
+
+// Reverse the byte order.
+// for i=0..(xlen/8-1):
+//   j := xlen/8 - 1 - i
+//   tmp[i] := reg[rs1][j]
+// reg[rd] := tmp
+#define TH_REV(rd, rs1) EMIT(I_type(0b100000100000, rs1, 0b001, rd, 0b0001011))
+
+// Reverse the byte order of a word operand.
+// for i=0..3:
+//   j := 3 - i
+//   tmp[i] := reg[rs1][j]
+// reg[rd] := tmp
+#define TH_REVW(rd, rs1) EMIT(I_type(0b100100000000, rs1, 0b001, rd, 0b0001011))
+
+// Test for NUL bytes.
+// for i=0..(xlen/8-1):
+//   if reg[rs1][i] == 0:
+//     reg[rd][i] := 0xff
+//   else
+//     reg[rd][i] := 0
+#define TH_TSTNBZ(rd, rs1) EMIT(I_type(0b1000000000000, rs1, 0b001, rd, 0b0001011))
 
 // XTheadBs - Single-bit instructions
 
