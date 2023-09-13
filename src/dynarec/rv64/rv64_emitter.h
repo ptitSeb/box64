@@ -673,6 +673,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // XTheadBb - Basic bit-manipulation
 
+#define TH_SRRIxw(rd, rs1, imm) if(rex.w) { \
+        TH_SRRI(rd, rs1, imm);  \
+    } else {                    \
+        TH_SRRIW(rd, rs1, imm); \
+    }
+
 // Perform a cyclic right shift.
 // reg[rd] := (reg[rs1] >> imm6) | (reg[rs1] << (xlen - imm6))
 #define TH_SRRI(rd, rs1, imm6) EMIT(I_type(0b000100000000|(imm6&0x3f), rs1, 0b001, rd, 0b0001011))
