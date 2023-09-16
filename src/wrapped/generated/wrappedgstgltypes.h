@@ -11,7 +11,24 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFup_t)(uint32_t, void*);
+typedef void (*vFppp_t)(void*, void*, void*);
+typedef void (*vFppV_t)(void*, void*, ...);
+typedef void* (*pFuup_t)(uint32_t, uint32_t, void*);
+typedef void (*vFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(gst_gl_context_default_get_proc_address, pFup_t) \
+	GO(gst_gl_context_thread_add, vFppp_t) \
+	GO(gst_gl_window_send_message, vFppp_t) \
+	GO(gst_gl_insert_debug_marker, vFppV_t) \
+	GO(gst_gl_context_get_proc_address_with_platform, pFuup_t) \
+	GO(gst_gl_window_set_close_callback, vFpppp_t) \
+	GO(gst_gl_window_set_draw_callback, vFpppp_t) \
+	GO(gst_gl_window_set_resize_callback, vFpppp_t) \
+	GO(gst_gl_framebuffer_draw_to_texture, iFpppp_t) \
+	GO(gst_gl_filter_render_to_target, iFppppp_t)
 
 #endif // __wrappedgstglTYPES_H_

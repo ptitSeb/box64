@@ -29,6 +29,7 @@ typedef void (*vFiippppV_t)(int32_t, int32_t, void*, void*, void*, void*, ...);
 typedef void (*vFiupippp_t)(int32_t, uint32_t, void*, int32_t, void*, void*, void*);
 typedef void (*vFipAippp_t)(int32_t, void*, va_list, int32_t, void*, void*, void*);
 typedef void (*vFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
+typedef void (*vFppLippp_t)(void*, void*, uintptr_t, int32_t, void*, void*, void*);
 typedef void (*vFpppuipV_t)(void*, void*, void*, uint32_t, int32_t, void*, ...);
 typedef uint32_t (*uFipipppp_t)(int32_t, void*, int32_t, void*, void*, void*, void*);
 typedef uint32_t (*uFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
@@ -70,6 +71,7 @@ typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_async_initable_newv_async, vFiupippp_t) \
 	GO(g_async_initable_new_valist_async, vFipAippp_t) \
 	GO(g_dbus_connection_new, vFppipppp_t) \
+	GO(g_input_stream_read_async, vFppLippp_t) \
 	GO(g_simple_async_report_error_in_idle, vFpppuipV_t) \
 	GO(g_bus_watch_name, uFipipppp_t) \
 	GO(g_bus_own_name_on_connection, uFppipppp_t) \

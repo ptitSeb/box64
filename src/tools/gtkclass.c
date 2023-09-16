@@ -21,9 +21,12 @@ int is_gtk3 = 0;
 
 static bridge_t*        my_bridge           = NULL;
 static const char* (*g_type_name)(size_t)   = NULL;
+static size_t (*g_type_parent)(size_t)      = NULL;
 static void* (*g_type_class_peek)(size_t)   = NULL;
 #define GTKCLASS(A) static size_t my_##A    = (size_t)-1;
+#define GTKIFACE(A) GTKCLASS(A)
 GTKCLASSES()
+#undef GTKIFACE
 #undef GTKCLASS
 
 KHASH_SET_INIT_INT(signalmap)
@@ -42,21 +45,11 @@ typedef struct sigoffset_array_s {
 KHASH_MAP_INIT_INT64(sigoffset, sigoffset_array_t)
 static kh_sigoffset_t *my_sigoffset = NULL;
 
+KHASH_MAP_INIT_INT64(customclass, char*)
+static kh_customclass_t *my_customclass = NULL;
+
 // ---- Defining the multiple functions now -----
-#define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)   \
-GO(5)   \
-GO(6)   \
-GO(7)	\
-GO(8)	\
-GO(9)	\
-GO(10)	\
-GO(11)	\
-GO(12)
+#include "super80.h"
 
 #define WRAPPED(A, NAME, RET, DEF, FMT, ...)  \
 static uintptr_t my_##NAME##_fct_##A = 0;   \
@@ -80,6 +73,38 @@ static void* find_##NAME##_##A(void* fct)                           \
     if(my_##NAME##_##A##_fct_5 == (uintptr_t)fct) return my_##NAME##_##A##_5;   \
     if(my_##NAME##_##A##_fct_6 == (uintptr_t)fct) return my_##NAME##_##A##_6;   \
     if(my_##NAME##_##A##_fct_7 == (uintptr_t)fct) return my_##NAME##_##A##_7;   \
+    if(my_##NAME##_##A##_fct_8 == (uintptr_t)fct) return my_##NAME##_##A##_8;   \
+    if(my_##NAME##_##A##_fct_9 == (uintptr_t)fct) return my_##NAME##_##A##_9;   \
+    if(my_##NAME##_##A##_fct_10 == (uintptr_t)fct) return my_##NAME##_##A##_10;   \
+    if(my_##NAME##_##A##_fct_11 == (uintptr_t)fct) return my_##NAME##_##A##_11;   \
+    if(my_##NAME##_##A##_fct_12 == (uintptr_t)fct) return my_##NAME##_##A##_12;   \
+    if(my_##NAME##_##A##_fct_13 == (uintptr_t)fct) return my_##NAME##_##A##_13;   \
+    if(my_##NAME##_##A##_fct_14 == (uintptr_t)fct) return my_##NAME##_##A##_14;   \
+    if(my_##NAME##_##A##_fct_15 == (uintptr_t)fct) return my_##NAME##_##A##_15;   \
+    if(my_##NAME##_##A##_fct_16 == (uintptr_t)fct) return my_##NAME##_##A##_16;   \
+    if(my_##NAME##_##A##_fct_17 == (uintptr_t)fct) return my_##NAME##_##A##_17;   \
+    if(my_##NAME##_##A##_fct_18 == (uintptr_t)fct) return my_##NAME##_##A##_18;   \
+    if(my_##NAME##_##A##_fct_19 == (uintptr_t)fct) return my_##NAME##_##A##_19;   \
+    if(my_##NAME##_##A##_fct_20 == (uintptr_t)fct) return my_##NAME##_##A##_20;   \
+    if(my_##NAME##_##A##_fct_21 == (uintptr_t)fct) return my_##NAME##_##A##_21;   \
+    if(my_##NAME##_##A##_fct_22 == (uintptr_t)fct) return my_##NAME##_##A##_22;   \
+    if(my_##NAME##_##A##_fct_23 == (uintptr_t)fct) return my_##NAME##_##A##_23;   \
+    if(my_##NAME##_##A##_fct_24 == (uintptr_t)fct) return my_##NAME##_##A##_24;   \
+    if(my_##NAME##_##A##_fct_25 == (uintptr_t)fct) return my_##NAME##_##A##_25;   \
+    if(my_##NAME##_##A##_fct_26 == (uintptr_t)fct) return my_##NAME##_##A##_26;   \
+    if(my_##NAME##_##A##_fct_27 == (uintptr_t)fct) return my_##NAME##_##A##_27;   \
+    if(my_##NAME##_##A##_fct_28 == (uintptr_t)fct) return my_##NAME##_##A##_28;   \
+    if(my_##NAME##_##A##_fct_29 == (uintptr_t)fct) return my_##NAME##_##A##_29;   \
+    if(my_##NAME##_##A##_fct_30 == (uintptr_t)fct) return my_##NAME##_##A##_30;   \
+    if(my_##NAME##_##A##_fct_31 == (uintptr_t)fct) return my_##NAME##_##A##_31;   \
+    if(my_##NAME##_##A##_fct_32 == (uintptr_t)fct) return my_##NAME##_##A##_32;   \
+    if(my_##NAME##_##A##_fct_33 == (uintptr_t)fct) return my_##NAME##_##A##_33;   \
+    if(my_##NAME##_##A##_fct_34 == (uintptr_t)fct) return my_##NAME##_##A##_34;   \
+    if(my_##NAME##_##A##_fct_35 == (uintptr_t)fct) return my_##NAME##_##A##_35;   \
+    if(my_##NAME##_##A##_fct_36 == (uintptr_t)fct) return my_##NAME##_##A##_36;   \
+    if(my_##NAME##_##A##_fct_37 == (uintptr_t)fct) return my_##NAME##_##A##_37;   \
+    if(my_##NAME##_##A##_fct_38 == (uintptr_t)fct) return my_##NAME##_##A##_38;   \
+    if(my_##NAME##_##A##_fct_39 == (uintptr_t)fct) return my_##NAME##_##A##_39;   \
     if(my_##NAME##_##A##_fct_0 == 0) {my_##NAME##_##A##_fct_0 = (uintptr_t)fct; return my_##NAME##_##A##_0; } \
     if(my_##NAME##_##A##_fct_1 == 0) {my_##NAME##_##A##_fct_1 = (uintptr_t)fct; return my_##NAME##_##A##_1; } \
     if(my_##NAME##_##A##_fct_2 == 0) {my_##NAME##_##A##_fct_2 = (uintptr_t)fct; return my_##NAME##_##A##_2; } \
@@ -88,7 +113,39 @@ static void* find_##NAME##_##A(void* fct)                           \
     if(my_##NAME##_##A##_fct_5 == 0) {my_##NAME##_##A##_fct_5 = (uintptr_t)fct; return my_##NAME##_##A##_5; } \
     if(my_##NAME##_##A##_fct_6 == 0) {my_##NAME##_##A##_fct_6 = (uintptr_t)fct; return my_##NAME##_##A##_6; } \
     if(my_##NAME##_##A##_fct_7 == 0) {my_##NAME##_##A##_fct_7 = (uintptr_t)fct; return my_##NAME##_##A##_7; } \
-    printf_log(LOG_NONE, "Warning, no more slot for " #NAME " gtkclass callback\n");    \
+    if(my_##NAME##_##A##_fct_8 == 0) {my_##NAME##_##A##_fct_8 = (uintptr_t)fct; return my_##NAME##_##A##_8; } \
+    if(my_##NAME##_##A##_fct_9 == 0) {my_##NAME##_##A##_fct_9 = (uintptr_t)fct; return my_##NAME##_##A##_9; } \
+    if(my_##NAME##_##A##_fct_10 == 0) {my_##NAME##_##A##_fct_10 = (uintptr_t)fct; return my_##NAME##_##A##_10; } \
+    if(my_##NAME##_##A##_fct_11 == 0) {my_##NAME##_##A##_fct_11 = (uintptr_t)fct; return my_##NAME##_##A##_11; } \
+    if(my_##NAME##_##A##_fct_12 == 0) {my_##NAME##_##A##_fct_12 = (uintptr_t)fct; return my_##NAME##_##A##_12; } \
+    if(my_##NAME##_##A##_fct_13 == 0) {my_##NAME##_##A##_fct_13 = (uintptr_t)fct; return my_##NAME##_##A##_13; } \
+    if(my_##NAME##_##A##_fct_14 == 0) {my_##NAME##_##A##_fct_14 = (uintptr_t)fct; return my_##NAME##_##A##_14; } \
+    if(my_##NAME##_##A##_fct_15 == 0) {my_##NAME##_##A##_fct_15 = (uintptr_t)fct; return my_##NAME##_##A##_15; } \
+    if(my_##NAME##_##A##_fct_16 == 0) {my_##NAME##_##A##_fct_16 = (uintptr_t)fct; return my_##NAME##_##A##_16; } \
+    if(my_##NAME##_##A##_fct_17 == 0) {my_##NAME##_##A##_fct_17 = (uintptr_t)fct; return my_##NAME##_##A##_17; } \
+    if(my_##NAME##_##A##_fct_18 == 0) {my_##NAME##_##A##_fct_18 = (uintptr_t)fct; return my_##NAME##_##A##_18; } \
+    if(my_##NAME##_##A##_fct_19 == 0) {my_##NAME##_##A##_fct_19 = (uintptr_t)fct; return my_##NAME##_##A##_19; } \
+    if(my_##NAME##_##A##_fct_20 == 0) {my_##NAME##_##A##_fct_20 = (uintptr_t)fct; return my_##NAME##_##A##_20; } \
+    if(my_##NAME##_##A##_fct_21 == 0) {my_##NAME##_##A##_fct_21 = (uintptr_t)fct; return my_##NAME##_##A##_21; } \
+    if(my_##NAME##_##A##_fct_22 == 0) {my_##NAME##_##A##_fct_22 = (uintptr_t)fct; return my_##NAME##_##A##_22; } \
+    if(my_##NAME##_##A##_fct_23 == 0) {my_##NAME##_##A##_fct_23 = (uintptr_t)fct; return my_##NAME##_##A##_23; } \
+    if(my_##NAME##_##A##_fct_24 == 0) {my_##NAME##_##A##_fct_24 = (uintptr_t)fct; return my_##NAME##_##A##_24; } \
+    if(my_##NAME##_##A##_fct_25 == 0) {my_##NAME##_##A##_fct_25 = (uintptr_t)fct; return my_##NAME##_##A##_25; } \
+    if(my_##NAME##_##A##_fct_26 == 0) {my_##NAME##_##A##_fct_26 = (uintptr_t)fct; return my_##NAME##_##A##_26; } \
+    if(my_##NAME##_##A##_fct_27 == 0) {my_##NAME##_##A##_fct_27 = (uintptr_t)fct; return my_##NAME##_##A##_27; } \
+    if(my_##NAME##_##A##_fct_28 == 0) {my_##NAME##_##A##_fct_28 = (uintptr_t)fct; return my_##NAME##_##A##_28; } \
+    if(my_##NAME##_##A##_fct_29 == 0) {my_##NAME##_##A##_fct_29 = (uintptr_t)fct; return my_##NAME##_##A##_29; } \
+    if(my_##NAME##_##A##_fct_30 == 0) {my_##NAME##_##A##_fct_30 = (uintptr_t)fct; return my_##NAME##_##A##_30; } \
+    if(my_##NAME##_##A##_fct_31 == 0) {my_##NAME##_##A##_fct_31 = (uintptr_t)fct; return my_##NAME##_##A##_31; } \
+    if(my_##NAME##_##A##_fct_32 == 0) {my_##NAME##_##A##_fct_32 = (uintptr_t)fct; return my_##NAME##_##A##_32; } \
+    if(my_##NAME##_##A##_fct_33 == 0) {my_##NAME##_##A##_fct_33 = (uintptr_t)fct; return my_##NAME##_##A##_33; } \
+    if(my_##NAME##_##A##_fct_34 == 0) {my_##NAME##_##A##_fct_34 = (uintptr_t)fct; return my_##NAME##_##A##_34; } \
+    if(my_##NAME##_##A##_fct_35 == 0) {my_##NAME##_##A##_fct_35 = (uintptr_t)fct; return my_##NAME##_##A##_35; } \
+    if(my_##NAME##_##A##_fct_36 == 0) {my_##NAME##_##A##_fct_36 = (uintptr_t)fct; return my_##NAME##_##A##_36; } \
+    if(my_##NAME##_##A##_fct_37 == 0) {my_##NAME##_##A##_fct_37 = (uintptr_t)fct; return my_##NAME##_##A##_37; } \
+    if(my_##NAME##_##A##_fct_38 == 0) {my_##NAME##_##A##_fct_38 = (uintptr_t)fct; return my_##NAME##_##A##_38; } \
+    if(my_##NAME##_##A##_fct_39 == 0) {my_##NAME##_##A##_fct_39 = (uintptr_t)fct; return my_##NAME##_##A##_39; } \
+    printf_log(LOG_NONE, "Warning, no more slot for " #A " " #NAME " gtkclass callback\n");    \
     return NULL;    \
 }
 
@@ -104,6 +161,38 @@ static void* reverse_##NAME##_##A(wrapper_t W, void* fct)                       
     if((void*)my_##NAME##_##A##_5 == fct) return (void*)my_##NAME##_##A##_fct_5;\
     if((void*)my_##NAME##_##A##_6 == fct) return (void*)my_##NAME##_##A##_fct_6;\
     if((void*)my_##NAME##_##A##_7 == fct) return (void*)my_##NAME##_##A##_fct_7;\
+    if((void*)my_##NAME##_##A##_8 == fct) return (void*)my_##NAME##_##A##_fct_8;\
+    if((void*)my_##NAME##_##A##_9 == fct) return (void*)my_##NAME##_##A##_fct_9;\
+    if((void*)my_##NAME##_##A##_10 == fct) return (void*)my_##NAME##_##A##_fct_10;\
+    if((void*)my_##NAME##_##A##_11 == fct) return (void*)my_##NAME##_##A##_fct_11;\
+    if((void*)my_##NAME##_##A##_12 == fct) return (void*)my_##NAME##_##A##_fct_12;\
+    if((void*)my_##NAME##_##A##_13 == fct) return (void*)my_##NAME##_##A##_fct_13;\
+    if((void*)my_##NAME##_##A##_14 == fct) return (void*)my_##NAME##_##A##_fct_14;\
+    if((void*)my_##NAME##_##A##_15 == fct) return (void*)my_##NAME##_##A##_fct_15;\
+    if((void*)my_##NAME##_##A##_16 == fct) return (void*)my_##NAME##_##A##_fct_16;\
+    if((void*)my_##NAME##_##A##_17 == fct) return (void*)my_##NAME##_##A##_fct_17;\
+    if((void*)my_##NAME##_##A##_18 == fct) return (void*)my_##NAME##_##A##_fct_18;\
+    if((void*)my_##NAME##_##A##_19 == fct) return (void*)my_##NAME##_##A##_fct_19;\
+    if((void*)my_##NAME##_##A##_20 == fct) return (void*)my_##NAME##_##A##_fct_20;\
+    if((void*)my_##NAME##_##A##_21 == fct) return (void*)my_##NAME##_##A##_fct_21;\
+    if((void*)my_##NAME##_##A##_22 == fct) return (void*)my_##NAME##_##A##_fct_22;\
+    if((void*)my_##NAME##_##A##_23 == fct) return (void*)my_##NAME##_##A##_fct_23;\
+    if((void*)my_##NAME##_##A##_24 == fct) return (void*)my_##NAME##_##A##_fct_24;\
+    if((void*)my_##NAME##_##A##_25 == fct) return (void*)my_##NAME##_##A##_fct_25;\
+    if((void*)my_##NAME##_##A##_26 == fct) return (void*)my_##NAME##_##A##_fct_26;\
+    if((void*)my_##NAME##_##A##_27 == fct) return (void*)my_##NAME##_##A##_fct_27;\
+    if((void*)my_##NAME##_##A##_28 == fct) return (void*)my_##NAME##_##A##_fct_28;\
+    if((void*)my_##NAME##_##A##_29 == fct) return (void*)my_##NAME##_##A##_fct_29;\
+    if((void*)my_##NAME##_##A##_30 == fct) return (void*)my_##NAME##_##A##_fct_30;\
+    if((void*)my_##NAME##_##A##_31 == fct) return (void*)my_##NAME##_##A##_fct_31;\
+    if((void*)my_##NAME##_##A##_32 == fct) return (void*)my_##NAME##_##A##_fct_32;\
+    if((void*)my_##NAME##_##A##_33 == fct) return (void*)my_##NAME##_##A##_fct_33;\
+    if((void*)my_##NAME##_##A##_34 == fct) return (void*)my_##NAME##_##A##_fct_34;\
+    if((void*)my_##NAME##_##A##_35 == fct) return (void*)my_##NAME##_##A##_fct_35;\
+    if((void*)my_##NAME##_##A##_36 == fct) return (void*)my_##NAME##_##A##_fct_36;\
+    if((void*)my_##NAME##_##A##_37 == fct) return (void*)my_##NAME##_##A##_fct_37;\
+    if((void*)my_##NAME##_##A##_38 == fct) return (void*)my_##NAME##_##A##_fct_38;\
+    if((void*)my_##NAME##_##A##_39 == fct) return (void*)my_##NAME##_##A##_fct_39;\
     Dl_info info;                                                               \
     if(dladdr(fct, &info))                                                      \
         return (void*)AddCheckBridge(my_bridge, W, fct, 0, NULL);               \
@@ -121,14 +210,46 @@ static void autobridge_##NAME##_##A(wrapper_t W, void* fct)         \
 }
 
 #define WRAPPER(A, NAME, RET, DEF, FMT, ...)        \
-WRAPPED(0, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
-WRAPPED(1, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
-WRAPPED(2, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
-WRAPPED(3, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
-WRAPPED(4, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
-WRAPPED(5, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
-WRAPPED(6, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
-WRAPPED(7, NAME##_##A, RET, DEF, FMT, __VA_ARGS__)  \
+WRAPPED( 0, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 1, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 2, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 3, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 4, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 5, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 6, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 7, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 8, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED( 9, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(10, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(11, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(12, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(13, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(14, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(15, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(16, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(17, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(18, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(19, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(20, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(21, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(22, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(23, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(24, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(25, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(26, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(27, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(28, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(29, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(30, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(31, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(32, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(33, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(34, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(35, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(36, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(37, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(38, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
+WRAPPED(39, NAME##_##A, RET, DEF, FMT, __VA_ARGS__) \
 FIND(A, NAME)                                       \
 REVERSE(A, NAME)                                    \
 AUTOBRIDGE(A, NAME)
@@ -2440,6 +2561,975 @@ static void bridgeGstTaskPoolClass(my_GstTaskPoolClass_t* class)
 
 #undef SUPERGO
 
+// ----- GstElementClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstElement,pad_added, void, (void* element, void* pad), "pp", element, pad);
+WRAPPER(GstElement,pad_removed, void, (void* element, void* pad), "pp", element, pad);
+WRAPPER(GstElement,no_more_pads, void, (void* element), "p", element);
+WRAPPER(GstElement,request_new_pad, void*, (void* element, void* templ, void* name, void* caps), "pppp", element, templ, name, caps);
+WRAPPER(GstElement,release_pad, void, (void* element, void* pad), "pp", element, pad);
+WRAPPER(GstElement,get_state, int, (void*  element, void* state, void* pending, uint64_t timeout), "pppU", element, state, pending, timeout);
+WRAPPER(GstElement,set_state, int, (void* element, int state), "pi", element, state);
+WRAPPER(GstElement,change_state, int, (void* element, int transition), "pi", element, transition);
+WRAPPER(GstElement,state_changed, void, (void* element, int oldstate, int newstate, int pending), "piii", element, oldstate, newstate, pending);
+WRAPPER(GstElement,set_bus, void, (void*  element, void* bus), "pp", element, bus);
+WRAPPER(GstElement,provide_clock, void*, (void* element), "p", element);
+WRAPPER(GstElement,set_clock, int, (void* element, void* clock), "pp", element, clock);
+WRAPPER(GstElement,send_event, int, (void* element, void* event), "pp", element, event);
+WRAPPER(GstElement,query, int, (void* element, void* query), "pp", element, query);
+WRAPPER(GstElement,post_message, int, (void* element, void* message), "pp", element, message);
+WRAPPER(GstElement,set_context, void, (void* element, void* context), "pp", element, context);
+
+#define SUPERGO()               \
+    GO(pad_added, vFpp);        \
+    GO(pad_removed, vFpp);      \
+    GO(no_more_pads, vFp);      \
+    GO(request_new_pad, pFpppp);\
+    GO(release_pad, vFpp);      \
+    GO(get_state, iFppU);       \
+    GO(set_state, iFpi);        \
+    GO(change_state, iFpi);     \
+    GO(state_changed, vFpiii);  \
+    GO(set_bus, vFpp);          \
+    GO(provide_clock, pFp);     \
+    GO(set_clock, iFpp);        \
+    GO(send_event, iFpp);       \
+    GO(query, iFpp);            \
+    GO(post_message, iFpp);     \
+    GO(set_context, vFpp);      \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstElementClass(my_GstElementClass_t* class)
+{
+    wrapGstObjectClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstElement (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstElementClass(my_GstElementClass_t* class)
+{
+    unwrapGstObjectClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstElement (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstElementClass(my_GstElementClass_t* class)
+{
+    bridgeGstObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstElement (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GstBinClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstBin,element_added, void, (void* bin, void* child), "pp", bin, child);
+WRAPPER(GstBin,element_removed, void, (void* bin, void* child), "pp", bin, child);
+WRAPPER(GstBin,add_element, int, (void* bin, void* element), "pp", bin, element);
+WRAPPER(GstBin,remove_element, int, (void* bin, void* element), "pp", bin, element);
+WRAPPER(GstBin,handle_message, void, (void* bin, void* message), "pp", bin, message);
+WRAPPER(GstBin,do_latency, int, (void* bin), "p", bin);
+WRAPPER(GstBin,deep_element_added, void, (void* bin, void* sub_bin, void* child), "ppp", bin, sub_bin, child);
+WRAPPER(GstBin,deep_element_removed, void, (void* bin, void* sub_bin, void* child), "ppp", bin, sub_bin, child);
+
+#define SUPERGO()                   \
+    GO(element_added, vFpp);        \
+    GO(element_removed, vFpp);      \
+    GO(add_element, iFpp);          \
+    GO(remove_element, iFpp);       \
+    GO(handle_message, vFpp);       \
+    GO(do_latency, iFp);            \
+    GO(deep_element_added, vFppp);  \
+    GO(deep_element_removed, vFppp);\
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstBinClass(my_GstBinClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstBin (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstBinClass(my_GstBinClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstBin (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstBinClass(my_GstBinClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstBin (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+// ----- GstBaseTransformClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstBaseTransform, transform_caps, void*, (void* trans, int direction, void* caps, void* filter), "pipp", trans, direction, caps, filter);
+WRAPPER(GstBaseTransform, fixate_caps, void*, (void* trans, int direction, void* caps, void* othercaps), "pipp", trans, direction, caps, othercaps);
+WRAPPER(GstBaseTransform, accept_caps, int, (void* trans, int direction, void* caps), "pip", trans, direction, caps);
+WRAPPER(GstBaseTransform, set_caps, int, (void* trans, void* incaps, void* outcaps), "ppp", trans, incaps, outcaps);
+WRAPPER(GstBaseTransform, query, int, (void* trans, int direction, void* query), "pip", trans, direction, query);
+WRAPPER(GstBaseTransform, decide_allocation, int, (void* trans, void* query), "pp", trans, query );
+WRAPPER(GstBaseTransform, filter_meta, int, (void* trans, void* query, size_t api, void* params), "ppLp", trans, query, api, params);
+WRAPPER(GstBaseTransform, propose_allocation, int, (void* trans, void* decide_query, void* query), "ppp", trans, decide_query, query );
+WRAPPER(GstBaseTransform, transform_size, int, (void* trans, int direction, void* caps, size_t size, void* othercaps, void* othersize), "pipLpp", trans, direction, caps, size, othercaps, othersize);
+WRAPPER(GstBaseTransform, get_unit_size, int, (void* trans, void* caps, void* size), "ppp", trans, caps, size);
+WRAPPER(GstBaseTransform, start, int, (void* trans), "p", trans);
+WRAPPER(GstBaseTransform, stop, int, (void* trans), "p", trans);
+WRAPPER(GstBaseTransform, sink_event, int, (void* trans, void* event), "pp", trans, event );
+WRAPPER(GstBaseTransform, src_event, int, (void* trans, void* event), "pp", trans, event );
+WRAPPER(GstBaseTransform, prepare_output_buffer, int, (void*  trans, void* input, void* outbuf), "ppp", trans, input, outbuf );
+WRAPPER(GstBaseTransform, copy_metadata, int, (void* trans, void* input, void* outbuf), "ppp", trans, input, outbuf );
+WRAPPER(GstBaseTransform, transform_meta, int, (void* trans, void* outbuf, void* meta, void* inbuf), "pppp", trans, outbuf, meta, inbuf );
+WRAPPER(GstBaseTransform, before_transform, void, (void* trans, void* buffer), "pp", trans, buffer );
+WRAPPER(GstBaseTransform, transform, int, (void* trans, void* inbuf, void* outbuf), "ppp", trans, inbuf, outbuf );
+WRAPPER(GstBaseTransform, transform_ip, int, (void* trans, void* buf), "pp", trans, buf );
+WRAPPER(GstBaseTransform, submit_input_buffer, int, (void* trans, int is_discont, void* input), "pip", trans, is_discont, input );
+WRAPPER(GstBaseTransform, generate_output, int, (void* trans, void* outbuf), "pp", trans, outbuf );
+
+#define SUPERGO()                       \
+    GO(transform_caps, pFpipp);         \
+    GO(fixate_caps, pFpipp);            \
+    GO(accept_caps, iFpip);             \
+    GO(set_caps, iFppp);                \
+    GO(query, iFpip);                   \
+    GO(decide_allocation, iFpp);        \
+    GO(filter_meta, iFppLp);            \
+    GO(propose_allocation, iFppp);      \
+    GO(transform_size, iFpipLpp);       \
+    GO(get_unit_size, iFppp);           \
+    GO(start, iFp);                     \
+    GO(stop, iFp);                      \
+    GO(sink_event, iFpp);               \
+    GO(src_event, iFpp);                \
+    GO(prepare_output_buffer, iFppp);   \
+    GO(copy_metadata, iFppp);           \
+    GO(transform_meta, iFpppp);         \
+    GO(before_transform, vFpp);         \
+    GO(transform, iFppp);               \
+    GO(transform_ip, iFpp);             \
+    GO(submit_input_buffer, iFpip);     \
+    GO(generate_output, iFpp);          \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstBaseTransformClass(my_GstBaseTransformClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstBaseTransform (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstBaseTransformClass(my_GstBaseTransformClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstBaseTransform (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstBaseTransformClass(my_GstBaseTransformClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstBaseTransform (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+// ----- GstVideoDecoderClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstVideoDecoder, open, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, close, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, start, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, stop, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, parse, int, (void* decoder, void* frame, void* adapter, int at_eos), "pppi", decoder, frame, adapter, at_eos);
+WRAPPER(GstVideoDecoder, set_format, int, (void* decoder, void* state), "pp", decoder, state);
+WRAPPER(GstVideoDecoder, reset, int, (void* decoder, int hard), "pi", decoder, hard);
+WRAPPER(GstVideoDecoder, finish, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, handle_frame, int, (void* decoder, void* frame), "pp", decoder, frame);
+WRAPPER(GstVideoDecoder, sink_event, int, (void* decoder, void* event), "pp", decoder, event);
+WRAPPER(GstVideoDecoder, src_event, int, (void* decoder, void* event), "pp", decoder, event);
+WRAPPER(GstVideoDecoder, negotiate, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, decide_allocation, int, (void* decoder, void* query), "pp", decoder, query);
+WRAPPER(GstVideoDecoder, propose_allocation, int, (void* decoder, void*  query), "pp", decoder, query);
+WRAPPER(GstVideoDecoder, flush, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, sink_query, int, (void* decoder, void* query), "pp", decoder, query);
+WRAPPER(GstVideoDecoder, src_query, int, (void* decoder, void* query), "pp", decoder, query);
+WRAPPER(GstVideoDecoder, getcaps, void*, (void* decoder, void* filter), "pp", decoder, filter);
+WRAPPER(GstVideoDecoder, drain, int, (void* decoder), "p", decoder);
+WRAPPER(GstVideoDecoder, transform_meta, int, (void* decoder, void* frame, void* meta), "ppp", decoder, frame, meta);
+WRAPPER(GstVideoDecoder, handle_missing_data, int, (void* decoder, uint64_t timestamp, uint64_t duration), "pUU", decoder, timestamp, duration);
+
+#define SUPERGO()                       \
+    GO(open, iFp);                      \
+    GO(close, iFp);                     \
+    GO(start, iFp);                     \
+    GO(stop, iFp);                      \
+    GO(parse, iFpppi);                  \
+    GO(set_format, iFpp);               \
+    GO(reset, iFp);                     \
+    GO(finish, iFp);                    \
+    GO(handle_frame, iFpp);             \
+    GO(sink_event, iFpp);               \
+    GO(src_event, iFpp);                \
+    GO(negotiate, iFp);                 \
+    GO(decide_allocation, iFpp);        \
+    GO(propose_allocation, iFpp);       \
+    GO(flush, iFp);                     \
+    GO(sink_query, iFpp);               \
+    GO(src_query, iFpp);                \
+    GO(getcaps, pFpp);                  \
+    GO(drain, iFp);                     \
+    GO(transform_meta, iFppp);          \
+    GO(handle_missing_data, iFpUU);     \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstVideoDecoderClass(my_GstVideoDecoderClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstVideoDecoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstVideoDecoderClass(my_GstVideoDecoderClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstVideoDecoder (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstVideoDecoderClass(my_GstVideoDecoderClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstVideoDecoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+// ----- GstVideoEncoderClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstVideoEncoder, open, int, (void* encoder), "p", encoder);
+WRAPPER(GstVideoEncoder, close, int, (void* encoder), "p", encoder);
+WRAPPER(GstVideoEncoder, start, int, (void* encoder), "p", encoder);
+WRAPPER(GstVideoEncoder, stop, int, (void* encoder), "p", encoder);
+WRAPPER(GstVideoEncoder, set_format, int, (void* encoder, void* state), "pp", encoder, state);
+WRAPPER(GstVideoEncoder, handle_frame, int, (void* encoder, void* frame), "pp", encoder, frame);
+WRAPPER(GstVideoEncoder, reset, int, (void* encoder, int hard), "pi", encoder, hard);
+WRAPPER(GstVideoEncoder, finish, int, (void* encoder), "p", encoder);
+WRAPPER(GstVideoEncoder, pre_push, int, (void* encoder, void* frame), "pp", encoder, frame);
+WRAPPER(GstVideoEncoder, getcaps, void*, (void* encoder, void* filter), "pp", encoder, filter);
+WRAPPER(GstVideoEncoder, sink_event, int, (void* encoder, void* event), "pp", encoder, event);
+WRAPPER(GstVideoEncoder, src_event, int, (void* encoder, void* event), "pp", encoder, event);
+WRAPPER(GstVideoEncoder, negotiate, int, (void* encoder), "p", encoder);
+WRAPPER(GstVideoEncoder, decide_allocation, int, (void* encoder, void* query), "pp", encoder, query);
+WRAPPER(GstVideoEncoder, propose_allocation, int, (void* encoder, void*  query), "pp", encoder, query);
+WRAPPER(GstVideoEncoder, flush, int, (void* encoder), "p", encoder);
+WRAPPER(GstVideoEncoder, sink_query, int, (void* encoder, void* query), "pp", encoder, query);
+WRAPPER(GstVideoEncoder, src_query, int, (void* encoder, void* query), "pp", encoder, query);
+WRAPPER(GstVideoEncoder, transform_meta, int, (void* encoder, void* frame, void* meta), "ppp", encoder, frame, meta);
+
+#define SUPERGO()                       \
+    GO(open, iFp);                      \
+    GO(close, iFp);                     \
+    GO(start, iFp);                     \
+    GO(stop, iFp);                      \
+    GO(set_format, iFpp);               \
+    GO(handle_frame, iFpp);             \
+    GO(reset, iFp);                     \
+    GO(finish, iFp);                    \
+    GO(pre_push, iFpp);                 \
+    GO(getcaps, pFpp);                  \
+    GO(sink_event, iFpp);               \
+    GO(src_event, iFpp);                \
+    GO(negotiate, iFp);                 \
+    GO(decide_allocation, iFpp);        \
+    GO(propose_allocation, iFpp);       \
+    GO(flush, iFp);                     \
+    GO(sink_query, iFpp);               \
+    GO(src_query, iFpp);                \
+    GO(transform_meta, iFppp);          \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstVideoEncoderClass(my_GstVideoEncoderClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstVideoEncoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstVideoEncoderClass(my_GstVideoEncoderClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstVideoEncoder (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstVideoEncoderClass(my_GstVideoEncoderClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstVideoEncoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+// ----- GstBaseSinkClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstBaseSink, get_caps, void*, (void* sink, void* filter), "pp", sink, filter);
+WRAPPER(GstBaseSink, set_caps, int, (void* sink, void* caps), "pp", sink, caps);
+WRAPPER(GstBaseSink, fixate, void* , (void* sink, void* caps), "pp", sink, caps);
+WRAPPER(GstBaseSink, activate_pull, int, (void* sink, int active), "pi", sink, active);
+WRAPPER(GstBaseSink, get_times, void, (void* sink, void* buffer, void* start, void* end), "pppp", sink, buffer, start, end);
+WRAPPER(GstBaseSink, propose_allocation, int, (void* sink, void* query), "pp", sink, query);
+WRAPPER(GstBaseSink, start, int, (void* sink), "p", sink);
+WRAPPER(GstBaseSink, stop, int, (void* sink), "p", sink);
+WRAPPER(GstBaseSink, unlock, int, (void* sink), "p", sink);
+WRAPPER(GstBaseSink, unlock_stop, int, (void* sink), "p", sink);
+WRAPPER(GstBaseSink, query, int, (void* sink, void* query), "pp", sink, query);
+WRAPPER(GstBaseSink, event, int, (void* sink, void* event), "pp", sink, event);
+WRAPPER(GstBaseSink, wait_event, int, (void* sink, void* event), "pp", sink, event);
+WRAPPER(GstBaseSink, prepare, int, (void* sink, void* buffer), "pp", sink, buffer);
+WRAPPER(GstBaseSink, prepare_list, int, (void* sink, void* buffer_list), "pp", sink, buffer_list);
+WRAPPER(GstBaseSink, preroll, int, (void* sink, void* buffer), "pp", sink, buffer);
+WRAPPER(GstBaseSink, render, int, (void* sink, void* buffer), "pp", sink, buffer);
+WRAPPER(GstBaseSink, render_list, int, (void* sink, void* buffer_list), "pp", sink, buffer_list);
+
+#define SUPERGO()                       \
+    GO(get_caps, pFpp);                 \
+    GO(set_caps, iFpp);                 \
+    GO(fixate, pFpp);                   \
+    GO(activate_pull, iFpi);            \
+    GO(get_times, vFpppp);              \
+    GO(propose_allocation, iFpp);       \
+    GO(start, iFp);                     \
+    GO(stop, iFp);                      \
+    GO(unlock, iFp);                    \
+    GO(unlock_stop, iFp);               \
+    GO(query, iFpp);                    \
+    GO(event, iFpp);                    \
+    GO(wait_event, iFpp);               \
+    GO(prepare, iFpp);                  \
+    GO(prepare_list, iFpp);             \
+    GO(preroll, iFpp);                  \
+    GO(render, iFpp);                   \
+    GO(render_list, iFpp);              \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstBaseSinkClass(my_GstBaseSinkClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstBaseSink (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstBaseSinkClass(my_GstBaseSinkClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstBaseSink (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstBaseSinkClass(my_GstBaseSinkClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstBaseSink (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstVideoSinkClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstVideoSink, show_frame, int, (void* video_sink, void* buf), "pp", video_sink, buf);
+WRAPPER(GstVideoSink, set_info, int, (void* video_sink, void* caps, void* info), "ppp", video_sink, caps, info);
+
+#define SUPERGO()                       \
+    GO(show_frame, iFpp);               \
+    GO(set_info, iFppp);                \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstVideoSinkClass(my_GstVideoSinkClass_t* class)
+{
+    wrapGstBaseSinkClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstVideoSink (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstVideoSinkClass(my_GstVideoSinkClass_t* class)
+{
+    unwrapGstBaseSinkClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstVideoSink (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstVideoSinkClass(my_GstVideoSinkClass_t* class)
+{
+    bridgeGstBaseSinkClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstVideoSink (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstGLBaseFilterClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstGLBaseFilter, gl_start, int, (void* filter), "p", filter);
+WRAPPER(GstGLBaseFilter, gl_stop, void, (void* filter), "p", filter);
+WRAPPER(GstGLBaseFilter, gl_set_caps, int, (void* filter, void* incaps, void* outcaps), "ppp", filter, incaps, outcaps);
+
+#define SUPERGO()                       \
+    GO(gl_start, iFp);                  \
+    GO(gl_stop, vFp);                   \
+    GO(gl_set_caps, iFppp);             \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstGLBaseFilterClass(my_GstGLBaseFilterClass_t* class)
+{
+    wrapGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstGLBaseFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstGLBaseFilterClass(my_GstGLBaseFilterClass_t* class)
+{
+    unwrapGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstGLBaseFilter (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstGLBaseFilterClass(my_GstGLBaseFilterClass_t* class)
+{
+    bridgeGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstGLBaseFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstGLFilterClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstGLFilter, set_caps, int, (void* filter, void* incaps, void* outcaps), "ppp", filter, incaps, outcaps);
+WRAPPER(GstGLFilter, filter, int, (void* filter, void* inbuf, void* outbuf), "ppp", filter, inbuf, outbuf);
+WRAPPER(GstGLFilter, filter_texture, int, (void* filter, void* input, void* output), "ppp", filter, input, output);
+WRAPPER(GstGLFilter, init_fbo, int, (void* filter), "p", filter);
+WRAPPER(GstGLFilter, transform_internal_caps, void*, (void* filter, int direction, void* caps, void* filter_caps), "pipp", filter, direction, caps, filter_caps);
+
+#define SUPERGO()                       \
+    GO(set_caps, iFppp);                \
+    GO(filter, iFppp);                  \
+    GO(filter_texture, iFppp);          \
+    GO(init_fbo, iFp);                  \
+    GO(transform_internal_caps, pFpipp);\
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstGLFilterClass(my_GstGLFilterClass_t* class)
+{
+    wrapGstGLBaseFilterClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstGLFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstGLFilterClass(my_GstGLFilterClass_t* class)
+{
+    unwrapGstGLBaseFilterClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstGLFilter (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstGLFilterClass(my_GstGLFilterClass_t* class)
+{
+    bridgeGstGLBaseFilterClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstGLFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstAggregatorClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstAggregator, flush, int, (void* self), "p", self);
+WRAPPER(GstAggregator, clip, void*, (void* self, void* aggregator_pad, void* buf), "ppp", self, aggregator_pad, buf);
+WRAPPER(GstAggregator, finish_buffer, int, (void* self, void* buffer), "pp", self, buffer);
+WRAPPER(GstAggregator, sink_event, int, (void* self, void* aggregator_pad, void* event), "ppp", self, aggregator_pad, event);
+WRAPPER(GstAggregator, sink_query, int, (void* self, void* aggregator_pad, void* query), "ppp", self, aggregator_pad, query);
+WRAPPER(GstAggregator, src_event, int, (void* self, void* event), "pp", self, event);
+WRAPPER(GstAggregator, src_query, int, (void* self, void* query), "pp", self, query);
+WRAPPER(GstAggregator, src_activate, int, (void* self, int mode, int active), "pii", self, mode, active);
+WRAPPER(GstAggregator, aggregate, int, (void* self, int timeout), "pi", self, timeout);
+WRAPPER(GstAggregator, stop, int, (void* self), "p", self);
+WRAPPER(GstAggregator, start, int, (void* self), "p", self);
+WRAPPER(GstAggregator, get_next_time, uint64_t, (void* self), "p", self);
+WRAPPER(GstAggregator, create_new_pad, void*, (void* self, void* templ, void* req_name, void* caps), "pppp", self, templ, req_name, caps);
+WRAPPER(GstAggregator, update_src_caps, int, (void* self, void* caps, void* ret), "ppp", self, caps, ret);
+WRAPPER(GstAggregator, fixate_src_caps, void*, (void* self, void* caps), "pp", self, caps);
+WRAPPER(GstAggregator, negotiated_src_caps, int, (void* self, void* caps), "pp", self, caps);
+WRAPPER(GstAggregator, decide_allocation, int, (void* self, void* query), "pp", self, query);
+WRAPPER(GstAggregator, propose_allocation, int, (void* self, void* pad, void* decide_query, void* query), "pppp", self, pad, decide_query, query);
+WRAPPER(GstAggregator, negotiate, int, (void* self), "p", self);
+WRAPPER(GstAggregator, sink_event_pre_queue, int, (void* self, void* aggregator_pad, void* event), "ppp", self, aggregator_pad, event);
+WRAPPER(GstAggregator, sink_query_pre_queue, int, (void* self, void* aggregator_pad, void* query), "ppp", self, aggregator_pad, query);
+WRAPPER(GstAggregator, finish_buffer_list, int, (void* self, void* bufferlist), "pp", self, bufferlist);
+WRAPPER(GstAggregator, peek_next_sample, void, (void* self, void* aggregator_pad), "pp", self, aggregator_pad);
+
+#define SUPERGO()                       \
+    GO(flush, iFp);                     \
+    GO(clip, pFppp);                    \
+    GO(finish_buffer, iFpp);            \
+    GO(sink_event, iFppp);              \
+    GO(sink_query, iFppp);              \
+    GO(src_event, iFpp);                \
+    GO(src_query, iFpp);                \
+    GO(src_activate, iFpii);            \
+    GO(aggregate, iFpi);                \
+    GO(stop, iFp);                      \
+    GO(start, iFp);                     \
+    GO(get_next_time, UFp);             \
+    GO(create_new_pad, pFpppp);         \
+    GO(update_src_caps, iFppp);         \
+    GO(fixate_src_caps, pFpp);          \
+    GO(negotiated_src_caps, iFpp);      \
+    GO(decide_allocation, iFpp);        \
+    GO(propose_allocation, iFpppp);     \
+    GO(negotiate, iFp);                 \
+    GO(sink_event_pre_queue, iFppp);    \
+    GO(sink_query_pre_queue, iFppp);    \
+    GO(finish_buffer_list, iFpp);       \
+    GO(peek_next_sample, vFpp);         \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstAggregatorClass(my_GstAggregatorClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstAggregator (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstAggregatorClass(my_GstAggregatorClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstAggregator (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstAggregatorClass(my_GstAggregatorClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstAggregator (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstVideoAggregatorClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstVideoAggregator, update_caps, void*, (void* vagg, void* caps), "pp", vagg, caps);
+WRAPPER(GstVideoAggregator, aggregate_frames, int, (void* vagg, void* outbuffer), "pp", vagg, outbuffer);
+WRAPPER(GstVideoAggregator, create_output_buffer, int, (void* vagg, void* outbuffer), "pp", vagg, outbuffer);
+WRAPPER(GstVideoAggregator, find_best_format, void, (void* vagg, void* downstream_caps, void* best_info, void* at_least_one_alpha), "pppp", vagg, downstream_caps, best_info, at_least_one_alpha);
+
+#define SUPERGO()                       \
+    GO(update_caps, pFpp);              \
+    GO(aggregate_frames, iFpp);         \
+    GO(create_output_buffer, iFpp);     \
+    GO(find_best_format, vFpppp);       \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstVideoAggregatorClass(my_GstVideoAggregatorClass_t* class)
+{
+    wrapGstAggregatorClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstVideoAggregator (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstVideoAggregatorClass(my_GstVideoAggregatorClass_t* class)
+{
+    unwrapGstAggregatorClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstVideoAggregator (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstVideoAggregatorClass(my_GstVideoAggregatorClass_t* class)
+{
+    bridgeGstAggregatorClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstVideoAggregator (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstPadClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstPad, linked, void, (void* pad, void* peer), "pp", pad, peer);
+WRAPPER(GstPad, unlinked, void, (void* pad, void* peer), "pp", pad, peer);
+
+#define SUPERGO()               \
+    GO(linked, vFpp);           \
+    GO(unlinked, vFpp);         \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstPadClass(my_GstPadClass_t* class)
+{
+    wrapGstObjectClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstPad (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstPadClass(my_GstPadClass_t* class)
+{
+    unwrapGstObjectClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstPad (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstPadClass(my_GstPadClass_t* class)
+{
+    bridgeGstObjectClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstPad (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstAggregatorPadClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstAggregatorPad, flush, int, (void* aggpad, void* aggregator), "pp", aggpad, aggregator);
+WRAPPER(GstAggregatorPad, skip_buffer, int, (void* aggpad, void* aggregator, void* buffer), "ppp", aggpad, aggregator, buffer);
+
+#define SUPERGO()                       \
+    GO(flush, iFpp);                    \
+    GO(skip_buffer, iFppp);             \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstAggregatorPadClass(my_GstAggregatorPadClass_t* class)
+{
+    wrapGstPadClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstAggregatorPad (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstAggregatorPadClass(my_GstAggregatorPadClass_t* class)
+{
+    unwrapGstPadClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstAggregatorPad (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstAggregatorPadClass(my_GstAggregatorPadClass_t* class)
+{
+    bridgeGstPadClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstAggregatorPad (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstVideoAggregatorPadClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstVideoAggregatorPad, update_conversion_info, void, (void* pad), "p", pad);
+WRAPPER(GstVideoAggregatorPad, prepare_frame, int, (void* pad, void* vagg, void* buffer, void* prepared_frame), "pppp", pad, vagg, buffer, prepared_frame);
+WRAPPER(GstVideoAggregatorPad, clean_frame, void, (void* pad, void* vagg, void* prepared_frame), "ppp", pad, vagg, prepared_frame);
+WRAPPER(GstVideoAggregatorPad, prepare_frame_start, void, (void* pad, void* vagg, void* buffer, void* prepared_frame), "pppp", pad, vagg, buffer, prepared_frame);
+WRAPPER(GstVideoAggregatorPad, prepare_frame_finish, void, (void* pad, void* vagg, void* prepared_frame), "ppp", pad, vagg, prepared_frame);
+
+#define SUPERGO()                       \
+    GO(update_conversion_info, vFp);    \
+    GO(prepare_frame, iFpppp);          \
+    GO(clean_frame, vFppp);             \
+    GO(prepare_frame_start, vFpppp);    \
+    GO(prepare_frame_finish, vFppp);    \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstVideoAggregatorPadClass(my_GstVideoAggregatorPadClass_t* class)
+{
+    wrapGstAggregatorPadClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstVideoAggregatorPad (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstVideoAggregatorPadClass(my_GstVideoAggregatorPadClass_t* class)
+{
+    unwrapGstAggregatorPadClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstVideoAggregatorPad (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstVideoAggregatorPadClass(my_GstVideoAggregatorPadClass_t* class)
+{
+    bridgeGstAggregatorPadClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstVideoAggregatorPad (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstBaseSrcClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstBaseSrc, get_caps, void*, (void* src, void* filter), "pp", src, filter);
+WRAPPER(GstBaseSrc, negotiate, int, (void* src), "p", src);
+WRAPPER(GstBaseSrc, fixate, void*, (void* src, void* caps), "pp", src, caps);
+WRAPPER(GstBaseSrc, set_caps, int, (void* src, void* caps), "pp", src, caps);
+WRAPPER(GstBaseSrc, decide_allocation, int, (void* src, void* query), "pp", src, query);
+WRAPPER(GstBaseSrc, start, int, (void* src), "p", src);
+WRAPPER(GstBaseSrc, stop, int, (void* src), "p", src);
+WRAPPER(GstBaseSrc, get_times, void , (void* src, void* buffer, void* start, void* end), "pppp", src, buffer, start, end);
+WRAPPER(GstBaseSrc, get_size, int, (void* src, void* size), "pp", src, size);
+WRAPPER(GstBaseSrc, is_seekable, int, (void* src), "p", src);
+WRAPPER(GstBaseSrc, prepare_seek_segment, int, (void* src, void* seek, void* segment), "ppp", src, seek, segment);
+WRAPPER(GstBaseSrc, do_seek, int, (void* src, void* segment), "pp", src, segment);
+WRAPPER(GstBaseSrc, unlock, int, (void* src), "p", src);
+WRAPPER(GstBaseSrc, unlock_stop, int, (void* src), "p", src);
+WRAPPER(GstBaseSrc, query, int, (void* src, void* query), "pp", src, query);
+WRAPPER(GstBaseSrc, event, int, (void* src, void* event), "pp", src, event);
+WRAPPER(GstBaseSrc, create, int, (void* src, uint64_t offset, uint32_t size, void* buf), "pUup", src, offset, size, buf);
+WRAPPER(GstBaseSrc, alloc, int, (void* src, uint64_t offset, uint32_t size, void* buf), "pUup", src, offset, size, buf);
+WRAPPER(GstBaseSrc, fill, int, (void* src, uint64_t offset, uint32_t size, void* buf), "pUup", src, offset, size, buf);
+
+#define SUPERGO()                       \
+    GO(get_caps, pFpp);                 \
+    GO(negotiate, iFp);                 \
+    GO(fixate, pFpp);                   \
+    GO(set_caps, iFpp);                 \
+    GO(decide_allocation, iFpp);        \
+    GO(start, iFp);                     \
+    GO(stop, iFp);                      \
+    GO(get_times, vFpppp);              \
+    GO(get_size, iFpp);                 \
+    GO(is_seekable, iFp);               \
+    GO(prepare_seek_segment, iFppp);    \
+    GO(do_seek, iFpp);                  \
+    GO(unlock, iFp);                    \
+    GO(unlock_stop, iFp);               \
+    GO(query, iFpp);                    \
+    GO(event, iFpp);                    \
+    GO(create, iFpUup);                 \
+    GO(alloc, iFpUup);                  \
+    GO(fill, iFpUup);                   \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstBaseSrcClass(my_GstBaseSrcClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstBaseSrc (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstBaseSrcClass(my_GstBaseSrcClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstBaseSrc (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstBaseSrcClass(my_GstBaseSrcClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstBaseSrc (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstPushSrcClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstPushSrc, create, int, (void* src, void* buf), "pp", src, buf);
+WRAPPER(GstPushSrc, alloc, int, (void* src, void* buf), "pp", src, buf);
+WRAPPER(GstPushSrc, fill, int, (void* src, void* buf), "pp", src, buf);
+
+#define SUPERGO()               \
+    GO(create, iFpp);           \
+    GO(alloc, iFpp);            \
+    GO(fill, iFpp);             \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstPushSrcClass(my_GstPushSrcClass_t* class)
+{
+    wrapGstBaseSrcClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstPushSrc (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstPushSrcClass(my_GstPushSrcClass_t* class)
+{
+    unwrapGstBaseSrcClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstPushSrc (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstPushSrcClass(my_GstPushSrcClass_t* class)
+{
+    bridgeGstBaseSrcClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstPushSrc (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstGLBaseSrcClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstGLBaseSrc, gl_start, int, (void* src), "p", src);
+WRAPPER(GstGLBaseSrc, gl_stop, void, (void* src), "p", src);
+WRAPPER(GstGLBaseSrc, fill_gl_memory, int, (void* src, void* mem), "pp", src, mem);
+
+#define SUPERGO()               \
+    GO(gl_start, iFp);          \
+    GO(gl_stop, vFp);           \
+    GO(fill_gl_memory, iFpp);   \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstGLBaseSrcClass(my_GstGLBaseSrcClass_t* class)
+{
+    wrapGstPushSrcClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstGLBaseSrc (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstGLBaseSrcClass(my_GstGLBaseSrcClass_t* class)
+{
+    unwrapGstPushSrcClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstGLBaseSrc (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstGLBaseSrcClass(my_GstGLBaseSrcClass_t* class)
+{
+    bridgeGstPushSrcClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstGLBaseSrc (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstAudioDecoderClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstAudioDecoder, start, int,(void* dec), "p", dec);
+WRAPPER(GstAudioDecoder, stop, int,(void* dec), "p", dec);
+WRAPPER(GstAudioDecoder, set_format, int,(void* dec, void* caps), "pp", dec, caps);
+WRAPPER(GstAudioDecoder, parse, int,(void* dec, void* adapter, void* offset, void* length), "pppp", dec, adapter, offset, length);
+WRAPPER(GstAudioDecoder, handle_frame, int,(void* dec, void* buffer), "pp", dec, buffer);
+WRAPPER(GstAudioDecoder, flush, void ,(void* dec, int hard), "pi", dec, hard);
+WRAPPER(GstAudioDecoder, pre_push, int,(void* dec, void* buffer), "pp", dec, buffer);
+WRAPPER(GstAudioDecoder, sink_event, int,(void* dec, void* event), "pp", dec, event);
+WRAPPER(GstAudioDecoder, src_event, int,(void* dec, void* event), "pp", dec, event);
+WRAPPER(GstAudioDecoder, open, int,(void* dec), "p", dec);
+WRAPPER(GstAudioDecoder, close, int,(void* dec), "p", dec);
+WRAPPER(GstAudioDecoder, negotiate, int,(void* dec), "p", dec);
+WRAPPER(GstAudioDecoder, decide_allocation, int,(void* dec, void* query), "pp", dec, query);
+WRAPPER(GstAudioDecoder, propose_allocation, int,(void* dec, void* query), "pp", dec, query);
+WRAPPER(GstAudioDecoder, sink_query, int,(void* dec, void* query), "pp", dec, query);
+WRAPPER(GstAudioDecoder, src_query, int,(void* dec, void* query), "pp", dec, query);
+WRAPPER(GstAudioDecoder, getcaps, void*,(void* dec, void*  filter), "pp", dec, filter);
+WRAPPER(GstAudioDecoder, transform_meta, int,(void* enc, void* outbuf, void* meta, void* inbuf), "pppp", enc, outbuf, meta, inbuf);
+
+#define SUPERGO()                       \
+    GO(start, iFp);                     \
+    GO(stop, iFp);                      \
+    GO(set_format, iFpp);               \
+    GO(parse, iFpppp);                  \
+    GO(handle_frame, iFpp);             \
+    GO(flush, vFpi);                    \
+    GO(pre_push, iFpp);                 \
+    GO(sink_event, iFpp);               \
+    GO(src_event, iFpp);                \
+    GO(open, iFp);                      \
+    GO(close, iFp);                     \
+    GO(negotiate, iFp);                 \
+    GO(decide_allocation, iFpp);        \
+    GO(propose_allocation, iFpp);       \
+    GO(sink_query, iFpp);               \
+    GO(src_query, iFpp);                \
+    GO(getcaps, vFpp);                  \
+    GO(transform_meta, iFpppp);         \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstAudioDecoderClass(my_GstAudioDecoderClass_t* class)
+{
+    wrapGstElementClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstAudioDecoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstAudioDecoderClass(my_GstAudioDecoderClass_t* class)
+{
+    unwrapGstElementClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstAudioDecoder (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstAudioDecoderClass(my_GstAudioDecoderClass_t* class)
+{
+    bridgeGstElementClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstAudioDecoder (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+// ----- GstVideoFilterClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstVideoFilter, set_info, int, (void* filter, void* incaps, void* in_info, void* outcaps, void* out_info), "ppppp", filter, incaps, in_info, outcaps, out_info);
+WRAPPER(GstVideoFilter, transform_frame, int, (void* filter, void* inframe, void* outframe), "ppp", filter, inframe, outframe);
+WRAPPER(GstVideoFilter, transform_frame_ip, int, (void* filter, void* frame), "pp", filter, frame);
+
+#define SUPERGO()                       \
+    GO(set_info, iFppppp);              \
+    GO(transform_frame, iFppp);         \
+    GO(transform_frame_ip, iFpp);       \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstVideoFilterClass(my_GstVideoFilterClass_t* class)
+{
+    wrapGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstVideoFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstVideoFilterClass(my_GstVideoFilterClass_t* class)
+{
+    unwrapGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstVideoFilter (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstVideoFilterClass(my_GstVideoFilterClass_t* class)
+{
+    bridgeGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstVideoFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
 // ----- GDBusProxyClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GDBusProxy, g_properties_changed, void, (void* proxy, void* changed_properties, const char* const* invalidated_properties), "ppp", proxy, changed_properties, invalidated_properties);
@@ -2475,16 +3565,77 @@ static void bridgeGDBusProxyClass(my_GDBusProxyClass_t* class)
 }
 
 #undef SUPERGO
+// ----- GstURIHandlerInterface ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstURIHandler,get_type, int, (size_t type), "L", type);
+WRAPPER(GstURIHandler,get_protocols, void*, (size_t type), "L", type);
+WRAPPER(GstURIHandler,get_uri, void*, (void* handler), "p", handler);
+WRAPPER(GstURIHandler,set_uri, int, (void* handler, void* uri, void* error), "ppp", handler, uri, error);
 
+#define SUPERGO()                       \
+    GO(get_type, iFL);                  \
+    GO(get_protocols, pFL);             \
+    GO(get_uri, pFp);                   \
+    GO(set_uri, iFppp);                 \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstURIHandlerInterface(my_GstURIHandlerInterface_t* iface)
+{
+    // parent don't need wrazpping
+    #define GO(A, W) iface->A = reverse_##A##_GstURIHandler (W, iface->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstURIHandlerInterface(my_GstURIHandlerInterface_t* iface)
+{
+    // parent don't need wrazpping
+    #define GO(A, W)   iface->A = find_##A##_GstURIHandler (iface->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstURIHandlerInterface(my_GstURIHandlerInterface_t* iface)
+{
+    // parent don't need wrazpping
+    #define GO(A, W) autobridge_##A##_GstURIHandler (W, iface->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
 // No more wrap/unwrap
 #undef WRAPPER
 #undef FIND
 #undef REVERSE
 #undef WRAPPED
 
+// a class to collection of custom defined class...
+void addRegisteredClass(size_t klass, char* name)
+{
+    if(!klass)
+        return;
+    if(!my_customclass) {
+        my_customclass = kh_init(customclass);
+    }
+    khint_t k;
+    int ret;
+    k = kh_put(customclass, my_customclass, klass, &ret);
+    kh_value(my_customclass, k) = strdup(name);
+}
+
+int checkRegisteredClass(size_t klass)
+{
+    if(!my_customclass)
+        return 0;
+    khint_t k = kh_get(customclass, my_customclass, klass);
+    return (k==kh_end(my_customclass))?0:1;
+}
+
 // g_type_class_peek_parent
 static void wrapGTKClass(void* cl, size_t type)
 {
+    #define GTKIFACE(A)
     #define GTKCLASS(A)                             \
     if(type==my_##A)                                \
         wrap##A##Class((my_##A##Class_t*)cl);       \
@@ -2498,13 +3649,15 @@ static void wrapGTKClass(void* cl, size_t type)
             my_MetaFrames2 = type;
             wrapMetaFrames2Class((my_MetaFrames2Class_t*)cl);
         } else
-            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type %zd (%s)\n", type, g_type_name(type));
+            printf_log(LOG_NONE, "Warning, Custom Class initializer with unknown class type 0w%zx (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
+    #undef GTKIFACE
 }
 
 static void unwrapGTKClass(void* cl, size_t type)
 {
+    #define GTKIFACE(A)
     #define GTKCLASS(A)                             \
     if(type==my_##A)                                \
         unwrap##A##Class((my_##A##Class_t*)cl);     \
@@ -2516,10 +3669,12 @@ static void unwrapGTKClass(void* cl, size_t type)
     else
     {}  // else no warning, one is enough...
     #undef GTKCLASS
+    #undef GTKIFACE
 }
 
 static void bridgeGTKClass(void* cl, size_t type)
 {
+    #define GTKIFACE(A)
     #define GTKCLASS(A)                             \
     if(type==my_##A)                                \
         bridge##A##Class((my_##A##Class_t*)cl);     \
@@ -2529,15 +3684,70 @@ static void bridgeGTKClass(void* cl, size_t type)
     GTKCLASSES()
     if(type==8) {}  // GInterface have no structure
     else {
-        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type %zd (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type 0w%zx (%s)\n", type, g_type_name(type));
     }
+    #undef GTKCLASS
+    #undef GTKIFACE
+}
+
+static void wrapGTKInterface(void* cl, size_t type)
+{
+    #define GTKCLASS(A)
+    #define GTKIFACE(A)                                 \
+    if(type==my_##A)                                    \
+        wrap##A##Interface((my_##A##Interface_t*)cl);   \
+    else
+
+    printf_log(LOG_DEBUG, "wrapGTKInterface(%p, %zd (%s))\n", cl, type, g_type_name(type));
+    GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else {
+        printf_log(LOG_NONE, "Warning, Custom Interface initializer with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
+    }
+    #undef GTKIFACE
     #undef GTKCLASS
 }
 
+void unwrapGTKInterface(void* cl, size_t type)
+{
+    #define GTKCLASS(A)
+    #define GTKIFACE(A)                                 \
+    if(type==my_##A)                                    \
+        unwrap##A##Interface((my_##A##Interface_t*)cl); \
+    else
+
+    printf_log(LOG_DEBUG, "unwrapGTKInterface(%p, %zd (%s))\n", cl, type, g_type_name(type));
+    GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else
+    {}  // else no warning, one is enough...
+    #undef GTKIFACE
+    #undef GTKCLASS
+}
+
+static void bridgeGTKInterface(void* cl, size_t type)
+{
+    #define GTKCLASS(A)
+    #define GTKIFACE(A)                                 \
+    if(type==my_##A)                                    \
+        bridge##A##Interface((my_##A##Interface_t*)cl); \
+    else
+
+    printf_log(LOG_DEBUG, "bridgeGTKInterface(%p, %zd (%s))\n", cl, type, g_type_name(type));
+    GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else {
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Interface with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
+    }
+    #undef GTKCLASS
+    #undef GTKIFACE
+}
 
 typedef union my_GClassAll_s {
     #define GTKCLASS(A) my_##A##Class_t A;
+    #define GTKIFACE(A) my_##A##Interface_t A;
     GTKCLASSES()
+    #undef GTKIFACE
     #undef GTKCLASS
 } my_GClassAll_t;
 
@@ -2551,19 +3761,23 @@ SUPER()
 void* unwrapCopyGTKClass(void* klass, size_t type)
 {
     if(!klass) return klass;
+    if(checkRegisteredClass(type))
+        return klass;
     #define GO(A) if(klass == my_gclassall_ref_##A) return &my_gclassall_##A;
     SUPER()
     #undef GO
     // check if class is the exact type we know
     size_t sz = 0;
+    #define GTKIFACE(A)
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
     if(type==8) {}  // GInterface have no structure
     else {
-        printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type %zu (%s)\n", type, g_type_name(type));
+        printf_log(LOG_NONE, "Warning, unwrapCopyGTKClass called with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
         return klass;
     }
     #undef GTKCLASS
+    #undef GTKIFACE
     my_GClassAll_t *newklass = NULL;
     #define GO(A) if(!newklass && !my_gclassall_ref_##A) {my_gclassall_ref_##A = klass; newklass = &my_gclassall_##A;}
     SUPER()
@@ -2577,6 +3791,39 @@ void* unwrapCopyGTKClass(void* klass, size_t type)
     return newklass;
 }
 
+void* unwrapCopyGTKInterface(void* iface, size_t type)
+{
+    if(!iface) return iface;
+    if(checkRegisteredClass(type))
+        return iface;
+    #define GO(A) if(iface == my_gclassall_ref_##A) return &my_gclassall_##A;
+    SUPER()
+    #undef GO
+    // check if class is the exact type we know
+    size_t sz = 0;
+    #define GTKIFACE(A) if(type==my_##A) sz = sizeof(my_##A##Interface_t); else
+    #define GTKCLASS(A)
+    GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else {
+        printf_log(LOG_NONE, "Warning, unwrapCopyGTKInterface called with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
+        return iface;
+    }
+    #undef GTKCLASS
+    #undef GTKIFACE
+    my_GClassAll_t *newiface = NULL;
+    #define GO(A) if(!newiface && !my_gclassall_ref_##A) {my_gclassall_ref_##A = iface; newiface = &my_gclassall_##A;}
+    SUPER()
+    #undef GO
+    if(!newiface) {
+        printf_log(LOG_NONE, "Warning: no more slot for unwrapCopyGTKInterface\n");
+        return iface;
+    }
+    memcpy(newiface, iface, sz);
+    unwrapGTKInterface(newiface, type);
+    return newiface;
+}
+
 // gtk_type_class
 
 #define GO(A) \
@@ -2588,12 +3835,15 @@ SUPER()
 void* wrapCopyGTKClass(void* klass, size_t type)
 {
     if(!klass) return klass;
+    while(checkRegisteredClass(type))
+        type = g_type_parent(type);
     printf_log(LOG_DEBUG, "wrapCopyGTKClass(%p, %zd (%s))\n", klass, type, g_type_name(type));
     #define GO(A) if(klass == my_gclassallu_ref_##A) return &my_gclassallu_##A;
     SUPER()
     #undef GO
     // check if class is the exact type we know
     int sz = 0;
+    #define GTKIFACE(A)
     #define GTKCLASS(A) if(type==my_##A) sz = sizeof(my_##A##Class_t); else
     GTKCLASSES()
     if(type==8) {}  // GInterface have no structure
@@ -2606,21 +3856,41 @@ void* wrapCopyGTKClass(void* klass, size_t type)
             return klass;
         }
     }
+    #undef GTKIFACE
     #undef GTKCLASS
-    my_GClassAll_t *newklass = NULL;
-    #define GO(A) if(!newklass && !my_gclassallu_ref_##A) {my_gclassallu_ref_##A = klass; newklass = &my_gclassallu_##A;}
-    SUPER()
-    #undef GO
-    if(!newklass) {
-        printf_log(LOG_NONE, "Warning: no more slot for wrapCopyGTKClass\n");
-        return klass;
-    }
-    memcpy(newklass, klass, sz);
-    //wrapGTKClass(newklass, type);
-    bridgeGTKClass(newklass, type);
-    return newklass;
+    bridgeGTKClass(klass, type);
+    return klass;
 }
 
+void* wrapCopyGTKInterface(void* iface, size_t type)
+{
+    if(!iface) return iface;
+    while(checkRegisteredClass(type))
+        type = g_type_parent(type);
+    printf_log(LOG_DEBUG, "wrapCopyGTKInterface(%p, %zd (%s))\n", iface, type, g_type_name(type));
+    #define GO(A) if(iface == my_gclassallu_ref_##A) return &my_gclassallu_##A;
+    SUPER()
+    #undef GO
+    // check if class is the exact type we know
+    int sz = 0;
+    #define GTKIFACE(A) if(type==my_##A) sz = sizeof(my_##A##Interface_t); else
+    #define GTKCLASS(A)
+    GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else {
+        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+            my_MetaFrames2 = type;
+            sz = sizeof(my_MetaFrames2Class_t);
+        } else {
+            printf_log(LOG_NONE, "Warning, wrapCopyGTKInterface called with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
+            return iface;
+        }
+    }
+    #undef GTKIFACE
+    #undef GTKCLASS
+    bridgeGTKInterface(iface, type);
+    return iface;
+}
 // ---- GTypeValueTable ----
 
 // First the structure GTypeInfo statics, with paired x64 source pointer
@@ -3038,13 +4308,16 @@ static int my_class_init_##A(void* a, void* b)                              \
 {                                                                           \
     printf_log(LOG_DEBUG, "Custom Class init %d for class %p (parent=%p:%s)\n", A, a, (void*)parent_class_init_##A, g_type_name(parent_class_init_##A));\
     int ret = RunFunctionFmt(my_class_init_fct_##A, "pp", a, b);\
-    unwrapGTKClass(a, parent_class_init_##A);                               \
-    bridgeGTKClass(a, parent_class_init_##A);                               \
+    size_t type = parent_class_init_##A;                                    \
+    while(checkRegisteredClass(type))                                       \
+        type = g_type_parent(type);                                         \
+    unwrapGTKClass(a, type);                                                \
+    bridgeGTKClass(a, type);                                                \
     my_unwrap_signal_offset(a);                                             \
-    if(!strcmp(g_type_name(parent_class_init_##A), "AtkUtil")) {            \
-        my_AtkUtilClass_t* p = (my_AtkUtilClass_t*)g_type_class_peek(parent_class_init_##A);\
-        unwrapGTKClass(p, parent_class_init_##A);                           \
-        bridgeGTKClass(p, parent_class_init_##A);                           \
+    if(!strcmp(g_type_name(type), "AtkUtil")) {                             \
+        my_AtkUtilClass_t* p = (my_AtkUtilClass_t*)g_type_class_peek(type);\
+        unwrapGTKClass(p, type);                                            \
+        bridgeGTKClass(p, type);                                            \
     }                                                                       \
     return ret;                                                             \
 }
@@ -3232,12 +4505,15 @@ void Set##A##ID(size_t id)      \
 {                               \
     my_##A = id;                \
 }
+#define GTKIFACE(A)  GTKCLASS(A)
 GTKCLASSES()
+#undef GTKIFACE
 #undef GTKCLASS
 
 void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*))
 {
     void* p;
+    #define GTKIFACE(A)
     #define GTKCLASS(A)             \
     if(my_##A && my_##A!=-1) {      \
         p = ref(my_##A);            \
@@ -3245,6 +4521,7 @@ void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*))
         unref(p);                   \
     }
     GTKCLASSES()
+    #undef GTKIFACE
     #undef GTKCLASS
 }
 
@@ -3256,6 +4533,11 @@ void SetGTypeName(void* f)
 void SetGClassPeek(void* f)
 {
     g_type_class_peek = f;
+}
+
+void SetGTypeParent(void* f)
+{
+    g_type_parent = f;
 }
 
 my_signal_t* new_mysignal(void* f, void* data, void* destroy)

@@ -129,6 +129,7 @@ int box64_showsegv = 0;
 int box64_showbt = 0;
 int box64_isglibc234 = 0;
 char* box64_libGL = NULL;
+char* box64_custom_gstreamer = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint32_t default_gs = 0x53;
@@ -874,13 +875,16 @@ void LoadEnvPath(path_collection_t *col, const char* defpath, const char* env)
 {
     const char* p = getenv(env);
     if(p) {
-        printf_log(LOG_INFO, "%s: ", env);
         ParseList(p, col, 1);
     } else {
-        printf_log(LOG_INFO, "Using default %s: ", env);
         ParseList(defpath, col, 1);
     }
+}
+
+void PrintCollection(path_collection_t* col, const char* env)
+{
     if(LOG_INFO<=box64_log) {
+        printf_log(LOG_INFO, "%s: ", env);
         for(int i=0; i<col->size; i++)
             printf_log(LOG_INFO, "%s%s", col->paths[i], (i==col->size-1)?"\n":":");
     }
@@ -1280,6 +1284,10 @@ void endBox64()
         box_free(box64_libGL);
         box64_libGL = NULL;
     }
+    if(box64_custom_gstreamer) {
+        box_free(box64_custom_gstreamer);
+        box64_custom_gstreamer = NULL;
+    }
 }
 
 
@@ -1305,7 +1313,7 @@ static void load_rcfiles()
     }
 }
 
-void pressure_vessel(int argc, const char** argv, int nextarg);
+void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog);
 extern char** environ;
 int main(int argc, const char **argv, char **env) {
     init_malloc_hook();
@@ -1383,18 +1391,18 @@ int main(int argc, const char **argv, char **env) {
     #if 1
     // pre-check for pressure-vessel-wrap
     if(strstr(prog, "pressure-vessel-wrap")==(prog+strlen(prog)-strlen("pressure-vessel-wrap"))) {
-        // pressure-vessel-wrap detecter, skipping it and all -- args until "--" if needed
         printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected\n");
-        pressure_vessel(argc, argv, nextarg+1);
+        pressure_vessel(argc, argv, nextarg+1, prog);
     }
     #endif
     int ld_libs_args = -1;
+    int is_custom_gstreamer = 0;
     // check if this is wine
     if(!strcmp(prog, "wine64")
-     || !strcmp(prog, "wine64-development")
-     || !strcmp(prog, "wine")
-     || (strlen(prog)>5 && !strcmp(prog+strlen(prog)-strlen("/wine"), "/wine"))
-     || (strlen(prog)>7 && !strcmp(prog+strlen(prog)-strlen("/wine64"), "/wine64"))) {
+     || !strcmp(prog, "wine64-development") 
+     || !strcmp(prog, "wine") 
+     || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine"))
+     || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
         if(wine_preloaded)
@@ -1410,9 +1418,23 @@ int main(int argc, const char **argv, char **env) {
             }
         }
         box64_wine = 1;
-    } else
+        // check if it's proton, with it's custom gstreamer build, to disable gtk3 loading
+        char tmp[strlen(prog)+100];
+        strcpy(tmp, prog);
+        char* pp = strrchr(tmp, '/');
+        if(pp) {
+            *pp = '\0'; // remove the wine binary call
+            strcat(tmp, "/../lib64/gstreamer-1.0");
+            // check if it exist
+            if(FileExist(tmp, 0)) {
+                //printf_log(LOG_INFO, "BOX64: Custom gstreamer detected, disable gtk wrapping\n");
+                //box64_nogtk = 1;
+                //is_custom_gstreamer = 1;
+                box64_custom_gstreamer = box_strdup(tmp);
+            }
+        }
+    } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
-    if(strstr(prog, "ld-musl-x86_64.so.1")) {
         printf_log(LOG_INFO, "BOX64: ld-musl detected, trying to workaround and use system ld-linux\n");
         box64_musl = 1;
         // skip ld-musl and go through args unti "--" is found, handling "--library-path" to add some libs to BOX64_LD_LIBRARY
@@ -1443,6 +1465,8 @@ int main(int argc, const char **argv, char **env) {
     // Append ld_list if it exist
     if(ld_libs_args!=-1)
         PrependList(&my_context->box64_ld_lib, argv[ld_libs_args], 1);
+    if(is_custom_gstreamer)
+        AddPath("libwayland-client.so.0", &my_context->box64_emulated_libs, 0);
 
     my_context->box64path = ResolveFile(argv[0], &my_context->box64_path);
     // prepare all other env. var
@@ -1486,6 +1510,9 @@ int main(int argc, const char **argv, char **env) {
             }
         }
     }
+    // print PATH and LD_LIB used
+    PrintCollection(&my_context->box64_ld_lib, "BOX64 LIB PATH");
+    PrintCollection(&my_context->box64_path, "BOX64 BIN PATH");
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
     my_context->argv[0] = ResolveFile(prog, &my_context->box64_path);

@@ -111,6 +111,7 @@ typedef int32_t (*iFpppippppppp_t)(void*, void*, void*, int32_t, void*, void*, v
 	GO(g_option_group_set_parse_hooks, vFppp_t) \
 	GO(g_ptr_array_foreach, vFppp_t) \
 	GO(g_ptr_array_sort_with_data, vFppp_t) \
+	GO(g_queue_foreach, vFppp_t) \
 	GO(g_static_private_set, vFppp_t) \
 	GO(g_string_append_printf, vFppV_t) \
 	GO(g_string_printf, vFppV_t) \
@@ -133,11 +134,13 @@ typedef int32_t (*iFpppippppppp_t)(void*, void*, void*, int32_t, void*, void*, v
 	GO(g_list_insert_sorted, pFppp_t) \
 	GO(g_list_sort_with_data, pFppp_t) \
 	GO(g_node_copy_deep, pFppp_t) \
+	GO(g_once_impl, pFppp_t) \
 	GO(g_queue_find_custom, pFppp_t) \
 	GO(g_slist_find_custom, pFppp_t) \
 	GO(g_slist_foreach, pFppp_t) \
 	GO(g_slist_insert_sorted, pFppp_t) \
 	GO(g_slist_sort_with_data, pFppp_t) \
+	GO(g_thread_new, pFppp_t) \
 	GO(g_variant_new_va, pFppp_t) \
 	GO(g_build_path, pFppV_t) \
 	GO(g_log, vFpipV_t) \

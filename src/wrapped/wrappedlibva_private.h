@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-//GO(vaAcquireBufferHandle, 
+GO(vaAcquireBufferHandle, iFpup)
 //GO(vaAssociateSubpicture, 
 //GO(vaAttachProtectedSession, 
 GO(vaBeginPicture, iFpup)
@@ -74,10 +74,10 @@ GO(vaQueryVendorString, pFp)
 //GO(vaQueryVideoProcFilterCaps, 
 //GO(vaQueryVideoProcFilters, 
 GO(vaQueryVideoProcPipelineCaps, iFpupup)
-//GO(vaReleaseBufferHandle, 
+GO(vaReleaseBufferHandle, iFpu)
 GO(vaRenderPicture, iFpupi)
 //GO(vaSetDisplayAttributes, 
-//GO(vaSetDriverName, 
+GO(vaSetDriverName, iFpp)
 GOM(vaSetErrorCallback, pFEppp)
 //GO(vaSetImagePalette, 
 GOM(vaSetInfoCallback, pFEppp)

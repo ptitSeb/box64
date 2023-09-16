@@ -5,7 +5,7 @@
 //GO(gst_tag_check_language_code, 
 //GO(gst_tag_demux_get_type, 
 //GO(gst_tag_demux_result_get_type, 
-//GO(gst_tag_freeform_string_to_utf8, 
+GO(gst_tag_freeform_string_to_utf8, pFpip)
 //GO(gst_tag_from_id3_tag, 
 //GO(gst_tag_from_id3_user_tag, 
 //GO(gst_tag_from_vorbis_tag, 
@@ -24,15 +24,15 @@ GO(gst_tag_get_language_name, pFp)
 //GO(gst_tag_get_license_version, 
 //GO(gst_tag_id3_genre_count, 
 //GO(gst_tag_id3_genre_get, 
-//GO(gst_tag_image_data_to_image_sample, 
+GO(gst_tag_image_data_to_image_sample, pFpui)
 //GO(gst_tag_image_type_get_type, 
 //GO(gst_tag_license_flags_get_type, 
 //GO(gst_tag_list_add_id3_image, 
 //GO(gst_tag_list_from_exif_buffer, 
 //GO(gst_tag_list_from_exif_buffer_with_tiff_header, 
 //GO(gst_tag_list_from_id3v2_tag, 
-//GO(gst_tag_list_from_vorbiscomment, 
-//GO(gst_tag_list_from_vorbiscomment_buffer, 
+GO(gst_tag_list_from_vorbiscomment, pFpLpup)
+GO(gst_tag_list_from_vorbiscomment_buffer, pFppup)
 //GO(gst_tag_list_from_xmp_buffer, 
 //GO(gst_tag_list_new_from_id3v1, 
 //GO(gst_tag_list_to_exif_buffer, 

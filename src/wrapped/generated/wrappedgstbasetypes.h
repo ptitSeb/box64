@@ -11,7 +11,15 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFppp_t)(void*, void*, void*);
+typedef void* (*pFppupi_t)(void*, void*, uint32_t, void*, int32_t);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(gst_collect_pads_set_buffer_function, vFppp_t) \
+	GO(gst_collect_pads_set_clip_function, vFppp_t) \
+	GO(gst_collect_pads_set_event_function, vFppp_t) \
+	GO(gst_collect_pads_set_function, vFppp_t) \
+	GO(gst_collect_pads_set_query_function, vFppp_t) \
+	GO(gst_collect_pads_add_pad, pFppupi_t)
 
 #endif // __wrappedgstbaseTYPES_H_

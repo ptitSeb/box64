@@ -47,8 +47,8 @@ GO(ogg_page_checksum_set, iFp)
 GO(ogg_page_continued, iFp)
 GO(ogg_page_eos, iFp)
 GO(ogg_page_granulepos, IFp)
-//GO(ogg_page_packets, 
-//GO(ogg_page_pageno, 
+GO(ogg_page_packets, iFp)
+GO(ogg_page_pageno, lFp)
 GO(ogg_page_serialno, iFp)
 //GO(ogg_page_version, 
 //GO(ogg_stream_check, 

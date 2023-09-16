@@ -9,7 +9,11 @@
 #include "box64context.h"
 #include "fileutils.h"
 
-void pressure_vessel(int argc, const char** argv, int nextarg)
+#ifndef MAX_PATH
+#define MAX_PATH 4096
+#endif
+
+void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
 {
     // skip all the parameter, but parse some of them
     const char* runtime = getenv("PRESSURE_VESSEL_RUNTIME");
@@ -29,11 +33,6 @@ void pressure_vessel(int argc, const char** argv, int nextarg)
                     strcat(tmp, argv[nextarg]+strlen("--env-if-host=PRESSURE_VESSEL_APP_"));
                     char *p = strchr(tmp, '=');
                     *p ='\0'; ++p;
-                    if(runtime) {
-                        memmove(p+strlen(runtime), p, strlen(p));
-                        memmove(p, runtime, strlen(runtime));
-                        p[strlen(runtime)]= ':';
-                    }
                     ld_lib_path = 1;
                     setenv(tmp, p, 1);
                     printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
@@ -62,12 +61,67 @@ void pressure_vessel(int argc, const char** argv, int nextarg)
             }
             ++nextarg;
         }
-    if(runtime && !ld_lib_path) {
-        setenv("LD_LIBRARY_PATH", runtime, 1);
-        printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "LD_LIBRARY_PATH", runtime);
+    if(runtime) {
+        char sniper[MAX_PATH] = {0};
+        // build sniper path
+        strcpy(sniper, prog);
+        char* p = strrchr(sniper, '/');
+        if(p) {
+            *p = '\0';
+            strcat(sniper, "/../../");
+            strcat(sniper, runtime);
+        } else {
+            printf_log(LOG_INFO, "Warning, could not guess sniper runtime path\n");
+            strcpy(sniper, runtime);    // it's wrong...
+        }
+        printf_log(LOG_DEBUG, "pressure-vessel sniper env: %s\n", sniper);
+        // TODO: read metadata from sniper folder and analyse [Environment] section
+        strcat(sniper, "/files");  // this is the sniper root
+        // do LD_LIBRARY_PATH
+        {
+            char tmp[MAX_PATH*4] = {0};
+            // prepare folders, using ldconfig
+            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib/x86_64-linux-gnu", sniper);
+            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
+            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib/i386-linux-gnu", sniper);
+            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
+            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib", sniper);
+            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
+            // setup LD_LIBRARY_PATH
+            const char* ld = getenv("LD_LIBRARY_PATH");
+            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu:%s/lib/i386-linux-gnu:%s/lib:%s", sniper, sniper, sniper, ld?ld:"");
+            setenv("LD_LIBRARY_PATH", tmp, 1);
+            printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "LD_LIBRARY_PATH", tmp);
+        }
+        // do XDG_DATA_DIRS
+        {
+            char tmp[MAX_PATH*4] = {0};
+            const char* xdg = getenv("XDG_DATA_DIRS");
+            snprintf(tmp, sizeof(tmp), "%s/share:%s", sniper, xdg?xdg:"");
+            setenv("XDG_DATA_DIRS", tmp, 1);
+            printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "XDG_DATA_DIRS", tmp);
+        }
+        // disabled GI_TYPELIB_PATH for now
+        if(0)
+        {
+            char tmp[MAX_PATH*4] = {0};
+            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu/girepository-1.0:%s/lib/i386-linux-gnu/girepository-1.0:%s/lib/girepository-1.0", sniper, sniper, sniper);
+            setenv("GI_TYPELIB_PATH", tmp, 1);
+            printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "GI_TYPELIB_PATH", tmp);
+        }
+        // disabled GST_PLUGIN_SYSTEM_PATH
+        if(0)
+        {
+            char tmp[MAX_PATH*4] = {0};
+            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu/gstreamer-1.0:%s/lib/i386-linux-gnu/gstreamer-1.0:%s/lib/gstreamer-1.0", sniper, sniper, sniper);
+            setenv("GST_PLUGIN_SYSTEM_PATH", tmp, 1);
+            printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "GST_PLUGIN_SYSTEM_PATH", tmp);
+        }
+        // should disable native gtk on box86 for now, until better wrapping of gstreamer is done on box86 too
+        // setenv("BOX86_NOGTK", "1", 1);
     }
     printf_log(LOG_DEBUG, "Ready to launch \"%s\", nextarg=%d, argc=%d\n", argv[nextarg], nextarg, argc);
-    const char* prog = argv[nextarg];
+    prog = argv[nextarg];
     my_context = NewBox64Context(argc - nextarg);
     int x86 = my_context->box86path?FileIsX86ELF(argv[nextarg]):0;
     int x64 = my_context->box64path?FileIsX64ELF(argv[nextarg]):0;

@@ -29,6 +29,7 @@ typedef void*(*pFL_t)(size_t);
  GO(g_object_get_type, LFv_t)       \
  GO(g_initially_unowned_get_type, LFv_t)    \
  GO(g_type_name, pFL_t)             \
+ GO(g_type_parent, LFv_t)           \
  GO(g_type_class_peek, pFL_t)       \
 
 #include "generated/wrappedgobject2types.h"
@@ -541,20 +542,22 @@ static my_GParamSpecTypeInfo_t* findFreeGParamSpecTypeInfo(my_GParamSpecTypeInfo
 // GInterfaceInitFunc
 #define GO(A)   \
 static uintptr_t my_GInterfaceInitFunc_fct_##A = 0;                             \
+static size_t my_GInterfaceInitFunc_klass_##A = 0;                              \
 static void my_GInterfaceInitFunc_##A(void* src, void* dst)                     \
 {                                                                               \
-    RunFunctionFmt(my_GInterfaceInitFunc_fct_##A, "pp", src, dst);  \
+    RunFunctionFmt(my_GInterfaceInitFunc_fct_##A, "pp", src, dst);              \
+    unwrapGTKInterface(src, my_GInterfaceInitFunc_klass_##A);                   \
 }
 SUPER()
 #undef GO
-static void* findGInterfaceInitFuncFct(void* fct)
+static void* findGInterfaceInitFuncFct(void* fct, size_t klass)
 {
     if(!fct) return fct;
     if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GInterfaceInitFunc_fct_##A == (uintptr_t)fct) return my_GInterfaceInitFunc_##A;
+    #define GO(A) if(my_GInterfaceInitFunc_fct_##A == (uintptr_t)fct && my_GInterfaceInitFunc_klass_##A == klass) return my_GInterfaceInitFunc_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(my_GInterfaceInitFunc_fct_##A == 0) {my_GInterfaceInitFunc_fct_##A = (uintptr_t)fct; return my_GInterfaceInitFunc_##A; }
+    #define GO(A) if(my_GInterfaceInitFunc_fct_##A == 0) {my_GInterfaceInitFunc_fct_##A = (uintptr_t)fct; my_GInterfaceInitFunc_klass_##A = klass; return my_GInterfaceInitFunc_##A; }
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gobject GInterfaceInitFunc callback\n");
@@ -713,8 +716,10 @@ EXPORT void* my_g_object_new_valist(x64emu_t* emu, size_t type, void* first, x64
 
 EXPORT size_t my_g_type_register_static(x64emu_t* emu, size_t parent, void* name, my_GTypeInfo_t* info, int flags)
 {
-
-    return my->g_type_register_static(parent, name, findFreeGTypeInfo(info, parent), flags);
+    size_t ret = my->g_type_register_static(parent, name, findFreeGTypeInfo(info, parent), flags);
+    printf_log(LOG_DEBUG, "Registered %s as 0x%zx\n", name, ret);
+    addRegisteredClass(ret, name);
+    return ret;
 }
 
 EXPORT size_t my_g_type_register_fundamental(x64emu_t* emu, size_t parent, void* name, my_GTypeInfo_t* info, void* finfo, int flags)
@@ -767,7 +772,7 @@ typedef struct my_GInterfaceInfo_s {
 EXPORT void my_g_type_add_interface_static(x64emu_t* emu, size_t instance_type, size_t interface_type, my_GInterfaceInfo_t* info)
 {
     my_GInterfaceInfo_t i = {0};
-    i.interface_init = findGInterfaceInitFuncFct(info->interface_init);
+    i.interface_init = findGInterfaceInitFuncFct(info->interface_init, interface_type);
     i.interface_finalize = findGInterfaceFinalizeFuncFct(info->interface_finalize);
     i.data = info->data;
     my->g_type_add_interface_static(instance_type, interface_type, &i);
@@ -906,6 +911,7 @@ EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
     SetGInitiallyUnownedID(my->g_initially_unowned_get_type()); \
     SetGTypeName(my->g_type_name);          \
     SetGClassPeek(my->g_type_class_peek);   \
+    SetGTypeParent(my->g_type_parent);      \
     setNeededLibs(lib, 1, "libglib-2.0.so.0");
 
 #define CUSTOM_FINI \

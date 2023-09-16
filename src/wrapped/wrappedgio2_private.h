@@ -952,11 +952,11 @@ GO(g_input_stream_has_pending, iFp)
 //GO(g_input_stream_is_closed, 
 GO(g_input_stream_read, lFppLpp)
 GO(g_input_stream_read_all, iFppLppp)
-//GO(g_input_stream_read_async, 
+GOM(g_input_stream_read_async, vFEppLippp)
 GO(g_input_stream_read_bytes, pFpLpp)
 //GO(g_input_stream_read_bytes_async, 
 GO(g_input_stream_read_bytes_finish, pFppp)
-//GO(g_input_stream_read_finish, 
+GO(g_input_stream_read_finish, lFppp)
 GO(g_input_stream_set_pending, iFpp)
 GO(g_input_stream_skip, lFpLpp)
 //GO(g_input_stream_skip_async, 
@@ -1228,7 +1228,7 @@ GO(g_proxy_address_get_destination_port, WFp)
 //GO(g_proxy_address_get_destination_protocol, 
 //GO(g_proxy_address_get_password, 
 //GO(g_proxy_address_get_protocol, 
-//GO(g_proxy_address_get_type, 
+GO(g_proxy_address_get_type, LFv)
 GO(g_proxy_address_get_uri, pFp)
 //GO(g_proxy_address_get_username, 
 GO(g_proxy_address_new, pFpWppWpp)
@@ -1238,7 +1238,7 @@ GO(g_proxy_connect_finish, pFppp)
 GO(g_proxy_get_default_for_protocol, pFp)
 //GO(g_proxy_get_type, 
 GO(g_proxy_resolver_get_default, pFv)
-//GO(g_proxy_resolver_get_type, 
+GO(g_proxy_resolver_get_type, LFv)
 GO(g_proxy_resolver_is_supported, iFp)
 GO(g_proxy_resolver_lookup, pFpppp)
 //GO(g_proxy_resolver_lookup_async, 
@@ -1252,7 +1252,7 @@ GO(g_remote_action_group_change_action_state_full, vFpppp)
 //GO(g_resolver_free_addresses, 
 GO(g_resolver_free_targets, vFp)
 GO(g_resolver_get_default, pFv)
-//GO(g_resolver_get_type, 
+GO(g_resolver_get_type, LFv)
 GO(g_resolver_lookup_by_address, pFpppp)
 //GO(g_resolver_lookup_by_address_async, 
 GO(g_resolver_lookup_by_address_finish, pFppp)
@@ -1424,7 +1424,7 @@ GO(g_socket_address_enumerator_next, pFppp)
 GO(g_socket_address_enumerator_next_finish, pFppp)
 GO(g_socket_address_get_family, uFp)
 GO(g_socket_address_get_native_size, lFp)
-//GO(g_socket_address_get_type, 
+GO(g_socket_address_get_type, LFv)
 //GO(g_socket_address_new_from_native, 
 GO(g_socket_address_to_native, iFppLp)
 GO(g_socket_bind, iFppip)
@@ -1452,7 +1452,7 @@ GO(g_socket_client_get_socket_type, uFp)
 GO(g_socket_client_get_timeout, uFp)
 GO(g_socket_client_get_tls, iFp)
 GO(g_socket_client_get_tls_validation_flags, uFp)
-//GO(g_socket_client_get_type, 
+GO(g_socket_client_get_type, LFv)
 GO(g_socket_client_new, pFv)
 //GO(g_socket_client_set_enable_proxy, 
 GO(g_socket_client_set_family, vFpu)
@@ -1489,7 +1489,7 @@ GO(g_socket_control_message_get_size, LFp)
 //GO(g_socket_control_message_get_type, 
 GO(g_socket_control_message_serialize, vFpp)
 //GO(g_socket_create_source, 
-//GO(g_socket_family_get_type, 
+GO(g_socket_family_get_type, LFv)
 GO(g_socket_get_available_bytes, lFp)
 //GO(g_socket_get_blocking, 
 //GO(g_socket_get_broadcast, 
@@ -1507,7 +1507,7 @@ GO(g_socket_get_remote_address, pFpp)
 GO(g_socket_get_socket_type, uFp)
 //GO(g_socket_get_timeout, 
 //GO(g_socket_get_ttl, 
-//GO(g_socket_get_type, 
+GO(g_socket_get_type, LFv)
 //GO(g_socket_is_closed, 
 //GO(g_socket_is_connected, 
 //GO(g_socket_join_multicast_group, 
@@ -1539,7 +1539,7 @@ GO(g_socket_send, lFppLpp)
 GO(g_socket_send_message, lFpppipiipp)
 GO(g_socket_send_to, lFpppLpp)
 GO(g_socket_send_with_blocking, lFppLipp)
-//GO(g_socket_service_get_type, 
+GO(g_socket_service_get_type, LFv)
 GO(g_socket_service_is_active, iFp)
 GO(g_socket_service_new, pFv)
 //GO(g_socket_service_start, 
@@ -1682,7 +1682,7 @@ GO(g_tls_backend_get_default_database, pFp)
 //GO(g_tls_backend_supports_tls, 
 //GO(g_tls_certificate_flags_get_type, 
 GO(g_tls_certificate_get_issuer, pFp)
-//GO(g_tls_certificate_get_type, 
+GO(g_tls_certificate_get_type, LFv)
 GO(g_tls_certificate_is_same, iFpp)
 GO(g_tls_certificate_list_new_from_file, pFpp)
 GO(g_tls_certificate_new_from_file, pFpp)
@@ -1707,7 +1707,7 @@ GO(g_tls_connection_get_peer_certificate, pFp)
 GO(g_tls_connection_get_peer_certificate_errors, uFp)
 GO(g_tls_connection_get_rehandshake_mode, uFp)
 GO(g_tls_connection_get_require_close_notify, iFp)
-//GO(g_tls_connection_get_type, 
+GO(g_tls_connection_get_type, LFv)
 //GO(g_tls_connection_get_use_system_certdb, 
 GO(g_tls_connection_handshake, iFppp)
 //GO(g_tls_connection_handshake_async, 
@@ -1719,7 +1719,7 @@ GO(g_tls_connection_set_rehandshake_mode, vFpu)
 GO(g_tls_connection_set_require_close_notify, vFpi)
 //GO(g_tls_connection_set_use_system_certdb, 
 GO(g_tls_database_create_certificate_handle, pFpp)
-//GO(g_tls_database_get_type, 
+GO(g_tls_database_get_type, LFv)
 GO(g_tls_database_lookup_certificate_for_handle, pFpppupp)
 //GO(g_tls_database_lookup_certificate_for_handle_async, 
 //GO(g_tls_database_lookup_certificate_for_handle_finish, 
@@ -1741,7 +1741,7 @@ GO(g_tls_file_database_new, pFpp)
 GO(g_tls_interaction_ask_password, uFpppp)
 //GO(g_tls_interaction_ask_password_async, 
 //GO(g_tls_interaction_ask_password_finish, 
-//GO(g_tls_interaction_get_type, 
+GO(g_tls_interaction_get_type, LFv)
 //GO(g_tls_interaction_invoke_ask_password, 
 //GO(g_tls_interaction_invoke_request_certificate, 
 GO(g_tls_interaction_request_certificate, uFppupp)

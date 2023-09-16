@@ -788,12 +788,334 @@ typedef struct my_GstTaskPoolClass_s {
   void*     _gst_reserved[4-1];
 } my_GstTaskPoolClass_t;
 
+typedef struct my_GstElementClass_s {
+  my_GstObjectClass_t   parent_class;
+  void*                 metadata;
+  void*                 elementfactory;
+  void*                 padtemplates;
+  int                   numpadtemplates;
+  uint32_t              pad_templ_cookie;
+  void                  (*pad_added)     (void* element, void* pad);
+  void                  (*pad_removed)   (void* element, void* pad);
+  void                  (*no_more_pads)  (void* element);
+  void*                 (*request_new_pad)      (void* element, void* templ, void* name, void* caps);
+  void                  (*release_pad)          (void* element, void* pad);
+  int                   (*get_state)            (void*  element, void* state, void* pending, uint64_t timeout);
+  int                   (*set_state)            (void* element, int state);
+  int                   (*change_state)         (void* element, int transition);
+  void                  (*state_changed)        (void* element, int oldstate, int newstate, int pending);
+  void                  (*set_bus)              (void*  element, void* bus);
+  void*                 (*provide_clock)        (void* element);
+  int                   (*set_clock)            (void* element, void* clock);
+  int                   (*send_event)           (void* element, void* event);
+  int                   (*query)                (void* element, void* query);
+  int                   (*post_message)         (void* element, void* message);
+  void                  (*set_context)          (void* element, void* context);
+  void* _gst_reserved[20-2];
+} my_GstElementClass_t;
+
+typedef struct my_GstBinClass_s {
+  my_GstElementClass_t parent_class;
+  void* pool;
+  void  (*element_added)        (void* bin, void* child);
+  void  (*element_removed)      (void* bin, void* child);
+  int   (*add_element)          (void* bin, void* element);
+  int   (*remove_element)       (void* bin, void* element);
+  void  (*handle_message)       (void* bin, void* message);
+  int   (*do_latency)           (void* bin);
+  void  (*deep_element_added)   (void* bin, void* sub_bin, void* child);
+  void  (*deep_element_removed) (void* bin, void* sub_bin, void* child);
+  void* _gst_reserved[4-2];
+} my_GstBinClass_t;
+
+typedef struct my_GstBaseTransformClass_s {
+  my_GstElementClass_t parent_class;
+  int passthrough_on_same_caps;
+  int transform_ip_on_passthrough;
+  void*  (*transform_caps) (void* trans, int direction, void* caps, void* filter);
+  void*  (*fixate_caps)    (void* trans, int direction, void* caps, void* othercaps);
+  int    (*accept_caps)    (void* trans, int direction, void* caps);
+  int    (*set_caps)       (void* trans, void* incaps, void* outcaps);
+  int    (*query)          (void* trans, int direction, void* query);
+  int    (*decide_allocation)  (void* trans, void* query);
+  int    (*filter_meta)        (void* trans, void* query, size_t api, void* params);
+  int    (*propose_allocation) (void* trans, void* decide_query, void* query);
+  int    (*transform_size) (void* trans, int direction, void* caps, size_t size, void* othercaps, void* othersize);
+  int    (*get_unit_size)  (void* trans, void* caps, void* size);
+  int    (*start)        (void* trans);
+  int    (*stop)         (void* trans);
+  int    (*sink_event)   (void* trans, void* event);
+  int    (*src_event)    (void* trans, void* event);
+  int    (*prepare_output_buffer) (void*  trans, void* input, void* outbuf);
+  int    (*copy_metadata)     (void* trans, void* input, void* outbuf);
+  int    (*transform_meta)    (void* trans, void* outbuf, void* meta, void* inbuf);
+  void   (*before_transform)  (void* trans, void* buffer);
+  int    (*transform)    (void* trans, void* inbuf, void* outbuf);
+  int    (*transform_ip) (void* trans, void* buf);
+  int    (*submit_input_buffer) (void* trans, int is_discont, void* input);
+  int    (*generate_output) (void* trans, void*   outbuf);
+  void* _gst_reserved[20-2];
+} my_GstBaseTransformClass_t;
+
+typedef struct my_GstVideoDecoderClass_s {
+  my_GstElementClass_t parent_class;
+  int      (*open)           (void* decoder);
+  int      (*close)          (void* decoder);
+  int      (*start)          (void* decoder);
+  int      (*stop)           (void* decoder);
+  int      (*parse)          (void* decoder, void* frame, void* adapter, int at_eos);
+  int      (*set_format)     (void* decoder, void* state);
+  int      (*reset)          (void* decoder, int hard);
+  int      (*finish)         (void* decoder);
+  int      (*handle_frame)   (void* decoder, void* frame);
+  int      (*sink_event)     (void* decoder, void* event);
+  int      (*src_event)      (void* decoder, void* event);
+  int      (*negotiate)      (void* decoder);
+  int      (*decide_allocation)  (void* decoder, void* query);
+  int      (*propose_allocation) (void* decoder, void*  query);
+  int      (*flush)              (void* decoder);
+  int      (*sink_query)     (void* decoder, void* query);
+  int      (*src_query)      (void* decoder, void* query);
+  void*    (*getcaps)        (void* decoder, void* filter);
+  int      (*drain)          (void* decoder);
+  int      (*transform_meta) (void* decoder, void* frame, void* meta);
+  int      (*handle_missing_data) (void* decoder, uint64_t timestamp, uint64_t duration);
+  void* padding[20-7];
+} my_GstVideoDecoderClass_t;
+
+typedef struct my_GstVideoEncoderClass_s {
+  my_GstElementClass_t  parent_class;
+  int      (*open)         (void* encoder);
+  int      (*close)        (void* encoder);
+  int      (*start)        (void* encoder);
+  int      (*stop)         (void* encoder);
+  int      (*set_format)   (void* encoder, void* state);
+  int      (*handle_frame) (void* encoder, void* frame);
+  int      (*reset)        (void* encoder, int hard);
+  int      (*finish)       (void* encoder);
+  int      (*pre_push)     (void* encoder, void* frame);
+  void*    (*getcaps)      (void* encoder, void* filter);
+  int      (*sink_event)   (void* encoder, void* event);
+  int      (*src_event)    (void* encoder, void* event);
+  int      (*negotiate)    (void* encoder);
+  int      (*decide_allocation)  (void* encoder, void* query);
+  int      (*propose_allocation) (void*  encoder, void*  query);
+  int      (*flush)              (void* encoder);
+  int      (*sink_query)     (void* encoder, void* query);
+  int      (*src_query)      (void* encoder, void* query);
+  int      (*transform_meta) (void* encoder, void* frame, void* meta);
+  void*  _gst_reserved[20-4];
+} my_GstVideoEncoderClass_t;
+
+typedef struct my_GstBaseSinkClass_s {
+  my_GstElementClass_t parent_class;
+  void*         (*get_caps)             (void* sink, void* filter);
+  int           (*set_caps)             (void* sink, void* caps);
+  void*         (*fixate)               (void* sink, void* caps);
+  int           (*activate_pull)        (void* sink, int active);
+  void          (*get_times)            (void* sink, void* buffer, void* start, void* end);
+  int           (*propose_allocation)   (void* sink, void* query);
+  int           (*start)                (void* sink);
+  int           (*stop)                 (void* sink);
+  int           (*unlock)               (void* sink);
+  int           (*unlock_stop)          (void* sink);
+  int           (*query)                (void* sink, void* query);
+  int           (*event)                (void* sink, void* event);
+  int           (*wait_event)           (void* sink, void* event);
+  int           (*prepare)              (void* sink, void* buffer);
+  int           (*prepare_list)         (void* sink, void* buffer_list);
+  int           (*preroll)              (void* sink, void* buffer);
+  int           (*render)               (void* sink, void* buffer);
+  int           (*render_list)          (void* sink, void* buffer_list);
+  void*       _gst_reserved[20];
+} my_GstBaseSinkClass_t;
+
+typedef struct my_GstVideoSinkClass_s
+{
+  my_GstBaseSinkClass_t parent_class;
+  int       (*show_frame) (void* video_sink, void* buf);
+  int       (*set_info)   (void* video_sink, void* caps, void* info);
+  void* _gst_reserved[4-1];
+} my_GstVideoSinkClass_t;
+
+typedef struct my_GstGLBaseFilterClass_s
+{
+  my_GstBaseTransformClass_t parent_class;
+  int supported_gl_api;
+  int      (*gl_start)          (void* filter);
+  void     (*gl_stop)           (void* filter);
+  int      (*gl_set_caps)       (void* filter, void* incaps, void* outcaps);
+  void* _padding[4];
+} my_GstGLBaseFilterClass_t;
+
+typedef struct my_GstGLFilterClass_s
+{
+  my_GstGLBaseFilterClass_t parent_class;
+  int      (*set_caps)                (void* filter, void* incaps, void* outcaps);
+  int      (*filter)                  (void* filter, void* inbuf, void* outbuf);
+  int      (*filter_texture)          (void* filter, void* input, void* output);
+  int      (*init_fbo)                (void* filter);
+  void*    (*transform_internal_caps) (void* filter, int direction, void* caps, void* filter_caps);
+  void*    _padding[4];
+} my_GstGLFilterClass_t;
+
+typedef struct my_GstAggregatorClass_s {
+  my_GstElementClass_t   parent_class;
+  int       (*flush)                (void* self);
+  void*     (*clip)                 (void* self, void* aggregator_pad, void* buf);
+  int       (*finish_buffer)        (void* self, void* buffer);
+  int       (*sink_event)           (void* self, void* aggregator_pad, void* event);
+  int       (*sink_query)           (void* self, void* aggregator_pad, void* query);
+  int       (*src_event)            (void* self, void* event);
+  int       (*src_query)            (void* self, void* query);
+  int       (*src_activate)         (void* self, int mode, int active);
+  int       (*aggregate)            (void* self, int timeout);
+  int       (*stop)                 (void* self);
+  int       (*start)                (void* self);
+  uint64_t  (*get_next_time)        (void* self);
+  void*     (*create_new_pad)       (void* self, void* templ, void* req_name, void* caps);
+  int       (*update_src_caps)      (void* self, void* caps, void* ret);
+  void*     (*fixate_src_caps)      (void* self, void* caps);
+  int       (*negotiated_src_caps)  (void* self, void* caps);
+  int       (*decide_allocation)    (void* self, void* query);
+  int       (*propose_allocation)   (void* self, void*pad, void* decide_query, void* query);
+  int       (*negotiate)            (void* self);
+  int       (*sink_event_pre_queue) (void* self, void* aggregator_pad, void* event);
+  int       (*sink_query_pre_queue) (void* self, void* aggregator_pad, void* query);
+  int       (*finish_buffer_list)   (void* self, void* bufferlist);
+  void      (*peek_next_sample)     (void* self, void* aggregator_pad);
+  void*      _gst_reserved[20-5];
+} my_GstAggregatorClass_t;
+
+typedef struct my_GstVideoAggregatorClass_s
+{
+  my_GstAggregatorClass_t parent_class;
+  void*     (*update_caps)               (void* vagg, void* caps);
+  int       (*aggregate_frames)          (void* vagg, void* outbuffer);
+  int       (*create_output_buffer)      (void* vagg, void* outbuffer);
+  void      (*find_best_format)          (void* vagg, void* downstream_caps, void* best_info, void* at_least_one_alpha);
+  void*      _gst_reserved[20];
+} my_GstVideoAggregatorClass_t;
+
+typedef struct my_GstPadClass_s {
+  my_GstObjectClass_t        parent_class;
+  void       (*linked)       (void* pad, void* peer);
+  void       (*unlinked)     (void* pad, void* peer);
+  void* _gst_reserved[4];
+} my_GstPadClass_t;
+
+typedef struct my_GstAggregatorPadClass_s
+{
+  my_GstPadClass_t   parent_class;
+  int      (*flush)       (void* aggpad, void* aggregator);
+  int      (*skip_buffer) (void* aggpad, void* aggregator, void* buffer);
+  void*      _gst_reserved[20];
+} my_GstAggregatorPadClass_t;
+
+typedef struct my_GstVideoAggregatorPadClass_s
+{
+  my_GstAggregatorPadClass_t parent_class;
+  void    (*update_conversion_info) (void* pad);
+  int     (*prepare_frame)          (void* pad, void* vagg, void* buffer, void* prepared_frame);
+  void    (*clean_frame)            (void* pad, void* vagg, void* prepared_frame);
+  void    (*prepare_frame_start)    (void* pad, void* vagg, void* buffer, void* prepared_frame);
+  void    (*prepare_frame_finish)   (void* pad, void* vagg, void* prepared_frame);
+  void*   _gst_reserved[20-2];
+} my_GstVideoAggregatorPadClass_t;
+
+typedef struct my_GstBaseSrcClass_s {
+  my_GstElementClass_t parent_class;
+  void*      (*get_caps)              (void* src, void* filter);
+  int        (*negotiate)             (void* src);
+  void*      (*fixate)                (void* src, void* caps);
+  int        (*set_caps)              (void* src, void* caps);
+  int        (*decide_allocation)     (void* src, void* query);
+  int        (*start)                 (void* src);
+  int        (*stop)                  (void* src);
+  void       (*get_times)             (void* src, void* buffer, void* start, void* end);
+  int        (*get_size)              (void* src, void* size);
+  int        (*is_seekable)           (void* src);
+  int        (*prepare_seek_segment)  (void* src, void* seek, void* segment);
+  int        (*do_seek)               (void* src, void* segment);
+  int        (*unlock)                (void* src);
+  int        (*unlock_stop)           (void* src);
+  int        (*query)                 (void* src, void* query);
+  int        (*event)                 (void* src, void* event);
+  int        (*create)                (void* src, uint64_t offset, uint32_t size, void* buf);
+  int        (*alloc)                 (void* src, uint64_t offset, uint32_t size, void* buf);
+  int        (*fill)                  (void* src, uint64_t offset, uint32_t size, void* buf);
+  void*       _gst_reserved[20];
+} my_GstBaseSrcClass_t;
+
+typedef struct my_GstPushSrcClass_s {
+  my_GstBaseSrcClass_t parent_class;
+  int (*create) (void* src, void* buf);
+  int (*alloc)  (void* src, void* buf);
+  int (*fill)   (void* src, void* buf);
+  void* _gst_reserved[4];
+} my_GstPushSrcClass_t;
+
+typedef struct my_GstGLBaseSrcClass_s {
+  my_GstPushSrcClass_t parent_class;
+  int supported_gl_api;
+  int      (*gl_start)          (void* src);
+  void     (*gl_stop)           (void* src);
+  int      (*fill_gl_memory)    (void* src, void* mem);
+  void*     _padding[4];
+} my_GstGLBaseSrcClass_t;
+
+typedef struct my_GstAudioDecoderClass_s
+{
+  my_GstElementClass_t parent_class;
+  int      (*start)              (void* dec);
+  int      (*stop)               (void* dec);
+  int      (*set_format)         (void* dec, void* caps);
+  int      (*parse)              (void* dec, void* adapter, void* offset, void* length);
+  int      (*handle_frame)       (void* dec, void* buffer);
+  void     (*flush)              (void* dec, int hard);
+  int      (*pre_push)           (void* dec, void* buffer);
+  int      (*sink_event)         (void* dec, void* event);
+  int      (*src_event)          (void* dec, void* event);
+  int      (*open)               (void* dec);
+  int      (*close)              (void* dec);
+  int      (*negotiate)          (void* dec);
+  int      (*decide_allocation)  (void* dec, void* query);
+  int      (*propose_allocation) (void* dec, void* query);
+  int      (*sink_query)         (void* dec, void* query);
+  int      (*src_query)          (void* dec, void* query);
+  void*    (*getcaps)            (void* dec, void*  filter);
+  int      (*transform_meta)     (void* enc, void* outbuf, void* meta, void* inbuf);
+  void*   _gst_reserved[20 - 4];
+} my_GstAudioDecoderClass_t;
+
+typedef struct my_GstVideoFilterClass_s {
+  my_GstBaseTransformClass_t parent_class;
+  int      (*set_info)           (void* filter, void* incaps, void* in_info, void* outcaps, void* out_info);
+  int      (*transform_frame)    (void* filter, void* inframe, void* outframe);
+  int      (*transform_frame_ip) (void* filter, void* frame);
+  void* _gst_reserved[4];
+} my_GstVideoFilterClass_t;
+
 typedef struct my_GDBusProxyClass_s {
   my_GObjectClass_t parent_class;
   void (*g_properties_changed) (void* proxy, void* changed_properties, const char* const* invalidated_properties);
   void (*g_signal)             (void* proxy, const char* sender_name, const char* signal_name, void* parameters);
   void* padding[32];
 } my_GDBusProxyClass_t;
+
+typedef struct my_GTypeInterface_s {
+  size_t g_type;
+  size_t g_instance_type;
+} my_GTypeInterface_t;
+
+typedef struct my_GstURIHandlerInterface_s {
+  my_GTypeInterface_t parent;
+  int    (* get_type)           (size_t type);
+  void*  (* get_protocols)      (size_t type);
+  void*  (* get_uri)            (void* handler);
+  int    (* set_uri)            (void* handler, void* uri, void* error);
+} my_GstURIHandlerInterface_t;
+
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -902,17 +1224,46 @@ GTKCLASS(GstObject)                 \
 GTKCLASS(GstAllocator)              \
 GTKCLASS(GstTaskPool)               \
 GTKCLASS(GDBusProxy)                \
+GTKCLASS(GstElement)                \
+GTKCLASS(GstBin)                    \
+GTKCLASS(GstBaseTransform)          \
+GTKCLASS(GstVideoDecoder)           \
+GTKCLASS(GstVideoEncoder)           \
+GTKCLASS(GstBaseSink)               \
+GTKCLASS(GstVideoSink)              \
+GTKCLASS(GstGLBaseFilter)           \
+GTKCLASS(GstGLFilter)               \
+GTKCLASS(GstAggregator)             \
+GTKCLASS(GstVideoAggregator)        \
+GTKCLASS(GstPad)                    \
+GTKCLASS(GstAggregatorPad)          \
+GTKCLASS(GstVideoAggregatorPad)     \
+GTKCLASS(GstBaseSrc)                \
+GTKCLASS(GstPushSrc)                \
+GTKCLASS(GstGLBaseSrc)              \
+GTKCLASS(GstAudioDecoder)           \
+GTKCLASS(GstVideoFilter)            \
+GTKIFACE(GstURIHandler)             \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
+#define GTKIFACE(A) GTKCLASS(A)
 GTKCLASSES()
+#undef GTKIFACE
 #undef GTKCLASS
 
 void SetGTypeName(void* f);
+void SetGTypeParent(void* f);
 void SetGClassPeek(void* f);
 void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*));
 
 void* wrapCopyGTKClass(void* cl, size_t type);
 void* unwrapCopyGTKClass(void* klass, size_t type);
+
+void unwrapGTKInterface(void* cl, size_t type);
+void* wrapCopyGTKInterface(void* cl, size_t type);
+void* unwrapCopyGTKInterface(void* iface, size_t type);
+
+void addRegisteredClass(size_t klass, char* name);
 
 typedef struct my_signal_s {
     uint64_t sign;  // signature

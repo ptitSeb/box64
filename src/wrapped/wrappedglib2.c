@@ -1420,6 +1420,21 @@ EXPORT void my_g_option_group_set_parse_hooks(x64emu_t* emu, void* group, void* 
     my->g_option_group_set_parse_hooks(group, findGOptionParseFct(preparse), findGOptionParseFct(postparse));
 }
 
+EXPORT void* my_g_thread_new(x64emu_t* emu, void* name, void* f, void* data)
+{
+    return my->g_thread_new(name, findGThreadFuncFct(f), data);
+}
+
+EXPORT void my_g_queue_foreach(x64emu_t* emu, void* queue, void* f, void* data)
+{
+    my->g_queue_foreach(queue, findGFuncFct(f), data);
+}
+
+EXPORT void* my_g_once_impl(x64emu_t* emu, void* once, void* f, void* arg)
+{
+    return my->g_once_impl(once, findGThreadFuncFct(f), arg);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;

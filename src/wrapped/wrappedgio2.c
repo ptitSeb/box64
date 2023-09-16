@@ -616,6 +616,11 @@ EXPORT void my_g_task_return_new_error(x64emu_t* emu, void* task, uint32_t domai
     free(tmp);
 }
 
+EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buffer, size_t count, int io_prio, void* cancel, void* f, void* data)
+{
+    my->g_input_stream_read_async(stream, buffer, count, io_prio, cancel, findGAsyncReadyCallbackFct(f), data);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;

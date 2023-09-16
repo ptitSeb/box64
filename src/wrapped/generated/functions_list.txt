@@ -99,6 +99,7 @@
 #() pFL
 #() pFp
 #() pFV
+#() pFA
 #() HFi
 #() HFp
 #() xFx
@@ -204,6 +205,7 @@
 #() IFpi
 #() IFpu
 #() IFpd
+#() IFpp
 #() CFip
 #() CFCi
 #() CFui
@@ -423,6 +425,7 @@
 #() vFppl
 #() vFppL
 #() vFppp
+#() vFppV
 #() cFpdp
 #() wFppp
 #() iFEiw
@@ -566,6 +569,7 @@
 #() uFppi
 #() uFppu
 #() uFppp
+#() UFUii
 #() UFUUU
 #() UFpiU
 #() UFppi
@@ -641,7 +645,6 @@
 #() pFuip
 #() pFuui
 #() pFuuu
-#() pFuup
 #() pFulu
 #() pFulp
 #() pFupi
@@ -651,6 +654,7 @@
 #() pFupp
 #() pFdip
 #() pFdUU
+#() pFddi
 #() pFddd
 #() pFDip
 #() pFlpi
@@ -675,6 +679,7 @@
 #() pFpuL
 #() pFpup
 #() pFpUi
+#() pFpUu
 #() pFpUp
 #() pFpdu
 #() pFpdd
@@ -694,6 +699,7 @@
 #() pFppl
 #() pFppL
 #() pFppp
+#() pFppA
 #() pFpOM
 #() pFSpl
 #() vWpup
@@ -1113,6 +1119,7 @@
 #() LFpppL
 #() LFpppp
 #() pFEipp
+#() pFEuup
 #() pFEupp
 #() pFELpV
 #() pFELpA
@@ -1157,6 +1164,7 @@
 #() pFpiLL
 #() pFpipi
 #() pFpipd
+#() pFpipL
 #() pFpipp
 #() pFpCip
 #() pFpCWp
@@ -1175,6 +1183,7 @@
 #() pFpupu
 #() pFpupp
 #() pFpdIU
+#() pFpddi
 #() pFplil
 #() pFplip
 #() pFplpl
@@ -1615,6 +1624,8 @@
 #() pFEpppi
 #() pFEpppu
 #() pFEpppp
+#() pFEpppV
+#() pFEpppA
 #() pFiiiii
 #() pFiiipL
 #() pFipipL
@@ -1627,15 +1638,18 @@
 #() pFudddp
 #() pFupLpl
 #() pFupLpL
+#() pFddddi
 #() pFLuppp
 #() pFLpppi
 #() pFpiiii
 #() pFpiiip
 #() pFpiiuu
 #() pFpiipi
+#() pFpiipL
 #() pFpiipp
 #() pFpiCCC
 #() pFpiuuu
+#() pFpiuup
 #() pFpiupp
 #() pFpiLip
 #() pFpipip
@@ -1663,6 +1677,7 @@
 #() pFpLLLp
 #() pFpLpii
 #() pFpLpip
+#() pFpLpup
 #() pFppiii
 #() pFppiiu
 #() pFppiip
@@ -1896,6 +1911,7 @@
 #() iFpipipi
 #() iFpipipp
 #() iFpipupp
+#() iFpipLpp
 #() iFpippip
 #() iFpippup
 #() iFpipppL
@@ -2009,6 +2025,7 @@
 #() lFpppLpp
 #() LFEupppp
 #() LFELpppi
+#() LFEpippp
 #() LFEppppi
 #() LFpipipi
 #() LFpLippp
@@ -2021,6 +2038,7 @@
 #() pFEpuupp
 #() pFEpuppp
 #() pFEpLLiN
+#() pFEppupi
 #() pFEppLLp
 #() pFEpppLp
 #() pFEppppi
@@ -2031,16 +2049,19 @@
 #() pFiiiiid
 #() pFipippp
 #() pFWCiWCi
+#() pFuCCCCp
 #() pFuuipip
 #() pFuuuiip
 #() pFuuuuii
 #() pFuuuuuu
 #() pFuuuuup
 #() pFuuppuu
+#() pFuppppp
 #() pFdddddd
 #() pFpiiiiu
 #() pFpiiipp
 #() pFpiiCCC
+#() pFpiiuup
 #() pFpiUUUU
 #() pFpipipp
 #() pFpippip
@@ -2048,6 +2069,7 @@
 #() pFpCuuCC
 #() pFpCuuWW
 #() pFpCuuup
+#() pFpuiiip
 #() pFpuuwwu
 #() pFpuuuuu
 #() pFpuuupu
@@ -2304,6 +2326,7 @@
 #() pFEppppip
 #() pFEpppppi
 #() pFifffppp
+#() pFWpppppp
 #() pFuuuiiip
 #() pFuupupup
 #() pFfiiiiid
@@ -2319,6 +2342,7 @@
 #() pFpWppWpp
 #() pFpuuuwwu
 #() pFpuupwwC
+#() pFpuLpipp
 #() pFpupiipp
 #() pFpuppipp
 #() pFplppppp
@@ -2346,6 +2370,7 @@
 #() pFpppuipp
 #() pFpppuuui
 #() pFpppuupp
+#() pFpppupii
 #() pFpppupup
 #() pFpppuppp
 #() pFpppfffi
@@ -2368,6 +2393,7 @@
 #() vFEiupippp
 #() vFEipAippp
 #() vFEppipppp
+#() vFEppLippp
 #() vFEpppippp
 #() vFEpppuipV
 #() vFEpppppuu
@@ -2498,6 +2524,7 @@
 #() LFEpiupppp
 #() LFpLpuuLLu
 #() pFEiplllpp
+#() pFEipLLLpp
 #() pFEpiuCppp
 #() pFEppLiiip
 #() pFEpppuipV
@@ -2507,8 +2534,10 @@
 #() pFiippipip
 #() pFiupppppp
 #() pFuiiiuuuu
+#() pFuCCCCpWw
 #() pFuupupipp
 #() pFpiiiiiuu
+#() pFpiiuuupp
 #() pFpiUdiiUi
 #() pFpipiiiip
 #() pFpCCuuwwC
@@ -2594,6 +2623,7 @@
 #() vFppppipiip
 #() vFpppppippp
 #() iFEpiiiiipi
+#() iFEppuppppp
 #() iFEpppipppp
 #() iFEppplPPPP
 #() iFEpppppupp
@@ -2602,6 +2632,7 @@
 #() iFiiiipiiip
 #() iFipiipippi
 #() iFdddpppppp
+#() iFpipippppi
 #() iFpipLpiiip
 #() iFpuuuuuuuu
 #() iFpuuuuduup
@@ -2759,6 +2790,7 @@
 #() vFppupipiuuuu
 #() vFppupppuiiii
 #() vFppppppppppp
+#() iFEiipppppppp
 #() iFEpppipppppp
 #() iFEppppiiiiuu
 #() iFEpppppppppp
@@ -3222,6 +3254,8 @@ wrappedgio2:
   - g_async_initable_new_valist_async
 - vFppipppp:
   - g_dbus_connection_new
+- vFppLippp:
+  - g_input_stream_read_async
 - vFpppuipV:
   - g_simple_async_report_error_in_idle
 - uFipipppp:
@@ -3314,6 +3348,7 @@ wrappedglib2:
   - g_option_group_set_parse_hooks
   - g_ptr_array_foreach
   - g_ptr_array_sort_with_data
+  - g_queue_foreach
   - g_static_private_set
 - vFppV:
   - g_string_append_printf
@@ -3344,11 +3379,13 @@ wrappedglib2:
   - g_list_insert_sorted
   - g_list_sort_with_data
   - g_node_copy_deep
+  - g_once_impl
   - g_queue_find_custom
   - g_slist_find_custom
   - g_slist_foreach
   - g_slist_insert_sorted
   - g_slist_sort_with_data
+  - g_thread_new
   - g_variant_new_va
 - pFppV:
   - g_build_path
@@ -3496,48 +3533,134 @@ wrappedgobject2:
 wrappedgomp:
 wrappedgssapi:
 wrappedgssapikrb5:
+wrappedgstallocators:
 wrappedgstapp:
 wrappedgstaudio:
 wrappedgstbase:
+- vFppp:
+  - gst_collect_pads_set_buffer_function
+  - gst_collect_pads_set_clip_function
+  - gst_collect_pads_set_event_function
+  - gst_collect_pads_set_function
+  - gst_collect_pads_set_query_function
+- pFppupi:
+  - gst_collect_pads_add_pad
+wrappedgstcheck:
+wrappedgstcontroller:
+wrappedgstfft:
 wrappedgstgl:
+- pFup:
+  - gst_gl_context_default_get_proc_address
+- vFppp:
+  - gst_gl_context_thread_add
+  - gst_gl_window_send_message
+- vFppV:
+  - gst_gl_insert_debug_marker
+- pFuup:
+  - gst_gl_context_get_proc_address_with_platform
+- vFpppp:
+  - gst_gl_window_set_close_callback
+  - gst_gl_window_set_draw_callback
+  - gst_gl_window_set_resize_callback
+- iFpppp:
+  - gst_gl_framebuffer_draw_to_texture
+- iFppppp:
+  - gst_gl_filter_render_to_target
+wrappedgstnet:
+wrappedgstpbutils:
 wrappedgstreamer:
+- pFA:
+  - gst_tag_list_new_valist
+- vFpp:
+  - gst_init
+- pFpp:
+  - gst_plugin_load_file
+- pFpV:
+  - _gst_element_error_printf
+  - gst_caps_features_new
+  - gst_make_element_message_details
+  - gst_tag_list_new
+- pFpA:
+  - gst_caps_features_new_valist
+- vFppp:
+  - gst_structure_filter_and_map_in_place
+  - gst_tag_list_foreach
 - vFppV:
   - gst_bin_add_many
   - gst_caps_set_simple
   - gst_structure_remove_fields
+  - gst_structure_set
 - vFppA:
   - gst_caps_set_simple_valist
   - gst_structure_remove_fields_valist
+  - gst_structure_set_valist
 - iFppp:
   - gst_caps_foreach
+  - gst_element_foreach_sink_pad
+  - gst_init_check
+  - gst_structure_foreach
 - iFppV:
   - gst_element_link_many
   - gst_structure_get
 - iFppA:
+  - gst_info_vasprintf
   - gst_structure_get_valist
 - uFppp:
   - gst_bus_add_watch
+- pFppp:
+  - gst_task_new
 - pFppV:
   - gst_caps_new_simple
   - gst_structure_new
+- pFppA:
+  - gst_structure_new_valist
+- vFpipV:
+  - gst_tag_list_add
+  - gst_tag_list_add_values
+- vFpipA:
+  - gst_tag_list_add_valist
+  - gst_tag_list_add_valist_values
 - vFpppp:
   - gst_bus_set_sync_handler
   - gst_mini_object_set_qdata
+  - gst_pad_set_activate_function_full
   - gst_pad_set_activatemode_function_full
   - gst_pad_set_chain_function_full
   - gst_pad_set_event_function_full
   - gst_pad_set_getrange_function_full
+  - gst_pad_set_link_function_full
   - gst_pad_set_query_function_full
+- iFpppp:
+  - gst_iterator_fold
+  - gst_pad_start_task
 - pFppip:
   - gst_registry_feature_filter
+- pFpppV:
+  - gst_pad_create_stream_id_printf
+- pFpppA:
+  - gst_pad_create_stream_id_printf_valist
 - uFpippp:
   - gst_bus_add_watch_full
+- LFpippp:
+  - gst_pad_add_probe
 - pFiplllpp:
   - gst_buffer_new_wrapped_full
+- pFipLLLpp:
+  - gst_memory_new_wrapped
+- pFpuLpipp:
+  - gst_util_array_binary_search
 - vFpippippV:
   - gst_debug_log
 - vFpippippA:
   - gst_debug_log_valist
+- iFppuppppp:
+  - gst_type_find_register
+- iFiipppppppp:
+  - gst_plugin_register_static
+wrappedgstriff:
+wrappedgstrtp:
+wrappedgstrtsp:
+wrappedgstsdp:
 wrappedgsttag:
 wrappedgstvideo:
 wrappedgthread2:
