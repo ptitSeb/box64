@@ -1277,8 +1277,8 @@ void RefreshElfTLS(elfheader_t* h)
         char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
         printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
         memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
-        tlsdatasize_t* ptr;
-        if ((ptr = (tlsdatasize_t*)pthread_getspecific(my_context->tlskey)) != NULL) {
+        if (pthread_getspecific(my_context->tlskey)) {
+            tlsdatasize_t* ptr = getTLSData(my_context);
             // refresh in tlsdata too
             dest = (char*)(ptr->data+h->tlsbase);
             printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
@@ -1332,16 +1332,15 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     // reset Segs Cache
     memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
     uintptr_t p = h->initentry + h->delta;
-    box64context_t* context = GetEmuContext(emu);
     // Refresh no-file part of TLS in case default value changed
     RefreshElfTLS(h);
     // check if in deferredInit
-    if(context->deferredInit) {
-        if(context->deferredInitSz==context->deferredInitCap) {
-            context->deferredInitCap += 4;
-            context->deferredInitList = (elfheader_t**)box_realloc(context->deferredInitList, context->deferredInitCap*sizeof(elfheader_t*));
+    if(my_context->deferredInit) {
+        if(my_context->deferredInitSz==my_context->deferredInitCap) {
+            my_context->deferredInitCap += 4;
+            my_context->deferredInitList = (elfheader_t**)box_realloc(my_context->deferredInitList, my_context->deferredInitCap*sizeof(elfheader_t*));
         }
-        context->deferredInitList[context->deferredInitSz++] = h;
+        my_context->deferredInitList[my_context->deferredInitSz++] = h;
         return;
     }
     h->init_done = 1;
@@ -1353,14 +1352,14 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
     }
     printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     if(h->initentry)
-        RunFunctionWithEmu(emu, 0, p, 3, context->argc, context->argv, context->envv);
+        RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
     printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
     for (size_t i=0; i<h->initarray_sz; ++i) {
         if(addr[i]) {
             printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, context->argc, context->argv, context->envv);
+            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
         }
     }
 
