@@ -58,6 +58,16 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
     switch(opcode) {
 
+        case 0x01:
+            INST_NAME("ADD Seg:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_add32(dyn, ninst, rex, ed, gd, x3, x5);
+            WBACKO(x4);
+            break;
         case 0x03:
             INST_NAME("ADD Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -268,6 +278,28 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x21:
+            INST_NAME("AND Seg:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_and32(dyn, ninst, rex, ed, gd, x3, x5);
+            WBACKO(x4);
+            break;
+
+        case 0x29:
+            INST_NAME("SUB Seg:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_sub32(dyn, ninst, rex, ed, gd, x3, x5);
+            WBACKO(x4);
+            break;
+
         case 0x2B:
             INST_NAME("SUB Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -276,6 +308,17 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             GETEDO(x4, 0);
             emit_sub32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+
+        case 0x31:
+            INST_NAME("XOR Seg:Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_xor32(dyn, ninst, rex, ed, gd, x3, x5);
+            WBACKO(x4);
             break;
 
         case 0x33:
