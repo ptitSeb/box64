@@ -451,7 +451,12 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             else
                 GD->q[0] = tmp64u&0xffffffff;
             break;
-
+        case 0x8E:                      /* MOV Seg, Seg:Ew */
+            nextop = F8;
+            GETED_OFFS(0, tlsdata);
+            emu->segs[((nextop&0x38)>>3)] = ED->word[0];
+            emu->segs_serial[((nextop&0x38)>>3)] = 0;
+            break;
         case 0x8F:                      /* POP FS:Ed */
             nextop = F8;
             if(MODREG) {
