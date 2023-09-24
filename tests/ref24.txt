@@ -1,0 +1,4 @@
+ret = 0xedefcdab78563412
+ret = 0x78563412
+ret = 0xedefcdab78563412
+ret = 0x78563412

@@ -313,7 +313,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
 )
 if(NOT ANDROID)
-    list(APPEND ELFLOADER_SRC 
+    list(APPEND ELFLOADER_SRC
         "${BOX64_ROOT}/src/libtools/obstack.c"
         "${BOX64_ROOT}/src/elfs/elfdwarf_private.c"
     )
@@ -973,6 +973,12 @@ add_test(pshufb ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test23 -D TEST_OUTPUT=tmpfile23.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref23.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(movbe ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test24 -D TEST_OUTPUT=tmpfile24.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref24.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
 
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
