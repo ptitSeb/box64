@@ -769,6 +769,64 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Byte-reverse register
 #define REV8(rd, rs) EMIT(I_type(0b011010111000, rs, 0b101, rd, 0b0010011))
 
+// Byte-reverse register, rd can be the same as rs or s1, but rs cannot be the same as s1.
+#define REVxw(rd, rs, s1, s2, s3, s4) \
+    if (rv64_zbb) {                   \
+        REV8(s1, rs);                 \
+        if (!rex.w) {                 \
+            SRLI(rd, s1, 32);         \
+        }                             \
+    } else if (rv64_xtheadbb) {       \
+        if (rex.w) {                  \
+            TH_REV(rd, rs);           \
+        } else {                      \
+            TH_REVW(rd, rs);          \
+        }                             \
+    } else {                          \
+        MOV_U12(s2, 0xff);            \
+        if (rex.w) {                  \
+            SLLI(s1, rs, 56);         \
+            SRLI(s3, rs, 56);         \
+            SRLI(s4, rs, 40);         \
+            SLLI(s2, s2, 8);          \
+            AND(s4, s4, s2);          \
+            OR(s1, s1, s3);           \
+            OR(s1, s1, s4);           \
+            SLLI(s3, rs, 40);         \
+            SLLI(s4, s2, 40);         \
+            AND(s3, s3, s4);          \
+            OR(s1, s1, s3);           \
+            SRLI(s3, rs, 24);         \
+            SLLI(s4, s2, 8);          \
+            AND(s3, s3, s4);          \
+            OR(s1, s1, s3);           \
+            SLLI(s3, rs, 24);         \
+            SLLI(s4, s2, 32);         \
+            AND(s3, s3, s4);          \
+            OR(s1, s1, s3);           \
+            SRLI(s3, rs, 8);          \
+            SLLI(s4, s2, 16);         \
+            AND(s3, s3, s4);          \
+            OR(s1, s1, s3);           \
+            SLLI(s3, rs, 8);          \
+            SLLI(s4, s2, 24);         \
+            AND(s3, s3, s4);          \
+            OR(rd, s1, s3);           \
+        } else {                      \
+            SLLIW(s2, s2, 8);         \
+            SLLIW(s1, rs, 24);        \
+            SRLIW(s3, rs, 24);        \
+            SRLIW(s4, rs, 8);         \
+            AND(s4, s4, s2);          \
+            OR(s1, s1, s3);           \
+            OR(s1, s1, s4);           \
+            SLLIW(s3, rs, 8);         \
+            LUI(s2, 0xff0);           \
+            AND(s3, s3, s2);          \
+            OR(rd, s1, s3);           \
+        }                             \
+    }
+
 // Zbc
 //  Carry-less multily (low-part)
 #define CLMUL(rd, rs1, rs2) EMIT(R_type(0b0000101, rs2, rs1, 0b001, rd, 0b0110011))

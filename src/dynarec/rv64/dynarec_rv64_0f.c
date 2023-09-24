@@ -394,58 +394,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LDxw(gd, ed, fixedaddress);
-                    if (rv64_zbb) {
-                        REV8(gd, gd);
-                        if (!rex.w) {
-                            SRLI(gd, gd, 32);
-                        }
-                    } else {
-                        if (rex.w) {
-                            MOV_U12(x2, 0xff);
-                            SLLI(x1, gd, 56);
-                            SRLI(x3, gd, 56);
-                            SRLI(x4, gd, 40);
-                            SLLI(x2, x2, 8);
-                            AND(x4, x4, x2);
-                            OR(x1, x1, x3);
-                            OR(x1, x1, x4);
-                            SLLI(x3, gd, 40);
-                            SLLI(x4, x2, 40);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-
-                            SRLI(x3, gd, 24);
-                            SLLI(x4, x2, 8);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-                            SLLI(x3, gd, 24);
-                            SLLI(x4, x2, 32);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-
-                            SRLI(x3, gd, 8);
-                            SLLI(x4, x2, 16);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-                            SLLI(x3, gd, 8);
-                            SLLI(x4, x2, 24);
-                            AND(x3, x3, x4);
-                            OR(gd, x1, x3);
-                        } else {
-                            MOV_U12(x2, 0xff);
-                            SLLIW(x2, x2, 8);
-                            SLLIW(x1, gd, 24);
-                            SRLIW(x3, gd, 24);
-                            SRLIW(x4, gd, 8);
-                            AND(x4, x4, x2);
-                            OR(x1, x1, x3);
-                            OR(x1, x1, x4);
-                            SLLIW(gd, gd, 8);
-                            LUI(x2, 0xff0);
-                            AND(gd, gd, x2);
-                            OR(gd, gd, x1);
-                        }
-                    }
+                    REV8xw(gd, gd, x1, x2, x3, x4);
                     break;
                 case 0xF1:
                     INST_NAME("MOVBE Ed, Gd");
@@ -453,58 +402,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETGD;
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                    if (rv64_zbb) {
-                        REV8(x1, gd);
-                        if (!rex.w) {
-                            SRLI(x1, x1, 32);
-                        }
-                    } else {
-                        if (rex.w) {
-                            MOV_U12(x2, 0xff);
-                            SLLI(x1, gd, 56);
-                            SRLI(x3, gd, 56);
-                            SRLI(x4, gd, 40);
-                            SLLI(x2, x2, 8);
-                            AND(x4, x4, x2);
-                            OR(x1, x1, x3);
-                            OR(x1, x1, x4);
-                            SLLI(x3, gd, 40);
-                            SLLI(x4, x2, 40);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-
-                            SRLI(x3, gd, 24);
-                            SLLI(x4, x2, 8);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-                            SLLI(x3, gd, 24);
-                            SLLI(x4, x2, 32);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-
-                            SRLI(x3, gd, 8);
-                            SLLI(x4, x2, 16);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-                            SLLI(x3, gd, 8);
-                            SLLI(x4, x2, 24);
-                            AND(x3, x3, x4);
-                            OR(x1, x1, x3);
-                        } else {
-                            MOV_U12(x2, 0xff);
-                            SLLIW(x2, x2, 8);
-                            SLLIW(x1, gd, 24);
-                            SRLIW(x3, gd, 24);
-                            SRLIW(x4, gd, 8);
-                            AND(x4, x4, x2);
-                            OR(x1, x1, x3);
-                            OR(x1, x1, x4);
-                            SLLIW(x3, gd, 8);
-                            LUI(x2, 0xff0);
-                            AND(x3, x3, x2);
-                            OR(x1, x1, x3);
-                        }
-                    }
+                    REV8xw(x1, gd, x1, x2, x3, x4);
                     SDxw(x1, wback, fixedaddress);
                     break;
                 default:
@@ -1705,47 +1603,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCF: /* BSWAP reg */
             INST_NAME("BSWAP Reg");
             gd = xRAX + (opcode & 7) + (rex.b << 3);
-            if (rv64_zbb) {
-                REV8(gd, gd);
-                if (!rex.w)
-                    SRLI(gd, gd, 32);
-            } else {
-                gback = gd;
-                if (!rex.w) {
-                    AND(x4, gd, xMASK);
-                    gd = x4;
-                }
-                ANDI(x1, gd, 0xff);
-                SLLI(x1, x1, (rex.w ? 64 : 32) - 8);
-                SRLI(x2, gd, 8);
-                ANDI(x3, x2, 0xff);
-                SLLI(x3, x3, (rex.w ? 64 : 32) - 16);
-                OR(x1, x1, x3);
-                SRLI(x2, gd, 16);
-                ANDI(x3, x2, 0xff);
-                SLLI(x3, x3, (rex.w ? 64 : 32) - 24);
-                OR(x1, x1, x3);
-                SRLI(x2, gd, 24);
-                if (rex.w) {
-                    ANDI(x3, x2, 0xff);
-                    SLLI(x3, x3, 64 - 32);
-                    OR(x1, x1, x3);
-                    SRLI(x2, gd, 32);
-                    ANDI(x3, x2, 0xff);
-                    SLLI(x3, x3, 64 - 40);
-                    OR(x1, x1, x3);
-                    SRLI(x2, gd, 40);
-                    ANDI(x3, x2, 0xff);
-                    SLLI(x3, x3, 64 - 48);
-                    OR(x1, x1, x3);
-                    SRLI(x2, gd, 48);
-                    ANDI(x3, x2, 0xff);
-                    SLLI(x3, x3, 64 - 56);
-                    OR(x1, x1, x3);
-                    SRLI(x2, gd, 56);
-                }
-                OR(gback, x1, x2);
-            }
+            REV8xw(gd, gd, x1, x2, x3, x4);
             break;
         case 0xE5:
             INST_NAME("PMULHW Gm,Em");

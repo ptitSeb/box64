@@ -819,6 +819,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (rv64_zbb) {
                         REV8(x1, x1);
                         SRLI(x1, x1, 48);
+                    } else if (rv64_xtheadbb) {
+                        TH_REVW(x1, x1);
+                        SRLI(x1, x1, 16);
                     } else {
                         ANDI(x2, x1, 0xff);
                         SLLI(x2, x2, 8);
@@ -838,6 +841,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (rv64_zbb) {
                         REV8(x1, gd);
                         SRLI(x1, x1, 48);
+                    } else if (rv64_xtheadbb) {
+                        TH_REVW(x1, gd);
+                        SRLI(x1, x1, 16);
                     } else {
                         ANDI(x1, gd, 0xff);
                         SLLI(x1, x1, 8);
