@@ -53,7 +53,7 @@ int main()
     asm volatile(
         "movbe %1, %0\n"
         : "=m"(ret3)
-        : "r"(b)
+        : "r"(c)
         : "memory");
     printf("ret = 0x%x\n", ret3);
 
