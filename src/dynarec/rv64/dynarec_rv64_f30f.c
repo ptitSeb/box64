@@ -416,6 +416,8 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MARK;
             if (rv64_zbb) {
                 CLZxw(gd, ed);
+            } else if (rv64_xtheadbb) {
+                TH_FF0(gd, ed);
             } else {
                 if (ed != gd)
                     u8 = gd;
