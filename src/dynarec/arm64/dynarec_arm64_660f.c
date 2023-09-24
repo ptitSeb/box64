@@ -169,7 +169,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             FAKEED;
             break;
-        
+
         case 0x28:
             INST_NAME("MOVAPD Gx,Ex");
             nextop = F8;
@@ -857,7 +857,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         BFIx(gd, x1, 0, 16);
                     } else {
                         SMREAD();
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                         LDH(x1, ed, fixedaddress);
                         REV16x(x1, x1);
                         BFIx(gd, x1, 0, 16);
@@ -873,7 +873,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         BFIx(ed, x1, 0, 16);
                     } else {
                         SMREAD();
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                         REV16x(x1, gd);
                         STH(x1, ed, fixedaddress);
                     }
@@ -1007,7 +1007,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0, 1);
                     u8 = F8;
                     if(u8>31) {
-                        VEORQ(q0, q0, q0);    
+                        VEORQ(q0, q0, q0);
                     } else if(u8>15) {
                         d0 = fpu_get_scratch(dyn);
                         VEORQ(d0, d0, d0);
@@ -1121,7 +1121,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd); // gx
                         if(MODREG) {
-                            ed = (nextop&7)+(rex.b<<3); 
+                            ed = (nextop&7)+(rex.b<<3);
                             sse_forget_reg(dyn, ninst, ed);
                             MOV32w(x2, ed);
                             MOV32w(x3, 0);  //p = NULL
@@ -1145,7 +1145,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     sse_forget_reg(dyn, ninst, gd);
                     MOV32w(x1, gd); // gx
                     if(MODREG) {
-                        ed = (nextop&7)+(rex.b<<3); 
+                        ed = (nextop&7)+(rex.b<<3);
                         sse_forget_reg(dyn, ninst, ed);
                         MOV32w(x2, ed);
                         MOV32w(x3, 0);  //p = NULL
@@ -1195,7 +1195,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             LSRx(x1, x1, 63);
             LSRx(gd, gd, 63);
             BFIx(gd, x1, 1, 1);
-            break;    
+            break;
         case 0x51:
             INST_NAME("SQRTPD Gx, Ex");
             nextop = F8;
@@ -1215,7 +1215,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFSQRTQD(q1, q0);
             }
             break;
-     
+
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
@@ -2195,21 +2195,21 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0: VFCMEQQD(v0, v0, v1); break;   // Equal
                 case 1: VFCMGTQD(v0, v1, v0); break;   // Less than
                 case 2: VFCMGEQD(v0, v1, v0); break;   // Less or equal
-                case 3: VFCMEQQD(v0, v0, v0); 
+                case 3: VFCMEQQD(v0, v0, v0);
                         if(v0!=v1) {
-                            q0 = fpu_get_scratch(dyn); 
-                            VFCMEQQD(q0, v1, v1); 
+                            q0 = fpu_get_scratch(dyn);
+                            VFCMEQQD(q0, v1, v1);
                             VANDQ(v0, v0, q0);
                         }
-                        VMVNQ(v0, v0); 
+                        VMVNQ(v0, v0);
                         break;   // NaN (NaN is not equal to himself)
                 case 4: VFCMEQQD(v0, v0, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
                 case 5: VFCMGTQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or equal or unordered
                 case 6: VFCMGEQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or unordered
-                case 7: VFCMEQQD(v0, v0, v0); 
+                case 7: VFCMEQQD(v0, v0, v0);
                         if(v0!=v1) {
-                            q0 = fpu_get_scratch(dyn); 
-                            VFCMEQQD(q0, v1, v1); 
+                            q0 = fpu_get_scratch(dyn);
+                            VFCMEQQD(q0, v1, v1);
                             VANDQ(v0, v0, q0);
                         }
                         break;   // not NaN
@@ -2386,7 +2386,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             UADDLV_8(q1, q1);   // accumalte
             VMOVBto(x1, q1, 0);
             BFIx(gd, x1, 8, 8);
-            break;        
+            break;
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");
             nextop = F8;

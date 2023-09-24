@@ -1,0 +1,8 @@
+ret = 0xedefcdab78563412
+ret = 0x78563412
+ret = 0x3412
+ret = 0xedefcdab78563412
+ret = 0x78563412
+ret = 0x3412
+ret = 0x12345678abcdefed
+ret = 0x12345678

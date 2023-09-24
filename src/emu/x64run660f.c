@@ -27,19 +27,19 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 	int retval = 0;
 
 	for(int i = 0; i < 8; i++) {
-		if((b & 1) == 1) 
+		if((b & 1) == 1)
 			retval ^= a;
-		
+
 		if((a & 0x80)) {
 			a <<= 1;
 			a  ^= 0x1b;
 		} else {
 			a <<= 1;
 		}
-		
+
 		b >>= 1;
 	}
-	
+
 	return retval;
 }
 
@@ -514,7 +514,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 for(int i=1; i>=0; --i)
                     GX->sq[i] = EX->sd[i];
                 break;
-            
+
             case 0x28:  /* PMULDQ Gx, Ex */
                 nextop = F8;
                 GETEX(0);
@@ -790,15 +790,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 0xF0: /* MOVBE Gw, Ew */
                 nextop = F8;
-                GETEX(0);
-                GETGX;
-                GX->uw[0] = __builtin_bswap16(EX->uw[0]);
+                GETED(0);
+                GETGD;
+                GD->word[0] = __builtin_bswap16(ED->word[0]);
                 break;
             case 0xF1: /* MOVBE Ew, Gw */
                 nextop = F8;
-                GETEX(0);
-                GETGX;
-                EX->uw[0] = __builtin_bswap16(GX->uw[0]);
+                GETED(0);
+                GETGD;
+                ED->word[0] = __builtin_bswap16(GD->word[0]);
                 break;
             default:
                 return 0;
@@ -1113,7 +1113,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 return 0;
         }
         break;
-        
+
     GOCOND(0x40
         , nextop = F8;
         CHECK_FLAGS(emu);
@@ -1285,7 +1285,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if (isnan(GX->d[1]) || isnan(EX->d[1]) || isgreater(EX->d[1], GX->d[1]))
             GX->d[1] = EX->d[1];
         break;
-        
+
     case 0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = F8;
         GETEX(0);
@@ -1295,7 +1295,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if(GX==EX)
             for(int i=0; i<8; ++i)
                 GX->ub[2 * i + 1] = GX->ub[2 * i];
-        else 
+        else
             for(int i=0; i<8; ++i)
                 GX->ub[2 * i + 1] = EX->ub[i];
         break;
@@ -1538,7 +1538,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     } else {
                         EX->q[0] = EX->q[1] >> (tmp8u - 64);
                         EX->q[1] = 0;
-                    }                    
+                    }
                 }
                 break;
             case 6:                 /* PSLLQ Ex, Ib */
@@ -1827,7 +1827,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GW->word[0] = EW->word[0];
         break;
 
-    case 0xBA:                      
+    case 0xBA:
         nextop = F8;
         switch((nextop>>3)&7) {
             case 4:                 /* BT Ew,Ib */
@@ -2096,7 +2096,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGX;
         if(EX->q[0]>15)
             {GX->q[0] = GX->q[1] = 0;}
-        else 
+        else
             {tmp8u=EX->ub[0]; for (int i=0; i<8; ++i) GX->uw[i] >>= tmp8u;}
         break;
     case 0xD2:  /* PSRLD Gx, Ex */
@@ -2105,7 +2105,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGX;
         if(EX->q[0]>31)
             {GX->q[0] = GX->q[1] = 0;}
-        else 
+        else
             {tmp8u=EX->ub[0]; for (int i=0; i<4; ++i) GX->ud[i] >>= tmp8u;}
         break;
     case 0xD3:  /* PSRLQ Gx, Ex */
@@ -2114,7 +2114,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGX;
         if(EX->q[0]>63)
             {GX->q[0] = GX->q[1] = 0;}
-        else 
+        else
             {tmp8u=EX->ub[0]; for (int i=0; i<2; ++i) GX->q[i] >>= tmp8u;}
         break;
     case 0xD4:  /* PADDQ Gx,Ex */
@@ -2229,7 +2229,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         tmp8u=(EX->q[0]>15)?15:EX->ub[0];
-        for (int i=0; i<8; ++i) 
+        for (int i=0; i<8; ++i)
             GX->sw[i] >>= tmp8u;
         break;
     case 0xE2:  /* PSRAD Gx, Ex */
@@ -2357,7 +2357,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGX;
         if(EX->q[0]>15)
             {GX->q[0] = GX->q[1] = 0;}
-        else 
+        else
             {tmp8u=EX->ub[0]; for (int i=0; i<8; ++i) GX->uw[i] <<= tmp8u;}
         break;
     case 0xF2:  /* PSLLD Gx, Ex */
@@ -2366,7 +2366,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGX;
         if(EX->q[0]>31)
             {GX->q[0] = GX->q[1] = 0;}
-        else 
+        else
             {tmp8u=EX->ub[0]; for (int i=0; i<4; ++i) GX->ud[i] <<= tmp8u;}
         break;
     case 0xF3:  /* PSLLQ Gx, Ex */
@@ -2375,7 +2375,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGX;
         if(EX->q[0]>63)
             {GX->q[0] = GX->q[1] = 0;}
-        else 
+        else
             {tmp8u=EX->ub[0]; for (int i=0; i<2; ++i) GX->q[i] <<= tmp8u;}
         break;
     case 0xF4:  /* PMULUDQ Gx,Ex */
@@ -2468,7 +2468,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GX->sd[2] += EX->sd[2];
         GX->sd[3] += EX->sd[3];
         break;
-    
+
     default:
         return 0;
     }
