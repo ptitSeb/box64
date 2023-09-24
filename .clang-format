@@ -1,0 +1,13 @@
+---
+BasedOnStyle: WebKit
+AlignTrailingComments: true
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: true
+ColumnLimit: 0
+IndentWidth: 4
+SortIncludes: false
+MaxEmptyLinesToKeep: 2
+IndentCaseLabels: true
+---
