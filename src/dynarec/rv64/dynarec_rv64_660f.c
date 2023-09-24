@@ -814,7 +814,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETGD;
                     SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, 0);
                     LHU(x1, ed, fixedaddress);
                     if (rv64_zbb) {
                         REV8(x1, x1);
@@ -837,7 +837,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETGD;
                     SMREAD();
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, 1);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, 0);
                     if (rv64_zbb) {
                         REV8(x1, gd);
                         SRLI(x1, x1, 48);
