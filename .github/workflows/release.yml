@@ -111,13 +111,16 @@ jobs:
           cd build
           if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,zba=true,zbb=true,zbc=true,zbs=true ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest -j$(nproc) --rerun-failed --output-on-failure
           elif [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'ANDROID' ]]; then # AArch64
+            INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
             true
           else
+            BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             ctest -j$(nproc) --rerun-failed --output-on-failure
           fi
 
