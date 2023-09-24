@@ -104,7 +104,7 @@ jobs:
         run: |
           if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'ANDROID' ]]; then
             mkdir qemu8.1.0
-            wget -O- -q https://london.mirror.pkgbuild.com/extra/os/x86_64/qemu-user-static-8.1.0-2-x86_64.pkg.tar.zst | tar -I zstd -C qemu8.1.0 -xf -
+            wget -O- -q https://archive.archlinux.org/packages/q/qemu-user-static/qemu-user-static-8.1.0-2-x86_64.pkg.tar.zst | tar -I zstd -C qemu8.1.0 -xf -
             sudo cp qemu8.1.0/usr/bin/* /usr/bin/
           fi
 
