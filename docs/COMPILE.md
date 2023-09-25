@@ -96,7 +96,7 @@ Using a 64bit OS:
 -D ODROIDN2=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
-#### for Snapdragon 845
+#### for Snapdragon
 
 Using a 64bit OS:
 
@@ -104,11 +104,26 @@ Using a 64bit OS:
 -D SD845=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
+or
+
+```
+-D SD888=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
+Depending how recent your Snapdragon is
+
 #### for Phytium
 
 Using a 64bit OS:
 ```
 -D PHYTIUM=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
+#### for ADLink machines
+
+Using a 64bit OS:
+```
+-D ADLINK=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
 #### for a generic ARM64 machine
