@@ -48,6 +48,8 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #endif
 
     opcode = F8;
+    while(opcode==0x2E) // ignoring CS: prefix
+        opcode = F8;
     // REX prefix before the F0 are ignored
     rex.rex = 0;
     if(!rex.is32bits)
