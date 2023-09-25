@@ -554,6 +554,8 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedvulkan.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxshmfence.c"
     "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedicuuc66.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedicui18n66.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicuuc67.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n67.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicuuc72.c"
