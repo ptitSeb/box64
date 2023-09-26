@@ -338,6 +338,7 @@
 #() vFiup
 #() vFiff
 #() vFidd
+#() vFilu
 #() vFill
 #() vFilp
 #() vFiLL
@@ -541,6 +542,7 @@
 #() uFEpU
 #() uFEpp
 #() uFiuu
+#() uFilp
 #() uFipu
 #() uFuii
 #() uFuip
