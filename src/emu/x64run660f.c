@@ -923,7 +923,16 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GX->ud[i] = EX->ud[i];
                 }
                 break;
-
+            case 0x0D:  /* PBLENDPD Gx, Ex, Ib */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                for (int i=0; i<2; ++i) {
+                    if(tmp8u&(1<<i))
+                        GX->q[i] = EX->q[i];
+                }
+                break;
             case 0x0E:  /* PBLENDW Gx, Ex, Ib */
                 nextop = F8;
                 GETEX(1);
