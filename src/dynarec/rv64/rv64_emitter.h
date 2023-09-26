@@ -841,10 +841,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define BCLR(rd, rs1, rs2) EMIT(R_type(0b0100100, rs2, rs1, 0b001, rd, 0b0110011))
 // Single-bit Clear (Immediate)
 #define BCLI(rd, rs1, imm) EMIT(R_type(0b0100100, imm, rs1, 0b001, rd, 0b0010011))
-// Single-bit Extreact (Register)
-#define BEXT(rd, rs1, rs2) EMIT(R_type(0b0100100, rs2, rs1, 0b101, rd, 0b0110011))
+// Single-bit Extract (Register)
+#define BEXT_(rd, rs1, rs2) EMIT(R_type(0b0100100, rs2, rs1, 0b101, rd, 0b0110011))
 // Single-bit Extract (Immediate)
-#define BEXTI(rd, rs1, imm) EMIT(R_type(0b0100100, imm, rs1, 0b101, rd, 0b0010011))
+#define BEXTI_(rd, rs1, imm) EMIT(R_type(0b0100100, imm, rs1, 0b101, rd, 0b0010011))
 // Single-bit Invert (Register)
 #define BINV(rd, rs1, rs2) EMIT(R_type(0b0110100, rs2, rs1, 0b001, rd, 0b0110011))
 // Single-bit Invert (Immediate)
@@ -854,6 +854,27 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Single-bit Set (Immediate)
 #define BSETI(rd, rs1, imm) EMIT(R_type(0b0010100, imm, rs1, 0b001, rd, 0b0010011))
 
+// Single-bit Extract (Register), s0 can be the same as rs2
+#define BEXT(rd, rs1, rs2, s0)              \
+    if (rv64_zbs)                           \
+        BEXT_(rd, rs1, rs2);                \
+    else {                                  \
+        ANDI(s0, rs2, rex.w ? 0x3f : 0x1f); \
+        SRL(rd, rs1, s0);                   \
+        ANDI(rd, rd, 1);                    \
+    }
+
+// Single-bit Extract (Immediate)
+#define BEXTI(rd, rs1, imm)   \
+    if (rv64_zbs)             \
+        BEXTI_(rd, rs1, imm); \
+    else if (rv64_xtheadbs)   \
+        TH_TST(rd, rs1, imm); \
+    else {                    \
+        SRLIxw(rd, rs1, imm); \
+        ANDI(rd, rd, 1);      \
+    }
+
 /// THead vendor extension
 /// https://github.com/T-head-Semi/thead-extension-spec/releases
 
@@ -861,7 +882,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Add a shifted operand to a second operand.
 // reg[rd] := reg[rs1] + (reg[rs2] << imm2)
-#define TH_ADDSL(rd, rs1, rs2, imm2) EMIT(R_type(imm2 & 0b11, rs2, rs1, 0b001, rd, 0b0001011))
+#define TH_ADDSL(rd, rs1, rs2, imm2) EMIT(R_type((imm2)&0b11, rs2, rs1, 0b001, rd, 0b0001011))
 
 // XTheadBb - Basic bit-manipulation
 
@@ -874,20 +895,20 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Perform a cyclic right shift.
 // reg[rd] := (reg[rs1] >> imm6) | (reg[rs1] << (xlen - imm6))
-#define TH_SRRI(rd, rs1, imm6) EMIT(I_type(0b000100000000 | (imm6 & 0x3f), rs1, 0b001, rd, 0b0001011))
+#define TH_SRRI(rd, rs1, imm6) EMIT(I_type(0b000100000000 | ((imm6)&0x3f), rs1, 0b001, rd, 0b0001011))
 
 // Perform a cyclic right shift on word operand.
 // data := zext.w(reg[rs1])
 // reg[rd] := (data >> imm5) | (data << (32 - imm5))
-#define TH_SRRIW(rd, rs1, imm5) EMIT(I_type(0b000101000000 | (imm5 & 0x1f), rs1, 0b001, rd, 0b0001011))
+#define TH_SRRIW(rd, rs1, imm5) EMIT(I_type(0b000101000000 | ((imm5)&0x1f), rs1, 0b001, rd, 0b0001011))
 
 // Extract and sign-extend bits.
 // reg[rd] := sign_extend(reg[rs1][imm1:imm2])
-#define TH_EXT(rd, rs1, imm1, imm2) EMIT(I_type(((imm1 & 0x1f) << 6) | (imm2 & 0x1f), rs1, 0b010, rd, 0b0001011))
+#define TH_EXT(rd, rs1, imm1, imm2) EMIT(I_type((((imm1)&0x1f) << 6) | ((imm2)&0x1f), rs1, 0b010, rd, 0b0001011))
 
 // Extract and zero-extend bits.
 // reg[rd] := zero_extend(reg[rs1][imm1:imm2])
-#define TH_EXTU(rd, rs1, imm1, imm2) EMIT(I_type(((imm1 & 0x1f) << 6) | (imm2 & 0x1f), rs1, 0b011, rd, 0b0001011))
+#define TH_EXTU(rd, rs1, imm1, imm2) EMIT(I_type((((imm1)&0x1f) << 6) | ((imm2)&0x1f), rs1, 0b011, rd, 0b0001011))
 
 // Find first '0'-bit
 // for i=xlen..0:
@@ -932,7 +953,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 //   rd := 1
 // else
 //   rd := 0
-#define TH_TST(rd, rs1, imm6) EMIT(I_type(0b100010000000 | (imm6 & 0x3f), rs1, 0b001, rd, 0b0001011))
+#define TH_TST(rd, rs1, imm6) EMIT(I_type(0b100010000000 | ((imm6)&0x3f), rs1, 0b001, rd, 0b0001011))
 
 
 // XTheadCondMov -  Conditional move
@@ -952,7 +973,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Load indexed byte, increment address after loading.
 // rd := sign_extend(mem[rs1])
 // rs1 := rs1 + (sign_extend(imm5) << imm2)
-#define TH_LBIA(rd, rs1, imm5, imm2) EMIT(I_type(0b000110000000 | ((imm2 & 0b11) << 5) | (imm5 & 0x1f), rs1, 0b100, rd, 0b0001011))
+#define TH_LBIA(rd, rs1, imm5, imm2) EMIT(I_type(0b000110000000 | (((imm2)&0b11) << 5) | ((imm5)&0x1f), rs1, 0b100, rd, 0b0001011))
 
 // TODO
 // th.lbib rd, (rs1), imm5, imm2 Load indexed byte
@@ -1006,7 +1027,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // addr := rs1 + (zero_extend(imm2) << 4)
 // rd1 := mem[addr+7:addr]
 // rd2 := mem[addr+15:addr+8]
-#define TH_LDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | (imm2 & 0b11), rd2, rs1, 0b100, rd1, 0b0001011))
+#define TH_LDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
 
 // TODO
 // th.lwd rd1, rd2, (rs1), imm2, 3 Load two signed 32-bit values
@@ -1019,7 +1040,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Load indexed double-precision floating point value.
 // addr := rs1 + (rs2 << imm2)
 // rd := fmem[addr+7:addr]
-#define TH_FLRD(rd, rs1, rs2, imm2) EMIT(R_type(0b0110000 | (imm2 & 0b11), rs2, rs1, 0b110, rd, 0b0001011))
+#define TH_FLRD(rd, rs1, rs2, imm2) EMIT(R_type(0b0110000 | ((imm2)&0b11), rs2, rs1, 0b110, rd, 0b0001011))
 
 // TODO
 // th.flrw rd, rs1, rs2, imm2 Load indexed float
