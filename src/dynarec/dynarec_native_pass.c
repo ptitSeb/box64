@@ -88,17 +88,17 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(box64_dynarec_test) {
             MESSAGE(LOG_DUMP, "TEST INIT ----\n");
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
-            GO_TRACE(x64test_init, 1);
+            GO_TRACE(x64test_init, 1, x1);
             fpu_unreflectcache(dyn, ninst, x1, x2, x3);
             MESSAGE(LOG_DUMP, "----------\n");
         }
 #ifdef HAVE_TRACE
         else if(my_context->dec && box64_dynarec_trace) {
-        if((trace_end == 0) 
+        if((trace_end == 0)
             || ((ip >= trace_start) && (ip < trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
-                GO_TRACE(PrintTrace, 1);
+                GO_TRACE(PrintTrace, 1, x1);
                 fpu_unreflectcache(dyn, ninst, x1, x2, x3);
                 MESSAGE(LOG_DUMP, "----------\n");
             }
@@ -200,7 +200,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
-                    (((next-addr)<15) && is_nops(dyn, addr, next-addr)) 
+                    (((next-addr)<15) && is_nops(dyn, addr, next-addr))
                     /*||(((next-addr)<30) && is_instructions(dyn, addr, next-addr))*/ ))
                 {
                     ok = 1;
@@ -232,7 +232,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
         #endif
         if(ok<0)  {
-            ok = 0; need_epilog=1; 
+            ok = 0; need_epilog=1;
             #if STEP == 0
             if(ninst) {
                 --ninst;
@@ -256,7 +256,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         ++ninst;
         #if STEP == 0
-        if(ok && (((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)addr)) 
+        if(ok && (((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)addr))
             || (addr>=box64_nodynarec_start && addr<box64_nodynarec_end)))
         #else
         if(ok && (ninst==dyn->size))
