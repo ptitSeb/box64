@@ -30,42 +30,42 @@ f18–27  fs2–11  FP saved registers              Callee
 f28–31  ft8–11  FP temporaries                  Caller
 */
 // x86 Register mapping
-#define xRAX 16
-#define xRCX 17
-#define xRDX 18
-#define xRBX 19
-#define xRSP 20
-#define xRBP 21
-#define xRSI 22
-#define xRDI 23
-#define xR8 24
-#define xR9 25
-#define xR10 26
-#define xR11 27
-#define xR12 28
-#define xR13 29
-#define xR14 30
-#define xR15 31
+#define xRAX   16
+#define xRCX   17
+#define xRDX   18
+#define xRBX   19
+#define xRSP   20
+#define xRBP   21
+#define xRSI   22
+#define xRDI   23
+#define xR8    24
+#define xR9    25
+#define xR10   26
+#define xR11   27
+#define xR12   28
+#define xR13   29
+#define xR14   30
+#define xR15   31
 #define xFlags 8
-#define xRIP 7
+#define xRIP   7
 
 // 32bits version
-#define wEAX xRAX
-#define wECX xRCX
-#define wEDX xRDX
-#define wEBX xRBX
-#define wESP xRSP
-#define wEBP xRBP
-#define wESI xRSI
-#define wEDI xRDI
-#define wR8 xR8
-#define wR9 xR9
-#define wR10 xR10
-#define wR11 xR11
-#define wR12 xR12
-#define wR13 xR13
-#define wR14 xR14
-#define wR15 xR15
+#define wEAX   xRAX
+#define wECX   xRCX
+#define wEDX   xRDX
+#define wEBX   xRBX
+#define wESP   xRSP
+#define wEBP   xRBP
+#define wESI   xRSI
+#define wEDI   xRDI
+#define wR8    xR8
+#define wR9    xR9
+#define wR10   xR10
+#define wR11   xR11
+#define wR12   xR12
+#define wR13   xR13
+#define wR14   xR14
+#define wR15   xR15
 #define wFlags xFlags
 // scratch registers
 #define x1 11
@@ -129,11 +129,11 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define ZEROUP(r) AND(r, r, xMASK)
 
 #define R_type(funct7, rs2, rs1, funct3, rd, opcode) ((funct7) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
-#define I_type(imm12, rs1, funct3, rd, opcode) ((imm12) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
-#define S_type(imm12, rs2, rs1, funct3, opcode) (((imm12) >> 5) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | ((imm12)&31) << 7 | (opcode))
-#define B_type(imm13, rs2, rs1, funct3, opcode) ((((imm13) >> 12) & 1) << 31 | (((imm13) >> 5) & 63) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (((imm13) >> 1) & 15) << 8 | (((imm13) >> 11) & 1) << 7 | (opcode))
-#define U_type(imm32, rd, opcode) (((imm32) >> 12) << 12 | (rd) << 7 | (opcode))
-#define J_type(imm21, rd, opcode) ((((imm21) >> 20) & 1) << 31 | (((imm21) >> 1) & 0b1111111111) << 21 | (((imm21) >> 11) & 1) << 20 | (((imm21) >> 12) & 0b11111111) << 12 | (rd) << 7 | (opcode))
+#define I_type(imm12, rs1, funct3, rd, opcode)       ((imm12) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
+#define S_type(imm12, rs2, rs1, funct3, opcode)      (((imm12) >> 5) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | ((imm12)&31) << 7 | (opcode))
+#define B_type(imm13, rs2, rs1, funct3, opcode)      ((((imm13) >> 12) & 1) << 31 | (((imm13) >> 5) & 63) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (((imm13) >> 1) & 15) << 8 | (((imm13) >> 11) & 1) << 7 | (opcode))
+#define U_type(imm32, rd, opcode)                    (((imm32) >> 12) << 12 | (rd) << 7 | (opcode))
+#define J_type(imm21, rd, opcode)                    ((((imm21) >> 20) & 1) << 31 | (((imm21) >> 1) & 0b1111111111) << 21 | (((imm21) >> 11) & 1) << 20 | (((imm21) >> 12) & 0b11111111) << 12 | (rd) << 7 | (opcode))
 
 // RV32I
 // put imm20 in the [31:12] bits of rd, zero [11:0] and sign extend bits31
@@ -144,7 +144,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 #define JAL_gen(rd, imm21) J_type(imm21, rd, 0b1101111)
 // Unconditional branch, no return address set
-#define B(imm21) EMIT(JAL_gen(xZR, imm21))
+#define B(imm21)               EMIT(JAL_gen(xZR, imm21))
 #define B__(reg1, reg2, imm21) B(imm21)
 // Unconditional branch, return set to xRA
 #define JAL(imm21) EMIT(JAL_gen(xRA, imm21))
@@ -248,10 +248,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SNEZ(rd, rs1) SLTU(rd, xZR, rs1)
 
 
-#define BEQ(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b000, 0b1100011))
-#define BNE(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b001, 0b1100011))
-#define BLT(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b100, 0b1100011))
-#define BGE(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b101, 0b1100011))
+#define BEQ(rs1, rs2, imm13)  EMIT(B_type(imm13, rs2, rs1, 0b000, 0b1100011))
+#define BNE(rs1, rs2, imm13)  EMIT(B_type(imm13, rs2, rs1, 0b001, 0b1100011))
+#define BLT(rs1, rs2, imm13)  EMIT(B_type(imm13, rs2, rs1, 0b100, 0b1100011))
+#define BGE(rs1, rs2, imm13)  EMIT(B_type(imm13, rs2, rs1, 0b101, 0b1100011))
 #define BLTU(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b110, 0b1100011))
 #define BGEU(rs1, rs2, imm13) EMIT(B_type(imm13, rs2, rs1, 0b111, 0b1100011))
 
@@ -377,10 +377,10 @@ f28–31  ft8–11  FP temporaries                  Caller
     }
 
 #define FENCE_gen(pred, succ) (((pred) << 24) | ((succ) << 20) | 0b0001111)
-#define FENCE() EMIT(FENCE_gen(3, 3))
+#define FENCE()               EMIT(FENCE_gen(3, 3))
 
 #define FENCE_I_gen() ((0b001 << 12) | 0b0001111)
-#define FENCE_I() EMIT(FENCE_I_gen())
+#define FENCE_I()     EMIT(FENCE_I_gen())
 
 #define EBREAK() EMIT(I_type(1, 0, 0, 0, 0b1110011))
 
@@ -476,9 +476,9 @@ f28–31  ft8–11  FP temporaries                  Caller
         SRAIW(rd, rs1, imm); \
     }
 
-#define CSRRW(rd, rs1, csr) EMIT(I_type(csr, rs1, 0b001, rd, 0b1110011))
-#define CSRRS(rd, rs1, csr) EMIT(I_type(csr, rs1, 0b010, rd, 0b1110011))
-#define CSRRC(rd, rs1, csr) EMIT(I_type(csr, rs1, 0b011, rd, 0b1110011))
+#define CSRRW(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b001, rd, 0b1110011))
+#define CSRRS(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b010, rd, 0b1110011))
+#define CSRRC(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b011, rd, 0b1110011))
 #define CSRRWI(rd, imm, csr) EMIT(I_type(csr, imm, 0b101, rd, 0b1110011))
 #define CSRRSI(rd, imm, csr) EMIT(I_type(csr, imm, 0b110, rd, 0b1110011))
 #define CSRRCI(rd, imm, csr) EMIT(I_type(csr, imm, 0b111, rd, 0b1110011))
@@ -493,10 +493,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd =(upper) rs1 * rs2 (both unsigned)
 #define MULHU(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b011, rd, 0b0110011))
 // rd =(upper) rs1 / rs2
-#define DIV(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, 0b0110011))
+#define DIV(rd, rs1, rs2)  EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, 0b0110011))
 #define DIVU(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b101, rd, 0b0110011))
 // rd = rs1 mod rs2
-#define REM(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, 0b0110011))
+#define REM(rd, rs1, rs2)  EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, 0b0110011))
 #define REMU(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, 0b0110011))
 
 // RV64M
@@ -505,29 +505,29 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 * rs2
 #define MULxw(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b000, rd, rex.w ? 0b0110011 : 0b0111011))
 // rd = rs1 / rs2
-#define DIVW(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, 0b0111011))
-#define DIVxw(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, rex.w ? 0b0110011 : 0b0111011))
-#define DIVUW(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b101, rd, 0b0111011))
+#define DIVW(rd, rs1, rs2)   EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, 0b0111011))
+#define DIVxw(rd, rs1, rs2)  EMIT(R_type(0b0000001, rs2, rs1, 0b100, rd, rex.w ? 0b0110011 : 0b0111011))
+#define DIVUW(rd, rs1, rs2)  EMIT(R_type(0b0000001, rs2, rs1, 0b101, rd, 0b0111011))
 #define DIVUxw(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b101, rd, rex.w ? 0b0110011 : 0b0111011))
 // rd = rs1 mod rs2
-#define REMW(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, 0b0111011))
-#define REMxw(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, rex.w ? 0b0110011 : 0b0111011))
-#define REMUW(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, 0b0111011))
+#define REMW(rd, rs1, rs2)   EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, 0b0111011))
+#define REMxw(rd, rs1, rs2)  EMIT(R_type(0b0000001, rs2, rs1, 0b110, rd, rex.w ? 0b0110011 : 0b0111011))
+#define REMUW(rd, rs1, rs2)  EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, 0b0111011))
 #define REMUxw(rd, rs1, rs2) EMIT(R_type(0b0000001, rs2, rs1, 0b111, rd, rex.w ? 0b0110011 : 0b0111011))
 
 #define AQ_RL(f5, aq, rl) ((f5 << 2) | ((aq & 1) << 1) | (rl & 1))
 
 // RV32A
-#define LR_W(rd, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b010, rd, 0b0101111))
+#define LR_W(rd, rs1, aq, rl)      EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b010, rd, 0b0101111))
 #define SC_W(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
 
 #define AMOSWAP_W(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00001, aq, rl), rs2, rs1, 0b010, rd, 0b0101111))
 
 // RV64A
-#define LR_D(rd, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b011, rd, 0b0101111))
+#define LR_D(rd, rs1, aq, rl)      EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b011, rd, 0b0101111))
 #define SC_D(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
 
-#define LRxw(rd, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b010 | rex.w, rd, 0b0101111))
+#define LRxw(rd, rs1, aq, rl)      EMIT(R_type(AQ_RL(0b00010, aq, rl), 0, rs1, 0b010 | rex.w, rd, 0b0101111))
 #define SCxw(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00011, aq, rl), rs2, rs1, 0b010 | rex.w, rd, 0b0101111))
 
 #define AMOSWAP_D(rd, rs2, rs1, aq, rl) EMIT(R_type(AQ_RL(0b00001, aq, rl), rs2, rs1, 0b011, rd, 0b0101111))
@@ -563,7 +563,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Round to Nearest, ties to Max Magnitude
 #define RD_RMM 0b100
 // In instruction’s rm field, selects dynamic rounding mode;
-#define RD_RM 0b111
+#define RD_RM  0b111
 #define RD_DYN RD_RM
 
 // load single precision from rs1+imm12 to frd
@@ -595,7 +595,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FSUBS(frd, frs1, frs2) EMIT(R_type(0b0000100, frs2, frs1, 0b000, frd, 0b1010011))
 #define FMULS(frd, frs1, frs2) EMIT(R_type(0b0001000, frs2, frs1, 0b000, frd, 0b1010011))
 #define FDIVS(frd, frs1, frs2) EMIT(R_type(0b0001100, frs2, frs1, 0b000, frd, 0b1010011))
-#define FSQRTS(frd, frs1) EMIT(R_type(0b0101100, 0b00000, frs1, 0b000, frd, 0b1010011))
+#define FSQRTS(frd, frs1)      EMIT(R_type(0b0101100, 0b00000, frs1, 0b000, frd, 0b1010011))
 #define FMINS(frd, frs1, frs2) EMIT(R_type(0b0010100, frs2, frs1, 0b000, frd, 0b1010011))
 #define FMAXS(frd, frs1, frs2) EMIT(R_type(0b0010100, frs2, frs1, 0b001, frd, 0b1010011))
 
@@ -652,7 +652,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FSUBD(frd, frs1, frs2) EMIT(R_type(0b0000101, frs2, frs1, 0b000, frd, 0b1010011))
 #define FMULD(frd, frs1, frs2) EMIT(R_type(0b0001001, frs2, frs1, 0b000, frd, 0b1010011))
 #define FDIVD(frd, frs1, frs2) EMIT(R_type(0b0001101, frs2, frs1, 0b000, frd, 0b1010011))
-#define FSQRTD(frd, frs1) EMIT(R_type(0b0101101, 0b00000, frs1, 0b000, frd, 0b1010011))
+#define FSQRTD(frd, frs1)      EMIT(R_type(0b0101101, 0b00000, frs1, 0b000, frd, 0b1010011))
 #define FMIND(frd, frs1, frs2) EMIT(R_type(0b0010101, frs2, frs1, 0b000, frd, 0b1010011))
 #define FMAXD(frd, frs1, frs2) EMIT(R_type(0b0010101, frs2, frs1, 0b001, frd, 0b1010011))
 
@@ -1032,13 +1032,13 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Load two signed 32-bit values from memory into two GPRs.
 // addr := rs1 + (zero_extend(imm2) << 3)
 // reg[rd1] := sign_extend(mem[addr+3:addr])
-// reg[rd2] := sign_extend(mem[addr+7:addr+3])
+// reg[rd2] := sign_extend(mem[addr+7:addr+4])
 #define TH_LWD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1110000 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
 
 // Load two unsigned 32-bit values from memory into two GPRs.
 // addr := rs1 + (zero_extend(imm2) << 3)
 // reg[rd1] := zero_extend(mem[addr+3:addr])
-// reg[rd2] := zero_extend(mem[addr+7:addr+3])
+// reg[rd2] := zero_extend(mem[addr+7:addr+4])
 #define TH_LWUD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111000 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
 
 // Store two 64-bit values to memory from two GPRs.
