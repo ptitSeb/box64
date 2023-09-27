@@ -1029,11 +1029,29 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd2 := mem[addr+15:addr+8]
 #define TH_LDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
 
-// TODO
-// th.lwd rd1, rd2, (rs1), imm2, 3 Load two signed 32-bit values
-// th.lwud rd1, rd2, (rs1), imm2, 3 Load two unsigned 32-bit values
-// th.sdd rd1, rd2, (rs1), imm2, 4 Store two 64-bit values
-// th.swd rd1, rd2, (rs1), imm2, 3 Store two 32-bit values
+// Load two signed 32-bit values from memory into two GPRs.
+// addr := rs1 + (zero_extend(imm2) << 3)
+// reg[rd1] := sign_extend(mem[addr+3:addr])
+// reg[rd2] := sign_extend(mem[addr+7:addr+3])
+#define TH_LWD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1110000 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
+
+// Load two unsigned 32-bit values from memory into two GPRs.
+// addr := rs1 + (zero_extend(imm2) << 3)
+// reg[rd1] := zero_extend(mem[addr+3:addr])
+// reg[rd2] := zero_extend(mem[addr+7:addr+3])
+#define TH_LWUD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111000 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
+
+// Store two 64-bit values to memory from two GPRs.
+// addr := rs1 + (zero_extend(imm2) << 4)
+// mem[addr+7:addr] := reg[rd1]
+// mem[addr+15:addr+8] := reg[rd2]
+#define TH_SDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | ((imm2)&0b11), rd2, rs1, 0b101, rd1, 0b0001011))
+
+// Store two 32-bit values to memory from two GPRs.
+// addr := rs1 + (zero_extend(imm2) << 3)
+// mem[addr+3:addr] := reg[rd1][31:0]
+// mem[addr+7:addr+3] := reg[rd2][31:0]
+#define TH_SWD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1110000 | ((imm2)&0b11), rd2, rs1, 0b101, rd1, 0b0001011))
 
 // XTheadFMemIdx - Indexed memory operations for floating-point registers
 

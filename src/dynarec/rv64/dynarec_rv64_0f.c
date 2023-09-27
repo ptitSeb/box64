@@ -64,7 +64,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             addr = fakeed(dyn, addr, ninst, nextop);
             SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
             GETIP(ip);
-            STORE_XEMU_CALL();
+            STORE_XEMU_CALL(x3);
             CALL(native_ud, -1);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -77,7 +77,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             NOTEST(x1);
             SMEND();
             GETIP(addr);
-            STORE_XEMU_CALL();
+            STORE_XEMU_CALL(x3);
             CALL_S(x64Syscall, -1);
             LOAD_XEMU_CALL();
             TABLE64(x3, addr); // expected return address
@@ -85,7 +85,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LW(w1, xEmu, offsetof(x64emu_t, quit));
             CBZ_NEXT(w1);
             MARK;
-            LOAD_XEMU_REM();
+            LOAD_XEMU_REM(x3);
             jump_to_epilog(dyn, 0, xRIP, ninst);
             break;
 
@@ -93,7 +93,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("WBINVD");
             SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
             GETIP(ip);
-            STORE_XEMU_CALL();
+            STORE_XEMU_CALL(x3);
             CALL(native_ud, -1);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -105,7 +105,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("UD2");
             SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
             GETIP(ip);
-            STORE_XEMU_CALL();
+            STORE_XEMU_CALL(x3);
             CALL(native_ud, -1);
             LOAD_XEMU_CALL();
             jump_to_epilog(dyn, 0, xRIP, ninst);

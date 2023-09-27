@@ -126,7 +126,7 @@ int Table64(dynarec_arm_t *dyn, uint64_t val, int pass);  // add a value to tabl
 
 void CreateJmpNext(void* addr, void* next);
 
-#define GO_TRACE(A, B)      \
+#define GO_TRACE(A, B, s0)  \
     GETIP(addr);            \
     MOVx_REG(x1, xRIP);     \
     STORE_XEMU_CALL(xRIP);  \

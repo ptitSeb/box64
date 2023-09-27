@@ -745,31 +745,49 @@
 #define LOAD_REG(A) LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 
 // Need to also store current value of some register, as they may be used by functions like setjmp
-#define STORE_XEMU_CALL() \
-    STORE_REG(RBX);       \
-    STORE_REG(RDX);       \
-    STORE_REG(RSP);       \
-    STORE_REG(RBP);       \
-    STORE_REG(RDI);       \
-    STORE_REG(RSI);       \
-    STORE_REG(R8);        \
-    STORE_REG(R9);        \
-    STORE_REG(R10);       \
-    STORE_REG(R11);
+#define STORE_XEMU_CALL(s0)                             \
+    if (rv64_xtheadmempair) {                           \
+        ADDI(s0, xEmu, offsetof(x64emu_t, regs[_RSP])); \
+        TH_SDD(xRDX, xRBX, xEmu, 1);                    \
+        TH_SDD(xRSP, xRBP, s0, 0);                      \
+        TH_SDD(xRSI, xRDI, s0, 1);                      \
+        TH_SDD(xR8, xR9, s0, 2);                        \
+        TH_SDD(xR10, xR11, s0, 3);                      \
+    } else {                                            \
+        STORE_REG(RBX);                                 \
+        STORE_REG(RDX);                                 \
+        STORE_REG(RSP);                                 \
+        STORE_REG(RBP);                                 \
+        STORE_REG(RDI);                                 \
+        STORE_REG(RSI);                                 \
+        STORE_REG(R8);                                  \
+        STORE_REG(R9);                                  \
+        STORE_REG(R10);                                 \
+        STORE_REG(R11);                                 \
+    }
 
 #define LOAD_XEMU_CALL()
 
-#define LOAD_XEMU_REM() \
-    LOAD_REG(RBX);      \
-    LOAD_REG(RDX);      \
-    LOAD_REG(RSP);      \
-    LOAD_REG(RBP);      \
-    LOAD_REG(RDI);      \
-    LOAD_REG(RSI);      \
-    LOAD_REG(R8);       \
-    LOAD_REG(R9);       \
-    LOAD_REG(R10);      \
-    LOAD_REG(R11);
+#define LOAD_XEMU_REM(s0)                               \
+    if (rv64_xtheadmempair) {                           \
+        ADDI(s0, xEmu, offsetof(x64emu_t, regs[_RSP])); \
+        TH_LDD(xRDX, xRBX, xEmu, 1);                    \
+        TH_LDD(xRSP, xRBP, s0, 0);                      \
+        TH_LDD(xRSI, xRDI, s0, 1);                      \
+        TH_LDD(xR8, xR9, s0, 2);                        \
+        TH_LDD(xR10, xR11, s0, 3);                      \
+    } else {                                            \
+        LOAD_REG(RBX);                                  \
+        LOAD_REG(RDX);                                  \
+        LOAD_REG(RSP);                                  \
+        LOAD_REG(RBP);                                  \
+        LOAD_REG(RDI);                                  \
+        LOAD_REG(RSI);                                  \
+        LOAD_REG(R8);                                   \
+        LOAD_REG(R9);                                   \
+        LOAD_REG(R10);                                  \
+        LOAD_REG(R11);                                  \
+    }
 
 
 #define SET_DFNONE()                           \
