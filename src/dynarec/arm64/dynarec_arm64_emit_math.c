@@ -906,7 +906,7 @@ void emit_dec32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4
 void emit_dec8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     IFX(X_PEND) {
-        STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s3, d_dec8);
     } else IFX(X_ZF|X_OF|X_AF|X_SF|X_PF) {
         SET_DFNONE(s3);
