@@ -581,9 +581,6 @@ EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* re
     return -1;
 }
 
-#define CUSTOM_INIT\
-    if(!box64_isglibc234) setNeededLibs(lib, 1, "libc.so.6");
-
 
 // define all standard library functions
 #include "wrappedlib_init.h"

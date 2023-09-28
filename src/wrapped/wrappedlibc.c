@@ -3412,9 +3412,10 @@ EXPORT char my___libc_single_threaded = 0;
     "libdl.so.2" ,          \
     "libm.so"
 #else
-#define NEEDED_LIBS   4,\
+#define NEEDED_LIBS   5,    \
     "ld-linux-x86-64.so.2", \
     "libpthread.so.0",      \
+    "libdl.so.2",           \
     "libutil.so.1",         \
     "librt.so.1"
 #define NEEDED_LIBS_234 6,  \
