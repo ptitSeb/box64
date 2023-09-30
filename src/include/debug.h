@@ -114,12 +114,11 @@ void printf_ftrace(const char* fmt, ...);
 
 void init_malloc_hook(void);
 #ifdef ANDROID
-extern size_t(*box_malloc_usable_size)(const void*);
-extern void*(*__libc_malloc)(size_t);
-extern void*(*__libc_realloc)(void*, size_t);
-extern void*(*__libc_calloc)(size_t, size_t);
-extern void (*__libc_free)(void*);
-extern void*(*__libc_memalign)(size_t, size_t);
+#define box_malloc      malloc
+#define box_realloc     realloc
+#define box_calloc      calloc
+#define box_free        free
+#define box_memalign    memalign
 #else
 extern size_t(*box_malloc_usable_size)(void*);
 extern void* __libc_malloc(size_t);
@@ -127,12 +126,12 @@ extern void* __libc_realloc(void*, size_t);
 extern void* __libc_calloc(size_t, size_t);
 extern void  __libc_free(void*);
 extern void* __libc_memalign(size_t, size_t);
-#endif
 #define box_malloc      __libc_malloc
 #define box_realloc     __libc_realloc
 #define box_calloc      __libc_calloc
 #define box_free        __libc_free
 #define box_memalign    __libc_memalign
+#endif
 extern char* box_strdup(const char* s);
 extern char* box_realpath(const char* path, char* ret);
 
