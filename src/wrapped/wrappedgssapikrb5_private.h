@@ -79,7 +79,7 @@ GO(gss_import_name, uFpppp)
 //GO(gss_import_sec_context, 
 //GO(gss_indicate_mechs, 
 //GO(gss_indicate_mechs_by_attrs, 
-GO(gss_init_sec_context, uFppppuuupppppp)
+GO(gss_init_sec_context, uFpppppuupppppp)
 //GO(gss_inquire_attrs_for_mech, 
 GO(gss_inquire_context, uFppppppppp)
 //GO(gss_inquire_cred, 
@@ -90,7 +90,7 @@ GO(gss_inquire_context, uFppppppppp)
 //GO(gss_inquire_name, 
 //GO(gss_inquire_names_for_mech, 
 //GO(gss_inquire_saslname_for_mech, 
-//GO(gss_inquire_sec_context_by_oid, 
+GO(gss_inquire_sec_context_by_oid, uFpppp)
 //GO(gssint_g_seqstate_init, 
 //GO(gss_krb5_ccache_name, 
 //GO(gss_krb5_copy_ccache, 
@@ -129,7 +129,7 @@ GO(gss_inquire_context, uFppppppppp)
 //GO(gss_pseudo_random, 
 //GO(gss_release_any_name_mapping, 
 GO(gss_release_buffer, uFpp)
-//GO(gss_release_buffer_set, 
+GO(gss_release_buffer_set, uFpp)
 GO(gss_release_cred, uFpp)
 GO(gss_release_iov_buffer, uFppi)
 GO(gss_release_name, uFpp)
@@ -153,11 +153,11 @@ GO(gss_unwrap, uFpppppp)
 GO(gss_unwrap_iov, uFpppppi)
 //GO(gss_userok, 
 //GO(gss_verify, 
-GO(gss_verify_mic, uFppppu)
+GO(gss_verify_mic, uFppppp)
 //GO(gss_verify_mic_iov, 
 GO(gss_wrap, uFppiuppp)
 //GO(gss_wrap_aead, 
-GO(gss_wrap_iov, iFppiuppi)
+GO(gss_wrap_iov, uFppiuppi)
 //GO(gss_wrap_iov_length, 
 //GO(gss_wrap_size_limit, 
 //DATAB(krb5_gss_dbg_client_expcreds, 
