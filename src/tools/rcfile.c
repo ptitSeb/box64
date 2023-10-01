@@ -62,6 +62,9 @@ static const char default_rcfile[] =
 "\n"
 "[steam-runtime-check-requirements]\n"
 "BOX64_EXIT=1\n"
+"\n"
+"[steam-runtime-launcher-service]\n"
+"BOX64_EXIT=1\n"
 ;
 
 // list of all entries
