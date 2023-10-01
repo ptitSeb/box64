@@ -933,7 +933,7 @@ extern int box64_quit;
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL || sig==SIGABRT here!
-    int log_minimum = (box64_showsegv)?LOG_NONE:((my_context->is_sigaction[sig] && sig==SIGSEGV)?LOG_DEBUG:LOG_INFO);
+    int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
     if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
         exit(0);    // Hack, segfault while quiting, exit silently
@@ -1137,7 +1137,7 @@ exit(-1);
             #ifdef DYNAREC
             cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
             #endif
-            if(old_addr!=(uintptr_t)addr || getMmapped((uintptr_t)addr)) {
+            if((old_addr!=(uintptr_t)addr) || getMmapped((uintptr_t)addr)) {
                 old_addr = (uintptr_t)addr;
                 refreshProtection(old_addr);
                 relockMutex(Locks);
