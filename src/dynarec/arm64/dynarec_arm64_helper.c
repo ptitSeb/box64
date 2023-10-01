@@ -575,6 +575,10 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
         uintptr_t tbl = getJumpTable64();
         MAYUSE(tbl);
         TABLE64(x3, tbl);
+        #ifdef JMPTABL_SHIFT4
+        UBFXx(x2, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
+        LDRx_REG_LSL3(x3, x3, x2);
+        #endif
         UBFXx(x2, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
         LDRx_REG_LSL3(x3, x3, x2);
         UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
@@ -622,6 +626,10 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     uintptr_t tbl = getJumpTable64();
     NOTEST(x2);
     MOV64x(x2, tbl);
+    #ifdef JMPTABL_SHIFT4
+    UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
+    LDRx_REG_LSL3(x2, x2, x3);
+    #endif
     UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
@@ -660,6 +668,10 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     uintptr_t tbl = getJumpTable64();
     NOTEST(x2);
     MOV64x(x2, tbl);
+    #ifdef JMPTABL_SHIFT4
+    UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
+    LDRx_REG_LSL3(x2, x2, x3);
+    #endif
     UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
