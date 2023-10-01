@@ -72,4 +72,13 @@ extern void arm64_lock_store(void*p, uint32_t v);
 // atomic store (with memory barrier)
 extern void arm64_lock_store_dd(void*p, uint64_t v);
 
+// atomic get (with memory barrier)
+extern uint8_t arm64_lock_get_b(void*p);
+
+// atomic get (with memory barrier)
+extern uint32_t arm64_lock_get_d(void*p);
+
+// atomic get (with memory barrier)
+extern void* arm64_lock_get_dd(void*p);
+
 #endif  //__ARM64_LOCK__H__

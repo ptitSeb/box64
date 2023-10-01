@@ -56,6 +56,7 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 #define PROT_MMAP       0x10
 #define PROT_DYN        (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT)
 #define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_MMAP | PROT_NOPROT)
+#define PROT_WAIT       0xFF
 
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);

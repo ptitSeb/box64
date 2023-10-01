@@ -1141,6 +1141,7 @@ exit(-1);
                 old_addr = (uintptr_t)addr;
                 refreshProtection(old_addr);
                 relockMutex(Locks);
+                sched_yield();  // give time to the other process
                 return; // that's probably just a multi-task glitch, like seen in terraria
             }
             old_addr = 0;

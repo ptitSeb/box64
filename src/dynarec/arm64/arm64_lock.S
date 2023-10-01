@@ -30,6 +30,9 @@
 .global arm64_lock_decifnot0
 .global arm64_lock_store
 .global arm64_lock_store_dd
+.global arm64_lock_get_b
+.global arm64_lock_get_d
+.global arm64_lock_get_dd
 
 arm64_lock_read_b:
     dmb     ish
@@ -259,4 +262,16 @@ arm64_lock_store:
 arm64_lock_store_dd:
     str     x1, [x0]
     dmb     ish
+    ret
+
+arm64_lock_get_b:
+    ldaxrb  w0, [x0]
+    ret
+
+arm64_lock_get_d:
+    ldaxr   w0, [x0]
+    ret
+
+arm64_lock_get_dd:
+    ldaxr   x0, [x0]
     ret

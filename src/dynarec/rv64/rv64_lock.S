@@ -21,6 +21,8 @@
 .global rv64_lock_cas_d
 .global rv64_lock_cas_dd
 .global rv64_lock_cas_dq
+.global rv64_lock_get_d
+.global rv64_lock_get_dd
 
 rv64_lock_xchg_dd:
     // address is a0, value is a1, return old value in a0
@@ -235,4 +237,19 @@ rv64_lock_cas_dq:
     ret
 1:
     li a0, 1
+    ret
+
+rv64_lock_get_b:
+    fence   rw, rw
+    lb      a0, 0(a0)
+    ret
+
+rv64_lock_get_d:
+    fence   rw, rw
+    lw      a0, 0(a0)
+    ret
+
+rv64_lock_get_dd:
+    fence   rw, rw
+    ld      a0, 0(a0)
     ret

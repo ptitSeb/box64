@@ -50,6 +50,12 @@ extern void rv64_lock_store_dd(void*p, uint64_t v);
 // (mostly) Atomically store val1 and val2 at [p] if old [p] is ref. Return 0 if OK, 1 is not. p needs to be aligned
 extern int rv64_lock_cas_dq(void* p, uint64_t ref, uint64_t val1, uint64_t val2);
 
+// atomic get (with memory barrier)
+extern uint32_t rv64_lock_get_d(void* p);
+
+// atomic get (with memory barrier)
+extern void* rv64_lock_get_dd(void* p);
+
 // Not defined in assembler but in dynarec_rv64_functions
 uint8_t extract_byte(uint32_t val, void* address);
 uint32_t insert_byte(uint32_t val, uint8_t b, void* address);
