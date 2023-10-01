@@ -21,6 +21,7 @@
 .global rv64_lock_cas_d
 .global rv64_lock_cas_dd
 .global rv64_lock_cas_dq
+.global rv64_lock_get_b
 .global rv64_lock_get_d
 .global rv64_lock_get_dd
 
