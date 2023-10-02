@@ -20,7 +20,12 @@
 #include "gtkclass.h"
 #include "fileutils.h"
 
-const char* gstaudioName = "libgstaudio-1.0.so.0";
+#ifdef ANDROID
+    const char* gstaudioName = "libgstaudio-1.0.so";
+#else
+    const char* gstaudioName = "libgstaudio-1.0.so.0";
+#endif
+
 #define LIBNAME gstaudio
 
 typedef size_t  (*LFv_t)();
@@ -36,10 +41,17 @@ typedef size_t  (*LFv_t)();
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);     \
-    SetGstAudioDecoderID(my->gst_audio_decoder_get_type());\
-    setNeededLibs(lib, 1, "libgstreamer-1.0.so.0");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstAudioDecoderID(my->gst_audio_decoder_get_type());\
+        setNeededLibs(lib, 1, "libgstreamer-1.0.so");
+#else
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstAudioDecoderID(my->gst_audio_decoder_get_type());\
+        setNeededLibs(lib, 1, "libgstreamer-1.0.so.0");
+#endif
 
 #define CUSTOM_FINI \
     freeMy();

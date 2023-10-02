@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbxtestName = "libxcb-xtest.so.0";
+#ifdef ANDROID
+	const char* libxcbxtestName = "libxcb-xtest.so";
+#else
+	const char* libxcbxtestName = "libxcb-xtest.so.0";
+#endif
+
 #define LIBNAME libxcbxtest
 
 #include "wrappedlib_init.h"

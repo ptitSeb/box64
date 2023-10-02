@@ -17,13 +17,26 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxrandrName = "libXrandr.so.2";
+#ifdef ANDROID
+    const char* libxrandrName = "libXrandr.so";
+#else
+    const char* libxrandrName = "libXrandr.so.2";
+#endif
+
 #define LIBNAME libxrandr
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 3,           \
-        "libX11.so.6",              \
-        "libXext.so.6",             \
-        "libXrender.so.1");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        setNeededLibs(lib, 3,           \
+            "libX11.so",              \
+            "libXext.so",             \
+            "libXrender.so");
+#else
+    #define CUSTOM_INIT \
+        setNeededLibs(lib, 3,           \
+            "libX11.so.6",              \
+            "libXext.so.6",             \
+            "libXrender.so.1");
+#endif
 
 #include "wrappedlib_init.h"

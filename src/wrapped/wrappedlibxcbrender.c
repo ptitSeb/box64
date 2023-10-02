@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbrenderName = "libxcb-render.so.0";
+#ifdef ANDROID
+	const char* libxcbrenderName = "libxcb-render.so";
+#else
+	const char* libxcbrenderName = "libxcb-render.so.0";
+#endif
+
 #define LIBNAME libxcbrender
 
 #include "wrappedlib_init.h"

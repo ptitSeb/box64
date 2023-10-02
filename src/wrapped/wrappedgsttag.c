@@ -12,7 +12,12 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* gsttagName = "libgsttag-1.0.so.0";
+#ifdef ANDROID
+    const char* gsttagName = "libgsttag-1.0.so";
+#else
+    const char* gsttagName = "libgsttag-1.0.so.0";
+#endif
+
 #define LIBNAME gsttag
 
 #define PRE_INIT    \

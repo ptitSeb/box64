@@ -18,7 +18,12 @@
 #include "myalign.h"
 #include "bridge.h"
 
-const char* vorbisfileName = "libvorbisfile.so.3";
+#ifdef ANDROID
+    const char* vorbisfileName = "libvorbisfile.so";
+#else
+    const char* vorbisfileName = "libvorbisfile.so.3";
+#endif
+
 #define LIBNAME vorbisfile
 
 typedef struct {

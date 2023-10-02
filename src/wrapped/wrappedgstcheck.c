@@ -12,7 +12,12 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* gstcheckName = "libgstcheck-1.0.so.0";
+#ifdef ANDROID
+    const char* gstcheckName = "libgstcheck-1.0.so";
+#else
+    const char* gstcheckName = "libgstcheck-1.0.so.0";
+#endif
+
 #define LIBNAME gstcheck
 
 #define PRE_INIT    \

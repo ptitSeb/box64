@@ -21,7 +21,12 @@
 #include "fileutils.h"
 #include "gltools.h"
 
-const char* gstglName = "libgstgl-1.0.so.0";
+#ifdef ANDROID
+    const char* gstglName = "libgstgl-1.0.so";
+#else
+    const char* gstglName = "libgstgl-1.0.so.0";
+#endif
+
 #define LIBNAME gstgl
 
 typedef size_t  (*LFv_t)();

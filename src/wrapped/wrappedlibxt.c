@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxtName = "libXt.so.6";
+#ifdef ANDROID
+    const char* libxtName = "libXt.so";
+#else
+    const char* libxtName = "libXt.so.6";
+#endif
+
 #define LIBNAME libxt
 
 #include "generated/wrappedlibxttypes.h"
@@ -122,9 +127,15 @@ EXPORT long my_XtAppAddInput(x64emu_t* emu, void* context, int source, void* con
     return my->XtAppAddInput(context, source, cond, findInputCallbackFct(proc), data);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);   \
-    setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        getMy(lib);   \
+        setNeededLibs(lib, 2, "libX11.so", "libXext.so");
+#else
+    #define CUSTOM_INIT \
+        getMy(lib);   \
+        setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
+#endif
 
 #define CUSTOM_FINI \
     freeMy();
