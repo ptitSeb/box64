@@ -16,7 +16,12 @@
 #include "emu/x64emu_private.h"
 #include "callback.h"
 
-const char* curlName = "libcurl.so.4";
+#ifdef ANDROID
+    const char* curlName = "libcurl.so";
+#else
+    const char* curlName = "libcurl.so.4";
+#endif
+
 #define ALTNAME "libcurl-gnutls.so.4"
 #define LIBNAME curl
 

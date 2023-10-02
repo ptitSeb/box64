@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbimageName = "libxcb-image.so.0";
+#ifdef ANDROID
+	const char* libxcbimageName = "libxcb-image.so";
+#else
+	const char* libxcbimageName = "libxcb-image.so.0";
+#endif
+
 #define LIBNAME libxcbimage
 
 #include "wrappedlib_init.h"

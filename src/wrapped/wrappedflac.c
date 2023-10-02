@@ -18,7 +18,12 @@
 #include "myalign.h"
 #include "bridge.h"
 
-const char* flacName = "libFLAC.so.8";
+#ifdef ANDROID
+    const char* flacName = "libFLAC.so";
+#else
+    const char* flacName = "libFLAC.so.8";
+#endif
+
 #define LIBNAME flac
 
 typedef struct {

@@ -11,15 +11,29 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* libxftName = "libXft.so.2";
+#ifdef ANDROID
+    const char* libxftName = "libXft.so";
+#else
+    const char* libxftName = "libXft.so.2";
+#endif
+
 #define LIBNAME libxft
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 4,           \
-        "libX11.so.6",              \
-        "libfontconfig.so.1",       \
-        "libXrender.so.1",          \
-        "libfreetype.so.6");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        setNeededLibs(lib, 4,           \
+            "libX11.so",              \
+            "libfontconfig.so",       \
+            "libXrender.so",          \
+            "libfreetype.so");
+#else
+    #define CUSTOM_INIT \
+        setNeededLibs(lib, 4,           \
+            "libX11.so.6",              \
+            "libfontconfig.so.1",       \
+            "libXrender.so.1",          \
+            "libfreetype.so.6");
+#endif
 
 #include "wrappedlib_init.h"
 

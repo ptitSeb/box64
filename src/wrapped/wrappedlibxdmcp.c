@@ -11,7 +11,12 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* libxdmcpName = "libXdmcp.so.6";
+#ifdef ANDROID
+	const char* libxdmcpName = "libXdmcp.so";
+#else
+	const char* libxdmcpName = "libXdmcp.so.6";
+#endif
+
 #define LIBNAME libxdmcp
 
 #include "wrappedlib_init.h"

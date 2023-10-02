@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbshapeName = "libxcb-shape.so.0";
+#ifdef ANDROID
+	const char* libxcbshapeName = "libxcb-shape.so";
+#else
+	const char* libxcbshapeName = "libxcb-shape.so.0";
+#endif
+
 #define LIBNAME libxcbshape
 
 #include "wrappedlib_init.h"

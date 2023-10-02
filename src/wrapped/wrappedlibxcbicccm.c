@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbicccmName = "libxcb-icccm.so.4";
+#ifdef ANDROID
+	const char* libxcbicccmName = "libxcb-icccm.so";
+#else
+	const char* libxcbicccmName = "libxcb-icccm.so.4";
+#endif
+
 #define LIBNAME libxcbicccm
 
 #include "wrappedlib_init.h"
