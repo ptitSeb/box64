@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbxfixesName = "libxcb-xfixes.so.0";
+#ifdef ANDROID
+	const char* libxcbxfixesName = "libxcb-xfixes.so";
+#else
+	const char* libxcbxfixesName = "libxcb-xfixes.so.0";
+#endif
+
 #define LIBNAME libxcbxfixes
 
 #include "wrappedlib_init.h"

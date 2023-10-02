@@ -17,7 +17,12 @@
 #include "librarian.h"
 #include "myalign.h"
 
-const char* pulseName = "libpulse.so.0";
+#ifdef ANDROID
+    const char* pulseName = "libpulse.so";
+#else
+    const char* pulseName = "libpulse.so.0";
+#endif
+
 #define LIBNAME pulse
 
 // TODO: check my_pa_proplist_setf (not using generated/...)

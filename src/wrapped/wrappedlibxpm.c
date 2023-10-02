@@ -11,10 +11,20 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* libxpmName = "libXpm.so.4";
+#ifdef ANDROID
+    const char* libxpmName = "libXpm.so";
+#else
+    const char* libxpmName = "libXpm.so.4";
+#endif
+
 #define LIBNAME libxpm
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        setNeededLibs(lib, 2, "libX11.so", "libXext.so");
+#else
+    #define CUSTOM_INIT \
+        setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
+#endif
 
 #include "wrappedlib_init.h"

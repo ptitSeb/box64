@@ -17,7 +17,11 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbxineramaName = "libxcb-xinerama.so.0";
+#ifdef ANDROID
+	const char* libxcbxineramaName = "libxcb-xinerama.so";
+#else
+	const char* libxcbxineramaName = "libxcb-xinerama.so.0";
+#endif
 #define LIBNAME libxcbxinerama
 
 #include "wrappedlib_init.h"

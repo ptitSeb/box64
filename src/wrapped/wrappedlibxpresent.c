@@ -12,7 +12,12 @@
 #include "x64emu.h"
 #include "debug.h"
 
-const char* libxpresentName = "libXpresent.so.1";
+#ifdef ANDROID
+	const char* libxpresentName = "libXpresent.so";
+#else
+	const char* libxpresentName = "libXpresent.so.1";
+#endif
+
 #define LIBNAME libxpresent
 
 #include "wrappedlib_init.h"

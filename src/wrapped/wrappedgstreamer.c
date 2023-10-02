@@ -21,7 +21,11 @@
 #include "gtkclass.h"
 #include "fileutils.h"
 
-const char* gstreamerName = "libgstreamer-1.0.so.0";
+#ifdef ANDROID
+    const char* gstreamerName = "libgstreamer-1.0.so";
+#else
+    const char* gstreamerName = "libgstreamer-1.0.so.0";
+#endif
 #define LIBNAME gstreamer
 
 typedef void    (*vFv_t)();
@@ -1054,16 +1058,29 @@ EXPORT int my_gst_type_find_register(x64emu_t* emu, void* plugin, void* name, ui
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);     \
-    SetGstObjectID(my->gst_object_get_type());                 \
-    SetGstAllocatorID(my->gst_allocator_get_type());           \
-    SetGstTaskPoolID(my->gst_task_pool_get_type());            \
-    SetGstElementID(my->gst_element_get_type());               \
-    SetGstBinID(my->gst_bin_get_type());                       \
-    SetGstPadID(my->gst_pad_get_type());                       \
-    SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
-    setNeededLibs(lib, 1, "libgtk-3.so.0");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstObjectID(my->gst_object_get_type());                 \
+        SetGstAllocatorID(my->gst_allocator_get_type());           \
+        SetGstTaskPoolID(my->gst_task_pool_get_type());            \
+        SetGstElementID(my->gst_element_get_type());               \
+        SetGstBinID(my->gst_bin_get_type());                       \
+        SetGstPadID(my->gst_pad_get_type());                       \
+        SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
+        setNeededLibs(lib, 1, "libgtk-3.so");
+#else
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstObjectID(my->gst_object_get_type());                 \
+        SetGstAllocatorID(my->gst_allocator_get_type());           \
+        SetGstTaskPoolID(my->gst_task_pool_get_type());            \
+        SetGstElementID(my->gst_element_get_type());               \
+        SetGstBinID(my->gst_bin_get_type());                       \
+        SetGstPadID(my->gst_pad_get_type());                       \
+        SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
+        setNeededLibs(lib, 1, "libgtk-3.so.0");
+#endif
 
 #define CUSTOM_FINI \
     freeMy();

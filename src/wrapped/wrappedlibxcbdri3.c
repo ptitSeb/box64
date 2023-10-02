@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbdri3Name = "libxcb-dri3.so.0";
+#ifdef ANDROID
+	const char* libxcbdri3Name = "libxcb-dri3.so";
+#else
+	const char* libxcbdri3Name = "libxcb-dri3.so.0";
+#endif
+
 #define LIBNAME libxcbdri3
 
 #include "wrappedlib_init.h"

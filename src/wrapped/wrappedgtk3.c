@@ -19,7 +19,12 @@
 #include "myalign.h"
 #include "gtkclass.h"
 
-const char* gtk3Name = "libgtk-3.so.0";
+#ifdef ANDROID
+    const char* gtk3Name = "libgtk-3.so";
+#else
+    const char* gtk3Name = "libgtk-3.so.0";
+#endif
+
 static char* libname = NULL;
 #define LIBNAME gtk3
 
