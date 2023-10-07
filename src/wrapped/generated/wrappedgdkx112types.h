@@ -16,6 +16,7 @@ typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFiipp_t)(int32_t, int32_t, void*, void*);
 typedef int32_t (*iFiippp_t)(int32_t, int32_t, void*, void*, void*);
+typedef uint32_t (*uFiuppp_t)(int32_t, uint32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gdk_init, vFpp_t) \
@@ -24,6 +25,7 @@ typedef int32_t (*iFiippp_t)(int32_t, int32_t, void*, void*, void*);
 	GO(gdk_window_add_filter, vFppp_t) \
 	GO(gdk_window_remove_filter, vFppp_t) \
 	GO(gdk_input_add, iFiipp_t) \
-	GO(gdk_input_add_full, iFiippp_t)
+	GO(gdk_input_add_full, iFiippp_t) \
+	GO(gdk_threads_add_timeout_full, uFiuppp_t)
 
 #endif // __wrappedgdkx112TYPES_H_
