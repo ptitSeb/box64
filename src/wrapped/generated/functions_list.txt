@@ -1721,6 +1721,7 @@
 #() iWpppup
 #() iWppppp
 #() vFEiiipp
+#() vFEpiwpp
 #() vFEpiLpp
 #() vFEpippp
 #() vFEpuipp
@@ -2362,6 +2363,7 @@
 #() pFppuuupp
 #() pFppuuppp
 #() pFppuLLip
+#() pFppupuuu
 #() pFppliuip
 #() pFpplipup
 #() pFppLipip
@@ -3104,6 +3106,9 @@ wrappeddbusglib1:
   - dbus_g_proxy_begin_call
 - pFpppppiiV:
   - dbus_g_proxy_begin_call_with_timeout
+wrappedevent21:
+- vFpiwpp:
+  - event_set
 wrappedexpat:
 - vFpp:
   - XML_SetAttlistDeclHandler
@@ -3837,6 +3842,7 @@ wrappedkrb5:
 - iFppppppipp:
   - krb5_get_init_creds_password
 wrappedlber:
+wrappedlcms2:
 wrappedldapr:
 - iFpppppupp:
   - ldap_sasl_interactive_bind_s
