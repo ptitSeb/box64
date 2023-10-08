@@ -553,6 +553,33 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
 #endif
 }
 
+int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc)
+{
+    if((uintptr_t)pc<0x10000)
+        return 0;
+#ifdef ARM64
+    ucontext_t *p = (ucontext_t *)ucntx;
+    uint32_t opcode = *(uint32_t*)pc;
+    //printf_log(LOG_INFO, "Checking SIGBUS special casses with pc=%p, opcode=%x\n", pc, opcode);
+    if((opcode&0b10111000000000000000000000000000) == 0b10111000000000000000000000000000) {
+        // this is a STUR that SEGBUS if accessing unaligned device memory
+        int size = 1<<((opcode>>30)&3);
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        uint64_t value = p->uc_mcontext.regs[val];
+        for(int i=0; i<size; ++i)
+            addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
+#endif
+    return 0;
+}
+
 void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
@@ -969,6 +996,11 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void * pc = NULL;    // unknow arch...
     #warning Unhandled architecture
 #endif
+    if((sig==SIGBUS) && (addr!=pc) && sigbus_specialcases(info, ucntx, pc)) {
+        // special case fixed, restore everything and just continues
+        printf_log(LOG_DEBUG, "Special unalinged cased fixed, continue");
+        return;
+    }
     int Locks = unlockMutex();
     uint32_t prot = getProtection((uintptr_t)addr);
     #ifdef BAD_SIGNAL
