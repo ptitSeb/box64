@@ -1093,8 +1093,9 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
         printf_log(LOG_INFO, "FillBlock triggered a segfault at %p from %p\n", addr, pc);
         CancelBlock64(0);
-        cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
         relockMutex(Locks);
+        cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
+        // cancelFillBlock does not return
     }
     dynablock_t* db = NULL;
     int db_searched = 0;
@@ -1238,7 +1239,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     static int old_tid = 0;
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
     if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==GetTID()) {
-        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p)!\n", GetTID(), signame, old_code, old_pc, old_addr);
+        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p, prot=%02x)!\n", GetTID(), signame, old_code, old_pc, old_addr, prot);
 exit(-1);
     } else {
         if((sig==SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7)) {
