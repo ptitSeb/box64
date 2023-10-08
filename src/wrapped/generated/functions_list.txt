@@ -4054,8 +4054,6 @@ wrappedlibc:
 - iFppp:
   - __cxa_atexit
   - __cxa_thread_atexit_impl
-  - __isoc99_vfscanf
-  - __isoc99_vsscanf
   - __vfprintf_chk
   - __vsscanf
   - execve
@@ -4077,6 +4075,9 @@ wrappedlibc:
   - sscanf
   - swscanf
 - iFppA:
+  - __isoc99_vfscanf
+  - __isoc99_vsscanf
+  - __isoc99_vswscanf
   - obstack_vprintf
   - vasprintf
   - vfprintf

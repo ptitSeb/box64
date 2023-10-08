@@ -903,6 +903,7 @@ EXPORT int my_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 }
 EXPORT int my__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
+EXPORT int my___isoc99_vswscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vswscanf")));
 EXPORT int my___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 
 EXPORT int my___isoc99_fscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)

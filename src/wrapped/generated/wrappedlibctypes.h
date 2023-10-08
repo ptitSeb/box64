@@ -250,8 +250,6 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(pthread_attr_setstack, iFppL_t) \
 	GO(__cxa_atexit, iFppp_t) \
 	GO(__cxa_thread_atexit_impl, iFppp_t) \
-	GO(__isoc99_vfscanf, iFppp_t) \
-	GO(__isoc99_vsscanf, iFppp_t) \
 	GO(__vfprintf_chk, iFppp_t) \
 	GO(__vsscanf, iFppp_t) \
 	GO(execve, iFppp_t) \
@@ -271,6 +269,9 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
+	GO(__isoc99_vfscanf, iFppA_t) \
+	GO(__isoc99_vsscanf, iFppA_t) \
+	GO(__isoc99_vswscanf, iFppA_t) \
 	GO(obstack_vprintf, iFppA_t) \
 	GO(vasprintf, iFppA_t) \
 	GO(vfprintf, iFppA_t) \
