@@ -1033,6 +1033,15 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL || sig==SIGABRT here!
     int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
+    JUMPBUFF signal_jmpbuf;
+    #ifdef ANDROID
+    #define SIG_JMPBUF signal_jmpbuf
+    #else
+    #define SIG_JMPBUF &signal_jmpbuf
+    #endif
+    int signal_jmpbuf_active = 0;
+    if(signal_jmpbuf_active)
+        longjmp(SIG_JMPBUF, 1);
     if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
         exit(0);    // Hack, segfault while quiting, exit silently
@@ -1299,7 +1308,12 @@ exit(-1);
         if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==x64pc-1))
             x64pc--;
         if(log_minimum<=box64_log) {
-            x64name = getAddrFunctionName(x64pc);
+            signal_jmpbuf_active = 1;
+            if(sigsetjmp(SIG_JMPBUF, 1)) {
+                // segfault while gathering function name...
+            } else
+                x64name = getAddrFunctionName(x64pc);
+            signal_jmpbuf_active = 0;
             elfheader_t* elf = FindElfAddress(my_context, x64pc);
             if(elf)
                 elfname = ElfName(elf);
