@@ -580,8 +580,8 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
-    if((opcode&0b00111111010000000000000000000000) == 0b00111101000000000000000000000000) {
-        // this is a STUR that SEGBUS if accessing unaligned device memory
+    if((opcode&0b10111111111000000000110000000000) == 0b10111000000000000000000000000000) {
+        // this is a STUR that SIGBUS if accessing unaligned device memory
         int size = 1<<((opcode>>30)&3);
         int val = opcode&31;
         int dest = (opcode>>5)&31;
