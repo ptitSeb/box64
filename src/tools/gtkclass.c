@@ -298,6 +298,15 @@ static void bridgeGObjectClass(my_GObjectClass_t* class)
 }
 #undef SUPERGO
 
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGObjectInstance(my_GObject_t* class)
+{
+}
+// autobridge
+static void bridgeGObjectInstance(my_GObject_t* class)
+{
+}
+#undef SUPERGO
 // ----- GInitiallyUnownedClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GInitiallyUnowned, constructor, void*, (size_t type, uint32_t n_construct_properties, void* construct_properties), "Lup", type, n_construct_properties, construct_properties);
@@ -342,38 +351,13 @@ static void bridgeGInitiallyUnownedClass(my_GInitiallyUnownedClass_t* class)
 }
 #undef SUPERGO
 
-// ----- GamesScoresImporterClass ------
-// wrapper x86 -> natives of callbacks
-WRAPPER(GamesScoresImporter, importOldScores, void, (void *self, void* context, void* new_scores_dir, void *error), "pppp", self, context, new_scores_dir, error);
-
-#define SUPERGO() \
-    GO(importOldScores, vFpppp);
-
-// wrap (so bridge all calls, just in case)
-static void wrapGamesScoresImporterClass(my_GamesScoresImporterClass_t* class)
+static void unwrapGInitiallyUnownedInstance(my_GInitiallyUnowned_t* class)
 {
-    wrapGObjectClass(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GamesScoresImporter (W, class->A)
-    SUPERGO()
-    #undef GO
-}
-// unwrap (and use callback if not a native call anymore)
-static void unwrapGamesScoresImporterClass(my_GamesScoresImporterClass_t* class)
-{
-    unwrapGObjectClass(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GamesScoresImporter (class->A)
-    SUPERGO()
-    #undef GO
 }
 // autobridge
-static void bridgeGamesScoresImporterClass(my_GamesScoresImporterClass_t* class)
+static void bridgeGInitiallyUnownedInstance(my_GInitiallyUnowned_t* class)
 {
-    bridgeGObjectClass(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GamesScoresImporter (W, class->A)
-    SUPERGO()
-    #undef GO
 }
-#undef SUPERGO
 
 // ----- GApplicationClass ------
 // wrapper x86 -> natives of callbacks
@@ -413,6 +397,7 @@ WRAPPER(GApplication, name_lost, void, (void* application), "p", application);
 // wrap (so bridge all calls, just in case)
 static void wrapGApplicationClass(my_GApplicationClass_t* class)
 {
+    wrapGObjectClass(&class->parent_class);
     #define GO(A, W) class->A = reverse_##A##_GApplication (W, class->A)
     SUPERGO()
     #undef GO
@@ -420,6 +405,7 @@ static void wrapGApplicationClass(my_GApplicationClass_t* class)
 // unwrap (and use callback if not a native call anymore)
 static void unwrapGApplicationClass(my_GApplicationClass_t* class)
 {
+    unwrapGObjectClass(&class->parent_class);
     #define GO(A, W)   class->A = find_##A##_GApplication (class->A)   //SUPERGO() defined but not used
     SUPERGO()
     #undef GO
@@ -427,11 +413,23 @@ static void unwrapGApplicationClass(my_GApplicationClass_t* class)
 // autobridge
 static void bridgeGApplicationClass(my_GApplicationClass_t* class)
 {
+    bridgeGObjectClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GApplication (W, class->A)
     SUPERGO()
     #undef GO
 }
 
+#undef SUPERGO
+
+static void unwrapGApplicationInstance(my_GApplication_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGApplicationInstance(my_GApplication_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
 #undef SUPERGO
 
 // ----- GtkApplicationClass ------
@@ -469,6 +467,16 @@ static void bridgeGtkApplicationClass(my_GtkApplicationClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkApplicationInstance(my_GtkApplication_t* class)
+{
+    unwrapGApplicationInstance(&class->parent);
+}
+
+static void bridgeGtkApplicationInstance(my_GtkApplication_t* class)
+{
+    bridgeGApplicationInstance(&class->parent);
+}
+
 // ----- GtkObjectClass ------
 // wrapper x64 -> natives of callbacks
 WRAPPER(GtkObject, set_arg, void, (void* object, void* arg, uint32_t arg_id), "ppu", object, arg, arg_id);
@@ -482,7 +490,7 @@ WRAPPER(GtkObject, destroy, void, (void* object), "p", object);
 // wrap (so bridge all calls, just in case)
 static void wrapGtkObjectClass(my_GtkObjectClass_t* class)
 {
-    wrapGObjectClass(&class->parent_class);
+    wrapGInitiallyUnownedClass(&class->parent_class);
     #define GO(A, W) class->A = reverse_##A##_GtkObject (W, class->A)
     SUPERGO()
     #undef GO
@@ -490,7 +498,7 @@ static void wrapGtkObjectClass(my_GtkObjectClass_t* class)
 // unwrap (and use callback if not a native call anymore)
 static void unwrapGtkObjectClass(my_GtkObjectClass_t* class)
 {
-    unwrapGObjectClass(&class->parent_class);
+    unwrapGInitiallyUnownedClass(&class->parent_class);
     #define GO(A, W)   class->A = find_##A##_GtkObject (class->A)
     SUPERGO()
     #undef GO
@@ -498,13 +506,23 @@ static void unwrapGtkObjectClass(my_GtkObjectClass_t* class)
 // autobridge
 static void bridgeGtkObjectClass(my_GtkObjectClass_t* class)
 {
-    bridgeGObjectClass(&class->parent_class);
+    bridgeGInitiallyUnownedClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GtkObject (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
+
+static void unwrapGtkObjectInstance(my_GtkObject_t* class)
+{
+    unwrapGInitiallyUnownedInstance(&class->parent);
+}
+// autobridge
+static void bridgeGtkObjectInstance(my_GtkObject_t* class)
+{
+    bridgeGInitiallyUnownedInstance(&class->parent);
+}
 
 // ----- GtkWidget2Class ------
 // wrapper x86 -> natives of callbacks
@@ -669,6 +687,16 @@ static void bridgeGtkWidget2Class(my_GtkWidget2Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkWidget2Instance(my_GtkWidget2_t* class)
+{
+    unwrapGtkObjectInstance(&class->private);
+}
+// autobridge
+static void bridgeGtkWidget2Instance(my_GtkWidget2_t* class)
+{
+    bridgeGtkObjectInstance(&class->private);
+}
 
 // ----- GtkWidget3Class ------
 // wrapper x86 -> natives of callbacks
@@ -867,6 +895,16 @@ static void bridgeGtkWidget3Class(my_GtkWidget3Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkWidget3Instance(my_GtkWidget3_t* class)
+{
+    unwrapGInitiallyUnownedInstance(&class->parent);
+}
+// autobridge
+static void bridgeGtkWidget3Instance(my_GtkWidget3_t* class)
+{
+    bridgeGInitiallyUnownedInstance(&class->parent);
+}
+
 // ----- GtkContainer2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkContainer2, add, void, (void* container, void* widget), "pp", container, widget);
@@ -916,6 +954,16 @@ static void bridgeGtkContainer2Class(my_GtkContainer2Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkContainer2Instance(my_GtkContainer2_t* class)
+{
+    unwrapGtkWidget2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkContainer2Instance(my_GtkContainer2_t* class)
+{
+    bridgeGtkWidget2Instance(&class->parent);
+}
 
 // ----- GtkContainer3Class ------
 // wrapper x86 -> natives of callbacks
@@ -969,6 +1017,16 @@ static void bridgeGtkContainer3Class(my_GtkContainer3Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkContainer3Instance(my_GtkContainer3_t* class)
+{
+    unwrapGtkWidget3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkContainer3Instance(my_GtkContainer3_t* class)
+{
+    bridgeGtkWidget3Instance(&class->parent);
+}
+
 // ----- GtkActionClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkAction, activate, void, (void* action), "p", action);
@@ -1012,6 +1070,16 @@ static void bridgeGtkActionClass(my_GtkActionClass_t* class)
 }
 #undef SUPERGO
 
+static void unwrapGtkActionInstance(my_GtkAction_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGtkActionInstance(my_GtkAction_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
+
 // ----- GtkMisc2Class ------
 
 // wrap (so bridge all calls, just in case)
@@ -1030,6 +1098,15 @@ static void bridgeGtkMisc2Class(my_GtkMisc2Class_t* class)
     bridgeGtkWidget2Class(&class->parent_class);
 }
 
+static void unwrapGtkMisc2Instance(my_GtkMisc2_t* class)
+{
+    unwrapGtkWidget2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkMisc2Instance(my_GtkMisc2_t* class)
+{
+    bridgeGtkWidget2Instance(&class->parent);
+}
 // ----- GtkMisc3Class ------
 // no wrapper x86 -> natives of callbacks
 
@@ -1062,38 +1139,15 @@ static void bridgeGtkMisc3Class(my_GtkMisc3Class_t* class)
 
 #undef SUPERGO
 
-// ----- GtkGtkMenuButtonClass ------
-// wrapper x86 -> natives of callbacks
-WRAPPER(GtkMenuButton, activate, void, (void* self), "p", self);
-
-#define SUPERGO() \
-    GO(activate, vFp);
-
-// wrap (so bridge all calls, just in case)
-static void wrapGtkMenuButtonClass(my_GtkMenuButtonClass_t* class)
+static void unwrapGtkMisc3Instance(my_GtkMisc3_t* class)
 {
-    wrapGtkWidget3Class(&class->parent_class);
-    #define GO(A, W) class->A = reverse_##A##_GtkMenuButton (W, class->A)
-    SUPERGO()
-    #undef GO
-}
-// unwrap (and use callback if not a native call anymore)
-static void unwrapGtkMenuButtonClass(my_GtkMenuButtonClass_t* class)
-{
-    unwrapGtkWidget3Class(&class->parent_class);
-    #define GO(A, W)   class->A = find_##A##_GtkMenuButton (class->A)
-    SUPERGO()
-    #undef GO
+    unwrapGtkWidget3Instance(&class->parent);
 }
 // autobridge
-static void bridgeGtkMenuButtonClass(my_GtkMenuButtonClass_t* class)
+static void bridgeGtkMisc3Instance(my_GtkMisc3_t* class)
 {
-    bridgeGtkWidget3Class(&class->parent_class);
-    #define GO(A, W) autobridge_##A##_GtkMenuButton (W, class->A)
-    SUPERGO()
-    #undef GO
+    bridgeGtkWidget3Instance(&class->parent);
 }
-#undef SUPERGO
 
 // ----- GtkLabel2Class ------
 // wrapper x86 -> natives of callbacks
@@ -1134,6 +1188,16 @@ static void bridgeGtkLabel2Class(my_GtkLabel2Class_t* class)
 }
 #undef SUPERGO
 
+static void unwrapGtkLabel2Instance(my_GtkLabel2_t* class)
+{
+    unwrapGtkMisc2Instance(&class->misc);
+}
+// autobridge
+static void bridgeGtkLabel2Instance(my_GtkLabel2_t* class)
+{
+    bridgeGtkMisc2Instance(&class->misc);
+}
+
 // ----- GtkLabel3Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkLabel3, move_cursor, void, (void* label, int step, int count, int extend_selection), "piii", label, step, count, extend_selection);
@@ -1173,6 +1237,16 @@ static void bridgeGtkLabel3Class(my_GtkLabel3Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkLabel3Instance(my_GtkLabel3_t* class)
+{
+    unwrapGtkMisc3Instance(&class->misc);
+}
+// autobridge
+static void bridgeGtkLabel3Instance(my_GtkLabel3_t* class)
+{
+    bridgeGtkMisc3Instance(&class->misc);
+}
 
 // ----- GtkTreeView2Class ------
 // wrapper x86 -> natives of callbacks
@@ -1238,6 +1312,16 @@ static void bridgeGtkTreeView2Class(my_GtkTreeView2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkTreeView2Instance(my_GtkTreeView2_t* class)
+{
+    unwrapGtkContainer2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkTreeView2Instance(my_GtkTreeView2_t* class)
+{
+    bridgeGtkContainer2Instance(&class->parent);
+}
+
 // ----- GtkBin2Class ------
 
 // wrap (so bridge all calls, just in case)
@@ -1256,6 +1340,16 @@ static void bridgeGtkBin2Class(my_GtkBin2Class_t* class)
     bridgeGtkContainer2Class(&class->parent_class);
 }
 
+static void unwrapGtkBin2Instance(my_GtkBin2_t* class)
+{
+    unwrapGtkContainer2Instance(&class->container);
+}
+// autobridge
+static void bridgeGtkBin2Instance(my_GtkBin2_t* class)
+{
+    bridgeGtkContainer2Instance(&class->container);
+}
+
 // ----- GtkBin3Class ------
 static void wrapGtkBin3Class(my_GtkBin3Class_t* class)
 {
@@ -1272,6 +1366,15 @@ static void bridgeGtkBin3Class(my_GtkBin3Class_t* class)
     bridgeGtkContainer3Class(&class->parent_class);
 }
 
+static void unwrapGtkBin3Instance(my_GtkBin3_t* class)
+{
+    unwrapGtkContainer3Instance(&class->container);
+}
+// autobridge
+static void bridgeGtkBin3Instance(my_GtkBin3_t* class)
+{
+    bridgeGtkContainer3Instance(&class->container);
+}
 // ----- GtkWindow2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkWindow2, set_focus, void, (void* window, void* focus), "pp", window, focus);
@@ -1317,6 +1420,16 @@ static void bridgeGtkWindow2Class(my_GtkWindow2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkWindow2Instance(my_GtkWindow2_t* class)
+{
+    unwrapGtkBin2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkWindow2Instance(my_GtkWindow2_t* class)
+{
+    bridgeGtkBin2Instance(&class->parent);
+}
+
 // ----- GtkWindow3Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkWindow3, set_focus, void, (void* window, void* focus), "pp", window, focus);
@@ -1360,6 +1473,16 @@ static void bridgeGtkWindow3Class(my_GtkWindow3Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkWindow3Instance(my_GtkWindow3_t* class)
+{
+    unwrapGtkBin3Instance(&class->bin);
+}
+// autobridge
+static void bridgeGtkWindow3Instance(my_GtkWindow3_t* class)
+{
+    bridgeGtkBin3Instance(&class->bin);
+}
+
 // ----- GtkApplicationWindowClass ------
 // wrap (so bridge all calls, just in case)
 static void wrapGtkApplicationWindowClass(my_GtkApplicationWindowClass_t* class)
@@ -1377,6 +1500,15 @@ static void bridgeGtkApplicationWindowClass(my_GtkApplicationWindowClass_t* clas
     bridgeGtkWindow3Class(&class->parent_class);
 }
 
+static void unwrapGtkApplicationWindowInstance(my_GtkApplicationWindow_t* class)
+{
+    unwrapGtkWindow3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkApplicationWindowInstance(my_GtkApplicationWindow_t* class)
+{
+    bridgeGtkWindow3Instance(&class->parent);
+}
 // ----- GtkListBoxClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkListBoxClass,row_selected, void, (void *box, void *row), "pp", box, row);
@@ -1425,6 +1557,16 @@ static void bridgeGtkListBoxClass(my_GtkListBoxClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkListBoxInstance(my_GtkListBox_t* class)
+{
+    unwrapGtkContainer3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkListBoxInstance(my_GtkListBox_t* class)
+{
+    bridgeGtkContainer3Instance(&class->parent);
+}
+
 // ----- GtkListBoxRowClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkListBoxRowClass, activate, void, (void *row), "p", row);
@@ -1459,6 +1601,16 @@ static void bridgeGtkListBoxRowClass(my_GtkListBoxRowClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkListBoxRowInstance(my_GtkListBoxRow_t* class)
+{
+    unwrapGtkBin3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkListBoxRowInstance(my_GtkListBoxRow_t* class)
+{
+    bridgeGtkBin3Instance(&class->parent);
+}
+
 // ----- GtkTable2Class ------
 // wrap (so bridge all calls, just in case)
 static void wrapGtkTable2Class(my_GtkTable2Class_t* class)
@@ -1476,6 +1628,15 @@ static void bridgeGtkTable2Class(my_GtkTable2Class_t* class)
     bridgeGtkContainer2Class(&class->parent_class);
 }
 
+static void unwrapGtkTable2Instance(my_GtkTable2_t* class)
+{
+    unwrapGtkContainer2Instance(&class->container);
+}
+// autobridge
+static void bridgeGtkTable2Instance(my_GtkTable2_t* class)
+{
+    bridgeGtkContainer2Instance(&class->container);
+}
 // ----- GtkFixed2Class ------
 
 // wrap (so bridge all calls, just in case)
@@ -1494,6 +1655,15 @@ static void bridgeGtkFixed2Class(my_GtkFixed2Class_t* class)
     bridgeGtkContainer2Class(&class->parent_class);
 }
 
+static void unwrapGtkFixed2Instance(my_GtkFixed2_t* class)
+{
+    unwrapGtkContainer2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkFixed2Instance(my_GtkFixed2_t* class)
+{
+    bridgeGtkContainer2Instance(&class->parent);
+}
 // ----- MetaFrames2Class ------
 
 // wrap (so bridge all calls, just in case)
@@ -1512,6 +1682,15 @@ static void bridgeMetaFrames2Class(my_MetaFrames2Class_t* class)
     bridgeGtkWindow2Class(&class->parent_class);
 }
 
+static void unwrapMetaFrames2Instance(my_MetaFrames2_t* class)
+{
+    unwrapGtkWindow2Instance(&class->parent);
+}
+// autobridge
+static void bridgeMetaFrames2Instance(my_MetaFrames2_t* class)
+{
+    bridgeGtkWindow2Instance(&class->parent);
+}
 // ----- GDBusObjectManagerClientClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GDBusObjectManagerClient,interface_proxy_signal, void, (void* manager, void* object_proxy, void* interface_proxy, void* sender_name, void* signal_name, void* parameters), "pppppp", manager, object_proxy, interface_proxy, sender_name, signal_name, parameters);
@@ -1548,6 +1727,16 @@ static void bridgeGDBusObjectManagerClientClass(my_GDBusObjectManagerClientClass
 }
 
 #undef SUPERGO
+
+static void unwrapGDBusObjectManagerClientInstance(my_GDBusObjectManagerClient_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGDBusObjectManagerClientInstance(my_GDBusObjectManagerClient_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
 
 // ----- GtkButton2Class ------
 // wrapper x86 -> natives of callbacks
@@ -1594,6 +1783,16 @@ static void bridgeGtkButton2Class(my_GtkButton2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkButton2Instance(my_GtkButton2_t* class)
+{
+    unwrapGtkBin2Instance(&class->bin);
+}
+// autobridge
+static void bridgeGtkButton2Instance(my_GtkButton2_t* class)
+{
+    bridgeGtkBin2Instance(&class->bin);
+}
+
 // ----- GtkButton3Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkButton3, pressed, void,  (void* button), "p", button);
@@ -1639,6 +1838,16 @@ static void bridgeGtkButton3Class(my_GtkButton3Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkButton3Instance(my_GtkButton3_t* class)
+{
+    unwrapGtkBin3Instance(&class->bin);
+}
+// autobridge
+static void bridgeGtkButton3Instance(my_GtkButton3_t* class)
+{
+    bridgeGtkBin3Instance(&class->bin);
+}
+
 // ----- GtkComboBox2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkComboBox2, changed, void, (void* combo_box), "p", combo_box);
@@ -1676,6 +1885,16 @@ static void bridgeGtkComboBox2Class(my_GtkComboBox2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkComboBox2Instance(my_GtkComboBox2_t* class)
+{
+    unwrapGtkBin2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkComboBox2Instance(my_GtkComboBox2_t* class)
+{
+    bridgeGtkBin2Instance(&class->parent);
+}
+
 // ----- GtkToggleButton2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkToggleButton2, toggled, void, (void* toggle_button), "p", toggle_button);
@@ -1710,6 +1929,61 @@ static void bridgeGtkToggleButton2Class(my_GtkToggleButton2Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkToggleButton2Instance(my_GtkToggleButton2_t* class)
+{
+    unwrapGtkButton2Instance(&class->button);
+}
+// autobridge
+static void bridgeGtkToggleButton2Instance(my_GtkToggleButton2_t* class)
+{
+    bridgeGtkButton2Instance(&class->button);
+}
+
+// ----- GtkToggleButton3Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkToggleButton3, toggled, void, (void* toggle_button), "p", toggle_button);
+
+#define SUPERGO()               \
+    GO(toggled, vFp);           \
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkToggleButton3Class(my_GtkToggleButton3Class_t* class)
+{
+    wrapGtkButton3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkToggleButton3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkToggleButton3Class(my_GtkToggleButton3Class_t* class)
+{
+    unwrapGtkButton3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkToggleButton3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkToggleButton3Class(my_GtkToggleButton3Class_t* class)
+{
+    bridgeGtkButton3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkToggleButton2 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+static void unwrapGtkToggleButton3Instance(my_GtkToggleButton3_t* class)
+{
+    unwrapGtkButton3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkToggleButton3Instance(my_GtkToggleButton3_t* class)
+{
+    bridgeGtkButton3Instance(&class->parent);
+}
 
 // ----- GtkCheckButton2Class ------
 // wrapper x86 -> natives of callbacks
@@ -1746,6 +2020,100 @@ static void bridgeGtkCheckButton2Class(my_GtkCheckButton2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkCheckButton2Instance(my_GtkCheckButton2_t* class)
+{
+    unwrapGtkToggleButton2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkCheckButton2Instance(my_GtkCheckButton2_t* class)
+{
+    bridgeGtkToggleButton2Instance(&class->parent);
+}
+
+// ----- GtkCheckButton3Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkCheckButton3, draw_indicator, void, (void* check_button, void* area), "pp", check_button, area);
+
+#define SUPERGO()               \
+    GO(draw_indicator, vFpp);   \
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkCheckButton3Class(my_GtkCheckButton3Class_t* class)
+{
+    wrapGtkToggleButton3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkCheckButton3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkCheckButton3Class(my_GtkCheckButton3Class_t* class)
+{
+    unwrapGtkToggleButton3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkCheckButton3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkCheckButton3Class(my_GtkCheckButton3Class_t* class)
+{
+    bridgeGtkToggleButton3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkCheckButton3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+static void unwrapGtkCheckButton3Instance(my_GtkCheckButton3_t* class)
+{
+    unwrapGtkToggleButton3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkCheckButton3Instance(my_GtkCheckButton3_t* class)
+{
+    bridgeGtkToggleButton3Instance(&class->parent);
+}
+// ----- GtkGtkMenuButton3Class ------
+// wrapper x86 -> natives of callbacks
+
+#define SUPERGO() \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkMenuButton3Class(my_GtkMenuButton3Class_t* class)
+{
+    wrapGtkToggleButton3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkMenuButton3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkMenuButton3Class(my_GtkMenuButton3Class_t* class)
+{
+    unwrapGtkToggleButton3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkMenuButton3 (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkMenuButton3Class(my_GtkMenuButton3Class_t* class)
+{
+    bridgeGtkToggleButton3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkMenuButton3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
+static void unwrapGtkMenuButton3Instance(my_GtkMenuButton3_t* class)
+{
+    unwrapGtkToggleButton3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkMenuButton3Instance(my_GtkMenuButton3_t* class)
+{
+    bridgeGtkToggleButton3Instance(&class->parent);
+}
 // ----- GtkEntry2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkEntry2, populate_popup, void,     (void* entry, void* menu), "pp", entry, menu);
@@ -1800,6 +2168,16 @@ static void bridgeGtkEntry2Class(my_GtkEntry2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkEntry2Instance(my_GtkEntry2_t* class)
+{
+    unwrapGtkWidget2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkEntry2Instance(my_GtkEntry2_t* class)
+{
+    bridgeGtkWidget2Instance(&class->parent);
+}
+
 // ----- GtkSpinButton2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkSpinButton2, input, int,  (void* spin_button, void* new_value), "pp", spin_button, new_value);
@@ -1842,6 +2220,16 @@ static void bridgeGtkSpinButton2Class(my_GtkSpinButton2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkSpinButton2Instance(my_GtkSpinButton2_t* class)
+{
+    unwrapGtkEntry2Instance(&class->entry);
+}
+// autobridge
+static void bridgeGtkSpinButton2Instance(my_GtkSpinButton2_t* class)
+{
+    bridgeGtkEntry2Instance(&class->entry);
+}
+
 // ----- GtkProgress2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkProgress2, paint, void,          (void* progress), "p", progress);
@@ -1856,7 +2244,7 @@ WRAPPER(GtkProgress2, act_mode_enter, void, (void* progress), "p", progress);
 // wrap (so bridge all calls, just in case)
 static void wrapGtkProgress2Class(my_GtkProgress2Class_t* class)
 {
-    wrapGtkWidget2Class(&class->parent_class);
+    wrapGtkWidget2Class(&class->parent);
     #define GO(A, W) class->A = reverse_##A##_GtkProgress2 (W, class->A)
     SUPERGO()
     #undef GO
@@ -1864,7 +2252,7 @@ static void wrapGtkProgress2Class(my_GtkProgress2Class_t* class)
 // unwrap (and use callback if not a native call anymore)
 static void unwrapGtkProgress2Class(my_GtkProgress2Class_t* class)
 {
-    unwrapGtkWidget2Class(&class->parent_class);
+    unwrapGtkWidget2Class(&class->parent);
     #define GO(A, W)   class->A = find_##A##_GtkProgress2 (class->A)
     SUPERGO()
     #undef GO
@@ -1872,13 +2260,23 @@ static void unwrapGtkProgress2Class(my_GtkProgress2Class_t* class)
 // autobridge
 static void bridgeGtkProgress2Class(my_GtkProgress2Class_t* class)
 {
-    bridgeGtkWidget2Class(&class->parent_class);
+    bridgeGtkWidget2Class(&class->parent);
     #define GO(A, W) autobridge_##A##_GtkProgress2 (W, class->A)
     SUPERGO()
     #undef GO
 }
 
 #undef SUPERGO
+
+static void unwrapGtkProgress2Instance(my_GtkProgress2_t* class)
+{
+    unwrapGtkWidget2Instance(&class->widget);
+}
+// autobridge
+static void bridgeGtkProgress2Instance(my_GtkProgress2_t* class)
+{
+    bridgeGtkWidget2Instance(&class->widget);
+}
 
 // ----- GtkProgressBar2Class ------
 // no wrapper x86 -> natives of callbacks
@@ -1911,6 +2309,16 @@ static void bridgeGtkProgressBar2Class(my_GtkProgressBar2Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkProgressBar2Instance(my_GtkProgressBar2_t* class)
+{
+    unwrapGtkProgress2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkProgressBar2Instance(my_GtkProgressBar2_t* class)
+{
+    bridgeGtkProgress2Instance(&class->parent);
+}
 
 // ----- GtkFrame2Class ------
 // wrapper x86 -> natives of callbacks
@@ -1945,6 +2353,16 @@ static void bridgeGtkFrame2Class(my_GtkFrame2Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkFrame2Instance(my_GtkFrame2_t* class)
+{
+    unwrapGtkBin2Instance(&class->bin);
+}
+// autobridge
+static void bridgeGtkFrame2Instance(my_GtkFrame2_t* class)
+{
+    bridgeGtkBin2Instance(&class->bin);
+}
 
 // ----- GtkMenuShell2Class ------
 // wrapper x86 -> natives of callbacks
@@ -1996,6 +2414,16 @@ static void bridgeGtkMenuShell2Class(my_GtkMenuShell2Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkMenuShell2Instance(my_GtkMenuShell2_t* class)
+{
+    unwrapGtkContainer2Instance(&class->container);
+}
+// autobridge
+static void bridgeGtkMenuShell2Instance(my_GtkMenuShell2_t* class)
+{
+    bridgeGtkContainer2Instance(&class->container);
+}
+
 // ----- GtkMenuBar2Class ------
 // no wrapper x86 -> natives of callbacks
 
@@ -2027,6 +2455,16 @@ static void bridgeGtkMenuBar2Class(my_GtkMenuBar2Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkMenuBar2Instance(my_GtkMenuBar2_t* class)
+{
+    unwrapGtkMenuShell2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkMenuBar2Instance(my_GtkMenuBar2_t* class)
+{
+    bridgeGtkMenuShell2Instance(&class->parent);
+}
 
 // ----- GtkTextView2Class ------
 // wrapper x86 -> natives of callbacks
@@ -2085,6 +2523,16 @@ static void bridgeGtkTextView2Class(my_GtkTextView2Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkTextView2Instance(my_GtkTextView2_t* class)
+{
+    unwrapGtkContainer2Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkTextView2Instance(my_GtkTextView2_t* class)
+{
+    bridgeGtkContainer2Instance(&class->parent);
+}
 
 // ----- GtkTextView3Class ------
 // wrapper x86 -> natives of callbacks
@@ -2146,6 +2594,16 @@ static void bridgeGtkTextView3Class(my_GtkTextView3Class_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkTextView3Instance(my_GtkTextView3_t* class)
+{
+    unwrapGtkContainer3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkTextView3Instance(my_GtkTextView3_t* class)
+{
+    bridgeGtkContainer3Instance(&class->parent);
+}
+
 // ----- GtkGrid3Class ------
 // no wrapper x86 -> natives of callbacks
 
@@ -2177,6 +2635,16 @@ static void bridgeGtkGrid3Class(my_GtkGrid3Class_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkGrid3Instance(my_GtkGrid3_t* class)
+{
+    unwrapGtkContainer3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkGrid3Instance(my_GtkGrid3_t* class)
+{
+    bridgeGtkContainer3Instance(&class->parent);
+}
 
 // ----- GtkEventControllerClass ------
 // wrapper x86 -> natives of callbacks
@@ -2222,6 +2690,16 @@ static void bridgeGtkEventControllerClass(my_GtkEventControllerClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkEventControllerInstance(my_GtkEventController_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGtkEventControllerInstance(my_GtkEventController_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
+
 // ----- GtkGestureClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkGesture, check, void, (void* gesture), "p", gesture);
@@ -2266,6 +2744,16 @@ static void bridgeGtkGestureClass(my_GtkGestureClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapGtkGestureInstance(my_GtkGesture_t* class)
+{
+    unwrapGtkEventControllerInstance(&class->parent);
+}
+// autobridge
+static void bridgeGtkGestureInstance(my_GtkGesture_t* class)
+{
+    bridgeGtkEventControllerInstance(&class->parent);
+}
+
 // ----- GtkGestureSingleClass ------
 // wrap (so bridge all calls, just in case)
 static void wrapGtkGestureSingleClass(my_GtkGestureSingleClass_t* class)
@@ -2283,6 +2771,15 @@ static void bridgeGtkGestureSingleClass(my_GtkGestureSingleClass_t* class)
     bridgeGtkGestureClass(&class->parent_class);
 }
 
+static void unwrapGtkGestureSingleInstance(my_GtkGestureSingle_t* class)
+{
+    unwrapGtkGestureInstance(&class->parent);
+}
+// autobridge
+static void bridgeGtkGestureSingleInstance(my_GtkGestureSingle_t* class)
+{
+    bridgeGtkGestureInstance(&class->parent);
+}
 // ----- GtkGestureClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkGestureLongPress, pressed, void, (void *gesture, double x, double y), "pdd", gesture, x, y);
@@ -2318,6 +2815,16 @@ static void bridgeGtkGestureLongPressClass(my_GtkGestureLongPressClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGtkGestureLongPressInstance(my_GtkGestureLongPress_t* class)
+{
+    unwrapGtkGestureSingleInstance(&class->parent);
+}
+// autobridge
+static void bridgeGtkGestureLongPressInstance(my_GtkGestureLongPress_t* class)
+{
+    bridgeGtkGestureSingleInstance(&class->parent);
+}
 
 // ----- AtkObjectClass ------
 // wrapper x86 -> natives of callbacks
@@ -2403,6 +2910,16 @@ static void bridgeAtkObjectClass(my_AtkObjectClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapAtkObjectInstance(my_AtkObject_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeAtkObjectInstance(my_AtkObject_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
+
 // ----- AtkUtilClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(AtkUtil,add_global_event_listener, uint32_t,(void* listener, void* event_type), "pp", AddCheckBridge(my_bridge, iFpupp, listener, 0, NULL), event_type);
@@ -2449,6 +2966,16 @@ static void bridgeAtkUtilClass(my_AtkUtilClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapAtkUtilInstance(my_AtkUtil_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeAtkUtilInstance(my_AtkUtil_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
+
 // ----- GstObjectClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstObject, deep_notify, void, (void* object, void* origin, void* pspec), "ppp", object, origin, pspec);
@@ -2482,6 +3009,16 @@ static void bridgeGstObjectClass(my_GstObjectClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGstObjectInstance(my_GstObject_t* class)
+{
+    unwrapGInitiallyUnownedInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstObjectInstance(my_GstObject_t* class)
+{
+    bridgeGInitiallyUnownedInstance(&class->parent);
+}
 
 // ----- GstAllocatorClass ------
 // wrapper x86 -> natives of callbacks
@@ -2517,6 +3054,40 @@ static void bridgeGstAllocatorClass(my_GstAllocatorClass_t* class)
     #undef GO
 }
 
+#undef SUPERGO
+
+WRAPPER(GstAllocatorInstance, mem_map, void*,       (void* mem, size_t maxsize, int flags), "pLi", mem, maxsize, flags);
+WRAPPER(GstAllocatorInstance, mem_unmap, void ,     (void* mem), "p", mem);
+WRAPPER(GstAllocatorInstance, mem_copy, void*,      (void* mem, ssize_t offset, ssize_t size), "pll", mem, offset, size);
+WRAPPER(GstAllocatorInstance, mem_share, void*,     (void* mem, ssize_t offset, ssize_t size), "pll", mem, offset, size);
+WRAPPER(GstAllocatorInstance, mem_is_span, int  ,   (void* mem1, void* mem2, void* offset), "ppp", mem1, mem2, offset);
+WRAPPER(GstAllocatorInstance, mem_map_full, void*,  (void* mem, void* info, size_t maxsize), "ppL", mem, info, maxsize);
+WRAPPER(GstAllocatorInstance, mem_unmap_full, void ,(void* mem, void* info), "pp", mem, info);    
+
+#define SUPERGO()               \
+    GO(mem_map, pFpLi);         \
+    GO(mem_unmap, vFp);         \
+    GO(mem_copy, pFpll);        \
+    GO(mem_share, pFpll);       \
+    GO(mem_is_span, iFppp);     \
+    GO(mem_map_full, pFppL);    \
+    GO(mem_unmap_full, vFpp);   \
+
+static void unwrapGstAllocatorInstance(my_GstAllocator_t* class)
+{
+    unwrapGstObjectInstance(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_GstAllocatorInstance (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstAllocatorInstance(my_GstAllocator_t* class)
+{
+    bridgeGstObjectInstance(&class->parent);
+    #define GO(A, W) autobridge_##A##_GstAllocatorInstance (W, class->A)
+    SUPERGO()
+    #undef GO
+}
 #undef SUPERGO
 
 // ----- GstTaskPoolClass ------
@@ -2560,6 +3131,16 @@ static void bridgeGstTaskPoolClass(my_GstTaskPoolClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGstTaskPoolInstance(my_GstTaskPool_t* class)
+{
+    unwrapGstObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstTaskPoolInstance(my_GstTaskPool_t* class)
+{
+    bridgeGstObjectInstance(&class->parent);
+}
 
 // ----- GstElementClass ------
 // wrapper x86 -> natives of callbacks
@@ -2625,6 +3206,17 @@ static void bridgeGstElementClass(my_GstElementClass_t* class)
 
 #undef SUPERGO
 
+static void unwrapGstElementInstance(my_GstElement_t* class)
+{
+    unwrapGstObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstElementInstance(my_GstElement_t* class)
+{
+    bridgeGstObjectInstance(&class->parent);
+}
+#undef SUPERGO
+
 // ----- GstBinClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstBin,element_added, void, (void* bin, void* child), "pp", bin, child);
@@ -2672,6 +3264,16 @@ static void bridgeGstBinClass(my_GstBinClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGstBinInstance(my_GstBin_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstBinInstance(my_GstBin_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 
 // ----- GstBaseTransformClass ------
 // wrapper x86 -> natives of callbacks
@@ -2748,6 +3350,16 @@ static void bridgeGstBaseTransformClass(my_GstBaseTransformClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGstBaseTransformInstance(my_GstBaseTransform_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstBaseTransformInstance(my_GstBaseTransform_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstVideoDecoderClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstVideoDecoder, open, int, (void* decoder), "p", decoder);
@@ -2821,6 +3433,16 @@ static void bridgeGstVideoDecoderClass(my_GstVideoDecoderClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGstVideoDecoderInstance(my_GstVideoDecoder_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstVideoDecoderInstance(my_GstVideoDecoder_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstVideoEncoderClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstVideoEncoder, open, int, (void* encoder), "p", encoder);
@@ -2890,6 +3512,16 @@ static void bridgeGstVideoEncoderClass(my_GstVideoEncoderClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGstVideoEncoderInstance(my_GstVideoEncoder_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstVideoEncoderInstance(my_GstVideoEncoder_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstBaseSinkClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstBaseSink, get_caps, void*, (void* sink, void* filter), "pp", sink, filter);
@@ -2956,6 +3588,16 @@ static void bridgeGstBaseSinkClass(my_GstBaseSinkClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstBaseSinkInstance(my_GstBaseSink_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstBaseSinkInstance(my_GstBaseSink_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstVideoSinkClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstVideoSink, show_frame, int, (void* video_sink, void* buf), "pp", video_sink, buf);
@@ -2990,6 +3632,16 @@ static void bridgeGstVideoSinkClass(my_GstVideoSinkClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstVideoSinkInstance(my_GstVideoSink_t* class)
+{
+    unwrapGstBaseSinkInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstVideoSinkInstance(my_GstVideoSink_t* class)
+{
+    bridgeGstBaseSinkInstance(&class->parent);
+}
 // ----- GstGLBaseFilterClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstGLBaseFilter, gl_start, int, (void* filter), "p", filter);
@@ -3026,6 +3678,16 @@ static void bridgeGstGLBaseFilterClass(my_GstGLBaseFilterClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstGLBaseFilterInstance(my_GstGLBaseFilter_t* class)
+{
+    unwrapGstBaseTransformInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstGLBaseFilterInstance(my_GstGLBaseFilter_t* class)
+{
+    bridgeGstBaseTransformInstance(&class->parent);
+}
 // ----- GstGLFilterClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstGLFilter, set_caps, int, (void* filter, void* incaps, void* outcaps), "ppp", filter, incaps, outcaps);
@@ -3066,6 +3728,16 @@ static void bridgeGstGLFilterClass(my_GstGLFilterClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstGLFilterInstance(my_GstGLFilter_t* class)
+{
+    unwrapGstGLBaseFilterInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstGLFilterInstance(my_GstGLFilter_t* class)
+{
+    bridgeGstGLBaseFilterInstance(&class->parent);
+}
 // ----- GstAggregatorClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstAggregator, flush, int, (void* self), "p", self);
@@ -3142,6 +3814,16 @@ static void bridgeGstAggregatorClass(my_GstAggregatorClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstAggregatorInstance(my_GstAggregator_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstAggregatorInstance(my_GstAggregator_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstVideoAggregatorClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstVideoAggregator, update_caps, void*, (void* vagg, void* caps), "pp", vagg, caps);
@@ -3180,6 +3862,16 @@ static void bridgeGstVideoAggregatorClass(my_GstVideoAggregatorClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstVideoAggregatorInstance(my_GstVideoAggregator_t* class)
+{
+    unwrapGstAggregatorInstance(&class->aggregator);
+}
+// autobridge
+static void bridgeGstVideoAggregatorInstance(my_GstVideoAggregator_t* class)
+{
+    bridgeGstAggregatorInstance(&class->aggregator);
+}
 // ----- GstPadClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstPad, linked, void, (void* pad, void* peer), "pp", pad, peer);
@@ -3211,6 +3903,73 @@ static void bridgeGstPadClass(my_GstPadClass_t* class)
     bridgeGstObjectClass(&class->parent_class);
     #define GO(A, W) autobridge_##A##_GstPad (W, class->A)
     SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+WRAPPER(GstPadInstance, activatefunc, int    , (void* pad, void* parent), "pp", pad, parent);
+WRAPPER(GstPadInstance, activatenotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, activatemodefunc, int    , (void* pad, void* parent, int mode, int active), "ppii", pad, parent, mode, active);
+WRAPPER(GstPadInstance, activatemodenotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, linkfunc, int    , (void* pad, void* parent, void* peer), "ppp", pad, parent, peer);
+WRAPPER(GstPadInstance, linknotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, unlinkfunc, void   , (void* pad, void* parent), "pp", pad, parent);
+WRAPPER(GstPadInstance, unlinknotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, chainfunc, int    , (void* pad, void* parent, void* buffer), "ppp", pad, parent, buffer);
+WRAPPER(GstPadInstance, chainnotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, chainlistfunc, int    , (void* pad, void* parent, void* list), "ppp", pad, parent, list);
+WRAPPER(GstPadInstance, chainlistnotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, getrangefunc, int    , (void* pad, void* parent, uint64_t offset, uint32_t length, void* buffer), "ppUup", pad, parent, offset, length, buffer);
+WRAPPER(GstPadInstance, getrangenotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, eventfunc, int    , (void* pad, void* parent, void* event), "ppp", pad, parent, event);
+WRAPPER(GstPadInstance, eventnotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, queryfunc, int    , (void* pad, void* parent, void* query), "ppp", pad, parent, query);
+WRAPPER(GstPadInstance, querynotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, iterintlinkfunc, void*  , (void* pad, void* parent), "pp", pad, parent);
+WRAPPER(GstPadInstance, iterintlinknotify, void   , (void* a), "p", a);
+WRAPPER(GstPadInstance, finalize_hook, void   , (void* hook_list, void* hook), "pp", hook_list, hook);
+WRAPPER(GstPadInstance, eventfullfunc, int    , (void* pad, void* parent, void* event), "ppp", pad, parent, event);
+
+#define SUPERGO()                       \
+    GO(activatefunc, iFpp);             \
+    GO(activatenotify, vFp);            \
+    GO(activatemodefunc, iFppii);       \
+    GO(activatemodenotify, vFp);        \
+    GO(linkfunc, iFppp);                \
+    GO(linknotify, vFp);                \
+    GO(unlinkfunc, vFpp);               \
+    GO(unlinknotify, vFp);              \
+    GO(chainfunc, iFppp);               \
+    GO(chainnotify, vFp);               \
+    GO(chainlistfunc, iFppp);           \
+    GO(chainlistnotify, vFp);           \
+    GO(getrangefunc, iFppUup);          \
+    GO(getrangenotify, vFp);            \
+    GO(eventfunc, iFppp);               \
+    GO(eventnotify, vFp);               \
+    GO(queryfunc, iFppp);               \
+    GO(querynotify, vFp);               \
+    GO(iterintlinkfunc, pFpp);          \
+    GO(iterintlinknotify, vFp);         \
+    GO2(probes, finalize_hook, vFpp);   \
+    GO2(ABI.abi, eventfullfunc, vFppp); \
+
+static void unwrapGstPadInstance(my_GstPad_t* class)
+{
+    unwrapGstObjectInstance(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_GstPadInstance (class->A)
+    #define GO2(B, A, W)   class->B.A = find_##A##_GstPadInstance (class->B.A)
+    SUPERGO()
+    #undef GO2
+    #undef GO
+}
+// autobridge
+static void bridgeGstPadInstance(my_GstPad_t* class)
+{
+    bridgeGstObjectInstance(&class->parent);
+    #define GO(A, W) autobridge_##A##_GstPadInstance (W, class->A)
+    #define GO2(B, A, W) autobridge_##A##_GstPadInstance (W, class->B.A)
+    SUPERGO()
+    #undef GO2
     #undef GO
 }
 #undef SUPERGO
@@ -3248,6 +4007,16 @@ static void bridgeGstAggregatorPadClass(my_GstAggregatorPadClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstAggregatorPadInstance(my_GstAggregatorPad_t* class)
+{
+    unwrapGstPadInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstAggregatorPadInstance(my_GstAggregatorPad_t* class)
+{
+    bridgeGstPadInstance(&class->parent);
+}
 // ----- GstVideoAggregatorPadClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstVideoAggregatorPad, update_conversion_info, void, (void* pad), "p", pad);
@@ -3286,6 +4055,17 @@ static void bridgeGstVideoAggregatorPadClass(my_GstVideoAggregatorPadClass_t* cl
     #define GO(A, W) autobridge_##A##_GstVideoAggregatorPad (W, class->A)
     SUPERGO()
     #undef GO
+}
+#undef SUPERGO
+
+static void unwrapGstVideoAggregatorPadInstance(my_GstVideoAggregatorPad_t* class)
+{
+    unwrapGstAggregatorPadInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstVideoAggregatorPadInstance(my_GstVideoAggregatorPad_t* class)
+{
+    bridgeGstAggregatorPadInstance(&class->parent);
 }
 #undef SUPERGO
 // ----- GstBaseSrcClass ------
@@ -3356,6 +4136,16 @@ static void bridgeGstBaseSrcClass(my_GstBaseSrcClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstBaseSrcInstance(my_GstBaseSrc_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstBaseSrcInstance(my_GstBaseSrc_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstPushSrcClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstPushSrc, create, int, (void* src, void* buf), "pp", src, buf);
@@ -3392,6 +4182,16 @@ static void bridgeGstPushSrcClass(my_GstPushSrcClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstPushSrcInstance(my_GstPushSrc_t* class)
+{
+    unwrapGstBaseSrcInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstPushSrcInstance(my_GstPushSrc_t* class)
+{
+    bridgeGstBaseSrcInstance(&class->parent);
+}
 // ----- GstGLBaseSrcClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstGLBaseSrc, gl_start, int, (void* src), "p", src);
@@ -3428,6 +4228,16 @@ static void bridgeGstGLBaseSrcClass(my_GstGLBaseSrcClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstGLBaseSrcInstance(my_GstGLBaseSrc_t* class)
+{
+    unwrapGstPushSrcInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstGLBaseSrcInstance(my_GstGLBaseSrc_t* class)
+{
+    bridgeGstPushSrcInstance(&class->parent);
+}
 // ----- GstAudioDecoderClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstAudioDecoder, start, int,(void* dec), "p", dec);
@@ -3494,6 +4304,16 @@ static void bridgeGstAudioDecoderClass(my_GstAudioDecoderClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstAudioDecoderInstance(my_GstAudioDecoder_t* class)
+{
+    unwrapGstElementInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstAudioDecoderInstance(my_GstAudioDecoder_t* class)
+{
+    bridgeGstElementInstance(&class->parent);
+}
 // ----- GstVideoFilterClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstVideoFilter, set_info, int, (void* filter, void* incaps, void* in_info, void* outcaps, void* out_info), "ppppp", filter, incaps, in_info, outcaps, out_info);
@@ -3530,6 +4350,16 @@ static void bridgeGstVideoFilterClass(my_GstVideoFilterClass_t* class)
     #undef GO
 }
 #undef SUPERGO
+
+static void unwrapGstVideoFilterInstance(my_GstVideoFilter_t* class)
+{
+    unwrapGstBaseTransformInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstVideoFilterInstance(my_GstVideoFilter_t* class)
+{
+    bridgeGstBaseTransformInstance(&class->parent);
+}
 // ----- GDBusProxyClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GDBusProxy, g_properties_changed, void, (void* proxy, void* changed_properties, const char* const* invalidated_properties), "ppp", proxy, changed_properties, invalidated_properties);
@@ -3565,6 +4395,16 @@ static void bridgeGDBusProxyClass(my_GDBusProxyClass_t* class)
 }
 
 #undef SUPERGO
+
+static void unwrapGDBusProxyInstance(my_GDBusProxy_t* class)
+{
+    unwrapGObjectInstance(&class->parent);
+}
+// autobridge
+static void bridgeGDBusProxyInstance(my_GDBusProxy_t* class)
+{
+    bridgeGObjectInstance(&class->parent);
+}
 // ----- GstURIHandlerInterface ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GstURIHandler,get_type, int, (size_t type), "L", type);
@@ -3738,6 +4578,41 @@ static void bridgeGTKInterface(void* cl, size_t type)
     if(type==8) {}  // GInterface have no structure
     else {
         printf_log(LOG_NONE, "Warning, AutoBridge GTK Interface with unknown class type 0x%zx (%s)\n", type, g_type_name(type));
+    }
+    #undef GTKCLASS
+    #undef GTKIFACE
+}
+
+void unwrapGTKInstance(void* cl, size_t type)
+{
+    #define GTKIFACE(A)
+    #define GTKCLASS(A)                             \
+    if(type==my_##A)                                \
+        unwrap##A##Instance((my_##A##_t*)cl);     \
+    else
+
+    printf_log(LOG_DEBUG, "unwrapGTKInstance(%p, %zd (%s))\n", cl, type, g_type_name(type));
+    GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else
+    {}  // else no warning, one is enough...
+    #undef GTKCLASS
+    #undef GTKIFACE
+}
+
+void bridgeGTKInstance(void* cl, size_t type)
+{
+    #define GTKIFACE(A)
+    #define GTKCLASS(A)                             \
+    if(type==my_##A)                                \
+        bridge##A##Instance((my_##A##_t*)cl);     \
+    else
+
+    printf_log(LOG_DEBUG, "bridgeGTKInstance(%p, %zd (%s))\n", cl, type, g_type_name(type));
+    GTKCLASSES()
+    if(type==8) {}  // GInterface have no structure
+    else {
+        printf_log(LOG_NONE, "Warning, AutoBridge GTK Class with unknown class type 0w%zx (%s)\n", type, g_type_name(type));
     }
     #undef GTKCLASS
     #undef GTKIFACE
@@ -4361,20 +5236,28 @@ static void* find_class_finalize_Fct(void* fct)
 // instance_init ...
 #define GO(A)   \
 static uintptr_t my_instance_init_fct_##A = 0;                              \
+static size_t parent_instance_init_##A = 0;                                 \
 static int my_instance_init_##A(void* a, void* b)                           \
 {                                                                           \
-    return RunFunctionFmt(my_instance_init_fct_##A, "pp", a, b);\
+    printf_log(LOG_DEBUG, "Custom Instance init %d for class %p (parent=%p:%s)\n", A, a, (void*)parent_instance_init_##A, g_type_name(parent_instance_init_##A));\
+    int ret = RunFunctionFmt(my_instance_init_fct_##A, "pp", a, b);         \
+    size_t type = parent_instance_init_##A;                                 \
+    while(checkRegisteredClass(type))                                       \
+        type = g_type_parent(type);                                         \
+    unwrapGTKInstance(a, type);                                             \
+    bridgeGTKInstance(a, type);                                             \
+    return ret;                                                             \
 }
 SUPER()
 #undef GO
-static void* find_instance_init_Fct(void* fct)
+static void* find_instance_init_Fct(void* fct, size_t parent)
 {
     if(!fct) return fct;
     if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_instance_init_fct_##A == (uintptr_t)fct) return my_instance_init_##A;
+    #define GO(A) if(my_instance_init_fct_##A == (uintptr_t)fct && parent_instance_init_##A==parent) return my_instance_init_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(my_instance_init_fct_##A == 0) {my_instance_init_fct_##A = (uintptr_t)fct; return my_instance_init_##A; }
+    #define GO(A) if(my_instance_init_fct_##A == 0) {my_instance_init_fct_##A = (uintptr_t)fct; parent_instance_init_##A=parent; return my_instance_init_##A; }
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for GTypeInfo instance_init callback\n");
@@ -4387,20 +5270,20 @@ my_GTypeInfo_t* findFreeGTypeInfo(my_GTypeInfo_t* fcts, size_t parent)
     #define GO(A) if(used_gtypeinfo_##A && memcmp(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t))==0) return &my_gtypeinfo_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(used_gtypeinfo_##A == 0) {                                         \
-        used_gtypeinfo_##A = 1;                                                         \
-        memcpy(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t));                       \
-        my_gtypeinfo_##A.class_size = fcts->class_size;                                 \
-        my_gtypeinfo_##A.base_init = find_base_init_Fct(fcts->base_init);               \
-        my_gtypeinfo_##A.base_finalize = find_base_finalize_Fct(fcts->base_finalize);   \
-        my_gtypeinfo_##A.class_init = find_class_init_Fct(fcts->class_init, parent);    \
-        my_gtypeinfo_##A.class_finalize = find_class_finalize_Fct(fcts->class_finalize);\
-        my_gtypeinfo_##A.class_data = fcts->class_data;                                 \
-        my_gtypeinfo_##A.instance_size = fcts->instance_size;                           \
-        my_gtypeinfo_##A.n_preallocs = fcts->n_preallocs;                               \
-        my_gtypeinfo_##A.instance_init = find_instance_init_Fct(fcts->instance_init);   \
-        my_gtypeinfo_##A.value_table = findFreeGTypeValueTable(fcts->value_table);      \
-        return &my_gtypeinfo_##A;                                                       \
+    #define GO(A) if(used_gtypeinfo_##A == 0) {                                                 \
+        used_gtypeinfo_##A = 1;                                                                 \
+        memcpy(&ref_gtypeinfo_##A, fcts, sizeof(my_GTypeInfo_t));                               \
+        my_gtypeinfo_##A.class_size = fcts->class_size;                                         \
+        my_gtypeinfo_##A.base_init = find_base_init_Fct(fcts->base_init);                       \
+        my_gtypeinfo_##A.base_finalize = find_base_finalize_Fct(fcts->base_finalize);           \
+        my_gtypeinfo_##A.class_init = find_class_init_Fct(fcts->class_init, parent);            \
+        my_gtypeinfo_##A.class_finalize = find_class_finalize_Fct(fcts->class_finalize);        \
+        my_gtypeinfo_##A.class_data = fcts->class_data;                                         \
+        my_gtypeinfo_##A.instance_size = fcts->instance_size;                                   \
+        my_gtypeinfo_##A.n_preallocs = fcts->n_preallocs;                                       \
+        my_gtypeinfo_##A.instance_init = find_instance_init_Fct(fcts->instance_init, parent);   \
+        my_gtypeinfo_##A.value_table = findFreeGTypeValueTable(fcts->value_table);              \
+        return &my_gtypeinfo_##A;                                                               \
     }
     SUPER()
     #undef GO

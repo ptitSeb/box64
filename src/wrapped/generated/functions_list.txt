@@ -689,6 +689,7 @@
 #() pFplu
 #() pFpll
 #() pFplp
+#() pFpLi
 #() pFpLu
 #() pFpLL
 #() pFpLp
@@ -1544,6 +1545,7 @@
 #() iFppuup
 #() iFppupi
 #() iFppupp
+#() iFppUup
 #() iFpplii
 #() iFppllp
 #() iFpplpp
