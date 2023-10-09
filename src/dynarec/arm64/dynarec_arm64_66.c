@@ -637,7 +637,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x99:
             INST_NAME("CWD");
             SXTHw(x1, xRAX);
-            BFIx(xRAX, x1, 0, 16);
+            BFXILx(xRDX, x1, 16, 16);
             break;
         case 0x9C:
             INST_NAME("PUSHF");
