@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libxcbrandrName = "libxcb-randr.so.0";
+#ifdef ANDROID
+	const char* libxcbrandrName = "libxcb-randr.so";
+#else
+	const char* libxcbrandrName = "libxcb-randr.so.0";
+#endif
+
 #define LIBNAME libxcbrandr
 
 #include "wrappedlib_init.h"

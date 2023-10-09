@@ -25,6 +25,7 @@ typedef void (*vFpu_t)(void*, uint32_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
 typedef int32_t (*iFip_t)(int32_t, void*);
+typedef int32_t (*iFLp_t)(uintptr_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -44,7 +45,10 @@ typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFipV_t)(int32_t, void*, ...);
 typedef int32_t (*iFipA_t)(int32_t, void*, va_list);
 typedef int32_t (*iFpLi_t)(void*, uintptr_t, int32_t);
+typedef int32_t (*iFpLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
+typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
+typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFppA_t)(void*, void*, va_list);
@@ -72,6 +76,7 @@ typedef int32_t (*iFpipA_t)(void*, int32_t, void*, va_list);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef int32_t (*iFpLpA_t)(void*, uintptr_t, void*, va_list);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
+typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef intptr_t (*lFuipp_t)(uint32_t, int32_t, void*, void*);
@@ -107,6 +112,18 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(_setjmp, iFp_t) \
 	GO(atexit, iFp_t) \
 	GO(getcontext, iFp_t) \
+	GO(pthread_attr_destroy, iFp_t) \
+	GO(pthread_attr_init, iFp_t) \
+	GO(pthread_barrierattr_destroy, iFp_t) \
+	GO(pthread_barrierattr_init, iFp_t) \
+	GO(pthread_cond_broadcast, iFp_t) \
+	GO(pthread_cond_destroy, iFp_t) \
+	GO(pthread_condattr_destroy, iFp_t) \
+	GO(pthread_condattr_init, iFp_t) \
+	GO(pthread_getattr_default_np, iFp_t) \
+	GO(pthread_mutexattr_destroy, iFp_t) \
+	GO(pthread_mutexattr_init, iFp_t) \
+	GO(pthread_setattr_default_np, iFp_t) \
 	GO(register_printf_type, iFp_t) \
 	GO(setcontext, iFp_t) \
 	GO(setjmp, iFp_t) \
@@ -130,16 +147,55 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(warnx, vFpV_t) \
 	GO(fstat, iFip_t) \
 	GO(fstat64, iFip_t) \
+	GO(pthread_getattr_np, iFLp_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
+	GO(pthread_attr_setdetachstate, iFpi_t) \
+	GO(pthread_attr_setinheritsched, iFpi_t) \
+	GO(pthread_attr_setschedpolicy, iFpi_t) \
+	GO(pthread_attr_setscope, iFpi_t) \
+	GO(pthread_barrierattr_setpshared, iFpi_t) \
+	GO(pthread_condattr_setclock, iFpi_t) \
+	GO(pthread_condattr_setpshared, iFpi_t) \
+	GO(pthread_kill, iFpi_t) \
+	GO(pthread_kill@GLIBC_2.2.5, iFpi_t) \
+	GO(pthread_mutexattr_setkind_np, iFpi_t) \
+	GO(pthread_mutexattr_setprotocol, iFpi_t) \
+	GO(pthread_mutexattr_setpshared, iFpi_t) \
+	GO(pthread_mutexattr_setrobust, iFpi_t) \
+	GO(pthread_mutexattr_settype, iFpi_t) \
 	GO(sigsetjmp, iFpi_t) \
 	GO(munmap, iFpL_t) \
+	GO(pthread_attr_setguardsize, iFpL_t) \
+	GO(pthread_attr_setstacksize, iFpL_t) \
 	GO(__vprintf_chk, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
 	GO(execv, iFpp_t) \
 	GO(execvp, iFpp_t) \
 	GO(lstat, iFpp_t) \
 	GO(lstat64, iFpp_t) \
+	GO(pthread_attr_getdetachstate, iFpp_t) \
+	GO(pthread_attr_getguardsize, iFpp_t) \
+	GO(pthread_attr_getinheritsched, iFpp_t) \
+	GO(pthread_attr_getschedparam, iFpp_t) \
+	GO(pthread_attr_getschedpolicy, iFpp_t) \
+	GO(pthread_attr_getscope, iFpp_t) \
+	GO(pthread_attr_getstackaddr, iFpp_t) \
+	GO(pthread_attr_getstacksize, iFpp_t) \
+	GO(pthread_attr_setschedparam, iFpp_t) \
+	GO(pthread_attr_setstackaddr, iFpp_t) \
+	GO(pthread_barrierattr_getpshared, iFpp_t) \
+	GO(pthread_cond_init, iFpp_t) \
+	GO(pthread_cond_wait, iFpp_t) \
+	GO(pthread_condattr_getclock, iFpp_t) \
+	GO(pthread_condattr_getpshared, iFpp_t) \
+	GO(pthread_key_create, iFpp_t) \
+	GO(pthread_mutex_init, iFpp_t) \
+	GO(pthread_mutexattr_getkind_np, iFpp_t) \
+	GO(pthread_mutexattr_getprotocol, iFpp_t) \
+	GO(pthread_mutexattr_getrobust, iFpp_t) \
+	GO(pthread_mutexattr_gettype, iFpp_t) \
+	GO(pthread_once, iFpp_t) \
 	GO(sigaltstack, iFpp_t) \
 	GO(stat, iFpp_t) \
 	GO(stat64, iFpp_t) \
@@ -185,15 +241,21 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(dprintf, iFipV_t) \
 	GO(vdprintf, iFipA_t) \
 	GO(mprotect, iFpLi_t) \
+	GO(pthread_attr_setaffinity_np, iFpLp_t) \
+	GO(pthread_getaffinity_np, iFpLp_t) \
+	GO(pthread_setaffinity_np, iFpLp_t) \
 	GO(ftw, iFppi_t) \
 	GO(ftw64, iFppi_t) \
+	GO(pthread_barrier_init, iFppu_t) \
+	GO(pthread_attr_setstack, iFppL_t) \
 	GO(__cxa_atexit, iFppp_t) \
 	GO(__cxa_thread_atexit_impl, iFppp_t) \
-	GO(__isoc99_vfscanf, iFppp_t) \
-	GO(__isoc99_vsscanf, iFppp_t) \
 	GO(__vfprintf_chk, iFppp_t) \
 	GO(__vsscanf, iFppp_t) \
 	GO(execve, iFppp_t) \
+	GO(pthread_atfork, iFppp_t) \
+	GO(pthread_attr_getstack, iFppp_t) \
+	GO(pthread_cond_timedwait, iFppp_t) \
 	GO(__asprintf, iFppV_t) \
 	GO(__isoc23_fscanf, iFppV_t) \
 	GO(__isoc23_sscanf, iFppV_t) \
@@ -207,6 +269,9 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(sprintf, iFppV_t) \
 	GO(sscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
+	GO(__isoc99_vfscanf, iFppA_t) \
+	GO(__isoc99_vsscanf, iFppA_t) \
+	GO(__isoc99_vswscanf, iFppA_t) \
 	GO(obstack_vprintf, iFppA_t) \
 	GO(vasprintf, iFppA_t) \
 	GO(vfprintf, iFppA_t) \
@@ -254,9 +319,11 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(vsnprintf, iFpLpA_t) \
 	GO(vswprintf, iFpLpA_t) \
 	GO(nftw64, iFppii_t) \
+	GO(pthread_cond_clockwait, iFppip_t) \
 	GO(makecontext, iFppiV_t) \
 	GO(__register_atfork, iFpppp_t) \
 	GO(__vsprintf_chk, iFpppp_t) \
+	GO(pthread_create, iFpppp_t) \
 	GO(scandir, iFpppp_t) \
 	GO(scandir64, iFpppp_t) \
 	GO(ptrace, lFuipp_t) \

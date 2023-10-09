@@ -17,7 +17,12 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-const char* libx11Name = "libX11.so.6";
+#ifdef ANDROID
+    const char* libx11Name = "libX11.so";
+#else
+    const char* libx11Name = "libX11.so.6";
+#endif
+
 #define LIBNAME libx11
 
 typedef int (*XErrorHandler)(void *, void *);

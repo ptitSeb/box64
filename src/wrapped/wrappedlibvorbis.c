@@ -17,8 +17,12 @@
 #include "librarian.h"
 #include "myalign.h"
 
+#ifdef ANDROID
+	const char* libvorbisName = "libvorbis.so";
+#else
+	const char* libvorbisName = "libvorbis.so.0";
+#endif
 
-const char* libvorbisName = "libvorbis.so.0";
 #define LIBNAME libvorbis
 
 #include "wrappedlib_init.h"

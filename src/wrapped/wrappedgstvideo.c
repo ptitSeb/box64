@@ -20,7 +20,12 @@
 #include "gtkclass.h"
 #include "fileutils.h"
 
-const char* gstvideoName = "libgstvideo-1.0.so.0";
+#ifdef ANDROID
+    const char* gstvideoName = "libgstvideo-1.0.so";
+#else
+    const char* gstvideoName = "libgstvideo-1.0.so.0";
+#endif
+
 #define LIBNAME gstvideo
 
 typedef size_t  (*LFv_t)();
@@ -41,15 +46,27 @@ typedef size_t  (*LFv_t)();
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);     \
-    SetGstVideoDecoderID(my->gst_video_decoder_get_type());\
-    SetGstVideoEncoderID(my->gst_video_encoder_get_type());\
-    SetGstVideoSinkID(my->gst_video_sink_get_type());\
-    SetGstVideoAggregatorID(my->gst_video_aggregator_get_type());\
-    SetGstVideoAggregatorPadID(my->gst_video_aggregator_pad_get_type());\
-    SetGstVideoFilterID(my->gst_video_filter_get_type());\
-    setNeededLibs(lib, 1, "libgstreamer-1.0.so.0");
+#ifdef ANDROID
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstVideoDecoderID(my->gst_video_decoder_get_type());\
+        SetGstVideoEncoderID(my->gst_video_encoder_get_type());\
+        SetGstVideoSinkID(my->gst_video_sink_get_type());\
+        SetGstVideoAggregatorID(my->gst_video_aggregator_get_type());\
+        SetGstVideoAggregatorPadID(my->gst_video_aggregator_pad_get_type());\
+        SetGstVideoFilterID(my->gst_video_filter_get_type());\
+        setNeededLibs(lib, 1, "libgstreamer-1.0.so");
+#else
+    #define CUSTOM_INIT \
+        getMy(lib);     \
+        SetGstVideoDecoderID(my->gst_video_decoder_get_type());\
+        SetGstVideoEncoderID(my->gst_video_encoder_get_type());\
+        SetGstVideoSinkID(my->gst_video_sink_get_type());\
+        SetGstVideoAggregatorID(my->gst_video_aggregator_get_type());\
+        SetGstVideoAggregatorPadID(my->gst_video_aggregator_pad_get_type());\
+        SetGstVideoFilterID(my->gst_video_filter_get_type());\
+        setNeededLibs(lib, 1, "libgstreamer-1.0.so.0");
+#endif
 
 #define CUSTOM_FINI \
     freeMy();

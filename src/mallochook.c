@@ -41,7 +41,7 @@
 
  This is the Exterminate strategy implementation
 */
-
+#ifndef ANDROID
 #include "bridge.h"
 #include "wrapper.h"
 
@@ -131,16 +131,7 @@ typedef void* (*pFpLp_t)(void*, size_t, void*);
 typedef void  (*vFpLL_t)(void*, size_t, size_t);
 typedef void* (*pFpLLp_t)(void*, size_t, size_t, void*);
 
-#ifdef ANDROID
-void*(*__libc_malloc)(size_t) = NULL;
-void*(*__libc_realloc)(void*, size_t) = NULL;
-void*(*__libc_calloc)(size_t, size_t) = NULL;
-void (*__libc_free)(void*) = NULL;
-void*(*__libc_memalign)(size_t, size_t) = NULL;
-size_t(*box_malloc_usable_size)(const void*) = NULL;
-#else
 size_t(*box_malloc_usable_size)(void*) = NULL;
-#endif
 
 int GetTID();
 uint32_t getProtection(uintptr_t addr);
@@ -305,11 +296,7 @@ EXPORT void cfree(void* p)
     box_free(p);
 }
 
-#ifdef ANDROID
-EXPORT size_t malloc_usable_size(const void* p)
-#else
 EXPORT size_t malloc_usable_size(void* p)
-#endif
 {
     if(malloc_hack_2 && real_malloc_usable_size) {
         if(getMmapped((uintptr_t)p))
@@ -881,13 +868,6 @@ EXPORT int my___RML_open_factory(void* factory, void* server_version, int client
 }
 
 void init_malloc_hook() {
-#ifdef ANDROID
-    __libc_malloc = dlsym(RTLD_NEXT, "malloc");
-    __libc_realloc = dlsym(RTLD_NEXT, "realloc");
-    __libc_calloc = dlsym(RTLD_NEXT, "calloc");
-    __libc_free = dlsym(RTLD_NEXT, "free");
-    __libc_memalign = dlsym(RTLD_NEXT, "memalign");
-#endif
     box_malloc_usable_size = dlsym(RTLD_NEXT, "malloc_usable_size");
     #if 0
     #define GO(A, B)
@@ -899,3 +879,9 @@ void init_malloc_hook() {
 }
 
 #undef SUPER
+#else//ANDROID
+void init_malloc_hook() {}
+void startMallocHook() {}
+void endMallocHook() {}
+void checkHookedSymbols(elfheader_t* h) {}
+#endif //!ANDROID

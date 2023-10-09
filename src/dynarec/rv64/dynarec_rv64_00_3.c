@@ -319,7 +319,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         addr+=8+8;
                     } else {
                         GETIP(ip+1); // read the 0xCC
-                        STORE_XEMU_CALL();
+                        STORE_XEMU_CALL(x3);
                         ADDI(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                         CALL_S(x64Int3, -1);
                         LOAD_XEMU_CALL();
@@ -360,7 +360,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 NOTEST(x1);
                 SMEND();
                 GETIP(addr);
-                STORE_XEMU_CALL();
+                STORE_XEMU_CALL(x3);
                 CALL_S(x86Syscall, -1);
                 LOAD_XEMU_CALL();
                 TABLE64(x3, addr); // expected return address
@@ -368,13 +368,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LW(x1, xEmu, offsetof(x64emu_t, quit));
                 BEQ_NEXT(x1, xZR);
                 MARK;
-                LOAD_XEMU_REM();
+                LOAD_XEMU_REM(x3);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
             } else {
                 INST_NAME("INT n");
                 SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
                 GETIP(ip);
-                STORE_XEMU_CALL();
+                STORE_XEMU_CALL(x3);
                 CALL(native_priv, -1);
                 LOAD_XEMU_CALL();
                 jump_to_epilog(dyn, 0, xRIP, ninst);
@@ -723,7 +723,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         dyn->last_ip = addr;
                     } else {
                         GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
-                        STORE_XEMU_CALL();
+                        STORE_XEMU_CALL(x3);
                         ADDI(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                         CALL_S(x64Int3, -1);
                         LOAD_XEMU_CALL();

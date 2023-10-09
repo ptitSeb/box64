@@ -17,7 +17,12 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 
-const char* libsndfileName = "libsndfile.so.1";
+#ifdef ANDROID
+    const char* libsndfileName = "libsndfile.so";
+#else
+    const char* libsndfileName = "libsndfile.so.1";
+#endif
+
 #define LIBNAME libsndfile
 
 #define ADDED_FUNCTIONS()           \

@@ -12,7 +12,12 @@
 #include "x64emu.h"
 #include "debug.h"
 
-const char* libxdamageName = "libXdamage.so.1";
+#ifdef ANDROID
+	const char* libxdamageName = "libXdamage.so";
+#else
+	const char* libxdamageName = "libXdamage.so.1";
+#endif
+
 #define LIBNAME libxdamage
 
 #include "wrappedlib_init.h"

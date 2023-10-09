@@ -11,7 +11,6 @@
 int get_cpuMhz()
 {
 	int MHz = 0;
-#ifdef __arm__
 	FILE *f = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r");
 	if(f) {
 		int r;
@@ -19,7 +18,34 @@ int get_cpuMhz()
 			MHz = r/1000;
 		fclose(f);
 	}
-#endif
+    if(!MHz) {
+        // try with lscpu, grabbing the max frequency
+        FILE* f = popen("lscpu | grep \"CPU max MHz:\" | sed -r 's/CPU max MHz:\\s{1,}//g'", "r");
+        if(f) {
+            char tmp[200] = "";
+            ssize_t s = fread(tmp, 1, 200, f);
+            pclose(f);
+            if(s>0) {
+                // worked! (unless it's saying "lscpu: command not found" or something like that)
+                if(!strstr(tmp, "lscpu")) {
+                    // trim ending
+                    while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
+                        tmp[strlen(tmp)-1] = 0;
+                    // incase multiple cpu type are present, there will be multiple lines
+                    while(strchr(tmp, '\n'))
+                        *strchr(tmp,'\n') = ' ';
+                    // cut the float part (so '.' or ','), it's not needed
+                    if(strchr(tmp, '.'))
+                        *strchr(tmp, '.')= '\0';
+                    if(strchr(tmp, ','))
+                        *strchr(tmp, ',')= '\0';
+                    int mhz;
+                    if(sscanf(tmp, "%d", &mhz)==1)
+                        MHz = mhz;
+                }
+            }
+        }
+    }
 	if(!MHz)
 		MHz = 1000; // default to 1Ghz...
 	return MHz;

@@ -15,6 +15,7 @@ option(TEGRAX1 "Set to ON if targeting an Tegra X1 based device" ${TEGRAX1})
 option(PHYTIUM "Set to ON if targeting an Phytium (D2000 or FT2000/4) based device" ${PHYTIUM})
 option(SD845 "Set to ON if targeting a Snapragon 845 based device" ${SD845})
 option(SD888 "Set to ON if targeting a Snapragon 888 based device" ${SD888})
+option(SD8G2 "Set to ON if targeting a Snapragon 8 Gen 2 based device" ${SD8G2})
 option(ADLINK "Set to ON if targeting an ADLink AmpereAltra based device" ${ADLINK})
 option(M1 "Set to ON if targeting a AppleM1 running on Asahi computer" ${M1})
 option(LARCH64 "Set to ON if targeting an Loongarch64 based device" ${LARCH64})
@@ -25,6 +26,7 @@ option(ARM64 "Set to ON if targeting a generic ARM64 based device" ${ARM64})
 option(ANDROID "Set to ON if targeting an Android device" ${ANDROID})
 option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACHE})
 option(HAVE_TRACE "Set to ON to have Trace ability (needs ZydisInfo library)" ${HAVE_TRACE})
+option(SAVE_MEM "Set to ON to build dynarec with some slower memory saving optimisations" ${SAVE_MEM})
 option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
 option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info on SIGSEGV" ${BAD_SIGNAL})
@@ -50,14 +52,17 @@ if(PPC64LE)
     set(RV64_DYNAREC OFF CACHE BOOL "")
     set(PAGE16K OFF CACHE BOOL "")
 endif()
-if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR PHYTIUM OR SD845 OR SD888 OR LX2160A OR M1 OR ARM64 OR ADLINK)
+if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR PHYTIUM OR SD845 OR SD888 OR SD8G2 OR LX2160A OR M1 OR ARM64 OR ADLINK)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC ON CACHE BOOL "")
     set(RV64_DYNAREC OFF CACHE BOOL "")
 endif()
-if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR PHYTIUM OR SD845 OR SD888 OR LX2160A OR ADLINK)
+if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR PHYTIUM OR SD845 OR SD888 OR SD8G2 OR LX2160A OR ADLINK)
     set(PAGE16K OFF CACHE BOOL "")
+endif()
+if(RK3399 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64)
+    set(SAVE_MEM ON CACHE BOOL "")
 endif()
 if(RK3588)
     set(BAD_SIGNAL ON CACHE BOOL "")
@@ -155,10 +160,14 @@ elseif(SD845)
 elseif(SD888)
     add_definitions(-DSD888)
     add_definitions(-pipe -march=armv8.4-a+simd+crypto)
-    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.4-a++simd+crypto")
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.4-a+simd+crypto")
+elseif(SD8G2)
+    add_definitions(-DSD8G2)
+    add_definitions(-pipe -march=armv9-a+i8mm+sm4+sha3+rcpc+crypto+nosve+nosve2)
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv9-a+i8mm+sm4+sha3+rcpc+crypto+nosve+nosve2")
 elseif(ADLINK)
     add_definitions(-DADLINK)
-    add_definitions(-pipe -mcpu=neoverse-n1)
+    add_definitions(-pipe -mcpu=neoverse-n1 -fuse-ld=gold -fuse-linker-plugin)
     set(CMAKE_ASM_FLAGS  "-pipe -mcpu=neoverse-n1")
 elseif(M1)
     add_definitions(-DM1)
@@ -194,7 +203,9 @@ endif()
 if(BAD_SIGNAL)
     add_definitions(-DBAD_SIGNAL)
 endif()
-
+if(SAVE_MEM)
+    add_definitions(-DSAVE_MEM)
+endif()
 if(PAGE8K)
     add_definitions(-DPAGE8K)
 endif()
@@ -370,6 +381,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedcurl.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbusglib1.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedevent21.c"
     "${BOX64_ROOT}/src/wrapped/wrappedexpat.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfaudio.c"
     "${BOX64_ROOT}/src/wrapped/wrappedflac.c"
@@ -412,6 +424,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedgtk3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgtkx112.c"
     "${BOX64_ROOT}/src/wrapped/wrappedkrb5.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlcms2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibasound.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
@@ -639,7 +652,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d8.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d9.c"
-    #"${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_da.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_da.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_db.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_dc.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_dd.c"

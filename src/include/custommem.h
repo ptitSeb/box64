@@ -36,6 +36,23 @@ uintptr_t getJumpTable64(void);
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 uintptr_t getJumpAddress64(uintptr_t addr);
 
+#ifdef SAVE_MEM
+#define JMPTABL_SHIFT4 16
+#define JMPTABL_SHIFT3 14
+#define JMPTABL_SHIFT2 12
+#define JMPTABL_SHIFT1 12
+#define JMPTABL_SHIFT0 10
+#define JMPTABL_START4 (JMPTABL_START3+JMPTABL_SHIFT3)
+#define JMPTABL_START3 (JMPTABL_START2+JMPTABL_SHIFT2)
+#define JMPTABL_START2 (JMPTABL_START1+JMPTABL_SHIFT1)
+#define JMPTABL_START1 (JMPTABL_START0+JMPTABL_SHIFT0)
+#define JMPTABL_START0 0
+#define JMPTABLE_MASK4 ((1<<JMPTABL_SHIFT4)-1)
+#define JMPTABLE_MASK3 ((1<<JMPTABL_SHIFT3)-1)
+#define JMPTABLE_MASK2 ((1<<JMPTABL_SHIFT2)-1)
+#define JMPTABLE_MASK1 ((1<<JMPTABL_SHIFT1)-1)
+#define JMPTABLE_MASK0 ((1<<JMPTABL_SHIFT0)-1)
+#else
 #define JMPTABL_SHIFT3 18
 #define JMPTABL_SHIFT2 18
 #define JMPTABL_SHIFT1 18
@@ -48,6 +65,7 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 #define JMPTABLE_MASK2 ((1<<JMPTABL_SHIFT2)-1)
 #define JMPTABLE_MASK1 ((1<<JMPTABL_SHIFT1)-1)
 #define JMPTABLE_MASK0 ((1<<JMPTABL_SHIFT0)-1)
+#endif //SAVE_MEM
 #endif
 
 #define PROT_DYNAREC    0x80
@@ -56,6 +74,7 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 #define PROT_MMAP       0x10
 #define PROT_DYN        (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT)
 #define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_MMAP | PROT_NOPROT)
+#define PROT_WAIT       0xFF
 
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);

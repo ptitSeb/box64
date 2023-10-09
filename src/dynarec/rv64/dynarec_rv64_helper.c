@@ -462,7 +462,9 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     SMEND();
     BR(x2);
 }
-
+#ifdef JMPTABLE_SHIFT4
+#error TODO!
+#endif
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MAYUSE(dyn); MAYUSE(ninst);
