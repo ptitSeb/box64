@@ -1469,6 +1469,8 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     const char* ret = NULL;
     uintptr_t s = 0;
     uint64_t size = 0;
+    if((uintptr_t)p<0x10000)
+        return ret;
     #ifdef HAVE_TRACE
     if(!h) {
         if(getProtection((uintptr_t)p)&(PROT_READ)) {
