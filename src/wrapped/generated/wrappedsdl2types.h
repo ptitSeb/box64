@@ -41,10 +41,10 @@ typedef void* (*pFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFpuup_t)(void*, uint32_t, uint32_t, void*);
-typedef void (*vFGppp_t)(SDL_JoystickGUID, void*, void*, void*);
 typedef int32_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef uint32_t (*uFppuu_t)(void*, void*, uint32_t, uint32_t);
+typedef void (*vFGpppp_t)(SDL_JoystickGUID, void*, void*, void*, void*);
 typedef int32_t (*iFpippi_t)(void*, int32_t, void*, void*, int32_t);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 
@@ -123,11 +123,11 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_LoadFile_RW, pFppi_t) \
 	GO(SDL_CreateThread, pFppp_t) \
 	GO(SDL_qsort, vFpuup_t) \
-	GO(SDL_GetJoystickGUIDInfo, vFGppp_t) \
 	GO(SDL_vsnprintf, iFpLpp_t) \
 	GO(SDL_snprintf, iFpLpV_t) \
 	GO(SDL_RWread, uFppuu_t) \
 	GO(SDL_RWwrite, uFppuu_t) \
+	GO(SDL_GetJoystickGUIDInfo, vFGpppp_t) \
 	GO(SDL_OpenAudioDevice, iFpippi_t) \
 	GO(SDL_LoadWAV_RW, pFpippp_t)
 
