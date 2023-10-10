@@ -599,7 +599,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
-    if((opcode&0b00111111011000001111110000000000)==0b00111101000000000001100000000000) {
+    if((opcode&0b00111111010000000000000000000000)==0b00111101000000000000000000000000) {
         // this is VSTR
         int scale = (opcode>>30)&3;
         if((opcode>>23)&1)
