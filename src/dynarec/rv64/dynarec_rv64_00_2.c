@@ -778,10 +778,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("SCASD");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 GETDIR(x3, x1, rex.w?8:4);
-                AND(x1, xRAX, xMASK);
                 LDxw(x2, xRDI, 0);
                 ADD(xRDI, xRDI, x3);
-                emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
                 break;
             }
             break;
