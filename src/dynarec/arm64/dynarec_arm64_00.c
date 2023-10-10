@@ -1647,11 +1647,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             default:
                 INST_NAME("SCASD");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
-                GETDIR(x3, 1);
-                UBFXw(x1, xRAX, 0, 8);
-                LDRB_U12(x2, xRDI, 0);
+                GETDIR(x3, rex.w?8:4);
+                LDRxw_U12(x2, xRDI, 0);
                 ADDx_REG(xRDI, xRDI, x3);
-                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
                 break;
             }
             break;
