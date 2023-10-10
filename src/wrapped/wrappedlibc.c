@@ -1514,90 +1514,10 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
     return readlink((const char*)path, (char*)buf, sz);
 }
 
-static int nCPU = 0;
-static double bogoMips = 100.;
-
-void grabNCpu() {
-    nCPU = 1;  // default number of CPU to 1
-    FILE *f = fopen("/proc/cpuinfo", "r");
-    size_t dummy;
-    if(f) {
-        nCPU = 0;
-        int bogo = 0;
-        size_t len = 500;
-        char* line = malloc(len);
-        while ((dummy = getline(&line, &len, f)) != -1) {
-            if(!strncmp(line, "processor\t", strlen("processor\t")))
-                ++nCPU;
-            if(!bogo && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
-                // grab 1st BogoMIPS
-                float tmp;
-                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1) {
-                    bogoMips = tmp;
-                    bogo = 1;
-                }
-            }
-        }
-        free(line);
-        fclose(f);
-        if(!nCPU) nCPU=1;
-    }
-}
-int getNCpu()
-{
-    if(!nCPU)
-        grabNCpu();
-    return nCPU;
-}
-
-const char* getCpuName()
-{
-    static char name[200] = "Unknown CPU";
-    static int done = 0;
-    if(done)
-        return name;
-    done = 1;
-    FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
-    if(f) {
-        char tmp[200] = "";
-        ssize_t s = fread(tmp, 1, 200, f);
-        pclose(f);
-        if(s>0) {
-            // worked! (unless it's saying "lscpu: command not found" or something like that)
-            if(!strstr(tmp, "lscpu")) {
-                // trim ending
-                while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
-                    tmp[strlen(tmp)-1] = 0;
-                // incase multiple cpu type are present, there will be multiple lines
-                while(strchr(tmp, '\n'))
-                    *strchr(tmp,'\n') = ' ';
-                strncpy(name, tmp, 199);
-            }
-            return name;
-        }
-    }
-    // failled, try to get architecture at least
-    f = popen("lscpu | grep \"Architecture:\" | sed -r 's/Architecture:\\s{1,}//g'", "r");
-    if(f) {
-        char tmp[200] = "";
-        ssize_t s = fread(tmp, 1, 200, f);
-        pclose(f);
-        if(s>0) {
-            // worked!
-            // trim ending
-            while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
-                tmp[strlen(tmp)-1] = 0;
-            // incase multiple cpu type are present, there will be multiple lines
-            while(strchr(tmp, '\n'))
-                *strchr(tmp,'\n') = ' ';
-            snprintf(name, 199, "unknown %s cpu", tmp);
-            return name;
-        }
-    }
-    // Nope, bye
-    return name;
-}
-
+int getNCpu();  // defined in my_cpuid.c
+const char* getBoxCpuName();    // defined in my_cpuid.c
+const char* getCpuName(); // defined in my_cpu_id.c
+double getBogoMips(); // defined in my_cpu_id.c
 
 #ifndef NOALIGN
 void CreateCPUInfoFile(int fd)
@@ -1627,7 +1547,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "model\t\t: 1\n");
         P;
-        sprintf(buff, "model name\t: Intel Pentium IV @ %g%cHz\n", gigahertz?(freq/1000.):freq, gigahertz?'G':'M');
+        sprintf(buff, "model name\t: %s\n", getBoxCpuName());
         P;
         sprintf(buff, "stepping\t: 1\nmicrocode\t: 0x10\n");
         P;
@@ -1635,11 +1555,11 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "cache size\t: %d\n", 4096);
         P;
-        sprintf(buff, "physical id\t: %d\nsiblings\t: %d\n", i, n);
+        sprintf(buff, "physical id\t: %d\nsiblings\t: %d\n", 0, n);
         P;
-        sprintf(buff, "core id\t\t: %d\ncpu cores\t: %d\n", i, 1);
+        sprintf(buff, "core id\t\t: %d\ncpu cores\t: %d\n", i, n);
         P;
-        sprintf(buff, "bogomips\t: %g\n", bogoMips);
+        sprintf(buff, "bogomips\t: %g\n", getBogoMips());
         P;
         sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fma fxsr cpuid pclmulqdq cx16 aes movbe pni sse4_1 popcnt\n");
         P;

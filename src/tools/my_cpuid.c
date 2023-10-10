@@ -50,13 +50,99 @@ int get_cpuMhz()
 		MHz = 1000; // default to 1Ghz...
 	return MHz;
 }
-int getNCpu();  // defined in wrappedlibc.c
-const char* getCpuName();   // same
+static int nCPU = 0;
+static double bogoMips = 100.;
 
-void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
+void grabNCpu() {
+    nCPU = 1;  // default number of CPU to 1
+    FILE *f = fopen("/proc/cpuinfo", "r");
+    size_t dummy;
+    if(f) {
+        nCPU = 0;
+        int bogo = 0;
+        size_t len = 500;
+        char* line = malloc(len);
+        while ((dummy = getline(&line, &len, f)) != -1) {
+            if(!strncmp(line, "processor\t", strlen("processor\t")))
+                ++nCPU;
+            if(!bogo && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
+                // grab 1st BogoMIPS
+                float tmp;
+                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1) {
+                    bogoMips = tmp;
+                    bogo = 1;
+                }
+            }
+        }
+        free(line);
+        fclose(f);
+        if(!nCPU) nCPU=1;
+    }
+}
+int getNCpu()
 {
-    emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
-    int ncpu = getNCpu();
+    if(!nCPU)
+        grabNCpu();
+    return nCPU;
+}
+
+double getBogoMips()
+{
+    if(!nCPU)
+        grabNCpu();
+    return bogoMips;
+}
+
+const char* getCpuName()
+{
+    static char name[200] = "Unknown CPU";
+    static int done = 0;
+    if(done)
+        return name;
+    done = 1;
+    FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
+    if(f) {
+        char tmp[200] = "";
+        ssize_t s = fread(tmp, 1, 200, f);
+        pclose(f);
+        if(s>0) {
+            // worked! (unless it's saying "lscpu: command not found" or something like that)
+            if(!strstr(tmp, "lscpu")) {
+                // trim ending
+                while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
+                    tmp[strlen(tmp)-1] = 0;
+                // incase multiple cpu type are present, there will be multiple lines
+                while(strchr(tmp, '\n'))
+                    *strchr(tmp,'\n') = ' ';
+                strncpy(name, tmp, 199);
+            }
+            return name;
+        }
+    }
+    // failled, try to get architecture at least
+    f = popen("lscpu | grep \"Architecture:\" | sed -r 's/Architecture:\\s{1,}//g'", "r");
+    if(f) {
+        char tmp[200] = "";
+        ssize_t s = fread(tmp, 1, 200, f);
+        pclose(f);
+        if(s>0) {
+            // worked!
+            // trim ending
+            while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
+                tmp[strlen(tmp)-1] = 0;
+            // incase multiple cpu type are present, there will be multiple lines
+            while(strchr(tmp, '\n'))
+                *strchr(tmp,'\n') = ' ';
+            snprintf(name, 199, "unknown %s cpu", tmp);
+            return name;
+        }
+    }
+    // Nope, bye
+    return name;
+}
+
+const char* getBoxCpuName()
+{
     static char branding[3*4*4+1] = "";
     static int done = 0;
     if(!done) {
@@ -78,8 +164,16 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             branding[0] = ' ';
         }
     }
+    return branding;
+}
+
+void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
+{
+    emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
+    int ncpu = getNCpu();
     if(ncpu>255) ncpu = 255;
     if(!ncpu) ncpu = 1;
+    const char* branding = getBoxCpuName();
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
@@ -91,12 +185,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
         case 0x1:
             R_EAX = 0x00000601; // family and all
-            R_EBX = 0 | (8<<0x8) | (ncpu<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
-            {
+            R_EBX = 0 | (8<<0x8) | (/*ncpu*/1<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            /*{
                 int cpu = sched_getcpu();
                 if(cpu<0) cpu=0;
                 R_EAX |= cpu<<24;
-            }
+            }*/
             R_EDX =   1         // fpu 
                     | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
