@@ -1092,7 +1092,28 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     u8 = F8;
                     VMOVQBfrom(q0, (u8&15), ed);
                     break;
-
+                case 0x21:
+                    INST_NAME("INSERTPS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    if(MODREG) {
+                        GETEX(q1, 0, 1);
+                        u8 = F8;
+                        VMOVQDto(x1, q1, (u8>>6)&3);
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
+                        LDW(x1, wback, fixedaddress);
+                        u8 = F8;
+                    }
+                    for(int i=0; i<4; ++i) {
+                        if(u8&(1<<i)) {
+                            VMOVQDfrom(q0, i, xZR);
+                        } else if(i==(u8>>4)&3) {
+                            VMOVQDfrom(q0, i, x1);
+                        }
+                    }
+                    break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, ED, Ib");
                     nextop = F8;
