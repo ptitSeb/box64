@@ -48,6 +48,9 @@ static const char default_rcfile[] =
 "[pressure-vessel-wrap]\n"
 "BOX64_NOGTK=1\n"
 "\n"
+"[ShovelKnight]\n"
+"BOX64_SDL2_JGUID=1\n"
+"\n"
 "[Soma.bin.x86_64]\n"
 "BOX64_DYNAREC_FASTROUND=0\n"
 "\n"
@@ -99,6 +102,7 @@ ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 2, 2)                \
 ENTRYBOOL(BOX64_NOSANDBOX, box64_nosandbox)             \
 ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
+ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
 ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
 
 #ifdef HAVE_TRACE

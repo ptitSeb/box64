@@ -52,6 +52,7 @@ extern int rv64_xtheadfmv;
 #endif
 #endif
 extern int box64_libcef;
+extern int box64_sdl2_jguid;
 extern int dlsym_error;    // log dlsym error
 extern int cycle_log;      // if using rolling logs
 #ifdef HAVE_TRACE

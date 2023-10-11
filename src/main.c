@@ -93,6 +93,7 @@ int rv64_xtheadfmv = 0;
 int box64_dynarec = 0;
 #endif
 int box64_libcef = 1;
+int box64_sdl2_jguid = 0;
 int dlsym_error = 0;
 int cycle_log = 0;
 #ifdef HAVE_TRACE
@@ -718,7 +719,16 @@ void LoadLogEnv()
                 box64_libcef = p[0]-'0';
         }
         if(!box64_libcef)
-            printf_log(LOG_INFO, "Dynarec will not detect libcef\n");
+            printf_log(LOG_INFO, "BOX64 will not detect libcef\n");
+    }
+    p = getenv("BOX64_SDL2_JGUID");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_sdl2_jguid = p[0]-'0';
+        }
+        if(!box64_sdl2_jguid)
+            printf_log(LOG_INFO, "BOX64 will workaround the use of  SDL_GetJoystickGUIDInfo with 4 args instead of 5\n");
     }
     p = getenv("BOX64_LOAD_ADDR");
     if(p) {

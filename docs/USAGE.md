@@ -230,6 +230,11 @@ Detect libcef and apply malloc_hack settings
 * 0 : Don't detect libcef
 * 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
 
+#### BOX64_SDL2_JGUID *
+Need a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2
+* 0 : Don't use any workaround
+* 1 : Use a workaround for program that use the private SDL_GetJoystickGUIDInfo function with 1 missing argument
+
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
  * /PATH/TO/libGLXXX : Sets the name and path for libGL

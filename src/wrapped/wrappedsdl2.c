@@ -801,8 +801,9 @@ EXPORT void* my2_SDL_Vulkan_GetVkGetInstanceProcAddr(x64emu_t* emu)
 
 EXPORT void my2_SDL_GetJoystickGUIDInfo(SDL_JoystickGUID guid, uint16_t *vend, uint16_t *prod, uint16_t *ver, uint16_t* crc16)
 {
+    uint16_t dummy = 0;
     if(my->SDL_GetJoystickGUIDInfo)
-        my->SDL_GetJoystickGUIDInfo(guid, vend, prod, ver, crc16);
+        my->SDL_GetJoystickGUIDInfo(guid, vend, prod, ver, box64_sdl2_jguid?(&dummy):crc16);
     // fallback
     else {
         uint16_t *guid16 = (uint16_t *)guid.data;
