@@ -567,6 +567,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
 
+    SMEND();
     if(reg) {
         if(reg!=xRIP) {
             MOVx_REG(xRIP, reg);
@@ -602,7 +603,6 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     #ifdef HAVE_TRACE
     //MOVx(x3, 15);    no access to PC reg
     #endif
-    SMEND();
     BLR(x2); // save LR...
 }
 
@@ -689,6 +689,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     //#warning TODO: is64bits
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
+    SMEND();
     // POP IP
     NOTEST(x2);
     if(is64bits) {
@@ -723,7 +724,6 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     MOVx_REG(xRSP, x3);
     // Ret....
     MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
-    SMEND();
     BR(x2);
     CLEARIP();
 }
