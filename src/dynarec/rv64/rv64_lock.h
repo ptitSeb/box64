@@ -51,6 +51,9 @@ extern void rv64_lock_store_dd(void*p, uint64_t v);
 extern int rv64_lock_cas_dq(void* p, uint64_t ref, uint64_t val1, uint64_t val2);
 
 // atomic get (with memory barrier)
+extern uint32_t rv64_lock_get_b(void* p);
+
+// atomic get (with memory barrier)
 extern uint32_t rv64_lock_get_d(void* p);
 
 // atomic get (with memory barrier)
