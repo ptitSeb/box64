@@ -1615,6 +1615,15 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 } else if(u8==0xFF) {
                     // duplicate slot 3 to all spot
                     VDUPQ_32(v0, v1, 3);
+                } else if(u8==0x44) {
+                    // duplicate slot 0/1 to all spot
+                    VDUPQ_64(v0, v1, 0);
+                } else if(u8==0xEE) {
+                    // duplicate slot 2/3 to all spot
+                    VDUPQ_64(v0, v1, 1);
+                } else if(u8==0xB1) {
+                    // invert 0/1 and 2/3
+                    VREV64Q_32(v0, v1);
                 } else if(v0!=v1) {
                     VMOVeS(v0, 0, v1, (u8>>(0*2))&3);
                     VMOVeS(v0, 1, v1, (u8>>(1*2))&3);
