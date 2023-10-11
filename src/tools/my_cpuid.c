@@ -150,13 +150,13 @@ const char* getBoxCpuName()
         const char* name = getCpuName();
         if(strstr(name, "MHz") || strstr(name, "GHz")) {
             // name already have the speed in it
-            snprintf(branding, 3*4*4, "Box64 on %s", name);
+            snprintf(branding, sizeof(branding), "Box64 on %.*s", 39, name);
         } else {
-            int MHz = get_cpuMhz();
-            if(MHz>15000) { // swiches to GHz display...
-                snprintf(branding, 3*4*4, "Box64 on %s @%1.2f GHz", name, MHz/1000.);
+            unsigned int MHz = get_cpuMhz();
+            if(MHz>1500) { // swiches to GHz display...
+                snprintf(branding, sizeof(branding), "Box64 on %.*s @%1.2f GHz", 28, name, MHz/1000.);
             } else {
-                snprintf(branding, 3*4*4, "Box64 on %s @%04d MHz", name, MHz);
+                snprintf(branding, sizeof(branding), "Box64 on %.*s @%04d MHz", 28, name, MHz);
             }
         }
         while(strlen(branding)<3*4*4) {
@@ -298,7 +298,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0x80000001:        //Extended Processor Signature and Feature Bits
             R_EAX = 0;  // reserved
             R_EBX = 0;  // reserved
-            R_ECX = (1<<5) | (1<<8); // LZCNT | PREFETCHW
+            R_ECX = (1<<0) | (1<<5) | (1<<8); // LAHF_LM | LZCNT | PREFETCHW
             R_EDX = 1       // x87 FPU 
                 | (1<<8)    // cx8: cmpxchg8b opcode
                 | (1<<11)   // syscall
