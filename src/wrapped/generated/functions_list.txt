@@ -1253,6 +1253,7 @@
 #() vFEpLLp
 #() vFEppip
 #() vFEppiV
+#() vFEppuu
 #() vFEppup
 #() vFEpppi
 #() vFEpppp
@@ -3555,6 +3556,8 @@ wrappedgobject2:
 - uFpLippppLuA:
   - g_signal_new_valist
 wrappedgomp:
+- vFppuu:
+  - GOMP_parallel
 wrappedgssapi:
 wrappedgssapikrb5:
 wrappedgstallocators:
