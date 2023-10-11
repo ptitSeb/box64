@@ -299,9 +299,14 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EAX = 0;  // reserved
             R_EBX = 0;  // reserved
             R_ECX = (1<<5) | (1<<8); // LZCNT | PREFETCHW
-            R_EDX = 1 | (1<<29); // x87 FPU? bit 29 is 64bits available
-            //AMD flags?
-            //R_EDX = 1 | (1<<8) | (1<<11) | (1<<15) | (1<<23) | (1<<29); // fpu+cmov+cx8+syscall+mmx+lm (mmxext=22, 3dnow=31, 3dnowext=30)
+            R_EDX = 1       // x87 FPU 
+                | (1<<8)    // cx8: cmpxchg8b opcode
+                | (1<<11)   // syscall
+                | (1<<15)   // cmov: FCMOV opcodes
+                | (1<<23)   // mmx: MMX available
+                | (1<<24)   // fxsave
+                | (1<<27)   // rdtscp
+                | (1<<29);  // long mode 64bits available
             break;
         case 0x80000002:    // Brand part 1 (branding signature)
             R_EAX = ((uint32_t*)branding)[0];
