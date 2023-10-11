@@ -422,6 +422,9 @@
         VLD64(a, ed, fixedaddress);                                                                     \
     }
 
+// Get Ex as 64bits, not a quad (warning, x1 get used)
+#define GETEX64(a, w, D)    GETEXSD(a, w, D)
+
 // Get Ex as a single, not a quad (warning, x1 get used)
 #define GETEXSS(a, w, D)                                                                                \
     if(MODREG) {                                                                                        \
@@ -431,6 +434,20 @@
         a = fpu_get_scratch(dyn);                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D);   \
         VLD32(a, ed, fixedaddress);                                                                     \
+    }
+
+// Get Ex as 32bits, not a quad (warning, x1 get used)
+#define GETEX32(a, w, D)    GETEXSS(a, w, D)
+
+// Get Ex as 16bits, not a quad (warning, x1 get used)
+#define GETEX16(a, w, D)                                                                                \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
+    } else {                                                                                            \
+        SMREAD();                                                                                       \
+        a = fpu_get_scratch(dyn);                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, D);   \
+        VLD16(a, ed, fixedaddress);                                                                     \
     }
 
 // Get GM, might use x1, x2 and x3
