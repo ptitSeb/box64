@@ -85,7 +85,7 @@
                     wback = 0;                          \
                 } else {                                \
                     SMREAD();                           \
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D); \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(3-rex.is32bits), rex.is32bits?3:7, rex, NULL, 0, D); \
                     LDz(x1, wback, fixedaddress);       \
                     ed = x1;                            \
                 }
