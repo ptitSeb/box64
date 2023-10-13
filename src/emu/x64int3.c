@@ -265,6 +265,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (!strcmp(s, "mmap64") || !strcmp(s, "mmap")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %lu, 0x%x, 0x%x, %d, %ld)", tid, *(void**)(R_RSP), s, 
                         (void*)R_RDI, R_RSI, (int)(R_RDX), (int)R_RCX, (int)R_R8, R_R9);
+                    perr = 3;
                 } else if (!strcmp(s, "sscanf")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
@@ -309,6 +310,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+                else if(perr==3 && ((int64_t)R_RAX)==-1)
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+
                 if(cycle_log)
                     snprintf(buffret, 128, "0x%lX%s%s", R_RAX, buff2, buff3);
                 else {
