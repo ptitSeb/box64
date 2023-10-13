@@ -25,6 +25,7 @@ typedef void (*vFpu_t)(void*, uint32_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
 typedef int32_t (*iFip_t)(int32_t, void*);
+typedef int32_t (*iFup_t)(uint32_t, void*);
 typedef int32_t (*iFLp_t)(uintptr_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
@@ -147,6 +148,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(warnx, vFpV_t) \
 	GO(fstat, iFip_t) \
 	GO(fstat64, iFip_t) \
+	GO(setrlimit, iFup_t) \
 	GO(pthread_getattr_np, iFLp_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \

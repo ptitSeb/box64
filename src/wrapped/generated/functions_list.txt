@@ -164,6 +164,7 @@
 #() cFpp
 #() wFpi
 #() iFEi
+#() iFEL
 #() iFEp
 #() iFwp
 #() iFii
@@ -3944,6 +3945,8 @@ wrappedlibc:
 - iFip:
   - fstat
   - fstat64
+- iFup:
+  - setrlimit
 - iFLp:
   - pthread_getattr_np
 - iFpi:
@@ -4459,6 +4462,8 @@ wrappedlibpthread:
   - __pthread_register_cancel
   - __pthread_unregister_cancel
   - __pthread_unwind_next
+- iFL:
+  - pthread_key_delete
 - iFp:
   - __pthread_mutexattr_destroy
   - __pthread_mutexattr_init

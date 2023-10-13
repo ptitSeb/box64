@@ -1234,13 +1234,13 @@ void endBox64()
     if(!my_context || box64_quit)
         return;
 
+    // then call all the fini
+    box64_quit = 1;
     endMallocHook();
     x64emu_t* emu = thread_get_emu();
     // atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
-    // then call all the fini
-    box64_quit = 1;
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
@@ -1861,7 +1861,7 @@ int main(int argc, const char **argv, char **env) {
     // Get EAX
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
-
+    endBox64();
 #ifdef HAVE_TRACE
     if(trace_func)  {
         box_free(trace_func);

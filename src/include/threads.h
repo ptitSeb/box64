@@ -8,6 +8,7 @@ void CleanStackSize(box64context_t* context);
 
 void init_pthread_helper(void);
 void fini_pthread_helper(box64context_t* context);
+void clean_current_emuthread(void);
 
 // prepare an "emuthread structure" in pet and return address of function pointer for a "thread creation routine"
 void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet);
