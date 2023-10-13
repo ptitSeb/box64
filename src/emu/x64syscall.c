@@ -80,7 +80,7 @@ typedef struct scwrap_s {
     int nbpars;
 } scwrap_t;
 
-static scwrap_t syscallwrap[] = {
+static const scwrap_t syscallwrap[] = {
     //{ 0, __NR_read, 3 },      // wrapped so SA_RESTART can be handled by libc
     //{ 1, __NR_write, 3 },     // same
     //{ 2, __NR_open, 3 },      // flags need transformation
