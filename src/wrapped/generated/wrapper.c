@@ -1412,6 +1412,7 @@ typedef void (*vFpupup_t)(void*, uint32_t, void*, uint32_t, void*);
 typedef void (*vFpUuiu_t)(void*, uint64_t, uint32_t, int32_t, uint32_t);
 typedef void (*vFpUUuu_t)(void*, uint64_t, uint64_t, uint32_t, uint32_t);
 typedef void (*vFpUUup_t)(void*, uint64_t, uint64_t, uint32_t, void*);
+typedef void (*vFpUUUi_t)(void*, uint64_t, uint64_t, uint64_t, int32_t);
 typedef void (*vFpUUUu_t)(void*, uint64_t, uint64_t, uint64_t, uint32_t);
 typedef void (*vFpUUUp_t)(void*, uint64_t, uint64_t, uint64_t, void*);
 typedef void (*vFpUppp_t)(void*, uint64_t, void*, void*, void*);
@@ -4362,6 +4363,7 @@ void vFpupup(x64emu_t *emu, uintptr_t fcn) { vFpupup_t fn = (vFpupup_t)fcn; fn((
 void vFpUuiu(x64emu_t *emu, uintptr_t fcn) { vFpUuiu_t fn = (vFpUuiu_t)fcn; fn((void*)R_RDI, (uint64_t)R_RSI, (uint32_t)R_RDX, (int32_t)R_RCX, (uint32_t)R_R8); }
 void vFpUUuu(x64emu_t *emu, uintptr_t fcn) { vFpUUuu_t fn = (vFpUUuu_t)fcn; fn((void*)R_RDI, (uint64_t)R_RSI, (uint64_t)R_RDX, (uint32_t)R_RCX, (uint32_t)R_R8); }
 void vFpUUup(x64emu_t *emu, uintptr_t fcn) { vFpUUup_t fn = (vFpUUup_t)fcn; fn((void*)R_RDI, (uint64_t)R_RSI, (uint64_t)R_RDX, (uint32_t)R_RCX, (void*)R_R8); }
+void vFpUUUi(x64emu_t *emu, uintptr_t fcn) { vFpUUUi_t fn = (vFpUUUi_t)fcn; fn((void*)R_RDI, (uint64_t)R_RSI, (uint64_t)R_RDX, (uint64_t)R_RCX, (int32_t)R_R8); }
 void vFpUUUu(x64emu_t *emu, uintptr_t fcn) { vFpUUUu_t fn = (vFpUUUu_t)fcn; fn((void*)R_RDI, (uint64_t)R_RSI, (uint64_t)R_RDX, (uint64_t)R_RCX, (uint32_t)R_R8); }
 void vFpUUUp(x64emu_t *emu, uintptr_t fcn) { vFpUUUp_t fn = (vFpUUUp_t)fcn; fn((void*)R_RDI, (uint64_t)R_RSI, (uint64_t)R_RDX, (uint64_t)R_RCX, (void*)R_R8); }
 void vFpUppp(x64emu_t *emu, uintptr_t fcn) { vFpUppp_t fn = (vFpUppp_t)fcn; fn((void*)R_RDI, (uint64_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8); }
@@ -7107,6 +7109,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &vFpUuiu) return 1;
 	if (fun == &vFpUUuu) return 1;
 	if (fun == &vFpUUup) return 1;
+	if (fun == &vFpUUUi) return 1;
 	if (fun == &vFpUUUu) return 1;
 	if (fun == &vFpUUUp) return 1;
 	if (fun == &vFpUppp) return 1;

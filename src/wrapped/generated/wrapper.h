@@ -1413,6 +1413,7 @@ void vFpupup(x64emu_t *emu, uintptr_t fnc);
 void vFpUuiu(x64emu_t *emu, uintptr_t fnc);
 void vFpUUuu(x64emu_t *emu, uintptr_t fnc);
 void vFpUUup(x64emu_t *emu, uintptr_t fnc);
+void vFpUUUi(x64emu_t *emu, uintptr_t fnc);
 void vFpUUUu(x64emu_t *emu, uintptr_t fnc);
 void vFpUUUp(x64emu_t *emu, uintptr_t fnc);
 void vFpUppp(x64emu_t *emu, uintptr_t fnc);
