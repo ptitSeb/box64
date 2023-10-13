@@ -303,6 +303,10 @@ Define x86_64 bash to launch script
  * XXX=yyyy
  will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist
 
+#### BOX64_RESERVE_HIGH
+* 0 : Don't try to pe-reserve high memory (beyond 47bits) (Default)
+* 1 : Try to reserve (without allocating it) memory beyond 47bits (seems unstable)
+
 #### BOX64_JITGDB *
  * 0 : Just print the Segfault message on segfault (default)
  * 1 : Launch `gdb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting.
@@ -329,7 +333,3 @@ Those variables are only valid inside a rcfile:
 #### BOX64_EXIT
  * 0 : Nothing special
  * 1 : Just exit, don't try to run the program
-
-#### BOX64_RESERVE_HIGH
-* 0 : Don't try to pe-reserve high memory (beyond 47bits) (Default)
-* 1 : Try to reserve (without allocating it) memory beyond 47bits (seems unstable)
