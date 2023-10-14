@@ -1133,6 +1133,8 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t);
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1);
+// returns the usage of x87 cache.
+int x87_cachecount(dynarec_arm_t* dyn, int ninst);
 // get cache index for a x87 reg, return -1 if cache doesn't exist
 int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t);
 // get cache index for a x87 reg, create the entry if needed
