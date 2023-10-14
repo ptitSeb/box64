@@ -256,7 +256,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
         }
         if(nextop&0x80)
             i32 = F32S;
-        else 
+        else
             i32 = F8S;
         if(i32==0 || ((i32>=absmin) && (i32<=absmax)  && !(i32&mask)) || (unscaled && (i32>-256) && (i32<256))) {
             *fixaddress = i32;

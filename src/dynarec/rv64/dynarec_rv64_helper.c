@@ -1675,9 +1675,9 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int i, int j, extcache_t *
     // SWAP
     ext_cache_t tmp;
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
-    // There is no VSWP in Arm64 NEON to swap 2 register contents!
+    // There is no swap instruction in RV64 to swap 2 float registers!
     // so use a scratch...
-    #define SCRATCH 0
+    #define SCRATCH 2
     if(i_single)
         FMVS(SCRATCH, reg_i);
     else

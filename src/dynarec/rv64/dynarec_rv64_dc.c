@@ -101,7 +101,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(x3, x3, x1);
                     SH(x3, xEmu, offsetof(x64emu_t, sw));
 
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 6:
                     INST_NAME("FDIV ST0, double[ED]");

@@ -58,7 +58,7 @@ void fpu_free_reg(dynarec_rv64_t* dyn, int reg)
     int idx = EXTIDX(reg);
     // TODO: check upper limit?
     dyn->e.fpuused[idx] = 0;
-    if(dyn->e.extcache[reg].t!=EXT_CACHE_ST_F && dyn->e.extcache[reg].t!=EXT_CACHE_ST_D)
+    if(dyn->e.extcache[idx].t!=EXT_CACHE_ST_F && dyn->e.extcache[idx].t!=EXT_CACHE_ST_D)
         dyn->e.extcache[idx].v = 0;
 }
 // Get an MMX double reg
@@ -494,7 +494,7 @@ const char* getCacheName(int t, int n)
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
     static const char* fnames[] = {
-        "ft0"," ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7",
+        "ft0", "ft1", "ft2", "ft3", "ft4", "ft5", "ft6", "ft7",
         "fs0", "fs1",
         "fa0", "fa1", "fa2", "fa3", "fa4", "fa5", "fa6", "fa7",
         "fs2", "fs3", "fs4", "fs5", "fs6", "fs7", "fs8", "fs9", "fs10", "fs11",

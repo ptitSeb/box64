@@ -759,6 +759,27 @@
     LDP_REGS(R12, R13);     \
     LDP_REGS(R14, R15)
 
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) \
+    if (dyn->n.stack == +8) {                         \
+        *ok = 0;                                      \
+        break;                                        \
+    }                                                 \
+    var = x87_do_push(dyn, ninst, scratch, t);
+
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch) \
+    if (dyn->n.stack == +8) {                       \
+        *ok = 0;                                    \
+        break;                                      \
+    }                                               \
+    x87_do_push_empty(dyn, ninst, scratch);
+
+#define X87_POP_OR_FAIL(dyn, ninst, scratch) \
+    if (dyn->n.stack == -8) {                \
+        *ok = 0;                             \
+        break;                               \
+    }                                        \
+    x87_do_pop(dyn, ninst, scratch);
+
 #define SET_DFNONE(S)    if(!dyn->f.dfnone) {STRw_U12(wZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
 #define SET_DF(S, N)     if((N)!=d_none) {MOVZw(S, (N)); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
 #define SET_NODF()          dyn->f.dfnone = 0
@@ -989,9 +1010,9 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 
 #define emit_pf         STEPNAME(emit_pf)
 
-#define x87_do_push     STEPNAME(x87_do_push)
-#define x87_do_push_empty STEPNAME(x87_do_push_empty)
-#define x87_do_pop      STEPNAME(x87_do_pop)
+#define x87_do_push         STEPNAME(x87_do_push)
+#define x87_do_push_empty   STEPNAME(x87_do_push_empty)
+#define x87_do_pop          STEPNAME(x87_do_pop)
 #define x87_get_current_cache   STEPNAME(x87_get_current_cache)
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_neoncache STEPNAME(x87_get_neoncache)
