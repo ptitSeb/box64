@@ -256,7 +256,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
         }
         if(nextop&0x80)
             i32 = F32S;
-        else 
+        else
             i32 = F8S;
         if(i32==0 || ((i32>=absmin) && (i32<=absmax)  && !(i32&mask)) || (unscaled && (i32>-256) && (i32<256))) {
             *fixaddress = i32;
@@ -972,6 +972,16 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
                 dyn->n.x87reg[i] = -1;
             }
         }
+}
+
+int x87_cachecount(dynarec_arm_t* dyn, int ninst)
+{
+    int count = 0;
+    for(int i=0; i<8; ++i)
+        if (dyn->n.x87cache[i]!=-1)
+            count++;
+
+    return count;
 }
 
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3)

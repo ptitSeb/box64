@@ -150,6 +150,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         default:
             switch((nextop>>3)&7) {
                 case 0:
+                    X87_CHECK_FULL();
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
@@ -279,6 +280,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 4:
+                    X87_CHECK_FULL();
                     INST_NAME("FBLD ST0, tbytes");
                     x87_do_push_empty(dyn, ninst, x1);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
@@ -286,6 +288,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     CALL(fpu_fbld, -1);
                     break;
                 case 5:
+                    X87_CHECK_FULL();
                     INST_NAME("FILD ST0, i64");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_I64);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);

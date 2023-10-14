@@ -140,7 +140,7 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FDIVD(v1, v2, v1);
             }
             x87_do_pop(dyn, ninst, x3);
-            break;       
+            break;
         case 0xF8:
         case 0xF9:
         case 0xFA:

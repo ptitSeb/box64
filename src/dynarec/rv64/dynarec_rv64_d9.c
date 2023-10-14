@@ -53,6 +53,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC5:
         case 0xC6:
         case 0xC7:
+            X87_CHECK_FULL();
             INST_NAME("FLD STx");
             v2 = x87_do_push(dyn, ninst, x1, X87_ST(nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, (nextop&7)+1, X87_COMBINE(0, (nextop&7)+1));
@@ -134,6 +135,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
         case 0xE8:
+            X87_CHECK_FULL();
             INST_NAME("FLD1");
             v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_F);
             if(ST_IS_F(0)) {
@@ -145,31 +147,37 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xE9:
+            X87_CHECK_FULL();
             INST_NAME("FLDL2T");
             v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
             FTABLE64(v1, L2T);
             break;
-        case 0xEA:     
+        case 0xEA:
+            X87_CHECK_FULL();
             INST_NAME("FLDL2E");
             v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
             FTABLE64(v1, L2E);
             break;
         case 0xEB:
+            X87_CHECK_FULL();
             INST_NAME("FLDPI");
             v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
             FTABLE64(v1, PI);
             break;
         case 0xEC:
+            X87_CHECK_FULL();
             INST_NAME("FLDLG2");
             v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
             FTABLE64(v1, LG2);
             break;
         case 0xED:
+            X87_CHECK_FULL();
             INST_NAME("FLDLN2");
             v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
             FTABLE64(v1, LN2);
             break;
         case 0xEE:
+            X87_CHECK_FULL();
             INST_NAME("FLDZ");
             v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_F);
             if(ST_IS_F(0)) {
@@ -194,6 +202,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF2:
+            X87_CHECK_FULL();
             INST_NAME("FPTAN");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
@@ -216,6 +225,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             x87_do_pop(dyn, ninst, x3);
             break;
         case 0xF4:
+            X87_CHECK_FULL();
             INST_NAME("FXTRACT");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_do_push_empty(dyn, ninst, 0);
@@ -270,6 +280,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xFB:
+            X87_CHECK_FULL();
             INST_NAME("FSINCOS");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_do_push_empty(dyn, ninst, 0);
@@ -349,10 +360,11 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xEF:
             DEFAULT;
             break;
-             
+
         default:
             switch((nextop>>3)&7) {
                 case 0:
+                    X87_CHECK_FULL();
                     INST_NAME("FLD ST0, float[ED]");
                     v1 = x87_do_push(dyn, ninst, x1, box64_dynarec_x87double?EXT_CACHE_ST_D:EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);

@@ -159,6 +159,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         default:
             switch((nextop>>3)&7) {
                 case 0:
+                    X87_CHECK_FULL();
                     INST_NAME("FLD double");
                     v1 = x87_do_push(dyn, ninst, x3, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
@@ -202,7 +203,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VST64(v1, ed, fixedaddress);
                     x87_do_pop(dyn, ninst, x3);
                     break;
-                case 4: 
+                case 4:
                     INST_NAME("FRSTOR m108byte");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
@@ -210,7 +211,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(native_frstor, -1);
                     break;
-                case 6: 
+                case 6:
                     INST_NAME("FSAVE m108byte");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);

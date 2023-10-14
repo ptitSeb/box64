@@ -156,7 +156,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             FCOMI(x1, x2);
             break;
-        case 0xF0:  
+        case 0xF0:
         case 0xF1:
         case 0xF2:
         case 0xF3:
@@ -187,6 +187,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         default:
             switch((nextop>>3)&7) {
                 case 0:
+                    X87_CHECK_FULL();
                     INST_NAME("FILD ST0, Ed");
                     v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
@@ -295,6 +296,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STRx_U12(x5, ed, 0);
                         STRH_U12(x6, ed, 8);
                     } else {
+                        X87_CHECK_FULL();
                         if(box64_x87_no80bits) {
                             v1 = x87_do_push(dyn, ninst, x1, NEON_CACHE_ST_D);
                             VLDR64_U12(v1, ed, fixedaddress);
@@ -344,7 +346,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CMPSw_REG(x3, x4);
                         B_MARK2(cNE);
                         // NaN and Infinite
-                        ORRw_mask(x3, x5, 0, 0b1110);    //x3 = sign | 0x7fff 
+                        ORRw_mask(x3, x5, 0, 0b1110);    //x3 = sign | 0x7fff
                         TSTx_mask(x1, 1, 0, 0b110011); //0x000fffffffffffffL
                         ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
                         ORRx_mask(x4, xZR, 1, 0b10, 0b01); //0xc000000000000000

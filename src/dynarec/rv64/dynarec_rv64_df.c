@@ -114,6 +114,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         default:
             switch((nextop>>3)&7) {
                 case 0:
+                    X87_CHECK_FULL();
                     INST_NAME("FILD ST0, Ew");
                     v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_F);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
@@ -171,6 +172,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     x87_do_pop(dyn, ninst, x3);
                     break;
                 case 5:
+                    X87_CHECK_FULL();
                     INST_NAME("FILD ST0, i64");
                     v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
