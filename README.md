@@ -37,7 +37,7 @@ Note: Box64's Dynarec uses a mechanism with Memory Protection and a SegFault sig
 
 Compiling/Installation
 ----
-> Compilation instructions can be found [here](docs/COMPILE.md)\
+> Compilation instructions can be found [here](docs/COMPILE.md)
 > Instructions for installing Wine for Box64 can be found [here](docs/X64WINE.md)
 
 ----
