@@ -864,12 +864,27 @@
     SLLI(dst, dst, 11 - 5);             \
     OR(dst, dst, s1)
 
-// check whether all x87 cache slots are occupied.
-#define X87_CHECK_FULL()                   \
-    if (x87_cachecount(dyn, ninst) == 8) { \
-        *ok = 0;                           \
-        break;                             \
-    }
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) \
+    if (dyn->e.stack == +8) {                         \
+        *ok = 0;                                      \
+        break;                                        \
+    }                                                 \
+    var = x87_do_push(dyn, ninst, scratch, t);
+
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch) \
+    if (dyn->e.stack == +8) {                       \
+        *ok = 0;                                    \
+        break;                                      \
+    }                                               \
+    x87_do_push_empty(dyn, ninst, scratch);
+
+#define X87_POP_OR_FAIL(dyn, ninst, scratch) \
+    if (dyn->e.stack == -8) {                \
+        *ok = 0;                             \
+        break;                               \
+    }                                        \
+    x87_do_pop(dyn, ninst, scratch);
+
 
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()
@@ -1120,7 +1135,6 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_do_push           STEPNAME(x87_do_push)
 #define x87_do_push_empty     STEPNAME(x87_do_push_empty)
 #define x87_do_pop            STEPNAME(x87_do_pop)
-#define x87_cachecount        STEPNAME(x87_cachecount)
 #define x87_get_current_cache STEPNAME(x87_get_current_cache)
 #define x87_get_cache         STEPNAME(x87_get_cache)
 #define x87_get_extcache      STEPNAME(x87_get_extcache)
@@ -1262,8 +1276,6 @@ int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t);
 void x87_do_push_empty(dynarec_rv64_t* dyn, int ninst, int s1);
 // fpu pop. All previous returned Dd should be considered invalid
 void x87_do_pop(dynarec_rv64_t* dyn, int ninst, int s1);
-// returns the usage of x87 cache.
-int x87_cachecount(dynarec_rv64_t* dyn, int ninst);
 // get cache index for a x87 reg, return -1 if cache doesn't exist
 int x87_get_current_cache(dynarec_rv64_t* dyn, int ninst, int st, int t);
 // get cache index for a x87 reg, create the entry if needed

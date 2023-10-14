@@ -974,16 +974,6 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
         }
 }
 
-int x87_cachecount(dynarec_arm_t* dyn, int ninst)
-{
-    int count = 0;
-    for(int i=0; i<8; ++i)
-        if (dyn->n.x87cache[i]!=-1)
-            count++;
-
-    return count;
-}
-
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
     int ret = 0;

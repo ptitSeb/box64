@@ -43,7 +43,7 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     switch(nextop) {
         case 0xC0 ... 0xC7:
-        
+
         case 0xC8 ... 0xCF:
 
         case 0xD0 ... 0xD7:
@@ -92,7 +92,7 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             OR(x3, x3, x1);
             SH(x3, xEmu, offsetof(x64emu_t, sw));
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE0 ... 0xE7:
             INST_NAME("FSUB ST0, STx");

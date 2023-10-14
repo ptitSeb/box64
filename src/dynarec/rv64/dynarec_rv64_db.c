@@ -212,9 +212,8 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         default:
             switch((nextop>>3)&7) {
                 case 0:
-                    X87_CHECK_FULL();
                     INST_NAME("FILD ST0, Ed");
-                    v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
                     FCVTDW(v1, x1, RD_RNE);    // i32 -> double
@@ -246,7 +245,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     MARK2;
                     SW(x4, wback, fixedaddress);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 5:
                     INST_NAME("FLD tbyte");
@@ -268,15 +267,14 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SD(x5, ed, fixedaddress+0);
                         SH(x6, ed, fixedaddress+8);
                     } else {
-                        X87_CHECK_FULL();
                         if(box64_x87_no80bits) {
-                            v1 = x87_do_push(dyn, ninst, x1, EXT_CACHE_ST_D);
+                            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_D);
                             FLD(v1, ed, fixedaddress);
                         } else {
                             if(ed!=x1) {
                                 MV(x1, ed);
                             }
-                            x87_do_push_empty(dyn, ninst, x3);
+                            X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x3);
                             CALL(native_fld, -1);
                         }
                     }
@@ -295,7 +293,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         CALL(native_fstp, -1);
                     }
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 default:
                     DEFAULT;
