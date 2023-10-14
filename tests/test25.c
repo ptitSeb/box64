@@ -25,6 +25,11 @@ asm(
   "fstps 20(%rsi) \n\t"
   "fstps 24(%rsi) \n\t"
   "fstps 28(%rsi) \n\t"
+  "je     1f      \n\t"
+  "jne    1f      \n\t"
+  "fstps 32(%rdi) \n\t"
+  "fstps 36(%rdi) \n\t"
+"1:               \n\t"
   "ret            \n\t"
 );
 
