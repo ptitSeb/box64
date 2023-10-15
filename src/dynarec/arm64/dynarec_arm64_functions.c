@@ -30,7 +30,6 @@
 #define XMM8    16
 #define X870    8
 #define EMM0    8
-#define SCRATCH0    24
 
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn)
@@ -139,7 +138,7 @@ int neoncache_get_st_f(dynarec_arm_t* dyn, int ninst, int a)
          && dyn->insts[ninst].n.neoncache[i].n==a)
             return i;
     return -1;
-} 
+}
 int neoncache_get_st_f_i64(dynarec_arm_t* dyn, int ninst, int a)
 {
     /*if(a+dyn->insts[ninst].n.stack_next-st<0)
@@ -150,7 +149,7 @@ int neoncache_get_st_f_i64(dynarec_arm_t* dyn, int ninst, int a)
          && dyn->insts[ninst].n.neoncache[i].n==a)
             return i;
     return -1;
-} 
+}
 int neoncache_get_st_f_noback(dynarec_arm_t* dyn, int ninst, int a)
 {
     for(int i=0; i<24; ++i)
@@ -158,7 +157,7 @@ int neoncache_get_st_f_noback(dynarec_arm_t* dyn, int ninst, int a)
          && dyn->insts[ninst].n.neoncache[i].n==a)
             return i;
     return -1;
-} 
+}
 int neoncache_get_st_f_i64_noback(dynarec_arm_t* dyn, int ninst, int a)
 {
     for(int i=0; i<24; ++i)
@@ -166,7 +165,7 @@ int neoncache_get_st_f_i64_noback(dynarec_arm_t* dyn, int ninst, int a)
          && dyn->insts[ninst].n.neoncache[i].n==a)
             return i;
     return -1;
-} 
+}
 int neoncache_get_current_st_f(dynarec_arm_t* dyn, int a)
 {
     for(int i=0; i<24; ++i)
@@ -174,7 +173,7 @@ int neoncache_get_current_st_f(dynarec_arm_t* dyn, int a)
          && dyn->n.neoncache[i].n==a)
             return i;
     return -1;
-} 
+}
 int neoncache_get_current_st_f_i64(dynarec_arm_t* dyn, int a)
 {
     for(int i=0; i<24; ++i)
@@ -182,7 +181,7 @@ int neoncache_get_current_st_f_i64(dynarec_arm_t* dyn, int a)
          && dyn->n.neoncache[i].n==a)
             return i;
     return -1;
-} 
+}
 static void neoncache_promote_double_forward(dynarec_arm_t* dyn, int ninst, int maxinst, int a);
 static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int maxinst, int a);
 static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int maxinst, int a)
@@ -190,7 +189,7 @@ static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int
     if(a == dyn->insts[ninst].n.combined1 || a == dyn->insts[ninst].n.combined2) {
         if(a == dyn->insts[ninst].n.combined1) {
             a = dyn->insts[ninst].n.combined2;
-        } else 
+        } else
             a = dyn->insts[ninst].n.combined1;
         int i = neoncache_get_st_f_i64_noback(dyn, ninst, a);
         //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "neoncache_promote_double_combined, ninst=%d combined%c %d i=%d (stack:%d/%d)\n", ninst, (a == dyn->insts[ninst].n.combined2)?'2':'1', a ,i, dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
@@ -314,7 +313,7 @@ static int isCacheEmpty(dynarec_native_t* dyn, int ninst) {
     for(int i=0; i<24; ++i)
         if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
             if(!(
-            (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F 
+            (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
              || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D
              || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64)
             && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
@@ -339,7 +338,7 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
         for(int i=0; i<24 && !ret; ++i)
             if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
                 if(!(
-                (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F 
+                (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
                 || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_D
                 || dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_I64)
                 && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
@@ -377,7 +376,7 @@ void neoncacheUnwind(neoncache_t* cache)
 {
     if(cache->swapped) {
         // unswap
-        int a = -1; 
+        int a = -1;
         int b = -1;
         for(int j=0; j<24 && ((a==-1) || (b==-1)); ++j)
             if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F || cache->neoncache[j].t == NEON_CACHE_ST_I64)) {

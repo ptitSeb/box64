@@ -3,6 +3,8 @@
 
 #include "../dynarec_native_functions.h"
 
+#define SCRATCH0    24
+
 // Get an FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn);
 // Reset scratch regs counter
