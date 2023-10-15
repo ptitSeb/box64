@@ -31,6 +31,7 @@ option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
 option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info on SIGSEGV" ${BAD_SIGNAL})
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
+option(CI "Set to ON if running in CI" ${CI})
 
 if(LARCH64)
     set(LD80BITS OFF CACHE BOOL "")
@@ -595,16 +596,18 @@ endforeach()
 
 set(WRAPPER "${BOX64_ROOT}/src/wrapped/generated/wrapper.c" "${BOX64_ROOT}/src/wrapped/generated/wrapper.h")
 
-add_custom_command(
-    OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
-    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
-    "${BOX64_ROOT}"
-    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "--"
-    ${WRAPPEDS_HEAD}
-    MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
-    DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
-    BYPRODUCTS ${WRAPPER}
-)
+if(NOT CI)
+    add_custom_command(
+        OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
+        COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
+        "${BOX64_ROOT}"
+        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "--"
+        ${WRAPPEDS_HEAD}
+        MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
+        DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
+        BYPRODUCTS ${WRAPPER}
+    )
+endif ()
 
 #add_custom_command(
 #    OUTPUT "${BOX64_ROOT}/src/dynarec/last_run.txt"

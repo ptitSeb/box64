@@ -96,7 +96,8 @@ jobs:
                    ${{ env.BOX64_PLATFORM_MARCRO }}\
                    -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }}\
                    -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }}\
-                   -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+                   -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON\
+                   -DCI=${{ matrix.platform != 'ANDROID' }}
           make -j$(nproc) VERBOSE=1
 
       - name: "Test Box64"
