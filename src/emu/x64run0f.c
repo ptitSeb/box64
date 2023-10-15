@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <fenv.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -233,6 +234,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {
                         case ROUND_Nearest:
+                            fesetround(FE_TONEAREST);
                             tmp64s = nearbyintf(EX->f[i]);
                             break;
                         case ROUND_Down:

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <fenv.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -114,6 +115,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {
                     case ROUND_Nearest:
+                        fesetround(FE_TONEAREST);
                         GD->sq[0] = nearbyint(EX->d[0]);
                         break;
                     case ROUND_Down:
@@ -132,6 +134,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {
                     case ROUND_Nearest:
+                        fesetround(FE_TONEAREST);
                         GD->sdword[0] = nearbyint(EX->d[0]);
                         break;
                     case ROUND_Down:
@@ -326,6 +329,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETGX;
         switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest:
+                fesetround(FE_TONEAREST);
                 tmp64s0 = nearbyint(EX->d[0]);
                 tmp64s1 = nearbyint(EX->d[1]);
                 break;
