@@ -1055,13 +1055,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMDMB();
                 GETGB(x4);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                MARKLOCK;
-                // do the swap with exclusive locking
-                LDAXRB(x1, ed);
-                // do the swap 4 -> strb(ed), 1 -> gd
-                STLXRB(x3, x4, ed);
-                CBNZx_MARKLOCK(x3);
-                SMDMB();
+                if(arm64_atomics) {
+                    SWPALB(x4, x1, ed);
+                } else {
+                    MARKLOCK;
+                    // do the swap with exclusive locking
+                    LDAXRB(x1, ed);
+                    // do the swap 4 -> strb(ed), 1 -> gd
+                    STLXRB(x3, x4, ed);
+                    CBNZx_MARKLOCK(x3);
+                    SMDMB();
+                }
                 BFIx(gb1, x1, gb2, 8);
             }
             break;
@@ -1080,13 +1084,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMDMB();
                 TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
                 B_MARK(cNE);
-                MARKLOCK;
-                LDAXRxw(x1, ed);
-                STLXRxw(x3, gd, ed);
-                CBNZx_MARKLOCK(x3);
-                B_MARK2_nocond;
+                if(arm64_atomics) {
+                    SWPALxw(gd, gd, ed);
+                    B_NEXT_nocond;
+                } else {
+                    MARKLOCK;
+                    LDAXRxw(x1, ed);
+                    STLXRxw(x3, gd, ed);
+                    CBNZx_MARKLOCK(x3);
+                    B_MARK2_nocond;
+                }
                 MARK;
                 LDRxw_U12(x1, ed, 0);
+                LDAXRB(x3, ed);
+                STLXRB(x3, gd, ed);
+                CBNZx_MARK(x3);
                 STRxw_U12(gd, ed, 0);
                 MARK2;
                 SMDMB();
