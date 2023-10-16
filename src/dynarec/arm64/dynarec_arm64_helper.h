@@ -36,9 +36,9 @@
 // Sequence of Read will trigger a DMB on "first" read if strongmem is 2
 // Sequence of Write will trigger a DMB on "last" write if strongmem is 1
 // Opcode will read
-#define SMREAD()    if(!dyn->smread && box64_dynarec_strongmem>1) {SMDMB();}
+#define SMREAD()    if((dyn->smread==0) && (box64_dynarec_strongmem>1)) {SMDMB();}
 // Opcode will read with option forced lock
-#define SMREADLOCK(lock)    if(lock || (!dyn->smread && box64_dynarec_strongmem>1)) {SMDMB();}
+#define SMREADLOCK(lock)    if((lock) || ((dyn->smread==0) && (box64_dynarec_strongmem>1))) {SMDMB();}
 // Opcode might read (depend on nextop)
 #define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
 // Opcode has wrote
