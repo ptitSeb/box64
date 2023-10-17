@@ -238,7 +238,7 @@ box64context_t *NewBox64Context(int argc)
     init_mutexes(context);
     pthread_atfork(NULL, NULL, atfork_child_box64context);
 
-    pthread_key_create(&context->tlskey, NULL/*free_tlsdatasize*/);
+    pthread_key_create(&context->tlskey, free_tlsdatasize);
 
 
     for (int i=0; i<8; ++i) context->canary[i] = 1 +  getrand(255);

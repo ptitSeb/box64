@@ -144,13 +144,12 @@ static void emuthread_destroy(void* p)
 		return;
 	void* ptr;
 	// check tlsdata
-	if (my_context && (ptr = pthread_getspecific(my_context->tlskey)) != NULL)
-        free_tlsdatasize(ptr);
+	/*if (my_context && (ptr = pthread_getspecific(my_context->tlskey)) != NULL)
+        free_tlsdatasize(ptr);*/
 	// free x64emu
 	if(et) {
 		FreeX64Emu(&et->emu);
 		box_free(et);
-		pthread_setspecific(thread_key, NULL);
 	}
 }
 
