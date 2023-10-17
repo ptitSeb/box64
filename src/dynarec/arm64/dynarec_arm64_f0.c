@@ -469,11 +469,13 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 CASPALxw(x2, x4, wback);
                                 UFLAG_IF {
                                     CMPSxw_REG(x2, xRAX);
-                                    CSETw(x1, cEQ);
+                                    CSETw(x4, cEQ);
                                     CMPSxw_REG(x3, xRDX);
-                                    CSETw(x2, cEQ);
-                                    ANDw_REG(x1, x1, x2);
+                                    CSETw(x5, cEQ);
+                                    ANDw_REG(x1, x4, x5);
                                 }
+                                MOVx_REG(xRAX, x2);
+                                MOVx_REG(xRDX, x3);
                             } else {
                                 MARKLOCK;
                                 LDAXPxw(x2, x3, wback);
