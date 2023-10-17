@@ -256,7 +256,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             } else {
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                                 if(arm64_atomics) {
-                                    CASALB(x6, x2, wback);
+                                    MOVw_REG(x2, x6);
+                                    CASALB(x2, gd, wback);
                                 } else {
                                     MARKLOCK;
                                     LDAXRB(x2, wback);
