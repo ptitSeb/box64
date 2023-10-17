@@ -69,7 +69,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     }
                 } else {
                     switch(lock) {
-                        case 1: addLockAddress(tmp); break;
+                        case 1: addLockAddress(tmp); if(fixaddress) *fixaddress=tmp; break;
                         case 2: if(isLockAddress(tmp)) *l=1; break;
                     }
                     MOV64x(ret, tmp);
@@ -106,7 +106,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 ADDx_REG(ret, ret, xRIP);
             }
             switch(lock) {
-                case 1: addLockAddress(addr+delta+tmp); break;
+                case 1: addLockAddress(addr+delta+tmp); if(fixaddress) *fixaddress=addr+delta+tmp; break;
                 case 2: if(isLockAddress(addr+delta+tmp)) *l=1; break;
             }
         } else {
@@ -126,7 +126,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             i64 = F8S;
         if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64<256))) {
             *fixaddress = i64;
-            if(unscaled && (i64>-256) && (i64<256))
+            if(unscaled && i64 && (i64>-256) && (i64<256))
                 *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
@@ -221,7 +221,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                     }
                 } else {
                     switch(lock) {
-                        case 1: addLockAddress((int32_t)tmp); break;
+                        case 1: addLockAddress((int32_t)tmp); if(fixaddress) *fixaddress=(int32_t)tmp; break;
                         case 2: if(isLockAddress((int32_t)tmp)) *l=1; break;
                     }
                     MOV32w(ret, tmp);
@@ -237,7 +237,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
             uint64_t tmp = F32;
             MOV32w(ret, tmp);
             switch(lock) {
-                case 1: addLockAddress(tmp); break;
+                case 1: addLockAddress(tmp); if(fixaddress) *fixaddress=tmp; break;
                 case 2: if(isLockAddress(tmp)) *l=1; break;
             }
         } else {
@@ -260,7 +260,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
             i32 = F8S;
         if(i32==0 || ((i32>=absmin) && (i32<=absmax)  && !(i32&mask)) || (unscaled && (i32>-256) && (i32<256))) {
             *fixaddress = i32;
-            if(unscaled && (i32>-256) && (i32<256))
+            if(unscaled && i32 && (i32>-256) && (i32<256))
                 *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {

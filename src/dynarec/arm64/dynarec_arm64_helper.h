@@ -481,6 +481,9 @@
     TSTw_mask(xFlags, 0b010110, 0); \
     CNEGx(r, r, cNE)
 
+#define ALIGNED_ATOMICxw ((fixedaddress && !(fixedaddress&((1<<(2+rex.w)-1)))) || box64_dynarec_aligned_atomics)
+#define ALIGNED_ATOMICH ((fixedaddress && !(fixedaddress&1)) || box64_dynarec_aligned_atomics)
+
 // CALL will use x7 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x7, ret, 1, 0)

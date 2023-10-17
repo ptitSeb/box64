@@ -195,6 +195,11 @@ Will use a faster handling of HotPage (Page being both executed and written)
 * 0 : use regular hotpage (Default)
 * 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
 
+#### BOX64_DYNAREC_ALIGNED_ATOMICS *
+Generated code for aligned atomics only
+* 0 : The code generated can handle unaligned atomics (Default)
+* 1 : Generated code only for aligned atomics (faster and less code generated, but will SEGBUS if LOCK prefix is unsed on unaligned data)
+
 #### BOX64_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge

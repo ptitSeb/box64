@@ -1079,28 +1079,37 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
-                B_MARK(cNE);
+                if(!ALIGNED_ATOMICxw) {
+                    TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
+                    B_MARK(cNE);
+                }
                 if(arm64_atomics) {
                     SWPALxw(gd, gd, ed);
-                    B_NEXT_nocond;
+                    if(!ALIGNED_ATOMICxw) {
+                        B_NEXT_nocond;
+                    }
                 } else {
                     MARKLOCK;
                     LDAXRxw(x1, ed);
                     STLXRxw(x3, gd, ed);
                     CBNZx_MARKLOCK(x3);
-                    B_MARK2_nocond;
+                    if(!ALIGNED_ATOMICxw) {
+                        B_MARK2_nocond;
+                    }
                 }
-                MARK;
-                SMDMB();
-                LDRxw_U12(x1, ed, 0);
-                LDAXRB(x3, ed);
-                STLXRB(x3, gd, ed);
-                CBNZx_MARK(x3);
-                STRxw_U12(gd, ed, 0);
-                SMDMB();
-                MARK2;
-                MOVxw_REG(gd, x1);
+                if(!ALIGNED_ATOMICxw) {
+                    MARK;
+                    LDRxw_U12(x1, ed, 0);
+                    LDAXRB(x3, ed);
+                    STLXRB(x3, gd, ed);
+                    CBNZx_MARK(x3);
+                    STRxw_U12(gd, ed, 0);
+                    SMDMB();
+                    MARK2;
+                }
+                if(!ALIGNED_ATOMICxw || !arm64_atomics) {
+                    MOVxw_REG(gd, x1);
+                }
             }
             break;
         case 0x88:

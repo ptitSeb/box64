@@ -29,6 +29,7 @@ extern int box64_dynarec_fastpage;
 extern int box64_dynarec_wait;
 extern int box64_dynarec_test;
 extern int box64_dynarec_missing;
+extern int box64_dynarec_aligned_atomics;
 #ifdef ARM64
 extern int arm64_asimd;
 extern int arm64_aes;
