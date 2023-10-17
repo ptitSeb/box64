@@ -54,7 +54,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("LOCK ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            SMDMB();
             GETGB(x2);
             if((nextop&0xC0)==0xC0) {
                 if(rex.rex) {
@@ -71,9 +70,11 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 if(arm64_atomics) {
-                    LDADDALB(x2, x1, wback);
                     UFLAG_IF {
+                        LDADDALB(x2, x1, wback);
                         emit_add8(dyn, ninst, x1, x2, x4, x5);    
+                    } else {
+                        STADDLB(x2, wback);
                     }
                 } else {
                     MARKLOCK;
@@ -89,16 +90,17 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            SMDMB();
             if((nextop&0xC0)==0xC0) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 if(arm64_atomics) {
-                    LDADDALxw(gd, x1, wback);
                     UFLAG_IF {
+                        LDADDALxw(gd, x1, wback);
                         emit_add32(dyn, ninst, rex, x1, gd, x3, x4);    
+                    } else {
+                        STADDLxw(gd, wback);
                     }
                 } else {
                     MARKLOCK;
@@ -1201,8 +1203,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                     }
                     break;
-                case 1: //DEC Ed
-                    INST_NAME("LOCK DEC Ed");
+                case 1: //DEC Eb
+                    INST_NAME("LOCK DEC Eb");
                     SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
                     SMDMB();
                     if(MODREG) {
@@ -1215,7 +1217,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOV32w(x3, -1);
                             UFLAG_IF {
                                 LDADDALB(x3, x1, wback);
-                                emit_inc8(dyn, ninst, x1, x3, x4);
+                                emit_dec8(dyn, ninst, x1, x3, x4);
                             } else {
                                 STADDLB(x3, wback);
                             }
@@ -1287,7 +1289,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         B_MARK(cNE);    // unaligned
                         MARKLOCK;
                         if(arm64_atomics) {
-                            MOV32w(x3, -1);
+                            MOV64xw(x3, -1);
                             UFLAG_IF {
                                 LDADDALxw(x3, x1, wback);
                                 emit_dec32(dyn, ninst, rex, x1, x3, x4);
