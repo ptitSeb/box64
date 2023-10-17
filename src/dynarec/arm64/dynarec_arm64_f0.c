@@ -474,7 +474,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     CSETw(x2, cEQ);
                                     ANDw_REG(x1, x1, x2);
                                 }
-                                B_MARK3_nocond;
                             } else {
                                 MARKLOCK;
                                 LDAXPxw(x2, x3, wback);
@@ -545,7 +544,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGD;
             SMDMB();
-                if(MODREG) {
+            if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 emit_adc32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {

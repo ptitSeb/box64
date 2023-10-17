@@ -2125,9 +2125,9 @@
 
 #define CASP_gen(size, L, Rs, O0, Rn, Rt)   ((size)<<30 | 0b001000<<24 | 0<<23 | (L)<<22 | 1<<21 | (Rs)<<16 | (O0)<<15 | 0b11111<<10 | (Rn)<<5 | (Rt))
 // Compare and Swap with pair, Rs, Rs+1 and Rt,Rt+1 with [Rt]
-#define CASPxw(Rs, Rt, Rn)              EMIT(CAS_gen(0b00+rex.w, 0, Rs, 0, Rn, Rt))
-#define CASPAxw(Rs, Rt, Rn)             EMIT(CAS_gen(0b00+rex.w, 1, Rs, 0, Rn, Rt))
-#define CASPALxw(Rs, Rt, Rn)            EMIT(CAS_gen(0b00+rex.w, 1, Rs, 1, Rn, Rt))
-#define CASPLxw(Rs, Rt, Rn)             EMIT(CAS_gen(0b00+rex.w, 0, Rs, 1, Rn, Rt))
+#define CASPxw(Rs, Rt, Rn)              EMIT(CASP_gen(0b00+rex.w, 0, Rs, 0, Rn, Rt))
+#define CASPAxw(Rs, Rt, Rn)             EMIT(CASP_gen(0b00+rex.w, 1, Rs, 0, Rn, Rt))
+#define CASPALxw(Rs, Rt, Rn)            EMIT(CASP_gen(0b00+rex.w, 1, Rs, 1, Rn, Rt))
+#define CASPLxw(Rs, Rt, Rn)             EMIT(CASP_gen(0b00+rex.w, 0, Rs, 1, Rn, Rt))
 
 #endif  //__ARM64_EMITTER_H__

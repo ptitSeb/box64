@@ -87,7 +87,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
-                    SMDMB();
                     UXTHw(x6, xRAX);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -102,7 +101,8 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         B_MARK3(cNE);
                         // Aligned version
                         if(arm64_atomics) {
-                            CASALH(x6, x1, wback);
+                            MOVw_REG(x1, x6);
+                            CASALH(x1, gd, wback);
                         } else {
                             MARKLOCK;
                             LDAXRH(x1, wback);
@@ -124,12 +124,12 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         STLXRB(x4, gd, wback);
                         CBNZx_MARK3(x4);
                         STRH_U12(gd, wback, 0);
+                        SMDMB();
                     }
                     MARK;
                     // Common part (and fallback for EAX != Ed)
                     UFLAG_IF {emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5);}
                     BFIx(xRAX, x1, 0, 16);
-                    SMDMB();
                     break;
 
                 case 0xC1:
