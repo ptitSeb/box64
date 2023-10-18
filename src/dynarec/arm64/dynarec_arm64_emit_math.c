@@ -278,22 +278,38 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    IFX(X_AF | X_OF) {
-        ORRw_REG(s3, s1, s2);    // s3 = op1 | op2
-        ANDw_REG(s4, s1, s2);    // s4 = op1 & op2
+    if(arm64_flagm) {
+        IFX(X_AF) {
+            ORRw_REG(s3, s1, s2);    // s3 = op1 | op2
+            ANDw_REG(s4, s1, s2);    // s4 = op1 & op2
+        }
+    } else {
+        IFX(X_AF | X_OF) {
+            ORRw_REG(s3, s1, s2);    // s3 = op1 | op2
+            ANDw_REG(s4, s1, s2);    // s4 = op1 & op2
+        }
     }
     ADDw_REG(s1, s1, s2);
-    IFX(X_AF|X_OF) {
-        BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
-        ORRw_REG(s3, s3, s4);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
+    if(arm64_flagm) {
         IFX(X_AF) {
+            BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
+            ORRw_REG(s3, s3, s4);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
             LSRw(s4, s3, 3);
             BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
         }
-        IFX(X_OF) {
-            LSRw(s4, s3, 6);
-            EORw_REG_LSR(s4, s4, s4, 1);
-            BFIw(xFlags, s4, F_OF, 1);    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
+    } else {
+        IFX(X_AF|X_OF) {
+            BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
+            ORRw_REG(s3, s3, s4);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
+            IFX(X_AF) {
+                LSRw(s4, s3, 3);
+                BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
+            }
+            IFX(X_OF) {
+                LSRw(s4, s3, 6);
+                EORw_REG_LSR(s4, s4, s4, 1);
+                BFIw(xFlags, s4, F_OF, 1);    // OF: ((bc >> 6) ^ ((bc>>6)>>1)) & 1
+            }
         }
     }
     IFX(X_CF) {
@@ -303,14 +319,32 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_ZF) {
-        ANDSw_mask(s1, s1, 0, 7);   //mask=0xff
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 7);
-        BFIw(xFlags, s3, F_SF, 1);
+    if(arm64_flagm) {
+        IFX(X_ZF|X_SF|X_OF) {
+            SETF8(s1);
+        }
+        IFX(X_ZF) {
+            CSETw(s3, cEQ);
+            BFIw(xFlags, s3, F_ZF, 1);
+        }
+        IFX(X_SF) {
+            CSETw(s3, cMI);
+            BFIw(xFlags, s3, F_SF, 1);
+        }
+        IFX(X_OF) {
+            CSETw(s3, cVS);
+            BFIw(xFlags, s3, F_OF, 1);
+        }
+    } else {
+        IFX(X_ZF) {
+            ANDSw_mask(s1, s1, 0, 7);   //mask=0xff
+            CSETw(s3, cEQ);
+            BFIw(xFlags, s3, F_ZF, 1);
+        }
+        IFX(X_SF) {
+            LSRw(s3, s1, 7);
+            BFIw(xFlags, s3, F_SF, 1);
+        }
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
