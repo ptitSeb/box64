@@ -40,7 +40,7 @@
 // Sequence of Write will trigger a DMB on "last" write if strongmem is >= 1
 // All Write operation that might use a lock all have a memory barrier if strongmem is >= SMWRITE_MIN
 // Opcode will read
-#define SMREAD()    if((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN)) {SMDMB();} else dyn->smread=1
+#define SMREAD();   if((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN)) {SMDMB();} else dyn->smread=1
 // Opcode will read with option forced lock
 #define SMREADLOCK(lock)    if((lock) || ((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN))) {SMDMB();}
 // Opcode might read (depend on nextop)
@@ -71,7 +71,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
         wback = 0;                                                                              \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LDxw(x1, wback, fixedaddress);                                                          \
         ed = x1;                                                                                \
@@ -86,7 +86,7 @@
             ed = x1;                                                                            \
         }                                                                                       \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         if (rex.w)                                                                              \
             LD(x1, wback, fixedaddress);                                                        \
@@ -100,7 +100,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
         wback = 0;                                                                              \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LD(x1, wback, fixedaddress);                                                            \
         ed = x1;                                                                                \
@@ -110,7 +110,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
         wback = 0;                                                                              \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LDz(x1, wback, fixedaddress);                                                           \
         ed = x1;                                                                                \
@@ -121,7 +121,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                  \
         wback = 0;                                                                                \
     } else {                                                                                      \
-        SMREAD()                                                                                  \
+        SMREAD();                                                                                 \
         addr = geted32(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LDxw(x1, wback, fixedaddress);                                                            \
         ed = x1;                                                                                  \
