@@ -1168,7 +1168,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         INST_NAME("JMP FAR Ed");
                         READFLAGS(X_PEND);
                         BARRIER(BARRIER_FLOAT);
-                        SMREAD()
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
                         LDxw(x1, wback, 0);
                         ed = x1;
