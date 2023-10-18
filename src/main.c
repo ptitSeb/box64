@@ -77,6 +77,7 @@ int arm64_pmull = 0;
 int arm64_crc32 = 0;
 int arm64_atomics = 0;
 int arm64_flagm = 0;
+int arm64_flagm2 = 0;
 #elif defined(RV64)
 int rv64_zba = 0;
 int rv64_zbb = 0;
