@@ -76,8 +76,10 @@ int arm64_aes = 0;
 int arm64_pmull = 0;
 int arm64_crc32 = 0;
 int arm64_atomics = 0;
+int arm64_uscat = 0;
 int arm64_flagm = 0;
 int arm64_flagm2 = 0;
+int arm64_frintts = 0;
 #elif defined(RV64)
 int rv64_zba = 0;
 int rv64_zbb = 0;
@@ -364,11 +366,15 @@ HWCAP2_ECV
         arm64_aes = 1;
     if(hwcap&HWCAP_ATOMICS)
         arm64_atomics = 1;
+    if(hwcap&HWCAP_USCAT)
+        arm64_uscat = 1;
     if(hwcap&HWCAP_FLAGM)
         arm64_flagm = 1;
     unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
     if(hwcap2&HWCAP2_FLAGM2)
         arm64_flagm2 = 1;
+    if(hwcap2&HWCAP2_FRINT)
+        arm64_frintts = 1;
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
         printf_log(LOG_INFO, " AES");
@@ -378,10 +384,14 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
+    if(arm64_uscat)
+        printf_log(LOG_INFO, " USCAT");
     if(arm64_flagm)
         printf_log(LOG_INFO, " FLAGM");
     if(arm64_flagm2)
         printf_log(LOG_INFO, " FLAGM2");
+    if(arm64_frintts)
+        printf_log(LOG_INFO, " FRINT");
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
@@ -480,6 +490,11 @@ void LoadLogEnv()
     if(!box64_nobanner && box64_dump)
         printf_log(LOG_INFO, "Elf Dump if ON\n");
 #ifdef DYNAREC
+    #ifdef ARM64
+    // unaligned atomic (with restriction) is supported in hardware
+    if(arm64_uscat)
+        box64_dynarec_aligned_atomics = 1;
+    #endif
     p = getenv("BOX64_DYNAREC_DUMP");
     if(p) {
         if(strlen(p)==1) {

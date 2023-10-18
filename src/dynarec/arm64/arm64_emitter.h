@@ -1376,17 +1376,6 @@
 #define FRINTIS(Sd, Sn)             EMIT(FRINTI_scalar(0b00, Sn, Sd))
 #define FRINTID(Dd, Dn)             EMIT(FRINTI_scalar(0b01, Dn, Dd))
 
-
-#define FRINTxx_scalar(type, op, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b0100<<17 | (op)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
-#define FRINT32ZS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b00, Sn, Sd))
-#define FRINT32ZD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b00, Dn, Dd))
-#define FRINT32XS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b01, Sn, Sd))
-#define FRINT32XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b01, Dn, Dd))
-#define FRINT64ZS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b10, Sn, Sd))
-#define FRINT64ZD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b10, Dn, Dd))
-#define FRINT64XS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b11, Sn, Sd))
-#define FRINT64XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b11, Dn, Dd))
-
 #define FRINT_scalar(type, rmode, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | 0b001<<18 | (rmode)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
 // round toward 0 (truncate)
 #define FRINTZS(Sd, Sn)             EMIT(FRINT_scalar(0b00, 0b011, Sn, Sd))
@@ -2149,5 +2138,17 @@
 #define AXFLAG()            EMIT(0b1101010100<<22 | 0b0100<<12 | 0b010<<5 | 0b11111)
 // NZCV -> N=!C&!Z Z=Z&C C=C|Z V=!C&Z
 #define XAFLAG()            EMIT(0b1101010100<<22 | 0b0100<<12 | 0b001<<5 | 0b11111)
+
+// FRINTTS extension
+#define FRINTxx_scalar(type, op, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | 0b0100<<17 | (op)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))
+#define FRINT32ZS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b00, Sn, Sd))
+#define FRINT32ZD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b00, Dn, Dd))
+#define FRINT32XS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b01, Sn, Sd))
+#define FRINT32XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b01, Dn, Dd))
+#define FRINT64ZS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b10, Sn, Sd))
+#define FRINT64ZD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b10, Dn, Dd))
+#define FRINT64XS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b11, Sn, Sd))
+#define FRINT64XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b11, Dn, Dd))
+
 
 #endif  //__ARM64_EMITTER_H__
