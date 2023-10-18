@@ -1939,7 +1939,7 @@
 #define PMULL_128(Rd, Rn, Rm)   EMIT(PMULL_gen(0, 0b11, Rm, Rn, Rd))
 #define PMULL2_128(Rd, Rn, Rm)  EMIT(PMULL_gen(1, 0b11, Rm, Rn, Rd))
 
-// Atomic extension
+// ATOMIC extension
 #define ATOMIC_gen(size, A, R, Rs, opc, Rn, Rt) ((size)<<30 | 0b111<<27 | (A)<<23 | (R)<<22 | 1<<21 | (Rs)<<16 | (opc)<<12 | (Rn)<<5 | (Rt))
 // Atomic ADD
 #define LDADDxw(Rs, Rt, Rn)             EMIT(ATOMIC_gen(0b10+rex.w, 0, 0, Rs, 0b000, Rn, Rt))
@@ -2129,5 +2129,25 @@
 #define CASPAxw(Rs, Rt, Rn)             EMIT(CASP_gen(0b00+rex.w, 1, Rs, 0, Rn, Rt))
 #define CASPALxw(Rs, Rt, Rn)            EMIT(CASP_gen(0b00+rex.w, 1, Rs, 1, Rn, Rt))
 #define CASPLxw(Rs, Rt, Rn)             EMIT(CASP_gen(0b00+rex.w, 0, Rs, 1, Rn, Rt))
+
+// FLAGM extension
+// Invert Carry Flag
+#define CFINV()             EMIT(0b1101010100<<22 | 0b0100<<12 | 0b000<<5 | 0b11111)
+
+#define RMIF_gen(imm6, Rn, mask)        (0b10111010000<<21 | (imm6)<<15 | 0b00001<<10 | (Rn)<<5 | (mask))
+// Rotate right reg and use as NZCV
+#define RMIF(Xn, shift, mask)           EMIT(RMIF_gen(shift, Xn, mask))
+
+#define SETF_gen(sz, Rn)                (0b00111010000<<21 | (sz)<<14 | 0b0010<<10 | (Rn)<<5 | 0b1101)
+// Set NZVc with 8bit value of reg: N=bit7, Z=[0..7]==0, V=bit8 eor bit7, C unchanged
+#define SETF8(Wn)                       EMIT(SETF_gen(0, Wn))
+// Set NZVc with 16bit value of reg: N=bit15, Z=[0..15]==0, V=bit16 eor bit15, C unchanged
+#define SETF16(Wn)                      EMIT(SETF_gen(1, Wn))
+
+// FLAGM2 extension
+// NZCV -> N=0 Z=C|V C=C&!V V=0
+#define AXFLAG()            EMIT(0b1101010100<<22 | 0b0100<<12 | 0b010<<5 | 0b11111)
+// NZCV -> N=!C&!Z Z=Z&C C=C|Z V=!C&Z
+#define XAFLAG()            EMIT(0b1101010100<<22 | 0b0100<<12 | 0b001<<5 | 0b11111)
 
 #endif  //__ARM64_EMITTER_H__

@@ -37,6 +37,8 @@ extern int arm64_aes;
 extern int arm64_pmull;
 extern int arm64_crc32;
 extern int arm64_atomics;
+extern int arm64_flagm;
+extern int arm64_flagm2;
 #elif defined(RV64)
 extern int rv64_zba;
 extern int rv64_zbb;

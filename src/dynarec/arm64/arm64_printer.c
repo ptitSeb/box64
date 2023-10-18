@@ -1620,7 +1620,31 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         }
         return buff;
     }
-
+    // AXFLAG
+    if(isMask(opcode, "11010101000000000100000001011111", &a)) {
+        snprintf(buff, sizeof(buff), "AXFLAG");
+        return buff;
+    }
+    // XAFLAG
+    if(isMask(opcode, "11010101000000000100000000111111", &a)) {
+        snprintf(buff, sizeof(buff), "XAFLAG");
+        return buff;
+    }
+    // CFINV
+    if(isMask(opcode, "11010101000000000100000000011111", &a)) {
+        snprintf(buff, sizeof(buff), "CFINV");
+        return buff;
+    }
+    // RMIF
+    if(isMask(opcode, "10111010000iiiiii00001nnnnn0oooo", &a)) {
+        snprintf(buff, sizeof(buff), "RMIF %s, #%d, #0x%x", Xt[Rn], imm, opc);
+        return buff;
+    }
+    // SETF
+    if(isMask(opcode, "00111010000000000f0010nnnnn01101", &a)) {
+        snprintf(buff, sizeof(buff), "SETF%d %s", 8<<sf, Xt[Rn]);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;

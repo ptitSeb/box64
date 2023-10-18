@@ -76,6 +76,7 @@ int arm64_aes = 0;
 int arm64_pmull = 0;
 int arm64_crc32 = 0;
 int arm64_atomics = 0;
+int arm64_flagm = 0;
 #elif defined(RV64)
 int rv64_zba = 0;
 int rv64_zbb = 0;
@@ -362,6 +363,11 @@ HWCAP2_ECV
         arm64_aes = 1;
     if(hwcap&HWCAP_ATOMICS)
         arm64_atomics = 1;
+    if(hwcap&HWCAP_FLAGM)
+        arm64_flagm = 1;
+    unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
+    if(hwcap2&HWCAP2_FLAGM2)
+        arm64_flagm2 = 1;
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
         printf_log(LOG_INFO, " AES");
@@ -371,6 +377,10 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
+    if(arm64_flagm)
+        printf_log(LOG_INFO, " FLAGM");
+    if(arm64_flagm2)
+        printf_log(LOG_INFO, " FLAGM2");
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
