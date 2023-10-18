@@ -63,6 +63,7 @@ int box64_dynarec_hotpage = 0;
 int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_jvm = 1;
+int box64_dynarec_tbb = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_test = 0;
 int box64_dynarec_missing = 0;
@@ -537,11 +538,11 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_STRONGMEM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
+            if(p[0]>='0' && p[0]<='3')
                 box64_dynarec_strongmem = p[0]-'0';
         }
         if(box64_dynarec_strongmem)
-            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":"");
+            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":((box64_dynarec_strongmem==3)?" with more performance loss":""));
     }
     p = getenv("BOX64_DYNAREC_X87DOUBLE");
     if(p) {
@@ -607,6 +608,15 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_jvm)
             printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
+    }
+    p = getenv("BOX64_DYNAREC_TBB");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_tbb = p[0]-'0';
+        }
+        if(!box64_dynarec_tbb)
+            printf_log(LOG_INFO, "Dynarec will not detect libtbb\n");
     }
     p = getenv("BOX64_DYNAREC_WAIT");
     if(p) {

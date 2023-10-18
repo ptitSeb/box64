@@ -1341,7 +1341,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            SMREAD();
+            if(isLockAddress(u64)) lock=1; else lock = 0;
+            SMREADLOCK(lock);
             LDRB_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 8);
             break;
@@ -1352,7 +1353,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            SMREAD();
+            if(isLockAddress(u64)) lock=1; else lock = 0;
+            SMREADLOCK(lock);
             LDRxw_U12(xRAX, x1, 0);
             break;
         case 0xA2:
@@ -1362,8 +1364,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            if(isLockAddress(u64)) lock=1; else lock = 0;
             STRB_U12(xRAX, x1, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
@@ -1372,8 +1375,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            if(isLockAddress(u64)) lock=1; else lock = 0;
             STRxw_U12(xRAX, x1, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
         case 0xA4:
             if(rep) {
@@ -1993,6 +1997,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
+                    SMEND();
                     tmp = isSimpleWrapper(*(wrapper_t*)(addr));
                     if(isRetX87Wrapper(*(wrapper_t*)(addr)))
                         // return value will be on the stack, so the stack depth needs to be updated
@@ -2486,6 +2491,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     SKIPTEST(x1);    // disable test as this hack dos 2 instructions for 1
                     // calling a native function
+                    SMEND();
                     sse_purge07cache(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
                         tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
@@ -2962,7 +2968,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("JMP FAR Ed");
                         READFLAGS(X_PEND);
                         BARRIER(BARRIER_FLOAT);
-                        SMREAD()
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 0);
                         LDxw(x1, wback, 0);
                         ed = x1;

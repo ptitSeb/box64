@@ -104,6 +104,7 @@ ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
 ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
+ENTRYSTRING_(BOX64_ENV, new_env)                        \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -132,7 +133,7 @@ ENTRYINT(BOX64_DYNAREC_DUMP, box64_dynarec_dump, 0, 2, 2)           \
 ENTRYINT(BOX64_DYNAREC_LOG, box64_dynarec_log, 0, 3, 2)             \
 ENTRYINT(BOX64_DYNAREC_BIGBLOCK, box64_dynarec_bigblock, 0, 3, 2)   \
 ENTRYSTRING_(BOX64_DYNAREC_FORWARD, box64_dynarec_forward)          \
-ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 2, 2) \
+ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 3, 2) \
 ENTRYBOOL(BOX64_DYNAREC_X87DOUBLE, box64_dynarec_x87double)         \
 ENTRYBOOL(BOX64_DYNAREC_FASTNAN, box64_dynarec_fastnan)             \
 ENTRYBOOL(BOX64_DYNAREC_FASTROUND, box64_dynarec_fastround)         \
@@ -140,6 +141,7 @@ ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
 ENTRYBOOL(BOX64_DYNAREC_CALLRET, box64_dynarec_callret)             \
 ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
 ENTRYBOOL(BOX64_DYNAREC_JVM, box64_dynarec_jvm)                     \
+ENTRYBOOL(BOX64_DYNAREC_TBB, box64_dynarec_tbb)                     \
 ENTRYINT(BOX64_DYNAREC_HOTPAGE, box64_dynarec_hotpage, 0, 255, 8)   \
 ENTRYBOOL(BOX64_DYNAREC_FASTPAGE, box64_dynarec_fastpage)           \
 ENTRYBOOL(BOX64_DYNAREC_ALIGNED_ATOMICS, box64_dynarec_aligned_atomics) \
@@ -163,6 +165,7 @@ IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
 IGNORE(BOX64_DYNAREC_CALLRET)                                       \
 IGNORE(BOX64_DYNAREC_BLEEDING_EDGE)                                 \
 IGNORE(BOX64_DYNAREC_JVM)                                           \
+IGNORE(BOX64_DYNAREC_TBB)                                           \
 IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX64_DYNAREC_ALIGNED_ATOMICS)                               \
@@ -446,6 +449,7 @@ extern int ftrace_has_pid;
 extern FILE* ftrace;
 extern char* ftrace_name;
 void openFTrace(const char* newtrace);
+void addNewEnvVar(const char* s);
 #ifdef DYNAREC
 void GatherDynarecExtensions();
 #endif
@@ -518,6 +522,10 @@ void ApplyParams(const char* name)
     if(param->is_emulated_libs_present) {
         AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_EMULATED_LIBS", param->emulated_libs);
+    }
+    if(param->is_new_env_present) {
+        addNewEnvVar(param->new_env);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV", param->new_env);
     }
     if(param->is_bash_present && FileIsX64ELF(param->bash)) {
         if(my_context->bashpath)

@@ -53,7 +53,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x5);
-            SMDMB();
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 UXTHw(x6, ed);
@@ -142,7 +141,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
                     UXTHx(x5, gd);
-                    SMDMB();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         BFIx(gd, ed, 0, 16);
@@ -165,7 +163,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         BFIx(gd, x1, 0, 16);
                     }
-                    SMDMB();
                     break;
 
                 default:
@@ -178,7 +175,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x5);
-            SMDMB();
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 UXTHw(x6, ed);
@@ -192,12 +188,10 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STLXRH(x3, x1, wback);
                 CBNZx_MARKLOCK(x3);
             }
-            SMDMB();
             break;
         case 0x81:
         case 0x83:
             nextop = F8;
-            SMDMB();
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     if(opcode==0x81) {
@@ -454,7 +448,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     case 0: // INC Ew
                         INST_NAME("LOCK INC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                        SMDMB();
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);
@@ -482,7 +475,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     case 1: //DEC Ew
                         INST_NAME("LOCK DEC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                        SMDMB();
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);

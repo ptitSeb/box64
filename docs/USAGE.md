@@ -156,8 +156,9 @@ Define Box64's Dynarec max allowed forward value when building Block.
 #### BOX64_DYNAREC_STRONGMEM *
 Enable/Disable simulation of Strong Memory model
 * 0 : Don't try anything special (Default.)
-* 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
-* 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
+* 1 : Enable some Memory Barrier when writting to memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
+* 2 : All 1. plus a memory barrier on every write to memory using MOV
+* 3 : All 2. plus Memory Barrier when reading from memory and on some SSE/SSE2 opcodes too
 
 #### BOX64_DYNAREC_X87DOUBLE *
 Force the use of Double for x87 emulation
@@ -300,7 +301,7 @@ Define x86_64 bash to launch script
  * yyyy
  Will use yyyy as x86_64 bash to launch script. yyyy needs to be a full path to a valid x86_64 version of bash
 
-#### BOX64_ENV
+#### BOX64_ENV *
  * XXX=yyyy
  will add XXX=yyyy env. var.
 
