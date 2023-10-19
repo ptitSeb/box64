@@ -367,15 +367,23 @@ HWCAP2_ECV
         arm64_aes = 1;
     if(hwcap&HWCAP_ATOMICS)
         arm64_atomics = 1;
+    #ifdef HWCAP_USCAT
     if(hwcap&HWCAP_USCAT)
         arm64_uscat = 1;
+    #endif
+    #ifdef HWCAP_FLAGM
     if(hwcap&HWCAP_FLAGM)
         arm64_flagm = 1;
+    #endif
     unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
+    #ifdef HWCAP2_FLAGM2
     if(hwcap2&HWCAP2_FLAGM2)
         arm64_flagm2 = 1;
+    #endif
+    #ifdef HWCAP2_FRINT
     if(hwcap2&HWCAP2_FRINT)
         arm64_frintts = 1;
+    #endif
     #ifdef HWCAP2_AFP
     if(hwcap2&HWCAP2_AFP)
         arm64_afp = 1;
