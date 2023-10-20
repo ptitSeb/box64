@@ -156,8 +156,9 @@ Define Box64's Dynarec max allowed forward value when building Block.
 #### BOX64_DYNAREC_STRONGMEM *
 Enable/Disable simulation of Strong Memory model
 * 0 : Don't try anything special (Default.)
-* 1 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
-* 2 : Enable some Memory Barrier when reading from memory (on some MOV opcode) to simulate Strong Memory Model
+* 1 : Enable some Memory Barrier when writting to memory (on some MOV opcode) to simulate Strong Memory Model while trying to limit performance impact (Default when libmonobdwgc-2.0.so is loaded)
+* 2 : All 1. plus a memory barrier on every write to memory using MOV
+* 3 : All 2. plus Memory Barrier when reading from memory and on some SSE/SSE2 opcodes too
 
 #### BOX64_DYNAREC_X87DOUBLE *
 Force the use of Double for x87 emulation
@@ -195,6 +196,11 @@ Will use a faster handling of HotPage (Page being both executed and written)
 * 0 : use regular hotpage (Default)
 * 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
 
+#### BOX64_DYNAREC_ALIGNED_ATOMICS *
+Generated code for aligned atomics only
+* 0 : The code generated can handle unaligned atomics (Default)
+* 1 : Generated code only for aligned atomics (faster and less code generated, but will SEGBUS if LOCK prefix is unsed on unaligned data)
+
 #### BOX64_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge
@@ -229,6 +235,11 @@ Handling of x87 80bits long double
 Detect libcef and apply malloc_hack settings
 * 0 : Don't detect libcef
 * 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
+
+#### BOX64_SDL2_JGUID *
+Need a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2
+* 0 : Don't use any workaround
+* 1 : Use a workaround for program that use the private SDL_GetJoystickGUIDInfo function with 1 missing argument
 
 #### BOX64_LIBGL *
  * libXXXX set the name for libGL (defaults to libGL.so.1).
@@ -290,13 +301,17 @@ Define x86_64 bash to launch script
  * yyyy
  Will use yyyy as x86_64 bash to launch script. yyyy needs to be a full path to a valid x86_64 version of bash
 
-#### BOX64_ENV
+#### BOX64_ENV *
  * XXX=yyyy
  will add XXX=yyyy env. var.
 
 #### BOX64_ENV1
  * XXX=yyyy
  will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist
+
+#### BOX64_RESERVE_HIGH
+* 0 : Don't try to pe-reserve high memory (beyond 47bits) (Default)
+* 1 : Try to reserve (without allocating it) memory beyond 47bits (seems unstable)
 
 #### BOX64_JITGDB *
  * 0 : Just print the Segfault message on segfault (default)
@@ -324,7 +339,3 @@ Those variables are only valid inside a rcfile:
 #### BOX64_EXIT
  * 0 : Nothing special
  * 1 : Just exit, don't try to run the program
-
-#### BOX64_RESERVE_HIGH
-* 0 : Don't try to pe-reserve high memory (beyond 47bits) (Default)
-* 1 : Try to reserve (without allocating it) memory beyond 47bits (seems unstable)

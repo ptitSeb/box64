@@ -13,7 +13,7 @@
 #include "myalign.h"
 #include "debug.h"
 
-static int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
+static const int regs_abi[] = {_DI, _SI, _DX, _CX, _R8, _R9};
 
 void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystack, int xmm, int pos)
 {

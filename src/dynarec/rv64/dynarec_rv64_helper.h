@@ -34,43 +34,31 @@
 
 
 // Strong mem emulation helpers
-// Sequence of Read will trigger a DMB on "first" read if strongmem is 2
-// Squence of Write will trigger a DMB on "last" write if strongmem is 1
+#define SMREAD_MIN  2
+#define SMWRITE_MIN 1
+// Sequence of Read will trigger a DMB on "first" read if strongmem is >= SMREAD_MIN
+// Sequence of Write will trigger a DMB on "last" write if strongmem is >= 1
+// All Write operation that might use a lock all have a memory barrier if strongmem is >= SMWRITE_MIN
 // Opcode will read
-#define SMREAD() \
-    if (!dyn->smread && box64_dynarec_strongmem > 1) { SMDMB(); }
+#define SMREAD();   if((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN)) {SMDMB();} else dyn->smread=1
 // Opcode will read with option forced lock
-#define SMREADLOCK(lock) \
-    if (lock || (!dyn->smread && box64_dynarec_strongmem > 1)) { SMDMB(); }
-// Opcode migh read (depend on nextop)
-#define SMMIGHTREAD() \
-    if (!MODREG) { SMREAD(); }
+#define SMREADLOCK(lock)    if((lock) || ((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN))) {SMDMB();}
+// Opcode might read (depend on nextop)
+#define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
 // Opcode has wrote
-#define SMWRITE() dyn->smwrite = 1
+#define SMWRITE()   dyn->smwrite=1
 // Opcode has wrote (strongmem>1 only)
-#define SMWRITE2() \
-    if (box64_dynarec_strongmem > 1) dyn->smwrite = 1
+#define SMWRITE2()   if(box64_dynarec_strongmem>SMREAD_MIN) dyn->smwrite=1
 // Opcode has wrote with option forced lock
-#define SMWRITELOCK(lock) \
-    if (lock) {           \
-        SMDMB();          \
-    } else                \
-        dyn->smwrite = 1
-// Opcode migh have wrote (depend on nextop)
-#define SMMIGHTWRITE() \
-    if (!MODREG) { SMWRITE(); }
+#define SMWRITELOCK(lock)   if(lock || (box64_dynarec_strongmem>SMWRITE_MIN /*&& (!ninst || dyn->smlastdmb!=ninst-1)*/)) {SMDMB();} else dyn->smwrite=1
+// Opcode might have wrote (depend on nextop)
+#define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
 // Start of sequence
-#define SMSTART() SMEND()
+#define SMSTART()   SMEND()
 // End of sequence
-#define SMEND()                                               \
-    if (dyn->smwrite && box64_dynarec_strongmem) { FENCE(); } \
-    dyn->smwrite = 0;                                         \
-    dyn->smread = 0;
+#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {FENCE();} dyn->smwrite=0; dyn->smread=0;
 // Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()       \
-    FENCE();          \
-    dyn->smwrite = 0; \
-    dyn->smread = 1
+#define SMDMB()     FENCE(); dyn->smwrite=0; dyn->smread=1; dyn->smlastdmb = ninst
 
 // LOCK_* define
 #define LOCK_LOCK (int*)1
@@ -83,7 +71,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
         wback = 0;                                                                              \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LDxw(x1, wback, fixedaddress);                                                          \
         ed = x1;                                                                                \
@@ -98,7 +86,7 @@
             ed = x1;                                                                            \
         }                                                                                       \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         if (rex.w)                                                                              \
             LD(x1, wback, fixedaddress);                                                        \
@@ -112,7 +100,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
         wback = 0;                                                                              \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LD(x1, wback, fixedaddress);                                                            \
         ed = x1;                                                                                \
@@ -122,7 +110,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
         wback = 0;                                                                              \
     } else {                                                                                    \
-        SMREAD()                                                                                \
+        SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LDz(x1, wback, fixedaddress);                                                           \
         ed = x1;                                                                                \
@@ -133,7 +121,7 @@
         ed = xRAX + (nextop & 7) + (rex.b << 3);                                                  \
         wback = 0;                                                                                \
     } else {                                                                                      \
-        SMREAD()                                                                                  \
+        SMREAD();                                                                                 \
         addr = geted32(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
         LDxw(x1, wback, fixedaddress);                                                            \
         ed = x1;                                                                                  \
@@ -863,6 +851,28 @@
     ANDI(dst, src, 1 << 5);             \
     SLLI(dst, dst, 11 - 5);             \
     OR(dst, dst, s1)
+
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) \
+    if (dyn->e.stack == +8) {                         \
+        *ok = 0;                                      \
+        break;                                        \
+    }                                                 \
+    var = x87_do_push(dyn, ninst, scratch, t);
+
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch) \
+    if (dyn->e.stack == +8) {                       \
+        *ok = 0;                                    \
+        break;                                      \
+    }                                               \
+    x87_do_push_empty(dyn, ninst, scratch);
+
+#define X87_POP_OR_FAIL(dyn, ninst, scratch) \
+    if (dyn->e.stack == -8) {                \
+        *ok = 0;                             \
+        break;                               \
+    }                                        \
+    x87_do_pop(dyn, ninst, scratch);
+
 
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()

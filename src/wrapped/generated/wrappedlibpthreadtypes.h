@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef int32_t (*iFL_t)(uintptr_t);
 typedef int32_t (*iFp_t)(void*);
 typedef void (*vFpi_t)(void*, int32_t);
 typedef int32_t (*iFLp_t)(uintptr_t, void*);
@@ -30,6 +31,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(__pthread_register_cancel, vFp_t) \
 	GO(__pthread_unregister_cancel, vFp_t) \
 	GO(__pthread_unwind_next, vFp_t) \
+	GO(pthread_key_delete, iFL_t) \
 	GO(__pthread_mutexattr_destroy, iFp_t) \
 	GO(__pthread_mutexattr_init, iFp_t) \
 	GO(pthread_attr_destroy, iFp_t) \

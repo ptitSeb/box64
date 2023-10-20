@@ -38,6 +38,7 @@
 #include <syslog.h>
 #include <malloc.h>
 #include <getopt.h>
+#include <sys/resource.h>
 #include <sys/prctl.h>
 #include <sys/ptrace.h>
 #undef LOG_INFO
@@ -1514,90 +1515,10 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
     return readlink((const char*)path, (char*)buf, sz);
 }
 
-static int nCPU = 0;
-static double bogoMips = 100.;
-
-void grabNCpu() {
-    nCPU = 1;  // default number of CPU to 1
-    FILE *f = fopen("/proc/cpuinfo", "r");
-    size_t dummy;
-    if(f) {
-        nCPU = 0;
-        int bogo = 0;
-        size_t len = 500;
-        char* line = malloc(len);
-        while ((dummy = getline(&line, &len, f)) != -1) {
-            if(!strncmp(line, "processor\t", strlen("processor\t")))
-                ++nCPU;
-            if(!bogo && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {
-                // grab 1st BogoMIPS
-                float tmp;
-                if(sscanf(line, "BogoMIPS\t: %g", &tmp)==1) {
-                    bogoMips = tmp;
-                    bogo = 1;
-                }
-            }
-        }
-        free(line);
-        fclose(f);
-        if(!nCPU) nCPU=1;
-    }
-}
-int getNCpu()
-{
-    if(!nCPU)
-        grabNCpu();
-    return nCPU;
-}
-
-const char* getCpuName()
-{
-    static char name[200] = "Unknown CPU";
-    static int done = 0;
-    if(done)
-        return name;
-    done = 1;
-    FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
-    if(f) {
-        char tmp[200] = "";
-        ssize_t s = fread(tmp, 1, 200, f);
-        pclose(f);
-        if(s>0) {
-            // worked! (unless it's saying "lscpu: command not found" or something like that)
-            if(!strstr(tmp, "lscpu")) {
-                // trim ending
-                while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
-                    tmp[strlen(tmp)-1] = 0;
-                // incase multiple cpu type are present, there will be multiple lines
-                while(strchr(tmp, '\n'))
-                    *strchr(tmp,'\n') = ' ';
-                strncpy(name, tmp, 199);
-            }
-            return name;
-        }
-    }
-    // failled, try to get architecture at least
-    f = popen("lscpu | grep \"Architecture:\" | sed -r 's/Architecture:\\s{1,}//g'", "r");
-    if(f) {
-        char tmp[200] = "";
-        ssize_t s = fread(tmp, 1, 200, f);
-        pclose(f);
-        if(s>0) {
-            // worked!
-            // trim ending
-            while(strlen(tmp) && tmp[strlen(tmp)-1]=='\n')
-                tmp[strlen(tmp)-1] = 0;
-            // incase multiple cpu type are present, there will be multiple lines
-            while(strchr(tmp, '\n'))
-                *strchr(tmp,'\n') = ' ';
-            snprintf(name, 199, "unknown %s cpu", tmp);
-            return name;
-        }
-    }
-    // Nope, bye
-    return name;
-}
-
+int getNCpu();  // defined in my_cpuid.c
+const char* getBoxCpuName();    // defined in my_cpuid.c
+const char* getCpuName(); // defined in my_cpu_id.c
+double getBogoMips(); // defined in my_cpu_id.c
 
 #ifndef NOALIGN
 void CreateCPUInfoFile(int fd)
@@ -1627,7 +1548,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "model\t\t: 1\n");
         P;
-        sprintf(buff, "model name\t: Intel Pentium IV @ %g%cHz\n", gigahertz?(freq/1000.):freq, gigahertz?'G':'M');
+        sprintf(buff, "model name\t: %s\n", getBoxCpuName());
         P;
         sprintf(buff, "stepping\t: 1\nmicrocode\t: 0x10\n");
         P;
@@ -1635,15 +1556,15 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "cache size\t: %d\n", 4096);
         P;
-        sprintf(buff, "physical id\t: %d\nsiblings\t: %d\n", i, n);
+        sprintf(buff, "physical id\t: %d\nsiblings\t: %d\n", 0, n);
         P;
-        sprintf(buff, "core id\t\t: %d\ncpu cores\t: %d\n", i, 1);
+        sprintf(buff, "core id\t\t: %d\ncpu cores\t: %d\n", i, n);
         P;
-        sprintf(buff, "bogomips\t: %g\n", bogoMips);
+        sprintf(buff, "bogomips\t: %g\n", getBogoMips());
         P;
-        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fma fxsr cpuid pclmulqdq cx16 aes movbe pni sse4_1 popcnt\n");
+        sprintf(buff, "flags\t\t: fpu cx8 sep cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fma fxsr cpuid pclmulqdq cx16 aes movbe pni sse4_1 lzcnt popcnt\n");
         P;
-        sprintf(buff, "address sizes\t: 46 bits physical, 48 bits virtual\n");
+        sprintf(buff, "address sizes\t: 48 bits physical, 48 bits virtual\n");
         P;
         sprintf(buff, "\n");
         P;
@@ -2534,28 +2455,6 @@ EXPORT void* my___deregister_frame_info(void* a)
 
 EXPORT void* my____brk_addr = NULL;
 
-// longjmp / setjmp
-typedef struct jump_buff_x64_s {
-    uint64_t save_rbx;
-    uint64_t save_rbp;
-    uint64_t save_r12;
-    uint64_t save_r13;
-    uint64_t save_r14;
-    uint64_t save_r15;
-    uint64_t save_rsp;
-    uint64_t save_rip;
-} jump_buff_x64_t;
-
-typedef struct __jmp_buf_tag_s {
-    jump_buff_x64_t __jmpbuf;
-    int              __mask_was_saved;
-    #ifdef ANDROID
-    sigset_t         __saved_mask;
-    #else
-    __sigset_t       __saved_mask;
-    #endif
-} __jmp_buf_tag_t;
-
 void EXPORT my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val)
 {
     jump_buff_x64_t *jpbuff = &((__jmp_buf_tag_t*)p)->__jmpbuf;
@@ -2707,46 +2606,46 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
     dynarec_log(LOG_DEBUG, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
     dynarec_log(LOG_DEBUG, "%p\n", ret);
-    if(ret==(void*)-1)
-        return ret; // failed...
-    uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
-    if(ret==old_addr) {
-        if(old_size && old_size<new_size) {
-            setProtection_mmap((uintptr_t)ret+old_size, new_size-old_size, prot);
-            #ifdef DYNAREC
-            if(box64_dynarec)
-                addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
+    if(ret!=(void*)-1) {
+        uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
+        if(ret==old_addr) {
+            if(old_size && old_size<new_size) {
+                setProtection_mmap((uintptr_t)ret+old_size, new_size-old_size, prot);
+                #ifdef DYNAREC
+                if(box64_dynarec)
+                    addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
+                #endif
+            } else if(old_size && new_size<old_size) {
+                freeProtection((uintptr_t)ret+new_size, old_size-new_size);
+                #ifdef DYNAREC
+                if(box64_dynarec)
+                    cleanDBFromAddressRange((uintptr_t)ret+new_size, old_size-new_size, 1);
+                #endif
+            } else if(!old_size) {
+                setProtection_mmap((uintptr_t)ret, new_size, prot);
+                #ifdef DYNAREC
+                if(box64_dynarec)
+                    addDBFromAddressRange((uintptr_t)ret, new_size);
+                #endif
+            }
+        } else {
+            if(old_size
+            #ifdef MREMAP_DONTUNMAP
+            && ((flags&MREMAP_DONTUNMAP)==0)
             #endif
-        } else if(old_size && new_size<old_size) {
-            freeProtection((uintptr_t)ret+new_size, old_size-new_size);
-            #ifdef DYNAREC
-            if(box64_dynarec)
-                cleanDBFromAddressRange((uintptr_t)ret+new_size, old_size-new_size, 1);
-            #endif
-        } else if(!old_size) {
-            setProtection_mmap((uintptr_t)ret, new_size, prot);
+            ) {
+                freeProtection((uintptr_t)old_addr, old_size);
+                #ifdef DYNAREC
+                if(box64_dynarec)
+                    cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
+                #endif
+            }
+            setProtection_mmap((uintptr_t)ret, new_size, prot); // should copy the protection from old block
             #ifdef DYNAREC
             if(box64_dynarec)
                 addDBFromAddressRange((uintptr_t)ret, new_size);
             #endif
         }
-    } else {
-        if(old_size
-        #ifdef MREMAP_DONTUNMAP
-        && ((flags&MREMAP_DONTUNMAP)==0)
-        #endif
-        ) {
-            freeProtection((uintptr_t)old_addr, old_size);
-            #ifdef DYNAREC
-            if(box64_dynarec)
-                cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
-            #endif
-        }
-        setProtection_mmap((uintptr_t)ret, new_size, prot); // should copy the protection from old block
-        #ifdef DYNAREC
-        if(box64_dynarec)
-            addDBFromAddressRange((uintptr_t)ret, new_size);
-        #endif
     }
     return ret;
 }
@@ -2957,6 +2856,13 @@ void obstackSetup();
 EXPORT void* my_malloc(unsigned long size)
 {
     return calloc(1, size);
+}
+
+EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)
+{
+    int ret = (ressource==RLIMIT_AS)?0:setrlimit(ressource, rlim);
+    if(ressource==RLIMIT_AS) printf_log(LOG_DEBUG, " (ignored) RLIMIT_AS, cur=0x%lx, max=0x%lx ", rlim->rlim_cur, rlim->rlim_max);
+    return ret;
 }
 
 #if 0

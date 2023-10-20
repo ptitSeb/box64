@@ -31,6 +31,7 @@ option(NOLOADADDR "Set to ON to avoid fixing the load address of Box64" OFF)
 option(NOGIT "Set to ON if not building from a git clone repo (like when building from a zip download from github)" ${NOGIT})
 option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info on SIGSEGV" ${BAD_SIGNAL})
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
+option(CI "Set to ON if running in CI" ${CI})
 
 if(LARCH64)
     set(LD80BITS OFF CACHE BOOL "")
@@ -371,6 +372,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedatkbridge.c"
     "${BOX64_ROOT}/src/wrapped/wrappedatomic.c"
     "${BOX64_ROOT}/src/wrapped/wrappedatspi.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedayatanaappindicator3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedbz2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcap.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcairo.c"
@@ -381,6 +383,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedcurl.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbusglib1.c"
+    "${BOX64_ROOT}/src/wrapped/wrappeddbusmenuglib.c"
     "${BOX64_ROOT}/src/wrapped/wrappedevent21.c"
     "${BOX64_ROOT}/src/wrapped/wrappedexpat.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfaudio.c"
@@ -593,16 +596,18 @@ endforeach()
 
 set(WRAPPER "${BOX64_ROOT}/src/wrapped/generated/wrapper.c" "${BOX64_ROOT}/src/wrapped/generated/wrapper.h")
 
-add_custom_command(
-    OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
-    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
-    "${BOX64_ROOT}"
-    "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "--"
-    ${WRAPPEDS_HEAD}
-    MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
-    DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
-    BYPRODUCTS ${WRAPPER}
-)
+if(NOT CI)
+    add_custom_command(
+        OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
+        COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
+        "${BOX64_ROOT}"
+        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "--"
+        ${WRAPPEDS_HEAD}
+        MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
+        DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
+        BYPRODUCTS ${WRAPPER}
+    )
+endif ()
 
 #add_custom_command(
 #    OUTPUT "${BOX64_ROOT}/src/dynarec/last_run.txt"
@@ -997,6 +1002,11 @@ add_test(pshufb ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
 add_test(bswap ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test24 -D TEST_OUTPUT=tmpfile24.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref24.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(x87cache ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test25 -D TEST_OUTPUT=tmpfile25.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref25.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 

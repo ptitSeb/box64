@@ -63,9 +63,11 @@ int box64_dynarec_hotpage = 0;
 int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_jvm = 1;
+int box64_dynarec_tbb = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_test = 0;
 int box64_dynarec_missing = 0;
+int box64_dynarec_aligned_atomics = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 #ifdef ARM64
@@ -74,6 +76,11 @@ int arm64_aes = 0;
 int arm64_pmull = 0;
 int arm64_crc32 = 0;
 int arm64_atomics = 0;
+int arm64_uscat = 0;
+int arm64_flagm = 0;
+int arm64_flagm2 = 0;
+int arm64_frintts = 0;
+int arm64_afp = 0;
 #elif defined(RV64)
 int rv64_zba = 0;
 int rv64_zbb = 0;
@@ -93,6 +100,7 @@ int rv64_xtheadfmv = 0;
 int box64_dynarec = 0;
 #endif
 int box64_libcef = 1;
+int box64_sdl2_jguid = 0;
 int dlsym_error = 0;
 int cycle_log = 0;
 #ifdef HAVE_TRACE
@@ -359,6 +367,27 @@ HWCAP2_ECV
         arm64_aes = 1;
     if(hwcap&HWCAP_ATOMICS)
         arm64_atomics = 1;
+    #ifdef HWCAP_USCAT
+    if(hwcap&HWCAP_USCAT)
+        arm64_uscat = 1;
+    #endif
+    #ifdef HWCAP_FLAGM
+    if(hwcap&HWCAP_FLAGM)
+        arm64_flagm = 1;
+    #endif
+    unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
+    #ifdef HWCAP2_FLAGM2
+    if(hwcap2&HWCAP2_FLAGM2)
+        arm64_flagm2 = 1;
+    #endif
+    #ifdef HWCAP2_FRINT
+    if(hwcap2&HWCAP2_FRINT)
+        arm64_frintts = 1;
+    #endif
+    #ifdef HWCAP2_AFP
+    if(hwcap2&HWCAP2_AFP)
+        arm64_afp = 1;
+    #endif
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
         printf_log(LOG_INFO, " AES");
@@ -368,6 +397,16 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
+    if(arm64_uscat)
+        printf_log(LOG_INFO, " USCAT");
+    if(arm64_flagm)
+        printf_log(LOG_INFO, " FLAGM");
+    if(arm64_flagm2)
+        printf_log(LOG_INFO, " FLAGM2");
+    if(arm64_frintts)
+        printf_log(LOG_INFO, " FRINT");
+    if(arm64_afp)
+        printf_log(LOG_INFO, " AFP");
     printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
@@ -466,6 +505,11 @@ void LoadLogEnv()
     if(!box64_nobanner && box64_dump)
         printf_log(LOG_INFO, "Elf Dump if ON\n");
 #ifdef DYNAREC
+    #ifdef ARM64
+    // unaligned atomic (with restriction) is supported in hardware
+    if(arm64_uscat)
+        box64_dynarec_aligned_atomics = 1;
+    #endif
     p = getenv("BOX64_DYNAREC_DUMP");
     if(p) {
         if(strlen(p)==1) {
@@ -535,11 +579,11 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_STRONGMEM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
+            if(p[0]>='0' && p[0]<='3')
                 box64_dynarec_strongmem = p[0]-'0';
         }
         if(box64_dynarec_strongmem)
-            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":"");
+            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":((box64_dynarec_strongmem==3)?" with more performance loss":""));
     }
     p = getenv("BOX64_DYNAREC_X87DOUBLE");
     if(p) {
@@ -606,6 +650,15 @@ void LoadLogEnv()
         if(!box64_dynarec_jvm)
             printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
     }
+    p = getenv("BOX64_DYNAREC_TBB");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_tbb = p[0]-'0';
+        }
+        if(!box64_dynarec_tbb)
+            printf_log(LOG_INFO, "Dynarec will not detect libtbb\n");
+    }
     p = getenv("BOX64_DYNAREC_WAIT");
     if(p) {
         if(strlen(p)==1) {
@@ -635,6 +688,15 @@ void LoadLogEnv()
         }
         if(box64_dynarec_fastpage)
             printf_log(LOG_INFO, "Dynarec will use Fast HotPage\n");
+    }
+    p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_aligned_atomics = p[0]-'0';
+        }
+        if(box64_dynarec_aligned_atomics)
+            printf_log(LOG_INFO, "Dynarec will generate only aligned atomics code\n");
     }
     p = getenv("BOX64_DYNAREC_MISSING");
     if(p) {
@@ -718,7 +780,16 @@ void LoadLogEnv()
                 box64_libcef = p[0]-'0';
         }
         if(!box64_libcef)
-            printf_log(LOG_INFO, "Dynarec will not detect libcef\n");
+            printf_log(LOG_INFO, "BOX64 will not detect libcef\n");
+    }
+    p = getenv("BOX64_SDL2_JGUID");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_sdl2_jguid = p[0]-'0';
+        }
+        if(!box64_sdl2_jguid)
+            printf_log(LOG_INFO, "BOX64 will workaround the use of  SDL_GetJoystickGUIDInfo with 4 args instead of 5\n");
     }
     p = getenv("BOX64_LOAD_ADDR");
     if(p) {
@@ -1224,13 +1295,13 @@ void endBox64()
     if(!my_context || box64_quit)
         return;
 
+    // then call all the fini
+    box64_quit = 1;
     endMallocHook();
     x64emu_t* emu = thread_get_emu();
     // atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
-    // then call all the fini
-    box64_quit = 1;
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
@@ -1851,7 +1922,7 @@ int main(int argc, const char **argv, char **env) {
     // Get EAX
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
-
+    endBox64();
 #ifdef HAVE_TRACE
     if(trace_func)  {
         box_free(trace_func);

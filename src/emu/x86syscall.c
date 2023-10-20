@@ -43,7 +43,7 @@ typedef struct scwrap_s {
     int nbpars;
 } scwrap_t;
 
-static scwrap_t syscallwrap[] = {
+static const scwrap_t syscallwrap[] = {
     //{ 2, __NR_fork, 1 },  
     //{ 3, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
     //{ 4, __NR_write, 3 }, // same

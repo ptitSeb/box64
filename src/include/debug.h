@@ -24,17 +24,21 @@ extern int box64_dynarec_safeflags;
 extern int box64_dynarec_callret;
 extern int box64_dynarec_bleeding_edge;
 extern int box64_dynarec_jvm;
+extern int box64_dynarec_tbb;
 extern int box64_dynarec_hotpage;
 extern int box64_dynarec_fastpage;
 extern int box64_dynarec_wait;
 extern int box64_dynarec_test;
 extern int box64_dynarec_missing;
+extern int box64_dynarec_aligned_atomics;
 #ifdef ARM64
 extern int arm64_asimd;
 extern int arm64_aes;
 extern int arm64_pmull;
 extern int arm64_crc32;
 extern int arm64_atomics;
+extern int arm64_flagm;
+extern int arm64_flagm2;
 #elif defined(RV64)
 extern int rv64_zba;
 extern int rv64_zbb;
@@ -52,6 +56,7 @@ extern int rv64_xtheadfmv;
 #endif
 #endif
 extern int box64_libcef;
+extern int box64_sdl2_jguid;
 extern int dlsym_error;    // log dlsym error
 extern int cycle_log;      // if using rolling logs
 #ifdef HAVE_TRACE

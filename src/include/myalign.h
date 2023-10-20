@@ -214,4 +214,26 @@ void AlignSemidDs(void *dest, const void* source);
 
 uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N);
 
+// longjmp / setjmp
+typedef struct jump_buff_x64_s {
+    uint64_t save_rbx;
+    uint64_t save_rbp;
+    uint64_t save_r12;
+    uint64_t save_r13;
+    uint64_t save_r14;
+    uint64_t save_r15;
+    uint64_t save_rsp;
+    uint64_t save_rip;
+} jump_buff_x64_t;
+
+typedef struct __jmp_buf_tag_s {
+    jump_buff_x64_t __jmpbuf;
+    int              __mask_was_saved;
+    #ifdef ANDROID
+    sigset_t         __saved_mask;
+    #else
+    __sigset_t       __saved_mask;
+    #endif
+} __jmp_buf_tag_t;
+
 #endif  //__MY_ALIGN__H_

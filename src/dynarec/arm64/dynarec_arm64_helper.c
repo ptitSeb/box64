@@ -32,6 +32,8 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
+    if(l==LOCK_LOCK) { SMDMB(); }
+
     if(rex.is32bits)
         return geted_32(dyn, addr, ninst, nextop, ed, hint, fixaddress, unscaled, absmax, mask, l, s);
 
@@ -69,7 +71,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                     }
                 } else {
                     switch(lock) {
-                        case 1: addLockAddress(tmp); break;
+                        case 1: addLockAddress(tmp); if(fixaddress) *fixaddress=tmp; break;
                         case 2: if(isLockAddress(tmp)) *l=1; break;
                     }
                     MOV64x(ret, tmp);
@@ -106,7 +108,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                 ADDx_REG(ret, ret, xRIP);
             }
             switch(lock) {
-                case 1: addLockAddress(addr+delta+tmp); break;
+                case 1: addLockAddress(addr+delta+tmp); if(fixaddress) *fixaddress=addr+delta+tmp; break;
                 case 2: if(isLockAddress(addr+delta+tmp)) *l=1; break;
             }
         } else {
@@ -126,7 +128,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
             i64 = F8S;
         if(i64==0 || ((i64>=absmin) && (i64<=absmax)  && !(i64&mask)) || (unscaled && (i64>-256) && (i64<256))) {
             *fixaddress = i64;
-            if(unscaled && (i64>-256) && (i64<256))
+            if(unscaled && i64 && (i64>-256) && (i64<256))
                 *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
@@ -221,7 +223,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
                     }
                 } else {
                     switch(lock) {
-                        case 1: addLockAddress((int32_t)tmp); break;
+                        case 1: addLockAddress((int32_t)tmp); if(fixaddress) *fixaddress=(int32_t)tmp; break;
                         case 2: if(isLockAddress((int32_t)tmp)) *l=1; break;
                     }
                     MOV32w(ret, tmp);
@@ -237,7 +239,7 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
             uint64_t tmp = F32;
             MOV32w(ret, tmp);
             switch(lock) {
-                case 1: addLockAddress(tmp); break;
+                case 1: addLockAddress(tmp); if(fixaddress) *fixaddress=tmp; break;
                 case 2: if(isLockAddress(tmp)) *l=1; break;
             }
         } else {
@@ -256,11 +258,11 @@ static uintptr_t geted_32(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t
         }
         if(nextop&0x80)
             i32 = F32S;
-        else 
+        else
             i32 = F8S;
         if(i32==0 || ((i32>=absmin) && (i32<=absmax)  && !(i32&mask)) || (unscaled && (i32>-256) && (i32<256))) {
             *fixaddress = i32;
-            if(unscaled && (i32>-256) && (i32<256))
+            if(unscaled && i32 && (i32>-256) && (i32<256))
                 *unscaled = 1;
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
@@ -567,6 +569,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
 
+    SMEND();
     if(reg) {
         if(reg!=xRIP) {
             MOVx_REG(xRIP, reg);
@@ -602,7 +605,6 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     #ifdef HAVE_TRACE
     //MOVx(x3, 15);    no access to PC reg
     #endif
-    SMEND();
     BLR(x2); // save LR...
 }
 
@@ -689,6 +691,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     //#warning TODO: is64bits
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
+    SMEND();
     // POP IP
     NOTEST(x2);
     if(is64bits) {
@@ -723,7 +726,6 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     MOVx_REG(xRSP, x3);
     // Ret....
     MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
-    SMEND();
     BR(x2);
     CLEARIP();
 }
@@ -1110,7 +1112,11 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
         if(dyn->n.x87cache[i]!=-1) {
             ADDw_U12(s3, s2, dyn->n.x87cache[i]);
             ANDw_mask(s3, s3, 0, 2); // mask=7   // (emu->top + i)&7
-            VSTR64_REG_LSL3(dyn->n.x87reg[i], s1, s3);
+            if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
+                FCVT_D_S(SCRATCH0, dyn->n.x87reg[i]);
+                VSTR64_REG_LSL3(SCRATCH0, s1, s3);
+            } else
+                VSTR64_REG_LSL3(dyn->n.x87reg[i], s1, s3);
         }
 }
 

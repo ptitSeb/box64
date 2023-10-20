@@ -119,7 +119,7 @@ uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FCSELD(v1, v2, v1, cNE);        // F_PF==0
             }
-            break;       
+            break;
         case 0xE9:
             INST_NAME("FUCOMPP ST0, ST1");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
@@ -130,8 +130,8 @@ uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FCMPD(v1, v2);
             }
             FCOM(x1, x2, x3);
-            x87_do_pop(dyn, ninst, x3);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
         case 0xE4:
@@ -190,7 +190,7 @@ uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SCVTFDD(v2, v2);    // i64 -> double
                     FCMPD(v1, v2);
                     FCOM(x1, x2, x3);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FISUB ST0, Ed");

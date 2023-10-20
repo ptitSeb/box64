@@ -47,6 +47,7 @@ GO(gtk_application_window_get_type, LFv_t)  \
 GO(gtk_bin_get_type, LFv_t)                 \
 GO(gtk_widget_get_type, LFv_t)              \
 GO(gtk_button_get_type, LFv_t)              \
+GO(gtk_menu_button_get_type, LFv_t)         \
 GO(gtk_container_get_type, LFv_t)           \
 GO(gtk_misc_get_type, LFv_t)                \
 GO(gtk_label_get_type, LFv_t)               \
@@ -770,6 +771,7 @@ EXPORT void my3_gtk_clipboard_request_text(x64emu_t* emu, void* clipboard, void*
     SetGtkContainer3ID(my->gtk_container_get_type());           \
     SetGtkBin3ID(my->gtk_bin_get_type());                       \
     SetGtkButton3ID(my->gtk_button_get_type());                 \
+    SetGtkMenuButton3ID(my->gtk_menu_button_get_type());        \
     SetGtkWindow3ID(my->gtk_window_get_type());                 \
     SetGtkApplicationWindowID(my->gtk_application_window_get_type());\
     SetGtkListBoxID(my->gtk_list_box_get_type());               \

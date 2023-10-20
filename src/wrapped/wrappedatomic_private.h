@@ -12,13 +12,13 @@
 //GO(__atomic_and_fetch_2, 
 //GO(__atomic_and_fetch_4, 
 //GO(__atomic_and_fetch_8, 
-GO(__atomic_compare_exchange, iFpii)
+GO(__atomic_compare_exchange, iFLpppii)
 //GO(__atomic_compare_exchange_1, 
 //GO(__atomic_compare_exchange_16, 
 //GO(__atomic_compare_exchange_2, 
 //GO(__atomic_compare_exchange_4, 
 //GO(__atomic_compare_exchange_8, 
-GO(__atomic_exchange, vFpppi)
+GO(__atomic_exchange, vFLpppi)
 //GO(__atomic_exchange_1, 
 //GO(__atomic_exchange_16, 
 //GO(__atomic_exchange_2, 
@@ -60,7 +60,7 @@ GO(__atomic_exchange, vFpppi)
 //GO(atomic_flag_test_and_set, 
 //GO(atomic_flag_test_and_set_explicit, 
 GO(__atomic_is_lock_free, iFLp)
-GO(__atomic_load, vFppi)
+GO(__atomic_load, vFLppi)
 //GO(__atomic_load_1, 
 //GO(__atomic_load_16, 
 //GO(__atomic_load_2, 
@@ -77,7 +77,7 @@ GO(__atomic_load, vFppi)
 //GO(__atomic_or_fetch_4, 
 //GO(__atomic_or_fetch_8, 
 //GO(atomic_signal_fence, 
-GO(__atomic_store, vFppi)
+GO(__atomic_store, vFLppi)
 //GO(__atomic_store_1, 
 //GO(__atomic_store_16, 
 //GO(__atomic_store_2, 

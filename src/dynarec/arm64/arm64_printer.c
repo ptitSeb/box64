@@ -16,7 +16,7 @@ static const char* conds[] = {"cEQ", "cNE", "cCS", "cCC", "cMI", "cPL", "cVS", "
 #define abs(A) (((A)<0)?(-(A)):(A))
 
 typedef struct arm64_print_s {
-    int N, S, U, L, Q;
+    int N, S, U, L, Q, A, R;
     int t, n, m, d, t2, a;
     int f, c, o, h, p;
     int i, r, s;
@@ -60,6 +60,8 @@ int isMask(uint32_t opcode, const char* mask, arm64_print_t *a)
             case 'N': a->N = (a->N<<1) | v; break;
             case 'S': a->S = (a->S<<1) | v; break;
             case 'U': a->U = (a->U<<1) | v; break;
+            case 'A': a->A = (a->A<<1) | v; break;
+            case 'R': a->R = (a->R<<1) | v; break;
             case 'L': a->L = (a->L<<1) | v; break;
             case 'Q': a->Q = (a->Q<<1) | v; break;
             case 't': a->t = (a->t<<1) | v; break;
@@ -1573,6 +1575,76 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // CASxw
+    if(isMask(opcode, "1f0010001L1ssssso11111nnnnnttttt", &a)) {
+        snprintf(buff, sizeof(buff), "CAS%s%s %s, %s, [%s]", a.o?"A":"", a.L?"L":"", sf?Xt[Rs]:Wt[Rs], sf?Xt[Rt]:Wt[Rt], XtSp[Rn]);
+        return buff;
+    }
+    // CAS B/H
+    if(isMask(opcode, "0f0010001L1ssssso11111nnnnnttttt", &a)) {
+        snprintf(buff, sizeof(buff), "CAS%s%s%s %s, %s, [%s]", a.o?"A":"", a.L?"L":"", sf?"H":"B", Xt[Rs], Xt[Rt], XtSp[Rn]);
+        return buff;
+    }
+    // CASPxw
+    if(isMask(opcode, "0f0010000L1ssssso11111nnnnnttttt", &a)) {
+        snprintf(buff, sizeof(buff), "CASP%s%s %s,%s, %s,%s, [%s]", a.o?"A":"", a.L?"L":"", sf?Xt[Rs]:Wt[Rs], sf?Xt[Rs+1]:Wt[Rs+1], sf?Xt[Rt]:Wt[Rt], sf?Xt[Rt+1]:Wt[Rt+1], XtSp[Rn]);
+        return buff;
+    }
+    // SWPxw
+    if(isMask(opcode, "1f111000AR1sssss100000nnnnnttttt", &a)) {
+        snprintf(buff, sizeof(buff), "SWP%s%s %s, %s, [%s]", a.A?"A":"", a.R?"L":"", sf?Xt[Rs]:Wt[Rs], sf?Xt[Rt]:Wt[Rt], XtSp[Rn]);
+        return buff;
+    }
+    // SWPxw
+    if(isMask(opcode, "0f111000AR1sssss100000nnnnnttttt", &a)) {
+        snprintf(buff, sizeof(buff), "CAS%s%s%s %s, %s, [%s]", a.A?"A":"", a.R?"L":"", sf?"H":"B", Xt[Rs], Xt[Rt], XtSp[Rn]);
+        return buff;
+    }
+    // LDXXXxw
+    if(isMask(opcode, "1f111000AR1sssss0ooo00nnnnnttttt", &a)) {
+        const char* ops[] = { "ADD", "CLR", "EOR", "SET", "SMAX, SMIN", "UMAX", "UMIN" };
+        if((Rt == 0b11111) && !a.A) {
+            snprintf(buff, sizeof(buff), "ST%s%s %s, [%s]", ops[a.o], a.R?"L":"", sf?Xt[Rs]:Wt[Rs], XtSp[Rn]);
+        } else {
+            snprintf(buff, sizeof(buff), "LD%s%s%s %s, %s, [%s]", ops[a.o], a.A?"A":"", a.R?"L":"", sf?Xt[Rs]:Wt[Rs], sf?Xt[Rt]:Wt[Rt], XtSp[Rn]);
+        }
+        return buff;
+    }
+    // LDXXX B/H
+    if(isMask(opcode, "0f111000AR1sssss0ooo00nnnnnttttt", &a)) {
+        const char* ops[] = { "ADD", "CLR", "EOR", "SET", "SMAX, SMIN", "UMAX", "UMIN" };
+        if((Rt == 0b11111) && !a.A) {
+            snprintf(buff, sizeof(buff), "ST%s%s%s %s, [%s]", ops[a.o], a.R?"L":"", sf?"H":"B", Xt[Rs], XtSp[Rn]);
+        } else {
+            snprintf(buff, sizeof(buff), "LD%s%s%s%s %s, %s, [%s]", ops[a.o], a.A?"A":"", a.R?"L":"", sf?"H":"B", Xt[Rs], Xt[Rt], XtSp[Rn]);
+        }
+        return buff;
+    }
+    // AXFLAG
+    if(isMask(opcode, "11010101000000000100000001011111", &a)) {
+        snprintf(buff, sizeof(buff), "AXFLAG");
+        return buff;
+    }
+    // XAFLAG
+    if(isMask(opcode, "11010101000000000100000000111111", &a)) {
+        snprintf(buff, sizeof(buff), "XAFLAG");
+        return buff;
+    }
+    // CFINV
+    if(isMask(opcode, "11010101000000000100000000011111", &a)) {
+        snprintf(buff, sizeof(buff), "CFINV");
+        return buff;
+    }
+    // RMIF
+    if(isMask(opcode, "10111010000iiiiii00001nnnnn0oooo", &a)) {
+        snprintf(buff, sizeof(buff), "RMIF %s, #%d, #0x%x", Xt[Rn], imm, opc);
+        return buff;
+    }
+    // SETF
+    if(isMask(opcode, "00111010000000000f0010nnnnn01101", &a)) {
+        snprintf(buff, sizeof(buff), "SETF%d %s", 8<<sf, Xt[Rn]);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;

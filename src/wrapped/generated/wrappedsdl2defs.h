@@ -4,6 +4,6 @@
 #ifndef __wrappedsdl2DEFS_H_
 #define __wrappedsdl2DEFS_H_
 
-#define vFGppp vFUUppp
+#define vFGpppp vFUUpppp
 
 #endif // __wrappedsdl2DEFS_H_

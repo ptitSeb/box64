@@ -53,7 +53,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FADDD(v1, v1, v2);
             }
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xC8:
         case 0xC9:
@@ -71,7 +71,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FMULD(v1, v1, v2);
             }
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD0:
         case 0xD1:
@@ -90,7 +90,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FCMPD(v1, v2);
             }
             FCOM(x1, x2, x3);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD9:
             INST_NAME("FCOMPP ST0, STx");
@@ -102,8 +102,8 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FCMPD(v1, v2);
             }
             FCOM(x1, x2, x3);
-            x87_do_pop(dyn, ninst, x3);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE0:
         case 0xE1:
@@ -121,7 +121,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FSUBD(v1, v2, v1);
             }
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE8:
         case 0xE9:
@@ -139,7 +139,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FSUBD(v1, v1, v2);
             }
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xF0:
         case 0xF1:
@@ -157,8 +157,8 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FDIVD(v1, v2, v1);
             }
-            x87_do_pop(dyn, ninst, x3);
-            break;       
+            X87_POP_OR_FAIL(dyn, ninst, x3);
+            break;
         case 0xF8:
         case 0xF9:
         case 0xFA:
@@ -175,7 +175,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FDIVD(v1, v1, v2);
             }
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD8:
         case 0xDA:
@@ -233,7 +233,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SCVTFDD(v2, v2);
                     FCMPD(v1, v2);
                     FCOM(x1, x2, x3);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FISUB ST0, word[ED]");

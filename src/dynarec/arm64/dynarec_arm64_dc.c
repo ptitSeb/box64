@@ -106,7 +106,7 @@ uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FCMPD(v1, v2);
             }
             FCOM(x1, x2, x3);
-            x87_do_pop(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE0:
         case 0xE1:
@@ -158,7 +158,7 @@ uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 FDIVD(v1, v2, v1);
             }
-            break;       
+            break;
         case 0xF8:
         case 0xF9:
         case 0xFA:
@@ -211,7 +211,7 @@ uintptr_t dynarec64_DC(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VLD64(v2, wback, fixedaddress);
                     FCMPD(v1, v2);
                     FCOM(x1, x2, x3);
-                    x87_do_pop(dyn, ninst, x3);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 4:
                     INST_NAME("FSUB ST0, double[ED]");

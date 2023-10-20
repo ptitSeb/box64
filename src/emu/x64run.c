@@ -2047,12 +2047,12 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
     // fork handling
     if(emu->fork) {
         addr = R_RIP;
-        if(step)
-            return 0;
         int forktype = emu->fork;
         emu->quit = 0;
         emu->fork = 0;
         emu = x64emu_fork(emu, forktype);
+        if(step)
+            return 0;
         goto x64emurun;
     }
     // setcontext handling

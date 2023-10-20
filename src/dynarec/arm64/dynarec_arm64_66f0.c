@@ -53,7 +53,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x5);
-            SMDMB();
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 UXTHw(x6, ed);
@@ -61,13 +60,21 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 BFIx(ed, x6, 0, 16);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                MARKLOCK;
-                LDAXRH(x1, wback);
-                emit_or16(dyn, ninst, x1, x5, x3, x4);
-                STLXRH(x3, x1, wback);
-                CBNZx_MARKLOCK(x3);
+                if(arm64_atomics) {
+                    UFLAG_IF {
+                        LDSETALH(x5, x1, wback);
+                        emit_or16(dyn, ninst, x1, x5, x3, x4);
+                    } else {
+                        STSETLH(x5, wback);
+                    }
+                } else {
+                    MARKLOCK;
+                    LDAXRH(x1, wback);
+                    emit_or16(dyn, ninst, x1, x5, x3, x4);
+                    STLXRH(x3, x1, wback);
+                    CBNZx_MARKLOCK(x3);
+                }
             }
-            SMDMB();
             break;
 
         case 0x0F:
@@ -79,7 +86,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     nextop = F8;
                     GETGD;
-                    SMDMB();
                     UXTHw(x6, xRAX);
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
@@ -90,34 +96,43 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         BFIx(ed, gd, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        TSTx_mask(wback, 1, 0, 0);    // mask=1
-                        B_MARK3(cNE);
+                        if(!ALIGNED_ATOMICH) {
+                            TSTx_mask(wback, 1, 0, 0);    // mask=1
+                            B_MARK3(cNE);
+                        }
                         // Aligned version
-                        MARKLOCK;
-                        LDAXRH(x1, wback);
-                        CMPSw_REG(x6, x1);
-                        B_MARK(cNE);
-                        // EAX == Ed
-                        STLXRH(x4, gd, wback);
-                        CBNZx_MARKLOCK(x4);
-                        // done
-                        B_MARK_nocond;
-                        // Unaligned version
-                        MARK3;
-                        LDRH_U12(x1, wback, 0);
-                        LDAXRB(x3, wback); // dummy read, to arm the write...
-                        CMPSw_REG(x6, x1);
-                        B_MARK(cNE);
-                        // EAX == Ed
-                        STLXRB(x4, gd, wback);
-                        CBNZx_MARK3(x4);
-                        STRH_U12(gd, wback, 0);
+                        if(arm64_atomics) {
+                            MOVw_REG(x1, x6);
+                            CASALH(x1, gd, wback);
+                        } else {
+                            MARKLOCK;
+                            LDAXRH(x1, wback);
+                            CMPSw_REG(x6, x1);
+                            B_MARK(cNE);
+                            // EAX == Ed
+                            STLXRH(x4, gd, wback);
+                            CBNZx_MARKLOCK(x4);
+                            // done
+                        }
+                        if(!ALIGNED_ATOMICH) {
+                            B_MARK_nocond;
+                            // Unaligned version
+                            MARK3;
+                            LDRH_U12(x1, wback, 0);
+                            LDAXRB(x3, wback); // dummy read, to arm the write...
+                            CMPSw_REG(x6, x1);
+                            B_MARK(cNE);
+                            // EAX == Ed
+                            STLXRB(x4, gd, wback);
+                            CBNZx_MARK3(x4);
+                            STRH_U12(gd, wback, 0);
+                            SMDMB();
+                        }
                     }
                     MARK;
                     // Common part (and fallback for EAX != Ed)
                     UFLAG_IF {emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5);}
                     BFIx(xRAX, x1, 0, 16);
-                    SMDMB();
                     break;
 
                 case 0xC1:
@@ -126,7 +141,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
                     UXTHx(x5, gd);
-                    SMDMB();
                     if(MODREG) {
                         ed = xRAX+(nextop&7)+(rex.b<<3);
                         BFIx(gd, ed, 0, 16);
@@ -134,18 +148,21 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         BFIx(ed, x5, 0, 16);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        MARKLOCK;
-                        LDAXRH(x1, wback);
-                        ADDxw_REG(x4, x1, x5);
-                        STLXRH(x3, x4, wback);
-                        CBNZx_MARKLOCK(x3);
+                        if(arm64_atomics) {
+                            LDADDALH(x5, x1, wback);
+                        } else {
+                            MARKLOCK;
+                            LDAXRH(x1, wback);
+                            ADDxw_REG(x4, x1, x5);
+                            STLXRH(x3, x4, wback);
+                            CBNZx_MARKLOCK(x3);
+                        }
                         IFX(X_ALL|X_PEND) {
                             MOVxw_REG(x2, x1);
                             emit_add16(dyn, ninst, x2, x5, x3, x4);
                         }
                         BFIx(gd, x1, 0, 16);
                     }
-                    SMDMB();
                     break;
 
                 default:
@@ -158,7 +175,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x5);
-            SMDMB();
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 UXTHw(x6, ed);
@@ -172,12 +188,10 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STLXRH(x3, x1, wback);
                 CBNZx_MARKLOCK(x3);
             }
-            SMDMB();
             break;
         case 0x81:
         case 0x83:
             nextop = F8;
-            SMDMB();
             switch((nextop>>3)&7) {
                 case 0: //ADD
                     if(opcode==0x81) {
@@ -197,22 +211,34 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
                         MOV32w(x5, i32);
-                        TSTx_mask(wback, 1, 0, 0);    // mask=1
-                        B_MARK(cNE);
-                        MARKLOCK;
-                        LDAXRH(x1, wback);
-                        emit_add16(dyn, ninst, x1, x5, x3, x4);
-                        STLXRH(x3, x1, wback);
-                        CBNZx_MARKLOCK(x3);
-                        B_NEXT_nocond;
-                        MARK;   // unaligned! also, not enough
-                        LDRH_U12(x1, wback, 0);
-                        LDAXRB(x4, wback);
-                        BFIw(x1, x4, 0, 8); // re-inject
-                        emit_add16(dyn, ninst, x1, x5, x3, x4);
-                        STLXRB(x3, x1, wback);
-                        CBNZx_MARK(x3);
-                        STRH_U12(x1, wback, 0);    // put the whole value
+                        if(!ALIGNED_ATOMICH) {
+                            TSTx_mask(wback, 1, 0, 0);    // mask=1
+                            B_MARK(cNE);
+                        }
+                        if(arm64_atomics) {
+                            LDADDALH(x5, x1, wback);
+                            UFLAG_IF {
+                                emit_add16(dyn, ninst, x1, x5, x3, x4);    
+                            }
+                        } else {
+                            MARKLOCK;
+                            LDAXRH(x1, wback);
+                            emit_add16(dyn, ninst, x1, x5, x3, x4);
+                            STLXRH(x3, x1, wback);
+                            CBNZx_MARKLOCK(x3);
+                        }
+                        if(!ALIGNED_ATOMICH) {
+                            B_NEXT_nocond;
+                            MARK;   // unaligned! also, not enough
+                            LDRH_U12(x1, wback, 0);
+                            LDAXRB(x4, wback);
+                            BFIw(x1, x4, 0, 8); // re-inject
+                            emit_add16(dyn, ninst, x1, x5, x3, x4);
+                            STLXRB(x3, x1, wback);
+                            CBNZx_MARK(x3);
+                            STRH_U12(x1, wback, 0);    // put the whole value
+                            SMDMB();
+                        }
                     }
                     break;
                 case 1: //OR
@@ -229,11 +255,20 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
                         MOV32w(x5, i32);
-                        MARKLOCK;
-                        LDAXRH(x1, wback);
-                        emit_or16(dyn, ninst, x1, x5, x3, x4);
-                        STLXRH(x3, x1, wback);
-                        CBNZx_MARKLOCK(x3);
+                        if(arm64_atomics) {
+                            UFLAG_IF {
+                                LDSETALH(x5, x1, wback);
+                                emit_or16(dyn, ninst, x1, x5, x3, x4);
+                            } else {
+                                STSETLH(x5, wback);
+                            }
+                        } else {
+                            MARKLOCK;
+                            LDAXRH(x1, wback);
+                            emit_or16(dyn, ninst, x1, x5, x3, x4);
+                            STLXRH(x3, x1, wback);
+                            CBNZx_MARKLOCK(x3);
+                        }
                     }
                     break;
                 case 2: //ADC
@@ -293,12 +328,23 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        MOV32w(x5, i32);
-                        MARKLOCK;
-                        LDAXRH(x1, wback);
-                        emit_and16(dyn, ninst, x1, x5, x3, x4);
-                        STLXRH(x3, x1, wback);
-                        CBNZx_MARKLOCK(x3);
+                        if(arm64_atomics) {
+                            MOV32w(x5, ~i32);
+                            UFLAG_IF {
+                                LDCLRALH(x5, x1, wback);
+                                MVNw_REG(x5, x5);
+                                emit_and16(dyn, ninst, x1, x5, x3, x4);
+                            } else {
+                                STCLRLH(x5, wback);
+                            }
+                        } else {
+                            MOV32w(x5, i32);
+                            MARKLOCK;
+                            LDAXRH(x1, wback);
+                            emit_and16(dyn, ninst, x1, x5, x3, x4);
+                            STLXRH(x3, x1, wback);
+                            CBNZx_MARKLOCK(x3);
+                        }
                     }
                     break;
                 case 5: //SUB
@@ -315,22 +361,37 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
                         MOV32w(x5, i32);
-                        TSTx_mask(wback, 1, 0, 0);    // mask=1
-                        B_MARK(cNE);
-                        MARKLOCK;
-                        LDAXRH(x1, wback);
-                        emit_sub16(dyn, ninst, x1, x5, x3, x4);
-                        STLXRH(x3, x1, wback);
-                        CBNZx_MARKLOCK(x3);
-                        B_NEXT_nocond;
-                        MARK;   // unaligned! also, not enough
-                        LDRH_U12(x1, wback, 0);
-                        LDAXRB(x4, wback);
-                        BFIw(x1, x4, 0, 8); // re-inject
-                        emit_sub16(dyn, ninst, x1, x5, x3, x4);
-                        STLXRB(x3, x1, wback);
-                        CBNZx_MARK(x3);
-                        STRH_U12(x1, wback, 0);    // put the whole value
+                        if(!ALIGNED_ATOMICH) {
+                            TSTx_mask(wback, 1, 0, 0);    // mask=1
+                            B_MARK(cNE);
+                        }
+                        if(arm64_atomics) {
+                            NEGw_REG(x4, x5);
+                            UFLAG_IF {
+                                LDADDALH(x4, x1, wback);
+                                emit_sub16(dyn, ninst, x1, x5, x3, x4);
+                            } else {
+                                STADDLH(x4, wback);
+                            }
+                        } else {
+                            MARKLOCK;
+                            LDAXRH(x1, wback);
+                            emit_sub16(dyn, ninst, x1, x5, x3, x4);
+                            STLXRH(x3, x1, wback);
+                            CBNZx_MARKLOCK(x3);
+                        }
+                        if(!ALIGNED_ATOMICH) {
+                            B_NEXT_nocond;
+                            MARK;   // unaligned! also, not enough
+                            LDRH_U12(x1, wback, 0);
+                            LDAXRB(x4, wback);
+                            BFIw(x1, x4, 0, 8); // re-inject
+                            emit_sub16(dyn, ninst, x1, x5, x3, x4);
+                            STLXRB(x3, x1, wback);
+                            CBNZx_MARK(x3);
+                            STRH_U12(x1, wback, 0);    // put the whole value
+                            SMDMB();
+                        }
                     }
                     break;
                 case 6: //XOR
@@ -347,11 +408,20 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i32 = F16S; else i32 = F8S;
                         MOV32w(x5, i32);
-                        MARKLOCK;
-                        LDAXRH(x1, wback);
-                        emit_xor16(dyn, ninst, x1, x5, x3, x4);
-                        STLXRH(x3, x1, wback);
-                        CBNZx_MARKLOCK(x3);
+                        if(arm64_atomics) {
+                            UFLAG_IF {
+                                LDEORALH(x5, x1, wback);
+                                emit_xor16(dyn, ninst, x1, x5, x3, x4);
+                            } else {
+                                STEORLH(x5, wback);
+                            }
+                        } else {
+                            MARKLOCK;
+                            LDAXRH(x1, wback);
+                            emit_xor16(dyn, ninst, x1, x5, x3, x4);
+                            STLXRH(x3, x1, wback);
+                            CBNZx_MARKLOCK(x3);
+                        }
                     }
                     break;
                 case 7: //CMP
@@ -369,7 +439,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     break;
             }
-            SMDMB();
             break;
 
             case 0xFF:
@@ -379,7 +448,6 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     case 0: // INC Ew
                         INST_NAME("LOCK INC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                        SMDMB();
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);
@@ -387,18 +455,26 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             BFIx(ed, x6, 0, 16);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                            MARKLOCK;
-                            LDAXRH(x1, wback);
-                            emit_inc16(dyn, ninst, x1, x3, x4);
-                            STLXRH(x3, x1, wback);
-                            CBNZx_MARKLOCK(x3);
+                            if(arm64_atomics) {
+                                MOV32w(x3, 1);
+                                UFLAG_IF {
+                                    LDADDALH(x3, x1, wback);
+                                    emit_inc16(dyn, ninst, x1, x3, x4);
+                                } else {
+                                    STADDLH(x3, wback);
+                                }
+                            } else {
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_inc16(dyn, ninst, x1, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
                         }
-                        SMDMB();
                         break;
                     case 1: //DEC Ew
                         INST_NAME("LOCK DEC Ew");
                         SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-                        SMDMB();
                         if(MODREG) {
                             ed = xRAX+(nextop&7)+(rex.b<<3);
                             UXTHw(x6, ed);
@@ -406,13 +482,22 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             BFIx(ed, x6, 0, 16);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                            MARKLOCK;
-                            LDAXRH(x1, wback);
-                            emit_dec16(dyn, ninst, x1, x3, x4);
-                            STLXRH(x3, x1, wback);
-                            CBNZx_MARKLOCK(x3);
+                            if(arm64_atomics) {
+                                MOV32w(x3, -1);
+                                UFLAG_IF {
+                                    LDADDALH(x3, x1, wback);
+                                    emit_dec16(dyn, ninst, x1, x3, x4);
+                                } else {
+                                    STADDLH(x3, wback);
+                                }
+                            } else {
+                                MARKLOCK;
+                                LDAXRH(x1, wback);
+                                emit_dec16(dyn, ninst, x1, x3, x4);
+                                STLXRH(x3, x1, wback);
+                                CBNZx_MARKLOCK(x3);
+                            }
                         }
-                        SMDMB();
                         break;
                     default:
                         DEFAULT;

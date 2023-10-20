@@ -15,6 +15,7 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
+#include "custommem.h"
 
 #include "arm64_printer.h"
 #include "dynarec_arm64_private.h"
@@ -634,7 +635,11 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SXTBw(x1, xRAX);
             BFIx(xRAX, x1, 0, 16);
             break;
-
+        case 0x99:
+            INST_NAME("CWD");
+            SXTHw(x1, xRAX);
+            BFXILx(xRDX, x1, 16, 16);
+            break;
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
@@ -665,7 +670,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            SMREAD();
+            if(isLockAddress(u64)) lock=1; else lock = 0;
+            SMREADLOCK(lock);
             LDRH_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 16);
             break;
@@ -677,8 +683,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            if(isLockAddress(u64)) lock=1; else lock = 0;
             STRH_U12(xRAX, x1, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
 
         case 0xA5:

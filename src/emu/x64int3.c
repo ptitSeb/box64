@@ -40,7 +40,7 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
     for (int i=my_context->atfork_sz-1; i>=0; --i)
         if(my_context->atforks[i].prepare)
             EmuCall(emu, my_context->atforks[i].prepare);
-    int type = emu->type;
+    //int type = emu->type;
     int v;
     if(forktype==2) {
         iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
@@ -48,8 +48,8 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
         emu->forkpty_info = NULL;
     } else
         v = fork();
-    if(type == EMUTYPE_MAIN)
-        thread_set_emu(emu);
+    /*if(type == EMUTYPE_MAIN)
+        thread_set_emu(emu);*/
     if(v==EAGAIN || v==ENOMEM) {
         // error...
     } else if(v!=0) {  
@@ -265,6 +265,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (!strcmp(s, "mmap64") || !strcmp(s, "mmap")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %lu, 0x%x, 0x%x, %d, %ld)", tid, *(void**)(R_RSP), s, 
                         (void*)R_RDI, R_RSI, (int)(R_RDX), (int)R_RCX, (int)R_R8, R_R9);
+                    perr = 3;
                 } else if (!strcmp(s, "sscanf")) {
                     tmp = (char*)(R_RSI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\" (,%p))", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)", (void*)(R_RDX));
@@ -309,6 +310,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+                else if(perr==3 && ((int64_t)R_RAX)==-1)
+                    snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
+
                 if(cycle_log)
                     snprintf(buffret, 128, "0x%lX%s%s", R_RAX, buff2, buff3);
                 else {

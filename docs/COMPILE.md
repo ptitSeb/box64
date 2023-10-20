@@ -202,7 +202,10 @@ To have a trace enabled build (***the interpreter will be slightly slower***), a
 #### To have ARM Dynarec
 
 Dynarec is only available on ARM (for the meantime), Activate it by using `-DARM_DYNAREC=1`.
-###### *Note: VFPv3 and NEON are required for Dynarec.*
+
+#### To have a build using less memory
+
+You can use ` -DSAVE_MEM` to have a build that will try to save some memory. It's, for now, only increasing the jumptable from 4 level to 5 levels. The added granularity avoid wasting space, but the 1 level more to the jumptable means there is on read from memory more when jumping between blocks.
 
 #### Not building from a git clone
 

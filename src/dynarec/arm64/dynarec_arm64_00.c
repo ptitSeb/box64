@@ -1052,16 +1052,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BFIx(gb1, x1, gb2, 8);
                 BFIx(eb1, x4, eb2, 8);
             } else {
-                SMDMB();
                 GETGB(x4);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                MARKLOCK;
-                // do the swap with exclusive locking
-                LDAXRB(x1, ed);
-                // do the swap 4 -> strb(ed), 1 -> gd
-                STLXRB(x3, x4, ed);
-                CBNZx_MARKLOCK(x3);
-                SMDMB();
+                if(arm64_atomics) {
+                    SWPALB(x4, x1, ed);
+                } else {
+                    MARKLOCK;
+                    // do the swap with exclusive locking
+                    LDAXRB(x1, ed);
+                    // do the swap 4 -> strb(ed), 1 -> gd
+                    STLXRB(x3, x4, ed);
+                    CBNZx_MARKLOCK(x3);
+                }
                 BFIx(gb1, x1, gb2, 8);
             }
             break;
@@ -1077,20 +1079,37 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                SMDMB();
-                TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
-                B_MARK(cNE);
-                MARKLOCK;
-                LDAXRxw(x1, ed);
-                STLXRxw(x3, gd, ed);
-                CBNZx_MARKLOCK(x3);
-                B_MARK2_nocond;
-                MARK;
-                LDRxw_U12(x1, ed, 0);
-                STRxw_U12(gd, ed, 0);
-                MARK2;
-                SMDMB();
-                MOVxw_REG(gd, x1);
+                if(!ALIGNED_ATOMICxw) {
+                    TSTx_mask(ed, 1, 0, 1+rex.w);    // mask=3 or 7
+                    B_MARK(cNE);
+                }
+                if(arm64_atomics) {
+                    SWPALxw(gd, gd, ed);
+                    if(!ALIGNED_ATOMICxw) {
+                        B_NEXT_nocond;
+                    }
+                } else {
+                    MARKLOCK;
+                    LDAXRxw(x1, ed);
+                    STLXRxw(x3, gd, ed);
+                    CBNZx_MARKLOCK(x3);
+                    if(!ALIGNED_ATOMICxw) {
+                        B_MARK2_nocond;
+                    }
+                }
+                if(!ALIGNED_ATOMICxw) {
+                    MARK;
+                    LDRxw_U12(x1, ed, 0);
+                    LDAXRB(x3, ed);
+                    STLXRB(x3, gd, ed);
+                    CBNZx_MARK(x3);
+                    STRxw_U12(gd, ed, 0);
+                    SMDMB();
+                    MARK2;
+                }
+                if(!ALIGNED_ATOMICxw || !arm64_atomics) {
+                    MOVxw_REG(gd, x1);
+                }
             }
             break;
         case 0x88:
@@ -1322,7 +1341,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            SMREAD();
+            if(isLockAddress(u64)) lock=1; else lock = 0;
+            SMREADLOCK(lock);
             LDRB_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 8);
             break;
@@ -1333,7 +1353,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            SMREAD();
+            if(isLockAddress(u64)) lock=1; else lock = 0;
+            SMREADLOCK(lock);
             LDRxw_U12(xRAX, x1, 0);
             break;
         case 0xA2:
@@ -1343,8 +1364,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            if(isLockAddress(u64)) lock=1; else lock = 0;
             STRB_U12(xRAX, x1, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
@@ -1353,8 +1375,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
+            if(isLockAddress(u64)) lock=1; else lock = 0;
             STRxw_U12(xRAX, x1, 0);
-            SMWRITE();
+            SMWRITELOCK(lock);
             break;
         case 0xA4:
             if(rep) {
@@ -1647,11 +1670,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             default:
                 INST_NAME("SCASD");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
-                GETDIR(x3, 1);
-                UBFXw(x1, xRAX, 0, 8);
-                LDRB_U12(x2, xRDI, 0);
+                GETDIR(x3, rex.w?8:4);
+                LDRxw_U12(x2, xRDI, 0);
                 ADDx_REG(xRDI, xRDI, x3);
-                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
                 break;
             }
             break;
@@ -1975,6 +1997,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
+                    SMEND();
                     tmp = isSimpleWrapper(*(wrapper_t*)(addr));
                     if(isRetX87Wrapper(*(wrapper_t*)(addr)))
                         // return value will be on the stack, so the stack depth needs to be updated
@@ -2468,6 +2491,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     SKIPTEST(x1);    // disable test as this hack dos 2 instructions for 1
                     // calling a native function
+                    SMEND();
                     sse_purge07cache(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
                         tmp=isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
@@ -2944,7 +2968,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         INST_NAME("JMP FAR Ed");
                         READFLAGS(X_PEND);
                         BARRIER(BARRIER_FLOAT);
-                        SMREAD()
+                        SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 0);
                         LDxw(x1, wback, 0);
                         ed = x1;

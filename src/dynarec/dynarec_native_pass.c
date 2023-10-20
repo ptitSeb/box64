@@ -43,6 +43,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     dyn->forward_to = 0;
     dyn->forward_size = 0;
     dyn->forward_ninst = 0;
+    dyn->smlastdmb = ~0;
     fpu_reset(dyn);
     ARCH_INIT();
     int reset_n = -1;

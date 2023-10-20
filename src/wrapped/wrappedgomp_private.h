@@ -220,7 +220,7 @@
 //GO(GOMP_offload_unregister_ver, 
 //GO(GOMP_ordered_end, 
 //GO(GOMP_ordered_start, 
-//GO(GOMP_parallel, 
+GOM(GOMP_parallel, vFEppuu)
 //GO(GOMP_parallel_end, 
 //GO(GOMP_parallel_loop_dynamic, 
 //GO(GOMP_parallel_loop_dynamic_start, 
@@ -339,7 +339,7 @@
 //GO(omp_get_max_task_priority_, 
 //GO(omp_get_max_teams, 
 //GO(omp_get_max_teams_, 
-//GO(omp_get_max_threads, 
+GO(omp_get_max_threads, iFv)
 //GO(omp_get_max_threads_, 
 //GO(omp_get_nested, 
 //GO(omp_get_nested_, 
@@ -351,7 +351,7 @@
 //GO(omp_get_num_procs_, 
 //GO(omp_get_num_teams, 
 //GO(omp_get_num_teams_, 
-//GO(omp_get_num_threads, 
+GO(omp_get_num_threads, iFv)
 //GO(omp_get_num_threads_, 
 //GO(omp_get_partition_num_places, 
 //GO(omp_get_partition_num_places_, 
@@ -382,7 +382,7 @@
 //GO(omp_get_teams_thread_limit_, 
 //GO(omp_get_thread_limit, 
 //GO(omp_get_thread_limit_, 
-//GO(omp_get_thread_num, 
+GO(omp_get_thread_num, iFv)
 //GO(omp_get_thread_num_, 
 //GO(omp_get_wtick, 
 //GO(omp_get_wtick_, 

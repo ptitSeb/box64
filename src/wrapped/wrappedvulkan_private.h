@@ -832,3 +832,9 @@ GO(vkGetSamplerOpaqueCaptureDescriptorDataEXT, vFppp)
 
 // VK_KHR_cooperative_matrix
 GO(vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR, iFppp)
+
+// VK_KHR_maintenance5
+GO(vkCmdBindIndexBuffer2KHR, vFpUUUi)
+GO(vkGetDeviceImageSubresourceLayoutKHR, vFppp)
+GO(vkGetImageSubresourceLayout2KHR, vFpUpp)
+GO(vkGetRenderingAreaGranularityKHR, vFppp)

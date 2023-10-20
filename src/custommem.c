@@ -1631,7 +1631,11 @@ static void atfork_child_custommem(void)
 void reserveHighMem()
 {
     char* p = getenv("BOX64_RESERVE_HIGH");
+    #ifdef ADLINK
+    if(p && p[0]=='0')
+    #else
     if(!p || p[0]=='0')
+    #endif
         return; // don't reserve by default
     intptr_t cur = 1LL<<47;
     mapmem_t* m = mapmem;

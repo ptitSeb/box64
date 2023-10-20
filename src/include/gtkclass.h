@@ -22,6 +22,17 @@ typedef struct my_GValue_s
   } data[2];
 } my_GValue_t;
 
+typedef struct my_GTypeInstance_s
+{
+  void* g_class;
+} my_GTypeInstance_t;
+
+typedef struct my_GObject_s
+{
+  my_GTypeInstance_t  g_type_instance;
+  uint32_t            ref_count;
+  void*               qdata;
+} my_GObject_t;
 
 typedef struct my_GObjectClass_s
 {
@@ -39,6 +50,13 @@ typedef struct my_GObjectClass_s
   void*  pdummy[6];
 } my_GObjectClass_t;
 
+typedef struct my_GInitiallyUnowned_s
+{
+  my_GTypeInstance_t  g_type_instance;
+  uint32_t            ref_count;
+  void*               qdata;
+} my_GInitiallyUnowned_t;
+
 typedef struct my_GInitiallyUnownedClass_s
 {
   int   g_type_class;
@@ -55,15 +73,15 @@ typedef struct my_GInitiallyUnownedClass_s
   void*  pdummy[6];
 } my_GInitiallyUnownedClass_t;
 
-typedef struct my_GamesScoresImporterClass_s
+typedef struct my_GApplication_s
 {
-    my_GObjectClass_t parent_class;
-    void (*importOldScores) (void *self, void* context, void* new_scores_dir, void *error);
-}my_GamesScoresImporterClass_t;
+  my_GObject_t parent;
+  void* priv;
+} my_GApplication_t;
 
 typedef struct my_GApplicationClass_s
 {
-    void* construct_properties;
+    my_GObjectClass_t parent_class;
     void (* startup) (void* application);
     void (* activate) (void* application);
     void (* open) (void* application, void* files, int n_files, void* hint);
@@ -79,9 +97,14 @@ typedef struct my_GApplicationClass_s
     void (* dbus_unregister) (void* appvoidlication, void* connection, void* object_path);
     int (* handle_local_options) (void* application, void* options);
     int (* name_lost) (void* application);
-    uint32_t flags;
-    void*  pdummy[6];
+    void*  padding[7];
 } my_GApplicationClass_t;
+
+typedef struct my_GtkApplication_s
+{
+  my_GApplication_t parent;
+  void* priv;
+} my_GtkApplication_t;
 
 typedef struct my_GtkApplicationClass_s
 {
@@ -90,13 +113,46 @@ typedef struct my_GtkApplicationClass_s
   void (*window_removed)   (void* application, void* window);
 } my_GtkApplicationClass_t;
 
+typedef struct my_GtkObject_s
+{
+  my_GInitiallyUnowned_t parent;
+  uint32_t flags;
+} my_GtkObject_t;
+
 typedef struct my_GtkObjectClass_s
 {
-  my_GObjectClass_t parent_class;
+  my_GInitiallyUnownedClass_t parent_class;
   void (*set_arg) (void* object, void* arg, uint32_t arg_id);
   void (*get_arg) (void* object, void* arg, uint32_t arg_id);
   void (*destroy) (void* object);
 } my_GtkObjectClass_t;
+
+typedef struct my_GdkRectangle_s
+{
+  int x;
+  int y;
+  int width;
+  int height;
+} my_GdkRectangle_t;
+
+typedef struct my_GtkRequisition_s
+{
+  int width;
+  int height;
+} my_GtkRequisition_t;
+
+typedef struct my_GtkWidget2_s
+{
+  my_GtkObject_t  private;
+  int16_t         private_flags;
+  uint8_t         state;
+  char*           name;
+  void*           style;  //GtkStyle
+  my_GtkRequisition_t requisition;
+  my_GdkRectangle_t   allocation;
+  void*           window; //GdkWindow
+  void*           parent; //GtkWidget
+} my_GtkWidget2_t;
 
 typedef struct my_GtkWidget2Class_s
 {
@@ -173,6 +229,12 @@ typedef struct my_GtkWidget2Class_s
   void (*_gtk_reserved6) (void);
   void (*_gtk_reserved7) (void);
 } my_GtkWidget2Class_t;
+
+typedef struct my_GtkWidget3_s
+{
+  my_GInitiallyUnowned_t  parent;
+  void*                   priv;
+} my_GtkWidget3_t;
 
 typedef struct my_GtkWidget3Class_s
 {
@@ -265,6 +327,17 @@ typedef struct my_GtkWidget3Class_s
   void (*_gtk_reserved7) (void);
 } my_GtkWidget3Class_t;
 
+typedef struct my_GtkContainer2_s
+{
+  my_GtkWidget2_t parent;
+  void*           focus_child;  //GtkWidget
+  uint32_t        border_width : 16;
+  uint32_t        need_resize : 1;
+  uint32_t        resize_mode : 2;
+  uint32_t        reallocate_redraws : 1;
+  uint32_t        has_focus_chain : 1;
+} my_GtkContainer2_t;
+
 typedef struct my_GtkContainer2Class_s 
 {
   my_GtkWidget2Class_t parent_class;
@@ -282,6 +355,12 @@ typedef struct my_GtkContainer2Class_s
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
 } my_GtkContainer2Class_t;
+
+typedef struct my_GtkContainer3_s
+{
+  my_GtkWidget3_t parent;
+  void*           priv;
+} my_GtkContainer3_t;
 
 typedef struct my_GtkContainer3Class_s 
 {
@@ -307,6 +386,12 @@ typedef struct my_GtkContainer3Class_s
   void (*_gtk_reserved8) (void);
 } my_GtkContainer3Class_t;
 
+typedef struct my_GtkAction_s
+{
+  my_GObject_t parent;
+  void*        private_data;
+} my_GtkAction_t;
+
 typedef struct my_GtkActionClass_s
 {
   my_GObjectClass_t   parent_class;
@@ -324,10 +409,25 @@ typedef struct my_GtkActionClass_s
   void (*_gtk_reserved4) (void);
 } my_GtkActionClass_t;
 
+typedef struct my_GtkMisc2_s
+{
+  my_GtkWidget2_t  parent;
+  float           xalign;
+  float           yalign;
+  uint16_t        xpad;
+  uint16_t        ypad;
+} my_GtkMisc2_t;
+
 typedef struct my_GtkMisc2Class_s
 {
   my_GtkWidget2Class_t parent_class;
 } my_GtkMisc2Class_t;
+
+typedef struct my_GtkMisc3_s
+{
+  my_GtkWidget3_t parent;
+  void*           priv;
+} my_GtkMisc3_t;
 
 typedef struct my_GtkMisc3Class_s
 {
@@ -338,11 +438,30 @@ typedef struct my_GtkMisc3Class_s
   void (*_gtk_reserved4) (void);
 } my_GtkMisc3Class_t;
 
-typedef struct my_GtkMenuButtonClass_s
+typedef struct my_GtkLabel2_s
 {
-  my_GtkWidget3Class_t parent_class;
-  void (* activate) (void *self);
-}my_GtkMenuButtonClass_t;
+  my_GtkMisc2_t misc;
+  char*         label;
+  uint32_t      jtype            : 2;
+  uint32_t      wrap             : 1;
+  uint32_t      use_underline    : 1;
+  uint32_t      use_markup       : 1;
+  uint32_t      ellipsize        : 3;
+  uint32_t      single_line_mode : 1;
+  uint32_t      have_transform   : 1;
+  uint32_t      in_click         : 1;
+  uint32_t      wrap_mode        : 3;
+  uint32_t      pattern_set      : 1;
+  uint32_t      track_links      : 1;
+  uint32_t      mnemonic_keyval;
+  char*         text;
+  void*         attrs;  //PangoAttrList
+  void*         effective_attrs;  //PangoAttrList
+  void*         layout; //PangoLayout
+  void*         mnemonic_widget;  //GtkWidget
+  void*         mnemonic_window;  //GtkWindow
+  void*         select_info;  //GtkLabelSelectionInfo
+} my_GtkLabel2_t;
 
 typedef struct my_GtkLabel2Class_s
 {
@@ -355,6 +474,12 @@ typedef struct my_GtkLabel2Class_s
   void (*_gtk_reserved2) (void);
   void (*_gtk_reserved3) (void);
 } my_GtkLabel2Class_t;
+
+typedef struct my_GtkLabel3_s
+{
+  my_GtkMisc3_t misc;
+  void*         priv;
+} my_GtkLabel3_t;
 
 typedef struct my_GtkLabel3Class_s
 {
@@ -372,6 +497,12 @@ typedef struct my_GtkLabel3Class_s
   void (*_gtk_reserved7) (void);
   void (*_gtk_reserved8) (void);
 } my_GtkLabel3Class_t;
+
+typedef struct my_GtkTreeView2_s
+{
+  my_GtkContainer2_t  parent;
+  void*               priv;
+} my_GtkTreeView2_t;
 
 typedef struct my_GtkTreeView2Class_s
 {
@@ -399,6 +530,12 @@ typedef struct my_GtkTreeView2Class_s
   void (*_gtk_reserved4) (void);
 } my_GtkTreeView2Class_t;
 
+typedef struct my_GtkBin2_s
+{
+  my_GtkContainer2_t  container;
+  void*               child;  //GtkWidget
+} my_GtkBin2_t;
+
 typedef struct my_GtkBin2Class_s
 {
   my_GtkContainer2Class_t parent_class;
@@ -408,6 +545,12 @@ typedef struct my_GtkBin2Class_s
   void (*_gtk_reserved4) (void);
 } my_GtkBin2Class_t;
 
+typedef struct my_GtkBin3_s
+{
+  my_GtkContainer3_t  container;
+  void*               priv;
+} my_GtkBin3_t;
+
 typedef struct my_GtkBin3Class_s
 {
   my_GtkContainer3Class_t parent_class;
@@ -416,6 +559,49 @@ typedef struct my_GtkBin3Class_s
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
 } my_GtkBin3Class_t;
+
+typedef struct my_GtkWindow2_s
+{
+  my_GtkBin2_t  parent;
+  char*         title;
+  char*         wmclass_name;
+  char*         wmclass_class;
+  char*         wm_role;
+  void*         focus_widget; // GtkWidget
+  void*         default_widget; // GtkWidget
+  void*         transient_parent; // GtkWindow
+  void*         geometry_info;  // GtkWindowGeometryInfo
+  void*         frame;  // GdkWindow
+  void*         group;  // GtkWindowGroup
+  uint16_t      configure_request_count;
+  uint32_t      allow_shrink : 1;
+  uint32_t      allow_grow : 1;
+  uint32_t      configure_notify_received : 1;
+  uint32_t      need_default_position : 1;
+  uint32_t      need_default_size : 1;
+  uint32_t      position : 3;
+  uint32_t      type : 4;
+  uint32_t      has_user_ref_count : 1;
+  uint32_t      has_focus : 1;
+  uint32_t      modal : 1;
+  uint32_t      destroy_with_parent : 1;
+  uint32_t      has_frame : 1;
+  uint32_t      iconify_initially : 1;
+  uint32_t      stick_initially : 1;
+  uint32_t      maximize_initially : 1;
+  uint32_t      decorated : 1;
+  uint32_t      type_hint : 3;
+  uint32_t      gravity : 5;
+  uint32_t      is_active : 1;
+  uint32_t      has_toplevel_focus : 1;
+  uint32_t      frame_left;
+  uint32_t      frame_top;
+  uint32_t      frame_right;
+  uint32_t      frame_bottom;
+  uint32_t      keys_changed_handler;
+  int           mnemonic_modifier;
+  void*         screen; // GdkScreen
+} my_GtkWindow2_t;
 
 typedef struct my_GtkWindow2Class_s {
   my_GtkBin2Class_t parent_class;
@@ -431,6 +617,12 @@ typedef struct my_GtkWindow2Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkWindow2Class_t;
 
+typedef struct my_GtkWindow3_s
+{
+  my_GtkBin3_t  bin;
+  void*         priv;
+} my_GtkWindow3_t;
+
 typedef struct my_GtkWindow3Class_s
 {
   my_GtkBin3Class_t parent_class;
@@ -444,10 +636,21 @@ typedef struct my_GtkWindow3Class_s
   void (* _gtk_reserved3) (void);
 }my_GtkWindow3Class_t;
 
+typedef struct my_GtkApplicationWindow_s
+{
+  my_GtkWindow3_t parent;
+  void*           priv;
+} my_GtkApplicationWindow_t;
+
 typedef struct my_GtkApplicationWindowClass_s
 {
   my_GtkWindow3Class_t parent_class;
 }my_GtkApplicationWindowClass_t;
+
+typedef struct my_GtkListBox_s
+{
+  my_GtkContainer3_t parent;
+} my_GtkListBox_t;
 
 typedef struct my_GtkListBoxClass_s
 {
@@ -465,12 +668,34 @@ typedef struct my_GtkListBoxClass_s
   void (* _gtk_reserved3) (void);
 }my_GtkListBoxClass_t;
 
+typedef struct my_GtkListBoxRow_s
+{
+  my_GtkBin3_t parent;
+} my_GtkListBoxRow_t;
+
 typedef struct my_GtkListBoxRowClass_s {
   my_GtkBin3Class_t parent_class;
   void (* activate) (void* row);
   void (* _gtk_reserved1) (void);
   void (* _gtk_reserved2) (void);
 }my_GtkListBoxRowClass_t;
+
+typedef struct my_GtkButton2_s
+{
+  my_GtkBin2_t  bin;
+  void*         event_window; // GdkWindow
+  char*         label_text;
+  uint32_t      activate_timeout;
+  uint32_t      constructed : 1;
+  uint32_t      in_button : 1;
+  uint32_t      button_down : 1;
+  uint32_t      relief : 2;
+  uint32_t      use_underline : 1;
+  uint32_t      use_stock : 1;
+  uint32_t      depressed : 1;
+  uint32_t      depress_on_activate : 1;
+  uint32_t      focus_on_click : 1;
+} my_GtkButton2_t;
 
 typedef struct my_GtkButton2Class_s {
   my_GtkBin2Class_t parent_class;
@@ -486,6 +711,12 @@ typedef struct my_GtkButton2Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkButton2Class_t;
 
+typedef struct my_GtkButton3_s
+{
+  my_GtkBin3_t  bin;
+  void*         priv;
+} my_GtkButton3_t;
+
 typedef struct my_GtkButton3Class_s {
   my_GtkBin3Class_t parent_class;
   void (* pressed)  (void *button);
@@ -500,6 +731,14 @@ typedef struct my_GtkButton3Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkButton3Class_t;
 
+typedef struct my_GtkToggleButton2_s
+{
+  my_GtkButton2_t button;
+  uint32_t        active : 1;
+  uint32_t        draw_indicator : 1;
+  uint32_t        inconsistent : 1;
+} my_GtkToggleButton2_t;
+
 typedef struct my_GtkToggleButton2Class_s {
   my_GtkButton2Class_t parent_class;
   void (* toggled) (void* toggle_button);
@@ -509,6 +748,27 @@ typedef struct my_GtkToggleButton2Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkToggleButton2Class_t;
 
+typedef struct my_GtkToggleButton3_s
+{
+  my_GtkButton3_t parent;
+  void*           priv;
+} my_GtkToggleButton3_t;
+
+typedef struct my_GtkToggleButton3Class_s
+{
+  my_GtkButton3Class_t parent_class;
+  void (* toggled) (void* toggle_button);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkToggleButton3Class_t;
+
+typedef struct my_GtkCheckButton2_s
+{
+  my_GtkToggleButton2_t parent;
+} my_GtkCheckButton2_t;
+
 typedef struct my_GtkCheckButton2Class_s {
   my_GtkToggleButton2Class_t parent_class;
   void (* draw_indicator) (void* check_button, void* area);
@@ -516,6 +776,40 @@ typedef struct my_GtkCheckButton2Class_s {
   void (*_gtk_reserved1) (void);
   void (*_gtk_reserved2) (void);
 } my_GtkCheckButton2Class_t;
+
+typedef struct my_GtkCheckButton3_s
+{
+  my_GtkToggleButton3_t parent;
+} my_GtkCheckButton3_t;
+
+typedef struct my_GtkCheckButton3Class_s {
+  my_GtkToggleButton3Class_t parent_class;
+  void (* draw_indicator) (void* check_button, void* area);
+  void (*_gtk_reserved0) (void);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+} my_GtkCheckButton3Class_t;
+
+typedef struct my_GtkMenuButton3_s
+{
+  my_GtkToggleButton3_t parent;
+  void*                 priv;
+} my_GtkMenuButton3_t;
+
+typedef struct my_GtkMenuButton3Class_s
+{
+  my_GtkToggleButton3Class_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+}my_GtkMenuButton3Class_t;
+
+typedef struct my_GtkComboBox2_s
+{
+  my_GtkBin2_t    parent;
+  void*           priv;
+} my_GtkComboBox2_t;
 
 typedef struct my_GtkComboBox2Class_s {
   my_GtkBin2Class_t parent_class;
@@ -526,6 +820,52 @@ typedef struct my_GtkComboBox2Class_s {
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
 } my_GtkComboBox2Class_t;
+
+typedef struct my_GtkEntry2_s
+{
+  my_GtkWidget2_t   parent;
+  char*             text;
+  uint32_t          editable : 1;
+  uint32_t          visible  : 1;
+  uint32_t          overwrite_mode : 1;
+  uint32_t          in_drag : 1;
+  uint16_t          text_length;
+  uint16_t          text_max_length;
+  void*             text_area;  // GdkWindow
+  void*             im_context; // GtkIMContext
+  void*             popup_menu; // GtkWidget
+  int               current_pos;
+  int               selection_bound;
+  void*             cached_layout;  // PangoLayout
+  uint32_t          cache_includes_preedit : 1;
+  uint32_t          need_im_reset          : 1;
+  uint32_t          has_frame              : 1;
+  uint32_t          activates_default      : 1;
+  uint32_t          cursor_visible         : 1;
+  uint32_t          in_click               : 1;
+  uint32_t          is_cell_renderer       : 1;
+  uint32_t          editing_canceled       : 1;
+  uint32_t          mouse_cursor_obscured  : 1;
+  uint32_t          select_words           : 1;
+  uint32_t          select_lines           : 1;
+  uint32_t          resolved_dir           : 4;
+  uint32_t          truncate_multiline     : 1;
+  uint32_t          button;
+  uint32_t          blink_timeout;
+  uint32_t          recompute_idle;
+  int               scroll_offset;
+  int               ascent;
+  int               descent;
+  uint16_t          x_text_size;
+  uint16_t          x_n_bytes;
+  uint16_t          preedit_length;
+  uint16_t          preedit_cursor;
+  int               dnd_position;
+  int               drag_start_x;
+  int               drag_start_y;
+  uint32_t          invisible_char;
+  int               width_chars;
+} my_GtkEntry2_t;
 
 typedef struct my_GtkEntry2Class_s {
   my_GtkWidget2Class_t parent_class;
@@ -544,6 +884,26 @@ typedef struct my_GtkEntry2Class_s {
   void (*_gtk_reserved2) (void);
 } my_GtkEntry2Class_t;
 
+typedef struct my_GtkSpinButton2_s
+{
+  my_GtkEntry2_t  entry;
+  void*           adjustment; // GtkAdjustment
+  void*           panel;  // GdkWindow
+  uint32_t        timer;
+  double          climb_rate;
+  double          timer_step;
+  int             update_policy;
+  uint32_t        in_child : 2;
+  uint32_t        click_child : 2;
+  uint32_t        button : 2;
+  uint32_t        need_timer : 1;
+  uint32_t        timer_calls : 3;
+  uint32_t        digits : 10;
+  uint32_t        numeric : 1;
+  uint32_t        wrap : 1;
+  uint32_t        snap_to_ticks : 1;
+} my_GtkSpinButton2_t;
+
 typedef struct my_GtkSpinButton2Class_s {
   my_GtkEntry2Class_t parent_class;
   int  (*input)  (void* spin_button, void* new_value);
@@ -556,8 +916,21 @@ typedef struct my_GtkSpinButton2Class_s {
   void (*_gtk_reserved3) (void);
 } my_GtkSpinButton2Class_t;
 
+typedef struct my_GtkProgress2_s
+{
+  my_GtkWidget2_t   widget;
+  void*             adjustment; // GtkAdjustment
+  void*             offscreen_pixmap; // GdkPixmap
+  char*             format;
+  float             x_align;
+  float             y_align;
+  uint32_t          show_text : 1;
+  uint32_t          activity_mode : 1;
+  uint32_t          use_text_format : 1;
+} my_GtkProgress2_t;
+
 typedef struct my_GtkProgress2Class_s {
-  my_GtkWidget2Class_t parent_class;
+  my_GtkWidget2Class_t parent;
   void (* paint)            (void* progress);
   void (* update)           (void* progress);
   void (* act_mode_enter)   (void* progress);
@@ -567,6 +940,22 @@ typedef struct my_GtkProgress2Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkProgress2Class_t;
 
+typedef struct my_GtkProgressBar2_s
+{
+  my_GtkProgress2_t parent;
+  int               bar_style;
+  int               orientation;
+  uint32_t          blocks;
+  int               in_block;
+  int               activity_pos;
+  uint32_t          activity_step;
+  uint32_t          activity_blocks;
+  double            pulse_fraction;
+  uint32_t          activity_dir : 1;
+  uint32_t          ellipsize : 3;
+  uint32_t          dirty : 1;
+} my_GtkProgressBar2_t;
+
 typedef struct my_GtkProgressBar2Class_s {
   my_GtkProgress2Class_t parent_class;
   void (*_gtk_reserved1) (void);
@@ -575,10 +964,37 @@ typedef struct my_GtkProgressBar2Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkProgressBar2Class_t;
 
+typedef struct my_GtkFrame2_s
+{
+  my_GtkBin2_t      bin;
+  void*             label_widget; // GtkWidget
+  int16_t           shadow_type;
+  float             label_xalign;
+  float             label_yalign;
+  my_GdkRectangle_t child_allocation;
+} my_GtkFrame2_t;
+
 typedef struct my_GtkFrame2Class_s {
   my_GtkBin2Class_t parent_class;
   void (*compute_child_allocation) (void* frame, void* allocation);
 } my_GtkFrame2Class_t;
+
+typedef struct my_GtkMenuShell2_s
+{
+  my_GtkContainer2_t  container;
+  void*               children; // GList
+  void*               active_menu_item; // GtkWidget
+  void*               parent_menu_shell;  // GtkWidget
+  uint32_t            button;
+  uint32_t            activate_time;
+  uint32_t            active : 1;
+  uint32_t            have_grab : 1;
+  uint32_t            have_xgrab : 1;
+  uint32_t            ignore_leave : 1;
+  uint32_t            menu_flag : 1;
+  uint32_t            ignore_enter : 1;
+  uint32_t            keyboard_mode : 1;
+} my_GtkMenuShell2_t;
 
 typedef struct my_GtkMenuShell2Class_s {
   my_GtkContainer2Class_t parent_class;
@@ -595,6 +1011,11 @@ typedef struct my_GtkMenuShell2Class_s {
   void (*_gtk_reserved2) (void);
 } my_GtkMenuShell2Class_t;
 
+typedef struct my_GtkMenuBar2_s
+{
+  my_GtkMenuShell2_t  parent;
+} my_GtkMenuBar2_t;
+
 typedef struct my_GtkMenuBar2Class_s {
   my_GtkMenuShell2Class_t parent_class;
   void (*_gtk_reserved1) (void);
@@ -602,6 +1023,58 @@ typedef struct my_GtkMenuBar2Class_s {
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
 } my_GtkMenuBar2Class_t;
+
+typedef struct my_GtkTextView2_s
+{
+  my_GtkContainer2_t    parent;
+  void*                 layout; // struct _GtkTextLayout
+  void*                 buffer; // GtkTextBuffer
+  uint32_t              selection_drag_handler;
+  uint32_t              scroll_timeout;
+  int                   pixels_above_lines;
+  int                   pixels_below_lines;
+  int                   pixels_inside_wrap;
+  int                   wrap_mode;
+  int                   justify;
+  int                   left_margin;
+  int                   right_margin;
+  int                   indent;
+  void*                 tabs; // PangoTabArray
+  uint32_t              editable : 1;
+  uint32_t              overwrite_mode : 1;
+  uint32_t              cursor_visible : 1;
+  uint32_t              need_im_reset : 1;
+  uint32_t              accepts_tab : 1;
+  uint32_t              width_changed : 1;
+  uint32_t              onscreen_validated : 1;
+  uint32_t              mouse_cursor_obscured : 1;
+  void*                 text_window;  // GtkTextWindow
+  void*                 left_window;  // GtkTextWindow
+  void*                 right_window; // GtkTextWindow
+  void*                 top_window; // GtkTextWindow
+  void*                 bottom_window;  // GtkTextWindow
+  void*                 hadjustment;  // GtkAdjustment
+  void*                 vadjustment;  // GtkAdjustment
+  int                   xoffset;
+  int                   yoffset;
+  int                   width;
+  int                   height;
+  int                   virtual_cursor_x;
+  int                   virtual_cursor_y;
+  void*                 first_para_mark;  // GtkTextMark
+  int                   first_para_pixels;
+  void*                 dnd_mark; // GtkTextMark
+  uint32_t              blink_timeout;
+  uint32_t              first_validate_idle;
+  uint32_t              incremental_validate_idle;
+  void*                 im_context; // GtkIMContext
+  void*                 popup_menu; // GtkWidget
+  int                   drag_start_x;
+  int                   drag_start_y;
+  void*                 children; // GSList
+  void*                 pending_scroll; // GtkTextPendingScroll
+  int                   pending_place_cursor_button;
+} my_GtkTextView2_t;
 
 typedef struct my_GtkTextView2Class_s {
   my_GtkContainer2Class_t parent_class;
@@ -627,6 +1100,12 @@ typedef struct my_GtkTextView2Class_s {
   void (*_gtk_reserved7) (void);
 } my_GtkTextView2Class_t;
 
+typedef struct my_GtkTextView3_s
+{
+  my_GtkContainer3_t  parent;
+  void*               priv;
+} my_GtkTextView3_t;
+
 typedef struct my_GtkTextView3Class_s {
   my_GtkContainer3Class_t parent_class;
   void (* populate_popup)           (void* text_view, void* menu);
@@ -649,6 +1128,12 @@ typedef struct my_GtkTextView3Class_s {
   void (*_gtk_reserved4) (void);
 } my_GtkTextView3Class_t;
 
+typedef struct my_GtkGrid3_s
+{
+  my_GtkContainer3_t  parent;
+  void*               priv;
+} my_GtkGrid3_t;
+
 typedef struct my_GtkGrid3Class_s {
   my_GtkContainer3Class_t parent_class;
   void (* _gtk_reserved1) (void);
@@ -661,6 +1146,11 @@ typedef struct my_GtkGrid3Class_s {
   void (* _gtk_reserved8) (void);
 }my_GtkGrid3Class_t;
 
+typedef struct my_GtkEventController_s
+{
+  my_GObject_t parent;
+} my_GtkEventController_t;
+
 typedef struct my_GtkEventControllerClass_s {
   my_GObjectClass_t parent_class;
   void (* set_widget)   (void *controller, void *widget);
@@ -671,6 +1161,11 @@ typedef struct my_GtkEventControllerClass_s {
   int (* filter_event) (void *controller, void *event);
   void* padding[10];
 }my_GtkEventControllerClass_t;
+
+typedef struct my_GtkGesture_s
+{
+  my_GtkEventController_t parent;
+} my_GtkGesture_t;
 
 typedef struct my_GtkGestureClass_s {
   my_GtkEventControllerClass_t parent_class;
@@ -683,10 +1178,20 @@ typedef struct my_GtkGestureClass_s {
   void* padding[10];
 }my_GtkGestureClass_t;
 
+typedef struct my_GtkGestureSingle_s
+{
+  my_GtkGesture_t parent;
+} my_GtkGestureSingle_t;
+
 typedef struct my_GtkGestureSingleClass_s {
   my_GtkGestureClass_t parent_class;
   void* padding[10];
 }my_GtkGestureSingleClass_t;
+
+typedef struct my_GtkGestureLongPress_s
+{
+  my_GtkGestureSingle_t parent;
+} my_GtkGestureLongPress_t;
 
 typedef struct my_GtkGestureLongPressClass_s {
   my_GtkGestureSingleClass_t parent_class;
@@ -696,21 +1201,51 @@ typedef struct my_GtkGestureLongPressClass_s {
   void* padding[10];
 }my_GtkGestureLongPressClass_t;
 
+typedef struct my_MetaFrames2_s
+{
+  my_GtkWindow2_t parent; // to be checked (is MetaFrame2 still usefull?)
+} my_MetaFrames2_t;
+
 typedef struct my_MetaFrames2Class_s
 {
   my_GtkWindow2Class_t parent_class;
 
 } my_MetaFrames2Class_t;
 
+typedef struct my_GtkTable2_s
+{
+  my_GtkContainer2_t  container;
+  void*               children; // GList
+  void*               rows; // GtkTableRowCol
+  void*               cols; // GtkTableRowCol
+  uint16_t            nrows;
+  uint16_t            ncols;
+  uint16_t            column_spacing;
+  uint16_t            row_spacing;
+  uint32_t            homogeneous : 1;
+} my_GtkTable2_t;
+
 typedef struct my_GtkTable2Class_s
 {
   my_GtkContainer2Class_t parent_class;
 } my_GtkTable2Class_t;
 
+typedef struct my_GtkFixed2_s
+{
+  my_GtkContainer2_t  parent;
+  void*               children; // GList
+} my_GtkFixed2_t;
+
 typedef struct my_GtkFixed2Class_s
 {
   my_GtkContainer2Class_t parent_class;
 } my_GtkFixed2Class_t;
+
+typedef struct my_GDBusObjectManagerClient_s
+{
+  my_GObject_t  parent;
+  void*         priv;
+} my_GDBusObjectManagerClient_t;
 
 typedef struct my_GDBusObjectManagerClientClass_s
 {
@@ -719,6 +1254,17 @@ typedef struct my_GDBusObjectManagerClientClass_s
   void    (*interface_proxy_properties_changed) (void* manager, void* object_proxy, void* interface_proxy, void* changed_properties, void* invalidated_properties);
   void* padding[8];
 } my_GDBusObjectManagerClientClass_t;
+
+typedef struct my_AtkObject_s
+{
+  my_GObject_t  parent;
+  char*         description;
+  char*         name;
+  void*         accessible_parent;  // AtkObject
+  int           role;
+  void*         relation_set; // AtkRelationSet
+  int           layer;
+} my_AtkObject_t;
 
 typedef struct my_AtkObjectClass_s
 {
@@ -752,6 +1298,11 @@ typedef struct my_AtkObjectClass_s
   void*  pad1;
 } my_AtkObjectClass_t;
 
+typedef struct my_AtkUtil_s
+{
+  my_GObject_t parent;
+} my_AtkUtil_t;
+
 typedef struct my_AtkUtilClass_s
 {
    my_GObjectClass_t parent;
@@ -764,6 +1315,25 @@ typedef struct my_AtkUtilClass_s
    void*    (* get_toolkit_version)          (void);
 } my_AtkUtilClass_t;
 
+typedef union my_GMutex_s
+{
+  void*     p;
+  uint32_t  i[2];
+} my_GMutex_t;
+
+typedef struct my_GstObject_s
+{
+  my_GInitiallyUnowned_t  parent;
+  my_GMutex_t             lock;
+  char*                   name;
+  void*                   _parent;  // GstObject
+  uint32_t                flags;
+  void*                   control_bindings; // GList
+  uint64_t                control_rate;
+  uint64_t                last_sync;
+  void*                   _gst_reserved;
+} my_GstObject_t;
+
 typedef struct my_GstObjectClass_s {
   my_GInitiallyUnownedClass_t parent;
   const char*   path_string_separator;
@@ -771,12 +1341,35 @@ typedef struct my_GstObjectClass_s {
   void*        _gst_reserved[4];
 } my_GstObjectClass_t;
 
-typedef struct my_GstAllocatorClass_s {
+typedef struct my_GstAllocator_s
+{
+  my_GstObject_t        parent;
+  const char*           mem_type;
+  void*(*mem_map)       (void* mem, size_t maxsize, int flags);
+  void (*mem_unmap)     (void* mem);
+  void*(*mem_copy)      (void* mem, ssize_t offset, ssize_t size);
+  void*(*mem_share)     (void* mem, ssize_t offset, ssize_t size);
+  int  (*mem_is_span)   (void* mem1, void* mem2, void* offset);
+  void*(*mem_map_full)  (void* mem, void* info, size_t maxsize);
+  void (*mem_unmap_full)(void* mem, void* info);
+  void*                 _gst_reserved[4 - 2];
+  void*                 priv;
+} my_GstAllocator_t;
+
+typedef struct my_GstAllocatorClass_s
+{
   my_GstObjectClass_t parent;
   void*     (*alloc)      (void *allocator, size_t size, void *params);
   void      (*free)       (void *allocator, void *memory);
   void*    _gst_reserved[4];
 } my_GstAllocatorClass_t;
+
+typedef struct my_GstTaskPool_s
+{
+  my_GstObject_t      parent;
+  void*               pool; // GThreadPool
+  void*               _gst_reserved[4];
+} my_GstTaskPool_t;
 
 typedef struct my_GstTaskPoolClass_s {
   my_GstObjectClass_t parent_class;
@@ -787,6 +1380,44 @@ typedef struct my_GstTaskPoolClass_s {
   void      (*dispose_handle) (void* pool, void* id);
   void*     _gst_reserved[4-1];
 } my_GstTaskPoolClass_t;
+
+typedef struct my_GCond_s
+{
+  void*     p;
+  uint32_t  i[2];
+} my_GCond_t;
+
+typedef struct my_GRecMutex_s
+{
+  void*     p;
+  uint32_t  i[2];
+} my_GRecMutex_t;
+
+typedef struct my_GstElement_s
+{
+  my_GstObject_t        parent;
+  my_GRecMutex_t        state_lock;
+  my_GCond_t            state_cond;
+  uint32_t              state_cookie;
+  int                   target_state;
+  int                   current_state;
+  int                   next_state;
+  int                   pending_state;
+  int                   last_return;
+  void*                 bus;  // GstBus
+  void*                 clock;  // GstClock
+  int64_t               base_time;
+  uint64_t              start_time;
+  uint16_t              numpads;
+  void*                 pads; //GstClock
+  uint16_t              numsrcpads;
+  void*                 srcpads;  //GstClock
+  uint16_t              numsinkpads;
+  void*                 sinkpads; //GstClock
+  uint32_t              pads_cookie;
+  void*                 contexts; //GstClock
+  void*                 _gst_reserved[4-1];
+} my_GstElement_t;
 
 typedef struct my_GstElementClass_s {
   my_GstObjectClass_t   parent_class;
@@ -814,6 +1445,22 @@ typedef struct my_GstElementClass_s {
   void* _gst_reserved[20-2];
 } my_GstElementClass_t;
 
+typedef struct my_GstBin_s {
+  my_GstElement_t     parent;
+  int                 numchildren;
+  void*               children; // GList
+  uint32_t            children_cookie;
+  void*               child_bus;  // GstBus
+  void*               messages; // GList
+  int                 polling;
+  int                 state_dirty;
+  int                 clock_dirty;
+  void*               provided_clock; // GstClock
+  void*               clock_provider; // GstElement
+  void*               priv;
+  void*               _gst_reserved[4];
+} my_GstBin_t;
+
 typedef struct my_GstBinClass_s {
   my_GstElementClass_t parent_class;
   void* pool;
@@ -827,6 +1474,34 @@ typedef struct my_GstBinClass_s {
   void  (*deep_element_removed) (void* bin, void* sub_bin, void* child);
   void* _gst_reserved[4-2];
 } my_GstBinClass_t;
+
+typedef struct my_GstSegment_s
+{
+  int       flags;
+  double    rate;
+  double    applied_rate;
+  int       format;
+  uint64_t  base;
+  uint64_t  offset;
+  uint64_t  start;
+  uint64_t  stop;
+  uint64_t  time;
+  uint64_t  position;
+  uint64_t  duration;
+  void*     _gst_reserved[4];
+} my_GstSegment_t;
+
+typedef struct my_GstBaseTransform_s
+{
+  my_GstElement_t     parent;
+  void*               sinkpad;  // GstPad
+  void*               srcpad; // GstPad
+  int                 have_segment;
+  my_GstSegment_t     segment;
+  void*               queued_buf; // GstBuffer
+  void*               priv;
+  void*               _gst_reserved[20-1];
+} my_GstBaseTransform_t;
 
 typedef struct my_GstBaseTransformClass_s {
   my_GstElementClass_t parent_class;
@@ -857,6 +1532,18 @@ typedef struct my_GstBaseTransformClass_s {
   void* _gst_reserved[20-2];
 } my_GstBaseTransformClass_t;
 
+typedef struct my_GstVideoDecoder_s
+{
+  my_GstElement_t parent;
+  void*           sinkpad;  // GstPad
+  void*           srcpad; // GstPad
+  my_GRecMutex_t  stream_lock;
+  my_GstSegment_t input_segment;
+  my_GstSegment_t output_segment;
+  void*           priv;
+  void*           padding[20];
+} my_GstVideoDecoder_t;
+
 typedef struct my_GstVideoDecoderClass_s {
   my_GstElementClass_t parent_class;
   int      (*open)           (void* decoder);
@@ -883,6 +1570,18 @@ typedef struct my_GstVideoDecoderClass_s {
   void* padding[20-7];
 } my_GstVideoDecoderClass_t;
 
+typedef struct my_GstVideoEncoder_s
+{
+  my_GstElement_t   parent;
+  void*             sinkpad;  // GstPad
+  void*             srcpad; // GstPad
+  my_GRecMutex_t    stream_lock;
+  my_GstSegment_t   input_segment;
+  my_GstSegment_t   output_segment;
+  void*             priv;
+  void*             padding[20];
+} my_GstVideoEncoder_t;
+
 typedef struct my_GstVideoEncoderClass_s {
   my_GstElementClass_t  parent_class;
   int      (*open)         (void* encoder);
@@ -907,6 +1606,31 @@ typedef struct my_GstVideoEncoderClass_s {
   void*  _gst_reserved[20-4];
 } my_GstVideoEncoderClass_t;
 
+typedef struct my_GstBaseSink_s
+{
+  my_GstElement_t     parent;
+  void*               sinkpad;  // GstPad
+  int                 pad_mode;
+  uint64_t            offset;
+  int                 can_activate_pull;
+  int                 can_activate_push;
+  my_GMutex_t         preroll_lock;
+  my_GCond_t          preroll_cond;
+  int                 eos;
+  int                 need_preroll;
+  int                 have_preroll;
+  int                 playing_async;
+  int                 have_newsegment;
+  my_GstSegment_t     segment;
+  int                 clock_id;
+  int                 sync;
+  int                 flushing;
+  int                 running;
+  int64_t             max_lateness;
+  void*               priv;
+  void*               _gst_reserved[20];
+} my_GstBaseSink_t;
+
 typedef struct my_GstBaseSinkClass_s {
   my_GstElementClass_t parent_class;
   void*         (*get_caps)             (void* sink, void* filter);
@@ -930,6 +1654,14 @@ typedef struct my_GstBaseSinkClass_s {
   void*       _gst_reserved[20];
 } my_GstBaseSinkClass_t;
 
+typedef struct my_GstVideoSink_s
+{
+  my_GstBaseSink_t  parent;
+  int               width, height;
+  void*             priv;
+  void*             _gst_reserved[4];
+} my_GstVideoSink_t;
+
 typedef struct my_GstVideoSinkClass_s
 {
   my_GstBaseSinkClass_t parent_class;
@@ -937,6 +1669,17 @@ typedef struct my_GstVideoSinkClass_s
   int       (*set_info)   (void* video_sink, void* caps, void* info);
   void* _gst_reserved[4-1];
 } my_GstVideoSinkClass_t;
+
+typedef struct my_GstGLBaseFilter_s
+{
+  my_GstBaseTransform_t   parent;
+  void*                   display;  // GstGLDisplay
+  void*                   context;  // GstGLContext
+  void*                   in_caps;  // GstCaps
+  void*                   out_caps; // GstCaps
+  void*                   _padding[4];
+  void*                   priv;
+} my_GstGLBaseFilter_t;
 
 typedef struct my_GstGLBaseFilterClass_s
 {
@@ -948,6 +1691,63 @@ typedef struct my_GstGLBaseFilterClass_s
   void* _padding[4];
 } my_GstGLBaseFilterClass_t;
 
+typedef struct my_GstVideoColorimetry_t
+{
+  int range;
+  int matrix;
+  int transfer;
+  int primaries;
+} my_GstVideoColorimetry_t;
+
+typedef struct my_GstVideoInfo_s
+{
+  void*                     finfo;  // const GstVideoFormatInfo
+  int                       interlace_mode;
+  int                       flags;
+  int                       width;
+  int                       height;
+  size_t                    size;
+  int                       views;
+  int                       chroma_site;
+  my_GstVideoColorimetry_t  colorimetry;
+  int                       par_n;
+  int                       par_d;
+  int                       fps_n;
+  int                       fps_d;
+  size_t                    offset[4];
+  int                       stride[4];
+  union {
+    struct {
+      int   multiview_mode;
+      int   multiview_flags;
+      int   field_order;
+    } abi;
+    void* _gst_reserved[4];
+  } ABI;
+} my_GstVideoInfo_t;
+
+typedef struct my_GstGLFilter_s
+{
+  my_GstGLBaseFilter_t    parent;
+  my_GstVideoInfo_t       in_info;
+  my_GstVideoInfo_t       out_info;
+  int                     in_texture_target;
+  int                     out_texture_target;
+  void*                   out_caps; // GstCaps
+  void*                   fbo;  // GstGLFramebuffer
+  int                     gl_result;
+  void*                   inbuf;  // GstBuffer
+  void*                   outbuf; // GstBuffer
+  void*                   default_shader; // GstGLShader
+  int                     valid_attributes;
+  uint32_t                vao;
+  uint32_t                vbo_indices;
+  uint32_t                vertex_buffer;
+  int                     draw_attr_position_loc;
+  int                     draw_attr_texture_loc;
+  void*                   _padding[4];
+} my_GstGLFilter_t;
+
 typedef struct my_GstGLFilterClass_s
 {
   my_GstGLBaseFilterClass_t parent_class;
@@ -958,6 +1758,14 @@ typedef struct my_GstGLFilterClass_s
   void*    (*transform_internal_caps) (void* filter, int direction, void* caps, void* filter_caps);
   void*    _padding[4];
 } my_GstGLFilterClass_t;
+
+typedef struct my_GstAggregator_s
+{
+  my_GstElement_t   parent;
+  void*             srcpad; // GstPad
+  void*             priv;
+  void*             _gst_reserved[20];
+} my_GstAggregator_t;
 
 typedef struct my_GstAggregatorClass_s {
   my_GstElementClass_t   parent_class;
@@ -987,6 +1795,14 @@ typedef struct my_GstAggregatorClass_s {
   void*      _gst_reserved[20-5];
 } my_GstAggregatorClass_t;
 
+typedef struct my_GstVideoAggregator_s
+{
+  my_GstAggregator_t  aggregator;
+  my_GstVideoInfo_t   info;
+  void*               priv;
+  void*               _gst_reserved[20];
+} my_GstVideoAggregator_t;
+
 typedef struct my_GstVideoAggregatorClass_s
 {
   my_GstAggregatorClass_t parent_class;
@@ -997,12 +1813,86 @@ typedef struct my_GstVideoAggregatorClass_s
   void*      _gst_reserved[20];
 } my_GstVideoAggregatorClass_t;
 
+typedef struct my_GHookList_s
+{
+  unsigned long     seq_id;
+  uint32_t          hook_size : 16;
+  uint32_t          is_setup : 1;
+  void*             hooks;  // GHook
+  void*             dummy3;
+  void (*finalize_hook) (void* hook_list, void* hook);
+  void*             dummy[2];
+} my_GHookList_t;
+
+typedef struct my_GstPad_s
+{
+  my_GstObject_t      parent;
+  void*               element_private;
+  void*               padtemplate;  // GstPadTemplate
+  int                 direction;
+  my_GRecMutex_t      stream_rec_lock;
+  void*               task; // GstTask
+  my_GCond_t          block_cond;
+  my_GHookList_t      probes;
+  int                 mode;
+  int     (*activatefunc)       (void* pad, void* parent);
+  void*               activatedata;
+  void    (*activatenotify)     (void* a);
+  int     (*activatemodefunc)   (void* pad, void* parent, int mode, int active);
+  void*               activatemodedata;
+  void    (*activatemodenotify) (void* a);
+  void*                peer;  // GstPad
+  int     (*linkfunc)           (void* pad, void* parent, void* peer);
+  void*               linkdata;
+  void    (*linknotify)         (void* a);
+  void    (*unlinkfunc)         (void* pad, void* parent);
+  void*               unlinkdata;
+  void    (*unlinknotify)       (void* a);
+  int     (*chainfunc)          (void* pad, void* parent, void* buffer);
+  void*               chaindata;
+  void    (*chainnotify)        (void* a);
+  int     (*chainlistfunc)      (void* pad, void* parent, void* list);
+  void*               chainlistdata;
+  void    (*chainlistnotify)    (void* a);
+  int     (*getrangefunc)       (void* pad, void* parent, uint64_t offset, uint32_t length, void* buffer);
+  void*               getrangedata;
+  void    (*getrangenotify)     (void* a);
+  int     (*eventfunc)          (void* pad, void* parent, void* event);
+  void*               eventdata;
+  void    (*eventnotify)        (void* a);
+  int64_t             offset;
+  int     (*queryfunc)          (void* pad, void* parent, void* query);
+  void*               querydata;
+  void    (*querynotify)        (void* a);
+  void*   (*iterintlinkfunc)    (void* pad, void* parent);
+  void*               iterintlinkdata;
+  void    (*iterintlinknotify)  (void* a);
+  int                 num_probes;
+  int                 num_blocked;
+  void*               priv;
+  union {
+    void* _gst_reserved[4];
+    struct {
+      int    last_flowret;
+      int (*eventfullfunc) (void* pad, void* parent, void* event);
+    } abi;
+  } ABI;
+} my_GstPad_t;
+
 typedef struct my_GstPadClass_s {
   my_GstObjectClass_t        parent_class;
   void       (*linked)       (void* pad, void* peer);
   void       (*unlinked)     (void* pad, void* peer);
   void* _gst_reserved[4];
 } my_GstPadClass_t;
+
+typedef struct my_GstAggregatorPad_s
+{
+  my_GstPad_t     parent;
+  my_GstSegment_t segment;
+  void*           priv;
+  void*           _gst_reserved[4];
+} my_GstAggregatorPad_t;
 
 typedef struct my_GstAggregatorPadClass_s
 {
@@ -1011,6 +1901,14 @@ typedef struct my_GstAggregatorPadClass_s
   int      (*skip_buffer) (void* aggpad, void* aggregator, void* buffer);
   void*      _gst_reserved[20];
 } my_GstAggregatorPadClass_t;
+
+typedef struct my_GstVideoAggregatorPad_s
+{
+  my_GstAggregatorPad_t parent;
+  my_GstVideoInfo_t     info;
+  void*                 priv;
+  void*                 _gst_reserved[4];
+} my_GstVideoAggregatorPad_t;
 
 typedef struct my_GstVideoAggregatorPadClass_s
 {
@@ -1022,6 +1920,29 @@ typedef struct my_GstVideoAggregatorPadClass_s
   void    (*prepare_frame_finish)   (void* pad, void* vagg, void* prepared_frame);
   void*   _gst_reserved[20-2];
 } my_GstVideoAggregatorPadClass_t;
+
+typedef struct my_GstBaseSrc_s
+{
+  my_GstElement_t parent;
+  void*           srcpad; // GstPad
+  my_GMutex_t     live_lock;
+  my_GCond_t      live_cond;
+  int             is_live;
+  int             live_running;
+  uint32_t        blocksize;
+  int             can_activate_push;
+  int             random_access;
+  int             clock_id;
+  my_GstSegment_t segment;
+  int             need_newsegment;
+  int             num_buffers;
+  int             num_buffers_left;
+  int             typefind;
+  int             running;
+  void*           pending_seek; // GstEvent
+  void*           priv;
+  void*           _gst_reserved[20];
+} my_GstBaseSrc_t;
 
 typedef struct my_GstBaseSrcClass_s {
   my_GstElementClass_t parent_class;
@@ -1047,6 +1968,12 @@ typedef struct my_GstBaseSrcClass_s {
   void*       _gst_reserved[20];
 } my_GstBaseSrcClass_t;
 
+typedef struct my_GstPushSrc_s
+{
+  my_GstBaseSrc_t parent;
+  void*           _gst_reserved[4];
+} my_GstPushSrc_t;
+
 typedef struct my_GstPushSrcClass_s {
   my_GstBaseSrcClass_t parent_class;
   int (*create) (void* src, void* buf);
@@ -1054,6 +1981,18 @@ typedef struct my_GstPushSrcClass_s {
   int (*fill)   (void* src, void* buf);
   void* _gst_reserved[4];
 } my_GstPushSrcClass_t;
+
+typedef struct my_GstGLBaseSrc_s
+{
+  my_GstPushSrc_t   parent;
+  void*             display;  // GstGLDisplay
+  void*             context;  // GstGLContext
+  my_GstVideoInfo_t out_info;
+  void*             out_caps; // GstCaps
+  uint64_t          running_time;
+  void*             _padding[4];
+  void*             priv;
+} my_GstGLBaseSrc_t;
 
 typedef struct my_GstGLBaseSrcClass_s {
   my_GstPushSrcClass_t parent_class;
@@ -1063,6 +2002,18 @@ typedef struct my_GstGLBaseSrcClass_s {
   int      (*fill_gl_memory)    (void* src, void* mem);
   void*     _padding[4];
 } my_GstGLBaseSrcClass_t;
+
+typedef struct my_GstAudioDecoder_s
+{
+  my_GstElement_t     parent;
+  void*               sinkpad;  // GstPad
+  void*               srcpad; // GstPad
+  my_GRecMutex_t      stream_lock;
+  my_GstSegment_t     input_segment;
+  my_GstSegment_t     output_segment;
+  void*               priv;
+  void*               _gst_reserved[20];
+} my_GstAudioDecoder_t;
 
 typedef struct my_GstAudioDecoderClass_s
 {
@@ -1088,6 +2039,14 @@ typedef struct my_GstAudioDecoderClass_s
   void*   _gst_reserved[20 - 4];
 } my_GstAudioDecoderClass_t;
 
+typedef struct my_GstVideoFilter_s {
+  my_GstBaseTransform_t parent;
+  int                   negotiated;
+  my_GstVideoInfo_t     in_info;
+  my_GstVideoInfo_t     out_info;
+  void*                 _gst_reserved[4];
+} my_GstVideoFilter_t;
+
 typedef struct my_GstVideoFilterClass_s {
   my_GstBaseTransformClass_t parent_class;
   int      (*set_info)           (void* filter, void* incaps, void* in_info, void* outcaps, void* out_info);
@@ -1095,6 +2054,12 @@ typedef struct my_GstVideoFilterClass_s {
   int      (*transform_frame_ip) (void* filter, void* frame);
   void* _gst_reserved[4];
 } my_GstVideoFilterClass_t;
+
+typedef struct my_GDBusProxy_s
+{
+  my_GObject_t  parent;
+  void*         priv;
+} my_GDBusProxy_t;
 
 typedef struct my_GDBusProxyClass_s {
   my_GObjectClass_t parent_class;
@@ -1174,7 +2139,6 @@ void FiniGTKClass(void);
 #define GTKCLASSES()                \
 GTKCLASS(GObject)                   \
 GTKCLASS(GInitiallyUnowned)         \
-GTKCLASS(GamesScoresImporter)       \
 GTKCLASS(GApplication)              \
 GTKCLASS(GtkApplication)            \
 GTKCLASS(GtkObject)                 \
@@ -1201,7 +2165,10 @@ GTKCLASS(GtkButton2)                \
 GTKCLASS(GtkButton3)                \
 GTKCLASS(GtkComboBox2)              \
 GTKCLASS(GtkToggleButton2)          \
+GTKCLASS(GtkToggleButton3)          \
+GTKCLASS(GtkMenuButton3)            \
 GTKCLASS(GtkCheckButton2)           \
+GTKCLASS(GtkCheckButton3)           \
 GTKCLASS(GtkEntry2)                 \
 GTKCLASS(GtkSpinButton2)            \
 GTKCLASS(GtkProgress2)              \
@@ -1262,6 +2229,9 @@ void* unwrapCopyGTKClass(void* klass, size_t type);
 void unwrapGTKInterface(void* cl, size_t type);
 void* wrapCopyGTKInterface(void* cl, size_t type);
 void* unwrapCopyGTKInterface(void* iface, size_t type);
+
+void unwrapGTKInstance(void* cl, size_t type);
+void bridgeGTKInstance(void* cl, size_t type);
 
 void addRegisteredClass(size_t klass, char* name);
 

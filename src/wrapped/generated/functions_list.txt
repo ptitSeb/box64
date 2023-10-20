@@ -164,6 +164,7 @@
 #() cFpp
 #() wFpi
 #() iFEi
+#() iFEL
 #() iFEp
 #() iFwp
 #() iFii
@@ -689,6 +690,7 @@
 #() pFplu
 #() pFpll
 #() pFplp
+#() pFpLi
 #() pFpLu
 #() pFpLL
 #() pFpLp
@@ -1252,6 +1254,7 @@
 #() vFEpLLp
 #() vFEppip
 #() vFEppiV
+#() vFEppuu
 #() vFEppup
 #() vFEpppi
 #() vFEpppp
@@ -1341,10 +1344,10 @@
 #() vFuppip
 #() vFupppu
 #() vFupppp
-#() vFUUppp
 #() vFfffff
 #() vFddddp
 #() vFluipp
+#() vFLpppi
 #() vFLpppp
 #() vFpiiii
 #() vFpiiiI
@@ -1374,6 +1377,7 @@
 #() vFpUuiu
 #() vFpUUuu
 #() vFpUUup
+#() vFpUUUi
 #() vFpUUUu
 #() vFpUUUp
 #() vFpUppp
@@ -1544,6 +1548,7 @@
 #() iFppuup
 #() iFppupi
 #() iFppupp
+#() iFppUup
 #() iFpplii
 #() iFppllp
 #() iFpplpp
@@ -1798,6 +1803,7 @@
 #() vFupupip
 #() vFuppppu
 #() vFuppppp
+#() vFUUpppp
 #() vFffffff
 #() vFdddddd
 #() vFdddppp
@@ -1899,6 +1905,7 @@
 #() iFdipppL
 #() iFDipppL
 #() iFlpippp
+#() iFLpppii
 #() iFpiiiii
 #() iFpiiiiu
 #() iFpiiiip
@@ -2954,6 +2961,7 @@ wrappedatomic:
 wrappedatspi:
 - pFppp:
   - atspi_event_listener_new
+wrappedayatanaappindicator3:
 wrappedbz2:
 - iFp:
   - BZ2_bzCompressEnd
@@ -3109,6 +3117,12 @@ wrappeddbusglib1:
   - dbus_g_proxy_begin_call
 - pFpppppiiV:
   - dbus_g_proxy_begin_call_with_timeout
+wrappeddbusmenuglib:
+- vFppp:
+  - dbusmenu_menuitem_foreach
+  - dbusmenu_menuitem_send_about_to_show
+- iFppp:
+  - dbusmenu_client_add_type_handler
 wrappedevent21:
 - vFpiwpp:
   - event_set
@@ -3544,6 +3558,8 @@ wrappedgobject2:
 - uFpLippppLuA:
   - g_signal_new_valist
 wrappedgomp:
+- vFppuu:
+  - GOMP_parallel
 wrappedgssapi:
 wrappedgssapikrb5:
 wrappedgstallocators:
@@ -3929,6 +3945,8 @@ wrappedlibc:
 - iFip:
   - fstat
   - fstat64
+- iFup:
+  - setrlimit
 - iFLp:
   - pthread_getattr_np
 - iFpi:
@@ -4444,6 +4462,8 @@ wrappedlibpthread:
   - __pthread_register_cancel
   - __pthread_unregister_cancel
   - __pthread_unwind_next
+- iFL:
+  - pthread_key_delete
 - iFp:
   - __pthread_mutexattr_destroy
   - __pthread_mutexattr_init
@@ -5120,8 +5140,6 @@ wrappedsdl2:
   - SDL_CreateThread
 - vFpuup:
   - SDL_qsort
-- vFGppp:
-  - SDL_GetJoystickGUIDInfo
 - iFpLpp:
   - SDL_vsnprintf
 - iFpLpV:
@@ -5129,11 +5147,13 @@ wrappedsdl2:
 - uFppuu:
   - SDL_RWread
   - SDL_RWwrite
+- vFGpppp:
+  - SDL_GetJoystickGUIDInfo
 - iFpippi:
   - SDL_OpenAudioDevice
 - pFpippp:
   - SDL_LoadWAV_RW
-% vFGppp
+% vFGpppp
 wrappedsdl2image:
 - pFp:
   - IMG_LoadBMP_RW
