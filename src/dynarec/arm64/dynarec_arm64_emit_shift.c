@@ -251,7 +251,7 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
-        TSTw_REG(s1, s1);
+        TSTxw_REG(s1, s1);
         CSETw(s4, cEQ);
         BFIw(xFlags, s4, F_ZF, 1);
     }
