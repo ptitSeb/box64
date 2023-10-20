@@ -2981,11 +2981,23 @@ EXPORT int my_semctl(int semid, int semnum, int cmd, union semun b)
     return ret;
 }
 
-EXPORT int my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, void* data)
+EXPORT const uint64_t userdata_sign = 0x1234598765ABCEF0;
+EXPORT uint32_t userdata[1024]; 
+
+EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_t* data)
 {
     if(request == PTRACE_POKEUSER) {
+        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
+            ptrace(PTRACE_POKEDATA, pid, addr+(uintptr_t)userdata, data);
+            return 0;
+        }
         // lets just ignore this for now!
         return 0;
+    }
+    if(request == PTRACE_PEEKUSER) {
+        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(userdata)) {
+            return ptrace(PTRACE_PEEKDATA, pid, addr+(uintptr_t)userdata, data);
+        }
     }
     return ptrace(request, pid, addr, data);
 }
