@@ -648,6 +648,96 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b00111111010000000000000000000000)==0b00111101010000000000000000000000) {
+        // this is VLDR
+        int scale = (opcode>>30)&3;
+        if((opcode>>23)&1)
+            scale+=4;
+        if(scale>4)
+            return 0;
+        if(!fpsimd)
+            return 0;
+        uint64_t offset = (opcode>>10)&0b111111111111;
+        offset<<=scale;
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        __uint128_t value = 0;
+        if(scale>2 && ((uintptr_t)addr)&3==0) {
+            for(int i=0; i<(1<<(scale-2)); ++i)
+                value |= ((__uint128_t)(((uint32_t*)addr)[i]))<<(i*32);
+        } else
+            for(int i=0; i<(1<<scale); ++i)
+                value |= ((__uint128_t)addr[i])<<(i*8);
+        fpsimd->vregs[val] = value;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
+    if((opcode&0b00111111011000000000110000000000)==0b00111100010000000000000000000000) {
+        // this is VLDRU
+        int scale = (opcode>>30)&3;
+        if((opcode>>23)&1)
+            scale+=4;
+        if(scale>4)
+            return 0;
+        if(!fpsimd)
+            return 0;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        __uint128_t value = 0;
+        if(scale>2 && ((uintptr_t)addr)&3==0) {
+            for(int i=0; i<(1<<(scale-2)); ++i)
+                value |= ((__uint128_t)(((uint32_t*)addr)[i]))<<(i*32);
+        } else
+            for(int i=0; i<(1<<scale); ++i)
+                value |= ((__uint128_t)addr[i])<<(i*8);
+        fpsimd->vregs[val] = value;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
+    if((opcode&0b10111111110000000000000000000000)==0b10111001010000000000000000000000) {
+        // this is LDR
+        int scale = (opcode>>30)&3;
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        uint64_t offset = (opcode>>10)&0b111111111111;
+        offset<<=scale;
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        uint64_t value = 0;
+        if(scale==3 && ((uintptr_t)addr)&3==0) {
+            for(int i=0; i<2; ++i)
+                value |= ((uint64_t)((uint32_t*)addr)[i]) << (i*32);
+        } else
+            for(int i=0; i<(1<<scale); ++i)
+                value |= ((uint64_t)addr[i]) << (i*8);
+        p->uc_mcontext.regs[val] = value;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
+    if((opcode&0b10111111111000000000110000000000) == 0b10111000010000000000000000000000) {
+        // this is a LDUR
+        int size = 1<<((opcode>>30)&3);
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        uint64_t value = 0;
+        if(size==8 && ((uintptr_t)addr)&3==0) {
+            for(int i=0; i<2; ++i)
+                value |= ((uint64_t)((uint32_t*)addr)[i]) << (i*32);
+        } else
+            for(int i=0; i<size; ++i)
+                value |= ((uint64_t)addr[i]) << (i*8);
+        p->uc_mcontext.regs[val] = value;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
 #endif
     return 0;
 }
