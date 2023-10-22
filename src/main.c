@@ -507,8 +507,8 @@ void LoadLogEnv()
 #ifdef DYNAREC
     #ifdef ARM64
     // unaligned atomic (with restriction) is supported in hardware
-    if(arm64_uscat)
-        box64_dynarec_aligned_atomics = 1;
+    /*if(arm64_uscat)
+        box64_dynarec_aligned_atomics = 1;*/ // the unaligned support is not good enough for x86 emulation, so diabling
     #endif
     p = getenv("BOX64_DYNAREC_DUMP");
     if(p) {
