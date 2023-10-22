@@ -1456,7 +1456,7 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 {
     for (int i=0; i<8; ++i)
         if(dyn->n.mmxcache[i]!=-1) {
-            VLDR64_U12(dyn->n.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
+            VSTR64_U12(dyn->n.mmxcache[i], xEmu, offsetof(x64emu_t, mmx[i]));
         }
 }
 
