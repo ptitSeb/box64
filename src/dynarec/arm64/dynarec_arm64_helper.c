@@ -1153,6 +1153,8 @@ int x87_get_current_cache(dynarec_arm_t* dyn, int ninst, int st, int t)
             #if STEP == 1
             if(t==NEON_CACHE_ST_D && (dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F || dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_I64))
                 neoncache_promote_double(dyn, ninst, st);
+            else if(t==NEON_CACHE_ST_I64 && (dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_F))
+                neoncache_promote_double(dyn, ninst, st);
             else if(t==NEON_CACHE_ST_F && (dyn->n.neoncache[dyn->n.x87reg[i]].t==NEON_CACHE_ST_I64))
                 neoncache_promote_double(dyn, ninst, st);
             #endif
@@ -1258,8 +1260,9 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     if(ret==-1)    // nothing to do
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
+    const int reg = dyn->n.x87reg[ret];
     #if STEP == 1
-    if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F || dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_I64)
+    if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F || dyn->n.neoncache[reg].t==NEON_CACHE_ST_I64)
         neoncache_promote_double(dyn, ninst, st);
     #endif
     // prepare offset to fpu => s1
@@ -1271,11 +1274,19 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ADDw_U12(s2, s2, st);
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
-    VSTR64_REG_LSL3(dyn->n.x87reg[ret], s1, s2);
+    if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F) {
+        FCVT_D_S(31, reg);
+        VSTR64_REG_LSL3(31, s1, s2);
+    } else if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_I64) {
+        SCVTFDD(31, reg);
+        VSTR64_REG_LSL3(31, s1, s2);
+    } else {
+        VSTR64_REG_LSL3(reg, s1, s2);
+    }
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
     // and forget that cache
-    fpu_free_reg(dyn, dyn->n.x87reg[ret]);
-    dyn->n.neoncache[dyn->n.x87reg[ret]].v = 0;
+    fpu_free_reg(dyn, reg);
+    dyn->n.neoncache[reg].v = 0;
     dyn->n.x87cache[ret] = -1;
     dyn->n.x87reg[ret] = -1;
 }

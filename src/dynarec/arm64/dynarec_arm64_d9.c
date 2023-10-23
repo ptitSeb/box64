@@ -195,11 +195,17 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_forget(dyn, ninst, x1, x2, 0);
             CALL(native_ftan, -1);
-            X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_F);
-            if(ST_IS_F(0)) {
-                FMOVS_8(v1, 0b01110000);
+            if(PK(0)==0xdd && PK(1)==0xd8) {
+                MESSAGE(LOG_DUMP, "Optimized next DD D8 fstp st0, st0, not emiting 1\n");
+                u8 = F8;
+                u8 = F8;
             } else {
-                FMOVD_8(v1, 0b01110000);
+                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_F);
+                if(ST_IS_F(0)) {
+                    FMOVS_8(v1, 0b01110000);
+                } else {
+                    FMOVD_8(v1, 0b01110000);
+                }
             }
             break;
         case 0xF3:
