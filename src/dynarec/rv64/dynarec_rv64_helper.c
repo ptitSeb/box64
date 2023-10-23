@@ -1727,7 +1727,7 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
             break;
         case EXT_CACHE_MM:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
-            FLD(reg, xEmu, offsetof(x64emu_t, mmx[i]));
+            FLD(reg, xEmu, offsetof(x64emu_t, mmx[n]));
             break;
         case EXT_CACHE_ST_D:
         case EXT_CACHE_ST_F:
