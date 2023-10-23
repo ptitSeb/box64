@@ -60,6 +60,19 @@ uintptr_t Run6764_32(x64emu_t *emu, rex_t rex, int rep, int seg, uintptr_t addr)
             GW->word[0] = EW->word[0];
             break;
 
+        case 0xFF:
+            nextop = F8;
+            GETEW_OFFS_16(tlsdata);
+            switch((nextop>>3)&7) {
+                case 6: // Push Ed
+                    tmp32u = ED->dword[0];
+                    Push32(emu, tmp32u);
+                    break;
+                default:
+                    return 0;
+            }
+            break;
+
     default:
         return 0;
     }
