@@ -2171,10 +2171,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             USHL_R_64(d0, d0, d1);
             break;
         case 0xF4:
-            INST_NAME("PMULUDQ Gx,Ex");
+            INST_NAME("PMULUDQ Gm,Em");
             nextop = F8;
-            GETGX(v0, 1);
-            GETEX(v1, 0, 0);
+            GETGM(v0);
+            GETEM(v1, 0);
             VUMULL_32(v0, v0, v1);
             break;
         case 0xF5:
