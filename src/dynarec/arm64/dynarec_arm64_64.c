@@ -384,6 +384,13 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x66:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, seg, ok, need_epilog);
             break;
+        case 0x67:
+            if(rex.is32bits)
+                addr = dynarec64_6764_32(dyn, addr, ip, ninst, rex, rep, seg, ok, need_epilog);
+            else {
+                DEFAULT;
+            }
+            break;
 
         case 0x80:
             nextop = F8;
