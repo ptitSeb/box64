@@ -1726,7 +1726,7 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
             break;
         case NEON_CACHE_MM:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
-            VLDR64_U12(i, xEmu, offsetof(x64emu_t, mmx[i]));
+            VLDR64_U12(i, xEmu, offsetof(x64emu_t, mmx[n]));
             break;
         case NEON_CACHE_ST_D:
         case NEON_CACHE_ST_F:
