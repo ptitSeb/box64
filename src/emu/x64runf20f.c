@@ -114,12 +114,13 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 GD->q[0] = 0x8000000000000000LL;
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {
-                    case ROUND_Nearest:
+                    case ROUND_Nearest: {
                         int round = fegetround();
                         fesetround(FE_TONEAREST);
                         GD->sq[0] = nearbyint(EX->d[0]);
                         fesetround(round);
                         break;
+                    }
                     case ROUND_Down:
                         GD->sq[0] = floor(EX->d[0]);
                         break;
@@ -135,12 +136,13 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 GD->dword[0] = 0x80000000;
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {
-                    case ROUND_Nearest:
+                    case ROUND_Nearest: {
                         int round = fegetround();
                         fesetround(FE_TONEAREST);
                         GD->sdword[0] = nearbyint(EX->d[0]);
                         fesetround(round);
                         break;
+                    }
                     case ROUND_Down:
                         GD->sdword[0] = floor(EX->d[0]);
                         break;
@@ -332,13 +334,14 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETEX(0);
         GETGX;
         switch(emu->mxcsr.f.MXCSR_RC) {
-            case ROUND_Nearest:
+            case ROUND_Nearest: {
                 int round = fegetround();
                 fesetround(FE_TONEAREST);
                 tmp64s0 = nearbyint(EX->d[0]);
                 tmp64s1 = nearbyint(EX->d[1]);
                 fesetround(round);
                 break;
+            }
             case ROUND_Down:
                 tmp64s0 = floor(EX->d[0]);
                 tmp64s1 = floor(EX->d[1]);
