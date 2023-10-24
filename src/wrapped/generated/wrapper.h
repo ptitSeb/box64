@@ -201,6 +201,8 @@ void cFpi(x64emu_t *emu, uintptr_t fnc);
 void cFpp(x64emu_t *emu, uintptr_t fnc);
 void wFpi(x64emu_t *emu, uintptr_t fnc);
 void iFEi(x64emu_t *emu, uintptr_t fnc);
+void iFEf(x64emu_t *emu, uintptr_t fnc);
+void iFEd(x64emu_t *emu, uintptr_t fnc);
 void iFEL(x64emu_t *emu, uintptr_t fnc);
 void iFEp(x64emu_t *emu, uintptr_t fnc);
 void iFwp(x64emu_t *emu, uintptr_t fnc);
@@ -237,6 +239,8 @@ void iFpL(x64emu_t *emu, uintptr_t fnc);
 void iFpp(x64emu_t *emu, uintptr_t fnc);
 void iFpO(x64emu_t *emu, uintptr_t fnc);
 void iFSi(x64emu_t *emu, uintptr_t fnc);
+void IFEf(x64emu_t *emu, uintptr_t fnc);
+void IFEd(x64emu_t *emu, uintptr_t fnc);
 void IFEp(x64emu_t *emu, uintptr_t fnc);
 void IFip(x64emu_t *emu, uintptr_t fnc);
 void IFII(x64emu_t *emu, uintptr_t fnc);
@@ -276,6 +280,7 @@ void UFuu(x64emu_t *emu, uintptr_t fnc);
 void UFpi(x64emu_t *emu, uintptr_t fnc);
 void UFpU(x64emu_t *emu, uintptr_t fnc);
 void UFpp(x64emu_t *emu, uintptr_t fnc);
+void fFEf(x64emu_t *emu, uintptr_t fnc);
 void fFEp(x64emu_t *emu, uintptr_t fnc);
 void fFif(x64emu_t *emu, uintptr_t fnc);
 void fFfi(x64emu_t *emu, uintptr_t fnc);
@@ -284,6 +289,7 @@ void fFfD(x64emu_t *emu, uintptr_t fnc);
 void fFfp(x64emu_t *emu, uintptr_t fnc);
 void fFpu(x64emu_t *emu, uintptr_t fnc);
 void fFpp(x64emu_t *emu, uintptr_t fnc);
+void dFEd(x64emu_t *emu, uintptr_t fnc);
 void dFid(x64emu_t *emu, uintptr_t fnc);
 void dFdi(x64emu_t *emu, uintptr_t fnc);
 void dFdd(x64emu_t *emu, uintptr_t fnc);
@@ -2966,13 +2972,13 @@ void vFpppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 
 #if defined(HAVE_LD80BITS)
-void IFD(x64emu_t *emu, uintptr_t fnc);
 void DFD(x64emu_t *emu, uintptr_t fnc);
+void IFED(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(HAVE_LD80BITS)
-void IFK(x64emu_t *emu, uintptr_t fnc);
 void KFK(x64emu_t *emu, uintptr_t fnc);
+void IFEK(x64emu_t *emu, uintptr_t fnc);
 void KFKK(x64emu_t *emu, uintptr_t fnc);
 void KFKp(x64emu_t *emu, uintptr_t fnc);
 #endif

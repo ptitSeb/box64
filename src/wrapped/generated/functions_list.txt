@@ -164,6 +164,8 @@
 #() cFpp
 #() wFpi
 #() iFEi
+#() iFEf
+#() iFEd
 #() iFEL
 #() iFEp
 #() iFwp
@@ -200,6 +202,8 @@
 #() iFpp
 #() iFpO
 #() iFSi
+#() IFEf
+#() IFEd
 #() IFEp
 #() IFip
 #() IFII
@@ -239,6 +243,7 @@
 #() UFpi
 #() UFpU
 #() UFpp
+#() fFEf
 #() fFEp
 #() fFif
 #() fFfi
@@ -247,6 +252,7 @@
 #() fFfp
 #() fFpu
 #() fFpp
+#() dFEd
 #() dFid
 #() dFdi
 #() dFdd
@@ -2927,10 +2933,10 @@
 #() uFippuuuuiiiiuuiiiiiiiipp
 #() vFpppppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
-#defined(HAVE_LD80BITS) IFD
 #defined(HAVE_LD80BITS) DFD
-#!defined(HAVE_LD80BITS) IFK
+#defined(HAVE_LD80BITS) IFED
 #!defined(HAVE_LD80BITS) KFK
+#!defined(HAVE_LD80BITS) IFEK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
 #defined(NOALIGN) iFipiip
@@ -4367,6 +4373,22 @@ wrappedlibibus:
   - ibus_config_set_value_async
 wrappedlibice:
 wrappedlibm:
+- iFv:
+  - fegetround
+- iFi:
+  - fesetround
+- iFf:
+  - lrintf
+- iFd:
+  - lrint
+- IFf:
+  - llrintf
+- IFd:
+  - llrint
+- IFD:
+  - llrintl
+- IFK:
+  - llrintl
 - fFf:
   - __acosf_finite
   - __acoshf_finite
@@ -4379,6 +4401,8 @@ wrappedlibm:
   - __logf_finite
   - __sinhf_finite
   - __sqrtf_finite
+  - nearbyintf
+  - rintf
 - dFd:
   - __acos_finite
   - __acosh_finite
@@ -4391,6 +4415,8 @@ wrappedlibm:
   - __log_finite
   - __sinh_finite
   - __sqrt_finite
+  - nearbyint
+  - rint
 - xFx:
   - catanf
   - catanhf
