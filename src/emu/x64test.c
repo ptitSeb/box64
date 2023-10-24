@@ -24,9 +24,9 @@
 
 void print_banner(x64emu_t* ref)
 {
-    printf_log(LOG_NONE, "Warning, difference between Interpreter and Dynarec in %p (%02x %02x %02x %02x %02x %02x %02x %02x)\n"\
+    printf_log(LOG_NONE, "Warning, difference between %s Interpreter and Dynarec in %p (%02x %02x %02x %02x %02x %02x %02x %02x)\n"\
         "=======================================\n",
-        (void*)ref->old_ip,
+        (ref->segs[_CS]==0x23)?"x86":"x64" ,(void*)ref->old_ip,
         ((uint8_t*)ref->old_ip)[0], ((uint8_t*)ref->old_ip)[1], ((uint8_t*)ref->old_ip)[2], ((uint8_t*)ref->old_ip)[3],
         ((uint8_t*)ref->old_ip)[4], ((uint8_t*)ref->old_ip)[5], ((uint8_t*)ref->old_ip)[6], ((uint8_t*)ref->old_ip)[7]
     );
