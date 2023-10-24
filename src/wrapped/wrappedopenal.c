@@ -52,7 +52,7 @@ static void* find_Request_Fct(void* fct)
     #define GO(A) if(my_Request_fct_##A == 0) {my_Request_fct_##A = (uintptr_t)fct; return my_Request_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for zlib Request callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for openal Request callback\n");
     return NULL;
 }
 
