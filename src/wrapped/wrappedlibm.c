@@ -118,7 +118,7 @@ F2D(fmod)
 // FE_DOWNWARD      0x300
 // FE_UPWARD        0x200
 // FE_TOWARDZERO    0x100
-#define TO_NATIVE(round) ((round == 0x400 ? 0xc00 : (round == 0xc00 ? 0x400 : round)) >> 1)
+#define TO_NATIVE(round) ((round == 0x400 ? 0xc00 : (round == 0xc00 ? 0x400 : round)) >> 2)
 #elif defined(__powerpc64__)
 // PPC
 // FE_TONEAREST     0x0
