@@ -234,8 +234,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {
                         case ROUND_Nearest:
+                            int round = fegetround();
                             fesetround(FE_TONEAREST);
                             tmp64s = nearbyintf(EX->f[i]);
+                            fesetround(round);
                             break;
                         case ROUND_Down:
                             tmp64s = floorf(EX->f[i]);

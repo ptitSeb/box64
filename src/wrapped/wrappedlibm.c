@@ -135,31 +135,41 @@ F2D(fmod)
 // See https://github.com/bminor/glibc/blob/master/sysdeps/x86_64/fpu/fesetround.c
 EXPORT int my_fesetround(x64emu_t* emu, int round)
 {
-    if ((round & ~0xc00) != 0)
-        // round is not valid.
-        return 1;
+    if (box64_sync_rounding) {
+        if ((round & ~0xc00) != 0)
+            // round is not valid.
+            return 1;
 
-    emu->cw.x16 &= ~0xc00;
-    emu->cw.x16 |= round;
+        emu->cw.x16 &= ~0xc00;
+        emu->cw.x16 |= round;
 
-    emu->mxcsr.x32 &= ~0x6000;
-    emu->mxcsr.x32 |= round << 3;
+        emu->mxcsr.x32 &= ~0x6000;
+        emu->mxcsr.x32 |= round << 3;
 
-    return 0;
+        return 0;
+    } else {
+        return fesetround(round);
+    }
 }
 
 // See https://github.com/bminor/glibc/blob/master/sysdeps/x86_64/fpu/fegetround.c
 EXPORT int my_fegetround(x64emu_t* emu)
 {
-    return emu->cw.x16 & 0xc00;
+    if (box64_sync_rounding) {
+        return emu->cw.x16 & 0xc00;
+    } else {
+        return fegetround();
+    }
 }
 
-#define FROUND(N, T, R)                   \
-    EXPORT R my_##N(x64emu_t* emu, T val) \
-    {                                     \
-        int round = emu->cw.x16 & 0xc00;  \
-        fesetround(TO_NATIVE(round));     \
-        return N(val);                    \
+#define FROUND(N, T, R)                      \
+    EXPORT R my_##N(x64emu_t* emu, T val)    \
+    {                                        \
+        if (box64_sync_rounding) {           \
+            int round = emu->cw.x16 & 0xc00; \
+            fesetround(TO_NATIVE(round));    \
+        }                                    \
+        return N(val);                       \
     }
 
 FROUND(rint, double, double)
@@ -175,8 +185,10 @@ FROUND(llrintl, long double, long double)
 #else
 EXPORT double my_llrintl(x64emu_t* emu, double val)
 {
-    int round = emu->cw.x16 & 0xc00;
-    fesetround(TO_NATIVE(round));
+    if (box64_sync_rounding) {
+        int round = emu->cw.x16 & 0xc00;
+        fesetround(TO_NATIVE(round));
+    }
     return llrint(val);
 }
 #endif
