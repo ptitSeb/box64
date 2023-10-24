@@ -1001,12 +1001,12 @@ add_test(bswap ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref24.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    add_test(x87cache ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+add_test(x87cache ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test25 -D TEST_OUTPUT=tmpfile25.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref25.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test26 -D TEST_OUTPUT=tmpfile26.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref26.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
