@@ -267,7 +267,7 @@ GO(vkDebugReportMessageEXT, vFpiiULipp)
 GOM(vkDestroyDebugReportCallbackEXT, iFEppp)
 
 //VK_EXT_debug_utils
-GO(vkCmdBeginDebugUtilsLabelEXT, vFpp)  //TODO: Cehck alignement of this extension
+GO(vkCmdBeginDebugUtilsLabelEXT, vFpp)  //TODO: Check alignement of this extension
 GO(vkCmdEndDebugUtilsLabelEXT, vFp)
 GO(vkCmdInsertDebugUtilsLabelEXT, vFpp)
 GOM(vkCreateDebugUtilsMessengerEXT, iFEpppp)
@@ -277,7 +277,7 @@ GO(vkQueueEndDebugUtilsLabelEXT, vFp)
 GO(vkQueueInsertDebugUtilsLabelEXT, vFpp)
 GO(vkSetDebugUtilsObjectNameEXT, iFpp)
 GO(vkSetDebugUtilsObjectTagEXT, iFpp)
-//GOM(vkSubmitDebugUtilsMessageEXT, vFEpppp)    // callback in last arguments
+GO(vkSubmitDebugUtilsMessageEXT, vFpppp)
 
 // VK_KHR_external_memory_capabilities
 GO(vkGetPhysicalDeviceExternalBufferPropertiesKHR, vFppp)

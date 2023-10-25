@@ -207,6 +207,15 @@ typedef struct my_VkAllocationCallbacks_s {
     void*   pfnInternalFree;
 } my_VkAllocationCallbacks_t;
 
+typedef struct my_VkDebugUtilsMessengerCreateInfoEXT_s {
+    int          sType;
+    const void*  pNext;
+    int          flags;
+    int          messageSeverity;
+    int          messageType;
+    void*        pfnUserCallback;
+    void*        pUserData;
+} my_VkDebugUtilsMessengerCreateInfoEXT_t;
 
 #define SUPER() \
 GO(0)   \
@@ -345,6 +354,28 @@ static void* find_DebugReportCallbackEXT_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for Vulkan DebugReportCallbackEXT callback\n");
+    return NULL;
+}
+// DebugUtilsMessengerCallback ...
+#define GO(A)   \
+static uintptr_t my_DebugUtilsMessengerCallback_fct_##A = 0;                            \
+static int my_DebugUtilsMessengerCallback_##A(int a, int b, void* c, void* d)           \
+{                                                                                       \
+    return RunFunctionFmt(my_DebugUtilsMessengerCallback_fct_##A, "iipp", a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_DebugUtilsMessengerCallback_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_DebugUtilsMessengerCallback_fct_##A == (uintptr_t)fct) return my_DebugUtilsMessengerCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_DebugUtilsMessengerCallback_fct_##A == 0) {my_DebugUtilsMessengerCallback_fct_##A = (uintptr_t)fct; return my_DebugUtilsMessengerCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Vulkan DebugUtilsMessengerCallback callback\n");
     return NULL;
 }
 
@@ -559,7 +590,17 @@ DESTROY64(vkDestroySwapchainKHR)
 
 DESTROY64(vkFreeMemory)
 
-CREATE(vkCreateDebugUtilsMessengerEXT)
+EXPORT int my_vkCreateDebugUtilsMessengerEXT(x64emu_t* emu, void* device, my_VkDebugUtilsMessengerCreateInfoEXT_t* pAllocateInfo, my_VkAllocationCallbacks_t* pAllocator, void* p)
+{
+    #define VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT 1000128004
+    my_VkAllocationCallbacks_t my_alloc;
+    my_VkDebugUtilsMessengerCreateInfoEXT_t* info = pAllocateInfo;
+    while(info && info->sType==VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) {
+        info->pfnUserCallback = find_DebugUtilsMessengerCallback_Fct(info->pfnUserCallback);
+        info = (my_VkDebugUtilsMessengerCreateInfoEXT_t*)info->pNext;
+    }
+    return my->vkCreateDebugUtilsMessengerEXT(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p); 
+}
 DESTROY(vkDestroyDebugUtilsMessengerEXT)
 
 DESTROY64(vkDestroySurfaceKHR)
