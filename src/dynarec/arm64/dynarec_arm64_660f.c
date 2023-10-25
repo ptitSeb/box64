@@ -1275,9 +1275,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x57:
             INST_NAME("XORPD Gx, Ex");
             nextop = F8;
-            GETEX(q0, 0, 0);
-            GETGX(v0, 1);
-            VEORQ(v0, v0, q0);
+            GETG;
+            if(MODREG && ((nextop&7)+(rex.b<<3)==gd)) {
+                // special case for XORPD Gx, Gx
+                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VEORQ(q0, q0, q0);
+            } else {
+                q0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                GETEX(q1, 0, 0);
+                VEORQ(q0, q0, q1);
+            }
             break;
         case 0x58:
             INST_NAME("ADDPD Gx, Ex");
