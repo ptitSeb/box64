@@ -1173,7 +1173,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LDxw(x1, wback, 0);
                         ed = x1;
                         LHU(x3, wback, rex.w?8:4);
-                        SW(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        SH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
                         jump_to_epilog(dyn, 0, ed, ninst);
                         *need_epilog = 0;

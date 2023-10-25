@@ -86,7 +86,8 @@ typedef struct x64emu_s {
     uintptr_t   prev2_ip;
     #endif
     // segments
-    uint32_t    segs[6];        // only 32bits value?
+    uint16_t    segs[6];        // only 32bits value?
+    uint16_t    dummy_seg6, dummy_seg7; // to stay aligned
     uintptr_t   segs_offs[6];   // computed offset associate with segment
     uint32_t    segs_serial[6];  // are seg offset clean (not 0) or does they need to be re-computed (0)? For GS, serial need to be the same as context->sel_serial
     // parent context

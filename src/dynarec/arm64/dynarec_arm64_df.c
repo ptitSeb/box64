@@ -34,6 +34,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int64_t j64;
     int64_t fixedaddress;
     int unscaled;
+    int i1;
 
     MAYUSE(s0);
     MAYUSE(v2);
@@ -57,6 +58,14 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE0:
             INST_NAME("FNSTSW AX");
             LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
+            if(dyn->n.x87stack) {
+                if(dyn->n.x87stack>0) {
+                    SUBw_U12(x2, x2, dyn->n.x87stack);
+                } else {
+                    ADDw_U12(x2, x2, -dyn->n.x87stack);
+                }
+                ANDw_mask(x2, x2, 0, 2);  //mask=7
+            }
             LDRH_U12(x1, xEmu, offsetof(x64emu_t, sw));
             BFIw(x1, x2, 11, 3); // inject top
             STRH_U12(x1, xEmu, offsetof(x64emu_t, sw));
@@ -315,10 +324,12 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("FBSTP tbytes, ST0");
+                    i1 = x87_stackcount(dyn, ninst, x1);
                     x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(ed!=x1) {MOVx_REG(x1, ed);}
                     CALL(fpu_fbst, -1);
+                    x87_unstackcount(dyn, ninst, x1, i1);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 7:

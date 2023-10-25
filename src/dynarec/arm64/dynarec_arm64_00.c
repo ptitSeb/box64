@@ -1213,7 +1213,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if((nextop&0xC0)==0xC0) {   // reg <= seg
                 LDRw_U12(xRAX+(nextop&7)+(rex.b<<3), xEmu, offsetof(x64emu_t, segs[u8]));
             } else {                    // mem <= seg
-                LDRw_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
+                LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 STH(x3, wback, fixedaddress);
                 SMWRITE2();
@@ -1247,7 +1247,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 LDH(x1, wback, fixedaddress);
                 ed = x1;
             }
-            STRw_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
             STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
         case 0x8F:
@@ -1998,6 +1998,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    x87_stackcount(dyn, ninst, x1);
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
                     SMEND();
@@ -2976,7 +2977,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDxw(x1, wback, 0);
                         ed = x1;
                         LDH(x3, wback, rex.w?8:4);
-                        STW(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
                         jump_to_epilog(dyn, 0, ed, ninst);
                         *need_epilog = 0;

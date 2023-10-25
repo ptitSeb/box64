@@ -866,11 +866,11 @@ static void x87_reset(dynarec_arm_t* dyn)
             dyn->n.neoncache[i].v = 0;
 }
 
-void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
+int x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
     MAYUSE(scratch);
     if(!dyn->n.x87stack)
-        return;
+        return 0;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, scratch);
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->n.x87stack);
@@ -893,10 +893,45 @@ void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
     ANDw_mask(scratch, scratch, 0, 2);  //mask=7
     STRw_U12(scratch, xEmu, offsetof(x64emu_t, top));
     // reset x87stack, but not the stack count of neoncache
+    int ret = dyn->n.x87stack;
     dyn->n.x87stack = 0;
     dyn->n.stack_next -= dyn->n.stack;
     dyn->n.stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
+    return ret;
+}
+
+void x87_unstackcount(dynarec_arm_t* dyn, int ninst, int scratch, int count)
+{
+    MAYUSE(scratch);
+    if(!count)
+        return;
+    if(dyn->n.mmxcount)
+        mmx_purgecache(dyn, ninst, 0, scratch);
+    MESSAGE(LOG_DUMP, "\tUnsynch x87 Stackcount (%d)\n", count);
+    int a = -count;
+    // Add x87stack to emu fpu_stack
+    LDRw_U12(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
+    if(a>0) {
+        ADDw_U12(scratch, scratch, a);
+    } else {
+        SUBw_U12(scratch, scratch, -a);
+    }
+    STRw_U12(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
+    // Sub x87stack to top, with and 7
+    LDRw_U12(scratch, xEmu, offsetof(x64emu_t, top));
+    if(a>0) {
+        SUBw_U12(scratch, scratch, a);
+    } else {
+        ADDw_U12(scratch, scratch, -a);
+    }
+    ANDw_mask(scratch, scratch, 0, 2);  //mask=7
+    STRw_U12(scratch, xEmu, offsetof(x64emu_t, top));
+    // reset x87stack, but not the stack count of neoncache
+    dyn->n.x87stack = count;
+    dyn->n.stack = count;
+    dyn->n.stack_next += dyn->n.stack;
+    MESSAGE(LOG_DUMP, "\t------x87 Unstackcount\n");
 }
 
 int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b)
@@ -1252,7 +1287,6 @@ void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 
 void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
-    x87_stackcount(dyn, ninst, s1);
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
         if(dyn->n.x87cache[i] == st)
@@ -1270,8 +1304,13 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     // Get top
     LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     // Update
-    if(st) {
-        ADDw_U12(s2, s2, st);
+    int ast = st - dyn->n.x87stack;
+    if(ast) {
+        if(ast>0) {
+            ADDw_U12(x2, x2, ast);
+        } else {
+            SUBw_U12(x2, x2, -ast);
+        }
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
     if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F) {

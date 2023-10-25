@@ -639,7 +639,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("MOV EW, Seg");
             nextop=F8;
             u8 = (nextop&0x38)>>3;
-            LDRw_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
+            LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
             if((nextop&0xC0)==0xC0) {   // reg <= seg
                 UXTHw(xRAX+(nextop&7)+(rex.b<<3), x3);
             } else {                    // mem <= seg

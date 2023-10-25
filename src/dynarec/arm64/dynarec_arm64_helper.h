@@ -1030,6 +1030,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_forget      STEPNAME(x87_forget)
 #define x87_reget_st    STEPNAME(x87_reget_st)
 #define x87_stackcount  STEPNAME(x87_stackcount)
+#define x87_unstackcount  STEPNAME(x87_unstackcount)
 #define x87_swapreg     STEPNAME(x87_swapreg)
 #define x87_setround    STEPNAME(x87_setround)
 #define x87_restoreround STEPNAME(x87_restoreround)
@@ -1146,8 +1147,10 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
-// cache of the local stack counter, to avoid update at every call
-void x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
+// cache of the local stack counter, to avoid update at every call, return old internal stack counter
+int x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch);
+// revert local stack counter to previous version (return from x87_stackcount)
+void x87_unstackcount(dynarec_arm_t* dyn, int ninst, int scratch, int count);
 // fpu push. Return the Dd value to be used
 int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t);
 // fpu push. Do not allocate a cache register. Needs a scratch register to do x87stack synch (or 0 to not do it)

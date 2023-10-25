@@ -418,7 +418,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LHU(x1, ed, fixedaddress);
                 ed = x1;
             }
-            SW(ed, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
+            SH(ed, xEmu, offsetof(x64emu_t, segs[(nextop&0x38)>>3]));
             SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[(nextop&0x38)>>3]));
             break;
         case 0x8F:

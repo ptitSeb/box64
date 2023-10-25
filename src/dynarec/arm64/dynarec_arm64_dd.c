@@ -220,7 +220,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
-                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                    //fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x4, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                     LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
                     LDRH_U12(x3, xEmu, offsetof(x64emu_t, sw));
@@ -234,6 +234,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ANDw_mask(x2, x2, 0, 2);
                     }
                     BFIw(x3, x2, 11, 3); // inject TOP at bit 11 (3 bits)
+                    STRH_U12(x3, xEmu, offsetof(x64emu_t, sw));
                     STH(x3, ed, fixedaddress);   // store whole sw flags
                     break;
                 default:
