@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <math.h>
+#include <fenv.h>
 #include "regs.h"
 #include "x64run_private.h"
 #include "debug.h"
@@ -108,8 +109,13 @@ static inline double fpu_round(x64emu_t* emu, double d) {
     if (!isfinite(d))
         return d;
     switch(emu->cw.f.C87_RD) {
-        case ROUND_Nearest:
-            return nearbyint(d);
+        case ROUND_Nearest: {
+            int round = fegetround();
+            fesetround(FE_TONEAREST);
+            double res = nearbyint(d);
+            fesetround(round);
+            return res;
+        }
         case ROUND_Down:
             return floor(d);
         case ROUND_Up:

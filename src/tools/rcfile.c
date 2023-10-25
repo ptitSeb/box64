@@ -89,6 +89,7 @@ ENTRYBOOL(BOX64_X11GLX, box64_x11glx)                   \
 ENTRYDSTRING(BOX64_LIBGL, box64_libGL)                  \
 ENTRYBOOL(BOX64_SSE_FLUSHTO0, box64_sse_flushto0)       \
 ENTRYBOOL(BOX64_X87_NO80BITS, box64_x87_no80bits)       \
+ENTRYBOOL(BOX64_SYNC_ROUNDING, box64_sync_rounding)     \
 ENTRYSTRING_(BOX64_EMULATED_LIBS, emulated_libs)        \
 ENTRYBOOL(BOX64_ALLOWMISSINGLIBS, allow_missing_libs)   \
 ENTRYBOOL(BOX64_PREFER_WRAPPED, box64_prefer_wrapped)   \

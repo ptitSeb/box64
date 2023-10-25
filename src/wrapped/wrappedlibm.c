@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <complex.h>
 #include <math.h>
+#include <fenv.h>
 
 #include "wrappedlibs.h"
 
@@ -13,8 +14,9 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 #include "debug.h"
+#include "emu/x64emu_private.h"
 
-const char* libmName = 
+const char* libmName =
 #ifdef ANDROID
     "libm.so"
 #else
@@ -90,12 +92,114 @@ F2D(fmod)
 #undef F1F
 #undef FINITE
 
+// x86-64
+// FE_TONEAREST     0x0
+// FE_DOWNWARD      0x400
+// FE_UPWARD        0x800
+// FE_TOWARDZERO    0xc00
 
-#define CUSTOM_INIT     \
+#if defined(__aarch64__)
+// AArch64
+// #define FE_TONEAREST  0x000000
+// #define FE_DOWNWARD   0x800000
+// #define FE_UPWARD     0x400000
+// #define FE_TOWARDZERO 0xc00000
+#define TO_NATIVE(round) ((round == 0x400 ? 0x800 : (round == 0x800 ? 0x400 : round)) << 12)
+#elif defined(__riscv)
+// RISC-V
+// #define FE_TONEAREST     0x0
+// #define FE_DOWNWARD      0x2
+// #define FE_UPWARD        0x3
+// #define FE_TOWARDZERO    0x1
+#define TO_NATIVE(round) ((round == 0xc00 ? 0x400 : (round == 0x0 ? round : round + 0x400)) >> 10)
+#elif defined(__loongarch64)
+// LOONGARCH
+// FE_TONEAREST     0x000
+// FE_DOWNWARD      0x300
+// FE_UPWARD        0x200
+// FE_TOWARDZERO    0x100
+#define TO_NATIVE(round) ((round == 0x400 ? 0xc00 : (round == 0xc00 ? 0x400 : round)) >> 2)
+#elif defined(__powerpc64__)
+// PPC
+// FE_TONEAREST     0x0
+// FE_DOWNWARD      0x3
+// FE_UPWARD        0x2
+// FE_TOWARDZERO    0x1
+#define TO_NATIVE(round) ((round == 0x400 ? 0xc00 : (round == 0xc00 ? 0x400 : round)) >> 10)
+#elif defined(__x86_64__)
+#define TO_NATIVE(round) round
+#else
+#error Unknown architecture!
+#endif
+
+// See https://github.com/bminor/glibc/blob/master/sysdeps/x86_64/fpu/fesetround.c
+EXPORT int my_fesetround(x64emu_t* emu, int round)
+{
+    if (box64_sync_rounding) {
+        if ((round & ~0xc00) != 0)
+            // round is not valid.
+            return 1;
+
+        emu->cw.x16 &= ~0xc00;
+        emu->cw.x16 |= round;
+
+        emu->mxcsr.x32 &= ~0x6000;
+        emu->mxcsr.x32 |= round << 3;
+
+        return 0;
+    } else {
+        return fesetround(round);
+    }
+}
+
+// See https://github.com/bminor/glibc/blob/master/sysdeps/x86_64/fpu/fegetround.c
+EXPORT int my_fegetround(x64emu_t* emu)
+{
+    if (box64_sync_rounding) {
+        return emu->cw.x16 & 0xc00;
+    } else {
+        return fegetround();
+    }
+}
+
+#define FROUND(N, T, R)                      \
+    EXPORT R my_##N(x64emu_t* emu, T val)    \
+    {                                        \
+        if (box64_sync_rounding) {           \
+            int round = emu->cw.x16 & 0xc00; \
+            fesetround(TO_NATIVE(round));    \
+        }                                    \
+        return N(val);                       \
+    }
+
+FROUND(rint, double, double)
+FROUND(rintf, float, float)
+FROUND(lrint, double, int)
+FROUND(lrintf, float, int)
+FROUND(llrint, double, long)
+FROUND(llrintf, float, long)
+FROUND(nearbyint, double, double)
+FROUND(nearbyintf, float, float)
+#ifdef HAVE_LD80BITS
+FROUND(llrintl, long double, long double)
+#else
+EXPORT double my_llrintl(x64emu_t* emu, double val)
+{
+    if (box64_sync_rounding) {
+        int round = emu->cw.x16 & 0xc00;
+        fesetround(TO_NATIVE(round));
+    }
+    return llrint(val);
+}
+#endif
+
+#undef FROUND
+#undef TO_NATIVE
+
+#define CUSTOM_INIT \
     my_lib = lib;
 
 #define CUSTOM_FINI     \
     my_lib = NULL;
 
 #include "wrappedlib_init.h"
-

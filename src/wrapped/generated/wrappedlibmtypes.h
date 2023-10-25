@@ -11,6 +11,14 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFv_t)(void);
+typedef int32_t (*iFi_t)(int32_t);
+typedef int32_t (*iFf_t)(float);
+typedef int32_t (*iFd_t)(double);
+typedef int64_t (*IFf_t)(float);
+typedef int64_t (*IFd_t)(double);
+typedef int64_t (*IFD_t)(long double);
+typedef int64_t (*IFK_t)(double);
 typedef float (*fFf_t)(float);
 typedef double (*dFd_t)(double);
 typedef complexf_t (*xFx_t)(complexf_t);
@@ -18,6 +26,14 @@ typedef float (*fFff_t)(float, float);
 typedef double (*dFdd_t)(double, double);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(fegetround, iFv_t) \
+	GO(fesetround, iFi_t) \
+	GO(lrintf, iFf_t) \
+	GO(lrint, iFd_t) \
+	GO(llrintf, IFf_t) \
+	GO(llrint, IFd_t) \
+	GO(llrintl, IFD_t) \
+	GO(llrintl, IFK_t) \
 	GO(__acosf_finite, fFf_t) \
 	GO(__acoshf_finite, fFf_t) \
 	GO(__asinf_finite, fFf_t) \
@@ -29,6 +45,8 @@ typedef double (*dFdd_t)(double, double);
 	GO(__logf_finite, fFf_t) \
 	GO(__sinhf_finite, fFf_t) \
 	GO(__sqrtf_finite, fFf_t) \
+	GO(nearbyintf, fFf_t) \
+	GO(rintf, fFf_t) \
 	GO(__acos_finite, dFd_t) \
 	GO(__acosh_finite, dFd_t) \
 	GO(__asin_finite, dFd_t) \
@@ -40,6 +58,8 @@ typedef double (*dFdd_t)(double, double);
 	GO(__log_finite, dFd_t) \
 	GO(__sinh_finite, dFd_t) \
 	GO(__sqrt_finite, dFd_t) \
+	GO(nearbyint, dFd_t) \
+	GO(rint, dFd_t) \
 	GO(catanf, xFx_t) \
 	GO(catanhf, xFx_t) \
 	GO(__atan2f_finite, fFff_t) \

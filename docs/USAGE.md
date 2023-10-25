@@ -231,6 +231,11 @@ Handling of x87 80bits long double
 * 0 : Try to handle 80bits long double as precise as possible (Default)
 * 1 : Handle them as double
 
+#### BOX64_SYNC_ROUNDING *
+Box64 will sync rounding mode with fesetround/fegetround.
+* 0 : Disable rounding mode syncing. (Default.)
+* 1 : Enable rounding mode syncing.
+
 #### BOX64_LIBCEF *
 Detect libcef and apply malloc_hack settings
 * 0 : Don't detect libcef
