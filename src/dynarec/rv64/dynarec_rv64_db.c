@@ -272,7 +272,7 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             FLD(v1, ed, fixedaddress);
                         } else {
                             if(ed!=x1) {
-                                MV(x1, ed);
+                                ADDI(x1, ed, fixedaddress);
                             }
                             X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x3);
                             CALL(native_fld, -1);
