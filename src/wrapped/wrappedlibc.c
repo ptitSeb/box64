@@ -2566,7 +2566,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find31bitBlockNearHint(old_addr, length); // is this the best way?
-        ret = mmap64(addr, length, prot, flags, fd, offset);
+        uint32_t new_flags = addr ? flags|MAP_FIXED : flags;
+        ret = mmap64(addr, length, prot, new_flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
     } else if((ret!=(void*)-1) && !(flags&MAP_FIXED) && (box64_wine) && (old_addr) && (addr!=ret) &&
              (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
@@ -2574,7 +2575,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find47bitBlockNearHint(old_addr, length); // is this the best way?
-        ret = mmap64(addr, length, prot, flags, fd, offset);
+        uint32_t new_flags = addr ? flags|MAP_FIXED : flags;
+        ret = mmap64(addr, length, prot, new_flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
     }
     #endif
