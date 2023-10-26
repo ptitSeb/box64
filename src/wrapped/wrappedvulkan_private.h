@@ -838,3 +838,7 @@ GO(vkCmdBindIndexBuffer2KHR, vFpUUUi)
 GO(vkGetDeviceImageSubresourceLayoutKHR, vFppp)
 GO(vkGetImageSubresourceLayout2KHR, vFpUpp)
 GO(vkGetRenderingAreaGranularityKHR, vFppp)
+
+// VK_NV_memory_decompression
+GO(vkCmdDecompressMemoryIndirectCountNV, vFpUUu)
+GO(vkCmdDecompressMemoryNV, vFpup)
