@@ -184,22 +184,22 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "01111000010iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDRUH %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        snprintf(buff, sizeof(buff), "LDURH %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "001110001x0iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDRUSB %s, [%s, %s0x%x]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        snprintf(buff, sizeof(buff), "LDURSB %s, [%s, %s0x%x]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "011110001x0iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDRUSH %s, [%s, %s0x%x]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        snprintf(buff, sizeof(buff), "LDURSH %s, [%s, %s0x%x]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "10111000100iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDRUSW %s, [%s, %s0x%x]", Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        snprintf(buff, sizeof(buff), "LDURSW %s, [%s, %s0x%x]", Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x111000000iiiiiiiii00nnnnnttttt", &a)) {
@@ -215,7 +215,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "01111000000iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "STRUH %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        snprintf(buff, sizeof(buff), "STURH %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x11100101iiiiiiiiiiiinnnnnttttt", &a)) {
