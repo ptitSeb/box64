@@ -68,7 +68,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             CLEAR_FLAGS();
-            IFX(F_ZF | F_PF | F_CF) {
+            IFX(X_ZF | X_PF | X_CF) {
                 if(ST_IS_F(0)) {
                     FEQS(x5, v1, v1);
                     FEQS(x4, v2, v2);
