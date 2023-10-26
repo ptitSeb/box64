@@ -43,7 +43,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(j64);
     MAYUSE(lock);
 
-    while((opcode==0x2E) || (opcode==0x36) || (opcode==0x66))   // ignoring CS:, SS: or multiple 0x66
+    while((opcode==0x2E) || (opcode==0x36) || (opcode==0x26) || (opcode==0x66))   // ignoring CS:, SS:, ES: or multiple 0x66
         opcode = F8;
 
     while((opcode==0xF2) || (opcode==0xF3)) {
@@ -647,6 +647,22 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STH(x3, wback, fixedaddress);
                 SMWRITE2();
             }
+            break;
+
+        case 0x8E:
+            INST_NAME("MOV Seg,Ew");
+            nextop = F8;
+            u8 = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                LDH(x1, wback, fixedaddress);
+                ed = x1;
+            }
+            STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
 
             case 0x90:
