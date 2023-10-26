@@ -738,6 +738,38 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b11111111110000000000000000000000)==0b01111001000000000000000000000000) {
+        // this is STRH
+        int scale = (opcode>>30)&3;
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        uint64_t offset = (opcode>>10)&0b111111111111;
+        offset<<=scale;
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        uint64_t value = p->uc_mcontext.regs[val];
+        for(int i=0; i<(1<<scale); ++i)
+            addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
+    if((opcode&0b11111111111000000000110000000000)==0b01111000001000000000100000000000) {
+        // this is STRH reg, reg
+        int scale = (opcode>>30)&3;
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int dest2 = (opcode>>16)&31;
+        int option = (opcode>>13)&0b111;
+        int S = (opcode>>12)&1;
+        if(option!=0b011)
+            return 0;   // only LSL is supported
+        uint64_t offset = p->uc_mcontext.regs[dest2]<<S;
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        uint64_t value = p->uc_mcontext.regs[val];
+        for(int i=0; i<(1<<scale); ++i)
+            addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
 #endif
     return 0;
 }
