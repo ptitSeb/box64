@@ -95,6 +95,13 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
 
 }
 
+int neoncache_no_i64(int a)
+{
+    if(a==NEON_CACHE_ST_I64)
+        return NEON_CACHE_ST_D;
+    return a;
+}
+
 int neoncache_get_st(dynarec_arm_t* dyn, int ninst, int a)
 {
     if (dyn->insts[ninst].n.swapped) {
