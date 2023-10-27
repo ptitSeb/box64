@@ -1785,9 +1785,11 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
                 ANDw_mask(s3, s3, 0, 2); //mask=7    // (emu->top + i)&7
             }
             *s3_top += a;
-            *s2_val = 0;
-            ADDx_REG_LSL(s2, xEmu, s3, 3);
-            VLDR64_U12(i, s2, offsetof(x64emu_t, x87));
+            if(*s2_val!=1) {
+                *s2_val = 1;
+                ADDx_U12(s2, xEmu, offsetof(x64emu_t, x87));
+            }
+            VLDR64_REG_LSL3(i, s2, s3);
             if(t==NEON_CACHE_ST_F) {
                 FCVT_S_D(i, i);
             }
@@ -1837,14 +1839,16 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
                 ANDw_mask(s3, s3, 0, 2); //mask=7    // (emu->top + i)&7
             }
             *s3_top += a;
-            ADDx_REG_LSL(s2, xEmu, s3, 3);
-            *s2_val = 0;
+            if(*s2_val!=1) {
+                *s2_val = 1;
+                ADDx_U12(s2, xEmu, offsetof(x64emu_t, x87));
+            }
             if(t==NEON_CACHE_ST_F) {
                 FCVT_D_S(i, i);
             } else if (t==NEON_CACHE_ST_I64) {
                 SCVTFDD(i, i);
             }
-            VSTR64_U12(i, s2, offsetof(x64emu_t, x87));
+            VSTR64_REG_LSL3(i, s2, s3);
             break;
         case NEON_CACHE_NONE:
         case NEON_CACHE_SCR:
