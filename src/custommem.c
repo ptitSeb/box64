@@ -1571,6 +1571,24 @@ void* find47bitBlockNearHint(void* hint, size_t size)
     return NULL;
 }
 
+int isBlockFree(void* hint, size_t size)
+{
+    mapmem_t* m = mapmem;
+    uintptr_t h = (uintptr_t)hint;
+    if(h>0x800000000000LL)
+        return 0;   // no tracking there
+    while(m && m->end<0x800000000000LL) {
+        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
+        if(addr<=h && end>=h && end-h+1>=size)
+            return 1;
+        if(addr>h)
+            return 0;
+        m = m->next;
+    }
+    return 0;
+}
+
 int unlockCustommemMutex()
 {
     int ret = 0;

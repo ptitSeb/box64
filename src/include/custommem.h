@@ -96,6 +96,7 @@ void* find32bitBlock(size_t size);
 void* find31bitBlockNearHint(void* hint, size_t size);
 void* find47bitBlock(size_t size);
 void* find47bitBlockNearHint(void* hint, size_t size);
+int isBlockFree(void* hint, size_t size);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
 int unlockCustommemMutex(void);
