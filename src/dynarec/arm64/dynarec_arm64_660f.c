@@ -1084,7 +1084,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         SMWRITE2();
                     }
                     break;
-
+                case 0x17:
+                    INST_NAME("EXTRACTPS Ew, Gx, Ib");
+                    nextop = F8;
+                    GETGX(q0, 0);
+                    if (MODREG) {
+                        ed = xRAX+(nextop&7)+(rex.b<<3);
+                        u8 = F8&0b11;
+                        MOVx_REG(ed, xZR);
+                        VMOVSto(ed, q0, u8);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0xfff<<2, 3, rex, NULL, 0, 1);
+                        u8 = F8&0b11;
+                        VMOVSto(x1, q0, u8);
+                        STW(x1, wback, fixedaddress);
+                    }
+                    break;
                 case 0x20:
                     INST_NAME("PINSRB Gx, ED, Ib");
                     nextop = F8;
@@ -1097,21 +1112,70 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("INSERTPS Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
-                    if(MODREG) {
-                        GETEX(q1, 0, 1);
+                    d0 = fpu_get_scratch(dyn);
+                    VMOVQ(d0, q0);
+                    if (MODREG) {
+                        q1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                         u8 = F8;
-                        VMOVQDto(x1, q1, (u8>>6)&3);
+                        uint8_t count_d = (u8 >> 4) & 3;
+                        uint8_t count_s = u8 >> 6;
+                        #define GO(A) \
+                            switch (count_d) {              \
+                                case 0:                     \
+                                    VMOVeS(d0, 0, q1, A);   \
+                                    break;                  \
+                                case 1:                     \
+                                    VMOVeS(d0, 1, q1, A);   \
+                                    break;                  \
+                                case 2:                     \
+                                    VMOVeS(d0, 2, q1, A);   \
+                                    break;                  \
+                                case 3:                     \
+                                    VMOVeS(q0, 3, q1, A);   \
+                                    break;                  \
+                            }
+                        switch (count_s) {
+                            case 0:
+                                GO(0)
+                                break;
+                            case 1:
+                                GO(1)
+                                break;
+                            case 2:
+                                GO(2)
+                                break;
+                            case 3:
+                                GO(3)
+                                break;
+                        }
+                        #undef GO
                     } else {
                         SMREAD();
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
-                        LDW(x1, wback, fixedaddress);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
                         u8 = F8;
+                        uint8_t count_d = (u8 >> 4) & 3;
+                        LDW(x2, ed, fixedaddress);
+                        switch (count_d) {
+                            case 0:
+                                VMOVQSfrom(d0, 0, x2);
+                                break; 
+                            case 1:
+                                VMOVQSfrom(d0, 1, x2);
+                                break;
+                            case 2:
+                                VMOVQSfrom(d0, 2, x2);
+                                break;
+                            case 3:
+                                VMOVQSfrom(d0, 3, x2);
+                                break;
+                        }
                     }
-                    for(int i=0; i<4; ++i) {
-                        if(u8&(1<<i)) {
-                            VMOVQDfrom(q0, i, xZR);
-                        } else if(i==(u8>>4)&3) {
-                            VMOVQDfrom(q0, i, x1);
+                    uint8_t zmask = u8 & 0xf;
+                    for (uint8_t i=0; i<4; i++) {
+                        if (zmask & (1<<i)) {
+                            VMOVQSfrom(q0, i, wZR);
+                        } else {
+                            VMOVeS(q0, i, d0, i);
                         }
                     }
                     break;

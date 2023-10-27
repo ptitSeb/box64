@@ -2090,7 +2090,12 @@ EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
         newargv[j++] = getVargN(emu, k+1);
     if(self) newargv[1] = emu->context->fullpath;
     printf_log(LOG_DEBUG, " => execle(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
-    int ret = execv(newargv[0], newargv);
+    int ret = 0;
+    if (!(x64 || x86 || script || self)) {
+        ret = execv(path, newargv);
+    } else {
+        ret = execv(newargv[0], newargv);
+    }
     box_free(newargv);
     return ret;
 }
