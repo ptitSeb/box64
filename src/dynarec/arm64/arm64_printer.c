@@ -1052,7 +1052,30 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         if(!offset)
             snprintf(buff, sizeof(buff), "%s %c%d, [%s]", op?"STR":"LDR", s, Rt, XtSp[Rn]);
         else
-            snprintf(buff, sizeof(buff), "%s %c%d, [%s, %d]", op?"STR":"LDR", s, Rt, XtSp[Rn], offset);
+            snprintf(buff, sizeof(buff), "%s %c%d, [%s, 0x%x]", op?"STR":"LDR", s, Rt, XtSp[Rn], offset);
+        return buff;
+    }
+    if(isMask(opcode, "ss111100cc1mmmmmoooS10nnnnnttttt", &a)) {
+        char s = '?';
+        int size=imms;
+        int op=0;
+        if(size==0 && opc==1) {s='B';}
+        else if(size==1 && opc==1) {s='H';}
+        else if(size==2 && opc==1) {s='S';}
+        else if(size==3 && opc==1) {s='D';}
+        else if(size==0 && opc==3) {s='Q'; size = 4;}
+        else if(size==0 && opc==0) {s='B'; op=1;}
+        else if(size==1 && opc==0) {s='H'; op=1;}
+        else if(size==2 && opc==0) {s='S'; op=1;}
+        else if(size==3 && opc==0) {s='D'; op=1;}
+        else if(size==0 && opc==2) {s='Q'; op=1; size = 4;}
+
+        const char* extend[] = {"?0", "?1", "UXTW", "LSL", "?4", "?5", "SXTW", "SXTX"};
+        int amount = size*a.S;
+        if(option==3 && !amount)
+            snprintf(buff, sizeof(buff), "%s %c%d, [%s, %s]", op?"STR":"LDR", s, Rt, XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "%s %c%d, [%s, %s, %s %d]", op?"STR":"LDR", s, Rt, XtSp[Rn], ((option&1)==0)?Wt[Rm]:Xt[Rm], extend[option], amount);
         return buff;
     }
 
