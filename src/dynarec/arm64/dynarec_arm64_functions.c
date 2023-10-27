@@ -95,10 +95,12 @@ void fpu_reset_reg(dynarec_arm_t* dyn)
 
 }
 
-int neoncache_no_i64(int a)
+int neoncache_no_i64(dynarec_arm_t* dyn, int ninst, int st, int a)
 {
-    if(a==NEON_CACHE_ST_I64)
+    if(a==NEON_CACHE_ST_I64) {
+        neoncache_promote_double(dyn, ninst, st);
         return NEON_CACHE_ST_D;
+    }
     return a;
 }
 

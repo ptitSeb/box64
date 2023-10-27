@@ -38,7 +38,7 @@ void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a);
 // Combine and propagate if needed (pass 1 only)
 int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b);  // with stack current dyn->n_stack*
 // Do not allow i64 type
-int neoncache_no_i64(int a);
+int neoncache_no_i64(dynarec_arm_t* dyn, int ninst, int st, int a);
 
 
 // FPU Cache transformation (for loops) // Specific, need to be written by backend
