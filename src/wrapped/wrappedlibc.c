@@ -2545,49 +2545,62 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
     }
     return readlinkat(fd, path, buf, bufsize);
 }
-
+#ifndef MAP_FIXED_NOREPLACE
+#define MAP_FIXED_NOREPLACE	0x200000
+#endif
+#ifndef MAP_32BIT
+#define MAP_32BIT 0x40
+#endif
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset)
 {
     (void)emu;
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) => ", addr, length, prot, flags, fd, offset);}
+    int new_flags = flags;
     #ifndef NOALIGN
     void* old_addr = addr;
-    if(flags&0x40) {
-        // 0x40 is MAP_32BIT, wich only exist on x86_64!
-        //flags &= ~0x40;   // let the flags in?
+    new_flags&=~MAP_32BIT;   // remove MAP_32BIT
+    if(flags&MAP_32BIT) {
+        // MAP_32BIT only exist on x86_64!
         addr = find31bitBlockNearHint(addr, length);
     } else if (box64_wine || 1) {   // other mmap should be restricted to 47bits
         if(!addr)
             addr = find47bitBlock(length);
     }
     #endif
-    void* ret = mmap64(addr, length, prot, flags, fd, offset);
+    void* ret = mmap64(addr, length, prot, new_flags, fd, offset);
     #ifndef NOALIGN
-    if((ret!=(void*)-1) && (flags&0x40) &&
+    if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || (box64_wine && ((uintptr_t)ret&0xffff)))) {
         printf_log(LOG_DEBUG, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find31bitBlockNearHint(old_addr, length); // is this the best way?
-        uint32_t new_flags = (addr && isBlockFree(addr, length) )? (flags|MAP_FIXED) : flags;
+        new_flags = (addr && isBlockFree(addr, length) )? (new_flags|MAP_FIXED) : new_flags;
+        if(new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE)==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = mmap64(addr, length, prot, new_flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
-    } else if((ret!=(void*)-1) && !(flags&MAP_FIXED) && (box64_wine) && (old_addr) && (addr!=ret) &&
+    } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && (box64_wine) && (old_addr) && (addr!=ret) &&
              (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
         printf_log(LOG_DEBUG, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find47bitBlockNearHint(old_addr, length); // is this the best way?
-        uint32_t new_flags = (addr && isBlockFree(addr, length)) ? (flags|MAP_FIXED) : flags;
+        new_flags = (addr && isBlockFree(addr, length)) ? (new_flags|MAP_FIXED) : new_flags;
+        if(new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE)==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = mmap64(addr, length, prot, new_flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
     }
     #endif
+    if((ret!=MAP_FAILED) && (flags&MAP_FIXED_NOREPLACE) && (ret!=addr)) {
+        munmap(ret, length);
+        errno = EEXIST;
+        return MAP_FAILED;
+    }
     if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
     #ifdef DYNAREC
-    if(box64_dynarec && ret!=(void*)-1) {
+    if(box64_dynarec && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)
         {
             // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
@@ -2600,7 +2613,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         }
     }
     #endif
-    if(ret!=(void*)-1) {
+    if(ret!=MAP_FAILED) {
         setProtection_mmap((uintptr_t)ret, length, prot);
     }
     return ret;
@@ -2661,12 +2674,12 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 {
     (void)emu;
     dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
+    int ret = munmap(addr, length);
     #ifdef DYNAREC
-    if(box64_dynarec && length) {
+    if(!ret && box64_dynarec && length) {
         cleanDBFromAddressRange((uintptr_t)addr, length, 1);
     }
     #endif
-    int ret = munmap(addr, length);
     if(!ret) {
         freeProtection((uintptr_t)addr, length);
     }
