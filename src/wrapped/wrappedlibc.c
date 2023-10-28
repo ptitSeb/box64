@@ -2556,7 +2556,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     (void)emu;
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) => ", addr, length, prot, flags, fd, offset);}
+    if(box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "mmap64(%p, %lu, 0x%x, 0x%x, %d, %ld) => ", addr, length, prot, flags, fd, offset);}
     int new_flags = flags;
     #ifndef NOALIGN
     void* old_addr = addr;
@@ -2598,7 +2598,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         errno = EEXIST;
         return MAP_FAILED;
     }
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
+    if(box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "%p\n", ret);}
     #ifdef DYNAREC
     if(box64_dynarec && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)
@@ -2623,9 +2623,9 @@ EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, 
 EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
     (void)emu;
-    dynarec_log(LOG_DEBUG, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
+    if(box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);}
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
-    dynarec_log(LOG_DEBUG, "%p\n", ret);
+    if(box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "%p\n", ret);}
     if(ret!=(void*)-1) {
         uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
         if(ret==old_addr) {
@@ -2673,7 +2673,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
 EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 {
     (void)emu;
-    dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
+    if(box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "munmap(%p, %lu)\n", addr, length);}
     int ret = munmap(addr, length);
     #ifdef DYNAREC
     if(!ret && box64_dynarec && length) {
@@ -2689,7 +2689,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
 {
     (void)emu;
-    dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
+    if(box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG) {printf_log(LOG_NONE, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);}
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);
