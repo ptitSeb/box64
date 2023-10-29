@@ -159,10 +159,6 @@ const char* getBoxCpuName()
                 snprintf(branding, sizeof(branding), "Box64 on %.*s @%04d MHz", 28, name, MHz);
             }
         }
-        while(strlen(branding)<3*4*4) {
-            memmove(branding+1, branding, strlen(branding));
-            branding[0] = ' ';
-        }
     }
     return branding;
 }
@@ -173,7 +169,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     int ncpu = getNCpu();
     if(ncpu>255) ncpu = 255;
     if(!ncpu) ncpu = 1;
-    const char* branding = getBoxCpuName();
+    static char branding[3*4*4+1] = "";
+    strcpy(branding, getBoxCpuName());
+    while(strlen(branding)<3*4*4) {
+        memmove(branding+1, branding, strlen(branding));
+        branding[0] = ' ';
+    }
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
