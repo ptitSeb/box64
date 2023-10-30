@@ -2151,5 +2151,12 @@
 #define FRINT64XS(Sd, Sn)           EMIT(FRINTxx_scalar(0b00, 0b11, Sn, Sd))
 #define FRINT64XD(Dd, Dn)           EMIT(FRINTxx_scalar(0b01, 0b11, Dn, Dd))
 
+// CRC32 extension
+#define CRC32C_gen(sf, Rm, sz, Rn, Rd)  ((sf)<<31 | 0b11010110<<21 | (Rm)<<16 | 0b010<<13 | 1<<12 | (sz)<<10 | (Rn)<<5 | (Rd))
+#define CRC32CB(Wd, Wn, Wm)         EMIT(CRC32C_gen(0, Wm, 0b00, Wn, Wd))
+#define CRC32CH(Wd, Wn, Wm)         EMIT(CRC32C_gen(0, Wm, 0b01, Wn, Wd))
+#define CRC32CW(Wd, Wn, Wm)         EMIT(CRC32C_gen(0, Wm, 0b10, Wn, Wd))
+#define CRC32CX(Wd, Wn, Xm)         EMIT(CRC32C_gen(1, Xm, 0b11, Wn, Wd))
+#define CRC32Cxw(Wd, Wn, Rm)        EMIT(CRC32C_gen(rex.w, Rm, 0b10|rex.w, Wn, Wd))
 
 #endif  //__ARM64_EMITTER_H__

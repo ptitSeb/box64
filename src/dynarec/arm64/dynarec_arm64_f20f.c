@@ -28,7 +28,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t opcode = F8;
     uint8_t nextop;
     uint8_t gd, ed;
-    uint8_t wback;
+    uint8_t wback, wb1, wb2;
     uint8_t u8;
     uint64_t u64, j64;
     int v0, v1;
@@ -159,30 +159,41 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             switch(opcode) {
 
                 case 0xF0:
-                    INST_NAME("(unsupported) CRC32 Gd, Eb)");
+                    INST_NAME("CRC32 Gd, Eb");
                     nextop = F8;
-                    addr = fakeed(dyn, addr, ninst, nextop);
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
-                    GETIP(ip);
-                    STORE_XEMU_CALL(xRIP);
-                    CALL(native_ud, -1);
-                    LOAD_XEMU_CALL(xRIP);
-                    jump_to_epilog(dyn, 0, xRIP, ninst);
-                    *need_epilog = 0;
-                    *ok = 0;
+                    GETEB(x1, 0);
+                    GETGD;
+                    if(arm64_crc32) {
+                        CRC32CB(gd, gd, ed);
+                    } else {
+                        EORw_REG(gd, gd, ed);
+                        MOV32w(x2, 0x82f63b78);
+                        for(int i=0; i<8; ++i) {
+                            LSRw_IMM((i&1)?gd:x4, (i&1)?x4:gd, 1);
+                            TBZ((i&1)?x4:gd, 0, 4+4);
+                            EORw_REG((i&1)?gd:x4, (i&1)?gd:x4, x2);
+                        }
+                    }
                     break;
                 case 0xF1:
-                    INST_NAME("(unsupported) CRC32 Gd, Ed)");
+                    INST_NAME("CRC32 Gd, Ed");
                     nextop = F8;
-                    addr = fakeed(dyn, addr, ninst, nextop);
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
-                    GETIP(ip);
-                    STORE_XEMU_CALL(xRIP);
-                    CALL(native_ud, -1);
-                    LOAD_XEMU_CALL(xRIP);
-                    jump_to_epilog(dyn, 0, xRIP, ninst);
-                    *need_epilog = 0;
-                    *ok = 0;
+                    GETED(0);
+                    GETGD;
+                    if(arm64_crc32) {
+                        CRC32Cxw(gd, gd, ed);
+                    } else {
+                        MOV32w(x2, 0x82f63b78);
+                        for(int j=0; j<4*(1+rex.w); ++j) {
+                            UBFXxw(x3, ed, 8*j, 8);
+                            EORw_REG(gd, gd, x3);
+                            for(int i=0; i<8; ++i) {
+                                LSRw_IMM((i&1)?gd:x4, (i&1)?x4:gd, 1);
+                                TBZ((i&1)?x4:gd, 0, 4+4);
+                                EORw_REG((i&1)?gd:x4, (i&1)?gd:x4, x2);
+                            }
+                        }
+                    }
                     break;
 
                 default:
