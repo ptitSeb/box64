@@ -20,6 +20,7 @@
 #include "dynarec_arm64_private.h"
 #include "dynarec_arm64_functions.h"
 #include "dynarec_arm64_helper.h"
+#include "emu/x64compstrings.h"
 
 uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
@@ -48,6 +49,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     MAYUSE(j64);
     #if STEP > 1
     static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+    static const int8_t mask_string8[] = { 7, 6, 5, 4, 3, 2, 1, 0 };
+    static const int8_t mask_string16[] = { 15, 14, 13, 12, 11, 10, 9, 8 };
     static const int8_t round_round[] = { 0, 2, 1, 3};
     #endif
 
@@ -1234,6 +1237,181 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         u8 = F8;
                         MOV32w(x4, u8);
                         CALL(native_pclmul, -1);
+                    }
+                    break;
+
+                case 0x60:
+                    INST_NAME("PCMPESTRM Gx, Ex, Ib");
+                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    nextop = F8;
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    ADDx_U12(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    if(MODREG) {
+                        ed = (nextop&7)+(rex.b<<3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        if(ed!=x1) {
+                            MOVx_REG(x1, ed);
+                        }
+                    }
+                    MOVx_REG(x2, xRDX);
+                    MOVx_REG(x4, xRAX);
+                    u8 = F8;
+                    MOV32w(x5, u8);
+                    CALL(sse42_compare_string_explicit_len, x1);
+                    q0 = sse_get_reg_empty(dyn, ninst, x2, gd);
+                    q1 = fpu_get_scratch(dyn);
+                    if(u8&0b1000000) {
+                        switch(u8&1) {
+                            case 0b00:
+                                VDUPQB(q0, x1); // load the low 8bits of the mask
+                                LSRw_IMM(x1, x1, 8);
+                                VDUPQB(q1, x1); // load the high 8bits of the mask
+                                VEXTQ_8(q0, q0, q1, 8); // low and hig bits mask
+                                TABLE64(x2, (uintptr_t)&mask_string8);
+                                VLDR64_U12(q1, x2, 0);     // load shift
+                                VDUPQ_64(q1, q1, 0);
+                                USHLQ_8(q0, q0, q1); // extract 1 bit
+                                MOVIQ_8(q1, 0x80);   // load mask
+                                VANDQ(q0, q0, q1);
+                                VSSHRQ_8(q0, q0, 7);    // saturate the mask
+                                break;
+                            case 0b01:
+                                VDUPQH(q0, x1); // load the 8bits of the mask
+                                TABLE64(x2, (uintptr_t)&mask_string16);
+                                VLDR64_U12(q1, x2, 0);     // load shift
+                                UXTL_8(q1, q1);     // extend mask to 16bits
+                                USHLQ_16(q0, q0, q1); // extract 1 bit
+                                MOVIQ_16(q1, 0x80, 1);   // load mask
+                                VANDQ(q0, q0, q1);
+                                VSSHRQ_16(q0, q0, 15);    // saturate the mask
+                        }
+                    } else {
+                        VEORQ(q0, q0, q0);
+                        VMOVQHfrom(q0, 0, x1);
+                    }
+                    break;
+                case 0x61:
+                    INST_NAME("PCMPESTRI Gx, Ex, Ib");
+                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    nextop = F8;
+                    GETG;
+                    sse_reflect_reg(dyn, ninst, gd);
+                    ADDx_U12(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    if(MODREG) {
+                        ed = (nextop&7)+(rex.b<<3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        if(ed!=x1) {
+                            MOVx_REG(x1, ed);
+                        }
+                    }
+                    MOVx_REG(x2, xRDX);
+                    MOVx_REG(x4, xRAX);
+                    u8 = F8;
+                    MOV32w(x5, u8);
+                    CALL(sse42_compare_string_explicit_len, x1);
+                    CBNZw_MARK(x1);
+                    MOV32w(xRCX, (u8&1)?8:16);
+                    B_NEXT_nocond;
+                    MARK;
+                    if(u8&0b1000000) {
+                        CLZw(xRCX, x1);
+                        MOV32w(x2, 31);
+                        SUBw_REG(xRCX, x2, xRCX);
+                    } else {
+                        RBITxw(xRCX, x1);
+                        CLZw(xRCX, xRCX);
+                    }
+                    break;
+                case 0x62:
+                    INST_NAME("PCMPISTRM Gx, Ex, Ib");
+                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    nextop = F8;
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    ADDx_U12(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    if(MODREG) {
+                        ed = (nextop&7)+(rex.b<<3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        if(ed!=x1) {
+                            MOVx_REG(x1, ed);
+                        }
+                    }
+                    u8 = F8;
+                    MOV32w(x3, u8);
+                    CALL(sse42_compare_string_implicit_len, x1);
+                    q0 = sse_get_reg_empty(dyn, ninst, x2, gd);
+                    q1 = fpu_get_scratch(dyn);
+                    if(u8&0b1000000) {
+                        switch(u8&1) {
+                            case 0b00:
+                                VDUPQB(q0, x1); // load the low 8bits of the mask
+                                LSRw_IMM(x1, x1, 8);
+                                VDUPQB(q1, x1); // load the high 8bits of the mask
+                                VEXTQ_8(q0, q0, q1, 8); // low and hig bits mask
+                                TABLE64(x2, (uintptr_t)&mask_string8);
+                                VLDR64_U12(q1, x2, 0);     // load shift
+                                VDUPQ_64(q1, q1, 0);
+                                USHLQ_8(q0, q0, q1); // extract 1 bit
+                                MOVIQ_8(q1, 0x80);   // load mask
+                                VANDQ(q0, q0, q1);
+                                VSSHRQ_8(q0, q0, 7);    // saturate the mask
+                                break;
+                            case 0b01:
+                                VDUPQH(q0, x1); // load the 8bits of the mask
+                                TABLE64(x2, (uintptr_t)&mask_string16);
+                                VLDR64_U12(q1, x2, 0);     // load shift
+                                UXTL_8(q1, q1);     // extend mask to 16bits
+                                USHLQ_16(q0, q0, q1); // extract 1 bit
+                                MOVIQ_16(q1, 0x80, 1);   // load mask
+                                VANDQ(q0, q0, q1);
+                                VSSHRQ_16(q0, q0, 15);    // saturate the mask
+                        }
+                    } else {
+                        VEORQ(q0, q0, q0);
+                        VMOVQHfrom(q0, 0, x1);
+                    }
+                    break;
+                case 0x63:
+                    INST_NAME("PCMPISTRI Gx, Ex, Ib");
+                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    nextop = F8;
+                    GETG;
+                    sse_reflect_reg(dyn, ninst, gd);
+                    ADDx_U12(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    if(MODREG) {
+                        ed = (nextop&7)+(rex.b<<3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                        if(ed!=x1) {
+                            MOVx_REG(x1, ed);
+                        }
+                    }
+                    u8 = F8;
+                    MOV32w(x3, u8);
+                    CALL(sse42_compare_string_implicit_len, x1);
+                    CBNZw_MARK(x1);
+                    MOV32w(xRCX, (u8&1)?8:16);
+                    B_NEXT_nocond;
+                    MARK;
+                    if(u8&0b1000000) {
+                        CLZw(xRCX, x1);
+                        MOV32w(x2, 31);
+                        SUBw_REG(xRCX, x2, xRCX);
+                    } else {
+                        RBITxw(xRCX, x1);
+                        CLZw(xRCX, xRCX);
                     }
                     break;
 

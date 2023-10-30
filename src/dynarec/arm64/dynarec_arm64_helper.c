@@ -1609,6 +1609,17 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
         }
 }
 
+void sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a)
+{
+    if(dyn->n.ssecache[a].v==-1)
+        return;
+    if(dyn->n.neoncache[dyn->n.ssecache[a].reg].t == NEON_CACHE_XMMW) {
+        VSTR128_U12(dyn->n.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        /*dyn->n.neoncache[dyn->n.ssecache[a].reg].t = NEON_CACHE_XMMR;
+        dyn->n.ssecache[a].write = 0;*/
+    }
+}
+
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
 {
     int start = not07?8:0;
@@ -1641,6 +1652,8 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
     for (int i=start; i<16; ++i)
         if(dyn->n.ssecache[i].v!=-1) {
             VLDR128_U12(dyn->n.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+            /*dyn->n.ssecache[i].write = 0;   // OPTIM: it's sync, so not write anymore
+            dyn->n.neoncache[dyn->n.ssecache[i].reg].t = NEON_CACHE_XMMR;*/
         }
     MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
 }

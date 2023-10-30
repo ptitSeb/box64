@@ -983,11 +983,21 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm);
         return buff;
     }
-    // MOV immediate (not)shifted 16bits & 32bits
+    // MOV immediate notshifted 16bits & 32bits
     if(isMask(opcode, "0Q00111100000iiif00001iiiiiddddd", &a)) {
         const char* Y[] = {"2S", "4S", "4H", "8H"};
         const char* Vd = Y[(sf<<1)| a.Q];
-        snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm);
+        int sh = 0;
+
+        snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm<<sh);
+        return buff;
+    }
+    // MOV immediate shifted 16bits
+    if(isMask(opcode, "0Q00111100000iii101001iiiiiddddd", &a)) {
+        const char* Y[] = {"4H", "8H"};
+        const char* Vd = Y[a.Q];
+
+        snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm<<8);
         return buff;
     }
 
