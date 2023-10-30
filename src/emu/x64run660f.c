@@ -1148,7 +1148,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 else
                     R_RCX = __builtin_ffs(tmp32u) - 1;
                 break;
-            case 0x62:  /* PCMPESTRM */
+            case 0x62:  /* PCMPISTRM */
                 nextop = F8;
                 GETEX(1);
                 GETGX;
