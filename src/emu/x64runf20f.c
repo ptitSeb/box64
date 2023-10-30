@@ -156,6 +156,44 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GD->dword[1] = 0;
         }
         break;
+
+    case 0x38:  // more opcodes
+            opcode = F8;
+            switch(opcode) {
+
+                case 0xF0:  // CRC32 Gd, Eb
+                    nextop = F8;
+                    GETEB(0);
+                    GETGD;
+                    GD->dword[0] ^=  EB->byte[0];
+                    for (int i = 0; i < 8; i++) {
+                        if (GD->dword[0] & 1)
+                            GD->dword[0] = (GD->dword[0] >> 1) ^ 0x82f63b78;
+                        else
+                            GD->dword[0] = (GD->dword[0] >> 1);
+                    }
+                    GD->dword[1] = 0;
+                    break;
+                case 0xF1:  // CRC32 Gd, Ed
+                    nextop = F8;
+                    GETED(0);
+                    GETGD;
+                    for(int j=0; j<4*(rex.w+1); ++j) {
+                        GD->dword[0] ^=  ED->byte[j];
+                        for (int i = 0; i < 8; i++) {
+                            if (GD->dword[0] & 1)
+                                GD->dword[0] = (GD->dword[0] >> 1) ^ 0x82f63b78;
+                            else
+                                GD->dword[0] = (GD->dword[0] >> 1);
+                        }
+                    }
+                    GD->dword[1] = 0;
+                    break;
+
+                default:
+                    return 0;
+            }
+        break;
         
     case 0x51:  /* SQRTSD Gx, Ex */
         nextop = F8;

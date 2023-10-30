@@ -1,0 +1,865 @@
+test SSE 4.2
+_mm_cmpestri("This is a string", 16, "This", 4, 0x0) => 0
+_mm_cmpestri("This is a string", 16, "This", 4, 0x0) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "This", 4, 0x0) = 0000000000000000-000000000000000f
+_mm_cmpistri("This is a string", "This", 0x0) => 0
+_mm_cmpestri("This is a string", "This", 0x0) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "This", 0x0) = 0000000000000000-000000000000000f
+_mm_cmpestri("This is a string", 16, "This", 4, 0x1) => 0
+_mm_cmpestri("This is a string", 16, "This", 4, 0x1) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "This", 4, 0x1) = 0000000000000000-000000000000000f
+_mm_cmpistri("This is a string", "This", 0x1) => 0
+_mm_cmpestri("This is a string", "This", 0x1) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "This", 0x1) = 0000000000000000-000000000000000f
+_mm_cmpestri("This", 4, "This is a string", 16, 0x0) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x0) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x0) = 0000000000000000-000000000000246f
+_mm_cmpistri("This", "This is a string", 0x0) => 0
+_mm_cmpestri("This", "This is a string", 0x0) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x0) = 0000000000000000-000000000000246f
+_mm_cmpestri("This", 4, "This is a string", 16, 0x1) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x1) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x1) = 0000000000000000-000000000000006f
+_mm_cmpistri("This", "This is a string", 0x1) => 0
+_mm_cmpestri("This", "This is a string", 0x1) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x1) = 0000000000000000-000000000000006f
+_mm_cmpestri("This is a string", 16, "is", 2, 0x0) => 0
+_mm_cmpestri("This is a string", 16, "is", 2, 0x0) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "is", 2, 0x0) = 0000000000000000-0000000000000003
+_mm_cmpistri("This is a string", "is", 0x0) => 0
+_mm_cmpestri("This is a string", "is", 0x0) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "is", 0x0) = 0000000000000000-0000000000000003
+_mm_cmpestri("This is a string", 16, "is", 2, 0x1) => 0
+_mm_cmpestri("This is a string", 16, "is", 2, 0x1) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "is", 2, 0x1) = 0000000000000000-0000000000000003
+_mm_cmpistri("This is a string", "is", 0x1) => 0
+_mm_cmpestri("This is a string", "is", 0x1) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "is", 0x1) = 0000000000000000-0000000000000003
+_mm_cmpestri("is", 2, "This is a string", 16, 0x0) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0x0) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x0) = 0000000000000000-000000000000246c
+_mm_cmpistri("is", "This is a string", 0x0) => 2
+_mm_cmpestri("is", "This is a string", 0x0) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x0) = 0000000000000000-000000000000246c
+_mm_cmpestri("is", 2, "This is a string", 16, 0x1) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0x1) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x1) = 0000000000000000-000000000000006c
+_mm_cmpistri("is", "This is a string", 0x1) => 2
+_mm_cmpestri("is", "This is a string", 0x1) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x1) = 0000000000000000-000000000000006c
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x0) => 1
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x0) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x0) = 0000000000000000-000000000000c03a
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x0) => 1
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x0) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x0) = 0000000000000000-000000000000c03a
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x1) => 3
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x1) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x1) = 0000000000000000-0000000000000008
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x1) => 3
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x1) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x1) = 0000000000000000-0000000000000008
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x0) => 3
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x0) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x0) = 0000000000000000-0000000000001d48
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x0) => 3
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x0) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x0) = 0000000000000000-0000000000001d48
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x1) => 3
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x1) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x1) = 0000000000000000-0000000000000048
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x1) => 3
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x1) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x1) = 0000000000000000-0000000000000048
+_mm_cmpestri("This is a string", 16, "", 0, 0x0) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x0) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x0) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x0) => 16
+_mm_cmpestri("This is a string", "", 0x0) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x0) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x1) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x1) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x1) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x1) => 8
+_mm_cmpestri("This is a string", "", 0x1) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x1) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x0) => 16
+_mm_cmpestri("", 0, "This is a string", 16, 0x0) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", 0, "This is a string", 16, 0x0) = 0000000000000000-0000000000000000
+_mm_cmpistri("", "This is a string", 0x0) => 16
+_mm_cmpestri("", "This is a string", 0x0) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", "This is a string", 0x0) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x1) => 8
+_mm_cmpestri("", 0, "This is a string", 16, 0x1) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", 0, "This is a string", 16, 0x1) = 0000000000000000-0000000000000000
+_mm_cmpistri("", "This is a string", 0x1) => 8
+_mm_cmpestri("", "This is a string", 0x1) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", "This is a string", 0x1) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0x4) => 0
+_mm_cmpestri("This is a string", 16, "This", 4, 0x4) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "This", 4, 0x4) = 0000000000000000-000000000000000f
+_mm_cmpistri("This is a string", "This", 0x4) => 0
+_mm_cmpestri("This is a string", "This", 0x4) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "This", 0x4) = 0000000000000000-000000000000000f
+_mm_cmpestri("This is a string", 16, "This", 4, 0x5) => 0
+_mm_cmpestri("This is a string", 16, "This", 4, 0x5) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "This", 4, 0x5) = 0000000000000000-000000000000000f
+_mm_cmpistri("This is a string", "This", 0x5) => 0
+_mm_cmpestri("This is a string", "This", 0x5) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "This", 0x5) = 0000000000000000-000000000000000f
+_mm_cmpestri("This", 4, "This is a string", 16, 0x4) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x4) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x4) = 0000000000000000-000000000000f56f
+_mm_cmpistri("This", "This is a string", 0x4) => 0
+_mm_cmpestri("This", "This is a string", 0x4) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x4) = 0000000000000000-000000000000f56f
+_mm_cmpestri("This", 4, "This is a string", 16, 0x5) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x5) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x5) = 0000000000000000-000000000000006f
+_mm_cmpistri("This", "This is a string", 0x5) => 0
+_mm_cmpestri("This", "This is a string", 0x5) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x5) = 0000000000000000-000000000000006f
+_mm_cmpestri("This is a string", 16, "is", 2, 0x4) => 0
+_mm_cmpestri("This is a string", 16, "is", 2, 0x4) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "is", 2, 0x4) = 0000000000000000-0000000000000003
+_mm_cmpistri("This is a string", "is", 0x4) => 0
+_mm_cmpestri("This is a string", "is", 0x4) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "is", 0x4) = 0000000000000000-0000000000000003
+_mm_cmpestri("This is a string", 16, "is", 2, 0x5) => 0
+_mm_cmpestri("This is a string", 16, "is", 2, 0x5) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "is", 2, 0x5) = 0000000000000000-0000000000000003
+_mm_cmpistri("This is a string", "is", 0x5) => 0
+_mm_cmpestri("This is a string", "is", 0x5) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "is", 0x5) = 0000000000000000-0000000000000003
+_mm_cmpestri("is", 2, "This is a string", 16, 0x4) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0x4) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x4) = 0000000000000000-000000000000746c
+_mm_cmpistri("is", "This is a string", 0x4) => 2
+_mm_cmpestri("is", "This is a string", 0x4) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x4) = 0000000000000000-000000000000746c
+_mm_cmpestri("is", 2, "This is a string", 16, 0x5) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0x5) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x5) = 0000000000000000-000000000000006c
+_mm_cmpistri("is", "This is a string", 0x5) => 2
+_mm_cmpestri("is", "This is a string", 0x5) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x5) = 0000000000000000-000000000000006c
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x4) => 0
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x4) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x4) = 0000000000000000-000000000000ffbf
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x4) => 0
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x4) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x4) = 0000000000000000-000000000000ffbf
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x5) => 0
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x5) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x5) = 0000000000000000-00000000000000af
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x5) => 0
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x5) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x5) = 0000000000000000-00000000000000af
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x4) => 0
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x4) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x4) = 0000000000000000-000000000000f56f
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x4) => 0
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x4) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x4) = 0000000000000000-000000000000f56f
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x5) => 1
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x5) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x5) = 0000000000000000-000000000000006e
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x5) => 1
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x5) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x5) = 0000000000000000-000000000000006e
+_mm_cmpestri("This is a string", 16, "", 0, 0x4) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x4) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x4) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x4) => 16
+_mm_cmpestri("This is a string", "", 0x4) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x4) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x5) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x5) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x5) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x5) => 8
+_mm_cmpestri("This is a string", "", 0x5) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x5) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x4) => 16
+_mm_cmpestri("", 0, "This is a string", 16, 0x4) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", 0, "This is a string", 16, 0x4) = 0000000000000000-0000000000000000
+_mm_cmpistri("", "This is a string", 0x4) => 16
+_mm_cmpestri("", "This is a string", 0x4) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", "This is a string", 0x4) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x5) => 8
+_mm_cmpestri("", 0, "This is a string", 16, 0x5) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", 0, "This is a string", 16, 0x5) = 0000000000000000-0000000000000000
+_mm_cmpistri("", "This is a string", 0x5) => 8
+_mm_cmpestri("", "This is a string", 0x5) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", "This is a string", 0x5) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0x8) => 0
+_mm_cmpestri("This is a string", 16, "This", 4, 0x8) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "This", 4, 0x8) = 0000000000000000-000000000000000f
+_mm_cmpistri("This is a string", "This", 0x8) => 0
+_mm_cmpestri("This is a string", "This", 0x8) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "This", 0x8) = 0000000000000000-000000000000000f
+_mm_cmpestri("This is a string", 16, "This", 4, 0x9) => 0
+_mm_cmpestri("This is a string", 16, "This", 4, 0x9) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", 16, "This", 4, 0x9) = 0000000000000000-000000000000000f
+_mm_cmpistri("This is a string", "This", 0x9) => 0
+_mm_cmpestri("This is a string", "This", 0x9) flags: a:0 s:0 z:1 c:1 o:1
+mm_cmpestrm("This is a string", "This", 0x9) = 0000000000000000-000000000000000f
+_mm_cmpestri("This", 4, "This is a string", 16, 0x8) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x8) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x8) = 0000000000000000-000000000000000f
+_mm_cmpistri("This", "This is a string", 0x8) => 0
+_mm_cmpestri("This", "This is a string", 0x8) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x8) = 0000000000000000-000000000000000f
+_mm_cmpestri("This", 4, "This is a string", 16, 0x9) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x9) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x9) = 0000000000000000-000000000000000f
+_mm_cmpistri("This", "This is a string", 0x9) => 0
+_mm_cmpestri("This", "This is a string", 0x9) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x9) = 0000000000000000-000000000000000f
+_mm_cmpestri("This is a string", 16, "is", 2, 0x8) => 16
+_mm_cmpestri("This is a string", 16, "is", 2, 0x8) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x8) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x8) => 16
+_mm_cmpestri("This is a string", "is", 0x8) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x8) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0x9) => 8
+_mm_cmpestri("This is a string", 16, "is", 2, 0x9) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x9) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x9) => 8
+_mm_cmpestri("This is a string", "is", 0x9) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x9) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x8) => 16
+_mm_cmpestri("is", 2, "This is a string", 16, 0x8) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x8) = 0000000000000000-0000000000000000
+_mm_cmpistri("is", "This is a string", 0x8) => 16
+_mm_cmpestri("is", "This is a string", 0x8) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("is", "This is a string", 0x8) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x9) => 8
+_mm_cmpestri("is", 2, "This is a string", 16, 0x9) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x9) = 0000000000000000-0000000000000000
+_mm_cmpistri("is", "This is a string", 0x9) => 8
+_mm_cmpestri("is", "This is a string", 0x9) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("is", "This is a string", 0x9) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x8) => 3
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x8) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x8) = 0000000000000000-0000000000000008
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x8) => 3
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x8) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x8) = 0000000000000000-0000000000000008
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x9) => 3
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x9) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x9) = 0000000000000000-0000000000000008
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x9) => 3
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x9) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x9) = 0000000000000000-0000000000000008
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x8) => 3
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x8) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x8) = 0000000000000000-0000000000000008
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x8) => 3
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x8) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x8) = 0000000000000000-0000000000000008
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x9) => 3
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x9) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x9) = 0000000000000000-0000000000000008
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x9) => 3
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x9) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x9) = 0000000000000000-0000000000000008
+_mm_cmpestri("This is a string", 16, "", 0, 0x8) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x8) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x8) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x8) => 16
+_mm_cmpestri("This is a string", "", 0x8) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x8) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x9) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x9) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x9) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x9) => 8
+_mm_cmpestri("This is a string", "", 0x9) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x9) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x8) => 16
+_mm_cmpestri("", 0, "This is a string", 16, 0x8) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", 0, "This is a string", 16, 0x8) = 0000000000000000-0000000000000000
+_mm_cmpistri("", "This is a string", 0x8) => 16
+_mm_cmpestri("", "This is a string", 0x8) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", "This is a string", 0x8) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x9) => 8
+_mm_cmpestri("", 0, "This is a string", 16, 0x9) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", 0, "This is a string", 16, 0x9) = 0000000000000000-0000000000000000
+_mm_cmpistri("", "This is a string", 0x9) => 8
+_mm_cmpestri("", "This is a string", 0x9) flags: a:1 s:1 z:0 c:0 o:0
+mm_cmpestrm("", "This is a string", 0x9) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0xc) => 16
+_mm_cmpestri("This is a string", 16, "This", 4, 0xc) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0xc) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0xc) => 16
+_mm_cmpestri("This is a string", "This", 0xc) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0xc) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0xd) => 8
+_mm_cmpestri("This is a string", 16, "This", 4, 0xd) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0xd) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0xd) => 8
+_mm_cmpestri("This is a string", "This", 0xd) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0xd) = 0000000000000000-0000000000000000
+_mm_cmpestri("This", 4, "This is a string", 16, 0xc) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0xc) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0xc) = 0000000000000000-0000000000000001
+_mm_cmpistri("This", "This is a string", 0xc) => 0
+_mm_cmpestri("This", "This is a string", 0xc) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0xc) = 0000000000000000-0000000000000001
+_mm_cmpestri("This", 4, "This is a string", 16, 0xd) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0xd) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0xd) = 0000000000000000-0000000000000001
+_mm_cmpistri("This", "This is a string", 0xd) => 0
+_mm_cmpestri("This", "This is a string", 0xd) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0xd) = 0000000000000000-0000000000000001
+_mm_cmpestri("This is a string", 16, "is", 2, 0xc) => 16
+_mm_cmpestri("This is a string", 16, "is", 2, 0xc) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0xc) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0xc) => 16
+_mm_cmpestri("This is a string", "is", 0xc) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0xc) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0xd) => 8
+_mm_cmpestri("This is a string", 16, "is", 2, 0xd) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0xd) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0xd) => 8
+_mm_cmpestri("This is a string", "is", 0xd) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0xd) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0xc) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0xc) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0xc) = 0000000000000000-0000000000000024
+_mm_cmpistri("is", "This is a string", 0xc) => 2
+_mm_cmpestri("is", "This is a string", 0xc) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0xc) = 0000000000000000-0000000000000024
+_mm_cmpestri("is", 2, "This is a string", 16, 0xd) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0xd) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0xd) = 0000000000000000-0000000000000024
+_mm_cmpistri("is", "This is a string", 0xd) => 2
+_mm_cmpestri("is", "This is a string", 0xd) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0xd) = 0000000000000000-0000000000000024
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0xc) => 16
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0xc) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0xc) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0xc) => 16
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0xc) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0xc) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0xd) => 8
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0xd) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0xd) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0xd) => 8
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0xd) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0xd) = 0000000000000000-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0xc) => 16
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0xc) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0xc) = 0000000000000000-0000000000000000
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0xc) => 16
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0xc) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0xc) = 0000000000000000-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0xd) => 8
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0xd) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0xd) = 0000000000000000-0000000000000000
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0xd) => 8
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0xd) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0xd) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0xc) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0xc) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0xc) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0xc) => 16
+_mm_cmpestri("This is a string", "", 0xc) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0xc) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0xd) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0xd) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0xd) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0xd) => 8
+_mm_cmpestri("This is a string", "", 0xd) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0xd) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0xc) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0xc) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0xc) = 0000000000000000-000000000000ffff
+_mm_cmpistri("", "This is a string", 0xc) => 0
+_mm_cmpestri("", "This is a string", 0xc) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0xc) = 0000000000000000-000000000000ffff
+_mm_cmpestri("", 0, "This is a string", 16, 0xd) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0xd) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0xd) = 0000000000000000-00000000000000ff
+_mm_cmpistri("", "This is a string", 0xd) => 0
+_mm_cmpestri("", "This is a string", 0xd) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0xd) = 0000000000000000-00000000000000ff
+_mm_cmpestri("This is a string", 16, "This", 4, 0x4c) => 16
+_mm_cmpestri("This is a string", 16, "This", 4, 0x4c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x4c) => 16
+_mm_cmpestri("This is a string", "This", 0x4c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0x4d) => 8
+_mm_cmpestri("This is a string", 16, "This", 4, 0x4d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x4d) => 8
+_mm_cmpestri("This is a string", "This", 0x4d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpestri("This", 4, "This is a string", 16, 0x4c) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x4c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x4c) = 0000000000000000-00000000000000ff
+_mm_cmpistri("This", "This is a string", 0x4c) => 0
+_mm_cmpestri("This", "This is a string", 0x4c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x4c) = 0000000000000000-00000000000000ff
+_mm_cmpestri("This", 4, "This is a string", 16, 0x4d) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x4d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x4d) = 0000000000000000-000000000000ffff
+_mm_cmpistri("This", "This is a string", 0x4d) => 0
+_mm_cmpestri("This", "This is a string", 0x4d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x4d) = 0000000000000000-000000000000ffff
+_mm_cmpestri("This is a string", 16, "is", 2, 0x4c) => 16
+_mm_cmpestri("This is a string", 16, "is", 2, 0x4c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x4c) => 16
+_mm_cmpestri("This is a string", "is", 0x4c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0x4d) => 8
+_mm_cmpestri("This is a string", 16, "is", 2, 0x4d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x4d) => 8
+_mm_cmpestri("This is a string", "is", 0x4d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x4c) => 5
+_mm_cmpestri("is", 2, "This is a string", 16, 0x4c) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x4c) = 0000000000000000-0000000000ff0000
+_mm_cmpistri("is", "This is a string", 0x4c) => 5
+_mm_cmpestri("is", "This is a string", 0x4c) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x4c) = 0000000000000000-0000000000ff0000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x4d) => 5
+_mm_cmpestri("is", 2, "This is a string", 16, 0x4d) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x4d) = 00000000ffff0000-0000000000000000
+_mm_cmpistri("is", "This is a string", 0x4d) => 5
+_mm_cmpestri("is", "This is a string", 0x4d) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x4d) = 00000000ffff0000-0000000000000000
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x4c) => 16
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x4c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x4c) => 16
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x4c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x4d) => 8
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x4d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x4d) => 8
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x4d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x4c) => 16
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x4c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x4c) => 16
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x4c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x4d) => 8
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x4d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x4d) => 8
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x4d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x4c) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x4c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x4c) => 16
+_mm_cmpestri("This is a string", "", 0x4c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x4c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x4d) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x4d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x4d) => 8
+_mm_cmpestri("This is a string", "", 0x4d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x4d) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x4c) => 15
+_mm_cmpestri("", 0, "This is a string", 16, 0x4c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x4c) = 00000000ffffffff-00000000ffffffff
+_mm_cmpistri("", "This is a string", 0x4c) => 15
+_mm_cmpestri("", "This is a string", 0x4c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x4c) = 00000000ffffffff-00000000ffffffff
+_mm_cmpestri("", 0, "This is a string", 16, 0x4d) => 7
+_mm_cmpestri("", 0, "This is a string", 16, 0x4d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x4d) = 00000000ffffffff-00000000ffffffff
+_mm_cmpistri("", "This is a string", 0x4d) => 7
+_mm_cmpestri("", "This is a string", 0x4d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x4d) = 00000000ffffffff-00000000ffffffff
+_mm_cmpestri("This is a string", 16, "This", 4, 0x2c) => 16
+_mm_cmpestri("This is a string", 16, "This", 4, 0x2c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x2c) => 16
+_mm_cmpestri("This is a string", "This", 0x2c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0x2d) => 8
+_mm_cmpestri("This is a string", 16, "This", 4, 0x2d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x2d) => 8
+_mm_cmpestri("This is a string", "This", 0x2d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpestri("This", 4, "This is a string", 16, 0x2c) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x2c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x2c) = 0000000000000000-0000000000000001
+_mm_cmpistri("This", "This is a string", 0x2c) => 0
+_mm_cmpestri("This", "This is a string", 0x2c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x2c) = 0000000000000000-0000000000000001
+_mm_cmpestri("This", 4, "This is a string", 16, 0x2d) => 0
+_mm_cmpestri("This", 4, "This is a string", 16, 0x2d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", 4, "This is a string", 16, 0x2d) = 0000000000000000-0000000000000001
+_mm_cmpistri("This", "This is a string", 0x2d) => 0
+_mm_cmpestri("This", "This is a string", 0x2d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("This", "This is a string", 0x2d) = 0000000000000000-0000000000000001
+_mm_cmpestri("This is a string", 16, "is", 2, 0x2c) => 16
+_mm_cmpestri("This is a string", 16, "is", 2, 0x2c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x2c) => 16
+_mm_cmpestri("This is a string", "is", 0x2c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0x2d) => 8
+_mm_cmpestri("This is a string", 16, "is", 2, 0x2d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x2d) => 8
+_mm_cmpestri("This is a string", "is", 0x2d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x2c) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0x2c) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x2c) = 0000000000000000-0000000000000024
+_mm_cmpistri("is", "This is a string", 0x2c) => 2
+_mm_cmpestri("is", "This is a string", 0x2c) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x2c) = 0000000000000000-0000000000000024
+_mm_cmpestri("is", 2, "This is a string", 16, 0x2d) => 2
+_mm_cmpestri("is", 2, "This is a string", 16, 0x2d) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", 2, "This is a string", 16, 0x2d) = 0000000000000000-0000000000000024
+_mm_cmpistri("is", "This is a string", 0x2d) => 2
+_mm_cmpestri("is", "This is a string", 0x2d) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("is", "This is a string", 0x2d) = 0000000000000000-0000000000000024
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x2c) => 16
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x2c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x2c) => 16
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x2c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x2d) => 8
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x2d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x2d) => 8
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x2d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x2c) => 16
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x2c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x2c) => 16
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x2c) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x2d) => 8
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x2d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x2d) => 8
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x2d) flags: a:1 s:0 z:0 c:0 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x2c) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x2c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x2c) => 16
+_mm_cmpestri("This is a string", "", 0x2c) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x2c) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x2d) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x2d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x2d) => 8
+_mm_cmpestri("This is a string", "", 0x2d) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x2d) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x2c) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0x2c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x2c) = 0000000000000000-000000000000ffff
+_mm_cmpistri("", "This is a string", 0x2c) => 0
+_mm_cmpestri("", "This is a string", 0x2c) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x2c) = 0000000000000000-000000000000ffff
+_mm_cmpestri("", 0, "This is a string", 16, 0x2d) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0x2d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x2d) = 0000000000000000-00000000000000ff
+_mm_cmpistri("", "This is a string", 0x2d) => 0
+_mm_cmpestri("", "This is a string", 0x2d) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x2d) = 0000000000000000-00000000000000ff
+_mm_cmpestri("This is a string", 16, "This", 4, 0x34) => 16
+_mm_cmpestri("This is a string", 16, "This", 4, 0x34) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x34) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x34) => 16
+_mm_cmpestri("This is a string", "This", 0x34) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x34) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0x35) => 8
+_mm_cmpestri("This is a string", 16, "This", 4, 0x35) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x35) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x35) => 8
+_mm_cmpestri("This is a string", "This", 0x35) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x35) = 0000000000000000-0000000000000000
+_mm_cmpestri("This", 4, "This is a string", 16, 0x34) => 4
+_mm_cmpestri("This", 4, "This is a string", 16, 0x34) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", 4, "This is a string", 16, 0x34) = 0000000000000000-0000000000000a90
+_mm_cmpistri("This", "This is a string", 0x34) => 4
+_mm_cmpestri("This", "This is a string", 0x34) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", "This is a string", 0x34) = 0000000000000000-0000000000000a90
+_mm_cmpestri("This", 4, "This is a string", 16, 0x35) => 4
+_mm_cmpestri("This", 4, "This is a string", 16, 0x35) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", 4, "This is a string", 16, 0x35) = 0000000000000000-0000000000000090
+_mm_cmpistri("This", "This is a string", 0x35) => 4
+_mm_cmpestri("This", "This is a string", 0x35) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", "This is a string", 0x35) = 0000000000000000-0000000000000090
+_mm_cmpestri("This is a string", 16, "is", 2, 0x34) => 16
+_mm_cmpestri("This is a string", 16, "is", 2, 0x34) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x34) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x34) => 16
+_mm_cmpestri("This is a string", "is", 0x34) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x34) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0x35) => 8
+_mm_cmpestri("This is a string", 16, "is", 2, 0x35) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x35) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x35) => 8
+_mm_cmpestri("This is a string", "is", 0x35) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x35) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x34) => 0
+_mm_cmpestri("is", 2, "This is a string", 16, 0x34) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", 2, "This is a string", 16, 0x34) = 0000000000000000-0000000000008b93
+_mm_cmpistri("is", "This is a string", 0x34) => 0
+_mm_cmpestri("is", "This is a string", 0x34) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", "This is a string", 0x34) = 0000000000000000-0000000000008b93
+_mm_cmpestri("is", 2, "This is a string", 16, 0x35) => 0
+_mm_cmpestri("is", 2, "This is a string", 16, 0x35) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", 2, "This is a string", 16, 0x35) = 0000000000000000-0000000000000093
+_mm_cmpistri("is", "This is a string", 0x35) => 0
+_mm_cmpestri("is", "This is a string", 0x35) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", "This is a string", 0x35) = 0000000000000000-0000000000000093
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x34) => 6
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x34) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x34) = 0000000000000000-0000000000000040
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x34) => 6
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x34) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x34) = 0000000000000000-0000000000000040
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x35) => 4
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x35) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x35) = 0000000000000000-0000000000000050
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x35) => 4
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x35) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x35) = 0000000000000000-0000000000000050
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x34) => 4
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x34) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x34) = 0000000000000000-0000000000000a90
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x34) => 4
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x34) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x34) = 0000000000000000-0000000000000a90
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x35) => 0
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x35) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x35) = 0000000000000000-0000000000000091
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x35) => 0
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x35) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x35) = 0000000000000000-0000000000000091
+_mm_cmpestri("This is a string", 16, "", 0, 0x34) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x34) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x34) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x34) => 16
+_mm_cmpestri("This is a string", "", 0x34) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x34) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x35) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x35) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x35) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x35) => 8
+_mm_cmpestri("This is a string", "", 0x35) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x35) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x34) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0x34) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x34) = 0000000000000000-000000000000ffff
+_mm_cmpistri("", "This is a string", 0x34) => 0
+_mm_cmpestri("", "This is a string", 0x34) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x34) = 0000000000000000-000000000000ffff
+_mm_cmpestri("", 0, "This is a string", 16, 0x35) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0x35) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x35) = 0000000000000000-00000000000000ff
+_mm_cmpistri("", "This is a string", 0x35) => 0
+_mm_cmpestri("", "This is a string", 0x35) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x35) = 0000000000000000-00000000000000ff
+_mm_cmpestri("This is a string", 16, "This", 4, 0x36) => 16
+_mm_cmpestri("This is a string", 16, "This", 4, 0x36) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x36) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x36) => 16
+_mm_cmpestri("This is a string", "This", 0x36) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x36) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0x37) => 8
+_mm_cmpestri("This is a string", 16, "This", 4, 0x37) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x37) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x37) => 8
+_mm_cmpestri("This is a string", "This", 0x37) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x37) = 0000000000000000-0000000000000000
+_mm_cmpestri("This", 4, "This is a string", 16, 0x36) => 4
+_mm_cmpestri("This", 4, "This is a string", 16, 0x36) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", 4, "This is a string", 16, 0x36) = 0000000000000000-0000000000000a90
+_mm_cmpistri("This", "This is a string", 0x36) => 4
+_mm_cmpestri("This", "This is a string", 0x36) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", "This is a string", 0x36) = 0000000000000000-0000000000000a90
+_mm_cmpestri("This", 4, "This is a string", 16, 0x37) => 4
+_mm_cmpestri("This", 4, "This is a string", 16, 0x37) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", 4, "This is a string", 16, 0x37) = 0000000000000000-0000000000000090
+_mm_cmpistri("This", "This is a string", 0x37) => 4
+_mm_cmpestri("This", "This is a string", 0x37) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", "This is a string", 0x37) = 0000000000000000-0000000000000090
+_mm_cmpestri("This is a string", 16, "is", 2, 0x36) => 16
+_mm_cmpestri("This is a string", 16, "is", 2, 0x36) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x36) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x36) => 16
+_mm_cmpestri("This is a string", "is", 0x36) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x36) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0x37) => 8
+_mm_cmpestri("This is a string", 16, "is", 2, 0x37) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x37) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x37) => 8
+_mm_cmpestri("This is a string", "is", 0x37) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x37) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x36) => 0
+_mm_cmpestri("is", 2, "This is a string", 16, 0x36) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", 2, "This is a string", 16, 0x36) = 0000000000000000-0000000000008b93
+_mm_cmpistri("is", "This is a string", 0x36) => 0
+_mm_cmpestri("is", "This is a string", 0x36) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", "This is a string", 0x36) = 0000000000000000-0000000000008b93
+_mm_cmpestri("is", 2, "This is a string", 16, 0x37) => 0
+_mm_cmpestri("is", 2, "This is a string", 16, 0x37) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", 2, "This is a string", 16, 0x37) = 0000000000000000-0000000000000093
+_mm_cmpistri("is", "This is a string", 0x37) => 0
+_mm_cmpestri("is", "This is a string", 0x37) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", "This is a string", 0x37) = 0000000000000000-0000000000000093
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x36) => 6
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x36) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x36) = 0000000000000000-0000000000000040
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x36) => 6
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x36) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x36) = 0000000000000000-0000000000000040
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x37) => 4
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x37) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x37) = 0000000000000000-0000000000000050
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x37) => 4
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x37) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x37) = 0000000000000000-0000000000000050
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x36) => 4
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x36) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x36) = 0000000000000000-0000000000000a90
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x36) => 4
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x36) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x36) = 0000000000000000-0000000000000a90
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x37) => 0
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x37) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x37) = 0000000000000000-0000000000000091
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x37) => 0
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x37) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x37) = 0000000000000000-0000000000000091
+_mm_cmpestri("This is a string", 16, "", 0, 0x36) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x36) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x36) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x36) => 16
+_mm_cmpestri("This is a string", "", 0x36) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x36) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x37) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x37) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x37) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x37) => 8
+_mm_cmpestri("This is a string", "", 0x37) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x37) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x36) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0x36) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x36) = 0000000000000000-000000000000ffff
+_mm_cmpistri("", "This is a string", 0x36) => 0
+_mm_cmpestri("", "This is a string", 0x36) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x36) = 0000000000000000-000000000000ffff
+_mm_cmpestri("", 0, "This is a string", 16, 0x37) => 0
+_mm_cmpestri("", 0, "This is a string", 16, 0x37) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x37) = 0000000000000000-00000000000000ff
+_mm_cmpistri("", "This is a string", 0x37) => 0
+_mm_cmpestri("", "This is a string", 0x37) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x37) = 0000000000000000-00000000000000ff
+_mm_cmpestri("This is a string", 16, "This", 4, 0x74) => 16
+_mm_cmpestri("This is a string", 16, "This", 4, 0x74) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x74) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x74) => 16
+_mm_cmpestri("This is a string", "This", 0x74) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x74) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "This", 4, 0x75) => 8
+_mm_cmpestri("This is a string", 16, "This", 4, 0x75) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "This", 4, 0x75) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "This", 0x75) => 8
+_mm_cmpestri("This is a string", "This", 0x75) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "This", 0x75) = 0000000000000000-0000000000000000
+_mm_cmpestri("This", 4, "This is a string", 16, 0x74) => 11
+_mm_cmpestri("This", 4, "This is a string", 16, 0x74) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", 4, "This is a string", 16, 0x74) = 00000000ff00ff00-0000000000000000
+_mm_cmpistri("This", "This is a string", 0x74) => 11
+_mm_cmpestri("This", "This is a string", 0x74) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", "This is a string", 0x74) = 00000000ff00ff00-0000000000000000
+_mm_cmpestri("This", 4, "This is a string", 16, 0x75) => 7
+_mm_cmpestri("This", 4, "This is a string", 16, 0x75) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", 4, "This is a string", 16, 0x75) = 000000000000ffff-0000000000000000
+_mm_cmpistri("This", "This is a string", 0x75) => 7
+_mm_cmpestri("This", "This is a string", 0x75) flags: a:0 s:1 z:0 c:1 o:0
+mm_cmpestrm("This", "This is a string", 0x75) = 000000000000ffff-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0x74) => 16
+_mm_cmpestri("This is a string", 16, "is", 2, 0x74) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x74) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x74) => 16
+_mm_cmpestri("This is a string", "is", 0x74) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x74) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "is", 2, 0x75) => 8
+_mm_cmpestri("This is a string", 16, "is", 2, 0x75) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "is", 2, 0x75) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "is", 0x75) => 8
+_mm_cmpestri("This is a string", "is", 0x75) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "is", 0x75) = 0000000000000000-0000000000000000
+_mm_cmpestri("is", 2, "This is a string", 16, 0x74) => 15
+_mm_cmpestri("is", 2, "This is a string", 16, 0x74) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", 2, "This is a string", 16, 0x74) = 00000000ff00ffff-000000000000ffff
+_mm_cmpistri("is", "This is a string", 0x74) => 15
+_mm_cmpestri("is", "This is a string", 0x74) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", "This is a string", 0x74) = 00000000ff00ffff-000000000000ffff
+_mm_cmpestri("is", 2, "This is a string", 16, 0x75) => 7
+_mm_cmpestri("is", 2, "This is a string", 16, 0x75) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", 2, "This is a string", 16, 0x75) = 000000000000ffff-00000000ffffffff
+_mm_cmpistri("is", "This is a string", 0x75) => 7
+_mm_cmpestri("is", "This is a string", 0x75) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("is", "This is a string", 0x75) = 000000000000ffff-00000000ffffffff
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x74) => 6
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x74) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x74) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x74) => 6
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x74) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x74) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x75) => 6
+_mm_cmpestri("This is a string", 16, "maestrum-foo-bar", 16, 0x75) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", 16, "maestrum-foo-bar", 16, 0x75) = 000000000000ffff-0000000000000000
+_mm_cmpistri("This is a string", "maestrum-foo-bar", 0x75) => 6
+_mm_cmpestri("This is a string", "maestrum-foo-bar", 0x75) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("This is a string", "maestrum-foo-bar", 0x75) = 000000000000ffff-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x74) => 11
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x74) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x74) = 00000000ff00ff00-0000000000000000
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x74) => 11
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x74) flags: a:0 s:0 z:0 c:1 o:0
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x74) = 00000000ff00ff00-0000000000000000
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x75) => 7
+_mm_cmpestri("maestrum-foo-bar", 16, "This is a string", 16, 0x75) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", 16, "This is a string", 16, 0x75) = 000000000000ffff-000000000000ffff
+_mm_cmpistri("maestrum-foo-bar", "This is a string", 0x75) => 7
+_mm_cmpestri("maestrum-foo-bar", "This is a string", 0x75) flags: a:0 s:0 z:0 c:1 o:1
+mm_cmpestrm("maestrum-foo-bar", "This is a string", 0x75) = 000000000000ffff-000000000000ffff
+_mm_cmpestri("This is a string", 16, "", 0, 0x74) => 16
+_mm_cmpestri("This is a string", 16, "", 0, 0x74) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x74) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x74) => 16
+_mm_cmpestri("This is a string", "", 0x74) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x74) = 0000000000000000-0000000000000000
+_mm_cmpestri("This is a string", 16, "", 0, 0x75) => 8
+_mm_cmpestri("This is a string", 16, "", 0, 0x75) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", 16, "", 0, 0x75) = 0000000000000000-0000000000000000
+_mm_cmpistri("This is a string", "", 0x75) => 8
+_mm_cmpestri("This is a string", "", 0x75) flags: a:0 s:0 z:1 c:0 o:0
+mm_cmpestrm("This is a string", "", 0x75) = 0000000000000000-0000000000000000
+_mm_cmpestri("", 0, "This is a string", 16, 0x74) => 15
+_mm_cmpestri("", 0, "This is a string", 16, 0x74) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x74) = 00000000ffffffff-00000000ffffffff
+_mm_cmpistri("", "This is a string", 0x74) => 15
+_mm_cmpestri("", "This is a string", 0x74) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x74) = 00000000ffffffff-00000000ffffffff
+_mm_cmpestri("", 0, "This is a string", 16, 0x75) => 7
+_mm_cmpestri("", 0, "This is a string", 16, 0x75) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", 0, "This is a string", 16, 0x75) = 00000000ffffffff-00000000ffffffff
+_mm_cmpistri("", "This is a string", 0x75) => 7
+_mm_cmpestri("", "This is a string", 0x75) flags: a:0 s:1 z:0 c:1 o:1
+mm_cmpestrm("", "This is a string", 0x75) = 00000000ffffffff-00000000ffffffff

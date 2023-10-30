@@ -297,6 +297,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/elfs/elfloader.c"
     "${BOX64_ROOT}/src/elfs/elfparser.c"
     "${BOX64_ROOT}/src/elfs/elfload_dump.c"
+    "${BOX64_ROOT}/src/emu/x64compstrings.c"
     "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x64int3.c"
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
@@ -1015,6 +1016,11 @@ add_test(x87cache ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
 add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test26 -D TEST_OUTPUT=tmpfile26.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref26.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test27 -D TEST_OUTPUT=tmpfile27.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref27.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 set_tests_properties(feround PROPERTIES ENVIRONMENT "BOX64_SYNC_ROUNDING=1")

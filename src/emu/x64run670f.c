@@ -25,6 +25,7 @@
 #endif
 
 #include "modrm.h"
+#include "x64compstrings.h"
 
 #ifdef TEST_INTERPRETER
 uintptr_t Test670F(x64test_t *test, rex_t rex, int rep, uintptr_t addr)

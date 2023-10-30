@@ -22,6 +22,7 @@
 #include "bridge.h"
 
 #include "modrm.h"
+#include "x64compstrings.h"
 
 static uint8_t ff_mult(uint8_t a, uint8_t b)
 {
@@ -1116,6 +1117,65 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GX->q[0] = result&0xffffffffffffffffLL;
                     GX->q[1] = (result>>64)&0xffffffffffffffffLL;
                 }
+                break;
+
+            case 0x60:  /* PCMPESTRM */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, GX, R_EAX, tmp8u);
+                if(tmp8u&0b1000000) {
+                    switch(tmp8u&1) {
+                        case 0: for(int i=0; i<16; ++i) GX->ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                        case 1: for(int i=0; i<8; ++i) GX->uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                    }
+                } else {
+                    GX->q[1] = GX->q[0] = 0;
+                    GX->uw[0] = tmp32u;
+                }
+                break;
+            case 0x61:  /* PCMPESTRI */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, GX, R_EAX, tmp8u);
+                if(!tmp32u)
+                    R_RCX = (tmp8u&1)?8:16;
+                else if(tmp8u&0b1000000)
+                    R_RCX = 31-__builtin_clz(tmp32u);
+                else
+                    R_RCX = __builtin_ffs(tmp32u) - 1;
+                break;
+            case 0x62:  /* PCMPESTRM */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_implicit_len(emu, EX, GX, tmp8u);
+                if(tmp8u&0b1000000) {
+                    switch(tmp8u&1) {
+                        case 0: for(int i=0; i<16; ++i) GX->ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                        case 1: for(int i=0; i<8; ++i) GX->uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                    }
+                } else {
+                    GX->q[1] = GX->q[0] = 0;
+                    GX->uw[0] = tmp32u;
+                }
+                break;
+            case 0x63:  /* PCMPISTRI */
+                nextop = F8;
+                GETEX(1);
+                GETGX;
+                tmp8u = F8;
+                tmp32u = sse42_compare_string_implicit_len(emu, EX, GX, tmp8u);
+                if(!tmp32u)
+                    R_RCX = (tmp8u&1)?8:16;
+                else if(tmp8u&0b1000000)
+                    R_RCX = 31-__builtin_clz(tmp32u);
+                else
+                    R_RCX = __builtin_ffs(tmp32u) - 1;
                 break;
 
             case 0xDF:      // AESKEYGENASSIST Gx, Ex, u8

@@ -193,6 +193,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_EAX |= cpu<<24;
             }*/
             R_EDX =   1         // fpu 
+                    | 1<<2      // debugging extension
                     | 1<<4      // rdtsc
                     | 1<<8      // cmpxchg8
                     | 1<<11     // sep (sysenter & sysexit)
@@ -202,6 +203,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<24     // fxsr (fxsave, fxrestore)
                     | 1<<25     // SSE
                     | 1<<26     // SSE2
+                    | 1<<28     // HT / Multi-core
                     ;
             R_ECX =   1<<0      // SSE3
                     | 1<<1      // PCLMULQDQ
@@ -209,6 +211,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<19     // SSE4_1
+                    | 1<<20     // SSE4_2
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
                     | 1<<25     // aesni
