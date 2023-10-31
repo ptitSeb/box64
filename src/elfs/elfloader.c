@@ -219,7 +219,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 try_mmap = 0;
             if(head->multiblocks[n].asize != head->multiblocks[n].size)
                 try_mmap = 0;
-            if(!e->p_flags)
+            if(!e->p_flags || !e->p_filesz)
                 try_mmap = 0;
             uint8_t prot = e->p_flags?(PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0)):0;
             if(try_mmap) {
@@ -257,10 +257,12 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     return 1;
                 }
                 setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
-                fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
-                if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
-                    printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, balign, head->name);
-                    return 1;
+                if(e->p_filesz) {
+                    fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
+                    if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
+                        printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, balign, head->name);
+                        return 1;
+                    }
                 }
             }
 #ifdef DYNAREC
