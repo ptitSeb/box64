@@ -69,6 +69,9 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
     h->globaldefver = NewDefaultVersion();
     h->weakdefver = NewDefaultVersion();
     h->refcnt = 1;
+
+    h->file = f;
+    h->fileno = fileno(f);
     
     return h;
 }
@@ -100,6 +103,8 @@ void FreeElfHeader(elfheader_t** head)
 
     box_free(h->name);
     box_free(h->path);
+    if(h->file)
+        fclose(h->file);
     box_free(h);
 
     *head = NULL;
@@ -169,138 +174,126 @@ const char* ElfPath(elfheader_t* head)
         return NULL;
     return head->path;
 }
-int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
+int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
+    loadProtectionFromMap();
     if(!head->vaddr && box64_load_addr) {
         offs = (uintptr_t)find47bitBlockNearHint((void*)box64_load_addr, head->memsz);
         box64_load_addr += head->memsz;
         box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
     }
     int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
-    if(!offs)
-        offs = head->vaddr;
-    if(head->vaddr) {
-        head->multiblock_n = 0; // count PHEntrie with LOAD
-        for (size_t i=0; i<head->numPHEntries; ++i) 
-            if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags)
-                ++head->multiblock_n;
-        head->multiblock_size = (uint64_t*)box_calloc(head->multiblock_n, sizeof(uint64_t));
-        head->multiblock_offs = (uintptr_t*)box_calloc(head->multiblock_n, sizeof(uintptr_t));
-        head->multiblock = (void**)box_calloc(head->multiblock_n, sizeof(void*));
-        // and now, create all individual blocks
-        head->memory = (char*)0xffffffffffffffff;
-        int n = 0;
-        for (size_t i=0; i<head->numPHEntries; ++i) 
-            if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags) {
-                Elf64_Phdr * e = &head->PHEntries[i];
-                uintptr_t bstart = e->p_vaddr;
-                uint64_t bsize = e->p_memsz;
-                uintptr_t balign = e->p_align;
-                if (balign) balign = balign-1; else balign = 1;
-                if(balign<4095) balign = 4095;
-                uintptr_t bend = (bstart + bsize + balign)&(~balign);
-                bstart &= ~balign;
-                int ok = 0;
-                for (int j=0; !ok && j<n; ++j) {
-                    uintptr_t start = head->multiblock_offs[j];
-                    uintptr_t end = head->multiblock_offs[j] + head->multiblock_size[j];
-                    start &= ~balign;
-                    if( (head->e_type == ET_DYN) ||
-                        (((bstart>=start) && (bstart<=end+0x1000)) || ((bend>=start) && (bend<=end)) || ((bstart<start) && (bend>end))))
-                    {
-                        // merge
-                        ok = 1;
-                        if(bstart<start)
-                            head->multiblock_offs[j] = bstart;
-                        head->multiblock_size[j] = ((bend>end)?bend:end) - head->multiblock_offs[j];
-                        --head->multiblock_n;
-                    }
-                }
-                if(!ok) {
-                    head->multiblock_offs[n] = bstart;
-                    head->multiblock_size[n] = bend - head->multiblock_offs[n];
-                    ++n;
-                }
-            }
-        head->multiblock_n = n; // might be less in fact
-        for (int i=0; i<head->multiblock_n; ++i) {
-            printf_log(log_level, "Allocating 0x%lx memory @%p for Elf \"%s\"\n", head->multiblock_size[i], (void*)head->multiblock_offs[i], head->name);
-            void* p = mmap((void*)head->multiblock_offs[i], head->multiblock_size[i]
-                , PROT_READ | PROT_WRITE | PROT_EXEC
-                , MAP_PRIVATE | MAP_ANONYMOUS /*| ((wine_preloaded)?MAP_FIXED:0)*/
-                , -1, 0);
-            if(p==MAP_FAILED) {
-                printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name);
-                return 1;
-            }
-            if(head->multiblock_offs[i] &&( p!=(void*)head->multiblock_offs[i])) {
-                if((head->e_type!=ET_DYN)) {
-                    printf_log(LOG_NONE, "Error, memory map (@%p 0x%zx/0x%zx) for elf \"%s\" allocated @%p\n", (void*)head->multiblock_offs[i], head->multiblock_size[i], head->align, head->name, p);
-                    return 1;
-                } else {
-                    printf_log(LOG_INFO, "Allocated memory is not at hinted %p but %p (size %lx) \"%s\"\n", (void*)head->multiblock_offs[i], p, head->multiblock_size[i], head->name);
-                    // need to adjust vaddr!
-                    for (size_t j=0; j<head->numPHEntries; ++j) 
-                        if(head->PHEntries[j].p_type == PT_LOAD) {
-                            Elf64_Phdr * e = &head->PHEntries[j];
-                            if(e->p_vaddr>=head->multiblock_offs[j] && e->p_vaddr<(head->multiblock_offs[j]+head->multiblock_size[j])) {
-                                e->p_vaddr = e->p_vaddr - head->multiblock_offs[j] + (uintptr_t)p;
-                                if(!head->delta) head->delta = (intptr_t)p - (intptr_t)head->multiblock_offs[j];
-                            }
-                        }
-                }
-            }
-            setProtection((uintptr_t)p, head->multiblock_size[i], PROT_READ | PROT_WRITE | PROT_EXEC);
-            head->multiblock[i] = p;
-            if(p<(void*)head->memory)
-                head->memory = (char*)p;
-        }
-    } else {
-        // vaddr is 0, load everything has a One block
-        uintptr_t old_offs = offs;
-        if(!offs /*&& box64_wine*/)
-            offs = (uintptr_t)find47bitBlock(head->memsz); // limit to 47bits...
-        printf_log(log_level, "Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
-        void* p = mmap((void*)offs, head->memsz
-            , PROT_READ | PROT_WRITE | PROT_EXEC
-            , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
-            , -1, 0);
-        if(offs &&!old_offs && p!=MAP_FAILED && offs!=(uintptr_t)p) {
-            // try again
-            munmap(p, head->memsz);
-            loadProtectionFromMap();
-            offs = (uintptr_t)find47bitBlock(head->memsz);
-            printf_log(log_level, "New, try. Allocating 0x%zx memory @%p for Elf \"%s\"\n", head->memsz, (void*)offs, head->name);
-            p = mmap((void*)offs, head->memsz
-                , PROT_READ | PROT_WRITE | PROT_EXEC
-                , MAP_PRIVATE | MAP_ANONYMOUS /*| (((offs&&wine_preloaded)?MAP_FIXED:0))*/
-                , -1, 0);
-        }
-        if(p==MAP_FAILED) {
-            printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)offs, head->memsz, head->align, head->name);
-            return 1;
-        }
-        if(offs && (p!=(void*)offs) && (head->e_type!=ET_DYN)) {
-            printf_log(LOG_NONE, "Error, memory map (@%p 0x%zx/0x%zx) for elf \"%s\" allocated @%p\n", (void*)offs, head->memsz, head->align, head->name, p);
-            return 1;
-        }
-        setProtection((uintptr_t)p, head->memsz, PROT_READ | PROT_WRITE | PROT_EXEC);
-        head->memory = p;
-        memset(p, 0, head->memsz);
-        head->delta = (intptr_t)p - (intptr_t)head->vaddr;
-        printf_log(log_level, "Got %p (delta=%p)\n", p, (void*)head->delta);
+    if(!offs && !head->vaddr)
+        offs = (uintptr_t)find47bitBlockElf(head->memsz, mainbin); // limit to 47bits...
 
-        head->multiblock_n = 1;
-        head->multiblock_size = (uint64_t*)box_calloc(head->multiblock_n, sizeof(uint64_t));
-        head->multiblock_offs = (uintptr_t*)box_calloc(head->multiblock_n, sizeof(uintptr_t));
-        head->multiblock = (void**)box_calloc(head->multiblock_n, sizeof(void*));
-        head->multiblock_size[0] = head->memsz;
-        head->multiblock_offs[0] = (uintptr_t)p;
-        head->multiblock[0] = p;
+    head->delta = offs;
+    printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\"\n", (void*)offs, (void*)head->vaddr, head->name);
+
+    head->multiblock_n = 0; // count PHEntrie with LOAD
+    for (size_t i=0; i<head->numPHEntries; ++i) 
+        if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags)
+            ++head->multiblock_n;
+    head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
+    head->tlsbase = AddTLSPartition(context, head->tlssize);
+    // and now, create all individual blocks
+    head->memory = (char*)0xffffffffffffffff;
+    int n = 0;
+    for (size_t i=0; i<head->numPHEntries; ++i) {
+        if(head->PHEntries[i].p_type == PT_LOAD) {
+            Elf64_Phdr * e = &head->PHEntries[i];
+
+            head->multiblocks[n].flags = e->p_flags;
+            head->multiblocks[n].offs = e->p_offset;
+            head->multiblocks[n].paddr = e->p_paddr + offs;
+            head->multiblocks[n].size = e->p_filesz;
+            head->multiblocks[n].align = e->p_align;
+            // check if alignment is correct
+            uintptr_t balign = head->multiblocks[n].align-1;
+            if(balign<(box64_pagesize-1)) balign = (box64_pagesize-1);
+            head->multiblocks[n].asize = e->p_memsz+(head->multiblocks[n].paddr&balign);
+            int try_mmap = 1;
+            if(e->p_offset&balign)
+                try_mmap = 0;
+            if(e->p_memsz-e->p_filesz>balign)
+                try_mmap = 0;
+            if(head->multiblocks[n].asize != head->multiblocks[n].size)
+                try_mmap = 0;
+            if(!e->p_flags)
+                try_mmap = 0;
+            uint8_t prot = e->p_flags?(PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0)):0;
+            if(try_mmap) {
+                printf_log(log_level, "Mmaping 0x%lx memory @%p for Elf \"%s\"\n", head->multiblocks[n].size, (void*)head->multiblocks[n].paddr, head->name);
+                void* p = mmap64(
+                    (void*)head->multiblocks[n].paddr, 
+                    head->multiblocks[n].asize, 
+                    prot,
+                    MAP_PRIVATE,
+                    head->fileno,
+                    e->p_offset
+                );
+                if(p==MAP_FAILED || p!=(void*)head->multiblocks[n].paddr) {
+                    try_mmap = 0;
+                    printf_log(log_level, "Mapping failed, using regular mmap+read");
+                } else {
+                    setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
+                    head->multiblocks[n].p = p;
+
+                }
+            }
+            if(!try_mmap) {
+                uintptr_t paddr = head->multiblocks[n].paddr&~balign;
+                printf_log(log_level, "Allocating 0x%lx memory @%p for Elf \"%s\"\n", head->multiblocks[n].asize, (void*)paddr, head->name);
+                void* p = mmap64(
+                    (void*)paddr,
+                    head->multiblocks[n].asize,
+                    prot,
+                    MAP_PRIVATE|MAP_ANONYMOUS|(e->p_flags?MAP_NORESERVE:0),
+                    -1,
+                    0
+                );
+                if(p==MAP_FAILED || p!=(void*)paddr) {
+                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, balign, head->name);
+                    return 1;
+                }
+                setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
+                fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
+                if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
+                    printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, balign, head->name);
+                    return 1;
+                }
+            }
+#ifdef DYNAREC
+            if(box64_dynarec && (e->p_flags & PF_X)) {
+                dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", head->multiblocks[n].p, (void*)head->multiblocks[n].asize);
+                addDBFromAddressRange((uintptr_t)head->multiblocks[n].p, head->multiblocks[n].asize);
+            }
+#endif
+            if((uintptr_t)head->memory>(uintptr_t)head->multiblocks[n].p)
+                head->memory = (char*)head->multiblocks[n].p;
+            ++n;
+        }
+        if(head->PHEntries[i].p_type == PT_TLS) {
+            Elf64_Phdr * e = &head->PHEntries[i];
+            char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
+            printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
+            if(e->p_filesz) {
+                fseeko64(head->file, e->p_offset, SEEK_SET);
+                if(fread(dest, e->p_filesz, 1, head->file)!=1) {
+                    printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%zd)\n", i, e->p_filesz);
+                    return 1;
+                }
+            }
+            // zero'd difference between filesz and memsz
+            if(e->p_filesz != e->p_memsz)
+                memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
+        }
     }
 
-    head->tlsbase = AddTLSPartition(context, head->tlssize);
+    // can close the elf file now!
+    fclose(head->file);
+    head->file = NULL;
+    head->fileno = -1;
 
     return 0;
 }
@@ -311,69 +304,14 @@ void FreeElfMemory(elfheader_t* head)
         for(int i=0; i<head->multiblock_n; ++i) {
 #ifdef DYNAREC
             dynarec_log(LOG_INFO, "Free DynaBlocks for %s\n", head->path);
-            if(box64_dynarec) {
-                cleanDBFromAddressRange((uintptr_t)head->multiblock[i], head->multiblock_size[i], 1);
-                freeProtection((uintptr_t)head->multiblock[i], head->multiblock_size[i]);
-            }
+            if(box64_dynarec)
+                cleanDBFromAddressRange((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].size, 1);
 #endif
-            munmap(head->multiblock[i], head->multiblock_size[i]);
+            munmap(head->multiblocks[i].p, head->multiblocks[i].asize);
+            freeProtection((uintptr_t)head->multiblocks[i].p, head->multiblocks[i].asize);
         }
-        box_free(head->multiblock);
-        box_free(head->multiblock_size);
-        box_free(head->multiblock_offs);
+        box_free(head->multiblocks);
     }
-}
-
-int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
-{
-    for (size_t i=0; i<head->numPHEntries; ++i) {
-        if(head->PHEntries[i].p_type == PT_LOAD) {
-            Elf64_Phdr * e = &head->PHEntries[i];
-            char* dest = (char*)e->p_paddr + head->delta;
-            printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz);
-            void* p = (void*)-1;
-            if(e->p_memsz==e->p_filesz && !(e->p_align&(box64_pagesize-1))) {
-                printf_log(LOG_DEBUG, "MMap block #%zu @%p offset=%p (0x%zx/0x%zx, flags:0x%x)\n", i, dest, (void*)e->p_offset, e->p_filesz, e->p_memsz, e->p_flags);
-                p = mmap(dest, e->p_filesz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_FIXED | MAP_PRIVATE, fileno(f), e->p_offset);
-            }
-            if(p!=dest) {
-                printf_log(LOG_DEBUG, "Loading block #%zu %p (0x%zx/0x%zx)\n",i, dest, e->p_filesz, e->p_memsz);
-                fseeko64(f, e->p_offset, SEEK_SET);
-                if(e->p_filesz) {
-                    if(fread(dest, e->p_filesz, 1, f)!=1) {
-                        printf_log(LOG_NONE, "Fail to read PT_LOAD part #%zu (size=%zd)\n", i, e->p_filesz);
-                        return 1;
-                    }
-                }
-            }
-#ifdef DYNAREC
-            if(box64_dynarec && (e->p_flags & PF_X)) {
-                dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", dest, (void*)e->p_memsz);
-                addDBFromAddressRange((uintptr_t)dest, e->p_memsz);
-            }
-#endif
-
-            // zero'd difference between filesz and memsz
-            /*if(e->p_filesz != e->p_memsz)
-                memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);*/    //block is already 0'd at creation
-        }
-        if(head->PHEntries[i].p_type == PT_TLS) {
-            Elf64_Phdr * e = &head->PHEntries[i];
-            char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
-            printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
-            if(e->p_filesz) {
-                fseeko64(f, e->p_offset, SEEK_SET);
-                if(fread(dest, e->p_filesz, 1, f)!=1) {
-                    printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%zd)\n", i, e->p_filesz);
-                    return 1;
-                }
-            }
-            // zero'd difference between filesz and memsz
-            if(e->p_filesz != e->p_memsz)
-                memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
-        }
-    }
-    return 0;
 }
 
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded)
@@ -391,39 +329,6 @@ int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verne
         }
     }
     return 1;
-}
-
-int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head)
-{
-    (void)context;
-
-    for (size_t i=0; i<head->numPHEntries; ++i) {
-        if(head->PHEntries[i].p_type == PT_LOAD) {
-            Elf64_Phdr * e = &head->PHEntries[i];
-            char* dest = (char*)e->p_paddr + head->delta;
-            printf_log(LOG_DEBUG, "Re-loading block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
-            int ret = fseeko64(f, e->p_offset, SEEK_SET);
-            if(ret==-1) {printf_log(LOG_NONE, "Fail to (re)seek PT_LOAD part #%zu (offset=%ld, errno=%d/%s)\n", i, e->p_offset, errno, strerror(errno)); return 1;}
-            #ifdef DYNAREC
-            cleanDBFromAddressRange((uintptr_t)dest, e->p_memsz, 0);
-            #endif
-            uint32_t page_offset = (uintptr_t)dest & (box64_pagesize - 1);
-            mprotect(dest - page_offset, e->p_memsz + page_offset, PROT_READ | PROT_WRITE | PROT_EXEC);
-            setProtection((uintptr_t)dest - page_offset, e->p_memsz + page_offset, PROT_READ | PROT_WRITE | PROT_EXEC);
-            if(e->p_filesz) {
-                ssize_t r = -1;
-                if((r=fread(dest, e->p_filesz, 1, f))!=1) {
-                    printf_log(LOG_NONE, "Fail to (re)read PT_LOAD part #%zu (dest=%p, size=%zd, return=%zd, feof=%d/ferror=%d/%s)\n", i, dest, e->p_filesz, r, feof(f), ferror(f), strerror(ferror(f)));
-                    return 1;
-                }
-            }
-            // zero'd difference between filesz and memsz
-            if(e->p_filesz != e->p_memsz)
-                memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
-        }
-    }
-    // TLS data are just a copy, no need to re-load it
-    return 0;
 }
 
 int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t** p, size_t size, int version, const char* vername)
@@ -1444,8 +1349,8 @@ int IsAddressInElfSpace(const elfheader_t* h, uintptr_t addr)
     if(!h)
         return 0;
     for(int i=0; i<h->multiblock_n; ++i) {
-        uintptr_t base = h->multiblock_offs[i];
-        uintptr_t end = h->multiblock_offs[i] + h->multiblock_size[i] - 1;
+        uintptr_t base = h->multiblocks[i].paddr;
+        uintptr_t end = h->multiblocks[i].paddr + h->multiblocks[i].size - 1;
         if(addr>=base && addr<=end)
             return 1;
         

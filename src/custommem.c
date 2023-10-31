@@ -85,6 +85,7 @@ static uint64_t  memprot_allocated = 0, memprot_max_allocated = 0;
 #endif
 static memprot_t memprot[1<<MEMPROT_SIZE0];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
 static uint8_t   memprot_default[MEMPROT_SIZE];
+static int have48bits = 0;
 static int inited = 0;
 
 typedef struct mapmem_s {
@@ -1410,6 +1411,8 @@ void loadProtectionFromMap()
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
             allocProtection(s, e-s, prot);
+            if(s>0x7fff00000000LL)
+                have48bits = 1;
         }
     }
     fclose(f);
@@ -1569,6 +1572,20 @@ void* find47bitBlockNearHint(void* hint, size_t size)
         m = m->next;
     }
     return NULL;
+}
+void* find47bitBlockElf(size_t size, int mainbin)
+{
+    static void* startingpoint = NULL;
+    if(!startingpoint) {
+        startingpoint = (void*)(have48bits?0x7fff00000000LL:0x7f00000000LL);
+    }
+    void* mainaddr = (void*)0x100000000LL;
+    void* ret = find47bitBlockNearHint(mainbin?mainaddr:startingpoint, size);
+    if(!ret)
+        ret = find32bitBlock(size);
+    if(!mainbin)
+        startingpoint = (void*)(((uintptr_t)startingpoint+size+0x1000000LL)&~0xffffffLL);
+    return ret;
 }
 
 int isBlockFree(void* hint, size_t size)

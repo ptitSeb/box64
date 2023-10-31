@@ -14,6 +14,7 @@ typedef struct kh_defaultversion_s kh_defaultversion_t;
 typedef struct dynablock_s dynablock_t;
 #endif
 
+// Open an elfheader. Transfert control of f to elfheader also!
 elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
 void FreeElfHeader(elfheader_t** head);
 const char* ElfName(elfheader_t* head);
@@ -22,11 +23,9 @@ void ElfAttachLib(elfheader_t* head, library_t* lib);
 
 // return 0 if OK
 int CalcLoadAddr(elfheader_t* head);
-int AllocElfMemory(box64context_t* context, elfheader_t* head, int mainbin);
+int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin);
 void FreeElfMemory(elfheader_t* head);
-int LoadElfMemory(FILE* f, box64context_t* context, elfheader_t* head);
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded);
-int ReloadElfMemory(FILE* f, box64context_t* context, elfheader_t* head);
 int RelocateElf(lib_t *maplib, lib_t* local_maplib, int bindnow, elfheader_t* head);
 int RelocateElfPlt(lib_t *maplib, lib_t* local_maplib, int bindnow, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint64_t* stacksz, size_t* stackalign);

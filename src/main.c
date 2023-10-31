@@ -1728,32 +1728,21 @@ int main(int argc, const char **argv, char **env) {
 
     if(CalcLoadAddr(elf_header)) {
         printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->fullpath);
-        fclose(f);
+        FreeElfHeader(&elf_header);
         free_contextargv();
         FreeBox64Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
-    // allocate memory
-    if(AllocElfMemory(my_context, elf_header, 1)) {
-        printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", my_context->fullpath);
-        fclose(f);
+    // allocate memory and load elf
+    if(AllocLoadElfMemory(my_context, elf_header, 1)) {
+        printf_log(LOG_NONE, "Error: loading elf %s\n", my_context->fullpath);
+        FreeElfHeader(&elf_header);
         free_contextargv();
         FreeBox64Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
-    // Load elf into memory
-    if(LoadElfMemory(f, my_context, elf_header)) {
-        printf_log(LOG_NONE, "Error: loading in memory elf %s\n", my_context->fullpath);
-        fclose(f);
-        free_contextargv();
-        FreeBox64Context(&my_context);
-        FreeCollection(&ld_preload);
-        return -1;
-    }
-    // can close the file now
-    fclose(f);
     if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
         if(!box64_tcmalloc_minimal) {
             // need to reload with tcmalloc_minimal as a LD_PRELOAD!

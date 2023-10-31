@@ -261,25 +261,15 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
         if(CalcLoadAddr(elf_header)) {
             printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
             FreeElfHeader(&elf_header);
-            fclose(f);
             return 0;
         }
-        // allocate memory
-        if(AllocElfMemory(context, elf_header, 0)) {
-            printf_log(LOG_NONE, "Error: allocating memory for elf %s\n", libname);
+        // allocate and load elf
+        if(AllocLoadElfMemory(context, elf_header, 0)) {
+            printf_log(LOG_NONE, "Error: loading for elf %s\n", libname);
             FreeElfHeader(&elf_header);
-            fclose(f);
-            return 0;
-        }
-        // Load elf into memory
-        if(LoadElfMemory(f, context, elf_header)) {
-            printf_log(LOG_NONE, "Error: loading in memory elf %s\n", libname);
-            FreeElfHeader(&elf_header);
-            fclose(f);
             return 0;
         }
         // can close the file now
-        fclose(f);
         if(verneeded && !isElfHasNeededVer(elf_header, lib->name, verneeded)) {
             // incompatible, discard and continue the search
             FreeElfHeader(&elf_header);
@@ -483,50 +473,6 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* 
             }
         }
 #endif
-        RunElfInit(elf_header, emu);
-    }
-    return 0;
-}
-
-int ReloadLibrary(library_t* lib, x64emu_t* emu)
-{
-    if(lib->type==LIB_EMULATED) {
-        elfheader_t *elf_header = lib->e.elf;
-        // reload image in memory and re-run the mapping
-        char libname[MAX_PATH];
-        strcpy(libname, lib->path);
-        int found = FileExist(libname, IS_FILE);
-        if(!found && !strchr(lib->path, '/'))
-            for(int i=0; i<my_context->box64_ld_lib.size; ++i)
-            {
-                strcpy(libname, my_context->box64_ld_lib.paths[i]);
-                strcat(libname, lib->path);
-                if(FileExist(libname, IS_FILE))
-                    break;
-            }
-        if(!FileExist(libname, IS_FILE)) {
-            printf_log(LOG_NONE, "Error: open file to re-load elf %s\n", libname);
-            return 1;   // failed to reload...
-        }
-        FILE *f = fopen(libname, "rb");
-        if(!f) {
-            printf_log(LOG_NONE, "Error: cannot open file to re-load elf %s (errno=%d/%s)\n", libname, errno, strerror(errno));
-            return 1;   // failed to reload...
-        }
-        if(ReloadElfMemory(f, my_context, elf_header)) {
-            printf_log(LOG_NONE, "Error: re-loading in memory elf %s\n", libname);
-            fclose(f);
-            return 1;
-        }
-        // can close the file now
-        fclose(f);
-        // should bindnow be store in a per/library basis?
-        if(RelocateElf(my_context->maplib, lib->maplib, 0, elf_header)) {
-            printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
-            return 1;
-        }
-        RelocateElfPlt(my_context->maplib, lib->maplib, 0, elf_header);
-        // init (will use PltRelocator... because some other libs are not yet resolved)
         RunElfInit(elf_header, emu);
     }
     return 0;

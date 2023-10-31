@@ -9,7 +9,17 @@ typedef struct kh_defaultversion_s kh_defaultversion_t;
 #include <elf.h>
 #include "elfloader.h"
 
-struct elfheader_s {
+typedef struct multiblock_s {
+    void*       p;
+    uintptr_t   offs;
+    uintptr_t   paddr;
+    uintptr_t   align;
+    uint64_t    size;
+    uint64_t    asize;
+    uint8_t     flags;
+} multiblock_t;
+
+typedef struct elfheader_s {
     char*       name;
     char*       path;   // Resolved path to file
     char*       soname; // soname of the elf
@@ -90,20 +100,21 @@ struct elfheader_s {
     int         malloc_hook_2;  // this elf hook malloc, hacking it
 
     char*       memory;     // char* and not void* to allow math on memory pointer
-    void**      multiblock;
-    uintptr_t*  multiblock_offs;
-    uint64_t*   multiblock_size;
+    multiblock_t*  multiblocks;
     int         multiblock_n;
 
     library_t   *lib;       // attached lib (exept on main elf)
     needed_libs_t* needed;
+
+    FILE*       file;
+    int         fileno;
 
     kh_mapsymbols_t   *mapsymbols;
     kh_mapsymbols_t   *weaksymbols;
     kh_mapsymbols_t   *localsymbols;
     kh_defaultversion_t *globaldefver;  // the global default version for symbols (the XXX@@vvvv of symbols)
     kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
-};
+} elfheader_t;
 
 #define R_X86_64_NONE           0       /* No reloc */
 #define R_X86_64_64             1       /* Direct 64 bit  */
