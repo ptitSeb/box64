@@ -2572,7 +2572,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     void* ret = mmap64(addr, length, prot, new_flags, fd, offset);
     #ifndef NOALIGN
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
-      (((uintptr_t)ret>0xffffffffLL) || (box64_wine && ((uintptr_t)ret&0xffff)))) {
+      (((uintptr_t)ret>0xffffffffLL) || (box64_wine && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
         printf_log(LOG_DEBUG, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
@@ -2614,7 +2614,10 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     }
     #endif
     if(ret!=MAP_FAILED) {
-        setProtection_mmap((uintptr_t)ret, length, prot);
+        if(emu)
+            setProtection_mmap((uintptr_t)ret, length, prot);
+        else
+            setProtection((uintptr_t)ret, length, prot);
     }
     return ret;
 }

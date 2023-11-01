@@ -1519,7 +1519,7 @@ int getMmapped(uintptr_t addr)
 }
 
 #define LOWEST (void*)0x10000
-#define MEDIUM (void*)0x20000000
+#define MEDIUM (void*)0x40000000
 
 void* find31bitBlockNearHint(void* hint, size_t size)
 {
@@ -1528,13 +1528,14 @@ void* find31bitBlockNearHint(void* hint, size_t size)
     if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x80000000LL) {
         // granularity 0x10000
-        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t addr = m->end+1;
         uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
         // check hint and available size
         if(addr<=h && end>=h && end-h+1>=size)
             return hint;
-        if(addr>=h && end-addr+1>=size)
-            return (void*)addr;
+        uintptr_t aaddr = (addr+0xffff)&~0xffff;
+        if(aaddr>=h && end>aaddr && end-aaddr+1>=size)
+            return (void*)aaddr;
         m = m->next;
     }
     return NULL;
@@ -1562,13 +1563,14 @@ void* find47bitBlockNearHint(void* hint, size_t size)
     if(hint<LOWEST) hint = LOWEST;
     while(m && m->end<0x800000000000LL) {
         // granularity 0x10000
-        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t addr = m->end+1;
         uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
         // check hint and available size
         if(addr<=h && end>=h && end-h+1>=size)
             return hint;
-        if(addr>=h && end-addr+1>=size)
-            return (void*)addr;
+        uintptr_t aaddr = (addr+0xffff)&~0xffff;
+        if(aaddr>=h && end>aaddr && end-aaddr+1>=size)
+            return (void*)aaddr;
         m = m->next;
     }
     return NULL;
@@ -1595,7 +1597,7 @@ int isBlockFree(void* hint, size_t size)
     if(h>0x800000000000LL)
         return 0;   // no tracking there
     while(m && m->end<0x800000000000LL) {
-        uintptr_t addr = (m->end+1+0xffff)&~0xffff;
+        uintptr_t addr = m->end+1;
         uintptr_t end = (m->next)?(m->next->begin-1):0xffffffffffffffffLL;
         if(addr<=h && end>=h && end-h+1>=size)
             return 1;

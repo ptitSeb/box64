@@ -257,6 +257,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     return 1;
                 }
                 setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
+                head->multiblocks[n].p = p;
                 if(e->p_filesz) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
                     if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
