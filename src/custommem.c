@@ -1521,11 +1521,12 @@ int getMmapped(uintptr_t addr)
 #define LOWEST (void*)0x10000
 #define MEDIUM (void*)0x40000000
 
-void* find31bitBlockNearHint(void* hint, size_t size)
+void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
     mapmem_t* m = mapmem;
     uintptr_t h = (uintptr_t)hint;
     if(hint<LOWEST) hint = LOWEST;
+    if(!mask) mask = 0xffff;
     while(m && m->end<0x80000000LL) {
         // granularity 0x10000
         uintptr_t addr = m->end+1;
@@ -1533,7 +1534,7 @@ void* find31bitBlockNearHint(void* hint, size_t size)
         // check hint and available size
         if(addr<=h && end>=h && end-h+1>=size)
             return hint;
-        uintptr_t aaddr = (addr+0xffff)&~0xffff;
+        uintptr_t aaddr = (addr+mask)&~mask;
         if(aaddr>=h && end>aaddr && end-aaddr+1>=size)
             return (void*)aaddr;
         m = m->next;
@@ -1543,24 +1544,25 @@ void* find31bitBlockNearHint(void* hint, size_t size)
 
 void* find32bitBlock(size_t size)
 {
-    void* ret = find31bitBlockNearHint(MEDIUM, size);
+    void* ret = find31bitBlockNearHint(MEDIUM, size, 0);
     if(ret)
         return ret;
-    ret = find31bitBlockNearHint(LOWEST, size);
+    ret = find31bitBlockNearHint(LOWEST, size, 0);
     return ret?ret:find47bitBlock(size);
 }
 void* find47bitBlock(size_t size)
 {
-    void* ret = find47bitBlockNearHint((void*)0x100000000LL, size);
+    void* ret = find47bitBlockNearHint((void*)0x100000000LL, size, 0);
     if(!ret)
         ret = find32bitBlock(size);
     return ret;
 }
-void* find47bitBlockNearHint(void* hint, size_t size)
+void* find47bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
     mapmem_t* m = mapmem;
     uintptr_t h = (uintptr_t)hint;
     if(hint<LOWEST) hint = LOWEST;
+    if(!mask) mask = 0xffff;
     while(m && m->end<0x800000000000LL) {
         // granularity 0x10000
         uintptr_t addr = m->end+1;
@@ -1568,23 +1570,25 @@ void* find47bitBlockNearHint(void* hint, size_t size)
         // check hint and available size
         if(addr<=h && end>=h && end-h+1>=size)
             return hint;
-        uintptr_t aaddr = (addr+0xffff)&~0xffff;
+        uintptr_t aaddr = (addr+mask)&~mask;
         if(aaddr>=h && end>aaddr && end-aaddr+1>=size)
             return (void*)aaddr;
         m = m->next;
     }
     return NULL;
 }
-void* find47bitBlockElf(size_t size, int mainbin)
+void* find47bitBlockElf(size_t size, int mainbin, uintptr_t mask)
 {
     static void* startingpoint = NULL;
     if(!startingpoint) {
         startingpoint = (void*)(have48bits?0x7fff00000000LL:0x7f00000000LL);
     }
     void* mainaddr = (void*)0x100000000LL;
-    void* ret = find47bitBlockNearHint(mainbin?mainaddr:startingpoint, size);
+    void* ret = find47bitBlockNearHint(mainbin?mainaddr:startingpoint, size, mask);
     if(!ret)
-        ret = find32bitBlock(size);
+        ret = find31bitBlockNearHint(MEDIUM, size, mask);
+    if(!ret)
+        ret = find31bitBlockNearHint(LOWEST, size, mask);
     if(!mainbin)
         startingpoint = (void*)(((uintptr_t)startingpoint+size+0x1000000LL)&~0xffffffLL);
     return ret;

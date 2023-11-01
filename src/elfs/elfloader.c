@@ -178,22 +178,28 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;
     loadProtectionFromMap();
+    int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
+
+    head->multiblock_n = 0; // count PHEntrie with LOAD
+    uintptr_t max_align = (box64_pagesize-1);
+    for (size_t i=0; i<head->numPHEntries; ++i) 
+        if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags) {
+            if(max_align < head->PHEntries[i].p_align-1)
+                max_align = head->PHEntries[i].p_align-1;
+            ++head->multiblock_n;
+        }
+
     if(!head->vaddr && box64_load_addr) {
-        offs = (uintptr_t)find47bitBlockNearHint((void*)box64_load_addr, head->memsz);
-        box64_load_addr += head->memsz;
+        offs = (uintptr_t)find47bitBlockNearHint((void*)((box64_load_addr+max_align)&~max_align), head->memsz, max_align);
+        box64_load_addr = offs + head->memsz;
         box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
     }
-    int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
     if(!offs && !head->vaddr)
-        offs = (uintptr_t)find47bitBlockElf(head->memsz, mainbin); // limit to 47bits...
+        offs = (uintptr_t)find47bitBlockElf(head->memsz, mainbin, max_align); // limit to 47bits...
 
     head->delta = offs;
     printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\"\n", (void*)offs, (void*)head->vaddr, head->name);
 
-    head->multiblock_n = 0; // count PHEntrie with LOAD
-    for (size_t i=0; i<head->numPHEntries; ++i) 
-        if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags)
-            ++head->multiblock_n;
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
     head->tlsbase = AddTLSPartition(context, head->tlssize);
     // and now, create all individual blocks
@@ -253,7 +259,12 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     0
                 );
                 if(p==MAP_FAILED || p!=(void*)paddr) {
-                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, balign, head->name);
+                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"", (void*)paddr, head->multiblocks[n].asize, balign, head->name);
+                    if(p==MAP_FAILED) {
+                        printf_log(LOG_NONE, " error=%d/%s\n", errno, strerror(errno));
+                    } else {
+                        printf_log(LOG_NONE, " got %p\n", p);
+                    }
                     return 1;
                 }
                 setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
