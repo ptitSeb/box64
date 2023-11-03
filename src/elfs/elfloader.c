@@ -1363,8 +1363,8 @@ int IsAddressInElfSpace(const elfheader_t* h, uintptr_t addr)
     if(!h)
         return 0;
     for(int i=0; i<h->multiblock_n; ++i) {
-        uintptr_t base = h->multiblocks[i].paddr;
-        uintptr_t end = h->multiblocks[i].paddr + h->multiblocks[i].size - 1;
+        uintptr_t base = (uintptr_t)h->multiblocks[i].p;
+        uintptr_t end = (uintptr_t)h->multiblocks[i].p + h->multiblocks[i].asize - 1;
         if(addr>=base && addr<=end)
             return 1;
         
