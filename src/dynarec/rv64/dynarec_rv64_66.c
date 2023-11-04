@@ -115,7 +115,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             OR(xRAX, xRAX, x1);
             break;
         case 0x0F:
-            addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+            switch(rep) {
+                case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+                case 1: addr = dynarec64_66F20F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+                case 2: addr = dynarec64_66F30F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+            }
             break;
         case 0x11:
             INST_NAME("ADC Ew, Gw");

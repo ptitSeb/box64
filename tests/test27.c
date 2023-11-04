@@ -107,5 +107,25 @@ int main(int argc, const char** argv)
   GO2(0b0110110)
   GO2(0b1110100)
 
+  unsigned int crc = 0;
+  printf("crc32(0x%x, byte:0x%x) => ", crc, 0);
+  crc = _mm_crc32_u8(crc, 0);
+  printf("0x%x\n", crc);
+  printf("crc32(0x%x, byte:0x%x) => ", crc, 10);
+  crc = _mm_crc32_u8(crc, 10);
+  printf("0x%x\n", crc);
+  printf("crc32(0x%x, dword:0x%x) => ", crc, 0);
+  crc = _mm_crc32_u32(crc, 0);
+  printf("0x%x\n", crc);
+  printf("crc32(0x%x, dword:0x%x) => ", crc, 0x123456);
+  crc = _mm_crc32_u32(crc, 0x123456);
+  printf("0x%x\n", crc);
+  printf("crc32(0x%x, word:0x%x) => ", crc, 0x8765);
+  crc = _mm_crc32_u16(crc, 0x8765);
+  printf("0x%x\n", crc);
+  printf("crc32(0x%x, qword:0x%x) => ", crc, 0xff1234567890);
+  uint64_t crc64 = _mm_crc32_u64(crc, 0xff1234567890);
+  printf("0x%x\n", crc64);
+
   return 0;
 }

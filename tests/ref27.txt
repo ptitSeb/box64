@@ -863,3 +863,9 @@ mm_cmpestrm("", 0, "This is a string", 16, 0x75) = 00000000ffffffff-00000000ffff
 _mm_cmpistri("", "This is a string", 0x75) => 7
 _mm_cmpestri("", "This is a string", 0x75) flags: a:0 s:1 z:0 c:1 o:1
 mm_cmpestrm("", "This is a string", 0x75) = 00000000ffffffff-00000000ffffffff
+crc32(0x0, byte:0x0) => 0x0
+crc32(0x0, byte:0xa) => 0x6be22838
+crc32(0x6be22838, dword:0x0) => 0xb545d4c9
+crc32(0xb545d4c9, dword:0x123456) => 0xc4dd37b5
+crc32(0xc4dd37b5, word:0x8765) => 0x89047b68
+crc32(0x89047b68, qword:0x34567890) => 0x68d0e9ae

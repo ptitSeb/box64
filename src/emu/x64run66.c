@@ -127,11 +127,26 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
 
     case 0x0F:                              /* more opcdes */
-        #ifdef TEST_INTERPRETER
-        return Test660F(test, rex, addr);
-        #else
-        return Run660F(emu, rex, addr);
-        #endif
+        switch(rep) {
+            case 0:
+                #ifdef TEST_INTERPRETER
+                return Test660F(test, rex, addr);
+                #else
+                return Run660F(emu, rex, addr);
+                #endif
+            case 1:
+                #ifdef TEST_INTERPRETER
+                return Test66F20F(test, rex, addr);
+                #else
+                return Run66F20F(emu, rex, addr);
+                #endif
+            case 2:
+                #ifdef TEST_INTERPRETER
+                return Test66F30F(test, rex, addr);
+                #else
+                return Run66F30F(emu, rex, addr);
+                #endif
+        }
 
         case 0x1E:                      /* PUSH DS */
             if(!rex.is32bits) {
