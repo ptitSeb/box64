@@ -49,6 +49,7 @@ typedef struct elfheader_s {
     uint32_t    flags;
 
     intptr_t    delta;  // should be 0
+    void*       image;
 
     uintptr_t   entrypoint;
     uintptr_t   initentry;
