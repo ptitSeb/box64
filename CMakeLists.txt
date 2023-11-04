@@ -837,6 +837,7 @@ if(NOT _x86 AND NOT _x86_64)
     install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libpng12.so.0 DESTINATION /usr/lib/x86_64-linux-gnu/)
     install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libcrypto.so.1.1 DESTINATION /usr/lib/x86_64-linux-gnu/)
     install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libssl.so.1.1 DESTINATION /usr/lib/x86_64-linux-gnu/)
+    install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libunwind.so.8 DESTINATION /usr/lib/x86_64-linux-gnu/)
    endif()
 endif()
 

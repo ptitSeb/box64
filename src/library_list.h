@@ -345,5 +345,5 @@ GO("libxml2.so.2", xml2)
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 
-GO("libunwind.so.8", unwind)
+//GO("libunwind.so.8", unwind)
 GO("crashhandler.so", crashhandler)
