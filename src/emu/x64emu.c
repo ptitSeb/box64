@@ -397,7 +397,7 @@ void ResetFlags(x64emu_t *emu)
 
 const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
 {
-    static char buff[1000];
+    static char buff[4096];
     static const char* regname[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
                                     " R8", " R9", "R10", "R11", "R12", "R13", "R14", "R15"};
     static const char* regname32[]={"EAX", "ECX", "EDX", "EBX", "ESP", "EBP", "ESI", "EDI"};
