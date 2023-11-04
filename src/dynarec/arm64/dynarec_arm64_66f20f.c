@@ -56,6 +56,35 @@ uintptr_t dynarec64_66F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
 
     switch(opcode) {
 
+        case 0x38:  // SSE 4.x
+            opcode = F8;
+            switch(opcode) {
+
+                case 0xF1:
+                    INST_NAME("CRC32 Gd, Ew");
+                    nextop = F8;
+                    GETEW(x1, 0);
+                    GETGD;
+                    if(arm64_crc32) {
+                        CRC32CH(gd, gd, ed);
+                    } else {
+                        MOV32w(x2, 0x82f63b78);
+                        for(int j=0; j<2; ++j) {
+                            UBFXxw(x3, ed, 8*j, 8);
+                            EORw_REG(gd, gd, x3);
+                            for(int i=0; i<8; ++i) {
+                                LSRw_IMM((i&1)?gd:x4, (i&1)?x4:gd, 1);
+                                TBZ((i&1)?x4:gd, 0, 4+4);
+                                EORw_REG((i&1)?gd:x4, (i&1)?gd:x4, x2);
+                            }
+                        }
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
 
         default:
             DEFAULT;
