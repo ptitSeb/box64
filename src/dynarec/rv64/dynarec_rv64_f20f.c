@@ -146,33 +146,6 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             opcode = F8;
             switch(opcode) {
 
-                case 0xF0:
-                    INST_NAME("(unsupported) CRC32 Gd, Eb)");
-                    nextop = F8;
-                    addr = fakeed(dyn, addr, ninst, nextop);
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
-                    GETIP(ip);
-                    STORE_XEMU_CALL(x3);
-                    CALL(native_ud, -1);
-                    LOAD_XEMU_CALL();
-                    jump_to_epilog(dyn, 0, xRIP, ninst);
-                    *need_epilog = 0;
-                    *ok = 0;
-                    break;
-                case 0xF1:
-                    INST_NAME("(unsupported) CRC32 Gd, Ed)");
-                    nextop = F8;
-                    addr = fakeed(dyn, addr, ninst, nextop);
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
-                    GETIP(ip);
-                    STORE_XEMU_CALL(x3);
-                    CALL(native_ud, -1);
-                    LOAD_XEMU_CALL();
-                    jump_to_epilog(dyn, 0, xRIP, ninst);
-                    *need_epilog = 0;
-                    *ok = 0;
-                    break;
-
                 default:
                     DEFAULT;
             }
