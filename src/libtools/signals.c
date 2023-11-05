@@ -1221,8 +1221,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
     }
     #endif
 #ifdef DYNAREC
-    if((Locks & is_dyndump_locked) && (sig==SIGSEGV) && current_helper) {
-        printf_log(LOG_INFO, "FillBlock triggered a segfault at %p from %p\n", addr, pc);
+    if((Locks & is_dyndump_locked) && ((sig==SIGSEGV) || (sig==SIGBUS)) && current_helper) {
+        printf_log(LOG_INFO, "FillBlock triggered a %s at %p from %p\n", (sig==SIGSEGV)?"segfault":"bus error", addr, pc);
         CancelBlock64(0);
         relockMutex(Locks);
         cancelFillBlock();  // Segfault inside a Fillblock, cancel it's creation...
@@ -1596,12 +1596,13 @@ exit(-1);
                 for (int i=0; i<6; ++i)
                     printf_log(log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             }
-            if(sig==SIGILL)
+            if(sig==SIGILL) {
                 printf_log(log_minimum, " opcode=%02X %02X %02X %02X %02X %02X %02X %02X (%02X %02X %02X %02X %02X)\n", ((uint8_t*)pc)[0], ((uint8_t*)pc)[1], ((uint8_t*)pc)[2], ((uint8_t*)pc)[3], ((uint8_t*)pc)[4], ((uint8_t*)pc)[5], ((uint8_t*)pc)[6], ((uint8_t*)pc)[7], ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4]);
-            else if(sig==SIGBUS)
+            } else if(sig==SIGBUS) {
                 printf_log(log_minimum, " x86opcode=%02X %02X %02X %02X %02X %02X %02X %02X (opcode=%08x)\n", ((uint8_t*)x64pc)[0], ((uint8_t*)x64pc)[1], ((uint8_t*)x64pc)[2], ((uint8_t*)x64pc)[3], ((uint8_t*)x64pc)[4], ((uint8_t*)x64pc)[5], ((uint8_t*)x64pc)[6], ((uint8_t*)x64pc)[7], *(uint32_t*)pc);
-            else
+            } else {
                 printf_log(log_minimum, "\n");
+            }
         }
     }
     relockMutex(Locks);
