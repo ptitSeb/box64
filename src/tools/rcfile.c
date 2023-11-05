@@ -515,6 +515,7 @@ void ApplyParams(const char* name)
     if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
     if(param->is_trace_file_present) {
         // open a new ftrace...
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_TRACE_FILE", param->trace_file);
         if(ftrace_name) {
             fclose(ftrace);
         }
