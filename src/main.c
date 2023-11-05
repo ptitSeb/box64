@@ -152,19 +152,22 @@ int ftrace_has_pid = 0;
 void openFTrace(const char* newtrace)
 {
     const char* t = newtrace?newtrace:getenv("BOX64_TRACE_FILE");
-    char tmp[500];
-    char tmp2[500];
+    #ifndef MAX_PATH
+    #define MAX_PATH 4096
+    #endif
+    char tmp[MAX_PATH];
+    char tmp2[MAX_PATH];
     const char* p = t;
     int append=0;
     if(p && strlen(p) && p[strlen(p)-1]=='+') {
-        strncat(tmp2, t, 499);
+        strncpy(tmp2, p, sizeof(tmp2));
         tmp2[strlen(p)-1]='\0';
         p = tmp2;
         append=1;
     }
-    if(p && strstr(t, "%pid")) {
+    if(p && strstr(p, "%pid")) {
         int next = 0;
-        if(!append) do {
+        do {
             strcpy(tmp, p);
             char* c = strstr(tmp, "%pid");
             *c = 0; // cut
@@ -177,7 +180,7 @@ void openFTrace(const char* newtrace)
             c = strstr(p, "%pid") + strlen("%pid");
             strcat(tmp, c);
             ++next;
-        } while (FileExist(tmp, IS_FILE));
+        } while (FileExist(tmp, IS_FILE) && !append);
         p = tmp;
         ftrace_has_pid = 1;
     }
