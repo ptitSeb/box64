@@ -216,7 +216,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\"\n", (void*)offs, (void*)head->vaddr, head->name);
 
     head->image = image;
-    setProtection_mmap((uintptr_t)image, head->memsz, 0);
+    setProtection((uintptr_t)image, head->memsz, 0);
 
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
     head->tlsbase = AddTLSPartition(context, head->tlssize);
@@ -260,7 +260,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     try_mmap = 0;
                     printf_log(log_level, "Mapping failed, using regular mmap+read");
                 } else {
-                    setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
+                    setProtection((uintptr_t)p, head->multiblocks[n].asize, prot);
                     head->multiblocks[n].p = p;
 
                 }
@@ -285,7 +285,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     }
                     return 1;
                 }
-                setProtection_mmap((uintptr_t)p, head->multiblocks[n].asize, prot);
+                setProtection((uintptr_t)p, head->multiblocks[n].asize, prot);
                 head->multiblocks[n].p = p;
                 if(e->p_filesz) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
