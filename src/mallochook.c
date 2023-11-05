@@ -457,6 +457,7 @@ EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*,
 EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete[](void*, std::align_val_t, std::nothrow_t const&)
 {
     if(malloc_hack_2 && p) {
+        printf_log(LOG_INFO, "%04d|Malloc_Hack_2: my__ZdaPvSt11align_val_tRKSt9nothrow_t(%p, %d, %p)\n", GetTID(), p, align, n);
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
@@ -772,39 +773,51 @@ static void addRelocJmp(void* offs, void* where, size_t size, const char* name, 
 void checkHookedSymbols(elfheader_t* h)
 {
     int hooked = 0;
+    int hooked_symtab = 0;
     if(box64_malloc_hack==1)
         return;
-    for (size_t i=0; i<h->numDynSym && hooked<2; ++i) {
-        const char * symname = h->DynStr+h->DynSym[i].st_name;
-        int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
-        int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
-        int vis = h->DynSym[i].st_other&0x3;
-        if((type==STT_FUNC) 
-        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
-            uintptr_t offs = h->DynSym[i].st_value + h->delta;
-            size_t sz = h->DynSym[i].st_size;
-            if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
-                #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
-                #define GO2(A, B)
-                SUPER()
-                #undef GO
-                #undef GO2
-            }
+    for (size_t i=0; i<h->numSymTab; ++i) {
+        int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
+        if(type==STT_FUNC) {
+            const char * symname = h->StrTab+h->SymTab[i].st_name;
+            #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
+            #define GO2(A, B)
+            SUPER()
+            #undef GO
+            #undef GO2
         }
     }
+    if(hooked<2) {
+        for (size_t i=0; i<h->numDynSym && hooked<2; ++i) {
+            const char * symname = h->DynStr+h->DynSym[i].st_name;
+            int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
+            int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
+            int vis = h->DynSym[i].st_other&0x3;
+            if((type==STT_FUNC) 
+            && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
+                uintptr_t offs = h->DynSym[i].st_value + h->delta;
+                size_t sz = h->DynSym[i].st_size;
+                if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
+                    #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
+                    #define GO2(A, B)
+                    SUPER()
+                    #undef GO
+                    #undef GO2
+                }
+            }
+        }
+    } else
+        hooked_symtab = 1;
     if(hooked<2)
         return; // only redirect on lib that hooked / redefined the operators
-    printf_log(LOG_INFO, "Redirecting overridden malloc%s function for %s\n", malloc_hack_2?" with hack":"", ElfName(h));
-    for (size_t i=0; i<h->numDynSym; ++i) {
-        const char * symname = h->DynStr+h->DynSym[i].st_name;
-        int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
-        int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
-        int vis = h->DynSym[i].st_other&0x3;
-        if((type==STT_FUNC) 
-        && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
-            uintptr_t offs = h->DynSym[i].st_value + h->delta;
-            size_t sz = h->DynSym[i].st_size;
-            if(bind!=STB_LOCAL && bind!=STB_WEAK) {
+    printf_log(LOG_INFO, "Redirecting overridden malloc%s from %s function for %s\n", malloc_hack_2?" with hack":"", hooked_symtab?"symtab":"dynsym", ElfName(h));
+    if(hooked_symtab) {
+        for (size_t i=0; i<h->numSymTab; ++i) {
+            int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
+            if(type==STT_FUNC) {
+                const char * symname = h->StrTab+h->SymTab[i].st_name;
+                uintptr_t offs = h->SymTab[i].st_value + h->delta;
+                size_t sz = h->SymTab[i].st_size;
                 #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
                 #define GO2(A, B)
                 SUPER()
@@ -815,6 +828,30 @@ void checkHookedSymbols(elfheader_t* h)
                 SUPER()
                 #undef GO
                 #undef GO2
+            }
+        }
+    } else {
+        for (size_t i=0; i<h->numDynSym; ++i) {
+            const char * symname = h->DynStr+h->DynSym[i].st_name;
+            int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
+            int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
+            int vis = h->DynSym[i].st_other&0x3;
+            if((type==STT_FUNC) 
+            && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
+                uintptr_t offs = h->DynSym[i].st_value + h->delta;
+                size_t sz = h->DynSym[i].st_size;
+                if(bind!=STB_LOCAL && bind!=STB_WEAK) {
+                    #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
+                    #define GO2(A, B)
+                    SUPER()
+                    #undef GO
+                    #undef GO2
+                    #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h, &real_##A);}
+                    #define GO2(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h, &real_##A);}
+                    SUPER()
+                    #undef GO
+                    #undef GO2
+                }
             }
         }
     }
