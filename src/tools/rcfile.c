@@ -40,6 +40,7 @@ static const char default_rcfile[] =
 "\n"
 "[heroic]\n"
 "BOX64_NOSANDBOX=1\n"
+"BOX64_INPROCESSGPU=1\n"
 "BOX64_MALLOC_HACK=2\n"
 "\n"
 "[LotCG.x86_64]\n"
@@ -59,6 +60,7 @@ static const char default_rcfile[] =
 "\n"
 "[steamwebhelper]\n"
 "BOX64_NOSANDBOX=1\n"
+"BOX64_INPROCESSGPU=1\n"
 "BOX64_MALLOC_HACK=2\n"
 "BOX64_LOG=0\n"
 "BOX64_DYNAREC_BIGBLOCK=0\n"
@@ -101,6 +103,7 @@ ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
 ENTRYSTRING_(BOX64_BASH, bash)                          \
 ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 2, 2)                \
 ENTRYBOOL(BOX64_NOSANDBOX, box64_nosandbox)             \
+ENTRYBOOL(BOX64_INPROCESSGPU, box64_inprocessgpu)       \
 ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \

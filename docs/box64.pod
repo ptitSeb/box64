@@ -55,6 +55,11 @@ F<~/.bashrc> may override the setting from your command line. Example:
 When set to 1, add C<--no-sandbox> to command line arguments (useful for chrome
 based programs).
 
+=item B<BOX64_INPROCESSGPU=0|1>
+
+When set to 1, add C<--in-process-gpu> to command line arguments (useful for chrome
+based programs).
+
 =item B<BOX64_EXIT>=I<0|1>
 
 When set to 1, just exit, don't try to run the program.

@@ -46,6 +46,7 @@ int box64_dynarec_log = LOG_NONE;
 uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
 int box64_nosandbox = 0;
+int box64_inprocessgpu = 0;
 int box64_malloc_hack = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
@@ -1663,6 +1664,19 @@ int main(int argc, const char **argv, char **env) {
         if(!there) {
             my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
             my_context->argv[my_context->argc] = box_strdup("--no-sandbox");
+            my_context->argc++;
+        }
+    }
+    if(box64_inprocessgpu)
+    {
+        // check if in-process-gpu is already there
+        int there = 0;
+        for(int i=1; i<my_context->argc && !there; ++i)
+            if(!strcmp(my_context->argv[i], "--in-process-gpu"))
+                there = 1;
+        if(!there) {
+            my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
+            my_context->argv[my_context->argc] = box_strdup("--in-process-gpu");
             my_context->argc++;
         }
     }
