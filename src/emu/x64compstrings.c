@@ -89,8 +89,8 @@ uint32_t sse42_compare_string_explicit_len(x64emu_t* emu, sse_regs_t* mem, int l
     // build intres2
     uint32_t intres2 = intres1;
     switch((imm8>>4)&3) {
-        case 0b01: intres2 ^= ((1<<n_packed)-1);
-        case 0b11: intres2 ^= ((1<<lmem)-1);
+        case 0b01: intres2 ^= ((1<<n_packed)-1); break;
+        case 0b11: intres2 ^= ((1<<lmem)-1); break;
     }
     // and now set the flags
     RESET_FLAGS(emu);
