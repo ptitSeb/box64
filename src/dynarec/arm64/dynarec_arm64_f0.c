@@ -208,10 +208,10 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         ASRxw(x1, gd, 3); // r1 = (gd>>3)
                         ADDx_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
-                        MARKLOCK;
-                        LDAXRB(x1, wback);
                         ed = x1;
                         wback = x3;
+                        MARKLOCK;
+                        LDAXRB(ed, wback);
                         LSRw_REG(x4, ed, x2);
                         ANDw_mask(x4, x4, 0, 0);  //mask=1
                         BFIw(xFlags, x4, F_CF, 1);
@@ -390,10 +390,10 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         ASRx(x1, gd, 3); // r1 = (gd>>3)
                         ADDx_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
-                        MARKLOCK;
-                        LDAXRB(x1, wback);
                         ed = x1;
                         wback = x3;
+                        MARKLOCK;
+                        LDAXRB(ed, wback);
                         LSRw_REG(x4, ed, x2);
                         ANDw_mask(x4, x4, 0, 0);  //mask=1
                         BFIw(xFlags, x4, F_CF, 1);
@@ -404,6 +404,141 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         CBNZw_MARKLOCK(x4);
                     }
                     break;
+
+            case 0xBA:
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 4:
+                        INST_NAME("LOCK BT Ed, Ib");
+                        SETFLAGS(X_CF, SF_SUBSET);
+                        SET_DFNONE(x1);
+                        gd = x2;
+                        if(MODREG) {
+                            ed = xRAX+(nextop&7)+(rex.b<<3);
+                            u8 = F8;
+                            u8&=rex.w?0x3f:0x1f;
+                            BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                        } else {
+                            // Will fetch only 1 byte, to avoid alignment issue
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            u8 = F8;
+                            if(u8>>3) {
+                                ADDx_U12(x3, wback, u8>>3);
+                                wback = x3;
+                            }
+                            MARKLOCK;
+                            LDAXRB(x1, wback);
+                            ed = x1;
+                            wback = x3;
+                            BFXILxw(xFlags, x1, u8&7, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                        }
+                        break;
+                    case 5:
+                        INST_NAME("LOCK BTS Ed, Ib");
+                        SETFLAGS(X_CF, SF_SUBSET);
+                        SET_DFNONE(x1);
+                        if(MODREG) {
+                            ed = xRAX+(nextop&7)+(rex.b<<3);
+                            wback = 0;
+                            u8 = F8;
+                            u8&=(rex.w?0x3f:0x1f);
+                            BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                            TBNZ_NEXT(xFlags, 0); // bit already set, jump to next instruction
+                            MOV32w(x4, 1);
+                            ORRxw_REG_LSL(ed, ed, x4, u8);
+                            if(wback) {
+                                STxw(ed, wback, fixedaddress);
+                                SMWRITE();
+                            }
+                        } else {
+                            // Will fetch only 1 byte, to avoid alignment issue
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            u8 = F8;
+                            if(u8>>3) {
+                                ADDx_U12(x3, wback, u8>>3);
+                                wback = x3;
+                            }
+                            ed = x1;
+                            MARKLOCK;
+                            LDAXRB(ed, wback);
+                            UBFXw(x4, ed, u8&7, 1);
+                            BFIw(xFlags, x4, F_CF, 1);
+                            MOV32w(x4, 1);
+                            LSLw_IMM(x4, x4, u8&7);
+                            ORRw_REG(ed, ed, x4);
+                            STLXRB(x4, ed, wback);
+                            CBNZw_MARKLOCK(x4);
+                        }
+                        break;
+                    case 6:
+                        INST_NAME("BTR Ed, Ib");
+                        SETFLAGS(X_CF, SF_SUBSET);
+                        SET_DFNONE(x1);
+                        if(MODREG) {
+                            ed = xRAX+(nextop&7)+(rex.b<<3);
+                            wback = 0;
+                            u8 = F8;
+                            u8&=(rex.w?0x3f:0x1f);
+                            BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                            TBZ_NEXT(xFlags, 0); // bit already clear, jump to next instruction
+                            MOV32w(x4, 1);
+                            BICxw_REG_LSL(ed, ed, x4, u8);
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            u8 = F8;
+                            if(u8>>3) {
+                                ADDx_U12(x3, wback, u8>>3);
+                                wback = x3;
+                            }
+                            ed = x1;
+                            MARKLOCK;
+                            LDAXRB(ed, wback);
+                            UBFXw(x4, ed, u8&7, 1);
+                            BFIw(xFlags, x4, F_CF, 1);
+                            MOV32w(x4, 1);
+                            LSLw_IMM(x4, x4, u8&7);
+                            ORRw_REG(ed, ed, x4);
+                            STLXRB(x4, ed, wback);
+                            CBNZw_MARKLOCK(x4);
+                        }
+                        break;
+                    case 7:
+                        INST_NAME("BTC Ed, Ib");
+                        SETFLAGS(X_CF, SF_SUBSET);
+                        SET_DFNONE(x1);
+                        if(MODREG) {
+                            ed = xRAX+(nextop&7)+(rex.b<<3);
+                            wback = 0;
+                            u8 = F8;
+                            u8&=(rex.w?0x3f:0x1f);
+                            BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                            MOV32w(x4, 1);
+                            EORxw_REG_LSL(ed, ed, x4, u8);
+                            if(wback) {
+                                STxw(ed, wback, fixedaddress);
+                                SMWRITE();
+                            }
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            u8 = F8;
+                            if(u8>>3) {
+                                ADDx_U12(x3, wback, u8>>3);
+                                wback = x3;
+                            }
+                            ed = x1;
+                            MARKLOCK;
+                            LDAXRB(ed, wback);
+                            UBFXw(x4, ed, u8&7, 1);
+                            BFIw(xFlags, x4, F_CF, 1);
+                            BFCw(ed, u8&7, 1);
+                            STLXRB(x4, ed, wback);
+                            CBNZw_MARKLOCK(x4);
+                        }
+                        break;
+                    default:
+                        DEFAULT;
+                }
+                break;
 
                 case 0xC1:
                     switch(rep) {
