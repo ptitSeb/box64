@@ -1104,6 +1104,12 @@
 #define FADDP_vector(Q, sz, Rm, Rn, Rd) ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11010<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VFADDPQS(Vd, Vn, Vm)        EMIT(FADDP_vector(1, 0, Vm, Vn, Vd))
 #define VFADDPQD(Vd, Vn, Vm)        EMIT(FADDP_vector(1, 1, Vm, Vn, Vd))
+#define VFADDPS(Vd, Vn, Vm)         EMIT(FADDP_vector(0, 0, Vm, Vn, Vd))
+#define VFADDPD(Vd, Vn, Vm)         EMIT(FADDP_vector(0, 1, Vm, Vn, Vd))
+
+#define FADDP_scalar(sz, Rn, Rd)        (0b01<<30 | 1<<29 | 0b11110<<24 | (sz)<<22 | 0b11000<<17 | 0b01101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define FADDPS(Sd, Sn)              EMIT(FADDP_scalar(0, Sn, Sd))
+#define FADDPD(Dd, Dn)              EMIT(FADDP_scalar(1, Dn, Dd))
 
 // NEG / ABS
 #define FNEGABS_scalar(type, opc, Rn, Rd)  (0b11110<<24 | (type)<<22 | 1<<21 | (opc)<<15 | 0b10000<<10 | (Rn)<<5 | (Rd))

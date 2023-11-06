@@ -1195,6 +1195,28 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     break;
 
+                case 0x40:
+                    INST_NAME("DPPS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 1);
+                    u8 = F8;
+                    v0 = fpu_get_scratch(dyn);
+                    VFMULQS(v0, q0, q1);
+                    // mask some, duplicate all, mask some
+                    for(int i=0; i<4; ++i)
+                        if(!(u8&(1<<(4+i)))) {
+                            VMOVQSfrom(v0, i, xZR);
+                        }
+                    VFADDPQS(v0, v0, v0);
+                    FADDPS(v0, v0);
+                    VDUPQ_32(q0, v0, 0);
+                    for(int i=0; i<4; ++i)
+                        if(!(u8&(1<<i))) {
+                            VMOVQSfrom(q0, i, xZR);
+                        }
+                    break;
+
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;

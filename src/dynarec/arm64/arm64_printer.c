@@ -1145,6 +1145,20 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    // FADDP
+    if(isMask(opcode, "0Q1011100f1mmmmm110101nnnnnddddd", &a)) {
+        char s = a.Q?'V':'D';
+        char d = sf?'D':'S';
+        int n = (a.Q && !sf)?4:2;
+        snprintf(buff, sizeof(buff), "VFADDP %c%d.%d%c, %c%d.%d%c, %c%d.%d%c", s, Rd, n, d, s, Rn, n, d, s, Rm, n, d);
+        return buff;
+    }
+    if(isMask(opcode, "011111100f110000110110nnnnnddddd", &a)) {
+        char s = (sf==0)?'S':((sf==1)?'D':'?');
+        snprintf(buff, sizeof(buff), "FADDP %c%d, %c%d, %c%d", s, Rd, s, Rn, s, Rm);
+        return buff;
+    }
+
     // SQRT
     if(isMask(opcode, "0Q1011101f100001111110nnnnnddddd", &a)) {
         char s = a.Q?'V':'D';

@@ -601,6 +601,11 @@ printf(N " %g, %g => %g\n", b, a, *(float*)&r);
  MULTIGO2sd(div, divsd)
  MULTIGO2sd(max, maxsd)
  MULTIGO1ps2dq(cvtps, cvtps2pd)
+ MULITGO2Cps(dp, dpps, 0xff)
+ MULITGO2Cps(dp, dpps, 0x3f)
+ MULITGO2Cps(dp, dpps, 0xf3)
+ MULITGO2Cps(dp, dpps, 0x53)
 
  return 0;
 }
+
