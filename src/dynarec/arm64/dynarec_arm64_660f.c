@@ -1120,65 +1120,18 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if (MODREG) {
                         q1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                         u8 = F8;
-                        uint8_t count_d = (u8 >> 4) & 3;
-                        uint8_t count_s = u8 >> 6;
-                        #define GO(A) \
-                            switch (count_d) {              \
-                                case 0:                     \
-                                    VMOVeS(d0, 0, q1, A);   \
-                                    break;                  \
-                                case 1:                     \
-                                    VMOVeS(d0, 1, q1, A);   \
-                                    break;                  \
-                                case 2:                     \
-                                    VMOVeS(d0, 2, q1, A);   \
-                                    break;                  \
-                                case 3:                     \
-                                    VMOVeS(q0, 3, q1, A);   \
-                                    break;                  \
-                            }
-                        switch (count_s) {
-                            case 0:
-                                GO(0)
-                                break;
-                            case 1:
-                                GO(1)
-                                break;
-                            case 2:
-                                GO(2)
-                                break;
-                            case 3:
-                                GO(3)
-                                break;
-                        }
-                        #undef GO
+                        VMOVeS(q0, (u8>>4)&3, q1, (u8>>6)&3);
                     } else {
                         SMREAD();
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
                         u8 = F8;
-                        uint8_t count_d = (u8 >> 4) & 3;
-                        LDW(x2, ed, fixedaddress);
-                        switch (count_d) {
-                            case 0:
-                                VMOVQSfrom(d0, 0, x2);
-                                break; 
-                            case 1:
-                                VMOVQSfrom(d0, 1, x2);
-                                break;
-                            case 2:
-                                VMOVQSfrom(d0, 2, x2);
-                                break;
-                            case 3:
-                                VMOVQSfrom(d0, 3, x2);
-                                break;
-                        }
+                        LDW(x2, wback, fixedaddress);
+                        VMOVQSfrom(q0, (u8>>4)&3, x2);
                     }
                     uint8_t zmask = u8 & 0xf;
                     for (uint8_t i=0; i<4; i++) {
                         if (zmask & (1<<i)) {
                             VMOVQSfrom(q0, i, wZR);
-                        } else {
-                            VMOVeS(q0, i, d0, i);
                         }
                     }
                     break;
