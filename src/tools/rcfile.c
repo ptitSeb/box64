@@ -593,6 +593,11 @@ void ApplyParams(const char* name)
     }
     if(!olddynarec && box64_dynarec)
         GatherDynarecExtensions();
+    if(param->is_box64_dynarec_test_present && box64_dynarec_test) {
+        box64_dynarec_fastnan = 0;
+        box64_dynarec_fastround = 0;
+        box64_dynarec_callret = 0;
+    }
     #endif
     if(box64_log==3) {
         box64_log = 2;
