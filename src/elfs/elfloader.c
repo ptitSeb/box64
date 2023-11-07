@@ -1387,7 +1387,7 @@ uintptr_t GetElfFini(elfheader_t* h)
 
 void* GetBaseAddress(elfheader_t* h)
 {
-    return h->memory;
+    return h->image;
 }
 
 void* GetElfDelta(elfheader_t* h)

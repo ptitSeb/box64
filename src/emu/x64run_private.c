@@ -126,7 +126,7 @@ const char* GetNativeName(void* p)
                 strcat(buff, " ("); strcat(buff, info.dli_fname); strcat(buff, ")");
             }
         } else {
-            sprintf(buff, "%s(%s+%p)", "???", info.dli_fname, p);
+            sprintf(buff, "%s(%s+%p)", "???", info.dli_fname, (void*)(p-info.dli_fbase));
             return buff;
         }
     }
