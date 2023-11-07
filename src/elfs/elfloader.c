@@ -235,22 +235,20 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
             if(balign<(box64_pagesize-1)) balign = (box64_pagesize-1);
-            head->multiblocks[n].asize = e->p_memsz+(head->multiblocks[n].paddr&balign);
+            head->multiblocks[n].asize = e->p_memsz+(e->p_paddr&balign);
             int try_mmap = 1;
-            if(e->p_offset&balign)
+            if(e->p_offset&(box64_pagesize-1))
                 try_mmap = 0;
-            if(e->p_memsz-e->p_filesz>balign)
-                try_mmap = 0;
-            if(head->multiblocks[n].asize != head->multiblocks[n].size)
+            if(e->p_memsz-e->p_filesz>(box64_pagesize-1))
                 try_mmap = 0;
             if(!e->p_filesz)
                 try_mmap = 0;
             uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
             if(try_mmap) {
-                printf_log(log_level, "Mmaping 0x%lx memory @%p for Elf \"%s\"\n", head->multiblocks[n].size, (void*)head->multiblocks[n].paddr, head->name);
+                printf_log(log_level, "Mmaping 0x%lx bytes @%p for Elf \"%s\"\n", head->multiblocks[n].size, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
                     (void*)head->multiblocks[n].paddr, 
-                    head->multiblocks[n].asize, 
+                    head->multiblocks[n].size, 
                     prot,
                     MAP_PRIVATE|MAP_FIXED,
                     head->fileno,
@@ -267,7 +265,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             }
             if(!try_mmap) {
                 uintptr_t paddr = head->multiblocks[n].paddr&~balign;
-                printf_log(log_level, "Allocating 0x%lx memory @%p for Elf \"%s\"\n", head->multiblocks[n].asize, (void*)paddr, head->name);
+                printf_log(log_level, "Allocating 0x%lx bytes @%p for Elf \"%s\"\n", head->multiblocks[n].asize, (void*)paddr, head->name);
                 void* p = mmap64(
                     (void*)paddr,
                     head->multiblocks[n].asize,
