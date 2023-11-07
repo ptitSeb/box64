@@ -237,6 +237,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             if(balign<(box64_pagesize-1)) balign = (box64_pagesize-1);
             head->multiblocks[n].asize = e->p_memsz+(e->p_paddr&balign);
             int try_mmap = 1;
+            if(e->p_paddr&(box64_pagesize-1))
+                try_mmap = 0;
             if(e->p_offset&(box64_pagesize-1))
                 try_mmap = 0;
             if(e->p_memsz-e->p_filesz>(box64_pagesize-1))
@@ -265,6 +267,19 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             }
             if(!try_mmap) {
                 uintptr_t paddr = head->multiblocks[n].paddr&~balign;
+                #if defined(PAGE8K) || defined(PAGE16K) || defined(PAGE64K)
+                // check with previous map
+                for(int j=0; j<n; ++j)
+                    if(head->multiblocks[j].paddr>=paddr && head->multiblocks[j].paddr+(head->multiblocks[j].asize+box64_pagesize-1)&(box64_pagesize-1)<paddr) {
+                        uintptr_t new_paddr = head->multiblocks[j].paddr+(head->multiblocks[j].asize+box64_pagesize-1)&(box64_pagesize-1);
+                        if(new_paddr-paddr>head->multiblocks[j].asize)
+                            head->multiblocks[j].asize = 0;
+                        else
+                            head->multiblocks[j].asize -= new_paddr-paddr;
+                    }
+                if(head->multiblocks[n].asize)
+                {
+                #endif
                 printf_log(log_level, "Allocating 0x%lx bytes @%p for Elf \"%s\"\n", head->multiblocks[n].asize, (void*)paddr, head->name);
                 void* p = mmap64(
                     (void*)paddr,
@@ -285,6 +300,11 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 }
                 setProtection((uintptr_t)p, head->multiblocks[n].asize, prot);
                 head->multiblocks[n].p = p;
+                #if defined(PAGE8K) || defined(PAGE16K) || defined(PAGE64K)
+                } else {
+                    head->multiblocks[n].p = NULL;
+                }
+                #endif
                 if(e->p_filesz) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
                     if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
@@ -1384,7 +1404,7 @@ int IsAddressInElfSpace(const elfheader_t* h, uintptr_t addr)
     for(int i=0; i<h->multiblock_n; ++i) {
         uintptr_t base = (uintptr_t)h->multiblocks[i].p;
         uintptr_t end = (uintptr_t)h->multiblocks[i].p + h->multiblocks[i].asize - 1;
-        if(addr>=base && addr<=end)
+        if(base && addr>=base && addr<=end)
             return 1;
         
     }
