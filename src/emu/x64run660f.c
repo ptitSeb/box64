@@ -597,6 +597,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 for(int i=1; i>=0; --i)
                     GX->q[i] = EX->ud[i];
                 break;
+
             case 0x37: /* PCMPGTQ Gx, Ex */
                 nextop = F8;
                 GETEX(0);
@@ -1078,7 +1079,6 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GX->d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
                 GX->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
                 break;
-
             case 0x42:  /* MPSADBW Gx, Ex, Ib */
                 nextop = F8;
                 GETEX(1);
