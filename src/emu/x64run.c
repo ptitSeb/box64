@@ -721,7 +721,13 @@ x64emurun:
                 }
             } else {
                 if(rex.w) {
-                    GD->q[0] = native_lock_xchg_dd(ED, GD->q[0]);
+                    if((uintptr_t)ED&7) {
+                        // not aligned, dont't try to "LOCK"
+                        tmp64u = ED->q[0];
+                        ED->q[0] = GD->q[0];
+                        GD->q[0] = tmp64u;
+                    } else
+                        GD->q[0] = native_lock_xchg_dd(ED, GD->q[0]);
                 } else {
                     if((uintptr_t)ED&3) {
                         // not aligned, dont't try to "LOCK"
