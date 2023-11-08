@@ -41,7 +41,7 @@ GO(FcConfigAppFontAddDir, iFpp)
 GO(FcConfigAppFontAddFile, iFpp)
 GO(FcConfigAppFontClear, vFp)
 GO(FcConfigBuildFonts, iFp)
-//GO(FcConfigCreate, 
+GO(FcConfigCreate, pFv)
 GO(FcConfigDestroy, vFp)
 GO(FcConfigEnableHome, iFi)
 //GO(FcConfigFilename, 
@@ -163,7 +163,7 @@ GO(FcPatternGetString, uFppip)
 GO(FcPatternHash, uFp)
 GO(FcPatternPrint, vFp)
 GO(FcPatternReference, vFp)
-//GO(FcPatternRemove, 
+GO(FcPatternRemove, iFppi)
 GO(FcPatternVaBuild, pFpp)
 GO(FcStrBasename, pFp)
 GO(FcStrCmp, iFpp)
