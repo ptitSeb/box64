@@ -8,6 +8,7 @@
 #include "wine_tools.h"
 #include "debug.h"
 #include "box64context.h"
+#include "custommem.h"
 
 typedef struct wine_prereserve_s
 {
@@ -76,6 +77,7 @@ void wine_prereserve(const char* reserve)
             my_wine_reserve[idx].addr = NULL;
             my_wine_reserve[idx].size = 0;
         } else {
+            setProtection_mmap((uintptr_t)my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 0);
             printf_log(LOG_DEBUG, "WINE prereserve of %p:0x%lx done\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
             ++idx;
         }
