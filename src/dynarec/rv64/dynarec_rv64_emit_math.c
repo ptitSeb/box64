@@ -336,7 +336,7 @@ void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
         SET_DFNONE();
     }
     IFX(X_AF | X_OF) {
-        if(X_PEND) {} else {MOV32w(s4, c&0xff);}
+        IFX(X_PEND) {} else {MOV32w(s4, c&0xff);}
         OR(s3, s1, s4);       // s3 = op1 | op2
         AND(s4, s1, s4);       // s4 = op1 & op2
     }
