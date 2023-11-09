@@ -50,6 +50,7 @@ GO(curl_multi_fdset, uFppppp)
 GO(curl_multi_info_read, pFpp)
 GO(curl_multi_init, pFv)
 GO(curl_multi_perform, uFpp)
+GO(curl_multi_poll, iFppuip)    // since 7.66.0
 GO(curl_multi_remove_handle, uFpp)
 GOM(curl_multi_setopt, iFEpup)
 //GO(curl_multi_socket, 
