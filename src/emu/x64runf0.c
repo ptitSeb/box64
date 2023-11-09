@@ -946,7 +946,18 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
             } else {
                 if(rex.w) {
-                    GD->q[0] = native_lock_xchg_dd(ED, GD->q[0]);
+                    if((uintptr_t)ED&7) {
+                        // unaligned
+                        do {
+                            tmp64u = ED->q[0] & 0xffffffffffffff00LL;
+                            tmp64u |= native_lock_read_b(ED);
+                            
+                        } while(native_lock_write_b(ED, GD->byte[0]));
+                        ED->q[0] = GD->q[0];
+                        GD->q[0] = tmp64u;
+                    } else {
+                        GD->q[0] = native_lock_xchg_dd(ED, GD->q[0]);
+                    }
                 } else {
                     GD->dword[0] = native_lock_xchg_d(ED, GD->dword[0]);
                 }
