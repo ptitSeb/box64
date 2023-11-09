@@ -1585,14 +1585,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
                     BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
-                    TBNZ_MARK3(xFlags, 0); // bit already set, jump to next instruction
                     MOV32w(x4, 1);
                     ORRxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
                     }
-                    MARK3;
                     break;
                 case 6:
                     INST_NAME("BTR Ed, Ib");
@@ -1610,14 +1608,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
                     BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
-                    TBZ_MARK3(xFlags, 0); // bit already clear, jump to next instruction
+                    UBFXw(x4, xFlags, 0, 1);
                     MOV32w(x4, 1);
                     BICxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
                     }
-                    MARK3;
                     break;
                 case 7:
                     INST_NAME("BTC Ed, Ib");
@@ -1641,7 +1638,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();
                     }
-                    MARK3;
                     break;
                 default:
                     DEFAULT;
