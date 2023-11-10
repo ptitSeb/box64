@@ -301,6 +301,11 @@ Disables the load of vulkan libraries.
  * 0 : Load vulkan libraries if found.
  * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
 
+#### BOX64_FUTEX_WAITV *
+Use of the new fuext_waitc syscall
+ * 0 : Do not try to use it, return unsupported (Default for BAD_SIGNAL build)
+ * 1 : let program use the syscall if the host system support it (Default for other build)
+
 #### BOX64_BASH *
 Define x86_64 bash to launch script
  * yyyy

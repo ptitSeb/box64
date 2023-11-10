@@ -89,6 +89,7 @@ extern int box64_novulkan;  // disabling the use of wrapped vulkan
 extern int box64_showsegv;  // show sigv, even if a signal handler is present
 extern int box64_showbt;    // show a backtrace if a signal is caught
 extern int box64_isglibc234; // is the program linked with glibc 2.34+
+extern int box64_futex_waitv;
 extern int box64_x11threads;
 extern int box64_x11glx;
 extern char* box64_libGL;

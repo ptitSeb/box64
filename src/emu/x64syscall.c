@@ -275,9 +275,7 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_fchmodat4
     { 434, __NR_fchmodat4, 4},
     #endif
-    #ifdef __NR_futex_waitv
-    { 449, __NR_futex_waitv, 5},
-    #endif
+    //{ 449, __NR_futex_waitv, 5},
 };
 
 struct mmap_arg_struct {
@@ -761,11 +759,19 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #ifndef __NR_fchmodat4
         case 434:
-            *(int64_t*)R_RAX = fchmodat((int)R_EDI, (void*)R_RSI, (mode_t)R_RDX, (int)R_R10d);
+            *(int64_t*)&R_RAX = fchmodat((int)R_EDI, (void*)R_RSI, (mode_t)R_RDX, (int)R_R10d);
             if(R_EAX==0xffffffff)
                 R_RAX = (uint64_t)-errno;
             break;
         #endif
+        case 449:
+            #ifdef __NR_futex_waitv
+            if(box64_futex_waitv)
+                R_RAX = syscall(__NR_futex_waitv, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
+            else
+            #endif
+                R_RAX = (uint64_t)-ENOSYS;
+            break;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             emu->quit = 1;
@@ -1023,6 +1029,17 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
         case 434:
             return (int)fchmodat((int)R_ESI, (void*)R_RDX, (mode_t)R_RCX, (int)R_R8d);
         #endif
+        case 449:
+            #ifdef __NR_futex_waitv
+            if(box64_futex_waitv)
+                return syscall(__NR_futex_waitv, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
+            else
+            #endif
+                {
+                    errno = ENOSYS;
+                    return -1;
+                }
+            break;
         default:
             if(!(warned&(1<<s))) {
                 printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
