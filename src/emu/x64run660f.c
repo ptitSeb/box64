@@ -209,14 +209,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETGM;
         tmp64s = EX->d[0];
         if (tmp64s==(int32_t)tmp64s && !isnan(EX->d[0]))
-            GX->sd[0] = (int32_t)tmp64s;
+            GM->sd[0] = (int32_t)tmp64s;
         else
-            GX->sd[0] = INT32_MIN;
+            GM->sd[0] = INT32_MIN;
         tmp64s = EX->d[1];
         if (tmp64s==(int32_t)tmp64s && !isnan(EX->d[1]))
-            GX->sd[1] = (int32_t)tmp64s;
+            GM->sd[1] = (int32_t)tmp64s;
         else
-            GX->sd[1] = INT32_MIN;
+            GM->sd[1] = INT32_MIN;
         break;
     case 0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
