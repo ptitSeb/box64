@@ -634,7 +634,21 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             }
             break;
-
+        case 0x8E:
+            INST_NAME("MOV Seg,Ew");
+            nextop = F8;
+            u8 = (nextop&0x38)>>3;
+            if((nextop&0xC0)==0xC0) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                LDRH_REG(x1, wback, x4);
+                ed = x1;
+            }
+            STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
+            break;
         case 0x8F:
             INST_NAME("POP FS:Ed");
             grab_segdata(dyn, addr, ninst, x4, seg);
