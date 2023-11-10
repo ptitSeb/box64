@@ -474,6 +474,12 @@ uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
     }
     return addr;
 }
+// return Ib on a mod/rm opcode without emiting anything
+uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
+{
+    addr = fakeed(dyn, addr, ninst, nextop);
+    return F8;
+}
 #undef F8
 
 int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)

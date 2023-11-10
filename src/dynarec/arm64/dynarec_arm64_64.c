@@ -233,8 +233,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     UFLAG_RES(gd);
                                     LSRx(x3, gd, 32);
                                     UFLAG_OP1(x3);
-                                    UFLAG_DF(x3, d_imul32);
                                     MOVw_REG(gd, gd);
+                                    UFLAG_DF(x3, d_imul32);
                                 } else {
                                     MULxw(gd, gd, ed);
                                 }
@@ -966,7 +966,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("MUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x2, rex.w?d_mul64:d_mul32);
                     GETEDO(x6, 0);
                     if(rex.w) {
                         if(ed==xRDX) gd=x3; else gd=xRDX;
@@ -980,11 +979,11 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     UFLAG_RES(xRAX);
                     UFLAG_OP1(xRDX);
+                    UFLAG_DF(x2, rex.w?d_mul64:d_mul32);
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x2, rex.w?d_imul64:d_imul32);
                     GETEDO(x6, 0);
                     if(rex.w) {
                         if(ed==xRDX) gd=x3; else gd=xRDX;
@@ -998,6 +997,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     UFLAG_RES(xRAX);
                     UFLAG_OP1(xRDX);
+                    UFLAG_DF(x2, rex.w?d_imul64:d_imul32);
                     break;
                 case 6:
                     INST_NAME("DIV Ed");

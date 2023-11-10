@@ -1333,17 +1333,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
             }
-            LSRxw_REG(x4, ed, x2);
-            if(rex.w) {
-                ANDSx_mask(x4, x4, 1, 0, 0);  //mask=1
-            } else {
-                ANDSw_mask(x4, x4, 0, 0);  //mask=1
+            IFX(X_CF) {
+                LSRxw_REG(x4, ed, x2);
+                BFIw(xFlags, x4, F_CF, 1);
             }
-            BFIw(xFlags, x4, F_CF, 1);
             MOV32w(x4, 1);
             LSLxw_REG(x4, x4, x2);
-            EORxw_REG(x4, ed, x4);
-            CSELxw(ed, ed, x4, cNE);
+            ORRxw_REG(ed, ed, x4);
             if(wback) {
                 STRxw_U12(ed, wback, fixedaddress);
                 SMWRITE();
@@ -1468,8 +1464,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UFLAG_RES(gd);
                     LSRx(x3, gd, 32);
                     UFLAG_OP1(x3);
-                    UFLAG_DF(x3, d_imul32);
                     MOVw_REG(gd, gd);
+                    UFLAG_DF(x3, d_imul32);
                 } else {
                     MULxw(gd, gd, ed);
                 }
@@ -1499,13 +1495,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
             }
-            LSRxw_REG(x4, ed, x2);
-            if(rex.w) {
-                ANDx_mask(x4, x4, 1, 0, 0);  //mask=1
-            } else {
-                ANDw_mask(x4, x4, 0, 0);  //mask=1
+            IFX(X_CF) {
+                LSRxw_REG(x4, ed, x2);
+                BFIw(xFlags, x4, F_CF, 1);
             }
-            BFIw(xFlags, x4, F_CF, 1);
             MOV32w(x4, 1);
             LSLxw_REG(x4, x4, x2);
             BICxw_REG(ed, ed, x4);
@@ -1584,7 +1577,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
-                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    IFX(X_CF) {
+                        BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    }
                     MOV32w(x4, 1);
                     ORRxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
@@ -1607,8 +1602,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
-                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
-                    UBFXw(x4, xFlags, 0, 1);
+                    IFX(X_CF) {
+                        BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    }
                     MOV32w(x4, 1);
                     BICxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
@@ -1631,7 +1627,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x1f);
-                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    IFX(X_CF) {
+                        BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    }
                     MOV32w(x4, 1);
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     if(wback) {
@@ -1666,13 +1664,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 ANDw_mask(x2, gd, 0, 0b00100);  //mask=0x00000001f
             }
-            LSRxw_REG(x4, ed, x2);
-            if(rex.w) {
-                ANDx_mask(x4, x4, 1, 0, 0);  //mask=1
-            } else {
-                ANDw_mask(x4, x4, 0, 0);  //mask=1
+            IFX(X_CF) {
+                LSRxw_REG(x4, ed, x2);
+                BFIw(xFlags, x4, F_CF, 1);
             }
-            BFIw(xFlags, x4, F_CF, 1);
             MOV32w(x4, 1);
             LSLxw_REG(x4, x4, x2);
             EORxw_REG(ed, ed, x4);

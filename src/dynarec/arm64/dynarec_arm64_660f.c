@@ -2195,12 +2195,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = x4;
             }
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
-            LSRw_REG(x1, ed, x2);
-            BFIw(xFlags, x1, F_CF, 1);
-            ANDSw_mask(x1, x1, 0, 0);  //mask=1
-            B_NEXT(cNE);
+            IFX(X_CF) {
+                LSRw_REG(x1, ed, x2);
+                BFIw(xFlags, x1, F_CF, 1);
+            }
             MOV32w(x1, 1);
-            LSLxw_REG(x1, x1, x2);
+            LSLw_REG(x1, x1, x2);
             ORRx_REG(ed, ed, x1);
             if(wback) {
                 STRH_U12(ed, wback, fixedaddress);
@@ -2231,12 +2231,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            UFLAG_DF(x1, d_imul16);
             GETSEW(x1, 0);
             GETSGW(x2);
             MULw(x2, x2, x1);
             UFLAG_RES(x2);
             GWBACK;
+            UFLAG_DF(x1, d_imul16);
             break;
 
         case 0xB3:
@@ -2452,6 +2452,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIx(gd, x1, 0, 16);
             break;
 
+        case 0xC1:
+            INST_NAME("XADD Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            BFIx(xRAX+((nextop&0x38)>>3)+(rex.r<<3), ed, 0, 16);
+            emit_add16(dyn, ninst, ed, gd, x4, x5);
+            EWBACK;
+            break;
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex, Ib");
             nextop = F8;

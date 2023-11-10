@@ -458,7 +458,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            UFLAG_DF(x1, d_imul16);
             GETSEW(x1, (opcode==0x69)?2:1);
             if(opcode==0x69) i32 = F16S; else i32 = F8S;
             MOV32w(x2, i32);
@@ -466,6 +465,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UFLAG_RES(x2);
             gd=x2;
             GWBACK;
+            UFLAG_DF(x1, d_imul16);
             break;
 
         case 0x70:
@@ -929,22 +929,22 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(geted_ib(dyn, addr, ninst, nextop)&15) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    }
                     GETEW(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(rol16, x1, x3);
+                    emit_rol16c(dyn, ninst, x1, u8&15, x4, x5);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(geted_ib(dyn, addr, ninst, nextop)&15) {
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    }
                     GETEW(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(ror16, x1, x3);
+                    emit_ror16c(dyn, ninst, x1, u8&15, x4, x5);
                     EWBACK;
                     break;
                 case 2:
@@ -1167,24 +1167,24 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("MUL AX, Ew");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x1, d_mul16);
                     GETEW(x1, 0);
                     UXTHw(x2, xRAX);
                     MULw(x1, x2, x1);
                     UFLAG_RES(x1);
                     BFIx(xRAX, x1, 0, 16);
                     BFXILx(xRDX, x1, 16, 16);
+                    UFLAG_DF(x1, d_mul16);
                     break;
                 case 5:
                     INST_NAME("IMUL AX, Ew");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x1, d_imul16);
                     GETSEW(x1, 0);
                     SXTHw(x2, xRAX);
                     MULw(x1, x2, x1);
                     UFLAG_RES(x1);
                     BFIx(xRAX, x1, 0, 16);
                     BFXILx(xRDX, x1, 16, 16);
+                    UFLAG_DF(x1, d_imul16);
                     break;
                 case 6:
                     INST_NAME("DIV Ew");

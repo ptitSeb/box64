@@ -787,7 +787,17 @@
     x87_do_pop(dyn, ninst, scratch);
 
 #define SET_DFNONE(S)    if(!dyn->f.dfnone) {STRw_U12(wZR, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=1;}
-#define SET_DF(S, N)     if((N)!=d_none) {MOVZw(S, (N)); STRw_U12(S, xEmu, offsetof(x64emu_t, df)); dyn->f.dfnone=0;} else SET_DFNONE(S)
+#define SET_DF(S, N)        \
+    if((N)!=d_none) {       \
+        MOVZw(S, (N));      \
+        STRw_U12(S, xEmu, offsetof(x64emu_t, df)); \
+        if(dyn->f.pending==SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after&X_PEND)) {  \
+            CALL_(UpdateFlags, -1, 0);              \
+            dyn->f.pending = SF_SET;                \
+            SET_NODF();     \
+        }                   \
+        dyn->f.dfnone=0;    \
+    } else SET_DFNONE(S)
 #define SET_NODF()          dyn->f.dfnone = 0
 #define SET_DFOK()          dyn->f.dfnone = 1
 
@@ -1015,6 +1025,10 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sar32c     STEPNAME(emit_sar32c)
 #define emit_rol32c     STEPNAME(emit_rol32c)
 #define emit_ror32c     STEPNAME(emit_ror32c)
+#define emit_rol8c      STEPNAME(emit_rol8c)
+#define emit_ror8c      STEPNAME(emit_ror8c)
+#define emit_rol16c     STEPNAME(emit_rol16c)
+#define emit_ror16c     STEPNAME(emit_ror16c)
 #define emit_shrd32c    STEPNAME(emit_shrd32c)
 #define emit_shld32c    STEPNAME(emit_shld32c)
 
@@ -1144,6 +1158,10 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
+void emit_ror8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
+void emit_rol16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
+void emit_ror16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 
