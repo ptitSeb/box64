@@ -402,20 +402,20 @@ void EXPORT x64Syscall(x64emu_t *emu)
         if(syscallwrap[i].x64s == s) {
             int sc = syscallwrap[i].nats;
             switch(syscallwrap[i].nbpars) {
-                case 0: *(int64_t*)&R_RAX = syscall(sc); break;
-                case 1: *(int64_t*)&R_RAX = syscall(sc, R_RDI); break;
-                case 2: if(s==33) {if(log) snprintf(buff2, 63, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI); break;
-                case 3: if(s==42) {if(log) snprintf(buff2, 63, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 63, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
-                case 4: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
-                case 5: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
-                case 6: *(int64_t*)&R_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
+                case 0: S_RAX = syscall(sc); break;
+                case 1: S_RAX = syscall(sc, R_RDI); break;
+                case 2: if(s==33) {if(log) snprintf(buff2, 63, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; S_RAX = syscall(sc, R_RDI, R_RSI); break;
+                case 3: if(s==42) {if(log) snprintf(buff2, 63, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 63, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
+                case 4: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
+                case 5: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
+                case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
                 default:
                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
                    return;
             }
-            if(R_EAX==0xffffffff && errno>0)
-                R_RAX = (uint64_t)-errno;
+            if(S_RAX==-1 && errno>0)
+                S_RAX = -errno;
             if(log) snprintf(buffret, 127, "0x%x%s", R_EAX, buff2);
             if(log && !cycle_log) printf_log(LOG_NONE, "=> %s\n", buffret);
             return;
@@ -423,65 +423,65 @@ void EXPORT x64Syscall(x64emu_t *emu)
     }
     switch (s) {
         case 0:  // sys_read
-            *(int64_t*)&R_RAX = read((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = read(S_EDI, (void*)R_RSI, (size_t)R_RDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 1:  // sys_write
-            *(int64_t*)&R_RAX = write((int)R_EDI, (void*)R_RSI, (size_t)R_RDX);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = write(S_EDI, (void*)R_RSI, (size_t)R_RDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 2: // sys_open
             if(s==5) {if (log) snprintf(buff2, 63, " [sys_open(\"%s\", %d, %d)]", (char*)R_RDI, of_convert(R_ESI), R_EDX);}; 
-            //*(int64_t*)&R_RAX = open((void*)R_EDI, of_convert(R_ESI), R_EDX);
-            *(int64_t*)&R_RAX = my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            //S_RAX = open((void*)R_EDI, of_convert(R_ESI), R_EDX);
+            S_RAX = my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 3:  // sys_close
-            *(int64_t*)&R_RAX = close((int)R_EDI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = close(S_EDI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 4: // sys_stat
-            *(int64_t*)&R_RAX = my_stat(emu, (void*)R_RDI, (void*)R_RSI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_stat(emu, (void*)R_RDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 5: // sys_fstat
-            *(int64_t*)&R_RAX = my_fstat(emu, (int)R_EDI, (void*)R_RSI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_fstat(emu, S_EDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 6: // sys_lstat
-            *(int64_t*)&R_RAX = my_lstat(emu, (void*)R_RDI, (void*)R_RSI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_lstat(emu, (void*)R_RDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #ifndef __NR_poll
         case 7: // sys_poll
-            *(int64_t*)&R_RAX = poll((struct pollfd*)R_RDI, (nfds_t)R_RSI, (int)R_EDX);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = poll((struct pollfd*)R_RDI, (nfds_t)R_RSI, S_EDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 9: // sys_mmap
-            R_RAX = (uintptr_t)my_mmap64(emu, (void*)R_RDI, R_RSI, (int)R_EDX, (int)R_R10d, (int)R_R8d, R_R9);
+            R_RAX = (uintptr_t)my_mmap64(emu, (void*)R_RDI, R_RSI, S_EDX, S_R10d, S_R8d, R_R9);
             break;
         case 10: // sys_mprotect
-            *(int64_t*)&R_RAX = my_mprotect(emu, (void*)R_RDI, R_RSI, (int)R_EDX);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_mprotect(emu, (void*)R_RDI, R_RSI, S_EDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 11: // sys_munmap
-            *(int64_t*)&R_RAX = my_munmap(emu, (void*)R_RDI, R_RSI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_munmap(emu, (void*)R_RDI, R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 13: // sys_rt_sigaction
             #if 1
-            R_RAX = (int64_t)my_syscall_rt_sigaction(emu, (int)R_EDI, (const x64_sigaction_restorer_t *)R_RSI, (x64_sigaction_restorer_t *)R_RDX, (size_t)R_R10);
+            S_RAX = my_syscall_rt_sigaction(emu, S_EDI, (const x64_sigaction_restorer_t *)R_RSI, (x64_sigaction_restorer_t *)R_RDX, (size_t)R_R10);
             #else
             {
                 x64_sigaction_t n ={0};
@@ -493,7 +493,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
                     n.sa_restorer = p->sa_restorer;
                     memcpy(&n.sa_mask, &p->sa_mask, R_R10);
                 }
-                R_RAX = (int64_t)(int64_t)my_sigaction(emu, (int)R_EDI, R_RSI?&n:NULL, R_RDX?&o:NULL/*, (size_t)R_R10*/);
+                R_RAX = (int64_t)(int64_t)my_sigaction(emu, S_EDI, R_RSI?&n:NULL, R_RDX?&o:NULL/*, (size_t)R_R10*/);
                 if(R_RAX>=0 && R_RDX) {
                     x64_sigaction_restorer_t *p = (x64_sigaction_restorer_t*)R_RDX;
                     p->_u._sa_sigaction = o._u._sa_sigaction;
@@ -503,28 +503,28 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 }
             }
             #endif
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #ifndef __NR_access
         case 21: // sys_access
-            *(int64_t*)&R_RAX = access((void*)R_RDI, R_ESI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = access((void*)R_RDI, R_ESI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         #ifndef __NR_pipe
         case 22:
-            *(int64_t*)&R_RAX = pipe((void*)R_RDI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = pipe((void*)R_RDI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         #ifndef __NR_select
         case 23: // sys_select
-            R_EAX = (uint32_t)select(R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = select(R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 25: // sys_mremap
@@ -532,9 +532,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #ifndef __NR_dup2
         case 33: // sys_dup2
-            R_EAX = (uint32_t)dup2((int)R_EDI, (int)R_ESI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = dup2(S_EDI, S_ESI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 56: // sys_clone
@@ -542,9 +542,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
             // so flags=R_RDI, stack=R_RSI, parent_tid=R_RDX, child_tid=R_R10, tls=R_R8
             if((R_EDI&~0xff)==0x4100) {
                 // this is a case of vfork...
-                R_EAX = my_vfork(emu);
-                if(R_EAX==0xffffffff)
-                    R_RAX = (uint64_t)-errno;
+                S_RAX = my_vfork(emu);
+                if(S_RAX==-1)
+                    S_RAX = -errno;
             } else {
                 if(R_RSI)
                 {
@@ -580,54 +580,48 @@ void EXPORT x64Syscall(x64emu_t *emu)
                         my_context->stack_clone_used = 1;
                     }
                     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_RDI, newemu, R_RDX, R_R8, R_R10);
-                    R_RAX = (uint64_t)ret;
+                    S_RAX = ret;
                 }
                 else
                     #ifdef NOALIGN
-                    R_RAX = (uint64_t)syscall(__NR_clone, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
+                    S_RAX = syscall(__NR_clone, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
                     #else
-                    R_RAX = (uint64_t)syscall(__NR_clone, R_RDI, R_RSI, R_RDX, R_R8, R_R10);    // invert R_R8/R_R10 on Aarch64 and most other
+                    S_RAX = syscall(__NR_clone, R_RDI, R_RSI, R_RDX, R_R8, R_R10);    // invert R_R8/R_R10 on Aarch64 and most other
                     #endif
             }
             break;
         #ifndef __NR_fork
         case 57: 
-            R_RAX = fork();
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = fork();
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 58:   // vfork
-            {
-                int64_t r = my_vfork(emu);
-                R_RAX = r;
-                if(R_EAX==0xffffffff)
-                    R_RAX = (uint64_t)-errno;
-            }
+            S_RAX = my_vfork(emu);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 59:   // execve
-            {
-                int64_t r = my_execve(emu, (const char*)R_RDI, (char* const*)R_RSI, (char* const*)R_RDX);
-                R_RAX = r;
-                if(R_EAX==0xffffffff)
-                    R_RAX = (uint64_t)-errno;
-            }
+            S_RAX = my_execve(emu, (const char*)R_RDI, (char* const*)R_RSI, (char* const*)R_RDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 63:    //uname
             {
                 old_utsname_t *old = (old_utsname_t*)R_RDI;
                 struct utsname uts;
-                R_RAX = uname(&uts);
-                if(R_EAX==0xffffffff)
-                    R_RAX = (uint64_t)-errno;
+                S_RAX = uname(&uts);
+                if(S_RAX==-1)
+                    S_RAX = -errno;
                 memcpy(old, &uts, sizeof(*old)); // old_uts is just missing a field from new_uts
                 strcpy(old->machine, "x86_64");
             }
             break;
         case 72:    //fcntl
-            R_RAX = (uint64_t)my_fcntl(emu, (int)R_EDI, (int)R_ESI, (void*)R_RDX);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_fcntl(emu, S_EDI, S_ESI, (void*)R_RDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #ifndef __NR_getdents
         case 78:
@@ -644,92 +638,92 @@ void EXPORT x64Syscall(x64emu_t *emu)
         #endif
         #ifndef __NR_rename
 	    case 82: // sys_rename
-    	    *(int64_t*)&R_RAX = rename((void*)R_RDI, (void*)R_RSI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+    	    S_RAX = rename((void*)R_RDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
 	    break;
         #endif
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
-            *(int64_t*)&R_RAX = mkdir((void*)R_RDI, R_ESI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = mkdir((void*)R_RDI, R_ESI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
         break;
         #endif
         #ifndef __NR_unlink
         case 87: //sys_unlink
-            *(int64_t*)&R_RAX = unlink((void*)R_RDI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = unlink((void*)R_RDI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 89: // sys_readlink
-            R_RAX = (ssize_t)my_readlink(emu,(void*)R_RDI, (void*)R_RSI, (size_t)R_RDX);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_readlink(emu,(void*)R_RDI, (void*)R_RSI, (size_t)R_RDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 131: // sys_sigaltstack
-            *(int64_t*)&R_RAX = my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         case 158: // sys_arch_prctl
-            *(int64_t*)&R_RAX = my_arch_prctl(emu, (int)R_EDI, (void*)R_RSI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_arch_prctl(emu, S_EDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #ifndef __NR_time
         case 201: // sys_time
             R_RAX = (uintptr_t)time((void*)R_RDI);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         #if !defined(__NR_epoll_wait) || !defined(NOALIGN)
         case 232:
-            R_RAX = my_epoll_wait(emu, (int)R_EDI, (void*)R_RSI, (int)R_EDX, (int)R_R10d);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            R_RAX = my_epoll_wait(emu, S_EDI, (void*)R_RSI, S_EDX, S_R10d);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         #if !defined(__NR_epoll_ctl) || !defined(NOALIGN)
         case 233:
-            R_EAX = my_epoll_ctl(emu, (int)R_EDI, (int)R_ESI, (int)R_EDX, (void*)R_R10);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_epoll_ctl(emu, S_EDI, S_ESI, S_EDX, (void*)R_R10);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         #ifndef __NR_inotify_init
         case 253:
-            R_EAX = (int)syscall(__NR_inotify_init1, 0);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = syscall(__NR_inotify_init1, 0);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         #ifndef NOALIGN
         case 257:
-            R_EAX = (int)syscall(__NR_openat, (int)R_EDI, (void*)R_RSI, of_convert((int)R_EDX), R_R10d);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = syscall(__NR_openat, S_EDI, (void*)R_RSI, of_convert(S_EDX), R_R10d);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 262:
-            R_EAX = (uint32_t)my_fstatat(emu, (int)R_RDI, (char*)R_RSI, (void*)R_RDX, (int)R_R10d);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_fstatat(emu, S_RDI, (char*)R_RSI, (void*)R_RDX, S_R10d);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #ifndef __NR_renameat
         case 264:
-            R_EAX = (uint32_t)renameat((int)R_RDI, (const char*)R_RSI, (int)R_EDX, (const char*)R_R10);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            R_EAX = (uint32_t)renameat(S_RDI, (const char*)R_RSI, S_EDX, (const char*)R_R10);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         #ifndef NOALIGN
         case 281:   // sys_epool_pwait
-            R_EAX = (uint32_t)my_epoll_pwait(emu, (int)R_EDI, (void*)R_RSI, (int)R_EDX, (int)R_R10d, (void*)R_R8);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = my_epoll_pwait(emu, S_EDI, (void*)R_RSI, S_EDX, S_R10d, (void*)R_R8);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 282:   // sys_signalfd
@@ -740,16 +734,16 @@ void EXPORT x64Syscall(x64emu_t *emu)
                     sigdelset(set, SIGSEGV);
                     printf_log(LOG_INFO, "Warning, signalfd on SIGSEGV unsuported\n");
                 }
-                R_EAX = signalfd((int)R_EDI, set, 0);
-                if(R_EAX==-1)
-                    R_EAX = -errno;
+                S_RAX = signalfd(S_EDI, set, 0);
+                if(S_RAX==-1)
+                    S_RAX = -errno;
             }
             break;
         #ifndef _NR_eventfd
         case 284:   // sys_eventfd
-            R_EAX = eventfd((int)R_EDI, 0);
-            if(R_EAX==-1)
-                R_EAX = -errno;
+            S_RAX = eventfd(S_EDI, 0);
+            if(S_RAX==-1)
+                S_RAX = -errno;
         #endif
         case 317:   // sys_seccomp
             R_RAX = 0;  // ignoring call
@@ -759,18 +753,18 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #ifndef __NR_fchmodat4
         case 434:
-            *(int64_t*)&R_RAX = fchmodat((int)R_EDI, (void*)R_RSI, (mode_t)R_RDX, (int)R_R10d);
-            if(R_EAX==0xffffffff)
-                R_RAX = (uint64_t)-errno;
+            S_RAX = fchmodat(S_EDI, (void*)R_RSI, (mode_t)R_RDX, S_R10d);
+            if(S_RAX==-1)
+                S_RAX = -errno;
             break;
         #endif
         case 449:
             #ifdef __NR_futex_waitv
             if(box64_futex_waitv)
-                R_RAX = syscall(__NR_futex_waitv, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
+                S_RAX = syscall(__NR_futex_waitv, R_RDI, R_RSI, R_RDX, R_R10, R_R8);
             else
             #endif
-                R_RAX = (uint64_t)-ENOSYS;
+                S_RAX = -ENOSYS;
             break;
         default:
             printf_log(LOG_INFO, "Error: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
@@ -789,7 +783,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
 #define u64(n)  *(uint64_t*)stack(n)
 #define p(n)    *(void**)stack(n)
 
-uintptr_t EXPORT my_syscall(x64emu_t *emu)
+long EXPORT my_syscall(x64emu_t *emu)
 {
     static uint32_t warned = 0;
     uint32_t s = R_EDI;
@@ -816,33 +810,33 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
     }
     switch (s) {
         case 0:  // sys_read
-            return (uint64_t)read(R_ESI, (void*)R_RDX, R_ECX);
+            return read(R_ESI, (void*)R_RDX, R_ECX);
         case 1:  // sys_write
-            return (uint64_t)write(R_ESI, (void*)R_RDX, R_ECX);
+            return write(R_ESI, (void*)R_RDX, R_ECX);
         case 2: // sys_open
             return my_open(emu, (char*)R_RSI, of_convert(R_EDX), R_ECX);
         case 3:  // sys_close
-            return (uint64_t)(int64_t)close(R_ESI);
+            return close(R_ESI);
         case 4: // sys_stat
-            return (uint64_t)(int64_t)my_stat(emu, (void*)R_RSI, (void*)R_RDX);
+            return my_stat(emu, (void*)R_RSI, (void*)R_RDX);
         case 5: // sys_fstat
-            return (uint64_t)(int64_t)my_fstat(emu, (int)R_ESI, (void*)R_RDX);
+            return my_fstat(emu, S_ESI, (void*)R_RDX);
         case 6: // sys_lstat
-            return (uint64_t)(int64_t)my_lstat(emu, (void*)R_RSI, (void*)R_RDX);
+            return my_lstat(emu, (void*)R_RSI, (void*)R_RDX);
         #ifndef __NR_poll
         case 7: // sys_poll
-            return (uint64_t)(int64_t)poll((struct pollfd*)R_RSI, (nfds_t)R_RDX, (int)R_ECX);
+            return poll((struct pollfd*)R_RSI, (nfds_t)R_RDX, S_ECX);
             break;
         #endif
         case 9: // sys_mmap
-            return (uintptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, (int)R_RCX, (int)R_R8d, (int)R_R9, i64(0));
+            return (intptr_t)my_mmap64(emu, (void*)R_RSI, R_RDX, S_RCX, S_R8d, S_R9, i64(0));
         case 10: // sys_mprotect
-            return (uint64_t)my_mprotect(emu, (void*)R_RSI, R_RDX, (int)R_ECX);
+            return my_mprotect(emu, (void*)R_RSI, R_RDX, S_ECX);
         case 11: // sys_munmap
-            return (uint64_t)my_munmap(emu, (void*)R_RSI, R_RDX);
+            return my_munmap(emu, (void*)R_RSI, R_RDX);
         case 13: // sys_rt_sigaction
             #if 1
-            return my_syscall_rt_sigaction(emu, (int)R_ESI, (const x64_sigaction_restorer_t *)R_RDX, (x64_sigaction_restorer_t *)R_RCX, (size_t)R_R8);
+            return my_syscall_rt_sigaction(emu, S_ESI, (const x64_sigaction_restorer_t *)R_RDX, (x64_sigaction_restorer_t *)R_RCX, (size_t)R_R8);
             #else
             {
                 x64_sigaction_t n ={0};
@@ -854,7 +848,7 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                     n.sa_restorer = p->sa_restorer;
                     memcpy(&n.sa_mask, &p->sa_mask, R_R8);
                 }
-                uint64_t ret = (uint64_t)(int64_t)my_sigaction(emu, (int)R_ESI, R_RDX?&n:NULL, R_RCX?&o:NULL/*, (size_t)R_R8*/);
+                long ret = my_sigaction(emu, S_ESI, R_RDX?&n:NULL, R_RCX?&o:NULL/*, (size_t)R_R8*/);
                 if(R_RCX) {
                     x64_sigaction_restorer_t *p = (x64_sigaction_restorer_t*)R_RCX;
                     p->_u._sa_sigaction = o._u._sa_sigaction;
@@ -867,18 +861,18 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             #endif
         #ifndef __NR_access
         case 21: // sys_access
-            return (uint64_t)(int64_t)access((void*)R_RSI, R_EDX);
+            return access((void*)R_RSI, R_EDX);
         #endif
         #ifndef __NR_pipe
         case 22:
-            return (uint64_t)(int64_t)pipe((void*)R_RSI);
+            return pipe((void*)R_RSI);
         #endif
         #ifndef __NR_select
         case 23: // sys_select
-            return (uint64_t)(int64_t)select(R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
+            return select(R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
         #endif
         case 25: // sys_mremap
-            return (uintptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
+            return (intptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
         case 56: // sys_clone
             // x86_64 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
             // so flags=R_RSI, stack=R_RDX, parent_tid=R_RCX, child_tid=R_R8, tls=R_R9
@@ -916,19 +910,19 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                     my_context->stack_clone_used = 1;
                 }
                 // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
-                int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_ESI, newemu, R_RCX, R_R9, R_R8);
-                return (uintptr_t)ret;
+                long ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), R_ESI, newemu, R_RCX, R_R9, R_R8);
+                return ret;
             }
             else
                 #ifdef NOALIGN
-                return (uintptr_t)syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
+                return syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
                 #else
-                return (uintptr_t)syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
+                return syscall(__NR_clone, R_RSI, R_RDX, R_RCX, R_R9, R_R8);    // invert R_R8/R_R9 on Aarch64 and most other
                 #endif
             break;
         #ifndef __NR_dup2
         case 33:
-            return  dup2((int)R_ESI, (int)R_EDX);
+            return  dup2(S_ESI, S_EDX);
         #endif
         #ifndef __NR_fork
         case 57: 
@@ -942,13 +936,13 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
             {
                 old_utsname_t *old = (old_utsname_t*)R_RSI;
                 struct utsname uts;
-                int64_t ret = uname(&uts);
+                long ret = uname(&uts);
                 memcpy(old, &uts, sizeof(*old));
                 strcpy(old->machine, "x86_64");
                 return ret;
             }
         case 72:    //fcntl
-            R_RAX = (uint64_t)my_fcntl(emu, (int)R_ESI, (int)R_EDX, (void*)R_RCX);
+            R_RAX = (uint64_t)my_fcntl(emu, S_ESI, S_EDX, (void*)R_RCX);
             break;
         #ifndef __NR_getdents
         case 78:
@@ -957,55 +951,52 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                 nat_linux_dirent64_t *d64 = (nat_linux_dirent64_t*)alloca(count);
                 ssize_t ret = syscall(__NR_getdents64, R_ESI, d64, count);
                 ret = DirentFromDirent64((void*)R_RDX, d64, ret);
-                return (uint64_t)ret;
+                return ret;
             }
         #endif
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
-            return (uint64_t)(int64_t)mkdir((void*)R_RSI, R_EDX);
+            return mkdir((void*)R_RSI, R_EDX);
         #endif
         #ifndef __NR_unlink
         case 87: //sys_unlink
-            return (uint64_t)(int64_t)unlink((void*)R_RSI);
+            return unlink((void*)R_RSI);
         #endif
         case 89: // sys_readlink
-            return (uintptr_t)my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
+            return my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
         case 131: // sys_sigaltstack
-            return (uint64_t)(int64_t)my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
+            return my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
         case 158: // sys_arch_prctl
-            return (uint64_t)(int64_t)my_arch_prctl(emu, (int)R_ESI, (void*)R_RDX);
+            return my_arch_prctl(emu, S_ESI, (void*)R_RDX);
         #ifndef __NR_time
         case 201: // sys_time
-            return (uintptr_t)time((void*)R_RSI);
+            return (intptr_t)time((void*)R_RSI);
         #endif
         #if !defined(__NR_epoll_wait) || !defined(NOALIGN)
         case 232:
-            R_RAX = my_epoll_wait(emu, (int)R_ESI, (void*)R_RDX, (int)R_ECX, (int)R_R8d);
-            break;
+            return my_epoll_wait(emu, S_ESI, (void*)R_RDX, S_ECX, S_R8d);
         #endif
         #if !defined(__NR_epoll_ctl) || !defined(NOALIGN)
         case 233:
-            R_EAX = my_epoll_ctl(emu, (int)R_ESI, (int)R_EDX, (int)R_ECX, (void*)R_R8);
-            break;
+            return my_epoll_ctl(emu, S_ESI, S_EDX, S_ECX, (void*)R_R8);
         #endif
         #ifndef __NR_inotify_init
         case 253:
-            return (int)syscall(__NR_inotify_init1, 0);
+            return syscall(__NR_inotify_init1, 0);
         #endif
         #ifndef NOALIGN
         case 257:
-            R_EAX = (int)syscall(__NR_openat, (int)R_ESI, (void*)R_RDX, of_convert((int)R_ECX), R_R8d);
-            break;
+            syscall(__NR_openat, S_ESI, (void*)R_RDX, of_convert(S_ECX), R_R8d);
         #endif
         case 262:
-            return (uint64_t)(int64_t)my_fstatat(emu, (int)R_RSI, (char*)R_RDX, (void*)R_RCX, (int)R_R8d);
+            return my_fstatat(emu, S_RSI, (char*)R_RDX, (void*)R_RCX, S_R8d);
         #ifndef __NR_renameat
         case 264:
-            return (uint64_t)(int64_t)renameat((int)R_RSI, (const char*)R_RDX, (int)R_ECX, (const char*)R_R8);
+            return renameat(S_RSI, (const char*)R_RDX, S_ECX, (const char*)R_R8);
         #endif
         #ifndef NOALIGN
         case 281:   // sys_epool_pwait
-            return (uint64_t)(int64_t)my_epoll_pwait(emu, (int)R_ESI, (void*)R_RDX, (int)R_ECX, (int)R_R8d, (void*)R_R9);
+            return my_epoll_pwait(emu, S_ESI, (void*)R_RDX, S_ECX, S_R8d, (void*)R_R9);
             break;
         #endif
         case 282:   // sys_signalfd
@@ -1016,18 +1007,18 @@ uintptr_t EXPORT my_syscall(x64emu_t *emu)
                     sigdelset(set, SIGSEGV);
                     printf_log(LOG_INFO, "Warning, signalfd on SIGSEGV unsuported\n");
                 }
-                return signalfd((int)R_ESI, set, 0);
+                return signalfd(S_ESI, set, 0);
             }
             break;
         #ifndef _NR_eventfd
         case 284:   // sys_eventfd
-            return eventfd((int)R_ESI, 0);
+            return eventfd(S_ESI, 0);
         #endif
         case 317:   // sys_seccomp
             return 0;  // ignoring call
         #ifndef __NR_fchmodat4
         case 434:
-            return (int)fchmodat((int)R_ESI, (void*)R_RDX, (mode_t)R_RCX, (int)R_R8d);
+            return fchmodat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
         #endif
         case 449:
             #ifdef __NR_futex_waitv
