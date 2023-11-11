@@ -2294,14 +2294,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, CL");
-                    ANDSw_mask(x2, xRCX, 0, 0b00100);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    UFLAG_IF {
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    } else {
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
                     GETEB(x1, 0);
-                    UFLAG_OP12(ed, x2)
-                    LSLw_REG(ed, ed, x2);
+                    UFLAG_IF {
+                        B_NEXT(cEQ);
+                    }
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4);
                     EBBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl8);
                     break;
                 case 5:
                     INST_NAME("SHR Eb, CL");
