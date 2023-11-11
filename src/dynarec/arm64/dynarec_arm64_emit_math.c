@@ -290,7 +290,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     }
     ADDw_REG(s1, s1, s2);
-    if(arm64_flagm) {
+    if(arm64_flagm && 0) { // disable O flag there, it needs singned 8bits values
         IFX(X_AF) {
             BICw_REG(s3, s3, s1);   // s3 = (op1 | op2) & ~ res
             ORRw_REG(s3, s3, s4);   // s3 = (op1 & op2) | ((op1 | op2) & ~ res)
@@ -331,10 +331,10 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             CSETw(s3, cMI);
             BFIw(xFlags, s3, F_SF, 1);
         }
-        IFX(X_OF) {
+        /*IFX(X_OF) {
             CSETw(s3, cVS);
             BFIw(xFlags, s3, F_OF, 1);
-        }
+        }*/
     } else {
         IFX(X_ZF) {
             ANDSw_mask(s1, s1, 0, 7);   //mask=0xff
