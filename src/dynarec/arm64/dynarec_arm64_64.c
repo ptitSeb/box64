@@ -636,6 +636,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x8E:
             INST_NAME("MOV Seg,Ew");
+            grab_segdata(dyn, addr, ninst, x4, seg);
             nextop = F8;
             u8 = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {
