@@ -141,14 +141,6 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    IFX(X_ALL) {
-        CMPSxw_U12(s2, 0); //if(!c)
-            IFX(X_PEND) {
-                Bcond(cNE, +12);
-                STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
-            }
-            B_NEXT(cEQ);
-    }
     IFX(X_CF) {
         SUBxw_U12(s3, s2, 1);
         LSRxw_REG(s3, s1, s3);
@@ -361,6 +353,49 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
         } else {
             BFCw(xFlags, F_OF, 1);
         }
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit SHR8 instruction, from s1 , s2, store result in s1 using s3 and s4 as scratch, s2 can be same as s3
+void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    MAYUSE(s2);
+    int64_t j64;
+    MAYUSE(j64);
+
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_shr8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    IFX(X_CF) {
+        SUBw_U12(s3, s2, 1);
+        LSRw_REG(s3, s1, s3);
+        BFIw(xFlags, s3, 0, 1);
+    }
+    IFX(X_OF) {
+        CMPSw_U12(s2, 1);   // if s2==1
+            Bcond(cNE, 4+2*4);
+            LSRw(s4, s1, 7);
+            BFIw(xFlags, s4, F_OF, 1);
+    }
+    LSRw_REG(s1, s1, s2);
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTw_mask(s1, 0, 7);
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s4, s1, 7);
+        BFIw(xFlags, s4, F_SF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
