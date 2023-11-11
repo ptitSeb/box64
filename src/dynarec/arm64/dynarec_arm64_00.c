@@ -1776,21 +1776,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETEB(x1, 1);
                     u8 = (F8)&0x1f;
-                    if(u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
-                        UFLAG_IF{
-                            MOV32w(x4, u8); UFLAG_OP2(x4);
-                        };
-                        UFLAG_OP1(ed);
-                        LSLw(ed, ed, u8);
-                        EBBACK;
-                        UFLAG_RES(ed);
-                        UFLAG_DF(x3, d_shl8);
-                    } else {
-                        NOP;
-                    }
+                    emit_shl8c(dyn, ninst, ed, u8, x3, x4);
+                    EBBACK;
                     break;
                 case 5:
                     INST_NAME("SHR Eb, Ib");
