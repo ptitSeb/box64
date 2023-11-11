@@ -440,6 +440,45 @@ void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     }
 }
 
+// emit SAR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    if(!c)
+        return;
+    IFX(X_PEND) {
+        MOV32w(s3, c);
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_sar8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    IFX(X_CF) {
+        ASRx(s3, s1, c-1);
+        BFIw(xFlags, s3, 0, 1);
+    }
+    ASRw(s1, s1, c);
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTw_mask(s1, 0, 7);
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s4, s1, 7);
+        BFIw(xFlags, s4, F_SF, 1);
+    }
+    IFX(X_OF)
+        if(c==1) {
+            BFCw(xFlags, F_OF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {

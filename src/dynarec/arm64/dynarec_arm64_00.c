@@ -1796,22 +1796,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("SAR Eb, Ib");
-                    GETSEB(x1, 1);
-                    u8 = (F8)&0x1f;
-                    if(u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
-                        UFLAG_IF{
-                            MOV32w(x4, u8); UFLAG_OP2(x4);
-                        };
-                        UFLAG_OP1(ed);
-                        if(u8) {
-                            ASRw(ed, ed, u8);
-                            EBBACK;
-                        }
-                        UFLAG_RES(ed);
-                        UFLAG_DF(x3, d_sar8);
-                    } else {
-                        NOP;
+                    if(geted_ib(dyn, addr, ninst, nextop)&0x1f) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
+                        GETEB(x1, 1);
+                        u8 = (F8)&0x1f;
+                        emit_sar8c(dyn, ninst, ed, u8, x3, x4);
+                        EBBACK;
                     }
                     break;
             }
@@ -2132,14 +2122,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("SAR Eb, 1");
-                    MOV32w(x2, 1);
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETSEB(x1, 0);
-                    UFLAG_OP12(ed, x2)
-                    ASRw_REG(ed, ed, x2);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    GETEB(x1, 0);
+                    emit_sar8c(dyn, ninst, ed, 1, x3, x4);
                     EBBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar8);
                     break;
             }
             break;
