@@ -89,7 +89,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(box64_dynarec_test) {
             MESSAGE(LOG_DUMP, "TEST INIT ----\n");
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
-            GO_TRACE(x64test_init, 1, x1);
+            GO_TRACE(x64test_init, 1, x5);
             fpu_unreflectcache(dyn, ninst, x1, x2, x3);
             MESSAGE(LOG_DUMP, "----------\n");
         }
@@ -99,7 +99,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             || ((ip >= trace_start) && (ip < trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
-                GO_TRACE(PrintTrace, 1, x1);
+                GO_TRACE(PrintTrace, 1, x5);
                 fpu_unreflectcache(dyn, ninst, x1, x2, x3);
                 MESSAGE(LOG_DUMP, "----------\n");
             }
