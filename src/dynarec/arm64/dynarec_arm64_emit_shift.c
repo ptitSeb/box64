@@ -454,7 +454,7 @@ void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
         SET_DFNONE(s4);
     }
     IFX(X_CF) {
-        ASRx(s3, s1, c-1);
+        ASRw(s3, s1, c-1);
         BFIw(xFlags, s3, 0, 1);
     }
     ASRw(s1, s1, c);
