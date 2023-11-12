@@ -320,35 +320,58 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    IFX(X_CF|X_OF) {
-        LSRw(s3, s1, 8-c);
-        BFIw(xFlags, s3, F_CF, 1);
-    }
-    LSLw(s1, s1, c);
+    if(c<8) {
+        IFX(X_CF|X_OF) {
+            LSRw(s3, s1, 8-c);
+            BFIw(xFlags, s3, F_CF, 1);
+        }
+        LSLw(s1, s1, c);
 
-    IFX(X_PEND) {
-        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
-    }
-    IFX(X_ZF) {
-        TSTw_mask(s1, 0, 7);
-        CSETw(s4, cEQ);
-        BFIw(xFlags, s4, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s4, s1, 7);
-        BFIw(xFlags, s4, F_SF, 1);
-    }
-    IFX(X_OF) {
-        if(c==1) {
-            IFX(X_SF) {} else {LSRw(s4, s1, 7);}
-            EORw_REG(s4, s4, xFlags);  // CF is set if OF is asked
-            BFIw(xFlags, s4, F_OF, 1);
-        } else {
+        IFX(X_PEND) {
+            STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        IFX(X_ZF) {
+            TSTw_mask(s1, 0, 7);
+            CSETw(s4, cEQ);
+            BFIw(xFlags, s4, F_ZF, 1);
+        }
+        IFX(X_SF) {
+            LSRw(s4, s1, 7);
+            BFIw(xFlags, s4, F_SF, 1);
+        }
+        IFX(X_OF) {
+            if(c==1) {
+                IFX(X_SF) {} else {LSRw(s4, s1, 7);}
+                EORw_REG(s4, s4, xFlags);  // CF is set if OF is asked
+                BFIw(xFlags, s4, F_OF, 1);
+            } else {
+                BFCw(xFlags, F_OF, 1);
+            }
+        }
+        IFX(X_PF) {
+            emit_pf(dyn, ninst, s1, s3, s4);
+        }
+    } else {
+        IFX(X_CF) {
+            LSLw(s3, s1, c-1);
+            BFXILw(xFlags, s3, 7, 1);   // insert F_CF from s3[7:1]
+        }
+        MOVw_REG(s1, xZR);
+        IFX(X_OF) {
             BFCw(xFlags, F_OF, 1);
         }
-    }
-    IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        IFX(X_SF) {
+            BFCw(xFlags, F_SF, 1);
+        }
+        IFX(X_PF | X_ZF) {
+            MOV32w(s3, 1);
+            IFX(X_ZF) {
+                BFIw(xFlags, s3, F_ZF, 1);
+            }
+            IFX(X_PF) {
+                BFIw(xFlags, s3, F_PF, 1);
+            }
+        }
     }
 }
 
