@@ -1780,7 +1780,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                         GETEB(x1, 1);
                         u8 = (F8)&0x1f;
-                        emit_shl8c(dyn, ninst, ed, u8, x3, x4);
+                        emit_shl8c(dyn, ninst, ed, u8, x4, x5);
                         EBBACK;
                     }
                     break;
@@ -1790,7 +1790,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETEB(x1, 1);
                         u8 = (F8)&0x1f;
-                        emit_shr8c(dyn, ninst, ed, u8, x3, x4);
+                        emit_shr8c(dyn, ninst, ed, u8, x4, x5);
                         EBBACK;
                     }
                     break;
@@ -1800,7 +1800,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETSEB(x1, 1);
                         u8 = (F8)&0x1f;
-                        emit_sar8c(dyn, ninst, ed, u8, x3, x4);
+                        emit_sar8c(dyn, ninst, ed, u8, x4, x5);
                         EBBACK;
                     }
                     break;
@@ -2116,21 +2116,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHL Eb, 1");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETEB(x1, 0);
-                    emit_shl8c(dyn, ninst, ed, 1, x3, x4);
+                    emit_shl8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
                     break;
                 case 5:
                     INST_NAME("SHR Eb, 1");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETEB(x1, 0);
-                    emit_shr8c(dyn, ninst, ed, 1, x3, x4);
+                    emit_shr8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
                     break;
                 case 7:
                     INST_NAME("SAR Eb, 1");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     GETSEB(x1, 0);
-                    emit_sar8c(dyn, ninst, ed, 1, x3, x4);
+                    emit_sar8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
                     break;
             }
