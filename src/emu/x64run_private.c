@@ -1121,7 +1121,8 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                 printf_log(LOG_NONE, " => STACK_TOP: %p", *(void**)(R_RSP));
                 printFunctionAddr(ip, "here: ");
             } else if((peek==0x55 || peek==0x53) && !is32bits) {
-                printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: ");
+                if(!printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: "))
+                    printf_log(LOG_NONE, " STACK_TOP: %p ", (void*)*(uintptr_t*)(R_RSP));
             } else if((peek==0x55 || peek==0x56) && is32bits) {
                 if(!printFunctionAddr(*(uint32_t*)(R_RSP), " STACK_TOP: "))
                     printf_log(LOG_NONE, " STACK_TOP: %p ", (void*)(uintptr_t)*(uint32_t*)(R_RSP));
