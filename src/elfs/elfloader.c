@@ -205,8 +205,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     void* image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
     #endif
     if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
+        printf_log(LOG_INFO, "Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p instead\n", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
         offs = (uintptr_t)image;
-        printf_log(LOG_INFO, "Mamp64 for (@%p 0x%zx) for elf \"%s\" returned %p instead", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
     }
     if(image==MAP_FAILED || image!=(void*)(head->vaddr?head->vaddr:offs)) {
         printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx) for elf \"%s\"", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name);
@@ -255,7 +255,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
             if(balign<(box64_pagesize-1)) balign = (box64_pagesize-1);
-            head->multiblocks[n].asize = (e->p_memsz+(e->p_paddr&balign)+box64_pagesize-1)&~(box64_pagesize-1);
+            head->multiblocks[n].asize = ALIGN(e->p_memsz+(head->multiblocks[n].paddr&balign));
             int try_mmap = 1;
             if(e->p_paddr&(box64_pagesize-1))
                 try_mmap = 0;
