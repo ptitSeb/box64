@@ -1739,6 +1739,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_rol8c(dyn, ninst, x1, u8&7, x4, x5);
                         EBBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 1:
@@ -1749,6 +1752,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = F8;
                         emit_ror8c(dyn, ninst, x1, u8&7, x4, x5);
                         EBBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 2:
@@ -1782,6 +1788,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&0x1f;
                         emit_shl8c(dyn, ninst, ed, u8, x4, x5);
                         EBBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 5:
@@ -1792,6 +1801,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&0x1f;
                         emit_shr8c(dyn, ninst, ed, u8, x4, x5);
                         EBBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 7:
@@ -1802,6 +1814,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&0x1f;
                         emit_sar8c(dyn, ninst, ed, u8, x4, x5);
                         EBBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
             }
@@ -1817,6 +1832,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 1:
@@ -1827,6 +1845,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 2:
@@ -1860,6 +1881,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 5:
@@ -1870,6 +1894,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 7:
@@ -1880,6 +1907,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
                     break;
             }
@@ -2204,14 +2234,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     UFLAG_IF {
                         TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
+                        B_NEXT(cEQ);
                     }
                     ANDw_mask(x2, xRCX, 0, 0b00010);  //mask=0x000000007
                     MOV32w(x4, 8);
                     SUBx_REG(x2, x4, x2);
                     GETEB(x1, 0);
-                    UFLAG_IF {
-                        B_NEXT(cEQ);
-                    }
                     ORRw_REG_LSL(ed, ed, ed, 8);
                     LSRw_REG(ed, ed, x2);
                     EBBACK;
@@ -2277,13 +2305,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     UFLAG_IF {
                         ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        B_NEXT(cEQ);
                     } else {
                         ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETEB(x1, 0);
-                    UFLAG_IF {
-                        B_NEXT(cEQ);
-                    }
                     emit_shl8(dyn, ninst, x1, x2, x5, x4);
                     EBBACK;
                     break;
@@ -2292,13 +2318,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     UFLAG_IF {
                         ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        B_NEXT(cEQ);
                     } else {
                         ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETEB(x1, 0);
-                    UFLAG_IF {
-                        B_NEXT(cEQ);
-                    }
                     emit_shr8(dyn, ninst, x1, x2, x5, x4);
                     EBBACK;
                     break;
