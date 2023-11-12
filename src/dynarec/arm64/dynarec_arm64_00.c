@@ -1813,21 +1813,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROL Ed, Ib");
                     if(geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20))) {
                         SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETED(1);
+                        u8 = (F8)&(rex.w?0x3f:0x1f);
+                        emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
                     }
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
-                    emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
                     if(geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20))) {
                         SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETED(1);
+                        u8 = (F8)&(rex.w?0x3f:0x1f);
+                        emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
                     }
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
-                    emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
@@ -1854,27 +1854,33 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
-                    emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    WBACK;
+                    if(geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20))) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                        GETED(1);
+                        u8 = (F8)&(rex.w?0x3f:0x1f);
+                        emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    }
                     break;
                 case 5:
                     INST_NAME("SHR Ed, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
-                    emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
+                    if(geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20))) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                        GETED(1);
+                        u8 = (F8)&(rex.w?0x3f:0x1f);
+                        emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    }
                     break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
-                    emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
+                    if(geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20))) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                        GETED(1);
+                        u8 = (F8)&(rex.w?0x3f:0x1f);
+                        emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    }
                     break;
             }
             break;
