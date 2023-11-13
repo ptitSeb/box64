@@ -180,6 +180,31 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DEFAULT;
                     }
                     break;
+                case 0xB6:
+                    INST_NAME("MOVXZ Gd, Eb");
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        if (rex.rex) {
+                            eb1 = xRAX + (nextop & 7) + (rex.b << 3);
+                            eb2 = 0;
+                        } else {
+                            ed = (nextop & 7);
+                            eb1 = xRAX + (ed & 3); // Ax, Cx, Dx or Bx
+                            eb2 = (ed & 4) >> 2;   // L or H
+                        }
+                        if (eb2) {
+                            SRLI(gd, eb1, 8);
+                            ANDI(gd, gd, 0xff);
+                        } else {
+                            ANDI(gd, eb1, 0xff);
+                        }
+                    } else {
+                        SMREAD();
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        LBU(gd, ed, fixedaddress);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
