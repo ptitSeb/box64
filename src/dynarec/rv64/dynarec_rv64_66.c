@@ -15,6 +15,7 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
+#include "custommem.h"
 
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
@@ -606,6 +607,19 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(x1, x1, x2);
             OR(xRAX, xRAX, x1);
             break;
+
+        case 0xA3:
+            INST_NAME("MOV Od,EAX");
+            if(rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
+            if(isLockAddress(u64)) lock=1; else lock = 0;
+            SH(xRAX, x1, 0);
+            SMWRITELOCK(lock);
+            break;
+
         case 0xA5:
             if(rep) {
                 INST_NAME("REP MOVSW");
