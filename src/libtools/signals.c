@@ -1648,7 +1648,7 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
     info.si_addr = addr;
     const char* x64name = NULL;
     const char* elfname = NULL;
-    if(box64_log>LOG_INFO) {
+    if(box64_log>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
         x64name = getAddrFunctionName(R_RIP);
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
         if(elf)
@@ -1668,7 +1668,7 @@ void emit_interruption(x64emu_t* emu, int num, void* addr)
     info.si_addr = addr;
     const char* x64name = NULL;
     const char* elfname = NULL;
-    if(box64_log>LOG_INFO) {
+    if(box64_log>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
         x64name = getAddrFunctionName(R_RIP);
         elfheader_t* elf = FindElfAddress(my_context, R_RIP);
         if(elf)
