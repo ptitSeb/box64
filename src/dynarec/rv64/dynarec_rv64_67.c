@@ -205,6 +205,19 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LBU(gd, ed, fixedaddress);
                     }
                     break;
+                case 0xB7:
+                    INST_NAME("MOVZX Gd, Ew");
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        ZEXTH(gd, ed);
+                    } else {
+                        SMREAD();
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        LHU(gd, ed, fixedaddress);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
@@ -592,6 +605,23 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+
+        case 0xC7:
+            INST_NAME("MOV Ed, Id");
+            nextop = F8;
+            if(MODREG) { // reg <= i32
+                i64 = F32S;
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                MOV64xw(ed, i64);
+            } else {     // mem <= i32
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                i64 = F32S;
+                MOV64xw(x3, i64);
+                SDxw(x3, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
+
         #define GO(Z)                                                   \
             BARRIER(BARRIER_MAYBE);                                     \
             JUMP(addr+i8, 1);                                           \
