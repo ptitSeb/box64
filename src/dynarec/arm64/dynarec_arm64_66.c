@@ -931,21 +931,27 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROL Ew, Ib");
                     if(geted_ib(dyn, addr, ninst, nextop)&15) {
                         SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETEW(x1, 1);
+                        u8 = F8;
+                        emit_rol16c(dyn, ninst, x1, u8&15, x4, x5);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
-                    GETEW(x1, 1);
-                    u8 = F8;
-                    emit_rol16c(dyn, ninst, x1, u8&15, x4, x5);
-                    EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
                     if(geted_ib(dyn, addr, ninst, nextop)&15) {
                         SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        GETEW(x1, 1);
+                        u8 = F8;
+                        emit_ror16c(dyn, ninst, x1, u8&15, x4, x5);
+                        EWBACK;
+                    } else {
+                        FAKEED;
+                        F8;
                     }
-                    GETEW(x1, 1);
-                    u8 = F8;
-                    emit_ror16c(dyn, ninst, x1, u8&15, x4, x5);
-                    EWBACK;
                     break;
                 case 2:
                     INST_NAME("RCL Ew, Ib");
@@ -1034,20 +1040,16 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, 1");
-                    MOV32w(x2, 1);
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 0);
-                    CALL_(rol16, x1, x3);
+                    emit_rol16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, 1");
-                    MOV32w(x2, 1);
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 0);
-                    CALL_(ror16, x1, x3);
+                    emit_ror16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
                     break;
                 case 2:
@@ -1100,21 +1102,55 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, CL");
-                    ANDw_mask(x2, xRCX, 0, 0b00100);
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
+                        B_NEXT(cEQ);
+                    }
+                    ANDw_mask(x2, xRCX, 0, 0b00011);  //mask=0x00000000f
+                    MOV32w(x4, 16);
+                    SUBx_REG(x2, x4, x2);
                     GETEW(x1, 0);
-                    CALL_(rol16, x1, x3);
+                    ORRw_REG_LSL(ed, ed, ed, 16);
+                    LSRw_REG(ed, ed, x2);
                     EWBACK;
+                    UFLAG_IF {  // calculate flags directly
+                        CMPSw_U12(x2, 15);
+                        B_MARK(cNE);
+                            LSRxw(x3, ed, 15);
+                            ADDxw_REG(x3, x3, ed);
+                            BFIw(xFlags, x3, F_OF, 1);
+                        MARK;
+                        BFIw(xFlags, ed, F_CF, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
                     break;
                 case 1:
                     INST_NAME("ROR Ew, CL");
-                    ANDw_mask(x2, xRCX, 0, 0b00100);
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
+                        B_NEXT(cEQ);
+                    }
+                    ANDw_mask(x2, xRCX, 0, 0b00011);  //mask=0x00000000f
                     GETEW(x1, 0);
-                    CALL_(ror16, x1, x3);
+                    ORRw_REG_LSL(ed, ed, ed, 16);
+                    LSRw_REG(ed, ed, x2);
                     EWBACK;
+                    UFLAG_IF {  // calculate flags directly
+                        CMPSw_U12(x2, 1);
+                        B_MARK(cNE);
+                            LSRxw(x2, ed, 14); // x2 = d>>14
+                            EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>14) ^ ((d>>14)>>1))
+                            BFIw(xFlags, x2, F_OF, 1);
+                        MARK;
+                        BFXILw(xFlags, ed, 15, 1);
+                        UFLAG_DF(x2, d_none);
+                    }
                     break;
                 case 2:
                     INST_NAME("RCL Ew, CL");
