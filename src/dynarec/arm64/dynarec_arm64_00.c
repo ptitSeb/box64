@@ -2336,14 +2336,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("SAR Eb, CL");
-                    ANDSw_mask(x2, xRCX, 0, 0b00100);
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    UFLAG_IF {
+                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        B_NEXT(cEQ);
+                    } else {
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
                     GETSEB(x1, 0);
-                    UFLAG_OP12(ed, x2)
-                    ASRw_REG(ed, ed, x2);
+                    emit_sar8(dyn, ninst, x1, x2, x5, x4);
                     EBBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar8);
                     break;
             }
             break;

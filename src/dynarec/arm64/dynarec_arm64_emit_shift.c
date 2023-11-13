@@ -463,6 +463,44 @@ void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     }
 }
 
+// emit SAR8 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch
+void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRB_U12(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_sar8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    IFX(X_CF) {
+        SUBw_U12(s3, s2, 1);
+        ASRw_REG(s3, s1, s3);
+        BFIw(xFlags, s3, 0, 1);
+    }
+    ASRw_REG(s1, s1, s2);
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTw_mask(s1, 0, 7);
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s4, s1, 7);
+        BFIw(xFlags, s4, F_SF, 1);
+    }
+    IFX(X_OF) {
+        CMPSw_U12(s2, 1);
+        Bcond(cNE, 4+4);
+            BFCw(xFlags, F_OF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit SAR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
