@@ -50,7 +50,10 @@ EXPORT void* my_FcObjectSetBuild(x64emu_t* emu, void* first, uint64_t* b)
 }
 
 #define CUSTOM_INIT \
-    getMy(lib);
+    getMy(lib);                     \
+    setNeededLibs(lib, 2,           \
+        "libexpat.so.1",            \
+        "libfreetype.so.6");
 
 #define CUSTOM_FINI \
     freeMy();
