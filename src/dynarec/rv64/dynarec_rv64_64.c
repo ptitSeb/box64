@@ -393,7 +393,23 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(gd, x4, fixedaddress);
             }
             break;
-
+        case 0x8E:
+            INST_NAME("MOV Seg,Ew");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            u8 = (nextop&0x38) >> 3;
+            if ((nextop&0xC0) == 0xC0) {
+                ed = xRAX+(nextop&7) + (rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                ADD(x4, wback, x4);
+                LHU(x1, x4, 0);
+                ed = x1;
+            }
+            SH(ed, xEmu, offsetof(x64emu_t, segs[u8]));
+            SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
+            break;
         case 0xA1:
             INST_NAME("MOV EAX,FS:Od");
             grab_segdata(dyn, addr, ninst, x4, seg);
