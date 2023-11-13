@@ -711,6 +711,7 @@ if(RV64_DYNAREC)
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_65.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_67.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_67_32.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d8.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d9.c"
     #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_da.c"
