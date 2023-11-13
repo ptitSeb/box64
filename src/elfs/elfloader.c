@@ -217,6 +217,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         }
         return 1;
     }
+    printf_log(log_level, "Pre-allocated 0x%zx byte at %p for %s\n", head->memsz, image, head->name);
     head->delta = offs;
     printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\"\n", (void*)offs, (void*)head->vaddr, head->name);
 
@@ -255,9 +256,9 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
             if(balign<(box64_pagesize-1)) balign = (box64_pagesize-1);
-            head->multiblocks[n].asize = ALIGN(e->p_memsz+(head->multiblocks[n].paddr&balign));
+            head->multiblocks[n].asize = ALIGN(e->p_memsz+(e->p_paddr&balign));
             int try_mmap = 1;
-            if(e->p_paddr&(box64_pagesize-1))
+            if(e->p_paddr&balign)
                 try_mmap = 0;
             if(e->p_offset&(box64_pagesize-1))
                 try_mmap = 0;
@@ -287,7 +288,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             if(!try_mmap) {
                 uintptr_t paddr = head->multiblocks[n].paddr&~balign;
                 size_t asize = head->multiblocks[n].asize;
-                printf_log(log_level, "Allocating 0x%lx bytes @%p for Elf \"%s\"\n", asize, (void*)paddr, head->name);
+                printf_log(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
                     (void*)paddr,
                     asize,
