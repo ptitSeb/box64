@@ -2232,6 +2232,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("ROL Eb, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
                         B_NEXT(cEQ);
@@ -2257,6 +2259,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("ROR Eb, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
@@ -2303,6 +2307,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("SHL Eb, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                         B_NEXT(cEQ);
@@ -2316,6 +2322,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("SHR Eb, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                         B_NEXT(cEQ);
@@ -2345,6 +2353,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0:
                     INST_NAME("ROL Ed, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         if(rex.w) {
                             ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2381,6 +2391,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("ROR Ed, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         if(rex.w) {
                             ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2417,6 +2429,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     if(rex.w) {
                         ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
@@ -2433,6 +2447,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     if(rex.w) {
                         ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
@@ -2448,6 +2464,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("SHL Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         if(rex.w) {
                             ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2472,6 +2490,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("SHR Ed, CL");
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         if(rex.w) {
                             ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
@@ -2496,6 +2516,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 7:
                     INST_NAME("SAR Ed, CL");
                     SETFLAGS(X_ALL, SF_PENDING);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     UFLAG_IF {
                         if(rex.w) {
                             ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
