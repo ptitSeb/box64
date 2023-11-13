@@ -178,43 +178,43 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0x81:              /* GRP Ew,Iw */
         case 0x83:              /* GRP Ew,Ib */
             nextop = F8;
-            GETED((opcode==0x83)?1:2);
+            GETEW((opcode==0x83)?1:2);
             tmp16s = (opcode==0x83)?(F8S):(F16S);
             tmp16u = (uint16_t)tmp16s;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
             if(MODREG)
                 switch((nextop>>3)&7) {
-                    case 0: ED->word[0] = add16(emu, ED->word[0], tmp16u); break;
-                    case 1: ED->word[0] =  or16(emu, ED->word[0], tmp16u); break;
-                    case 2: ED->word[0] = adc16(emu, ED->word[0], tmp16u); break;
-                    case 3: ED->word[0] = sbb16(emu, ED->word[0], tmp16u); break;
-                    case 4: ED->word[0] = and16(emu, ED->word[0], tmp16u); break;
-                    case 5: ED->word[0] = sub16(emu, ED->word[0], tmp16u); break;
-                    case 6: ED->word[0] = xor16(emu, ED->word[0], tmp16u); break;
-                    case 7:               cmp16(emu, ED->word[0], tmp16u); break;
+                    case 0: EW->word[0] = add16(emu, EW->word[0], tmp16u); break;
+                    case 1: EW->word[0] =  or16(emu, EW->word[0], tmp16u); break;
+                    case 2: EW->word[0] = adc16(emu, EW->word[0], tmp16u); break;
+                    case 3: EW->word[0] = sbb16(emu, EW->word[0], tmp16u); break;
+                    case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
+                    case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
+                    case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
+                    case 7:               cmp16(emu, EW->word[0], tmp16u); break;
                 }
             else
                 switch((nextop>>3)&7) {
-                    case 0: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = add16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 1: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 =  or16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 2: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = adc16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 3: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = sbb16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 4: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = and16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 5: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = sub16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 6: do { tmp16u2 = native_lock_read_h(ED); tmp16u2 = xor16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                    case 7:                                                  cmp16(emu, ED->word[0], tmp16u); break;
+                    case 0: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = add16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 1: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 =  or16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 2: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = adc16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 3: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = sbb16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 4: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = and16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 5: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = sub16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 6: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = xor16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
+                    case 7:                                                  cmp16(emu, EW->word[0], tmp16u); break;
                 }
 #else
             pthread_mutex_lock(&my_context->mutex_lock);
             switch((nextop>>3)&7) {
-                case 0: ED->word[0] = add16(emu, ED->word[0], tmp16u); break;
-                case 1: ED->word[0] =  or16(emu, ED->word[0], tmp16u); break;
-                case 2: ED->word[0] = adc16(emu, ED->word[0], tmp16u); break;
-                case 3: ED->word[0] = sbb16(emu, ED->word[0], tmp16u); break;
-                case 4: ED->word[0] = and16(emu, ED->word[0], tmp16u); break;
-                case 5: ED->word[0] = sub16(emu, ED->word[0], tmp16u); break;
-                case 6: ED->word[0] = xor16(emu, ED->word[0], tmp16u); break;
-                case 7:               cmp16(emu, ED->word[0], tmp16u); break;
+                case 0: EW->word[0] = add16(emu, EW->word[0], tmp16u); break;
+                case 1: EW->word[0] =  or16(emu, EW->word[0], tmp16u); break;
+                case 2: EW->word[0] = adc16(emu, EW->word[0], tmp16u); break;
+                case 3: EW->word[0] = sbb16(emu, EW->word[0], tmp16u); break;
+                case 4: EW->word[0] = and16(emu, EW->word[0], tmp16u); break;
+                case 5: EW->word[0] = sub16(emu, EW->word[0], tmp16u); break;
+                case 6: EW->word[0] = xor16(emu, EW->word[0], tmp16u); break;
+                case 7:               cmp16(emu, EW->word[0], tmp16u); break;
             }
             pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
@@ -222,35 +222,35 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
         case 0xFF:              /* GRP 5 Ed */
             nextop = F8;
-            GETED(0);
+            GETEW(0);
             switch((nextop>>3)&7) {
                 case 0:                 /* INC Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if((uintptr_t)ED&1) { 
+                    if((uintptr_t)EW&1) { 
                         //meh.
                         do {
-                            tmp16u = ED->word[0];
+                            tmp16u = EW->word[0];
                             tmp16u &=~0xff;
-                            tmp16u |= native_lock_read_b(ED);
+                            tmp16u |= native_lock_read_b(EW);
                             tmp16u = inc16(emu, tmp16u);
-                        } while(native_lock_write_b(ED, tmp16u&0xff));
-                        ED->word[0] = tmp16u;
+                        } while(native_lock_write_b(EW, tmp16u&0xff));
+                        EW->word[0] = tmp16u;
                     } else {
                         do {
-                            tmp16u = native_lock_read_h(ED);
-                        } while(native_lock_write_h(ED, inc16(emu, tmp16u)));
+                            tmp16u = native_lock_read_h(EW);
+                        } while(native_lock_write_h(EW, inc16(emu, tmp16u)));
                     }
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
-                    ED->word[0] = inc16(emu, ED->word[0]);
+                    EW->word[0] = inc16(emu, EW->word[0]);
                     pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                     break;
                 case 1:                 /* DEC Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                     do {
-                        tmp16u = native_lock_read_h(ED);
-                    } while(native_lock_write_h(ED, dec16(emu, tmp16u)));
+                        tmp16u = native_lock_read_h(EW);
+                    } while(native_lock_write_h(EW, dec16(emu, tmp16u)));
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     ED->word[0] = dec16(emu, ED->word[0]);

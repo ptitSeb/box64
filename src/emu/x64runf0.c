@@ -684,16 +684,18 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     if(rex.w) {
-                        tmp64u = add64(emu, ED->q[0], GD->q[0]);
-                        GD->q[0] = ED->q[0];
-                        ED->q[0] = tmp64u;
+                        tmp64u = ED->q[0];
+                        tmp64u2 = add64(emu, tmp64u, GD->q[0]);
+                        GD->q[0] = tmp64u;
+                        ED->q[0] = tmp64u2;
                     } else {
-                        tmp32u = add32(emu, ED->dword[0], GD->dword[0]);
-                        GD->q[0] = ED->dword[0];
+                        tmp32u = ED->dword[0];
+                        tmp32u2 = add32(emu, tmp32u, GD->dword[0]);
+                        GD->q[0] = tmp32u;
                         if(MODREG)
-                            ED->q[0] = tmp32u;
+                            ED->q[0] = tmp32u2;
                         else
-                            ED->dword[0] = tmp32u;
+                            ED->dword[0] = tmp32u2;
                     }
                     pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
