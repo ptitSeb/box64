@@ -78,6 +78,7 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot);
+void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
 void refreshProtection(uintptr_t addr);
 uint32_t getProtection(uintptr_t addr);

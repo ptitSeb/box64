@@ -1312,6 +1312,17 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
     }
 }
 
+void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
+{
+    if(prot)
+        setProtection(addr, size, prot);
+    else {
+        mutex_lock(&mutex_prot);
+        addMapMem(mapallmem, addr, addr+size-1);
+        mutex_unlock(&mutex_prot);
+    }
+}
+
 void refreshProtection(uintptr_t addr)
 {
     LOCK_NODYNAREC();
@@ -1420,6 +1431,14 @@ void loadProtectionFromMap()
             if(s>0x7fff00000000LL)
                 have48bits = 1;
         }
+    }
+    static int shown48bits = 0;
+    if(!shown48bits) {
+        shown48bits = 1;
+        if(have48bits)
+            printf_log(LOG_INFO, "Detected 48bits at least of address space\n");
+        else
+            printf_log(LOG_INFO, "Didn't detect 48bits of address space, considering it's 39bits\n");
     }
     fclose(f);
     box64_mapclean = 1;
@@ -1592,7 +1611,7 @@ void* find47bitBlockElf(size_t size, int mainbin, uintptr_t mask)
 {
     static void* startingpoint = NULL;
     if(!startingpoint) {
-        startingpoint = (void*)(have48bits?0x7fff00000000LL:0x7f00000000LL);
+        startingpoint = (void*)(have48bits?0x7fff00000000LL:0x3f00000000LL);
     }
     void* mainaddr = (void*)0x100000000LL;
     void* ret = find47bitBlockNearHint(mainbin?mainaddr:startingpoint, size, mask);

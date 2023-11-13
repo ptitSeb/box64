@@ -223,9 +223,9 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 
     head->image = image;
     #if defined(PAGE8K) || defined(PAGE16K) || defined(PAGE64K)
-    setProtection((uintptr_t)image, head->memsz, PROT_READ|PROT_WRITE|PROT_EXEC);
+    setProtection_elf((uintptr_t)image, head->memsz, PROT_READ|PROT_WRITE|PROT_EXEC);
     #else
-    setProtection((uintptr_t)image, head->memsz, 0);
+    setProtection_elf((uintptr_t)image, head->memsz, 0);
     #endif
 
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
@@ -280,7 +280,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     try_mmap = 0;
                     printf_log(log_level, "Mapping failed, using regular mmap+read");
                 } else {
-                    setProtection((uintptr_t)p, head->multiblocks[n].asize, prot);
+                    setProtection_elf((uintptr_t)p, head->multiblocks[n].asize, prot);
                     head->multiblocks[n].p = p;
 
                 }
@@ -306,7 +306,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     }
                     return 1;
                 }
-                setProtection((uintptr_t)p, asize, prot);
+                setProtection_elf((uintptr_t)p, asize, prot);
                 head->multiblocks[n].p = p;
                 if(e->p_filesz) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
