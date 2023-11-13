@@ -505,6 +505,20 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITE2();
             }
             break;
+
+        case 0xFF:
+            nextop = F8;
+            grab_segdata(dyn, addr, ninst, x6, seg);
+            switch((nextop>>3)&7) {
+                case 6: // Push Ed
+                    INST_NAME("PUSH Ed");
+                    GETEDOz(x6, 0, x3);
+                    PUSH1z(ed);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }
