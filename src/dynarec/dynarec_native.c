@@ -356,11 +356,11 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
             dyn->insts[ninst].x64.gen_flags |= X_PEND;
         dyn->insts[ninst].x64.need_after = need;
         need = dyn->insts[ninst].x64.need_after&~dyn->insts[ninst].x64.gen_flags;
+
         if(dyn->insts[ninst].x64.may_set)
             need |= dyn->insts[ninst].x64.gen_flags;    // forward the flags
-        // Consume X_PEND if relevant
-        if((need&X_PEND) && (dyn->insts[ninst].x64.set_flags&SF_PENDING))
-            need &=~X_PEND;
+        else if((need&X_PEND) && (dyn->insts[ninst].x64.set_flags&SF_PENDING))
+            need &=~X_PEND;         // Consume X_PEND if relevant
         need |= dyn->insts[ninst].x64.use_flags;
         if(dyn->insts[ninst].x64.need_before == need)
             return ninst - 1;
