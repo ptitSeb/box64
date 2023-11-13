@@ -205,6 +205,19 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LBU(gd, ed, fixedaddress);
                     }
                     break;
+                case 0xB7:
+                    INST_NAME("MOVZX Gd, Ew");
+                    nextop = F8;
+                    GETGD;
+                    if(MODREG) {
+                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        ZEXTH(gd, ed);
+                    } else {
+                        SMREAD();
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        LHU(gd, ed, fixedaddress);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
