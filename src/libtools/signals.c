@@ -1638,6 +1638,10 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     my_sigactionhandler_oldcode(sig, 0, info, ucntx, NULL, db);
 }
 
+#ifndef DYNAREC
+#define box64_dynarec_dump 0
+#endif
+
 void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
 {
     ucontext_t ctx = {0};
