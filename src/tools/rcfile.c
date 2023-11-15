@@ -547,7 +547,7 @@ void ApplyParams(const char* name)
             my_context->x64trace = 1;
             box64_trace = p;
         }
-        printf_log(LOG_INFO, "Applying %s=%s", "BOX64_TRACE", param->trace);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_TRACE", param->trace);
     }
     if(param->is_trace_init_present) {
         char* p = param->trace_init;
@@ -555,7 +555,7 @@ void ApplyParams(const char* name)
             my_context->x64trace = 1;
             trace_init = p;
         }
-        printf_log(LOG_INFO, "Applying %s=%s", "BOX64_TRACE_INIT", param->trace_init);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_TRACE_INIT", param->trace_init);
     }
     if(my_context->x64trace && !old_x64trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
