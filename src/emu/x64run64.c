@@ -335,7 +335,20 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         GD->sdword[0] = ED->sdword[0];  // meh?
             }
             break;
-
+        case 0x64:                      /* FS: prefix */
+            #ifdef TEST_INTERPRETER
+            return Test64(test, rex, _FS, addr);
+            #else
+            return Run64(emu, rex, _FS, addr);
+            #endif
+            break;
+        case 0x65:                      /* GS: prefix */
+            #ifdef TEST_INTERPRETER
+            return Test64(test, rex, _GS, addr);
+            #else
+            return Run64(emu, rex, _GS, addr);
+            #endif
+            break;
         case 0x66:
             return Run6664(emu, rex, seg, addr);
         case 0x67:
@@ -476,6 +489,8 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     R_RSP += sizeof(void*);
                 }
             }
+            break;
+        case 0x90:                      /* NOP */
             break;
 
         case 0xA1:                      /* MOV EAX,FS:Od */

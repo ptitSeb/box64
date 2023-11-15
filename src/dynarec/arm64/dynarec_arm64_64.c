@@ -380,7 +380,12 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             }
             break;
-
+        case 0x64:
+            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
+            break;
+        case 0x65:
+            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
+            break;
         case 0x66:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, seg, ok, need_epilog);
             break;
@@ -668,6 +673,9 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ADDz_U12(xRSP, xRSP, rex.is32bits?4:8);
                 }
             }
+            break;
+        case 0x90:
+            INST_NAME("NOP");
             break;
 
         case 0xA1:
