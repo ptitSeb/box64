@@ -239,6 +239,7 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_renameat
     { 264, __NR_renameat, 4},
     #endif
+    { 266, __NR_symlinkat, 3},
     { 267, __NR_readlinkat, 4},
     { 268, __NR_fchmodat, 3},
     { 270, __NR_pselect6, 6},
