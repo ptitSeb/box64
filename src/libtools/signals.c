@@ -1684,7 +1684,7 @@ void emit_interruption(x64emu_t* emu, int num, void* addr)
 
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
 {
-    if(signum<0 || signum>=MAX_SIGNAL)
+    if(signum<0 || signum>MAX_SIGNAL)
         return SIG_ERR;
 
     if(signum==SIGSEGV && emu->context->no_sigsegv)
@@ -1715,7 +1715,7 @@ EXPORT sighandler_t my_sysv_signal(x64emu_t* emu, int signum, sighandler_t handl
 int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_sigaction_t *oldact)
 {
     printf_log(LOG_DEBUG, "Sigaction(signum=%d, act=%p(f=%p, flags=0x%x), old=%p)\n", signum, act, act?act->_u._sa_handler:NULL, act?act->sa_flags:0, oldact);
-    if(signum<0 || signum>=MAX_SIGNAL) {
+    if(signum<0 || signum>MAX_SIGNAL) {
         errno = EINVAL;
         return -1;
     }
@@ -1772,7 +1772,7 @@ __attribute__((alias("my_sigaction")));
 int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize)
 {
     printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
-    if(signum<0 || signum>=MAX_SIGNAL) {
+    if(signum<0 || signum>MAX_SIGNAL) {
         errno = EINVAL;
         return -1;
     }
@@ -2035,7 +2035,7 @@ static void atfork_child_dynarec_prot(void)
 void init_signal_helper(box64context_t* context)
 {
     // setup signal handling
-    for(int i=0; i<MAX_SIGNAL; ++i) {
+    for(int i=0; i<=MAX_SIGNAL; ++i) {
         context->signals[i] = 0;    // SIG_DFL
     }
     struct sigaction action = {0};
