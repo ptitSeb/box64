@@ -242,7 +242,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             head->multiblocks[n].paddr = e->p_paddr + offs;
             head->multiblocks[n].size = e->p_filesz;
             head->multiblocks[n].align = e->p_align;
-            uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
+            uint8_t prot = ((e->p_flags & PF_R)?PROT_READ:0)|((e->p_flags & PF_W)?PROT_WRITE:0)|((e->p_flags & PF_X)?PROT_EXEC:0);
             #if defined(PAGE8K) || defined(PAGE16K) || defined(PAGE64K)
                 head->multiblocks[n].p = NULL;
                 if(e->p_filesz) {
@@ -272,7 +272,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     (void*)head->multiblocks[n].paddr, 
                     head->multiblocks[n].size, 
                     prot,
-                    MAP_PRIVATE|MAP_FIXED,
+                    MAP_PRIVATE|MAP_FIXED, //((prot&PROT_WRITE)?MAP_SHARED:MAP_PRIVATE)|MAP_FIXED,
                     head->fileno,
                     e->p_offset
                 );
@@ -292,7 +292,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 void* p = mmap64(
                     (void*)paddr,
                     asize,
-                    prot,
+                    prot|PROT_WRITE,
                     MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
                     -1,
                     0
@@ -315,6 +315,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                         return 1;
                     }
                 }
+                if(!(prot&PROT_WRITE))
+                    mprotect((void*)paddr, asize, prot);
             }
             #endif //PAGE4K
 #ifdef DYNAREC
