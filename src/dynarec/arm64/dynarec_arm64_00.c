@@ -2843,18 +2843,24 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1, 0);
-                    CALL(div8, -1);
+                    UXTHw(x2, xRAX);
+                    UDIVw(x3, x2, ed);
+                    MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
+                    BFIx(xRAX, x3, 0, 8);
+                    BFIx(xRAX, x4, 8, 8);
                     break;
                 case 7:
                     INST_NAME("IDIV Eb");
                     SKIPTEST(x1);
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET);
-                    GETEB(x1, 0);
-                    CALL(idiv8, -1);
+                    GETSEB(x1, 0);
+                    SXTHw(x2, xRAX);
+                    SDIVw(x3, x2, ed);
+                    MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
+                    BFIx(xRAX, x3, 0, 8);
+                    BFIx(xRAX, x4, 8, 8);
                     break;
             }
             break;
