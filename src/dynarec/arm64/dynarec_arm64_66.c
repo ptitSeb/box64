@@ -1119,8 +1119,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UFLAG_IF {  // calculate flags directly
                         CMPSw_U12(x2, 15);
                         B_MARK(cNE);
-                            LSRxw(x3, ed, 15);
-                            ADDxw_REG(x3, x3, ed);
+                            ADDxw_REG_LSR(x3, ed, ed, 15);
                             BFIw(xFlags, x3, F_OF, 1);
                         MARK;
                         BFIw(xFlags, ed, F_CF, 1);

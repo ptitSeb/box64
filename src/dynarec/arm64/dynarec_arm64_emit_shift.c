@@ -322,8 +322,7 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     }
     if(c<8) {
         IFX(X_CF|X_OF) {
-            LSRw(s3, s1, 8-c);
-            BFIw(xFlags, s3, F_CF, 1);
+            BFXILw(xFlags, s1, 8-c, 1);
         }
         LSLw(s1, s1, c);
 
@@ -390,9 +389,9 @@ void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE(s4);
     }
     IFX(X_CF) {
-        SUBw_U12(s3, s2, 1);
-        LSRw_REG(s3, s1, s3);
-        BFIw(xFlags, s3, 0, 1);
+        SUBw_U12(s4, s2, 1);
+        LSRw_REG(s4, s1, s4);
+        BFIw(xFlags, s4, 0, 1);
     }
     IFX(X_OF) {
         CMPSw_U12(s2, 1);   // if s2==1
@@ -463,7 +462,7 @@ void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     }
 }
 
-// emit SAR8 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch
+// emit SAR8 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch, s2 can be same as s3
 void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     IFX(X_PEND) {
@@ -474,9 +473,9 @@ void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE(s4);
     }
     IFX(X_CF) {
-        SUBw_U12(s3, s2, 1);
-        ASRw_REG(s3, s1, s3);
-        BFIw(xFlags, s3, 0, 1);
+        SUBw_U12(s4, s2, 1);
+        ASRw_REG(s4, s1, s4);
+        BFIw(xFlags, s4, 0, 1);
     }
     ASRw_REG(s1, s1, s2);
     IFX(X_PEND) {
@@ -660,9 +659,9 @@ void emit_shr16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE(s4);
     }
     IFX(X_CF) {
-        SUBw_U12(s3, s2, 1);
-        LSRw_REG(s3, s1, s3);
-        BFIw(xFlags, s3, 0, 1);
+        SUBw_U12(s4, s2, 1);
+        LSRw_REG(s4, s1, s4);
+        BFIw(xFlags, s4, 0, 1);
     }
     IFX(X_OF) {
         CMPSw_U12(s2, 1);   // if s2==1
@@ -733,7 +732,7 @@ void emit_shr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     }
 }
 
-// emit SAR16 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch
+// emit SAR16 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch, s2 can be same as s3
 void emit_sar16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     IFX(X_PEND) {
@@ -744,9 +743,9 @@ void emit_sar16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         SET_DFNONE(s4);
     }
     IFX(X_CF) {
-        SUBw_U12(s3, s2, 1);
-        ASRw_REG(s3, s1, s3);
-        BFIw(xFlags, s3, 0, 1);
+        SUBw_U12(s4, s2, 1);
+        ASRw_REG(s4, s1, s4);
+        BFIw(xFlags, s4, 0, 1);
     }
     ASRw_REG(s1, s1, s2);
     IFX(X_PEND) {
