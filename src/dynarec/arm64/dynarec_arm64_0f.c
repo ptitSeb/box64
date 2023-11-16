@@ -1358,13 +1358,27 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xAD:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, CL");
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            SETFLAGS(X_ALL, SF_SET);
-            UXTBw(x3, xRCX);
-            GETEDW(x4, x1, 0);
+            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+            if(box64_dynarec_safeflags>1)
+                MAYSETFLAGS();
             GETGD;
-            MOVxw_REG(x2, gd);
-            CALL_(rex.w?((void*)shrd64):((void*)shrd32), ed, x4);
+            GETED(0);
+            if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
+            UFLAG_IF {
+                if(rex.w) {
+                    ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                } else {
+                    ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                }
+                B_NEXT(cEQ);
+            } else {
+                if(rex.w) {
+                    ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                } else {
+                    ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                }
+            }
+            emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4);
             WBACK;
             break;
 

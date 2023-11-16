@@ -1017,11 +1017,15 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         return;
     }
     IFX(X_CF) {
-        LSRxw(s3, s1, c-1);
-        BFIw(xFlags, s3, 0, 1);
+        BFXILxw(xFlags, s1, c-1, 1);    // set CF
     }
-    LSRxw(s3, s1, c);
-    ORRxw_REG_LSL(s1, s3, s2, (rex.w?64:32)-c);
+    IFX(X_OF) {
+        if(c==1) {
+            LSRxw(s4, s1, rex.w?63:31);
+            BFIw(xFlags, s4, F_OF, 1);  // store sign for later use
+        }
+    }
+    EXTRxw(s1, s1, s2, c);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1036,8 +1040,8 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
     }
     IFX(X_OF) {
         if(c==1) {
-            LSRxw(s4, s1, rex.w?62:30);
-            EORw_REG_LSR(s4, s4, s4, 1);
+            LSRxw(s4, s1, rex.w?63:31);
+            EORw_REG_LSR(s4, s4, xFlags, F_OF); // set if sign changed
             BFIw(xFlags, s4, F_OF, 1);
         }
     }
@@ -1094,6 +1098,55 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         } else {
             BFCw(xFlags, F_OF, 1);
         }
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit SHRD32 instruction, from s1, fill s2 , shift s5, store result in s1 using s3 and s4 as scratch
+void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRxw_U12(s5, xEmu, offsetof(x64emu_t, op2));
+        // same flags computation as with shl64/shl32
+        SET_DF(s4, rex.w?d_shl64:d_shl32);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    IFX(X_CF) {
+        SUBw_U12(s3, s5, 1);
+        LSRxw_REG(s3, s1, s3);
+        BFIw(xFlags, s3, F_CF, 1);
+    }
+    IFX(X_OF) {
+        LSRxw(s4, s1, rex.w?63:31);
+        BFIw(xFlags, s4, F_OF, 1);  // store sign fr now
+    }
+    LSRxw_REG(s3, s1, s5);
+    SUBxw_U12(s4, s5, rex.w?64:32);
+    NEGxw_REG(s4, s4);
+    LSLxw_REG(s4, s2, s4);
+    ORRxw_REG(s1, s3, s4);
+    IFX(X_PEND) {
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTxw_REG(s1, s1);
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRxw(s4, s1, (rex.w)?63:31);
+        BFIx(xFlags, s4, F_SF, 1);
+    }
+    IFX(X_OF) {
+        CMPSw_U12(s5, 1);
+        Bcond(cNE, 4+3*4);
+            LSRxw(s4, s1, rex.w?62:30);
+            EORw_REG_LSR(s4, s4, xFlags, F_OF); // Set if sign changed
+            BFIw(xFlags, s4, F_OF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
