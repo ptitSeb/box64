@@ -692,6 +692,19 @@ void UpdateFlags(x64emu_t *emu)
                 }
             }
             break;
+        case d_shrd16:
+            cnt = emu->op2.u16;
+            if (cnt > 0) {
+                cc = emu->op1.u16 & (1 << (cnt - 1));
+                CONDITIONAL_SET_FLAG(cc, F_CF);
+                CONDITIONAL_SET_FLAG(!emu->res.u16, F_ZF);
+                CONDITIONAL_SET_FLAG(emu->res.u16 & 0x8000, F_SF);
+                CONDITIONAL_SET_FLAG(PARITY(emu->res.u16 & 0xff), F_PF);
+                if (cnt == 1) {
+                    CONDITIONAL_SET_FLAG((emu->op1.u16 ^ emu->res.u16) & 0x8000, F_OF);
+                }
+            }
+            break;
         case d_shrd32:
             cnt = emu->op2.u32;
             if (cnt > 0) {
@@ -1001,7 +1014,6 @@ void UpdateFlags(x64emu_t *emu)
         case d_rcr16:
         case d_rcr32:
         case d_rcr64:
-        case d_shrd16:
         case d_unknown:
             printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown deferred Flags\n", (void*)R_RIP);
             break;
