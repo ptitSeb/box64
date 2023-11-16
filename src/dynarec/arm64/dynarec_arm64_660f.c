@@ -2157,22 +2157,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIw(xFlags, x1, F_CF, 1);
             break;
         case 0xA4:
+            INST_NAME("SHLD Ew, Gw, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            GETEW(x1, 1);
+            GETGW(x2);
+            u8 = F8;
+            emit_shld16c(dyn, ninst, ed, gd, u8, x4, x5);
+            EWBACK;
+            break;
         case 0xA5:
             nextop = F8;
-            if(opcode==0xA4) {
-                INST_NAME("SHLD Ew, Gw, Ib");
-            } else {
-                INST_NAME("SHLD Ew, Gw, CL");
-                UXTBw(x3, xRCX);
-            }
+            INST_NAME("SHLD Ew, Gw, CL");
+            UXTBw(x3, xRCX);
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             SETFLAGS(X_ALL, SF_SET);
-            GETEWW(x4, x1, (opcode==0xA4)?1:0);
+            GETEWW(x4, x1, 0);
             GETGW(x2);
-            if(opcode==0xA4) {
-                u8 = F8;
-                MOV32w(x3, u8);
-            }
             CALL_(shld16, x1, wback);
             EWBACKW(x1);
             break;
