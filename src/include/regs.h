@@ -139,7 +139,10 @@ typedef enum {
 	d_inc16i,
 	d_inc32i,
 	d_inc64i,
-	d_unknown	//95
+	d_shrd16,
+	d_shrd32,
+	d_shrd64,
+	d_unknown	//98
 } deferred_flags_t;
 
 #pragma pack(push, 1)

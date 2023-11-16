@@ -1006,7 +1006,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, op2));
         // same flags computation as with shl64/shl32
-        SET_DF(s4, rex.w?d_shl64:d_shl32);
+        SET_DF(s4, rex.w?d_shrd64:d_shrd32);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
@@ -1025,7 +1025,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
             BFIw(xFlags, s4, F_OF, 1);  // store sign for later use
         }
     }
-    EXTRxw(s1, s1, s2, c);
+    EXTRxw(s1, s2, s1, c);
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1111,7 +1111,7 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRxw_U12(s5, xEmu, offsetof(x64emu_t, op2));
         // same flags computation as with shl64/shl32
-        SET_DF(s4, rex.w?d_shl64:d_shl32);
+        SET_DF(s4, rex.w?d_shrd64:d_shrd32);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
@@ -1139,12 +1139,12 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX(X_SF) {
         LSRxw(s4, s1, (rex.w)?63:31);
-        BFIx(xFlags, s4, F_SF, 1);
+        BFIw(xFlags, s4, F_SF, 1);
     }
     IFX(X_OF) {
         CMPSw_U12(s5, 1);
         Bcond(cNE, 4+3*4);
-            LSRxw(s4, s1, rex.w?62:30);
+            LSRxw(s4, s1, rex.w?63:31);
             EORw_REG_LSR(s4, s4, xFlags, F_OF); // Set if sign changed
             BFIw(xFlags, s4, F_OF, 1);
     }
