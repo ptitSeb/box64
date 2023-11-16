@@ -2168,13 +2168,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ew, Gw, CL");
-            UXTBw(x3, xRCX);
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            SETFLAGS(X_ALL, SF_SET);
-            GETEWW(x4, x1, 0);
+            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+            if(box64_dynarec_safeflags>1)
+                MAYSETFLAGS();
             GETGW(x2);
-            CALL_(shld16, x1, wback);
-            EWBACKW(x1);
+            GETEW(x1, 0);
+            UFLAG_IF {
+                ANDSw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
+                B_NEXT(cEQ);
+            } else {
+                ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
+            }
+            emit_shld16(dyn, ninst, ed, gd, x4, x5, x6);
+            EWBACK;
             break;
 
         case 0xAB:
@@ -2224,12 +2230,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGW(x2);
             GETEW(x1, 0);
             UFLAG_IF {
-                ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                ANDSw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
                 B_NEXT(cEQ);
             } else {
-                ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
             }
-            emit_shrd16(dyn, ninst, ed, gd, x3, x5, x4);
+            emit_shrd16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
             break;
 

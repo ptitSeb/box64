@@ -1048,6 +1048,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_shrd16c    STEPNAME(emit_shrd16c)
 #define emit_shrd16     STEPNAME(emit_shrd16)
 #define emit_shld16c    STEPNAME(emit_shld16c)
+#define emit_shld16     STEPNAME(emit_shld16)
 
 #define emit_pf         STEPNAME(emit_pf)
 
@@ -1198,6 +1199,7 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shrd16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, int s4);
 void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int s3, int s4);
+void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, int s4);
 
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4);
 

@@ -1320,16 +1320,16 @@ void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         }
         return;
     }
-    ORRw_REG_LSL(s1, s2, s1, 16);   // create concat first
+    ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
     IFX(X_CF) {
-        LSRw(s3, s1, 32-c);
+        LSRw(s3, s1, 16-c);
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_OF) {
-        LSRw(s3, s1, 31);
+        LSRw(s3, s1, 15);
         BFIw(xFlags, s3, F_OF, 1);  // store current sign for later use
     }
-    RORw(s1, s1, c+16);
+    RORw(s1, s1, 32-c);
 
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
@@ -1351,6 +1351,54 @@ void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         } else {
             BFCw(xFlags, F_OF, 1);
         }
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRH_U12(s5, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_shld16);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
+    IFX(X_CF) {
+        MOV32w(s3, 16);
+        SUBw_REG(s3, s3, s5);
+        LSRw_REG(s3, s1, s3);
+        BFIw(xFlags, s3, F_CF, 1);
+    }
+    IFX(X_OF) {
+        LSRw(s3, s1, 15);
+        BFIw(xFlags, s3, F_OF, 1);  // store current sign for later use
+    }
+    MOV32w(s3, 32);
+    SUBw_REG(s3, s3, s5);
+    RORw_REG(s1, s1, s3);
+
+    IFX(X_PEND) {
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTw_mask(s1, 0, 15);   // 0xffff
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s4, s1, 15);
+        BFIw(xFlags, s4, F_SF, 1);
+    }
+    IFX(X_OF) {
+        CMPSw_U12(s5, 1);
+        Bcond(cNE, 4+3*4);
+            LSRw(s3, s1, 15);
+            EORw_REG_LSR(s3, s3, xFlags, F_OF);  // OF is set if sign changed
+            BFIw(xFlags, s3, F_OF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
