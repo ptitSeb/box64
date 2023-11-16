@@ -731,6 +731,36 @@ void UpdateFlags(x64emu_t *emu)
                 }
             }
             break;
+        case d_shld32:
+            cnt = emu->op2.u32;
+            if (cnt > 0) {
+                cc = emu->op1.u32 & (1 << (32 - cnt));
+                CONDITIONAL_SET_FLAG(cc, F_CF);
+                CONDITIONAL_SET_FLAG(!emu->res.u32, F_ZF);
+                CONDITIONAL_SET_FLAG(emu->res.u32 & 0x80000000, F_SF);
+                CONDITIONAL_SET_FLAG(PARITY(emu->res.u32 & 0xff), F_PF);
+                if (cnt == 1) {
+                    CONDITIONAL_SET_FLAG((emu->op1.u32 ^ emu->res.u32) & 0x80000000, F_OF);
+                } else {
+                    CLEAR_FLAG(F_OF);
+                }
+            }
+            break;
+        case d_shld64:
+            cnt = emu->op2.u64;
+            if (cnt > 0) {
+                cc = emu->op1.u64 & (1LL << (64 - cnt));
+                CONDITIONAL_SET_FLAG(cc, F_CF);
+                CONDITIONAL_SET_FLAG(!emu->res.u64, F_ZF);
+                CONDITIONAL_SET_FLAG(emu->res.u64 & 0x8000000000000000LL, F_SF);
+                CONDITIONAL_SET_FLAG(PARITY(emu->res.u64 & 0xff), F_PF);
+                if (cnt == 1) {
+                    CONDITIONAL_SET_FLAG((emu->op1.u64 ^ emu->res.u64) & 0x8000000000000000LL, F_OF);
+                } else {
+                    CLEAR_FLAG(F_OF);
+                }
+            }
+            break;
         case d_sub8:
             CONDITIONAL_SET_FLAG(emu->res.u8 & 0x80, F_SF);
             CONDITIONAL_SET_FLAG((emu->res.u8 & 0xff) == 0, F_ZF);
@@ -1014,6 +1044,7 @@ void UpdateFlags(x64emu_t *emu)
         case d_rcr16:
         case d_rcr32:
         case d_rcr64:
+        case d_shld16:
         case d_unknown:
             printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown deferred Flags\n", (void*)R_RIP);
             break;
