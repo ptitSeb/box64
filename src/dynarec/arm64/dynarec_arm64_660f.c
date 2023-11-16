@@ -2218,13 +2218,19 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xAD:
             nextop = F8;
             INST_NAME("SHRD Ew, Gw, CL");
-            UXTBw(x3, xRCX);
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            SETFLAGS(X_ALL, SF_SET);
-            GETEWW(x4, x1, (opcode==0xAC)?1:0);
+            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+            if(box64_dynarec_safeflags>1)
+                MAYSETFLAGS();
             GETGW(x2);
-            CALL_(shrd16, x1, wback);
-            EWBACKW(x1);
+            GETEW(x1, 0);
+            UFLAG_IF {
+                ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                B_NEXT(cEQ);
+            } else {
+                ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+            }
+            emit_shrd16(dyn, ninst, ed, gd, x3, x5, x4);
+            EWBACK;
             break;
 
         case 0xAF:

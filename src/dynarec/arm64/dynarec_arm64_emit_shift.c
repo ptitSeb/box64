@@ -1170,6 +1170,7 @@ void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         }
         return;
     }
+    ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
     IFX(X_CF) {
         BFXILw(xFlags, s1, c-1, 1);    // set CF
     }
@@ -1179,8 +1180,7 @@ void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
             BFIw(xFlags, s4, F_OF, 1);  // store sign for later use
         }
     }
-    ORRw_REG_LSL(s1, s1, s2, 16);
-    LSRw_IMM(s1, s1, c);
+    RORw(s1, s1, c);
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -1199,6 +1199,52 @@ void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
             EORw_REG_LSR(s4, s4, xFlags, F_OF); // set if sign changed
             BFIw(xFlags, s4, F_OF, 1);
         }
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit SHRD16 instruction, from s1, fill s2 , shift s5, store result in s1 using s3 and s4 as scratch
+void emit_shrd16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRH_U12(s5, xEmu, offsetof(x64emu_t, op2));
+        // same flags computation as with shl64/shl32
+        SET_DF(s4, d_shrd16);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
+    IFX(X_CF) {
+        SUBw_U12(s3, s5, 1);
+        LSRw_REG(s3, s1, s3);
+        BFIw(xFlags, s3, F_CF, 1);
+    }
+    IFX(X_OF) {
+        LSRw(s4, s1, 15);
+        BFIw(xFlags, s4, F_OF, 1);  // store sign fr now
+    }
+    RORw_REG(s1, s1, s5);
+    IFX(X_PEND) {
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTw_mask(s1, 0, 15);   // 0xffff
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRw(s4, s1, 15);
+        BFIw(xFlags, s4, F_SF, 1);
+    }
+    IFX(X_OF) {
+        CMPSw_U12(s5, 1);
+        Bcond(cNE, 4+3*4);
+            LSRw(s4, s1, 15);
+            EORw_REG_LSR(s4, s4, xFlags, F_OF); // Set if sign changed
+            BFIw(xFlags, s4, F_OF, 1);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
