@@ -1154,6 +1154,53 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 }
 
+void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4)
+{
+    IFX(X_PEND) {
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRxw_U12(s5, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w?d_shld64:d_shld32);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    MOV32w(s3, (rex.w?64:32));
+    SUBw_REG(s3, s3, s5);
+    IFX(X_CF) {
+        LSRxw_REG(s4, s1, s3);
+        BFIxw(xFlags, s4, F_CF, 1);
+    }
+    IFX(X_OF) {
+        LSRxw(s4, s1, rex.w?63:31);
+        BFIw(xFlags, s4, F_OF, 1);  // store current sign for later use
+    }
+    LSLxw_REG(s4, s1, s5);
+    LSRxw_REG(s3, s2, s3);
+    ORRxw_REG(s1, s3, s4);
+
+    IFX(X_PEND) {
+        STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        TSTxw_REG(s1, s1);
+        CSETw(s4, cEQ);
+        BFIw(xFlags, s4, F_ZF, 1);
+    }
+    IFX(X_SF) {
+        LSRxw(s4, s1, (rex.w)?63:31);
+        BFIx(xFlags, s4, F_SF, 1);
+    }
+    IFX(X_OF) {
+        CMPSw_U12(s5, 1);
+        Bcond(cNE, 4+3*4);
+            LSRxw(s3, s1, rex.w?63:31);
+            EORxw_REG_LSR(s3, s3, xFlags, F_OF);  // OF is set if sign changed
+            BFIw(xFlags, s3, F_OF, 1);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit SHRD16 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int s3, int s4)
 {
