@@ -81,6 +81,15 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     uint64_t old_rsi = R_RSI;
     uint64_t old_rbp = R_RBP;
     uint64_t old_rip = R_RIP;
+    // save defered flags
+    deferred_flags_t old_df = emu->df;
+    multiuint_t old_op1 = emu->op1;
+    multiuint_t old_op2 = emu->op2;
+    multiuint_t old_res = emu->res;
+    multiuint_t old_op1_sav= emu->op1_sav;
+    multiuint_t old_res_sav= emu->res_sav;
+    deferred_flags_t old_df_sav= emu->df_sav;
+
     PushExit(emu);
     R_RIP = addr;
     emu->df = d_none;
@@ -91,6 +100,15 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
         if(emu->flags.quitonlongjmp==1)
             emu->flags.longjmp = 0;   // don't change anything because of the longjmp
     } else {
+        // restore defered flags
+        emu->df = old_df;
+        emu->op1 = old_op1;
+        emu->op2 = old_op2;
+        emu->res = old_res;
+        emu->op1_sav = old_op1_sav;
+        emu->res_sav = old_res_sav;
+        emu->df_sav = old_df_sav;
+        // and the old registers
         R_RBX = old_rbx;
         R_RDI = old_rdi;
         R_RSI = old_rsi;
@@ -100,6 +118,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     }
 }
 
+int my_setcontext(x64emu_t* emu, void* ucp);
 void DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
@@ -157,6 +176,10 @@ void DynaRun(x64emu_t* emu)
                 emu->quit = 0;
                 emu->fork = 0;
                 emu = x64emu_fork(emu, forktype);
+            }
+            if(emu->quit && emu->uc_link) {
+                emu->quit = 0;
+                my_setcontext(emu, emu->uc_link);
             }
         }
 #endif

@@ -2068,7 +2068,7 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
         goto x64emurun;
     }
     // setcontext handling
-    else if(emu->uc_link) {
+    else if(emu->quit && emu->uc_link) {
         emu->quit = 0;
         my_setcontext(emu, emu->uc_link);
         addr = R_RIP;

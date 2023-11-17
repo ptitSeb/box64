@@ -164,6 +164,13 @@ uint64_t RunSafeFunction(uintptr_t fnc, int nargs, ...)
     Push64(emu, R_R10);
     Push64(emu, R_R11);
     Push64(emu, R_RAX);
+    deferred_flags_t old_df = emu->df;
+    multiuint_t old_op1 = emu->op1;
+    multiuint_t old_op2 = emu->op2;
+    multiuint_t old_res = emu->res;
+    multiuint_t old_op1_sav= emu->op1_sav;
+    multiuint_t old_res_sav= emu->res_sav;
+    deferred_flags_t old_df_sav= emu->df_sav;
 
     R_RSP -= stackn*sizeof(void*);   // need to push in reverse order
 
@@ -200,7 +207,14 @@ uint64_t RunSafeFunction(uintptr_t fnc, int nargs, ...)
 
     R_RSP = old_rbp;          // mov rsp, rbp
     R_RBP = Pop64(emu);     // pop rbp
-    
+
+    emu->df = old_df;
+    emu->op1 = old_op1;
+    emu->op2 = old_op2;
+    emu->res = old_res;
+    emu->op1_sav = old_op1_sav;
+    emu->res_sav = old_res_sav;
+    emu->df_sav = old_df_sav;
 
     return ret;
 }
