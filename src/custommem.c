@@ -103,7 +103,7 @@ typedef struct blocklist_s {
     void*               first;
 } blocklist_t;
 
-#define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
+#define MMAPSIZE (64*1024)      // allocate 64b sized blocks
 
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static int                 c_blocks = 0;       // capacity of blocks for custom malloc
