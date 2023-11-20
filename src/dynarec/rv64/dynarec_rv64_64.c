@@ -410,6 +410,27 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SH(ed, xEmu, offsetof(x64emu_t, segs[u8]));
             SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
+        case 0x8F:
+            INST_NAME("POP FS:Ed");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            if (MODREG) {
+                POP1z(xRAX + (nextop & 7) + (rex.b << 3));
+            } else {
+                POP1z(x3); // so this can handle POP [ESP] and maybe some variant too
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                if (ed == xRSP) {
+                    ADD(x4, ed, x4);
+                    SDz(x3, x4, 0);
+                } else {
+                    // complicated to just allow a segfault that can be recovered correctly
+                    ADDIz(xRSP, xRSP, rex.is32bits ? -4 : -8);
+                    ADD(x4, ed, x4);
+                    SDz(x3, x4, 0);
+                    ADDIz(xRSP, xRSP, rex.is32bits ? 4 : 8);
+                }
+            }
+            break;
         case 0xA1:
             INST_NAME("MOV EAX,FS:Od");
             grab_segdata(dyn, addr, ninst, x4, seg);

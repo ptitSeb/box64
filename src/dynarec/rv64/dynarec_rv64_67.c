@@ -448,6 +448,33 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else
                 emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
+        
+        case 0x66:
+            opcode = F8;
+            switch (opcode) {
+                case 0x89:
+                    INST_NAME("MOV Ew, Gw");
+                    nextop = F8;
+                    GETGD; // don't need GETGW here
+                    if (MODREG) {
+                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        if (ed != gd) {
+                            LUI(x1, 0xffff0);
+                            AND(ed, ed, x1);
+                            ZEXTH(x2, gd);
+                            OR(ed, ed, x2);
+                        }
+                    } else {
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                        SH(gd, ed, fixedaddress);
+                        SMWRITELOCK(lock);
+                    }
+                    break;
+
+                default:
+                    DEFAULT;
+            }
+            break;
 
         case 0x81:
         case 0x83:
