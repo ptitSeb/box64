@@ -75,7 +75,6 @@ int fcntl(int fd, int cmd, ... /* arg */ );
 
 // Syscall table for x86_64 can be found 
 typedef struct scwrap_s {
-    uint32_t x64s; // 32 bits?
     int nats;
     int nbpars;
 } scwrap_t;
@@ -89,194 +88,194 @@ static const scwrap_t syscallwrap[] = {
     //{ 5, __NR_fstat, 2},
     //{ 6, __NR_lstat, 2},
     #ifdef __NR_poll
-    { 7, __NR_poll, 3},
+    [7] = {__NR_poll, 3},
     #endif
-    { 8, __NR_lseek, 3},
-    //{ 9, __NR_mmap, 6},       // wrapped to track mmap
-    //{ 10, __NR_mprotect, 3},  // same
-    //{ 11, __NR_munmap, 2},    // same
-    { 12, __NR_brk, 1},
-    //{ 13, __NR_rt_sigaction, 4},   // wrapped to use my_ version
-    { 14, __NR_rt_sigprocmask, 4},
-    { 16, __NR_ioctl, 3},
-    { 17, __NR_pread64, 4},
-    { 18, __NR_pwrite64, 4},
-    { 20, __NR_writev, 3},
+    [8] = {__NR_lseek, 3},
+    //[9] = {__NR_mmap, 6},       // wrapped to track mmap
+    //[10] = {__NR_mprotect, 3},  // same
+    //[11] = {__NR_munmap, 2},    // same
+    [12] = {__NR_brk, 1},
+    //[13] = {__NR_rt_sigaction, 4},   // wrapped to use my_ version
+    [14] = {__NR_rt_sigprocmask, 4},
+    [16] = {__NR_ioctl, 3},
+    [17] = {__NR_pread64, 4},
+    [18] = {__NR_pwrite64, 4},
+    [20] = {__NR_writev, 3},
     #ifdef __NR_access
-    { 21, __NR_access, 2},
+    [21] = {__NR_access, 2},
     #endif
     #ifdef __NR_pipe
-    { 22, __NR_pipe, 1},
+    [22] = {__NR_pipe, 1},
     #endif
-    { 24, __NR_sched_yield, 0},
+    [24] = {__NR_sched_yield, 0},
     #ifdef __NR_select
-    { 23, __NR_select, 5},
+    [23] = {__NR_select, 5},
     #endif
-    //{ 25, __NR_mremap, 5},    // wrapped to track protection
-    { 27, __NR_mincore, 3},
-    { 28, __NR_madvise, 3},
+    //[25] = {__NR_mremap, 5},    // wrapped to track protection
+    [27] = {__NR_mincore, 3},
+    [28] = {__NR_madvise, 3},
     #ifdef __NR_dup2
-    { 33, __NR_dup2, 2},
+    [33] = {__NR_dup2, 2},
     #endif
-    { 35, __NR_nanosleep, 2},
-    { 39, __NR_getpid, 0},
-    { 41, __NR_socket, 3},
-    { 42, __NR_connect, 3},
-    { 43, __NR_accept, 3},
-    { 44, __NR_sendto, 6},
-    { 45, __NR_recvfrom, 6},
-    { 46, __NR_sendmsg, 3},
-    { 47, __NR_recvmsg, 3},
-    { 49, __NR_bind, 3},
-    { 50, __NR_listen, 2},
-    { 51, __NR_getsockname, 3},
-    { 52, __NR_getpeername, 3},
-    { 53, __NR_socketpair, 4},
-    { 54, __NR_setsockopt, 5},
-    { 55, __NR_getsockopt, 5},
-    //{56, __NR_clone, 5},
+    [35] = {__NR_nanosleep, 2},
+    [39] = {__NR_getpid, 0},
+    [41] = {__NR_socket, 3},
+    [42] = {__NR_connect, 3},
+    [43] = {__NR_accept, 3},
+    [44] = {__NR_sendto, 6},
+    [45] = {__NR_recvfrom, 6},
+    [46] = {__NR_sendmsg, 3},
+    [47] = {__NR_recvmsg, 3},
+    [49] = {__NR_bind, 3},
+    [50] = {__NR_listen, 2},
+    [51] = {__NR_getsockname, 3},
+    [52] = {__NR_getpeername, 3},
+    [53] = {__NR_socketpair, 4},
+    [54] = {__NR_setsockopt, 5},
+    [55] = {__NR_getsockopt, 5},
+    //[56] = {__NR_clone, 5},
     #ifdef __NR_fork
-    { 57, __NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
+    [57] = {__NR_fork, 0 },    // should wrap this one, because of the struct pt_regs (the only arg)?
     #endif
-    //{58, __NR_vfork, 0},
-    //{59, __NR_execve, 3},
-    { 60, __NR_exit, 1},    // Nees wrapping?
-    { 61, __NR_wait4, 4},
-    { 62, __NR_kill, 2 },
-    //{ 63, __NR_uname, 1}, // Needs wrapping, use old_utsname
-    { 66, __NR_semctl, 4},
-    //{ 72, __NR_fnctl, 3}, // Needs wrapping, and not always defined anyway
-    { 73, __NR_flock, 2},
-    { 74, __NR_fsync, 1},
+    //[58] = {__NR_vfork, 0},
+    //[59] = {__NR_execve, 3},
+    [60] = {__NR_exit, 1},    // Nees wrapping?
+    [61] = {__NR_wait4, 4},
+    [62] = {__NR_kill, 2 },
+    //[63] = {__NR_uname, 1}, // Needs wrapping, use old_utsname
+    [66] = {__NR_semctl, 4},
+    //[72] = {__NR_fnctl, 3}, // Needs wrapping, and not always defined anyway
+    [73] = {__NR_flock, 2},
+    [74] = {__NR_fsync, 1},
     #ifdef __NR_getdents
-    { 78, __NR_getdents, 3},
+    [78] = {__NR_getdents, 3},
     #endif
-    { 79, __NR_getcwd, 2},
-    { 80, __NR_chdir, 1},
+    [79] = {__NR_getcwd, 2},
+    [80] = {__NR_chdir, 1},
     #ifdef __NR_rename
-    { 82, __NR_rename, 2},
+    [82] = {__NR_rename, 2},
     #endif
     #ifdef __NR_mkdir
-    { 83, __NR_mkdir, 2},
+    [83] = {__NR_mkdir, 2},
     #endif
     #ifdef __NR_unlink
-    { 87, __NR_unlink, 1},
+    [87] = {__NR_unlink, 1},
     #endif
-    //{ 89, __NR_readlink, 3},  // not always existing, better use the wrapped version anyway
-    { 96, __NR_gettimeofday, 2},
-    { 97, __NR_getrlimit, 2},
-    { 101, __NR_ptrace, 4},
-    { 102, __NR_getuid, 0},
-    { 104, __NR_getgid, 0},
-    { 105, __NR_setuid, 1},
-    { 106, __NR_setgid, 1},
-    { 107, __NR_geteuid, 0},
-    { 108, __NR_getegid, 0},
-    { 109, __NR_setpgid, 2},
-    { 110, __NR_getppid, 0},
-    //{ 111, __NR_getpgrp, 0},
-    { 112, __NR_setsid, 0},
-    { 113, __NR_setreuid, 2},
-    { 114, __NR_setregid, 2},
-    { 118, __NR_getresuid, 3},
-    { 120, __NR_getresgid, 3},
-    { 125, __NR_capget, 2},
-    { 126, __NR_capset, 2},
-    { 127, __NR_rt_sigpending, 2},
-    { 128, __NR_rt_sigtimedwait, 4},
-    //{ 131, __NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
-    { 140, __NR_getpriority, 2},
-    { 155, __NR_pivot_root, 2},
-    { 157, __NR_prctl, 5 },     // needs wrapping?
-    //{ 158, __NR_arch_prctl, 2},   //need wrapping
-    { 160, __NR_setrlimit, 2},
-    { 161, __NR_chroot, 1},
-    { 186, __NR_gettid, 0 },    //0xBA
-    { 200, __NR_tkill, 2 },
+    //[89] = {__NR_readlink, 3},  // not always existing, better use the wrapped version anyway
+    [96] = {__NR_gettimeofday, 2},
+    [97] = {__NR_getrlimit, 2},
+    [101] = {__NR_ptrace, 4},
+    [102] = {__NR_getuid, 0},
+    [104] = {__NR_getgid, 0},
+    [105] = {__NR_setuid, 1},
+    [106] = {__NR_setgid, 1},
+    [107] = {__NR_geteuid, 0},
+    [108] = {__NR_getegid, 0},
+    [109] = {__NR_setpgid, 2},
+    [110] = {__NR_getppid, 0},
+    //[111] = {__NR_getpgrp, 0},
+    [112] = {__NR_setsid, 0},
+    [113] = {__NR_setreuid, 2},
+    [114] = {__NR_setregid, 2},
+    [118] = {__NR_getresuid, 3},
+    [120] = {__NR_getresgid, 3},
+    [125] = {__NR_capget, 2},
+    [126] = {__NR_capset, 2},
+    [127] = {__NR_rt_sigpending, 2},
+    [128] = {__NR_rt_sigtimedwait, 4},
+    //[131] = {__NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
+    [140] = {__NR_getpriority, 2},
+    [155] = {__NR_pivot_root, 2},
+    [157] = {__NR_prctl, 5 },     // needs wrapping?
+    //[158] = {__NR_arch_prctl, 2},   //need wrapping
+    [160] = {__NR_setrlimit, 2},
+    [161] = {__NR_chroot, 1},
+    [186] = {__NR_gettid, 0 },    //0xBA
+    [200] = {__NR_tkill, 2 },
     #ifdef __NR_time
-    { 201, __NR_time, 1},
+    [201] = {__NR_time, 1},
     #endif
-    { 202, __NR_futex, 6},
-    { 203, __NR_sched_setaffinity, 3},
-    { 204, __NR_sched_getaffinity, 3},
-    { 206, __NR_io_setup, 2},
-    { 207, __NR_io_destroy, 1},
-    { 208, __NR_io_getevents, 4},
-    { 209, __NR_io_submit, 3},
-    { 210, __NR_io_cancel, 3},
-    { 212, __NR_lookup_dcookie, 3},
+    [202] = {__NR_futex, 6},
+    [203] = {__NR_sched_setaffinity, 3},
+    [204] = {__NR_sched_getaffinity, 3},
+    [206] = {__NR_io_setup, 2},
+    [207] = {__NR_io_destroy, 1},
+    [208] = {__NR_io_getevents, 4},
+    [209] = {__NR_io_submit, 3},
+    [210] = {__NR_io_cancel, 3},
+    [212] = {__NR_lookup_dcookie, 3},
     #ifdef __NR_epoll_create
-    { 213, __NR_epoll_create, 1},
+    [213] = {__NR_epoll_create, 1},
     #endif
-    { 217, __NR_getdents64, 3},
-    { 218, __NR_set_tid_address, 1},
-    { 220, __NR_semtimedop, 4},
-    { 228, __NR_clock_gettime, 2},
-    { 229, __NR_clock_getres, 2},
-    { 230, __NR_clock_nanosleep, 4},
-    { 231, __NR_exit_group, 1},
+    [217] = {__NR_getdents64, 3},
+    [218] = {__NR_set_tid_address, 1},
+    [220] = {__NR_semtimedop, 4},
+    [228] = {__NR_clock_gettime, 2},
+    [229] = {__NR_clock_getres, 2},
+    [230] = {__NR_clock_nanosleep, 4},
+    [231] = {__NR_exit_group, 1},
     #if defined(__NR_epoll_wait) && defined(NOALIGN)
-    { 232, __NR_epoll_wait, 4},
+    [232] = {__NR_epoll_wait, 4},
     #endif
     #if defined(__NR_epoll_ctl) && defined(NOALIGN)
-    { 233, __NR_epoll_ctl, 4},
+    [233] = {__NR_epoll_ctl, 4},
     #endif
-    { 234, __NR_tgkill, 3},
-    { 238, __NR_set_mempolicy, 3},
-    { 239, __NR_get_mempolicy, 5},
-    { 247, __NR_waitid, 5},
+    [234] = {__NR_tgkill, 3},
+    [238] = {__NR_set_mempolicy, 3},
+    [239] = {__NR_get_mempolicy, 5},
+    [247] = {__NR_waitid, 5},
     #ifdef __NR_inotify_init
-    { 253, __NR_inotify_init, 0},   //0xFD
+    [253] = {__NR_inotify_init, 0},   //0xFD
     #endif
-    { 254, __NR_inotify_add_watch, 3},
-    { 255, __NR_inotify_rm_watch, 2},
+    [254] = {__NR_inotify_add_watch, 3},
+    [255] = {__NR_inotify_rm_watch, 2},
     #ifdef NOALIGN
-    { 257, __NR_openat, 4},
+    [257] = {__NR_openat, 4},
     #endif
-    { 258, __NR_mkdirat, 3},
-    //{ 262, __NR_fstatat, 4}, 
-    { 263, __NR_unlinkat, 3},
+    [258] = {__NR_mkdirat, 3},
+    //[262] = {__NR_fstatat, 4}, 
+    [263] = {__NR_unlinkat, 3},
     #ifdef __NR_renameat
-    { 264, __NR_renameat, 4},
+    [264] = {__NR_renameat, 4},
     #endif
-    { 266, __NR_symlinkat, 3},
-    { 267, __NR_readlinkat, 4},
-    { 268, __NR_fchmodat, 3},
-    { 270, __NR_pselect6, 6},
-    { 272, __NR_unshare, 1},
-    { 273, __NR_set_robust_list, 2},
-    { 274, __NR_get_robust_list, 3},
+    [266] = {__NR_symlinkat, 3},
+    [267] = {__NR_readlinkat, 4},
+    [268] = {__NR_fchmodat, 3},
+    [270] = {__NR_pselect6, 6},
+    [272] = {__NR_unshare, 1},
+    [273] = {__NR_set_robust_list, 2},
+    [274] = {__NR_get_robust_list, 3},
     #ifdef NOALIGN
-    { 281, __NR_epoll_pwait, 6},
+    [281] = {__NR_epoll_pwait, 6},
     #endif
-    //{ 282, __NR__signalfd, 3},
+    //[282] = {__NR__signalfd, 3},
     #ifdef _NR_eventfd
-    { 284, __NR_eventfd, 1},
+    [284] = {__NR_eventfd, 1},
     #endif
-    { 285, __NR_fallocate, 4},
-    { 288, __NR_accept4, 4},
-    { 290, __NR_eventfd2, 2},
-    { 291, __NR_epoll_create1, 1},
-    { 292, __NR_dup3, 3},
-    { 293, __NR_pipe2, 2},
-    { 294, __NR_inotify_init1, 1},
-    { 297, __NR_rt_tgsigqueueinfo, 4},
-    { 298, __NR_perf_event_open, 5},
-    { 302, __NR_prlimit64, 4},
-    { 309, __NR_getcpu, 3}, // need wrapping?
-    { 315, __NR_sched_getattr, 4},
-    //{ 317, __NR_seccomp, 3},
-    { 318, __NR_getrandom, 3},
-    { 319, __NR_memfd_create, 2},
-    { 324, __NR_membarrier, 2},
+    [285] = {__NR_fallocate, 4},
+    [288] = {__NR_accept4, 4},
+    [290] = {__NR_eventfd2, 2},
+    [291] = {__NR_epoll_create1, 1},
+    [292] = {__NR_dup3, 3},
+    [293] = {__NR_pipe2, 2},
+    [294] = {__NR_inotify_init1, 1},
+    [297] = {__NR_rt_tgsigqueueinfo, 4},
+    [298] = {__NR_perf_event_open, 5},
+    [302] = {__NR_prlimit64, 4},
+    [309] = {__NR_getcpu, 3}, // need wrapping?
+    [315] = {__NR_sched_getattr, 4},
+    //[317] = {__NR_seccomp, 3},
+    [318] = {__NR_getrandom, 3},
+    [319] = {__NR_memfd_create, 2},
+    [324] = {__NR_membarrier, 2},
     #ifdef __NR_statx
     // TODO: implement fallback if __NR_statx is not defined
-    { 332, __NR_statx, 5},
+    [332] = {__NR_statx, 5},
     #endif
     #ifdef __NR_fchmodat4
-    { 434, __NR_fchmodat4, 4},
+    [434] = {__NR_fchmodat4, 4},
     #endif
-    //{ 449, __NR_futex_waitv, 5},
+    //[449] = {__NR_futex_waitv, 5},
 };
 
 struct mmap_arg_struct {
@@ -399,28 +398,26 @@ void EXPORT x64Syscall(x64emu_t *emu)
     }
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
-    for (int i=0; i<cnt; i++) {
-        if(syscallwrap[i].x64s == s) {
-            int sc = syscallwrap[i].nats;
-            switch(syscallwrap[i].nbpars) {
-                case 0: S_RAX = syscall(sc); break;
-                case 1: S_RAX = syscall(sc, R_RDI); break;
-                case 2: if(s==33) {if(log) snprintf(buff2, 63, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; S_RAX = syscall(sc, R_RDI, R_RSI); break;
-                case 3: if(s==42) {if(log) snprintf(buff2, 63, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 63, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
-                case 4: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
-                case 5: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
-                case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
-                default:
-                   printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
-                   emu->quit = 1;
-                   return;
-            }
-            if(S_RAX==-1 && errno>0)
-                S_RAX = -errno;
-            if(log) snprintf(buffret, 127, "0x%x%s", R_EAX, buff2);
-            if(log && !cycle_log) printf_log(LOG_NONE, "=> %s\n", buffret);
-            return;
+    if(s<cnt && syscallwrap[s].nats) {
+        int sc = syscallwrap[s].nats;
+        switch(syscallwrap[s].nbpars) {
+            case 0: S_RAX = syscall(sc); break;
+            case 1: S_RAX = syscall(sc, R_RDI); break;
+            case 2: if(s==33) {if(log) snprintf(buff2, 63, " [sys_access(\"%s\", %ld)]", (char*)R_RDI, R_RSI);}; S_RAX = syscall(sc, R_RDI, R_RSI); break;
+            case 3: if(s==42) {if(log) snprintf(buff2, 63, " [sys_connect(%d, %p[type=%d], %d)]", R_EDI, (void*)R_RSI, *(unsigned short*)R_RSI, R_EDX);}; if(s==258) {if(log) snprintf(buff2, 63, " [sys_mkdirat(%d, %s, 0x%x]", R_EDI, (char*)R_RSI, R_EDX);}; S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX); break;
+            case 4: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10); break;
+            case 5: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
+            case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
+            default:
+                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars); 
+                emu->quit = 1;
+                return;
         }
+        if(S_RAX==-1 && errno>0)
+            S_RAX = -errno;
+        if(log) snprintf(buffret, 127, "0x%x%s", R_EAX, buff2);
+        if(log && !cycle_log) printf_log(LOG_NONE, "=> %s\n", buffret);
+        return;
     }
     switch (s) {
         case 0:  // sys_read
@@ -791,22 +788,20 @@ long EXPORT my_syscall(x64emu_t *emu)
     printf_dump(LOG_DEBUG, "%04d| %p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", GetTID(), (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
-    for (int i=0; i<cnt; i++) {
-        if(syscallwrap[i].x64s == s) {
-            int sc = syscallwrap[i].nats;
-            switch(syscallwrap[i].nbpars) {
-                case 0: return syscall(sc);
-                case 1: return syscall(sc, R_RSI);
-                case 2: return syscall(sc, R_RSI, R_RDX);
-                case 3: return syscall(sc, R_RSI, R_RDX, R_RCX);
-                case 4: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8);
-                case 5: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
-                case 6: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8, R_R9, u64(0));
-                default:
-                   printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
-                   emu->quit = 1;
-                   return 0;
-            }
+    if(s<cnt && syscallwrap[s].nats) {
+        int sc = syscallwrap[s].nats;
+        switch(syscallwrap[s].nbpars) {
+            case 0: return syscall(sc);
+            case 1: return syscall(sc, R_RSI);
+            case 2: return syscall(sc, R_RSI, R_RDX);
+            case 3: return syscall(sc, R_RSI, R_RDX, R_RCX);
+            case 4: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8);
+            case 5: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
+            case 6: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8, R_R9, u64(0));
+            default:
+                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars); 
+                emu->quit = 1;
+                return 0;
         }
     }
     switch (s) {
