@@ -240,6 +240,7 @@
 #define LDRxw_REG(Rt, Rn, Rm)           EMIT(LDR_REG_gen(0b10+rex.w, Rm, 0b011, 0, Rn, Rt))
 #define LDRz_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(rex.is32bits?0b10:0b11, Rm, 0b011, 0, Rn, Rt))
 #define LDRB_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b00, Rm, 0b011, 0, Rn, Rt))
+#define LDRB_REG_UXTW(Rt, Rn, Rm)       EMIT(LDR_REG_gen(0b00, Rm, 0b010, 0, Rn, Rt))
 #define LDRH_REG(Rt, Rn, Rm)            EMIT(LDR_REG_gen(0b01, Rm, 0b011, 0, Rn, Rt))
 
 #define LDRS_U12_gen(size, op1, opc, imm12, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | (opc)<<22 | (imm12)<<10 | (Rn)<<5 | (Rt))

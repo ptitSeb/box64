@@ -2547,6 +2547,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xD7:
+            INST_NAME("XLAT");
+            UXTBw(x1, xRAX);
+            if(rex.w || rex.is32bits) {
+                LDRB_REG(x1, xRBX, x1);
+            } else {
+                LDRB_REG_UXTW(x1, x1, xRBX);
+            }
+            BFIx(xRAX, x1, 0, 8);
+            break;
         case 0xD8:
             addr = dynarec64_D8(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
