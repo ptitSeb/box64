@@ -63,7 +63,7 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s5, s1);   // s5 = ~res
             AND(s3, s5, s3);   // s3 = ~res & (op1 | op2)
@@ -160,7 +160,7 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);   // s2 = ~res
             AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
@@ -218,7 +218,7 @@ void emit_add16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);    // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);    // s3 = ~res & (op1 | op2)
         } else {
             NOT(s5, s1);   // s5 = ~res
             AND(s3, s5, s3);   // s3 = ~res & (op1 | op2)
@@ -280,7 +280,7 @@ void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 
     IFX(X_AF|X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s4, s1);   // s4 = ~res
             AND(s3, s4, s3);   // s3 = ~res & (op1 | op2)
@@ -344,7 +344,7 @@ void emit_add8c(dynarec_rv64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
 
     IFX(X_AF|X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);   // s2 = ~res
             AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
@@ -596,7 +596,7 @@ void emit_inc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);   // s2 = ~res
             AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
@@ -709,7 +709,7 @@ void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);    // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);    // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);   // s2 = ~res
             AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
@@ -825,7 +825,7 @@ void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s3);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s3, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);   // s2 = ~res
             AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
@@ -968,8 +968,8 @@ void emit_adc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_DFNONE();
     }
     IFX(X_AF | X_OF) {
-        OR(s4, s1, s2);  // s3 = op1 | op2
-        AND(s5, s1, s2); // s4 = op1 & op2
+        OR(s4, s1, s2);  // s4 = op1 | op2
+        AND(s5, s1, s2); // s5 = op1 & op2
     }
 
     ADD(s1, s1, s2);
@@ -982,7 +982,7 @@ void emit_adc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s4);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s4, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);     // s2 = ~res
             AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
@@ -1304,8 +1304,8 @@ void emit_adc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
     IFX(X_AF | X_OF) {
-        OR(s4, s1, s2);  // s3 = op1 | op2
-        AND(s5, s1, s2); // s4 = op1 & op2
+        OR(s4, s1, s2);  // s4 = op1 | op2
+        AND(s5, s1, s2); // s5 = op1 & op2
     }
 
     ADD(s1, s1, s2);
@@ -1318,7 +1318,7 @@ void emit_adc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s4);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s4, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);     // s2 = ~res
             AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
@@ -1386,8 +1386,8 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
     IFX(X_AF | X_OF) {
-        OR(s4, s1, s2);  // s3 = op1 | op2
-        AND(s5, s1, s2); // s4 = op1 & op2
+        OR(s4, s1, s2);  // s4 = op1 | op2
+        AND(s5, s1, s2); // s5 = op1 & op2
     }
 
     ADDxw(s1, s1, s2);
@@ -1404,7 +1404,7 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX(X_AF | X_OF) {
         if(rv64_zbb) {
-            ANDN(s3, s1, s4);   // s3 = ~res & (op1 | op2)
+            ANDN(s3, s4, s1);   // s3 = ~res & (op1 | op2)
         } else {
             NOT(s2, s1);     // s2 = ~res
             AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
