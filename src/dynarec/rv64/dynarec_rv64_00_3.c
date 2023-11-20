@@ -1076,7 +1076,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xFC:
             INST_NAME("CLD");
-            ANDI(xFlags, xFlags, ~(1<<F_CF));
+            ANDI(xFlags, xFlags, ~(1 << F_DF));
+            break;
+        case 0xFD:
+            INST_NAME("STD");
+            ORI(xFlags, xFlags, 1 << F_DF);
             break;
         case 0xFE:
             nextop = F8;

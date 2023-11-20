@@ -556,7 +556,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 B_NEXT_nocond;
                 MARK2;  // Part with DF==1
                 LBU(x1, xRSI, 0);
-                LBU(x1, xRDI, 0);
+                SB(x1, xRDI, 0);
                 SUBI(xRSI, xRSI, 1);
                 SUBI(xRDI, xRDI, 1);
                 SUBI(xRCX, xRCX, 1);
