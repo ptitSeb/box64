@@ -1692,6 +1692,63 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "SETF%d %s", 8<<sf, Xt[Rn]);
         return buff;
     }
+    // REV64
+    if(isMask(opcode, "0Q001110ff100000000010nnnnnddddd", &a)) {
+        const char* T[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "??"};
+        int sz = sf;
+        const char* Vn = T[(sz<<1)|a.Q];
+        const char* Vd = T[(sz<<1)|a.Q];
+        snprintf(buff, sizeof(buff), "REV64 V%d.%s, V%d.%s",Rd, Vd, Rn, Vn);
+        return buff;
+    }
+    //TRNx
+    if(isMask(opcode, "0Q001110ff0mmmmm0o1010nnnnnddddd", &a)) {
+        const char* T[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
+        int sz = sf;
+        const char* Vn = T[(sz<<1)|a.Q];
+        const char* Vm = T[(sz<<1)|a.Q];
+        const char* Vd = T[(sz<<1)|a.Q];
+        snprintf(buff, sizeof(buff), "TRN%d V%d.%s, V%d.%s, V%d.%s", a.o+1, Rd, Vd, Rn, Vn, Rm, Vm);
+        return buff;
+    }
+    //SHA1 stuffs
+    if(isMask(opcode, "0101111000101000000010nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA1H S%d, S%d", Rd, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "0101111000101000000110nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA1SU1 V%d.4S, V%d.4S", Rd, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "01011110000mmmmm000000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA1C Q%d, S%d, V%d.4S", Rd, Rn, Rm);
+        return buff;
+    }
+    if(isMask(opcode, "01011110000mmmmm001000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA1M Q%d, S%d, V%d.4S", Rd, Rn, Rm);
+        return buff;
+    }
+    if(isMask(opcode, "01011110000mmmmm000100nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA1P Q%d, S%d, V%d.4S", Rd, Rn, Rm);
+        return buff;
+    }
+    //SHA256 stuffs
+    if(isMask(opcode, "0101111000101000001010nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA256SU0 V%d.4S, V%d.4S", Rd, Rn);
+        return buff;
+    }
+    if(isMask(opcode, "01011110000mmmmm011000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA256SU1 V%d.4S, V%d.4S, V%d.4S", Rd, Rn, Rm);
+        return buff;
+    }
+    if(isMask(opcode, "01011110000mmmmm010000nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA256H Q%d, Q%d, V%d.4S", Rd, Rn, Rm);
+        return buff;
+    }
+    if(isMask(opcode, "01011110000mmmmm010100nnnnnddddd", &a)) {
+        snprintf(buff, sizeof(buff), "SHA256H2 Q%d, Q%d, V%d.4S", Rd, Rn, Rm);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
