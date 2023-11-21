@@ -77,6 +77,8 @@ int arm64_aes = 0;
 int arm64_pmull = 0;
 int arm64_crc32 = 0;
 int arm64_atomics = 0;
+int arm64_sha1 = 0;
+int arm64_sha2 = 0;
 int arm64_uscat = 0;
 int arm64_flagm = 0;
 int arm64_flagm2 = 0;
@@ -377,6 +379,14 @@ HWCAP2_ECV
         arm64_aes = 1;
     if(hwcap&HWCAP_ATOMICS)
         arm64_atomics = 1;
+    #ifdef HWCAP_SHA1
+    if(hwcap&HWCAP_SHA1)
+        arm64_sha1 = 1;
+    #endif
+    #ifdef HWCAP_SHA2
+    if(hwcap&HWCAP_SHA2)
+        arm64_sha2 = 1;
+    #endif
     #ifdef HWCAP_USCAT
     if(hwcap&HWCAP_USCAT)
         arm64_uscat = 1;
@@ -407,6 +417,10 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
+    if(arm64_sha1)
+        printf_log(LOG_INFO, " SHA1");
+    if(arm64_sha2)
+        printf_log(LOG_INFO, " SHA2");
     if(arm64_uscat)
         printf_log(LOG_INFO, " USCAT");
     if(arm64_flagm)

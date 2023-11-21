@@ -22,6 +22,7 @@
 #include "my_cpuid.h"
 #include "bridge.h"
 #include "signals.h"
+#include "x64shaext.h"
 #ifdef DYNAREC
 #include "custommem.h"
 #include "../dynarec/native_lock.h"
@@ -340,6 +341,43 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     }
                     break;
 
+                case 0xC8:  /* SHA1NEXTE Gx, Ex */
+                    nextop = F8;
+                    GETGX;
+                    GETEX(0);
+                    sha1nexte(emu, GX, EX);
+                    break;
+                case 0xC9:  /* SHA1MSG1 Gx, Ex */
+                    nextop = F8;
+                    GETGX;
+                    GETEX(0);
+                    sha1msg1(emu, GX, EX);
+                    break;
+                case 0xCA:  /* SHA1MSG2 Gx, Ex */
+                    nextop = F8;
+                    GETGX;
+                    GETEX(0);
+                    sha1msg2(emu, GX, EX);
+                    break;
+                case 0xCB:  /* SHA256RNDS2 Gx, Ex (, XMM0) */
+                    nextop = F8;
+                    GETGX;
+                    GETEX(0);
+                    sha256rnds2(emu, GX, EX);
+                    break;
+                case 0xCC:  /* SHA256MSG1 Gx, Ex */
+                    nextop = F8;
+                    GETGX;
+                    GETEX(0);
+                    sha256msg1(emu, GX, EX);
+                    break;
+                case 0xCD:  /* SHA256MSG2 Gx, Ex */
+                    nextop = F8;
+                    GETGX;
+                    GETEX(0);
+                    sha256msg2(emu, GX, EX);
+                    break;
+
                 case 0xF0: /* MOVBE Gd, Ed*/
                     nextop = F8;
                     GETGD;
@@ -387,6 +425,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         GM->q <<= (8-tmp8u)*8;
                         GM->q |= (EM->q >> tmp8u*8);
                     }
+                    break;
+
+                case 0xCC:  /* SHA1RNDS4 Gx, Ex, Ib */
+                    nextop = F8;
+                    GETGX;
+                    GETEX(1);
+                    tmp8u = F8;
+                    sha1rnds4(emu, GX, EX, tmp8u);
                     break;
 
                 default:

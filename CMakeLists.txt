@@ -303,6 +303,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/emu/x87emu_private.c"
     "${BOX64_ROOT}/src/emu/x64primop.c"
     "${BOX64_ROOT}/src/emu/x64run_private.c"
+    "${BOX64_ROOT}/src/emu/x64shaext.c"
     "${BOX64_ROOT}/src/emu/x64syscall.c"
     "${BOX64_ROOT}/src/emu/x86syscall.c"
     "${BOX64_ROOT}/src/emu/x64tls.c"
@@ -1020,18 +1021,23 @@ add_test(x87cache ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test25 -D TEST_OUTPUT=tmpfile25.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref25.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-
+    
 add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test26 -D TEST_OUTPUT=tmpfile26.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref26.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-
+set_tests_properties(feround PROPERTIES ENVIRONMENT "BOX64_SYNC_ROUNDING=1")
+    
 add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test27 -D TEST_OUTPUT=tmpfile27.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref27.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-
-set_tests_properties(feround PROPERTIES ENVIRONMENT "BOX64_SYNC_ROUNDING=1")
+    
+add_test(shaext ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test28 -D TEST_OUTPUT=tmpfile28.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref28.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    
 
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})

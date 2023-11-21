@@ -270,10 +270,11 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EDX = 0;
             break;
         case 0x7:   // extended bits...
-            if(R_ECX==1) {
-                R_EAX = 0; // Bit 5 is avx512_bf16
-            } else 
-                R_EAX = R_ECX = R_EBX = R_EDX = 0; // TODO
+            if(R_ECX==0) {
+                R_EAX = 0;
+                R_EBX = 0 |
+                        1<<29;  // SHA extension
+            } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
             break;
         case 0xB:   // Extended Topology Enumeration Leaf
             //TODO!
