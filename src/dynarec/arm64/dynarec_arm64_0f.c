@@ -706,13 +706,14 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         GETEX(q1, 0, 0);
                         v0 = fpu_get_scratch(dyn);
                         v1 = fpu_get_scratch(dyn);
+                        d0 = fpu_get_scratch(dyn);
                         VEORQ(v1, v1, v1);
                         VMOVQ(v0, q0);
-                        SHA256SU1(v0, v1, q1);  // low v0 are ok
-                        VTRNQ1_64(v0, v0, v0);  // duplicate low to hi
-                        VEXTQ_8(d0, q0, q0, 8); // swap high/low
-                        SHA256SU1(d0, v1, v0);  // low is destination high
-                        VEXTQ_8(q0, v0, d0, 8);
+                        SHA256SU1(v0, v1, q1);  // low v0 are ok and also need to be feed again SHA256SU1 to get the high part
+                        VTRNQ1_64(d0, v0, v0);  // duplicate low to hi
+                        VEXTQ_8(q0, q0, q0, 8); // invert low/high now
+                        SHA256SU1(q0, v1, d0);  // low is destination high
+                        VEXTQ_8(q0, d0, q0, 8);
                     } else {
                         if(MODREG) {
                             ed = (nextop&7)+(rex.b<<3);
