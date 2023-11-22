@@ -180,7 +180,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
-            R_EAX = 0x0000000D;//0x80000004;
+            R_EAX = 0x0000000F;//0x80000004;
             // return GenuineIntel
             R_EBX = 0x756E6547;
             R_EDX = 0x49656E69;
@@ -275,6 +275,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             if(R_ECX==0) {
                 R_EAX = 0;
                 R_EBX = 0 |
+                        1<<3 |  // BMI1 
+                        //1<<8 | //BMI2
                         1<<29;  // SHA extension
             } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
             break;
@@ -298,7 +300,26 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_EAX = R_ECX = R_EBX = R_EDX = 0;
             }
             break;
-            
+        case 0xE:   //?
+            R_EAX = 0;
+            break;
+        case 0xF:   //L3 Cache
+            switch(R_ECX) {
+                case 0: 
+                    R_EAX = 0;
+                    R_EBX = 0; // maximum range of RMID of physical processor
+                    R_ECX = 0;
+                    R_EDX = 0;  // bit 1 support L3 RDT Cache monitoring
+                    break;
+                case 1:
+                    R_EAX = 0;
+                    R_EBX = 0;  // Conversion factor
+                    R_EDX = 0;  // bit 0 = occupency monitoring
+                    break;
+                default: R_EAX = 0;
+            }
+            break;
+
         case 0x80000000:        // max extended
             R_EAX = 0x80000005;
             break;
