@@ -170,10 +170,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     if(ncpu>255) ncpu = 255;
     if(!ncpu) ncpu = 1;
     static char branding[3*4*4+1] = "";
-    strcpy(branding, getBoxCpuName());
-    while(strlen(branding)<3*4*4) {
-        memmove(branding+1, branding, strlen(branding));
-        branding[0] = ' ';
+    if(!branding[0]) {
+        strcpy(branding, getBoxCpuName());
+        while(strlen(branding)<3*4*4) {
+            memmove(branding+1, branding, strlen(branding)+1);
+            branding[0] = ' ';
+        }
     }
     switch(tmp32u) {
         case 0x0:
