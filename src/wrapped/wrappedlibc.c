@@ -1140,7 +1140,7 @@ EXPORT int my___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
     (void)emu; (void)vers;
     struct stat64 st;
     int r = fstat64(fd, buf?&st:buf);
-    if(buf)
+    if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
 }
@@ -1150,7 +1150,7 @@ EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
     (void)emu; (void)vers;
     struct stat64 st;
     int r = fstat64(fd, buf?&st:buf);
-    if(buf)
+    if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
 }
@@ -1160,7 +1160,7 @@ EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
     (void)emu; (void)v;
     struct stat64 st;
     int r = stat64((const char*)path, buf?&st:buf);
-    if(buf)
+    if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
 }
@@ -1170,7 +1170,7 @@ EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf)
     (void)emu; (void)v;
     struct stat64 st;
     int r = stat64((const char*)path, buf?&st:buf);
-    if(buf)
+    if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
 }
@@ -1180,7 +1180,7 @@ EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
     (void)emu; (void)v;
     struct stat64 st;
     int r = lstat64((const char*)name, buf?&st:buf);
-    if(buf)
+    if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
 }
@@ -1190,7 +1190,7 @@ EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
     (void)emu; (void)v;
     struct stat64 st;
     int r = lstat64((const char*)name, buf?&st:buf);
-    if(buf)
+    if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
 }
@@ -1200,7 +1200,8 @@ EXPORT int my___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int
     (void)emu; (void)v;
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
-    UnalignStat64(&st, buf);
+    if(!r)
+        UnalignStat64(&st, buf);
     return r;
 }
 
@@ -1209,16 +1210,18 @@ EXPORT int my___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, i
     (void)emu; (void)v;
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
-    UnalignStat64(&st, buf);
+    if(!r)
+        UnalignStat64(&st, buf);
     return r;
 }
 
 EXPORT int my_stat(x64emu_t *emu, void* filename, void* buf)
 {
     (void)emu;
-    struct stat64 st;
-    int r = stat(filename, (struct stat*)&st);
-    UnalignStat64(&st, buf);
+    struct stat st;
+    int r = stat(filename, &st);
+    if(!r)
+        UnalignStat64(&st, buf);
     return r;
 }
 EXPORT int my_stat64(x64emu_t *emu, void* filename, void* buf) __attribute__((alias("my_stat")));
@@ -1226,9 +1229,10 @@ EXPORT int my_stat64(x64emu_t *emu, void* filename, void* buf) __attribute__((al
 EXPORT int my_lstat(x64emu_t *emu, void* filename, void* buf)
 {
     (void)emu;
-    struct stat64 st;
-    int r = lstat(filename, (struct stat*)&st);
-    UnalignStat64(&st, buf);
+    struct stat st;
+    int r = lstat(filename, &st);
+    if(!r)
+        UnalignStat64(&st, buf);
     return r;
 }
 EXPORT int my_lstat64(x64emu_t *emu, void* filename, void* buf) __attribute__((alias("my_lstat")));
@@ -1236,9 +1240,10 @@ EXPORT int my_lstat64(x64emu_t *emu, void* filename, void* buf) __attribute__((a
 EXPORT int my_fstat(x64emu_t *emu, int fd, void* buf)
 {
     (void)emu;
-    struct stat64 st;
-    int r = fstat(fd, (struct stat*)&st);
-    UnalignStat64(&st, buf);
+    struct stat st;
+    int r = fstat(fd, &st);
+    if(!r)
+        UnalignStat64(&st, buf);
     return r;
 }
 EXPORT int my_fstat64(x64emu_t* emu, int fd, void* buf) __attribute__((alias("my_fstat")));
@@ -1246,9 +1251,10 @@ EXPORT int my_fstat64(x64emu_t* emu, int fd, void* buf) __attribute__((alias("my
 EXPORT int my_fstatat(x64emu_t *emu, int fd, const char* path, void* buf, int flags)
 {
     (void)emu;
-    struct stat64 st;
-    int r = fstatat(fd, path, (struct stat*)&st, flags);
-    UnalignStat64(&st, buf);
+    struct stat st;
+    int r = fstatat(fd, path, &st, flags);
+    if(!r)
+        UnalignStat64(&st, buf);
     return r;
 }
 EXPORT int my_fstatat64(x64emu_t *emu, int fd, const char* path, void* buf, int flags) __attribute__((alias("my_fstatat")));
