@@ -908,7 +908,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
 #elif defined(RV64)
-    if(db && p {
+    if(db && p) {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[16];
         sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[17];
         sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[18];
