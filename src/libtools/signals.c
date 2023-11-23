@@ -786,25 +786,31 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     uintptr_t frame = R_RSP;
 #if defined(DYNAREC) 
 #if defined(ARM64)
-    ucontext_t *p = (ucontext_t *)ucntx;
-    void * pc = (void*)p->uc_mcontext.pc;
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
-    if(db) {
-        frame = (uintptr_t)p->uc_mcontext.regs[10+_SP];
+    ucontext_t *p = (ucontext_t *)ucntx;
+    void* pc = NULL;
+    if(p) {
+        pc = (void*)p->uc_mcontext.pc;
+        if(db)
+            frame = (uintptr_t)p->uc_mcontext.regs[10+_SP];
     }
 #elif defined(LA464)
-    ucontext_t *p = (ucontext_t *)ucntx;
-    void * pc = (void*)p->uc_mcontext.__pc;
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
-    if(db) {
-        frame = (uintptr_t)p->uc_mcontext.__gregs[12+_SP];
+    ucontext_t *p = (ucontext_t *)ucntx;
+    void* pc = NULL;
+    if(p) {
+        pc = (void*)p->uc_mcontext.__pc;
+        if(db)
+            frame = (uintptr_t)p->uc_mcontext.__gregs[12+_SP];
     }
 #elif defined(RV64)
-    ucontext_t *p = (ucontext_t *)ucntx;
-    void * pc = (void*)p->uc_mcontext.__gregs[0];
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
-    if(db) {
-        frame = (uintptr_t)p->uc_mcontext.__gregs[16+_SP];
+    ucontext_t *p = (ucontext_t *)ucntx;
+    void* pc = NULL;
+    if(p) {
+        pc = (void*)p->uc_mcontext.__gregs[0];
+        if(db)
+            frame = (uintptr_t)p->uc_mcontext.__gregs[16+_SP];
     }
 #else
 #error Unsupported architecture
@@ -862,7 +868,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     sigcontext->uc_mcontext.gregs[X64_CSGSFS] = ((uint64_t)(R_CS)) | (((uint64_t)(R_GS))<<16) | (((uint64_t)(R_FS))<<32);
 #if defined(DYNAREC)
 #if defined(ARM64)
-    if(db) {
+    if(db && p) {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.regs[10];
         sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.regs[11];
         sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.regs[12];
@@ -882,7 +888,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
 #elif defined(LA464)
-    if(db) {
+    if(db && p) {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[12];
         sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[13];
         sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[14];
@@ -902,7 +908,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
 #elif defined(RV64)
-    if(db) {
+    if(db && p {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[16];
         sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[17];
         sigcontext->uc_mcontext.gregs[X64_RDX] = p->uc_mcontext.__gregs[18];
@@ -972,14 +978,38 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             if(labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 12; // stack overflow probably
             else
-                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14; // PAGE_FAULT
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
         } else {
-            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR)?14:13;
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
             //X64_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
             sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0004;    // read error? there is no execute control in box64 anyway
         }
         if(info->si_code == SEGV_ACCERR && old_code)
             *old_code = -1;
+        if(info->si_errno==0x1234) {
+            info2->si_errno = 0;
+        } else if(info->si_errno==0xdead) {
+            // INT x
+            uint8_t int_n = info2->si_code;
+            info2->si_errno = 0;
+            info2->si_code = info->si_code;
+            info2->si_addr = NULL;
+            // some special cases...
+            if(int_n==3) {
+                info2->si_signo = SIGTRAP;
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 3;
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
+                sigcontext->uc_mcontext.gregs[X64_RIP]+=2;   // segfault after the INT
+            } else if(int_n==0x04) {
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 4;
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
+                sigcontext->uc_mcontext.gregs[X64_RIP]+=2;   // segfault after the INT
+            } else if (int_n==0x29 || int_n==0x2c || int_n==0x2d) {
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 0x02|(int_n<<3);
+            } else {
+                sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0a|(int_n<<3);
+            }
+        }
     } else if(sig==SIGFPE) {
         if (info->si_code == FPE_INTOVF)
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 4;
@@ -1015,10 +1045,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     if(sig!=SIGSEGV && !(Locks&is_dyndump_locked))
         dynarec = 1;
     #endif
-    /*if (simple)
-        ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 1, sig);
-    else*/
-        ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[sig], 3, sig, info2, sigcontext);
+    ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
     // restore old value from emu
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
@@ -1459,7 +1486,7 @@ exit(-1);
                 if(jit_gdb==2)
                     execlp("gdbserver", "gdbserver", "127.0.0.1:1234", "--attach", myarg, (char*)NULL);
                 else
-                    execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
+                    execlp("lldb", "lldb", "-p", myarg, (char*)NULL);
                 exit(-1);
             }
         }
@@ -1644,7 +1671,6 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 
 void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
 {
-    ucontext_t ctx = {0};
     siginfo_t info = {0};
     info.si_signo = sig;
     info.si_errno = (sig==SIGSEGV)?0x1234:0;    // Mark as a sign this is a #GP(0) (like privileged instruction)
@@ -1659,12 +1685,11 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
     }
-    my_sigactionhandler_oldcode(sig, 0, &info, &ctx, NULL, NULL);
+    my_sigactionhandler_oldcode(sig, 0, &info, NULL, NULL, NULL);
 }
 
 void emit_interruption(x64emu_t* emu, int num, void* addr)
 {
-    ucontext_t ctx = {0};
     siginfo_t info = {0};
     info.si_signo = SIGSEGV;
     info.si_errno = 0xdead;
@@ -1679,7 +1704,7 @@ void emit_interruption(x64emu_t* emu, int num, void* addr)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Interruption 0x%x at IP=%p(%s / %s) / addr=%p\n", num, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr);
     }
-    my_sigactionhandler_oldcode(SIGSEGV, 0, &info, &ctx, NULL, NULL);
+    my_sigactionhandler_oldcode(SIGSEGV, 0, &info, NULL, NULL, NULL);
 }
 
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
