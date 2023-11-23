@@ -53,7 +53,7 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             LHU(x3, xEmu, offsetof(x64emu_t, sw));
-            MOV32w(x1, 0b1110100011111111); // mask off c0,c1,c2,c3
+            MOV32w(x1, 0b1011100011111111); // mask off c0,c1,c2,c3
             AND(x3, x3, x1);
             if(ST_IS_F(0)) {
                 FEQS(x5, v1, v1);
@@ -62,15 +62,15 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BEQZ(x5, 24); // undefined/NaN
                 FEQS(x5, v1, v2);
                 BNEZ(x5, 28); // equal
-                FLTS(x3, v1, v2); // x3 = (v1<v2)?1:0
-                SLLI(x1, x3, 8);
+                FLTS(x2, v1, v2); // x2 = (v1<v2)?1:0
+                SLLI(x1, x2, 8);
                 J(20); // end
                 // undefined/NaN
-                LUI(x1, 1);
+                LUI(x1, 4);
                 ADDI(x1, x1, 0b010100000000);
                 J(8); // end
                 // equal
-                LUI(x1, 1);
+                LUI(x1, 4);
                 // end
             } else {
                 FEQD(x5, v1, v1);
@@ -79,15 +79,15 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BEQZ(x5, 24); // undefined/NaN
                 FEQD(x5, v1, v2);
                 BNEZ(x5, 28); // equal
-                FLTD(x3, v1, v2); // x3 = (v1<v2)?1:0
-                SLLI(x1, x3, 8);
+                FLTD(x2, v1, v2); // x2 = (v1<v2)?1:0
+                SLLI(x1, x2, 8);
                 J(20); // end
                 // undefined/NaN
-                LUI(x1, 1);
+                LUI(x1, 4);
                 ADDI(x1, x1, 0b010100000000);
                 J(8); // end
                 // equal
-                LUI(x1, 1);
+                LUI(x1, 4);
                 // end
             }
             OR(x3, x3, x1);
