@@ -4,6 +4,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <signal.h>
+#include <aio.h>
 
 #include "wrappedlibs.h"
 
@@ -28,6 +29,10 @@
 
 const char* librtName = "librt.so.1";
 #define LIBNAME librt
+
+#include "generated/wrappedlibrttypes.h"
+
+#include "wrappercallback.h"
 
 #define SUPER() \
 GO(0)   \
@@ -72,5 +77,51 @@ EXPORT int my_timer_create(x64emu_t* emu, uint32_t clockid, void* sevp, timer_t*
 
     return timer_create(clockid, &sevent, timerid);
 }
+EXPORT int my_aio_cancel(x64emu_t emu, int fd, struct aiocb* aiocbp)
+{
+    if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
+        aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
+    return my->aio_cancel(fd, aiocbp);
+}
+EXPORT int my_aio_read(x64emu_t emu, struct aiocb* aiocbp)
+{
+    if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
+        aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
+    return my->aio_read(aiocbp);
+}
+EXPORT int my_aio_read64(x64emu_t emu, struct aiocb* aiocbp)
+{
+    if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
+        aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
+    return my->aio_read64(aiocbp);
+}
+EXPORT int my_aio_write(x64emu_t emu, struct aiocb* aiocbp)
+{
+    if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
+        aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
+    return my->aio_write(aiocbp);
+}
+EXPORT int my_aio_write64(x64emu_t emu, struct aiocb* aiocbp)
+{
+    if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
+        aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
+    return my->aio_write64(aiocbp);
+}
+EXPORT int mylio_listio(x64emu_t* emu, int mode, struct aiocb* list[], int nent, struct sigevent* sig)
+{
+    struct sigevent sevent;
+    if(sig) {
+        memcpy(&sevent, sig, sizeof(sevent));
+        if(sevent.sigev_notify == SIGEV_THREAD)
+            sevent.sigev_notify_function = findsigev_notifyFct(sevent.sigev_notify_function);
+    }
+    return my->lio_listio(mode, list, nent, sig?(&sevent):sig);
+}
+
+#define CUSTOM_INIT \
+    getMy(lib);
+
+#define CUSTOM_FINI \
+    freeMy();
 
 #include "wrappedlib_init.h"

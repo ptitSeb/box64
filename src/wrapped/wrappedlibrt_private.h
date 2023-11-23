@@ -7,27 +7,27 @@
 // time_t is uint32?
 // mqd_t is int
 
-GO(aio_cancel, iFip)
+GOM(aio_cancel, iFEip)
 // aio_cancel64
 GO(aio_error, iFp)
 GO(aio_error64, iFp)
 GO(aio_fsync, iFip)
 GO(aio_fsync64, iFip)
 GO(aio_init, vFp)
-GO(aio_read, iFp)
-GO(aio_read64, iFp)
+GOM(aio_read, iFEp)
+GOM(aio_read64, iFEp)
 GO(aio_return, lFp)
 GO(aio_return64, lFp)
 GO(aio_suspend, iFpip)
 GO(aio_suspend64, iFpip)
-GO(aio_write, iFp)
-GO(aio_write64, iFp)
+GOM(aio_write, iFEp)
+GOM(aio_write64, iFEp)
 GO(clock_getcpuclockid, iFup)
 GO(clock_getres, iFup)
 GO(clock_gettime, iFup)
 GO(clock_nanosleep, iFuipp)
 GO(clock_settime, iFup)
-GO(lio_listio, iFippip)
+GOM(lio_listio, iFEipip)
 // lio_listio64
 GO(mq_close, iFi)
 GO(mq_getattr, iFip)
