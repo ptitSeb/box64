@@ -152,6 +152,7 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
     #define ARCH_GET_GS          0x1004
     int seg = 0;
     int idx = 0;
+    errno = 0;
     switch(code) {
         case ARCH_GET_GS:
             *(void**)addr = GetSegmentBase(emu->segs[_GS]);
