@@ -6,6 +6,8 @@
 #include <signal.h>
 #ifndef ANDROID
 #include <aio.h>
+#else
+#include <errno.h>
 #endif
 
 #include "wrappedlibs.h"
