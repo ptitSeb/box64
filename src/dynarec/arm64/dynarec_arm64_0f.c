@@ -1882,8 +1882,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
-                    MOV32w(x4, 1);
-                    BICxw_REG_LSL(ed, ed, x4, u8);
+                    BFCxw(ed, u8, 1);
                     if(wback) {
                         STxw(ed, wback, fixedaddress);
                         SMWRITE();

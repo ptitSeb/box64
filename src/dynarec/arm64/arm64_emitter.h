@@ -2091,6 +2091,7 @@
 #define STUMINH(Rs, Rn)                  EMIT(ATOMIC_gen(0b01, 0, 0, Rs, 0b111, Rn, 0b11111))
 #define STUMINLH(Rs, Rn)                 EMIT(ATOMIC_gen(0b01, 0, 1, Rs, 0b111, Rn, 0b11111))
 
+// SWAPxx(Xs, Xt, Xn) : [Xn] => Xt, Xs => [Xn]
 #define SWAP_gen(size, A, R, Rs, Rn, Rt)    ((size)<<30 | 0b111<<27 | (A)<<23 | (R)<<22 | 1<<21 | (Rs)<<16 | 1<<15 | (Rn)<<5 | (Rt))
 #define SWPxw(Rs, Rt, Rn)               EMIT(SWAP_gen(0b10+rex.w, 0, 0, Rs, Rn, Rt))
 #define SWPAxw(Rs, Rt, Rn)              EMIT(SWAP_gen(0b10+rex.w, 1, 0, Rs, Rn, Rt))

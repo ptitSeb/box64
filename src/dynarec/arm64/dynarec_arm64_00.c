@@ -1039,8 +1039,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("(LOCK)XCHG Eb, Gb");
             // Do the swap
             nextop = F8;
+            GETGB(x4);
             if(MODREG) {
-                GETGB(x4);
                 if(rex.rex) {
                     ed = xRAX+(nextop&7)+(rex.b<<3);
                     eb1 = ed;
@@ -1052,10 +1052,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 UBFXw(x1, eb1, eb2, 8);
                 // do the swap 14 -> ed, 1 -> gd
-                BFIx(gb1, x1, gb2, 8);
                 BFIx(eb1, x4, eb2, 8);
             } else {
-                GETGB(x4);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 if(arm64_atomics) {
                     SWPALB(x4, x1, ed);
@@ -1067,8 +1065,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STLXRB(x3, x4, ed);
                     CBNZx_MARKLOCK(x3);
                 }
-                BFIx(gb1, x1, gb2, 8);
             }
+            BFIx(gb1, x1, gb2, 8);
             break;
         case 0x87:
             INST_NAME("(LOCK)XCHG Ed, Gd");
@@ -2088,7 +2086,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
                 GETIP(ip);
                 STORE_XEMU_CALL(xRIP);
-                CALL(native_priv, -1);
+                CALL(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
                 *need_epilog = 0;

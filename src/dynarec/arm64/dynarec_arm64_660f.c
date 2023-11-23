@@ -2272,8 +2272,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
             LSRw_REG(x1, ed, x2);
             BFIw(xFlags, x1, F_CF, 1);
-            ANDSw_mask(x1, x1, 0, 0);  //mask=1
-            B_NEXT(cEQ);
             MOV32w(x1, 1);
             LSLxw_REG(x1, x1, x2);
             BICx_REG(ed, ed, x1);
@@ -2340,12 +2338,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
-                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
-                    TBNZ_MARK3(xFlags, 0); // bit already set, jump to next instruction
+                    IFX(X_CF) {
+                        BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    }
                     MOV32w(x4, 1);
-                    ORRxw_REG_LSL(ed, ed, x4, u8);
+                    BFIxw(ed, x4, u8, 1);
                     EWBACK(x1);
-                    MARK3;
                     break;
                 case 6:
                     INST_NAME("BTR Ew, Ib");
@@ -2354,12 +2352,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
-                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
-                    TBZ_MARK3(xFlags, 0); // bit already clear, jump to next instruction
-                    MOV32w(x4, 1);
-                    BICxw_REG_LSL(ed, ed, x4, u8);
+                    IFX(X_CF) {
+                        BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    }
+                    BFCxw(ed, u8, 1);
                     EWBACK(x1);
-                    MARK3;
                     break;
                 case 7:
                     INST_NAME("BTC Ew, Ib");
@@ -2368,7 +2365,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEW(x1, 1);
                     u8 = F8;
                     u8&=(rex.w?0x3f:0x0f);
-                    BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    IFX(X_CF) {
+                        BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                    }
                     MOV32w(x4, 1);
                     EORxw_REG_LSL(ed, ed, x4, u8);
                     EWBACK(x1);
@@ -2396,9 +2395,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = x4;
             }
             ANDw_mask(x2, gd, 0, 0b000011);  // mask=0x0f
-            LSRw_REG(x1, ed, x2);
-            BFIw(xFlags, x1, F_CF, 1);
-            ANDw_mask(x1, x1, 0, 0);  //mask=1
+            IFX(X_CF) {
+                LSRw_REG(x1, ed, x2);
+                BFIw(xFlags, x1, F_CF, 1);
+            }
             MOV32w(x1, 1);
             LSLxw_REG(x1, x1, x2);
             EORx_REG(ed, ed, x1);

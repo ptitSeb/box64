@@ -399,7 +399,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         BFIw(xFlags, x4, F_CF, 1);
                         MOV32w(x4, 1);
                         LSLw_REG(x4, x4, x2);
-                        ORRw_REG(ed, ed, x4);
+                        BICw_REG(ed, ed, x4);
                         STLXRB(x4, ed, wback);
                         CBNZw_MARKLOCK(x4);
                     }
@@ -446,10 +446,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             TBNZ_NEXT(xFlags, 0); // bit already set, jump to next instruction
                             MOV32w(x4, 1);
                             ORRxw_REG_LSL(ed, ed, x4, u8);
-                            if(wback) {
-                                STxw(ed, wback, fixedaddress);
-                                SMWRITE();
-                            }
                         } else {
                             // Will fetch only 1 byte, to avoid alignment issue
                             addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
@@ -461,17 +457,15 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             ed = x1;
                             MARKLOCK;
                             LDAXRB(ed, wback);
-                            UBFXw(x4, ed, u8&7, 1);
-                            BFIw(xFlags, x4, F_CF, 1);
+                            BFXILw(xFlags, ed, u8&7, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
                             MOV32w(x4, 1);
-                            LSLw_IMM(x4, x4, u8&7);
-                            ORRw_REG(ed, ed, x4);
+                            BFIw(ed, x4, u8&7, 1);
                             STLXRB(x4, ed, wback);
                             CBNZw_MARKLOCK(x4);
                         }
                         break;
                     case 6:
-                        INST_NAME("BTR Ed, Ib");
+                        INST_NAME("LOCK BTR Ed, Ib");
                         SETFLAGS(X_CF, SF_SUBSET);
                         SET_DFNONE(x1);
                         if(MODREG) {
@@ -481,8 +475,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             u8&=(rex.w?0x3f:0x1f);
                             BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                             TBZ_NEXT(xFlags, 0); // bit already clear, jump to next instruction
-                            MOV32w(x4, 1);
-                            BICxw_REG_LSL(ed, ed, x4, u8);
+                            BFCxw(ed, u8, 1);
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                             u8 = F8;
@@ -493,17 +486,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             ed = x1;
                             MARKLOCK;
                             LDAXRB(ed, wback);
-                            UBFXw(x4, ed, u8&7, 1);
-                            BFIw(xFlags, x4, F_CF, 1);
-                            MOV32w(x4, 1);
-                            LSLw_IMM(x4, x4, u8&7);
-                            ORRw_REG(ed, ed, x4);
+                            BFXILw(xFlags, ed, u8&7, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                            BFCw(ed, u8&7, 1);
                             STLXRB(x4, ed, wback);
                             CBNZw_MARKLOCK(x4);
                         }
                         break;
                     case 7:
-                        INST_NAME("BTC Ed, Ib");
+                        INST_NAME("LOCK BTC Ed, Ib");
                         SETFLAGS(X_CF, SF_SUBSET);
                         SET_DFNONE(x1);
                         if(MODREG) {
@@ -514,10 +504,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                             MOV32w(x4, 1);
                             EORxw_REG_LSL(ed, ed, x4, u8);
-                            if(wback) {
-                                STxw(ed, wback, fixedaddress);
-                                SMWRITE();
-                            }
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                             u8 = F8;
@@ -528,9 +514,9 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             ed = x1;
                             MARKLOCK;
                             LDAXRB(ed, wback);
-                            UBFXw(x4, ed, u8&7, 1);
-                            BFIw(xFlags, x4, F_CF, 1);
-                            BFCw(ed, u8&7, 1);
+                            BFXILw(xFlags, ed, u8&7, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
+                            MOV32w(x4, 1);
+                            EORw_REG_LSL(ed, ed, x4, u8&7);
                             STLXRB(x4, ed, wback);
                             CBNZw_MARKLOCK(x4);
                         }
