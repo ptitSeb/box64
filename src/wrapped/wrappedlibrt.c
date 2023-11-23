@@ -125,27 +125,27 @@ EXPORT int mylio_listio(x64emu_t* emu, int mode, struct aiocb* list[], int nent,
 #else
 EXPORT int my_aio_cancel(x64emu_t emu, int fd, void* aiocbp)
 {
-    errno = ENNOSYS;
+    errno = ENOSYS;
     return -1;
 }
 EXPORT int my_aio_read(x64emu_t emu, void* aiocbp)
 {
-    errno = ENNOSYS;
+    errno = ENOSYS;
     return -1;
 }
 EXPORT int my_aio_read64(x64emu_t emu, void* aiocbp)
 {
-    errno = ENNOSYS;
+    errno = ENOSYS;
     return -1;
 }
 EXPORT int my_aio_write(x64emu_t emu, void* aiocbp)
 {
-    errno = ENNOSYS;
+    errno = ENOSYS;
     return -1;
 }
 EXPORT int my_aio_write64(x64emu_t emu, void* aiocbp)
 {
-    errno = ENNOSYS;
+    errno = ENOSYS;
     return -1;
 }
 EXPORT int mylio_listio(x64emu_t* emu, int mode, void* list[], int nent, struct sigevent* sig)
