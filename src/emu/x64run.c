@@ -1356,7 +1356,7 @@ x64emurun:
             STEP2
             break;
         case 0xC4:                      /* LES Gd,Ed */
-            if(rex.is32bits) {
+            if(rex.is32bits && !(PK(0)&0x80)) {
                 nextop = F8;
                 GETED(0);
                 GETGD;
@@ -1369,7 +1369,7 @@ x64emurun:
             }
             break;
         case 0xC5:                      /* LDS Gd,Ed */
-            if(rex.is32bits) {
+            if(rex.is32bits && !(PK(0)&0x80)) {
                 nextop = F8;
                 GETED(0);
                 GETGD;
