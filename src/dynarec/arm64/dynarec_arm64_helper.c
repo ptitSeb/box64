@@ -1307,9 +1307,9 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
     int ast = st - dyn->n.x87stack;
     if(ast) {
         if(ast>0) {
-            ADDw_U12(x2, x2, ast);
+            ADDw_U12(s2, s2, ast);
         } else {
-            SUBw_U12(x2, x2, -ast);
+            SUBw_U12(s2, s2, -ast);
         }
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
