@@ -715,7 +715,7 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_67_32.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d8.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d9.c"
-    #"${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_da.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_da.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_db.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dc.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_dd.c"
@@ -1021,23 +1021,23 @@ add_test(x87cache ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test25 -D TEST_OUTPUT=tmpfile25.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref25.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-    
+
 add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test26 -D TEST_OUTPUT=tmpfile26.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref26.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 set_tests_properties(feround PROPERTIES ENVIRONMENT "BOX64_SYNC_ROUNDING=1")
-    
+
 add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test27 -D TEST_OUTPUT=tmpfile27.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref27.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-    
+
 add_test(shaext ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test28 -D TEST_OUTPUT=tmpfile28.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref28.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-    
+
 
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
