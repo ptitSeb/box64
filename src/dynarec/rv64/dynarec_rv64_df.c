@@ -46,7 +46,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xE0:
             INST_NAME("FNSTSW AX");
-            LHU(x2, xEmu, offsetof(x64emu_t, top));
+            LWU(x2, xEmu, offsetof(x64emu_t, top));
             LHU(x1, xEmu, offsetof(x64emu_t, sw));
             MOV32w(x3, 0b1100011111111111); // mask
             AND(x1, x1, x3);
@@ -192,6 +192,14 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(rex.is32bits) {
                         FSD(v1, x5, 0);  // ref
                     }
+                    break;
+                case 6:
+                    INST_NAME("FBSTP tbytes, ST0");
+                    x87_forget(dyn, ninst, x1, x2, 0);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                    if (ed != x1) { MV(x1, ed); }
+                    CALL(fpu_fbst, -1);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 7:
                     INST_NAME("FISTP i64, ST0");
