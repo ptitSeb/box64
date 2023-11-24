@@ -503,6 +503,16 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
+                case 2:
+                    INST_NAME("RCL Ed, 1");
+                    MESSAGE("LOG_DUMP", "Need optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    MOV32w(x2, 1);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w ? ((void*)rcl64) : ((void*)rcl32), ed, x4);
+                    WBACK;
+                    break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
