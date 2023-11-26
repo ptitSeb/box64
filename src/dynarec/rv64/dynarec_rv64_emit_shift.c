@@ -385,8 +385,8 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_CF) {
-        SRLI(s3, s1, rex.w?63:31);
-        AND(xFlags, xFlags, s3);
+        SRLIxw(s3, s1, rex.w?63:31);
+        OR(xFlags, xFlags, s3);
     }
     IFX(X_OF) {
         ADDI(s3, xZR, 1);
@@ -479,8 +479,8 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_CF) {
-        SRLI(s3, s1, rex.w?63:31);
-        AND(xFlags, xFlags, s3);
+        SRLIxw(s3, s1, rex.w?63:31);
+        OR(xFlags, xFlags, s3);
     }
     IFX(X_OF) {
         if(c==1) {
