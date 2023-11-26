@@ -1087,7 +1087,7 @@ void PrintHelp() {
     printf(" BOX64_TRACE with 1 to enable x86_64 execution trace\n");
     printf("    or with XXXXXX-YYYYYY to enable x86_64 execution trace only between address\n");
     printf("    or with FunctionName to enable x86_64 execution trace only in one specific function\n");
-    printf("  use BOX64_TRACE_INIT instead of BOX_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
+    printf("  use BOX64_TRACE_INIT instead of BOX64_TRACE to start trace before init of Libs and main program\n\t (function name will probably not work then)\n");
     printf(" BOX64_TRACE_EMM with 1 to enable dump of MMX registers along with regular registers\n");
     printf(" BOX64_TRACE_XMM with 1 to enable dump of SSE registers along with regular registers\n");
     printf(" BOX64_TRACE_COLOR with 1 to enable detection of changed general register values\n");

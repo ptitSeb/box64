@@ -151,7 +151,7 @@ Only on build with trace enabled. Trace allow the logging of all instruction exe
 
 =item B<BOX64_TRACE_INIT>=I<0|1>
 
-Use B<BOX64_TRACE_INIT> instead of B<BOX_TRACE> to start trace before the
+Use B<BOX64_TRACE_INIT> instead of B<BOX64_TRACE> to start trace before the
 initialization of libraries and the running program
 
     * 0 : No trace. (Default.)

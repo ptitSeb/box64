@@ -52,7 +52,7 @@ Only on build with trace enabled. Trace allow the logging of all instruction exe
  * 0xXXXXXXX-0xYYYYYYY : Trace only between the 2 addresses.
 
 #### BOX64_TRACE_INIT *
-Use BOX64_TRACE_INIT instead of BOX_TRACE to start trace before the initialisation of libraries and the running program
+Use BOX64_TRACE_INIT instead of BOX64_TRACE to start trace before the initialisation of libraries and the running program
  * 0 : No trace. (Default.)
  * 1 : Trace enabled. The trace start with the initialisation of all depending libraries is done.
 
