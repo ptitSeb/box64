@@ -1045,6 +1045,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(xFlags, xFlags, ~1);
             OR(xFlags, xFlags, x4);
             ADDI(x3, xZR, 1);
+            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
             SLL(x3, x3, x2);
             OR(ed, ed, x3);
             if (wback) {
@@ -1190,6 +1191,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(xFlags, xFlags, ~1);
             OR(xFlags, xFlags, x4);
             ADDI(x5, xZR, 1);
+            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
             SLL(x5, x5, x2);
             NOT(x5, x5);
             AND(ed, ed, x5);
@@ -1351,6 +1353,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(xFlags, xFlags, ~1);
             OR(xFlags, xFlags, x4);
             ADDI(x3, xZR, 1);
+            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
             SLL(x3, x3, x2);
             XOR(ed, ed, x3);
             if (wback) {
