@@ -546,7 +546,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
         emu->regs[_R14].q[0] = p->uc_mcontext.__gregs[30];
         emu->regs[_R15].q[0] = p->uc_mcontext.__gregs[31];
         emu->ip.q[0] = ip;
-        emu->eflags.x64 = p->uc_mcontext.__gregs[5];
+        emu->eflags.x64 = p->uc_mcontext.__gregs[8];
 #else
 #error  Unsupported architecture
 #endif
