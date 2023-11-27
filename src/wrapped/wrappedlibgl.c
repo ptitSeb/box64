@@ -33,6 +33,7 @@ EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((a
 
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFppi_t)(void*, void*, int);
 typedef void*(*pFp_t)(void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
@@ -202,7 +203,8 @@ static int my_glXSwapIntervalMESA_##A(int interval)     \
 SUPER()
 #undef GO
 
-static int my_dummy_glXSwapIntervalMESA(int a) {
+static int my_dummy_glXSwapIntervalMESA(int interval)
+{
     return 5; // GLX_BAD_CONTEXT
 }
 
@@ -220,28 +222,26 @@ static void* find_glXSwapIntervalMESA_Fct(void* fct)
 }
 
 // glXSwapIntervalEXT ...
-#define GO(A)                                           \
-static iFi_t my_glXSwapIntervalEXT_fct_##A = NULL;      \
-static int my_glXSwapIntervalEXT_##A(int interval)      \
-{                                                       \
-    if(!my_glXSwapIntervalEXT_fct_##A)                  \
-        return 0;                                       \
-    return my_glXSwapIntervalEXT_fct_##A(interval);     \
+#define GO(A)                                                                   \
+static vFppi_t my_glXSwapIntervalEXT_fct_##A = NULL;                            \
+static void my_glXSwapIntervalEXT_##A(void* dpy, void* drawable, int interval)  \
+{                                                                               \
+    if (!my_glXSwapIntervalEXT_fct_##A)                                         \
+        return;                                                                 \
+    my_glXSwapIntervalEXT_fct_##A(dpy, drawable, interval);                     \
 }
 SUPER()
 #undef GO
 
-static int my_dummy_glXSwapIntervalEXT(int a) {
-    return 5; // GLX_BAD_CONTEXT
-}
+static void my_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
 
 static void* find_glXSwapIntervalEXT_Fct(void* fct)
 {
     if(!fct) return my_dummy_glXSwapIntervalEXT;
-    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == (iFi_t)fct) return my_glXSwapIntervalEXT_##A;
+    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == (vFppi_t)fct) return my_glXSwapIntervalEXT_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == 0) {my_glXSwapIntervalEXT_fct_##A = (iFi_t)fct; return my_glXSwapIntervalEXT_##A; }
+    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == 0) {my_glXSwapIntervalEXT_fct_##A = (vFppi_t)fct; return my_glXSwapIntervalEXT_##A; }
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libGL glXSwapIntervalEXT callback\n");
@@ -331,7 +331,7 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
  GO(vFpp_t, glDebugMessageCallbackAMD)  \
  GO(vFpp_t, glDebugMessageCallbackKHR)  \
  GO(iFi_t, glXSwapIntervalMESA)         \
- GO(iFi_t, glXSwapIntervalEXT)          \
+ GO(vFppi_t, glXSwapIntervalEXT)        \
  GO(vFpp_t, glProgramCallbackMESA)      \
  GO(pFp_t, glGetVkProcAddrNV)           \
 

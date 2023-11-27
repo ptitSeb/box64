@@ -15,7 +15,7 @@ typedef int32_t (*iFi_t)(int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
-typedef void* (*pFppi_t)(void*, void*, int32_t);
+typedef void (*vFppi_t)(void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(glXSwapIntervalMESA, iFi_t) \
@@ -27,6 +27,6 @@ typedef void* (*pFppi_t)(void*, void*, int32_t);
 	GO(glDebugMessageCallbackARB, vFpp_t) \
 	GO(glDebugMessageCallbackKHR, vFpp_t) \
 	GO(glProgramCallbackMESA, vFipp_t) \
-	GO(glXSwapIntervalEXT, pFppi_t)
+	GO(glXSwapIntervalEXT, vFppi_t)
 
 #endif // __wrappedlibglTYPES_H_
