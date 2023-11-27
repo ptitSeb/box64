@@ -2977,6 +2977,7 @@
 #() iFEpuvvppp -> iFEpuppp
 wrappedalure:
 wrappedalut:
+wrappedandroidshmem:
 wrappedatk:
 - vFp:
   - atk_focus_tracker_init
