@@ -211,6 +211,10 @@ You can use ` -DSAVE_MEM` to have a build that will try to save some memory. It'
 
 If you are not building from a git clone (for example, downloading a release source code zip from github), you need to use `-DNOGIT=1` from cmake to be able to build (box64 uses git SHA1 to show last commit in version number).
 
+#### Use faster linker
+
+You need to add `-DWITH_MOLD=1` if GNU ld is extremely slow. Then run `mold -run make -j4` to build (make sure [Mold](https://github.com/rui314/mold) is installed).
+
 ----
 
 Testing
