@@ -156,15 +156,15 @@ GO(xcb_randr_get_output_property_reply, pFpup)
 //GO(xcb_randr_get_providers_reply, 
 //GO(xcb_randr_get_providers_sizeof, 
 //GO(xcb_randr_get_providers_unchecked, 
-//GO(xcb_randr_get_screen_info, 
-//GO(xcb_randr_get_screen_info_rates_iterator, 
-//GO(xcb_randr_get_screen_info_rates_length, 
-//GO(xcb_randr_get_screen_info_reply, 
+GO(xcb_randr_get_screen_info, pFppu)
+GO(xcb_randr_get_screen_info_rates_iterator, pFpp)
+GO(xcb_randr_get_screen_info_rates_length, iFp)
+GO(xcb_randr_get_screen_info_reply, pFpup)
 //GO(xcb_randr_get_screen_info_sizeof, 
-//GO(xcb_randr_get_screen_info_sizes, 
-//GO(xcb_randr_get_screen_info_sizes_iterator, 
-//GO(xcb_randr_get_screen_info_sizes_length, 
-//GO(xcb_randr_get_screen_info_unchecked, 
+GO(xcb_randr_get_screen_info_sizes, pFp)
+GO(xcb_randr_get_screen_info_sizes_iterator, pFpp)
+GO(xcb_randr_get_screen_info_sizes_length, iFp)
+GO(xcb_randr_get_screen_info_unchecked, pFppu)
 GO(xcb_randr_get_screen_resources, pFppu)
 //GO(xcb_randr_get_screen_resources_crtcs, 
 //GO(xcb_randr_get_screen_resources_crtcs_end, 

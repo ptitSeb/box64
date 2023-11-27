@@ -207,7 +207,7 @@ GO(xcb_free_cursor, pFpp)
 GO(xcb_free_gc, pFpu)
 //GO(xcb_free_gc_checked, 
 GO(xcb_free_pixmap, pFpu)
-//GO(xcb_free_pixmap_checked, 
+GO(xcb_free_pixmap_checked, pFpu)
 //GO(xcb_gcontext_end, 
 //GO(xcb_gcontext_next, 
 GO(xcb_generate_id, uFp)
@@ -462,7 +462,7 @@ GO(xcb_popcount, iFu)
 GO(xcb_prefetch_extension_data, vFpp)
 GO(xcb_prefetch_maximum_request_length, vFp)
 GO(xcb_put_image, pFpCuuWWwwCCup)
-//GO(xcb_put_image_checked, 
+GO(xcb_put_image_checked, pFpCuuWWwwCCup)
 //GO(xcb_put_image_data, 
 //GO(xcb_put_image_data_end, 
 //GO(xcb_put_image_data_length, 
@@ -491,9 +491,9 @@ GO(xcb_put_image, pFpCuuWWwwCCup)
 //GO(xcb_query_font_reply, 
 //GO(xcb_query_font_sizeof, 
 //GO(xcb_query_font_unchecked, 
-//GO(xcb_query_keymap, 
-//GO(xcb_query_keymap_reply, 
-//GO(xcb_query_keymap_unchecked, 
+GO(xcb_query_keymap, pFpp)
+GO(xcb_query_keymap_reply, pFpup)
+GO(xcb_query_keymap_unchecked, pFpp)
 GO(xcb_query_pointer, pFpu)
 GO(xcb_query_pointer_reply, pFpup)
 //GO(xcb_query_pointer_unchecked, 
