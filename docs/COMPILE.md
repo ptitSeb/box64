@@ -213,7 +213,7 @@ If you are not building from a git clone (for example, downloading a release sou
 
 #### Use faster linker
 
-You can use [Mold](https://github.com/rui314/mold) if GNU ld is extremely slow. Add `-DWITH_MOLD=1` to the cmake command. Then run `mold -run make -j`nproc``.
+You need to add `-DWITH_MOLD=1` if GNU ld is extremely slow. Then run `mold -run make -j4` to build (make sure [Mold](https://github.com/rui314/mold) is installed).
 
 ----
 
