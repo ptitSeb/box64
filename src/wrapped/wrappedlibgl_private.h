@@ -3046,7 +3046,7 @@ GO(glXWaitForMscOML, iFppIIIppp)
 GO(glXWaitForSbcOML, iFppIppp)
 
 //GLX_EXT_swap_control
-GO(glXSwapIntervalEXT,pFppi)
+GOM(glXSwapIntervalEXT,pFppi)
 //GLX_EXT_swap_control_tear
 //nothing
 
