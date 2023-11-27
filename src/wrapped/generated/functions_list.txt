@@ -4314,6 +4314,8 @@ wrappedlibgl:
   - glDebugMessageCallbackKHR
 - vFipp:
   - glProgramCallbackMESA
+- vFppi:
+  - glXSwapIntervalEXT
 wrappedlibglu:
 - vFpip:
   - gluNurbsCallback

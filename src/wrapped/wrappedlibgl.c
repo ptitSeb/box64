@@ -33,6 +33,7 @@ EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((a
 
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFppi_t)(void*, void*, int);
 typedef void*(*pFp_t)(void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
@@ -201,9 +202,15 @@ static int my_glXSwapIntervalMESA_##A(int interval)     \
 }
 SUPER()
 #undef GO
+
+static int my_dummy_glXSwapIntervalMESA(int interval)
+{
+    return 5; // GLX_BAD_CONTEXT
+}
+
 static void* find_glXSwapIntervalMESA_Fct(void* fct)
 {
-    if(!fct) return fct;
+    if(!fct) return my_dummy_glXSwapIntervalMESA;
     #define GO(A) if(my_glXSwapIntervalMESA_fct_##A == (iFi_t)fct) return my_glXSwapIntervalMESA_##A;
     SUPER()
     #undef GO
@@ -213,6 +220,34 @@ static void* find_glXSwapIntervalMESA_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL glXSwapIntervalMESA callback\n");
     return NULL;
 }
+
+// glXSwapIntervalEXT ...
+#define GO(A)                                                                   \
+static vFppi_t my_glXSwapIntervalEXT_fct_##A = NULL;                            \
+static void my_glXSwapIntervalEXT_##A(void* dpy, void* drawable, int interval)  \
+{                                                                               \
+    if (!my_glXSwapIntervalEXT_fct_##A)                                         \
+        return;                                                                 \
+    my_glXSwapIntervalEXT_fct_##A(dpy, drawable, interval);                     \
+}
+SUPER()
+#undef GO
+
+static void my_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
+
+static void* find_glXSwapIntervalEXT_Fct(void* fct)
+{
+    if(!fct) return my_dummy_glXSwapIntervalEXT;
+    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == (vFppi_t)fct) return my_glXSwapIntervalEXT_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_glXSwapIntervalEXT_fct_##A == 0) {my_glXSwapIntervalEXT_fct_##A = (vFppi_t)fct; return my_glXSwapIntervalEXT_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXSwapIntervalEXT callback\n");
+    return NULL;
+}
+
 // glProgramCallbackMESA ...
 #define GO(A)                                                               \
 static vFpp_t my_glProgramCallbackMESA_fct_##A = NULL;                      \
@@ -280,6 +315,13 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
         s->resolved = 1;                                                        \
         s->addr = (uintptr_t)find_glXSwapIntervalMESA_Fct(symb);                \
     }                                                                           \
+    symb = dlsym(lib->w.lib, "glXSwapIntervalEXT");                             \
+    if(symb) {                                                                  \
+        k = kh_get(symbolmap, lib->w.mysymbolmap, "glXSwapIntervalEXT");        \
+        symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);                        \
+        s->resolved = 1;                                                        \
+        s->addr = (uintptr_t)find_glXSwapIntervalEXT_Fct(symb);                 \
+    }                                                                           \
 
 #include "wrappedlib_init.h"
 
@@ -289,6 +331,7 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
  GO(vFpp_t, glDebugMessageCallbackAMD)  \
  GO(vFpp_t, glDebugMessageCallbackKHR)  \
  GO(iFi_t, glXSwapIntervalMESA)         \
+ GO(vFppi_t, glXSwapIntervalEXT)        \
  GO(vFpp_t, glProgramCallbackMESA)      \
  GO(pFp_t, glGetVkProcAddrNV)           \
 
