@@ -571,6 +571,11 @@ char* GetNameLib(library_t* lib)
 {
     return lib->name;
 }
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 int IsSameLib(library_t* lib, const char* path)
 {
     int ret = 0;

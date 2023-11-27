@@ -45,7 +45,9 @@ const char* DumpSection(Elf64_Shdr *s, char* SST) {
         GO(SHT_GNU_ATTRIBUTES);
         GO(SHT_GNU_HASH);
         GO(SHT_GNU_LIBLIST);
-        GO(SHT_CHECKSUM);
+        #ifndef ANDROID
+          GO(SHT_CHECKSUM);
+        #endif
         GO(SHT_LOSUNW);
         //GO(SHT_SUNW_move);
         GO(SHT_SUNW_COMDAT);
