@@ -798,7 +798,40 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMWRITELOCK(lock);
             }
             break;
-
+        case 0x8A:
+            INST_NAME("MOV Gb, Eb");
+            nextop = F8;
+            if(rex.rex) {
+                gb1 = gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+                gb2=0;
+            } else {
+                gd = (nextop&0x38)>>3;
+                gb1 = xRAX+(gd&3);
+                gb2 = ((gd&4)<<1);
+            }
+            if(MODREG) {
+                if(rex.rex) {
+                    wback = xRAX+(nextop&7)+(rex.b<<3);
+                    wb2 = 0;
+                } else {
+                    wback = (nextop&7);
+                    wb2 = (wback>>2);
+                    wback = xRAX+(wback&3);
+                }
+                if(wb2) {
+                    UBFXw(x4, wback, wb2*8, 8);
+                    ed = x4;
+                } else {
+                    ed = wback;
+                }
+            } else {
+                addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, &lock, 0, 0);
+                SMREADLOCK(lock);
+                LDB(x4, wback, fixedaddress);
+                ed = x4;
+            }
+            BFIx(gb1, ed, gb2, 8);
+            break;
         case 0x8B:
             INST_NAME("MOV Gd, Ed");
             nextop=F8;
