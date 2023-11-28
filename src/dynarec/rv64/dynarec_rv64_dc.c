@@ -57,7 +57,6 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FSUBR STx, ST0");
             DEFAULT;
             break;
-            break;
         case 0xE8 ... 0xEF:
             INST_NAME("FSUB STx, ST0");
             DEFAULT;
