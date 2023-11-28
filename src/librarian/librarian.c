@@ -199,7 +199,7 @@ int isLibLocal(library_t* lib)
     return libraryInMapLib(my_context->local_maplib, lib);
 }
 
-static int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int n, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
+static int AddNeededLib_add(lib_t** maplib, int local, needed_libs_t* needed, int n, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
 {
     const char* path = needed->names[n];
     printf_dump(LOG_DEBUG, "Trying to add \"%s\" to maplib%s\n", path, local?" (local)":"");
@@ -219,11 +219,11 @@ static int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int
         IncRefCount(lib, emu);   // increment cntref
         if(local) {
             // add lib to maplib...
-            if(maplib) {
-                if(!libraryInMapLib(maplib, lib))
-                     MapLibPrependLib(maplib, lib, NULL);    // todo: Also insert libs needed by lib, after lib? But current lib->maplib is probably not the solution
-                if(maplib->ownlibs)
-                    MapLibRemoveMapLib(my_context->local_maplib, maplib);
+            if(*maplib) {
+                if(!libraryInMapLib(*maplib, lib))
+                     MapLibPrependLib(*maplib, lib, NULL);    // todo: Also insert libs needed by lib, after lib? But current lib->maplib is probably not the solution
+                if((*maplib)->ownlibs)
+                    MapLibRemoveMapLib(my_context->local_maplib, *maplib);
             }
         } else {
             // promote lib from local to global...
@@ -241,8 +241,8 @@ static int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int
     // add lib now
     if(local) {
         MapLibAddLib(my_context->local_maplib, lib);
-        if(maplib) {
-            MapLibAddLib(maplib, lib);
+        if(*maplib) {
+            MapLibAddLib(*maplib, lib);
         } else {
             lib->maplib = NewLibrarian(box64, 0);
             MapLibAddLib(lib->maplib, lib);
@@ -251,10 +251,10 @@ static int AddNeededLib_add(lib_t* maplib, int local, needed_libs_t* needed, int
         MapLibAddLib(my_context->maplib, lib);
     }
 
-    if(!maplib)
-        maplib = (local)?lib->maplib:my_context->maplib;
+    if(!*maplib)
+        *maplib = (local)?lib->maplib:my_context->maplib;
 
-    if(AddSymbolsLibrary(maplib, lib, emu)) {   // also add needed libs
+    if(AddSymbolsLibrary(*maplib, lib, emu)) {   // also add needed libs
         printf_dump(LOG_DEBUG, "Failure to Add lib => fail\n");
         return 1;
     }
@@ -343,7 +343,7 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, e
     int ret = 0;
     // Add libs and symbol
     for(int i=0; i<needed->size; ++i) {
-        if(AddNeededLib_add(maplib, local, needed, i, verneeded, box64, emu)) {
+        if(AddNeededLib_add(&maplib, local, needed, i, verneeded, box64, emu)) {
             printf_log(strchr(needed->names[i],'/')?LOG_DEBUG:LOG_INFO, "Error loading needed lib %s\n", needed->names[i]);
             ret = 1;
         }
@@ -483,24 +483,26 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
                 if(*start) {
                     return 1;
                 }
-    // search non-weak symbol, from older to newer (first GLOBAL object wins, starting with self)
-    if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, (my_context->elfs[0]==self || !self)?1:0, globdefver))
-        if(*start) {
-            return 1;
-        }
-    // This kind-of create a map to search lib only 1 time, and in order of needed...
-    if(my_context->neededlibs)
-        CheckNeededLibs(my_context->neededlibs);
-    // search in needed libs from neededlibs first, in order
-    if(my_context->neededlibs)
-        for(int i=0; i<my_context->neededlibs->size; ++i)
-            if(GetLibGlobalSymbolStartEnd(my_context->neededlibs->libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->neededlibs->libs[i]), globdefver))
-                if(*start) {
-                    return 1;
-                }
+    if(maplib==my_context->maplib) {
+        // search non-weak symbol, from older to newer (first GLOBAL object wins, starting with self)
+        if(GetSymbolStartEnd(GetMapSymbols(my_context->elfs[0]), name, start, end, version, vername, (my_context->elfs[0]==self || !self)?1:0, globdefver))
+            if(*start) {
+                return 1;
+            }
+        // This kind-of create a map to search lib only 1 time, and in order of needed...
+        if(my_context->neededlibs)
+            CheckNeededLibs(my_context->neededlibs);
+        // search in needed libs from neededlibs first, in order
+        if(my_context->neededlibs)
+            for(int i=0; i<my_context->neededlibs->size; ++i)
+                if(GetLibGlobalSymbolStartEnd(my_context->neededlibs->libs[i], name, start, end, size, &weak, version, vername, isLocal(self, my_context->neededlibs->libs[i]), globdefver))
+                    if(*start) {
+                        return 1;
+                    }
+    }
     // search in global symbols
     if(maplib) {
-        if(self && self!=my_context->elfs[0] && self!=(void*)1)
+        if((maplib==my_context->maplib) && self && self!=my_context->elfs[0] && self!=(void*)1)
             if(GetSymbolStartEnd(GetMapSymbols(self), name, start, end, version, vername, 1, globdefver))
                 if(*start) {
                     return 1;
