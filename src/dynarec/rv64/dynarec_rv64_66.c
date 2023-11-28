@@ -685,7 +685,19 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD(xRDI, xRDI, x3);
             }
             break;
-
+        case 0xAD:
+            if (rep) {
+                DEFAULT;
+            } else {
+                INST_NAME("LODSW");
+                GETDIR(x1, x2, 2);
+                LHU(x2, xRSI, 0);
+                ADD(xRSI, xRSI, x1);
+                LUI(x1, 0xffff0);
+                AND(xRAX, xRAX, x1);
+                OR(xRAX, xRAX, x2);
+            }
+            break;
         case 0xAF:
             switch (rep) {
                 case 1:
