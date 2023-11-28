@@ -200,23 +200,18 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ORRxw_REG(ed, ed, x4);
                     } else {
                         // Will fetch only 1 byte, to avoid alignment issue
-                        if(rex.w) {
-                            ANDx_mask(x2, gd, 1, 0, 0b00010);  //mask=0x0000000000000007
-                        } else {
-                            ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
-                        }
+                        ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         ASRxw(x1, gd, 3); // r1 = (gd>>3)
                         ADDx_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         ed = x1;
                         wback = x3;
+                        MOV32w(x5, 1);
                         MARKLOCK;
                         LDAXRB(ed, wback);
                         LSRw_REG(x4, ed, x2);
-                        ANDw_mask(x4, x4, 0, 0);  //mask=1
-                        BFIw(xFlags, x4, F_CF, 1);
-                        MOV32w(x4, 1);
-                        LSLw_REG(x4, x4, x2);
+                        BFIw(xFlags, x5, F_CF, 1);
+                        LSLw_REG(x4, x5, x2);
                         ORRw_REG(ed, ed, x4);
                         STLXRB(x4, ed, wback);
                         CBNZw_MARKLOCK(x4);
@@ -382,23 +377,18 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         BICxw_REG(ed, ed, x4);
                     } else {
                         // Will fetch only 1 byte, to avoid alignment issue
-                        if(rex.w) {
-                            ANDx_mask(x2, gd, 1, 0, 0b00010);  //mask=0x0000000000000007
-                        } else {
-                            ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
-                        }
+                        ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        ASRx(x1, gd, 3); // r1 = (gd>>3)
+                        ASRx(x1, gd, 3); // r1 = (gd>>3), there might be an issue for negative 32bits values here
                         ADDx_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         ed = x1;
                         wback = x3;
+                        MOV32w(x5, 1);
                         MARKLOCK;
                         LDAXRB(ed, wback);
                         LSRw_REG(x4, ed, x2);
-                        ANDw_mask(x4, x4, 0, 0);  //mask=1
                         BFIw(xFlags, x4, F_CF, 1);
-                        MOV32w(x4, 1);
-                        LSLw_REG(x4, x4, x2);
+                        LSLw_REG(x4, x5, x2);
                         BICw_REG(ed, ed, x4);
                         STLXRB(x4, ed, wback);
                         CBNZw_MARKLOCK(x4);
@@ -455,11 +445,11 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 wback = x3;
                             }
                             ed = x1;
+                            MOV32w(x5, 1);
                             MARKLOCK;
                             LDAXRB(ed, wback);
                             BFXILw(xFlags, ed, u8&7, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
-                            MOV32w(x4, 1);
-                            BFIw(ed, x4, u8&7, 1);
+                            BFIw(ed, x5, u8&7, 1);
                             STLXRB(x4, ed, wback);
                             CBNZw_MARKLOCK(x4);
                         }
@@ -512,11 +502,11 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 wback = x3;
                             }
                             ed = x1;
+                            MOV32w(x5, 1);
                             MARKLOCK;
                             LDAXRB(ed, wback);
                             BFXILw(xFlags, ed, u8&7, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
-                            MOV32w(x4, 1);
-                            EORw_REG_LSL(ed, ed, x4, u8&7);
+                            EORw_REG_LSL(ed, ed, x5, u8&7);
                             STLXRB(x4, ed, wback);
                             CBNZw_MARKLOCK(x4);
                         }
