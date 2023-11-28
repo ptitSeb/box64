@@ -213,7 +213,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_adc8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
-            ANDI(xRAX, xRAX, -256);
+            ANDI(xRAX, xRAX, ~0xff);
             OR(xRAX, xRAX, x1);
             break;
         case 0x15:

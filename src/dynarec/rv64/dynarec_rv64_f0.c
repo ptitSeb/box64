@@ -371,7 +371,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MARKLOCK;
                 LR_W(x5, wback, 1, 1);
                 ANDI(x4, x5, 0xff); // x4 = Ed.b[0]
-                ANDI(x5, x5, -256); // x5 = clear Ed.b[0]
+                ANDI(x5, x5, ~0xff); // x5 = clear Ed.b[0]
                 ADDW(x6, x4, x2);
                 ANDI(x9, xFlags, 1 << F_CF);
                 ADDW(x6, x6, x9);   // x6 = adc
