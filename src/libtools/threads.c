@@ -339,11 +339,13 @@ EXPORT int my_pthread_attr_getguardsize(x64emu_t* emu, pthread_attr_t* attr, siz
 	(void)emu;
 	return pthread_attr_getguardsize(getAlignedAttr(attr), size);
 }
+#ifndef TERMUX
 EXPORT int my_pthread_attr_getinheritsched(x64emu_t* emu, pthread_attr_t* attr, int* sched)
 {
 	(void)emu;
 	return pthread_attr_getinheritsched(getAlignedAttr(attr), sched);
 }
+#endif
 EXPORT int my_pthread_attr_getschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
 	(void)emu;
@@ -398,11 +400,13 @@ EXPORT int my_pthread_attr_setguardsize(x64emu_t* emu, pthread_attr_t* attr, siz
 	(void)emu;
 	return pthread_attr_setguardsize(getAlignedAttr(attr), size);
 }
+#ifndef TERMUX
 EXPORT int my_pthread_attr_setinheritsched(x64emu_t* emu, pthread_attr_t* attr, int sched)
 {
 	(void)emu;
 	return pthread_attr_setinheritsched(getAlignedAttr(attr), sched);
 }
+#endif
 EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
 	(void)emu;
@@ -808,6 +812,7 @@ EXPORT int my_pthread_mutexattr_getkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 	attr->x86 = mattr.x86;
 	return ret;
 }
+#ifndef TERMUX
 EXPORT int my_pthread_mutexattr_getprotocol(x64emu_t* emu, my_mutexattr_t *attr, void* p)
 {
 	my_mutexattr_t mattr = {0};
@@ -816,6 +821,7 @@ EXPORT int my_pthread_mutexattr_getprotocol(x64emu_t* emu, my_mutexattr_t *attr,
 	attr->x86 = mattr.x86;
 	return ret;
 }
+#endif
 EXPORT int my_pthread_mutexattr_gettype(x64emu_t* emu, my_mutexattr_t *attr, void* p)
 {
 	my_mutexattr_t mattr = {0};
@@ -852,6 +858,7 @@ EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 	attr->x86 = mattr.x86;
 	return ret;
 }
+#ifndef TERMUX
 EXPORT int my_pthread_mutexattr_setprotocol(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
 	my_mutexattr_t mattr = {0};
@@ -860,6 +867,7 @@ EXPORT int my_pthread_mutexattr_setprotocol(x64emu_t* emu, my_mutexattr_t *attr,
 	attr->x86 = mattr.x86;
 	return ret;
 }
+#endif
 EXPORT int my_pthread_mutexattr_setpshared(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
 	my_mutexattr_t mattr = {0};
