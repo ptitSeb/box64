@@ -515,78 +515,13 @@ x64emurun:
                 GD->q[0] = imul32(emu, ED->dword[0], (uint32_t)tmp64s);
             break;
         case 0x6C:                      /* INSB DX */
-            if(rex.is32bits) {
-                tmp32u = rep?R_ECX:1;
-                while(tmp32u--) {
-                    *(int8_t*)(R_EDI+GetESBaseEmu(emu)) = 0;   // faking port read, using explicit ES segment
-                    if(ACCESS_FLAG(F_DF))
-                        R_EDI-=1;
-                    else
-                        R_EDI+=1;
-                }
-                if(rep)
-                    R_ECX = 0;
-            } else {
-                // this is a privilege opcode in 64bits, but not in 32bits...
-                #ifndef TEST_INTERPRETOR
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-                STEP;
-                #endif
-            }
-            break;
-        case 0x6D:                      /* INSL DX */
-            if(rex.is32bits) {
-                tmp32u = rep?R_ECX:1;
-                while(tmp32u--) {
-                    *(int32_t*)(R_EDI+GetESBaseEmu(emu)) = 0;   // faking port read, using explicit ES segment
-                    if(ACCESS_FLAG(F_DF))
-                        R_EDI-=4;
-                    else
-                        R_EDI+=4;
-                }
-                if(rep)
-                    R_ECX = 0;
-            } else {
-                // this is a privilege opcode in 64bits, but not in 32bits...
-                #ifndef TEST_INTERPRETOR
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-                STEP;
-                #endif
-            }
-            break;
+        case 0x6D:                      /* INSD DX */
         case 0x6E:                      /* OUTSB DX */
-            if(rex.is32bits) {
-                // faking port write, using explicit ES segment
-                if(ACCESS_FLAG(F_DF))
-                    R_ESI-=rep?R_ECX:1;
-                else
-                    R_ESI+=1?R_ECX:1;
-                if(rep)
-                    R_ECX = 0;
-            } else {
-                // this is a privilege opcode in 64bits, but not in 32bits...
-                #ifndef TEST_INTERPRETOR
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-                STEP;
-                #endif
-            }
-            break;
-        case 0x6F:                      /* OUTSL DX */
-            if(rex.is32bits) {
-                // faking port write, using explicit ES segment
-                if(ACCESS_FLAG(F_DF))
-                    R_ESI-=(rep?R_ECX:1)*4;
-                else
-                    R_ESI+=(rep?R_ECX:1)*4;
-                if(rep)
-                    R_ECX = 0;
-            } else {
-                // this is a privilege opcode in 64bits, but not in 32bits...
-                #ifndef TEST_INTERPRETOR
-                emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-                STEP;
-                #endif
-            }
+        case 0x6F:                      /* OUTSD DX */
+            #ifndef TEST_INTERPRETOR
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            STEP;
+            #endif
             break;
 
         GOCOND(0x70

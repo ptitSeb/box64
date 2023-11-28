@@ -263,6 +263,31 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
+        case 0x6C:
+        case 0x6D:
+            INST_NAME(opcode == 0x6C ? "INSB" : "INSD");
+            SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(x3);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL();
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+        case 0x6E:
+        case 0x6F:
+            INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
+            SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(x3);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL();
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+
         #define GO(GETFLAGS, NO, YES, F)                                \
             READFLAGS(F);                                               \
             i8 = F8S;                                                   \
