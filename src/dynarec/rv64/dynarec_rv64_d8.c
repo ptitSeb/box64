@@ -43,11 +43,14 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     switch(nextop) {
         case 0xC0 ... 0xC7:
-
+            DEFAULT;
+            break;
         case 0xC8 ... 0xCF:
-
+            DEFAULT;
+            break;
         case 0xD0 ... 0xD7:
-
+            DEFAULT;
+            break;
         case 0xD8 ... 0xDF:
             INST_NAME("FCOMP ST0, STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
@@ -105,7 +108,8 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xE8 ... 0xEF:
-
+            DEFAULT;
+            break;
         case 0xF0 ... 0xF7:
             INST_NAME("FDIV ST0, STx");
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
