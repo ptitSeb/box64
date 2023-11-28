@@ -394,9 +394,8 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
         return 0;
     if(dyn->insts[ninst].f_exit.dfnone)  // flags are fully known, nothing we can do more
         return 0;
-/*    if((dyn->f.pending!=SF_SET)
-    && (dyn->f.pending!=SF_SET_PENDING)) {
-        if(dyn->f.pending!=SF_PENDING) {*/
+    if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone)
+        return 1;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: return 0;
         case SF_SET:
@@ -405,22 +404,14 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
             else
                 return 0;
         case SF_SET_PENDING:
-            if(dyn->insts[ninst].f_exit.pending!=SF_SET
-            && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
-            && dyn->insts[ninst].f_exit.pending!=SF_PENDING)
-                return 1;
-            else
+            if(dyn->insts[ninst].f_exit.pending==SF_SET_PENDING)
                 return 0;
+            return 1;
         case SF_PENDING:
-            if(dyn->insts[ninst].f_exit.pending!=SF_SET
-            && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING
-            && dyn->insts[ninst].f_exit.pending!=SF_PENDING)
-                return 1;
-            else
-                return (dyn->insts[jmp].f_entry.dfnone  == dyn->insts[ninst].f_exit.dfnone)?0:1;
+            if(dyn->insts[ninst].f_exit.pending==SF_PENDING || dyn->insts[ninst].f_exit.pending==SF_SET_PENDING)
+                return 0;
+            return (dyn->insts[jmp].f_entry.dfnone  == dyn->insts[ninst].f_exit.dfnone)?0:1;
     }
-    if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone)
-        return 1;
     return 0;
 }
 
