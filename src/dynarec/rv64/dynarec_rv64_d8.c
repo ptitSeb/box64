@@ -124,10 +124,10 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     FLW(s0, ed, fixedaddress);
                     if (ST_IS_F(0)) {
-                        FCOMS(v1, s0, x1, x2, x3, x4, x5);
+                        FCOMS(v1, s0, x1, x6, x3, x4, x5);
                     } else {
                         FCVTDS(s0, s0);
-                        FCOMD(v1, s0, x1, x2, x3, x4, x5);
+                        FCOMD(v1, s0, x1, x6, x3, x4, x5);
                     }
                     break;
                 case 3:
@@ -137,10 +137,10 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     FLW(s0, ed, fixedaddress);
                     if (ST_IS_F(0)) {
-                        FCOMS(v1, s0, x1, x2, x3, x4, x5);
+                        FCOMS(v1, s0, x1, x6, x3, x4, x5);
                     } else {
                         FCVTDS(s0, s0);
-                        FCOMD(v1, s0, x1, x2, x3, x4, x5);
+                        FCOMD(v1, s0, x1, x6, x3, x4, x5);
                     }
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
