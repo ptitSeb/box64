@@ -90,7 +90,7 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (ST_IS_F(0)) {
                 FCOMS(v1, v2, x1, x2, x3, x4, x5);
             } else {
-                FCOMD(v1, v2, x2, x3, x4, x4, x5);
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
             }
             X87_POP_OR_FAIL(dyn, ninst, x3);
             X87_POP_OR_FAIL(dyn, ninst, x3);
