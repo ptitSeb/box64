@@ -2014,7 +2014,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ZEXTH(x2, x2);
             GWBACK;
             break;
-
+        case 0xB6:
+            INST_NAME("MOVZX Gw, Eb");
+            nextop = F8;
+            if (MODREG) {
+                if (rex.rex) {
+                    eb1 = xRAX + (nextop & 7) + (rex.b << 3);
+                    eb2 = 0;
+                } else {
+                    ed = (nextop & 7);
+                    eb1 = xRAX + (ed & 3); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;   // L or H
+                }
+                if (eb2) {
+                    SRLI(x1, eb1, 8);
+                    eb1 = x1;
+                }
+                ANDI(x1, eb1, 0xff);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0);
+                LBU(x1, ed, fixedaddress);
+            }
+            LUI(x5, 0xffff0);
+            AND(gd, gd, x5);
+            OR(gd, gd, x1);
+            break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");
             nextop = F8;
