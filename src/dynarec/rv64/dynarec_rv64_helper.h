@@ -1525,4 +1525,31 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             opcode = F8;                           \
         }
 
+
+#define FCOM(w, v1, v2, s1, s2, s3, s4, s5)                    \
+    LHU(s3, xEmu, offsetof(x64emu_t, sw));                     \
+    MOV32w(s1, 0b1011100011111111); /* mask off c0,c1,c2,c3 */ \
+    AND(s3, s3, s1);                                           \
+    FEQ##w(s5, v1, v1);                                        \
+    FEQ##w(s4, v2, v2);                                        \
+    AND(s5, s5, s4);                                           \
+    BEQZ(s5, 24); /* undefined/NaN */                          \
+    FEQ##w(s5, v1, v2);                                        \
+    BNEZ(s5, 28);       /* equal */                            \
+    FLT##w(s2, v1, v2); /* x2 = (v1<v2)?1:0 */                 \
+    SLLI(s1, s2, 8);                                           \
+    J(20); /* end */                                           \
+    /* undefined/NaN */                                        \
+    LUI(s1, 4);                                                \
+    ADDI(s1, s1, 0b010100000000);                              \
+    J(8); /* end */                                            \
+    /* equal */                                                \
+    LUI(s1, 4);                                                \
+    /* end */                                                  \
+    OR(s3, s3, s1);                                            \
+    SH(s3, xEmu, offsetof(x64emu_t, sw));
+
+#define FCOMS(v1, v2, s1, s2, s3, s4, s5) FCOM(S, v1, v2, s1, s2, s3, s4, s5)
+#define FCOMD(v1, v2, s1, s2, s3, s4, s5) FCOM(D, v1, v2, s1, s2, s3, s4, s5)
+
 #endif //__DYNAREC_RV64_HELPER_H__

@@ -2287,7 +2287,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(MODREG) {
                 if(rex.rex) {
                     eb1 = xRAX+(nextop&7)+(rex.b<<3);
-                    eb2 = 0;                \
+                    eb2 = 0;
                 } else {
                     ed = (nextop&7);
                     eb1 = xRAX+(ed&3);  // Ax, Cx, Dx or Bx
