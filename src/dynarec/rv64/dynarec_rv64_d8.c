@@ -117,6 +117,20 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FMULD(v1, v1, s0);
                     }
                     break;
+                case 3:
+                    INST_NAME("FCOMP ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                    s0 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    FLW(s0, ed, fixedaddress);
+                    if (ST_IS_F(0)) {
+                        FCOMS(v1, s0, x1, x2, x3, x4, x5);
+                    } else {
+                        FCVTDS(s0, s0);
+                        FCOMD(v1, s0, x1, x2, x3, x4, x5);
+                    }
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
+                    break;
                 case 4:
                     INST_NAME("FSUB ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
