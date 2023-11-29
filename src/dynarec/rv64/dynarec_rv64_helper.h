@@ -1535,8 +1535,8 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     AND(s5, s5, s4);                                           \
     BEQZ(s5, 24); /* undefined/NaN */                          \
     FEQ##w(s5, v1, v2);                                        \
-    BNEZ(s5, 28);     /* equal */                              \
-    FLTS(s2, v1, v2); /* x2 = (v1<v2)?1:0 */                   \
+    BNEZ(s5, 28);       /* equal */                            \
+    FLT##w(s2, v1, v2); /* x2 = (v1<v2)?1:0 */                 \
     SLLI(s1, s2, 8);                                           \
     J(20); /* end */                                           \
     /* undefined/NaN */                                        \
