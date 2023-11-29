@@ -1599,6 +1599,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(x3, gback, gdoffset + 2 * i);
             }
             break;
+        case 0xE7:
+            INST_NAME("MOVNTQ Em, Gm");
+            nextop = F8;
+            gd = (nextop & 0x38) >> 3;
+            if (MODREG) {
+                DEFAULT;
+            } else {
+                v0 = mmx_get_reg(dyn, ninst, x1, x2, x3, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                FSD(v0, ed, fixedaddress);
+            }
+            break;
         case 0xED:
             INST_NAME("PADDSW Gm,Em");
             nextop = F8;
