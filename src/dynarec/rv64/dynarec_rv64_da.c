@@ -84,9 +84,17 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             DEFAULT;
             break;
         case 0xE9:
-            DEFAULT;
+            INST_NAME("FUCOMPP ST0, ST1");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, 1, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FCOMS(v1, v2, x1, x2, x3, x4, x5);
+            } else {
+                FCOMD(v1, v2, x2, x3, x4, x4, x5);
+            }
+            X87_POP_OR_FAIL(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
-
         case 0xE4:
         case 0xF0:
         case 0xF1:
