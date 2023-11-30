@@ -17,7 +17,6 @@
 #include "x64tls.h"
 
 
-// don't try to load the actual ld-linux (because name is variable), just use box64 itself, as it's linked to ld-linux
 const char* libbsdName = "libbsd.so.0";
 #define LIBNAME libbsd
 
