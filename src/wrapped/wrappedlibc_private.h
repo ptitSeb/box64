@@ -2429,12 +2429,8 @@ GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c
 #ifdef ANDROID
 GOM(__libc_init, vFEpppp)
 GO(__errno, pFv)
-GO(setprogname, vFp)
-GO(getprogname, pFv)
 #else
 // Those symbols don't exist in non-Android builds
 //GOM(__libc_init,
 //GO(__errno,
-//GO(setprogname,
-//GO(getprogname,
 #endif

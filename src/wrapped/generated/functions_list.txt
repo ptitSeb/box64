@@ -3911,6 +3911,7 @@ wrappedlibasound:
   - snd_async_add_pcm_handler
 - pFpipL:
   - snd_dlopen
+wrappedlibbsd:
 wrappedlibc:
 - vFv:
   - _Jv_RegisterClasses

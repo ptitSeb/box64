@@ -3361,24 +3361,27 @@ EXPORT char my___libc_single_threaded = 0;
 
 #ifdef ANDROID
 #define NEEDED_LIBS   0
-#define NEEDED_LIBS_234 3,  \
+#define NEEDED_LIBS_234 4,  \
     "libpthread.so.0",      \
     "libdl.so.2" ,          \
-    "libm.so"
+    "libm.so",              \
+    "libbsd.so"
 #else
-#define NEEDED_LIBS   5,    \
+#define NEEDED_LIBS   6,    \
     "ld-linux-x86-64.so.2", \
     "libpthread.so.0",      \
     "libdl.so.2",           \
     "libutil.so.1",         \
-    "librt.so.1"
-#define NEEDED_LIBS_234 6,  \
+    "librt.so.1",           \
+    "libbsd.so.0"
+#define NEEDED_LIBS_234 7,  \
     "ld-linux-x86-64.so.2", \
     "libpthread.so.0",      \
     "libdl.so.2",           \
     "libutil.so.1",         \
     "libresolv.so.2",       \
-    "librt.so.1"
+    "librt.so.1",           \
+    "libbsd.so.0"
 #endif
 
 #define CUSTOM_INIT         \

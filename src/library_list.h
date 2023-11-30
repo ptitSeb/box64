@@ -5,6 +5,7 @@
 GO("libc.musl-x86_64.so.1", libcmusl)
 GO("libpthread.so.0", libpthread)
 GO("librt.so.1", librt)
+GO("libbsd.so.0", libbsd)
 GO("libEGL.so.1", libegl)
 GO("libGL.so.1", libgl)
 GO("libGL.so", libgl)
