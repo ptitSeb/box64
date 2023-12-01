@@ -29,6 +29,17 @@ sudo systemctl restart systemd-binfmt
 - You can use `make -j1`, `make -j2` to prevent running out of memory
 - You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588.
 
+#### For Instance, if you want to build box64 for Generic ARM64 Linux platforms, it would look like this:
+```
+git clone https://github.com/ptitSeb/box64
+cd box64
+mkdir build; cd build; cmake .. -D ARM_DYNAREC=ON -D CMAKE_BUILD_TYPE=RelWithDebInfo
+make -j4
+sudo make install
+sudo systemctl restart systemd-binfmt
+```
+----
+
 #### for RK3399
 
 Using a 64bit OS:
@@ -112,13 +123,6 @@ Using a 64bit OS:
 Using a 64bit OS:
 ```
 -D ADLINK=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
-```
-
-#### for a Generic ARM64 Machine
-
-Using a 64bit OS:
-```
--D ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
 #### for M1
