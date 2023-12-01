@@ -27,9 +27,9 @@ If it's the first install, you also need:
 sudo systemctl restart systemd-binfmt
 ```
 - You can use `make -j1`, `make -j2` to prevent running out of memory
-- You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588 or maybe Termux
+- You can also add `-DBAD_SIGNAL=ON` to the cmake command if you are on Linux Kernel mixed with Android, like on RK3588.
 
-#### For instance, if you want to build box64 for Generic ARM64 Linux platforms, it would look like this:
+#### For Instance, if you want to build box64 for Generic ARM64 Linux platforms, it would look like this:
 ```
 git clone https://github.com/ptitSeb/box64
 cd box64
@@ -68,7 +68,6 @@ Still, this can be faster if your build is attended.
 
 ```
 -D RPI3ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
-make 
 ```
 
 #### for Raspberry Pi 4
@@ -126,13 +125,6 @@ Using a 64bit OS:
 -D ADLINK=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
-#### for a generic ARM64 machine
-
-Using a 64bit OS:
-```
--D ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
-```
-
 #### for M1
 
 Only test on Asahi for now, using the default "16K page" kernel
@@ -173,6 +165,16 @@ Using a 64bit OS:
 -D LX2160A=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
+#### for Termux
+
+NOTE: COMPILING BOX64 IN TERMUX IS EXPERIMENTAL!!!
+
+You must have ARM64 Device and the `libandroid-sysv-semaphore` library:
+
+```
+-D TERMUX=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
 #### for x86_64 Linux
 ```
 -D LD80BITS=1 -D NOALIGN=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
@@ -181,7 +183,7 @@ If you encounter some linking errors, try using `NOLOADADDR=ON` (`cmake -D NOLOA
 
 ----
 
-### use ccmake
+### Use ccmake
 
 Alternatively, you can **use the curses-bases ccmake (or any other gui frontend for cmake)** to select wich platform to use interactively.
 
@@ -205,7 +207,7 @@ Dynarec is only available on ARM (for the meantime), Activate it by using `-DARM
 
 #### To have a build using less memory
 
-You can use ` -DSAVE_MEM` to have a build that will try to save some memory. It's, for now, only increasing the jumptable from 4 level to 5 levels. The added granularity avoid wasting space, but the 1 level more to the jumptable means there is on read from memory more when jumping between blocks.
+You can use `-DSAVE_MEM` to have a build that will try to save some memory. It's, for now, only increasing the jumptable from 4 level to 5 levels. The added granularity avoid wasting space, but the 1 level more to the jumptable means there is on read from memory more when jumping between blocks.
 
 #### Not building from a git clone
 
