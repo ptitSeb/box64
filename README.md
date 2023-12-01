@@ -54,7 +54,7 @@ Notes about 32-bit platforms
 
 Because Box64 works by directly translating function calls from x86_64 to host system, the host system (the one Box64 is running on) needs to have 64-bit libraries. Box64 doesn't include any 64-bit <-> 32-bit translation. 
 
-So understand that box64 will only runs 64-bit linux binaries. For 32-bit binaries, you need box86 (with all the multiarch or proot trickery it imply on 64-bit OS).
+So understand that box64 will only run 64-bit linux binaries. For 32-bit binaries, you need box86 (with all the multiarch or proot trickery it implies on a 64-bit OS).
 Note that many installer (mojo setup based) will fall back to "x86" when detecting ARM64 OS, and so will try to use box86 for the setup, even if an x86_64 version exist. You can hack your way around with a fake "uname" that return "x86_64" when the argument is "-m"
 
 ----
@@ -62,7 +62,7 @@ Note that many installer (mojo setup based) will fall back to "x86" when detecti
 Notes about Box64 configuration
 ----
 
-Box64 now have configurations files. There are 2 files loaded. `/etc/box4.box64rc` and `~/.box64rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](USAGE.md) for detail on what parameters can be put. Box64 comes with a default file that should be installed for better stability. The file in in `system/box64.box64rc` and should be installed to `/etc/box64.box64rc` If, for some reasons, you don't want to install that file here, at least copy it to `~/.box64rc` or some game may not function correctly.
+Box64 now have configurations files. There are 2 files loaded. `/etc/box4.box64rc` and `~/.box64rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](USAGE.md) for detail on what parameters can be put. Box64 comes with a default file that should be installed for better stability. The file in in `system/box64.box64rc` and should be installed to `/etc/box64.box64rc` If, for some reason, you don't want to install that file here, at least copy it to `~/.box64rc` or some game may not function correctly.
 Note that the priority is: `~/.box64rc` > `/etc/box64.box64rc` > command line
 So, your settings in `~/.box64rc` may override the setting from your command line...
 
@@ -71,7 +71,7 @@ So, your settings in `~/.box64rc` may override the setting from your command lin
 Notes about Unity game emulation
 ----
 
-Running Unity games should just works, but you should also note that many Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers). Also many newer Unity3D (like KSP) games use the BC7 compressed textures, wich is not supported on many ARM integrated GPU.
+Running Unity games should just work, but you should also note that many Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers). Also many newer Unity3D (like KSP) games use the BC7 compressed textures, which is not supported on many ARM integrated GPU.
 Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
 
 ----
@@ -86,7 +86,7 @@ GTK libraries are now wrapped on box64, both gtk2 and gtk3.
 Notes about Steam
 ----
 
-Note that Steam is a hybrid 32-bit / 64-bit. You NEED box86 to run Steam, as the client app is a 32-bit binary. It also uses a 64-bit local server binaries, and that steamwebhelper process is now mendatory, even on the "small mode". And that process will eat lots of memory. So machine with less the 6Gb of RAM will need a swapfile tp use Steam.
+Note that Steam is a hybrid 32-bit / 64-bit. You NEED box86 to run Steam, as the client app is a 32-bit binary. It also uses a 64-bit local server binaries, and that steamwebhelper process is now mandatory, even on the "small mode". And that process will eat lots of memory. So machine with less the 6Gb of RAM will need a swapfile to use Steam.
 
 ----
 
@@ -94,14 +94,14 @@ Notes about Wine
 ----
 
 Wine64 is supported on box64. Proton too. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively).
-Note that the new 32bits PE in 64bits process that the Wine time in currently implementing in Wine 7.+ is now supported, but the support is quite young so there might be some residual issues.
+Note that the new 32-bit PE in 64-bit processes that the Wine team is currently implementing in Wine 7.+ is now supported, but the support is quite young so there might be some residual issues.
 
 ----
 
 Notes about Vulkan
 ----
 
-Box64 wraps Vulkan libraries, but note that it as mostly been tested with a AMD RX550 card and on the Freedreno driver, so some extensions may be missing depending on your graphics card.
+Box64 wraps Vulkan libraries, but note that it as mostly been tested with an AMD RX550 card and on the Freedreno driver, so some extensions may be missing depending on your graphics card.
 
 ----
 
@@ -116,7 +116,7 @@ So, in no particular order, I want to thank:
  * For hardware contribution and LoongArch migration: [xiaoji](https://www.linuxgame.cn/), Deepin Beijing Develop Team
  * For their major code contribution on the RV64 Dynarec: ksco, xctan
  * For their hardware contribution: [ADLINK](https://www.adlinktech.com/Products/Computer_on_Modules/COM-HPC-Server-Carrier-and-Starter-Kit/Ampere_Altra_Developer_Platform?lang=en) with [Ampere](https://amperecomputing.com/home/edge), [Radxa](https://rockpi.org/), [StarFive](https://rvspace.org/), [Pine64](https://www.pine64.org/)
- * For their continous advertisement of box64 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS](https://twisteros.com/) team, [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg), ekianjo ([Boilingsteam](https://boilingsteam.com/))
+ * For their continuous advertisements for the box64 project: salva ([microLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ)), [PILab](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g)/[TwisterOS](https://twisteros.com/) team, [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA), [NicoD](https://www.youtube.com/channel/UCpv7NFr0-9AB5xoklh3Snhg), ekianjo ([Boilingsteam](https://boilingsteam.com/))
 
 And I also thank the many other people who participated even once in this project.
 
