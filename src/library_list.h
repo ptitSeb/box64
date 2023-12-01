@@ -344,6 +344,10 @@ GO("libmpg123.so.0", mpg123)
 //GO("libtiff.so.5", libtiff)
 GO("libxml2.so.2", xml2)
 #endif
+#ifdef TERMUX
+GO("libiconv.so", iconv)
+GO("libandroid-support.so", androidsupport)
+#endif
 
 GO("ld-linux-x86-64.so.2", ldlinux)
 

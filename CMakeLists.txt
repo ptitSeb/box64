@@ -598,6 +598,12 @@ if(ANDROID)
         "${BOX64_ROOT}/src/wrapped/wrappedandroidshmem.c"
     )
 endif()
+if(TERMUX)
+    list(APPEND WRAPPEDS
+        "${BOX64_ROOT}/src/wrapped/wrappediconv.c"
+        "${BOX64_ROOT}/src/wrapped/wrappedandrdoidsupport.c"
+    )
+endif()
 
 # If BOX64_ROOT contains a ".c", the build breaks...
 string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
@@ -617,7 +623,7 @@ if(NOT CI)
         OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
         COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
         "${BOX64_ROOT}"
-        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "--"
+        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "--"
         ${WRAPPEDS_HEAD}
         MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
         DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
