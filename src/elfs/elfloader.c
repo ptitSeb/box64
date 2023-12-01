@@ -1449,11 +1449,10 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
     uint64_t size = 0;
     if((uintptr_t)p<0x10000)
         return ret;
-    #ifdef HAVE_TRACE
     if(!h) {
         if(getProtection((uintptr_t)p)&(PROT_READ)) {
             if(*(uint8_t*)(p)==0xCC && *(uint8_t*)(p+1)=='S' && *(uint8_t*)(p+2)=='C') {
-                ret = getBridgeName(*(void**)(p+3+8));
+                ret = getBridgeName(p);
                 if(ret) {
                     if(start)
                         *start = (uintptr_t)p;
@@ -1464,7 +1463,6 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
         }
         return ret;
     }
-    #endif
     if(!h || h->fini_done)
         return ret;
 

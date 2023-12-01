@@ -97,6 +97,7 @@ void FreeBridge(bridge_t** bridge)
 void addBridgeName(void* addr, const char* name);
 #endif
 
+//static const char* default_bridge = "bridge???";
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
 {
     brick_t *b = NULL;
@@ -123,10 +124,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     b->b[sz].f = (uintptr_t)fnc;
     b->b[sz].C3 = N?0xC2:0xC3;
     b->b[sz].N = N;
-    #ifdef HAVE_TRACE
-    if(name)
-        addBridgeName(fnc, name);
-    #endif
+    b->b[sz].name = name/*?name:default_bridge*/;
 
     return (uintptr_t)&b->b[sz].CC;
 }
@@ -236,34 +234,13 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
     return (uintptr_t)&b->b[sz].CC;
 }
 
-#ifdef HAVE_TRACE
-KHASH_MAP_INIT_INT64(bridgename, const char*)
-static kh_bridgename_t *bridgename;
-void initBridgeName()
-{
-    bridgename = kh_init(bridgename);
-}
-void finiBridgeName()
-{
-    kh_destroy(bridgename, bridgename);
-    bridgename = NULL;
-}
-void addBridgeName(void* addr, const char* name)
-{
-    int ret;
-    khint_t k = kh_put(bridgename, bridgename, (uintptr_t)addr, &ret);
-    if(!ret) // already there
-        return;
-    kh_value(bridgename, k) = name;
-}
 const char* getBridgeName(void* addr)
 {
-    khint_t k = kh_get(bridgename, bridgename, (uintptr_t)addr);
-    if(k!=kh_end(bridgename))
-        return kh_value(bridgename, k);
+    onebridge_t* one = (onebridge_t*)(((uintptr_t)addr/sizeof(onebridge_t))*sizeof(onebridge_t));   // align to start of bridge
+    if(one->C3==0xC3 && one->S=='S' && one->C=='C')
+        return one->name;
     return NULL;
 }
-#endif
 
 
 // Alternate address handling
@@ -307,15 +284,9 @@ void cleanAlternate() {
 
 void init_bridge_helper()
 {
-    #ifdef HAVE_TRACE
-    initBridgeName();
-    #endif
 }
 
 void fini_bridge_helper()
 {
     cleanAlternate();
-    #ifdef HAVE_TRACE
-    finiBridgeName();
-    #endif
 }

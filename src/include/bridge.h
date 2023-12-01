@@ -23,10 +23,7 @@ int hasAlternate(void* addr);
 void* getAlternate(void* addr);
 void addAlternate(void* addr, void* alt);
 void cleanAlternate(void);
-
-#ifdef HAVE_TRACE
 const char* getBridgeName(void* addr);
-#endif
 
 void init_bridge_helper(void);
 void fini_bridge_helper(void);
