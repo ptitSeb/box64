@@ -346,6 +346,7 @@ GO("libxml2.so.2", xml2)
 #endif
 #ifdef TERMUX
 GO("libiconv.so", iconv)
+GO("libtermux-exec.so", termuxexec)
 GO("libandroid-support.so", androidsupport)
 #endif
 
