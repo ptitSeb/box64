@@ -1615,7 +1615,8 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
         (void)dummy;
         for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+            if(emu->context->argv[i])
+                dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek(tmp, 0, SEEK_SET);
         #endif
         return tmp;
@@ -1692,7 +1693,8 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
         int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
         (void)dummy;
         for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
+            if(emu->context->argv[i])
+                dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek(tmp, 0, SEEK_SET);
         #endif
         return tmp;
