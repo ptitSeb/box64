@@ -601,7 +601,7 @@ endif()
 if(TERMUX)
     list(APPEND WRAPPEDS
         "${BOX64_ROOT}/src/wrapped/wrappediconv.c"
-        "${BOX64_ROOT}/src/wrapped/wrappedandrdoidsupport.c"
+        "${BOX64_ROOT}/src/wrapped/wrappedandroidsupport.c"
     )
 endif()
 
