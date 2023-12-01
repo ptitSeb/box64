@@ -193,11 +193,11 @@ EXPORT void* malloc(size_t l)
 
 EXPORT void free(void* p)
 {
-    if(malloc_hack_2 && FREE && p) {
+    if(malloc_hack_2 && p) {
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
-            if(real_free)
+            if(real_free && FREE)
                 RunFunctionFmt(real_free, "p", p);
             return;
         }
@@ -218,7 +218,7 @@ EXPORT void* realloc(void* p, size_t s)
     if(malloc_hack_2)
         if(getMmapped((uintptr_t)p) || (!p && ALLOC && real_realloc)) {
             void* ret = p;
-            if(real_realloc) {
+            if(real_realloc && ALLOC) {
                 ret = (void*)RunFunctionFmt(real_realloc, "pL", p, s);
             } else {
                 // found! Will realloc using regular malloc then copy from old address as much as possible, but need to check size first
@@ -228,7 +228,7 @@ EXPORT void* realloc(void* p, size_t s)
                 memcpy(ret, p, s);
                 printf_log(LOG_DEBUG, " -> %p (copied %zu from old)\n", ret, s);
                 // Mmaped, free with original function
-                if(real_free)
+                if(real_free && FREE)
                     RunFunctionFmt(real_free, "p", p);
             }
             return ret;
@@ -284,11 +284,11 @@ EXPORT void* pvalloc(size_t size)
 
 EXPORT void cfree(void* p)
 {
-    if(malloc_hack_2 && FREE && p) {
+    if(malloc_hack_2 && p) {
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
-            if(real_free)
+            if(real_free && FREE)
                 RunFunctionFmt(real_free, "p", p);
             return;
         }
@@ -461,8 +461,8 @@ EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* 
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
-            if(real_free)
-                RunFunctionFmt(real_free, "p", p);
+            if(real__ZdaPvSt11align_val_tRKSt9nothrow_t)
+                RunFunctionFmt(real__ZdaPvSt11align_val_tRKSt9nothrow_t, "p", p);
             return;
         }
     }
@@ -475,8 +475,8 @@ EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //oper
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
-            if(real_free)
-                RunFunctionFmt(real_free, "p", p);
+            if(real__ZdlPvmSt11align_val_t)
+                RunFunctionFmt(real__ZdlPvmSt11align_val_t, "p", p);
             return;
         }
     }
@@ -489,8 +489,8 @@ EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
-            if(real_free)
-                RunFunctionFmt(real_free, "p", p);
+            if(real__ZdaPvRKSt9nothrow_t)
+                RunFunctionFmt(real__ZdaPvRKSt9nothrow_t, "p", p);
             return;
         }
     }
@@ -503,8 +503,8 @@ EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
-            if(real_free)
-                RunFunctionFmt(real_free, "p", p);
+            if(real__ZdaPvSt11align_val_t)
+                RunFunctionFmt(real__ZdaPvSt11align_val_t, "p", p);
             return;
         }
     }
@@ -517,8 +517,8 @@ EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(
         if(getMmapped((uintptr_t)p)) {
             printf_log(LOG_DEBUG, "%04d|Malloc_Hack_2: not freeing %p\n", GetTID(), p);
             // Mmaped, free with original function
-            if(real_free)
-                RunFunctionFmt(real_free, "p", p);
+            if(real__ZdlPvSt11align_val_t)
+                RunFunctionFmt(real__ZdlPvSt11align_val_t, "p", p);
             return;
         }
     }

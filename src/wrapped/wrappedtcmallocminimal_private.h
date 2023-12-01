@@ -69,8 +69,8 @@ GO(malloc_stats, vFv)
 GO(malloc_usable_size, LFp)
 GO(mallopt, iFii)
 GO(memalign, pFuu)
-GOM(mmap, pFEpLiiii)    // use the my_mmap from wrappedlibc.c
-GOM(mmap64, pFEpLiiiI)
+GOM(mmap, pFEpLiiil)    // use the my_mmap from wrappedlibc.c
+GOM(mmap64, pFEpLiiil)
 GO(mremap, pFpuuip)
 GOM(munmap, iFEpL)
 GO(nallocx, LFLi)
