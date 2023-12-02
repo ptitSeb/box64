@@ -278,7 +278,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    if(arm64_flagm) {
+    if(arm64_flagm && 0) {
         IFX(X_AF) {
             ORRw_REG(s3, s1, s2);    // s3 = op1 | op2
             ANDw_REG(s4, s1, s2);    // s4 = op1 & op2
@@ -320,7 +320,7 @@ void emit_add8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     if(arm64_flagm) {
-        IFX(X_ZF|X_SF|X_OF) {
+        IFX(X_ZF|X_SF/*|X_OF*/) {
             SETF8(s1);
         }
         IFX(X_ZF) {
