@@ -230,15 +230,7 @@ void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        TSTw_REG(s1, s1);
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 7);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 8)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -261,15 +253,7 @@ void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        TSTw_REG(s1, s1);
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 7);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 8)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -292,15 +276,7 @@ void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        TSTw_REG(s1, s1);
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 7);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 8)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -323,15 +299,7 @@ void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        TSTw_REG(s1, s1);
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 7);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 8)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -423,15 +391,7 @@ void emit_or16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        ANDSw_mask(s1, s1, 0, 15);  //mask=0xffff
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 15);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 16)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -500,15 +460,7 @@ void emit_xor16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        ANDSw_mask(s1, s1, 0, 15);  //mask=0xffff
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 15);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 16)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }

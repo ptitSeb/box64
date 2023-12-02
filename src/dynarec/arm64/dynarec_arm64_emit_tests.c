@@ -111,22 +111,11 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     } else {
         SET_DFNONE(s3);
     }
-    IFX(X_ZF) {
-        SUBSw_REG(s5, s1, s2);   // res = s1 - s2
-    } else {
-        SUBw_REG(s5, s1, s2);   // res = s1 - s2
-    }
+    SUBw_REG(s5, s1, s2);   // res = s1 - s2
     IFX_PENDOR0 {
         STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_ZF) {
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s4, s5, 15);
-        BFIw(xFlags, s4, F_SF, 1);
-    }
+    COMP_ZFSF(s5, 16)
     // bc = (res & (~d | s)) | (~d & s)
     IFX(X_CF|X_AF|X_OF) {
         MVNw_REG(s4, s1);        // s4 = ~d
@@ -170,15 +159,7 @@ void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        ANDSw_mask(s1, s1, 0, 15);  //mask=0xffff
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s4, s1, 15);
-        BFIw(xFlags, s4, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 16)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -194,22 +175,11 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
     } else {
         SET_DFNONE(s4);
     }
-    IFX(X_ZF) {
-        SUBSw_REG(s5, s1, s2);   // res = s1 - s2
-    } else {
-        SUBw_REG(s5, s1, s2);   // res = s1 - s2
-    }
+    SUBw_REG(s5, s1, s2);   // res = s1 - s2
     IFX_PENDOR0 {
         STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_ZF) {
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s5, 7);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s5, 8)
     // bc = (res & (~d | s)) | (~d & s)
     IFX(X_CF|X_AF|X_OF) {
         ORNw_REG(s4, s2, s1);   // s4 = ~d | s
@@ -251,15 +221,7 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
         MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
         BICw(xFlags, xFlags, s3);
     }
-    IFX(X_ZF) {
-        ANDSw_mask(s1, s1, 0, 0b000111);    //mask=000000ff
-        CSETw(s3, cEQ);
-        BFIw(xFlags, s3, F_ZF, 1);
-    }
-    IFX(X_SF) {
-        LSRw(s3, s1, 7);
-        BFIw(xFlags, s3, F_SF, 1);
-    }
+    COMP_ZFSF(s1, 8)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
