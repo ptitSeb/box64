@@ -1465,4 +1465,30 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             opcode = F8;                        \
         }
 
+#define COMP_ZFSF(s1, A)                        \
+    IFX(X_ZF|X_SF) {                            \
+        if(arm64_flagm) {                       \
+            SETF##A(s1);                        \
+            IFX(X_ZF) {                         \
+                CSETw(s3, cEQ);                 \
+                BFIw(xFlags, s3, F_ZF, 1);      \
+            }                                   \
+            IFX(X_SF) {                         \
+                CSETw(s3, cMI);                 \
+                BFIw(xFlags, s3, F_SF, 1);      \
+            }                                   \
+        } else {                                \
+            IFX(X_ZF) {                         \
+                ANDSw_mask(s1, s1, 0, (A)-1);   \
+                CSETw(s3, cEQ);                 \
+                BFIw(xFlags, s3, F_ZF, 1);      \
+            }                                   \
+            IFX(X_SF) {                         \
+                LSRw(s3, s1, (A)-1);            \
+                BFIw(xFlags, s3, F_SF, 1);      \
+            }                                   \
+        }                                       \
+    }
+
+
 #endif //__DYNAREC_ARM64_HELPER_H__
