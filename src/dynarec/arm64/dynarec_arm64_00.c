@@ -1397,6 +1397,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SMWRITELOCK(lock);
             break;
         case 0xA4:
+            SMREAD();
             if(rep) {
                 INST_NAME("REP MOVSB");
                 CBZx_NEXT(xRCX);
@@ -1421,8 +1422,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ADDx_REG(xRSI, xRSI, x3);
                 ADDx_REG(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xA5:
+            SMREAD();
             if(rep) {
                 INST_NAME("REP MOVSD");
                 CBZx_NEXT(xRCX);
@@ -1447,6 +1450,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ADDx_REG(xRSI, xRSI, x3);
                 ADDx_REG(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xA6:
             switch(rep) {
@@ -1562,6 +1566,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRB_U12(xRAX, xRDI, 0);
                 ADDx_REG(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xAB:
             if(rep) {
@@ -1584,6 +1589,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRxw_U12(xRAX, xRDI, 0);
                 ADDx_REG(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xAC:
             if(rep) {
