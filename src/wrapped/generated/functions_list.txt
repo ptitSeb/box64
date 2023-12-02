@@ -459,6 +459,7 @@
 #() iFiip
 #() iFiiO
 #() iFiCC
+#() iFiui
 #() iFiuu
 #() iFiup
 #() iFill
@@ -927,6 +928,7 @@
 #() iFiupp
 #() iFilli
 #() iFillu
+#() iFiLpL
 #() iFipii
 #() iFipip
 #() iFipWp
@@ -937,6 +939,7 @@
 #() iFipLu
 #() iFipLp
 #() iFippi
+#() iFippu
 #() iFippL
 #() iFippp
 #() iFipON
@@ -1471,6 +1474,7 @@
 #() iFipuip
 #() iFipuui
 #() iFipLup
+#() iFippuu
 #() iFippLi
 #() iFippLp
 #() iFipppi
@@ -1903,11 +1907,13 @@
 #() iFiiiipp
 #() iFiiiuwp
 #() iFiWiipi
+#() iFiuUuUu
 #() iFilpppp
 #() iFiLpppi
 #() iFipiipi
 #() iFipipip
 #() iFipippp
+#() iFipuIup
 #() iFipupup
 #() iFipuppp
 #() iFipppLp
@@ -2255,6 +2261,7 @@
 #() iFEpppppp
 #() iFiiiiiip
 #() iFipupupi
+#() iFippuIup
 #() iFpiiiiii
 #() iFpiiiiip
 #() iFpiiiuwp
@@ -4277,6 +4284,8 @@ wrappedlibdl:
 - iFpppi:
   - dladdr1
 wrappedlibdrm:
+- vFpV:
+  - drmMsg
 wrappedlibegl:
 - pFp:
   - eglGetProcAddress

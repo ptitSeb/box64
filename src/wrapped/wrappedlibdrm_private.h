@@ -28,9 +28,9 @@ GO(drmAuthMagic, iFiu)
 //GO(drmClose, 
 //GO(drmCloseOnce, 
 //GO(drmCommandNone, 
-//GO(drmCommandRead, 
-//GO(drmCommandWrite, 
-//GO(drmCommandWriteRead, 
+GO(drmCommandRead, iFiLpL)
+GO(drmCommandWrite, iFiLpL)
+GO(drmCommandWriteRead, iFiLpL)
 //GO(drmCreateContext, 
 //GO(drmCreateDrawable, 
 //GO(drmCrtcGetSequence, 
@@ -73,7 +73,7 @@ GO(drmGetDevices2, iFupi)
 GO(drmGetMagic, iFip)
 //GO(drmGetMap, 
 GO(drmGetNodeTypeFromFd, iFi)
-//GO(drmGetPrimaryDeviceNameFromFd, 
+GO(drmGetPrimaryDeviceNameFromFd, pFi)
 //GO(drmGetRenderDeviceNameFromFd, 
 //GO(drmGetReservedContextList, 
 //GO(drmGetStats, 
@@ -146,7 +146,7 @@ GO(drmModeSetCrtc, iFiuuuupip)
 //GO(drmModeSetCursor, 
 //GO(drmModeSetCursor2, 
 //GO(drmModeSetPlane, 
-//GO(drmMsg, 
+GOM(drmMsg, vFEpV)
 //GO(drmOpen, 
 //GO(drmOpenControl, 
 //GO(drmOpenOnce, 
@@ -178,19 +178,20 @@ GO(drmPrimeHandleToFD, iFiuup)
 //GO(drmSLLookupNeighbors, 
 //GO(drmSLNext, 
 //GO(drmSwitchToContext, 
-//GO(drmSyncobjCreate, 
-//GO(drmSyncobjDestroy, 
-//GO(drmSyncobjExportSyncFile, 
-//GO(drmSyncobjFDToHandle, 
-//GO(drmSyncobjHandleToFD, 
-//GO(drmSyncobjImportSyncFile, 
-//GO(drmSyncobjQuery, 
-//GO(drmSyncobjReset, 
-//GO(drmSyncobjSignal, 
-//GO(drmSyncobjTimelineSignal, 
-//GO(drmSyncobjTimelineWait, 
-//GO(drmSyncobjTransfer, 
-//GO(drmSyncobjWait, 
+GO(drmSyncobjCreate, iFiup)
+GO(drmSyncobjDestroy, iFiu)
+GO(drmSyncobjExportSyncFile, iFiup)
+GO(drmSyncobjFDToHandle, iFiip)
+GO(drmSyncobjHandleToFD, iFiup)
+GO(drmSyncobjImportSyncFile, iFiui)
+GO(drmSyncobjQuery, iFippu)
+GO(drmSyncobjQuery2, iFippuu)
+GO(drmSyncobjReset, iFipu)
+GO(drmSyncobjSignal, iFipu)
+GO(drmSyncobjTimelineSignal, iFippu)
+GO(drmSyncobjTimelineWait, iFippuIup)
+GO(drmSyncobjTransfer, iFiuUuUu)
+GO(drmSyncobjWait, iFipuIup)
 //GO(drmUnlock, 
 //GO(drmUnmap, 
 //GO(drmUnmapBufs, 
