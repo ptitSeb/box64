@@ -1064,15 +1064,8 @@ int GatherEnv(char*** dest, char** env, char* prog)
     return 0;
 }
 
-
-void PrintHelp() {
-    printf("\n\nThis is Box64, the Linux x86_64 emulator with a twist\n");
-    printf("\nUsage is box64 [options] path/to/software [args]\n");
-    printf("to launch x86_64 software\n");
-    printf(" options can be :\n");
-    printf("    '-v'|'--version' to print box64 version and quit\n");
-    printf("    '-h'|'--help'    to print box64 help and quit\n");
-    printf("You can also set some environment variables:\n");
+void PrintFlags() {
+	printf("Environment Variables:\n");
     printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
     printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib:lib64')\n");
     printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX64_DUMP)\n");
@@ -1096,17 +1089,17 @@ void PrintHelp() {
     printf(" BOX64_DYNAREC_TRACE with 0/1 to disable or enable Trace on generated code too\n");
 #endif
 #endif
-    printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file (or stderr to use stderr instead of stdout)");
+    printf(" BOX64_TRACE_FILE with FileName to redirect logs in a file (or stderr to use stderr instead of stdout)\n");
     printf(" BOX64_DLSYM_ERROR with 1 to log dlsym errors\n");
     printf(" BOX64_LOAD_ADDR=0xXXXXXX try to load at 0xXXXXXX main binary (if binary is a PIE)\n");
     printf(" BOX64_NOSIGSEGV=1 to disable handling of SigSEGV\n");
-    printf(" BOX64_NOSIGILL=1  to disable handling of SigILL\n");
+    printf(" BOX64_NOSIGILL=1 to disable handling of SigILL\n");
     printf(" BOX64_SHOWSEGV=1 to show Segfault signal even if a signal handler is present\n");
-    printf(" BOX64_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)");
+    printf(" BOX64_X11THREADS=1 to call XInitThreads when loading X11 (for old Loki games with Loki_Compat lib)\n");
     printf(" BOX64_LIBGL=libXXXX set the name (and optionnally full path) for libGL.so.1\n");
     printf(" BOX64_LD_PRELOAD=XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary\n");
-    printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow one to continue even if a lib is missing (unadvised, will probably  crash later)\n");
-    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11\n");
+    printf(" BOX64_ALLOWMISSINGLIBS with 1 to allow one to continue even if a lib is missing (unadvised, will probably crash later)\n");
+    printf(" BOX64_PREFER_EMULATED=1 to prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11)\n");
     printf(" BOX64_PREFER_WRAPPED if box64 will use wrapped libs even if the lib is specified with absolute path\n");
     printf(" BOX64_CRASHHANDLER=0 to not use a dummy crashhandler lib\n");
     printf(" BOX64_NOPULSE=1 to disable the loading of pulseaudio libs\n");
@@ -1115,6 +1108,15 @@ void PrintHelp() {
     printf(" BOX64_ENV='XXX=yyyy' will add XXX=yyyy env. var.\n");
     printf(" BOX64_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
     printf(" BOX64_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
+}
+
+void PrintHelp() {
+    printf("This is Box64, The Linux x86_64 emulator with a twist\n");
+    printf("\nUsage is 'box64 [options] path/to/software [args]' to launch x86_64 software.\n");
+    printf(" options are:\n");
+    printf("    '-v'|'--version' to print box64 version and quit\n");
+    printf("    '-h'|'--help' to print this and quit\n");
+    printf("    '-f'|'--flags' to print box64 flags and quit\n");
 }
 
 void addNewEnvVar(const char* s)
@@ -1155,12 +1157,16 @@ void LoadEnvVars(box64context_t *context)
     }
     // check BOX64_LD_LIBRARY_PATH and load it
     LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
+    #ifndef TERMUX
     if(FileExist("/lib/x86_64-linux-gnu", 0))
         AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
         AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     if(FileExist("/usr/x86_64-linux-gnu/lib", 0))
         AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
+    #else
+    //TODO: Add Termux Library Path - Lily
+    #endif
     if(getenv("LD_LIBRARY_PATH"))
         PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
     if(getenv("BOX64_EMULATED_LIBS")) {
@@ -1190,25 +1196,25 @@ void LoadEnvVars(box64context_t *context)
     if(getenv("BOX64_X87_NO80BITS")) {
         if (strcmp(getenv("BOX64_X87_NO80BITS"), "1")==0) {
             box64_x87_no80bits = 1;
-            printf_log(LOG_INFO, "BOX64: all 80bits x87 long double will be handle as double\n");
+            printf_log(LOG_INFO, "BOX64: All 80bits x87 long double will be handle as double\n");
     	}
     }
     if(getenv("BOX64_SYNC_ROUNDING")) {
         if (strcmp(getenv("BOX64_SYNC_ROUNDING"), "1")==0) {
             box64_sync_rounding = 1;
-            printf_log(LOG_INFO, "BOX64: rouding mode with be synced with fesetround/fegetround\n");
+            printf_log(LOG_INFO, "BOX64: Rouding mode with be synced with fesetround/fegetround\n");
     	}
     }
     if(getenv("BOX64_PREFER_WRAPPED")) {
         if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0) {
             box64_prefer_wrapped = 1;
-            printf_log(LOG_INFO, "BOX64: Prefer Wrapped libs\n");
+            printf_log(LOG_INFO, "BOX64: Prefering Wrapped libs\n");
     	}
     }
     if(getenv("BOX64_PREFER_EMULATED")) {
         if (strcmp(getenv("BOX64_PREFER_EMULATED"), "1")==0) {
             box64_prefer_emulated = 1;
-            printf_log(LOG_INFO, "BOX64: Prefer Emulated libs\n");
+            printf_log(LOG_INFO, "BOX64: Prefering Emulated libs\n");
     	}
     }
 
@@ -1246,7 +1252,7 @@ void LoadEnvVars(box64context_t *context)
     if(my_context->x64trace) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
         if(InitX64Trace(my_context)) {
-            printf_log(LOG_INFO, "Zydis init failed, no x86 trace activated\n");
+            printf_log(LOG_INFO, "Zydis init failed. No x86 trace activated\n");
             context->x64trace = 0;
         }
     }
@@ -1278,7 +1284,7 @@ void setupTraceInit()
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
-                printf_log(LOG_NONE, "Warning, symbol to trace (\"%s\") not found, disabling trace\n", p);
+                printf_log(LOG_NONE, "Warning, Symbol to trace (\"%s\") not found, Disabling trace\n", p);
                 SetTraceEmu(0, 100);  // disabling trace, mostly
             }
         }
@@ -1322,7 +1328,7 @@ void setupTrace()
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
-                printf_log(LOG_NONE, "Warning, symbol to trace (\"%s\") not found, trying to set trace later\n", p);
+                printf_log(LOG_NONE, "Warning, Symbol to trace (\"%s\") not found. Trying to set trace later\n", p);
                 SetTraceEmu(0, 1);  // disabling trace, mostly
                 if(trace_func)
                     box_free(trace_func);
@@ -1414,8 +1420,12 @@ static void free_contextargv()
 
 static void load_rcfiles()
 {
+    //#ifndef TERMUX
     if(FileExist("/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/etc/box64.box64rc");
+    //#else
+    //TODO: Add RC Files Support For Termux - Lily
+    // #endif
     else
         LoadRCFile(NULL);   // load default rcfile
     char* p = getenv("HOME");
@@ -1435,9 +1445,12 @@ int main(int argc, const char **argv, char **env) {
     init_auxval(argc, argv, environ?environ:env);
     // trying to open and load 1st arg
     if(argc==1) {
-        PrintBox64Version();
+        /*PrintBox64Version();
         PrintHelp();
-        return 1;
+        return 1;*/
+        printf("BOX64: Missing operand after 'box64'\n");
+        printf("See 'box64 --help' for more information.\n");
+        exit(0);
     }
     if(argc>1 && !strcmp(argv[1], "/usr/bin/gdb") && getenv("BOX64_TRACE_FILE"))
         exit(0);
@@ -1461,7 +1474,7 @@ int main(int argc, const char **argv, char **env) {
                 bashpath = p;
                 printf_log(LOG_INFO, "Using bash \"%s\"\n", bashpath);
             } else {
-                printf_log(LOG_INFO, "the x86_64 bash \"%s\" is not an x86_64 binary\n", p);
+                printf_log(LOG_INFO, "The x86_64 bash \"%s\" is not an x86_64 binary.\n", p);
             }
         }
     }
@@ -1478,16 +1491,20 @@ int main(int argc, const char **argv, char **env) {
             PrintHelp();
             exit(0);
         }
+        if(!strcmp(prog, "-f") || !strcmp(prog, "--flags")) {
+            PrintFlags();
+            exit(0);
+        }
         // other options?
         if(!strcmp(prog, "--")) {
             prog = argv[++nextarg];
             break;
         }
-        printf("Warning, unrecognized option '%s'\n", prog);
+        printf("Warning, Unrecognized option '%s'\n", prog);
         prog = argv[++nextarg];
     }
     if(!prog || nextarg==argc) {
-        printf("Box64: nothing to run\n");
+        printf("BOX64: Nothing to run\n");
         exit(0);
     }
     if(!box64_nobanner)
@@ -1550,7 +1567,7 @@ int main(int argc, const char **argv, char **env) {
         }
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
-        printf_log(LOG_INFO, "BOX64: ld-musl detected, trying to workaround and use system ld-linux\n");
+        printf_log(LOG_INFO, "BOX64: ld-musl detected. Trying to workaround and use system ld-linux\n");
         box64_musl = 1;
         // skip ld-musl and go through args unti "--" is found, handling "--library-path" to add some libs to BOX64_LD_LIBRARY
         ++nextarg;
@@ -1600,7 +1617,7 @@ int main(int argc, const char **argv, char **env) {
         char* p = getenv("BOX64_LD_PRELOAD");
         ParseList(p, &ld_preload, 0);
         if (ld_preload.size && box64_log) {
-            printf_log(LOG_INFO, "BOX64 try to Preload ");
+            printf_log(LOG_INFO, "BOX64 trying to Preload ");
             for (int i=0; i<ld_preload.size; ++i)
                 printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
             printf_log(LOG_INFO, "\n");
@@ -1618,7 +1635,7 @@ int main(int argc, const char **argv, char **env) {
                 box64_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
             ParseList(p, &ld_preload, 0);
             if (ld_preload.size && box64_log) {
-                printf_log(LOG_INFO, "BOX64 try to Preload ");
+                printf_log(LOG_INFO, "BOX64 trying to Preload ");
                 for (int i=0; i<ld_preload.size; ++i)
                     printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
                 printf_log(LOG_INFO, "\n");
@@ -1655,7 +1672,7 @@ int main(int argc, const char **argv, char **env) {
     }
     // special case for zoom
     if(strstr(prgname, "zoom")==prgname) {
-        printf_log(LOG_INFO, "Zoom detected, trying to use system libturbojpeg if possible\n");
+        printf_log(LOG_INFO, "Zoom detected, Trying to use system libturbojpeg if possible\n");
         box64_zoom = 1;
     }
     // special case for bash (add BOX86_NOBANNER=1 if not there)
@@ -1716,14 +1733,14 @@ int main(int argc, const char **argv, char **env) {
 
     // check if file exist
     if(!my_context->argv[0] || !FileExist(my_context->argv[0], IS_FILE)) {
-        printf_log(LOG_NONE, "Error: file is not found (check BOX64_PATH)\n");
+        printf_log(LOG_NONE, "Error: File is not found. (check BOX64_PATH)\n");
         free_contextargv();
         FreeBox64Context(&my_context);
         FreeCollection(&ld_preload);
         return -1;
     }
     if(!FileExist(my_context->argv[0], IS_FILE|IS_EXECUTABLE)) {
-        printf_log(LOG_NONE, "Error: %s is not an executable file\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: %s is not an executable file.\n", my_context->argv[0]);
         free_contextargv();
         FreeBox64Context(&my_context);
         FreeCollection(&ld_preload);
@@ -1745,7 +1762,7 @@ int main(int argc, const char **argv, char **env) {
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->fullpath):0;
         int script = my_context->bashpath?FileIsShell(my_context->fullpath):0;
-        printf_log(LOG_NONE, "Error: reading elf header of %s, try to launch %s instead\n", my_context->fullpath, x86?"using box86":(script?"using bash":"natively"));
+        printf_log(LOG_NONE, "Error: Reading elf header of %s, Try to launch %s instead\n", my_context->fullpath, x86?"using box86":(script?"using bash":"natively"));
         fclose(f);
         FreeCollection(&ld_preload);
         int ret;
@@ -1777,7 +1794,7 @@ int main(int argc, const char **argv, char **env) {
     AddElfHeader(my_context, elf_header);
 
     if(CalcLoadAddr(elf_header)) {
-        printf_log(LOG_NONE, "Error: reading elf header of %s\n", my_context->fullpath);
+        printf_log(LOG_NONE, "Error: Reading elf header of %s\n", my_context->fullpath);
         FreeElfHeader(&elf_header);
         free_contextargv();
         FreeBox64Context(&my_context);
@@ -1786,7 +1803,7 @@ int main(int argc, const char **argv, char **env) {
     }
     // allocate memory and load elf
     if(AllocLoadElfMemory(my_context, elf_header, 1)) {
-        printf_log(LOG_NONE, "Error: loading elf %s\n", my_context->fullpath);
+        printf_log(LOG_NONE, "Error: Loading elf %s\n", my_context->fullpath);
         FreeElfHeader(&elf_header);
         free_contextargv();
         FreeBox64Context(&my_context);
@@ -1796,7 +1813,7 @@ int main(int argc, const char **argv, char **env) {
     if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
         if(!box64_tcmalloc_minimal) {
             // need to reload with tcmalloc_minimal as a LD_PRELOAD!
-            printf_log(LOG_INFO, "BOX64: tcmalloc_minimal.so.4 used, reloading box64 with the lib preladed\n");
+            printf_log(LOG_INFO, "BOX64: tcmalloc_minimal.so.4 used. Reloading box64 with the lib preladed\n");
             // need to get a new envv variable. so first count it and check if LD_PRELOAD is there
             int preload=(getenv("LD_PRELOAD"))?1:0;
             int nenv = 0;
@@ -1834,7 +1851,7 @@ int main(int argc, const char **argv, char **env) {
             while(argv[narg]) {newargv[narg] = box_strdup(argv[narg]); narg++;}
             // launch with new env...
             if(execve(newargv[0], newargv, newenv)<0)
-                printf_log(LOG_NONE, "Failed to relaunch, error is %d/%s\n", errno, strerror(errno));
+                printf_log(LOG_NONE, "Failed to relaunch. Error is %d/%s\n", errno, strerror(errno));
         } else {
             printf_log(LOG_INFO, "BOX64: Using tcmalloc_minimal.so.4, and it's in the LD_PRELOAD command\n");
         }
@@ -1873,7 +1890,7 @@ int main(int argc, const char **argv, char **env) {
         printf_log(LOG_DEBUG, "Program linked with GLIBC 2.34+\n");
     // get and alloc stack size and align
     if(CalcStackSize(my_context)) {
-        printf_log(LOG_NONE, "Error: allocating stack\n");
+        printf_log(LOG_NONE, "Error: Allocating stack\n");
         free_contextargv();
         FreeBox64Context(&my_context);
         FreeCollection(&ld_preload);
@@ -1917,7 +1934,7 @@ int main(int argc, const char **argv, char **env) {
             needed_libs_t* tmp = new_neededlib(1);
             tmp->names[0] = ld_preload.paths[i];
             if(AddNeededLib(my_context->maplib, 0, 0, tmp, elf_header, my_context, emu)) {
-                printf_log(LOG_INFO, "Warning, cannot pre-load of %s\n", tmp->names[0]);
+                printf_log(LOG_INFO, "Warning, cannot pre-load %s\n", tmp->names[0]);
                 RemoveNeededLib(my_context->maplib, 0, tmp, my_context, emu);
             } else {
                 for(int j=0; j<tmp->size; ++j)
@@ -1929,14 +1946,14 @@ int main(int argc, const char **argv, char **env) {
     FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf
     if(LoadNeededLibs(elf_header, my_context->maplib, 0, 0, my_context, emu)) {
-        printf_log(LOG_NONE, "Error: loading needed libs in elf %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: Loading needed libs in elf %s\n", my_context->argv[0]);
         FreeBox64Context(&my_context);
         return -1;
     }
     // reloc...
     printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
     if(RelocateElf(my_context->maplib, NULL, 0, elf_header)) {
-        printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", my_context->argv[0]);
+        printf_log(LOG_NONE, "Error: Relocating symbols in elf %s\n", my_context->argv[0]);
         FreeBox64Context(&my_context);
         return -1;
     }
