@@ -1078,6 +1078,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STLXRB(x3, x4, ed);
                     CBNZx_MARKLOCK(x3);
                 }
+                SMDMB();
             }
             BFIx(gb1, x1, gb2, 8);
             break;
@@ -1099,6 +1100,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 if(arm64_atomics) {
                     SWPALxw(gd, gd, ed);
+                    SMDMB();
                     if(!ALIGNED_ATOMICxw) {
                         B_NEXT_nocond;
                     }
@@ -1107,6 +1109,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LDAXRxw(x1, ed);
                     STLXRxw(x3, gd, ed);
                     CBNZx_MARKLOCK(x3);
+                    SMDMB();
                     if(!ALIGNED_ATOMICxw) {
                         B_MARK2_nocond;
                     }

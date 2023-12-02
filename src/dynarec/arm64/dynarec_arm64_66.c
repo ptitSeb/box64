@@ -591,7 +591,6 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                SMDMB();
                 TSTx_mask(ed, 1, 0, 0);    // mask=1
                 B_MARK(cNE);
                 MARKLOCK;
