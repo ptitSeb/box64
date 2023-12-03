@@ -261,17 +261,17 @@ HWCAP_EVTSTRM
     The generic timer is configured to generate events at a frequency of
     approximately 10KHz.
 HWCAP_AES
-    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0001. => AESE, AESD, AESMC, and AESIMC instructions are implemented
 HWCAP_PMULL
-    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0010.
+    Functionality implied by ID_AA64ISAR0_EL1.AES == 0b0010. => AESE, AESD, AESMC, and AESIMC instructions are implemented plus PMULL/PMULL2 instructions operating on 64-bit data quantities.
 HWCAP_SHA1
-    Functionality implied by ID_AA64ISAR0_EL1.SHA1 == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.SHA1 == 0b0001. => SHA1C, SHA1P, SHA1M, SHA1H, SHA1SU0, and SHA1SU1 instructions implemented.
 HWCAP_SHA2
-    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0001. => SHA256H, SHA256H2, SHA256SU0 and SHA256SU1 instructions implemented.
 HWCAP_CRC32
-    Functionality implied by ID_AA64ISAR0_EL1.CRC32 == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.CRC32 == 0b0001. => CRC32B, CRC32H, CRC32W, CRC32X, CRC32CB, CRC32CH, CRC32CW, and CRC32CX instructions implemented.
 HWCAP_ATOMICS
-    Functionality implied by ID_AA64ISAR0_EL1.Atomic == 0b0010.
+    Functionality implied by ID_AA64ISAR0_EL1.Atomic == 0b0010. => LDADD, LDCLR, LDEOR, LDSET, LDSMAX, LDSMIN, LDUMAX, LDUMIN, CAS, CASP, and SWP instructions implemented.
 HWCAP_FPHP
     Functionality implied by ID_AA64PFR0_EL1.FP == 0b0001.
 HWCAP_ASIMDHP
@@ -280,49 +280,49 @@ HWCAP_CPUID
     EL0 access to certain ID registers is available.
     These ID registers may imply the availability of features.
 HWCAP_ASIMDRDM
-    Functionality implied by ID_AA64ISAR0_EL1.RDM == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.RDM == 0b0001. => SQRDMLAH and SQRDMLSH instructions implemented.
 HWCAP_JSCVT
-    Functionality implied by ID_AA64ISAR1_EL1.JSCVT == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.JSCVT == 0b0001. => The FJCVTZS instruction is implemented.
 HWCAP_FCMA
-    Functionality implied by ID_AA64ISAR1_EL1.FCMA == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.FCMA == 0b0001. => The FCMLA and FCADD instructions are implemented.
 HWCAP_LRCPC
-    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0001. => LDAPR and variants
 HWCAP_DCPOP
     Functionality implied by ID_AA64ISAR1_EL1.DPB == 0b0001.
 HWCAP_SHA3
-    Functionality implied by ID_AA64ISAR0_EL1.SHA3 == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.SHA3 == 0b0001. => EOR3, RAX1, XAR, and BCAX instructions implemented.
 HWCAP_SM3
-    Functionality implied by ID_AA64ISAR0_EL1.SM3 == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.SM3 == 0b0001. => SM3SS1, SM3TT1A, SM3TT1B, SM3TT2A, SM3TT2B, SM3PARTW1, and SM3PARTW2 instructions implemented.
 HWCAP_SM4
-    Functionality implied by ID_AA64ISAR0_EL1.SM4 == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.SM4 == 0b0001. => SM4E and SM4EKEY instructions implemented.
 HWCAP_ASIMDDP
-    Functionality implied by ID_AA64ISAR0_EL1.DP == 0b0001.
+    Functionality implied by ID_AA64ISAR0_EL1.DP == 0b0001. => UDOT and SDOT instructions implemented.
 HWCAP_SHA512
-    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0010.
+    Functionality implied by ID_AA64ISAR0_EL1.SHA2 == 0b0010. => SHA512H, SHA512H2, SHA512SU0, and SHA512SU1 instructions implemented.
 HWCAP_SVE
     Functionality implied by ID_AA64PFR0_EL1.SVE == 0b0001.
 HWCAP_ASIMDFHM
-   Functionality implied by ID_AA64ISAR0_EL1.FHM == 0b0001.
+   Functionality implied by ID_AA64ISAR0_EL1.FHM == 0b0001. => FMLAL and FMLSL instructions are implemented.
 HWCAP_DIT
     Functionality implied by ID_AA64PFR0_EL1.DIT == 0b0001.
 HWCAP_USCAT
     Functionality implied by ID_AA64MMFR2_EL1.AT == 0b0001.
 HWCAP_ILRCPC
-    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0010.
+    Functionality implied by ID_AA64ISAR1_EL1.LRCPC == 0b0010. => The LDAPUR*, STLUR*, and LDAPR* instructions are implemented.
 HWCAP_FLAGM
     Functionality implied by ID_AA64ISAR0_EL1.TS == 0b0001.
 HWCAP_SSBS
-    Functionality implied by ID_AA64PFR1_EL1.SSBS == 0b0010.
+    Functionality implied by ID_AA64PFR1_EL1.SSBS == 0b0010. => AArch64 provides the PSTATE.SSBS mechanism to mark regions that are Speculative Store Bypassing Safe, and the MSR and MRS instructions to directly read and write the PSTATE.SSBS field.
 HWCAP_SB
-    Functionality implied by ID_AA64ISAR1_EL1.SB == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.SB == 0b0001. => SB instruction is implemented.
 HWCAP_PACA
     Functionality implied by ID_AA64ISAR1_EL1.APA == 0b0001 or
     ID_AA64ISAR1_EL1.API == 0b0001.
 HWCAP_PACG
-    Functionality implied by ID_AA64ISAR1_EL1.GPA == 0b0001 or
+    Functionality implied by ID_AA64ISAR1_EL1.GPA == 0b0001 or => Generic Authentication using the QARMA algorithm is implemented. This includes the PACGA instruction.
     ID_AA64ISAR1_EL1.GPI == 0b0001.
 HWCAP2_DCPODP
-    Functionality implied by ID_AA64ISAR1_EL1.DPB == 0b0010.
+    Functionality implied by ID_AA64ISAR1_EL1.DPB == 0b0010. => DC CVAP and DC CVADP supported
 HWCAP2_SVE2
     Functionality implied by ID_AA64ZFR0_EL1.SVEVer == 0b0001.
 HWCAP2_SVEAES
@@ -336,9 +336,9 @@ HWCAP2_SVESHA3
 HWCAP2_SVESM4
     Functionality implied by ID_AA64ZFR0_EL1.SM4 == 0b0001.
 HWCAP2_FLAGM2
-    Functionality implied by ID_AA64ISAR0_EL1.TS == 0b0010.
+    Functionality implied by ID_AA64ISAR0_EL1.TS == 0b0010. => CFINV, RMIF, SETF16, SETF8, AXFLAG, and XAFLAG instructions are implemented.
 HWCAP2_FRINT
-    Functionality implied by ID_AA64ISAR1_EL1.FRINTTS == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.FRINTTS == 0b0001. => FRINT32Z, FRINT32X, FRINT64Z, and FRINT64X instructions are implemented.
 HWCAP2_SVEI8MM
     Functionality implied by ID_AA64ZFR0_EL1.I8MM == 0b0001.
 HWCAP2_SVEF32MM
@@ -346,19 +346,19 @@ HWCAP2_SVEF32MM
 HWCAP2_SVEF64MM
     Functionality implied by ID_AA64ZFR0_EL1.F64MM == 0b0001.
 HWCAP2_SVEBF16
-    Functionality implied by ID_AA64ZFR0_EL1.BF16 == 0b0001.
+    Functionality implied by ID_AA64ZFR0_EL1.BF16 == 0b0001
 HWCAP2_I8MM
-    Functionality implied by ID_AA64ISAR1_EL1.I8MM == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.I8MM == 0b0001. => SMMLA, SUDOT, UMMLA, USMMLA, and USDOT instructions are implemented
 HWCAP2_BF16
-    Functionality implied by ID_AA64ISAR1_EL1.BF16 == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.BF16 == 0b0001. => BFDOT, BFMLAL, BFMLAL2, BFMMLA, BFCVT, and BFCVT2 instructions are implemented.
 HWCAP2_DGH
-    Functionality implied by ID_AA64ISAR1_EL1.DGH == 0b0001.
+    Functionality implied by ID_AA64ISAR1_EL1.DGH == 0b0001. => Data Gathering Hint is implemented.
 HWCAP2_RNG
     Functionality implied by ID_AA64ISAR0_EL1.RNDR == 0b0001.
 HWCAP2_BTI
     Functionality implied by ID_AA64PFR0_EL1.BT == 0b0001.
 HWCAP2_MTE
-    Functionality implied by ID_AA64PFR1_EL1.MTE == 0b0010.
+    Functionality implied by ID_AA64PFR1_EL1.MTE == 0b0010. => Full Memory Tagging Extension is implemented.
 HWCAP2_ECV
     Functionality implied by ID_AA64MMFR0_EL1.ECV == 0b0001.
 */
@@ -377,6 +377,7 @@ HWCAP2_ECV
         arm64_pmull = 1;
     if(hwcap&HWCAP_AES)
         arm64_aes = 1;
+    // ATOMIC use are disable for now. They crashes Batman Arkham Knight, bossibly other (also seems to make steamwebhelper unstable)
     /*if(hwcap&HWCAP_ATOMICS)
         arm64_atomics = 1;*/
     #ifdef HWCAP_SHA1
