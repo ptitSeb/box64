@@ -1097,6 +1097,11 @@ add_test(shaext ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref28.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
+add_test(lock ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test29 -D TEST_OUTPUT=tmpfile29.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref29.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
 
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})

@@ -797,6 +797,11 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "CSEL %s, %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond]);    
         return buff;
     }
+    if(isMask(opcode, "f1111010010mmmmmcccc00nnnnn0iiii", &a)) {
+        snprintf(buff, sizeof(buff), "CCMP %s, %s, %s 0x%x", sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], conds[cond], imm);
+        return buff;
+    }
+
     // MISC Bits
     if(isMask(opcode, "f10110101100000000010onnnnnddddd", &a)) {
         snprintf(buff, sizeof(buff), "CL%c %s, %s", option?'S':'Z', sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn]);
@@ -1619,6 +1624,11 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     // DMB ISH
     if(isMask(opcode, "11010101000000110011nnnn10111111", &a)) {
         snprintf(buff, sizeof(buff), "DMB %s", (Rn==0b1011)?"ISH":"???");
+        return buff;
+    }
+    // DSB ISH/ISHST
+    if(isMask(opcode, "11010101000000110011nnnn10011111", &a)) {
+        snprintf(buff, sizeof(buff), "DSB %s", (Rn==0b1011)?"ISH":((Rn==0b1010)?"ISHST":"???"));
         return buff;
     }
 

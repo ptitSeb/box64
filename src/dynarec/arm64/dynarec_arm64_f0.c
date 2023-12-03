@@ -612,10 +612,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 CASPALxw(x2, x4, wback);
                                 UFLAG_IF {
                                     CMPSxw_REG(x2, xRAX);
-                                    CSETw(x4, cEQ);
-                                    CMPSxw_REG(x3, xRDX);
-                                    CSETw(x5, cEQ);
-                                    ANDw_REG(x1, x4, x5);
+                                    CCMPxw(x3, xRDX, 0, cEQ);
+                                    CSETw(x1, cEQ);
                                 }
                                 MOVx_REG(xRAX, x2);
                                 MOVx_REG(xRDX, x3);
@@ -623,9 +621,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 MARKLOCK;
                                 LDAXPxw(x2, x3, wback);
                                 CMPSxw_REG(xRAX, x2);
-                                B_MARK(cNE);    // EAX != Ed[0]
-                                CMPSxw_REG(xRDX, x3);
-                                B_MARK(cNE);    // EDX != Ed[1]
+                                CCMPxw(xRDX, x3, 0, cEQ);
+                                B_MARK(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
                                 STLXPxw(x4, xRBX, xRCX, wback);
                                 CBNZx_MARKLOCK(x4);
                                 UFLAG_IF {

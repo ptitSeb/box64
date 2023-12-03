@@ -200,6 +200,12 @@
 #define SBCSw_REG(Rd, Rn, Rm)       EMIT(ADDSUBC_gen(0, 1, 1, Rm, Rn, Rd))
 #define SBCSxw_REG(Rd, Rn, Rm)      EMIT(ADDSUBC_gen(rex.w, 1, 1, Rm, Rn, Rd))
 
+// CCMP compare if cond is true, set nzcv if false
+#define CCMP_reg(sf, Rm, cond, Rn, nzcv)    ((sf)<<31 | 1<<30 | 1<<29 | 0b11010010<<21 | (Rm)<<16 | (cond)<<12 | (Rn)<<5 | (nzcv))
+#define CCMPw(Wn, Wm, nzcv, cond)   EMIT(CCMP_reg(0, Wm, cond, Wn, nzcv))
+#define CCMPx(Xn, Xm, nzcv, cond)   EMIT(CCMP_reg(1, Xm, cond, Xn, nzcv))
+#define CCMPxw(Xn, Xm, nzcv, cond)  EMIT(CCMP_reg(rex.w, Xm, cond, Xn, nzcv))
+
 // ADR
 #define ADR_gen(immlo, immhi, Rd)   ((immlo)<<29 | 0b10000<<24 | (immhi)<<5 | (Rd))
 #define ADR_S20(Rd, imm)            EMIT(ADR_gen((imm)&3, ((imm)>>2)&0x7ffff, (Rd)))
@@ -429,6 +435,12 @@
 #define DMB_gen(CRm)                    (0b1101010100<<22 | 0b011<<16 | 0b0011<<12 | (CRm)<<8 | 1<<7 | 0b01<<5 | 0b11111)
 #define DMB_ISH()                       EMIT(DMB_gen(0b1011))
 #define DMB_SY()                        EMIT(DMB_gen(0b1111))
+
+// Data Synchronization Barrier
+#define DSB_gen(CRm)                    (0b1101010100<<22 | 0b011<<16 | 0b0011<<12 | (CRm)<<8 | 1<<7 | 0b00<<5 | 0b11111)
+#define DSB_ISH()                       EMIT(DSB_gen(0b1011))
+#define DSB_ISHST()                     EMIT(DSB_gen(0b1010))
+#define DSB_SY()                        EMIT(DSB_gen(0b1111))
 
 // Break
 #define BRK_gen(imm16)                  (0b11010100<<24 | 0b001<<21 | (((imm16)&0xffff)<<5))

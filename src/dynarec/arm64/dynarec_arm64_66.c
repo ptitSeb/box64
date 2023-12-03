@@ -591,18 +591,36 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                TSTx_mask(ed, 1, 0, 0);    // mask=1
-                B_MARK(cNE);
-                MARKLOCK;
-                LDAXRH(x1, ed);
-                STLXRH(x3, gd, ed);
-                CBNZx_MARKLOCK(x3);
-                B_MARK2_nocond;
-                MARK;
-                LDRH_U12(x1, ed, 0);
-                STRH_U12(gd, ed, 0);
-                MARK2;
-                SMDMB();
+                if(!ALIGNED_ATOMICH) {
+                    TSTx_mask(ed, 1, 0, 0);    // mask=1
+                    B_MARK(cNE);
+                }
+                if(arm64_atomics) {
+                    SWPALH(gd, x1, ed);
+                    SMDMB();
+                    if(!ALIGNED_ATOMICH) {
+                        B_MARK2_nocond;
+                    }
+                } else {
+                    MARKLOCK;
+                    LDAXRH(x1, ed);
+                    STLXRH(x3, gd, ed);
+                    CBNZx_MARKLOCK(x3);
+                    SMDMB();
+                    if(!ALIGNED_ATOMICH) {
+                        B_MARK2_nocond;
+                    }
+                }
+                if(!ALIGNED_ATOMICH) {
+                    MARK;
+                    LDRH_U12(x1, ed, 0);
+                    LDAXRB(x3, ed);
+                    STLXRB(x3, gd, ed);
+                    CBNZx_MARK(x3);
+                    STRH_U12(gd, ed, 0);
+                    SMDMB();
+                    MARK2;
+                }
                 BFIx(gd, x1, 0, 16);
             }
             break;

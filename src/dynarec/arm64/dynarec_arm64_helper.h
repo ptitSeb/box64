@@ -55,9 +55,9 @@
 // Start of sequence
 #define SMSTART()   SMEND()
 // End of sequence
-#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {DMB_ISH();} dyn->smwrite=0; dyn->smread=0;
+#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {if(box64_dynarec_strongmem){DSB_ISH();}else{DMB_ISH();}} dyn->smwrite=0; dyn->smread=0;
 // Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()     DMB_ISH(); dyn->smwrite=0; dyn->smread=1; dyn->smlastdmb = ninst
+#define SMDMB()     if(box64_dynarec_strongmem){DSB_ISH();}else{DMB_ISH();} dyn->smwrite=0; dyn->smread=1; dyn->smlastdmb = ninst
 
 //LOCK_* define
 #define LOCK_LOCK   (int*)1

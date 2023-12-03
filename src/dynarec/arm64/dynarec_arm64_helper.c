@@ -32,7 +32,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
 {
     MAYUSE(dyn); MAYUSE(ninst); MAYUSE(delta);
 
-    if(l==LOCK_LOCK) { SMDMB(); }
+    if(l==LOCK_LOCK) { /*SMDMB();*/DMB_ISH(); }
 
     if(rex.is32bits)
         return geted_32(dyn, addr, ninst, nextop, ed, hint, fixaddress, unscaled, absmax, mask, l, s);

@@ -1,0 +1,2 @@
+Lock XADD: Res = 0x456, Ed = 0x579
+Lock XCHG: Res = 0x579, Ed = 0x123
