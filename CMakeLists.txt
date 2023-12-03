@@ -853,8 +853,13 @@ if(_x86_64 OR _aarch64)
 endif()
 
 if(NOT _x86 AND NOT _x86_64)
-  install(TARGETS ${BOX64}
+  if(NOT TERMUX)
+   install(TARGETS ${BOX64}
     RUNTIME DESTINATION bin)
+  else()
+   install(TARGETS ${BOX64}
+    RUNTIME DESTINATION ${TERMUX_PATH}/usr/bin)
+  endif()
   if(NOT NO_CONF_INSTALL)
     configure_file(system/box64.conf.cmake system/box64.conf)
 	  if(NOT TERMUX)
