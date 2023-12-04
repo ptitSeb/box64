@@ -167,7 +167,7 @@ Using a 64bit OS:
 
 #### for Termux
 
-NOTE: COMPILING BOX64 IN TERMUX IS EXPERIMENTAL!!!
+NOTE: BUILDING BOX64 IN TERMUX IS EXPERIMENTAL AND DOESN'T GONNA RUN LINUX BINARIES IN TERMUX'S BOX64!!!
 
 You must have ARM64 Device with `libandroid-sysv-semaphore` and `libandroid-spawn` libraries:
 
