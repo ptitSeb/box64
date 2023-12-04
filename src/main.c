@@ -1167,6 +1167,8 @@ void LoadEnvVars(box64context_t *context)
         AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
     #else
     //TODO: Add Termux Library Path - Lily
+    if(FileExist("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", 0))
+        AddPath("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     #endif
     if(getenv("LD_LIBRARY_PATH"))
         PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
@@ -1421,12 +1423,14 @@ static void free_contextargv()
 
 static void load_rcfiles()
 {
-    //#ifndef TERMUX
+    #ifndef TERMUX
     if(FileExist("/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/etc/box64.box64rc");
-    //#else
-    //TODO: Add RC Files Support For Termux - Lily
-    // #endif
+    #else
+    if(FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
+        LoadRCFile("/data/data/com.termux/files/usr/etc/box64.box64rc");
+    #endif
+    
     else
         LoadRCFile(NULL);   // load default rcfile
     char* p = getenv("HOME");
