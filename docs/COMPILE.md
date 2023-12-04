@@ -167,9 +167,19 @@ Using a 64bit OS:
 
 #### for Termux
 
-NOTE: COMPILING BOX64 IN TERMUX IS EXPERIMENTAL!!!
+You must have ARM64 Device for build box64.
 
-You must have ARM64 Device with `libandroid-sysv-semaphore` and `libandroid-spawn` libraries:
+##### in CHRoot/PRoot
+
+```
+-DARM_DYNAREC=ON -DBAD_SIGNAL=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
+##### in Termux (Native)
+
+NOTE: BUILDING BOX64 IN TERMUX NATIVE IS EXPERIMENTAL AND DOESN'T GONNA RUN LINUX BINARIES IN NATIVE TERMUX BOX64!!!
+
+You also needed have `libandroid-sysv-semaphore` and `libandroid-spawn` libraries:
 
 ```
 -D TERMUX=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
