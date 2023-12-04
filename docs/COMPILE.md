@@ -169,7 +169,7 @@ Using a 64bit OS:
 
 NOTE: COMPILING BOX64 IN TERMUX IS EXPERIMENTAL!!!
 
-You must have ARM64 Device and the `libandroid-sysv-semaphore` library:
+You must have ARM64 Device and `libandroid-sysv-semaphore` and `libandroid-spawn` libraries:
 
 ```
 -D TERMUX=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
