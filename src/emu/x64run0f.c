@@ -914,14 +914,24 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             }
             break;
         case 0xA4:                      /* SHLD Ed,Gd,Ib */
+            nextop = F8;
+            GETED(1);
+            GETGD;
+            tmp8u = F8;
+            if(rex.w)
+                ED->q[0] = shld64(emu, ED->q[0], GD->q[0], tmp8u);
+            else {
+                if(MODREG)
+                    ED->q[0] = shld32(emu, ED->dword[0], GD->dword[0], tmp8u);
+                else
+                    ED->dword[0] = shld32(emu, ED->dword[0], GD->dword[0], tmp8u);
+            }
+            break;
         case 0xA5:                      /* SHLD Ed,Gd,CL */
             nextop = F8;
-            GETED((nextop==0xA4)?1:0);
+            GETED(0);
             GETGD;
-            if(opcode==0xA4)
-                tmp8u = F8;
-            else
-                tmp8u = R_CL;
+            tmp8u = R_CL;
             if(rex.w)
                 ED->q[0] = shld64(emu, ED->q[0], GD->q[0], tmp8u);
             else {
