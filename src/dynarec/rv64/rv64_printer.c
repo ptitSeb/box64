@@ -412,16 +412,16 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_rd_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, RN(rd), RN(rs1)); return buff
 #define PRINT_rd_rs1_rs2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2)); return buff
 #define PRINT_rd_rs1_rs2_rs3() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2), RN(rs3)); return buff
-#define PRINT_rd_rs1_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rd), RN(rs1), insn.imm); return buff
+#define PRINT_rd_rs1_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, 0x%x", insn.name, RN(rd), RN(rs1), insn.imm); return buff
 #define PRINT_rd_rs1_immx() snprintf(buff, sizeof(buff), "%s\t%s, %s, 0x%x", insn.name, RN(rd), RN(rs1), insn.imm); return buff
-#define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rd), insn.imm, gpnames[insn.rs1]); return buff
-#define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d(%s)", insn.name, RN(rs2), insn.imm, gpnames[insn.rs1]); return buff
-#define PRINT_rd_imm() snprintf(buff, sizeof(buff), "%s\t%s, %d", insn.name, RN(rd), insn.imm); return buff
-#define PRINT_rd_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, pc%+d # 0x%"PRIx64, insn.name, RN(rd), insn.imm, insn.imm+(uint64_t)addr); return buff
-#define PRINT_imm_rel() snprintf(buff, sizeof(buff), "%s\tpc%+d # 0x%"PRIx64, insn.name, insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x(%s)", insn.name, RN(rd), insn.imm, gpnames[insn.rs1]); return buff
+#define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x(%s)", insn.name, RN(rs2), insn.imm, gpnames[insn.rs1]); return buff
+#define PRINT_rd_imm() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
+#define PRINT_rd_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, pc%s0x%x # 0x%"PRIx64, insn.name, RN(rd), insn.imm>0?"+":"-", insn.imm>0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_imm_rel() snprintf(buff, sizeof(buff), "%s\tpc%s0x%x # 0x%"PRIx64, insn.name, insn.imm>0?"+":"-", insn.imm>0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_rd_immx() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
-#define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %d", insn.name, RN(rs1), RN(rs2), insn.imm); return buff
-#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%+d # 0x%"PRIx64, insn.name, RN(rs1), RN(rs2), insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, 0x%x", insn.name, RN(rs1), RN(rs2), insn.imm); return buff
+#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%s0x%d # 0x%"PRIx64, insn.name, RN(rs1), RN(rs2), insn.imm>0?"+":"-", insn.imm>0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_fd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_xd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, gpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_fd_xs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], gpnames[insn.rs1]); return buff
@@ -444,35 +444,35 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
         uint32_t copcode = COPCODE(data);
 
         switch (copcode) {
-        case 0x0: /* C.ADDI4SPN */
+        case 0x0:
             insn =  insn_ciwtype_read(data);
-            insn.rs1 = 2; /* sp */
+            insn.rs1 = 2;
             insn.name = "addi";
             assert(insn.imm != 0);
             PRINT_rd_rs1_imm();
-        case 0x1: /* C.FLD */
+        case 0x1:
             insn =  insn_cltype_read2(data);
             insn.name = "fld";
             insn.f = true;
             PRINT_rd_imm_rs1();
-        case 0x2: /* C.LW */
+        case 0x2:
             insn =  insn_cltype_read(data);
             insn.name = "lw";
             PRINT_rd_imm_rs1();
-        case 0x3: /* C.LD */
+        case 0x3:
             insn =  insn_cltype_read2(data);
             insn.name = "ld";
             PRINT_rd_imm_rs1();
-        case 0x5: /* C.FSD */
+        case 0x5:
             insn =  insn_cstype_read(data);
             insn.name = "fsd";
             insn.f = true;
             PRINT_rs2_imm_rs1();
-        case 0x6: /* C.SW */
+        case 0x6:
             insn =  insn_cstype_read2(data);
             insn.name = "sw";
             PRINT_rd_imm_rs1();
-        case 0x7: /* C.SD */
+        case 0x7:
             insn =  insn_cstype_read(data);
             insn.name = "sd";
             PRINT_rs2_imm_rs1();
@@ -482,31 +482,31 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
         uint32_t copcode = COPCODE(data);
 
         switch (copcode) {
-        case 0x0: /* C.ADDI */
+        case 0x0:
             insn =  insn_citype_read(data);
             insn.rs1 = insn.rd;
             insn.name = "addi";
             PRINT_rd_rs1_imm();
-        case 0x1: /* C.ADDIW */
+        case 0x1:
             insn =  insn_citype_read(data);
             assert(insn.rd != 0);
             insn.rs1 = insn.rd;
             insn.name = "addiw";
             PRINT_rd_rs1_imm();
-        case 0x2: /* C.LI */
+        case 0x2:
             insn =  insn_citype_read(data);
             insn.rs1 = 0;
             insn.name = "addi";
             PRINT_rd_rs1_imm();
         case 0x3: {
             int32_t rd = RC1(data);
-            if (rd == 2) { /* C.ADDI16SP */
+            if (rd == 2) {
                 insn =  insn_citype_read3(data);
                 assert(insn.imm != 0);
                 insn.rs1 = insn.rd;
                 insn.name = "addi";
                 PRINT_rd_rs1_imm();
-            } else { /* C.LUI */
+            } else {
                 insn =  insn_citype_read5(data);
                 assert(insn.imm != 0);
                 insn.name = "lui";
@@ -517,9 +517,9 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             uint32_t cfunct2high = CFUNCT2HIGH(data);
 
             switch (cfunct2high) {
-            case 0x0:   /* C.SRLI */
-            case 0x1:   /* C.SRAI */
-            case 0x2: { /* C.ANDI */
+            case 0x0:  
+            case 0x1:  
+            case 0x2: {
                 insn =  insn_cbtype_read2(data);
                 insn.rs1 = insn.rd;
 
@@ -543,16 +543,16 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     insn.rs1 = insn.rd;
 
                     switch (cfunct2low) {
-                    case 0x0: /* C.SUB */
+                    case 0x0:
                         insn.name = "sub";
                         break;
-                    case 0x1: /* C.XOR */
+                    case 0x1:
                         insn.name = "xor";
                         break;
-                    case 0x2: /* C.OR */
+                    case 0x2:
                         insn.name = "or";
                         break;
-                    case 0x3: /* C.AND */
+                    case 0x3:
                         insn.name = "and";
                         break;
                     }
@@ -565,12 +565,14 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     insn.rs1 = insn.rd;
 
                     switch (cfunct2low) {
-                    case 0x0: /* C.SUBW */
+                    case 0x0:
                         insn.name = "subw";
                         break;
-                    case 0x1: /* C.ADDW */
+                    case 0x1:
                         insn.name = "addw";
                         break;
+                    default:
+                        goto unknown;
                     }
                     break;
                 }
@@ -579,13 +581,13 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             }
             }
         }
-        case 0x5: /* C.J */
+        case 0x5:
             insn =  insn_cjtype_read(data);
             insn.rd = 0;
             insn.name = "jal";
             PRINT_rd_imm();
-        case 0x6: /* C.BEQZ */
-        case 0x7: /* C.BNEZ */
+        case 0x6:
+        case 0x7:
             insn =  insn_cbtype_read(data);
             insn.rs2 = 0;
             insn.name = copcode == 0x6 ? "beq" : "bne";
@@ -595,27 +597,27 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
     case 0x2: {
         uint32_t copcode = COPCODE(data);
         switch (copcode) {
-        case 0x0: /* C.SLLI */
+        case 0x0:
             insn =  insn_citype_read(data);
             insn.rs1 = insn.rd;
             insn.name = "slli";
             PRINT_rd_rs1_imm();
-        case 0x1: /* C.FLDSP */
+        case 0x1:
             insn =  insn_citype_read2(data);
-            insn.rs1 = 2; /* sp */
+            insn.rs1 = 2;
             insn.f = true;
             insn.name = "fld";
             PRINT_rd_imm_rs1();
-        case 0x2: /* C.LWSP */
+        case 0x2:
             insn =  insn_citype_read4(data);
             assert(insn.rd != 0);
-            insn.rs1 = 2; /* sp */
+            insn.rs1 = 2;
             insn.name = "lw";
             PRINT_rd_imm_rs1();
-        case 0x3: /* C.LDSP */
+        case 0x3:
             insn =  insn_citype_read2(data);
             assert(insn.rd != 0);
-            insn.rs1 = 2; /* sp */
+            insn.rs1 = 2;
             insn.name = "ld";
             PRINT_rd_imm_rs1();
         case 0x4: {
@@ -625,12 +627,12 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             case 0x0: {
                 insn =  insn_crtype_read(data);
 
-                if (insn.rs2 == 0) { /* C.JR */
+                if (insn.rs2 == 0) {
                     assert(insn.rs1 != 0);
                     insn.rd = 0;
                     insn.name = "jalr";
                     PRINT_rd_imm_rs1();
-                } else { /* C.MV */
+                } else {
                     insn.rd = insn.rs1;
                     insn.rs1 = 0;
                     insn.name = "add";
@@ -639,14 +641,14 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             }
             case 0x1: {
                 insn =  insn_crtype_read(data);
-                if (insn.rs1 == 0 && insn.rs2 == 0) { /* C.EBREAK */
+                if (insn.rs1 == 0 && insn.rs2 == 0) {
                     insn.name = "ebreak";
                     PRINT_none();
-                } else if (insn.rs2 == 0) { /* C.JALR */
-                    insn.rd = 1; /* ra */
+                } else if (insn.rs2 == 0) {
+                    insn.rd = 1;
                     insn.name = "jalr";
                     PRINT_rd_imm_rs1();
-                } else { /* C.ADD */
+                } else {
                     insn.rd = insn.rs1;
                     insn.name = "add";
                     PRINT_rd_rs1_rs2();
@@ -654,20 +656,20 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             }
             }
         }
-        case 0x5: /* C.FSDSP */
+        case 0x5:
             insn =  insn_csstype_read(data);
-            insn.rs1 = 2; /* sp */
+            insn.rs1 = 2;
             insn.f = true;
             insn.name = "fsd";
             PRINT_rs2_imm_rs1();
-        case 0x6: /* C.SWSP */
+        case 0x6:
             insn =  insn_csstype_read2(data);
-            insn.rs1 = 2; /* sp */
+            insn.rs1 = 2;
             insn.name = "sw";
             PRINT_rs2_imm_rs1();
-        case 0x7: /* C.SDSP */
+        case 0x7:
             insn =  insn_csstype_read(data);
-            insn.rs1 = 2; /* sp */
+            insn.rs1 = 2;
             insn.name = "sd";
             PRINT_rs2_imm_rs1();
         }
@@ -680,27 +682,29 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_itype_read(data);
             switch (funct3) {
-            case 0x0: /* LB */
+            case 0x0:
                 insn.name = "lb";
                 break;
-            case 0x1: /* LH */
+            case 0x1:
                 insn.name = "lh";
                 break;
-            case 0x2: /* LW */
+            case 0x2:
                 insn.name = "lw";
                 break;
-            case 0x3: /* LD */
+            case 0x3:
                 insn.name = "ld";
                 break;
-            case 0x4: /* LBU */
+            case 0x4:
                 insn.name = "lbu";
                 break;
-            case 0x5: /* LHU */
+            case 0x5:
                 insn.name = "lhu";
                 break;
-            case 0x6: /* LWU */
+            case 0x6:
                 insn.name = "lwu";
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rd_imm_rs1();
         }
@@ -709,14 +713,16 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_itype_read(data);
             switch (funct3) {
-            case 0x2: /* FLW */
+            case 0x2:
                 insn.name = "flw";
                 insn.f = true;
                 break;
-            case 0x3: /* FLD */
+            case 0x3:
                 insn.name = "fld";
                 insn.f = true;
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rd_imm_rs1();
         }
@@ -724,15 +730,17 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             uint32_t funct3 = FUNCT3(data);
 
             switch (funct3) {
-            case 0x0: { /* FENCE */
+            case 0x0: {
                 insn.name = "fence";
                 // TODO: handle pred succ
                 PRINT_none();
             }
-            case 0x1: { /* FENCE.I */
+            case 0x1: {
                 insn.name = "fence.i";
                 PRINT_none();
             }
+            default:
+                goto unknown;
             }
         }
         case 0x4: {
@@ -744,7 +752,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_itype_read(data);
             switch (funct3) {
-            case 0x0: /* ADDI */
+            case 0x0:
                 insn.name = "addi";
                 if (insn.imm == 0) {
                     if (insn.rd == 0 && insn.rs1 == 0) {
@@ -758,18 +766,45 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 break;
             case 0x1: {
                 uint32_t imm116 = IMM116(data);
-                if (imm116 == 0) { /* SLLI */
+                switch (imm116) {
+                case 0x0:
                     insn.name = "slli";
+                    break;
+                case 0x18: {
+                    uint32_t rs2 = RS2(data);
+                    switch (rs2) {
+                    case 0x0:
+                        insn.name = "clz";
+                        break;
+                    case 0x1:
+                        insn.name = "ctz";
+                        break;
+                    case 0x2:
+                        insn.name = "cpop";
+                        break;
+                    case 0x4:
+                        insn.name = "sext.b";
+                        break;
+                    case 0x5:
+                        insn.name = "sext.h";
+                        break;
+                    default:
+                        goto unknown;
+                    }
+                    PRINT_rd_rs1();
+                }
+                default:
+                    goto unknown;
                 }
                 break;
             }
-            case 0x2: /* SLTI */
+            case 0x2:
                 insn.name = "slti";
                 break;
-            case 0x3: /* SLTIU */
+            case 0x3:
                 insn.name = "sltiu";
                 break;
-            case 0x4: /* XORI */
+            case 0x4:
                 insn.name = "xori";
                 hex = 1;
                 if (insn.imm == -1) {
@@ -780,22 +815,28 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             case 0x5: {
                 uint32_t imm116 = IMM116(data);
 
-                if (imm116 == 0x0) { /* SRLI */
+                if (imm116 == 0x0) {
                     insn.name = "srli";
-                } else if (imm116 == 0x10) { /* SRAI */
+                } else if (imm116 == 0x10) {
                     insn.name = "srai";
-                    insn.imm&=0b111111;
+                    insn.imm &= 0b111111;
+                } else if (imm116 == 0x12) {
+                    insn.name = "bexti";
+                    insn.imm &= 0b111111;
+                } else if (imm116 == 0x18) {
+                    insn.name = "rori";
+                    insn.imm &= 0b111111;
                 } else if (insn.imm==0b011010111000) {
                     insn.name = "rev8";
                     PRINT_rd_rs1();
                 }
                 break;
             }
-            case 0x6: /* ORI */
+            case 0x6:
                 insn.name = "ori";
                 hex = 1;
                 break;
-            case 0x7: /* ANDI */
+            case 0x7:
                 insn.name = "andi";
                 hex = 1;
                 break;
@@ -812,10 +853,11 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 PRINT_rd_rs1_imm();
             }
         }
-        case 0x5: /* AUIPC */
+        case 0x5: {
             insn =  insn_utype_read(data);
             insn.name = "auipc";
             PRINT_rd_imm_rel();
+        }
         case 0x6: {
             uint32_t funct3 = FUNCT3(data);
             uint32_t funct7 = FUNCT7(data);
@@ -823,24 +865,56 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             insn =  insn_itype_read(data);
 
             switch (funct3) {
-            case 0x0: /* ADDIW */
+            case 0x0:
                 insn.name = "addiw";
                 break;
-            case 0x1: /* SLLIW */
-                assert(funct7 == 0);
-                insn.name = "slliw";
+            case 0x1:
+                switch (funct7) {
+                case 0x0:
+                    insn.name = "slliw";
+                    break;
+                case 0x4:
+                    insn.name = "slli.uw";
+                    break;
+                case 0x30: {
+                    uint32_t rs2 = RS2(data);
+                    switch (rs2) {
+                    case 0x0:
+                        insn.name = "clzw";
+                        break;
+                    case 0x1:
+                        insn.name = "ctzw";
+                        break;
+                    case 0x2:
+                        insn.name = "cpopw";
+                        break;
+                    default:
+                        goto unknown;
+                    }
+                    PRINT_rd_rs1();
+                }
+                default:
+                    goto unknown;
+                }
                 break;
             case 0x5: {
                 switch (funct7) {
-                case 0x0: /* SRLIW */
+                case 0x0:
                     insn.name = "srliw";
                     break;
-                case 0x20: /* SRAIW */
+                case 0x20:
                     insn.name = "sraiw";
-                    insn.imm&=0b111111;
+                    insn.imm &= 0b11111;
                     break;
+                case 0x30:
+                    insn.name = "roriw";
+                    insn.imm &= 0b11111;
+                default:
+                    goto unknown;
                 }
             }
+            default:
+                goto unknown;
             }
             PRINT_rd_rs1_imm();
         }
@@ -849,18 +923,20 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_stype_read(data);
             switch (funct3) {
-            case 0x0: /* SB */
+            case 0x0:
                 insn.name = "sb";
                 break;
-            case 0x1: /* SH */
+            case 0x1:
                 insn.name = "sh";
                 break;
-            case 0x2: /* SW */
+            case 0x2:
                 insn.name = "sw";
                 break;
-            case 0x3: /* SD */
+            case 0x3:
                 insn.name = "sd";
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rs2_imm_rs1();
         }
@@ -869,14 +945,16 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_stype_read(data);
             switch (funct3) {
-            case 0x2: /* FSW */
+            case 0x2:
                 insn.name = "fsw";
                 insn.f = true;
                 break;
-            case 0x3: /* FSD */
+            case 0x3:
                 insn.name = "fsd";
                 insn.f = true;
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rs2_imm_rs1();
         }
@@ -888,22 +966,24 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             switch(funct3) {
             case 0x2:
                 switch (rs1) {
-                case 0x2: /* LR.W */
+                case 0x2:
                     insn.name = "lr.w";
                     PRINT_rd_rs1_aqrl();
-                case 0x3: /* SC.W */
+                case 0x3:
                     insn.name = "sc.w";
                     PRINT_rd_rs1_rs2_aqrl();
                 }
             case 0x3:
                 switch (rs1) {
-                case 0x2: /* LR.D */
+                case 0x2:
                     insn.name = "lr.d";
                     PRINT_rd_rs1_aqrl();
-                case 0x3: /* SC.D */
+                case 0x3:
                     insn.name = "sc.d";
                     PRINT_rd_rs1_rs2_aqrl();
                 }
+            default:
+                goto unknown;
             }
         }
         case 0xc: {
@@ -915,28 +995,28 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             switch (funct7) {
             case 0x0: {
                 switch (funct3) {
-                case 0x0: /* ADD */
+                case 0x0:
                     insn.name = "add";
                     break;
-                case 0x1: /* SLL */
+                case 0x1:
                     insn.name = "sll";
                     break;
-                case 0x2: /* SLT */
+                case 0x2:
                     insn.name = "slt";
                     break;
-                case 0x3: /* SLTU */
+                case 0x3:
                     insn.name = "sltu";
                     break;
-                case 0x4: /* XOR */
+                case 0x4:
                     insn.name = "xor";
                     break;
-                case 0x5: /* SRL */
+                case 0x5:
                     insn.name = "srl";
                     break;
-                case 0x6: /* OR */
+                case 0x6:
                     insn.name = "or";
                     break;
-                case 0x7: /* AND */
+                case 0x7:
                     insn.name = "and";
                     break;
                 }
@@ -944,65 +1024,122 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             break;
             case 0x1: {
                 switch (funct3) {
-                case 0x0: /* MUL */
+                case 0x0:
                     insn.name = "mul";
                     break;
-                case 0x1: /* MULH */
+                case 0x1:
                     insn.name = "mulh";
                     break;
-                case 0x2: /* MULHSU */
+                case 0x2:
                     insn.name = "mulhsu";
                     break;
-                case 0x3: /* MULHU */
+                case 0x3:
                     insn.name = "mulhu";
                     break;
-                case 0x4: /* DIV */
+                case 0x4:
                     insn.name = "div";
                     break;
-                case 0x5: /* DIVU */
+                case 0x5:
                     insn.name = "divu";
                     break;
-                case 0x6: /* REM */
+                case 0x6:
                     insn.name = "rem";
                     break;
-                case 0x7: /* REMU */
+                case 0x7:
                     insn.name = "remu";
                     break;
                 }
             }
             break;
+            case 0x5: {
+                switch (funct3) {
+                case 0x4:
+                    insn.name = "min";
+                    break;
+                case 0x5:
+                    insn.name = "minu";
+                    break;
+                case 0x6:
+                    insn.name = "max";
+                    break;
+                case 0x7:
+                    insn.name = "maxu";
+                    break;
+                default:
+                    goto unknown;
+                }
+            }
+            break;
             case 0x10: {
                 switch (funct3) {
-                case 0b010:
+                case 0x2:
                     insn.name = "sh1add";
                     break;
-                case 0b100:
+                case 0x4:
                     insn.name = "sh2add";
                     break;
-                case 0b110:
+                case 0x6:
                     insn.name = "sh3add";
                     break;
+                default:
+                    goto unknown;
                 }
             }
             break;
             case 0x20: {
                 switch (funct3) {
-                case 0x0: /* SUB */
+                case 0x0:
                     insn.name = "sub";
                     break;
-                case 0x5: /* SRA */
+                case 0x4:
+                    insn.name = "xnor";
+                    break;
+                case 0x5:
                     insn.name = "sra";
                     break;
+                case 0x6:
+                    insn.name = "orn";
+                    break;
+                case 0x7:
+                    insn.name = "andn";
+                    break;
+                default:
+                    goto unknown;
+                }
+                break;
+            }
+            case 0x24: {
+                switch (funct3) {
+                case 0x5:
+                    insn.name = "bext";
+                    break;
+                default:
+                    goto unknown;
+                }
+                break;
+            }
+            case 0x30: {
+                switch (funct3) {
+                case 0x1:
+                    insn.name = "rol";
+                    break;
+                case 0x5:
+                    insn.name = "ror";
+                    break;
+                default:
+                    goto unknown;
                 }
             }
-            break;
+            default:
+                goto unknown;
             }
             PRINT_rd_rs1_rs2();
         }
-        case 0xd: /* LUI */
+        case 0xd: {
             insn =  insn_utype_read(data);
             insn.name = "lui";
             PRINT_rd_immx();
+        }
         case 0xe: {
             insn =  insn_rtype_read(data);
 
@@ -1012,49 +1149,98 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             switch (funct7) {
             case 0x0: {
                 switch (funct3) {
-                case 0x0: /* ADDW */
+                case 0x0:
                     insn.name = "addw";
                     break;
-                case 0x1: /* SLLW */
+                case 0x1:
                     insn.name = "sllw";
                     break;
-                case 0x5: /* SRLW */
+                case 0x5:
                     insn.name = "srlw";
                     break;
+                default:
+                    goto unknown;
                 }
             }
             break;
             case 0x1: {
                 switch (funct3) {
-                case 0x0: /* MULW */
+                case 0x0:
                     insn.name = "mulw";
                     break;
-                case 0x4: /* DIVW */
+                case 0x4:
                     insn.name = "divw";
                     break;
-                case 0x5: /* DIVUW */
+                case 0x5:
                     insn.name = "divuw";
                     break;
-                case 0x6: /* REMW */
+                case 0x6:
                     insn.name = "remw";
                     break;
-                case 0x7: /* REMUW */
+                case 0x7:
                     insn.name = "remuw";
                     break;
+                default:
+                    goto unknown;
+                }
+            }
+            case 0x4: {
+                switch (funct3) {
+                    case 0x0:
+                        insn.name = "add.uw";
+                        break;
+                    case 0x4:
+                        assert(insn.rs2 == 0);
+                        insn.name = "zext.h";
+                        PRINT_rd_rs1();
+                    default:
+                        goto unknown;
+                }
+            }
+            break;
+            case 0x10: {
+                switch (funct3) {
+                    case 0x2:
+                        insn.name = "sh1add.uw";
+                        break;
+                    case 0x4:
+                        insn.name = "sh2add.uw";
+                        break;
+                    case 0x6:
+                        insn.name = "sh3add.uw";
+                        break;
+                    default:
+                        goto unknown;
                 }
             }
             break;
             case 0x20: {
                 switch (funct3) {
-                case 0x0: /* SUBW */
+                case 0x0:
                     insn.name = "subw";
                     break;
-                case 0x5: /* SRAW */
+                case 0x5:
                     insn.name = "sraw";
                     break;
+                default:
+                    goto unknown;
                 }
             }
             break;
+            case 0x30: {
+                switch (funct3) {
+                case 0x1:
+                    insn.name = "rolw";
+                    break;
+                case 0x5:
+                    insn.name = "rorw";
+                    break;
+                default:
+                    goto unknown;
+                }
+            }
+            default:
+                goto unknown;
             }
             PRINT_rd_rs1_rs2();
         }
@@ -1063,14 +1249,16 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_fprtype_read(data);
             switch (funct2) {
-            case 0x0: /* FMADD.S */
+            case 0x0:
                 insn.name = "fmadd.s";
                 insn.f = true;
                 break;
-            case 0x1: /* FMADD.D */
+            case 0x1:
                 insn.name = "fmadd.d";
                 insn.f = true;
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rd_rs1_rs2();
         }
@@ -1079,14 +1267,16 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_fprtype_read(data);
             switch (funct2) {
-            case 0x0: /* FMSUB.S */
+            case 0x0:
                 insn.name = "fmsub.s";
                 insn.f = true;
                 break;
-            case 0x1: /* FMSUB.D */
+            case 0x1:
                 insn.name = "fmsub.d";
                 insn.f = true;
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rd_rs1_rs2();
         }
@@ -1095,14 +1285,16 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_fprtype_read(data);
             switch (funct2) {
-            case 0x0: /* FNMSUB.S */
+            case 0x0:
                 insn.name = "fnmsub.s";
                 insn.f = true;
                 break;
-            case 0x1: /* FNMSUB.D */
+            case 0x1:
                 insn.name = "fnmsub.d";
                 insn.f = true;
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rd_rs1_rs2_rs3();
         }
@@ -1111,14 +1303,16 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
 
             insn =  insn_fprtype_read(data);
             switch (funct2) {
-            case 0x0: /* FNMADD.S */
+            case 0x0:
                 insn.name = "fnmadd.s";
                 insn.f = true;
                 break;
-            case 0x1: /* FNMADD.D */
+            case 0x1:
                 insn.name = "fnmadd.d";
                 insn.f = true;
                 break;
+            default:
+                goto unknown;
             }
             PRINT_rd_rs1_rs2_rs3();
         }
@@ -1128,43 +1322,45 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             insn =  insn_rtype_read(data);
             insn.f = true;
             switch (funct7) {
-            case 0x0:  /* FADD.S */
+            case 0x0: 
                 insn.name = "fadd.s";
                 PRINT_rd_rs1_rs2();
-            case 0x1:  /* FADD.D */
+            case 0x1: 
                 insn.name = "fadd.d";
                 PRINT_rd_rs1_rs2();
-            case 0x4:  /* FSUB.S */
+            case 0x4: 
                 insn.name = "fsub.s";
                 PRINT_rd_rs1_rs2();
-            case 0x5:  /* FSUB.D */
+            case 0x5: 
                 insn.name = "fsub.d";
                 PRINT_rd_rs1_rs2();
-            case 0x8:  /* FMUL.S */
+            case 0x8: 
                 insn.name = "fmul.s";
                 PRINT_rd_rs1_rs2();
-            case 0x9:  /* FMUL.D */
+            case 0x9: 
                 insn.name = "fmul.d";
                 PRINT_rd_rs1_rs2();
-            case 0xc:  /* FDIV.S */
+            case 0xc: 
                 insn.name = "fdiv.s";
                 PRINT_rd_rs1_rs2();
-            case 0xd:  /* FDIV.D */
+            case 0xd: 
                 insn.name = "fdiv.d";
                 PRINT_rd_rs1_rs2();
             case 0x10: {
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FSGNJ.S */
+                case 0x0:
                     insn.name = "fsgnj.s";
                     break;
-                case 0x1: /* FSGNJN.S */
+                case 0x1:
                     insn.name = "fsgnjn.s";
                     break;
-                case 0x2: /* FSGNJX.S */
+                case 0x2:
                     insn.name = "fsgnjx.s";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_rd_rs1_rs2();
             }
@@ -1172,15 +1368,17 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FSGNJ.D */
+                case 0x0:
                     insn.name = "fsgnj.d";
                     break;
-                case 0x1: /* FSGNJN.D */
+                case 0x1:
                     insn.name = "fsgnjn.d";
                     break;
-                case 0x2: /* FSGNJX.D */
+                case 0x2:
                     insn.name = "fsgnjx.d";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_rd_rs1_rs2();
             }
@@ -1188,12 +1386,14 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FMIN.S */
+                case 0x0:
                     insn.name = "fmin.s";
                     break;
-                case 0x1: /* FMAX.S */
+                case 0x1:
                     insn.name = "fmax.s";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_rd_rs1_rs2();
             }
@@ -1201,28 +1401,30 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FMIN.D */
+                case 0x0:
                     insn.name = "fmin.d";
                     break;
-                case 0x1: /* FMAX.D */
+                case 0x1:
                     insn.name = "fmax.d";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_rd_rs1_rs2();
             }
-            case 0x20: /* FCVT.S.D */
+            case 0x20:
                 assert(RS2(data) == 1);
                 insn.name = "fcvt.s.d";
                 PRINT_fd_fs1();
-            case 0x21: /* FCVT.D.S */
+            case 0x21:
                 assert(RS2(data) == 0);
                 insn.name = "fcvt.d.s";
                 PRINT_fd_fs1();
-            case 0x2c: /* FSQRT.S */
+            case 0x2c:
                 assert(insn.rs2 == 0);
                 insn.name = "fsqrt.s";
                 PRINT_fd_fs1();
-            case 0x2d: /* FSQRT.D */
+            case 0x2d:
                 assert(insn.rs2 == 0);
                 insn.name = "fsqrt.d";
                 PRINT_fd_fs1();
@@ -1230,15 +1432,17 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FLE.S */
+                case 0x0:
                     insn.name = "fle.s";
                     break;
-                case 0x1: /* FLT.S */
+                case 0x1:
                     insn.name = "flt.s";
                     break;
-                case 0x2: /* FEQ.S */
+                case 0x2:
                     insn.name = "feq.s";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_rd_fs1_fs2();
             }
@@ -1246,15 +1450,17 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FLE.D */
+                case 0x0:
                     insn.name = "fle.d";
                     break;
-                case 0x1: /* FLT.D */
+                case 0x1:
                     insn.name = "flt.d";
                     break;
-                case 0x2: /* FEQ.D */
+                case 0x2:
                     insn.name = "feq.d";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_rd_fs1_fs2();
             }
@@ -1262,18 +1468,20 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t rs2 = RS2(data);
 
                 switch (rs2) {
-                case 0x0: /* FCVT.W.S */
+                case 0x0:
                     insn.name = "fcvt.w.s";
                     break;
-                case 0x1: /* FCVT.WU.S */
+                case 0x1:
                     insn.name = "fcvt.wu.s";
                     break;
-                case 0x2: /* FCVT.L.S */
+                case 0x2:
                     insn.name = "fcvt.l.s";
                     break;
-                case 0x3: /* FCVT.LU.S */
+                case 0x3:
                     insn.name = "fcvt.lu.s";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_xd_fs1();
             }
@@ -1281,18 +1489,20 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t rs2 = RS2(data);
 
                 switch (rs2) {
-                case 0x0: /* FCVT.W.D */
+                case 0x0:
                     insn.name = "fcvt.w.d";
                     break;
-                case 0x1: /* FCVT.WU.D */
+                case 0x1:
                     insn.name = "fcvt.wu.d";
                     break;
-                case 0x2: /* FCVT.L.D */
+                case 0x2:
                     insn.name = "fcvt.l.d";
                     break;
-                case 0x3: /* FCVT.LU.D */
+                case 0x3:
                     insn.name = "fcvt.lu.d";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_xd_fs1();
             }
@@ -1300,18 +1510,20 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t rs2 = RS2(data);
 
                 switch (rs2) {
-                case 0x0: /* FCVT.S.W */
+                case 0x0:
                     insn.name = "fcvt.s.w";
                     break;
-                case 0x1: /* FCVT.S.WU */
+                case 0x1:
                     insn.name = "fcvt.s.wu";
                     break;
-                case 0x2: /* FCVT.S.L */
+                case 0x2:
                     insn.name = "fcvt.s.l";
                     break;
-                case 0x3: /* FCVT.S.LU */
+                case 0x3:
                     insn.name = "fcvt.s.lu";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_fd_xs1();
             }
@@ -1319,18 +1531,20 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t rs2 = RS2(data);
 
                 switch (rs2) {
-                case 0x0: /* FCVT.D.W */
+                case 0x0:
                     insn.name = "fcvt.d.w";
                     break;
-                case 0x1: /* FCVT.D.WU */
+                case 0x1:
                     insn.name = "fcvt.d.wu";
                     break;
-                case 0x2: /* FCVT.D.L */
+                case 0x2:
                     insn.name = "fcvt.d.l";
                     break;
-                case 0x3: /* FCVT.D.LU */
+                case 0x3:
                     insn.name = "fcvt.d.lu";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_fd_xs1();
             }
@@ -1339,12 +1553,14 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FMV.X.W */
+                case 0x0:
                     insn.name = "fmv.x.w";
                     break;
-                case 0x1: /* FCLASS.S */
+                case 0x1:
                     insn.name = "fclass.s";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_xd_fs1();
             }
@@ -1353,57 +1569,64 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 uint32_t funct3 = FUNCT3(data);
 
                 switch (funct3) {
-                case 0x0: /* FMV.X.D */
+                case 0x0:
                     insn.name = "fmv.x.d";
                     break;
-                case 0x1: /* FCLASS.D */
+                case 0x1:
                     insn.name = "fclass.d";
                     break;
+                default:
+                    goto unknown;
                 }
                 PRINT_xd_fs1();
             }
-            case 0x78: /* FMV_W_X */
+            case 0x78:
                 assert(RS2(data) == 0 && FUNCT3(data) == 0);
                 insn.name = "fmv.w.x";
                 PRINT_fd_xs1();
-            case 0x79: /* FMV_D_X */
+            case 0x79:
                 assert(RS2(data) == 0 && FUNCT3(data) == 0);
                 insn.name = "fmv.d.x";
                 PRINT_fd_xs1();
             }
+            default:
+                goto unknown;
         }
         case 0x18: {
             insn =  insn_btype_read(data);
 
             uint32_t funct3 = FUNCT3(data);
             switch (funct3) {
-            case 0x0: /* BEQ */
+            case 0x0:
                 insn.name = "beq";
                 break;
-            case 0x1: /* BNE */
+            case 0x1:
                 insn.name = "bne";
                 break;
-            case 0x4: /* BLT */
+            case 0x4:
                 insn.name = "blt";
                 break;
-            case 0x5: /* BGE */
+            case 0x5:
                 insn.name = "bge";
                 break;
-            case 0x6: /* BLTU */
+            case 0x6:
                 insn.name = "bltu";
                 break;
-            case 0x7: /* BGEU */
+            case 0x7:
                 insn.name = "bgeu";
                 break;
+            default:
+                goto unknown;
             }
 
             PRINT_rs1_rs2_imm_rel();
         }
-        case 0x19: /* JALR */
+        case 0x19: {
             insn =  insn_itype_read(data);
             insn.name = "jalr";
             PRINT_rd_imm_rs1();
-        case 0x1b: /* JAL */
+        }
+        case 0x1b: {
             insn =  insn_jtype_read(data);
             if (insn.rd != 0) {
                 insn.name = "jal";
@@ -1412,8 +1635,9 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 insn.name = "j";
                 PRINT_imm_rel();
             }
+        }
         case 0x1c: {
-            if (data == 0x73) { /* ECALL */
+            if (data == 0x73) {
                 insn.name = "ecall";
                 PRINT_none();
             }
@@ -1421,22 +1645,22 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
             uint32_t funct3 = FUNCT3(data);
             insn =  insn_csrtype_read(data);
             switch(funct3) {
-            case 0x1: /* CSRRW */
+            case 0x1:
                 insn.name = "csrrw";
                 PRINT_rd_csr_rs1();
-            case 0x2: /* CSRRS */
+            case 0x2:
                 insn.name = "csrrs";
                 PRINT_rd_csr_rs1();
-            case 0x3: /* CSRRC */
+            case 0x3:
                 insn.name = "csrrc";
                 PRINT_rd_csr_rs1();
-            case 0x5: /* CSRRWI */
+            case 0x5:
                 insn.name = "csrrwi";
                 PRINT_rd_csr_uimm();
-            case 0x6: /* CSRRSI */
+            case 0x6:
                 insn.name = "csrrsi";
                 PRINT_rd_csr_uimm();
-            case 0x7: /* CSRRCI */
+            case 0x7:
                 insn.name = "csrrci";
                 PRINT_rd_csr_uimm();
             }
@@ -1445,6 +1669,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
     }
     }
 
+unknown:
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(data));
     return buff;
 }
