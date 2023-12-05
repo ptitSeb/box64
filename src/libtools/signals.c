@@ -1009,6 +1009,10 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             } else {
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0x0a|(int_n<<3);
             }
+        } else if(info->si_errno==0xcafe) {
+            info2->si_errno = 0;
+            sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 0;
+            info2->si_signo = SIGFPE;
         }
     } else if(sig==SIGFPE) {
         if (info->si_code == FPE_INTOVF)
@@ -1703,6 +1707,25 @@ void emit_interruption(x64emu_t* emu, int num, void* addr)
         if(elf)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Interruption 0x%x at IP=%p(%s / %s) / addr=%p\n", num, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr);
+    }
+    my_sigactionhandler_oldcode(SIGSEGV, 0, &info, NULL, NULL, NULL);
+}
+
+void emit_div0(x64emu_t* emu, void* addr, int code)
+{
+    siginfo_t info = {0};
+    info.si_signo = SIGSEGV;
+    info.si_errno = 0xcafe;
+    info.si_code = code;
+    info.si_addr = addr;
+    const char* x64name = NULL;
+    const char* elfname = NULL;
+    if(box64_log>LOG_INFO || box64_dynarec_dump || box64_showsegv) {
+        x64name = getAddrFunctionName(R_RIP);
+        elfheader_t* elf = FindElfAddress(my_context, R_RIP);
+        if(elf)
+            elfname = ElfName(elf);
+        printf_log(LOG_NONE, "Emit Divide by 0 at IP=%p(%s / %s) / addr=%p\n", (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr);
     }
     my_sigactionhandler_oldcode(SIGSEGV, 0, &info, NULL, NULL, NULL);
 }
