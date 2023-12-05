@@ -213,6 +213,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0x51:
     case 0x52:
     case 0x53:
+    case 0x54:
     case 0x55:
     case 0x56:
     case 0x57:                      /* PUSH Reg */
