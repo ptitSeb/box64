@@ -27,6 +27,7 @@
 #include "box64context.h"
 #include "librarian.h"
 #include "elfload_dump.h"
+#include "signals.h"
 
 #include <elf.h>
 #include "elfloader.h"
@@ -325,9 +326,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
         }
         return;
     }
-    if(0 && my_context->signals[SIGTRAP])
-        raise(SIGTRAP);
-    else
+     if(1 && my_context->signals[SIGTRAP])
+        emit_signal(emu, SIGTRAP, (void*)R_RIP, 128);
+   else
         printf_log(LOG_INFO, "%04d|Warning, ignoring unsupported Int 3 call @%p\n", GetTID(), (void*)R_RIP);
     //emu->quit = 1;
 }

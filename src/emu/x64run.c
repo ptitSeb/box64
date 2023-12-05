@@ -1669,6 +1669,7 @@ x64emurun:
             else
                 Push64(emu, addr);
             addr += tmp32s;
+            addr = (uintptr_t)getAlternate((void*)addr);
             STEP2
             break;
         case 0xE9:                      /* JMP Id */
@@ -1743,9 +1744,13 @@ x64emurun:
                     imul8(emu, EB->byte[0]);
                     break;
                 case 6:                 /* DIV Eb */
+                    if(!EB->byte[0])
+                        emit_div0(emu, (void*)R_RIP, 0);
                     div8(emu, EB->byte[0]);
                     break;
                 case 7:                 /* IDIV Eb */
+                    if(!EB->byte[0])
+                        emit_div0(emu, (void*)R_RIP, 0);
                     idiv8(emu, EB->byte[0]);
                     break;
             }
@@ -1774,9 +1779,13 @@ x64emurun:
                         imul64_rax(emu, ED->q[0]);
                         break;
                     case 6:                 /* DIV Ed */
+                        if(!ED->q[0])
+                            emit_div0(emu, (void*)R_RIP, 0);
                         div64(emu, ED->q[0]);
                         break;
                     case 7:                 /* IDIV Ed */
+                        if(!ED->q[0])
+                            emit_div0(emu, (void*)R_RIP, 0);
                         idiv64(emu, ED->q[0]);
                         break;
                 }
@@ -1810,11 +1819,15 @@ x64emurun:
                         emu->regs[_DX].dword[1] = 0;
                         break;
                     case 6:                 /* DIV Ed */
+                        if(!ED->dword[0])
+                            emit_div0(emu, (void*)R_RIP, 0);
                         div32(emu, ED->dword[0]);
                         //emu->regs[_AX].dword[1] = 0;  // already put high regs to 0
                         //emu->regs[_DX].dword[1] = 0;
                         break;
                     case 7:                 /* IDIV Ed */
+                        if(!ED->dword[0])
+                            emit_div0(emu, (void*)R_RIP, 0);
                         idiv32(emu, ED->dword[0]);
                         //emu->regs[_AX].dword[1] = 0;
                         //emu->regs[_DX].dword[1] = 0;
