@@ -186,6 +186,17 @@ void native_singlestep(x64emu_t* emu)
     emit_signal(emu, SIGTRAP, (void*)R_RIP, 1);
 }
 
+void native_int3(x64emu_t* emu)
+{
+    emit_signal(emu, SIGTRAP, (void*)R_RIP, 128);
+}
+
+void native_div0(x64emu_t* emu)
+{
+    emu->test.test = 0;
+    emit_div0(emu,  (void*)R_RIP, 0);
+}
+
 void native_fsave(x64emu_t* emu, uint8_t* ed)
 {
     fpu_savenv(emu, (char*)ed, 0);

@@ -373,7 +373,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.is32bits) {
                 INST_NAME("PUSH reg");
                 gd = xRAX+(opcode&0x07);
-                if (gd == xRSP) {
+                if (gd==xRSP) {
                     MOVw_REG(x1, xRSP);
                     PUSH1_16(x1);
                 } else {

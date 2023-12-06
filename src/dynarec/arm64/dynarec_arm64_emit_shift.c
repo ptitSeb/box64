@@ -70,6 +70,10 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
             CSELw(s4, s4, wZR, cEQ);
             BFIw(xFlags, s4, F_OF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -122,6 +126,10 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
             BFCw(xFlags, F_OF, 1);
         }
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -165,6 +173,10 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         LSRxw(s4, s1, (rex.w)?63:31);
         BFIx(xFlags, s4, F_SF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -214,6 +226,10 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
         LSRxw(s4, s1, (rex.w)?63:31);
         BFIx(xFlags, s4, F_SF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -257,6 +273,10 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
         if(c==1) {
             BFCw(xFlags, F_OF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -294,6 +314,10 @@ void emit_shl8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             CSELw(s4, s4, wZR, cEQ);
             BFIw(xFlags, s4, F_OF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -331,6 +355,9 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
                 BFCw(xFlags, F_OF, 1);
             }
         }
+        if(box64_dynarec_test) IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
         IFX(X_PF) {
             emit_pf(dyn, ninst, s1, s3, s4);
         }
@@ -345,6 +372,9 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
         }
         IFX(X_SF) {
             BFCw(xFlags, F_SF, 1);
+        }
+        if(box64_dynarec_test) IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
         }
         IFX(X_PF | X_ZF) {
             MOV32w(s3, 1);
@@ -388,6 +418,10 @@ void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     COMP_ZFSF(s1, 8)
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -425,6 +459,10 @@ void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     COMP_ZFSF(s1, 8)
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -455,6 +493,10 @@ void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         Bcond(cNE, 4+4);
             BFCw(xFlags, F_OF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -473,7 +515,7 @@ void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    IFX(X_CF) {
+    if(c<8) IFX(X_CF) {
         ASRw(s3, s1, c-1);
         BFIw(xFlags, s3, 0, 1);
     }
@@ -481,14 +523,28 @@ void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
-    COMP_ZFSF(s1, 8)
-    IFX(X_OF)
-        if(c==1) {
-            BFCw(xFlags, F_OF, 1);
+    if(c<8) {
+        COMP_ZFSF(s1, 8)
+        IFX(X_OF)
+            if(c==1) {
+                BFCw(xFlags, F_OF, 1);
+        }
+        IFX(X_PF) {
+            emit_pf(dyn, ninst, s1, s3, s4);
+        }
+    } else {
+        LSRw(s3, s1, 7);
+        BFIw(xFlags, s3, F_CF, 1);
+        BFIw(wFlags, s3, F_SF, 1);
+        EORw_mask(s3, s3, 0, 0);    //1
+        BFIw(xFlags, s3, F_ZF, 1);
+        MOV32w(s3, 1);
+        BFIw(xFlags, s3, F_PF, 1);
     }
-    IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
-    }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
 }
 
 // emit SHL16 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch. s3 can be same as s2
@@ -519,6 +575,10 @@ void emit_shl16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             CSELw(s4, s4, wZR, cEQ);
             BFIw(xFlags, s4, F_OF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -556,6 +616,9 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             } else {
                 BFCw(xFlags, F_OF, 1);
             }
+        }
+        if(box64_dynarec_test) IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
         }
         IFX(X_PF) {
             emit_pf(dyn, ninst, s1, s3, s4);
@@ -610,6 +673,10 @@ void emit_shr16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     COMP_ZFSF(s1, 16)
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -647,6 +714,10 @@ void emit_shr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     COMP_ZFSF(s1, 16)
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -677,6 +748,10 @@ void emit_sar16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         Bcond(cNE, 4+4);
             BFCw(xFlags, F_OF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
@@ -708,6 +783,10 @@ void emit_sar16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         if(c==1) {
             BFCw(xFlags, F_OF, 1);
     }
+    if(box64_dynarec_test)
+        IFX(X_AF) {
+            BFCw(xFlags, F_AF, 1);
+        }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }

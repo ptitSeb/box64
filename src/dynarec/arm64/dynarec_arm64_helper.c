@@ -2099,7 +2099,7 @@ void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     ANDw_mask(s3, s1, 0b011011, 0b000010); // mask=0xE0
     LSRw(s3, s3, 5);
-    MOV64x(s4, (uintptr_t)GetParityTab());
+    TABLE64(s4, (uintptr_t)GetParityTab());
     LDRw_REG_LSL2(s4, s4, s3);
     ANDw_mask(s3, s1, 0, 0b000100); //0x1f
     LSRw_REG(s4, s4, s3);
