@@ -2589,6 +2589,7 @@ GO(gtk_scale_get_value_pos, uFp)
 GO(gtk_scale_set_digits, vFpi)
 //GO(gtk_scale_set_draw_value, 
 GO(gtk_scale_set_value_pos, vFpu)
+GO(gtk_scrollable_get_type, LFv)
 GO(gtk_scrollbar_get_type, LFv)
 GO(gtk_scrolled_window_add_with_viewport, vFpp)
 GO(gtk_scrolled_window_get_hadjustment, pFp)
