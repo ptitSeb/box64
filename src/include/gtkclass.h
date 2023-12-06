@@ -1241,6 +1241,17 @@ typedef struct my_GtkFixed2Class_s
   my_GtkContainer2Class_t parent_class;
 } my_GtkFixed2Class_t;
 
+typedef struct my_GtkFixed3_s
+{
+  my_GtkWidget3_t     parent;
+} my_GtkFixed3_t;
+
+typedef struct my_GtkFixed3Class_s
+{
+  my_GtkWidget3Class_t  parent_class;
+  void*                 padding[8];
+} my_GtkFixed3Class_t;
+
 typedef struct my_GDBusObjectManagerClient_s
 {
   my_GObject_t  parent;
@@ -2158,6 +2169,7 @@ GTKCLASS(GtkWindow2)                \
 GTKCLASS(GtkWindow3)                \
 GTKCLASS(GtkTable2)                 \
 GTKCLASS(GtkFixed2)                 \
+GTKCLASS(GtkFixed3)                 \
 GTKCLASS(GtkApplicationWindow)      \
 GTKCLASS(GtkListBox)                \
 GTKCLASS(GtkListBoxRow)             \

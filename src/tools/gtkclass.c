@@ -1664,6 +1664,35 @@ static void bridgeGtkFixed2Instance(my_GtkFixed2_t* class)
 {
     bridgeGtkContainer2Instance(&class->parent);
 }
+
+// ----- GtkFixed3Class ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkFixed3Class(my_GtkFixed3Class_t* class)
+{
+    wrapGtkWidget3Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkFixed3Class(my_GtkFixed3Class_t* class)
+{
+    unwrapGtkWidget3Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkFixed3Class(my_GtkFixed3Class_t* class)
+{
+    bridgeGtkWidget3Class(&class->parent_class);
+}
+
+static void unwrapGtkFixed3Instance(my_GtkFixed3_t* class)
+{
+    unwrapGtkWidget3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkFixed3Instance(my_GtkFixed3_t* class)
+{
+    bridgeGtkWidget3Instance(&class->parent);
+}
+
 // ----- MetaFrames2Class ------
 
 // wrap (so bridge all calls, just in case)

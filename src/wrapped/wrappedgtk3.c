@@ -768,6 +768,7 @@ EXPORT void my3_gtk_clipboard_request_text(x64emu_t* emu, void* clipboard, void*
     SETALT(my3_);                                               \
     SetGtkApplicationID(my->gtk_application_get_type());        \
     SetGtkWidget3ID(my->gtk_widget_get_type());                 \
+    SetGtkFixed3ID(my->gtk_fixed_get_type());                   \
     SetGtkContainer3ID(my->gtk_container_get_type());           \
     SetGtkBin3ID(my->gtk_bin_get_type());                       \
     SetGtkButton3ID(my->gtk_button_get_type());                 \
