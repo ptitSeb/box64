@@ -48,6 +48,7 @@ uintptr_t box64_load_addr = 0;
 int box64_nosandbox = 0;
 int box64_inprocessgpu = 0;
 int box64_malloc_hack = 0;
+int box64_dynarec_test = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -66,7 +67,6 @@ int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_jvm = 1;
 int box64_dynarec_tbb = 1;
 int box64_dynarec_wait = 1;
-int box64_dynarec_test = 0;
 int box64_dynarec_missing = 0;
 int box64_dynarec_aligned_atomics = 0;
 uintptr_t box64_nodynarec_start = 0;

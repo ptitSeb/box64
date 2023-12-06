@@ -9,6 +9,7 @@ extern int box64_dynarec_log;
 extern int box64_dynarec;
 extern uintptr_t box64_pagesize;
 extern uintptr_t box64_load_addr;
+extern int box64_dynarec_test;
 #ifdef DYNAREC
 extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;
@@ -28,7 +29,6 @@ extern int box64_dynarec_tbb;
 extern int box64_dynarec_hotpage;
 extern int box64_dynarec_fastpage;
 extern int box64_dynarec_wait;
-extern int box64_dynarec_test;
 extern int box64_dynarec_missing;
 extern int box64_dynarec_aligned_atomics;
 #ifdef ARM64
