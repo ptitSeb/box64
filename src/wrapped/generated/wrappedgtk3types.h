@@ -53,6 +53,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_dialog_add_buttons, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
+	GO(gtk_style_context_get, vFppV_t) \
 	GO(gtk_timeout_add, uFupp_t) \
 	GO(gtk_enumerate_printers, vFpppi_t) \
 	GO(gtk_object_set_data_full, vFpppp_t) \

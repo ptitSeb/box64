@@ -758,6 +758,12 @@ EXPORT void my3_gtk_clipboard_request_text(x64emu_t* emu, void* clipboard, void*
     my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
 }
 
+EXPORT void my3_gtk_style_context_get(x64emu_t* emu, void* context, uint32_t flags, uintptr_t* b)
+{
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_style_context_get_valist(context, flags, VARARGS);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
