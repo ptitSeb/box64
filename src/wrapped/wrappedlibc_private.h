@@ -1144,7 +1144,7 @@ GO(__mbsnrtowcs_chk, LFppLLpL)
 GO(mbsrtowcs, LFppLp)
 GO(__mbsrtowcs_chk, LFppLpL)
 GO(mbstowcs, LFppL)
-//GO(__mbstowcs_chk, 
+GO(__mbstowcs_chk, LFppLL)
 GO(mbtowc, iFppL)
 //GO(mcheck, iF@)
 GO(mcheck_check_all, vFv)
