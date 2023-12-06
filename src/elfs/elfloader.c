@@ -38,6 +38,7 @@
 #endif
 #include "../emu/x64emu_private.h"
 #include "../emu/x64run_private.h"
+#include "../tools/bridge_private.h"
 #include "x64tls.h"
 
 void* my__IO_2_1_stderr_ = NULL;
@@ -1451,13 +1452,14 @@ const char* FindNearestSymbolName(elfheader_t* h, void* p, uintptr_t* start, uin
         return ret;
     if(!h) {
         if(getProtection((uintptr_t)p)&(PROT_READ)) {
-            if(*(uint8_t*)(p)==0xCC && *(uint8_t*)(p+1)=='S' && *(uint8_t*)(p+2)=='C') {
-                ret = getBridgeName(p);
+            uintptr_t adj_p = ((uintptr_t)p)&~(sizeof(onebridge_t));
+            if(*(uint8_t*)(adj_p)==0xCC && *(uint8_t*)(adj_p+1)=='S' && *(uint8_t*)(adj_p+2)=='C') {
+                ret = getBridgeName(adj_p);
                 if(ret) {
                     if(start)
-                        *start = (uintptr_t)p;
+                        *start = (uintptr_t)adj_p;
                     if(sz)
-                        *sz = 32;
+                        *sz = sizeof(onebridge_t);
                 }
             }
         }
