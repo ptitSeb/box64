@@ -304,145 +304,193 @@ uint64_t     sbb64 (x64emu_t *emu, uint64_t d, uint64_t s);
 
 static inline uint8_t shl8(x64emu_t *emu, uint8_t d, uint8_t s)
 {
-	emu->df = d_shl8;
-	emu->op1.u8 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u8 = s;
-	emu->res.u8 = d << s;
+		emu->df = d_shl8;
+		emu->op1.u8 = d;
+		emu->op2.u8 = s;
+		emu->res.u8 = d << s;
 
-	return emu->res.u8;
+		return emu->res.u8;
+	} else 
+		return d;
 }
 
 static inline uint16_t shl16(x64emu_t *emu, uint16_t d, uint8_t s)
 {
-	emu->df = d_shl16;
-	emu->op1.u16 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u16 = s;
-	emu->res.u16 = d << s;
-	return emu->res.u16;
+		emu->df = d_shl16;
+		emu->op1.u16 = d;
+		emu->op2.u16 = s;
+		emu->res.u16 = d << s;
+		return emu->res.u16;
+	} else
+		return d;
 }
 
 static inline uint32_t shl32(x64emu_t *emu, uint32_t d, uint8_t s)
 {
-	emu->df = d_shl32;
-	emu->op1.u32 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u32 = s;
-	emu->res.u32 = d << s;
+		emu->df = d_shl32;
+		emu->op1.u32 = d;
+		emu->op2.u32 = s;
+		emu->res.u32 = d << s;
 
-	return emu->res.u32;
+		return emu->res.u32;
+	} else
+		return d;
 }
 
 static inline uint64_t shl64(x64emu_t *emu, uint64_t d, uint8_t s)
 {
-	emu->df = d_shl64;
-	emu->op1.u64 = d;
+	if(s&0x3f) {
+		s &= 0x3f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x3f;
-	emu->op2.u64 = s;
-	emu->res.u64 = d << s;
+		emu->df = d_shl64;
+		emu->op1.u64 = d;
+		emu->op2.u64 = s;
+		emu->res.u64 = d << s;
 
-	return emu->res.u64;
+		return emu->res.u64;
+	} else
+		return d;
 }
 
 static inline uint8_t shr8(x64emu_t *emu, uint8_t d, uint8_t s)
 {
-	emu->df = d_shr8;
-	emu->op1.u8 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u8 = s;
-	emu->res.u8 = d >> s;
+		emu->df = d_shr8;
+		emu->op1.u8 = d;
+		emu->op2.u8 = s;
+		emu->res.u8 = d >> s;
 
-	return emu->res.u8;
+		return emu->res.u8;
+	} else
+		return d;
 }
 
 static inline uint16_t shr16(x64emu_t *emu, uint16_t d, uint8_t s)
 {
-	emu->df = d_shr16;
-	emu->op1.u16 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u16 = s;
-	emu->res.u16 = d >> s;
+		emu->df = d_shr16;
+		emu->op1.u16 = d;
+		emu->op2.u16 = s;
+		emu->res.u16 = d >> s;
 
-	return emu->res.u16;
+		return emu->res.u16;
+	} else
+		return d;
 }
 
 static inline uint32_t shr32(x64emu_t *emu, uint32_t d, uint8_t s)
 {
-	emu->df = d_shr32;
-	emu->op1.u32 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u32 = s;
-	emu->res.u32 = d >> s;
+		emu->df = d_shr32;
+		emu->op1.u32 = d;
+		emu->op2.u32 = s;
+		emu->res.u32 = d >> s;
 
-    return emu->res.u32;
+		return emu->res.u32;
+	} else
+		return d;
 }
 
 static inline uint64_t shr64(x64emu_t *emu, uint64_t d, uint8_t s)
 {
-	emu->df = d_shr64;
-	emu->op1.u64 = d;
+	if(s&0x3f) {
+		s &= 0x3f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x3f;
-	emu->op2.u64 = s;
-	emu->res.u64 = d >> s;
+		emu->df = d_shr64;
+		emu->op1.u64 = d;
+		emu->op2.u64 = s;
+		emu->res.u64 = d >> s;
 
-    return emu->res.u64;
+		return emu->res.u64;
+	} else
+		return d;
 }
 
 static inline uint8_t sar8(x64emu_t *emu, uint8_t d, uint8_t s)
 {
-	emu->df = d_sar8;
-	emu->op1.u8 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u8 = s;
-	emu->res.u8 = (uint8_t)(((int8_t)d)>>s);
+		emu->df = d_sar8;
+		emu->op1.u8 = d;
+		emu->op2.u8 = s;
+		emu->res.u8 = (uint8_t)(((int8_t)d)>>s);
 
-	return emu->res.u8;
+		return emu->res.u8;
+	} else
+		return d;
 }
 
 static inline uint16_t sar16(x64emu_t *emu, uint16_t d, uint8_t s)
 {
-	emu->df = d_sar16;
-	emu->op1.u16 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u16 = s;
-	emu->res.u16 = (uint16_t)(((int16_t)d)>>s);
+		emu->df = d_sar16;
+		emu->op1.u16 = d;
+		emu->op2.u16 = s;
+		emu->res.u16 = (uint16_t)(((int16_t)d)>>s);
 
-	return emu->res.u16;
+		return emu->res.u16;
+	} else
+		return d;
 }
 
 static inline uint32_t sar32(x64emu_t *emu, uint32_t d, uint8_t s)
 {
-	emu->df = d_sar32;
-	emu->op1.u32 = d;
+	if(s&0x1f) {
+		s &= 0x1f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x1f;
-	emu->op2.u32 = s;
-	emu->res.u32 = (uint32_t)(((int32_t)d)>>s);
+		emu->df = d_sar32;
+		emu->op1.u32 = d;
+		emu->op2.u32 = s;
+		emu->res.u32 = (uint32_t)(((int32_t)d)>>s);
 
-	return emu->res.u32;
+		return emu->res.u32;
+	} else
+		return d;
 }
 
 static inline uint64_t sar64(x64emu_t *emu, uint64_t d, uint8_t s)
 {
-	emu->df = d_sar64;
-	emu->op1.u64 = d;
+	if(s&0x3f) {
+		s &= 0x3f;
+		if(s!=1) CHECK_FLAGS(emu);	// for OF, need to find something more elegant here, using sav stuffs
 
-	s &= 0x3f;
-	emu->op2.u64 = s;
-	emu->res.u64 = (uint64_t)(((int64_t)d)>>s);
+		emu->df = d_sar64;
+		emu->op1.u64 = d;
+		emu->op2.u64 = s;
+		emu->res.u64 = (uint64_t)(((int64_t)d)>>s);
 
-	return emu->res.u64;
+		return emu->res.u64;
+	} else
+		return d;
 }
 
 static inline uint8_t sub8(x64emu_t *emu, uint8_t d, uint8_t s)
