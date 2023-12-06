@@ -13,6 +13,7 @@ typedef struct {
     int8_t rs2;
     int8_t rs3;
     int32_t imm;
+    int32_t imm2;
     uint16_t csr;
     char *name;
     bool rvc;
@@ -38,17 +39,20 @@ static const char fpnames[32][5] = {
 /**
  * normal types
 */
-#define OPCODE(data) (((data) >>  2) & 0x1f)
-#define RD(data)     (((data) >>  7) & 0x1f)
-#define RS1(data)    (((data) >> 15) & 0x1f)
-#define RS2(data)    (((data) >> 20) & 0x1f)
-#define RS3(data)    (((data) >> 27) & 0x1f)
-#define FUNCT2(data) (((data) >> 25) & 0x3 )
-#define FUNCT3(data) (((data) >> 12) & 0x7 )
-#define FUNCT7(data) (((data) >> 25) & 0x7f)
-#define IMM116(data) (((data) >> 26) & 0x3f)
-#define AQ(data)     (((data) >> 26) & 0x1)
-#define RL(data)     (((data) >> 25) & 0x1)
+#define OPCODE(data)    (((data) >>  2) & 0x1f)
+#define RD(data)        (((data) >>  7) & 0x1f)
+#define RS1(data)       (((data) >> 15) & 0x1f)
+#define RS2(data)       (((data) >> 20) & 0x1f)
+#define RS3(data)       (((data) >> 27) & 0x1f)
+#define FUNCT2(data)    (((data) >> 25) & 0x3)
+#define FUNCT3(data)    (((data) >> 12) & 0x7)
+#define FUNCT7(data)    (((data) >> 25) & 0x7f)
+#define IMM116(data)    (((data) >> 26) & 0x3f)
+#define AQ(data)        (((data) >> 26) & 0x1)
+#define RL(data)        (((data) >> 25) & 0x1)
+#define THIMM2(data)    (((data) >> 20) & 0x3f)
+#define THFUNCT12(data) (((data) >> 20) & 0xfff)
+#define THFUNCT5(data)  (((data) >> 27) & 0x1f)
 
 static inline insn_t insn_utype_read(uint32_t data)
 {
@@ -406,6 +410,26 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
     };
 }
 
+static inline insn_t insn_th1type_read(uint32_t data)
+{
+    return (insn_t) {
+        .rs1 = RS1(data),
+        .rs2 = RS2(data),
+        .rd = RD(data),
+        .imm = FUNCT2(data),
+    };
+}
+
+static inline insn_t insn_th2type_read(uint32_t data)
+{
+    return (insn_t) {
+        .rs1 = RS1(data),
+        .rd = RD(data),
+        .imm = IMM116(data),
+        .imm2 = THIMM2(data),
+    };
+}
+
 #define RN(r) insn.f ? fpnames[insn.r] : gpnames[insn.r]
 
 #define PRINT_none() snprintf(buff, sizeof(buff), "%s", insn.name); return buff
@@ -428,6 +452,9 @@ static inline insn_t insn_ciwtype_read(uint16_t data)
 #define PRINT_rd_fs1_fs2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s", insn.name, gpnames[insn.rd], RN(rs1), RN(rs2)); return buff
 #define PRINT_rd_rs1_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs1]); return buff
 #define PRINT_rd_rs1_rs2_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, %s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs2], gpnames[insn.rs1]); return buff
+#define PRINT_rd_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s, %s0x%x", insn.name, RN(rd), RN(rs1), RN(rs2), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
+#define PRINT_rd_rs1_imm1_imm2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s0x%x, %s0x%x", insn.name, RN(rd), RN(rs1), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm2>=0?"":"-", insn.imm2>=0?insn.imm2:-insn.imm2); return buff
+#define PRINT_rd1_rd2_rs1_imm_4() snprintf(buff, sizeof(buff), "%s\t%s, %s, (%s), %s0x%x, 4", insn.name, RN(rd), RN(rs2), RN(rs1), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
 
 // TODO: display csr name
 #define PRINT_rd_csr_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d, %s", insn.name, RN(rd), insn.csr, RN(rs1)); return buff
@@ -725,6 +752,90 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 goto unknown;
             }
             PRINT_rd_imm_rs1();
+        }
+        case 0x2: { /* thead custom-0 */
+            uint32_t funct3 = FUNCT3(data);
+
+            switch (funct3) {
+            case 0x1: {
+                if (RS3(data) == 0x0) {
+                    insn = insn_th1type_read(data);
+                    insn.name = "th.addsl";
+                    PRINT_rd_rs1_rs2_imm();
+                } else if (IMM116(data) == 0x4) {
+                    insn = insn_itype_read(data);
+                    insn.name = "th.srri";
+                    insn.imm &= 0b111111;
+                    PRINT_rd_rs1_imm();
+                } else if (IMM116(data) == 0x22) {
+                    insn = insn_itype_read(data);
+                    insn.name = "th.tst";
+                    insn.imm &= 0b111111;
+                    PRINT_rd_rs1_imm();
+                } else if (FUNCT7(data) == 0xa) {
+                    insn = insn_itype_read(data);
+                    insn.name = "th.srriw";
+                    insn.imm &= 0b11111;
+                    PRINT_rd_rs1_imm();
+                } else if (THFUNCT12(data) == 0x840) {
+                    insn = insn_rtype_read(data);
+                    insn.name = "th.ff0";
+                    PRINT_rd_rs1();
+                } else if (THFUNCT12(data) == 0x860) {
+                    insn = insn_rtype_read(data);
+                    insn.name = "th.ff1";
+                    PRINT_rd_rs1();
+                } else if (THFUNCT12(data) == 0x820) {
+                    insn = insn_rtype_read(data);
+                    insn.name = "th.rev";
+                    PRINT_rd_rs1();
+                } else if (THFUNCT12(data) == 0x900) {
+                    insn = insn_rtype_read(data);
+                    insn.name = "th.revw";
+                    PRINT_rd_rs1();
+                } else if (THFUNCT12(data) == 0x800) {
+                    insn = insn_rtype_read(data);
+                    insn.name = "th.tstnbz";
+                    PRINT_rd_rs1();
+                }
+                goto unknown;
+            }
+            case 0x2: {
+                insn = insn_th2type_read(data);
+                insn.name = "th.ext";
+                PRINT_rd_rs1_imm1_imm2();
+            }
+            case 0x3: {
+                insn = insn_th2type_read(data);
+                insn.name = "th.extu";
+                PRINT_rd_rs1_imm1_imm2();
+            }
+            case 0x4: {
+                switch (THFUNCT5(data)) {
+                case 0x1f: {
+                    insn = insn_th1type_read(data);
+                    insn.name = "th.ldd";
+                    PRINT_rd1_rd2_rs1_imm_4();
+                }
+                default:
+                    goto unknown;
+                }
+            }
+            case 0x5: {
+                switch (THFUNCT5(data)) {
+                case 0x1f: {
+                    insn = insn_th1type_read(data);
+                    insn.name = "th.sdd";
+                    PRINT_rd1_rd2_rs1_imm_4();
+                }
+                default:
+                    goto unknown;
+                }
+            }
+            default:
+                goto unknown;
+            }
+            break;
         }
         case 0x3: {
             uint32_t funct3 = FUNCT3(data);
