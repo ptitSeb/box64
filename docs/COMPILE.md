@@ -172,7 +172,7 @@ You must have ARM64 Device for build box64.
 ##### in CHRoot/PRoot
 
 ```
--DARM_DYNAREC=ON -DBAD_SIGNAL=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
+-D ARM64=1 -DCMAKE_C_COMPILER=gcc -DBAD_SIGNAL=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
 ##### in Termux (Native)
@@ -182,7 +182,7 @@ NOTE: BUILDING BOX64 IN TERMUX NATIVE IS EXPERIMENTAL AND DOESN'T GONNA RUN LINU
 You also needed have `libandroid-sysv-semaphore` and `libandroid-spawn` libraries:
 
 ```
--D TERMUX=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+-D TERMUX=1 -D -DCMAKE_C_COMPILER=clang CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
 #### for x86_64 Linux
