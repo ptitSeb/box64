@@ -1254,7 +1254,8 @@ int printFunctionAddr(uintptr_t nextaddr, const char* text)
 
 #ifdef HAVE_TRACE
 extern uint64_t start_cnt;
-#define PK(a)   (*(uint8_t*)(ip+a))
+#define PK(a)     (*(uint8_t*)(ip+a))
+#define PKS(a)    (*(int8_t*)(ip+a))
 #define PK32(a)   (*(int32_t*)((uint8_t*)(ip+a)))
 #define PK64(a)   (*(int64_t*)((uint8_t*)(ip+a)))
 
@@ -1333,6 +1334,10 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                     uintptr_t nextaddr = is32bits?(*(uint32_t*)(uintptr_t)PK32(2)):(*(uintptr_t*)(ip + 6 + PK32(2)));
                     if(!printFunctionAddr(nextaddr, "=> "))
                         printf_log(LOG_NONE, " => %p", (void*)nextaddr);
+                } else if(PK(1)==0x60) {
+                    uintptr_t nextaddr = *(uintptr_t*)(R_RAX+PK(2));
+                    if(!printFunctionAddr(nextaddr, "=> "))
+                        printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                 } else if((PK(1)==0x14) && (PK(2)==0x25)) {
                     uintptr_t nextaddr = is32bits?(*(uint32_t*)(uintptr_t)PK32(3)):(*(uintptr_t*)(uintptr_t)PK32(3));
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);
@@ -1341,7 +1346,6 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                     uintptr_t nextaddr = *(uintptr_t*)(R_R10 + R_RAX*8);
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, "=> ");
-
                 }
 
             }
