@@ -89,6 +89,9 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     multiuint_t old_op1_sav= emu->op1_sav;
     multiuint_t old_res_sav= emu->res_sav;
     deferred_flags_t old_df_sav= emu->df_sav;
+    // uc_link
+    x64_ucontext_t* old_uc_link = emu->uc_link;
+    emu->uc_link = NULL;
 
     PushExit(emu);
     R_RIP = addr;
@@ -96,6 +99,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     DynaRun(emu);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
+    emu->uc_link = old_uc_link;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
         if(emu->flags.quitonlongjmp==1)
             emu->flags.longjmp = 0;   // don't change anything because of the longjmp
