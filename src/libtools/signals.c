@@ -1399,19 +1399,23 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
     static void* old_pc = 0;
     static void* old_addr = 0;
     static int old_tid = 0;
+    static int old_prot = 0;
+    int tid = GetTID();
+    int mapped = getMmapped((uintptr_t)addr);
     const char* signame = (sig==SIGSEGV)?"SIGSEGV":((sig==SIGBUS)?"SIGBUS":((sig==SIGILL)?"SIGILL":"SIGABRT"));
-    if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==GetTID()) {
-        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p, prot=%02x)!\n", GetTID(), signame, old_code, old_pc, old_addr, prot);
+    if(old_code==info->si_code && old_pc==pc && old_addr==addr && old_tid==tid && old_prot==prot) {
+        printf_log(log_minimum, "%04d|Double %s (code=%d, pc=%p, addr=%p, prot=%02x)!\n", tid, signame, old_code, old_pc, old_addr, prot);
 exit(-1);
     } else {
         if((sig==SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==5 || (prot&~PROT_CUSTOM)==7)) {
             static uintptr_t old_addr = 0;
-        printf_log(/*LOG_DEBUG*/LOG_INFO, "Strange SIGSEGV with Access error on %p for %p, db=%p, prot=0x%x (old_addr=%p)\n", pc, addr, db, prot, (void*)old_addr);
+        printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p%s, db=%p, prot=0x%x (old_addr=%p)\n", tid, pc, addr, mapped?" mapped":"", db, prot, (void*)old_addr);
             #ifdef DYNAREC
             cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
             #endif
-            if((old_addr!=(uintptr_t)addr) || getMmapped((uintptr_t)addr)) {
+            if(!(old_addr==(uintptr_t)addr && old_prot==prot) || mapped) {
                 old_addr = (uintptr_t)addr;
+                old_prot = prot;
                 refreshProtection(old_addr);
                 relockMutex(Locks);
                 sched_yield();  // give time to the other process
@@ -1422,7 +1426,8 @@ exit(-1);
         old_code = info->si_code;
         old_pc = pc;
         old_addr = addr;
-        old_tid = GetTID();
+        old_tid = tid;
+        old_prot = prot;
         const char* name = (log_minimum<=box64_log)?GetNativeName(pc):NULL;
         uintptr_t x64pc = (uintptr_t)-1;
         const char* x64name = NULL;
