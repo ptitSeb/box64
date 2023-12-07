@@ -39,9 +39,9 @@ GO(3)
 // user_write
 #define GO(A)   \
 static uintptr_t my_user_write_fct_##A = 0;   \
-static void my_user_write_##A(void* png_ptr, void* data, int32_t length)    \
+static void my_user_write_##A(void* png_ptr, void* data, size_t length)    \
 {                                       \
-    RunFunctionFmt(my_user_write_fct_##A, "ppi", png_ptr, data, length);\
+    RunFunctionFmt(my_user_write_fct_##A, "ppL", png_ptr, data, length);\
 }
 SUPER()
 #undef GO
@@ -83,9 +83,9 @@ static void* finduser_flushFct(void* fct)
 // user_read
 #define GO(A)   \
 static uintptr_t my_user_read_fct_##A = 0;   \
-static void my_user_read_##A(void* png_ptr, void* data, int32_t length)    \
+static void my_user_read_##A(void* png_ptr, void* data, size_t length)    \
 {                                       \
-    RunFunctionFmt(my_user_read_fct_##A, "ppi", png_ptr, data, length);\
+    RunFunctionFmt(my_user_read_fct_##A, "ppL", png_ptr, data, length);\
 }
 SUPER()
 #undef GO
