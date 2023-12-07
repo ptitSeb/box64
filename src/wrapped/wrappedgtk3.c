@@ -38,6 +38,8 @@ typedef void*         (*pFpu_t)(void*, uint32_t);
 typedef void*         (*pFppi_t)(void*, void*, int);
 typedef void*         (*pFppp_t)(void*, void*, void*);
 typedef int           (*iFppp_t)(void*, void*, void*);
+typedef void          (*vFppp_t)(void*, void*, void*);
+typedef void          (*vFppA_t)(void*, void*, va_list);
 typedef void          (*vFpipV_t)(void*, int, void*, ...);
 
 #define ADDED_FUNCTIONS()                   \
@@ -52,6 +54,7 @@ GO(gtk_container_get_type, LFv_t)           \
 GO(gtk_misc_get_type, LFv_t)                \
 GO(gtk_label_get_type, LFv_t)               \
 GO(gtk_list_box_get_type, LFv_t)            \
+GO(gtk_image_get_type, LFv_t)               \
 GO(gtk_list_box_row_get_type, LFv_t)        \
 GO(gtk_tree_view_get_type, LFv_t)           \
 GO(gtk_window_get_type, LFv_t)              \
@@ -83,6 +86,8 @@ GO(g_log, vFpipV_t)                         \
 GO(g_module_open, pFpu_t)                   \
 GO(g_module_close, vFp_t)                   \
 GO(gtk_tree_store_newv, pFup_t)             \
+GO(gtk_widget_style_get_valist, vFppA_t)    \
+GO(gtk_widget_style_get_property, vFppp_t)  \
 
 #include "generated/wrappedgtk3types.h"
 
@@ -764,6 +769,22 @@ EXPORT void my3_gtk_style_context_get(x64emu_t* emu, void* context, uint32_t fla
     my->gtk_style_context_get_valist(context, flags, VARARGS);
 }
 
+EXPORT void my3_gtk_widget_style_get(x64emu_t* emu, void* widget, void* first, uintptr_t* b)
+{
+    #ifdef PREFER_CONVERT_VAARG
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_widget_style_get_valist(widget, first, VARARGS);
+    #else
+    void* prop = first;
+    int i=0;
+    do {
+        void* val = (void*)getVArgs(emu, 2, b, i++);
+        my->gtk_widget_style_get_property(widget, prop, val);
+        prop = (void*)getVArgs(emu, 2, b, i++);
+    } while (prop);
+    #endif
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
@@ -787,6 +808,7 @@ EXPORT void my3_gtk_style_context_get(x64emu_t* emu, void* context, uint32_t fla
     SetGtkGrid3ID(my->gtk_grid_get_type());                     \
     SetGtkMisc3ID(my->gtk_misc_get_type());                     \
     SetGtkLabel3ID(my->gtk_label_get_type());                   \
+    SetGtkImage3ID(my->gtk_image_get_type());                   \
     SetGtkEventControllerID(my->gtk_event_controller_get_type());\
     SetGtkGestureID(my->gtk_gesture_get_type());                \
     SetGtkGestureSingleID(my->gtk_gesture_single_get_type());   \

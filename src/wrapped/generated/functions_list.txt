@@ -3757,6 +3757,7 @@ wrappedgtk3:
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
   - gtk_style_context_get
+  - gtk_widget_style_get
 - uFupp:
   - gtk_timeout_add
 - vFpppi:

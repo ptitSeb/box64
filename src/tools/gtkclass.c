@@ -1149,6 +1149,35 @@ static void bridgeGtkMisc3Instance(my_GtkMisc3_t* class)
     bridgeGtkWidget3Instance(&class->parent);
 }
 
+// ----- GtkImage3Class ------
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkImage3Class(my_GtkImage3Class_t* class)
+{
+    wrapGtkMisc3Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkImage3Class(my_GtkImage3Class_t* class)
+{
+    unwrapGtkMisc3Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkImage3Class(my_GtkImage3Class_t* class)
+{
+    bridgeGtkMisc3Class(&class->parent_class);
+}
+
+static void unwrapGtkImage3Instance(my_GtkImage3_t* class)
+{
+    unwrapGtkMisc3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkImage3Instance(my_GtkImage3_t* class)
+{
+    bridgeGtkMisc3Instance(&class->parent);
+}
+
+
 // ----- GtkLabel2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkLabel2, move_cursor, void, (void* label, int step, int count, int extend_selection), "piii", label, step, count, extend_selection);
@@ -1670,27 +1699,27 @@ static void bridgeGtkFixed2Instance(my_GtkFixed2_t* class)
 // wrap (so bridge all calls, just in case)
 static void wrapGtkFixed3Class(my_GtkFixed3Class_t* class)
 {
-    wrapGtkWidget3Class(&class->parent_class);
+    wrapGtkContainer3Class(&class->parent_class);
 }
 // unwrap (and use callback if not a native call anymore)
 static void unwrapGtkFixed3Class(my_GtkFixed3Class_t* class)
 {
-    unwrapGtkWidget3Class(&class->parent_class);
+    unwrapGtkContainer3Class(&class->parent_class);
 }
 // autobridge
 static void bridgeGtkFixed3Class(my_GtkFixed3Class_t* class)
 {
-    bridgeGtkWidget3Class(&class->parent_class);
+    bridgeGtkContainer3Class(&class->parent_class);
 }
 
 static void unwrapGtkFixed3Instance(my_GtkFixed3_t* class)
 {
-    unwrapGtkWidget3Instance(&class->parent);
+    unwrapGtkContainer3Instance(&class->parent);
 }
 // autobridge
 static void bridgeGtkFixed3Instance(my_GtkFixed3_t* class)
 {
-    bridgeGtkWidget3Instance(&class->parent);
+    bridgeGtkContainer3Instance(&class->parent);
 }
 
 // ----- MetaFrames2Class ------

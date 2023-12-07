@@ -438,6 +438,21 @@ typedef struct my_GtkMisc3Class_s
   void (*_gtk_reserved4) (void);
 } my_GtkMisc3Class_t;
 
+typedef struct my_GtkImage3_s
+{
+  my_GtkMisc3_t parent;
+  void*         priv;
+} my_GtkImage3_t;
+
+typedef struct my_GtkImageClass_s
+{
+  my_GtkMisc3Class_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkImage3Class_t;
+
 typedef struct my_GtkLabel2_s
 {
   my_GtkMisc2_t misc;
@@ -1243,13 +1258,13 @@ typedef struct my_GtkFixed2Class_s
 
 typedef struct my_GtkFixed3_s
 {
-  my_GtkWidget3_t     parent;
+  my_GtkContainer3_t      parent;
 } my_GtkFixed3_t;
 
 typedef struct my_GtkFixed3Class_s
 {
-  my_GtkWidget3Class_t  parent_class;
-  void*                 padding[8];
+  my_GtkContainer3Class_t parent_class;
+  void*                   padding[8];
 } my_GtkFixed3Class_t;
 
 typedef struct my_GDBusObjectManagerClient_s
@@ -2162,6 +2177,7 @@ GTKCLASS(GtkLabel2)                 \
 GTKCLASS(GtkLabel3)                 \
 GTKCLASS(GtkMisc2)                  \
 GTKCLASS(GtkMisc3)                  \
+GTKCLASS(GtkImage3)                 \
 GTKCLASS(GtkTreeView2)              \
 GTKCLASS(GtkBin2)                   \
 GTKCLASS(GtkBin3)                   \
