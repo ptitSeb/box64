@@ -81,12 +81,15 @@ x64emurun:
         opcode = F8;
         
         rep = 0;
-        while((opcode==0xF2) || (opcode==0xF3)) {
-            rep = opcode-0xF1;
+        while((opcode==0xF2) || (opcode==0xF3) || (opcode==0x3E) || (opcode==0x26)) {
+            switch (opcode) {
+                case 0xF2: rep = 1; break;
+                case 0xF3: rep = 2; break;
+                case 0x3E:
+                case 0x26: /* ignored*/ break;
+            }
             opcode = F8;
         }
-        while((opcode==0x3E) || (opcode==0x26))   //Branch Taken Hint ignored
-            opcode = F8;
         rex.rex = 0;
         rex.is32bits = is32bits;
         if(!is32bits)
