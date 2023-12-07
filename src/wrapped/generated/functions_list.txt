@@ -1637,6 +1637,7 @@
 #() pFEpipV
 #() pFEpipA
 #() pFEpupp
+#() pFEpUpp
 #() pFEppii
 #() pFEppip
 #() pFEppLp
@@ -4918,6 +4919,7 @@ wrappedpulse:
   - pa_context_set_event_callback
   - pa_context_set_state_callback
   - pa_context_set_subscribe_callback
+  - pa_mainloop_api_once
   - pa_mainloop_set_poll_func
   - pa_stream_set_buffer_attr_callback
   - pa_stream_set_event_callback
@@ -4968,6 +4970,8 @@ wrappedpulse:
   - pa_context_subscribe
   - pa_context_unload_module
   - pa_stream_update_sample_rate
+- pFpUpp:
+  - pa_context_rttime_new
 - pFpppp:
   - pa_context_get_sink_info_by_name
   - pa_context_get_source_info_by_name

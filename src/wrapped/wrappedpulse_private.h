@@ -79,6 +79,7 @@ GO(pa_context_ref, pFp)
 //GO(pa_context_remove_autoload_by_index, 
 //GO(pa_context_remove_autoload_by_name, 
 //GO(pa_context_remove_sample, 
+GOM(pa_context_rttime_new, pFEpUpp)
 GOM(pa_context_set_card_profile_by_index, pFEpuppp)
 //GO(pa_context_set_card_profile_by_name, 
 GOM(pa_context_set_default_sink, pFEpppp)
@@ -145,7 +146,7 @@ GO(pa_get_library_version, pFv)
 GO(pa_gettimeofday, pFp)
 GO(pa_get_user_name, pFpL)
 //GO(pa_locale_to_utf8, 
-//GO(pa_mainloop_api_once, 
+GOM(pa_mainloop_api_once, vFEppp)
 GO(pa_mainloop_dispatch, iFp)
 GOM(pa_mainloop_free, vFEp)
 GOM(pa_mainloop_get_api, pFEp)
@@ -184,6 +185,7 @@ GO(pa_proplist_to_string_sep, pFpp)
 GO(pa_proplist_unset, iFpp)
 GO(pa_proplist_unset_many, iFpp)
 GO(pa_proplist_update, vFpup)
+GO(pa_rtclock_now, UFv)
 GO(pa_sample_format_to_string, pFi)
 GO(pa_sample_size, LFp)
 GO(pa_sample_size_of_format, LFi)

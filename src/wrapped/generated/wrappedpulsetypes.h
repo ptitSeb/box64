@@ -23,6 +23,7 @@ typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
 typedef int32_t (*iFpppV_t)(void*, void*, void*, ...);
 typedef void* (*pFpipp_t)(void*, int32_t, void*, void*);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
+typedef void* (*pFpUpp_t)(void*, uint64_t, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpiupp_t)(void*, int32_t, uint32_t, void*, void*);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
@@ -44,6 +45,7 @@ typedef void* (*pFpiuCppp_t)(void*, int32_t, uint32_t, uint8_t, void*, void*, vo
 	GO(pa_context_set_event_callback, vFppp_t) \
 	GO(pa_context_set_state_callback, vFppp_t) \
 	GO(pa_context_set_subscribe_callback, vFppp_t) \
+	GO(pa_mainloop_api_once, vFppp_t) \
 	GO(pa_mainloop_set_poll_func, vFppp_t) \
 	GO(pa_stream_set_buffer_attr_callback, vFppp_t) \
 	GO(pa_stream_set_event_callback, vFppp_t) \
@@ -88,6 +90,7 @@ typedef void* (*pFpiuCppp_t)(void*, int32_t, uint32_t, uint8_t, void*, void*, vo
 	GO(pa_context_subscribe, pFpupp_t) \
 	GO(pa_context_unload_module, pFpupp_t) \
 	GO(pa_stream_update_sample_rate, pFpupp_t) \
+	GO(pa_context_rttime_new, pFpUpp_t) \
 	GO(pa_context_get_sink_info_by_name, pFpppp_t) \
 	GO(pa_context_get_source_info_by_name, pFpppp_t) \
 	GO(pa_context_proplist_remove, pFpppp_t) \

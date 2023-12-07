@@ -739,6 +739,28 @@ static void* find_device_restore_subscribe_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio device_restore_subscribe callback\n");
     return NULL;
 }
+// mainloop_once
+#define GO(A)                                               \
+static uintptr_t my_mainloop_once_fct_##A = 0;              \
+static void my_mainloop_once_##A(void* api, void* b)        \
+{                                                           \
+    RunFunctionFmt(my_mainloop_once_fct_##A, "pp", api, b); \
+}
+SUPER()
+#undef GO
+static void* find_mainloop_once_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_mainloop_once_fct_##A == (uintptr_t)fct) return my_mainloop_once_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_mainloop_once_fct_##A == 0) {my_mainloop_once_fct_##A = (uintptr_t)fct; return my_mainloop_once_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pulse audio mainloop_once callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -1492,6 +1514,18 @@ EXPORT void* my_pa_context_get_source_output_info(x64emu_t* emu, void* c, uint32
 {
     return my->pa_context_get_source_output_info(c, idx, find_source_output_info_Fct(cb), data);
 }
+
+EXPORT void* my_pa_context_rttime_new(x64emu_t* emu, void* c, uint64_t usec, void* cb, void* data)
+{
+    return my->pa_context_rttime_new(c, usec, findTimeEventFct(cb) ,data);
+}
+
+EXPORT void my_pa_mainloop_api_once(void* mainloop, void* cb, void* data)
+{
+    if(mainloop==my_mainloop_ref) mainloop=my_mainloop_orig;    // need native version
+    my->pa_mainloop_api_once(mainloop, find_mainloop_once_Fct(cb), data);
+}
+
 #define PRE_INIT        \
     if(box64_nopulse)   \
         return -1;
