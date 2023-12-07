@@ -1883,7 +1883,9 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
         s3_top = 0;
         stack_cnt = cache_i2.stack;
     }
-    extcache_t cache = dyn->e;
+
+    // FIXME: why we can't just use dyn->e here? debug that!
+    extcache_t cache = dyn->insts[ninst].e;
     int s1_val = 0;
     int s2_val = 0;
     // unload every uneeded cache
