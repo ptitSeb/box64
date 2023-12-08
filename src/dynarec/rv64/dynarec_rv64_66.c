@@ -651,6 +651,48 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD(xRDI, xRDI, x3);
             }
             break;
+        case 0xA7:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) { INST_NAME("REPNZ CMPSW"); } else { INST_NAME("REPZ CMPSW"); }
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    CBZ_NEXT(xRCX);
+                    ANDI(x1, xFlags, 1 << F_DF);
+                    BNEZ_MARK2(x1);
+                    MARK; // Part with DF==0
+                    LHU(x1, xRSI, 0);
+                    ADDI(xRSI, xRSI, 2);
+                    LHU(x2, xRDI, 0);
+                    ADDI(xRDI, xRDI, 2);
+                    SUBI(xRCX, xRCX, 1);
+                    if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
+                    BNEZ_MARK(xRCX);
+                    B_MARK3_nocond;
+                    MARK2; // Part with DF==1
+                    LHU(x1, xRSI, 0);
+                    SUBI(xRSI, xRSI, 2);
+                    LHU(x2, xRDI, 0);
+                    SUBI(xRDI, xRDI, 2);
+                    SUBI(xRCX, xRCX, 1);
+                    if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
+                    BNEZ_MARK2(xRCX);
+                    MARK3; // end
+                    emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+                default:
+                    INST_NAME("CMPSW");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETDIR(x3, x1, 2);
+                    LHU(x1, xRSI, 0);
+                    LHU(x2, xRDI, 0);
+                    ADD(xRSI, xRSI, x3);
+                    ADD(xRDI, xRDI, x3);
+                    emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+            }
+            break;
         case 0xA9:
             INST_NAME("TEST AX,Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
