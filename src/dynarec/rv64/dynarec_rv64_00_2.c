@@ -644,6 +644,48 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 break;
             }
             break;
+        case 0xA7:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) { INST_NAME("REPNZ CMPSD"); } else { INST_NAME("REPZ CMPSD"); }
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    CBZ_NEXT(xRCX);
+                    ANDI(x1, xFlags, 1 << F_DF);
+                    BNEZ_MARK2(x1);
+                    MARK; // Part with DF==0
+                    LDxw(x1, xRSI, 0);
+                    ADDI(xRSI, xRSI, rex.w ? 8 : 4);
+                    LDxw(x2, xRDI, 0);
+                    ADDI(xRDI, xRDI, rex.w ? 8 : 4);
+                    SUBI(xRCX, xRCX, 1);
+                    if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
+                    BNEZ_MARK(xRCX);
+                    B_MARK3_nocond;
+                    MARK2; // Part with DF==1
+                    LDxw(x1, xRSI, 0);
+                    SUBI(xRSI, xRSI, rex.w ? 8 : 4);
+                    LDxw(x2, xRDI, 0);
+                    SUBI(xRDI, xRDI, rex.w ? 8 : 4);
+                    SUBI(xRCX, xRCX, 1);
+                    if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
+                    BNEZ_MARK2(xRCX);
+                    MARK3; // end
+                    emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
+                    break;
+                default:
+                    INST_NAME("CMPSD");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETDIR(x3, x1, rex.w ? 8 : 4);
+                    LDxw(x1, xRSI, 0);
+                    LDxw(x2, xRDI, 0);
+                    ADD(xRSI, xRSI, x3);
+                    ADD(xRDI, xRDI, x3);
+                    emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5, x6);
+                    break;
+            }
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);

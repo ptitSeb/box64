@@ -43,7 +43,14 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     switch(nextop) {
         case 0xC0 ... 0xC7:
-            DEFAULT;
+            INST_NAME("FADD ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FADDS(v1, v1, v2);
+            } else {
+                FADDD(v1, v1, v2);
+            }
             break;
         case 0xC8 ... 0xCF:
             DEFAULT;
@@ -168,6 +175,19 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         FCVTDS(s0, s0);
                         FDIVD(v1, v1, s0);
+                    }
+                    break;
+                case 7:
+                    INST_NAME("FDIVR ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                    s0 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    FLW(s0, ed, fixedaddress);
+                    if (ST_IS_F(0)) {
+                        FDIVS(v1, s0, v1);
+                    } else {
+                        FCVTDS(s0, s0);
+                        FDIVD(v1, s0, v1);
                     }
                     break;
                 default:
