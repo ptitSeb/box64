@@ -43,7 +43,14 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     switch(nextop) {
         case 0xC0 ... 0xC7:
-            DEFAULT;
+            INST_NAME("FADD ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            if(ST_IS_F(0)) {
+                FADDS(v1, v1, v2);
+            } else {
+                FADDD(v1, v1, v2);
+            }
             break;
         case 0xC8 ... 0xCF:
             DEFAULT;
