@@ -171,6 +171,11 @@ EXPORT uint32_t my3_gdk_threads_add_idle_full(x64emu_t* emu, int priority, void*
     return my->gdk_threads_add_idle_full(priority, findGSourceFunc(f), data, findGDestroyNotifyFct(d));
 }
 
+EXPORT uint32_t my3_gdk_threads_add_idle(x64emu_t* emu, void* f, void* data)
+{
+    return my->gdk_threads_add_idle(findGSourceFunc(f), data);
+}
+
 EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, uint32_t interval, void* f, void* data, void* d)
 {
     return my->gdk_threads_add_timeout_full(priotity, interval, findGSourceFunc(f), data, findGDestroyNotifyFct(d));
