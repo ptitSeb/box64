@@ -2159,6 +2159,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xA4:
             INST_NAME("SHLD Ew, Gw, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
             GETEW(x1, 1);
             GETGW(x2);
             u8 = F8;
@@ -2213,6 +2214,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xAC:
+            nextop = F8;
             INST_NAME("SHRD Ew, Gw, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             GETEW(x1, 1);
