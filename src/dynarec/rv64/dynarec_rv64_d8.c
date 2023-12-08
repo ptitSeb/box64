@@ -170,6 +170,19 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FDIVD(v1, v1, s0);
                     }
                     break;
+                case 7:
+                    INST_NAME("FDIVR ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                    s0 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    FLW(s0, ed, fixedaddress);
+                    if (ST_IS_F(0)) {
+                        FDIVS(v1, s0, v1);
+                    } else {
+                        FCVTDS(s0, s0);
+                        FDIVD(v1, s0, v1);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
