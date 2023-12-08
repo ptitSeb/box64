@@ -53,10 +53,24 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xC8 ... 0xCF:
-            DEFAULT;
+            INST_NAME("FMUL ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FMULS(v1, v1, v2);
+            } else {
+                FMULD(v1, v1, v2);
+            }
             break;
         case 0xD0 ... 0xD7:
-            DEFAULT;
+            INST_NAME("FCOM ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FCOMS(v1, v2, x1, x2, x3, x4, x5);
+            } else {
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
+            }
             break;
         case 0xD8 ... 0xDF:
             INST_NAME("FCOMP ST0, STx");
@@ -80,12 +94,19 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xE8 ... 0xEF:
-            DEFAULT;
+            INST_NAME("FSUBR ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FSUBS(v1, v2, v1);
+            } else {
+                FSUBD(v1, v2, v1);
+            }
             break;
         case 0xF0 ... 0xF7:
             INST_NAME("FDIV ST0, STx");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
-            v2 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
             if(ST_IS_F(0)) {
                 FDIVS(v1, v1, v2);
             } else {
@@ -93,7 +114,14 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xF8 ... 0xFF:
-            DEFAULT;
+            INST_NAME("FDIVR ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FDIVS(v1, v2, v1);
+            } else {
+                FDIVD(v1, v2, v1);
+            }
             break;
 
         default:
@@ -164,6 +192,19 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FSUBD(v1, v1, s0);
                     }
                     break;
+                case 5:
+                    INST_NAME("FSUBR ST0, float[ED]");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                    s0 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    FLW(s0, ed, fixedaddress);
+                    if (ST_IS_F(0)) {
+                        FSUBS(v1, s0, v1);
+                    } else {
+                        FCVTDS(s0, s0);
+                        FSUBD(v1, s0, v1);
+                    }
+                    break;
                 case 6:
                     INST_NAME("FDIV ST0, float[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
@@ -190,8 +231,6 @@ uintptr_t dynarec64_D8(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         FDIVD(v1, s0, v1);
                     }
                     break;
-                default:
-                    DEFAULT;
             }
     }
     return addr;
