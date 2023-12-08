@@ -744,6 +744,7 @@ static void* find_device_restore_subscribe_Fct(void* fct)
 static uintptr_t my_mainloop_once_fct_##A = 0;              \
 static void my_mainloop_once_##A(void* api, void* b)        \
 {                                                           \
+    if(api==my_mainloop_orig) api=my_mainloop_ref;          \
     RunFunctionFmt(my_mainloop_once_fct_##A, "pp", api, b); \
 }
 SUPER()
@@ -1520,9 +1521,9 @@ EXPORT void* my_pa_context_rttime_new(x64emu_t* emu, void* c, uint64_t usec, voi
     return my->pa_context_rttime_new(c, usec, findTimeEventFct(cb) ,data);
 }
 
-EXPORT void my_pa_mainloop_api_once(void* mainloop, void* cb, void* data)
+EXPORT void my_pa_mainloop_api_once(x64emu_t* emu, void* mainloop, void* cb, void* data)
 {
-    if(mainloop==my_mainloop_ref) mainloop=my_mainloop_orig;    // need native version
+    if(mainloop==my_mainloop_ref) mainloop=my_mainloop_orig;    // need native version    
     my->pa_mainloop_api_once(mainloop, find_mainloop_once_Fct(cb), data);
 }
 
