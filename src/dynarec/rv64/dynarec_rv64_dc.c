@@ -43,7 +43,13 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xC8 ... 0xCF:
             INST_NAME("FMUL STx, ST0");
-            DEFAULT;
+            v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FMULS(v1, v1, v2);
+            } else {
+                FMULD(v1, v1, v2);
+            }
             break;
         case 0xD0 ... 0xD7:
             INST_NAME("FCOM ST0, STx"); //yep
