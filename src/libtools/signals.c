@@ -978,7 +978,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             if(labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[X64_RSP])<16)
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 12; // stack overflow probably
             else
-                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 13;
+                sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
         } else {
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
             //X64_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
