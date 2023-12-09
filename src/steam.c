@@ -87,9 +87,11 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
             if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
             snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib", sniper);
             if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
+            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib64", sniper);
+            if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
             // setup LD_LIBRARY_PATH
             const char* ld = getenv("LD_LIBRARY_PATH");
-            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu:%s/lib/i386-linux-gnu:%s/lib:%s", sniper, sniper, sniper, ld?ld:"");
+            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu:%s/lib/i386-linux-gnu:%s/lib:%s/lib64:%s", sniper, sniper, sniper, ld?ld:"");
             setenv("LD_LIBRARY_PATH", tmp, 1);
             printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "LD_LIBRARY_PATH", tmp);
         }
