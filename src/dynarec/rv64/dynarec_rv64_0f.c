@@ -1687,6 +1687,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SD(x3, gback, gdoffset + 0);
             }
             break;
+        case 0xF5:
+            INST_NAME("PMADDWD Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            for (int i = 0; i < 2; ++i) {
+                LHU(x1, gback, gdoffset + i * 4);
+                LHU(x2, gback, gdoffset + i * 4 + 2);
+                LHU(x3, wback, fixedaddress + i * 4);
+                LHU(x4, wback, fixedaddress + i * 4);
+                MULW(x1, x1, x3);
+                MULW(x2, x2, x4);
+                ADDW(x1, x1, x2);
+                SW(x1, gback, gdoffset + i * 4);
+            }
+            break;
         case 0xF9:
             INST_NAME("PSUBW Gm, Em");
             nextop = F8;
