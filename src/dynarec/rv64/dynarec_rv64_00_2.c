@@ -503,9 +503,20 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 jump_to_epilog(dyn, addr, 0, ninst);
             }
             break;
+        case 0x9E:
+            INST_NAME("SAHF");
+            SETFLAGS(X_CF | X_PF | X_AF | X_ZF | X_SF, SF_SUBSET);
+            ADDI(x1, xZR, ~0b11010101);
+            AND(xFlags, xFlags, x1);
+            NOT(x1, x1);
+            SRLI(x2, xRAX, 8);
+            AND(x1, x1, x2);
+            OR(xFlags, xFlags, x1);
+            SET_DFNONE();
+            break;
         case 0x9F:
             INST_NAME("LAHF");
-            READFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF);
+            READFLAGS(X_CF | X_PF | X_AF | X_ZF | X_SF);
             ANDI(x1, xFlags, 0xFF);
             SLLI(x1, x1, 8);
             MOV64x(x2, 0xffffffffffff00ffLL);

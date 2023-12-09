@@ -607,7 +607,17 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(x1, x1, x2);
             OR(xRAX, xRAX, x1);
             break;
-
+        case 0xA1:
+            INST_NAME("MOV EAX,Od");
+            if (rex.is32bits) u64 = F32; else u64 = F64;
+            MOV64z(x1, u64);
+            if (isLockAddress(u64)) lock = 1; else lock = 0;
+            SMREADLOCK(lock);
+            LHU(x2, x1, 0);
+            LUI(x3, 0xffff0);
+            AND(xRAX, xRAX, x3);
+            OR(xRAX, xRAX, x2);
+            break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
             if(rex.is32bits)
