@@ -830,7 +830,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LDxw(x4, ed, fixedaddress);
                 ed = x4;
             }
-            SDxw(ed, gback, gdoffset + 0);
+            SD(ed, gback, gdoffset + 0);
             break;
         case 0x6F:
             INST_NAME("MOVQ Gm, Em");
