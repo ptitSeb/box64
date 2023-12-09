@@ -445,7 +445,7 @@ static inline insn_t insn_th2type_read(uint32_t data)
 #define PRINT_imm_rel() snprintf(buff, sizeof(buff), "%s\tpc%s0x%x # 0x%"PRIx64, insn.name, insn.imm>=0?"+":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_rd_immx() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
 #define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s0x%x", insn.name, RN(rs1), RN(rs2), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
-#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%s0x%d # 0x%"PRIx64, insn.name, RN(rs1), RN(rs2), insn.imm>=0?"+":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
+#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%s0x%x # 0x%"PRIx64, insn.name, RN(rs1), RN(rs2), insn.imm>=0?"+":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
 #define PRINT_fd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_xd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, gpnames[insn.rd], fpnames[insn.rs1]); return buff
 #define PRINT_fd_xs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], gpnames[insn.rs1]); return buff
