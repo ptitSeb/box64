@@ -546,6 +546,14 @@
     SSE_LOOP_DS_ITEM(GX1, EX1, F, 2) \
     SSE_LOOP_DS_ITEM(GX1, EX1, F, 3)
 
+#define MMX_LOOP_D(GX1, EX1, F)                \
+    for (int i = 0; i < 2; ++i) {              \
+        LWU(GX1, gback, gdoffset + i * 4);     \
+        LWU(EX1, wback, fixedaddress + i * 4); \
+        F;                                     \
+        SW(GX1, gback, gdoffset + i * 4);      \
+    }
+
 #define MMX_LOOP_W(GX1, EX1, F)                \
     for (int i = 0; i < 4; ++i) {              \
         LHU(GX1, gback, gdoffset + i * 2);     \
