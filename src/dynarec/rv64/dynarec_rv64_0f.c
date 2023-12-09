@@ -904,6 +904,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x72:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLD Em, Ib");
+                    GETEM(x2, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 31) {
+                            SD(xZR, wback, fixedaddress);
+                        } else {
+                            LD(x1, wback, fixedaddress);
+                            SRLI(x2, x1, 32 + u8);
+                            SRLIW(x1, x1, u8);
+                            SW(x1, wback, fixedaddress);
+                            SW(x2, wback, fixedaddress + 4);
+                        }
+                    }
+                    break;
                 case 6:
                     INST_NAME("PSLLD Em, Ib");
                     GETEM(x2, 1);
