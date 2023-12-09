@@ -1295,6 +1295,7 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                     goto unknown;
                 }
             }
+            break;
             case 0x4: {
                 switch (funct3) {
                     case 0x0:
