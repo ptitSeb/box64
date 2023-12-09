@@ -899,7 +899,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 2:
                     INST_NAME("PSRLD Em, Ib");
-                    GETEM(x2, 1);
+                    GETEM(x4, 1);
                     u8 = F8;
                     if (u8) {
                         if (u8 > 31) {
@@ -915,7 +915,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 4:
                     INST_NAME("PSRAD Em, Ib");
-                    GETEM(x2, 1);
+                    GETEM(x4, 1);
                     u8 = F8;
                     if (u8 > 31) u8 = 31;
                     if (u8) {
@@ -928,7 +928,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 6:
                     INST_NAME("PSLLD Em, Ib");
-                    GETEM(x2, 1);
+                    GETEM(x4, 1);
                     u8 = F8;
                     if (u8) {
                         if (u8 > 31) {
@@ -952,7 +952,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 2:
                     INST_NAME("PSRLQ Em, Ib");
-                    GETEM(x2, 1);
+                    GETEM(x4, 1);
                     u8 = F8;
                     if (u8) {
                         if (u8 > 63) {
@@ -966,7 +966,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 6:
                     INST_NAME("PSLLQ Em, Ib");
-                    GETEM(x2, 1);
+                    GETEM(x4, 1);
                     u8 = F8;
                     if (u8) {
                         if (u8 > 63) {
@@ -1746,12 +1746,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("PMADDWD Gm, Em");
             nextop = F8;
             GETGM();
-            GETEM(x2, 0);
+            GETEM(x5, 0);
             for (int i = 0; i < 2; ++i) {
                 LHU(x1, gback, gdoffset + i * 4);
                 LHU(x2, gback, gdoffset + i * 4 + 2);
                 LHU(x3, wback, fixedaddress + i * 4);
-                LHU(x4, wback, fixedaddress + i * 4);
+                LHU(x4, wback, fixedaddress + i * 4 + 2);
                 MULW(x1, x1, x3);
                 MULW(x2, x2, x4);
                 ADDW(x1, x1, x2);
