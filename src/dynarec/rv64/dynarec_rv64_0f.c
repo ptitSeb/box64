@@ -947,6 +947,41 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x73:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLQ Em, Ib");
+                    GETEM(x2, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            SD(xZR, wback, fixedaddress);
+                        } else if (u8) {
+                            LD(x1, wback, fixedaddress);
+                            SRLI(x1, x1, u8);
+                            SD(x1, wback, fixedaddress);
+                        }
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Em, Ib");
+                    GETEM(x2, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            SD(xZR, wback, fixedaddress);
+                        } else {
+                            LD(x1, wback, fixedaddress);
+                            SLLI(x1, x1, u8);
+                            SD(x1, wback, fixedaddress);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x75:
             INST_NAME("PCMPEQW Gm,Em");
             nextop = F8;
