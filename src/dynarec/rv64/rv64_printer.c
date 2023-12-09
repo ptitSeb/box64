@@ -1020,9 +1020,11 @@ const char* rv64_print(uint32_t data, uintptr_t addr)
                 case 0x30:
                     insn.name = "roriw";
                     insn.imm &= 0b11111;
+                    break;
                 default:
                     goto unknown;
                 }
+                break;
             }
             default:
                 goto unknown;
