@@ -1681,6 +1681,16 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = xRAX + (opcode & 7) + (rex.b << 3);
             REV8xw(gd, gd, x1, x2, x3, x4);
             break;
+        case 0xDB:
+            INST_NAME("PAND Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x4, 0);
+            LD(x1, wback, fixedaddress);
+            LD(x2, gback, gdoffset);
+            AND(x1, x1, x2);
+            SD(x1, gback, gdoffset);
+            break;
         case 0xE5:
             INST_NAME("PMULHW Gm,Em");
             nextop = F8;
