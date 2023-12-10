@@ -51,7 +51,16 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC5:
         case 0xC6:
         case 0xC7:
-            DEFAULT;
+            INST_NAME("FCMOVB ST0, STx");
+            READFLAGS(X_CF);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            ANDI(x1, xFlags, 1 << F_CF);
+            CBZ_NEXT(x1);
+            if (ST_IS_F(0))
+                FMVS(v1, v2);
+            else
+                FMVD(v1, v2);
             break;
         case 0xC8:
         case 0xC9:
@@ -61,7 +70,16 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCD:
         case 0xCE:
         case 0xCF:
-            DEFAULT;
+            INST_NAME("FCMOVE ST0, STx");
+            READFLAGS(X_ZF);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            ANDI(x1, xFlags, 1 << F_ZF);
+            CBZ_NEXT(x1);
+            if (ST_IS_F(0))
+                FMVS(v1, v2);
+            else
+                FMVD(v1, v2);
             break;
         case 0xD0:
         case 0xD1:
@@ -71,7 +89,16 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD5:
         case 0xD6:
         case 0xD7:
-            DEFAULT;
+            INST_NAME("FCMOVBE ST0, STx");
+            READFLAGS(X_CF | X_ZF);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF));
+            CBZ_NEXT(x1);
+            if (ST_IS_F(0))
+                FMVS(v1, v2);
+            else
+                FMVD(v1, v2);
             break;
         case 0xD8:
         case 0xD9:
@@ -81,7 +108,16 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xDD:
         case 0xDE:
         case 0xDF:
-            DEFAULT;
+            INST_NAME("FCMOVU ST0, STx");
+            READFLAGS(X_PF);
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            ANDI(x1, xFlags, (1 << F_PF));
+            CBZ_NEXT(x1);
+            if (ST_IS_F(0))
+                FMVS(v1, v2);
+            else
+                FMVD(v1, v2);
             break;
         case 0xE9:
             INST_NAME("FUCOMPP ST0, ST1");
