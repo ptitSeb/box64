@@ -64,7 +64,13 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD6:
         case 0xD7:
             INST_NAME("FST ST0, STx");
-            DEFAULT;
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FMVS(v2, v1);
+            } else {
+                FMVD(v2, v1);
+            }
             break;
         case 0xD8:
             INST_NAME("FSTP ST0, ST0");
@@ -93,7 +99,13 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xE6:
         case 0xE7:
             INST_NAME("FUCOM ST0, STx");
-            DEFAULT;
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FCOMS(v1, v2, x1, x2, x3, x4, x5);
+            } else {
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
+            }
             break;
         case 0xE8:
         case 0xE9:
@@ -104,7 +116,14 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xEE:
         case 0xEF:
             INST_NAME("FUCOMP ST0, STx");
-            DEFAULT;
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FCOMS(v1, v2, x1, x2, x3, x4, x5);
+            } else {
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
+            }
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xC8:
         case 0xC9:
