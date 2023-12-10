@@ -1723,6 +1723,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0);
             MMX_LOOP_WS(x3, x4, MULW(x3, x3, x4));
             break;
+        case 0xD9:
+            INST_NAME("PSUBUSW Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            MMX_LOOP_W(x3, x4, SUB(x3, x3, x4); SLT(x4, xZR, x3); NEG(x4, x4); AND(x3, x3, x4));
+            break;
         case 0xDB:
             INST_NAME("PAND Gm, Em");
             nextop = F8;
@@ -1764,16 +1771,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(x4, gback, gdoffset + i * 2);
             }
             break;
-        case 0xEB:
-            INST_NAME("POR Gm, Em");
-            nextop = F8;
-            GETGM();
-            GETEM(x2, 0);
-            LD(x3, gback, gdoffset);
-            LD(x4, wback, fixedaddress);
-            OR(x3, x3, x4);
-            SD(x3, gback, gdoffset);
-            break;
         case 0xE7:
             INST_NAME("MOVNTQ Em, Gm");
             nextop = F8;
@@ -1786,14 +1783,45 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSD(v0, ed, fixedaddress);
             }
             break;
+        case 0xE9:
+            INST_NAME("PSUBSW Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            for (int i = 0; i < 4; ++i) {
+                // tmp32s = (int32_t)GM->sw[i] - EM->sw[i];
+                // GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+                LH(x3, gback, gdoffset + 2 * i);
+                LH(x4, wback, fixedaddress + 2 * i);
+                SUBW(x3, x3, x4);
+                LUI(x4, 0xFFFF8); // -32768
+                BGE(x3, x4, 12);
+                SH(x4, gback, gdoffset + 2 * i);
+                J(20);      // continue
+                LUI(x4, 8); // 32768
+                BLT(x3, x4, 8);
+                ADDIW(x3, x4, -1);
+                SH(x3, gback, gdoffset + 2 * i);
+            }
+            break;
+        case 0xEB:
+            INST_NAME("POR Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            LD(x3, gback, gdoffset);
+            LD(x4, wback, fixedaddress);
+            OR(x3, x3, x4);
+            SD(x3, gback, gdoffset);
+            break;
         case 0xED:
             INST_NAME("PADDSW Gm,Em");
             nextop = F8;
             GETGM();
             GETEM(x2, 0);
             for (int i = 0; i < 4; ++i) {
-                // tmp32s = (int32_t)GX->sw[i] + EX->sw[i];
-                // GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+                // tmp32s = (int32_t)GM->sw[i] + EM->sw[i];
+                // GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
                 ADDW(x3, x3, x4);
