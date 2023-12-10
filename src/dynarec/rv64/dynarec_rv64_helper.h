@@ -562,6 +562,14 @@
         SH(GX1, gback, gdoffset + i * 2);      \
     }
 
+#define MMX_LOOP_WS(GX1, EX1, F)              \
+    for (int i = 0; i < 4; ++i) {             \
+        LH(GX1, gback, gdoffset + i * 2);     \
+        LH(EX1, wback, fixedaddress + i * 2); \
+        F;                                    \
+        SH(GX1, gback, gdoffset + i * 2);     \
+    }
+
 #define SSE_LOOP_W(GX1, EX1, F)                \
     for (int i = 0; i < 8; ++i) {              \
         LHU(GX1, gback, gdoffset + i * 2);     \
