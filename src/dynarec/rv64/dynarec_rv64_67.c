@@ -448,7 +448,28 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else
                 emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
-        
+        case 0x63:
+            INST_NAME("MOVSXD Gd, Ed");
+            nextop = F8;
+            GETGD;
+            if (rex.w) {
+                if (MODREG) { // reg <= reg
+                    ADDIW(gd, xRAX + (nextop & 7) + (rex.b << 3), 0);
+                } else { // mem <= reg
+                    SMREAD();
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    LW(gd, ed, fixedaddress);
+                }
+            } else {
+                if (MODREG) { // reg <= reg
+                    AND(gd, xRAX + (nextop & 7) + (rex.b << 3), xMASK);
+                } else { // mem <= reg
+                    SMREAD();
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    LWU(gd, ed, fixedaddress);
+                }
+            }
+            break;
         case 0x66:
             opcode = F8;
             switch (opcode) {
