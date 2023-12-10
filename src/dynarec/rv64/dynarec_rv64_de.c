@@ -80,12 +80,27 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD5:
         case 0xD6:
         case 0xD7:
-            // INST_NAME("FCOMP ST0, STx"); //yep
-            DEFAULT;
+            INST_NAME("FCOMP ST0, STx"); // yep
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FCOMS(v1, v2, x1, x2, x3, x4, x5);
+            } else {
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
+            }
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xD9:
-            // INST_NAME("FCOMPP ST0, STx");
-            DEFAULT;
+            INST_NAME("FCOMPP ST0, STx");
+            v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
+            v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+            if (ST_IS_F(0)) {
+                FCOMS(v1, v2, x1, x2, x3, x4, x5);
+            } else {
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
+            }
+            X87_POP_OR_FAIL(dyn, ninst, x3);
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE0:
         case 0xE1:
@@ -166,7 +181,8 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xDD:
         case 0xDE:
         case 0xDF:
-            return 0;
+            DEFAULT;
+            break;
         default:
             switch((nextop>>3)&7) {
                 default:
