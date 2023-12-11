@@ -846,9 +846,6 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
-#ifndef SET_HASCALLRET
-#define SET_HASCALLRET()
-#endif
 #define UFLAG_OP1(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op1));}
 #define UFLAG_OP2(A) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A, xEmu, offsetof(x64emu_t, op2));}
 #define UFLAG_OP12(A1, A2) if(dyn->insts[ninst].x64.gen_flags) {STRxw_U12(A1, xEmu, offsetof(x64emu_t, op1));STRxw_U12(A2, xEmu, offsetof(x64emu_t, op2));}

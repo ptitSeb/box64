@@ -950,9 +950,6 @@
 #ifndef BARRIER_NEXT
 #define BARRIER_NEXT(A)
 #endif
-#ifndef SET_HASCALLRET
-#define SET_HASCALLRET()
-#endif
 #define UFLAG_OP1(A) \
     if (dyn->insts[ninst].x64.gen_flags) { SDxw(A, xEmu, offsetof(x64emu_t, op1)); }
 #define UFLAG_OP2(A) \
