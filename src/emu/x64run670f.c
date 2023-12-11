@@ -65,6 +65,14 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             }
             break;
 
+        case 0x29:                      /* MOVAPS Ex,Gx */
+            nextop = F8;
+            GETEX32(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            break;
+
         case 0x2E:
             // same for now
         case 0x2F:                      
