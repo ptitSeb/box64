@@ -57,7 +57,7 @@ GO(cupsCopyDest, iFpip)
 //GO(cupsCopyDestInfo, 
 //GO(_cupsCreateDest, 
 //GO(cupsCreateDestJob, 
-//GO(cupsCreateJob, 
+GO(cupsCreateJob, iFpppip)
 //DATA(_cups_debug_fd, 
 //DATA(_cups_debug_level, 
 //GO(cupsDirClose, 
