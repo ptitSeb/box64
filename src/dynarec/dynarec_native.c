@@ -518,7 +518,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
             int k=-1;
             int search = ((j>=helper.insts[0].x64.addr) && j<helper.insts[0].x64.addr+helper.isize)?1:0;
             int imin = 0;
-            int imax = helper.size;
+            int imax = helper.size-1;
             int i2 = helper.size/2;
             // dichotomy search
             while(search) {
