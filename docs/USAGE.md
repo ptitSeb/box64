@@ -183,8 +183,8 @@ Handling of flags on CALL/RET opcodes
 
 #### BOX64_DYNAREC_CALLRET *
 Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
-* 0 : Don't optimize CALL/RET, use Jump Table for boths (Default)
-* 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (will crash if blacks are invalidate, so probably incompatible with JIT/Dynarec)
+* 0 : Don't optimize CALL/RET, use Jump Table for boths
+* 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (Default)
 
 #### BOX64_DYNAREC_HOTPAGE *
 Handling of HotPage (Page being both executed and written)
