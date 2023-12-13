@@ -5427,6 +5427,7 @@ wrappedvulkan:
   - vkDestroyImage
   - vkDestroyImageView
   - vkDestroyIndirectCommandsLayoutNV
+  - vkDestroyMicromapEXT
   - vkDestroyOpticalFlowSessionNV
   - vkDestroyPipeline
   - vkDestroyPipelineCache
@@ -5479,6 +5480,7 @@ wrappedvulkan:
   - vkCreateImage
   - vkCreateImageView
   - vkCreateIndirectCommandsLayoutNV
+  - vkCreateMicromapEXT
   - vkCreateOpticalFlowSessionNV
   - vkCreatePipelineCache
   - vkCreatePipelineLayout

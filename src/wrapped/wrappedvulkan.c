@@ -704,6 +704,10 @@ DESTROY64(vkDestroyAccelerationStructureNV)
 CREATE(vkCreateOpticalFlowSessionNV)
 DESTROY64(vkDestroyOpticalFlowSessionNV)
 
+CREATE(vkCreateMicromapEXT)
+DESTROY64(vkDestroyMicromapEXT)
+
+
 EXPORT void my_vkGetPhysicalDeviceProperties(x64emu_t* emu, void* device, void* pProps)
 {
     my->vkGetPhysicalDeviceProperties(device, pProps);
