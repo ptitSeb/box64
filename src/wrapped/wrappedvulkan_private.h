@@ -842,3 +842,8 @@ GO(vkGetRenderingAreaGranularityKHR, vFppp)
 // VK_NV_memory_decompression
 GO(vkCmdDecompressMemoryIndirectCountNV, vFpUUu)
 GO(vkCmdDecompressMemoryNV, vFpup)
+
+// VK_EXT_merge_shader
+GO(vkCmdDrawMeshTasksEXT, vFpuuu)
+GO(vkCmdDrawMeshTasksIndirectCountEXT, vFpUUUUuu)
+GO(vkCmdDrawMeshTasksIndirectEXT, vFpUUuu)
