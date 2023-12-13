@@ -77,9 +77,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             dyn->last_ip = 0;   // reset IP if some jump are coming here
         fpu_propagate_stack(dyn, ninst);
         NEW_INST;
+        #if STEP == 0
         if(ninst && dyn->insts[ninst-1].x64.barrier_next) {
             BARRIER(dyn->insts[ninst-1].x64.barrier_next);
         }
+        #endif
         if(!ninst) {
             GOTEST(x1, x2);
         }
@@ -214,12 +216,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                         dyn->insts[ninst].x64.has_next = 1;  // this block actually continue
                     } else {
                         // need to find back that instruction to copy the caches, as previous version cannot be used anymore
-                        reset_n = -2;
-                        for(int ii=0; ii<ninst; ++ii)
-                            if(dyn->insts[ii].x64.jmp == next) {
-                                reset_n = ii;
-                                ii=ninst;
-                            }
+                        // and pred table is not ready yet
+                        reset_n = get_first_jump(dyn, next);
                     }
                     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %s%p -> %p (ninst=%d, jump from %d)\n", dyn, dyn->insts[ninst].x64.has_callret?"(opt. call) ":"", (void*)addr, (void*)next, ninst, dyn->insts[ninst].x64.has_callret?ninst:reset_n);
                 } else if(next && (next-addr)<box64_dynarec_forward && (getProtection(next)&PROT_READ)/*box64_dynarec_bigblock>=stopblock*/) {

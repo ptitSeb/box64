@@ -16,9 +16,9 @@
         dyn->f.pending=(B)&SF_SET_PENDING;      \
         dyn->f.dfnone=((B)&SF_SET)?1:0;
 #define EMIT(A)     
-#define JUMP(A, C)         add_next(dyn, (uintptr_t)A); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C
+#define JUMP(A, C)         add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
-#define BARRIER_NEXT(A) dyn->insts[ninst+1].x64.barrier_next = A
+#define BARRIER_NEXT(A) dyn->insts[ninst].x64.barrier_next = A
 #define SET_HASCALLRET()    dyn->insts[ninst].x64.has_callret = 1
 #define NEW_INST \
         ++dyn->size;                            \

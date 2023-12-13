@@ -767,7 +767,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    //BARRIER_NEXT(1);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
                     } else {

@@ -60,7 +60,7 @@ int box64_dynarec_x87double = 0;
 int box64_dynarec_fastnan = 1;
 int box64_dynarec_fastround = 1;
 int box64_dynarec_safeflags = 1;
-int box64_dynarec_callret = 0;
+int box64_dynarec_callret = 1;
 int box64_dynarec_hotpage = 0;
 int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
@@ -656,6 +656,8 @@ void LoadLogEnv()
         }
         if(box64_dynarec_callret)
             printf_log(LOG_INFO, "Dynarec will optimize CALL/RET\n");
+        else
+            printf_log(LOG_INFO, "Dynarec will not optimize CALL/RET\n");
     }
     p = getenv("BOX64_DYNAREC_BLEEDING_EDGE");
     if(p) {

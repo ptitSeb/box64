@@ -1121,6 +1121,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEDOz(x6, 0);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
+                        BARRIER_NEXT(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
                         *need_epilog = 0;
@@ -1128,12 +1129,15 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     GETIP_(addr);
                     if(box64_dynarec_callret) {
+                        SET_HASCALLRET();
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
                             j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
                             ADR_S20(x4, j64);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
                             j64 = getJumpTableAddress64(addr);
                             TABLE64(x4, j64);
                             LDRx_U12(x4, x4, 0);

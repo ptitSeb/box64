@@ -2678,7 +2678,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch(tmp) {
                 case 3:
                     SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
-                    //BARRIER_NEXT(BARRIER_FULL);
                     if(dyn->last_ip && (addr-dyn->last_ip<0x1000)) {
                         ADDx_U12(x2, xRIP, addr-dyn->last_ip);
                     } else {
@@ -2734,9 +2733,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    //BARRIER_NEXT(1);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
+                        BARRIER_NEXT(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
                         *need_epilog = 0;
@@ -2752,7 +2751,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SET_HASCALLRET();
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
-                            BARRIER_NEXT(BARRIER_FULL);
                             // there is a next...
                             j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
                             ADR_S20(x4, j64);
@@ -3149,6 +3147,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEDz(0);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
+                        BARRIER_NEXT(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
                         *need_epilog = 0;
@@ -3160,7 +3159,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
-                            BARRIER_NEXT(BARRIER_FULL);
                             j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
                             ADR_S20(x4, j64);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);

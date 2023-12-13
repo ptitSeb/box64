@@ -102,6 +102,9 @@ typedef struct dynarec_arm_s {
     uintptr_t*          next;       // variable array of "next" jump address
     int                 next_sz;
     int                 next_cap;
+    int*                jmps;       // variable array of jump instructions
+    int                 jmp_sz;
+    int                 jmp_cap;
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
     instsize_t*         instsize;
@@ -119,6 +122,8 @@ typedef struct dynarec_arm_s {
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
+void add_jump(dynarec_arm_t *dyn, int ninst);
+int get_first_jump(dynarec_arm_t *dyn, int next);
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
 
