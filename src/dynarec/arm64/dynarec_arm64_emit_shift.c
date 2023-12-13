@@ -665,7 +665,7 @@ void emit_shr16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_OF) {
         CMPSw_U12(s2, 1);   // if s2==1
             Bcond(cNE, 4+2*4);
-            LSRw(s4, s1, 7);
+            LSRw(s4, s1, 15);
             BFIw(xFlags, s4, F_OF, 1);
     }
     LSRw_REG(s1, s1, s2);
