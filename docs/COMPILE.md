@@ -78,6 +78,12 @@ Warning, you need a 64bit OS:
 -D RPI4ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
+#### for Raspberry Pi 5
+
+```
+-D RPI5ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo #RPI5ARM64PS16K for operating-systems like Raspberry Pi OS that use 16K pages
+```
+
 #### for TEGRA X1
 
 Using a 64bit OS:
