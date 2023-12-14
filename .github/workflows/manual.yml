@@ -17,6 +17,7 @@ on:
         - RK3399
         - RK3588
         - RPI4ARM64
+        - RPI5ARM64
         - SD845
         - SD888
         - ADLINK
