@@ -17,7 +17,9 @@ typedef void (*vFp_t)(void*);
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFi_t)(int32_t);
 typedef int32_t (*iFp_t)(void*);
+typedef int64_t (*IFi_t)(int32_t);
 typedef intptr_t (*lFv_t)(void);
+typedef intptr_t (*lFi_t)(int32_t);
 typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpi_t)(void*, int32_t);
@@ -130,7 +132,9 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(setjmp, iFp_t) \
 	GO(stime, iFp_t) \
 	GO(uname, iFp_t) \
+	GO(sysconf, IFi_t) \
 	GO(syscall, lFv_t) \
+	GO(__sysconf, lFi_t) \
 	GO(getauxval, LFL_t) \
 	GO(__deregister_frame_info, pFp_t) \
 	GO(mallinfo, pFp_t) \

@@ -38,7 +38,6 @@
 #() iFS
 #() iFP
 #() IFv
-#() IFi
 #() IFI
 #() IFf
 #() IFd
@@ -202,6 +201,7 @@
 #() iFpp
 #() iFpO
 #() iFSi
+#() IFEi
 #() IFEf
 #() IFEd
 #() IFEp
@@ -268,6 +268,7 @@
 #() DFDD
 #() DFDp
 #() DFpp
+#() lFEi
 #() lFii
 #() lFip
 #() lFui
@@ -3961,8 +3962,12 @@ wrappedlibc:
   - setjmp
   - stime
   - uname
+- IFi:
+  - sysconf
 - lFv:
   - syscall
+- lFi:
+  - __sysconf
 - LFL:
   - getauxval
 - pFp:

@@ -74,7 +74,6 @@ typedef int32_t (*iFO_t)(int32_t);
 typedef int32_t (*iFS_t)(void*);
 typedef int32_t (*iFP_t)(void*);
 typedef int64_t (*IFv_t)(void);
-typedef int64_t (*IFi_t)(int32_t);
 typedef int64_t (*IFI_t)(int64_t);
 typedef int64_t (*IFf_t)(float);
 typedef int64_t (*IFd_t)(double);
@@ -238,6 +237,7 @@ typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpO_t)(void*, int32_t);
 typedef int32_t (*iFSi_t)(void*, int32_t);
+typedef int64_t (*IFEi_t)(x64emu_t*, int32_t);
 typedef int64_t (*IFEf_t)(x64emu_t*, float);
 typedef int64_t (*IFEd_t)(x64emu_t*, double);
 typedef int64_t (*IFEp_t)(x64emu_t*, void*);
@@ -304,6 +304,7 @@ typedef long double (*DFDi_t)(long double, int32_t);
 typedef long double (*DFDD_t)(long double, long double);
 typedef long double (*DFDp_t)(long double, void*);
 typedef long double (*DFpp_t)(void*, void*);
+typedef intptr_t (*lFEi_t)(x64emu_t*, int32_t);
 typedef intptr_t (*lFii_t)(int32_t, int32_t);
 typedef intptr_t (*lFip_t)(int32_t, void*);
 typedef intptr_t (*lFui_t)(uint32_t, int32_t);
@@ -3063,7 +3064,6 @@ void iFO(x64emu_t *emu, uintptr_t fcn) { iFO_t fn = (iFO_t)fcn; R_RAX=(int32_t)f
 void iFS(x64emu_t *emu, uintptr_t fcn) { iFS_t fn = (iFS_t)fcn; R_RAX=(int32_t)fn(io_convert((void*)R_RDI)); }
 void iFP(x64emu_t *emu, uintptr_t fcn) { iFP_t fn = (iFP_t)fcn; R_RAX=(int32_t)fn(*(void**)(R_RSP + 8)); }
 void IFv(x64emu_t *emu, uintptr_t fcn) { IFv_t fn = (IFv_t)fcn; R_RAX=(int64_t)fn(); }
-void IFi(x64emu_t *emu, uintptr_t fcn) { IFi_t fn = (IFi_t)fcn; R_RAX=(int64_t)fn((int32_t)R_RDI); }
 void IFI(x64emu_t *emu, uintptr_t fcn) { IFI_t fn = (IFI_t)fcn; R_RAX=(int64_t)fn((int64_t)R_RDI); }
 void IFf(x64emu_t *emu, uintptr_t fcn) { IFf_t fn = (IFf_t)fcn; R_RAX=(int64_t)fn(emu->xmm[0].f[0]); }
 void IFd(x64emu_t *emu, uintptr_t fcn) { IFd_t fn = (IFd_t)fcn; R_RAX=(int64_t)fn(emu->xmm[0].d[0]); }
@@ -3227,6 +3227,7 @@ void iFpL(x64emu_t *emu, uintptr_t fcn) { iFpL_t fn = (iFpL_t)fcn; R_RAX=(int32_
 void iFpp(x64emu_t *emu, uintptr_t fcn) { iFpp_t fn = (iFpp_t)fcn; R_RAX=(int32_t)fn((void*)R_RDI, (void*)R_RSI); }
 void iFpO(x64emu_t *emu, uintptr_t fcn) { iFpO_t fn = (iFpO_t)fcn; R_RAX=(int32_t)fn((void*)R_RDI, of_convert((int32_t)R_RSI)); }
 void iFSi(x64emu_t *emu, uintptr_t fcn) { iFSi_t fn = (iFSi_t)fcn; R_RAX=(int32_t)fn(io_convert((void*)R_RDI), (int32_t)R_RSI); }
+void IFEi(x64emu_t *emu, uintptr_t fcn) { IFEi_t fn = (IFEi_t)fcn; R_RAX=(int64_t)fn(emu, (int32_t)R_RDI); }
 void IFEf(x64emu_t *emu, uintptr_t fcn) { IFEf_t fn = (IFEf_t)fcn; R_RAX=(int64_t)fn(emu, emu->xmm[0].f[0]); }
 void IFEd(x64emu_t *emu, uintptr_t fcn) { IFEd_t fn = (IFEd_t)fcn; R_RAX=(int64_t)fn(emu, emu->xmm[0].d[0]); }
 void IFEp(x64emu_t *emu, uintptr_t fcn) { IFEp_t fn = (IFEp_t)fcn; R_RAX=(int64_t)fn(emu, (void*)R_RDI); }
@@ -3293,6 +3294,7 @@ void DFDi(x64emu_t *emu, uintptr_t fcn) { DFDi_t fn = (DFDi_t)fcn; long double l
 void DFDD(x64emu_t *emu, uintptr_t fcn) { DFDD_t fn = (DFDD_t)fcn; long double ld=fn(LD2localLD((void*)(R_RSP + 8)), LD2localLD((void*)(R_RSP + 24))); fpu_do_push(emu); ST0val = ld; }
 void DFDp(x64emu_t *emu, uintptr_t fcn) { DFDp_t fn = (DFDp_t)fcn; long double ld=fn(LD2localLD((void*)(R_RSP + 8)), (void*)R_RDI); fpu_do_push(emu); ST0val = ld; }
 void DFpp(x64emu_t *emu, uintptr_t fcn) { DFpp_t fn = (DFpp_t)fcn; long double ld=fn((void*)R_RDI, (void*)R_RSI); fpu_do_push(emu); ST0val = ld; }
+void lFEi(x64emu_t *emu, uintptr_t fcn) { lFEi_t fn = (lFEi_t)fcn; R_RAX=(intptr_t)fn(emu, (int32_t)R_RDI); }
 void lFii(x64emu_t *emu, uintptr_t fcn) { lFii_t fn = (lFii_t)fcn; R_RAX=(intptr_t)fn((int32_t)R_RDI, (int32_t)R_RSI); }
 void lFip(x64emu_t *emu, uintptr_t fcn) { lFip_t fn = (lFip_t)fcn; R_RAX=(intptr_t)fn((int32_t)R_RDI, (void*)R_RSI); }
 void lFui(x64emu_t *emu, uintptr_t fcn) { lFui_t fn = (lFui_t)fcn; R_RAX=(intptr_t)fn((uint32_t)R_RDI, (int32_t)R_RSI); }
@@ -6056,7 +6058,6 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFL) return 1;
 	if (fun == &iFp) return 1;
 	if (fun == &IFv) return 1;
-	if (fun == &IFi) return 1;
 	if (fun == &IFI) return 1;
 	if (fun == &IFf) return 2;
 	if (fun == &IFd) return 2;

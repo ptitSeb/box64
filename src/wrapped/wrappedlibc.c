@@ -3347,6 +3347,16 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
     return prctl(option, arg2, arg3, arg4, arg5);
 }
 
+#ifndef _SC_NPROCESSORS_ONLN
+#define _SC_NPROCESSORS_ONLN    84
+#endif 
+EXPORT long my_sysconf(x64emu_t* emu, int what) {
+    if(what==_SC_NPROCESSORS_ONLN) {
+        return getNCpu();
+    }
+    return sysconf(what);
+}
+EXPORT long my___sysconf(x64emu_t* emu, int what) __attribute__((alias("my_sysconf")));
 
 EXPORT char* my___progname = NULL;
 EXPORT char* my___progname_full = NULL;
