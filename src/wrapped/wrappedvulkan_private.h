@@ -863,3 +863,6 @@ GOM(vkDestroyMicromapEXT, vFEpUp)
 GO(vkGetDeviceMicromapCompatibilityEXT, vFppp)
 GO(vkGetMicromapBuildSizesEXT, vFpipp)
 GO(vkWriteMicromapsPropertiesEXT, iFpupiLpL)
+
+// VK_KHR_ray_tracing_maintenance1
+GO(vkCmdTraceRaysIndirect2KHR, vFpU)
