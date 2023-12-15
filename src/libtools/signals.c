@@ -770,6 +770,28 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b11111111110000000000000000000000)==0b10101001000000000000000000000000) {
+        // This is STP reg1, reg2, [reg3 + off]
+        int scale = 2+(opcode>>31)&1;
+        int val1 = opcode&31;
+        int val2 = (opcode>>10)&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>15)&0b1111111;
+        if((offset>>(7-1))&1)
+            offset |= (0xffffffffffffffffll<<7);
+        offset <<= scale;
+        uintptr_t addr= p->uc_mcontext.regs[dest] + offset;
+        if(((uintptr_t)addr)&3==0) {
+            ((uint32_t*)addr)[0] = p->uc_mcontext.regs[val1];
+            ((uint32_t*)addr)[1] = p->uc_mcontext.regs[val2];
+        } else {
+            __uint128_t value = ((__uint128_t)p->uc_mcontext.regs[val2])<<64 | p->uc_mcontext.regs[val1];
+            for(int i=0; i<(1<<scale); ++i)
+                ((uint8_t*)addr)[i] = (value>>(i*8))&0xff;
+        }
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
 #endif
     return 0;
 }
