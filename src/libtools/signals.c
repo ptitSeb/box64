@@ -1494,8 +1494,10 @@ exit(-1);
                 sprintf(myarg, "%d", pid);
                 if(jit_gdb==2)
                     execlp("gdbserver", "gdbserver", "127.0.0.1:1234", "--attach", myarg, (char*)NULL);
-                else
+                else if(jit_gdb==3)
                     execlp("lldb", "lldb", "-p", myarg, (char*)NULL);
+                else
+                    execlp("gdb", "gdb", "-pid", myarg, (char*)NULL);
                 exit(-1);
             }
         }

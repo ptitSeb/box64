@@ -947,11 +947,11 @@ void LoadLogEnv()
     p = getenv("BOX64_JITGDB");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+2)
+            if(p[0]>='0' && p[0]<='0'+3)
                 jit_gdb = p[0]-'0';
         }
         if(jit_gdb)
-            printf_log(LOG_INFO, "Launch %s on segfault\n", (jit_gdb==2)?"gdbserver":"gdb");
+            printf_log(LOG_INFO, "Launch %s on segfault\n", (jit_gdb==2)?"gdbserver":((jit_gdb==3)?"lldb":"gdb"));
     }
     p = getenv("BOX64_SHOWSEGV");
         if(p) {
