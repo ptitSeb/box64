@@ -80,7 +80,7 @@ Warning, you need a 64bit OS:
 
 #### for Raspberry Pi 5
 
-If your Raspberry Pi OS use 16K pages build use `RPI5ARM64PS16K` instead of `RPI5ARM64`:
+If your Raspberry Pi OS use 16K pages use `RPI5ARM64PS16K` instead of `RPI5ARM64`:
 ```
 -D RPI5ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
