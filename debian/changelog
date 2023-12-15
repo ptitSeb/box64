@@ -1,3 +1,30 @@
+box64 (0.2.4) unstable; urgency=low
+
+  * Added Dynarec for RISC-V
+  * Added partial 32 bits support (WoW64 works)
+  * Changed cpuid to display box64
+  * Fixed steam, again
+  * Improved hacked version for overridden malloc/free functions
+  * More wrapped libs
+  * More wrapped functions and syscalls
+  * Reduced memory footprint
+  * Added support for the BIND_NOW flags in ELF files
+  * Added RTLD_NOLOAD support
+  * Fixed some typos and general cleanup, again
+  * Added a cosimulation mode (to compare the behaviour of the dynarec with the interpreter)
+  * Added FASTNAN/FASTROUND handling for more opcodes
+  * Better float/double/long double handling
+  * Better dlopen/dlclose handling
+  * More games in the rc file
+  * Added BOX64_DYNAREC_MISSING to show only missing opcode, independantly of the log level
+  * Added BOX64_RESERVE_HIGH to reserve addresses above 47bits
+  * Improved multitreading support
+  * Ukrainian translation of the README
+  * => Dynarec now support RISC-V, large speedup on RISC-V 64, were games are now playable (like Stardew Valley on a Vision Five 2)
+  * => Improved compatibility with more fixes in elf handling, more wrapped libs and functiond, more fixed opcodes and refined profile
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2023 10:20:33 -0500
+
 box64 (0.2.2) unstable; urgency=low
 
  * Added a hacked version for overridden malloc/free functions, enabling libcef (and derivative) to work.
