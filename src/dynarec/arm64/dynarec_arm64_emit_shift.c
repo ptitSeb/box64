@@ -1289,7 +1289,10 @@ void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
     }
     ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
     IFX(X_CF) {
-        LSRw(s3, s1, 16-c);
+        if(c<16)
+            LSRw(s3, s1, 16-c);
+        else
+            MOVx_REG(s3, s1);
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_OF) {
@@ -1327,9 +1330,12 @@ void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
     }
     ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
     IFX(X_CF) {
-        MOV32w(s3, 16);
-        SUBw_REG(s3, s3, s5);
-        LSRw_REG(s3, s1, s3);
+        MOVw_REG(s3, s1);
+        CMPSw_U12(s5, 16);
+        Bcond(cGE, 4+3*4);
+            MOV32w(s3, 16);
+            SUBw_REG(s3, s3, s5);
+            LSRw_REG(s3, s1, s3);
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_OF) {
