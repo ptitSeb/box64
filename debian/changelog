@@ -1,3 +1,33 @@
+box64 (0.2.6) unstable; urgency=low
+
+ * X64Libs: Updated libstdc++ & libgcc_s
+ * X64Libs: Use x86_64 vrsion of libunwind (it's needed by wine)
+ * Dynarec: More opcodes on ARM64 & RV64
+ * Dynarec: Fixed some flags propagation issues inside blocks
+ * Dynarec: Improved Strong Memory Model emulation, introducing a 3rd level
+ * Dynarec: ARM64: reworked shift and bit opcodes flags handling
+ * Dynarec: RV64: Many fixes, making Wow64 apps running
+ * Dynarec: ARM64: Added support for SSE4.2 (with CRC32 if supported by CPU)
+ * Dynarec: ARM64: Added support for SHA (with hardware support if CPU allows it)
+ * Dynarec: ARM64: The CALLRET optimisation has been improved and is now default
+ * CPU: Remoworked how INT, priviliged opcodes and teh Trace flags works
+ * CPU: Added full support for SSE4.2
+ * CPU: Added full support for SHA extension
+ * ElfLoader: rework how elf memory is handled
+ * Emulation: Added some more syscalls
+ * Emulation: Better handling of Signal (also handling SIGMAX correctly)
+ * Emulation: Better support for POKEUSER/PEEKUSER (helps Windows Unity games)
+ * Wrapping: More libs and some fixes in function wrapping (gtk3, vulkan...)
+ * Wrapping: Removed faked libunwind wrapping
+ * Hardware: Added more profile, with support ADLink Ampere Altra, Qualcomm 8Gen3, and Pi5 machines
+ * OS: Added profile to build for Android and Termux.
+ * OS: New option to use mold for a high speed link
+ * => More hadware support, more functions wrapped for an improve compatibity
+ * => More CPU extension, with ARM64 hardware support when possible, and improved CALLRET optimisation for an improved speed of emulation
+ * => Some work also to reduce the memory footprint
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 15 Dec 2023 17:30:33 -0100
+
 box64 (0.2.4) unstable; urgency=low
 
   * Added Dynarec for RISC-V
