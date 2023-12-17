@@ -10,13 +10,14 @@ typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
-#define EXT_CACHE_NONE 0
-#define EXT_CACHE_ST_D 1
-#define EXT_CACHE_ST_F 2
-#define EXT_CACHE_MM   3
-#define EXT_CACHE_SS   4
-#define EXT_CACHE_SD   5
-#define EXT_CACHE_SCR  6
+#define EXT_CACHE_NONE   0
+#define EXT_CACHE_ST_D   1
+#define EXT_CACHE_ST_F   2
+#define EXT_CACHE_ST_I64 3
+#define EXT_CACHE_MM     4
+#define EXT_CACHE_SS     5
+#define EXT_CACHE_SD     6
+#define EXT_CACHE_SCR    7
 typedef union ext_cache_s {
     int8_t           v;
     struct {

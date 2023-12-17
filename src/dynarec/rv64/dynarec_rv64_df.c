@@ -172,25 +172,30 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
-                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_D);
+                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_I64);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                    LD(x1, wback, fixedaddress);
-                    if (rex.is32bits) {
-                        // need to also feed the STll stuff...
-                        ADDI(x4, xEmu, offsetof(x64emu_t, fpu_ll));
-                        LWU(x5, xEmu, offsetof(x64emu_t, top));
-                        int a = 0 - dyn->e.x87stack;
-                        if(a) {
-                            ADDIW(x5, x5, a);
-                            ANDI(x5, x5, 0x7);
+
+                    if (ST_IS_I64(0)) {
+                        FLD(v1, wback, fixedaddress);
+                    } else {
+                        LD(x1, wback, fixedaddress);
+                        if (rex.is32bits) {
+                            // need to also feed the STll stuff...
+                            ADDI(x4, xEmu, offsetof(x64emu_t, fpu_ll));
+                            LWU(x5, xEmu, offsetof(x64emu_t, top));
+                            int a = 0 - dyn->e.x87stack;
+                            if (a) {
+                                ADDIW(x5, x5, a);
+                                ANDI(x5, x5, 0x7);
+                            }
+                            SLLI(x5, x5, 4); // fpu_ll is 2 i64
+                            ADD(x5, x5, x4);
+                            SD(x1, x5, 8); // ll
                         }
-                        SLLI(x5, x5, 4); // fpu_ll is 2 i64
-                        ADD(x5, x5, x4);
-                        SD(x1, x5, 8);   // ll
-                    }
-                    FCVTDL(v1, x1, RD_RTZ);
-                    if(rex.is32bits) {
-                        FSD(v1, x5, 0);  // ref
+                        FCVTDL(v1, x1, RD_RTZ);
+                        if (rex.is32bits) {
+                            FSD(v1, x5, 0); // ref
+                        }
                     }
                     break;
                 case 6:
@@ -203,44 +208,50 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 7:
                     INST_NAME("FISTP i64, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
-                    u8 = x87_setround(dyn, ninst, x1, x2);
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_I64);
+                    if (!ST_IS_I64(0)) {
+                        u8 = x87_setround(dyn, ninst, x1, x2);
+                    }
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
 
-                    if(rex.is32bits) {
-                        // need to check STll first...
-                        ADDI(x4, xEmu, offsetof(x64emu_t, fpu_ll));
-                        LWU(x5, xEmu, offsetof(x64emu_t, top));
-                        int a = 0 - dyn->e.x87stack;
-                        if(a) {
-                            ADDIW(x5, x5, a);
-                            ANDI(x5, x5, 0x7);
+                    if (ST_IS_I64(0)) {
+                        FSD(v1, wback, fixedaddress);
+                    } else {
+                        if (rex.is32bits) {
+                            // need to check STll first...
+                            ADDI(x4, xEmu, offsetof(x64emu_t, fpu_ll));
+                            LWU(x5, xEmu, offsetof(x64emu_t, top));
+                            int a = 0 - dyn->e.x87stack;
+                            if (a) {
+                                ADDIW(x5, x5, a);
+                                ANDI(x5, x5, 0x7);
+                            }
+                            SLLI(x5, x5, 4); // fpu_ll is 2 i64
+                            ADD(x5, x5, x4);
+                            FMVXD(x3, v1);
+                            LD(x6, x5, 0); // ref
+                            BNE_MARK(x6, x3);
+                            LD(x6, x5, 8); // ll
+                            SD(x6, wback, fixedaddress);
+                            B_MARK3_nocond;
+                            MARK;
                         }
-                        SLLI(x5, x5, 4); // fpu_ll is 2 i64
-                        ADD(x5, x5, x4);
-                        FMVXD(x3, v1);
-                        LD(x6, x5, 0);  // ref
-                        BNE_MARK(x6, x3);
-                        LD(x6, x5, 8);  // ll
-                        SD(x6, wback, fixedaddress);
-                        B_MARK3_nocond;
-                        MARK;
-                    }
 
-                    if(!box64_dynarec_fastround) {
-                        FSFLAGSI(0); // reset all bits
+                        if (!box64_dynarec_fastround) {
+                            FSFLAGSI(0); // reset all bits
+                        }
+                        FCVTLD(x4, v1, RD_DYN);
+                        if (!box64_dynarec_fastround) {
+                            FRFLAGS(x5); // get back FPSR to check the IOC bit
+                            ANDI(x5, x5, 1 << FR_NV);
+                            BEQ_MARK2(x5, xZR);
+                            MOV64x(x4, 0x8000000000000000LL);
+                        }
+                        MARK2;
+                        SD(x4, wback, fixedaddress);
+                        MARK3;
+                        x87_restoreround(dyn, ninst, u8);
                     }
-                    FCVTLD(x4, v1, RD_DYN);
-                    if(!box64_dynarec_fastround) {
-                        FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                        ANDI(x5, x5, 1<<FR_NV);
-                        BEQ_MARK2(x5, xZR);
-                        MOV64x(x4, 0x8000000000000000LL);
-                    }
-                    MARK2;
-                    SD(x4, wback, fixedaddress);
-                    MARK3;
-                    x87_restoreround(dyn, ninst, u8);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 default:

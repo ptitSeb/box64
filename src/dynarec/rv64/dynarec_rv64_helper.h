@@ -1338,16 +1338,19 @@ int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b);
 
 #if STEP == 0
 #define ST_IS_F(A)        0
+#define ST_IS_I64(A)      0
 #define X87_COMBINE(A, B) EXT_CACHE_ST_D
 #define X87_ST0           EXT_CACHE_ST_D
 #define X87_ST(A)         EXT_CACHE_ST_D
 #elif STEP == 1
 #define ST_IS_F(A)        (extcache_get_current_st(dyn, ninst, A) == EXT_CACHE_ST_F)
+#define ST_IS_I64(A)      (extcache_get_current_st(dyn, ninst, A) == EXT_CACHE_ST_I64)
 #define X87_COMBINE(A, B) extcache_combine_st(dyn, ninst, A, B)
-#define X87_ST0           extcache_get_current_st(dyn, ninst, 0)
-#define X87_ST(A)         extcache_get_current_st(dyn, ninst, A)
+#define X87_ST0           extcache_no_i64(dyn, ninst, 0, extcache_get_current_st(dyn, ninst, 0))
+#define X87_ST(A)         extcache_no_i64(dyn, ninst, A, extcache_get_current_st(dyn, ninst, A))
 #else
 #define ST_IS_F(A) (extcache_get_st(dyn, ninst, A) == EXT_CACHE_ST_F)
+#define ST_IS_I64(A) (extcache_get_st(dyn, ninst, A) == EXT_CACHE_ST_I64)
 #if STEP == 3
 #define X87_COMBINE(A, B) extcache_st_coherency(dyn, ninst, A, B)
 #else
