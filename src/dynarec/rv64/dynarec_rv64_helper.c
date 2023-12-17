@@ -887,6 +887,7 @@ int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t)
         else if(ret==-1) {
             dyn->e.x87cache[i] = 0;
             ret=dyn->e.x87reg[i]=fpu_get_reg_x87(dyn, t, 0);
+            dyn->e.extcache[EXTIDX(ret)].t = X87_ST0;
         }
     return ret;
 }
@@ -949,12 +950,11 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
         // update tags (and top at the same time)
         if(a>0) {
             // new tag to fulls
-            ADDI(s3, xZR, 0);
             for (int i=0; i<a; ++i) {
                 SUBI(s2, s2, 1);
                 ANDI(s2, s2, 7);    // (emu->top + st)&7
                 if(rv64_zba) SH2ADD(s1, s2, xEmu); else {SLLI(s1, s2, 2); ADD(s1, xEmu, s1);}
-                SW(s3, s1, offsetof(x64emu_t, p_regs));
+                SW(xZR, s1, offsetof(x64emu_t, p_regs));
             }
         } else {
             // empty tags
@@ -1148,6 +1148,7 @@ void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
     if(ret==-1)    // nothing to do
         return;
     MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
+    const int reg = dyn->e.x87reg[ret];
     // prepare offset to fpu => s1
     // Get top
     LW(s2, xEmu, offsetof(x64emu_t, top));
@@ -1157,11 +1158,11 @@ void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
         ANDI(s2, s2, 7);    // (emu->top + i)&7
     }
     ADD(s1, xEmu, s2);
-    if(dyn->e.extcache[EXTIDX(dyn->e.x87reg[ret])].t==EXT_CACHE_ST_F) {
-        FCVTDS(SCRATCH0, dyn->e.x87reg[ret]);
+    if (dyn->e.extcache[EXTIDX(reg)].t == EXT_CACHE_ST_F) {
+        FCVTDS(SCRATCH0, reg);
         FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
     } else {
-        FSD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
+        FSD(reg, s1, offsetof(x64emu_t, x87));
     }
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
 }
@@ -1176,8 +1177,9 @@ void x87_forget(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
     if(ret==-1)    // nothing to do
         return;
     MESSAGE(LOG_DUMP, "\tForget x87 Cache for ST%d\n", st);
+    const int reg = dyn->e.x87reg[ret];
     #if STEP == 1
-    if(dyn->e.extcache[EXTIDX(dyn->e.x87reg[ret])].t==EXT_CACHE_ST_F)
+    if (dyn->e.extcache[EXTIDX(reg)].t == EXT_CACHE_ST_F)
         extcache_promote_double(dyn, ninst, st);
     #endif
     // prepare offset to fpu => s1
@@ -1190,11 +1192,16 @@ void x87_forget(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
         ANDI(s2, s2, 7);    // (emu->top + i)&7
     }
     if(rv64_zba) SH3ADD(s1, s2, xEmu); else {SLLI(s2, s2, 3); ADD(s1, xEmu, s2);}
-    FSD(dyn->e.x87reg[ret], s1, offsetof(x64emu_t, x87));
+    if (dyn->e.extcache[EXTIDX(reg)].t == EXT_CACHE_ST_F) {
+        FCVTDS(SCRATCH0, reg);
+        FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
+    } else {
+        FSD(reg, s1, offsetof(x64emu_t, x87));
+    }
     MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
     // and forget that cache
     fpu_free_reg(dyn, dyn->e.x87reg[ret]);
-    dyn->e.extcache[EXTIDX(dyn->e.x87reg[ret])].v = 0;
+    dyn->e.extcache[EXTIDX(reg)].v = 0;
     dyn->e.x87cache[ret] = -1;
     dyn->e.x87reg[ret] = -1;
 }
@@ -1884,8 +1891,7 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
         stack_cnt = cache_i2.stack;
     }
 
-    // FIXME: why we can't just use dyn->e here? debug that!
-    extcache_t cache = dyn->insts[ninst].e;
+    extcache_t cache = dyn->e;
     int s1_val = 0;
     int s2_val = 0;
     // unload every uneeded cache
