@@ -79,19 +79,27 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         strcat(sniper, "/files");  // this is the sniper root
         // do LD_LIBRARY_PATH
         {
+            const char* usrsbinldconfig = "/usr/sbin/ldconfig";
+            const char* sbinldconfig = "/sbin/ldconfig";
+            const char* ldconfig = "ldconfig";
+            const char* ldcmd = ldconfig;
+            if(FileExist(usrsbinldconfig, IS_FILE))
+                ldcmd = usrsbinldconfig;
+            else if(FileExist(sbinldconfig, IS_FILE))
+                ldcmd = sbinldconfig;
             char tmp[MAX_PATH*4] = {0};
             // prepare folders, using ldconfig
-            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib/x86_64-linux-gnu", sniper);
+            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib/x86_64-linux-gnu", ldcmd, sniper);
             if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
-            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib/i386-linux-gnu", sniper);
+            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib/i386-linux-gnu", ldcmd, sniper);
             if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
-            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib", sniper);
+            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib", ldcmd, sniper);
             if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
-            snprintf(tmp, sizeof(tmp), "ldconfig -i -n %s/lib64", sniper);
+            snprintf(tmp, sizeof(tmp), "%s -i -n %s/lib64", ldcmd, sniper);
             if(system(tmp)<0) printf_log(LOG_INFO, "%s failed\n", tmp);
             // setup LD_LIBRARY_PATH
             const char* ld = getenv("LD_LIBRARY_PATH");
-            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu:%s/lib/i386-linux-gnu:%s/lib:%s/lib64:%s", sniper, sniper, sniper, ld?ld:"");
+            snprintf(tmp, sizeof(tmp), "%s/lib/x86_64-linux-gnu:%s/lib/i386-linux-gnu:%s/lib:%s/lib64:%s", sniper, sniper, sniper, sniper, ld?ld:"");
             setenv("LD_LIBRARY_PATH", tmp, 1);
             printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", "LD_LIBRARY_PATH", tmp);
         }
