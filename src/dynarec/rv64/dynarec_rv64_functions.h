@@ -28,14 +28,20 @@ void fpu_reset_reg(dynarec_rv64_t* dyn);
 int extcache_get_st(dynarec_rv64_t* dyn, int ninst, int a);
 // Get if STx is FLOAT or DOUBLE
 int extcache_get_st_f(dynarec_rv64_t* dyn, int ninst, int a);
+// Get if STx is FLOAT or I64
+int extcache_get_st_f_i64(dynarec_rv64_t* dyn, int ninst, int a);
 // Get actual type for STx
 int extcache_get_current_st(dynarec_rv64_t* dyn, int ninst, int a);
 // Get actual STx is FLOAT or DOUBLE
 int extcache_get_current_st_f(dynarec_rv64_t* dyn, int a);
+// Get actual STx is FLOAT or I64
+int extcache_get_current_st_f_i64(dynarec_rv64_t* dyn, int a);
 // Back-propagate a change float->double
 void extcache_promote_double(dynarec_rv64_t* dyn, int ninst, int a);
 // Combine and propagate if needed (pass 1 only)
 int extcache_combine_st(dynarec_rv64_t* dyn, int ninst, int a, int b);  // with stack current dyn->n_stack*
+// Do not allow i64 type
+int extcache_no_i64(dynarec_rv64_t* dyn, int ninst, int st, int a);
 
 // FPU Cache transformation (for loops) // Specific, need to be written par backend
 int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst);
