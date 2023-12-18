@@ -1072,8 +1072,8 @@ void protectDB(uintptr_t addr, uintptr_t size)
         uint32_t dyn = prot&PROT_DYN;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;      // comes from malloc & co, so should not be able to execute
-        prot&=~PROT_CUSTOM;
         if(!(dyn&PROT_NOPROT)) {
+            prot&=~PROT_CUSTOM;
             if(prot&PROT_WRITE) {
                 if(!dyn) 
                     mprotect((void*)(i<<MEMPROT_SHIFT), 1<<MEMPROT_SHIFT, prot&~PROT_WRITE);
