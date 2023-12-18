@@ -866,3 +866,6 @@ GO(vkWriteMicromapsPropertiesEXT, iFpupiLpL)
 
 // VK_KHR_ray_tracing_maintenance1
 GO(vkCmdTraceRaysIndirect2KHR, vFpU)
+
+// VK_EXT_depth_bias_control
+GO(vkCmdSetDepthBias2EXT, vFpp)
