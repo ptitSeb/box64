@@ -285,6 +285,101 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     }
                     break;
 
+                case 0xBA:                      
+                    nextop = F8;
+                    switch((nextop>>3)&7) {
+                        case 4:                 /* BT Ed,Ib */
+                            CHECK_FLAGS(emu);
+                            GETED_OFFS(1, tlsdata);
+                            tmp8u = F8;
+                            if(rex.w) {
+                                tmp8u&=63;
+                                if(ED->q[0] & (1LL<<tmp8u))
+                                    SET_FLAG(F_CF);
+                                else
+                                    CLEAR_FLAG(F_CF);
+                            } else {
+                                tmp8u&=31;
+                                if(ED->dword[0] & (1<<tmp8u))
+                                    SET_FLAG(F_CF);
+                                else
+                                    CLEAR_FLAG(F_CF);
+                            }
+                            break;
+                        case 5:             /* BTS Ed, Ib */
+                            CHECK_FLAGS(emu);
+                            GETED_OFFS(1, tlsdata);
+                            tmp8u = F8;
+                            if(rex.w) {
+                                tmp8u&=63;
+                                if(ED->q[0] & (1LL<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                } else {
+                                    ED->q[0] ^= (1LL<<tmp8u);
+                                    CLEAR_FLAG(F_CF);
+                                }
+                            } else {
+                                tmp8u&=31;
+                                if(ED->dword[0] & (1<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                } else {
+                                    ED->dword[0] ^= (1<<tmp8u);
+                                    CLEAR_FLAG(F_CF);
+                                }
+                                if(MODREG)
+                                    ED->dword[1] = 0;
+                            }
+                            break;
+                        case 6:             /* BTR Ed, Ib */
+                            CHECK_FLAGS(emu);
+                            GETED_OFFS(1, tlsdata);
+                            tmp8u = F8;
+                            if(rex.w) {
+                                tmp8u&=63;
+                                if(ED->q[0] & (1LL<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                    ED->q[0] ^= (1LL<<tmp8u);
+                                } else
+                                    CLEAR_FLAG(F_CF);
+                            } else {
+                                tmp8u&=31;
+                                if(ED->dword[0] & (1<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                    ED->dword[0] ^= (1<<tmp8u);
+                                } else
+                                    CLEAR_FLAG(F_CF);
+                                if(MODREG)
+                                    ED->dword[1] = 0;
+                            }
+                            break;
+                        case 7:             /* BTC Ed, Ib */
+                            CHECK_FLAGS(emu);
+                            GETED_OFFS(1, tlsdata);
+                            tmp8u = F8;
+                            if(rex.w) {
+                                tmp8u&=63;
+                                if(ED->q[0] & (1LL<<tmp8u))
+                                    SET_FLAG(F_CF);
+                                else
+                                    CLEAR_FLAG(F_CF);
+                                ED->q[0] ^= (1LL<<tmp8u);
+                            } else {
+                                tmp8u&=31;
+                                if(ED->dword[0] & (1<<tmp8u))
+                                    SET_FLAG(F_CF);
+                                else
+                                    CLEAR_FLAG(F_CF);
+                                ED->dword[0] ^= (1<<tmp8u);
+                                if(MODREG)
+                                    ED->dword[1] = 0;
+                            }
+                            break;
+
+                        default:
+                            return 0;
+                    }
+                    break;
+
                 default:
                     return 0;
             }
