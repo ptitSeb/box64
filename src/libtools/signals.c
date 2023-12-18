@@ -752,6 +752,20 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b11111111111000000000110000000000)==0b01111000000000000000000000000000) {
+        // this is STURH
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        uint64_t value = p->uc_mcontext.regs[val];
+        for(int i=0; i<2; ++i)
+            addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
     if((opcode&0b11111111111000000000110000000000)==0b01111000001000000000100000000000) {
         // this is STRH reg, reg
         int scale = (opcode>>30)&3;
