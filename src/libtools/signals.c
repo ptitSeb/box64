@@ -569,7 +569,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int dest = (opcode>>5)&31;
         uint64_t offset = (opcode>>10)&0b111111111111;
         offset<<=scale;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = p->uc_mcontext.regs[val];
         if(scale==3 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<2; ++i)
@@ -588,7 +588,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int64_t offset = (opcode>>12)&0b111111111;
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = p->uc_mcontext.regs[val];
         if(size==8 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<2; ++i)
@@ -612,7 +612,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         offset<<=scale;
         int val = opcode&31;
         int dest = (opcode>>5)&31;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = fpsimd->vregs[val];
         if(scale>2 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -637,7 +637,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
             offset |= (0xffffffffffffffffll<<9);
         int val = opcode&31;
         int dest = (opcode>>5)&31;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = fpsimd->vregs[val];
         if(scale>2 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -661,7 +661,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         offset<<=scale;
         int val = opcode&31;
         int dest = (opcode>>5)&31;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = 0;
         if(scale>2 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -687,7 +687,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
             offset |= (0xffffffffffffffffll<<9);
         int val = opcode&31;
         int dest = (opcode>>5)&31;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = 0;
         if(scale>2 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -706,7 +706,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int dest = (opcode>>5)&31;
         uint64_t offset = (opcode>>10)&0b111111111111;
         offset<<=scale;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = 0;
         if(scale==3 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<2; ++i)
@@ -726,7 +726,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int64_t offset = (opcode>>12)&0b111111111;
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = 0;
         if(size==8 && ((uintptr_t)addr)&3==0) {
             for(int i=0; i<2; ++i)
@@ -745,7 +745,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int dest = (opcode>>5)&31;
         uint64_t offset = (opcode>>10)&0b111111111111;
         offset<<=scale;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = p->uc_mcontext.regs[val];
         for(int i=0; i<(1<<scale); ++i)
             addr[i] = (value>>(i*8))&0xff;
@@ -759,7 +759,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int64_t offset = (opcode>>12)&0b111111111;
         if((offset>>(9-1))&1)
             offset |= (0xffffffffffffffffll<<9);
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = p->uc_mcontext.regs[val];
         for(int i=0; i<2; ++i)
             addr[i] = (value>>(i*8))&0xff;
@@ -777,7 +777,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         if(option!=0b011)
             return 0;   // only LSL is supported
         uint64_t offset = p->uc_mcontext.regs[dest2]<<S;
-        uint8_t* addr = (uint8_t*)(p->uc_mcontext.regs[dest] + offset);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = p->uc_mcontext.regs[val];
         for(int i=0; i<(1<<scale); ++i)
             addr[i] = (value>>(i*8))&0xff;
@@ -796,12 +796,12 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         offset <<= scale;
         uintptr_t addr= p->uc_mcontext.regs[dest] + offset;
         if(((uintptr_t)addr)&3==0) {
-            ((uint32_t*)addr)[0] = p->uc_mcontext.regs[val1];
-            ((uint32_t*)addr)[1] = p->uc_mcontext.regs[val2];
+            ((volatile uint32_t*)addr)[0] = p->uc_mcontext.regs[val1];
+            ((volatile uint32_t*)addr)[1] = p->uc_mcontext.regs[val2];
         } else {
             __uint128_t value = ((__uint128_t)p->uc_mcontext.regs[val2])<<64 | p->uc_mcontext.regs[val1];
             for(int i=0; i<(1<<scale); ++i)
-                ((uint8_t*)addr)[i] = (value>>(i*8))&0xff;
+                ((volatile uint8_t*)addr)[i] = (value>>(i*8))&0xff;
         }
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
