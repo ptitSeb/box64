@@ -1578,6 +1578,16 @@ void CreateCPUInfoFile(int fd)
     (void)dummy;
     #undef P
 }
+void CreateCPUPresentFile(int fd)
+{
+    size_t dummy;
+    char buff[600];
+    int n = getNCpu();
+    // generate fake CPUINFO
+    sprintf(buff, "0-%d\n", n-1);
+    dummy = write(fd, buff, strlen(buff));
+    (void)dummy;
+}
 
 #ifdef ANDROID
 static int shm_open(const char *name, int oflag, mode_t mode) {
@@ -1593,6 +1603,7 @@ static int shm_unlink(const char *name) {
 #endif
 #define TMP_MEMMAP  "box64_tmpmemmap"
 #define TMP_CMDLINE "box64_tmpcmdline"
+#define TMP_CPUPRESENT "box64_cpupresent"
 EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
     if(isProcSelf((const char*) pathname, "cmdline")) {
@@ -1716,34 +1727,6 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
     return open64(pathname, flags, mode);
 }
 
-EXPORT FILE* my_fopen(x64emu_t* emu, const char* path, const char* mode)
-{
-    if(isProcSelf(path, "maps")) {
-        // special case for self memory map
-        int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen(path, mode); // error fallback
-        shm_unlink(TMP_MEMMAP);    // remove the shm file, but it will still exist because it's currently in use
-        CreateMemorymapFile(emu->context, tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    #ifndef NOALIGN
-    if(strcmp(path, "/proc/cpuinfo")==0) {
-        // special case for cpuinfo
-        int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen(path, mode); // error fallback
-        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUInfoFile(tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    #endif
-    if(isProcSelf(path, "exe")) {
-        return fopen(emu->context->fullpath, mode);
-    }
-    return fopen(path, mode);
-}
-
 EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
 {
     if(isProcSelf(path, "maps")) {
@@ -1769,8 +1752,18 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
     if(isProcSelf(path, "exe")) {
         return fopen64(emu->context->fullpath, mode);
     }
+    if(box64_wine && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=64)) {
+        // special case for cpu present (to limit to 64 cores)
+        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return fopen64(path, mode); // error fallback
+        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUPresentFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return fdopen(tmp, mode);
+    }
     return fopen64(path, mode);
 }
+EXPORT FILE* my_fopen(x64emu_t* emu, const char* path, const char* mode) __attribute__((alias("my_fopen64")));
 
 #if 0
 EXPORT int32_t my_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
@@ -1904,6 +1897,11 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         if(my_environ!=my_context->envv) envv = my_environ;
         if(my__environ!=my_context->envv) envv = my__environ;
         if(my___environ!=my_context->envv) envv = my___environ;
+if(!envv && n>2 && strstr(newargv[2], "fxc.exe")) {
+setenv("BOX64_LOG", "2", 1);
+setenv("BOX64_TRACE_FILE", "/home/seb/trace-%pid.txt", 1);
+//setenv("BOX64_DYNAREC", "0", 1);
+}
         int ret;
         if(envv)
             ret = execve(newargv[0], (char* const*)newargv, envv);
@@ -3350,8 +3348,14 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
 #ifndef _SC_NPROCESSORS_ONLN
 #define _SC_NPROCESSORS_ONLN    84
 #endif 
+#ifndef _SC_NPROCESSORS_CONF
+#define _SC_NPROCESSORS_CONF    83
+#endif 
 EXPORT long my_sysconf(x64emu_t* emu, int what) {
     if(what==_SC_NPROCESSORS_ONLN) {
+        return getNCpu();
+    }
+    if(what==_SC_NPROCESSORS_CONF) {
         return getNCpu();
     }
     return sysconf(what);

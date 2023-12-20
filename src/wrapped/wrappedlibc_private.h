@@ -297,7 +297,7 @@ GOM(execl, iFEpV) // First argument is also part of the variadic
 GOM(execle, iFEpV) // First argument is also part of the variadic
 GOM(execlp, iFEpV) // First argument is also part of the variadic
 GOM(execv, iFEpp)
-GOWM(execve, iFEppp)
+GOM(execve, iFEppp)
 GOM(execvp, iFEpp)
 GOW(execvpe, iFppp)
 GOM(_exit, vFEi)
@@ -1318,7 +1318,7 @@ GO(perror, vFp)
 GOW(personality, iFL)
 GO(__pipe, iFp)
 GOW(pipe, iFp)
-GO(pipe2, iFpi)
+GO(pipe2, iFpO)
 //GO(pivot_root, // Deprecated
 GO(pkey_alloc, iFuu)
 GO(pkey_free, iFi)
