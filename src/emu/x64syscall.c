@@ -254,6 +254,7 @@ static const scwrap_t syscallwrap[] = {
     #endif
     [285] = {__NR_fallocate, 4},
     [288] = {__NR_accept4, 4},
+    [289] = {__NR_signalfd4, 4},    // this one might need some wrapping
     [290] = {__NR_eventfd2, 2},
     [291] = {__NR_epoll_create1, 1},
     [292] = {__NR_dup3, 3},
