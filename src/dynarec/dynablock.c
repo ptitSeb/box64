@@ -155,15 +155,6 @@ int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size)
 dynablock_t *AddNewDynablock(uintptr_t addr)
 {
     dynablock_t* block;
-    #if 0
-    // check if memory as the correct flags
-    int prot = getProtection(addr);
-    if(!(prot&(PROT_EXEC|PROT_DYNAREC|PROT_DYNAREC_R))) {
-        dynarec_log(LOG_VERBOSE, "Block asked on a memory with no execution flags 0x%02X\n", prot);
-        return NULL;
-    }
-    
-    #endif
     // create and add new block
     dynarec_log(LOG_VERBOSE, "Ask for DynaRec Block creation @%p\n", (void*)addr);
     block = (dynablock_t*)customCalloc(1, sizeof(dynablock_t));
