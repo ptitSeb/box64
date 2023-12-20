@@ -1248,13 +1248,13 @@ void removeMapMem(mapmem_t* mapmem, uintptr_t begin, uintptr_t end)
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
+    mutex_lock(&mutex_prot);
+    addMapMem(mapallmem, addr, addr+size-1);
+    UNLOCK_DYNAREC();
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
-    mutex_lock(&mutex_prot);
-    addMapMem(mapallmem, addr, addr+size-1);
-    UNLOCK_DYNAREC();
     uintptr_t bidx = ~1LL;
     uint8_t *block = NULL;
     for (uintptr_t i=idx; i<=end; ++i) {
@@ -1279,13 +1279,13 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
+    mutex_lock(&mutex_prot);
+    addMapMem(mapallmem, addr, addr+size-1);
+    UNLOCK_DYNAREC();
     uintptr_t idx = (addr>>MEMPROT_SHIFT);
     uintptr_t end = ((addr+size-1)>>MEMPROT_SHIFT);
     if(end>=(1LL<<(48-MEMPROT_SHIFT)))
         end = (1LL<<(48-MEMPROT_SHIFT))-1;
-    mutex_lock(&mutex_prot);
-    addMapMem(mapallmem, addr, addr+size-1);
-    UNLOCK_DYNAREC();
     for (uintptr_t i=(idx>>16); i<=(end>>16); ++i) {
         uint8_t* block = getProtBlock(i, prot?1:0);
         if(prot || block!=memprot_default) {
@@ -1342,10 +1342,6 @@ printf_log(LOG_INFO, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr
 void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
-    uintptr_t idx = (addr>>MEMPROT_SHIFT);
-    uintptr_t end = ((addr+size-1LL)>>MEMPROT_SHIFT);
-    if(end>=(1LL<<(48-MEMPROT_SHIFT)))
-        end = (1LL<<(48-MEMPROT_SHIFT))-1;
     mutex_lock(&mutex_prot);
     addMapMem(mapallmem, addr, addr+size-1);
     mutex_unlock(&mutex_prot);
