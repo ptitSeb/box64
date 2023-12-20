@@ -1748,10 +1748,6 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
     }
-    #endif
-    if(isProcSelf(path, "exe")) {
-        return fopen64(emu->context->fullpath, mode);
-    }
     if(box64_wine && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=64)) {
         // special case for cpu present (to limit to 64 cores)
         int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
@@ -1760,6 +1756,10 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
         CreateCPUPresentFile(tmp);
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
+    }
+    #endif
+    if(isProcSelf(path, "exe")) {
+        return fopen64(emu->context->fullpath, mode);
     }
     return fopen64(path, mode);
 }
