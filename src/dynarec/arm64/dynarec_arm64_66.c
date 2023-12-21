@@ -84,23 +84,15 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIx(xRAX, x1, 0, 16);
             break;
         case 0x06:
-            if(rex.is32bits) {
-                INST_NAME("PUSH ES");
-                LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-                PUSH1_32(x1);
-            } else {
-                DEFAULT;
-            }
+            INST_NAME("PUSH ES");
+            LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+            PUSH1_16(x1);
             break;
         case 0x07:
-            if(rex.is32bits) {
-                INST_NAME("POP ES");
-                POP1_32(x1);
-                STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
-            } else {
-                DEFAULT;
-            }
+            INST_NAME("POP ES");
+            POP1_16(x1);
+            STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             break;
 
         case 0x09:
@@ -200,23 +192,15 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             BFIx(xRAX, x1, 0, 16);
             break;
         case 0x1E:
-            if(rex.is32bits) {
-                INST_NAME("PUSH DS");
-                LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-                PUSH1_32(x1);
-            } else {
-                DEFAULT;
-            }
+            INST_NAME("PUSH DS");
+            LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+            PUSH1_16(x1);
             break;
         case 0x1F:
-            if(rex.is32bits) {
-                INST_NAME("POP DS");
-                POP1_32(x1);
-                STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
-            } else {
-                DEFAULT;
-            }
+            INST_NAME("POP DS");
+            POP1_16(x1);
+            STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             break;
 
         case 0x21:
@@ -370,17 +354,13 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x55:
         case 0x56:
         case 0x57:
-            if(rex.is32bits) {
-                INST_NAME("PUSH reg");
-                gd = xRAX+(opcode&0x07);
-                if (gd==xRSP) {
-                    MOVw_REG(x1, xRSP);
-                    PUSH1_16(x1);
-                } else {
-                    PUSH1_16(gd);
-                }
+            INST_NAME("PUSH reg");
+            gd = xRAX+(opcode&0x07);
+            if (gd==xRSP) {
+                MOVw_REG(x1, xRSP);
+                PUSH1_16(x1);
             } else {
-                DEFAULT;
+                PUSH1_16(gd);
             }
             break;
         case 0x58:
@@ -391,14 +371,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5D:
         case 0x5E:
         case 0x5F:
-            if(rex.is32bits) {
-                INST_NAME("POP reg");
-                gd = xRAX+(opcode&0x07);
-                POP1_16(x1);
-                BFIw(gd, x1, 0, 16);
-            } else {
-                DEFAULT;
-            }
+            INST_NAME("POP reg");
+            gd = xRAX+(opcode&0x07);
+            POP1_16(x1);
+            BFIw(gd, x1, 0, 16);
             break;
         case 0x60:
             if(rex.is32bits) {
@@ -1331,13 +1307,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     EWBACK;
                     break;
                 case 6: // Push Ew
-                    if(rex.is32bits) {
-                        INST_NAME("PUSH Ew");
-                        GETEW(x1, 0);
-                        PUSH1_16(ed);
-                    } else {
-                        DEFAULT;
-                    }
+                    INST_NAME("PUSH Ew");
+                    GETEW(x1, 0);
+                    PUSH1_16(ed);
                     break;
 
                 default:

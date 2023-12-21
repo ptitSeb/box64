@@ -116,13 +116,13 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         if(!rex.is32bits) {
             return 0;
         }
-        Push32(emu, emu->segs[_ES]);  // even if a segment is a 16bits, a 32bits push/pop is done
+        Push16(emu, emu->segs[_ES]);
         break;
     case 0x07:                      /* POP ES */
         if(!rex.is32bits) {
             return 0;
         }
-        emu->segs[_ES] = Pop32(emu);    // no check, no use....
+        emu->segs[_ES] = Pop16(emu);
         emu->segs_serial[_ES] = 0;
         break;
 
@@ -152,13 +152,13 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             if(!rex.is32bits) {
                 return 0;
             }
-            Push32(emu, emu->segs[_DS]);  // even if a segment is a 16bits, a 32bits push/pop is done
+            Push16(emu, emu->segs[_DS]);
             break;
         case 0x1F:                      /* POP DS */
             if(!rex.is32bits) {
                 return 0;
             }
-            emu->segs[_DS] = Pop32(emu);    // no check, no use....
+            emu->segs[_DS] = Pop16(emu);    // no check, no use....
             emu->segs_serial[_DS] = 0;
             break;
 
@@ -217,11 +217,8 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0x55:
     case 0x56:
     case 0x57:                      /* PUSH Reg */
-        if(rex.is32bits) {
-            tmp16u = emu->regs[opcode&7].word[0];
-            Push16(emu, tmp16u);
-        } else
-            return 0;
+        tmp16u = emu->regs[opcode&7].word[0];
+        Push16(emu, tmp16u);
         break;
     case 0x58:
     case 0x59:
@@ -231,11 +228,8 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0x5D:
     case 0x5E:
     case 0x5F:                      /* POP Reg */
-        if(rex.is32bits) {
-            tmp8u = opcode&7;
-            emu->regs[tmp8u].word[0] = Pop16(emu);
-        } else
-            return 0;
+        tmp8u = opcode&7;
+        emu->regs[tmp8u].word[0] = Pop16(emu);
         break;
     case 0x60:                              /* PUSHA */
         if(rex.is32bits) {
@@ -892,10 +886,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 addr = tmp64u;
                 break;
            case 6:                  /* Push Ew */
-                if(rex.is32bits) {
-                    Push16(emu, EW->word[0]);
-                } else 
-                    return 0;
+                Push16(emu, EW->word[0]);
                 break;
             default:
                     printf_log(LOG_NONE, "Illegal Opcode %p: 66 %02X %02X %02X %02X %02X %02X\n",(void*)R_RIP, opcode, nextop, PK(2), PK(3), PK(4), PK(5));
