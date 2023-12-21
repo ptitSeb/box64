@@ -142,7 +142,7 @@ void AddCleanup(x64emu_t *emu, void *p, void* dso_handle)
     (void)emu;
     
     if(my_context->clean_sz == my_context->clean_cap) {
-        my_context->clean_cap += 4;
+        my_context->clean_cap += 32;
         my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
     }
     my_context->cleanups[my_context->clean_sz].arg = 0;
@@ -156,7 +156,7 @@ void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, void* dso_handle)
     (void)emu;
     
     if(my_context->clean_sz == my_context->clean_cap) {
-        my_context->clean_cap += 4;
+        my_context->clean_cap += 32;
         my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
     }
     my_context->cleanups[my_context->clean_sz].arg = 1;
