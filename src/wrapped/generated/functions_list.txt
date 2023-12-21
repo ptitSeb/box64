@@ -2365,6 +2365,7 @@
 #() pFfiiiiid
 #() pFdiiiIiI
 #() pFpiiiiid
+#() pFpiiippp
 #() pFpiiUdii
 #() pFpipippp
 #() pFpCuwwWW
@@ -4864,12 +4865,17 @@ wrappedmpg123:
 wrappednotify:
 wrappednsl:
 wrappednspr4:
+- iFpp:
+  - PR_CallOnce
+- iFppp:
+  - PR_CallOnceWithArg
 wrappednss3:
 - vFp:
   - PK11_SetPasswordFunc
   - PORT_SetUCS2_ASCIIConversionFunction
 - iFpp:
   - CERT_RegisterAlternateOCSPAIAInfoCallBack
+  - NSS_RegisterShutdown
 - iFpIppp:
   - CERT_PKIXVerifyCert
 wrappednssutil3:

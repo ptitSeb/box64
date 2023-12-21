@@ -32,8 +32,8 @@ GO(PR_AttachSharedMemory, pFpi)
 //GO(PR_BlockClockInterrupts, 
 //GO(PR_BlockInterrupt, 
 GO(PR_Calloc, pFuu)
-//GO(PR_CallOnce, 
-//GO(PR_CallOnceWithArg, 
+GOM(PR_CallOnce, iFEpp)
+GOM(PR_CallOnceWithArg, iFEppp)
 //GO(PR_CancelJob, 
 //GO(PR_CancelWaitFileDesc, 
 //GO(PR_CancelWaitGroup, 
@@ -59,7 +59,7 @@ GO(PR_ConvertIPv4AddrToIPv6, vFup)
 //GO(PR_CreateCounter, 
 //GO(PR_CreateFileMap, 
 //GO(PR_CreateIOLayer, 
-//GO(PR_CreateIOLayerStub, 
+GO(PR_CreateIOLayerStub, pFip)
 GO(PR_CreateMWaitEnumerator, pFp)
 //GO(PR_CreateOrderedLock, 
 GO(PR_CreatePipe, iFpp)
@@ -81,8 +81,8 @@ GO(PR_DeleteSharedMemory, iFp)
 //GO(PR_DestroyAlarm, 
 GO(PR_DestroyCondVar, vFp)
 //GO(PR_DestroyCounter, 
-//GO(PR_DestroyLock, 
-//GO(PR_DestroyMonitor, 
+GO(PR_DestroyLock, vFp)
+GO(PR_DestroyMonitor, vFp)
 GO(PR_DestroyMWaitEnumerator, iFp)
 //GO(PR_DestroyOrderedLock, 
 //GO(PR_DestroyPollableEvent, 
@@ -102,7 +102,7 @@ GO(PR_DuplicateEnvironment, pFv)
 GO(PR_EmulateAcceptRead, iFppppiu)
 GO(PR_EmulateSendFile, iFppiu)
 //GO(PR_EnableClockInterrupts, 
-//GO(PR_EnterMonitor, 
+GO(PR_EnterMonitor, vFp)
 GO(PR_EnumerateAddrInfo, pFppWp)
 GO(PR_EnumerateHostEnt, iFipWp)
 //GO(PR_EnumerateThreads, 
@@ -112,7 +112,7 @@ GO(PR_ErrorInstallTable, iFp)
 GO(PR_ErrorLanguages, pFv)
 GO(PR_ErrorToName, pFi)
 GO(PR_ErrorToString, pFiu)
-//GO(PR_ExitMonitor, 
+GO(PR_ExitMonitor, iFp)
 //GO(PR_ExplodeTime, 
 GO(PR_ExportFileMapAsString, iFpLp)
 //GO(PR_FD_CLR, 
@@ -146,7 +146,7 @@ GO(PR_GetCanonNameFromAddrInfo, pFp)
 //GO(PR_GetCounterHandleFromName, 
 //GO(PR_GetCounterNameFromHandle, 
 GO(PR_GetCurrentThread, pFv)
-//GO(PR_GetDefaultIOMethods, 
+GO(PR_GetDefaultIOMethods, pFv)
 //GO(PR_GetDescType, 
 //GO(PR_GetDirectorySeparator, 
 //GO(PR_GetDirectorySepartor, 
@@ -161,7 +161,7 @@ GO(PR_GetFileInfo64, iFpp)
 //GO(PR_GetGCRegisters, 
 GO(PR_GetHostByAddr, iFppip)
 GO(PR_GetHostByName, iFppip)
-//GO(PR_GetIdentitiesLayer, 
+GO(PR_GetIdentitiesLayer, pFpi)
 //GO(PR_GetInheritedFD, 
 //GO(PR_GetInheritedFileMap, 
 GO(PR_GetIPNodeByName, iFpWipip)
@@ -185,7 +185,7 @@ GO(PR_GetPhysicalMemorySize, LFv)
 GO(PR_GetProtoByName, iFppip)
 GO(PR_GetProtoByNumber, iFipip)
 GO(PR_GetRandomNoise, LFpL)
-//GO(PR_GetSocketOption, 
+GO(PR_GetSocketOption, iFpp)
 //GO(PR_GetSockName, 
 //GO(PR_GetSP, 
 //GO(PR_GetSpecialFD, 
@@ -238,7 +238,7 @@ GO(PR_KillProcess, iFp)
 //GO(PR_LoadLibraryWithFlags, 
 //GO(PR_LoadStaticLibrary, 
 //GO(PR_LocalTimeParameters, 
-//GO(PR_Lock, 
+GO(PR_Lock, vFp)
 //GO(PR_LockFile, 
 //GO(PR_LockOrderedLock, 
 //GO(PR_LogFlush, 
@@ -248,7 +248,7 @@ GO(PR_Malloc, pFu)
 //GO(PR_MemMap, pFplu)  // needs wrapping
 //GO(PR_MemUnmap, iFpu) // needs wrapping
 GO(PR_MicrosecondsToInterval, uFu)
-//GO(PR_MillisecondsToInterval, 
+GO(PR_MillisecondsToInterval, uFu)
 //GO(PR_MkDir, 
 GO(PR_NetAddrToString, iFppu)
 GO(PR_NewCondVar, pFp)
@@ -289,7 +289,7 @@ GO(PR_ParseTimeStringToExplodedTime, iFpip)
 //GO(PRP_NakedWait, 
 //GO(PRP_NewNakedCondVar, 
 //GO(PR_Poll, 
-//GO(PR_PopIOLayer, 
+GO(PR_PopIOLayer, pFpi)
 //GO(PR_PostSem, 
 //GO(PR_PostSemaphore, 
 GO(PR_ProcessAttrSetCurrentDirectory, iFpp)
@@ -298,7 +298,7 @@ GO(PR_ProcessAttrSetInheritableFileMap, iFppp)
 //GO(PR_ProcessAttrSetStdioRedirect, 
 //GO(PR_ProcessExit, 
 //GO(PRP_TryLock, 
-//GO(PR_PushIOLayer, 
+GO(PR_PushIOLayer, iFpip)
 //GO(_pr_push_ipv6toipv4_layer, 
 //GO(PR_QueueJob, 
 //GO(PR_QueueJob_Accept, 

@@ -62,14 +62,14 @@
 //GO(NSS_Get_sgn_DigestInfoTemplate_Util, 
 //GO(NSS_InitializePRErrorTable, 
 //GO(NSS_PutEnv_Util, 
-//GO(NSSRWLock_Destroy_Util, 
+GO(NSSRWLock_Destroy_Util, vFp)
 //GO(NSSRWLock_HaveWriteLock_Util, 
-//GO(NSSRWLock_LockRead_Util, 
-//GO(NSSRWLock_LockWrite_Util, 
-//GO(NSSRWLock_New_Util, 
-//GO(NSSRWLock_UnlockRead_Util, 
-//GO(NSSRWLock_UnlockWrite_Util, 
-//GO(NSS_SecureMemcmp, 
+GO(NSSRWLock_LockRead_Util, vFp)
+GO(NSSRWLock_LockWrite_Util, vFp)
+GO(NSSRWLock_New_Util, pFup)
+GO(NSSRWLock_UnlockRead_Util, vFp)
+GO(NSSRWLock_UnlockWrite_Util, vFp)
+GO(NSS_SecureMemcmp, iFppL)
 //GO(NSS_SecureMemcmpZero, 
 GO(NSS_SetAlgorithmPolicy, iFiuu)
 //GO(NSSUTIL_AddNSSFlagToModuleSpec, 
@@ -106,38 +106,38 @@ GO(NSS_SetAlgorithmPolicy, iFiuu)
 //GO(PK11URI_GetPathAttribute, 
 //GO(PK11URI_GetQueryAttribute, 
 //GO(PK11URI_ParseURI, 
-//GO(PORT_Alloc_Util, 
-//GO(PORT_ArenaAlloc_Util, 
+GO(PORT_Alloc_Util, pFL)
+GO(PORT_ArenaAlloc_Util, pFpL)
 //GO(PORT_ArenaGrow_Util, 
-//GO(PORT_ArenaMark_Util, 
-//GO(PORT_ArenaRelease_Util, 
+GO(PORT_ArenaMark_Util, pFp)
+GO(PORT_ArenaRelease_Util, vFpp)
 //GO(PORT_ArenaStrdup_Util, 
-//GO(PORT_ArenaUnmark_Util, 
-//GO(PORT_ArenaZAlloc_Util, 
+GO(PORT_ArenaUnmark_Util, vFpp)
+GO(PORT_ArenaZAlloc_Util, pFpL)
 //GO(PORT_DestroyCheapArena, 
-//GO(PORT_FreeArena_Util, 
-//GO(PORT_Free_Util, 
-//GO(PORT_GetError_Util, 
+GO(PORT_FreeArena_Util, vFpi)
+GO(PORT_Free_Util, vFp)
+GO(PORT_GetError_Util, iFv)
 //GO(PORT_InitCheapArena, 
 //GO(PORT_ISO88591_UTF8Conversion, 
 //GO(PORT_LoadLibraryFromOrigin, 
-//GO(PORT_NewArena_Util, 
-//GO(PORT_Realloc_Util, 
+GO(PORT_NewArena_Util, pFL)
+GO(PORT_Realloc_Util, pFpL)
 //GO(PORT_RegExpCaseSearch, 
 //GO(PORT_RegExpSearch, 
 //GO(PORT_RegExpValid, 
-//GO(PORT_SetError_Util, 
+GO(PORT_SetError_Util, vFi)
 //GO(PORT_SetUCS2_ASCIIConversionFunction_Util, 
 //GO(PORT_SetUCS2_UTF8ConversionFunction_Util, 
 //GO(PORT_SetUCS4_UTF8ConversionFunction_Util, 
-//GO(PORT_Strdup_Util, 
+GO(PORT_Strdup_Util, pFp)
 //GO(PORT_UCS2_ASCIIConversion_Util, 
 //GO(PORT_UCS2_UTF8Conversion_Util, 
 //GO(PORT_UCS4_UTF8Conversion, 
 //GO(PORT_ZAllocAlignedOffset_Util, 
 //GO(PORT_ZAllocAligned_Util, 
-//GO(PORT_ZAlloc_Util, 
-//GO(PORT_ZFree_Util, 
+GO(PORT_ZAlloc_Util, pFL)
+GO(PORT_ZFree_Util, vFpL)
 //DATA(SEC_AnyTemplate_Util, //R-type
 //GO(SEC_ASN1DecodeInteger_Util, 
 //GO(SEC_ASN1DecodeItem_Util, 
@@ -174,14 +174,14 @@ GO(NSS_SetAlgorithmPolicy, iFiuu)
 //DATA(SEC_IA5StringTemplate_Util, //R-type
 //DATA(SEC_IntegerTemplate_Util, //R-type
 //GO(SECITEM_AllocArray, 
-//GO(SECITEM_AllocItem_Util, 
+GO(SECITEM_AllocItem_Util, pFppu)
 //GO(SECITEM_ArenaDupItem_Util, 
-//GO(SECITEM_CompareItem_Util, 
-//GO(SECITEM_CopyItem_Util, 
+GO(SECITEM_CompareItem_Util, iFpp)
+GO(SECITEM_CopyItem_Util, iFppp)
 //GO(SECITEM_DupArray, 
 //GO(SECITEM_DupItem_Util, 
 //GO(SECITEM_FreeArray, 
-//GO(SECITEM_FreeItem_Util, 
+GO(SECITEM_FreeItem_Util, vFpi)
 //GO(SECITEM_Hash, 
 //GO(SECITEM_HashCompare, 
 //GO(SECITEM_ItemsAreEqual_Util, 
@@ -189,7 +189,7 @@ GO(NSS_SetAlgorithmPolicy, iFiuu)
 //GO(SECITEM_ReallocItem, 
 //GO(SECITEM_ReallocItemV2, 
 //GO(SECITEM_ZfreeArray, 
-//GO(SECITEM_ZfreeItem_Util, 
+GO(SECITEM_ZfreeItem_Util, vFpi)
 //DATA(SEC_NullTemplate_Util, //R-type
 //DATA(SEC_ObjectIDTemplate_Util, //R-type
 //DATA(SEC_OctetStringTemplate_Util, //R-type
@@ -199,11 +199,11 @@ GO(NSS_SetAlgorithmPolicy, iFiuu)
 //GO(SECOID_CopyAlgorithmID_Util, 
 //GO(SECOID_DestroyAlgorithmID_Util, 
 //GO(SECOID_FindOIDByMechanism, 
-//GO(SECOID_FindOIDByTag_Util, 
+GO(SECOID_FindOIDByTag_Util, pFi)
 //GO(SECOID_FindOIDTagDescription_Util, 
 //GO(SECOID_FindOIDTag_Util, 
-//GO(SECOID_FindOID_Util, 
-//GO(SECOID_GetAlgorithmTag_Util, 
+GO(SECOID_FindOID_Util, pFp)
+GO(SECOID_GetAlgorithmTag_Util, iFp)
 //GO(SECOID_Init, 
 //GO(SECOID_KnownCertExtenOID, 
 //GO(SECOID_SetAlgorithmID_Util, 

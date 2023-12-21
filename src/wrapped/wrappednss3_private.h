@@ -278,7 +278,7 @@ GO(HASH_GetHashObject, pFu)
 GO(HASH_GetHashObjectByOidTag, pFu)
 GO(HASH_GetHashOidTagByHashType, uFu)
 GO(HASH_GetHashTypeByOidTag, uFu)
-//GO(HASH_GetType, 
+GO(HASH_GetType, iFp)
 GO(HASH_HashBuf, iFuppu)
 GO(HASH_ResultLen, uFu)
 GO(HASH_ResultLenByOidTag, uFu)
@@ -341,7 +341,7 @@ GO(NSS_NoDB_Init, iFp)
 //GO(NSS_OptionGet, 
 //GO(NSS_OptionSet, 
 //GO(NSS_PutEnv, 
-//GO(NSS_RegisterShutdown, 
+GOM(NSS_RegisterShutdown, iFEpp)
 //GO(NSSRWLock_Destroy, 
 GO(NSSRWLock_HaveWriteLock, iFp)
 //GO(NSSRWLock_LockRead, 
@@ -372,7 +372,7 @@ GO(PK11_ConvertSessionPrivKeyToTokenPrivKey, pFpp)
 GO(PK11_ConvertSessionSymKeyToTokenSymKey, pFpp)
 GO(PK11_CopySymKeyForSigning, pFpL)
 GO(PK11_CopyTokenPrivKeyToSessionPrivKey, pFpp)
-//GO(__PK11_CreateContextByRawKey, 
+GO(__PK11_CreateContextByRawKey, pFpiiippp)
 GO(PK11_CreateContextBySymKey, pFLLpp)
 GO(PK11_CreateDigestContext, pFu)
 GO(PK11_CreateGenericObject, pFppii)
@@ -398,7 +398,7 @@ GO(PK11_DestroyMergeLog, vFp)
 GO(PK11_DestroyObject, iFpL)
 GO(PK11_DestroyPBEParams, vFp)
 GO(PK11_DestroyTokenObject, iFpL)
-//GO(PK11_DigestBegin, 
+GO(PK11_DigestBegin, iFp)
 GO(PK11_DigestFinal, iFpppu)
 GO(PK11_DigestKey, iFpp)
 GO(PK11_DigestOp, iFppu)
@@ -487,7 +487,7 @@ GO(PK11_GetPBEIV, pFpp)
 GO(PK11_GetPQGParamsFromPrivateKey, pFp)
 GO(PK11_GetPrevGenericObject, pFp)
 GO(PK11_GetPrivateKeyNickname, pFp)
-//GO(PK11_GetPrivateModulusLen, 
+GO(PK11_GetPrivateModulusLen, iFp)
 GO(PK11_GetPublicKeyNickname, pFp)
 GO(PK11_GetSlotFromKey, pFp)
 GO(PK11_GetSlotFromPrivateKey, pFp)
@@ -495,7 +495,7 @@ GO(PK11_GetSlotID, LFp)
 GO(PK11_GetSlotInfo, iFpp)
 GO(PK11_GetSlotName, pFp)
 GO(PK11_GetSlotPWValues, vFppp)
-//GO(PK11_GetSlotSeries, 
+GO(PK11_GetSlotSeries, iFp)
 GO(PK11_GetSymKeyHandle, LFp)
 GO(PK11_GetSymKeyNickname, pFp)
 GO(PK11_GetSymKeyType, LFp)
@@ -580,12 +580,12 @@ GO(PK11_PQG_VerifyParams, iFppp)
 GO(PK11_PrivDecrypt, iFpLpppupu)
 GO(PK11_PrivDecryptPKCS1, iFpppupu)
 //GO(PK11_ProtectedAuthenticationPath, 
-//GO(PK11_PubDecryptRaw, 
+GO(PK11_PubDecryptRaw, iFpppupu)
 GO(PK11_PubDerive, pFppippLLLip)
 GO(PK11_PubDeriveWithKDF, pFppippLLLiLpp)
 GO(PK11_PubEncrypt, iFpLpppupup)
 GO(PK11_PubEncryptPKCS1, iFpppup)
-//GO(PK11_PubEncryptRaw, 
+GO(PK11_PubEncryptRaw, iFpppup)
 GO(PK11_PubUnwrapSymKey, pFppLLi)
 //GO(PK11_PubUnwrapSymKeyWithFlags, 
 GO(PK11_PubUnwrapSymKeyWithFlagsPerm, pFppLLiLi)
@@ -594,7 +594,7 @@ GO(PK11_RandomUpdate, iFpL)
 GO(PK11_RawPBEKeyGen, pFpLppip)
 GO(PK11_ReadRawAttribute, iFipLp)
 GO(PK11_ReferenceSlot, pFp)
-//GO(PK11_ReferenceSymKey, 
+GO(PK11_ReferenceSymKey, pFp)
 //GO(PK11_ResetToken, 
 GO(PK11_RestoreContext, iFppi)
 GO(PK11_SaveContext, iFpppi)
@@ -753,7 +753,7 @@ GO(SECKEY_NewPrivateKeyList, pFv)
 //DATA(SECKEY_PointerToEncryptedPrivateKeyInfoTemplate, 
 //DATA(SECKEY_PointerToPrivateKeyInfoTemplate, 
 DATA(SECKEY_PrivateKeyInfoTemplate, 192)
-//GO(SECKEY_PublicKeyStrength, 
+GO(SECKEY_PublicKeyStrength, uFp)
 GO(SECKEY_PublicKeyStrengthInBits, uFp)
 GO(SECKEY_RemovePrivateKeyListNode, vFp)
 //DATA(SECKEY_RSAPSSParamsTemplate, 
@@ -845,7 +845,7 @@ GO(SGN_End, iFpp)
 GO(SGN_NewContext, pFup)
 GO(SGN_NewContextWithAlgorithmID, pFpp)
 GO(SGN_Update, iFppu)
-//GO(VFY_Begin, 
+GO(VFY_Begin, iFp)
 GO(VFY_CreateContext, pFppup)
 GO(VFY_CreateContextDirect, pFppuupp)
 GO(VFY_CreateContextWithAlgorithmID, pFppppp)
