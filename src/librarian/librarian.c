@@ -23,7 +23,6 @@ lib_t *NewLibrarian(box64context_t* context, int ownlibs)
     
     maplib->mapoffsets = kh_init(mapoffsets);
     maplib->globaldata = NewMapSymbols();
-    maplib->bridge = NewBridge();
 
     maplib->ownlibs = ownlibs;
 
@@ -53,9 +52,6 @@ void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
     }
     FreeMapSymbols(&(*maplib)->globaldata);
     (*maplib)->libsz = (*maplib)->libcap = 0;
-
-    if((*maplib)->bridge)
-        FreeBridge(&(*maplib)->bridge);
 
     box_free(*maplib);
     *maplib = NULL;
