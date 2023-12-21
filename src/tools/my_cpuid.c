@@ -83,8 +83,8 @@ int getNCpu()
 {
     if(!nCPU)
         grabNCpu();
-    if(box64_wine && nCPU>64)
-        return 64;
+    if(box64_maxcpu && nCPU>box64_maxcpu)
+        return box64_maxcpu;
     return nCPU;
 }
 

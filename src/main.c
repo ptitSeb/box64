@@ -49,6 +49,7 @@ int box64_nosandbox = 0;
 int box64_inprocessgpu = 0;
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
+int box64_maxcpu = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -970,6 +971,19 @@ void LoadLogEnv()
         }
         if(box64_showbt)
             printf_log(LOG_INFO, "Show a Backtrace when a Segfault signal is caught\n");
+    }
+    p = getenv("BOX64_MAXCPU");
+    if(p) {
+        int maxcpu = 0;
+        if(sscanf(p, "%d", &maxcpu)==1)
+                box64_maxcpu = maxcpu;
+        if(box64_maxcpu<0)
+            box64_maxcpu = 0;
+        if(box64_maxcpu) {
+            printf_log(LOG_NONE, "Will not expose more than %d cpu cores\n", box64_maxcpu);
+        } else {
+            printf_log(LOG_NONE, "Will not limit the number of cpu cores exposed\n");
+        }
     }
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)

@@ -1723,6 +1723,15 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
+    if(box64_maxcpu && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (getNCpu()>=box64_maxcpu)) {
+        // special case for cpu present (to limit to 64 cores)
+        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open64(pathname, mode); // error fallback
+        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUPresentFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
     #endif
     return open64(pathname, flags, mode);
 }
@@ -1748,7 +1757,7 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
     }
-    if(box64_wine && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=64)) {
+    if(box64_maxcpu && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (getNCpu()>=box64_maxcpu)) {
         // special case for cpu present (to limit to 64 cores)
         int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen64(path, mode); // error fallback
@@ -2262,8 +2271,6 @@ EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj,
     (void)emu;
     //printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
     AddCleanup1Arg(emu, dtor, obj, dso);
-    return 0;
-
     return 0;
 }
 

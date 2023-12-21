@@ -10,6 +10,7 @@ extern int box64_dynarec;
 extern uintptr_t box64_pagesize;
 extern uintptr_t box64_load_addr;
 extern int box64_dynarec_test;
+extern int box64_maxcpu;
 #ifdef DYNAREC
 extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;

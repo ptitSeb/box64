@@ -231,6 +231,11 @@ Handling of x87 80bits long double
 * 0 : Try to handle 80bits long double as precise as possible (Default)
 * 1 : Handle them as double
 
+#### BOX64_MAXCPU
+Maximum CPU Core exposed
+* 0 : Don't cap the number of cpu core exposed (Default)
+* XXX : Cap the maximum CPU Core exposed to XXX (usefull with wine64 or GridAutosport for example)
+
 #### BOX64_SYNC_ROUNDING *
 Box64 will sync rounding mode with fesetround/fegetround.
 * 0 : Disable rounding mode syncing. (Default.)

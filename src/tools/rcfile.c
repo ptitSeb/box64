@@ -109,6 +109,7 @@ ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
 ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
+ENTRYINTPOS(BOX64_MAXCPU, box64_maxcpu)                 \
 ENTRYSTRING_(BOX64_ENV, new_env)                        \
 
 #ifdef HAVE_TRACE
