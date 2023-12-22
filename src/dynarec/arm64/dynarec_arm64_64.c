@@ -289,6 +289,16 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             WBACKO(x4);
             break;
 
+        case 0x23:
+            INST_NAME("AND Gd, Seg:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_and32(dyn, ninst, rex, gd, ed, x3, x5);
+            break;
+
         case 0x29:
             INST_NAME("SUB Seg:Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
