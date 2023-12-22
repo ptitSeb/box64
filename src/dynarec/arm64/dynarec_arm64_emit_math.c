@@ -362,7 +362,7 @@ void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    IFX(X_AF|X_OF) {
+    IFX(X_AF|X_OF|X_CF) {
         MVNw_REG(s3, s1);
         ORRw_REG(s3, s3, s2);    // s3 = ~op1 | op2
         BICw_REG(s4, s2, s1);    // s4 = ~op1 & op2
@@ -372,12 +372,13 @@ void emit_sub8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_CF) {
-        BFXILw(xFlags, s1, 8, 1);
-    }
-    IFX(X_AF|X_OF) {
+    IFX(X_AF|X_OF|X_CF) {
         ANDw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRw_REG(s3, s3, s4);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
+        IFX(X_CF) {
+            LSRw(s4, s3, 7);
+            BFIw(xFlags, s4, F_CF, 1);    // CF : bc & 0x80
+        }
         IFX(X_AF) {
             LSRw(s4, s3, 3);
             BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
@@ -408,7 +409,7 @@ void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     } else IFX(X_ALL) {
         SET_DFNONE(s3);
     }
-    IFX(X_AF|X_OF) {
+    IFX(X_AF|X_OF|X_CF) {
         MVNw_REG(s3, s1);
         ORRw_REG(s3, s3, s5);    // s3 = ~op1 | op2
         BICw_REG(s4, s5, s1);    // s4 = ~op1 & op2
@@ -421,10 +422,7 @@ void emit_sub8c(dynarec_arm_t* dyn, int ninst, int s1, int c, int s3, int s4, in
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_CF) {
-        BFXILw(xFlags, s1, 8, 1);
-    }
-    IFX(X_AF|X_OF) {
+    IFX(X_AF|X_OF|X_CF) {
         ANDw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRw_REG(s3, s3, s4);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
         IFX(X_CF) {
@@ -576,12 +574,13 @@ void emit_sub16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     IFX(X_PEND) {
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_CF) {
-        BFXILw(xFlags, s1, 16, 1);
-    }
-    IFX(X_AF|X_OF) {
+    IFX(X_AF|X_OF|X_CF) {
         ANDw_REG(s3, s3, s1);   // s3 = (~op1 | op2) & res
         ORRw_REG(s3, s3, s4);   // s3 = (~op1 & op2) | ((~op1 | op2) & res)
+        IFX(X_CF) {
+            LSRw(s4, s3, 15);
+            BFIw(xFlags, s4, F_CF, 1);    // CF : bc & 0x8000
+        }
         IFX(X_AF) {
             LSRw(s4, s3, 3);
             BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
