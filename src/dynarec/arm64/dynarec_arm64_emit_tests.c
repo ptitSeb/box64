@@ -116,17 +116,16 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     COMP_ZFSF(s5, 16)
+    IFX(X_CF) {
+        BFXILw(xFlags, s5, 16, 1);
+    }
     // bc = (res & (~d | s)) | (~d & s)
-    IFX(X_CF|X_AF|X_OF) {
+    IFX(X_AF|X_OF) {
         MVNw_REG(s4, s1);        // s4 = ~d
         ORRw_REG(s4, s4, s2);    // s4 = ~d | s
         ANDw_REG(s4, s4, s5);    // s4 = res & (~d | s)
         BICw_REG(s3, s2, s1);    // s3 = s & ~d
         ORRw_REG(s3, s4, s3);    // s3 = (res & (~d | s)) | (s & ~d)
-        IFX(X_CF) {
-            LSRw(s4, s3, 15);
-            BFIw(xFlags, s4, F_CF, 1);    // CF : bc & 0x8000
-        }
         IFX(X_AF) {
             LSRw(s4, s3, 3);
             BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
@@ -180,16 +179,15 @@ void emit_cmp8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, in
         STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     COMP_ZFSF(s5, 8)
+    IFX(X_CF) {
+        BFXILw(xFlags, s5, 8, 1);
+    }
     // bc = (res & (~d | s)) | (~d & s)
-    IFX(X_CF|X_AF|X_OF) {
+    IFX(X_AF|X_OF) {
         ORNw_REG(s4, s2, s1);   // s4 = ~d | s
         ANDw_REG(s4, s4, s5);   // s4 = res & (~d | s)
         BICw_REG(s3, s2, s1);   // s3 = s & ~d
         ORRw_REG(s3, s4, s3);   // s3 = (res & (~d | s)) | (s & ~d)
-        IFX(X_CF) {
-            LSRw(s4, s3, 7);
-            BFIw(xFlags, s4, F_CF, 1);    // CF : bc & 0x80
-        }
         IFX(X_AF) {
             LSRw(s4, s3, 3);
             BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
