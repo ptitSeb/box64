@@ -173,6 +173,14 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FSD(v1, wback, fixedaddress);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
+                case 6:
+                    INST_NAME("FSAVE m108byte");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
+                    if (ed != x1) { MV(x1, ed); }
+                    CALL(native_fsave, -1);
+                    break;
                 case 7:
                     INST_NAME("FNSTSW m2byte");
                     fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
