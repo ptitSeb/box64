@@ -1637,11 +1637,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
                     switch (u8 & 7) {
                         case 1:
-                            BEQ_MARK(x3, xZR);
+                            BEQ(x3, xZR, 8); // MARK2
                             FLTS(x3, d0, d1);
                             break; // Less than
                         case 2:
-                            BEQ_MARK(x3, xZR);
+                            BEQ(x3, xZR, 8); // MARK2
                             FLES(x3, d0, d1);
                             break;                      // Less or equal
                         case 3: XORI(x3, x3, 1); break; // NaN
