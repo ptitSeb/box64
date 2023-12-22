@@ -1711,7 +1711,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCC:
         case 0xCD:
         case 0xCE:
-        case 0xCF: /* BSWAP reg */
+        case 0xCF:
             INST_NAME("BSWAP Reg");
             gd = xRAX + (opcode & 7) + (rex.b << 3);
             REV8xw(gd, gd, x1, x2, x3, x4);

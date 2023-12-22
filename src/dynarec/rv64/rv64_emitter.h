@@ -825,7 +825,10 @@ f28–31  ft8–11  FP temporaries                  Caller
             AND(s3, s3, s2);           \
             OR(rd, s1, s3);            \
         }                              \
-    }
+    }                                  \
+    if (!rex.w)                        \
+        AND(rd, rd, xMASK);
+
 
 // Zbc
 //  Carry-less multily (low-part)
