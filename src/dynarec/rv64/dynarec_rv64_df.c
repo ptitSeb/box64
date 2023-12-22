@@ -131,7 +131,11 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(!box64_dynarec_fastround) {
                         FSFLAGSI(0); // reset all bits
                     }
-                    FCVTWD(x4, v1, RD_RTZ);
+                    if (ST_IS_F(0)) {
+                        FCVTWS(x4, v1, RD_RTZ);
+                    } else {
+                        FCVTWD(x4, v1, RD_RTZ);
+                    }
                     if(!box64_dynarec_fastround) {
                         FRFLAGS(x5);   // get back FPSR to check the IOC bit
                         ANDI(x5, x5, 1<<FR_NV);
@@ -154,7 +158,11 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(!box64_dynarec_fastround) {
                         FSFLAGSI(0); // reset all bits
                     }
-                    FCVTWD(x4, v1, RD_DYN);
+                    if (ST_IS_F(0)) {
+                        FCVTWS(x4, v1, RD_DYN);
+                    } else {
+                        FCVTWD(x4, v1, RD_DYN);
+                    }
                     x87_restoreround(dyn, ninst, u8);
                     if(!box64_dynarec_fastround) {
                         FRFLAGS(x5);   // get back FPSR to check the IOC bit
