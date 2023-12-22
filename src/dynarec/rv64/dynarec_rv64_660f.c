@@ -522,7 +522,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(x4, gback, gdoffset + i * 4);
                     }
                     break;
-
+                case 0x28:
+                    INST_NAME("PMULDQ Gx, Ex");
+                    nextop = F8;
+                    GETEX(x2, 0);
+                    GETGX();
+                    for (int i = 1; i >= 0; --i) {
+                        LW(x3, wback, fixedaddress + i * 8);
+                        LW(x4, gback, gdoffset + i * 8);
+                        MUL(x3, x3, x4);
+                        SD(x3, gback, gdoffset + i * 8);
+                    }
+                    break;
                 case 0x2B:
                     INST_NAME("PACKUSDW Gx, Ex");
                     nextop = F8;
