@@ -1895,6 +1895,8 @@ int main(int argc, const char **argv, char **env) {
             printf_log(LOG_NONE, "Error setting process name (%s)\n", strerror(errno));
         else
             printf_log(LOG_INFO, "Rename process to \"%s\"\n", p);
+        if(strcmp(prgname, p))
+            ApplyParams(p);
         // and now all change the argv (so libs libs mesa find the correct program names)
         char* endp = (char*)argv[argc-1];
         while(*endp)
