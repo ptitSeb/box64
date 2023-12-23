@@ -109,7 +109,7 @@ ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
 ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
-ENTRYINTPOS(BOX64_MAXCPU, box64_maxcpu)                 \
+ENTRYINTPOS(BOX64_MAXCPU, new_maxcpu)                   \
 ENTRYSTRING_(BOX64_ENV, new_env)                        \
 
 #ifdef HAVE_TRACE
@@ -470,6 +470,7 @@ void ApplyParams(const char* name)
         return;
     static char old_name[256] = "";
     int new_cycle_log = cycle_log;
+    int new_maxcpu = box64_maxcpu;
     if(!strcmp(name, old_name)) {
         return;
     }
@@ -517,6 +518,10 @@ void ApplyParams(const char* name)
         cycle_log = new_cycle_log;
         initCycleLog(my_context);
     }
+    if(new_maxcpu!=box64_maxcpu && box64_maxcpu && box64_maxcpu<new_maxcpu) {
+      printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because a lesser value is already active: %d\n", new_maxcpu, box64_maxcpu);
+    } else
+        box64_maxcpu = new_maxcpu;
     if(param->is_ld_library_path_present) AppendList(&my_context->box64_ld_lib, param->ld_library_path, 1);
     if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
     if(param->is_trace_file_present) {
