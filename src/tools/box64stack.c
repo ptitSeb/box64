@@ -77,7 +77,7 @@ void SetupInitialStack(x64emu_t *emu)
     uintptr_t p_random = real_getauxval(25);
     if(!p_random) {
         for (int i=0; i<4; ++i)
-            Push64(emu, random());
+            Push32(emu, random());
         p_random = R_RSP;
     }
     // align
