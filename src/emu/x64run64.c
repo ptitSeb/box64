@@ -515,6 +515,32 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             }
             break;
 
+        case 0x86:                      /* XCHG Eb,Gb */
+            nextop = F8;
+#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+            GETEB_OFFS(0, tlsdata);
+            GETGB;
+            if(MODREG) { // reg / reg: no lock
+                tmp8u = GB;
+                GB = EB->byte[0];
+                EB->byte[0] = tmp8u;
+            } else {
+                GB = native_lock_xchg_b(EB, GB);
+            }
+            // dynarec use need it's own mecanism
+#else
+            GETEB_OFFS(0, tlsdata);
+            GETGB;
+            if(!MODREG)
+                pthread_mutex_lock(&my_context->mutex_lock); // XCHG always LOCK (but when accessing memory only)
+            tmp8u = GB;
+            GB = EB->byte[0];
+            EB->byte[0] = tmp8u;
+            if(!MODREG)
+                pthread_mutex_unlock(&my_context->mutex_lock);
+#endif                
+            break;
+
         case 0x88:                      /* MOV FS:Eb,Gb */
             nextop = F8;
             GETEB_OFFS(0, tlsdata);
