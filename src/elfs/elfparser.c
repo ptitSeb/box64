@@ -438,7 +438,6 @@ int GetNeededVersionCnt(elfheader_t* h, const char* libname)
         Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
         while(ver) {
             char *filename = h->DynStr + ver->vn_file;
-            Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
             if(!strcmp(filename, libname))
                 return ver->vn_cnt;
             ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
