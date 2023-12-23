@@ -64,6 +64,13 @@
 #include "bridge.h"
 #include "globalsymbols.h"
 #include "rcfile.h"
+#ifndef LOG_INFO
+#define LOG_INFO 1
+#endif
+#ifndef LOG_DEBUG
+#define LOG_DEBUG 2
+#endif
+
 
 #define LIBNAME libc
 const char* libcName = 
@@ -2586,6 +2593,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     #ifndef NOALIGN
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || (box64_wine && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
+        int olderr = errno;
         printf_log(LOG_DEBUG, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
@@ -2594,8 +2602,11 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         if(new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE)==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = mmap64(addr, length, prot, new_flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
+        if(old_addr && ret!=old_addr)
+            errno = olderr;
     } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && (box64_wine) && (old_addr) && (addr!=ret) &&
              (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
+        int olderr = errno;
         printf_log(LOG_DEBUG, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
@@ -2604,6 +2615,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         if(new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE)==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = mmap64(addr, length, prot, new_flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
+        if(old_addr && ret!=old_addr)
+            errno = olderr;
     }
     #endif
     if((ret!=MAP_FAILED) && (flags&MAP_FIXED_NOREPLACE) && (ret!=addr)) {
