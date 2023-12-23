@@ -168,6 +168,17 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSS_empty(v1);
             FSQRTS(v1, v0);
             break;
+        case 0x52:
+            INST_NAME("RSQRTSS Gx, Ex");
+            nextop = F8;
+            GETEXSS(v0, 0);
+            GETGXSS_empty(v1);
+            q0 = fpu_get_scratch(dyn);
+            LUI(x3, 0x3F800); // 1.0f
+            FMVWX(q0, x3);
+            FSQRTS(v1, v0);
+            FDIVS(v1, q0, v1);
+            break;
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
             nextop = F8;
