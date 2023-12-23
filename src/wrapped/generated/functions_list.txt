@@ -3900,6 +3900,7 @@ wrappedicui18n72:
 wrappedicuuc66:
 wrappedicuuc67:
 wrappedicuuc72:
+wrappedidn2:
 wrappedkrb5:
 - iFppppppipp:
   - krb5_get_init_creds_password

@@ -238,6 +238,7 @@ GO("libicuuc.so.67", icuuc67)
 GO("libicui18n.so.67", icui18n67)
 GO("libicuuc.so.72", icuuc72)
 GO("libicui18n.so.72", icui18n72)
+GO("libidn2.so.0", idn2)
 
 #ifdef ANDROID
 GO("libc.so", libc)
