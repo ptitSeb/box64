@@ -89,12 +89,27 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
             // GX->ud[1] = GX->ud[0] = EX->ud[0];
             // GX->ud[3] = GX->ud[2] = EX->ud[2];
-            LD(x3, wback, fixedaddress + 0);
-            SD(x3, gback, gdoffset + 0);
-            SD(x3, gback, gdoffset + 4);
-            LD(x3, wback, fixedaddress + 8);
-            SD(x3, gback, gdoffset + 8);
-            SD(x3, gback, gdoffset + 12);
+            LW(x3, wback, fixedaddress + 0);
+            SW(x3, gback, gdoffset + 0);
+            SW(x3, gback, gdoffset + 4);
+            LW(x3, wback, fixedaddress + 8);
+            SW(x3, gback, gdoffset + 8);
+            SW(x3, gback, gdoffset + 12);
+            break;
+        case 0x16:
+            INST_NAME("MOVSHDUP Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0);
+
+            // GX->ud[1] = GX->ud[0] = EX->ud[1];
+            // GX->ud[3] = GX->ud[2] = EX->ud[3];
+            LW(x3, wback, fixedaddress + 4);
+            SW(x3, gback, gdoffset + 0);
+            SW(x3, gback, gdoffset + 4);
+            LW(x3, wback, fixedaddress + 12);
+            SW(x3, gback, gdoffset + 8);
+            SW(x3, gback, gdoffset + 12);
             break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
@@ -167,6 +182,17 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSS(v0, 0);
             GETGXSS_empty(v1);
             FSQRTS(v1, v0);
+            break;
+        case 0x52:
+            INST_NAME("RSQRTSS Gx, Ex");
+            nextop = F8;
+            GETEXSS(v0, 0);
+            GETGXSS_empty(v1);
+            q0 = fpu_get_scratch(dyn);
+            LUI(x3, 0x3F800); // 1.0f
+            FMVWX(q0, x3);
+            FSQRTS(v1, v0);
+            FDIVS(v1, q0, v1);
             break;
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
