@@ -17,6 +17,7 @@
 #include "dynarec_native.h"
 #include "my_cpuid.h"
 #include "emu/x87emu_private.h"
+#include "emu/x64shaext.h"
 #include "bitutils.h"
 
 #include "rv64_printer.h"
@@ -387,6 +388,65 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // SSE3
             nextop = F8;
             switch (nextop) {
+                case 0xC8 ... 0xCD:
+                    u8 = nextop;
+                    switch (u8) {
+                        case 0xC8:
+                            INST_NAME("SHA1NEXTE Gx, Ex");
+                            break;
+                        case 0xC9:
+                            INST_NAME("SHA1MSG1 Gx, Ex");
+                            break;
+                        case 0xCA:
+                            INST_NAME("SHA1MSG2 Gx, Ex");
+                            break;
+                        case 0xCB:
+                            INST_NAME("SHA256RNDS2 Gx, Ex");
+                            break;
+                        case 0xCC:
+                            INST_NAME("SHA256MSG1 Gx, Ex");
+                            break;
+                        case 0xCD:
+                            INST_NAME("SHA256MSG2 Gx, Ex");
+                            break;
+                    }
+                    nextop = F8;
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDI(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x2) {
+                            MV(x2, ed);
+                        }
+                    }
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    ADDI(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    sse_reflect_reg(dyn, ninst, 0);
+                    switch (u8) {
+                        case 0xC8:
+                            CALL(sha1nexte, -1);
+                            break;
+                        case 0xC9:
+                            CALL(sha1msg1, -1);
+                            break;
+                        case 0xCA:
+                            CALL(sha1msg2, -1);
+                            break;
+                        case 0xCB:
+                            CALL(sha256rnds2, -1);
+                            break;
+                        case 0xCC:
+                            CALL(sha256msg1, -1);
+                            break;
+                        case 0xCD:
+                            CALL(sha256msg2, -1);
+                            break;
+                    }
+                    break;
                 case 0xF0:
                     INST_NAME("MOVBE Gd, Ed");
                     nextop = F8;

@@ -1177,6 +1177,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_get_reg_empty     STEPNAME(sse_get_reg_empty)
 #define sse_forget_reg        STEPNAME(sse_forget_reg)
 #define sse_purge07cache      STEPNAME(sse_purge07cache)
+#define sse_reflect_reg       STEPNAME(sse_reflect_reg)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
@@ -1377,6 +1378,8 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
 // purge the XMM0..XMM7 cache (before function call)
 void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
+// Push current value to the cache
+void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int a);
 
 // common coproc helpers
 // reset the cache
