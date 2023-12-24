@@ -38,8 +38,8 @@
 //GO(xcb_sync_create_alarm_value_list_serialize, 
 //GO(xcb_sync_create_alarm_value_list_sizeof, 
 //GO(xcb_sync_create_alarm_value_list_unpack, 
-GO(xcb_sync_create_counter, pFpppU)
-GO(xcb_sync_create_counter_checked, pFpppU)
+GO(xcb_sync_create_counter, uFpuU)
+GO(xcb_sync_create_counter_checked, uFpuU)
 //GO(xcb_sync_create_fence, 
 //GO(xcb_sync_create_fence_checked, 
 //GO(xcb_sync_destroy_alarm, 

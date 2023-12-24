@@ -9,7 +9,7 @@
 //GO(xcb_render_util_composite_text_stream, 
 //GO(xcb_render_util_disconnect, 
 //GO(xcb_render_util_find_format, 
-GO(xcb_render_util_find_standard_format, pFpi)
+GO(xcb_render_util_find_standard_format, uFpi)
 GO(xcb_render_util_find_visual_format, pFpp)
 //GO(xcb_render_util_glyphs_16, 
 //GO(xcb_render_util_glyphs_32, 

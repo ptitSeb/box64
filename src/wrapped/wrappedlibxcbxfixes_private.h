@@ -80,17 +80,17 @@ DATA(xcb_xfixes_id, 8)
 //GO(xcb_xfixes_intersect_region_checked, 
 //GO(xcb_xfixes_invert_region, 
 //GO(xcb_xfixes_invert_region_checked, 
-GO(xcb_xfixes_query_version, pFpuu)
+GO(xcb_xfixes_query_version, uFpuu)
 GO(xcb_xfixes_query_version_reply, pFpup)
-GO(xcb_xfixes_query_version_unchecked, pFpuu)
+GO(xcb_xfixes_query_version_unchecked, uFpuu)
 //GO(xcb_xfixes_region_end, 
 //GO(xcb_xfixes_region_extents, 
 //GO(xcb_xfixes_region_extents_checked, 
 //GO(xcb_xfixes_region_next, 
 //GO(xcb_xfixes_select_cursor_input, 
 //GO(xcb_xfixes_select_cursor_input_checked, 
-GO(xcb_xfixes_select_selection_input, pFppppu)
-GO(xcb_xfixes_select_selection_input_checked, pFppppu)
+GO(xcb_xfixes_select_selection_input, uFpuuu)
+GO(xcb_xfixes_select_selection_input_checked, uFpuuu)
 GO(xcb_xfixes_set_cursor_name, pFppWp)
 GO(xcb_xfixes_set_cursor_name_checked, pFppWp)
 GO(xcb_xfixes_set_cursor_name_name, pFp)

@@ -19,10 +19,10 @@
 //GO(xcb_icccm_get_wm_colormap_windows_reply, 
 //GO(xcb_icccm_get_wm_colormap_windows_reply_wipe, 
 //GO(xcb_icccm_get_wm_colormap_windows_unchecked, 
-//GO(xcb_icccm_get_wm_hints, 
+GO(xcb_icccm_get_wm_hints, uFpu)
 //GO(xcb_icccm_get_wm_hints_from_reply, 
 GO(xcb_icccm_get_wm_hints_reply, CFpupp)
-GO(xcb_icccm_get_wm_hints_unchecked, pFppu)
+GO(xcb_icccm_get_wm_hints_unchecked, uFpu)
 //GO(xcb_icccm_get_wm_icon_name, 
 //GO(xcb_icccm_get_wm_icon_name_reply, 
 //GO(xcb_icccm_get_wm_icon_name_unchecked, 
@@ -51,14 +51,14 @@ GO(xcb_icccm_get_wm_hints_unchecked, pFppu)
 //GO(xcb_icccm_set_wm_client_machine_checked, 
 //GO(xcb_icccm_set_wm_colormap_windows, 
 //GO(xcb_icccm_set_wm_colormap_windows_checked, 
-GO(xcb_icccm_set_wm_hints, pFppup)
-GO(xcb_icccm_set_wm_hints_checked, pFppup)
+GO(xcb_icccm_set_wm_hints, uFpup)
+GO(xcb_icccm_set_wm_hints_checked, uFpup)
 //GO(xcb_icccm_set_wm_icon_name, 
 //GO(xcb_icccm_set_wm_icon_name_checked, 
 //GO(xcb_icccm_set_wm_name, 
 //GO(xcb_icccm_set_wm_name_checked, 
-GO(xcb_icccm_set_wm_normal_hints, pFppup)
-GO(xcb_icccm_set_wm_normal_hints_checked, pFppup)
+GO(xcb_icccm_set_wm_normal_hints, uFpup)
+GO(xcb_icccm_set_wm_normal_hints_checked, uFpup)
 //GO(xcb_icccm_set_wm_protocols, 
 //GO(xcb_icccm_set_wm_protocols_checked, 
 //GO(xcb_icccm_set_wm_size_hints, 

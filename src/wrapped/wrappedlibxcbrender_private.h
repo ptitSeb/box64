@@ -68,8 +68,8 @@ GO(xcb_render_composite, pFppCpppwwwwwwWW)
 //GO(xcb_render_create_conical_gradient_stops, 
 //GO(xcb_render_create_conical_gradient_stops_end, 
 //GO(xcb_render_create_conical_gradient_stops_length, 
-GO(xcb_render_create_cursor, pFppppWW)
-GO(xcb_render_create_cursor_checked, pFppppWW)
+GO(xcb_render_create_cursor, uFpuuWW)
+GO(xcb_render_create_cursor_checked, uFpuuWW)
 //GO(xcb_render_create_glyph_set, 
 //GO(xcb_render_create_glyph_set_checked, 
 //GO(xcb_render_create_linear_gradient, 
@@ -81,10 +81,10 @@ GO(xcb_render_create_cursor_checked, pFppppWW)
 //GO(xcb_render_create_linear_gradient_stops, 
 //GO(xcb_render_create_linear_gradient_stops_end, 
 //GO(xcb_render_create_linear_gradient_stops_length, 
-GO(xcb_render_create_picture, pFpppiup)
+GO(xcb_render_create_picture, uFpuuiup)
 //GO(xcb_render_create_picture_aux, 
 //GO(xcb_render_create_picture_aux_checked, 
-GO(xcb_render_create_picture_checked, pFpppiup)
+GO(xcb_render_create_picture_checked, uFpuuiup)
 //GO(xcb_render_create_picture_sizeof, 
 //GO(xcb_render_create_picture_value_list, 
 //GO(xcb_render_create_picture_value_list_serialize, 
@@ -119,8 +119,8 @@ GO(xcb_render_create_picture_checked, pFpppiup)
 //GO(xcb_render_free_glyphs_glyphs_end, 
 //GO(xcb_render_free_glyphs_glyphs_length, 
 //GO(xcb_render_free_glyphs_sizeof, 
-GO(xcb_render_free_picture, pFppp)
-//GO(xcb_render_free_picture_checked, 
+GO(xcb_render_free_picture, uFpu)
+GO(xcb_render_free_picture_checked, fFpu)
 //GO(xcb_render_glyph_end, 
 //GO(xcb_render_glyphinfo_end, 
 //GO(xcb_render_glyphinfo_next, 
@@ -162,7 +162,7 @@ DATA(xcb_render_id, 2*sizeof(void*))
 //GO(xcb_render_query_filters_reply, 
 //GO(xcb_render_query_filters_sizeof, 
 //GO(xcb_render_query_filters_unchecked, 
-GO(xcb_render_query_pict_formats, pFpp)
+GO(xcb_render_query_pict_formats, uFpu)
 //GO(xcb_render_query_pict_formats_formats, 
 //GO(xcb_render_query_pict_formats_formats_iterator, 
 //GO(xcb_render_query_pict_formats_formats_length, 
@@ -181,9 +181,9 @@ GO(xcb_render_query_pict_formats_reply, pFpup)
 //GO(xcb_render_query_pict_index_values_values, 
 //GO(xcb_render_query_pict_index_values_values_iterator, 
 //GO(xcb_render_query_pict_index_values_values_length, 
-GO(xcb_render_query_version, pFppuu)
+GO(xcb_render_query_version, uFpuu)
 GO(xcb_render_query_version_reply, pFpup)
-GO(xcb_render_query_version_unchecked, pFppuu)
+GO(xcb_render_query_version_unchecked, uFpuu)
 //GO(xcb_render_reference_glyph_set, 
 //GO(xcb_render_reference_glyph_set_checked, 
 //GO(xcb_render_set_picture_clip_rectangles, 
