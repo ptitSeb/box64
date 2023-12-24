@@ -340,9 +340,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MOV64x(x2, offsetof(box64context_t, signals[SIGTRAP]));
                 ADD(x2, x2, x1);
                 LD(x3, x2, 0);
-                CBNZ_NEXT(x3);
-                MOV64x(x1, SIGTRAP);
-                CALL_(raise, -1, 0);
+                CBZ_NEXT(x3);
+                GETIP(ip);
+                STORE_XEMU_CALL(x3);
+                CALL(native_int3, -1);
+                LOAD_XEMU_CALL();
                 break;
                 #else
                 DEFAULT;
@@ -351,10 +353,15 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xCD:
             u8 = F8;
-            if (box64_wine && u8 == 0x2D) {
-                INST_NAME("INT 2D");
+            if (box64_wine && (u8==0x2D || u8==0x2C || u8==0x29)) {
+                INST_NAME("INT 29/2c/2d");
                 // lets do nothing
-                MESSAGE(LOG_INFO, "INT 2D Windows anti-debug hack\n");
+                MESSAGE(LOG_INFO, "INT 29/2c/2d Windows interruption\n");
+                GETIP(ip);
+                STORE_XEMU_CALL(x3);
+                MOV32w(x1, u8);
+                CALL(native_int, -1);
+                LOAD_XEMU_CALL();
             } else if (u8 == 0x80) {
                 INST_NAME("32bits SYSCALL");
                 NOTEST(x1);
