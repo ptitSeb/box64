@@ -41,7 +41,8 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     switch(nextop) {
         case 0xC0 ... 0xC7:
             INST_NAME("FFREEP STx");
-            DEFAULT;
+            // not handling Tag...
+            X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
         case 0xE0:
