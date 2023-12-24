@@ -887,13 +887,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
+                    UFLAG_IF {MOV32w(x2, (u8&15));}
                     UFLAG_OP12(ed, x2)
                     if(MODREG) {
-                        SLLI(ed, ed, 48+(u8&0x1f));
+                        SLLI(ed, ed, 48+(u8&15));
                         SRLI(ed, ed, 48);
                     } else {
-                        SLLI(ed, ed, u8&0x1f);
+                        SLLI(ed, ed, u8&15);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -905,9 +905,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
+                    UFLAG_IF {MOV32w(x2, (u8&15));}
                     UFLAG_OP12(ed, x2)
-                    SRLI(ed, ed, u8&0x1f);
+                    SRLI(ed, ed, u8&15);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr16);
@@ -918,9 +918,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     GETSEW(x1, 1);
                     u8 = F8;
-                    UFLAG_IF {MOV32w(x2, (u8&0x1f));}
+                    UFLAG_IF {MOV32w(x2, (u8&15));}
                     UFLAG_OP12(ed, x2)
-                    SRAI(ed, ed, u8&0x1f);
+                    SRAI(ed, ed, u8&15);
                     if(MODREG) {
                         ZEXTH(ed, ed);
                     }
