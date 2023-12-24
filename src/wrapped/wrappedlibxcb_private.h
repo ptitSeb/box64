@@ -76,8 +76,8 @@ GO(xcb_change_keyboard_control, pFpup)
 //GO(xcb_change_keyboard_mapping_sizeof, 
 //GO(xcb_change_pointer_control, 
 //GO(xcb_change_pointer_control_checked, 
-GO(xcb_change_property, pFpCuuuCup)
-GO(xcb_change_property_checked, pFpCuuuCup)
+GO(xcb_change_property, pFppCuuuCup)
+GO(xcb_change_property_checked, pFppCuuuCup)
 //GO(xcb_change_property_data, 
 //GO(xcb_change_property_data_end, 
 //GO(xcb_change_property_data_length, 

@@ -5,7 +5,7 @@
 GO(copy_bitmask_to_bitmask, vFpp)
 GO(copy_bitmask_to_nodemask, vFpp)
 GO(copy_nodemask_to_bitmask, vFpp)
-//GOW(get_mempolicy, 
+GOW(get_mempolicy, lFppLpL)
 GOW(mbind, iFpLipLu)
 //GOW(migrate_pages, 
 //GOW(move_pages, 
