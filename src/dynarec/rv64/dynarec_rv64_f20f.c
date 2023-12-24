@@ -34,6 +34,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     int v0, v1;
     int q0;
     int d0, d1;
+    int s0, s1;
     int64_t fixedaddress, gdoffset;
     int unscaled;
 
@@ -270,6 +271,42 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (!(MODREG && (gd==ed))) {
                 LD(x3, wback, fixedaddress+8);
                 SD(x3, gback, gdoffset+8);
+            }
+            break;
+        case 0x7C:
+            INST_NAME("HADDPS Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            // GX->f[0] += GX->f[1];
+            FLW(s0, gback, gdoffset + 0);
+            FLW(s1, gback, gdoffset + 4);
+            FADDS(s0, s0, s1);
+            FSW(s0, gback, gdoffset + 0);
+            // GX->f[1] = GX->f[2] + GX->f[3];
+            FLW(s0, gback, gdoffset + 8);
+            FLW(s1, gback, gdoffset + 12);
+            FADDS(s0, s0, s1);
+            FSW(s0, gback, gdoffset + 4);
+            if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
+                // GX->f[2] = GX->f[0];
+                FLW(s1, gback, gdoffset + 0);
+                FSW(s1, gback, gdoffset + 8);
+                // GX->f[3] = GX->f[1];
+                FSW(s0, gback, gdoffset + 12);
+            } else {
+                // GX->f[2] = EX->f[0] + EX->f[1];
+                FLW(s0, wback, fixedaddress + 0);
+                FLW(s1, wback, fixedaddress + 4);
+                FADDS(s0, s0, s1);
+                FSW(s0, gback, gdoffset + 8);
+                // GX->f[3] = EX->f[2] + EX->f[3];
+                FLW(s0, wback, fixedaddress + 8);
+                FLW(s1, wback, fixedaddress + 12);
+                FADDS(s0, s0, s1);
+                FSW(s0, gback, gdoffset + 12);
             }
             break;
         case 0xC2:
