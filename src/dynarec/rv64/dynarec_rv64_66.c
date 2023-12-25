@@ -608,7 +608,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(gd, gd, x2);
                 }
             break;
-
         case 0x98:
             INST_NAME("CBW");
             SLLI(x1, xRAX, 56);
@@ -618,6 +617,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             NOT(x2, x2);
             AND(x1, x1, x2);
             OR(xRAX, xRAX, x1);
+            break;
+        case 0x99:
+            INST_NAME("CWD");
+            SLLI(x1, xRAX, 48);
+            SRAI(x1, x1, 48);
+            SRLI(x1, x1, 48);
+            SRLI(xRDX, xRDX, 16);
+            SLLI(xRDX, xRDX, 16);
+            OR(xRDX, xRDX, x1);
             break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
@@ -954,13 +962,41 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD3:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:
+                    if(opcode==0xD1) {
+                        INST_NAME("ROL Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROL Ew, CL");
+                        ANDI(x2, xRCX, 15);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    CALL_(rol16, x1, x3);
+                    EWBACK;
+                    break;
+                case 1:
+                    if(opcode==0xD1) {
+                        INST_NAME("ROR Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROR Ew, CL");
+                        ANDI(x2, xRCX, 15);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    CALL_(ror16, x1, x3);
+                    EWBACK;
+                    break;
                 case 5:
                     if(opcode==0xD1) {
                         INST_NAME("SHR Ew, 1");
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHR Ew, CL");
-                        ANDI(x4, xRCX, 0x1f);
+                        ANDI(x4, xRCX, 15);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
@@ -978,7 +1014,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHL Ew, CL");
-                        ANDI(x4, xRCX, 0x1f);
+                        ANDI(x4, xRCX, 15);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
@@ -996,7 +1032,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SAR Ew, CL");
-                        ANDI(x4, xRCX, 0x1f);
+                        ANDI(x4, xRCX, 15);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);

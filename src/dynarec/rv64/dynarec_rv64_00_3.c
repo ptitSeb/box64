@@ -76,6 +76,26 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     CALL_(ror8, ed, x3);
                     EBBACK(x5, 0);
                     break;
+                case 2:
+                    INST_NAME("RCL Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rcl8, ed, x3);
+                    EBBACK(x5, 0);
+                    break;
+                case 3:
+                    INST_NAME("RCR Eb, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    MOV32w(x2, u8);
+                    CALL_(rcr8, ed, x3);
+                    EBBACK(x5, 0);
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
@@ -159,6 +179,28 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
                     if(u8) { WBACK; }
                     if(!wback && !rex.w) ZEROUP(ed);
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    MOV32w(x2, u8);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, Ib");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    MOV32w(x2, u8);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
+                    WBACK;
                     break;
                 case 4:
                 case 6:
@@ -438,6 +480,36 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_ror8);
                     break;
+                case 2:
+                    if(opcode==0xD0) {
+                        INST_NAME("RCL Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("RCL Eb, CL");
+                        ANDI(x2, xRCX, 7);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEB(x1, 0);
+                    CALL_(rcl8, ed, x3);
+                    EBBACK(x5, 0);
+                    break;
+                case 3:
+                    if(opcode==0xD0) {
+                        INST_NAME("RCR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("RCR Eb, CL");
+                        ANDI(x2, xRCX, 7);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEB(x1, 0);
+                    CALL_(rcr8, ed, x3);
+                    EBBACK(x5, 0);
+                    break;
                 case 4:
                 case 6:
                     if(opcode==0xD0) {
@@ -575,6 +647,16 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     emit_ror32(dyn, ninst, rex, ed, xRCX, x3, x4);
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    ANDI(x2, xRCX, rex.w?0x3f:0x1f);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
+                    WBACK;
                     break;
                 case 4:
                 case 6:
