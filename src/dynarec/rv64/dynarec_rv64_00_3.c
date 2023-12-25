@@ -438,6 +438,21 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_ror8);
                     break;
+                case 3:
+                    if(opcode==0xD0) {
+                        INST_NAME("RCR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("RCR Eb, CL");
+                        ANDI(x2, xRCX, 7);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEB(x1, 0);
+                    CALL_(rcr8, ed, x3);
+                    EBBACK(x5, 0);
+                    break;
                 case 4:
                 case 6:
                     if(opcode==0xD0) {
