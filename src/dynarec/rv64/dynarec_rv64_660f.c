@@ -2051,6 +2051,36 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(gd, gd, x5);
             OR(gd, gd, x1);
             break;
+        case 0xBB:
+            INST_NAME("BTC Ew, Gw");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                wback = 0;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                SRAIxw(x1, gd, 5 + rex.w);
+                ADDSL(x3, wback, x1, 2 + rex.w, x1);
+                LDxw(x1, x3, fixedaddress);
+                ed = x1;
+                wback = x3;
+            }
+            BEXT(x4, ed, gd, x2); // F_CF is 1
+            ANDI(xFlags, xFlags, ~1);
+            OR(xFlags, xFlags, x4);
+            ADDI(x4, xZR, 1);
+            ANDI(x2, gd, rex.w ? 0x3f : 15);
+            SLL(x4, x4, x2);
+            XOR(ed, ed, x4);
+            if (wback) {
+                SDxw(ed, wback, fixedaddress);
+                SMWRITE();
+            }
+            break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");
             nextop = F8;
