@@ -2047,7 +2047,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEW(x1, 0);
             GETGW(x2);
             u8 = F8;
-            emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
+            emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x3, x4);
             EWBACK;
             break;
         case 0xAF:
