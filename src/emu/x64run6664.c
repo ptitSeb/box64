@@ -92,6 +92,15 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             }
             break;
 
+        case 0x39: /* CMP FS:Ew,Gw */
+            nextop = F8;
+            GETEW_OFFS(0, tlsdata);
+            GETGW;
+            if (rex.w)
+                cmp64(emu, EW->q[0], GW->q[0]);
+            else
+                cmp16(emu, EW->word[0], GW->word[0]);
+            break;
         case 0x89:                              /* MOV FS:Ew,Gw */
             nextop = F8;
             GETEW_OFFS(0, tlsdata);
