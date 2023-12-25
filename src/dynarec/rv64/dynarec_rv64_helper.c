@@ -1555,6 +1555,16 @@ static void sse_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
         }
 }
 
+void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int a)
+{
+    if (dyn->e.ssecache[a].v == -1)
+        return;
+    if (dyn->e.ssecache[a].single)
+        FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+    else
+        FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+}
+
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 {
     // need to save 0..1 && 10..17 (maybe) && 28..31
