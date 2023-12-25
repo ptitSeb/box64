@@ -85,7 +85,7 @@ static uint64_t  memprot_allocated = 0, memprot_max_allocated = 0;
 #endif
 static memprot_t memprot[1<<MEMPROT_SIZE0];    // x86_64 mem is 48bits, page is 12bits, so memory is tracked as [20][16][page protection]
 static uint8_t   memprot_default[MEMPROT_SIZE];
-static int have48bits = 0;
+int have48bits = 0;
 static int inited = 0;
 
 typedef struct mapmem_s {

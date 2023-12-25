@@ -2571,6 +2571,7 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
 #ifndef MAP_32BIT
 #define MAP_32BIT 0x40
 #endif
+extern int have48bits;
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
 {
     (void)emu;
@@ -2615,8 +2616,11 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         if(new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE)==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = mmap64(addr, length, prot, new_flags, fd, offset);
         printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
-        if(old_addr && ret!=old_addr)
+        if(old_addr && ret!=old_addr) {
             errno = olderr;
+            if(old_addr>(void*)0x7fffffffff && !have48bits)
+                errno = EEXIST;
+        }
     }
     #endif
     if((ret!=MAP_FAILED) && (flags&MAP_FIXED_NOREPLACE) && (ret!=addr)) {
