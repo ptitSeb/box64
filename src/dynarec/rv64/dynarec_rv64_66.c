@@ -623,9 +623,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SLLI(x1, xRAX, 48);
             SRAI(x1, x1, 48);
             SRLI(x1, x1, 48);
-            SRLI(xRCX, xRCX, 16);
-            SLLI(xRCX, xRCX, 16);
-            OR(xRCX, xRCX, x1);
+            SRLI(xRDX, xRDX, 16);
+            SLLI(xRDX, xRDX, 16);
+            OR(xRDX, xRDX, x1);
             break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
