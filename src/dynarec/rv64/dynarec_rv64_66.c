@@ -608,7 +608,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(gd, gd, x2);
                 }
             break;
-
         case 0x98:
             INST_NAME("CBW");
             SLLI(x1, xRAX, 56);
@@ -618,6 +617,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             NOT(x2, x2);
             AND(x1, x1, x2);
             OR(xRAX, xRAX, x1);
+            break;
+        case 0x99:
+            INST_NAME("CWD");
+            SLLI(x1, xRAX, 48);
+            SRAI(x1, x1, 48);
+            SRLI(x1, x1, 48);
+            SRLI(xRCX, xRCX, 16);
+            SLLI(xRCX, xRCX, 16);
+            OR(xRCX, xRCX, x1);
             break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
