@@ -954,6 +954,20 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD3:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:
+                    if(opcode==0xD1) {
+                        INST_NAME("ROL Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROL Ew, CL");
+                        ANDI(x2, xRCX, 15);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    CALL_(rol16, x1, x3);
+                    EWBACK;
+                    break;
                 case 1:
                     if(opcode==0xD1) {
                         INST_NAME("ROR Ew, 1");
