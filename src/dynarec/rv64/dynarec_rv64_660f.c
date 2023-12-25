@@ -15,6 +15,7 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
+#include "bitutils.h"
 
 #include "rv64_printer.h"
 #include "dynarec_rv64_private.h"
@@ -2098,6 +2099,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SDxw(ed, wback, fixedaddress);
                 SMWRITE();
             }
+            break;
+        case 0xBC:
+            INST_NAME("BSF Gw, Ew");
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETEW(x5, 0);
+            GETGW(x4);
+            BNE_MARK(ed, xZR);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+            B_NEXT_nocond;
+            MARK;
+            if (rv64_zbb) {
+                CTZxw(gd, ed);
+            } else {
+                NEG(x2, ed);
+                AND(x2, x2, ed);
+                TABLE64(x3, 0x03f79d71b4ca8b09ULL);
+                MUL(x2, x2, x3);
+                SRLI(x2, x2, 64 - 6);
+                TABLE64(x1, (uintptr_t)&deBruijn64tab);
+                ADD(x1, x1, x2);
+                LBU(gd, x1, 0);
+            }
+            ANDI(xFlags, xFlags, ~(1 << F_ZF));
+            GWBACK;
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");
