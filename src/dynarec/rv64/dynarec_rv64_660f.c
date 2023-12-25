@@ -2237,6 +2237,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             AND(x1, x1, x5);
             OR(gd, gd, x1);
             break;
+        case 0xC1:
+            INST_NAME("XADD Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            MV(x9, ed);
+            emit_add16(dyn, ninst, ed, gd, x4, x5, x6);
+            MV(gd, x9);
+            EWBACK;
+            GWBACK;
+            break;
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex, Ib");
             nextop = F8;
