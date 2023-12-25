@@ -2014,6 +2014,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SSE_LOOP_MV_Q2(x3);
             if (!MODREG) SMWRITE2();
             break;
+        case 0xA3:
+            INST_NAME("BT Ew, Gw");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            ANDI(gd, gd, 15);
+            BEXT(x4, ed, gd, x6);
+            ANDI(xFlags, xFlags, ~1);
+            OR(xFlags, xFlags, x4);
+            break;
         case 0xA4:
             nextop = F8;
             INST_NAME("SHLD Ew, Gw, Ib");
