@@ -1152,6 +1152,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_shrd32c        STEPNAME(emit_shrd32c)
 #define emit_shld32c        STEPNAME(emit_shld32c)
 #define emit_shld16c        STEPNAME(emit_shld16c)
+#define emit_shrd16c        STEPNAME(emit_shrd16c)
 
 #define emit_pf STEPNAME(emit_pf)
 

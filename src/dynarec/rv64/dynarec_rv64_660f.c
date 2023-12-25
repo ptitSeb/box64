@@ -2040,6 +2040,16 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             OR(ed, ed, x4);
             EWBACK;
             break;
+        case 0xAC:
+            nextop = F8;
+            INST_NAME("SHRD Ew, Gw, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            GETEW(x1, 0);
+            GETGW(x2);
+            u8 = F8;
+            emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
+            EWBACK;
+            break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
