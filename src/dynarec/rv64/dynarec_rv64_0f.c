@@ -1213,6 +1213,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
             WBACK;
             break;
+        case 0xA5:
+            nextop = F8;
+            INST_NAME("SHLD Ed, Gd, CL");
+            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+            if(box64_dynarec_safeflags>1)
+                MAYSETFLAGS();
+            GETGD;
+            GETED(0);
+            if(!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+            ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+            BEQ_NEXT(x3, xZR);
+            emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
             SETFLAGS(X_CF, SF_SUBSET);

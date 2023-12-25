@@ -1151,6 +1151,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_ror32c         STEPNAME(emit_ror32c)
 #define emit_shrd32c        STEPNAME(emit_shrd32c)
 #define emit_shld32c        STEPNAME(emit_shld32c)
+#define emit_shld32         STEPNAME(emit_shld32)
 #define emit_shld16c        STEPNAME(emit_shld16c)
 #define emit_shrd16c        STEPNAME(emit_shrd16c)
 
@@ -1289,6 +1290,7 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);
+void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4);
 void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5);
 
