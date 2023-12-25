@@ -954,13 +954,27 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD3:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 1:
+                    if(opcode==0xD1) {
+                        INST_NAME("ROR Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("ROR Ew, CL");
+                        ANDI(x2, xRCX, 15);
+                    }
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    CALL_(ror16, x1, x3);
+                    EWBACK;
+                    break;
                 case 5:
                     if(opcode==0xD1) {
                         INST_NAME("SHR Ew, 1");
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHR Ew, CL");
-                        ANDI(x4, xRCX, 0x1f);
+                        ANDI(x4, xRCX, 15);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
@@ -978,7 +992,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHL Ew, CL");
-                        ANDI(x4, xRCX, 0x1f);
+                        ANDI(x4, xRCX, 15);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
@@ -996,7 +1010,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SAR Ew, CL");
-                        ANDI(x4, xRCX, 0x1f);
+                        ANDI(x4, xRCX, 15);
                     }
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
