@@ -2024,6 +2024,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_shld16c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
             EWBACK;
             break;
+        case 0xAB:
+            INST_NAME("BTS Ew, Gw");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            ANDI(gd, gd, 15);
+            BEXT(x4, ed, gd, x6);
+            ANDI(xFlags, xFlags, ~1);
+            OR(xFlags, xFlags, x4);
+            ADDI(x4, xZR, 1);
+            SLL(x4, x4, gd);
+            OR(ed, ed, x4);
+            EWBACK;
+            break;
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
