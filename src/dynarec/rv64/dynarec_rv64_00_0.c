@@ -434,6 +434,9 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             i64 = F32S;
             emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
+        case 0x36:
+            INST_NAME("SS:");
+            break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
