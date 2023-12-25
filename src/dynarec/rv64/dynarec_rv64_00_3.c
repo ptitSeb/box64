@@ -606,6 +606,16 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
+                case 3:
+                    INST_NAME("RCR Ed, CL");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    ANDI(x2, xRCX, rex.w?0x3f:0x1f);
+                    GETEDW(x4, x1, 0);
+                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
+                    WBACK;
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, CL");
