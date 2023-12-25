@@ -2167,6 +2167,29 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SD(x3, gback, gdoffset + 0);
             SD(x4, gback, gdoffset + 8);
             break;
+        case 0xC8:
+        case 0xC9:
+        case 0xCA:
+        case 0xCB:
+        case 0xCC:
+        case 0xCD:
+        case 0xCE:
+        case 0xCF:                  /* BSWAP reg */
+            INST_NAME("BSWAP Reg");
+            gd = xRAX+(opcode&7)+(rex.b<<3);
+            if(rex.w) {
+                REV8xw(gd, gd, x1, x2, x3, x4);
+            } else {
+                ANDI(x1, gd, 0xff);
+                SLLI(x1, x1, 8);
+                SRLI(x2, gd, 8);
+                ANDI(x2, x2, 0xff);
+                SRLI(x3, gd, 16);
+                SLLI(x4, x3, 16);
+                AND(x1, x4, x1);
+                AND(gd, x1, x2);
+            }
+            break;
         case 0xD1:
             INST_NAME("PSRLW Gx,Ex");
             nextop = F8;
