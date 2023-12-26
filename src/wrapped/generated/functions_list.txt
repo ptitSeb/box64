@@ -3808,6 +3808,8 @@ wrappedgtk3:
   - gtk_widget_style_get
 - uFupp:
   - gtk_timeout_add
+- vFppiV:
+  - gtk_list_store_insert_with_values
 - vFpppi:
   - gtk_enumerate_printers
 - vFpppp:

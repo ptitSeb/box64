@@ -41,6 +41,7 @@ typedef int           (*iFppp_t)(void*, void*, void*);
 typedef void          (*vFppp_t)(void*, void*, void*);
 typedef void          (*vFppA_t)(void*, void*, va_list);
 typedef void          (*vFpipV_t)(void*, int, void*, ...);
+typedef void          (*vFppippi_t)(void*, void*, int, void*, void*, int);
 
 #define ADDED_FUNCTIONS()                   \
 GO(g_type_class_ref, pFL_t)                 \
@@ -88,6 +89,7 @@ GO(g_module_close, vFp_t)                   \
 GO(gtk_tree_store_newv, pFup_t)             \
 GO(gtk_widget_style_get_valist, vFppA_t)    \
 GO(gtk_widget_style_get_property, vFppp_t)  \
+GO(gtk_list_store_insert_with_valuesv, vFppippi_t)
 
 #include "generated/wrappedgtk3types.h"
 
@@ -783,6 +785,19 @@ EXPORT void my3_gtk_widget_style_get(x64emu_t* emu, void* widget, void* first, u
         prop = (void*)getVArgs(emu, 2, b, i++);
     } while (prop);
     #endif
+}
+
+EXPORT void my3_gtk_list_store_insert_with_values(x64emu_t* emu, void* list_store, void* iter, int position, uintptr_t* b)
+{
+    int n = 0;
+    while((((int)getVArgs(emu, 3, b, n*2)))!=-1) n+=1;
+    int columns[n];
+    my_GValue_t values[n];
+    for(int i=0; i<n; ++i) {
+      columns[i] = (int)getVArgs(emu, 3, b, i*2+0);
+      values[i] = *(my_GValue_t*)getVArgs(emu, 3, b, i*2+1);
+    }
+    my->gtk_list_store_insert_with_valuesv(list_store, iter, position, columns, values, n);
 }
 
 #define PRE_INIT    \
