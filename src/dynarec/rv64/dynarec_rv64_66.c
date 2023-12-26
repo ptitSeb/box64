@@ -990,6 +990,34 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     CALL_(ror16, x1, x3);
                     EWBACK;
                     break;
+                case 2:
+                    if(opcode==0xD1) {
+                        INST_NAME("RCL Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("RCL Ew, CL");
+                        ANDI(x2, xRCX, 15);
+                    }
+                    MESSAGE("LOG_DUMP", "Need optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    CALL_(rcl16, x1, x3);
+                    EWBACK;
+                case 3:
+                    if(opcode==0xD1) {
+                        INST_NAME("RCR Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("RCR Ew, CL");
+                        ANDI(x2, xRCX, 15);
+                    }
+                    MESSAGE("LOG_DUMP", "Need optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    GETEW(x1, 1);
+                    CALL_(rcr16, x1, x3);
+                    EWBACK;
                 case 5:
                     if(opcode==0xD1) {
                         INST_NAME("SHR Ew, 1");
