@@ -33,10 +33,9 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed;
-    uint8_t wback, wb2, gback;
+    uint8_t wb1, wback, wb2, gback;
     uint8_t eb1, eb2;
     uint8_t gb1, gb2;
-    uint8_t wb1, wb2;
     int32_t i32, i32_;
     int cacheupd = 0;
     int v0, v1;
