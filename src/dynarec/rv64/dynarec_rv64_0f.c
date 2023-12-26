@@ -33,8 +33,9 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t opcode = F8;
     uint8_t nextop, u8;
     uint8_t gd, ed;
-    uint8_t wback, wb2, gback;
+    uint8_t wb1, wback, wb2, gback;
     uint8_t eb1, eb2;
+    uint8_t gb1, gb2;
     int32_t i32, i32_;
     int cacheupd = 0;
     int v0, v1;
@@ -1686,6 +1687,29 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             if (!rex.w)
                 ZEROUP(gd);
+            break;
+        case 0xC0:
+            INST_NAME("XADD Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            MV(x9, ed);
+            emit_add8(dyn, ninst, ed, gd, x4, x5);
+            MV(gd, x9);
+            EBBACK(x5, 0);
+            GBBACK(x5);
+            break;
+        case 0xC1:
+            INST_NAME("XADD Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            MV(x9, ed);
+            emit_add32(dyn, ninst, rex, ed, gd, x4, x5, x6);
+            MV(gd, x9);
+            WBACK;
             break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
