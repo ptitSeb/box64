@@ -2131,6 +2131,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ANDI(xFlags, xFlags, ~1);
                     OR(xFlags, xFlags, x3);
                     break;
+                case 7:
+                    INST_NAME("BTC Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    u8 &= rex.w ? 0x3f : 15;
+                    BEXTI(x3, ed, u8); // F_CF is 1
+                    ANDI(xFlags, xFlags, ~1);
+                    OR(xFlags, xFlags, x3);
+                    if (u8 <= 10) {
+                        XORI(ed, ed, (1LL << u8));
+                    } else {
+                        MOV64xw(x3, (1LL << u8));
+                        XOR(ed, ed, x3);
+                    }
+                    EWBACK;
+                    break;
                 default:
                     DEFAULT;
             }
