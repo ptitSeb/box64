@@ -502,6 +502,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibx11xcb.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxau.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcb.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibxcbcursor.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbdri2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbdri3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibxcbglx.c"

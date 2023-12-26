@@ -147,7 +147,7 @@
 //GO(xcb_xkb_get_kbd_by_name_reply, 
 //GO(xcb_xkb_get_kbd_by_name_sizeof, 
 //GO(xcb_xkb_get_kbd_by_name_unchecked, 
-GO(xcb_xkb_get_map, uFpWWWCCCCCCCCWCCCCCC)
+GO(xcb_xkb_get_map, uFbWWWCCCCCCCCWCCCCCC)
 GO(xcb_xkb_get_map_map, pFp)
 //GO(xcb_xkb_get_map_map_acts_rtrn_acts, 
 //GO(xcb_xkb_get_map_map_acts_rtrn_acts_iterator, 
@@ -177,16 +177,16 @@ GO(xcb_xkb_get_map_map_unpack, iFpCCCWCWCCCWp)
 //GO(xcb_xkb_get_map_map_vmods_rtrn, 
 //GO(xcb_xkb_get_map_map_vmods_rtrn_end, 
 //GO(xcb_xkb_get_map_map_vmods_rtrn_length, 
-GO(xcb_xkb_get_map_reply, pFpup)
+GO(xcb_xkb_get_map_reply, pFbup)
 //GO(xcb_xkb_get_map_sizeof, 
 //GO(xcb_xkb_get_map_unchecked, 
 //GO(xcb_xkb_get_named_indicator, 
 //GO(xcb_xkb_get_named_indicator_reply, 
 //GO(xcb_xkb_get_named_indicator_unchecked, 
-GO(xcb_xkb_get_names, uFpWu)
-GO(xcb_xkb_get_names_reply, pFpup)
+GO(xcb_xkb_get_names, uFbWu)
+GO(xcb_xkb_get_names_reply, pFbup)
 //GO(xcb_xkb_get_names_sizeof, 
-GO(xcb_xkb_get_names_unchecked, uFpWu)
+GO(xcb_xkb_get_names_unchecked, uFbWu)
 GO(xcb_xkb_get_names_value_list, pFp)
 //GO(xcb_xkb_get_names_value_list_groups, 
 //GO(xcb_xkb_get_names_value_list_groups_end, 
@@ -365,10 +365,10 @@ DATA(xcb_xkb_id, 2*sizeof(void*))
 //GO(xcb_xkb_sa_switch_screen_next, 
 //GO(xcb_xkb_sa_terminate_end, 
 //GO(xcb_xkb_sa_terminate_next, 
-GO(xcb_xkb_select_events, uFpWWWWWWp)
+GO(xcb_xkb_select_events, uFbWWWWWWp)
 //GO(xcb_xkb_select_events_aux, 
 //GO(xcb_xkb_select_events_aux_checked, 
-GO(xcb_xkb_select_events_checked, uFpWWWWWWp)
+GO(xcb_xkb_select_events_checked, uFbWWWWWWp)
 //GO(xcb_xkb_select_events_details, 
 //GO(xcb_xkb_select_events_details_serialize, 
 //GO(xcb_xkb_select_events_details_sizeof, 
@@ -499,7 +499,7 @@ GO(xcb_xkb_select_events_checked, uFpWWWWWWp)
 //GO(xcb_xkb_string8_next, 
 //GO(xcb_xkb_sym_interpret_end, 
 //GO(xcb_xkb_sym_interpret_next, 
-GO(xcb_xkb_use_extension, uFpWW)
-GO(xcb_xkb_use_extension_reply, pFpup)
-GO(xcb_xkb_use_extension_unchecked, uFpWW)
+GO(xcb_xkb_use_extension, uFbWW)
+GO(xcb_xkb_use_extension_reply, pFbup)
+GO(xcb_xkb_use_extension_unchecked, uFbWW)
 

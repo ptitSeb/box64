@@ -6,14 +6,36 @@
 
 #include "wrappedlibs.h"
 
+#include "debug.h"
 #include "wrapper.h"
 #include "bridge.h"
 #include "librarian/library_private.h"
 #include "x64emu.h"
-#include "debug.h"
+#include "callback.h"
+#include "librarian.h"
+#include "box64context.h"
+#include "emu/x64emu_private.h"
+#include "myalign.h"
 
 const char* libx11xcbName = "libX11-xcb.so.1";
 #define LIBNAME libx11xcb
+
+#define ADDED_FUNCTIONS()       \
+
+#include "generated/wrappedlibx11xcbtypes.h"
+
+#include "wrappercallback.h"
+
+EXPORT void* my_XGetXCBConnection(x64emu_t* emu, void* a)
+{
+    return add_xcb_connection(my->XGetXCBConnection(a));
+}
+
+#define CUSTOM_INIT \
+    getMy(lib);
+
+#define CUSTOM_FINI \
+    freeMy();
 
 #include "wrappedlib_init.h"
 

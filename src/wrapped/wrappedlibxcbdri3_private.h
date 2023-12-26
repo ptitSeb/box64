@@ -37,14 +37,14 @@
 //GO(xcb_dri3_get_supported_modifiers_window_modifiers_end, 
 //GO(xcb_dri3_get_supported_modifiers_window_modifiers_length, 
 DATA(xcb_dri3_id, sizeof(void*)+sizeof(int))
-GO(xcb_dri3_open, pFpuu)
-GO(xcb_dri3_open_reply, pFpup)
-GO(xcb_dri3_open_reply_fds, pFpp)
+GO(xcb_dri3_open, pFbuu)
+GO(xcb_dri3_open_reply, pFbup)
+GO(xcb_dri3_open_reply_fds, pFbp)
 //GO(xcb_dri3_open_unchecked, 
-GO(xcb_dri3_pixmap_from_buffer, pFpuuuWWWCCi)
-GO(xcb_dri3_pixmap_from_buffer_checked, pFpuuuWWWCCi)
+GO(xcb_dri3_pixmap_from_buffer, pFbuuuWWWCCi)
+GO(xcb_dri3_pixmap_from_buffer_checked, pFbuuuWWWCCi)
 //GO(xcb_dri3_pixmap_from_buffers, 
 //GO(xcb_dri3_pixmap_from_buffers_checked, 
-GO(xcb_dri3_query_version, pFpuu)
-GO(xcb_dri3_query_version_reply, pFpup)
-//GO(xcb_dri3_query_version_unchecked, 
+GO(xcb_dri3_query_version, pFbuu)
+GO(xcb_dri3_query_version_reply, pFbup)
+GO(xcb_dri3_query_version_unchecked, pFpuu)

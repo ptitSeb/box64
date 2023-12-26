@@ -5,8 +5,8 @@
 //GO(xcb_test_compare_cursor, 
 //GO(xcb_test_compare_cursor_reply, 
 //GO(xcb_test_compare_cursor_unchecked, 
-GO(xcb_test_fake_input, pFpCCuuwwC)
-GO(xcb_test_fake_input_checked, pFpCCuuwwC)
+GO(xcb_test_fake_input, pFbCCuuwwC)
+GO(xcb_test_fake_input_checked, pFbCCuuwwC)
 //GO(xcb_test_get_version, 
 //GO(xcb_test_get_version_reply, 
 //GO(xcb_test_get_version_unchecked, 

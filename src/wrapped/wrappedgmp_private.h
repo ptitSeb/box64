@@ -513,7 +513,7 @@ GO(__gmpz_init, vFp)
 GO(__gmpz_init_set, vFpp)
 //GO(__gmpz_init_set_d, 
 //GO(__gmpz_init_set_si, 
-//GO(__gmpz_init_set_str, 
+GO(__gmpz_init_set_str, iFppi)
 GO(__gmpz_init_set_ui, vFpL)
 //GO(__gmpz_inp_raw, 
 //GO(__gmpz_inp_str, 
@@ -523,7 +523,7 @@ GO(__gmpz_invert, iFppp)
 //GO(__gmpz_jacobi, 
 //GO(__gmpz_kronecker_si, 
 //GO(__gmpz_kronecker_ui, 
-//GO(__gmpz_lcm, 
+GO(__gmpz_lcm, vFppp)
 //GO(__gmpz_lcm_ui, 
 //GO(__gmpz_legendre, 
 GO(__gmpz_limbs_finish, vFpL)
@@ -578,7 +578,7 @@ GO(__gmpz_set_ui, vFpL)
 //GO(__gmpz_si_kronecker, 
 //GO(__gmpz_size, 
 GO(__gmpz_sizeinbase, LFpi)
-//GO(__gmpz_sqrt, 
+GO(__gmpz_sqrt, vFpp)
 //GO(__gmpz_sqrtrem, 
 //GO(__gmpz_stronglucas, 
 GO(__gmpz_sub, vFppp)
@@ -592,7 +592,7 @@ GO(__gmpz_tdiv_qr, vFpppp)
 //GO(__gmpz_tdiv_qr_ui, 
 //GO(__gmpz_tdiv_q_ui, 
 //GO(__gmpz_tdiv_r, 
-//GO(__gmpz_tdiv_r_2exp, 
+GO(__gmpz_tdiv_r_2exp, vFppL)
 //GO(__gmpz_tdiv_r_ui, 
 //GO(__gmpz_tdiv_ui, 
 GO(__gmpz_tstbit, iFpL)

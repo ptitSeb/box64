@@ -498,9 +498,9 @@ DATA(xcb_glx_id, 8)
 //GO(xcb_glx_query_server_string_string_end, 
 //GO(xcb_glx_query_server_string_string_length, 
 //GO(xcb_glx_query_server_string_unchecked, 
-GO(xcb_glx_query_version, pFpuu)
-GO(xcb_glx_query_version_reply, pFppp)
-GO(xcb_glx_query_version_unchecked, pFuu)
+GO(xcb_glx_query_version, pFbuu)
+GO(xcb_glx_query_version_reply, pFbpp)
+GO(xcb_glx_query_version_unchecked, pFbuu)
 //GO(xcb_glx_read_pixels, 
 //GO(xcb_glx_read_pixels_data, 
 //GO(xcb_glx_read_pixels_data_end, 

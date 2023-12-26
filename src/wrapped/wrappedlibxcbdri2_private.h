@@ -4,10 +4,10 @@
 
 //GO(xcb_dri2_attach_format_end, 
 //GO(xcb_dri2_attach_format_next, 
-GO(xcb_dri2_authenticate, pFpuu)
-GO(xcb_dri2_authenticate_reply, pFpup)
+GO(xcb_dri2_authenticate, pFbuu)
+GO(xcb_dri2_authenticate_reply, pFbup)
 //GO(xcb_dri2_authenticate_unchecked, 
-GO(xcb_dri2_connect, pFpuu)
+GO(xcb_dri2_connect, pFbuu)
 //GO(xcb_dri2_connect_alignment_pad, 
 //GO(xcb_dri2_connect_alignment_pad_end, 
 //GO(xcb_dri2_connect_alignment_pad_length, 
@@ -17,7 +17,7 @@ GO(xcb_dri2_connect_device_name_length, iFp)
 //GO(xcb_dri2_connect_driver_name, 
 //GO(xcb_dri2_connect_driver_name_end, 
 //GO(xcb_dri2_connect_driver_name_length, 
-GO(xcb_dri2_connect_reply, pFpup)
+GO(xcb_dri2_connect_reply, pFbup)
 //GO(xcb_dri2_connect_sizeof, 
 //GO(xcb_dri2_connect_unchecked, 
 //GO(xcb_dri2_copy_region, 
@@ -50,8 +50,8 @@ GO(xcb_dri2_connect_reply, pFpup)
 //GO(xcb_dri2_get_param_reply, 
 //GO(xcb_dri2_get_param_unchecked, 
 DATA(xcb_dri2_id, sizeof(void*)+sizeof(int))
-GO(xcb_dri2_query_version, pFpuu)
-GO(xcb_dri2_query_version_reply, pFpup)
+GO(xcb_dri2_query_version, pFbuu)
+GO(xcb_dri2_query_version_reply, pFbup)
 //GO(xcb_dri2_query_version_unchecked, 
 //GO(xcb_dri2_swap_buffers, 
 //GO(xcb_dri2_swap_buffers_reply, 

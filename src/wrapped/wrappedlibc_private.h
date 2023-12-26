@@ -156,6 +156,7 @@ GOW(close, iFi)
 GOW(closedir, iFp)
 GO(closelog, vFv)
 //GO(__close_nocancel, 
+GO(close_range, iFuuu)
 GO(__cmsg_nxthdr, pFpp)
 GO(confstr, LFipL)
 //GO(__confstr_chk, 
@@ -2066,6 +2067,7 @@ GOW(textdomain, pFp)
 GOWM(tfind, pFEppp)
 GOW(tgkill, iFiii)
 //GO(thrd_current, 
+GO(thrd_exit, vFp)
 //GO(thrd_equal, 
 //GO(thrd_sleep, 
 //GO(thrd_yield, 

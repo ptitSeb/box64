@@ -22,7 +22,7 @@
 //GO(xcb_xfixes_create_pointer_barrier_devices_end, 
 //GO(xcb_xfixes_create_pointer_barrier_devices_length, 
 //GO(xcb_xfixes_create_pointer_barrier_sizeof, 
-GO(xcb_xfixes_create_region, pFpuup)
+GO(xcb_xfixes_create_region, pFbuup)
 //GO(xcb_xfixes_create_region_checked, 
 //GO(xcb_xfixes_create_region_from_bitmap, 
 //GO(xcb_xfixes_create_region_from_bitmap_checked, 
@@ -38,7 +38,7 @@ GO(xcb_xfixes_create_region, pFpuup)
 //GO(xcb_xfixes_create_region_sizeof, 
 //GO(xcb_xfixes_delete_pointer_barrier, 
 //GO(xcb_xfixes_delete_pointer_barrier_checked, 
-GO(xcb_xfixes_destroy_region, pFpu)
+GO(xcb_xfixes_destroy_region, pFbu)
 //GO(xcb_xfixes_destroy_region_checked, 
 //GO(xcb_xfixes_expand_region, 
 //GO(xcb_xfixes_expand_region_checked, 
@@ -80,19 +80,19 @@ DATA(xcb_xfixes_id, 8)
 //GO(xcb_xfixes_intersect_region_checked, 
 //GO(xcb_xfixes_invert_region, 
 //GO(xcb_xfixes_invert_region_checked, 
-GO(xcb_xfixes_query_version, uFpuu)
-GO(xcb_xfixes_query_version_reply, pFpup)
-GO(xcb_xfixes_query_version_unchecked, uFpuu)
+GO(xcb_xfixes_query_version, uFbuu)
+GO(xcb_xfixes_query_version_reply, pFbup)
+GO(xcb_xfixes_query_version_unchecked, uFbuu)
 //GO(xcb_xfixes_region_end, 
 //GO(xcb_xfixes_region_extents, 
 //GO(xcb_xfixes_region_extents_checked, 
 //GO(xcb_xfixes_region_next, 
 //GO(xcb_xfixes_select_cursor_input, 
 //GO(xcb_xfixes_select_cursor_input_checked, 
-GO(xcb_xfixes_select_selection_input, uFpuuu)
-GO(xcb_xfixes_select_selection_input_checked, uFpuuu)
-GO(xcb_xfixes_set_cursor_name, pFppWp)
-GO(xcb_xfixes_set_cursor_name_checked, pFppWp)
+GO(xcb_xfixes_select_selection_input, uFbuuu)
+GO(xcb_xfixes_select_selection_input_checked, uFbuuu)
+GO(xcb_xfixes_set_cursor_name, pFbpWp)
+GO(xcb_xfixes_set_cursor_name_checked, pFbpWp)
 GO(xcb_xfixes_set_cursor_name_name, pFp)
 GO(xcb_xfixes_set_cursor_name_name_end, pFp)
 GO(xcb_xfixes_set_cursor_name_name_length, iFp)
@@ -107,8 +107,8 @@ GO(xcb_xfixes_set_cursor_name_sizeof, iFp)
 //GO(xcb_xfixes_set_region_rectangles_iterator, 
 //GO(xcb_xfixes_set_region_rectangles_length, 
 //GO(xcb_xfixes_set_region_sizeof, 
-GO(xcb_xfixes_set_window_shape_region, pFpuuwwu)
-GO(xcb_xfixes_set_window_shape_region_checked, pFpuuwwu)
+GO(xcb_xfixes_set_window_shape_region, pFbuuwwu)
+GO(xcb_xfixes_set_window_shape_region_checked, pFbuuwwu)
 //GO(xcb_xfixes_show_cursor, 
 //GO(xcb_xfixes_show_cursor_checked, 
 //GO(xcb_xfixes_subtract_region, 

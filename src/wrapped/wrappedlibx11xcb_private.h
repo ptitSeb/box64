@@ -2,5 +2,5 @@
 #error meh!
 #endif
 
-GO(XGetXCBConnection, pFp)
+GOM(XGetXCBConnection, pFEp)
 GO(XSetEventQueueOwner, vFpu)

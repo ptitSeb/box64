@@ -212,6 +212,11 @@ void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
 void UnalignSemidDs(void *dest, const void* source);
 void AlignSemidDs(void *dest, const void* source);
 
+void* align_xcb_connection(void* src);
+void unalign_xcb_connection(void* src, void* dst);
+void* add_xcb_connection(void* src);
+void del_xcb_connection(void* src);
+
 uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N);
 
 // longjmp / setjmp
