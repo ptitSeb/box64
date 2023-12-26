@@ -179,6 +179,18 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_sbb16(dyn, ninst, x1, x2, x3, x4, x5);
             GWBACK;
             break;
+        case 0x1D:
+            INST_NAME("SBB AX, Iw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            ZEXTH(x1, xRAX);
+            i16 = F16;
+            MOV64xw(x2, i16);
+            emit_sbb16(dyn, ninst, x1, x2, x3, x4, x5);
+            SRLI(xRAX, xRAX, 16);
+            SLLI(xRAX, xRAX, 16);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0x21:
             INST_NAME("AND Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
