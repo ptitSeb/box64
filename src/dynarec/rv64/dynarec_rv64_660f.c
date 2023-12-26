@@ -2131,6 +2131,54 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ANDI(xFlags, xFlags, ~1);
                     OR(xFlags, xFlags, x3);
                     break;
+                case 5:
+                    INST_NAME("BTS Ew, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    u8 &= (rex.w ? 0x3f : 15);
+                    ORI(xFlags, xFlags, 1 << F_CF);
+                    if (u8 <= 10) {
+                        ANDI(x6, ed, 1 << u8);
+                        BNE_MARK(x6, xZR);
+                        ANDI(xFlags, xFlags, ~(1 << F_CF));
+                        XORI(ed, ed, 1 << u8);
+                    } else {
+                        ORI(x6, xZR, 1);
+                        SLLI(x6, x6, u8);
+                        AND(x4, ed, x6);
+                        BNE_MARK(x4, xZR);
+                        ANDI(xFlags, xFlags, ~(1 << F_CF));
+                        XOR(ed, ed, x6);
+                    }
+                    EWBACK;
+                    MARK;
+                    break;
+                case 6:
+                    INST_NAME("BTR Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    u8 &= (rex.w ? 0x3f : 15);
+                    ANDI(xFlags, xFlags, ~(1 << F_CF));
+                    if (u8 <= 10) {
+                        ANDI(x6, ed, 1 << u8);
+                        BEQ_MARK(x6, xZR);
+                        ORI(xFlags, xFlags, 1 << F_CF);
+                        XORI(ed, ed, 1 << u8);
+                    } else {
+                        ORI(x6, xZR, 1);
+                        SLLI(x6, x6, u8);
+                        AND(x6, ed, x6);
+                        BEQ_MARK(x6, xZR);
+                        ORI(xFlags, xFlags, 1 << F_CF);
+                        XOR(ed, ed, x6);
+                    }
+                    EWBACK;
+                    MARK;
+                    break;
                 case 7:
                     INST_NAME("BTC Ew, Ib");
                     SETFLAGS(X_CF, SF_SUBSET);
