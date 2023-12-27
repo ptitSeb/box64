@@ -203,4 +203,7 @@ BOX64_DYNAREC_STRONGMEM=1
 [FL64.exe]
 BOX64_DYNAREC_STRONGMEM=1
 BOX64_DYNAREC_SAFEFLAGS=2
-BOX64_DYNAREC_CALLRET=0 # to prevent segfaulting and if people enabling it default
+BOX64_DYNAREC_CALLRET=0 # prevent segfaulting
+
+[zoom]
+BOX64_DYNAREC_CALLRET=0 # prevent segfaulting

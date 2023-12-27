@@ -613,7 +613,7 @@ GOW(getrusage, iFip)
 //GO(__gets_chk, 
 GO(getsecretkey, iFppp)
 GO(getservbyname, pFpp)
-//GO(getservbyname_r, iFpp!pL!)
+GO(getservbyname_r, iFppppLp)
 GO(getservbyport, pFip)
 GO(getservbyport_r, iFipppLp)
 GO(getservent, pFv)
