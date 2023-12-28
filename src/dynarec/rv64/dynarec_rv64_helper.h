@@ -498,7 +498,8 @@
     } else {                                                                                   \
         SMREAD();                                                                              \
         ed = 16;                                                                               \
-        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D); \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 0, D); \
+        fixedaddress = 0; /* TODO: optimize this! */                                           \
     }
 
 #define GETGM()                     \
@@ -517,7 +518,8 @@
     } else {                                                                                   \
         SMREAD();                                                                              \
         ed = 8;                                                                                \
-        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 1, D); \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 0, D); \
+        fixedaddress = 0; /* TODO: optimize this! */                                           \
     }
 
 #define SSE_LOOP_D_ITEM(GX1, EX1, F, i)    \
