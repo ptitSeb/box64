@@ -66,10 +66,10 @@ DATA(g_cclosure_marshal_VOID__VARIANT, sizeof(void*))
 DATA(g_cclosure_marshal_VOID__VARIANTv, sizeof(void*))
 DATA(g_cclosure_marshal_VOID__VOID, sizeof(void*))
 DATA(g_cclosure_marshal_VOID__VOIDv, sizeof(void*))
-//GO(g_cclosure_new, 
+GOM(g_cclosure_new, pFEppp)
 //GO(g_cclosure_new_object, 
 //GO(g_cclosure_new_object_swap, 
-//GO(g_cclosure_new_swap, 
+GOM(g_cclosure_new_swap, pFEppp)
 //GO(g_checksum_get_type, 
 GO(g_clear_object, vFp)
 GOM(g_closure_add_finalize_notifier, vFEppp)
@@ -81,12 +81,12 @@ GOM(g_closure_add_finalize_notifier, vFEppp)
 //GO(g_closure_new_object, 
 GO(g_closure_new_simple, pFup)
 //GO(g_closure_ref, 
-//GO(g_closure_remove_finalize_notifier, 
+GOM(g_closure_remove_finalize_notifier, vFEppp)
 //GO(g_closure_remove_invalidate_notifier, 
 GOM(g_closure_set_marshal, vFEpp)
 //GO(g_closure_set_meta_marshal, 
 //GO(g_closure_sink, 
-//GO(g_closure_unref, 
+GO(g_closure_unref, pFp)
 GO(g_date_get_type, LFv)
 GO(g_date_time_get_type, LFv)
 GO(g_enum_complete_type_info, vFLpp)

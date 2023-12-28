@@ -53,6 +53,7 @@ typedef uint32_t (*uFpLippppLuA_t)(void*, uintptr_t, int32_t, void*, void*, void
 	GO(g_type_add_interface_static, vFLLp_t) \
 	GO(g_object_class_install_properties, vFpup_t) \
 	GO(g_closure_add_finalize_notifier, vFppp_t) \
+	GO(g_closure_remove_finalize_notifier, vFppp_t) \
 	GO(g_object_weak_ref, vFppp_t) \
 	GO(g_signal_override_class_handler, vFppp_t) \
 	GO(g_object_get, vFppV_t) \
@@ -62,6 +63,8 @@ typedef uint32_t (*uFpLippppLuA_t)(void*, uintptr_t, int32_t, void*, void*, void
 	GO(g_boxed_type_register_static, LFppp_t) \
 	GO(g_object_new, pFLpV_t) \
 	GO(g_object_new_valist, pFLpA_t) \
+	GO(g_cclosure_new, pFppp_t) \
+	GO(g_cclosure_new_swap, pFppp_t) \
 	GO(g_value_array_sort_with_data, pFppp_t) \
 	GO(g_object_connect, pFppV_t) \
 	GO(g_signal_emit, vFpuuV_t) \

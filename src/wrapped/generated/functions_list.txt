@@ -3589,6 +3589,7 @@ wrappedgobject2:
   - g_object_class_install_properties
 - vFppp:
   - g_closure_add_finalize_notifier
+  - g_closure_remove_finalize_notifier
   - g_object_weak_ref
   - g_signal_override_class_handler
 - vFppV:
@@ -3604,6 +3605,8 @@ wrappedgobject2:
 - pFLpA:
   - g_object_new_valist
 - pFppp:
+  - g_cclosure_new
+  - g_cclosure_new_swap
   - g_value_array_sort_with_data
 - pFppV:
   - g_object_connect
