@@ -574,7 +574,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         uint64_t value = p->uc_mcontext.regs[val];
         if(scale==3 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
-                ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
             for(int i=0; i<(1<<scale); ++i)
                 addr[i] = (value>>(i*8))&0xff;
@@ -593,7 +593,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         uint64_t value = p->uc_mcontext.regs[val];
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
-                ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
             for(int i=0; i<size; ++i)
                 addr[i] = (value>>(i*8))&0xff;
@@ -617,7 +617,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         __uint128_t value = fpsimd->vregs[val];
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
-                ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
             for(int i=0; i<(1<<scale); ++i)
                 addr[i] = (value>>(i*8))&0xff;
@@ -642,7 +642,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         __uint128_t value = fpsimd->vregs[val];
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
-                ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
             for(int i=0; i<(1<<scale); ++i)
                 addr[i] = (value>>(i*8))&0xff;
@@ -666,7 +666,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         __uint128_t value = 0;
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
-                value |= ((__uint128_t)(((uint32_t*)addr)[i]))<<(i*32);
+                value |= ((__uint128_t)(((volatile uint32_t*)addr)[i]))<<(i*32);
         } else
             for(int i=0; i<(1<<scale); ++i)
                 value |= ((__uint128_t)addr[i])<<(i*8);
@@ -692,7 +692,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         __uint128_t value = 0;
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
-                value |= ((__uint128_t)(((uint32_t*)addr)[i]))<<(i*32);
+                value |= ((__uint128_t)(((volatile  uint32_t*)addr)[i]))<<(i*32);
         } else
             for(int i=0; i<(1<<scale); ++i)
                 value |= ((__uint128_t)addr[i])<<(i*8);
@@ -711,7 +711,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         uint64_t value = 0;
         if(scale==3 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
-                value |= ((uint64_t)((uint32_t*)addr)[i]) << (i*32);
+                value |= ((uint64_t)((volatile  uint32_t*)addr)[i]) << (i*32);
         } else
             for(int i=0; i<(1<<scale); ++i)
                 value |= ((uint64_t)addr[i]) << (i*8);
@@ -731,7 +731,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         uint64_t value = 0;
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
-                value |= ((uint64_t)((uint32_t*)addr)[i]) << (i*32);
+                value |= ((uint64_t)((volatile  uint32_t*)addr)[i]) << (i*32);
         } else
             for(int i=0; i<size; ++i)
                 value |= ((uint64_t)addr[i]) << (i*8);
