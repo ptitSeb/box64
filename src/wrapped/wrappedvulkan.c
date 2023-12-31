@@ -15,6 +15,7 @@
 #include "box64context.h"
 #include "librarian.h"
 #include "callback.h"
+#include "myalign.h"
 
 //extern char* libvulkan;
 
@@ -224,6 +225,14 @@ typedef struct my_VkDebugReportCallbackCreateInfoEXT_s {
     void*       pfnCallback;
     void*       pUserData;
 } my_VkDebugReportCallbackCreateInfoEXT_t;
+
+typedef struct my_VkXcbSurfaceCreateInfoKHR_s {
+    int         sType;
+    const void* pNext;
+    uint32_t    flags;
+    void**      connection;
+    int         window;
+} my_VkXcbSurfaceCreateInfoKHR_t;
 
 typedef struct my_VkStruct_s {
     int         sType;
@@ -582,7 +591,16 @@ EXPORT int my_vkCreateSharedSwapchainsKHR(x64emu_t* emu, void* device, uint32_t 
 
 CREATE(vkCreateSwapchainKHR)
 CREATE(vkCreateWaylandSurfaceKHR)
-CREATE(vkCreateXcbSurfaceKHR)
+EXPORT int my_vkCreateXcbSurfaceKHR(x64emu_t* emu, void* instance, void* info, my_VkAllocationCallbacks_t* pAllocator, void* pFence)
+{
+    my_VkAllocationCallbacks_t my_alloc;
+    my_VkXcbSurfaceCreateInfoKHR_t* surfaceinfo = info;
+    void* old_conn = surfaceinfo->connection;
+    surfaceinfo->connection = align_xcb_connection(old_conn);
+    int ret = my->vkCreateXcbSurfaceKHR(instance, info, find_VkAllocationCallbacks(&my_alloc, pAllocator), pFence);
+    surfaceinfo->connection = old_conn;
+    return ret;
+}
 CREATE(vkCreateXlibSurfaceKHR)
 CREATE(vkCreateRenderPass2)
 CREATE(vkCreateRenderPass2KHR)

@@ -304,7 +304,7 @@ GO(vkGetPhysicalDeviceSurfaceSupportKHR, iFpuUp)
 
 // VK_KHR_xcb_surface
 GOM(vkCreateXcbSurfaceKHR, iFEpppp)
-GO(vkGetPhysicalDeviceXcbPresentationSupportKHR, iFpupp)
+GO(vkGetPhysicalDeviceXcbPresentationSupportKHR, iFpubp)
 
 // VK_KHR_xlib_surface
 GOM(vkCreateXlibSurfaceKHR, iFEpppp)
