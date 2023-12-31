@@ -358,7 +358,7 @@ int remove_node(rbtree *tree, rbnode *node) {
                 node = parent->right;
             }
             if (node->right && !(node->right->meta & IS_BLACK)) {
-                case4_l:
+                case4_l: {
                 rbnode *y, *z;
                 y = node;
                 z = parent;
@@ -386,7 +386,7 @@ int remove_node(rbtree *tree, rbnode *node) {
                 if (!y->parent) tree->root = y;
                 node->right->meta |= IS_BLACK;
                 tree->is_unstable = 0;
-                return 0;
+                return 0; }
             } else if (!node->left || (node->left->meta & IS_BLACK)) {
                 // case2_l:
                 child = parent; // Remember that child can be NULL
@@ -452,7 +452,7 @@ int remove_node(rbtree *tree, rbnode *node) {
                 node = parent->left;
             }
             if (node->left && !(node->left->meta & IS_BLACK)) {
-                case4_r:
+                case4_r: {
                 rbnode *y, *z;
                 y = node;
                 z = y->parent;
@@ -480,7 +480,7 @@ int remove_node(rbtree *tree, rbnode *node) {
                 if (!y->parent) tree->root = y;
                 node->left->meta |= IS_BLACK;
                 tree->is_unstable = 0;
-                return 0;
+                return 0; }
             } else if (!node->right || (node->right->meta & IS_BLACK)) {
                 // case2_r:
                 child = parent;
