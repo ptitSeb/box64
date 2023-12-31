@@ -270,7 +270,8 @@ static void sigstack_key_alloc() {
     pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
-//1<<8 is mutex_dyndump
+//1<<1 is mutex_prot, 1<<8 is mutex_dyndump
+#define is_memprot_locked (1<<1)
 #define is_dyndump_locked (1<<8)
 uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, uintptr_t fnc, int nargs, ...)
 {
@@ -1002,7 +1003,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     TRAP_x86_MCHK       = 18,  // Machine check exception
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
-    uint32_t prot = getProtection((uintptr_t)info->si_addr);
+    uint8_t prot = getProtection((uintptr_t)info->si_addr);
     if(sig==SIGBUS)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
@@ -1082,7 +1083,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     int ret;
     int dynarec = 0;
     #ifdef DYNAREC
-    if(sig!=SIGSEGV && !(Locks&is_dyndump_locked))
+    if(sig!=SIGSEGV && !(Locks&is_dyndump_locked) && !(Locks&is_memprot_locked))
         dynarec = 1;
     #endif
     ret = RunFunctionHandler(&exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
@@ -1278,12 +1279,12 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         return;
     }
     int Locks = unlockMutex();
-    uint32_t prot = getProtection((uintptr_t)addr);
+    uint8_t prot = getProtection((uintptr_t)addr);
     #ifdef BAD_SIGNAL
     // try to see if the si_code makes sense
     // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
     if((sig==SIGSEGV) && (addr) && (info->si_code == 1) && prot&(PROT_READ|PROT_WRITE|PROT_EXEC)) {
-        printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%x\n", addr, prot);
+        printf_log(LOG_DEBUG, "Workaround for suspicious si_code for %p / prot=0x%hhx\n", addr, prot);
         info->si_code = 2;
     }
     #endif
@@ -1303,19 +1304,18 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         db = FindDynablockFromNativeAddress(pc);
         db_searched = 1;
         static uintptr_t repeated_page = 0;
-        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%x (old page=%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot, (void*)repeated_page);
+        dynarec_log(LOG_DEBUG, "SIGSEGV with Access error on %p for %p , db=%p(%p), prot=0x%hhx (old page=%p)\n", pc, addr, db, db?((void*)db->x64_addr):NULL, prot, (void*)repeated_page);
         static int repeated_count = 0;
         if(repeated_page == ((uintptr_t)addr&~(box64_pagesize-1))) {
             ++repeated_count;   // Access eoor multiple time on same page, disable dynarec on this page a few time...
             dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
-            AddHotPage(repeated_page);
         } else {
             repeated_page = (uintptr_t)addr&~(box64_pagesize-1);
             repeated_count = 0;
         }
         // access error, unprotect the block (and mark them dirty)
         unprotectDB((uintptr_t)addr, 1, 1);    // unprotect 1 byte... But then, the whole page will be unprotected
-        int db_need_test = (db && !box64_dynarec_fastpage)?getNeedTest((uintptr_t)db->x64_addr):0;
+        int db_need_test = db?getNeedTest((uintptr_t)db->x64_addr):0;
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db_need_test)) {
             emu = getEmuSignal(emu, p, db);
             // dynablock got auto-dirty! need to get out of it!!!
@@ -1383,7 +1383,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
         static void* glitch_pc = NULL;
         static void* glitch_addr = NULL;
-        static int glitch_prot = 0;
+        static uint8_t glitch_prot = 0;
         if(addr && pc /*&& db*/) {
             if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
                 // probably a glitch due to intensive multitask...
