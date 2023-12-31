@@ -650,6 +650,7 @@
     CBNZx(reg, j64)
 
 #define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
+#define IFX2(A, B)  if((dyn->insts[ninst].x64.gen_flags&(A)) B)
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
 #define IFXX(A) if((dyn->insts[ninst].x64.gen_flags==(A)))
 #define IFX2X(A, B) if((dyn->insts[ninst].x64.gen_flags==(A) || dyn->insts[ninst].x64.gen_flags==(B) || dyn->insts[ninst].x64.gen_flags==((A)|(B))))

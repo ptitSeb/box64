@@ -309,7 +309,7 @@ void emit_shl8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     COMP_ZFSF(s1, 8)
     IFX(X_OF) {
         CMPSw_U12(s2, 1);   // if s2==1
-            IFX(X_SF && !arm64_flagm) {} else {LSRw(s3, s1, 7);}
+            IFX2(X_SF, && !arm64_flagm) {} else {LSRw(s3, s1, 7);}
             EORw_REG(s4, s3, xFlags);  // CF is set if OF is asked
             CSELw(s4, s4, wZR, cEQ);
             BFIw(xFlags, s4, F_OF, 1);
@@ -348,7 +348,7 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
         COMP_ZFSF(s1, 8)
         IFX(X_OF) {
             if(c==1) {
-                IFX(X_SF && !arm64_flagm) {} else {LSRw(s3, s1, 7);}
+                IFX2(X_SF, && !arm64_flagm) {} else {LSRw(s3, s1, 7);}
                 EORw_REG(s4, s3, xFlags);  // CF is set if OF is asked
                 BFIw(xFlags, s4, F_OF, 1);
             } else {
@@ -570,7 +570,7 @@ void emit_shl16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     COMP_ZFSF(s1, 16)
     IFX(X_OF) {
         CMPSw_U12(s2, 1);   // if s2==1
-            IFX(X_SF && !arm64_flagm) {} else {LSRw(s3, s1, 15);}
+            IFX2(X_SF, && !arm64_flagm) {} else {LSRw(s3, s1, 15);}
             EORw_REG(s4, s3, xFlags);  // CF is set if OF is asked
             CSELw(s4, s4, wZR, cEQ);
             BFIw(xFlags, s4, F_OF, 1);
@@ -610,7 +610,7 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         COMP_ZFSF(s1, 16)
         IFX(X_OF) {
             if(c==1) {
-                IFX(X_SF && !arm64_flagm) {} else {LSRw(s3, s1, 15);}
+                IFX2(X_SF, && !arm64_flagm) {} else {LSRw(s3, s1, 15);}
                 EORw_REG(s4, s3, xFlags);  // CF is set if OF is asked
                 BFIw(xFlags, s4, F_OF, 1);
             } else {
