@@ -3,12 +3,19 @@
 #include <stdlib.h>
 
 #ifdef RBTREE_TEST
-#define customMalloc malloc
-#define customFree free
+#define rbtreeMalloc malloc
+#define rbtreeFree free
 #else
 #include "custommem.h"
 #include "debug.h"
 #include "rbtree.h"
+#if 0
+#define rbtreeMalloc box_malloc
+#define rbtreeFree box_free
+#else
+#define rbtreeMalloc customMalloc
+#define rbtreeFree customFree
+#endif
 #endif
 
 typedef struct rbnode {
@@ -24,7 +31,7 @@ typedef struct rbtree {
 } rbtree;
 
 rbtree* init_rbtree() {
-    rbtree* tree = customMalloc(sizeof(rbtree));
+    rbtree* tree = rbtreeMalloc(sizeof(rbtree));
     tree->root = NULL;
     tree->is_unstable = 0;
     return tree;
@@ -34,11 +41,11 @@ void delete_rbnode(rbnode *root) {
     if (!root) return;
     delete_rbnode(root->left);
     delete_rbnode(root->right);
-    customFree(root);
+    rbtreeFree(root);
 }
 void delete_rbtree(rbtree *tree) {
     delete_rbnode(tree->root);
-    customFree(tree);
+    rbtreeFree(tree);
 }
 
 #define IS_LEFT  0x1
@@ -47,7 +54,7 @@ void delete_rbtree(rbtree *tree) {
 // Make sure prev is either the rightmost node before start or the leftmost range after start
 int add_range_next_to(rbtree *tree, rbnode *prev, uintptr_t start, uintptr_t end, uint8_t data) {
 // printf("Adding %lX-%lX:%hhX next to %p\n", start, end, data, prev);
-    rbnode *node = customMalloc(sizeof(*node));
+    rbnode *node = rbtreeMalloc(sizeof(*node));
     if (!node) return -1;
     node->start = start;
     node->end = end;
@@ -304,7 +311,7 @@ int remove_node(rbtree *tree, rbnode *node) {
     } else {
         if (!parent) {
             tree->root = NULL;
-            customFree(node);
+            rbtreeFree(node);
             tree->is_unstable = 0;
             return 0;
         } else if (node->meta & IS_LEFT) {
@@ -315,11 +322,11 @@ int remove_node(rbtree *tree, rbnode *node) {
     }
     // Node has been removed, now to fix the tree
     if (!(node->meta & IS_BLACK)) {
-        customFree(node);
+        rbtreeFree(node);
         tree->is_unstable = 0;
         return 0;
     }
-    customFree(node);
+    rbtreeFree(node);
 
     // Add a black node before child
     // Notice that the sibling cannot be NULL.
@@ -572,11 +579,10 @@ int rb_get_end(rbtree* tree, uintptr_t addr, uint8_t* val, uintptr_t* end) {
             node = node->left;
         }
     }
+    *val = 0;
     if (next) {
-        *val = next->data;
         *end = next->start;
     } else {
-        *val = 0;
         *end = (uintptr_t)-1;
     }
     return 0;
@@ -584,7 +590,7 @@ int rb_get_end(rbtree* tree, uintptr_t addr, uint8_t* val, uintptr_t* end) {
 
 int rb_set(rbtree *tree, uintptr_t start, uintptr_t end, uint8_t data) {
 // printf("rb_set( "); print_rbtree(tree); printf(" , 0x%lX, 0x%lX, %hhu);\n", start, end, data); fflush(stdout);
-// dynarec_log(LOG_DEBUG, "set 0x%lX, 0x%lX, %hhu\n", start, end, data);
+dynarec_log(LOG_DEBUG, "set 0x%lX, 0x%lX, %hhu\n", start, end, data);
     if (!tree->root) {
         return add_range(tree, start, end, data);
     }
@@ -717,7 +723,7 @@ int rb_set(rbtree *tree, uintptr_t start, uintptr_t end, uint8_t data) {
 
 int rb_unset(rbtree *tree, uintptr_t start, uintptr_t end) {
 // printf("rb_unset( "); print_rbtree(tree); printf(" , 0x%lX, 0x%lX);\n", start, end); fflush(stdout);
-// dynarec_log(LOG_DEBUG, "rb_unset(tree, 0x%lX, 0x%lX);\n", start, end);
+dynarec_log(LOG_DEBUG, "rb_unset(tree, 0x%lX, 0x%lX);\n", start, end);
     if (!tree->root) return 0;
 
     rbnode *node = tree->root, *prev = NULL, *next = NULL;
