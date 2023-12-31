@@ -572,7 +572,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         offset<<=scale;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = p->uc_mcontext.regs[val];
-        if(scale==3 && ((uintptr_t)addr)&3==0) {
+        if(scale==3 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
                 ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
@@ -591,7 +591,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
             offset |= (0xffffffffffffffffll<<9);
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = p->uc_mcontext.regs[val];
-        if(size==8 && ((uintptr_t)addr)&3==0) {
+        if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
                 ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
@@ -615,7 +615,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = fpsimd->vregs[val];
-        if(scale>2 && ((uintptr_t)addr)&3==0) {
+        if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
                 ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
@@ -640,7 +640,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = fpsimd->vregs[val];
-        if(scale>2 && ((uintptr_t)addr)&3==0) {
+        if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
                 ((uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
         } else
@@ -664,7 +664,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = 0;
-        if(scale>2 && ((uintptr_t)addr)&3==0) {
+        if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
                 value |= ((__uint128_t)(((uint32_t*)addr)[i]))<<(i*32);
         } else
@@ -690,7 +690,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         int dest = (opcode>>5)&31;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         __uint128_t value = 0;
-        if(scale>2 && ((uintptr_t)addr)&3==0) {
+        if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
                 value |= ((__uint128_t)(((uint32_t*)addr)[i]))<<(i*32);
         } else
@@ -709,7 +709,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         offset<<=scale;
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = 0;
-        if(scale==3 && ((uintptr_t)addr)&3==0) {
+        if(scale==3 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
                 value |= ((uint64_t)((uint32_t*)addr)[i]) << (i*32);
         } else
@@ -729,7 +729,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
             offset |= (0xffffffffffffffffll<<9);
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         uint64_t value = 0;
-        if(size==8 && ((uintptr_t)addr)&3==0) {
+        if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
                 value |= ((uint64_t)((uint32_t*)addr)[i]) << (i*32);
         } else
@@ -787,7 +787,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
     }
     if((opcode&0b11111111110000000000000000000000)==0b10101001000000000000000000000000) {
         // This is STP reg1, reg2, [reg3 + off]
-        int scale = 2+(opcode>>31)&1;
+        int scale = 2+((opcode>>31)&1);
         int val1 = opcode&31;
         int val2 = (opcode>>10)&31;
         int dest = (opcode>>5)&31;
@@ -796,7 +796,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
             offset |= (0xffffffffffffffffll<<7);
         offset <<= scale;
         uintptr_t addr= p->uc_mcontext.regs[dest] + offset;
-        if(((uintptr_t)addr)&3==0) {
+        if((((uintptr_t)addr)&3)==0) {
             ((volatile uint32_t*)addr)[0] = p->uc_mcontext.regs[val1];
             ((volatile uint32_t*)addr)[1] = p->uc_mcontext.regs[val2];
         } else {

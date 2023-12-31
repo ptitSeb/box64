@@ -1208,7 +1208,7 @@ void updateProtection(uintptr_t addr, size_t size, uint8_t prot)
                 dyn = PROT_DYNAREC_R;
             }
         }
-        if (prot|dyn != prot)
+        if ((prot|dyn) != prot)
             rb_set(memprot, cur, bend, prot|dyn);
         cur = bend;
     }
