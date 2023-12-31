@@ -463,10 +463,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         B+32 .. B+32+sz : instsize (compressed array with each instruction length on x64 and native side)
 
     */
-    if(IsInHotPage(addr)) {
-        dynarec_log(LOG_DEBUG, "Canceling dynarec FillBlock on hotpage for %p\n", (void*)addr);
-        return NULL;
-    }
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return CreateEmptyBlock(block, addr);
@@ -495,7 +491,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
-        AddHotPage(addr);
         CancelBlock64(0);
         return NULL;
     }
@@ -634,7 +629,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     // Check if something changed, to abort if it is
     if((block->hash != hash)) {
         dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
-        AddHotPage(addr);
         CancelBlock64(0);
         return NULL;
     }
@@ -658,7 +652,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     }
     if(!isprotectedDB(addr, end-addr)) {
         dynarec_log(LOG_DEBUG, "Warning, block unprotected while being processed %p:%ld, marking as need_test\n", block->x64_addr, block->x64_size);
-        AddHotPage(addr);
         block->dirty = 1;
         //protectDB(addr, end-addr);
     }

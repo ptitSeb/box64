@@ -148,8 +148,8 @@ ENTRYBOOL(BOX64_DYNAREC_CALLRET, box64_dynarec_callret)             \
 ENTRYBOOL(BOX64_DYNAREC_BLEEDING_EDGE, box64_dynarec_bleeding_edge) \
 ENTRYBOOL(BOX64_DYNAREC_JVM, box64_dynarec_jvm)                     \
 ENTRYBOOL(BOX64_DYNAREC_TBB, box64_dynarec_tbb)                     \
-ENTRYINT(BOX64_DYNAREC_HOTPAGE, box64_dynarec_hotpage, 0, 255, 8)   \
-ENTRYBOOL(BOX64_DYNAREC_FASTPAGE, box64_dynarec_fastpage)           \
+IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
+IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
 ENTRYBOOL(BOX64_DYNAREC_ALIGNED_ATOMICS, box64_dynarec_aligned_atomics) \
 ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \

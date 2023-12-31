@@ -27,8 +27,6 @@ extern int box64_dynarec_callret;
 extern int box64_dynarec_bleeding_edge;
 extern int box64_dynarec_jvm;
 extern int box64_dynarec_tbb;
-extern int box64_dynarec_hotpage;
-extern int box64_dynarec_fastpage;
 extern int box64_dynarec_wait;
 extern int box64_dynarec_missing;
 extern int box64_dynarec_aligned_atomics;

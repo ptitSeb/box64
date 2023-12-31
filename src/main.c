@@ -62,8 +62,6 @@ int box64_dynarec_fastnan = 1;
 int box64_dynarec_fastround = 1;
 int box64_dynarec_safeflags = 1;
 int box64_dynarec_callret = 1;
-int box64_dynarec_hotpage = 0;
-int box64_dynarec_fastpage = 0;
 int box64_dynarec_bleeding_edge = 1;
 int box64_dynarec_jvm = 1;
 int box64_dynarec_tbb = 1;
@@ -695,27 +693,6 @@ void LoadLogEnv()
         }
         if(!box64_dynarec_wait)
             printf_log(LOG_INFO, "Dynarec will not wait for FillBlock to ready and use Interpreter instead\n");
-    }
-    p = getenv("BOX64_DYNAREC_HOTPAGE");
-    if(p) {
-        int val = -1;
-        if(sscanf(p, "%d", &val)==1) {
-            if(val>=0)
-                box64_dynarec_hotpage = val;
-        }
-        if(box64_dynarec_hotpage)
-            printf_log(LOG_INFO, "Dynarec will have HotPage tagged for %d attempts\n", box64_dynarec_hotpage);
-        else
-            printf_log(LOG_INFO, "Dynarec will not tag HotPage\n");
-    }
-    p = getenv("BOX64_DYNAREC_FASTPAGE");
-    if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_fastpage = p[0]-'0';
-        }
-        if(box64_dynarec_fastpage)
-            printf_log(LOG_INFO, "Dynarec will use Fast HotPage\n");
     }
     p = getenv("BOX64_DYNAREC_ALIGNED_ATOMICS");
     if(p) {

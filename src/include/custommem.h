@@ -75,22 +75,19 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 #define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT)
 #define PROT_WAIT       0xFF
 
-void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
-void setProtection(uintptr_t addr, size_t size, uint32_t prot);
-void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot);
-void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot);
+void updateProtection(uintptr_t addr, size_t size, uint8_t prot);
+void setProtection(uintptr_t addr, size_t size, uint8_t prot);
+void setProtection_mmap(uintptr_t addr, size_t size, uint8_t prot);
+void setProtection_elf(uintptr_t addr, size_t size, uint8_t prot);
 void freeProtection(uintptr_t addr, size_t size);
 void refreshProtection(uintptr_t addr);
-uint32_t getProtection(uintptr_t addr);
+uint8_t getProtection(uintptr_t addr);
 int getMmapped(uintptr_t addr);
 void loadProtectionFromMap(void);
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
 int isprotectedDB(uintptr_t addr, size_t size);
-int IsInHotPage(uintptr_t addr);
-int AreaInHotPage(uintptr_t start, uintptr_t end);
-void AddHotPage(uintptr_t addr);
 #endif
 void* find32bitBlock(size_t size);
 void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask);
