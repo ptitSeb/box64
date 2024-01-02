@@ -183,8 +183,8 @@ Handling of flags on CALL/RET opcodes
 
 #### BOX64_DYNAREC_CALLRET *
 Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
-* 0 : Don't optimize CALL/RET, use Jump Table for boths
-* 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (Default)
+* 0 : Don't optimize CALL/RET, use Jump Table for boths (Default)
+* 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible
 
 #### BOX64_DYNAREC_ALIGNED_ATOMICS *
 Generated code for aligned atomics only
