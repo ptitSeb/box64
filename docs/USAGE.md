@@ -186,16 +186,6 @@ Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
 * 0 : Don't optimize CALL/RET, use Jump Table for boths
 * 1 : Try to optimized CALL/RET, skipping the use of the JumpTable when possible (Default)
 
-#### BOX64_DYNAREC_HOTPAGE *
-Handling of HotPage (Page being both executed and written)
-* 0 : Don't track hotpage (Default)
-* 1-255 : Track HotPage, and disable execution of a page being written for N attempts
-
-#### BOX64_DYNAREC_FASTPAGE *
-Will use a faster handling of HotPage (Page being both executed and written)
-* 0 : use regular hotpage (Default)
-* 1 : Use faster hotpage, taking the risk of running obsolete JIT code (might be faster, but more prone to crash)
-
 #### BOX64_DYNAREC_ALIGNED_ATOMICS *
 Generated code for aligned atomics only
 * 0 : The code generated can handle unaligned atomics (Default)
