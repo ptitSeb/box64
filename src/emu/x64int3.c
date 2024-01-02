@@ -122,6 +122,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 int perr = 0;
                 uint64_t *pu64 = NULL;
                 uint32_t *pu32 = NULL;
+                uint8_t *pu8 = NULL;
                 const char *s = bridge->name;
                 if(!s)
                     s = GetNativeName((void*)a);
@@ -171,10 +172,12 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     perr = 2;
                 } else if (!strcmp(s, "read") || !strcmp(s, "my_read")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
+                    pu8 = (uint8_t*)R_RSI;
+                    post = 8;
                     perr = 1;
                 } else if (!strcmp(s, "write") || !strcmp(s, "my_write")) {
                     if(R_EDI==2 || R_EDI==3)
-                        snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p\"%s\", %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, (char*)R_RSI, R_RDX);
+                        snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p\"%.*s\", %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_EDX, (char*)R_RSI, R_RDX);
                     else
                         snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
                     perr = 1;
@@ -323,6 +326,17 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                         break;
                     case 7: if(pu32) snprintf(buff2, 64, " [%d, %d] ", pu32[0], pu32[1]);
                         break;
+                    case 8: if(pu8 && S_RAX!=-1) {
+                        char buff5[64] = "";
+                        char buff6[10];
+                        int n = S_EAX; if(n>64/(3*2)) n=64/(3*2);
+                        for(int i=0; i<n; ++i) {
+                            snprintf(buff6, sizeof(buff6), "%02X ", pu8[i]);
+                            strcat(buff5, buff6);
+                        }
+                        snprintf(buff2, 64, "[%s%s] ", buff5, (n==S_EAX)?"":"...");
+                    }
+                    break;
                 }
                 if(perr==1 && ((int)R_EAX)<0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
