@@ -464,11 +464,15 @@ void GatherDynarecExtensions();
 void setupTraceInit();
 void setupTrace();
 #endif
+static char old_name[256] = "";
+const char* GetLastApplyName()
+{
+    return old_name;
+}
 void ApplyParams(const char* name)
 {
     if(!name || !params)
         return;
-    static char old_name[256] = "";
     int new_cycle_log = cycle_log;
     int new_maxcpu = box64_maxcpu;
     if(!strcmp(name, old_name)) {
