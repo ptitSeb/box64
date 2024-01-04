@@ -7,6 +7,11 @@
 # 
 [3dSen.x86_64]
 BOX64_DYNAREC_BLEEDING_EDGE=0   # avoid the use of STRONGMEM for much better performances
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_FORWARD=1024
+BOX64_DYNAREC_CALLRET=1
+BOX64_MAXCPU=4  # surprisingly, having too much cpu core slow down things.4 is more than enough here
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [7z]
@@ -29,6 +34,13 @@ BOX64_DYNAREC_ALIGNED_ATOMICS=1
 # LOG tend to mess up script execution in bash
 BOX64_LOG=0
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
+
+[Broforce.x86_64]
+BOX64_DYNAREC_SAFEFLAGS=0
+BOX64_DYNAREC_BIGBLOCK=2
+BOX64_DYNAREC_FORWARD=1024
+BOX64_DYNAREC_CALLRET=1
+BOX64_MAXCPU=4  # surprisingly, having too much cpu core slow down things.4 is more than enough here
 
 [chrome]
 BOX64_MALLOC_HACK=2
