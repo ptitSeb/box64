@@ -624,7 +624,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
         CBNZx(x6, 2*4);
         BLR(x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        SUBx_U12(xSP, xSavedSP, 0);
+        SUBx_U12(xSP, xSavedSP, 16);
     }
     uintptr_t tbl = getJumpTable64();
     NOTEST(x2);
@@ -667,7 +667,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
         CBNZx(x6, 2*4);
         BLR(x2);
         // not the correct return address, regular jump
-        SUBx_U12(xSP, xSavedSP, 0);
+        SUBx_U12(xSP, xSavedSP, 16);
     }
     uintptr_t tbl = getJumpTable64();
     NOTEST(x2);
