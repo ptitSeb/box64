@@ -164,7 +164,7 @@ GO(gnutls_dh_params_export_raw, iFpppp)
 GO(gnutls_dh_params_generate2, iFpu)
 //GO(gnutls_dh_params_import_dsa, 
 //GO(gnutls_dh_params_import_pkcs3, 
-//GO(gnutls_dh_params_import_raw, 
+GO(gnutls_dh_params_import_raw, iFppp)
 GO(gnutls_dh_params_import_raw2, iFpppu)
 GO(gnutls_dh_params_init, iFp)
 //GO(gnutls_dh_set_prime_bits, 
