@@ -880,22 +880,25 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         TABLE64(x2, addr);
                     }
                     PUSH1z(x2);
-                    // TODO: Add support for CALLRET optim
-                    /*if(box64_dynarec_callret) {
+                    if(box64_dynarec_callret) {
+                        SET_HASCALLRET();
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
                             j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
-                            ADR_S20(x4, j64);
+                            AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                            ADDIW(x4, x4, j64 & 0xfff);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
                             j64 = getJumpTableAddress64(addr);
                             TABLE64(x4, j64);
-                            LDR(x4, x4, 0);
+                            LD(x4, x4, 0);
                         }
-                        PUSH1(x4);
-                        PUSH1(x2);
-                    } else */ //CALLRET optim disable for now.
-                    {
+                        ADDI(xSP, xSP, -16);
+                        SD(x4, xSP, 0);
+                        SD(x2, xSP, 8);
+                    } else {
                         *ok = 0;
                         *need_epilog = 0;
                     }
@@ -1249,20 +1252,25 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         *ok = 0;
                     }
                     GETIP_(addr);
-                    // TODO: Add suport for CALLRET optim
-                    /*if(box64_dynarec_callret) {
+                    if(box64_dynarec_callret) {
+                        SET_HASCALLRET();
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
                             j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
-                            ADR_S20(x4, j64);
+                            AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                            ADDIW(x4, x4, j64 & 0xfff);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
                             j64 = getJumpTableAddress64(addr);
                             TABLE64(x4, j64);
-                            LDRx_U12(x4, x4, 0);
+                            LD(x4, x4, 0);
                         }
-                        STPx_S7_preindex(x4, xRIP, xSP, -16);
-                    }*/
+                        ADDI(xSP, xSP, -16);
+                        SD(x4, xSP, 0);
+                        SD(xRIP, xSP, 8);
+                    }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst);
                     break;

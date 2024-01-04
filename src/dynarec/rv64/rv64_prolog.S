@@ -62,5 +62,11 @@ rv64_prolog:
     // setup xMASK
     xori    x5, x0, -1
     srli    x5, x5, 32
+    // push a sentinel pair of addresses onto the stack
+    la      a2, rv64_next
+    sd      a2, -16(sp)
+    sd      zero, -8(sp)
+    addi    sp, sp, -16
+    sd      sp, 552(a0) // save current sp to emu->old_sp
     // jump to block
     jalr    a1
