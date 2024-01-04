@@ -150,7 +150,7 @@ class FunctionConvention(object):
 		self.ident = ident
 		self.name = convname
 		self.values = valid_chars
-# Free letters:  B   FG  J      QR T   XYZa   e gh jk mno qrst   xyz
+# Free letters:  B   FG  J      QR T    YZa   e gh jk mno qrst    yz
 conventions = {
 	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'b']),
 	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M',      'P', 'A'])
@@ -197,7 +197,7 @@ class FunctionType(str):
 		except ValueError as e:
 			raise ValueError("Value is " + self) from e
 	
-	def __getitem__(self, i: Union[int, slice]) -> 'FunctionType':
+	def __getitem__(self, i: Union[int, slice]) -> 'FunctionType': # type: ignore [override]
 		return FunctionType(super().__getitem__(i))
 
 RedirectType = NewType('RedirectType', FunctionType)
@@ -816,62 +816,75 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		return 0
 	
 	# Detect simple wrappings
-	simple_wraps: Dict[ClausesStr, List[Tuple[FunctionType, int]]] = {}
 	allowed_conv_ident = "F"
 	allowed_conv = conventions[allowed_conv_ident]
 	
 	# H could be allowed maybe?
-	allowed_simply: str = "v"
-	allowed_regs  : str = "cCwWiuIUlLp"
-	allowed_fpr   : str = "fd"
+	allowed_simply: Dict[str, str] = {"ARM64": "v", "RV64": "v"}
+	allowed_regs  : Dict[str, str] = {"ARM64": "cCwWiuIUlLp", "RV64": "CWuIUlLp"}
+	allowed_fpr   : Dict[str, str] = {"ARM64": "fd", "RV64": "fd"}
 	
 	# Detect functions which return in an x87 register
 	retx87_wraps: Dict[ClausesStr, List[FunctionType]] = {}
 	return_x87: str = "DK"
 	
 	# Sanity checks
-	forbidden_simple: str = "EDKVOSNMHPAxXb"
-	assert(len(allowed_simply) + len(allowed_regs) + len(allowed_fpr) + len(forbidden_simple) == len(allowed_conv.values))
-	assert(all(c not in allowed_regs for c in allowed_simply))
-	assert(all(c not in allowed_simply + allowed_regs for c in allowed_fpr))
-	assert(all(c not in allowed_simply + allowed_regs + allowed_fpr for c in forbidden_simple))
-	assert(all(c in allowed_simply + allowed_regs + allowed_fpr + forbidden_simple for c in allowed_conv.values))
+	forbidden_simple: Dict[str, str] = {"ARM64": "EDKVOSNMHPAxXb", "RV64": "EcwiDKVOSNMHPAxXb"}
+	assert(all(k in allowed_simply for k in forbidden_simple))
+	assert(all(k in allowed_regs for k in forbidden_simple))
+	assert(all(k in allowed_fpr for k in forbidden_simple))
+	for k1 in forbidden_simple:
+		assert(len(allowed_simply[k1]) + len(allowed_regs[k1]) + len(allowed_fpr[k1]) + len(forbidden_simple[k1]) == len(allowed_conv.values))
+		assert(all(c not in allowed_regs[k1] for c in allowed_simply[k1]))
+		assert(all(c not in allowed_simply[k1] + allowed_regs[k1] for c in allowed_fpr[k1]))
+		assert(all(c not in allowed_simply[k1] + allowed_regs[k1] + allowed_fpr[k1] for c in forbidden_simple[k1]))
+		assert(all(c in allowed_simply[k1] + allowed_regs[k1] + allowed_fpr[k1] + forbidden_simple[k1] for c in allowed_conv.values))
 	assert(all(c in allowed_conv.values for c in return_x87))
 	
-	def check_simple(v: FunctionType) -> Optional[int]:
+	simple_wraps: Dict[str, Dict[ClausesStr, List[Tuple[FunctionType, int]]]] = {
+		k1: {} for k1 in forbidden_simple
+	}
+	
+	def check_simple(v: FunctionType) -> Dict[str, int]:
 		regs_count: int = 0
 		fpr_count : int = 0
 		
-		if v.get_convention() is not allowed_conv:
-			return None
-		if v[0] in forbidden_simple:
-			return None
-		for c in v[2:]:
-			if c in allowed_regs:
-				regs_count = regs_count + 1
-			elif c in allowed_fpr:
-				fpr_count = fpr_count + 1
-			elif c in allowed_simply:
+		ret = {}
+		for k in forbidden_simple:
+			if v.get_convention() is not allowed_conv:
 				continue
+			if v[0] in forbidden_simple[k]:
+				continue
+			for c in v[2:]:
+				if c in allowed_regs[k]:
+					regs_count = regs_count + 1
+				elif c in allowed_fpr[k]:
+					fpr_count = fpr_count + 1
+				elif c in allowed_simply[k]:
+					continue
+				else:
+					break
 			else:
-				return None
-		# No character in forbidden_simply
-		if (regs_count <= 6) and (fpr_count <= 8):
-			# All checks passed!
-			ret_val = 1 + fpr_count
-			if v[0] in allowed_fpr:
-				ret_val = -ret_val
-			return ret_val
-		else:
-			# Too many arguments...
-			return None
+				# No character in forbidden_simply
+				if (regs_count <= 6) and (fpr_count <= 8):
+					# All checks passed!
+					ret_val = 1 + fpr_count
+					if v[0] in allowed_fpr[k]:
+						ret_val = -ret_val
+					ret[k] = ret_val
+				# Else, too many arguments
+		return ret
 	
 	# Only search in real wrappers (mapped ones are nearly always not simple)
 	for k in gbls:
-		tmp = [ (v, ret_val) for v, ret_val in map(lambda v: (v, check_simple(v)), gbls[k]) if ret_val is not None ]
-		if tmp:
-			simple_wraps[k] = tmp
-	simple_idxs = sorted(simple_wraps.keys(), key=lambda x: Clauses(x).splitdef())
+		for v in gbls[k]:
+			simples = check_simple(v)
+			for k1, i in simples.items():
+				if k in simple_wraps[k1]:
+					simple_wraps[k1][k].append((v, i))
+				else:
+					simple_wraps[k1][k] = [(v, i)]
+	simple_idxs = { k1: sorted(v1.keys(), key=lambda x: Clauses(x).splitdef()) for k1, v1 in simple_wraps.items() }
 	
 	def check_return_x87(v: FunctionType) -> bool:
 		return v[0] in return_x87
@@ -1266,7 +1279,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		for k in conventions:
 			c = conventions[k]
 			if c not in vals:
-				raise NotImplementedError("[{k}]values not in vals".format(k=k, lenval=len(c.values), lenvals=len(vals[c])))
+				raise NotImplementedError("convention {k} not in vals".format(k=k))
 			if len(c.values) != len(vals[c]):
 				raise NotImplementedError("len([{k}]values) = {lenval} != len(vals[...]) = {lenvals}".format(k=k, lenval=len(c.values), lenvals=len(vals[c])))
 		# When arg_* is not empty, v* should not be 0
@@ -1290,7 +1303,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		
 		# Helper functions to write the function definitions
 		systemVconv = conventions['F']
-		def function_pre_systemV(args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> (Optional[str], str):
+		def function_pre_systemV(args: FunctionType, d: int = 8, r: int = 0, x: int = 0) -> Tuple[Optional[str], str]:
 			# args: string of argument types
 			# d: delta (in the stack)
 			# r: general register no
@@ -1440,15 +1453,20 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				file.write("#endif\n")
 		
 		# Write the isSimpleWrapper function
-		file.write("\nint isSimpleWrapper(wrapper_t fun) {\n")
-		for k in simple_idxs:
-			if k != str(Clauses()):
-				file.write("#if " + k + "\n")
-			for vf, val in simple_wraps[k]:
-				file.write("\tif (fun == &" + vf + ") return " + str(val) + ";\n")
-			if k != str(Clauses()):
-				file.write("#endif\n")
-		file.write("\treturn 0;\n}\n")
+		inttext = ""
+		file.write("\n")
+		for k1 in simple_idxs:
+			file.write("#{inttext}if defined({k1})\nint isSimpleWrapper(wrapper_t fun) {{\n".format(inttext=inttext, k1=k1))
+			inttext = "el"
+			for k in simple_idxs[k1]:
+				if k != str(Clauses()):
+					file.write("#if " + k + "\n")
+				for vf, val in simple_wraps[k1][k]:
+					file.write("\tif (fun == &" + vf + ") return " + str(val) + ";\n")
+				if k != str(Clauses()):
+					file.write("#endif\n")
+			file.write("\treturn 0;\n}\n")
+		file.write("\n#else\nint isSimpleWrapper(wrapper_t fun) {\n\treturn 0;\n}\n#endif\n")
 		
 		# Write the isRetX87Wrapper function
 		file.write("\nint isRetX87Wrapper(wrapper_t fun) {\n")
