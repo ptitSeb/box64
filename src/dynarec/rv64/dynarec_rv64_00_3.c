@@ -887,7 +887,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             // there is a next...
                             j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
                             AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDIW(x4, x4, j64 & 0xfff);
+                            ADDI(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
                             MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
@@ -1259,7 +1259,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             // there is a next...
                             j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
                             AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDIW(x4, x4, j64 & 0xfff);
+                            ADDI(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
                             MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
