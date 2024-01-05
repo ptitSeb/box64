@@ -199,25 +199,24 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                     s0 = fpu_get_scratch(dyn);
-                    #if 0
-                    ed = x1;
-                    FRINT32ZD(s0, v1);
-                    FCVTZSwD(ed, s0);
-                    WBACK;
-                    #else
-                    MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
-                    FRINTZD(s0, v1);
-                    VFCVTZSd(s0, s0);
-                    SQXTN_S_D(s0, s0);
-                    VST32(s0, wback, fixedaddress);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_MARK3(x5, FPSR_IOC);
-                    MOV32w(x5, 0x80000000);
-                    STW(x5, wback, fixedaddress);
-                    MARK3;
-                    #endif
+                    if(arm64_frintts) {
+                        FRINT32ZD(s0, v1);
+                        FCVTZSwD(x5, s0);
+                        STW(x5, wback, fixedaddress);
+                    } else {
+                        MRS_fpsr(x5);
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        FRINTZD(s0, v1);
+                        VFCVTZSd(s0, s0);
+                        SQXTN_S_D(s0, s0);
+                        VST32(s0, wback, fixedaddress);
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TBZ_MARK3(x5, FPSR_IOC);
+                        MOV32w(x5, 0x80000000);
+                        STW(x5, wback, fixedaddress);
+                        MARK3;
+                    }
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 2:
@@ -226,25 +225,24 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                     s0 = fpu_get_scratch(dyn);
-                    #if 0
-                    ed = x1;
-                    FRINT32XD(s0, v1);
-                    FCVTZSwD(ed, s0);
-                    WBACK;
-                    #else
-                    MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
-                    FRINTXD(s0, v1);
-                    VFCVTZSd(s0, s0);
-                    SQXTN_S_D(s0, s0);
-                    VST32(s0, wback, fixedaddress);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_MARK3(x5, FPSR_IOC);
-                    MOV32w(x5, 0x80000000);
-                    STW(x5, wback, fixedaddress);
-                    MARK3;
-                    #endif
+                    if(arm64_frintts) {
+                        FRINT32XD(s0, v1);
+                        FCVTZSwD(x5, s0);
+                        STW(x5, wback, fixedaddress);
+                    } else {
+                        MRS_fpsr(x5);
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        FRINTXD(s0, v1);
+                        VFCVTZSd(s0, s0);
+                        SQXTN_S_D(s0, s0);
+                        VST32(s0, wback, fixedaddress);
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TBZ_MARK3(x5, FPSR_IOC);
+                        MOV32w(x5, 0x80000000);
+                        STW(x5, wback, fixedaddress);
+                        MARK3;
+                    }
                     x87_restoreround(dyn, ninst, u8);
                     break;
                 case 3:
@@ -253,25 +251,24 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                     s0 = fpu_get_scratch(dyn);
-                    #if 0
-                    ed = x1;
-                    FRINT32XD(s0, v1);
-                    FCVTZSwD(ed, s0);
-                    WBACK;
-                    #else
-                    MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
-                    FRINTXD(s0, v1);
-                    VFCVTZSd(s0, s0);
-                    SQXTN_S_D(s0, s0);
-                    VST32(s0, wback, fixedaddress);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ_MARK3(x5, FPSR_IOC);
-                    MOV32w(x5, 0x80000000);
-                    STW(x5, wback, fixedaddress);
-                    MARK3;
-                    #endif
+                    if(arm64_frintts) {
+                        FRINT32XD(s0, v1);
+                        FCVTZSwD(x5, s0);
+                        STW(x5, wback, fixedaddress);
+                    } else {
+                        MRS_fpsr(x5);
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        FRINTXD(s0, v1);
+                        VFCVTZSd(s0, s0);
+                        SQXTN_S_D(s0, s0);
+                        VST32(s0, wback, fixedaddress);
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TBZ_MARK3(x5, FPSR_IOC);
+                        MOV32w(x5, 0x80000000);
+                        STW(x5, wback, fixedaddress);
+                        MARK3;
+                    }
                     x87_restoreround(dyn, ninst, u8);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;

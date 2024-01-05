@@ -40,6 +40,7 @@ extern int arm64_sha1;
 extern int arm64_sha2;
 extern int arm64_flagm;
 extern int arm64_flagm2;
+extern int arm64_frintts;
 #elif defined(RV64)
 extern int rv64_zba;
 extern int rv64_zbb;
