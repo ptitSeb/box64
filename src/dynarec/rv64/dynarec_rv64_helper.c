@@ -532,8 +532,7 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
         LD(x2, xSP, 0);     // native addr
         LD(x6, xSP, 8);     // x86 addr
         ADDI(xSP, xSP, 16); // pop
-        SUB(x6, x6, xRIP);  // is it the right address?
-        BNEZ(x2, 2*4);
+        BNE(x6, xRIP, 2*4); // is it the right address?
         JALR(x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
@@ -589,8 +588,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
         LD(x2, xSP, 0);     // native addr
         LD(x6, xSP, 8);     // x86 addr
         ADDI(xSP, xSP, 16); // pop
-        SUB(x6, x6, xRIP);  // is it the right address?
-        BNEZ(x2, 2*4);
+        BNE(x6, xRIP, 2*4); // is it the right address?
         JALR(x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));

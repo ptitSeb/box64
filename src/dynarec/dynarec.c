@@ -198,5 +198,7 @@ void DynaRun(x64emu_t* emu)
     }
     // clear the setjmp
     emu->jmpbuf = old_jmpbuf;
+    #ifdef RV64
     emu->xSPSave = old_savesp;
+    #endif
 }
