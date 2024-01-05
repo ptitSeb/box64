@@ -304,11 +304,11 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     if(box64_dynarec_test)
         emu->test.test = 0;
     #endif
-    
+
     /*SetFS(emu, default_fs);*/
     for (int i=0; i<6; ++i)
         emu->segs_serial[i] = 0;
-        
+
     if(nargs>6)
         R_RSP -= (nargs-6)*sizeof(void*);   // need to push in reverse order
 
@@ -333,7 +333,7 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     emu->flags.quitonlongjmp = 2;
     int old_cs = R_CS;
     R_CS = 0x33;
-    
+
     emu->eflags.x64 &= ~(1<<F_TF); // this one needs to cleared
 
     if(dynarec)
@@ -821,7 +821,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     // get that actual ESP first!
     x64emu_t *emu = thread_get_emu();
     uintptr_t frame = R_RSP;
-#if defined(DYNAREC) 
+#if defined(DYNAREC)
 #if defined(ARM64)
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     ucontext_t *p = (ucontext_t *)ucntx;
@@ -1149,6 +1149,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             if(Locks & is_dyndump_locked)
                 CancelBlock64(1);
             #endif
+            #ifdef RV64
+            emu->xSPSave = emu->old_savedsp;
+            #endif
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, 1);
             #else
@@ -1213,8 +1216,8 @@ static pthread_mutex_t mutex_dynarec_prot = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER
 #define lock_signal()     mutex_lock(&mutex_dynarec_prot)
 #define unlock_signal()   mutex_unlock(&mutex_dynarec_prot)
 #else   // USE_SIGNAL_MUTEX
-#define lock_signal()     
-#define unlock_signal()   
+#define lock_signal()
+#define unlock_signal()
 #endif
 
 extern int box64_quit;
@@ -1616,14 +1619,14 @@ exit(-1);
             uint32_t hash = 0;
             if(db)
                 hash = X31_hash_code(db->x64_addr, db->x64_size);
-            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p", 
-                GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, 
-                emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP, 
-                addr, info->si_code, 
-                prot, db, db?db->block:0, db?(db->block+db->size):0, 
-                db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0, 
-                getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)), 
-                (db?getNeedTest((uintptr_t)db->x64_addr):0)?"need_stest":"clean", db?db->hash:0, hash, 
+            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p",
+                GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp,
+                emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP,
+                addr, info->si_code,
+                prot, db, db?db->block:0, db?(db->block+db->size):0,
+                db?db->x64_addr:0, db?(db->x64_addr+db->x64_size):0,
+                getAddrFunctionName((uintptr_t)(db?db->x64_addr:0)),
+                (db?getNeedTest((uintptr_t)db->x64_addr):0)?"need_stest":"clean", db?db->hash:0, hash,
                 (void*)my_context->signals[sig]);
 #if defined(ARM64)
             if(db) {
@@ -1797,7 +1800,7 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
         newact.sa_sigaction = my_sigactionhandler;
         sigaction(signum, &newact, &oldact);
         return oldact.sa_handler;
-    } else 
+    } else
         return signal(signum, handler);
 }
 EXPORT sighandler_t my___sysv_signal(x64emu_t* emu, int signum, sighandler_t handler) __attribute__((alias("my_signal")));
@@ -1810,7 +1813,7 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
         errno = EINVAL;
         return -1;
     }
-    
+
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
 
@@ -1867,7 +1870,7 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
         errno = EINVAL;
         return -1;
     }
-    
+
     if(signum==SIGSEGV && emu->context->no_sigsegv)
         return 0;
     // TODO, how to handle sigsetsize>4?!
@@ -2099,7 +2102,7 @@ EXPORT int my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int
     --rsp;
     *rsp = my_context->exit_bridge;
     u->uc_mcontext.gregs[X64_RSP] = (uintptr_t)rsp;
-    
+
     return 0;
 }
 
@@ -2118,7 +2121,7 @@ static void atfork_child_dynarec_prot(void)
     #ifdef USE_CUSTOM_MUTEX
     native_lock_store(&mutex_dynarec_prot, 0);
     #else
-    pthread_mutex_t tmp = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP; 
+    pthread_mutex_t tmp = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
     memcpy(&mutex_dynarec_prot, &tmp, sizeof(mutex_dynarec_prot));
     #endif
 }

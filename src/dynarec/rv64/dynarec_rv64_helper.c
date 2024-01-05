@@ -531,13 +531,13 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
         // pop the actual return address from RV64 stack
         LD(x2, xSP, 0);     // native addr
         LD(x6, xSP, 8);     // x86 addr
-        BEQZ(x6, 6*4);      // hit the sentinel?
         ADDI(xSP, xSP, 16); // pop
         SUB(x6, x6, xRIP);  // is it the right address?
         BNEZ(x2, 2*4);
         JALR(x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        LD(xSP, xEmu, offsetof(x64emu_t, old_sp));
+        LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
+        ADDI(xSP, xSP, -16);
     }
 
     uintptr_t tbl = getJumpTable64();
@@ -588,13 +588,13 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
         // pop the actual return address from RV64 stack
         LD(x2, xSP, 0);     // native addr
         LD(x6, xSP, 8);     // x86 addr
-        BEQZ(x6, 5*4);      // hit the sentinel?
         ADDI(xSP, xSP, 16); // pop
         SUB(x6, x6, xRIP);  // is it the right address?
         BNEZ(x2, 2*4);
         JALR(x2);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        LD(xSP, xEmu, offsetof(x64emu_t, old_sp));
+        LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
+        ADDI(xSP, xSP, -16);
     }
     uintptr_t tbl = getJumpTable64();
     MOV64x(x3, tbl);
