@@ -176,7 +176,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = x1;
                     s0 = fpu_get_scratch(dyn);
                     #if 0
-                    // this version needs ARM v8.5, //TODO: add detection of this extension to use it
+                    // this version needs ARM v8.5, and doesn't handle saturation for 32bits integer not fitting 16bits
                     FRINT32ZD(s0, v1);
                     // no saturation instruction on Arm, so using NEON
                     VFCVTZSd(s0, s0);

@@ -336,24 +336,29 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if (box64_dynarec_fastround) {
                 VFCVTZSS(q0, v1);
             } else {
-                MRS_fpsr(x5);
-                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                MSR_fpsr(x5);
-                ORRw_mask(x2, xZR, 1, 0);    //0x80000000
-                d0 = fpu_get_scratch(dyn);
-                for (int i=0; i<2; ++i) {
+                if(arm64_frintts) {
+                    VFRINT32ZS(q0, v1);
+                    VFCVTZSS(q0, q0);
+                } else {
+                    MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    if (i) {
-                        VMOVeS(d0, 0, v1, i);
-                        FRINTZS(d0, d0);
-                    } else {
-                        FRINTZS(d0, v1);
+                    MSR_fpsr(x5);
+                    ORRw_mask(x2, xZR, 1, 0);    //0x80000000
+                    d0 = fpu_get_scratch(dyn);
+                    for (int i=0; i<2; ++i) {
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        if (i) {
+                            VMOVeS(d0, 0, v1, i);
+                            FRINTZS(d0, d0);
+                        } else {
+                            FRINTZS(d0, v1);
+                        }
+                        FCVTZSwS(x1, d0);
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TBZ(x5, FPSR_IOC, 4+4);
+                        MOVw_REG(x1, x2);
+                        VMOVQSfrom(q0, i, x1);
                     }
-                    FCVTZSwS(x1, d0);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ(x5, FPSR_IOC, 4+4);
-                    MOVw_REG(x1, x2);
-                    VMOVQSfrom(q0, i, x1);
                 }
             }
             break;
@@ -369,24 +374,29 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VFCVTZSS(q0, q0);
             } else {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
-                MRS_fpsr(x5);
-                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                MSR_fpsr(x5);
-                ORRw_mask(x2, xZR, 1, 0);    //0x80000000
-                d0 = fpu_get_scratch(dyn);
-                for (int i=0; i<2; ++i) {
+                if(arm64_frintts) {
+                    VFRINT32XS(q0, v1);
+                    VFCVTZSS(q0, q0);
+                } else {
+                    MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    if (i) {
-                        VMOVeS(d0, 0, v1, i);
-                        FRINTIS(d0, d0);
-                    } else {
-                        FRINTIS(d0, v1);
+                    MSR_fpsr(x5);
+                    ORRw_mask(x2, xZR, 1, 0);    //0x80000000
+                    d0 = fpu_get_scratch(dyn);
+                    for (int i=0; i<2; ++i) {
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        if (i) {
+                            VMOVeS(d0, 0, v1, i);
+                            FRINTIS(d0, d0);
+                        } else {
+                            FRINTIS(d0, v1);
+                        }
+                        FCVTZSwS(x1, d0);
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TBZ(x5, FPSR_IOC, 4+4);
+                        MOVw_REG(x1, x2);
+                        VMOVQSfrom(q0, i, x1);
                     }
-                    FCVTZSwS(x1, d0);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBZ(x5, FPSR_IOC, 4+4);
-                    MOVw_REG(x1, x2);
-                    VMOVQSfrom(q0, i, x1);
                 }
                 x87_restoreround(dyn, ninst, u8);
             }
