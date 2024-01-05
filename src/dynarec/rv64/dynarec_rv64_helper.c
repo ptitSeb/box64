@@ -527,16 +527,18 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
     POP1z(xRIP);
     MVz(x1, xRIP);
     SMEND();
-    /*if(box64_dynarec_callret) {
+    if (box64_dynarec_callret) {
         // pop the actual return address from RV64 stack
-        LDPx_S7_offset(x2, x6, xSP, 0);
-        CBZx(x6, 5*4);
-        ADDx_U12(xSP, xSP, 16);
-        SUBx_REG(x6, x6, xRIP); // is it the right address?
-        CBNZx(x6, 2*4);
-        BLR(x2);
-        // not the correct return address, regular jump
-    }*/
+        LD(x2, xSP, 0);     // native addr
+        LD(x6, xSP, 8);     // x86 addr
+        ADDI(xSP, xSP, 16); // pop
+        BNE(x6, xRIP, 2*4); // is it the right address?
+        JALR(x2);
+        // not the correct return address, regular jump, but purge the stack first, it's unsync now...
+        LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
+        ADDI(xSP, xSP, -16);
+    }
+
     uintptr_t tbl = getJumpTable64();
     MOV64x(x3, tbl);
     SRLI(x2, xRIP, JMPTABL_START3);
@@ -581,16 +583,17 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
     }
     MVz(x1, xRIP);
     SMEND();
-    /*if(box64_dynarec_callret) {
+    if (box64_dynarec_callret) {
         // pop the actual return address from RV64 stack
-        LDPx_S7_offset(x2, x6, xSP, 0);
-        CBZx(x6, 5*4);
-        ADDx_U12(xSP, xSP, 16);
-        SUBx_REG(x6, x6, xRIP); // is it the right address?
-        CBNZx(x6, 2*4);
-        BLR(x2);
-        // not the correct return address, regular jump
-    }*/
+        LD(x2, xSP, 0);     // native addr
+        LD(x6, xSP, 8);     // x86 addr
+        ADDI(xSP, xSP, 16); // pop
+        BNE(x6, xRIP, 2*4); // is it the right address?
+        JALR(x2);
+        // not the correct return address, regular jump, but purge the stack first, it's unsync now...
+        LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
+        ADDI(xSP, xSP, -16);
+    }
     uintptr_t tbl = getJumpTable64();
     MOV64x(x3, tbl);
     SRLI(x2, xRIP, JMPTABL_START3);

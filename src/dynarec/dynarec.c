@@ -129,16 +129,22 @@ void DynaRun(x64emu_t* emu)
     JUMPBUFF jmpbuf[1] = {0};
     int skip = 0;
     JUMPBUFF *old_jmpbuf = emu->jmpbuf;
+    #ifdef RV64
+    uintptr_t old_savesp = emu->xSPSave;
+    #endif
     emu->flags.jmpbuf_ready = 0;
 
     while(!(emu->quit)) {
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
+            #ifdef RV64
+            emu->old_savedsp = emu->xSPSave;
+            #endif
             emu->flags.jmpbuf_ready = 1;
             #ifdef ANDROID
-            if((skip=sigsetjmp(*(JUMPBUFF*)emu->jmpbuf, 1))) 
+            if((skip=sigsetjmp(*(JUMPBUFF*)emu->jmpbuf, 1)))
             #else
-            if((skip=sigsetjmp(emu->jmpbuf, 1))) 
+            if((skip=sigsetjmp(emu->jmpbuf, 1)))
             #endif
             {
                 printf_log(LOG_DEBUG, "Setjmp DynaRun, fs=0x%x\n", emu->segs[_FS]);
@@ -192,4 +198,7 @@ void DynaRun(x64emu_t* emu)
     }
     // clear the setjmp
     emu->jmpbuf = old_jmpbuf;
+    #ifdef RV64
+    emu->xSPSave = old_savesp;
+    #endif
 }

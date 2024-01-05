@@ -37,6 +37,9 @@ rv64_epilog:
     sd      x7, 136(a0)     // put back reg value in emu, including EIP (so x7 must be EIP now)
     // fallback to epilog_fast now, just restoring saved regs
 rv64_epilog_fast:
+    ld      sp, 552(a0) // restore saved sp from emu->xSPSave, see rv64_prolog
+    ld      x9, -8(sp)
+    sd      x9, 552(a0) // put back old value
     ld      ra, (sp)  // save ra
     ld      x8, 8(sp) // save fp
     ld      x18, (2*8)(sp)
