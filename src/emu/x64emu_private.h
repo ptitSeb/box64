@@ -117,7 +117,9 @@ typedef struct x64emu_s {
     void*       init_stack; // initial stack (owned or not)
     uint32_t    size_stack; // stack size (owned or not)
     JUMPBUFF*   jmpbuf;
+    #ifdef RV64
     uintptr_t   old_savedsp;
+    #endif
 
     x64_ucontext_t *uc_link; // to handle setcontext
 
