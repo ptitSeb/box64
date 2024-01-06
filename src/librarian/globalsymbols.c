@@ -20,7 +20,7 @@
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, NULL)) {     \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);              \
         memcpy((void*)globoffs, &A, sizeof(A));                                                           \
-    } else                                                                                                \
+    }                                                                                                     \
     if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, B)) {   \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);              \
         memcpy((void*)globoffs, &A, sizeof(A));                                                           \
@@ -30,7 +30,7 @@
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, NULL)) {     \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);              \
         memcpy(&A, (void*)globoffs, sizeof(A));                                                           \
-    } else                                                                                                \
+    }                                                                                                     \
     if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, B)) {   \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);              \
         memcpy(&A, (void*)globoffs, sizeof(A));                                                           \
