@@ -494,17 +494,31 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     } while(tmp32s);
                                 } else {
                                     tmp8u&=31;
-                                    do {
-                                        tmp32u = native_lock_read_d(ED);
-                                        if(tmp32u & (1<<tmp8u)) {
-                                            SET_FLAG(F_CF);
-                                            tmp32s = 0;
-                                        } else {
-                                            tmp32u ^= (1<<tmp8u);
-                                            tmp32s = native_lock_write_d(ED, tmp32u);
-                                            CLEAR_FLAG(F_CF);
-                                        }
-                                    } while(tmp32s);
+                                    if((uintptr_t)ED&3) {
+                                        do {
+                                            tmp32u = native_lock_read_b(ED+(tmp8u>>3));
+                                            if(tmp32u & (1<<(tmp8u&7))) {
+                                                SET_FLAG(F_CF);
+                                                tmp32s = 0;
+                                            } else {
+                                                tmp32u ^= (1<<(tmp8u&7));
+                                                tmp32s = native_lock_write_b(ED+(tmp8u>>3), tmp32u);
+                                                CLEAR_FLAG(F_CF);
+                                            }
+                                        } while(tmp32s);
+                                    } else {
+                                        do {
+                                            tmp32u = native_lock_read_d(ED);
+                                            if(tmp32u & (1<<tmp8u)) {
+                                                SET_FLAG(F_CF);
+                                                tmp32s = 0;
+                                            } else {
+                                                tmp32u ^= (1<<tmp8u);
+                                                tmp32s = native_lock_write_d(ED, tmp32u);
+                                                CLEAR_FLAG(F_CF);
+                                            }
+                                        } while(tmp32s);
+                                    }
                                 }
 #else
                                 pthread_mutex_lock(&my_context->mutex_lock);
