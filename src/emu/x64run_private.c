@@ -1679,6 +1679,14 @@ uintptr_t GetEA(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t de
     } else return (uintptr_t)GetECommon(emu, addr, rex, m, delta);
 }
 
+uintptr_t GetEA32(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+         return (uintptr_t)&emu->regs[(m&0x07)+(rex.b<<3)];
+    } else return (uintptr_t)GetECommon32O(emu, addr, rex, m, delta, 0);
+}
+
 reg64_t* GetEdO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
 {
     uint8_t m = v&0xC7;    // filter Ed

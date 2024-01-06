@@ -670,6 +670,21 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0x8D:
+                    INST_NAME("LEA Gw, Ed");
+                    nextop=F8;
+                    //GETGW(x1);
+                    gd = x1;    // no need to read
+                    if(MODREG) {   // reg <= reg? that's an invalid operation
+                        DEFAULT;
+                    } else {                    // mem <= reg
+                        addr = geted32(dyn, addr, ninst, nextop, &ed, gd, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=gd)
+                            gd = ed;
+                    }
+                    GWBACK;
+                    break;
+
                 default:
                     DEFAULT;
             }

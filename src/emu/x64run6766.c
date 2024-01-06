@@ -82,6 +82,16 @@ uintptr_t Run6766(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             EW->word[0] = GW->word[0];
         break;
 
+    case 0x8D:                              /* LEA Gw,M */
+        nextop = F8;
+        GETGW;
+        tmp64u = GETEA32(0);
+        if(rex.w)
+            GW->q[0] = tmp64u;
+        else
+            GW->word[0] = (uint16_t)tmp64u;
+        break;
+
     default:
         return 0;
     }
