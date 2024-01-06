@@ -63,17 +63,31 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     switch(opcode) {
 
         case 0x01:
-            INST_NAME("FAKE xgetbv");
+            // TODO:, /0 is SGDT. While 0F 01 D0 is XGETBV, etc...
             nextop = F8;
-            addr = fakeed(dyn, addr, ninst, nextop);
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
-            GETIP(ip);
-            STORE_XEMU_CALL(xRIP);
-            CALL(native_ud, -1);
-            LOAD_XEMU_CALL(xRIP);
-            jump_to_epilog(dyn, 0, xRIP, ninst);
-            *need_epilog = 0;
-            *ok = 0;
+            switch(nextop) {
+                case 0xD0:
+                    INST_NAME("FAKE xgetbv");
+                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                    GETIP(ip);
+                    STORE_XEMU_CALL(xRIP);
+                    CALL(native_ud, -1);
+                    LOAD_XEMU_CALL(xRIP);
+                    jump_to_epilog(dyn, 0, xRIP, ninst);
+                    *need_epilog = 0;
+                    *ok = 0;
+                    break;
+                default:
+                    switch((nextop>>3)&7) {
+                        case 0: // SGDT
+                            INST_NAME("FAKE sgdt Ed");
+                            addr = fakeed(dyn, addr, ninst, nextop);
+                                // do nothing for now...
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+            }
             break;
 
         case 0x05:

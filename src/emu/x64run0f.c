@@ -55,6 +55,27 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x01:                      /* XGETBV, SGDT, etc... */
+            // this is a privilege opcode...
+            nextop = F8;
+            GETED(0);
+            switch(nextop) {
+                case 0xD0:
+                #ifndef TEST_INTERPRETER
+                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                #endif
+                break;
+                default:
+                    switch((nextop>>3)&7) {
+                        case 0: // SGDT
+                                // do nothing for now...
+                            break;
+                        default:
+                            return 0;
+                    }
+            }
+            break;
+
         case 0x05:                      /* SYSCALL */
             #ifndef TEST_INTERPRETER
             R_RIP = addr;
