@@ -185,6 +185,7 @@ static const scwrap_t syscallwrap[] = {
     [128] = {__NR_rt_sigtimedwait, 4},
     //[131] = {__NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
     [140] = {__NR_getpriority, 2},
+    [145] = {__NR_sched_getscheduler, 1},
     [155] = {__NR_pivot_root, 2},
     [157] = {__NR_prctl, 5 },     // needs wrapping?
     //[158] = {__NR_arch_prctl, 2},   //need wrapping
