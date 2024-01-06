@@ -107,7 +107,7 @@ GOM(cupsEnumDests, iFEuipuupp)
 //GO(cupsFindDestReady, 
 //GO(cupsFindDestSupported, 
 //GO(cupsFinishDestDocument, 
-//GO(cupsFinishDocument, 
+GO(cupsFinishDocument, iFpp)
 GO(cupsFreeDestInfo, vFp)
 GO(cupsFreeDests, vFip)
 GO(cupsFreeJobs, vFip)
