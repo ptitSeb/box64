@@ -310,7 +310,7 @@ Define x86_64 bash to launch script
  * XXX=yyyy
  will add XXX=yyyy env. var.
 
-#### BOX64_ENV1
+#### BOX64_ENV1 *
  * XXX=yyyy
  will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist
 

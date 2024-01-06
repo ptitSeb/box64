@@ -111,6 +111,10 @@ ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
 ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
 ENTRYINTPOS(BOX64_MAXCPU, new_maxcpu)                   \
 ENTRYSTRING_(BOX64_ENV, new_env)                        \
+ENTRYSTRING_(BOX64_ENV1, new_env1)                      \
+ENTRYSTRING_(BOX64_ENV2, new_env2)                      \
+ENTRYSTRING_(BOX64_ENV3, new_env3)                      \
+ENTRYSTRING_(BOX64_ENV4, new_env4)                      \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -543,6 +547,22 @@ void ApplyParams(const char* name)
     if(param->is_new_env_present) {
         addNewEnvVar(param->new_env);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV", param->new_env);
+    }
+    if(param->is_new_env1_present) {
+        addNewEnvVar(param->new_env1);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV1", param->new_env1);
+    }
+    if(param->is_new_env2_present) {
+        addNewEnvVar(param->new_env2);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV2", param->new_env2);
+    }
+    if(param->is_new_env3_present) {
+        addNewEnvVar(param->new_env3);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV3", param->new_env3);
+    }
+    if(param->is_new_env4_present) {
+        addNewEnvVar(param->new_env4);
+        printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_ENV4", param->new_env4);
     }
     if(param->is_bash_present && FileIsX64ELF(param->bash)) {
         if(my_context->bashpath)
