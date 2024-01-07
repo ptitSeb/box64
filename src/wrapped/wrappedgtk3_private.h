@@ -3613,9 +3613,9 @@ GO(gtk_tree_store_newv, pFip)
 GO(gtk_tree_store_prepend, vFppp)
 //GO(gtk_tree_store_remove, 
 GO(gtk_tree_store_reorder, vFppp)
-//GO2(gtk_tree_store_set, vFppV, gtk_tree_store_set_valist)
+GOM(gtk_tree_store_set, vFEppV)
 GO(gtk_tree_store_set_column_types, vFpip)
-//GO(gtk_tree_store_set_valist, vFppp)
+GOM(gtk_tree_store_set_valist, vFEppA)
 GO(gtk_tree_store_set_value, vFppip)
 GO(gtk_tree_store_set_valuesv, vFppppi)
 //GO(gtk_tree_store_swap, 

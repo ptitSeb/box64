@@ -800,6 +800,23 @@ EXPORT void my3_gtk_list_store_insert_with_values(x64emu_t* emu, void* list_stor
     my->gtk_list_store_insert_with_valuesv(list_store, iter, position, columns, values, n);
 }
 
+EXPORT void my3_gtk_tree_store_set_valist(x64emu_t* emu, void* tree, void* iter, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    my->gtk_tree_store_set_valist(tree, iter, VARARGS);
+}
+
+EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintptr_t* b)
+{
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
+    my->gtk_tree_store_set_valist(tree, iter, VARARGS);
+}
+
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;

@@ -20,6 +20,7 @@ typedef void* (*pFuV_t)(uint32_t, ...);
 typedef void (*vFpiA_t)(void*, int32_t, va_list);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
+typedef void (*vFppA_t)(void*, void*, va_list);
 typedef uint32_t (*uFupp_t)(uint32_t, void*, void*);
 typedef void (*vFppiV_t)(void*, void*, int32_t, ...);
 typedef void (*vFpppi_t)(void*, void*, void*, int32_t);
@@ -55,7 +56,9 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
 	GO(gtk_style_context_get, vFppV_t) \
+	GO(gtk_tree_store_set, vFppV_t) \
 	GO(gtk_widget_style_get, vFppV_t) \
+	GO(gtk_tree_store_set_valist, vFppA_t) \
 	GO(gtk_timeout_add, uFupp_t) \
 	GO(gtk_list_store_insert_with_values, vFppiV_t) \
 	GO(gtk_enumerate_printers, vFpppi_t) \

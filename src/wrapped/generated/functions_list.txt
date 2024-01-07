@@ -3810,7 +3810,10 @@ wrappedgtk3:
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
   - gtk_style_context_get
+  - gtk_tree_store_set
   - gtk_widget_style_get
+- vFppA:
+  - gtk_tree_store_set_valist
 - uFupp:
   - gtk_timeout_add
 - vFppiV:
