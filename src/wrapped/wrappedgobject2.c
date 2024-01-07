@@ -446,28 +446,6 @@ static void* findWeakNotifyFct(void* fct)
     return NULL;
 }
 
-// GCallback  (generic function with 6 arguments, hopefully it's enough)
-#define GO(A)   \
-static uintptr_t my_GCallback_fct_##A = 0;                                                      \
-static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f)             \
-{                                                                                               \
-    return (void*)RunFunctionFmt(my_GCallback_fct_##A, "pppppp", a, b, c, d, e, f); \
-}
-SUPER()
-#undef GO
-static void* findGCallbackFct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_GCallback_fct_##A == 0) {my_GCallback_fct_##A = (uintptr_t)fct; return my_GCallback_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for gobject Value Transform callback\n");
-    return NULL;
-}
 // GParamSpecTypeInfo....
 // First the structure GParamSpecTypeInfo statics, with paired x64 source pointer
 typedef struct my_GParamSpecTypeInfo_s {
@@ -607,6 +585,33 @@ static void* findcompareFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gobject compare callback\n");
     return NULL;
 }
+#undef SUPER
+
+#include "super100.h"
+
+// GCallback  (generic function with 6 arguments, hopefully it's enough)
+#define GO(A)   \
+static uintptr_t my_GCallback_fct_##A = 0;                                                      \
+static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f)             \
+{                                                                                               \
+    return (void*)RunFunctionFmt(my_GCallback_fct_##A, "pppppp", a, b, c, d, e, f); \
+}
+SUPER()
+#undef GO
+static void* findGCallbackFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCallback_fct_##A == 0) {my_GCallback_fct_##A = (uintptr_t)fct; return my_GCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gobject generic GCallback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT uintptr_t my_g_signal_connect_object(x64emu_t* emu, void* instance, void* detailed, void* c_handler, void* object, uint32_t flags)
