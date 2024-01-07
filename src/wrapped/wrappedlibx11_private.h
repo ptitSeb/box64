@@ -592,7 +592,7 @@ GO(XkbGetDeviceInfo, pFpuuuu)
 //GO(XkbGetDeviceLedInfo
 //GO(XkbGetGeometry
 //GO(XkbGetIndicatorMap
-//GO(XkbGetIndicatorState
+GO(XkbGetIndicatorState, iFpup)
 //GO(XkbGetKeyActions
 //GO(XkbGetKeyBehaviors
 GO(XkbGetKeyboard, pFpuu)

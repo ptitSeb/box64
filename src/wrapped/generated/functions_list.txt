@@ -581,6 +581,7 @@
 #() uFpip
 #() uFpCi
 #() uFpWi
+#() uFpWW
 #() uFpWu
 #() uFpWf
 #() uFpWp
@@ -4840,6 +4841,7 @@ wrappedlibxcbsync:
 wrappedlibxcbutil:
 wrappedlibxcbxfixes:
 wrappedlibxcbxinerama:
+wrappedlibxcbxinput:
 wrappedlibxcbxkb:
 wrappedlibxcbxtest:
 wrappedlibxcomposite:
