@@ -20,6 +20,7 @@
 
 const char* libtinfoName = "libtinfo.so.5";
 #define LIBNAME libtinfo
+#define ALTNAME "libtinfo.so.6"
 
 #include "generated/wrappedlibtinfotypes.h"
 

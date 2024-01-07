@@ -21,6 +21,7 @@
 
 const char* libncursesName = "libncurses.so.5";
 #define LIBNAME libncurses
+#define ALTNAME "libncurses.so.6"
 
 // this is a simple copy of libncursesw wrapper. TODO: check if ok
 
