@@ -208,10 +208,20 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         munmap(image, head->memsz);
         image = mmap64(find47bitBlockElf(head->memsz, mainbin, max_align), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
     }
+    if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs && (uintptr_t)image&max_align) {
+        munmap(image, head->memsz);
+        loadProtectionFromMap();
+        offs = (uintptr_t)find47bitBlockElf(head->memsz, mainbin, max_align);
+        image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    }
     #endif
     if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
-        printf_log(LOG_INFO, "Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p instead\n", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
+        printf_log(LOG_INFO, "%s: Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p instead\n", ((uintptr_t)image&max_align)?"Error":"Warning", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
         offs = (uintptr_t)image;
+        if((uintptr_t)image&max_align) {
+            munmap(image, head->memsz);
+            return 1;   // that's an error, alocated memory is not aligned properly
+        }
     }
     if(image==MAP_FAILED || image!=(void*)(head->vaddr?head->vaddr:offs)) {
         printf_log(LOG_NONE, "%s cannot create memory map (@%p 0x%zx) for elf \"%s\"", (image==MAP_FAILED)?"Error:":"Warning:", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name);
