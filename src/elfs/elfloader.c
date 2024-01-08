@@ -183,30 +183,28 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     int log_level = box64_load_addr?LOG_INFO:LOG_DEBUG;
 
     head->multiblock_n = 0; // count PHEntrie with LOAD
-    uintptr_t max_align = (box64_pagesize-1);
+    uintptr_t max_align = head->align-1;
     for (size_t i=0; i<head->numPHEntries; ++i) 
         if(head->PHEntries[i].p_type == PT_LOAD && head->PHEntries[i].p_flags) {
-            if(max_align < head->PHEntries[i].p_align-1)
-                max_align = head->PHEntries[i].p_align-1;
             ++head->multiblock_n;
         }
 
     if(!head->vaddr && box64_load_addr) {
-        offs = (uintptr_t)find47bitBlockNearHint((void*)((box64_load_addr+max_align)&~max_align), head->memsz+head->align+1, max_align);
+        offs = (uintptr_t)find47bitBlockNearHint((void*)((box64_load_addr+max_align)&~max_align), head->memsz+head->align, max_align);
         box64_load_addr = offs + head->memsz;
         box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
     }
     if(!offs && !head->vaddr)
-        offs = (uintptr_t)find47bitBlockElf(head->memsz+head->align+1, mainbin, max_align); // limit to 47bits...
+        offs = (uintptr_t)find47bitBlockElf(head->memsz+head->align, mainbin, max_align); // limit to 47bits...
     #if defined(PAGE8K) || defined(PAGE16K) || defined(PAGE64K)
     // Will not try anything smart on pagesize != 4k....
     size_t sz = head->memsz;
     void* raw = NULL;
     void* image = NULL;
     if(!head->vaddr) {
-        sz += head->align+1;
+        sz += head->align;
         raw = mmap64((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-        image = mmap64((void*)(((uintptr_t)raw)&~head->align), head->memsz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+        image = mmap64((void*)(((uintptr_t)raw+max_align)&~max_align), head->memsz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     } else {
         image = raw = mmap64((void*)head->vaddr, sz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     }
@@ -216,17 +214,17 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     void* raw = NULL;
     void* image = NULL;
     if(!head->vaddr) {
-        sz += head->align+1;
+        sz += head->align;
         raw = mmap64((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-        image = (void*)(((uintptr_t)raw)&~head->align);
+        image = (void*)(((uintptr_t)raw+max_align)&~max_align);
     } else {
         image = raw = mmap64((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
     }
     #endif
     if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
-        printf_log(LOG_INFO, "%s: Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p instead\n", ((uintptr_t)image&max_align)?"Error":"Warning", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
+        printf_log(LOG_INFO, "%s: Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p(%p/0x%zx) instead\n", (((uintptr_t)image)&max_align)?"Error":"Warning", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image, raw, head->align);
         offs = (uintptr_t)image;
-        if((uintptr_t)image&max_align) {
+        if(((uintptr_t)image)&max_align) {
             munmap(raw, sz);
             return 1;   // that's an error, alocated memory is not aligned properly
         }
