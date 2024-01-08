@@ -115,7 +115,7 @@ int CalcLoadAddr(elfheader_t* head)
 {
     head->memsz = 0;
     head->paddr = head->vaddr = ~(uintptr_t)0;
-    head->align = 1;
+    head->align = box64_pagesize;
     for (size_t i=0; i<head->numPHEntries; ++i)
         if(head->PHEntries[i].p_type == PT_LOAD) {
             if(head->paddr > (uintptr_t)head->PHEntries[i].p_paddr)
@@ -192,34 +192,42 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         }
 
     if(!head->vaddr && box64_load_addr) {
-        offs = (uintptr_t)find47bitBlockNearHint((void*)((box64_load_addr+max_align)&~max_align), head->memsz, max_align);
+        offs = (uintptr_t)find47bitBlockNearHint((void*)((box64_load_addr+max_align)&~max_align), head->memsz+head->align+1, max_align);
         box64_load_addr = offs + head->memsz;
         box64_load_addr = (box64_load_addr+0x10ffffffLL)&~0xffffffLL;
     }
     if(!offs && !head->vaddr)
-        offs = (uintptr_t)find47bitBlockElf(head->memsz, mainbin, max_align); // limit to 47bits...
+        offs = (uintptr_t)find47bitBlockElf(head->memsz+head->align+1, mainbin, max_align); // limit to 47bits...
     #if defined(PAGE8K) || defined(PAGE16K) || defined(PAGE64K)
     // Will not try anything smart on pagesize != 4k....
-    void* image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    size_t sz = head->memsz;
+    void* raw = NULL;
+    void* image = NULL;
+    if(!head->vaddr) {
+        sz += head->align+1;
+        raw = mmap64((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        image = mmap64((void*)(((uintptr_t)raw)&~head->align), head->memsz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    } else {
+        image = raw = mmap64((void*)head->vaddr, sz, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    }
     #else   // PAGE4K
     // prereserve the whole elf image, without populating
-    void* image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-    if(image!=MAP_FAILED && head->vaddr && image!=(void*)offs && (((uintptr_t)image)&max_align)) {
-        munmap(image, head->memsz);
-        image = mmap64(find47bitBlockElf(head->memsz, mainbin, max_align), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-    }
-    if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs && (uintptr_t)image&max_align) {
-        munmap(image, head->memsz);
-        loadProtectionFromMap();
-        offs = (uintptr_t)find47bitBlockElf(head->memsz, mainbin, max_align);
-        image = mmap64((void*)(head->vaddr?head->vaddr:offs), head->memsz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+    size_t sz = head->memsz;
+    void* raw = NULL;
+    void* image = NULL;
+    if(!head->vaddr) {
+        sz += head->align+1;
+        raw = mmap64((void*)offs, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        image = (void*)(((uintptr_t)raw)&~head->align);
+    } else {
+        image = raw = mmap64((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
     }
     #endif
     if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
         printf_log(LOG_INFO, "%s: Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p instead\n", ((uintptr_t)image&max_align)?"Error":"Warning", (void*)(head->vaddr?head->vaddr:offs), head->memsz, head->name, image);
         offs = (uintptr_t)image;
         if((uintptr_t)image&max_align) {
-            munmap(image, head->memsz);
+            munmap(raw, sz);
             return 1;   // that's an error, alocated memory is not aligned properly
         }
     }
@@ -239,10 +247,11 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     printf_log(log_level, "Delta of %p (vaddr=%p) for Elf \"%s\"\n", (void*)offs, (void*)head->vaddr, head->name);
 
     head->image = image;
+    head->raw = raw;
+    head->raw_size = sz;
+    setProtection_elf((uintptr_t)raw, sz, 0);
     #if defined(PAGE8K) || defined(PAGE16K) || defined(PAGE64K)
     setProtection_elf((uintptr_t)image, head->memsz, PROT_READ|PROT_WRITE|PROT_EXEC);
-    #else
-    setProtection_elf((uintptr_t)image, head->memsz, 0);
     #endif
 
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
@@ -385,9 +394,9 @@ void FreeElfMemory(elfheader_t* head)
         box_free(head->multiblocks);
     }
     // we only need to free the overall mmap, no need to free individual part as they are inside the big one
-    if(head->image && head->memsz)
-        munmap(head->image, head->memsz);
-    freeProtection((uintptr_t)head->image, head->memsz);
+    if(head->raw && head->raw_size)
+        munmap(head->raw, head->raw_size);
+    freeProtection((uintptr_t)head->raw, head->raw_size);
 }
 
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded)
