@@ -1109,7 +1109,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         MOVx_REG(ed, xZR);
                         VMOVSto(ed, q0, u8);
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0xfff<<2, 3, rex, NULL, 0, 1);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
                         u8 = F8&0b11;
                         VMOVSto(x1, q0, u8);
                         STW(x1, wback, fixedaddress);
