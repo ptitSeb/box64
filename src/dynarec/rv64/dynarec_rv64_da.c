@@ -146,17 +146,78 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         default:
             switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("FIADD ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(x1, ed, fixedaddress);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    FADDD(v1, v1, v2);
+                    break;
+                case 1:
+                    INST_NAME("FIMUL ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(x1, ed, fixedaddress);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    FMULD(v1, v1, v2);
+                    break;
+                case 2:
+                    INST_NAME("FICOM ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(x1, ed, fixedaddress);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    FCOMD(v1, v2, x1, x2, x3, x4, x5);
+                    break;
+                case 3:
+                    INST_NAME("FICOMP ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(x1, ed, fixedaddress);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    FCOMD(v1, v2, x1, x2, x3, x4, x5);
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
+                    break;
+                case 4:
+                    INST_NAME("FISUB ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(x1, ed, fixedaddress);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    FSUBD(v1, v1, v2);
+                    break;
+                case 5:
+                    INST_NAME("FISUBR ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(x1, ed, fixedaddress);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    FSUBD(v1, v2, v1);
+                    break;
                 case 6:
                     INST_NAME("FIDIV ST0, Ed");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
                     v2 = fpu_get_scratch(dyn);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     LW(x1, ed, fixedaddress);
-                    FCVTDW(v2, x1, RD_RNE);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
                     FDIVD(v1, v1, v2);
                     break;
-                default:
-                    DEFAULT;
+                case 7:
+                    INST_NAME("FIDIVR ST0, Ed");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                    v2 = fpu_get_scratch(dyn);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                    LW(x1, ed, fixedaddress);
+                    FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                    FDIVD(v1, v2, v1);
                     break;
             }
     }
