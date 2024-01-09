@@ -191,7 +191,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                     if(tmp && ((tmp<-2048) || (tmp>maxval) || !i12)) {
                         MOV32w(scratch, tmp);
                         if((sib>>6)) {
-                            if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), scratch); else {SLLI(ret, xRAX+sib_reg, sib>>6); ADDW(ret, ret, scratch);}
+                            SLLI(ret, xRAX + sib_reg, sib >> 6);
+                            ADDW(ret, ret, scratch);
                         } else
                             ADDW(ret, xRAX+sib_reg, scratch);
                     } else {
@@ -211,7 +212,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
             } else {
                 if (sib_reg!=4) {
                     if((sib>>6)) {
-                        if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else { SLLI(ret, xRAX+sib_reg, (sib>>6)); ADDW(ret, ret, xRAX+sib_reg2);}
+                        SLLI(ret, xRAX + sib_reg, (sib >> 6));
+                        ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
                 } else {
@@ -249,7 +251,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     if(sib>>6) {
-                    if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADDW(ret, ret, xRAX+sib_reg2);}
+                        SLLI(ret, xRAX + sib_reg, (sib >> 6));
+                        ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
                 } else {
@@ -263,7 +266,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         if(sib>>6) {
-                            if(rv64_zba) SHxADDUW(scratch, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else {SLLI(scratch, xRAX+sib_reg, sib>>6); ADDW(scratch, scratch, xRAX+sib_reg2);}
+                            SLLI(scratch, xRAX + sib_reg, sib >> 6);
+                            ADDW(scratch, scratch, xRAX + sib_reg2);
                         } else
                             ADDW(scratch, xRAX+sib_reg2, xRAX+sib_reg);
                     } else {
@@ -278,7 +282,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                     if (sib_reg!=4) {
                         ADDW(scratch, scratch, xRAX+sib_reg2);
                         if(sib>>6) {
-                            if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), scratch); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADDW(ret, ret, scratch);}
+                            SLLI(ret, xRAX + sib_reg, (sib >> 6));
+                            ADDW(ret, ret, scratch);
                         } else
                             ADDW(ret, scratch, xRAX+sib_reg);
                     } else {
@@ -322,7 +327,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                     if(tmp && ((tmp<-2048) || (tmp>maxval) || !i12)) {
                         MOV64x(scratch, tmp);
                         if((sib>>6)) {
-                            if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), scratch); else {SLLI(ret, xRAX+sib_reg, sib>>6); ADDW(ret, ret, scratch);}
+                            SLLI(ret, xRAX + sib_reg, sib >> 6);
+                            ADDW(ret, ret, scratch);
                         } else
                             ADDW(ret, xRAX+sib_reg, scratch);
                     } else {
@@ -342,7 +348,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             } else {
                 if (sib_reg!=4) {
                     if((sib>>6)) {
-                        if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else { SLLI(ret, xRAX+sib_reg, (sib>>6)); ADDW(ret, ret, xRAX+sib_reg2);}
+                        SLLI(ret, xRAX + sib_reg, (sib >> 6));
+                        ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
                 } else {
@@ -382,7 +389,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             if((nextop&7)==4) {
                 if (sib_reg!=4) {
                     if(sib>>6) {
-                    if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADDW(ret, ret, xRAX+sib_reg2);}
+                        SLLI(ret, xRAX + sib_reg, (sib >> 6));
+                        ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
                 } else {
@@ -396,7 +404,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         if(sib>>6) {
-                            if(rv64_zba) SHxADDUW(scratch, xRAX+sib_reg, (sib>>6), xRAX+sib_reg2); else {SLLI(scratch, xRAX+sib_reg, sib>>6); ADDW(scratch, scratch, xRAX+sib_reg2);}
+                            SLLI(scratch, xRAX + sib_reg, sib >> 6);
+                            ADDW(scratch, scratch, xRAX + sib_reg2);
                         } else
                             ADDW(scratch, xRAX+sib_reg2, xRAX+sib_reg);
                     } else {
@@ -411,7 +420,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                     if (sib_reg!=4) {
                         ADDW(scratch, scratch, xRAX+sib_reg2);
                         if(sib>>6) {
-                            if(rv64_zba) SHxADDUW(ret, xRAX+sib_reg, (sib>>6), scratch); else {SLLI(ret, xRAX+sib_reg, (sib>>6)); ADDW(ret, ret, scratch);}
+                            SLLI(ret, xRAX + sib_reg, (sib >> 6));
+                            ADDW(ret, ret, scratch);
                         } else
                             ADDW(ret, scratch, xRAX+sib_reg);
                     } else {
