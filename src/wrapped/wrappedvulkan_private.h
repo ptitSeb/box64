@@ -872,3 +872,10 @@ GO(vkCmdTraceRaysIndirect2KHR, vFpU)
 
 // VK_EXT_depth_bias_control
 GO(vkCmdSetDepthBias2EXT, vFpp)
+
+// VK_EXT_host_image_copy
+GO(vkCopyImageToImageEXT, iFpp)
+GO(vkCopyImageToMemoryEXT, iFpp)
+GO(vkCopyMemoryToImageEXT, iFpp)
+GO(vkGetImageSubresourceLayout2EXT, vFpUpp)
+GO(vkTransitionImageLayoutEXT, iFpup)
