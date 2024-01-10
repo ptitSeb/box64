@@ -559,6 +559,7 @@ GO(vkCmdDrawMeshTasksIndirectNV, vFpUUuu)
 GO(vkCmdDrawMeshTasksNV, vFpuu)
 
 // VK_NV_scissor_exclusive
+GO(vkCmdSetExclusiveScissorEnableNV, vFpuup)
 GO(vkCmdSetExclusiveScissorNV, vFpuup)
 
 // VK_NV_shading_rate_image
