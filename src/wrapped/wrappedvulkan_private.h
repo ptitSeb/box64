@@ -507,6 +507,8 @@ GO(vkDebugMarkerSetObjectTagEXT, iFpp)
 
 // VK_EXT_discard_rectangles
 GO(vkCmdSetDiscardRectangleEXT, vFpuup)
+GO(vkCmdSetDiscardRectangleEnableEXT, vFpu)
+GO(vkCmdSetDiscardRectangleModeEXT, vFpu)
 
 // VK_EXT_display_control
 GO(vkDisplayPowerControlEXT, iFpUp)
