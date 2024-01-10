@@ -883,3 +883,6 @@ GO(vkTransitionImageLayoutEXT, iFpup)
 // VK_KHR_map_memory2
 GO(vkMapMemory2KHR, iFppp)
 GO(vkUnmapMemory2KHR, iFpp)
+
+// VK_EXT_device_fault
+GO(vkGetDeviceFaultInfoEXT, iFppp)
