@@ -879,3 +879,7 @@ GO(vkCopyImageToMemoryEXT, iFpp)
 GO(vkCopyMemoryToImageEXT, iFpp)
 GO(vkGetImageSubresourceLayout2EXT, vFpUpp)
 GO(vkTransitionImageLayoutEXT, iFpup)
+
+// VK_KHR_map_memory2
+GO(vkMapMemory2KHR, iFppp)
+GO(vkUnmapMemory2KHR, iFpp)
