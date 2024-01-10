@@ -232,7 +232,7 @@ GO(cupsSetDefaultDest, vFppip)
 //GO(_cupsSNMPWalk, 
 //GO(_cupsSNMPWrite, 
 //GO(cupsStartDestDocument, 
-//GO(cupsStartDocument, 
+GO(cupsStartDocument, iFppippi)
 //GO(_cupsStrAlloc, 
 //GO(_cups_strcasecmp, 
 //GO(_cups_strcpy, 
