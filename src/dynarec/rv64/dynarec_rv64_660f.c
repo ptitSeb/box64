@@ -2094,6 +2094,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xB6:
             INST_NAME("MOVZX Gw, Eb");
             nextop = F8;
+            gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
             if (MODREG) {
                 if (rex.rex) {
                     eb1 = xRAX + (nextop & 7) + (rex.b << 3);
