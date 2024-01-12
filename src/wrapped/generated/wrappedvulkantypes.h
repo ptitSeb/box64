@@ -62,8 +62,10 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkDestroyQueryPool, vFpUp_t) \
 	GO(vkDestroyRenderPass, vFpUp_t) \
 	GO(vkDestroySampler, vFpUp_t) \
+	GO(vkDestroySamplerYcbcrConversion, vFpUp_t) \
 	GO(vkDestroySamplerYcbcrConversionKHR, vFpUp_t) \
 	GO(vkDestroySemaphore, vFpUp_t) \
+	GO(vkDestroyShaderEXT, vFpUp_t) \
 	GO(vkDestroyShaderModule, vFpUp_t) \
 	GO(vkDestroySurfaceKHR, vFpUp_t) \
 	GO(vkDestroySwapchainKHR, vFpUp_t) \
@@ -124,6 +126,7 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateXlibSurfaceKHR, iFpppp_t) \
 	GO(vkRegisterDeviceEventEXT, iFpppp_t) \
 	GO(vkUpdateDescriptorSets, vFpupup_t) \
+	GO(vkCreateShadersEXT, iFpuppp_t) \
 	GO(vkCreateSharedSwapchainsKHR, iFpuppp_t) \
 	GO(vkCreateDisplayModeKHR, iFpUppp_t) \
 	GO(vkRegisterDisplayEventEXT, iFpUppp_t) \

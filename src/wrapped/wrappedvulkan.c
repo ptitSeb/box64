@@ -25,7 +25,6 @@ const char* vulkanName = "libvulkan.so.1";
 typedef void(*vFpUp_t)      (void*, uint64_t, void*);
 
 #define ADDED_FUNCTIONS()                           \
-    GO(vkDestroySamplerYcbcrConversion, vFpUp_t)    \
 
 #include "generated/wrappedvulkantypes.h"
 
@@ -617,6 +616,16 @@ EXPORT int my_vkRegisterDisplayEventEXT(x64emu_t* emu, void* device, uint64_t di
 }
 
 CREATE(vkCreateValidationCacheEXT)
+
+EXPORT int my_vkCreateShadersEXT(x64emu_t* emu, void* device, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pShaders)
+{
+    my_VkAllocationCallbacks_t my_alloc;
+    int ret = my->vkCreateShadersEXT(device, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pShaders);
+    return ret;
+}
+
+DESTROY64(vkDestroyShaderEXT)
+
 
 DESTROY64(vkDestroyBuffer)
 DESTROY64(vkDestroyBufferView)

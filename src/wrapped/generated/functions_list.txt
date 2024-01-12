@@ -509,6 +509,7 @@
 #() iFpwp
 #() iFpii
 #() iFpiu
+#() iFpiU
 #() iFpil
 #() iFpiL
 #() iFpip
@@ -2261,6 +2262,7 @@
 #() vFpupuuup
 #() vFpupppui
 #() vFpUiUiup
+#() vFpUuuUup
 #() vFpUUUUuu
 #() vFpddiidd
 #() vFpdddddd
@@ -2333,6 +2335,7 @@
 #() iFpWppppp
 #() iFpuiCuCp
 #() iFpuiuupp
+#() iFpuuuuup
 #() iFpupiLpL
 #() iFpupuuui
 #() iFpupuupp
@@ -5512,8 +5515,10 @@ wrappedvulkan:
   - vkDestroyQueryPool
   - vkDestroyRenderPass
   - vkDestroySampler
+  - vkDestroySamplerYcbcrConversion
   - vkDestroySamplerYcbcrConversionKHR
   - vkDestroySemaphore
+  - vkDestroyShaderEXT
   - vkDestroyShaderModule
   - vkDestroySurfaceKHR
   - vkDestroySwapchainKHR
@@ -5581,6 +5586,7 @@ wrappedvulkan:
 - vFpupup:
   - vkUpdateDescriptorSets
 - iFpuppp:
+  - vkCreateShadersEXT
   - vkCreateSharedSwapchainsKHR
 - iFpUppp:
   - vkCreateDisplayModeKHR

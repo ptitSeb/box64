@@ -184,6 +184,7 @@ GO(vkCmdSetDeviceMask, vFpu)
 GOM(vkCreateDescriptorUpdateTemplate, iFEpppp)
 GOM(vkCreateSamplerYcbcrConversion, iFEpppp)
 GOM(vkDestroyDescriptorUpdateTemplate, vFEpUp)
+GOM(vkDestroySamplerYcbcrConversion, vFEpUp)
 GO(vkEnumerateInstanceVersion, iFp)
 GO(vkEnumeratePhysicalDeviceGroups, iFppp)  //VkPhysicalDeviceGroupProperties seems OK
 GO(vkGetBufferMemoryRequirements2, iFppp)
@@ -886,3 +887,42 @@ GO(vkUnmapMemory2KHR, iFpp)
 
 // VK_EXT_device_fault
 GO(vkGetDeviceFaultInfoEXT, iFppp)
+
+// VK_EXT_acquire_drm_display
+GO(vkAcquireDrmDisplayEXT, iFpiU)
+GO(vkGetDrmDisplayEXT, iFpiup)
+
+// VK_EXT_shader_object
+GO(vkCmdBindShadersEXT, vFpupp)
+GOM(vkCreateShadersEXT, iFEpuppp)
+GOM(vkDestroyShaderEXT, vFpUp)
+GO(vkGetShaderBinaryDataEXT, iFpUpp)
+
+// VK_NV_copy_memory_indirect
+GO(vkCmdCopyMemoryIndirectNV, vFpUuu)
+GO(vkCmdCopyMemoryToImageIndirectNV, vFpUuuUup)
+
+// VK_HUAWEI_cluster_culling_shader
+GO(vkCmdDrawClusterHUAWEI, vFpuuu)
+GO(vkCmdDrawClusterIndirectHUAWEI, vFpUU)
+
+// VK_EXT_attachment_feedback_loop_dynamic_state
+GO(vkCmdSetAttachmentFeedbackLoopEnableEXT, vFpu)
+
+// VK_NV_device_generated_commands_compute
+GO(vkCmdUpdatePipelineIndirectBufferNV, vFpuU)
+GO(vkGetPipelineIndirectDeviceAddressNV, UFpp)
+GO(vkGetPipelineIndirectMemoryRequirementsNV, vFppp)
+
+// VK_QCOM_tile_properties
+GO(vkGetDynamicRenderingTilePropertiesQCOM, iFppp)
+GO(vkGetFramebufferTilePropertiesQCOM, iFpUpp)
+
+// VK_NV_external_memory_capabilities
+GO(vkGetPhysicalDeviceExternalImageFormatPropertiesNV, iFpuuuuup)
+
+// VK_EXT_pipeline_properties
+GO(vkGetPipelinePropertiesEXT, iFppp)
+
+// VK_EXT_direct_mode_display
+GO(vkReleaseDisplayEXT, iFpU)
