@@ -2648,9 +2648,9 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     #endif
     if(ret!=MAP_FAILED) {
         if(emu)
-            setProtection_mmap((uintptr_t)ret, length, (uint8_t)prot);
+            setProtection_mmap((uintptr_t)ret, length, prot);
         else
-            setProtection((uintptr_t)ret, length, (uint8_t)prot);
+            setProtection((uintptr_t)ret, length, prot);
     }
     return ret;
 }
@@ -2663,7 +2663,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
     if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     if(ret!=(void*)-1) {
-        uint8_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
+        uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
         if(ret==old_addr) {
             if(old_size && old_size<new_size) {
                 setProtection_mmap((uintptr_t)ret+old_size, new_size-old_size, prot);
@@ -2739,11 +2739,11 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     #endif
     if(!ret && len) {
         if(prot)
-            updateProtection((uintptr_t)addr, len, (uint8_t)prot);
+            updateProtection((uintptr_t)addr, len, prot);
         else {
             // avoid allocating detailled protection for a no prot 0
             freeProtection((uintptr_t)addr, len);
-            setProtection_mmap((uintptr_t)addr, len, (uint8_t)prot);
+            setProtection_mmap((uintptr_t)addr, len, prot);
         }
     }
     return ret;

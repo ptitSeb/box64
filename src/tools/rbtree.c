@@ -21,8 +21,8 @@
 typedef struct rbnode {
     struct rbnode *left, *right, *parent;
     uintptr_t start, end;
+    uint32_t data;
     uint8_t meta;
-    uint8_t data;
 } rbnode;
 
 typedef struct rbtree {
@@ -52,7 +52,7 @@ void delete_rbtree(rbtree *tree) {
 #define IS_BLACK 0x2
 
 // Make sure prev is either the rightmost node before start or the leftmost range after start
-int add_range_next_to(rbtree *tree, rbnode *prev, uintptr_t start, uintptr_t end, uint8_t data) {
+int add_range_next_to(rbtree *tree, rbnode *prev, uintptr_t start, uintptr_t end, uint32_t data) {
 // printf("Adding %lX-%lX:%hhX next to %p\n", start, end, data, prev);
     rbnode *node = rbtreeMalloc(sizeof(*node));
     if (!node) return -1;
@@ -226,7 +226,7 @@ int add_range_next_to(rbtree *tree, rbnode *prev, uintptr_t start, uintptr_t end
     tree->is_unstable = 0;
     return -1; // unreachable
 }
-int add_range(rbtree *tree, uintptr_t start, uintptr_t end, uint8_t data) {
+int add_range(rbtree *tree, uintptr_t start, uintptr_t end, uint32_t data) {
 // printf("add_range\n");
     rbnode *cur = tree->root, *prev = NULL;
     while (cur) {
@@ -559,13 +559,13 @@ rbnode *succ_node(rbnode *node) {
     }
 }
 
-uint8_t rb_get(rbtree *tree, uintptr_t addr) {
+uint32_t rb_get(rbtree *tree, uintptr_t addr) {
     rbnode *node = find_addr(tree, addr);
     if (node) return node->data;
     else return 0;
 }
 
-int rb_get_end(rbtree* tree, uintptr_t addr, uint8_t* val, uintptr_t* end) {
+int rb_get_end(rbtree* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
     rbnode *node = tree->root, *next = NULL;
     while (node) {
         if (node->end <= addr) {
@@ -588,7 +588,7 @@ int rb_get_end(rbtree* tree, uintptr_t addr, uint8_t* val, uintptr_t* end) {
     return 0;
 }
 
-int rb_set(rbtree *tree, uintptr_t start, uintptr_t end, uint8_t data) {
+int rb_set(rbtree *tree, uintptr_t start, uintptr_t end, uint32_t data) {
 // printf("rb_set( "); print_rbtree(tree); printf(" , 0x%lX, 0x%lX, %hhu);\n", start, end, data); fflush(stdout);
 dynarec_log(LOG_DEBUG, "set 0x%lX, 0x%lX, %hhu\n", start, end, data);
     if (!tree->root) {
@@ -859,7 +859,7 @@ int main() {
     ret = rb_set(tree, 0x10, 0x20, 0x01);
     printf("%d; ", ret); print_rbtree(tree); fflush(stdout);
 
-    uint8_t val = rb_get(tree, 0x33);
+    uint32_t val = rb_get(tree, 0x33);
     printf("0x33 has attribute %hhu\n", val); fflush(stdout);*/
     /* rbnode *node = find_addr(tree, 0x33);
     printf("0x33 is at %p: ", node); print_rbnode(node, 0); printf("\n"); fflush(stdout);
@@ -880,7 +880,7 @@ int main() {
     // rb_set(tree, 2, 3, 1); print_rbtree(tree); fflush(stdout);
     // add_range_next_to(tree, node24, 0x0E7000, 0x0E8000, 69); print_rbtree(tree); fflush(stdout);
     // print_rbtree(tree); fflush(stdout);
-    // uint8_t val = rb_get(tree, 0x11003000);
+    // uint32_t val = rb_get(tree, 0x11003000);
     // printf("0x11003000 has attribute %hhu\n", val); fflush(stdout);
     // remove_node(tree, node0); print_rbtree(tree); fflush(stdout);
     // add_range_next_to(tree, node1, 0x0E7000, 0x0E8000, 69); print_rbtree(tree); fflush(stdout);
@@ -894,7 +894,7 @@ rb_set(tree, 0x140000, 0x141000, 7);
     print_rbtree(tree); fflush(stdout);
 rb_set(tree, 0x140000, 0x141000, 135);
     print_rbtree(tree); fflush(stdout);
-    uint8_t val = rb_get(tree, 0x141994); printf("0x141994 has attribute %hhu\n", val); fflush(stdout);
+    uint32_t val = rb_get(tree, 0x141994); printf("0x141994 has attribute %hhu\n", val); fflush(stdout);
     delete_rbtree(tree);
 }
 #endif

@@ -1003,7 +1003,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     TRAP_x86_MCHK       = 18,  // Machine check exception
     TRAP_x86_CACHEFLT   = 19   // SIMD exception (via SIGFPE) if CPU is SSE capable otherwise Cache flush exception (via SIGSEV)
     */
-    uint8_t prot = getProtection((uintptr_t)info->si_addr);
+    uint32_t prot = getProtection((uintptr_t)info->si_addr);
     if(sig==SIGBUS)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
@@ -1282,7 +1282,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         return;
     }
     int Locks = unlockMutex();
-    uint8_t prot = getProtection((uintptr_t)addr);
+    uint32_t prot = getProtection((uintptr_t)addr);
     #ifdef BAD_SIGNAL
     // try to see if the si_code makes sense
     // the RK3588 tend to need a special Kernel that seems to have a weird behaviour sometimes
@@ -1386,7 +1386,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
         static void* glitch_pc = NULL;
         static void* glitch_addr = NULL;
-        static uint8_t glitch_prot = 0;
+        static uint32_t glitch_prot = 0;
         if(addr && pc /*&& db*/) {
             if((glitch_pc!=pc || glitch_addr!=addr || glitch_prot!=prot)) {
                 // probably a glitch due to intensive multitask...
