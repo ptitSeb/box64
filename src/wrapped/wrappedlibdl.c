@@ -423,7 +423,7 @@ int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     if(flags==RTLD_DL_SYMENT) {
         printf_log(LOG_INFO, "Warning, unimplement call to dladdr1 with RTLD_DL_SYMENT flags\n");
     } else if (flags==RTLD_DL_LINKMAP) {
-        printf_log(LOG_INFO, "Warning, partially unimplemented call to dladdr1 with RTLD_DL_LINKMAP flags\n");
+        printf_log(LOG_INFO, "Warning, partially unimplemented call to dladdr1 with RTLD_DL_LINKMAP flags for %s\n", lib?lib->name:"current process");
         *(linkmap_t**)extra_info = getLinkMapLib(lib);
     }
     return (info->dli_sname)?1:0;   // success is non-null here...
