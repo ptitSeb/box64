@@ -1913,11 +1913,14 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         if(my_environ!=my_context->envv) envv = my_environ;
         if(my__environ!=my_context->envv) envv = my__environ;
         if(my___environ!=my_context->envv) envv = my___environ;
-if(!envv && n>2 && strstr(newargv[2], "fxc.exe")) {
+/*if(!envv && n>2 && strstr(newargv[2], "fxc.exe")) {
 setenv("BOX64_LOG", "2", 1);
 setenv("BOX64_TRACE_FILE", "/home/seb/trace-%pid.txt", 1);
+setenv("BOX64_TRACE","server_init_process_done", 1);
+setenv("BOX64_DYNAREC", "0", 1);
+setenv("WINEDEBUG", "+server", 1);
 //setenv("BOX64_DYNAREC", "0", 1);
-}
+}*/
         int ret;
         if(envv)
             ret = execve(newargv[0], (char* const*)newargv, envv);
