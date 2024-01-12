@@ -377,8 +377,8 @@ HWCAP2_ECV
     if(hwcap&HWCAP_AES)
         arm64_aes = 1;
     // ATOMIC use are disable for now. They crashes Batman Arkham Knight, bossibly other (also seems to make steamwebhelper unstable)
-    /*if(hwcap&HWCAP_ATOMICS)
-        arm64_atomics = 1;*/
+    if(hwcap&HWCAP_ATOMICS)
+        arm64_atomics = 1;
     #ifdef HWCAP_SHA1
     if(hwcap&HWCAP_SHA1)
         arm64_sha1 = 1;
