@@ -134,7 +134,7 @@ typedef void* (*pFpLLp_t)(void*, size_t, size_t, void*);
 size_t(*box_malloc_usable_size)(void*) = NULL;
 
 int GetTID();
-uint8_t getProtection(uintptr_t addr);
+uint32_t getProtection(uintptr_t addr);
 // malloc_hack "2" handling
 // mmap history
 static int malloc_hack_2 = 0;

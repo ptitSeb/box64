@@ -1003,13 +1003,13 @@ void protectDB(uintptr_t addr, uintptr_t size)
 
     mutex_lock(&mutex_prot);
     while(cur!=end) {
-        uint8_t prot = 0, oprot;
+        uint32_t prot = 0, oprot;
         uintptr_t bend = 0;
         rb_get_end(memprot, cur, &prot, &bend);
         if(bend>end)
             bend = end;
         oprot = prot;
-        uint8_t dyn = prot&PROT_DYN;
+        uint32_t dyn = prot&PROT_DYN;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;
         if(!(dyn&PROT_NOPROT)) {
@@ -1038,7 +1038,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
 
     mutex_lock(&mutex_prot);
     while(cur!=end) {
-        uint8_t prot = 0, oprot;
+        uint32_t prot = 0, oprot;
         uintptr_t bend = 0;
         if (!rb_get_end(memprot, cur, &prot, &bend)) {
             if(bend>=end) break;
@@ -1073,7 +1073,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
     addr &=~(box64_pagesize-1);
     mutex_lock(&mutex_prot);
     while (addr < end) {
-        uint8_t prot;
+        uint32_t prot;
         uintptr_t bend;
         if (!rb_get_end(memprot, addr, &prot, &bend) || !(prot&PROT_DYN)) {
             dynarec_log(LOG_DEBUG, "0\n");
@@ -1188,7 +1188,7 @@ void removeMapMem(mapmem_t* mapmem, uintptr_t begin, uintptr_t end)
     }
 }
 
-void updateProtection(uintptr_t addr, size_t size, uint8_t prot)
+void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%hhx\n", (void*)addr, (void*)(addr+size-1), prot);
     mutex_lock(&mutex_prot);
@@ -1197,9 +1197,9 @@ void updateProtection(uintptr_t addr, size_t size, uint8_t prot)
     uintptr_t end = (cur+size+(box64_pagesize-1))&~(box64_pagesize-1);
     while (cur < end) {
         uintptr_t bend;
-        uint8_t prot;
+        uint32_t prot;
         rb_get_end(memprot, cur, &prot, &bend);
-        uint8_t dyn=(prot&PROT_DYN);
+        uint32_t dyn=(prot&PROT_DYN);
         if(!(dyn&PROT_NOPROT)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
@@ -1215,7 +1215,7 @@ void updateProtection(uintptr_t addr, size_t size, uint8_t prot)
     mutex_unlock(&mutex_prot);
 }
 
-void setProtection(uintptr_t addr, size_t size, uint8_t prot)
+void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     mutex_lock(&mutex_prot);
     addMapMem(mapallmem, addr, addr+size-1);
@@ -1225,7 +1225,7 @@ void setProtection(uintptr_t addr, size_t size, uint8_t prot)
     mutex_unlock(&mutex_prot);
 }
 
-void setProtection_mmap(uintptr_t addr, size_t size, uint8_t prot)
+void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 {
     if(!size)
         return;
@@ -1242,7 +1242,7 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint8_t prot)
     }
 }
 
-void setProtection_elf(uintptr_t addr, size_t size, uint8_t prot)
+void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
 {
     if(prot)
         setProtection(addr, size, prot);
@@ -1256,7 +1256,7 @@ void setProtection_elf(uintptr_t addr, size_t size, uint8_t prot)
 void refreshProtection(uintptr_t addr)
 {
     mutex_lock(&mutex_prot);
-    uint8_t prot;
+    uint32_t prot;
     uintptr_t bend;
     if (rb_get_end(memprot, addr, &prot, &bend)) {
         int ret = mprotect((void*)(addr&~(box64_pagesize-1)), box64_pagesize, prot&~PROT_CUSTOM);
@@ -1316,12 +1316,12 @@ void freeProtection(uintptr_t addr, size_t size)
     mutex_unlock(&mutex_prot);
 }
 
-uint8_t getProtection(uintptr_t addr)
+uint32_t getProtection(uintptr_t addr)
 {
     if(addr>=(1LL<<48))
         return 0;
     mutex_lock(&mutex_prot);
-    uint8_t ret = rb_get(memprot, addr);
+    uint32_t ret = rb_get(memprot, addr);
     mutex_unlock(&mutex_prot);
     return ret;
 }
