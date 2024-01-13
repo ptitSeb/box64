@@ -521,11 +521,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 NOT(x5, x5);
                 SLLI(x5, x5, 16);
                 SLLI(x6, x6, 16);
+                // 0xffffffff0000ffff
                 NOT(x5, x5);
-                LR_W(x1, ed, 1, 0);
+                ANDI(x4, ed, ~0b11);
+                LR_W(x1, x4, 1, 0);
                 AND(x3, x1, x5);
                 OR(x3, x3, x6);
-                SC_W(x3, x3, ed, 0, 1);
+                SC_W(x3, x3, x4, 0, 1);
                 BNEZ(x3, -4 * 4);
                 SRLI(x1, x1, 16);
                 ZEXTH(x1, x1);
