@@ -53,6 +53,7 @@ int Run(x64emu_t *emu, int step)
     int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int unimp = 0;
     int is32bits = (emu->segs[_CS]==0x23);
+    int tf_next = 0;
 
     if(emu->quit)
         return 0;
@@ -822,8 +823,12 @@ x64emurun:
                 Push64(emu, emu->eflags.x64);
             break;
         case 0x9D:                      /* POPF */
+            if(ACCESS_FLAG(F_TF) && !tf_next)
+                --tf_next;
             emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
+            if(ACCESS_FLAG(F_TF))
+                ++tf_next;
             break;
         case 0x9E:                      /* SAHF */
             CHECK_FLAGS(emu);
@@ -1985,9 +1990,13 @@ x64emurun:
 #ifndef TEST_INTERPRETER
         // check the TRACE flag before going to next
         if(ACCESS_FLAG(F_TF)) {
-            R_RIP = addr;
-            emit_signal(emu, SIGTRAP, (void*)addr, 1);
-            if(emu->quit) goto fini;
+            if(tf_next) {
+                tf_next = 0;
+            } else {
+                R_RIP = addr;
+                emit_signal(emu, SIGTRAP, (void*)addr, 1);
+                if(emu->quit) goto fini;
+            }
         }
 #endif
         R_RIP = addr;
