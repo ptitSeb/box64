@@ -441,7 +441,7 @@ GO(__gmpz_add, vFppp)
 //GO(__gmpz_addmul, 
 //GO(__gmpz_addmul_ui, 
 GO(__gmpz_add_ui, vFppL)
-//GO(__gmpz_and, 
+GO(__gmpz_and, vFppp)
 //GO(__gmpz_aorsmul_1, 
 //GO(__gmpz_array_init, 
 //GO(__gmpz_bin_ui, 
