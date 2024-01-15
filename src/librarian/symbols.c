@@ -230,8 +230,8 @@ int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* 
     versymbols_t * v = &kh_val(mapsymbols, k);
     versymbol_t* s = MatchVersion(v, ver, vername, 0, local, defver);
     if(s) {
-        *start = s->sym.offs;
-        *end = *start + s->sym.sz;
+        if(start) *start = s->sym.offs;
+        if(end) *end = *start + s->sym.sz;
         return 1;
     }
     return 0;

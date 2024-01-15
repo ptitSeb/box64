@@ -426,14 +426,14 @@ int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t**
         int t = ELF64_R_TYPE(rela[i].r_info);
         Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rela[i].r_info)];
         const char* symname = SymName(h, sym);
-        if(t==R_X86_64_COPY && symname && !strcmp(symname, name) && sym->st_size==size) {
+        if((t==R_X86_64_COPY) && symname && !strcmp(symname, name) && (sym->st_size==size)) {
             int version2 = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[ELF64_R_SYM(rela[i].r_info)]:-1;
             if(version2!=-1) version2 &= 0x7fff;
             if(version && !version2) version2=-1;   // match a versioned symbol against a global "local" symbol
             const char* vername2 = GetSymbolVersion(h, version2);
             if(SameVersionedSymbol(name, version, vername, symname, version2, vername2)) {
-                *offs = sym->st_value + h->delta;
-                *p = (uint64_t*)(rela[i].r_offset + h->delta + rela[i].r_addend);
+                if(offs) *offs = sym->st_value + h->delta;
+                if(p) *p = (uint64_t*)(rela[i].r_offset + h->delta + rela[i].r_addend);
                 return 1;
             }
         }
@@ -526,11 +526,9 @@ int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                     }
                     *p = globoffs;
                 } else {
-                    // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    /*if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
+                    if((size==0) && GetSymbolStartEnd(GetGlobalData(maplib), symname, &globoffs, &globend, version, vername, 0, globdefver)) {
                         offs = globoffs;
-                        end = globend;
-                    }*/
+                    }
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start") && strcmp(symname, "collector_func_load"))
                             printf_log(LOG_NONE, "%s: Global Symbol %s (ver=%d/%s) not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, version, vername?vername:"(none)", p, *(void**)p, head->name);
@@ -757,7 +755,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                 }
                 break;
             case R_X86_64_GLOB_DAT:
-                if(head!=my_context->elfs[0] && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername, globdefver) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
+                if((head!=my_context->elfs[0]) && !IsGlobalNoWeakSymbolInNative(maplib, symname, version, vername, globdefver) && FindR64COPYRel(my_context->elfs[0], symname, &globoffs, &globp, size, version, vername)) {
                     // set global offs / size for the symbol
                     offs = sym->st_value + head->delta;
                     end = offs + sym->st_size;
@@ -775,11 +773,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t
                     }
                     *p = globoffs;
                 } else {
-                    // Look for same symbol already loaded but not in self (so no need for local_maplib here)
-                    /*if (GetGlobalNoWeakSymbolStartEnd(local_maplib?local_maplib:maplib, symname, &globoffs, &globend, version, vername, globdefver)) {
+                    if((size==0) && GetSymbolStartEnd(GetGlobalData(maplib), symname, &globoffs, &globend, version, vername, 0, globdefver)) {
                         offs = globoffs;
-                        end = globend;
-                    }*/
+                    }
                     if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start") && strcmp(symname, "collector_func_load"))
                             printf_log((bind==STB_WEAK)?LOG_INFO:LOG_NONE, "%s: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, p, *(void**)p, head->name);
