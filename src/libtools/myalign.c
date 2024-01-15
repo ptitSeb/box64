@@ -1240,12 +1240,15 @@ void* align_xcb_connection(void* src)
     for(int i=0; i<NXCB && !dest; ++i)
         if(src==&x64_xcb_connects[i])
             dest = my_xcb_connects[i];
+    #if 1
     if(!dest)
         dest = add_xcb_connection(src);
+    #else
     if(!dest) {
         printf_log(LOG_NONE, "BOX64: Error, xcb_connect %p not found\n", src);
-        return src;
+        abort();
     }
+    #endif
     // do not update most values
     x64_xcb_connection_t* source = src;
     dest->has_error = source->has_error;
@@ -1292,6 +1295,12 @@ void* add_xcb_connection(void* src)
 {
     if(!src)
         return src;
+    // check if already exist
+    for(int i=0; i<NXCB; ++i)
+        if(my_xcb_connects[i] == src) {
+            unalign_xcb_connection(src, &x64_xcb_connects[i]);
+            return &x64_xcb_connects[i];
+        }
     // find a free slot
     for(int i=0; i<NXCB; ++i)
         if(!my_xcb_connects[i]) {
@@ -1309,8 +1318,8 @@ void del_xcb_connection(void* src)
         return;
     // find it
     for(int i=0; i<NXCB; ++i)
-        if(src==my_xcb_connects[i]) {
-            my_xcb_connects[i] = 0;
+        if(src==&x64_xcb_connects[i]) {
+            my_xcb_connects[i] = NULL;
             memset(&x64_xcb_connects[i], 0, sizeof(x64_xcb_connection_t));
             return;
         }
