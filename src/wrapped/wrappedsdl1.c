@@ -402,9 +402,9 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
     int ret = my->SDL_GetWMInfo(p);
     my_SDL_SysWMinfo *info = (my_SDL_SysWMinfo*)p;
     if(info->info.x11.lock_func)
-        info->info.x11.lock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.lock_func, 0, NULL);
+        info->info.x11.lock_func = (void*)AddCheckBridge(emu->context->system, vFv, info->info.x11.lock_func, 0, NULL);
     if(info->info.x11.unlock_func)
-        info->info.x11.unlock_func = (void*)AddBridge(emu->context->system, vFv, info->info.x11.unlock_func, 0, NULL);
+        info->info.x11.unlock_func = (void*)AddCheckBridge(emu->context->system, vFv, info->info.x11.unlock_func, 0, NULL);
     return ret;
 }
 

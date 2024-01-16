@@ -74,7 +74,7 @@ static void* resolveSymbol(x64emu_t* emu, void* symbol, const char* rname)
     if(!s->resolved) {
         khint_t k = kh_get(symbolmap, emu->context->vkwrappers, rname);
         const char* constname = kh_key(emu->context->vkwrappers, k);
-        s->addr = AddBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->addr = AddCheckBridge(emu->context->system, s->w, symbol, 0, constname);
         s->resolved = 1;
     }
     void* ret = (void*)s->addr;

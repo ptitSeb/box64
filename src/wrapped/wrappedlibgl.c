@@ -456,7 +456,7 @@ void* getGLProcAddress(x64emu_t* emu, glprocaddress_t procaddr, const char* rnam
     if(!s->resolved) {
         const char* constname = kh_key(wrappers->glwrappers, k);
         AddOffsetSymbol(emu->context->maplib, symbol, rname);
-        s->addr = AddBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->addr = AddCheckBridge(emu->context->system, s->w, symbol, 0, constname);
         s->resolved = 1;
     }
     ret = s->addr;

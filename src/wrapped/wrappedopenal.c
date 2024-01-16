@@ -146,7 +146,7 @@ EXPORT void* my_alGetProcAddress(x64emu_t* emu, void* name)
     symbol1_t *s = &kh_value(emu->context->alwrappers, k);
     if(!s->resolved) {
         const char* constname = kh_key(emu->context->alwrappers, k);
-        s->addr = AddBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->addr = AddCheckBridge(emu->context->system, s->w, symbol, 0, constname);
         s->resolved = 1;
     }
     return (void*)s->addr;
@@ -182,7 +182,7 @@ EXPORT void* my_alcGetProcAddress(x64emu_t* emu, void* device, void* name)
     symbol1_t *s = &kh_value(emu->context->alwrappers, k);
     if(!s->resolved) {
         const char* constname = kh_key(emu->context->alwrappers, k);
-        s->addr = AddBridge(emu->context->system, s->w, symbol, 0, constname);
+        s->addr = AddCheckBridge(emu->context->system, s->w, symbol, 0, constname);
         s->resolved = 1;
     }
     return (void*)s->addr;

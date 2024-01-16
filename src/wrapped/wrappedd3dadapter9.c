@@ -79,15 +79,15 @@ static int my_GetDirect3D(x64emu_t* emu, void* This, void*** ppD3D9);
 #define UNPACK(...) __VA_ARGS__
 
 #define GO(name, type) \
-    new->name = (void*)AddBridge(emu->context->system, type, real->name, 0, #name)
+    new->name = (void*)AddCheckBridge(emu->context->system, type, real->name, 0, #name)
 
 #define GOM(name, type) \
     my_##name##_real = (void*)real->name; \
-    new->name = (void*)AddBridge(emu->context->system, type, my_##name, 0, "my_" #name)
+    new->name = (void*)AddCheckBridge(emu->context->system, type, my_##name, 0, "my_" #name)
 
 #define GO2(name, type) \
     my_##name##_real2 = (void*)real->name; \
-    new->name = (void*)AddBridge(emu->context->system, type, my_##name2, 0, "my_" #name)
+    new->name = (void*)AddCheckBridge(emu->context->system, type, my_##name2, 0, "my_" #name)
 
 #include "wrappedd3dadapter9_gen.h"
 
