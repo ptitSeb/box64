@@ -568,12 +568,13 @@ uint32_t rb_get(rbtree *tree, uintptr_t addr) {
 int rb_get_end(rbtree* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
     rbnode *node = tree->root, *next = NULL;
     while (node) {
-        if (node->end <= addr) {
-            node = node->right;
-        } else if (node->start <= addr) {
+        if ((node->start <= addr) && (node->end > addr)) {
             *val = node->data;
             *end = node->end;
             return 1;
+        }
+        if (node->end <= addr) {
+            node = node->right;
         } else {
             next = node;
             node = node->left;
