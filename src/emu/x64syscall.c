@@ -234,6 +234,7 @@ static const scwrap_t syscallwrap[] = {
     [257] = {__NR_openat, 4},
     #endif
     [258] = {__NR_mkdirat, 3},
+    [260] = {__NR_fchownat, 5},
     //[262] = {__NR_fstatat, 4}, 
     [263] = {__NR_unlinkat, 3},
     #ifdef __NR_renameat
