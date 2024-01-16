@@ -1506,10 +1506,7 @@ x64emurun:
             };
             break;
         case 0xD7:                      /* XLAT */
-            if(rex.w || rex.is32bits)
-                R_AL = *(uint8_t*)(R_RBX + R_AL);
-            else
-                R_AL = *(uint8_t*)((uintptr_t)R_EBX + R_AL);
+            R_AL = *(uint8_t*)(R_RBX + R_AL);
             break;
         case 0xD8:                      /* x87 opcodes */
             #ifdef TEST_INTERPRETER
