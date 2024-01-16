@@ -1575,6 +1575,11 @@ EXPORT void my_pa_mainloop_api_once(x64emu_t* emu, void* mainloop, void* cb, voi
     my->pa_mainloop_api_once(mainloop, find_mainloop_once_Fct(cb), data);
 }
 
+void my_autobridge_mainloop_api(x64emu_t* emu, void* api)
+{
+    UpdateautobridgeMainloopAPI(emu, my_lib->w.bridge, api);
+}
+
 #define PRE_INIT        \
     if(box64_nopulse)   \
         return -1;

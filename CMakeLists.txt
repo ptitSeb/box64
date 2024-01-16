@@ -557,6 +557,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedplds4.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpng16.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulse.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedpulsemainloopglib.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulsesimple.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsdl1image.c"

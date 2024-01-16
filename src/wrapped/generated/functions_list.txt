@@ -5091,6 +5091,9 @@ wrappedpulse:
   - pa_stream_write
 - pFpiuCppp:
   - pa_ext_device_restore_save_formats
+wrappedpulsemainloopglib:
+- pFp:
+  - pa_glib_mainloop_get_api
 wrappedpulsesimple:
 wrappedsdl1:
 - vFp:
