@@ -175,7 +175,7 @@ const char* ElfPath(elfheader_t* head)
         return NULL;
     return head->path;
 }
-#define ALIGN(p) (((p)+box64_pagesize-1)&~(box64_pagesize-1))
+
 int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     uintptr_t offs = 0;

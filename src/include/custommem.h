@@ -16,6 +16,8 @@ void customFree(void* p);
 #define krealloc    customRealloc
 #define kfree       customFree
 
+#define ALIGN(p) (((p)+box64_pagesize-1)&~(box64_pagesize-1))
+
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
 // custom protection flag to mark Page that are Write protected for Dynarec purpose

@@ -1217,6 +1217,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 
 void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
+    size = ALIGN(size);
     mutex_lock(&mutex_prot);
     addMapMem(mapallmem, addr, addr+size-1);
     uintptr_t cur = addr & ~(box64_pagesize-1);
@@ -1229,7 +1230,7 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 {
     if(!size)
         return;
-    size = (size+box64_pagesize-1)&~(box64_pagesize-1); // round size
+    size = ALIGN(size);
     mutex_lock(&mutex_prot);
     addMapMem(mmapmem, addr, addr+size-1);
     mutex_unlock(&mutex_prot);
@@ -1244,6 +1245,7 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
 
 void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
 {
+    size = ALIGN(size);
     if(prot)
         setProtection(addr, size, prot);
     else {
@@ -1308,6 +1310,7 @@ void loadProtectionFromMap()
 
 void freeProtection(uintptr_t addr, size_t size)
 {
+    size = ALIGN(size);
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     mutex_lock(&mutex_prot);
     removeMapMem(mapallmem, addr, addr+size-1);
