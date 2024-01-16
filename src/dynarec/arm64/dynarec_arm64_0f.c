@@ -1579,20 +1579,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             GETED(0);
             if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-            UFLAG_IF {
-                if(rex.w) {
-                    ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                } else {
-                    ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                }
-                B_NEXT(cEQ);
+            if(rex.w) {
+                ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
             } else {
-                if(rex.w) {
-                    ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                } else {
-                    ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                }
+                ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
             }
+            B_NEXT(cEQ);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x5, x4);
             WBACK;
             break;
@@ -1651,20 +1643,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGD;
             GETED(0);
             if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-            UFLAG_IF {
-                if(rex.w) {
-                    ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                } else {
-                    ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                }
-                B_NEXT(cEQ);
+            if(rex.w) {
+                ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
             } else {
-                if(rex.w) {
-                    ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                } else {
-                    ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                }
+                ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
             }
+            B_NEXT(cEQ);
             emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4);
             WBACK;
             break;

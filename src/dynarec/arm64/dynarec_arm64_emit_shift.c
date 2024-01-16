@@ -1292,7 +1292,7 @@ void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         if(c<16)
             LSRw(s3, s1, 16-c);
         else
-            MOVx_REG(s3, s1);
+            LSRw(s3, s2, 32-c);
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_OF) {
@@ -1328,16 +1328,14 @@ void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
     IFX(X_CF) {
-        MOVw_REG(s3, s1);
-        CMPSw_U12(s5, 16);
-        Bcond(cGE, 4+3*4);
-            MOV32w(s3, 16);
-            SUBw_REG(s3, s3, s5);
-            LSRw_REG(s3, s1, s3);
+        ORRw_REG_LSL(s4, s2, s1, 16);
+        MOV32w(s3, 32);
+        SUBw_REG(s3, s3, s5);
+        RORw_REG(s3, s4, s3);
         BFIw(xFlags, s3, F_CF, 1);
     }
+    ORRw_REG_LSL(s1, s1, s2, 16);   // create concat first
     IFX(X_OF) {
         LSRw(s3, s1, 15);
         BFIw(xFlags, s3, F_OF, 1);  // store current sign for later use
