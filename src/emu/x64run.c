@@ -174,7 +174,9 @@ x64emurun:
                         unimp = 1;
                         goto fini;
                     }
-                    if(step==2) STEP2;
+                    if(step==2) {
+                        STEP2;
+                    }
                     #endif
                     break;
                 case 2:
@@ -197,7 +199,9 @@ x64emurun:
                         unimp = 1;
                         goto fini;
                     }
-                    if(step==2) STEP2;
+                    if(step==2) {
+                        STEP2;
+                    }
                     #endif
                     break;
             }

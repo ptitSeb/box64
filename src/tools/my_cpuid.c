@@ -56,13 +56,13 @@ static double bogoMips = 100.;
 void grabNCpu() {
     nCPU = 1;  // default number of CPU to 1
     FILE *f = fopen("/proc/cpuinfo", "r");
-    size_t dummy;
+    ssize_t dummy;
     if(f) {
         nCPU = 0;
         int bogo = 0;
         size_t len = 500;
         char* line = malloc(len);
-        while ((dummy = getline(&line, &len, f)) != -1) {
+        while ((dummy = getline(&line, &len, f)) != (ssize_t)-1) {
             if(!strncmp(line, "processor\t", strlen("processor\t")))
                 ++nCPU;
             if(!bogo && !strncmp(line, "BogoMIPS\t", strlen("BogoMIPS\t"))) {

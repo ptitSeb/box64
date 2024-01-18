@@ -3037,7 +3037,7 @@ EXPORT int my_semctl(int semid, int semnum, int cmd, union semun b)
     return ret;
 }
 
-EXPORT uint64_t userdata_sign = 0x1234598765ABCEF0;
+EXPORT int64_t userdata_sign = 0x1234598765ABCEF0;
 EXPORT uint32_t userdata[1024]; 
 
 EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_t* data)

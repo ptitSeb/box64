@@ -720,7 +720,7 @@ EXPORT void my3_gtk_tree_view_column_set_cell_data_func(x64emu_t* emu, void* tre
 EXPORT void* my3_gtk_tree_store_new(x64emu_t* emu, uint32_t n, uintptr_t* b)
 {
     uintptr_t c[n];
-    for(int i=0; i<n; ++i)
+    for(uint32_t i=0; i<n; ++i)
         c[i] = getVArgs(emu, 1, b, i);
     return my->gtk_tree_store_newv(n, c);
 }

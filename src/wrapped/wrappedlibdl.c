@@ -65,7 +65,7 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
 
 #define CLEARERR    if(dl->last_error) {box_free(dl->last_error); dl->last_error = NULL;}
 
-void RemoveDlopen(library_t** lib, int idx)
+void RemoveDlopen(library_t** lib, size_t idx)
 {
     if(!my_context)
         return;

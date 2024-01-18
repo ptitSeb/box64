@@ -579,7 +579,7 @@ uintptr_t get_parent_registers(dwarf_unwind_t *unwind, const elfheader_t *ehdr, 
 #undef PARSE_INST
                 box_free(init_statuses);
                 box_free(init_table);
-                for (int i = 0; i < maxstacksize; ++i) {
+                for (uint64_t i = 0; i < maxstacksize; ++i) {
                     box_free(table_stack[i]);
                 }
                 box_free(table_stack);

@@ -35,15 +35,15 @@ static int overrideIfDataInvalid(sse_regs_t* mem, int lmem, sse_regs_t* reg, int
                     return (i&1)?((reg->uw[i]>=mem->uw[j])):((reg->uw[i]<=mem->uw[j]));
                 case 0b10:  // sb
                     return (i&1)?((reg->sb[i]>=mem->sb[j])):((reg->sb[i]<=mem->sb[j]));
-                case 0b11:  // sw
+                default:    // sw
                     return (i&1)?((reg->sw[i]>=mem->sw[j])):((reg->sw[i]<=mem->sw[j]));
             }
             break;
         default:    // the others
             switch (imm8&1) {
-                case 0: // byte
+                case 0:  // byte
                     return (reg->ub[i] == mem->ub[j]);
-                case 1: // word
+                default: // word
                     return (reg->uw[i] == mem->uw[j]);
             }
     }

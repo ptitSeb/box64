@@ -358,7 +358,7 @@ static const char* essential_libs[] = {
     "ld-linux-x86-64.so.2", "crashhandler.so", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4"
 };
 static int isEssentialLib(const char* name) {
-    for (int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
+    for (unsigned int i=0; i<sizeof(essential_libs)/sizeof(essential_libs[0]); ++i)
         if(!strcmp(name, essential_libs[i]))
             return 1;
     return 0;

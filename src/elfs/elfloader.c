@@ -961,7 +961,7 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, elfheader_t*
                 return -1;
         }
         if(need_resolver) {
-            if(pltResolver==~0LL) {
+            if(pltResolver==(uintptr_t)-1) {
                 pltResolver = AddBridge(my_context->system, vFE, PltResolver, 0, "PltResolver");
             }
             if(head->pltgot) {
@@ -1216,7 +1216,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, box64c
     DumpDynamicNeeded(h);
     int cnt = 0;
     // count the number of needed libs, and also grab soname
-    for (int i=0; i<h->numDynamic; ++i) {
+    for (size_t i=0; i<h->numDynamic; ++i) {
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             ++cnt;
         if(h->Dynamic[i].d_tag==DT_SONAME)
@@ -1226,7 +1226,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, box64c
     if(h == my_context->elfs[0])
         my_context->neededlibs = h->needed;
     int j=0;
-    for (int i=0; i<h->numDynamic; ++i)
+    for (size_t i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             h->needed->names[j++] = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
 
