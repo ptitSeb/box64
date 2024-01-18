@@ -323,7 +323,7 @@ EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacks
 {
 	(void)emu;
 	//aarch64 have an PTHREAD_STACK_MIN of 131072 instead of 16384 on x86_64!
-	if(stacksize<PTHREAD_STACK_MIN)
+	if(stacksize<(size_t)PTHREAD_STACK_MIN)
 		stacksize = PTHREAD_STACK_MIN;
 	return pthread_attr_setstacksize(getAlignedAttr(attr), stacksize);
 }

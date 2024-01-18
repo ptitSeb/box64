@@ -150,7 +150,7 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
     // get start of block
     if(start) {
         blockmark_t *m = (blockmark_t*)start;
-        int maxsize = 0;
+        unsigned int maxsize = 0;
         while(m->next.x32) {    // while there is a subblock
             if(!m->next.fill && m->next.size>maxsize) {
                 maxsize = m->next.size;
@@ -160,7 +160,7 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
         return (maxsize>=sizeof(blockmark_t))?maxsize:0;
     } else {
         blockmark_t *m = LAST_BLOCK(block, block_size); // start with the end
-        int maxsize = 0;
+        unsigned int maxsize = 0;
         while(m->prev.x32) {    // while there is a subblock
             if(!m->prev.fill && m->prev.size>maxsize) {
                 maxsize = m->prev.size;
@@ -1505,7 +1505,7 @@ void reserveHighMem()
     if(!p || p[0]=='0')
     #endif
         return; // don't reserve by default
-    intptr_t cur = 1LL<<47;
+    uintptr_t cur = 1ULL<<47;
     mapmem_t* m = mapallmem;
     while(m && (m->end<cur)) {
         m = m->next;

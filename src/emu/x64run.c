@@ -174,7 +174,9 @@ x64emurun:
                         unimp = 1;
                         goto fini;
                     }
-                    if(step==2) STEP2;
+                    if(step==2) {
+                        STEP2;
+                    }
                     #endif
                     break;
                 case 2:
@@ -197,7 +199,9 @@ x64emurun:
                         unimp = 1;
                         goto fini;
                     }
-                    if(step==2) STEP2;
+                    if(step==2) {
+                        STEP2;
+                    }
                     #endif
                     break;
             }
@@ -397,6 +401,7 @@ x64emurun:
             break;
         case 0x62:                  /* BOUND Gd, Ed */
             if(rex.is32bits) {
+                nextop = F8;
                 FAKEED(0);
             } else {
                 unimp = 1;

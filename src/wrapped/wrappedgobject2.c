@@ -897,12 +897,12 @@ EXPORT void my_g_closure_set_marshal(x64emu_t* emu, void* closure, void* marshal
 
 EXPORT void* my_g_cclosure_new(x64emu_t* emu, void* callback, void* data, void* destroy)
 {
-    my->g_cclosure_new(findGCallbackFct(callback), data, findGClosureNotify_Fct(destroy));
+    return my->g_cclosure_new(findGCallbackFct(callback), data, findGClosureNotify_Fct(destroy));
 }
 
 EXPORT void* my_g_cclosure_new_swap(x64emu_t* emu, void* callback, void* data, void* destroy)
 {
-    my->g_cclosure_new_swap(findGCallbackFct(callback), data, findGClosureNotify_Fct(destroy));
+    return my->g_cclosure_new_swap(findGCallbackFct(callback), data, findGClosureNotify_Fct(destroy));
 }
 
 EXPORT void my_g_closure_add_finalize_notifier(x64emu_t* emu, void* closure, void* data, void* f)
@@ -939,4 +939,3 @@ EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
     freeMy();
 
 #include "wrappedlib_init.h"
-

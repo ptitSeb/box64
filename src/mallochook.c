@@ -168,8 +168,8 @@ char* box_realpath(const char* path, char* ret)
 
 static size_t pot(size_t l) {
     size_t ret = 0;
-    while (l>(1<<ret))  ++ret;
-    return 1<<ret;
+    while (l>(1u<<ret))  ++ret;
+    return 1u<<ret;
 }
 
 static int ispot(size_t l) {

@@ -28,6 +28,7 @@ uintptr_t Test6764_32(x64test_t *test, rex_t rex, int rep, int seg, uintptr_t ad
 uintptr_t Run6764_32(x64emu_t *emu, rex_t rex, int rep, int seg, uintptr_t addr)
 #endif
 {
+    (void)rep;
     uint8_t opcode;
     uint8_t nextop;
     int8_t tmp8s;

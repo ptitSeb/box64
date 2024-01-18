@@ -566,7 +566,7 @@ static int get_sdl_priv(x64emu_t* emu, const char *sym_str, void **w, void **f)
 
 int EXPORT my2_SDL_DYNAPI_entry(x64emu_t* emu, uint32_t version, uintptr_t *table, uint32_t tablesize)
 {
-    int i = 0;
+    uint32_t i = 0;
     uintptr_t tab[tablesize];
     int r = my->SDL_DYNAPI_entry(version, tab, tablesize);
     (void)r;

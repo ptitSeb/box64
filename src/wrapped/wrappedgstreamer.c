@@ -908,7 +908,7 @@ EXPORT void* my_gst_structure_new_valist(x64emu_t* emu, void* name, void* first,
     #else
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
     #endif
-    my->gst_structure_new_valist(name, first, VARARGS);
+    return my->gst_structure_new_valist(name, first, VARARGS);
 }
 
 EXPORT void* my_gst_make_element_message_details(x64emu_t* emu, void* name, uintptr_t* b)
@@ -916,7 +916,7 @@ EXPORT void* my_gst_make_element_message_details(x64emu_t* emu, void* name, uint
     if(!name)
         return NULL;
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
-    my->gst_structure_new_valist("detail", name, VARARGS);
+    return my->gst_structure_new_valist("detail", name, VARARGS);
 }
 
 EXPORT int my_gst_pad_start_task(x64emu_t* emu, void* pad, void* f, void* data, void* d)

@@ -4543,7 +4543,7 @@ static void wrapGTKClass(void* cl, size_t type)
     GTKCLASSES()
     if(type==8) {}  // GInterface have no structure
     else {
-        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+        if(my_MetaFrames2==(size_t)-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
             wrapMetaFrames2Class((my_MetaFrames2Class_t*)cl);
         } else
@@ -4781,7 +4781,7 @@ void* wrapCopyGTKClass(void* klass, size_t type)
     GTKCLASSES()
     if(type==8) {}  // GInterface have no structure
     else {
-        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+        if(my_MetaFrames2==(size_t)-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
             sz = sizeof(my_MetaFrames2Class_t);
         } else {
@@ -4791,6 +4791,7 @@ void* wrapCopyGTKClass(void* klass, size_t type)
     }
     #undef GTKIFACE
     #undef GTKCLASS
+    (void)sz;
     bridgeGTKClass(klass, type);
     return klass;
 }
@@ -4811,7 +4812,7 @@ void* wrapCopyGTKInterface(void* iface, size_t type)
     GTKCLASSES()
     if(type==8) {}  // GInterface have no structure
     else {
-        if(my_MetaFrames2==-1 && !strcmp(g_type_name(type), "MetaFrames")) {
+        if(my_MetaFrames2==(size_t)-1 && !strcmp(g_type_name(type), "MetaFrames")) {
             my_MetaFrames2 = type;
             sz = sizeof(my_MetaFrames2Class_t);
         } else {
@@ -4821,6 +4822,7 @@ void* wrapCopyGTKInterface(void* iface, size_t type)
     }
     #undef GTKIFACE
     #undef GTKCLASS
+    (void)sz;
     bridgeGTKInterface(iface, type);
     return iface;
 }
@@ -5455,11 +5457,11 @@ void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*))
 {
     void* p;
     #define GTKIFACE(A)
-    #define GTKCLASS(A)             \
-    if(my_##A && my_##A!=-1) {      \
-        p = ref(my_##A);            \
-        bridgeGTKClass(p, my_##A);  \
-        unref(p);                   \
+    #define GTKCLASS(A)                \
+    if(my_##A && my_##A!=(size_t)-1) { \
+        p = ref(my_##A);               \
+        bridgeGTKClass(p, my_##A);     \
+        unref(p);                      \
     }
     GTKCLASSES()
     #undef GTKIFACE

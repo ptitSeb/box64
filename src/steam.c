@@ -17,7 +17,6 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
 {
     // skip all the parameter, but parse some of them
     const char* runtime = getenv("PRESSURE_VESSEL_RUNTIME");
-    int ld_lib_path = 0;
     // look for the comand first
     const char* cmd = argv[nextarg];
     int i = 0;
@@ -33,7 +32,6 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                     strcat(tmp, argv[nextarg]+strlen("--env-if-host=PRESSURE_VESSEL_APP_"));
                     char *p = strchr(tmp, '=');
                     *p ='\0'; ++p;
-                    ld_lib_path = 1;
                     setenv(tmp, p, 1);
                     printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
                 }

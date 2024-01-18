@@ -61,8 +61,8 @@ void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size,
 int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event);
 int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
 int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout, const sigset_t *sigmask);
-pid_t my_vfork(x64emu_t* emu);
 #endif
+pid_t my_vfork(x64emu_t* emu);
 int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c);
 int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 
@@ -401,7 +401,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             printf_log(LOG_NONE, "%s", buff);
     }
     // check wrapper first
-    int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
+    uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     if(s<cnt && syscallwrap[s].nats) {
         int sc = syscallwrap[s].nats;
         switch(syscallwrap[s].nbpars) {
@@ -746,6 +746,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             S_RAX = eventfd(S_EDI, 0);
             if(S_RAX==-1)
                 S_RAX = -errno;
+            break;
         #endif
         case 317:   // sys_seccomp
             R_RAX = 0;  // ignoring call
@@ -791,7 +792,7 @@ long EXPORT my_syscall(x64emu_t *emu)
     uint32_t s = R_EDI;
     printf_dump(LOG_DEBUG, "%04d| %p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", GetTID(), (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
     // check wrapper first
-    int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
+    uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     if(s<cnt && syscallwrap[s].nats) {
         int sc = syscallwrap[s].nats;
         switch(syscallwrap[s].nbpars) {

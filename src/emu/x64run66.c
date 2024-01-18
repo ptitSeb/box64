@@ -147,6 +147,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 return Run66F30F(emu, rex, addr);
                 #endif
         }
+        return 0; // unreachable
 
         case 0x1E:                      /* PUSH DS */
             if(!rex.is32bits) {
