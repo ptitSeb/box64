@@ -148,6 +148,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(_obstack_free, vFpp_t) \
 	GO(obstack_free, vFpp_t) \
 	GO(tdestroy, vFpp_t) \
+	GO(twalk, vFpp_t) \
 	GO(warn, vFpV_t) \
 	GO(warnx, vFpV_t) \
 	GO(fstat, iFip_t) \

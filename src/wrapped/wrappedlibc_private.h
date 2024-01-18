@@ -2115,7 +2115,7 @@ GO(ttyname_r, iFipL)
 //GO(__ttyname_r_chk, 
 GO(ttyslot, iFv)
 //GO(__twalk, 
-//GOW(twalk, vFp@)
+GOWM(twalk, vFEpp)
 //GOW(twalk_r, vFp@p)
 DATA(__tzname, sizeof(void*))
 DATA(tzname, sizeof(void*)) //type V

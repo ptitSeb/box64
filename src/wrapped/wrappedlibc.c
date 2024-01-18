@@ -167,6 +167,29 @@ static void* findcompareFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare callback\n");
     return NULL;
 }
+// action
+#define GO(A)   \
+static uintptr_t my_action_fct_##A = 0;                 \
+static void my_action_##A(void* a, uint32_t b, int c)   \
+{                                                       \
+    RunFunctionFmt(my_action_fct_##A, "pui", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* findactionFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_action_fct_##A == (uintptr_t)fct) return my_action_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_action_fct_##A == 0) {my_action_fct_##A = (uintptr_t)fct; return my_action_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libc action callback\n");
+    return NULL;
+}
 
 // ftw64
 #define GO(A)   \
@@ -1390,6 +1413,11 @@ EXPORT void* my_tfind(x64emu_t* emu, void* key, void** root, void* fnc)
 {
     (void)emu;
     return tfind(key, root, findcompareFct(fnc));
+}
+EXPORT void my_twalk(x64emu_t* emu, void* root, void* fnc)
+{
+    (void)emu;
+    twalk(root, findactionFct(fnc));
 }
 EXPORT void* my_lfind(x64emu_t* emu, void* key, void* base, size_t* nmemb, size_t size, void* fnc)
 {
