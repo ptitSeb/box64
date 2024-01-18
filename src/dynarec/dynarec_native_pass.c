@@ -61,7 +61,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     #endif
     while(ok) {
         #if STEP == 0
-        if(cur_page != (addr)&~box64_pagesize) {
+        if(cur_page != ((addr)&~box64_pagesize)) {
             cur_page = (addr)&~box64_pagesize;
             if(!(getProtection(addr)&PROT_READ)) {
                 need_epilog = 1;
