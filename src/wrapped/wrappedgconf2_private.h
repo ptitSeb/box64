@@ -45,7 +45,7 @@ GO(gconf_client_add_dir, vFppip)
 //GO(gconf_client_error, 
 GO(gconf_client_error_handling_mode_get_type, LFv)
 GO(gconf_client_get, pFppp)
-//GO(gconf_client_get_bool, 
+GO(gconf_client_get_bool, iFppp)
 GO(gconf_client_get_default, pFv)
 //GO(gconf_client_get_default_from_schema, 
 //GO(gconf_client_get_entry, 
