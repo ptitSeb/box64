@@ -61,8 +61,8 @@ void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size,
 int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event);
 int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout);
 int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout, const sigset_t *sigmask);
-pid_t my_vfork(x64emu_t* emu);
 #endif
+pid_t my_vfork(x64emu_t* emu);
 int32_t my_fcntl(x64emu_t* emu, int32_t a, int32_t b, void* c);
 int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 
@@ -746,6 +746,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             S_RAX = eventfd(S_EDI, 0);
             if(S_RAX==-1)
                 S_RAX = -errno;
+            break;
         #endif
         case 317:   // sys_seccomp
             R_RAX = 0;  // ignoring call

@@ -401,6 +401,7 @@ x64emurun:
             break;
         case 0x62:                  /* BOUND Gd, Ed */
             if(rex.is32bits) {
+                nextop = F8;
                 FAKEED(0);
             } else {
                 unimp = 1;
