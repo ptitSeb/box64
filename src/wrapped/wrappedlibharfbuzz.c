@@ -1190,13 +1190,13 @@ EXPORT int my_hb_font_funcs_set_user_data(x64emu_t* emu, void* funcs, void* key,
     return (int)my->hb_font_funcs_set_user_data(funcs, key, data, find_destroy_Fct(destroy), replace);
 }
 
-EXPORT int my_hb_font_set_funcs(x64emu_t* emu, void* font, void* klass, void* data, void* destroy)
+EXPORT void my_hb_font_set_funcs(x64emu_t* emu, void* font, void* klass, void* data, void* destroy)
 {
     (void)emu;
     my->hb_font_set_funcs(font, klass, data, find_destroy_Fct(destroy));
 }
 
-EXPORT int my_hb_font_set_funcs_data(x64emu_t* emu, void* font, void* data, void* destroy)
+EXPORT void my_hb_font_set_funcs_data(x64emu_t* emu, void* font, void* data, void* destroy)
 {
     (void)emu;
     my->hb_font_set_funcs_data(font, data, find_destroy_Fct(destroy));

@@ -68,7 +68,7 @@ static void* find_cups_dest_cb_t_Fct(void* fct)
 
 EXPORT int my_cupsEnumDests(x64emu_t* emu, uint32_t flags, int msec, int* cancel, uint32_t type, uint32_t mask, void* f, void* data)
 {
-    my->cupsEnumDests(flags, msec, cancel, type, mask, find_cups_dest_cb_t_Fct(f), data);
+    return my->cupsEnumDests(flags, msec, cancel, type, mask, find_cups_dest_cb_t_Fct(f), data);
 }
 
 #define CUSTOM_INIT \
@@ -78,4 +78,3 @@ EXPORT int my_cupsEnumDests(x64emu_t* emu, uint32_t flags, int msec, int* cancel
     freeMy();
 
 #include "wrappedlib_init.h"
-
