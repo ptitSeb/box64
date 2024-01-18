@@ -5611,6 +5611,7 @@ wrappedwaylandegl:
 wrappedxinerama:
 wrappedxkbcommon:
 wrappedxkbcommonx11:
+wrappedxkbregistry:
 wrappedxml2:
 - vFp:
   - xmlSetExternalEntityLoader

@@ -592,6 +592,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedxinerama.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxkbcommon.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxkbcommonx11.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedxkbregistry.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxml2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxslt.c"
     "${BOX64_ROOT}/src/wrapped/wrappedldapr.c"
