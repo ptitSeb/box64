@@ -522,7 +522,7 @@ pid_t EXPORT my_fork(x64emu_t* emu)
 {
     #if 1
     emu->quit = 1;
-    emu->fork = 3;  // use regular fork...
+    emu->fork = 1;  // use regular fork...
     return 0;
     #else
     // execute atforks prepare functions, in reverse order
@@ -3372,6 +3372,17 @@ EXPORT int my_register_printf_type(x64emu_t* emu, void* f)
 }
 
 extern int box64_quit;
+extern int box64_exit_code;
+void endBox64();
+#if !defined(ANDROID)
+static void* timed_exit_thread(void*)
+{
+    // this is a workaround for some NVidia drivers on ARM64 that may freeze at exit
+    // waiting on a pthread_cond_destroy
+    usleep(500000); // wait 1/2 a second
+    _exit(box64_exit_code); // force exit, something is wrong
+}
+#endif
 EXPORT void my_exit(x64emu_t* emu, int code)
 {
     if(emu->flags.quitonexit) {
@@ -3381,7 +3392,12 @@ EXPORT void my_exit(x64emu_t* emu, int code)
         return;
     }
     emu->quit = 1;
-    box64_quit = 1;
+    box64_exit_code = code;
+    endBox64();
+#if !defined(ANDROID)
+    pthread_t exit_thread;
+    pthread_create(&exit_thread, NULL, timed_exit_thread, NULL);
+#endif
     exit(code);
 }
 
@@ -3472,6 +3488,7 @@ EXPORT char my___libc_single_threaded = 0;
         setNeededLibs(lib, NEEDED_LIBS);
 
 #define CUSTOM_FINI \
-    freeMy();
+    freeMy();       \
+    return;     // do not unload...
 
 #include "wrappedlib_init.h"

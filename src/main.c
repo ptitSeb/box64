@@ -39,6 +39,7 @@
 
 box64context_t *my_context = NULL;
 int box64_quit = 0;
+int box64_exit_code = 0;
 int box64_log = LOG_INFO; //LOG_NONE;
 int box64_dump = 0;
 int box64_nobanner = 0;
@@ -240,6 +241,7 @@ void my_child_fork()
         if(!ftrace_name)
             fclose(ftrace);
         openFTrace(NULL);
+        printf_log(/*LOG_DEBUG*/LOG_INFO, "Forked child of %s\n", GetLastApplyName());
     }
 }
 
@@ -1352,6 +1354,8 @@ void endBox64()
     RunElfFini(my_context->elfs[0], emu);
     FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
     FreeLibrarian(&my_context->maplib, emu);    // unload all libs
+    void closeAllDLOpenned();
+    closeAllDLOpenned();    // close residual dlopenned libs
     #if 0
     // waiting for all thread except this one to finish
     int this_thread = GetTID();
@@ -1378,8 +1382,8 @@ void endBox64()
                 if(tid!=this_thread) {
                     if(attempt>4000) {
                         printf_log(LOG_INFO, "Stop waiting for remaining thread %04d\n", tid);
-                        // enough wait, kill all thread!
-                        syscall(__NR_tgkill, pid, tid, SIGABRT);
+                        // enough wait, exit
+                        _exit(box64_exit_code);
                     } else {
                         running = 1;
                         ++attempt;

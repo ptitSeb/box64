@@ -37,13 +37,12 @@ void FreeLibrarian(lib_t **maplib, x64emu_t *emu)
 
     library_t* owner = (*maplib)->owner;
     (*maplib)->owner = NULL;    // to avoid recursive free...
-
-    /*if((*maplib)->ownlibs && (*maplib)->libsz) {
+    if((*maplib)->ownlibs && (*maplib)->libsz) {
         for(int i=0; i<(*maplib)->libsz; ++i) {
             printf_dump(LOG_DEBUG, "Unloading %s\n", (*maplib)->libraries[i]->name);
             DecRefCount(&(*maplib)->libraries[i], emu);
         }
-    }*/
+    }
     box_free((*maplib)->libraries);
     (*maplib)->libraries = NULL;
 

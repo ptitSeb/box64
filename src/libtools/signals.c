@@ -1221,6 +1221,7 @@ static pthread_mutex_t mutex_dynarec_prot = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER
 #endif
 
 extern int box64_quit;
+extern int box64_exit_code;
 
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
@@ -1237,7 +1238,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         longjmp(SIG_JMPBUF, 1);
     if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
-        exit(0);    // Hack, segfault while quiting, exit silently
+        _exit(box64_exit_code);    // Hack, segfault while quiting, exit silently
     }
     ucontext_t *p = (ucontext_t *)ucntx;
     void* addr = (void*)info->si_addr;  // address that triggered the issue

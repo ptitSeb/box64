@@ -176,8 +176,16 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
             return NULL;
         }
         dlopened = (lib==NULL);
-        // Then open the lib
+        // cleanup the old deferredInit state
+        int old_deferredInit = my_context->deferredInit;
         my_context->deferredInit = 1;
+        elfheader_t** old_deferredInitList = my_context->deferredInitList;
+        my_context->deferredInitList = NULL;
+        int old_deferredInitSz = my_context->deferredInitSz;
+        int old_deferredInitCap = my_context->deferredInitCap;
+        my_context->deferredInitSz = my_context->deferredInitCap = 0;
+
+        // Then open the lib
         int bindnow = (!box64_musl && (flag&0x2))?1:0;
         needed_libs_t *tmp = new_neededlib(1);
         tmp->names[0] = rfilename;
@@ -187,11 +195,21 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
                 dl->last_error = box_calloc(1, 129);
             snprintf(dl->last_error, 129, "Cannot dlopen(\"%s\"/%p, %X)\n", rfilename, filename, flag);
             RemoveNeededLib(NULL, is_local, tmp, my_context, emu);
+            if(my_context->deferredInitList)
+                box_free(my_context->deferredInitList);
+            my_context->deferredInit = old_deferredInit;
+            my_context->deferredInitList = old_deferredInitList;
+            my_context->deferredInitSz = old_deferredInitSz;
+            my_context->deferredInitCap = old_deferredInitCap;
             return NULL;
         }
         free_neededlib(tmp);
         lib = GetLibInternal(rfilename);
         RunDeferredElfInit(emu);
+        my_context->deferredInit = old_deferredInit;
+        my_context->deferredInitList = old_deferredInitList;
+        my_context->deferredInitSz = old_deferredInitSz;
+        my_context->deferredInitCap = old_deferredInitCap;
     } else {
         // check if already dlopenned...
         for (size_t i=MIN_NLIB; i<dl->lib_sz; ++i) {
@@ -585,6 +603,21 @@ EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* re
     return -1;
 }
 
+void closeAllDLOpenned()
+{
+    dlprivate_t *dl = my_context->dlprivate;
+    if(dl) {
+        x64emu_t* emu = thread_get_emu();
+        for(size_t i=0; i<dl->lib_sz; ++i)
+            while(dl->dllibs[i].count) {
+                printf_log(LOG_DEBUG, "  closing %s\n", dl->dllibs[i].lib->name);
+                my_dlclose(emu, (void*)(i+1));
+            }
+    }
+}
+
+#define CUSTOM_FINI \
+    closeAllDLOpenned();
 
 // define all standard library functions
 #include "wrappedlib_init.h"
