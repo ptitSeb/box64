@@ -90,7 +90,7 @@ GOW(bindtextdomain, pFpp)
 GOW(bind_textdomain_codeset, pFpp)
 GOW(brk, iFp)
 //GO(__bsd_getpgrp, 
-//GOW(bsd_signal, 
+GO2(bsd_signal, pFEip, my_signal)
 GOM(bsearch, pFEppLLp)
 GOW(btowc, uFi)
 GO(__bzero, vFpL)

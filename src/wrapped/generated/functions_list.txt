@@ -4126,6 +4126,7 @@ wrappedlibc:
   - _IO_file_stat
 - pFip:
   - __sysv_signal
+  - bsd_signal
   - signal
   - sigset
   - sysv_signal
