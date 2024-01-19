@@ -3375,7 +3375,7 @@ extern int box64_quit;
 extern int box64_exit_code;
 void endBox64();
 #if !defined(ANDROID)
-static void* timed_exit_thread(void*)
+static void* timed_exit_thread(void* a)
 {
     // this is a workaround for some NVidia drivers on ARM64 that may freeze at exit
     // waiting on a pthread_cond_destroy
