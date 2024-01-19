@@ -71,7 +71,7 @@ typedef struct mapmem_s {
 } mapmem_t;
 
 static mapmem_t *mapallmem = NULL;
-static mapmem_t *mmapmem = NULL;
+static rbtree*  mmapmem = NULL;
 
 typedef struct blocklist_s {
     void*               block;
@@ -1232,7 +1232,7 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
         return;
     size = ALIGN(size);
     mutex_lock(&mutex_prot);
-    addMapMem(mmapmem, addr, addr+size-1);
+    rb_set(mmapmem, addr, addr+size, 1);
     mutex_unlock(&mutex_prot);
     if(prot)
         setProtection(addr, size, prot);
@@ -1314,7 +1314,7 @@ void freeProtection(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     mutex_lock(&mutex_prot);
     removeMapMem(mapallmem, addr, addr+size-1);
-    removeMapMem(mmapmem, addr, addr+size-1);
+    rb_unset(mmapmem, addr, addr+size);
     rb_unset(memprot, addr, addr+size);
     mutex_unlock(&mutex_prot);
 }
@@ -1331,18 +1331,7 @@ uint32_t getProtection(uintptr_t addr)
 
 int getMmapped(uintptr_t addr)
 {
-    mapmem_t* m = mmapmem;
-    if(addr<box64_pagesize) return 0;
-    while(m) {
-        uintptr_t begin = m->begin;
-        uintptr_t end = m->end;
-        if(addr>=begin && addr<=end)
-            return 1;
-        if(addr<begin)
-            return 0;
-        m = m->next;
-    }
-    return 0;
+    return rb_get(mmapmem, addr);
 }
 
 #define LOWEST (void*)0x10000
@@ -1561,12 +1550,11 @@ void init_custommem_helper(box64context_t* ctx)
     mapallmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
     mapallmem->begin = 0x0;
     mapallmem->end = (uintptr_t)LOWEST - 1;
+    // init mmapmem list
+    mmapmem = init_rbtree();
+    // Load current MMap
     loadProtectionFromMap();
     reserveHighMem();
-    // init mmapmem list
-    mmapmem = (mapmem_t*)box_calloc(1, sizeof(mapmem_t));
-    mmapmem->begin = 0x0;
-    mmapmem->end = (uintptr_t)box64_pagesize - 1;
 }
 
 void fini_custommem_helper(box64context_t *ctx)
@@ -1653,6 +1641,9 @@ void fini_custommem_helper(box64context_t *ctx)
     lockaddress = NULL;
 #endif
     delete_rbtree(memprot);
+    memprot = NULL;
+    delete_rbtree(mmapmem);
+    mmapmem = NULL;
 
     for(int i=0; i<n_blocks; ++i)
         #ifdef USE_MMAP
@@ -1668,11 +1659,6 @@ void fini_custommem_helper(box64context_t *ctx)
     while(mapallmem) {
         mapmem_t *tmp = mapallmem;
         mapallmem = mapallmem->next;
-        box_free(tmp);
-    }
-    while(mmapmem) {
-        mapmem_t *tmp = mmapmem;
-        mmapmem = mmapmem->next;
         box_free(tmp);
     }
 }
