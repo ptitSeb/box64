@@ -2626,27 +2626,27 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || (box64_wine && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
         int olderr = errno;
-        printf_log(LOG_DEBUG, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
+        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find31bitBlockNearHint(old_addr, length, 0); // is this the best way?
         new_flags = (addr && isBlockFree(addr, length) )? (new_flags|MAP_FIXED) : new_flags;
         if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = mmap64(addr, length, prot, new_flags, fd, offset);
-        printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
+        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, " tried again with %p, got %p\n", addr, ret);
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED)
             errno = olderr;
     } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && (box64_wine) && (old_addr) && (addr!=ret) &&
              (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
         int olderr = errno;
-        printf_log(LOG_DEBUG, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
+        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find47bitBlockNearHint(old_addr, length, 0); // is this the best way?
         new_flags = (addr && isBlockFree(addr, length)) ? (new_flags|MAP_FIXED) : new_flags;
         if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = mmap64(addr, length, prot, new_flags, fd, offset);
-        printf_log(LOG_DEBUG, " tried again with %p, got %p\n", addr, ret);
+        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, " tried again with %p, got %p\n", addr, ret);
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED) {
             errno = olderr;
             if(old_addr>(void*)0x7fffffffff && !have48bits)
