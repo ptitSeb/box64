@@ -106,7 +106,7 @@ GOM(cupsEnumDests, iFEuipuupp)
 //GO(cupsFindDestDefault, 
 //GO(cupsFindDestReady, 
 //GO(cupsFindDestSupported, 
-//GO(cupsFinishDestDocument, 
+GO(cupsFinishDestDocument, iFppp)
 GO(cupsFinishDocument, iFpp)
 GO(cupsFreeDestInfo, vFp)
 GO(cupsFreeDests, vFip)
@@ -231,7 +231,7 @@ GO(cupsSetDefaultDest, vFppip)
 //GO(_cupsSNMPStringToOID, 
 //GO(_cupsSNMPWalk, 
 //GO(_cupsSNMPWrite, 
-//GO(cupsStartDestDocument, 
+GO(cupsStartDestDocument, iFpppippipi)
 GO(cupsStartDocument, iFppippi)
 //GO(_cupsStrAlloc, 
 //GO(_cups_strcasecmp, 
@@ -259,7 +259,7 @@ GO(cupsStartDocument, iFppippi)
 //GO(cupsUTF32ToUTF8, 
 //GO(cupsUTF8ToCharset, 
 //GO(cupsUTF8ToUTF32, 
-//GO(cupsWriteRequestData, 
+GO(cupsWriteRequestData, iFppl)
 
 //GO(httpAcceptConnection, 
 //GO(httpAddCredential, 
