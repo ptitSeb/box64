@@ -1225,8 +1225,6 @@ void freeProtection(uintptr_t addr, size_t size)
 
 uint32_t getProtection(uintptr_t addr)
 {
-    if(addr>=(1LL<<48))
-        return 0;
     mutex_lock(&mutex_prot);
     uint32_t ret = rb_get(memprot, addr);
     mutex_unlock(&mutex_prot);
