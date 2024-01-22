@@ -1271,7 +1271,9 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
         mutex_lock(&my_context->mutex_trace);
 #ifdef DYNAREC
         if((my_context->trace_tid != tid) || (my_context->trace_dynarec!=dynarec)) {
-            printf_log(LOG_NONE, "Thread %04d| (%s) |\n", tid, dynarec?"dyn":"int");
+            printf_log(LOG_NONE, "Thread %04d| (%s) ", tid, dynarec?"dyn":"int");
+            printFunctionAddr(ip, "here: ");
+            printf_log(LOG_NONE, "\n");
             my_context->trace_tid = tid;
             my_context->trace_dynarec = dynarec;
         }
@@ -1345,6 +1347,10 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                     printFunctionAddr(nextaddr, "=> ");
                 } else if((PK(1)==0x14) && (PK(2)==0xC2) && rex.rex==0x41) {
                     uintptr_t nextaddr = *(uintptr_t*)(R_R10 + R_RAX*8);
+                    printf_log(LOG_NONE, " => %p", (void*)nextaddr);
+                    printFunctionAddr(nextaddr, "=> ");
+                } else if(PK(1)==0xE1 && rex.rex==0x41) {
+                    uintptr_t nextaddr = R_R9;
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                     printFunctionAddr(nextaddr, "=> ");
                 }
