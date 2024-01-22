@@ -561,6 +561,8 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     uint64_t old_rip = R_RIP;
     //Push64(emu, GetRBP(emu));   // set frame pointer
     //SetRBP(emu, GetRSP(emu));   // save RSP
+    R_RSP -= 200;
+    R_RSP &= ~63LL;
     PushExit(emu);
     R_RIP = addr;
     emu->df = d_none;

@@ -652,7 +652,14 @@ int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 	#endif
 	if(old)
 		return 0;
+    // make some room and align R_RSP before doing the call (maybe it would be simpler to just use Callback functions)
+    Push64(emu, R_RBP); // push rbp
+    R_RBP = R_RSP;      // mov rbp, rsp
+    R_RSP -= 0x200;
+    R_RSP &= ~63LL;
 	DynaCall(emu, (uintptr_t)cb);  // using DynaCall, speedup wine 7.21 initialisation
+	R_RSP = R_RBP;          // mov rsp, rbp
+	R_RBP = Pop64(emu);     // pop rbp
 	return 0;
 }
 EXPORT int my___pthread_once(x64emu_t* emu, void* once, void* cb) __attribute__((alias("my_pthread_once")));

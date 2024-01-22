@@ -309,8 +309,10 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     for (int i=0; i<6; ++i)
         emu->segs_serial[i] = 0;
 
+    int align = nargs&1;
+
     if(nargs>6)
-        R_RSP -= (nargs-6)*sizeof(void*);   // need to push in reverse order
+        R_RSP -= (nargs-6+align)*sizeof(void*);   // need to push in reverse order
 
     uint64_t *p = (uint64_t*)R_RSP;
 
@@ -342,7 +344,7 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
         EmuCall(emu, fnc);
 
     if(nargs>6 && !emu->flags.longjmp)
-        R_RSP+=((nargs-6)*sizeof(void*));
+        R_RSP+=((nargs-6+align)*sizeof(void*));
 
     if(!emu->flags.longjmp && R_CS==0x33)
         R_CS = old_cs;
