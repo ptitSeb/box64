@@ -51,6 +51,11 @@ int box64_inprocessgpu = 0;
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
 int box64_maxcpu = 0;
+#if defined(SD845) || defined(SD888) || defined(SD8G2)
+int box64_mmap32 = 1;
+#else
+int box64_mmap32 = 0;
+#endif
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -963,6 +968,17 @@ void LoadLogEnv()
         } else {
             printf_log(LOG_NONE, "Will not limit the number of cpu cores exposed\n");
         }
+    }
+    p = getenv("BOX64_MMAP32");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_mmap32 = p[0]-'0';
+        }
+        if(box64_mmap32)
+            printf_log(LOG_INFO, "Will use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
+        else
+            printf_log(LOG_INFO, "Will not use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
     }
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)

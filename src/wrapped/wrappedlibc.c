@@ -2621,7 +2621,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
             addr = find47bitBlock(length);
     }
     #endif
-    void* ret = mmap64(addr, length, prot, new_flags, fd, offset);
+    void* ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
     #ifndef NOALIGN
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || (box64_wine && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
@@ -2655,7 +2655,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     }
     #endif
     if((ret!=MAP_FAILED) && (flags&MAP_FIXED_NOREPLACE) && (ret!=addr)) {
-        munmap(ret, length);
+        internal_munmap(ret, length);
         errno = EEXIST;
         return MAP_FAILED;
     }
@@ -2738,7 +2738,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 {
     (void)emu;
     if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, %lu)\n", addr, length);}
-    int ret = munmap(addr, length);
+    int ret = internal_munmap(addr, length);
     #ifdef DYNAREC
     if(!ret && box64_dynarec && length) {
         cleanDBFromAddressRange((uintptr_t)addr, length, 1);

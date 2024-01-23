@@ -112,4 +112,7 @@ void addLockAddress(uintptr_t addr);    // add an address to the list of "LOCK"a
 int isLockAddress(uintptr_t addr);  // return 1 is the address is used as a LOCK, 0 else
 #endif
 
+void* internal_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+int internal_munmap(void* addr, unsigned long length);
+
 #endif //__CUSTOM_MEM__H_

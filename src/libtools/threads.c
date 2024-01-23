@@ -46,9 +46,6 @@ void _pthread_cleanup_pop(void* buffer, int exec);
 // it will be pthread_kill@GLIBC_2.17 on aarch64, but it's GLIBC_2.2.5 on x86_64
 static iFli_t real_phtread_kill_old = NULL;
 
-// from src/wrapped/wrappedlibc.c
-void* my_mmap(x64emu_t* emu, void* addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
-
 typedef struct threadstack_s {
 	void* 	stack;
 	size_t 	stacksize;
@@ -203,7 +200,9 @@ x64emu_t* thread_get_emu()
 					stacksize = stack_size;
 			pthread_attr_destroy(&attr);
 		}
-		void* stack = my_mmap(NULL, NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+		void* stack = internal_mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+		if(stack!=MAP_FAILED)
+			setProtection((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		x64emu_t *emu = NewX64Emu(my_context, 0, (uintptr_t)stack, stacksize, 1);
 		SetupX64Emu(emu, NULL);
 		thread_set_emu(emu);
@@ -484,7 +483,9 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 		stacksize = attr_stacksize;
 		own = 0;
 	} else {
-		stack = my_mmap(NULL, NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+		stack = internal_mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+		if(stack!=MAP_FAILED)
+	        setProtection((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		own = 1;
 	}
 
@@ -509,7 +510,9 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet)
 {
 	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
-	void* stack = my_mmap(NULL, NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+	void* stack = internal_mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+    if(stack!=MAP_FAILED)
+        setProtection((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX64Emu(emuthread, emu					);

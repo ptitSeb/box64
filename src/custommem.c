@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include <errno.h>
+#include <syscall.h>
 
 #include "box64context.h"
 #include "elfloader.h"
@@ -374,7 +375,7 @@ void* customMalloc(size_t size)
     }
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
     #ifdef USE_MMAP
-    void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    void* p = internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     memset(p, 0, allocsize);
     #else
     void* p = box_calloc(1, allocsize);
@@ -571,7 +572,7 @@ uintptr_t AllocDynarecMap(size_t size)
             }
             mprotect(p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
             #else
-            void* p = mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+            void* p = internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
             if(p==(void*)-1) {
                 dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", allocsize);
                 return 0;
@@ -1390,7 +1391,7 @@ void reserveHighMem()
     int prot;
     while (bend!=0xffffffffffffffffLL) {
         if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
-            void* ret = mmap64((void*)cur, bend-cur, 0, MAP_ANONYMOUS|MAP_FIXED|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+            void* ret = internal_mmap((void*)cur, bend-cur, 0, MAP_ANONYMOUS|MAP_FIXED|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
             printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, bend, ret, strerror(errno));
             printf_log(LOG_DEBUG, "mmap %p-%p\n", cur, bend);
             if(ret!=(void*)-1) {
@@ -1485,7 +1486,7 @@ void fini_custommem_helper(box64context_t *ctx)
             for (int i=0; i<NCHUNK; ++i) {
                 if(head->chunks[i].block)
                     #ifdef USE_MMAP
-                    munmap(head->chunks[i].block, head->chunks[i].size);
+                    internal_munmap(head->chunks[i].block, head->chunks[i].size);
                     #else
                     box_free(head->chunks[i].block);
                     #endif
@@ -1531,7 +1532,7 @@ void fini_custommem_helper(box64context_t *ctx)
 
     for(int i=0; i<n_blocks; ++i)
         #ifdef USE_MMAP
-        munmap(p_blocks[i].block, p_blocks[i].size);
+        internal_munmap(p_blocks[i].block, p_blocks[i].size);
         #else
         box_free(p_blocks[i].block);
         #endif
@@ -1558,3 +1559,39 @@ int isLockAddress(uintptr_t addr)
 }
 
 #endif
+
+void* internal_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
+{
+    void* ret = (void*)syscall(__NR_mmap, addr, length, prot, flags, fd, offset);
+    return ret;
+}
+int internal_munmap(void* addr, unsigned long length)
+{
+    int ret = syscall(__NR_munmap, addr, length);
+    return ret;
+}
+
+void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+
+extern int running32bits;
+EXPORT void* mmap64(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
+{
+    void* ret;
+    if(running32bits && box64_mmap32 && !addr)
+        ret = my_mmap64(NULL, addr, length, prot, flags | 0x40, fd, offset);
+    else
+        ret = internal_mmap(addr, length, prot, flags, fd, offset);
+    if(ret!=MAP_FAILED && mapallmem)
+        setProtection((uintptr_t)ret, length, prot);
+    return ret;
+}
+EXPORT void* mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset) __attribute__((alias("mmap64")));
+
+EXPORT int munmap(void* addr, unsigned long length)
+{
+    int ret = internal_munmap(addr, length);
+    if(!ret && mapallmem) {
+        freeProtection((uintptr_t)addr, length);
+    }
+    return ret;
+}

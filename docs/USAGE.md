@@ -104,6 +104,11 @@ Call XInitThreads when loading X11. (This is mostly for old Loki games with the 
  * 0 : Don't force call XInitThreads. (Default.)
  * 1 : Call XInitThreads as soon as libX11 is loaded.
 
+#### BOX64_MMAP32 *
+Will use 32bits address in priority for external MMAP (when 32bits process are detected)
+ * 0 : Use regular mmap (default, except for Snapdragron build)
+ * 1 : Use 32bits address space mmap in priority for external mmap as soon a 32bits process are detected (default for Snapdragon build)
+
 #### BOX64_X11GLX *
 Force libX11's GLX extension to be present.
 * 0 : Do not force libX11's GLX extension to be present. 

@@ -31,6 +31,7 @@ int my_setcontext(x64emu_t* emu, void* ucp);
 #ifdef TEST_INTERPRETER
 int RunTest(x64test_t *test)
 #else
+int running32bits = 0;
 int Run(x64emu_t *emu, int step)
 #endif
 {
@@ -440,6 +441,8 @@ x64emurun:
                 goto fini;
             }
             is32bits = (emu->segs[_CS]==0x23);
+            if(is32bits)
+                running32bits = 1;
             #endif
             break;
         case 0x65:                      /* GS: prefix */
@@ -456,6 +459,8 @@ x64emurun:
                 goto fini;
             }
             is32bits = (emu->segs[_CS]==0x23);
+            if(is32bits)
+                running32bits = 1;
             #endif
             break;
         case 0x66:                      /* 16bits prefix */
@@ -1426,6 +1431,10 @@ x64emurun:
             R_RIP = addr;
             STEP;
             is32bits = (emu->segs[_CS]==0x23);
+            #ifndef TEST_INTERPRETER
+            if(is32bits)
+                running32bits = 1;
+            #endif
             break;
         case 0xD0:                      /* GRP2 Eb,1 */
         case 0xD2:                      /* GRP2 Eb,CL */
@@ -1941,6 +1950,10 @@ x64emurun:
                         }
                         STEP2;
                         is32bits = (emu->segs[_CS]==0x23);
+                        #ifndef TEST_INTERPRETER
+                        if(is32bits)
+                            running32bits = 1;
+                        #endif
                     }
                     break;
                 case 4:                 /* JMP NEAR Ed */
@@ -1967,6 +1980,10 @@ x64emurun:
                         }
                         STEP2;
                         is32bits = (emu->segs[_CS]==0x23);
+                        #ifndef TEST_INTERPRETER
+                        if(is32bits)
+                            running32bits = 1;
+                        #endif
                     }
                     break;
                 case 6:                 /* Push Ed */

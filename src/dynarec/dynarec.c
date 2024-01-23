@@ -180,6 +180,9 @@ void DynaRun(x64emu_t* emu)
                 dynarec_log(LOG_DEBUG, "%04d|Running DynaRec Block @%p (%p) of %d x64 insts (hash=0x%x) emu=%p\n", GetTID(), (void*)R_RIP, block->block, block->isize, block->hash, emu);
                 // block is here, let's run it!
                 native_prolog(emu, block->block);
+                extern int running32bits;
+                if(emu->segs[_CS]==0x23)
+                    running32bits = 1;
             }
             if(emu->fork) {
                 int forktype = emu->fork;
