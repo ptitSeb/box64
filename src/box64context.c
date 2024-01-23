@@ -21,6 +21,7 @@
 #include "signals.h"
 #include "rcfile.h"
 #include "gltools.h"
+#include "rbtree.h"
 
 EXPORTDYN
 void initAllHelpers(box64context_t* context)
@@ -264,6 +265,10 @@ box64context_t *NewBox64Context(int argc)
     context->globdata = NewMapSymbols();
 
     initAllHelpers(context);
+    
+    #ifdef DYNAREC
+    context->db_sizes = init_rbtree();
+    #endif
 
     return context;
 }
@@ -358,6 +363,11 @@ void FreeBox64Context(box64context_t** context)
         FreeX64Emu(&ctx->emu_sig);
 
     FreeMapSymbols(&ctx->globdata);
+
+#ifdef DYNAREC
+    //dynarec_log(LOG_INFO, "BOX64 Dynarec at exit: Max DB=%d, righter=%d\n", ctx->max_db_size, rb_get_righter(ctx->db_sizes));
+    delete_rbtree(ctx->db_sizes);
+#endif
 
     finiAllHelpers(ctx);
 

@@ -25,6 +25,7 @@
 
 #include "custommem.h"
 #include "khash.h"
+#include "rbtree.h"
 
 uint32_t X31_hash_code(void* addr, int len)
 {
@@ -47,6 +48,18 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
             mutex_lock(&my_context->mutex_dyndump);
         db->done = 0;
         db->gone = 1;
+        int db_size = db->x64_size;
+        if(db_size && my_context) {
+            uint32_t n = rb_get(my_context->db_sizes, db_size);
+            if(n>1)
+                rb_set(my_context->db_sizes, db_size, db_size+1, n-1);
+            else
+                rb_unset(my_context->db_sizes, db_size, db_size+1);
+            if(db_size == my_context->max_db_size) {
+                my_context->max_db_size = rb_get_righter(my_context->db_sizes);
+                dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
+            }
+        }
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
     }
@@ -81,6 +94,18 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->actual_block, db->size);
         db->done = 0;
         db->gone = 1;
+        int db_size = db->x64_size;
+        if(db_size && my_context) {
+            uint32_t n = rb_get(my_context->db_sizes, db_size);
+            if(n>1)
+                rb_set(my_context->db_sizes, db_size, db_size+1, n-1);
+            else
+                rb_unset(my_context->db_sizes, db_size, db_size+1);
+            if(db_size == my_context->max_db_size) {
+                my_context->max_db_size = rb_get_righter(my_context->db_sizes);
+                dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
+            }
+        }
         if(db->previous)
             FreeInvalidDynablock(db->previous, 0);
         FreeDynarecMap((uintptr_t)db->actual_block);
@@ -219,17 +244,20 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
     }
     // check size
     if(block) {
-        int blocksz = block->x64_size;
-        if(blocksz>my_context->max_db_size)
-            my_context->max_db_size = blocksz;
         // fill-in jumptable
         if(!addJumpTableIfDefault64(block->x64_addr, block->dirty?block->jmpnext:block->block)) {
             FreeDynablock(block, 0);
             block = getDB(addr);
             MarkDynablock(block);   // just in case...
         } else {
-            if(block->x64_size)
+            if(block->x64_size) {
+                if(block->x64_size>my_context->max_db_size) {
+                    my_context->max_db_size = block->x64_size;
+                    dynarec_log(LOG_INFO, "BOX64 Dynarec: higher max_db=%d\n", my_context->max_db_size);
+                }
                 block->done = 1;    // don't validate the block if the size is null, but keep the block
+                rb_set(my_context->db_sizes, block->x64_size, block->x64_size+1, rb_get(my_context->db_sizes, block->x64_size)+1);
+            }
         }
     }
     if(need_lock)
