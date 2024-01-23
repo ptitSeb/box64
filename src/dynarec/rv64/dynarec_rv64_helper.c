@@ -746,26 +746,24 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     // RDI, RSI, RDX, RCX, R8, R9 are used for function call
     SUBI(xSP, xSP, 16);
     SD(xEmu, xSP, 0);
-    SD(xRIP, xSP, 8);   // ARM64 stack needs to be 16byte aligned
+    SD(xRIP, xSP, 8); // RV64 stack needs to be 16byte aligned
     STORE_REG(R12);
     STORE_REG(R13);
     STORE_REG(R14);
     STORE_REG(R15);
+    /*
     // float and double args
-    if(abs(w)>1) {
-        /*MESSAGE(LOG_DUMP, "Getting %d XMM args\n", abs(w)-1);
-        for(int i=0; i<abs(w)-1; ++i) {
-            sse_get_reg(dyn, ninst, x6, i, w);
-        }*/
-        MESSAGE(LOG_DUMP, "Warning XMM args not ready\n");
+    if (abs(w) > 1) {
+        MESSAGE(LOG_DUMP, "Getting %d XMM args\n", abs(w) - 1);
+        for (int i = 0; i < abs(w) - 1; ++i) {
+            sse_get_reg(dyn, ninst, x6, i, 0);
+        }
     }
-    if(w<0) {
-        /*
+    if (w < 0) {
         MESSAGE(LOG_DUMP, "Return in XMM0\n");
-        sse_get_reg_empty(dyn, ninst, x6, 0);
-        */
-        MESSAGE(LOG_DUMP, "Warning return in XMM args not ready\n");
+        sse_get_reg_empty(dyn, ninst, x6, 0, 0);
     }
+    */
     // prepare regs for native call
     MV(A0, xRDI);
     MV(A1, xRSI);
