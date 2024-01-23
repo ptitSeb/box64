@@ -1577,7 +1577,7 @@ extern int running32bits;
 EXPORT void* mmap64(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
 {
     void* ret;
-    if(running32bits && box64_mmap32 && !addr)
+    if(!addr && ((running32bits && box64_mmap32) || (flags&0x40)))
         ret = my_mmap64(NULL, addr, length, prot, flags | 0x40, fd, offset);
     else
         ret = internal_mmap(addr, length, prot, flags, fd, offset);
