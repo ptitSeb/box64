@@ -347,14 +347,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
                     x87_forget(dyn, ninst, x3, x4, 0);
                     sse_purge07cache(dyn, ninst, x3);
-                    // disabling isSimpleWrapper because all signed value less than 64bits needs to be sign extended
-                    // and return value needs to be cleanned up
-                    tmp = 0;//isSimpleWrapper(*(wrapper_t*)(addr));
+                    // Partially support isSimpleWrapper
+                    tmp = isSimpleWrapper(*(wrapper_t*)(addr));
                     if(isRetX87Wrapper(*(wrapper_t*)(addr)))
                         // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if(tmp<0 || tmp>1)
-                        tmp=0;  //TODO: removed when FP is in place
+                    if (tmp < 0 || tmp > 1)
+                        tmp = 0; // TODO: removed when FP is in place
                     if((box64_log<2 && !cycle_log) && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);
@@ -825,13 +824,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall) {
-                        // disabling isSimpleWrapper because all signed value less than 64bits needs to be sign extended
-                        // and return value needs to be cleanned up
-                        tmp=0;//isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2));
-                        if(tmp>1 || tmp<0)
-                            tmp=0;  // float paramters not ready!
+                        // Partially support isSimpleWrapper
+                        tmp = isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
                     } else
                         tmp=0;
+                    if (tmp < 0 || tmp > 1)
+                        tmp = 0; // TODO: removed when FP is in place
                     if(dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall+2)))
                         // return value will be on the stack, so the stack depth needs to be updated
                         x87_purgecache(dyn, ninst, 0, x3, x1, x4);
