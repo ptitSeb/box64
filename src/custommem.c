@@ -1248,7 +1248,7 @@ void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
     if(!mask) mask = 0xffff;
-    while(bend<0x80000000LL) {
+    while(bend<0xc0000000LL) {
         if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
             if(bend-cur>=size)
                 return (void*)cur;
