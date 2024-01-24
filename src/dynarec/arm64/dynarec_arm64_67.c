@@ -652,6 +652,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x66:
             opcode=F8;
+            GETREX();
             switch(opcode) {
 
                 case 0x89:
