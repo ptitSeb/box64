@@ -93,6 +93,22 @@ Using a 64bit OS:
 -D TEGRAX1=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
+#### for Jetson Xavier/T194
+
+Using a 64bit OS:
+
+```
+-D TEGRA_T194=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
+
+#### for Jetson Orin/T234
+
+Using a 64bit OS:
+
+Caution: please use gcc-11 or higher, older gcc dosen't know cortex-a78ae
+```
+-D TEGRA_T234=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
+```
 
 #### for ODROID N2/N2+
 
