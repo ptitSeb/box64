@@ -55,6 +55,36 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x00:
+            if(rex.is32bits) {          /* VERx Ed */
+                nextop = F8;
+                switch((nextop>>3)&7) {
+                    case 0:                 /* SLDT Ew */
+                        GETEW(0);
+                        EW->word[0] = 0;
+                        if(MODREG)
+                            EW->word[1] = 0;
+                        break;
+                    case 1:                 /* STR Ew */
+                        GETEW(0);
+                        EW->word[0] = 0x7f; // dummy return
+                        if(MODREG)
+                            EW->word[1] = 0;
+                        break;
+                    case 4: //VERR
+                    case 5: //VERW
+                        GETEW(0);
+                        if(!EW->word[0])
+                            CLEAR_FLAG(F_ZF);
+                        else
+                            SET_FLAG(F_ZF); // should test if selector is ok
+                        break;
+                    default:
+                        return 0;
+                }
+            } else
+                return 0;
+            break;
         case 0x01:                      /* XGETBV, SGDT, etc... */
             // this is a privilege opcode...
             nextop = F8;
@@ -66,12 +96,37 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 #endif
                 break;
                 default:
-                    switch((nextop>>3)&7) {
-                        case 0: // SGDT
-                                // do nothing for now...
-                            break;
-                        default:
-                            return 0;
+                    if(rex.is32bits) {
+                        switch((nextop>>3)&7) {
+                            case 0:                 /* SGDT Ed */
+                                GETED(0);
+                                ED->word[0] = 0x7f;    // dummy return...
+                                ED->word[1] = 0x000c;
+                                ED->word[2] = 0xd000;
+                                break;
+                            case 1:                 /* SIDT Ed */
+                                GETED(0);
+                                ED->word[0] = 0xfff;    // dummy return, like "disabled"
+                                ED->word[1] = 0;
+                                ED->word[2] = 0;
+                                break;
+                            case 4:                 /* SMSW Ew */
+                                GETED(0);
+                                // dummy for now... Do I need to track CR0 state?
+                                ED->word[0] = (1<<0) | (1<<4); // only PE and ET set...
+                                break;
+                            default:
+                                return 0;
+                        }
+
+                    } else {
+                        switch((nextop>>3)&7) {
+                            case 0: // SGDT
+                                    // do nothing for now...
+                                break;
+                            default:
+                                return 0;
+                        }
                     }
             }
             break;
@@ -462,6 +517,11 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
 
 
+        case 0x3F:
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #endif
+            break;
         GOCOND(0x40
             , nextop = F8;
             GETED(0);
