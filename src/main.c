@@ -1120,6 +1120,7 @@ void PrintFlags() {
     printf(" BOX64_ENV='XXX=yyyy' will add XXX=yyyy env. var.\n");
     printf(" BOX64_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
     printf(" BOX64_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
+    printf(" BOX64_MMAP32=1 to use 32bits address space mmap in priority for external mmap as soon a 32bits process are detected (default for Snapdragon build)\n");
 }
 
 void PrintHelp() {
