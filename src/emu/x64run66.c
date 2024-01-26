@@ -47,7 +47,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     opcode = F8;
 
-    while((opcode==0x2E) || (opcode==0x66))   // ignoring CS: or multiple 0x66
+    while((opcode==0x2E) || (opcode==0x36) || (opcode==0x26) || (opcode==0x66))   // ignoring CS:, SS:, ES: or multiple 0x66
         opcode = F8;
 
     while((opcode==0xF2) || (opcode==0xF3)) {
