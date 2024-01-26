@@ -239,7 +239,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOV64xw(x1, i64);
             emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4);
             break;
-
+        case 0x16:
+            if(rex.is32bits) {
+                INST_NAME("PUSH SS");
+                LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
+                PUSH1_32(x1);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0x17:
+            if(rex.is32bits) {
+                INST_NAME("POP SS");
+                POP1_32(x1);
+                STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
+                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
