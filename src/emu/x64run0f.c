@@ -86,48 +86,35 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 return 0;
             break;
         case 0x01:                      /* XGETBV, SGDT, etc... */
-            // this is a privilege opcode...
             nextop = F8;
             GETED(0);
+            if(MODREG)
             switch(nextop) {
                 case 0xD0:
-                #ifndef TEST_INTERPRETER
-                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                #endif
-                break;
+                    #ifndef TEST_INTERPRETER
+                    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                    #endif
+                    break;
                 default:
-                    if(rex.is32bits) {
-                        switch((nextop>>3)&7) {
-                            case 0:                 /* SGDT Ed */
-                                GETED(0);
-                                ED->word[0] = 0x7f;    // dummy return...
-                                ED->word[1] = 0x000c;
-                                ED->word[2] = 0xd000;
-                                break;
-                            case 1:                 /* SIDT Ed */
-                                GETED(0);
-                                ED->word[0] = 0xfff;    // dummy return, like "disabled"
-                                ED->word[1] = 0;
-                                ED->word[2] = 0;
-                                break;
-                            case 4:                 /* SMSW Ew */
-                                GETED(0);
-                                // dummy for now... Do I need to track CR0 state?
-                                ED->word[0] = (1<<0) | (1<<4); // only PE and ET set...
-                                break;
-                            default:
-                                return 0;
-                        }
-
-                    } else {
-                        switch((nextop>>3)&7) {
-                            case 0: // SGDT
-                                    // do nothing for now...
-                                break;
-                            default:
-                                return 0;
-                        }
-                    }
+                    return 0;
+            } else
+                switch((nextop>>3)&7) {
+                    case 0:                 /* SGDT Ed */
+                        ED->word[0] = 0x7f;    // dummy return...
+                        ED->word[1] = 0x000c;
+                        ED->word[2] = 0xd000;
+                        break;
+                    case 1:                 /* SIDT Ed */
+                        ED->word[0] = 0xfff;    // dummy return, like "disabled"
+                        ED->word[1] = 0;
+                        ED->word[2] = 0;
+                        break;
+                    case 4:                 /* SMSW Ew */
+                        // dummy for now... Do I need to track CR0 state?
+                        ED->word[0] = (1<<0) | (1<<4); // only PE and ET set...
+                        break;
+                    default:
+                        return 0;
             }
             break;
 

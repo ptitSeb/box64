@@ -65,6 +65,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x01:
             // TODO:, /0 is SGDT. While 0F 01 D0 is XGETBV, etc...
             nextop = F8;
+            if(MODREG)
             switch(nextop) {
                 case 0xD0:
                     INST_NAME("FAKE xgetbv");
@@ -78,15 +79,35 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     *ok = 0;
                     break;
                 default:
-                    switch((nextop>>3)&7) {
-                        case 0: // SGDT
-                            INST_NAME("FAKE sgdt Ed");
-                            addr = fakeed(dyn, addr, ninst, nextop);
-                                // do nothing for now...
-                            break;
-                        default:
-                            DEFAULT;
-                    }
+                    DEFAULT;
+            } else
+                switch((nextop>>3)&7) {
+                    case 0: // SGDT
+                        INST_NAME("SGDT Ed");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        MOV32w(x1, 0x7f);
+                        STURH_I9(x1, wback, 0);
+                        MOV32w(x1, 0x000c);
+                        STURH_I9(x1, wback, 2);
+                        MOV32w(x1, 0xd000);
+                        STURH_I9(x1, wback, 4);
+                        break;
+                    case 1:
+                        INST_NAME("SIDT Ed");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        MOV32w(x1, 0xfff);
+                        STURH_I9(x1, wback, 0);
+                        STURw_I9(xZR, wback, 2);
+                        break;
+                    case 4:
+                        INST_NAME("SMSW Ew");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        // dummy for now... Do I need to track CR0 state?
+                        MOV32w(x1, (1<<0) | (1<<4)); // only PE and ET set...
+                        STURH_I9(x1, wback, 0);
+                        break;
+                    default:
+                        DEFAULT;
             }
             break;
 
