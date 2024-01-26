@@ -408,7 +408,11 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         emu->segs[((nextop&0x38)>>3)] = EW->word[0];
         emu->segs_serial[((nextop&0x38)>>3)] = 0;
         break;
-
+    case 0x8F:                              /* POP Ew */
+        nextop = F8;
+        GETEW(0);
+        EW->word[0] = Pop16(emu);
+        break;
     case 0x90:                      /* NOP or XCHG R8d, AX*/
     case 0x91:
     case 0x92:

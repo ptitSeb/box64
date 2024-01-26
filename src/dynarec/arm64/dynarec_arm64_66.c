@@ -661,26 +661,37 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             STRH_U12(ed, xEmu, offsetof(x64emu_t, segs[u8]));
             STRw_U12(wZR, xEmu, offsetof(x64emu_t, segs_serial[u8]));
             break;
-
-            case 0x90:
-            case 0x91:
-            case 0x92:
-            case 0x93:
-            case 0x94:
-            case 0x95:
-            case 0x96:
-            case 0x97:
-                gd = xRAX+(opcode&0x07)+(rex.b<<3);
-                if(gd==xRAX) {
-                    INST_NAME("NOP");
-                } else {
-                    INST_NAME("XCHG AX, Reg");
-                    MOVw_REG(x2, xRAX);
-                    BFIx(xRAX, gd, 0, 16);
-                    BFIx(gd, x2, 0, 16);
-                }
+        case 0x8F:
+            INST_NAME("POP Ew");
+            nextop = F8;
+            POP1_16(x1);
+            if((nextop&0xC0)==0xC0) {
+                wback = xRAX+(nextop&7)+(rex.b<<3);
+                BFIx(wback, x1, 0, 16);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                STH(x1, wback, fixedaddress);
+            }
             break;
-
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            if(gd==xRAX) {
+                INST_NAME("NOP");
+            } else {
+                INST_NAME("XCHG AX, Reg");
+                MOVw_REG(x2, xRAX);
+                BFIx(xRAX, gd, 0, 16);
+                BFIx(gd, x2, 0, 16);
+            }
+            break;
         case 0x98:
             INST_NAME("CBW");
             SXTBw(x1, xRAX);
