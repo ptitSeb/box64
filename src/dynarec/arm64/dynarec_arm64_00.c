@@ -512,7 +512,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x36:
             INST_NAME("SS:");
             break;
-
+        case 0x37:
+            if(rex.is32bits) {
+                INST_NAME("AAA");
+                MESSAGE(LOG_DUMP, "Need Optimization AAA\n");
+                READFLAGS(X_AF);
+                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                UXTHx(x1, xRAX);
+                CALL_(aaa16, x1, 0);
+                BFIz(xRAX, x1, 0, 16);
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
