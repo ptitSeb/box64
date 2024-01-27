@@ -435,7 +435,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x2E:
             INST_NAME("CS:");
             break;
-
+        case 0x2F:
+            if(rex.is32bits) {
+                INST_NAME("DAS");
+                MESSAGE(LOG_DUMP, "Need Optimization DAS\n");
+                READFLAGS(X_AF|X_CF);
+                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                UXTBx(x1, xRAX);
+                CALL_(das8, x1, 0);
+                BFIx(xRAX, x1, 0, 8);
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x30:
             INST_NAME("XOR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
