@@ -55,8 +55,8 @@ int box64_maxcpu = 0;
 int box64_mmap32 = 1;
 #else
 int box64_mmap32 = 0;
-int box64_ignoreint3 = 0;
 #endif
+int box64_ignoreint3 = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
