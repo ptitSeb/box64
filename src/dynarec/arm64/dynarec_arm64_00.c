@@ -382,7 +382,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i64 = F32S;
             emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
-
+        case 0x27:
+            if(rex.is32bits) {
+                INST_NAME("DAA");
+                MESSAGE(LOG_DUMP, "Need Optimization DAA\n");
+                READFLAGS(X_AF|X_CF);
+                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                UXTBx(x1, xRAX);
+                CALL_(daa8, x1, 0);
+                BFIz(xRAX, x1, 0, 8);
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x28:
             INST_NAME("SUB Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -443,7 +455,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
                 UXTBx(x1, xRAX);
                 CALL_(das8, x1, 0);
-                BFIx(xRAX, x1, 0, 8);
+                BFIz(xRAX, x1, 0, 8);
             } else {
                 DEFAULT;
             }
