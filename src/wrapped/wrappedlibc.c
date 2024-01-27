@@ -2766,13 +2766,7 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     }
     #endif
     if(!ret && len) {
-        if(prot)
-            updateProtection((uintptr_t)addr, len, prot);
-        else {
-            // avoid allocating detailled protection for a no prot 0
-            freeProtection((uintptr_t)addr, len);
-            setProtection_mmap((uintptr_t)addr, len, prot);
-        }
+        updateProtection((uintptr_t)addr, len, prot);
     }
     return ret;
 }
