@@ -81,7 +81,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_add16(dyn, ninst, x1, x2, x3, x4);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
         case 0x06:
             INST_NAME("PUSH ES");
@@ -120,7 +120,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
 
         case 0x0F:
@@ -158,7 +158,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_adc16(dyn, ninst, x1, x2, x3, x4);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
 
         case 0x19:
@@ -189,7 +189,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOVZw(x2, i16);
             emit_sbb16(dyn, ninst, x1, x2, x3, x4);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
         case 0x1E:
             INST_NAME("PUSH DS");
@@ -228,7 +228,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
 
         case 0x29:
@@ -256,7 +256,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_sub16(dyn, ninst, x1, x2, x3, x4);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
 
         case 0x31:
@@ -284,7 +284,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             UXTHw(x1, xRAX);
             MOV32w(x2, i32);
             emit_xor16(dyn, ninst, x1, x2, x3, x4);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
 
         case 0x39:
@@ -562,8 +562,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 GETGD;
                 GETED(0);
                 MOVxw_REG(x1, gd);
-                BFIx(gd, ed, 0, 16);
-                BFIx(ed, x1, 0, 16);
+                BFIz(gd, ed, 0, 16);
+                BFIz(ed, x1, 0, 16);
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
@@ -597,7 +597,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SMDMB();
                     MARK2;
                 }
-                BFIx(gd, x1, 0, 16);
+                BFIz(gd, x1, 0, 16);
             }
             break;
 
@@ -608,7 +608,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 if(ed!=gd) {
-                    BFIx(ed, gd, 0, 16);
+                    BFIz(ed, gd, 0, 16);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 0);
@@ -623,13 +623,13 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 if(ed!=gd) {
-                    BFIx(gd, ed, 0, 16);
+                    BFIz(gd, ed, 0, 16);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 0);
                 SMREADLOCK(lock);
                 LDH(x1, ed, fixedaddress);
-                BFIx(gd, x1, 0, 16);
+                BFIz(gd, x1, 0, 16);
             }
             break;
         case 0x8C:
@@ -638,7 +638,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u8 = (nextop&0x38)>>3;
             LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
             if((nextop&0xC0)==0xC0) {   // reg <= seg
-                UXTHw(xRAX+(nextop&7)+(rex.b<<3), x3);
+                BFIz(xRAX+(nextop&7)+(rex.b<<3), x3, 0, 16);
             } else {                    // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 STH(x3, wback, fixedaddress);
@@ -667,7 +667,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             POP1_16(x1);
             if((nextop&0xC0)==0xC0) {
                 wback = xRAX+(nextop&7)+(rex.b<<3);
-                BFIx(wback, x1, 0, 16);
+                BFIz(wback, x1, 0, 16);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
@@ -688,14 +688,14 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 INST_NAME("XCHG AX, Reg");
                 MOVw_REG(x2, xRAX);
-                BFIx(xRAX, gd, 0, 16);
-                BFIx(gd, x2, 0, 16);
+                BFIz(xRAX, gd, 0, 16);
+                BFIz(gd, x2, 0, 16);
             }
             break;
         case 0x98:
             INST_NAME("CBW");
             SXTBw(x1, xRAX);
-            BFIx(xRAX, x1, 0, 16);
+            BFIz(xRAX, x1, 0, 16);
             break;
         case 0x99:
             INST_NAME("CWD");
@@ -735,7 +735,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(isLockAddress(u64)) lock=1; else lock = 0;
             SMREADLOCK(lock);
             LDRH_U12(x2, x1, 0);
-            BFIx(xRAX, x2, 0, 16);
+            BFIz(xRAX, x2, 0, 16);
             break;
 
         case 0xA3:
@@ -864,14 +864,14 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK2(xRCX);
                 MARK3;
-                BFIx(xRAX, x2, 0, 16);
+                BFIz(xRAX, x2, 0, 16);
                 // done
             } else {
                 INST_NAME("LODSW");
                 GETDIR(x3, 2);
                 LDRH_U12(x2, xRSI, 0);
                 ADDx_REG(xRSI, xRSI, x3);
-                BFIx(xRAX, x2, 0, 16);
+                BFIz(xRAX, x2, 0, 16);
             }
             break;
 
@@ -925,7 +925,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             u16 = F16;
             MOV32w(x1, u16);
             gd = xRAX+(opcode&7)+(rex.b<<3);
-            BFIx(gd, x1, 0, 16);
+            BFIz(gd, x1, 0, 16);
             break;
 
         case 0xC1:
@@ -1029,7 +1029,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 u16 = F16;
                 MOV32w(x1, u16);
-                BFIx(ed, x1, 0, 16);
+                BFIz(ed, x1, 0, 16);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, &lock, 0, 2);
                 u16 = F16;
@@ -1259,7 +1259,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UXTHw(x2, xRAX);
                     MULw(x1, x2, x1);
                     UFLAG_RES(x1);
-                    BFIx(xRAX, x1, 0, 16);
+                    BFIz(xRAX, x1, 0, 16);
                     BFXILx(xRDX, x1, 16, 16);
                     UFLAG_DF(x1, d_mul16);
                     break;
@@ -1270,7 +1270,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SXTHw(x2, xRAX);
                     MULw(x1, x2, x1);
                     UFLAG_RES(x1);
-                    BFIx(xRAX, x1, 0, 16);
+                    BFIz(xRAX, x1, 0, 16);
                     BFXILx(xRDX, x1, 16, 16);
                     UFLAG_DF(x1, d_imul16);
                     break;
@@ -1282,8 +1282,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIw(x2, xRDX, 16, 16);
                     UDIVw(x3, x2, ed);
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
-                    BFIx(xRAX, x3, 0, 16);
-                    BFIx(xRDX, x4, 0, 16);
+                    BFIz(xRAX, x3, 0, 16);
+                    BFIz(xRDX, x4, 0, 16);
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
@@ -1294,8 +1294,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIw(x2, xRDX, 16, 16);
                     SDIVw(x3, x2, ed);
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
-                    BFIx(xRAX, x3, 0, 16);
-                    BFIx(xRDX, x4, 0, 16);
+                    BFIz(xRAX, x3, 0, 16);
+                    BFIz(xRDX, x4, 0, 16);
                     break;
             }
             break;

@@ -610,6 +610,7 @@
 #define BFIx(Rd, Rn, lsb, width)        BFMx(Rd, Rn, ((-(lsb))%64)&0x3f, (width)-1)
 #define BFIw(Rd, Rn, lsb, width)        BFMw(Rd, Rn, ((-(lsb))%32)&0x1f, (width)-1)
 #define BFIxw(Rd, Rn, lsb, width)       if(rex.w) {BFIx(Rd, Rn, lsb, width);} else {BFIw(Rd, Rn, lsb, width);}
+#define BFIz(Rd, Rn, lsb, width)        if(rex.is32bits) {BFIw(Rd, Rn, lsb, width);} else {BFIx(Rd, Rn, lsb, width);}
 #define BFCx(Rd, lsb, width)            BFMx(Rd, xZR, ((-(lsb))%64)&0x3f, (width)-1)
 #define BFCw(Rd, lsb, width)            BFMw(Rd, xZR, ((-(lsb))%32)&0x1f, (width)-1)
 #define BFCxw(Rd, lsb, width)           BFMxw(Rd, xZR, rex.w?(((-(lsb))%64)&0x3f):(((-(lsb))%32)&0x1f), (width)-1)
