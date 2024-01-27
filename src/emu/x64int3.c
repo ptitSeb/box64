@@ -48,8 +48,8 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
         iFpppp_t forkpty = (iFpppp_t)emu->forkpty_info->f;
         v = forkpty(emu->forkpty_info->amaster, emu->forkpty_info->name, emu->forkpty_info->termp, emu->forkpty_info->winp);
         emu->forkpty_info = NULL;
-    } else if(forktype==3)
-        v = vfork();
+    } /*else if(forktype==3)
+        v = vfork();*/
     else
         v = fork();
     /*if(type == EMUTYPE_MAIN)
@@ -61,7 +61,10 @@ x64emu_t* x64emu_fork(x64emu_t* emu, int forktype)
         for (int i=0; i<my_context->atfork_sz; --i)
             if(my_context->atforks[i].parent)
                 EmuCall(emu, my_context->atforks[i].parent);
-
+        if(forktype==3) {
+            // vfork, the parent wait the end or execve of the son
+            waitpid(v, NULL, WEXITED);
+        }
     } else if(v==0) {
         ResetSegmentsCache(emu);
         // execute atforks child functions
