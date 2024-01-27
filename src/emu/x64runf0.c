@@ -975,7 +975,18 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GD->q[0] = native_lock_xchg_dd(ED, GD->q[0]);
                     }
                 } else {
-                    GD->dword[0] = native_lock_xchg_d(ED, GD->dword[0]);
+                    if((uintptr_t)ED&3) {
+                        // unaligned
+                        do {
+                            tmp32u = ED->dword[0] & 0xffffff00;
+                            tmp32u |= native_lock_read_b(ED);
+                            
+                        } while(native_lock_write_b(ED, GD->byte[0]));
+                        ED->dword[0] = GD->dword[0];
+                        GD->dword[0] = tmp32u;
+                    } else {
+                        GD->dword[0] = native_lock_xchg_d(ED, GD->dword[0]);
+                    }
                 }
             }
 #else
