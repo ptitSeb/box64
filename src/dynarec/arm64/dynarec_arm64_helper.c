@@ -1251,38 +1251,6 @@ int x87_get_st_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t
     return dyn->n.x87reg[x87_get_cache(dyn, ninst, 0, s1, s2, a, t)];
 }
 
-
-void x87_refresh(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
-{
-    x87_stackcount(dyn, ninst, s1);
-    int ret = -1;
-    for (int i=0; (i<8) && (ret==-1); ++i)
-        if(dyn->n.x87cache[i] == st)
-            ret = i;
-    if(ret==-1)    // nothing to do
-        return;
-    MESSAGE(LOG_DUMP, "\tRefresh x87 Cache for ST%d\n", st);
-    // prepare offset to fpu => s1
-    ADDx_U12(s1, xEmu, offsetof(x64emu_t, x87));
-    // Get top
-    LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
-    // Update
-    if(st) {
-        ADDw_U12(s2, s2, st);
-        ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
-    }
-    if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_F) {
-        FCVT_D_S(31, dyn->n.x87reg[ret]);
-        VSTR64_REG_LSL3(31, s1, s2);
-    } else if(dyn->n.neoncache[dyn->n.x87reg[ret]].t==NEON_CACHE_ST_I64) {
-        SCVTFDD(31, dyn->n.x87reg[ret]);
-        VSTR64_REG_LSL3(31, s1, s2);
-    } else {
-        VSTR64_REG_LSL3(dyn->n.x87reg[ret], s1, s2);
-    }
-    MESSAGE(LOG_DUMP, "\t--------x87 Cache for ST%d\n", st);
-}
-
 void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
 {
     int ret = -1;

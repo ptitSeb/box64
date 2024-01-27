@@ -199,7 +199,6 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             i1 = x87_stackcount(dyn, ninst, x1);
             x87_forget(dyn, ninst, x1, x2, 0);
-            //x87_refresh(dyn, ninst, x1, x2, 0);
             CALL(fpu_fxam, -1);  // should be possible inline, but is it worth it?
             x87_unstackcount(dyn, ninst, x1, i1);
             #endif
