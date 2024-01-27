@@ -2631,6 +2631,32 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
+        case 0xD4:
+            if(rex.is32bits) {
+                INST_NAME("AAM Ib");
+                SETFLAGS(X_ALL, SF_SET);
+                UBFXx(x1, xRAX, 0, 8);    // load AL
+                u8 = F8;
+                MOV32w(x2, u8);
+                CALL_(aam16, x1, 0);
+                BFIz(xRAX, x1, 0, 16);
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0xD5:
+            if(rex.is32bits) {
+                INST_NAME("AAD Ib");
+                SETFLAGS(X_ALL, SF_SET);
+                UBFXx(x1, xRAX, 0, 16);    // load AX
+                u8 = F8;
+                MOV32w(x2, u8);
+                CALL_(aad16, x1, 0);
+                BFIz(xRAX, x1, 0, 16);
+            } else {
+                DEFAULT;
+            }
+            break;
 
         case 0xD7:
             INST_NAME("XLAT");
