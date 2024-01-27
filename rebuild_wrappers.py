@@ -1246,7 +1246,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"io_convert(*(void**)(R_RSP + {p})), ",     # S
 			"*(void**)(R_RSP + {p}), ",                 # N
 			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ", # M
-			"*(unsigned __int128)(R_RSP + {p}), ",      # H
+			"*(unsigned __int128*)(R_RSP + {p}), ",     # H
 			"*(void**)(R_RSP + {p}), ",                 # P
 			"*(void**)(R_RSP + {p}), ",                 # A
 			"*(complexf_t*)(R_RSP + {p}), ",            # x
@@ -1379,7 +1379,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				return ret + function_args_systemV(args[1:], d, r, x)
 			elif (x < 8) and (vxmm[idx] > 0):
 				# Value is in an XMM register
-				return arg_x[idx].format(p=x) + function_args_systemV(args[1:], d, r, x+1)
+				return arg_x[idx].format(p=x) + function_args_systemV(args[1:], d, r, x+vxmm[idx])
 			elif vstack[idx] > 0:
 				# Value is in the stack
 				return arg_s[idx].format(p=d) + function_args_systemV(args[1:], d+8*vstack[idx], r, x)
