@@ -2122,23 +2122,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                 }
             } else {
-                #if 1
                 INST_NAME("INT 3");
-                // check if TRAP signal is handled
-                TABLE64(x1, (uintptr_t)my_context);
-                MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
-                LDRx_REG(x3, x1, x2);
-                //LDRx_U12(x3, x1, offsetof(box64context_t, signals[SIGTRAP]));
-                CMPSx_U12(x3, 0);
-                B_NEXT(cEQ);
-                GETIP(ip);
-                STORE_XEMU_CALL(xRIP);
-                CALL(native_int3, -1);
-                LOAD_XEMU_CALL(xRIP);
+                if(!box64_ignoreint3) {
+                    // check if TRAP signal is handled
+                    TABLE64(x1, (uintptr_t)my_context);
+                    MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
+                    LDRx_REG(x3, x1, x2);
+                    //LDRx_U12(x3, x1, offsetof(box64context_t, signals[SIGTRAP]));
+                    CMPSx_U12(x3, 0);
+                    B_NEXT(cEQ);
+                    GETIP(ip);
+                    STORE_XEMU_CALL(xRIP);
+                    CALL(native_int3, -1);
+                    LOAD_XEMU_CALL(xRIP);
+                }
                 break;
-                #else
-                DEFAULT;
-                #endif
             }
             break;
         case 0xCD:

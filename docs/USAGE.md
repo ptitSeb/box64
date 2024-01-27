@@ -109,6 +109,11 @@ Will use 32bits address in priority for external MMAP (when 32bits process are d
  * 0 : Use regular mmap (default, except for Snapdragron build)
  * 1 : Use 32bits address space mmap in priority for external mmap as soon a 32bits process are detected (default for Snapdragon build)
 
+#### BOX64_IGNOREINT3 *
+What to do when a CC INT3 opcode is encounter in the code being run
+ * 0 : Trigger a TRAP signal if a handler is present
+ * 1 : Just skip silently the opcode
+
 #### BOX64_X11GLX *
 Force libX11's GLX extension to be present.
 * 0 : Do not force libX11's GLX extension to be present. 

@@ -55,6 +55,7 @@ int box64_maxcpu = 0;
 int box64_mmap32 = 1;
 #else
 int box64_mmap32 = 0;
+int box64_ignoreint3 = 0;
 #endif
 #ifdef DYNAREC
 int box64_dynarec = 1;
@@ -979,6 +980,15 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Will use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
         else
             printf_log(LOG_INFO, "Will not use 32bits address in priority for external MMAP (when 32bits process are detected)\n");
+    }
+    p = getenv("BOX64_IGNOREINT3");
+        if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_ignoreint3 = p[0]-'0';
+        }
+        if(box64_ignoreint3)
+            printf_log(LOG_INFO, "Will silently ignore INT3 in the code\n");
     }
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)

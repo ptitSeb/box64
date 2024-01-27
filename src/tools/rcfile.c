@@ -87,6 +87,7 @@ CENTRYBOOL(BOX64_NOSIGILL, no_sigill)                   \
 ENTRYBOOL(BOX64_SHOWSEGV, box64_showsegv)               \
 ENTRYBOOL(BOX64_SHOWBT, box64_showbt)                   \
 ENTRYBOOL(BOX64_MMAP32, box64_mmap32)                   \
+ENTRYBOOL(BOX64_MMAP32, box64_ignoreint3)               \
 ENTRYBOOL(BOX64_X11THREADS, box64_x11threads)           \
 ENTRYBOOL(BOX64_X11GLX, box64_x11glx)                   \
 ENTRYDSTRING(BOX64_LIBGL, box64_libGL)                  \
