@@ -66,7 +66,9 @@ int Run(x64emu_t *emu, int step)
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p is32bits=%d\n", emu, (void*)addr, (void*)R_RSP, is32bits);
 
 x64emurun:
-#ifndef TEST_INTERPRETER
+#ifdef TEST_INTERPRETER
+    test->memsize = 0;
+#else
     while(1) 
 #endif
     {
@@ -746,13 +748,13 @@ x64emurun:
             break;
         case 0x8A:                      /* MOV Gb,Eb */
             nextop = F8;
-            GETEB(0);
+            _GETEB(0);
             GETGB;
             GB = EB->byte[0];
             break;
         case 0x8B:                      /* MOV Gd,Ed */
             nextop = F8;
-            GETED(0);
+            _GETED(0);
             GETGD;
             if(rex.w)
                 GD->q[0] = ED->q[0];

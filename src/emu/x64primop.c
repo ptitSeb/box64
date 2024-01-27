@@ -1252,7 +1252,7 @@ void test8(x64emu_t *emu, uint8_t d, uint8_t s)
 	CONDITIONAL_SET_FLAG(res & 0x80, F_SF);
 	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-    /* AF == dont care */
+    CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
 }
 
@@ -1267,7 +1267,7 @@ void test16(x64emu_t *emu, uint16_t d, uint16_t s)
 	CONDITIONAL_SET_FLAG(res & 0x8000, F_SF);
 	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	/* AF == dont care */
+	CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
 }
 
@@ -1282,7 +1282,7 @@ void test32(x64emu_t *emu, uint32_t d, uint32_t s)
 	CONDITIONAL_SET_FLAG(res & 0x80000000, F_SF);
 	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	/* AF == dont care */
+	CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
 }
 
@@ -1297,7 +1297,7 @@ void test64(x64emu_t *emu, uint64_t d, uint64_t s)
 	CONDITIONAL_SET_FLAG(res & 0x8000000000000000LL, F_SF);
 	CONDITIONAL_SET_FLAG(res == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(res & 0xff), F_PF);
-	/* AF == dont care */
+	CLEAR_FLAG(F_AF);	/* AF == dont care */
 	CLEAR_FLAG(F_CF);
 }
 

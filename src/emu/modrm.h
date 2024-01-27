@@ -85,6 +85,7 @@
 #define GETEA32(D)          GetEA32(emu, &addr, rex, nextop, D)
 #define _GETED(D)           oped=GetEd(emu, &addr, rex, nextop, D)
 #define _GETED32(D)         oped=GetEd32O(emu, &addr, rex, nextop, D, 0)
+#define _GETEB(D)           oped=GetEb(emu, &addr, rex, nextop, D)
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 
