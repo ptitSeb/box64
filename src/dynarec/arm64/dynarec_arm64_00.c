@@ -2738,7 +2738,21 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GO(1);
             break;
         #undef GO
-
+        case 0xE4:                      /* IN AL, Ib */
+        case 0xE5:                      /* IN EAX, Ib */
+        case 0xE6:                      /* OUT Ib, AL */
+        case 0xE7:                      /* OUT Ib, EAX */
+            INST_NAME(opcode==0xE4?"IN AL, Ib":(opcode==0xE5?"IN EAX, Ib":(opcode==0xE6?"OUT Ib, AL":"OUT Ib, EAX")));
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            u8 = F8;
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = F32S;
@@ -2883,7 +2897,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xED:                      /* IN EAX, DX */
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
-            INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX? AL":"OUT DX, EAX")));
+            INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX, AL":"OUT DX, EAX")));
             SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
