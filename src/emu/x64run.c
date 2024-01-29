@@ -282,13 +282,13 @@ x64emurun:
             break;
         case 0x38:
             nextop = F8;
-            GETEB(0);
+            _GETEB(0);
             GETGB;
             cmp8(emu, EB->byte[0], GB);
             break;
         case 0x39:
             nextop = F8;
-            GETED(0);
+            _GETED(0);
             GETGD;
             if(rex.w)
                 cmp64(emu, ED->q[0], GD->q[0]);
@@ -297,13 +297,13 @@ x64emurun:
             break;
         case 0x3A:
             nextop = F8;
-            GETEB(0);
+            _GETEB(0);
             GETGB;
             cmp8(emu, GB, EB->byte[0]);
             break;
         case 0x3B:
             nextop = F8;
-            GETED(0);
+            _GETED(0);
             GETGD;
             if(rex.w)
                 cmp64(emu, GD->q[0], ED->q[0]);
