@@ -88,6 +88,7 @@ int getMmapped(uintptr_t addr);
 void loadProtectionFromMap(void);
 #ifdef DYNAREC
 void protectDB(uintptr_t addr, size_t size);
+void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
 int isprotectedDB(uintptr_t addr, size_t size);
 #endif

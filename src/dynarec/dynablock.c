@@ -291,11 +291,10 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
                 FreeInvalidDynablock(old, need_lock);
         } else {
             dynarec_log(LOG_DEBUG, "Validating block %p from %p:%p (hash:%X) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, (void*)addr);
-            protectDB((uintptr_t)db->x64_addr, db->x64_size);
-            // fill back jumptable
-            if(isprotectedDB((uintptr_t)db->x64_addr, db->x64_size) && !db->always_test) {
-                setJumpTableIfRef64(db->x64_addr, db->block, db->jmpnext);
-            }
+            if(db->always_test)
+                protectDB((uintptr_t)db->x64_addr, db->x64_size);
+            else
+                protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
         }
         if(!need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
@@ -329,11 +328,10 @@ dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr,
             } else
                 FreeInvalidDynablock(old, need_lock);
         } else {
-            protectDB((uintptr_t)db->x64_addr, db->x64_size);
-            // fill back jumptable
-            if(isprotectedDB((uintptr_t)db->x64_addr, db->x64_size) && !db->always_test) {
-                setJumpTableIfRef64(db->x64_addr, db->block, db->jmpnext);
-            }
+            if(db->always_test)
+                protectDB((uintptr_t)db->x64_addr, db->x64_size);
+            else
+                protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
         }
         if(!need_lock)
             mutex_unlock(&my_context->mutex_dyndump);

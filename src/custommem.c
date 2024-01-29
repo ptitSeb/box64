@@ -992,6 +992,43 @@ uintptr_t getJumpAddress64(uintptr_t addr)
 }
 
 // Remove the Write flag from an adress range, so DB can be executed safely
+void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
+{
+    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+
+    uintptr_t cur = addr&~(box64_pagesize-1);
+    uintptr_t end = ALIGN(addr+size);
+
+    mutex_lock(&mutex_prot);
+    while(cur!=end) {
+        uint32_t prot = 0, oprot;
+        uintptr_t bend = 0;
+        rb_get_end(memprot, cur, &prot, &bend);
+        if(bend>end)
+            bend = end;
+        oprot = prot;
+        uint32_t dyn = prot&PROT_DYN;
+        if(!prot)
+            prot = PROT_READ | PROT_WRITE | PROT_EXEC;
+        if(!(dyn&PROT_NOPROT)) {
+            prot&=~PROT_CUSTOM;
+            if(prot&PROT_WRITE) {
+                if(!dyn) 
+                    mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                prot |= PROT_DYNAREC;
+            } else 
+                prot |= PROT_DYNAREC_R;
+        }
+        if (prot != oprot) // If the node doesn't exist, then prot != 0
+            rb_set(memprot, cur, bend, prot);
+        cur = bend;
+    }
+    if(jump)
+        setJumpTableIfRef64((void*)addr, jump, ref);
+    mutex_unlock(&mutex_prot);
+}
+
+// Remove the Write flag from an adress range, so DB can be executed safely
 void protectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
@@ -1067,8 +1104,8 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
 int isprotectedDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
-    uintptr_t end = ALIGN(addr+size);
     addr &=~(box64_pagesize-1);
+    uintptr_t end = ALIGN(addr+size);
     mutex_lock(&mutex_prot);
     while (addr < end) {
         uint32_t prot;
