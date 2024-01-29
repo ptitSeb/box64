@@ -355,7 +355,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = xRAX+(opcode&0x07);
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
             if (gd==xRSP) {
                 MOVw_REG(x1, xRSP);
                 PUSH1_16(x1);
@@ -372,7 +372,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = xRAX+(opcode&0x07);
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
             POP1_16(x1);
             BFIw(gd, x1, 0, 16);
             break;
