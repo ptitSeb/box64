@@ -977,7 +977,7 @@ uint16_t shld16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(((res ^ d) >> 15)&1, F_OF);
 		} else {
-			CLEAR_FLAG(F_OF);
+			CONDITIONAL_SET_FLAG((d >> 15)&1, F_OF);
 		}
 	} else {
 		res = (fill << (cnt)) | (d >> (16 - cnt));
@@ -1014,7 +1014,7 @@ uint32_t shld32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 31)&1, F_OF);
 	} else {
-		CLEAR_FLAG(F_OF);
+		CONDITIONAL_SET_FLAG((d >> 31)&1, F_OF);
 	}
 	return res;
 }
@@ -1039,7 +1039,7 @@ uint64_t shld64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 63)&1, F_OF);
 	} else {
-		CLEAR_FLAG(F_OF);
+		CONDITIONAL_SET_FLAG((d >> 63)&1, F_OF);
 	}
 	return res;
 }
@@ -1055,7 +1055,7 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 
 	s = s&0x1f;
 	cnt = s % 16;
-	if (s < 16) {
+	if (s <= 16) {
 		if (cnt > 0) {
 			cf = d & (1 << (cnt - 1));
 			res = (d >> cnt) | (fill << (16 - cnt));
@@ -1070,7 +1070,7 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 		if (cnt == 1) {
 			CONDITIONAL_SET_FLAG(((res ^ d) >> 15)&1, F_OF);
         } else {
-			CLEAR_FLAG(F_OF);
+			CONDITIONAL_SET_FLAG((d >> 15)&1, F_OF);
         }
 	} else {
 		cf = fill & (1 << (cnt - 1));
@@ -1112,7 +1112,7 @@ uint32_t shrd32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 31)&1, F_OF);
 	} else {
-		CLEAR_FLAG(F_OF);
+		CONDITIONAL_SET_FLAG((d >> 31)&1, F_OF);
 	}
 	return res;
 }
@@ -1138,7 +1138,7 @@ uint64_t shrd64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 	if (cnt == 1) {
 		CONDITIONAL_SET_FLAG(((res ^ d) >> 63)&1, F_OF);
 	} else {
-		CLEAR_FLAG(F_OF);
+		CONDITIONAL_SET_FLAG((d >> 63)&1, F_OF);
 	}
 	return res;
 }
