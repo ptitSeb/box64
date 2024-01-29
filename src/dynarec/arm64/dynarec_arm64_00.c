@@ -1807,8 +1807,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Eb, Ib");
-                    if(geted_ib(dyn, addr, ninst, nextop)&0x1f) {
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+                    if(u8) {
+                        SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
                         GETEB(x1, 1);
                         u8 = F8;
                         emit_rol8c(dyn, ninst, x1, u8&7, x4, x5);
@@ -1820,8 +1821,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     INST_NAME("ROR Eb, Ib");
-                    if(geted_ib(dyn, addr, ninst, nextop)&0x1f) {
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+                    if(u8) {
+                        SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
                         GETEB(x1, 1);
                         u8 = F8;
                         emit_ror8c(dyn, ninst, x1, u8&7, x4, x5);
@@ -1835,7 +1837,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Eb, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+                    if(u8==1) {
+                        SETFLAGS(X_OF|X_CF, SF_SET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SET);
+                    }
                     GETEB(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -1846,7 +1853,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Eb, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+                    if(u8==1) {
+                        SETFLAGS(X_OF|X_CF, SF_SET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SET);
+                    }
                     GETEB(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -1933,7 +1945,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Ed, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+                    if(u8==1) {
+                        SETFLAGS(X_OF|X_CF, SF_SET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SET);
+                    }
                     GETEDW(x4, x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -1944,7 +1961,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Ed, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
+                    if(u8==1) {
+                        SETFLAGS(X_OF|X_CF, SF_SET);
+                    } else {
+                        SETFLAGS(X_CF, SF_SET);
+                    }
                     GETEDW(x4, x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -2369,6 +2391,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Eb, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     ANDSw_mask(x2, xRCX, 0, 0b00100);
                     GETEB(x1, 0);
@@ -2379,6 +2403,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Eb, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET);
                     ANDSw_mask(x2, xRCX, 0, 0b00100);
                     GETEB(x1, 0);
