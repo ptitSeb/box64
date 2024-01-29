@@ -528,6 +528,52 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 break;
 
+                case 0xC0:
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("LOCK XADD Eb, Gb");
+                            SETFLAGS(X_ALL, SF_SET_PENDING);
+                            nextop = F8;
+                            GETGB(x1);
+                            if(MODREG) {
+                                ed = xRAX+(nextop&7)+(rex.b<<3);
+                                GETEB(x2, 0);
+                                gd = x2; ed = x1;    // swap gd/ed
+                                emit_add8(dyn, ninst, x1, x2, x4, x5);
+                                GBBACK; // gb gets x2 (old ed)
+                                EBBACK; // eb gets x1 (sum)
+                            } else {
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                                if(arm64_atomics) {
+                                    UFLAG_IF {
+                                        MOVxw_REG(x3, gd);
+                                        LDADDALB(x3, gd, wback);
+                                        SMDMB();
+                                        emit_add8(dyn, ninst, x3, gd, x4, x5);
+                                    } else {
+                                        LDADDALB(gd, gd, wback);
+                                        SMDMB();
+                                    }
+                                    GBBACK;
+                                } else {
+                                    MARKLOCK;
+                                    LDAXRB(x1, wback);
+                                    ADDw_REG(x4, x1, gd);
+                                    STLXRB(x3, x4, wback);
+                                    CBNZx_MARKLOCK(x3);
+                                    SMDMB();
+                                    IFX(X_ALL|X_PEND) {
+                                        MOVxw_REG(x2, x1);
+                                        emit_add8(dyn, ninst, x2, gd, x3, x4);
+                                    }
+                                    BFIz(gb1, x1, gb2, 8);
+                                }
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0xC1:
                     switch(rep) {
                         case 0:
