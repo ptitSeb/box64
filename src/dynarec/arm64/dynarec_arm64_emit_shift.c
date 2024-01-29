@@ -1022,9 +1022,8 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
     }
     IFX(X_OF) {
         if(c==1) {
-            LSRxw(s4, s1, rex.w?63:31);
-            EORw_REG_LSR(s4, s4, xFlags, F_OF); // set if sign changed
-            BFIw(xFlags, s4, F_OF, 1);
+            UBFXx(s3, s1, rex.w?63:31, 1);
+            EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
         }
     }
     IFX(X_PF) {
@@ -1076,9 +1075,8 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
     }
     IFX(X_OF) {
         if(c==1) {
-            LSRxw(s3, s1, rex.w?63:31);
-            EORxw_REG_LSR(s3, s3, xFlags, F_OF);  // OF is set if sign changed
-            BFIw(xFlags, s3, F_OF, 1);
+            UBFXx(s3, s1, rex.w?63:31, 1);
+            EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
         } else {
             BFCw(xFlags, F_OF, 1);
         }
@@ -1127,10 +1125,9 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX(X_OF) {
         CMPSw_U12(s5, 1);
-        Bcond(cNE, 4+3*4);
-            LSRxw(s4, s1, rex.w?63:31);
-            EORw_REG_LSR(s4, s4, xFlags, F_OF); // Set if sign changed
-            BFIw(xFlags, s4, F_OF, 1);
+        Bcond(cNE, 4+2*4);
+            UBFXx(s3, s1, rex.w?63:31, 1);
+            EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -1174,10 +1171,9 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX(X_OF) {
         CMPSw_U12(s5, 1);
-        Bcond(cNE, 4+3*4);
-            LSRxw(s3, s1, rex.w?63:31);
-            EORxw_REG_LSR(s3, s3, xFlags, F_OF);  // OF is set if sign changed
-            BFIw(xFlags, s3, F_OF, 1);
+        Bcond(cNE, 4+2*4);
+            UBFXx(s3, s1, rex.w?63:31, 1);
+            EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -1219,9 +1215,8 @@ void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
     COMP_ZFSF(s1, 16)
     IFX(X_OF) {
         if(c==1) {
-            LSRw(s4, s1, 15);
-            EORw_REG_LSR(s4, s4, xFlags, F_OF); // set if sign changed
-            BFIw(xFlags, s4, F_OF, 1);
+            UBFXw(s3, s1, 15, 1);
+            EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
         }
     }
     IFX(X_PF) {
@@ -1257,10 +1252,9 @@ void emit_shrd16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
     COMP_ZFSF(s1, 16)
     IFX(X_OF) {
         CMPSw_U12(s5, 1);
-        Bcond(cNE, 4+3*4);
-            LSRw(s4, s1, 15);
-            EORw_REG_LSR(s4, s4, xFlags, F_OF); // Set if sign changed
-            BFIw(xFlags, s4, F_OF, 1);
+        Bcond(cNE, 4+2*4);
+            UBFXw(s3, s1, 15, 1);
+            EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
