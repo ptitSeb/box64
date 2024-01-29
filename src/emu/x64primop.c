@@ -1055,7 +1055,7 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 
 	s = s&0x1f;
 	cnt = s % 16;
-	if (s <= 16) {
+	if (s < 16) {
 		if (cnt > 0) {
 			cf = d & (1 << (cnt - 1));
 			res = (d >> cnt) | (fill << (16 - cnt));
@@ -1073,7 +1073,10 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 			CONDITIONAL_SET_FLAG((d >> 15)&1, F_OF);
         }
 	} else {
-		cf = fill & (1 << (cnt - 1));
+		if(s==16)
+			cf = d & (1 << 15);
+		else
+			cf = fill & (1 << (cnt - 1));
 		res = (fill >> cnt) | (d << (16 - cnt));
 		CONDITIONAL_SET_FLAG(cf, F_CF);
 		CONDITIONAL_SET_FLAG((res & 0xffff) == 0, F_ZF);
