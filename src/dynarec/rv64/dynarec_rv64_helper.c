@@ -1470,18 +1470,20 @@ int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 {
     if(dyn->e.ssecache[a].v!=-1) {
-        if(dyn->e.ssecache[a].single!=single && single) {
-            // writting back the double
-            FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
-            // need to wipe the half high 32bits of old Double because we now have a single
-            //SW(xZR, xEmu, offsetof(x64emu_t, xmm[a])+4);
+        if(dyn->e.ssecache[a].single!=single) {
+            if (single) {
+                // writing back the double
+                FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+                // need to wipe the half high 32bits of old Double because we now have a single
+                //SW(xZR, xEmu, offsetof(x64emu_t, xmm[a])+4);
+            }
+            dyn->e.olds[a].changed = 1;
+            dyn->e.olds[a].purged = 0;
+            dyn->e.olds[a].reg = EXTIDX(dyn->e.ssecache[a].reg);
+            dyn->e.olds[a].single = 1-single;
+            dyn->e.ssecache[a].single = single;
+            dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t = single?EXT_CACHE_SS:EXT_CACHE_SD;
         }
-        dyn->e.olds[a].changed = 1;
-        dyn->e.olds[a].purged = 0;
-        dyn->e.olds[a].reg = EXTIDX(dyn->e.ssecache[a].reg);
-        dyn->e.olds[a].single = 1-single;
-        dyn->e.ssecache[a].single = single;
-        dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t = single?EXT_CACHE_SS:EXT_CACHE_SD;
         return dyn->e.ssecache[a].reg;
     }
     dyn->e.ssecache[a].reg = fpu_get_reg_xmm(dyn, single?EXT_CACHE_SS:EXT_CACHE_SD, a);
