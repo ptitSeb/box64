@@ -1759,6 +1759,11 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "SHA256H2 Q%d, Q%d, V%d.4S", Rd, Rn, Rm);
         return buff;
     }
+    // UDF
+    if(isMask(opcode, "0000000000000000iiiiiiiiiiiiiiii", &a)) {
+        snprintf(buff, sizeof(buff), "UDF 0x%x", a.i);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
