@@ -619,6 +619,9 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedicuuc74.c"
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n74.c"
     "${BOX64_ROOT}/src/wrapped/wrappedidn2.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedmbedtls.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedmbedx509.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedmbedcrypto.c"
 )
 if(ANDROID)
     list(APPEND WRAPPEDS

@@ -4928,6 +4928,9 @@ wrappedlzma:
   - lzma_index_buffer_decode
 - iFpupppLppL:
   - lzma_stream_buffer_decode
+wrappedmbedcrypto:
+wrappedmbedtls:
+wrappedmbedx509:
 wrappedmpg123:
 - iFpppp:
   - mpg123_replace_reader_handle
