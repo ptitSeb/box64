@@ -2898,11 +2898,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("JMP Ib");
                 i32 = F8S;
             }
-            JUMP((uintptr_t)getAlternate((void*)(addr+i32)), 0);
+            if(rex.is32bits)
+                j64 = (uint32_t)(addr+i32);
+            else
+                j64 = addr+i32;
+
+            JUMP((uintptr_t)getAlternate((void*)j64), 0);
             if(dyn->insts[ninst].x64.jmp_insts==-1) {
                 // out of the block
                 fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
-                jump_to_next(dyn, (uintptr_t)getAlternate((void*)(addr+i32)), 0, ninst);
+                jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst);
             } else {
                 // inside the block
                 CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
