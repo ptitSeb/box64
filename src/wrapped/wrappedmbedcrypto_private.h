@@ -149,11 +149,11 @@
 //GO(mbedtls_ct_mpi_uint_lt
 //GO(mbedtls_ct_mpi_uint_mask
 //GO(mbedtls_ctr_drbg_free
-//GO(mbedtls_ctr_drbg_init
-//GO(mbedtls_ctr_drbg_random
+GO(mbedtls_ctr_drbg_init, vFp)
+GO(mbedtls_ctr_drbg_random, iFppL)
 //GO(mbedtls_ctr_drbg_random_with_add
-//GO(mbedtls_ctr_drbg_reseed
-//GO(mbedtls_ctr_drbg_seed
+GO(mbedtls_ctr_drbg_reseed, iFppL)
+GO(mbedtls_ctr_drbg_seed, iFpivpL)
 //GO(mbedtls_ctr_drbg_self_test
 //GO(mbedtls_ctr_drbg_set_entropy_len
 //GO(mbedtls_ctr_drbg_set_nonce_len
@@ -271,9 +271,9 @@
 //GO(mbedtls_ecp_write_key
 //GO(mbedtls_entropy_add_source
 //GO(mbedtls_entropy_free
-//GO(mbedtls_entropy_func
+GO(mbedtls_entropy_func, iFppL)
 //GO(mbedtls_entropy_gather
-//GO(mbedtls_entropy_init
+GO(mbedtls_entropy_init, vFp)
 //GO(mbedtls_entropy_self_test
 //GO(mbedtls_entropy_update_manual
 //GO(mbedtls_entropy_update_seed_file
