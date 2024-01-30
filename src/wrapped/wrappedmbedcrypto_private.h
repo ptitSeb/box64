@@ -153,7 +153,7 @@ GO(mbedtls_ctr_drbg_init, vFp)
 GO(mbedtls_ctr_drbg_random, iFppL)
 //GO(mbedtls_ctr_drbg_random_with_add
 GO(mbedtls_ctr_drbg_reseed, iFppL)
-GO(mbedtls_ctr_drbg_seed, iFpivpL)
+//GO(mbedtls_ctr_drbg_seed
 //GO(mbedtls_ctr_drbg_self_test
 //GO(mbedtls_ctr_drbg_set_entropy_len
 //GO(mbedtls_ctr_drbg_set_nonce_len
