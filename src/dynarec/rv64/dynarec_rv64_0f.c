@@ -1360,6 +1360,15 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // 32bits imul
                 UFLAG_IF
                 {
+                    SLLI(gd, gd, 32);
+                    SRAI(gd, gd, 32);
+                    if(MODREG) {
+                        SLLI(x1, ed, 32);
+                        ed = x1;
+                    } else {
+                        SLLI(ed, ed, 32);
+                    }
+                    SRAI(ed, ed, 32);
                     MUL(gd, gd, ed);
                     UFLAG_RES(gd);
                     SRLI(x3, gd, 32);
