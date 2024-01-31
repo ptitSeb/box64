@@ -1367,6 +1367,7 @@ void endBox64()
         return;
 
     // then call all the fini
+    dynarec_log(LOG_DEBUG, "endBox64() called\n");
     box64_quit = 1;
     endMallocHook();
     x64emu_t* emu = thread_get_emu();

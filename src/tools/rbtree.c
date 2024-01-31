@@ -591,7 +591,7 @@ int rb_get_end(rbtree* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
 
 int rb_set(rbtree *tree, uintptr_t start, uintptr_t end, uint32_t data) {
 // printf("rb_set( "); print_rbtree(tree); printf(" , 0x%lX, 0x%lX, %hhu);\n", start, end, data); fflush(stdout);
-dynarec_log(LOG_DEBUG, "set 0x%lX, 0x%lX, %hhu\n", start, end, data);
+dynarec_log(LOG_DEBUG, "set 0x%lX, 0x%lX, 0x%x\n", start, end, data);
     if (!tree->root) {
         return add_range(tree, start, end, data);
     }
