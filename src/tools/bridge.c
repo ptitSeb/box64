@@ -28,15 +28,8 @@ typedef struct brick_s {
     int         sz;
     brick_t     *next;
 } brick_t;
-#ifdef PAGE8K
-#define NBRICK  (8192/sizeof(onebridge_t))
-#elif defined(PAGE16K)
-#define NBRICK  (16384/sizeof(onebridge_t))
-#elif defined(PAGE64K)
-#define NBRICK  (65536/sizeof(onebridge_t))
-#else
-#define NBRICK  (4096/sizeof(onebridge_t))
-#endif
+
+#define NBRICK (box64_pagesize/sizeof(onebridge_t))
 
 typedef struct bridge_s {
     brick_t         *head;

@@ -439,10 +439,8 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " FRINT");
     if(arm64_afp)
         printf_log(LOG_INFO, " AFP");
-    printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(LA464)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
-    printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #elif defined(RV64)
     void RV64_Detect_Function();
     if(!getenv("BOX64_DYNAREC_RV64NOEXT"))
@@ -462,8 +460,6 @@ HWCAP2_ECV
     if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
     if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
     if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
-
-    printf_log(LOG_INFO, " PageSize:%zd ", box64_pagesize);
 #else
 #error Unsupported architecture
 #endif
@@ -998,7 +994,7 @@ void LoadLogEnv()
 #endif
     int ncpu = getNCpu();
     const char* cpuname = getCpuName();
-    printf_log(LOG_INFO, "Running on %s with %d Cores\n", cpuname, ncpu);
+    printf_log(LOG_INFO, " PageSize:%zd Running on %s with %d Cores\n", box64_pagesize, cpuname, ncpu);
 }
 
 EXPORTDYN
