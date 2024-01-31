@@ -674,11 +674,13 @@ void EXPORT x64Syscall(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        #ifndef __NR_mknod
         case 133: // sys_mknod
             S_RAX = mknod((void*)R_RDI, R_ESI, R_RDX);
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        #endif
         case 158: // sys_arch_prctl
             S_RAX = my_arch_prctl(emu, S_EDI, (void*)R_RSI);
             if(S_RAX==-1)
