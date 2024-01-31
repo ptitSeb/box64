@@ -1435,7 +1435,15 @@ x64emurun:
                 #endif
             }
             break;
-
+        case 0xCE:                      /* INTO */
+            emu->old_ip = R_RIP;
+            #ifndef TEST_INTERPRETER
+            CHECK_FLAGS(emu);
+            if(ACCESS_FLAG(F_OF))
+                emit_signal(emu, SIGSEGV, (void*)R_RIP, 128);
+            STEP;
+            #endif
+            break;
         case 0xCF:                      /* IRET */
             addr = rex.is32bits?Pop32(emu):Pop64(emu);
             emu->segs[_CS] = (rex.is32bits?Pop32(emu):Pop64(emu))&0xffff;
