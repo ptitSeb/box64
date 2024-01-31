@@ -37,5 +37,10 @@ EXPORT pid_t my_forkpty(x64emu_t* emu, void* amaster, void* name, void* termp, v
     return 0;
 }
 
+#define PRE_INIT\
+    if(1)                                                      \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    else
+
 #include "wrappedlib_init.h"
 
