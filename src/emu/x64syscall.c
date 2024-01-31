@@ -186,7 +186,7 @@ static const scwrap_t syscallwrap[] = {
     [128] = {__NR_rt_sigtimedwait, 4},
     //[131] = {__NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
     #ifdef __NR_mknod
-    [133] = {__NR_mknod, 3}
+    [133] = {__NR_mknod, 3},
     #endif
     [140] = {__NR_getpriority, 2},
     [145] = {__NR_sched_getscheduler, 1},
