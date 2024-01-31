@@ -39,6 +39,7 @@ typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
 
 extern int mkdir(const char *path, mode_t mode);
+extern int mknod(const char *path, mode_t mode, dev_t dev);
 extern int fchmodat (int __fd, const char *__file, mode_t __mode, int __flag);
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
@@ -73,7 +74,7 @@ int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* con
 #undef fcntl
 int fcntl(int fd, int cmd, ... /* arg */ );
 
-// Syscall table for x86_64 can be found 
+// Syscall table for x86_64 can be found
 typedef struct scwrap_s {
     int nats;
     int nbpars;
@@ -184,6 +185,9 @@ static const scwrap_t syscallwrap[] = {
     [127] = {__NR_rt_sigpending, 2},
     [128] = {__NR_rt_sigtimedwait, 4},
     //[131] = {__NR_sigaltstack, 2},  // wrapped to use my_sigaltstack*
+    #ifdef __NR_mknod
+    [133] = {__NR_mknod, 3}
+    #endif
     [140] = {__NR_getpriority, 2},
     [145] = {__NR_sched_getscheduler, 1},
     [148] = {__NR_sched_rr_get_interval, 2},
@@ -236,7 +240,7 @@ static const scwrap_t syscallwrap[] = {
     #endif
     [258] = {__NR_mkdirat, 3},
     [260] = {__NR_fchownat, 5},
-    //[262] = {__NR_fstatat, 4}, 
+    //[262] = {__NR_fstatat, 4},
     [263] = {__NR_unlinkat, 3},
     #ifdef __NR_renameat
     [264] = {__NR_renameat, 4},
@@ -397,7 +401,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
         buffret = cycle_log?my_context->log_ret[my_context->current_line]:t_buffret;
         if(cycle_log)
             my_context->current_line = (my_context->current_line+1)%cycle_log;
-        snprintf(buff, 255, "%04d|%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9); 
+        snprintf(buff, 255, "%04d|%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9);
         if(!cycle_log)
             printf_log(LOG_NONE, "%s", buff);
     }
@@ -414,7 +418,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             case 5: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8); break;
             case 6: S_RAX = syscall(sc, R_RDI, R_RSI, R_RDX, R_R10, R_R8, R_R9); break;
             default:
-                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars); 
+                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars);
                 emu->quit = 1;
                 return;
         }
@@ -436,7 +440,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         case 2: // sys_open
-            if(s==5) {if (log) snprintf(buff2, 63, " [sys_open(\"%s\", %d, %d)]", (char*)R_RDI, of_convert(R_ESI), R_EDX);}; 
+            if(s==5) {if (log) snprintf(buff2, 63, " [sys_open(\"%s\", %d, %d)]", (char*)R_RDI, of_convert(R_ESI), R_EDX);};
             //S_RAX = open((void*)R_EDI, of_convert(R_ESI), R_EDX);
             S_RAX = my_open(emu, (void*)R_RDI, of_convert(R_ESI), R_EDX);
             if(S_RAX==-1)
@@ -594,7 +598,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
             }
             break;
         #ifndef __NR_fork
-        case 57: 
+        case 57:
             S_RAX = fork();
             if(S_RAX==-1)
                 S_RAX = -errno;
@@ -667,6 +671,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         case 131: // sys_sigaltstack
             S_RAX = my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        case 133: // sys_mknod
+            S_RAX = mknod((void*)R_RDI, R_ESI, R_RDX);
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
@@ -791,7 +800,7 @@ long EXPORT my_syscall(x64emu_t *emu)
 {
     static uint32_t warned = 0;
     uint32_t s = R_EDI;
-    printf_dump(LOG_DEBUG, "%04d| %p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", GetTID(), (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9); 
+    printf_dump(LOG_DEBUG, "%04d| %p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", GetTID(), (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
     // check wrapper first
     uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     if(s<cnt && syscallwrap[s].nats) {
@@ -805,7 +814,7 @@ long EXPORT my_syscall(x64emu_t *emu)
             case 5: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8, R_R9);
             case 6: return syscall(sc, R_RSI, R_RDX, R_RCX, R_R8, R_R9, u64(0));
             default:
-                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars); 
+                printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[s].nbpars);
                 emu->quit = 1;
                 return 0;
         }
@@ -927,7 +936,7 @@ long EXPORT my_syscall(x64emu_t *emu)
             return  dup2(S_ESI, S_EDX);
         #endif
         #ifndef __NR_fork
-        case 57: 
+        case 57:
             return fork();
         #endif
         case 58:   // vfork
@@ -968,6 +977,10 @@ long EXPORT my_syscall(x64emu_t *emu)
             return my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
         case 131: // sys_sigaltstack
             return my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
+        #ifndef __NR_mknod
+        case 133: // sys_mknod
+            return mknod((void*)R_RSI, R_EDX, R_RCX);
+        #endif
         case 158: // sys_arch_prctl
             return my_arch_prctl(emu, S_ESI, (void*)R_RDX);
         #ifndef __NR_time
