@@ -163,7 +163,9 @@ static const scwrap_t syscallwrap[] = {
     #endif
     //[89] = {__NR_readlink, 3},  // not always existing, better use the wrapped version anyway
     [96] = {__NR_gettimeofday, 2},
+    #ifdef __NR_getrlimit
     [97] = {__NR_getrlimit, 2},
+    #endif
     [101] = {__NR_ptrace, 4},
     [102] = {__NR_getuid, 0},
     [104] = {__NR_getgid, 0},
@@ -190,7 +192,9 @@ static const scwrap_t syscallwrap[] = {
     [155] = {__NR_pivot_root, 2},
     [157] = {__NR_prctl, 5 },     // needs wrapping?
     //[158] = {__NR_arch_prctl, 2},   //need wrapping
+    #ifdef __NR_setrlimit
     [160] = {__NR_setrlimit, 2},
+    #endif
     [161] = {__NR_chroot, 1},
     [186] = {__NR_gettid, 0 },    //0xBA
     [200] = {__NR_tkill, 2 },
@@ -665,6 +669,13 @@ void EXPORT x64Syscall(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        #ifndef __NR_getrlimit
+        case 97:
+            S_RAX = getrlimit(S_EDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        #endif
         case 131: // sys_sigaltstack
             S_RAX = my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             if(S_RAX==-1)
@@ -675,6 +686,13 @@ void EXPORT x64Syscall(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        #ifndef __NR_setrlimit
+        case 160:
+            S_RAX = setrlimit(S_EDI, (void*)R_RSI);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        #endif
         #ifndef __NR_time
         case 201: // sys_time
             R_RAX = (uintptr_t)time((void*)R_RDI);
@@ -966,10 +984,18 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 89: // sys_readlink
             return my_readlink(emu,(void*)R_RSI, (void*)R_RDX, (size_t)R_RCX);
+        #ifndef __NR_getrlimit
+        case 97:
+            return getrlimit(S_ESI, (void*)R_RDX);
+        #endif
         case 131: // sys_sigaltstack
             return my_sigaltstack(emu, (void*)R_RSI, (void*)R_RDX);
         case 158: // sys_arch_prctl
             return my_arch_prctl(emu, S_ESI, (void*)R_RDX);
+        #ifndef __NR_setrlimit
+        case 160:
+            return setrlimit(S_ESI, (void*)R_RDX);
+        #endif
         #ifndef __NR_time
         case 201: // sys_time
             return (intptr_t)time((void*)R_RSI);
