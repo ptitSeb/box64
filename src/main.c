@@ -1468,6 +1468,11 @@ extern char** environ;
 int main(int argc, const char **argv, char **env) {
     init_malloc_hook();
     init_auxval(argc, argv, environ?environ:env);
+    // analogue to QEMU_VERSION in qemu-user-mode emulation
+    if(getenv("BOX64_VERSION")) {
+        PrintBox64Version();
+        exit(0);
+    }
     // trying to open and load 1st arg
     if(argc==1) {
         /*PrintBox64Version();
