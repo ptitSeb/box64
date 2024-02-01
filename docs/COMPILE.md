@@ -205,7 +205,7 @@ NOTE: BUILDING BOX64 IN TERMUX NATIVE IS EXPERIMENTAL AND DOESN'T GONNA RUN LINU
 You also needed have `libandroid-sysv-semaphore` and `libandroid-spawn` libraries:
 
 ```
--D TERMUX=1 -D -DCMAKE_C_COMPILER=clang CMAKE_BUILD_TYPE=RelWithDebInfo
+-D TERMUX=1 -DCMAKE_C_COMPILER=clang -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
 
 #### for x86_64 Linux
