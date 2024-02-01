@@ -994,7 +994,7 @@ uintptr_t getJumpAddress64(uintptr_t addr)
 // Remove the Write flag from an adress range, so DB can be executed safely
 void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
 {
-    dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
+    dynarec_log(LOG_DEBUG, "protectDBJumpTable %p -> %p\n", (void*)addr, (void*)(addr+size-1));
 
     uintptr_t cur = addr&~(box64_pagesize-1);
     uintptr_t end = ALIGN(addr+size);
@@ -1010,7 +1010,7 @@ void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
         uint32_t dyn = prot&PROT_DYN;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;
-        if(!(dyn&PROT_NOPROT)) {
+        if(!(dyn&PROT_NEVERPROT)) {
             prot&=~PROT_CUSTOM;
             if(prot&PROT_WRITE) {
                 if(!dyn) 
@@ -1047,7 +1047,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
         uint32_t dyn = prot&PROT_DYN;
         if(!prot)
             prot = PROT_READ | PROT_WRITE | PROT_EXEC;
-        if(!(dyn&PROT_NOPROT)) {
+        if(!(dyn&PROT_NEVERPROT)) {
             prot&=~PROT_CUSTOM;
             if(prot&PROT_WRITE) {
                 if(!dyn) 
@@ -1085,7 +1085,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
         oprot = prot;
         if(bend>end)
             bend = end;
-        if(!(prot&PROT_NOPROT)) {
+        if(!(prot&PROT_NEVERPROT)) {
             if(prot&PROT_DYNAREC) {
                 prot&=~PROT_DYN;
                 if(mark)
@@ -1137,7 +1137,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         uint32_t oprot;
         rb_get_end(memprot, cur, &oprot, &bend);
         uint32_t dyn=(oprot&PROT_DYN);
-        if(!(dyn&PROT_NOPROT)) {
+        if(!(dyn&PROT_NEVERPROT)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
                 mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);

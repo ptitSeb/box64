@@ -278,7 +278,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
         int need_lock = mutex_trylock(&my_context->mutex_dyndump);
         if(hash!=db->hash) {
             db->done = 0;   // invalidating the block
-            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, hash, db->hash, (void*)addr);
+            dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X/%X, always_test:%d) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, hash, db->hash, db->always_test,(void*)addr);
             // Free db, it's now invalid!
             dynablock_t* old = InvalidDynablock(db, need_lock);
             // start again... (will create a new block)
@@ -290,7 +290,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
             } else
                 FreeInvalidDynablock(old, need_lock);
         } else {
-            dynarec_log(LOG_DEBUG, "Validating block %p from %p:%p (hash:%X) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, (void*)addr);
+            dynarec_log(LOG_DEBUG, "Validating block %p from %p:%p (hash:%X, always_test:%d) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1, db->hash, db->always_test, (void*)addr);
             if(db->always_test)
                 protectDB((uintptr_t)db->x64_addr, db->x64_size);
             else

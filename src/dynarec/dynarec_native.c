@@ -655,6 +655,13 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         block->dirty = 1;
         //protectDB(addr, end-addr);
     }
+    if(getProtection(addr)&PROT_NEVERCLEAN) {
+        block->dirty = 1;
+        block->always_test = 1;
+    }
+    if(block->always_test) {
+        dynarec_log(LOG_DEBUG, "Note: block marked as always dirty %p:%ld\n", block->x64_addr, block->x64_size);
+    }
     current_helper = NULL;
     //block->done = 1;
     return (void*)block;

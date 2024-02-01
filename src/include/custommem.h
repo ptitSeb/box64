@@ -70,11 +70,13 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 #endif //SAVE_MEM
 #endif
 
+#define PROT_NEVERCLEAN 0x100
 #define PROT_DYNAREC    0x80
 #define PROT_DYNAREC_R  0x40
 #define PROT_NOPROT     0x20
-#define PROT_DYN        (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT)
-#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT)
+#define PROT_DYN        (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT | PROT_NEVERCLEAN)
+#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT | PROT_NEVERCLEAN)
+#define PROT_NEVERPROT  (PROT_NOPROT | PROT_NEVERCLEAN)
 #define PROT_WAIT       0xFF
 
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot);
