@@ -61,6 +61,17 @@ uintptr_t Run6764_32(x64emu_t *emu, rex_t rex, int rep, int seg, uintptr_t addr)
             GW->word[0] = EW->word[0];
             break;
 
+        case 0xA1:                      /* MOV EAX, FS:Od */
+            tmp32u = F16;
+            #ifdef TEST_INTERPRETER
+            test->memaddr = tlsdata + tmp32u;
+            test->memsize = 4;
+            R_EAX = *(uint32_t*)(test->mem);
+            #else
+            R_EAX = *(uint32_t*)(tlsdata + tmp32u);
+            #endif
+            break;
+
         case 0xA3:                      /* MOV FS:Od,EAX */
             tmp32u = F16;
             #ifdef TEST_INTERPRETER
