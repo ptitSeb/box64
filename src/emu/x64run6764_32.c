@@ -54,6 +54,13 @@ uintptr_t Run6764_32(x64emu_t *emu, rex_t rex, int rep, int seg, uintptr_t addr)
 
     switch(opcode) {
 
+        case 0x89:                      /* MOV FS:Ew, Gw */
+            nextop = F8;
+            GETEW_OFFS_16(tlsdata);
+            GETGW;
+            EW->word[0] = GW->word[0];
+            break;
+
         case 0x8B:                      /* MOV Gw, FS:Ew */
             nextop = F8;
             GETEW_OFFS_16(tlsdata);
