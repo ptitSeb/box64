@@ -156,6 +156,11 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     return 0;
             }
             break;
+        case 0x0E:                      /* FEMMS */
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #endif
+            break;
 
         case 0x10:                      /* MOVUPS Gx,Ex */
             nextop = F8;

@@ -165,6 +165,17 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     DEFAULT;
             }
             break;
+        case 0x0E:
+            INST_NAME("femms");
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_ud, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
 
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
