@@ -342,6 +342,44 @@ static size_t roundSize(size_t size)
     return size;
 }
 
+#ifdef DYNAREC
+#define GET_PROT_WAIT(A, B) \
+        uint32_t A;         \
+        do {                \
+            A = native_lock_xchg_b(&block[B], PROT_WAIT);    \
+        } while(A==PROT_WAIT)
+#define GET_PROT(A, B)      \
+        uint32_t A;         \
+        do {                \
+            A = native_lock_get_b(&block[B]);   \
+        } while(A==PROT_WAIT)
+
+#define SET_PROT(A, B)      native_lock_storeb(&block[A], B)
+#define LOCK_NODYNAREC()
+#define UNLOCK_DYNAREC()    UNLOCK_PROT()
+#define UNLOCK_NODYNAREC()
+#else
+#define GET_PROT_WAIT(A, B) uint32_t A = block[B]
+#define GET_PROT(A, B)      uint32_t A = block[B]
+#define SET_PROT(A, B)      block[A] = B
+#define LOCK_NODYNAREC()    LOCK_PROT()
+#define UNLOCK_DYNAREC()
+#define UNLOCK_NODYNAREC()  UNLOCK_PROT()
+#endif
+static uintptr_t    defered_prot_p = 0;
+static size_t       defered_prot_sz = 0;
+static uint32_t     defered_prot_prot = 0;
+#define LOCK_PROT()         mutex_lock(&mutex_prot)
+#define LOCK_PROT_READ()    mutex_lock(&mutex_prot)
+#define UNLOCK_PROT()       if(defered_prot_p) {    \
+                                uintptr_t p = defered_prot_p; size_t sz = defered_prot_sz; uint32_t prot = defered_prot_prot; \
+                                defered_prot_p = 0; \
+                                mutex_unlock(&mutex_prot); \
+                                setProtection(p, sz, prot); \
+                            } else mutex_unlock(&mutex_prot)
+#define UNLOCK_PROT_READ()  mutex_unlock(&mutex_prot)
+
+
 #ifdef TRACE_MEMSTAT
 static uint64_t customMalloc_allocated = 0;
 #endif
@@ -399,8 +437,13 @@ void* customMalloc(size_t size)
     void* ret  = allocBlock(p_blocks[i].block, p, size, &p_blocks[i].first);
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
     mutex_unlock(&mutex_blocks);
-    if(mapallmem)
-        setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
+    if(mapallmem) {
+        // defer the setProtection...
+        //setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
+        defered_prot_p = (uintptr_t)p;
+        defered_prot_sz = allocsize;
+        defered_prot_prot = PROT_READ|PROT_WRITE;
+    }
     return ret;
 }
 void* customCalloc(size_t n, size_t size)
@@ -460,31 +503,6 @@ void customFree(void* p)
     if(n_blocks)
         dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
 }
-
-#ifdef DYNAREC
-#define GET_PROT_WAIT(A, B) \
-        uint32_t A;         \
-        do {                \
-            A = native_lock_xchg_b(&block[B], PROT_WAIT);    \
-        } while(A==PROT_WAIT)
-#define GET_PROT(A, B)      \
-        uint32_t A;         \
-        do {                \
-            A = native_lock_get_b(&block[B]);   \
-        } while(A==PROT_WAIT)
-
-#define SET_PROT(A, B)      native_lock_storeb(&block[A], B)
-#define LOCK_NODYNAREC()
-#define UNLOCK_DYNAREC()    mutex_unlock(&mutex_prot)
-#define UNLOCK_NODYNAREC()
-#else
-#define GET_PROT_WAIT(A, B) uint32_t A = block[B]
-#define GET_PROT(A, B)      uint32_t A = block[B]
-#define SET_PROT(A, B)      block[A] = B
-#define LOCK_NODYNAREC()    mutex_lock(&mutex_prot)
-#define UNLOCK_DYNAREC()
-#define UNLOCK_NODYNAREC()  mutex_unlock(&mutex_prot)
-#endif
 
 #ifdef DYNAREC
 #define NCHUNK          64
@@ -999,7 +1017,7 @@ void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
     uintptr_t cur = addr&~(box64_pagesize-1);
     uintptr_t end = ALIGN(addr+size);
 
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     while(cur!=end) {
         uint32_t prot = 0, oprot;
         uintptr_t bend = 0;
@@ -1025,7 +1043,7 @@ void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
     }
     if(jump)
         setJumpTableIfRef64((void*)addr, jump, ref);
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
 }
 
 // Remove the Write flag from an adress range, so DB can be executed safely
@@ -1036,7 +1054,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
     uintptr_t cur = addr&~(box64_pagesize-1);
     uintptr_t end = ALIGN(addr+size);
 
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     while(cur!=end) {
         uint32_t prot = 0, oprot;
         uintptr_t bend = 0;
@@ -1060,7 +1078,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
             rb_set(memprot, cur, bend, prot);
         cur = bend;
     }
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
 }
 
 // Add the Write flag from an adress range, and mark all block as dirty
@@ -1071,7 +1089,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
     uintptr_t cur = addr&~(box64_pagesize-1);
     uintptr_t end = ALIGN(addr+size);
 
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     while(cur!=end) {
         uint32_t prot = 0, oprot;
         uintptr_t bend = 0;
@@ -1098,7 +1116,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
             rb_set(memprot, cur, bend, prot);
         cur = bend;
     }
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
 }
 
 int isprotectedDB(uintptr_t addr, size_t size)
@@ -1106,19 +1124,19 @@ int isprotectedDB(uintptr_t addr, size_t size)
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
     addr &=~(box64_pagesize-1);
     uintptr_t end = ALIGN(addr+size);
-    mutex_lock(&mutex_prot);
+    LOCK_PROT_READ();
     while (addr < end) {
         uint32_t prot;
         uintptr_t bend;
         if (!rb_get_end(memprot, addr, &prot, &bend) || !(prot&PROT_DYN)) {
             dynarec_log(LOG_DEBUG, "0\n");
-            mutex_unlock(&mutex_prot);
+            UNLOCK_PROT_READ();
             return 0;
         } else {
             addr = bend;
         }
     }
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT_READ();
     dynarec_log(LOG_DEBUG, "1\n");
     return 1;
 }
@@ -1128,7 +1146,7 @@ int isprotectedDB(uintptr_t addr, size_t size)
 void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%hhx\n", (void*)addr, (void*)(addr+size-1), prot);
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     uintptr_t cur = addr & ~(box64_pagesize-1);
     uintptr_t end = ALIGN(cur+size);
     rb_set(mapallmem, cur, cur+size, 1);
@@ -1149,18 +1167,18 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
             rb_set(memprot, cur, bend, prot|dyn);
         cur = bend;
     }
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
 }
 
 void setProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     size = ALIGN(size);
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     uintptr_t cur = addr & ~(box64_pagesize-1);
     uintptr_t end = ALIGN(cur+size);
     rb_set(mapallmem, cur, end, 1);
     rb_set(memprot, cur, end, prot);
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
 }
 
 void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
@@ -1169,15 +1187,15 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
         return;
     addr &= ~(box64_pagesize-1);
     size = ALIGN(size);
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     rb_set(mmapmem, addr, addr+size, 1);
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
     if(prot)
         setProtection(addr, size, prot);
     else {
-        mutex_lock(&mutex_prot);
+        LOCK_PROT();
         rb_set(mapallmem, addr, addr+size, 1);
-        mutex_unlock(&mutex_prot);
+        UNLOCK_PROT();
     }
 }
 
@@ -1188,22 +1206,22 @@ void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
     if(prot)
         setProtection(addr, size, prot);
     else {
-        mutex_lock(&mutex_prot);
+        LOCK_PROT();
         rb_set(mapallmem, addr, addr+size, 1);
-        mutex_unlock(&mutex_prot);
+        UNLOCK_PROT();
     }
 }
 
 void refreshProtection(uintptr_t addr)
 {
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     uint32_t prot;
     uintptr_t bend;
     if (rb_get_end(memprot, addr, &prot, &bend)) {
         int ret = mprotect((void*)(addr&~(box64_pagesize-1)), box64_pagesize, prot&~PROT_CUSTOM);
         dynarec_log(LOG_DEBUG, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)(addr&~(box64_pagesize-1)), prot, ret, ret?strerror(errno):"ok");
     }
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
 }
 
 void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
@@ -1211,9 +1229,9 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
     size = ALIGN(size);
     addr &= ~(box64_pagesize-1);
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     rb_set(mapallmem, addr, addr+size, 1);
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
     // don't need to add precise tracking probably
 }
 
@@ -1254,18 +1272,18 @@ void freeProtection(uintptr_t addr, size_t size)
     size = ALIGN(size);
     addr &= ~(box64_pagesize-1);
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
-    mutex_lock(&mutex_prot);
+    LOCK_PROT();
     rb_unset(mapallmem, addr, addr+size);
     rb_unset(mmapmem, addr, addr+size);
     rb_unset(memprot, addr, addr+size);
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT();
 }
 
 uint32_t getProtection(uintptr_t addr)
 {
-    mutex_lock(&mutex_prot);
+    LOCK_PROT_READ();
     uint32_t ret = rb_get(memprot, addr);
-    mutex_unlock(&mutex_prot);
+    UNLOCK_PROT_READ();
     return ret;
 }
 
@@ -1280,7 +1298,7 @@ int getMmapped(uintptr_t addr)
 
 void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
-    int prot;
+    uint32_t prot;
     if(hint<LOWEST) hint = LOWEST;
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
@@ -1313,7 +1331,7 @@ void* find47bitBlock(size_t size)
 }
 void* find47bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
-    int prot;
+    uint32_t prot;
     if(hint<LOWEST) hint = LOWEST;
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
@@ -1347,7 +1365,7 @@ void* find47bitBlockElf(size_t size, int mainbin, uintptr_t mask)
 
 int isBlockFree(void* hint, size_t size)
 {
-    int prot;
+    uint32_t prot;
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
     if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
@@ -1425,7 +1443,7 @@ void reserveHighMem()
         return; // don't reserve by default
     uintptr_t cur = 1ULL<<47;
     uintptr_t bend = 0;
-    int prot;
+    uint32_t prot;
     while (bend!=0xffffffffffffffffLL) {
         if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
             void* ret = internal_mmap((void*)cur, bend-cur, 0, MAP_ANONYMOUS|MAP_FIXED|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
