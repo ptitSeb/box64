@@ -369,15 +369,19 @@ static size_t roundSize(size_t size)
 static uintptr_t    defered_prot_p = 0;
 static size_t       defered_prot_sz = 0;
 static uint32_t     defered_prot_prot = 0;
-#define LOCK_PROT()         mutex_lock(&mutex_prot)
-#define LOCK_PROT_READ()    mutex_lock(&mutex_prot)
-#define UNLOCK_PROT()       if(defered_prot_p) {    \
+static sigset_t     critical_prot = {0};
+#define LOCK_PROT()         sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
+#define LOCK_PROT_READ()    sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
+#define UNLOCK_PROT()       if(defered_prot_p) {                                \
                                 uintptr_t p = defered_prot_p; size_t sz = defered_prot_sz; uint32_t prot = defered_prot_prot; \
-                                defered_prot_p = 0; \
-                                mutex_unlock(&mutex_prot); \
-                                setProtection(p, sz, prot); \
-                            } else mutex_unlock(&mutex_prot)
-#define UNLOCK_PROT_READ()  mutex_unlock(&mutex_prot)
+                                defered_prot_p = 0;                             \
+                                mutex_unlock(&mutex_prot);                      \
+                                setProtection(p, sz, prot);                     \
+                            } else {                                            \
+                                mutex_unlock(&mutex_prot);                      \
+                            }                                                   \
+                            pthread_sigmask(SIG_SETMASK, &old_sig, NULL)
+#define UNLOCK_PROT_READ()  mutex_unlock(&mutex_prot); pthread_sigmask(SIG_SETMASK, &old_sig, NULL)
 
 
 #ifdef TRACE_MEMSTAT
@@ -1464,6 +1468,7 @@ void init_custommem_helper(box64context_t* ctx)
         return;
     inited = 1;
     memprot = init_rbtree();
+    sigfillset(&critical_prot);
     init_mutexes();
 #ifdef DYNAREC
     if(box64_dynarec) {
