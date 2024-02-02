@@ -20,9 +20,7 @@
 #ifdef HAVE_TRACE
 #include "x64trace.h"
 #endif
-#ifdef DYNAREC
 #include "custommem.h"
-#endif
 // for the applyFlushTo0
 #ifdef __x86_64__
 #include <immintrin.h>
