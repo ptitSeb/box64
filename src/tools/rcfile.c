@@ -630,6 +630,7 @@ void ApplyParams(const char* name)
     if(param->is_box64_dynarec_test_present && box64_dynarec_test) {
         box64_dynarec_fastnan = 0;
         box64_dynarec_fastround = 0;
+        box64_dynarec_x87double = 1;
         box64_dynarec_callret = 0;
     }
     #endif
