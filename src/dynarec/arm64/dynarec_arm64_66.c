@@ -705,11 +705,14 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x9C:
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
+            WILLWRITE();
             PUSH1_16(xFlags);
+            SMWRITE();
             break;
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
+            SMREAD();
             POP1_16(x1);    // probably not usefull...
             BFIw(xFlags, x1, 0, 16);
             MOV32w(x1, 0x3F7FD7);
@@ -746,11 +749,13 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u64 = F64;
             MOV64z(x1, u64);
             if(isLockAddress(u64)) lock=1; else lock = 0;
+            WILLWRITELOCK(lock);
             STRH_U12(xRAX, x1, 0);
             SMWRITELOCK(lock);
             break;
 
         case 0xA5:
+            SMREAD();
             if(rep) {
                 INST_NAME("REP MOVSW");
                 CBZx_NEXT(xRCX);
@@ -775,9 +780,11 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 ADDx_REG(xRSI, xRSI, x3);
                 ADDx_REG(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
 
         case 0xA7:
+            SMREAD();
             switch(rep) {
             case 1:
             case 2:
@@ -827,6 +834,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0xAB:
+            WILLWRITE();
             if(rep) {
                 INST_NAME("REP STOSW");
                 CBZx_NEXT(xRCX);
@@ -835,11 +843,12 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRH_S9_postindex(xRAX, xRDI, 2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
-                B_NEXT_nocond;
+                B_MARK3_nocond;
                 MARK2;  // Part with DF==1
                 STRH_S9_postindex(xRAX, xRDI, -2);
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK2(xRCX);
+                MARK3;
                 // done
             } else {
                 INST_NAME("STOSW");
@@ -847,6 +856,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 STRH_U12(xRAX, xRDI, 0);
                 ADDx_REG(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
 
         case 0xAD:

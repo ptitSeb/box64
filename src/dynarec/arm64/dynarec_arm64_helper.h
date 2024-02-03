@@ -34,30 +34,51 @@
 
 // Strong mem emulation helpers
 #define SMREAD_MIN  2
-#define SMWRITE_MIN 1
-// Sequence of Read will trigger a DMB on "first" read if strongmem is >= SMREAD_MIN
+#define SMFIRST_MIN 1
+#if STEP == 0
+// pass 0 will store is opcode write memory
+#define SMWRITE()   dyn->insts[ninst].will_write = 1; dyn->smwrite = 1
+#define SMREAD()
+#define SMREADLOCK(lock)
+#define SMMIGHTREAD()
+#define SMWRITE2()   if(box64_dynarec_strongmem>SMREAD_MIN) {SMWRITE();}
+#define SMWRITELOCK(lock)   SMWRITE()
+#define WILLWRITELOCK(lock)
+#define WILLWRITE()
+#define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
+#define SMSTART() dyn->smwrite = 0;
+#define SMEND() if(dyn->smwrite && (box64_dynarec_strongmem>SMFIRST_MIN)) {int i = ninst; while(i>=0 && !dyn->insts[i].will_write) --i; if(i>=0) {dyn->insts[i].last_write = 1;}} dyn->smwrite = 0
+#define SMDMB()
+#else
 // Sequence of Write will trigger a DMB on "last" write if strongmem is >= 1
-// All Write operation that might use a lock all have a memory barrier if strongmem is >= SMWRITE_MIN
+// Block will trigget at 1st and last if strongmem is >= SMFIRST_MIN
+// Read will contribute to trigger a DMB on "first" read if strongmem is >= SMREAD_MIN
 // Opcode will read
-#define SMREAD()    if((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN)) {SMDMB();} else dyn->smread=1
+#define SMREAD()    if(dyn->insts[ninst].will_write) {WILLWRITE();} else if(box64_dynarec_strongmem>SMREAD_MIN) {SMWRITE();}
 // Opcode will read with option forced lock
-#define SMREADLOCK(lock)    if((lock) || ((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN))) {SMDMB();}
+#define SMREADLOCK(lock)    if((lock) || (box64_dynarec_strongmem>SMREAD_MIN)) {SMWRITELOCK(lock);}
 // Opcode might read (depend on nextop)
 #define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
 // Opcode has wrote
-#define SMWRITE()   dyn->smwrite=1
+#define SMWRITE()   if((box64_dynarec_strongmem>=SMFIRST_MIN) && dyn->smwrite==0) {SMDMB();} dyn->smwrite=1
 // Opcode has wrote (strongmem>1 only)
-#define SMWRITE2()   if(box64_dynarec_strongmem>SMREAD_MIN) dyn->smwrite=1
+#define SMWRITE2()   if(box64_dynarec_strongmem>SMREAD_MIN) {SMWRITE();}
 // Opcode has wrote with option forced lock
-#define SMWRITELOCK(lock)   if(lock || (box64_dynarec_strongmem>SMWRITE_MIN)) {SMDMB();} else dyn->smwrite=1
+#define SMWRITELOCK(lock)   if(lock) {SMDMB();} else {SMWRITE();}
+// Opcode has wrote with option forced lock
+#define WILLWRITELOCK(lock)   if(lock) {DMB_ISH();} else {WILLWRITE();}
 // Opcode might have wrote (depend on nextop)
 #define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
+// Opcode will write (without reading)
+#define WILLWRITE() if((box64_dynarec_strongmem>=SMFIRST_MIN) && dyn->smwrite==0) {SMDMB();} else if(box64_dynarec_strongmem>=SMFIRST_MIN && dyn->insts[ninst].last_write) {SMDMB();} dyn->smwrite=1
 // Start of sequence
 #define SMSTART()   SMEND()
 // End of sequence
-#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {if(box64_dynarec_strongmem){DSB_ISH();}else{DMB_ISH();}} dyn->smwrite=0; dyn->smread=0;
+#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {DMB_ISH();} dyn->smwrite=0;
 // Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()     if(box64_dynarec_strongmem){DSB_ISH();}else{DMB_ISH();} dyn->smwrite=0; dyn->smread=1
+#define SMDMB()     if(box64_dynarec_strongmem){DSB_ISH();}else{DMB_ISH();} dyn->smwrite=0;
+
+#endif
 
 //LOCK_* define
 #define LOCK_LOCK   (int*)1

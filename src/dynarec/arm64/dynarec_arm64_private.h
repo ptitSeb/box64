@@ -76,7 +76,9 @@ typedef struct instruction_arm64_s {
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
     uintptr_t           natcall;
     int                 retn;
-    int                 barrier_maybe;
+    uint8_t             barrier_maybe;
+    uint8_t             will_write;
+    uint8_t             last_write;
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
@@ -109,12 +111,11 @@ typedef struct dynarec_arm_s {
     dynablock_t*        dynablock;
     instsize_t*         instsize;
     size_t              insts_size; // size of the instruction size array (calculated)
-    uint8_t             smread;     // for strongmem model emulation
-    uint8_t             smwrite;    // for strongmem model emulation
     uintptr_t           forward;    // address of the last end of code while testing forward
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
+    uint8_t             smwrite;    // for strongmem model emulation
     uint8_t             doublepush;
     uint8_t             doublepop;
     uint8_t             always_test;
