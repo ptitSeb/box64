@@ -729,6 +729,25 @@ void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy)
     }
 }
 
+// Will return 1 if at least 1 db in the address range
+int isDBFromAddressRange(uintptr_t addr, size_t size)
+{
+    uintptr_t start_addr = my_context?((addr<my_context->max_db_size)?0:(addr-my_context->max_db_size)):addr;
+    dynarec_log(LOG_DEBUG, "isDBFromAddressRange %p/%p -> %p => ", (void*)addr, (void*)start_addr, (void*)(addr+size-1));
+    dynablock_t* db = NULL;
+    uintptr_t end = addr+size;
+    while (start_addr<end) {
+        start_addr = getDBSize(start_addr, end-start_addr, &db);
+        if(db) {
+            dynarec_log(LOG_DEBUG, "1\n");
+            return 1;
+        }
+    }
+    dynarec_log(LOG_DEBUG, "0\n");
+    return 0;
+}
+
+
 #ifdef JMPTABL_SHIFT4
 static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3, uintptr_t idx4)
 {
