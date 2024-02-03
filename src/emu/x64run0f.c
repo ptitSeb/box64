@@ -1084,19 +1084,24 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0xAE:                      /* Grp Ed (SSE) */
             nextop = F8;
-            if((nextop&0xF8)==0xE8) {
-                return addr;            /* LFENCE */
-            }
-            if((nextop&0xF8)==0xF0) {
-                return addr;            /* MFENCE */
-            }
-            if((nextop&0xF8)==0xF8) {
-                return addr;            /* SFENCE */
-            }
+            if(MODREG)
+                switch(nextop) {
+                    case 0xE8:
+                        return addr;            /* LFENCE */
+                    case 0xF0:
+                        return addr;            /* MFENCE */
+                    case 0xF8:
+                        return addr;            /* SFENCE */
+                    default:
+                        return 0;
+                }
+            else
             switch((nextop>>3)&7) {
                 case 0:                 /* FXSAVE Ed */
                     _GETED(0);
-                    #ifndef TEST_INTERPRETER
+                    #ifdef TEST_INTERPRETER
+                    emu->sw.f.F87_TOP = emu->top&7;
+                    #else
                     if(rex.w)
                         fpu_fxsave64(emu, ED);
                     else
