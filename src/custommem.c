@@ -960,6 +960,15 @@ uintptr_t getJumpTable64()
     #endif
 }
 
+uintptr_t getJumpTable32()
+{
+    #ifdef JMPTABL_SHIFT4
+    return (uintptr_t)box64_jmptbl4[0][0];
+    #else
+    return (uintptr_t)box64_jmptbl3[0];
+    #endif
+}
+
 uintptr_t getJumpTableAddress64(uintptr_t addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;

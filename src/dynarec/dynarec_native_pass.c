@@ -315,7 +315,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             ++ninst;
             NOTEST(x3);
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-            jump_to_next(dyn, addr, 0, ninst);
+            jump_to_next(dyn, addr, 0, ninst, rex.is32bits);
             ok=0; need_epilog=0;
         }
     }
