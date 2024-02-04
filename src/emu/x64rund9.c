@@ -38,6 +38,7 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #endif
 
     nextop = F8;
+    if(MODREG)
     switch (nextop) {
         case 0xC0:
         case 0xC1:
@@ -223,18 +224,9 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
 
 
-        case 0xD1:
-        case 0xD4:
-        case 0xD5:
-        case 0xD6:
-        case 0xD7:
-        case 0xE2:
-        case 0xE3:
-        case 0xE6:
-        case 0xE7:
-        case 0xEF:
-            return 0;
         default:
+            return 0;
+    } else
         switch((nextop>>3)&7) {
             case 0:     /* FLD ST0, Ed float */
                 GETE4(0);
@@ -277,6 +269,5 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             default:
                 return 0;
         }
-    }
    return addr;
 }

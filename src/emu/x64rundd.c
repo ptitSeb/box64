@@ -35,88 +35,65 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #endif
 
     nextop = F8;
+    if(MODREG)
     switch (nextop) {
-    case 0xC0:  /* FFREE STx */
-    case 0xC1:
-    case 0xC2:
-    case 0xC3:
-    case 0xC4:
-    case 0xC5:
-    case 0xC6:
-    case 0xC7:
-        fpu_do_free(emu, nextop-0xC0);
-        break;
+        case 0xC0:  /* FFREE STx */
+        case 0xC1:
+        case 0xC2:
+        case 0xC3:
+        case 0xC4:
+        case 0xC5:
+        case 0xC6:
+        case 0xC7:
+            fpu_do_free(emu, nextop-0xC0);
+            break;
 
-    case 0xD0:  /* FST ST0, STx */
-    case 0xD1:
-    case 0xD2:
-    case 0xD3:
-    case 0xD4:
-    case 0xD5:
-    case 0xD6:
-    case 0xD7:
-        ST(nextop&7).q = ST0.q;
-        break;
-    case 0xD8:  /* FSTP ST0, STx */
-    case 0xD9:
-    case 0xDA:
-    case 0xDB:
-    case 0xDC:
-    case 0xDD:
-    case 0xDE:
-    case 0xDF:
-        ST(nextop&7).q = ST0.q;
-        fpu_do_pop(emu);
-        break;
-    case 0xE0:  /* FUCOM ST0, STx */
-    case 0xE1:
-    case 0xE2:
-    case 0xE3:
-    case 0xE4:
-    case 0xE5:
-    case 0xE6:
-    case 0xE7:
-        fpu_fcom(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
-        break;
-    case 0xE8:  /* FUCOMP ST0, STx */
-    case 0xE9:
-    case 0xEA:
-    case 0xEB:
-    case 0xEC:
-    case 0xED:
-    case 0xEE:
-    case 0xEF:
-        fpu_fcom(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
-        fpu_do_pop(emu);
-        break;
+        case 0xD0:  /* FST ST0, STx */
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+        case 0xD4:
+        case 0xD5:
+        case 0xD6:
+        case 0xD7:
+            ST(nextop&7).q = ST0.q;
+            break;
+        case 0xD8:  /* FSTP ST0, STx */
+        case 0xD9:
+        case 0xDA:
+        case 0xDB:
+        case 0xDC:
+        case 0xDD:
+        case 0xDE:
+        case 0xDF:
+            ST(nextop&7).q = ST0.q;
+            fpu_do_pop(emu);
+            break;
+        case 0xE0:  /* FUCOM ST0, STx */
+        case 0xE1:
+        case 0xE2:
+        case 0xE3:
+        case 0xE4:
+        case 0xE5:
+        case 0xE6:
+        case 0xE7:
+            fpu_fcom(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+            break;
+        case 0xE8:  /* FUCOMP ST0, STx */
+        case 0xE9:
+        case 0xEA:
+        case 0xEB:
+        case 0xEC:
+        case 0xED:
+        case 0xEE:
+        case 0xEF:
+            fpu_fcom(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+            fpu_do_pop(emu);
+            break;
 
-    case 0xC8:
-    case 0xC9:
-    case 0xCA:
-    case 0xCB:
-    case 0xCC:
-    case 0xCD:
-    case 0xCE:
-    case 0xCF:
-    case 0xF0:
-    case 0xF1:
-    case 0xF2:
-    case 0xF3:
-    case 0xF4:
-    case 0xF5:
-    case 0xF6:
-    case 0xF7:
-    case 0xF8:
-    case 0xF9:
-    case 0xFA:
-    case 0xFB:
-    case 0xFC:
-    case 0xFD:
-    case 0xFE:
-    case 0xFF:
-        return 0;
-
-    default:
+        default:
+            return 0;
+    } else
         switch((nextop>>3)&7) {
             case 0: /* FLD double */
                 GETE8(0);
@@ -183,6 +160,5 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
             default:
                 return 0;
         }
-    }
    return addr;
 }

@@ -35,6 +35,7 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #endif
 
     nextop = F8;
+    if(MODREG)
     switch (nextop) {
     case 0xC0:      /* FCMOVB ST(0), ST(i) */
     case 0xC1:
@@ -91,18 +92,9 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
         fpu_do_pop(emu);
         break;
 
-    case 0xE4:
-    case 0xF0:
-    case 0xF1:
-    case 0xF4:
-    case 0xF5:
-    case 0xF6:
-    case 0xF7:
-    case 0xF8:
-    case 0xF9:
-    case 0xFD:
-        return 0;
     default:
+        return 0;
+    } else
         switch((nextop>>3)&7) {
             case 0:     /* FIADD ST0, Ed int */
                 GETE4(0);
@@ -138,6 +130,5 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 ST0.d = (double)ED->sdword[0] / ST0.d;
                 break;
         }
-   }
    return addr;
 }
