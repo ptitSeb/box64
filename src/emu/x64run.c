@@ -1436,6 +1436,10 @@ x64emurun:
             }
             break;
         case 0xCE:                      /* INTO */
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
             emu->old_ip = R_RIP;
             #ifndef TEST_INTERPRETER
             CHECK_FLAGS(emu);
