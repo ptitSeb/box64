@@ -1283,7 +1283,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     READFLAGS(X_PEND);
                     BARRIER(BARRIER_FLOAT);
                     GETEDz(0);
-                    jump_to_next(dyn, 0, ed, ninst, rex.is32bits;
+                    jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                     *need_epilog = 0;
                     *ok = 0;
                     break;
