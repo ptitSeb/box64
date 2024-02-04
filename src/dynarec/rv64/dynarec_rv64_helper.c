@@ -475,7 +475,7 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
 #ifdef JMPTABLE_SHIFT4
 #error TODO!
 #endif
-void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
+void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
@@ -484,12 +484,14 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
         if(reg!=xRIP) {
             MV(xRIP, reg);
         }
-        uintptr_t tbl = getJumpTable64();
+        uintptr_t tbl = is32bits?getJumpTable32():getJumpTable64();
         MAYUSE(tbl);
         TABLE64(x3, tbl);
-        SRLI(x2, xRIP, JMPTABL_START3);
-        if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
-        LD(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
+        if(!is32bits) {
+            SRLI(x2, xRIP, JMPTABL_START3);
+            if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
+            LD(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
+        }
         MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
         SRLI(x2, xRIP, JMPTABL_START2-3);
         AND(x2, x2, x4);
@@ -549,11 +551,13 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
         ADDI(xSP, xSP, -16);
     }
 
-    uintptr_t tbl = getJumpTable64();
+    uintptr_t tbl = rex.is32bits?getJumpTable32():getJumpTable64();
     MOV64x(x3, tbl);
-    SRLI(x2, xRIP, JMPTABL_START3);
-    if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
-    LD(x3, x3, 0);
+    if(!rex.is32bits) {
+        SRLI(x2, xRIP, JMPTABL_START3);
+        if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
+        LD(x3, x3, 0);
+    }
     MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
     SRLI(x2, xRIP, JMPTABL_START2-3);
     AND(x2, x2, x4);
@@ -604,11 +608,13 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
         LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
         ADDI(xSP, xSP, -16);
     }
-    uintptr_t tbl = getJumpTable64();
+    uintptr_t tbl = rex.is32bits?getJumpTable32():getJumpTable64();
     MOV64x(x3, tbl);
-    SRLI(x2, xRIP, JMPTABL_START3);
-    if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
-    LD(x3, x3, 0);
+    if(!rex.is32bits) {
+        SRLI(x2, xRIP, JMPTABL_START3);
+        if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
+        LD(x3, x3, 0);
+    }
     MOV64x(x4, JMPTABLE_MASK2<<3);    // x4 = mask
     SRLI(x2, xRIP, JMPTABL_START2-3);
     AND(x2, x2, x4);
