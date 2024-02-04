@@ -152,7 +152,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(arm64_frintts) {
                         FRINT64ZD(s0, v1);
                         FCVTZSxD(x2, s0);
-                        STRx_U12(x2, ed, fixedaddress);
+                        STx(x2, ed, fixedaddress);
                     } else {
                         MRS_fpsr(x5);
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
