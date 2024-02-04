@@ -75,5 +75,11 @@ GO(curl_slist_free_all, vFp)
 //GO(curl_strequal, 
 //GO(curl_strnequal, 
 //GO(curl_unescape, 
+GO(curl_url, pFv)
+GO(curl_url_cleanup, vFp)
+GO(curl_url_dup, pFp)
+GO(curl_url_get, iFpipu)
+GO(curl_url_set, iFpipu)
+GO(curl_url_strerror, pFi)
 GO(curl_version, pFv)
 GO(curl_version_info, pFi)
