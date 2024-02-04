@@ -19,9 +19,14 @@ typedef intptr_t (*lFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFlpppp_t)(intptr_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(SSL_CTX_get_default_passwd_cb, pFp_t) \
+	GO(SSL_CTX_get_verify_callback, pFp_t) \
 	GO(SSL_get_verify_callback, pFp_t) \
 	GO(SSL_CTX_set_client_cert_cb, vFpp_t) \
 	GO(SSL_CTX_set_default_passwd_cb, vFpp_t) \
+	GO(SSL_CTX_set_keylog_callback, vFpp_t) \
+	GO(SSL_CTX_set_msg_callback, vFpp_t) \
+	GO(SSL_set_msg_callback, vFpp_t) \
 	GO(SSL_set_psk_client_callback, vFpp_t) \
 	GO(SSL_CTX_set_verify, vFpip_t) \
 	GO(SSL_set_verify, vFpip_t) \

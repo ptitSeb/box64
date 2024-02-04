@@ -1194,6 +1194,7 @@
 #() pFipip
 #() pFippi
 #() pFippu
+#() pFippL
 #() pFippp
 #() pFuuii
 #() pFuuip
@@ -1767,6 +1768,7 @@
 #() pFpppLi
 #() pFppppi
 #() pFppppu
+#() pFppppL
 #() pFppppp
 #() pFbuWWW
 #() pFbuuWW
@@ -2829,6 +2831,7 @@
 #() iFpCuWCCCCup
 #() iFpuuLiuiiLL
 #() iFpLLpiiuuii
+#() iFpLpLUUUUpL
 #() iFppuuiiiiii
 #() iFppuuiiuupi
 #() iFpppiiipipi
@@ -3121,14 +3124,19 @@ wrappedcrypto3:
   - X509_STORE_CTX_set_verify_cb
 - pFpp:
   - OPENSSL_sk_pop_free
+- vFppp:
+  - EVP_MD_do_all_provided
 - iFppp:
   - ASN1_i2d_bio
+- iFppV:
+  - BIO_printf
 - vFiipV:
   - ERR_set_error
 - vFiipA:
   - ERR_vset_error
 - pFpppp:
   - ASN1_d2i_bio
+  - PEM_read_DHparams
   - PEM_read_bio_DSAPrivateKey
   - PEM_read_bio_DSA_PUBKEY
   - PEM_read_bio_ECPrivateKey
@@ -4734,10 +4742,15 @@ wrappedlibssl:
   - SSL_get_ex_new_index
 wrappedlibssl3:
 - pFp:
+  - SSL_CTX_get_default_passwd_cb
+  - SSL_CTX_get_verify_callback
   - SSL_get_verify_callback
 - vFpp:
   - SSL_CTX_set_client_cert_cb
   - SSL_CTX_set_default_passwd_cb
+  - SSL_CTX_set_keylog_callback
+  - SSL_CTX_set_msg_callback
+  - SSL_set_msg_callback
   - SSL_set_psk_client_callback
 - vFpip:
   - SSL_CTX_set_verify
