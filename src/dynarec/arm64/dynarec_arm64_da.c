@@ -42,6 +42,7 @@ uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(ed);
     MAYUSE(j64);
 
+    if(MODREG)
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -134,106 +135,95 @@ uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
-        case 0xE4:
-        case 0xF0:
-        case 0xF1:
-        case 0xF4:
-        case 0xF5:
-        case 0xF6:
-        case 0xF7:
-        case 0xF8:
-        case 0xF9:
-        case 0xFD:
+        default:
             DEFAULT;
             break;
-
-        default:
-            switch((nextop>>3)&7) {
-                case 0:
-                    INST_NAME("FIADD ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FADDD(v1, v1, v2);
-                    break;
-                case 1:
-                    INST_NAME("FIMUL ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FMULD(v1, v1, v2);
-                    break;
-                case 2:
-                    INST_NAME("FICOM ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FCMPD(v1, v2);
-                    FCOM(x1, x2, x3);
-                    break;
-                case 3:
-                    INST_NAME("FICOMP ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FCMPD(v1, v2);
-                    FCOM(x1, x2, x3);
-                    X87_POP_OR_FAIL(dyn, ninst, x3);
-                    break;
-                case 4:
-                    INST_NAME("FISUB ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FSUBD(v1, v1, v2);
-                    break;
-                case 5:
-                    INST_NAME("FISUBR ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FSUBD(v1, v2, v1);
-                    break;
-                case 6:
-                    INST_NAME("FIDIV ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FDIVD(v1, v1, v2);
-                    break;
-                case 7:
-                    INST_NAME("FIDIVR ST0, Ed");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-                    v2 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v2, ed, fixedaddress);
-                    SXTL_32(v2, v2);    // i32 -> i64
-                    SCVTFDD(v2, v2);    // i64 -> double
-                    FDIVD(v1, v2, v1);
-                    break;
-            }
-    }
+    } else
+        switch((nextop>>3)&7) {
+            case 0:
+                INST_NAME("FIADD ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FADDD(v1, v1, v2);
+                break;
+            case 1:
+                INST_NAME("FIMUL ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FMULD(v1, v1, v2);
+                break;
+            case 2:
+                INST_NAME("FICOM ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FCMPD(v1, v2);
+                FCOM(x1, x2, x3);
+                break;
+            case 3:
+                INST_NAME("FICOMP ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FCMPD(v1, v2);
+                FCOM(x1, x2, x3);
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
+            case 4:
+                INST_NAME("FISUB ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FSUBD(v1, v1, v2);
+                break;
+            case 5:
+                INST_NAME("FISUBR ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FSUBD(v1, v2, v1);
+                break;
+            case 6:
+                INST_NAME("FIDIV ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FDIVD(v1, v1, v2);
+                break;
+            case 7:
+                INST_NAME("FIDIVR ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v2, ed, fixedaddress);
+                SXTL_32(v2, v2);    // i32 -> i64
+                SCVTFDD(v2, v2);    // i64 -> double
+                FDIVD(v1, v2, v1);
+                break;
+        }
     return addr;
 }
 

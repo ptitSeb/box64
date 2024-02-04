@@ -41,6 +41,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(v2);
     MAYUSE(v1);
 
+    if(MODREG)
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -462,92 +463,79 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CALL(native_fcos, -1);
             x87_unstackcount(dyn, ninst, x1, i1);
             break;
-
-
-        case 0xD1:
-        case 0xD4:
-        case 0xD5:
-        case 0xD6:
-        case 0xD7:
-        case 0xE2:
-        case 0xE3:
-        case 0xE6:
-        case 0xE7:
-        case 0xEF:
+        default:
             DEFAULT;
             break;
-
-        default:
-            switch((nextop>>3)&7) {
-                case 0:
-                    INST_NAME("FLD ST0, float[ED]");
-                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box64_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(v1, ed, fixedaddress);
-                    if(!ST_IS_F(0)) {
-                        FCVT_D_S(v1, v1);
-                    }
-                    break;
-                case 2:
-                    INST_NAME("FST float[ED], ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    if(ST_IS_F(0))
-                        s0 = v1;
-                    else {
-                        s0 = fpu_get_scratch(dyn);
-                        FCVT_S_D(s0, v1);
-                    }
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VST32(s0, ed, fixedaddress);
-                    break;
-                case 3:
-                    INST_NAME("FSTP float[ED], ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    if(!ST_IS_F(0)) {
-                        FCVT_S_D(v1, v1);
-                    }
-                    VST32(v1, ed, fixedaddress);
-                    X87_POP_OR_FAIL(dyn, ninst, x3);
-                    break;
-                case 4:
-                    INST_NAME("FLDENV Ed");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    if(ed!=x1) {
-                        MOVx_REG(x1, ed);
-                    }
-                    MOV32w(x2, 0);
-                    CALL(fpu_loadenv, -1);
-                    break;
-                case 5:
-                    INST_NAME("FLDCW Ew");
-                    GETEW(x1, 0);
-                    STRH_U12(x1, xEmu, offsetof(x64emu_t, cw));    // hopefully cw is not too far for an imm8
-                    break;
-                case 6:
-                    INST_NAME("FNSTENV Ed");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    if(ed!=x1) {
-                        MOVx_REG(x1, ed);
-                    }
-                    MOV32w(x2, 0);
-                    CALL(fpu_savenv, -1);
-                    break;
-                case 7:
-                    INST_NAME("FNSTCW Ew");
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                    ed = x1;
-                    wb1 = 1;
-                    LDRH_U12(x1, xEmu, offsetof(x64emu_t, cw));
-                    EWBACK;
-                    break;
-                default:
-                    DEFAULT;
-            }
-    }
+    } else
+        switch((nextop>>3)&7) {
+            case 0:
+                INST_NAME("FLD ST0, float[ED]");
+                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, box64_dynarec_x87double?NEON_CACHE_ST_D:NEON_CACHE_ST_F);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(v1, ed, fixedaddress);
+                if(!ST_IS_F(0)) {
+                    FCVT_D_S(v1, v1);
+                }
+                break;
+            case 2:
+                INST_NAME("FST float[ED], ST0");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                if(ST_IS_F(0))
+                    s0 = v1;
+                else {
+                    s0 = fpu_get_scratch(dyn);
+                    FCVT_S_D(s0, v1);
+                }
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VST32(s0, ed, fixedaddress);
+                break;
+            case 3:
+                INST_NAME("FSTP float[ED], ST0");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                if(!ST_IS_F(0)) {
+                    FCVT_S_D(v1, v1);
+                }
+                VST32(v1, ed, fixedaddress);
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
+            case 4:
+                INST_NAME("FLDENV Ed");
+                MESSAGE(LOG_DUMP, "Need Optimization\n");
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if(ed!=x1) {
+                    MOVx_REG(x1, ed);
+                }
+                MOV32w(x2, 0);
+                CALL(fpu_loadenv, -1);
+                break;
+            case 5:
+                INST_NAME("FLDCW Ew");
+                GETEW(x1, 0);
+                STRH_U12(x1, xEmu, offsetof(x64emu_t, cw));    // hopefully cw is not too far for an imm8
+                break;
+            case 6:
+                INST_NAME("FNSTENV Ed");
+                MESSAGE(LOG_DUMP, "Need Optimization\n");
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if(ed!=x1) {
+                    MOVx_REG(x1, ed);
+                }
+                MOV32w(x2, 0);
+                CALL(fpu_savenv, -1);
+                break;
+            case 7:
+                INST_NAME("FNSTCW Ew");
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                ed = x1;
+                wb1 = 1;
+                LDRH_U12(x1, xEmu, offsetof(x64emu_t, cw));
+                EWBACK;
+                break;
+            default:
+                DEFAULT;
+        }
     return addr;
 }
