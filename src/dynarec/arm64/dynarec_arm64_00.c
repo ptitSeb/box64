@@ -2130,7 +2130,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
-            SKIPTEST(x1);
+            NOTEST(x1);
             if(PK(0)=='S' && PK(1)=='C') {
                 addr+=2;
                 //BARRIER(BARRIER_FLOAT);
@@ -3041,6 +3041,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET);
                     GETEB(x1, 0);
                     UXTHw(x2, xRAX);
+                    if(box64_dynarec_div0) {
+                        CBNZw_MARK3(ed);
+                        GETIP_(ip);
+                        STORE_XEMU_CALL(xRIP);
+                        CALL(native_div0, -1);
+                        CLEARIP();
+                        LOAD_XEMU_CALL(xRIP);
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
                     UDIVw(x3, x2, ed);
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
                     BFIx(xRAX, x3, 0, 8);
@@ -3051,6 +3061,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
                     GETSEB(x1, 0);
+                    if(box64_dynarec_div0) {
+                        CBNZw_MARK3(ed);
+                        GETIP_(ip);
+                        STORE_XEMU_CALL(xRIP);
+                        CALL(native_div0, -1);
+                        CLEARIP();
+                        LOAD_XEMU_CALL(xRIP);
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
                     SXTHw(x2, xRAX);
                     SDIVw(x3, x2, ed);
                     MSUBw(x4, x3, ed, x2);  // x4 = x2 mod ed (i.e. x2 - x3*ed)
@@ -3137,6 +3157,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             CALL(native_div0, -1);
                             LOAD_XEMU_CALL(xRIP);
                         } else {
+                            if(box64_dynarec_div0) {
+                                CBNZx_MARK3(ed);
+                                GETIP_(ip);
+                                STORE_XEMU_CALL(xRIP);
+                                CALL(native_div0, -1);
+                                CLEARIP();
+                                LOAD_XEMU_CALL(xRIP);
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
                             MOVw_REG(x3, xRAX);
                             ORRx_REG_LSL(x3, x3, xRDX, 32);
                             if(MODREG) {
@@ -3155,11 +3185,31 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
                             SET_DFNONE(x2);
                             GETED(0);
+                            if(box64_dynarec_div0) {
+                                CBNZx_MARK3(ed);
+                                GETIP_(ip);
+                                STORE_XEMU_CALL(xRIP);
+                                CALL(native_div0, -1);
+                                CLEARIP();
+                                LOAD_XEMU_CALL(xRIP);
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
                             UDIVx(x2, xRAX, ed);
                             MSUBx(xRDX, x2, ed, xRAX);
                             MOVx_REG(xRAX, x2);
                         } else {
                             GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
+                            if(box64_dynarec_div0) {
+                                CBNZx_MARK3(ed);
+                                GETIP_(ip);
+                                STORE_XEMU_CALL(xRIP);
+                                CALL(native_div0, -1);
+                                CLEARIP();
+                                LOAD_XEMU_CALL(xRIP);
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
                             CBZxw_MARK(xRDX);
                             if(ed!=x1) {MOVx_REG(x1, ed);}
                             CALL(div64, -1);
@@ -3179,6 +3229,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(!rex.w) {
                         SET_DFNONE(x2)
                         GETSEDw(0);
+                        if(box64_dynarec_div0) {
+                            CBNZx_MARK3(wb);
+                            GETIP_(ip);
+                            STORE_XEMU_CALL(xRIP);
+                            CALL(native_div0, -1);
+                            CLEARIP();
+                            LOAD_XEMU_CALL(xRIP);
+                            jump_to_epilog(dyn, 0, xRIP, ninst);
+                            MARK3;
+                        }
                         MOVw_REG(x3, xRAX);
                         ORRx_REG_LSL(x3, x3, xRDX, 32);
                         SDIVx(x2, x3, wb);
@@ -3192,11 +3252,31 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
                             SET_DFNONE(x2)
                             GETED(0);
+                            if(box64_dynarec_div0) {
+                                CBNZx_MARK3(ed);
+                                GETIP_(ip);
+                                STORE_XEMU_CALL(xRIP);
+                                CALL(native_div0, -1);
+                                CLEARIP();
+                                LOAD_XEMU_CALL(xRIP);
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
                             SDIVx(x2, xRAX, ed);
                             MSUBx(xRDX, x2, ed, xRAX);
                             MOVx_REG(xRAX, x2);
                         } else {
                             GETEDH(x1, 0);  // get edd changed addr, so cannot be called 2 times for same op...
+                            if(box64_dynarec_div0) {
+                                CBNZx_MARK3(ed);
+                                GETIP_(ip);
+                                STORE_XEMU_CALL(xRIP);
+                                CALL(native_div0, -1);
+                                CLEARIP();
+                                LOAD_XEMU_CALL(xRIP);
+                                jump_to_epilog(dyn, 0, xRIP, ninst);
+                                MARK3;
+                            }
                             //Need to see if RDX==0 and RAX not signed
                             // or RDX==-1 and RAX signed
                             CBNZx_MARK2(xRDX);

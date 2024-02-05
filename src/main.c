@@ -65,6 +65,7 @@ int box64_dynarec_bigblock = 1;
 int box64_dynarec_forward = 128;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_x87double = 0;
+int box64_dynarec_div0 = 0;
 int box64_dynarec_fastnan = 1;
 int box64_dynarec_fastround = 1;
 int box64_dynarec_safeflags = 1;
@@ -622,6 +623,15 @@ void LoadLogEnv()
         if(box64_dynarec_x87double)
             printf_log(LOG_INFO, "Dynarec will use only double for x87 emulation\n");
     }
+    p = getenv("BOX64_DYNAREC_DIV0");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_div0 = p[0]-'0';
+        }
+        if(box64_dynarec_div0)
+            printf_log(LOG_INFO, "Dynarec will check for divide by 0\n");
+    }
     p = getenv("BOX64_DYNAREC_FASTNAN");
     if(p) {
         if(strlen(p)==1) {
@@ -736,6 +746,7 @@ void LoadLogEnv()
             box64_dynarec_fastnan = 0;
             box64_dynarec_fastround = 0;
             box64_dynarec_x87double = 1;
+            box64_dynarec_div0 = 1;
             box64_dynarec_callret = 0;
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }

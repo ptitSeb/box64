@@ -24,6 +24,7 @@ extern int box64_dynarec_strongmem;
 extern int box64_dynarec_fastnan;
 extern int box64_dynarec_fastround;
 extern int box64_dynarec_x87double;
+extern int box64_dynarec_div0;
 extern int box64_dynarec_safeflags;
 extern int box64_dynarec_callret;
 extern int box64_dynarec_bleeding_edge;
