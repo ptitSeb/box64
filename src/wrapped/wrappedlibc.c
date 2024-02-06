@@ -2624,7 +2624,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     void* ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
     #ifndef NOALIGN
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
-      (((uintptr_t)ret>0xffffffffLL) || ((box64_wine || 1) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
+      (((uintptr_t)ret>0xffffffffLL) || ((box64_wine) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
         int olderr = errno;
         if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
         munmap(ret, length);
@@ -2636,7 +2636,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, " tried again with %p, got %p\n", addr, ret);
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED)
             errno = olderr;
-    } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && ((box64_wine || 1)) && (old_addr) && (addr!=ret) &&
+    } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && ((box64_wine)) && (old_addr) && (addr!=ret) &&
              (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
         int olderr = errno;
         if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
