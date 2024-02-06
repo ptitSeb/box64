@@ -12,11 +12,19 @@
 #include "librarian/library_private.h"
 #include "x64emu.h"
 
-const char* pangocairoName = "libpangocairo-1.0.so.0";
+#ifdef ANDROID
+    const char* pangocairoName = "libpangocairo-1.0.so";
+#else
+    const char* pangocairoName = "libpangocairo-1.0.so.0";
+#endif
 #define LIBNAME pangocairo
 
+#ifdef ANDROID
+#define CUSTOM_INIT \
+    setNeededLibs(lib, 1, "libpango-1.0.so");
+#else
 #define CUSTOM_INIT \
     setNeededLibs(lib, 1, "libpango-1.0.so.0");
-
+#endif
 
 #include "wrappedlib_init.h"

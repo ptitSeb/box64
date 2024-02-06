@@ -821,6 +821,34 @@ EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintpt
     if(box64_nogtk) \
         return -1;
 
+#ifdef ANDROID
+#define CUSTOM_INIT \
+    libname = lib->name;                                        \
+    getMy(lib);                                                 \
+    SETALT(my3_);                                               \
+    SetGtkApplicationID(my->gtk_application_get_type());        \
+    SetGtkWidget3ID(my->gtk_widget_get_type());                 \
+    SetGtkFixed3ID(my->gtk_fixed_get_type());                   \
+    SetGtkContainer3ID(my->gtk_container_get_type());           \
+    SetGtkBin3ID(my->gtk_bin_get_type());                       \
+    SetGtkButton3ID(my->gtk_button_get_type());                 \
+    SetGtkMenuButton3ID(my->gtk_menu_button_get_type());        \
+    SetGtkWindow3ID(my->gtk_window_get_type());                 \
+    SetGtkApplicationWindowID(my->gtk_application_window_get_type());\
+    SetGtkListBoxID(my->gtk_list_box_get_type());               \
+    SetGtkListBoxRowID(my->gtk_list_box_row_get_type());        \
+    SetGtkTextView3ID(my->gtk_text_view_get_type());            \
+    SetGtkGrid3ID(my->gtk_grid_get_type());                     \
+    SetGtkMisc3ID(my->gtk_misc_get_type());                     \
+    SetGtkLabel3ID(my->gtk_label_get_type());                   \
+    SetGtkImage3ID(my->gtk_image_get_type());                   \
+    SetGtkEventControllerID(my->gtk_event_controller_get_type());\
+    SetGtkGestureID(my->gtk_gesture_get_type());                \
+    SetGtkGestureSingleID(my->gtk_gesture_single_get_type());   \
+    SetGtkGestureLongPressID(my->gtk_gesture_long_press_get_type());\
+    SetGtkActionID(my->gtk_action_get_type());                  \
+    setNeededLibs(lib, 3, "libgdk-3.so", "libpangocairo-1.0.so", "libgio-2.0.so");
+#else
 #define CUSTOM_INIT \
     libname = lib->name;                                        \
     getMy(lib);                                                 \
@@ -847,6 +875,7 @@ EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintpt
     SetGtkGestureLongPressID(my->gtk_gesture_long_press_get_type());\
     SetGtkActionID(my->gtk_action_get_type());                  \
     setNeededLibs(lib, 3, "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0");
+#endif
 
 #define CUSTOM_FINI \
     freeMy();
