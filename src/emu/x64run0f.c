@@ -101,13 +101,19 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 switch((nextop>>3)&7) {
                     case 0:                 /* SGDT Ed */
                         ED->word[0] = 0x7f;    // dummy return...
-                        ED->word[1] = 0x000c;
-                        ED->word[2] = 0xd000;
+                        if(rex.is32bits) {
+                            *(uint32_t*)(&ED->word[1]) = 0x3000;
+                        } else {
+                            *(uint64_t*)(&ED->word[1]) = 0xfffffe0000077000LL;
+                        }
                         break;
                     case 1:                 /* SIDT Ed */
                         ED->word[0] = 0xfff;    // dummy return, like "disabled"
-                        ED->word[1] = 0;
-                        ED->word[2] = 0;
+                        if(rex.is32bits) {
+                            *(uint32_t*)(&ED->word[1]) = 0x0000;
+                        } else {
+                            *(uint64_t*)(&ED->word[1]) = 0xfffffe0000000000LL;
+                        }
                         break;
                     case 4:                 /* SMSW Ew */
                         // dummy for now... Do I need to track CR0 state?

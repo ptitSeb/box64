@@ -87,17 +87,25 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         MOV32w(x1, 0x7f);
                         STURH_I9(x1, wback, 0);
-                        MOV32w(x1, 0x000c);
-                        STURH_I9(x1, wback, 2);
-                        MOV32w(x1, 0xd000);
-                        STURH_I9(x1, wback, 4);
+                        if(rex.is32bits) {
+                            MOV32w(x1, 0x3000);
+                            STURw_I9(x1, wback, 2);
+                        } else {
+                            MOV64x(x1, 0xfffffe0000077000LL);
+                            STURx_I9(x1, wback, 2);
+                        }
                         break;
                     case 1:
                         INST_NAME("SIDT Ed");
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         MOV32w(x1, 0xfff);
                         STURH_I9(x1, wback, 0);
-                        STURw_I9(xZR, wback, 2);
+                        if(rex.is32bits) {
+                            STURw_I9(xZR, wback, 2);
+                        } else {
+                            MOV64x(x1, 0xfffffe0000000000LL);
+                            STURx_I9(x1, wback, 2);
+                        }
                         break;
                     case 4:
                         INST_NAME("SMSW Ew");
