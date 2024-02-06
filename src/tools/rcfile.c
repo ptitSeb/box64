@@ -145,7 +145,7 @@ ENTRYINT(BOX64_DYNAREC_DUMP, box64_dynarec_dump, 0, 2, 2)           \
 ENTRYINT(BOX64_DYNAREC_LOG, box64_dynarec_log, 0, 3, 2)             \
 ENTRYINT(BOX64_DYNAREC_BIGBLOCK, box64_dynarec_bigblock, 0, 3, 2)   \
 ENTRYSTRING_(BOX64_DYNAREC_FORWARD, box64_dynarec_forward)          \
-ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 3, 2) \
+ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 4, 3) \
 ENTRYBOOL(BOX64_DYNAREC_X87DOUBLE, box64_dynarec_x87double)         \
 ENTRYBOOL(BOX64_DYNAREC_DIV0, box64_dynarec_div0)                   \
 ENTRYBOOL(BOX64_DYNAREC_FASTNAN, box64_dynarec_fastnan)             \

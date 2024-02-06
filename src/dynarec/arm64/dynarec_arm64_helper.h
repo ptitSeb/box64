@@ -33,15 +33,19 @@
 #define PKip(a)   *(uint8_t*)(ip+a)
 
 // Strong mem emulation helpers
-#define SMREAD_MIN  2
+#define SMREAD_MIN  3
+#define SMWRITE2_MIN 1
 #define SMFIRST_MIN 1
+#define SMSEQ_MIN 2
+#define SMSEQ_MAX 3
 #if STEP == 0
 // pass 0 will store is opcode write memory
 #define SMWRITE()   dyn->insts[ninst].will_write = 1; dyn->smwrite = 1
 #define SMREAD()
 #define SMREADLOCK(lock)
 #define SMMIGHTREAD()
-#define SMWRITE2()   if(box64_dynarec_strongmem>SMREAD_MIN) {SMWRITE();}
+#define WILLWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {WILLWRITE();}
+#define SMWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {SMWRITE();}
 #define SMWRITELOCK(lock)   SMWRITE()
 #define WILLWRITELOCK(lock)
 #define WILLWRITE()
@@ -60,11 +64,12 @@
 // Opcode might read (depend on nextop)
 #define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
 // Opcode has wrote
-#define SMWRITE()   if((box64_dynarec_strongmem>=SMFIRST_MIN) && dyn->smwrite==0) {SMDMB();} dyn->smwrite=1
+#define SMWRITE()   if((box64_dynarec_strongmem>=SMFIRST_MIN) && dyn->smwrite==0) {SMDMB();} if(box64_dynarec_strongmem>SMSEQ_MIN) {if(++dyn->smwrite>=SMSEQ_MAX) {SMDMB(); dyn->smwrite=1;}} else dyn->smwrite=1
 // Opcode has wrote (strongmem>1 only)
-#define SMWRITE2()   if(box64_dynarec_strongmem>SMREAD_MIN) {SMWRITE();}
+#define WILLWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {WILLWRITE();}
+#define SMWRITE2()   if(box64_dynarec_strongmem>SMWRITE2_MIN) {SMWRITE();}
 // Opcode has wrote with option forced lock
-#define SMWRITELOCK(lock)   if(lock) {SMDMB();} else {SMWRITE();}
+#define SMWRITELOCK(lock)   if(lock) {SMDMB(); dyn->smwrite=1;} else {SMWRITE();}
 // Opcode has wrote with option forced lock
 #define WILLWRITELOCK(lock)   if(lock) {DMB_ISH();} else {WILLWRITE();}
 // Opcode might have wrote (depend on nextop)

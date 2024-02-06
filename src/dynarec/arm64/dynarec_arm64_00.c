@@ -2160,10 +2160,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         call_n(dyn, ninst, *(void**)(addr+8), tmp);
                         addr+=8+8;
                     } else {
+                        WILLWRITE2();
                         GETIP(ip+1); // read the 0xCC
                         STORE_XEMU_CALL(xRIP);
                         ADDx_U12(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                         CALL_S(x64Int3, -1);
+                        SMWRITE2();
                         LOAD_XEMU_CALL(xRIP);
                         addr+=8+8;
                         TABLE64(x3, addr); // expected return address
@@ -2834,6 +2836,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         TABLE64(x2, addr);
                     }
+                    WILLWRITE2();
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall-1)), dyn->insts[ninst].retn);
                     SKIPTEST(x1);    // disable test as this hack dos 2 instructions for 1
@@ -2850,6 +2853,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if((box64_log<2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
                         //GETIP(ip+3+8+8); // read the 0xCC
                         call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall+2+8), tmp);
+                        SMWRITE2();
                         POP1(xRIP);   // pop the return address
                         dyn->last_ip = addr;
                     } else {
@@ -2857,6 +2861,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         STORE_XEMU_CALL(xRIP);
                         ADDx_U12(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                         CALL_S(x64Int3, -1);
+                        SMWRITE2();
                         LOAD_XEMU_CALL(xRIP);
                         TABLE64(x3, dyn->insts[ninst].natcall);
                         ADDx_U12(x3, x3, 2+8+8);
