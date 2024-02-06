@@ -646,10 +646,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0xC7:
                     switch(rep) {
                         case 0:
+                        switch((nextop>>3)&7) {
+                            case 1:
                             INST_NAME("LOCK CMPXCHG8B Gq, Eq");
                             SETFLAGS(X_ZF, SF_SUBSET);
                             nextop = F8;
                             addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                            if(!ALIGNED_ATOMICxw) {
+                                TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                                B_MARK(cNE);    // unaligned
+                            }
                             if(arm64_atomics) {
                                 MOVx_REG(x2, xRAX);
                                 MOVx_REG(x3, xRDX);
@@ -663,6 +669,9 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 }
                                 MOVx_REG(xRAX, x2);
                                 MOVx_REG(xRDX, x3);
+                                if(!ALIGNED_ATOMICxw) {
+                                    B_NEXT_nocond;
+                                }
                             } else {
                                 MARKLOCK;
                                 LDAXPxw(x2, x3, wback);
@@ -681,6 +690,30 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 UFLAG_IF {
                                     MOV32w(x1, 0);
                                 }
+                                if(!ALIGNED_ATOMICxw) {
+                                    B_MARK3_nocond;
+                                }
+                            }
+                            if(!ALIGNED_ATOMICxw) {
+                                MARK;
+                                LDPxw_S7_offset(x2, x3, wback, 0);
+                                LDAXRB(x4, wback);
+                                CMPSxw_REG(xRAX, x2);
+                                CCMPxw(xRDX, x3, 0, cEQ);
+                                B_MARK(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
+                                STLXRB(x4, xRBX, wback);
+                                CBNZx_MARK(x4);
+                                STPxw_S7_offset(xRBX, xRCX, wback, 0);
+                                UFLAG_IF {
+                                    MOV32w(x1, 1);
+                                }
+                                B_MARK3_nocond;
+                                MARK;
+                                MOVxw_REG(xRAX, x2);
+                                MOVxw_REG(xRDX, x3);
+                                UFLAG_IF {
+                                    MOV32w(x1, 0);
+                                }
                             }
                             MARK3;
                             SMDMB();
@@ -688,6 +721,9 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 BFIw(xFlags, x1, F_ZF, 1);
                             }
                             break;
+                        default:
+                            DEFAULT;
+                        }
                         default:
                             DEFAULT;
                     }
