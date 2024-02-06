@@ -5,6 +5,7 @@ typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct kh_defaultversion_s kh_defaultversion_t;
+typedef struct cleanup_s cleanup_t;
 
 #include <elf.h>
 #include "elfloader.h"
@@ -111,6 +112,10 @@ typedef struct elfheader_s {
 
     FILE*       file;
     int         fileno;
+
+    cleanup_t           *cleanups;          // atexit functions
+    int                 clean_sz;
+    int                 clean_cap;
 
     kh_mapsymbols_t   *mapsymbols;
     kh_mapsymbols_t   *weaksymbols;

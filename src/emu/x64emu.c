@@ -17,6 +17,7 @@
 #include "x64run_private.h"
 #include "callback.h"
 #include "bridge.h"
+#include "elfs/elfloader_private.h"
 #ifdef HAVE_TRACE
 #include "x64trace.h"
 #endif
@@ -33,7 +34,6 @@ typedef struct cleanup_s {
     void*       f;
     int         arg;
     void*       a;
-    void*       dso;
 } cleanup_t;
 
 static uint32_t x86emu_parity_tab[8] =
@@ -132,7 +132,7 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
 }
 #endif
 
-void AddCleanup(x64emu_t *emu, void *p, void* dso_handle)
+void AddCleanup(x64emu_t *emu, void *p)
 {
     (void)emu;
     
@@ -142,36 +142,36 @@ void AddCleanup(x64emu_t *emu, void *p, void* dso_handle)
     }
     my_context->cleanups[my_context->clean_sz].arg = 0;
     my_context->cleanups[my_context->clean_sz].a = NULL;
-    my_context->cleanups[my_context->clean_sz].dso = dso_handle;
     my_context->cleanups[my_context->clean_sz++].f = p;
 }
 
-void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, void* dso_handle)
+void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, elfheader_t* h)
 {
     (void)emu;
+    if(!h)
+        return;
     
-    if(my_context->clean_sz == my_context->clean_cap) {
-        my_context->clean_cap += 32;
-        my_context->cleanups = (cleanup_t*)box_realloc(my_context->cleanups, sizeof(cleanup_t)*my_context->clean_cap);
+    if(h->clean_sz == h->clean_cap) {
+        h->clean_cap += 32;
+        h->cleanups = (cleanup_t*)box_realloc(h->cleanups, sizeof(cleanup_t)*h->clean_cap);
     }
-    my_context->cleanups[my_context->clean_sz].arg = 1;
-    my_context->cleanups[my_context->clean_sz].a = a;
-    my_context->cleanups[my_context->clean_sz].dso = dso_handle;
-    my_context->cleanups[my_context->clean_sz++].f = p;
+    h->cleanups[h->clean_sz].arg = 1;
+    h->cleanups[h->clean_sz].a = a;
+    h->cleanups[h->clean_sz++].f = p;
 }
 
-void CallCleanup(x64emu_t *emu, void* p)
+void CallCleanup(x64emu_t *emu, elfheader_t* h)
 {
-    printf_log(LOG_DEBUG, "Calling atexit registered functions for %p mask\n", p);
-    for(int i=my_context->clean_sz-1; i>=0; --i) {
-        if(p==my_context->cleanups[i].dso) {
-            printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
-            RunFunctionWithEmu(emu, 0, (uintptr_t)(my_context->cleanups[i].f), my_context->cleanups[i].arg, my_context->cleanups[i].a );
-            // now remove the cleanup
-            if(i!=my_context->clean_sz-1)
-                memmove(my_context->cleanups+i, my_context->cleanups+i+1, (my_context->clean_sz-i-1)*sizeof(cleanup_t));
-            --my_context->clean_sz;
-        }
+    printf_log(LOG_DEBUG, "Calling atexit registered functions for elf: %p/%s\n", h, h?h->name:"(nil)");
+    if(!h)
+        return;
+    for(int i=h->clean_sz-1; i>=0; --i) {
+        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        RunFunctionWithEmu(emu, 0, (uintptr_t)(h->cleanups[i].f), h->cleanups[i].arg, h->cleanups[i].a );
+        // now remove the cleanup
+        if(i!=h->clean_sz-1)
+            memmove(h->cleanups+i, h->cleanups+i+1, (h->clean_sz-i-1)*sizeof(cleanup_t));
+        --h->clean_sz;
     }
 }
 

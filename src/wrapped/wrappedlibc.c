@@ -485,7 +485,7 @@ void EXPORT my___gmon_start__(x64emu_t *emu)
 
 int EXPORT my___cxa_atexit(x64emu_t* emu, void* p, void* a, void* dso_handle)
 {
-    AddCleanup1Arg(emu, p, a, dso_handle);
+    AddCleanup1Arg(emu, p, a, FindElfAddress(my_context, (uintptr_t)dso_handle));
     return 0;
 }
 void EXPORT my___cxa_finalize(x64emu_t* emu, void* p)
@@ -495,11 +495,11 @@ void EXPORT my___cxa_finalize(x64emu_t* emu, void* p)
         CallAllCleanup(emu);
         return;
     }
-    CallCleanup(emu, p);
+    CallCleanup(emu, FindElfAddress(my_context, (uintptr_t)p));
 }
 int EXPORT my_atexit(x64emu_t* emu, void *p)
 {
-    AddCleanup(emu, p, NULL);   // should grab current dso_handle?
+    AddCleanup(emu, p);
     return 0;
 }
 
@@ -2308,7 +2308,7 @@ EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj,
 {
     (void)emu;
     //printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
-    AddCleanup1Arg(emu, dtor, obj, dso);
+    AddCleanup1Arg(emu, dtor, obj, FindElfAddress(my_context, (uintptr_t)dso));
     return 0;
 }
 
@@ -3375,7 +3375,6 @@ EXPORT int my_register_printf_type(x64emu_t* emu, void* f)
 extern int box64_quit;
 extern int box64_exit_code;
 void endBox64();
-#if !defined(ANDROID)
 static void* timed_exit_thread(void* a)
 {
     // this is a workaround for some NVidia drivers on ARM64 that may freeze at exit
@@ -3383,7 +3382,17 @@ static void* timed_exit_thread(void* a)
     usleep(500000); // wait 1/2 a second
     _exit(box64_exit_code); // force exit, something is wrong
 }
-#endif
+
+void startTimedExit()
+{
+    static int started = 0;
+    if(started)
+        exit;
+    started = 1;
+    pthread_t exit_thread;
+    pthread_create(&exit_thread, NULL, timed_exit_thread, NULL);
+}
+
 EXPORT void my_exit(x64emu_t* emu, int code)
 {
     if(emu->flags.quitonexit) {
@@ -3395,10 +3404,7 @@ EXPORT void my_exit(x64emu_t* emu, int code)
     emu->quit = 1;
     box64_exit_code = code;
     endBox64();
-#if !defined(ANDROID)
-    pthread_t exit_thread;
-    pthread_create(&exit_thread, NULL, timed_exit_thread, NULL);
-#endif
+    startTimedExit();
     exit(code);
 }
 

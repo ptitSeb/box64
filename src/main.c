@@ -1383,6 +1383,8 @@ void endBox64()
     box64_quit = 1;
     endMallocHook();
     x64emu_t* emu = thread_get_emu();
+    void startTimedExit();
+    startTimedExit();
     // atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
