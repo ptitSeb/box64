@@ -2221,7 +2221,40 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVQ(v0, d0);
             }
             break;
-
+        case 0xC7:
+            // rep has no impact here
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1:
+                INST_NAME("CMPXCHG8B Gq, Eq");
+                SETFLAGS(X_ZF, SF_SUBSET);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                LDPxw_S7_offset(x2, x3, wback, 0);
+                CMPSxw_REG(xRAX, x2);
+                CCMPxw(xRDX, x3, 0, cEQ);
+                B_MARK(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
+                STPxw_S7_offset(xRBX, xRCX, wback, 0);
+                UFLAG_IF {
+                    MOV32w(x1, 1);
+                }
+                B_MARK3_nocond;
+                MARK;
+                MOVxw_REG(xRAX, x2);
+                MOVxw_REG(xRDX, x3);
+                UFLAG_IF {
+                    MOV32w(x1, 0);
+                }
+                MARK3;
+                UFLAG_IF {
+                    BFIw(xFlags, x1, F_ZF, 1);
+                }
+                SMWRITE();
+                break;
+            default:
+                DEFAULT;
+            }
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:
