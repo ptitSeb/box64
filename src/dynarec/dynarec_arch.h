@@ -15,6 +15,8 @@
 #include "arm64/arm64_printer.h"
 #include "arm64/dynarec_arm64_private.h"
 #include "arm64/dynarec_arm64_functions.h"
+// Limit here is defined by LD litteral, that is 19bits
+#define MAXBLOCK_SIZE ((1<<19)-200)
 #elif defined(LA464)
 
 #define instruction_native_t        instruction_la464_t
@@ -27,6 +29,8 @@
 #include "la464/la464_printer.h"
 #include "la464/dynarec_la464_private.h"
 #include "la464/dynarec_la464_functions.h"
+// TODO
+#define MAXBLOCK_SIZE ((1<<19)-200)
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
@@ -41,6 +45,8 @@
 #include "rv64/rv64_printer.h"
 #include "rv64/dynarec_rv64_private.h"
 #include "rv64/dynarec_rv64_functions.h"
+// Limit here is unconditionnal jump, thjat is signed 21bits
+#define MAXBLOCK_SIZE ((1<<20)-200)
 #else
 #error Unsupported platform
 #endif

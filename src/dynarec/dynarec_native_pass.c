@@ -68,6 +68,13 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 break;
             }
         }
+        // This test is here to prevent things like TABLE64 to be out of range
+        // native_size is not exact at this point, but it should be larger, not smaller, and not by a huge margin anyway
+        // so it's good enough to avoid overflow in relative to PC data fectching
+        if(dyn->native_size >= MAXBLOCK_SIZE) {
+            need_epilog = 1;
+            break;
+        }
         #endif
         ip = addr;
         if (reset_n!=-1) {
