@@ -1452,7 +1452,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         if((sig==SIGSEGV) && (info->si_code == SEGV_ACCERR) && ((prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE) || (prot&~PROT_CUSTOM)==(PROT_READ|PROT_WRITE|PROT_EXEC))) {
             static uintptr_t old_addr = 0;
             #ifdef DYNAREC
-            if((prot==PROT_READ|PROT_WRITE|PROT_EXEC) && isDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize)) {
+            if((prot==(PROT_READ|PROT_WRITE|PROT_EXEC)) && isDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize)) {
                 printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p with DynaBlock(s) in range, db=%p, Lock=0x%x)\n", tid, pc, addr, db, Locks);
                 cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
                 refreshProtection((uintptr_t)addr);
