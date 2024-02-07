@@ -41,6 +41,7 @@ extern int arm64_crc32;
 extern int arm64_atomics;
 extern int arm64_sha1;
 extern int arm64_sha2;
+extern int arm64_uscat;
 extern int arm64_flagm;
 extern int arm64_flagm2;
 extern int arm64_frintts;
