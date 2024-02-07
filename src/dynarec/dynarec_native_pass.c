@@ -40,7 +40,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     uintptr_t ip = addr;
     uintptr_t init_addr = addr;
     rex_t rex;
-    int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
+    int rep = 0;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int need_epilog = 1;
     // Clean up (because there are multiple passes)
     dyn->f.pending = 0;
