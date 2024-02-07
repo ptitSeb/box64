@@ -752,11 +752,11 @@ int isDBFromAddressRange(uintptr_t addr, size_t size)
 static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3, uintptr_t idx4)
 {
     if(box64_jmptbl4[idx4] == box64_jmptbldefault3) {
-        uintptr_t**** tbl = (uintptr_t****)box_malloc((1<<JMPTABL_SHIFT3)*sizeof(uintptr_t***));
+        uintptr_t**** tbl = (uintptr_t****)customMalloc((1<<JMPTABL_SHIFT3)*sizeof(uintptr_t***));
         for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i)
             tbl[i] = box64_jmptbldefault2;
         if(native_lock_storeifref(&box64_jmptbl4[idx4], tbl, box64_jmptbldefault3)!=tbl)
-            box_free(tbl);
+            customFree(tbl);
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT3)*sizeof(uintptr_t***);
@@ -765,11 +765,11 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
 #endif
     }
     if(box64_jmptbl4[idx4][idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**));
+        uintptr_t*** tbl = (uintptr_t***)customMalloc((1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
             tbl[i] = box64_jmptbldefault1;
         if(native_lock_storeifref(&box64_jmptbl4[idx4][idx3], tbl, box64_jmptbldefault2)!=tbl)
-            box_free(tbl);
+            customFree(tbl);
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**);
@@ -778,11 +778,11 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
 #endif
     }
     if(box64_jmptbl4[idx4][idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*));
+        uintptr_t** tbl = (uintptr_t**)customMalloc((1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT1); ++i)
             tbl[i] = box64_jmptbldefault0;
         if(native_lock_storeifref(&box64_jmptbl4[idx4][idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
-            box_free(tbl);
+            customFree(tbl);
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*);
@@ -791,11 +791,11 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
 #endif
     }
     if(box64_jmptbl4[idx4][idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT0)*sizeof(uintptr_t));
+        uintptr_t* tbl = (uintptr_t*)customMalloc((1<<JMPTABL_SHIFT0)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
             tbl[i] = (uintptr_t)native_next;
         if(native_lock_storeifref(&box64_jmptbl4[idx4][idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
-            box_free(tbl);
+            customFree(tbl);
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT0)*sizeof(uintptr_t);
@@ -809,11 +809,11 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
 static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, uintptr_t idx3)
 {
     if(box64_jmptbl3[idx3] == box64_jmptbldefault2) {
-        uintptr_t*** tbl = (uintptr_t***)box_malloc((1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**));
+        uintptr_t*** tbl = (uintptr_t***)customMalloc((1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**));
         for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
             tbl[i] = box64_jmptbldefault1;
         if(native_lock_storeifref(&box64_jmptbl3[idx3], tbl, box64_jmptbldefault2)!=tbl)
-            box_free(tbl);
+            customFree(tbl);
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT2)*sizeof(uintptr_t**);
@@ -822,11 +822,11 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
 #endif
     }
     if(box64_jmptbl3[idx3][idx2] == box64_jmptbldefault1) {
-        uintptr_t** tbl = (uintptr_t**)box_malloc((1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*));
+        uintptr_t** tbl = (uintptr_t**)customMalloc((1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*));
         for(int i=0; i<(1<<JMPTABL_SHIFT1); ++i)
             tbl[i] = box64_jmptbldefault0;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2], tbl, box64_jmptbldefault1)!=tbl)
-            box_free(tbl);
+            customFree(tbl);
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT1)*sizeof(uintptr_t*);
@@ -835,11 +835,11 @@ static uintptr_t *create_jmptbl(uintptr_t idx0, uintptr_t idx1, uintptr_t idx2, 
 #endif
     }
     if(box64_jmptbl3[idx3][idx2][idx1] == box64_jmptbldefault0) {
-        uintptr_t* tbl = (uintptr_t*)box_malloc((1<<JMPTABL_SHIFT0)*sizeof(uintptr_t));
+        uintptr_t* tbl = (uintptr_t*)customMalloc((1<<JMPTABL_SHIFT0)*sizeof(uintptr_t));
         for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
             tbl[i] = (uintptr_t)native_next;
         if(native_lock_storeifref(&box64_jmptbl3[idx3][idx2][idx1], tbl, box64_jmptbldefault0)!=tbl)
-            box_free(tbl);
+            customFree(tbl);
 #ifdef TRACE_MEMSTAT
         else {
             jmptbl_allocated += (1<<JMPTABL_SHIFT0)*sizeof(uintptr_t);
@@ -1597,14 +1597,14 @@ void fini_custommem_helper(box64context_t *ctx)
                     if(box64_jmptbl3[i3][i2]!=box64_jmptbldefault1) {
                         for (int i1=0; i1<(1<<JMPTABL_SHIFT1); ++i1)
                             if(box64_jmptbl3[i3][i2][i1]!=box64_jmptbldefault0) {
-                                box_free(box64_jmptbl3[i3][i2][i1]);
+                                customFree(box64_jmptbl3[i3][i2][i1]);
                             }
-                        box_free(box64_jmptbl3[i3][i2]);
+                        customFree(box64_jmptbl3[i3][i2]);
                     }
-                box_free(box64_jmptbl3[i3]);
+                customFree(box64_jmptbl3[i3]);
             }
         #ifdef JMPTABL_SHIFT4
-                box_free(box64_jmptbl4[i4]);
+                customFree(box64_jmptbl4[i4]);
             }
         #endif
     }
