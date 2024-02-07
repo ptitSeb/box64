@@ -51,7 +51,7 @@ int box64_inprocessgpu = 0;
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
 int box64_maxcpu = 0;
-#if defined(SD845) || defined(SD888) || defined(SD8G2)
+#if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 int box64_mmap32 = 1;
 #else
 int box64_mmap32 = 0;
