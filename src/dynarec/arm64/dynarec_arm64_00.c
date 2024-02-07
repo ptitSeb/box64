@@ -1954,7 +1954,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
                     } else {
-                        FAKEED;
+                        if(MODREG && ! rex.w && !rex.is32bits) {
+                            GETED(1);
+                            MOVw_REG(ed, ed);
+                        } else {
+                            FAKEED;
+                        }
                         F8;
                     }
                     break;
@@ -1968,7 +1973,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
                     } else {
-                        FAKEED;
+                        if(MODREG && ! rex.w && !rex.is32bits) {
+                            GETED(1);
+                            MOVw_REG(ed, ed);
+                        } else {
+                            FAKEED;
+                        }
                         F8;
                     }
                     break;
@@ -2015,7 +2025,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
                     } else {
-                        FAKEED;
+                        if(MODREG && ! rex.w && !rex.is32bits) {
+                            GETED(1);
+                            MOVw_REG(ed, ed);
+                        } else {
+                            FAKEED;
+                        }
                         F8;
                     }
                     break;
@@ -2029,7 +2044,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
                     } else {
-                        FAKEED;
+                        if(MODREG && ! rex.w && !rex.is32bits) {
+                            GETED(1);
+                            MOVw_REG(ed, ed);
+                        } else {
+                            FAKEED;
+                        }
                         F8;
                     }
                     break;
@@ -2043,7 +2063,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
                     } else {
-                        FAKEED;
+                        if(MODREG && ! rex.w && !rex.is32bits) {
+                            GETED(1);
+                            MOVw_REG(ed, ed);
+                        } else {
+                            FAKEED;
+                        }
                         F8;
                     }
                     break;
