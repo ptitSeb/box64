@@ -1457,6 +1457,18 @@ static void free_contextargv()
         box_free(my_context->argv[i]);
 }
 
+static void add_argv(const char* what) {
+    int there = 0;
+    for(int i=1; i<my_context->argc && !there; ++i)
+        if(!strcmp(my_context->argv[i], what))
+            there = 1;
+    if(!there) {
+        my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
+        my_context->argv[my_context->argc] = box_strdup(what);
+        my_context->argc++;
+    }
+}
+
 static void load_rcfiles()
 {
     #ifndef TERMUX
@@ -1575,6 +1587,7 @@ int main(int argc, const char **argv, char **env) {
     #endif
     int ld_libs_args = -1;
     int is_custom_gstreamer = 0;
+    int wine_steam = 0;
     // check if this is wine
     if(!strcmp(prog, "wine64")
      || !strcmp(prog, "wine64-development") 
@@ -1609,6 +1622,23 @@ int main(int argc, const char **argv, char **env) {
                 //box64_nogtk = 1;
                 //is_custom_gstreamer = 1;
                 box64_custom_gstreamer = box_strdup(tmp);
+            }
+        }
+        // if program being called is wine_steam (rudimentary check...) and if no other argument are there
+        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' /*&& argc==(nextarg+2)*/) {
+            if(!strcasecmp(argv[nextarg+1], "steam.exe"))
+                wine_steam = 1;
+            else if(!strcasecmp(argv[nextarg+1], "steam"))
+                wine_steam = 1;
+            if(!wine_steam) {
+                const char* pp = strrchr(argv[nextarg+1], '/');
+                if(pp && !strcasecmp(pp+1, "steam.exe"))
+                    wine_steam = 1;
+                else {
+                    pp = strrchr(argv[nextarg+1], '\\');
+                    if(pp && !strcasecmp(pp+1, "steam.exe"))
+                        wine_steam = 1;
+                }
             }
         }
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
@@ -1752,29 +1782,19 @@ int main(int argc, const char **argv, char **env) {
     }
     if(box64_nosandbox)
     {
-        // check if sandbox is already there
-        int there = 0;
-        for(int i=1; i<my_context->argc && !there; ++i)
-            if(!strcmp(my_context->argv[i], "--no-sandbox"))
-                there = 1;
-        if(!there) {
-            my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
-            my_context->argv[my_context->argc] = box_strdup("--no-sandbox");
-            my_context->argc++;
-        }
+        add_argv("--no-sandbox");
     }
     if(box64_inprocessgpu)
     {
-        // check if in-process-gpu is already there
-        int there = 0;
-        for(int i=1; i<my_context->argc && !there; ++i)
-            if(!strcmp(my_context->argv[i], "--in-process-gpu"))
-                there = 1;
-        if(!there) {
-            my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
-            my_context->argv[my_context->argc] = box_strdup("--in-process-gpu");
-            my_context->argc++;
-        }
+        add_argv("--in-process-gpu");
+    }
+    if(wine_steam) {
+        printf_log(LOG_INFO, "Steam.exe detected, adding -cef-single-process -cef-in-process-gpu -cef-disable-sandbox -no-cef-sandbox -cef-disable-breakpad to parameters");
+        add_argv("-cef-single-process");
+        add_argv("-cef-in-process-gpu");
+        add_argv("-cef-disable-sandbox");
+        add_argv("-no-cef-sandbox");
+        add_argv("-cef-disable-breakpad");
     }
 
     // check if file exist
