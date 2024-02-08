@@ -1212,13 +1212,14 @@ void LoadEnvVars(box64context_t *context)
             printf_log(LOG_INFO, "\n");
         }
     }
-    // add libssl and libcrypto, prefer emulated version because of multiple version exist
+    // add libssl and libcrypto (and a few other) to prefer emulated version because of multiple version exist
     AddPath("libssl.so.1", &context->box64_emulated_libs, 0);
     AddPath("libssl.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
     AddPath("libpng12.so.0", &context->box64_emulated_libs, 0);
+    AddPath("libcurl.so.4", &context->box64_emulated_libs, 0);
 
     if(getenv("BOX64_SSE_FLUSHTO0")) {
         if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {

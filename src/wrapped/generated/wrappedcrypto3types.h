@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
@@ -27,6 +28,7 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(CRYPTO_set_id_callback, vFp_t) \
 	GO(CRYPTO_set_locking_callback, vFp_t) \
+	GO(OPENSSL_sk_new, pFp_t) \
 	GO(X509_STORE_CTX_set_verify_cb, vFpp_t) \
 	GO(OPENSSL_sk_pop_free, pFpp_t) \
 	GO(EVP_MD_do_all_provided, vFppp_t) \

@@ -2683,6 +2683,7 @@ GO(OPENSSL_no_config, vFv)
 //GO(OPENSSL_rdtsc, 
 GO(OPENSSL_sk_find, iFpp)
 GO(OPENSSL_sk_free, vFp)    //1.1+
+GOM(OPENSSL_sk_new, pFEp)
 GO(OPENSSL_sk_new_null, pFv)    //1.1+
 GO(OPENSSL_sk_num, iFp) //1.1+
 GO(OPENSSL_sk_pop, pFp) //1.1+

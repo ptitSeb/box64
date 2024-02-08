@@ -3120,6 +3120,8 @@ wrappedcrypto3:
 - vFp:
   - CRYPTO_set_id_callback
   - CRYPTO_set_locking_callback
+- pFp:
+  - OPENSSL_sk_new
 - vFpp:
   - X509_STORE_CTX_set_verify_cb
 - pFpp:
@@ -3162,6 +3164,7 @@ wrappedcurl:
   - curl_multi_setopt
 - uFpup:
   - curl_easy_setopt
+  - curl_share_setopt
 wrappedd3dadapter9:
 - pWp:
   - D3DAdapter9GetProc

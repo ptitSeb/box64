@@ -15,6 +15,7 @@
 #include "box64context.h"
 #include "emu/x64emu_private.h"
 #include "callback.h"
+#include "elfloader.h"
 
 #ifdef ANDROID
     const char* curlName = "libcurl.so";
@@ -34,6 +35,7 @@
 #define STRINGPOINT   10000
 #define FUNCTIONPOINT 20000
 #define OFF_T         30000
+#define BLOB          40000
 #define CINIT(name,type,number) CURLOPT_ ## name = type + number
 #define CURLOPT(na,t,nu) na = t + nu
 
@@ -309,6 +311,43 @@ typedef enum {
   CINIT(HTTP09_ALLOWED, LONG, 285),
   CINIT(ALTSVC_CTRL, LONG, 286),
   CINIT(ALTSVC, STRINGPOINT, 287),
+  CINIT(MAXAGE_CONN, LONG, 288),
+  CINIT(SASL_AUTHZID, STRINGPOINT, 289),
+  CINIT(MAIL_RCPT_ALLOWFAILS, LONG, 290),
+  CINIT(SSLCERT_BLOB, BLOB, 291),
+  CINIT(SSLKEY_BLOB, BLOB, 292),
+  CINIT(PROXY_SSLCERT_BLOB, BLOB, 293),
+  CINIT(PROXY_SSLKEY_BLOB, BLOB, 294),
+  CINIT(ISSUERCERT_BLOB, BLOB, 295),
+  CINIT(PROXY_ISSUERCERT, STRINGPOINT, 296),
+  CINIT(PROXY_ISSUERCERT_BLOB, BLOB, 297),
+  CINIT(SSL_EC_CURVES, STRINGPOINT, 298),
+  CINIT(HSTS_CTRL, LONG, 299),
+  CINIT(HSTS, STRINGPOINT, 300),
+  CINIT(HSTSREADFUNCTION, FUNCTIONPOINT, 301),
+  CINIT(HSTSREADDATA, OBJECTPOINT, 302),
+  CINIT(HSTSWRITEFUNCTION, FUNCTIONPOINT, 303),
+  CINIT(HSTSWRITEDATA, OBJECTPOINT, 304),
+  CINIT(AWS_SIGV4, STRINGPOINT, 305),
+  CINIT(DOH_SSL_VERIFYPEER, LONG, 306),
+  CINIT(DOH_SSL_VERIFYHOST, LONG, 307),
+  CINIT(DOH_SSL_VERIFYSTATUS, LONG, 308),
+  CINIT(CAINFO_BLOB, BLOB, 309),
+  CINIT(PROXY_CAINFO_BLOB, BLOB, 310),
+  CINIT(SSH_HOST_PUBLIC_KEY_SHA256, STRINGPOINT, 311),
+  CINIT(PREREQFUNCTION, FUNCTIONPOINT, 312),
+  CINIT(PREREQDATA, OBJECTPOINT, 313),
+  CINIT(MAXLIFETIME_CONN, LONG, 314),
+  CINIT(MIME_OPTIONS, LONG, 315),
+  CINIT(SSH_HOSTKEYFUNCTION, FUNCTIONPOINT, 316),
+  CINIT(SSH_HOSTKEYDATA, OBJECTPOINT, 317),
+  CINIT(PROTOCOLS_STR, STRINGPOINT, 318),
+  CINIT(REDIR_PROTOCOLS_STR, STRINGPOINT, 319),
+  CINIT(WS_OPTIONS, LONG, 320),
+  CINIT(CA_CACHE_TIMEOUT, LONG, 321),
+  CINIT(QUICK_EXIT, LONG, 322),
+  CINIT(HAPROXY_CLIENT_IP, STRINGPOINT, 323),
+  CINIT(SERVER_RESPONSE_TIMEOUT_MS, LONG, 324),
   CURLOPT_LASTENTRY /* the last unused */
 } CURLoption;
 
@@ -331,6 +370,17 @@ typedef enum {
   CURLOPT(CURLMOPT_MAX_CONCURRENT_STREAMS, LONG, 16),
   CURLMOPT_LASTENTRY /* the last unused */
 } CURLMoption;
+
+typedef enum {
+  CURLSHOPT_NONE,
+  CURLSHOPT_SHARE,
+  CURLSHOPT_UNSHARE,
+  CURLSHOPT_LOCKFUNC,
+  CURLSHOPT_UNLOCKFUNC,
+  CURLSHOPT_USERDATA,
+  CURLSHOPT_LAST  /* never use */
+} CURLSHoption;
+
 
 #undef LONG
 #undef OBJECTPOINT
@@ -599,6 +649,75 @@ static void* find_debug_Fct(void* fct)
     return NULL;
 }
 
+// lockcb
+#define GO(A)   \
+static uintptr_t my_lockcb_fct_##A = 0;                     \
+static void my_lockcb_##A(void *a, int b, int c, void* d)   \
+{                                                           \
+    RunFunctionFmt(my_lockcb_fct_##A, "piip", a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_lockcb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_lockcb_fct_##A == (uintptr_t)fct) return my_lockcb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_lockcb_fct_##A == 0) {my_lockcb_fct_##A = (uintptr_t)fct; return my_lockcb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl lockcb callback\n");
+    return NULL;
+}
+
+// unlockcb
+#define GO(A)   \
+static uintptr_t my_unlockcb_fct_##A = 0;                   \
+static void my_unlockcb_##A(void *a, int b, void* c)        \
+{                                                           \
+    RunFunctionFmt(my_unlockcb_fct_##A, "pip", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_unlockcb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_unlockcb_fct_##A == (uintptr_t)fct) return my_unlockcb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_unlockcb_fct_##A == 0) {my_unlockcb_fct_##A = (uintptr_t)fct; return my_unlockcb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl unlockcb callback\n");
+    return NULL;
+}
+
+// ssl_ctx_callback
+#define GO(A)   \
+static uintptr_t my_ssl_ctx_callback_fct_##A = 0;                               \
+static int my_ssl_ctx_callback_##A(void *a, void* b, void* c)                   \
+{                                                                               \
+    return (int)RunFunctionFmt(my_ssl_ctx_callback_fct_##A, "ppp", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_ssl_ctx_callback_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ssl_ctx_callback_fct_##A == (uintptr_t)fct) return my_ssl_ctx_callback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ssl_ctx_callback_fct_##A == 0) {my_ssl_ctx_callback_fct_##A = (uintptr_t)fct; return my_ssl_ctx_callback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl ssl_ctx_callback callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option, void* param)
@@ -606,58 +725,42 @@ EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option
     (void)emu;
 
     switch(option) {
-        case CURLOPT_WRITEDATA:
-            return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_WRITEFUNCTION:
             return my->curl_easy_setopt(handle, option, find_write_Fct(param));
-        case CURLOPT_READDATA:
-            return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_READFUNCTION:
             return my->curl_easy_setopt(handle, option, find_read_Fct(param));
-        case CURLOPT_IOCTLDATA:
-            return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_IOCTLFUNCTION:
             return my->curl_easy_setopt(handle, option, find_ioctl_Fct(param));
-        case CURLOPT_SEEKDATA:
-            return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_SEEKFUNCTION:
             return my->curl_easy_setopt(handle, option, find_seek_Fct(param));
-        case CURLOPT_HEADERDATA:
-            return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_HEADERFUNCTION:
             return my->curl_easy_setopt(handle, option, find_header_Fct(param));
-        case CURLOPT_PROGRESSDATA:
-            return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_PROGRESSFUNCTION:
             return my->curl_easy_setopt(handle, option, find_progress_Fct(param));
         case CURLOPT_XFERINFOFUNCTION:
             return my->curl_easy_setopt(handle, option, find_progress_int_Fct(param));
         case CURLOPT_DEBUGFUNCTION:
             return my->curl_easy_setopt(handle, option, find_debug_Fct(param));
-        case CURLOPT_DEBUGDATA:
+        case CURLOPT_SSL_CTX_FUNCTION:
+            return my->curl_easy_setopt(handle, option, find_ssl_ctx_callback_Fct(param));
+        case CURLOPT_SSL_CTX_DATA:
             return my->curl_easy_setopt(handle, option, param);
         case CURLOPT_SOCKOPTFUNCTION:
-        case CURLOPT_SOCKOPTDATA:
         case CURLOPT_OPENSOCKETFUNCTION:
-        case CURLOPT_OPENSOCKETDATA:
         case CURLOPT_CLOSESOCKETFUNCTION:
-        case CURLOPT_CLOSESOCKETDATA:
-        //case CURLOPT_XFERINFODATA:
-        case CURLOPT_SSL_CTX_FUNCTION:
-        case CURLOPT_SSL_CTX_DATA:
         case CURLOPT_CONV_TO_NETWORK_FUNCTION:
         case CURLOPT_CONV_FROM_NETWORK_FUNCTION:
         case CURLOPT_CONV_FROM_UTF8_FUNCTION:
         case CURLOPT_INTERLEAVEFUNCTION:
-        case CURLOPT_INTERLEAVEDATA:
         case CURLOPT_CHUNK_BGN_FUNCTION:
         case CURLOPT_CHUNK_END_FUNCTION:
-        case CURLOPT_CHUNK_DATA:
         case CURLOPT_FNMATCH_FUNCTION:
-        case CURLOPT_FNMATCH_DATA:
-        case CURLOPT_SUPPRESS_CONNECT_HEADERS:
         case CURLOPT_RESOLVER_START_FUNCTION:
-        case CURLOPT_RESOLVER_START_DATA:
+        case CURLOPT_TRAILERFUNCTION:
+        case CURLOPT_HSTSREADFUNCTION:
+        case CURLOPT_HSTSWRITEFUNCTION:
+        case CURLOPT_PREREQFUNCTION:
+        case CURLOPT_SSH_HOSTKEYFUNCTION:
             printf_log(LOG_NONE, "Error: unimplemented option %u in curl_easy_setopt\n", option);
             return 48; //unknown option...
         default:
@@ -678,6 +781,18 @@ EXPORT uint32_t my_curl_multi_setopt(x64emu_t* emu, void* handle, uint32_t optio
             return my->curl_multi_setopt(handle, option, find_push_Fct(param));
         default:
             return my->curl_multi_setopt(handle, option, param);
+    }
+}
+
+EXPORT uint32_t my_curl_share_setopt(x64emu_t* emu, void* handle, CURLSHoption option, void* param)
+{
+    switch(option) {
+        case CURLSHOPT_LOCKFUNC:
+            return my->curl_share_setopt(handle, option, find_lockcb_Fct(param));
+        case CURLSHOPT_UNLOCKFUNC:
+            return my->curl_share_setopt(handle, option, find_unlockcb_Fct(param));
+        default:
+            return my->curl_share_setopt(handle, option, param);
     }
 }
 
