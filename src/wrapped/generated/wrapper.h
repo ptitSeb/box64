@@ -3059,14 +3059,22 @@ void iFpppppppppppppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 
 #if defined(HAVE_LD80BITS)
 void DFD(x64emu_t *emu, uintptr_t fnc);
+void lFD(x64emu_t *emu, uintptr_t fnc);
 void IFED(x64emu_t *emu, uintptr_t fnc);
+void DFiD(x64emu_t *emu, uintptr_t fnc);
+void lFDD(x64emu_t *emu, uintptr_t fnc);
+void DFDDD(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(HAVE_LD80BITS)
 void KFK(x64emu_t *emu, uintptr_t fnc);
+void lFK(x64emu_t *emu, uintptr_t fnc);
 void IFEK(x64emu_t *emu, uintptr_t fnc);
+void KFiK(x64emu_t *emu, uintptr_t fnc);
 void KFKK(x64emu_t *emu, uintptr_t fnc);
 void KFKp(x64emu_t *emu, uintptr_t fnc);
+void lFKK(x64emu_t *emu, uintptr_t fnc);
+void KFKKK(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if defined(NOALIGN)

@@ -21,7 +21,6 @@ typedef int64_t (*IFD_t)(long double);
 typedef int64_t (*IFK_t)(double);
 typedef float (*fFf_t)(float);
 typedef double (*dFd_t)(double);
-typedef complexf_t (*xFx_t)(complexf_t);
 typedef float (*fFff_t)(float, float);
 typedef double (*dFdd_t)(double, double);
 
@@ -60,8 +59,6 @@ typedef double (*dFdd_t)(double, double);
 	GO(__sqrt_finite, dFd_t) \
 	GO(nearbyint, dFd_t) \
 	GO(rint, dFd_t) \
-	GO(catanf, xFx_t) \
-	GO(catanhf, xFx_t) \
 	GO(__atan2f_finite, fFff_t) \
 	GO(__fmodf_finite, fFff_t) \
 	GO(__hypotf_finite, fFff_t) \

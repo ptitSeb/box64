@@ -3019,11 +3019,19 @@
 #() vFpppppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
+#defined(HAVE_LD80BITS) lFD
 #defined(HAVE_LD80BITS) IFED
+#defined(HAVE_LD80BITS) DFiD
+#defined(HAVE_LD80BITS) lFDD
+#defined(HAVE_LD80BITS) DFDDD
 #!defined(HAVE_LD80BITS) KFK
+#!defined(HAVE_LD80BITS) lFK
 #!defined(HAVE_LD80BITS) IFEK
+#!defined(HAVE_LD80BITS) KFiK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
+#!defined(HAVE_LD80BITS) lFKK
+#!defined(HAVE_LD80BITS) KFKKK
 #defined(NOALIGN) iFipiip
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
@@ -4536,9 +4544,6 @@ wrappedlibm:
   - __sqrt_finite
   - nearbyint
   - rint
-- xFx:
-  - catanf
-  - catanhf
 - fFff:
   - __atan2f_finite
   - __fmodf_finite
