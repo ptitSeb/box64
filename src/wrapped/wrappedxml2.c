@@ -1490,6 +1490,11 @@ EXPORT void my_xmlTextReaderSetErrorHandler(x64emu_t* emu, void* reader, void* f
     my->xmlTextReaderSetErrorHandler(reader, find_xmlTextReaderErrorFunc_Fct(f), arg);
 }
 
+EXPORT void* my_xmlCtxtReadIO(x64emu_t* emu, void* ctxt, void* ioread, void* ioclose, void* ioctx, void* url, void* encoding, int options)
+{
+    return my->xmlCtxtReadIO(ctxt, find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, url, encoding, options);
+}
+
 #define CUSTOM_INIT \
     getMy(lib);
 

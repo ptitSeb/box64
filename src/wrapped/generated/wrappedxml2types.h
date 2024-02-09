@@ -30,6 +30,7 @@ typedef void* (*pFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef void (*vFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpppppi_t)(void*, void*, void*, void*, void*, int32_t);
+typedef void* (*pFppppppi_t)(void*, void*, void*, void*, void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(xmlSetExternalEntityLoader, vFp_t) \
@@ -66,6 +67,7 @@ typedef void* (*pFpppppi_t)(void*, void*, void*, void*, void*, int32_t);
 	GO(xmlHashScanFull3, vFpppppp_t) \
 	GO(xmlHashUpdateEntry3, iFpppppp_t) \
 	GO(xmlCreateIOParserCtxt, pFpppppi_t) \
-	GO(xmlReaderForIO, pFpppppi_t)
+	GO(xmlReaderForIO, pFpppppi_t) \
+	GO(xmlCtxtReadIO, pFppppppi_t)
 
 #endif // __wrappedxml2TYPES_H_

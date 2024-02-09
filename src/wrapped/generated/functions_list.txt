@@ -5695,6 +5695,8 @@ wrappedxml2:
 - pFpppppi:
   - xmlCreateIOParserCtxt
   - xmlReaderForIO
+- pFppppppi:
+  - xmlCtxtReadIO
 wrappedxshmfence:
 wrappedxslt:
 - vFp:
