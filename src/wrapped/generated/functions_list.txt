@@ -3019,13 +3019,17 @@
 #() vFpppppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
+#defined(HAVE_LD80BITS) DFY
 #defined(HAVE_LD80BITS) lFD
+#defined(HAVE_LD80BITS) YFY
 #defined(HAVE_LD80BITS) IFED
 #defined(HAVE_LD80BITS) DFiD
 #defined(HAVE_LD80BITS) lFDD
 #defined(HAVE_LD80BITS) DFDDD
 #!defined(HAVE_LD80BITS) KFK
+#!defined(HAVE_LD80BITS) KFy
 #!defined(HAVE_LD80BITS) lFK
+#!defined(HAVE_LD80BITS) yFy
 #!defined(HAVE_LD80BITS) IFEK
 #!defined(HAVE_LD80BITS) KFiK
 #!defined(HAVE_LD80BITS) KFKK

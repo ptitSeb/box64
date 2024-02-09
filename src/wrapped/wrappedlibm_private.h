@@ -60,7 +60,11 @@ GO2(atanl, KFK, atan)
 #endif
 GOW(cabs, XFX)
 GOW(cabsf, xFx)
-// cabsl    // Weak
+#ifdef HAVE_LD80BITS
+GOW(cabsl, DFY)
+#else
+GO2(cabsl, KFy, cabs)
+#endif
 GOW(cacos, XFX)
 GOW(cacosf, xFx)
 GOW(cacosh, XFX)
@@ -93,8 +97,13 @@ GOW(ccos, XFX)
 GOW(ccosf, xFx)
 GOW(ccosh, XFX)
 GOW(ccoshf, xFx)
-// ccoshl   // Weak
-// ccosl    // Weak
+#ifdef HAVE_LD80BITS
+GOW(ccoshl, YFY)
+GOW(ccosl, YFY)
+#else
+GO2(ccoshl, yFy, ccosh)
+GO2(ccosl, yFy, ccos)
+#endif
 GOW(ceil, dFd)
 GOW(ceilf, fFf)
 #ifdef HAVE_LD80BITS
@@ -104,7 +113,11 @@ GO2(ceill, KFK, ceil)
 #endif
 GOW(cexp, XFX)
 GOW(cexpf, xFx)
-// cexpl    // Weak
+#ifdef HAVE_LD80BITS
+GOW(cexpl, YFY)
+#else
+GO2(cexpl, yFy, cexp)
+#endif
 // cimag    // Weak
 // cimagf   // Weak
 // cimagl   // Weak
@@ -115,8 +128,12 @@ GOW(clog, XFX)
 // __clog10f
 // clog10l  // Weak
 // __clog10l
-//GOM(clogf, UFV)    // float complex doesn't trigger the ret 4, but return an u64!
-// clogl    // Weak
+GOW(clogf, xFx)
+#ifdef HAVE_LD80BITS
+GOW(clogl, YFY)
+#else
+GO2(clogl, yFy, clog)
+#endif
 // conj // Weak
 // conjf    // Weak
 // conjl    // Weak
@@ -129,8 +146,13 @@ GOW(cosh, dFd)
 GOW(coshf, fFf)
 GOM(__coshf_finite, fFf)
 GOM(__cosh_finite, dFd)
-// coshl    // Weak
-// cosl // Weak
+#ifdef HAVE_LD80BITS
+GOW(coshl, DFD)
+GOW(cosl, DFD)
+#else
+GO2(coshl, KFK, cosh)
+GO2(cosl, KFK, cos)
+#endif
 GOW(cpow, XFXX)
 GOW(cpowf, xFxx)
 // cpowl    // Weak
@@ -144,11 +166,20 @@ GOW(csin, XFX)
 GOW(csinf, xFx)
 GOW(csinh, XFX)
 GOW(csinhf, xFx)
-// csinhl   // Weak
-// csinl    // Weak
+#ifdef HAVE_LD80BITS
+GOW(csinhl, YFY)
+GOW(csinl, YFY)
+#else
+GO2(csinhl, yFy, csinh)
+GO2(csinl, yFy, csin)
+#endif
 GOW(csqrt, XFX)
 GOW(csqrtf, xFx)
-// csqrtl   // Weak
+#ifdef HAVE_LD80BITS
+GOW(csqrtl, YFY)
+#else
+GO2(csqrtl, yFy, csqrt)
+#endif
 GOW(ctan, XFX)
 GOW(ctanf, xFx)
 GOW(ctanh, XFX)
