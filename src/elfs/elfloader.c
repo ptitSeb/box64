@@ -279,8 +279,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     try_mmap = 0;
                     printf_dump(log_level, "Mapping failed, using regular mmap+read");
                 } else {
-                    if(e->p_memsz>e->p_filesz)
-                        memset((void*)((uintptr_t)p + e->p_filesz), 0, e->p_memsz-e->p_filesz);
+                    /*if(e->p_memsz>e->p_filesz)
+                        memset((void*)((uintptr_t)p + e->p_filesz), 0, e->p_memsz-e->p_filesz);*/ // already zero'd by the mmap
                     setProtection_elf((uintptr_t)p, head->multiblocks[n].asize, prot);
                     head->multiblocks[n].p = p;
 
