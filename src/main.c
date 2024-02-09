@@ -1220,6 +1220,7 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
     AddPath("libpng12.so.0", &context->box64_emulated_libs, 0);
     AddPath("libcurl.so.4", &context->box64_emulated_libs, 0);
+    AddPath("libtbbmalloc.so.2", &context->box64_emulated_libs, 0);
 
     if(getenv("BOX64_SSE_FLUSHTO0")) {
         if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
