@@ -78,6 +78,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     *need_epilog = 0;
                     *ok = 0;
                     break;
+                case 0xE0:
+                case 0xE1:
+                case 0xE2:
+                case 0xE3:
+                case 0xE4:
+                case 0xE5:
+                case 0xE6:
+                case 0xE7:
+                    INST_NAME("SMSW Ed");
+                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                    MOV32w(ed, (1<<0) | (1<<4)); // only PE and ET set...
+                    break;
                 default:
                     DEFAULT;
             } else
