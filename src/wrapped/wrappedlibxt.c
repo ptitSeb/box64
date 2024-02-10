@@ -129,15 +129,10 @@ EXPORT long my_XtAppAddInput(x64emu_t* emu, void* context, int source, void* con
 
 #ifdef ANDROID
     #define CUSTOM_INIT \
-        getMy(lib);   \
         setNeededLibs(lib, 2, "libX11.so", "libXext.so");
 #else
     #define CUSTOM_INIT \
-        getMy(lib);   \
         setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
 #endif
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

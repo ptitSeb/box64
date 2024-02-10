@@ -153,10 +153,4 @@ EXPORT void my_xsltSetCtxtSortFunc(x64emu_t* emu, void* ctx, void* handler)
     return my->xsltSetCtxtSortFunc(ctx, find_xsltSortFunc_Fct(handler));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

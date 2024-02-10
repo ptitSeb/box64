@@ -195,12 +195,4 @@ EXPORT int my_inflate(x64emu_t* emu, void* str, int flush)
     return ret;
 }
 
-
-
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

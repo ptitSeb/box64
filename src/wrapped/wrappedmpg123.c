@@ -118,11 +118,4 @@ EXPORT int my_mpg123_replace_reader_handle_64(x64emu_t* emu, void* mh, void* r_r
     return my->mpg123_replace_reader_handle_64(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

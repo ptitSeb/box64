@@ -1490,10 +1490,4 @@ EXPORT void my_xmlTextReaderSetErrorHandler(x64emu_t* emu, void* reader, void* f
     my->xmlTextReaderSetErrorHandler(reader, find_xmlTextReaderErrorFunc_Fct(f), arg);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

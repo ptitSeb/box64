@@ -1060,7 +1060,6 @@ EXPORT int my_gst_type_find_register(x64emu_t* emu, void* plugin, void* name, ui
 
 #ifdef ANDROID
     #define CUSTOM_INIT \
-        getMy(lib);     \
         SetGstObjectID(my->gst_object_get_type());                 \
         SetGstAllocatorID(my->gst_allocator_get_type());           \
         SetGstTaskPoolID(my->gst_task_pool_get_type());            \
@@ -1071,7 +1070,6 @@ EXPORT int my_gst_type_find_register(x64emu_t* emu, void* plugin, void* name, ui
         setNeededLibs(lib, 1, "libgtk-3.so");
 #else
     #define CUSTOM_INIT \
-        getMy(lib);     \
         SetGstObjectID(my->gst_object_get_type());                 \
         SetGstAllocatorID(my->gst_allocator_get_type());           \
         SetGstTaskPoolID(my->gst_task_pool_get_type());            \
@@ -1081,8 +1079,5 @@ EXPORT int my_gst_type_find_register(x64emu_t* emu, void* plugin, void* name, ui
         SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
         setNeededLibs(lib, 1, "libgtk-3.so.0");
 #endif
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

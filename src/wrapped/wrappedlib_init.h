@@ -200,6 +200,9 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         k = kh_put(datamap, lib->w.mydatamap, MAPNAME(mydatamap)[i].name, &ret);
         kh_value(lib->w.mydatamap, k) = MAPNAME(mydatamap)[i].sz;
     }
+#ifdef HAS_MY
+    getMy(lib);
+#endif
 #ifdef CUSTOM_INIT
     CUSTOM_INIT
 #endif
@@ -209,9 +212,11 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 
 void FUNC(_fini)(library_t* lib)
 {
+#ifdef HAS_MY
+    freeMy();
+#endif
 #ifdef CUSTOM_FINI
     CUSTOM_FINI
 #endif
     WrappedLib_FinishFini(lib);
 }
-

@@ -155,11 +155,7 @@ EXPORT uint32_t my_atk_add_global_event_listener(x64emu_t* emu, void* f, void* p
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);     \
     SetAtkObjectID(my->atk_object_get_type());  \
     SetAtkUtilID(my->atk_util_get_type());      \
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

@@ -302,11 +302,4 @@ EXPORT int my_CERT_DecodeCertPackage(x64emu_t* emu, void* cert, int len, void* f
     return my->CERT_DecodeCertPackage(cert, len, find_CERTImportCertificateFunc_Fct(f), data);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

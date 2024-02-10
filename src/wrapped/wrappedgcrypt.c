@@ -85,12 +85,4 @@ EXPORT uint32_t my_gcry_sexp_build(x64emu_t* emu, void* r_sexp, void* erroff, co
     return my->gcry_sexp_build_array(r_sexp, erroff, (void*)fmt, array);
 }
 
-
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

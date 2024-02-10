@@ -2371,10 +2371,4 @@ box64_showsegv=1;
     return ret;
 }
 
-#define CUSTOM_INIT                 \
-    getMy(lib);
-
-#define CUSTOM_FINI             \
-    freeMy();
-
 #include "wrappedlib_init.h"

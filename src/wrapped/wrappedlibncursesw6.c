@@ -79,11 +79,7 @@ EXPORT void* myw6_initscr()
 }
 
 #define CUSTOM_INIT \
-    getMy(lib);     \
     SETALT(myw6_);  \
     setNeededLibs(lib, 1, "libtinfo.so.6");
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

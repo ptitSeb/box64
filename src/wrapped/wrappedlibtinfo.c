@@ -65,10 +65,4 @@ EXPORT int my_tputs(x64emu_t* emu, void* str, int affcnt, void* f)
     return my->tputs(str, affcnt, find_putc_Fct(f));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

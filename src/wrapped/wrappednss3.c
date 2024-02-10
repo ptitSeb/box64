@@ -233,11 +233,4 @@ EXPORT int my_NSS_RegisterShutdown(x64emu_t* emu, void* f, void* data)
     return my->NSS_RegisterShutdown(find_NSS_ShutdownFunc_Fct(f), data);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

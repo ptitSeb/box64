@@ -137,10 +137,4 @@ EXPORT void my_gnutls_transport_set_pull_timeout_function(x64emu_t* emu, void* s
     my->gnutls_transport_set_pull_timeout_function(session, find_timeout_Fct(f));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

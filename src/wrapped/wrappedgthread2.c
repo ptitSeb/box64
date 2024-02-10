@@ -96,17 +96,8 @@ void** my_GetGthreadsGotInitialized()
     return (void**)&g_threads_got_initialized;
 }
 
-
-
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

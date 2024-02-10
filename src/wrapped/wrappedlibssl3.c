@@ -358,10 +358,6 @@ EXPORT void my3_SSL_CTX_set_alpn_select_cb(x64emu_t* emu, void* ctx, void* f, vo
 
 #define CUSTOM_INIT \
     SETALT(my3_);   \
-    getMy(lib);     \
     setNeededLibs(lib, 2, "libcrypto.so.3", "libpthread.so.0");
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

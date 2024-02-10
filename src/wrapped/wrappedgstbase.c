@@ -231,7 +231,6 @@ EXPORT void my_gst_collect_pads_set_buffer_function(x64emu_t* emu, void* pads, v
 
 #ifdef ANDROID
     #define CUSTOM_INIT \
-        getMy(lib);     \
         SetGstBaseTransformID(my->gst_base_transform_get_type());\
         SetGstBaseSinkID(my->gst_base_sink_get_type());\
         SetGstAggregatorID(my->gst_aggregator_get_type());\
@@ -241,7 +240,6 @@ EXPORT void my_gst_collect_pads_set_buffer_function(x64emu_t* emu, void* pads, v
         setNeededLibs(lib, 1, "libgstreamer-1.0.so");
 #else
     #define CUSTOM_INIT \
-        getMy(lib);     \
         SetGstBaseTransformID(my->gst_base_transform_get_type());\
         SetGstBaseSinkID(my->gst_base_sink_get_type());\
         SetGstAggregatorID(my->gst_aggregator_get_type());\
@@ -250,8 +248,5 @@ EXPORT void my_gst_collect_pads_set_buffer_function(x64emu_t* emu, void* pads, v
         SetGstAggregatorPadID(my->gst_aggregator_pad_get_type());\
         setNeededLibs(lib, 1, "libgstreamer-1.0.so.0");
 #endif
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

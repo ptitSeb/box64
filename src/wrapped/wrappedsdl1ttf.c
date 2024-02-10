@@ -42,11 +42,4 @@ void EXPORT *my_TTF_OpenFontRW(x64emu_t* emu, void* a, int32_t b, int32_t c)
     return r;
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

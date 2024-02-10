@@ -713,10 +713,4 @@ EXPORT void my_OPENSSL_sk_pop_free(x64emu_t* emu, void* s, void* cb)
     my->OPENSSL_sk_pop_free(s, find_free_fnc_Fct(cb));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

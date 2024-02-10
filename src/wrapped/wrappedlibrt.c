@@ -155,10 +155,4 @@ EXPORT int mylio_listio(x64emu_t* emu, int mode, void* list[], int nent, struct 
 }
 #endif
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

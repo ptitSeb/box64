@@ -93,11 +93,4 @@ EXPORT void* my_clCreateContextFromType(x64emu_t* emu, void* prop, uint32_t type
     return my->clCreateContextFromType(prop, type, find_notity_context_Fct(f), data, ret);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

@@ -681,10 +681,4 @@ EXPORT uint32_t my_curl_multi_setopt(x64emu_t* emu, void* handle, uint32_t optio
     }
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

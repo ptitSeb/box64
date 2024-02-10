@@ -820,6 +820,8 @@ EXPORT void my2_SDL_GetJoystickGUIDInfo(SDL_JoystickGUID guid, uint16_t *vend, u
     }
 }
 
+#undef HAS_MY
+
 #define CUSTOM_INIT \
     box64->sdl2lib = lib;                   \
     getMy(lib);                             \
@@ -840,6 +842,5 @@ EXPORT void my2_SDL_GetJoystickGUIDInfo(SDL_JoystickGUID guid, uint16_t *vend, u
     my_context->sdl2lib = NULL;                                 \
     my_context->sdl2allocrw = NULL;                             \
     my_context->sdl2freerw = NULL;
-
 
 #include "wrappedlib_init.h"

@@ -181,7 +181,6 @@ EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, ui
     return my->gdk_threads_add_timeout_full(priotity, interval, findGSourceFunc(f), data, findGDestroyNotifyFct(d));
 }
 
-
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
@@ -189,14 +188,9 @@ EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, ui
 #define CUSTOM_INIT \
     libname = lib->name;            \
     SETALT(my3_);                   \
-    getMy(lib);                     \
     setNeededLibs(lib, 3,           \
         "libgobject-2.0.so.0",      \
         "libgio-2.0.so.0",          \
         "libgdk_pixbuf-2.0.so.0");
-
-#define CUSTOM_FINI \
-    freeMy();
-
 
 #include "wrappedlib_init.h"

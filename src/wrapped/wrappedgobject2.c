@@ -924,9 +924,11 @@ EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
     if(box64_nogtk) \
         return -1;
 
+#undef HAS_MY
+
 #define CUSTOM_INIT \
-    InitGTKClass(lib->w.bridge);       \
     getMy(lib);                             \
+    InitGTKClass(lib->w.bridge);            \
     SetGObjectID(my->g_object_get_type());  \
     SetGInitiallyUnownedID(my->g_initially_unowned_get_type()); \
     SetGTypeName(my->g_type_name);          \

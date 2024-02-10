@@ -392,7 +392,6 @@ EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* ex
 
 #ifdef ANDROID
     #define CUSTOM_INIT                 \
-        getMy(lib);                     \
         setNeededLibs(lib, 5,           \
             "libX11.so",              \
             "libxcb.so",              \
@@ -401,7 +400,6 @@ EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* ex
             "libXdmcp.so");
 #else
     #define CUSTOM_INIT                 \
-        getMy(lib);                     \
         setNeededLibs(lib, 5,           \
             "libX11.so.6",              \
             "libxcb.so.1",              \
@@ -409,8 +407,5 @@ EXPORT void* my_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* ex
             "libdl.so.2",               \
             "libXdmcp.so.6");
 #endif
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

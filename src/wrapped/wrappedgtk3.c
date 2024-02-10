@@ -823,7 +823,6 @@ EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintpt
 
 #define CUSTOM_INIT \
     libname = lib->name;                                        \
-    getMy(lib);                                                 \
     SETALT(my3_);                                               \
     SetGtkApplicationID(my->gtk_application_get_type());        \
     SetGtkWidget3ID(my->gtk_widget_get_type());                 \
@@ -847,8 +846,5 @@ EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintpt
     SetGtkGestureLongPressID(my->gtk_gesture_long_press_get_type());\
     SetGtkActionID(my->gtk_action_get_type());                  \
     setNeededLibs(lib, 3, "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0");
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

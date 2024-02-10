@@ -43,17 +43,12 @@ typedef size_t  (*LFv_t)();
 
 #ifdef ANDROID
     #define CUSTOM_INIT \
-        getMy(lib);     \
         SetGstAudioDecoderID(my->gst_audio_decoder_get_type());\
         setNeededLibs(lib, 1, "libgstreamer-1.0.so");
 #else
     #define CUSTOM_INIT \
-        getMy(lib);     \
         SetGstAudioDecoderID(my->gst_audio_decoder_get_type());\
         setNeededLibs(lib, 1, "libgstreamer-1.0.so.0");
 #endif
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

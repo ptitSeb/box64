@@ -252,10 +252,4 @@ EXPORT void my_lzma_end(x64emu_t* emu, lzma_stream_t* stream)
     my->lzma_end(stream);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

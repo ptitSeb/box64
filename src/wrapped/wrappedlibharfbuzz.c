@@ -1208,10 +1208,4 @@ EXPORT int my_hb_font_set_user_data(x64emu_t* emu, void* font, void* key, void* 
     return (int)my->hb_font_set_user_data(font, key, data, find_destroy_Fct(destroy), replace);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

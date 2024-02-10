@@ -3473,6 +3473,8 @@ EXPORT char my___libc_single_threaded = 0;
     "libbsd.so.0"
 #endif
 
+#undef HAS_MY
+
 #define CUSTOM_INIT         \
     box64->libclib = lib;   \
     /*InitCpuModel();*/         \

@@ -71,10 +71,4 @@ EXPORT void* my_SMPEG_new_rwops(x64emu_t* emu, void* src, void* info, int32_t sd
     return ret;
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

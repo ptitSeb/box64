@@ -74,11 +74,4 @@ EXPORT void my_udev_set_log_fn(x64emu_t* emu, void* udev, void* f)
     my->udev_set_log_fn(udev, find_log_fn_Fct(f));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

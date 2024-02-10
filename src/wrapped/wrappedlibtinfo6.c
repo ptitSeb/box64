@@ -65,10 +65,6 @@ EXPORT int my6_tputs(x64emu_t* emu, void* str, int affcnt, void* f)
 }
 
 #define CUSTOM_INIT \
-    SETALT(my6_); \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
+    SETALT(my6_);
 
 #include "wrappedlib_init.h"

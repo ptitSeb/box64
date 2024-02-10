@@ -626,12 +626,8 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);                                         \
     SetGApplicationID(my->g_application_get_type());    \
     SetGDBusProxyID(my->g_dbus_proxy_get_type());       \
     setNeededLibs(lib, 1, "libgmodule-2.0.so.0");
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

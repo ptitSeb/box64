@@ -1190,7 +1190,6 @@ EXPORT void my_gtk_print_job_send(x64emu_t* emu, void* job, void* f, void* data,
 
 #define CUSTOM_INIT \
     libname = lib->name;                                                        \
-    getMy(lib);                                                                 \
     SetGtkObjectID(my->gtk_object_get_type());                                  \
     SetGtkWidget2ID(my->gtk_widget_get_type());                                 \
     SetGtkContainer2ID(my->gtk_container_get_type());                           \
@@ -1215,8 +1214,5 @@ EXPORT void my_gtk_print_job_send(x64emu_t* emu, void* job, void* f, void* data,
     SetGtkMenuBar2ID(my->gtk_menu_bar_get_type());                              \
     SetGtkTextView2ID(my->gtk_text_view_get_type());                            \
     setNeededLibs(lib, 2, "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0");
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

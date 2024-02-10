@@ -135,10 +135,4 @@ EXPORT int my_SmcRequestSaveYourselfPhase2(x64emu_t* emu, void* smcConn, void* c
     return my->SmcRequestSaveYourselfPhase2(smcConn, findRequestFct(cb), data);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

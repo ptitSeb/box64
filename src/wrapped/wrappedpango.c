@@ -97,10 +97,6 @@ EXPORT void my_pango_attribute_init(x64emu_t* emu, void* attr, my_PangoAttrClass
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib); \
     setNeededLibs(lib, 2, "libgobject-2.0.so.0", "libglib-2.0.so.0");
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

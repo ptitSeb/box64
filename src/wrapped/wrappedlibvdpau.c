@@ -32,11 +32,4 @@ EXPORT uint32_t my_vdp_device_create_x11(x64emu_t* emu, void* display, int scree
     return 1;   // VDP_STATUS_NO_IMPLEMENTATION
 }
 
-#define CUSTOM_INIT                 \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

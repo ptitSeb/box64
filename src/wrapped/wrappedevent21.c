@@ -61,11 +61,4 @@ EXPORT void my_event_set(x64emu_t* emu, void* evt, int sock, short i, void* f, v
     my->event_set(evt, sock, i, findevent_setFct(f), data);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

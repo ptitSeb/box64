@@ -179,10 +179,4 @@ EXPORT int my_BZ2_bzDecompressEnd(x64emu_t* emu, my_bz_stream_t* strm)
     return ret;
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

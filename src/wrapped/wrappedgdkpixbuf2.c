@@ -60,15 +60,8 @@ EXPORT void* my_gdk_pixbuf_new_from_data(x64emu_t* emu, void* data, int32_t colo
     return my->gdk_pixbuf_new_from_data(data, colorspace, has_alpha, bpp, w, h, stride, finddestroy_pixbufFct(destroy_func), destroy_data);
 }
 
-
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
-
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

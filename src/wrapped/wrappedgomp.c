@@ -63,11 +63,4 @@ EXPORT void my_GOMP_parallel(x64emu_t* emu, void* f, void* data, unsigned num_th
     my->GOMP_parallel(find_parallel_Fct(f), data, num_threads, flags);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);     \
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-
