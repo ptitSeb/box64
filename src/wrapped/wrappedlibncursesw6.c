@@ -78,8 +78,9 @@ EXPORT void* myw6_initscr()
     return ret;
 }
 
+#define ALTMY myw6_
+
 #define CUSTOM_INIT \
-    SETALT(myw6_);  \
     setNeededLibs(lib, 1, "libtinfo.so.6");
 
 #include "wrappedlib_init.h"

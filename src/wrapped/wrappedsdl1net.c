@@ -19,9 +19,6 @@
 const char* sdl1netName = "libSDL_net-1.2.so.0";
 #define LIBNAME sdl1net
 
-#define CUSTOM_INIT \
-    SETALT(my_);
-
+#define ALTMY my_
 
 #include "wrappedlib_init.h"
-

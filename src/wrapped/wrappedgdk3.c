@@ -21,8 +21,6 @@
 const char* gdk3Name = "libgdk-3.so.0";
 #define LIBNAME gdk3
 
-static char* libname = NULL;
-
 //#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedgdk3types.h"
@@ -185,9 +183,9 @@ EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, ui
     if(box64_nogtk) \
         return -1;
 
+#define ALTMY my3_
+
 #define CUSTOM_INIT \
-    libname = lib->name;            \
-    SETALT(my3_);                   \
     setNeededLibs(lib, 3,           \
         "libgobject-2.0.so.0",      \
         "libgio-2.0.so.0",          \

@@ -25,7 +25,6 @@
     const char* gtk3Name = "libgtk-3.so.0";
 #endif
 
-static char* libname = NULL;
 #define LIBNAME gtk3
 
 typedef size_t        (*LFv_t)(void);
@@ -821,9 +820,9 @@ EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintpt
     if(box64_nogtk) \
         return -1;
 
+#define ALTMY my3_
+
 #define CUSTOM_INIT \
-    libname = lib->name;                                        \
-    SETALT(my3_);                                               \
     SetGtkApplicationID(my->gtk_application_get_type());        \
     SetGtkWidget3ID(my->gtk_widget_get_type());                 \
     SetGtkFixed3ID(my->gtk_fixed_get_type());                   \

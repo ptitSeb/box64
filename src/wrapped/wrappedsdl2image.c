@@ -101,8 +101,9 @@ EXPORT void* my2_IMG_LoadTextureTyped_RW(x64emu_t* emu, void* rend, void* a, int
     return r;
 }
 
+#define ALTMY my2_
+
 #define CUSTOM_INIT \
-    SETALT(my2_);   \
     setNeededLibs(lib, 1, "libSDL2-2.0.so.0");
 
 #include "wrappedlib_init.h"

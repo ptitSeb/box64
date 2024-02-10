@@ -78,8 +78,9 @@ EXPORT void* myw_initscr()
     return ret;
 }
 
+#define ALTMY myw_
+
 #define CUSTOM_INIT \
-    SETALT(myw_);   \
     setNeededLibs(lib, 1, "libtinfo.so.5");
 
 #include "wrappedlib_init.h"

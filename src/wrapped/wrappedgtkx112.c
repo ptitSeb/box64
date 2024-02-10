@@ -20,7 +20,7 @@
 #include "gtkclass.h"
 
 const char* gtkx112Name = "libgtk-x11-2.0.so.0";
-static char* libname = NULL;
+
 #define LIBNAME gtkx112
 
 typedef size_t        (*LFv_t)(void);
@@ -1189,7 +1189,6 @@ EXPORT void my_gtk_print_job_send(x64emu_t* emu, void* job, void* f, void* data,
         return -1;
 
 #define CUSTOM_INIT \
-    libname = lib->name;                                                        \
     SetGtkObjectID(my->gtk_object_get_type());                                  \
     SetGtkWidget2ID(my->gtk_widget_get_type());                                 \
     SetGtkContainer2ID(my->gtk_container_get_type());                           \

@@ -74,7 +74,6 @@ EXPORT void* my2_SMPEG_new_rwops(x64emu_t* emu, void* src, void* info, int32_t f
     return ret;
 }
 
-#define CUSTOM_INIT \
-    SETALT(my2_);
+#define ALTMY my2_
 
 #include "wrappedlib_init.h"

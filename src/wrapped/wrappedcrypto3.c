@@ -455,8 +455,6 @@ EXPORT void my3_ERR_vset_error(x64emu_t* emu, int lib, int reason, void* fmt, x6
     my->ERR_vset_error(lib, reason, fmt, VARARGS);
 }
 
-
-#define CUSTOM_INIT \
-    SETALT(my3_);
+#define ALTMY my3_
 
 #include "wrappedlib_init.h"

@@ -822,12 +822,13 @@ EXPORT void my2_SDL_GetJoystickGUIDInfo(SDL_JoystickGUID guid, uint16_t *vend, u
 
 #undef HAS_MY
 
+#define ALTMY my2_
+
 #define CUSTOM_INIT \
     box64->sdl2lib = lib;                   \
     getMy(lib);                             \
     box64->sdl2allocrw = my->SDL_AllocRW;   \
     box64->sdl2freerw  = my->SDL_FreeRW;    \
-    SETALT(my2_);                           \
     setNeededLibs(lib, 4,                   \
         "libdl.so.2",                       \
         "libm.so.6",                        \

@@ -205,6 +205,9 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         k = kh_put(datamap, lib->w.mydatamap, MAPNAME(mydatamap)[i].name, &ret);
         kh_value(lib->w.mydatamap, k) = MAPNAME(mydatamap)[i].sz;
     }
+#ifdef ALTMY
+    SETALT(ALTMY);
+#endif
 #ifdef HAS_MY
     getMy(lib);
 #endif
