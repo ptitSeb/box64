@@ -118,6 +118,14 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #error Please define ALTNAME before defining ALTNAME2
 #endif
 
+#define COUNT_NARGS(...) COUNT_NARGS_AUX(__VA_ARGS__, 5, 4, 3, 2, 1, 0)
+#define COUNT_NARGS_AUX(_1, _2, _3, _4, _5, n, ...) COUNT_NARGS_AUX##n(This should not appear, too many libraries)
+#define COUNT_NARGS_AUX1(v1, v2) 1
+#define COUNT_NARGS_AUX2(v1, v2) 2
+#define COUNT_NARGS_AUX3(v1, v2) 3
+#define COUNT_NARGS_AUX4(v1, v2) 4
+#define COUNT_NARGS_AUX5(v1, v2) 5
+
 int FUNC(_init)(library_t* lib, box64context_t* box64)
 {
     (void)box64;
@@ -213,6 +221,9 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 #endif
 #ifdef CUSTOM_INIT
     CUSTOM_INIT
+#endif
+#ifdef NEEDED_LIBS
+    setNeededLibs(lib, COUNT_NARGS(NEEDED_LIBS), NEEDED_LIBS);
 #endif
 
     return 0;

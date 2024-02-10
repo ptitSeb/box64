@@ -185,10 +185,6 @@ EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, ui
 
 #define ALTMY my3_
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 3,           \
-        "libgobject-2.0.so.0",      \
-        "libgio-2.0.so.0",          \
-        "libgdk_pixbuf-2.0.so.0");
+#define NEEDED_LIBS "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0"
 
 #include "wrappedlib_init.h"

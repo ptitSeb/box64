@@ -35,7 +35,12 @@ typedef void*(*pFL_t)(size_t);
 #include "generated/wrappedgobject2types.h"
 static void addGObject2Alternate(library_t* lib);
 
-#define ADDED_INIT()   addGObject2Alternate(lib);
+#define ADDED_INIT() \
+    addGObject2Alternate(lib);   \
+    InitGTKClass(lib->w.bridge);
+
+#define ADDED_FINI() \
+    FiniGTKClass();
 
 #include "wrappercallback.h"
 
@@ -924,20 +929,13 @@ EXPORT void* my_g_type_value_table_peek(x64emu_t* emu, size_t type)
     if(box64_nogtk) \
         return -1;
 
-#undef HAS_MY
-
 #define CUSTOM_INIT \
-    getMy(lib);                             \
-    InitGTKClass(lib->w.bridge);            \
     SetGObjectID(my->g_object_get_type());  \
     SetGInitiallyUnownedID(my->g_initially_unowned_get_type()); \
     SetGTypeName(my->g_type_name);          \
     SetGClassPeek(my->g_type_class_peek);   \
-    SetGTypeParent(my->g_type_parent);      \
-    setNeededLibs(lib, 1, "libglib-2.0.so.0");
+    SetGTypeParent(my->g_type_parent);
 
-#define CUSTOM_FINI \
-    FiniGTKClass(); \
-    freeMy();
+#define NEEDED_LIBS "libglib-2.0.so.0"
 
 #include "wrappedlib_init.h"

@@ -16,7 +16,6 @@ const char* androidsupportName = "libandroid-support.so";
 
 #define LIBNAME androidsupport
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libc.so");
+#define NEEDED_LIBS "libc.so"
 
 #include "wrappedlib_init.h"

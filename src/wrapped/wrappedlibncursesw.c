@@ -80,7 +80,6 @@ EXPORT void* myw_initscr()
 
 #define ALTMY myw_
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libtinfo.so.5");
+#define NEEDED_LIBS "libtinfo.so.5"
 
 #include "wrappedlib_init.h"

@@ -1211,7 +1211,8 @@ EXPORT void my_gtk_print_job_send(x64emu_t* emu, void* job, void* f, void* data,
     SetGtkFrame2ID(my->gtk_frame_get_type());                                   \
     SetGtkMenuShell2ID(my->gtk_menu_shell_get_type());                          \
     SetGtkMenuBar2ID(my->gtk_menu_bar_get_type());                              \
-    SetGtkTextView2ID(my->gtk_text_view_get_type());                            \
-    setNeededLibs(lib, 2, "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0");
+    SetGtkTextView2ID(my->gtk_text_view_get_type());
+
+#define NEEDED_LIBS "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0"
 
 #include "wrappedlib_init.h"

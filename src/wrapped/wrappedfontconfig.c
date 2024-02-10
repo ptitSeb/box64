@@ -49,9 +49,6 @@ EXPORT void* my_FcObjectSetBuild(x64emu_t* emu, void* first, uint64_t* b)
     return my->FcObjectSetVaBuild(first, VARARGS);
 }
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 2,           \
-        "libexpat.so.1",            \
-        "libfreetype.so.6");
+#define NEEDED_LIBS "libexpat.so.1", "libfreetype.so.6"
 
 #include "wrappedlib_init.h"

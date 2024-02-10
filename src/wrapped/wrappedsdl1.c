@@ -414,11 +414,9 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
 
 #define CUSTOM_INIT \
     box64->sdl1allocrw = my->SDL_AllocRW;   \
-    box64->sdl1freerw  = my->SDL_FreeRW;    \
-    setNeededLibs(lib, 3,                   \
-        "libm.so.6",                        \
-        "libdl.so.2",                       \
-        "librt.so.1");
+    box64->sdl1freerw  = my->SDL_FreeRW;
+
+#define NEEDED_LIBS "libm.so.6", "libdl.so.2", "librt.so.1"
 
 #define CUSTOM_FINI \
     my_context->sdl1allocrw = NULL;         \

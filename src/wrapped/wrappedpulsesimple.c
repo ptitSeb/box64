@@ -30,12 +30,9 @@
         return -1;
 
 #ifdef ANDROID
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 1, "libpulse.so");
+#define NEEDED_LIBS "libpulse.so"
 #else
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 1, "libpulse.so.0");
+#define NEEDED_LIBS "libpulse.so.0"
 #endif
 
 #include "wrappedlib_init.h"
-

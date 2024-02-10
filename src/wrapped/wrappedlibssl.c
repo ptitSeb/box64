@@ -514,7 +514,6 @@ EXPORT void my_SSL_CTX_set_alpn_select_cb(x64emu_t* emu, void* ctx, void* f ,voi
     my->SSL_CTX_set_alpn_select_cb(ctx, find_alpn_select_Fct(f), arg);
 }
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 2, "libcrypto.so.1.1", "libpthread.so.0");
+#define NEEDED_LIBS "libcrypto.so.1.1", "libpthread.so.0"
 
 #include "wrappedlib_init.h"

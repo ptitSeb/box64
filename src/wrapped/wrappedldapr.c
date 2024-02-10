@@ -69,12 +69,9 @@ EXPORT int my_ldap_sasl_interactive_bind_s(x64emu_t* emu, void* ld, void* dn, vo
 }
 
 #ifdef ANDROID
-#define NEEDED_LIB "liblber-2.4.so"
+#define NEEDED_LIBS "liblber-2.4.so"
 #else
-#define NEEDED_LIB "liblber-2.4.so.2"
+#define NEEDED_LIBS "liblber-2.4.so.2"
 #endif
-
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, NEEDED_LIB);
 
 #include "wrappedlib_init.h"

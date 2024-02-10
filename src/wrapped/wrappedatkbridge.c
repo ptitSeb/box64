@@ -24,12 +24,6 @@ EXPORT int my_atk_bridge_adaptor_init(void* argc, void** argv)
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 5,               \
-        "libatk-1.0.so.0",              \
-        "libSM.so.6",                   \
-        "libICE.so.6",                  \
-        "libXau.so.6",                  \
-        "libxcb.so.1");
+#define NEEDED_LIBS "libatk-1.0.so.0", "libSM.so.6", "libICE.so.6", "libXau.so.6", "libxcb.so.1"
 
 #include "wrappedlib_init.h"

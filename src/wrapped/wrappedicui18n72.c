@@ -23,7 +23,6 @@ const char* icui18n72Name = "libicui18n.so.72";
 
 #define ALTMY my72_
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libicuuc.so.72");
+#define NEEDED_LIBS "libicuuc.so.72"
 
 #include "wrappedlib_init.h"

@@ -16,7 +16,6 @@ const char* iconvName = "libiconv.so";
 
 #define LIBNAME iconv
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libc.so");
+#define NEEDED_LIBS "libc.so"
 
 #include "wrappedlib_init.h"

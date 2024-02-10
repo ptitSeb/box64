@@ -175,7 +175,8 @@ EXPORT uint32_t my_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, uin
         return -1;
 
 #define CUSTOM_INIT         \
-    libname = lib->name;    \
-    setNeededLibs(lib, 3, "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0");
+    libname = lib->name;
+
+#define NEEDED_LIBS "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0"
 
 #include "wrappedlib_init.h"

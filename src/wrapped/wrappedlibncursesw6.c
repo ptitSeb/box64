@@ -80,7 +80,6 @@ EXPORT void* myw6_initscr()
 
 #define ALTMY myw6_
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libtinfo.so.6");
+#define NEEDED_LIBS "libtinfo.so.6"
 
 #include "wrappedlib_init.h"

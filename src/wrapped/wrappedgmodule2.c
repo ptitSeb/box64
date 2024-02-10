@@ -19,7 +19,6 @@ const char* gmodule2Name = "libgmodule-2.0.so.0";
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libglib-2.0.so.0");
+#define NEEDED_LIBS "libglib-2.0.so.0"
 
 #include "wrappedlib_init.h"

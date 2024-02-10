@@ -843,7 +843,8 @@ EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintpt
     SetGtkGestureID(my->gtk_gesture_get_type());                \
     SetGtkGestureSingleID(my->gtk_gesture_single_get_type());   \
     SetGtkGestureLongPressID(my->gtk_gesture_long_press_get_type());\
-    SetGtkActionID(my->gtk_action_get_type());                  \
-    setNeededLibs(lib, 3, "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0");
+    SetGtkActionID(my->gtk_action_get_type());
+
+#define NEEDED_LIBS "libgdk-3.so.0", "libpangocairo-1.0.so.0", "libgio-2.0.so.0"
 
 #include "wrappedlib_init.h"

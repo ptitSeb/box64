@@ -20,11 +20,9 @@
 #define LIBNAME libxpm
 
 #ifdef ANDROID
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 2, "libX11.so", "libXext.so");
+    #define NEEDED_LIBS "libX11.so", "libXext.so"
 #else
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 2, "libX11.so.6", "libXext.so.6");
+    #define NEEDED_LIBS "libX11.so.6", "libXext.so.6"
 #endif
 
 #include "wrappedlib_init.h"

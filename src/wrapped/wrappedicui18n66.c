@@ -23,7 +23,6 @@ const char* icui18n66Name = "libicui18n.so.66";
 
 #define ALTMY my66_
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libicuuc.so.66");
+#define NEEDED_LIBS "libicuuc.so.66"
 
 #include "wrappedlib_init.h"

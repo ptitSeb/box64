@@ -229,24 +229,18 @@ EXPORT void my_gst_collect_pads_set_buffer_function(x64emu_t* emu, void* pads, v
     if(box64_nogtk) \
         return -1;
 
+#define CUSTOM_INIT \
+    SetGstBaseTransformID(my->gst_base_transform_get_type());\
+    SetGstBaseSinkID(my->gst_base_sink_get_type());\
+    SetGstAggregatorID(my->gst_aggregator_get_type());\
+    SetGstPushSrcID(my->gst_push_src_get_type());\
+    SetGstBaseSrcID(my->gst_base_src_get_type());\
+    SetGstAggregatorPadID(my->gst_aggregator_pad_get_type());
+
 #ifdef ANDROID
-    #define CUSTOM_INIT \
-        SetGstBaseTransformID(my->gst_base_transform_get_type());\
-        SetGstBaseSinkID(my->gst_base_sink_get_type());\
-        SetGstAggregatorID(my->gst_aggregator_get_type());\
-        SetGstPushSrcID(my->gst_push_src_get_type());\
-        SetGstBaseSrcID(my->gst_base_src_get_type());\
-        SetGstAggregatorPadID(my->gst_aggregator_pad_get_type());\
-        setNeededLibs(lib, 1, "libgstreamer-1.0.so");
+#define NEEDED_LIBS "libgstreamer-1.0.so"
 #else
-    #define CUSTOM_INIT \
-        SetGstBaseTransformID(my->gst_base_transform_get_type());\
-        SetGstBaseSinkID(my->gst_base_sink_get_type());\
-        SetGstAggregatorID(my->gst_aggregator_get_type());\
-        SetGstPushSrcID(my->gst_push_src_get_type());\
-        SetGstBaseSrcID(my->gst_base_src_get_type());\
-        SetGstAggregatorPadID(my->gst_aggregator_pad_get_type());\
-        setNeededLibs(lib, 1, "libgstreamer-1.0.so.0");
+#define NEEDED_LIBS "libgstreamer-1.0.so.0"
 #endif
 
 #include "wrappedlib_init.h"

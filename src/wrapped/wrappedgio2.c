@@ -627,7 +627,8 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
 
 #define CUSTOM_INIT \
     SetGApplicationID(my->g_application_get_type());    \
-    SetGDBusProxyID(my->g_dbus_proxy_get_type());       \
-    setNeededLibs(lib, 1, "libgmodule-2.0.so.0");
+    SetGDBusProxyID(my->g_dbus_proxy_get_type());
+
+#define NEEDED_LIBS "libgmodule-2.0.so.0"
 
 #include "wrappedlib_init.h"
