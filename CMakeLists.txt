@@ -326,6 +326,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/elfs/elfloader.c"
     "${BOX64_ROOT}/src/elfs/elfparser.c"
     "${BOX64_ROOT}/src/elfs/elfload_dump.c"
+    "${BOX64_ROOT}/src/elfs/elfdwarf_private.c"
     "${BOX64_ROOT}/src/emu/x64compstrings.c"
     "${BOX64_ROOT}/src/emu/x64emu.c"
     "${BOX64_ROOT}/src/emu/x64int3.c"
@@ -364,7 +365,6 @@ set(ELFLOADER_SRC
 if(NOT ANDROID)
     list(APPEND ELFLOADER_SRC
         "${BOX64_ROOT}/src/libtools/obstack.c"
-        "${BOX64_ROOT}/src/elfs/elfdwarf_private.c"
     )
 endif()
 

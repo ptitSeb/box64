@@ -3095,7 +3095,6 @@ EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_
 
 // Backtrace stuff
 
-#ifndef ANDROID
 #include "elfs/elfdwarf_private.h"
 EXPORT int my_backtrace(x64emu_t* emu, void** buffer, int size)
 {
@@ -3221,7 +3220,6 @@ EXPORT void my_backtrace_symbols_fd(x64emu_t* emu, uintptr_t* buffer, int size, 
         (void)dummy;
     }
 }
-#endif
 
 EXPORT int my_iopl(x64emu_t* emu, int level)
 {
