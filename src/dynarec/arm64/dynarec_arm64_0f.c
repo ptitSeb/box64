@@ -78,6 +78,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     *need_epilog = 0;
                     *ok = 0;
                     break;
+                case 0xE0:
+                case 0xE1:
+                case 0xE2:
+                case 0xE3:
+                case 0xE4:
+                case 0xE5:
+                case 0xE6:
+                case 0xE7:
+                    INST_NAME("SMSW Ed");
+                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                    MOV32w(ed, (1<<0) | (1<<4)); // only PE and ET set...
+                    break;
                 default:
                     DEFAULT;
             } else
@@ -87,17 +99,25 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         MOV32w(x1, 0x7f);
                         STURH_I9(x1, wback, 0);
-                        MOV32w(x1, 0x000c);
-                        STURH_I9(x1, wback, 2);
-                        MOV32w(x1, 0xd000);
-                        STURH_I9(x1, wback, 4);
+                        if(rex.is32bits) {
+                            MOV32w(x1, 0x3000);
+                            STURw_I9(x1, wback, 2);
+                        } else {
+                            MOV64x(x1, 0xfffffe0000077000LL);
+                            STURx_I9(x1, wback, 2);
+                        }
                         break;
                     case 1:
                         INST_NAME("SIDT Ed");
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         MOV32w(x1, 0xfff);
                         STURH_I9(x1, wback, 0);
-                        STURw_I9(xZR, wback, 2);
+                        if(rex.is32bits) {
+                            STURw_I9(xZR, wback, 2);
+                        } else {
+                            MOV64x(x1, 0xfffffe0000000000LL);
+                            STURx_I9(x1, wback, 2);
+                        }
                         break;
                     case 4:
                         INST_NAME("SMSW Ew");
@@ -164,6 +184,17 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 default:    //???
                     DEFAULT;
             }
+            break;
+        case 0x0E:
+            INST_NAME("femms");
+            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_ud, -1);
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
             break;
 
         case 0x10:
@@ -1512,7 +1543,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
                     if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
-                    jump_to_next(dyn, addr+i32_, 0, ninst);             \
+                    jump_to_next(dyn, addr+i32_, 0, ninst, rex.is32bits); \
                 } else {                                                \
                     CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
@@ -1676,42 +1707,40 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xAE:
             nextop = F8;
-            if((nextop&0xF8)==0xE8) {
-                INST_NAME("LFENCE");
-                SMDMB();
-            } else
-            if((nextop&0xF8)==0xF0) {
-                INST_NAME("MFENCE");
-                SMDMB();
-            } else
-            if((nextop&0xF8)==0xF8) {
-                INST_NAME("SFENCE");
-                SMDMB();
-            } else {
+            if(MODREG)
+                switch (nextop) {
+                    case 0xE8:
+                        INST_NAME("LFENCE");
+                        SMDMB();
+                        break;
+                    case 0xF0:
+                        INST_NAME("MFENCE");
+                        SMDMB();
+                        break;
+                    case 0xF8:
+                        INST_NAME("SFENCE");
+                        SMDMB();
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            else
                 switch((nextop>>3)&7) {
                     case 0:
                         INST_NAME("FXSAVE Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        if(MODREG) {
-                            DEFAULT;
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                            if(ed!=x1) {MOVx_REG(x1, ed);}
-                            CALL(rex.w?((void*)fpu_fxsave64):((void*)fpu_fxsave32), -1);
-                        }
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x1) {MOVx_REG(x1, ed);}
+                        CALL(rex.w?((void*)fpu_fxsave64):((void*)fpu_fxsave32), -1);
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        if(MODREG) {
-                            DEFAULT;
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                            if(ed!=x1) {MOVx_REG(x1, ed);}
-                            CALL(rex.w?((void*)fpu_fxrstor64):((void*)fpu_fxrstor32), -1);
-                        }
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x1) {MOVx_REG(x1, ed);}
+                        CALL(rex.w?((void*)fpu_fxrstor64):((void*)fpu_fxrstor32), -1);
                         break;
                     case 2:
                         INST_NAME("LDMXCSR Md");
@@ -1744,7 +1773,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     default:
                         DEFAULT;
                 }
-            }
             break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
@@ -2205,7 +2233,40 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVQ(v0, d0);
             }
             break;
-
+        case 0xC7:
+            // rep has no impact here
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1:
+                INST_NAME("CMPXCHG8B Gq, Eq");
+                SETFLAGS(X_ZF, SF_SUBSET);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                LDPxw_S7_offset(x2, x3, wback, 0);
+                CMPSxw_REG(xRAX, x2);
+                CCMPxw(xRDX, x3, 0, cEQ);
+                B_MARK(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
+                STPxw_S7_offset(xRBX, xRCX, wback, 0);
+                UFLAG_IF {
+                    MOV32w(x1, 1);
+                }
+                B_MARK3_nocond;
+                MARK;
+                MOVxw_REG(xRAX, x2);
+                MOVxw_REG(xRDX, x3);
+                UFLAG_IF {
+                    MOV32w(x1, 0);
+                }
+                MARK3;
+                UFLAG_IF {
+                    BFIw(xFlags, x1, F_ZF, 1);
+                }
+                SMWRITE();
+                break;
+            default:
+                DEFAULT;
+            }
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:

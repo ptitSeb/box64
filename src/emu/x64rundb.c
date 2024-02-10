@@ -36,6 +36,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #endif
 
     nextop = F8;
+    if(MODREG)
     switch(nextop) {
     case 0xC0:      /* FCMOVNB ST(0), ST(i) */
     case 0xC1:
@@ -125,13 +126,10 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0xF7:
         fpu_fcomi(emu, ST(nextop&7).d);
         break;
-    case 0xE0:
-    case 0xE4:
-    case 0xE5:
-    case 0xE6:
-    case 0xE7:
-        return 0;
+
     default:
+        return 0;
+    } else
         switch((nextop>>3)&7) {
             case 0: /* FILD ST0, Ed */
                 GETE4(0);
@@ -183,6 +181,5 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
             default:
                 return 0;
         }
-    }
   return addr;
 }

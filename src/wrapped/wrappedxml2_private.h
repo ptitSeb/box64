@@ -197,7 +197,7 @@ GO(xmlCharEncFirstLine, iFppp)
 GO(xmlCharEncInFunc, iFppp)
 GO(xmlCharEncOutFunc, iFppp)
 //GO(xmlCharInRange, 
-//GO(xmlCharStrdup, 
+GO(xmlCharStrdup, pFp)
 GO(xmlCharStrndup, pFpi)
 GO(xmlCheckFilename, iFp)
 GO(xmlCheckHTTPInput, pFpp)
@@ -250,7 +250,7 @@ GO(xmlCtxtGetLastError, pFp)
 GO(xmlCtxtReadDoc, pFppppi)
 GO(xmlCtxtReadFd, pFpippi)
 GO(xmlCtxtReadFile, pFpppi)
-//GOM(xmlCtxtReadIO, pFEpBBpppi)
+GOM(xmlCtxtReadIO, pFEppppppi)
 GO(xmlCtxtReadMemory, pFppippi)
 GO(xmlCtxtReset, vFp)
 //GO(xmlCtxtResetLastError, 
@@ -853,7 +853,7 @@ GO(xmlSaveFileTo, iFppp)
 GO(xmlSaveFlush, iFp)
 GO(xmlSaveFormatFile, iFppi)
 GO(xmlSaveFormatFileEnc, iFpppi)
-//GO(xmlSaveFormatFileTo, 
+GO(xmlSaveFormatFileTo, iFpppi)
 //GO(__xmlSaveNoEmptyTags, 
 //GOM(xmlSaveSetAttrEscape, iFEpB)
 //GOM(xmlSaveSetEscape, iFEpB)

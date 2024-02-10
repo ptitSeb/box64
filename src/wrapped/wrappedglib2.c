@@ -20,7 +20,11 @@
 #include "gtkclass.h"
 #include "threads.h"
 
-const char* glib2Name = "libglib-2.0.so.0";
+#ifdef ANDROID
+    const char* glib2Name = "libglib-2.0.so";
+#else
+    const char* glib2Name = "libglib-2.0.so.0";
+#endif
 #define LIBNAME glib2
 
 typedef void  (*vFppip_t)(void*, void*, int, void*);

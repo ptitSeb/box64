@@ -19,7 +19,11 @@
 #include "myalign.h"
 #include "gtkclass.h"
 
-const char* gtkx112Name = "libgtk-x11-2.0.so.0";
+#ifdef ANDROID
+    const char* gtkx112Name = "libgtk-x11-2.0.so";
+#else
+    const char* gtkx112Name = "libgtk-x11-2.0.so.0";
+#endif
 
 #define LIBNAME gtkx112
 
@@ -1213,6 +1217,10 @@ EXPORT void my_gtk_print_job_send(x64emu_t* emu, void* job, void* f, void* data,
     SetGtkMenuBar2ID(my->gtk_menu_bar_get_type());                              \
     SetGtkTextView2ID(my->gtk_text_view_get_type());
 
+#ifdef ANDROID
+#define NEEDED_LIBS "libgdk-x11-2.0.so", "libpangocairo-1.0.so"
+#else
 #define NEEDED_LIBS "libgdk-x11-2.0.so.0", "libpangocairo-1.0.so.0"
+#endif
 
 #include "wrappedlib_init.h"

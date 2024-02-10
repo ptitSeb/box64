@@ -1194,6 +1194,7 @@
 #() pFipip
 #() pFippi
 #() pFippu
+#() pFippL
 #() pFippp
 #() pFuuii
 #() pFuuip
@@ -1767,6 +1768,7 @@
 #() pFpppLi
 #() pFppppi
 #() pFppppu
+#() pFppppL
 #() pFppppp
 #() pFbuWWW
 #() pFbuuWW
@@ -2829,6 +2831,7 @@
 #() iFpCuWCCCCup
 #() iFpuuLiuiiLL
 #() iFpLLpiiuuii
+#() iFpLpLUUUUpL
 #() iFppuuiiiiii
 #() iFppuuiiuupi
 #() iFpppiiipipi
@@ -3016,11 +3019,23 @@
 #() vFpppppppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
+#defined(HAVE_LD80BITS) DFY
+#defined(HAVE_LD80BITS) lFD
+#defined(HAVE_LD80BITS) YFY
 #defined(HAVE_LD80BITS) IFED
+#defined(HAVE_LD80BITS) DFiD
+#defined(HAVE_LD80BITS) lFDD
+#defined(HAVE_LD80BITS) DFDDD
 #!defined(HAVE_LD80BITS) KFK
+#!defined(HAVE_LD80BITS) KFy
+#!defined(HAVE_LD80BITS) lFK
+#!defined(HAVE_LD80BITS) yFy
 #!defined(HAVE_LD80BITS) IFEK
+#!defined(HAVE_LD80BITS) KFiK
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
+#!defined(HAVE_LD80BITS) lFKK
+#!defined(HAVE_LD80BITS) KFKKK
 #defined(NOALIGN) iFipiip
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
@@ -3117,18 +3132,25 @@ wrappedcrypto3:
 - vFp:
   - CRYPTO_set_id_callback
   - CRYPTO_set_locking_callback
+- pFp:
+  - OPENSSL_sk_new
 - vFpp:
   - X509_STORE_CTX_set_verify_cb
 - pFpp:
   - OPENSSL_sk_pop_free
+- vFppp:
+  - EVP_MD_do_all_provided
 - iFppp:
   - ASN1_i2d_bio
+- iFppV:
+  - BIO_printf
 - vFiipV:
   - ERR_set_error
 - vFiipA:
   - ERR_vset_error
 - pFpppp:
   - ASN1_d2i_bio
+  - PEM_read_DHparams
   - PEM_read_bio_DSAPrivateKey
   - PEM_read_bio_DSA_PUBKEY
   - PEM_read_bio_ECPrivateKey
@@ -3154,6 +3176,7 @@ wrappedcurl:
   - curl_multi_setopt
 - uFpup:
   - curl_easy_setopt
+  - curl_share_setopt
 wrappedd3dadapter9:
 - pWp:
   - D3DAdapter9GetProc
@@ -4525,9 +4548,6 @@ wrappedlibm:
   - __sqrt_finite
   - nearbyint
   - rint
-- xFx:
-  - catanf
-  - catanhf
 - fFff:
   - __atan2f_finite
   - __fmodf_finite
@@ -4734,10 +4754,15 @@ wrappedlibssl:
   - SSL_get_ex_new_index
 wrappedlibssl3:
 - pFp:
+  - SSL_CTX_get_default_passwd_cb
+  - SSL_CTX_get_verify_callback
   - SSL_get_verify_callback
 - vFpp:
   - SSL_CTX_set_client_cert_cb
   - SSL_CTX_set_default_passwd_cb
+  - SSL_CTX_set_keylog_callback
+  - SSL_CTX_set_msg_callback
+  - SSL_set_msg_callback
   - SSL_set_psk_client_callback
 - vFpip:
   - SSL_CTX_set_verify
@@ -4965,6 +4990,7 @@ wrappedopencl:
   - clBuildProgram
 - pFpupppp:
   - clCreateContext
+wrappedpam:
 wrappedpango:
 - vFpp:
   - pango_attribute_init
@@ -5669,6 +5695,8 @@ wrappedxml2:
 - pFpppppi:
   - xmlCreateIOParserCtxt
   - xmlReaderForIO
+- pFppppppi:
+  - xmlCtxtReadIO
 wrappedxshmfence:
 wrappedxslt:
 - vFp:

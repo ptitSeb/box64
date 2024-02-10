@@ -20,7 +20,11 @@
 #include "myalign.h"
 #include "gtkclass.h"
 
-const char* gio2Name = "libgio-2.0.so.0";
+#ifdef ANDROID
+    const char* gio2Name = "libgio-2.0.so";
+#else
+    const char* gio2Name = "libgio-2.0.so.0";
+#endif
 #define LIBNAME gio2
 
 typedef size_t(*LFv_t)(void);
@@ -629,6 +633,10 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
     SetGApplicationID(my->g_application_get_type());    \
     SetGDBusProxyID(my->g_dbus_proxy_get_type());
 
+#ifdef ANDROID
+#define NEEDED_LIBS "libgmodule-2.0.so"
+#else
 #define NEEDED_LIBS "libgmodule-2.0.so.0"
+#endif
 
 #include "wrappedlib_init.h"

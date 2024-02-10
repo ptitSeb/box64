@@ -41,6 +41,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(v1);
     MAYUSE(j64);
 
+    if(MODREG)
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -114,283 +115,243 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
 
-        case 0xC8:
-        case 0xC9:
-        case 0xCA:
-        case 0xCB:
-        case 0xCC:
-        case 0xCD:
-        case 0xCE:
-        case 0xCF:
-        case 0xD0:
-        case 0xD1:
-        case 0xD2:
-        case 0xD3:
-        case 0xD4:
-        case 0xD5:
-        case 0xD6:
-        case 0xD7:
-        case 0xD8:
-        case 0xD9:
-        case 0xDA:
-        case 0xDB:
-        case 0xDC:
-        case 0xDD:
-        case 0xDE:
-        case 0xDF:
-        case 0xE1:
-        case 0xE2:
-        case 0xE3:
-        case 0xE4:
-        case 0xE5:
-        case 0xE6:
-        case 0xE7:
-        case 0xF8:
-        case 0xF9:
-        case 0xFA:
-        case 0xFB:
-        case 0xFC:
-        case 0xFD:
-        case 0xFE:
-        case 0xFF:
+        default:
             DEFAULT;
             break;
-
-        default:
-            switch((nextop>>3)&7) {
-                case 0:
-                    INST_NAME("FILD ST0, Ew");
-                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                    LDSHw(x1, wback, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        SCVTFSw(v1, x1);
-                    } else {
-                        SCVTFDw(v1, x1);
-                    }
-                    break;
-                case 1:
-                    INST_NAME("FISTTP Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                    ed = x1;
-                    s0 = fpu_get_scratch(dyn);
-                    #if 0
-                    // this version needs ARM v8.5, and doesn't handle saturation for 32bits integer not fitting 16bits
-                    FRINT32ZD(s0, v1);
-                    // no saturation instruction on Arm, so using NEON
+    } else
+        switch((nextop>>3)&7) {
+            case 0:
+                INST_NAME("FILD ST0, Ew");
+                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_F);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                LDSHw(x1, wback, fixedaddress);
+                if(ST_IS_F(0)) {
+                    SCVTFSw(v1, x1);
+                } else {
+                    SCVTFDw(v1, x1);
+                }
+                break;
+            case 1:
+                INST_NAME("FISTTP Ew, ST0");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                ed = x1;
+                s0 = fpu_get_scratch(dyn);
+                #if 0
+                // this version needs ARM v8.5, and doesn't handle saturation for 32bits integer not fitting 16bits
+                FRINT32ZD(s0, v1);
+                // no saturation instruction on Arm, so using NEON
+                VFCVTZSd(s0, s0);
+                SQXTN_S_D(s0, s0);
+                SQXTN_H_S(s0, s0);
+                VST16(s0, wback, fixedaddress);
+                #else
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                BFCw(x5, FPSR_QC, 1);   // reset QC bit
+                MSR_fpsr(x5);
+                if(ST_IS_F(0)) {
+                    VFCVTZSs(s0, v1);
+                } else {
+                    VFCVTZSd(s0, v1);
+                    SQXTN_S_D(s0, s0);
+                }
+                VMOVSto(x3, s0, 0);
+                MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                TBNZ_MARK2(x5, FPSR_IOC);
+                SXTHw(x5, x3);  // check if 16bits value is fine
+                SUBw_REG(x5, x5, x3);
+                CBZw_MARK3(x5);
+                MARK2;
+                MOV32w(x3, 0x8000);
+                MARK3;
+                STH(x3, wback, fixedaddress);
+                #endif
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
+            case 2:
+                INST_NAME("FIST Ew, ST0");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                u8 = x87_setround(dyn, ninst, x1, x2, x4);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                ed = x1;
+                s0 = fpu_get_scratch(dyn);
+                #if 0
+                FRINT32XD(s0, v1);
+                // no saturation instruction on Arm, so using NEON
+                VFCVTZSd(s0, s0);
+                SQXTN_S_D(s0, s0);
+                SQXTN_H_S(s0, s0);
+                VST16(s0, wback, fixedaddress);
+                #else
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                BFCw(x5, FPSR_QC, 1);   // reset QC bit
+                MSR_fpsr(x5);
+                if(ST_IS_F(0)) {
+                    FRINTXS(s0, v1);
+                    VFCVTZSs(s0, s0);
+                } else {
+                    FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
-                    SQXTN_H_S(s0, s0);
-                    VST16(s0, wback, fixedaddress);
-                    #else
-                    MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    BFCw(x5, FPSR_QC, 1);   // reset QC bit
-                    MSR_fpsr(x5);
-                    if(ST_IS_F(0)) {
-                        VFCVTZSs(s0, v1);
-                    } else {
-                        VFCVTZSd(s0, v1);
-                        SQXTN_S_D(s0, s0);
-                    }
-                    VMOVSto(x3, s0, 0);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBNZ_MARK2(x5, FPSR_IOC);
-                    SXTHw(x5, x3);  // check if 16bits value is fine
-                    SUBw_REG(x5, x5, x3);
-                    CBZw_MARK3(x5);
-                    MARK2;
-                    MOV32w(x3, 0x8000);
-                    MARK3;
-                    STH(x3, wback, fixedaddress);
-                    #endif
-                    X87_POP_OR_FAIL(dyn, ninst, x3);
-                    break;
-                case 2:
-                    INST_NAME("FIST Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                    ed = x1;
-                    s0 = fpu_get_scratch(dyn);
-                    #if 0
-                    FRINT32XD(s0, v1);
-                    // no saturation instruction on Arm, so using NEON
+                }
+                VMOVSto(x3, s0, 0);
+                MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                TBNZ_MARK2(x5, FPSR_IOC);
+                SXTHw(x5, x3);  // check if 16bits value is fine
+                SUBw_REG(x5, x5, x3);
+                CBZw_MARK3(x5);
+                MARK2;
+                MOV32w(x3, 0x8000);
+                MARK3;
+                STH(x3, wback, fixedaddress);
+                #endif
+                x87_restoreround(dyn, ninst, u8);
+                break;
+            case 3:
+                INST_NAME("FISTP Ew, ST0");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
+                u8 = x87_setround(dyn, ninst, x1, x2, x4);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                ed = x1;
+                s0 = fpu_get_scratch(dyn);
+                #if 0
+                FRINT32XD(s0, v1);
+                // no saturation instruction on Arm, so using NEON
+                VFCVTZSd(s0, s0);
+                SQXTN_S_D(s0, s0);
+                SQXTN_H_S(s0, s0);
+                VST16(s0, wback, fixedaddress);
+                #else
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                MSR_fpsr(x5);
+                if(ST_IS_F(0)) {
+                    FRINTXS(s0, v1);
+                    VFCVTZSs(s0, s0);
+                } else {
+                    FRINTXD(s0, v1);
                     VFCVTZSd(s0, s0);
                     SQXTN_S_D(s0, s0);
-                    SQXTN_H_S(s0, s0);
-                    VST16(s0, wback, fixedaddress);
-                    #else
-                    MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    BFCw(x5, FPSR_QC, 1);   // reset QC bit
-                    MSR_fpsr(x5);
-                    if(ST_IS_F(0)) {
-                        FRINTXS(s0, v1);
-                        VFCVTZSs(s0, s0);
-                    } else {
-                        FRINTXD(s0, v1);
-                        VFCVTZSd(s0, s0);
-                        SQXTN_S_D(s0, s0);
-                    }
-                    VMOVSto(x3, s0, 0);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBNZ_MARK2(x5, FPSR_IOC);
-                    SXTHw(x5, x3);  // check if 16bits value is fine
-                    SUBw_REG(x5, x5, x3);
-                    CBZw_MARK3(x5);
-                    MARK2;
-                    MOV32w(x3, 0x8000);
-                    MARK3;
-                    STH(x3, wback, fixedaddress);
-                    #endif
-                    x87_restoreround(dyn, ninst, u8);
-                    break;
-                case 3:
-                    INST_NAME("FISTP Ew, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
-                    u8 = x87_setround(dyn, ninst, x1, x2, x4);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
-                    ed = x1;
-                    s0 = fpu_get_scratch(dyn);
-                    #if 0
-                    FRINT32XD(s0, v1);
-                    // no saturation instruction on Arm, so using NEON
-                    VFCVTZSd(s0, s0);
-                    SQXTN_S_D(s0, s0);
-                    SQXTN_H_S(s0, s0);
-                    VST16(s0, wback, fixedaddress);
-                    #else
-                    MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
-                    if(ST_IS_F(0)) {
-                        FRINTXS(s0, v1);
-                        VFCVTZSs(s0, s0);
-                    } else {
-                        FRINTXD(s0, v1);
-                        VFCVTZSd(s0, s0);
-                        SQXTN_S_D(s0, s0);
-                    }
-                    VMOVSto(x3, s0, 0);
-                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                    TBNZ_MARK2(x5, FPSR_IOC);
-                    SXTHw(x5, x3);  // check if 16bits value is fine
-                    SUBw_REG(x5, x5, x3);
-                    CBZw_MARK3(x5);
-                    MARK2;
-                    MOV32w(x3, 0x8000);
-                    MARK3;
-                    STH(x3, wback, fixedaddress);
-                    #endif
-                    X87_POP_OR_FAIL(dyn, ninst, x3);
-                    x87_restoreround(dyn, ninst, u8);
-                    break;
-                case 4:
-                    INST_NAME("FBLD ST0, tbytes");
-                    X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x1);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    if(ed!=x1) {MOVx_REG(x1, ed);}
-                    CALL(fpu_fbld, -1);
-                    break;
-                case 5:
-                    INST_NAME("FILD ST0, i64");
-                    X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_I64);
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
-                    VLD64(v1, wback, fixedaddress);
-                    if(!ST_IS_I64(0)) {
-                        if(rex.is32bits) {
-                            // need to also feed the STll stuff...
-                            ADDx_U12(x4, xEmu, offsetof(x64emu_t, fpu_ll));
-                            LDRw_U12(x1, xEmu, offsetof(x64emu_t, top));
-                            int a = 0 - dyn->n.x87stack;
-                            if(a) {
-                                if(a<0) {
-                                    SUBw_U12(x1, x1, -a);
-                                } else {
-                                    ADDw_U12(x1, x1, a);
-                                }
-                                ANDw_mask(x1, x1, 0, 2); //mask=7
+                }
+                VMOVSto(x3, s0, 0);
+                MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                TBNZ_MARK2(x5, FPSR_IOC);
+                SXTHw(x5, x3);  // check if 16bits value is fine
+                SUBw_REG(x5, x5, x3);
+                CBZw_MARK3(x5);
+                MARK2;
+                MOV32w(x3, 0x8000);
+                MARK3;
+                STH(x3, wback, fixedaddress);
+                #endif
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                x87_restoreround(dyn, ninst, u8);
+                break;
+            case 4:
+                INST_NAME("FBLD ST0, tbytes");
+                X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if(ed!=x1) {MOVx_REG(x1, ed);}
+                CALL(fpu_fbld, -1);
+                break;
+            case 5:
+                INST_NAME("FILD ST0, i64");
+                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_I64);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                VLD64(v1, wback, fixedaddress);
+                if(!ST_IS_I64(0)) {
+                    if(rex.is32bits) {
+                        // need to also feed the STll stuff...
+                        ADDx_U12(x4, xEmu, offsetof(x64emu_t, fpu_ll));
+                        LDRw_U12(x1, xEmu, offsetof(x64emu_t, top));
+                        int a = 0 - dyn->n.x87stack;
+                        if(a) {
+                            if(a<0) {
+                                SUBw_U12(x1, x1, -a);
+                            } else {
+                                ADDw_U12(x1, x1, a);
                             }
-                            ADDx_REG_LSL(x1, x4, x1, 4);    // fpu_ll is 2 i64
-                            VSTR64_U12(v1, x1, 8);  // ll
+                            ANDw_mask(x1, x1, 0, 2); //mask=7
                         }
-                        SCVTFDD(v1, v1);
-                        if(rex.is32bits) {
-                            VSTR64_U12(v1, x1, 0);  // ref
-                        }
+                        ADDx_REG_LSL(x1, x4, x1, 4);    // fpu_ll is 2 i64
+                        VSTR64_U12(v1, x1, 8);  // ll
                     }
-                    break;
-                case 6:
-                    INST_NAME("FBSTP tbytes, ST0");
-                    i1 = x87_stackcount(dyn, ninst, x1);
-                    x87_forget(dyn, ninst, x1, x2, 0);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    if(ed!=x1) {MOVx_REG(x1, ed);}
-                    CALL(fpu_fbst, -1);
-                    x87_unstackcount(dyn, ninst, x1, i1);
-                    X87_POP_OR_FAIL(dyn, ninst, x3);
-                    break;
-                case 7:
-                    INST_NAME("FISTP i64, ST0");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_I64);
-                    if(!ST_IS_I64(0)) {
-                        u8 = x87_setround(dyn, ninst, x1, x2, x4);
+                    SCVTFDD(v1, v1);
+                    if(rex.is32bits) {
+                        VSTR64_U12(v1, x1, 0);  // ref
                     }
-                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
-                    ed = x1;
-                    s0 = fpu_get_scratch(dyn);
-                    if(ST_IS_I64(0)) {
-                        VST64(v1, wback, fixedaddress);
-                    } else {
-                        #if 0
-                        FRINT64XD(s0, v1);
-                        VFCVTZSd(s0, s0);
-                        VSTR64_U12(s0, wback, fixedaddress);
-                        #else
-                        if(rex.is32bits) {
-                            // need to check STll first...
-                            ADDx_U12(x5, xEmu, offsetof(x64emu_t, fpu_ll));
-                            LDRw_U12(x1, xEmu, offsetof(x64emu_t, top));
-                            VMOVQDto(x3, v1, 0);
-                            int a = 0 - dyn->n.x87stack;
-                            if(a) {
-                                if(a<0) {
-                                    SUBw_U12(x1, x1, -a);
-                                } else {
-                                    ADDw_U12(x1, x1, a);
-                                }
-                                ANDw_mask(x1, x1, 0, 2); //mask=7
+                }
+                break;
+            case 6:
+                INST_NAME("FBSTP tbytes, ST0");
+                i1 = x87_stackcount(dyn, ninst, x1);
+                x87_forget(dyn, ninst, x1, x2, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                if(ed!=x1) {MOVx_REG(x1, ed);}
+                CALL(fpu_fbst, -1);
+                x87_unstackcount(dyn, ninst, x1, i1);
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
+            case 7:
+                INST_NAME("FISTP i64, ST0");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_I64);
+                if(!ST_IS_I64(0)) {
+                    u8 = x87_setround(dyn, ninst, x1, x2, x4);
+                }
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                ed = x1;
+                s0 = fpu_get_scratch(dyn);
+                if(ST_IS_I64(0)) {
+                    VST64(v1, wback, fixedaddress);
+                } else {
+                    #if 0
+                    FRINT64XD(s0, v1);
+                    VFCVTZSd(s0, s0);
+                    VSTR64_U12(s0, wback, fixedaddress);
+                    #else
+                    if(rex.is32bits) {
+                        // need to check STll first...
+                        ADDx_U12(x5, xEmu, offsetof(x64emu_t, fpu_ll));
+                        LDRw_U12(x1, xEmu, offsetof(x64emu_t, top));
+                        VMOVQDto(x3, v1, 0);
+                        int a = 0 - dyn->n.x87stack;
+                        if(a) {
+                            if(a<0) {
+                                SUBw_U12(x1, x1, -a);
+                            } else {
+                                ADDw_U12(x1, x1, a);
                             }
-                            ADDx_REG_LSL(x1, x5, x1, 4);    // fpu_ll is 2 i64
-                            LDRx_U12(x5, x1, 0);  // ref
-                            SUBx_REG(x5, x5, x3);
-                            CBNZx_MARK2(x5);
-                            LDRx_U12(x5, x1, 8);  // ll
-                            STx(x5, wback, fixedaddress);
-                            B_MARK3(c__);
-                            MARK2;
+                            ANDw_mask(x1, x1, 0, 2); //mask=7
                         }
-                        MRS_fpsr(x5);
-                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                        MSR_fpsr(x5);
-                        FRINTXD(s0, v1);
-                        VFCVTZSd(s0, s0);
-                        VST64(s0, wback, fixedaddress);
-                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
-                        TBZ_MARK3(x5, FPSR_IOC);
-                        ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
+                        ADDx_REG_LSL(x1, x5, x1, 4);    // fpu_ll is 2 i64
+                        LDRx_U12(x5, x1, 0);  // ref
+                        SUBx_REG(x5, x5, x3);
+                        CBNZx_MARK2(x5);
+                        LDRx_U12(x5, x1, 8);  // ll
                         STx(x5, wback, fixedaddress);
-                        MARK3;
-                        #endif
-                        x87_restoreround(dyn, ninst, u8);
+                        B_MARK3(c__);
+                        MARK2;
                     }
-                    X87_POP_OR_FAIL(dyn, ninst, x3);
-                    break;
-                default:
-                    DEFAULT;
-            }
-    }
+                    MRS_fpsr(x5);
+                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                    MSR_fpsr(x5);
+                    FRINTXD(s0, v1);
+                    VFCVTZSd(s0, s0);
+                    VST64(s0, wback, fixedaddress);
+                    MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    TBZ_MARK3(x5, FPSR_IOC);
+                    ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
+                    STx(x5, wback, fixedaddress);
+                    MARK3;
+                    #endif
+                    x87_restoreround(dyn, ninst, u8);
+                }
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
+            default:
+                DEFAULT;
+        }
     return addr;
 }

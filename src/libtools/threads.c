@@ -247,61 +247,30 @@ static void* pthread_routine(void* p)
 }
 
 #ifdef NOALIGN
-pthread_attr_t* getAlignedAttr(pthread_attr_t* m) {
-	return m;
-}
-void freeAlignedAttr(void* attr) {
-	(void)attr;
-}
+#define PTHREAD_ATTR_ALIGN(A)
+#define PTHREAD_ATTR_UNALIGN(A)
+#define PTHREAD_ATTR(A) 	A
 #else
-typedef struct aligned_attr_s {
-	uint64_t sign;
-	pthread_attr_t *at;
-} aligned_attr_t;
-#define SIGN_ATTR *(uint64_t*)"BOX64ATT"
-
-pthread_attr_t* getAlignedAttrWithInit(pthread_attr_t* attr, int init)
-{
-	if(!attr)
-		return attr;
-	aligned_attr_t* at = (aligned_attr_t*)attr;
-	if(init && at->sign==SIGN_ATTR)
-		return at->at;
-	pthread_attr_t* ret = (pthread_attr_t*)box_calloc(1, sizeof(pthread_attr_t));
-	at->sign = SIGN_ATTR;
-	at->at = ret;
-	if(init)
-		pthread_attr_init(ret);	// init?
-	return ret;
-}
-pthread_attr_t* getAlignedAttr(pthread_attr_t* attr)
-{
-	return getAlignedAttrWithInit(attr, 1);
-}
-void freeAlignedAttr(void* attr)
-{
-	if(!attr)
-		return;
-	aligned_attr_t* at = (aligned_attr_t*)attr;
-	if(at->sign==SIGN_ATTR) {
-		box_free(at->at);
-		at->sign = 0LL;
-	}
-}
+#define PTHREAD_ATTR_ALIGN(A) pthread_attr_t aligned_attr = {0}; if(A) memcpy(&aligned_attr, A, 56)
+#define PTHREAD_ATTR_UNALIGN(A) if(A) memcpy(A, &aligned_attr, 56)
+#define PTHREAD_ATTR(A)		(A)?&aligned_attr:NULL
 #endif
 
 EXPORT int my_pthread_attr_destroy(x64emu_t* emu, void* attr)
 {
 	if(emu->context->stacksizes)
 		FreeStackSize(emu->context->stacksizes, (uintptr_t)attr);
-	int ret = pthread_attr_destroy(getAlignedAttr(attr));
-	freeAlignedAttr(attr);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_destroy(PTHREAD_ATTR(attr));
+	// no unaligned, it's destroyed
 	return ret;
 }
 
 EXPORT int my_pthread_attr_getstack(x64emu_t* emu, void* attr, void** stackaddr, size_t* stacksize)
 {
-	int ret = pthread_attr_getstack(getAlignedAttr(attr), stackaddr, stacksize);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_getstack(PTHREAD_ATTR(attr), stackaddr, stacksize);
+	// no need to unalign, it's const for attr
 	if (ret==0)
 		GetStackSize(emu, (uintptr_t)attr, stackaddr, stacksize);
 	return ret;
@@ -315,7 +284,10 @@ EXPORT int my_pthread_attr_setstack(x64emu_t* emu, void* attr, void* stackaddr, 
 	AddStackSize(emu->context->stacksizes, (uintptr_t)attr, stackaddr, stacksize);
 	//Don't call actual setstack...
 	//return pthread_attr_setstack(attr, stackaddr, stacksize);
-	return pthread_attr_setstacksize(getAlignedAttr(attr), stacksize);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setstacksize(PTHREAD_ATTR(attr), stacksize);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 
 EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacksize)
@@ -324,54 +296,65 @@ EXPORT int my_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t stacks
 	//aarch64 have an PTHREAD_STACK_MIN of 131072 instead of 16384 on x86_64!
 	if(stacksize<(size_t)PTHREAD_STACK_MIN)
 		stacksize = PTHREAD_STACK_MIN;
-	return pthread_attr_setstacksize(getAlignedAttr(attr), stacksize);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setstacksize(PTHREAD_ATTR(attr), stacksize);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 
 #ifndef NOALIGN
 EXPORT int my_pthread_attr_getdetachstate(x64emu_t* emu, pthread_attr_t* attr, int *state)
 {
 	(void)emu;
-	return pthread_attr_getdetachstate(getAlignedAttr(attr), state);
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_attr_getdetachstate(PTHREAD_ATTR(attr), state);
 }
 EXPORT int my_pthread_attr_getguardsize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
 {
 	(void)emu;
-	return pthread_attr_getguardsize(getAlignedAttr(attr), size);
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_attr_getguardsize(PTHREAD_ATTR(attr), size);
 }
 #ifndef TERMUX
 EXPORT int my_pthread_attr_getinheritsched(x64emu_t* emu, pthread_attr_t* attr, int* sched)
 {
 	(void)emu;
-	return pthread_attr_getinheritsched(getAlignedAttr(attr), sched);
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_attr_getinheritsched(PTHREAD_ATTR(attr), sched);
 }
 #endif
 EXPORT int my_pthread_attr_getschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
 	(void)emu;
-	return pthread_attr_getschedparam(getAlignedAttr(attr), param);
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_attr_getschedparam(PTHREAD_ATTR(attr), param);
 }
 EXPORT int my_pthread_attr_getschedpolicy(x64emu_t* emu, pthread_attr_t* attr, int* policy)
 {
 	(void)emu;
-	return pthread_attr_getschedpolicy(getAlignedAttr(attr), policy);
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_attr_getschedpolicy(PTHREAD_ATTR(attr), policy);
 }
 EXPORT int my_pthread_attr_getscope(x64emu_t* emu, pthread_attr_t* attr, int* scope)
 {
 	(void)emu;
-	return pthread_attr_getscope(getAlignedAttr(attr), scope);
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_attr_getscope(PTHREAD_ATTR(attr), scope);
 }
 EXPORT int my_pthread_attr_getstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr)
 {
 	(void)emu;
 	size_t size;
-	return pthread_attr_getstack(getAlignedAttr(attr), addr, &size);
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_attr_getstack(PTHREAD_ATTR(attr), addr, &size);
 	//return pthread_attr_getstackaddr(getAlignedAttr(attr), addr);
 }
 EXPORT int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, size_t* size)
 {
 	(void)emu;
 	void* addr;
-	int ret = pthread_attr_getstack(getAlignedAttr(attr), &addr, size);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_getstack(PTHREAD_ATTR(attr), &addr, size);
 	if(!*size)
 		*size = 2*1024*1024;
 	//return pthread_attr_getstacksize(getAlignedAttr(attr), size);
@@ -380,59 +363,87 @@ EXPORT int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, siz
 EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 {
 	(void)emu;
-	return pthread_attr_init(getAlignedAttrWithInit(attr, 0));
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_init(PTHREAD_ATTR(attr));
+	PTHREAD_ATTR_UNALIGN(attr);
 }
 #ifndef ANDROID
 EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
 	(void)emu;
-	return pthread_attr_setaffinity_np(getAlignedAttr(attr), cpusize, cpuset);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setaffinity_np(PTHREAD_ATTR(attr), cpusize, cpuset);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 #endif
 EXPORT int my_pthread_attr_setdetachstate(x64emu_t* emu, pthread_attr_t* attr, int state)
 {
 	(void)emu;
-	return pthread_attr_setdetachstate(getAlignedAttr(attr), state);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setdetachstate(PTHREAD_ATTR(attr), state);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 EXPORT int my_pthread_attr_setguardsize(x64emu_t* emu, pthread_attr_t* attr, size_t size)
 {
 	(void)emu;
-	return pthread_attr_setguardsize(getAlignedAttr(attr), size);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setguardsize(PTHREAD_ATTR(attr), size);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 #ifndef TERMUX
 EXPORT int my_pthread_attr_setinheritsched(x64emu_t* emu, pthread_attr_t* attr, int sched)
 {
 	(void)emu;
-	return pthread_attr_setinheritsched(getAlignedAttr(attr), sched);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setinheritsched(PTHREAD_ATTR(attr), sched);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 #endif
 EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, pthread_attr_t* attr, void* param)
 {
 	(void)emu;
-	return pthread_attr_setschedparam(getAlignedAttr(attr), param);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setschedparam(PTHREAD_ATTR(attr), param);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 EXPORT int my_pthread_attr_setschedpolicy(x64emu_t* emu, pthread_attr_t* attr, int policy)
 {
 	(void)emu;
-	return pthread_attr_setschedpolicy(getAlignedAttr(attr), policy);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setschedpolicy(PTHREAD_ATTR(attr), policy);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 EXPORT int my_pthread_attr_setscope(x64emu_t* emu, pthread_attr_t* attr, int scope)
 {
 	(void)emu;
-	return pthread_attr_setscope(getAlignedAttr(attr), scope);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setscope(PTHREAD_ATTR(attr), scope);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 EXPORT int my_pthread_attr_setstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr)
 {
 	size_t size = 2*1024*1024;
 	my_pthread_attr_getstacksize(emu, attr, &size);
-	return pthread_attr_setstack(getAlignedAttr(attr), addr, size);
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setstack(PTHREAD_ATTR(attr), addr, size);
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 	//return pthread_attr_setstackaddr(getAlignedAttr(attr), addr);
 }
 #ifndef ANDROID
 EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_attr_t* attr)
 {
 	(void)emu;
-	int ret = pthread_getattr_np(thread_id, getAlignedAttrWithInit(attr, 0));
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_getattr_np(thread_id, PTHREAD_ATTR(attr));
+	PTHREAD_ATTR_UNALIGN(attr);
 	if(!ret && thread_id==pthread_self()) {
 		if(!emu->context->stacksizes) {
 			emu->context->stacksizes = kh_init(threadstack);
@@ -454,12 +465,17 @@ EXPORT int my_pthread_getattr_np(x64emu_t* emu, pthread_t thread_id, pthread_att
 EXPORT int my_pthread_getattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
 {
 	(void)emu;
-	return pthread_getattr_default_np(getAlignedAttrWithInit(attr, 0));
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_getattr_default_np(PTHREAD_ATTR(attr));
+	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 EXPORT int my_pthread_setattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
 {
 	(void)emu;
-	return pthread_setattr_default_np(getAlignedAttr(attr));
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_setattr_default_np(PTHREAD_ATTR(attr));
+	PTHREAD_ATTR_UNALIGN(attr);
 }
 #endif	//!ANDROID
 #endif
@@ -474,7 +490,8 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 
 	if(attr) {
 		size_t stsize;
-		if(pthread_attr_getstacksize(getAlignedAttr(attr), &stsize)==0)
+		PTHREAD_ATTR_ALIGN(attr);
+		if(pthread_attr_getstacksize(PTHREAD_ATTR(attr), &stsize)==0)
 			stacksize = stsize;
 	}
 	if(GetStackSize(emu, (uintptr_t)attr, &attr_stack, &attr_stacksize))
@@ -503,8 +520,10 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 	}
 	#endif
 	// create thread
-	return pthread_create((pthread_t*)t, getAlignedAttr(attr), 
+	PTHREAD_ATTR_ALIGN(attr);
+	return pthread_create((pthread_t*)t, PTHREAD_ATTR(attr), 
 		pthread_routine, et);
+	// no need too unalign for attr, it's const
 }
 
 void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet)

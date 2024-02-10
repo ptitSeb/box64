@@ -476,13 +476,17 @@ GOM(__fxstat64, iFEiip)
 GOM(__fxstatat, iFEiippi)
 GOM(__fxstatat64, iFEiippi)
 //GO(__gai_sigqueue, 
+GO(gai_cancel, iFp)
+GO(gai_error, iFp)
 GO(gai_strerror, pFi)
+GO(gai_suspend, iFpip)
 //GO(__gconv_get_alias_db, 
 //GO(__gconv_get_cache, 
 //GO(__gconv_get_modules_db, 
 //GO(__gconv_transliterate, 
 GO(gcvt, pFdip)
 GO(getaddrinfo, iFpppp)
+GO(getaddrinfo_a, iFipip)
 GO(getaliasbyname, pFp)
 GO(getaliasbyname_r, iFpppLp)
 GO(getaliasent, pFv)

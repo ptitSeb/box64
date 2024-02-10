@@ -28,7 +28,7 @@ rv64_prolog:
     fsd     f20, (15*8)(sp)
     fsd     f21, (16*8)(sp)
     fsd     f22, (17*8)(sp)
-    fsd     f23, (19*8)(sp)
+    fsd     f23, (18*8)(sp)
     fsd     f24, (19*8)(sp)
     fsd     f25, (20*8)(sp)
     fsd     f26, (21*8)(sp)

@@ -564,7 +564,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     BR(x2);
 }
 
-void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
+void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
 {
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
@@ -575,15 +575,17 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
             MOVx_REG(xRIP, reg);
         }
         NOTEST(x2);
-        uintptr_t tbl = getJumpTable64();
+        uintptr_t tbl = is32bits?getJumpTable32():getJumpTable64();
         MAYUSE(tbl);
         TABLE64(x3, tbl);
-        #ifdef JMPTABL_SHIFT4
-        UBFXx(x2, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
-        LDRx_REG_LSL3(x3, x3, x2);
-        #endif
-        UBFXx(x2, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
-        LDRx_REG_LSL3(x3, x3, x2);
+        if(!is32bits) {
+            #ifdef JMPTABL_SHIFT4
+            UBFXx(x2, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
+            LDRx_REG_LSL3(x3, x3, x2);
+            #endif
+            UBFXx(x2, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
+            LDRx_REG_LSL3(x3, x3, x2);
+        }
         UBFXx(x2, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
         LDRx_REG_LSL3(x3, x3, x2);
         UBFXx(x2, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
@@ -624,15 +626,17 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         SUBx_U12(xSP, xSavedSP, 16);
     }
-    uintptr_t tbl = getJumpTable64();
+    uintptr_t tbl = rex.is32bits?getJumpTable32():getJumpTable64();
     NOTEST(x2);
     MOV64x(x2, tbl);
-    #ifdef JMPTABL_SHIFT4
-    UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
-    LDRx_REG_LSL3(x2, x2, x3);
-    #endif
-    UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
-    LDRx_REG_LSL3(x2, x2, x3);
+    if(!rex.is32bits) {
+        #ifdef JMPTABL_SHIFT4
+        UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
+        LDRx_REG_LSL3(x2, x2, x3);
+        #endif
+        UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
+        LDRx_REG_LSL3(x2, x2, x3);
+    }
     UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);
@@ -665,15 +669,17 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
         // not the correct return address, regular jump
         SUBx_U12(xSP, xSavedSP, 16);
     }
-    uintptr_t tbl = getJumpTable64();
+    uintptr_t tbl = rex.is32bits?getJumpTable32():getJumpTable64();
     NOTEST(x2);
     MOV64x(x2, tbl);
-    #ifdef JMPTABL_SHIFT4
-    UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
-    LDRx_REG_LSL3(x2, x2, x3);
-    #endif
-    UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
-    LDRx_REG_LSL3(x2, x2, x3);
+    if(!rex.is32bits) {
+        #ifdef JMPTABL_SHIFT4
+        UBFXx(x3, xRIP, JMPTABL_START4, JMPTABL_SHIFT4);
+        LDRx_REG_LSL3(x2, x2, x3);
+        #endif
+        UBFXx(x3, xRIP, JMPTABL_START3, JMPTABL_SHIFT3);
+        LDRx_REG_LSL3(x2, x2, x3);
+    }
     UBFXx(x3, xRIP, JMPTABL_START2, JMPTABL_SHIFT2);
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START1, JMPTABL_SHIFT1);

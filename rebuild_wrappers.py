@@ -150,12 +150,12 @@ class FunctionConvention(object):
 		self.ident = ident
 		self.name = convname
 		self.values = valid_chars
-# Free letters:  B   FG  J      QR T    YZa   e gh jk mno qrst    yz
+# Free letters:  B   FG  J      QR T    YZa   e gh jk mno qrst    z
 conventions = {
-	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'b']),
+	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'y', 'b']),
 	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M',      'P', 'A'])
 }
-sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'b', '0', '1']
+sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'y', 'b', '0', '1']
 assert(all(all(c not in conv.values[:i] and c in sortedvalues for i, c in enumerate(conv.values)) for conv in conventions.values()))
 
 class FunctionType(str):
@@ -829,7 +829,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	return_x87: str = "DK"
 	
 	# Sanity checks
-	forbidden_simple: Dict[str, str] = {"ARM64": "EDKVOSNMHPAxXb", "RV64": "EcwiDKVOSNMHPAxXb"}
+	forbidden_simple: Dict[str, str] = {"ARM64": "EDKVOSNMHPAxXYyb", "RV64": "EcwiDKVOSNMHPAxXYyb"}
 	assert(all(k in allowed_simply for k in forbidden_simple))
 	assert(all(k in allowed_regs for k in forbidden_simple))
 	assert(all(k in allowed_fpr for k in forbidden_simple))
@@ -1031,8 +1031,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	# Rewrite the wrapper.c file:
 	# i and u should only be 32 bits
 	td_types = {
-		#      E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A			x				X         b
-		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*", "complexf_t", "complex_t", "void*"],
+		#      E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A			x				X           Y              y         b
+		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*", "complexf_t", "complex_t", "complexl_t", "complex_t", "void*"],
 		#      E            v       c         w          i          I          C          W           u           U           f        d         K         l           L            p        V        O          S        N      M      P        A
 		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "void*", "void*"]
 	}
@@ -1090,8 +1090,10 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
 				"\n#error Invalid return type: pointer in the stack\n",    # P
 				"\n#error Invalid return type: va_list\n",                 # A
-				'from_complexf(emu, fn({0})));', 	                       # x
-				'from_complex(emu, fn({0})));',                            # X
+				'from_complexf(emu, fn({0}));', 	                       # x
+				'from_complex(emu, fn({0}));',                             # X
+				'from_complexl(emu, fn({0}));', 	                       # Y
+				'from_complexk(emu, fn({0}));',                            # y
 				"\n#error Invalid return type: xcb_connection_t*\n",       # b
 			],
 			conventions['W']: [
@@ -1122,17 +1124,17 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		}
 		
 		# vreg: value is in a general register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  b
-		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1, 0, 0, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
+		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1, 0, 0, 0, 0, 1]
 		# vxmm: value is in a XMM register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  b
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0]
 		# vother: value is elsewere
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  b
-		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
+		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  b
-		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 1, 2, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
+		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 1, 2, 4, 4, 1]
 		arg_r = [
 			"",                            # E
 			"",                            # v
@@ -1161,6 +1163,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"(void*){p}, ",                # A
 			"",	                           # x
 			"",                            # X
+			"",							   # Y
+			"",							   # y
 			"aligned_xcb, ",               # b
 		]
 		arg_x = [
@@ -1189,8 +1193,10 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                       # H
 			"",                       # P
 			"",                       # A
-			"to_complexf(emu, {p}),", # x
-			"to_complex(emu, {p}),",  # X
+			"to_complexf(emu, {p}), ", # x
+			"to_complex(emu, {p}), ",  # X
+			"", 				      # Y
+			"", 				      # y
 			"",                       # b
 		]
 		arg_o = [
@@ -1221,6 +1227,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                       # A
 			"",                       # x
 			"",                       # X
+			"",						  # Y
+			"",						  # y
 			"",                       # b
 		]
 		arg_s = [
@@ -1251,6 +1259,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"*(void**)(R_RSP + {p}), ",                 # A
 			"*(complexf_t*)(R_RSP + {p}), ",            # x
 			"*(complex_t*)(R_RSP + {p}), ",             # X
+			"to_complexl(emu, R_RSP + {p}), ",		    # Y
+			"to_complexk(emu, R_RSP + {p}), ",		    # y
 			"aligned_xcb, ",                            # b
 		]
 		
@@ -1552,6 +1562,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.4.0.20") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.4.0.21") != 0:
 		exit(2)
 	exit(0)

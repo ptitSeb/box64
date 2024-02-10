@@ -38,6 +38,7 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     MAYUSE(v2);
     MAYUSE(v1);
 
+    if(MODREG)
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -178,119 +179,120 @@ uintptr_t dynarec64_D8(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FDIVD(v1, v2, v1);
             }
             break;
-
         default:
-            switch((nextop>>3)&7) {
-                case 0:
-                    INST_NAME("FADD ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FADDS(v1, v1, s0);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FADDD(v1, v1, s0);
-                    }
-                    break;
-                case 1:
-                    INST_NAME("FMUL ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FMULS(v1, v1, s0);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FMULD(v1, v1, s0);
-                    }
-                    break;
-                case 2:
-                    INST_NAME("FCOM ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FCMPS(v1, s0);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FCMPD(v1, s0);
-                    }
-                    FCOM(x1, x2, x3);
-                    break;
-                case 3:
-                    INST_NAME("FCOMP ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FCMPS(v1, s0);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FCMPD(v1, s0);
-                    }
-                    FCOM(x1, x2, x3);
-                    X87_POP_OR_FAIL(dyn, ninst, x3);
-                    break;
-                case 4:
-                    INST_NAME("FSUB ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FSUBS(v1, v1, s0);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FSUBD(v1, v1, s0);
-                    }
-                    break;
-                case 5:
-                    INST_NAME("FSUBR ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FSUBS(v1, s0, v1);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FSUBD(v1, s0, v1);
-                    }
-                    break;
-                case 6:
-                    INST_NAME("FDIV ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FDIVS(v1, v1, s0);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FDIVD(v1, v1, s0);
-                    }
-                    break;
-                case 7:
-                    INST_NAME("FDIVR ST0, float[ED]");
-                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-                    s0 = fpu_get_scratch(dyn);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                    VLD32(s0, ed, fixedaddress);
-                    if(ST_IS_F(0)) {
-                        FDIVS(v1, s0, v1);
-                    } else {
-                        FCVT_D_S(s0, s0);
-                        FDIVD(v1, s0, v1);
-                    }
-                    break;
-                default:
-                    DEFAULT;
-            }
-    }
+            DEFAULT;
+            break;
+    } else
+        switch((nextop>>3)&7) {
+            case 0:
+                INST_NAME("FADD ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FADDS(v1, v1, s0);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FADDD(v1, v1, s0);
+                }
+                break;
+            case 1:
+                INST_NAME("FMUL ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FMULS(v1, v1, s0);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FMULD(v1, v1, s0);
+                }
+                break;
+            case 2:
+                INST_NAME("FCOM ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FCMPS(v1, s0);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FCMPD(v1, s0);
+                }
+                FCOM(x1, x2, x3);
+                break;
+            case 3:
+                INST_NAME("FCOMP ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FCMPS(v1, s0);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FCMPD(v1, s0);
+                }
+                FCOM(x1, x2, x3);
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
+            case 4:
+                INST_NAME("FSUB ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FSUBS(v1, v1, s0);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FSUBD(v1, v1, s0);
+                }
+                break;
+            case 5:
+                INST_NAME("FSUBR ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FSUBS(v1, s0, v1);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FSUBD(v1, s0, v1);
+                }
+                break;
+            case 6:
+                INST_NAME("FDIV ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FDIVS(v1, v1, s0);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FDIVD(v1, v1, s0);
+                }
+                break;
+            case 7:
+                INST_NAME("FDIVR ST0, float[ED]");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                s0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                VLD32(s0, ed, fixedaddress);
+                if(ST_IS_F(0)) {
+                    FDIVS(v1, s0, v1);
+                } else {
+                    FCVT_D_S(s0, s0);
+                    FDIVD(v1, s0, v1);
+                }
+                break;
+            default:
+                DEFAULT;
+        }
     return addr;
 }

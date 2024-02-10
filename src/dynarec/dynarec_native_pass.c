@@ -40,7 +40,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     uintptr_t ip = addr;
     uintptr_t init_addr = addr;
     rex_t rex;
-    int rep;    // 0 none, 1=F2 prefix, 2=F3 prefix
+    int rep = 0;    // 0 none, 1=F2 prefix, 2=F3 prefix
     int need_epilog = 1;
     // Clean up (because there are multiple passes)
     dyn->f.pending = 0;
@@ -67,6 +67,13 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 need_epilog = 1;
                 break;
             }
+        }
+        // This test is here to prevent things like TABLE64 to be out of range
+        // native_size is not exact at this point, but it should be larger, not smaller, and not by a huge margin anyway
+        // so it's good enough to avoid overflow in relative to PC data fectching
+        if(dyn->native_size >= MAXBLOCK_SIZE) {
+            need_epilog = 1;
+            break;
         }
         #endif
         ip = addr;
@@ -315,7 +322,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             ++ninst;
             NOTEST(x3);
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-            jump_to_next(dyn, addr, 0, ninst);
+            jump_to_next(dyn, addr, 0, ninst, rex.is32bits);
             ok=0; need_epilog=0;
         }
     }

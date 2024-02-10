@@ -1,7 +1,7 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -21,6 +21,11 @@
 
 const char* crypto3Name = "libcrypto.so.3";
 #define LIBNAME crypto3
+
+typedef int(*iFppA_t)   (void*, void*, va_list);
+
+#define ADDED_FUNCTIONS()                   \
+    GO(BIO_vprintf, iFppA_t);               \
 
 #include "generated/wrappedcrypto3types.h"
 
@@ -298,6 +303,30 @@ static void* find_verify_cb_Fct(void* fct)
     return NULL;
 }
 
+// do_all_provided_cb
+#define GO(A)   \
+static uintptr_t my3_do_all_provided_cb_fct_##A = 0;            \
+static void my3_do_all_provided_cb_##A(void* a, void* b)        \
+{                                                               \
+    RunFunctionFmt(my3_do_all_provided_cb_fct_##A, "pp", a, b); \
+}
+SUPER()
+#undef GO
+static void* find_do_all_provided_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_do_all_provided_cb_fct_##A == (uintptr_t)fct) return my3_do_all_provided_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_do_all_provided_cb_fct_##A == 0) {my3_do_all_provided_cb_fct_##A = (uintptr_t)fct; return my3_do_all_provided_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto do_all_provided_cb callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT int32_t my3_ENGINE_ctrl(x64emu_t* emu, void* e, int32_t cmd, int32_t i, void* p, void* f)
@@ -438,6 +467,11 @@ EXPORT void my3_OPENSSL_sk_pop_free(x64emu_t* emu, void* s, void* cb)
     my->OPENSSL_sk_pop_free(s, find_free_fnc_Fct(cb));
 }
 
+EXPORT void* my3_OPENSSL_sk_new(x64emu_t* emu, void* f)
+{
+    return my->OPENSSL_sk_new(find_cmp_fnc_Fct(f));
+}
+
 EXPORT void my3_ERR_set_error(x64emu_t* emu, int lib, int reason, void* fmt, uintptr_t* b)
 {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
@@ -453,6 +487,23 @@ EXPORT void my3_ERR_vset_error(x64emu_t* emu, int lib, int reason, void* fmt, x6
     PREPARE_VALIST;
     #endif
     my->ERR_vset_error(lib, reason, fmt, VARARGS);
+}
+
+EXPORT int my3_BIO_printf(x64emu_t* emu, void* bio, void* fmt, uintptr_t* b)
+{
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
+    PREPARE_VALIST;
+    return my->BIO_vprintf(bio, fmt, VARARGS);
+}
+
+EXPORT void* my3_PEM_read_DHparams(x64emu_t* emu, void* fp, void* x, void* cb, void* u)
+{
+    return my->PEM_read_DHparams(fp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+EXPORT void my3_EVP_MD_do_all_provided(x64emu_t* emu, void* ctx, void* cb, void* arg)
+{
+    my->EVP_MD_do_all_provided(ctx, find_do_all_provided_cb_Fct(cb), arg);
 }
 
 #define ALTMY my3_

@@ -225,9 +225,11 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
  uintptr_t  ssp_base        0x78
  .... padding ....          0x200?
 */
+#define NELFSIZE_MASK 0x3FF
+#define NELFSIZE (NELFSIZE_MASK+1)
 static int sizeDTS(box64context_t* context)
 {
-    return ((context->elfsize+0xff)&~0xff)*16;
+    return ((context->elfsize+NELFSIZE_MASK)&~NELFSIZE_MASK)*16;
 }
 static int sizeTLSData(int s)
 {
@@ -281,9 +283,9 @@ static void* resizeTLSData(box64context_t *context, void* oldptr)
 {
         mutex_lock(&context->mutex_tls);
         tlsdatasize_t* oldata = (tlsdatasize_t*)oldptr;
-        if(sizeTLSData(oldata->tlssize)!=sizeTLSData(context->tlssize) || (oldata->n_elfs/0xff)!=(context->elfsize/0xff)) {
+        if(sizeTLSData(oldata->tlssize)!=sizeTLSData(context->tlssize) || (oldata->n_elfs/NELFSIZE)!=(context->elfsize/NELFSIZE)) {
             if(sizeTLSData(oldata->tlssize)) {
-                printf_log(LOG_INFO, "Warning, resizing of TLS occurred! size: %d->%d / n_elfs: %d->%d\n", sizeTLSData(oldata->tlssize), sizeTLSData(context->tlssize), 1+(oldata->n_elfs/0xff), 1+(context->elfsize/0xff));
+                printf_log(LOG_INFO, "Warning, resizing of TLS occurred! size: %d->%d / n_elfs: %d->%d\n", sizeTLSData(oldata->tlssize), sizeTLSData(context->tlssize), 1+(oldata->n_elfs/NELFSIZE), 1+(context->elfsize/NELFSIZE));
             }
             tlsdatasize_t *data = setupTLSData(context);
             // copy the relevent old part, in case something changed

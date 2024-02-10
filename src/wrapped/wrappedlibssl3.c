@@ -55,6 +55,16 @@ static void* find_pem_passwd_cb_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libSSL pem_passwd_cb callback\n");
     return NULL;
 }
+static void* reverse_pem_passwd_cb_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my3_pem_passwd_cb_##A == fct) return (void*)my3_pem_passwd_cb_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, pFp, fct, 0, NULL);
+}
 
 // anonymous
 #define GO(A)   \
@@ -282,6 +292,52 @@ static void* find_alpn_select_cb_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libSSL alpn_select_cb callback\n");
     return NULL;
 }
+// keylog_cb
+#define GO(A)   \
+static uintptr_t my3_keylog_cb_fct_##A = 0;                 \
+static void my3_keylog_cb_##A(void* ssl, void* line)        \
+{                                                           \
+    RunFunctionFmt(my3_keylog_cb_fct_##A, "pp", ssl, line); \
+}
+SUPER()
+#undef GO
+static void* find_keylog_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_keylog_cb_fct_##A == (uintptr_t)fct) return my3_keylog_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_keylog_cb_fct_##A == 0) {my3_keylog_cb_fct_##A = (uintptr_t)fct; return my3_keylog_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL keylog_cb callback\n");
+    return NULL;
+}
+// msg_cb
+#define GO(A)   \
+static uintptr_t my3_msg_cb_fct_##A = 0;                                                \
+static void my3_msg_cb_##A(int a, int b, int c, void* d, size_t e, void* f, void* g)    \
+{                                                                                       \
+    RunFunctionFmt(my3_msg_cb_fct_##A, "iiipLpp", a, b, c, d, e, f, g);                 \
+}
+SUPER()
+#undef GO
+static void* find_msg_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_msg_cb_fct_##A == (uintptr_t)fct) return my3_msg_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_msg_cb_fct_##A == 0) {my3_msg_cb_fct_##A = (uintptr_t)fct; return my3_msg_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL msg_cb callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -354,6 +410,31 @@ EXPORT void my3_SSL_CTX_set_client_cert_cb(x64emu_t* emu, void* ctx, void* cb)
 EXPORT void my3_SSL_CTX_set_alpn_select_cb(x64emu_t* emu, void* ctx, void* f, void* arg)
 {
     my->SSL_CTX_set_alpn_select_cb(ctx, find_alpn_select_cb_Fct(f), arg);
+}
+
+EXPORT void* my3_SSL_CTX_get_default_passwd_cb(x64emu_t* emu, void* ctx)
+{
+    return reverse_pem_passwd_cb_Fct(my->SSL_CTX_get_default_passwd_cb(ctx));
+}
+
+EXPORT void* my3_SSL_CTX_get_verify_callback(x64emu_t* emu, void* ctx)
+{
+    return reverse_verify_Fct(my->SSL_CTX_get_verify_callback(ctx));
+}
+
+EXPORT void my3_SSL_CTX_set_keylog_callback(x64emu_t* emu, void* ctx, void* cb)
+{
+    my->SSL_CTX_set_keylog_callback(ctx, find_keylog_cb_Fct(cb));
+}
+
+EXPORT void my3_SSL_CTX_set_msg_callback(x64emu_t* emu, void* ctx, void* cb)
+{
+    my->SSL_CTX_set_msg_callback(ctx, find_msg_cb_Fct(cb));
+}
+
+EXPORT void my3_SSL_set_msg_callback(x64emu_t* emu, void* ctx, void* cb)
+{
+    my->SSL_set_msg_callback(ctx, find_msg_cb_Fct(cb));
 }
 
 #define ALTMY my3_

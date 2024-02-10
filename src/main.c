@@ -51,7 +51,7 @@ int box64_inprocessgpu = 0;
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
 int box64_maxcpu = 0;
-#if defined(SD845) || defined(SD888) || defined(SD8G2)
+#if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 int box64_mmap32 = 1;
 #else
 int box64_mmap32 = 0;
@@ -65,6 +65,7 @@ int box64_dynarec_bigblock = 1;
 int box64_dynarec_forward = 128;
 int box64_dynarec_strongmem = 0;
 int box64_dynarec_x87double = 0;
+int box64_dynarec_div0 = 0;
 int box64_dynarec_fastnan = 1;
 int box64_dynarec_fastround = 1;
 int box64_dynarec_safeflags = 1;
@@ -607,11 +608,11 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_STRONGMEM");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='3')
+            if(p[0]>='0' && p[0]<='4')
                 box64_dynarec_strongmem = p[0]-'0';
         }
         if(box64_dynarec_strongmem)
-            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":((box64_dynarec_strongmem==3)?" with more performance loss":""));
+            printf_log(LOG_INFO, "Dynarec will try to emulate a strong memory model%s\n", (box64_dynarec_strongmem==1)?" with limited performance loss":((box64_dynarec_strongmem>1)?" with more performance loss":""));
     }
     p = getenv("BOX64_DYNAREC_X87DOUBLE");
     if(p) {
@@ -621,6 +622,15 @@ void LoadLogEnv()
         }
         if(box64_dynarec_x87double)
             printf_log(LOG_INFO, "Dynarec will use only double for x87 emulation\n");
+    }
+    p = getenv("BOX64_DYNAREC_DIV0");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_div0 = p[0]-'0';
+        }
+        if(box64_dynarec_div0)
+            printf_log(LOG_INFO, "Dynarec will check for divide by 0\n");
     }
     p = getenv("BOX64_DYNAREC_FASTNAN");
     if(p) {
@@ -735,6 +745,8 @@ void LoadLogEnv()
         if(box64_dynarec_test) {
             box64_dynarec_fastnan = 0;
             box64_dynarec_fastround = 0;
+            box64_dynarec_x87double = 1;
+            box64_dynarec_div0 = 1;
             box64_dynarec_callret = 0;
             printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
@@ -1200,13 +1212,15 @@ void LoadEnvVars(box64context_t *context)
             printf_log(LOG_INFO, "\n");
         }
     }
-    // add libssl and libcrypto, prefer emulated version because of multiple version exist
+    // add libssl and libcrypto (and a few other) to prefer emulated version because of multiple version exist
     AddPath("libssl.so.1", &context->box64_emulated_libs, 0);
     AddPath("libssl.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1", &context->box64_emulated_libs, 0);
     AddPath("libcrypto.so.1.0.0", &context->box64_emulated_libs, 0);
     AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
     AddPath("libpng12.so.0", &context->box64_emulated_libs, 0);
+    AddPath("libcurl.so.4", &context->box64_emulated_libs, 0);
+    AddPath("libtbbmalloc.so.2", &context->box64_emulated_libs, 0);
 
     if(getenv("BOX64_SSE_FLUSHTO0")) {
         if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
@@ -1371,6 +1385,8 @@ void endBox64()
     box64_quit = 1;
     endMallocHook();
     x64emu_t* emu = thread_get_emu();
+    void startTimedExit();
+    startTimedExit();
     // atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);
@@ -1440,6 +1456,18 @@ static void free_contextargv()
 {
     for(int i=0; i<my_context->argc; ++i)
         box_free(my_context->argv[i]);
+}
+
+static void add_argv(const char* what) {
+    int there = 0;
+    for(int i=1; i<my_context->argc && !there; ++i)
+        if(!strcmp(my_context->argv[i], what))
+            there = 1;
+    if(!there) {
+        my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
+        my_context->argv[my_context->argc] = box_strdup(what);
+        my_context->argc++;
+    }
 }
 
 static void load_rcfiles()
@@ -1560,6 +1588,7 @@ int main(int argc, const char **argv, char **env) {
     #endif
     int ld_libs_args = -1;
     int is_custom_gstreamer = 0;
+    int wine_steam = 0;
     // check if this is wine
     if(!strcmp(prog, "wine64")
      || !strcmp(prog, "wine64-development") 
@@ -1596,6 +1625,23 @@ int main(int argc, const char **argv, char **env) {
                 box64_custom_gstreamer = box_strdup(tmp);
             }
         }
+        // if program being called is wine_steam (rudimentary check...) and if no other argument are there
+        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' /*&& argc==(nextarg+2)*/) {
+            if(!strcasecmp(argv[nextarg+1], "steam.exe"))
+                wine_steam = 1;
+            else if(!strcasecmp(argv[nextarg+1], "steam"))
+                wine_steam = 1;
+            if(!wine_steam) {
+                const char* pp = strrchr(argv[nextarg+1], '/');
+                if(pp && !strcasecmp(pp+1, "steam.exe"))
+                    wine_steam = 1;
+                else {
+                    pp = strrchr(argv[nextarg+1], '\\');
+                    if(pp && !strcasecmp(pp+1, "steam.exe"))
+                        wine_steam = 1;
+                }
+            }
+        }
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
         printf_log(LOG_INFO, "BOX64: ld-musl detected. Trying to workaround and use system ld-linux\n");
@@ -1615,6 +1661,10 @@ int main(int argc, const char **argv, char **env) {
     // check if this is wineserver
     if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
         box64_wine = 1;
+    }
+    if(box64_wine) {
+        // disabling the use of futex_waitv for now
+        setenv("WINEFSYNC", "0", 1);
     }
     // Create a new context
     my_context = NewBox64Context(argc - nextarg);
@@ -1733,29 +1783,19 @@ int main(int argc, const char **argv, char **env) {
     }
     if(box64_nosandbox)
     {
-        // check if sandbox is already there
-        int there = 0;
-        for(int i=1; i<my_context->argc && !there; ++i)
-            if(!strcmp(my_context->argv[i], "--no-sandbox"))
-                there = 1;
-        if(!there) {
-            my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
-            my_context->argv[my_context->argc] = box_strdup("--no-sandbox");
-            my_context->argc++;
-        }
+        add_argv("--no-sandbox");
     }
     if(box64_inprocessgpu)
     {
-        // check if in-process-gpu is already there
-        int there = 0;
-        for(int i=1; i<my_context->argc && !there; ++i)
-            if(!strcmp(my_context->argv[i], "--in-process-gpu"))
-                there = 1;
-        if(!there) {
-            my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
-            my_context->argv[my_context->argc] = box_strdup("--in-process-gpu");
-            my_context->argc++;
-        }
+        add_argv("--in-process-gpu");
+    }
+    if(wine_steam) {
+        printf_log(LOG_INFO, "Steam.exe detected, adding -cef-single-process -cef-in-process-gpu -cef-disable-sandbox -no-cef-sandbox -cef-disable-breakpad to parameters");
+        add_argv("-cef-single-process");
+        add_argv("-cef-in-process-gpu");
+        add_argv("-cef-disable-sandbox");
+        add_argv("-no-cef-sandbox");
+        add_argv("-cef-disable-breakpad");
     }
 
     // check if file exist

@@ -9,9 +9,9 @@ GO(curl_easy_getinfo, uFpppppp) //vararg
 GO(curl_easy_init, pFv)
 //GO(curl_easy_pause, 
 GO(curl_easy_perform, uFp)
-//GO(curl_easy_recv, 
+GO(curl_easy_recv, iFppLp)
 GO(curl_easy_reset, vFp)
-//GO(curl_easy_send, 
+GO(curl_easy_send, iFppLp)
 GOM(curl_easy_setopt, uFEpup)   // can set many callbacks!
 GO(curl_easy_strerror, pFu)
 //GO(curl_easy_unescape, 
@@ -25,7 +25,7 @@ GO(curl_free, vFp)
 GO(curl_global_cleanup, vFv)
 GO(curl_global_init, uFu)
 //GO(curl_global_init_mem, 
-//GO(curl_global_sslset, 
+GO(curl_global_sslset, uFupp)
 //GO(curl_maprintf, 
 //GO(curl_mfprintf, 
 //GO(curl_mime_addpart, 
@@ -66,14 +66,20 @@ GO(curl_multi_wait, iFppuip)
 //GO(curl_mvsprintf, 
 //GO(curl_pushheader_byname, 
 //GO(curl_pushheader_bynum, 
-//GO(curl_share_cleanup, 
-//GO(curl_share_init, 
-//GO(curl_share_setopt, 
+GO(curl_share_cleanup, uFp)
+GO(curl_share_init, pFv)
+GOM(curl_share_setopt, uFEpup)
 //GO(curl_share_strerror, 
 GO(curl_slist_append, pFpp)
 GO(curl_slist_free_all, vFp)
 //GO(curl_strequal, 
 //GO(curl_strnequal, 
 //GO(curl_unescape, 
+GO(curl_url, pFv)
+GO(curl_url_cleanup, vFp)
+GO(curl_url_dup, pFp)
+GO(curl_url_get, iFpipu)
+GO(curl_url_set, iFpipu)
+GO(curl_url_strerror, pFi)
 GO(curl_version, pFv)
 GO(curl_version_info, pFi)

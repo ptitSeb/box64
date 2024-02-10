@@ -35,6 +35,7 @@ uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
     #endif
 
     nextop = F8;
+    if(MODREG)
     switch(nextop) {
         case 0xC0:
         case 0xC1:
@@ -118,6 +119,8 @@ uintptr_t RunDC(x64emu_t *emu, rex_t rex, uintptr_t addr)
             ST(nextop&7).d /=  ST0.d;
             break;
         default:
+            return 0;
+    } else {
             GETE8(0);
             switch((nextop>>3)&7) {
             case 0:         /* FADD ST0, double */

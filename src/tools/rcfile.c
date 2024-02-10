@@ -145,8 +145,9 @@ ENTRYINT(BOX64_DYNAREC_DUMP, box64_dynarec_dump, 0, 2, 2)           \
 ENTRYINT(BOX64_DYNAREC_LOG, box64_dynarec_log, 0, 3, 2)             \
 ENTRYINT(BOX64_DYNAREC_BIGBLOCK, box64_dynarec_bigblock, 0, 3, 2)   \
 ENTRYSTRING_(BOX64_DYNAREC_FORWARD, box64_dynarec_forward)          \
-ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 3, 2) \
+ENTRYINT(BOX64_DYNAREC_STRONGMEM, box64_dynarec_strongmem, 0, 4, 3) \
 ENTRYBOOL(BOX64_DYNAREC_X87DOUBLE, box64_dynarec_x87double)         \
+ENTRYBOOL(BOX64_DYNAREC_DIV0, box64_dynarec_div0)                   \
 ENTRYBOOL(BOX64_DYNAREC_FASTNAN, box64_dynarec_fastnan)             \
 ENTRYBOOL(BOX64_DYNAREC_FASTROUND, box64_dynarec_fastround)         \
 ENTRYINT(BOX64_DYNAREC_SAFEFLAGS, box64_dynarec_safeflags, 0, 2, 2) \
@@ -171,6 +172,7 @@ IGNORE(BOX64_DYNAREC_BIGBLOCK)                                      \
 IGNORE(BOX64_DYNAREC_FORWARD)                                       \
 IGNORE(BOX64_DYNAREC_STRONGMEM)                                     \
 IGNORE(BOX64_DYNAREC_X87DOUBLE)                                     \
+IGNORE(BOX64_DYNAREC_DIV0)                                          \
 IGNORE(BOX64_DYNAREC_FASTNAN)                                       \
 IGNORE(BOX64_DYNAREC_FASTROUND)                                     \
 IGNORE(BOX64_DYNAREC_SAFEFLAGS)                                     \
@@ -630,6 +632,8 @@ void ApplyParams(const char* name)
     if(param->is_box64_dynarec_test_present && box64_dynarec_test) {
         box64_dynarec_fastnan = 0;
         box64_dynarec_fastround = 0;
+        box64_dynarec_x87double = 1;
+        box64_dynarec_div0 = 1;
         box64_dynarec_callret = 0;
     }
     #endif

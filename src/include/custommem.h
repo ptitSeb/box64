@@ -26,6 +26,8 @@ void FreeDynarecMap(uintptr_t addr);
 
 void addDBFromAddressRange(uintptr_t addr, size_t size);
 void cleanDBFromAddressRange(uintptr_t addr, size_t size, int destroy);
+// Will return 1 if at least 1 db in the address range
+int isDBFromAddressRange(uintptr_t addr, size_t size);
 
 dynablock_t* getDB(uintptr_t idx);
 int getNeedTest(uintptr_t idx);
@@ -35,6 +37,7 @@ void setJumpTableDefault64(void* addr);
 void setJumpTableDefaultRef64(void* addr, void* jmp);
 int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64(void);
+uintptr_t getJumpTable32(void);
 uintptr_t getJumpTableAddress64(uintptr_t addr);
 uintptr_t getJumpAddress64(uintptr_t addr);
 

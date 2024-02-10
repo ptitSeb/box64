@@ -1213,7 +1213,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
 // generic x64 helper
 void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
-void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
+void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex);
 void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n);
 void iret_to_epilog(dynarec_rv64_t* dyn, int ninst, int is64bits);

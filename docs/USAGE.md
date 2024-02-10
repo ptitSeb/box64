@@ -107,7 +107,7 @@ Call XInitThreads when loading X11. (This is mostly for old Loki games with the 
 #### BOX64_MMAP32 *
 Will use 32bits address in priority for external MMAP (when 32bits process are detected)
  * 0 : Use regular mmap (default, except for Snapdragron build)
- * 1 : Use 32bits address space mmap in priority for external mmap as soon a 32bits process are detected (default for Snapdragon build)
+ * 1 : Use 32bits address space mmap in priority for external mmap as soon a 32bits process are detected (default for SnapDragon and TegraX1 build)
 
 #### BOX64_IGNOREINT3 *
 What to do when a CC INT3 opcode is encounter in the code being run
