@@ -114,6 +114,10 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef DOIT
 #undef _DOIT
 
+#if !defined(ALTNAME) && defined(ALTNAME2)
+#error Please define ALTNAME before defining ALTNAME2
+#endif
+
 int FUNC(_init)(library_t* lib, box64context_t* box64)
 {
     (void)box64;
@@ -127,17 +131,18 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         lib->w.lib = dlopen(MAPNAME(Name), RTLD_LAZY | RTLD_GLOBAL);
         if(!lib->w.lib) {
 #ifdef ALTNAME
-        lib->w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);
-        if(!lib->w.lib)
-#endif
+            lib->w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);
+            if(!lib->w.lib) {
 #ifdef ALTNAME2
-            {
-            lib->w.lib = dlopen(ALTNAME2, RTLD_LAZY | RTLD_GLOBAL);
-            if(!lib->w.lib)
+                lib->w.lib = dlopen(ALTNAME2, RTLD_LAZY | RTLD_GLOBAL);
+                if(!lib->w.lib)
+#endif
 #endif
                 return -1;
+#ifdef ALTNAME
 #ifdef ALTNAME2
                 else lib->path = box_strdup(ALTNAME2);
+#endif
             } else lib->path = box_strdup(ALTNAME);
 #endif
         } else lib->path = box_strdup(MAPNAME(Name));
@@ -150,8 +155,8 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 
     // populates maps...
 #define DOIT(mapname) \
-	cnt = sizeof(MAPNAME(mapname))/sizeof(map_onesymbol_t);                         \
-	for (int i = 0; i < cnt; ++i) {                                                 \
+    cnt = sizeof(MAPNAME(mapname))/sizeof(map_onesymbol_t);                         \
+    for (int i = 0; i < cnt; ++i) {                                                 \
         if (MAPNAME(mapname)[i].weak) {                                             \
             k = kh_put(symbolmap, lib->w.w##mapname, MAPNAME(mapname)[i].name, &ret); \
             kh_value(lib->w.w##mapname, k).w = MAPNAME(mapname)[i].w;               \
@@ -163,9 +168,9 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         }                                                                           \
         if (strchr(MAPNAME(mapname)[i].name, '@'))                                  \
             AddDictionnary(box64->versym, MAPNAME(mapname)[i].name);                \
-	}
-	DOIT(symbolmap)
-	DOIT(mysymbolmap)
+    }
+    DOIT(symbolmap)
+    DOIT(mysymbolmap)
 #undef DOIT
     cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
