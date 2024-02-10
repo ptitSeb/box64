@@ -511,10 +511,10 @@ void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet
 {
 	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
 	void* stack = internal_mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
-    if(stack!=MAP_FAILED)
-        setProtection((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
+	if(stack!=MAP_FAILED)
+		setProtection((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
-    x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
+	x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX64Emu(emuthread, emu					);
 	//SetFS(emuthread, GetFS(emu));
 	et->emu = emuthread;
