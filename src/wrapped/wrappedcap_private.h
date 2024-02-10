@@ -9,7 +9,7 @@
 //GO(cap_copy_int, 
 //GO(cap_drop_bound, 
 //GO(cap_dup, 
-//GO(cap_free, 
+GO(cap_free, iFp)
 //GO(cap_from_name, 
 //GO(cap_from_text, 
 //GO(cap_get_ambient, 
@@ -21,7 +21,7 @@
 //GO(cap_get_nsowner, 
 //GO(capgetp, 
 //GO(cap_get_pid, 
-//GO(cap_get_proc, 
+GO(cap_get_proc, pFi)
 //GO(cap_get_secbits, 
 //GO(cap_iab_fill, 
 //GO(cap_iab_from_text, 
@@ -46,12 +46,12 @@
 //GO(cap_set_ambient, 
 //GO(cap_set_fd, 
 //GO(cap_set_file, 
-//GO(cap_set_flag, 
+GO(cap_set_flag, iFpiipi)
 //GO(cap_setgroups, 
 //GO(cap_set_mode, 
 //GO(cap_set_nsowner, 
 //GO(capsetp, 
-//GO(cap_set_proc, 
+GO(cap_set_proc, iFp)
 //GO(cap_set_secbits, 
 //GO(cap_set_syscall, 
 //GO(cap_setuid, 
