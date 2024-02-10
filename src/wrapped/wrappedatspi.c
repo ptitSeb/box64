@@ -91,10 +91,4 @@ EXPORT void* my_atspi_event_listener_new(x64emu_t* emu, void* f, void* data, voi
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

@@ -1413,10 +1413,6 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
 }
 
 #define CUSTOM_INIT                 \
-    getMy(lib);                     \
     if(box64_x11threads) my->XInitThreads();
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"

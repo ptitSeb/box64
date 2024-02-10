@@ -77,11 +77,4 @@ EXPORT void* my_vaSetInfoCallback(x64emu_t* emu, void* dpy, void* f, void* ctx)
     return reverse_VAMessageCallbackFct(my->vaSetInfoCallback(dpy, findVAMessageCallbackFct(f), ctx));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

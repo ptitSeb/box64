@@ -106,10 +106,4 @@ EXPORT void my_dbusmenu_menuitem_send_about_to_show(x64emu_t* emu, void* mi, voi
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);     \
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

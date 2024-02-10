@@ -629,21 +629,14 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
     if(box64_nogtk) \
         return -1;
 
-#ifdef ANDROID
 #define CUSTOM_INIT \
-    getMy(lib);                                         \
     SetGApplicationID(my->g_application_get_type());    \
-    SetGDBusProxyID(my->g_dbus_proxy_get_type());       \
-    setNeededLibs(lib, 1, "libgmodule-2.0.so");
-#else
-#define CUSTOM_INIT \
-    getMy(lib);                                         \
-    SetGApplicationID(my->g_application_get_type());    \
-    SetGDBusProxyID(my->g_dbus_proxy_get_type());       \
-    setNeededLibs(lib, 1, "libgmodule-2.0.so.0");
-#endif
+    SetGDBusProxyID(my->g_dbus_proxy_get_type());
 
-#define CUSTOM_FINI \
-    freeMy();
+#ifdef ANDROID
+#define NEEDED_LIBS "libgmodule-2.0.so"
+#else
+#define NEEDED_LIBS "libgmodule-2.0.so.0"
+#endif
 
 #include "wrappedlib_init.h"

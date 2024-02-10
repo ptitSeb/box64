@@ -88,11 +88,6 @@ EXPORT void* my_initscr()
     return ret;
 }
 
-#define CUSTOM_INIT \
-    getMy(lib); \
-    setNeededLibs(lib,  1, "libtinfo.so.5");
-
-#define CUSTOM_FINI \
-    freeMy();
+#define NEEDED_LIBS "libtinfo.so.5"
 
 #include "wrappedlib_init.h"

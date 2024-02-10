@@ -66,10 +66,4 @@ EXPORT void my_gbm_bo_set_user_data(x64emu_t* emu, void* bo, void* data, void *f
     my->gbm_bo_set_user_data(bo, data, find_destroy_user_data_Fct(f));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

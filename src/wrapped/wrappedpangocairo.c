@@ -20,11 +20,9 @@
 #define LIBNAME pangocairo
 
 #ifdef ANDROID
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libpango-1.0.so");
+#define NEEDED_LIBS "libpango-1.0.so"
 #else
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libpango-1.0.so.0");
+#define NEEDED_LIBS "libpango-1.0.so.0"
 #endif
 
 #include "wrappedlib_init.h"

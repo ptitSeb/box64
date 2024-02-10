@@ -506,11 +506,6 @@ EXPORT void my3_EVP_MD_do_all_provided(x64emu_t* emu, void* ctx, void* cb, void*
     my->EVP_MD_do_all_provided(ctx, find_do_all_provided_cb_Fct(cb), arg);
 }
 
-#define CUSTOM_INIT \
-    SETALT(my3_);   \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
+#define ALTMY my3_
 
 #include "wrappedlib_init.h"

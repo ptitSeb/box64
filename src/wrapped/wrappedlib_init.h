@@ -114,6 +114,18 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef DOIT
 #undef _DOIT
 
+#if !defined(ALTNAME) && defined(ALTNAME2)
+#error Please define ALTNAME before defining ALTNAME2
+#endif
+
+#define COUNT_NARGS(...) COUNT_NARGS_AUX(__VA_ARGS__, 5, 4, 3, 2, 1, 0)
+#define COUNT_NARGS_AUX(_1, _2, _3, _4, _5, n, ...) COUNT_NARGS_AUX##n(This should not appear, too many libraries)
+#define COUNT_NARGS_AUX1(v1, v2) 1
+#define COUNT_NARGS_AUX2(v1, v2) 2
+#define COUNT_NARGS_AUX3(v1, v2) 3
+#define COUNT_NARGS_AUX4(v1, v2) 4
+#define COUNT_NARGS_AUX5(v1, v2) 5
+
 int FUNC(_init)(library_t* lib, box64context_t* box64)
 {
     (void)box64;
@@ -127,17 +139,18 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         lib->w.lib = dlopen(MAPNAME(Name), RTLD_LAZY | RTLD_GLOBAL);
         if(!lib->w.lib) {
 #ifdef ALTNAME
-        lib->w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);
-        if(!lib->w.lib)
-#endif
+            lib->w.lib = dlopen(ALTNAME, RTLD_LAZY | RTLD_GLOBAL);
+            if(!lib->w.lib) {
 #ifdef ALTNAME2
-            {
-            lib->w.lib = dlopen(ALTNAME2, RTLD_LAZY | RTLD_GLOBAL);
-            if(!lib->w.lib)
+                lib->w.lib = dlopen(ALTNAME2, RTLD_LAZY | RTLD_GLOBAL);
+                if(!lib->w.lib)
+#endif
 #endif
                 return -1;
+#ifdef ALTNAME
 #ifdef ALTNAME2
                 else lib->path = box_strdup(ALTNAME2);
+#endif
             } else lib->path = box_strdup(ALTNAME);
 #endif
         } else lib->path = box_strdup(MAPNAME(Name));
@@ -150,8 +163,8 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 
     // populates maps...
 #define DOIT(mapname) \
-	cnt = sizeof(MAPNAME(mapname))/sizeof(map_onesymbol_t);                         \
-	for (int i = 0; i < cnt; ++i) {                                                 \
+    cnt = sizeof(MAPNAME(mapname))/sizeof(map_onesymbol_t);                         \
+    for (int i = 0; i < cnt; ++i) {                                                 \
         if (MAPNAME(mapname)[i].weak) {                                             \
             k = kh_put(symbolmap, lib->w.w##mapname, MAPNAME(mapname)[i].name, &ret); \
             kh_value(lib->w.w##mapname, k).w = MAPNAME(mapname)[i].w;               \
@@ -163,9 +176,9 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         }                                                                           \
         if (strchr(MAPNAME(mapname)[i].name, '@'))                                  \
             AddDictionnary(box64->versym, MAPNAME(mapname)[i].name);                \
-	}
-	DOIT(symbolmap)
-	DOIT(mysymbolmap)
+    }
+    DOIT(symbolmap)
+    DOIT(mysymbolmap)
 #undef DOIT
     cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
     for (int i=0; i<cnt; ++i) {
@@ -200,8 +213,17 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
         k = kh_put(datamap, lib->w.mydatamap, MAPNAME(mydatamap)[i].name, &ret);
         kh_value(lib->w.mydatamap, k) = MAPNAME(mydatamap)[i].sz;
     }
+#ifdef ALTMY
+    SETALT(ALTMY);
+#endif
+#ifdef HAS_MY
+    getMy(lib);
+#endif
 #ifdef CUSTOM_INIT
     CUSTOM_INIT
+#endif
+#ifdef NEEDED_LIBS
+    setNeededLibs(lib, COUNT_NARGS(NEEDED_LIBS), NEEDED_LIBS);
 #endif
 
     return 0;
@@ -209,9 +231,11 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
 
 void FUNC(_fini)(library_t* lib)
 {
+#ifdef HAS_MY
+    freeMy();
+#endif
 #ifdef CUSTOM_FINI
     CUSTOM_FINI
 #endif
     WrappedLib_FinishFini(lib);
 }
-

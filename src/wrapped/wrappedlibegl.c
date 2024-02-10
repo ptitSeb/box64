@@ -31,11 +31,4 @@ EXPORT void* my_eglGetProcAddress(x64emu_t* emu, void* name)
     return getGLProcAddress(emu, (glprocaddress_t)my->eglGetProcAddress, name);
 }
 
-#define CUSTOM_INIT                 \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
-
 #include "wrappedlib_init.h"

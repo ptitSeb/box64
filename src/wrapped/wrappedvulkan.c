@@ -409,12 +409,8 @@ static void* find_DebugUtilsMessengerCallback_Fct(void* fct)
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);     \
     lib->w.priv = dlsym(lib->w.lib, "vkGetInstanceProcAddr"); \
     box64->vkprocaddress = lib->w.priv;
-
-#define CUSTOM_FINI \
-    freeMy();
 
 #include "wrappedlib_init.h"
 

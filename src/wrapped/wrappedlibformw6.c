@@ -14,7 +14,6 @@
 const char* libformw6Name = "libformw.so.6";
 #define LIBNAME libformw6
 
-#define CUSTOM_INIT \
-    SETALT(my6_);   \
+#define ALTMY my6_
 
 #include "wrappedlib_init.h"

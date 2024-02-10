@@ -42,13 +42,8 @@ void EXPORT *my2_TTF_OpenFontRW(x64emu_t* emu, void* a, int32_t b, int32_t c)
     return r;
 }
 
-#define CUSTOM_INIT                     \
-    SETALT(my2_);                       \
-    getMy(lib);                         \
-    setNeededLibs(lib, 1, "libSDL2-2.0.so.0");
+#define ALTMY my2_
 
-#define CUSTOM_FINI                     \
-    freeMy();
+#define NEEDED_LIBS "libSDL2-2.0.so.0"
 
 #include "wrappedlib_init.h"
-

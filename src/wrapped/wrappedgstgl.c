@@ -272,13 +272,10 @@ EXPORT void my_gst_gl_window_set_resize_callback(x64emu_t* emu, void* window, vo
         return -1;
 
 #define CUSTOM_INIT \
-    getMy(lib);     \
     SetGstGLBaseFilterID(my->gst_gl_base_filter_get_type());        \
     SetGstGLFilterID(my->gst_gl_filter_get_type());                 \
-    SetGstGLBaseSrcID(my->gst_gl_base_src_get_type());              \
-    setNeededLibs(lib, 2, "libGL.so.1", "libgstreamer-1.0.so.0");
+    SetGstGLBaseSrcID(my->gst_gl_base_src_get_type());
 
-#define CUSTOM_FINI \
-    freeMy();
+#define NEEDED_LIBS "libGL.so.1", "libgstreamer-1.0.so.0"
 
 #include "wrappedlib_init.h"

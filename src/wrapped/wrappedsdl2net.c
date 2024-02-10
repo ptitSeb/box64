@@ -19,7 +19,6 @@
 const char* sdl2netName = "libSDL2_net-2.0.so.0";
 #define LIBNAME sdl2net
 
-#define CUSTOM_INIT      \
-    SETALT(my2_);        \
+#define ALTMY my2_
 
 #include "wrappedlib_init.h"

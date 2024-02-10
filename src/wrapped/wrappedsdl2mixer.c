@@ -225,13 +225,12 @@ EXPORT int my2_MinorityMix_SetPosition(x64emu_t* emu, int channel, int16_t angle
     return my->Mix_SetPosition(channel, angle, 0);
 }
 
+#define ALTMY my2_
+
 #define CUSTOM_INIT \
-    box64->sdl2mixerlib = lib; \
-    getMy(lib); \
-    SETALT(my2_);
+    box64->sdl2mixerlib = lib;
 
 #define CUSTOM_FINI \
-    freeMy();       \
     my_context->sdl2mixerlib = NULL;
 
 #include "wrappedlib_init.h"

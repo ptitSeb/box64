@@ -147,10 +147,4 @@ EXPORT void my___gmp_set_memory_functions(x64emu_t* emu, void* f_alloc, void* f_
     my->__gmp_set_memory_functions(find_alloc_func_Fct(f_alloc), find_realloc_func_Fct(f_realloc), find_free_func_Fct(f_free));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

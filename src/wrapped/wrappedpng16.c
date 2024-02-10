@@ -326,12 +326,9 @@ EXPORT void* my16_png_create_read_struct(x64emu_t* emu, void* png_ptr, void* use
     return my->png_create_read_struct(png_ptr, user_ptr, finderrorFct(errorfn), findwarningFct(warnfn));
 }
 
-#define CUSTOM_INIT \
-    SETALTPREFIX("yes");\
-    SETALT(my16_);      \
-    getMy(lib);
+#define ALTMY my16_
 
-#define CUSTOM_FINI \
-    freeMy();
+#define CUSTOM_INIT \
+    SETALTPREFIX("yes");
 
 #include "wrappedlib_init.h"

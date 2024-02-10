@@ -624,10 +624,4 @@ EXPORT int my_dbus_server_set_data(x64emu_t* emu, void* server, int slot, void* 
     return my->dbus_server_set_data(server, slot, data, find_DBusFreeFunction_Fct(d));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

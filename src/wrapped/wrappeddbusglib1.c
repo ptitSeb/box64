@@ -225,12 +225,4 @@ EXPORT void my_dbus_g_proxy_disconnect_signal(x64emu_t* emu, void* proxy, void* 
     if(box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
-
 #include "wrappedlib_init.h"
-

@@ -178,20 +178,13 @@ EXPORT uint32_t my_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, uin
     if(box64_nogtk) \
         return -1;
 
+#define CUSTOM_INIT         \
+    libname = lib->name;
+
 #ifdef ANDROID
-#define CUSTOM_INIT         \
-    libname = lib->name;    \
-    getMy(lib);             \
-    setNeededLibs(lib, 3, "libgobject-2.0.so", "libgio-2.0.so", "libgdk_pixbuf-2.0.so");
+#define NEEDED_LIBS "libgobject-2.0.so", "libgio-2.0.so", "libgdk_pixbuf-2.0.so"
 #else
-#define CUSTOM_INIT         \
-    libname = lib->name;    \
-    getMy(lib);             \
-    setNeededLibs(lib, 3, "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0");
+#define NEEDED_LIBS "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0"
 #endif
-
-#define CUSTOM_FINI \
-    freeMy(); \
-
 
 #include "wrappedlib_init.h"

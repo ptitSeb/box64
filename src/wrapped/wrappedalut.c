@@ -14,8 +14,6 @@
 const char* alutName = "libalut.so.0";
 #define LIBNAME alut
 
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libopenal.so.1");
+#define NEEDED_LIBS "libopenal.so.1"
 
 #include "wrappedlib_init.h"
-

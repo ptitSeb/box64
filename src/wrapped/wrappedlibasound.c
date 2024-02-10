@@ -163,10 +163,4 @@ EXPORT void* my_snd_dlsym(x64emu_t* emu, void* handle, void* name, void* version
     return my_dlvsym(emu, handle, name, version);
 }
 
-#define CUSTOM_INIT                     \
-    getMy(lib);
-
-#define CUSTOM_FINI                     \
-    freeMy();
-
 #include "wrappedlib_init.h"

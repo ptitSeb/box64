@@ -1584,11 +1584,4 @@ void my_autobridge_mainloop_api(x64emu_t* emu, void* api)
     if(box64_nopulse)   \
         return -1;
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

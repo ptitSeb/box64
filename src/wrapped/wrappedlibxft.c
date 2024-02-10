@@ -20,20 +20,9 @@
 #define LIBNAME libxft
 
 #ifdef ANDROID
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 4,           \
-            "libX11.so",              \
-            "libfontconfig.so",       \
-            "libXrender.so",          \
-            "libfreetype.so");
+#define NEEDED_LIBS "libX11.so", "libfontconfig.so", "libXrender.so", "libfreetype.so"
 #else
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 4,           \
-            "libX11.so.6",              \
-            "libfontconfig.so.1",       \
-            "libXrender.so.1",          \
-            "libfreetype.so.6");
+#define NEEDED_LIBS "libX11.so.6", "libfontconfig.so.1", "libXrender.so.1", "libfreetype.so.6"
 #endif
 
 #include "wrappedlib_init.h"
-

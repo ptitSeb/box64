@@ -24,11 +24,9 @@
         return -1;
 
 #ifdef ANDROID
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libglib-2.0.so");
+#define NEEDED_LIBS "libglib-2.0.so"
 #else
-#define CUSTOM_INIT \
-    setNeededLibs(lib, 1, "libglib-2.0.so.0");
+#define NEEDED_LIBS "libglib-2.0.so.0"
 #endif
 
 #include "wrappedlib_init.h"

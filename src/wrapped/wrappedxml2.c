@@ -1495,10 +1495,4 @@ EXPORT void* my_xmlCtxtReadIO(x64emu_t* emu, void* ctxt, void* ioread, void* ioc
     return my->xmlCtxtReadIO(ctxt, find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, url, encoding, options);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

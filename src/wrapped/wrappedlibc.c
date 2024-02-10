@@ -3454,7 +3454,7 @@ EXPORT char my___libc_single_threaded = 0;
     else
 
 #ifdef ANDROID
-#define NEEDED_LIBS   1,    \
+#define NEEDED_LIBS_DEF   1,\
     "libbsd.so"
 #define NEEDED_LIBS_234 4,  \
     "libpthread.so.0",      \
@@ -3462,7 +3462,7 @@ EXPORT char my___libc_single_threaded = 0;
     "libm.so",              \
     "libbsd.so"
 #else
-#define NEEDED_LIBS   6,    \
+#define NEEDED_LIBS_DEF   6,\
     "ld-linux-x86-64.so.2", \
     "libpthread.so.0",      \
     "libdl.so.2",           \
@@ -3479,6 +3479,8 @@ EXPORT char my___libc_single_threaded = 0;
     "libbsd.so.0"
 #endif
 
+#undef HAS_MY
+
 #define CUSTOM_INIT         \
     box64->libclib = lib;   \
     /*InitCpuModel();*/         \
@@ -3492,7 +3494,7 @@ EXPORT char my___libc_single_threaded = 0;
     if(box64_isglibc234)                                                        \
         setNeededLibs(lib, NEEDED_LIBS_234);                                    \
     else                                                                        \
-        setNeededLibs(lib, NEEDED_LIBS);
+        setNeededLibs(lib, NEEDED_LIBS_DEF);
 
 #define CUSTOM_FINI \
     freeMy();       \

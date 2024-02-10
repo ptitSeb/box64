@@ -74,13 +74,8 @@ EXPORT void my0_udev_set_log_fn(x64emu_t* emu, void* udev, void* f)
     my->udev_set_log_fn(udev, find_log_fn_Fct(f));
 }
 
-#define CUSTOM_INIT \
-    SETALT(my0_);   \
-    getMy(lib);     \
-    setNeededLibs(lib, 1, "libudev.so.1");
+#define ALTMY my0_
 
-#define CUSTOM_FINI \
-    freeMy();
+#define NEEDED_LIBS "libudev.so.1"
 
 #include "wrappedlib_init.h"
-

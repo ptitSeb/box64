@@ -709,11 +709,4 @@ EXPORT void my_XML_SetSkippedEntityHandler(x64emu_t* emu, void* p, void* f)
     my->XML_SetSkippedEntityHandler(p, find_SkippedEntity_Fct(f));
 }
 
-
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

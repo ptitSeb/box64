@@ -37,11 +37,4 @@ EXPORT void my_drmMsg(x64emu_t* emu, void* fmt, void* b) {
     free(buf);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

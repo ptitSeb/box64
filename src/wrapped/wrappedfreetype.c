@@ -448,10 +448,4 @@ EXPORT int my_FT_Outline_Decompose(x64emu_t* emu, void* outline, my_FT_Outline_F
     return my->FT_Outline_Decompose(outline, tbl?(&f):tbl, data);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

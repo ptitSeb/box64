@@ -31,11 +31,4 @@ EXPORT void* my_XGetXCBConnection(x64emu_t* emu, void* a)
     return add_xcb_connection(my->XGetXCBConnection(a));
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

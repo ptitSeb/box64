@@ -51,6 +51,10 @@ typedef void  (*vFv_t)();
     GO(SDL_Quit, vFv_t)           \
     GO(SDL_AllocRW, sdl1_allocrw) \
     GO(SDL_FreeRW, sdl1_freerw)
+
+#define ADDED_FINI() \
+    my->SDL_Quit();
+
 #include "generated/wrappedsdl1types.h"
 
 #include "wrappercallback.h"
@@ -409,17 +413,12 @@ EXPORT int32_t my_SDL_GetWMInfo(x64emu_t* emu, void* p)
 }
 
 #define CUSTOM_INIT \
-    getMy(lib);                             \
     box64->sdl1allocrw = my->SDL_AllocRW;   \
-    box64->sdl1freerw  = my->SDL_FreeRW;    \
-    setNeededLibs(lib, 3,                   \
-        "libm.so.6",                        \
-        "libdl.so.2",                       \
-        "librt.so.1");
+    box64->sdl1freerw  = my->SDL_FreeRW;
+
+#define NEEDED_LIBS "libm.so.6", "libdl.so.2", "librt.so.1"
 
 #define CUSTOM_FINI \
-    my->SDL_Quit();                         \
-    freeMy();                               \
     my_context->sdl1allocrw = NULL;         \
     my_context->sdl1freerw = NULL;
 

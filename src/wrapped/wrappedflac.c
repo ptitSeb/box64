@@ -347,12 +347,4 @@ EXPORT int my_FLAC__stream_decoder_init_stream(x64emu_t* emu, void* decoder,
     return ret;
 }
 
-
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

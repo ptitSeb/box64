@@ -444,12 +444,4 @@ EXPORT uint32_t my_FAPOFX_CreateFXWithCustomAllocatorEXT(x64emu_t* emu, void* cl
     return my->FAPOFX_CreateFXWithCustomAllocatorEXT(clsid, p, data, size, find_FAudioMalloc_Fct(customMalloc), find_FAudioFree_Fct(customFree), find_FAudioRealloc_Fct(customRealloc));
 }
 
-
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

@@ -66,11 +66,4 @@ EXPORT int my_krb5_get_init_creds_password(x64emu_t* emu, void* context, void* c
     return my->krb5_get_init_creds_password(context, creds, client, password, find_krb5_prompter_Fct(f), data, delta, service, options);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

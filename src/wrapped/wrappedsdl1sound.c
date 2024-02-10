@@ -30,12 +30,6 @@ EXPORT void* my_Sound_NewSample(x64emu_t* emu, void* a, void* ext, void* desired
     return r;
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);   \
-    setNeededLibs(lib, 1, "libSDL-1.2.so.0");
-
-#define CUSTOM_FINI \
-    freeMy();
+#define NEEDED_LIBS "libSDL-1.2.so.0"
 
 #include "wrappedlib_init.h"
-

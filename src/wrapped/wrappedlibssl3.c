@@ -437,12 +437,8 @@ EXPORT void my3_SSL_set_msg_callback(x64emu_t* emu, void* ctx, void* cb)
     my->SSL_set_msg_callback(ctx, find_msg_cb_Fct(cb));
 }
 
-#define CUSTOM_INIT \
-    SETALT(my3_);   \
-    getMy(lib);     \
-    setNeededLibs(lib, 2, "libcrypto.so.3", "libpthread.so.0");
+#define ALTMY my3_
 
-#define CUSTOM_FINI \
-    freeMy();
+#define NEEDED_LIBS "libcrypto.so.3", "libpthread.so.0"
 
 #include "wrappedlib_init.h"

@@ -29,11 +29,13 @@ static void getMy(library_t* lib)
 
 static void freeMy()
 {
-    my_lib = NULL;
     #ifdef ADDED_FINI
     ADDED_FINI()
     #endif
+    my_lib = NULL;
 }
+
+#define HAS_MY
 
 #ifndef ADDED_SUPER
 #undef SUPER

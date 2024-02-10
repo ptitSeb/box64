@@ -26,17 +26,9 @@
 #define LIBNAME libxrandr
 
 #ifdef ANDROID
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 3,           \
-            "libX11.so",              \
-            "libXext.so",             \
-            "libXrender.so");
+#define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"
 #else
-    #define CUSTOM_INIT \
-        setNeededLibs(lib, 3,           \
-            "libX11.so.6",              \
-            "libXext.so.6",             \
-            "libXrender.so.1");
+#define NEEDED_LIBS "libX11.so.6", "libXext.so.6", "libXrender.so.1"
 #endif
 
 #include "wrappedlib_init.h"

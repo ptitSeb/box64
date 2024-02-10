@@ -180,11 +180,4 @@ EXPORT int my_sf_close(x64emu_t* emu, void* sf)
     return my->sf_close(sf);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

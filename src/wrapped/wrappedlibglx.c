@@ -49,13 +49,6 @@ EXPORT void* myx_glXGetProcAddressARB(x64emu_t* emu, void* name)
     return getGLProcAddress(emu, (glprocaddress_t)my->glXGetProcAddressARB, rname);
 }
 
-
-
-#define CUSTOM_INIT     \
-    getMy(lib);         \
-    SETALT(myx_);       \
-
-#define CUSTOM_FINI     \
-    freeMy();
+#define ALTMY myx_
 
 #include "wrappedlib_init.h"

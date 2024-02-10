@@ -170,11 +170,4 @@ EXPORT int32_t my_ov_test_callbacks(x64emu_t* emu, void* datasource, void* vf, v
     vorbisfileName = (box86->sdl1mixerlib || box86->sdl2mixerlib)?vorbisfileNameAlt:vorbisfileNameReg;
 #endif
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-

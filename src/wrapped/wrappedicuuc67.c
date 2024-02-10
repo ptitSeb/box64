@@ -21,8 +21,6 @@
 const char* icuuc67Name = "libicuuc.so.67";
 #define LIBNAME icuuc67
 
-#define CUSTOM_INIT \
-    SETALT(my67_);                          \
+#define ALTMY my67_
 
 #include "wrappedlib_init.h"
-

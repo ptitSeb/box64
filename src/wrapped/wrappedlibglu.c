@@ -131,11 +131,6 @@ void EXPORT my_gluNurbsCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
     my->gluNurbsCallback(a, b, findglu_callbackFct(cb));
 }
 
-#define CUSTOM_INIT                     \
-    getMy(lib);                         \
-    setNeededLibs(lib, 1, "libGL.so.1");
-
-#define CUSTOM_FINI             \
-    freeMy();
+#define NEEDED_LIBS "libGL.so.1"
 
 #include "wrappedlib_init.h"

@@ -71,10 +71,4 @@ EXPORT int my_cupsEnumDests(x64emu_t* emu, uint32_t flags, int msec, int* cancel
     return my->cupsEnumDests(flags, msec, cancel, type, mask, find_cups_dest_cb_t_Fct(f), data);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"

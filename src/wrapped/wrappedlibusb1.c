@@ -152,11 +152,4 @@ EXPORT int my_libusb_cancel_transfer(x64emu_t* emu, my_libusb_transfer_t* t)
     return my->libusb_cancel_transfer(t);
 }
 
-#define CUSTOM_INIT \
-    getMy(lib);
-
-#define CUSTOM_FINI \
-    freeMy();
-
 #include "wrappedlib_init.h"
-
