@@ -1090,6 +1090,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_get_neoncache STEPNAME(x87_get_neoncache)
 #define x87_get_st      STEPNAME(x87_get_st)
 #define x87_get_st_empty  STEPNAME(x87_get_st)
+#define x87_free        STEPNAME(x87_free)
 #define x87_forget      STEPNAME(x87_forget)
 #define x87_reget_st    STEPNAME(x87_reget_st)
 #define x87_stackcount  STEPNAME(x87_stackcount)
@@ -1253,6 +1254,8 @@ int x87_get_neoncache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a);
 int x87_get_st(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
 // get vfpu register for a x87 reg, create the entry if needed. Do not fetch the Stx if not already in cache
 int x87_get_st_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int a, int t);
+// Free st, using the FFREE opcode (so it's freed but stack is not moved)
+void x87_free(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int st);
 // refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)
 void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st);
 // refresh the cache value from emu

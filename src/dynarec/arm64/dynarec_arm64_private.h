@@ -46,6 +46,7 @@ typedef struct neoncache_s {
     // fpu cache
     int8_t              x87cache[8];    // cache status for the 8 x87 register behind the fpu stack
     int8_t              x87reg[8];      // reg used for x87cache entry
+    int8_t              freed[8];       // set when FFREE is used, -1 else
     int8_t              mmxcache[8];    // cache status for the 8 MMX registers
     sse_cache_t         ssecache[16];   // cache status for the 16 SSE(2) registers
     int8_t              fpuused[24];    // all 0..24 double reg from fpu, used by x87, sse and mmx

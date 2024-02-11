@@ -162,7 +162,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 // load tag
                 ADDx_U12(x1, xEmu, offsetof(x64emu_t, p_regs));
-                LDRw_REG_LSL2(x3, x1, x2);
+                LDRw_REG_LSL2(x3, x1, x4);
                 CMPSw_U12(x3, 0b11);    // empty
                 MOV32w(x3, 0b100000100000000);
                 CSELx(x4, x3, x4, cEQ); // empty: C3,C2,C0 = 101

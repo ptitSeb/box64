@@ -52,14 +52,7 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC7:
             INST_NAME("FFREE STx");
             #if 1
-            x87_forget(dyn, ninst, x1, x2, nextop&7);
-            // empty tags
-            MOVZw(x3, 0b11);
-            ADDx_U12(x1, xEmu, offsetof(x64emu_t, p_regs));
-            LDRw_U12(x2, xEmu, offsetof(x64emu_t, top));
-            ADDw_U12(x2, x2, nextop&7);
-            ANDw_mask(x2, x2, 0, 2);    // mask=7
-            STRw_REG_LSL2(x3, x1, x2);
+            x87_free(dyn, ninst, x1, x2, x3, nextop&7);
             #else
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_purgecache(dyn, ninst, 0, x1, x2, x3);
