@@ -1014,7 +1014,13 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
             }
         }
 }
-
+static int x87_is_stcached(dynarec_arm_t* dyn, int st)
+{
+    for (int i=0; i<8; ++i)
+        if(dyn->n.x87cache[i] == st)
+            return 1;
+    return 0;
+}
 void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
     int ret = 0;
@@ -1047,7 +1053,8 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
             for (int i=0; i<a; ++i) {
                 SUBw_U12(s2, s2, 1);
                 ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + st)&7
-                STRw_REG_LSL2(s3, s1, s2);
+                if(x87_is_stcached(dyn, i)) // to handle ffree
+                    STRw_REG_LSL2(s3, s1, s2);
             }
         } else {
             // empty tags

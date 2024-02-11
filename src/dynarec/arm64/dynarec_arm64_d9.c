@@ -160,8 +160,16 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     ANDw_mask(x4, x4, 0, 3);    // (emu->top + i)&7
                 }
+                // load tag
+                ADDx_U12(x1, xEmu, offsetof(x64emu_t, p_regs));
+                LDRw_REG_LSL2(x3, x1, x2);
+                CMPSw_U12(x3, 0b11);    // empty
+                MOV32w(x3, 0b100000100000000);
+                CSELx(x4, x3, x4, cEQ); // empty: C3,C2,C0 = 101
+                B_MARK3(cEQ);
+                // load x2 with ST0 anyway, for sign extraction
                 ADDx_REG_LSL(x1, xEmu, x4, 3);
-                LDRx_U12(x2, x1, offsetof(x64emu_t, x87)); // load x2 with ST0 anyway, for sign extraction
+                LDRx_U12(x2, x1, offsetof(x64emu_t, x87));
             } else {
                 // simply move from cache reg to x2
                 v1 = dyn->n.x87reg[i1];
