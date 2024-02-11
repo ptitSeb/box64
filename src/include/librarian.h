@@ -21,7 +21,7 @@ void FreeDLPrivate(dlprivate_t **lib);
 
 box64context_t* GetLibrarianContext(lib_t* maplib);
 kh_mapsymbols_t* GetGlobalData(lib_t* maplib);
-int AddNeededLib(lib_t* maplib, int local, int bindnow, needed_libs_t* needed, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu); // 0=success, 1=error
+int AddNeededLib(lib_t* maplib, int local, int bindnow, int deepbind, needed_libs_t* needed, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu); // 0=success, 1=error
 void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu);
 library_t* GetLibMapLib(lib_t* maplib, const char* name);
 library_t* GetLibInternal(const char* name);
@@ -39,7 +39,7 @@ int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, c
 void MapLibRemoveLib(lib_t* maplib, library_t* lib);
 void MapLibPrependLib(lib_t* maplib, library_t* lib, library_t* ref);
 
-const char* GetMaplibDefaultVersion(lib_t *maplib, lib_t *local_maplib, int isweak, const char* symname);
+const char* GetMaplibDefaultVersion(lib_t *maplib, lib_t *local_maplib, int isweak, int deepbind, const char* symname);
 
 const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, const char** libname, void** base, library_t** lib);
 

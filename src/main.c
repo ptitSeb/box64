@@ -2002,7 +2002,7 @@ int main(int argc, const char **argv, char **env) {
         for(int i=0; i<ld_preload.size; ++i) {
             needed_libs_t* tmp = new_neededlib(1);
             tmp->names[0] = ld_preload.paths[i];
-            if(AddNeededLib(my_context->maplib, 0, 0, tmp, elf_header, my_context, emu)) {
+            if(AddNeededLib(my_context->maplib, 0, 0, 0, tmp, elf_header, my_context, emu)) {
                 printf_log(LOG_INFO, "Warning, cannot pre-load %s\n", tmp->names[0]);
                 RemoveNeededLib(my_context->maplib, 0, tmp, my_context, emu);
             } else {
@@ -2014,20 +2014,20 @@ int main(int argc, const char **argv, char **env) {
     }
     FreeCollection(&ld_preload);
     // Call librarian to load all dependant elf
-    if(LoadNeededLibs(elf_header, my_context->maplib, 0, 0, my_context, emu)) {
+    if(LoadNeededLibs(elf_header, my_context->maplib, 0, 0, 0, my_context, emu)) {
         printf_log(LOG_NONE, "Error: Loading needed libs in elf %s\n", my_context->argv[0]);
         FreeBox64Context(&my_context);
         return -1;
     }
     // reloc...
     printf_log(LOG_DEBUG, "And now export symbols / relocation for %s...\n", ElfName(elf_header));
-    if(RelocateElf(my_context->maplib, NULL, 0, elf_header)) {
+    if(RelocateElf(my_context->maplib, NULL, 0, 0, elf_header)) {
         printf_log(LOG_NONE, "Error: Relocating symbols in elf %s\n", my_context->argv[0]);
         FreeBox64Context(&my_context);
         return -1;
     }
     // and handle PLT
-    RelocateElfPlt(my_context->maplib, NULL, 0, elf_header);
+    RelocateElfPlt(my_context->maplib, NULL, 0, 0, elf_header);
     // deferred init
     setupTraceInit();
     RunDeferredElfInit(emu);

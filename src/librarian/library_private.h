@@ -68,8 +68,9 @@ typedef struct elib_s {
 typedef struct library_s {
     char*               name;   // <> path
     char*               path;   // original path
-    int                 nbdot;  // nombre of "." after .so
-    int                 type;   // 0: native(wrapped) 1: emulated(elf) -1: undetermined
+    int8_t              nbdot;  // nombre of "." after .so
+    int8_t              type;   // 0: native(wrapped) 1: emulated(elf) -1: undetermined
+    uint8_t             deepbind;
     wrappedlib_fini_t   fini;
     wrappedlib_get_t    getglobal;  // get global (non-weak)
     wrappedlib_get_t    getweak;    // get weak symbol

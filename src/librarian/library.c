@@ -238,7 +238,7 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
             lib->type = LIB_WRAPPED;
             lib->w.refcnt = 1;
             // Call librarian to load all dependant elf
-            if(AddNeededLib(context->maplib, 0, 0, lib->w.needed, NULL, context, thread_get_emu())) {
+            if(AddNeededLib(context->maplib, 0, 0, 0, lib->w.needed, NULL, context, thread_get_emu())) {
                 printf_log(LOG_NONE, "Error: loading a needed libs in elf %s\n", lib->name);
                 return;
             }
@@ -500,21 +500,22 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x64emu_t* emu)
     }
     return 0;
 }
-int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* emu)
+int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, int deepbind, x64emu_t* emu)
 {
     if(!lib)
         return 0;
+    lib->deepbind = deepbind;
     if(lib->type==LIB_EMULATED) {
         if(lib->e.finalized)
             return 0;
         lib->e.finalized = 1;
         elfheader_t *elf_header = my_context->elfs[lib->e.elf_index];
         // finalize relocations
-        if(RelocateElf(my_context->maplib, local_maplib, bindnow, elf_header)) {
+        if(RelocateElf(my_context->maplib, local_maplib, bindnow, deepbind, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating symbols in elf %s\n", lib->name);
             return 1;
         }
-        if(RelocateElfPlt(my_context->maplib, local_maplib, bindnow, elf_header)) {
+        if(RelocateElfPlt(my_context->maplib, local_maplib, bindnow, deepbind, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating Plt symbols in elf %s\n", lib->name);
             return 1;
         }
@@ -1041,6 +1042,13 @@ lib_t* GetMaplib(library_t* lib)
     if(!lib)
         return NULL;
     return lib->maplib;
+}
+
+int GetDeepBind(library_t* lib)
+{
+    if(!lib)
+        return 0;
+    return lib->deepbind;
 }
 
 linkmap_t* getLinkMapLib(library_t* lib)

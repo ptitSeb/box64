@@ -17,7 +17,7 @@ typedef struct elfheader_s     elfheader_t;
 
 library_t *NewLibrary(const char* path, box64context_t* box64, elfheader_t* verneeded);
 int AddSymbolsLibrary(lib_t* maplib, library_t* lib, x64emu_t* emu);
-int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, x64emu_t* emu);
+int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, int deepbind, x64emu_t* emu);
 
 char* GetNameLib(library_t *lib);
 int IsSameLib(library_t* lib, const char* path);    // check if lib is same (path -> name)
@@ -28,6 +28,7 @@ char** GetNeededLibsNames(library_t* lib);
 int GetNeededLibsN(library_t* lib);
 library_t* GetNeededLib(library_t* lib, int idx);
 lib_t* GetMaplib(library_t* lib);
+int GetDeepBind(library_t* lib);
 
 int GetElfIndex(library_t* lib);    // -1 if no elf (i.e. wrapped)
 elfheader_t* GetElf(library_t* lib);    // NULL if no elf (i.e. wrapped)
