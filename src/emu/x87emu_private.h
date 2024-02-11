@@ -128,7 +128,7 @@ static inline double fpu_round(x64emu_t* emu, double d) {
 
 static inline void fpu_fxam(x64emu_t* emu) {
     emu->sw.f.F87_C1 = (ST0.ud[1]&0x80000000)?1:0;
-    if(emu->fpu_stack<=0) {
+    if((emu->fpu_stack<=0) || (emu->p_regs[(emu->top)&7].tag == 0b11)) {
         //Empty
         emu->sw.f.F87_C3 = 1;
         emu->sw.f.F87_C2 = 0;
