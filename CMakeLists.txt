@@ -1192,7 +1192,7 @@ add_test(fork ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
 
 add_test(fpu ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test12_android -D TEST_OUTPUT=tmpfile12.txt
-    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref12.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref12_android.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(linkingIndirectNoversion ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
@@ -1209,7 +1209,7 @@ set_tests_properties(sse_asm PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0")
 
 add_test(sse_intrinsics ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test17_android -D TEST_OUTPUT=tmpfile17.txt
-    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref17_android.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 set_tests_properties(sse_intrinsics PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0")
@@ -1233,7 +1233,7 @@ add_test(longjumpInSignals ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/
 
 add_test(x87 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test22_android -D TEST_OUTPUT=tmpfile22.txt
-    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref22.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref22_android.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 set_tests_properties(x87 PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0")
