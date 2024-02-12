@@ -52,6 +52,18 @@ uint64_t _fisttpw_(double a, uint8_t rd)
 {
     uint16_t ret;
     uint16_t t1, t2;
+    #ifdef ANDROID
+    asm volatile (
+    "fldl %1\n"
+    "fstcw %2\n"
+    "mov %2, %%ax\n"
+    "mov %4, %%ah\n"
+    "mov %%ax, %3\n"
+    "fldcw %3\n"
+    "fisttpl %0\n"
+    "fldcw %2\n"
+    :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
+    #else
     asm volatile (
     "fldl %1\n"
     "fstcw %2\n"
@@ -62,6 +74,8 @@ uint64_t _fisttpw_(double a, uint8_t rd)
     "fisttp %0\n"
     "fldcw %2\n"
     :"=m" (ret):"m"(a), "m"(t1), "m"(t2), "m"(rd):"cc");
+    #endif
+
     return ret;
 }
 uint64_t _fistpl_(double a, uint8_t rd)

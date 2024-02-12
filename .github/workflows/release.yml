@@ -53,6 +53,15 @@ jobs:
               unzip android-ndk-r25b-linux.zip
               echo "BOX64_COMPILER=$PWD/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
+              wget https://sinalbr.dl.sourceforge.net/project/waydroid/images/system/lineage/waydroid_arm64/lineage-18.1-20240210-VANILLA-waydroid_arm64-system.zip
+              unzip lineage-18.1-20240210-VANILLA-waydroid_arm64-system.zip
+              sudo mount system.img /mnt
+              sudo cp -rf /mnt/system /
+              sudo umount /mnt
+              sudo rm -rf /system/vendor
+              sudo chmod 755 -R /system/*
+              sudo chown -R $(whoami):$(whoami) /system/*
+              sudo ln -sf /system/apex /apex
             else
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
@@ -103,7 +112,7 @@ jobs:
       - name: "Test Box64"
         if: ${{ matrix.platform != 'TEGRAX1' }}
         run: |
-          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'ANDROID' ]]; then
+          if [[ ${{ matrix.platform }} != 'X64' ]]; then
             mkdir qemu8.1.0
             wget -O- -q https://archive.archlinux.org/packages/q/qemu-user-static/qemu-user-static-8.1.0-2-x86_64.pkg.tar.zst | tar -I zstd -C qemu8.1.0 -xf -
             sudo cp qemu8.1.0/usr/bin/* /usr/bin/
@@ -119,7 +128,8 @@ jobs:
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
-            true
+            INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 ctest -j$(nproc) --rerun-failed --output-on-failure
           else
             BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             ctest -j$(nproc) --rerun-failed --output-on-failure

@@ -20,6 +20,18 @@ int main(int argc, char **argv)
     printf("(angle_t)%f = %u == 0x%08X\n", d, u32, u32);
 
     int16_t a=0, b=0;
+
+    #ifdef __ANDROID__
+    asm volatile (
+        "fldpi   \n"
+        "fisttpl %0   \n"
+    : "=m" (a));
+    asm volatile (
+        "fldpi      \n"
+        "fchs       \n"
+        "fistpl %0   \n"
+    : "=m" (b));
+    #else
     asm volatile (
         "fldpi   \n"
         "fisttp %0   \n"
@@ -29,6 +41,8 @@ int main(int argc, char **argv)
         "fchs       \n"
         "fistp %0   \n"
     : "=m" (b));
+    #endif
+
     printf("go PI trucated=%d, -PI rounded=%d\n", a, b);
 
     return 0;
