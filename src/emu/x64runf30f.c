@@ -43,7 +43,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     x64emu_t*emu = test->emu;
     #endif
 
-    #ifdef TERMUX
+    #ifdef __clang__
     extern int isinff(float);
     extern int isnanf(float);
     #endif
