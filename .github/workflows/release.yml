@@ -142,8 +142,8 @@ jobs:
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 ctest -j$(nproc) --rerun-failed --output-on-failure
           elif [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
-            INTERPRETER=qemu-aarch64-static LD_LIBRARY_PATH=$PWD/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:$PWD/data/data/com.termux/files/usr/lib BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
-            INTERPRETER=qemu-aarch64-static LD_LIBRARY_PATH=$PWD/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:$PWD/data/data/com.termux/files/usr/lib ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=$PWD/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:$PWD/data/data/com.termux/files/usr/lib BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=$PWD/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:$PWD/data/data/com.termux/files/usr/lib ctest -j$(nproc) --rerun-failed --output-on-failure
           else
             BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             ctest -j$(nproc) --rerun-failed --output-on-failure
