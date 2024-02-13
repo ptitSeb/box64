@@ -73,6 +73,9 @@ jobs:
               7z x libandroid-sysv-semaphore_0.1_aarch64.deb
               tar -xf data.tar.xz
               echo "CFLAGS=-L$PWD/data/data/com.termux/files/usr/lib" >> $GITHUB_ENV
+              echo "IS_TERMUX=1" >> $GITHUB_ENV
+            else
+              echo "IS_TERMUX=0" >> $GITHUB_ENV
             fi
           else
             if [[ ${{ matrix.platform }} == 'X64' ]]; then
@@ -109,6 +112,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DCMAKE_C_COMPILER=${{ env.BOX64_COMPILER }}\
+                   -DTERMUX=${{ env.IS_TERMUX }}\
                    ${{ env.BOX64_PLATFORM_MARCRO }}\
                    -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }}\
                    -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }}\
