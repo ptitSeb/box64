@@ -72,7 +72,10 @@ jobs:
               wget https://mirrors.utermux.dev/termux/termux-main/pool/main/liba/libandroid-sysv-semaphore/libandroid-sysv-semaphore_0.1_aarch64.deb
               7z x libandroid-sysv-semaphore_0.1_aarch64.deb
               tar -xf data.tar.xz
-              echo "CFLAGS=-L$PWD/data/data/com.termux/files/usr/lib" >> $GITHUB_ENV
+              sudo cp -rf data /
+              sudo chmod 755 -R /data
+              sudo chown -R $(whoami):$(whoami) /data
+              echo "CFLAGS=-L/data/data/com.termux/files/usr/lib" >> $GITHUB_ENV
               echo "IS_TERMUX=1" >> $GITHUB_ENV
             else
               echo "IS_TERMUX=0" >> $GITHUB_ENV
@@ -142,9 +145,9 @@ jobs:
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 ctest -j$(nproc) --rerun-failed --output-on-failure
           elif [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
-            mv ../data .
-            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=$PWD/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:$PWD/data/data/com.termux/files/usr/lib BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
-            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=$PWD/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:$PWD/data/data/com.termux/files/usr/lib ctest -j$(nproc) --rerun-failed --output-on-failure
+
+            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:/data/data/com.termux/files/usr/lib BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:/data/data/com.termux/files/usr/lib ctest -j$(nproc) --rerun-failed --output-on-failure
           else
             BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             ctest -j$(nproc) --rerun-failed --output-on-failure
