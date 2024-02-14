@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RPI5ARM64, RK3326, RK3399, RK3588, PHYTIUM, SD845, SD888, ADLINK, ARM64, ANDROID]
+        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RPI5ARM64, RK3326, RK3399, RK3588, PHYTIUM, SD845, SD888, ADLINK, ARM64, ANDROID, TERMUX]
         type: [Release, Trace]
         os: [ubuntu-latest]
         include:
@@ -48,15 +48,38 @@ jobs:
           sudo apt-get update
           if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'OTHER_ARM' && ${{ matrix.platform }} != 'RISCV' ]]; then
             sudo apt-get -y install git cmake make python3
-            if [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
+            if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               wget https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
               unzip android-ndk-r25b-linux.zip
               echo "BOX64_COMPILER=$PWD/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
+              wget https://sinalbr.dl.sourceforge.net/project/waydroid/images/system/lineage/waydroid_arm64/lineage-18.1-20240210-VANILLA-waydroid_arm64-system.zip
+              unzip lineage-18.1-20240210-VANILLA-waydroid_arm64-system.zip
+              sudo mount system.img /mnt
+              sudo cp -rf /mnt/system /
+              sudo umount /mnt
+              sudo rm -rf /system/vendor
+              sudo chmod 755 -R /system/*
+              sudo chown -R $(whoami):$(whoami) /system/*
+              sudo ln -sf /system/apex /apex
             else
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+            fi
+            if [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
+              sudo apt-get -y install p7zip
+              wget https://mirrors.utermux.dev/termux/termux-main/pool/main/liba/libandroid-sysv-semaphore/libandroid-sysv-semaphore_0.1_aarch64.deb
+              7z x libandroid-sysv-semaphore_0.1_aarch64.deb
+              tar -xf data.tar.xz
+              sudo cp -rf data /
+              sudo chmod 755 -R /data
+              sudo chown -R $(whoami):$(whoami) /data
+              echo "CFLAGS=-L/data/data/com.termux/files/usr/lib" >> $GITHUB_ENV
+              echo "IS_TERMUX=1" >> $GITHUB_ENV
+              echo "QEMU_SET_ENV=LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib" >> $GITHUB_ENV
+            else
+              echo "IS_TERMUX=0" >> $GITHUB_ENV
             fi
           else
             if [[ ${{ matrix.platform }} == 'X64' ]]; then
@@ -93,6 +116,7 @@ jobs:
           mkdir build
           cd build
           cmake .. -DCMAKE_C_COMPILER=${{ env.BOX64_COMPILER }}\
+                   -DTERMUX=${{ env.IS_TERMUX }}\
                    ${{ env.BOX64_PLATFORM_MARCRO }}\
                    -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }}\
                    -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }}\
@@ -103,7 +127,7 @@ jobs:
       - name: "Test Box64"
         if: ${{ matrix.platform != 'TEGRAX1' }}
         run: |
-          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'ANDROID' ]]; then
+          if [[ ${{ matrix.platform }} != 'X64' ]]; then
             mkdir qemu8.1.0
             wget -O- -q https://archive.archlinux.org/packages/q/qemu-user-static/qemu-user-static-8.1.0-2-x86_64.pkg.tar.zst | tar -I zstd -C qemu8.1.0 -xf -
             sudo cp qemu8.1.0/usr/bin/* /usr/bin/
@@ -119,7 +143,12 @@ jobs:
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --rerun-failed --output-on-failure
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
-            true
+            INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 ctest -j$(nproc) --rerun-failed --output-on-failure
+          elif [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
+
+            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:/data/data/com.termux/files/usr/lib BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
+            INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:/data/data/com.termux/files/usr/lib ctest -j$(nproc) --rerun-failed --output-on-failure
           else
             BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             ctest -j$(nproc) --rerun-failed --output-on-failure

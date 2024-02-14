@@ -71,8 +71,13 @@ int main(void) {
     printf("Main thread: thread_state == 1.\n");
     pthread_mutex_unlock(mutex_ptr);
 
+    #ifdef __ANDROID__
+    if (pthread_kill(thread,0) != 0)
+        goto error;
+    #else
     if (pthread_cancel(thread) != 0)
         goto error;
+    #endif
 
     // Wait for thread to execute the cleanup function
     pthread_mutex_lock(mutex_ptr);
