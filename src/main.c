@@ -1335,6 +1335,7 @@ void setupTraceInit()
 
 void setupTraceMapLib(lib_t* maplib)
 {
+#ifdef HAVE_TRACE
     if(!trace_func)
         return;
     char* p = trace_func;
@@ -1379,6 +1380,7 @@ void setupTraceMapLib(lib_t* maplib)
         printf_log(LOG_NONE, "Warning, Symbol to trace (\"%s\") not found. Trying to set trace later\n", p);
         SetTraceEmu(0, 1);  // disabling trace, mostly
     }
+#endif
 }
 
 EXPORTDYN

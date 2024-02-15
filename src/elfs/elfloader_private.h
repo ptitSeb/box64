@@ -164,6 +164,10 @@ typedef struct elfheader_s {
 #define R_X86_64_REX_GOTPCRELX  42      /* Load from 32 bit signed pc relative offset to GOT entry with REX prefix, relaxable.  */
 #define R_X86_64_NUM            43
 
+#ifndef STB_GNU_UNIQUE
+#define STB_GNU_UNIQUE  10
+#endif
+
 elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec);
 
 const char* BindSym(int bind);
