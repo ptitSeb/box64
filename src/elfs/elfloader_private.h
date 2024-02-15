@@ -168,6 +168,10 @@ typedef struct elfheader_s {
 #define STB_GNU_UNIQUE  10
 #endif
 
+#ifndef ELF64_ST_VISIBILITY
+#define ELF64_ST_VISIBILITY(o)   ((o) & 0x03)
+#endif
+
 elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec);
 
 const char* BindSym(int bind);
