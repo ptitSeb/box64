@@ -11,7 +11,6 @@
 typedef struct lib_s            lib_t;
 typedef struct bridge_s         bridge_t;
 typedef struct elfheader_s      elfheader_t;
-typedef struct kh_bridgemap_s   kh_bridgemap_t;
 typedef struct kh_mapsymbols_s  kh_mapsymbols_t;
 typedef struct x64emu_s         x64emu_t;
 
@@ -80,9 +79,7 @@ typedef struct library_s {
         elib_t  e;
     };                              // private lib data
     lib_t               *maplib;        // local maplib, for dlopen'd library with LOCAL binding (most of the dlopen)
-    kh_bridgemap_t      *gbridgemap;    // global symbol bridgemap
-    kh_bridgemap_t      *wbridgemap;    // weak symbol bridgemap
-    kh_bridgemap_t      *lbridgemap;    // local symbol bridgemap
+    int                 maplib_ref;     // ref to maplib (not owned)
     size_t              dlopen;   // idx to the dlopen idx (or 0 if not dlopen)
 } library_t;
 
@@ -104,7 +101,7 @@ typedef struct map_onedata_s {
     int         weak;
 } map_onedata_t;
 
-int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int *weak, int version, const char* vername, int local);  // Add bridges to functions
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int *weak, int version, const char* vername, int local, int veropt);  // Add bridges to functions
 
 typedef struct linkmap_s {
     // actual struct link_map

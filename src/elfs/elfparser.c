@@ -13,6 +13,9 @@
 #ifndef PN_XNUM 
 #define PN_XNUM (0xffff)
 #endif
+#ifndef DT_GNU_HASH
+#define DT_GNU_HASH	0x6ffffef5
+#endif
 
 int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t type)
 {
@@ -284,6 +287,14 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     h->flags = val;
                     printf_dump(LOG_DEBUG, "The DT_FLAGS is 0x%x\n", h->flags);
                     break;
+                case DT_HASH:
+                    h->hash = ptr;
+                    printf_dump(LOG_DEBUG, "The DT_HASH is at address %p\n", (void*)h->hash);
+                    break;
+                case DT_GNU_HASH:
+                    h->gnu_hash = ptr;
+                    printf_dump(LOG_DEBUG, "The DT_GNU_HASH is at address %p\n", (void*)h->gnu_hash);
+                    break;
                 }
             }
             if(h->rel) {
@@ -374,112 +385,15 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     return h;
 }
 
-const char* GetSymbolVersion(elfheader_t* h, int version)
+const char* BindSym(int bind)
 {
-    if(version<2)
-        return NULL;
-    /*if(version==1)
-        return "*";*/
-    if(h->VerNeed) {
-        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
-        while(ver) {
-            Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
-            for(int j=0; j<ver->vn_cnt; ++j) {
-                if(aux->vna_other==version) 
-                    return h->DynStr+aux->vna_name;
-                aux = (Elf64_Vernaux*)((uintptr_t)aux + aux->vna_next);
-            }
-            ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
-        }
+    switch(bind) {
+        case STB_GLOBAL: return "STB_GLOBAL";
+        case STB_WEAK: return "STB_WEAK";
+        case STB_LOCAL: return "STB_LOCAL";
+        case STB_GNU_UNIQUE: return "STB_GNU_UNIQUE";
     }
-    return GetParentSymbolVersion(h, version);  // if symbol is "internal", use Def table instead
-}
-
-const char* GetParentSymbolVersion(elfheader_t* h, int index)
-{
-    if(!h->VerDef || (index<1))
-        return NULL;
-    Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef + h->delta);
-    while(def) {
-        if(def->vd_ndx==index) {
-            if(def->vd_cnt<1)
-                return NULL;
-            /*if(def->vd_flags&VER_FLG_BASE)
-                return NULL;*/
-            Elf64_Verdaux *aux = (Elf64_Verdaux*)((uintptr_t)def + def->vd_aux);
-            return h->DynStr+aux->vda_name; // return Parent, so 1st aux
-        }
-        def = def->vd_next?((Elf64_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
-    }
-    return NULL;
-}
-
-int GetVersionIndice(elfheader_t* h, const char* vername)
-{
-    if(!vername)
-        return 0;
-    if(h->VerDef) {
-        Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef + h->delta);
-        while(def) {
-            Elf64_Verdaux *aux = (Elf64_Verdaux*)((uintptr_t)def + def->vd_aux);
-            if(!strcmp(h->DynStr+aux->vda_name, vername))
-                return def->vd_ndx;
-            def = def->vd_next?((Elf64_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
-        }
-    }
-    return 0;
-}
-
-int GetNeededVersionCnt(elfheader_t* h, const char* libname)
-{
-    if(!libname)
-        return 0;
-    if(h->VerNeed) {
-        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
-        while(ver) {
-            char *filename = h->DynStr + ver->vn_file;
-            if(!strcmp(filename, libname))
-                return ver->vn_cnt;
-            ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
-        }
-    }
-    return 0;
-}
-
-const char* GetNeededVersionString(elfheader_t* h, const char* libname, int idx)
-{
-    if(!libname)
-        return 0;
-    if(h->VerNeed) {
-        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
-        while(ver) {
-            char *filename = h->DynStr + ver->vn_file;
-            Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
-            if(!strcmp(filename, libname)) {
-                for(int j=0; j<ver->vn_cnt; ++j) {
-                    if(j==idx) 
-                        return h->DynStr+aux->vna_name;
-                    aux = (Elf64_Vernaux*)((uintptr_t)aux + aux->vna_next);
-                }
-                return NULL;    // idx out of bound, return NULL...
-           }
-            ver = ver->vn_next?((Elf64_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
-        }
-    }
-    return NULL;
-}
-
-int GetNeededVersionForLib(elfheader_t* h, const char* libname, const char* ver)
-{
-    if(!libname || !ver)
-        return 0;
-    int n = GetNeededVersionCnt(h, libname);
-    if(!n)
-        return 0;
-    for(int i=0; i<n; ++i) {
-        const char* vername = GetNeededVersionString(h, libname, i);
-        if(vername && !strcmp(ver, vername))
-            return 1;
-    }
-    return 0;
+    static char tmp[50];
+    sprintf(tmp, "??? 0x%x", bind);
+    return tmp;
 }

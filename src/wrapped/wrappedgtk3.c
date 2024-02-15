@@ -685,7 +685,7 @@ static void my3_gtk_builder_connect_signals_default(void* builder, void* object,
   }
   // Mixing Native and emulated code... the my_g_signal_* function will handle that (GetNativeFnc does)
   if(!func)
-      func = (void*)FindGlobalSymbol(my_context->maplib, handler_name, 0, NULL);
+      func = (void*)FindGlobalSymbol(my_context->maplib, handler_name, 0, NULL, 0);
 
   if(!func) {
       my->g_log("Gtk", 1<<4, "Could not find signal handler '%s'.", handler_name);

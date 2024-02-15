@@ -121,8 +121,8 @@ static void checkSDL2isNative()
 {
     if(my_context->sdl2allocrw)
         return;
-    emulated_sdl2allocrw = FindGlobalSymbol(my_context->maplib, "SDL_AllocRW", -1, NULL);
-    emulated_sdl2freerw = FindGlobalSymbol(my_context->maplib, "SDL_FreeRW", -1, NULL);
+    emulated_sdl2allocrw = FindGlobalSymbol(my_context->maplib, "SDL_AllocRW", -1, NULL, 0);
+    emulated_sdl2freerw = FindGlobalSymbol(my_context->maplib, "SDL_FreeRW", -1, NULL, 0);
     if(emulated_sdl2allocrw && emulated_sdl2freerw) {
         my_context->sdl2allocrw = my_wrapped_sdl2allocrw;
         my_context->sdl2freerw = my_wrapped_sdl2freerw;

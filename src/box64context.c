@@ -212,8 +212,8 @@ box64context_t *NewBox64Context(int argc)
 
     init_custommem_helper(context);
 
-    context->maplib = NewLibrarian(context, 1);
-    context->local_maplib = NewLibrarian(context, 1);
+    context->maplib = NewLibrarian(context);
+    context->local_maplib = NewLibrarian(context);
     context->versym = NewDictionnary();
     context->system = NewBridge();
     // Cannot use Bridge name as the map is not initialized yet
@@ -263,6 +263,7 @@ box64context_t *NewBox64Context(int argc)
     context->segtls[4].is32bits = 1;
 
     context->globdata = NewMapSymbols();
+    context->uniques = NewMapSymbols();
 
     initAllHelpers(context);
     
@@ -363,6 +364,7 @@ void FreeBox64Context(box64context_t** context)
         FreeX64Emu(&ctx->emu_sig);
 
     FreeMapSymbols(&ctx->globdata);
+    FreeMapSymbols(&ctx->uniques);
 
 #ifdef DYNAREC
     //dynarec_log(LOG_INFO, "BOX64 Dynarec at exit: Max DB=%d, righter=%d\n", ctx->max_db_size, rb_get_righter(ctx->db_sizes));

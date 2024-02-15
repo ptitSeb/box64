@@ -26,12 +26,13 @@ int CalcLoadAddr(elfheader_t* head);
 int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin);
 void FreeElfMemory(elfheader_t* head);
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded);
+void GrabX64CopyMainElfReloc(elfheader_t* head);
 int RelocateElf(lib_t *maplib, lib_t* local_maplib, int bindnow, int deepbind, elfheader_t* head);
 int RelocateElfPlt(lib_t *maplib, lib_t* local_maplib, int bindnow, int deepbind, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint64_t* stacksz, size_t* stackalign);
 uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
-void AddSymbols(lib_t *maplib, kh_mapsymbols_t* mapsymbols, kh_mapsymbols_t* weaksymbols, kh_mapsymbols_t* localsymbols, elfheader_t* h);
+void AddSymbols(lib_t *maplib, elfheader_t* h);
 int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int deepbind, box64context_t *box64, x64emu_t* emu);
 uintptr_t GetElfInit(elfheader_t* h);
 uintptr_t GetElfFini(elfheader_t* h);
@@ -62,17 +63,16 @@ int ElfCheckIfUseTCMallocMinimal(elfheader_t* h);   // return 1 if tcmalloc is u
 const char* GetSymbolVersion(elfheader_t* h, int version);
 const char* GetParentSymbolVersion(elfheader_t* h, int index);
 const char* VersionedName(const char* name, int ver, const char* vername);
-int SameVersionedSymbol(const char* name1, int ver1, const char* vername1, const char* name2, int ver2, const char* vername2);
+int SameVersionedSymbol(const char* name1, int ver1, const char* vername1, int veropt1, const char* name2, int ver2, const char* vername2, int veropt2);
 int GetVersionIndice(elfheader_t* h, const char* vername);
 int GetNeededVersionCnt(elfheader_t* h, const char* libname);
 const char* GetNeededVersionString(elfheader_t* h, const char* libname, int idx);
 int GetNeededVersionForLib(elfheader_t* h, const char* libname, const char* ver);
 
-kh_mapsymbols_t* GetMapSymbols(elfheader_t* h);
-kh_mapsymbols_t* GetWeakSymbols(elfheader_t* h);
-kh_mapsymbols_t* GetLocalSymbols(elfheader_t* h);
-kh_defaultversion_t* GetGlobalDefaultVersion(elfheader_t* h);
-kh_defaultversion_t* GetWeakDefaultVersion(elfheader_t* h);
+void* ElfGetLocalSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *sz, const char* symname, int* ver, const char** vername, int local, int* veropt);
+void* ElfGetGlobalSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *sz, const char* symname, int* ver, const char** vername, int local, int* veropt);
+void* ElfGetWeakSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *sz, const char* symname, int* ver, const char** vername, int local, int* veropt);
+int ElfGetSymTabStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname);
 
 void* GetNativeSymbolUnversioned(void* lib, const char* name);
 

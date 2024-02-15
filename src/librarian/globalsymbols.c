@@ -17,21 +17,21 @@
 // workaround for Globals symbols
 
 #define GLOB(A, B) \
-    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, NULL)) {     \
+    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, 0, NULL)) {  \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);              \
         memcpy((void*)globoffs, &A, sizeof(A));                                                           \
     }                                                                                                     \
-    if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, B)) {   \
+    if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, 2, B, 1, NULL)) { \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);              \
         memcpy((void*)globoffs, &A, sizeof(A));                                                           \
     }
 
 #define TOGLOB(A, B) \
-    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, NULL)) {     \
+    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, 0, NULL)) {  \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);              \
         memcpy(&A, (void*)globoffs, sizeof(A));                                                           \
     }                                                                                                     \
-    if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, B)) {   \
+    if (B && GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, 2, B, 1, NULL)) { \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);              \
         memcpy(&A, (void*)globoffs, sizeof(A));                                                           \
     }
@@ -50,7 +50,7 @@ void my_setGlobalGThreadsInit()
 {
     int val = 1;
     uintptr_t globoffs, globend;
-    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, "g_threads_got_initialized", &globoffs, &globend, -1, NULL, NULL)) {
+    if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, "g_threads_got_initialized", &globoffs, &globend, -1, NULL, 0, NULL)) {
         printf_log(LOG_DEBUG, "Global g_threads_got_initialized workaround, @%p <= %d\n", (void*)globoffs, val);
         memcpy((void*)globoffs, &val, sizeof(val));
     }

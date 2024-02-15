@@ -1221,6 +1221,7 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libpng12.so.0", &context->box64_emulated_libs, 0);
     AddPath("libcurl.so.4", &context->box64_emulated_libs, 0);
     AddPath("libtbbmalloc.so.2", &context->box64_emulated_libs, 0);
+    AddPath("libtbbmalloc_proxy.so.2", &context->box64_emulated_libs, 0);
 
     if(getenv("BOX64_SSE_FLUSHTO0")) {
         if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
@@ -1312,10 +1313,10 @@ void setupTraceInit()
             if(s_trace_start || s_trace_end)
                 SetTraceEmu(s_trace_start, s_trace_end);
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
@@ -1330,6 +1331,54 @@ void setupTraceInit()
                 SetTraceEmu(0, 1);
     }
 #endif
+}
+
+void setupTraceMapLib(lib_t* maplib)
+{
+    if(!trace_func)
+        return;
+    char* p = trace_func;
+    uintptr_t s_trace_start=0, s_trace_end=0;
+    if(maplib) {
+        if (GetGlobalSymbolStartEnd(maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+            SetTraceEmu(s_trace_start, s_trace_end);
+            printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+            box_free(trace_func);
+            trace_func = NULL;
+            return;
+        } else if(GetLocalSymbolStartEnd(maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+            SetTraceEmu(s_trace_start, s_trace_end);
+            printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+            box_free(trace_func);
+            trace_func = NULL;
+            return;
+        } else if(GetSymTabStartEnd(maplib, p, &s_trace_start, &s_trace_end)) {
+            SetTraceEmu(s_trace_start, s_trace_end);
+            printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+            box_free(trace_func);
+            trace_func = NULL;
+            return;
+        }
+    }
+    if (my_context->elfs && GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+        SetTraceEmu(s_trace_start, s_trace_end);
+        printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+        box_free(trace_func);
+        trace_func = NULL;
+    } else if(my_context->elfs && GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+        SetTraceEmu(s_trace_start, s_trace_end);
+        printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+        box_free(trace_func);
+        trace_func = NULL;
+    } else if(GetSymTabStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end)) {
+        SetTraceEmu(s_trace_start, s_trace_end);
+        printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
+        box_free(trace_func);
+        trace_func = NULL;
+    } else {
+        printf_log(LOG_NONE, "Warning, Symbol to trace (\"%s\") not found. Trying to set trace later\n", p);
+        SetTraceEmu(0, 1);  // disabling trace, mostly
+    }
 }
 
 EXPORTDYN
@@ -1356,10 +1405,10 @@ void setupTrace()
                 }
             }
         } else {
-            if (my_context->elfs && GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+            if (my_context->elfs && GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            } else if(my_context->elfs && GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, NULL, NULL)) {
+            } else if(my_context->elfs && GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
@@ -1981,11 +2030,14 @@ int main(int argc, const char **argv, char **env) {
     thread_set_emu(emu);
 
     // export symbols
-    AddSymbols(my_context->maplib, GetMapSymbols(elf_header), GetWeakSymbols(elf_header), GetLocalSymbols(elf_header), elf_header);
+    AddSymbols(my_context->maplib, elf_header);
     if(wine_preloaded) {
-        uintptr_t wineinfo = FindSymbol(GetMapSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
-        if(!wineinfo) wineinfo = FindSymbol(GetWeakSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
-        if(!wineinfo) wineinfo = FindSymbol(GetLocalSymbols(elf_header), "wine_main_preload_info", -1, NULL, 1, NULL);
+        uintptr_t wineinfo = 0;
+        int ver = -1, veropt = 0;
+        const char* vername = NULL;
+        if(!ElfGetGlobalSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
+            if(!ElfGetWeakSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
+                if(!ElfGetLocalSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
         if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
         else {
             *(void**)wineinfo = get_wine_prereserve();

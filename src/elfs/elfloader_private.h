@@ -3,8 +3,6 @@
 
 typedef struct library_s library_t;
 typedef struct needed_libs_s needed_libs_t;
-typedef struct kh_mapsymbols_s kh_mapsymbols_t;
-typedef struct kh_defaultversion_s kh_defaultversion_t;
 typedef struct cleanup_s cleanup_t;
 
 #include <elf.h>
@@ -48,6 +46,8 @@ typedef struct elfheader_s {
     int         szVerDef;
     int         e_type;
     uint32_t    flags;
+    uintptr_t   hash;
+    uintptr_t   gnu_hash;
 
     intptr_t    delta;  // should be 0
     void*       image;  // base of the elf image
@@ -117,11 +117,6 @@ typedef struct elfheader_s {
     int                 clean_sz;
     int                 clean_cap;
 
-    kh_mapsymbols_t   *mapsymbols;
-    kh_mapsymbols_t   *weaksymbols;
-    kh_mapsymbols_t   *localsymbols;
-    kh_defaultversion_t *globaldefver;  // the global default version for symbols (the XXX@@vvvv of symbols)
-    kh_defaultversion_t *weakdefver;    // the weak default version for symbols (the XXX@@vvvv of symbols)
 } elfheader_t;
 
 #define R_X86_64_NONE           0       /* No reloc */
@@ -170,5 +165,20 @@ typedef struct elfheader_s {
 #define R_X86_64_NUM            43
 
 elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec);
+
+const char* BindSym(int bind);
+
+Elf64_Half GetSymbolVersionFlag(elfheader_t* h, int index);
+
+uint32_t old_elf_hash(const char* name);
+Elf64_Sym* old_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt);
+void old_elf_hash_dump(elfheader_t* h);
+uint32_t new_elf_hash(const char *name);
+Elf64_Sym* new_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt);
+void new_elf_hash_dump(elfheader_t* h);
+
+Elf64_Sym* ElfLookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt);
+Elf64_Sym* ElfSymTabLookup(elfheader_t* h, const char* symname);
+Elf64_Sym* ElfDynSymLookup(elfheader_t* h, const char* symname);
 
 #endif //__ELFLOADER_PRIVATE_H_

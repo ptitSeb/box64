@@ -778,7 +778,8 @@ void checkHookedSymbols(elfheader_t* h)
         return;
     for (size_t i=0; i<h->numSymTab; ++i) {
         int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
-        if(type==STT_FUNC) {
+        int sz = ELF64_ST_TYPE(h->SymTab[i].st_size);
+        if(type==STT_FUNC && sz) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
             #define GO2(A, B)
@@ -824,7 +825,7 @@ void checkHookedSymbols(elfheader_t* h)
                 #undef GO
                 #undef GO2
                 #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h, &real_##A);}
-                #define GO2(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h, &real_##A);}
+                #define GO2(A, B) if(!strcmp(symname, #A) && (box64_malloc_hack>1)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h, &real_##A);}
                 SUPER()
                 #undef GO
                 #undef GO2
@@ -847,7 +848,7 @@ void checkHookedSymbols(elfheader_t* h)
                     #undef GO
                     #undef GO2
                     #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h, &real_##A);}
-                    #define GO2(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h, &real_##A);}
+                    #define GO2(A, B) if(!strcmp(symname, #A) && (box64_malloc_hack>1)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h, &real_##A);}
                     SUPER()
                     #undef GO
                     #undef GO2

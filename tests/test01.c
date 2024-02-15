@@ -1,8 +1,8 @@
-#include <sys/syscall.h> 
-#include <unistd.h>                                      
-                                                                                
-int main(int argc, char **argv)                                                 
-{                                                                               
+#include <sys/syscall.h>
+#include <unistd.h>
+// build with `gcc test01.c -o test01 -march=core2 -Wl,--hash-style=both`
+int main(int argc, char **argv)
+{
     const char msg[] = "Hello x86_64 World!\n";
     //syscall(1, STDOUT_FILENO, msg, sizeof(msg)-1);
     asm (
@@ -15,5 +15,5 @@ int main(int argc, char **argv)
     :"r" (msg)
     :"%rax","%rdi","%rsi","%rdx"
     );
-    return 0;                                                                   
+    return 0;
 }

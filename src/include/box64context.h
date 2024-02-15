@@ -121,6 +121,7 @@ typedef struct box64context_s {
     lib_t               *local_maplib;  // libs and symbols openned has local (only collection of libs, no symbols)
     dic_t               *versym;        // dictionnary of versioned symbols
     kh_mapsymbols_t     *globdata;      // GLOBAL_DAT relocation for COPY mapping in main elf
+    kh_mapsymbols_t     *uniques;       // symbols with STB_GNU_UNIQUE bindings
 
     kh_threadstack_t    *stacksizes;    // stack sizes attributes for thread (temporary)
     bridge_t            *system;        // other bridges

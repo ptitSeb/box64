@@ -1386,7 +1386,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             dynarec_log(LOG_INFO, "Warning, addr inside current dynablock!\n");
         }
         // mark stuff as unclean
-        cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
+        if(box64_dynarec)
+            cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
         static void* glitch_pc = NULL;
         static void* glitch_addr = NULL;
         static uint32_t glitch_prot = 0;
@@ -1511,7 +1512,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
 #error Unsupported Architecture
 #endif //arch
 #endif //DYNAREC
-        if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==x64pc-1))
+        if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
             x64pc--;
         if(log_minimum<=box64_log) {
             signal_jmpbuf_active = 1;
@@ -1632,7 +1633,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             if(db)
                 hash = X31_hash_code(db->x64_addr, db->x64_size);
             printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p",
-                GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp,
+                GetTID(), signame, pc, name, (void*)x64pc, elfname?:"???", x64name?:"???", rsp,
                 emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP,
                 addr, info->si_code,
                 prot, db, db?db->block:0, db?(db->block+db->size):0,
@@ -1674,7 +1675,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             #warning TODO
 #endif
 #else
-            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?elfname:"???", x64name?x64name:"???", rsp, addr, info->si_code);
+            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?:"???", x64name?:"???", rsp, addr, info->si_code);
 #endif
             if(!shown_regs) {
                 for (int i=0; i<16; ++i) {

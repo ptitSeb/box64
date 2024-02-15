@@ -1227,7 +1227,7 @@ const char* getAddrFunctionName(uintptr_t addr)
         else if(addr==start)
             sprintf(ret, "%s/%s", ElfName(elf), symbname);
         else
-            sprintf(ret, "%s/%s + %ld", ElfName(elf), symbname, addr - start);
+            sprintf(ret, "%s/%s + 0x%lx", ElfName(elf), symbname, addr - start);
     } else {
         if(elf) {
             sprintf(ret, "%s + 0x%lx", ElfName(elf), addr - (uintptr_t)GetBaseAddress(elf));

@@ -12,9 +12,10 @@ typedef struct x64emu_s x64emu_t;
 typedef struct elfheader_s elfheader_t;
 typedef struct needed_libs_s needed_libs_t;
 typedef struct kh_mapoffsets_s kh_mapoffsets_t;
+typedef enum   symbol_type_s    symbol_type_t;
 typedef char* cstr_t;
 
-lib_t *NewLibrarian(box64context_t* context, int ownlibs);
+lib_t *NewLibrarian(box64context_t* context);
 void FreeLibrarian(lib_t **maplib, x64emu_t* emu);
 dlprivate_t *NewDLPrivate(void);
 void FreeDLPrivate(dlprivate_t **lib);
@@ -27,19 +28,18 @@ library_t* GetLibMapLib(lib_t* maplib, const char* name);
 library_t* GetLibInternal(const char* name);
 void promoteLocalLibGlobal(library_t* lib);
 int isLibLocal(library_t* lib);
-uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name, int version, const char* vername);
-int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, size_t size, int version, const char* vername, const char* globdefver, const char* weakdefver);
-int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, const char* globdefver, const char* weakdefver);
-int GetGlobalWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, const char* globdefver, const char* weakdefver);
-int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, const char* defver);
-int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, const char* globdefver, const char* weakdefver);
-elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, const char* vername);
-int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername, const char* defver);
+uintptr_t FindGlobalSymbol(lib_t *maplib, const char* name, int version, const char* vername, int veropt);
+int GetNoSelfSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, size_t size, int version, const char* vername, int veropt, void** elfsym);
+int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername, int veropt, void** elfsym);
+int GetGlobalWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, int veropt, void** elfsym);
+int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int veropt, void** elfsym);
+int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, int veropt, void** elfsym);
+elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, const char* vername, int veropt);
+int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername, int veropt);
+int GetSymTabStartEnd(lib_t* maplib, const char* name, uintptr_t* start, uintptr_t* end);
 
 void MapLibRemoveLib(lib_t* maplib, library_t* lib);
 void MapLibPrependLib(lib_t* maplib, library_t* lib, library_t* ref);
-
-const char* GetMaplibDefaultVersion(lib_t *maplib, lib_t *local_maplib, int isweak, int deepbind, const char* symname);
 
 const char* FindSymbolName(lib_t *maplib, void* p, void** start, uint64_t* sz, const char** libname, void** base, library_t** lib);
 

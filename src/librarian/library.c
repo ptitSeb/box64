@@ -43,14 +43,6 @@ wrappedlib_t wrappedlibs[] = {
 };
 #undef GO
 
-typedef struct bridged_s {
-    char*       name;
-    uintptr_t   start;
-    uintptr_t   end;
-} bridged_t;
-
-KHASH_MAP_INIT_STR(bridgemap, bridged_t)
-
 KHASH_MAP_IMPL_STR(symbolmap, symbol1_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
 KHASH_MAP_IMPL_STR(datamap, uint64_t)
@@ -123,13 +115,13 @@ void DummyLib_Fini(library_t* lib)
 {
 }
 
-int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     // ignoring asked size on wrapped libs
     uintptr_t addr = 0;
     uintptr_t size = 0;
     int wk = 0;
-    if (!getSymbolInMaps(lib, name, 0, &addr, &size, &wk, version, vername, local)) {
+    if (!getSymbolInMaps(lib, name, 0, &addr, &size, &wk, *version, *vername, local, *veropt)) {
         return 0;
     }
     if(!addr && !size)
@@ -139,34 +131,37 @@ int WrappedLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintpt
     *offs = addr;
     *sz = size;
     *weak = wk;
+    if(elfsym) *elfsym = NULL;
     return 1;
 }
-int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int*weak, int version, const char* vername, int local, const char* defver)
+int EmuLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     // symbols...
     uintptr_t start, end;
     // weak symbols...
-    if(GetSizedSymbolStartEnd(GetWeakSymbols(lib->e.elf), name, &start, &end, asked_size, version, vername, local, defver))
+    void* sym;
+    if((sym = ElfGetWeakSymbolStartEnd(lib->e.elf, &start, &end, name, version, vername, local, veropt)))
     {
         *offs = start;
         *sz = end-start;
         *weak = 1;
+        if(elfsym) *elfsym = sym;
         return 1;
     }
     return 0;
 }
-int DummyLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int DummyLib_GetWeak(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     return 0;
 }
 
-int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     // ignoring asked size on wrapped libs
     uintptr_t addr = 0;
     uintptr_t size = 0;
     int wk = 0;
-    if (!getSymbolInMaps(lib, name, 1, &addr, &size, &wk, version, vername, local)) {
+    if (!getSymbolInMaps(lib, name, 1, &addr, &size, &wk, *version, *vername, local, *veropt)) {
         return 0;
     }
     if(!addr && !size)
@@ -176,44 +171,49 @@ int WrappedLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uint
     *offs = addr;
     *sz = size;
     *weak = 0;
+    if(elfsym) *elfsym = NULL;
     return 1;
 }
-int EmuLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int EmuLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     uintptr_t start, end;
-    if(GetSizedSymbolStartEnd(GetMapSymbols(lib->e.elf), name, &start, &end, asked_size, version, vername, local, defver))
+    void* sym;
+    if((sym = ElfGetGlobalSymbolStartEnd(lib->e.elf, &start, &end, name, version, vername, local, veropt)))
     {
         *offs = start;
         *sz = end-start;
         *weak = 0;
+        if(elfsym) *elfsym = sym;
         return 1;
     }
     return 0;
 }
-int DummyLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int DummyLib_GetGlobal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     return 0;
 }
-int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int EmuLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     // ignoring asked size on wrapped libs
     uintptr_t start, end;
-    if(GetSymbolStartEnd(GetLocalSymbols(lib->e.elf), name, &start, &end, version, vername, local, defver))
+    void* sym;
+    if((sym = ElfGetLocalSymbolStartEnd(lib->e.elf, &start, &end, name, version, vername, local, veropt)))
     {
         *offs = start;
         *sz = end-start;
         *weak = 0;
+        if(elfsym) *elfsym = sym;
         return 1;
     }
     return 0;
 }
 
-int WrappedLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int WrappedLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     (void)lib; (void)name; (void)offs; (void)sz; (void)version; (void)vername; (void)local;
     return 0;
 }
-int DummyLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int version, const char* vername, int local, const char* defver)
+int DummyLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr_t *sz, size_t asked_size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     (void)lib; (void)name; (void)offs; (void)sz; (void)version; (void)vername; (void)local;
     return 0;
@@ -483,9 +483,6 @@ library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* ve
         //box_free(lib);
         return NULL;
     }
-    lib->gbridgemap = kh_init(bridgemap);
-    lib->wbridgemap = kh_init(bridgemap);
-    lib->lbridgemap = kh_init(bridgemap);
 
     return lib;
 }
@@ -496,7 +493,7 @@ int AddSymbolsLibrary(lib_t *maplib, library_t* lib, x64emu_t* emu)
     if(lib->type==LIB_EMULATED) {
         elfheader_t *elf_header = lib->e.elf;
         // add symbols
-        AddSymbols(maplib, GetMapSymbols(lib->e.elf), GetWeakSymbols(lib->e.elf), GetLocalSymbols(lib->e.elf), elf_header);
+        AddSymbols(maplib, elf_header);
     }
     return 0;
 }
@@ -522,12 +519,14 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, int deepbi
 #ifdef HAVE_TRACE
         if(trace_func) {
             int weak;
-            if (GetGlobalSymbolStartEnd(local_maplib, trace_func, &trace_start, &trace_end, elf_header, -1, NULL, NULL, NULL)) {
+            int ver = -1, veropt = 0;
+            const char* vername = NULL;
+            if (GetGlobalSymbolStartEnd(local_maplib, trace_func, &trace_start, &trace_end, elf_header, ver, vername, veropt, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_dump(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 box_free(trace_func);
                 trace_func = NULL;
-            } else if(GetLibLocalSymbolStartEnd(lib, trace_func, &trace_start, &trace_end, 0, &weak, -1, NULL, 0, NULL)) {
+            } else if(GetLibLocalSymbolStartEnd(lib, trace_func, &trace_start, &trace_end, 0, &weak, &ver, &vername, 0, &veropt, NULL)) {
                 SetTraceEmu(trace_start, trace_end);
                 printf_dump(LOG_INFO, "TRACE on %s only (%p-%p)\n", trace_func, (void*)trace_start, (void*)trace_end);
                 box_free(trace_func);
@@ -565,42 +564,33 @@ void Free1Library(library_t **the_lib, x64emu_t* emu)
         MapLibRemoveLib(my_context->local_maplib, lib);
     }
     // free elf is relevant
-    if(lib->type==LIB_EMULATED) {
+    int lib_type = lib->type;
+    // Handle needed for cleaning
+    needed_libs_t* needed = (lib_type==LIB_EMULATED && lib->e.elf)?lib->e.elf->needed:((lib_type==LIB_WRAPPED)?lib->w.needed:NULL);
+    // handle needed libs now
+    if(needed)
+        for(int i=0; i<needed->size; ++i)
+            DecRefCount(&needed->libs[i], emu);
+    // free elf
+    if(lib_type==LIB_EMULATED) {
         FreeElfHeader(&lib->e.elf);
     }
 
     // No "Fini" logic here, only memory handling
-    if(lib->maplib)
-        FreeLibrarian(&lib->maplib, emu);
-
-    if(lib->type!=LIB_UNNKNOW && lib->fini) {
+    if(lib->maplib && !lib->maplib_ref) {
+        lib_t* maplib = lib->maplib;
+        lib->maplib = NULL;
+        FreeLibrarian(&maplib, emu);
+    }
+    lib->maplib = NULL;
+    lib->maplib_ref = 0;
+    if(lib_type!=LIB_UNNKNOW && lib->fini) {
         lib->fini(lib);
     }
     box_free(lib->name);
     box_free(lib->path);
 
-    if(lib->gbridgemap) {
-        bridged_t *br;
-        kh_foreach_value_ref(lib->gbridgemap, br,
-            box_free(br->name);
-        );
-        kh_destroy(bridgemap, lib->gbridgemap);
-    }
-    if(lib->wbridgemap) {
-        bridged_t *br;
-        kh_foreach_value_ref(lib->wbridgemap, br,
-            box_free(br->name);
-        );
-        kh_destroy(bridgemap, lib->wbridgemap);
-    }
-    if(lib->lbridgemap) {
-        bridged_t *br;
-        kh_foreach_value_ref(lib->lbridgemap, br,
-            box_free(br->name);
-        );
-        kh_destroy(bridgemap, lib->lbridgemap);
-    }
-    if(lib->type == LIB_WRAPPED) {
+    if(lib_type == LIB_WRAPPED) {
         if(lib->w.symbolmap)
             kh_destroy(symbolmap, lib->w.symbolmap);
         if(lib->w.wsymbolmap)
@@ -671,81 +661,37 @@ int IsSameLib(library_t* lib, const char* path)
     box_free(name);
     return ret;
 }
-int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
+int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     if(!name[0] || !lib || (lib->type==LIB_UNNKNOW))
         return 0;
-    khint_t k;
-    kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
-    // check first if already in the map
-    k = kh_get(bridgemap, map, VersionedName(name, version, vername));
-    if(k!=kh_end(map)) {
-        *start = kh_value(map, k).start;
-        *end = kh_value(map, k).end;
-        return 1;
-    }
     // get a new symbol
-    if(lib->getweak(lib, name, start, end, size, weak, version, vername, local, defver)) {
+    if(lib->getweak(lib, name, start, end, size, weak, version, vername, local, veropt, elfsym)) {
         *end += *start;     // lib->get(...) gives size, not end
-        char* symbol = box_strdup(VersionedName(name, version, vername));
-        int ret;
-        k = kh_put(bridgemap, map, symbol, &ret);
-        kh_value(map, k).name = symbol;
-        kh_value(map, k).start = *start;
-        kh_value(map, k).end = *end;
         return 1;
     }
     // nope
     return 0;
 }
-int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
+int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     if(!name[0] || !lib || (lib->type==LIB_UNNKNOW))
         return 0;
-    khint_t k;
-    kh_bridgemap_t *map = local?lib->lbridgemap:((*weak)?lib->wbridgemap:lib->gbridgemap);
-    // check if already in the map
-    k = kh_get(bridgemap, map, VersionedName(name, version, vername));
-    if(k!=kh_end(map)) {
-        *start = kh_value(map, k).start;
-        *end = kh_value(map, k).end;
-        return 1;
-    }
     // get a new symbol
-    if(lib->getglobal(lib, name, start, end, size, weak, version, vername, local, defver)) {
+    if(lib->getglobal(lib, name, start, end, size, weak, version, vername, local, veropt, elfsym)) {
         *end += *start;     // lib->get(...) gives size, not end
-        char* symbol = box_strdup(VersionedName(name, version, vername));
-        int ret;
-        k = kh_put(bridgemap, map, symbol, &ret);
-        kh_value(map, k).name = symbol;
-        kh_value(map, k).start = *start;
-        kh_value(map, k).end = *end;
         return 1;
     }
     // nope
     return 0;
 }
-int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int version, const char* vername, int local, const char* defver)
+int GetLibLocalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym)
 {
     if(!name[0] || !lib || (lib->type==LIB_UNNKNOW))
         return 0;
-    khint_t k;
-    // check first if already in the map
-    k = kh_get(bridgemap, lib->lbridgemap, VersionedName(name, version, vername));
-    if(k!=kh_end(lib->lbridgemap)) {
-        *start = kh_value(lib->lbridgemap, k).start;
-        *end = kh_value(lib->lbridgemap, k).end;
-        return 1;
-    }
     // get a new symbol
-    if(lib->getlocal(lib, name, start, end, size, weak, version, vername, local, defver)) {
+    if(lib->getlocal(lib, name, start, end, size, weak, version, vername, local, veropt, elfsym)) {
         *end += *start;     // lib->get(...) gives size, not end
-        char* symbol = box_strdup(VersionedName(name, version, vername));
-        int ret;
-        k = kh_put(bridgemap, lib->lbridgemap, symbol, &ret);
-        kh_value(lib->lbridgemap, k).name = symbol;
-        kh_value(lib->lbridgemap, k).start = *start;
-        kh_value(lib->lbridgemap, k).end = *end;
         return 1;
     }
     // nope
@@ -981,7 +927,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
     return 0;
 }
 
-int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int* weak, int version, const char* vername, int local)
+int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int* weak, int version, const char* vername, int local, int veropt)
 {
     if(version==-2) // don't send global native symbol for a version==-2 search
         return 0;
@@ -1191,18 +1137,11 @@ void IncRefCount(library_t* lib, x64emu_t* emu)
             if(lib->w.refcnt==LIB_MAXCNT)
                 return;
             ++lib->w.refcnt;
-            if(lib->w.needed)
-                for(int i=0; i<lib->w.needed->size; ++i) {
-                    IncRefCount(lib->w.needed->libs[i], emu);
-                }
             break;
         case LIB_EMULATED:
             if(lib->e.elf->refcnt==LIB_MAXCNT)
                 return;
             ++lib->e.elf->refcnt;
-            if(lib->e.elf->needed)
-                for(int i=0; i<lib->e.elf->needed->size; ++i)   // some libs may not be loaded yet
-                    IncRefCount(lib->e.elf->needed->libs[i], emu);
     }
 }
 
@@ -1215,39 +1154,29 @@ int DecRefCount(library_t** lib, x64emu_t* emu)
         return 0;
     }
     int ret = 1;
-    needed_libs_t* needed = NULL;
-    int freed = 0;
     switch ((*lib)->type) {
         case LIB_WRAPPED:
             if((*lib)->w.refcnt==LIB_MAXCNT)
                 return ret;
-            needed = (*lib)->w.needed;
             ret=--(*lib)->w.refcnt;
             if(!ret) {
-                needed = copy_neededlib(needed);
-                freed=1;
                 Free1Library(lib, emu);
             }
             break;
         case LIB_EMULATED:
-            if((*lib)->e.elf->refcnt==LIB_MAXCNT)
-                return ret;
-            needed = (*lib)->e.elf->needed;
-            ret=--(*lib)->e.elf->refcnt;
+            if(!(*lib)->e.elf)
+                ret = 0;
+            else {
+                if((*lib)->e.elf->refcnt==LIB_MAXCNT)
+                    return ret;
+                ret=--(*lib)->e.elf->refcnt;
+            }
             if(!ret) {
-                needed = copy_neededlib(needed);
-                freed=1;
-                removeLinkMapLib(*lib);
                 FiniLibrary(*lib, emu);
                 Free1Library(lib, emu);
             }
             break;
     }
-    if(needed)
-        for(int i=0; i<needed->size; ++i)
-            DecRefCount(&needed->libs[i], emu);
-    if(freed)
-        free_neededlib(needed);
     return ret;
 }
 

@@ -18,7 +18,6 @@ typedef struct lib_s {
     library_t             **libraries;
     int                   libsz;
     int                   libcap;
-    int                   ownlibs;
     library_t             *owner;       // in case that maplib is owned by a lib
 } lib_t;
 
