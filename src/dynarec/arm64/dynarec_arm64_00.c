@@ -1294,7 +1294,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop=F8;
             u8 = (nextop&0x38)>>3;
             if((nextop&0xC0)==0xC0) {   // reg <= seg
-                LDRw_U12(xRAX+(nextop&7)+(rex.b<<3), xEmu, offsetof(x64emu_t, segs[u8]));
+                gd = xRAX+(nextop&7)+(rex.b<<3);
+                LDRH_U12(gd, xEmu, offsetof(x64emu_t, segs[u8]));
+                UXTHw(gd, gd);
             } else {                    // mem <= seg
                 LDRH_U12(x3, xEmu, offsetof(x64emu_t, segs[u8]));
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
