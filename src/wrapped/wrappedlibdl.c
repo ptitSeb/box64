@@ -386,6 +386,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     pthread_mutex_unlock(&mutex);
     return (void*)start;
 }
+static int actualy_closing = 0;
 int my_dlclose(x64emu_t* emu, void *handle)
 {
     (void)emu;
@@ -410,7 +411,9 @@ int my_dlclose(x64emu_t* emu, void *handle)
         return -1;
     }
     --dl->dllibs[nlib].count;
-    DecRefCount(&dl->dllibs[nlib].lib, emu);
+    elfheader_t* h = GetElf(dl->dllibs[nlib].lib);
+    if(!h || !h->gnuunique || actualy_closing)
+        DecRefCount(&dl->dllibs[nlib].lib, emu);
     return 0;
 }
 #ifdef ANDROID
@@ -597,6 +600,7 @@ EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* re
 void closeAllDLOpenned()
 {
     dlprivate_t *dl = my_context->dlprivate;
+    actualy_closing = 1;
     if(dl) {
         x64emu_t* emu = thread_get_emu();
         for(size_t i=0; i<dl->lib_sz; ++i)

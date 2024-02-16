@@ -499,6 +499,21 @@ void GrabX64CopyMainElfReloc(elfheader_t* head)
         }
     }
 }
+void CheckGNUUniqueBindings(elfheader_t* head)
+{
+    if(head->rela) {
+        int cnt = head->relasz / head->relaent;
+        Elf64_Rela* rela = (Elf64_Rela *)(head->rela + head->delta);
+        printf_dump(LOG_DEBUG, "Checking for symbol with STB_GNU_UNIQUE bindingsfor %s\n", head->name);
+        for (int i=0; i<cnt; ++i) {
+            int bind = ELF64_ST_BIND(rela[i].r_info);
+            if(bind == STB_GNU_UNIQUE) {
+                head->gnuunique = 1;
+                return; // can stop searching
+            }
+        }
+    }
+}
 
 static elfheader_t* checkElfLib(elfheader_t* h, library_t* lib)
 {
