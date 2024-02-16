@@ -2097,7 +2097,34 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             *need_epilog = 0;
             *ok = 0;
             break;
-
+        case 0xC4:
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
+                INST_NAME("LES Gd, Ed");
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 1);
+                LDRw_U12(gd, wback, 0);
+                LDRH_U12(x1, wback, 4);
+                STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
+            } else {
+                DEFAULT;
+            }
+            break;
+        case 0xC5:
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
+                INST_NAME("LDS Gd, Ed");
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 1);
+                LDRw_U12(gd, wback, 0);
+                LDRH_U12(x1, wback, 4);
+                STRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+                STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0xC6:
             INST_NAME("MOV Eb, Ib");
             nextop=F8;
