@@ -1581,7 +1581,17 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         GOCOND(0x90, "SET", "Eb");
         #undef GO
-
+        case 0xA0:
+            INST_NAME("PUSH FS");
+            LDRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
+            PUSH1z(x2);
+            break;
+        case 0xA1:
+            INST_NAME("POP FS");
+            POP1z(x2);
+            STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
+            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_FS]));
+            break;
         case 0xA2:
             INST_NAME("CPUID");
             NOTEST(x1);
@@ -1639,6 +1649,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             B_NEXT(cEQ);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x5, x4);
             WBACK;
+            break;
+
+        case 0xA8:
+            INST_NAME("PUSH GS");
+            LDRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
+            PUSH1z(x2);
+            break;
+        case 0xA9:
+            INST_NAME("POP GS");
+            POP1z(x2);
+            STRH_U12(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
+            STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_GS]));
             break;
 
         case 0xAB:
