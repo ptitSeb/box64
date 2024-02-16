@@ -219,6 +219,7 @@ void openFTrace(const char* newtrace)
                 ftrace = NULL;*/
                 if(!box64_nobanner)
                     printf("BOX64 Trace %s to \"%s\"\n", append?"appended":"redirected", p);
+                PrintBox64Version();
             }
         }
     }
