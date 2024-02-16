@@ -27,6 +27,8 @@ GO(ubrk_setText_67, vFppip)
 GO(ubrk_setUText_67, vFppp)
 GO(ubrk_swap_67, iFppipp)
 
+GO(ucnv_open_67, pFpp)
+
 GO(ucurr_forLocale_67, iFppip)
 GO(ucurr_getName_67, pFppippp)
 
@@ -81,6 +83,7 @@ GO(u_strcmp_67, iFpp)
 GO(u_strcpy_67, pFpp)
 GO(u_strlen_67, iFp)
 GO(u_strncpy_67, pFppi)
+GO(u_strToLower_67, iFpipipp)
 GO(u_tolower_67, uFu)
 GO(u_toupper_67, uFu)
 GO(u_uastrncpy_67, pFppi)
