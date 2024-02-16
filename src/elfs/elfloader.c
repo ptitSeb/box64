@@ -500,6 +500,16 @@ void GrabX64CopyMainElfReloc(elfheader_t* head)
     }
 }
 
+static elfheader_t* checkElfLib(elfheader_t* h, library_t* lib)
+{
+    if(h && lib) {
+        if(!h->needed)
+            h->needed = new_neededlib(1);
+        add1libref_neededlib(h->needed, lib);
+    }
+    return h;
+}
+
 int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head, int cnt, Elf64_Rela *rela, int* need_resolv)
 {
     int ret_ok = 0;
@@ -514,6 +524,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
         uintptr_t end = 0;
         size_t size = sym->st_size;
         elfheader_t* sym_elf = NULL;
+        elfheader_t* last_elf = NULL;
         int version = head->VerSym?((Elf64_Half*)((uintptr_t)head->VerSym+head->delta))[ELF64_R_SYM(rela[i].r_info)]:-1;
         if(version!=-1) version &=0x7fff;
         const char* vername = GetSymbolVersion(head, version);
@@ -597,6 +608,8 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                     printf_dump(LOG_NEVER, "Apply R_X86_64_COPY @%p with sym=%s (%sver=%d/%s), @%p+0x%lx size=%ld\n", p, symname, veropt?"opt":"", version, vername?vername:"(none)", (void*)offs, rela[i].r_addend, sym->st_size);
                     if(p!=(void*)(offs+rela[i].r_addend))
                         memmove(p, (void*)(offs+rela[i].r_addend), sym->st_size);
+                    sym_elf = FindElfAddress(my_context, offs);
+                    if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                 } else {
                     printf_log(LOG_NONE, "Error: Symbol %s not found, cannot apply RELA R_X86_64_COPY @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
                 }
@@ -616,6 +629,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                     } else {
                         printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s (%sver=%d/%s, elf=%s)\n", BindSym(bind), p, (void*)(p?(*p):0), (void*)(offs + rela[i].r_addend), symname, veropt?"opt":"", version, vername?vername:"(none)", sym_elf?sym_elf->name:"(native)");
                         *p = offs + rela[i].r_addend;
+                        if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                     }
                 }
                 break;
@@ -640,10 +654,10 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                         // return -1;
                     } else {
                         if(p) {
-                            elfheader_t* sym_elf = FindElfAddress(my_context, offs);
                             printf_dump(LOG_NEVER, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p / %s (%sver=%d / %s))\n", 
                                 BindSym(bind), p, symname, *(void**)p, (void*)(offs+rela[i].r_addend), sym_elf?sym_elf->name:"native", veropt?"opt":"", version, vername?vername:"(none)");
                             *p = offs + rela[i].r_addend;
+                            if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                         } else {
                             printf_log(LOG_INFO, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
                         }
@@ -669,6 +683,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (%sver=%d/%s) addend=0x%lx (%p -> %p)\n", 
                         BindSym(bind), p, symname, veropt?"opt":"", version, vername?vername:"(none)", rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend/*+*(uint64_t*)p*/));
                     *p /*+*/= offs+rela[i].r_addend;
+                    if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                 }
                 break;
             case R_X86_64_TPOFF64:
@@ -682,6 +697,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                         delta = *(int64_t*)p;
                         printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%ld -> %ld+%ld+%ld, size=%ld)\n", BindSym(bind), DumpRelType(t), symname, p, delta, sym_elf->tlsbase, (int64_t)offs, rela[i].r_addend, end-offs);
                         *p = (uintptr_t)((int64_t)offs + rela[i].r_addend + sym_elf->tlsbase);
+                        if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%ld), no elf_header found\n", BindSym(bind), DumpRelType(t), symname, p, (int64_t)offs);
                     }
@@ -689,14 +705,16 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                 break;
             case R_X86_64_DTPMOD64:
                 // ID of module containing symbol
-                if(!symname || symname[0]=='\0' || bind==STB_LOCAL)
+                if(!symname || symname[0]=='\0' || bind==STB_LOCAL) {
                     offs = getElfIndex(my_context, head);
-                else {
+                    sym_elf = head;
+                } else {
                     offs = getElfIndex(my_context, sym_elf);
                 }
                 if(p) {
                     printf_dump(LOG_NEVER, "Apply %s %s @%p with sym=%s (%p -> %p)\n", BindSym(bind), "R_X86_64_DTPMOD64", p, symname, *(void**)p, (void*)offs);
                     *p = offs;
+                    if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                 } else {
                     printf_log(LOG_INFO, "Warning, Symbol %s or Elf not found, but R_X86_64_DTPMOD64 Slot Offset is NULL \n", symname);
                 }
@@ -711,12 +729,15 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                     }
                     // return -1;
                 } else {
-                    if(!symname || symname[0]=='\0')
+                    if(!symname || symname[0]=='\0') {
                         offs = sym->st_value;
+                        sym_elf = head;
+                    }
                     if(p) {
                         int64_t tlsoffset = (int64_t)offs;    // it's not an offset in elf memory
                         printf_dump(LOG_NEVER, "Apply %s R_X86_64_DTPOFF64 @%p with sym=%s (%p -> %p)\n", BindSym(bind), p, symname, (void*)tlsoffset, (void*)offs);
                         *p = tlsoffset;
+                        if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                     } else {
                         printf_log(LOG_INFO, "Warning, Symbol %s found, but R_X86_64_DTPOFF64 Slot Offset is NULL \n", symname);
                     }
@@ -1042,12 +1063,13 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
         return;
     }
     h->init_done = 1;
-    for(int i=0; i<h->needed->size; ++i) {
-        library_t *lib = h->needed->libs[i];
-        elfheader_t *lib_elf = GetElf(lib);
-        if(lib_elf)
-            RunElfInit(lib_elf, emu);
-    }
+    if(h->needed)
+        for(int i=0; i<h->needed->init_size; ++i) {
+            library_t *lib = h->needed->libs[i];
+            elfheader_t *lib_elf = GetElf(lib);
+            if(lib_elf)
+                RunElfInit(lib_elf, emu);
+        }
     printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
     if(h->initentry)
         RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
@@ -1681,6 +1703,7 @@ EXPORT void PltResolver(x64emu_t* emu)
         if(p) {
             printf_dump(LOG_DEBUG, "            Apply %s R_X86_64_JUMP_SLOT %p with sym=%s(%sver %d: %s%s%s) (%p -> %p / %s)\n", BindSym(bind), p, symname, veropt?"opt":"", version, symname, vername?"@":"", vername?vername:"",*(void**)p, (void*)offs, ElfName(sym_elf));
             *p = offs;
+            if(sym_elf && sym_elf!=h) checkElfLib(h, sym_elf->lib);
         } else {
             printf_log(LOG_NONE, "PltResolver: Warning, Symbol %s(%sver %d: %s%s%s) found, but Jump Slot Offset is NULL \n", symname, veropt?"opt":"", version, symname, vername?"@":"", vername?vername:"");
         }
