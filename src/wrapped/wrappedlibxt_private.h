@@ -14,7 +14,7 @@ GOM(XtAddEventHandler, vFEpuipp)
 //GO(XtAddExposureToRegion, 
 //GO(XtAddGrab, 
 //GO(XtAddInput, 
-//GO(XtAddRawEventHandler, 
+GOM(XtAddRawEventHandler, vFEpuipp)
 //GO(_XtAddShellToHookObj, 
 //GO(XtAddSignal, 
 //GO(XtAddTimeOut, 
@@ -49,14 +49,14 @@ GO(XtAppCreateShell, pFpppppu)
 GO(XtAppPending, pFp)
 GO(XtAppProcessEvent, vFpu)
 //GO(XtAppReleaseCacheRefs, 
-//GO(XtAppSetErrorHandler, 
-//GO(XtAppSetErrorMsgHandler, 
+GOM(XtAppSetErrorHandler, vFEpp)
+GOM(XtAppSetErrorMsgHandler, vFEpp)
 //GO(XtAppSetExitFlag, 
 GO(XtAppSetFallbackResources, vFpp)
 //GO(XtAppSetSelectionTimeout, 
 //GO(XtAppSetTypeConverter, 
-//GO(XtAppSetWarningHandler, 
-//GO(XtAppSetWarningMsgHandler, 
+GOM(XtAppSetWarningHandler, vFEpp)
+GOM(XtAppSetWarningMsgHandler, vFEpp)
 //GO(XtAppUnlock, 
 //GO(XtAppWarning, 
 //GO(XtAppWarningMsg, 
@@ -183,7 +183,7 @@ GO(XtDisplayToApplicationContext, pFp)
 //GO(_XtFillAncestorList, 
 //GO(XtFindFile, 
 //GO(_XtFindRemapWidget, 
-//GO(XtFree, 
+GO(XtFree, vFp)
 //GO(_XtFreeActions, 
 //GO(_XtFreeArgList, 
 //GO(_XtFreeConverterTable, 
@@ -412,7 +412,7 @@ GO(XtUngrabPointer, vFpu)
 //GO(_XtUnmergeTranslations, 
 GO(XtUnrealizeWidget, vFp)
 GO(XtUnregisterDrawable, vFpp)
-//GO(XtVaAppCreateShell, 
+GO(XtVaAppCreateShell, pFpppppppppppppppp)  // should be pFppppV
 //GO(XtVaAppInitialize, 
 //GO(_XtVaAppInitialize, 
 //GO(XtVaCreateArgsList, 

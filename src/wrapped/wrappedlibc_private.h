@@ -1896,7 +1896,7 @@ GO(__strerror_r, pFipL)
 GO(strerror_r, pFipL)
 //GO(strfmon, lFpLpV)
 //GO(__strfmon_l, 
-//GOW(strfmon_l, lFpLppV)
+GOW(strfmon_l, lFpLppdddddd)    // should be V, but only double are allowed...
 GO(strfromd, iFpLpd)
 GO(strfromf, iFpLpf)
 GO(strfromf128, iFpLpD)

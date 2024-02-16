@@ -2576,6 +2576,7 @@
 #() iFpLpppppp
 #() iFppiiipip
 #() iFppillppp
+#() iFppippppp
 #() iFppIIIppp
 #() iFppuiiuuu
 #() iFppuuuuuu
@@ -2841,6 +2842,7 @@
 #() iFpppppppppu
 #() uFpddpippppp
 #() uFpppppppppp
+#() lFpLppdddddd
 #() pFEiippppppp
 #() pFEpiiiiiipp
 #() pFEpippppppp
@@ -4902,10 +4904,16 @@ wrappedlibxrandr:
 wrappedlibxrender:
 wrappedlibxss:
 wrappedlibxt:
+- vFpp:
+  - XtAppSetErrorHandler
+  - XtAppSetErrorMsgHandler
+  - XtAppSetWarningHandler
+  - XtAppSetWarningMsgHandler
 - lFppp:
   - XtAppAddWorkProc
 - vFpuipp:
   - XtAddEventHandler
+  - XtAddRawEventHandler
 - lFpippp:
   - XtAppAddInput
 wrappedlibxtst:

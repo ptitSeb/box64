@@ -11,13 +11,19 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFpp_t)(void*, void*);
 typedef intptr_t (*lFppp_t)(void*, void*, void*);
 typedef void (*vFpuipp_t)(void*, uint32_t, int32_t, void*, void*);
 typedef intptr_t (*lFpippp_t)(void*, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(XtAppSetErrorHandler, vFpp_t) \
+	GO(XtAppSetErrorMsgHandler, vFpp_t) \
+	GO(XtAppSetWarningHandler, vFpp_t) \
+	GO(XtAppSetWarningMsgHandler, vFpp_t) \
 	GO(XtAppAddWorkProc, lFppp_t) \
 	GO(XtAddEventHandler, vFpuipp_t) \
+	GO(XtAddRawEventHandler, vFpuipp_t) \
 	GO(XtAppAddInput, lFpippp_t)
 
 #endif // __wrappedlibxtTYPES_H_

@@ -791,7 +791,7 @@ GO(XmbTextEscapement, iFppi)
 GO(XmbTextExtents, iFppipp)
 GO(XmbTextListToTextProperty, iFppiip)
 //GO(_XmbTextListToTextProperty, 
-//GO(XmbTextPerCharExtents
+GO(XmbTextPerCharExtents, iFppippppp)
 GO(XmbTextPropertyToTextList, iFpppp)
 //GO(_XmbTextPropertyToTextList, 
 GO(_Xmbtowc, iFppi)

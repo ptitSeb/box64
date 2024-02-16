@@ -105,6 +105,73 @@ static void* findInputCallbackFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libXt InputCallback callback\n");
     return NULL;
 }
+// XtErrorMsgHandler
+#define GO(A)   \
+static uintptr_t my_XtErrorMsgHandler_fct_##A = 0;                                          \
+static void my_XtErrorMsgHandler_##A(void* a, void* b, void* c, void* d, void* e, void* f)  \
+{                                                                                           \
+    RunFunctionFmt(my_XtErrorMsgHandler_fct_##A, "pppppp", a, b, c, d, e, f);               \
+}
+SUPER()
+#undef GO
+static void* findXtErrorMsgHandlerFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XtErrorMsgHandler_fct_##A == (uintptr_t)fct) return my_XtErrorMsgHandler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XtErrorMsgHandler_fct_##A == 0) {my_XtErrorMsgHandler_fct_##A = (uintptr_t)fct; return my_XtErrorMsgHandler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXt XtErrorMsgHandler callback\n");
+    return NULL;
+}
+// XtErrorHandler
+#define GO(A)   \
+static uintptr_t my_XtErrorHandler_fct_##A = 0;         \
+static void my_XtErrorHandler_##A(void* a)              \
+{                                                       \
+    RunFunctionFmt(my_XtErrorHandler_fct_##A, "p", a);  \
+}
+SUPER()
+#undef GO
+static void* findXtErrorHandlerFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XtErrorHandler_fct_##A == (uintptr_t)fct) return my_XtErrorHandler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XtErrorHandler_fct_##A == 0) {my_XtErrorHandler_fct_##A = (uintptr_t)fct; return my_XtErrorHandler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXt XtErrorHandler callback\n");
+    return NULL;
+}
+// XtEventHandler
+#define GO(A)   \
+static uintptr_t my_XtEventHandler_fct_##A = 0;                         \
+static void my_XtEventHandler_##A(void* a, void* b, void* c, void* d)   \
+{                                                                       \
+    RunFunctionFmt(my_XtEventHandler_fct_##A, "pppp", a, b, c, d);      \
+}
+SUPER()
+#undef GO
+static void* findXtEventHandlerFct(void* fct)
+{
+    if(!fct) return NULL;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XtEventHandler_fct_##A == (uintptr_t)fct) return my_XtEventHandler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XtEventHandler_fct_##A == 0) {my_XtEventHandler_fct_##A = (uintptr_t)fct; return my_XtEventHandler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libXt XtEventHandler callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 
@@ -125,6 +192,31 @@ EXPORT long my_XtAppAddInput(x64emu_t* emu, void* context, int source, void* con
 {
     (void)emu;
     return my->XtAppAddInput(context, source, cond, findInputCallbackFct(proc), data);
+}
+
+EXPORT void my_XtAppSetWarningMsgHandler(x64emu_t* emu, void* ctx, void* f)
+{
+    my->XtAppSetWarningMsgHandler(ctx, findXtErrorMsgHandlerFct(f));
+}
+
+EXPORT void my_XtAppSetErrorMsgHandler(x64emu_t* emu, void* ctx, void* f)
+{
+    my->XtAppSetErrorMsgHandler(ctx, findXtErrorMsgHandlerFct(f));
+}
+
+EXPORT void my_XtAppSetWarningHandler(x64emu_t* emu, void* ctx, void* f)
+{
+    my->XtAppSetWarningHandler(ctx, findXtErrorHandlerFct(f));
+}
+
+EXPORT void my_XtAppSetErrorHandler(x64emu_t* emu, void* ctx, void* f)
+{
+    my->XtAppSetErrorHandler(ctx, findXtErrorHandlerFct(f));
+}
+
+EXPORT void my_XtAddRawEventHandler(x64emu_t* emu, void* w, uint32_t mask, int nonmaskable, void* f, void* data)
+{
+    my->XtAddRawEventHandler(w, mask, nonmaskable, findXtEventHandlerFct(f), data);
 }
 
 #ifdef ANDROID
