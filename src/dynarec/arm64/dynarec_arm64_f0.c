@@ -46,6 +46,10 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         rep = opcode-0xF1;
         opcode = F8;
     }
+    while((opcode==0x36) || (opcode==0x2e) || (opcode==0x3E) || (opcode==0x26)) {
+        opcode = F8;
+    }
+
 
     GETREX();
 
