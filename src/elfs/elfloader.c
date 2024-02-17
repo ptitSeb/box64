@@ -549,7 +549,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
         int vis = ELF64_ST_VISIBILITY(sym->st_other);
         if(vis==STV_PROTECTED) {
             elfsym = ElfDynSymLookup(head, symname);
-            printf_log(LOG_INFO, "Symbol %s from %s is PROTECTED\n", symname, head);
+            printf_log(LOG_DEBUG, "Symbol %s from %s is PROTECTED\n", symname, head->name);
         } else {
             if(bind==STB_GNU_UNIQUE) {
                 GetGlobalSymbolStartEnd(maplib, symname, &offs, &end, head, version, vername, veropt, (void**)&elfsym);
