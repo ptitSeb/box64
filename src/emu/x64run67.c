@@ -328,6 +328,11 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         }
         break;
 
+    case 0xC6:                      /* MOV Eb,Ib */
+        nextop = F8;
+        GETEB32(1);
+        EB->byte[0] = F8;
+        break;
     case 0xC7:                      /* MOV Ed,Id */
         nextop = F8;
         GETED32(4);
