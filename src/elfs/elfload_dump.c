@@ -9,6 +9,10 @@
 #include "elfload_dump.h"
 #include "elfloader_private.h"
 
+#ifndef SHT_CHECKSUM
+#define SHT_CHECKSUM 0x6ffffff8
+#endif
+
 const char* DumpSection(Elf64_Shdr *s, char* SST) {
     static char buff[400];
     switch (s->sh_type) {
@@ -45,9 +49,7 @@ const char* DumpSection(Elf64_Shdr *s, char* SST) {
         GO(SHT_GNU_ATTRIBUTES);
         GO(SHT_GNU_HASH);
         GO(SHT_GNU_LIBLIST);
-        #ifndef TERMUX
-          GO(SHT_CHECKSUM);
-        #endif
+        GO(SHT_CHECKSUM);
         GO(SHT_LOSUNW);
         //GO(SHT_SUNW_move);
         GO(SHT_SUNW_COMDAT);
