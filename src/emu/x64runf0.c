@@ -75,6 +75,25 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             nextop = F8;                                            \
             GETED(0);                                               \
             GETGD;                                                  \
+            if(((uintptr_t)ED)&(3<<rex.w)) {                        \
+                if(rex.w) {                                             \
+                    do {                                                \
+                        tmp8u = native_lock_read_b(ED);                 \
+                        tmp64u = ED->q[0];                              \
+                        tmp64u = OP##64(emu, tmp64u, GD->q[0]);         \
+                    } while (native_lock_write_b(ED, tmp8u));           \
+                    ED->q[0] = tmp64u;                                  \
+                } else {                                                \
+                    do {                                                \
+                        tmp8u = native_lock_read_b(ED);                 \
+                        tmp32u = ED->dword[0];                          \
+                        tmp32u = OP##32(emu, tmp32u, GD->dword[0]);     \
+                    } while (native_lock_write_b(ED, tmp8u));           \
+                    ED->dword[0] = tmp32u;                              \
+                    if(MODREG)                                          \
+                        ED->dword[1] = 0;                               \
+                }                                                       \
+            } else {                                                \
             if(rex.w) {                                             \
                 do {                                                \
                     tmp64u = native_lock_read_dd(ED);               \
@@ -87,6 +106,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 } while (native_lock_write_d(ED, tmp32u));          \
                 if(MODREG)                                          \
                     ED->dword[1] = 0;                               \
+            }                                                       \
             }                                                       \
             break;                                                  \
         case B+2:                                                   \
@@ -119,15 +139,15 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             nextop = F8;                                            \
             GETEB(0);                                               \
             GETGB;                                                  \
-            pthread_mutex_lock(&my_context->mutex_lock);          \
+            pthread_mutex_lock(&my_context->mutex_lock);            \
             EB->byte[0] = OP##8(emu, EB->byte[0], GB);              \
-            pthread_mutex_unlock(&my_context->mutex_lock);        \
+            pthread_mutex_unlock(&my_context->mutex_lock);          \
             break;                                                  \
         case B+1:                                                   \
             nextop = F8;                                            \
             GETED(0);                                               \
             GETGD;                                                  \
-            pthread_mutex_lock(&my_context->mutex_lock);          \
+            pthread_mutex_lock(&my_context->mutex_lock);            \
             if(rex.w)                                               \
                 ED->q[0] = OP##64(emu, ED->q[0], GD->q[0]);         \
             else                                                    \
