@@ -53,15 +53,10 @@ jobs:
               unzip android-ndk-r25b-linux.zip
               echo "BOX64_COMPILER=$PWD/android-ndk-r25b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
-              wget https://sinalbr.dl.sourceforge.net/project/waydroid/images/system/lineage/waydroid_arm64/lineage-18.1-20240210-VANILLA-waydroid_arm64-system.zip
-              unzip lineage-18.1-20240210-VANILLA-waydroid_arm64-system.zip
-              sudo mount system.img /mnt
-              sudo cp -rf /mnt/system /
-              sudo umount /mnt
-              sudo rm -rf /system/vendor
-              sudo chmod 755 -R /system/*
-              sudo chown -R $(whoami):$(whoami) /system/*
-              sudo ln -sf /system/apex /apex
+              git clone https://github.com/termux/termux-docker.git  
+              sudo cp -rf termux-docker/system/arm /system
+              sudo chown -R $(whoami):$(whoami) /system
+              sudo chmod 755 -R /system
             else
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-D${{ matrix.platform }}=1" >> $GITHUB_ENV
@@ -146,7 +141,6 @@ jobs:
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 ctest -j$(nproc) --rerun-failed --output-on-failure
           elif [[ ${{ matrix.platform }} == 'TERMUX' ]]; then
-
             INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:/data/data/com.termux/files/usr/lib BOX64_DYNAREC=0 ctest -j$(nproc) --rerun-failed --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_SET_ENV=LD_LIBRARY_PATH=/data/data/com.termux/files/usr/lib QEMU_LD_PREFIX=/system/lib64:/data/data/com.termux/files/usr/lib ctest -j$(nproc) --rerun-failed --output-on-failure
           else
