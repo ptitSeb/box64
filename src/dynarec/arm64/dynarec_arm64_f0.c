@@ -910,6 +910,57 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x31:
+            INST_NAME("LOCK XOR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            if((nextop&0xC0)==0xC0) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                if(!ALIGNED_ATOMICxw) {
+                    if(arm64_uscat) {
+                        ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
+                        CMPSw_U12(x1, 16-(1<<(2+rex.w)));
+                        B_MARK(cGT);
+                    } else {
+                        TSTx_mask(wback, 1, 0, 1+rex.w);    // mask=3 or 7
+                        B_MARK(cNE);
+                    }
+                }
+                if(arm64_atomics) {
+                    UFLAG_IF {
+                        LDEORALxw(gd, x1, wback);
+                        emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);    
+                    } else {
+                        STEORLxw(gd, wback);
+                    }
+                    SMDMB();
+                } else {
+                    MARKLOCK;
+                    LDAXRxw(x1, wback);
+                    emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);
+                    STLXRxw(x3, x1, wback);
+                    CBNZx_MARKLOCK(x3);
+                    SMDMB();
+                }
+                if(!ALIGNED_ATOMICxw) {
+                    B_NEXT_nocond;
+                    MARK;   // unaligned! also, not enough
+                    LDRxw_U12(x1, wback, 0);
+                    LDAXRB(x4, wback);
+                    BFIxw(x1, x4, 0, 8); // re-inject
+                    emit_xor32(dyn, ninst, rex, x1, gd, x3, x4);
+                    STLXRB(x3, x1, wback);
+                    CBNZx_MARK(x3);
+                    STRxw_U12(x1, wback, 0);    // put the whole value
+                    SMDMB();
+                }
+            }
+            break;
+
         case 0x66:
             return dynarec64_66F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
 
