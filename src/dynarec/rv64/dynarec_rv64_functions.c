@@ -81,13 +81,17 @@ int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
     return EXTREG(i);
 }
 // Reset fpu regs counter
+void fpu_reset_reg_extcache(extcache_t* e)
+{
+    e->fpu_reg = 0;
+    for (int i=0; i<24; ++i) {
+        e->fpuused[i]=0;
+        e->extcache[i].v = 0;
+    }
+}
 void fpu_reset_reg(dynarec_rv64_t* dyn)
 {
-    dyn->e.fpu_reg = 0;
-    for (int i=0; i<24; ++i) {
-        dyn->e.fpuused[i]=0;
-        dyn->e.extcache[i].v = 0;
-    }
+    fpu_reset_reg_extcache(&dyn->e);
 }
 
 int extcache_no_i64(dynarec_rv64_t* dyn, int ninst, int st, int a)
@@ -612,4 +616,53 @@ void print_newinst(dynarec_native_t* dyn, int ninst)
         ninst, dyn->block, dyn->native_size,
         (box64_dynarec_dump>1)?"\e[m":""
         );
+}
+
+// x87 stuffs
+static void x87_reset(extcache_t* e)
+{
+    for (int i=0; i<8; ++i)
+        e->x87cache[i] = -1;
+    e->x87stack = 0;
+    e->stack = 0;
+    e->stack_next = 0;
+    e->stack_pop = 0;
+    e->stack_push = 0;
+    e->combined1 = e->combined2 = 0;
+    e->swapped = 0;
+    e->barrier = 0;
+    for(int i=0; i<24; ++i)
+        if (e->extcache[i].t == EXT_CACHE_ST_F
+            || e->extcache[i].t == EXT_CACHE_ST_D
+            || e->extcache[i].t == EXT_CACHE_ST_I64)
+            e->extcache[i].v = 0;
+}
+
+static void mmx_reset(extcache_t* e)
+{
+    e->mmxcount = 0;
+    for (int i=0; i<8; ++i)
+        e->mmxcache[i] = -1;
+}
+
+static void sse_reset(extcache_t* e)
+{
+    for (int i=0; i<16; ++i)
+        e->ssecache[i].v = -1;
+}
+
+void fpu_reset(dynarec_rv64_t* dyn)
+{
+    x87_reset(&dyn->e);
+    mmx_reset(&dyn->e);
+    sse_reset(&dyn->e);
+    fpu_reset_reg(dyn);
+}
+
+void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
+{
+    x87_reset(&dyn->insts[ninst].e);
+    mmx_reset(&dyn->insts[ninst].e);
+    sse_reset(&dyn->insts[ninst].e);
+    fpu_reset_reg_extcache(&dyn->insts[ninst].e);
 }

@@ -882,8 +882,14 @@
     SLLI(dst, dst, 11 - 5);             \
     OR(dst, dst, s1)
 
+#if STEP == 0
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t)   var = x87_do_push(dyn, ninst, scratch, t)
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)     x87_do_push_empty(dyn, ninst, scratch)
+#define X87_POP_OR_FAIL(dyn, ninst, scratch)            x87_do_pop(dyn, ninst, scratch)
+#else
 #define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) \
     if (dyn->e.stack == +8) {                         \
+        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->n.x87stack, ninst); \
         DEFAULT;                                      \
         return addr;                                  \
     }                                                 \
@@ -891,6 +897,7 @@
 
 #define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch) \
     if (dyn->e.stack == +8) {                       \
+        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->n.x87stack, ninst); \
         DEFAULT;                                    \
         return addr;                                \
     }                                               \
@@ -898,11 +905,12 @@
 
 #define X87_POP_OR_FAIL(dyn, ninst, scratch) \
     if (dyn->e.stack == -8) {                \
+        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Pop, stack=%d on inst %d\n", dyn->n.x87stack, ninst); \
         DEFAULT;                             \
         return addr;                         \
     }                                        \
     x87_do_pop(dyn, ninst, scratch);
-
+#endif
 
 #ifndef MAYSETFLAGS
 #define MAYSETFLAGS()
@@ -1186,7 +1194,6 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
-#define fpu_reset           STEPNAME(fpu_reset)
 #define fpu_reset_cache     STEPNAME(fpu_reset_cache)
 #define fpu_propagate_stack STEPNAME(fpu_propagate_stack)
 #define fpu_purgecache      STEPNAME(fpu_purgecache)
@@ -1390,8 +1397,6 @@ void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
 void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int a);
 
 // common coproc helpers
-// reset the cache
-void fpu_reset(dynarec_rv64_t* dyn);
 // reset the cache with n
 void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n);
 // propagate stack state

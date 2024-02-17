@@ -828,26 +828,6 @@ void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int s
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment==_FS)?"FS":"GS");
 }
 
-// x87 stuffs
-static void x87_reset(dynarec_rv64_t* dyn)
-{
-    for (int i=0; i<8; ++i)
-        dyn->e.x87cache[i] = -1;
-    dyn->e.x87stack = 0;
-    dyn->e.stack = 0;
-    dyn->e.stack_next = 0;
-    dyn->e.stack_pop = 0;
-    dyn->e.stack_push = 0;
-    dyn->e.combined1 = dyn->e.combined2 = 0;
-    dyn->e.swapped = 0;
-    dyn->e.barrier = 0;
-    for(int i=0; i<24; ++i)
-        if (dyn->e.extcache[i].t == EXT_CACHE_ST_F
-            || dyn->e.extcache[i].t == EXT_CACHE_ST_D
-            || dyn->e.extcache[i].t == EXT_CACHE_ST_I64)
-            dyn->e.extcache[i].v = 0;
-}
-
 void x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch)
 {
     MAYUSE(scratch);
@@ -1362,12 +1342,6 @@ void x87_restoreround(dynarec_rv64_t* dyn, int ninst, int s1)
 }
 
 // MMX helpers
-static void mmx_reset(dynarec_rv64_t* dyn)
-{
-    dyn->e.mmxcount = 0;
-    for (int i=0; i<8; ++i)
-        dyn->e.mmxcache[i] = -1;
-}
 static int isx87Empty(dynarec_rv64_t* dyn)
 {
     for (int i=0; i<8; ++i)
@@ -1443,11 +1417,6 @@ static void mmx_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
 }
 
 // SSE / SSE2 helpers
-static void sse_reset(dynarec_rv64_t* dyn)
-{
-    for (int i=0; i<16; ++i)
-        dyn->e.ssecache[i].v = -1;
-}
 // get ext register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 {
@@ -2142,14 +2111,6 @@ void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // need to undo the top and stack tracking that must not be reflected permenatly yet
     x87_unreflectcache(dyn, ninst, s1, s2, s3);
-}
-
-void fpu_reset(dynarec_rv64_t* dyn)
-{
-    x87_reset(dyn);
-    mmx_reset(dyn);
-    sse_reset(dyn);
-    fpu_reset_reg(dyn);
 }
 
 void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)

@@ -55,4 +55,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode);
 void print_newinst(dynarec_native_t* dyn, int ninst);
 
+// reset the cache
+void fpu_reset(dynarec_native_t* dyn);
+void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
 #endif //__DYNAREC_RV64_FUNCTIONS_H__

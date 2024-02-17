@@ -127,6 +127,7 @@ typedef struct dynarec_rv64_s {
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
     uint8_t             always_test;
+    uint8_t             abort;
 } dynarec_rv64_t;
 
 // convert idx (0..24) to reg index (10..31 0..1)

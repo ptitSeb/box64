@@ -851,27 +851,6 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
 }
 
 // x87 stuffs
-static void x87_reset(dynarec_arm_t* dyn)
-{
-    for (int i=0; i<8; ++i) {
-        dyn->n.x87cache[i] = -1;
-        dyn->n.freed[i] = -1;
-    }
-    dyn->n.x87stack = 0;
-    dyn->n.stack = 0;
-    dyn->n.stack_next = 0;
-    dyn->n.stack_pop = 0;
-    dyn->n.stack_push = 0;
-    dyn->n.combined1 = dyn->n.combined2 = 0;
-    dyn->n.swapped = 0;
-    dyn->n.barrier = 0;
-    for(int i=0; i<24; ++i)
-        if(dyn->n.neoncache[i].t == NEON_CACHE_ST_F
-         || dyn->n.neoncache[i].t == NEON_CACHE_ST_D
-         || dyn->n.neoncache[i].t == NEON_CACHE_ST_I64)
-            dyn->n.neoncache[i].v = 0;
-}
-
 int x87_stackcount(dynarec_arm_t* dyn, int ninst, int scratch)
 {
     MAYUSE(scratch);
@@ -1518,12 +1497,6 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1)
 }
 
 // MMX helpers
-static void mmx_reset(dynarec_arm_t* dyn)
-{
-    dyn->n.mmxcount = 0;
-    for (int i=0; i<8; ++i)
-        dyn->n.mmxcache[i] = -1;
-}
 static int isx87Empty(dynarec_arm_t* dyn)
 {
     for (int i=0; i<8; ++i)
@@ -1590,11 +1563,6 @@ static void mmx_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
 
 
 // SSE / SSE2 helpers
-static void sse_reset(dynarec_arm_t* dyn)
-{
-    for (int i=0; i<16; ++i)
-        dyn->n.ssecache[i].v = -1;
-}
 // get neon register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite)
 {
@@ -2160,14 +2128,6 @@ void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // need to undo some things on the x87 tracking
     x87_unreflectcache(dyn, ninst, s1, s2, s3);
-}
-
-void fpu_reset(dynarec_arm_t* dyn)
-{
-    x87_reset(dyn);
-    mmx_reset(dyn);
-    sse_reset(dyn);
-    fpu_reset_reg(dyn);
 }
 
 void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)

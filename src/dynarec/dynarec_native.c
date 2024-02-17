@@ -483,6 +483,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.insts = (instruction_native_t*)dynaCalloc(helper.cap, sizeof(instruction_native_t));
     // pass 0, addresses, x64 jump addresses, overall size of the block
     uintptr_t end = native_pass0(&helper, addr, alternate, is32bits);
+    if(helper.abort) {
+        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
+        CancelBlock64(0);
+        return NULL;
+    }
     // basic checks
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
@@ -557,12 +562,31 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     int pos = helper.size;
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
+    // remove fpu stuff on non-executed code
+    for(int i=1; i<helper.size-1; ++i)
+        if(!helper.insts[i].pred_sz) {
+            int ii = i;
+            while(ii<helper.size && !helper.insts[ii].pred_sz)
+                fpu_reset_ninst(&helper, ii++);
+            i = ii;
+        }
+
 
     // pass 1, float optimizations, first pass for flags
     native_pass1(&helper, addr, alternate, is32bits);
+    if(helper.abort) {
+        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
+        CancelBlock64(0);
+        return NULL;
+    }
     
     // pass 2, instruction size
     native_pass2(&helper, addr, alternate, is32bits);
+    if(helper.abort) {
+        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass2\n");
+        CancelBlock64(0);
+        return NULL;
+    }
     // keep size of instructions for signal handling
     size_t insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
     insts_rsize = (insts_rsize+7)&~7;   // round the size...
@@ -603,6 +627,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.table64size = 0; // reset table64 (but not the cap)
     helper.insts_size = 0;  // reset
     native_pass3(&helper, addr, alternate, is32bits);
+    if(helper.abort) {
+        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
+        CancelBlock64(0);
+        return NULL;
+    }
     // keep size of instructions for signal handling
     block->instsize = instsize;
     // ok, free the helper now
