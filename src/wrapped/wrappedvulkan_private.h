@@ -926,3 +926,7 @@ GO(vkGetPipelinePropertiesEXT, iFppp)
 
 // VK_EXT_direct_mode_display
 GO(vkReleaseDisplayEXT, iFpU)
+
+// VK_KHR_calibrated_timestamps
+GO(vkGetCalibratedTimestampsKHR, iFpuppp)
+GO(vkGetPhysicalDeviceCalibrateableTimeDomainsKHR, iFppp)
