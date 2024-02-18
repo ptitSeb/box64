@@ -196,6 +196,7 @@ GO(gnutls_ecdh_compute_key, iFppp)
 //GO(gnutls_error_is_fatal, 
 //GO(gnutls_error_to_alert, 
 //GO(gnutls_est_record_overhead_size, 
+GO(gnutls_privkey_export_dh_raw, iFppppu)
 //GO(gnutls_ext_get_data, 
 //GO(gnutls_ext_get_name, 
 //GO(gnutls_ext_register, 
@@ -534,6 +535,7 @@ GO(gnutls_priority_set_direct, iFppp)
 //GO(gnutls_priority_string_list, 
 GO(gnutls_privkey_decrypt_data, iFpipp)
 GO(gnutls_privkey_deinit, vFp)
+GO(gnutls_privkey_derive_secret, iFppppu)
 GO(gnutls_privkey_export_dsa_raw, iFpppppp)
 GO(gnutls_privkey_export_ecc_raw, iFppppp)
 //GO(gnutls_privkey_export_openpgp, 
@@ -541,10 +543,11 @@ GO(gnutls_privkey_export_ecc_raw, iFppppp)
 GO(gnutls_privkey_export_rsa_raw, iFppppppppp)
 GO(gnutls_privkey_export_x509, iFpp)
 GO(gnutls_privkey_generate, iFppuu)
-//GO(gnutls_privkey_generate2, 
+GO(gnutls_privkey_generate2, iFpuuupu)
 //GO(gnutls_privkey_get_pk_algorithm, 
 //GO(gnutls_privkey_get_seed, 
 //GO(gnutls_privkey_get_type, 
+GO(gnutls_privkey_import_dh_raw, iFpupp)
 GO(gnutls_privkey_import_dsa_raw, iFpppppp)
 GO(gnutls_privkey_import_ecc_raw, iFppppp)
 //GO(gnutls_privkey_import_ext, 
@@ -592,6 +595,7 @@ GO(gnutls_pubkey_encrypt_data, iFpupp)
 //GO(gnutls_pubkey_export, 
 //GO(gnutls_pubkey_export2, 
 GO(gnutls_pubkey_export_dsa_raw, iFppppp)
+GO(gnutls_pubkey_export_dh_raw, iFpupu)
 GO(gnutls_pubkey_export_ecc_raw, iFpppp)
 //GO(gnutls_pubkey_export_ecc_x962, 
 GO(gnutls_pubkey_export_rsa_raw, iFppp)
@@ -601,6 +605,7 @@ GO(gnutls_pubkey_export_rsa_raw, iFppp)
 //GO(gnutls_pubkey_get_pk_algorithm, 
 //GO(gnutls_pubkey_get_preferred_hash_algorithm, 
 //GO(gnutls_pubkey_import, 
+GO(gnutls_pubkey_import_dh_raw, iFpup)
 GO(gnutls_pubkey_import_dsa_raw, iFppppp)
 GO(gnutls_pubkey_import_ecc_raw, iFpppp)
 //GO(gnutls_pubkey_import_ecc_x962, 
