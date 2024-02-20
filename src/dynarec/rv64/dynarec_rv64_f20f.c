@@ -365,8 +365,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FLD(d0, wback, fixedaddress+8*i);
                 FCVTLD(x3, d0, RD_DYN);
                 SEXT_W(x5, x3);
-                SUB(x5, x5, x3);
-                BEQZ(x5, 8);
+                BEQ(x5, x3, 8);
                 LUI(x3, 0x80000); // INT32_MIN
                 SW(x3, gback, gdoffset+4*i);
             }
