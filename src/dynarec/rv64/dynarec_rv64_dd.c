@@ -160,6 +160,28 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     FLD(v1, wback, fixedaddress);
                     break;
+                case 1:
+                    INST_NAME("FISTTP i64, ST0");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_I64);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
+                    if (ST_IS_I64(0)) {
+                        FSD(v1, wback, fixedaddress);
+                    } else {
+                        if (!box64_dynarec_fastround) {
+                            FSFLAGSI(0); // reset all bits
+                        }
+                        FCVTLD(x4, v1, RD_RTZ);
+                        if (!box64_dynarec_fastround) {
+                            FRFLAGS(x5); // get back FPSR to check the IOC bit
+                            ANDI(x5, x5, 1 << FR_NV);
+                            BEQZ_MARK(x5);
+                            MOV64x(x4, 0x8000000000000000);
+                            MARK;
+                        }
+                        SD(x4, wback, fixedaddress);
+                    }
+                    X87_POP_OR_FAIL(dyn, ninst, x3);
+                    break;
                 case 2:
                     INST_NAME("FST double");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
