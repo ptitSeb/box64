@@ -1355,7 +1355,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 if(addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) {
                     dynarec_log(LOG_INFO, "Auto-SMC detected, getting out of current Dynablock (%p, x64addr=%p, need_test=%d/%d/%d)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test);
                 } else {
-                    dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) unprotected, getting out at %p!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, (void*)R_RIP);
+                    dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) unprotected, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, (void*)R_RIP, (void*)addr);
                 }
                 //relockMutex(Locks);
                 unlock_signal();
