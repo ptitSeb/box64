@@ -556,7 +556,7 @@ uint32_t rcl32(x64emu_t *emu, uint32_t d, uint8_t s)
 	s = s&0x1f;
 
 	res = d;
-	if ((cnt = s % 33) != 0) {
+	if ((cnt = s) != 0) {
 		cf = (d >> (32 - cnt)) & 0x1;
 		res = (d << cnt);
 		mask = (1 << (cnt - 1)) - 1;
@@ -578,7 +578,7 @@ uint64_t rcl64(x64emu_t *emu, uint64_t d, uint8_t s)
 	s = s&0x3f;
 
 	res = d;
-	if ((cnt = s % 65) != 0) {
+	if ((cnt = s) != 0) {
 		cf = (d >> (64 - cnt)) & 0x1;
 		res = (d << cnt);
 		mask = (1LL << (cnt - 1)) - 1;
@@ -713,7 +713,7 @@ uint32_t rcr32(x64emu_t *emu, uint32_t d, uint8_t s)
 
 	/* rotate right through carry */
 	res = d;
-	if ((cnt = s % 33) != 0) {
+	if ((cnt = s) != 0) {
 		if (cnt == 1) {
 			cf = d & 0x1;
 			ocf = ACCESS_FLAG(F_CF) != 0;
@@ -742,7 +742,7 @@ uint64_t rcr64(x64emu_t *emu, uint64_t d, uint8_t s)
 
 	/* rotate right through carry */
 	res = d;
-	if ((cnt = s % 65) != 0) {
+	if ((cnt = s) != 0) {
 		if (cnt == 1) {
 			cf = d & 0x1;
 			ocf = ACCESS_FLAG(F_CF) != 0;

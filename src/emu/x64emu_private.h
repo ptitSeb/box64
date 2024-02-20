@@ -20,9 +20,13 @@ typedef struct forkpty_s {
 
 typedef union multiuint_s {
     uint8_t     u8;
+    int8_t      i8;
     uint16_t    u16;
+    int16_t     i16;
     uint32_t    u32;
+    int32_t     i32;
     uint64_t    u64;
+    int64_t     i64;
 } multiuint_t;
 
 typedef struct x64emu_s x64emu_t;
