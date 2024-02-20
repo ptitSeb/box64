@@ -1845,7 +1845,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
                         GETEB(x1, 1);
                         u8 = F8;
-                        emit_rol8c(dyn, ninst, x1, u8&7, x4, x5);
+                        emit_rol8c(dyn, ninst, x1, u8, x4, x5);
                         EBBACK;
                     } else {
                         FAKEED;
@@ -1859,7 +1859,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
                         GETEB(x1, 1);
                         u8 = F8;
-                        emit_ror8c(dyn, ninst, x1, u8&7, x4, x5);
+                        emit_ror8c(dyn, ninst, x1, u8, x4, x5);
                         EBBACK;
                     } else {
                         FAKEED;
