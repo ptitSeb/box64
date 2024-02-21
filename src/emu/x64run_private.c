@@ -1046,12 +1046,23 @@ void UpdateFlags(x64emu_t *emu)
             }
             CONDITIONAL_SET_FLAG(emu->res.u64 & (1L << 63), F_CF);
             break;
-
         case d_rcl8:
+            cnt = emu->op2.u8%9;
+            CONDITIONAL_SET_FLAG(emu->op1.u8>>(9-cnt) & 1, F_CF);
+            // should for cnt==1
+            CONDITIONAL_SET_FLAG(((emu->res.u8>>7) ^ ACCESS_FLAG(F_CF)) & 1, F_OF);
+            break;
+        case d_rcr8:
+            cnt = emu->op2.u8%9;
+            // should for cnt==1, using "before" CF
+            CONDITIONAL_SET_FLAG(((emu->res.u8>>7) ^ ACCESS_FLAG(F_CF)) & 1, F_OF);
+            // new CF
+            CONDITIONAL_SET_FLAG(((cnt==1)?emu->op1.u8:(emu->op1.u8>>(cnt-1))) & 1, F_CF);
+            break;
+
         case d_rcl16:
         case d_rcl32:
         case d_rcl64:
-        case d_rcr8:
         case d_rcr16:
         case d_rcr32:
         case d_rcr64:

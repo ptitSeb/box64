@@ -976,26 +976,29 @@ void emit_ror16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     }
 }
 
-// emit RcL8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+// emit RCL8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
     IFX(X_PEND) {
         MOV32w(s3, c);
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
         STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
-        SET_DF(s4, d_rol8);
+        SET_DF(s4, d_rcl8);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    IFX(X_OF|X_CF) {
-        if(c%9) {
-            LSRw_IMM(x2, x1, 8-(c%9));
-        }
-    }
     BFIw(x1, xFlags, 8, 1); // insert cf
+    IFX(X_OF|X_CF) {
+        LSRw_IMM(x2, x1, 8-(c%9));
+    }
     ORRw_REG_LSL(x1, x1, x1, 9);    // insert x1 again
-    LSRw_IMM(x1, x1, 9-(c%9)); // do the rcl
-    UXTBw(x1, x1);
+    if(c%9) {
+        LSRw_IMM(x1, x1, 9-(c%9)); // do the rcl
+    }
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
     IFX(X_OF|X_CF) {
         BFIw(xFlags, x2, F_CF, 1);
         IFX(X_OF) {
@@ -1004,6 +1007,48 @@ void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
                 BFIw(xFlags, x2, F_OF, 1);
             }
         }
+    }
+}
+
+// emit RCR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rcr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+    IFX(X_PEND) {
+        MOV32w(s3, c);
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
+        STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_rcr8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    IFX(X_OF|X_CF) {
+        if(c%9) {
+            if((c%9)==1) {
+                MOVx_REG(x2, x1);
+            } else {
+                LSRw_IMM(x2, x1, (c%9)-1);
+            }
+        } else {
+            MOVw_REG(x2, xFlags);
+        }
+    }
+    BFIw(x1, xFlags, 8, 1); // insert cf
+    ORRw_REG_LSL(x1, x1, x1, 9);    // insert x1 again
+    if(c%9) {
+        LSRw_IMM(x1, x1, (c%9)); // do the rcr
+    }
+    IFX(X_PEND) {
+        STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_OF|X_CF) {
+        IFX(X_OF) {
+            if(c==1) {
+                EORw_REG_LSR(x2, x2, x1, 7);
+                BFIw(xFlags, x2, F_OF, 1);
+            }
+        }
+        BFIw(xFlags, x2, F_CF, 1);
     }
 }
 
