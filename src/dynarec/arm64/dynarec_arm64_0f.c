@@ -482,10 +482,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x31:
             INST_NAME("RDTSC");
             NOTEST(x1);
-            MESSAGE(LOG_DUMP, "Need Optimization\n");
-            CALL(ReadTSC, x3);    // will return the u64 in x3
-            LSRx(xRDX, x3, 32);
-            MOVw_REG(xRAX, x3);   // wipe upper part
+            MRS_cntvct_el0(x1);
+            LSRx(xRDX, x1, 32);
+            MOVw_REG(xRAX, x1);   // wipe upper part
             break;
 
         case 0x38:
