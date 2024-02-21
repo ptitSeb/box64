@@ -53,7 +53,7 @@ typedef struct threadstack_s {
 
 typedef struct x64_unwind_buff_s {
 	struct {
-		jump_buff_x64_t		__cancel_jmp_buf;	
+		jump_buff_x64_t		__cancel_jmp_buf;
 		int					__mask_was_saved;
 	} __cancel_jmp_buf[1];
 	void *__pad[4];
@@ -366,6 +366,7 @@ EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 	PTHREAD_ATTR_ALIGN(attr);
 	int ret = pthread_attr_init(PTHREAD_ATTR(attr));
 	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 #ifndef ANDROID
 EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
@@ -521,7 +522,7 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 	#endif
 	// create thread
 	PTHREAD_ATTR_ALIGN(attr);
-	return pthread_create((pthread_t*)t, PTHREAD_ATTR(attr), 
+	return pthread_create((pthread_t*)t, PTHREAD_ATTR(attr),
 		pthread_routine, et);
 	// no need too unalign for attr, it's const
 }
@@ -606,7 +607,7 @@ GO(25)			\
 GO(26)			\
 GO(27)			\
 GO(28)			\
-GO(29)			
+GO(29)
 
 // cleanup_routine
 #define GO(A)   \
