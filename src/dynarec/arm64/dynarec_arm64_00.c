@@ -391,7 +391,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("DAA");
                 MESSAGE(LOG_DUMP, "Need Optimization DAA\n");
                 READFLAGS(X_AF|X_CF);
-                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                SETFLAGS(X_ALL, SF_SET);
                 UXTBx(x1, xRAX);
                 CALL_(daa8, x1, 0);
                 BFIz(xRAX, x1, 0, 8);
@@ -456,7 +456,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("DAS");
                 MESSAGE(LOG_DUMP, "Need Optimization DAS\n");
                 READFLAGS(X_AF|X_CF);
-                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                SETFLAGS(X_ALL, SF_SET);
                 UXTBx(x1, xRAX);
                 CALL_(das8, x1, 0);
                 BFIz(xRAX, x1, 0, 8);
@@ -521,7 +521,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("AAA");
                 MESSAGE(LOG_DUMP, "Need Optimization AAA\n");
                 READFLAGS(X_AF);
-                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                SETFLAGS(X_ALL, SF_SET);
                 UXTHx(x1, xRAX);
                 CALL_(aaa16, x1, 0);
                 BFIz(xRAX, x1, 0, 16);
@@ -589,7 +589,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("AAS");
                 MESSAGE(LOG_DUMP, "Need Optimization AAS\n");
                 READFLAGS(X_AF);
-                SETFLAGS(X_AF|X_CF|X_PF|X_SF|X_ZF, SF_SET);
+                SETFLAGS(X_ALL, SF_SET);
                 UXTHw(x1, xRAX);
                 CALL_(aas16, x1, 0);
                 BFIx(xRAX, x1, 0, 16);
