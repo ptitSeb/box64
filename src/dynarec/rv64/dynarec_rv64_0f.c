@@ -1211,7 +1211,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(1);
             GETGD;
             u8 = F8;
-            emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
+            emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
             WBACK;
             break;
         case 0xA5:
@@ -1225,7 +1225,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
             BEQ_NEXT(x3, xZR);
-            emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             WBACK;
             break;
         case 0xAB:
@@ -1280,7 +1280,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
             BEQ_NEXT(x3, xZR);
-            emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4);
+            emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4, x6);
             WBACK;
             break;
         case 0xAE:
