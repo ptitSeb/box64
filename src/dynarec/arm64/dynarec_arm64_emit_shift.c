@@ -976,6 +976,37 @@ void emit_ror16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     }
 }
 
+// emit RcL8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+{
+    MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+    IFX(X_PEND) {
+        MOV32w(s3, c);
+        STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_rol8);
+    } else IFX(X_ALL) {
+        SET_DFNONE(s4);
+    }
+    IFX(X_OF|X_CF) {
+        if(c%9) {
+            LSRw_IMM(x2, x1, 8-(c%9));
+        }
+    }
+    BFIw(x1, xFlags, 8, 1); // insert cf
+    ORRw_REG_LSL(x1, x1, x1, 9);    // insert x1 again
+    LSRw_IMM(x1, x1, 9-(c%9)); // do the rcl
+    UXTBw(x1, x1);
+    IFX(X_OF|X_CF) {
+        BFIw(xFlags, x2, F_CF, 1);
+        IFX(X_OF) {
+            if(c==1) {
+                EORw_REG_LSR(x2, x2, x1, 7);
+                BFIw(xFlags, x2, F_OF, 1);
+            }
+        }
+    }
+}
+
 // emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
 {
@@ -1321,7 +1352,7 @@ void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
         ORRw_REG_LSL(s4, s2, s1, 16);
         MOV32w(s3, 32);
         SUBw_REG(s3, s3, s5);
-        RORw_REG(s3, s4, s3);
+        LSRw_REG(s3, s4, s3);
         BFIw(xFlags, s3, F_CF, 1);
     }
     IFX(X_OF) {
