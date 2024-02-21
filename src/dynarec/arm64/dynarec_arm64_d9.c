@@ -186,8 +186,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CSELx(x4, x4, x5, cEQ);
             B_MARK3(c__);
             MARK;
-            ORRx_mask(x4, xZR, 1, 0b001100, 0b001010); // 0x7ff0000000000000
-            CMPSx_REG(x2, x4);   // infinite/NaN?
+            CMPSx_U12(x1, 0x7ff);   // infinite/NaN?
             MOV32w(x5, 0b000010000000000); // normal: C3,C2,C0 = 010
             CSELx(x4, x5, x4, cNE);
             B_MARK3(cNE);
