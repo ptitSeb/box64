@@ -957,10 +957,12 @@ Implements the SHLD instruction and side effects.
 uint16_t shld16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);
 
 	s = s&0x1f;
 	cnt = s % 16;
+	if(!s)
+		return d;
+	RESET_FLAGS(emu);
 	if (s < 16) {
 		if (cnt > 0) {
 			res = (d << cnt) | (fill >> (16-cnt));
@@ -995,9 +997,11 @@ uint16_t shld16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 uint32_t shld32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);
 
 	s = s&0x1f;
+	if(!s)
+		return d;
+	RESET_FLAGS(emu);
 	cnt = s % 32;
 	if (cnt > 0) {
 		res = (d << cnt) | (fill >> (32-cnt));
@@ -1020,9 +1024,11 @@ uint32_t shld32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 uint64_t shld64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 {
 	uint64_t cnt, res, cf;
-	RESET_FLAGS(emu);
 
 	s = s&0x3f;
+	if(!s)
+		return d;
+	RESET_FLAGS(emu);
 	cnt = s % 64;
 	if (cnt > 0) {
 		res = (d << cnt) | (fill >> (64-cnt));
@@ -1049,9 +1055,11 @@ Implements the SHRD instruction and side effects.
 uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);
 
 	s = s&0x1f;
+	if(!s)
+		return d;
+	RESET_FLAGS(emu);
 	cnt = s % 16;
 	if (s < 16) {
 		if (cnt > 0) {
@@ -1096,9 +1104,11 @@ uint16_t shrd16 (x64emu_t *emu, uint16_t d, uint16_t fill, uint8_t s)
 uint32_t shrd32 (x64emu_t *emu, uint32_t d, uint32_t fill, uint8_t s)
 {
 	unsigned int cnt, res, cf;
-	RESET_FLAGS(emu);
 
 	s = s&0x1f;
+	if(!s)
+		return d;
+	RESET_FLAGS(emu);
 	cnt = s % 32;
 	if (cnt > 0) {
 		cf = d & (1 << (cnt - 1));
@@ -1122,9 +1132,11 @@ uint64_t shrd64 (x64emu_t *emu, uint64_t d, uint64_t fill, uint8_t s)
 {
 	unsigned int cnt;
 	uint64_t res, cf;
-	RESET_FLAGS(emu);
 
 	s = s&0x3f;
+	if(!s)
+		return d;
+	RESET_FLAGS(emu);
 	cnt = s % 64;
 	if (cnt > 0) {
 		cf = d & (1LL << (cnt - 1));
