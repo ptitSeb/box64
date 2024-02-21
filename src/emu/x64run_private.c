@@ -1002,7 +1002,7 @@ void UpdateFlags(x64emu_t *emu)
             if(emu->op2.u8 == 1) {
                 CONDITIONAL_SET_FLAG((emu->res.u8 + (emu->res.u8 >> 7)) & 1, F_OF);
             }
-        	CONDITIONAL_SET_FLAG(emu->res.u16 & 0x1, F_CF);
+        	CONDITIONAL_SET_FLAG(emu->res.u8 & 0x1, F_CF);
             break;
         case d_rol16:
             if(emu->op2.u16 == 1) {
