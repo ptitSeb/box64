@@ -155,6 +155,15 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         ANDI(s3, s3, 1); // LSB == F_CF
         OR(xFlags, xFlags, s3);
     }
+    IFX(X_OF) {
+        // OF flag is affected only on 1-bit shifts
+        // OF flag is set to the most-significant bit of the original operand
+        ADDI(s3, xZR, 1);
+        BEQ(s2, s3, 4+4*4);
+        SRLIxw(s3, s1, rex.w?63:31);
+        SLLI(s3, s3, F_OF2);
+        OR(xFlags, xFlags, s3);
+    }
 
     SRL(s1, s1, s2);
 
@@ -171,15 +180,6 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
-    }
-    IFX(X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        // OF flag is set to the most-significant bit of the original operand
-        ADDI(s3, xZR, 1);
-        BEQ(s2, s3, 4+4*4);
-        SRLIxw(s3, s1, rex.w?63:31);
-        SLLI(s3, s3, F_OF2);
-        OR(xFlags, xFlags, s3);
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -217,6 +217,15 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
         OR(xFlags, xFlags, s3);
     }
+    IFX(X_OF) {
+        // OF flag is affected only on 1-bit shifts
+        // OF flag is set to the most-significant bit of the original operand
+        if(c==1) {
+            SRLIxw(s3, s1, rex.w?63:31);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
 
     SRLIxw(s1, s1, c);
 
@@ -233,15 +242,6 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     IFX(X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
-    }
-    IFX(X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        // OF flag is set to the most-significant bit of the original operand
-        if(c==1) {
-            SRLIxw(s3, s1, rex.w?63:31);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
