@@ -1401,6 +1401,18 @@ x64emurun:
             R_RBP = rex.is32bits?Pop32(emu):Pop64(emu);
             break;
 
+        case 0xCB:                      /* FAR RET */
+            if(rex.is32bits) {
+                addr = Pop32(emu);
+                emu->segs[_CS] = Pop32(emu);    // no check, no use....
+            } else {
+                addr = Pop64(emu);
+                emu->segs[_CS] = Pop64(emu);    // no check, no use....
+            }
+            emu->segs_serial[_CS] = 0;
+            // need to check status of CS register!
+            STEP2;
+            break;
         case 0xCC:                      /* INT 3 */
             #ifndef TEST_INTERPRETER
             x64Int3(emu, &addr);
