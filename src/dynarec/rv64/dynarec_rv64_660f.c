@@ -523,6 +523,17 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(x4, gback, gdoffset + i * 4);
                     }
                     break;
+                case 0x25:
+                    INST_NAME("PMOVSXDQ Gx, Ex");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0);
+                    for (int i = 1; i >= 0; --i) {
+                        // GX->sq[i] = EX->sd[i];
+                        LW(x4, wback, fixedaddress + i * 4);
+                        SD(x4, gback, gdoffset + i * 8);
+                    }
+                    break;
                 case 0x28:
                     INST_NAME("PMULDQ Gx, Ex");
                     nextop = F8;

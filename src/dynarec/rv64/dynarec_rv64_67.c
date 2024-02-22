@@ -654,6 +654,23 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
 
+        case 0xC1:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED32(1);
+                    u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                    emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if (u8)
+                        WBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0xC7:
             INST_NAME("MOV Ed, Id");
             nextop = F8;
@@ -727,6 +744,34 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         #undef GO
 
+        case 0xF7:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 4:
+                    INST_NAME("MUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETED32(0);
+                    if (rex.w) {
+                        if (ed == xRDX)
+                            gd = x3;
+                        else
+                            gd = xRDX;
+                        MULHU(gd, xRAX, ed);
+                        MUL(xRAX, xRAX, ed);
+                        if (gd != xRDX) MV(xRDX, gd);
+                    } else {
+                        MUL(xRDX, xRAX, ed); // 64 <- 32x32
+                        AND(xRAX, xRDX, xMASK);
+                        SRLIW(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    UFLAG_DF(x2, rex.w ? d_mul64 : d_mul32);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }
