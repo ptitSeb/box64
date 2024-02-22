@@ -402,7 +402,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     break;
-
+                case 0x05:
+                    INST_NAME("PHSUBW Gx, Ex");
+                    nextop = F8;
+                    GETGX();
+                    for (int i = 0; i < 4; ++i) {
+                        // GX->sw[i] = GX->sw[i*2+0] - GX->sw[i*2+1];
+                        LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
+                        LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
+                        SUBW(x3, x3, x4);
+                        SH(x3, gback, gdoffset + 2 * i);
+                    }
+                    if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
+                        // GX->q[1] = GX->q[0];
+                        LD(x3, gback, gdoffset + 0);
+                        SD(x3, gback, gdoffset + 8);
+                    } else {
+                        GETEX(x2, 0);
+                        for (int i = 0; i < 4; ++i) {
+                            // GX->sw[4+i] = EX->sw[i*2+0] - EX->sw[i*2+1];
+                            LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
+                            LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
+                            SUBW(x3, x3, x4);
+                            SH(x3, gback, gdoffset + 2 * (4 + i));
+                        }
+                    }
+                    break;
                 case 0x08:
                     INST_NAME("PSIGNB Gx, Ex");
                     nextop = F8;
