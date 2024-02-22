@@ -270,6 +270,16 @@ static void sigstack_key_alloc() {
     pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
+// this allow handling "safe" function that just abort if accessing a bad address
+static JUMPBUFF signal_jmpbuf;
+#ifdef ANDROID
+#define SIG_JMPBUF signal_jmpbuf
+#else
+#define SIG_JMPBUF &signal_jmpbuf
+#endif
+static int signal_jmpbuf_active = 0;
+
+
 //1<<1 is mutex_prot, 1<<8 is mutex_dyndump
 #define is_memprot_locked (1<<1)
 #define is_dyndump_locked (1<<8)
@@ -404,6 +414,13 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         errno = EFAULT;
         return -1;
     }
+    signal_jmpbuf_active = 1;
+    if(sigsetjmp(SIG_JMPBUF, 1)) {
+        // segfault while gathering function name...
+        errno = EFAULT;
+        return -1;
+    }
+
     x64_stack_t *new_ss = (x64_stack_t*)pthread_getspecific(sigstack_key);
     if(oss) {
         if(!new_ss) {
@@ -417,6 +434,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         }
     }
     if(!ss) {
+        signal_jmpbuf_active = 0;
         return 0;
     }
     printf_log(LOG_DEBUG, "%04d|sigaltstack called ss=%p[flags=0x%x, sp=%p, ss=0x%lx], oss=%p\n", GetTID(), ss, ss->ss_flags, ss->ss_sp, ss->ss_size, oss);
@@ -429,7 +447,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
         if(new_ss)
             box_free(new_ss);
         pthread_setspecific(sigstack_key, NULL);
-
+        signal_jmpbuf_active = 0;
         return 0;
     }
 
@@ -440,7 +458,7 @@ EXPORT int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss
     new_ss->ss_size = ss->ss_size;
 
     pthread_setspecific(sigstack_key, new_ss);
-
+    signal_jmpbuf_active = 0;
     return 0;
 }
 
@@ -1229,15 +1247,10 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     // sig==SIGSEGV || sig==SIGBUS || sig==SIGILL || sig==SIGABRT here!
     int log_minimum = (box64_showsegv)?LOG_NONE:((sig==SIGSEGV && my_context->is_sigaction[sig])?LOG_DEBUG:LOG_INFO);
-    static JUMPBUFF signal_jmpbuf;
-    #ifdef ANDROID
-    #define SIG_JMPBUF signal_jmpbuf
-    #else
-    #define SIG_JMPBUF &signal_jmpbuf
-    #endif
-    static int signal_jmpbuf_active = 0;
-    if(signal_jmpbuf_active)
+    if(signal_jmpbuf_active) {
+        signal_jmpbuf_active = 0;
         longjmp(SIG_JMPBUF, 1);
+    }
     if((sig==SIGSEGV || sig==SIGBUS) && box64_quit) {
         printf_log(LOG_INFO, "Sigfault/Segbus while quitting, exiting silently\n");
         _exit(box64_exit_code);    // Hack, segfault while quiting, exit silently
