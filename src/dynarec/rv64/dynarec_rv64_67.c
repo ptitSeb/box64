@@ -727,6 +727,34 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         #undef GO
 
+        case 0xF7:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 4:
+                    INST_NAME("MUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETED32(0);
+                    if (rex.w) {
+                        if (ed == xRDX)
+                            gd = x3;
+                        else
+                            gd = xRDX;
+                        MULHU(gd, xRAX, ed);
+                        MUL(xRAX, xRAX, ed);
+                        if (gd != xRDX) MV(xRDX, gd);
+                    } else {
+                        MUL(xRDX, xRAX, ed); // 64 <- 32x32
+                        AND(xRAX, xRDX, xMASK);
+                        SRLIW(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    UFLAG_DF(x2, rex.w ? d_mul64 : d_mul32);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }
