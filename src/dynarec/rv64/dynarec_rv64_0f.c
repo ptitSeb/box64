@@ -1867,6 +1867,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM();
             GETEM(x4, 0);
             LBU(x1, wback, fixedaddress);
+            ADDI(x2, xZR, 31);
+            if (rv64_zbb) {
+                MINU(x1, x1, x2);
+            } else {
+                BLTU(x1, x2, 8);
+                MV(x1, x2);
+            }
             for (int i = 0; i < 2; ++i) {
                 LW(x3, gback, gdoffset + 4 * i);
                 SRAW(x3, x3, x1);
