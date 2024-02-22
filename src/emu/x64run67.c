@@ -449,7 +449,20 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             }
         }
         break;
-            
+    
+    case 0xFF:
+        nextop = F8;
+        switch((nextop>>3)&7) {
+            case 2:                 /* CALL NEAR Ed */
+                GETED32(0);
+                tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
+                Push64(emu, addr);
+                addr = tmp64u;
+                break;
+            default:
+                return 0;
+        }
+        break;
     default:
         return 0;
     }
