@@ -376,6 +376,18 @@ f28–31  ft8–11  FP temporaries                  Caller
         PUSH1(reg);     \
     }
 
+#define PUSH1_16(reg)        \
+    do {                     \
+        SH(reg, xRSP, -2);   \
+        SUBI(xRSP, xRSP, 2); \
+    } while (0)
+
+#define POP1_16(reg)                          \
+    do {                                      \
+        LHU(reg, xRSP, 0);                    \
+        if (reg != xRSP) ADDI(xRSP, xRSP, 2); \
+    } while (0)
+
 #define FENCE_gen(pred, succ) (((pred) << 24) | ((succ) << 20) | 0b0001111)
 #define FENCE()               EMIT(FENCE_gen(3, 3))
 

@@ -874,11 +874,11 @@
         }                                                             \
     }
 
-// Adjust the xFlags bit 11 -> bit 5, result in reg (can be xFlags, but not s1)
-#define FLAGS_ADJUST_FROM11(reg, s1) \
-    ANDI(reg, xFlags, ~(1 << 5));    \
-    SRLI(s1, reg, 11 - 5);           \
-    ANDI(s1, s1, 1 << 5);            \
+// Adjust the flags bit 11 -> bit 5, result in reg (can be same as flags, but not s1)
+#define FLAGS_ADJUST_FROM11(reg, flags, s1) \
+    ANDI(reg, flags, ~(1 << 5));            \
+    SRLI(s1, reg, 11 - 5);                  \
+    ANDI(s1, s1, 1 << 5);                   \
     OR(reg, reg, s1)
 
 // Adjust the xFlags bit 5 -> bit 11, src and dst can be the same (and can be xFlags, but not s1)
@@ -934,7 +934,7 @@
             BEQ(x3, xZR, j64);                      \
         }                                           \
         CALL_(UpdateFlags, -1, 0);                  \
-        FLAGS_ADJUST_FROM11(xFlags, x3);            \
+        FLAGS_ADJUST_FROM11(xFlags, xFlags, x3);    \
         MARKF;                                      \
         dyn->f.pending = SF_SET;                    \
         SET_DFOK();                                 \

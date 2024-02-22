@@ -641,6 +641,32 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SLLI(xRDX, xRDX, 16);
             OR(xRDX, xRDX, x1);
             break;
+        case 0x9C:
+            INST_NAME("PUSHF");
+            NOTEST(x1);
+            READFLAGS(X_ALL);
+            FLAGS_ADJUST_TO11(x3, xFlags, x2);
+            PUSH1_16(x3);
+            break;
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET);
+            POP1_16(x1);
+            FLAGS_ADJUST_FROM11(x1, x1, x2);
+            LUI(x2, 0xffff0);
+            AND(xFlags, xFlags, x2);
+            OR(xFlags, xFlags, x1);
+            MOV32w(x1, 0x3F7FD7);
+            AND(xFlags, xFlags, x1);
+            ORI(xFlags, xFlags, 0x2);
+            SET_DFNONE();
+            if (box64_wine) { // should this be done all the time?
+                ANDI(x1, xFlags, 1 << F_TF);
+                CBZ_NEXT(x1);
+                // go to epilog, TF should trigger at end of next opcode, so using Interpretor only
+                jump_to_epilog(dyn, addr, 0, ninst);
+            }
+            break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
             if (rex.is32bits) u64 = F32; else u64 = F64;

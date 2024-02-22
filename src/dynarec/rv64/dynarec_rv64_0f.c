@@ -1861,6 +1861,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             AND(x1, x1, x2);
             SD(x1, gback, gdoffset);
             break;
+        case 0xE2:
+            INST_NAME("PSRAD Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x4, 0);
+            LBU(x1, wback, fixedaddress);
+            ADDI(x2, xZR, 31);
+            if (rv64_zbb) {
+                MINU(x1, x1, x2);
+            } else {
+                BLTU(x1, x2, 4 + 4);
+                MV(x1, x2);
+            }
+            for (int i = 0; i < 2; ++i) {
+                LW(x3, gback, gdoffset + 4 * i);
+                SRAW(x3, x3, x1);
+                SW(x3, gback, gdoffset + 4 * i);
+            }
+            break;
         case 0xE5:
             INST_NAME("PMULHW Gm,Em");
             nextop = F8;
@@ -1872,24 +1891,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MULW(x3, x3, x4);
                 SRAIW(x3, x3, 16);
                 SH(x3, gback, gdoffset + 2 * i);
-            }
-            break;
-            INST_NAME("PSUBSW Gm,Em");
-            nextop = F8;
-            GETGM();
-            GETEM(x2, 0);
-            for (int i = 0; i < 4; ++i) {
-                LH(x3, gback, gdoffset + i * 2);
-                LH(x4, wback, fixedaddress);
-                SUBW(x3, x3, x4);
-                LUI(x4, 0xFFFF8); // -32768
-                BGE(x3, x4, 12);
-                SH(x4, gback, gdoffset + i * 2);
-                J(20);      // continue
-                LUI(x4, 8); // 32768
-                BLT(x3, x4, 8);
-                ADDIW(x3, x4, -1);
-                SH(x4, gback, gdoffset + i * 2);
             }
             break;
         case 0xE7:
