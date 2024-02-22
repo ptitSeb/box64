@@ -491,7 +491,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
             POP1z(xFlags);
-            FLAGS_ADJUST_FROM11(xFlags, x2);
+            FLAGS_ADJUST_FROM11(xFlags, xFlags, x2);
             MOV32w(x1, 0x3F7FD7);
             AND(xFlags, xFlags, x1);
             ORI(xFlags, xFlags, 0x2);

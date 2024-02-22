@@ -736,7 +736,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     fpu_popcache(dyn, ninst, reg, 0);
     if(saveflags) {
         LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
-        FLAGS_ADJUST_FROM11(xFlags, reg);
+        FLAGS_ADJUST_FROM11(xFlags, xFlags, reg);
     }
     SET_NODF();
     dyn->last_ip = 0;
@@ -799,7 +799,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 
     fpu_popcache(dyn, ninst, x3, 1);
     LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
-    FLAGS_ADJUST_FROM11(xFlags, x3);
+    FLAGS_ADJUST_FROM11(xFlags, xFlags, x3);
     SET_NODF();
 }
 
