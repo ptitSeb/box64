@@ -1871,7 +1871,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rv64_zbb) {
                 MINU(x1, x1, x2);
             } else {
-                BLTU(x1, x2, 8);
+                BLTU(x1, x2, 4 + 4);
                 MV(x1, x2);
             }
             for (int i = 0; i < 2; ++i) {
