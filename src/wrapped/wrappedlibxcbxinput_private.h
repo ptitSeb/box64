@@ -424,7 +424,6 @@ GO(xcb_input_xi_query_device_reply, pFbup)
 //GO(xcb_input_xi_barrier_release_pointer_barriers, 
 //GO(xcb_input_xi_barrier_release_pointer_barriers_length, 
 //GO(xcb_input_xi_barrier_release_pointer_barriers_iterator, 
-GO(xcb_input_xi_select_events, uFbuWp)
 GO(xcb_input_xi_select_events_checked, uFbuWp)
 //GO(xcb_input_device_changed_classes_length, 
 //GO(xcb_input_device_changed_classes_iterator, 
