@@ -37,7 +37,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     uint64_t tmp64u, tmp64u2;
     int v0, v1;
     int q0, q1;
-    int d0, d1;
+    int d0, d1, d2;
     int64_t fixedaddress, gdoffset;
     int unscaled;
 
@@ -1161,6 +1161,29 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         SW(ed, gback, gdoffset + 4 * (u8 & 0x3));
                     }
+                    break;
+                case 0x40:
+                    INST_NAME("DPPS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 1);
+                    u8 = F8;
+                    d0 = fpu_get_scratch(dyn);
+                    d1 = fpu_get_scratch(dyn);
+                    d2 = fpu_get_scratch(dyn);
+                    FMVWX(d2, xZR);
+                    for (int i = 0; i < 4; ++i)
+                        if (u8 & (1 << (i + 4))) {
+                            FLW(d0, gback, gdoffset + i * 4);
+                            FLW(d1, wback, fixedaddress + i * 4);
+                            FMULS(d0, d0, d1);
+                            FADDS(d2, d2, d0);
+                        }
+                    for (int i = 0; i < 4; ++i)
+                        if (u8 & (1 << i))
+                            FSW(d2, gback, gdoffset + i * 4);
+                        else
+                            SW(xZR, gback, gdoffset + i * 4);
                     break;
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
