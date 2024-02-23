@@ -589,6 +589,17 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SW(x4, gback, gdoffset + i * 4);
                     }
                     break;
+                case 0x20:
+                    INST_NAME("PMOVSXBW Gx, Ex"); // SSE4 opcode!
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0);
+                    for (int i = 7; i >= 0; --i) {
+                        // GX->sw[i] = EX->sb[i];
+                        LB(x3, wback, fixedaddress + i);
+                        SH(x3, gback, gdoffset + i * 2);
+                    }
+                    break;
                 case 0x25:
                     INST_NAME("PMOVSXDQ Gx, Ex");
                     nextop = F8;
