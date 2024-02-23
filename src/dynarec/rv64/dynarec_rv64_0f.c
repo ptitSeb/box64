@@ -389,6 +389,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             // SSE3
             nextop = F8;
             switch (nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gm, Em");
+                    nextop = F8;
+                    GETGM();
+                    GETEM(x2, 0);
+                    LD(x4, gback, gdoffset);
+                    for (int i = 0; i < 8; ++i) {
+                        LB(x3, wback, fixedaddress + i);
+                        BGE(x3, xZR, 4 + 4 * 2);
+                        SB(xZR, gback, gdoffset + i);
+                        J(4 + 4 * 4);
+                        ANDI(x3, x3, 0x7);
+                        SLLI(x3, x3, 3);
+                        SRL(x3, x4, x3);
+                        SB(x3, gback, gdoffset + i);
+                    }
+                    break;
                 case 0xC8 ... 0xCD:
                     u8 = nextop;
                     switch (u8) {
