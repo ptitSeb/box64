@@ -769,6 +769,8 @@
 #define MSR_fpsr(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 4, 1, Rt))
 // mrs   x0, cntvct_el0     op0=0b11 op1=0b011 CRn=0b1110 CRm=0b0000 op2=0b010
 #define MRS_cntvct_el0(Rt)              EMIT(MRS_gen(1, 1, 0b011, 0b1110, 0b0000, 0b010, Rt))
+// mrs   x0, cntpctss_el0     op0=0b11 op1=0b011 CRn=0b1110 CRm=0b0000 op2=0b101
+#define MRS_cntpctss_el0(Rt)            EMIT(MRS_gen(1, 1, 0b011, 0b1110, 0b0000, 0b101, Rt))
 // NEON Saturation Bit
 #define FPSR_QC 27
 // NEON Input Denormal Cumulative

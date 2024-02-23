@@ -482,7 +482,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x31:
             INST_NAME("RDTSC");
             NOTEST(x1);
-            MRS_cntvct_el0(x1);
+            if(box64_rdtsc) {
+                CALL_(ReadTSC, x1, x3);
+            } else {
+                MRS_cntvct_el0(x1);
+            }
             LSRx(xRDX, x1, 32);
             MOVw_REG(xRAX, x1);   // wipe upper part
             break;

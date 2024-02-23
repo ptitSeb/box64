@@ -182,7 +182,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
-            R_EAX = 0x0000000F;//0x80000004;
+            R_EAX = 0x00000015;//0x80000004;
             // return GenuineIntel
             R_EBX = 0x756E6547;
             R_EDX = 0x49656E69;
@@ -321,9 +321,22 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 default: R_EAX = 0;
             }
             break;
+        case 0x15:  // TSC core frenquency
+            R_EAX = 1;  // denominator
+            R_EBX = 1;  // numerator
+            {
+                uint64_t freq = ReadTSCFrequency(emu);
+                while(freq>100000000) {
+                    freq/=10;
+                    R_EAX *= 10;
+                }
+                R_ECX = freq;  // nominal frequency in Hz
+            }
+            R_EDX = 0;
+            break;
 
         case 0x80000000:        // max extended
-            R_EAX = 0x80000005;
+            R_EAX = 0x80000007;
             break;
         case 0x80000001:        //Extended Processor Signature and Feature Bits
             R_EAX = 0;  // reserved
@@ -361,6 +374,18 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EBX = 0;
             R_ECX = 0;
             R_EDX = 0;
+            break;
+        case 0x80000006:    // L2 cache line size and associativity
+            R_EAX = 0;
+            R_EBX = 0;
+            R_ECX = 0;
+            R_EDX = 0;
+            break;
+        case 0x80000007:    // Invariant TSC
+            R_EAX = 0;
+            R_EBX = 0;
+            R_ECX = 0;
+            R_EDX = 0 | (1<<8); // Invariant TSC
             break;
         default:
             printf_log(LOG_INFO, "Warning, CPUID command %X unsupported (ECX=%08x)\n", tmp32u, R_ECX);

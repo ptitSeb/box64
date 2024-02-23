@@ -583,15 +583,16 @@ uint64_t ReadTSC(x64emu_t* emu)
 {
     (void)emu;
     
-    //TODO: implement hardware counter read? (only available in kernel space?)
-    // Read the TimeStamp Counter as 64bits.
-    // this is supposed to be the number of cycle executed since last reset
-    // fall back to gettime...
+    // Hardware counter, per architecture
 #ifdef ARM64
-    uint64_t val;
-    asm volatile("mrs %0, cntvct_el0" : "=r" (val));
-    return val;
-#elif !defined(NOGETCLOCK)
+    if(!box64_rdtsc) {
+        uint64_t val;
+        asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+        return val;
+    }
+#endif
+    // fall back to gettime...
+#if !defined(NOGETCLOCK)
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC_COARSE, &ts);
     return (uint64_t)(ts.tv_sec) * 1000000000LL + ts.tv_nsec;
@@ -599,6 +600,25 @@ uint64_t ReadTSC(x64emu_t* emu)
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (uint64_t)(tv.tv_sec) * 1000000 + tv.tv_usec;
+#endif
+}
+
+uint64_t ReadTSCFrequency(x64emu_t* emu)
+{
+    (void)emu;
+    // Hardware counter, per architecture
+#ifdef ARM64
+    if(!box64_rdtsc) {
+        uint64_t val;
+        asm volatile("mrs %0, cntfrq_el0" : "=r" (val));
+        return val;
+    }
+#endif
+    // fall back to get time
+#if !defined(NOGETCLOCK)
+    return 1000000000LL;
+#else
+    return 1000000;
 #endif
 }
 

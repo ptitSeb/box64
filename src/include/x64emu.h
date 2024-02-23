@@ -53,6 +53,7 @@ void CallAllCleanup(x64emu_t *emu);
 void UnimpOpcode(x64emu_t* emu, int is32bits);
 
 uint64_t ReadTSC(x64emu_t* emu);
+uint64_t ReadTSCFrequency(x64emu_t* emu);
 
 double FromLD(void* ld);        // long double (80bits pointer) -> double
 long double LD2localLD(void* ld);        // long double (80bits pointer) -> long double (80 or 128bits)

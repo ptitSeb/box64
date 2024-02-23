@@ -13,6 +13,7 @@ extern int box64_dynarec_test;
 extern int box64_maxcpu;
 extern int box64_mmap32;
 extern int box64_ignoreint3;
+extern int box64_rdtsc;
 #ifdef DYNAREC
 extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;
