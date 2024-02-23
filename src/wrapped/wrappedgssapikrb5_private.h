@@ -12,7 +12,7 @@ GO(gss_acquire_cred, uFppuppppp)
 //GO(gss_add_cred_from, 
 //GO(gss_add_cred_impersonate_name, 
 //GO(gss_add_cred_with_password, 
-//GO(gss_add_oid_set_member, 
+GO(gss_add_oid_set_member, uFpup)
 //GO(gss_authorize_localname, 
 //GO(gss_canonicalize_name, 
 //DATA(GSS_C_ATTR_LOCAL_LOGIN_USER, 
@@ -51,17 +51,17 @@ DATA(GSS_C_NT_HOSTBASED_SERVICE, sizeof(void*))
 //DATA(GSS_C_NT_HOSTBASED_SERVICE_X, 
 //DATA(GSS_C_NT_MACHINE_UID_NAME, 
 //DATA(GSS_C_NT_STRING_UID_NAME, 
-//DATA(GSS_C_NT_USER_NAME, 
+DATA(GSS_C_NT_USER_NAME, sizeof(void*))
 //GO(gss_compare_name, 
 //GO(gss_complete_auth_token, 
 //GO(gss_context_time, 
 //GO(gss_create_empty_buffer_set, 
-//GO(gss_create_empty_oid_set, 
+GO(gss_create_empty_oid_set, uFpp)
 //GO(gss_decapsulate_token, 
 //GO(gss_delete_name_attribute, 
 GO(gss_delete_sec_context, uFppp)
 //GO(gss_display_mech_attr, 
-//GO(gss_display_name, 
+GO(gss_display_name, uFpppp)
 //GO(gss_display_name_ext, 
 GO(gss_display_status, uFpuippp)
 //GO(gss_duplicate_name, 
@@ -77,13 +77,13 @@ GO(gss_get_mic, uFppupp)
 //GO(gss_import_cred, 
 GO(gss_import_name, uFpppp)
 //GO(gss_import_sec_context, 
-//GO(gss_indicate_mechs, 
+GO(gss_indicate_mechs, uFpp)
 //GO(gss_indicate_mechs_by_attrs, 
 GO(gss_init_sec_context, uFpppppuupppppp)
 //GO(gss_inquire_attrs_for_mech, 
 GO(gss_inquire_context, uFppppppppp)
-//GO(gss_inquire_cred, 
-//GO(gss_inquire_cred_by_mech, 
+GO(gss_inquire_cred, uFpupppp)
+GO(gss_inquire_cred_by_mech, uFpuupppp)
 //GO(gss_inquire_cred_by_oid, 
 //GO(gss_inquire_mech_for_saslname, 
 //GO(gss_inquire_mechs_for_name, 
@@ -134,7 +134,7 @@ GO(gss_release_cred, uFpp)
 GO(gss_release_iov_buffer, uFppi)
 GO(gss_release_name, uFpp)
 //GO(gss_release_oid, 
-//GO(gss_release_oid_set, 
+GO(gss_release_oid_set, uFpp)
 //GO(gss_seal, 
 //GO(gss_set_cred_option, 
 //GO(gss_set_name_attribute, 
@@ -146,7 +146,7 @@ GO(gss_release_name, uFpp)
 //GO(gss_store_cred, 
 //GO(gss_store_cred_into, 
 //GO(gss_str_to_oid, 
-//GO(gss_test_oid_set_member, 
+GO(gss_test_oid_set_member, uFpupp)
 //GO(gss_unseal, 
 GO(gss_unwrap, uFpppppp)
 //GO(gss_unwrap_aead, 

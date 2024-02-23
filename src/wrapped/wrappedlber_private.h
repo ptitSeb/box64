@@ -72,7 +72,7 @@ GO(ber_init2, vFppi)
 //GO(ber_memalloc_x, 
 //GO(ber_memcalloc, 
 //GO(ber_memcalloc_x, 
-//GO(ber_memfree, 
+GO(ber_memfree, vFp)
 //GO(ber_memfree_x, 
 //GO(ber_memrealloc, 
 //GO(ber_memrealloc_x, 
@@ -114,7 +114,7 @@ GO(ber_scanf, LFpppppppppppppppppp) // VAArg
 //GO(ber_skip_data, 
 //GO(ber_skip_element, 
 GO(ber_skip_tag, LFpp)
-//GO(ber_sockbuf_add_io, 
+GOM(ber_sockbuf_add_io, iFEppip)
 //GO(ber_sockbuf_alloc, 
 //GO(ber_sockbuf_ctrl, 
 //GO(ber_sockbuf_free, 

@@ -2,15 +2,15 @@
 #error Meh....
 #endif
 
-//GO(idn2_check_version, 
-//GO(idn2_free, 
-//GO(idn2_lookup_u8, 
-//GO(idn2_lookup_ul, 
+GO(idn2_check_version, pFp)
+GO(idn2_free, vFp)
+GO(idn2_lookup_u8, iFppi)
+GO(idn2_lookup_ul, iFppi)
 //GO(_idn2_punycode_decode, 
 //GO(_idn2_punycode_encode, 
 //GO(idn2_register_u8, 
 //GO(idn2_register_ul, 
-//GO(idn2_strerror, 
+GO(idn2_strerror, pFi)
 //GO(idn2_strerror_name, 
 //GO(idn2_to_ascii_4i, 
 //GO(idn2_to_ascii_4i2, 

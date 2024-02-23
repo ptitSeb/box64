@@ -582,7 +582,6 @@
 #() uFpip
 #() uFpCi
 #() uFpWi
-#() uFpWW
 #() uFpWu
 #() uFpWf
 #() uFpWp
@@ -2087,6 +2086,7 @@
 #() uFpuuupp
 #() uFpuuppp
 #() uFpupupu
+#() uFpupppp
 #() uFppippp
 #() uFppuuup
 #() uFppuupu
@@ -3991,6 +3991,8 @@ wrappedkrb5:
 - iFppppppipp:
   - krb5_get_init_creds_password
 wrappedlber:
+- iFppip:
+  - ber_sockbuf_add_io
 wrappedlcms2:
 wrappedldapr:
 - iFpppppupp:

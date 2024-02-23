@@ -60,7 +60,7 @@ GO(ldap_control_free, vFp)
 GO(ldap_controls_dup, pFp)
 GO(ldap_controls_free, vFp)
 GO(ldap_count_entries, iFpp)
-//GO(ldap_count_messages, 
+GO(ldap_count_messages, iFpp)
 GO(ldap_count_references, iFpp)
 GO(ldap_count_values, iFp)
 GO(ldap_count_values_len, iFp)
@@ -103,7 +103,7 @@ GO(ldap_dn2ufn, pFp)
 //GO(ldap_dump_connection, 
 //GO(ldap_dump_requests_and_responses, 
 //GO(ldap_dup, 
-//GO(ldap_err2string, 
+GO(ldap_err2string, pFi)
 GO(ldap_explode_dn, pFpi)
 GO(ldap_explode_rdn, pFpi)
 GO(ldap_extended_operation, iFpppppp)
@@ -112,17 +112,17 @@ GO(ldap_extended_operation_s, iFppppppp)
 //GO(ldap_find_request_by_msgid, 
 GO(ldap_first_attribute, pFppp)
 GO(ldap_first_entry, pFpp)
-//GO(ldap_first_message, 
+GO(ldap_first_message, pFpp)
 GO(ldap_first_reference, pFpp)
 //GO(ldap_free_connection, 
 //GO(ldap_free_request, 
 //GO(ldap_free_select_info, 
 //GO(ldap_free_sort_keylist, 
-//GO(ldap_free_urldesc, 
+GO(ldap_free_urldesc, vFp)
 //GO(ldap_free_urllist, 
-//GO(ldap_get_attribute_ber, 
+GO(ldap_get_attribute_ber, iFppppp)
 GO(ldap_get_dn, pFpp)
-//GO(ldap_get_dn_ber, 
+GO(ldap_get_dn_ber, iFpppp)
 //GO(ldap_get_entry_controls, 
 //GO(ldap_get_message_ber, 
 GO(ldap_get_option, iFpip)
@@ -178,7 +178,7 @@ GO(ldap_install_tls, iFp)
 //GO(ldap_int_utils_init, 
 //GO(ldap_is_ldapi_url, 
 //GO(ldap_is_ldaps_url, 
-//GO(ldap_is_ldap_url, 
+GO(ldap_is_ldap_url, iFp)
 //GO(ldap_is_read_ready, 
 //GO(ldap_is_write_ready, 
 //GO(ldap_ld_free, 
@@ -220,7 +220,7 @@ GO(ldap_msgtype, iFp)
 //GO(ldap_new_select_info, 
 GO(ldap_next_attribute, pFppp)
 GO(ldap_next_entry, pFpp)
-//GO(ldap_next_message, 
+GO(ldap_next_message, pFpp)
 GO(ldap_next_reference, pFpp)
 //GO(ldap_ntlm_bind, 
 //GO(ldap_objectclass2bv, 
@@ -368,7 +368,7 @@ GO(ldap_parse_vlvresponse_control, iFpppppp)
 //GO(ldap_pvt_tls_inplace, 
 //GO(ldap_pvt_tls_sb_ctx, 
 //GO(ldap_pvt_tls_set_option, 
-//GO(ldap_pvt_url_scheme2proto, 
+GO(ldap_pvt_url_scheme2proto, iFp)
 //GO(ldap_pvt_url_scheme2tls, 
 //GO(ldap_pvt_url_scheme_port, 
 //GO(ldap_rdn2bv, 
@@ -449,7 +449,7 @@ GO(ldap_unbind_s, iFp)
 //GO(ldap_url_duplist, 
 //GO(ldap_url_list2hosts, 
 //GO(ldap_url_list2urls, 
-//GO(ldap_url_parse, 
+GO(ldap_url_parse, iFpp)
 //GO(ldap_url_parse_ext, 
 //GO(ldap_url_parsehosts, 
 //GO(ldap_url_parselist, 
