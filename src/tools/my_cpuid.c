@@ -7,6 +7,7 @@
 #include "my_cpuid.h"
 #include "../emu/x64emu_private.h"
 #include "debug.h"
+#include "x64emu.h"
 
 int get_cpuMhz()
 {
