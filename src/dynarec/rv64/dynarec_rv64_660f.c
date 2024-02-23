@@ -502,6 +502,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         // continue
                     }
                     break;
+                case 0x14:
+                    INST_NAME("PBLENDVPS Gx,Ex");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0);
+                    for (int i = 0; i < 4; ++i) {
+                        LW(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i * 4);
+                        BGE(x3, xZR, 4 + 4 * 2);
+                        LWU(x3, wback, fixedaddress + i * 4);
+                        SW(x3, gback, gdoffset + i * 4);
+                    }
+                    break;
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
