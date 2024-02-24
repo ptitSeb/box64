@@ -90,6 +90,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     ed = xRAX+(nextop&7)+(rex.b<<3);
                     MOV32w(ed, (1<<0) | (1<<4)); // only PE and ET set...
                     break;
+                case 0xF9:
+                    INST_NAME("RDTSCP");
+                    NOTEST(x1);
+                    if(box64_rdtsc) {
+                        CALL_(ReadTSC, x1, x3);
+                    } else {
+                        MRS_cntvct_el0(x1);
+                    }
+                    LSRx(xRDX, x1, 32);
+                    MOVw_REG(xRAX, x1);   // wipe upper part
+                    MOVw_REG(xRCX, xZR);    // IA32_TSC, 0 for now
+                    break;
                 default:
                     DEFAULT;
             } else
