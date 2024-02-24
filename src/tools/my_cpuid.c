@@ -12,13 +12,34 @@
 int get_cpuMhz()
 {
 	int MHz = 0;
-	FILE *f = fopen("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq", "r");
-	if(f) {
-		int r;
-		if(1==fscanf(f, "%d", &r))
-			MHz = r/1000;
-		fclose(f);
-	}
+    char *p = NULL;
+    if((p=getenv("BOX64_CPUMHZ"))) {
+        MHz = atoi(p);
+        return MHz;
+    }
+    char cpumhz[200];
+    sprintf(cpumhz, "%d", MHz?:1000);
+    setenv("BOX64_CPUMHZ", cpumhz, 1);  // set temp value incase box64 gets recursively called
+
+    int cpucore = 0;
+    while(cpucore!=-1) {
+        char cpufreq[4096];
+        sprintf(cpufreq, "/sys/devices/system/cpu/cpu%d/cpufreq/cpuinfo_max_freq", cpucore);
+        FILE *f = fopen(cpufreq, "r");
+        if(f) {
+            int r;
+            if(1==fscanf(f, "%d", &r)) {
+                r /= 1000;
+                if(MHz<r)
+                    MHz = r;
+            }
+            fclose(f);
+            ++cpucore;
+        }
+        else 
+            cpucore = -1;
+    }
+
     if(!MHz) {
         // try with lscpu, grabbing the max frequency
         FILE* f = popen("lscpu | grep \"CPU max MHz:\" | sed -r 's/CPU max MHz:\\s{1,}//g'", "r");
@@ -49,6 +70,8 @@ int get_cpuMhz()
     }
 	if(!MHz)
 		MHz = 1000; // default to 1Ghz...
+    sprintf(cpumhz, "%d", MHz);
+    setenv("BOX64_CPUMHZ", cpumhz, 1);  // set actual value
 	return MHz;
 }
 static int nCPU = 0;
@@ -103,6 +126,12 @@ const char* getCpuName()
     if(done)
         return name;
     done = 1;
+    char *p = NULL;
+    if((p=getenv("BOX64_CPUNAME"))) {
+        strcpy(name, p);
+        return name;
+    }
+    setenv("BOX64_CPUNAME", name, 1);   // temporary set
     FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
     if(f) {
         char tmp[200] = "";
@@ -119,6 +148,7 @@ const char* getCpuName()
                     *strchr(tmp,'\n') = ' ';
                 strncpy(name, tmp, 199);
             }
+            setenv("BOX64_CPUNAME", name, 1);
             return name;
         }
     }
@@ -137,6 +167,7 @@ const char* getCpuName()
             while(strchr(tmp, '\n'))
                 *strchr(tmp,'\n') = ' ';
             snprintf(name, 199, "unknown %s cpu", tmp);
+            setenv("BOX64_CPUNAME", name, 1);
             return name;
         }
     }
