@@ -170,7 +170,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i64 = F32S;
             emit_or32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
-
+        case 0x0E:
+            if(rex.is32bits) {
+                INST_NAME("PUSH CS");
+                LDRH_U12(x1, xEmu, offsetof(x64emu_t, segs[_CS]));
+                PUSH1_32(x1);
+                SMWRITE();
+            } else {
+                DEFAULT;
+            }
+            break;
         case 0x0F:
             switch(rep) {
             case 1:

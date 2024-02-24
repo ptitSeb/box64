@@ -166,6 +166,13 @@ x64emurun:
             emu->segs_serial[_ES] = 0;
             break;
         GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
+        case 0x0E:                      /* PUSH CS */
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
+            Push32(emu, emu->segs[_CS]);  // even if a segment is a 16bits, a 32bits push/pop is done
+            break;
         case 0x0F:                      /* More instructions */
             switch(rep) {
                 case 1:
