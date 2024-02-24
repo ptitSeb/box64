@@ -271,13 +271,13 @@ static void sigstack_key_alloc() {
 }
 
 // this allow handling "safe" function that just abort if accessing a bad address
-static JUMPBUFF signal_jmpbuf;
+static __thread JUMPBUFF signal_jmpbuf;
 #ifdef ANDROID
 #define SIG_JMPBUF signal_jmpbuf
 #else
 #define SIG_JMPBUF &signal_jmpbuf
 #endif
-static int signal_jmpbuf_active = 0;
+static __thread int signal_jmpbuf_active = 0;
 
 
 //1<<1 is mutex_prot, 1<<8 is mutex_dyndump
