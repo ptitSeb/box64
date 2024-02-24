@@ -2066,7 +2066,7 @@ int main(int argc, const char **argv, char **env) {
         const char* vername = NULL;
         if(!ElfGetGlobalSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
             if(!ElfGetWeakSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
-                if(!ElfGetLocalSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt))
+                ElfGetLocalSymbolStartEnd(elf_header, &wineinfo, NULL, "wine_main_preload_info", &ver, &vername, 1, &veropt);
         if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
         else {
             *(void**)wineinfo = get_wine_prereserve();
