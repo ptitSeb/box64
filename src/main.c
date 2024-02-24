@@ -2089,8 +2089,8 @@ int main(int argc, const char **argv, char **env) {
             } else {
                 for(int j=0; j<tmp->size; ++j)
                     add1lib_neededlib(my_context->preload, tmp->libs[j], tmp->names[j]);
-                free_neededlib(tmp);
             }
+            free_neededlib(tmp);
         }
     }
     FreeCollection(&ld_preload);
