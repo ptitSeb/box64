@@ -2977,35 +2977,41 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE9:
         case 0xEB:
             BARRIER(BARRIER_MAYBE);
-            if(opcode==0xE9) {
-                INST_NAME("JMP Id");
-                i32 = F32S;
+            if(opcode==0xEB && PK(0)==0xFF) {
+                INST_NAME("JMP ib");
+                MESSAGE(LOG_DEBUG, "Hack for EB FF opcode");
+                NOP;
             } else {
-                INST_NAME("JMP Ib");
-                i32 = F8S;
-            }
-            if(rex.is32bits)
-                j64 = (uint32_t)(addr+i32);
-            else
-                j64 = addr+i32;
-
-            JUMP((uintptr_t)getAlternate((void*)j64), 0);
-            if(dyn->insts[ninst].x64.jmp_insts==-1) {
-                // out of the block
-                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
-                jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
-            } else {
-                // inside the block
-                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
-                tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
-                if(tmp==4) {
-                    NOP;
+                if(opcode==0xE9) {
+                    INST_NAME("JMP Id");
+                    i32 = F32S;
                 } else {
-                    B(tmp);
+                    INST_NAME("JMP Ib");
+                    i32 = F8S;
                 }
+                if(rex.is32bits)
+                    j64 = (uint32_t)(addr+i32);
+                else
+                    j64 = addr+i32;
+
+                JUMP((uintptr_t)getAlternate((void*)j64), 0);
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {
+                    // out of the block
+                    fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
+                    jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
+                } else {
+                    // inside the block
+                    CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
+                    tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);
+                    if(tmp==4) {
+                        NOP;
+                    } else {
+                        B(tmp);
+                    }
+                }
+                *need_epilog = 0;
+                *ok = 0;
             }
-            *need_epilog = 0;
-            *ok = 0;
             break;
 
         case 0xEC:                      /* IN AL, DX */
