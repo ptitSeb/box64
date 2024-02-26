@@ -3493,13 +3493,13 @@ EXPORT char my___libc_single_threaded = 0;
 
 #ifdef ANDROID
 #define NEEDED_LIBS_DEF   4,\
-    "libpthread.so.0",      \
-    "libdl.so.2" ,          \
+    "libpthread.so",        \
+    "libdl.so" ,            \
     "libm.so",              \
     "libbsd.so"
 #define NEEDED_LIBS_234 4,  \
-    "libpthread.so.0",      \
-    "libdl.so.2" ,          \
+    "libpthread.so",        \
+    "libdl.so" ,            \
     "libm.so",              \
     "libbsd.so"
 #else
