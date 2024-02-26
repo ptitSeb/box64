@@ -138,7 +138,11 @@ GOM(pthread_key_create, iFEpp)
 GOM(pthread_key_delete, iFEL)
 GO2(pthread_kill@GLIBC_2.2.5, iFEpi, my_pthread_kill_old)
 GOM(pthread_kill, iFEpi)
+#ifndef STATICBUILD
 GO(pthread_kill_other_threads_np, vFv)
+#else
+//GO(pthread_kill_other_threads_np, vFv)
+#endif
 #ifdef NOALIGN
 GO(__pthread_mutexattr_destroy, iFp)
 GO(pthread_mutexattr_destroy, iFp)

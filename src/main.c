@@ -1451,7 +1451,9 @@ void setupTrace()
     }
 #endif
 }
+#ifndef STATICBUILD
 void endMallocHook();
+#endif
 
 void endBox64()
 {
@@ -1461,7 +1463,9 @@ void endBox64()
     // then call all the fini
     dynarec_log(LOG_DEBUG, "endBox64() called\n");
     box64_quit = 1;
+    #ifndef STATICBUILD
     endMallocHook();
+    #endif
     x64emu_t* emu = thread_get_emu();
     void startTimedExit();
     startTimedExit();
@@ -1570,10 +1574,14 @@ static void load_rcfiles()
     }
 }
 
+#ifndef STATICBUILD
 void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog);
+#endif
 extern char** environ;
 int main(int argc, const char **argv, char **env) {
+    #ifndef STATICBUILD
     init_malloc_hook();
+    #endif
     init_auxval(argc, argv, environ?environ:env);
     // analogue to QEMU_VERSION in qemu-user-mode emulation
     if(getenv("BOX64_VERSION")) {
@@ -1657,7 +1665,7 @@ int main(int argc, const char **argv, char **env) {
             //wine_preloaded = 1;
         }
     }
-    #if 1
+    #ifndef STATICBUILD
     // pre-check for pressure-vessel-wrap
     if(strstr(prog, "pressure-vessel-wrap")==(prog+strlen(prog)-strlen("pressure-vessel-wrap"))) {
         printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected\n");

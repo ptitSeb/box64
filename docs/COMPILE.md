@@ -250,6 +250,11 @@ If you are not building from a git clone (for example, downloading a release sou
 
 You need to add `-DWITH_MOLD=1` if GNU ld is extremely slow. Then run `mold -run make -j4` to build (make sure [Mold](https://github.com/rui314/mold) is installed).
 
+#### Build a statically linked box64
+
+You can now build box64 staticaly linked, with `-DSTATICBUILD`. This is to use inside an x86_64 chroot. Note that this version of box64 will have just the minimum of wrapped libs. So only libc, libm and libpthread basically are wrapped. Other libs (like libGL or libvulkan, SDL2, etc...) will not be wrapped and x86_64 version will be used. It's designed to be used in docker image, or in headless server.
+Also, the Static Build is highly experimental, but feedback are always welcomed.
+
 ----
 
 Testing

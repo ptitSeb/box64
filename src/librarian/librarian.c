@@ -476,8 +476,10 @@ static int GetGlobalSymbolStartEnd_internal(lib_t *maplib, const char* name, uin
     // nope, not found
     return weak;
 }
+#ifndef STATICBUILD
 void** my_GetGTKDisplay();
 void** my_GetGthreadsGotInitialized();
+#endif
 int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t* self, int version, const char* vername, int veropt, void** elfsym)
 {
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, &version, &vername, &veropt, elfsym)) {
@@ -494,6 +496,7 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
         }
         return 1;
     }
+    #ifndef STATICBUILD
     // some special case symbol, defined inside box64 itself
     if(!strcmp(name, "gdk_display")) {
         *start = (uintptr_t)my_GetGTKDisplay();
@@ -507,6 +510,7 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
         printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
         return 1;
     }
+    #endif
     // not found...
     return 0;
 }
@@ -565,6 +569,7 @@ int GetGlobalWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* star
         }
         return 1;
     }
+    #ifndef STATICBUILD
     // some special case symbol, defined inside box64 itself
     if(!strcmp(name, "gdk_display")) {
         *start = (uintptr_t)my_GetGTKDisplay();
@@ -580,6 +585,7 @@ int GetGlobalWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* star
         printf_log(LOG_INFO, "Using global g_threads_got_initialized for gthread2 (%p:%p)\n", start, *(void**)start);
         return 1;
     }
+    #endif
     // not found...
     return 0;
 }

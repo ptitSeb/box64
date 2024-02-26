@@ -127,8 +127,10 @@ void printf_ftrace(const char* fmt, ...);
 #define EXPORTDYN
 #endif
 
+#ifndef STATICBUILD
 void init_malloc_hook(void);
-#ifdef ANDROID
+#endif
+#if defined(ANDROID) || defined(STATICBUILD)
 #define box_malloc      malloc
 #define box_realloc     realloc
 #define box_calloc      calloc

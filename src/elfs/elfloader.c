@@ -471,7 +471,7 @@ struct tlsdesc
 };
 uintptr_t tlsdescUndefweak = 0;
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
-EXPORT uintptr_t _dl_tlsdesc_undefweak(x64emu_t* emu)
+EXPORT uintptr_t my__dl_tlsdesc_undefweak(x64emu_t* emu)
 {
     struct tlsdesc *td = (struct tlsdesc *)R_RAX;
     return td->arg;
@@ -763,7 +763,7 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_TLSDESC @%p with addend=%zu\n", BindSym(bind), p, rela[i].r_addend);
                     struct tlsdesc volatile *td = (struct tlsdesc volatile *)p;
                     if(!tlsdescUndefweak)
-                        tlsdescUndefweak = AddBridge(my_context->system, pFE, _dl_tlsdesc_undefweak, 0, "_dl_tlsdesc_undefweak");
+                        tlsdescUndefweak = AddBridge(my_context->system, pFE, my__dl_tlsdesc_undefweak, 0, "_dl_tlsdesc_undefweak");
                     td->entry = tlsdescUndefweak;
                     td->arg = (uintptr_t)(head->tlsbase + rela[i].r_addend);
                 } else {
@@ -916,7 +916,9 @@ void AddSymbols(lib_t *maplib, elfheader_t* h)
     if(box64_dump && h->DynSym) DumpDynSym(h);
     if(h==my_context->elfs[0]) 
         GrabX64CopyMainElfReloc(h);
+    #ifndef STATICBUILD
     checkHookedSymbols(h);
+    #endif
 }
 
 /*
@@ -1058,7 +1060,11 @@ void MarkElfInitDone(elfheader_t* h)
     if(h)
         h->init_done = 1;
 }
+#ifndef STATICBUILD
 void startMallocHook();
+#else
+void startMallocHook() {}
+#endif
 void RunElfInit(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->init_done)

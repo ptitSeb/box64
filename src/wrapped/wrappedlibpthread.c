@@ -1,3 +1,4 @@
+#define __USE_UNIX98
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,30 +20,6 @@
 
 const char* libpthreadName = "libpthread.so.0";
 #define LIBNAME libpthread
-
-
-//int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_routine, void* arg); //implemented in thread.c
-//int my_pthread_key_create(x64emu_t* emu, void* key, void* dtor);
-//int my___pthread_key_create(x64emu_t* emu, void* key, void* dtor);
-//int my_pthread_once(x64emu_t* emu, void* once, void* cb);
-//int my___pthread_once(x64emu_t* emu, void* once, void* cb);
-//int my_pthread_cond_broadcast(x64emu_t* emu, void* cond);
-//int my_pthread_cond_destroy(x64emu_t* emu, void* cond);
-//int my_pthread_cond_init(x64emu_t* emu, void* cond, void* attr);
-//int my_pthread_cond_signal(x64emu_t* emu, void* cond);
-//int my_pthread_cond_timedwait(x64emu_t* emu, void* cond, void* mutex, void* abstime);
-//int my_pthread_cond_wait(x64emu_t* emu, void* cond, void* mutex);
-//int my_pthread_mutexattr_setkind_np(x64emu_t* emu, void* t, int kind);
-//int my_pthread_attr_setscope(x64emu_t* emu, void* attr, int scope);
-//void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg);
-//void my__pthread_cleanup_push(x64emu_t* emu, void* buffer, void* routine, void* arg);
-//void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec);
-//void my__pthread_cleanup_pop_restore(x64emu_t* emu, void* buffer, int exec);
-//int my_pthread_kill(x64emu_t* emu, void* thread, int sig);
-//int my_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset);
-//int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpusetsize, void* cpuset);
-//int my_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset);
-
 
 //EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, void* attr, void* param)
 //{
@@ -81,5 +58,22 @@ EXPORT void my___pthread_initialize()
 {
     // nothing, the lib initialize itself now
 }
+
+#ifdef STATICBUILD
+#include <semaphore.h>
+#include "libtools/static_threads.h"
+
+extern void* __pthread_getspecific(size_t);
+extern int __pthread_mutex_destroy(void*);
+extern int __pthread_mutex_lock(void*);
+extern int __pthread_mutex_trylock(void*);
+extern int __pthread_mutex_unlock(void*);
+extern int __pthread_rwlock_init(void*, void*);
+extern int __pthread_rwlock_rdlock(void*);
+extern int __pthread_rwlock_unlock(void*);
+extern int __pthread_rwlock_wrlock(void*);
+extern int __pthread_setspecific(size_t, void*);
+extern int pthread_sigmask(int, void*, void*);
+#endif
 
 #include "wrappedlib_init.h"

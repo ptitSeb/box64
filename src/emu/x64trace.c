@@ -39,6 +39,9 @@ typedef struct zydis_dec_s {
 
 int InitX64Trace(box64context_t *context)
 {
+    #ifndef HAVE_TRACE
+    return 1;
+    #else
     if(context->zydis)
         return 0;
     context->zydis = (zydis_t*)box_calloc(1, sizeof(zydis_t));
@@ -62,20 +65,26 @@ int InitX64Trace(box64context_t *context)
     context->dec32 = InitX86TraceDecoder(context);
 
     return 0;
+    #endif
 }
 
 void DeleteX64Trace(box64context_t *context)
 {
+    #ifdef HAVE_TRACE
     if(!context->zydis)
         return;
     if(context->zydis->lib)
         dlclose(context->zydis->lib);
     box_free(context->zydis);
     context->zydis = NULL;
+    #endif
 }
 
 zydis_dec_t* InitX86TraceDecoder(box64context_t *context)
 {
+    #ifndef HAVE_TRACE
+    return NULL;
+    #else
     if(!context->zydis)
         return NULL;
     zydis_dec_t *dec = (zydis_dec_t*)box_calloc(1, sizeof(zydis_dec_t));
@@ -85,15 +94,21 @@ zydis_dec_t* InitX86TraceDecoder(box64context_t *context)
     context->zydis->ZydisFormatterInit(&dec->formatter, ZYDIS_FORMATTER_STYLE_INTEL);
 
     return dec;
+    #endif
 }
 void DeleteX86TraceDecoder(zydis_dec_t **dec)
 {
+    #ifdef HAVE_TRACE
     box_free(*dec);
     *dec = NULL;
+    #endif
 }
 
 zydis_dec_t* InitX64TraceDecoder(box64context_t *context)
 {
+    #ifndef HAVE_TRACE
+    return NULL;
+    #else
     if(!context->zydis)
         return NULL;
     zydis_dec_t *dec = (zydis_dec_t*)box_calloc(1, sizeof(zydis_dec_t));
@@ -103,15 +118,21 @@ zydis_dec_t* InitX64TraceDecoder(box64context_t *context)
     context->zydis->ZydisFormatterInit(&dec->formatter, ZYDIS_FORMATTER_STYLE_INTEL);
 
     return dec;
+    #endif
 }
 void DeleteX64TraceDecoder(zydis_dec_t **dec)
 {
+    #ifdef HAVE_TRACE
     box_free(*dec);
     *dec = NULL;
+    #endif
 }
 
 const char* DecodeX64Trace(zydis_dec_t *dec, uintptr_t p)
 {
+    #ifndef HAVE_TRACE
+    return "???";
+    #else
     static char buff[512];
     if(ZYAN_SUCCESS(dec->ZydisDecoderDecodeBuffer(&dec->decoder, (char*)p, 15,
         &dec->instruction))) {
@@ -133,4 +154,5 @@ const char* DecodeX64Trace(zydis_dec_t *dec, uintptr_t p)
         sprintf(buff, "Decoder failed @%p", (void*)p);
     }
     return buff;
+    #endif
 }

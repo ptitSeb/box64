@@ -911,7 +911,7 @@ EXPORT int my_vsscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
     return vsscanf(stream, fmt, VARARGS);
 }
 
-EXPORT int my__vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
+EXPORT int my___vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
 
 EXPORT int my_vswscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
@@ -2818,6 +2818,11 @@ EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
     return p;
 }
 
+#ifdef STATICBUILD
+void my_updateGlobalOpt() {}
+void my_checkGlobalOpt() {}
+#endif
+
 EXPORT int my_getopt(int argc, char* const argv[], const char *optstring)
 {
     my_updateGlobalOpt();
@@ -3475,10 +3480,16 @@ EXPORT char* my_program_invocation_short_name = NULL;
 // ignoring this for now
 EXPORT char my___libc_single_threaded = 0;
 
+#ifdef STATICBUILD
+#include "libtools/static_libc.h"
+#endif
+
+#ifndef STATICBUILD
 #define PRE_INIT\
     if(1)                                                      \
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
+#endif
 
 #ifdef ANDROID
 #define NEEDED_LIBS_DEF   1,\

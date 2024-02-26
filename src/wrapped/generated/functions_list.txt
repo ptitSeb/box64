@@ -502,9 +502,7 @@
 #() iFupL
 #() iFupp
 #() iFfff
-#() iFlip
 #() iFLip
-#() iFLLi
 #() iFLpp
 #() iFpwp
 #() iFpii
@@ -936,7 +934,6 @@
 #() iFEpLi
 #() iFEpLp
 #() iFEppi
-#() iFEppu
 #() iFEppd
 #() iFEppL
 #() iFEppp
@@ -965,7 +962,6 @@
 #() iFipWp
 #() iFipui
 #() iFipuL
-#() iFipup
 #() iFipLi
 #() iFipLu
 #() iFipLp
@@ -984,7 +980,6 @@
 #() iFuppi
 #() iFuppu
 #() iFuppp
-#() iFLLiW
 #() iFLppp
 #() iFpwww
 #() iFpwpp
@@ -1504,7 +1499,6 @@
 #() iFiiipu
 #() iFiiipp
 #() iFiiupp
-#() iFiipup
 #() iFiuuuu
 #() iFiuuup
 #() iFiuLip
@@ -1989,7 +1983,6 @@
 #() iFpipLpp
 #() iFpippip
 #() iFpippup
-#() iFpipppL
 #() iFpipppp
 #() iFpCiipp
 #() iFpCpipu
@@ -3040,9 +3033,16 @@
 #!defined(HAVE_LD80BITS) lFKK
 #!defined(HAVE_LD80BITS) KFKKK
 #defined(NOALIGN) iFipiip
+#!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEipiip
+#!defined(STATICBUILD) iFlip
+#!defined(STATICBUILD) iFLLi
+#!defined(STATICBUILD) iFipup
+#!defined(STATICBUILD) iFLLiW
+#!defined(STATICBUILD) iFiipup
+#!defined(STATICBUILD) iFpipppL
 #() vFEv -> vFE
 #() iFEv -> iFE
 #() lFEv -> lFE
@@ -4035,18 +4035,6 @@ wrappedlibc:
   - _setjmp
   - atexit
   - getcontext
-  - pthread_attr_destroy
-  - pthread_attr_init
-  - pthread_barrierattr_destroy
-  - pthread_barrierattr_init
-  - pthread_cond_broadcast
-  - pthread_cond_destroy
-  - pthread_condattr_destroy
-  - pthread_condattr_init
-  - pthread_getattr_default_np
-  - pthread_mutexattr_destroy
-  - pthread_mutexattr_init
-  - pthread_setattr_default_np
   - register_printf_type
   - setcontext
   - setjmp
@@ -4085,30 +4073,12 @@ wrappedlibc:
   - fstat64
 - iFup:
   - setrlimit
-- iFLp:
-  - pthread_getattr_np
 - iFpi:
   - __sigsetjmp
   - backtrace
-  - pthread_attr_setdetachstate
-  - pthread_attr_setinheritsched
-  - pthread_attr_setschedpolicy
-  - pthread_attr_setscope
-  - pthread_barrierattr_setpshared
-  - pthread_condattr_setclock
-  - pthread_condattr_setpshared
-  - pthread_kill
-  - pthread_kill@GLIBC_2.2.5
-  - pthread_mutexattr_setkind_np
-  - pthread_mutexattr_setprotocol
-  - pthread_mutexattr_setpshared
-  - pthread_mutexattr_setrobust
-  - pthread_mutexattr_settype
   - sigsetjmp
 - iFpL:
   - munmap
-  - pthread_attr_setguardsize
-  - pthread_attr_setstacksize
 - iFpp:
   - __vprintf_chk
   - dl_iterate_phdr
@@ -4116,28 +4086,6 @@ wrappedlibc:
   - execvp
   - lstat
   - lstat64
-  - pthread_attr_getdetachstate
-  - pthread_attr_getguardsize
-  - pthread_attr_getinheritsched
-  - pthread_attr_getschedparam
-  - pthread_attr_getschedpolicy
-  - pthread_attr_getscope
-  - pthread_attr_getstackaddr
-  - pthread_attr_getstacksize
-  - pthread_attr_setschedparam
-  - pthread_attr_setstackaddr
-  - pthread_barrierattr_getpshared
-  - pthread_cond_init
-  - pthread_cond_wait
-  - pthread_condattr_getclock
-  - pthread_condattr_getpshared
-  - pthread_key_create
-  - pthread_mutex_init
-  - pthread_mutexattr_getkind_np
-  - pthread_mutexattr_getprotocol
-  - pthread_mutexattr_getrobust
-  - pthread_mutexattr_gettype
-  - pthread_once
   - sigaltstack
   - stat
   - stat64
@@ -4200,26 +4148,15 @@ wrappedlibc:
   - vdprintf
 - iFpLi:
   - mprotect
-- iFpLp:
-  - pthread_attr_setaffinity_np
-  - pthread_getaffinity_np
-  - pthread_setaffinity_np
 - iFppi:
   - ftw
   - ftw64
-- iFppu:
-  - pthread_barrier_init
-- iFppL:
-  - pthread_attr_setstack
 - iFppp:
   - __cxa_atexit
   - __cxa_thread_atexit_impl
   - __vfprintf_chk
   - __vsscanf
   - execve
-  - pthread_atfork
-  - pthread_attr_getstack
-  - pthread_cond_timedwait
 - iFppV:
   - __asprintf
   - __isoc23_fscanf
@@ -4309,14 +4246,11 @@ wrappedlibc:
   - vswprintf
 - iFppii:
   - nftw64
-- iFppip:
-  - pthread_cond_clockwait
 - iFppiV:
   - makecontext
 - iFpppp:
   - __register_atfork
   - __vsprintf_chk
-  - pthread_create
   - scandir
   - scandir64
 - lFuipp:
@@ -4539,6 +4473,7 @@ wrappedlibm:
   - __sinhf_finite
   - __sqrtf_finite
   - nearbyintf
+  - pow10f
   - rintf
 - dFd:
   - __acos_finite
@@ -4553,7 +4488,12 @@ wrappedlibm:
   - __sinh_finite
   - __sqrt_finite
   - nearbyint
+  - pow10
   - rint
+- DFD:
+  - pow10l
+- KFK:
+  - pow10l
 - fFff:
   - __atan2f_finite
   - __fmodf_finite

@@ -24,10 +24,19 @@ const char* libbsdName = "libbsd.so.0";
 #endif
 #define LIBNAME libbsd
 
+#ifdef STATICBUILD
+void arc4random_addrandom(unsigned char *dat, int datlen);
+void arc4random_stir(void);
+const char *getprogname(void);
+void setprogname(const char *);
+#endif
+
+#ifndef STATICBUILD
 #define PRE_INIT\
     if(1)                                                           \
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
+#endif
 
 // define all standard library functions
 #include "wrappedlib_init.h"

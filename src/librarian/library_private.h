@@ -30,9 +30,20 @@ typedef struct symbol2_s {
     uintptr_t    addr;
 } symbol2_t;
 
+#ifdef STATICBUILD
+typedef struct datamap_s {
+    uint64_t    size;
+    uintptr_t   addr;
+} datamap_t;
+#endif
+
 KHASH_MAP_DECLARE_STR(symbolmap, symbol1_t)
 KHASH_MAP_DECLARE_STR(symbol2map, symbol2_t)
+#ifdef STATICBUILD
+KHASH_MAP_DECLARE_STR(datamap, datamap_t)
+#else
 KHASH_MAP_DECLARE_STR(datamap, uint64_t)
+#endif
 
 
 #ifndef MAX_PATH
@@ -88,17 +99,26 @@ typedef struct map_onesymbol_s {
     const char* name;
     wrapper_t   w;
     int         weak;
+#ifdef STATICBUILD
+    void*       addr;
+#endif
 } map_onesymbol_t;
 typedef struct map_onesymbol2_s {
     const char* name;
     wrapper_t   w;
     int         weak;
     const char* name2;
+#ifdef STATICBUILD
+    void*       addr;
+#endif
 } map_onesymbol2_t;
 typedef struct map_onedata_s {
     const char* name;
     uint32_t    sz;                 // TODO: convert to size_t
     int         weak;
+#ifdef STATICBUILD
+    void*       addr;
+#endif
 } map_onedata_t;
 
 int getSymbolInMaps(library_t *lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int *weak, int version, const char* vername, int local, int veropt);  // Add bridges to functions

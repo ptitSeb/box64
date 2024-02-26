@@ -112,7 +112,7 @@ EXPORT int my_aio_write64(x64emu_t emu, struct aiocb* aiocbp)
         aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
     return my->aio_write64(aiocbp);
 }
-EXPORT int mylio_listio(x64emu_t* emu, int mode, struct aiocb* list[], int nent, struct sigevent* sig)
+EXPORT int my_lio_listio(x64emu_t* emu, int mode, struct aiocb* list[], int nent, struct sigevent* sig)
 {
     struct sigevent sevent;
     if(sig) {
@@ -148,11 +148,18 @@ EXPORT int my_aio_write64(x64emu_t emu, void* aiocbp)
     errno = ENOSYS;
     return -1;
 }
-EXPORT int mylio_listio(x64emu_t* emu, int mode, void* list[], int nent, struct sigevent* sig)
+EXPORT int my_lio_listio(x64emu_t* emu, int mode, void* list[], int nent, struct sigevent* sig)
 {
     errno = ENOSYS;
     return -1;
 }
+#endif
+
+#ifdef STATICBUILD
+#include <mqueue.h>
+#include <sys/mman.h>
+
+extern int __mq_open_2(void*, int);
 #endif
 
 #include "wrappedlib_init.h"

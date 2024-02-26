@@ -350,7 +350,11 @@ GO2(lgammal_r, KFKp, lgamma_r)
 #endif
 GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
+#ifdef STATICBUILD
+//DATAV(_LIB_VERSION, 8)
+#else
 DATAV(_LIB_VERSION, 8)
+#endif
 GOWM(llrint, IFEd)
 GOWM(llrintf, IFEf)
 #ifdef HAVE_LD80BITS
@@ -417,12 +421,12 @@ GOW(nexttoward, dFdD)
 GOW(nexttowardf, fFfD)
 // nexttowardl  // Weak
 GOW(pow, dFdd)
-GOW(pow10, dFd)
-GOW(pow10f, fFf)
+GOWM(pow10, dFd)
+GOWM(pow10f, fFf)
 #ifdef HAVE_LD80BITS
-GOW(pow10l, DFD)
+GOWM(pow10l, DFD)
 #else
-GOW(pow10l, KFK)
+GOWM(pow10l, KFK)
 #endif
 GOW(powf, fFff)
 GOM(__powf_finite, fFff)

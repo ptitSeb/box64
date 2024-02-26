@@ -37,10 +37,18 @@ EXPORT pid_t my_forkpty(x64emu_t* emu, void* amaster, void* name, void* termp, v
     return 0;
 }
 
+#ifdef STATICBUILD
+#include <pty.h>
+#include <utmp.h>
+#endif
+
+#ifdef STATICBUILD
+#else
 #define PRE_INIT\
     if(1)                                                      \
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
+#endif
 
 #include "wrappedlib_init.h"
 

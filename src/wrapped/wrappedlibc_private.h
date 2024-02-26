@@ -124,6 +124,21 @@ GO(chroot, iFp)
 GOW(clearenv, iFv)
 GO(clearerr, vFp)
 GO(clearerr_unlocked, vFp)
+#ifdef STATICBUILD
+//GO(clnt_broadcast, 
+//GO(clnt_create, !FpLLp)
+//GO(clnt_pcreateerror, vFp)
+//GO(clnt_perrno, vFu)
+//GO(clnt_perror, vF!p)
+//GO(clntraw_create, !FLL)
+//GO(clnt_spcreateerror, pFp)
+//GO(clnt_sperrno, pFu)
+//GO(clnt_sperror, pF!p)
+//GO(clnttcp_create, !F!LLpuu)
+//GO(clntudp_bufcreate, !F!LL?puu)
+//GO(clntudp_create, !F!LL?p)
+//GO(clntunix_create, !F!LLpuu)
+#else
 //GO(clnt_broadcast, 
 //GO(clnt_create, !FpLLp)
 GO(clnt_pcreateerror, vFp)
@@ -137,6 +152,7 @@ GO(clnt_sperrno, pFu)
 //GO(clntudp_bufcreate, !F!LL?puu)
 //GO(clntudp_create, !F!LL?p)
 //GO(clntunix_create, !F!LLpuu)
+#endif
 GO(clock, lFv)
 GO(clock_adjtime, iFip)
 //GO(__clock_getcpuclockid, 
@@ -176,7 +192,11 @@ GO(ctime_r, pFpp)
 //DATA(__ctype32_b, 
 //DATA(__ctype32_tolower, 
 //DATA(__ctype32_toupper, 
+#ifdef STATICBUILD
+//DATA(__ctype_b, sizeof(void*))
+#else
 DATA(__ctype_b, sizeof(void*))
+#endif
 GO(__ctype_b_loc, pFv)
 GO(__ctype_get_mb_cur_max, LFv)
 //GO(__ctype_init, 
@@ -565,7 +585,11 @@ GO(getnameinfo, iFpupupui)
 //GO(getnetent_r, iF!pL!p)
 GO(getnetgrent, iFppp)
 GOW(getnetgrent_r, iFppppL)
+#ifdef STATICBUILD
+//GO(getnetname, iFp)
+#else
 GO(getnetname, iFp)
+#endif
 GOW(get_nprocs, iFv)
 GOW(get_nprocs_conf, iFv)
 GOM(getopt, iFipp)
@@ -579,7 +603,7 @@ GO(__getpgid, iFi)
 GOW(getpgid, iFi)
 GO(getpgrp, iFv)
 GOW(get_phys_pages, lFv)
-GO(__getpid, uFv)
+GO(__getpid, iFv)
 GO(getpid, iFv)
 //GO(getpmsg, // Deprecated
 GOW(getppid, iFv)
@@ -591,7 +615,11 @@ GO(getprotobynumber_r, iFippLp)
 GO(getprotoent, pFv)
 GO(getprotoent_r, iFppLp)
 GOW(getpt, iFv)
+#ifdef STATICBUILD
+//GO(getpublickey, iFpp)
+#else
 GO(getpublickey, iFpp)
+#endif
 GOW(getpw, iFup)
 GO(getpwent, pFv)
 GO(getpwent_r, iFppLp)
@@ -611,11 +639,19 @@ GO(getrpcbynumber, pFi)
 GO(getrpcbynumber_r, iFippLp)
 GO(getrpcent, pFv)
 GO(getrpcent_r, iFppLp)
+#ifdef STATICBUILD
+//GO(getrpcport, 
+#else
 GO(getrpcport, iFpLLu)
+#endif
 GOW(getrusage, iFip)
 //GOW(gets, // Deprecated
 //GO(__gets_chk, 
+#ifdef STATICBUILD
+//GO(getsecretkey, 
+#else
 GO(getsecretkey, iFppp)
+#endif
 GO(getservbyname, pFpp)
 GO(getservbyname_r, iFppppLp)
 GO(getservbyport, pFip)
@@ -688,7 +724,11 @@ GOW(hdestroy, vFv)
 //DATAB(__h_errno, 
 GO(__h_errno_location, pFv)
 GO(herror, vFp)
+#ifdef STATICBUILD
+//GO(host2netname, 
+#else
 GO(host2netname, iFppp)
+#endif
 //GO(hsearch, pF?u)
 //GOW(hsearch_r, iF?up!)
 GO(hstrerror, pFi)
@@ -832,7 +872,11 @@ DATA(_IO_list_all, sizeof(void*))
 //GO(_IO_marker_difference, 
 //GO(_IO_padn, 
 //GO(_IO_peekc_locked, 
+#ifdef STATICBUILD
+//GO(ioperm, 
+#else
 GO(ioperm, iFLLi)
+#endif
 GOM(iopl, iFEi)     //Not always present
 //GO(_IO_popen, 
 //GO(_IO_printf, 
@@ -1013,9 +1057,15 @@ GOW(jrand48_r, iFppp)
 //GO(key_gendes, iF!)
 //DATAB(__key_gendes_LOCAL, 
 //GO(key_get_conv, iFp!)
+#ifdef STATICBUILD
+//GO(key_secretkey_is_set, 
+//GO(key_setnet, 
+//GO(key_setsecret, 
+#else
 GO(key_secretkey_is_set, iFv)
 //GO(key_setnet, 
 GO(key_setsecret, iFp)
+#endif
 GOW(kill, iFii)
 GO(killpg, iFii)
 GO(klogctl, iFipi)
@@ -1233,8 +1283,13 @@ GO(__nanosleep, iFpp)
 GOW(nanosleep, iFpp)
 //GO(__nanosleep_nocancel, 
 //GO(__netlink_assert_response, 
+#ifdef STATICBUILD
+//GO(netname2host, iFppi)
+//GO(netname2user, iFppppp)
+#else
 GO(netname2host, iFppi)
 GO(netname2user, iFppppp)
+#endif
 GO(__newlocale, pFipp)
 GOW(newlocale, pFipp)
 //GO(nfsservctl, // Deprecated
@@ -1333,8 +1388,13 @@ GO(pkey_set, iFiu)
 //GO(pmap_getmaps, pF!)
 //GO(pmap_getport, WF!LLu)
 //GO(pmap_rmtcall, uF!LLL@p@p?p)
+#ifdef STATICBUILD
+//GO(pmap_set, iFLLiW)
+//GO(pmap_unset, iFLL)
+#else
 GO(pmap_set, iFLLiW)
 GO(pmap_unset, iFLL)
+#endif
 GO(__poll, iFpLi)
 GO(poll, iFpLi)
 GO(__poll_chk, iFpuiL)
@@ -1398,131 +1458,13 @@ DATA(__progname_full, sizeof(void))
 GOW(pselect, iFippppp)
 GO(psiginfo, vFpp)
 GO(psignal, vFip)
+#ifdef STATICBUILD
+//GO(__sF, vFip)
+//GO(__assert2, vFip)
+#else
 GO(__sF, vFip)
 GO(__assert2, vFip)
-
-GOM(pthread_atfork, iFEppp)
-GOM(pthread_attr_destroy, iFEp)
-GOM(pthread_attr_getdetachstate, iFEpp)
-GOM(pthread_attr_getguardsize, iFEpp)
-GOM(pthread_attr_getinheritsched, iFEpp)
-GOM(pthread_attr_getschedparam, iFEpp)
-GOM(pthread_attr_getschedpolicy, iFEpp)
-GOM(pthread_attr_getscope, iFEpp)
-GOM(pthread_attr_getstack, iFEppp)
-GOM(pthread_attr_getstackaddr, iFEpp)
-GOM(pthread_attr_getstacksize, iFEpp)
-GOM(pthread_attr_init, iFEp)
-GOM(pthread_attr_setaffinity_np, iFEpLp)
-GOM(pthread_attr_setdetachstate, iFEpi)
-GOM(pthread_attr_setguardsize, iFEpL)
-GOM(pthread_attr_setinheritsched, iFEpi)
-GOM(pthread_attr_setschedparam, iFEpp)
-GOM(pthread_attr_setschedpolicy, iFEpi)
-GOM(pthread_attr_setscope, iFEpi)
-GOM(pthread_attr_setstackaddr, iFEpp)
-GOM(pthread_attr_setstack, iFEppL)
-GOM(pthread_attr_setstacksize, iFEpL)
-GOM(pthread_barrierattr_destroy, iFEp)
-GOM(pthread_barrierattr_getpshared, iFEpp)
-GOM(pthread_barrierattr_init, iFEp)
-GOM(pthread_barrierattr_setpshared, iFEpi)
-GO(pthread_barrier_destroy, iFp)
-GOM(pthread_barrier_init, iFEppu)
-GO(pthread_barrier_wait, iFp)
-GO(pthread_cancel, iFL)
-GOM(pthread_condattr_destroy, iFEp)
-GOM(pthread_condattr_getclock, iFEpp)
-GOM(pthread_condattr_getpshared, iFEpp)
-GOM(pthread_condattr_init, iFEp)
-GOM(pthread_condattr_setclock, iFEpi)
-GOM(pthread_condattr_setpshared, iFEpi)
-GOM(pthread_cond_broadcast, iFEp)
-GOM(pthread_cond_destroy, iFEp)
-GOM(pthread_cond_init, iFEpp)
-GO(pthread_cond_signal, iFp)
-GOM(pthread_cond_timedwait, iFEppp)
-GOM(pthread_cond_wait, iFEpp)
-GOM(pthread_create, iFEpppp)
-GOM(pthread_cond_clockwait, iFEppip)
-GO(pthread_detach, iFL)
-GO(pthread_equal, iFLL)
-GO(pthread_exit, vFp)
-GOM(pthread_getaffinity_np, iFEpLp)
-GOM(pthread_getattr_np, iFELp)
-GOM(pthread_getattr_default_np, iFEp)
-GOM(pthread_setattr_default_np, iFEp)
-GO(pthread_getcpuclockid, iFLp)
-GO(pthread_getschedparam, iFLpp)
-GO(pthread_getspecific, pFL)
-GO(pthread_getname_np, iFppL)
-GO(pthread_join, iFLp)
-GOM(pthread_key_create, iFEpp)
-GO(pthread_key_delete, iFL)
-GO2(pthread_kill@GLIBC_2.2.5, iFEpi, my_pthread_kill_old)
-GOM(pthread_kill, iFEpi)
-GO(pthread_kill_other_threads_np, vFv)
-GOM(pthread_mutexattr_destroy, iFEp)
-GOM(pthread_mutexattr_getkind_np, iFEpp)
-GOM(pthread_mutexattr_getprotocol, iFEpp)
-GOM(pthread_mutexattr_getrobust, iFEpp)
-GOM(pthread_mutexattr_gettype, iFEpp)
-GOM(pthread_mutexattr_init, iFEp)
-GOM(pthread_mutexattr_setkind_np, iFEpi)
-GOM(pthread_mutexattr_setprotocol, iFEpi)
-GOM(pthread_mutexattr_setpshared, iFEpi)
-GOM(pthread_mutexattr_setrobust, iFEpi)
-GOM(pthread_mutexattr_settype, iFEpi)
-GO(pthread_mutex_consistent, iFp)
-GO(pthread_mutex_destroy, iFp)
-// phtread_mutex_t is 40 bytes on x86_64, but 48bytes on ARM64
-GOM(pthread_mutex_init, iFpp)
-GO(pthread_mutex_lock, iFp)
-GO(pthread_mutex_timedlock, iFpp)
-GO(pthread_mutex_trylock, iFp)
-GO(pthread_mutex_unlock, iFp)
-GOM(pthread_once, iFEpp)
-GO(pthread_rwlockattr_destroy, vFp)
-GO(pthread_rwlockattr_getkind_np, iFpp)
-GO(pthread_rwlockattr_init, iFp)
-GO(pthread_rwlockattr_setkind_np, iFpi)
-GO(pthread_rwlock_destroy, iFp)
-GO(pthread_rwlock_init, iFpp)
-GO(pthread_rwlock_rdlock, iFp)
-GO(pthread_rwlock_tryrdlock, iFp)
-GO(pthread_rwlock_trywrlock, iFp)
-GO(pthread_rwlock_unlock, iFp)
-GO(pthread_rwlock_wrlock, iFp)
-GO(pthread_self, LFv)
-GOM(pthread_setaffinity_np, iFEpLp)
-GO(pthread_setcancelstate, iFip)
-GO(pthread_setcanceltype, iFip)
-GO(pthread_setconcurrency, iFi)
-GO(pthread_setname_np, iFpp)
-GO(pthread_setschedparam, iFLip)
-GO(pthread_setschedprio, iFpi)
-GO(pthread_setspecific, iFLp)
-GO(pthread_sigmask, iFipp)
-GO(pthread_spin_destroy, iFp)
-GO(pthread_spin_init, iFpi)
-GO(pthread_spin_lock, iFp)
-GO(pthread_spin_trylock, iFp)
-GO(pthread_spin_unlock, iFp)
-GO(pthread_testcancel, vFv)
-GO(pthread_timedjoin_np, iFppp)
-GO(pthread_tryjoin_np, iFpp)
-GO(pthread_yield, iFv)
-GO(sem_close, iFp)
-GO(sem_clockwait, iFppp)
-GO(sem_destroy, iFp)
-GO(sem_getvalue, iFpp)
-GO(sem_init, iFpiu)
-GO(sem_open, pFpOM)
-GO(sem_post, iFp)
-GO(sem_timedwait, iFpp)
-GO(sem_trywait, iFp)
-GO(sem_unlink, iFp)
-GO(sem_wait, iFp)
+#endif
 
 GOM(ptrace, lFEuipp)
 GO(ptsname, pFi)
@@ -1651,12 +1593,21 @@ GO(rexec_af, iFpippppW)
 //DATAB(rexecoptions, 
 GO(rindex, pFpi)
 GOW(rmdir, iFp)
+#ifdef STATICBUILD
+//DATAB(rpc_createerr, 
+//GO(_rpc_dtablesize, iFv)
+//GO(__rpc_thread_createerr, !Fv)
+//GO(__rpc_thread_svc_fdset, !Fv)
+//GO(__rpc_thread_svc_max_pollfd, pFv)
+//GO(__rpc_thread_svc_pollfd, pFv)
+#else
 //DATAB(rpc_createerr, 
 GO(_rpc_dtablesize, iFv)
 //GO(__rpc_thread_createerr, !Fv)
 //GO(__rpc_thread_svc_fdset, !Fv)
 GO(__rpc_thread_svc_max_pollfd, pFv)
 GO(__rpc_thread_svc_pollfd, pFv)
+#endif
 GO(rpmatch, iFp)
 GO(rresvport, iFp)
 GO(rresvport_af, iFpW)
@@ -1995,6 +1946,36 @@ GO(strxfrm, LFppL)
 GO(__strxfrm_l, LFppLL)
 GO(strxfrm_l, LFppLp)
 //GO(stty, // Deprecated
+#ifdef STATICBUILD
+//DATAB(svcauthdes_stats, 
+//GO(svcerr_auth, vF!u)
+//GO(svcerr_decode, vF!)
+//GO(svcerr_noproc, vF!)
+//GO(svcerr_noprog, vF!)
+//GO(svcerr_progvers, vF!LL)
+//GO(svcerr_systemerr, vF!)
+//GO(svcerr_weakauth, vF!)
+//GO(svc_exit, vFv)
+//GO(svcfd_create, !Fiuu)
+//DATAB(svc_fdset, 
+//GO(svc_getreq, vFi)
+//GO(svc_getreq_common, vFi)
+//GO(svc_getreq_poll, vFpi)
+//GO(svc_getreqset, vF!)
+//DATAB(svc_max_pollfd, 
+//DATAB(svc_pollfd, 
+//GO(svcraw_create, !Fv)
+//GO(svc_register, iF!LL@L)
+//GO(svc_run, vFv)
+//GO(svc_sendreply, iF!@p)
+//GO(svctcp_create, !Fiuu)
+//GO(svcudp_bufcreate, !Fiuu)
+//GO(svcudp_create, !Fi)
+//GO(svcudp_enablecache, 
+//GO(svcunix_create, !Fiuup)
+//GO(svcunixfd_create, 
+//GO(svc_unregister, vFLL)
+#else
 //DATAB(svcauthdes_stats, 
 //GO(svcerr_auth, vF!u)
 //GO(svcerr_decode, vF!)
@@ -2023,6 +2004,7 @@ GO(svc_run, vFv)
 //GO(svcunix_create, !Fiuup)
 //GO(svcunixfd_create, 
 GO(svc_unregister, vFLL)
+#endif
 GO(swab, vFppl)
 GOWM(swapcontext, iFEpp)
 //GOW(swapoff, 
@@ -2038,10 +2020,20 @@ GO(syncfs, iFi)
 GOM(syscall, lFEv)
 GOM(__sysconf, lFEi)
 GOM(sysconf, IFEi)
+#ifdef STATICBUILD
+//GO(__sysctl, 
+//GO(sysctl, 
+#else
 GO(__sysctl, iFpipppL)
 GOW(sysctl, iFpipppL) // Deprecated
+#endif
+#ifdef STATICBUILD
+//DATA(_sys_errlist, sizeof(void*))
+//DATA(sys_errlist, sizeof(void*))
+#else
 DATA(_sys_errlist, sizeof(void*))
 DATA(sys_errlist, sizeof(void*))
+#endif
 GOW(sysinfo, iFp)
 GOM(syslog, vFEipV)
 GOM(__syslog_chk, vFEiipV)
@@ -2145,7 +2137,11 @@ GO(updwtmpx, vFpp)
 //GO(uselib, // Deprecated
 GO(__uselocale, pFp)
 GOW(uselocale, pFp)
+#ifdef STATICBUILD
+//GO(user2netname, 
+#else
 GO(user2netname, iFpup)
+#endif
 GO(usleep, iFu)
 //GO(ustat, // Deprecated
 GO(utime, iFpp)
@@ -2397,11 +2393,21 @@ GOW(writev, lFipi)
 //GO(xdr_u_quad_t, iF!p)
 //GO(xdr_u_short, iF!p)
 //GO(xdr_vector, iF!puu@)
+#ifdef STATICBUILD
+//GO(xdr_void, 
+//GO(xdr_wrapstring, iF!p)
+#else
 GO(xdr_void, iFv)
 //GO(xdr_wrapstring, iF!p)
+#endif
 //GO(xencrypt, 
+#ifdef STATICBUILD
+//GO(__xmknod, iFipup)
+//GO(__xmknodat, iFiipup)
+#else
 GO(__xmknod, iFipup)
 GO(__xmknodat, iFiipup)
+#endif
 GO(__xpg_basename, pFp)
 GOW(__xpg_sigpause, iFi)
 GO(__xpg_strerror_r, pFipL)
@@ -2429,7 +2435,11 @@ DATAM(program_invocation_short_name, sizeof(void*))
 
 DATAM(__libc_single_threaded, 1)
 
+#ifdef STATICBUILD
+//GO(iconvctl, 
+#else
 GO(iconvctl, iFlip)
+#endif
 GO(dummy__ZnwmSt11align_val_tRKSt9nothrow_t, pFLLp) // for mallochook.c
 
 #ifdef ANDROID
@@ -2439,4 +2449,12 @@ GO(__errno, pFv)
 // Those symbols don't exist in non-Android builds
 //GOM(__libc_init,
 //GO(__errno,
+#endif
+#ifdef STATICBUILD
+GO(dummy_pFLp, pFLp)
+GO(dummy_pFpLLp, pFpLLp)
+#else
+// not needed in no-static build
+//GO(dummy_pFLp, pFLp)
+//GO(dummy_pFpLLp, pFpLLp)
 #endif

@@ -236,6 +236,14 @@ endif()
 if(SAVE_MEM)
     add_definitions(-DSAVE_MEM)
 endif()
+if(STATICBUILD)
+    #-fno-pic -mcmodel=large
+    add_definitions(-DSTATICBUILD)
+    add_definitions(-Wno-deprecated-declarations)   #by-design, deprecated function can be used
+    set(BUILD_SHARED_LIBS OFF)
+    set(CMAKE_EXE_LINKER_FLAGS "-static")
+    set(HAVE_TRACE OFF)
+endif()
 if(PAGE8K)
     add_definitions(-DPAGE8K)
 endif()
@@ -320,8 +328,6 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/box64context.c"
     "${BOX64_ROOT}/src/build_info.c"
     "${BOX64_ROOT}/src/custommem.c"
-    "${BOX64_ROOT}/src/mallochook.c"
-    "${BOX64_ROOT}/src/steam.c"
     "${BOX64_ROOT}/src/dynarec/dynarec.c"
     "${BOX64_ROOT}/src/elfs/elfloader.c"
     "${BOX64_ROOT}/src/elfs/elfparser.c"
@@ -342,12 +348,9 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/librarian/librarian.c"
     "${BOX64_ROOT}/src/librarian/library.c"
     "${BOX64_ROOT}/src/librarian/dictionnary.c"
-    "${BOX64_ROOT}/src/librarian/globalsymbols.c"
     "${BOX64_ROOT}/src/librarian/symbols.c"
     "${BOX64_ROOT}/src/libtools/auxval.c"
     "${BOX64_ROOT}/src/libtools/myalign.c"
-    "${BOX64_ROOT}/src/libtools/sdl1rwops.c"
-    "${BOX64_ROOT}/src/libtools/sdl2rwops.c"
     "${BOX64_ROOT}/src/libtools/signals.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
     "${BOX64_ROOT}/src/tools/bitutils.c"
@@ -356,13 +359,22 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/callback.c"
     "${BOX64_ROOT}/src/tools/my_cpuid.c"
     "${BOX64_ROOT}/src/tools/fileutils.c"
-    "${BOX64_ROOT}/src/tools/gtkclass.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
     "${BOX64_ROOT}/src/tools/rcfile.c"
     "${BOX64_ROOT}/src/tools/wine_tools.c"
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
 )
+if(NOT STATICBUILD)
+    list(APPEND ELFLOADER_SRC
+        "${BOX64_ROOT}/src/mallochook.c"
+        "${BOX64_ROOT}/src/steam.c"
+        "${BOX64_ROOT}/src/libtools/sdl1rwops.c"
+        "${BOX64_ROOT}/src/libtools/sdl2rwops.c"
+        "${BOX64_ROOT}/src/tools/gtkclass.c"
+        "${BOX64_ROOT}/src/librarian/globalsymbols.c"
+        )
+endif()
 if(NOT ANDROID)
     list(APPEND ELFLOADER_SRC
         "${BOX64_ROOT}/src/libtools/obstack.c"
@@ -400,6 +412,20 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64runf30f.c"
 )
 
+if(STATICBUILD)
+set(WRAPPEDS
+    "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibbsd.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibcmusl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibm.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedutil.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibresolv.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
+)
+else()
 set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedalure.c"
     "${BOX64_ROOT}/src/wrapped/wrappedalut.c"
@@ -623,6 +649,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedidn2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedanl.c"
 )
+endif()
 if(ANDROID)
     list(APPEND WRAPPEDS
         "${BOX64_ROOT}/src/wrapped/wrappedandroidshmem.c"
@@ -654,7 +681,7 @@ if(NOT CI)
         OUTPUT "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt"
         COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers.py"
         "${BOX64_ROOT}"
-        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "--"
+        "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "STATICBUILD" "--"
         ${WRAPPEDS_HEAD}
         MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers.py"
         DEPENDS ${WRAPPEDS} ${WRAPPEDS_HEAD}
@@ -837,7 +864,8 @@ add_dependencies(${BOX64} WRAPPERS)
 #add_dependencies(${BOX64} PRINTER)
 #target_link_libraries(${BOX64} c m dl rt pthread resolv)
 if(STATICBUILD)
-    set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-static -Wl,--no-as-needed -Wl,--whole-archive -Wl,--allow-multiple-definition -lm -ldl -lrt -lpthread -lresolv -lc -lutil -Wl,-defsym,_DYNAMIC=0 -pthread")
+    #set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-fuse-ld=gold -static -Wl,--no-relax -Wl,--allow-multiple-definition -ldl -lrt -lpthread -lresolv -lc -lutil -lm -Wl,-defsym,_DYNAMIC=0 -pthread")
+    target_link_libraries(${BOX64} c m dl pthread resolv util bsd c)
 else()
     if(ANDROID)
         if(TERMUX)

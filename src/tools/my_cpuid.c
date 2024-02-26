@@ -39,7 +39,7 @@ int get_cpuMhz()
         else 
             cpucore = -1;
     }
-
+    #ifndef STATICBUILD
     if(!MHz) {
         // try with lscpu, grabbing the max frequency
         FILE* f = popen("lscpu | grep \"CPU max MHz:\" | sed -r 's/CPU max MHz:\\s{1,}//g'", "r");
@@ -68,6 +68,7 @@ int get_cpuMhz()
             }
         }
     }
+    #endif
 	if(!MHz)
 		MHz = 1000; // default to 1Ghz...
     sprintf(cpumhz, "%d", MHz);
@@ -132,6 +133,7 @@ const char* getCpuName()
         return name;
     }
     setenv("BOX64_CPUNAME", name, 1);   // temporary set
+    #ifndef STATICBUILD
     FILE* f = popen("lscpu | grep \"Model name:\" | sed -r 's/Model name:\\s{1,}//g'", "r");
     if(f) {
         char tmp[200] = "";
@@ -171,6 +173,7 @@ const char* getCpuName()
             return name;
         }
     }
+    #endif
     // Nope, bye
     return name;
 }

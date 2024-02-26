@@ -33,19 +33,31 @@
 #define GO(P, N) int wrapped##N##_init(library_t* lib, box64context_t *box64); \
                  void wrapped##N##_fini(library_t* lib);
 
+#ifdef STATICBUILD
+#include "library_list_static.h"
+#else
 #include "library_list.h"
+#endif
 
 #undef GO
 
 #define GO(P, N) {P, wrapped##N##_init, wrapped##N##_fini},
 wrappedlib_t wrappedlibs[] = {
+#ifdef STATICBUILD
+#include "library_list_static.h"
+#else
 #include "library_list.h"
+#endif
 };
 #undef GO
 
 KHASH_MAP_IMPL_STR(symbolmap, symbol1_t)
 KHASH_MAP_IMPL_STR(symbol2map, symbol2_t)
+#ifdef STATICBUILD
+KHASH_MAP_IMPL_STR(datamap, datamap_t)
+#else
 KHASH_MAP_IMPL_STR(datamap, uint64_t)
+#endif
 
 char* Path2Name(const char* path)
 {
@@ -715,11 +727,19 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
     void* symbol;
     khint_t k = kh_get(datamap, lib->w.datamap, name);
     if (k!=kh_end(lib->w.datamap)) {
+        #ifdef STATICBUILD
+        symbol = (void*)(kh_value(lib->w.datamap, k).addr);
+        #else
         symbol = dlsym(lib->w.lib, kh_key(lib->w.datamap, k));
+        #endif
         if(symbol) {
             // found!
             *addr = (uintptr_t)symbol;
+            #ifdef STATICBUILD
+            *size = kh_value(lib->w.datamap, k).size;
+            #else
             *size = kh_value(lib->w.datamap, k);
+            #endif
             *weak = 0;
             return 1;
         }
@@ -727,11 +747,19 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
     if(!noweak) {
         k = kh_get(datamap, lib->w.wdatamap, name);
         if (k!=kh_end(lib->w.wdatamap)) {
+            #ifdef STATICBUILD
+            symbol = (void*)(kh_value(lib->w.wdatamap, k).addr);
+            #else
             symbol = dlsym(lib->w.lib, kh_key(lib->w.wdatamap, k));
+            #endif
             if(symbol) {
                 // found!
                 *addr = (uintptr_t)symbol;
+                #ifdef STATICBUILD
+                *size = kh_value(lib->w.wdatamap, k).size;
+                #else
                 *size = kh_value(lib->w.wdatamap, k);
+                #endif
                 *weak = 1;
                 return 1;
             }
@@ -746,13 +774,21 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
         else
             strcpy(buff, "my_");
         strcat(buff, name);
+        #ifdef STATICBUILD
+        symbol = kh_value(lib->w.mydatamap, k).addr;
+        #else
         symbol = dlsym(my_context->box64lib, buff);
+        #endif
         if(!symbol)
             printf_log(LOG_NONE, "Warning, data %s not found\n", buff);
         if(symbol) {
             // found!
             *addr = (uintptr_t)symbol;
+            #ifdef STATICBUILD
+            *size = kh_value(lib->w.mydatamap, k).size;
+            #else
             *size = kh_value(lib->w.mydatamap, k);
+            #endif
             *weak = 0;
             return 1;
         }
@@ -773,7 +809,11 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             else
                 strcpy(buff, "my_");
             strcat(buff, name);
+            #ifdef STATICBUILD
+            symbol = (void*)s->addr;
+            #else
             symbol = dlsym(my_context->box64lib, buff);
+            #endif
             if(!symbol) {
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
                 return 0;
@@ -797,7 +837,11 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             else
                 strcpy(buff, "my_");
             strcat(buff, name);
+            #ifdef STATICBUILD
+            symbol = (void*)s->addr;
+            #else
             symbol = dlsym(my_context->box64lib, buff);
+            #endif
             if(!symbol) {
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
                 return 0;
@@ -815,6 +859,9 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
     if (k!=kh_end(lib->w.symbolmap)) {
         symbol1_t *s = &kh_value(lib->w.symbolmap, k);
         if(!s->resolved) {
+            #ifdef STATICBUILD
+            symbol = (void*)s->addr;
+            #else
             symbol = dlsym(lib->w.lib, name);
             if(!symbol && lib->w.altprefix) {
                 char newname[200];
@@ -830,6 +877,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 strcat(newname, name);
                 symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
             }
+            #endif
             if(!symbol) {
                 printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                 return 0;
@@ -854,7 +902,11 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 else
                     strcpy(buff, "my_");
                 strcat(buff, name);
+                #ifdef STATICBUILD
+                symbol = (void*)s->addr;
+                #else
                 symbol = dlsym(my_context->box64lib, buff);
+                #endif
                 if(!symbol) {
                     printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
                     return 0;
@@ -871,6 +923,9 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         if (k!=kh_end(lib->w.wsymbolmap)) {
             symbol1_t *s = &kh_value(lib->w.wsymbolmap, k);
             if(!s->resolved) {
+                #ifdef STATICBUILD
+                symbol = (void*)s->addr;
+                #else
                 symbol = dlsym(lib->w.lib, name);
                 if(!symbol && lib->w.altprefix) {
                     char newname[200];
@@ -886,6 +941,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                     strcat(newname, name);
                     symbol = GetNativeSymbolUnversioned(lib->w.lib, newname);
                 }
+                #endif
                 if(!symbol) {
                     printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                     return 0;
@@ -906,11 +962,15 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         if(!noweak || !s->weak)
         {
             if(!s->resolved) {
+                #ifdef STATICBUILD
+                symbol = (void*)s->addr;
+                #else
                 symbol = dlsym(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
                 if(!symbol)
                     symbol = dlsym(RTLD_DEFAULT, kh_value(lib->w.symbol2map, k).name);    // search globaly maybe
                 if(!symbol)
                     symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_value(lib->w.symbol2map, k).name);
+                #endif
                 if(!symbol) {
                     printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
                     return 0;

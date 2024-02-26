@@ -1,7 +1,7 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <complex.h>
 #include <math.h>
@@ -191,6 +191,14 @@ EXPORT double my_llrintl(x64emu_t* emu, double val)
     }
     return llrint(val);
 }
+#endif
+
+double my_pow10(double a) { return exp10(a);}
+float my_pow10f(float a) { return exp10f(a);}
+long double my_pow10l(long double a) { return exp10l(a);}
+
+#ifdef STATICBUILD
+//extern void* _LIB_VERSION;
 #endif
 
 #undef FROUND

@@ -230,7 +230,9 @@ box64context_t *NewBox64Context(int argc)
     // create exit bridge
     context->exit_bridge = AddBridge(context->system, NULL, NULL, 0, NULL);
     // get handle to box64 itself
+    #ifndef STATICBUILD
     context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+    #endif
     context->dlprivate = NewDLPrivate();
 
     context->argc = argc;
@@ -341,8 +343,10 @@ void FreeBox64Context(box64context_t** context)
 
     FreeBridge(&ctx->system);
 
+    #ifndef STATICBUILD
     freeGLProcWrapper(ctx);
     freeALProcWrapper(ctx);
+    #endif
 
     if(ctx->stack_clone)
         box_free(ctx->stack_clone);

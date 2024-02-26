@@ -611,6 +611,10 @@ void closeAllDLOpenned()
     }
 }
 
+#ifdef STATICBUILD
+//extern void* _dlfcn_hook;
+#endif
+
 #define CUSTOM_FINI \
     closeAllDLOpenned();
 

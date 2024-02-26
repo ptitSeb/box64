@@ -21,10 +21,12 @@
 const char* libcmuslName = "libc.musl-x86_64.so.1";
 #define LIBNAME libcmusl
 
+#ifndef STATICBUILD
 #define PRE_INIT\
     if(1)                                                           \
         lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
     else
+#endif
 
 #define CUSTOM_INIT \
     box64_musl = 1;

@@ -4,7 +4,11 @@ GOM(dladdr, iFEpp)
 GOM(dladdr1, iFEpppi)
 GOM(dlclose, iFEp)
 GOM(dlerror, pFEv)
-DATAB(_dlfcn_hook, 8)
+#ifdef STATICBUILD
+//DATAB(_dlfcn_hook, sizeof(void*))
+#else
+DATAB(_dlfcn_hook, sizeof(void*))
+#endif
 GOM(dlinfo, iFEpip)
 GOM(dlmopen, pFEppi)
 GOM(dlopen, pFEpi)
