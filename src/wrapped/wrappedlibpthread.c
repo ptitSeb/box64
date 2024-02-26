@@ -20,7 +20,7 @@
 
 const char* libpthreadName = 
 #ifdef ANDROID
-    "libpthread.so";
+    "libc.so";
 #else
     "libpthread.so.0";
 #endif
