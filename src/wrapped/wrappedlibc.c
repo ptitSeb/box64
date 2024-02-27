@@ -1626,7 +1626,7 @@ void CreateCPUPresentFile(int fd)
 void CreateClocksourceFile(int fd)
 {
     size_t dummy;
-    write(fd, "tsc", strlen("tsc"));
+    write(fd, "tsc\n", strlen("tsc\n"));
 }
 
 #ifdef ANDROID
@@ -1690,7 +1690,7 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
         // special case to say tsc as current clocksource
         int tmp = shm_open(TMP_CLOCKSOURCE, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return open(pathname, flags, mode); // error fallback
-        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
+        shm_unlink(TMP_CLOCKSOURCE);    // remove the shm file, but it will still exist because it's currently in use
         CreateClocksourceFile(tmp);
         lseek(tmp, 0, SEEK_SET);
         return tmp;
@@ -1782,6 +1782,15 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
         lseek(tmp, 0, SEEK_SET);
         return tmp;
     }
+    if(!strcmp((const char*)pathname, "/sys/bus/clocksource/devices/clocksource0/current_clocksource")) {
+        // special case to say tsc as current clocksource
+        int tmp = shm_open(TMP_CLOCKSOURCE, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open64(pathname, flags, mode); // error fallback
+        shm_unlink(TMP_CLOCKSOURCE);    // remove the shm file, but it will still exist because it's currently in use
+        CreateClocksourceFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return tmp;
+    }
     #endif
     return open64(pathname, flags, mode);
 }
@@ -1817,10 +1826,10 @@ EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
         return fdopen(tmp, mode);
     }
     if(strcmp(path, "/sys/bus/clocksource/devices/clocksource0/current_clocksource")==0) {
-        // special case for cpuinfo
+        // special case to say tsc as current clocksource
         int tmp = shm_open(TMP_CLOCKSOURCE, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
+        shm_unlink(TMP_CLOCKSOURCE);    // remove the shm file, but it will still exist because it's currently in use
         CreateClocksourceFile(tmp);
         lseek(tmp, 0, SEEK_SET);
         return fdopen(tmp, mode);
