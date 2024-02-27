@@ -36,6 +36,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int64_t i64, j64;
     uint8_t u8;
     uint8_t gb1, gb2, eb1, eb2;
+    uint16_t u16;
     uint32_t u32;
     uint64_t u64;
     uint8_t wback, wb1, wb2, wb;
@@ -2182,7 +2183,30 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMWRITELOCK(lock);
             }
             break;
-
+        case 0xC8:
+            INST_NAME("ENTER Iw,Ib");
+            u16 = F16;
+            u8 = (F8) & 0x1f;
+            if(u8) {
+                MOVx_REG(x1, xRBP);
+            }
+            PUSH1z(xRBP);
+            MOVx_REG(xRBP, xRSP);
+            if (u8) {
+                for (u32 = 1; u32 < u8; u32++) {
+                    SUBx_U12(x1, x1, rex.is32bits?4:8);
+                    LDRz_U12(x2, x1, 0);
+                    PUSH1z(x2);
+                }
+                PUSH1z(xRBP);
+            }
+            if(u16<4096) {
+                SUBx_U12(xRSP, xRSP, u16);
+            } else {
+                MOV32w(x2, u16);
+                SUBx_REG(xRSP, xRSP, x2);
+            }
+            break;
         case 0xC9:
             INST_NAME("LEAVE");
             MOVz_REG(xRSP, xRBP);
