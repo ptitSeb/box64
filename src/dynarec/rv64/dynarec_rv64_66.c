@@ -253,19 +253,73 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETGW(x2);
-            GETEW(x1, 0);
-            emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
-            EWBACK;
+            // try to determine ed and gd
+            ed = 0;
+            GETGD;
+            if (MODREG) {
+                GETED(0);
+            }
+            if (ed == gd) {
+                // optimize XOR Gw, Gw
+                CLEAR_FLAGS();
+                IFX(X_PEND) {
+                    SET_DF(x6, d_xor16);
+                } else IFX(X_ALL) {
+                    SET_DFNONE();
+                }
+                SRLI(ed, ed, 16);
+                SLLI(ed, ed, 16);
+                IFX(X_PEND) {
+                    SH(ed, xEmu, offsetof(x64emu_t, res));
+                }
+                IFX(X_ZF) {
+                    ORI(xFlags, xFlags, 1 << F_ZF);
+                }
+                IFX(X_PF) {
+                    ORI(xFlags, xFlags, 1 << F_PF);
+                }
+            } else {
+                GETGW(x2);
+                GETEW(x1, 0);
+                emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
+                EWBACK;
+            }
             break;
         case 0x33:
             INST_NAME("XOR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            GETGW(x1);
-            GETEW(x2, 0);
-            emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
-            GWBACK;
+            // try to determine ed and gd
+            ed = 0;
+            GETGD;
+            if (MODREG) {
+                GETED(0);
+            }
+            if (ed == gd) {
+                // optimize XOR Gw, Gw
+                CLEAR_FLAGS();
+                IFX(X_PEND) {
+                    SET_DF(x6, d_xor16);
+                } else IFX(X_ALL) {
+                    SET_DFNONE();
+                }
+                SRLI(ed, ed, 16);
+                SLLI(ed, ed, 16);
+                IFX(X_PEND) {
+                    SH(ed, xEmu, offsetof(x64emu_t, res));
+                }
+                IFX(X_ZF) {
+                    ORI(xFlags, xFlags, 1 << F_ZF);
+                }
+                IFX(X_PF) {
+                    ORI(xFlags, xFlags, 1 << F_PF);
+                }
+            } else {
+                GETGW(x1);
+                GETEW(x2, 0);
+                emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
+                GWBACK;
+            }
             break;
         case 0x35:
             INST_NAME("XOR AX, Iw");
