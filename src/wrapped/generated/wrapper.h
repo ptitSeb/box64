@@ -3061,6 +3061,8 @@ void YFY(x64emu_t *emu, uintptr_t fnc);
 void IFED(x64emu_t *emu, uintptr_t fnc);
 void DFiD(x64emu_t *emu, uintptr_t fnc);
 void lFDD(x64emu_t *emu, uintptr_t fnc);
+void YFYY(x64emu_t *emu, uintptr_t fnc);
+void vFDpp(x64emu_t *emu, uintptr_t fnc);
 void DFDDD(x64emu_t *emu, uintptr_t fnc);
 #endif
 
@@ -3074,6 +3076,8 @@ void KFiK(x64emu_t *emu, uintptr_t fnc);
 void KFKK(x64emu_t *emu, uintptr_t fnc);
 void KFKp(x64emu_t *emu, uintptr_t fnc);
 void lFKK(x64emu_t *emu, uintptr_t fnc);
+void yFyy(x64emu_t *emu, uintptr_t fnc);
+void vFKpp(x64emu_t *emu, uintptr_t fnc);
 void KFKKK(x64emu_t *emu, uintptr_t fnc);
 #endif
 

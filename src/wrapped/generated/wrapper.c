@@ -3061,6 +3061,8 @@ typedef complexl_t (*YFY_t)(complexl_t);
 typedef int64_t (*IFED_t)(x64emu_t*, long double);
 typedef long double (*DFiD_t)(int32_t, long double);
 typedef intptr_t (*lFDD_t)(long double, long double);
+typedef complexl_t (*YFYY_t)(complexl_t, complexl_t);
+typedef void (*vFDpp_t)(long double, void*, void*);
 typedef long double (*DFDDD_t)(long double, long double, long double);
 #endif
 
@@ -3074,6 +3076,8 @@ typedef double (*KFiK_t)(int32_t, double);
 typedef double (*KFKK_t)(double, double);
 typedef double (*KFKp_t)(double, void*);
 typedef intptr_t (*lFKK_t)(double, double);
+typedef complex_t (*yFyy_t)(complex_t, complex_t);
+typedef void (*vFKpp_t)(double, void*, void*);
 typedef double (*KFKKK_t)(double, double, double);
 #endif
 
@@ -6122,6 +6126,8 @@ void YFY(x64emu_t *emu, uintptr_t fcn) { YFY_t fn = (YFY_t)fcn; from_complexl(em
 void IFED(x64emu_t *emu, uintptr_t fcn) { IFED_t fn = (IFED_t)fcn; R_RAX=(int64_t)fn(emu, LD2localLD((void*)(R_RSP + 8))); }
 void DFiD(x64emu_t *emu, uintptr_t fcn) { DFiD_t fn = (DFiD_t)fcn; long double ld=fn((int32_t)R_RDI, LD2localLD((void*)(R_RSP + 8))); fpu_do_push(emu); ST0val = ld; }
 void lFDD(x64emu_t *emu, uintptr_t fcn) { lFDD_t fn = (lFDD_t)fcn; R_RAX=(intptr_t)fn(LD2localLD((void*)(R_RSP + 8)), LD2localLD((void*)(R_RSP + 24))); }
+void YFYY(x64emu_t *emu, uintptr_t fcn) { YFYY_t fn = (YFYY_t)fcn; from_complexl(emu, fn(to_complexl(emu, R_RSP + 8), to_complexl(emu, R_RSP + 40))); }
+void vFDpp(x64emu_t *emu, uintptr_t fcn) { vFDpp_t fn = (vFDpp_t)fcn; fn(LD2localLD((void*)(R_RSP + 8)), (void*)R_RDI, (void*)R_RSI); }
 void DFDDD(x64emu_t *emu, uintptr_t fcn) { DFDDD_t fn = (DFDDD_t)fcn; long double ld=fn(LD2localLD((void*)(R_RSP + 8)), LD2localLD((void*)(R_RSP + 24)), LD2localLD((void*)(R_RSP + 40))); fpu_do_push(emu); ST0val = ld; }
 #endif
 
@@ -6135,6 +6141,8 @@ void KFiK(x64emu_t *emu, uintptr_t fcn) { KFiK_t fn = (KFiK_t)fcn; double db=fn(
 void KFKK(x64emu_t *emu, uintptr_t fcn) { KFKK_t fn = (KFKK_t)fcn; double db=fn(FromLD((void*)(R_RSP + 8)), FromLD((void*)(R_RSP + 24))); fpu_do_push(emu); ST0val = db; }
 void KFKp(x64emu_t *emu, uintptr_t fcn) { KFKp_t fn = (KFKp_t)fcn; double db=fn(FromLD((void*)(R_RSP + 8)), (void*)R_RDI); fpu_do_push(emu); ST0val = db; }
 void lFKK(x64emu_t *emu, uintptr_t fcn) { lFKK_t fn = (lFKK_t)fcn; R_RAX=(intptr_t)fn(FromLD((void*)(R_RSP + 8)), FromLD((void*)(R_RSP + 24))); }
+void yFyy(x64emu_t *emu, uintptr_t fcn) { yFyy_t fn = (yFyy_t)fcn; from_complexk(emu, fn(to_complexk(emu, R_RSP + 8), to_complexk(emu, R_RSP + 40))); }
+void vFKpp(x64emu_t *emu, uintptr_t fcn) { vFKpp_t fn = (vFKpp_t)fcn; fn(FromLD((void*)(R_RSP + 8)), (void*)R_RDI, (void*)R_RSI); }
 void KFKKK(x64emu_t *emu, uintptr_t fcn) { KFKKK_t fn = (KFKKK_t)fcn; double db=fn(FromLD((void*)(R_RSP + 8)), FromLD((void*)(R_RSP + 24)), FromLD((void*)(R_RSP + 40))); fpu_do_push(emu); ST0val = db; }
 #endif
 

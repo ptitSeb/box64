@@ -155,7 +155,11 @@ GO2(cosl, KFK, cos)
 #endif
 GOW(cpow, XFXX)
 GOW(cpowf, xFxx)
-// cpowl    // Weak
+#ifdef HAVE_LD80BITS
+GOW(cpowl, YFYY)
+#else
+GO2(cpowl, yFyy, cpow)
+#endif
 GOW(cproj, XFX)
 GOW(cprojf, xFx)
 // cprojl   // Weak
@@ -184,8 +188,13 @@ GOW(ctan, XFX)
 GOW(ctanf, xFx)
 GOW(ctanh, XFX)
 GOW(ctanhf, xFx)
-// ctanhl   // Weak
-// ctanl    // Weak
+#ifdef HAVE_LD80BITS
+GOW(ctanhl, YFY)
+GOW(ctanl, YFY)
+#else
+GO2(ctanhl, yFy, ctanh)
+GO2(ctanl, yFy, ctan)
+#endif
 // __cxa_finalize  // Weak
 // drem // Weak
 // dremf    // Weak
@@ -214,7 +223,11 @@ GOW(exp2, dFd)
 GOW(exp2f, fFf)
 GOM(__exp2f_finite, fFf)
 GOM(__exp2_finite, dFd)
-// exp2l    // Weak
+#ifdef HAVE_LD80BITS
+GOW(exp2l, DFD)
+#else
+GO2(exp2l, KFK, exp2)
+#endif
 GOW(expf, fFf)
 GOM(__expf_finite, fFf)
 GOM(__exp_finite, dFd)
@@ -225,7 +238,11 @@ GO2(expl, KFK, exp)
 #endif
 GOW(expm1, dFd)
 GOW(expm1f, fFf)
-// expm1l   // Weak
+#ifdef HAVE_LD80BITS
+GOW(expm1l, DFD)
+#else
+GO2(expm1l, KFK, expm1)
+#endif
 GOW(fabs, dFd)
 GOW(fabsf, fFf)
 // fabsl    // Weak
@@ -300,7 +317,11 @@ GOW(hypot, dFdd)
 GOW(hypotf, fFff)
 GOM(__hypotf_finite, fFff)
 GOM(__hypot_finite, dFdd)
-// hypotl   // Weak
+#ifdef HAVE_LD80BITS
+GOW(hypotl, DFDD)
+#else
+GO2(hypotl, KFKK, hypot)
+#endif
 GOW(ilogb, iFd)
 GOW(ilogbf, iFf)
 // ilogbl   // Weak
@@ -377,12 +398,20 @@ GO2(log10l, KFK, log10) //Weak
 #endif
 GOW(log1p, dFd)
 GOW(log1pf, fFf)
-// log1pl   // Weak
+#ifdef HAVE_LD80BITS
+GOW(log1pl, DFD)
+#else
+GO2(log1pl, KFK, log1p)
+#endif
 GOW(log2, dFd)
 GOW(log2f, fFf)
 GOM(__log2f_finite, fFf)
 GOM(__log2_finite, dFd)
-// log2l    // Weak
+#ifdef HAVE_LD80BITS
+GOW(log2l, DFD)
+#else
+GO2(log2l, KFK, log2)
+#endif
 GOW(logb, dFd)
 GOW(logbf, fFf)
 // logbl    // Weak
@@ -416,7 +445,11 @@ GOWM(nearbyintf, fFEf)
 // nearbyintl   // Weak
 GOW(nextafter, dFdd)
 GOW(nextafterf, fFff)
-// nextafterl   // Weak
+#ifdef HAVE_LD80BITS
+GOW(nextafterl, DFDD)
+#else
+GO2(nextafterl, KFKK, nextafter)
+#endif
 GOW(nexttoward, dFdD)
 GOW(nexttowardf, fFfD)
 // nexttowardl  // Weak
@@ -477,7 +510,11 @@ DATAB(signgam, 8)
 GOW(sin, dFd)
 GOW(sincos, vFdpp)
 GOW(sincosf, vFfpp)
-// sincosl  // Weak
+#ifdef HAVE_LD80BITS
+GOW(sincosl, vFDpp)
+#else
+GO2(sincosl, vFKpp, sincos)
+#endif
 GOW(sinf, fFf)
 GOW(sinh, dFd)
 GOW(sinhf, fFf)

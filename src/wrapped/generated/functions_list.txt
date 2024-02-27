@@ -3021,6 +3021,8 @@
 #defined(HAVE_LD80BITS) IFED
 #defined(HAVE_LD80BITS) DFiD
 #defined(HAVE_LD80BITS) lFDD
+#defined(HAVE_LD80BITS) YFYY
+#defined(HAVE_LD80BITS) vFDpp
 #defined(HAVE_LD80BITS) DFDDD
 #!defined(HAVE_LD80BITS) KFK
 #!defined(HAVE_LD80BITS) KFy
@@ -3031,6 +3033,8 @@
 #!defined(HAVE_LD80BITS) KFKK
 #!defined(HAVE_LD80BITS) KFKp
 #!defined(HAVE_LD80BITS) lFKK
+#!defined(HAVE_LD80BITS) yFyy
+#!defined(HAVE_LD80BITS) vFKpp
 #!defined(HAVE_LD80BITS) KFKKK
 #defined(NOALIGN) iFipiip
 #!defined(NOALIGN) iFEppu
