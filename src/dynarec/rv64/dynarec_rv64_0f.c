@@ -63,7 +63,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x01:
             // TODO:, /0 is SGDT. While 0F 01 D0 is XGETBV, etc...
             nextop = F8;
-            if(MODREG)
+            if(MODREG) {
                 switch(nextop) {
                     case 0xD0:
                         INST_NAME("FAKE xgetbv");
@@ -94,11 +94,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     default:
                         DEFAULT;
                 }
-            else
+            } else {
                 switch((nextop>>3)&7) {
                     default:
                         DEFAULT;
                 }
+            }
+            break;
         case 0x05:
             INST_NAME("SYSCALL");
             NOTEST(x1);
