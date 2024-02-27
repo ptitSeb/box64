@@ -29,7 +29,7 @@
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
 
 #ifdef ANDROID
-void EXPORT my___libc_init(x64emu_t* emu, void* raw_args __unused, void (*onexit)(void) __unused, int (*main)(int, char**, char**), void const * const structors __unused)
+void EXPORT my___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) , int (*main)(int, char**, char**), void const * const structors )
 {
     //TODO: register fini
     // let's cheat and set all args...
