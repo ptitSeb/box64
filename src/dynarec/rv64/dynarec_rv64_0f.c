@@ -61,19 +61,44 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     switch (opcode) {
 
         case 0x01:
-            INST_NAME("FAKE xgetbv");
+            // TODO:, /0 is SGDT. While 0F 01 D0 is XGETBV, etc...
             nextop = F8;
-            addr = fakeed(dyn, addr, ninst, nextop);
-            SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
-            GETIP(ip);
-            STORE_XEMU_CALL(x3);
-            CALL(native_ud, -1);
-            LOAD_XEMU_CALL();
-            jump_to_epilog(dyn, 0, xRIP, ninst);
-            *need_epilog = 0;
-            *ok = 0;
-            break;
+            if(MODREG)
+                switch(nextop) {
+                    case 0xD0:
+                        INST_NAME("FAKE xgetbv");
+                        nextop = F8;
+                        addr = fakeed(dyn, addr, ninst, nextop);
+                        SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
+                        GETIP(ip);
+                        STORE_XEMU_CALL(x3);
+                        CALL(native_ud, -1);
+                        LOAD_XEMU_CALL();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        *need_epilog = 0;
+                        *ok = 0;
+                        break;
 
+                    case 0xF9:
+                        INST_NAME("RDTSCP");
+                        NOTEST(x1);
+                        if (box64_rdtsc) {
+                            CALL(ReadTSC, x3); // will return the u64 in x3
+                        } else {
+                            CSRRS(x3, xZR, 0xC01); // RDTIME
+                        }
+                        SRLI(xRDX, x3, 32);
+                        AND(xRAX, x3, 32); // wipe upper part
+                        MV(xRCX, xZR);    // IA32_TSC, 0 for now
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            else
+                switch((nextop>>3)&7) {
+                    default:
+                        DEFAULT;
+                }
         case 0x05:
             INST_NAME("SYSCALL");
             NOTEST(x1);
