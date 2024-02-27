@@ -356,6 +356,17 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 default: R_EAX = 0;
             }
             break;
+        case 0x14:  // Processor Trace Enumeration Main Leaf
+            switch(R_ECX) {
+                case 0: // main leaf
+                    R_EAX = 0;  // max sub-leaf
+                    R_EBX = 0;
+                    R_ECX = 0;
+                    R_EDX = 0;
+                    break;
+                default: R_EAX = 0;
+            }
+            break;
         case 0x15:  // TSC core frenquency
             R_EAX = 1;  // denominator
             R_EBX = 1;  // numerator
