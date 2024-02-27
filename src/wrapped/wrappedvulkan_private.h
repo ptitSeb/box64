@@ -722,6 +722,8 @@ GO(vkCmdDecodeVideoKHR, vFpp)
 
 // VK_KHR_video_encode_queue
 GO(vkCmdEncodeVideoKHR, vFpp)
+GO(vkGetEncodedVideoSessionParametersKHR, iFppppp)
+GO(vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR, iFppp)
 
 // VK_NVX_binary_import
 GO(vkCmdCuLaunchKernelNVX, vFpp)
@@ -930,3 +932,12 @@ GO(vkReleaseDisplayEXT, iFpU)
 // VK_KHR_calibrated_timestamps
 GO(vkGetCalibratedTimestampsKHR, iFpuppp)
 GO(vkGetPhysicalDeviceCalibrateableTimeDomainsKHR, iFppp)
+
+// VK_KHR_video_encode_h264
+// no functions
+
+// VK_KHR_video_encode_h265
+// no functions
+
+// VK_KHR_video_maintenance1
+// no functions
