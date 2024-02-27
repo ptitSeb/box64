@@ -1495,7 +1495,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 if(!ALIGNED_ATOMICxw) {
                     if(arm64_uscat) {
-                        ANDx_mask(x1, wback, 1, 0, 3);  // mask = F
+                        ANDx_mask(x1, ed, 1, 0, 3);  // mask = F
                         CMPSw_U12(x1, 16-(1<<(2+rex.w)));
                         B_MARK(cGT);
                     } else {
