@@ -3505,6 +3505,47 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                     break;
+                case 3: // CALL FAR Ed
+                    if(MODREG) {
+                        DEFAULT;
+                    } else {
+                        INST_NAME("CALL FAR Ed");
+                        READFLAGS(X_PEND);
+                        BARRIER(BARRIER_FLOAT);
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0, 0, rex, NULL, 0, 0);
+                        LDxw(x1, wback, 0);
+                        ed = x1;
+                        LDH(x3, wback, rex.w?8:4);
+                        LDH(x4, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        GETIP_(addr);
+                        /*
+                        if(box64_dynarec_callret) {
+                            SET_HASCALLRET();
+                            // Push actual return address
+                            if(addr < (dyn->start+dyn->isize)) {
+                                // there is a next...
+                                j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                                ADR_S20(x4, j64);
+                                MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                            } else {
+                                MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
+                                j64 = getJumpTableAddress64(addr);
+                                TABLE64(x4, j64);
+                                LDRx_U12(x4, x4, 0);
+                            }
+                            STPx_S7_preindex(x4, xRIP, xSP, -16);
+                        }
+                        */ // not doing callret because call far will exit the dynablock anyway, to be sure to recompute CS segment
+                        PUSH1z(x4);
+                        PUSH1z(xRIP);
+                        STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+                        jump_to_epilog(dyn, 0, ed, ninst);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+                    break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
                     READFLAGS(X_PEND);
