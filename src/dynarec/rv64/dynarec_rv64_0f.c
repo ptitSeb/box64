@@ -88,7 +88,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             CSRRS(x3, xZR, 0xC01); // RDTIME
                         }
                         SRLI(xRDX, x3, 32);
-                        AND(xRAX, x3, 32); // wipe upper part
+                        AND(xRAX, x3, xMASK); // wipe upper part
                         MV(xRCX, xZR);    // IA32_TSC, 0 for now
                         break;
                     default:
@@ -411,7 +411,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 CSRRS(x3, xZR, 0xC01); // RDTIME
             }
             SRLI(xRDX, x3, 32);
-            AND(xRAX, x3, 32); // wipe upper part
+            AND(xRAX, x3, xMASK); // wipe upper part
             break;
         case 0x38:
             // SSE3
