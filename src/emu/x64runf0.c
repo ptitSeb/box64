@@ -744,7 +744,22 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                             CHECK_FLAGS(emu);
                             GETGD;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                            if(rex.w)
+                            if (rex.w) {
+#if defined(__riscv)
+                                while (native_lock_xchg_d(&emu->context->mutex_16b, 1)); // lock
+                                tmp64u = ((uint64_t*)ED)[0];
+                                tmp64u2 = ((uint64_t*)ED)[1];
+                                if(R_RAX == tmp64u && R_RDX == tmp64u2) {
+                                    SET_FLAG(F_ZF);
+                                    ((uint64_t*)ED)[0] = R_RBX;
+                                    ((uint64_t*)ED)[1] = R_RCX;
+                                } else {
+                                    CLEAR_FLAG(F_ZF);
+                                    R_RAX = tmp64u;
+                                    R_RDX = tmp64u2;
+                                }
+                                native_lock_xchg_d(&emu->context->mutex_16b, 0); // unlock
+#else
                                 do {
                                     native_lock_read_dq(&tmp64u, &tmp64u2, ED);
                                     if(R_RAX == tmp64u && R_RDX == tmp64u2) {
@@ -757,7 +772,8 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                         tmp32s = 0;
                                     }
                                 } while(tmp32s);
-                            else
+#endif
+                            } else
                                 do {
                                     tmp64u = native_lock_read_dd(ED);
                                     if((R_EAX == (tmp64u&0xffffffff)) && (R_EDX == ((tmp64u>>32)&0xffffffff))) {
