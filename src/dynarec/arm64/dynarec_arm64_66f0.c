@@ -48,6 +48,37 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     GETREX();
 
     switch(opcode) {
+
+        case 0x01:
+            INST_NAME("LOCK ADD Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x5);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                UXTHw(x6, ed);
+                emit_add16(dyn, ninst, x6, x5, x3, x4);
+                BFIx(ed, x6, 0, 16);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                if(arm64_atomics) {
+                    UFLAG_IF {
+                        LDADDALH(x5, x1, wback);
+                        emit_add16(dyn, ninst, x1, x5, x3, x4);
+                    } else {
+                        STADDLH(x5, wback);
+                    }
+                } else {
+                    MARKLOCK;
+                    LDAXRH(x1, wback);
+                    emit_add16(dyn, ninst, x1, x5, x3, x4);
+                    STLXRH(x3, x1, wback);
+                    CBNZx_MARKLOCK(x3);
+                }
+                SMDMB();
+            }
+            break;
+
         case 0x09:
             INST_NAME("LOCK OR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
