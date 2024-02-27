@@ -584,10 +584,14 @@ uint64_t ReadTSC(x64emu_t* emu)
     (void)emu;
     
     // Hardware counter, per architecture
-#ifdef ARM64
+#if defined(ARM64) || defined(RV64)
     if(!box64_rdtsc) {
         uint64_t val;
+#ifdef ARM64
         asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+#else // RV64
+        asm volatile("rdtime %0" : "=r" (val));
+#endif
         return val;
     }
 #endif
