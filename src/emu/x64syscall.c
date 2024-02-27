@@ -231,6 +231,7 @@ static const scwrap_t syscallwrap[] = {
     [233] = {__NR_epoll_ctl, 4},
     #endif
     [234] = {__NR_tgkill, 3},
+    [237] = {__NR_mbind, 6},
     [238] = {__NR_set_mempolicy, 3},
     [239] = {__NR_get_mempolicy, 5},
     [247] = {__NR_waitid, 5},
