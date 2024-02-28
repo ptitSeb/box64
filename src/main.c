@@ -1007,7 +1007,7 @@ void LoadLogEnv()
                 box64_rdtsc = p[0]-'0';
         }
         if(box64_rdtsc==2) {
-            #if defined(ARM64)
+            #if defined(ARM64) || defined(RV64)
             box64_rdtsc = 0;    // allow hardxare counter
             uint64_t freq = ReadTSCFrequency(NULL);
             printf_log(LOG_INFO, "Hardware counter measured at %d Mhz, ", freq/1000);
