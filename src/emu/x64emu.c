@@ -579,21 +579,75 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     }
 }
 
+#if defined(RV64)
+static size_t readBinarySizeFromFile(const char* fname)
+{
+    if (access(fname, R_OK) != 0) return -1;
+    FILE* fp = fopen(fname, "r");
+    if (fp == NULL) return -1;
+
+    char b[sizeof(uint64_t)] = { 0 }, tmp;
+    ssize_t n = fread(b, 1, sizeof(b), fp);
+    if (n <= 0) return -1;
+
+    for (ssize_t i = 0; i < n / 2; i++) {
+        tmp = b[n - i - 1];
+        b[n - i - 1] = b[i];
+        b[i] = tmp;
+    }
+    return *(uint64_t*)b;
+}
+
+static inline uint64_t readCycleCounter()
+{
+    uint64_t val;
+    asm volatile("rdtime %0"
+                 : "=r"(val));
+    return val;
+}
+
+static inline uint64_t readFreq()
+{
+    static size_t val = -1;
+    if (val != -1) return val;
+
+    val = readBinarySizeFromFile("/sys/firmware/devicetree/base/cpus/timebase-frequency");
+    if (val != -1) return val;
+
+    // fallback to rdtime + sleep
+    struct timespec ts;
+    ts.tv_sec = 0;
+    ts.tv_nsec = 50000000; // 50 milliseconds
+    uint64_t cycles = readCycleCounter();
+    nanosleep(&ts, NULL);
+    // round to MHz
+    val = (size_t)round(((double)(readCycleCounter() - cycles) * 20) / 1e6) * 1e6;
+    return (uint64_t)val;
+}
+#elif defined(ARM64)
+static inline uint64_t readCycleCounter()
+{
+    uint64_t val;
+    asm volatile("mrs %0, cntvct_el0"
+                 : "=r"(val));
+    return val;
+}
+static inline uint64_t readFreq()
+{
+    uint64_t val;
+    asm volatile("mrs %0, cntfrq_el0"
+                 : "=r"(val));
+    return val;
+}
+#endif
+
 uint64_t ReadTSC(x64emu_t* emu)
 {
     (void)emu;
     
     // Hardware counter, per architecture
 #if defined(ARM64) || defined(RV64)
-    if(!box64_rdtsc) {
-        uint64_t val;
-#ifdef ARM64
-        asm volatile("mrs %0, cntvct_el0" : "=r" (val));
-#else // RV64
-        asm volatile("rdtime %0" : "=r" (val));
-#endif
-        return val;
-    }
+    if (!box64_rdtsc) return readCycleCounter();
 #endif
     // fall back to gettime...
 #if !defined(NOGETCLOCK)
@@ -611,12 +665,8 @@ uint64_t ReadTSCFrequency(x64emu_t* emu)
 {
     (void)emu;
     // Hardware counter, per architecture
-#ifdef ARM64
-    if(!box64_rdtsc) {
-        uint64_t val;
-        asm volatile("mrs %0, cntfrq_el0" : "=r" (val));
-        return val;
-    }
+#if defined(ARM64) || defined(RV64)
+    if (!box64_rdtsc) return readFreq();
 #endif
     // fall back to get time
 #if !defined(NOGETCLOCK)

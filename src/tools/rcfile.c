@@ -577,7 +577,7 @@ void ApplyParams(const char* name)
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_BASH", param->bash);
     }
     if(param->is_box64_rdtsc_present && (box64_rdtsc==2)) {
-        #if defined(ARM64)
+        #if defined(ARM64) || defined(RV64)
         box64_rdtsc = 0;    // allow hardxware counter
         uint64_t freq = ReadTSCFrequency(NULL);
         printf_log(LOG_INFO, "Applying RDTSC: Hardware counter measured at %d Mhz, ", freq/1000);
