@@ -189,7 +189,7 @@ uint32_t old_elf_hash(const char* name)
     uint32_t h = 0, g;
     for (unsigned char c = *name; c; c = *++name) {
         h = (h << 4) + c;
-        if (g = h & 0xf0000000) {
+        if (g = (h & 0xf0000000)) {
             h ^= g >> 24;
         }
         h &= ~g;
