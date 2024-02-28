@@ -59,6 +59,10 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
             }
             ++nextarg;
         }
+    if(argv[nextarg] && !strcmp(argv[nextarg], "steamwebhelper")) {
+        // just launch it...
+        runtime = NULL;
+    }
     if(runtime) {
         char sniper[MAX_PATH] = {0};
         // build sniper path
