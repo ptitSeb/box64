@@ -2,37 +2,39 @@
 #error meh!
 #endif
 
-//GO(pci_alloc, 
-//GO(pci_cleanup, 
-//GO(pci_fill_info, 
-//GO(pci_filter_init, 
-//GO(pci_filter_match, 
-//GO(pci_filter_parse_id, 
-//GO(pci_filter_parse_slot, 
-//GO(pci_find_cap, 
-//GO(pci_find_cap_nr, 
-//GO(pci_free_dev, 
-//GO(pci_free_name_list, 
-//GO(pci_get_dev, 
-//GO(pci_get_method_name, 
-//GO(pci_get_param, 
-//GO(pci_get_string_property, 
-//GO(pci_id_cache_flush, 
-//GO(pci_init, 
-//GO(pci_load_name_list, 
-//GO(pci_lookup_method, 
-//GO(pci_lookup_name, 
-//GO(pci_read_block, 
-//GO(pci_read_byte, 
-//GO(pci_read_long, 
-//GO(pci_read_vpd, 
-//GO(pci_read_word, 
-//GO(pci_scan_bus, 
-//GO(pci_set_name_list_path, 
-//GO(pci_set_param, 
-//GO(pci_setup_cache, 
-//GO(pci_walk_params, 
-//GO(pci_write_block, 
-//GO(pci_write_byte, 
-//GO(pci_write_long, 
-//GO(pci_write_word, 
+// issue is the pci_access structure have 3 function callback that can be override by user program
+
+GO(pci_alloc, pFv)
+GO(pci_cleanup, vFp)
+GO(pci_fill_info, iFpi)
+GO(pci_filter_init, vFpp)
+GO(pci_filter_match, iFpp)
+GO(pci_filter_parse_id, pFpp)
+GO(pci_filter_parse_slot, pFpp)
+GO(pci_find_cap, pFpuu)
+GO(pci_find_cap_nr, pFpuup)
+GO(pci_free_dev, vFp)
+GO(pci_free_name_list, vFp)
+GO(pci_get_dev, pFpiiii)
+GO(pci_get_method_name, pFi)
+GO(pci_get_param, pFpp)
+GO(pci_get_string_property, pFpu)
+GO(pci_id_cache_flush, vFp)
+GO(pci_init, vFp)
+GO(pci_load_name_list, iFp)
+GO(pci_lookup_method, iFp)
+GO(pci_lookup_name, pFpiipppp)  //vaarg, with up to 4 element depending on flags
+GO(pci_read_block, iFpipi)
+GO(pci_read_byte, CFpi)
+GO(pci_read_long, uFpi)
+GO(pci_read_vpd, iFpipi)
+GO(pci_read_word, WFpi)
+GO(pci_scan_bus, vFp)
+GO(pci_set_name_list_path, vFppi)
+GO(pci_set_param, iFppp)
+GO(pci_setup_cache, vFppi)
+GO(pci_walk_params, pFpp)
+GO(pci_write_block, iFpipi)
+GO(pci_write_byte, iFpiC)
+GO(pci_write_long, iFpiu)
+GO(pci_write_word, iFpiW)
