@@ -77,6 +77,44 @@
 #define native_lock_get_d(A)                rv64_lock_get_d(A)
 #define native_lock_get_dd(A)               rv64_lock_get_dd(A)
 
+#elif defined(LA464)
+#include "la464/la464_lock.h"
+
+#define USE_CAS
+
+// no byte or 2-bytes atomic access on LA464
+#define native_lock_xchg_dd(A, B)           la464_lock_xchg_dd(A, B)
+#define native_lock_xchg_d(A, B)            la464_lock_xchg_d(A, B)
+#define native_lock_xchg_h(A, B)            la464_lock_xchg_h(A, B)
+#define native_lock_xchg_b(A, B)            la464_lock_xchg_b(A, B)
+#define native_lock_storeifref(A, B, C)     la464_lock_storeifref(A, B, C)
+#define native_lock_storeifref_d(A, B, C)   la464_lock_storeifref_d(A, B, C)
+#define native_lock_storeifref2_d(A, B, C)  la464_lock_storeifref2_d(A, B, C)
+#define native_lock_storeifnull(A, B)       la464_lock_storeifnull(A, B)
+#define native_lock_storeifnull_d(A, B)     la464_lock_storeifnull_d(A, B)
+#define native_lock_decifnot0b(A)           la464_lock_decifnot0b(A)
+#define native_lock_storeb(A, B)            la464_lock_storeb(A, B)
+#define native_lock_incif0(A)               la464_lock_incif0(A)
+#define native_lock_decifnot0(A)            la464_lock_decifnot0(A)
+#define native_lock_store(A, B)             la464_lock_store(A, B)
+#define native_lock_store_dd(A, B)          la464_lock_store_dd(A, B)
+
+// there is no atomic move on 8bytes, so faking it
+#define native_lock_read_b(A)               tmpcas=*(uint8_t*)(A)
+#define native_lock_write_b(A, B)           la464_lock_cas_b(A, tmpcas, B)
+// there is no atomic move on 16bytes, so faking it
+#define native_lock_read_h(A)               tmpcas=*(uint16_t*)(A)
+#define native_lock_write_h(A, B)           la464_lock_cas_h(A, tmpcas, B)
+#define native_lock_read_d(A)               tmpcas=*(uint32_t*)(A)
+#define native_lock_write_d(A, B)           la464_lock_cas_d(A, tmpcas, B)
+#define native_lock_read_dd(A)              tmpcas=*(uint64_t*)(A)
+#define native_lock_write_dd(A, B)          la464_lock_cas_dd(A, tmpcas, B)
+#define native_lock_read_dq(A, B, C)        *A=tmpcas=((uint64_t*)(C))[0]; *B=((uint64_t*)(C))[1];
+#define native_lock_write_dq(A, B, C)       la464_lock_cas_dq(C, A, tmpcas, B)
+#define native_lock_get_b(A)                la464_lock_get_b(A)
+#define native_lock_get_d(A)                la464_lock_get_d(A)
+#define native_lock_get_dd(A)               la464_lock_get_dd(A)
+
 #else
 #error Unsupported architecture
 #endif
