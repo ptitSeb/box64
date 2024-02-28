@@ -606,13 +606,6 @@ static inline uint64_t readCycleCounter()
     return val;
 }
 
-double roundToSecondHighest(double num)
-{
-    int magnitude = (int)log10(num);
-    double power = pow(10, magnitude - 1);
-    return round(num / power) * power;
-}
-
 static inline uint64_t readFreq()
 {
     static size_t val = -1;
@@ -627,7 +620,8 @@ static inline uint64_t readFreq()
     ts.tv_nsec = 50000000; // 50 milliseconds
     uint64_t cycles = readCycleCounter();
     nanosleep(&ts, NULL);
-    val = (size_t)roundToSecondHighest((double)(readCycleCounter() - cycles) * 20);
+    // round to MHz
+    val = (size_t)round(((double)(readCycleCounter() - cycles) * 20) / 1e6) * 1e6;
     return (uint64_t)val;
 }
 #elif defined(ARM64)
