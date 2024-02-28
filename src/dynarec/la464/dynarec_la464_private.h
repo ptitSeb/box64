@@ -69,6 +69,7 @@ typedef struct dynarec_la464_s {
     uint8_t              smread;    // for strongmem model emulation
     uint8_t              smwrite;    // for strongmem model emulation
     uint8_t              always_test;
+    uint8_t              abort;
 } dynarec_la464_t;
 
 void add_next(dynarec_la464_t *dyn, uintptr_t addr);

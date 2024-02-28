@@ -12,4 +12,8 @@ void fpu_reset_scratch(dynarec_la464_t* dyn);
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex);
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode);
 
+// reset the cache
+void fpu_reset(dynarec_native_t* dyn);
+void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
+
 #endif //__DYNAREC_LA464_FUNCTIONS_H__

@@ -57,17 +57,12 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 if (sib_reg != 4) {
                     if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
                         MOV64x(scratch, tmp);
-                        int tmpR = xRAX + sib_reg;
-                        if (tmpR >= 21) tmpR++;
-                        ADDSL(ret, scratch, tmpR, sib >> 6, ret);
+                        ADDSL(ret, scratch, TO_LA464(sib_reg), sib >> 6, ret);
                     } else {
                         if (sib >> 6) {
-                            int tmpR = xRAX + sib_reg;
-                            if (tmpR >= 21) tmpR++;
-                            SLLI_D(ret, tmpR, (sib >> 6));
+                            SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
                         } else {
-                            ret = xRAX + sib_reg;
-                            if (ret >= 21) ret++;
+                            ret = TO_LA464(sib_reg);
                         }
                         *fixaddress = tmp;
                     }
@@ -82,14 +77,9 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 }
             } else {
                 if (sib_reg != 4) {
-                    int tmpR1 = xRAX + sib_reg;
-                    if (tmpR1 >= 21) tmpR1++;
-                    int tmpR2 = xRAX + sib_reg2;
-                    if (tmpR2 >= 21) tmpR2++;
-                    ADDSL(ret, tmpR2, tmpR1, sib >> 6, scratch);
+                    ADDSL(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg), sib >> 6, scratch);
                 } else {
-                    ret = xRAX + sib_reg2;
-                    if (ret >= 21) ret++;
+                    ret = TO_LA464(sib_reg2);
                 }
             }
         } else if ((nextop & 7) == 5) {
@@ -125,8 +115,7 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                     break;
             }
         } else {
-            ret = xRAX + (nextop & 7) + (rex.b << 3);
-            if (ret >= 21) ret++;
+            ret = TO_LA464((nextop & 7) + (rex.b << 3));
         }
     } else {
         int64_t i64;
@@ -145,53 +134,37 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             *fixaddress = i64;
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
-                    int tmpR1 = xRAX + sib_reg;
-                    if (tmpR1 >= 21) tmpR1++;
-                    int tmpR2 = xRAX + sib_reg2;
-                    if (tmpR2 >= 21) tmpR2++;
-                    ADDSL(ret, tmpR2, tmpR1, sib >> 6, scratch);
+                    ADDSL(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg), sib >> 6, scratch);
                 } else {
-                    ret = xRAX + sib_reg2;
-                    if (ret >= 21) ret++;
+                    ret = TO_LA464(sib_reg2);
                 }
             } else {
-                ret = xRAX + (nextop & 0x07) + (rex.b << 3);
-                if (ret >= 21) ret++;
+                ret = TO_LA464((nextop & 0x07) + (rex.b << 3));
             }
         } else {
             if (i64 >= -2048 && i64 <= 2047) {
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
-                        int tmpR1 = xRAX + sib_reg;
-                        if (tmpR1 >= 21) tmpR1++;
-                        int tmpR2 = xRAX + sib_reg2;
-                        if (tmpR2 >= 21) tmpR2++;
-                        ADDSL(scratch, tmpR2, tmpR1, sib >> 6, scratch);
+                        ADDSL(scratch, TO_LA464(sib_reg2), TO_LA464(sib_reg), sib >> 6, scratch);
                     } else {
-                        scratch = xRAX + sib_reg2;
-                        if (scratch >= 21) scratch++;
+                        scratch = TO_LA464(sib_reg2);
                     }
                 } else {
-                    scratch = xRAX + (nextop & 0x07) + (rex.b << 3);
-                    if (scratch >= 21) scratch++;
+                    scratch = TO_LA464((nextop & 0x07) + (rex.b << 3));
                 }
                 ADDI_D(ret, scratch, i64);
             } else {
                 MOV64x(scratch, i64);
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
-                        int tmpR = xRAX + sib_reg2;
-                        if (tmpR >= 21) tmpR++;
-                        ADD_D(scratch, scratch, tmpR);
-                        tmpR = xRAX + sib_reg;
-                        if (tmpR >= 21) tmpR++;
-                        ADDSL(ret, scratch, tmpR, sib >> 6, ret);
+                        ADD_D(scratch, scratch, TO_LA464(sib_reg2));
+                        ADDSL(ret, scratch, TO_LA464(sib_reg), sib >> 6, ret);
                     } else {
-                        PASS3(int tmp = xRAX + sib_reg2; if (tmp >= 21) tmp++;);
+                        PASS3(int tmp = TO_LA464(sib_reg2));
                         ADD_D(ret, tmp, scratch);
                     }
                 } else {
-                    PASS3(int tmp = xRAX + (nextop & 0x07) + (rex.b << 3); if (tmp >= 21) tmp++;);
+                    PASS3(int tmp = TO_LA464((nextop & 0x07) + (rex.b << 3)));
                     ADD_D(ret, tmp, scratch);
                 }
             }
@@ -227,23 +200,16 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
                     if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
                         MOV32w(scratch, tmp);
                         if ((sib >> 6)) {
-                            int tmpR = xRAX + sib_reg;
-                            if (tmpR >= 21) tmpR++;
-                            SLLI_D(ret, tmpR, sib >> 6);
+                            SLLI_D(ret, TO_LA464(sib_reg), sib >> 6);
                             ADD_W(ret, ret, scratch);
                         } else {
-                            int tmpR = xRAX + sib_reg;
-                            if (tmpR >= 21) tmpR++;
-                            ADD_W(ret, tmpR, scratch);
+                            ADD_W(ret, TO_LA464(sib_reg), scratch);
                         }
                     } else {
                         if (sib >> 6) {
-                            int tmpR = xRAX + sib_reg;
-                            if (tmpR >= 21) tmpR++;
-                            SLLI_D(ret, tmpR, (sib >> 6));
+                            SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
                         } else {
-                            ret = xRAX + sib_reg;
-                            if (ret >= 21) ret++;
+                            ret = TO_LA464(sib_reg);
                         }
                         *fixaddress = tmp;
                     }
@@ -259,22 +225,13 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
             } else {
                 if (sib_reg != 4) {
                     if ((sib >> 6)) {
-                        int tmpR = xRAX + sib_reg;
-                        if (tmpR >= 21) tmpR++;
-                        SLLI_D(ret, tmpR, (sib >> 6));
-                        tmpR = xRAX + sib_reg2;
-                        if (tmpR >= 21) tmpR++;
-                        ADD_W(ret, ret, tmpR);
+                        SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
+                        ADD_W(ret, ret, TO_LA464(sib_reg2));
                     } else {
-                        int tmpR1 = xRAX + sib_reg;
-                        if (tmpR1 >= 21) tmpR1++;
-                        int tmpR2 = xRAX + sib_reg2;
-                        if (tmpR2 >= 21) tmpR2++;
-                        ADD_W(ret, tmpR2, tmpR1);
+                        ADD_W(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg));
                     }
                 } else {
-                    ret = xRAX + sib_reg2;
-                    if (ret >= 21) ret++;
+                    ret = TO_LA464(sib_reg2);
                 }
             }
         } else if ((nextop & 7) == 5) {
@@ -287,8 +244,7 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
                     break;
             }
         } else {
-            ret = xRAX + (nextop & 7);
-            if (ret >= 21) ret++;
+            ret = TO_LA464((nextop & 7));
             if (ret == hint) {
                 MOV32w(x2, 0xffffffff);
                 AND(hint, ret, x2); // to clear upper part
@@ -312,77 +268,51 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
                     if (sib >> 6) {
-                        int tmpR = xRAX + sib_reg;
-                        if (tmpR >= 21) tmpR++;
-                        SLLI_D(ret, tmpR, (sib >> 6));
-                        tmpR = xRAX + sib_reg2;
-                        if (tmpR >= 21) tmpR++;
-                        ADD_W(ret, ret, tmpR);
+                        SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
+                        ADD_W(ret, ret, TO_LA464(sib_reg2));
                     } else {
-                        int tmpR1 = xRAX + sib_reg;
-                        if (tmpR1 >= 21) tmpR1++;
-                        int tmpR2 = xRAX + sib_reg2;
-                        if (tmpR2 >= 21) tmpR2++;
-                        ADD_W(ret, tmpR2, tmpR1);
+                        ADD_W(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg));
                     }
                 } else {
-                    ret = xRAX + sib_reg2;
-                    if (ret >= 21) ret++;
+                    ret = TO_LA464(sib_reg2);
                 }
             } else {
-                ret = xRAX + (nextop & 0x07);
-                if (ret >= 21) ret++;
+                ret = TO_LA464((nextop & 0x07));
             }
         } else {
             if (i32 >= -2048 && i32 <= 2047) {
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
                         if (sib >> 6) {
-                            int tmpR = xRAX + sib_reg;
-                            if (tmpR >= 21) tmpR++;
-                            SLLI_D(scratch, tmpR, sib >> 6);
-                            tmpR = xRAX + sib_reg2;
-                            if (tmpR >= 21) tmpR++;
-                            ADD_W(scratch, scratch, tmpR);
+                            SLLI_D(scratch, TO_LA464(sib_reg), sib >> 6);
+                            ADD_W(scratch, scratch, TO_LA464(sib_reg2));
                         } else {
-                            int tmpR1 = xRAX + sib_reg;
-                            if (tmpR1 >= 21) tmpR1++;
-                            int tmpR2 = xRAX + sib_reg2;
-                            if (tmpR2 >= 21) tmpR2++;
-                            ADD_W(scratch, tmpR2, tmpR1);
+                            ADD_W(scratch, TO_LA464(sib_reg2), TO_LA464(sib_reg));
                         }
                     } else {
-                        scratch = xRAX + sib_reg2;
-                        if (scratch >= 21) scratch++;
+                        scratch = TO_LA464(sib_reg2);
                     }
                 } else {
-                    scratch = xRAX + (nextop & 0x07);
-                    if (scratch >= 21) scratch++;
+                    scratch = TO_LA464((nextop & 0x07));
                 }
                 ADDI_W(ret, scratch, i32);
             } else {
                 MOV32w(scratch, i32);
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
-                        int tmpR = xRAX + sib_reg2;
-                        if (tmpR >= 21) tmpR++;
-                        ADD_W(scratch, scratch, tmpR);
+                        ADD_W(scratch, scratch, TO_LA464(sib_reg2));
                         if (sib >> 6) {
-                            int tmpR = xRAX + sib_reg;
-                            if (tmpR >= 21) tmpR++;
-                            SLLI_D(ret, tmpR, (sib >> 6));
+                            SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
                             ADD_W(ret, ret, scratch);
                         } else {
-                            int tmpR = xRAX + sib_reg;
-                            if (tmpR >= 21) tmpR++;
-                            ADD_W(ret, scratch, tmpR);
+                            ADD_W(ret, scratch, TO_LA464(sib_reg));
                         }
                     } else {
-                        PASS3(int tmp = xRAX + sib_reg2; if (tmp >= 21) tmp++;);
+                        PASS3(int tmp = TO_LA464(sib_reg2));
                         ADD_W(ret, tmp, scratch);
                     }
                 } else {
-                    PASS3(int tmp = xRAX + (nextop & 0x07); if (tmp >= 21) tmp++;);
+                    PASS3(int tmp = TO_LA464((nextop & 0x07)));
                     ADD_W(ret, tmp, scratch);
                 }
             }
@@ -458,8 +388,8 @@ void jump_to_next(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst, int is
         GETIP_(ip);
         LD_D(x2, x3, 0); // LR_D(x2, x3, 1, 1);
     }
-    if (reg != A1) {
-        MV(A1, xRIP);
+    if (reg != x1) {
+        MV(x1, xRIP);
     }
     CLEARIP();
 #ifdef HAVE_TRACE
@@ -485,11 +415,6 @@ void fpu_reflectcache(dynarec_la464_t* dyn, int ninst, int s1, int s2, int s3)
 }
 
 void fpu_unreflectcache(dynarec_la464_t* dyn, int ninst, int s1, int s2, int s3)
-{
-    // TODO
-}
-
-void fpu_reset(dynarec_la464_t* dyn)
 {
     // TODO
 }

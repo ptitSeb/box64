@@ -9,7 +9,7 @@
 .global la464_prolog
 la464_prolog:
     //save all 18 used register
-    addi.d $sp, $sp, -(8 * 19)
+    addi.d $sp,  $sp, -(8 * 19)
     st.d   $r1,  $sp, (8 * 0) //save ra
     st.d   $r22, $sp, (8 * 1) //save fp
     // save s0 - s8
@@ -40,17 +40,21 @@ la464_prolog:
     ld.d   $r17, $r4, (8 * 5)
     ld.d   $r18, $r4, (8 * 6)
     ld.d   $r19, $r4, (8 * 7)
-    ld.d   $r20, $r4, (8 * 8)
-    ld.d   $r22, $r4, (8 * 9)
-    ld.d   $r23, $r4, (8 * 10)
-    ld.d   $r24, $r4, (8 * 11)
-    ld.d   $r25, $r4, (8 * 12)
-    ld.d   $r26, $r4, (8 * 13)
-    ld.d   $r27, $r4, (8 * 14)
-    ld.d   $r28, $r4, (8 * 15)
-    ld.d   $r29, $r4, (8 * 16)  //xFlags  
-    ld.d   $r30, $r4, (8 * 17)  //xRIP
-    // Save old xSP in r31
-    addi.d $r31, $sp, 0
+    ld.d   $r23, $r4, (8 * 8)
+    ld.d   $r24, $r4, (8 * 9)
+    ld.d   $r25, $r4, (8 * 10)
+    ld.d   $r26, $r4, (8 * 11)
+    ld.d   $r27, $r4, (8 * 12)
+    ld.d   $r28, $r4, (8 * 13)
+    ld.d   $r29, $r4, (8 * 14)
+    ld.d   $r30, $r4, (8 * 15)
+    ld.d   $r31, $r4, (8 * 16)  //xFlags  
+    ld.d   $r20, $r4, (8 * 17)  //xRIP
+    ld.d   $r11, $r4, 552 // grab an old value of emu->xSPSave
+    st.d   $sp,  $r4, 552 // save current sp to emu->xSPSave
+    // push sentinel onto the stack
+    st.d   $r11, $sp, -16
+    st.d   $r0,  $sp, -8
+    addi.d $sp,  $sp, -16
     //jump to function
-    jirl   $r0, $a1, 0
+    jirl   $r0,  $a1, 0

@@ -82,10 +82,9 @@
 #define LOCK_LOCK (int*)1
 
 // GETGD    get x64 register in gd
-#define GETGD                                              \
-    do {                                                   \
-        gd = xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3); \
-        if (gd >= 21) gd++;                                \
+#define GETGD                                                        \
+    do {                                                             \
+        gd = TO_LA464(((nextop & 0x38) >> 3) + (rex.r << 3)); \
     } while (0);
 
 // CALL will use x7 for the call address. Return value can be put in ret (unless ret is -1)
@@ -192,7 +191,6 @@ void* la464_next(x64emu_t* emu, uintptr_t addr);
 #define jump_to_next   STEPNAME(jump_to_next)
 #define call_c         STEPNAME(call_c)
 
-#define fpu_reset           STEPNAME(fpu_reset)
 #define fpu_reset_cache     STEPNAME(fpu_reset_cache)
 #define fpu_propagate_stack STEPNAME(fpu_propagate_stack)
 #define fpu_purgecache      STEPNAME(fpu_purgecache)
@@ -210,7 +208,6 @@ void jump_to_epilog(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void call_c(dynarec_la464_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 
-void fpu_reset(dynarec_la464_t* dyn);
 // reset the cache with n
 void fpu_reset_cache(dynarec_la464_t* dyn, int ninst, int reset_n);
 // propagate stack state

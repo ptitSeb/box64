@@ -24,77 +24,80 @@ f2-f7    fa2-fa7   Function arguments              Caller
 f8-f23   ft0-ft15  Temp registers                  Caller
 f24-f31  fs0-fs7   Static registers                Callee
 */
+/*
+ LA464 GPR mapping
+ There is no 15 registers free, so split the regs in 2 part
+ AX..DI : r12-r19
+ R8..R15: r23-r30
+ flags in r31
+ ip in r20
+*/
 // x86 Register mapping
-#define xRAX     12
-#define xRCX     13
-#define xRDX     14
-#define xRBX     15
-#define xRSP     16
-#define xRBP     17
-#define xRSI     18
-#define xRDI     19
-#define xR8      20
-#define xR9      22
-#define xR10     23
-#define xR11     24
-#define xR12     25
-#define xR13     26
-#define xR14     27
-#define xR15     28
-#define xFlags   29
-#define xRIP     30
-#define xSavedSP 31
+#define xRAX    12
+#define xRCX    13
+#define xRDX    14
+#define xRBX    15
+#define xRSP    16
+#define xRBP    17
+#define xRSI    18
+#define xRDI    19
+#define xR8     23
+#define xR9     24
+#define xR10    25
+#define xR11    26
+#define xR12    27
+#define xR13    28
+#define xR14    29
+#define xR15    30
+#define xFlags  31
+#define xRIP    20
+// function to move from x86 regs number to LA464 reg number
+#define TO_LA464(A) ((A)>7)?((A)+15):((A)+12)
+// function to move from LA464 regs number to x86 reg number
+#define FROM_LA464(A) ((A)>22)?((A)-15):((A)-12)
 // 32bits version
-#define wEAX   xRAX
-#define wECX   xRCX
-#define wEDX   xRDX
-#define wEBX   xRBX
-#define wESP   xRSP
-#define wEBP   xRBP
-#define wESI   xRSI
-#define wEDI   xRDI
-#define wR8    xR8
-#define wR9    xR9
-#define wR10   xR10
-#define wR11   xR11
-#define wR12   xR12
-#define wR13   xR13
-#define wR14   xR14
-#define wR15   xR15
-#define wFlags xFlags
+#define wEAX    xRAX
+#define wECX    xRCX
+#define wEDX    xRDX
+#define wEBX    xRBX
+#define wESP    xRSP
+#define wEBP    xRBP
+#define wESI    xRSI
+#define wEDI    xRDI
+#define wR8     xR8
+#define wR9     xR9
+#define wR10    xR10
+#define wR11    xR11
+#define wR12    xR12
+#define wR13    xR13
+#define wR14    xR14
+#define wR15    xR15
+#define wFlags  xFlags
 // scratch registers
-#define x1 5
-#define x2 6
-#define x3 7
-#define x4 8
-#define x5 9
-#define x6 10
-#define x7 11
+#define x1      5
+#define x2      6
+#define x3      7
+#define x4      8
+#define x5      9
+#define x6      10
 // 32bits version of scratch
-#define w1 x1
-#define w2 x2
-#define w3 x3
-#define w4 x4
-#define w5 x5
-#define w6 x6
-#define w7 x7
-// emu is r4
-#define xEmu 4
-// LOONGARCH64 RA
-#define xRA 1
-#define xSP 3
-// LOONGARCH64 args
-#define A0 4
-#define A1 5
-#define A2 6
-#define A3 7
-#define A4 8
-#define A5 9
-#define A6 10
-#define A7 11
-// xZR reg is 0
-#define xZR 0
-#define wZR xZR
+#define w1      x1
+#define w2      x2
+#define w3      x3
+#define w4      x4
+#define w5      x5
+#define w6      x6
+// emu is r0
+#define xEmu    4
+// LA464 RA
+#define xRA     1
+#define ra      xRA
+// LA464 SP
+#define xSP     3
+// xZR regs
+#define xZR     0
+#define wZR     xZR
+#define r0      xZR
 
 // split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
 #define SPLIT20(A) (((A) + 0x800) >> 12)

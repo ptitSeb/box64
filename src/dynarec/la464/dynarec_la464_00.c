@@ -62,8 +62,7 @@ uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
-            if (gd >= 21) gd++;
+            gd = TO_LA464((opcode & 0x07) + (rex.b << 3));
             PUSH1z(gd);
             break;
         case 0x58:
@@ -75,8 +74,7 @@ uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
-            if (gd >= 21) gd++;
+            gd = TO_LA464((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
         case 0x89:
@@ -84,9 +82,7 @@ uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
-                uint8_t tmpEd = xRAX + (nextop & 7) + (rex.b << 3);
-                if (tmpEd >= 21) tmpEd++;
-                MVxw(tmpEd, gd);
+                MVxw(TO_LA464((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 if (rex.w) {

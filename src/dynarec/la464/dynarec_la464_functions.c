@@ -146,3 +146,13 @@ void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
 {
     dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, la464_print(opcode, (uintptr_t)dyn->block));
 }
+
+void fpu_reset(dynarec_la464_t* dyn)
+{
+    // TODO
+}
+
+void fpu_reset_ninst(dynarec_la464_t* dyn, int ninst)
+{
+    // TODO
+}
