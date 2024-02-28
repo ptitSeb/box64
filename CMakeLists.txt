@@ -48,12 +48,14 @@ if(LARCH64)
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC OFF CACHE BOOL "")
     set(RV64_DYNAREC OFF CACHE BOOL "")
+    set(LARCH64_DYNAREC ON CACHE BOOL "")
 endif()
 if(RV64)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC OFF CACHE BOOL "")
     set(RV64_DYNAREC ON CACHE BOOL "")
+    set(LARCH64_DYNAREC OFF CACHE BOOL "")
     set(PAGE16K OFF CACHE BOOL "")
 endif()
 if(PPC64LE)
@@ -61,6 +63,7 @@ if(PPC64LE)
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC OFF CACHE BOOL "")
     set(RV64_DYNAREC OFF CACHE BOOL "")
+    set(LARCH64_DYNAREC OFF CACHE BOOL "")
     set(PAGE16K OFF CACHE BOOL "")
 endif()
 if(RPI5ARM64PS16K)
@@ -71,6 +74,7 @@ if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC ON CACHE BOOL "")
     set(RV64_DYNAREC OFF CACHE BOOL "")
+    set(LARCH64_DYNAREC OFF CACHE BOOL "")
 endif()
 if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR PHYTIUM OR SD845 OR SD888 OR SD8G2 OR LX2160A OR ADLINK)
     set(PAGE16K OFF CACHE BOOL "")
@@ -98,6 +102,7 @@ option(LD80BITS "Set to ON if host device have 80bits long double (i.e. i386)" $
 option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NOALIGN})
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation" ${ARM_DYNAREC})
 option(RV64_DYNAREC "Set to ON to use RISC-V Dynamic Recompilation" ${RV64_DYNAREC})
+option(LARCH64_DYNAREC "Set to ON to use LOONGARCH64 Dynamic Recompilation" ${LARCH64_DYNAREC})
 option(PAGE8K "Set to ON if host device have PageSize of 8K (instead of 4K)" ${PAGE8K})
 option(PAGE16K "Set to ON if host device have PageSize of 16K (instead of 4K)" ${PAGE16K})
 option(PAGE64K "Set to ON if host device have PageSize of 64K (instead of 4K)" ${PAGE64K})
@@ -292,6 +297,12 @@ elseif(RV64_DYNAREC)
     add_definitions(-DRV64)
     enable_language(ASM)
     include_directories("${BOX64_ROOT}/src/dynarec/rv64")
+    set(DYNAREC ON)
+elseif(LARCH64_DYNAREC)
+    add_definitions(-DDYNAREC)
+    add_definitions(-DLA464)
+    enable_language(ASM)
+    include_directories("${BOX64_ROOT}/src/dynarec/la464")
     set(DYNAREC ON)
 else()
     set(DYNAREC OFF)
@@ -804,6 +815,26 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66f0.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f20f.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f30f.c"
+    )
+endif()
+
+if(LARCH64_DYNAREC)
+    set(DYNAREC_SRC
+        ${DYNAREC_SRC}
+
+        "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_functions.c"
+        "${BOX64_ROOT}/src/dynarec/la464/la464_printer.c"
+        "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_jmpnext.c"
+
+        "${BOX64_ROOT}/src/dynarec/la464/la464_prolog.S"
+        "${BOX64_ROOT}/src/dynarec/la464/la464_epilog.S"
+        "${BOX64_ROOT}/src/dynarec/la464/la464_next.S"
+        "${BOX64_ROOT}/src/dynarec/la464/la464_lock.S"
+    )
+
+    set(DYNAREC_PASS
+    "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_helper.c"
+    "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_00.c"
     )
 endif()
 
