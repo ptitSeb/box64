@@ -1,5 +1,5 @@
-#ifndef __LA464_LOCK__H__
-#define __LA464_LOCK__H__
+#ifndef __LA64_LOCK__H__
+#define __LA64_LOCK__H__
 #include <stdint.h>
 
 // Atomically exchange value at [p] with val, return old p
@@ -70,4 +70,4 @@ uint16_t la464_lock_xchg_h(void* addr, uint16_t v);
 int la464_lock_cas_b(void* p, uint8_t ref, uint8_t val);
 int la464_lock_cas_h(void* p, uint16_t ref, uint16_t val);
 
-#endif  //__LA464_LOCK__H__
+#endif  //__LA64_LOCK__H__

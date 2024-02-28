@@ -1,10 +1,10 @@
-#ifndef __LA464_EMITTER_H__
-#define __LA464_EMITTER_H__
+#ifndef __LA64_EMITTER_H__
+#define __LA64_EMITTER_H__
 /*
-    LA464 Emitter
+    LA64 Emitter
 */
 
-// LA464 ABI
+// LA64 ABI
 /*
 Name     Alias     Meaning                         saver
 ---------------------------------------------------------
@@ -25,7 +25,7 @@ f8-f23   ft0-ft15  Temp registers                  Caller
 f24-f31  fs0-fs7   Static registers                Callee
 */
 /*
- LA464 GPR mapping
+ LA64 GPR mapping
  There is no 15 registers free, so split the regs in 2 part
  AX..DI : r12-r19
  R8..R15: r23-r30
@@ -51,10 +51,10 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define xR15    30
 #define xFlags  31
 #define xRIP    20
-// function to move from x86 regs number to LA464 reg number
-#define TO_LA464(A) ((A)>7)?((A)+15):((A)+12)
-// function to move from LA464 regs number to x86 reg number
-#define FROM_LA464(A) ((A)>22)?((A)-15):((A)-12)
+// function to move from x86 regs number to LA64 reg number
+#define TO_LA64(A) ((A)>7)?((A)+15):((A)+12)
+// function to move from LA64 regs number to x86 reg number
+#define FROM_LA64(A) ((A)>22)?((A)-15):((A)-12)
 // 32bits version
 #define wEAX    xRAX
 #define wECX    xRCX
@@ -89,10 +89,10 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define w6      x6
 // emu is r0
 #define xEmu    4
-// LA464 RA
+// LA64 RA
 #define xRA     1
 #define ra      xRA
-// LA464 SP
+// LA64 SP
 #define xSP     3
 // xZR regs
 #define xZR     0

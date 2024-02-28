@@ -494,7 +494,7 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
         if(db && p->uc_mcontext.regs[0]>0x10000) {
             emu = (x64emu_t*)p->uc_mcontext.regs[0];
         }
-#elif defined(LA464)
+#elif defined(LA64)
         if(db && p->uc_mcontext.__gregs[4]>0x10000) {
             emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
         }
@@ -530,7 +530,7 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
     emu->regs[_R15].q[0] = p->uc_mcontext.regs[25];
     emu->ip.q[0] = ip;
     emu->eflags.x64 = p->uc_mcontext.regs[26];
-#elif defined(LA464)
+#elif defined(LA64)
         emu->regs[_AX].q[0] = p->uc_mcontext.__gregs[12];
         emu->regs[_CX].q[0] = p->uc_mcontext.__gregs[13];
         emu->regs[_DX].q[0] = p->uc_mcontext.__gregs[14];
@@ -851,7 +851,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         if(db)
             frame = (uintptr_t)p->uc_mcontext.regs[10+_SP];
     }
-#elif defined(LA464)
+#elif defined(LA64)
     dynablock_t* db = (dynablock_t*)cur_db;//FindDynablockFromNativeAddress(pc);
     ucontext_t *p = (ucontext_t *)ucntx;
     void* pc = NULL;
@@ -944,7 +944,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
         sigcontext->uc_mcontext.gregs[X64_R15] = p->uc_mcontext.regs[25];
         sigcontext->uc_mcontext.gregs[X64_RIP] = getX64Address(db, (uintptr_t)pc);
     }
-#elif defined(LA464)
+#elif defined(LA64)
     if(db && p) {
         sigcontext->uc_mcontext.gregs[X64_RAX] = p->uc_mcontext.__gregs[12];
         sigcontext->uc_mcontext.gregs[X64_RCX] = p->uc_mcontext.__gregs[13];
@@ -1278,7 +1278,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #elif defined __powerpc64__
     void * pc = (void*)p->uc_mcontext.gp_regs[PT_NIP];
     void* fpsimd = NULL;
-#elif defined(LA464)
+#elif defined(LA64)
     void * pc = (void*)p->uc_mcontext.__pc;
     void* fpsimd = NULL;
 #elif defined(SW64)
@@ -1348,7 +1348,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     emu->xmm[2].u128 = fpsimd->vregs[2];
                     emu->xmm[3].u128 = fpsimd->vregs[3];
                 }*/
-#elif defined(LA464)
+#elif defined(LA64)
                 /*if(fpsimd) {
                     emu->xmm[0].u128 = fpsimd->vregs[0];
                     emu->xmm[1].u128 = fpsimd->vregs[1];
@@ -1505,7 +1505,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             x64pc = getX64Address(db, (uintptr_t)pc);
             rsp = (void*)p->uc_mcontext.regs[10+_SP];
         }
-#elif defined(LA464)
+#elif defined(LA64)
         if(db && p->uc_mcontext.__gregs[4]>0x10000) {
             emu = (x64emu_t*)p->uc_mcontext.__gregs[4];
         }
@@ -1684,7 +1684,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 for (int i=-4; i<4; ++i) {
                     printf_log(log_minimum, "%sRSP%c0x%02x:0x%016lx", (i%4)?" ":"\n", i<0?'-':'+', abs(i)*8, *(uintptr_t*)(rsp+i*8));
                 }
-#elif defined(LA464)
+#elif defined(LA64)
             if(db) {
                 shown_regs = 1;
                 for (int i=0; i<16; ++i) {
@@ -1741,7 +1741,7 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     ucontext_t *p = (ucontext_t *)ucntx;
     #ifdef ARM64
     void * pc = (void*)p->uc_mcontext.pc;
-    #elif defined(LA464)
+    #elif defined(LA64)
     void * pc = (void*)p->uc_mcontext.__pc;
     #elif defined(RV64)
     void * pc = (void*)p->uc_mcontext.__gregs[0];

@@ -20,14 +20,14 @@
 #include "emu/x87emu_private.h"
 #include "x64trace.h"
 #include "signals.h"
-#include "dynarec_la464.h"
-#include "dynarec_la464_private.h"
-#include "dynarec_la464_functions.h"
+#include "dynarec_la64.h"
+#include "dynarec_la64_private.h"
+#include "dynarec_la64_functions.h"
 #include "custommem.h"
 #include "bridge.h"
 
 // Reset scratch regs counter
-void fpu_reset_scratch(dynarec_la464_t* dyn)
+void fpu_reset_scratch(dynarec_la64_t* dyn)
 {
     // TODO
 }
@@ -108,51 +108,51 @@ uint32_t insert_half(uint32_t val, uint16_t h, void* address){
     return val;
 }
 
-uint8_t la464_lock_xchg_b(void* addr, uint8_t val)
+uint8_t la64_lock_xchg_b(void* addr, uint8_t val)
 {
     uint32_t ret;
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
     do {
         ret = *aligned;
-    } while(la464_lock_cas_d(aligned, ret, insert_byte(ret, val, addr)));
+    } while(la64_lock_cas_d(aligned, ret, insert_byte(ret, val, addr)));
     return extract_byte(ret, addr);
 }
 
-uint16_t la464_lock_xchg_h(void* addr, uint16_t val)
+uint16_t la64_lock_xchg_h(void* addr, uint16_t val)
 {
     uint32_t ret;
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
     do {
         ret = *aligned;
-    } while(la464_lock_cas_d(aligned, ret, insert_half(ret, val, addr)));
+    } while(la64_lock_cas_d(aligned, ret, insert_half(ret, val, addr)));
     return extract_half(ret, addr);
 }
 
-int la464_lock_cas_b(void* addr, uint8_t ref, uint8_t val)
+int la64_lock_cas_b(void* addr, uint8_t ref, uint8_t val)
 {
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
     uint32_t tmp = *aligned;
-    return la464_lock_cas_d(aligned, ref, insert_byte(tmp, val, addr));
+    return la64_lock_cas_d(aligned, ref, insert_byte(tmp, val, addr));
 }
 
-int la464_lock_cas_h(void* addr, uint16_t ref, uint16_t val)
+int la64_lock_cas_h(void* addr, uint16_t ref, uint16_t val)
 {
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
     uint32_t tmp = *aligned;
-    return la464_lock_cas_d(aligned, ref, insert_half(tmp, val, addr));
+    return la64_lock_cas_d(aligned, ref, insert_half(tmp, val, addr));
 }
 
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
 {
-    dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, la464_print(opcode, (uintptr_t)dyn->block));
+    dynarec_log(LOG_NONE, "\t%08x\t%s\n", opcode, la64_print(opcode, (uintptr_t)dyn->block));
 }
 
-void fpu_reset(dynarec_la464_t* dyn)
+void fpu_reset(dynarec_la64_t* dyn)
 {
     // TODO
 }
 
-void fpu_reset_ninst(dynarec_la464_t* dyn, int ninst)
+void fpu_reset_ninst(dynarec_la64_t* dyn, int ninst)
 {
     // TODO
 }

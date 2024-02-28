@@ -206,7 +206,7 @@ elseif(M1)
     add_definitions(-pipe -march=armv8.5-a+simd+crypto)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.5-a+simd+crypto")
 elseif(LARCH64)
-    add_definitions(-DLA464)
+    add_definitions(-DLA64)
     add_definitions(-pipe -march=loongarch64)
     set(CMAKE_ASM_FLAGS  "-pipe -march=loongarch64")
 elseif(RV64)
@@ -300,9 +300,9 @@ elseif(RV64_DYNAREC)
     set(DYNAREC ON)
 elseif(LARCH64_DYNAREC)
     add_definitions(-DDYNAREC)
-    add_definitions(-DLA464)
+    add_definitions(-DLA64)
     enable_language(ASM)
-    include_directories("${BOX64_ROOT}/src/dynarec/la464")
+    include_directories("${BOX64_ROOT}/src/dynarec/la64")
     set(DYNAREC ON)
 else()
     set(DYNAREC OFF)
@@ -822,19 +822,19 @@ if(LARCH64_DYNAREC)
     set(DYNAREC_SRC
         ${DYNAREC_SRC}
 
-        "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_functions.c"
-        "${BOX64_ROOT}/src/dynarec/la464/la464_printer.c"
-        "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_jmpnext.c"
+        "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/la64/la64_printer.c"
+        "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_jmpnext.c"
 
-        "${BOX64_ROOT}/src/dynarec/la464/la464_prolog.S"
-        "${BOX64_ROOT}/src/dynarec/la464/la464_epilog.S"
-        "${BOX64_ROOT}/src/dynarec/la464/la464_next.S"
-        "${BOX64_ROOT}/src/dynarec/la464/la464_lock.S"
+        "${BOX64_ROOT}/src/dynarec/la64/la64_prolog.S"
+        "${BOX64_ROOT}/src/dynarec/la64/la64_epilog.S"
+        "${BOX64_ROOT}/src/dynarec/la64/la64_next.S"
+        "${BOX64_ROOT}/src/dynarec/la64/la64_lock.S"
     )
 
     set(DYNAREC_PASS
-    "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_helper.c"
-    "${BOX64_ROOT}/src/dynarec/la464/dynarec_la464_00.c"
+    "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_helper.c"
+    "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_00.c"
     )
 endif()
 

@@ -1,5 +1,5 @@
-#ifndef __DYNAREC_LA464_PRIVATE_H_
-#define __DYNAREC_LA464_PRIVATE_H_
+#ifndef __DYNAREC_LA64_PRIVATE_H_
+#define __DYNAREC_LA64_PRIVATE_H_
 
 #include "../dynarec_private.h"
 
@@ -14,7 +14,7 @@ typedef struct flagcache_s {
     int                 dfnone;     // if deferred flags is already set to df_none
 } flagcache_t;
 
-typedef struct instruction_la464_s {
+typedef struct instruction_la64_s {
     instruction_x64_t   x64;
     uintptr_t           address;    // (start) address of the arm emitted instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, or barrier stuff)
@@ -34,10 +34,10 @@ typedef struct instruction_la464_s {
     uint8_t             last_write;
     flagcache_t         f_exit;     // flags status at end of instruction
     flagcache_t         f_entry;    // flags status before the instruction begin
-} instruction_la464_t;
+} instruction_la64_t;
 
-typedef struct dynarec_la464_s {
-    instruction_la464_t* insts;
+typedef struct dynarec_la64_s {
+    instruction_la64_t* insts;
     int32_t              size;
     int32_t              cap;
     uintptr_t            start;      // start of the block
@@ -70,16 +70,16 @@ typedef struct dynarec_la464_s {
     uint8_t              smwrite;    // for strongmem model emulation
     uint8_t              always_test;
     uint8_t              abort;
-} dynarec_la464_t;
+} dynarec_la64_t;
 
-void add_next(dynarec_la464_t *dyn, uintptr_t addr);
-uintptr_t get_closest_next(dynarec_la464_t *dyn, uintptr_t addr);
-void add_jump(dynarec_la464_t *dyn, int ninst);
-int get_first_jump(dynarec_la464_t *dyn, int next);
-int is_nops(dynarec_la464_t *dyn, uintptr_t addr, int n);
-int is_instructions(dynarec_la464_t *dyn, uintptr_t addr, int n);
+void add_next(dynarec_la64_t *dyn, uintptr_t addr);
+uintptr_t get_closest_next(dynarec_la64_t *dyn, uintptr_t addr);
+void add_jump(dynarec_la64_t *dyn, int ninst);
+int get_first_jump(dynarec_la64_t *dyn, int next);
+int is_nops(dynarec_la64_t *dyn, uintptr_t addr, int n);
+int is_instructions(dynarec_la64_t *dyn, uintptr_t addr, int n);
 
-int Table64(dynarec_la464_t *dyn, uint64_t val, int pass);  // add a value to table64 (if needed) and gives back the imm19 to use in LDR_literal
+int Table64(dynarec_la64_t *dyn, uint64_t val, int pass);  // add a value to table64 (if needed) and gives back the imm19 to use in LDR_literal
 
 void CreateJmpNext(void* addr, void* next);
 

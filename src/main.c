@@ -442,7 +442,7 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " FRINT");
     if(arm64_afp)
         printf_log(LOG_INFO, " AFP");
-#elif defined(LA464)
+#elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
 #elif defined(RV64)
     void RV64_Detect_Function();

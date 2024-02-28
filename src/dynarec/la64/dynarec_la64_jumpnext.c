@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#include "la464_emitter.h"
+#include "la64_emitter.h"
 
 #define EMIT(A) *block = (A); ++block;
 void CreateJmpNext(void* addr, void* next)

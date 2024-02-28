@@ -19,15 +19,15 @@
 #include "dynarec_native.h"
 #include "custommem.h"
 
-#include "la464_printer.h"
-#include "dynarec_la464_private.h"
-#include "dynarec_la464_functions.h"
-#include "dynarec_la464_helper.h"
+#include "la64_printer.h"
+#include "dynarec_la64_private.h"
+#include "dynarec_la64_functions.h"
+#include "dynarec_la64_helper.h"
 
 int isSimpleWrapper(wrapper_t fun);
 int isRetX87Wrapper(wrapper_t fun);
 
-uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
+uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed;
@@ -62,7 +62,7 @@ uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = TO_LA464((opcode & 0x07) + (rex.b << 3));
+            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
             PUSH1z(gd);
             break;
         case 0x58:
@@ -74,7 +74,7 @@ uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = TO_LA464((opcode & 0x07) + (rex.b << 3));
+            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
         case 0x89:
@@ -82,7 +82,7 @@ uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             if (MODREG) { // reg <= reg
-                MVxw(TO_LA464((nextop & 7) + (rex.b << 3)), gd);
+                MVxw(TO_LA64((nextop & 7) + (rex.b << 3)), gd);
             } else { // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 if (rex.w) {

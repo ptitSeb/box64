@@ -8,13 +8,13 @@ void arm64_epilog(void) EXPORTDYN;
 #define native_next         arm64_next
 #define native_prolog       arm64_prolog
 #define native_epilog       arm64_epilog
-#elif defined(LA464)
-void la464_next(void) EXPORTDYN;
-void la464_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
-void la464_epilog(void) EXPORTDYN;
-#define native_next         la464_next
-#define native_prolog       la464_prolog
-#define native_epilog       la464_epilog
+#elif defined(LA64)
+void la64_next(void) EXPORTDYN;
+void la64_prolog(x64emu_t* emu, void* addr) EXPORTDYN;
+void la64_epilog(void) EXPORTDYN;
+#define native_next         la64_next
+#define native_prolog       la64_prolog
+#define native_epilog       la64_epilog
 #elif defined(RV64)
 void rv64_next(void) EXPORTDYN;
 void rv64_prolog(x64emu_t* emu, void* addr) EXPORTDYN;

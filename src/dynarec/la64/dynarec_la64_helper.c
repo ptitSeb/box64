@@ -20,15 +20,15 @@
 #include "../dynablock_private.h"
 #include "custommem.h"
 
-#include "la464_printer.h"
-#include "dynarec_la464_private.h"
-#include "dynarec_la464_functions.h"
-#include "dynarec_la464_helper.h"
+#include "la64_printer.h"
+#include "dynarec_la64_private.h"
+#include "dynarec_la64_functions.h"
+#include "dynarec_la64_helper.h"
 
-static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, int* l, int i12);
+static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, int* l, int i12);
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
-uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta)
+uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
@@ -57,12 +57,12 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 if (sib_reg != 4) {
                     if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
                         MOV64x(scratch, tmp);
-                        ADDSL(ret, scratch, TO_LA464(sib_reg), sib >> 6, ret);
+                        ADDSL(ret, scratch, TO_LA64(sib_reg), sib >> 6, ret);
                     } else {
                         if (sib >> 6) {
-                            SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
+                            SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
                         } else {
-                            ret = TO_LA464(sib_reg);
+                            ret = TO_LA64(sib_reg);
                         }
                         *fixaddress = tmp;
                     }
@@ -77,9 +77,9 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                 }
             } else {
                 if (sib_reg != 4) {
-                    ADDSL(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg), sib >> 6, scratch);
+                    ADDSL(ret, TO_LA64(sib_reg2), TO_LA64(sib_reg), sib >> 6, scratch);
                 } else {
-                    ret = TO_LA464(sib_reg2);
+                    ret = TO_LA64(sib_reg2);
                 }
             }
         } else if ((nextop & 7) == 5) {
@@ -115,7 +115,7 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
                     break;
             }
         } else {
-            ret = TO_LA464((nextop & 7) + (rex.b << 3));
+            ret = TO_LA64((nextop & 7) + (rex.b << 3));
         }
     } else {
         int64_t i64;
@@ -134,37 +134,37 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
             *fixaddress = i64;
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
-                    ADDSL(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg), sib >> 6, scratch);
+                    ADDSL(ret, TO_LA64(sib_reg2), TO_LA64(sib_reg), sib >> 6, scratch);
                 } else {
-                    ret = TO_LA464(sib_reg2);
+                    ret = TO_LA64(sib_reg2);
                 }
             } else {
-                ret = TO_LA464((nextop & 0x07) + (rex.b << 3));
+                ret = TO_LA64((nextop & 0x07) + (rex.b << 3));
             }
         } else {
             if (i64 >= -2048 && i64 <= 2047) {
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
-                        ADDSL(scratch, TO_LA464(sib_reg2), TO_LA464(sib_reg), sib >> 6, scratch);
+                        ADDSL(scratch, TO_LA64(sib_reg2), TO_LA64(sib_reg), sib >> 6, scratch);
                     } else {
-                        scratch = TO_LA464(sib_reg2);
+                        scratch = TO_LA64(sib_reg2);
                     }
                 } else {
-                    scratch = TO_LA464((nextop & 0x07) + (rex.b << 3));
+                    scratch = TO_LA64((nextop & 0x07) + (rex.b << 3));
                 }
                 ADDI_D(ret, scratch, i64);
             } else {
                 MOV64x(scratch, i64);
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
-                        ADD_D(scratch, scratch, TO_LA464(sib_reg2));
-                        ADDSL(ret, scratch, TO_LA464(sib_reg), sib >> 6, ret);
+                        ADD_D(scratch, scratch, TO_LA64(sib_reg2));
+                        ADDSL(ret, scratch, TO_LA64(sib_reg), sib >> 6, ret);
                     } else {
-                        PASS3(int tmp = TO_LA464(sib_reg2));
+                        PASS3(int tmp = TO_LA64(sib_reg2));
                         ADD_D(ret, tmp, scratch);
                     }
                 } else {
-                    PASS3(int tmp = TO_LA464((nextop & 0x07) + (rex.b << 3)));
+                    PASS3(int tmp = TO_LA64((nextop & 0x07) + (rex.b << 3)));
                     ADD_D(ret, tmp, scratch);
                 }
             }
@@ -174,7 +174,7 @@ uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
     return addr;
 }
 
-static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, int* l, int i12)
+static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, int* l, int i12)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
@@ -200,16 +200,16 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
                     if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
                         MOV32w(scratch, tmp);
                         if ((sib >> 6)) {
-                            SLLI_D(ret, TO_LA464(sib_reg), sib >> 6);
+                            SLLI_D(ret, TO_LA64(sib_reg), sib >> 6);
                             ADD_W(ret, ret, scratch);
                         } else {
-                            ADD_W(ret, TO_LA464(sib_reg), scratch);
+                            ADD_W(ret, TO_LA64(sib_reg), scratch);
                         }
                     } else {
                         if (sib >> 6) {
-                            SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
+                            SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
                         } else {
-                            ret = TO_LA464(sib_reg);
+                            ret = TO_LA64(sib_reg);
                         }
                         *fixaddress = tmp;
                     }
@@ -225,13 +225,13 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
             } else {
                 if (sib_reg != 4) {
                     if ((sib >> 6)) {
-                        SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
-                        ADD_W(ret, ret, TO_LA464(sib_reg2));
+                        SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
+                        ADD_W(ret, ret, TO_LA64(sib_reg2));
                     } else {
-                        ADD_W(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg));
+                        ADD_W(ret, TO_LA64(sib_reg2), TO_LA64(sib_reg));
                     }
                 } else {
-                    ret = TO_LA464(sib_reg2);
+                    ret = TO_LA64(sib_reg2);
                 }
             }
         } else if ((nextop & 7) == 5) {
@@ -244,7 +244,7 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
                     break;
             }
         } else {
-            ret = TO_LA464((nextop & 7));
+            ret = TO_LA64((nextop & 7));
             if (ret == hint) {
                 MOV32w(x2, 0xffffffff);
                 AND(hint, ret, x2); // to clear upper part
@@ -268,51 +268,51 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
                     if (sib >> 6) {
-                        SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
-                        ADD_W(ret, ret, TO_LA464(sib_reg2));
+                        SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
+                        ADD_W(ret, ret, TO_LA64(sib_reg2));
                     } else {
-                        ADD_W(ret, TO_LA464(sib_reg2), TO_LA464(sib_reg));
+                        ADD_W(ret, TO_LA64(sib_reg2), TO_LA64(sib_reg));
                     }
                 } else {
-                    ret = TO_LA464(sib_reg2);
+                    ret = TO_LA64(sib_reg2);
                 }
             } else {
-                ret = TO_LA464((nextop & 0x07));
+                ret = TO_LA64((nextop & 0x07));
             }
         } else {
             if (i32 >= -2048 && i32 <= 2047) {
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
                         if (sib >> 6) {
-                            SLLI_D(scratch, TO_LA464(sib_reg), sib >> 6);
-                            ADD_W(scratch, scratch, TO_LA464(sib_reg2));
+                            SLLI_D(scratch, TO_LA64(sib_reg), sib >> 6);
+                            ADD_W(scratch, scratch, TO_LA64(sib_reg2));
                         } else {
-                            ADD_W(scratch, TO_LA464(sib_reg2), TO_LA464(sib_reg));
+                            ADD_W(scratch, TO_LA64(sib_reg2), TO_LA64(sib_reg));
                         }
                     } else {
-                        scratch = TO_LA464(sib_reg2);
+                        scratch = TO_LA64(sib_reg2);
                     }
                 } else {
-                    scratch = TO_LA464((nextop & 0x07));
+                    scratch = TO_LA64((nextop & 0x07));
                 }
                 ADDI_W(ret, scratch, i32);
             } else {
                 MOV32w(scratch, i32);
                 if ((nextop & 7) == 4) {
                     if (sib_reg != 4) {
-                        ADD_W(scratch, scratch, TO_LA464(sib_reg2));
+                        ADD_W(scratch, scratch, TO_LA64(sib_reg2));
                         if (sib >> 6) {
-                            SLLI_D(ret, TO_LA464(sib_reg), (sib >> 6));
+                            SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
                             ADD_W(ret, ret, scratch);
                         } else {
-                            ADD_W(ret, scratch, TO_LA464(sib_reg));
+                            ADD_W(ret, scratch, TO_LA64(sib_reg));
                         }
                     } else {
-                        PASS3(int tmp = TO_LA464(sib_reg2));
+                        PASS3(int tmp = TO_LA64(sib_reg2));
                         ADD_W(ret, tmp, scratch);
                     }
                 } else {
-                    PASS3(int tmp = TO_LA464((nextop & 0x07)));
+                    PASS3(int tmp = TO_LA64((nextop & 0x07)));
                     ADD_W(ret, tmp, scratch);
                 }
             }
@@ -322,7 +322,7 @@ static uintptr_t geted_32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8
     return addr;
 }
 
-void jump_to_epilog(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst)
+void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MAYUSE(dyn);
     MAYUSE(ip);
@@ -336,12 +336,12 @@ void jump_to_epilog(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst)
     } else {
         GETIP_(ip);
     }
-    TABLE64(x2, (uintptr_t)la464_epilog);
+    TABLE64(x2, (uintptr_t)la64_epilog);
     SMEND();
     BR(x2);
 }
 
-void jump_to_next(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
+void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
@@ -399,33 +399,33 @@ void jump_to_next(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst, int is
     JIRL(xRA, x2, 0x0); // save LR...
 }
 
-void call_c(dynarec_la464_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
+void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
 {
     // TODO
 }
 
-void fpu_purgecache(dynarec_la464_t* dyn, int ninst, int next, int s1, int s2, int s3)
+void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
     // TODO
 }
 
-void fpu_reflectcache(dynarec_la464_t* dyn, int ninst, int s1, int s2, int s3)
+void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // TODO
 }
 
-void fpu_unreflectcache(dynarec_la464_t* dyn, int ninst, int s1, int s2, int s3)
+void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // TODO
 }
 
-void fpu_reset_cache(dynarec_la464_t* dyn, int ninst, int reset_n)
+void fpu_reset_cache(dynarec_la64_t* dyn, int ninst, int reset_n)
 {
     // TODO
 }
 
 // propagate ST stack state, especial stack pop that are deferred
-void fpu_propagate_stack(dynarec_la464_t* dyn, int ninst)
+void fpu_propagate_stack(dynarec_la64_t* dyn, int ninst)
 {
     // TODO
 }

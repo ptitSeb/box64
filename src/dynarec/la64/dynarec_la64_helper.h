@@ -1,21 +1,21 @@
-#ifndef __DYNAREC_LA464_HELPER_H__
-#define __DYNAREC_LA464_HELPER_H__
+#ifndef __DYNAREC_LA64_HELPER_H__
+#define __DYNAREC_LA64_HELPER_H__
 
 // undef to get Close to SSE Float->int conversions
 // #define PRECISE_CVT
 
 #if STEP == 0
-#include "dynarec_la464_pass0.h"
+#include "dynarec_la64_pass0.h"
 #elif STEP == 1
-#include "dynarec_la464_pass1.h"
+#include "dynarec_la64_pass1.h"
 #elif STEP == 2
-#include "dynarec_la464_pass2.h"
+#include "dynarec_la64_pass2.h"
 #elif STEP == 3
-#include "dynarec_la464_pass3.h"
+#include "dynarec_la64_pass3.h"
 #endif
 
 #include "debug.h"
-#include "la464_emitter.h"
+#include "la64_emitter.h"
 #include "../emu/x64primop.h"
 
 #define F8      *(uint8_t*)(addr++)
@@ -84,7 +84,7 @@
 // GETGD    get x64 register in gd
 #define GETGD                                                        \
     do {                                                             \
-        gd = TO_LA464(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3)); \
     } while (0);
 
 // CALL will use x7 for the call address. Return value can be put in ret (unless ret is -1)
@@ -172,8 +172,8 @@
 
 #define MODREG ((nextop & 0xC0) == 0xC0)
 
-void la464_epilog(void);
-void* la464_next(x64emu_t* emu, uintptr_t addr);
+void la64_epilog(void);
+void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME
 #define STEPNAME3(N, M) N##M
@@ -198,26 +198,26 @@ void* la464_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_unreflectcache  STEPNAME(fpu_unreflectcache)
 
 /* setup r2 to address pointed by */
-uintptr_t geted(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
+uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
 
 /* setup r2 to address pointed by */
-uintptr_t geted32(dynarec_la464_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
+uintptr_t geted32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
 
 // generic x64 helper
-void jump_to_epilog(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst);
-void jump_to_next(dynarec_la464_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
-void call_c(dynarec_la464_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
+void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
+void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 
 // reset the cache with n
-void fpu_reset_cache(dynarec_la464_t* dyn, int ninst, int reset_n);
+void fpu_reset_cache(dynarec_la64_t* dyn, int ninst, int reset_n);
 // propagate stack state
-void fpu_propagate_stack(dynarec_la464_t* dyn, int ninst);
+void fpu_propagate_stack(dynarec_la64_t* dyn, int ninst);
 // purge the FPU cache (needs 3 scratch registers)
-void fpu_purgecache(dynarec_la464_t* dyn, int ninst, int next, int s1, int s2, int s3);
-void fpu_reflectcache(dynarec_la464_t* dyn, int ninst, int s1, int s2, int s3);
-void fpu_unreflectcache(dynarec_la464_t* dyn, int ninst, int s1, int s2, int s3);
+void fpu_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3);
+void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
+void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 
-uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 
 #if STEP < 3
 #define PASS3(A)
@@ -243,4 +243,4 @@ uintptr_t dynarec64_00(dynarec_la464_t* dyn, uintptr_t addr, uintptr_t ip, int n
         ST_W(s2, xEmu, offsetof(x64emu_t, test.test)); \
     }
 
-#endif //__DYNAREC_LA464_HELPER_H__
+#endif //__DYNAREC_LA64_HELPER_H__
