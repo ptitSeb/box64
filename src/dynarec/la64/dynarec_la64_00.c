@@ -214,7 +214,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop=F8;
             GETGD;
             if(MODREG) {
-                MVxw(gd, xRAX+(nextop&7)+(rex.b<<3));
+                MVxw(gd, xRAX + TO_LA64((nextop&7) + (rex.b<<3)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);
