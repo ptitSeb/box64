@@ -193,6 +193,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x85:
+            INST_NAME("TEST Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            break;
         case 0x89:
             INST_NAME("MOV Ed, Gd");
             nextop = F8;
@@ -214,7 +222,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop=F8;
             GETGD;
             if(MODREG) {
-                MVxw(gd, xRAX + TO_LA64((nextop&7) + (rex.b<<3)));
+                MVxw(gd, TO_LA64((nextop&7) + (rex.b<<3)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);

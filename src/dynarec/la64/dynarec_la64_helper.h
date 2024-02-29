@@ -212,6 +212,10 @@
 #define GETMARKLOCK dyn->insts[ninst].marklock
 
 #define IFX(A) if ((dyn->insts[ninst].x64.gen_flags & (A)))
+#define IFX_PENDOR0 if ((dyn->insts[ninst].x64.gen_flags & (X_PEND) || !dyn->insts[ninst].x64.gen_flags))
+#define IFXX(A)     if ((dyn->insts[ninst].x64.gen_flags == (A)))
+#define IFX2X(A, B) if ((dyn->insts[ninst].x64.gen_flags == (A) || dyn->insts[ninst].x64.gen_flags == (B) || dyn->insts[ninst].x64.gen_flags == ((A) | (B))))
+#define IFXN(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A) && !(dyn->insts[ninst].x64.gen_flags & (B))))
 
 #define STORE_REG(A) ST_D(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)  LD_D(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
@@ -376,6 +380,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define jump_to_epilog STEPNAME(jump_to_epilog)
 #define jump_to_next   STEPNAME(jump_to_next)
 #define call_c         STEPNAME(call_c)
+#define emit_test32    STEPNAME(emit_test32)
 #define emit_add32     STEPNAME(emit_add32)
 #define emit_add32c    STEPNAME(emit_add32c)
 #define emit_add8      STEPNAME(emit_add8)
@@ -405,6 +410,7 @@ uintptr_t geted32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
 void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);

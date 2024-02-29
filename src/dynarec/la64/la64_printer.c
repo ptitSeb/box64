@@ -6,7 +6,7 @@
 #include "la64_printer.h"
 #include "debug.h"
 
-static const char* Xt[] = {"xZR", "r1", "r2", "sp", "xEmu", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "xRAX", "xRCX", "xRDX", "xRBX", "xRSP", "xRBP", "xRSI", "xRDI", "xR8", "r21", "xR9", "xR10", "xR11", "xR12", "xR13", "xR14", "xR15", "xFlags", "xRIP", "r31"};
+static const char* Xt[] = {"xZR", "r1", "r2", "sp", "xEmu", "x1_r5", "x2_r6", "x3_r7", "x4_r8", "x5_r9", "x6_r10", "xMASK_r11", "xRAX_r12", "xRCX_r13", "xRDX_r14", "xRBX_r15", "xRSP_r16", "xRBP_r17", "xRSI_r18", "xRDI_r19", "xRIP_r20", "r21", "r22", "xR8_r23", "xR9_r24", "xR10_r25", "xR11_r26", "xR12_r27", "xR13_r28", "xR14_r29", "xR15_r30", "xFlags_r31"};
 
 typedef struct la64_print_s {
     int d, j, k, a;

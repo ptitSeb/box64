@@ -549,8 +549,8 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
 
     if (la64_lbt) {
+        IFX(X_PEND) {} else {MOV64xw(s2, c);}
         IFX(X_ALL) {
-            IFX(X_PEND) {} else {MOV64xw(s2, c);}
             X64_SUB_WU(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
             ORI(xFlags, xFlags, s3);
