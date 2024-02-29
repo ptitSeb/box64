@@ -113,6 +113,7 @@ f24-f31  fs0-fs7   Static registers                Callee
         AND(r, r, x2);          \
     } while (0);
 
+// Standard formats
 #define type_4R(opc, ra, rk, rj, rd)     ((opc) << 20 | (ra) << 15 | (rk) << 10 | (rj) << 5 | (rd))
 #define type_3R(opc, rk, rj, rd)         ((opc) << 15 | (rk) << 10 | (rj) << 5 | (rd))
 #define type_3RI2(opc, imm2, rk, rj, rd) ((opc) << 17 | ((imm2) & 0x3) << 15 | (rk) << 10 | (rj) << 5 | (rd))
@@ -127,6 +128,12 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define type_1RI21(opc, imm21, rj)       ((opc) << 26 | ((imm21) & 0xFFFF) << 10 | (rj) << 5 | ((imm21) & 0x1F0000) >> 16)
 #define type_hint(opc, imm15)            ((opc) << 15 | ((imm15) & 0x7FFF))
 #define type_I26(opc, imm26)             ((opc) << 26 | ((imm26) & 0xFFFF) << 10 | ((imm26) & 0x3FF0000))
+
+// Made-up formats not found in the spec.
+#define type_2RI3(opc, imm3, rj, rd)     ((opc) << 13 | ((imm3) & 0x7 ) << 10 | (rj) << 5 | (rd))
+#define type_2RI4(opc, imm4, rj, rd)     ((opc) << 14 | ((imm4) & 0xF ) << 10 | (rj) << 5 | (rd))
+#define type_2RI5(opc, imm5, rj, rd)     ((opc) << 15 | ((imm5) & 0x1F) << 10 | (rj) << 5 | (rd))
+#define type_2RI6(opc, imm6, rj, rd)     ((opc) << 16 | ((imm6) & 0x3F) << 10 | (rj) << 5 | (rd))
 
 // tmp = GR[rj][31:0] + GR[rk][31:0]
 // Gr[rd] = SignExtend(tmp[31:0], GRLEN)
@@ -323,6 +330,172 @@ f24-f31  fs0-fs7   Static registers                Callee
 // paddr = AddressTranslation(vaddr)
 // MemoryStore(GR[rd][63:0], paddr, DOUBLEWORD)
 #define ST_D(rd, rj, imm12) EMIT(type_2RI12(0b0010100111, imm12, rj, rd))
+
+////////////////////////////////////////////////////////////////////////////////
+// LBT extension instructions
+
+/* 5 new registers:
+    LBT0 LBT1 LBT2 LBT3: scratch registers dedicated for the LBT extension.
+    LBT4: high 32 bits is ftop, low 32 bits is eflags.
+
+    Note: Instruction emitters below is not the exact name found in LoongArch Linux patches.
+          We slightly changed some of the names to be more readable.
+
+    If the floating point stack mode is set, any access to float registers will add LBT4.ftop to the register number.
+    int fpr(num) {
+        if (floating point stack mode)
+            return fprs[num + ftop]
+        else
+            return fprs[num]
+    }
+
+    Beware, out of bound fpr access is unpredictable.
+*/
+// Set the floating point stack mode (FCSR0[6]) to 0.
+#define X64_CLR_STACKMODE() EMIT(0x00008028)
+// Set the floating point stack mode (FCSR0[6]) to 1.
+#define X64_SET_STACKMODE() EMIT(0x00008008)
+
+// INC/DEC LBT4.ftop.
+#define X64_INC_TOP() EMIT(0x00008009)
+#define X64_DEC_TOP() EMIT(0x00008029)
+
+// GET/SET LBT4.ftop
+#define X64_SET_TOP(imm3) EMIT(0x00007000 | ((imm3 & 0b111) << 5))
+#define X64_GET_TOP(rd) EMIT(type_2R(0x00007400, 0, rd))
+
+#define X64_GET_EFLAGS(rd, mask8) EMIT(type_2RI8(0x17, mask8, 0, rd))
+#define X64_SET_EFLAGS(rd, mask8) EMIT(type_2RI8(0x17, mask8, 1, rd))
+
+// Reads OF/SF/ZF/CF/PF, set rd based on imm.
+#define X64_SETJ(rd, imm) EMIT(type_2RI4(0b000000000011011010, imm, 0, rd))
+// Here are the available enums:
+#define X64_JMP_JO   0  /* OF=1 */
+#define X64_JMP_JNO  1  /* OF=0 */
+#define X64_JMP_JS   2  /* SF=1 */
+#define X64_JMP_JNS  3  /* SF=0 */
+#define X64_JMP_JE   4  /* ZF=1 */
+#define X64_JMP_JNE  5  /* ZF=0 */
+#define X64_JMP_JB   6  /* CF=1 */
+#define X64_JMP_JNB  7  /* CF=0 */
+#define X64_JMP_JBE  8  /* CF=1 || ZF=1 */
+#define X64_JMP_JA   9  /* CF=0 && ZF=0 */
+#define X64_JMP_JL   10 /* SF != OF */
+#define X64_JMP_JGE  11 /* SF == OF */
+#define X64_JMP_JLE  12 /* ZF=1 || SF != OF */
+#define X64_JMP_JG   13 /* ZF=0 && SF == OF */
+#define X64_JMP_JP   14 /* PF=1 */
+#define X64_JMP_JNP  15 /* PF=0 */
+
+// Note that these instructions only affect the LBT4.eflags.
+
+#define X64_INC_B(rj) EMIT(type_2R(0x20, rj, 0x0))
+#define X64_INC_H(rj) EMIT(type_2R(0x20, rj, 0x1))
+#define X64_INC_W(rj) EMIT(type_2R(0x20, rj, 0x2))
+#define X64_INC_D(rj) EMIT(type_2R(0x20, rj, 0x3))
+#define X64_DEC_B(rj) EMIT(type_2R(0x20, rj, 0x4))
+#define X64_DEC_H(rj) EMIT(type_2R(0x20, rj, 0x5))
+#define X64_DEC_W(rj) EMIT(type_2R(0x20, rj, 0x6))
+#define X64_DEC_D(rj) EMIT(type_2R(0x20, rj, 0x7))
+#define X64_MUL_B(rj, rk)   EMIT(type_3R(0x7d, rk, rj, 0x0))
+#define X64_MUL_H(rj, rk)   EMIT(type_3R(0x7d, rk, rj, 0x1))
+#define X64_MUL_W(rj, rk)   EMIT(type_3R(0x7d, rk, rj, 0x2))
+#define X64_MUL_D(rj, rk)   EMIT(type_3R(0x7d, rk, rj, 0x3))
+#define X64_MUL_BU(rj, rk)  EMIT(type_3R(0x7d, rk, rj, 0x4))
+#define X64_MUL_HU(rj, rk)  EMIT(type_3R(0x7d, rk, rj, 0x5))
+#define X64_MUL_WU(rj, rk)  EMIT(type_3R(0x7d, rk, rj, 0x6))
+#define X64_MUL_DU(rj, rk)  EMIT(type_3R(0x7d, rk, rj, 0x7))
+#define X64_ADD_WU(rj, rk)  EMIT(type_3R(0x7e, rk, rj, 0x0))
+#define X64_ADD_DU(rj, rk)  EMIT(type_3R(0x7e, rk, rj, 0x1))
+#define X64_SUB_WU(rj, rk)  EMIT(type_3R(0x7e, rk, rj, 0x2))
+#define X64_SUB_DU(rj, rk)  EMIT(type_3R(0x7e, rk, rj, 0x3))
+#define X64_ADD_B(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x4))
+#define X64_ADD_H(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x5))
+#define X64_ADD_W(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x6))
+#define X64_ADD_D(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x7))
+#define X64_SUB_B(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x8))
+#define X64_SUB_H(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x9))
+#define X64_SUB_W(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0xa))
+#define X64_SUB_D(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0xb))
+#define X64_ADC_B(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0xc))
+#define X64_ADC_H(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0xd))
+#define X64_ADC_W(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0xe))
+#define X64_ADC_D(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0xf))
+#define X64_SBC_B(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x10))
+#define X64_SBC_H(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x11))
+#define X64_SBC_W(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x12))
+#define X64_SBC_D(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x13))
+#define X64_SLL_B(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x14))
+#define X64_SLL_H(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x15))
+#define X64_SLL_W(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x16))
+#define X64_SLL_D(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x17))
+#define X64_SRL_B(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x18))
+#define X64_SRL_H(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x19))
+#define X64_SRL_W(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x1a))
+#define X64_SRL_D(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x1b))
+#define X64_SRA_B(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x1c))
+#define X64_SRA_H(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x1d))
+#define X64_SRA_W(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x1e))
+#define X64_SRA_D(rj, rk)   EMIT(type_3R(0x7e, rk, rj, 0x1f))
+#define X64_ROTR_B(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x0))
+#define X64_ROTR_H(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x1))
+#define X64_ROTR_D(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x2))
+#define X64_ROTR_W(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x3))
+#define X64_ROTL_B(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x4))
+#define X64_ROTL_H(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x5))
+#define X64_ROTL_W(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x6))
+#define X64_ROTL_D(rj, rk)  EMIT(type_3R(0x7f, rk, rj, 0x7))
+#define X64_RCR_B(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x8))
+#define X64_RCR_H(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x9))
+#define X64_RCR_W(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0xa))
+#define X64_RCR_D(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0xb))
+#define X64_RCL_B(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0xc))
+#define X64_RCL_H(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0xd))
+#define X64_RCL_W(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0xe))
+#define X64_RCL_D(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0xf))
+#define X64_AND_B(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x10))
+#define X64_AND_H(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x11))
+#define X64_AND_W(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x12))
+#define X64_AND_D(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x13))
+#define X64_OR_B(rj, rk)    EMIT(type_3R(0x7f, rk, rj, 0x14))
+#define X64_OR_H(rj, rk)    EMIT(type_3R(0x7f, rk, rj, 0x15))
+#define X64_OR_W(rj, rk)    EMIT(type_3R(0x7f, rk, rj, 0x16))
+#define X64_OR_D(rj, rk)    EMIT(type_3R(0x7f, rk, rj, 0x17))
+#define X64_XOR_B(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x18))
+#define X64_XOR_H(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x19))
+#define X64_XOR_W(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x1a))
+#define X64_XOR_D(rj, rk)   EMIT(type_3R(0x7f, rk, rj, 0x1b))
+#define X64SLLI_B(rj, imm3)     EMIT(type_2RI3(0x2a1, imm3, rj, 0x0))
+#define X64SRLI_B(rj, imm3)     EMIT(type_2RI3(0x2a1, imm3, rj, 0x4))
+#define X64SRAI_B(rj, imm3)     EMIT(type_2RI3(0x2a1, imm3, rj, 0x8))
+#define X64ROTRI_B(rj, imm3)    EMIT(type_2RI3(0x2a1, imm3, rj, 0xc))
+#define X64RCRI_B(rj, imm3)     EMIT(type_2RI3(0x2a1, imm3, rj, 0x10))
+#define X64ROTLI_B(rj, imm3)    EMIT(type_2RI3(0x2a1, imm3, rj, 0x14))
+#define X64RCLI_B(rj, imm3)     EMIT(type_2RI3(0x2a1, imm3, rj, 0x18))
+#define X64SLLI_H(rj, imm4)     EMIT(type_2RI4(0x151, imm4, rj, 0x1))
+#define X64SRLI_H(rj, imm4)     EMIT(type_2RI4(0x151, imm4, rj, 0x5))
+#define X64SRAI_H(rj, imm4)     EMIT(type_2RI4(0x151, imm4, rj, 0x9))
+#define X64ROTRI_H(rj, imm4)    EMIT(type_2RI4(0x151, imm4, rj, 0xd))
+#define X64RCRI_H(rj, imm4)     EMIT(type_2RI4(0x151, imm4, rj, 0x11))
+#define X64ROTLI_H(rj, imm4)    EMIT(type_2RI4(0x151, imm4, rj, 0x15))
+#define X64RCLI_H(rj, imm4)     EMIT(type_2RI4(0x151, imm4, rj, 0x19))
+#define X64SLLI_W(rj, imm5)     EMIT(type_2RI5(0xa9, imm5, rj, 0x2))
+#define X64SRLI_W(rj, imm5)     EMIT(type_2RI5(0xa9, imm5, rj, 0x6))
+#define X64SRAI_W(rj, imm5)     EMIT(type_2RI5(0xa9, imm5, rj, 0xa))
+#define X64ROTRI_W(rj, imm5)    EMIT(type_2RI5(0xa9, imm5, rj, 0xe))
+#define X64RCRI_W(rj, imm5)     EMIT(type_2RI5(0xa9, imm5, rj, 0x12))
+#define X64ROTLI_W(rj, imm5)    EMIT(type_2RI5(0xa9, imm5, rj, 0x16))
+#define X64RCLI_W(rj, imm5)     EMIT(type_2RI5(0xa9, imm5, rj, 0x1a))
+#define X64SLLI_D(rj, imm6)     EMIT(type_2RI6(0x55, imm6, rj, 0x3))
+#define X64SRLI_D(rj, imm6)     EMIT(type_2RI6(0x55, imm6, rj, 0x7))
+#define X64SRAI_D(rj, imm6)     EMIT(type_2RI6(0x55, imm6, rj, 0xb))
+#define X64ROTRI_D(rj, imm6)    EMIT(type_2RI6(0x55, imm6, rj, 0xf))
+#define X64RCRI_D(rj, imm6)     EMIT(type_2RI6(0x55, imm6, rj, 0x13))
+#define X64ROTLI_D(rj, imm6)    EMIT(type_2RI6(0x55, imm6, rj, 0x17))
+#define X64RCLI_D(rj, imm6)     EMIT(type_2RI6(0x55, imm6, rj, 0x1b))
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 // GR[rd] = imm32
 #define MOV32w(rd, imm32)               \
