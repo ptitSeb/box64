@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RPI5ARM64, RK3326, RK3399, RK3588, PHYTIUM, SD845, SD888, ADLINK, ARM64, ANDROID, TERMUX]
+        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RPI5ARM64, RK3326, RK3399, RK3588, PHYTIUM, SD845, SD888, ADLINK, ARM64, ANDROID, TERMUX, LARCH64]
         type: [Release, Trace]
         os: [ubuntu-latest]
         include:
@@ -46,7 +46,7 @@ jobs:
       - name: "Environment preparation"
         run: |
           sudo apt-get update
-          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'OTHER_ARM' && ${{ matrix.platform }} != 'RISCV' ]]; then
+          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'OTHER_ARM' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
             sudo apt-get -y install git cmake make python3
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
@@ -85,6 +85,21 @@ jobs:
               echo BOX64_PLATFORM_MARCRO="-DRV64=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=riscv64-linux-gnu-gcc" >> $GITHUB_ENV
               sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3
+            elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
+              sudo mkdir /usr/local/larch
+              wget -O- -q https://github.com/loongson/build-tools/releases/download/2023.08.08/CLFS-loongarch64-8.1-x86_64-cross-tools-gcc-glibc.tar.xz | sudo tar -C /usr/local/larch --strip-components=1 --xz -xf -
+              sudo ln -sf /usr/local/larch/target /usr/loongarch64-linux-gnu
+              sudo cp -r /usr/local/larch/loongarch64-unknown-linux-gnu/lib/* /usr/loongarch64-linux-gnu/lib64/
+              for i in objdump objcopy strip; do
+                sudo ln -sf /usr/local/larch/bin/loongarch64-unknown-linux-gnu-$i /usr/bin/loongarch64-linux-gnu-$i
+              done
+              echo '/usr/local/larch/bin/loongarch64-unknown-linux-gnu-gcc -L/usr/local/larch/loongarch64-unknown-linux-gnu "$@"' | sudo tee /usr/bin/loongarch64-linux-gnu-gcc
+              echo '/usr/local/larch/bin/loongarch64-unknown-linux-gnu-g++ -L/usr/local/larch/loongarch64-unknown-linux-gnu "$@"' | sudo tee /usr/bin/loongarch64-linux-gnu-g++
+              sudo chmod 755 /usr/bin/loongarch64-linux-gnu-{gcc,g++}
+
+              echo BOX64_PLATFORM_MARCRO="-DLARCH64=ON" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=loongarch64-linux-gnu-gcc" >> $GITHUB_ENV
+              sudo apt-get -y install git cmake make python3
             else
               echo BOX64_PLATFORM_MARCRO="-DARM_DYNAREC=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
@@ -134,6 +149,9 @@ jobs:
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,zba=true,zbb=true,zbc=true,zbs=true ctest -j$(nproc) --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest -j$(nproc) --output-on-failure
+          elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
+            INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ ctest -j$(nproc) --output-on-failure
+            INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --output-on-failure
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 BOX64_DYNAREC=0 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
