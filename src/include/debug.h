@@ -60,6 +60,8 @@ extern int rv64_xtheadmempair;
 extern int rv64_xtheadfmemidx;
 extern int rv64_xtheadmac;
 extern int rv64_xtheadfmv;
+#elif defined(LA64)
+extern int la64_lbt;
 #endif
 #endif
 extern int box64_libcef;
