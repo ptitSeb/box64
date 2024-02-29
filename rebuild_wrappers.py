@@ -399,7 +399,9 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							 or match("sdl1mixer", "sdl2mixer") \
 							 or match("sdl1net", "sdl2net") \
 							 or match("sdl1ttf", "sdl2ttf") \
-							 or match("libGL", "libEGL") \
+							 or match("libgl", "libegl") \
+							 or match("libgl", "glesv2") \
+							 or match("libegl", "glesv2") \
 							 or match("libc", "tcmallocminimal") \
 							 or match("libc", "tbbmallocproxy") \
 							 or match("libc", "androidshmem") \

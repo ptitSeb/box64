@@ -470,6 +470,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedgdkpixbuf2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgdkx112.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgio2.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedglesv2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedglib2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgmodule2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedgmp.c"

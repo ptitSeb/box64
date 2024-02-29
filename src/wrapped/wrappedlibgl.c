@@ -33,6 +33,7 @@ EXPORT void* my_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__((a
 
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppi_t)(void*, void*, int);
 typedef void*(*pFp_t)(void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
@@ -76,6 +77,28 @@ static void* find_debug_callback_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL debug_callback callback\n");
     return NULL;
 }
+// egl_debug_callback ...
+#define GO(A)   \
+static uintptr_t my_egl_debug_callback_fct_##A = 0;                                                     \
+    static void my_egl_debug_callback_##A(int a, void* b, int c, void* d, void* e, const char* f)       \
+{                                                                                                       \
+    RunFunctionFmt(my_egl_debug_callback_fct_##A, "ipippp", a, b, c, d, e, f);                          \
+}
+SUPER()
+#undef GO
+static void* find_egl_debug_callback_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_egl_debug_callback_fct_##A == (uintptr_t)fct) return my_egl_debug_callback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_egl_debug_callback_fct_##A == 0) {my_egl_debug_callback_fct_##A = (uintptr_t)fct; return my_egl_debug_callback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL egl_debug_callback callback\n");
+    return NULL;
+}
 // program_callback ...
 #define GO(A)                                                       \
 static uintptr_t my_program_callback_fct_##A = 0;                   \
@@ -96,6 +119,50 @@ static void* find_program_callback_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libGL program_callback callback\n");
+    return NULL;
+}
+// set_blob_func ...
+#define GO(A)                                                               \
+static uintptr_t my_set_blob_func_fct_##A = 0;                              \
+static void my_set_blob_func_##A(void* a, ssize_t b, void* c, ssize_t d)    \
+{                                                                           \
+    RunFunctionFmt(my_set_blob_func_fct_##A, "plpl", a, b, c, d);           \
+}
+SUPER()
+#undef GO
+static void* find_set_blob_func_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_set_blob_func_fct_##A == (uintptr_t)fct) return my_set_blob_func_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_set_blob_func_fct_##A == 0) {my_set_blob_func_fct_##A = (uintptr_t)fct; return my_set_blob_func_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL set_blob_func callback\n");
+    return NULL;
+}
+// get_blob_func ...
+#define GO(A)                                                                       \
+static uintptr_t my_get_blob_func_fct_##A = 0;                                      \
+static ssize_t my_get_blob_func_##A(void* a, ssize_t b, void* c, ssize_t d)         \
+{                                                                                   \
+    return (ssize_t)RunFunctionFmt(my_get_blob_func_fct_##A, "plpl", a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* find_get_blob_func_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_get_blob_func_fct_##A == (uintptr_t)fct) return my_get_blob_func_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_get_blob_func_fct_##A == 0) {my_get_blob_func_fct_##A = (uintptr_t)fct; return my_get_blob_func_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL get_blob_func callback\n");
     return NULL;
 }
 
@@ -189,6 +256,52 @@ static void* find_glDebugMessageCallbackKHR_Fct(void* fct)
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libGL glDebugMessageCallbackKHR callback\n");
+    return NULL;
+}
+// eglDebugMessageControlKHR ...
+#define GO(A)                                                                           \
+static vFpp_t my_eglDebugMessageControlKHR_fct_##A = NULL;                             \
+static void my_eglDebugMessageControlKHR_##A(x64emu_t* emu, void* prod, void* param)   \
+{                                                                                       \
+    if(!my_eglDebugMessageControlKHR_fct_##A)                                          \
+        return;                                                                         \
+    my_eglDebugMessageControlKHR_fct_##A(find_egl_debug_callback_Fct(prod), param);    \
+}
+SUPER()
+#undef GO
+static void* find_eglDebugMessageControlKHR_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_eglDebugMessageControlKHR_fct_##A == (vFpp_t)fct) return my_eglDebugMessageControlKHR_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_eglDebugMessageControlKHR_fct_##A == 0) {my_eglDebugMessageControlKHR_fct_##A = (vFpp_t)fct; return my_eglDebugMessageControlKHR_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL eglDebugMessageControlKHR callback\n");
+    return NULL;
+}
+// eglSetBlobCacheFuncsANDROID ...
+#define GO(A)                                                                                               \
+static vFppp_t my_eglSetBlobCacheFuncsANDROID_fct_##A = NULL;                                               \
+static void my_eglSetBlobCacheFuncsANDROID_##A(x64emu_t* emu, void* dpy, void* set, void* get)              \
+{                                                                                                           \
+    if(!my_eglSetBlobCacheFuncsANDROID_fct_##A)                                                             \
+        return;                                                                                             \
+    my_eglSetBlobCacheFuncsANDROID_fct_##A(dpy, find_set_blob_func_Fct(set), find_get_blob_func_Fct(get));  \
+}
+SUPER()
+#undef GO
+static void* find_eglSetBlobCacheFuncsANDROID_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my_eglSetBlobCacheFuncsANDROID_fct_##A == (vFppp_t)fct) return my_eglSetBlobCacheFuncsANDROID_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_eglSetBlobCacheFuncsANDROID_fct_##A == 0) {my_eglSetBlobCacheFuncsANDROID_fct_##A = (vFppp_t)fct; return my_eglSetBlobCacheFuncsANDROID_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL eglSetBlobCacheFuncsANDROID callback\n");
     return NULL;
 }
 // glXSwapIntervalMESA ...
@@ -325,15 +438,17 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
 
 #include "wrappedlib_init.h"
 
-#define SUPER()                         \
- GO(vFpp_t, glDebugMessageCallback)     \
- GO(vFpp_t, glDebugMessageCallbackARB)  \
- GO(vFpp_t, glDebugMessageCallbackAMD)  \
- GO(vFpp_t, glDebugMessageCallbackKHR)  \
- GO(iFi_t, glXSwapIntervalMESA)         \
- GO(vFppi_t, glXSwapIntervalEXT)        \
- GO(vFpp_t, glProgramCallbackMESA)      \
- GO(pFp_t, glGetVkProcAddrNV)           \
+#define SUPER()                             \
+ GO(vFpp_t, glDebugMessageCallback)         \
+ GO(vFpp_t, glDebugMessageCallbackARB)      \
+ GO(vFpp_t, glDebugMessageCallbackAMD)      \
+ GO(vFpp_t, glDebugMessageCallbackKHR)      \
+ GO(vFpp_t, eglDebugMessageControlKHR)      \
+ GO(iFi_t, glXSwapIntervalMESA)             \
+ GO(vFppi_t, glXSwapIntervalEXT)            \
+ GO(vFpp_t, glProgramCallbackMESA)          \
+ GO(pFp_t, glGetVkProcAddrNV)               \
+ GO(vFppp_t, eglSetBlobCacheFuncsANDROID)   \
 
 
 gl_wrappers_t* getGLProcWrapper(box64context_t* context, glprocaddress_t procaddress)

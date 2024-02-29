@@ -473,6 +473,12 @@ library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* ve
     int precise = (!box64_prefer_wrapped && !essential && path && strchr(path, '/'))?1:0;
     if(!notwrapped && precise && strstr(path, "libtcmalloc_minimal.so"))
         precise = 0;    // allow native version for tcmalloc_minimum
+    /*
+    if(!notwrapped && precise && strstr(path, "libEGL.so"))
+        precise = 0;    // allow native version for EGL
+    if(!notwrapped && precise && strstr(path, "libGLESv2.so"))
+        precise = 0;    // allow native version for GLESv2
+    */
     // check if name is libSDL_sound-1.0.so.1 but with SDL2 loaded, then try emulated first...
     if(!notwrapped && !strcmp(lib->name, "libSDL_sound-1.0.so.1") && my_context->sdl2lib)
         notwrapped = 1;

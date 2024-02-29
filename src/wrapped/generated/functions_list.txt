@@ -2482,6 +2482,7 @@
 #() vFEpppppuu
 #() vFiiiiuuip
 #() vFiilliilp
+#() vFiilluulp
 #() vFiupuiuup
 #() vFiupuuuup
 #() vFuiiiiiii
@@ -3437,6 +3438,7 @@ wrappedgio2:
   - g_dbus_connection_signal_subscribe
 - vFpppppppiippp:
   - g_dbus_connection_call
+wrappedglesv2:
 wrappedglib2:
 - vFp:
   - g_atexit
@@ -4365,10 +4367,14 @@ wrappedlibgl:
   - glDebugMessageCallbackAMD
   - glDebugMessageCallbackARB
   - glDebugMessageCallbackKHR
+- iFpp:
+  - eglDebugMessageControlKHR
 - vFipp:
   - glProgramCallbackMESA
 - vFppi:
   - glXSwapIntervalEXT
+- vFppp:
+  - eglSetBlobCacheFuncsANDROID
 wrappedlibglu:
 - vFpip:
   - gluNurbsCallback

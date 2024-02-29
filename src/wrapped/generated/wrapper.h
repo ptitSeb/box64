@@ -2520,6 +2520,7 @@ void vFEpppuipV(x64emu_t *emu, uintptr_t fnc);
 void vFEpppppuu(x64emu_t *emu, uintptr_t fnc);
 void vFiiiiuuip(x64emu_t *emu, uintptr_t fnc);
 void vFiilliilp(x64emu_t *emu, uintptr_t fnc);
+void vFiilluulp(x64emu_t *emu, uintptr_t fnc);
 void vFiupuiuup(x64emu_t *emu, uintptr_t fnc);
 void vFiupuuuup(x64emu_t *emu, uintptr_t fnc);
 void vFuiiiiiii(x64emu_t *emu, uintptr_t fnc);

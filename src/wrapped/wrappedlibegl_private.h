@@ -5,21 +5,21 @@
 GO(eglBindAPI, iFi)
 GO(eglBindTexImage, iFppi)
 GO(eglChooseConfig, iFpppip)
-//GO(eglClientWaitSync, 
+GO(eglClientWaitSync, iFppiU)
 GO(eglCopyBuffers, iFppp)
 GO(eglCreateContext, pFpppp)
-//GO(eglCreateImage, 
+GO(eglCreateImage, pFppuup)
 GO(eglCreatePbufferFromClientBuffer, pFpippp)
 GO(eglCreatePbufferSurface, pFppp)
 GO(eglCreatePixmapSurface, pFpppp)
-//GO(eglCreatePlatformPixmapSurface, 
-//GO(eglCreatePlatformWindowSurface, 
-//GO(eglCreateSync, 
+GO(eglCreatePlatformPixmapSurface, pFpppp)
+GO(eglCreatePlatformWindowSurface, pFpppp)
+GO(eglCreateSync, pFpup)
 GO(eglCreateWindowSurface, pFpppp)
 GO(eglDestroyContext, iFpp)
-//GO(eglDestroyImage, 
+GO(eglDestroyImage, iFpp)
 GO(eglDestroySurface, iFpp)
-//GO(eglDestroySync, 
+GO(eglDestroySync, iFpp)
 GO(eglGetConfigAttrib, iFppip)
 GO(eglGetConfigs, iFppip)
 GO(eglGetCurrentContext, pFv)
@@ -27,9 +27,9 @@ GO(eglGetCurrentDisplay, pFv)
 GO(eglGetCurrentSurface, pFi)
 GO(eglGetDisplay, pFp)
 GO(eglGetError, iFv)
-//GO(eglGetPlatformDisplay, 
+GO(eglGetPlatformDisplay, pFppp)
 GOM(eglGetProcAddress, pFEp)
-//GO(eglGetSyncAttrib, 
+GO(eglGetSyncAttrib, iFppip)
 GO(eglInitialize, iFppp)
 GO(eglMakeCurrent, iFpppp)
 GO(eglQueryAPI, iFv)
@@ -45,5 +45,5 @@ GO(eglTerminate, iFp)
 GO(eglWaitClient, iFv)
 GO(eglWaitGL, iFv)
 GO(eglWaitNative, iFi)
-//GO(eglWaitSync, 
+GO(eglWaitSync, iFppi)
 

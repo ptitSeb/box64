@@ -787,6 +787,10 @@ GO(glMemoryBarrierByRegion, vFu)
 GO(glGetTextureSubImage, vFuiiiiiiiuuip)
 GO(glGetCompressedTextureSubImage, vFuiiiiiiiip)
 GO(glGetGraphicsResetStatus, iFv)
+GO(glGetnUniformfv, vFuilp)
+GO(glGetnUniformiv, vFuilp)
+GO(glGetnUniformuiv, vFuilp)
+GO(glReadnPixels, vFiilluulp)
 //VERSION_4_6
 GO(glSpecializeShader, vFippp)
 
@@ -2037,9 +2041,6 @@ GO(glIsTextureEXT, iFu)
 GO(glPrioritizeTexturesEXT, vFipp)
 //EXT_texture_perturb_normal
 GO(glTextureNormalEXT, vFu)
-//EXT_timer_query
-GO(glGetQueryObjecti64vEXT, vFuup)
-GO(glGetQueryObjectui64vEXT, vFuup)
 //EXT_transform_feedback
 GO(glBeginTransformFeedbackEXT, vFu)
 GO(glBindBufferBaseEXT, vFuuu)
@@ -3309,82 +3310,6 @@ GO(glGetnUniformfvKHR, vFuilp)
 GO(glGetnUniformivKHR, vFuilp)
 GO(glGetnUniformuivKHR, vFuilp)
 
-// EGL stuffs
-GO(eglBindAPI, iFi)
-GO(eglBindTexImage, iFppi)
-GO(eglChooseConfig, iFpppip)
-GO(eglClientWaitSyncKHR, iFppip)
-GO(eglClientWaitSyncNV, iFpip)
-GO(eglCopyBuffers, iFppp)
-GO(eglCreateContext, pFpppp)
-GO(eglCreateDRMImageMESA, pFpp)
-GO(eglCreateFenceSyncNV, pFpip)
-GO(eglCreateImageKHR, pFppipp)
-GO(eglCreatePbufferFromClientBuffer, pFpippp)
-GO(eglCreatePbufferSurface, pFppp)
-GO(eglCreatePixmapSurface, pFpppp)
-GO(eglCreatePixmapSurfaceHI, pFppp)
-GO(eglCreateStreamFromFileDescriptorKHR, pFpi)
-GO(eglCreateStreamKHR, pFpp)
-GO(eglCreateStreamProducerSurfaceKHR, pFpppp)
-GO(eglCreateSyncKHR, pFpip)
-GO(eglCreateWindowSurface, pFpppp)
-GO(eglDestroyContext, iFpp)
-GO(eglDestroyImageKHR, iFpp)
-GO(eglDestroyStreamKHR, iFpp)
-GO(eglDestroySurface, iFpp)
-GO(eglDestroySyncKHR, iFpp)
-GO(eglDestroySyncNV, iFp)
-GO(eglDupNativeFenceFDANDROID, iFpp)
-GO(eglExportDRMImageMESA, iFppppp)
-GO(eglFenceNV, iFp)
-GO(eglGetConfigAttrib, iFppip)
-GO(eglGetConfigs, iFppip)
-GO(eglGetCurrentContext, pFv)
-GO(eglGetCurrentDisplay, pFv)
-GO(eglGetCurrentSurface, pFi)
-GO(eglGetDisplay, pFp)
-GO(eglGetError, iFv)
-GO(eglGetStreamFileDescriptorKHR, iFpp)
-GO(eglGetSyncAttribKHR, iFppip)
-GO(eglGetSyncAttribNV, iFpip)
-GO(eglGetSystemTimeFrequencyNV, UFv)
-GO(eglGetSystemTimeNV, UFv)
-GO(eglInitialize, iFppp)
-GO(eglLockSurfaceKHR, iFppp)
-GO(eglMakeCurrent, iFpppp)
-GO(eglPostSubBufferNV, iFppiiii)
-GO(eglQueryAPI, iFv)
-GO(eglQueryContext, iFppip)
-GO(eglQueryNativeDisplayNV, iFpp)
-GO(eglQueryNativePixmapNV, iFppp)
-GO(eglQueryNativeWindowNV, iFppp)
-GO(eglQueryStreamKHR, iFppip)
-GO(eglQueryStreamTimeKHR, iFppip)
-GO(eglQueryStreamu64KHR, iFppip)
-GO(eglQueryString, pFpi)
-GO(eglQuerySurface, iFppip)
-GO(eglQuerySurfacePointerANGLE, iFppip)
-GO(eglReleaseTexImage, iFppi)
-GO(eglReleaseThread, iFv)
-//GOM(eglSetBlobCacheFuncsANDROID, vFpBB)
-GO(eglSignalSyncKHR, iFppi)
-GO(eglSignalSyncNV, iFpi)
-GO(eglStreamAttribKHR, iFppii)
-GO(eglStreamConsumerAcquireKHR, iFpp)
-GO(eglStreamConsumerGLTextureExternalKHR, iFpp)
-GO(eglStreamConsumerReleaseKHR, iFpp)
-GO(eglSurfaceAttrib, iFppii)
-GO(eglSwapBuffers, iFpp)
-GO(eglSwapBuffersWithDamageEXT, iFpppi)
-GO(eglSwapInterval, iFpi)
-GO(eglTerminate, iFp)
-GO(eglUnlockSurfaceKHR, iFpp)
-GO(eglWaitClient, iFv)
-GO(eglWaitGL, iFv)
-GO(eglWaitNative, iFi)
-GO(eglWaitSyncKHR, iFppi)
-
 // GLES stuff
 GO(glDiscardFramebuffer, vFilp)
 GO(glDiscardFramebufferARB, vFilp)
@@ -3417,6 +3342,7 @@ GO(glGetProgramPipelineivEXT, vFuip)
 GO(glIsProgramPipelineEXT, iFu)
 GO(glUseProgramStagesEXT, vFuuu)
 GO(glValidateProgramPipelineEXT, vFu)
+GO(glPrimitiveBoundingBox, vFffffffff)
 
 // GL_EXT_window_rectangles
 GO(glWindowRectanglesEXT, vFuip)
@@ -4014,3 +3940,123 @@ GO(glTexturePageCommitmentMemNV, vFuiiiiiiiiuLC)
 
 // GL_NV_vdpau_interop2
 GO(glVDPAURegisterVideoSurfaceWithPictureStructureNV, lFpuipC)
+
+// Base EGL
+GO(eglBindAPI, iFi)
+GO(eglBindTexImage, iFppi)
+GO(eglChooseConfig, iFpppip)
+GO(eglClientWaitSync, iFppiU)
+GO(eglCopyBuffers, iFppp)
+GO(eglCreateContext, pFpppp)
+GO(eglCreateImage, pFppuup)
+GO(eglCreatePbufferFromClientBuffer, pFpippp)
+GO(eglCreatePbufferSurface, pFppp)
+GO(eglCreatePixmapSurface, pFpppp)
+GO(eglCreatePlatformPixmapSurface, pFpppp)
+GO(eglCreatePlatformWindowSurface, pFpppp)
+GO(eglCreateSync, pFpup)
+GO(eglCreateWindowSurface, pFpppp)
+GO(eglDestroyContext, iFpp)
+GO(eglDestroyImage, iFpp)
+GO(eglDestroySurface, iFpp)
+GO(eglDestroySync, iFpp)
+GO(eglGetConfigAttrib, iFppip)
+GO(eglGetConfigs, iFppip)
+GO(eglGetCurrentContext, pFv)
+GO(eglGetCurrentDisplay, pFv)
+GO(eglGetCurrentSurface, pFi)
+GO(eglGetDisplay, pFp)
+GO(eglGetError, iFv)
+GO(eglGetPlatformDisplay, pFppp)
+//GOM(eglGetProcAddress, pFEp)
+GO(eglGetSyncAttrib, iFppip)
+GO(eglInitialize, iFppp)
+GO(eglMakeCurrent, iFpppp)
+GO(eglQueryAPI, iFv)
+GO(eglQueryContext, iFppip)
+GO(eglQueryString, pFpi)
+GO(eglQuerySurface, iFppip)
+GO(eglReleaseTexImage, iFppi)
+GO(eglReleaseThread, iFv)
+GO(eglSurfaceAttrib, iFppii)
+GO(eglSwapBuffers, iFpp)
+GO(eglSwapInterval, iFpi)
+GO(eglTerminate, iFp)
+GO(eglWaitClient, iFv)
+GO(eglWaitGL, iFv)
+GO(eglWaitNative, iFi)
+GO(eglWaitSync, iFppi)
+
+// EGL_KHR_debug
+GOM(eglDebugMessageControlKHR, iFEpp)
+GO(eglQueryDebugKHR, iFip)
+GO(eglLabelObjectKHR, iFpupp)
+
+// EGL_MESA_image_dma_buf_export
+GO(eglExportDMABUFImageQueryMESA, iFppppp)
+GO(eglExportDMABUFImageMESA, iFppppp)
+
+// EGL_ANGLE_sync_control_rate
+GO(eglGetMscRateANGLE, iFpppp)
+
+// EGL_CHROMIUM_sync_control
+GO(eglGetSyncValuesCHROMIUM, iFppppp)
+
+// EGL_EXT_device_query
+GO(eglQueryDeviceAttribEXT, iFpip)
+GO(eglQueryDeviceStringEXT, pFpi)
+GO(eglQueryDisplayAttribEXT, iFpip)
+
+// EGL_EXT_device_enumeration
+GO(eglQueryDevicesEXT, iFipp)
+
+// EGL_EXT_image_dma_buf_import_modifiers
+GO(eglQueryDmaBufFormatsEXT, iFpipp)
+GO(eglQueryDmaBufModifiersEXT, iFpiippp)
+
+// EGL_ANDROID_blob_cache
+GOM(eglSetBlobCacheFuncsANDROID, vFEppp)
+
+// EGL_KHR_swap_buffers_with_damage
+GO(eglSwapBuffersWithDamageKHR, iFpppi)
+
+// EGL_KHR_wait_sync
+GO(eglWaitSyncKHR, iFppi)
+
+// EGL_KHR_image_base
+GO(eglCreateImageKHR, pFppupp)
+GO(eglDestroyImageKHR, iFpp)
+
+// EGL_KHR_fence_sync
+GO(eglCreateSyncKHR, pFpup)
+GO(eglDestroySyncKHR, iFpp)
+GO(eglClientWaitSyncKHR, iFppiU)
+GO(eglGetSyncAttribKHR, iFppip)
+
+// EGL_ANDROID_native_fence_sync
+GO(eglDupNativeFenceFDANDROID, iFpp)
+
+// EGL_NV_post_sub_buffer
+GO(eglPostSubBufferNV, iFppiiii)
+
+// GL_EXT_clip_control
+GO(glClipControlEXT, vFuu)
+
+// GL_EXT_disjoint_timer_query
+GO(glGenQueriesEXT, vFlp)
+GO(glDeleteQueriesEXT, vFlp)
+GO(glIsQueryEXT, iFu)
+GO(glBeginQueryEXT, vFuu)
+GO(glEndQueryEXT, vFu)
+GO(glQueryCounterEXT, vFuu)
+GO(glGetQueryivEXT, vFuup)
+GO(glGetQueryObjectivEXT, vFuup)
+GO(glGetQueryObjectuivEXT, vFuup)
+GO(glGetQueryObjecti64vEXT, vFuup)
+GO(glGetQueryObjectui64vEXT, vFuup)
+GO(glGetInteger64vEXT, vFup)
+
+// GL_OES_mapbuffer
+GO(glGetBufferPointervOES, vFuup)
+GO(glMapBufferOES, pFuu)
+GO(glUnmapBufferOES, iFu)
