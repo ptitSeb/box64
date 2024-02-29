@@ -55,9 +55,8 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX(X_CF)
     {
         if (rex.w) {
-            MOV32w(x2, 0xffffffff);
-            AND(s5, x2, s1);
-            AND(s4, x2, s2);
+            AND(s5, xMASK, s1);
+            AND(s4, xMASK, s2);
             ADD_D(s5, s5, s4);
             SRLI_D(s3, s1, 0x20);
             SRLI_D(s4, s2, 0x20);
@@ -171,9 +170,8 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX(X_CF)
     {
         if (rex.w) {
-            MOV32w(x2, 0xffffffff);
-            AND(s5, x2, s1);
-            AND(s4, x2, s2);
+            AND(s5, xMASK, s1);
+            AND(s4, xMASK, s2);
             ADD_D(s5, s5, s4);
             SRLI_D(s3, s1, 0x20);
             SRLI_D(s4, s2, 0x20);

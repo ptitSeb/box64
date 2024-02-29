@@ -528,14 +528,12 @@ f24-f31  fs0-fs7   Static registers                Callee
     if (rex.w) {                \
         MV(rd, rj);             \
     } else {                    \
-        MOV32w(x2, 0xffffffff); \
-        AND(rd, rj, x2);        \
+        AND(rd, rj, xMASK);     \
     }
 // rd = rj (pseudo instruction)
 #define MVz(rd, rj)             \
     if (rex.is32bits) {         \
-        MOV32w(x2, 0xffffffff); \
-        AND(rd, rj, x2);        \
+        AND(rd, rj, xMASK);     \
     } else {                    \
         MV(rd, rj);             \
     }
