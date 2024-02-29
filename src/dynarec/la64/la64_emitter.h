@@ -99,6 +99,9 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define wZR     xZR
 #define r0      xZR
 
+// replacement for F_OF internaly, using a reserved bit. Need to use F_OF2 internaly, never F_OF directly!
+#define F_OF2 F_res3
+
 // split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
 #define SPLIT20(A) (((A) + 0x800) >> 12)
 #define SPLIT12(A) ((A) & 0xfff)
@@ -195,6 +198,19 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = GR[rj] ^ ZeroExtend(imm12, GRLEN)
 #define XORI(rd, rj, imm12) EMIT(type_2RI12(0b0000001111, imm12, rj, rd))
 
+// tmp = SLL(GR[rj][31:0], GR[rk][4:0])
+// GR[rd] = SignExtend(tmp[31:0], GRLEN)
+#define SLL_W(rd, rj, rk) EMIT(type_3R(0b00000000000101110, rk, rj, rd))
+// tmp = SRL(GR[rj][31:0], GR[rk][4:0])
+// GR[rd] = SignExtend(tmp[31:0], GRLEN)
+#define SRL_W(rd, rj, rk) EMIT(type_3R(0b00000000000101111, rk, rj, rd))
+// tmp = SLA(GR[rj][31:0], GR[rk][4:0])
+// GR[rd] = SignExtend(tmp[31:0], GRLEN)
+#define SLA_W(rd, rj, rk) EMIT(type_3R(0b00000000000110000, rk, rj, rd))
+// tmp = ROTR(GR[rj][31:0], GR[rk][4:0])
+// GR[rd] = SignExtend(tmp[31:0], GRLEN)
+#define ROTR_W(rd, rj, rk) EMIT(type_3R(0b00000000000110110, rk, rj, rd))
+
 // GR[rd] = SLL(GR[rj][63:0], imm6) (Shift Left Logical)
 #define SLLI_D(rd, rj, imm6) EMIT(type_2RI6(0b0000000001000001, imm6, rj, rd))
 // GR[rd] = SRL(GR[rj][63:0], imm6) (Shift Right Logical)
@@ -212,6 +228,25 @@ f24-f31  fs0-fs7   Static registers                Callee
         SLLI_D(scratch, rs2, imm6);        \
         ADD_D(rd, rs1, scratch);           \
     }
+
+// if GR[rj] == GR[rd]:
+//     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
+#define BEQ(rj, rd, imm16) EMIT(type_2RI16(0b010110, imm16, rj, rd))
+// if GR[rj] != GR[rd]:
+//     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
+#define BNE(rj, rd, imm16) EMIT(type_2RI16(0b010111, imm16, rj, rd))
+// if signed(GR[rj]) < signed(GR[rd]):
+//     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
+#define BLT(rj, rd, imm16) EMIT(type_2RI16(0b011000, imm16, rj, rd))
+// if signed(GR[rj]) >= signed(GR[rd]):
+//     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
+#define BGE(rj, rd, imm16) EMIT(type_2RI16(0b011001, imm16, rj, rd))
+// if unsigned(GR[rj]) == unsigned(GR[rd]):
+//     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
+#define BLTU(rj, rd, imm16) EMIT(type_2RI16(0b011010, imm16, rj, rd))
+// if unsigned(GR[rj]) == unsigned(GR[rd]):
+//     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
+#define BGEU(rj, rd, imm16) EMIT(type_2RI16(0b011011, imm16, rj, rd))
 
 // if GR[rj] == 0:
 //     PC = PC + SignExtend({imm21, 2'b0}, GRLEN)
@@ -305,6 +340,19 @@ f24-f31  fs0-fs7   Static registers                Callee
         LU52I_D(rd, rd, ((uint64_t)(imm64)) >> 52); \
     }
 
+#define MOV64xw(A, B) \
+    if (rex.w) {      \
+        MOV64x(A, B); \
+    } else {          \
+        MOV32w(A, B); \
+    }
+#define MOV64z(A, B)    \
+    if (rex.is32bits) { \
+        MOV32w(A, B);   \
+    } else {            \
+        MOV64x(A, B);   \
+    }
+
 // rd[63:0] = rj[63:0] (pseudo instruction)
 #define MV(rd, rj) ADDI_D(rd, rj, 0)
 // rd = rj (pseudo instruction)
@@ -323,6 +371,53 @@ f24-f31  fs0-fs7   Static registers                Callee
     } else {                    \
         MV(rd, rj);             \
     }
+
+// rd = !rs1
+#define NOT(rd, rs1) XORI(rd, rs1, -1)
+
+#define ADDIxw(rd, rj, imm12)  \
+    if (rex.w)                 \
+        ADDI_D(rd, rj, imm12); \
+    else                       \
+        ADDI_W(rd, rj, imm12);
+#define ADDIz(rd, rj, imm12)   \
+    if (rex.is32bits)          \
+        ADDI_W(rd, rj, imm12); \
+    else                       \
+        ADDI_D(rd, rj, imm12);
+
+#define ADDxw(rd, rj, rk)  \
+    if (rex.w)             \
+        ADD_D(rd, rj, rk); \
+    else                   \
+        ADD_W(rd, rj, rk);
+#define ADDz(rd, rj, rk)   \
+    if (rex.is32bits)      \
+        ADD_W(rd, rj, rk); \
+    else                   \
+        ADD_D(rd, rj, rk);
+
+#define SDxw(rd, rj, imm12)  \
+    if (rex.w)               \
+        ST_D(rd, rj, imm12); \
+    else                     \
+        ST_W(rd, rj, imm12);
+#define SDz(rd, rj, imm12)   \
+    if (rex.is32bits)        \
+        ST_W(rd, rj, imm12); \
+    else                     \
+        ST_D(rd, rj, imm12);
+
+#define SUBxw(rd, rj, rk)  \
+    if (rex.w)             \
+        SUB_D(rd, rj, rk); \
+    else                   \
+        SUB_W(rd, rj, rk);
+#define SUBz(rd, rj, rk)   \
+    if (rex.is32bits)      \
+        SUB_W(rd, rj, rk); \
+    else                   \
+        SUB_D(rd, rj, rk);
 
 // PUSH / POP reg[0:63]
 #define PUSH1(reg)              \

@@ -834,6 +834,7 @@ if(LARCH64_DYNAREC)
 
     set(DYNAREC_PASS
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_helper.c"
+    "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_emit_math.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_00.c"
     )
 endif()

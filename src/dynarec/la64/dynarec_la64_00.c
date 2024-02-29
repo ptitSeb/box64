@@ -53,6 +53,106 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(cacheupd);
 
     switch (opcode) {
+        case 0x00:
+            INST_NAME("ADD Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_add8(dyn, ninst, x1, x2, x4, x5);
+            EBBACK(x5, 0);
+            break;
+        case 0x01:
+            INST_NAME("ADD Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
+        case 0x02:
+            INST_NAME("ADD Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_add8(dyn, ninst, x2, x1, x4, x5);
+            GBBACK(x5);
+            break;
+        case 0x03:
+            INST_NAME("ADD Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
+        case 0x04:
+            INST_NAME("ADD AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
+            ANDI(xRAX, xRAX, ~0xff);
+            OR(xRAX, xRAX, x1);
+            break;
+        case 0x05:
+            INST_NAME("ADD EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
+            break;
+        case 0x28:
+            INST_NAME("SUB Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_sub8(dyn, ninst, x1, x2, x4, x5, x6);
+            EBBACK(x5, 0);
+            break;
+        case 0x29:
+            INST_NAME("SUB Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sub32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
+        case 0x2A:
+            INST_NAME("SUB Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_sub8(dyn, ninst, x2, x1, x4, x5, x6);
+            GBBACK(x5);
+            break;
+        case 0x2B:
+            INST_NAME("SUB Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sub32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
+        case 0x2C:
+            INST_NAME("SUB AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_sub8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
+            ANDI(xRAX, xRAX, ~0xff);
+            OR(xRAX, xRAX, x1);
+            break;
+        case 0x2D:
+            INST_NAME("SUB EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_sub32c(dyn, ninst, rex, xRAX, i64, x2, x3, x4, x5);
+            break;
         case 0x50:
         case 0x51:
         case 0x52:

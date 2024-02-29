@@ -401,6 +401,67 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
 {
+    MAYUSE(fnc);
+    if (savereg == 0)
+        savereg = x6;
+    if (saveflags) {
+        FLAGS_ADJUST_TO11(xFlags, xFlags, reg);
+        ST_D(xFlags, xEmu, offsetof(x64emu_t, eflags));
+    }
+    fpu_pushcache(dyn, ninst, reg, 0);
+    if (ret != -2) {
+        ADDI_D(xSP, xSP, -16); // RV64 stack needs to be 16byte aligned
+        ST_D(xEmu, xSP, 0);
+        ST_D(savereg, xSP, 8);
+        // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
+        STORE_REG(RAX);
+        STORE_REG(RCX);
+        STORE_REG(RDX);
+        STORE_REG(R12);
+        STORE_REG(R13);
+        STORE_REG(R14);
+        STORE_REG(R15);
+        ST_D(xRIP, xEmu, offsetof(x64emu_t, ip));
+    }
+    TABLE64(reg, (uintptr_t)fnc);
+    JIRL(xRA, reg, 0);
+    if (ret >= 0) {
+        MV(ret, xEmu);
+    }
+    if (ret != -2) {
+        LD_D(xEmu, xSP, 0);
+        LD_D(savereg, xSP, 8);
+        ADDI_D(xSP, xSP, 16);
+#define GO(A) \
+    if (ret != x##A) { LOAD_REG(A); }
+        GO(RAX);
+        GO(RCX);
+        GO(RDX);
+        GO(R12);
+        GO(R13);
+        GO(R14);
+        GO(R15);
+        if (ret != xRIP)
+            LD_D(xRIP, xEmu, offsetof(x64emu_t, ip));
+#undef GO
+    }
+
+    fpu_popcache(dyn, ninst, reg, 0);
+    if (saveflags) {
+        LD_D(xFlags, xEmu, offsetof(x64emu_t, eflags));
+        FLAGS_ADJUST_FROM11(xFlags, xFlags, reg);
+    }
+    SET_NODF();
+    dyn->last_ip = 0;
+}
+
+void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)
+{
+    // TODO
+}
+
+void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)
+{
     // TODO
 }
 
@@ -417,6 +478,24 @@ void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
 void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     // TODO
+}
+
+void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    // PF: (((emu->x64emu_parity_tab[(res&0xff) / 32] >> ((res&0xff) % 32)) & 1) == 0)
+    MOV64x(s4, (uintptr_t)GetParityTab());
+    SRLI_D(s3, s1, 3);
+    ANDI(s3, s3, 28);
+    ADD_D(s4, s4, s3);
+    LD_W(s4, s4, 0);
+    NOT(s4, s4);
+    SRL_W(s4, s4, s1);
+    ANDI(s4, s4, 1);
+
+    BEQZ(s4, 8);
+    ORI(xFlags, xFlags, 1 << F_PF);
 }
 
 void fpu_reset_cache(dynarec_la64_t* dyn, int ninst, int reset_n)

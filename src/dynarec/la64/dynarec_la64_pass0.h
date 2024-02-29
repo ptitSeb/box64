@@ -9,6 +9,11 @@
     dyn->insts[ninst].x64.use_flags = A; \
     dyn->f.dfnone = 1;                   \
     dyn->f.pending = SF_SET
+#define SETFLAGS(A, B)                     \
+    dyn->insts[ninst].x64.set_flags = A;   \
+    dyn->insts[ninst].x64.state_flags = B; \
+    dyn->f.pending = (B) & SF_SET_PENDING; \
+    dyn->f.dfnone = ((B) & SF_SET) ? 1 : 0;
 #define EMIT(A) dyn->native_size += 4
 #define BARRIER(A)                                 \
     if (A != BARRIER_MAYBE) {                      \
