@@ -1,4 +1,4 @@
-//la464 update linker table for dynarec
+//la64 update linker table for dynarec
 //called with pointer to emu as 1st parameter
 //and address of table to as 2nd parameter
 //ip is at r12
@@ -8,10 +8,10 @@
 
 .extern LinkNext
 
-.global la464_next
+.global la64_next
 
-    .8byte  0   // NULL pointer before la464_next, for getDB
-la464_next:
+    .8byte  0   // NULL pointer before la64_next, for getDB
+la64_next:
     // emu is a0
     // IP address is a1
     addi.d $sp, $sp, -(8 * 12)
