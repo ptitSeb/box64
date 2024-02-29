@@ -1,4 +1,4 @@
-//la464 epilog for dynarec
+//la64 epilog for dynarec
 //Save stuff, prepare stack and register
 //called with pointer to emu as 1st parameter
 //and address to jump to as 2nd parameter
@@ -6,8 +6,8 @@
 .text
 .align 4
 
-.global la464_epilog
-la464_epilog:
+.global la64_epilog
+la64_epilog:
     //update register -> emu
     st.d   $r12, $r4, (8 * 0)
     st.d   $r13, $r4, (8 * 1)
@@ -27,7 +27,7 @@ la464_epilog:
     st.d   $r30, $r4, (8 * 15)
     st.d   $r31, $r4, (8 * 16) // xFlags
     st.d   $r20, $r4, (8 * 17) // put back reg value in emu, including EIP (so x27 must be EIP now)
-    ld.d   $sp,  $r4, 552      // restore saved sp from emu->xSPSave, see la464_prolog
+    ld.d   $sp,  $r4, 552      // restore saved sp from emu->xSPSave, see la64_prolog
     ld.d   $r11, $sp, -8
     st.d   $r11, $r4, 552
     // vpop {d8-d15}

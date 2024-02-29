@@ -3,17 +3,17 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "la464_printer.h"
+#include "la64_printer.h"
 #include "debug.h"
 
 static const char* Xt[] = {"xZR", "r1", "r2", "sp", "xEmu", "r5", "r6", "r7", "r8", "r9", "r10", "r11", "xRAX", "xRCX", "xRDX", "xRBX", "xRSP", "xRBP", "xRSI", "xRDI", "xR8", "r21", "xR9", "xR10", "xR11", "xR12", "xR13", "xR14", "xR15", "xFlags", "xRIP", "r31"};
 
-typedef struct la464_print_s {
+typedef struct la64_print_s {
     int d, j, k, a;
     int i, u;
-} la464_print_t;
+} la64_print_t;
 
-int isMask(uint32_t opcode, const char* mask, la464_print_t *a)
+int isMask(uint32_t opcode, const char* mask, la64_print_t *a)
 {
     if(strlen(mask)!=32) {
         printf_log(LOG_NONE, "Error: printer mask \"%s\" in not len 32 but %ld\n", mask, strlen(mask));
@@ -50,10 +50,10 @@ int64_t signExtend(uint32_t val, int sz)
     return ret;
 }
 
-const char* la464_print(uint32_t opcode, uintptr_t addr)
+const char* la64_print(uint32_t opcode, uintptr_t addr)
 {
     static char buff[200];
-    la464_print_t a;
+    la64_print_t a;
     #define Rd a.d
     #define Rj a.j
     #define Rk a.k

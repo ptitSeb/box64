@@ -4,7 +4,7 @@
 #include "../dynarec_native_functions.h"
 
 typedef struct x64emu_s x64emu_t;
-typedef struct dynarec_rv64_s dynarec_rv64_t;
+typedef struct dynarec_la64_s dynarec_la64_t;
 
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_la64_t* dyn);

@@ -6,8 +6,8 @@
 .text
 .align 4
 
-.global la464_prolog
-la464_prolog:
+.global la64_prolog
+la64_prolog:
     //save all 18 used register
     addi.d $sp,  $sp, -(8 * 19)
     st.d   $r1,  $sp, (8 * 0) //save ra
