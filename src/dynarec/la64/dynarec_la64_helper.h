@@ -235,7 +235,7 @@
 #define SET_DFOK() dyn->f.dfnone = 1
 
 #define CLEAR_FLAGS() \
-    IFX(X_ALL) { ANDI(xFlags, xFlags, ~((1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF2) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF))); }
+    IFX(X_ALL) { ANDI(xFlags, xFlags, ~((1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF))); }
 
 #define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2, width)     \
     IFX(X_AF | X_CF | X_OF)                                           \
@@ -273,25 +273,9 @@
             XOR(scratch1, scratch1, scratch2);                        \
             ANDI(scratch1, scratch1, 1);                              \
             BEQZ(scratch1, 8);                                        \
-            ORI(xFlags, xFlags, 1 << F_OF2);                          \
+            ORI(xFlags, xFlags, 1 << F_OF);                          \
         }                                                             \
     }
-
-// Adjust the flags bit 11 -> bit 5, result in reg (can be same as flags, but not s1)
-#define FLAGS_ADJUST_FROM11(reg, flags, s1) \
-    ANDI(reg, flags, ~(1 << 5));            \
-    SRLI_D(s1, reg, 11 - 5);                \
-    ANDI(s1, s1, 1 << 5);                   \
-    OR(reg, reg, s1)
-
-// Adjust the xFlags bit 5 -> bit 11, src and dst can be the same (and can be xFlags, but not s1)
-#define FLAGS_ADJUST_TO11(dst, src, s1) \
-    LU12I_W(s1, 0xFFFFF);               \
-    ADDI_W(s1, s1, 0x7DF);              \
-    AND(s1, src, s1);                   \
-    ANDI(dst, src, 1 << 5);             \
-    SLLI_D(dst, dst, 11 - 5);           \
-    OR(dst, dst, s1)
 
 #ifndef READFLAGS
 #define READFLAGS(A)                                \
@@ -303,7 +287,6 @@
             BEQ(x3, xZR, j64);                      \
         }                                           \
         CALL_(UpdateFlags, -1, 0);                  \
-        FLAGS_ADJUST_FROM11(xFlags, xFlags, x3);    \
         MARKF;                                      \
         dyn->f.pending = SF_SET;                    \
         SET_DFOK();                                 \
