@@ -87,15 +87,12 @@
 // GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED(D)                                                                                \
     if (MODREG) {                                                                               \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                             \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
         wback = 0;                                                                              \
     } else {                                                                                    \
         SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
-        if (rex.w)                                                                              \
-            LD_D(x1, wback, fixedaddress);                                                      \
-        else                                                                                    \
-            LD_W(x1, wback, fixedaddress);                                                      \
+        LDxw(x1, wback, fixedaddress);                                                          \
         ed = x1;                                                                                \
     }
 
