@@ -106,6 +106,8 @@ int rv64_xtheadmempair = 0;
 int rv64_xtheadfmemidx = 0;
 int rv64_xtheadmac = 0;
 int rv64_xtheadfmv = 0;
+#elif defined(LA64)
+int la64_lbt = 0;
 #endif
 #else   //DYNAREC
 int box64_dynarec = 0;
@@ -444,9 +446,15 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " AFP");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
+    char *p = getenv("BOX64_DYNAREC_LA64NOEXT");
+    if(p == NULL || p[0] == '0') {
+        // We don't bother to detect it, it's there.
+        la64_lbt = 1;
+    }
 #elif defined(RV64)
     void RV64_Detect_Function();
-    if(!getenv("BOX64_DYNAREC_RV64NOEXT"))
+    char *p = getenv("BOX64_DYNAREC_RV64NOEXT");
+    if(p == NULL || p[0] == '0')
         RV64_Detect_Function();
     printf_log(LOG_INFO, "Dynarec for RISC-V ");
     printf_log(LOG_INFO, "With extension: I M A F D C");

@@ -56,5 +56,8 @@ la64_prolog:
     st.d   $r11, $sp, -16
     st.d   $r0,  $sp, -8
     addi.d $sp,  $sp, -16
+    // setup xMASK
+    addi.w  $r11, $r0, -1
+    lu32i.d $r4, 0
     //jump to function
     jirl   $r0,  $a1, 0

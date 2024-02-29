@@ -40,6 +40,21 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     {
         SET_DFNONE();
     }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            X64_ADD_WU(s1, s2);
+            X64_GET_EFLAGS(s3, X_ALL);
+            ORI(xFlags, xFlags, s3);
+        }
+        ADDxw(s1, s1, s2);
+        if (!rex.w) ZEROUP(s1);
+
+        IFX(X_PEND)
+            SDxw(s1, xEmu, offsetof(x64emu_t, res));
+        return;
+    }
+
     IFX(X_CF)
     {
         if (rex.w) {
@@ -68,17 +83,11 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         AND(s4, s1, s2); // s4 = op1 & op2
     }
 
-    if (rex.w)
-        ADD_D(s1, s1, s2);
-    else
-        ADD_W(s1, s1, s2);
+    ADDxw(s1, s1, s2);
 
     IFX(X_PEND)
     {
-        if (rex.w)
-            ST_D(s1, xEmu, offsetof(x64emu_t, res));
-        else
-            ST_W(s1, xEmu, offsetof(x64emu_t, res));
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_AF | X_OF)
     {

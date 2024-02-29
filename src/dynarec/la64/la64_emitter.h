@@ -80,6 +80,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define x4      8
 #define x5      9
 #define x6      10
+// used to clear the upper 32bits
+#define xMASK   11
 // 32bits version of scratch
 #define w1      x1
 #define w2      x2
@@ -104,11 +106,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define SPLIT12(A) ((A) & 0xfff)
 
 // ZERO the upper part
-#define ZEROUP(r)               \
-    do {                        \
-        MOV32w(x2, 0xffffffff); \
-        AND(r, r, x2);          \
-    } while (0);
+#define ZEROUP(r) AND(r, r, xMASK);
 
 // Standard formats
 #define type_4R(opc, ra, rk, rj, rd)     ((opc) << 20 | (ra) << 15 | (rk) << 10 | (rj) << 5 | (rd))
