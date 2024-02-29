@@ -52,9 +52,9 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define xFlags  31
 #define xRIP    20
 // function to move from x86 regs number to LA64 reg number
-#define TO_LA64(A) ((A)>7)?((A)+15):((A)+12)
+#define TO_LA64(A) (((A)>7)?((A)+15):((A)+12))
 // function to move from LA64 regs number to x86 reg number
-#define FROM_LA64(A) ((A)>22)?((A)-15):((A)-12)
+#define FROM_LA64(A) (((A)>22)?((A)-15):((A)-12))
 // 32bits version
 #define wEAX    xRAX
 #define wECX    xRCX
@@ -528,14 +528,12 @@ f24-f31  fs0-fs7   Static registers                Callee
     if (rex.w) {                \
         MV(rd, rj);             \
     } else {                    \
-        MOV32w(x2, 0xffffffff); \
-        AND(rd, rj, x2);        \
+        AND(rd, rj, xMASK);     \
     }
 // rd = rj (pseudo instruction)
 #define MVz(rd, rj)             \
     if (rex.is32bits) {         \
-        MOV32w(x2, 0xffffffff); \
-        AND(rd, rj, x2);        \
+        AND(rd, rj, xMASK);     \
     } else {                    \
         MV(rd, rj);             \
     }
@@ -564,6 +562,12 @@ f24-f31  fs0-fs7   Static registers                Callee
         ADD_W(rd, rj, rk); \
     else                   \
         ADD_D(rd, rj, rk);
+
+#define LDxw(rd, rj, imm12)   \
+    if (rex.w)                \
+        LD_D(rd, rj, imm12);  \
+    else                      \
+        LD_WU(rd, rj, imm12);
 
 #define SDxw(rd, rj, imm12)  \
     if (rex.w)               \

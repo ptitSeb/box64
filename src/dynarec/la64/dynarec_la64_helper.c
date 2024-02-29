@@ -246,8 +246,7 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
         } else {
             ret = TO_LA64((nextop & 7));
             if (ret == hint) {
-                MOV32w(x2, 0xffffffff);
-                AND(hint, ret, x2); // to clear upper part
+                AND(hint, ret, xMASK); // to clear upper part
             }
         }
     } else {
