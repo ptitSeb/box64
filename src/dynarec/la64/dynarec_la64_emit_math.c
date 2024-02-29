@@ -97,7 +97,7 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             XOR(s3, s3, s4);
             ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
             BEQZ(s3, 8);
-            ORI(xFlags, xFlags, 1 << F_OF2);
+            ORI(xFlags, xFlags, 1 << F_OF);
         }
     }
     IFX(X_SF)
@@ -207,7 +207,7 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             XOR(s3, s3, s4);
             ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
             BEQZ(s3, 8);
-            ORI(xFlags, xFlags, 1 << F_OF2);
+            ORI(xFlags, xFlags, 1 << F_OF);
         }
     }
     IFX(X_SF)
@@ -267,7 +267,7 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             XOR(s3, s3, s4);
             ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
             BEQZ(s3, 8);
-            ORI(xFlags, xFlags, 1 << F_OF2);
+            ORI(xFlags, xFlags, 1 << F_OF);
         }
     }
     IFX(X_CF)
@@ -342,7 +342,7 @@ void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
             XOR(s3, s3, s4);
             ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
             BEQZ(s3, 8);
-            ORI(xFlags, xFlags, 1 << F_OF2);
+            ORI(xFlags, xFlags, 1 << F_OF);
         }
     }
     IFX(X_CF)
