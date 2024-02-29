@@ -53,8 +53,6 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define xRIP    20
 // function to move from x86 regs number to LA64 reg number
 #define TO_LA64(A) (((A)>7)?((A)+15):((A)+12))
-// function to move from LA64 regs number to x86 reg number
-#define FROM_LA64(A) (((A)>22)?((A)-15):((A)-12))
 // 32bits version
 #define wEAX    xRAX
 #define wECX    xRCX
