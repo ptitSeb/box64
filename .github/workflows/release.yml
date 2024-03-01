@@ -53,7 +53,7 @@ jobs:
               unzip android-ndk-r26b-linux.zip
               echo "BOX64_COMPILER=$PWD/android-ndk-r26b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
-              git clone https://github.com/termux/termux-docker.git  
+              git clone https://github.com/termux/termux-docker.git
               sudo cp -rf termux-docker/system/arm /system
               sudo chown -R $(whoami):$(whoami) /system
               sudo chmod 755 -R /system
@@ -150,7 +150,6 @@ jobs:
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,zba=true,zbb=true,zbc=true,zbs=true ctest -j$(nproc) --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest -j$(nproc) --output-on-failure
           elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
-            INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ ctest -j$(nproc) --output-on-failure
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_LA64NOEXT=1 ctest -j$(nproc) --output-on-failure
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --output-on-failure
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
