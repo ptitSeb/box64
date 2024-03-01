@@ -193,6 +193,37 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+
+        #define GO(F, I)                                                    \
+            READFLAGS(F);                                                   \
+            i8 = F8S;                                                       \
+            BARRIER(BARRIER_MAYBE);                                         \
+            JUMP(addr + i8, 1);                                             \
+            X64_SET_EFLAGS(xFlags, F);                                      \
+            X64_SETJ(x1, I);                                                \
+            if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {   \
+                /* out of block */                                          \
+                i32 = dyn->insts[ninst].epilog-(dyn->native_size);          \
+                BEQZ(x1, i32);                                              \
+                if(dyn->insts[ninst].x64.jmp_insts==-1) {                   \
+                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))      \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);          \
+                    jump_to_next(dyn, addr+i8, 0, ninst, rex.is32bits);     \
+                } else {                                                    \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);       \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);   \
+                    B(i32);                                                 \
+                }                                                           \
+            } else {                                                        \
+                /* inside the block */                                      \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);   \
+                BNEZ(x1, i32);                                              \
+            }
+
+        GOCOND(0x70, "J", "ib");
+
+        #undef GO
+
         case 0x85:
             INST_NAME("TEST Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);

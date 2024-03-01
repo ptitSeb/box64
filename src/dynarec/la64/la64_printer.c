@@ -38,7 +38,7 @@ int isMask(uint32_t opcode, const char* mask, la64_print_t *a)
         mask++;
         --i;
     }
-    
+
     return 1;
 }
 
@@ -212,12 +212,12 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     // BEQZ
     if(isMask(opcode, "010000iiiiiiiiiiiiiiiijjjjjuuuuu", &a)) {
-        snprintf(buff, sizeof(buff), "BEQZ %s, %d", Xt[Rj], imm + (imm_up << 16));
+        snprintf(buff, sizeof(buff), "BEQZ %s, %d", Xt[Rj], (imm + (imm_up << 16) << 2));
         return buff;
     }
     // BNEZ
     if(isMask(opcode, "010001iiiiiiiiiiiiiiiijjjjjuuuuu", &a)) {
-        snprintf(buff, sizeof(buff), "BNEZ %s, %d", Xt[Rj], imm + (imm_up << 16));
+        snprintf(buff, sizeof(buff), "BNEZ %s, %d", Xt[Rj], (imm + (imm_up << 16) << 2));
         return buff;
     }
     // JIRL

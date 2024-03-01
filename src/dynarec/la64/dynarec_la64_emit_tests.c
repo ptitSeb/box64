@@ -36,7 +36,7 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         IFX(X_ALL) {
             if (rex.w) X64_AND_D(s1, s2); else X64_AND_W(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
 
         AND(s3, s1, s2);

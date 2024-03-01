@@ -312,7 +312,9 @@
     else                                                                                                            \
         dyn->f.pending = SF_SET
 #endif
-
+#ifndef JUMP
+#define JUMP(A, C)
+#endif
 #ifndef BARRIER
 #define BARRIER(A)
 #endif
@@ -400,6 +402,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_reflectcache    STEPNAME(fpu_reflectcache)
 #define fpu_unreflectcache  STEPNAME(fpu_unreflectcache)
 
+#define CacheTransform STEPNAME(CacheTransform)
+
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
 
@@ -434,6 +438,14 @@ void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
 
+void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
+
+#if STEP < 2
+#define CHECK_CACHE() 0
+#else
+#define CHECK_CACHE() (cacheupd = CacheNeedsTransform(dyn, ninst))
+#endif
+
 uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 
 #if STEP < 3
@@ -447,6 +459,72 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #else
 #define MAYUSE(A)
 #endif
+
+#define GOCOND(B, T1, T2)                    \
+    case B + 0x0:                            \
+        INST_NAME(T1 "O " T2);               \
+        GO(X_OF, X64_JMP_JO);                \
+        break;                               \
+    case B + 0x1:                            \
+        INST_NAME(T1 "NO " T2);              \
+        GO(X_OF, X64_JMP_JNO);               \
+        break;                               \
+    case B + 0x2:                            \
+        INST_NAME(T1 "C " T2);               \
+        GO(X_CF, X64_JMP_JB);                \
+        break;                               \
+    case B + 0x3:                            \
+        INST_NAME(T1 "NC " T2);              \
+        GO(X_CF, X64_JMP_JNB);               \
+        break;                               \
+    case B + 0x4:                            \
+        INST_NAME(T1 "Z " T2);               \
+        GO(X_ZF, X64_JMP_JE);                \
+        break;                               \
+    case B + 0x5:                            \
+        INST_NAME(T1 "NZ " T2);              \
+        GO(X_ZF, X64_JMP_JNE);               \
+        break;                               \
+    case B + 0x6:                            \
+        INST_NAME(T1 "BE " T2);              \
+        GO(X_CF | X_ZF, X64_JMP_JBE);        \
+        break;                               \
+    case B + 0x7:                            \
+        INST_NAME(T1 "NBE " T2);             \
+        GO(X_CF | X_ZF, X64_JMP_JA);         \
+        break;                               \
+    case B + 0x8:                            \
+        INST_NAME(T1 "S " T2);               \
+        GO(X_SF, X64_JMP_JS);                \
+        break;                               \
+    case B + 0x9:                            \
+        INST_NAME(T1 "NS " T2);              \
+        GO(X_SF, X64_JMP_JNS);               \
+        break;                               \
+    case B + 0xA:                            \
+        INST_NAME(T1 "P " T2);               \
+        GO(X_PF, X64_JMP_JP);                \
+        break;                               \
+    case B + 0xB:                            \
+        INST_NAME(T1 "NP " T2);              \
+        GO(X_PF, X64_JMP_JNP);               \
+        break;                               \
+    case B + 0xC:                            \
+        INST_NAME(T1 "L " T2);               \
+        GO(X_SF | X_OF, X64_JMP_JL);         \
+        break;                               \
+    case B + 0xD:                            \
+        INST_NAME(T1 "GE " T2);              \
+        GO(X_SF | X_OF, X64_JMP_JGE);        \
+        break;                               \
+    case B + 0xE:                            \
+        INST_NAME(T1 "LE " T2);              \
+        GO(X_SF | X_OF | X_ZF, X64_JMP_JLE); \
+        break;                               \
+    case B + 0xF:                            \
+        INST_NAME(T1 "G " T2);               \
+        GO(X_SF | X_OF | X_ZF, X64_JMP_JG);  \
+        break
 
 #define NOTEST(s1)                                       \
     if (box64_dynarec_test) {                            \
