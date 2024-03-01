@@ -1343,6 +1343,18 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
+        case 0xF8:
+            INST_NAME("CLC");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
+            BFCx(xFlags, F_CF, 1);
+            break;
+        case 0xF9:
+            INST_NAME("STC");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE(x1);
+            ORRx_mask(xFlags, xFlags, 1, 0, 0); // xFlags | 1
+            break;
 
         case 0xFF:
             nextop = F8;

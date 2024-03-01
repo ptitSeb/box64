@@ -869,6 +869,14 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             }
         }
         break;
+    case 0xF8:                      /* CLC */
+        CHECK_FLAGS(emu);
+        CLEAR_FLAG(F_CF);
+        break;
+    case 0xF9:                      /* STC */
+        CHECK_FLAGS(emu);
+        SET_FLAG(F_CF);
+        break;
 
     case 0xFF:                      /* GRP 5 Ew */
         nextop = F8;
