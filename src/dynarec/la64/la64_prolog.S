@@ -48,7 +48,7 @@ la64_prolog:
     ld.d   $r28, $r4, (8 * 13)
     ld.d   $r29, $r4, (8 * 14)
     ld.d   $r30, $r4, (8 * 15)
-    ld.d   $r31, $r4, (8 * 16)  //xFlags  
+    ld.d   $r31, $r4, (8 * 16)  //xFlags
     ld.d   $r20, $r4, (8 * 17)  //xRIP
     ld.d   $r11, $r4, 552 // grab an old value of emu->xSPSave
     st.d   $sp,  $r4, 552 // save current sp to emu->xSPSave
@@ -58,6 +58,6 @@ la64_prolog:
     addi.d $sp,  $sp, -16
     // setup xMASK
     addi.w  $r11, $r0, -1
-    lu32i.d $r4, 0
+    lu32i.d $r11, 0
     //jump to function
     jirl   $r0,  $a1, 0
