@@ -399,6 +399,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD1:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 5:
+                    INST_NAME("SHR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    GETED(0);
+                    emit_shr32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
                 case 7:
                     INST_NAME("SAR Ed, 1");
                     SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
