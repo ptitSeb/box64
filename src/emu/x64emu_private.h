@@ -74,9 +74,6 @@ typedef struct x64emu_s {
     #ifdef RV64         // it would be better to use a dedicated register for this like arm64 xSavedSP, but we're running of of free registers.
     uintptr_t xSPSave;  // sp base value of current dynarec frame, used by call/ret optimization to reset stack when unmatch.
     #endif
-    #ifdef LA64         // it would be better to use a dedicated register for this like arm64 xSavedSP, but we're running of of free registers.
-    uintptr_t xSPSave;  // sp base value of current dynarec frame, used by call/ret optimization to reset stack when unmatch.
-    #endif
     fpu_ld_t    fpu_ld[8]; // for long double emulation / 80bits fld fst
     fpu_ll_t    fpu_ll[8]; // for 64bits fild / fist sequence
 	fpu_p_reg_t p_regs[8];

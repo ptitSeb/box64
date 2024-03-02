@@ -50,12 +50,12 @@ la64_prolog:
     ld.d   $r30, $r4, (8 * 15)
     ld.d   $r31, $r4, (8 * 16)  //xFlags
     ld.d   $r20, $r4, (8 * 17)  //xRIP
-    ld.d   $r22, $r4, 552 // grab an old value of emu->xSPSave
-    st.d   $sp,  $r4, 552 // save current sp to emu->xSPSave
     // push sentinel onto the stack
-    st.d   $r22, $sp, -16
+    st.d   $r0, $sp, -16
     st.d   $r0,  $sp, -8
     addi.d $sp,  $sp, -16
+    // save old sp into xSavedSP
+    addi.d $r22, $sp, 16
     // setup xMASK
     addi.w  $r11, $r0, -1
     lu32i.d $r11, 0
