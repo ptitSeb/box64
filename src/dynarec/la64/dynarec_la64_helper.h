@@ -255,20 +255,27 @@
 #define LOAD_REG(A)  LD_D(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 
 // Need to also store current value of some register, as they may be used by functions like setjmp
-#define STORE_XEMU_CALL(s0) \
-    STORE_REG(RBX);         \
-    STORE_REG(RDX);         \
-    STORE_REG(RSP);         \
-    STORE_REG(RBP);         \
-    STORE_REG(RDI);         \
-    STORE_REG(RSI);         \
-    STORE_REG(R8);          \
-    STORE_REG(R9);          \
-    STORE_REG(R10);         \
-    STORE_REG(R11);
+#define STORE_XEMU_CALL() \
+    STORE_REG(R8);        \
+    STORE_REG(R9);        \
+    STORE_REG(R10);       \
+    STORE_REG(R11);       \
+    STORE_REG(R12);       \
+    STORE_REG(R13);       \
+    STORE_REG(R14);       \
+    STORE_REG(R15);
 
 #define LOAD_XEMU_CALL()
 
+#define LOAD_XEMU_REM() \
+    LOAD_REG(R8);       \
+    LOAD_REG(R9);       \
+    LOAD_REG(R10);      \
+    LOAD_REG(R11);      \
+    LOAD_REG(R12);      \
+    LOAD_REG(R13);      \
+    LOAD_REG(R14);      \
+    LOAD_REG(R15);
 
 #define SET_DFNONE()                             \
     if (!dyn->f.dfnone) {                        \
@@ -440,6 +447,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define native_pass STEPNAME(native_pass)
 
 #define dynarec64_00   STEPNAME(dynarec64_00)
+#define dynarec64_0F   STEPNAME(dynarec64_0F)
 #define dynarec64_66   STEPNAME(dynarec64_66)
 #define dynarec64_F30F STEPNAME(dynarec64_F30F)
 #define dynarec64_660F STEPNAME(dynarec64_660F)
@@ -533,6 +541,7 @@ void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2
 #endif
 
 uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);

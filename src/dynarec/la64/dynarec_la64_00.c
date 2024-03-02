@@ -105,6 +105,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0F:
             switch (rep) {
+                case 0:
+                    addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
                 case 2:
                     addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     break;
@@ -409,7 +412,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // FIXME: Even the basic support of isSimpleWrapper is disabled for now.
 
                     GETIP(ip + 1); // read the 0xCC
-                    STORE_XEMU_CALL(x3);
+                    STORE_XEMU_CALL();
                     ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                     CALL_S(x64Int3, -1);
                     LOAD_XEMU_CALL();
@@ -431,7 +434,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     LD_D(x3, x2, 0);
                     CBZ_NEXT(x3);
                     GETIP(ip);
-                    STORE_XEMU_CALL(x3);
+                    STORE_XEMU_CALL();
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL();
                 }
