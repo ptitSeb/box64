@@ -862,10 +862,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // 32bits imul
                 UFLAG_IF {
                     SMULL(gd, ed, x4);
-                    UFLAG_RES(gd);
                     LSRx(x3, gd, 32);
                     MOVw_REG(gd, gd);
                     IFX(X_PEND) {
+                        UFLAG_RES(gd);
                         UFLAG_OP1(x3);
                         UFLAG_DF(x1, d_imul32);
                     } else {
@@ -876,10 +876,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         BICw(xFlags, xFlags, x1);
                     }
                     IFX(X_CF | X_OF) {
-                        ASRw(x3, x3, 31);
                         ASRw(x4, gd, 31);
                         CMPSw_REG(x3, x4);
-                        CSETw(x3, cNE);
+                        CSETw(x1, cNE);
                         IFX(X_CF) {
                             BFIw(xFlags, x1, F_CF, 1);
                         }
@@ -902,7 +901,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
-            SETFLAGS(X_ALL, SF_PENDING);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
             GETED(1);
@@ -913,9 +912,28 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {
                     SMULH(x3, ed, x4);
                     MULx(gd, ed, x4);
-                    UFLAG_OP1(x3);
-                    UFLAG_RES(gd);
-                    UFLAG_DF(x3, d_imul64);
+                    IFX(X_PEND) {
+                        UFLAG_OP1(x3);
+                        UFLAG_RES(gd);
+                        UFLAG_DF(x1, d_imul64);
+                    } else {
+                        SET_DFNONE(x1);
+                    }
+                    IFX(X_ZF | X_PF | X_AF | X_SF) {
+                        MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
+                        BICw(xFlags, xFlags, x1);
+                    }
+                    IFX(X_CF | X_OF) {
+                        ASRx(x4, gd, 63);
+                        CMPSx_REG(x3, x4);
+                        CSETw(x1, cNE);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x1, F_CF, 1);
+                        }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x1, F_OF, 1);
+                        }
+                    }
                 } else {
                     MULxw(gd, ed, x4);
                 }
@@ -923,11 +941,30 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // 32bits imul
                 UFLAG_IF {
                     SMULL(gd, ed, x4);
-                    UFLAG_RES(gd);
                     LSRx(x3, gd, 32);
-                    UFLAG_OP1(x3);
-                    UFLAG_DF(x3, d_imul32);
                     MOVw_REG(gd, gd);
+                    IFX(X_PEND) {
+                        UFLAG_RES(gd);
+                        UFLAG_OP1(x3);
+                        UFLAG_DF(x1, d_imul32);
+                    } else {
+                        SET_DFNONE(x1);
+                    }
+                    IFX(X_ZF | X_PF | X_AF | X_SF) {
+                        MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
+                        BICw(xFlags, xFlags, x1);
+                    }
+                    IFX(X_CF | X_OF) {
+                        ASRw(x4, gd, 31);
+                        CMPSw_REG(x3, x4);
+                        CSETw(x1, cNE);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x1, F_CF, 1);
+                        }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x1, F_OF, 1);
+                        }
+                    }
                 } else {
                     MULxw(gd, ed, x4);
                 }
