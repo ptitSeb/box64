@@ -368,6 +368,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0xC7:
+            INST_NAME("MOV Ed, Id");
+            nextop = F8;
+            if (MODREG) { // reg <= i32
+                i64 = F32S;
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                MOV64xw(ed, i64);
+            } else { // mem <= i32
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 4);
+                i64 = F32S;
+                if (i64) {
+                    MOV64xw(x3, i64);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                SDxw(ed, wback, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);
             SKIPTEST(x1);
