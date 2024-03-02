@@ -103,6 +103,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
+        case 0x0F:
+            switch (rep) {
+                case 2:
+                    addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x28:
             INST_NAME("SUB Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -363,6 +372,35 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     LOAD_XEMU_CALL();
                 }
             }
+            break;
+        case 0xE9:
+        case 0xEB:
+            BARRIER(BARRIER_MAYBE);
+            if (opcode == 0xE9) {
+                INST_NAME("JMP Id");
+                i32 = F32S;
+            } else {
+                INST_NAME("JMP Ib");
+                i32 = F8S;
+            }
+            JUMP((uintptr_t)getAlternate((void*)(addr + i32)), 0);
+            if (dyn->insts[ninst].x64.jmp_insts == -1) {
+                // out of the block
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
+                jump_to_next(dyn, (uintptr_t)getAlternate((void*)(addr + i32)), 0, ninst, rex.is32bits);
+            } else {
+                // inside the block
+                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
+                tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);
+                MESSAGE(1, "Jump to %d / 0x%x\n", tmp, tmp);
+                if (tmp == 4) {
+                    NOP();
+                } else {
+                    B(tmp);
+                }
+            }
+            *need_epilog = 0;
+            *ok = 0;
             break;
         case 0xFF:
             nextop = F8;
