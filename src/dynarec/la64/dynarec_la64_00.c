@@ -490,6 +490,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                     break;
+                case 4: // JMP Ed
+                    INST_NAME("JMP Ed");
+                    READFLAGS(X_PEND);
+                    BARRIER(BARRIER_FLOAT);
+                    GETEDz(0);
+                    jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    *need_epilog = 0;
+                    *ok = 0;
+                    break;
                 default:
                     DEFAULT;
             }
