@@ -51,6 +51,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define xR15    30
 #define xFlags  31
 #define xRIP    20
+#define xSavedSP 22
 // function to move from x86 regs number to LA64 reg number
 #define TO_LA64(A) (((A)>7)?((A)+15):((A)+12))
 // 32bits version
