@@ -303,6 +303,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0xC3:
+            INST_NAME("RET");
+            // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
+            if (box64_dynarec_safeflags) {
+                READFLAGS(X_PEND); // so instead, force the deferred flags, so it's not too slow, and flags are not lost
+            }
+            BARRIER(BARRIER_FLOAT);
+            ret_to_epilog(dyn, ninst, rex);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xFF:
             nextop = F8;
             switch ((nextop >> 3) & 7) {

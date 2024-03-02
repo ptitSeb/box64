@@ -405,6 +405,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define geted32        STEPNAME(geted32)
 #define jump_to_epilog STEPNAME(jump_to_epilog)
 #define jump_to_next   STEPNAME(jump_to_next)
+#define ret_to_epilog  STEPNAME(ret_to_epilog)
 #define call_c         STEPNAME(call_c)
 #define emit_test32    STEPNAME(emit_test32)
 #define emit_add32     STEPNAME(emit_add32)
@@ -437,6 +438,7 @@ uintptr_t geted32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
 // generic x64 helper
 void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
+void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
