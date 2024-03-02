@@ -358,17 +358,27 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
 
             u8 = F8;
-            // only low part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
-            u64 = 0;
-            for (int i=0; i<4; ++i) {
-                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+0)<<(i*16+0);
-                u64 |= ((uint64_t)((u8>>(i*2))&3)*2+1)<<(i*16+8);
-            }
-            MOV64x(x2, u64);
-            d0 = fpu_get_scratch(dyn);
-            VMOVQDfrom(d0, 0, x2);
-            VTBL1_8(d0, v1, d0);
-            VMOVeD(v0, 0, d0, 0);
+            if(u8==0b00000000 || u8==0b01010101 || u8==0b10101010 || u8==0b11111111) {
+                if(v0==v1) {
+                    d0 = fpu_get_scratch(dyn);
+                    VMOVQ(d0, v1);
+                }
+                VDUP_16(v0, v1, u8&3);
+                if(v0==v1)
+                    v1 = d0;
+            } else {
+                // only low part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
+                u64 = 0;
+                for (int i=0; i<4; ++i) {
+                    u64 |= ((uint64_t)((u8>>(i*2))&3)*2+0)<<(i*16+0);
+                    u64 |= ((uint64_t)((u8>>(i*2))&3)*2+1)<<(i*16+8);
+                }
+                MOV64x(x2, u64);
+                d0 = fpu_get_scratch(dyn);
+                VMOVQDfrom(d0, 0, x2);
+                VTBL1_8(d0, v1, d0);
+                VMOVeD(v0, 0, d0, 0);
+                }
             if(v0!=v1) {
                 VMOVeD(v0, 1, v1, 1);
             }
