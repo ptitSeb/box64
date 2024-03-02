@@ -440,7 +440,9 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define native_pass STEPNAME(native_pass)
 
 #define dynarec64_00   STEPNAME(dynarec64_00)
+#define dynarec64_66   STEPNAME(dynarec64_66)
 #define dynarec64_F30F STEPNAME(dynarec64_F30F)
+#define dynarec64_660F STEPNAME(dynarec64_660F)
 
 #define geted               STEPNAME(geted)
 #define geted32             STEPNAME(geted32)
@@ -532,6 +534,8 @@ void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2
 
 uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 #if STEP < 3
 #define PASS3(A)
@@ -641,5 +645,13 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         MOV32w(s2, 1);                                 \
         ST_W(s2, xEmu, offsetof(x64emu_t, test.test)); \
     }
+
+#define GETREX()                                   \
+    rex.rex = 0;                                   \
+    if (!rex.is32bits)                             \
+        while (opcode >= 0x40 && opcode <= 0x4f) { \
+            rex.rex = opcode;                      \
+            opcode = F8;                           \
+        }
 
 #endif //__DYNAREC_LA64_HELPER_H__

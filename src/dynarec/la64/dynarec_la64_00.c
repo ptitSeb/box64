@@ -186,6 +186,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
+            break;
+        case 0x66:
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
