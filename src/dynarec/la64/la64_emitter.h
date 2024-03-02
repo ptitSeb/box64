@@ -112,8 +112,6 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define type_3R(opc, rk, rj, rd)         ((opc) << 15 | (rk) << 10 | (rj) << 5 | (rd))
 #define type_3RI2(opc, imm2, rk, rj, rd) ((opc) << 17 | ((imm2) & 0x3) << 15 | (rk) << 10 | (rj) << 5 | (rd))
 #define type_2R(opc, rj, rd)             ((opc) << 10 | (rj) << 5 | (rd))
-#define type_2RI5(opc, imm5, rj, rd)     ((opc) << 15 | ((imm5) & 0x1F) << 10 | (rj) << 5 | (rd))
-#define type_2RI6(opc, imm6, rj, rd)     ((opc) << 16 | ((imm6) & 0x3F) << 10 | (rj) << 5 | (rd))
 #define type_2RI8(opc, imm8, rj, rd)     ((opc) << 18 | ((imm8) & 0xFF) << 10 | (rj) << 5 | (rd))
 #define type_2RI12(opc, imm12, rj, rd)   ((opc) << 22 | ((imm12) & 0xFFF) << 10 | (rj) << 5 | (rd))
 #define type_2RI14(opc, imm14, rj, rd)   ((opc) << 24 | ((imm14) & 0x3FFF) << 10 | (rj) << 5 | (rd))
@@ -222,6 +220,23 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define SRAI_D(rd, rj, imm6) EMIT(type_2RI6(0b0000000001001001, imm6, rj, rd))
 // GR[rd] = ROTR(GR[rj][63:0], imm6) (Rotate To Right)
 #define ROTRI_D(rd, rj, imm6) EMIT(type_2RI6(0b0000000001001101, imm6, rj, rd))
+
+// GR[rd] = SLL(GR[rj][31:0], imm5) (Shift Left Logical)
+#define SLLI_W(rd, rj, imm5) EMIT(type_2RI5(0b00000000010000001, imm5, rj, rd))
+// GR[rd] = SRL(GR[rj][31:0], imm5) (Shift Right Logical)
+#define SRLI_W(rd, rj, imm5) EMIT(type_2RI5(0b00000000010001001, imm5, rj, rd))
+// GR[rd] = SRA(GR[rj][31:0], imm5) (Shift Right Arithmetic)
+#define SRAI_W(rd, rj, imm5) EMIT(type_2RI5(0b00000000010010001, imm5, rj, rd))
+// GR[rd] = ROTR(GR[rj][31:0], imm5) (Rotate To Right)
+#define ROTRI_W(rd, rj, imm5) EMIT(type_2RI5(0b00000000010011001, imm5, rj, rd))
+
+// Shift Right Logical Immediate
+#define SRLIxw(rd, rs1, imm)  \
+    if (rex.w) {              \
+        SRLI_D(rd, rs1, imm); \
+    } else {                  \
+        SRLI_W(rd, rs1, imm); \
+    }
 
 // rd = rj + (rk << imm6)
 #define ADDSL(rd, rs1, rs2, imm6, scratch) \

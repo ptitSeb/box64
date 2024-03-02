@@ -235,6 +235,26 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %u", "ROTRI.D", Xt[Rd], Xt[Rj], imm);
         return buff;
     }
+    // SLLI.W
+    if(isMask(opcode, "00000000010000001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u", "SLLI.W", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    // SRLI.W
+    if(isMask(opcode, "00000000010001001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u", "SRLI.W", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    // SRAI.W
+    if(isMask(opcode, "00000000010010001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u", "SRAI.W", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
+    // ROTRI.W
+    if(isMask(opcode, "00000000010011001iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u", "ROTRI.W", Xt[Rd], Xt[Rj], imm);
+        return buff;
+    }
     // BEQ
     if(isMask(opcode, "010110iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "BEQ", Xt[Rd], Xt[Rj], imm << 2);
