@@ -103,6 +103,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
+        case 0x0F:
+            switch (rep) {
+                case 2:
+                    addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x28:
             INST_NAME("SUB Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);

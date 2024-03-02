@@ -107,6 +107,13 @@
         ed = x1;                                                                                \
     }
 
+// FAKEED like GETED, but doesn't get anything
+#define FAKEED                                   \
+    if (!MODREG) {                               \
+        addr = fakeed(dyn, addr, ninst, nextop); \
+    }
+
+
 // Write back ed in wback (if wback not 0)
 #define WBACK                              \
     if (wback) {                           \
@@ -432,7 +439,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define native_pass STEPNAME(native_pass)
 
-#define dynarec64_00 STEPNAME(dynarec64_00)
+#define dynarec64_00   STEPNAME(dynarec64_00)
+#define dynarec64_F30F STEPNAME(dynarec64_F30F)
 
 #define geted               STEPNAME(geted)
 #define geted32             STEPNAME(geted32)
@@ -519,6 +527,7 @@ void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2
 #endif
 
 uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 #if STEP < 3
 #define PASS3(A)
