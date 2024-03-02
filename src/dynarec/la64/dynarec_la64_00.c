@@ -181,6 +181,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x83:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0: // ADD
+                    if (opcode == 0x81) {
+                        INST_NAME("ADD Ed, Id");
+                    } else {
+                        INST_NAME("ADD Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81) i64 = F32S; else i64 = F8S;
+                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    WBACK;
+                    break;
                 case 5: // SUB
                     if (opcode == 0x81) {
                         INST_NAME("SUB Ed, Id");
@@ -296,11 +308,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 2:
                     INST_NAME("CALL Ed");
-                    PASS2IF((box64_dynarec_safeflags > 1) ||
-                        ((ninst && dyn->insts[ninst - 1].x64.set_flags)
-                        || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
+                    PASS2IF((box64_dynarec_safeflags > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1)
+                    {
                         READFLAGS(X_PEND); // that's suspicious
-                    } else {
+                    }
+                    else
+                    {
                         SETFLAGS(X_ALL, SF_SET); // Hack to put flag in "don't care" state
                     }
                     GETEDz(0);
@@ -317,10 +330,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // Push actual return address
                         if (addr < (dyn->start + dyn->isize)) {
                             // there is a next
-                            j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
                             MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
                             j64 = getJumpTableAddress64(addr);
