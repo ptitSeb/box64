@@ -198,6 +198,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = GR[rj] ^ ZeroExtend(imm12, GRLEN)
 #define XORI(rd, rj, imm12) EMIT(type_2RI12(0b0000001111, imm12, rj, rd))
 
+#define NOP() ANDI(xZR, xZR, 0)
+
 // tmp = SLL(GR[rj][31:0], GR[rk][4:0])
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
 #define SLL_W(rd, rj, rk) EMIT(type_3R(0b00000000000101110, rk, rj, rd))
@@ -231,35 +233,93 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 // if GR[rj] == GR[rd]:
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
-#define BEQ(rj, rd, imm16) EMIT(type_2RI16(0b010110, imm16, rj, rd))
+#define BEQ(rj, rd, imm18) EMIT(type_2RI16(0b010110, ((imm18)>>2), rj, rd))
 // if GR[rj] != GR[rd]:
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
-#define BNE(rj, rd, imm16) EMIT(type_2RI16(0b010111, imm16, rj, rd))
+#define BNE(rj, rd, imm18) EMIT(type_2RI16(0b010111, ((imm18)>>2), rj, rd))
 // if signed(GR[rj]) < signed(GR[rd]):
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
-#define BLT(rj, rd, imm16) EMIT(type_2RI16(0b011000, imm16, rj, rd))
+#define BLT(rj, rd, imm18) EMIT(type_2RI16(0b011000, ((imm18)>>2), rj, rd))
 // if signed(GR[rj]) >= signed(GR[rd]):
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
-#define BGE(rj, rd, imm16) EMIT(type_2RI16(0b011001, imm16, rj, rd))
+#define BGE(rj, rd, imm18) EMIT(type_2RI16(0b011001, ((imm18)>>2), rj, rd))
 // if unsigned(GR[rj]) == unsigned(GR[rd]):
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
-#define BLTU(rj, rd, imm16) EMIT(type_2RI16(0b011010, imm16, rj, rd))
+#define BLTU(rj, rd, imm18) EMIT(type_2RI16(0b011010, ((imm18)>>2), rj, rd))
 // if unsigned(GR[rj]) == unsigned(GR[rd]):
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
-#define BGEU(rj, rd, imm16) EMIT(type_2RI16(0b011011, imm16, rj, rd))
+#define BGEU(rj, rd, imm18) EMIT(type_2RI16(0b011011, ((imm18)>>2), rj, rd))
 
 // if GR[rj] == 0:
 //     PC = PC + SignExtend({imm21, 2'b0}, GRLEN)
-#define BEQZ(rj, imm21) EMIT(type_1RI21(0b010000, (imm21) >> 2, rj))
+#define BEQZ(rj, imm23) EMIT(type_1RI21(0b010000, ((imm23)>>2), rj))
 // if GR[rj] != 0:
 //     PC = PC + SignExtend({imm21, 2'b0}, GRLEN)
-#define BNEZ(rj, imm21) EMIT(type_1RI21(0b010001, (imm21) >> 2, rj))
+#define BNEZ(rj, imm23) EMIT(type_1RI21(0b010001, ((imm23)>>2), rj))
 
 // GR[rd] = PC + 4
 // PC = GR[rj] + SignExtend({imm16, 2'b0}, GRLEN)
-#define JIRL(rd, rj, imm16) EMIT(type_2RI16(0b010011, imm16, rj, rd))
+#define JIRL(rd, rj, imm18) EMIT(type_2RI16(0b010011, ((imm18)>>2), rj, rd))
+
 // PC = GR[rj]
 #define BR(rj) JIRL(xZR, rj, 0x0)
+
+// PC = PC + SignExtend({imm26, 2'b0}, GRLEN)
+#define B(imm28) EMIT(type_I26(0b010100, ((imm28)>>2)))
+
+#define BEQ_safe(rj, rd, imm)                  \
+    if ((imm) > -0x20000 && (imm) < 0x20000) { \
+        BEQ(rj, rd, imm);                      \
+        NOP();                                 \
+    } else {                                   \
+        BNE(rj, rd, 8);                        \
+        B(imm - 4);                            \
+    }
+
+#define BNE_safe(rj, rd, imm)                  \
+    if ((imm) > -0x20000 && (imm) < 0x20000) { \
+        BNE(rj, rd, imm);                      \
+        NOP();                                 \
+    } else {                                   \
+        BEQ(rj, rd, 8);                        \
+        B(imm - 4);                            \
+    }
+
+#define BLT_safe(rj, rd, imm)                  \
+    if ((imm) > -0x20000 && (imm) < 0x20000) { \
+        BLT(rj, rd, imm);                      \
+        NOP();                                 \
+    } else {                                   \
+        BGE(rj, rd, 8);                        \
+        B(imm - 4);                            \
+    }
+
+#define BGE_safe(rj, rd, imm)                  \
+    if ((imm) > -0x20000 && (imm) < 0x20000) { \
+        BGE(rj, rd, imm);                      \
+        NOP();                                 \
+    } else {                                   \
+        BLT(rj, rd, 8);                        \
+        B(imm - 4);                            \
+    }
+
+#define BLTU_safe(rj, rd, imm)                 \
+    if ((imm) > -0x20000 && (imm) < 0x20000) { \
+        BLTU(rj, rd, imm);                     \
+        NOP();                                 \
+    } else {                                   \
+        BGEU(rj, rd, 8);                       \
+        B(imm - 4);                            \
+    }
+
+#define BGEU_safe(rj, rd, imm)                 \
+    if ((imm) > -0x20000 && (imm) < 0x20000) { \
+        BGEU(rj, rd, imm);                     \
+        NOP();                                 \
+    } else {                                   \
+        BLTU(rj, rd, 8);                       \
+        B(imm - 4);                            \
+    }
 
 // vaddr = GR[rj] + SignExtend(imm12, GRLEN)
 // AddressComplianceCheck(vaddr)

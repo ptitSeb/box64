@@ -24,7 +24,7 @@
 // emit ADD32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS();
+    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         if (rex.w) {
             ST_D(s1, xEmu, offsetof(x64emu_t, op1));
@@ -42,7 +42,7 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         IFX(X_ALL) {
             X64_ADD_WU(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
         ADDxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -127,7 +127,7 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit ADD32 instruction, from s1, constant c, store result in s1 using s3 and s4 as scratch
 void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS();
+    CLEAR_FLAGS(s3);
     if (s1 == xRSP && (!dyn->insts || dyn->insts[ninst].x64.gen_flags == X_PEND)) {
         // special case when doing math on ESP and only PEND is needed: ignoring it!
         if (c >= -2048 && c < 2048) {
@@ -157,7 +157,7 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         IFX(X_ALL) {
             X64_ADD_WU(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
         ADDxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -251,7 +251,7 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 // emit ADD8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
-    CLEAR_FLAGS();
+    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         ST_B(s1, xEmu, offsetof(x64emu_t, op1));
         ST_B(s2, xEmu, offsetof(x64emu_t, op2));
@@ -264,7 +264,7 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         IFX(X_ALL) {
             X64_ADD_B(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
         ADD_D(s1, s1, s2);
         ANDI(s1, s1, 0xff);
@@ -332,7 +332,7 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit ADD8 instruction, from s1, const c, store result in s1 using s3 and s4 as scratch
 void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, int s4)
 {
-    CLEAR_FLAGS();
+    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         MOV32w(s4, c & 0xff);
         ST_B(s1, xEmu, offsetof(x64emu_t, op1));
@@ -347,7 +347,7 @@ void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
             IFX(X_PEND) {} else { MOV32w(s4, c & 0xff); }
             X64_ADD_B(s1, s4);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
         ADDI_D(s1, s1, c & 0xff);
         ANDI(s1, s1, 0xff);
@@ -416,7 +416,7 @@ void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
 // emit SUB8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS();
+    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         ST_B(s1, xEmu, offsetof(x64emu_t, op1));
         ST_B(s2, xEmu, offsetof(x64emu_t, op2));
@@ -429,7 +429,7 @@ void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         IFX(X_ALL) {
             X64_SUB_B(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
         SUB_D(s1, s1, s2);
         ANDI(s1, s1, 0xff);
@@ -474,7 +474,7 @@ void emit_sub8c(dynarec_la64_t* dyn, int ninst, int s1, int c, int s2, int s3, i
 // emit SUB32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS();
+    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
@@ -487,7 +487,7 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         IFX(X_ALL) {
             X64_SUB_WU(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
         SUBxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -526,7 +526,7 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SUB32 instruction, from s1, constant c, store result in s1 using s2, s3, s4 and s5 as scratch
 void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS();
+    CLEAR_FLAGS(s3);
     if(s1==xRSP && (!dyn->insts || dyn->insts[ninst].x64.gen_flags==X_PEND))
     {
         // special case when doing math on RSP and only PEND is needed: ignoring it!
@@ -553,7 +553,7 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         IFX(X_ALL) {
             X64_SUB_WU(s1, s2);
             X64_GET_EFLAGS(s3, X_ALL);
-            ORI(xFlags, xFlags, s3);
+            OR(xFlags, xFlags, s3);
         }
         SUBxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
