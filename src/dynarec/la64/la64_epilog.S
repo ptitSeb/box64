@@ -7,8 +7,10 @@
 .align 4
 
 .global la64_epilog
+.global la64_epilog_fast
+
 la64_epilog:
-    //update register -> emu
+    // update register -> emu
     st.d   $r12, $r4, (8 * 0)
     st.d   $r13, $r4, (8 * 1)
     st.d   $r14, $r4, (8 * 2)
@@ -26,7 +28,9 @@ la64_epilog:
     st.d   $r29, $r4, (8 * 14)
     st.d   $r30, $r4, (8 * 15)
     st.d   $r31, $r4, (8 * 16) // xFlags
-    st.d   $r20, $r4, (8 * 17) // put back reg value in emu, including EIP (so x27 must be EIP now)
+    st.d   $r20, $r4, (8 * 17) // put back reg value in emu, including EIP (so $r20 must be EIP now)
+    // fallback to epilog_fast now, just restoring saved regs
+la64_epilog_fast:
     addi.d $sp, $r22, 0       // restore save sp from xSavedSP
     // restore all used register
     ld.d   $r1,  $sp, (8 * 0) // load ra
