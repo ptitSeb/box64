@@ -105,6 +105,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0F:
             switch (rep) {
+                case 0:
+                    addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
                 case 2:
                     addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                     break;
@@ -185,6 +188,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("POP reg");
             gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
+            break;
+            break;
+        case 0x66:
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
         case 0x81:
         case 0x83:
@@ -312,6 +319,47 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg, Id");
+            gd = TO_LA64((opcode & 7) + (rex.b << 3));
+            if (rex.w) {
+                u64 = F64;
+                MOV64x(gd, u64);
+            } else {
+                u32 = F32;
+                MOV32w(gd, u32);
+            }
+            break;
+        case 0xC1:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    GETED(1);
+                    u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                    emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if (u8) { WBACK; }
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    GETED(1);
+                    u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                    emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if (u8) { WBACK; }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xC3:
             INST_NAME("RET");
             // SETFLAGS(X_ALL, SF_SET);    // Hack, set all flags (to an unknown state...)
@@ -322,6 +370,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ret_to_epilog(dyn, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
+            break;
+        case 0xC7:
+            INST_NAME("MOV Ed, Id");
+            nextop = F8;
+            if (MODREG) { // reg <= i32
+                i64 = F32S;
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                MOV64xw(ed, i64);
+            } else { // mem <= i32
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 4);
+                i64 = F32S;
+                if (i64) {
+                    MOV64xw(x3, i64);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                SDxw(ed, wback, fixedaddress);
+                SMWRITELOCK(lock);
+            }
             break;
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);
@@ -345,7 +412,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     // FIXME: Even the basic support of isSimpleWrapper is disabled for now.
 
                     GETIP(ip + 1); // read the 0xCC
-                    STORE_XEMU_CALL(x3);
+                    STORE_XEMU_CALL();
                     ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
                     CALL_S(x64Int3, -1);
                     LOAD_XEMU_CALL();
@@ -367,10 +434,31 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     LD_D(x3, x2, 0);
                     CBZ_NEXT(x3);
                     GETIP(ip);
-                    STORE_XEMU_CALL(x3);
+                    STORE_XEMU_CALL();
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL();
                 }
+            }
+            break;
+        case 0xD1:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 5:
+                    INST_NAME("SHR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    GETED(0);
+                    emit_shr32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    GETED(0);
+                    emit_sar32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0xE9:
@@ -445,6 +533,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    break;
+                case 4: // JMP Ed
+                    INST_NAME("JMP Ed");
+                    READFLAGS(X_PEND);
+                    BARRIER(BARRIER_FLOAT);
+                    GETEDz(0);
+                    jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    *need_epilog = 0;
+                    *ok = 0;
                     break;
                 default:
                     DEFAULT;
