@@ -22,6 +22,7 @@
         dyn->insts[ninst].x64.barrier = A;         \
     } else                                         \
         dyn->insts[ninst].barrier_maybe = 1
+#define SET_HASCALLRET() dyn->insts[ninst].x64.has_callret = 1
 #define NEW_INST                                                                                                  \
     ++dyn->size;                                                                                                  \
     if (dyn->size + 3 >= dyn->cap) {                                                                              \

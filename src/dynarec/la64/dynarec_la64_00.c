@@ -239,7 +239,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
             GOCOND(0x70, "J", "ib");
 
-#undef GO
+        #undef GO
 
         case 0x85:
             INST_NAME("TEST Ed, Gd");
@@ -289,6 +289,53 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if (!rex.w || rex.is32bits) {
                     ZEROUP(gd); // truncate the higher 32bits as asked
                 }
+            }
+            break;
+        case 0xFF:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("CALL Ed");
+                    PASS2IF((box64_dynarec_safeflags > 1) ||
+                        ((ninst && dyn->insts[ninst - 1].x64.set_flags)
+                        || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
+                        READFLAGS(X_PEND); // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET); // Hack to put flag in "don't care" state
+                    }
+                    GETEDz(0);
+                    if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+                    GETIP_(addr);
+                    if (box64_dynarec_callret) {
+                        SET_HASCALLRET();
+                        // Push actual return address
+                        if (addr < (dyn->start + dyn->isize)) {
+                            // there is a next
+                            j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
+                            PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                            ADDI_D(x4, x4, j64 & 0xfff);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                        } else {
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
+                            j64 = getJumpTableAddress64(addr);
+                            TABLE64(x4, j64);
+                            LD_D(x4, x4, 0);
+                        }
+                        ADDI_D(xSP, xSP, -16);
+                        ST_D(x4, xSP, 0);
+                        ST_D(xRIP, xSP, 8);
+                    }
+                    PUSH1z(xRIP);
+                    jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         default:

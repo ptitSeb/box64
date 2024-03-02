@@ -628,6 +628,12 @@ f24-f31  fs0-fs7   Static registers                Callee
     else                      \
         LD_WU(rd, rj, imm12);
 
+#define LDz(rd, rj, imm12)    \
+    if (rex.is32bits)         \
+        LD_WU(rd, rj, imm12); \
+    else                      \
+        LD_D(rd, rj, imm12);
+
 #define SDxw(rd, rj, imm12)  \
     if (rex.w)               \
         ST_D(rd, rj, imm12); \
