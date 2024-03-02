@@ -340,6 +340,25 @@ void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
     BR(x2);
 }
 
+void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
+{
+    MAYUSE(dyn);
+    MAYUSE(ip);
+    MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "Jump to epilog\n");
+
+    if (reg) {
+        if (reg != xRIP) {
+            MV(xRIP, reg);
+        }
+    } else {
+        GETIP_(ip);
+    }
+    TABLE64(x2, (uintptr_t)la64_epilog_fast);
+    SMEND();
+    BR(x2);
+}
+
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits)
 {
     MAYUSE(dyn);
@@ -465,14 +484,15 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         ADDI_D(xSP, xSP, -16); // RV64 stack needs to be 16byte aligned
         ST_D(xEmu, xSP, 0);
         ST_D(savereg, xSP, 8);
-        // x5..x8, x10..x17, x28..x31 those needs to be saved by caller
+        // $r4..$r20 needs to be saved by caller
         STORE_REG(RAX);
         STORE_REG(RCX);
         STORE_REG(RDX);
-        STORE_REG(R12);
-        STORE_REG(R13);
-        STORE_REG(R14);
-        STORE_REG(R15);
+        STORE_REG(RBX);
+        STORE_REG(RSP);
+        STORE_REG(RBP);
+        STORE_REG(RSI);
+        STORE_REG(RDI);
         ST_D(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
     TABLE64(reg, (uintptr_t)fnc);
@@ -489,10 +509,11 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         GO(RAX);
         GO(RCX);
         GO(RDX);
-        GO(R12);
-        GO(R13);
-        GO(R14);
-        GO(R15);
+        GO(RBX);
+        GO(RSP);
+        GO(RBP);
+        GO(RSI);
+        GO(RDI);
         if (ret != xRIP)
             LD_D(xRIP, xEmu, offsetof(x64emu_t, ip));
 #undef GO
@@ -507,6 +528,17 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     }
     SET_NODF();
     dyn->last_ip = 0;
+}
+
+void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
+{
+    // TODO
+}
+
+// purge the SSE cache for XMM0..XMM7 (to use before function native call)
+void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1)
+{
+    // TODO
 }
 
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)

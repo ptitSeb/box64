@@ -314,6 +314,56 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0xCC:
+            SETFLAGS(X_ALL, SF_SET);
+            SKIPTEST(x1);
+            if (PK(0) == 'S' && PK(1) == 'C') {
+                addr += 2;
+                BARRIER(BARRIER_FLOAT);
+                INST_NAME("Special Box64 instruction");
+                if (PK64(0) == 0) {
+                    addr += 8;
+                    MESSAGE(LOG_DEBUG, "Exit x64 Emu\n");
+                    MOV64x(x1, 1);
+                    ST_W(x1, xEmu, offsetof(x64emu_t, quit));
+                    *ok = 0;
+                    *need_epilog = 1;
+                } else {
+                    MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip)));
+                    x87_forget(dyn, ninst, x3, x4, 0);
+                    sse_purge07cache(dyn, ninst, x3);
+
+                    // FIXME: Even the basic support of isSimpleWrapper is disabled for now.
+
+                    GETIP(ip + 1); // read the 0xCC
+                    STORE_XEMU_CALL(x3);
+                    ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                    CALL_S(x64Int3, -1);
+                    LOAD_XEMU_CALL();
+                    addr += 8 + 8;
+                    TABLE64(x3, addr); // expected return address
+                    BNE_MARK(xRIP, x3);
+                    LD_W(w1, xEmu, offsetof(x64emu_t, quit));
+                    CBZ_NEXT(w1);
+                    MARK;
+                    jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                }
+            } else {
+                if (!box64_ignoreint3) {
+                    INST_NAME("INT 3");
+                    // check if TRAP signal is handled
+                    LD_D(x1, xEmu, offsetof(x64emu_t, context));
+                    MOV64x(x2, offsetof(box64context_t, signals[SIGTRAP]));
+                    ADD_D(x2, x2, x1);
+                    LD_D(x3, x2, 0);
+                    CBZ_NEXT(x3);
+                    GETIP(ip);
+                    STORE_XEMU_CALL(x3);
+                    CALL(native_int3, -1);
+                    LOAD_XEMU_CALL();
+                }
+            }
+            break;
         case 0xFF:
             nextop = F8;
             switch ((nextop >> 3) & 7) {

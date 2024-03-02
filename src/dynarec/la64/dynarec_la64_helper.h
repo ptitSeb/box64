@@ -222,6 +222,22 @@
 #define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
 #define GETMARKLOCK dyn->insts[ninst].marklock
 
+#define Bxx_gen(OP, M, reg1, reg2)   \
+    j64 = GET##M - dyn->native_size; \
+    B##OP(reg1, reg2, j64)
+
+#define BxxZ_gen(OP, M, reg1, reg2)  \
+    j64 = GET##M - dyn->native_size; \
+    B##OP##Z(reg1, j64)
+
+// Branch to MARK if reg1!=reg2 (use j64)
+#define BNE_MARK(reg1, reg2) Bxx_gen(NE, MARK, reg1, reg2)
+
+// Branch to NEXT if reg1==0 (use j64)
+#define CBZ_NEXT(reg1)                                                        \
+    j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
+    BEQZ(reg1, j64)
+
 #define IFX(A)      if ((dyn->insts[ninst].x64.gen_flags & (A)))
 #define IFX_PENDOR0 if ((dyn->insts[ninst].x64.gen_flags & (X_PEND) || !dyn->insts[ninst].x64.gen_flags))
 #define IFXX(A)     if ((dyn->insts[ninst].x64.gen_flags == (A)))
@@ -230,6 +246,22 @@
 
 #define STORE_REG(A) ST_D(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)  LD_D(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
+
+// Need to also store current value of some register, as they may be used by functions like setjmp
+#define STORE_XEMU_CALL(s0) \
+    STORE_REG(RBX);         \
+    STORE_REG(RDX);         \
+    STORE_REG(RSP);         \
+    STORE_REG(RBP);         \
+    STORE_REG(RDI);         \
+    STORE_REG(RSI);         \
+    STORE_REG(R8);          \
+    STORE_REG(R9);          \
+    STORE_REG(R10);         \
+    STORE_REG(R11);
+
+#define LOAD_XEMU_CALL()
+
 
 #define SET_DFNONE()                             \
     if (!dyn->f.dfnone) {                        \
@@ -389,6 +421,7 @@
 #define MODREG ((nextop & 0xC0) == 0xC0)
 
 void la64_epilog(void);
+void la64_epilog_fast(void);
 void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #ifndef STEPNAME
@@ -401,23 +434,28 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define dynarec64_00 STEPNAME(dynarec64_00)
 
-#define geted          STEPNAME(geted)
-#define geted32        STEPNAME(geted32)
-#define jump_to_epilog STEPNAME(jump_to_epilog)
-#define jump_to_next   STEPNAME(jump_to_next)
-#define ret_to_epilog  STEPNAME(ret_to_epilog)
-#define call_c         STEPNAME(call_c)
-#define emit_test32    STEPNAME(emit_test32)
-#define emit_add32     STEPNAME(emit_add32)
-#define emit_add32c    STEPNAME(emit_add32c)
-#define emit_add8      STEPNAME(emit_add8)
-#define emit_add8c     STEPNAME(emit_add8c)
-#define emit_sub32     STEPNAME(emit_sub32)
-#define emit_sub32c    STEPNAME(emit_sub32c)
-#define emit_sub8      STEPNAME(emit_sub8)
-#define emit_sub8c     STEPNAME(emit_sub8c)
+#define geted               STEPNAME(geted)
+#define geted32             STEPNAME(geted32)
+#define jump_to_epilog      STEPNAME(jump_to_epilog)
+#define jump_to_epilog_fast STEPNAME(jump_to_epilog_fast)
+#define jump_to_next        STEPNAME(jump_to_next)
+#define ret_to_epilog       STEPNAME(ret_to_epilog)
+#define call_c              STEPNAME(call_c)
+#define emit_test32         STEPNAME(emit_test32)
+#define emit_add32          STEPNAME(emit_add32)
+#define emit_add32c         STEPNAME(emit_add32c)
+#define emit_add8           STEPNAME(emit_add8)
+#define emit_add8c          STEPNAME(emit_add8c)
+#define emit_sub32          STEPNAME(emit_sub32)
+#define emit_sub32c         STEPNAME(emit_sub32c)
+#define emit_sub8           STEPNAME(emit_sub8)
+#define emit_sub8c          STEPNAME(emit_sub8c)
 
 #define emit_pf STEPNAME(emit_pf)
+
+
+#define x87_forget       STEPNAME(x87_forget)
+#define sse_purge07cache STEPNAME(sse_purge07cache)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
@@ -437,6 +475,7 @@ uintptr_t geted32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
 
 // generic x64 helper
 void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
+void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
@@ -463,6 +502,13 @@ void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
+
+// refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)
+void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st);
+
+// SSE/SSE2 helpers
+// purge the XMM0..XMM7 cache (before function call)
+void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
@@ -569,6 +615,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #define NOTEST(s1)                                       \
     if (box64_dynarec_test) {                            \
         ST_W(xZR, xEmu, offsetof(x64emu_t, test.test));  \
+        ST_W(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
+    }
+
+#define SKIPTEST(s1)                                     \
+    if (box64_dynarec_test) {                            \
         ST_W(xZR, xEmu, offsetof(x64emu_t, test.clean)); \
     }
 
