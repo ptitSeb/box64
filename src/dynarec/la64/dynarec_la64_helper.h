@@ -459,6 +459,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sub8           STEPNAME(emit_sub8)
 #define emit_sub8c          STEPNAME(emit_sub8c)
 #define emit_shr32c         STEPNAME(emit_shr32c)
+#define emit_sar32c         STEPNAME(emit_sar32c)
 
 #define emit_pf STEPNAME(emit_pf)
 
@@ -498,6 +499,7 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sub8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4, int s5);
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 
 void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 

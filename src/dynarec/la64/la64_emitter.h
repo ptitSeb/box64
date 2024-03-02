@@ -238,6 +238,14 @@ f24-f31  fs0-fs7   Static registers                Callee
         SRLI_W(rd, rs1, imm); \
     }
 
+// Shift Right Arithmetic Immediate
+#define SRAIxw(rd, rs1, imm)  \
+    if (rex.w) {              \
+        SRAI_D(rd, rs1, imm); \
+    } else {                  \
+        SRAI_W(rd, rs1, imm); \
+    }
+
 // rd = rj + (rk << imm6)
 #define ADDSL(rd, rs1, rs2, imm6, scratch) \
     if (!(imm6)) {                         \

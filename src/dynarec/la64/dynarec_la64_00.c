@@ -323,6 +323,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
                     if (u8) { WBACK; }
                     break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    GETED(1);
+                    u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                    emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
+                    if (u8) { WBACK; }
+                    break;
                 default:
                     DEFAULT;
             }
