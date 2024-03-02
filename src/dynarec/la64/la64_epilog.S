@@ -28,8 +28,8 @@ la64_epilog:
     st.d   $r31, $r4, (8 * 16) // xFlags
     st.d   $r20, $r4, (8 * 17) // put back reg value in emu, including EIP (so x27 must be EIP now)
     ld.d   $sp,  $r4, 552      // restore saved sp from emu->xSPSave, see la64_prolog
-    ld.d   $r11, $sp, -8
-    st.d   $r11, $r4, 552
+    ld.d   $r22, $sp, -8
+    st.d   $r22, $r4, 552
     // vpop {d8-d15}
     ld.d   $r1,  $sp, (8 * 0) // load ra
     ld.d   $r22, $sp, (8 * 1) // load fp
