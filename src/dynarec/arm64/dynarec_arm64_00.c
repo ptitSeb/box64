@@ -836,29 +836,24 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     IFX(X_PEND) {
                         UFLAG_OP1(x3);
                         UFLAG_RES(gd);
-                        UFLAG_DF(x3, d_imul64);
+                        UFLAG_DF(x1, d_imul64);
                     } else {
-                        SET_DFNONE(x3);
+                        SET_DFNONE(x1);
                     }
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
                     }
                     IFX(X_CF | X_OF) {
-                        MOV64x(x1, 0xffffffffffffffffLL);
-                        CBZx_MARK3(x3);
-                        CMPSx_REG(x3, x1);
-                        B_MARK2(cNE);
-                        MARK3;
-                        EORx_REG(x1, x1, x3); //bit 63 should be 0 after the xor
-                        TBNZ_MARK2(x1, 63);
-                        BFCw(xFlags, F_CF, 1);
-                        BFCw(xFlags, F_OF, 1);
-                        B_NEXT_nocond;
-                        MARK2;
-                        MOV32w(x1, 1);
-                        BFIw(xFlags, x1, F_CF, 1);
-                        BFIw(xFlags, x1, F_OF, 1);
+                        ASRx(x4, gd, 63);
+                        CMPSx_REG(x3, x4);
+                        CSETw(x1, cNE);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x1, F_CF, 1);
+                        }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x1, F_OF, 1);
+                        }
                     }
                 } else {
                     MULxw(gd, ed, x4);
@@ -872,29 +867,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVw_REG(gd, gd);
                     IFX(X_PEND) {
                         UFLAG_OP1(x3);
-                        UFLAG_DF(x3, d_imul32);
+                        UFLAG_DF(x1, d_imul32);
                     } else {
-                        SET_DFNONE(x3);
+                        SET_DFNONE(x1);
                     }
                     IFX(X_ZF | X_PF | X_AF | X_SF) {
                         MOV32w(x1, (1<<F_ZF)|(1<<F_AF)|(1<<F_PF)|(1<<F_SF));
                         BICw(xFlags, xFlags, x1);
                     }
                     IFX(X_CF | X_OF) {
-                        MOV32w(x1, 0xffffffff);
-                        CBZw_MARK3(x3);
-                        CMPSw_REG(x3, x1);
-                        B_MARK2(cNE);
-                        MARK3;
-                        EORw_REG(x1, x1, x3); //bit 63 should be 0 after the xor
-                        TBNZ_MARK2(x1, 31);
-                        BFCw(xFlags, F_CF, 1);
-                        BFCw(xFlags, F_OF, 1);
-                        B_NEXT_nocond;
-                        MARK2;
-                        MOV32w(x1, 1);
-                        BFIw(xFlags, x1, F_CF, 1);
-                        BFIw(xFlags, x1, F_OF, 1);
+                        ASRw(x3, x3, 31);
+                        ASRw(x4, gd, 31);
+                        CMPSw_REG(x3, x4);
+                        CSETw(x3, cNE);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x1, F_CF, 1);
+                        }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x1, F_OF, 1);
+                        }
                     }
                 } else {
                     MULxw(gd, ed, x4);

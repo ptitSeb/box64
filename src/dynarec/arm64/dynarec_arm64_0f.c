@@ -1833,8 +1833,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ASRx(x4, gd, 63);
                         CMPSx_REG(x3, x4);
                         CSETw(x3, cNE);
-                        BFIw(xFlags, x3, F_CF, 1);
-                        BFIw(xFlags, x3, F_OF, 1);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x3, F_CF, 1);
+                        }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x3, F_OF, 1);
+                        }
                     }
                 } else {
                     MULxw(gd, gd, ed);
@@ -1852,12 +1856,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SET_DFNONE(x4);
                     }
                     IFX(X_CF|X_OF) {
-                        ASRx(x3, gd, 31);
+                        ASRx(x3, gd, 63);
                         ASRw(x4, gd, 31);
                         CMPSw_REG(x3, x4);
                         CSETw(x3, cNE);
-                        BFIw(xFlags, x3, F_CF, 1);
-                        BFIw(xFlags, x3, F_OF, 1);
+                        IFX(X_CF) {
+                            BFIw(xFlags, x3, F_CF, 1);
+                        }
+                        IFX(X_OF) {
+                            BFIw(xFlags, x3, F_OF, 1);
+                        }
                     }
                     if(box64_dynarec_test) {
                         // to avoid noise during test
