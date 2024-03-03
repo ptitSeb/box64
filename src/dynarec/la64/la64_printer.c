@@ -112,7 +112,7 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     // LU12I.W
     if(isMask(opcode, "0001010iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "LU12I.W", Xt[Rd], imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x", "LU12I.W", Xt[Rd], imm);
         return buff;
     }
     // LU32I.D
