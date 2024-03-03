@@ -616,33 +616,33 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         break;                                                                                   \
     case B + 0xC:                                                                                \
         INST_NAME(T1 "L " T2);                                                                   \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF), EQZ, NEZ, X_SF | X_OF, X64_JMP_JL);                         \
+            ANDI(x1, x1, 1 << F_SF), EQZ, NEZ, X_SF | X_OF, X64_JMP_JL);                         \
         break;                                                                                   \
     case B + 0xD:                                                                                \
         INST_NAME(T1 "GE " T2);                                                                  \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF), NEZ, EQZ, X_SF | X_OF, X64_JMP_JGE);                        \
+            ANDI(x1, x1, 1 << F_SF), NEZ, EQZ, X_SF | X_OF, X64_JMP_JGE);                        \
         break;                                                                                   \
     case B + 0xE:                                                                                \
         INST_NAME(T1 "LE " T2);                                                                  \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF);                                                             \
+            ANDI(x1, x1, 1 << F_SF);                                                             \
             ANDI(x3, xFlags, 1 << F_ZF);                                                         \
             OR(x1, x1, x3);                                                                      \
-            ANDI(x1, x1, (1 << F_OF) | (1 << F_ZF)), EQZ, NEZ, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
+            ANDI(x1, x1, (1 << F_SF) | (1 << F_ZF)), EQZ, NEZ, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
         break;                                                                                   \
     case B + 0xF:                                                                                \
         INST_NAME(T1 "G " T2);                                                                   \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF);                                                             \
+            ANDI(x1, x1, 1 << F_SF);                                                             \
             ANDI(x3, xFlags, 1 << F_ZF);                                                         \
             OR(x1, x1, x3);                                                                      \
-            ANDI(x1, x1, (1 << F_OF) | (1 << F_ZF)), NEZ, EQZ, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
+            ANDI(x1, x1, (1 << F_SF) | (1 << F_ZF)), NEZ, EQZ, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
         break
 
 #define NOTEST(s1)                                       \
