@@ -193,41 +193,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
-        case 0x81:
-        case 0x83:
-            nextop = F8;
-            switch ((nextop >> 3) & 7) {
-                case 0: // ADD
-                    if (opcode == 0x81) {
-                        INST_NAME("ADD Ed, Id");
-                    } else {
-                        INST_NAME("ADD Ed, Ib");
-                    }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETED((opcode == 0x81) ? 4 : 1);
-                    if (opcode == 0x81) i64 = F32S; else i64 = F8S;
-                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
-                    WBACK;
-                    break;
-                case 5: // SUB
-                    if (opcode == 0x81) {
-                        INST_NAME("SUB Ed, Id");
-                    } else {
-                        INST_NAME("SUB Ed, Ib");
-                    }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETED((opcode == 0x81) ? 4 : 1);
-                    if (opcode == 0x81)
-                        i64 = F32S;
-                    else
-                        i64 = F8S;
-                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
-                    WBACK;
-                    break;
-                default:
-                    DEFAULT;
-            }
-            break;
 
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
             READFLAGS(F);                                                                           \
@@ -269,6 +234,41 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         #undef GO
 
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0: // ADD
+                    if (opcode == 0x81) {
+                        INST_NAME("ADD Ed, Id");
+                    } else {
+                        INST_NAME("ADD Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81) i64 = F32S; else i64 = F8S;
+                    emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    WBACK;
+                    break;
+                case 5: // SUB
+                    if (opcode == 0x81) {
+                        INST_NAME("SUB Ed, Id");
+                    } else {
+                        INST_NAME("SUB Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81)
+                        i64 = F32S;
+                    else
+                        i64 = F8S;
+                    emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    WBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x85:
             INST_NAME("TEST Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
