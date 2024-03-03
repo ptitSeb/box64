@@ -130,19 +130,19 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDI", Xt[Rd], imm);
         return buff;
     }
-    // PCADDU12I
+    // PCALAU12I
     if(isMask(opcode, "0001101iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCALAU12I", Xt[Rd], imm);
+        return buff;
+    }
+    // PCADDU12I
+    if(isMask(opcode, "0001110iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDU12I", Xt[Rd], imm);
         return buff;
     }
     // PCADDU18I
-    if(isMask(opcode, "0001110iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDU18I", Xt[Rd], imm);
-        return buff;
-    }
-    // PCALAU12I
     if(isMask(opcode, "0001111iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCALAU12I", Xt[Rd], imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDU18I", Xt[Rd], imm);
         return buff;
     }
     // AND
