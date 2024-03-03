@@ -510,6 +510,126 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xE8:
+            INST_NAME("CALL Id");
+            i32 = F32S;
+            if (addr + i32 == 0) {
+                #if STEP == 3
+                printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr - 1));
+                #endif
+            }
+            #if STEP < 2
+            if (!rex.is32bits && isNativeCall(dyn, addr + i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
+            else
+                tmp = dyn->insts[ninst].pass2choice = 0;
+            #else
+            tmp = dyn->insts[ninst].pass2choice;
+            #endif
+            switch (tmp) {
+                case 3:
+                    SETFLAGS(X_ALL, SF_SET); // Hack to set flags to "dont'care" state
+                    SKIPTEST(x1);
+                    BARRIER(BARRIER_FULL);
+                    // BARRIER_NEXT(BARRIER_FULL);
+                    if (dyn->last_ip && (addr - dyn->last_ip < 0x1000)) {
+                        ADDI_D(x2, xRIP, addr - dyn->last_ip);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
+                    PUSH1(x2);
+                    MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1)), dyn->insts[ninst].retn);
+                    // calling a native function
+                    sse_purge07cache(dyn, ninst, x3);
+                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall) {
+                        // FIXME: Add basic support for isSimpleWrapper
+                        tmp = 0; // isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
+                    } else
+                        tmp = 0;
+                    if (tmp < 0 || tmp > 1)
+                        tmp = 0; // TODO: removed when FP is in place
+                    // FIXME: if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
+                    //     // return value will be on the stack, so the stack depth needs to be updated
+                    //     x87_purgecache(dyn, ninst, 0, x3, x1, x4);
+                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
+                        // GETIP(ip+3+8+8); // read the 0xCC
+                        // FIXME: call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
+                        POP1(xRIP); // pop the return address
+                        dyn->last_ip = addr;
+                    } else {
+                        GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
+                        STORE_XEMU_CALL();
+                        ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                        CALL_S(x64Int3, -1);
+                        LOAD_XEMU_CALL();
+                        TABLE64(x3, dyn->insts[ninst].natcall);
+                        ADDI_D(x3, x3, 2 + 8 + 8);
+                        BNE_MARK(xRIP, x3); // Not the expected address, exit dynarec block
+                        POP1(xRIP);         // pop the return address
+                        if (dyn->insts[ninst].retn) {
+                            if (dyn->insts[ninst].retn < 0x1000) {
+                                ADDI_D(xRSP, xRSP, dyn->insts[ninst].retn);
+                            } else {
+                                MOV64x(x3, dyn->insts[ninst].retn);
+                                ADD_D(xRSP, xRSP, x3);
+                            }
+                        }
+                        TABLE64(x3, addr);
+                        BNE_MARK(xRIP, x3); // Not the expected address again
+                        LD_W(w1, xEmu, offsetof(x64emu_t, quit));
+                        CBZ_NEXT(w1);
+                        MARK;
+                        jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                        dyn->last_ip = addr;
+                    }
+                    break;
+                default:
+                    if ((box64_dynarec_safeflags > 1) || (ninst && dyn->insts[ninst - 1].x64.set_flags)) {
+                        READFLAGS(X_PEND); // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET); // Hack to set flags to "dont'care" state
+                    }
+                    // regular call
+                    if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+
+                    if (rex.is32bits) {
+                        MOV32w(x2, addr);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
+                    PUSH1z(x2);
+                    if (box64_dynarec_callret) {
+                        SET_HASCALLRET();
+                        // Push actual return address
+                        if (addr < (dyn->start + dyn->isize)) {
+                            // there is a next...
+                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
+                            PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                            ADDI_D(x4, x4, j64 & 0xfff);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
+                        } else {
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
+                            j64 = getJumpTableAddress64(addr);
+                            TABLE64(x4, j64);
+                            LD_D(x4, x4, 0);
+                        }
+                        ADDI_D(xSP, xSP, -16);
+                        ST_D(x4, xSP, 0);
+                        ST_D(x2, xSP, 8);
+                    } else {
+                        *ok = 0;
+                        *need_epilog = 0;
+                    }
+                    jump_to_next(dyn, addr + i32, 0, ninst, rex.is32bits);
+                    break;
+            }
+            break;
         case 0xE9:
         case 0xEB:
             BARRIER(BARRIER_MAYBE);
