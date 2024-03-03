@@ -518,6 +518,11 @@ void LoadLogEnv()
         if(!box64_nobanner)
             printf_log(LOG_INFO, "Debug level is %d\n", box64_log);
     }
+
+#if !defined(DYNAREC) && (defined(ARM64) || defined(RV64) || defined(LA64))
+    printf_log(LOG_INFO, "Warning: DynaRec is available on this host architecture, an interpreter-only build is probably not intended.\n");
+#endif
+
     p = getenv("BOX64_ROLLING_LOG");
     if(p) {
         int cycle = 0;
@@ -1569,7 +1574,7 @@ static void load_rcfiles()
     if(FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/data/data/com.termux/files/usr/etc/box64.box64rc");
     #endif
-    
+
     else
         LoadRCFile(NULL);   // load default rcfile
     char* p = getenv("HOME");
@@ -1685,8 +1690,8 @@ int main(int argc, const char **argv, char **env) {
     int wine_steam = 0;
     // check if this is wine
     if(!strcmp(prog, "wine64")
-     || !strcmp(prog, "wine64-development") 
-     || !strcmp(prog, "wine") 
+     || !strcmp(prog, "wine64-development")
+     || !strcmp(prog, "wine")
      || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine"))
      || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
