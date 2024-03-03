@@ -1571,8 +1571,8 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             int nptrs;
             void *buffer[BT_BUF_SIZE];
             char **strings;
-            
-            #ifndef ANDROID
+
+#ifndef ANDROID
             nptrs = backtrace(buffer, BT_BUF_SIZE);
             strings = backtrace_symbols(buffer, nptrs);
             if(strings) {
@@ -1581,7 +1581,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 free(strings);
             } else
                 printf_log(log_minimum, "NativeBT: none (%d/%s)\n", errno, strerror(errno));
-            #endif
+#endif
             extern int my_backtrace_ip(x64emu_t* emu, void** buffer, int size);   // in wrappedlibc
             extern char** my_backtrace_symbols(x64emu_t* emu, uintptr_t* buffer, int size);
             // save and set real RIP/RSP
@@ -1689,7 +1689,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
                 shown_regs = 1;
                 for (int i=0; i<16; ++i) {
                     if(!(i%4)) printf_log(log_minimum, "\n");
-                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[16+i]);
+                    printf_log(log_minimum, "%s:0x%016llx ", reg_name[i], p->uc_mcontext.__gregs[12+i]);
                 }
                 printf_log(log_minimum, "\n");
                 for (int i=0; i<6; ++i)
