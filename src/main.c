@@ -446,11 +446,18 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " AFP");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch");
-    char *p = getenv("BOX64_DYNAREC_LA64NOEXT");
-    if(p == NULL || p[0] == '0') {
-        // We don't bother to detect it, it's there.
-        la64_lbt = 1;
-    }
+    // char *p = getenv("BOX64_DYNAREC_LA64NOEXT");
+    // if(p == NULL || p[0] == '0') {
+    //     // We don't bother to detect it, it's there.
+    //     la64_lbt = 1;
+    // }
+    // We can use cpucfg to get la64_lbt_x64 support
+    uint32_t val = 0, reg = 0x2;
+    asm volatile("cpucfg %0, %1\n\t"
+            :"=r"(val)
+            :"r"(reg)
+            );
+    la64_lbt = (val & 0x4000) >> 18;
 #elif defined(RV64)
     void RV64_Detect_Function();
     char *p = getenv("BOX64_DYNAREC_RV64NOEXT");
