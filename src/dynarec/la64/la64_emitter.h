@@ -95,6 +95,15 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define ra      xRA
 // LA64 SP
 #define xSP     3
+// RV64 args
+#define A0 4
+#define A1 5
+#define A2 6
+#define A3 7
+#define A4 8
+#define A5 9
+#define A6 10
+#define A7 11
 // xZR regs
 #define xZR     0
 #define wZR     xZR
@@ -575,16 +584,19 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 
 // GR[rd] = imm32
-#define MOV32w(rd, imm32)               \
-    if (((uint32_t)(imm32)) > 0xfffu) { \
-        LU12I_W(rd, (imm32) >> 12);     \
-        ORI(rd, rd, imm32);             \
-    } else {                            \
-        ORI(rd, xZR, imm32);            \
+#define MOV32w_(rd, imm32, zeroup)        \
+    if (((uint32_t)(imm32)) > 0xfffu) {   \
+        LU12I_W(rd, (imm32) >> 12);       \
+        ORI(rd, rd, imm32);               \
+        if (zeroup && (int32_t)imm32 < 0) \
+            ZEROUP(rd);                   \
+    } else {                              \
+        ORI(rd, xZR, imm32);              \
     }
+#define MOV32w(rd, imm32) MOV32w_(rd, imm32, 1)
 // GR[rd] = imm64
 #define MOV64x(rd, imm64)                           \
-    MOV32w(rd, imm64);                              \
+    MOV32w_(rd, imm64, 0);                          \
     if (((uint64_t)(imm64)) > 0xffffffffu) {        \
         LU32I_D(rd, ((uint64_t)(imm64)) >> 32);     \
         LU52I_D(rd, rd, ((uint64_t)(imm64)) >> 52); \
