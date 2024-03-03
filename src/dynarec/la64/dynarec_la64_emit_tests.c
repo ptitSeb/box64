@@ -50,7 +50,7 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
-        NOT(s5, s1);
+        NOR(s5, xZR, s1);
     }
 
     // It's a cmp, we can't store the result back to s1.
@@ -138,7 +138,7 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
-        NOT(s5, s1);
+        NOR(s5, xZR, s1);
     }
 
     // It's a cmp, we can't store the result back to s1.

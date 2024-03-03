@@ -576,7 +576,7 @@ void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
     ANDI(s3, s3, 28);
     ADD_D(s4, s4, s3);
     LD_W(s4, s4, 0);
-    NOT(s4, s4);
+    NOR(s4, xZR, s4);
     SRL_W(s4, s4, s1);
     ANDI(s4, s4, 1);
 

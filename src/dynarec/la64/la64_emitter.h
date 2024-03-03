@@ -632,9 +632,6 @@ f24-f31  fs0-fs7   Static registers                Callee
         MV(rd, rj);             \
     }
 
-// rd = !rs1
-#define NOT(rd, rs1) XORI(rd, rs1, -1)
-
 #define ADDIxw(rd, rj, imm12)  \
     if (rex.w)                 \
         ADDI_D(rd, rj, imm12); \
