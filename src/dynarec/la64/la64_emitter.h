@@ -456,20 +456,20 @@ f24-f31  fs0-fs7   Static registers                Callee
 // Reads OF/SF/ZF/CF/PF, set rd based on imm.
 #define X64_SETJ(rd, imm) EMIT(type_2RI4(0b000000000011011010, imm, 0, rd))
 // Here are the available enums:
-#define X64_JMP_JO   0  /* OF=1 */
-#define X64_JMP_JNO  1  /* OF=0 */
-#define X64_JMP_JS   2  /* SF=1 */
-#define X64_JMP_JNS  3  /* SF=0 */
-#define X64_JMP_JE   4  /* ZF=1 */
-#define X64_JMP_JNE  5  /* ZF=0 */
-#define X64_JMP_JB   6  /* CF=1 */
-#define X64_JMP_JNB  7  /* CF=0 */
-#define X64_JMP_JBE  8  /* CF=1 || ZF=1 */
-#define X64_JMP_JA   9  /* CF=0 && ZF=0 */
-#define X64_JMP_JL   10 /* SF != OF */
-#define X64_JMP_JGE  11 /* SF == OF */
-#define X64_JMP_JLE  12 /* ZF=1 || SF != OF */
-#define X64_JMP_JG   13 /* ZF=0 && SF == OF */
+#define X64_JMP_JNBE 0  /* CF=0 && ZF=0 */
+#define X64_JMP_JNC  1  /* CF=0 */
+#define X64_JMP_JC   2  /* CF=1 */
+#define X64_JMP_JBE  3  /* CF=1 || ZF=1 */
+#define X64_JMP_JZ   4  /* ZF=1 */
+#define X64_JMP_JNZ  5  /* ZF=0 */
+#define X64_JMP_JG   6  /* ZF=0 && SF == OF */
+#define X64_JMP_JGE  7  /* SF == OF */
+#define X64_JMP_JL   8  /* SF != OF */
+#define X64_JMP_JLE  9  /* ZF=1 || SF != OF */
+#define X64_JMP_JS   10 /* SF=1 */
+#define X64_JMP_JNS  11 /* SF=0 */
+#define X64_JMP_JO   12 /* OF=1 */
+#define X64_JMP_JNO  13 /* OF=0 */
 #define X64_JMP_JP   14 /* PF=1 */
 #define X64_JMP_JNP  15 /* PF=0 */
 

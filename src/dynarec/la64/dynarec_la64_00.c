@@ -165,6 +165,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_sub32c(dyn, ninst, rex, xRAX, i64, x2, x3, x4, x5);
             break;
+        case 0x3D:
+            INST_NAME("CMP EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            if(i64) {
+                MOV64xw(x2, i64);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+            } else
+                emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
@@ -234,6 +244,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         #undef GO
 
+        case 0x80:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 7: // CMP
+                    INST_NAME("CMP Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        ADDI_D(x2, xZR, u8);
+                        emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    } else {
+                        emit_cmp8_0(dyn, ninst, x1, x3, x4);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
@@ -264,6 +293,26 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i64 = F8S;
                     emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     WBACK;
+                    break;
+                case 7: // CMP
+                    if (opcode == 0x81) {
+                        INST_NAME("CMP Ed, Id");
+                    } else {
+                        INST_NAME("CMP Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81) i64 = F32S; else i64 = F8S;
+                    if (i64) {
+                        MOV64xw(x2, i64);
+                        emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
+                    } else {
+                        if (!rex.w && MODREG) {
+                            AND(x1, ed, xMASK);
+                            ed = x1;
+                        }
+                        emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
+                    }
                     break;
                 default:
                     DEFAULT;

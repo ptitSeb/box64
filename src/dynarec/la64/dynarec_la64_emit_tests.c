@@ -22,6 +22,187 @@
 #include "dynarec_la64_helper.h"
 
 
+// emit CMP8 instruction, from cmp s1, s2, using s3, s4, s5 and s6 as scratch
+void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    CLEAR_FLAGS(s3);
+    IFX_PENDOR0 {
+        ST_B(s1, xEmu, offsetof(x64emu_t, op1));
+        ST_B(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_cmp8);
+    } else {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            X64_SUB_B(s1, s2);
+            X64_GET_EFLAGS(s3, X_ALL);
+            OR(xFlags, xFlags, s3);
+        }
+
+        IFX_PENDOR0 {
+            SUB_D(s6, s1, s2);
+            ST_B(s6, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    IFX(X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    // It's a cmp, we can't store the result back to s1.
+    SUB_D(s6, s1, s2);
+    ANDI(s6, s6, 0xff);
+    IFX_PENDOR0 {
+        ST_B(s6, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        SRLI_D(s3, s6, 7);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    CALC_SUB_FLAGS(s5, s2, s6, s3, s4, 8);
+    IFX(X_ZF) {
+        BNEZ(s6, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s6, s3, s4);
+    }
+}
+
+// emit CMP8 instruction, from cmp s1 , 0, using s3 and s4 as scratch
+void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
+{
+    CLEAR_FLAGS(s3);
+    IFX_PENDOR0 {
+        ST_B(s1, xEmu, offsetof(x64emu_t, op1));
+        ST_B(xZR, xEmu, offsetof(x64emu_t, op2));
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
+        SET_DF(s3, d_cmp8);
+    } else {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            X64_SUB_B(s1, xZR);
+            X64_GET_EFLAGS(s3, X_ALL);
+            OR(xFlags, xFlags, s3);
+        }
+        return;
+    }
+
+    IFX(X_SF) {
+        SRLI_D(s3, s1, 7);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit CMP32 instruction, from cmp s1, s2, using s3 and s4 as scratch
+void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    CLEAR_FLAGS(s3);
+    IFX_PENDOR0 {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+    } else {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            if (rex.w) X64_SUB_D(s1, s2); else X64_SUB_W(s1, s2);
+            X64_GET_EFLAGS(s3, X_ALL);
+            OR(xFlags, xFlags, s3);
+        }
+
+        IFX_PENDOR0 {
+            SUBxw(s6, s1, s2);
+            SDxw(s6, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    IFX(X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    // It's a cmp, we can't store the result back to s1.
+    SUBxw(s6, s1, s2);
+    IFX_PENDOR0 {
+        SDxw(s6, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        BGE(s6, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s6);
+    }
+    CALC_SUB_FLAGS(s5, s2, s6, s3, s4, rex.w?64:32);
+    IFX(X_ZF) {
+        BNEZ(s6, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s6, s3, s4);
+    }
+}
+
+// emit CMP32 instruction, from cmp s1, 0, using s3 and s4 as scratch
+void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
+{
+    CLEAR_FLAGS(s3);
+    IFX_PENDOR0 {
+        ST_D(s1, xEmu, offsetof(x64emu_t, op1));
+        ST_D(xZR, xEmu, offsetof(x64emu_t, op2));
+        ST_D(s1, xEmu, offsetof(x64emu_t, res));
+        SET_DF(s4, rex.w?d_cmp64:d_cmp32);
+    } else {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            if (rex.w) X64_SUB_D(s1, xZR); else X64_SUB_W(s1, xZR);
+            X64_GET_EFLAGS(s3, X_ALL);
+            OR(xFlags, xFlags, s3);
+        }
+        return;
+    }
+
+    IFX(X_SF) {
+        if (rex.w) {
+            BGE(s1, xZR, 8);
+        } else {
+            SRLI_D(s3, s1, 31);
+            BEQZ(s3, 8);
+        }
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {

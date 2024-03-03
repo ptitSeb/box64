@@ -458,6 +458,10 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define jump_to_next        STEPNAME(jump_to_next)
 #define ret_to_epilog       STEPNAME(ret_to_epilog)
 #define call_c              STEPNAME(call_c)
+#define emit_cmp32          STEPNAME(emit_cmp32)
+#define emit_cmp32_0        STEPNAME(emit_cmp32_0)
+#define emit_cmp8           STEPNAME(emit_cmp8)
+#define emit_cmp8_0         STEPNAME(emit_cmp8_0)
 #define emit_test32         STEPNAME(emit_test32)
 #define emit_add32          STEPNAME(emit_add32)
 #define emit_add32c         STEPNAME(emit_add32c)
@@ -498,6 +502,10 @@ void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
+void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
+void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
@@ -568,19 +576,19 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         break;                                                                                   \
     case B + 0x2:                                                                                \
         INST_NAME(T1 "C " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_CF), EQZ, NEZ, X_CF, X64_JMP_JB);                             \
+        GO(ANDI(x1, xFlags, 1 << F_CF), EQZ, NEZ, X_CF, X64_JMP_JC);                             \
         break;                                                                                   \
     case B + 0x3:                                                                                \
         INST_NAME(T1 "NC " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_CF), NEZ, EQZ, X_CF, X64_JMP_JNB);                            \
+        GO(ANDI(x1, xFlags, 1 << F_CF), NEZ, EQZ, X_CF, X64_JMP_JNC);                            \
         break;                                                                                   \
     case B + 0x4:                                                                                \
         INST_NAME(T1 "Z " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), EQZ, NEZ, X_ZF, X64_JMP_JE);                             \
+        GO(ANDI(x1, xFlags, 1 << F_ZF), EQZ, NEZ, X_ZF, X64_JMP_JZ);                             \
         break;                                                                                   \
     case B + 0x5:                                                                                \
         INST_NAME(T1 "NZ " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), NEZ, EQZ, X_ZF, X64_JMP_JNE);                            \
+        GO(ANDI(x1, xFlags, 1 << F_ZF), NEZ, EQZ, X_ZF, X64_JMP_JNZ);                            \
         break;                                                                                   \
     case B + 0x6:                                                                                \
         INST_NAME(T1 "BE " T2);                                                                  \
@@ -588,7 +596,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         break;                                                                                   \
     case B + 0x7:                                                                                \
         INST_NAME(T1 "NBE " T2);                                                                 \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, X_CF | X_ZF, X64_JMP_JA);      \
+        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, X_CF | X_ZF, X64_JMP_JNBE);    \
         break;                                                                                   \
     case B + 0x8:                                                                                \
         INST_NAME(T1 "S " T2);                                                                   \
