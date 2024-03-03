@@ -128,7 +128,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define type_1RI20(opc, imm20, rd)       ((opc) << 25 | ((imm20) & 0xFFFFF) << 5 | (rd))
 #define type_1RI21(opc, imm21, rj)       ((opc) << 26 | ((imm21) & 0xFFFF) << 10 | (rj) << 5 | ((imm21) & 0x1F0000) >> 16)
 #define type_hint(opc, imm15)            ((opc) << 15 | ((imm15) & 0x7FFF))
-#define type_I26(opc, imm26)             ((opc) << 26 | ((imm26) & 0xFFFF) << 10 | ((imm26) & 0x3FF0000))
+#define type_I26(opc, imm26)             ((opc) << 26 | ((imm26) & 0xFFFF) << 10 | ((imm26 >> 16) & 0x3FF))
 
 // Made-up formats not found in the spec.
 #define type_2RI3(opc, imm3, rj, rd)     ((opc) << 13 | ((imm3) & 0x7 ) << 10 | (rj) << 5 | (rd))
