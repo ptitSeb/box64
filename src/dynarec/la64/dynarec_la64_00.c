@@ -420,6 +420,50 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0xC6:
+            INST_NAME("MOV Eb, Ib");
+            nextop = F8;
+            if (MODREG) { // reg <= u8
+                u8 = F8;
+                if (!rex.rex) {
+                    ed = (nextop & 7);
+                    eb1 = xRAX + (ed & 3); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;   // L or H
+                } else {
+                    eb1 = xRAX + (nextop & 7) + (rex.b << 3);
+                    eb2 = 0;
+                }
+                if (eb2) {
+                    // load a mask to x3 (ffffffffffff00ff)
+                    LU12I_W(x3, 0xffff0);
+                    ORI(x3, x3, 0xff);
+                    // apply mask
+                    AND(eb1, eb1, x3);
+                    if (u8) {
+                        if ((u8 << 8) < 2048) {
+                            ADDI_D(x4, xZR, u8 << 8);
+                        } else {
+                            ADDI_D(x4, xZR, u8);
+                            SLLI_D(x4, x4, 8);
+                        }
+                        OR(eb1, eb1, x4);
+                    }
+                } else {
+                    ANDI(eb1, eb1, 0xf00); // mask ffffffffffffff00
+                    ORI(eb1, eb1, u8);
+                }
+            } else { // mem <= u8
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 1);
+                u8 = F8;
+                if (u8) {
+                    ADDI_D(x3, xZR, u8);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                ST_B(ed, wback, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0xC7:
             INST_NAME("MOV Ed, Id");
             nextop = F8;
