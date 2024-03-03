@@ -441,7 +441,7 @@ void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
-        NOT(s5, s1);
+        NOR(s5, xZR, s1);
     }
 
     SUB_D(s1, s1, s2);
@@ -499,7 +499,7 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
-        NOT(s5, s1);
+        NOR(s5, xZR, s1);
     }
 
     SUBxw(s1, s1, s2);
@@ -565,7 +565,7 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
-        NOT(s5, s1);
+        NOR(s5, xZR, s1);
     }
 
     if (c > -2048 && c <= 2048) {

@@ -26,7 +26,7 @@ la64_next:
     st.d   $r17, $sp, 64
     st.d   $r18, $sp, 72
     st.d   $r19, $sp, 80
-    st.d   $r20, $sp, 88 // also save r30(rip) to allow change in LinkNext
+    st.d   $r20, $sp, 88 // also save r20(rip) to allow change in LinkNext
 
     move   $a2, $ra      // "from" is in ra, so put in a2
     addi.d $a3, $sp, 88  // a3 is address to change rip

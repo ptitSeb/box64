@@ -112,7 +112,7 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     // LU12I.W
     if(isMask(opcode, "0001010iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "LU12I.W", Xt[Rd], imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x", "LU12I.W", Xt[Rd], imm);
         return buff;
     }
     // LU32I.D
@@ -130,19 +130,19 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDI", Xt[Rd], imm);
         return buff;
     }
-    // PCADDU12I
+    // PCALAU12I
     if(isMask(opcode, "0001101iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCALAU12I", Xt[Rd], imm);
+        return buff;
+    }
+    // PCADDU12I
+    if(isMask(opcode, "0001110iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDU12I", Xt[Rd], imm);
         return buff;
     }
     // PCADDU18I
-    if(isMask(opcode, "0001110iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDU18I", Xt[Rd], imm);
-        return buff;
-    }
-    // PCALAU12I
     if(isMask(opcode, "0001111iiiiiiiiiiiiiiiiiiiiddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCALAU12I", Xt[Rd], imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "PCADDU18I", Xt[Rd], imm);
         return buff;
     }
     // AND
@@ -307,7 +307,7 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     // B
     if(isMask(opcode, "010100iiiiiiiiiiiiiiiiiiiiiiiiii", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s 0x%x", "B", imm);
+        snprintf(buff, sizeof(buff), "%-15s 0x%x", "B", (((imm & 0x3FF) << 16) | ((uint32_t)imm >> 10)) << 6 >> 4);
         return buff;
     }
     // LD.B

@@ -94,7 +94,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
-            ANDI(xRAX, xRAX, ~0xff);
+            ADDI_W(x3, xZR, 0xf00);
+            AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
         case 0x05:
@@ -156,7 +157,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_sub8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
-            ANDI(xRAX, xRAX, ~0xff);
+            ADDI_W(x3, xZR, 0xf00);
+            AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
         case 0x2D:
@@ -164,6 +166,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
             emit_sub32c(dyn, ninst, rex, xRAX, i64, x2, x3, x4, x5);
+            break;
+        case 0x39:
+            INST_NAME("CMP Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
+            break;
+        case 0x3D:
+            INST_NAME("CMP EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            if(i64) {
+                MOV64xw(x2, i64);
+                emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
+            } else
+                emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
         case 0x50:
         case 0x51:
@@ -192,6 +212,66 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+
+        #define GO(GETFLAGS, NO, YES, F, I)                                                         \
+            READFLAGS(F);                                                                           \
+            i8 = F8S;                                                                               \
+            BARRIER(BARRIER_MAYBE);                                                                 \
+            JUMP(addr + i8, 1);                                                                     \
+            if (la64_lbt && (opcode - 0x70) >= 0xC) {                                               \
+                X64_SET_EFLAGS(xFlags, F);                                                          \
+                X64_SETJ(x1, I);                                                                    \
+            } else {                                                                                \
+                GETFLAGS;                                                                           \
+            }                                                                                       \
+            if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+                /* out of block */                                                                  \
+                i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
+                    BEQZ_safe(x1, i32);                                                             \
+                else                                                                                \
+                    B##NO##_safe(x1, i32);                                                          \
+                if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+                    if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
+                    jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
+                } else {                                                                            \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+                    B(i32);                                                                         \
+                }                                                                                   \
+            } else {                                                                                \
+                /* inside the block */                                                              \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
+                    BNEZ_safe(x1, i32);                                                             \
+                else                                                                                \
+                    B##YES##_safe(x1, i32);                                                         \
+            }
+
+            GOCOND(0x70, "J", "ib");
+
+        #undef GO
+
+        case 0x80:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 7: // CMP
+                    INST_NAME("CMP Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    if(u8) {
+                        ADDI_D(x2, xZR, u8);
+                        emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    } else {
+                        emit_cmp8_0(dyn, ninst, x1, x3, x4);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
             break;
         case 0x81:
         case 0x83:
@@ -224,51 +304,30 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     WBACK;
                     break;
+                case 7: // CMP
+                    if (opcode == 0x81) {
+                        INST_NAME("CMP Ed, Id");
+                    } else {
+                        INST_NAME("CMP Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81) i64 = F32S; else i64 = F8S;
+                    if (i64) {
+                        MOV64xw(x2, i64);
+                        emit_cmp32(dyn, ninst, rex, ed, x2, x3, x4, x5, x6);
+                    } else {
+                        if (!rex.w && MODREG) {
+                            AND(x1, ed, xMASK);
+                            ed = x1;
+                        }
+                        emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
             break;
-
-        #define GO(GETFLAGS, NO, YES, F, I)                                                         \
-            READFLAGS(F);                                                                           \
-            i8 = F8S;                                                                               \
-            BARRIER(BARRIER_MAYBE);                                                                 \
-            JUMP(addr + i8, 1);                                                                     \
-            if (la64_lbt && I >= 0xC) {                                                             \
-                X64_SET_EFLAGS(xFlags, F);                                                          \
-                X64_SETJ(x1, I);                                                                    \
-            } else {                                                                                \
-                GETFLAGS;                                                                           \
-            }                                                                                       \
-            if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-                /* out of block */                                                                  \
-                i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-                if (la64_lbt && I >= 0xC)                                                           \
-                    BEQZ(x1, i32);                                                                  \
-                else                                                                                \
-                    B##NO(x1, i32);                                                                 \
-                if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-                    if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-                    jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
-                } else {                                                                            \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-                    B(i32);                                                                         \
-                }                                                                                   \
-            } else {                                                                                \
-                /* inside the block */                                                              \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-                if (la64_lbt && I >= 0xC)                                                           \
-                    BNEZ(x1, i32);                                                                  \
-                else                                                                                \
-                    B##YES(x1, i32);                                                                \
-            }
-
-            GOCOND(0x70, "J", "ib");
-
-        #undef GO
-
         case 0x85:
             INST_NAME("TEST Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -371,6 +430,51 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0xC6:
+            INST_NAME("MOV Eb, Ib");
+            nextop = F8;
+            if (MODREG) { // reg <= u8
+                u8 = F8;
+                if (!rex.rex) {
+                    ed = (nextop & 7);
+                    eb1 = TO_LA64((ed & 3)); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;   // L or H
+                } else {
+                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));
+                    eb2 = 0;
+                }
+                if (eb2) {
+                    // load a mask to x3 (ffffffffffff00ff)
+                    LU12I_W(x3, 0xffff0);
+                    ORI(x3, x3, 0xff);
+                    // apply mask
+                    AND(eb1, eb1, x3);
+                    if (u8) {
+                        if ((u8 << 8) < 2048) {
+                            ADDI_D(x4, xZR, u8 << 8);
+                        } else {
+                            ADDI_D(x4, xZR, u8);
+                            SLLI_D(x4, x4, 8);
+                        }
+                        OR(eb1, eb1, x4);
+                    }
+                } else {
+                    ADDI_W(x3, xZR, 0xf00); // mask ffffffffffffff00
+                    AND(eb1, eb1, x3);
+                    ORI(eb1, eb1, u8);
+                }
+            } else { // mem <= u8
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 1);
+                u8 = F8;
+                if (u8) {
+                    ADDI_D(x3, xZR, u8);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                ST_B(ed, wback, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0xC7:
             INST_NAME("MOV Ed, Id");
             nextop = F8;
@@ -459,6 +563,126 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 default:
                     DEFAULT;
+            }
+            break;
+        case 0xE8:
+            INST_NAME("CALL Id");
+            i32 = F32S;
+            if (addr + i32 == 0) {
+                #if STEP == 3
+                printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr - 1));
+                #endif
+            }
+            #if STEP < 2
+            if (!rex.is32bits && isNativeCall(dyn, addr + i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
+            else
+                tmp = dyn->insts[ninst].pass2choice = 0;
+            #else
+            tmp = dyn->insts[ninst].pass2choice;
+            #endif
+            switch (tmp) {
+                case 3:
+                    SETFLAGS(X_ALL, SF_SET); // Hack to set flags to "dont'care" state
+                    SKIPTEST(x1);
+                    BARRIER(BARRIER_FULL);
+                    // BARRIER_NEXT(BARRIER_FULL);
+                    if (dyn->last_ip && (addr - dyn->last_ip < 0x1000)) {
+                        ADDI_D(x2, xRIP, addr - dyn->last_ip);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
+                    PUSH1(x2);
+                    MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1)), dyn->insts[ninst].retn);
+                    // calling a native function
+                    sse_purge07cache(dyn, ninst, x3);
+                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall) {
+                        // FIXME: Add basic support for isSimpleWrapper
+                        tmp = 0; // isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
+                    } else
+                        tmp = 0;
+                    if (tmp < 0 || tmp > 1)
+                        tmp = 0; // TODO: removed when FP is in place
+                    // FIXME: if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
+                    //     // return value will be on the stack, so the stack depth needs to be updated
+                    //     x87_purgecache(dyn, ninst, 0, x3, x1, x4);
+                    if ((box64_log < 2 && !cycle_log) && dyn->insts[ninst].natcall && tmp) {
+                        // GETIP(ip+3+8+8); // read the 0xCC
+                        // FIXME: call_n(dyn, ninst, *(void**)(dyn->insts[ninst].natcall + 2 + 8), tmp);
+                        POP1(xRIP); // pop the return address
+                        dyn->last_ip = addr;
+                    } else {
+                        GETIP_(dyn->insts[ninst].natcall); // read the 0xCC already
+                        STORE_XEMU_CALL();
+                        ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                        CALL_S(x64Int3, -1);
+                        LOAD_XEMU_CALL();
+                        TABLE64(x3, dyn->insts[ninst].natcall);
+                        ADDI_D(x3, x3, 2 + 8 + 8);
+                        BNE_MARK(xRIP, x3); // Not the expected address, exit dynarec block
+                        POP1(xRIP);         // pop the return address
+                        if (dyn->insts[ninst].retn) {
+                            if (dyn->insts[ninst].retn < 0x1000) {
+                                ADDI_D(xRSP, xRSP, dyn->insts[ninst].retn);
+                            } else {
+                                MOV64x(x3, dyn->insts[ninst].retn);
+                                ADD_D(xRSP, xRSP, x3);
+                            }
+                        }
+                        TABLE64(x3, addr);
+                        BNE_MARK(xRIP, x3); // Not the expected address again
+                        LD_W(w1, xEmu, offsetof(x64emu_t, quit));
+                        CBZ_NEXT(w1);
+                        MARK;
+                        jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                        dyn->last_ip = addr;
+                    }
+                    break;
+                default:
+                    if ((box64_dynarec_safeflags > 1) || (ninst && dyn->insts[ninst - 1].x64.set_flags)) {
+                        READFLAGS(X_PEND); // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET); // Hack to set flags to "dont'care" state
+                    }
+                    // regular call
+                    if (box64_dynarec_callret && box64_dynarec_bigblock > 1) {
+                        BARRIER(BARRIER_FULL);
+                    } else {
+                        BARRIER(BARRIER_FLOAT);
+                        *need_epilog = 0;
+                        *ok = 0;
+                    }
+
+                    if (rex.is32bits) {
+                        MOV32w(x2, addr);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
+                    PUSH1z(x2);
+                    if (box64_dynarec_callret) {
+                        SET_HASCALLRET();
+                        // Push actual return address
+                        if (addr < (dyn->start + dyn->isize)) {
+                            // there is a next...
+                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
+                            PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                            ADDI_D(x4, x4, j64 & 0xfff);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
+                        } else {
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
+                            j64 = getJumpTableAddress64(addr);
+                            TABLE64(x4, j64);
+                            LD_D(x4, x4, 0);
+                        }
+                        ADDI_D(xSP, xSP, -16);
+                        ST_D(x4, xSP, 0);
+                        ST_D(x2, xSP, 8);
+                    } else {
+                        *ok = 0;
+                        *need_epilog = 0;
+                    }
+                    jump_to_next(dyn, addr + i32, 0, ninst, rex.is32bits);
+                    break;
             }
             break;
         case 0xE9:

@@ -40,7 +40,6 @@
 // All Write operation that might use a lock all have a memory barrier if strongmem is >= SMWRITE_MIN
 // Opcode will read
 #define SMREAD()                                                        \
-    ;                                                                   \
     if ((dyn->smread == 0) && (box64_dynarec_strongmem > SMREAD_MIN)) { \
         SMDMB();                                                        \
     } else                                                              \
@@ -177,7 +176,8 @@
         SLLI_D(s1, gd, 8);                \
         OR(gb1, gb1, s1);                 \
     } else {                              \
-        ANDI(gb1, gb1, ~0xff);            \
+        ADDI_W(s1, xZR, 0xf00);           \
+        AND(gb1, gb1, s1);                \
         OR(gb1, gb1, gd);                 \
     }
 
@@ -193,7 +193,8 @@
         SLLI_D(s1, ed, 8);                \
         OR(wback, wback, s1);             \
     } else {                              \
-        ANDI(wback, wback, ~0xff);        \
+        ADDI_W(s1, xZR, 0xf00);           \
+        AND(wback, wback, s1);            \
         if (c) { ANDI(ed, ed, 0xff); }    \
         OR(wback, wback, ed);             \
     }
@@ -459,6 +460,10 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define jump_to_next        STEPNAME(jump_to_next)
 #define ret_to_epilog       STEPNAME(ret_to_epilog)
 #define call_c              STEPNAME(call_c)
+#define emit_cmp32          STEPNAME(emit_cmp32)
+#define emit_cmp32_0        STEPNAME(emit_cmp32_0)
+#define emit_cmp8           STEPNAME(emit_cmp8)
+#define emit_cmp8_0         STEPNAME(emit_cmp8_0)
 #define emit_test32         STEPNAME(emit_test32)
 #define emit_add32          STEPNAME(emit_add32)
 #define emit_add32c         STEPNAME(emit_add32c)
@@ -499,6 +504,10 @@ void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
+void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
+void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
@@ -569,19 +578,19 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         break;                                                                                   \
     case B + 0x2:                                                                                \
         INST_NAME(T1 "C " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_CF), EQZ, NEZ, X_CF, X64_JMP_JB);                             \
+        GO(ANDI(x1, xFlags, 1 << F_CF), EQZ, NEZ, X_CF, X64_JMP_JC);                             \
         break;                                                                                   \
     case B + 0x3:                                                                                \
         INST_NAME(T1 "NC " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_CF), NEZ, EQZ, X_CF, X64_JMP_JNB);                            \
+        GO(ANDI(x1, xFlags, 1 << F_CF), NEZ, EQZ, X_CF, X64_JMP_JNC);                            \
         break;                                                                                   \
     case B + 0x4:                                                                                \
         INST_NAME(T1 "Z " T2);                                                                   \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), EQZ, NEZ, X_ZF, X64_JMP_JE);                             \
+        GO(ANDI(x1, xFlags, 1 << F_ZF), EQZ, NEZ, X_ZF, X64_JMP_JZ);                             \
         break;                                                                                   \
     case B + 0x5:                                                                                \
         INST_NAME(T1 "NZ " T2);                                                                  \
-        GO(ANDI(x1, xFlags, 1 << F_ZF), NEZ, EQZ, X_ZF, X64_JMP_JNE);                            \
+        GO(ANDI(x1, xFlags, 1 << F_ZF), NEZ, EQZ, X_ZF, X64_JMP_JNZ);                            \
         break;                                                                                   \
     case B + 0x6:                                                                                \
         INST_NAME(T1 "BE " T2);                                                                  \
@@ -589,7 +598,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         break;                                                                                   \
     case B + 0x7:                                                                                \
         INST_NAME(T1 "NBE " T2);                                                                 \
-        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, X_CF | X_ZF, X64_JMP_JA);      \
+        GO(ANDI(x1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, X_CF | X_ZF, X64_JMP_JNBE);    \
         break;                                                                                   \
     case B + 0x8:                                                                                \
         INST_NAME(T1 "S " T2);                                                                   \
@@ -609,33 +618,33 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         break;                                                                                   \
     case B + 0xC:                                                                                \
         INST_NAME(T1 "L " T2);                                                                   \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF), EQZ, NEZ, X_SF | X_OF, X64_JMP_JL);                         \
+            ANDI(x1, x1, 1 << F_SF), EQZ, NEZ, X_SF | X_OF, X64_JMP_JL);                         \
         break;                                                                                   \
     case B + 0xD:                                                                                \
         INST_NAME(T1 "GE " T2);                                                                  \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF), NEZ, EQZ, X_SF | X_OF, X64_JMP_JGE);                        \
+            ANDI(x1, x1, 1 << F_SF), NEZ, EQZ, X_SF | X_OF, X64_JMP_JGE);                        \
         break;                                                                                   \
     case B + 0xE:                                                                                \
         INST_NAME(T1 "LE " T2);                                                                  \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF);                                                             \
+            ANDI(x1, x1, 1 << F_SF);                                                             \
             ANDI(x3, xFlags, 1 << F_ZF);                                                         \
             OR(x1, x1, x3);                                                                      \
-            ANDI(x1, x1, (1 << F_OF) | (1 << F_ZF)), EQZ, NEZ, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
+            ANDI(x1, x1, (1 << F_SF) | (1 << F_ZF)), EQZ, NEZ, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
         break;                                                                                   \
     case B + 0xF:                                                                                \
         INST_NAME(T1 "G " T2);                                                                   \
-        GO(SRLI_D(x1, xFlags, F_SF - F_OF);                                                      \
+        GO(SRLI_D(x1, xFlags, F_OF - F_SF);                                                      \
             XOR(x1, x1, xFlags);                                                                 \
-            ANDI(x1, x1, 1 << F_OF);                                                             \
+            ANDI(x1, x1, 1 << F_SF);                                                             \
             ANDI(x3, xFlags, 1 << F_ZF);                                                         \
             OR(x1, x1, x3);                                                                      \
-            ANDI(x1, x1, (1 << F_OF) | (1 << F_ZF)), NEZ, EQZ, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
+            ANDI(x1, x1, (1 << F_SF) | (1 << F_ZF)), NEZ, EQZ, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
         break
 
 #define NOTEST(s1)                                       \
