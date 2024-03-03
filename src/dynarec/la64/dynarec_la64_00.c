@@ -229,9 +229,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 /* out of block */                                                                  \
                 i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
                 if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
-                    BEQZ(x1, i32);                                                                  \
+                    BEQZ_safe(x1, i32);                                                             \
                 else                                                                                \
-                    B##NO(x1, i32);                                                                 \
+                    B##NO##_safe(x1, i32);                                                          \
                 if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
                     if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
@@ -245,9 +245,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 /* inside the block */                                                              \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
                 if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
-                    BNEZ(x1, i32);                                                                  \
+                    BNEZ_safe(x1, i32);                                                             \
                 else                                                                                \
-                    B##YES(x1, i32);                                                                \
+                    B##YES##_safe(x1, i32);                                                         \
             }
 
             GOCOND(0x70, "J", "ib");

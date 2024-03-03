@@ -354,6 +354,28 @@ f24-f31  fs0-fs7   Static registers                Callee
         B(imm - 4);                            \
     }
 
+#define BEQZ_safe(rj, imm)                         \
+    do {                                           \
+        if ((imm) > -0x70000 && (imm) < 0x70000) { \
+            BEQZ(rj, imm);                         \
+            NOP();                                 \
+        } else {                                   \
+            BNEZ(rj, 8);                           \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
+
+#define BNEZ_safe(rj, imm)                         \
+    do {                                           \
+        if ((imm) > -0x70000 && (imm) < 0x70000) { \
+            BNEZ(rj, imm);                         \
+            NOP();                                 \
+        } else {                                   \
+            BEQZ(rj, 8);                           \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
+
 // vaddr = GR[rj] + SignExtend(imm12, GRLEN)
 // AddressComplianceCheck(vaddr)
 // paddr = AddressTranslation(vaddr)
