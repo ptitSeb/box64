@@ -94,7 +94,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
-            ANDI(xRAX, xRAX, ~0xff);
+            ADDI_W(x3, xZR, 0xf00);
+            AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
         case 0x05:
@@ -156,7 +157,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_sub8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
-            ANDI(xRAX, xRAX, ~0xff);
+            ADDI_W(x3, xZR, 0xf00);
+            AND(xRAX, xRAX, x3);
             OR(xRAX, xRAX, x1);
             break;
         case 0x2D:
@@ -217,7 +219,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i8 = F8S;                                                                               \
             BARRIER(BARRIER_MAYBE);                                                                 \
             JUMP(addr + i8, 1);                                                                     \
-            if (la64_lbt && (opcode - 0x70) >= 0xC) {                                                             \
+            if (la64_lbt && (opcode - 0x70) >= 0xC) {                                               \
                 X64_SET_EFLAGS(xFlags, F);                                                          \
                 X64_SETJ(x1, I);                                                                    \
             } else {                                                                                \
@@ -226,7 +228,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
                 /* out of block */                                                                  \
                 i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-                if (la64_lbt && (opcode - 0x70) >= 0xC)                                                           \
+                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
                     BEQZ(x1, i32);                                                                  \
                 else                                                                                \
                     B##NO(x1, i32);                                                                 \
@@ -242,7 +244,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {                                                                                \
                 /* inside the block */                                                              \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-                if (la64_lbt && (opcode - 0x70) >= 0xC)                                                           \
+                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
                     BNEZ(x1, i32);                                                                  \
                 else                                                                                \
                     B##YES(x1, i32);                                                                \
@@ -435,10 +437,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u8 = F8;
                 if (!rex.rex) {
                     ed = (nextop & 7);
-                    eb1 = xRAX + (ed & 3); // Ax, Cx, Dx or Bx
+                    eb1 = TO_LA64((ed & 3)); // Ax, Cx, Dx or Bx
                     eb2 = (ed & 4) >> 2;   // L or H
                 } else {
-                    eb1 = xRAX + (nextop & 7) + (rex.b << 3);
+                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
                 }
                 if (eb2) {
@@ -457,7 +459,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         OR(eb1, eb1, x4);
                     }
                 } else {
-                    ANDI(eb1, eb1, 0xf00); // mask ffffffffffffff00
+                    ADDI_W(x3, xZR, 0xf00); // mask ffffffffffffff00
+                    AND(eb1, eb1, x3);
                     ORI(eb1, eb1, u8);
                 }
             } else { // mem <= u8

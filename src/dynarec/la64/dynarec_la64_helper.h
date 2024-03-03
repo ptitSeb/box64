@@ -176,7 +176,8 @@
         SLLI_D(s1, gd, 8);                \
         OR(gb1, gb1, s1);                 \
     } else {                              \
-        ANDI(gb1, gb1, ~0xff);            \
+        ADDI_W(s1, xZR, 0xf00);           \
+        AND(gb1, gb1, s1);                \
         OR(gb1, gb1, gd);                 \
     }
 
@@ -192,7 +193,8 @@
         SLLI_D(s1, ed, 8);                \
         OR(wback, wback, s1);             \
     } else {                              \
-        ANDI(wback, wback, ~0xff);        \
+        ADDI_W(s1, xZR, 0xf00);           \
+        AND(wback, wback, s1);            \
         if (c) { ANDI(ed, ed, 0xff); }    \
         OR(wback, wback, ed);             \
     }
