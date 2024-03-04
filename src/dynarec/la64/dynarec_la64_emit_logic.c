@@ -70,3 +70,55 @@ void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
+
+// emit AND32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
+void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
+{
+    CLEAR_FLAGS(s3);
+    IFX(X_PEND) {
+        SET_DF(s3, rex.w ? d_tst64 : d_tst32);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+
+    // move c into a register if necessary
+    if (la64_lbt) {
+        IFX(X_ALL) { MOV64xw(s3, c); }
+        else if (c < 0 || c > 4095) { MOV64xw(s3, c); }
+    }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            if (rex.w) X64_AND_D(s1, s3); else X64_AND_W(s1, s3);
+            X64_GET_EFLAGS(s4, X_ALL);
+            OR(xFlags, xFlags, s4);
+        }
+    }
+
+    if (c >= 0 && c <= 4095) {
+        ANDI(s1, s1, c);
+    } else {
+        AND(s1, s1, s3); // res = s1 & s2
+    }
+
+    if (!rex.w && c < 0) ZEROUP(s1);
+
+    IFX(X_PEND)  {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) return;
+
+    IFX(X_SF) {
+        SRLI_D(s3, s1, rex.w ? 63 : 31);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
