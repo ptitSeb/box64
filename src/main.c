@@ -445,11 +445,14 @@ HWCAP2_ECV
     if(arm64_afp)
         printf_log(LOG_INFO, " AFP");
 #elif defined(LA64)
-    printf_log(LOG_INFO, "Dynarec for LoongArch");
-    char *p = getenv("BOX64_DYNAREC_LA64NOEXT");
+    printf_log(LOG_INFO, "Dynarec for LoongArch ");
+    char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
     if(p == NULL || p[0] == '0') {
-        // We don't bother to detect it, it's there.
-        la64_lbt = 1;
+        uint32_t cpucfg2 = 0, idx = 2;
+        // there are other extensions, but we don't care.
+        asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
+        if (la64_lbt = (cpucfg2 >> 18) & 0b1)
+            printf_log(LOG_INFO, "with extension LBT_X86");
     }
 #elif defined(RV64)
     void RV64_Detect_Function();
