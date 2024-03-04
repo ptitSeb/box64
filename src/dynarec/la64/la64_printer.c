@@ -205,14 +205,34 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRL.W", Xt[Rd], Xt[Rj], Xt[Rk]);
         return buff;
     }
-    // SLA.W
+    // SRA.W
     if(isMask(opcode, "00000000000110000kkkkkjjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SLA.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRA.W", Xt[Rd], Xt[Rj], Xt[Rk]);
         return buff;
     }
     // ROTR.W
     if(isMask(opcode, "00000000000110110kkkkkjjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ROTR.W", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    // SLL.D
+    if(isMask(opcode, "00000000000110001kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SLL.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    // SRL.D
+    if(isMask(opcode, "00000000000110010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRL.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    // SRA.D
+    if(isMask(opcode, "00000000000110011kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRA.D", Xt[Rd], Xt[Rj], Xt[Rk]);
+        return buff;
+    }
+    // ROTR.D
+    if(isMask(opcode, "00000000000110111kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ROTR.D", Xt[Rd], Xt[Rj], Xt[Rk]);
         return buff;
     }
     // SLLI.D
