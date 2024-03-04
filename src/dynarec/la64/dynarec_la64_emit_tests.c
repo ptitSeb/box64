@@ -259,21 +259,22 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
         SET_DFNONE();
     }
 
-    // move c into a register if necessary
-    if (la64_lbt) {
-        IFX(X_ALL) { MOV64xw(s3, c); }
-        else if (c < 0 || c > 4095) { MOV64xw(s3, c); }
-    }
 
     if (la64_lbt) {
         IFX(X_ALL) {
+            MOV64xw(s3, c);
             if (rex.w) X64_AND_D(s1, s3); else X64_AND_W(s1, s3);
             X64_GET_EFLAGS(s3, X_ALL);
             OR(xFlags, xFlags, s3);
         }
 
         IFX_PENDOR0 {
-            AND(s3, s1, s3);
+            if (c >= 0 && c <= 4095) {
+                ANDI(s3, s1, c);
+            } else {
+                IFX(X_ALL) { } else MOV64xw(s3, c);
+                AND(s3, s1, s3);
+            }
             SDxw(s3, xEmu, offsetof(x64emu_t, res));
         }
         return;
@@ -281,11 +282,9 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
 
     if (c >= 0 && c <= 4095) {
         ANDI(s3, s1, c);
-        IFX(X_SF | X_ZF) {
-            if (!rex.w && c < 0) ZEROUP(s3);
-        }
     } else {
-        AND(s3, s1, s3); // res = s1 & s2
+        IFXA(X_ALL, la64_lbt) { } else MOV64xw(s3, c);
+        AND(s3, s1, s3);
     }
 
     IFX_PENDOR0 {

@@ -81,27 +81,19 @@ void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         SET_DFNONE();
     }
 
-    // move c into a register if necessary
-    if (la64_lbt) {
-        IFX(X_ALL) { MOV64xw(s3, c); }
-        else if (c < 0 || c > 4095) { MOV64xw(s3, c); }
-    }
-
-    if (la64_lbt) {
-        IFX(X_ALL) {
-            if (rex.w) X64_AND_D(s1, s3); else X64_AND_W(s1, s3);
-            X64_GET_EFLAGS(s4, X_ALL);
-            OR(xFlags, xFlags, s4);
-        }
+    IFXA(X_ALL, la64_lbt) {
+        MOV64xw(s3, c);
+        if (rex.w) X64_AND_D(s1, s3); else X64_AND_W(s1, s3);
+        X64_GET_EFLAGS(s4, X_ALL);
+        OR(xFlags, xFlags, s4);
     }
 
     if (c >= 0 && c <= 4095) {
         ANDI(s1, s1, c);
     } else {
+        IFXA(X_ALL, la64_lbt) { } else MOV64xw(s3, c);
         AND(s1, s1, s3); // res = s1 & s2
     }
-
-    if (!rex.w && c < 0) ZEROUP(s1);
 
     IFX(X_PEND)  {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
