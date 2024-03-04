@@ -177,7 +177,7 @@ static int SymbolMatch(elfheader_t* h, uint32_t i, int ver, const char* vername,
         return 1;
     if(ver==1 && version<2)
         return 1;
-    if(ver<2 && version>2 && flags==0)  // flag is not WEAK, so global works
+    if(ver<2 && version>1 && flags==0)  // flag is not WEAK, so global works
         return 1;
     if(ver<2 || !symvername)
         return 0;

@@ -686,14 +686,9 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                 break;
             case R_X86_64_64:
                 if (!offs && !elfsym) {
-                    if(symname && !strcmp(symname, "__gxx_personality_v0")) {
-                        printf_dump(LOG_NEVER, "Warning: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", symname, p, *(void**)p, head->name);
-                    } else {
-                        printf_log(LOG_INFO, "%s: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", (bind==STB_GLOBAL)?"Error":"Warning", symname, p, *(void**)p, head->name);
-                        if(bind==STB_GLOBAL)
-                            ret_ok = 1;
-                        // return -1;
-                    }
+                    printf_log(LOG_INFO, "%s: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", (bind==STB_GLOBAL)?"Error":"Warning", symname, p, *(void**)p, head->name);
+                    if(bind==STB_GLOBAL)
+                        ret_ok = 1;
                 } else {
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (%sver=%d/%s) addend=0x%lx (%p -> %p)\n", 
                         BindSym(bind), p, symname, veropt?"opt":"", version, vername?vername:"(none)", rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend/*+*(uint64_t*)p*/));
@@ -785,14 +780,14 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, e
     if(head->rel) {
         int cnt = head->relsz / head->relent;
         DumpRelTable(head, cnt, (Elf64_Rel *)(head->rel + head->delta), "Rel");
-        printf_dump(LOG_DEBUG, "Applying %d Relocation(s) for %s\n", cnt, head->name);
+        printf_dump(LOG_DEBUG, "Applying %d Relocation(s) for %s bindnow=%d, deepbind=%d\n", cnt, head->name, bindnow, deepbind);
         if(RelocateElfREL(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rel *)(head->rel + head->delta)))
             return -1;
     }
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
         DumpRelATable(head, cnt, (Elf64_Rela *)(head->rela + head->delta), "RelA");
-        printf_dump(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s\n", cnt, head->name);
+        printf_dump(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s bindnow=%d, deepbind=%d\n", cnt, head->name, bindnow, deepbind);
         if(RelocateElfRELA(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rela *)(head->rela + head->delta), NULL))
             return -1;
     }
@@ -810,12 +805,12 @@ int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind
         int cnt = head->pltsz / head->pltent;
         if(head->pltrel==DT_REL) {
             DumpRelTable(head, cnt, (Elf64_Rel *)(head->jmprel + head->delta), "PLT");
-            printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) for %s\n", cnt, head->name);
+            printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) for %s bindnow=%d, deepbind=%d\n", cnt, head->name, bindnow, deepbind);
             if(RelocateElfREL(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rel *)(head->jmprel + head->delta)))
                 return -1;
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable(head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), "PLT");
-            printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s\n", cnt, head->name);
+            printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s bindnow=%d, deepbind=%d\n", cnt, head->name, bindnow, deepbind);
             if(RelocateElfRELA(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), &need_resolver))
                 return -1;
         }
