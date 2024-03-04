@@ -291,6 +291,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x80:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 4: // AND
+                    INST_NAME("AND Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_and8c(dyn, ninst, x1, u8, x2, x4);
+                    EBBACK(x5, 0);
+                    break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
