@@ -94,9 +94,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_add8c(dyn, ninst, x1, u8, x3, x4, x5);
-            ADDI_W(x3, xZR, 0xf00);
-            AND(xRAX, xRAX, x3);
-            OR(xRAX, xRAX, x1);
+            BSTRINS_D(xRAX, x1, 7, 0);
             break;
         case 0x05:
             INST_NAME("ADD EAX, Id");
@@ -163,9 +161,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
             emit_sub8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
-            ADDI_W(x3, xZR, 0xf00);
-            AND(xRAX, xRAX, x3);
-            OR(xRAX, xRAX, x1);
+            BSTRINS_D(xRAX, x1, 7, 0);
             break;
         case 0x2D:
             INST_NAME("SUB EAX, Id");
@@ -476,26 +472,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     eb1 = TO_LA64((nextop & 7) + (rex.b << 3));
                     eb2 = 0;
                 }
-                if (eb2) {
-                    // load a mask to x3 (ffffffffffff00ff)
-                    LU12I_W(x3, 0xffff0);
-                    ORI(x3, x3, 0xff);
-                    // apply mask
-                    AND(eb1, eb1, x3);
-                    if (u8) {
-                        if ((u8 << 8) < 2048) {
-                            ADDI_D(x4, xZR, u8 << 8);
-                        } else {
-                            ADDI_D(x4, xZR, u8);
-                            SLLI_D(x4, x4, 8);
-                        }
-                        OR(eb1, eb1, x4);
-                    }
-                } else {
-                    ADDI_W(x3, xZR, 0xf00); // mask ffffffffffffff00
-                    AND(eb1, eb1, x3);
-                    ORI(eb1, eb1, u8);
-                }
+                MOV32w(x3, u8);
+                BSTRINS_D(eb1, x3, eb2 * 8 + 7, 8);
             } else { // mem <= u8
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 1);
                 u8 = F8;

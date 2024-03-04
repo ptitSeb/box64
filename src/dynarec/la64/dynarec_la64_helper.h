@@ -134,12 +134,7 @@
             wb2 = (wback >> 2) * 8;                                                             \
             wback = TO_LA64((wback & 3));                                                       \
         }                                                                                       \
-        if (wb2) {                                                                              \
-            MV(i, wback);                                                                       \
-            SRLI_D(i, i, wb2);                                                                  \
-            ANDI(i, i, 0xff);                                                                   \
-        } else                                                                                  \
-            ANDI(i, wback, 0xff);                                                               \
+        BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                     \
         wb1 = 0;                                                                                \
         ed = i;                                                                                 \
     } else {                                                                                    \
@@ -161,42 +156,18 @@
         gb1 = TO_LA64((gd & 3));                              \
     }                                                         \
     gd = i;                                                   \
-    if (gb2) {                                                \
-        MV(gd, gb1);                                          \
-        SRLI_D(gd, gd, 8);                                    \
-        ANDI(gd, gd, 0xff);                                   \
-    } else                                                    \
-        ANDI(gd, gb1, 0xff);
+    BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
-#define GBBACK(s1)                        \
-    if (gb2) {                            \
-        MOV64x(s1, 0xffffffffffff00ffLL); \
-        AND(gb1, gb1, s1);                \
-        SLLI_D(s1, gd, 8);                \
-        OR(gb1, gb1, s1);                 \
-    } else {                              \
-        ADDI_W(s1, xZR, 0xf00);           \
-        AND(gb1, gb1, s1);                \
-        OR(gb1, gb1, gd);                 \
-    }
+#define GBBACK(s1) BSTRINS_D(gb1, gd, gb2 + 7, gb2);
 
 // Write eb (ed) back to original register / memory, using s1 as scratch
-#define EBBACK(s1, c)                     \
-    if (wb1) {                            \
-        SUB_D(ed, wback, fixedaddress);   \
-        SMWRITE();                        \
-    } else if (wb2) {                     \
-        MOV64x(s1, 0xffffffffffff00ffLL); \
-        AND(wback, wback, s1);            \
-        if (c) { ANDI(ed, ed, 0xff); }    \
-        SLLI_D(s1, ed, 8);                \
-        OR(wback, wback, s1);             \
-    } else {                              \
-        ADDI_W(s1, xZR, 0xf00);           \
-        AND(wback, wback, s1);            \
-        if (c) { ANDI(ed, ed, 0xff); }    \
-        OR(wback, wback, ed);             \
+#define EBBACK(s1, c)                       \
+    if (wb1) {                              \
+        SUB_D(ed, wback, fixedaddress);     \
+        SMWRITE();                          \
+    } else {                                \
+        BSTRINS_D(wback, ed, wb2 + 7, wb2); \
     }
 
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)

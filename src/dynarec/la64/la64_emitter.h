@@ -156,15 +156,15 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = tmp[63:0]
 #define ADDU16I_D(rd, rj, imm16) EMIT(type_2RI16(0b000100, imm16, rj, rd))
 
-// tmp = (GR[rj][31:0] << (imm2 + 1)) + GR[rk][31:0]
+// tmp = (GR[rj][31:0] << imm) + GR[rk][31:0]
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
-#define ALSL_W(rd, rj, rk, imm2) EMIT(type_3RI2(0b000000000000010, imm2, rk, rj, rd))
-// tmp = (GR[rj][31:0] << (imm2 + 1)) + GR[rk][31:0]
+#define ALSL_W(rd, rj, rk, imm) EMIT(type_3RI2(0b000000000000010, (imm - 1), rk, rj, rd))
+// tmp = (GR[rj][31:0] << imm) + GR[rk][31:0]
 // GR[rd] = ZeroExtend(tmp[31:0], GRLEN)
-#define ALSL_WU(rd, rj, rk, imm2) EMIT(type_3RI2(0b000000000000011, imm2, rk, rj, rd))
-// tmp = (GR[rj][63:0] << (imm2 + 1)) + GR[rk][63:0]
+#define ALSL_WU(rd, rj, rk, imm) EMIT(type_3RI2(0b000000000000011, (imm - 1), rk, rj, rd))
+// tmp = (GR[rj][63:0] << imm) + GR[rk][63:0]
 // GR[rd] = tmp[63:0]
-#define ALSL_D(rd, rj, rk, imm2) EMIT(type_3RI2(0b000000000010110, imm2, rk, rj, rd))
+#define ALSL_D(rd, rj, rk, imm) EMIT(type_3RI2(0b000000000010110, (imm - 1), rk, rj, rd))
 
 // GR[rd] = SignExtend({imm20, 12'b0}, GRLEN)
 #define LU12I_W(rd, imm20) EMIT(type_1RI20(0b0001010, imm20, rd))
