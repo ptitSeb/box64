@@ -473,7 +473,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     eb2 = 0;
                 }
                 MOV32w(x3, u8);
-                BSTRINS_D(eb1, x3, eb2 * 8 + 7, 8);
+                BSTRINS_D(eb1, x3, eb2 * 8 + 7, eb2 * 8);
             } else { // mem <= u8
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 1);
                 u8 = F8;
