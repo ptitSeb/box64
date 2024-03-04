@@ -102,6 +102,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
+        case 0x09:
+            INST_NAME("OR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
+            WBACK;
+            break;
+        case 0x0D:
+            INST_NAME("OR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_or32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x0F:
             switch (rep) {
                 case 0:
@@ -230,6 +245,33 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
+            break;
+        case 0x63:
+            if(rex.is32bits) {
+                // this is ARPL opcode
+                DEFAULT;
+            } else {
+                INST_NAME("MOVSXD Gd, Ed");
+                nextop = F8;
+                GETGD;
+                if(rex.w) {
+                    if(MODREG) {   // reg <= reg
+                        ADDI_W(gd, TO_LA64((nextop&7)+(rex.b<<3)), 0);
+                    } else {                    // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                        LD_W(gd, ed, fixedaddress);
+                    }
+                } else {
+                    if(MODREG) {   // reg <= reg
+                        AND(gd, xRAX+(nextop&7)+(rex.b<<3), xMASK);
+                    } else {                    // mem <= reg
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                        LD_WU(gd, ed, fixedaddress);
+                    }
+                }
+            }
             break;
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
@@ -633,6 +675,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xD3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, CL");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    ANDI(x3, xRCX, rex.w?0x3f:0x1f);
+                    GETED(0);
+                    if(!rex.w && MODREG) { ZEROUP(ed); }
+                    CBZ_NEXT(x3);
+                    emit_shl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
+                    WBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         #define GO(Z)                                                                               \
             BARRIER(BARRIER_MAYBE);                                                                 \
             JUMP(addr + i8, 1);                                                                     \
@@ -867,6 +927,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETED(4);
                     i64 = F32S;
                     emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
+                    break;
+                case 2:
+                    INST_NAME("NOT Ed");
+                    GETED(0);
+                    NOR(ed, ed, xZR);
+                    if(!rex.w && MODREG)
+                        ZEROUP(ed);
+                    WBACK;
                     break;
                 default:
                     DEFAULT;
