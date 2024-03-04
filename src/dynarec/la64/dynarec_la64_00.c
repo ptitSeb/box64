@@ -747,6 +747,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0xF7:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ed, Id");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED(4);
+                    i64 = F32S;
+                    emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xFF:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
