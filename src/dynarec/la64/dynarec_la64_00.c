@@ -669,6 +669,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xD3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, CL");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    ANDI(x3, xRCX, rex.w?0x3f:0x1f);
+                    GETED(0);
+                    if(!rex.w && MODREG) { ZEROUP(ed); }
+                    CBZ_NEXT(x3);
+                    emit_shl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
+                    WBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         #define GO(Z)                                                                               \
             BARRIER(BARRIER_MAYBE);                                                                 \
             JUMP(addr + i8, 1);                                                                     \
