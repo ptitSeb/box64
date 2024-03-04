@@ -699,8 +699,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, rex.w?d_sar64:d_sar32);
                     break;
-                default:
-                    DEFAULT;
             }
             break;
 
