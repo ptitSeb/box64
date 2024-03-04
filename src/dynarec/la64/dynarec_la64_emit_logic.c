@@ -71,6 +71,46 @@ void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 }
 
+// emit AND8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
+{
+    CLEAR_FLAGS(s3);
+    IFX(X_PEND) {
+        SET_DF(s3, d_and8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+
+
+    IFXA(X_ALL, la64_lbt) {
+        MOV32w(s3, c);
+        X64_AND_B(s1, s3);
+        X64_GET_EFLAGS(s4, X_ALL);
+        OR(xFlags, xFlags, s4);
+    }
+
+    ANDI(s1, s1, c&0xff);
+
+    IFX(X_PEND) {
+        ST_D(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) return;
+
+    IFX(X_SF) {
+        SRLI_D(s3, s1, 7);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit AND32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
 void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
@@ -106,6 +146,55 @@ void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit OR32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
+void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
+{
+    CLEAR_FLAGS(s3);
+    IFX(X_PEND) {
+        SET_DF(s4, rex.w ? d_or64 : d_or32);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFXA(X_ALL, la64_lbt) {
+        MOV64xw(s3, c);
+        if (rex.w) X64_OR_D(s1, s3); else X64_OR_W(s1, s3);
+        X64_GET_EFLAGS(s4, X_ALL);
+        OR(xFlags, xFlags, s4);
+    }
+
+    if (c >= 0 && c <= 4095) {
+        ORI(s1, s1, c);
+    } else {
+        IFXA(X_ALL, la64_lbt) { } else MOV64xw(s3, c);
+        OR(s1, s1, s3);
+    }
+
+    IFX(X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) return;
+
+    // test sign bit before zeroup.
+    IFX(X_SF) {
+        if (!rex.w) SEXT_W(s1, s1);
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+
     IFX(X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);

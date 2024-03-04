@@ -1015,8 +1015,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEB(x1, 0);
                     CALL(idiv8, -1);
                     break;
-                default:
-                    DEFAULT;
             }
             break;
         case 0xF7:
