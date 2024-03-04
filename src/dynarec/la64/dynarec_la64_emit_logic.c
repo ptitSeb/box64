@@ -173,6 +173,7 @@ void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
 
     OR(s1, s1, s2);
+    if (!rex.w) ZEROUP(s1);
 
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -185,9 +186,6 @@ void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         if (!rex.w) SEXT_W(s1, s1);
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
-    }
-    if (!rex.w) {
-        ZEROUP(s1);
     }
     IFX(X_ZF) {
         BNEZ(s1, 8);
