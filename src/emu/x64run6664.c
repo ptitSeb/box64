@@ -87,6 +87,14 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         EX->q[1] = 0;
                     break;
 
+                case 0x7F:  /* MOVDQA Ex,Gx */
+                    nextop = F8;
+                    GETEX_OFFS(0, tlsdata);
+                    GETGX;
+                    EX->q[0] = GX->q[0];
+                    EX->q[1] = GX->q[1];
+                    break;
+
                 default:
                     return 0;
             }
