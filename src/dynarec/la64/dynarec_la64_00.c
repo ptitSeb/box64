@@ -868,6 +868,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     i64 = F32S;
                     emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
                     break;
+                case 2:
+                    INST_NAME("NOT Ed");
+                    GETED(0);
+                    NOR(ed, ed, xZR);
+                    if(!rex.w && MODREG)
+                        ZEROUP(ed);
+                    WBACK;
+                    break;
                 default:
                     DEFAULT;
             }
