@@ -111,6 +111,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
             WBACK;
             break;
+        case 0x0D:
+            INST_NAME("OR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_or32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x0F:
             switch (rep) {
                 case 0:
