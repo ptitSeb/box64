@@ -116,6 +116,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x25:
+            INST_NAME("AND EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x28:
             INST_NAME("SUB Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -166,6 +172,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
             emit_sub32c(dyn, ninst, rex, xRAX, i64, x2, x3, x4, x5);
+            break;
+        case 0x31:
+            INST_NAME("XOR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
+            if(ed!=gd) {
+                WBACK;
+            }
+            break;
+        case 0x33:
+            INST_NAME("XOR Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
@@ -287,6 +312,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81) i64 = F32S; else i64 = F8S;
                     emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    WBACK;
+                    break;
+                case 4: // AND
+                    if (opcode == 0x81) { INST_NAME("AND Ed, Id"); } else { INST_NAME("AND Ed, Ib"); }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81) i64 = F32S; else i64 = F8S;
+                    emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
                     WBACK;
                     break;
                 case 5: // SUB
@@ -713,6 +746,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             *need_epilog = 0;
             *ok = 0;
+            break;
+        case 0xF7:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ed, Id");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED(4);
+                    i64 = F32S;
+                    emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
+                    break;
+                default:
+                    DEFAULT;
+            }
             break;
         case 0xFF:
             nextop = F8;

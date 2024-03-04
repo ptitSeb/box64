@@ -247,6 +247,7 @@
     BEQZ(reg1, j64)
 
 #define IFX(A)      if ((dyn->insts[ninst].x64.gen_flags & (A)))
+#define IFXA(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A)) && (B))
 #define IFX_PENDOR0 if ((dyn->insts[ninst].x64.gen_flags & (X_PEND) || !dyn->insts[ninst].x64.gen_flags))
 #define IFXX(A)     if ((dyn->insts[ninst].x64.gen_flags == (A)))
 #define IFX2X(A, B) if ((dyn->insts[ninst].x64.gen_flags == (A) || dyn->insts[ninst].x64.gen_flags == (B) || dyn->insts[ninst].x64.gen_flags == ((A) | (B))))
@@ -465,6 +466,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_cmp8           STEPNAME(emit_cmp8)
 #define emit_cmp8_0         STEPNAME(emit_cmp8_0)
 #define emit_test32         STEPNAME(emit_test32)
+#define emit_test32c        STEPNAME(emit_test32c)
 #define emit_add32          STEPNAME(emit_add32)
 #define emit_add32c         STEPNAME(emit_add32c)
 #define emit_add8           STEPNAME(emit_add8)
@@ -473,6 +475,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sub32c         STEPNAME(emit_sub32c)
 #define emit_sub8           STEPNAME(emit_sub8)
 #define emit_sub8c          STEPNAME(emit_sub8c)
+#define emit_xor32          STEPNAME(emit_xor32)
+#define emit_and32c          STEPNAME(emit_and32c)
 #define emit_shr32c         STEPNAME(emit_shr32c)
 #define emit_sar32c         STEPNAME(emit_sar32c)
 
@@ -509,6 +513,7 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
@@ -517,6 +522,8 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sub8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4, int s5);
+void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 
