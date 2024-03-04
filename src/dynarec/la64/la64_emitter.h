@@ -113,9 +113,6 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define SPLIT20(A) (((A) + 0x800) >> 12)
 #define SPLIT12(A) ((A) & 0xfff)
 
-// ZERO the upper part
-#define ZEROUP(r) AND(r, r, xMASK);
-
 // Standard formats
 #define type_4R(opc, ra, rk, rj, rd)     ((opc) << 20 | (ra) << 15 | (rk) << 10 | (rj) << 5 | (rd))
 #define type_3R(opc, rk, rj, rd)         ((opc) << 15 | (rk) << 10 | (rj) << 5 | (rd))
@@ -131,10 +128,10 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define type_I26(opc, imm26)             ((opc) << 26 | ((imm26) & 0xFFFF) << 10 | ((imm26 >> 16) & 0x3FF))
 
 // Made-up formats not found in the spec.
-#define type_2RI3(opc, imm3, rj, rd)     ((opc) << 13 | ((imm3) & 0x7 ) << 10 | (rj) << 5 | (rd))
-#define type_2RI4(opc, imm4, rj, rd)     ((opc) << 14 | ((imm4) & 0xF ) << 10 | (rj) << 5 | (rd))
-#define type_2RI5(opc, imm5, rj, rd)     ((opc) << 15 | ((imm5) & 0x1F) << 10 | (rj) << 5 | (rd))
-#define type_2RI6(opc, imm6, rj, rd)     ((opc) << 16 | ((imm6) & 0x3F) << 10 | (rj) << 5 | (rd))
+#define type_2RI3(opc, imm3, rj, rd)     ((opc) << 13 | ((imm3)  & 0x7 )  << 10 | (rj) << 5 | (rd))
+#define type_2RI4(opc, imm4, rj, rd)     ((opc) << 14 | ((imm4)  & 0xF )  << 10 | (rj) << 5 | (rd))
+#define type_2RI5(opc, imm5, rj, rd)     ((opc) << 15 | ((imm5)  & 0x1F)  << 10 | (rj) << 5 | (rd))
+#define type_2RI6(opc, imm6, rj, rd)     ((opc) << 16 | ((imm6)  & 0x3F)  << 10 | (rj) << 5 | (rd))
 
 // tmp = GR[rj][31:0] + GR[rk][31:0]
 // Gr[rd] = SignExtend(tmp[31:0], GRLEN)
@@ -264,8 +261,28 @@ f24-f31  fs0-fs7   Static registers                Callee
         ADD_D(rd, rs1, scratch);           \
     }
 
-
 #define SEXT_W(rd, rs1) SLLI_W(rd, rs1, 0)
+
+// bstr32[31:msbw+1] = GR[rd][31: msbw+1]
+// bstr32[msbw:lsbw] = GR[rj][msbw-lsbw:0]
+// bstr32[lsbw-1:0] = GR[rd][lsbw-1:0]
+// GR[rd] = SignExtend(bstr32[31:0], GRLEN)
+#define BSTRINS_W(rd, rj, msbw5, lsbw5) EMIT(type_2RI12(0b0000000001, 0b100000000000 | (msbw5 & 0x1F) << 6 | (lsbw5 & 0x1F), rj, rd))
+
+// GR[rd][63:msbd+1] = GR[rd][63:msbd+1]
+// GR[rd][msbd:lsbd] = GR[rj][msbd-lsbd:0]
+// GR[rd][lsbd-1:0] = GR[rd][lsbd-1:0]
+#define BSTRINS_D(rd, rj, msbd6, lsbd6) EMIT(type_2RI12(0b0000000010, (msbd6 & 0x3F) << 6 | (lsbd6 & 0x3F), rj, rd))
+
+// bstr32[31:0] = ZeroExtend(GR[rj][msbw:lsbw], 32)
+// GR[rd] = SignExtend(bstr32[31:0], GRLEN)
+#define BSTRPICK_W(rd, rj, msbw5, lsbw5) EMIT(type_2RI12(0b0000000001, 0b100000100000 | (msbw5 & 0x1F) << 6 | (lsbw5 & 0x1F), rj, rd))
+
+// GR[rd] = ZeroExtend(GR[rj][msbd:lsbd], 64)
+#define BSTRPICK_D(rd, rj, msbd6, lsbd6) EMIT(type_2RI12(0b0000000011, (msbd6 & 0x3F) << 6 | (lsbd6 & 0x3F), rj, rd))
+
+// ZERO the upper part
+#define ZEROUP(rd) BSTRINS_D(rd, xZR, 63, 32);
 
 // if GR[rj] == GR[rd]:
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
