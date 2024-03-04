@@ -51,6 +51,18 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
             fpu_do_pop(emu);
             break;
 
+        case 0xD0:  /* FSTP STx, ST0 */
+        case 0xD1:
+        case 0xD2:
+        case 0xD3:
+        case 0xD4:
+        case 0xD5:
+        case 0xD6:
+        case 0xD7:
+            ST(nextop&7).q = ST0.q;
+            fpu_do_pop(emu);
+            break;
+
         case 0xE0:  /* FNSTSW AX */
             emu->sw.f.F87_TOP = emu->top&7;
             R_AX = emu->sw.x16;
