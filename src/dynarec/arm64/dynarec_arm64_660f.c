@@ -2663,6 +2663,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
                 FMOVD(v1, v0);
             } else {
+                WILLWRITE2();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                 VST64(v0, ed, fixedaddress);
                 SMWRITE2();

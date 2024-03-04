@@ -426,7 +426,7 @@
     if(MODREG) {                                                                                        \
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
     } else {                                                                                            \
-        SMREAD();                                                                                       \
+        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, D);  \
         a = fpu_get_scratch(dyn);                                                                       \
         VLD128(a, ed, fixedaddress);                                                                    \
@@ -445,7 +445,7 @@
     if(MODREG) {                                                                                        \
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
     } else {                                                                                            \
-        SMREAD();                                                                                       \
+        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
         a = fpu_get_scratch(dyn);                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, D);   \
         VLD64(a, ed, fixedaddress);                                                                     \
@@ -459,7 +459,7 @@
     if(MODREG) {                                                                                        \
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
     } else {                                                                                            \
-        SMREAD();                                                                                       \
+        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
         a = fpu_get_scratch(dyn);                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, D);   \
         VLD32(a, ed, fixedaddress);                                                                     \
@@ -473,7 +473,7 @@
     if(MODREG) {                                                                                        \
         a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
     } else {                                                                                            \
-        SMREAD();                                                                                       \
+        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
         a = fpu_get_scratch(dyn);                                                                       \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, D);   \
         VLD16(a, ed, fixedaddress);                                                                     \
