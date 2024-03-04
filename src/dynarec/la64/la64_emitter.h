@@ -221,16 +221,16 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 #define NOP() ANDI(xZR, xZR, 0)
 
-// tmp = SLL(GR[rj][31:0], ui5)
+// tmp = SLL(GR[rj][31:0], GR[rk][4:0])
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
 #define SLL_W(rd, rj, rk) EMIT(type_3R(0b00000000000101110, rk, rj, rd))
-// tmp = SRL(GR[rj][31:0], ui5)
+// tmp = SRL(GR[rj][31:0], GR[rk][4:0])
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
 #define SRL_W(rd, rj, rk) EMIT(type_3R(0b00000000000101111, rk, rj, rd))
-// tmp = SRA(GR[rj][31:0], ui5)
+// tmp = SRA(GR[rj][31:0], GR[rk][4:0])
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
 #define SRA_W(rd, rj, rk) EMIT(type_3R(0b00000000000110000, rk, rj, rd))
-// tmp = ROTR(GR[rj][31:0], ui5)
+// tmp = ROTR(GR[rj][31:0], GR[rk][4:0])
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
 #define ROTR_W(rd, rj, rk) EMIT(type_3R(0b00000000000110110, rk, rj, rd))
 
