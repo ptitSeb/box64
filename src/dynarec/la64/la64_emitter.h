@@ -173,6 +173,22 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = {imm12, GR[rj][51:0]}
 #define LU52I_D(rd, rj, imm12) EMIT(type_2RI12(0b0000001100, imm12, rj, rd))
 
+// GR[rd] = (signed(GR[rj]) < signed(GR[rk])) ? 1 : 0
+#define SLT(rd, rj, rk) EMIT(type_3R(0b100100, rk, rj, rd))
+// GR[rd] = (unsigned(GR[rj]) < unsigned(GR[rk])) ? 1 : 0
+#define SLTU(rd, rj, rk) EMIT(type_3R(0b100101, rk, rj, rd))
+// tmp = SignExtend(si12, GRLEN)
+// GR[rd] = (signed(GR[rj]) < signed(tmp)) ? 1 : 0
+#define SLTI(rd, rj, imm12) EMIT(type_2RI12(0b1000, imm12, rj, rd))
+// tmp = SignExtend(si12, GRLEN)
+// GR[rd] = (unsigned(GR[rj]) < unsigned(tmp)) ? 1 : 0
+#define SLTUI(rd, rj, imm12) EMIT(type_2RI12(0b1001, imm12, rj, rd))
+
+// rd = rs1 == 0
+#define SEQZ(rd, rs1) SLTUI(rd, rs1, 1)
+// rd = rs1 != 0
+#define SNEZ(rd, rs1) SLTU(rd, xZR, rs1)
+
 // GR[rd] = PC + SignExtend({imm20, 2'b0}, GRLEN)
 #define PCADDI(rd, imm20) EMIT(type_1RI20(0b0001100, imm20, rd))
 // GR[rd] = PC + SignExtend({imm20, 12'b0}, GRLEN)

@@ -86,7 +86,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i32_ = F32S;                                                                            \
             BARRIER(BARRIER_MAYBE);                                                                 \
             JUMP(addr + i32_, 1);                                                                   \
-            if (la64_lbt && (opcode - 0x70) >= 0xC) {                                               \
+            if (la64_lbt && (opcode - 0x80) >= 0xC) {                                               \
                 X64_SET_EFLAGS(xFlags, F);                                                          \
                 X64_SETJ(x1, I);                                                                    \
             } else {                                                                                \
@@ -95,7 +95,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
                 /* out of the block */                                                              \
                 i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
+                if (la64_lbt && (opcode - 0x80) >= 0xC)                                             \
                     BEQZ_safe(x1, i32);                                                             \
                 else                                                                                \
                     B##NO##_safe(x1, i32);                                                          \
@@ -111,7 +111,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {                                                                                \
                 /* inside the block */                                                              \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
+                if (la64_lbt && (opcode - 0x80) >= 0xC)                                             \
                     BNEZ_safe(x1, i32);                                                             \
                 else                                                                                \
                     B##YES##_safe(x1, i32);                                                         \
@@ -119,6 +119,39 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
             GOCOND(0x80, "J", "Id");
 
+        #undef GO
+
+
+        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
+            READFLAGS(F);                                                                            \
+            if (la64_lbt && (opcode - 0x90) >= 0xC) {                                                \
+                X64_SET_EFLAGS(xFlags, F);                                                           \
+                X64_SETJ(x1, I);                                                                     \
+            } else {                                                                                 \
+                GETFLAGS;                                                                            \
+            }                                                                                        \
+            nextop = F8;                                                                             \
+            if (la64_lbt && (opcode - 0x90) >= 0xC)                                                  \
+                SNEZ(x3, x1);                                                                        \
+            else                                                                                     \
+                S##YES(x3, x1);                                                                      \
+            if (MODREG) {                                                                            \
+                if (rex.rex) {                                                                       \
+                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));                                      \
+                    eb2 = 0;                                                                         \
+                } else {                                                                             \
+                    ed = (nextop & 7);                                                               \
+                    eb2 = (ed >> 2) * 8;                                                             \
+                    eb1 = TO_LA64(ed & 3);                                                           \
+                }                                                                                    \
+                BSTRINS_D(eb1, x3, eb2 + 7, eb2);                                                    \
+            } else {                                                                                 \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
+                ST_B(x3, ed, fixedaddress);                                                          \
+                SMWRITE();                                                                           \
+            }
+
+            GOCOND(0x90, "SET", "Eb");
         #undef GO
 
         case 0xA2:
