@@ -216,6 +216,10 @@
 #define CBZ_NEXT(reg1)                                                        \
     j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
     BEQZ(reg1, j64)
+// Branch to NEXT if reg1!=0 (use j64)
+#define CBNZ_NEXT(reg1)                                                       \
+    j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
+    BNEZ(reg1, j64)
 
 #define IFX(A)      if ((dyn->insts[ninst].x64.gen_flags & (A)))
 #define IFXA(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A)) && (B))
