@@ -2357,6 +2357,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     STORE_XEMU_CALL(xRIP);
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL(xRIP);
+                    *need_epilog = 0;
+                    *ok = 0;
                 }
                 break;
             }
