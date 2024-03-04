@@ -264,6 +264,9 @@ f24-f31  fs0-fs7   Static registers                Callee
         ADD_D(rd, rs1, scratch);           \
     }
 
+
+#define SEXT_W(rd, rs1) SLLI_W(rd, rs1, 0)
+
 // if GR[rj] == GR[rd]:
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
 #define BEQ(rj, rd, imm18) EMIT(type_2RI16(0b010110, ((imm18)>>2), rj, rd))
