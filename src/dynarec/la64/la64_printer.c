@@ -255,6 +255,26 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %u", "ROTRI.W", Xt[Rd], Xt[Rj], imm);
         return buff;
     }
+    // BSTRINS.W
+    if(isMask(opcode, "00000000011uuuuu0iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u, %u", "BSTRINS.W", Xt[Rd], Xt[Rj], imm_up, imm);
+        return buff;
+    }
+    // BSTRINS.D
+    if(isMask(opcode, "0000000010uuuuuuiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u, %u", "BSTRINS.D", Xt[Rd], Xt[Rj], imm_up, imm);
+        return buff;
+    }
+    // BSTRPICK.W
+    if(isMask(opcode, "00000000011uuuuu1iiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u, %u", "BSTRPICK.W", Xt[Rd], Xt[Rj], imm_up, imm);
+        return buff;
+    }
+    // BSTRPICK.D
+    if(isMask(opcode, "0000000011uuuuuuiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %u, %u", "BSTRPICK.D", Xt[Rd], Xt[Rj], imm_up, imm);
+        return buff;
+    }
     // BEQ
     if(isMask(opcode, "010110iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "BEQ", Xt[Rd], Xt[Rj], imm << 2);

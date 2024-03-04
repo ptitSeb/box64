@@ -369,37 +369,26 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
         if (reg != xRIP) {
             MV(xRIP, reg);
         }
+        NOTEST(x2);
         uintptr_t tbl = is32bits ? getJumpTable32() : getJumpTable64();
         MAYUSE(tbl);
         TABLE64(x3, tbl);
         if (!is32bits) {
-            SRLI_D(x2, xRIP, JMPTABL_START3);
-            ALSL_D(x3, x2, x3, 2);
-            LD_D(x3, x3, 0); // could be LR_D(x3, x3, 1, 1); for better safety
+            BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
+            ALSL_D(x3, x2, x3, 3);
+            LD_D(x3, x3, 0);
         }
-        MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-        SRLI_D(x2, xRIP, JMPTABL_START2 - 3);
-        AND(x2, x2, x4);
-        ADD_D(x3, x3, x2);
-        LD_D(x3, x3, 0); // LR_D(x3, x3, 1, 1);
-        if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
-            MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
-        }
-        SRLI_D(x2, xRIP, JMPTABL_START1 - 3);
-        AND(x2, x2, x4);
-        ADD_D(x3, x3, x2);
-        LD_D(x3, x3, 0); // LR_D(x3, x3, 1, 1);
-        if (JMPTABLE_MASK0 < 2048) {
-            ANDI(x2, xRIP, JMPTABLE_MASK0);
-        } else {
-            if (JMPTABLE_MASK1 != JMPTABLE_MASK0) {
-                MOV64x(x4, JMPTABLE_MASK0); // x4 = mask
-            }
-            AND(x2, xRIP, x4);
-        }
-        ALSL_D(x3, x2, x3, 2);
-        LD_D(x2, x3, 0); // LR_D(x2, x3, 1, 1);
+        BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+        ALSL_D(x3, x2, x3, 3);
+        LD_D(x3, x3, 0);
+        BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
+        ALSL_D(x3, x2, x3, 3);
+        LD_D(x3, x3, 0);
+        BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
+        ALSL_D(x3, x2, x3, 3);
+        LD_D(x2, x3, 0);
     } else {
+        NOTEST(x2);
         uintptr_t p = getJumpTableAddress64(ip);
         MAYUSE(p);
         TABLE64(x3, p);
@@ -439,33 +428,18 @@ void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
     uintptr_t tbl = rex.is32bits ? getJumpTable32() : getJumpTable64();
     MOV64x(x3, tbl);
     if (!rex.is32bits) {
-        SRLI_D(x2, xRIP, JMPTABL_START3);
-        SLLI_D(x2, x2, 3);
-        ADD_D(x3, x3, x2);
+        BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
+        ALSL_D(x3, x2, x3, 3);
         LD_D(x3, x3, 0);
     }
-    MOV64x(x4, JMPTABLE_MASK2 << 3); // x4 = mask
-    SRLI_D(x2, xRIP, JMPTABL_START2 - 3);
-    AND(x2, x2, x4);
-    ADD_D(x3, x3, x2);
+    BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+    ALSL_D(x3, x2, x3, 3);
     LD_D(x3, x3, 0);
-    if (JMPTABLE_MASK2 != JMPTABLE_MASK1) {
-        MOV64x(x4, JMPTABLE_MASK1 << 3); // x4 = mask
-    }
-    SRLI_D(x2, xRIP, JMPTABL_START1 - 3);
-    AND(x2, x2, x4);
-    ADD_D(x3, x3, x2);
+    BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
+    ALSL_D(x3, x2, x3, 3);
     LD_D(x3, x3, 0);
-    if (JMPTABLE_MASK0 < 2048) {
-        ANDI(x2, xRIP, JMPTABLE_MASK0);
-    } else {
-        if (JMPTABLE_MASK1 != JMPTABLE_MASK0) {
-            MOV64x(x4, JMPTABLE_MASK0); // x4 = mask
-        }
-        AND(x2, xRIP, x4);
-    }
-    SLLI_D(x2, x2, 3);
-    ADD_D(x3, x3, x2);
+    BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
+    ALSL_D(x3, x2, x3, 3);
     LD_D(x2, x3, 0);
     BR(x2); // save LR
     CLEARIP();
