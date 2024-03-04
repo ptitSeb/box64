@@ -238,6 +238,19 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
+        case 0x68:
+            INST_NAME("PUSH Id");
+            i64 = F32S;
+            if(PK(0)==0xC3) {
+                MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
+                TABLE64(x3, addr-4);
+                LD_W(x1, x3, 0);
+                PUSH1z(x1);
+            } else {
+                MOV64z(x3, i64);
+                PUSH1z(x3);
+            }
+            break;
 
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
             READFLAGS(F);                                                                           \
@@ -527,6 +540,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
+        case 0xC9:
+            INST_NAME("LEAVE");
+            MVz(xRSP, xRBP);
+            POP1z(xRBP);
+            break;
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET);
             SKIPTEST(x1);
@@ -815,6 +833,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     *need_epilog = 0;
                     *ok = 0;
                     break;
+                case 6: // Push Ed
+                    INST_NAME("PUSH Ed");
+                    GETEDz(0);
+                    PUSH1z(ed);
+                    break;
+                
                 default:
                     DEFAULT;
             }
