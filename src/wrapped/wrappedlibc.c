@@ -932,8 +932,21 @@ EXPORT int my_sscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
 
     return vsscanf(stream, fmt, VARARGS);
 }
+EXPORT int my_vscanf(x64emu_t* emu, void* fmt, x64_va_list_t b)
+{
+    (void)emu;
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignScanfValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vscanf(fmt, VARARGS);
+}
+
 EXPORT int my__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 EXPORT int my___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
+EXPORT int my___isoc99_vscanf(x64emu_t* emu, void* fmt, void* b) __attribute__((alias("my_vscanf")));
 EXPORT int my___isoc99_vswscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vswscanf")));
 EXPORT int my___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vfscanf")));
 

@@ -157,7 +157,9 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(execlp, iFpV_t) \
 	GO(printf, iFpV_t) \
 	GO(wprintf, iFpV_t) \
+	GO(__isoc99_vscanf, iFpA_t) \
 	GO(vprintf, iFpA_t) \
+	GO(vscanf, iFpA_t) \
 	GO(vwprintf, iFpA_t) \
 	GO(_IO_file_stat, iFSp_t) \
 	GO(__sysv_signal, pFip_t) \

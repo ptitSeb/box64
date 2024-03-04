@@ -4108,7 +4108,9 @@ wrappedlibc:
   - printf
   - wprintf
 - iFpA:
+  - __isoc99_vscanf
   - vprintf
+  - vscanf
   - vwprintf
 - iFSp:
   - _IO_file_stat
