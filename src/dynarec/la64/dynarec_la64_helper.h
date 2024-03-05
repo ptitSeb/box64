@@ -170,6 +170,15 @@
         BSTRINS_D(wback, ed, wb2 + 7, wb2); \
     }
 
+// Get direction with size Z and based of F_DF flag, on register r ready for load/store fetching
+// using s as scratch.
+// F_DF is not in LBT4.eflags, don't worry
+#define GETDIR(r, s, Z)            \
+    MOV32w(r, Z); /* mask=1<<10 */ \
+    ANDI(s, xFlags, 1 << F_DF);    \
+    BEQZ(s, 4 + 4);                \
+    SUB_D(r, xZR, r);
+
 // CALL will use x6 for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
 #define CALL(F, ret) call_c(dyn, ninst, F, x6, ret, 1, 0)
@@ -211,13 +220,24 @@
 
 // Branch to MARK if reg1!=reg2 (use j64)
 #define BNE_MARK(reg1, reg2) Bxx_gen(NE, MARK, reg1, reg2)
+// Branch to MARK2 if reg1!=reg2 (use j64)
+#define BNE_MARK2(reg1, reg2) Bxx_gen(NE, MARK2, reg1, reg2)
+// Branch to MARK3 if reg1!=reg2 (use j64)
+#define BNE_MARK3(reg1, reg2) Bxx_gen(NE, MARK3, reg1, reg2)
+// Branch to MARKLOCK if reg1!=reg2 (use j64)
+#define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
 
 // Branch to MARKLOCK if reg1==reg2 (use j64)
 #define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1==0 (use j64)
 #define BEQZ_MARKLOCK(reg) BxxZ_gen(EQ, MARKLOCK, reg)
-// Branch to MARKLOCK if reg1!=reg2 (use j64)
-#define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
+
+// Branch to MARK if reg1!=0 (use j64)
+#define BNEZ_MARK(reg) BxxZ_gen(NE, MARK, reg)
+// Branch to MARK2 if reg1!=0 (use j64)
+#define BNEZ_MARK2(reg) BxxZ_gen(NE, MARK2, reg)
+// Branch to MARK3 if reg1!=0 (use j64)
+#define BNEZ_MARK3(reg) BxxZ_gen(NE, MARK3, reg)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BxxZ_gen(NE, MARKLOCK, reg)
 
@@ -229,6 +249,9 @@
 #define CBNZ_NEXT(reg1)                                                       \
     j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
     BNEZ(reg1, j64)
+#define B_NEXT_nocond                                                         \
+    j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
+    B(j64)
 
 #define IFX(A)      if ((dyn->insts[ninst].x64.gen_flags & (A)))
 #define IFXA(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A)) && (B))
@@ -467,7 +490,9 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_or32           STEPNAME(emit_or32)
 #define emit_or32c          STEPNAME(emit_or32c)
 #define emit_xor32          STEPNAME(emit_xor32)
+#define emit_and8           STEPNAME(emit_and8)
 #define emit_and8c          STEPNAME(emit_and8c)
+#define emit_and32          STEPNAME(emit_and32)
 #define emit_and32c         STEPNAME(emit_and32c)
 #define emit_shl32          STEPNAME(emit_shl32)
 #define emit_shr32c         STEPNAME(emit_shr32c)
@@ -519,7 +544,9 @@ void emit_sub8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_and8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_and32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
