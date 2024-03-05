@@ -269,8 +269,11 @@
 #define SET_NODF() dyn->f.dfnone = 0
 #define SET_DFOK() dyn->f.dfnone = 1
 
+#define CLEAR_FLAGS_(s) \
+    MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); ANDN(xFlags, xFlags, s);
+
 #define CLEAR_FLAGS(s) \
-    IFX(X_ALL) { MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); ANDN(xFlags, xFlags, s); }
+    IFX(X_ALL) { CLEAR_FLAGS_(s) }
 
 #define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2, width)     \
     IFX(X_AF | X_CF | X_OF)                                           \
@@ -668,7 +671,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 #define RESTORE_EFLAGS(s)               \
     do {                                \
         if (la64_lbt) {                 \
-            CLEAR_FLAGS(reg);           \
+            CLEAR_FLAGS_(reg);          \
             X64_GET_EFLAGS(reg, X_ALL); \
             OR(xFlags, xFlags, reg);    \
         }                               \
