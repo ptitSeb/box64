@@ -19,5 +19,11 @@
 
 #define LIBNAME libxcursor
 
+#ifdef ANDROID
+#define NEEDED_LIBS "libX11.so", "libXfixes.so", "libXrender.so"
+#else
+#define NEEDED_LIBS "libX11.so.6", "libXfixes.so.3", "libXrender.so.1"
+#endif
+
 #include "wrappedlib_init.h"
 

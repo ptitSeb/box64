@@ -1441,4 +1441,10 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
 #define CUSTOM_INIT                 \
     if(box64_x11threads) my->XInitThreads();
 
+#ifdef ANDROID
+#define NEEDED_LIBS "libxcb.so"
+#else
+#define NEEDED_LIBS "libxcb.so.1"
+#endif
+
 #include "wrappedlib_init.h"

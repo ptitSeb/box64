@@ -42,4 +42,10 @@ EXPORT void my_xcb_disconnect(x64emu_t* emu, void* conn)
 	del_xcb_connection(conn);
 }
 
+#ifdef ANDROID
+#define NEEDED_LIBS "libXau.so", "libXdmcp.so"
+#else
+#define NEEDED_LIBS "libXau.so.6", "libXdmcp.so.6"
+#endif
+
 #include "wrappedlib_init.h"
