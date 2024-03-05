@@ -575,6 +575,7 @@ int EXPORT my_uname(struct utsname *buf)
 // X86_O_RDONLY 0x00
 #define X86_O_WRONLY       0x01     // octal     01
 #define X86_O_RDWR         0x02     // octal     02
+#define X86_FMODE_EXEC     0x20
 #define X86_O_CREAT        0x40     // octal     0100
 #define X86_O_EXCL         0x80     // octal     0200
 #define X86_O_NOCTTY       0x100    // octal     0400
@@ -593,14 +594,23 @@ int EXPORT my_uname(struct utsname *buf)
 #define X86_O_CLOEXEC      02000000
 #define X86_O_PATH         010000000
 #define X86_O_TMPFILE      020200000
+#define X86_FMODE_NONOTIFY 0x4000000
 
 #ifndef O_TMPFILE
 #define O_TMPFILE (020000000 | O_DIRECTORY)
 #endif
 
+#ifndef FMODE_EXEC
+#define FMODE_EXEC 0x20
+#endif
+#ifndef FMODE_NONOTIFY
+#define FMODE_NONOTIFY 0x4000000
+#endif
+
 #define SUPER()     \
     GO(O_WRONLY)    \
     GO(O_RDWR)      \
+    GO(FMODE_EXEC)  \
     GO(O_CREAT)     \
     GO(O_EXCL)      \
     GO(O_NOCTTY)    \
@@ -619,6 +629,7 @@ int EXPORT my_uname(struct utsname *buf)
     GO(O_NOATIME)   \
     GO(O_CLOEXEC)   \
     GO(O_PATH)      \
+    GO(FMODE_NONOTIFY)
 
 // x86->arm
 int of_convert(int a)
