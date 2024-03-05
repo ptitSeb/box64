@@ -152,15 +152,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         #define GO(GETFLAGS, NO, YES, F, I)                                                          \
             READFLAGS(F);                                                                            \
             if (la64_lbt) {                                                                          \
-                X64_SETJ(x1, I);                                                                     \
+                X64_SETJ(x3, I);                                                                     \
             } else {                                                                                 \
                 GETFLAGS;                                                                            \
+                S##YES(x3, x1);                                                                      \
             }                                                                                        \
             nextop = F8;                                                                             \
-            if (la64_lbt)                                                                            \
-                SNEZ(x3, x1);                                                                        \
-            else                                                                                     \
-                S##YES(x3, x1);                                                                      \
             if (MODREG) {                                                                            \
                 if (rex.rex) {                                                                       \
                     eb1 = TO_LA64((nextop & 7) + (rex.b << 3));                                      \
