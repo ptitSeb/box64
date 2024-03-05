@@ -200,6 +200,7 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
 
         SRAIxw(s1, s1, c);
+        if (!rex.w) ZEROUP(s1);
 
         IFX(X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
