@@ -211,10 +211,10 @@ GOM(__pthread_register_cancel, vFEp)
 //GO(__pthread_register_cancel_defer, 
 GO(pthread_rwlockattr_destroy, vFp)
 GO(pthread_rwlockattr_getkind_np, iFpp)
-//GO(pthread_rwlockattr_getpshared, 
+GO(pthread_rwlockattr_getpshared, iFpi)
 GO(pthread_rwlockattr_init, iFp)
 GO(pthread_rwlockattr_setkind_np, iFpi)
-//GO(pthread_rwlockattr_setpshared, 
+GO(pthread_rwlockattr_setpshared, iFpi)
 //GO(__pthread_rwlock_destroy, 
 GO(pthread_rwlock_destroy, iFp)
 GO(__pthread_rwlock_init, iFpp)
