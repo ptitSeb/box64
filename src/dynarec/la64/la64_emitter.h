@@ -199,6 +199,14 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = {tmp[GRLEN-1:12], 12'b0}
 #define PCALAU12I(rd, imm20) EMIT(type_1RI20(0b0001101, imm20, rd))
 
+#define LL_W(rd, rj, imm) EMIT(type_2RI14(0b00100000, imm >> 2, rj, rd))
+#define SC_W(rd, rj, imm) EMIT(type_2RI14(0b00100001, imm >> 2, rj, rd))
+#define LL_D(rd, rj, imm) EMIT(type_2RI14(0b00100010, imm >> 2, rj, rd))
+#define SC_D(rd, rj, imm) EMIT(type_2RI14(0b00100011, imm >> 2, rj, rd))
+
+#define LLxw(rd, rj, imm) EMIT(type_2RI14(0b00100000 | (rex.w ? 0b10 : 0b00), imm >> 2, rj, rd))
+#define SCxw(rd, rj, imm) EMIT(type_2RI14(0b00100001 | (rex.w ? 0b10 : 0b00), imm >> 2, rj, rd))
+
 // GR[rd] = GR[rj] & GR[rk]
 #define AND(rd, rj, rk) EMIT(type_3R(0b00000000000101001, rk, rj, rd))
 // GR[rd] = GR[rj] | GR[rk]
