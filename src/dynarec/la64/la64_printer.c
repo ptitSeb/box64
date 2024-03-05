@@ -167,22 +167,27 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     // LL.W
     if(isMask(opcode, "00100000iiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "LL.W", Xt[Rd], signExtend(imm << 2, 16));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "LL.W", Xt[Rd], Xt[Rj], signExtend(imm << 2, 16));
         return buff;
     }
     // SC.W
     if(isMask(opcode, "00100001iiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "SC.W", Xt[Rd], signExtend(imm << 2, 16));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "SC.W", Xt[Rd], Xt[Rj], signExtend(imm << 2, 16));
         return buff;
     }
     // LL.D
     if(isMask(opcode, "00100010iiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "LL.D", Xt[Rd], signExtend(imm << 2, 16));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "LL.D", Xt[Rd], Xt[Rj], signExtend(imm << 2, 16));
         return buff;
     }
     // SC.D
     if(isMask(opcode, "00100011iiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "SC.D", Xt[Rd], signExtend(imm << 2, 16));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "SC.D", Xt[Rd], Xt[Rj], signExtend(imm << 2, 16));
+        return buff;
+    }
+    // DBAR
+    if(isMask(opcode, "00111000011100100iiiiiiiiiiiiiii", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %d", "DBAR", imm);
         return buff;
     }
     // AND
