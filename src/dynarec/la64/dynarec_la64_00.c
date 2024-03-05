@@ -485,6 +485,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
+            if (gd == xRAX) {
+                INST_NAME("NOP");
+            } else {
+                INST_NAME("XCHG EAX, Reg");
+                MVxw(x2, xRAX);
+                MVxw(xRAX, gd);
+                MVxw(gd, x2);
+            }
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
