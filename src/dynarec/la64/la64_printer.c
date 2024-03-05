@@ -450,6 +450,16 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "ST.D", Xt[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;
     }
+    // EXT.W.H
+    if(isMask(opcode, "0000000000000000010110jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "EXT.W.H", Xt[Rd], Xt[Rj]);
+        return buff;
+    }
+    // EXT.W.B
+    if(isMask(opcode, "0000000000000000010111jjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "EXT.W.B", Xt[Rd], Xt[Rj]);
+        return buff;
+    }
     // X64CLRSM
     if(isMask(opcode, "00000000000000001000000000101000", &a)) {
         snprintf(buff, sizeof(buff), "X64CLRSM");
