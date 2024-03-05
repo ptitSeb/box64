@@ -25,7 +25,6 @@
 // emit XOR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         SET_DF(s4, rex.w ? d_xor64 : d_xor32);
     } else IFX(X_ALL) {
@@ -34,9 +33,10 @@ void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if (la64_lbt) {
         IFX(X_ALL) {
-            if (rex.w) X64_XOR_D(s1, s2); else X64_XOR_W(s1, s2);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
+            if (rex.w)
+                X64_XOR_D(s1, s2);
+            else
+                X64_XOR_W(s1, s2);
         }
         XOR(s1, s1, s2);
         if (!rex.w && s1 != s2) ZEROUP(s1);
@@ -46,6 +46,7 @@ void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         return;
     }
 
+    CLEAR_FLAGS(s3);
     XOR(s1, s1, s2);
 
     // test sign bit before zeroup.
@@ -74,7 +75,6 @@ void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit AND8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
-    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         SET_DF(s3, d_and8);
     } else IFX(X_ALL) {
@@ -85,8 +85,6 @@ void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
     IFXA(X_ALL, la64_lbt) {
         MOV32w(s3, c);
         X64_AND_B(s1, s3);
-        X64_GET_EFLAGS(s4, X_ALL);
-        OR(xFlags, xFlags, s4);
     }
 
     ANDI(s1, s1, c&0xff);
@@ -97,6 +95,7 @@ void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 
     if (la64_lbt) return;
 
+    CLEAR_FLAGS(s3);
     IFX(X_SF) {
         SRLI_D(s3, s1, 7);
         BEQZ(s3, 8);
@@ -114,7 +113,6 @@ void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 // emit AND32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
 void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
-    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         SET_DF(s3, rex.w ? d_tst64 : d_tst32);
     } else IFX(X_ALL) {
@@ -123,9 +121,10 @@ void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 
     IFXA(X_ALL, la64_lbt) {
         MOV64xw(s3, c);
-        if (rex.w) X64_AND_D(s1, s3); else X64_AND_W(s1, s3);
-        X64_GET_EFLAGS(s4, X_ALL);
-        OR(xFlags, xFlags, s4);
+        if (rex.w)
+            X64_AND_D(s1, s3);
+        else
+            X64_AND_W(s1, s3);
     }
 
     if (c >= 0 && c <= 4095) {
@@ -141,6 +140,7 @@ void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 
     if (la64_lbt) return;
 
+    CLEAR_FLAGS(s3);
     IFX(X_SF) {
         SRLI_D(s3, s1, rex.w ? 63 : 31);
         BEQZ(s3, 8);
@@ -159,7 +159,6 @@ void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 // emit OR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         SET_DF(s4, rex.w?d_or64:d_or32);
     } else IFX(X_ALL) {
@@ -167,9 +166,10 @@ void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
 
     IFXA(X_ALL, la64_lbt) {
-        if (rex.w) X64_OR_D(s1, s2); else X64_OR_W(s1, s2);
-        X64_GET_EFLAGS(s3, X_ALL);
-        OR(xFlags, xFlags, s3);
+        if (rex.w)
+            X64_OR_D(s1, s2);
+        else
+            X64_OR_W(s1, s2);
     }
 
     OR(s1, s1, s2);
@@ -181,6 +181,7 @@ void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 
     if(la64_lbt) return;
 
+    CLEAR_FLAGS(s3);
     // test sign bit before zeroup.
     IFX(X_SF) {
         if (!rex.w) SEXT_W(s1, s1);
@@ -199,7 +200,6 @@ void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 // emit OR32 instruction, from s1, c, store result in s1 using s3 and s4 as scratch
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
-    CLEAR_FLAGS(s3);
     IFX(X_PEND) {
         SET_DF(s4, rex.w ? d_or64 : d_or32);
     } else IFX(X_ALL) {
@@ -208,9 +208,10 @@ void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 
     IFXA(X_ALL, la64_lbt) {
         MOV64xw(s3, c);
-        if (rex.w) X64_OR_D(s1, s3); else X64_OR_W(s1, s3);
-        X64_GET_EFLAGS(s4, X_ALL);
-        OR(xFlags, xFlags, s4);
+        if (rex.w)
+            X64_OR_D(s1, s3);
+        else
+            X64_OR_W(s1, s3);
     }
 
     if (c >= 0 && c <= 4095) {
@@ -226,6 +227,7 @@ void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
 
     if (la64_lbt) return;
 
+    CLEAR_FLAGS(s3);
     // test sign bit before zeroup.
     IFX(X_SF) {
         if (!rex.w) SEXT_W(s1, s1);
