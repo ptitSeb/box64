@@ -65,6 +65,22 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x89:
+            INST_NAME("MOV Ew, Gw");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                if (ed != gd) {
+                    BSTRINS_W(ed, gd, 15, 0);
+                    ZEROUP(ed);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                ST_H(gd, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         case 0x90:
         case 0x91:
         case 0x92:
@@ -73,15 +89,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x95:
         case 0x96:
         case 0x97:
-                gd = xRAX+(opcode&0x07)+(rex.b<<3);
-                if(gd==xRAX) {
-                    INST_NAME("NOP");
-                } else {
-                    INST_NAME("XCHG AX, Reg");
-                    MV(x2, xRAX);
-                    BSTRPICK_D(xRAX, gd, 15, 0);
-                    BSTRPICK_D(gd, x2, 15, 0);
-                }
+            gd = TO_LA64((opcode & 0x07) + (rex.b << 3));
+            if (gd == xRAX) {
+                INST_NAME("NOP");
+            } else {
+                INST_NAME("XCHG AX, Reg");
+                MV(x2, xRAX);
+                BSTRPICK_D(xRAX, gd, 15, 0);
+                BSTRPICK_D(gd, x2, 15, 0);
+            }
             break;
         default:
             DEFAULT;

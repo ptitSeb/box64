@@ -191,7 +191,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             if (MODREG) {
-                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 BSTRPICK_D(gd, ed, 15, 0);
             } else {
                 SMREAD();
