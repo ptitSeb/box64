@@ -451,6 +451,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     if (savereg == 0)
         savereg = x6;
     if (saveflags) {
+        RESTORE_EFLAGS(reg);
         ST_D(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
     fpu_pushcache(dyn, ninst, reg, 0);
@@ -499,6 +500,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     fpu_popcache(dyn, ninst, reg, 0);
     if (saveflags) {
         LD_D(xFlags, xEmu, offsetof(x64emu_t, eflags));
+        SPILL_EFLAGS();
     }
     SET_NODF();
     dyn->last_ip = 0;

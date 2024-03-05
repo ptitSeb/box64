@@ -664,4 +664,22 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             opcode = F8;                           \
         }
 
+// Restore xFlags from LBT.eflags
+#define RESTORE_EFLAGS(s)               \
+    do {                                \
+        if (la64_lbt) {                 \
+            CLEAR_FLAGS(reg);           \
+            X64_GET_EFLAGS(reg, X_ALL); \
+            OR(xFlags, xFlags, reg);    \
+        }                               \
+    } while (0)
+
+// Spill xFlags to LBT.eflags
+#define SPILL_EFLAGS()                     \
+    do {                                   \
+        if (la64_lbt) {                    \
+            X64_SET_EFLAGS(xFlags, X_ALL); \
+        }                                  \
+    } while (0)
+
 #endif //__DYNAREC_LA64_HELPER_H__

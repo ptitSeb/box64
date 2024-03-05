@@ -27,6 +27,15 @@ la64_epilog:
     st.d   $r28, $r4, (8 * 13)
     st.d   $r29, $r4, (8 * 14)
     st.d   $r30, $r4, (8 * 15)
+    // restore xFlags from LBT.eflags
+    la.global $r12, la64_lbt
+    ldptr.d   $r12, $r12, 0
+    beqz      $r12, 1f
+    ori       $r13, $r0, 0b100011010101
+    andn      $r31, $r31, $r13
+    x86mfflag $r13, 0b111111
+    or        $r31, $r31, $r13
+1:
     st.d   $r31, $r4, (8 * 16) // xFlags
     st.d   $r20, $r4, (8 * 17) // put back reg value in emu, including EIP (so $r20 must be EIP now)
     // fallback to epilog_fast now, just restoring saved regs

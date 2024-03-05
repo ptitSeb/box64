@@ -295,8 +295,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i8 = F8S;                                                                               \
             BARRIER(BARRIER_MAYBE);                                                                 \
             JUMP(addr + i8, 1);                                                                     \
-            if (la64_lbt && (opcode - 0x70) >= 0xC) {                                               \
-                X64_SET_EFLAGS(xFlags, F);                                                          \
+            if (la64_lbt) {                                                                         \
                 X64_SETJ(x1, I);                                                                    \
             } else {                                                                                \
                 GETFLAGS;                                                                           \
@@ -304,7 +303,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
                 /* out of block */                                                                  \
                 i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
+                if (la64_lbt)                                                                       \
                     BEQZ_safe(x1, i32);                                                             \
                 else                                                                                \
                     B##NO##_safe(x1, i32);                                                          \
@@ -320,7 +319,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {                                                                                \
                 /* inside the block */                                                              \
                 i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-                if (la64_lbt && (opcode - 0x70) >= 0xC)                                             \
+                if (la64_lbt)                                                                       \
                     BNEZ_safe(x1, i32);                                                             \
                 else                                                                                \
                     B##YES##_safe(x1, i32);                                                         \
@@ -727,7 +726,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_ZF);
             i8 = F8S;
             ADDI_D(xRCX, xRCX, -1);
-            ANDI(x1, xFlags, 1 << F_ZF);
+            if (la64_lbt) X64_GET_EFLAGS(x1, X_ZF); else ANDI(x1, xFlags, 1 << F_ZF);
             CBNZ_NEXT(x1);
             GO(0);
             break;
@@ -736,7 +735,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_ZF);
             i8 = F8S;
             ADDI_D(xRCX, xRCX, -1);
-            ANDI(x1, xFlags, 1 << F_ZF);
+            if (la64_lbt) X64_GET_EFLAGS(x1, X_ZF); else ANDI(x1, xFlags, 1 << F_ZF);
             CBZ_NEXT(x1);
             GO(0);
             break;

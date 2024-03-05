@@ -6,6 +6,8 @@
 .text
 .align 4
 
+.extern la64_lbt
+
 .global la64_prolog
 la64_prolog:
     //save all 18 used register
@@ -31,7 +33,7 @@ la64_prolog:
     fst.d  $f29, $sp, (8 * 16)
     fst.d  $f30, $sp, (8 * 17)
     fst.d  $f31, $sp, (8 * 18)
-    //setup emu -> register
+    // setup emu -> register
     ld.d   $r12, $r4, (8 * 0)
     ld.d   $r13, $r4, (8 * 1)
     ld.d   $r14, $r4, (8 * 2)
@@ -48,8 +50,14 @@ la64_prolog:
     ld.d   $r28, $r4, (8 * 13)
     ld.d   $r29, $r4, (8 * 14)
     ld.d   $r30, $r4, (8 * 15)
-    ld.d   $r31, $r4, (8 * 16)  //xFlags
-    ld.d   $r20, $r4, (8 * 17)  //xRIP
+    ld.d   $r31, $r4, (8 * 16)  // xFlags
+    ld.d   $r20, $r4, (8 * 17)  // xRIP
+    // spill xFlags to LBT.eflags
+    la.global $a6, la64_lbt
+    ldptr.d   $a6, $a6, 0
+    beqz      $a6, 1f
+    x86mtflag $r31, 0b111111
+1:
     // push sentinel onto the stack
     st.d   $r0, $sp, -16
     st.d   $r0,  $sp, -8

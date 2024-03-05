@@ -25,7 +25,6 @@
 // emit CMP8 instruction, from cmp s1, s2, using s3, s4, s5 and s6 as scratch
 void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6)
 {
-    CLEAR_FLAGS(s3);
     IFX_PENDOR0 {
         ST_B(s1, xEmu, offsetof(x64emu_t, op1));
         ST_B(s2, xEmu, offsetof(x64emu_t, op2));
@@ -37,8 +36,6 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_SUB_B(s1, s2);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
         }
 
         IFX_PENDOR0 {
@@ -48,6 +45,7 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         return;
     }
 
+    CLEAR_FLAGS(s3);
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOR(s5, xZR, s1);
@@ -77,7 +75,6 @@ void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 // emit CMP8 instruction, from cmp s1 , 0, using s3 and s4 as scratch
 void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    CLEAR_FLAGS(s3);
     IFX_PENDOR0 {
         ST_B(s1, xEmu, offsetof(x64emu_t, op1));
         ST_B(xZR, xEmu, offsetof(x64emu_t, op2));
@@ -90,12 +87,11 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_SUB_B(s1, xZR);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
         }
         return;
     }
 
+    CLEAR_FLAGS(s3);
     IFX(X_SF) {
         SRLI_D(s3, s1, 7);
         BEQZ(s3, 8);
@@ -113,7 +109,6 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
 // emit CMP32 instruction, from cmp s1, s2, using s3 and s4 as scratch
 void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6)
 {
-    CLEAR_FLAGS(s3);
     IFX_PENDOR0 {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
@@ -124,9 +119,10 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if (la64_lbt) {
         IFX(X_ALL) {
-            if (rex.w) X64_SUB_D(s1, s2); else X64_SUB_W(s1, s2);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
+            if (rex.w)
+                X64_SUB_D(s1, s2);
+            else
+                X64_SUB_W(s1, s2);
         }
 
         IFX_PENDOR0 {
@@ -136,6 +132,7 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         return;
     }
 
+    CLEAR_FLAGS(s3);
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOR(s5, xZR, s1);
@@ -166,7 +163,6 @@ void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit CMP32 instruction, from cmp s1, 0, using s3 and s4 as scratch
 void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
 {
-    CLEAR_FLAGS(s3);
     IFX_PENDOR0 {
         ST_D(s1, xEmu, offsetof(x64emu_t, op1));
         ST_D(xZR, xEmu, offsetof(x64emu_t, op2));
@@ -178,13 +174,15 @@ void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
 
     if (la64_lbt) {
         IFX(X_ALL) {
-            if (rex.w) X64_SUB_D(s1, xZR); else X64_SUB_W(s1, xZR);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
+            if (rex.w)
+                X64_SUB_D(s1, xZR);
+            else
+                X64_SUB_W(s1, xZR);
         }
         return;
     }
 
+    CLEAR_FLAGS(s3);
     IFX(X_SF) {
         if (rex.w) {
             BGE(s1, xZR, 8);
@@ -207,7 +205,6 @@ void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
 // emit TEST8 instruction, from test s1, s2, using s3, s4 and s5 as scratch
 void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS(s3);
     IFX_PENDOR0 {
         SET_DF(s3, d_tst8);
     } else {
@@ -217,8 +214,6 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     if (la64_lbt) {
         IFX(X_ALL) {
             X64_AND_B(s1, s2);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
         }
 
         IFX_PENDOR0 {
@@ -228,6 +223,7 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         return;
     }
 
+    CLEAR_FLAGS(s3);
     AND(s3, s1, s2); // res = s1 & s2
 
     IFX_PENDOR0 {
@@ -250,7 +246,6 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS(s3);
     IFX_PENDOR0 {
         SET_DF(s3, rex.w?d_tst64:d_tst32);
     } else {
@@ -259,9 +254,10 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 
     if (la64_lbt) {
         IFX(X_ALL) {
-            if (rex.w) X64_AND_D(s1, s2); else X64_AND_W(s1, s2);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
+            if (rex.w)
+                X64_AND_D(s1, s2);
+            else
+                X64_AND_W(s1, s2);
         }
 
         IFX_PENDOR0 {
@@ -271,6 +267,7 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         return;
     }
 
+    CLEAR_FLAGS(s3);
     AND(s3, s1, s2); // res = s1 & s2
 
     IFX_PENDOR0 {
@@ -296,7 +293,6 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 // emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
 void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
 {
-    CLEAR_FLAGS(s3);
     IFX_PENDOR0 {
         SET_DF(s3, rex.w ? d_tst64 : d_tst32);
     } else {
@@ -307,9 +303,10 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     if (la64_lbt) {
         IFX(X_ALL) {
             MOV64xw(s3, c);
-            if (rex.w) X64_AND_D(s1, s3); else X64_AND_W(s1, s3);
-            X64_GET_EFLAGS(s3, X_ALL);
-            OR(xFlags, xFlags, s3);
+            if (rex.w)
+                X64_AND_D(s1, s3);
+            else
+                X64_AND_W(s1, s3);
         }
 
         IFX_PENDOR0 {
@@ -324,6 +321,7 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
         return;
     }
 
+    CLEAR_FLAGS(s3);
     if (c >= 0 && c <= 4095) {
         ANDI(s3, s1, c);
     } else {
