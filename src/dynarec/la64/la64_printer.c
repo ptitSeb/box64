@@ -337,12 +337,12 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     // BEQ
     if(isMask(opcode, "010110iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "BEQ", Xt[Rd], Xt[Rj], signExtend(imm << 2, 16));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "BEQ", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
         return buff;
     }
     // BNE
     if(isMask(opcode, "010111iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "BNE", Xt[Rd], Xt[Rj], signExtend(imm << 2, 16));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "BNE", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));
         return buff;
     }
     // BLT
@@ -367,12 +367,12 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     }
     // BEQZ
     if(isMask(opcode, "010000iiiiiiiiiiiiiiiijjjjjuuuuu", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "BEQZ", Xt[Rj], signExtend(imm + (imm_up << 16) << 2, 21));
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "BEQZ", Xt[Rj], signExtend(imm + (imm_up << 16) << 2, 23));
         return buff;
     }
     // BNEZ
     if(isMask(opcode, "010001iiiiiiiiiiiiiiiijjjjjuuuuu", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %d", "BNEZ", Xt[Rj], signExtend(imm + (imm_up << 16) << 2, 21));
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "BNEZ", Xt[Rj], signExtend(imm + (imm_up << 16) << 2, 23));
         return buff;
     }
     // BR -- special case of JIRL
