@@ -62,7 +62,7 @@ GO(XRRGetProviderResources, pFpp)
 GO(XRRGetCrtcGamma, pFpu)
 GO(XRRSetPanning, pFppu)
 GO(XRRSelectInput,vFppi)
-//GO(XRRGetCrtcTransform
+GO(XRRGetCrtcTransform, iFppp)
 GO(XRRTimes,uFpip)
 //GO(XRRDeleteOutputMode
 GO(XRRGetOutputInfo, pFppu)
