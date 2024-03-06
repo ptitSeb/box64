@@ -24,7 +24,7 @@ GO(gcry_check_version, pFp)
 //GO(gcry_cipher_setctr, 
 //GO(gcry_cipher_setiv, 
 //GO(gcry_cipher_setkey, 
-//GOM(gcry_control, 
+GO(gcry_control, uFuM)
 //GO(gcry_create_nonce, 
 //GO(gcry_ctx_release, 
 //GO(gcry_ecc_get_algo_keylen, 
@@ -65,27 +65,27 @@ GO(gcry_check_version, pFp)
 //GO(gcry_md_algo_info, 
 GO(gcry_md_algo_name, pFi)
 GO(gcry_md_close, vFp)
-GO(gcry_md_copy, vFpp)
+GO(gcry_md_copy, uFpp)
 GO(gcry_md_ctl, pFpipL)
 GO(gcry_md_debug, vFpp)
-GO(gcry_md_enable, pFpi)
-GO(gcry_md_extract, pFpipL)
+GO(gcry_md_enable, uFpi)
+GO(gcry_md_extract, uFpipL)
 GO(gcry_md_get_algo, iFp)
 GO(gcry_md_get_algo_dlen, uFi)
 GO(gcry_md_hash_buffer, vFippL)
-GO(gcry_md_hash_buffers, pFiuppi)
+GO(gcry_md_hash_buffers, uFiuppi)
 //GO(gcry_md_info, 
 GO(gcry_md_is_enabled, iFp)
 GO(gcry_md_putc, vFpi)
 GO(gcry_md_final, vFp)
-GO(gcry_md_get_asnoid, pFipL)
-GO(gcry_md_test_algo, pFi)
+GO(gcry_md_get_asnoid, uFipL)
+GO(gcry_md_test_algo, uFi)
 GO(gcry_md_is_secure, iFp)
 GO(gcry_md_map_name, iFp)
 GO(gcry_md_open, pFpiu)
 GO(gcry_md_read, CFpi)
 GO(gcry_md_reset, vFp)
-GO(gcry_md_setkey, pFppL)
+GO(gcry_md_setkey, uFppL)
 GO(gcry_md_write, vFppL)
 //GO(gcry_mpi_abs, 
 //GO(gcry_mpi_add, 
