@@ -238,6 +238,7 @@
 #() uFui
 #() uFuu
 #() uFup
+#() uFuM
 #() uFpw
 #() uFpi
 #() uFpC
@@ -572,6 +573,7 @@
 #() uFiuu
 #() uFilp
 #() uFipu
+#() uFipL
 #() uFuii
 #() uFuip
 #() uFuuu
@@ -598,6 +600,7 @@
 #() uFpLp
 #() uFppi
 #() uFppu
+#() uFppL
 #() uFppp
 #() uFbWW
 #() uFbWu
@@ -791,6 +794,7 @@
 #() vFipii
 #() vFipup
 #() vFipll
+#() vFippL
 #() vFippp
 #() vFCCCC
 #() vFWWWW
@@ -1101,6 +1105,7 @@
 #() uFuuuu
 #() uFpiip
 #() uFpipu
+#() uFpipL
 #() uFpipp
 #() uFpCCC
 #() uFpuip
@@ -1627,6 +1632,7 @@
 #() uFEpppp
 #() uFEpppV
 #() uFiuuuu
+#() uFiuppi
 #() uFipipp
 #() uFipLpp
 #() uFuiiii
