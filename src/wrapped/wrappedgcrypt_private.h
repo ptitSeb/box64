@@ -63,26 +63,30 @@ GO(gcry_check_version, pFp)
 //GO(gcry_malloc, 
 //GO(gcry_malloc_secure, 
 //GO(gcry_md_algo_info, 
-//GO(gcry_md_algo_name, 
-//GO(gcry_md_close, 
-//GO(gcry_md_copy, 
+GO(gcry_md_algo_name, pFi)
+GO(gcry_md_close, vFp)
+GO(gcry_md_copy, vFpp)
 //GO(gcry_md_ctl, 
-//GO(gcry_md_debug, 
-//GO(gcry_md_enable, 
-//GO(gcry_md_extract, 
-//GO(gcry_md_get_algo, 
-//GO(gcry_md_get_algo_dlen, 
-//GO(gcry_md_hash_buffer, 
-//GO(gcry_md_hash_buffers, 
+GO(gcry_md_debug, vFpp)
+GO(gcry_md_enable, pFpi)
+GO(gcry_md_extract, pFpipL)
+GO(gcry_md_get_algo, iFp)
+GO(gcry_md_get_algo_dlen, uFi)
+GO(gcry_md_hash_buffer, vFippL)
+GO(gcry_md_hash_buffers, pFiuppi)
 //GO(gcry_md_info, 
-//GO(gcry_md_is_enabled, 
-//GO(gcry_md_is_secure, 
-//GO(gcry_md_map_name, 
-//GO(gcry_md_open, 
-//GO(gcry_md_read, 
-//GO(gcry_md_reset, 
-//GO(gcry_md_setkey, 
-//GO(gcry_md_write, 
+GO(gcry_md_is_enabled, iFp)
+GO(gcry_md_putc, vFpi)
+GO(gcry_md_final, vFp)
+GO(gcry_md_get_asnoid, pFipL)
+GO(gcry_md_test_algo, pFi)
+GO(gcry_md_is_secure, iFp)
+GO(gcry_md_map_name, iFp)
+GO(gcry_md_open, pFpiu)
+GO(gcry_md_read, CFpi)
+GO(gcry_md_reset, vFp)
+GO(gcry_md_setkey, pFppL)
+GO(gcry_md_write, vFppL)
 //GO(gcry_mpi_abs, 
 //GO(gcry_mpi_add, 
 //GO(gcry_mpi_addm, 

@@ -790,6 +790,7 @@
 #() vFipii
 #() vFipup
 #() vFipll
+#() vFippL
 #() vFippp
 #() vFCCCC
 #() vFWWWW
@@ -1692,6 +1693,7 @@
 #() pFEpppA
 #() pFiiiii
 #() pFiiipL
+#() pFiuppi
 #() pFipipL
 #() pFipipp
 #() pFuiiiu
