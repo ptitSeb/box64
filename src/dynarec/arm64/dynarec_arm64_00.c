@@ -1464,10 +1464,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         case 0x98:
-            INST_NAME("CWDE");
             if(rex.w) {
+                INST_NAME("CDQE");
                 SXTWx(xRAX, xRAX);
             } else {
+                INST_NAME("CWDE");
                 SXTHw(xRAX, xRAX);
             }
             break;
@@ -1483,12 +1484,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("PUSHF");
             READFLAGS(X_ALL);
             PUSH1z(xFlags);
-            SMWRITE();
             break;
         case 0x9D:
             INST_NAME("POPF");
             SETFLAGS(X_ALL, SF_SET);
-            SMREAD();
             POP1z(xFlags);
             MOV32w(x1, 0x3F7FD7);
             ANDw_REG(xFlags, xFlags, x1);
@@ -1505,8 +1504,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF, SF_SUBSET);
             MOV32w(x2, 0b11010101);
             BICw_REG(xFlags, xFlags, x2);
-            UBFXw(x1, xRAX, 8, 8);
-            ANDw_REG(x1, x1, x2);
+            ANDw_REG_LSR(x1, x2, xRAX, 8);
             ORRw_REG(xFlags, xFlags, x1);
             SET_DFNONE(x1);
             break;
