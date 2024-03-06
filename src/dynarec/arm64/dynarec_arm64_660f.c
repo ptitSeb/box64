@@ -1283,7 +1283,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     break;
                 case 0x61:
                     INST_NAME("PCMPESTRI Gx, Ex, Ib");
-                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET);
                     nextop = F8;
                     GETG;
                     sse_reflect_reg(dyn, ninst, gd);
@@ -2422,7 +2422,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
         case 0xBC:
-            INST_NAME("BSF Ew,Gw");
+            INST_NAME("BSF Gw,Ew");
             SETFLAGS(X_ZF, SF_SUBSET);
             SET_DFNONE(x1);
             nextop = F8;
@@ -2438,7 +2438,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             BFIw(xFlags, x1, F_ZF, 1);
             break;
         case 0xBD:
-            INST_NAME("BSR Ew,Gw");
+            INST_NAME("BSR Gw,Ew");
             SETFLAGS(X_ZF, SF_SUBSET);
             SET_DFNONE(x1);
             nextop = F8;

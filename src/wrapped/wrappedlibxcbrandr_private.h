@@ -157,12 +157,12 @@ GO(xcb_randr_get_output_property_reply, pFbup)
 //GO(xcb_randr_get_providers_sizeof, 
 //GO(xcb_randr_get_providers_unchecked, 
 GO(xcb_randr_get_screen_info, pFbpu)
-GO(xcb_randr_get_screen_info_rates_iterator, pFpp)
+GO(xcb_randr_get_screen_info_rates_iterator, HFp)
 GO(xcb_randr_get_screen_info_rates_length, iFp)
 GO(xcb_randr_get_screen_info_reply, pFbup)
 //GO(xcb_randr_get_screen_info_sizeof, 
 GO(xcb_randr_get_screen_info_sizes, pFp)
-GO(xcb_randr_get_screen_info_sizes_iterator, pFpp)
+GO(xcb_randr_get_screen_info_sizes_iterator, HFp)
 GO(xcb_randr_get_screen_info_sizes_length, iFp)
 GO(xcb_randr_get_screen_info_unchecked, pFbpu)
 GO(xcb_randr_get_screen_resources, pFbpu)
@@ -174,13 +174,13 @@ GO(xcb_randr_get_screen_resources_current, pFbpu)
 //GO(xcb_randr_get_screen_resources_current_crtcs_end, 
 //GO(xcb_randr_get_screen_resources_current_crtcs_length, 
 //GO(xcb_randr_get_screen_resources_current_modes, 
-GO(xcb_randr_get_screen_resources_current_modes_iterator, pFpp)
+GO(xcb_randr_get_screen_resources_current_modes_iterator, HFp)
 //GO(xcb_randr_get_screen_resources_current_modes_length, 
 //GO(xcb_randr_get_screen_resources_current_names, 
 //GO(xcb_randr_get_screen_resources_current_names_end, 
 //GO(xcb_randr_get_screen_resources_current_names_length, 
 GO(xcb_randr_get_screen_resources_current_outputs, pFp)
-GO(xcb_randr_get_screen_resources_current_outputs_end, pFpp)
+GO(xcb_randr_get_screen_resources_current_outputs_end, HFp)
 GO(xcb_randr_get_screen_resources_current_outputs_length, iFp)
 GO(xcb_randr_get_screen_resources_current_reply, pFbup)
 //GO(xcb_randr_get_screen_resources_current_sizeof, 

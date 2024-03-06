@@ -21,6 +21,7 @@
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
 #include "dynarec_rv64_helper.h"
+#include "emu/x64compstrings.h"
 
 uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
@@ -896,6 +897,42 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LW(x4, wback, fixedaddress + i * 4);
                         MUL(x3, x3, x4);
                         SW(x3, gback, gdoffset + i * 4);
+                    }
+                    break;
+                case 0x61:
+                    INST_NAME("PCMPESTRI Gx, Ex, Ib");
+                    SETFLAGS(X_ALL, SF_SET);
+                    nextop = F8;
+                    GETG;
+                    sse_reflect_reg(dyn, ninst, gd);
+                    ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        if (ed != x1) {
+                            MV(x1, ed);
+                        }
+                    }
+                    // prepare rest arguments
+                    MV(x2, xRDX);
+                    MV(x4, xRAX);
+                    u8 = F8;
+                    MOV32w(x5, u8);
+                    CALL(sse42_compare_string_explicit_len, x1);
+                    ZEROUP(x1);
+                    BNEZ_MARK(x1);
+                    MOV32w(xRCX, (u8 & 1) ? 8 : 16);
+                    B_NEXT_nocond;
+                    MARK;
+                    if (u8 & 0b1000000) {
+                        CLZxw(xRCX, x1, 0, x2, x3, x4);
+                        ADDI(x2, xZR, 31);
+                        SUB(xRCX, x2, xRCX);
+                    } else {
+                        CTZxw(xRCX, xRCX, 0, x1, x2);
                     }
                     break;
                 case 0xDB:
@@ -2397,18 +2434,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ORI(xFlags, xFlags, 1 << F_ZF);
             B_NEXT_nocond;
             MARK;
-            if (rv64_zbb) {
-                CTZxw(gd, ed);
-            } else {
-                NEG(x2, ed);
-                AND(x2, x2, ed);
-                TABLE64(x3, 0x03f79d71b4ca8b09ULL);
-                MUL(x2, x2, x3);
-                SRLI(x2, x2, 64 - 6);
-                TABLE64(x1, (uintptr_t)&deBruijn64tab);
-                ADD(x1, x1, x2);
-                LBU(gd, x1, 0);
-            }
+            // gd is undefined if ed is all zeros, don't worry.
+            CTZxw(gd, ed, 0, x1, x2);
             ANDI(xFlags, xFlags, ~(1 << F_ZF));
             GWBACK;
             break;
@@ -2424,28 +2451,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             B_NEXT_nocond;
             MARK;
             ANDI(xFlags, xFlags, ~(1 << F_ZF));
-            if (rv64_zbb) {
-                MOV32w(x1, rex.w ? 63 : 31);
-                CLZxw(gd, ed);
-                SUB(gd, x1, gd);
-            } else {
-                u8 = gd;
-                ADDI(u8, xZR, 0);
-                AND(x2, ed, xMASK);
-                SRLI(x3, x2, 8);
-                BEQZ(x3, 4 + 2 * 4);
-                ADDI(u8, u8, 8);
-                MV(x2, x3);
-                SRLI(x3, x2, 4);
-                BEQZ(x3, 4 + 2 * 4);
-                ADDI(u8, u8, 4);
-                MV(x2, x3);
-                ANDI(x2, x2, 0b1111);
-                TABLE64(x3, (uintptr_t)&lead0tab);
-                ADD(x3, x3, x2);
-                LBU(x2, x3, 0);
-                ADD(gd, u8, x2);
-            }
+            CLZxw(gd, ed, 0, x1, x2, x3);
+            ADDI(x1, xZR, rex.w ? 63 : 31);
+            SUB(gd, x1, gd);
             GWBACK;
             break;
         case 0xBE:

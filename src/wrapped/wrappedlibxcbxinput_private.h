@@ -2,6 +2,8 @@
 #error meh!
 #endif
 
+// xcb_XXX_iterator_t is H / pp
+
 DATA(xcb_input_id, 2*sizeof(void*))
 //GO(xcb_input_input_info_info, 
 //GO(xcb_input_send_extension_event_sizeof, 
@@ -357,18 +359,18 @@ GO(xcb_input_button_class_labels, pFp)
 //GO(xcb_input_device_class_data_serialize, 
 //GO(xcb_input_device_class_data_unpack, 
 GO(xcb_input_device_class_next, vFp)
-GO(xcb_input_device_class_end, pFp)
+GO(xcb_input_device_class_end, HFpp)
 GO(xcb_input_xi_device_info_classes_length, iFp)
-GO(xcb_input_xi_device_info_classes_iterator, pFp)
+GO(xcb_input_xi_device_info_classes_iterator, HFp)
 GO(xcb_input_xi_device_info_name, pFp)
 GO(xcb_input_xi_device_info_name_length, iFp)
 GO(xcb_input_xi_device_info_name_end, pFp)
 GO(xcb_input_xi_device_info_next, vFp)
-GO(xcb_input_xi_device_info_end, pFp)
+GO(xcb_input_xi_device_info_end, HFpp)
 GO(xcb_input_xi_query_device, uFbu)
 GO(xcb_input_xi_query_device_unchecked, uFbu)
 GO(xcb_input_xi_query_device_infos_length, iFp)
-GO(xcb_input_xi_query_device_infos_iterator, pFp)
+GO(xcb_input_xi_query_device_infos_iterator, HFp)
 GO(xcb_input_xi_query_device_reply, pFbup)
 //GO(xcb_input_xi_set_focus, 
 //GO(xcb_input_xi_get_focus_unchecked, 
