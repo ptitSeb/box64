@@ -337,6 +337,7 @@
 #() HFII
 #() HFll
 #() HFpi
+#() HFpp
 #() xFxx
 #() XFXX
 #() iWpi
@@ -1727,7 +1728,6 @@
 #() pFpuuup
 #() pFpuupp
 #() pFpuLpp
-#() pFpupii
 #() pFpuppu
 #() pFpuppp
 #() pFpUdii
@@ -1747,7 +1747,6 @@
 #() pFppipi
 #() pFppipp
 #() pFppWpp
-#() pFppuii
 #() pFppuip
 #() pFppuuu
 #() pFppuup
@@ -1769,6 +1768,8 @@
 #() pFbuWWW
 #() pFbuuWW
 #() pFbuuup
+#() pFbupii
+#() pFbpuii
 #() pFbpppp
 #() iWEpiup
 #() iWEpipp
@@ -2166,7 +2167,6 @@
 #() pFppippi
 #() pFppippp
 #() pFppuupp
-#() pFppupii
 #() pFppuppp
 #() pFpplplp
 #() pFpplppp
@@ -2183,6 +2183,7 @@
 #() pFbuuwwu
 #() pFbuuuuu
 #() pFbuuUUU
+#() pFbpupii
 #() iWEpuuip
 #() iWEppppp
 #() iWpiiiip
@@ -3090,6 +3091,8 @@ wrappedbz2:
 - iFpiii:
   - BZ2_bzCompressInit
 wrappedcairo:
+- pFp:
+  - cairo_xcb_device_get_connection
 wrappedcairogobject:
 wrappedcap:
 wrappedcrashhandler:
