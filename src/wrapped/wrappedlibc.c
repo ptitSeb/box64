@@ -1650,7 +1650,8 @@ void CreateCPUPresentFile(int fd)
 void CreateClocksourceFile(int fd)
 {
     size_t dummy;
-    write(fd, "tsc\n", strlen("tsc\n"));
+    dummy = write(fd, "tsc\n", strlen("tsc\n"));
+    (void)dummy;
 }
 
 #ifdef ANDROID

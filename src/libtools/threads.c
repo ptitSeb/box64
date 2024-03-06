@@ -253,7 +253,7 @@ static void* pthread_routine(void* p)
 #else
 #define PTHREAD_ATTR_ALIGN(A) pthread_attr_t aligned_attr = {0}; if(A) memcpy(&aligned_attr, A, 56)
 #define PTHREAD_ATTR_UNALIGN(A) if(A) memcpy(A, &aligned_attr, 56)
-#define PTHREAD_ATTR(A)		(A)?&aligned_attr:NULL
+#define PTHREAD_ATTR(A) (A) ? &aligned_attr : (pthread_attr_t*)0xdeadbeef
 #endif
 
 EXPORT int my_pthread_attr_destroy(x64emu_t* emu, void* attr)
