@@ -275,6 +275,9 @@ GO(9)   \
 GO(10)  \
 GO(11)  \
 GO(12)  \
+GO(13)  \
+GO(14)  \
+GO(15)  \
 
 #define GO(A)   \
 static uintptr_t my_copy_fct_##A = 0;                                     \
