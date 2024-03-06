@@ -1133,6 +1133,7 @@ void myStackAlignScanfWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack,
 
 #endif
 
+#define MUTEX_SIZE_X64 40
 typedef struct my_xcb_ext_s {
     pthread_mutex_t lock;
     struct lazyreply *extensions;
@@ -1140,7 +1141,7 @@ typedef struct my_xcb_ext_s {
 } my_xcb_ext_t;
   
 typedef struct x64_xcb_ext_s {
-    uint8_t lock[60];
+    uint8_t lock[MUTEX_SIZE_X64];
     struct lazyreply *extensions;
     int extensions_size;
 } x64_xcb_ext_t;
@@ -1154,7 +1155,7 @@ typedef struct my_xcb_xid_s {
 } my_xcb_xid_t;
 
 typedef struct x64_xcb_xid_s {
-    uint8_t lock[60];
+    uint8_t lock[MUTEX_SIZE_X64];
     uint32_t last;
     uint32_t base;
     uint32_t max;
@@ -1188,6 +1189,23 @@ typedef struct my_xcb_in_s {
     struct xcb_special_event *special_events;
 } my_xcb_in_t;
 
+typedef struct x64_xcb_out_s {
+    pthread_cond_t cond;
+    int writing;
+    pthread_cond_t socket_cond;
+    void (*return_socket)(void *closure);
+    void *socket_closure;
+    int socket_moving;
+    char queue[16384];
+    int queue_len;
+    uint64_t request;
+    uint64_t request_written;
+    uint8_t reqlenlock[40];
+    int maximum_request_length_tag;
+    uint32_t maximum_request_length;
+    my_xcb_fd_t out_fd;
+} x64_xcb_out_t;
+
 typedef struct my_xcb_out_s {
     pthread_cond_t cond;
     int writing;
@@ -1220,14 +1238,14 @@ typedef struct x64_xcb_connection_s {
     int has_error;
     void *setup;
     int fd;
-    uint8_t iolock[60];
+    uint8_t iolock[MUTEX_SIZE_X64];
     my_xcb_in_t in;
-    my_xcb_out_t out;
+    x64_xcb_out_t out;
     x64_xcb_ext_t ext;
     x64_xcb_xid_t xid;
 } x64_xcb_connection_t;
 
-#define NXCB 8
+#define NXCB 2
 my_xcb_connection_t* my_xcb_connects[NXCB] = {0};
 x64_xcb_connection_t x64_xcb_connects[NXCB] = {0};
 
@@ -1249,22 +1267,24 @@ void* align_xcb_connection(void* src)
         abort();
     }
     #endif
+    #if 1
     // do not update most values
     x64_xcb_connection_t* source = src;
     dest->has_error = source->has_error;
     dest->setup = source->setup;
     dest->fd = source->fd;
-    //memcpy(&dest->iolock, source->iolock, 60);
+    //memcpy(&dest->iolock, source->iolock, MUTEX_SIZE_X64);
     //dest->in = source->in;
     //dest->out = source->out;
-    //memcpy(&dest->ext.lock, source->ext.lock, 60);
+    //memcpy(&dest->ext.lock, source->ext.lock, MUTEX_SIZE_X64);
     dest->ext.extensions = source->ext.extensions;
     dest->ext.extensions_size = source->ext.extensions_size;
-    //memcpy(&dest->xid.lock, source->xid.lock, 60);
+    //memcpy(&dest->xid.lock, source->xid.lock, MUTEX_SIZE_X64);
     dest->xid.base = source->xid.base;
     dest->xid.inc = source->xid.inc;
     dest->xid.last = source->xid.last;
     dest->xid.max = source->xid.last;
+    #endif
     return dest;
 }
 
@@ -1278,13 +1298,26 @@ void unalign_xcb_connection(void* src, void* dst)
     dest->has_error = source->has_error;
     dest->setup = source->setup;
     dest->fd = source->fd;
-    memcpy(dest->iolock, &source->iolock, 60);
+    memcpy(dest->iolock, &source->iolock, MUTEX_SIZE_X64);
     dest->in = source->in;
-    dest->out = source->out;
-    memcpy(dest->ext.lock, &source->ext.lock, 60);
+    memcpy(dest->out.reqlenlock, &source->out.reqlenlock, MUTEX_SIZE_X64);
+    dest->out.cond = source->out.cond;
+    dest->out.maximum_request_length = source->out.maximum_request_length;
+    dest->out.maximum_request_length_tag = source->out.maximum_request_length_tag;
+    dest->out.out_fd = source->out.out_fd;
+    memcpy(dest->out.queue, source->out.queue, sizeof(dest->out.queue));
+    dest->out.queue_len = source->out.queue_len;
+    dest->out.request = source->out.request;
+    dest->out.request_written = source->out.request_written;
+    dest->out.return_socket = source->out.return_socket;
+    dest->out.socket_closure = source->out.socket_closure;
+    dest->out.socket_cond = source->out.socket_cond;
+    dest->out.socket_moving = source->out.socket_moving;
+    dest->out.writing = source->out.writing;
+    memcpy(dest->ext.lock, &source->ext.lock, MUTEX_SIZE_X64);
     dest->ext.extensions = source->ext.extensions;
     dest->ext.extensions_size = source->ext.extensions_size;
-    memcpy(dest->xid.lock, &source->xid.lock, 60);
+    memcpy(dest->xid.lock, &source->xid.lock, MUTEX_SIZE_X64);
     dest->xid.base = source->xid.base;
     dest->xid.inc = source->xid.inc;
     dest->xid.last = source->xid.last;
