@@ -1678,7 +1678,7 @@ int main(int argc, const char **argv, char **env) {
         if(x64) {
             prog = argv[++nextarg];
             printf_log(LOG_INFO, "BOX64: Wine preloader detected, loading \"%s\" directly\n", prog);
-            //wine_preloaded = 1;
+            wine_preloaded = 1;
         }
     }
     #ifndef STATICBUILD
@@ -1699,8 +1699,9 @@ int main(int argc, const char **argv, char **env) {
      || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
-        if(wine_preloaded)
+        if(wine_preloaded) {
             wine_prereserve(prereserve);
+        }
         // special case for winedbg, doesn't work anyway
         if(argv[nextarg+1] && strstr(argv[nextarg+1], "winedbg")==argv[nextarg+1]) {
             if(getenv("BOX64_WINEDBG")) {
@@ -2096,7 +2097,7 @@ int main(int argc, const char **argv, char **env) {
         if(!wineinfo) {printf_log(LOG_NONE, "Warning, Symbol wine_main_preload_info not found\n");}
         else {
             *(void**)wineinfo = get_wine_prereserve();
-            printf_log(LOG_DEBUG, "WINE wine_main_preload_info found and updated\n");
+            printf_log(LOG_DEBUG, "WINE wine_main_preload_info found and updated %p -> %p\n", get_wine_prereserve(), *(void**)wineinfo);
         }
         #ifdef DYNAREC
         dynarec_wine_prereserve();

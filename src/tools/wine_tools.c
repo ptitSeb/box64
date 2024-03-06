@@ -59,6 +59,7 @@ static void add_no_overlap(void* addr, size_t size)
 
 void wine_prereserve(const char* reserve)
 {
+    init_custommem_helper(my_context);
     void* addr = NULL;
     size_t size = 0;
 
@@ -103,7 +104,7 @@ void dynarec_wine_prereserve()
     // don't reserve the initial arbritrary block as "with linker", it's not true
     for(int i=1; i<sizeof(my_wine_reserve)/sizeof(my_wine_reserve[0]); ++i)
         if(my_wine_reserve[i].addr && my_wine_reserve[i].size)
-            addDBFromAddressRange(my_context, (uintptr_t)my_wine_reserve[i].addr, my_wine_reserve[i].size, 0);  // prepare the prereserved area for exec, with linker
+            addDBFromAddressRange((uintptr_t)my_wine_reserve[i].addr, my_wine_reserve[i].size);  // prepare the prereserved area for exec, with linker
     #endif
 }
 #endif
