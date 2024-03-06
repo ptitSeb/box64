@@ -24,7 +24,7 @@ GO(gcry_check_version, pFp)
 //GO(gcry_cipher_setctr, 
 //GO(gcry_cipher_setiv, 
 //GO(gcry_cipher_setkey, 
-//GO(gcry_control, 
+//GOM(gcry_control, 
 //GO(gcry_create_nonce, 
 //GO(gcry_ctx_release, 
 //GO(gcry_ecc_get_algo_keylen, 
@@ -66,7 +66,7 @@ GO(gcry_check_version, pFp)
 GO(gcry_md_algo_name, pFi)
 GO(gcry_md_close, vFp)
 GO(gcry_md_copy, vFpp)
-//GO(gcry_md_ctl, 
+GO(gcry_md_ctl, pFpipL)
 GO(gcry_md_debug, vFpp)
 GO(gcry_md_enable, pFpi)
 GO(gcry_md_extract, pFpipL)
