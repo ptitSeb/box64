@@ -1520,7 +1520,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            if(isLockAddress(u64)) lock=1; else lock = 0;
+            lock=isLockAddress(u64);
             SMREADLOCK(lock);
             LDRB_U12(x2, x1, 0);
             BFIx(xRAX, x2, 0, 8);
@@ -1532,7 +1532,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            if(isLockAddress(u64)) lock=1; else lock = 0;
+            lock=isLockAddress(u64);
             SMREADLOCK(lock);
             LDRxw_U12(xRAX, x1, 0);
             break;
@@ -1543,7 +1543,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            if(isLockAddress(u64)) lock=1; else lock = 0;
+            lock=isLockAddress(u64);
             WILLWRITELOCK(lock);
             STRB_U12(xRAX, x1, 0);
             SMWRITELOCK(lock);
@@ -1555,7 +1555,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            if(isLockAddress(u64)) lock=1; else lock = 0;
+            lock=isLockAddress(u64);
             WILLWRITELOCK(lock);
             STRxw_U12(xRAX, x1, 0);
             SMWRITELOCK(lock);
@@ -1930,7 +1930,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROL Eb, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
                     if(u8) {
-                        SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
+                        SETFLAGS(X_CF|X_OF, SF_SUBSET_PENDING);
                         GETEB(x1, 1);
                         u8 = F8&0x1f;
                         emit_rol8c(dyn, ninst, x1, u8, x4, x5);
@@ -1944,7 +1944,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROR Eb, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
                     if(u8) {
-                        SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
+                        SETFLAGS(X_CF|X_OF, SF_SUBSET_PENDING);
                         GETEB(x1, 1);
                         u8 = F8&0x1f;
                         emit_ror8c(dyn, ninst, x1, u8, x4, x5);
@@ -1989,7 +1989,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHL Eb, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
                     if(u8) {
-                        SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF|((u8==1)?X_OF:0), (u8==1)?SF_SET_PENDING:SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETEB(x1, 1);
                         u8 = (F8)&0x1f;
                         emit_shl8c(dyn, ninst, ed, u8, x4, x5);
@@ -2003,7 +2003,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHR Eb, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
                     if(u8) {
-                        SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF|((u8==1)?X_OF:0), (u8==1)?SF_SET_PENDING:SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETEB(x1, 1);
                         u8 = (F8)&0x1f;
                         emit_shr8c(dyn, ninst, ed, u8, x4, x5);
@@ -2017,7 +2017,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SAR Eb, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
                     if(u8) {
-                        SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF|((u8==1)?X_OF:0), (u8==1)?SF_SET_PENDING:SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETSEB(x1, 1);
                         u8 = (F8)&0x1f;
                         emit_sar8c(dyn, ninst, ed, u8, x4, x5);
@@ -2036,7 +2036,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROL Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20));
                     if(u8) {
-                        SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
+                        SETFLAGS(X_CF|X_OF, SF_SUBSET_PENDING);
                         GETED(1);
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -2055,7 +2055,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROR Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20));
                     if(u8) {
-                        SETFLAGS(X_CF|((u8==1)?X_OF:0), SF_SUBSET_PENDING);
+                        SETFLAGS(X_CF|X_OF, SF_SUBSET_PENDING);
                         GETED(1);
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -2075,11 +2075,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
-                    if(u8==1) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
-                    } else {
-                        SETFLAGS(X_CF, SF_SET);
-                    }
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEDW(x4, x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -2091,11 +2087,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
-                    if(u8==1) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
-                    } else {
-                        SETFLAGS(X_CF, SF_SET);
-                    }
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEDW(x4, x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -2107,7 +2099,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHL Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20));
                     if(u8) {
-                        SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF|((u8==1)?X_OF:0), (u8==1)?SF_SET_PENDING:SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETED(1);
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -2126,7 +2118,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHR Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20));
                     if(u8) {
-                        SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF|((u8==1)?X_OF:0), (u8==1)?SF_SET_PENDING:SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETED(1);
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -2145,7 +2137,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SAR Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20));
                     if(u8) {
-                        SETFLAGS(X_CF|X_PF|X_AF|X_ZF|X_SF|((u8==1)?X_OF:0), (u8==1)?SF_SET_PENDING:SF_SUBSET_PENDING);
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETED(1);
                         u8 = (F8)&(rex.w?0x3f:0x1f);
                         emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -2563,12 +2555,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MAYSETFLAGS();
                     UFLAG_IF {
                         TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
+                        B_NEXT(cEQ);
                     }
                     ANDw_mask(x2, xRCX, 0, 0b00010);  //mask=0x000000007
                     GETEB(x1, 0);
-                    UFLAG_IF {
-                        B_NEXT(cEQ);
-                    }
                     ORRw_REG_LSL(ed, ed, ed, 8);
                     LSRw_REG(ed, ed, x2);
                     EBBACK;
