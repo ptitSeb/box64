@@ -43,7 +43,7 @@
         *ok = -1;                       \
         if(box64_dynarec_log>=LOG_INFO || box64_dynarec_dump || box64_dynarec_missing) {\
         dynarec_log(LOG_NONE, "%p: Dynarec stopped because of %sOpcode %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
-        (void*)ip, rex.is32bits?"32bits ":"",\
+        (void*)ip, rex.is32bits?"x86 ":"x64 ",\
         PKip(0),                        \
         PKip(1), PKip(2), PKip(3),      \
         PKip(4), PKip(5), PKip(6),      \
