@@ -276,6 +276,7 @@ static const scwrap_t syscallwrap[] = {
     [298] = {__NR_perf_event_open, 5},
     [302] = {__NR_prlimit64, 4},
     [309] = {__NR_getcpu, 3}, // need wrapping?
+    [314] = {__NR_sched_setattr, 3},
     [315] = {__NR_sched_getattr, 4},
     [316] = {__NR_renameat2, 5},
     //[317] = {__NR_seccomp, 3},
