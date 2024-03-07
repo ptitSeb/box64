@@ -48,6 +48,7 @@ int convert_bitmask(uint64_t bitmask) {
 	int to = 1;
 	while (pat & (one << to)) ++to;
 	
+	// printf("%016lX/%lu: returning %c%c%02lX%02lX\n", bitmask, size, '2' + (size == 6), (uint64_t)(((0x1E << size) & 0x3F) + (to - 1)), (uint64_t)immr);
 	return 0x2000 + ((size == 6) << 12) + ((((0x1E << size) & 0x3F) + (to - 1)) << 6) + immr;
 }
 

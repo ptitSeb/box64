@@ -60,8 +60,13 @@ void emit_or32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    MOV64xw(s3, c);
-    ORRxw_REG(s1, s1, s3);
+    int mask = convert_bitmask_xw(c);
+    if(mask) {
+        ORRxw_mask(s1, s1, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+    } else {
+        MOV64xw(s3, c);
+        ORRxw_REG(s1, s1, s3);
+    }
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -122,8 +127,13 @@ void emit_xor32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    MOV64xw(s3, c);
-    EORxw_REG(s1, s1, s3);
+    int mask = convert_bitmask_xw(c);
+    if(mask) {
+        EORxw_mask(s1, s1, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+    } else {
+        MOV64xw(s3, c);
+        EORxw_REG(s1, s1, s3);
+    }
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -187,11 +197,20 @@ void emit_and32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    MOV64xw(s3, c);
-    IFX(X_ALL) {
-        ANDSxw_REG(s1, s1, s3);
+    int mask = convert_bitmask_xw(c);
+    if(mask) {
+        IFX(X_ALL) {
+            ANDSxw_mask(s1, s1, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+        } else {
+            ANDxw_mask(s1, s1, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+        }
     } else {
-        ANDxw_REG(s1, s1, s3);
+        MOV64xw(s3, c);
+        IFX(X_ALL) {
+            ANDSxw_REG(s1, s1, s3);
+        } else {
+            ANDxw_REG(s1, s1, s3);
+        }
     }
     IFX(X_PEND) {
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
@@ -239,13 +258,18 @@ void emit_or8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit OR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_or8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
-    MOV32w(s3, c&0xff);
     IFX(X_PEND) {
         SET_DF(s4, d_or8);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    ORRw_REG(s1, s1, s3);
+    int mask = convert_bitmask_w(c);
+    if(mask) {
+        ORRw_mask(s1, s1, mask&0x3F, (mask>>6)&0x3F);
+    } else {
+        MOV32w(s3, c&0xff);
+        ORRw_REG(s1, s1, s3);
+    }
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -285,13 +309,18 @@ void emit_xor8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit XOR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_xor8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
-    MOV32w(s3, c&0xff);
     IFX(X_PEND) {
         SET_DF(s4, d_xor8);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    EORw_REG(s1, s1, s3);
+    int mask = convert_bitmask_w(c);
+    if(mask) {
+        EORw_mask(s1, s1, mask&0x3F, (mask>>6)&0x3F);
+    } else {
+        MOV32w(s3, c&0xff);
+        EORw_REG(s1, s1, s3);
+    }
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -342,16 +371,25 @@ void emit_and8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit AND8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_and8c(dynarec_arm_t* dyn, int ninst, int s1, int32_t c, int s3, int s4)
 {
-    MOV32w(s3, c&0xff);
     IFX(X_PEND) {
         SET_DF(s4, d_and8);
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    IFX(X_ZF) {
-        ANDSw_REG(s1, s1, s3);
+    int mask = convert_bitmask_w(c);
+    if(mask) {
+        IFX(X_ZF) {
+            ANDSw_mask(s1, s1, mask&0x3F, (mask>>6)&0x3F);
+        } else {
+            ANDw_mask(s1, s1, mask&0x3F, (mask>>6)&0x3F);
+        }
     } else {
-        ANDw_REG(s1, s1, s3);
+        MOV32w(s3, c&0xff);
+        IFX(X_ZF) {
+            ANDSw_REG(s1, s1, s3);
+        } else {
+            ANDw_REG(s1, s1, s3);
+        }
     }
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
