@@ -2480,7 +2480,20 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEM(v1, 0);
             URHADD_8(v0, v0, v1);
             break;
-
+        case 0xE1:
+            INST_NAME("PSRAW Gm,Em");
+            nextop = F8;
+            GETGM(d0);
+            GETEM(d1, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, d1);
+            MOVI_32(v1, 15);
+            UMIN_32(v0, v0, v1);    // limit to 0 .. +15 values
+            NEG_32(v0, v0);
+            VDUP_16(v0, v0, 0);    // only the low 8bits will be used anyway
+            SSHL_16(d0, d0, v0);
+            break;
         case 0xE2:
             INST_NAME("PSRAD Gm,Em");
             nextop = F8;
