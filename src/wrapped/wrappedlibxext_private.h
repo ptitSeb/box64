@@ -121,7 +121,7 @@ GO(XSyncSetPriority, iFpui)
 //GO(XSyncValueHigh32, 
 //GO(XSyncValueIsNegative, 
 //GO(XSyncValueIsPositive, 
-//GO(XSyncValueIsZero, 
+GO(XSyncValueIsZero, iFp)
 //GO(XSyncValueLessOrEqual, 
 //GO(XSyncValueLessThan, 
 //GO(XSyncValueLow32, 

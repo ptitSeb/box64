@@ -1182,6 +1182,7 @@
 #() pFELpA
 #() pFEpii
 #() pFEpip
+#() pFEpuL
 #() pFEppi
 #() pFEppp
 #() pFEppV
@@ -3099,6 +3100,9 @@ wrappedbz2:
 wrappedcairo:
 - pFp:
   - cairo_xcb_device_get_connection
+- iFpppp:
+  - cairo_set_user_data
+  - cairo_surface_set_user_data
 wrappedcairogobject:
 wrappedcap:
 wrappedcrashhandler:
@@ -4805,6 +4809,8 @@ wrappedlibx11:
   - XESetError
   - XESetEventToWire
   - XESetWireToEvent
+- pFpuL:
+  - _XGetRequest
 - iFpppp:
   - XCheckIfEvent
   - XIfEvent

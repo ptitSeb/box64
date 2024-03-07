@@ -491,6 +491,223 @@ static void* findXUnlockDisplayFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 XUnlockDisplay callback\n");
     return NULL;
 }
+// XImage function wrappers
+// create_image
+#define GO(A)   \
+static uintptr_t my_create_image_fct_##A = 0;                                                                                   \
+static void* my_create_image_##A(void* a, void* b, uint32_t c, int d, int e, void* f, uint32_t g, uint32_t h, int i, int j)     \
+{                                                                                                                               \
+    return (void*)RunFunctionFmt(my_create_image_fct_##A, "ppuiipuuii", a, b, c, d, e, f, g, h, i, j);                          \
+}
+SUPER()
+#undef GO
+static void* find_create_image_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_create_image_fct_##A == (uintptr_t)fct) return my_create_image_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_create_image_fct_##A == 0) {my_create_image_fct_##A = (uintptr_t)fct; return my_create_image_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 create_image callback\n");
+    return NULL;
+}
+static void* reverse_create_image_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
+    #define GO(A) if(my_create_image_##A == fct) return (void*)my_create_image_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddAutomaticBridge(lib->w.bridge, pFppuiipuuii, fct, 0, NULL);
+}
+// destroy_image
+#define GO(A)   \
+static uintptr_t my_destroy_image_fct_##A = 0;                      \
+static int my_destroy_image_##A(void* a)                            \
+{                                                                   \
+    return (int)RunFunctionFmt(my_destroy_image_fct_##A, "p", a);   \
+}
+SUPER()
+#undef GO
+static void* find_destroy_image_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_destroy_image_fct_##A == (uintptr_t)fct) return my_destroy_image_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_destroy_image_fct_##A == 0) {my_destroy_image_fct_##A = (uintptr_t)fct; return my_destroy_image_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 destroy_image callback\n");
+    return NULL;
+}
+static void* reverse_destroy_image_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
+    #define GO(A) if(my_destroy_image_##A == fct) return (void*)my_destroy_image_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddAutomaticBridge(lib->w.bridge, iFp, fct, 0, NULL);
+}
+// get_pixel
+#define GO(A)   \
+static uintptr_t my_get_pixel_fct_##A = 0;                                      \
+static unsigned long my_get_pixel_##A(void* a, int b, int c)                    \
+{                                                                               \
+    return (unsigned long)RunFunctionFmt(my_get_pixel_fct_##A, "pii", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_get_pixel_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_get_pixel_fct_##A == (uintptr_t)fct) return my_get_pixel_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_get_pixel_fct_##A == 0) {my_get_pixel_fct_##A = (uintptr_t)fct; return my_get_pixel_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 get_pixel callback\n");
+    return NULL;
+}
+static void* reverse_get_pixel_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
+    #define GO(A) if(my_get_pixel_##A == fct) return (void*)my_get_pixel_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddAutomaticBridge(lib->w.bridge, LFpii, fct, 0, NULL);
+}
+// put_pixel
+#define GO(A)   \
+static uintptr_t my_put_pixel_fct_##A = 0;                                  \
+static int my_put_pixel_##A(void* a, int b, int c,unsigned long d)          \
+{                                                                           \
+    return (int)RunFunctionFmt(my_put_pixel_fct_##A, "piiL", a, b, c, d);   \
+}
+SUPER()
+#undef GO
+static void* find_put_pixel_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_put_pixel_fct_##A == (uintptr_t)fct) return my_put_pixel_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_put_pixel_fct_##A == 0) {my_put_pixel_fct_##A = (uintptr_t)fct; return my_put_pixel_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 put_pixel callback\n");
+    return NULL;
+}
+static void* reverse_put_pixel_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
+    #define GO(A) if(my_put_pixel_##A == fct) return (void*)my_put_pixel_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddAutomaticBridge(lib->w.bridge, iFpiiL, fct, 0, NULL);
+}
+// sub_image
+#define GO(A)   \
+static uintptr_t my_sub_image_fct_##A = 0;                                      \
+static void* my_sub_image_##A(void* a, int b, int c, uint32_t d, uint32_t e)    \
+{                                                                               \
+    return (void*)RunFunctionFmt(my_sub_image_fct_##A, "piiuu", a, b, c, d, e); \
+}
+SUPER()
+#undef GO
+static void* find_sub_image_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_sub_image_fct_##A == (uintptr_t)fct) return my_sub_image_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_sub_image_fct_##A == 0) {my_sub_image_fct_##A = (uintptr_t)fct; return my_sub_image_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 sub_image callback\n");
+    return NULL;
+}
+static void* reverse_sub_image_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
+    #define GO(A) if(my_sub_image_##A == fct) return (void*)my_sub_image_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddAutomaticBridge(lib->w.bridge, pFpiiuu, fct, 0, NULL);
+}
+// add_pixel
+#define GO(A)   \
+static uintptr_t my_add_pixel_fct_##A = 0;                          \
+static int my_add_pixel_##A(void* a, long b)                        \
+{                                                                   \
+    return (int)RunFunctionFmt(my_add_pixel_fct_##A, "pl", a, b);   \
+}
+SUPER()
+#undef GO
+static void* find_add_pixel_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_add_pixel_fct_##A == (uintptr_t)fct) return my_add_pixel_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_add_pixel_fct_##A == 0) {my_add_pixel_fct_##A = (uintptr_t)fct; return my_add_pixel_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 add_pixel callback\n");
+    return NULL;
+}
+static void* reverse_add_pixel_Fct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, fct))
+        return (void*)CheckBridged(lib->w.bridge, fct);
+    #define GO(A) if(my_add_pixel_##A == fct) return (void*)my_add_pixel_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddAutomaticBridge(lib->w.bridge, iFpl, fct, 0, NULL);
+}
+// end of XImage functions callbacks
+// async_handler
+#define GO(A)   \
+static uintptr_t my_async_handler_fct_##A = 0;                                      \
+static int my_async_handler_##A(void* a, void* b, void* c, int d, void* e)          \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_async_handler_fct_##A, "pppip", a, b, c, d, e);   \
+}
+SUPER()
+#undef GO
+static void* find_async_handler_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_async_handler_fct_##A == (uintptr_t)fct) return my_async_handler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_async_handler_fct_##A == 0) {my_async_handler_fct_##A = (uintptr_t)fct; return my_async_handler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 async_handler callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 void* my_XCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt, int32_t off
@@ -1045,17 +1262,13 @@ void BridgeImageFunc(x64emu_t *emu, XImage *img)
     bridge_t* system = emu->context->system;
 
     #define GO(A, W) \
-    fnc = CheckBridged(system, img->f.A); \
-    if(!fnc) fnc = AddAutomaticBridge(emu, system, W, img->f.A, 0, #A); \
-    img->f.A = (W##_t)fnc;
-
-    uintptr_t fnc;
+    img->f.A = (W##_t)reverse_##A##_Fct(my_lib, img->f.A);
 
     GO(create_image, pFppuiipuuii)
     GO(destroy_image, iFp)
     GO(get_pixel, LFpii)
     GO(put_pixel, iFpiiL)
-    GO(sub_image, sub_image_wrapper)
+    GO(sub_image, pFpiiuu)
     GO(add_pixel, iFpl)
     #undef GO
 }
@@ -1063,18 +1276,14 @@ void BridgeImageFunc(x64emu_t *emu, XImage *img)
 void UnbridgeImageFunc(x64emu_t *emu, XImage *img)
 {
     (void)emu;
-    #define GO(A, W) \
-    fnc = GetNativeFnc((uintptr_t)img->f.A); \
-    if(fnc) \
-        img->f.A = (W##_t)fnc;
-
-    void* fnc;
+    #define GO(A, W)                            \
+    img->f.A = (W##_t)find_##A##_Fct(img->f.A);
 
     GO(create_image, pFppuiipuuii)
     GO(destroy_image, iFp)
     GO(get_pixel, LFpii)
     GO(put_pixel, iFpiiL)
-    GO(sub_image, sub_image_wrapper)
+    GO(sub_image, pFpiiuu)
     GO(add_pixel, iFpl)
     #undef GO
 }
@@ -1140,7 +1349,7 @@ EXPORT void* my_XGetSubImage(x64emu_t* emu, void* disp, void* drawable
 
     UnbridgeImageFunc(emu, (XImage*)image);
     XImage *img = my->XGetSubImage(disp, drawable, x, y, w, h, plane, fmt, image, dst_x, dst_y);
-    if(img)
+    if(img && img!=image)
         BridgeImageFunc(emu, img);
 
     BridgeImageFunc(emu, (XImage*)image);
@@ -1397,12 +1606,12 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
     #define GO(A, W)\
     if(dpy->A)      \
         if(!CheckBridged(system, dpy->A)) \
-            AddAutomaticBridge(emu, system, W, dpy->A, 0, #A); \
+            AddAutomaticBridge(system, W, dpy->A, 0, #A); \
 
     #define GO2(A, B, W) \
     if(dpy->A && dpy->A->B)  \
         if(!CheckBridged(system, dpy->A->B)) \
-            AddAutomaticBridge(emu, system, W, dpy->A->B, 0, #B "_" #A); \
+            AddAutomaticBridge(system, W, dpy->A->B, 0, #B "_" #A); \
 
 
     GO2(free_funcs, atoms, vFp)
@@ -1436,6 +1645,23 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
     #undef GO2
 
     return ret;
+}
+
+EXPORT void* my__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, int type, size_t len)
+{
+    // check if asynchandler needs updated wrapping
+    struct my_XInternalAsync * p = dpy->async_handlers;
+    while(p) {
+        if(GetNativeFnc((uintptr_t)p->handler)!=p->handler) {
+            // needs wrapping and autobridge!
+            void* new_handler = find_async_handler_Fct(p->handler);
+            AddAutomaticBridge(my_lib->w.bridge, iFpppip, new_handler, 0, "async_handler");
+            p->handler = new_handler;
+        }
+        p = p->next;
+    }
+
+    return my->_XGetRequest(dpy, type, len);
 }
 
 #define CUSTOM_INIT                 \

@@ -1052,7 +1052,7 @@ static void UpdateautobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_m
     if(!api) {
         return;
     }
-    #define GO(A, W) if(api->A!=my_mainloop_api.A) {api->A=find_##A##_Fct(api->A); AddAutomaticBridge(emu, bridge, W, api->A, 0, NULL);}
+    #define GO(A, W) if(api->A!=my_mainloop_api.A) {api->A=find_##A##_Fct(api->A); AddAutomaticBridge(bridge, W, api->A, 0, NULL);}
     GO(io_new, pFpiipp);
     GO(io_enable, vFpi);
     GO(io_free, vFp);
@@ -1076,7 +1076,7 @@ static void autobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_mainloo
     if(!api) {
         return;
     }
-    #define GO(A, W) if(api->A) AddAutomaticBridge(emu, bridge, W, api->A, 0, NULL)
+    #define GO(A, W) if(api->A) AddAutomaticBridge(bridge, W, api->A, 0, NULL)
     GO(io_new, pFpiipp);
     GO(io_enable, vFpi);
     GO(io_free, vFp);

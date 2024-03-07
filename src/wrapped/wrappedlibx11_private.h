@@ -409,7 +409,7 @@ GO(XGetOMValues, pFp)
 GO(dummy_XGetPixel, LFpii)     // for the wrapper
 GO(XGetPointerControl, iFpppp)
 GO(XGetPointerMapping, iFppi)
-GO(_XGetRequest, pFpuL)
+GOM(_XGetRequest, pFEpuL)
 GO(XGetRGBColormaps, iFpLppL)
 //GO(_XGetScanlinePad, 
 GO(XGetScreenSaver, iFppppp)

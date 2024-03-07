@@ -20,6 +20,7 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
+typedef void* (*pFpuL_t)(void*, uint32_t, uintptr_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
@@ -47,6 +48,7 @@ typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint3
 	GO(XESetError, pFpip_t) \
 	GO(XESetEventToWire, pFpip_t) \
 	GO(XESetWireToEvent, pFpip_t) \
+	GO(_XGetRequest, pFpuL_t) \
 	GO(XCheckIfEvent, iFpppp_t) \
 	GO(XIfEvent, iFpppp_t) \
 	GO(XPeekIfEvent, iFpppp_t) \

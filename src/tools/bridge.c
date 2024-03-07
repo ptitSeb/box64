@@ -141,10 +141,8 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const 
     return ret;
 }
 
-uintptr_t AddAutomaticBridge(x64emu_t* emu, bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
+uintptr_t AddAutomaticBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
 {
-    (void)emu;
-
     if(!fnc)
         return 0;
     uintptr_t ret = CheckBridged(bridge, fnc);
@@ -153,11 +151,7 @@ uintptr_t AddAutomaticBridge(x64emu_t* emu, bridge_t* bridge, wrapper_t w, void*
     if(!hasAlternate(fnc)) {
         printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
         addAlternate(fnc, (void*)ret);
-        #ifdef DYNAREC
-        // now, check if dynablock at native address exist
-        if(box64_dynarec)
-            DBAlternateBlock(emu, (uintptr_t)fnc, ret, 0);  // function wrapping is exclusive to 64bits on box64
-        #endif
+
     }
     return ret;
 }
