@@ -726,6 +726,7 @@ if(ARM_DYNAREC)
         ${DYNAREC_SRC}
 
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_immenc.c"
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
 
