@@ -19,6 +19,10 @@
 #endif
 #define LIBNAME pangocairo
 
+#define PRE_INIT    \
+    if(box64_nogtk) \
+        return -1;
+
 #ifdef ANDROID
 #define NEEDED_LIBS "libpango-1.0.so"
 #else

@@ -41,12 +41,12 @@
 //GO(context_user_set, 
 //DATAB(dir_xattr_list, 
 //GO(fgetfilecon, 
-//GO(fgetfilecon_raw, 
+GO(fgetfilecon_raw, iFip)
 //GO(fini_selinuxmnt, 
-//GO(freecon, 
-//GO(freeconary, 
+GO(freecon, vFp)
+GO(freeconary, vFp)
 //GO(fsetfilecon, 
-//GO(fsetfilecon_raw, 
+GO(fsetfilecon_raw, iFip)
 //GO(getcon, 
 //GO(getcon_raw, 
 //GO(get_default_context, 
@@ -57,7 +57,7 @@
 //GO(getexeccon, 
 //GO(getexeccon_raw, 
 //GO(getfilecon, 
-//GO(getfilecon_raw, 
+GO(getfilecon_raw, iFpp)
 //GO(getfscreatecon, 
 //GO(getfscreatecon_raw, 
 //GO(getkeycreatecon, 
@@ -75,7 +75,7 @@
 //GO(getsockcreatecon, 
 //GO(getsockcreatecon_raw, 
 //GO(is_context_customizable, 
-//GO(is_selinux_enabled, 
+GO(is_selinux_enabled, iFv)
 //GO(is_selinux_mls_enabled, 
 GO(lgetfilecon, iFpp)
 GO(lgetfilecon_raw, iFpp)
@@ -214,7 +214,7 @@ GO(lsetfilecon_raw, iFpp)
 //GO(selinux_status_updated, 
 //GO(selinux_systemd_contexts_path, 
 //GO(selinux_translations_path, 
-//GO(selinux_trans_to_raw_context, 
+GO(selinux_trans_to_raw_context, iFpp)
 //GO(selinux_user_contexts_path, 
 //GO(selinux_usersconf_path, 
 //GO(selinux_users_path, 
@@ -227,7 +227,7 @@ GO(lsetfilecon_raw, iFpp)
 //GO(setexeccon_raw, 
 //GO(setexecfilecon, 
 //GO(setfilecon, 
-//GO(setfilecon_raw, 
+GO(setfilecon_raw, iFpp)
 //GO(setfscreatecon, 
 //GO(setfscreatecon_raw, 
 //GO(setkeycreatecon, 
