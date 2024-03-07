@@ -241,7 +241,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MARKLOCK;
                         LDAXRB(ed, wback);
                         LSRw_REG(x4, ed, x2);
-                        BFIw(xFlags, x5, F_CF, 1);
+                        BFIw(xFlags, x4, F_CF, 1);
                         LSLw_REG(x4, x5, x2);
                         ORRw_REG(ed, ed, x4);
                         STLXRB(x4, ed, wback);
