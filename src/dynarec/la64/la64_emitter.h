@@ -269,6 +269,13 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = ROTR(GR[rj][31:0], imm5) (Rotate To Right)
 #define ROTRI_W(rd, rj, imm5) EMIT(type_2RI5(0b00000000010011001, imm5, rj, rd))
 
+// Shift Left Immediate
+#define SLLIxw(rd, rs1, imm)  \
+    if (rex.w) {              \
+        SLLI_D(rd, rs1, imm); \
+    } else {                  \
+        SLLI_W(rd, rs1, imm); \
+    }
 // Shift Right Logical Immediate
 #define SRLIxw(rd, rs1, imm)  \
     if (rex.w) {              \
