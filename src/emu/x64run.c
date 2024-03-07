@@ -331,7 +331,7 @@ x64emurun:
             if(rex.is32bits) {
                 R_AX = aas16(emu, R_AX);
             } else {
-                unimp = 1;
+                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
                 goto fini;
             }
             break;
