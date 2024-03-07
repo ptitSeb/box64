@@ -16,6 +16,8 @@ typedef void* (*pFpA_t)(void*, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(FcObjectSetBuild, pFpV_t) \
-	GO(FcObjectSetVaBuild, pFpA_t)
+	GO(FcPatternBuild, pFpV_t) \
+	GO(FcObjectSetVaBuild, pFpA_t) \
+	GO(FcPatternVaBuild, pFpA_t)
 
 #endif // __wrappedfontconfigTYPES_H_

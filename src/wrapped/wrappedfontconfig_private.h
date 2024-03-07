@@ -89,7 +89,7 @@ GO(FcFontSetPrint, vFp)
 GO(FcFontSetSort, pFppipipp)
 GO(FcFontSetSortDestroy, vFp)
 GO(FcFontSort, pFppipp)
-//GO(FcFreeTypeCharIndex, 
+GO(FcFreeTypeCharIndex, uFpu)
 //GO(FcFreeTypeCharSet, 
 //GO(FcFreeTypeCharSetAndSpacing, 
 GO(FcFreeTypeQuery, pFpupp)
@@ -142,7 +142,7 @@ GO(FcPatternAddLangSet, iFppp)
 GO(FcPatternAddMatrix, iFppp)
 GO(FcPatternAddString, iFppp)
 GO(FcPatternAddWeak, iFppiLi)
-//GO2(FcPatternBuild, pFpV, FcPatternVaBuild)
+GOM(FcPatternBuild, pFEpV)
 GO(FcPatternCreate, pFv)
 GO(FcPatternDel, iFpp)
 GO(FcPatternDestroy, vFp)
@@ -164,7 +164,7 @@ GO(FcPatternHash, uFp)
 GO(FcPatternPrint, vFp)
 GO(FcPatternReference, vFp)
 GO(FcPatternRemove, iFppi)
-GO(FcPatternVaBuild, pFpp)
+GOM(FcPatternVaBuild, pFEpA)
 GO(FcStrBasename, pFp)
 GO(FcStrCmp, iFpp)
 GO(FcStrCmpIgnoreCase, iFpp)
@@ -196,5 +196,7 @@ GO(FcUtf8ToUcs4, iFppi)
 //GO(FcValueEqual, 
 //GO(FcValuePrint, 
 //GO(FcValueSave, 
+GO(FcWeightFromOpenTypeDouble, dFd)
+GO(FcWeightToOpenTypeDouble, dFd)
 //GO(_fini, 
 //GO(_init, 

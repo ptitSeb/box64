@@ -13,6 +13,7 @@
 
 typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
+typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
@@ -23,6 +24,7 @@ typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 	GO(hb_draw_funcs_destroy, vFp_t) \
 	GO(hb_font_funcs_destroy, vFp_t) \
 	GO(hb_unicode_funcs_reference, pFp_t) \
+	GO(hb_ft_face_create, pFpp_t) \
 	GO(hb_font_set_funcs_data, vFppp_t) \
 	GO(hb_face_create_for_tables, pFppp_t) \
 	GO(hb_buffer_set_message_func, vFpppp_t) \

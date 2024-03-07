@@ -3314,8 +3314,10 @@ wrappedflac:
 wrappedfontconfig:
 - pFpV:
   - FcObjectSetBuild
+  - FcPatternBuild
 - pFpA:
   - FcObjectSetVaBuild
+  - FcPatternVaBuild
 wrappedfreebl3:
 wrappedfreetype:
 - iFpp:
@@ -4401,6 +4403,8 @@ wrappedlibharfbuzz:
   - hb_font_funcs_destroy
 - pFp:
   - hb_unicode_funcs_reference
+- pFpp:
+  - hb_ft_face_create
 - vFppp:
   - hb_font_set_funcs_data
 - pFppp:

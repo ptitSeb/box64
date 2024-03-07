@@ -220,7 +220,7 @@ GO(hb_font_set_var_coords_normalized, vFppu)
 GO(hb_font_set_variations, vFppu)
 GO(hb_font_set_var_named_instance, vFpu)
 GO(hb_font_subtract_glyph_origin_for_direction, vFpuupp)
-//GO(hb_ft_face_create, 
+GOM(hb_ft_face_create, pFEpp)
 GO(hb_ft_face_create_cached, pFp)
 GO(hb_ft_face_create_referenced, pFp)
 GO(hb_ft_font_changed, vFp)

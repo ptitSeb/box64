@@ -1,7 +1,7 @@
+#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -47,6 +47,23 @@ EXPORT void* my_FcObjectSetBuild(x64emu_t* emu, void* first, uint64_t* b)
         return my->FcObjectSetBuild(first, NULL);
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
     return my->FcObjectSetVaBuild(first, VARARGS);
+}
+
+EXPORT void* my_FcPatternVaBuild(x64emu_t* emu, void* pattern, x64_va_list_t V)
+{
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(V);
+    #else
+    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    #endif
+    return my->FcPatternVaBuild(pattern, VARARGS);
+}
+EXPORT void* my_FcPatternBuild(x64emu_t* emu, void* pattern, uint64_t* b)
+{
+    if(!pattern)    
+        return my->FcPatternBuild(pattern, NULL);
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
+    return my->FcPatternVaBuild(pattern, VARARGS);
 }
 
 #define NEEDED_LIBS "libexpat.so.1", "libfreetype.so.6"

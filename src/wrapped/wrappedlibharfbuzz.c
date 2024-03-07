@@ -1208,4 +1208,10 @@ EXPORT int my_hb_font_set_user_data(x64emu_t* emu, void* font, void* key, void* 
     return (int)my->hb_font_set_user_data(font, key, data, find_destroy_Fct(destroy), replace);
 }
 
+EXPORT void* my_hb_ft_face_create(x64emu_t* emu, void* face, void* destroy)
+{
+    (void)emu;
+    return my->hb_ft_face_create(face, find_destroy_Fct(destroy));
+}
+
 #include "wrappedlib_init.h"
