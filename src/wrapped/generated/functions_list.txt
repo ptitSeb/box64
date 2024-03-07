@@ -5503,6 +5503,8 @@ wrappedvulkan:
   - vkDestroyCommandPool
   - vkDestroyCuFunctionNVX
   - vkDestroyCuModuleNVX
+  - vkDestroyCudaFunctionNV
+  - vkDestroyCudaModuleNV
   - vkDestroyDeferredOperationKHR
   - vkDestroyDescriptorPool
   - vkDestroyDescriptorSetLayout
@@ -5554,6 +5556,8 @@ wrappedvulkan:
   - vkCreateCommandPool
   - vkCreateCuFunctionNVX
   - vkCreateCuModuleNVX
+  - vkCreateCudaFunctionNV
+  - vkCreateCudaModuleNV
   - vkCreateDebugReportCallbackEXT
   - vkCreateDebugUtilsMessengerEXT
   - vkCreateDescriptorPool

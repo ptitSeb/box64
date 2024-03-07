@@ -730,6 +730,10 @@ DESTROY64(vkDestroyOpticalFlowSessionNV)
 CREATE(vkCreateMicromapEXT)
 DESTROY64(vkDestroyMicromapEXT)
 
+CREATE(vkCreateCudaFunctionNV)
+CREATE(vkCreateCudaModuleNV)
+DESTROY64(vkDestroyCudaFunctionNV)
+DESTROY64(vkDestroyCudaModuleNV)
 
 EXPORT void my_vkGetPhysicalDeviceProperties(x64emu_t* emu, void* device, void* pProps)
 {

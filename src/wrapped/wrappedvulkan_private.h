@@ -941,3 +941,11 @@ GO(vkGetPhysicalDeviceCalibrateableTimeDomainsKHR, iFppp)
 
 // VK_KHR_video_maintenance1
 // no functions
+
+// VK_NV_cuda_kernel_launch
+GO(vkCmdCudaLaunchKernelNV, vFpp)
+GOM(vkCreateCudaFunctionNV, iFEpppp)
+GOM(vkCreateCudaModuleNV, iFEpppp)
+GOM(vkDestroyCudaFunctionNV, vFEpUp)
+GOM(vkDestroyCudaModuleNV, vFEpUp)
+GO(vkGetCudaModuleCacheNV, iFpUpp)

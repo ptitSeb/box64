@@ -41,6 +41,8 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkDestroyCommandPool, vFpUp_t) \
 	GO(vkDestroyCuFunctionNVX, vFpUp_t) \
 	GO(vkDestroyCuModuleNVX, vFpUp_t) \
+	GO(vkDestroyCudaFunctionNV, vFpUp_t) \
+	GO(vkDestroyCudaModuleNV, vFpUp_t) \
 	GO(vkDestroyDeferredOperationKHR, vFpUp_t) \
 	GO(vkDestroyDescriptorPool, vFpUp_t) \
 	GO(vkDestroyDescriptorSetLayout, vFpUp_t) \
@@ -87,6 +89,8 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateCommandPool, iFpppp_t) \
 	GO(vkCreateCuFunctionNVX, iFpppp_t) \
 	GO(vkCreateCuModuleNVX, iFpppp_t) \
+	GO(vkCreateCudaFunctionNV, iFpppp_t) \
+	GO(vkCreateCudaModuleNV, iFpppp_t) \
 	GO(vkCreateDebugReportCallbackEXT, iFpppp_t) \
 	GO(vkCreateDebugUtilsMessengerEXT, iFpppp_t) \
 	GO(vkCreateDescriptorPool, iFpppp_t) \
