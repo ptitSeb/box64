@@ -827,6 +827,22 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b10111111111111111111110000000000)==0b00001101000000001000010000000000) {
+        // this is ST1.D
+        int idx = (opcode>>30)&1;
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest]);
+        uint64_t value = fpsimd->vregs[val]>>(idx*64);
+        if((((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<2; ++i)
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+        } else
+            for(int i=0; i<8; ++i)
+                addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
 #endif
     return 0;
 }
