@@ -65,6 +65,12 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     }
     if(!block->done) {
         // not finished yet... leave linker
+        #ifdef HAVE_TRACE
+        if(box64_dynarec_log && !block->isize) {
+            dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
+            printf_log(LOG_NONE, "Warning, NULL block at %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
+        }
+        #endif
         return native_epilog;
     }
     if(!(jblock=block->block)) {
