@@ -590,16 +590,16 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BNEZ_MARK2(x1);
                 MARK;   // Part with DF==0
                 LDxw(x1, xRSI, 0);
-                ADDI(xRSI, xRSI, rex.w?8:4);
                 SDxw(x1, xRDI, 0);
+                ADDI(xRSI, xRSI, rex.w?8:4);
                 ADDI(xRDI, xRDI, rex.w?8:4);
                 SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK(xRCX);
                 B_NEXT_nocond;
                 MARK2;  // Part with DF==1
                 LDxw(x1, xRSI, 0);
-                SUBI(xRSI, xRSI, rex.w?8:4);
                 SDxw(x1, xRDI, 0);
+                SUBI(xRSI, xRSI, rex.w?8:4);
                 SUBI(xRDI, xRDI, rex.w?8:4);
                 SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK2(xRCX);

@@ -509,6 +509,56 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
 }
 #endif
 
+void adjustregs(x64emu_t* emu) {
+// tests some special cases
+    uint8_t* mem = (uint8_t*)R_RIP;
+    rex_t rex = {0};
+    int rep = 0;
+    int is66 = 0;
+    int idx = 0;
+    rex.is32bits = (R_CS==0x0023);
+    while ((mem[idx]>=0x40 && mem[idx]<=0x4f && !rex.is32bits) || mem[idx]==0xF2 || mem[idx]==0xF3 || mem[idx]==0x66) {
+        switch(mem[idx]) {
+            case 0x40 ... 0x4f:
+                rex.rex = mem[idx];
+                break;
+            case 0xF2:
+            case 0xF3:
+                rep = mem[idx]-0xF1;
+                break;
+            case 0x66:
+                is66 = 1;
+                break;
+        }
+        ++idx;
+    }
+#ifdef DYNAREC
+#ifdef ARM64
+    if(mem[idx+0]==0xA4) {
+        // (rep) movsb, read done, write not...
+        if(emu->eflags.f._F_DF)
+            R_RSI++;
+        else
+            R_RSI--;
+        return;
+    }
+    if(mem[idx+0]==0xA5) {
+        // (rep) movsd, read done, write not...
+        int step = (emu->eflags.f._F_DF)?-1:+1;
+        if(rex.w) step*=8;
+        else if(is66) step *=2;
+        else step*=4;
+        R_RSI-=step;
+        return;
+    }
+#elif defined(LA64)
+#elif defined(RV64)
+#else
+#error  Unsupported architecture
+#endif
+#endif
+}
+
 void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip) {
 #ifdef DYNAREC
 #ifdef ARM64
@@ -1356,6 +1406,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
             // dynablock got auto-dirty! need to get out of it!!!
             if(emu->jmpbuf) {
                 copyUCTXreg2Emu(emu, p, getX64Address(db, (uintptr_t)pc));
+                adjustregs(emu);
 #ifdef ARM64
                 //TODO: Need proper SIMD/x87 register traking!
                 /*if(fpsimd) {
