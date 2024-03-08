@@ -164,21 +164,35 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
+                    // flags are not affected if count is 0, we make it a nop if possible.
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                        GETED(1);
+                    } else
+                        FAKEED;
+                    F8;
                     emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
-                    if(!wback && !rex.w) ZEROUP(ed);
+                    if (u8) {
+                        WBACK;
+                    } else if (MODREG && !rex.w)
+                        ZEROUP(ed);
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
+                    // flags are not affected if count is 0, we make it a nop if possible.
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                        GETED(1);
+                    } else
+                        FAKEED;
+                    F8;
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
-                    if(!wback && !rex.w) ZEROUP(ed);
+                    if (u8) {
+                        WBACK;
+                    } else if (MODREG && !rex.w)
+                        ZEROUP(ed);
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
@@ -205,27 +219,51 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
+                    // flags are not affected if count is 0, we make it a nop if possible.
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                        GETED(1);
+                    } else
+                        FAKEED;
+                    F8;
                     emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
-                    if(u8) WBACK;
+                    if (u8) {
+                        WBACK;
+                    } else if (MODREG && !rex.w)
+                        ZEROUP(ed);
                     break;
                 case 5:
                     INST_NAME("SHR Ed, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
+                    // flags are not affected if count is 0, we make it a nop if possible.
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                        GETED(1);
+                    } else
+                        FAKEED;
+                    F8;
                     emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
+                    if (u8) {
+                        WBACK;
+                    } else if (MODREG && !rex.w)
+                        ZEROUP(ed);
                     break;
                 case 7:
                     INST_NAME("SAR Ed, Ib");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    GETED(1);
-                    u8 = (F8)&(rex.w?0x3f:0x1f);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
+                    // flags are not affected if count is 0, we make it a nop if possible.
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                        GETED(1);
+                    } else
+                        FAKEED;
+                    F8;
                     emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if(u8) { WBACK; }
+                    if (u8) {
+                        WBACK;
+                    } else if (MODREG && !rex.w)
+                        ZEROUP(ed);
                     break;
                 default:
                     DEFAULT;

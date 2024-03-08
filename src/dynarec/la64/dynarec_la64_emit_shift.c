@@ -91,11 +91,13 @@ void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SHL32 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
 {
+    if (!c) return;
+
     IFX(X_PEND) {
         if (c) {
             MOV64x(s3, c);
             SDxw(s3, xEmu, offsetof(x64emu_t, op2));
-        } else 
+        } else
             SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shl64:d_shl32);
@@ -170,6 +172,8 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit SHR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     IFX(X_PEND) {
         if (c) {
             MOV64x(s3, c);
@@ -251,6 +255,8 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit SAR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     IFX(X_PEND) {
         if (c) {
             MOV64x(s3, c);

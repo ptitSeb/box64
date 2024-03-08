@@ -82,6 +82,8 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 // emit SHL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -185,6 +187,8 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 // emit SHR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -238,6 +242,8 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 // emit SAR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -430,8 +436,7 @@ void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit SHR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
-    if(!c)
-        return;
+    if (!c) return;
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -505,8 +510,7 @@ void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit SAR8 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
-    if(!c)
-        return;
+    if (!c) return;
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -587,8 +591,7 @@ void emit_shl16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit SHL16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
-    if(!c)
-        return;
+    if (!c) return;
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -760,8 +763,7 @@ void emit_sar16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit SAR16 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sar16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
-    if(!c)
-        return;
+    if (!c) return;
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -795,6 +797,9 @@ void emit_sar16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(rex); MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -827,6 +832,9 @@ void emit_rol32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -860,6 +868,9 @@ void emit_ror32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -890,6 +901,9 @@ void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
 void emit_ror8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRB_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -920,6 +934,9 @@ void emit_ror8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
 void emit_rol16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRH_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -950,6 +967,9 @@ void emit_rol16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 void emit_ror16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRH_U12(s3, xEmu, offsetof(x64emu_t, op2));
@@ -980,6 +1000,9 @@ void emit_ror16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
@@ -1014,6 +1037,9 @@ void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
 void emit_rcr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+
+    if (!c) return;
+
     IFX(X_PEND) {
         MOV32w(s3, c);
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
