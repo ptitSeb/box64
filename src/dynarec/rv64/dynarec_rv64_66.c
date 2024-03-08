@@ -1002,7 +1002,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_DF(x3, d_shl16);
                     break;
                 case 5:
-                    INST_NAME("SHR Ed, Ib");
+                    INST_NAME("SHR Ew, Ib");
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 1);
@@ -1015,7 +1015,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_DF(x3, d_shr16);
                     break;
                 case 7:
-                    INST_NAME("SAR Ed, Ib");
+                    INST_NAME("SAR Ew, Ib");
                     SETFLAGS(X_ALL, SF_PENDING);
                     UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
                     GETSEW(x1, 1);
