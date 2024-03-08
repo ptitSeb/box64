@@ -66,36 +66,53 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     FCMPD(v0, v1);
                     FCOMI(x1, x2);
                     break;
-            case 0xD6:
-                INST_NAME("MOVQ Ex, Gx");
-                nextop = F8;
-                GETG;
-                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-                if(MODREG) {
-                    v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
-                    FMOVD(v1, v0);
-                } else {
-                    grab_segdata(dyn, addr, ninst, x4, seg);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    VSTR64_REG(v0, ed, x4);
-                    SMWRITE();
-                }
-                break;
 
-            case 0x7F:
-                INST_NAME("MOVDQA Ex,Gx");
-                nextop = F8;
-                GETGX(v0, 0);
-                if(MODREG) {
-                    v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
-                    VMOVQ(v1, v0);
-                } else {
-                    grab_segdata(dyn, addr, ninst, x4, seg);
-                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                    VSTR128_REG(v0, ed, x4);
-                    SMWRITE2();
-                }
-                break;
+                case 0x6F:
+                    INST_NAME("MOVDQA Gx,Ex");
+                    nextop = F8;
+                    if(MODREG) {
+                        v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                        GETGX_empty(v0);
+                        VMOVQ(v0, v1);
+                    } else {
+                        GETGX_empty(v0);
+                        grab_segdata(dyn, addr, ninst, x4, seg);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        SMREAD();
+                        VLDR128_REG(v0, ed, x4);
+                    }
+                    break;
+
+                case 0x7F:
+                    INST_NAME("MOVDQA Ex,Gx");
+                    nextop = F8;
+                    GETGX(v0, 0);
+                    if(MODREG) {
+                        v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                        VMOVQ(v1, v0);
+                    } else {
+                        grab_segdata(dyn, addr, ninst, x4, seg);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        VSTR128_REG(v0, ed, x4);
+                        SMWRITE2();
+                    }
+                    break;
+
+                case 0xD6:
+                    INST_NAME("MOVQ Ex, Gx");
+                    nextop = F8;
+                    GETG;
+                    v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                    if(MODREG) {
+                        v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                        FMOVD(v1, v0);
+                    } else {
+                        grab_segdata(dyn, addr, ninst, x4, seg);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        VSTR64_REG(v0, ed, x4);
+                        SMWRITE();
+                    }
+                    break;
 
                 default:
                     DEFAULT;
