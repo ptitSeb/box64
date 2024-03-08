@@ -200,6 +200,12 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (!strcmp(s, "recvmsg")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, 0x%x)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_EDX);
                     perr = 1;
+                } else if (!strcmp(s, "getxattr")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", \"%s\", %p, 0x%zx)", tid, *(void**)(R_RSP), s, (char*)R_RDI, (char*)R_RSI, (void*)R_RDX, R_RCX);
+                    perr = 1;
+                } else if (!strcmp(s, "fgetxattr")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%d, \"%s\", %p, 0x%zx)", tid, *(void**)(R_RSP), s, R_EDI, (char*)R_RSI, (void*)R_RDX, R_RCX);
+                    perr = 1;
                 } else if (strstr(s, "puts")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
