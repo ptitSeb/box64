@@ -664,14 +664,18 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (u8) {
                         SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
                         GETED32(1);
-                    } else
-                        FAKEED;
-                    F8;
-                    emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
-                    if (u8) {
+                        F8;
+                        emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
                         WBACK;
-                    } else if (MODREG && !rex.w)
-                        ZEROUP(ed);
+                    } else {
+                        if (MODREG && !rex.w) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
                     break;
                 default:
                     DEFAULT;

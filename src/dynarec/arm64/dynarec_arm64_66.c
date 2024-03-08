@@ -941,29 +941,31 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    // flags are not affected if count is 0, we make it a nop if possible.
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 15;
                     if (u8) {
                         SETFLAGS(X_CF | ((u8 == 1) ? X_OF : 0), SF_SUBSET_PENDING);
                         GETEW(x1, 1);
-                    } else
+                        u8 = F8;
+                        emit_rol16c(dyn, ninst, x1, u8, x4, x5);
+                        EWBACK;
+                    } else {
                         FAKEED;
-                    F8;
-                    emit_rol16c(dyn, ninst, x1, u8, x4, x5);
-                    if (u8) EWBACK;
+                        F8;
+                    }
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    // flags are not affected if count is 0, we make it a nop if possible.
-                    if (u8) {
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 15;
+                    if (geted_ib(dyn, addr, ninst, nextop) & 15) {
                         SETFLAGS(X_CF | ((u8 == 1) ? X_OF : 0), SF_SUBSET_PENDING);
                         GETEW(x1, 1);
-                    } else
+                        u8 = F8;
+                        emit_ror16c(dyn, ninst, x1, u8, x4, x5);
+                        EWBACK;
+                    } else {
                         FAKEED;
-                    F8;
-                    emit_ror16c(dyn, ninst, x1, u8, x4, x5);
-                    if (u8) EWBACK;
+                        F8;
+                    }
                     break;
                 case 2:
                     INST_NAME("RCL Ew, Ib");
@@ -1000,42 +1002,42 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                 case 6:
                     INST_NAME("SHL Ew, Ib");
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    // flags are not affected if count is 0, we make it a nop if possible.
-                    if (u8) {
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
                         GETEW(x1, 0);
-                    } else
+                        u8 = (F8)&0x1f;
+                        emit_shl16c(dyn, ninst, x1, u8, x5, x4);
+                        EWBACK;
+                    } else {
                         FAKEED;
-                    F8;
-                    emit_shl16c(dyn, ninst, x1, u8, x5, x4);
-                    if (u8) EWBACK;
+                        F8;
+                    }
                     break;
                 case 5:
                     INST_NAME("SHR Ew, Ib");
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    // flags are not affected if count is 0, we make it a nop if possible.
-                    if (u8) {
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
                         GETEW(x1, 0);
-                    } else
+                        u8 = (F8)&0x1f;
+                        emit_shr16c(dyn, ninst, x1, u8, x5, x4);
+                        EWBACK;
+                    } else {
                         FAKEED;
-                    F8;
-                    emit_shr16c(dyn, ninst, x1, u8, x5, x4);
-                    if (u8) EWBACK;
+                        F8;
+                    }
                     break;
                 case 7:
                     INST_NAME("SAR Ew, Ib");
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    // flags are not affected if count is 0, we make it a nop if possible.
-                    if (u8) {
+                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
-                        GETEW(x1, 0);
-                    } else
+                        GETSEW(x1, 0);
+                        u8 = (F8)&0x1f;
+                        emit_sar16c(dyn, ninst, x1, u8, x5, x4);
+                        EWBACK;
+                    } else {
                         FAKEED;
-                    F8;
-                    emit_sar16c(dyn, ninst, x1, u8, x5, x4);
-                    if (u8) EWBACK;
+                        F8;
+                    }
                     break;
             }
             break;
