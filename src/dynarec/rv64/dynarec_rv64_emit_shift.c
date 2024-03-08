@@ -76,6 +76,8 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SHL32 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
 {
+    if (!c) return;
+
     CLEAR_FLAGS();
     IFX(X_PEND) {
         if (c) {
@@ -189,6 +191,8 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SHR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     CLEAR_FLAGS();
 
     IFX(X_PEND) {
@@ -251,6 +255,8 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit SAR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     CLEAR_FLAGS();
 
     IFX(X_PEND) {
@@ -401,6 +407,8 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     IFX(X_CF | X_OF) {
         ANDI(xFlags, xFlags, ~(1UL<<F_CF | 1UL<<F_OF2));
     }
@@ -427,6 +435,9 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SRLIxw(s1, s1, (rex.w?64:32)-c);
         OR(s1, s3, s1);
     }
+
+    if (!rex.w) ZEROUP(s1);
+
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
@@ -448,6 +459,8 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit ROR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
+    if (!c) return;
+
     IFX(X_CF | X_OF) {
         ANDI(xFlags, xFlags, ~(1UL<<F_CF | 1UL<<F_OF2));
     }
@@ -474,6 +487,9 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SLLIxw(s1, s1, (rex.w?64:32)-c);
         OR(s1, s3, s1);
     }
+
+    if (!rex.w) ZEROUP(s1);
+
     IFX(X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
