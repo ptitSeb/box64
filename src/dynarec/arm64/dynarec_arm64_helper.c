@@ -2145,6 +2145,82 @@ void emit_pf(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     BFIw(xFlags, s4, F_PF, 1);
 }
 
+void arm64_move32(dynarec_arm_t* dyn, int ninst, int reg, uint32_t val)
+{
+    // simple cases with only 1 operations
+    for(int i=0; i<2; ++i)
+        if((val&(0xFFFF<<(i*16)))==val) {
+            MOVZw_LSL(reg, (val>>(i*16))&0xFFFF, i*16);
+            return;
+        }
+    // same but with negation
+    for(int i=0; i<2; ++i)
+        if(((~val)&(0xFFFF<<(i*16)))==(~val)) {
+            MOVNw_LSL(reg, ((~val)>>(i*16))&0xFFFF, i*16);
+            return;
+        }
+    // generic cases
+    int mask = convert_bitmask_w(val);
+    if(mask) {
+        ORRw_mask(reg, xZR, mask&0x3F, (mask>>6)&0x3F);
+    } else {
+        MOVZw(reg, val&0xFFFF);
+        MOVKw_LSL(reg, (val>>16)&0xFFFF, 16);
+    }
+}
+void arm64_move64(dynarec_arm_t* dyn, int ninst, int reg, uint64_t val)
+{
+    // simple cases with only 1 operations
+    for(int i=0; i<4; ++i)
+        if((val&(0xFFFFLL<<(i*16)))==val) {
+            MOVZx_LSL(reg, (val>>(i*16))&0xFFFF, i*16);
+            return;
+        }
+    // same but with negation
+    for(int i=0; i<4; ++i)
+        if(((~val)&(0xFFFFLL<<(i*16)))==(~val)) {
+            MOVNx_LSL(reg, ((~val)>>(i*16))&0xFFFF, i*16);
+            return;
+        }
+    // mask
+    int mask = convert_bitmask_x(val);
+    if(mask) {
+        ORRx_mask(reg, xZR, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);
+        return;
+    }
+    // 32bit value?
+    if((val&0xFFFFFFFF)==val) {
+        arm64_move32(dyn, ninst, reg, val);
+        return;
+    }
+    int n = 0;
+    // negatives values
+    if((val&0xFFFF000000000000LL)==0xFFFF000000000000LL) {
+        for(int i=0; i<3; ++i) {
+            if(((~val)>>(i*16))&0xFFFF) {
+                if(n) {
+                    MOVKx_LSL(reg, (val>>(i*16))&0xFFFF, i*16);
+                } else {
+                    MOVNx_LSL(reg, ((~val)>>(i*16))&0xFFFF, i*16);
+                    n = 1;
+                }
+            }
+        }
+        return;
+    }
+    // positive values
+    for(int i=0; i<4; ++i) {
+        if((val>>(i*16))&0xFFFF) {
+            if(n) {
+                MOVKx_LSL(reg, (val>>(i*16))&0xFFFF, i*16);
+            } else {
+                MOVZx_LSL(reg, (val>>(i*16))&0xFFFF, i*16);
+                n = 1;
+            }
+        }
+    }
+}
+
 
 void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
 {

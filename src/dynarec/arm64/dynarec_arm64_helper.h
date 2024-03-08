@@ -1130,6 +1130,9 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 
 #define CacheTransform       STEPNAME(CacheTransform)
 
+#define arm64_move32        STEPNAME(arm64_move32)
+#define arm64_move64        STEPNAME(arm64_move64)
+
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, int64_t* fixaddress, int* unscaled, int absmax, uint32_t mask, rex_t rex, int* l, int s, int delta);
 
@@ -1282,6 +1285,9 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
+
+void arm64_move32(dynarec_arm_t* dyn, int ninst, int reg, uint32_t val);
+void arm64_move64(dynarec_arm_t* dyn, int ninst, int reg, uint64_t val);
 
 #if STEP < 2
 #define CHECK_CACHE()   0

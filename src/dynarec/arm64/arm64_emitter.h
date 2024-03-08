@@ -116,29 +116,8 @@ int convert_bitmask(uint64_t bitmask);
 #define MOVKw(Rd, imm16)                    EMIT(MOVK_gen(0, 0, ((uint16_t)(imm16))&0xffff, Rd))
 #define MOVKw_LSL(Rd, imm16, shift)         EMIT(MOVK_gen(0, (shift)/16, ((uint16_t)(imm16))&0xffff, Rd))
 
-// This macro will give a -Wsign-compare warning, probably bug #38341
-#define MOV32w(Rd, imm32) \
-    if(~((uint32_t)(imm32))<0xffffu) {                                                                        \
-        MOVNw(Rd, (~(uint32_t)(imm32))&0xffff);                                                               \
-    } else if((uint32_t)(imm32)>0xffff && convert_bitmask_w(imm32)) {                                        \
-        int mask = convert_bitmask_w(imm32);                                                                  \
-        ORRw_mask(Rd, xZR, mask&0x3F, (mask>>6)&0x3F);                                                        \
-    } else {                                                                                                  \
-        MOVZw(Rd, (imm32)&0xffff);                                                                            \
-        if((imm32)&0xffff0000) {MOVKw_LSL(Rd, ((imm32)>>16)&0xffff, 16);}                                     \
-    }
-#define MOV64x(Rd, imm64) \
-    if(~((uint64_t)(imm64))<0xffff) {                                                                        \
-        MOVNx(Rd, (~(uint64_t)(imm64))&0xffff);                                                              \
-    } else if((uint64_t)(imm64)>0xffff && convert_bitmask_x(imm64)) {                                      \
-        int mask = convert_bitmask_x(imm64);                                                                 \
-        ORRx_mask(Rd, xZR, (mask>>12)&1, mask&0x3F, (mask>>6)&0x3F);                                         \
-    } else {                                                                                                 \
-        MOVZx(Rd, ((uint64_t)(imm64))&0xffff);                                                               \
-        if(((uint64_t)(imm64))&0xffff0000) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>16)&0xffff, 16);}            \
-        if(((uint64_t)(imm64))&0xffff00000000LL) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>32)&0xffff, 32);}      \
-        if(((uint64_t)(imm64))&0xffff000000000000LL) {MOVKx_LSL(Rd, (((uint64_t)(imm64))>>48)&0xffff, 48);}  \
-    }
+#define MOV32w(Rd, imm32) arm64_move32(dyn, ninst, Rd, imm32)
+#define MOV64x(Rd, imm64) arm64_move64(dyn, ninst, Rd, imm64)
 
 #define MOV64xw(Rd, imm64)   if(rex.w) {MOV64x(Rd, imm64);} else {MOV32w(Rd, imm64);}
 #define MOV64z(Rd, imm64)    if(rex.is32bits) {MOV32w(Rd, imm64);} else {MOV64x(Rd, imm64);}
