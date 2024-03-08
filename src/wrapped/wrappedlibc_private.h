@@ -321,7 +321,7 @@ GOM(execv, iFEpp)
 GOM(execve, iFEppp)
 GOM(execvp, iFEpp)
 GOW(execvpe, iFppp)
-GOM(_exit, vFEi)
+GO(_exit, vFi)  // immediate exit
 GOM(exit, vFEi)
 GOW(_Exit, vFi)
 GO(explicit_bzero, vFpL)

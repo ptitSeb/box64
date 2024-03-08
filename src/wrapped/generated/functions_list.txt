@@ -4046,7 +4046,6 @@ wrappedlibc:
   - __cxa_pure_virtual
   - __stack_chk_fail
 - vFi:
-  - _exit
   - exit
 - vFp:
   - _ITM_deregisterTMCloneTable
