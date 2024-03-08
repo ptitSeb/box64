@@ -78,13 +78,12 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
                     break;
 
-                case 0xD6:                      /* MOVQ Ex,Gx */
+                case 0x6F:  /* MOVDQA Gx, Ex */
                     nextop = F8;
                     GETEX_OFFS(0, tlsdata);
                     GETGX;
-                    EX->q[0] = GX->q[0];
-                    if(MODREG)
-                        EX->q[1] = 0;
+                    GX->q[0] = EX->q[0];
+                    GX->q[1] = EX->q[1];
                     break;
 
                 case 0x7F:  /* MOVDQA Ex,Gx */
@@ -93,6 +92,15 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     GETGX;
                     EX->q[0] = GX->q[0];
                     EX->q[1] = GX->q[1];
+                    break;
+
+                case 0xD6:                      /* MOVQ Ex,Gx */
+                    nextop = F8;
+                    GETEX_OFFS(0, tlsdata);
+                    GETGX;
+                    EX->q[0] = GX->q[0];
+                    if(MODREG)
+                        EX->q[1] = 0;
                     break;
 
                 default:
