@@ -494,7 +494,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FLAGS_ADJUST_FROM11(xFlags, xFlags, x2);
             MOV32w(x1, 0x3F7FD7);
             AND(xFlags, xFlags, x1);
-            ORI(xFlags, xFlags, 0x2);
+            ORI(xFlags, xFlags, 0x202);
             SET_DFNONE();
             if(box64_wine) {    // should this be done all the time?
                 ANDI(x1, xFlags, 1 << F_TF);

@@ -860,7 +860,7 @@ x64emurun:
         case 0x9D:                      /* POPF */
             if(ACCESS_FLAG(F_TF) && !tf_next)
                 --tf_next;
-            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x202; // mask off res2 and res3 and on res1
             RESET_FLAGS(emu);
             if(ACCESS_FLAG(F_TF))
                 ++tf_next;
