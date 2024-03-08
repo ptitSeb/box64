@@ -312,7 +312,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             VMOVeS(v0, 0, v1, 0);   // to not erase uper part
             #endif
             break;
-            
+
         case 0x6F:
             INST_NAME("MOVDQU Gx,Ex");// no alignment constraint on NEON here, so same as MOVDQA
             nextop = F8;
@@ -334,14 +334,14 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             u8 = F8;
             d0 = fpu_get_scratch(dyn);
-            if(u8==0b00000000 || u8==0b01010101 || u8==0b10101010 || u8==0b11111111) {
-                VDUP_16(d0, v1, u8&3);
+            if (u8 == 0b00000000 || u8 == 0b01010101 || u8 == 0b10101010 || u8 == 0b11111111) {
+                VDUPQ_16(d0, v1, (u8 & 3) + 4);
             } else {
                 // only high part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
                 u64 = 0;
-                for (int i=0; i<4; ++i) {
-                    u64 |= ((uint64_t)((u8>>(i*2))&3)*2+8)<<(i*16+0);
-                    u64 |= ((uint64_t)((u8>>(i*2))&3)*2+9)<<(i*16+8);
+                for (int i = 0; i < 4; ++i) {
+                    u64 |= ((uint64_t)((u8 >> (i * 2)) & 3) * 2 + 8) << (i * 16 + 0);
+                    u64 |= ((uint64_t)((u8 >> (i * 2)) & 3) * 2 + 9) << (i * 16 + 8);
                 }
                 MOV64x(x2, u64);
                 VMOVQDfrom(d0, 0, x2);
