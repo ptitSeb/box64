@@ -699,6 +699,11 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             }
             break;
 
+        case 0xEB:                      /* JMP Ib */
+            tmp32s = F8S; // jump is relative
+            addr += tmp32s;
+            break;
+
         case 0xF7:                      /* GRP3 Ed(,Id) */
             nextop = F8;
             tmp8u = (nextop>>3)&7;
