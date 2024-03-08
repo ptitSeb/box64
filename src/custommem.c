@@ -375,12 +375,13 @@ static sigset_t     critical_prot = {0};
 #define UNLOCK_PROT()       if(defered_prot_p) {                                \
                                 uintptr_t p = defered_prot_p; size_t sz = defered_prot_sz; uint32_t prot = defered_prot_prot; \
                                 defered_prot_p = 0;                             \
+                                pthread_sigmask(SIG_SETMASK, &old_sig, NULL);   \
                                 mutex_unlock(&mutex_prot);                      \
                                 setProtection(p, sz, prot);                     \
                             } else {                                            \
+                                pthread_sigmask(SIG_SETMASK, &old_sig, NULL);   \
                                 mutex_unlock(&mutex_prot);                      \
-                            }                                                   \
-                            pthread_sigmask(SIG_SETMASK, &old_sig, NULL)
+                            }
 #define UNLOCK_PROT_READ()  mutex_unlock(&mutex_prot); pthread_sigmask(SIG_SETMASK, &old_sig, NULL)
 
 
