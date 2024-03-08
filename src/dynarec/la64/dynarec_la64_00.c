@@ -702,7 +702,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         if (MODREG && !rex.w && !rex.is32bits) {
                             GETED(1);
-                            ZERO(ed);
+                            ZEROUP(ed);
                         } else {
                             FAKEED;
                         }

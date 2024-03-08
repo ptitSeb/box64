@@ -943,7 +943,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROL Ew, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 15;
                     if (u8) {
-                        SETFLAGS(X_CF | ((u8 == 1) ? X_OF : 0), SF_SUBSET_PENDING);
+                        SETFLAGS(X_CF | X_OF), SF_SUBSET_PENDING);
                         GETEW(x1, 1);
                         u8 = F8;
                         emit_rol16c(dyn, ninst, x1, u8, x4, x5);
@@ -957,7 +957,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROR Ew, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 15;
                     if (geted_ib(dyn, addr, ninst, nextop) & 15) {
-                        SETFLAGS(X_CF | ((u8 == 1) ? X_OF : 0), SF_SUBSET_PENDING);
+                        SETFLAGS(X_CF | X_OF), SF_SUBSET_PENDING);
                         GETEW(x1, 1);
                         u8 = F8;
                         emit_ror16c(dyn, ninst, x1, u8, x4, x5);
@@ -971,12 +971,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Ew, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
-                    if(u8==1) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
-                    } else {
-                        SETFLAGS(X_CF, SF_SET);
-                    }
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -987,12 +983,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Ew, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
-                    if(u8==1) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
-                    } else {
-                        SETFLAGS(X_CF, SF_SET);
-                    }
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
