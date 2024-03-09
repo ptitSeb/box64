@@ -1245,7 +1245,7 @@ typedef struct x64_xcb_connection_s {
     x64_xcb_xid_t xid;
 } x64_xcb_connection_t;
 
-#define NXCB 2
+#define NXCB 8
 my_xcb_connection_t* my_xcb_connects[NXCB] = {0};
 x64_xcb_connection_t x64_xcb_connects[NXCB] = {0};
 
