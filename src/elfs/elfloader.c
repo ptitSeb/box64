@@ -64,7 +64,7 @@ elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
         h->path[0] = '\0';
     }
     
-    h->refcnt = 1;
+    h->refcnt = 0;
 
     h->file = f;
     h->fileno = fileno(f);
@@ -1709,7 +1709,7 @@ EXPORT void PltResolver(x64emu_t* emu)
             GetGlobalSymbolStartEnd(local_maplib, symname, &offs, &end, h, version, vername, veropt, (void**)&elfsym);
     }
     if (!offs) {
-        printf_log(LOG_NONE, "Error: PltResolver: Symbol %s(%sver %d: %s%s%s) not found, cannot apply R_X86_64_JUMP_SLOT %p (%p) in %s\n", symname, veropt?"opt":"", version, symname, vername?"@":"", vername?vername:"", p, *(void**)p, h->name);
+        printf_log(LOG_NONE, "Error: PltResolver: Symbol %s %s(%sver %d: %s%s%s) not found, cannot apply R_X86_64_JUMP_SLOT %p (%p) in %s (local_maplib=%p, global maplib=%p, deepbind=%d)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":""), symname, veropt?"opt":"", version, symname, vername?"@":"", vername?vername:"", p, *(void**)p, h->name, local_maplib, my_context->maplib, deepbind);
         emu->quit = 1;
         return;
     } else {

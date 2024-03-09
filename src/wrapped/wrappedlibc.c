@@ -3440,7 +3440,8 @@ static void* timed_exit_thread(void* a)
 {
     // this is a workaround for some NVidia drivers on ARM64 that may freeze at exit
     // waiting on a pthread_cond_destroy
-    usleep(500000); // wait 1/2 a second
+    usleep(5000000); // wait 5 seconds
+    printf_log(LOG_DEBUG, "Too late, forced exit...\n");
     _exit(box64_exit_code); // force exit, something is wrong
 }
 

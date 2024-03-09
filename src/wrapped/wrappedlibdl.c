@@ -412,7 +412,7 @@ int my_dlclose(x64emu_t* emu, void *handle)
     }
     --dl->dllibs[nlib].count;
     elfheader_t* h = GetElf(dl->dllibs[nlib].lib);
-    if(!h || !h->gnuunique || actualy_closing)
+    if((h && !h->gnuunique) || !h || actualy_closing)
         DecRefCount(&dl->dllibs[nlib].lib, emu);
     return 0;
 }

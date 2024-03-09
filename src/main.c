@@ -36,6 +36,8 @@
 #include "symbols.h"
 #include "rcfile.h"
 #include "emu/x64run_private.h"
+#include "elfs/elfloader_private.h"
+#include "library.h"
 
 box64context_t *my_context = NULL;
 int box64_quit = 0;
@@ -1479,9 +1481,6 @@ void endBox64()
     // then call all the fini
     dynarec_log(LOG_DEBUG, "endBox64() called\n");
     box64_quit = 1;
-    #ifndef STATICBUILD
-    endMallocHook();
-    #endif
     x64emu_t* emu = thread_get_emu();
     void startTimedExit();
     startTimedExit();
@@ -1490,50 +1489,18 @@ void endBox64()
     CallAllCleanup(emu);
     printf_log(LOG_DEBUG, "Calling fini for all loaded elfs and unload native libs\n");
     RunElfFini(my_context->elfs[0], emu);
-    FreeLibrarian(&my_context->local_maplib, emu);    // unload all libs
-    FreeLibrarian(&my_context->maplib, emu);    // unload all libs
     void closeAllDLOpenned();
     closeAllDLOpenned();    // close residual dlopenned libs
-    #if 0
-    // waiting for all thread except this one to finish
-    int this_thread = GetTID();
-    int pid = getpid();
-    int running = 1;
-    int attempt = 0;
-    printf_log(LOG_DEBUG, "Waiting for all threads to finish before unloading box64context\n");
-    while(running) {
-        DIR *proc_dir;
-        char dirname[100];
-        snprintf(dirname, sizeof dirname, "/proc/self/task");
-        proc_dir = opendir(dirname);
-        running = 0;
-        if (proc_dir)
-        {
-            struct dirent *entry;
-            while ((entry = readdir(proc_dir)) != NULL && !running)
-            {
-                if(entry->d_name[0] == '.')
-                    continue;
-
-                int tid = atoi(entry->d_name);
-                // tid != pthread_t, so no pthread functions are available here
-                if(tid!=this_thread) {
-                    if(attempt>4000) {
-                        printf_log(LOG_INFO, "Stop waiting for remaining thread %04d\n", tid);
-                        // enough wait, exit
-                        _exit(box64_exit_code);
-                    } else {
-                        running = 1;
-                        ++attempt;
-                        sched_yield();
-                    }
-                }
-            }
-            closedir(proc_dir);
-        }
-    }
-    #endif
+    // unload needed libs
+    needed_libs_t* needed = my_context->elfs[0]->needed;
+    printf_log(LOG_DEBUG, "Unloaded main elf: Will Dec RefCount of %d libs\n", needed?needed->size:0);
+    if(needed)
+        for(int i=0; i<needed->size; ++i)
+            DecRefCount(&needed->libs[i], emu);
     // all done, free context
+    #ifndef STATICBUILD
+    endMallocHook();
+    #endif
     FreeBox64Context(&my_context);
     #ifdef DYNAREC
     // disable dynarec now

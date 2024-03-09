@@ -575,6 +575,8 @@ void Free1Library(library_t **the_lib, x64emu_t* emu)
 
     library_t* lib = *the_lib;
 
+    FiniLibrary(lib, emu);
+
     printf_dump(LOG_DEBUG, "Free1Library %s\n", lib->name?:"???");
     // remove lib from maplib/local_maplib...
     if(my_context) {
@@ -585,10 +587,8 @@ void Free1Library(library_t **the_lib, x64emu_t* emu)
     int lib_type = lib->type;
     // Handle needed for cleaning
     needed_libs_t* needed = (lib_type==LIB_EMULATED && lib->e.elf)?lib->e.elf->needed:((lib_type==LIB_WRAPPED)?lib->w.needed:NULL);
-    // handle needed libs now
     if(needed)
-        for(int i=0; i<needed->size; ++i)
-            DecRefCount(&needed->libs[i], emu);
+        needed = copy_neededlib(needed);
     // free elf
     if(lib_type==LIB_EMULATED) {
         FreeElfHeader(&lib->e.elf);
@@ -636,6 +636,12 @@ void Free1Library(library_t **the_lib, x64emu_t* emu)
     //box_free(lib);
     if(*the_lib == lib)
         *the_lib = NULL;
+    // handle needed libs now
+    if(needed) {
+        for(int i=0; i<needed->size; ++i)
+            DecRefCount(&needed->libs[i], emu);
+        free_neededlib(needed);
+    }
 }
 
 char* GetNameLib(library_t* lib)
@@ -1219,8 +1225,10 @@ void setNeededLibs(library_t* lib, int n, ...)
 #define LIB_MAXCNT 255
 void IncRefCount(library_t* lib, x64emu_t* emu)
 {
-    if(!lib || lib->type==LIB_UNNKNOW)
+    if(!lib || lib->type==LIB_UNNKNOW) {
+        printf_log(LOG_NONE, "Warning, IncRefCount of a LIB_UNKNOWN library\n");
         return;
+    }
     switch (lib->type) {
         case LIB_WRAPPED:
             if(lib->w.refcnt==LIB_MAXCNT)
@@ -1261,7 +1269,6 @@ int DecRefCount(library_t** lib, x64emu_t* emu)
                 ret=--(*lib)->e.elf->refcnt;
             }
             if(!ret) {
-                FiniLibrary(*lib, emu);
                 Free1Library(lib, emu);
             }
             break;
