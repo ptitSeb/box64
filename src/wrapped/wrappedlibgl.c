@@ -435,7 +435,7 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
         s->resolved = 1;                                                        \
         s->addr = (uintptr_t)find_glXSwapIntervalEXT_Fct(symb);                 \
     }                                                                           \
-    if(GetLibInternal("libgcc_s.so.1")) {                                       \
+    if(!box64_wine && GetLibInternal("libgcc_s.so.1")) {                        \
         setNeededLibs(lib, 1, "libstdc++.so.6");                                \
     }                                                                           \
 
