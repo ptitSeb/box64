@@ -532,6 +532,7 @@ void adjustregs(x64emu_t* emu) {
         }
         ++idx;
     }
+    dynarec_log(LOG_INFO, "Checking opcode: rex=%02hhx is32bits=%d, is66=%d %02hhX %02hhX %02hhX %02hhX\n", rex.rex, rex.is32bits, is66, mem[idx+0], mem[idx+1], mem[idx+2], mem[idx+3]);
 #ifdef DYNAREC
 #ifdef ARM64
     if(mem[idx+0]==0xA4) {
@@ -1842,6 +1843,10 @@ void emit_signal(x64emu_t* emu, int sig, void* addr, int code)
         if(elf)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=%d\n", sig, (void*)R_RIP, x64name?x64name:"???", elfname?elfname:"?", addr, code);
+        if(sig==SIGILL) {
+            uint8_t* mem = (uint8_t*)R_RIP;
+            printf_log(LOG_NONE, "SIGILL: Opcode at ip is %02hhx %02hhx %02hhx %02hhx %02hhx %02hhx\n", mem[0], mem[1], mem[2], mem[3], mem[4], mem[5]);
+        }
     }
     my_sigactionhandler_oldcode(sig, 0, &info, NULL, NULL, NULL);
 }
