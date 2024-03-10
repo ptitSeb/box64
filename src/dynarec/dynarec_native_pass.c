@@ -71,7 +71,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         // This test is here to prevent things like TABLE64 to be out of range
         // native_size is not exact at this point, but it should be larger, not smaller, and not by a huge margin anyway
         // so it's good enough to avoid overflow in relative to PC data fectching
-        if(dyn->native_size >= MAXBLOCK_SIZE) {
+        if((dyn->native_size >= MAXBLOCK_SIZE) || (ninst >= MAX_INSTS)) {
             need_epilog = 1;
             break;
         }
@@ -98,8 +98,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 }
             }
             reset_n = -1;
-        } else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
+        } 
+        #if STEP > 0
+        else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
             dyn->last_ip = 0;   // reset IP if some jump are coming here
+        #endif
         fpu_propagate_stack(dyn, ninst);
         NEW_INST;
         #if STEP == 0

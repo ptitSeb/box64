@@ -25,11 +25,7 @@
 #define SET_HASCALLRET() dyn->insts[ninst].x64.has_callret = 1
 #define NEW_INST                                                                                                  \
     ++dyn->size;                                                                                                  \
-    if (dyn->size + 3 >= dyn->cap) {                                                                              \
-        dyn->insts = (instruction_native_t*)dynaRealloc(dyn->insts, sizeof(instruction_native_t) * dyn->cap * 2); \
-        memset(&dyn->insts[dyn->cap], 0, sizeof(instruction_native_t) * dyn->cap);                                \
-        dyn->cap *= 2;                                                                                            \
-    }                                                                                                             \
+    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));                                                  \
     dyn->insts[ninst].x64.addr = ip;                                                                              \
     dyn->insts[ninst].f_entry = dyn->f;                                                                           \
     if (ninst) { dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; }

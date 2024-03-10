@@ -18,6 +18,8 @@ typedef struct instsize_s instsize_t;
 #define dynaFree box_free
 #endif
 
+#define MAX_INSTS   8190
+
 void addInst(instsize_t* insts, size_t* size, int x64_size, int native_size);
 
 void CancelBlock64(int need_lock);
