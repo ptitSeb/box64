@@ -151,7 +151,6 @@ uintptr_t AddAutomaticBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, co
     if(!hasAlternate(fnc)) {
         printf_log(LOG_DEBUG, "Adding AutomaticBridge for %p to %p\n", fnc, (void*)ret);
         addAlternate(fnc, (void*)ret);
-
     }
     return ret;
 }
@@ -225,7 +224,10 @@ const char* getBridgeName(void* addr)
 {
     onebridge_t* one = (onebridge_t*)(((uintptr_t)addr&~(sizeof(onebridge_t)-1)));   // align to start of bridge
     if(one->C3==0xC3 && one->S=='S' && one->C=='C')
-        return one->name;
+        if(one->w==NULL)
+            return "ExitEmulation";
+        else
+            return one->name;
     return NULL;
 }
 
