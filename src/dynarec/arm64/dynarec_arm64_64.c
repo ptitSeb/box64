@@ -78,6 +78,16 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
 
+        case 0x0B:
+            INST_NAME("OR Gd, Seg:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_or32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+
         case 0x0F:
             opcode = F8;
             switch(opcode) {
