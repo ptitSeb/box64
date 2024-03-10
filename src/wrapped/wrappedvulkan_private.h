@@ -949,3 +949,10 @@ GOM(vkCreateCudaModuleNV, iFEpppp)
 GOM(vkDestroyCudaFunctionNV, vFEpUp)
 GOM(vkDestroyCudaModuleNV, vFEpUp)
 GO(vkGetCudaModuleCacheNV, iFpUpp)
+
+// VK_NV_low_latency2
+GO(vkGetLatencyTimingsNV, vFpUp)
+GO(vkLatencySleepNV, iFpUp)
+GO(vkQueueNotifyOutOfBandNV, vFpp)
+GO(vkSetLatencyMarkerNV, vFpUp)
+GO(vkSetLatencySleepModeNV, iFpUp)
