@@ -312,7 +312,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             if(R_ECX==0) {
                 R_EAX = 0;
                 R_EBX = 0 |
-                        1<<3 |  // BMI1 
+                        //1<<3 |  // BMI1 
                         //1<<8 | //BMI2
                         1<<29;  // SHA extension
             } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
