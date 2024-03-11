@@ -596,6 +596,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEROUP(xRAX);
             }
             break;
+        case 0xA0:
+            INST_NAME("MOV AL,Ob");
+            if(rex.is32bits) u64 = F32; else u64 = F64;
+            MOV64z(x1, u64);
+            LD_BU(x2, x1, 0);
+            BSTRINS_D(xRAX, x2, 7, 0);
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
