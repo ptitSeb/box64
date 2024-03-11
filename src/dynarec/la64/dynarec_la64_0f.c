@@ -186,6 +186,26 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LD_D(xRDX, xEmu, offsetof(x64emu_t, regs[_DX]));
             LD_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
             break;
+        case 0xB6:
+            INST_NAME("MOVZX Gd, Eb");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                if (rex.rex) {
+                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));
+                    eb2 = 0;
+                } else {
+                    ed = (nextop & 7);
+                    eb1 = TO_LA64(ed & 3); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;   // L or H
+                }
+                BSTRPICK_D(gd, eb1, eb2 * 8 + 7, eb2 * 8);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LD_B(gd, ed, fixedaddress);
+            }
+            break;
         case 0xB7:
             INST_NAME("MOVZX Gd, Ew");
             nextop = F8;
