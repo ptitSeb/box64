@@ -203,7 +203,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                LD_B(gd, ed, fixedaddress);
+                LD_BU(gd, ed, fixedaddress);
             }
             break;
         case 0xB7:
