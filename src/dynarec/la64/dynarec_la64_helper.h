@@ -390,6 +390,7 @@
 #ifndef SET_HASCALLRET
 #define SET_HASCALLRET()
 #endif
+#define UFLAG_IF if (dyn->insts[ninst].x64.gen_flags)
 #ifndef DEFAULT
 #define DEFAULT \
     *ok = -1;   \
