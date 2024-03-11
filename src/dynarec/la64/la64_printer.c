@@ -885,6 +885,146 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64XOR.D", Xt[Rj], Xt[Rk]);
         return buff;
     }
+    // X64SLLI.B
+    if(isMask(opcode, "0000000001010100001iiijjjjj00000", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SLLI.B", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRLI.B
+    if(isMask(opcode, "0000000001010100001iiijjjjj00100", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRLI.B", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRAI.B
+    if(isMask(opcode, "0000000001010100001iiijjjjj01000", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRAI.B", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTRI.B
+    if(isMask(opcode, "0000000001010100001iiijjjjj01100", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTRI.B", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCRI.B
+    if(isMask(opcode, "0000000001010100001iiijjjjj10000", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCRI.B", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTLI.B
+    if(isMask(opcode, "0000000001010100001iiijjjjj10100", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTLI.B", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCLI.B
+    if(isMask(opcode, "0000000001010100001iiijjjjj11000", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCLI.B", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SLLI.H
+    if(isMask(opcode, "000000000101010001iiiijjjjj00001", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SLLI.H", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRLI.H
+    if(isMask(opcode, "000000000101010001iiiijjjjj00101", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRLI.H", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRAI.H
+    if(isMask(opcode, "000000000101010001iiiijjjjj01001", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRAI.H", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTRI.H
+    if(isMask(opcode, "000000000101010001iiiijjjjj01101", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTRI.H", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCRI.H
+    if(isMask(opcode, "000000000101010001iiiijjjjj10001", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCRI.H", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTLI.H
+    if(isMask(opcode, "000000000101010001iiiijjjjj10101", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTLI.H", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCLI.H
+    if(isMask(opcode, "000000000101010001iiiijjjjj11001", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCLI.H", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SLLI.W
+    if(isMask(opcode, "00000000010101001iiiiijjjjj00010", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SLLI.W", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRLI.W
+    if(isMask(opcode, "00000000010101001iiiiijjjjj00110", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRLI.W", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRAI.W
+    if(isMask(opcode, "00000000010101001iiiiijjjjj01010", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRAI.W", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTRI.W
+    if(isMask(opcode, "00000000010101001iiiiijjjjj01110", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTRI.W", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCRI.W
+    if(isMask(opcode, "00000000010101001iiiiijjjjj10010", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCRI.W", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTLI.W
+    if(isMask(opcode, "00000000010101001iiiiijjjjj10110", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTLI.W", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCLI.W
+    if(isMask(opcode, "00000000010101001iiiiijjjjj11010", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCLI.W", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SLLI.D
+    if(isMask(opcode, "0000000001010101iiiiiijjjjj00011", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SLLI.D", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRLI.D
+    if(isMask(opcode, "0000000001010101iiiiiijjjjj00111", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRLI.D", Xt[Rj], imm);
+        return buff;
+    }
+    // X64SRAI.D
+    if(isMask(opcode, "0000000001010101iiiiiijjjjj01011", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64SRAI.D", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTRI.D
+    if(isMask(opcode, "0000000001010101iiiiiijjjjj01111", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTRI.D", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCRI.D
+    if(isMask(opcode, "0000000001010101iiiiiijjjjj10011", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCRI.D", Xt[Rj], imm);
+        return buff;
+    }
+    // X64ROTLI.D
+    if(isMask(opcode, "0000000001010101iiiiiijjjjj10111", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64ROTLI.D", Xt[Rj], imm);
+        return buff;
+    }
+    // X64RCLI.D
+    if(isMask(opcode, "0000000001010101iiiiiijjjjj11011", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %d", "X64RCLI.D", Xt[Rj], imm);
+        return buff;
+    }
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
