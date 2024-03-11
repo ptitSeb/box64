@@ -247,7 +247,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_ECX =   1<<0      // SSE3
                     | 1<<1      // PCLMULQDQ
                     | 1<<9      // SSSE3
-                    | 1<<12     // fma
+                    //| 1<<12     // fma    // some games treat FMA as AVX
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<19     // SSE4_1
                     | 1<<20     // SSE4_2
@@ -311,10 +311,11 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0x7:   // extended bits...
             if(R_ECX==0) {
                 R_EAX = 0;
-                R_EBX = 0 |
+                R_EBX = 
                         //1<<3 |  // BMI1 
                         //1<<8 | //BMI2
-                        1<<29;  // SHA extension
+                        1<<29|  // SHA extension
+                        0;
             } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
             break;
         case 0xB:   // Extended Topology Enumeration Leaf
