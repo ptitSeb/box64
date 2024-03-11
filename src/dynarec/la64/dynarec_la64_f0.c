@@ -173,6 +173,8 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SMDMB();
                     }
                     break;
+                default:
+                    DEFAULT;
             }
             break;
         default:
