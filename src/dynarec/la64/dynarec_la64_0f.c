@@ -219,6 +219,28 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LD_HU(gd, ed, fixedaddress);
             }
             break;
+        case 0xBE:
+            INST_NAME("MOVSX Gd, Eb");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                if (rex.rex) {
+                    wback = TO_LA64((nextop & 7) + (rex.b << 3));
+                    wb2 = 0;
+                } else {
+                    wback = (nextop & 7);
+                    wb2 = (wback >> 2) * 8;
+                    wback = TO_LA64(wback & 3);
+                }
+                BSTRPICK_D(gd, wback, wb2 + 7, wb2);
+                EXT_W_B(gd, gd);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                LD_B(gd, ed, fixedaddress);
+            }
+            if (!rex.w) ZEROUP(gd);
+            break;
         default:
             DEFAULT;
     }

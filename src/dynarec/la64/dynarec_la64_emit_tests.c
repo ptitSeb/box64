@@ -106,6 +106,92 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
     }
 }
 
+// emit CMP16 instruction, from cmp s1, s2, using s3 and s4 as scratch
+void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    IFX_PENDOR0 {
+        ST_H(s1, xEmu, offsetof(x64emu_t, op1));
+        ST_H(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, d_cmp16);
+    } else {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            X64_SUB_H(s1, s2);
+        }
+
+        IFX_PENDOR0 {
+            SUB_D(s6, s1, s2);
+            ST_H(s6, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX(X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOR(s5, s5, s1);
+    }
+
+    // It's a cmp, we can't store the result back to s1.
+    SUB_D(s6, s1, s2);
+    IFX(X_ALL) {
+        BSTRPICK_D(s6, s6, 15, 0);
+    }
+    IFX_PENDOR0 {
+        ST_H(s6, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_SF) {
+        SRLI_D(s3, s6, 15);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    CALC_SUB_FLAGS(s5, s2, s6, s3, s4, 16);
+    IFX(X_ZF) {
+        BNEZ(s6, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s6, s3, s4);
+    }
+}
+
+// emit CMP16 instruction, from cmp s1 , #0, using s3 and s4 as scratch
+void emit_cmp16_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4)
+{
+    IFX_PENDOR0 {
+        ST_H(s1, xEmu, offsetof(x64emu_t, op1));
+        ST_H(xZR, xEmu, offsetof(x64emu_t, op2));
+        ST_H(s1, xEmu, offsetof(x64emu_t, res));
+        SET_DF(s3, d_cmp16);
+    } else {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX(X_ALL) {
+            X64_SUB_H(s1, xZR);
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX(X_SF) {
+        SRLI_D(s3, s1, 15);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit CMP32 instruction, from cmp s1, s2, using s3 and s4 as scratch
 void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6)
 {

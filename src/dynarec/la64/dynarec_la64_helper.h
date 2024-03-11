@@ -105,6 +105,22 @@
         LDz(x1, wback, fixedaddress);                                                           \
         ed = x1;                                                                                \
     }
+// GETEWW will use i for ed, and can use w for wback.
+#define GETEWW(w, i, D)                                                                       \
+    if (MODREG) {                                                                             \
+        wback = TO_LA64((nextop & 7) + (rex.b << 3));                                         \
+        BSTRPICK_D(i, wback, 15, 0);                                                          \
+        ed = i;                                                                               \
+        wb1 = 0;                                                                              \
+    } else {                                                                                  \
+        SMREAD();                                                                             \
+        addr = geted(dyn, addr, ninst, nextop, &wback, w, i, &fixedaddress, rex, NULL, 1, D); \
+        LD_HU(i, wback, fixedaddress);                                                        \
+        ed = i;                                                                               \
+        wb1 = 1;                                                                              \
+    }
+// GETEW will use i for ed, and can use r3 for wback.
+#define GETEW(i, D) GETEWW(x3, i, D)
 
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED                                   \
@@ -390,6 +406,7 @@
 #ifndef SET_HASCALLRET
 #define SET_HASCALLRET()
 #endif
+#define UFLAG_IF if (dyn->insts[ninst].x64.gen_flags)
 #ifndef DEFAULT
 #define DEFAULT \
     *ok = -1;   \
@@ -472,6 +489,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define jump_to_next        STEPNAME(jump_to_next)
 #define ret_to_epilog       STEPNAME(ret_to_epilog)
 #define call_c              STEPNAME(call_c)
+#define emit_cmp16          STEPNAME(emit_cmp16)
+#define emit_cmp16_0        STEPNAME(emit_cmp16_0)
 #define emit_cmp32          STEPNAME(emit_cmp32)
 #define emit_cmp32_0        STEPNAME(emit_cmp32_0)
 #define emit_cmp8           STEPNAME(emit_cmp8)
@@ -528,8 +547,10 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
+void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_cmp16_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);

@@ -91,22 +91,19 @@ void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SHL32 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
 {
+    if (!c) return;
+
     IFX(X_PEND) {
         if (c) {
             MOV64x(s3, c);
             SDxw(s3, xEmu, offsetof(x64emu_t, op2));
-        } else 
+        } else {
             SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
+        }
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shl64:d_shl32);
     } else IFX(X_ALL) {
         SET_DFNONE();
-    }
-    if(!c) {
-        IFX(X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
     }
 
     if(la64_lbt) {
@@ -120,6 +117,7 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 
         SLLIxw(s1, s1, c);
 
+        if (!rex.w) ZEROUP(s1);
         IFX(X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -127,9 +125,9 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 
     CLEAR_FLAGS(s3);
-    IFX(X_CF|X_OF) {
+    IFX(X_CF | X_OF) {
         if (c > 0) {
-            SRLI_D(s3, s1, (rex.w?64:32)-c);
+            SRLI_D(s3, s1, (rex.w ? 64 : 32) - c);
             ANDI(s5, s3, 1); // LSB == F_CF
             IFX(X_CF) {
                 OR(xFlags, xFlags, s5);
@@ -156,7 +154,7 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     IFX(X_OF) {
         // OF flag is affected only on 1-bit shifts
         if (c == 1) {
-            SRLIxw(s3, s1, rex.w?63:31);
+            SRLIxw(s3, s1, rex.w ? 63 : 31);
             XOR(s3, s3, s5);
             SLLI_D(s3, s3, F_OF);
             OR(xFlags, xFlags, s3);
