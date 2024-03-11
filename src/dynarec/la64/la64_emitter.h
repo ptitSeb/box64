@@ -330,6 +330,12 @@ f24-f31  fs0-fs7   Static registers                Callee
 // ZERO the upper part
 #define ZEROUP(rd) BSTRINS_D(rd, xZR, 63, 32);
 
+// GR[rd] = SignExtend(GR[rj][7:0], GRLEN)
+#define EXT_W_B(rd, rj) EMIT(type_2R(0b0000000000000000010111, rj, rd))
+
+// GR[rd] = SignExtend(GR[rj][15:0], GRLEN)
+#define EXT_W_H(rd, rj) EMIT(type_2R(0b0000000000000000010110, rj, rd))
+
 // if GR[rj] == GR[rd]:
 //     PC = PC + SignExtend({imm16, 2'b0}, GRLEN)
 #define BEQ(rj, rd, imm18) EMIT(type_2RI16(0b010110, ((imm18)>>2), rj, rd))
