@@ -90,12 +90,6 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_DFNONE();
     }
 
-    if(!c) {
-        IFX(X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
-    }
     IFX(X_CF|X_OF) {
         if (c > 0) {
             SRLI(s3, s1, (rex.w?64:32)-c);
