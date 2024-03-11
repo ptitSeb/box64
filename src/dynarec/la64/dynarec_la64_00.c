@@ -254,6 +254,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_cmp32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
             break;
+        case 0x3B:
+            INST_NAME("CMP Gd, Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
+            break;
         case 0x3D:
             INST_NAME("CMP EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -515,7 +523,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINS_D(eb1, gd, eb2 * 8 + 7, eb2 * 8);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
-                ST_B(gb1, ed, fixedaddress);
+                ST_B(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
             break;
