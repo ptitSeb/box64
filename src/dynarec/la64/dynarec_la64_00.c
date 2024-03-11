@@ -523,7 +523,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINS_D(eb1, gd, eb2 * 8 + 7, eb2 * 8);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
-                ST_B(gb1, ed, fixedaddress);
+                ST_B(gd, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }
             break;
