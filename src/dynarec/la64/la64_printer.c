@@ -340,16 +340,6 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %u, %u", "BSTRPICK.D", Xt[Rd], Xt[Rj], imm_up, imm);
         return buff;
     }
-    // EXT.W.B
-    if(isMask(opcode, "0000000000000000010111jjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "EXT.W.B", Xt[Rd], Xt[Rj]);
-        return buff;
-    }
-    // EXT.W.H
-    if(isMask(opcode, "0000000000000000010110jjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "EXT.W.H", Xt[Rd], Xt[Rj]);
-        return buff;
-    }
     // BEQ
     if(isMask(opcode, "010110iiiiiiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "BEQ", Xt[Rd], Xt[Rj], signExtend(imm << 2, 18));

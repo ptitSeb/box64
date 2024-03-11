@@ -524,11 +524,6 @@ f24-f31  fs0-fs7   Static registers                Callee
 // MemoryStore(GR[rd][63:0], paddr, DOUBLEWORD)
 #define ST_D(rd, rj, imm12) EMIT(type_2RI12(0b0010100111, imm12, rj, rd))
 
-// GR[rd] = SignExtend(GR[rj][15:0], GRLEN)
-#define EXT_W_H(rd, rj) EMIT(type_2R(0b10110, rj, rd))
-// GR[rd] = SignExtend(GR[rj][7:0], GRLEN)
-#define EXT_W_B(rd, rj) EMIT(type_2R(0b10111, rj, rd))
-
 ////////////////////////////////////////////////////////////////////////////////
 // LBT extension instructions
 
