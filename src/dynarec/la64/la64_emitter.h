@@ -277,29 +277,35 @@ f24-f31  fs0-fs7   Static registers                Callee
         SLLI_W(rd, rs1, imm); \
     }
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm)  \
-    if (rex.w) {              \
-        SRLI_D(rd, rs1, imm); \
-    } else {                  \
-        SRLI_W(rd, rs1, imm); \
-    }
+#define SRLIxw(rd, rs1, imm)      \
+    do {                          \
+        if (rex.w) {              \
+            SRLI_D(rd, rs1, imm); \
+        } else {                  \
+            SRLI_W(rd, rs1, imm); \
+        }                         \
+    } while (0)
 
 // Shift Right Arithmetic Immediate
-#define SRAIxw(rd, rs1, imm)  \
-    if (rex.w) {              \
-        SRAI_D(rd, rs1, imm); \
-    } else {                  \
-        SRAI_W(rd, rs1, imm); \
-    }
+#define SRAIxw(rd, rs1, imm)      \
+    do {                          \
+        if (rex.w) {              \
+            SRAI_D(rd, rs1, imm); \
+        } else {                  \
+            SRAI_W(rd, rs1, imm); \
+        }                         \
+    } while (0)
 
 // rd = rj + (rk << imm6)
 #define ADDSL(rd, rs1, rs2, imm6, scratch) \
-    if (!(imm6)) {                         \
-        ADD_D(rd, rs1, rs2);               \
-    } else {                               \
-        SLLI_D(scratch, rs2, imm6);        \
-        ADD_D(rd, rs1, scratch);           \
-    }
+    do {                                   \
+        if (!(imm6)) {                     \
+            ADD_D(rd, rs1, rs2);           \
+        } else {                           \
+            SLLI_D(scratch, rs2, imm6);    \
+            ADD_D(rd, rs1, scratch);       \
+        }                                  \
+    } while (0)
 
 #define SEXT_W(rd, rs1) SLLI_W(rd, rs1, 0)
 
@@ -360,59 +366,72 @@ f24-f31  fs0-fs7   Static registers                Callee
 // PC = PC + SignExtend({imm26, 2'b0}, GRLEN)
 #define B(imm28) EMIT(type_I26(0b010100, ((imm28)>>2)))
 
-#define BEQ_safe(rj, rd, imm)                  \
-    if ((imm) > -0x20000 && (imm) < 0x20000) { \
-        BEQ(rj, rd, imm);                      \
-        NOP();                                 \
-    } else {                                   \
-        BNE(rj, rd, 8);                        \
-        B(imm - 4);                            \
-    }
+#define BEQ_safe(rj, rd, imm)                      \
+    if {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BEQ(rj, rd, imm);                      \
+            NOP();                                 \
+        } else {                                   \
+            BNE(rj, rd, 8);                        \
+            B(imm - 4);                            \
+        }                                          \
+    }                                              \
+    while (0)
 
-#define BNE_safe(rj, rd, imm)                  \
-    if ((imm) > -0x20000 && (imm) < 0x20000) { \
-        BNE(rj, rd, imm);                      \
-        NOP();                                 \
-    } else {                                   \
-        BEQ(rj, rd, 8);                        \
-        B(imm - 4);                            \
-    }
+#define BNE_safe(rj, rd, imm)                      \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BNE(rj, rd, imm);                      \
+            NOP();                                 \
+        } else {                                   \
+            BEQ(rj, rd, 8);                        \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
 
-#define BLT_safe(rj, rd, imm)                  \
-    if ((imm) > -0x20000 && (imm) < 0x20000) { \
-        BLT(rj, rd, imm);                      \
-        NOP();                                 \
-    } else {                                   \
-        BGE(rj, rd, 8);                        \
-        B(imm - 4);                            \
-    }
+#define BLT_safe(rj, rd, imm)                      \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BLT(rj, rd, imm);                      \
+            NOP();                                 \
+        } else {                                   \
+            BGE(rj, rd, 8);                        \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
 
-#define BGE_safe(rj, rd, imm)                  \
-    if ((imm) > -0x20000 && (imm) < 0x20000) { \
-        BGE(rj, rd, imm);                      \
-        NOP();                                 \
-    } else {                                   \
-        BLT(rj, rd, 8);                        \
-        B(imm - 4);                            \
-    }
+#define BGE_safe(rj, rd, imm)                      \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BGE(rj, rd, imm);                      \
+            NOP();                                 \
+        } else {                                   \
+            BLT(rj, rd, 8);                        \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
 
-#define BLTU_safe(rj, rd, imm)                 \
-    if ((imm) > -0x20000 && (imm) < 0x20000) { \
-        BLTU(rj, rd, imm);                     \
-        NOP();                                 \
-    } else {                                   \
-        BGEU(rj, rd, 8);                       \
-        B(imm - 4);                            \
-    }
+#define BLTU_safe(rj, rd, imm)                     \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BLTU(rj, rd, imm);                     \
+            NOP();                                 \
+        } else {                                   \
+            BGEU(rj, rd, 8);                       \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
 
-#define BGEU_safe(rj, rd, imm)                 \
-    if ((imm) > -0x20000 && (imm) < 0x20000) { \
-        BGEU(rj, rd, imm);                     \
-        NOP();                                 \
-    } else {                                   \
-        BLTU(rj, rd, 8);                       \
-        B(imm - 4);                            \
-    }
+#define BGEU_safe(rj, rd, imm)                     \
+    do {                                           \
+        if ((imm) > -0x20000 && (imm) < 0x20000) { \
+            BGEU(rj, rd, imm);                     \
+            NOP();                                 \
+        } else {                                   \
+            BLTU(rj, rd, 8);                       \
+            B(imm - 4);                            \
+        }                                          \
+    } while (0)
 
 #define BEQZ_safe(rj, imm)                         \
     do {                                           \
@@ -671,109 +690,148 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 
 // GR[rd] = imm32
-#define MOV32w_(rd, imm32, zeroup)        \
-    if (((uint32_t)(imm32)) > 0xfffu) {   \
-        LU12I_W(rd, (imm32) >> 12);       \
-        ORI(rd, rd, imm32);               \
-        if (zeroup && (int32_t)imm32 < 0) \
-            ZEROUP(rd);                   \
-    } else {                              \
-        ORI(rd, xZR, imm32);              \
-    }
+#define MOV32w_(rd, imm32, zeroup)            \
+    do {                                      \
+        if (((uint32_t)(imm32)) > 0xfffu) {   \
+            LU12I_W(rd, (imm32) >> 12);       \
+            ORI(rd, rd, imm32);               \
+            if (zeroup && (int32_t)imm32 < 0) \
+                ZEROUP(rd);                   \
+        } else {                              \
+            ORI(rd, xZR, imm32);              \
+        }                                     \
+    } while (0)
+
 #define MOV32w(rd, imm32) MOV32w_(rd, imm32, 1)
 // GR[rd] = imm64
-#define MOV64x(rd, imm64)                           \
-    MOV32w_(rd, imm64, 0);                          \
-    if (((uint64_t)(imm64)) > 0xffffffffu) {        \
-        LU32I_D(rd, ((uint64_t)(imm64)) >> 32);     \
-        LU52I_D(rd, rd, ((uint64_t)(imm64)) >> 52); \
-    }
+#define MOV64x(rd, imm64)                               \
+    do {                                                \
+        MOV32w_(rd, imm64, 0);                          \
+        if (((uint64_t)(imm64)) > 0xffffffffu) {        \
+            LU32I_D(rd, ((uint64_t)(imm64)) >> 32);     \
+            LU52I_D(rd, rd, ((uint64_t)(imm64)) >> 52); \
+        }                                               \
+    } while (0)
 
-#define MOV64xw(A, B) \
-    if (rex.w) {      \
-        MOV64x(A, B); \
-    } else {          \
-        MOV32w(A, B); \
-    }
-#define MOV64z(A, B)    \
-    if (rex.is32bits) { \
-        MOV32w(A, B);   \
-    } else {            \
-        MOV64x(A, B);   \
-    }
+#define MOV64xw(A, B)     \
+    do {                  \
+        if (rex.w) {      \
+            MOV64x(A, B); \
+        } else {          \
+            MOV32w(A, B); \
+        }                 \
+    } while (0)
+
+#define MOV64z(A, B)        \
+    do {                    \
+        if (rex.is32bits) { \
+            MOV32w(A, B);   \
+        } else {            \
+            MOV64x(A, B);   \
+        }                   \
+    } while (0)
 
 // rd[63:0] = rj[63:0] (pseudo instruction)
 #define MV(rd, rj) ADDI_D(rd, rj, 0)
 // rd = rj (pseudo instruction)
 #define MVxw(rd, rj)            \
-    if (rex.w) {                \
-        MV(rd, rj);             \
-    } else {                    \
-        AND(rd, rj, xMASK);     \
-    }
+    do {                        \
+        if (rex.w) {            \
+            MV(rd, rj);         \
+        } else {                \
+            AND(rd, rj, xMASK); \
+        }                       \
+    } while (0)
+
 // rd = rj (pseudo instruction)
 #define MVz(rd, rj)             \
-    if (rex.is32bits) {         \
-        AND(rd, rj, xMASK);     \
-    } else {                    \
-        MV(rd, rj);             \
-    }
+    do {                        \
+        if (rex.is32bits) {     \
+            AND(rd, rj, xMASK); \
+        } else {                \
+            MV(rd, rj);         \
+        }                       \
+    } while (0)
 
-#define ADDIxw(rd, rj, imm12)  \
-    if (rex.w)                 \
-        ADDI_D(rd, rj, imm12); \
-    else                       \
-        ADDI_W(rd, rj, imm12);
-#define ADDIz(rd, rj, imm12)   \
-    if (rex.is32bits)          \
-        ADDI_W(rd, rj, imm12); \
-    else                       \
-        ADDI_D(rd, rj, imm12);
+#define ADDIxw(rd, rj, imm12)      \
+    do {                           \
+        if (rex.w)                 \
+            ADDI_D(rd, rj, imm12); \
+        else                       \
+            ADDI_W(rd, rj, imm12); \
+    } while (0)
 
-#define ADDxw(rd, rj, rk)  \
-    if (rex.w)             \
-        ADD_D(rd, rj, rk); \
-    else                   \
-        ADD_W(rd, rj, rk);
-#define ADDz(rd, rj, rk)   \
-    if (rex.is32bits)      \
-        ADD_W(rd, rj, rk); \
-    else                   \
-        ADD_D(rd, rj, rk);
+#define ADDIz(rd, rj, imm12)       \
+    do {                           \
+        if (rex.is32bits)          \
+            ADDI_W(rd, rj, imm12); \
+        else                       \
+            ADDI_D(rd, rj, imm12); \
+    } while (0)
 
-#define LDxw(rd, rj, imm12)   \
-    if (rex.w)                \
-        LD_D(rd, rj, imm12);  \
-    else                      \
-        LD_WU(rd, rj, imm12);
+#define ADDxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w)             \
+            ADD_D(rd, rj, rk); \
+        else                   \
+            ADD_W(rd, rj, rk); \
+    } while (0)
 
-#define LDz(rd, rj, imm12)    \
-    if (rex.is32bits)         \
-        LD_WU(rd, rj, imm12); \
-    else                      \
-        LD_D(rd, rj, imm12);
+#define ADDz(rd, rj, rk)       \
+    do {                       \
+        if (rex.is32bits)      \
+            ADD_W(rd, rj, rk); \
+        else                   \
+            ADD_D(rd, rj, rk); \
+    } while (0)
 
-#define SDxw(rd, rj, imm12)  \
-    if (rex.w)               \
-        ST_D(rd, rj, imm12); \
-    else                     \
-        ST_W(rd, rj, imm12);
-#define SDz(rd, rj, imm12)   \
-    if (rex.is32bits)        \
-        ST_W(rd, rj, imm12); \
-    else                     \
-        ST_D(rd, rj, imm12);
+#define LDxw(rd, rj, imm12)       \
+    do {                          \
+        if (rex.w)                \
+            LD_D(rd, rj, imm12);  \
+        else                      \
+            LD_WU(rd, rj, imm12); \
+    } while (0)
 
-#define SUBxw(rd, rj, rk)  \
-    if (rex.w)             \
-        SUB_D(rd, rj, rk); \
-    else                   \
-        SUB_W(rd, rj, rk);
-#define SUBz(rd, rj, rk)   \
-    if (rex.is32bits)      \
-        SUB_W(rd, rj, rk); \
-    else                   \
-        SUB_D(rd, rj, rk);
+#define LDz(rd, rj, imm12)        \
+    do {                          \
+        if (rex.is32bits)         \
+            LD_WU(rd, rj, imm12); \
+        else                      \
+            LD_D(rd, rj, imm12);  \
+    } while (0)
+
+#define SDxw(rd, rj, imm12)      \
+    do {                         \
+        if (rex.w)               \
+            ST_D(rd, rj, imm12); \
+        else                     \
+            ST_W(rd, rj, imm12); \
+    } while (0)
+
+#define SDz(rd, rj, imm12)       \
+    do {                         \
+        if (rex.is32bits)        \
+            ST_W(rd, rj, imm12); \
+        else                     \
+            ST_D(rd, rj, imm12); \
+    } while (0)
+
+#define SUBxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w)             \
+            SUB_D(rd, rj, rk); \
+        else                   \
+            SUB_W(rd, rj, rk); \
+    } while (0)
+
+#define SUBz(rd, rj, rk)       \
+    do {                       \
+        if (rex.is32bits)      \
+            SUB_W(rd, rj, rk); \
+        else                   \
+            SUB_D(rd, rj, rk); \
+    } while (0)
 
 // PUSH / POP reg[0:63]
 #define PUSH1(reg)              \
@@ -800,19 +858,24 @@ f24-f31  fs0-fs7   Static registers                Callee
     } while (0);
 
 // POP reg
-#define POP1z(reg)      \
-    if (rex.is32bits) { \
-        POP1_32(reg);   \
-    } else {            \
-        POP1(reg);      \
-    }
+#define POP1z(reg)          \
+    do {                    \
+        if (rex.is32bits) { \
+            POP1_32(reg);   \
+        } else {            \
+            POP1(reg);      \
+        }                   \
+    } while (0)
+
 // PUSH reg
-#define PUSH1z(reg)     \
-    if (rex.is32bits) { \
-        PUSH1_32(reg);  \
-    } else {            \
-        PUSH1(reg);     \
-    }
+#define PUSH1z(reg)         \
+    do {                    \
+        if (rex.is32bits) { \
+            PUSH1_32(reg);  \
+        } else {            \
+            PUSH1(reg);     \
+        }                   \
+    } while (0)
 
 // DBAR hint
 #define DBAR(hint) EMIT(type_hint(0b00111000011100100, hint))

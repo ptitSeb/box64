@@ -92,6 +92,51 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x81:
+        case 0x83:
+            nextop = F8;
+            SMDMB();
+            switch ((nextop >> 3) & 7) {
+                case 0: // ADD
+                    if (opcode == 0x81) {
+                        INST_NAME("LOCK ADD Ed, Id");
+                    } else {
+                        INST_NAME("LOCK ADD Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if (MODREG) {
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        emit_add32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        if (i64 < -2048 || i64 >= 2048) {
+                            MOV64xw(x3, i64);
+                        }
+                        MARKLOCK;
+                        LLxw(x1, wback, 0);
+                        if (i64 >= -2048 && i64 < 2048) {
+                            ADDIxw(x4, x1, i64);
+                        } else {
+                            ADDxw(x4, x1, x4);
+                        }
+                        SCxw(x4, wback, 0);
+                        BEQZ_MARKLOCK(x4);
+                        IFX(X_ALL | X_PEND) {
+                            emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
+                        }
+                        SMDMB();
+                    }
+                    break;
+            }
+            break;
         default:
             DEFAULT;
     }
