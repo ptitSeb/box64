@@ -204,8 +204,15 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
 {
     emu->regs[_AX].dword[1] = emu->regs[_DX].dword[1] = emu->regs[_CX].dword[1] = emu->regs[_BX].dword[1] = 0;
     int ncpu = getNCpu();
-    if(ncpu>255) ncpu = 255;
     if(!ncpu) ncpu = 1;
+    int ncluster = 1;
+    while(ncpu>64) {
+        ncluster++; // do cluster of 64 cpus...
+        if(ncpu>=128)
+            ncpu-=64;
+        else
+            ncpu=64;
+    }
     static char branding[3*4*4+1] = "";
     if(!branding[0]) {
         strcpy(branding, getBoxCpuName());
@@ -225,7 +232,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
         case 0x1:
             R_EAX = 0x00000601; // family and all
-            R_EBX = 0 | (8<<0x8) | (/*ncpu*/1<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
+            R_EBX = 0 | (8<<0x8) | (ncluster<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
             /*{
                 int cpu = sched_getcpu();
                 if(cpu<0) cpu=0;
