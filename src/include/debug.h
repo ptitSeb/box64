@@ -80,6 +80,9 @@ extern uint64_t start_cnt;
 #endif
 extern int box64_nosandbox;
 extern int box64_inprocessgpu;
+extern int box64_cefdisablegpu;
+extern int box64_cefdisablegpucompositor;
+extern int box64_maxcpu_immutable;
 extern int box64_malloc_hack;
 extern int box64_dummy_crashhandler;
 extern int box64_sse_flushto0;

@@ -50,9 +50,12 @@ uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
 int box64_nosandbox = 0;
 int box64_inprocessgpu = 0;
+int box64_cefdisablegpu = 0;
+int box64_cefdisablegpucompositor = 0;
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
 int box64_maxcpu = 0;
+int box64_maxcpu_immutable = 0;
 #if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 int box64_mmap32 = 1;
 #else
@@ -1657,7 +1660,7 @@ int main(int argc, const char **argv, char **env) {
     #endif
     int ld_libs_args = -1;
     int is_custom_gstreamer = 0;
-    int wine_steam = 0;
+    const char* wine_prog = NULL;
     // check if this is wine
     if(!strcmp(prog, "wine64")
      || !strcmp(prog, "wine64-development")
@@ -1695,23 +1698,20 @@ int main(int argc, const char **argv, char **env) {
                 box64_custom_gstreamer = box_strdup(tmp);
             }
         }
-        // if program being called is wine_steam (rudimentary check...) and if no other argument are there
-        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' /*&& argc==(nextarg+2)*/) {
-            if(!strcasecmp(argv[nextarg+1], "steam.exe"))
-                wine_steam = 1;
-            else if(!strcasecmp(argv[nextarg+1], "steam"))
-                wine_steam = 1;
-            if(!wine_steam) {
-                const char* pp = strrchr(argv[nextarg+1], '/');
-                if(pp && !strcasecmp(pp+1, "steam.exe"))
-                    wine_steam = 1;
-                else {
-                    pp = strrchr(argv[nextarg+1], '\\');
-                    if(pp && !strcasecmp(pp+1, "steam.exe"))
-                        wine_steam = 1;
-                }
+        // Try to get the name of the exe being run, to ApplyParams laters
+        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 && !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1]-4), ".exe")) {
+            const char* pp = strrchr(argv[nextarg+1], '/');
+            if(pp)
+                wine_prog = pp+1;
+            else {
+                pp = strrchr(argv[nextarg+1], '\\');
+                if(pp)
+                    wine_prog = pp+1;
+                else
+                    wine_prog = argv[nextarg+1];
             }
         }
+
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
         printf_log(LOG_INFO, "BOX64: ld-musl detected. Trying to workaround and use system ld-linux\n");
@@ -1846,6 +1846,12 @@ int main(int argc, const char **argv, char **env) {
     }*/
     ApplyParams("*");   // [*] is a special setting for all process
     ApplyParams(prgname);
+    if(box64_wine && wine_prog) {
+        ApplyParams(wine_prog);
+        wine_prog = NULL;
+    }
+    if(box64_wine)
+        box64_maxcpu_immutable = 1; // cannot change once wine is loaded
 
     for(int i=1; i<my_context->argc; ++i) {
         my_context->argv[i] = box_strdup(argv[i+nextarg]);
@@ -1859,13 +1865,13 @@ int main(int argc, const char **argv, char **env) {
     {
         add_argv("--in-process-gpu");
     }
-    if(wine_steam) {
-        printf_log(LOG_INFO, "Steam.exe detected, adding -cef-single-process -cef-in-process-gpu -cef-disable-sandbox -no-cef-sandbox -cef-disable-breakpad to parameters");
-        add_argv("-cef-single-process");
-        add_argv("-cef-in-process-gpu");
-        add_argv("-cef-disable-sandbox");
-        add_argv("-no-cef-sandbox");
-        add_argv("-cef-disable-breakpad");
+    if(box64_cefdisablegpu)
+    {
+        add_argv("-cef-disable-gpu");
+    }
+    if(box64_cefdisablegpucompositor)
+    {
+        add_argv("-cef-disable-gpu-compositor");
     }
 
     // check if file exist

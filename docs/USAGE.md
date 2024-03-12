@@ -362,6 +362,14 @@ Those variables are only valid inside a rcfile:
  * 0 : Nothing special
  * 1 : Added "--in-process-gpu" to command line arguments (usefull for chrome based programs)
 
+#### BOX64_CEFDISABLEGPU
+ * 0 : Nothing special
+ * 1 : Added "-cef-disable-gpu" to command line arguments (usefull for steamwebhelper/cef based programs)
+
+#### BOX64_CEFDISABLEGPUCOMPOSITOR
+ * 0 : Nothing special
+ * 1 : Added "-cef-disable-gpu-compositor" to command line arguments (usefull for steamwebhelper/cef based programs)
+
 #### BOX64_EXIT
  * 0 : Nothing special
  * 1 : Just exit, don't try to run the program

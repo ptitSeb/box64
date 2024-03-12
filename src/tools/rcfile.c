@@ -41,7 +41,6 @@ static const char default_rcfile[] =
 "\n"
 "[heroic]\n"
 "BOX64_NOSANDBOX=1\n"
-"BOX64_INPROCESSGPU=1\n"
 "BOX64_MALLOC_HACK=2\n"
 "\n"
 "[LotCG.x86_64]\n"
@@ -58,13 +57,6 @@ static const char default_rcfile[] =
 "\n"
 "[streaming_client]\n"
 "BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0\n"
-"\n"
-"[steamwebhelper]\n"
-"BOX64_NOSANDBOX=1\n"
-"BOX64_INPROCESSGPU=1\n"
-"BOX64_MALLOC_HACK=2\n"
-"BOX64_LOG=0\n"
-"BOX64_DYNAREC_BIGBLOCK=0\n"
 "\n"
 "[steam-runtime-check-requirements]\n"
 "BOX64_EXIT=1\n"
@@ -109,6 +101,8 @@ ENTRYSTRING_(BOX64_BASH, bash)                          \
 ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 3, 2)                \
 ENTRYBOOL(BOX64_NOSANDBOX, box64_nosandbox)             \
 ENTRYBOOL(BOX64_INPROCESSGPU, box64_inprocessgpu)       \
+ENTRYBOOL(BOX64_CEFDISABLEGPU, box64_cefdisablegpu)     \
+ENTRYBOOL(BOX64_CEFDISABLEGPUCOMPOSITOR, box64_cefdisablegpucompositor)\
 ENTRYBOOL(BOX64_EXIT, want_exit)                        \
 ENTRYBOOL(BOX64_LIBCEF, box64_libcef)                   \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
@@ -231,10 +225,30 @@ SUPER()
 #undef ENTRYDSTRING
 #undef ENTRYADDR
 #undef ENTRYULONG
-// the actual fields
+// the actual fields, in two steps to regroup bit fields together
 #define ENTRYBOOL(NAME, name) uint8_t name:1;
 #define CENTRYBOOL(NAME, name) uint8_t name:1;
 #define ENTRYINT(NAME, name, minval, maxval, bits) uint8_t name:bits;
+#define ENTRYINTPOS(NAME, name)
+#define ENTRYSTRING(NAME, name)
+#define ENTRYSTRING_(NAME, name)
+#define ENTRYDSTRING(NAME, name)
+#define ENTRYADDR(NAME, name)
+#define ENTRYULONG(NAME, name)
+SUPER()
+// done
+#undef ENTRYBOOL
+#undef CENTRYBOOL
+#undef ENTRYINT
+#undef ENTRYINTPOS
+#undef ENTRYSTRING
+#undef ENTRYSTRING_
+#undef ENTRYDSTRING
+#undef ENTRYADDR
+#undef ENTRYULONG
+#define ENTRYBOOL(NAME, name)
+#define CENTRYBOOL(NAME, name)
+#define ENTRYINT(NAME, name, minval, maxval, bits)
 #define ENTRYINTPOS(NAME, name) uint32_t name;
 #define ENTRYSTRING(NAME, name) char* name;
 #define ENTRYSTRING_(NAME, name) char* name;
@@ -532,10 +546,13 @@ void ApplyParams(const char* name)
         cycle_log = new_cycle_log;
         initCycleLog(my_context);
     }
-    if(new_maxcpu!=box64_maxcpu && box64_maxcpu && box64_maxcpu<new_maxcpu) {
-      printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because a lesser value is already active: %d\n", new_maxcpu, box64_maxcpu);
-    } else
-        box64_maxcpu = new_maxcpu;
+    if(!box64_maxcpu_immutable) {
+        if(new_maxcpu!=box64_maxcpu && box64_maxcpu && box64_maxcpu<new_maxcpu) {
+        printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because a lesser value is already active: %d\n", new_maxcpu, box64_maxcpu);
+        } else
+            box64_maxcpu = new_maxcpu;
+    } else if(new_maxcpu!=box64_maxcpu)
+        printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because it's too late\n", new_maxcpu);
     if(param->is_ld_library_path_present) AppendList(&my_context->box64_ld_lib, param->ld_library_path, 1);
     if(param->is_box64_path_present) AppendList(&my_context->box64_path, param->box64_path, 1);
     if(param->is_trace_file_present) {
