@@ -1532,6 +1532,7 @@ static void add_argv(const char* what) {
         if(!strcmp(my_context->argv[i], what))
             there = 1;
     if(!there) {
+        printf_log(LOG_INFO, "Inserting \"%s\" to the argments\n", what);
         my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
         my_context->argv[my_context->argc] = box_strdup(what);
         my_context->argc++;
@@ -1699,7 +1700,7 @@ int main(int argc, const char **argv, char **env) {
             }
         }
         // Try to get the name of the exe being run, to ApplyParams laters
-        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 && !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1]-4), ".exe")) {
+        if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 && !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1])-4, ".exe")) {
             const char* pp = strrchr(argv[nextarg+1], '/');
             if(pp)
                 wine_prog = pp+1;
@@ -1711,7 +1712,7 @@ int main(int argc, const char **argv, char **env) {
                     wine_prog = argv[nextarg+1];
             }
         }
-
+        if(wine_prog) printf_log(LOG_INFO, "BOX64: Detected running wine with \"%s\"\n", wine_prog);
     } else if(strstr(prog, "ld-musl-x86_64.so.1")) {
     // check if ld-musl-x86_64.so.1 is used
         printf_log(LOG_INFO, "BOX64: ld-musl detected. Trying to workaround and use system ld-linux\n");
