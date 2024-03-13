@@ -117,6 +117,7 @@ typedef struct dynarec_arm_s {
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
     uint8_t             smwrite;    // for strongmem model emulation
+    uint8_t             smread;
     uint8_t             doublepush;
     uint8_t             doublepop;
     uint8_t             always_test;
