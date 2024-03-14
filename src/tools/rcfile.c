@@ -81,7 +81,7 @@ ENTRYBOOL(BOX64_SHOWSEGV, box64_showsegv)               \
 ENTRYBOOL(BOX64_SHOWBT, box64_showbt)                   \
 ENTRYBOOL(BOX64_MMAP32, box64_mmap32)                   \
 ENTRYBOOL(BOX64_IGNOREINT3, box64_ignoreint3)           \
-ENTRYINT(BOX64_RDTSC, box64_rdtsc, 0, 2, 2)             \
+IGNORE(BOX64_RDTSC)                                     \
 ENTRYBOOL(BOX64_X11THREADS, box64_x11threads)           \
 ENTRYBOOL(BOX64_X11GLX, box64_x11glx)                   \
 ENTRYDSTRING(BOX64_LIBGL, box64_libGL)                  \
@@ -592,22 +592,6 @@ void ApplyParams(const char* name)
             free(my_context->bashpath);
         my_context->bashpath = strdup(param->bash);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_BASH", param->bash);
-    }
-    if(param->is_box64_rdtsc_present && (box64_rdtsc==2)) {
-        #if defined(ARM64) || defined(RV64)
-        box64_rdtsc = 0;    // allow hardxware counter
-        uint64_t freq = ReadTSCFrequency(NULL);
-        printf_log(LOG_INFO, "Applying RDTSC: Hardware counter measured at %d Mhz, ", freq/1000);
-        if(freq>1000000000) {
-            printf_log(LOG_INFO, "keeping it\n");
-        } else {
-            box64_rdtsc = 1;
-            printf_log(LOG_INFO, "not using it\n");
-        }
-        #else
-        box64_rdtsc = 1;
-        printf_log(LOG_INFO, "Applying RDTSC: Will use time-based emulation for rdtsc, even if hardware counter are available\n");
-        #endif
     }
     #ifdef HAVE_TRACE
     int old_x64trace = my_context->x64trace;

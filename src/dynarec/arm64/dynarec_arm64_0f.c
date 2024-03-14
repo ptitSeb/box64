@@ -98,6 +98,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     } else {
                         MRS_cntvct_el0(x1);
                     }
+                    if(box64_rdtsc_shift) {
+                        LSLx(x1, x1, box64_rdtsc_shift);
+                    }
                     LSRx(xRDX, x1, 32);
                     MOVw_REG(xRAX, x1);   // wipe upper part
                     MOVw_REG(xRCX, xZR);    // IA32_TSC, 0 for now
@@ -498,6 +501,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_(ReadTSC, x1, x3);
             } else {
                 MRS_cntvct_el0(x1);
+            }
+            if(box64_rdtsc_shift) {
+                LSLx(x1, x1, box64_rdtsc_shift);
             }
             LSRx(xRDX, x1, 32);
             MOVw_REG(xRAX, x1);   // wipe upper part

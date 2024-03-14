@@ -63,6 +63,7 @@ int box64_mmap32 = 0;
 #endif
 int box64_ignoreint3 = 0;
 int box64_rdtsc = 0;
+uint8_t box64_rdtsc_shift = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -1021,39 +1022,54 @@ void LoadLogEnv()
         if(box64_ignoreint3)
             printf_log(LOG_INFO, "Will silently ignore INT3 in the code\n");
     }
-    p = getenv("BOX64_RDTSC");
-        if(p) {
-        if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+2)
-                box64_rdtsc = p[0]-'0';
-        }
-        if(box64_rdtsc==2) {
-            #if defined(ARM64) || defined(RV64)
-            box64_rdtsc = 0;    // allow hardxare counter
-            uint64_t freq = ReadTSCFrequency(NULL);
-            printf_log(LOG_INFO, "Hardware counter measured at %d Mhz, ", freq/1000);
-            if(freq>1000000000) {
-                printf_log(LOG_INFO, "keeping it\n");
-            } else {
-                box64_rdtsc = 1;
-                printf_log(LOG_INFO, "not using it\n");
-            }
-            #else
-            box64_rdtsc = 1;
-            printf_log(LOG_INFO, "Will use time-based emulation for rdtsc, even if hardware counter are available\n");
-            #endif
-        } else if(box64_rdtsc)
-            printf_log(LOG_INFO, "Will use time-based emulation for rdtsc, even if hardware counter are available\n");
-    }
+    // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);
     if(!box64_pagesize)
         box64_pagesize = 4096;
 #ifdef DYNAREC
+    // grab cpu extensions for dynarec usage
     GatherDynarecExtensions();
 #endif
+    // grab cpu name
     int ncpu = getNCpu();
     const char* cpuname = getCpuName();
     printf_log(LOG_INFO, " PageSize:%zd Running on %s with %d Cores\n", box64_pagesize, cpuname, ncpu);
+    // grab and calibrate hardware counter
+    int hardware  = 0;
+    #if defined(ARM64) || defined(RV64)
+    hardware = 1;
+    box64_rdtsc = 0;    // allow hardxare counter
+    #else
+    box64_rdtsc = 1;
+    printf_log(LOG_INFO, "Will use time-based emulation for rdtsc, even if hardware counter are available\n");
+    #endif
+    uint64_t freq = ReadTSCFrequency(NULL);
+    if(freq<1000000) {
+        box64_rdtsc = 1;
+        if(hardware) printf_log(LOG_INFO, "Hardware counter to slow (%d kHz), not using it\n", freq/1000);
+        hardware = 0;
+        freq = ReadTSCFrequency(NULL);
+    }
+    uint64_t efreq = freq;
+    while(efreq<500000000) {    // minium 500MHz
+        ++box64_rdtsc_shift;
+        efreq = freq<<box64_rdtsc_shift;
+    }
+    printf_log(LOG_INFO, "Will use %s counter measured at ", box64_rdtsc?"Software":"Hardware");
+    int ghz = freq>=1000000000LL;
+    if(ghz) freq/=100000000LL; else freq/=100000;
+    if(ghz) printf_log(LOG_INFO, "%d.%d GHz", freq/10, freq%10);
+    if(!ghz & freq>=1000) printf_log(LOG_INFO, "%d MHz", freq/10);
+    if(!ghz & freq<1000) printf_log(LOG_INFO, "%d.%d MHz", freq/10, freq%10);
+    if(box64_rdtsc_shift) {
+        printf_log(LOG_INFO, " emulating ");
+        ghz = efreq>=1000000000LL;
+        if(ghz) efreq/=100000000LL; else efreq/=100000;
+        if(ghz) printf_log(LOG_INFO, "%d.%d GHz", efreq/10, efreq%10);
+        if(!ghz & efreq>=1000) printf_log(LOG_INFO, "%d MHz", efreq/10);
+        if(!ghz & efreq<1000) printf_log(LOG_INFO, "%d.%d MHz", efreq/10, efreq%10);
+    }
+    printf_log(LOG_INFO, "\n");
 }
 
 EXPORTDYN
@@ -1186,7 +1202,6 @@ void PrintFlags() {
     printf(" BOX64_ENV1='XXX=yyyy' will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist\n");
     printf(" BOX64_JITGDB with 1 to launch \"gdb\" when a segfault is trapped, attached to the offending process\n");
     printf(" BOX64_MMAP32=1 to use 32bits address space mmap in priority for external mmap as soon a 32bits process are detected (default for Snapdragon build)\n");
-    printf(" BOX64_RDTSC to use a monotonic timer for rdtsc even if hardware counter are available (or check if precision is >=1Ghz for 2)\n");
 }
 
 void PrintHelp() {

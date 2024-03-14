@@ -114,12 +114,6 @@ What to do when a CC INT3 opcode is encounter in the code being run
  * 0 : Trigger a TRAP signal if a handler is present
  * 1 : Just skip silently the opcode
 
-#### BOX64_RDTSC *
-Will use time-based emulation for rdtsc, even if hardware counter are available. Tick rate of Hardware counter (like on Arm64) might be too low for accurate RDTSC emulation.
- * 0 : Use hardware counter if available (depend on architecture basicaly)
- * 1 : Use monotonic timer to emulate rdtsc
- * 2 : Check frequency of the hardware time (if present), and use hardware if frequency is 1GHz or better or else use mono-tonique time.
-
 #### BOX64_X11GLX *
 Force libX11's GLX extension to be present.
 * 0 : Do not force libX11's GLX extension to be present. 
