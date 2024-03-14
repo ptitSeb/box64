@@ -280,6 +280,21 @@
                     ed = i;                 \
                     wb1 = 1;                \
                 }
+//GETEWO will use i for ed, i is also Offset, and can use r3 for wback.
+#define GETEWO(i, D) if(MODREG) {               \
+                    wback = xRAX+(nextop&7)+(rex.b<<3);\
+                    UXTHw(i, wback);            \
+                    ed = i;                     \
+                    wb1 = 0;                    \
+                } else {                        \
+                    SMREAD();                   \
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
+                    ADDx_REG(x3, wback, i);     \
+                    if(wback!=x3) wback = x3;   \
+                    LDH(i, wback, fixedaddress);\
+                    wb1 = 1;                    \
+                    ed = i;                     \
+                }
 //GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
 #define GETSEW(i, D) if(MODREG) {           \
                     wback = xRAX+(nextop&7)+(rex.b<<3);\
