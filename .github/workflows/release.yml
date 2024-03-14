@@ -41,7 +41,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: "Checkout Box64 Repository"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: "Environment preparation"
         run: |
@@ -166,7 +166,7 @@ jobs:
           fi
 
       - name: "Upload Artifact"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: box64-${{ matrix.platform }}-${{ matrix.type }}
           path: build/box64
