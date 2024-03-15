@@ -336,6 +336,7 @@ set_source_files_properties(
 
 set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/main.c"
+    "${BOX64_ROOT}/src/core.c"
     "${BOX64_ROOT}/src/box64context.c"
     "${BOX64_ROOT}/src/build_info.c"
     "${BOX64_ROOT}/src/custommem.c"
