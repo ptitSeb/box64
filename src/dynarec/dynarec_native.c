@@ -393,6 +393,11 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
 }
 
 void* current_helper = NULL;
+static int static_jmps[MAX_INSTS+2];
+static uintptr_t static_next[MAX_INSTS+2];
+static uint64_t static_table64[(MAX_INSTS+3)/4];
+static instruction_native_t static_insts[MAX_INSTS+2] = {0};
+// TODO: ninst could be a uint16_t instead of an int, that could same some temp. memory
 
 void CancelBlock64(int need_lock)
 {
@@ -401,6 +406,7 @@ void CancelBlock64(int need_lock)
     dynarec_native_t* helper = (dynarec_native_t*)current_helper;
     current_helper = NULL;
     if(helper) {
+        memset(static_insts, 0, sizeof(static_insts));
         if(helper->dynablock && helper->dynablock->actual_block) {
             FreeDynarecMap((uintptr_t)helper->dynablock->actual_block);
             helper->dynablock->actual_block = NULL;
@@ -437,12 +443,6 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
     return block;
 }
-
-static int static_jmps[MAX_INSTS+2];
-static uintptr_t static_next[MAX_INSTS+2];
-static uint64_t static_table64[(MAX_INSTS+3)/4];
-static instruction_native_t static_insts[MAX_INSTS+2] = {0};
-// TODO: ninst could be a uint16_t instead of an int, that could same some temp. memory
 
 void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bits) {
     /*
@@ -674,6 +674,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     }
     // ok, free the helper now
     //dynaFree(helper.insts);
+    memset(static_insts, 0, sizeof(static_insts));
     helper.insts = NULL;
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
         printf_log(LOG_NONE, "BOX64: Warning, insts_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
