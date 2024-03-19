@@ -772,9 +772,9 @@ EXPORT void my3_gtk_enumerate_printers(x64emu_t* emu, void* f, void* data, void*
     my->gtk_enumerate_printers(findGtkPrinterFuncFct(f), data, findGDestroyNotifyFct(d), i);
 }
 
-EXPORT void my3_gtk_file_filter_add_cunstom(x64emu_t* emu, void* filter, uint32_t needed, void* f, void* data, void* d)
+EXPORT void my3_gtk_file_filter_add_custom(x64emu_t* emu, void* filter, uint32_t needed, void* f, void* data, void* d)
 {
-    void(emu);
+    (void)emu;
     my->gtk_file_filter_add_custom(filter, needed, findGtkFileFilterFuncFct(f), data, findGDestroyNotifyFct(d));
 }
 
