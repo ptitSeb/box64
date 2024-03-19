@@ -430,6 +430,29 @@ static void* findGtkPrinterFuncFct(void* fct)
     return NULL;
 }
 
+//GtkFileFilterFunc
+#define GO(A)   \
+static uintptr_t my_GtkFileFilterFunc_fct_##A = 0;                                         \
+static int my_GtkFileFilterFunc_##A(void* a, void* b)                             \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_GtkFileFilterFunc_fct_##A, "pp", a, b);        \
+}
+SUPER()
+#undef GO
+static void* findGtkFileFilterFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkFileFilterFunc_fct_##A == (uintptr_t)fct) return my_GtkFileFilterFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkFileFilterFunc_fct_##A == 0) {my_GtkFileFilterFunc_fct_##A = (uintptr_t)fct; return my_GtkPrinterFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkFileFilterFunc callback\n");
+    return NULL;
+}
+
 // GtkPrintJobCompleteHunc
 #define GO(A)   \
 static uintptr_t my_GtkPrintJobCompleteHunc_fct_##A = 0;                                        \
@@ -747,6 +770,12 @@ EXPORT void my3_gtk_style_context_get_style_valist(x64emu_t* emu, void* context,
 EXPORT void my3_gtk_enumerate_printers(x64emu_t* emu, void* f, void* data, void* d, int i)
 {
     my->gtk_enumerate_printers(findGtkPrinterFuncFct(f), data, findGDestroyNotifyFct(d), i);
+}
+
+EXPORT void my3_gtk_file_filter_add_cunstom(x64emu_t* emu, void* filter, uint32_t needed, void* f, void* data, void* d)
+{
+    void(emu);
+    my->gtk_file_filter_add_custom(filter, needed, findGtkFileFilterFuncFct(f), data, findGDestroyNotifyFct(d));
 }
 
 EXPORT void my3_gtk_print_job_send(x64emu_t* emu, void *job, void* f, void* data, void* d)

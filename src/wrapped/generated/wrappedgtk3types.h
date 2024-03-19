@@ -66,6 +66,7 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_print_job_send, vFpppp_t) \
 	GO(gtk_stock_set_translate_func, vFpppp_t) \
 	GO(gtk_tree_sortable_set_default_sort_func, vFpppp_t) \
+	GO(gtk_file_filter_add_custom, vFpuppp_t) \
 	GO(gtk_tree_view_set_search_equal_func, vFpppp_t) \
 	GO(gtk_text_iter_backward_find_char, iFpppp_t) \
 	GO(gtk_text_iter_forward_find_char, iFpppp_t) \
