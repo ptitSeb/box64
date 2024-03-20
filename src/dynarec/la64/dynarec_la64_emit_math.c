@@ -260,33 +260,29 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             X64_ADD_B(s1, s2);
         }
         ADD_D(s1, s1, s2);
-        ANDI(s1, s1, 0xff);
-
         IFX(X_PEND)
             ST_H(s1, xEmu, offsetof(x64emu_t, res));
+
+        ANDI(s1, s1, 0xff);
         return;
     }
 
     CLEAR_FLAGS(s3);
-    IFX(X_AF | X_OF)
-    {
+    IFX(X_AF | X_OF) {
         OR(s3, s1, s2);  // s3 = op1 | op2
         AND(s4, s1, s2); // s4 = op1 & op2
     }
     ADD_D(s1, s1, s2);
 
-    IFX(X_AF | X_OF)
-    {
+    IFX(X_AF | X_OF) {
         ANDN(s3, s3, s1); // s3 = ~res & (op1 | op2)
         OR(s3, s3, s2);   // cc = (~res & (op1 | op2)) | (op1 & op2)
-        IFX(X_AF)
-        {
+        IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
             BEQZ(s4, 8);
             ORI(xFlags, xFlags, 1 << F_AF);
         }
-        IFX(X_OF)
-        {
+        IFX(X_OF) {
             SRLI_D(s3, s3, 6);
             SRLI_D(s4, s3, 1);
             XOR(s3, s3, s4);
@@ -295,30 +291,25 @@ void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             ORI(xFlags, xFlags, 1 << F_OF);
         }
     }
-    IFX(X_CF)
-    {
+    IFX(X_CF) {
         SRLI_D(s3, s1, 8);
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_CF);
     }
-    IFX(X_PEND)
-    {
+    IFX(X_PEND) {
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
     }
     ANDI(s1, s1, 0xff);
-    IFX(X_ZF)
-    {
+    IFX(X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_SF)
-    {
+    IFX(X_SF) {
         SRLI_D(s3, s1, 7);
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_PF)
-    {
+    IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
