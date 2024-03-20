@@ -732,9 +732,9 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #define RESTORE_EFLAGS(s)               \
     do {                                \
         if (la64_lbt) {                 \
-            CLEAR_FLAGS_(reg);          \
-            X64_GET_EFLAGS(reg, X_ALL); \
-            OR(xFlags, xFlags, reg);    \
+            CLEAR_FLAGS_(s);            \
+            X64_GET_EFLAGS(s, X_ALL);   \
+            OR(xFlags, xFlags, s);      \
         }                               \
     } while (0)
 

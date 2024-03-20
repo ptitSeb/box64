@@ -109,6 +109,36 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FAKEED;
             break;
 
+        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
+            READFLAGS(F);                                                                            \
+            if (la64_lbt) {                                                                          \
+                X64_SETJ(x1, I);                                                                     \
+            } else {                                                                                 \
+                GETFLAGS;                                                                            \
+            }                                                                                        \
+            nextop = F8;                                                                             \
+            GETGD;                                                                                   \
+            if (MODREG) {                                                                            \
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
+                if (la64_lbt)                                                                        \
+                    BEQZ(x1, 8);                                                                     \
+                else                                                                                 \
+                    B##NO(x1, 8);                                                                    \
+                MV(gd, ed);                                                                          \
+            } else {                                                                                 \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
+                if (la64_lbt)                                                                        \
+                    BEQZ(x1, 8);                                                                     \
+                else                                                                                 \
+                    B##NO(x1, 8);                                                                    \
+                LDxw(gd, ed, fixedaddress);                                                          \
+            }                                                                                        \
+            if (!rex.w) ZEROUP(gd);
+
+            GOCOND(0x40, "CMOV", "Gd, Ed");
+
+        #undef GO
+
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
             READFLAGS(F);                                                                           \
             i32_ = F32S;                                                                            \
