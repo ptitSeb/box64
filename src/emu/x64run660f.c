@@ -2101,6 +2101,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         else
             GW->sword[0] = EB->sbyte[0];
         break;
+    case 0xBF:                      /* MOVSX Gw,Ew */
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w)
+            GW->sq[0] = EB->sword[0];
+        else
+            GW->sword[0] = EB->sword[0];
+        break;
 
     case 0xC1:                      /* XADD Gw,Ew */ // Xchange and Add
         nextop = F8;
