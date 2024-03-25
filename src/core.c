@@ -1060,15 +1060,15 @@ void LoadLogEnv()
     int ghz = freq>=1000000000LL;
     if(ghz) freq/=100000000LL; else freq/=100000;
     if(ghz) printf_log(LOG_INFO, "%d.%d GHz", freq/10, freq%10);
-    if(!ghz & freq>=1000) printf_log(LOG_INFO, "%d MHz", freq/10);
-    if(!ghz & freq<1000) printf_log(LOG_INFO, "%d.%d MHz", freq/10, freq%10);
+    if(!ghz && (freq>=1000)) printf_log(LOG_INFO, "%d MHz", freq/10);
+    if(!ghz && (freq<1000)) printf_log(LOG_INFO, "%d.%d MHz", freq/10, freq%10);
     if(box64_rdtsc_shift) {
         printf_log(LOG_INFO, " emulating ");
         ghz = efreq>=1000000000LL;
         if(ghz) efreq/=100000000LL; else efreq/=100000;
         if(ghz) printf_log(LOG_INFO, "%d.%d GHz", efreq/10, efreq%10);
-        if(!ghz & efreq>=1000) printf_log(LOG_INFO, "%d MHz", efreq/10);
-        if(!ghz & efreq<1000) printf_log(LOG_INFO, "%d.%d MHz", efreq/10, efreq%10);
+        if(!ghz && (efreq>=1000)) printf_log(LOG_INFO, "%d MHz", efreq/10);
+        if(!ghz && (efreq<1000)) printf_log(LOG_INFO, "%d.%d MHz", efreq/10, efreq%10);
     }
     printf_log(LOG_INFO, "\n");
 }
