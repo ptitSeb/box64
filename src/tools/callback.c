@@ -220,7 +220,7 @@ uint64_t RunSafeFunction(uintptr_t fnc, int nargs, ...)
 }
 
 EXPORTDYN
-uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...)
+uint64_t VRunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, va_list va)
 {
     int align = (nargs>6)?(((nargs-6)&1)):0;
     int stackn = align + ((nargs>6)?(nargs-6):0);
@@ -232,8 +232,6 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 
     uint64_t *p = (uint64_t*)R_RSP;
 
-    va_list va;
-    va_start (va, nargs);
     for (int i=0; i<nargs; ++i) {
         if(i<6) {
             int nn[] = {_DI, _SI, _DX, _CX, _R8, _R9};
@@ -243,7 +241,6 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
             p++;
         }
     }
-    va_end (va);
 
     uintptr_t oldip = R_RIP;
     int old_quit = emu->quit;
@@ -264,6 +261,16 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 
 
     return R_RAX;
+}
+
+EXPORTDYN
+uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, int nargs, ...)
+{
+    va_list va;
+    va_start(va, nargs);
+    uint64_t ret = VRunFunctionWithEmu(emu, QuitOnLongJump, fnc, nargs, va);
+    va_end(va);
+    return ret;
 }
 
 EXPORTDYN
