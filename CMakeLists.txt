@@ -1216,6 +1216,11 @@ add_test(lock ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test29 -D TEST_OUTPUT=tmpfile29.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref29.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(verifyApiRunFunInEmulator ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_SOURCE_DIR}/tests/test30
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test30 -D TEST_OUTPUT=tmpfile30.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref30.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 else()
 
 add_test(bootSyscall ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
