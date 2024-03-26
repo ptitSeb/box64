@@ -959,6 +959,10 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
             dyn->n.neoncache[ret].t = X87_ST0;
         }
     }
+    if(ret==-1) {
+        MESSAGE(LOG_DUMP, "Incoherent x87 stack cache, aborting\n");
+        dyn->abort = 1;
+    }
     return ret;
 }
 void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
@@ -975,11 +979,18 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
          ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_F)
          ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_I64))
             ++dyn->n.neoncache[j].n;
+    int ret = -1;
     for(int i=0; i<8; ++i) {
         if(dyn->n.freed[i]!=-1)
             ++dyn->n.freed[i];
         if(dyn->n.x87cache[i]!=-1)
             ++dyn->n.x87cache[i];
+        else if(ret==-1)
+            ret = i;
+    }
+    if(ret==-1) {
+        MESSAGE(LOG_DUMP, "Incoherent x87 stack cache, aborting\n");
+        dyn->abort = 1;
     }
     if(s1)
         x87_stackcount(dyn, ninst, s1);

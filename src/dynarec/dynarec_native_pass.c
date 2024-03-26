@@ -161,7 +161,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
 
         addr = dynarec64_00(dyn, addr, ip, ninst, rex, rep, &ok, &need_epilog);
         if(dyn->abort)
-            return addr;
+            return ip;
         INST_EPILOG;
 
         int next = ninst+1;
