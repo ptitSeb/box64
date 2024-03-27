@@ -1,6 +1,7 @@
 #ifndef __ELF_LOADER_H_
 #define __ELF_LOADER_H_
 #include <stdio.h>
+#include <stdint.h>
 
 typedef struct elfheader_s elfheader_t;
 typedef struct lib_s lib_t;

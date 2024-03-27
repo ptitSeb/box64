@@ -337,6 +337,7 @@ set_source_files_properties(
 set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/main.c"
     "${BOX64_ROOT}/src/core.c"
+    "${BOX64_ROOT}/src/box64.c"
     "${BOX64_ROOT}/src/box64context.c"
     "${BOX64_ROOT}/src/build_info.c"
     "${BOX64_ROOT}/src/custommem.c"
@@ -901,7 +902,25 @@ endif()
 
 add_library(interpreter OBJECT ${INTERPRETER})
 
-add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
+set(BOX64_SRC
+    ${ELFLOADER_SRC}
+    ${WRAPPEDS}
+    "${BOX64_ROOT}/src/git_head.h"
+)
+
+############## Build libbox64.so ############## 
+set(LIB_BOX64_SRC ${BOX64_SRC})
+set(LIB_BOX64 box64_lib)
+# exclude main.c from BOX64_SRC
+list(REMOVE_ITEM LIB_BOX64_SRC "${BOX64_ROOT}/src/main.c")
+add_library(${LIB_BOX64} SHARED ${BOX64_SRC})
+set_target_properties(${LIB_BOX64} PROPERTIES OUTPUT_NAME "box64")
+
+set_target_properties(${LIB_BOX64} PROPERTIES ENABLE_EXPORTS ON)
+add_dependencies(${LIB_BOX64} WRAPPERS)
+############################################### 
+
+add_executable(${BOX64} ${BOX64_SRC})
 set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
 add_dependencies(${BOX64} WRAPPERS)
 #add_dependencies(${BOX64} PRINTER)
@@ -909,28 +928,36 @@ add_dependencies(${BOX64} WRAPPERS)
 if(STATICBUILD)
     #set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-fuse-ld=gold -static -Wl,--no-relax -Wl,--allow-multiple-definition -ldl -lrt -lpthread -lresolv -lc -lutil -lm -Wl,-defsym,_DYNAMIC=0 -pthread")
     target_link_libraries(${BOX64} c m dl pthread resolv util bsd c)
+    target_link_libraries(${LIB_BOX64} c m dl pthread resolv util bsd c)
 else()
     if(ANDROID)
         if(TERMUX)
         target_link_libraries(${BOX64} c m dl android-sysv-semaphore)
+        target_link_libraries(${LIB_BOX64} c m dl android-sysv-semaphore)
         else()
         target_link_libraries(${BOX64} c m dl)
+        target_link_libraries(${LIB_BOX64} c m dl)
         endif()
     else()
 	    set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -lutil -Wl,--as-needed -pthread")
+	    set_target_properties(${LIB_BOX64} PROPERTIES LINK_FLAGS "-Wl,--no-as-needed -lc -lm -ldl -lrt -lpthread -lresolv -lutil -Wl,--as-needed -pthread")
     endif()
 endif()
 if(DYNAREC)
     target_link_libraries(${BOX64} dynarec)
+    target_link_libraries(${LIB_BOX64} dynarec)
 endif()
 target_link_libraries(${BOX64} interpreter)
+target_link_libraries(${LIB_BOX64} interpreter)
 
 if(${CMAKE_VERSION} VERSION_LESS "3.13")
     if(NOT NOLOADADDR)
         if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR WITH_MOLD)
             set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,--image-base=${BOX64_ELF_ADDRESS}")
+            set_target_properties(${LIB_BOX64} PROPERTIES LINK_FLAGS "-Wl,--image-base=${BOX64_ELF_ADDRESS}")
         else()
             set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-Wl,-Ttext-segment,${BOX64_ELF_ADDRESS}")
+            set_target_properties(${LIB_BOX64} PROPERTIES LINK_FLAGS "-Wl,-Ttext-segment,${BOX64_ELF_ADDRESS}")
         endif()
     endif()
 else()
@@ -938,8 +965,10 @@ else()
     if(NOT NOLOADADDR)
         if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR WITH_MOLD)
             target_link_options(${BOX64} PUBLIC LINKER:--image-base=${BOX64_ELF_ADDRESS})
+            target_link_options(${LIB_BOX64} PUBLIC LINKER:--image-base=${BOX64_ELF_ADDRESS})
         else()
             target_link_options(${BOX64} PUBLIC LINKER:-Ttext-segment,${BOX64_ELF_ADDRESS})
+            target_link_options(${LIB_BOX64} PUBLIC LINKER:-Ttext-segment,${BOX64_ELF_ADDRESS})
         endif()
     endif()
 endif()

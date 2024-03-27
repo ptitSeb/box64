@@ -12,7 +12,7 @@
 #include <dlfcn.h>
 #include <limits.h>
 
-typedef intptr_t (*RunFuncWithEmulatorFunction)(int, const char *, const char *, int, ...);
+typedef intptr_t (*RunFuncWithEmulatorFunction)(const char *, const char *, int, ...);
 static RunFuncWithEmulatorFunction RunFuncWithEmulator = NULL;
 
 _Atomic int threads_done = 0;
@@ -51,15 +51,15 @@ static const char* libx64functions2_path() {
     return path2;
 }
 void x64_free(void* ptr) {
-    RunFuncWithEmulator(0, libx64functions1_path(), "x64_free", 1, ptr);
+    RunFuncWithEmulator(libx64functions1_path(), "x64_free", 1, ptr);
 }
 
 char* x64_hell_word_str() {
-    return (char*)RunFuncWithEmulator(0, libx64functions1_path(), "hello_word_str", 0);
+    return (char*)RunFuncWithEmulator(libx64functions1_path(), "hello_word_str", 0);
 }
 
 int x64_tolower(int c) {
-    return (double)RunFuncWithEmulator(0, libx64functions2_path(), "x64_tolower", 1, c);
+    return (double)RunFuncWithEmulator(libx64functions2_path(), "x64_tolower", 1, c);
 }
 
 // Define a struct to hold thread arguments
@@ -106,6 +106,15 @@ static void InitBox64() {
         fprintf(stderr, "Path buffer size is not enough\n");
         abort();
     }
+
+    // Set env BOX64_LD_LIBRARY_PATH to the current directory
+    char box64_ld_library_path[PATH_MAX] = {0};
+    ret = snprintf(box64_ld_library_path, sizeof(box64_ld_library_path), "%s/../x64lib", cwd);
+    if (ret >= sizeof(box64_lib_path)) {
+        fprintf(stderr, "Path buffer size is not enough\n");
+        abort();
+    }
+    setenv("BOX64_LD_LIBRARY_PATH", box64_ld_library_path, 1);
     
     void* box64_lib_handle = dlopen(box64_lib_path, RTLD_GLOBAL | RTLD_NOW);
     if (!box64_lib_handle) {
@@ -124,20 +133,11 @@ static void InitBox64() {
         abort();
     }
 
-    RunFuncWithEmulator = dlsym(box64_lib_handle, "RunFunInEmulator");
+    RunFuncWithEmulator = dlsym(box64_lib_handle, "RunX64Function");
     if (!RunFuncWithEmulator) {
-        fprintf(stderr, "Error getting symbol \"RunFunInEmulator\" from box64 library: %s\n", dlerror());
+        fprintf(stderr, "Error getting symbol \"RunX64Function\" from box64 library: %s\n", dlerror());
         abort();
     }
-
-    // Set env BOX64_LD_LIBRARY_PATH to the current directory
-    char box64_ld_library_path[PATH_MAX] = {0};
-    ret = snprintf(box64_ld_library_path, sizeof(box64_ld_library_path), "%s/../x64lib", cwd);
-    if (ret >= sizeof(box64_lib_path)) {
-        fprintf(stderr, "Path buffer size is not enough\n");
-        abort();
-    }
-    setenv("BOX64_LD_LIBRARY_PATH", box64_ld_library_path, 1);
 
     printf("box64 library initialized.\n");
 }

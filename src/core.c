@@ -1921,7 +1921,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         FreeCollection(&ld_preload);
         return -1;
     }
-    elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
+    elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, exec);
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->fullpath):0;
         int script = my_context->bashpath?FileIsShell(my_context->fullpath):0;
