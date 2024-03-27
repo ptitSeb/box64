@@ -385,8 +385,10 @@ void FreeElfMemory(elfheader_t* head)
         box_free(head->multiblocks);
     }
     // we only need to free the overall mmap, no need to free individual part as they are inside the big one
-    if(head->raw && head->raw_size)
+    if(head->raw && head->raw_size) {
+        dynarec_log(LOG_INFO, "Unmap elf memory %p-%p for %s\n", head->raw, head->raw+head->raw_size, head->path);
         munmap(head->raw, head->raw_size);
+    }
     freeProtection((uintptr_t)head->raw, head->raw_size);
 }
 
