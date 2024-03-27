@@ -1259,6 +1259,8 @@ void LoadEnvVars(box64context_t *context)
         AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     if(FileExist("/usr/x86_64-linux-gnu/lib", 0))
         AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
+    if(FileExist("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", 0))
+        AddPath("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
     #else
     //TODO: Add Termux Library Path - Lily
     if(FileExist("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", 0))
@@ -1560,6 +1562,8 @@ static void load_rcfiles()
     #ifndef TERMUX
     if(FileExist("/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/etc/box64.box64rc");
+    else if(FileExist("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc", IS_FILE))
+        LoadRCFile("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc");
     #else
     if(FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/data/data/com.termux/files/usr/etc/box64.box64rc");

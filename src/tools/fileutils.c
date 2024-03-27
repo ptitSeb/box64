@@ -124,12 +124,13 @@ int FileIsShell(const char* filename)
 
 const char* GetTmpDir() {
     char *tmpdir;
-    if ((tmpdir = getenv ("TMPDIR")) != NULL) return tmpdir;
-    if ((tmpdir = getenv ("TEMP")) != NULL)   return tmpdir;
-    if ((tmpdir = getenv ("TMP")) != NULL)    return tmpdir;
-    if(FileExist("/tmp", 0))                  return "/tmp";
-    if(FileExist("/var/tmp", 0))              return "/var/tmp";
-    if(FileExist("/usr/tmp", 0))              return "/usr/tmp";
+    if ((tmpdir = getenv ("TMPDIR")) != NULL)               return tmpdir;
+    if ((tmpdir = getenv ("TEMP")) != NULL)                 return tmpdir;
+    if ((tmpdir = getenv ("TMP")) != NULL)                  return tmpdir;
+    if(FileExist("/data/data/com.termux/files/usr/tmp", 0)) return "/data/data/com.termux/files/usr/tmp";
+    if(FileExist("/tmp", 0))                                return "/tmp";
+    if(FileExist("/var/tmp", 0))                            return "/var/tmp";
+    if(FileExist("/usr/tmp", 0))                            return "/usr/tmp";
 
     return "/tmp";  // meh...
 }
