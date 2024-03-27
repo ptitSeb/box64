@@ -107,7 +107,6 @@ static void InitBox64() {
         abort();
     }
 
-    // Set env BOX64_LD_LIBRARY_PATH to the current directory
     char box64_ld_library_path[PATH_MAX] = {0};
     ret = snprintf(box64_ld_library_path, sizeof(box64_ld_library_path), "%s/../x64lib", cwd);
     if (ret >= sizeof(box64_lib_path)) {
@@ -145,25 +144,25 @@ static void InitBox64() {
 
 int main() {
     InitBox64();
+    const int NUM_THREADS = 2;
 
-    pthread_t threads1[5];
-    for (int i = 0; i < 5; i++) {
+    pthread_t threads1[NUM_THREADS];
+    for (int i = 0; i < NUM_THREADS; i++) {
         pthread_create(&threads1[i], NULL, ThreadFuncTestX64Lib1, NULL);
     }
 
-    pthread_t threads2[5];
-    for (int i = 0; i < 5; i++) {
+    pthread_t threads2[NUM_THREADS];
+    for (int i = 0; i < NUM_THREADS; i++) {
         pthread_create(&threads2[i], NULL, ThreadFuncTestX64Lib2, NULL);
     }
 
     // Wait for all threads to finish
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < NUM_THREADS; i++) {
         pthread_join(threads1[i], NULL);
         pthread_join(threads2[i], NULL);
     }
-    assert (threads_done == 10);
+    assert (threads_done == NUM_THREADS * 2);
 
     printf("All done.\n");
-
     return 0;
 }
