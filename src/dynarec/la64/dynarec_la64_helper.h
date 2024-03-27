@@ -317,8 +317,9 @@
 #define SET_NODF() dyn->f.dfnone = 0
 #define SET_DFOK() dyn->f.dfnone = 1
 
-#define CLEAR_FLAGS_(s) \
-    MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); ANDN(xFlags, xFlags, s);
+#define CLEAR_FLAGS_(s)                                                                                       \
+    MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); \
+    ANDN(xFlags, xFlags, s);
 
 #define CLEAR_FLAGS(s) \
     IFX(X_ALL) { CLEAR_FLAGS_(s) }
@@ -420,7 +421,7 @@
 #define ARCH_INIT()
 
 #if STEP < 2
-#define GETIP(A) TABLE64(0, 0)
+#define GETIP(A)  TABLE64(0, 0)
 #define GETIP_(A) TABLE64(0, 0)
 #else
 // put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
@@ -729,13 +730,13 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         }
 
 // Restore xFlags from LBT.eflags
-#define RESTORE_EFLAGS(s)               \
-    do {                                \
-        if (la64_lbt) {                 \
-            CLEAR_FLAGS_(s);            \
-            X64_GET_EFLAGS(s, X_ALL);   \
-            OR(xFlags, xFlags, s);      \
-        }                               \
+#define RESTORE_EFLAGS(s)             \
+    do {                              \
+        if (la64_lbt) {               \
+            CLEAR_FLAGS_(s);          \
+            X64_GET_EFLAGS(s, X_ALL); \
+            OR(xFlags, xFlags, s);    \
+        }                             \
     } while (0)
 
 // Spill xFlags to LBT.eflags

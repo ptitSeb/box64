@@ -107,7 +107,7 @@ GO2(ccosl, yFy, ccos)
 GOW(ceil, dFd)
 GOW(ceilf, fFf)
 #ifdef HAVE_LD80BITS
-GOW(ceill, DFD)    // Weak
+GOW(ceill, DFD) // Weak
 #else
 GO2(ceill, KFK, ceil)
 #endif
@@ -372,7 +372,7 @@ GO2(lgammal_r, KFKp, lgamma_r)
 GOW(lgamma_r, dFdp)
 // __lgamma_r_finite
 #ifdef STATICBUILD
-//DATAV(_LIB_VERSION, 8)
+// DATAV(_LIB_VERSION, 8)
 #else
 DATAV(_LIB_VERSION, 8)
 #endif
@@ -394,7 +394,7 @@ GOM(__log10_finite, dFd)
 #ifdef HAVE_LD80BITS
 GOW(log10l, DFD)
 #else
-GO2(log10l, KFK, log10) //Weak
+GO2(log10l, KFK, log10) // Weak
 #endif
 GOW(log1p, dFd)
 GOW(log1pf, fFf)
@@ -482,9 +482,9 @@ GOWM(rintf, fFEf)
 // rintl    // Weak
 GOW(round, dFd)
 GOW(roundf, fFf)
-GO(roundeven, dFd)  //since C23
+GO(roundeven, dFd) // since C23
 GO(roundevenf, fFf)
-//GO(roundevenl, DFD)
+// GO(roundevenl, DFD)
 #ifdef HAVE_LD80BITS
 GOW(roundl, DFD)
 #else
@@ -534,7 +534,7 @@ GOM(__sqrt_finite, dFd)
 #ifdef HAVE_LD80BITS
 GOW(sqrtl, DFD)
 #else
-GO2(sqrtl, KFK, sqrt)    // Weak
+GO2(sqrtl, KFK, sqrt) // Weak
 #endif
 GO(tan, dFd)
 GOW(tanf, fFf)

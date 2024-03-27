@@ -28,27 +28,27 @@ const char* libmName =
 
 static library_t* my_lib = NULL;
 
-typedef float   (*fFff_t)   (float, float);
-typedef double  (*dFdd_t)   (double, double);
-typedef float   (*fFf_t)    (float);
-typedef double  (*dFd_t)    (double);
+typedef float (*fFff_t)(float, float);
+typedef double (*dFdd_t)(double, double);
+typedef float (*fFf_t)(float);
+typedef double (*dFd_t)(double);
 
 #undef GO_cFc
 
-#define FINITE(N, T, R, P, ...)     \
-EXPORT R my___##N##_finite P        \
-{                                   \
-    static int check = 0;           \
-    T f = NULL;                     \
-    if(!check) {                    \
-        f = (T)dlsym(my_lib->w.lib, "__" #N "_finite");  \
-        ++check;                    \
-    }                               \
-    if(f)                           \
-        return f(__VA_ARGS__);      \
-    else                            \
-        return N (__VA_ARGS__);     \
-}
+#define FINITE(N, T, R, P, ...)                             \
+    EXPORT R my___##N##_finite P                            \
+    {                                                       \
+        static int check = 0;                               \
+        T f = NULL;                                         \
+        if (!check) {                                       \
+            f = (T)dlsym(my_lib->w.lib, "__" #N "_finite"); \
+            ++check;                                        \
+        }                                                   \
+        if (f)                                              \
+            return f(__VA_ARGS__);                          \
+        else                                                \
+            return N(__VA_ARGS__);                          \
+    }
 
 #define F1F(N) FINITE(N, fFf_t, float, (float a), a)
 #define F1D(N) FINITE(N, dFd_t, double, (double a), a)
@@ -194,17 +194,17 @@ EXPORT double my_llrintl(x64emu_t* emu, double val)
 #endif
 
 #ifdef ANDROID
-double my_pow10(double a) { return pow(10.0, a);}
-float my_pow10f(float a) { return powf(10.0f, a);}
-long double my_pow10l(long double a) { return powl(10.0, a);}
+double my_pow10(double a) { return pow(10.0, a); }
+float my_pow10f(float a) { return powf(10.0f, a); }
+long double my_pow10l(long double a) { return powl(10.0, a); }
 #else
-double my_pow10(double a) { return exp10(a);}
-float my_pow10f(float a) { return exp10f(a);}
-long double my_pow10l(long double a) { return exp10l(a);}
+double my_pow10(double a) { return exp10(a); }
+float my_pow10f(float a) { return exp10f(a); }
+long double my_pow10l(long double a) { return exp10l(a); }
 #endif
 
 #ifdef STATICBUILD
-//extern void* _LIB_VERSION;
+// extern void* _LIB_VERSION;
 #endif
 
 #undef FROUND
@@ -213,7 +213,7 @@ long double my_pow10l(long double a) { return exp10l(a);}
 #define CUSTOM_INIT \
     my_lib = lib;
 
-#define CUSTOM_FINI     \
+#define CUSTOM_FINI \
     my_lib = NULL;
 
 #include "wrappedlib_init.h"

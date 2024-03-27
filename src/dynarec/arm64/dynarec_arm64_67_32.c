@@ -21,18 +21,19 @@
 #include "dynarec_arm64_helper.h"
 #include "dynarec_arm64_functions.h"
 
-#define GETGm   gd = ((nextop&0x38)>>3)
+#define GETGm gd = ((nextop & 0x38) >> 3)
 
 uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
-    (void)ip; (void)need_epilog;
+    (void)ip;
+    (void)need_epilog;
 
     uint8_t opcode = F8;
     uint8_t nextop;
     uint8_t gd, ed, wback, wb, wb1, wb2, gb1, gb2, eb1, eb2;
     int64_t fixedaddress;
     int unscaled;
-    int8_t  i8;
+    int8_t i8;
     uint8_t u8;
     int32_t i32;
     int64_t j64, i64;
@@ -47,46 +48,45 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(lock);
     MAYUSE(cacheupd);
 
-    if(!rex.is32bits) {
+    if (!rex.is32bits) {
         // should do a different file
         DEFAULT;
         return addr;
     }
 
     rep = 0;
-    while((opcode==0xF2) || (opcode==0xF3)) {
-        rep = opcode-0xF1;
+    while ((opcode == 0xF2) || (opcode == 0xF3)) {
+        rep = opcode - 0xF1;
         opcode = F8;
     }
 
-    switch(opcode) {
-        
+    switch (opcode) {
+
         case 64:
             addr = dynarec64_6764_32(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
             break;
 
-        #define GO(NO, YES)                                             \
-            BARRIER(BARRIER_MAYBE);                                     \
-            JUMP(addr+i8, 1);                                           \
-            if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
-                CHECK_CACHE()) {                                        \
-                /* out of the block */                                  \
-                i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
-                Bcond(NO, i32);                                         \
-                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
-                    jump_to_next(dyn, addr+i8, 0, ninst, rex.is32bits); \
-                } else {                                                \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
-                    B(i32);                                             \
-                }                                                       \
-            } else {    \
-                /* inside the block */  \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                Bcond(YES, i32);    \
-            }
+#define GO(NO, YES)                                                                         \
+    BARRIER(BARRIER_MAYBE);                                                                 \
+    JUMP(addr + i8, 1);                                                                     \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+        /* out of the block */                                                              \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+        Bcond(NO, i32);                                                                     \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
+        } else {                                                                            \
+            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+            B(i32);                                                                         \
+        }                                                                                   \
+    } else {                                                                                \
+        /* inside the block */                                                              \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+        Bcond(YES, i32);                                                                    \
+    }
         case 0xE0:
             INST_NAME("LOOPNZ (16bits)");
             READFLAGS(X_ZF);
@@ -94,8 +94,8 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
             UXTHw(x1, xRCX);
             SUBSw_U12(x1, x1, 1);
             BFIx(xRCX, x1, 0, 16);
-            B_NEXT(cEQ);    // ECX is 0, no LOOP
-            TSTw_mask(xFlags, 0b011010, 0); //mask=0x40
+            B_NEXT(cEQ);                    // ECX is 0, no LOOP
+            TSTw_mask(xFlags, 0b011010, 0); // mask=0x40
             GO(cNE, cEQ);
             break;
         case 0xE1:
@@ -105,8 +105,8 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
             UXTHw(x1, xRCX);
             SUBSw_U12(x1, x1, 1);
             BFIx(xRCX, x1, 0, 16);
-            B_NEXT(cEQ);    // ECX is 0, no LOOP
-            TSTw_mask(xFlags, 0b011010, 0); //mask=0x40
+            B_NEXT(cEQ);                    // ECX is 0, no LOOP
+            TSTw_mask(xFlags, 0b011010, 0); // mask=0x40
             GO(cEQ, cNE);
             break;
         case 0xE2:
@@ -120,11 +120,11 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xE3:
             INST_NAME("JCXZ");
             i8 = F8S;
-            TSTw_mask(xRCX, 0, 15); //mask=0xffff
+            TSTw_mask(xRCX, 0, 15); // mask=0xffff
             GO(cNE, cEQ);
             break;
-        #undef GO
-        
+#undef GO
+
         default:
             DEFAULT;
     }

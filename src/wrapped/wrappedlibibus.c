@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -21,37 +21,42 @@
 const char* libibusName = "libibus-1.0.so.5";
 #define LIBNAME libibus
 
-#define ADDED_FUNCTIONS() \
+#define ADDED_FUNCTIONS()
 
 #include "wrappedlibibustypes.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)
 
 // GAsyncReadyCallback
-#define GO(A)   \
-static uintptr_t my_GAsyncReadyCallback_fct_##A = 0;   \
-static void my_GAsyncReadyCallback_##A(void* source, void* res, void* data)     \
-{                                       \
-    RunFunctionFmt(my_GAsyncReadyCallback_fct_##A, "ppp", source, res, data);\
-}
+#define GO(A)                                                                     \
+    static uintptr_t my_GAsyncReadyCallback_fct_##A = 0;                          \
+    static void my_GAsyncReadyCallback_##A(void* source, void* res, void* data)   \
+    {                                                                             \
+        RunFunctionFmt(my_GAsyncReadyCallback_fct_##A, "ppp", source, res, data); \
+    }
 SUPER()
 #undef GO
 static void* findGAsyncReadyCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GAsyncReadyCallback_fct_##A == (uintptr_t)fct) return my_GAsyncReadyCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GAsyncReadyCallback_fct_##A == (uintptr_t)fct) return my_GAsyncReadyCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GAsyncReadyCallback_fct_##A == 0) {my_GAsyncReadyCallback_fct_##A = (uintptr_t)fct; return my_GAsyncReadyCallback_##A; }
+#undef GO
+#define GO(A)                                            \
+    if (my_GAsyncReadyCallback_fct_##A == 0) {           \
+        my_GAsyncReadyCallback_fct_##A = (uintptr_t)fct; \
+        return my_GAsyncReadyCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libibus GAsyncReadyCallback callback\n");
     return NULL;
 }
@@ -113,8 +118,8 @@ EXPORT void my_ibus_input_context_process_key_event_async(x64emu_t* emu, void* b
     my->ibus_input_context_process_key_event_async(bus, keyval, keycode, state, timeout, cancel, findGAsyncReadyCallbackFct(f), data);
 }
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
 #define NEEDED_LIBS "libgio-2.0.so.0", "libgobject-2.0.so.0", "libglib-2.0.so.0"

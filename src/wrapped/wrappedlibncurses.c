@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -59,12 +59,12 @@ EXPORT int my_wprintw(x64emu_t* emu, void* win, void* fmt, void* b)
 
 EXPORT int my_vwprintw(x64emu_t* emu, void* p, void* fmt, x64_va_list_t b)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
-    #else
+#else
     myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
     PREPARE_VALIST;
-    #endif
+#endif
     return my->vwprintw(p, fmt, VARARGS);
 }
 

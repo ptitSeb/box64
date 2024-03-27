@@ -1,37 +1,37 @@
-#define TYPENAME3(N,M) N##M
-#define TYPENAME2(N,M) TYPENAME3(N,M)
-#define TYPENAME(N) TYPENAME2(LIBNAME, _my_t)
+#define TYPENAME3(N, M) N##M
+#define TYPENAME2(N, M) TYPENAME3(N, M)
+#define TYPENAME(N)     TYPENAME2(LIBNAME, _my_t)
 
 typedef struct TYPENAME2(LIBNAME, _my_s) {
-    // functions
-    #define GO(A, B)    B   A;
+// functions
+#define GO(A, B) B A;
     SUPER()
-    #undef GO
-    #ifdef ADDED_STRUCT
+#undef GO
+#ifdef ADDED_STRUCT
     ADDED_STRUCT()
-    #endif
+#endif
 } TYPENAME(LIBNAME);
 
 static library_t* my_lib = NULL;
-static TYPENAME(LIBNAME) TYPENAME2(my_, LIBNAME) = {0};
+static TYPENAME(LIBNAME) TYPENAME2(my_, LIBNAME) = { 0 };
 static TYPENAME(LIBNAME) * const my = &TYPENAME2(my_, LIBNAME);
 
 static void getMy(library_t* lib)
 {
-    #define GO(A, W) my->A = (W)dlsym(lib->w.lib, #A);
+#define GO(A, W) my->A = (W)dlsym(lib->w.lib, #A);
     SUPER()
-    #undef GO
+#undef GO
     my_lib = lib;
-    #ifdef ADDED_INIT
+#ifdef ADDED_INIT
     ADDED_INIT()
-    #endif
+#endif
 }
 
 static void freeMy()
 {
-    #ifdef ADDED_FINI
+#ifdef ADDED_FINI
     ADDED_FINI()
-    #endif
+#endif
     my_lib = NULL;
 }
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -19,11 +19,11 @@
 
 const char* png16Name =
 #ifdef ANDROID
-	"libpng16.so"
+    "libpng16.so"
 #else
-	"libpng16.so.16"
+    "libpng16.so.16"
 #endif
-	;
+    ;
 #define LIBNAME png16
 
 #include "generated/wrappedpng16types.h"
@@ -31,267 +31,322 @@ const char* png16Name =
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)
 
 // user_write
-#define GO(A)   \
-static uintptr_t my_user_write_fct_##A = 0;   \
-static void my_user_write_##A(void* png_ptr, void* data, size_t length)    \
-{                                       \
-    RunFunctionFmt(my_user_write_fct_##A, "ppL", png_ptr, data, length);\
-}
+#define GO(A)                                                                \
+    static uintptr_t my_user_write_fct_##A = 0;                              \
+    static void my_user_write_##A(void* png_ptr, void* data, size_t length)  \
+    {                                                                        \
+        RunFunctionFmt(my_user_write_fct_##A, "ppL", png_ptr, data, length); \
+    }
 SUPER()
 #undef GO
 static void* finduser_writeFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_user_write_fct_##A == (uintptr_t)fct) return my_user_write_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_user_write_fct_##A == (uintptr_t)fct) return my_user_write_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_user_write_fct_##A == 0) {my_user_write_fct_##A = (uintptr_t)fct; return my_user_write_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_user_write_fct_##A == 0) {           \
+        my_user_write_fct_##A = (uintptr_t)fct; \
+        return my_user_write_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_write callback\n");
     return NULL;
 }
 // user_flush
-#define GO(A)   \
-static uintptr_t my_user_flush_fct_##A = 0;   \
-static void my_user_flush_##A(void* png_ptr)    \
-{                                       \
-    RunFunctionFmt(my_user_flush_fct_##A, "p", png_ptr);\
-}
+#define GO(A)                                                \
+    static uintptr_t my_user_flush_fct_##A = 0;              \
+    static void my_user_flush_##A(void* png_ptr)             \
+    {                                                        \
+        RunFunctionFmt(my_user_flush_fct_##A, "p", png_ptr); \
+    }
 SUPER()
 #undef GO
 static void* finduser_flushFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_user_flush_fct_##A == (uintptr_t)fct) return my_user_flush_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_user_flush_fct_##A == (uintptr_t)fct) return my_user_flush_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_user_flush_fct_##A == 0) {my_user_flush_fct_##A = (uintptr_t)fct; return my_user_flush_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_user_flush_fct_##A == 0) {           \
+        my_user_flush_fct_##A = (uintptr_t)fct; \
+        return my_user_flush_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_flush callback\n");
     return NULL;
 }
 // user_read
-#define GO(A)   \
-static uintptr_t my_user_read_fct_##A = 0;   \
-static void my_user_read_##A(void* png_ptr, void* data, size_t length)    \
-{                                       \
-    RunFunctionFmt(my_user_read_fct_##A, "ppL", png_ptr, data, length);\
-}
+#define GO(A)                                                               \
+    static uintptr_t my_user_read_fct_##A = 0;                              \
+    static void my_user_read_##A(void* png_ptr, void* data, size_t length)  \
+    {                                                                       \
+        RunFunctionFmt(my_user_read_fct_##A, "ppL", png_ptr, data, length); \
+    }
 SUPER()
 #undef GO
 static void* finduser_readFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_user_read_fct_##A == (uintptr_t)fct) return my_user_read_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_user_read_fct_##A == (uintptr_t)fct) return my_user_read_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_user_read_fct_##A == 0) {my_user_read_fct_##A = (uintptr_t)fct; return my_user_read_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_user_read_fct_##A == 0) {           \
+        my_user_read_fct_##A = (uintptr_t)fct; \
+        return my_user_read_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_read callback\n");
     return NULL;
 }
 // error
-#define GO(A)   \
-static uintptr_t my_error_fct_##A = 0;   \
-static void my_error_##A(void* a, void* b)    \
-{                                       \
-    RunFunctionFmt(my_error_fct_##A, "pp", a, b);\
-}
+#define GO(A)                                         \
+    static uintptr_t my_error_fct_##A = 0;            \
+    static void my_error_##A(void* a, void* b)        \
+    {                                                 \
+        RunFunctionFmt(my_error_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* finderrorFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_error_fct_##A == (uintptr_t)fct) return my_error_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_error_fct_##A == (uintptr_t)fct) return my_error_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_error_fct_##A == 0) {my_error_fct_##A = (uintptr_t)fct; return my_error_##A; }
+#undef GO
+#define GO(A)                              \
+    if (my_error_fct_##A == 0) {           \
+        my_error_fct_##A = (uintptr_t)fct; \
+        return my_error_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 error callback\n");
     return NULL;
 }
 // warning
-#define GO(A)   \
-static uintptr_t my_warning_fct_##A = 0;   \
-static void my_warning_##A(void* a, void* b)    \
-{                                       \
-    RunFunctionFmt(my_warning_fct_##A, "pp", a, b);\
-}
+#define GO(A)                                           \
+    static uintptr_t my_warning_fct_##A = 0;            \
+    static void my_warning_##A(void* a, void* b)        \
+    {                                                   \
+        RunFunctionFmt(my_warning_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findwarningFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_warning_fct_##A == (uintptr_t)fct) return my_warning_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_warning_fct_##A == (uintptr_t)fct) return my_warning_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_warning_fct_##A == 0) {my_warning_fct_##A = (uintptr_t)fct; return my_warning_##A; }
+#undef GO
+#define GO(A)                                \
+    if (my_warning_fct_##A == 0) {           \
+        my_warning_fct_##A = (uintptr_t)fct; \
+        return my_warning_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 warning callback\n");
     return NULL;
 }
 // malloc
-#define GO(A)   \
-static uintptr_t my_malloc_fct_##A = 0;   \
-static void my_malloc_##A(void* a, unsigned long b)    \
-{                                       \
-    RunFunctionFmt(my_malloc_fct_##A, "pL", a, b);\
-}
+#define GO(A)                                           \
+    static uintptr_t my_malloc_fct_##A = 0;             \
+    static void my_malloc_##A(void* a, unsigned long b) \
+    {                                                   \
+        RunFunctionFmt(my_malloc_fct_##A, "pL", a, b);  \
+    }
 SUPER()
 #undef GO
 static void* findmallocFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_malloc_fct_##A == (uintptr_t)fct) return my_malloc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_malloc_fct_##A == (uintptr_t)fct) return my_malloc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_malloc_fct_##A == 0) {my_malloc_fct_##A = (uintptr_t)fct; return my_malloc_##A; }
+#undef GO
+#define GO(A)                               \
+    if (my_malloc_fct_##A == 0) {           \
+        my_malloc_fct_##A = (uintptr_t)fct; \
+        return my_malloc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 malloc callback\n");
     return NULL;
 }
 // free
-#define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;   \
-static void my_free_##A(void* a, void* b)    \
-{                                       \
-    RunFunctionFmt(my_free_fct_##A, "pp", a, b);\
-}
+#define GO(A)                                        \
+    static uintptr_t my_free_fct_##A = 0;            \
+    static void my_free_##A(void* a, void* b)        \
+    {                                                \
+        RunFunctionFmt(my_free_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findfreeFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_free_fct_##A == 0) {           \
+        my_free_fct_##A = (uintptr_t)fct; \
+        return my_free_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 free callback\n");
     return NULL;
 }
 
 // progressive_info
-#define GO(A)   \
-static uintptr_t my_progressive_info_fct_##A = 0;   \
-static void my_progressive_info_##A(void* a, void* b)    \
-{                                       \
-    RunFunctionFmt(my_progressive_info_fct_##A, "pp", a, b);\
-}
+#define GO(A)                                                    \
+    static uintptr_t my_progressive_info_fct_##A = 0;            \
+    static void my_progressive_info_##A(void* a, void* b)        \
+    {                                                            \
+        RunFunctionFmt(my_progressive_info_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findprogressive_infoFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_progressive_info_fct_##A == (uintptr_t)fct) return my_progressive_info_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_progressive_info_fct_##A == (uintptr_t)fct) return my_progressive_info_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_progressive_info_fct_##A == 0) {my_progressive_info_fct_##A = (uintptr_t)fct; return my_progressive_info_##A; }
+#undef GO
+#define GO(A)                                         \
+    if (my_progressive_info_fct_##A == 0) {           \
+        my_progressive_info_fct_##A = (uintptr_t)fct; \
+        return my_progressive_info_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 progressive_info callback\n");
     return NULL;
 }
 
 // progressive_end
-#define GO(A)   \
-static uintptr_t my_progressive_end_fct_##A = 0;   \
-static void my_progressive_end_##A(void* a, void* b)    \
-{                                       \
-    RunFunctionFmt(my_progressive_end_fct_##A, "pp", a, b);\
-}
+#define GO(A)                                                   \
+    static uintptr_t my_progressive_end_fct_##A = 0;            \
+    static void my_progressive_end_##A(void* a, void* b)        \
+    {                                                           \
+        RunFunctionFmt(my_progressive_end_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findprogressive_endFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_progressive_end_fct_##A == (uintptr_t)fct) return my_progressive_end_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_progressive_end_fct_##A == (uintptr_t)fct) return my_progressive_end_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_progressive_end_fct_##A == 0) {my_progressive_end_fct_##A = (uintptr_t)fct; return my_progressive_end_##A; }
+#undef GO
+#define GO(A)                                        \
+    if (my_progressive_end_fct_##A == 0) {           \
+        my_progressive_end_fct_##A = (uintptr_t)fct; \
+        return my_progressive_end_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 progressive_end callback\n");
     return NULL;
 }
 
 // progressive_row
-#define GO(A)   \
-static uintptr_t my_progressive_row_fct_##A = 0;   \
-static void my_progressive_row_##A(void* a, void* b, uint32_t c, int d)    \
-{                                       \
-    RunFunctionFmt(my_progressive_row_fct_##A, "ppui", a, b, c, d);\
-}
+#define GO(A)                                                               \
+    static uintptr_t my_progressive_row_fct_##A = 0;                        \
+    static void my_progressive_row_##A(void* a, void* b, uint32_t c, int d) \
+    {                                                                       \
+        RunFunctionFmt(my_progressive_row_fct_##A, "ppui", a, b, c, d);     \
+    }
 SUPER()
 #undef GO
 static void* findprogressive_rowFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_progressive_row_fct_##A == (uintptr_t)fct) return my_progressive_row_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_progressive_row_fct_##A == (uintptr_t)fct) return my_progressive_row_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_progressive_row_fct_##A == 0) {my_progressive_row_fct_##A = (uintptr_t)fct; return my_progressive_row_##A; }
+#undef GO
+#define GO(A)                                        \
+    if (my_progressive_row_fct_##A == 0) {           \
+        my_progressive_row_fct_##A = (uintptr_t)fct; \
+        return my_progressive_row_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 progressive_row callback\n");
     return NULL;
 }
 
 
 // user_transform
-#define GO(A)   \
-static uintptr_t my_user_transform_fct_##A = 0;   \
-static void my_user_transform_##A(void* ptr, void* row, void* data)    \
-{                                       \
-    RunFunctionFmt(my_user_transform_fct_##A, "ppp", ptr, row, data);\
-}
+#define GO(A)                                                             \
+    static uintptr_t my_user_transform_fct_##A = 0;                       \
+    static void my_user_transform_##A(void* ptr, void* row, void* data)   \
+    {                                                                     \
+        RunFunctionFmt(my_user_transform_fct_##A, "ppp", ptr, row, data); \
+    }
 SUPER()
 #undef GO
 static void* finduser_transformFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_user_transform_fct_##A == (uintptr_t)fct) return my_user_transform_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_user_transform_fct_##A == (uintptr_t)fct) return my_user_transform_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_user_transform_fct_##A == 0) {my_user_transform_fct_##A = (uintptr_t)fct; return my_user_transform_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_user_transform_fct_##A == 0) {           \
+        my_user_transform_fct_##A = (uintptr_t)fct; \
+        return my_user_transform_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libpng16 user_transform callback\n");
     return NULL;
 }
 
 #undef SUPER
 
-EXPORT void my16_png_set_read_fn(x64emu_t *emu, void* png_ptr, void* io_ptr, void* read_data_fn)
+EXPORT void my16_png_set_read_fn(x64emu_t* emu, void* png_ptr, void* io_ptr, void* read_data_fn)
 {
     my->png_set_read_fn(png_ptr, io_ptr, finduser_readFct(read_data_fn));
 }
 
-EXPORT void my16_png_set_read_user_transform_fn(x64emu_t *emu, void* png_ptr, void* read_transform_fn)
+EXPORT void my16_png_set_read_user_transform_fn(x64emu_t* emu, void* png_ptr, void* read_transform_fn)
 {
     my->png_set_read_user_transform_fn(png_ptr, finduser_transformFct(read_transform_fn));
 }

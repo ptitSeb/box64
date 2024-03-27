@@ -8,18 +8,18 @@
 
 static uint32_t rol(uint32_t a, int n)
 {
-    n = n&31;
-    if(!n)
+    n = n & 31;
+    if (!n)
         return a;
-    return (a<<n) | (a>>(32-n));
+    return (a << n) | (a >> (32 - n));
 }
 
 static uint32_t ror(uint32_t a, int n)
 {
-    n = n&31;
-    if(!n)
+    n = n & 31;
+    if (!n)
         return a;
-    return (a>>n) | (a<<(32-n));
+    return (a >> n) | (a << (32 - n));
 }
 
 static uint32_t f0(uint32_t B, uint32_t C, uint32_t D)
@@ -62,11 +62,11 @@ static uint32_t sigma1(uint32_t E)
 }
 static uint32_t tho0(uint32_t W)
 {
-    return ror(W, 7) ^ ror(W, 18) ^ (W>>3);
+    return ror(W, 7) ^ ror(W, 18) ^ (W >> 3);
 }
 static uint32_t tho1(uint32_t W)
 {
-    return ror(W, 17) ^ ror(W, 19) ^ (W>>10);
+    return ror(W, 17) ^ ror(W, 19) ^ (W >> 10);
 }
 
 static const uint32_t Ks[] = { 0x5A827999, 0x6ED9EBA1, 0X8F1BBCDC, 0xCA62C1D6 };
@@ -138,9 +138,9 @@ void sha256msg2(x64emu_t* emu, sse_regs_t* xmm1, sse_regs_t* xmm2)
 
 void sha1rnds4(x64emu_t* emu, sse_regs_t* xmm1, sse_regs_t* xmm2, uint8_t ib)
 {
-    uint32_t K = Ks[ib&3];
-    uint32_t(*f)(uint32_t , uint32_t , uint32_t) = NULL;
-    switch (ib&3) {
+    uint32_t K = Ks[ib & 3];
+    uint32_t (*f)(uint32_t, uint32_t, uint32_t) = NULL;
+    switch (ib & 3) {
         case 0: f = f0; break;
         case 1: f = f1; break;
         case 2: f = f2; break;
@@ -151,8 +151,8 @@ void sha1rnds4(x64emu_t* emu, sse_regs_t* xmm1, sse_regs_t* xmm2, uint8_t ib)
     uint32_t C = xmm1->ud[1];
     uint32_t D = xmm1->ud[0];
     uint32_t E = 0;
-    for(int i=0; i<4; ++i) {
-        uint32_t new_A = f(B, C, D) + rol(A, 5) + xmm2->ud[3-i] + E + K;
+    for (int i = 0; i < 4; ++i) {
+        uint32_t new_A = f(B, C, D) + rol(A, 5) + xmm2->ud[3 - i] + E + K;
         E = D;
         D = C;
         C = rol(B, 30);
@@ -175,7 +175,7 @@ void sha256rnds2(x64emu_t* emu, sse_regs_t* xmm1, sse_regs_t* xmm2)
     uint32_t F = xmm2->ud[0];
     uint32_t G = xmm1->ud[1];
     uint32_t H = xmm1->ud[0];
-    for(int i=0; i<2; ++i) {
+    for (int i = 0; i < 2; ++i) {
         uint32_t new_A = Ch(E, F, G) + sigma1(E) + emu->xmm[0].ud[i] + H + Maj(A, B, C) + sigma0(A);
         uint32_t new_E = Ch(E, F, G) + sigma1(E) + emu->xmm[0].ud[i] + H + D;
         H = G;

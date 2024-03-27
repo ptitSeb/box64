@@ -4,12 +4,12 @@
 
 GO(gbm_bo_create, pFpuuuu)
 GO(gbm_bo_create_with_modifiers, pFpuuupu)
-//GO(gbm_bo_create_with_modifiers2, 
+// GO(gbm_bo_create_with_modifiers2,
 GO(gbm_bo_destroy, vFp)
 GO(gbm_bo_get_bpp, uFp)
 GO(gbm_bo_get_device, pFp)
 GO(gbm_bo_get_fd, iFp)
-//GO(gbm_bo_get_fd_for_plane, 
+// GO(gbm_bo_get_fd_for_plane,
 GO(gbm_bo_get_format, uFp)
 GO(gbm_bo_get_handle, UFp)
 GO(gbm_bo_get_handle_for_plane, UFpi)
@@ -35,7 +35,7 @@ GO(gbm_device_is_format_supported, iFpuu)
 GO(gbm_format_get_name, pFup)
 GO(gbm_surface_create, pFpuuuu)
 GO(gbm_surface_create_with_modifiers, pFpuuupu)
-//GO(gbm_surface_create_with_modifiers2, 
+// GO(gbm_surface_create_with_modifiers2,
 GO(gbm_surface_destroy, vFp)
 GO(gbm_surface_has_free_buffers, iFp)
 GO(gbm_surface_lock_front_buffer, pFp)

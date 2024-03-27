@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -26,120 +26,130 @@ const char* lzmaName = "liblzma.so.5";
 #include "wrappercallback.h"
 
 typedef struct lzma_allocator_s {
-	void *(*alloc)(void *opaque, size_t nmemb, size_t size);
-	void (*free)(void *opaque, void *ptr);
-	void *opaque;
+    void* (*alloc)(void* opaque, size_t nmemb, size_t size);
+    void (*free)(void* opaque, void* ptr);
+    void* opaque;
 } lzma_allocator_t;
 
 typedef struct lzma_stream_s {
-	const uint8_t *next_in;
-	size_t avail_in;
-	uint64_t total_in;
-	uint8_t *next_out;
-	size_t avail_out;
-	uint64_t total_out;
-	lzma_allocator_t *allocator;
-	void* internal;
-	void *reserved_ptr1;
-	void *reserved_ptr2;
-	void *reserved_ptr3;
-	void *reserved_ptr4;
-	uint64_t reserved_int1;
-	uint64_t reserved_int2;
-	size_t reserved_int3;
-	size_t reserved_int4;
-	int reserved_enum1;
-	int reserved_enum2;
+    const uint8_t* next_in;
+    size_t avail_in;
+    uint64_t total_in;
+    uint8_t* next_out;
+    size_t avail_out;
+    uint64_t total_out;
+    lzma_allocator_t* allocator;
+    void* internal;
+    void* reserved_ptr1;
+    void* reserved_ptr2;
+    void* reserved_ptr3;
+    void* reserved_ptr4;
+    uint64_t reserved_int1;
+    uint64_t reserved_int2;
+    size_t reserved_int3;
+    size_t reserved_int4;
+    int reserved_enum1;
+    int reserved_enum2;
 } lzma_stream_t;
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // alloc ...
-#define GO(A)   \
-static uintptr_t my_alloc_fct_##A = 0;                                              \
-static void* my_alloc_##A(void* opaque, size_t items, size_t size)                  \
-{                                                                                   \
-    return (void*)RunFunctionFmt(my_alloc_fct_##A, "pLL", opaque, items, size);\
-}
+#define GO(A)                                                                       \
+    static uintptr_t my_alloc_fct_##A = 0;                                          \
+    static void* my_alloc_##A(void* opaque, size_t items, size_t size)              \
+    {                                                                               \
+        return (void*)RunFunctionFmt(my_alloc_fct_##A, "pLL", opaque, items, size); \
+    }
 SUPER()
 #undef GO
 static void* find_alloc_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_alloc_fct_##A == (uintptr_t)fct) return my_alloc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_alloc_fct_##A == (uintptr_t)fct) return my_alloc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_alloc_fct_##A == 0) {my_alloc_fct_##A = (uintptr_t)fct; return my_alloc_##A; }
+#undef GO
+#define GO(A)                              \
+    if (my_alloc_fct_##A == 0) {           \
+        my_alloc_fct_##A = (uintptr_t)fct; \
+        return my_alloc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for zlib alloc callback\n");
     return NULL;
 }
 static void* reverse_alloc_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
+    if (!fct) return fct;
+    if (CheckBridged(my_lib->w.bridge, fct))
         return (void*)CheckBridged(my_lib->w.bridge, fct);
-    #define GO(A) if(my_alloc_##A == fct) return (void*)my_alloc_fct_##A;
+#define GO(A) \
+    if (my_alloc_##A == fct) return (void*)my_alloc_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddBridge(my_lib->w.bridge, pFpuu, fct, 0, NULL);
 }
 // free ...
-#define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;                               \
-static void my_free_##A(void* opaque, void* address)                \
-{                                                                   \
-    RunFunctionFmt(my_free_fct_##A, "pp", opaque, address);   \
-}
+#define GO(A)                                                   \
+    static uintptr_t my_free_fct_##A = 0;                       \
+    static void my_free_##A(void* opaque, void* address)        \
+    {                                                           \
+        RunFunctionFmt(my_free_fct_##A, "pp", opaque, address); \
+    }
 SUPER()
 #undef GO
 static void* find_free_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_free_fct_##A == 0) {           \
+        my_free_fct_##A = (uintptr_t)fct; \
+        return my_free_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for zlib free callback\n");
     return NULL;
 }
 static void* reverse_free_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
+    if (!fct) return fct;
+    if (CheckBridged(my_lib->w.bridge, fct))
         return (void*)CheckBridged(my_lib->w.bridge, fct);
-    #define GO(A) if(my_free_##A == fct) return (void*)my_free_fct_##A;
+#define GO(A) \
+    if (my_free_##A == fct) return (void*)my_free_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddBridge(my_lib->w.bridge, vFpp, fct, 0, NULL);
 }
 #undef SUPER
 
 static void wrap_alloc_struct(lzma_allocator_t* a)
 {
-    if(!a)
+    if (!a)
         return;
     a->alloc = find_alloc_Fct(a->alloc);
     a->free = find_free_Fct(a->free);
-
 }
 static void unwrap_alloc_struct(lzma_allocator_t* a)
 {
-    if(!a)
+    if (!a)
         return;
     a->alloc = reverse_alloc_Fct(a->alloc);
     a->free = reverse_free_Fct(a->free);
-
 }
 
 EXPORT int my_lzma_index_buffer_decode(x64emu_t* emu, void* i, void* memlimit, lzma_allocator_t* alloc, void* in_, void* in_pos, size_t in_size)
@@ -153,7 +163,7 @@ EXPORT int my_lzma_index_buffer_decode(x64emu_t* emu, void* i, void* memlimit, l
 EXPORT void my_lzma_index_end(x64emu_t* emu, void* i, lzma_allocator_t* alloc)
 {
     wrap_alloc_struct(alloc);
-    my->lzma_index_end(i,alloc);
+    my->lzma_index_end(i, alloc);
     unwrap_alloc_struct(alloc);
 }
 

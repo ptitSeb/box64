@@ -8,16 +8,17 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef void* (*pFppiiLpppip_t)(void*, void*, int32_t, int32_t, uintptr_t, void*, void*, void*, int32_t, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(SmcRequestSaveYourselfPhase2, iFppp_t) \
-	GO(SmcInteractRequest, iFpipp_t) \
-	GO(SmcOpenConnection, pFppiiLpppip_t)
+#define SUPER()                               \
+    ADDED_FUNCTIONS()                         \
+    GO(SmcRequestSaveYourselfPhase2, iFppp_t) \
+    GO(SmcInteractRequest, iFpipp_t)          \
+    GO(SmcOpenConnection, pFppiiLpppip_t)
 
 #endif // __wrappedlibsmTYPES_H_

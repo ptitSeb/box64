@@ -12,7 +12,7 @@ GO(SDLNet_FreePacket, vFp)
 GO(SDLNet_FreePacketV, vFp)
 GO(SDLNet_FreeSocketSet, vFp)
 GO(SDLNet_GetError, pFv)
-//GO(SDLNet_GetLastError, 
+// GO(SDLNet_GetLastError,
 GO(SDLNet_GetLocalAddresses, iFpi)
 GO(SDLNet_Init, iFv)
 GO(SDLNet_Linked_Version, pFv)
@@ -22,8 +22,8 @@ GO(SDLNet_Read32, uFp)
 GO(SDLNet_ResizePacket, iFpi)
 GO(SDLNet_ResolveHost, iFppW)
 GO(SDLNet_ResolveIP, pFp)
-//GOM(SDLNet_SetError, vFEpV)
-//GO(SDLNet_SetLastError, 
+// GOM(SDLNet_SetError, vFEpV)
+// GO(SDLNet_SetLastError,
 GO(SDLNet_TCP_Accept, pFp)
 GO(SDLNet_TCP_Close, vFp)
 GO(SDLNet_TCP_GetPeerAddress, pFp)

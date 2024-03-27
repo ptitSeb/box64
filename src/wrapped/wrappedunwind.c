@@ -20,25 +20,28 @@
 const char* unwindName = "libunwind.so.8";
 #define LIBNAME unwind
 
-EXPORT int my__ULx86_64_step(x64emu_t* emu, void* cursor) {
+EXPORT int my__ULx86_64_step(x64emu_t* emu, void* cursor)
+{
     return -1;
 }
-EXPORT int my__ULx86_64_get_reg(x64emu_t* emu, void* cursor, int rep, void* buf) {
+EXPORT int my__ULx86_64_get_reg(x64emu_t* emu, void* cursor, int rep, void* buf)
+{
     return -1;
 }
-EXPORT int my__ULx86_64_get_proc_info(x64emu_t* emu, void* cursor, void* ctx) {
+EXPORT int my__ULx86_64_get_proc_info(x64emu_t* emu, void* cursor, void* ctx)
+{
     return -1;
 }
-EXPORT int my__ULx86_64_init_local(x64emu_t* emu, void* cursor, void* ctx) {
+EXPORT int my__ULx86_64_init_local(x64emu_t* emu, void* cursor, void* ctx)
+{
     return -1;
 }
 
 
-#define PRE_INIT                                                \
-    if(1)                                                       \
-        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
+#define PRE_INIT                                            \
+    if (1)                                                  \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
     else
 
 
 #include "wrappedlib_init.h"
-

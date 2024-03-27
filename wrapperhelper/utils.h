@@ -13,7 +13,8 @@
 #include <cstring>
 #include <iostream>
 
-static const clang::Type* StripTypedef(clang::QualType type) {
+static const clang::Type* StripTypedef(clang::QualType type)
+{
     if (type->isTypedefNameType()) {
         return StripTypedef(type->getAs<clang::TypedefType>()->getDecl()->getUnderlyingType());
     } else {
@@ -22,10 +23,11 @@ static const clang::Type* StripTypedef(clang::QualType type) {
 }
 
 // FIXME: Need to support other triple except default target triple
-static std::string GetDeclHeaderFile(clang::ASTContext& Ctx, clang::Decl* Decl) {
+static std::string GetDeclHeaderFile(clang::ASTContext& Ctx, clang::Decl* Decl)
+{
     const auto& SourceManager = Ctx.getSourceManager();
     const clang::FileID FileID = SourceManager.getFileID(Decl->getBeginLoc());
-    const clang::FileEntry *FileEntry = SourceManager.getFileEntryForID(FileID);
+    const clang::FileEntry* FileEntry = SourceManager.getFileEntryForID(FileID);
     if (FileEntry) {
         return FileEntry->getName().str();
     }

@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -81,11 +81,11 @@ static int my_GetDirect3D(x64emu_t* emu, void* This, void*** ppD3D9);
 #define GO(name, type) \
     new->name = (void*)AddCheckBridge(emu->context->system, type, real->name, 0, #name)
 
-#define GOM(name, type) \
+#define GOM(name, type)                   \
     my_##name##_real = (void*)real->name; \
     new->name = (void*)AddCheckBridge(emu->context->system, type, my_##name, 0, "my_" #name)
 
-#define GO2(name, type) \
+#define GO2(name, type)                    \
     my_##name##_real2 = (void*)real->name; \
     new->name = (void*)AddCheckBridge(emu->context->system, type, my_##name2, 0, "my_" #name)
 
@@ -105,16 +105,16 @@ typedef void* (*pFp_t)(void*);
 typedef struct my_D3DAdapter9DRM {
     uint32_t major_version;
     uint32_t minor_version;
-    void *create_adapter;
+    void* create_adapter;
 } my_D3DAdapter9DRM;
 
 typedef struct d3d_my_s {
     pFp_t D3DAdapter9GetProc;
     my_D3DAdapter9DRM adapter;
-    int (*create_adapter)(int, ID3DAdapter9Vtbl ***);
+    int (*create_adapter)(int, ID3DAdapter9Vtbl***);
 
-    int (*CreateDevice)(void*, unsigned, int, void*, unsigned, void*, void*, void*, IDirect3DDevice9Vtbl ***);
-    int (*CreateDeviceEx)(void*, unsigned, int, void*, unsigned, void*, void*, void*, void*, IDirect3DDevice9ExVtbl ***);
+    int (*CreateDevice)(void*, unsigned, int, void*, unsigned, void*, void*, void*, IDirect3DDevice9Vtbl***);
+    int (*CreateDeviceEx)(void*, unsigned, int, void*, unsigned, void*, void*, void*, void*, IDirect3DDevice9ExVtbl***);
 
     int presentgroup_init;
 
@@ -160,55 +160,55 @@ typedef struct d3d_my_s {
     } vtables;
 } d3d_my_t;
 
-static d3d_my_t my_d3d = {0};
-static d3d_my_t * const my = &my_d3d;
+static d3d_my_t my_d3d = { 0 };
+static d3d_my_t* const my = &my_d3d;
 
-#define GOR(retcnd, name, args, call, ret, vtbl, a) \
-    static ret name(UNPACK args) \
-    { \
-        int r = name##_real(UNPACK call); \
-        if (retcnd) return r; \
-        if (!my->vtables.my_##vtbl##_init) { \
+#define GOR(retcnd, name, args, call, ret, vtbl, a)               \
+    static ret name(UNPACK args)                                  \
+    {                                                             \
+        int r = name##_real(UNPACK call);                         \
+        if (retcnd) return r;                                     \
+        if (!my->vtables.my_##vtbl##_init) {                      \
             make_vtable_##vtbl(emu, &my->vtables.my_##vtbl, **a); \
-            my->vtables.my_##vtbl##_init = 1; \
-        } \
-        (*a)[0] = &my->vtables.my_##vtbl; \
-        (*a)[1] = &my->vtables.my_##vtbl; \
-        return 0; \
+            my->vtables.my_##vtbl##_init = 1;                     \
+        }                                                         \
+        (*a)[0] = &my->vtables.my_##vtbl;                         \
+        (*a)[1] = &my->vtables.my_##vtbl;                         \
+        return 0;                                                 \
     }
 
 #define GO(name, args, call, ret, vtbl, a) \
     GOR(r, name, args, call, ret, vtbl, a)
 
-GO(my_CreateAuthenticatedChannel, (x64emu_t* emu, void* This, int ChannelType, void*** ppAuthenticatedChannel, void* pChannelHandle), (This, ChannelType, ppAuthenticatedChannel, pChannelHandle), int, IDirect3DAuthenticatedChannel9Vtbl, ppAuthenticatedChannel)
-GO(my_CreateCryptoSession, (x64emu_t* emu, void* This, const void* pCryptoType, const void* pDecodeProfile, void*** ppCryptoSession, void* pCryptoHandle), (This, pCryptoType, pDecodeProfile, ppCryptoSession, pCryptoHandle), int, IDirect3DCryptoSession9Vtbl, ppCryptoSession)
-GO(my_CreateCubeTexture, (x64emu_t* emu, void* This, unsigned EdgeLength, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppCubeTexture, void* pSharedHandle), (This, EdgeLength, Levels, Usage, Format, Pool, ppCubeTexture, pSharedHandle), int, IDirect3DCubeTexture9Vtbl, ppCubeTexture)
-GO(my_CreateIndexBuffer, (x64emu_t* emu, void* This, unsigned Length, unsigned Usage, int Format, int Pool, void*** ppIndexBuffer, void* pSharedHandle), (This, Length, Usage, Format, Pool, ppIndexBuffer, pSharedHandle), int, IDirect3DIndexBuffer9Vtbl, ppIndexBuffer)
-GO(my_CreatePixelShader, (x64emu_t* emu, void* This, const void* pFunction, void*** ppShader), (This, pFunction, ppShader), int, IDirect3DPixelShader9Vtbl, ppShader)
-GO(my_CheckResourceResidency, (x64emu_t* emu, void* This, void*** pResourceArray, unsigned NumResources), (This, pResourceArray, NumResources), int, IDirect3DResource9Vtbl, pResourceArray)
-GO(my_CreateStateBlock, (x64emu_t* emu, void* This, int Type, void*** ppSB), (This, Type, ppSB), int, IDirect3DStateBlock9Vtbl, ppSB)
-GO(my_EndStateBlock, (x64emu_t* emu, void* This, void*** ppSB), (This, ppSB), int, IDirect3DStateBlock9Vtbl, ppSB)
-GO(my_CreateDepthStencilSurfaceEx, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Discard, void*** ppSurface, void* pSharedHandle, unsigned Usage), (This, Width, Height, Format, MultiSample, MultisampleQuality, Discard, ppSurface, pSharedHandle, Usage), int, IDirect3DSurface9Vtbl, ppSurface)
-GO(my_CreateDepthStencilSurface, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Discard, void*** ppSurface, void* pSharedHandle), (This, Width, Height, Format, MultiSample, MultisampleQuality, Discard, ppSurface, pSharedHandle), int, IDirect3DSurface9Vtbl, ppSurface)
-GO(my_CreateOffscreenPlainSurfaceEx, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, int Format, int Pool, void*** ppSurface, void* pSharedHandle, unsigned Usage), (This, Width, Height, Format, Pool, ppSurface, pSharedHandle, Usage), int, IDirect3DSurface9Vtbl, ppSurface)
-GO(my_CreateOffscreenPlainSurface, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, int Format, int Pool, void*** ppSurface, void* pSharedHandle), (This, Width, Height, Format, Pool, ppSurface, pSharedHandle), int, IDirect3DSurface9Vtbl, ppSurface)
-GO(my_CreateRenderTargetEx, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Lockable, void*** ppSurface, void* pSharedHandle, unsigned Usage), (This, Width, Height, Format, MultiSample, MultisampleQuality, Lockable, ppSurface, pSharedHandle, Usage), int, IDirect3DSurface9Vtbl, ppSurface)
-GO(my_CreateRenderTarget, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Lockable, void*** ppSurface, void* pSharedHandle), (This, Width, Height, Format, MultiSample, MultisampleQuality, Lockable, ppSurface, pSharedHandle), int, IDirect3DSurface9Vtbl, ppSurface)
-GO(my_GetCubeMapSurface, (x64emu_t* emu, void* This, int FaceType, unsigned Level, void*** ppCubeMapSurface), (This, FaceType, Level, ppCubeMapSurface), int, IDirect3DSurface9Vtbl, ppCubeMapSurface)
-GO(my_GetDepthStencilSurface, (x64emu_t* emu, void* This, void*** ppZStencilSurface), (This, ppZStencilSurface), int, IDirect3DSurface9Vtbl, ppZStencilSurface)
-GO(my_GetBackBuffer, (x64emu_t* emu, void* This, unsigned iSwapChain, unsigned iBackBuffer, int Type, void*** ppBackBuffer), (This, iSwapChain, iBackBuffer, Type, ppBackBuffer), int, IDirect3DSurface9Vtbl, ppBackBuffer)
-GO(my_GetRenderTarget, (x64emu_t* emu, void* This, unsigned RenderTargetIndex, void*** ppRenderTarget), (This, RenderTargetIndex, ppRenderTarget), int, IDirect3DSurface9Vtbl, ppRenderTarget)
-GO(my_GetSurfaceLevel, (x64emu_t* emu, void* This, unsigned Level, void*** ppSurfaceLevel), (This, Level, ppSurfaceLevel), int, IDirect3DSurface9Vtbl, ppSurfaceLevel)
-GO(my_CreateAdditionalSwapChain, (x64emu_t* emu, void* This, void* pPresentationParameters, void*** pSwapChain), (This, pPresentationParameters, pSwapChain), int, IDirect3DSwapChain9Vtbl, pSwapChain)
-GO(my_GetSwapChain, (x64emu_t* emu, void* This, unsigned iSwapChain, void*** pSwapChain), (This, iSwapChain, pSwapChain), int, IDirect3DSwapChain9Vtbl, pSwapChain)
-GO(my_CreateTexture, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppTexture, void* pSharedHandle), (This, Width, Height, Levels, Usage, Format, Pool, ppTexture, pSharedHandle), int, IDirect3DTexture9Vtbl, ppTexture)
-GO(my_CreateVertexBuffer, (x64emu_t* emu, void* This, unsigned Length, unsigned Usage, unsigned FVF, int Pool, void*** ppVertexBuffer, void* pSharedHandle), (This, Length, Usage, FVF, Pool, ppVertexBuffer, pSharedHandle), int, IDirect3DVertexBuffer9Vtbl, ppVertexBuffer)
-GO(my_CreateVertexDeclaration, (x64emu_t* emu, void* This, const void* pVertexElements, void*** ppDecl), (This, pVertexElements, ppDecl), int, IDirect3DVertexDeclaration9Vtbl, ppDecl)
-GO(my_CreateVertexShader, (x64emu_t* emu, void* This, const void* pFunction, void*** ppShader), (This, pFunction, ppShader), int, IDirect3DVertexShader9Vtbl, ppShader)
-GO(my_GetVolumeLevel, (x64emu_t* emu, void* This, unsigned Level, void*** ppVolumeLevel), (This, Level, ppVolumeLevel), int, IDirect3DVolume9Vtbl, ppVolumeLevel)
-GO(my_CreateVolumeTexture, (x64emu_t* emu, void* This, unsigned Width, unsigned Height, unsigned Depth, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppVolumeTexture, void* pSharedHandle), (This, Width, Height, Depth, Levels, Usage, Format, Pool, ppVolumeTexture, pSharedHandle), int, IDirect3DVolumeTexture9Vtbl, ppVolumeTexture)
+GO(my_CreateAuthenticatedChannel, (x64emu_t * emu, void* This, int ChannelType, void*** ppAuthenticatedChannel, void* pChannelHandle), (This, ChannelType, ppAuthenticatedChannel, pChannelHandle), int, IDirect3DAuthenticatedChannel9Vtbl, ppAuthenticatedChannel)
+GO(my_CreateCryptoSession, (x64emu_t * emu, void* This, const void* pCryptoType, const void* pDecodeProfile, void*** ppCryptoSession, void* pCryptoHandle), (This, pCryptoType, pDecodeProfile, ppCryptoSession, pCryptoHandle), int, IDirect3DCryptoSession9Vtbl, ppCryptoSession)
+GO(my_CreateCubeTexture, (x64emu_t * emu, void* This, unsigned EdgeLength, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppCubeTexture, void* pSharedHandle), (This, EdgeLength, Levels, Usage, Format, Pool, ppCubeTexture, pSharedHandle), int, IDirect3DCubeTexture9Vtbl, ppCubeTexture)
+GO(my_CreateIndexBuffer, (x64emu_t * emu, void* This, unsigned Length, unsigned Usage, int Format, int Pool, void*** ppIndexBuffer, void* pSharedHandle), (This, Length, Usage, Format, Pool, ppIndexBuffer, pSharedHandle), int, IDirect3DIndexBuffer9Vtbl, ppIndexBuffer)
+GO(my_CreatePixelShader, (x64emu_t * emu, void* This, const void* pFunction, void*** ppShader), (This, pFunction, ppShader), int, IDirect3DPixelShader9Vtbl, ppShader)
+GO(my_CheckResourceResidency, (x64emu_t * emu, void* This, void*** pResourceArray, unsigned NumResources), (This, pResourceArray, NumResources), int, IDirect3DResource9Vtbl, pResourceArray)
+GO(my_CreateStateBlock, (x64emu_t * emu, void* This, int Type, void*** ppSB), (This, Type, ppSB), int, IDirect3DStateBlock9Vtbl, ppSB)
+GO(my_EndStateBlock, (x64emu_t * emu, void* This, void*** ppSB), (This, ppSB), int, IDirect3DStateBlock9Vtbl, ppSB)
+GO(my_CreateDepthStencilSurfaceEx, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Discard, void*** ppSurface, void* pSharedHandle, unsigned Usage), (This, Width, Height, Format, MultiSample, MultisampleQuality, Discard, ppSurface, pSharedHandle, Usage), int, IDirect3DSurface9Vtbl, ppSurface)
+GO(my_CreateDepthStencilSurface, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Discard, void*** ppSurface, void* pSharedHandle), (This, Width, Height, Format, MultiSample, MultisampleQuality, Discard, ppSurface, pSharedHandle), int, IDirect3DSurface9Vtbl, ppSurface)
+GO(my_CreateOffscreenPlainSurfaceEx, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, int Format, int Pool, void*** ppSurface, void* pSharedHandle, unsigned Usage), (This, Width, Height, Format, Pool, ppSurface, pSharedHandle, Usage), int, IDirect3DSurface9Vtbl, ppSurface)
+GO(my_CreateOffscreenPlainSurface, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, int Format, int Pool, void*** ppSurface, void* pSharedHandle), (This, Width, Height, Format, Pool, ppSurface, pSharedHandle), int, IDirect3DSurface9Vtbl, ppSurface)
+GO(my_CreateRenderTargetEx, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Lockable, void*** ppSurface, void* pSharedHandle, unsigned Usage), (This, Width, Height, Format, MultiSample, MultisampleQuality, Lockable, ppSurface, pSharedHandle, Usage), int, IDirect3DSurface9Vtbl, ppSurface)
+GO(my_CreateRenderTarget, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, int Format, int MultiSample, unsigned MultisampleQuality, int Lockable, void*** ppSurface, void* pSharedHandle), (This, Width, Height, Format, MultiSample, MultisampleQuality, Lockable, ppSurface, pSharedHandle), int, IDirect3DSurface9Vtbl, ppSurface)
+GO(my_GetCubeMapSurface, (x64emu_t * emu, void* This, int FaceType, unsigned Level, void*** ppCubeMapSurface), (This, FaceType, Level, ppCubeMapSurface), int, IDirect3DSurface9Vtbl, ppCubeMapSurface)
+GO(my_GetDepthStencilSurface, (x64emu_t * emu, void* This, void*** ppZStencilSurface), (This, ppZStencilSurface), int, IDirect3DSurface9Vtbl, ppZStencilSurface)
+GO(my_GetBackBuffer, (x64emu_t * emu, void* This, unsigned iSwapChain, unsigned iBackBuffer, int Type, void*** ppBackBuffer), (This, iSwapChain, iBackBuffer, Type, ppBackBuffer), int, IDirect3DSurface9Vtbl, ppBackBuffer)
+GO(my_GetRenderTarget, (x64emu_t * emu, void* This, unsigned RenderTargetIndex, void*** ppRenderTarget), (This, RenderTargetIndex, ppRenderTarget), int, IDirect3DSurface9Vtbl, ppRenderTarget)
+GO(my_GetSurfaceLevel, (x64emu_t * emu, void* This, unsigned Level, void*** ppSurfaceLevel), (This, Level, ppSurfaceLevel), int, IDirect3DSurface9Vtbl, ppSurfaceLevel)
+GO(my_CreateAdditionalSwapChain, (x64emu_t * emu, void* This, void* pPresentationParameters, void*** pSwapChain), (This, pPresentationParameters, pSwapChain), int, IDirect3DSwapChain9Vtbl, pSwapChain)
+GO(my_GetSwapChain, (x64emu_t * emu, void* This, unsigned iSwapChain, void*** pSwapChain), (This, iSwapChain, pSwapChain), int, IDirect3DSwapChain9Vtbl, pSwapChain)
+GO(my_CreateTexture, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppTexture, void* pSharedHandle), (This, Width, Height, Levels, Usage, Format, Pool, ppTexture, pSharedHandle), int, IDirect3DTexture9Vtbl, ppTexture)
+GO(my_CreateVertexBuffer, (x64emu_t * emu, void* This, unsigned Length, unsigned Usage, unsigned FVF, int Pool, void*** ppVertexBuffer, void* pSharedHandle), (This, Length, Usage, FVF, Pool, ppVertexBuffer, pSharedHandle), int, IDirect3DVertexBuffer9Vtbl, ppVertexBuffer)
+GO(my_CreateVertexDeclaration, (x64emu_t * emu, void* This, const void* pVertexElements, void*** ppDecl), (This, pVertexElements, ppDecl), int, IDirect3DVertexDeclaration9Vtbl, ppDecl)
+GO(my_CreateVertexShader, (x64emu_t * emu, void* This, const void* pFunction, void*** ppShader), (This, pFunction, ppShader), int, IDirect3DVertexShader9Vtbl, ppShader)
+GO(my_GetVolumeLevel, (x64emu_t * emu, void* This, unsigned Level, void*** ppVolumeLevel), (This, Level, ppVolumeLevel), int, IDirect3DVolume9Vtbl, ppVolumeLevel)
+GO(my_CreateVolumeTexture, (x64emu_t * emu, void* This, unsigned Width, unsigned Height, unsigned Depth, unsigned Levels, unsigned Usage, int Format, int Pool, void*** ppVolumeTexture, void* pSharedHandle), (This, Width, Height, Depth, Levels, Usage, Format, Pool, ppVolumeTexture, pSharedHandle), int, IDirect3DVolumeTexture9Vtbl, ppVolumeTexture)
 
-GOR((r || !ppQuery), my_CreateQuery, (x64emu_t* emu, void* This, int Type, void*** ppQuery), (This, Type, ppQuery), int, IDirect3DQuery9Vtbl, ppQuery)
+GOR((r || !ppQuery), my_CreateQuery, (x64emu_t * emu, void* This, int Type, void*** ppQuery), (This, Type, ppQuery), int, IDirect3DQuery9Vtbl, ppQuery)
 
 #undef GO
 #undef GOR
@@ -222,62 +222,79 @@ static void freeMy()
 {
 }
 
-#define GOV(ns, ret, fn, args, call) \
-    static uintptr_t my_##ns##_##fn##_fct = 0; \
-    static ret my_##ns##_##fn(UNPACK args) { \
+#define GOV(ns, ret, fn, args, call)                                        \
+    static uintptr_t my_##ns##_##fn##_fct = 0;                              \
+    static ret my_##ns##_##fn(UNPACK args)                                  \
+    {                                                                       \
         ret r = (ret)RunFunctionWindows(my_##ns##_##fn##_fct, UNPACK call); \
-/* no closing brace */
+        /* no closing brace */
 
-#define GOV_1(ns, ret, fn, t1) \
-    GOV(ns, ret, fn, (t1 a), (1, a)) return r; }
-#define GOV_2(ns, ret, fn, t1, t2) \
-    GOV(ns, ret, fn, (t1 a, t2 b), (2, a, b)) return r; }
-#define GOV_3(ns, ret, fn, t1, t2, t3) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (3, a, b, c)) return r; }
-#define GOV_4(ns, ret, fn, t1, t2, t3, t4) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d), (4, a, b, c, d)) return r; }
-#define GOV_5(ns, ret, fn, t1, t2, t3, t4, t5) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e), (5, a, b, c, d, e)) return r; }
-#define GOV_6(ns, ret, fn, t1, t2, t3, t4, t5, t6) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f), (6, a, b, c, d, e, f)) return r; }
-#define GOV_7(ns, ret, fn, t1, t2, t3, t4, t5, t6, t7) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g), (7, a, b, c, d, e, f, g)) return r; }
-#define GOV_8(ns, ret, fn, t1, t2, t3, t4, t5, t6, t7, t8) \
-    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g, t8 h), (8, a, b, c, d, e, f, g, h)) return r; }
+#define GOV_1(ns, ret, fn, t1)       \
+    GOV(ns, ret, fn, (t1 a), (1, a)) \
+    return r;                        \
+    }
+#define GOV_2(ns, ret, fn, t1, t2)            \
+    GOV(ns, ret, fn, (t1 a, t2 b), (2, a, b)) \
+    return r;                                 \
+    }
+#define GOV_3(ns, ret, fn, t1, t2, t3)                 \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (3, a, b, c)) \
+    return r;                                          \
+    }
+#define GOV_4(ns, ret, fn, t1, t2, t3, t4)                      \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d), (4, a, b, c, d)) \
+    return r;                                                   \
+    }
+#define GOV_5(ns, ret, fn, t1, t2, t3, t4, t5)                           \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e), (5, a, b, c, d, e)) \
+    return r;                                                            \
+    }
+#define GOV_6(ns, ret, fn, t1, t2, t3, t4, t5, t6)                                \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f), (6, a, b, c, d, e, f)) \
+    return r;                                                                     \
+    }
+#define GOV_7(ns, ret, fn, t1, t2, t3, t4, t5, t6, t7)                                     \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g), (7, a, b, c, d, e, f, g)) \
+    return r;                                                                              \
+    }
+#define GOV_8(ns, ret, fn, t1, t2, t3, t4, t5, t6, t7, t8)                                          \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c, t4 d, t5 e, t6 f, t7 g, t8 h), (8, a, b, c, d, e, f, g, h)) \
+    return r;                                                                                       \
+    }
 
-#define GOS(ns, ret, fn, ...) \
+#define GOS(ns, ret, fn, ...)                   \
     my_##ns##_##fn##_fct = (uintptr_t)vtbl->fn; \
     vtbl->fn = my_##ns##_##fn;
 
-#define SUPER(ns, X1, X2, X3, X4, X5, X6, X7, X8) \
-        X3(ns, int, QueryInterface, void*, void*, void**) \
-        X1(ns, unsigned, AddRef, void*) \
-        X1(ns, unsigned, Release, void*) \
-        X3(ns, int, SetPresentParameters, void*, void*, void*) \
-        X8(ns, int, NewD3DWindowBufferFromDmaBuf, void*, int, int, int, int, int, int, void**) \
-        X2(ns, int, DestroyD3DWindowBuffer, void*, void*) \
-        X2(ns, int, WaitBufferReleased, void*, void*) \
-        X2(ns, int, FrontBufferCopy, void*, void*) \
-        X7(ns, int, PresentBuffer, void*, void*, void*, const void*, const void*, const void*, unsigned) \
-        X2(ns, int, GetRasterStatus, void*, void*) \
-        X3(ns, int, GetDisplayMode, void*, void*, void*) \
-        X2(ns, int, GetPresentStats, void*, void*) \
-        X2(ns, int, GetCursorPos, void*, void*) \
-        X2(ns, int, SetCursorPos, void*, void*) \
-        X4(ns, int, SetCursor, void*, void*, void*, int) \
-        X3(ns, int, SetGammaRamp, void*, const void*, void*) \
-        X5(ns, int, GetWindowInfo, void*, void*, void*, void*, void*) \
-        X1(ns, int, GetWindowOccluded, void*) \
-        X1(ns, int, ResolutionMismatch, void*) \
-        X3(ns, void*, CreateThread, void*, void*, void*) \
-        X2(ns, int, WaitForThread, void*, void*) \
-        X2(ns, int, SetPresentParameters2, void*, void*) \
-        X2(ns, int, IsBufferReleased, void*, void*) \
-        X1(ns, int, WaitBufferReleaseEvent, void*) \
+#define SUPER(ns, X1, X2, X3, X4, X5, X6, X7, X8)                                                    \
+    X3(ns, int, QueryInterface, void*, void*, void**)                                                \
+    X1(ns, unsigned, AddRef, void*)                                                                  \
+    X1(ns, unsigned, Release, void*)                                                                 \
+    X3(ns, int, SetPresentParameters, void*, void*, void*)                                           \
+    X8(ns, int, NewD3DWindowBufferFromDmaBuf, void*, int, int, int, int, int, int, void**)           \
+    X2(ns, int, DestroyD3DWindowBuffer, void*, void*)                                                \
+    X2(ns, int, WaitBufferReleased, void*, void*)                                                    \
+    X2(ns, int, FrontBufferCopy, void*, void*)                                                       \
+    X7(ns, int, PresentBuffer, void*, void*, void*, const void*, const void*, const void*, unsigned) \
+    X2(ns, int, GetRasterStatus, void*, void*)                                                       \
+    X3(ns, int, GetDisplayMode, void*, void*, void*)                                                 \
+    X2(ns, int, GetPresentStats, void*, void*)                                                       \
+    X2(ns, int, GetCursorPos, void*, void*)                                                          \
+    X2(ns, int, SetCursorPos, void*, void*)                                                          \
+    X4(ns, int, SetCursor, void*, void*, void*, int)                                                 \
+    X3(ns, int, SetGammaRamp, void*, const void*, void*)                                             \
+    X5(ns, int, GetWindowInfo, void*, void*, void*, void*, void*)                                    \
+    X1(ns, int, GetWindowOccluded, void*)                                                            \
+    X1(ns, int, ResolutionMismatch, void*)                                                           \
+    X3(ns, void*, CreateThread, void*, void*, void*)                                                 \
+    X2(ns, int, WaitForThread, void*, void*)                                                         \
+    X2(ns, int, SetPresentParameters2, void*, void*)                                                 \
+    X2(ns, int, IsBufferReleased, void*, void*)                                                      \
+    X1(ns, int, WaitBufferReleaseEvent, void*)
 
 SUPER(Present, GOV_1, GOV_2, GOV_3, GOV_4, GOV_5, GOV_6, GOV_7, GOV_8)
 
-static void fixup_PresentVtbl(ID3DPresentVtbl *vtbl)
+static void fixup_PresentVtbl(ID3DPresentVtbl* vtbl)
 {
     SUPER(Present, GOS, GOS, GOS, GOS, GOS, GOS, GOS, GOS)
 }
@@ -285,26 +302,26 @@ static void fixup_PresentVtbl(ID3DPresentVtbl *vtbl)
 
 static int pres_init = 0;
 
-#define GOV_PRES(ns, ret, fn, t1, t2, t3) \
-        GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (3, a, b, c)) \
-        ID3DPresentVtbl*** vtbl = (void*)c; \
-        if (!pres_init) fixup_PresentVtbl(**vtbl); \
-        pres_init = 1; \
-        return r; \
+#define GOV_PRES(ns, ret, fn, t1, t2, t3)              \
+    GOV(ns, ret, fn, (t1 a, t2 b, t3 c), (3, a, b, c)) \
+    ID3DPresentVtbl*** vtbl = (void*)c;                \
+    if (!pres_init) fixup_PresentVtbl(**vtbl);         \
+    pres_init = 1;                                     \
+    return r;                                          \
     }
 
-#define SUPER(ns, X1, X2, X3, XPRES) \
-        X3(ns, int, QueryInterface, void*, void*, void**) \
-        X1(ns, unsigned, AddRef, void*) \
-        X1(ns, unsigned, Release, void*) \
-        X1(ns, unsigned, GetMultiheadCount, void*) \
-        XPRES(ns, int, GetPresent, void*, unsigned, void**) \
-        X3(ns, int, CreateAdditionalPresent, void*, void*, void**) \
-        X3(ns, /*void*/ int, GetVersion, void*, void*, void*) \
+#define SUPER(ns, X1, X2, X3, XPRES)                           \
+    X3(ns, int, QueryInterface, void*, void*, void**)          \
+    X1(ns, unsigned, AddRef, void*)                            \
+    X1(ns, unsigned, Release, void*)                           \
+    X1(ns, unsigned, GetMultiheadCount, void*)                 \
+    XPRES(ns, int, GetPresent, void*, unsigned, void**)        \
+    X3(ns, int, CreateAdditionalPresent, void*, void*, void**) \
+    X3(ns, /*void*/ int, GetVersion, void*, void*, void*)
 
 SUPER(PresentGroup, GOV_1, GOV_2, GOV_3, GOV_PRES)
 
-static void fixup_PresentGroupVtbl(ID3DPresentGroupVtbl *vtbl)
+static void fixup_PresentGroupVtbl(ID3DPresentGroupVtbl* vtbl)
 {
     SUPER(PresentGroup, GOS, GOS, GOS, GOS)
 }
@@ -312,19 +329,19 @@ static void fixup_PresentGroupVtbl(ID3DPresentGroupVtbl *vtbl)
 #undef GOS
 
 typedef struct my_Direct3D9 {
-        IDirect3D9Vtbl *vtbl;
-        IDirect3D9Vtbl **real;
+    IDirect3D9Vtbl* vtbl;
+    IDirect3D9Vtbl** real;
 } my_Direct3D9;
 
-unsigned my_Direct3D9_AddRef(void *This)
+unsigned my_Direct3D9_AddRef(void* This)
 {
-    my_Direct3D9 *my = This;
+    my_Direct3D9* my = This;
     return RunFunctionWindows((uintptr_t)(*my->real)->AddRef, 1, my->real);
 }
 
-unsigned my_Direct3D9_Release(void *This)
+unsigned my_Direct3D9_Release(void* This)
 {
-    my_Direct3D9 *my = This;
+    my_Direct3D9* my = This;
     return RunFunctionWindows((uintptr_t)(*my->real)->Release, 1, my->real);
 }
 
@@ -334,19 +351,19 @@ IDirect3D9Vtbl my_Direct3D9_vtbl = {
 };
 
 typedef struct my_Direct3D9Ex {
-        IDirect3D9ExVtbl *vtbl;
-        IDirect3D9ExVtbl **real;
+    IDirect3D9ExVtbl* vtbl;
+    IDirect3D9ExVtbl** real;
 } my_Direct3D9Ex;
 
-unsigned my_Direct3D9Ex_AddRef(void *This)
+unsigned my_Direct3D9Ex_AddRef(void* This)
 {
-    my_Direct3D9Ex *my = This;
+    my_Direct3D9Ex* my = This;
     return RunFunctionFmt((uintptr_t)(*my->real)->AddRef, "p", my->real);
 }
 
-unsigned my_Direct3D9Ex_Release(void *This)
+unsigned my_Direct3D9Ex_Release(void* This)
 {
-    my_Direct3D9Ex *my = This;
+    my_Direct3D9Ex* my = This;
     return RunFunctionFmt((uintptr_t)(*my->real)->Release, "p", my->real);
 }
 
@@ -364,9 +381,9 @@ static int my_GetDirect3D(x64emu_t* emu, void* This, void*** ppD3D9)
     return 0;
 }
 
-int my_create_device(x64emu_t* emu, void *This, unsigned RealAdapter, int DeviceType, void *hFocusWindow, unsigned BehaviorFlags, void *pPresent, IDirect3D9Vtbl **pD3D9, ID3DPresentGroupVtbl **pPresentationFactory, IDirect3DDevice9Vtbl ***ppReturnedDeviceInterface)
+int my_create_device(x64emu_t* emu, void* This, unsigned RealAdapter, int DeviceType, void* hFocusWindow, unsigned BehaviorFlags, void* pPresent, IDirect3D9Vtbl** pD3D9, ID3DPresentGroupVtbl** pPresentationFactory, IDirect3DDevice9Vtbl*** ppReturnedDeviceInterface)
 {
-    my_Direct3D9 *my_pD3D9 = malloc(sizeof(my_Direct3D9));
+    my_Direct3D9* my_pD3D9 = malloc(sizeof(my_Direct3D9));
 
     my_pD3D9->vtbl = &my_Direct3D9_vtbl;
     my_pD3D9->real = pD3D9;
@@ -376,7 +393,7 @@ int my_create_device(x64emu_t* emu, void *This, unsigned RealAdapter, int Device
         my->presentgroup_init = 1;
     }
 
-    IDirect3DDevice9Vtbl **ret;
+    IDirect3DDevice9Vtbl** ret;
     int r = my->CreateDevice(This, RealAdapter, DeviceType, hFocusWindow, BehaviorFlags, pPresent, my_pD3D9, pPresentationFactory, &ret);
 
     if (r) return r;
@@ -393,9 +410,9 @@ int my_create_device(x64emu_t* emu, void *This, unsigned RealAdapter, int Device
     return 0;
 }
 
-int my_create_device_ex(x64emu_t* emu, void *This, unsigned RealAdapter, int DeviceType, void *hFocusWindow, unsigned BehaviorFlags, void *pPresent, void *pFullscreenDisplayMode, IDirect3D9ExVtbl **pD3D9Ex, ID3DPresentGroupVtbl **pPresentationFactory, IDirect3DDevice9ExVtbl ***ppReturnedDeviceInterface)
+int my_create_device_ex(x64emu_t* emu, void* This, unsigned RealAdapter, int DeviceType, void* hFocusWindow, unsigned BehaviorFlags, void* pPresent, void* pFullscreenDisplayMode, IDirect3D9ExVtbl** pD3D9Ex, ID3DPresentGroupVtbl** pPresentationFactory, IDirect3DDevice9ExVtbl*** ppReturnedDeviceInterface)
 {
-    my_Direct3D9Ex *my_pD3D9Ex = malloc(sizeof(my_Direct3D9Ex));
+    my_Direct3D9Ex* my_pD3D9Ex = malloc(sizeof(my_Direct3D9Ex));
 
     my_pD3D9Ex->vtbl = &my_Direct3D9Ex_vtbl;
     my_pD3D9Ex->real = pD3D9Ex;
@@ -405,7 +422,7 @@ int my_create_device_ex(x64emu_t* emu, void *This, unsigned RealAdapter, int Dev
         my->presentgroup_init = 1;
     }
 
-    IDirect3DDevice9ExVtbl **ret;
+    IDirect3DDevice9ExVtbl** ret;
     int r = my->CreateDeviceEx(This, RealAdapter, DeviceType, hFocusWindow, BehaviorFlags, pPresent, pFullscreenDisplayMode, my_pD3D9Ex, pPresentationFactory, &ret);
 
     if (r) return r;
@@ -422,10 +439,10 @@ int my_create_device_ex(x64emu_t* emu, void *This, unsigned RealAdapter, int Dev
     return 0;
 }
 
-int my_create_adapter(x64emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
+int my_create_adapter(x64emu_t* emu, int fd, ID3DAdapter9Vtbl*** x_adapter)
 {
 
-    ID3DAdapter9Vtbl **adapter;
+    ID3DAdapter9Vtbl** adapter;
     int r = my->create_adapter(fd, &adapter);
     if (r) return r;
 
@@ -447,7 +464,7 @@ int my_create_adapter(x64emu_t* emu, int fd, ID3DAdapter9Vtbl ***x_adapter)
     return 0 /* D3D_OK */;
 }
 
-EXPORT void* my_D3DAdapter9GetProc(x64emu_t* emu, void *ptr)
+EXPORT void* my_D3DAdapter9GetProc(x64emu_t* emu, void* ptr)
 {
 
     /* stdcall, 1st param is in RCX */

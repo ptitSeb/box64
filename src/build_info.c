@@ -9,19 +9,18 @@
 
 void PrintBox64Version()
 {
-    printf_log(LOG_NONE, "Box64%s%s v%d.%d.%d %s built on %s %s\n", 
-    #ifdef HAVE_TRACE
+    printf_log(LOG_NONE, "Box64%s%s v%d.%d.%d %s built on %s %s\n",
+#ifdef HAVE_TRACE
         " with trace",
-    #else
+#else
         "",
-    #endif
-    #ifdef DYNAREC
+#endif
+#ifdef DYNAREC
         " with Dynarec",
-    #else
+#else
         "",
-    #endif
+#endif
         BOX64_MAJOR, BOX64_MINOR, BOX64_REVISION,
         GITREV,
         __DATE__, __TIME__);
 }
-

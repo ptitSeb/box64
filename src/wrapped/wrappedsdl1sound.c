@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -26,7 +26,7 @@ EXPORT void* my_Sound_NewSample(x64emu_t* emu, void* a, void* ext, void* desired
 {
     SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
     void* r = my->Sound_NewSample(rw, ext, desired, buffersize);
-    //RWNativeEnd(rw);  // will be closed automatically
+    // RWNativeEnd(rw);  // will be closed automatically
     return r;
 }
 

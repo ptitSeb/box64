@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -24,7 +24,7 @@ const char* libeglName = "libEGL.so.1";
 
 #include "wrappercallback.h"
 
-EXPORT void* my_eglGetProcAddress(x64emu_t* emu, void* name) 
+EXPORT void* my_eglGetProcAddress(x64emu_t* emu, void* name)
 {
     khint_t k;
     const char* rname = (const char*)name;

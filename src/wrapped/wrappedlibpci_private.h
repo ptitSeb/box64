@@ -23,7 +23,7 @@ GO(pci_id_cache_flush, vFp)
 GO(pci_init, vFp)
 GO(pci_load_name_list, iFp)
 GO(pci_lookup_method, iFp)
-GO(pci_lookup_name, pFpiipppp)  //vaarg, with up to 4 element depending on flags
+GO(pci_lookup_name, pFpiipppp) // vaarg, with up to 4 element depending on flags
 GO(pci_read_block, iFpipi)
 GO(pci_read_byte, CFpi)
 GO(pci_read_long, uFpi)

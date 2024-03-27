@@ -7,7 +7,7 @@ GO(pango_attr_background_new, pFWWW)
 GO(pango_attr_fallback_new, pFi)
 GO(pango_attr_family_new, pFp)
 GO(pango_attr_font_desc_new, pFp)
-GO(pango_attr_font_features_new, pFp)   //since 1.38
+GO(pango_attr_font_features_new, pFp) // since 1.38
 GO(pango_attr_foreground_new, pFWWW)
 GO(pango_attr_gravity_hint_new, pFi)
 GO(pango_attr_gravity_new, pFi)
@@ -26,7 +26,7 @@ GO(pango_attr_language_new, pFp)
 GO(pango_attr_letter_spacing_new, pFi)
 GO(pango_attr_list_change, vFpp)
 GO(pango_attr_list_copy, pFp)
-//GOM(pango_attr_list_filter, pFEpBp)
+// GOM(pango_attr_list_filter, pFEpBp)
 GO(pango_attr_list_get_iterator, pFp)
 GO(pango_attr_list_get_type, iFv)
 GO(pango_attr_list_insert, vFpp)
@@ -38,7 +38,7 @@ GO(pango_attr_list_unref, vFp)
 GO(pango_attr_rise_new, pFi)
 GO(pango_attr_scale_new, pFd)
 GO(pango_attr_shape_new, pFpp)
-//GOM(pango_attr_shape_new_with_data, pFpppBB)
+// GOM(pango_attr_shape_new_with_data, pFpppBB)
 GO(pango_attr_size_new, pFi)
 GO(pango_attr_size_new_absolute, pFi)
 GO(pango_attr_stretch_new, pFi)
@@ -53,15 +53,15 @@ GO(pango_attr_underline_new, pFi)
 GO(pango_attr_variant_new, pFi)
 GO(pango_attr_weight_new, pFi)
 GO(pango_bidi_type_for_unichar, uFu)
-//GO(pango_bidi_type_get_type, 
-//GO(pango_break, 
+// GO(pango_bidi_type_get_type,
+// GO(pango_break,
 GO(pango_color_copy, pFp)
 GO(pango_color_free, vFp)
 GO(pango_color_get_type, iFv)
 GO(pango_color_parse, iFpp)
 GO(pango_color_to_string, pFp)
 GO(pango_config_key_get, pFp)
-//GO(pango_config_key_get_system, 
+// GO(pango_config_key_get_system,
 GO(pango_context_changed, vFp)
 GO(pango_context_get_base_dir, uFp)
 GO(pango_context_get_base_gravity, iFp)
@@ -88,22 +88,22 @@ GO(pango_context_set_matrix, vFpp)
 GO(pango_coverage_copy, pFp)
 GO(pango_coverage_from_bytes, pFpi)
 GO(pango_coverage_get, uFpi)
-//GO(pango_coverage_level_get_type, 
+// GO(pango_coverage_level_get_type,
 GO(pango_coverage_max, vFpp)
 GO(pango_coverage_new, pFv)
-//GO(pango_coverage_ref, 
+// GO(pango_coverage_ref,
 GO(pango_coverage_set, vFpiu)
 GO(pango_coverage_to_bytes, vFppp)
-//GO(pango_coverage_unref, 
+// GO(pango_coverage_unref,
 GO(pango_default_break, vFpippi)
-//GO(pango_direction_get_type, 
+// GO(pango_direction_get_type,
 GO(pango_ellipsize_mode_get_type, lFv)
-//GO(pango_engine_get_type, 
-//GO(pango_engine_lang_get_type, 
-//GO(pango_engine_shape_get_type, 
+// GO(pango_engine_get_type,
+// GO(pango_engine_lang_get_type,
+// GO(pango_engine_shape_get_type,
 GO(pango_extents_to_pixels, vFpp)
 GO(pango_find_base_dir, uFpi)
-//GO(pango_find_map, 
+// GO(pango_find_map,
 GO(pango_find_paragraph_boundary, vFpipp)
 GO(pango_font_describe, pFp)
 GO(pango_font_describe_with_absolute_size, pFp)
@@ -157,7 +157,7 @@ GO(pango_font_get_metrics, pFpp)
 GO(pango_font_get_type, iFv)
 GO(pango_font_map_create_context, pFp)
 GO(pango_font_map_get_serial, uFp)
-//GO(pango_font_map_get_shape_engine_type, 
+// GO(pango_font_map_get_shape_engine_type,
 GO(pango_font_map_get_type, iFv)
 GO(pango_font_map_list_families, vFppp)
 GO(pango_font_map_load_font, pFppp)
@@ -172,21 +172,21 @@ GO(pango_font_metrics_get_strikethrough_thickness, iFp)
 GO(pango_font_metrics_get_type, iFv)
 GO(pango_font_metrics_get_underline_position, iFp)
 GO(pango_font_metrics_get_underline_thickness, iFp)
-//GO(pango_font_metrics_new, 
+// GO(pango_font_metrics_new,
 GO(pango_font_metrics_ref, pFp)
 GO(pango_font_metrics_unref, vFp)
-//GO(pango_fontset_foreach, 
+// GO(pango_fontset_foreach,
 GO(pango_fontset_get_font, pFpu)
 GO(pango_fontset_get_metrics, pFp)
-//GO(pango_fontset_get_type, 
+// GO(pango_fontset_get_type,
 GO(pango_fontset_simple_append, vFpp)
-//GO(pango_fontset_simple_get_type, 
+// GO(pango_fontset_simple_get_type,
 GO(pango_fontset_simple_new, pFp)
 GO(pango_fontset_simple_size, iFp)
-//GO(pango_get_lib_subdirectory, 
+// GO(pango_get_lib_subdirectory,
 GO(pango_get_log_attrs, vFpiippi)
 GO(pango_get_mirror_char, iFup)
-//GO(pango_get_sysconf_subdirectory, 
+// GO(pango_get_sysconf_subdirectory,
 GO(pango_glyph_item_apply_attrs, pFppp)
 GO(pango_glyph_item_copy, pFp)
 GO(pango_glyph_item_free, vFp)
@@ -216,12 +216,12 @@ GO(pango_gravity_get_for_matrix, uFp)
 GO(pango_gravity_get_for_script, uFiuu)
 GO(pango_gravity_get_for_script_and_width, uFiiuu)
 GO(pango_gravity_get_type, iFv)
-//GO(pango_gravity_hint_get_type, 
+// GO(pango_gravity_hint_get_type,
 GO(pango_gravity_to_rotation, dFu)
 GO(pango_is_zero_width, iFu)
 GO(pango_item_copy, pFp)
 GO(pango_item_free, vFp)
-//GO(pango_item_get_type, 
+// GO(pango_item_get_type,
 GO(pango_itemize, pFppiipp)
 GO(pango_itemize_with_base_dir, pFpupiipp)
 GO(pango_item_new, pFv)
@@ -322,16 +322,16 @@ GO(pango_layout_set_width, vFpi)
 GO(pango_layout_set_wrap, vFpu)
 GO(pango_layout_xy_to_index, iFpiipp)
 GO(pango_log2vis_get_embedding_levels, pFpip)
-//GO(pango_lookup_aliases, 
-//GO(pango_map_get_engine, 
-//GO(pango_map_get_engines, 
+// GO(pango_lookup_aliases,
+// GO(pango_map_get_engine,
+// GO(pango_map_get_engines,
 GO(pango_markup_parser_finish, iFppppp)
 GO(pango_markup_parser_new, pFu)
 GO(pango_matrix_concat, vFpp)
 GO(pango_matrix_copy, pFp)
 GO(pango_matrix_free, vFp)
 GO(pango_matrix_get_font_scale_factor, dFp)
-GO(pango_matrix_get_font_scale_factors, vFppp)  //1.38+
+GO(pango_matrix_get_font_scale_factors, vFppp) // 1.38+
 GO(pango_matrix_get_type, iFv)
 GO(pango_matrix_rotate, vFpd)
 GO(pango_matrix_scale, vFpdd)
@@ -340,7 +340,7 @@ GO(pango_matrix_transform_pixel_rectangle, vFpp)
 GO(pango_matrix_transform_point, vFppp)
 GO(pango_matrix_transform_rectangle, vFpp)
 GO(pango_matrix_translate, vFpdd)
-//GO(pango_module_register, 
+// GO(pango_module_register,
 GO(pango_parse_enum, iFLppip)
 GO(pango_parse_markup, iFpiupppp)
 GO(pango_parse_stretch, iFppi)
@@ -349,7 +349,7 @@ GO(pango_parse_variant, iFppi)
 GO(pango_parse_weight, iFppi)
 GO(pango_quantize_line_geometry, vFpp)
 GO(pango_read_line, iFpp)
-//GO(pango_renderer_activate, 
+// GO(pango_renderer_activate,
 GO(pango_renderer_deactivate, vFp)
 GO(pango_renderer_draw_error_underline, vFpiiii)
 GO(pango_renderer_draw_glyph, vFppudd)
@@ -367,7 +367,7 @@ GO(pango_renderer_get_type, LFv)
 GO(pango_renderer_part_changed, vFpu)
 GO(pango_renderer_set_color, vFpup)
 GO(pango_renderer_set_matrix, vFpp)
-//GO(pango_render_part_get_type, 
+// GO(pango_render_part_get_type,
 GO(pango_reorder_items, pFp)
 GO(pango_scan_int, iFpp)
 GO(pango_scan_string, iFpp)
@@ -394,7 +394,7 @@ GO(pango_tab_array_get_tab, vFpipp)
 GO(pango_tab_array_get_tabs, vFppp)
 GO(pango_tab_array_get_type, iFv)
 GO(pango_tab_array_new, pFii)
-GO(pango_tab_array_new_with_positions, pFiiiippppppppppppppp) //vaarg
+GO(pango_tab_array_new_with_positions, pFiiiippppppppppppppp) // vaarg
 GO(pango_tab_array_resize, vFpi)
 GO(pango_tab_array_set_tab, vFpiui)
 GO(pango_trim_string, pFp)

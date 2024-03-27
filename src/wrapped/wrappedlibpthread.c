@@ -18,7 +18,7 @@
 #include "box64context.h"
 #include "librarian.h"
 
-const char* libpthreadName = 
+const char* libpthreadName =
 #ifdef ANDROID
     "libc.so";
 #else
@@ -26,38 +26,38 @@ const char* libpthreadName =
 #endif
 #define LIBNAME libpthread
 
-//EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, void* attr, void* param)
+// EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, void* attr, void* param)
 //{
-//    int policy;
-//    pthread_attr_getschedpolicy(attr, &policy);
-//    int pmin = sched_get_priority_min(policy);
-//    int pmax = sched_get_priority_max(policy);
-//    if(param) {
-//        int p = *(int*)param;
-//        if(p>=pmin && p<=pmax)
-//            return pthread_attr_setschedparam(attr, param);
-//    }
-//    printf_log(LOG_INFO, "Warning, call to pthread_attr_setschedparam(%p, %p[%d]) ignored\n", attr, param, param?(*(int*)param):-1);
-//    return 0;   // faking success
-//}
+//     int policy;
+//     pthread_attr_getschedpolicy(attr, &policy);
+//     int pmin = sched_get_priority_min(policy);
+//     int pmax = sched_get_priority_max(policy);
+//     if(param) {
+//         int p = *(int*)param;
+//         if(p>=pmin && p<=pmax)
+//             return pthread_attr_setschedparam(attr, param);
+//     }
+//     printf_log(LOG_INFO, "Warning, call to pthread_attr_setschedparam(%p, %p[%d]) ignored\n", attr, param, param?(*(int*)param):-1);
+//     return 0;   // faking success
+// }
 
-EXPORT int32_t my_pthread_atfork(x64emu_t *emu, void* prepare, void* parent, void* child)
+EXPORT int32_t my_pthread_atfork(x64emu_t* emu, void* prepare, void* parent, void* child)
 {
     (void)emu;
     // this is partly incorrect, because the emulated functions should be executed by actual fork and not by my_atfork...
-    if(my_context->atfork_sz==my_context->atfork_cap) {
+    if (my_context->atfork_sz == my_context->atfork_cap) {
         my_context->atfork_cap += 4;
-        my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap*sizeof(atfork_fnc_t));
+        my_context->atforks = (atfork_fnc_t*)realloc(my_context->atforks, my_context->atfork_cap * sizeof(atfork_fnc_t));
     }
     int i = my_context->atfork_sz++;
     my_context->atforks[i].prepare = (uintptr_t)prepare;
     my_context->atforks[i].parent = (uintptr_t)parent;
     my_context->atforks[i].child = (uintptr_t)child;
     my_context->atforks[i].handle = NULL;
-    
+
     return 0;
 }
-EXPORT int32_t my___pthread_atfork(x64emu_t *emu, void* prepare, void* parent, void* child) __attribute__((alias("my_pthread_atfork")));
+EXPORT int32_t my___pthread_atfork(x64emu_t* emu, void* prepare, void* parent, void* child) __attribute__((alias("my_pthread_atfork")));
 
 EXPORT void my___pthread_initialize()
 {

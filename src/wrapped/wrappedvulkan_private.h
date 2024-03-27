@@ -2,38 +2,38 @@
 #error meh!
 #endif
 
-//vkDeviceSize == uint64_t
-//VkImageLayout == enum
-//VK_DEFINE_NON_DISPATCHABLE_HANDLE == uint64_t
-// VkAccelerationStructureNV  = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkBuffer = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkBufferView = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkCommandPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDeferredOperationKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDescriptorPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDescriptorSet = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDescriptorSetLayout = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDescriptorUpdateTemplate = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDeviceMemory = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDisplayKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkDisplayModeKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkEvent = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkFence = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkFramebuffer = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkImage = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkImageView = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkPipeline = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkPipelineCache = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkPipelineLayout = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkQueryPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkRenderPass = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkSampler = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkSamplerYcbcrConversion = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkSemaphore = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkShaderModule = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkSurfaceKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkSwapchainKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
-// VkPrivateDataSlot = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+// vkDeviceSize == uint64_t
+// VkImageLayout == enum
+// VK_DEFINE_NON_DISPATCHABLE_HANDLE == uint64_t
+//  VkAccelerationStructureNV  = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkBuffer = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkBufferView = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkCommandPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDeferredOperationKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDescriptorPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDescriptorSet = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDescriptorSetLayout = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDescriptorUpdateTemplate = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDeviceMemory = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDisplayKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkDisplayModeKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkEvent = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkFence = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkFramebuffer = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkImage = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkImageView = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkPipeline = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkPipelineCache = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkPipelineLayout = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkQueryPool = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkRenderPass = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkSampler = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkSamplerYcbcrConversion = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkSemaphore = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkShaderModule = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkSurfaceKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkSwapchainKHR = VK_DEFINE_NON_DISPATCHABLE_HANDLE
+//  VkPrivateDataSlot = VK_DEFINE_NON_DISPATCHABLE_HANDLE
 
 // VkDeviceAddress = uint64_t
 
@@ -136,7 +136,7 @@ GO(vkEnumerateDeviceLayerProperties, iFppp)
 GO(vkEnumerateInstanceExtensionProperties, iFppp)
 GO(vkEnumerateInstanceLayerProperties, iFpp)
 GO(vkEnumeratePhysicalDevices, iFppp)
-GO(vkFlushMappedMemoryRanges, iFpup)    // should wrap the array of VkMappedMemoryRange
+GO(vkFlushMappedMemoryRanges, iFpup) // should wrap the array of VkMappedMemoryRange
 GO(vkFreeCommandBuffers, vFpUup)
 GO(vkFreeDescriptorSets, iFpUup)
 GOM(vkFreeMemory, iFEpUp)
@@ -152,15 +152,15 @@ GO(vkGetImageSubresourceLayout, vFpUpp)
 GOM(vkGetInstanceProcAddr, pFEpp)
 GO(vkGetPhysicalDeviceFeatures, vFpp)
 GO(vkGetPhysicalDeviceFormatProperties, vFpip)
-GO(vkGetPhysicalDeviceImageFormatProperties, iFpiiiiip) //VkImageFormatProperties sems OK
+GO(vkGetPhysicalDeviceImageFormatProperties, iFpiiiiip) // VkImageFormatProperties sems OK
 GOM(vkGetPhysicalDeviceMemoryProperties, vFEpp)
 GOM(vkGetPhysicalDeviceProperties, vFEpp)
-GO(vkGetPhysicalDeviceQueueFamilyProperties, vFppp)   //VkQueueFamilyProperties is OK
+GO(vkGetPhysicalDeviceQueueFamilyProperties, vFppp) // VkQueueFamilyProperties is OK
 GOM(vkGetPhysicalDeviceSparseImageFormatProperties, vFEpiiiiipp)
 GO(vkGetPipelineCacheData, iFpUpp)
 GO(vkGetQueryPoolResults, iFpUuuLpUi)
 GO(vkGetRenderAreaGranularity, vFpUp)
-GO(vkInvalidateMappedMemoryRanges, iFpup)   //VkMappedMemoryRange seems OK
+GO(vkInvalidateMappedMemoryRanges, iFpup) // VkMappedMemoryRange seems OK
 GO(vkMapMemory, iFpUUUip)
 GO(vkMergePipelineCaches, iFpUup)
 GO(vkQueueBindSparse, iFpupU)
@@ -186,7 +186,7 @@ GOM(vkCreateSamplerYcbcrConversion, iFEpppp)
 GOM(vkDestroyDescriptorUpdateTemplate, vFEpUp)
 GOM(vkDestroySamplerYcbcrConversion, vFEpUp)
 GO(vkEnumerateInstanceVersion, iFp)
-GO(vkEnumeratePhysicalDeviceGroups, iFppp)  //VkPhysicalDeviceGroupProperties seems OK
+GO(vkEnumeratePhysicalDeviceGroups, iFppp) // VkPhysicalDeviceGroupProperties seems OK
 GO(vkGetBufferMemoryRequirements2, iFppp)
 GO(vkGetImageMemoryRequirements2, vFppp)
 GO(vkGetImageSparseMemoryRequirements2, vFpppp)
@@ -201,8 +201,8 @@ GO(vkGetPhysicalDeviceFormatProperties2, vFpip)
 GO(vkGetPhysicalDeviceImageFormatProperties2, iFppp)
 GO(vkGetPhysicalDeviceMemoryProperties2, vFpp)
 GO(vkGetPhysicalDeviceProperties2, vFpp)
-GO(vkGetPhysicalDeviceQueueFamilyProperties2, vFppp)    //VkQueueFamilyProperties2 seems OK
-GO(vkGetPhysicalDeviceSparseImageFormatProperties2, vFpppp) //VkSparseImageFormatProperties2 seems OK
+GO(vkGetPhysicalDeviceQueueFamilyProperties2, vFppp)        // VkQueueFamilyProperties2 seems OK
+GO(vkGetPhysicalDeviceSparseImageFormatProperties2, vFpppp) // VkSparseImageFormatProperties2 seems OK
 GO(vkGetPhysicalDeviceToolProperties, iFppp)
 GO(vkUpdateDescriptorSetWithTemplate, vFpUUp)
 GO(vkTrimCommandPool, vFpUi)
@@ -267,8 +267,8 @@ GOM(vkCreateDebugReportCallbackEXT, iFEpppp)
 GO(vkDebugReportMessageEXT, vFpiiULipp)
 GOM(vkDestroyDebugReportCallbackEXT, iFEppp)
 
-//VK_EXT_debug_utils
-GO(vkCmdBeginDebugUtilsLabelEXT, vFpp)  //TODO: Check alignement of this extension
+// VK_EXT_debug_utils
+GO(vkCmdBeginDebugUtilsLabelEXT, vFpp) // TODO: Check alignement of this extension
 GO(vkCmdEndDebugUtilsLabelEXT, vFp)
 GO(vkCmdInsertDebugUtilsLabelEXT, vFpp)
 GOM(vkCreateDebugUtilsMessengerEXT, iFEpppp)
@@ -290,15 +290,15 @@ GO(vkGetPhysicalDeviceImageFormatProperties2KHR, vFppp)
 GO(vkGetPhysicalDeviceMemoryProperties2KHR, vFpp)
 GO(vkGetPhysicalDeviceProperties2KHR, vFpp)
 GO(vkGetPhysicalDeviceQueueFamilyProperties2KHR, vFppp)
-GO(vkGetPhysicalDeviceSparseImageFormatProperties2KHR, vFpppp)  //VkSparseImageFormatProperties2 seems OK
+GO(vkGetPhysicalDeviceSparseImageFormatProperties2KHR, vFpppp) // VkSparseImageFormatProperties2 seems OK
 
 // VK_KHR_get_surface_capabilities2
 GO(vkGetPhysicalDeviceSurfaceCapabilities2KHR, iFppp)
-GO(vkGetPhysicalDeviceSurfaceFormats2KHR, iFpppp)   //VkSurfaceFormat2KHR seems OK (but array)
+GO(vkGetPhysicalDeviceSurfaceFormats2KHR, iFpppp) // VkSurfaceFormat2KHR seems OK (but array)
 
 // VK_KHR_surface
 GOM(vkDestroySurfaceKHR, vFEpUp)
-GO(vkGetPhysicalDeviceSurfaceCapabilitiesKHR, iFpUp)    //VkSurfaceCapabilitiesKHR seems OK
+GO(vkGetPhysicalDeviceSurfaceCapabilitiesKHR, iFpUp) // VkSurfaceCapabilitiesKHR seems OK
 GO(vkGetPhysicalDeviceSurfaceFormatsKHR, iFpUpp)
 GO(vkGetPhysicalDeviceSurfacePresentModesKHR, iFpUpp)
 GO(vkGetPhysicalDeviceSurfaceSupportKHR, iFpuUp)
@@ -329,10 +329,10 @@ GO(vkBindImageMemory2KHR, iFpup)
 // VK_KHR_display
 GOM(vkCreateDisplayModeKHR, iFEpUppp)
 GOM(vkCreateDisplayPlaneSurfaceKHR, iFEpppp)
-GO(vkGetDisplayModePropertiesKHR, iFpUpp)   //VkDisplayModePropertiesKHR seems OK
+GO(vkGetDisplayModePropertiesKHR, iFpUpp) // VkDisplayModePropertiesKHR seems OK
 GOM(vkGetDisplayPlaneCapabilitiesKHR, iFEpUup)
 GO(vkGetDisplayPlaneSupportedDisplaysKHR, iFpupp)
-GO(vkGetPhysicalDeviceDisplayPlanePropertiesKHR, iFppp) //VkDisplayPlanePropertiesKHR is OK
+GO(vkGetPhysicalDeviceDisplayPlanePropertiesKHR, iFppp) // VkDisplayPlanePropertiesKHR is OK
 GOM(vkGetPhysicalDeviceDisplayPropertiesKHR, iFEppp)
 
 // VK_KHR_descriptor_update_template
@@ -446,7 +446,7 @@ GO(vkGetPhysicalDeviceMultisamplePropertiesEXT, vFpip)
 // VK_EXT_headless_surface
 GOM(vkCreateHeadlessSurfaceEXT, iFEpppp)
 
-//VK_KHR_performance_query
+// VK_KHR_performance_query
 GO(vkAcquireProfilingLockKHR, iFpp)
 GO(vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR, iFpuppp)
 GO(vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR, vFppp)

@@ -8,13 +8,14 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void (*vFp_t)(void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(g_thread_init, vFp_t) \
-	GO(g_thread_init_with_errorcheck_mutexes, vFp_t)
+#define SUPER()              \
+    ADDED_FUNCTIONS()        \
+    GO(g_thread_init, vFp_t) \
+    GO(g_thread_init_with_errorcheck_mutexes, vFp_t)
 
 #endif // __wrappedgthread2TYPES_H_

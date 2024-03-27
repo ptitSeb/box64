@@ -2,7 +2,7 @@
 #define __DYNAREC_RV64_HELPER_H__
 
 // undef to get Close to SSE Float->int conversions
-//#define PRECISE_CVT
+// #define PRECISE_CVT
 
 #if STEP == 0
 #include "dynarec_rv64_pass0.h"
@@ -40,25 +40,43 @@
 // Sequence of Write will trigger a DMB on "last" write if strongmem is >= 1
 // All Write operation that might use a lock all have a memory barrier if strongmem is >= SMWRITE_MIN
 // Opcode will read
-#define SMREAD() if((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN)) {SMDMB();} else dyn->smread=1
+#define SMREAD()                                                        \
+    if ((dyn->smread == 0) && (box64_dynarec_strongmem > SMREAD_MIN)) { \
+        SMDMB();                                                        \
+    } else                                                              \
+        dyn->smread = 1
 // Opcode will read with option forced lock
-#define SMREADLOCK(lock)    if((lock) || ((dyn->smread==0) && (box64_dynarec_strongmem>SMREAD_MIN))) {SMDMB();}
+#define SMREADLOCK(lock) \
+    if ((lock) || ((dyn->smread == 0) && (box64_dynarec_strongmem > SMREAD_MIN))) { SMDMB(); }
 // Opcode might read (depend on nextop)
-#define SMMIGHTREAD()   if(!MODREG) {SMREAD();}
+#define SMMIGHTREAD() \
+    if (!MODREG) { SMREAD(); }
 // Opcode has wrote
-#define SMWRITE()   dyn->smwrite=1
+#define SMWRITE() dyn->smwrite = 1
 // Opcode has wrote (strongmem>1 only)
-#define SMWRITE2()   if(box64_dynarec_strongmem>SMREAD_MIN) dyn->smwrite=1
+#define SMWRITE2() \
+    if (box64_dynarec_strongmem > SMREAD_MIN) dyn->smwrite = 1
 // Opcode has wrote with option forced lock
-#define SMWRITELOCK(lock)   if(lock || (box64_dynarec_strongmem>SMWRITE_MIN)) {SMDMB();} else dyn->smwrite=1
+#define SMWRITELOCK(lock)                                  \
+    if (lock || (box64_dynarec_strongmem > SMWRITE_MIN)) { \
+        SMDMB();                                           \
+    } else                                                 \
+        dyn->smwrite = 1
 // Opcode might have wrote (depend on nextop)
-#define SMMIGHTWRITE()   if(!MODREG) {SMWRITE();}
+#define SMMIGHTWRITE() \
+    if (!MODREG) { SMWRITE(); }
 // Start of sequence
-#define SMSTART()   SMEND()
+#define SMSTART() SMEND()
 // End of sequence
-#define SMEND()     if(dyn->smwrite && box64_dynarec_strongmem) {FENCE();} dyn->smwrite=0; dyn->smread=0;
+#define SMEND()                                               \
+    if (dyn->smwrite && box64_dynarec_strongmem) { FENCE(); } \
+    dyn->smwrite = 0;                                         \
+    dyn->smread = 0;
 // Force a Data memory barrier (for LOCK: prefix)
-#define SMDMB()     FENCE(); dyn->smwrite=0; dyn->smread=1
+#define SMDMB()       \
+    FENCE();          \
+    dyn->smwrite = 0; \
+    dyn->smread = 1
 
 // LOCK_* define
 #define LOCK_LOCK (int*)1
@@ -891,32 +909,32 @@
     OR(dst, dst, s1)
 
 #if STEP == 0
-#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t)   var = x87_do_push(dyn, ninst, scratch, t)
-#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)     x87_do_push_empty(dyn, ninst, scratch)
-#define X87_POP_OR_FAIL(dyn, ninst, scratch)            x87_do_pop(dyn, ninst, scratch)
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) var = x87_do_push(dyn, ninst, scratch, t)
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)   x87_do_push_empty(dyn, ninst, scratch)
+#define X87_POP_OR_FAIL(dyn, ninst, scratch)          x87_do_pop(dyn, ninst, scratch)
 #else
-#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) \
-    if (dyn->e.stack == +8) {                         \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
-        dyn->abort = 1;                               \
-        return addr;                                  \
-    }                                                 \
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t)                                                                                  \
+    if (dyn->e.stack == +8) {                                                                                                          \
+        if (box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
+        dyn->abort = 1;                                                                                                                \
+        return addr;                                                                                                                   \
+    }                                                                                                                                  \
     var = x87_do_push(dyn, ninst, scratch, t);
 
-#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch) \
-    if (dyn->e.stack == +8) {                       \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
-        dyn->abort = 1;                               \
-        return addr;                                \
-    }                                               \
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)                                                                                    \
+    if (dyn->e.stack == +8) {                                                                                                          \
+        if (box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
+        dyn->abort = 1;                                                                                                                \
+        return addr;                                                                                                                   \
+    }                                                                                                                                  \
     x87_do_push_empty(dyn, ninst, scratch);
 
-#define X87_POP_OR_FAIL(dyn, ninst, scratch) \
-    if (dyn->e.stack == -8) {                \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Pop, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
-        dyn->abort = 1;                               \
-        return addr;                         \
-    }                                        \
+#define X87_POP_OR_FAIL(dyn, ninst, scratch)                                                                                          \
+    if (dyn->e.stack == -8) {                                                                                                         \
+        if (box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Pop, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
+        dyn->abort = 1;                                                                                                               \
+        return addr;                                                                                                                  \
+    }                                                                                                                                 \
     x87_do_pop(dyn, ninst, scratch);
 #endif
 
@@ -944,7 +962,7 @@
 #ifndef SETFLAGS
 #define SETFLAGS(A, B)                                                                                              \
     if (dyn->f.pending != SF_SET                                                                                    \
-        && ((B)&SF_SUB)                                                                                             \
+        && ((B) & SF_SUB)                                                                                           \
         && (dyn->insts[ninst].x64.gen_flags & (~(A))))                                                              \
         READFLAGS(((dyn->insts[ninst].x64.gen_flags & X_PEND) ? X_ALL : dyn->insts[ninst].x64.gen_flags) & (~(A))); \
     if (dyn->insts[ninst].x64.gen_flags) switch (B) {                                                               \
@@ -1002,7 +1020,7 @@
 
 
 #if STEP < 2
-#define GETIP(A) TABLE64(0, 0)
+#define GETIP(A)  TABLE64(0, 0)
 #define GETIP_(A) TABLE64(0, 0)
 #else
 // put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
@@ -1375,7 +1393,7 @@ int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b);
 #define X87_ST0           extcache_no_i64(dyn, ninst, 0, extcache_get_current_st(dyn, ninst, 0))
 #define X87_ST(A)         extcache_no_i64(dyn, ninst, A, extcache_get_current_st(dyn, ninst, A))
 #else
-#define ST_IS_F(A) (extcache_get_st(dyn, ninst, A) == EXT_CACHE_ST_F)
+#define ST_IS_F(A)   (extcache_get_st(dyn, ninst, A) == EXT_CACHE_ST_F)
 #define ST_IS_I64(A) (extcache_get_st(dyn, ninst, A) == EXT_CACHE_ST_I64)
 #if STEP == 3
 #define X87_COMBINE(A, B) extcache_st_coherency(dyn, ninst, A, B)

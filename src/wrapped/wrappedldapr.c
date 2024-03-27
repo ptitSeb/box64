@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -26,38 +26,43 @@ const char* ldaprName =
 #define ALTNAME "libldap-2.5.so.0"
 #define LIBNAME ldapr
 
-#define ADDED_FUNCTIONS() \
+#define ADDED_FUNCTIONS()
 
 #include "wrappedldaprtypes.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // LDAP_SASL_INTERACT_PROC ...
-#define GO(A)   \
-static uintptr_t my_LDAP_SASL_INTERACT_PROC_fct_##A = 0;                                        \
-static int my_LDAP_SASL_INTERACT_PROC_##A(void* a, unsigned b, void* c, void* d)                \
-{                                                                                               \
-    return RunFunctionFmt(my_LDAP_SASL_INTERACT_PROC_fct_##A, "pupp", a, b, c, d);        \
-}
+#define GO(A)                                                                          \
+    static uintptr_t my_LDAP_SASL_INTERACT_PROC_fct_##A = 0;                           \
+    static int my_LDAP_SASL_INTERACT_PROC_##A(void* a, unsigned b, void* c, void* d)   \
+    {                                                                                  \
+        return RunFunctionFmt(my_LDAP_SASL_INTERACT_PROC_fct_##A, "pupp", a, b, c, d); \
+    }
 SUPER()
 #undef GO
 static void* find_LDAP_SASL_INTERACT_PROC_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_LDAP_SASL_INTERACT_PROC_fct_##A == (uintptr_t)fct) return my_LDAP_SASL_INTERACT_PROC_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_LDAP_SASL_INTERACT_PROC_fct_##A == (uintptr_t)fct) return my_LDAP_SASL_INTERACT_PROC_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_LDAP_SASL_INTERACT_PROC_fct_##A == 0) {my_LDAP_SASL_INTERACT_PROC_fct_##A = (uintptr_t)fct; return my_LDAP_SASL_INTERACT_PROC_##A; }
+#undef GO
+#define GO(A)                                                \
+    if (my_LDAP_SASL_INTERACT_PROC_fct_##A == 0) {           \
+        my_LDAP_SASL_INTERACT_PROC_fct_##A = (uintptr_t)fct; \
+        return my_LDAP_SASL_INTERACT_PROC_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libldap_r LDAP_SASL_INTERACT_PROC callback\n");
     return NULL;
 }

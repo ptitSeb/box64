@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -12,9 +12,9 @@
 #include "x64emu.h"
 
 #ifdef ANDROID
-    const char* libxrenderName = "libXrender.so";
+const char* libxrenderName = "libXrender.so";
 #else
-    const char* libxrenderName = "libXrender.so.1";
+const char* libxrenderName = "libXrender.so.1";
 #endif
 
 #define LIBNAME libxrender

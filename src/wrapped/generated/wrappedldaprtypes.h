@@ -8,12 +8,13 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFpppppupp_t)(void*, void*, void*, void*, void*, uint32_t, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(ldap_sasl_interactive_bind_s, iFpppppupp_t)
+#define SUPER()       \
+    ADDED_FUNCTIONS() \
+    GO(ldap_sasl_interactive_bind_s, iFpppppupp_t)
 
 #endif // __wrappedldaprTYPES_H_

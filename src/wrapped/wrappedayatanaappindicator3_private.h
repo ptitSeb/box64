@@ -33,13 +33,13 @@ GO(app_indicator_set_secondary_activate_target, vFpp)
 GO(app_indicator_set_status, vFpi)
 GO(app_indicator_set_title, vFpp)
 GO(app_indicator_status_get_type, iFv)
-//GO(_application_service_marshal_VOID__BOOLEAN_STRING_OBJECT, 
-//GO(_application_service_marshal_VOID__INT_INT, 
-//GO(_application_service_marshal_VOID__INT_STRING, 
-//GO(_application_service_marshal_VOID__INT_STRING_STRING, 
-//GO(_application_service_marshal_VOID__INT_UINT, 
-//GO(_application_service_marshal_VOID__STRING_INT_STRING_STRING_STRING_STRING_STRING, 
-//GO(_application_service_marshal_VOID__STRING_STRING, 
-//GO(_generate_id, 
-//DATA(_notification_item, 
-//DATA(_notification_watcher, 
+// GO(_application_service_marshal_VOID__BOOLEAN_STRING_OBJECT,
+// GO(_application_service_marshal_VOID__INT_INT,
+// GO(_application_service_marshal_VOID__INT_STRING,
+// GO(_application_service_marshal_VOID__INT_STRING_STRING,
+// GO(_application_service_marshal_VOID__INT_UINT,
+// GO(_application_service_marshal_VOID__STRING_INT_STRING_STRING_STRING_STRING_STRING,
+// GO(_application_service_marshal_VOID__STRING_STRING,
+// GO(_generate_id,
+// DATA(_notification_item,
+// DATA(_notification_watcher,

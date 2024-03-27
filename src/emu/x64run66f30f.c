@@ -25,9 +25,9 @@
 #include "x64compstrings.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test66F30F(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t Test66F30F(x64test_t* test, rex_t rex, uintptr_t addr)
 #else
-uintptr_t Run66F30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t Run66F30F(x64emu_t* emu, rex_t rex, uintptr_t addr)
 #endif
 {
     uint8_t opcode;
@@ -42,23 +42,23 @@ uintptr_t Run66F30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int64_t tmp64s, i64[4];
     float tmpf;
     double tmpd;
-    #ifndef NOALIGN
+#ifndef NOALIGN
     int is_nan;
-    #endif
+#endif
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1, *opex2;
     mmx87_regs_t *opem, *opgm;
 
-    #ifdef TEST_INTERPRETER
+#ifdef TEST_INTERPRETER
     x64emu_t* emu = test->emu;
-    #endif
+#endif
     opcode = F8;
 
-    switch(opcode) {
+    switch (opcode) {
 
 
-    default:
-        return 0;
+        default:
+            return 0;
     }
     return addr;
 }

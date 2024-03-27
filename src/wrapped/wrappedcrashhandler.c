@@ -20,13 +20,12 @@
 const char* crashhandlerName = "crashhandler.so";
 #define LIBNAME crashhandler
 
-#define PRE_INIT                                                \
-    if(!box64_dummy_crashhandler)                               \
-        return -1;                                              \
-    if(1)                                                       \
-        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);\
+#define PRE_INIT                                            \
+    if (!box64_dummy_crashhandler)                          \
+        return -1;                                          \
+    if (1)                                                  \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
     else
 
 
 #include "wrappedlib_init.h"
-

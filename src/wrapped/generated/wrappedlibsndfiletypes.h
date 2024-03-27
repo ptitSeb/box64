@@ -8,14 +8,15 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFpipp_t)(void*, int32_t, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(sf_close, iFp_t) \
-	GO(sf_open_virtual, pFpipp_t)
+#define SUPER()         \
+    ADDED_FUNCTIONS()   \
+    GO(sf_close, iFp_t) \
+    GO(sf_open_virtual, pFpipp_t)
 
 #endif // __wrappedlibsndfileTYPES_H_

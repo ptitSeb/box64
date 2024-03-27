@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,32 +27,37 @@ const char* libtinfo6Name = "libtinfo.so.6";
 
 // utility functions
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // putc
-#define GO(A)   \
-static uintptr_t my_putc_fct_##A = 0;                           \
-static int my_putc_##A(char c)                                  \
-{                                                               \
-    return (int)RunFunctionFmt(my_putc_fct_##A, "c", c);  \
-}
+#define GO(A)                                                \
+    static uintptr_t my_putc_fct_##A = 0;                    \
+    static int my_putc_##A(char c)                           \
+    {                                                        \
+        return (int)RunFunctionFmt(my_putc_fct_##A, "c", c); \
+    }
 SUPER()
 #undef GO
 static void* find_putc_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_putc_fct_##A == (uintptr_t)fct) return my_putc_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_putc_fct_##A == (uintptr_t)fct) return my_putc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_putc_fct_##A == 0) {my_putc_fct_##A = (uintptr_t)fct; return my_putc_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_putc_fct_##A == 0) {           \
+        my_putc_fct_##A = (uintptr_t)fct; \
+        return my_putc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libSSL putc callback\n");
     return NULL;
 }

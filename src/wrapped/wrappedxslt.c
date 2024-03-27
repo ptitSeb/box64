@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -16,7 +16,7 @@
 #include "librarian.h"
 #include "callback.h"
 
-const char *xsltName =
+const char* xsltName =
 #ifdef ANDROID
     "libxslt.so"
 #else
@@ -25,104 +25,124 @@ const char *xsltName =
     ;
 #define LIBNAME xslt
 
-#define ADDED_FUNCTIONS() \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedxslttypes.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // xmlXPathFunction ...
-#define GO(A)   \
-static uintptr_t my_xmlXPathFunction_fct_##A = 0;                           \
-static void my_xmlXPathFunction_##A(void* a, int b)                         \
-{                                                                           \
-    RunFunctionFmt(my_xmlXPathFunction_fct_##A, "pi", a, b);          \
-}
+#define GO(A)                                                    \
+    static uintptr_t my_xmlXPathFunction_fct_##A = 0;            \
+    static void my_xmlXPathFunction_##A(void* a, int b)          \
+    {                                                            \
+        RunFunctionFmt(my_xmlXPathFunction_fct_##A, "pi", a, b); \
+    }
 SUPER()
 #undef GO
 static void* find_xmlXPathFunction_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_xmlXPathFunction_fct_##A == (uintptr_t)fct) return my_xmlXPathFunction_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_xmlXPathFunction_fct_##A == (uintptr_t)fct) return my_xmlXPathFunction_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_xmlXPathFunction_fct_##A == 0) {my_xmlXPathFunction_fct_##A = (uintptr_t)fct; return my_xmlXPathFunction_##A; }
+#undef GO
+#define GO(A)                                         \
+    if (my_xmlXPathFunction_fct_##A == 0) {           \
+        my_xmlXPathFunction_fct_##A = (uintptr_t)fct; \
+        return my_xmlXPathFunction_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libxslt xmlXPathFunction callback\n");
     return NULL;
 }
 // xsltDocLoaderFunc ...
-#define GO(A)   \
-static uintptr_t my_xsltDocLoaderFunc_fct_##A = 0;                              \
-static void* my_xsltDocLoaderFunc_##A(void* a, void* b, int c, void* d, int e)  \
-{                                                                               \
-    return (void*)RunFunctionFmt(my_xsltDocLoaderFunc_fct_##A, "ppipi", a, b, c, d, e);       \
-}
+#define GO(A)                                                                               \
+    static uintptr_t my_xsltDocLoaderFunc_fct_##A = 0;                                      \
+    static void* my_xsltDocLoaderFunc_##A(void* a, void* b, int c, void* d, int e)          \
+    {                                                                                       \
+        return (void*)RunFunctionFmt(my_xsltDocLoaderFunc_fct_##A, "ppipi", a, b, c, d, e); \
+    }
 SUPER()
 #undef GO
 static void* find_xsltDocLoaderFunc_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_xsltDocLoaderFunc_fct_##A == (uintptr_t)fct) return my_xsltDocLoaderFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_xsltDocLoaderFunc_fct_##A == (uintptr_t)fct) return my_xsltDocLoaderFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_xsltDocLoaderFunc_fct_##A == 0) {my_xsltDocLoaderFunc_fct_##A = (uintptr_t)fct; return my_xsltDocLoaderFunc_##A; }
+#undef GO
+#define GO(A)                                          \
+    if (my_xsltDocLoaderFunc_fct_##A == 0) {           \
+        my_xsltDocLoaderFunc_fct_##A = (uintptr_t)fct; \
+        return my_xsltDocLoaderFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libxslt xsltDocLoaderFunc callback\n");
     return NULL;
 }
 // xsltSecurityCheck ...
-#define GO(A)   \
-static uintptr_t my_xsltSecurityCheck_fct_##A = 0;                                          \
-static int my_xsltSecurityCheck_##A(void* a, void* b, void* c)                              \
-{                                                                                           \
-    return (int)RunFunctionFmt(my_xsltSecurityCheck_fct_##A, "ppp", a, b, c);         \
-}
+#define GO(A)                                                                     \
+    static uintptr_t my_xsltSecurityCheck_fct_##A = 0;                            \
+    static int my_xsltSecurityCheck_##A(void* a, void* b, void* c)                \
+    {                                                                             \
+        return (int)RunFunctionFmt(my_xsltSecurityCheck_fct_##A, "ppp", a, b, c); \
+    }
 SUPER()
 #undef GO
 static void* find_xsltSecurityCheck_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_xsltSecurityCheck_fct_##A == (uintptr_t)fct) return my_xsltSecurityCheck_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_xsltSecurityCheck_fct_##A == (uintptr_t)fct) return my_xsltSecurityCheck_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_xsltSecurityCheck_fct_##A == 0) {my_xsltSecurityCheck_fct_##A = (uintptr_t)fct; return my_xsltSecurityCheck_##A; }
+#undef GO
+#define GO(A)                                          \
+    if (my_xsltSecurityCheck_fct_##A == 0) {           \
+        my_xsltSecurityCheck_fct_##A = (uintptr_t)fct; \
+        return my_xsltSecurityCheck_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libxslt xsltSecurityCheck callback\n");
     return NULL;
 }
 // xsltSortFunc ...
-#define GO(A)   \
-static uintptr_t my_xsltSortFunc_fct_##A = 0;                               \
-static void my_xsltSortFunc_##A(void* a, void* b, int c)                    \
-{                                                                           \
-    RunFunctionFmt(my_xsltSortFunc_fct_##A, "ppi", a, b, c);          \
-}
+#define GO(A)                                                    \
+    static uintptr_t my_xsltSortFunc_fct_##A = 0;                \
+    static void my_xsltSortFunc_##A(void* a, void* b, int c)     \
+    {                                                            \
+        RunFunctionFmt(my_xsltSortFunc_fct_##A, "ppi", a, b, c); \
+    }
 SUPER()
 #undef GO
 static void* find_xsltSortFunc_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_xsltSortFunc_fct_##A == (uintptr_t)fct) return my_xsltSortFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_xsltSortFunc_fct_##A == (uintptr_t)fct) return my_xsltSortFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_xsltSortFunc_fct_##A == 0) {my_xsltSortFunc_fct_##A = (uintptr_t)fct; return my_xsltSortFunc_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_xsltSortFunc_fct_##A == 0) {           \
+        my_xsltSortFunc_fct_##A = (uintptr_t)fct; \
+        return my_xsltSortFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libxslt xsltSortFunc callback\n");
     return NULL;
 }

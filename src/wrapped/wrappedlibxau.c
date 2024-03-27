@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -12,9 +12,9 @@
 #include "x64emu.h"
 
 #ifdef ANDROID
-	const char* libxauName = "libXau.so";
+const char* libxauName = "libXau.so";
 #else
-	const char* libxauName = "libXau.so.6";
+const char* libxauName = "libXau.so.6";
 #endif
 
 #define LIBNAME libxau

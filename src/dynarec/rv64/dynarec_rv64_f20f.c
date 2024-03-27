@@ -23,7 +23,8 @@
 
 uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
-    (void)ip; (void)need_epilog;
+    (void)ip;
+    (void)need_epilog;
 
     uint8_t opcode = F8;
     uint8_t nextop;
@@ -44,14 +45,14 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(v0);
     MAYUSE(v1);
 
-    switch(opcode) {
+    switch (opcode) {
 
         case 0x10:
             INST_NAME("MOVSD Gx, Ex");
             nextop = F8;
             GETG;
-            if(MODREG) {
-                ed = (nextop&7)+ (rex.b<<3);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                 d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
                 FMVD(v0, d0);
@@ -61,7 +62,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 8, 0);
                 FLD(v0, ed, fixedaddress);
                 // reset upper part
-                SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd])+8);
+                SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 8);
             }
             break;
         case 0x11:
@@ -69,8 +70,8 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-            if(MODREG) {
-                ed = (nextop&7)+ (rex.b<<3);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
                 d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
                 FMVD(d0, v0);
             } else {
@@ -84,16 +85,16 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
-            LD(x3, wback, fixedaddress+0);
-            SD(x3, gback, gdoffset+0);
-            SD(x3, gback, gdoffset+8);
+            LD(x3, wback, fixedaddress + 0);
+            SD(x3, gback, gdoffset + 0);
+            SD(x3, gback, gdoffset + 8);
             break;
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
             nextop = F8;
             GETGXSD(v0);
             GETED(0);
-            if(rex.w) {
+            if (rex.w) {
                 FCVTDL(v0, ed, RD_RNE);
             } else {
                 FCVTDW(v0, ed, RD_RNE);
@@ -104,17 +105,17 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSD(v0, 0);
-            if(!box64_dynarec_fastround) {
-                FSFLAGSI(0);  // // reset all bits
+            if (!box64_dynarec_fastround) {
+                FSFLAGSI(0); // // reset all bits
             }
             FCVTLDxw(gd, v0, RD_RTZ);
-            if(!rex.w)
+            if (!rex.w)
                 ZEROUP(gd);
-            if(!box64_dynarec_fastround) {
-                FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+            if (!box64_dynarec_fastround) {
+                FRFLAGS(x5); // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 CBZ_NEXT(x5);
-                if(rex.w) {
+                if (rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
                 } else {
                     MOV32w(gd, 0x80000000);
@@ -126,26 +127,26 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEXSD(v0, 0);
-            if(!box64_dynarec_fastround) {
-                FSFLAGSI(0);  // // reset all bits
+            if (!box64_dynarec_fastround) {
+                FSFLAGSI(0); // // reset all bits
             }
             u8 = sse_setround(dyn, ninst, x2, x3);
             FCVTLDxw(gd, v0, RD_DYN);
             x87_restoreround(dyn, ninst, u8);
-            if(!box64_dynarec_fastround) {
-                FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+            if (!box64_dynarec_fastround) {
+                FRFLAGS(x5); // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 CBZ_NEXT(x5);
-                if(rex.w) {
+                if (rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
                 } else {
                     MOV32w(gd, 0x80000000);
                 }
             }
             break;
-        case 0x38:  // these are some more SSSE4.2+ opcodes
+        case 0x38: // these are some more SSSE4.2+ opcodes
             opcode = F8;
-            switch(opcode) {
+            switch (opcode) {
 
                 default:
                     DEFAULT;
@@ -156,13 +157,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEXSD(d0, 0);
             GETGXSD_empty(d1);
-            if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);  // need a scratch in case d0 == d1
+            if (!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn); // need a scratch in case d0 == d1
                 FMVDX(v0, xZR);
                 FLTD(x3, d0, v0);
             }
             FSQRTD(d1, d0);
-            if(!box64_dynarec_fastnan) {
+            if (!box64_dynarec_fastnan) {
                 BEQ(x3, xZR, 8);
                 FNEGD(d1, d1);
             }
@@ -178,7 +179,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
-            //TODO: fastnan handling
+            // TODO: fastnan handling
             GETGXSD(v0);
             GETEXSD(v1, 0);
             FMULD(v0, v0, v1);
@@ -193,7 +194,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
-            //TODO: fastnan handling
+            // TODO: fastnan handling
             GETGXSD(v0);
             GETEXSD(v1, 0);
             FSUBD(v0, v0, v1);
@@ -218,12 +219,12 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSD(v0);
             GETEXSD(v1, 0);
-            if(!box64_dynarec_fastnan) {
+            if (!box64_dynarec_fastnan) {
                 FEQD(x3, v0, v0);
                 FEQD(x4, v1, v1);
             }
             FDIVD(v0, v0, v1);
-            if(!box64_dynarec_fastnan) {
+            if (!box64_dynarec_fastnan) {
                 AND(x3, x3, x4);
                 CBZ_NEXT(x3);
                 FEQD(x3, v0, v0);
@@ -254,23 +255,23 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = F8;
             int32_t idx;
 
-            idx = (u8>>(0*2))&3;
-            LHU(x3, wback, fixedaddress+idx*2);
-            idx = (u8>>(1*2))&3;
-            LHU(x4, wback, fixedaddress+idx*2);
-            idx = (u8>>(2*2))&3;
-            LHU(x5, wback, fixedaddress+idx*2);
-            idx = (u8>>(3*2))&3;
-            LHU(x6, wback, fixedaddress+idx*2);
+            idx = (u8 >> (0 * 2)) & 3;
+            LHU(x3, wback, fixedaddress + idx * 2);
+            idx = (u8 >> (1 * 2)) & 3;
+            LHU(x4, wback, fixedaddress + idx * 2);
+            idx = (u8 >> (2 * 2)) & 3;
+            LHU(x5, wback, fixedaddress + idx * 2);
+            idx = (u8 >> (3 * 2)) & 3;
+            LHU(x6, wback, fixedaddress + idx * 2);
 
-            SH(x3, gback, gdoffset+0*2);
-            SH(x4, gback, gdoffset+1*2);
-            SH(x5, gback, gdoffset+2*2);
-            SH(x6, gback, gdoffset+3*2);
+            SH(x3, gback, gdoffset + 0 * 2);
+            SH(x4, gback, gdoffset + 1 * 2);
+            SH(x5, gback, gdoffset + 2 * 2);
+            SH(x6, gback, gdoffset + 3 * 2);
 
-            if (!(MODREG && (gd==ed))) {
-                LD(x3, wback, fixedaddress+8);
-                SD(x3, gback, gdoffset+8);
+            if (!(MODREG && (gd == ed))) {
+                LD(x3, wback, fixedaddress + 8);
+                SD(x3, gback, gdoffset + 8);
             }
             break;
         case 0x7C:
@@ -315,9 +316,9 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(d0);
             GETEXSD(d1, 1);
             u8 = F8;
-            if ((u8&7) == 0) {                                      // Equal
+            if ((u8 & 7) == 0) { // Equal
                 FEQD(x2, d0, d1);
-            } else if ((u8&7) == 4) {                               // Not Equal or unordered
+            } else if ((u8 & 7) == 4) { // Not Equal or unordered
                 FEQD(x2, d0, d1);
                 XORI(x2, x2, 1);
             } else {
@@ -326,27 +327,33 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FEQD(x2, d1, d1);
                 AND(x2, x2, x3);
 
-                switch(u8&7) {
-                case 1: BEQ_MARK(x2, xZR); FLTD(x2, d0, d1); break; // Less than
-                case 2: BEQ_MARK(x2, xZR); FLED(x2, d0, d1); break; // Less or equal
-                case 3: XORI(x2, x2, 1); break;                     // NaN
-                case 5: {                                           // Greater or equal or unordered
-                    BEQ_MARK2(x2, xZR);
-                    FLED(x2, d1, d0);
-                    B_MARK_nocond;
-                    break;
-                }
-                case 6: {                                           // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
-                    BEQ_MARK2(x2, xZR);
-                    FLTD(x2, d1, d0);
-                    B_MARK_nocond;
-                    break;
-                }
-                case 7: break;                                      // Not NaN
+                switch (u8 & 7) {
+                    case 1:
+                        BEQ_MARK(x2, xZR);
+                        FLTD(x2, d0, d1);
+                        break; // Less than
+                    case 2:
+                        BEQ_MARK(x2, xZR);
+                        FLED(x2, d0, d1);
+                        break;                      // Less or equal
+                    case 3: XORI(x2, x2, 1); break; // NaN
+                    case 5: {                       // Greater or equal or unordered
+                        BEQ_MARK2(x2, xZR);
+                        FLED(x2, d1, d0);
+                        B_MARK_nocond;
+                        break;
+                    }
+                    case 6: { // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                        BEQ_MARK2(x2, xZR);
+                        FLTD(x2, d1, d0);
+                        B_MARK_nocond;
+                        break;
+                    }
+                    case 7: break; // Not NaN
                 }
 
                 MARK2;
-                if ((u8&7) == 5 || (u8&7) == 6) {
+                if ((u8 & 7) == 5 || (u8 & 7) == 6) {
                     MOV32w(x2, 1);
                 }
                 MARK;
@@ -361,16 +368,16 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0);
             d0 = fpu_get_scratch(dyn);
             u8 = sse_setround(dyn, ninst, x6, x4);
-            for (int i=0; i<2 ; ++i) {
-                FLD(d0, wback, fixedaddress+8*i);
+            for (int i = 0; i < 2; ++i) {
+                FLD(d0, wback, fixedaddress + 8 * i);
                 FCVTLD(x3, d0, RD_DYN);
                 SEXT_W(x5, x3);
                 BEQ(x5, x3, 8);
                 LUI(x3, 0x80000); // INT32_MIN
-                SW(x3, gback, gdoffset+4*i);
+                SW(x3, gback, gdoffset + 4 * i);
             }
             x87_restoreround(dyn, ninst, u8);
-            SD(xZR, gback, gdoffset+8);
+            SD(xZR, gback, gdoffset + 8);
             break;
         case 0xF0:
             INST_NAME("LDDQU Gx,Ex");

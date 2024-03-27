@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,9 +18,9 @@
 #include "emu/x64emu_private.h"
 
 #ifdef ANDROID
-	const char* libxcbglxName = "libxcb-glx.so";
+const char* libxcbglxName = "libxcb-glx.so";
 #else
-	const char* libxcbglxName = "libxcb-glx.so.0";
+const char* libxcbglxName = "libxcb-glx.so.0";
 #endif
 
 #define LIBNAME libxcbglx

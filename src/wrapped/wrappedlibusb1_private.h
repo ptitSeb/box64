@@ -73,11 +73,11 @@ GO(libusb_set_configuration, iFpi)
 GO(libusb_set_debug, vFpi)
 GO(libusb_set_interface_alt_setting, iFpii)
 GO(libusb_setlocale, iFp)
-//GOM(libusb_set_pollfd_notifiers, vFpppp)
+// GOM(libusb_set_pollfd_notifiers, vFpppp)
 GO(libusb_strerror, pFi)
 GOM(libusb_submit_transfer, iFEp)
-GO(libusb_transfer_get_stream_id, uFp)  //v1.0.19+ , no need to wrap callback here
-GO(libusb_transfer_set_stream_id, vFpu) //v1.0.19+ , no need to wrap callback here
+GO(libusb_transfer_get_stream_id, uFp)  // v1.0.19+ , no need to wrap callback here
+GO(libusb_transfer_set_stream_id, vFpu) // v1.0.19+ , no need to wrap callback here
 GO(libusb_try_lock_events, iFp)
 GO(libusb_unlock_events, vFp)
 GO(libusb_unlock_event_waiters, vFp)

@@ -2285,7 +2285,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xB6:
             INST_NAME("MOVZX Gw, Eb");
             nextop = F8;
-            gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3);
+            gd = xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (MODREG) {
                 if (rex.rex) {
                     eb1 = xRAX + (nextop & 7) + (rex.b << 3);
@@ -2557,7 +2557,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETED(1);
             GETGX();
-            u8 = (F8)&7;
+            u8 = (F8) & 7;
             SH(ed, gback, gdoffset + u8 * 2);
             break;
         case 0xC5:
@@ -2565,7 +2565,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGD;
             GETEX(x1, 0);
-            u8 = (F8)&7;
+            u8 = (F8) & 7;
             LHU(gd, wback, fixedaddress + u8 * 2);
             break;
         case 0xC6:
@@ -2591,10 +2591,10 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xCC:
         case 0xCD:
         case 0xCE:
-        case 0xCF:                  /* BSWAP reg */
+        case 0xCF: /* BSWAP reg */
             INST_NAME("BSWAP Reg");
-            gd = xRAX+(opcode&7)+(rex.b<<3);
-            if(rex.w) {
+            gd = xRAX + (opcode & 7) + (rex.b << 3);
+            if (rex.w) {
                 REV8xw(gd, gd, x1, x2, x3, x4);
             } else {
                 ANDI(x1, gd, 0xff);

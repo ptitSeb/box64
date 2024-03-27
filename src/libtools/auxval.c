@@ -22,29 +22,31 @@
 
 static uintptr_t* auxval_start = NULL;
 
-int init_auxval(int argc, const char **argv, char **env) {
-    (void)argc; (void)argv;
+int init_auxval(int argc, const char** argv, char** env)
+{
+    (void)argc;
+    (void)argv;
 
     // auxval vector is after envs...
-    while(*env)
+    while (*env)
         env++;
-    auxval_start = (uintptr_t*)(env+1);
+    auxval_start = (uintptr_t*)(env + 1);
     return 0;
 }
 
 #ifdef BUILD_LIB
-__attribute__((section(".init_array"))) static void *init_auxval_constructor = &init_auxval;
+__attribute__((section(".init_array"))) static void* init_auxval_constructor = &init_auxval;
 #endif
 
 unsigned long real_getauxval(unsigned long type)
 {
-    if(!auxval_start)
+    if (!auxval_start)
         return 0;
     uintptr_t* p = auxval_start;
-    while(*p) {
-        if(*p == type)
+    while (*p) {
+        if (*p == type)
             return p[1];
-        p+=2;
+        p += 2;
     }
     return 0;
 }
@@ -52,10 +54,10 @@ unsigned long real_getauxval(unsigned long type)
 EXPORT unsigned long my_getauxval(x64emu_t* emu, unsigned long type)
 {
     uintptr_t* p = emu->context->auxval_start;
-    while(*p) {
-        if(*p == type)
+    while (*p) {
+        if (*p == type)
             return p[1];
-        p+=2;
+        p += 2;
     }
     return 0;
 }

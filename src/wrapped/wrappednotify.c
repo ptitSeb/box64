@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -23,9 +23,8 @@ const char* notifyName = "libnotify.so.4";
 #define LIBNAME notify
 
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
 #include "wrappedlib_init.h"
-

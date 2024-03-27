@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -21,10 +21,10 @@
 const char* gcryptName = "libgcrypt.so.20";
 #define LIBNAME gcrypt
 
-typedef uint32_t  (*uFpppp_t)(void*, void*, void*, void*);
+typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
 
-#define ADDED_FUNCTIONS()                   \
-    GO(gcry_sexp_build_array, uFpppp_t)     \
+#define ADDED_FUNCTIONS() \
+    GO(gcry_sexp_build_array, uFpppp_t)
 
 #include "generated/wrappedgcrypttypes.h"
 
@@ -35,8 +35,8 @@ EXPORT uint32_t my_gcry_sexp_build(x64emu_t* emu, void* r_sexp, void* erroff, co
     // count the number of elements
     int n = 0;
     const char* p = fmt;
-    while(p) {
-        if(*p == '%') {
+    while (p) {
+        if (*p == '%') {
             ++p;
             switch (*p) {
                 case 'm':
@@ -48,7 +48,7 @@ EXPORT uint32_t my_gcry_sexp_build(x64emu_t* emu, void* r_sexp, void* erroff, co
                     ++n;
                     break;
                 case 'b':
-                    n+=2;
+                    n += 2;
                     break;
             }
         };
@@ -59,8 +59,8 @@ EXPORT uint32_t my_gcry_sexp_build(x64emu_t* emu, void* r_sexp, void* erroff, co
     // transfert the datas...
     p = fmt;
     int i = 0;
-    while(p) {
-        if(*p == '%') {
+    while (p) {
+        if (*p == '%') {
             ++p;
             switch (*p) {
                 case 'm':

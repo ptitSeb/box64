@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,14 +19,14 @@
 #include "myalign.h"
 
 #ifdef ANDROID
-    const char* fontconfigName = "libfontconfig.so";
+const char* fontconfigName = "libfontconfig.so";
 #else
-    const char* fontconfigName = "libfontconfig.so.1";
+const char* fontconfigName = "libfontconfig.so.1";
 #endif
 
 #define LIBNAME fontconfig
 
-#define ADDED_FUNCTIONS()                   \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedfontconfigtypes.h"
 
@@ -34,16 +34,16 @@
 
 EXPORT void* my_FcObjectSetVaBuild(x64emu_t* emu, void* first, x64_va_list_t V)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
-    #endif
+#endif
     return my->FcObjectSetVaBuild(first, VARARGS);
 }
 EXPORT void* my_FcObjectSetBuild(x64emu_t* emu, void* first, uint64_t* b)
 {
-    if(!first)    
+    if (!first)
         return my->FcObjectSetBuild(first, NULL);
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
     return my->FcObjectSetVaBuild(first, VARARGS);
@@ -51,16 +51,16 @@ EXPORT void* my_FcObjectSetBuild(x64emu_t* emu, void* first, uint64_t* b)
 
 EXPORT void* my_FcPatternVaBuild(x64emu_t* emu, void* pattern, x64_va_list_t V)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
-    #endif
+#endif
     return my->FcPatternVaBuild(pattern, VARARGS);
 }
 EXPORT void* my_FcPatternBuild(x64emu_t* emu, void* pattern, uint64_t* b)
 {
-    if(!pattern)    
+    if (!pattern)
         return my->FcPatternBuild(pattern, NULL);
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
     return my->FcPatternVaBuild(pattern, VARARGS);

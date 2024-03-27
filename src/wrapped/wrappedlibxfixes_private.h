@@ -15,8 +15,8 @@ GO(XFixesCreateRegionFromWindow, pFppi)
 GO(XFixesDestroyPointerBarrier, vFpp)
 GO(XFixesDestroyRegion, vFpp)
 GO(XFixesExpandRegion, vFpppuuuu)
-DATA(XFixesExtensionInfo, sizeof(void*))    //B
-DATA(XFixesExtensionName, sizeof(void*))    //D
+DATA(XFixesExtensionInfo, sizeof(void*)) // B
+DATA(XFixesExtensionName, sizeof(void*)) // D
 GO(XFixesFetchRegion, pFppp)
 GO(XFixesFetchRegionAndBounds, pFpppp)
 GO(XFixesFindDisplay, pFp)

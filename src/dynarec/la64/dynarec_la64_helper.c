@@ -582,39 +582,39 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
 #if STEP > 1
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
-    if(jmp<0)
+    if (jmp < 0)
         return;
-    if(dyn->f.dfnone)  // flags are fully known, nothing we can do more
+    if (dyn->f.dfnone) // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
     int go = 0;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: break;
         case SF_SET:
-            if(dyn->f.pending!=SF_SET && dyn->f.pending!=SF_SET_PENDING)
+            if (dyn->f.pending != SF_SET && dyn->f.pending != SF_SET_PENDING)
                 go = 1;
             break;
         case SF_SET_PENDING:
-            if(dyn->f.pending!=SF_SET
-            && dyn->f.pending!=SF_SET_PENDING
-            && dyn->f.pending!=SF_PENDING)
+            if (dyn->f.pending != SF_SET
+                && dyn->f.pending != SF_SET_PENDING
+                && dyn->f.pending != SF_PENDING)
                 go = 1;
             break;
         case SF_PENDING:
-            if(dyn->f.pending!=SF_SET
-            && dyn->f.pending!=SF_SET_PENDING
-            && dyn->f.pending!=SF_PENDING)
+            if (dyn->f.pending != SF_SET
+                && dyn->f.pending != SF_SET_PENDING
+                && dyn->f.pending != SF_PENDING)
                 go = 1;
             else
-                go = (dyn->insts[jmp].f_entry.dfnone  == dyn->f.dfnone)?0:1;
+                go = (dyn->insts[jmp].f_entry.dfnone == dyn->f.dfnone) ? 0 : 1;
             break;
     }
-    if(dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)
+    if (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)
         go = 1;
-    if(go) {
-        if(dyn->f.pending!=SF_PENDING) {
+    if (go) {
+        if (dyn->f.pending != SF_PENDING) {
             LD_W(s1, xEmu, offsetof(x64emu_t, df));
-            j64 = (GETMARKF2)-(dyn->native_size);
+            j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
         }
         CALL_(UpdateFlags, -1, 0);
@@ -623,9 +623,10 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
 #endif
 }
 
-void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
-    if(cacheupd&2)
+void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)
+{
+    if (cacheupd & 2)
         fpuCacheTransform(dyn, ninst, s1, s2, s3);
-    if(cacheupd&1)
+    if (cacheupd & 1)
         flagsCacheTransform(dyn, ninst, s1);
 }

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -31,128 +31,153 @@ typedef int (*iFiwC_t)(int, int16_t, uint8_t);
 #undef SUPER
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // EffectFunc
-#define GO(A)   \
-static uintptr_t my_EffectFunc_fct_##A = 0;                                         \
-static void my_EffectFunc_##A(int chan, void *stream, int len, void *udata)         \
-{                                                                                   \
-    RunFunctionFmt(my_EffectFunc_fct_##A, "ipip", chan, stream, len, udata);    \
-}
+#define GO(A)                                                                    \
+    static uintptr_t my_EffectFunc_fct_##A = 0;                                  \
+    static void my_EffectFunc_##A(int chan, void* stream, int len, void* udata)  \
+    {                                                                            \
+        RunFunctionFmt(my_EffectFunc_fct_##A, "ipip", chan, stream, len, udata); \
+    }
 SUPER()
 #undef GO
 static void* find_EffectFunc_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_EffectFunc_fct_##A == (uintptr_t)fct) return my_EffectFunc_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_EffectFunc_fct_##A == (uintptr_t)fct) return my_EffectFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_EffectFunc_fct_##A == 0) {my_EffectFunc_fct_##A = (uintptr_t)fct; return my_EffectFunc_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_EffectFunc_fct_##A == 0) {           \
+        my_EffectFunc_fct_##A = (uintptr_t)fct; \
+        return my_EffectFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer EffectFunc callback\n");
     return NULL;
 }
 
 // EffectDone
-#define GO(A)   \
-static uintptr_t my_EffectDone_fct_##A = 0;                         \
-static void my_EffectDone_##A(int chan, void *udata)                \
-{                                                                   \
-    RunFunctionFmt(my_EffectDone_fct_##A, "ip", chan, udata); \
-}
+#define GO(A)                                                     \
+    static uintptr_t my_EffectDone_fct_##A = 0;                   \
+    static void my_EffectDone_##A(int chan, void* udata)          \
+    {                                                             \
+        RunFunctionFmt(my_EffectDone_fct_##A, "ip", chan, udata); \
+    }
 SUPER()
 #undef GO
 static void* find_EffectDone_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_EffectDone_fct_##A == (uintptr_t)fct) return my_EffectDone_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_EffectDone_fct_##A == (uintptr_t)fct) return my_EffectDone_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_EffectDone_fct_##A == 0) {my_EffectDone_fct_##A = (uintptr_t)fct; return my_EffectDone_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_EffectDone_fct_##A == 0) {           \
+        my_EffectDone_fct_##A = (uintptr_t)fct; \
+        return my_EffectDone_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer EffectDone callback\n");
     return NULL;
 }
 
 // MixFunc
-#define GO(A)   \
-static uintptr_t my_MixFunc_fct_##A = 0;                                \
-static void my_MixFunc_##A(void *udata, uint8_t *stream, int len)       \
-{                                                                       \
-    RunFunctionFmt(my_MixFunc_fct_##A, "ppi", udata, stream, len); \
-}
+#define GO(A)                                                          \
+    static uintptr_t my_MixFunc_fct_##A = 0;                           \
+    static void my_MixFunc_##A(void* udata, uint8_t* stream, int len)  \
+    {                                                                  \
+        RunFunctionFmt(my_MixFunc_fct_##A, "ppi", udata, stream, len); \
+    }
 SUPER()
 #undef GO
 static void* find_MixFunc_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_MixFunc_fct_##A == (uintptr_t)fct) return my_MixFunc_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_MixFunc_fct_##A == (uintptr_t)fct) return my_MixFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_MixFunc_fct_##A == 0) {my_MixFunc_fct_##A = (uintptr_t)fct; return my_MixFunc_##A; }
+#undef GO
+#define GO(A)                                \
+    if (my_MixFunc_fct_##A == 0) {           \
+        my_MixFunc_fct_##A = (uintptr_t)fct; \
+        return my_MixFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer MixFunc callback\n");
     return NULL;
 }
 
 // ChannelFinished
-#define GO(A)   \
-static uintptr_t my_ChannelFinished_fct_##A = 0;                        \
-static void my_ChannelFinished_##A(int channel)                         \
-{                                                                       \
-    RunFunctionFmt(my_ChannelFinished_fct_##A, "i", channel);    \
-}
+#define GO(A)                                                     \
+    static uintptr_t my_ChannelFinished_fct_##A = 0;              \
+    static void my_ChannelFinished_##A(int channel)               \
+    {                                                             \
+        RunFunctionFmt(my_ChannelFinished_fct_##A, "i", channel); \
+    }
 SUPER()
 #undef GO
 static void* find_ChannelFinished_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_ChannelFinished_fct_##A == (uintptr_t)fct) return my_ChannelFinished_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_ChannelFinished_fct_##A == (uintptr_t)fct) return my_ChannelFinished_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_ChannelFinished_fct_##A == 0) {my_ChannelFinished_fct_##A = (uintptr_t)fct; return my_ChannelFinished_##A; }
+#undef GO
+#define GO(A)                                        \
+    if (my_ChannelFinished_fct_##A == 0) {           \
+        my_ChannelFinished_fct_##A = (uintptr_t)fct; \
+        return my_ChannelFinished_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer ChannelFinished callback\n");
     return NULL;
 }
 
 // MusicFinished
-#define GO(A)   \
-static uintptr_t my_MusicFinished_fct_##A = 0;              \
-static void my_MusicFinished_##A()                          \
-{                                                           \
-    RunFunctionFmt(my_MusicFinished_fct_##A, "");   \
-}
+#define GO(A)                                         \
+    static uintptr_t my_MusicFinished_fct_##A = 0;    \
+    static void my_MusicFinished_##A()                \
+    {                                                 \
+        RunFunctionFmt(my_MusicFinished_fct_##A, ""); \
+    }
 SUPER()
 #undef GO
 static void* find_MusicFinished_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_MusicFinished_fct_##A == (uintptr_t)fct) return my_MusicFinished_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_MusicFinished_fct_##A == (uintptr_t)fct) return my_MusicFinished_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_MusicFinished_fct_##A == 0) {my_MusicFinished_fct_##A = (uintptr_t)fct; return my_MusicFinished_##A; }
+#undef GO
+#define GO(A)                                      \
+    if (my_MusicFinished_fct_##A == 0) {           \
+        my_MusicFinished_fct_##A = (uintptr_t)fct; \
+        return my_MusicFinished_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for SDL1Mixer MusicFinished callback\n");
     return NULL;
 }
@@ -161,25 +186,25 @@ static void* find_MusicFinished_Fct(void* fct)
 
 EXPORT void* my2_Mix_LoadMUSType_RW(x64emu_t* emu, void* a, int32_t b, int32_t c)
 {
-    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    SDL2_RWops_t* rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->Mix_LoadMUSType_RW(rw, b, c);
-    if(c==0)
+    if (c == 0)
         RWNativeEnd2(rw);
     return r;
 }
 EXPORT void* my2_Mix_LoadMUS_RW(x64emu_t* emu, void* a, int32_t f)
 {
-    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    SDL2_RWops_t* rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->Mix_LoadMUS_RW(rw, f);
-    if(f==0)
-        RWNativeEnd2(rw);  // this one never free the RWops
+    if (f == 0)
+        RWNativeEnd2(rw); // this one never free the RWops
     return r;
 }
 EXPORT void* my2_Mix_LoadWAV_RW(x64emu_t* emu, void* a, int32_t f)
 {
-    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    SDL2_RWops_t* rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
     void* r = my->Mix_LoadWAV_RW(rw, f);
-    if(f==0)
+    if (f == 0)
         RWNativeEnd2(rw);
     return r;
 }
@@ -189,7 +214,7 @@ EXPORT void my2_Mix_SetPostMix(x64emu_t* emu, void* a, void* b)
     my->Mix_SetPostMix(find_MixFunc_Fct(a), b);
 }
 
-EXPORT int32_t my2_Mix_RegisterEffect(x64emu_t*emu, int32_t channel, void* cb_effect, void* cb_done, void* arg)
+EXPORT int32_t my2_Mix_RegisterEffect(x64emu_t* emu, int32_t channel, void* cb_effect, void* cb_done, void* arg)
 {
 
     return my->Mix_RegisterEffect(channel, find_EffectFunc_Fct(cb_effect), find_EffectDone_Fct(cb_done), arg);

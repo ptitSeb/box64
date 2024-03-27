@@ -8,7 +8,7 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void (*vFp_t)(void*);
@@ -19,19 +19,20 @@ typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(_ZdaPv, vFp_t) \
-	GO(_ZdlPv, vFp_t) \
-	GO(__RML_close_factory, vFp_t) \
-	GO(_Znam, pFL_t) \
-	GO(_Znwm, pFL_t) \
-	GO(_ZdaPvRKSt9nothrow_t, vFpp_t) \
-	GO(_ZdlPvRKSt9nothrow_t, vFpp_t) \
-	GO(__TBB_call_with_my_server_info, vFpp_t) \
-	GO(_ZnamRKSt9nothrow_t, pFLp_t) \
-	GO(_ZnwmRKSt9nothrow_t, pFLp_t) \
-	GO(__TBB_internal_find_original_malloc, iFipp_t) \
-	GO(__RML_open_factory, iFppi_t) \
-	GO(__TBB_make_rml_server, iFppp_t)
+#define SUPER()                                      \
+    ADDED_FUNCTIONS()                                \
+    GO(_ZdaPv, vFp_t)                                \
+    GO(_ZdlPv, vFp_t)                                \
+    GO(__RML_close_factory, vFp_t)                   \
+    GO(_Znam, pFL_t)                                 \
+    GO(_Znwm, pFL_t)                                 \
+    GO(_ZdaPvRKSt9nothrow_t, vFpp_t)                 \
+    GO(_ZdlPvRKSt9nothrow_t, vFpp_t)                 \
+    GO(__TBB_call_with_my_server_info, vFpp_t)       \
+    GO(_ZnamRKSt9nothrow_t, pFLp_t)                  \
+    GO(_ZnwmRKSt9nothrow_t, pFLp_t)                  \
+    GO(__TBB_internal_find_original_malloc, iFipp_t) \
+    GO(__RML_open_factory, iFppi_t)                  \
+    GO(__TBB_make_rml_server, iFppp_t)
 
 #endif // __wrappedtbbmallocproxyTYPES_H_

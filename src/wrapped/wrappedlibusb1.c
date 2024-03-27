@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,87 +19,99 @@
 #include "myalign.h"
 
 #ifdef ANDROID
-    const char* libusb1Name = "libusb-1.0.so";
+const char* libusb1Name = "libusb-1.0.so";
 #else
-    const char* libusb1Name = "libusb-1.0.so.0";
+const char* libusb1Name = "libusb-1.0.so.0";
 #endif
 
 #define LIBNAME libusb1
 
-#define ADDED_FUNCTIONS()           \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedlibusb1types.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)   \
-GO(5)   \
-GO(6)   \
-GO(7)   \
-GO(8)   \
-GO(9)   \
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)       \
+    GO(5)       \
+    GO(6)       \
+    GO(7)       \
+    GO(8)       \
+    GO(9)
 
 
 // hotplug
-#define GO(A)   \
-static uintptr_t my_hotplug_fct_##A = 0;                                                    \
-static int my_hotplug_##A(void* ctx, void* device, int event, void* data)                   \
-{                                                                                           \
-    return (int)RunFunctionFmt(my_hotplug_fct_##A, "ppip", ctx, device, event, data); \
-}
+#define GO(A)                                                                             \
+    static uintptr_t my_hotplug_fct_##A = 0;                                              \
+    static int my_hotplug_##A(void* ctx, void* device, int event, void* data)             \
+    {                                                                                     \
+        return (int)RunFunctionFmt(my_hotplug_fct_##A, "ppip", ctx, device, event, data); \
+    }
 SUPER()
 #undef GO
 static void* findhotplugFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_hotplug_fct_##A == (uintptr_t)fct) return my_hotplug_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_hotplug_fct_##A == (uintptr_t)fct) return my_hotplug_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_hotplug_fct_##A == 0) {my_hotplug_fct_##A = (uintptr_t)fct; return my_hotplug_##A; }
+#undef GO
+#define GO(A)                                \
+    if (my_hotplug_fct_##A == 0) {           \
+        my_hotplug_fct_##A = (uintptr_t)fct; \
+        return my_hotplug_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libusb-1.0 hotplug callback (%p)\n", fct);
     return NULL;
 }
 // transfert
-#define GO(A)   \
-static uintptr_t my_transfert_fct_##A = 0;                      \
-static void my_transfert_##A(void* ctx)                         \
-{                                                               \
-    RunFunctionFmt(my_transfert_fct_##A, "p", ctx);       \
-}
+#define GO(A)                                           \
+    static uintptr_t my_transfert_fct_##A = 0;          \
+    static void my_transfert_##A(void* ctx)             \
+    {                                                   \
+        RunFunctionFmt(my_transfert_fct_##A, "p", ctx); \
+    }
 SUPER()
 #undef GO
 static void* findtransfertFct(void* fct)
 {
-    if(!fct) return fct;
-    #define GO(A) if(my_transfert_##A == fct) return my_transfert_##A;
+    if (!fct) return fct;
+#define GO(A) \
+    if (my_transfert_##A == fct) return my_transfert_##A;
     SUPER()
-    #undef GO
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_transfert_fct_##A == (uintptr_t)fct) return my_transfert_##A;
+#undef GO
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_transfert_fct_##A == (uintptr_t)fct) return my_transfert_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_transfert_fct_##A == 0) {my_transfert_fct_##A = (uintptr_t)fct; return my_transfert_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_transfert_fct_##A == 0) {           \
+        my_transfert_fct_##A = (uintptr_t)fct; \
+        return my_transfert_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libusb-1.0 transfert callback (%p)\n", fct);
     return NULL;
 }
 static void* reverse_transfert_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
+    if (!fct) return fct;
+    if (CheckBridged(my_lib->w.bridge, fct))
         return (void*)CheckBridged(my_lib->w.bridge, fct);
-    #define GO(A) if(my_transfert_##A == fct) return (void*)my_transfert_fct_##A;
+#define GO(A) \
+    if (my_transfert_##A == fct) return (void*)my_transfert_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
 }
 
@@ -127,7 +139,7 @@ typedef struct my_libusb_transfer_s {
     int actual_length;
     void* callback;
     void* user_data;
-    unsigned char *buffer;
+    unsigned char* buffer;
     int num_iso_packets;
     struct my_libusb_iso_packet_descriptor iso_packet_desc[0];
 } my_libusb_transfer_t;
@@ -135,7 +147,7 @@ typedef struct my_libusb_transfer_s {
 EXPORT void* my_libusb_alloc_transfer(x64emu_t* emu, int num)
 {
     my_libusb_transfer_t* ret = (my_libusb_transfer_t*)my->libusb_alloc_transfer(num);
-    if(ret)
+    if (ret)
         ret->callback = reverse_transfert_Fct(ret->callback);
     return ret;
 }

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -22,9 +22,9 @@ const char* libcmuslName = "libc.musl-x86_64.so.1";
 #define LIBNAME libcmusl
 
 #ifndef STATICBUILD
-#define PRE_INIT\
-    if(1)                                                           \
-        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+#define PRE_INIT                                            \
+    if (1)                                                  \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
     else
 #endif
 

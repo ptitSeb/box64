@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -29,11 +29,11 @@ EXPORT pid_t my_forkpty(x64emu_t* emu, void* amaster, void* name, void* termp, v
     forkinfo.winp = winp;
     library_t* lib = GetLibInternal(utilName);
     forkinfo.f = dlsym(lib->w.lib, "forkpty");
-    
+
     emu->quit = 1;
     emu->fork = 2;
     emu->forkpty_info = &forkinfo;
-        
+
     return 0;
 }
 
@@ -44,11 +44,10 @@ EXPORT pid_t my_forkpty(x64emu_t* emu, void* amaster, void* name, void* termp, v
 
 #ifdef STATICBUILD
 #else
-#define PRE_INIT\
-    if(1)                                                      \
-        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+#define PRE_INIT                                            \
+    if (1)                                                  \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
     else
 #endif
 
 #include "wrappedlib_init.h"
-

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,15 +18,15 @@
 #include "myalign.h"
 
 #ifdef ANDROID
-    const char* pulsesimpleName = "libpulse-simple.so";
+const char* pulsesimpleName = "libpulse-simple.so";
 #else
-    const char* pulsesimpleName = "libpulse-simple.so.0";
+const char* pulsesimpleName = "libpulse-simple.so.0";
 #endif
 
 #define LIBNAME pulsesimple
 
-#define PRE_INIT        \
-    if(box64_nopulse)   \
+#define PRE_INIT       \
+    if (box64_nopulse) \
         return -1;
 
 #ifdef ANDROID

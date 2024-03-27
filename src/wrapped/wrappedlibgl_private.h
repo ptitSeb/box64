@@ -1,7 +1,7 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
 #error meh!
 #endif
-//VERSION_1_0
+// VERSION_1_0
 GO(glAccum, vFuf)
 GO(glAlphaFunc, vFuf)
 GO(glBegin, vFu)
@@ -308,7 +308,7 @@ GO(glVertex4iv, vFp)
 GO(glVertex4s, vFiiii)
 GO(glVertex4sv, vFp)
 GO(glViewport, vFiiii)
-//VERSION_1_1
+// VERSION_1_1
 GO(glAreTexturesResident, CFipp)
 GO(glArrayElement, vFi)
 GO(glBindTexture, vFuu)
@@ -339,7 +339,7 @@ GO(glTexCoordPointer, vFiuip)
 GO(glTexSubImage1D, vFuiiiuup)
 GO(glTexSubImage2D, vFuiiiiiuup)
 GO(glVertexPointer, vFiuip)
-//VERSION_1_2
+// VERSION_1_2
 GO(glBlendColor, vFffff)
 GO(glBlendEquation, vFu)
 GO(glColorSubTable, vFuiiuup)
@@ -378,7 +378,7 @@ GO(glResetMinmax, vFu)
 GO(glSeparableFilter2D, vFuuiiuupp)
 GO(glTexImage3D, vFuiiiiiiuup)
 GO(glTexSubImage3D, vFuiiiiiiiuup)
-//VERSION_1_3
+// VERSION_1_3
 GO(glActiveTexture, vFu)
 GO(glClientActiveTexture, vFu)
 GO(glCompressedTexImage1D, vFuiuiiip)
@@ -425,7 +425,7 @@ GO(glMultiTexCoord4iv, vFup)
 GO(glMultiTexCoord4s, vFuiiii)
 GO(glMultiTexCoord4sv, vFup)
 GO(glSampleCoverage, vFfi)
-//VERSION_1_4
+// VERSION_1_4
 GO(glBlendFuncSeparate, vFuuuu)
 GO(glFogCoordPointer, vFuip)
 GO(glFogCoordd, vFd)
@@ -471,7 +471,7 @@ GO(glWindowPos3i, vFiii)
 GO(glWindowPos3iv, vFp)
 GO(glWindowPos3s, vFiii)
 GO(glWindowPos3sv, vFp)
-//VERSION_1_5
+// VERSION_1_5
 GO(glBeginQuery, vFuu)
 GO(glBindBuffer, vFuu)
 GO(glBufferData, vFulpu)
@@ -491,7 +491,7 @@ GO(glIsBuffer, iFu)
 GO(glIsQuery, iFu)
 GO(glMapBuffer, pFuu)
 GO(glUnmapBuffer, iFu)
-//VERSION_2_0
+// VERSION_2_0
 GO(glAttachShader, vFuu)
 GO(glBindAttribLocation, vFuup)
 GO(glBlendEquationSeparate, vFuu)
@@ -585,14 +585,14 @@ GO(glVertexAttrib4ubv, vFup)
 GO(glVertexAttrib4uiv, vFup)
 GO(glVertexAttrib4usv, vFup)
 GO(glVertexAttribPointer, vFuiuiip)
-//VERSION_2_1
+// VERSION_2_1
 GO(glUniformMatrix2x3fv, vFiiip)
 GO(glUniformMatrix2x4fv, vFiiip)
 GO(glUniformMatrix3x2fv, vFiiip)
 GO(glUniformMatrix3x4fv, vFiiip)
 GO(glUniformMatrix4x2fv, vFiiip)
 GO(glUniformMatrix4x3fv, vFiiip)
-//VERSION_3_0
+// VERSION_3_0
 GO(glBeginConditionalRender, vFuu)
 GO(glBeginTransformFeedback, vFu)
 GO(glBindBufferBase, vFuuu)
@@ -651,52 +651,52 @@ GO(glVertexAttribI4ui, vFuuuuu)
 GO(glVertexAttribI4uiv, vFup)
 GO(glVertexAttribI4usv, vFup)
 GO(glVertexAttribIPointer, vFuiuip)
-//VERSION_3_1
+// VERSION_3_1
 GO(glDrawArraysInstanced, vFuiii)
 GO(glDrawElementsInstanced, vFuiupi)
 GO(glPrimitiveRestartIndex, vFu)
 GO(glTexBuffer, vFuuu)
-//VERSION_3_2
+// VERSION_3_2
 GO(glFramebufferTexture, vFuuui)
 GO(glGetBufferParameteri64v, vFuup)
 GO(glGetInteger64i_v, vFuup)
-//VERSION_3_3
+// VERSION_3_3
 GO(glVertexAttribDivisor, vFuu)
-//VERSION_4_0
+// VERSION_4_0
 GO(glBlendEquationSeparatei, vFuuu)
 GO(glBlendEquationi, vFuu)
 GO(glBlendFuncSeparatei, vFuuuuu)
 GO(glBlendFunci, vFuuu)
 GO(glMinSampleShading, vFf)
-//VERSION_4_3
-GO(glInvalidateNamedFramebuffer,  vFiup)
-//VERSION_4_4
-GO(glBindBuffersBase,  vFiuip)
+// VERSION_4_3
+GO(glInvalidateNamedFramebuffer, vFiup)
+// VERSION_4_4
+GO(glBindBuffersBase, vFiuip)
 GO(glBindBuffersRange, vFuuippp)
-GO(glBindImageTextures,  vFuip)
-GO(glBindSamplers,  vFuip)
-GO(glBindTextures,  vFuip)
-GO(glBindVertexBuffers,  vFuippp)
+GO(glBindImageTextures, vFuip)
+GO(glBindSamplers, vFuip)
+GO(glBindTextures, vFuip)
+GO(glBindVertexBuffers, vFuippp)
 GO(glBufferStorage, vFulpu)
 GO(glClearTexImage, vFuiuup)
-GO(glClearTexSubImage,  vFuiiiiiiiiip)
-//VERSION_4_5
-GO(glClipControl,  vFii)
-GO(glCreateTransformFeedbacks,  vFlp)
-GO(glTransformFeedbackBufferBase,  vFuuu)
+GO(glClearTexSubImage, vFuiiiiiiiiip)
+// VERSION_4_5
+GO(glClipControl, vFii)
+GO(glCreateTransformFeedbacks, vFlp)
+GO(glTransformFeedbackBufferBase, vFuuu)
 GO(glTransformFeedbackBufferRange, vFuuull)
-GO(glGetTransformFeedbackiv,  vFuip)
-GO(glGetTransformFeedbacki_v,  vFuiup)
+GO(glGetTransformFeedbackiv, vFuip)
+GO(glGetTransformFeedbacki_v, vFuiup)
 GO(glGetTransformFeedbacki64_v, vFuuup)
-GO(glCreateBuffers,  vFlp)
-GO(glNamedBufferStorage,  vFulpu)
+GO(glCreateBuffers, vFlp)
+GO(glNamedBufferStorage, vFulpu)
 GO(glNamedBufferStorageEXT, vFulpu)
-GO(glNamedBufferData,  vFulpi)
-GO(glNamedBufferSubData,  vFullp)
-GO(glCopyNamedBufferSubData,  vFuulll)
-GO(glClearNamedBufferData,  vFuiiip)
+GO(glNamedBufferData, vFulpi)
+GO(glNamedBufferSubData, vFullp)
+GO(glCopyNamedBufferSubData, vFuulll)
+GO(glClearNamedBufferData, vFuiiip)
 GO(glClearNamedBufferSubData, vFuulluup)
-GO(glMapNamedBuffer,  pFui)
+GO(glMapNamedBuffer, pFui)
 GO(glMapNamedBufferRange, pFullu)
 GO(glUnmapNamedBuffer, iFu)
 GO(glFlushMappedNamedBufferRange, vFull)
@@ -791,33 +791,33 @@ GO(glGetnUniformfv, vFuilp)
 GO(glGetnUniformiv, vFuilp)
 GO(glGetnUniformuiv, vFuilp)
 GO(glReadnPixels, vFiilluulp)
-//VERSION_4_6
+// VERSION_4_6
 GO(glSpecializeShader, vFippp)
 
 GO(glTexturePageCommitmentEXT, vFuiiiiiiiC)
 GO(glVertexArrayVertexAttribDivisorEXT, vFuuu)
 
 // _fini
-//3DFX_tbuffer
+// 3DFX_tbuffer
 GO(glTbufferMask3DFX, vFu)
-//AMD_debug_output
+// AMD_debug_output
 GOM(glDebugMessageCallbackAMD, vFEpp)
 GO(glDebugMessageEnableAMD, vFuuipC)
 GO(glDebugMessageInsertAMD, vFuuuip)
 GO(glGetDebugMessageLogAMD, uFuippppp)
-//AMD_draw_buffers_blend
+// AMD_draw_buffers_blend
 GO(glBlendEquationIndexedAMD, vFuu)
 GO(glBlendEquationSeparateIndexedAMD, vFuuu)
 GO(glBlendFuncIndexedAMD, vFuuu)
 GO(glBlendFuncSeparateIndexedAMD, vFuuuuu)
-//AMD_multi_draw_indirect
+// AMD_multi_draw_indirect
 GO(glMultiDrawArraysIndirectAMD, vFupii)
 GO(glMultiDrawElementsIndirectAMD, vFuupii)
-//AMD_name_gen_delete
+// AMD_name_gen_delete
 GO(glDeleteNamesAMD, vFuup)
 GO(glGenNamesAMD, vFuup)
 GO(glIsNameAMD, iFuu)
-//AMD_performance_monitor
+// AMD_performance_monitor
 GO(glBeginPerfMonitorAMD, vFu)
 GO(glDeletePerfMonitorsAMD, vFip)
 GO(glEndPerfMonitorAMD, vFu)
@@ -829,23 +829,23 @@ GO(glGetPerfMonitorCountersAMD, vFuppip)
 GO(glGetPerfMonitorGroupStringAMD, vFuipp)
 GO(glGetPerfMonitorGroupsAMD, vFpip)
 GO(glSelectPerfMonitorCountersAMD, vFuCuip)
-//AMD_sample_positions
+// AMD_sample_positions
 GO(glSetMultisamplefvAMD, vFuup)
-//AMD_sparse_texture
+// AMD_sparse_texture
 GO(glTexStorageSparseAMD, vFuuiiiiu)
 GO(glTextureStorageSparseAMD, vFuuuiiiiu)
-//AMD_stencil_operation_extended
+// AMD_stencil_operation_extended
 GO(glStencilOpValueAMD, vFuu)
-//AMD_vertex_shader_tessellator
+// AMD_vertex_shader_tessellator
 GO(glTessellationFactorAMD, vFf)
 GO(glTessellationModeAMD, vFu)
-//APPLE_element_array
+// APPLE_element_array
 GO(glDrawElementArrayAPPLE, vFuii)
 GO(glDrawRangeElementArrayAPPLE, vFuuuii)
 GO(glElementPointerAPPLE, vFup)
 GO(glMultiDrawElementArrayAPPLE, vFuppi)
 GO(glMultiDrawRangeElementArrayAPPLE, vFuuuppi)
-//APPLE_fence
+// APPLE_fence
 GO(glDeleteFencesAPPLE, vFip)
 GO(glFinishFenceAPPLE, vFu)
 GO(glFinishObjectAPPLE, vFui)
@@ -854,26 +854,26 @@ GO(glIsFenceAPPLE, iFu)
 GO(glSetFenceAPPLE, vFu)
 GO(glTestFenceAPPLE, iFu)
 GO(glTestObjectAPPLE, iFuu)
-//APPLE_flush_buffer_range
+// APPLE_flush_buffer_range
 GO(glBufferParameteriAPPLE, vFuui)
 GO(glFlushMappedBufferRangeAPPLE, vFull)
-//APPLE_object_purgeable
+// APPLE_object_purgeable
 GO(glGetObjectParameterivAPPLE, vFuuup)
 GO(glObjectPurgeableAPPLE, uFuuu)
 GO(glObjectUnpurgeableAPPLE, uFuuu)
-//APPLE_texture_range
+// APPLE_texture_range
 GO(glGetTexParameterPointervAPPLE, vFuup)
 GO(glTextureRangeAPPLE, vFuip)
-//APPLE_vertex_array_object
+// APPLE_vertex_array_object
 GO(glBindVertexArrayAPPLE, vFu)
 GO(glDeleteVertexArraysAPPLE, vFip)
 GO(glGenVertexArraysAPPLE, vFip)
 GO(glIsVertexArrayAPPLE, iFu)
-//APPLE_vertex_array_range
+// APPLE_vertex_array_range
 GO(glFlushVertexArrayRangeAPPLE, vFip)
 GO(glVertexArrayParameteriAPPLE, vFui)
 GO(glVertexArrayRangeAPPLE, vFip)
-//APPLE_vertex_program_evaluators
+// APPLE_vertex_program_evaluators
 GO(glDisableVertexAttribAPPLE, vFuu)
 GO(glEnableVertexAttribAPPLE, vFuu)
 GO(glIsVertexAttribEnabledAPPLE, iFuu)
@@ -881,64 +881,64 @@ GO(glMapVertexAttrib1dAPPLE, vFuuddiip)
 GO(glMapVertexAttrib1fAPPLE, vFuuffiip)
 GO(glMapVertexAttrib2dAPPLE, vFuuddiiddiip)
 GO(glMapVertexAttrib2fAPPLE, vFuuffiiffiip)
-//ARB_ES2_compatibility
+// ARB_ES2_compatibility
 GO(glClearDepthf, vFf)
 GO(glDepthRangef, vFff)
 GO(glGetShaderPrecisionFormat, vFuupp)
 GO(glReleaseShaderCompiler, vFv)
 GO(glShaderBinary, vFipupi)
-//ARB_base_instance
+// ARB_base_instance
 GO(glDrawArraysInstancedBaseInstance, vFuiiiu)
 GO(glDrawElementsInstancedBaseInstance, vFuiupiu)
 GO(glDrawElementsInstancedBaseVertexBaseInstance, vFuiupiiu)
-//ARB_blend_func_extended
+// ARB_blend_func_extended
 GO(glBindFragDataLocationIndexed, vFuuup)
 GO(glGetFragDataIndex, iFup)
-//ARB_cl_event
+// ARB_cl_event
 GO(glCreateSyncFromCLeventARB, pFppu)
-//ARB_clear_buffer_object
+// ARB_clear_buffer_object
 GO(glClearBufferData, vFuuuup)
 GO(glClearBufferSubData, vFuulluup)
 GO(glClearNamedBufferDataEXT, vFuuuup)
 GO(glClearNamedBufferSubDataEXT, vFuulluup)
-//ARB_color_buffer_float
+// ARB_color_buffer_float
 GO(glClampColorARB, vFuu)
-//ARB_compute_shader
+// ARB_compute_shader
 GO(glDispatchCompute, vFuuu)
 GO(glDispatchComputeIndirect, vFi)
-//ARB_copy_buffer
+// ARB_copy_buffer
 GO(glCopyBufferSubData, vFuulll)
-//ARB_copy_image
+// ARB_copy_image
 GO(glCopyImageSubData, vFuuiiiiuuiiiiiii)
-//ARB_debug_output
+// ARB_debug_output
 GOM(glDebugMessageCallbackARB, vFEpp)
 GO(glDebugMessageControlARB, vFuuuipC)
 GO(glDebugMessageInsertARB, vFuuuuip)
 GO(glGetDebugMessageLogARB, uFuipppppp)
-//ARB_draw_buffers
+// ARB_draw_buffers
 GO(glDrawBuffersARB, vFip)
-//ARB_draw_buffers_blend
+// ARB_draw_buffers_blend
 GO(glBlendEquationSeparateiARB, vFuuu)
 GO(glBlendEquationiARB, vFuu)
 GO(glBlendFuncSeparateiARB, vFuuuuu)
 GO(glBlendFunciARB, vFuuu)
-//ARB_draw_elements_base_vertex
+// ARB_draw_elements_base_vertex
 GO(glDrawElementsBaseVertex, vFuiupi)
 GO(glDrawElementsInstancedBaseVertex, vFuiupii)
 GO(glDrawRangeElementsBaseVertex, vFuuuiupi)
 GO(glMultiDrawElementsBaseVertex, vFupupip)
-//ARB_draw_indirect
+// ARB_draw_indirect
 GO(glDrawArraysIndirect, vFup)
 GO(glDrawElementsIndirect, vFuup)
-//ARB_draw_instanced
+// ARB_draw_instanced
 GO(glDrawArraysInstancedARB, vFuiii)
 GO(glDrawElementsInstancedARB, vFuiupi)
-//ARB_framebuffer_no_attachments
+// ARB_framebuffer_no_attachments
 GO(glFramebufferParameteri, vFuui)
 GO(glGetFramebufferParameteriv, vFuup)
 GO(glGetNamedFramebufferParameterivEXT, vFuup)
 GO(glNamedFramebufferParameteriEXT, vFuui)
-//ARB_framebuffer_object
+// ARB_framebuffer_object
 GO(glBindFramebuffer, vFuu)
 GO(glBindRenderbuffer, vFuu)
 GO(glBlitFramebuffer, vFiiiiiiiiiu)
@@ -959,16 +959,16 @@ GO(glIsFramebuffer, iFu)
 GO(glIsRenderbuffer, iFu)
 GO(glRenderbufferStorage, vFuuii)
 GO(glRenderbufferStorageMultisample, vFuiuii)
-//ARB_geometry_shader4
+// ARB_geometry_shader4
 GO(glFramebufferTextureARB, vFuuui)
 GO(glFramebufferTextureFaceARB, vFuuuiu)
 GO(glFramebufferTextureLayerARB, vFuuuii)
 GO(glProgramParameteriARB, vFuui)
-//ARB_get_program_binary
+// ARB_get_program_binary
 GO(glGetProgramBinary, vFuippp)
 GO(glProgramBinary, vFuupi)
 GO(glProgramParameteri, vFuui)
-//ARB_gpu_shader_fp64
+// ARB_gpu_shader_fp64
 GO(glGetUniformdv, vFuip)
 GO(glUniform1d, vFid)
 GO(glUniform1dv, vFiip)
@@ -987,34 +987,34 @@ GO(glUniformMatrix3x4dv, vFiiip)
 GO(glUniformMatrix4dv, vFiiip)
 GO(glUniformMatrix4x2dv, vFiiip)
 GO(glUniformMatrix4x3dv, vFiiCp)
-//ARB_instanced_arrays
+// ARB_instanced_arrays
 GO(glVertexAttribDivisorARB, vFuu)
-//ARB_internalformat_query
+// ARB_internalformat_query
 GO(glGetInternalformativ, vFuuuip)
-//ARB_internalformat_query2
+// ARB_internalformat_query2
 GO(glGetInternalformati64v, vFuuuip)
-//ARB_invalidate_subdata
+// ARB_invalidate_subdata
 GO(glInvalidateBufferData, vFu)
 GO(glInvalidateBufferSubData, vFuii)
 GO(glInvalidateFramebuffer, vFuip)
 GO(glInvalidateSubFramebuffer, vFuipiiii)
 GO(glInvalidateTexImage, vFui)
 GO(glInvalidateTexSubImage, vFuiiiiiii)
-//ARB_map_buffer_range
+// ARB_map_buffer_range
 GO(glFlushMappedBufferRange, vFull)
 GO(glMapBufferRange, pFullu)
-//ARB_matrix_palette
+// ARB_matrix_palette
 GO(glCurrentPaletteMatrixARB, vFi)
 GO(glMatrixIndexPointerARB, vFiuip)
 GO(glMatrixIndexubvARB, vFip)
 GO(glMatrixIndexuivARB, vFip)
 GO(glMatrixIndexusvARB, vFip)
-//ARB_multi_draw_indirect
+// ARB_multi_draw_indirect
 GO(glMultiDrawArraysIndirect, vFupii)
 GO(glMultiDrawElementsIndirect, vFuupii)
-//ARB_multisample
+// ARB_multisample
 GO(glSampleCoverageARB, vFfC)
-//ARB_multitexture
+// ARB_multitexture
 GO(glActiveTextureARB, vFu)
 GO(glClientActiveTextureARB, vFu)
 GO(glMultiTexCoord1dARB, vFud)
@@ -1049,7 +1049,7 @@ GO(glMultiTexCoord4iARB, vFuiiii)
 GO(glMultiTexCoord4ivARB, vFup)
 GO(glMultiTexCoord4sARB, vFuiiii)
 GO(glMultiTexCoord4svARB, vFup)
-//ARB_occlusion_query
+// ARB_occlusion_query
 GO(glBeginQueryARB, vFuu)
 GO(glDeleteQueriesARB, vFip)
 GO(glEndQueryARB, vFu)
@@ -1058,19 +1058,19 @@ GO(glGetQueryObjectivARB, vFuup)
 GO(glGetQueryObjectuivARB, vFuup)
 GO(glGetQueryivARB, vFuup)
 GO(glIsQueryARB, iFu)
-//ARB_point_parameters
+// ARB_point_parameters
 GO(glPointParameterfARB, vFuf)
 GO(glPointParameterfvARB, vFup)
-//ARB_program_interface_query
+// ARB_program_interface_query
 GO(glGetProgramInterfaceiv, vFuuup)
 GO(glGetProgramResourceIndex, uFuup)
 GO(glGetProgramResourceLocation, iFuup)
 GO(glGetProgramResourceLocationIndex, iFuup)
 GO(glGetProgramResourceName, vFuuuipp)
 GO(glGetProgramResourceiv, vFuuuipipp)
-//ARB_provoking_vertex
+// ARB_provoking_vertex
 GO(glProvokingVertex, vFu)
-//ARB_robustness
+// ARB_robustness
 GO(glGetGraphicsResetStatusARB, uFv)
 GO(glGetnColorTableARB, vFuuuip)
 GO(glGetnCompressedTexImageARB, vFuiip)
@@ -1091,9 +1091,9 @@ GO(glGetnUniformfvARB, vFuiip)
 GO(glGetnUniformivARB, vFuiip)
 GO(glGetnUniformuivARB, vFuiip)
 GO(glReadnPixelsARB, vFiiiiuuip)
-//ARB_sample_shading
+// ARB_sample_shading
 GO(glMinSampleShadingARB, vFf)
-//ARB_sampler_objects
+// ARB_sampler_objects
 GO(glBindSampler, vFuu)
 GO(glDeleteSamplers, vFip)
 GO(glGenSamplers, vFip)
@@ -1108,7 +1108,7 @@ GO(glSamplerParameterf, vFuuf)
 GO(glSamplerParameterfv, vFuup)
 GO(glSamplerParameteri, vFuui)
 GO(glSamplerParameteriv, vFuup)
-//ARB_separate_shader_objects
+// ARB_separate_shader_objects
 GO(glActiveShaderProgram, vFuu)
 GO(glBindProgramPipeline, vFu)
 GO(glCreateShaderProgramv, uFuip)
@@ -1169,12 +1169,12 @@ GO(glProgramUniformMatrix4x3dv, vFuiiip)
 GO(glProgramUniformMatrix4x3fv, vFuiiip)
 GO(glUseProgramStages, vFuuu)
 GO(glValidateProgramPipeline, vFu)
-//ARB_shader_atomic_counters
+// ARB_shader_atomic_counters
 GO(glGetActiveAtomicCounterBufferiv, vFuuup)
-//ARB_shader_image_load_store
+// ARB_shader_image_load_store
 GO(glBindImageTexture, vFuuiCiuu)
 GO(glMemoryBarrier, vFi)
-//ARB_shader_objects
+// ARB_shader_objects
 GO(glAttachObjectARB, vFuu)
 GO(glCompileShaderARB, vFu)
 GO(glCreateProgramObjectARB, uFv)
@@ -1214,9 +1214,9 @@ GO(glUniformMatrix3fvARB, vFiiip)
 GO(glUniformMatrix4fvARB, vFiiCp)
 GO(glUseProgramObjectARB, vFu)
 GO(glValidateProgramARB, vFu)
-//ARB_shader_storage_buffer_object
+// ARB_shader_storage_buffer_object
 GO(glShaderStorageBlockBinding, vFuuu)
-//ARB_shader_subroutine
+// ARB_shader_subroutine
 GO(glGetActiveSubroutineName, vFuuuipp)
 GO(glGetActiveSubroutineUniformName, vFuuuipp)
 GO(glGetActiveSubroutineUniformiv, vFuuuup)
@@ -1225,14 +1225,14 @@ GO(glGetSubroutineIndex, uFuup)
 GO(glGetSubroutineUniformLocation, iFuup)
 GO(glGetUniformSubroutineuiv, vFuip)
 GO(glUniformSubroutinesuiv, vFuip)
-//ARB_shading_language_include
+// ARB_shading_language_include
 GO(glCompileShaderIncludeARB, vFuipp)
 GO(glDeleteNamedStringARB, vFip)
 GO(glGetNamedStringARB, vFipipp)
 GO(glGetNamedStringivARB, vFipup)
 GO(glIsNamedStringARB, CFip)
 GO(glNamedStringARB, vFuipip)
-//ARB_sync
+// ARB_sync
 GO(glClientWaitSync, uFpuL)
 GO(glDeleteSync, vFp)
 GO(glFenceSync, pFuu)
@@ -1240,15 +1240,15 @@ GO(glGetInteger64v, vFup)
 GO(glGetSynciv, vFpuipp)
 GO(glIsSync, CFp)
 GO(glWaitSync, vFpuL)
-//ARB_tessellation_shader
+// ARB_tessellation_shader
 GO(glPatchParameterfv, vFup)
 GO(glPatchParameteri, vFui)
-//ARB_texture_buffer_object
+// ARB_texture_buffer_object
 GO(glTexBufferARB, vFuuu)
-//ARB_texture_buffer_range
+// ARB_texture_buffer_range
 GO(glTexBufferRange, vFuuull)
 GO(glTextureBufferRangeEXT, vFuuuull)
-//ARB_texture_compression
+// ARB_texture_compression
 GO(glCompressedTexImage1DARB, vFuiuiiip)
 GO(glCompressedTexImage2DARB, vFuiuiiiip)
 GO(glCompressedTexImage3DARB, vFuiuiiiiip)
@@ -1256,30 +1256,30 @@ GO(glCompressedTexSubImage1DARB, vFuiiiuip)
 GO(glCompressedTexSubImage2DARB, vFuiiiiiuip)
 GO(glCompressedTexSubImage3DARB, vFuiiiiiiiuip)
 GO(glGetCompressedTexImageARB, vFuip)
-//ARB_texture_multisample
+// ARB_texture_multisample
 GO(glGetMultisamplefv, vFuup)
 GO(glSampleMaski, vFui)
 GO(glTexImage2DMultisample, vFuiiiii)
 GO(glTexImage3DMultisample, vFuiiiiii)
-//ARB_texture_storage
+// ARB_texture_storage
 GO(glTexStorage1D, vFuiui)
 GO(glTexStorage2D, vFuiuii)
 GO(glTexStorage3D, vFuiuiii)
 GO(glTextureStorage1DEXT, vFuuiui)
 GO(glTextureStorage2DEXT, vFuuiuii)
 GO(glTextureStorage3DEXT, vFuuiuiii)
-//ARB_texture_storage_multisample
+// ARB_texture_storage_multisample
 GO(glTexStorage2DMultisample, vFuiuiiC)
 GO(glTexStorage3DMultisample, vFuiuiiiC)
 GO(glTextureStorage2DMultisampleEXT, vFuuiuiiC)
 GO(glTextureStorage3DMultisampleEXT, vFuuiuiiiC)
-//ARB_texture_view
+// ARB_texture_view
 GO(glTextureView, vFuuuuuuuu)
-//ARB_timer_query
+// ARB_timer_query
 GO(glGetQueryObjecti64v, vFuup)
 GO(glGetQueryObjectui64v, vFuup)
 GO(glQueryCounter, vFuu)
-//ARB_transform_feedback2
+// ARB_transform_feedback2
 GO(glBindTransformFeedback, vFuu)
 GO(glDeleteTransformFeedbacks, vFip)
 GO(glDrawTransformFeedback, vFuu)
@@ -1287,20 +1287,20 @@ GO(glGenTransformFeedbacks, vFip)
 GO(glIsTransformFeedback, iFu)
 GO(glPauseTransformFeedback, vFv)
 GO(glResumeTransformFeedback, vFv)
-//ARB_transform_feedback3
+// ARB_transform_feedback3
 GO(glBeginQueryIndexed, vFuuu)
 GO(glDrawTransformFeedbackStream, vFuuu)
 GO(glEndQueryIndexed, vFuu)
 GO(glGetQueryIndexediv, vFuuup)
-//ARB_transform_feedback_instanced
+// ARB_transform_feedback_instanced
 GO(glDrawTransformFeedbackInstanced, vFuui)
 GO(glDrawTransformFeedbackStreamInstanced, vFuuui)
-//ARB_transpose_matrix
+// ARB_transpose_matrix
 GO(glLoadTransposeMatrixdARB, vFp)
 GO(glLoadTransposeMatrixfARB, vFp)
 GO(glMultTransposeMatrixdARB, vFp)
 GO(glMultTransposeMatrixfARB, vFp)
-//ARB_uniform_buffer_object
+// ARB_uniform_buffer_object
 GO(glGetActiveUniformBlockName, vFuuipp)
 GO(glGetActiveUniformBlockiv, vFuuup)
 GO(glGetActiveUniformName, vFuuipp)
@@ -1308,12 +1308,12 @@ GO(glGetActiveUniformsiv, vFuipup)
 GO(glGetUniformBlockIndex, uFup)
 GO(glGetUniformIndices, vFuipp)
 GO(glUniformBlockBinding, vFuuu)
-//ARB_vertex_array_object
+// ARB_vertex_array_object
 GO(glBindVertexArray, vFu)
 GO(glDeleteVertexArrays, vFip)
 GO(glGenVertexArrays, vFip)
 GO(glIsVertexArray, iFu)
-//ARB_vertex_attrib_64bit
+// ARB_vertex_attrib_64bit
 GO(glGetVertexAttribLdv, vFuup)
 GO(glVertexAttribL1d, vFud)
 GO(glVertexAttribL1dv, vFup)
@@ -1324,7 +1324,7 @@ GO(glVertexAttribL3dv, vFup)
 GO(glVertexAttribL4d, vFudddd)
 GO(glVertexAttribL4dv, vFup)
 GO(glVertexAttribLPointer, vFuiuip)
-//ARB_vertex_attrib_binding
+// ARB_vertex_attrib_binding
 GO(glBindVertexBuffer, vFuuli)
 GO(glVertexArrayBindVertexBufferEXT, vFuuuli)
 GO(glVertexArrayVertexAttribBindingEXT, vFuuu)
@@ -1337,7 +1337,7 @@ GO(glVertexAttribFormat, vFuiuCu)
 GO(glVertexAttribIFormat, vFuiuu)
 GO(glVertexAttribLFormat, vFuiuu)
 GO(glVertexBindingDivisor, vFuu)
-//ARB_vertex_blend
+// ARB_vertex_blend
 GO(glVertexBlendARB, vFi)
 GO(glWeightPointerARB, vFiuip)
 GO(glWeightbvARB, vFip)
@@ -1348,7 +1348,7 @@ GO(glWeightsvARB, vFip)
 GO(glWeightubvARB, vFip)
 GO(glWeightuivARB, vFip)
 GO(glWeightusvARB, vFip)
-//ARB_vertex_buffer_object
+// ARB_vertex_buffer_object
 GO(glBindBufferARB, vFuu)
 GO(glBufferDataARB, vFulpu)
 GO(glBufferSubDataARB, vFullp)
@@ -1360,7 +1360,7 @@ GO(glGetBufferSubDataARB, vFullp)
 GO(glIsBufferARB, iFu)
 GO(glMapBufferARB, pFuu)
 GO(glUnmapBufferARB, iFu)
-//ARB_vertex_program
+// ARB_vertex_program
 GO(glBindProgramARB, vFuu)
 GO(glDeleteProgramsARB, vFip)
 GO(glDisableVertexAttribArrayARB, vFu)
@@ -1423,11 +1423,11 @@ GO(glVertexAttrib4ubvARB, vFup)
 GO(glVertexAttrib4uivARB, vFup)
 GO(glVertexAttrib4usvARB, vFup)
 GO(glVertexAttribPointerARB, vFuiuCip)
-//ARB_vertex_shader
+// ARB_vertex_shader
 GO(glBindAttribLocationARB, vFuup)
 GO(glGetActiveAttribARB, vFuuipppp)
 GO(glGetAttribLocationARB, iFup)
-//ARB_vertex_type_2_10_10_10_rev
+// ARB_vertex_type_2_10_10_10_rev
 GO(glColorP3ui, vFuu)
 GO(glColorP3uiv, vFup)
 GO(glColorP4ui, vFuu)
@@ -1466,7 +1466,7 @@ GO(glVertexP3ui, vFuu)
 GO(glVertexP3uiv, vFup)
 GO(glVertexP4ui, vFuu)
 GO(glVertexP4uiv, vFup)
-//ARB_viewport_array
+// ARB_viewport_array
 GO(glDepthRangeArrayv, vFuip)
 GO(glDepthRangeIndexed, vFudd)
 GO(glGetDoublei_v, vFuup)
@@ -1477,7 +1477,7 @@ GO(glScissorIndexedv, vFup)
 GO(glViewportArrayv, vFuip)
 GO(glViewportIndexedf, vFuffff)
 GO(glViewportIndexedfv, vFup)
-//ARB_window_pos
+// ARB_window_pos
 GO(glWindowPos2dARB, vFdd)
 GO(glWindowPos2dvARB, vFp)
 GO(glWindowPos2fARB, vFff)
@@ -1494,18 +1494,18 @@ GO(glWindowPos3iARB, vFiii)
 GO(glWindowPos3ivARB, vFp)
 GO(glWindowPos3sARB, vFiii)
 GO(glWindowPos3svARB, vFp)
-//ATI_draw_buffers
+// ATI_draw_buffers
 GO(glDrawBuffersATI, vFip)
-//ATI_element_array
+// ATI_element_array
 GO(glDrawElementArrayATI, vFui)
 GO(glDrawRangeElementArrayATI, vFuuui)
 GO(glElementPointerATI, vFup)
-//ATI_envmap_bumpmap
+// ATI_envmap_bumpmap
 GO(glGetTexBumpParameterfvATI, vFup)
 GO(glGetTexBumpParameterivATI, vFup)
 GO(glTexBumpParameterfvATI, vFup)
 GO(glTexBumpParameterivATI, vFup)
-//ATI_fragment_shader
+// ATI_fragment_shader
 GO(glAlphaFragmentOp1ATI, vFuuuuuu)
 GO(glAlphaFragmentOp2ATI, vFuuuuuuuuu)
 GO(glAlphaFragmentOp3ATI, vFuuuuuuuuuuuu)
@@ -1520,16 +1520,16 @@ GO(glGenFragmentShadersATI, uFu)
 GO(glPassTexCoordATI, vFuuu)
 GO(glSampleMapATI, vFuuu)
 GO(glSetFragmentShaderConstantATI, vFup)
-//ATI_map_object_buffer
+// ATI_map_object_buffer
 GO(glMapObjectBufferATI, pFu)
 GO(glUnmapObjectBufferATI, vFu)
-//ATI_pn_triangles
+// ATI_pn_triangles
 GO(glPNTrianglesfATI, vFuf)
 GO(glPNTrianglesiATI, vFui)
-//ATI_separate_stencil
+// ATI_separate_stencil
 GO(glStencilFuncSeparateATI, vFuuiu)
 GO(glStencilOpSeparateATI, vFuuuu)
-//ATI_vertex_array_object
+// ATI_vertex_array_object
 GO(glArrayObjectATI, vFuiuiuu)
 GO(glFreeObjectBufferATI, vFu)
 GO(glGetArrayObjectfvATI, vFuup)
@@ -1542,11 +1542,11 @@ GO(glIsObjectBufferATI, iFu)
 GO(glNewObjectBufferATI, uFipu)
 GO(glUpdateObjectBufferATI, vFuuipu)
 GO(glVariantArrayObjectATI, vFuuiuu)
-//ATI_vertex_attrib_array_object
+// ATI_vertex_attrib_array_object
 GO(glGetVertexAttribArrayObjectfvATI, vFuup)
 GO(glGetVertexAttribArrayObjectivATI, vFuup)
 GO(glVertexAttribArrayObjectATI, vFuiuCiuu)
-//ATI_vertex_streams
+// ATI_vertex_streams
 GO(glClientActiveVertexStreamATI, vFu)
 GO(glNormalStream3bATI, vFuccc)
 GO(glNormalStream3bvATI, vFup)
@@ -1592,25 +1592,25 @@ GO(glVertexStream4iATI, vFuiiii)
 GO(glVertexStream4ivATI, vFup)
 GO(glVertexStream4sATI, vFuwwww)
 GO(glVertexStream4svATI, vFup)
-//EXT_bindable_uniform
+// EXT_bindable_uniform
 GO(glGetUniformBufferSizeEXT, iFui)
 GO(glGetUniformOffsetEXT, lFui)
 GO(glUniformBufferEXT, vFuiu)
-//EXT_blend_color
+// EXT_blend_color
 GO(glBlendColorEXT, vFffff)
-//EXT_blend_equation_separate
+// EXT_blend_equation_separate
 GO(glBlendEquationSeparateEXT, vFuu)
-//EXT_blend_func_separate
+// EXT_blend_func_separate
 GO(glBlendFuncSeparateEXT, vFuuuu)
-//EXT_blend_minmax
+// EXT_blend_minmax
 GO(glBlendEquationEXT, vFu)
-//EXT_color_subtable
+// EXT_color_subtable
 GO(glColorSubTableEXT, vFuiiuup)
 GO(glCopyColorSubTableEXT, vFuiiii)
-//EXT_compiled_vertex_array
+// EXT_compiled_vertex_array
 GO(glLockArraysEXT, vFii)
 GO(glUnlockArraysEXT, vFv)
-//EXT_convolution
+// EXT_convolution
 GO(glConvolutionFilter1DEXT, vFuuiuup)
 GO(glConvolutionFilter2DEXT, vFuuiiuup)
 GO(glConvolutionParameterfEXT, vFuuf)
@@ -1624,7 +1624,7 @@ GO(glGetConvolutionParameterfvEXT, vFuup)
 GO(glGetConvolutionParameterivEXT, vFuup)
 GO(glGetSeparableFilterEXT, vFuuuppp)
 GO(glSeparableFilter2DEXT, vFuuiiuupp)
-//EXT_coordinate_frame
+// EXT_coordinate_frame
 GO(glBinormal3bEXT, vFiii)
 GO(glBinormal3bvEXT, vFp)
 GO(glBinormal3dEXT, vFddd)
@@ -1647,18 +1647,18 @@ GO(glTangent3ivEXT, vFp)
 GO(glTangent3sEXT, vFiii)
 GO(glTangent3svEXT, vFp)
 GO(glTangentPointerEXT, vFuip)
-//EXT_copy_texture
+// EXT_copy_texture
 GO(glCopyTexImage1DEXT, vFuiuiiii)
 GO(glCopyTexImage2DEXT, vFuiuiiiii)
 GO(glCopyTexSubImage1DEXT, vFuiiiii)
 GO(glCopyTexSubImage2DEXT, vFuiiiiiii)
 GO(glCopyTexSubImage3DEXT, vFuiiiiiiii)
-//EXT_cull_vertex
+// EXT_cull_vertex
 GO(glCullParameterdvEXT, vFup)
 GO(glCullParameterfvEXT, vFup)
-//EXT_depth_bounds_test
+// EXT_depth_bounds_test
 GO(glDepthBoundsEXT, vFdd)
-//EXT_direct_state_access
+// EXT_direct_state_access
 GO(glBindMultiTextureEXT, vFuuu)
 GO(glCheckNamedFramebufferStatusEXT, uFuu)
 GO(glClientAttribDefaultEXT, vFi)
@@ -1889,27 +1889,27 @@ GO(glVertexArrayTexCoordOffsetEXT, vFuuiuii)
 GO(glVertexArrayVertexAttribIOffsetEXT, vFuuuiuii)
 GO(glVertexArrayVertexAttribOffsetEXT, vFuuuiuCil)
 GO(glVertexArrayVertexOffsetEXT, vFuuiuii)
-//EXT_draw_buffers2
+// EXT_draw_buffers2
 GO(glColorMaskIndexedEXT, vFuCCCC)
 GO(glDisableIndexedEXT, vFuu)
 GO(glEnableIndexedEXT, vFuu)
 GO(glGetBooleanIndexedvEXT, vFuup)
 GO(glGetIntegerIndexedvEXT, vFuup)
 GO(glIsEnabledIndexedEXT, CFuu)
-//EXT_draw_instanced
+// EXT_draw_instanced
 GO(glDrawArraysInstancedEXT, vFuiii)
 GO(glDrawElementsInstancedEXT, vFuiupi)
-//EXT_draw_range_elements
+// EXT_draw_range_elements
 GO(glDrawRangeElementsEXT, vFuuuiup)
-//EXT_fog_coord
+// EXT_fog_coord
 GO(glFogCoordPointerEXT, vFuip)
 GO(glFogCoorddEXT, vFd)
 GO(glFogCoorddvEXT, vFp)
 GO(glFogCoordfEXT, vFf)
 GO(glFogCoordfvEXT, vFp)
-//EXT_framebuffer_blit
+// EXT_framebuffer_blit
 GO(glBlitFramebufferEXT, vFiiiiiiiiuu)
-//EXT_framebuffer_object
+// EXT_framebuffer_object
 GO(glBindFramebufferEXT, vFuu)
 GO(glBindRenderbufferEXT, vFuu)
 GO(glCheckFramebufferStatusEXT, uFu)
@@ -1927,12 +1927,12 @@ GO(glGetRenderbufferParameterivEXT, vFuup)
 GO(glIsFramebufferEXT, iFu)
 GO(glIsRenderbufferEXT, iFu)
 GO(glRenderbufferStorageEXT, vFuuii)
-//EXT_geometry_shader4
+// EXT_geometry_shader4
 GO(glProgramParameteriEXT, vFuui)
-//EXT_gpu_program_parameters
+// EXT_gpu_program_parameters
 GO(glProgramEnvParameters4fvEXT, vFuuip)
 GO(glProgramLocalParameters4fvEXT, vFuuip)
-//EXT_gpu_shader4
+// EXT_gpu_shader4
 GO(glBindFragDataLocationEXT, vFuup)
 GO(glGetFragDataLocationEXT, iFup)
 GO(glGetUniformuivEXT, vFuip)
@@ -1944,7 +1944,7 @@ GO(glUniform3uiEXT, vFiuuu)
 GO(glUniform3uivEXT, vFiip)
 GO(glUniform4uiEXT, vFiuuuu)
 GO(glUniform4uivEXT, vFiip)
-//EXT_histogram
+// EXT_histogram
 GO(glGetHistogramEXT, vFuiuup)
 GO(glGetHistogramParameterfvEXT, vFuup)
 GO(glGetHistogramParameterivEXT, vFuup)
@@ -1955,40 +1955,40 @@ GO(glHistogramEXT, vFuiuC)
 GO(glMinmaxEXT, vFuuC)
 GO(glResetHistogramEXT, vFu)
 GO(glResetMinmaxEXT, vFu)
-//EXT_index_func
+// EXT_index_func
 GO(glIndexFuncEXT, vFuf)
-//EXT_index_material
+// EXT_index_material
 GO(glIndexMaterialEXT, vFuu)
-//EXT_light_texture
+// EXT_light_texture
 GO(glApplyTextureEXT, vFu)
 GO(glTextureLightEXT, vFu)
 GO(glTextureMaterialEXT, vFuu)
-//EXT_multi_draw_arrays
+// EXT_multi_draw_arrays
 GO(glMultiDrawArraysEXT, vFuppi)
 GO(glMultiDrawElementsEXT, vFupupi)
-//EXT_multisample
+// EXT_multisample
 GO(glSampleMaskEXT, vFfi)
 GO(glSamplePatternEXT, vFu)
-//EXT_paletted_texture
+// EXT_paletted_texture
 GO(glColorTableEXT, vFuuiuup)
 GO(glGetColorTableEXT, vFuuup)
 GO(glGetColorTableParameterfvEXT, vFuup)
 GO(glGetColorTableParameterivEXT, vFuup)
-//EXT_pixel_transform
+// EXT_pixel_transform
 GO(glGetPixelTransformParameterfvEXT, vFuup)
 GO(glGetPixelTransformParameterivEXT, vFuup)
 GO(glPixelTransformParameterfEXT, vFuuf)
 GO(glPixelTransformParameterfvEXT, vFuup)
 GO(glPixelTransformParameteriEXT, vFuui)
 GO(glPixelTransformParameterivEXT, vFuup)
-//EXT_point_parameters
+// EXT_point_parameters
 GO(glPointParameterfEXT, vFuf)
 GO(glPointParameterfvEXT, vFup)
-//EXT_polygon_offset
+// EXT_polygon_offset
 GO(glPolygonOffsetEXT, vFff)
-//EXT_provoking_vertex
+// EXT_provoking_vertex
 GO(glProvokingVertexEXT, vFu)
-//EXT_secondary_color
+// EXT_secondary_color
 GO(glSecondaryColor3bEXT, vFccc)
 GO(glSecondaryColor3bvEXT, vFp)
 GO(glSecondaryColor3dEXT, vFddd)
@@ -2006,42 +2006,42 @@ GO(glSecondaryColor3uivEXT, vFp)
 GO(glSecondaryColor3usEXT, vFWWW)
 GO(glSecondaryColor3usvEXT, vFp)
 GO(glSecondaryColorPointerEXT, vFiuip)
-//EXT_separate_shader_objects
+// EXT_separate_shader_objects
 GO(glActiveProgramEXT, vFu)
 GO(glCreateShaderProgramEXT, uFup)
 GO(glUseShaderProgramEXT, vFuu)
-//EXT_shader_image_load_store
+// EXT_shader_image_load_store
 GO(glBindImageTextureEXT, vFuuiCiui)
 GO(glMemoryBarrierEXT, vFi)
-//EXT_stencil_clear_tag
+// EXT_stencil_clear_tag
 GO(glStencilClearTagEXT, vFiu)
-//EXT_stencil_two_side
+// EXT_stencil_two_side
 GO(glActiveStencilFaceEXT, vFu)
-//EXT_subtexture
+// EXT_subtexture
 GO(glTexSubImage1DEXT, vFuiiiuup)
 GO(glTexSubImage2DEXT, vFuiiiiiuup)
-//EXT_texture3D
+// EXT_texture3D
 GO(glTexImage3DEXT, vFuiuiiiiuup)
 GO(glTexSubImage3DEXT, vFuiiiiiiiuup)
-//EXT_texture_buffer_object
+// EXT_texture_buffer_object
 GO(glTexBufferEXT, vFuuu)
-//EXT_texture_integer
+// EXT_texture_integer
 GO(glClearColorIiEXT, vFiiii)
 GO(glClearColorIuiEXT, vFuuuu)
 GO(glGetTexParameterIivEXT, vFuup)
 GO(glGetTexParameterIuivEXT, vFuup)
 GO(glTexParameterIivEXT, vFuup)
 GO(glTexParameterIuivEXT, vFuup)
-//EXT_texture_object
+// EXT_texture_object
 GO(glAreTexturesResidentEXT, iFipp)
 GO(glBindTextureEXT, vFuu)
 GO(glDeleteTexturesEXT, vFip)
 GO(glGenTexturesEXT, vFip)
 GO(glIsTextureEXT, iFu)
 GO(glPrioritizeTexturesEXT, vFipp)
-//EXT_texture_perturb_normal
+// EXT_texture_perturb_normal
 GO(glTextureNormalEXT, vFu)
-//EXT_transform_feedback
+// EXT_transform_feedback
 GO(glBeginTransformFeedbackEXT, vFu)
 GO(glBindBufferBaseEXT, vFuuu)
 GO(glBindBufferOffsetEXT, vFuuui)
@@ -2049,7 +2049,7 @@ GO(glBindBufferRangeEXT, vFuuuii)
 GO(glEndTransformFeedbackEXT, vFv)
 GO(glGetTransformFeedbackVaryingEXT, vFuuipppp)
 GO(glTransformFeedbackVaryingsEXT, vFuipu)
-//EXT_vertex_array
+// EXT_vertex_array
 GO(glArrayElementEXT, vFi)
 GO(glColorPointerEXT, vFiuiip)
 GO(glDrawArraysEXT, vFuii)
@@ -2059,7 +2059,7 @@ GO(glIndexPointerEXT, vFuiip)
 GO(glNormalPointerEXT, vFuiip)
 GO(glTexCoordPointerEXT, vFiuiip)
 GO(glVertexPointerEXT, vFiuiip)
-//EXT_vertex_attrib_64bit
+// EXT_vertex_attrib_64bit
 GO(glGetVertexAttribLdvEXT, vFuup)
 GO(glVertexArrayVertexAttribLOffsetEXT, vFuuuiuil)
 GO(glVertexAttribL1dEXT, vFud)
@@ -2071,7 +2071,7 @@ GO(glVertexAttribL3dvEXT, vFup)
 GO(glVertexAttribL4dEXT, vFudddd)
 GO(glVertexAttribL4dvEXT, vFup)
 GO(glVertexAttribLPointerEXT, vFuiuip)
-//EXT_vertex_shader
+// EXT_vertex_shader
 GO(glBeginVertexShaderEXT, vFv)
 GO(glBindLightParameterEXT, uFuu)
 GO(glBindMaterialParameterEXT, uFuu)
@@ -2114,29 +2114,29 @@ GO(glVariantubvEXT, vFup)
 GO(glVariantuivEXT, vFup)
 GO(glVariantusvEXT, vFup)
 GO(glWriteMaskEXT, vFuuuuuu)
-//EXT_vertex_weighting
+// EXT_vertex_weighting
 GO(glVertexWeightPointerEXT, vFiuip)
 GO(glVertexWeightfEXT, vFf)
 GO(glVertexWeightfvEXT, vFp)
-//EXT_x11_sync_object
+// EXT_x11_sync_object
 GO(glImportSyncEXT, pFulu)
-//GREMEDY_frame_terminator
+// GREMEDY_frame_terminator
 GO(glFrameTerminatorGREMEDY, vFv)
-//GREMEDY_string_marker
+// GREMEDY_string_marker
 GO(glStringMarkerGREMEDY, vFip)
-//HP_image_transform
+// HP_image_transform
 GO(glGetImageTransformParameterfvHP, vFuup)
 GO(glGetImageTransformParameterivHP, vFuup)
 GO(glImageTransformParameterfHP, vFuuf)
 GO(glImageTransformParameterfvHP, vFuup)
 GO(glImageTransformParameteriHP, vFuui)
 GO(glImageTransformParameterivHP, vFuup)
-//IBM_multimode_draw_arrays
+// IBM_multimode_draw_arrays
 GO(glMultiModeDrawArraysIBM, vFpppii)
 GO(glMultiModeDrawElementsIBM, vFppupii)
-//IBM_static_data
+// IBM_static_data
 GO(glFlushStaticDataIBM, vFu)
-//IBM_vertex_array_lists
+// IBM_vertex_array_lists
 GO(glColorPointerListIBM, vFiuipi)
 GO(glEdgeFlagPointerListIBM, vFipi)
 GO(glFogCoordPointerListIBM, vFuipi)
@@ -2145,19 +2145,19 @@ GO(glNormalPointerListIBM, vFuipi)
 GO(glSecondaryColorPointerListIBM, vFiuipi)
 GO(glTexCoordPointerListIBM, vFiuipi)
 GO(glVertexPointerListIBM, vFiuipi)
-//INGR_blend_func_separate
+// INGR_blend_func_separate
 GO(glBlendFuncSeparateINGR, vFuuuu)
-//INTEL_map_texture
+// INTEL_map_texture
 GO(glMapTexture2DINTEL, pFuiupp)
 GO(glSyncTextureINTEL, vFu)
 GO(glUnmapTexture2DINTEL, vFui)
-//INTEL_parallel_arrays
+// INTEL_parallel_arrays
 GO(glColorPointervINTEL, vFiup)
 GO(glNormalPointervINTEL, vFup)
 GO(glTexCoordPointervINTEL, vFiup)
 GO(glVertexPointervINTEL, vFiup)
-//KHR_debug
-GOM(glDebugMessageCallback, vFEpp)   // not ideal, because the my_ version will always exist, even if glDebugMessageCallback doesn't
+// KHR_debug
+GOM(glDebugMessageCallback, vFEpp) // not ideal, because the my_ version will always exist, even if glDebugMessageCallback doesn't
 GO(glDebugMessageControl, vFuuuipi)
 GO(glDebugMessageInsert, vFuuuuip)
 GO(glGetDebugMessageLog, uFuipppppp)
@@ -2167,9 +2167,9 @@ GO(glObjectLabel, vFuuip)
 GO(glObjectPtrLabel, vFpip)
 GO(glPopDebugGroup, vFv)
 GO(glPushDebugGroup, vFuuip)
-//MESA_resize_buffers
+// MESA_resize_buffers
 GO(glResizeBuffersMESA, vFv)
-//MESA_window_pos
+// MESA_window_pos
 GO(glWindowPos2dMESA, vFdd)
 GO(glWindowPos2dvMESA, vFp)
 GO(glWindowPos2fMESA, vFff)
@@ -2194,10 +2194,10 @@ GO(glWindowPos4iMESA, vFiiii)
 GO(glWindowPos4ivMESA, vFp)
 GO(glWindowPos4sMESA, vFwwww)
 GO(glWindowPos4svMESA, vFp)
-//NVX_conditional_render
+// NVX_conditional_render
 GO(glBeginConditionalRenderNVX, vFu)
 GO(glEndConditionalRenderNVX, vFv)
-//NV_bindless_texture
+// NV_bindless_texture
 GO(glGetImageHandleNV, LFuiCiu)
 GO(glGetTextureHandleNV, LFu)
 GO(glGetTextureSamplerHandleNV, LFuu)
@@ -2211,18 +2211,18 @@ GO(glProgramUniformHandleui64NV, vFuiL)
 GO(glProgramUniformHandleui64vNV, vFuiip)
 GO(glUniformHandleui64NV, vFiL)
 GO(glUniformHandleui64vNV, vFiip)
-//NV_conditional_render
+// NV_conditional_render
 GO(glBeginConditionalRenderNV, vFuu)
 GO(glEndConditionalRenderNV, vFv)
-//NV_copy_image
+// NV_copy_image
 GO(glCopyImageSubDataNV, vFuuiiiiuuiiiiiii)
-//NV_depth_buffer_float
+// NV_depth_buffer_float
 GO(glClearDepthdNV, vFd)
 GO(glDepthBoundsdNV, vFdd)
 GO(glDepthRangedNV, vFdd)
-//NV_draw_texture
+// NV_draw_texture
 GO(glDrawTextureNV, vFuufffffffff)
-//NV_evaluators
+// NV_evaluators
 GO(glEvalMapsNV, vFuu)
 GO(glGetMapAttribParameterfvNV, vFuuup)
 GO(glGetMapAttribParameterivNV, vFuuup)
@@ -2232,11 +2232,11 @@ GO(glGetMapParameterivNV, vFuup)
 GO(glMapControlPointsNV, vFuuuiiiiCp)
 GO(glMapParameterfvNV, vFuup)
 GO(glMapParameterivNV, vFuup)
-//NV_explicit_multisample
+// NV_explicit_multisample
 GO(glGetMultisamplefvNV, vFuup)
 GO(glSampleMaskIndexedNV, vFui)
 GO(glTexRenderbufferNV, vFuu)
-//NV_fence
+// NV_fence
 GO(glDeleteFencesNV, vFip)
 GO(glFinishFenceNV, vFu)
 GO(glGenFencesNV, vFip)
@@ -2244,21 +2244,21 @@ GO(glGetFenceivNV, vFuup)
 GO(glIsFenceNV, iFu)
 GO(glSetFenceNV, vFuu)
 GO(glTestFenceNV, iFu)
-//NV_fragment_program
+// NV_fragment_program
 GO(glGetProgramNamedParameterdvNV, vFuipp)
 GO(glGetProgramNamedParameterfvNV, vFuipp)
 GO(glProgramNamedParameter4dNV, vFuipdddd)
 GO(glProgramNamedParameter4dvNV, vFuipp)
 GO(glProgramNamedParameter4fNV, vFuipffff)
 GO(glProgramNamedParameter4fvNV, vFuipp)
-//NV_framebuffer_multisample_coverage
+// NV_framebuffer_multisample_coverage
 GO(glRenderbufferStorageMultisampleCoverageNV, vFuiiuii)
-//NV_geometry_program4
+// NV_geometry_program4
 GO(glFramebufferTextureEXT, vFuuui)
 GO(glFramebufferTextureFaceEXT, vFuuuiu)
 GO(glFramebufferTextureLayerEXT, vFuuuii)
 GO(glProgramVertexLimitNV, vFui)
-//NV_gpu_program4
+// NV_gpu_program4
 GO(glGetProgramEnvParameterIivNV, vFuup)
 GO(glGetProgramEnvParameterIuivNV, vFuup)
 GO(glGetProgramLocalParameterIivNV, vFuup)
@@ -2275,10 +2275,10 @@ GO(glProgramLocalParameterI4uiNV, vFuuuuuu)
 GO(glProgramLocalParameterI4uivNV, vFuup)
 GO(glProgramLocalParametersI4ivNV, vFuuip)
 GO(glProgramLocalParametersI4uivNV, vFuuip)
-//NV_gpu_program5
+// NV_gpu_program5
 GO(glGetProgramSubroutineParameteruivNV, vFuup)
 GO(glProgramSubroutineParametersuivNV, vFuip)
-//NV_gpu_shader5
+// NV_gpu_shader5
 GO(glGetUniformi64vNV, vFuip)
 GO(glProgramUniform1i64NV, vFuil)
 GO(glProgramUniform1i64vNV, vFuiip)
@@ -2312,7 +2312,7 @@ GO(glUniform4i64NV, vFillll)
 GO(glUniform4i64vNV, vFiip)
 GO(glUniform4ui64NV, vFiLLLL)
 GO(glUniform4ui64vNV, vFiip)
-//NV_half_float
+// NV_half_float
 GO(glColor3hNV, vFiii)
 GO(glColor3hvNV, vFp)
 GO(glColor4hNV, vFiiii)
@@ -2359,7 +2359,7 @@ GO(glVertexAttribs3hvNV, vFuip)
 GO(glVertexAttribs4hvNV, vFuip)
 GO(glVertexWeighthNV, vFW)
 GO(glVertexWeighthvNV, vFp)
-//NV_occlusion_query
+// NV_occlusion_query
 GO(glBeginOcclusionQueryNV, vFu)
 GO(glDeleteOcclusionQueriesNV, vFip)
 GO(glEndOcclusionQueryNV, vFv)
@@ -2367,27 +2367,27 @@ GO(glGenOcclusionQueriesNV, vFip)
 GO(glGetOcclusionQueryivNV, vFuup)
 GO(glGetOcclusionQueryuivNV, vFuup)
 GO(glIsOcclusionQueryNV, iFu)
-//NV_parameter_buffer_object
+// NV_parameter_buffer_object
 GO(glProgramBufferParametersIivNV, vFuuuip)
 GO(glProgramBufferParametersIuivNV, vFuuuip)
 GO(glProgramBufferParametersfvNV, vFuuuip)
-//NV_pixel_data_range
+// NV_pixel_data_range
 GO(glFlushPixelDataRangeNV, vFu)
 GO(glPixelDataRangeNV, vFuip)
-//NV_point_sprite
+// NV_point_sprite
 GO(glPointParameteriNV, vFui)
 GO(glPointParameterivNV, vFup)
-//NV_present_video
+// NV_present_video
 GO(glGetVideoi64vNV, vFuup)
 GO(glGetVideoivNV, vFuup)
 GO(glGetVideoui64vNV, vFuup)
 GO(glGetVideouivNV, vFuup)
 GO(glPresentFrameDualFillNV, vFuLuuuuuuuuuuu)
 GO(glPresentFrameKeyedNV, vFuLuuuuuuuuu)
-//NV_primitive_restart
+// NV_primitive_restart
 GO(glPrimitiveRestartIndexNV, vFu)
 GO(glPrimitiveRestartNV, vFv)
-//NV_register_combiners
+// NV_register_combiners
 GO(glCombinerInputNV, vFuuuuuu)
 GO(glCombinerOutputNV, vFuuuuuuuCCC)
 GO(glCombinerParameterfNV, vFuf)
@@ -2401,10 +2401,10 @@ GO(glGetCombinerOutputParameterfvNV, vFuuup)
 GO(glGetCombinerOutputParameterivNV, vFuuup)
 GO(glGetFinalCombinerInputParameterfvNV, vFuup)
 GO(glGetFinalCombinerInputParameterivNV, vFuup)
-//NV_register_combiners2
+// NV_register_combiners2
 GO(glCombinerStageParameterfvNV, vFuup)
 GO(glGetCombinerStageParameterfvNV, vFuup)
-//NV_shader_buffer_load
+// NV_shader_buffer_load
 GO(glGetBufferParameterui64vNV, vFuup)
 GO(glGetIntegerui64vNV, vFup)
 GO(glGetNamedBufferParameterui64vNV, vFuup)
@@ -2419,16 +2419,16 @@ GO(glProgramUniformui64NV, vFuiL)
 GO(glProgramUniformui64vNV, vFuiip)
 GO(glUniformui64NV, vFiL)
 GO(glUniformui64vNV, vFiip)
-//NV_texture_barrier
+// NV_texture_barrier
 GO(glTextureBarrierNV, vFv)
-//NV_texture_multisample
+// NV_texture_multisample
 GO(glTexImage2DMultisampleCoverageNV, vFuiiiiiC)
 GO(glTexImage3DMultisampleCoverageNV, vFuiiiiiiC)
 GO(glTextureImage2DMultisampleCoverageNV, vFuuiiiiiC)
 GO(glTextureImage2DMultisampleNV, vFuuiiiiC)
 GO(glTextureImage3DMultisampleCoverageNV, vFuuiiiiiiC)
 GO(glTextureImage3DMultisampleNV, vFuuiiiiiC)
-//NV_transform_feedback
+// NV_transform_feedback
 GO(glActiveVaryingNV, vFup)
 GO(glBeginTransformFeedbackNV, vFu)
 GO(glBindBufferBaseNV, vFuuu)
@@ -2441,7 +2441,7 @@ GO(glGetVaryingLocationNV, iFup)
 GO(glTransformFeedbackAttribsNV, vFipu)
 GO(glTransformFeedbackStreamAttribsNV, vFipipu)
 GO(glTransformFeedbackVaryingsNV, vFuipu)
-//NV_transform_feedback2
+// NV_transform_feedback2
 GO(glBindTransformFeedbackNV, vFuu)
 GO(glDeleteTransformFeedbacksNV, vFip)
 GO(glDrawTransformFeedbackNV, vFuu)
@@ -2449,7 +2449,7 @@ GO(glGenTransformFeedbacksNV, vFip)
 GO(glIsTransformFeedbackNV, iFu)
 GO(glPauseTransformFeedbackNV, vFv)
 GO(glResumeTransformFeedbackNV, vFv)
-//NV_vdpau_interop
+// NV_vdpau_interop
 GO(glVDPAUFiniNV, vFv)
 GO(glVDPAUGetSurfaceivNV, vFluipp)
 GO(glVDPAUInitNV, vFpp)
@@ -2460,10 +2460,10 @@ GO(glVDPAURegisterVideoSurfaceNV, uFpuip)
 GO(glVDPAUSurfaceAccessNV, vFlu)
 GO(glVDPAUUnmapSurfacesNV, vFip)
 GO(glVDPAUUnregisterSurfaceNV, vFl)
-//NV_vertex_array_range
+// NV_vertex_array_range
 GO(glFlushVertexArrayRangeNV, vFv)
 GO(glVertexArrayRangeNV, vFip)
-//NV_vertex_attrib_integer_64bit
+// NV_vertex_attrib_integer_64bit
 GO(glGetVertexAttribLi64vNV, vFuup)
 GO(glGetVertexAttribLui64vNV, vFuup)
 GO(glVertexAttribL1i64NV, vFul)
@@ -2483,7 +2483,7 @@ GO(glVertexAttribL4i64vNV, vFup)
 GO(glVertexAttribL4ui64NV, vFuLLLL)
 GO(glVertexAttribL4ui64vNV, vFup)
 GO(glVertexAttribLFormatNV, vFuiui)
-//NV_vertex_buffer_unified_memory
+// NV_vertex_buffer_unified_memory
 GO(glBufferAddressRangeNV, vFuuLl)
 GO(glColorFormatNV, vFiui)
 GO(glEdgeFlagFormatNV, vFi)
@@ -2496,7 +2496,7 @@ GO(glTexCoordFormatNV, vFiui)
 GO(glVertexAttribFormatNV, vFuiuCi)
 GO(glVertexAttribIFormatNV, vFuiui)
 GO(glVertexFormatNV, vFiui)
-//NV_vertex_program
+// NV_vertex_program
 GO(glAreProgramsResidentNV, CFipp)
 GO(glBindProgramNV, vFuu)
 GO(glDeleteProgramsNV, vFip)
@@ -2561,7 +2561,7 @@ GO(glVertexAttribs4dvNV, vFuip)
 GO(glVertexAttribs4fvNV, vFuip)
 GO(glVertexAttribs4svNV, vFuip)
 GO(glVertexAttribs4ubvNV, vFuip)
-//NV_vertex_program4
+// NV_vertex_program4
 GO(glGetVertexAttribIivEXT, vFuup)
 GO(glGetVertexAttribIuivEXT, vFuup)
 GO(glVertexAttribI1iEXT, vFui)
@@ -2585,7 +2585,7 @@ GO(glVertexAttribI4uiEXT, vFuuuuu)
 GO(glVertexAttribI4uivEXT, vFup)
 GO(glVertexAttribI4usvEXT, vFup)
 GO(glVertexAttribIPointerEXT, vFuiuip)
-//NV_video_capture
+// NV_video_capture
 GO(glBeginVideoCaptureNV, vFu)
 GO(glBindVideoCaptureStreamBufferNV, vFuuul)
 GO(glBindVideoCaptureStreamTextureNV, vFuuuuu)
@@ -2598,7 +2598,7 @@ GO(glVideoCaptureNV, uFupp)
 GO(glVideoCaptureStreamParameterdvNV, vFuuup)
 GO(glVideoCaptureStreamParameterfvNV, vFuuup)
 GO(glVideoCaptureStreamParameterivNV, vFuuup)
-//OES_byte_coordinates
+// OES_byte_coordinates
 GO(glMultiTexCoord1bOES, vFuc)
 GO(glMultiTexCoord1bvOES, vFup)
 GO(glMultiTexCoord2bOES, vFucc)
@@ -2621,7 +2621,7 @@ GO(glVertex3bOES, vFii)
 GO(glVertex3bvOES, vFp)
 GO(glVertex4bOES, vFcccc)
 GO(glVertex4bvOES, vFp)
-//OES_fixed_point
+// OES_fixed_point
 GO(glAccumxOES, vFui)
 GO(glAlphaFuncxOES, vFui)
 GO(glBitmapxOES, vFiiiiiip)
@@ -2726,57 +2726,57 @@ GO(glVertex3xOES, vFii)
 GO(glVertex3xvOES, vFp)
 GO(glVertex4xOES, vFiii)
 GO(glVertex4xvOES, vFp)
-//OES_query_matrix
+// OES_query_matrix
 GO(glQueryMatrixxOES, uFpp)
-//OES_single_precision
+// OES_single_precision
 GO(glClearDepthfOES, vFf)
 GO(glClipPlanefOES, vFup)
 GO(glDepthRangefOES, vFff)
 GO(glFrustumfOES, vFffffff)
 GO(glGetClipPlanefOES, vFup)
 GO(glOrthofOES, vFffffff)
-//PGI_misc_hints
+// PGI_misc_hints
 GO(glHintPGI, vFui)
-//SGIS_detail_texture
+// SGIS_detail_texture
 GO(glDetailTexFuncSGIS, vFuip)
 GO(glGetDetailTexFuncSGIS, vFup)
-//SGIS_fog_function
+// SGIS_fog_function
 GO(glFogFuncSGIS, vFip)
 GO(glGetFogFuncSGIS, vFp)
-//SGIS_multisample
+// SGIS_multisample
 GO(glSampleMaskSGIS, vFfC)
 GO(glSamplePatternSGIS, vFu)
-//SGIS_pixel_texture
+// SGIS_pixel_texture
 GO(glGetPixelTexGenParameterfvSGIS, vFup)
 GO(glGetPixelTexGenParameterivSGIS, vFup)
 GO(glPixelTexGenParameterfSGIS, vFuf)
 GO(glPixelTexGenParameterfvSGIS, vFup)
 GO(glPixelTexGenParameteriSGIS, vFui)
 GO(glPixelTexGenParameterivSGIS, vFup)
-//SGIS_point_parameters
+// SGIS_point_parameters
 GO(glPointParameterfSGIS, vFuf)
 GO(glPointParameterfvSGIS, vFup)
-//SGIS_sharpen_texture
+// SGIS_sharpen_texture
 GO(glGetSharpenTexFuncSGIS, vFup)
 GO(glSharpenTexFuncSGIS, vFuip)
-//SGIS_texture4D
+// SGIS_texture4D
 GO(glTexImage4DSGIS, vFuiuiiiiiuup)
 GO(glTexSubImage4DSGIS, vFuiiiiiiiiiuup)
-//SGIS_texture_color_mask
+// SGIS_texture_color_mask
 GO(glTextureColorMaskSGIS, vFCCCC)
-//SGIS_texture_filter4
+// SGIS_texture_filter4
 GO(glGetTexFilterFuncSGIS, vFuup)
 GO(glTexFilterFuncSGIS, vFuuip)
-//SGIX_async
+// SGIX_async
 GO(glAsyncMarkerSGIX, vFu)
 GO(glDeleteAsyncMarkersSGIX, vFui)
 GO(glFinishAsyncSGIX, iFp)
 GO(glGenAsyncMarkersSGIX, uFi)
 GO(glIsAsyncMarkerSGIX, CFu)
 GO(glPollAsyncSGIX, iFp)
-//SGIX_flush_raster
+// SGIX_flush_raster
 GO(glFlushRasterSGIX, vFv)
-//SGIX_fragment_lighting
+// SGIX_fragment_lighting
 GO(glFragmentColorMaterialSGIX, vFuu)
 GO(glFragmentLightModelfSGIX, vFuf)
 GO(glFragmentLightModelfvSGIX, vFup)
@@ -2795,41 +2795,41 @@ GO(glGetFragmentLightivSGIX, vFuup)
 GO(glGetFragmentMaterialfvSGIX, vFuup)
 GO(glGetFragmentMaterialivSGIX, vFuup)
 GO(glLightEnviSGIX, vFui)
-//SGIX_framezoom
+// SGIX_framezoom
 GO(glFrameZoomSGIX, vFi)
-//SGIX_igloo_interface
+// SGIX_igloo_interface
 GO(glIglooInterfaceSGIX, vFup)
-//SGIX_instruments
+// SGIX_instruments
 GO(glGetInstrumentsSGIX, iFv)
 GO(glInstrumentsBufferSGIX, vFip)
 GO(glPollInstrumentsSGIX, iFp)
 GO(glReadInstrumentsSGIX, vFi)
 GO(glStartInstrumentsSGIX, vFv)
 GO(glStopInstrumentsSGIX, vFi)
-//SGIX_list_priority
+// SGIX_list_priority
 GO(glGetListParameterfvSGIX, vFuup)
 GO(glGetListParameterivSGIX, vFuup)
 GO(glListParameterfSGIX, vFuuf)
 GO(glListParameterfvSGIX, vFuup)
 GO(glListParameteriSGIX, vFuui)
 GO(glListParameterivSGIX, vFuup)
-//SGIX_pixel_texture
+// SGIX_pixel_texture
 GO(glPixelTexGenSGIX, vFu)
-//SGIX_polynomial_ffd
+// SGIX_polynomial_ffd
 GO(glDeformSGIX, vFi)
 GO(glDeformationMap3dSGIX, vFuddiiddiiddiip)
 GO(glDeformationMap3fSGIX, vFuffiiffiiffiip)
 GO(glLoadIdentityDeformationMapSGIX, vFu)
-//SGIX_reference_plane
+// SGIX_reference_plane
 GO(glReferencePlaneSGIX, vFp)
-//SGIX_sprite
+// SGIX_sprite
 GO(glSpriteParameterfSGIX, vFuf)
 GO(glSpriteParameterfvSGIX, vFup)
 GO(glSpriteParameteriSGIX, vFui)
 GO(glSpriteParameterivSGIX, vFup)
-//SGIX_tag_sample_buffer
+// SGIX_tag_sample_buffer
 GO(glTagSampleBufferSGIX, vFv)
-//SGI_color_table
+// SGI_color_table
 GO(glColorTableParameterfvSGI, vFuup)
 GO(glColorTableParameterivSGI, vFuup)
 GO(glColorTableSGI, vFuuiuup)
@@ -2837,9 +2837,9 @@ GO(glCopyColorTableSGI, vFuuiii)
 GO(glGetColorTableParameterfvSGI, vFuup)
 GO(glGetColorTableParameterivSGI, vFuup)
 GO(glGetColorTableSGI, vFuuup)
-//SUNX_constant_data
+// SUNX_constant_data
 GO(glFinishTextureSUNX, vFv)
-//SUN_global_alpha
+// SUN_global_alpha
 GO(glGlobalAlphaFactorbSUN, vFc)
 GO(glGlobalAlphaFactordSUN, vFd)
 GO(glGlobalAlphaFactorfSUN, vFf)
@@ -2848,9 +2848,9 @@ GO(glGlobalAlphaFactorsSUN, vFw)
 GO(glGlobalAlphaFactorubSUN, vFu)
 GO(glGlobalAlphaFactoruiSUN, vFu)
 GO(glGlobalAlphaFactorusSUN, vFu)
-//SUN_mesh_array
+// SUN_mesh_array
 GO(glDrawMeshArraysSUN, vFuiii)
-//SUN_triangle_list
+// SUN_triangle_list
 GO(glReplacementCodePointerSUN, vFuip)
 GO(glReplacementCodeubSUN, vFC)
 GO(glReplacementCodeubvSUN, vFp)
@@ -2858,7 +2858,7 @@ GO(glReplacementCodeuiSUN, vFu)
 GO(glReplacementCodeuivSUN, vFp)
 GO(glReplacementCodeusSUN, vFW)
 GO(glReplacementCodeusvSUN, vFp)
-//SUN_vertex
+// SUN_vertex
 GO(glColor3fVertex3fSUN, vFffffff)
 GO(glColor3fVertex3fvSUN, vFpp)
 GO(glColor4fNormal3fVertex3fSUN, vFffffffffff)
@@ -2900,36 +2900,36 @@ GO(glTexCoord4fColor4fNormal3fVertex4fvSUN, vFpppp)
 GO(glTexCoord4fVertex4fSUN, vFffffffff)
 GO(glTexCoord4fVertex4fvSUN, vFpp)
 
-//GL_ARB_polygon_offset_clamp
+// GL_ARB_polygon_offset_clamp
 GO(glPolygonOffsetClamp, vFfff)
 
-//GL_EXT_polygon_offset_clamp
+// GL_EXT_polygon_offset_clamp
 GO(glPolygonOffsetClampEXT, vFfff)
 
-//GL_EXT_multisampled_render_to_texture
+// GL_EXT_multisampled_render_to_texture
 GO(glRenderbufferStorageMultisampleEXT, vFilill)
 GO(glFramebufferTexture2DMultisampleEXT, vFiiiuil)
 
-//GL_KTX_buffer_region
+// GL_KTX_buffer_region
 GO(glBufferRegionEnabled, uFv)
 GO(glNewBufferRegion, uFi)
 GO(glDeleteBufferRegion, vFi)
 GO(glReadBufferRegion, vFuiiii)
 GO(glDrawBufferRegion, vFuiiiiii)
 
-//GL_ARB_sparse_buffer
+// GL_ARB_sparse_buffer
 GO(glBufferPageCommitmentARB, vFullC)
 GO(glNamedBufferPageCommitmentARB, vFullC)
 GO(glNamedBufferPageCommitmentEXT, vFuppi)
 
-//GL_ARB_sparse_texture
+// GL_ARB_sparse_texture
 GO(TexPageCommitmentARB, vFiiiiiiiii)
 
-//glx
+// glx
 GO(glXBindHyperpipeSGIX, iFpi)
 GO(glXBindTexImageEXT, vFppip)
 GO(glXBindSwapBarrierNV, iFpuu)
-GO(glXBindSwapBarrierSGIX,vFii)
+GO(glXBindSwapBarrierSGIX, vFii)
 GO(glXBindVideoCaptureDeviceNV, iFpup)
 GO(glXBindVideoDeviceNV, iFpuup)
 GO(glXBindVideoImageNV, iFpppi)
@@ -2939,7 +2939,7 @@ GO(glXClientInfo, vFv)
 GO(glXCopyContext, vFppp)
 GO(glXChooseFBConfig, pFpipp)
 GO(glXChooseFBConfigSGIX, pFpipp)
-GO(glXCreateContext,pFpppi)
+GO(glXCreateContext, pFpppi)
 GO(glXCreateContextAttribsARB, pFpppip)
 GO(glXCreateContextWithConfigSGIX, pFppipi)
 GO(glXCreateGLXPbufferSGIX, pFppuup)
@@ -2953,14 +2953,14 @@ GO(glXCreateWindow, pFpppp)
 GO(glXChooseVisual, pFpip)
 GO(glXCopyImageSubDataNV, vFppuiiiiipuiiiiiiii)
 GO(glXCopySubBufferMESA, vFppiiii)
-GO(glXDestroyContext,vFpp)
-GO(glXDestroyGLXPbufferSGIX,vFpp)
-GO(glXDestroyGLXPixmap,vFpp)
-GO(glXDestroyGLXVideoSourceSGIX,vFpp)
-GO(glXDestroyHyperpipeConfigSGIX,iFpi)
-GO(glXDestroyPbuffer,vFpp)
-GO(glXDestroyPixmap,vFpp)
-GO(glXDestroyWindow,vFpp)
+GO(glXDestroyContext, vFpp)
+GO(glXDestroyGLXPbufferSGIX, vFpp)
+GO(glXDestroyGLXPixmap, vFpp)
+GO(glXDestroyGLXVideoSourceSGIX, vFpp)
+GO(glXDestroyHyperpipeConfigSGIX, iFpi)
+GO(glXDestroyPbuffer, vFpp)
+GO(glXDestroyPixmap, vFpp)
+GO(glXDestroyWindow, vFpp)
 GO(glXEnumerateVideoCaptureDevicesNV, pFpip)
 GO(glXEnumerateVideoDevicesNV, pFpip)
 GO(glXFreeContextEXT, vFpp)
@@ -2971,138 +2971,138 @@ GO(glXGetCurrentContext, pFv)
 GO(glXGetCurrentDisplay, pFv)
 GO(glXGetCurrentDrawable, pFv)
 GO(glXGetCurrentReadDrawable, pFv)
-GO(glXGetDrawableAttributes,vFi)
-GO(glXGetDrawableAttributesSGIX,vFi)
-GO(glXGetFBConfigs,pFpip)
+GO(glXGetDrawableAttributes, vFi)
+GO(glXGetDrawableAttributesSGIX, vFi)
+GO(glXGetFBConfigs, pFpip)
 GO(glXGetFBConfigAttrib, iFppip)
 GO(glXGetFBConfigAttribSGIX, iFppip)
 GO(glXGetFBConfigFromVisualSGIX, pFpp)
-GO(glXGetFBConfigsSGIX,pFpip)
+GO(glXGetFBConfigsSGIX, pFpip)
 GO(glXGetSelectedEvent, vFppp)
 GO(glXGetSelectedEventSGIX, vFppp)
 GO(glXGetVideoDeviceNV, iFpiip)
 GO(glXGetVideoInfoNV, iFpippp)
 GO(glXGetVideoSyncSGI, iFp)
-GO(glXGetVisualConfigs,pFpp)
+GO(glXGetVisualConfigs, pFpp)
 GO(glXGetVisualFromFBConfig, pFpp)
 GO(glXGetVisualFromFBConfigSGIX, pFpp)
-GO(glXHyperpipeAttribSGIX,iFpiiip)
-//GO(glXHyperpipeConfigSGIX,iFpii?p)
+GO(glXHyperpipeAttribSGIX, iFpiiip)
+// GO(glXHyperpipeConfigSGIX,iFpii?p)
 GO(glXImportContextEXT, pFpu)
-GO(glXIsDirect,iFpp)
+GO(glXIsDirect, iFpp)
 GO(glXJoinSwapGroupNV, iFppu)
-GO(glXJoinSwapGroupSGIX,vFpp)
+GO(glXJoinSwapGroupSGIX, vFpp)
 GO(glXLockVideoCaptureDeviceNV, vFpp)
-GO(glXMakeContextCurrent,iFpppp)
-GO(glXMakeCurrent,iFppp)
-GO(glXQueryContext,iFppip)
-GO(glXQueryContextInfoEXT,iFppip)
+GO(glXMakeContextCurrent, iFpppp)
+GO(glXMakeCurrent, iFppp)
+GO(glXQueryContext, iFppip)
+GO(glXQueryContextInfoEXT, iFppip)
 GO(glXQueryDrawable, iFppip)
 GO(glXQueryExtension, iFppp)
-GO(glXQueryExtensionsString,pFpi)
+GO(glXQueryExtensionsString, pFpi)
 GO(glXQueryFrameCountNV, iFpip)
 GO(glXQueryGLXPbufferSGIX, vFppip)
-GO(glXQueryHyperpipeAttribSGIX,iFpiiip)
-GO(glXQueryHyperpipeBestAttribSGIX,iFpiiipp)
-GO(glXQueryHyperpipeConfigSGIX,pFpip)
-GO(glXQueryHyperpipeNetworkSGIX,pFpp)
-GO(glXQueryMaxSwapBarriersSGIX,pFpp) //?
+GO(glXQueryHyperpipeAttribSGIX, iFpiiip)
+GO(glXQueryHyperpipeBestAttribSGIX, iFpiiipp)
+GO(glXQueryHyperpipeConfigSGIX, pFpip)
+GO(glXQueryHyperpipeNetworkSGIX, pFpp)
+GO(glXQueryMaxSwapBarriersSGIX, pFpp) //?
 GO(glXQueryMaxSwapGroupsNV, iFpipp)
-GO(glXQueryServerString,pFpii)
+GO(glXQueryServerString, pFpii)
 GO(glXQuerySwapGroupNV, iFpipp)
-GO(glXQueryVersion,iFppp)
+GO(glXQueryVersion, iFppp)
 GO(glXQueryVideoCaptureDeviceNV, iFppip)
 GO(glXReleaseTexImageEXT, vFppi)
 GO(glXReleaseVideoCaptureDeviceNV, vFpp)
 GO(glXReleaseVideoDeviceNV, iFpip)
 GO(glXReleaseVideoImageNV, iFpp)
-//GO(glXRender,vFv)
-//GO(glXRenderLarge,vFv)
+// GO(glXRender,vFv)
+// GO(glXRenderLarge,vFv)
 GO(glXResetFrameCountNV, iFpi)
 GO(glXSelectEvent, vFppu)
 GO(glXSelectEventSGIX, vFppu)
 GO(glXSendPbufferToVideoNV, iFppipi)
-GO(glXSwapBuffers,vFpp)
-GO(glXUseXFont,vFpiii)
-//GO(glXVendorPrivate,vFv)
-//GO(glXVendorPrivateWithReply,vFv)
-GO(glXWaitGL,vFv)
+GO(glXSwapBuffers, vFpp)
+GO(glXUseXFont, vFpiii)
+// GO(glXVendorPrivate,vFv)
+// GO(glXVendorPrivateWithReply,vFv)
+GO(glXWaitGL, vFv)
 GO(glXWaitVideoSyncSGI, iFiip)
-GO(glXWaitX,vFv)
+GO(glXWaitX, vFv)
 
 GOM(glXGetProcAddress, pFEp)
 GOM(glXGetProcAddressARB, pFEp)
 
-//GLX_MESA_query_renderer
+// GLX_MESA_query_renderer
 GO(glXQueryRendererIntegerMESA, iFpiiip)
 GO(glXQueryCurrentRendererIntegerMESA, iFip)
 GO(glXQueryRendererStringMESA, pFpiii)
 GO(glXQueryCurrentRendererStringMESA, pFi)
 
-//GLX_OML_sync_control
+// GLX_OML_sync_control
 GO(glXGetSyncValuesOML, iFppppp)
 GO(glXGetMscRateOML, iFpppp)
 GO(glXSwapBuffersMscOML, IFppIII)
 GO(glXWaitForMscOML, iFppIIIppp)
 GO(glXWaitForSbcOML, iFppIppp)
 
-//GLX_EXT_swap_control
-GOM(glXSwapIntervalEXT,vFppi)
-//GLX_EXT_swap_control_tear
-//nothing
+// GLX_EXT_swap_control
+GOM(glXSwapIntervalEXT, vFppi)
+// GLX_EXT_swap_control_tear
+// nothing
 
-//GLX_MESA_swap_control
-GOM(glXSwapIntervalMESA,iFi)
+// GLX_MESA_swap_control
+GOM(glXSwapIntervalMESA, iFi)
 GO(glXGetSwapIntervalMESA, iFv)
 
-//GLX_SGI_swap_control
-GO(glXSwapIntervalSGI,iFi)
+// GLX_SGI_swap_control
+GO(glXSwapIntervalSGI, iFi)
 
-//GLX_NV_vertex_array_range
+// GLX_NV_vertex_array_range
 GO(glXAllocateMemoryNV, pFlfff)
 GO(glXFreeMemoryNV, vFp)
 
-//GLX_ARB_????
+// GLX_ARB_????
 GO(glSpecializeShaderARB, vFupupp)
 
-//GL_EXT_debug_label
+// GL_EXT_debug_label
 GO(glGetObjectLabelEXT, vFuuipp)
 GO(glLabelObjectEXT, vFuuip)
 
-//GL_EXT_debug_marker
+// GL_EXT_debug_marker
 GO(glInsertEventMarkerEXT, vFlp)
 GO(glPushGroupMarkerEXT, vFip)
 GO(glPopGroupMarkerEXT, vFv)
 
-//GL_KHR_blend_equation_advanced
+// GL_KHR_blend_equation_advanced
 GO(glBlendBarrierKHR, vFv)
 
-//Some various other extension
+// Some various other extension
 GO(glResolveMultisampleFramebufferAPPLE, vFv)
 GO(glTexPageCommitmentARB, vFuiiiiiiiC)
 
-//GL_ARB_sample_locations
+// GL_ARB_sample_locations
 GO(glFramebufferSampleLocationsfvARB, vFiulp)
 GO(glNamedFramebufferSampleLocationsfvARB, vFuulp)
 GO(glEvaluateDepthValuesARB, vFv)
 
-//GL_ARB_parallel_shader_compile
+// GL_ARB_parallel_shader_compile
 GO(glMaxShaderCompilerThreadsARB, vFu)
 
-//GL_ARB_indirect_parameters
+// GL_ARB_indirect_parameters
 GO(glMultiDrawArraysIndirectCountARB, vFuplii)
 GO(glMultiDrawElementsIndirectCountARB, vFuuplii)
 
-//GL_ARB_gpu_shader_int64
+// GL_ARB_gpu_shader_int64
 GO(glUniform1i64ARB, vFil)
 GO(glUniform2i64ARB, vFill)
 GO(glUniform3i64ARB, vFilll)
 GO(glUniform4i64ARB, vFillll)
 GO(glUniform1i64vARB, vFilp)
-GO(glUniform2i64vARB,vFilp)
-GO(glUniform3i64vARB,vFilp)
+GO(glUniform2i64vARB, vFilp)
+GO(glUniform3i64vARB, vFilp)
 GO(glUniform4i64vARB, vFiip)
-GO(glUniform1ui64ARB,vFiU)
+GO(glUniform1ui64ARB, vFiU)
 GO(glUniform2ui64ARB, vFiLL)
 GO(glUniform3ui64ARB, vFiLLL)
 GO(glUniform4ui64ARB, vFiLLLL)
@@ -3131,13 +3131,13 @@ GO(glProgramUniform2ui64vARB, vFuilp)
 GO(glProgramUniform3ui64vARB, vFuilp)
 GO(glProgramUniform4ui64vARB, vFuilp)
 
-//GL_ARB_compute_variable_group_size
+// GL_ARB_compute_variable_group_size
 GO(glDispatchComputeGroupSizeARB, vFuuuuuu)
 
-//GL_ARB_ES3_2_compatibility
+// GL_ARB_ES3_2_compatibility
 GO(glPrimitiveBoundingBoxARB, vFffffffff)
 
-//GL_ARB_bindless_texture
+// GL_ARB_bindless_texture
 GO(glGetTextureHandleARB, UFu)
 GO(glGetTextureSamplerHandleARB, UFuu)
 GO(glMakeTextureHandleResidentARB, vFU)
@@ -3155,27 +3155,27 @@ GO(glVertexAttribL1ui64ARB, vFuU)
 GO(glVertexAttribL1ui64vARB, vFup)
 GO(glGetVertexAttribLui64vARB, vFuip)
 
-//GL_OES_EGL_image
+// GL_OES_EGL_image
 GO(glEGLImageTargetTexture2DOES, vFip)
 GO(glEGLImageTargetRenderbufferStorageOES, vFup)
 
-//GL_MESA_program_debug
+// GL_MESA_program_debug
 GOM(glProgramCallbackMESA, vFEipp)
 GO(glGetProgramRegisterfvMESA, vFilpp)
 
-//GL_????_ATI
+// GL_????_ATI
 GO(glBlendEquationSeparateATI, vFuu)
 
-//GL_AMD_interleaved_elements
+// GL_AMD_interleaved_elements
 GO(glVertexAttribParameteriAMD, vFuii)
 
-//GL_AMD_occlusion_query_event
+// GL_AMD_occlusion_query_event
 GO(glQueryObjectParameteruiAMD, vFuuuu)
 
-//GL_EXT_raster_multisample
+// GL_EXT_raster_multisample
 GO(glRasterSamplesEXT, vFuC)
 
-//GL_INTEL_performance_query
+// GL_INTEL_performance_query
 GO(glBeginPerfQueryINTEL, vFu)
 GO(glCreatePerfQueryINTEL, vFup)
 GO(glDeletePerfQueryINTEL, vFu)
@@ -3187,19 +3187,19 @@ GO(glGetPerfQueryDataINTEL, vFuuipp)
 GO(glGetPerfQueryIdByNameINTEL, vFpp)
 GO(glGetPerfQueryInfoINTEL, vFuuppppp)
 
-//GL_NV_bindless_multi_draw_indirect
+// GL_NV_bindless_multi_draw_indirect
 GO(glMultiDrawArraysIndirectBindlessNV, vFupiii)
 GO(glMultiDrawElementsIndirectBindlessNV, vFuupiii)
 
-//GL_NV_bindless_multi_draw_indirect_count
+// GL_NV_bindless_multi_draw_indirect_count
 GO(glMultiDrawArraysIndirectBindlessCountNV, vFupiiii)
 GO(glMultiDrawElementsIndirectBindlessCountNV, vFuupiiii)
 
-//GL_NV_blend_equation_advanced
+// GL_NV_blend_equation_advanced
 GO(glBlendParameteriNV, vFii)
 GO(glBlendBarrierNV, vFv)
 
-//GL_NV_command_list
+// GL_NV_command_list
 GO(glCreateStatesNV, vFlp)
 GO(glDeleteStatesNV, vFlp)
 GO(glIsStateNV, iFu)
@@ -3218,21 +3218,21 @@ GO(glCommandListSegmentsNV, vFuu)
 GO(glCompileCommandListNV, vFu)
 GO(glCallCommandListNV, vFu)
 
-//GL_NV_conservative_raster
+// GL_NV_conservative_raster
 GO(glSubpixelPrecisionBiasNV, vFuu)
 
-//GL_NV_fragment_coverage_to_color
+// GL_NV_fragment_coverage_to_color
 GO(glFragmentCoverageColorNV, vFu)
 
-//GL_NV_framebuffer_mixed_samples
+// GL_NV_framebuffer_mixed_samples
 GO(glCoverageModulationTableNV, vFlp)
 GO(glGetCoverageModulationTableNV, vFip)
 GO(glCoverageModulationNV, vFi)
 
-//GL_NV_internalformat_sample_query
+// GL_NV_internalformat_sample_query
 GO(glGetInternalformatSampleivNV, vFuuiuip)
 
-//GL_NV_path_rendering
+// GL_NV_path_rendering
 GO(glGenPathsNV, uFl)
 GO(glDeletePathsNV, vFul)
 GO(glIsPathNV, iFu)
@@ -3298,12 +3298,12 @@ GO(glGetPathColorGenfvNV, vFiip)
 GO(glGetPathTexGenivNV, vFiip)
 GO(glGetPathTexGenfvNV, vFiip)
 
-//GL_NV_sample_locations
+// GL_NV_sample_locations
 GO(glFramebufferSampleLocationsfvNV, vFiulp)
 GO(glNamedFramebufferSampleLocationsfvNV, vFuuip)
 GO(glResolveDepthValuesNV, vFv)
 
-//GL_KHR_robustness
+// GL_KHR_robustness
 GO(glGetGraphicsResetStatusKHR, iFv)
 GO(glReadnPixelsKHR, vFiilliilp)
 GO(glGetnUniformfvKHR, vFuilp)
@@ -3322,16 +3322,16 @@ GO(glBlendBarrierARB, vFv)
 GO(glBlendBarrierEXT, vFv)
 GO(glBlendBarrierOES, vFv)
 GO(glBlendBarrierANGLE, vFv)
-GO(glClearDepthfARB,vFf)
-GO(glClipPlanefARB,vFup)
-GO(glDepthRangefARB,vFff)
-GO(glFrustumfARB,vFffffff)
-GO(glGetClipPlanefARB,vFup)
-GO(glOrthofARB,vFffffff)
-GO(glClipPlanef,vFup)
-GO(glFrustumf,vFffffff)
-GO(glGetClipPlanef,vFup)
-GO(glOrthof,vFffffff)
+GO(glClearDepthfARB, vFf)
+GO(glClipPlanefARB, vFup)
+GO(glDepthRangefARB, vFff)
+GO(glFrustumfARB, vFffffff)
+GO(glGetClipPlanefARB, vFup)
+GO(glOrthofARB, vFffffff)
+GO(glClipPlanef, vFup)
+GO(glFrustumf, vFffffff)
+GO(glGetClipPlanef, vFup)
+GO(glOrthof, vFffffff)
 GO(glActiveShaderProgramEXT, vFuu)
 GO(glBindProgramPipelineEXT, vFu)
 GO(glCreateShaderProgramvEXT, uFilp)
@@ -3870,8 +3870,8 @@ GO(glErrorStringREGAL, pFi)
 GO(glGetExtensionREGAL, iFp)
 GO(glIsSupportedREGAL, iFp)
 
-//glLogMessageCallbackREGAL
-//glGetProcAddressREGAL
+// glLogMessageCallbackREGAL
+// glGetProcAddressREGAL
 
 // GL_SGIS_multitexture
 GO(glInterleavedTextureCoordSetsSGIS, vFi)
@@ -3968,7 +3968,7 @@ GO(eglGetCurrentSurface, pFi)
 GO(eglGetDisplay, pFp)
 GO(eglGetError, iFv)
 GO(eglGetPlatformDisplay, pFppp)
-//GOM(eglGetProcAddress, pFEp)
+// GOM(eglGetProcAddress, pFEp)
 GO(eglGetSyncAttrib, iFppip)
 GO(eglInitialize, iFppp)
 GO(eglMakeCurrent, iFpppp)

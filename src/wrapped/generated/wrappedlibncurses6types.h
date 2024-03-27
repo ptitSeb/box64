@@ -8,7 +8,7 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void* (*pFv_t)(void);
@@ -18,12 +18,13 @@ typedef int32_t (*iFppA_t)(void*, void*, va_list);
 typedef int32_t (*iFiipV_t)(int32_t, int32_t, void*, ...);
 typedef int32_t (*iFpiipV_t)(void*, int32_t, int32_t, void*, ...);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(initscr, pFv_t) \
-	GO(printw, iFpV_t) \
-	GO(wprintw, iFppV_t) \
-	GO(vwprintw, iFppA_t) \
-	GO(mvprintw, iFiipV_t) \
-	GO(mvwprintw, iFpiipV_t)
+#define SUPER()            \
+    ADDED_FUNCTIONS()      \
+    GO(initscr, pFv_t)     \
+    GO(printw, iFpV_t)     \
+    GO(wprintw, iFppV_t)   \
+    GO(vwprintw, iFppA_t)  \
+    GO(mvprintw, iFiipV_t) \
+    GO(mvwprintw, iFpiipV_t)
 
 #endif // __wrappedlibncurses6TYPES_H_

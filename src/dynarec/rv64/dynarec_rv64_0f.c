@@ -63,8 +63,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x01:
             // TODO:, /0 is SGDT. While 0F 01 D0 is XGETBV, etc...
             nextop = F8;
-            if(MODREG) {
-                switch(nextop) {
+            if (MODREG) {
+                switch (nextop) {
                     case 0xD0:
                         INST_NAME("FAKE xgetbv");
                         nextop = F8;
@@ -87,18 +87,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         } else {
                             CSRRS(x3, xZR, 0xC01); // RDTIME
                         }
-                        if(box64_rdtsc_shift) {
+                        if (box64_rdtsc_shift) {
                             SRLI(x3, x3, box64_rdtsc_shift);
                         }
                         SRLI(xRDX, x3, 32);
                         AND(xRAX, x3, xMASK); // wipe upper part
-                        MV(xRCX, xZR);    // IA32_TSC, 0 for now
+                        MV(xRCX, xZR);        // IA32_TSC, 0 for now
                         break;
                     default:
                         DEFAULT;
                 }
             } else {
-                switch((nextop>>3)&7) {
+                switch ((nextop >> 3) & 7) {
                     default:
                         DEFAULT;
                 }
@@ -415,7 +415,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 CSRRS(x3, xZR, 0xC01); // RDTIME
             }
-            if(box64_rdtsc_shift) {
+            if (box64_rdtsc_shift) {
                 SRLI(x3, x3, box64_rdtsc_shift);
             }
             SRLI(xRDX, x3, 32);
@@ -1296,12 +1296,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xA5:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, CL");
-            SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-            if(box64_dynarec_safeflags>1)
+            SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+            if (box64_dynarec_safeflags > 1)
                 MAYSETFLAGS();
             GETGD;
             GETED(0);
-            if(!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+            if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
             BEQ_NEXT(x3, xZR);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
@@ -1455,7 +1455,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 {
                     SLLI(gd, gd, 32);
                     SRAI(gd, gd, 32);
-                    if(MODREG) {
+                    if (MODREG) {
                         SLLI(x1, ed, 32);
                         ed = x1;
                     } else {

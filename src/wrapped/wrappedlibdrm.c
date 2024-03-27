@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,13 +21,14 @@
 const char* libdrmName = "libdrm.so.2";
 #define LIBNAME libdrm
 
-#define ADDED_FUNCTIONS()                   \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedlibdrmtypes.h"
 
 #include "wrappercallback.h"
 
-EXPORT void my_drmMsg(x64emu_t* emu, void* fmt, void* b) {
+EXPORT void my_drmMsg(x64emu_t* emu, void* fmt, void* b)
+{
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
     char* buf = NULL;

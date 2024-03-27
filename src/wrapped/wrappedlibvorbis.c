@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,9 +18,9 @@
 #include "myalign.h"
 
 #ifdef ANDROID
-	const char* libvorbisName = "libvorbis.so";
+const char* libvorbisName = "libvorbis.so";
 #else
-	const char* libvorbisName = "libvorbis.so.0";
+const char* libvorbisName = "libvorbis.so.0";
 #endif
 
 #define LIBNAME libvorbis

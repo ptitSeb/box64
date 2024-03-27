@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,7 +18,7 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 
-const char* libcupsName = 
+const char* libcupsName =
 #ifdef ANDROID
     "libcups.so"
 #else
@@ -28,38 +28,43 @@ const char* libcupsName =
 
 #define LIBNAME libcups
 
-#define ADDED_FUNCTIONS()                   \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedlibcupstypes.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // cups_dest_cb_t ...
-#define GO(A)   \
-static uintptr_t my_cups_dest_cb_t_fct_##A = 0;                                         \
-static int my_cups_dest_cb_t_##A(void* a, uint32_t b, void* c)                          \
-{                                                                                       \
-    return (int)RunFunctionFmt(my_cups_dest_cb_t_fct_##A, "pup", a, b, c);        \
-}
+#define GO(A)                                                                  \
+    static uintptr_t my_cups_dest_cb_t_fct_##A = 0;                            \
+    static int my_cups_dest_cb_t_##A(void* a, uint32_t b, void* c)             \
+    {                                                                          \
+        return (int)RunFunctionFmt(my_cups_dest_cb_t_fct_##A, "pup", a, b, c); \
+    }
 SUPER()
 #undef GO
 static void* find_cups_dest_cb_t_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_cups_dest_cb_t_fct_##A == (uintptr_t)fct) return my_cups_dest_cb_t_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_cups_dest_cb_t_fct_##A == (uintptr_t)fct) return my_cups_dest_cb_t_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_cups_dest_cb_t_fct_##A == 0) {my_cups_dest_cb_t_fct_##A = (uintptr_t)fct; return my_cups_dest_cb_t_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_cups_dest_cb_t_fct_##A == 0) {           \
+        my_cups_dest_cb_t_fct_##A = (uintptr_t)fct; \
+        return my_cups_dest_cb_t_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libcups cups_dest_cb_t callback\n");
     return NULL;
 }

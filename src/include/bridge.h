@@ -7,7 +7,7 @@ typedef struct bridge_s bridge_t;
 typedef struct box64context_s box64context_t;
 typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 
-bridge_t *NewBridge(void);
+bridge_t* NewBridge(void);
 void FreeBridge(bridge_t** bridge);
 
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name);

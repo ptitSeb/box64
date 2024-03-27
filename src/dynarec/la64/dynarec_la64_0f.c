@@ -62,8 +62,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x01:
             // TODO:, /0 is SGDT. While 0F 01 D0 is XGETBV, etc...
             nextop = F8;
-            if(MODREG) {
-                switch(nextop) {
+            if (MODREG) {
+                switch (nextop) {
                     case 0xD0:
                         INST_NAME("FAKE xgetbv");
                         nextop = F8;
@@ -81,7 +81,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         DEFAULT;
                 }
             } else {
-                switch((nextop>>3)&7) {
+                switch ((nextop >> 3) & 7) {
                     default:
                         DEFAULT;
                 }
@@ -109,103 +109,103 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FAKEED;
             break;
 
-        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
-            READFLAGS(F);                                                                            \
-            if (la64_lbt) {                                                                          \
-                X64_SETJ(x1, I);                                                                     \
-            } else {                                                                                 \
-                GETFLAGS;                                                                            \
-            }                                                                                        \
-            nextop = F8;                                                                             \
-            GETGD;                                                                                   \
-            if (MODREG) {                                                                            \
-                ed = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
-                if (la64_lbt)                                                                        \
-                    BEQZ(x1, 8);                                                                     \
-                else                                                                                 \
-                    B##NO(x1, 8);                                                                    \
-                MV(gd, ed);                                                                          \
-            } else {                                                                                 \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
-                if (la64_lbt)                                                                        \
-                    BEQZ(x1, 8);                                                                     \
-                else                                                                                 \
-                    B##NO(x1, 8);                                                                    \
-                LDxw(gd, ed, fixedaddress);                                                          \
-            }                                                                                        \
-            if (!rex.w) ZEROUP(gd);
+#define GO(GETFLAGS, NO, YES, F, I)                                                          \
+    READFLAGS(F);                                                                            \
+    if (la64_lbt) {                                                                          \
+        X64_SETJ(x1, I);                                                                     \
+    } else {                                                                                 \
+        GETFLAGS;                                                                            \
+    }                                                                                        \
+    nextop = F8;                                                                             \
+    GETGD;                                                                                   \
+    if (MODREG) {                                                                            \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
+        if (la64_lbt)                                                                        \
+            BEQZ(x1, 8);                                                                     \
+        else                                                                                 \
+            B##NO(x1, 8);                                                                    \
+        MV(gd, ed);                                                                          \
+    } else {                                                                                 \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
+        if (la64_lbt)                                                                        \
+            BEQZ(x1, 8);                                                                     \
+        else                                                                                 \
+            B##NO(x1, 8);                                                                    \
+        LDxw(gd, ed, fixedaddress);                                                          \
+    }                                                                                        \
+    if (!rex.w) ZEROUP(gd);
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
 
-        #undef GO
+#undef GO
 
-        #define GO(GETFLAGS, NO, YES, F, I)                                                         \
-            READFLAGS(F);                                                                           \
-            i32_ = F32S;                                                                            \
-            BARRIER(BARRIER_MAYBE);                                                                 \
-            JUMP(addr + i32_, 1);                                                                   \
-            if (la64_lbt) {                                                                         \
-                X64_SETJ(x1, I);                                                                    \
-            } else {                                                                                \
-                GETFLAGS;                                                                           \
-            }                                                                                       \
-            if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-                /* out of the block */                                                              \
-                i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-                if (la64_lbt)                                                                       \
-                    BEQZ_safe(x1, i32);                                                             \
-                else                                                                                \
-                    B##NO##_safe(x1, i32);                                                          \
-                if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-                    if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-                    jump_to_next(dyn, addr + i32_, 0, ninst, rex.is32bits);                         \
-                } else {                                                                            \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-                    B(i32);                                                                         \
-                }                                                                                   \
-            } else {                                                                                \
-                /* inside the block */                                                              \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-                if (la64_lbt)                                                                       \
-                    BNEZ_safe(x1, i32);                                                             \
-                else                                                                                \
-                    B##YES##_safe(x1, i32);                                                         \
-            }
+#define GO(GETFLAGS, NO, YES, F, I)                                                         \
+    READFLAGS(F);                                                                           \
+    i32_ = F32S;                                                                            \
+    BARRIER(BARRIER_MAYBE);                                                                 \
+    JUMP(addr + i32_, 1);                                                                   \
+    if (la64_lbt) {                                                                         \
+        X64_SETJ(x1, I);                                                                    \
+    } else {                                                                                \
+        GETFLAGS;                                                                           \
+    }                                                                                       \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+        /* out of the block */                                                              \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+        if (la64_lbt)                                                                       \
+            BEQZ_safe(x1, i32);                                                             \
+        else                                                                                \
+            B##NO##_safe(x1, i32);                                                          \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
+            jump_to_next(dyn, addr + i32_, 0, ninst, rex.is32bits);                         \
+        } else {                                                                            \
+            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+            B(i32);                                                                         \
+        }                                                                                   \
+    } else {                                                                                \
+        /* inside the block */                                                              \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+        if (la64_lbt)                                                                       \
+            BNEZ_safe(x1, i32);                                                             \
+        else                                                                                \
+            B##YES##_safe(x1, i32);                                                         \
+    }
 
             GOCOND(0x80, "J", "Id");
 
-        #undef GO
+#undef GO
 
 
-        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
-            READFLAGS(F);                                                                            \
-            if (la64_lbt) {                                                                          \
-                X64_SETJ(x3, I);                                                                     \
-            } else {                                                                                 \
-                GETFLAGS;                                                                            \
-                S##YES(x3, x1);                                                                      \
-            }                                                                                        \
-            nextop = F8;                                                                             \
-            if (MODREG) {                                                                            \
-                if (rex.rex) {                                                                       \
-                    eb1 = TO_LA64((nextop & 7) + (rex.b << 3));                                      \
-                    eb2 = 0;                                                                         \
-                } else {                                                                             \
-                    ed = (nextop & 7);                                                               \
-                    eb2 = (ed >> 2) * 8;                                                             \
-                    eb1 = TO_LA64(ed & 3);                                                           \
-                }                                                                                    \
-                BSTRINS_D(eb1, x3, eb2 + 7, eb2);                                                    \
-            } else {                                                                                 \
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
-                ST_B(x3, ed, fixedaddress);                                                          \
-                SMWRITE();                                                                           \
-            }
+#define GO(GETFLAGS, NO, YES, F, I)                                                          \
+    READFLAGS(F);                                                                            \
+    if (la64_lbt) {                                                                          \
+        X64_SETJ(x3, I);                                                                     \
+    } else {                                                                                 \
+        GETFLAGS;                                                                            \
+        S##YES(x3, x1);                                                                      \
+    }                                                                                        \
+    nextop = F8;                                                                             \
+    if (MODREG) {                                                                            \
+        if (rex.rex) {                                                                       \
+            eb1 = TO_LA64((nextop & 7) + (rex.b << 3));                                      \
+            eb2 = 0;                                                                         \
+        } else {                                                                             \
+            ed = (nextop & 7);                                                               \
+            eb2 = (ed >> 2) * 8;                                                             \
+            eb1 = TO_LA64(ed & 3);                                                           \
+        }                                                                                    \
+        BSTRINS_D(eb1, x3, eb2 + 7, eb2);                                                    \
+    } else {                                                                                 \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
+        ST_B(x3, ed, fixedaddress);                                                          \
+        SMWRITE();                                                                           \
+    }
 
             GOCOND(0x90, "SET", "Eb");
-        #undef GO
+#undef GO
 
         case 0xA2:
             INST_NAME("CPUID");

@@ -1,7 +1,8 @@
 #include "ast.h"
 #include "utils.h"
 
-static void dump_usage() {
+static void dump_usage()
+{
     std::string Usage = R"usage(
         usage: command <filename> <libname> [guest_triple] [host_triple] -- <clang_flags>
                 <filename>    : set the header file to be parsed
@@ -14,7 +15,8 @@ static void dump_usage() {
     std::cerr << Usage << std::endl;
 }
 
-std::string parse_triple(const char* arg) {
+std::string parse_triple(const char* arg)
+{
     if (strcmp(arg, "x86") == 0) {
         return "i386-pc-linux-gnu";
     } else if (strcmp(arg, "x64") == 0) {
@@ -30,7 +32,8 @@ std::string parse_triple(const char* arg) {
     }
 }
 
-int main(int argc, const char* argv[]) {
+int main(int argc, const char* argv[])
+{
     if (argc < 4) {
         dump_usage();
         return 0;
@@ -58,10 +61,10 @@ int main(int argc, const char* argv[]) {
     }
     std::string err;
     auto compile_db = clang::tooling::FixedCompilationDatabase::loadFromCommandLine(argc, argv, err);
-    clang::tooling::ClangTool Tool(*compile_db, {argv[1]});
-    Tool.appendArgumentsAdjuster([&guest_triple](const clang::tooling::CommandLineArguments &args, clang::StringRef) {
+    clang::tooling::ClangTool Tool(*compile_db, { argv[1] });
+    Tool.appendArgumentsAdjuster([&guest_triple](const clang::tooling::CommandLineArguments& args, clang::StringRef) {
         clang::tooling::CommandLineArguments adjusted_args = args;
-        adjusted_args.push_back(std::string{"-target"});
+        adjusted_args.push_back(std::string { "-target" });
         adjusted_args.push_back(guest_triple);
         return adjusted_args;
     });

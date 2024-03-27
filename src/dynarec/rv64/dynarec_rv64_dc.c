@@ -25,7 +25,9 @@
 
 uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
-    (void)ip; (void)rep; (void)need_epilog;
+    (void)ip;
+    (void)rep;
+    (void)need_epilog;
 
     uint8_t nextop = F8;
     uint8_t wback;
@@ -36,7 +38,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(v2);
     MAYUSE(v1);
 
-    switch(nextop) {
+    switch (nextop) {
         case 0xC0 ... 0xC7:
             INST_NAME("FADD STx, ST0");
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
@@ -58,7 +60,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xD0 ... 0xD7:
-            INST_NAME("FCOM ST0, STx"); //yep
+            INST_NAME("FCOM ST0, STx"); // yep
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
             v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
             if (ST_IS_F(0)) {
@@ -119,7 +121,7 @@ uintptr_t dynarec64_DC(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         default:
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("FADD ST0, double[ED]");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);

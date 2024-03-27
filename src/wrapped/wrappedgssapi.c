@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -15,4 +15,3 @@ const char* gssapiName = "libgssapi.so.3";
 #define LIBNAME gssapi
 
 #include "wrappedlib_init.h"
-

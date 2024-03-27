@@ -1,10 +1,10 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <sys/syscall.h>   /* For SYS_xxx definitions */
+#include <sys/syscall.h> /* For SYS_xxx definitions */
 #include <unistd.h>
 #include <time.h>
 #include <sys/mman.h>
@@ -36,7 +36,7 @@
 #include "x64tls.h"
 
 
-// Syscall table for x86_64 can be found 
+// Syscall table for x86_64 can be found
 typedef struct scwrap_s {
     uint32_t x86s;
     int nats;
@@ -44,7 +44,7 @@ typedef struct scwrap_s {
 } scwrap_t;
 
 static const scwrap_t syscallwrap[] = {
-    //{ 2, __NR_fork, 1 },  
+    //{ 2, __NR_fork, 1 },
     //{ 3, __NR_read, 3 },  // wrapped so SA_RESTART can be handled by libc
     //{ 4, __NR_write, 3 }, // same
     //{ 5, __NR_open, 3 },  // flags need transformation
@@ -127,7 +127,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 185, __NR_capset, 2},
     //{ 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
     //{ 191, __NR_ugetrlimit, 2 },
-//    { 192, __NR_mmap2, 6},
+    //    { 192, __NR_mmap2, 6},
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 196, __NR_lstat64, 2 }, // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
@@ -182,64 +182,64 @@ struct mmap_arg_struct {
 #undef st_mtime
 
 struct x64_pt_regs {
-	long ebx;
-	long ecx;
-	long edx;
-	long esi;
-	long edi;
-	long ebp;
-	long eax;
-	int  xds;
-	int  xes;
-	int  xfs;
-	int  xgs;
-	long orig_eax;
-	long eip;
-	int  xcs;
-	long eflags;
-	long esp;
-	int  xss;
+    long ebx;
+    long ecx;
+    long edx;
+    long esi;
+    long edi;
+    long ebp;
+    long eax;
+    int xds;
+    int xes;
+    int xfs;
+    int xgs;
+    long orig_eax;
+    long eip;
+    int xcs;
+    long eflags;
+    long esp;
+    int xss;
 };
 
 #ifndef __NR_olduname
 struct oldold_utsname {
-        char sysname[9];
-        char nodename[9];
-        char release[9];
-        char version[9];
-        char machine[9];
+    char sysname[9];
+    char nodename[9];
+    char release[9];
+    char version[9];
+    char machine[9];
 };
 #endif
 struct old_utsname {
-        char sysname[65];
-        char nodename[65];
-        char release[65];
-        char version[65];
-        char machine[65];
+    char sysname[65];
+    char nodename[65];
+    char release[65];
+    char version[65];
+    char machine[65];
 };
 
 struct i386_user_desc {
-    unsigned int  entry_number;
+    unsigned int entry_number;
     unsigned long base_addr;
-    unsigned int  limit;
-    unsigned int  seg_32bit:1;
-    unsigned int  contents:2;
-    unsigned int  read_exec_only:1;
-    unsigned int  limit_in_pages:1;
-    unsigned int  seg_not_present:1;
-    unsigned int  useable:1;
+    unsigned int limit;
+    unsigned int seg_32bit : 1;
+    unsigned int contents : 2;
+    unsigned int read_exec_only : 1;
+    unsigned int limit_in_pages : 1;
+    unsigned int seg_not_present : 1;
+    unsigned int useable : 1;
 };
 
-void EXPORT x86Syscall(x64emu_t *emu)
+void EXPORT x86Syscall(x64emu_t* emu)
 {
     uint32_t s = R_EAX;
-    printf_log(LOG_DEBUG, "%p: Calling 32bits syscall 0x%02X (%d) %p %p %p %p %p", (void*)R_RIP, s, s, (void*)(uintptr_t)R_EBX, (void*)(uintptr_t)R_ECX, (void*)(uintptr_t)R_EDX, (void*)(uintptr_t)R_ESI, (void*)(uintptr_t)R_EDI); 
+    printf_log(LOG_DEBUG, "%p: Calling 32bits syscall 0x%02X (%d) %p %p %p %p %p", (void*)R_RIP, s, s, (void*)(uintptr_t)R_EBX, (void*)(uintptr_t)R_ECX, (void*)(uintptr_t)R_EDX, (void*)(uintptr_t)R_ESI, (void*)(uintptr_t)R_EDI);
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
-    for (int i=0; i<cnt; i++) {
-        if(syscallwrap[i].x86s == s) {
+    for (int i = 0; i < cnt; i++) {
+        if (syscallwrap[i].x86s == s) {
             int sc = syscallwrap[i].nats;
-            switch(syscallwrap[i].nbpars) {
+            switch (syscallwrap[i].nbpars) {
                 case 0: *(int32_t*)&R_EAX = syscall(sc); break;
                 case 1: *(int32_t*)&R_EAX = syscall(sc, R_EBX); break;
                 case 2: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX); break;
@@ -248,11 +248,11 @@ void EXPORT x86Syscall(x64emu_t *emu)
                 case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
                 case 6: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); break;
                 default:
-                   printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
-                   emu->quit = 1;
-                   return;
+                    printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars);
+                    emu->quit = 1;
+                    return;
             }
-            if(R_EAX==0xffffffff && errno>0)
+            if (R_EAX == 0xffffffff && errno > 0)
                 R_EAX = (uint32_t)-errno;
             printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
             return;
@@ -262,7 +262,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
         case 1: // sys_exit
             emu->quit = 1;
             emu->exit = 1;
-            //R_EAX = syscall(__NR_exit, R_EBX);  // the syscall should exit only current thread
+            // R_EAX = syscall(__NR_exit, R_EBX);  // the syscall should exit only current thread
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the thread now
             break;
         /*case 123:   // SYS_modify_ldt
@@ -272,7 +272,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
             break;*/
         case 243: // set_thread_area
             R_EAX = my_set_thread_area_32(emu, (thread_area_32_t*)(uintptr_t)R_EBX);
-            if(R_EAX==0xffffffff && errno>0)
+            if (R_EAX == 0xffffffff && errno > 0)
                 R_EAX = (uint32_t)-errno;
             break;
         default:

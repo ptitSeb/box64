@@ -1,12 +1,12 @@
 #ifndef _GLOBAL_SYMBOLS_H_
 #define _GLOBAL_SYMBOLS_H_
 
-//GTK stuff
+// GTK stuff
 void my_checkGlobalGdkDisplay(void);
 void my_setGlobalGThreadsInit(void);
 
-//void** my_GetGTKDisplay(void);
-void** my_GetGthreadsGotInitialized(void);  // defined in wrappedgthread2
+// void** my_GetGTKDisplay(void);
+void** my_GetGthreadsGotInitialized(void); // defined in wrappedgthread2
 
 // NCurse / TInfo
 void my_checkGlobalTInfo(void);

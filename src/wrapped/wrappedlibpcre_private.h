@@ -3,7 +3,7 @@
 #endif
 
 GO(pcre_assign_jit_stack, vFpp)
-//DATAM(pcre_callout,   //int   (*pcre_callout)(pcre_callout_block *);
+// DATAM(pcre_callout,   //int   (*pcre_callout)(pcre_callout_block *);
 GO(pcre_compile, pFpippp)
 GO(pcre_compile2, pFpipppp)
 GO(pcre_config, iFip)
@@ -27,11 +27,11 @@ GO(pcre_jit_free_unused_memory, vFv)
 GO(pcre_jit_stack_alloc, pFii)
 GO(pcre_jit_stack_free, vFp)
 GO(pcre_maketables, pFv)
-//DATAM(pcre_malloc, //void *(*pcre_malloc)(size_t);
+// DATAM(pcre_malloc, //void *(*pcre_malloc)(size_t);
 GO(pcre_pattern_to_host_byte_order, iFppp)
 GO(pcre_refcount, iFpi)
-//DATAM(pcre_stack_free, //void  (*pcre_stack_free)(void *);
-//DATAM(pcre_stack_guard, //int   (*pcre_stack_guard)(void);
-//DATAM(pcre_stack_malloc, //void *(*pcre_stack_malloc)(size_t);
+// DATAM(pcre_stack_free, //void  (*pcre_stack_free)(void *);
+// DATAM(pcre_stack_guard, //int   (*pcre_stack_guard)(void);
+// DATAM(pcre_stack_malloc, //void *(*pcre_stack_malloc)(size_t);
 GO(pcre_study, pFpip)
 GO(pcre_version, pFv)

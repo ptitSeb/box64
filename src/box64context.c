@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +27,7 @@ EXPORTDYN
 void initAllHelpers(box64context_t* context)
 {
     static int inited = 0;
-    if(inited)
+    if (inited)
         return;
     my_context = context;
     init_pthread_helper();
@@ -40,7 +40,7 @@ EXPORTDYN
 void finiAllHelpers(box64context_t* context)
 {
     static int finied = 0;
-    if(finied)
+    if (finied)
         return;
     DeleteParams();
     fini_pthread_helper(context);
@@ -53,57 +53,56 @@ void finiAllHelpers(box64context_t* context)
 /// maxval not inclusive
 int getrand(int maxval)
 {
-    if(maxval<1024) {
-        return ((random()&0x7fff)*maxval)/0x7fff;
-    } 
-        uint64_t r = random();
-        r = (r*maxval) / RAND_MAX;
-        return r;
-
+    if (maxval < 1024) {
+        return ((random() & 0x7fff) * maxval) / 0x7fff;
+    }
+    uint64_t r = random();
+    r = (r * maxval) / RAND_MAX;
+    return r;
 }
 
 void free_tlsdatasize(void* p)
 {
-    if(!p)
+    if (!p)
         return;
-    tlsdatasize_t *data = (tlsdatasize_t*)p;
+    tlsdatasize_t* data = (tlsdatasize_t*)p;
     box_free(data->ptr);
     box_free(p);
-    if(my_context)
+    if (my_context)
         pthread_setspecific(my_context->tlskey, NULL);
 }
 
-void x64Syscall(x64emu_t *emu);
+void x64Syscall(x64emu_t* emu);
 
 int unlockMutex()
 {
     int ret = unlockCustommemMutex();
     int i;
-    #ifdef USE_CUSTOM_MUTEX
+#ifdef USE_CUSTOM_MUTEX
     uint32_t tid = (uint32_t)GetTID();
-    #define GO(A, B)                    \
-        i = (native_lock_storeifref2_d(&A, 0, tid)==tid); \
-        if(i) {                         \
-            ret|=(1<<B);                \
-        }
-    #else
-        #define GO(A, B)                \
-        i = checkUnlockMutex(&A);       \
-        if(i) {                         \
-            ret|=(1<<B);                \
-        }
-    #endif
+#define GO(A, B)                                        \
+    i = (native_lock_storeifref2_d(&A, 0, tid) == tid); \
+    if (i) {                                            \
+        ret |= (1 << B);                                \
+    }
+#else
+#define GO(A, B)              \
+    i = checkUnlockMutex(&A); \
+    if (i) {                  \
+        ret |= (1 << B);      \
+    }
+#endif
 
     GO(my_context->mutex_trace, 7)
-    #ifdef DYNAREC
+#ifdef DYNAREC
     GO(my_context->mutex_dyndump, 8)
-    #else
+#else
     GO(my_context->mutex_lock, 8)
-    #endif
+#endif
     GO(my_context->mutex_tls, 9)
     GO(my_context->mutex_thread, 10)
     GO(my_context->mutex_bridge, 11)
-    #undef GO
+#undef GO
 
     return ret;
 }
@@ -111,20 +110,20 @@ int unlockMutex()
 void relockMutex(int locks)
 {
     relockCustommemMutex(locks);
-    #define GO(A, B)                    \
-        if(locks&(1<<B))                \
-            mutex_trylock(&A);          \
+#define GO(A, B)          \
+    if (locks & (1 << B)) \
+        mutex_trylock(&A);
 
     GO(my_context->mutex_trace, 7)
-    #ifdef DYNAREC
+#ifdef DYNAREC
     GO(my_context->mutex_dyndump, 8)
-    #else
+#else
     GO(my_context->mutex_lock, 8)
-    #endif
+#endif
     GO(my_context->mutex_tls, 9)
     GO(my_context->mutex_thread, 10)
     GO(my_context->mutex_bridge, 11)
-    #undef GO
+#undef GO
 }
 
 static void init_mutexes(box64context_t* context)
@@ -141,13 +140,13 @@ static void init_mutexes(box64context_t* context)
 
     pthread_mutexattr_destroy(&attr);
 #else
-    #ifdef USE_CUSTOM_MUTEX
+#ifdef USE_CUSTOM_MUTEX
     native_lock_store(&context->mutex_trace, 0);
     native_lock_store(&context->mutex_tls, 0);
     native_lock_store(&context->mutex_thread, 0);
     native_lock_store(&context->mutex_bridge, 0);
     native_lock_store(&context->mutex_dyndump, 0);
-    #else
+#else
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
@@ -157,7 +156,7 @@ static void init_mutexes(box64context_t* context)
     pthread_mutex_init(&context->mutex_bridge, &attr);
     pthread_mutex_init(&context->mutex_dyndump, &attr);
     pthread_mutexattr_destroy(&attr);
-    #endif
+#endif
     pthread_mutex_init(&context->mutex_lock, NULL);
 #endif
 }
@@ -170,8 +169,8 @@ static void atfork_child_box64context(void)
 
 void freeCycleLog(box64context_t* ctx)
 {
-    if(cycle_log) {
-        for(int i=0; i<cycle_log; ++i) {
+    if (cycle_log) {
+        for (int i = 0; i < cycle_log; ++i) {
             box_free(ctx->log_call[i]);
             box_free(ctx->log_ret[i]);
         }
@@ -183,10 +182,10 @@ void freeCycleLog(box64context_t* ctx)
 }
 void initCycleLog(box64context_t* context)
 {
-    if(cycle_log) {
+    if (cycle_log) {
         context->log_call = (char**)box_calloc(cycle_log, sizeof(char*));
         context->log_ret = (char**)box_calloc(cycle_log, sizeof(char*));
-        for(int i=0; i<cycle_log; ++i) {
+        for (int i = 0; i < cycle_log; ++i) {
             context->log_call[i] = (char*)box_calloc(256, 1);
             context->log_ret[i] = (char*)box_calloc(128, 1);
         }
@@ -194,16 +193,16 @@ void initCycleLog(box64context_t* context)
 }
 
 EXPORTDYN
-box64context_t *NewBox64Context(int argc)
+box64context_t* NewBox64Context(int argc)
 {
 #ifdef BUILD_DYNAMIC
-    if(my_context) {
+    if (my_context) {
         ++my_context->count;
         return my_context;
     }
 #endif
     // init and put default values
-    box64context_t *context = my_context = (box64context_t*)box_calloc(1, sizeof(box64context_t));
+    box64context_t* context = my_context = (box64context_t*)box_calloc(1, sizeof(box64context_t));
 
     initCycleLog(context);
 
@@ -229,14 +228,14 @@ box64context_t *NewBox64Context(int argc)
     addAlternate((void*)0xffffffffff600800, (void*)context->vsyscalls[2]);
     // create exit bridge
     context->exit_bridge = AddBridge(context->system, NULL, NULL, 0, NULL);
-    // get handle to box64 itself
-    #ifndef STATICBUILD
-    context->box64lib = dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
-    #endif
+// get handle to box64 itself
+#ifndef STATICBUILD
+    context->box64lib = dlopen(NULL, RTLD_NOW | RTLD_GLOBAL);
+#endif
     context->dlprivate = NewDLPrivate();
 
     context->argc = argc;
-    context->argv = (char**)box_calloc(context->argc+1, sizeof(char*));
+    context->argv = (char**)box_calloc(context->argc + 1, sizeof(char*));
 
     init_mutexes(context);
     pthread_atfork(NULL, NULL, atfork_child_box64context);
@@ -244,23 +243,24 @@ box64context_t *NewBox64Context(int argc)
     pthread_key_create(&context->tlskey, free_tlsdatasize);
 
 
-    for (int i=0; i<8; ++i) context->canary[i] = 1 +  getrand(255);
+    for (int i = 0; i < 8; ++i)
+        context->canary[i] = 1 + getrand(255);
     context->canary[getrand(4)] = 0;
     printf_log(LOG_DEBUG, "Setting up canary (for Stack protector) at FS:0x28, value:%08X\n", *(uint32_t*)context->canary);
 
     // init segments
-    for(int i=0; i<16; i++) {
+    for (int i = 0; i < 16; i++) {
         context->segtls[i].limit = (uintptr_t)-1LL;
     }
-    context->segtls[10].key_init = 0;    // 0x53 selector
+    context->segtls[10].key_init = 0; // 0x53 selector
     context->segtls[10].present = 1;
-    context->segtls[8].key_init = 0;    // 0x43 selector
+    context->segtls[8].key_init = 0; // 0x43 selector
     context->segtls[8].present = 1;
-    context->segtls[6].key_init = 0;    // 0x33 selector
+    context->segtls[6].key_init = 0; // 0x33 selector
     context->segtls[6].present = 1;
-    context->segtls[5].key_init = 0;    // 0x2b selector
+    context->segtls[5].key_init = 0; // 0x2b selector
     context->segtls[5].present = 1;
-    context->segtls[4].key_init = 0;    // 0x23 selector
+    context->segtls[4].key_init = 0; // 0x23 selector
     context->segtls[4].present = 1;
     context->segtls[4].is32bits = 1;
 
@@ -268,10 +268,10 @@ box64context_t *NewBox64Context(int argc)
     context->uniques = NewMapSymbols();
 
     initAllHelpers(context);
-    
-    #ifdef DYNAREC
+
+#ifdef DYNAREC
     context->db_sizes = init_rbtree();
-    #endif
+#endif
 
     return context;
 }
@@ -280,22 +280,22 @@ void freeALProcWrapper(box64context_t* context);
 EXPORTDYN
 void FreeBox64Context(box64context_t** context)
 {
-    if(!context)
-        return;
-    
-    if(--(*context)->forked >= 0)
+    if (!context)
         return;
 
-    box64context_t* ctx = *context;   // local copy to do the cleanning
+    if (--(*context)->forked >= 0)
+        return;
 
-    //clean_current_emuthread();    // cleaning main thread seems a bad idea
-    if(ctx->local_maplib)
+    box64context_t* ctx = *context; // local copy to do the cleanning
+
+    // clean_current_emuthread();    // cleaning main thread seems a bad idea
+    if (ctx->local_maplib)
         FreeLibrarian(&ctx->local_maplib, NULL);
-    if(ctx->maplib)
+    if (ctx->maplib)
         FreeLibrarian(&ctx->maplib, NULL);
     FreeDictionnary(&ctx->versym);
 
-    for(int i=0; i<ctx->elfsize; ++i) {
+    for (int i = 0; i < ctx->elfsize; ++i) {
         FreeElfHeader(&ctx->elfs[i]);
     }
     box_free(ctx->elfs);
@@ -304,34 +304,34 @@ void FreeBox64Context(box64context_t** context)
     FreeCollection(&ctx->box64_ld_lib);
     FreeCollection(&ctx->box64_emulated_libs);
     // stop trace now
-    if(ctx->dec)
+    if (ctx->dec)
         DeleteX64TraceDecoder(&ctx->dec);
-    if(ctx->dec32)
+    if (ctx->dec32)
         DeleteX86TraceDecoder(&ctx->dec32);
-    if(ctx->zydis)
+    if (ctx->zydis)
         DeleteX64Trace(ctx);
 
-    if(ctx->deferredInitList)
+    if (ctx->deferredInitList)
         box_free(ctx->deferredInitList);
 
     /*box_free(ctx->argv);*/
-    
+
     /*for (int i=0; i<ctx->envc; ++i)
         box_free(ctx->envv[i]);
     box_free(ctx->envv);*/
 
-    if(ctx->atfork_sz) {
+    if (ctx->atfork_sz) {
         box_free(ctx->atforks);
         ctx->atforks = NULL;
         ctx->atfork_sz = ctx->atfork_cap = 0;
     }
 
-    for(int i=0; i<MAX_SIGNAL; ++i)
-        if(ctx->signals[i]!=0 && ctx->signals[i]!=1) {
+    for (int i = 0; i < MAX_SIGNAL; ++i)
+        if (ctx->signals[i] != 0 && ctx->signals[i] != 1) {
             signal(i, SIG_DFL);
         }
 
-    *context = NULL;                // bye bye my_context
+    *context = NULL; // bye bye my_context
 
     CleanStackSize(ctx);
 
@@ -343,12 +343,12 @@ void FreeBox64Context(box64context_t** context)
 
     FreeBridge(&ctx->system);
 
-    #ifndef STATICBUILD
+#ifndef STATICBUILD
     freeGLProcWrapper(ctx);
     freeALProcWrapper(ctx);
-    #endif
+#endif
 
-    if(ctx->stack_clone)
+    if (ctx->stack_clone)
         box_free(ctx->stack_clone);
 
 
@@ -358,20 +358,20 @@ void FreeBox64Context(box64context_t** context)
     }
     pthread_key_delete(ctx->tlskey);
 
-    if(ctx->tlsdata)
+    if (ctx->tlsdata)
         box_free(ctx->tlsdata);
 
     free_neededlib(ctx->neededlibs);
     ctx->neededlibs = NULL;
 
-    if(ctx->emu_sig)
+    if (ctx->emu_sig)
         FreeX64Emu(&ctx->emu_sig);
 
     FreeMapSymbols(&ctx->globdata);
     FreeMapSymbols(&ctx->uniques);
 
 #ifdef DYNAREC
-    //dynarec_log(LOG_INFO, "BOX64 Dynarec at exit: Max DB=%d, righter=%d\n", ctx->max_db_size, rb_get_righter(ctx->db_sizes));
+    // dynarec_log(LOG_INFO, "BOX64 Dynarec at exit: Max DB=%d, righter=%d\n", ctx->max_db_size, rb_get_righter(ctx->db_sizes));
     delete_rbtree(ctx->db_sizes);
 #endif
 
@@ -392,11 +392,13 @@ void FreeBox64Context(box64context_t** context)
     box_free(ctx);
 }
 
-int AddElfHeader(box64context_t* ctx, elfheader_t* head) {
+int AddElfHeader(box64context_t* ctx, elfheader_t* head)
+{
     int idx = 0;
-    while(idx<ctx->elfsize && ctx->elfs[idx]) idx++;
-    if(idx == ctx->elfsize) {
-        if(idx==ctx->elfcap) {
+    while (idx < ctx->elfsize && ctx->elfs[idx])
+        idx++;
+    if (idx == ctx->elfsize) {
+        if (idx == ctx->elfcap) {
             // resize...
             ctx->elfcap += 16;
             ctx->elfs = (elfheader_t**)box_realloc(ctx->elfs, sizeof(elfheader_t*) * ctx->elfcap);
@@ -410,8 +412,9 @@ int AddElfHeader(box64context_t* ctx, elfheader_t* head) {
     return idx;
 }
 
-void RemoveElfHeader(box64context_t* ctx, elfheader_t* head) {
-    if(GetTLSBase(head)) {
+void RemoveElfHeader(box64context_t* ctx, elfheader_t* head)
+{
+    if (GetTLSBase(head)) {
         // should remove the tls info
         int tlsbase = GetTLSBase(head);
         /*if(tlsbase == -ctx->tlssize) {
@@ -421,27 +424,27 @@ void RemoveElfHeader(box64context_t* ctx, elfheader_t* head) {
                 ++ctx->sel_serial;
         }*/
     }
-    for(int i=0; i<ctx->elfsize; ++i)
-        if(ctx->elfs[i] == head) {
+    for (int i = 0; i < ctx->elfsize; ++i)
+        if (ctx->elfs[i] == head) {
             ctx->elfs[i] = NULL;
             return;
         }
 }
 
-int AddTLSPartition(box64context_t* context, int tlssize) {
+int AddTLSPartition(box64context_t* context, int tlssize)
+{
     int oldsize = context->tlssize;
     // should in fact first try to map a hole, but rewinding all elfs and checking filled space, like with the mapmem utilities
     context->tlssize += tlssize;
     context->tlsdata = box_realloc(context->tlsdata, context->tlssize);
-    memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
-    memset(context->tlsdata, 0, tlssize);           // fill new space with 0 (not mandatory)
+    memmove(context->tlsdata + tlssize, context->tlsdata, oldsize); // move to the top, using memmove as regions will probably overlap
+    memset(context->tlsdata, 0, tlssize);                           // fill new space with 0 (not mandatory)
     // clean GS segment for current emu
-    if(my_context) {
-        //ResetSegmentsCache(thread_get_emu());
-        if(!(++context->sel_serial))
+    if (my_context) {
+        // ResetSegmentsCache(thread_get_emu());
+        if (!(++context->sel_serial))
             ++context->sel_serial;
     }
 
-    return -context->tlssize;   // negative offset
+    return -context->tlssize; // negative offset
 }
-

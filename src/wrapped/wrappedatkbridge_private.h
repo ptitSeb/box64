@@ -3,4 +3,4 @@
 #endif
 
 GO(atk_bridge_adaptor_cleanup, vFv)
-GO(atk_bridge_adaptor_init, iFpp)  //%NoE
+GO(atk_bridge_adaptor_init, iFpp) //%NoE

@@ -107,7 +107,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
 #define SPLIT20(A) (((A) + 0x800) >> 12)
-#define SPLIT12(A) ((A)&0xfff)
+#define SPLIT12(A) ((A) & 0xfff)
 
 // MOV64x/MOV32w is quite complex, so use a function for this
 #define MOV64x(A, B) rv64_move64(dyn, ninst, A, B)
@@ -130,7 +130,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 #define R_type(funct7, rs2, rs1, funct3, rd, opcode) ((funct7) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
 #define I_type(imm12, rs1, funct3, rd, opcode)       ((imm12) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
-#define S_type(imm12, rs2, rs1, funct3, opcode)      (((imm12) >> 5) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | ((imm12)&31) << 7 | (opcode))
+#define S_type(imm12, rs2, rs1, funct3, opcode)      (((imm12) >> 5) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | ((imm12) & 31) << 7 | (opcode))
 #define B_type(imm13, rs2, rs1, funct3, opcode)      ((((imm13) >> 12) & 1) << 31 | (((imm13) >> 5) & 63) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (((imm13) >> 1) & 15) << 8 | (((imm13) >> 11) & 1) << 7 | (opcode))
 #define U_type(imm32, rd, opcode)                    (((imm32) >> 12) << 12 | (rd) << 7 | (opcode))
 #define J_type(imm21, rd, opcode)                    ((((imm21) >> 20) & 1) << 31 | (((imm21) >> 1) & 0b1111111111) << 21 | (((imm21) >> 11) & 1) << 20 | (((imm21) >> 12) & 0b11111111) << 12 | (rd) << 7 | (opcode))
@@ -155,26 +155,26 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Unconditionnal branch to r, no return address set
 #define BR(r) EMIT(JALR_gen(xZR, r, 0))
 // Unconditionnal branch to r+i12, no return address set
-#define BR_I12(r, imm12) EMIT(JALR_gen(xZR, r, (imm12)&0b111111111111))
+#define BR_I12(r, imm12) EMIT(JALR_gen(xZR, r, (imm12) & 0b111111111111))
 // Unconditionnal branch to r, return address set to xRA
 #define JALR(r) EMIT(JALR_gen(xRA, r, 0))
 // Unconditionnal branch to r+i12, return address set to xRA
-#define JALR_I12(r, imm12) EMIT(JALR_gen(xRA, r, (imm12)&0b111111111111))
+#define JALR_I12(r, imm12) EMIT(JALR_gen(xRA, r, (imm12) & 0b111111111111))
 
 // rd = rs1 + imm12
-#define ADDI(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, 0b0010011))
+#define ADDI(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, 0b0010011))
 // rd = rs1 - imm12 (pseudo instruction)
 #define SUBI(rd, rs1, imm12) EMIT(I_type((-(imm12)) & 0b111111111111, rs1, 0b000, rd, 0b0010011))
 // rd = (rs1<imm12)?1:0
-#define SLTI(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b010, rd, 0b0010011))
+#define SLTI(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b010, rd, 0b0010011))
 // rd = (rs1<imm12)?1:0 unsigned
-#define SLTIU(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b011, rd, 0b0010011))
+#define SLTIU(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b011, rd, 0b0010011))
 // rd = rs1 ^ imm12
-#define XORI(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b100, rd, 0b0010011))
+#define XORI(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b100, rd, 0b0010011))
 // rd = rs1 | imm12
-#define ORI(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b110, rd, 0b0010011))
+#define ORI(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b110, rd, 0b0010011))
 // rd = rs1 & imm12
-#define ANDI(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b111, rd, 0b0010011))
+#define ANDI(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b111, rd, 0b0010011))
 
 // rd = imm12
 #define MOV_U12(rd, imm12) ADDI(rd, xZR, imm12)
@@ -420,13 +420,13 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define SRAI(rd, rs1, imm6) EMIT(I_type((imm6) | (0b010000 << 6), rs1, 0b101, rd, 0b0010011))
 
 // rd = rs1 + imm12
-#define ADDIW(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, 0b0011011))
+#define ADDIW(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, 0b0011011))
 // rd = rs1 - imm12
 #define SUBIW(rd, rs1, imm12) EMIT(I_type((-imm12) & 0b111111111111, rs1, 0b000, rd, 0b0011011))
 // rd = rs1 + imm12
-#define ADDIxw(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, rex.w ? 0b0010011 : 0b0011011))
+#define ADDIxw(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, rex.w ? 0b0010011 : 0b0011011))
 // rd = rs1 + imm12
-#define ADDIz(rd, rs1, imm12) EMIT(I_type((imm12)&0b111111111111, rs1, 0b000, rd, rex.is32bits ? 0b0011011 : 0b0010011))
+#define ADDIz(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, rex.is32bits ? 0b0011011 : 0b0010011))
 
 // rd = rs1 + (rs2 << imm2)
 #define ADDSL(rd, rs1, rs2, imm2, scratch) \
@@ -723,44 +723,44 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Count leading zero bits in word
 #define CLZW(rd, rs) EMIT(R_type(0b0110000, 0b00000, rs, 0b001, rd, 0b0011011))
 // Count leading zero bits
-#define CLZxw(rd, rs, x, s1, s2, s3)       \
-    if (rv64_zbb) {                        \
-        if (x)                             \
-            CLZ(rd, rs);                   \
-        else                               \
-            CLZW(rd, rs);                  \
-    } else {                               \
-        if (rs != rd)                      \
-            u8 = rd;                       \
-        else                               \
-            u8 = s1;                       \
-        ADDI(u8, xZR, rex.w ? 63 : 31);    \
-        if (rex.w) {                       \
-            MV(s2, rs);                    \
-            SRLI(s3, s2, 32);              \
-            BEQZ(s3, 4 + 2 * 4);           \
-            SUBI(u8, u8, 32);              \
-            MV(s2, s3);                    \
-        } else {                           \
-            AND(s2, rs, xMASK);            \
-        }                                  \
-        SRLI(s3, s2, 16);                  \
-        BEQZ(s3, 4 + 2 * 4);               \
-        SUBI(u8, u8, 16);                  \
-        MV(s2, s3);                        \
-        SRLI(s3, s2, 8);                   \
-        BEQZ(s3, 4 + 2 * 4);               \
-        SUBI(u8, u8, 8);                   \
-        MV(s2, s3);                        \
-        SRLI(s3, s2, 4);                   \
-        BEQZ(s3, 4 + 2 * 4);               \
-        SUBI(u8, u8, 4);                   \
-        MV(s2, s3);                        \
-        ANDI(s2, s2, 0b1111);              \
-        TABLE64(s3, (uintptr_t)&lead0tab); \
-        ADD(s3, s3, s2);                   \
-        LBU(s2, s3, 0);                    \
-        SUB(rd, u8, s2);                   \
+#define CLZxw(rd, rs, x, s1, s2, s3)         \
+    if (rv64_zbb) {                          \
+        if (x)                               \
+            CLZ(rd, rs);                     \
+        else                                 \
+            CLZW(rd, rs);                    \
+    } else {                                 \
+        if (rs != rd)                        \
+            u8 = rd;                         \
+        else                                 \
+            u8 = s1;                         \
+        ADDI(u8, xZR, rex.w ? 63 : 31);      \
+        if (rex.w) {                         \
+            MV(s2, rs);                      \
+            SRLI(s3, s2, 32);                \
+            BEQZ(s3, 4 + 2 * 4);             \
+            SUBI(u8, u8, 32);                \
+            MV(s2, s3);                      \
+        } else {                             \
+            AND(s2, rs, xMASK);              \
+        }                                    \
+        SRLI(s3, s2, 16);                    \
+        BEQZ(s3, 4 + 2 * 4);                 \
+        SUBI(u8, u8, 16);                    \
+        MV(s2, s3);                          \
+        SRLI(s3, s2, 8);                     \
+        BEQZ(s3, 4 + 2 * 4);                 \
+        SUBI(u8, u8, 8);                     \
+        MV(s2, s3);                          \
+        SRLI(s3, s2, 4);                     \
+        BEQZ(s3, 4 + 2 * 4);                 \
+        SUBI(u8, u8, 4);                     \
+        MV(s2, s3);                          \
+        ANDI(s2, s2, 0b1111);                \
+        TABLE64(s3, (uintptr_t) & lead0tab); \
+        ADD(s3, s3, s2);                     \
+        LBU(s2, s3, 0);                      \
+        SUB(rd, u8, s2);                     \
     }
 
 // Count trailing zero bits
@@ -770,21 +770,21 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Count trailing zero bits
 // BEWARE: You should take care of the all zeros situation yourself,
 //         and clear the high 32bit when x is 1.
-#define CTZxw(rd, rs, x, s1, s2)                \
-    if (rv64_zbb) {                             \
-        if (x)                                  \
-            CTZ(rd, rs);                        \
-        else                                    \
-            CTZW(rd, rs);                       \
-    } else {                                    \
-        NEG(s2, ed);                            \
-        AND(s2, s2, ed);                        \
-        TABLE64(x3, 0x03f79d71b4ca8b09ULL);     \
-        MUL(s2, s2, x3);                        \
-        SRLI(s2, s2, 64 - 6);                   \
-        TABLE64(s1, (uintptr_t)&deBruijn64tab); \
-        ADD(s1, s1, s2);                        \
-        LBU(gd, s1, 0);                         \
+#define CTZxw(rd, rs, x, s1, s2)                  \
+    if (rv64_zbb) {                               \
+        if (x)                                    \
+            CTZ(rd, rs);                          \
+        else                                      \
+            CTZW(rd, rs);                         \
+    } else {                                      \
+        NEG(s2, ed);                              \
+        AND(s2, s2, ed);                          \
+        TABLE64(x3, 0x03f79d71b4ca8b09ULL);       \
+        MUL(s2, s2, x3);                          \
+        SRLI(s2, s2, 64 - 6);                     \
+        TABLE64(s1, (uintptr_t) & deBruijn64tab); \
+        ADD(s1, s1, s2);                          \
+        LBU(gd, s1, 0);                           \
     }
 
 // Count set bits
@@ -954,7 +954,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Add a shifted operand to a second operand.
 // reg[rd] := reg[rs1] + (reg[rs2] << imm2)
-#define TH_ADDSL(rd, rs1, rs2, imm2) EMIT(R_type((imm2)&0b11, rs2, rs1, 0b001, rd, 0b0001011))
+#define TH_ADDSL(rd, rs1, rs2, imm2) EMIT(R_type((imm2) & 0b11, rs2, rs1, 0b001, rd, 0b0001011))
 
 // XTheadBb - Basic bit-manipulation
 
@@ -967,20 +967,20 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Perform a cyclic right shift.
 // reg[rd] := (reg[rs1] >> imm6) | (reg[rs1] << (xlen - imm6))
-#define TH_SRRI(rd, rs1, imm6) EMIT(I_type(0b000100000000 | ((imm6)&0x3f), rs1, 0b001, rd, 0b0001011))
+#define TH_SRRI(rd, rs1, imm6) EMIT(I_type(0b000100000000 | ((imm6) & 0x3f), rs1, 0b001, rd, 0b0001011))
 
 // Perform a cyclic right shift on word operand.
 // data := zext.w(reg[rs1])
 // reg[rd] := (data >> imm5) | (data << (32 - imm5))
-#define TH_SRRIW(rd, rs1, imm5) EMIT(I_type(0b000101000000 | ((imm5)&0x1f), rs1, 0b001, rd, 0b0001011))
+#define TH_SRRIW(rd, rs1, imm5) EMIT(I_type(0b000101000000 | ((imm5) & 0x1f), rs1, 0b001, rd, 0b0001011))
 
 // Extract and sign-extend bits.
 // reg[rd] := sign_extend(reg[rs1][imm1:imm2])
-#define TH_EXT(rd, rs1, imm1, imm2) EMIT(I_type((((imm1)&0x1f) << 6) | ((imm2)&0x1f), rs1, 0b010, rd, 0b0001011))
+#define TH_EXT(rd, rs1, imm1, imm2) EMIT(I_type((((imm1) & 0x1f) << 6) | ((imm2) & 0x1f), rs1, 0b010, rd, 0b0001011))
 
 // Extract and zero-extend bits.
 // reg[rd] := zero_extend(reg[rs1][imm1:imm2])
-#define TH_EXTU(rd, rs1, imm1, imm2) EMIT(I_type((((imm1)&0x1f) << 6) | ((imm2)&0x1f), rs1, 0b011, rd, 0b0001011))
+#define TH_EXTU(rd, rs1, imm1, imm2) EMIT(I_type((((imm1) & 0x1f) << 6) | ((imm2) & 0x1f), rs1, 0b011, rd, 0b0001011))
 
 // Find first '0'-bit
 // for i=xlen..0:
@@ -1025,7 +1025,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 //   rd := 1
 // else
 //   rd := 0
-#define TH_TST(rd, rs1, imm6) EMIT(I_type(0b100010000000 | ((imm6)&0x3f), rs1, 0b001, rd, 0b0001011))
+#define TH_TST(rd, rs1, imm6) EMIT(I_type(0b100010000000 | ((imm6) & 0x3f), rs1, 0b001, rd, 0b0001011))
 
 
 // XTheadCondMov -  Conditional move
@@ -1045,7 +1045,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Load indexed byte, increment address after loading.
 // rd := sign_extend(mem[rs1])
 // rs1 := rs1 + (sign_extend(imm5) << imm2)
-#define TH_LBIA(rd, rs1, imm5, imm2) EMIT(I_type(0b000110000000 | (((imm2)&0b11) << 5) | ((imm5)&0x1f), rs1, 0b100, rd, 0b0001011))
+#define TH_LBIA(rd, rs1, imm5, imm2) EMIT(I_type(0b000110000000 | (((imm2) & 0b11) << 5) | ((imm5) & 0x1f), rs1, 0b100, rd, 0b0001011))
 
 // TODO
 // th.lbib rd, (rs1), imm5, imm2 Load indexed byte
@@ -1099,38 +1099,38 @@ f28–31  ft8–11  FP temporaries                  Caller
 // addr := rs1 + (zero_extend(imm2) << 4)
 // rd1 := mem[addr+7:addr]
 // rd2 := mem[addr+15:addr+8]
-#define TH_LDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
+#define TH_LDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | ((imm2) & 0b11), rd2, rs1, 0b100, rd1, 0b0001011))
 
 // Load two signed 32-bit values from memory into two GPRs.
 // addr := rs1 + (zero_extend(imm2) << 3)
 // reg[rd1] := sign_extend(mem[addr+3:addr])
 // reg[rd2] := sign_extend(mem[addr+7:addr+4])
-#define TH_LWD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1110000 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
+#define TH_LWD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1110000 | ((imm2) & 0b11), rd2, rs1, 0b100, rd1, 0b0001011))
 
 // Load two unsigned 32-bit values from memory into two GPRs.
 // addr := rs1 + (zero_extend(imm2) << 3)
 // reg[rd1] := zero_extend(mem[addr+3:addr])
 // reg[rd2] := zero_extend(mem[addr+7:addr+4])
-#define TH_LWUD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111000 | ((imm2)&0b11), rd2, rs1, 0b100, rd1, 0b0001011))
+#define TH_LWUD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111000 | ((imm2) & 0b11), rd2, rs1, 0b100, rd1, 0b0001011))
 
 // Store two 64-bit values to memory from two GPRs.
 // addr := rs1 + (zero_extend(imm2) << 4)
 // mem[addr+7:addr] := reg[rd1]
 // mem[addr+15:addr+8] := reg[rd2]
-#define TH_SDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | ((imm2)&0b11), rd2, rs1, 0b101, rd1, 0b0001011))
+#define TH_SDD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1111100 | ((imm2) & 0b11), rd2, rs1, 0b101, rd1, 0b0001011))
 
 // Store two 32-bit values to memory from two GPRs.
 // addr := rs1 + (zero_extend(imm2) << 3)
 // mem[addr+3:addr] := reg[rd1][31:0]
 // mem[addr+7:addr+3] := reg[rd2][31:0]
-#define TH_SWD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1110000 | ((imm2)&0b11), rd2, rs1, 0b101, rd1, 0b0001011))
+#define TH_SWD(rd1, rd2, rs1, imm2) EMIT(R_type(0b1110000 | ((imm2) & 0b11), rd2, rs1, 0b101, rd1, 0b0001011))
 
 // XTheadFMemIdx - Indexed memory operations for floating-point registers
 
 // Load indexed double-precision floating point value.
 // addr := rs1 + (rs2 << imm2)
 // rd := fmem[addr+7:addr]
-#define TH_FLRD(rd, rs1, rs2, imm2) EMIT(R_type(0b0110000 | ((imm2)&0b11), rs2, rs1, 0b110, rd, 0b0001011))
+#define TH_FLRD(rd, rs1, rs2, imm2) EMIT(R_type(0b0110000 | ((imm2) & 0b11), rs2, rs1, 0b110, rd, 0b0001011))
 
 // TODO
 // th.flrw rd, rs1, rs2, imm2 Load indexed float

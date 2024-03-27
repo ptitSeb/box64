@@ -4,4 +4,4 @@
 
 GO(xcb_cursor_context_free, vFp)
 GO(xcb_cursor_context_new, iFbpp)
-GO(xcb_cursor_load_cursor, uFpp) 
+GO(xcb_cursor_load_cursor, uFpp)

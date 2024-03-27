@@ -3,7 +3,7 @@
 
 #include "../dynarec_native_functions.h"
 
-#define SCRATCH0    24
+#define SCRATCH0 24
 
 // Get an FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn);
@@ -36,7 +36,7 @@ int neoncache_get_current_st_f_i64(dynarec_arm_t* dyn, int a);
 // Back-propagate a change float->double
 void neoncache_promote_double(dynarec_arm_t* dyn, int ninst, int a);
 // Combine and propagate if needed (pass 1 only)
-int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b);  // with stack current dyn->n_stack*
+int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b); // with stack current dyn->n_stack*
 // Do not allow i64 type
 int neoncache_no_i64(dynarec_arm_t* dyn, int ninst, int st, int a);
 

@@ -8,16 +8,17 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFpA_t)(void*, va_list);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(FcObjectSetBuild, pFpV_t) \
-	GO(FcPatternBuild, pFpV_t) \
-	GO(FcObjectSetVaBuild, pFpA_t) \
-	GO(FcPatternVaBuild, pFpA_t)
+#define SUPER()                    \
+    ADDED_FUNCTIONS()              \
+    GO(FcObjectSetBuild, pFpV_t)   \
+    GO(FcPatternBuild, pFpV_t)     \
+    GO(FcObjectSetVaBuild, pFpA_t) \
+    GO(FcPatternVaBuild, pFpA_t)
 
 #endif // __wrappedfontconfigTYPES_H_

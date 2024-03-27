@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-# error meh!
+#error meh!
 #endif
 
 GO(png_convert_from_time_t, vFpu)
@@ -42,7 +42,7 @@ GO(png_set_filter, vFpii)
 GO(png_set_gray_to_rgb, vFp)
 GO(png_set_IHDR, vFppuuiiiii)
 GO(png_set_interlace_handling, iFp)
-GO(png_set_longjmp_fn, pFppu)   //TODO: need wrapping?
+GO(png_set_longjmp_fn, pFppu) // TODO: need wrapping?
 GO(png_set_packing, vFp)
 GO(png_set_packswap, vFp)
 GO(png_set_palette_to_rgb, vFp)

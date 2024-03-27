@@ -8,7 +8,7 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -19,13 +19,14 @@ typedef void* (*pFppLp_t)(void*, void*, uintptr_t, void*);
 typedef int32_t (*iFippLp_t)(int32_t, void*, void*, uintptr_t, void*);
 typedef uintptr_t (*LFppLppU_t)(void*, void*, uintptr_t, void*, void*, uint64_t);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(fuse_reply_entry, iFpp_t) \
-	GO(fuse_reply_attr, iFppd_t) \
-	GO(fuse_reply_create, iFppp_t) \
-	GO(fuse_opt_parse, iFpppp_t) \
-	GO(fuse_lowlevel_new, pFppLp_t) \
-	GO(fuse_main_real, iFippLp_t) \
-	GO(fuse_add_direntry, LFppLppU_t)
+#define SUPER()                     \
+    ADDED_FUNCTIONS()               \
+    GO(fuse_reply_entry, iFpp_t)    \
+    GO(fuse_reply_attr, iFppd_t)    \
+    GO(fuse_reply_create, iFppp_t)  \
+    GO(fuse_opt_parse, iFpppp_t)    \
+    GO(fuse_lowlevel_new, pFppLp_t) \
+    GO(fuse_main_real, iFippLp_t)   \
+    GO(fuse_add_direntry, LFppLppU_t)
 
 #endif // __wrappedlibfuseTYPES_H_

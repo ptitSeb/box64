@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -13,12 +13,11 @@
 #include "debug.h"
 
 #ifdef ANDROID
-	const char* libxpresentName = "libXpresent.so";
+const char* libxpresentName = "libXpresent.so";
 #else
-	const char* libxpresentName = "libXpresent.so.1";
+const char* libxpresentName = "libXpresent.so.1";
 #endif
 
 #define LIBNAME libxpresent
 
 #include "wrappedlib_init.h"
-

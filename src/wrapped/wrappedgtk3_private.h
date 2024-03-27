@@ -26,7 +26,7 @@ GO(gtk_about_dialog_set_authors, vFpp)
 GO(gtk_about_dialog_set_comments, vFpp)
 GO(gtk_about_dialog_set_copyright, vFpp)
 GO(gtk_about_dialog_set_documenters, vFpp)
-//GO(gtk_about_dialog_set_email_hook, 
+// GO(gtk_about_dialog_set_email_hook,
 GO(gtk_about_dialog_set_license, vFpp)
 GO(gtk_about_dialog_set_license_type, vFpu)
 GO(gtk_about_dialog_set_logo, vFpp)
@@ -34,7 +34,7 @@ GO(gtk_about_dialog_set_logo_icon_name, vFpp)
 GO(gtk_about_dialog_set_name, vFpp)
 GO(gtk_about_dialog_set_program_name, vFpp)
 GO(gtk_about_dialog_set_translator_credits, vFpp)
-//GO(gtk_about_dialog_set_url_hook, 
+// GO(gtk_about_dialog_set_url_hook,
 GO(gtk_about_dialog_set_version, vFpp)
 GO(gtk_about_dialog_set_website, vFpp)
 GO(gtk_about_dialog_set_website_label, vFpp)
@@ -47,11 +47,11 @@ GO(gtk_accelerator_set_default_mod_mask, vFu)
 GO(gtk_accelerator_valid, iFuu)
 GO(gtk_accel_flags_get_type, LFv)
 GO(gtk_accel_group_activate, iFpupuu)
-GO(gtk_accel_group_connect, vFpuiip)  // Closure probably needs wrapping when not null
+GO(gtk_accel_group_connect, vFpuiip) // Closure probably needs wrapping when not null
 GO(gtk_accel_group_connect_by_path, vFppp)
 GO(gtk_accel_group_disconnect, iFpp)
 GO(gtk_accel_group_disconnect_key, iFpuu)
-//GOM(gtk_accel_group_find, pFEppp)
+// GOM(gtk_accel_group_find, pFEppp)
 GO(gtk_accel_group_from_accel_closure, pFp)
 GO(gtk_accel_group_get_is_locked, iFp)
 GO(gtk_accel_group_get_modifier_mask, uFp)
@@ -65,106 +65,106 @@ GO(gtk_accel_group_unlock, vFp)
 GO(gtk_accel_label_get_accel_widget, pFp)
 GO(gtk_accel_label_get_accel_width, uFp)
 GO(gtk_accel_label_get_type, LFv)
-//GO(gtk_accel_label_new, 
+// GO(gtk_accel_label_new,
 GO(gtk_accel_label_refetch, iFp)
-//GO(gtk_accel_label_set_accel_closure, 
+// GO(gtk_accel_label_set_accel_closure,
 GO(gtk_accel_label_set_accel_widget, vFpp)
 GO(gtk_accel_map_add_entry, vFpuu)
-//GO(gtk_accel_map_add_filter, 
+// GO(gtk_accel_map_add_filter,
 GO(gtk_accel_map_change_entry, iFpuui)
-//GO(gtk_accel_map_foreach, 
-//GO(gtk_accel_map_foreach_unfiltered, 
+// GO(gtk_accel_map_foreach,
+// GO(gtk_accel_map_foreach_unfiltered,
 GO(gtk_accel_map_get, pFv)
 GO(gtk_accel_map_get_type, LFv)
-//GO(gtk_accel_map_load, 
-//GO(gtk_accel_map_load_fd, 
-//GO(gtk_accel_map_load_scanner, 
-//GO(gtk_accel_map_lock_path, 
+// GO(gtk_accel_map_load,
+// GO(gtk_accel_map_load_fd,
+// GO(gtk_accel_map_load_scanner,
+// GO(gtk_accel_map_lock_path,
 GO(gtk_accel_map_lookup_entry, iFpp)
-//GO(gtk_accel_map_save, 
+// GO(gtk_accel_map_save,
 GO(gtk_accel_map_save_fd, vFi)
-//GO(gtk_accel_map_unlock_path, 
-//GO(gtk_accessible_connect_widget_destroyed, 
+// GO(gtk_accel_map_unlock_path,
+// GO(gtk_accessible_connect_widget_destroyed,
 GO(gtk_accessible_get_type, LFv)
 GO(gtk_accessible_get_widget, pFp)
 GO(gtk_accessible_set_widget, vFpp)
 GO(gtk_actionable_get_type, LFv)
-//GO(gtk_action_activate, 
+// GO(gtk_action_activate,
 GO(gtk_action_bar_get_type, LFv)
-//GO(gtk_action_block_activate, 
-//GO(gtk_action_block_activate_from, 
-//GO(gtk_action_connect_accelerator, 
-//GO(gtk_action_connect_proxy, 
+// GO(gtk_action_block_activate,
+// GO(gtk_action_block_activate_from,
+// GO(gtk_action_connect_accelerator,
+// GO(gtk_action_connect_proxy,
 GO(gtk_action_create_icon, pFpu)
 GO(gtk_action_create_menu, pFp)
-//GO(gtk_action_create_menu_item, 
-//GO(gtk_action_create_tool_item, 
-//GO(gtk_action_disconnect_accelerator, 
-//GO(gtk_action_disconnect_proxy, 
-//GO(gtk_action_get_accel_closure, 
-//GO(gtk_action_get_accel_path, 
+// GO(gtk_action_create_menu_item,
+// GO(gtk_action_create_tool_item,
+// GO(gtk_action_disconnect_accelerator,
+// GO(gtk_action_disconnect_proxy,
+// GO(gtk_action_get_accel_closure,
+// GO(gtk_action_get_accel_path,
 GO(gtk_action_get_always_show_image, iFp)
 GO(gtk_action_get_gicon, pFp)
 GO(gtk_action_get_icon_name, pFp)
-//GO(gtk_action_get_is_important, 
-//GO(gtk_action_get_label, 
-//GO(gtk_action_get_name, 
+// GO(gtk_action_get_is_important,
+// GO(gtk_action_get_label,
+// GO(gtk_action_get_name,
 GO(gtk_action_get_proxies, pFp)
-//GO(gtk_action_get_sensitive, 
-//GO(gtk_action_get_short_label, 
-//GO(gtk_action_get_stock_id, 
-//GO(gtk_action_get_tooltip, 
+// GO(gtk_action_get_sensitive,
+// GO(gtk_action_get_short_label,
+// GO(gtk_action_get_stock_id,
+// GO(gtk_action_get_tooltip,
 GO(gtk_action_get_type, LFv)
-//GO(gtk_action_get_visible, 
-//GO(gtk_action_get_visible_horizontal, 
-//GO(gtk_action_get_visible_vertical, 
-//GO(gtk_action_group_add_action, 
-//GO(gtk_action_group_add_actions, 
-//GO(gtk_action_group_add_actions_full, 
+// GO(gtk_action_get_visible,
+// GO(gtk_action_get_visible_horizontal,
+// GO(gtk_action_get_visible_vertical,
+// GO(gtk_action_group_add_action,
+// GO(gtk_action_group_add_actions,
+// GO(gtk_action_group_add_actions_full,
 GO(gtk_action_group_add_action_with_accel, vFppp)
-//GO(gtk_action_group_add_radio_actions, 
-//GO(gtk_action_group_add_radio_actions_full, 
-//GO(gtk_action_group_add_toggle_actions, 
-//GO(gtk_action_group_add_toggle_actions_full, 
+// GO(gtk_action_group_add_radio_actions,
+// GO(gtk_action_group_add_radio_actions_full,
+// GO(gtk_action_group_add_toggle_actions,
+// GO(gtk_action_group_add_toggle_actions_full,
 GO(gtk_action_group_get_action, pFpp)
 GO(gtk_action_group_get_name, pFp)
-//GO(gtk_action_group_get_sensitive, 
+// GO(gtk_action_group_get_sensitive,
 GO(gtk_action_group_get_type, LFv)
 GO(gtk_action_group_get_visible, iFp)
 GO(gtk_action_group_list_actions, pFp)
 GO(gtk_action_group_new, pFp)
-//GO(gtk_action_group_remove_action, 
-//GO(gtk_action_group_set_sensitive, 
-//GO(gtk_action_group_set_translate_func, 
+// GO(gtk_action_group_remove_action,
+// GO(gtk_action_group_set_sensitive,
+// GO(gtk_action_group_set_translate_func,
 GO(gtk_action_group_set_translation_domain, vFpp)
 GO(gtk_action_group_set_visible, vFpi)
 GO(gtk_action_group_translate_string, pFpp)
-//GO(gtk_action_is_sensitive, 
-//GO(gtk_action_is_visible, 
-//GO(gtk_action_new, 
+// GO(gtk_action_is_sensitive,
+// GO(gtk_action_is_visible,
+// GO(gtk_action_new,
 GO(gtk_action_set_accel_group, vFpp)
-//GO(gtk_action_set_accel_path, 
+// GO(gtk_action_set_accel_path,
 GO(gtk_action_set_always_show_image, vFpi)
 GO(gtk_action_set_gicon, vFpp)
 GO(gtk_action_set_icon_name, vFpp)
-//GO(gtk_action_set_is_important, 
-//GO(gtk_action_set_label, 
-//GO(gtk_action_set_sensitive, 
-//GO(gtk_action_set_short_label, 
-//GO(gtk_action_set_stock_id, 
-//GO(gtk_action_set_tooltip, 
-//GO(gtk_action_set_visible, 
-//GO(gtk_action_set_visible_horizontal, 
-//GO(gtk_action_set_visible_vertical, 
-//GO(gtk_action_unblock_activate, 
-//GO(gtk_action_unblock_activate_from, 
+// GO(gtk_action_set_is_important,
+// GO(gtk_action_set_label,
+// GO(gtk_action_set_sensitive,
+// GO(gtk_action_set_short_label,
+// GO(gtk_action_set_stock_id,
+// GO(gtk_action_set_tooltip,
+// GO(gtk_action_set_visible,
+// GO(gtk_action_set_visible_horizontal,
+// GO(gtk_action_set_visible_vertical,
+// GO(gtk_action_unblock_activate,
+// GO(gtk_action_unblock_activate_from,
 GO(gtk_activatable_do_set_related_action, vFpp)
 GO(gtk_activatable_get_related_action, pFp)
 GO(gtk_activatable_get_type, LFv)
 GO(gtk_activatable_get_use_action_appearance, iFp)
-//GO(gtk_activatable_set_related_action, 
+// GO(gtk_activatable_set_related_action,
 GO(gtk_activatable_set_use_action_appearance, vFpi)
-//GO(gtk_activatable_sync_action_properties, 
+// GO(gtk_activatable_sync_action_properties,
 GO(gtk_adjustment_changed, vFp)
 GO(gtk_adjustment_clamp_page, vFpdd)
 GO(gtk_adjustment_configure, vFpdddddd)
@@ -211,45 +211,45 @@ GO(gtk_arrow_type_get_type, LFv)
 GO(gtk_aspect_frame_get_type, LFv)
 GO(gtk_aspect_frame_new, pFpfffi)
 GO(gtk_aspect_frame_set, vFpfffi)
-//GO(gtk_assistant_add_action_widget, 
+// GO(gtk_assistant_add_action_widget,
 GO(gtk_assistant_append_page, iFpp)
-//GO(gtk_assistant_commit, 
-//GO(gtk_assistant_get_current_page, 
+// GO(gtk_assistant_commit,
+// GO(gtk_assistant_get_current_page,
 GO(gtk_assistant_get_n_pages, iFp)
 GO(gtk_assistant_get_nth_page, pFpi)
-//GO(gtk_assistant_get_page_complete, 
-//GO(gtk_assistant_get_page_header_image, 
+// GO(gtk_assistant_get_page_complete,
+// GO(gtk_assistant_get_page_header_image,
 GO(gtk_assistant_get_page_side_image, pFpp)
 GO(gtk_assistant_get_page_title, pFpp)
 GO(gtk_assistant_get_page_type, uFpp)
 GO(gtk_assistant_get_type, LFv)
 GO(gtk_assistant_insert_page, iFppi)
-//GO(gtk_assistant_new, 
+// GO(gtk_assistant_new,
 GO(gtk_assistant_page_type_get_type, LFv)
-//GO(gtk_assistant_prepend_page, 
+// GO(gtk_assistant_prepend_page,
 GO(gtk_assistant_remove_action_widget, vFpp)
-//GO(gtk_assistant_set_current_page, 
-//GO(gtk_assistant_set_forward_page_func, 
-//GO(gtk_assistant_set_page_complete, 
-//GO(gtk_assistant_set_page_header_image, 
+// GO(gtk_assistant_set_current_page,
+// GO(gtk_assistant_set_forward_page_func,
+// GO(gtk_assistant_set_page_complete,
+// GO(gtk_assistant_set_page_header_image,
 GO(gtk_assistant_set_page_side_image, vFppp)
 GO(gtk_assistant_set_page_title, vFppp)
 GO(gtk_assistant_set_page_type, vFppu)
-//GO(gtk_assistant_update_buttons_state, 
+// GO(gtk_assistant_update_buttons_state,
 GO(gtk_attach_options_get_type, LFv)
-//GO(gtk_binding_entry_add_signal, 
+// GO(gtk_binding_entry_add_signal,
 GO(gtk_binding_entry_add_signall, vFpuupp)
-//GO(gtk_binding_entry_clear, 
+// GO(gtk_binding_entry_clear,
 GO(gtk_binding_entry_remove, vFpuu)
-//GO(gtk_binding_entry_skip, 
-//GO(gtk_binding_parse_binding, 
+// GO(gtk_binding_entry_skip,
+// GO(gtk_binding_parse_binding,
 GO(gtk_bindings_activate, iFpuu)
 GO(gtk_bindings_activate_event, iFpp)
 GO(gtk_binding_set_activate, iFpuup)
 GO(gtk_binding_set_add_path, vFpupu)
 GO(gtk_binding_set_by_class, pFp)
 GO(gtk_binding_set_find, pFp)
-//GO(gtk_binding_set_new, 
+// GO(gtk_binding_set_new,
 GO(gtk_bin_get_child, pFp)
 GO(gtk_bin_get_type, LFv)
 GO(gtk_border_copy, pFp)
@@ -310,8 +310,8 @@ GO(gtk_button_box_set_child_secondary, vFppi)
 GO(gtk_button_box_set_child_size, vFpii)
 GO(gtk_button_box_set_layout, vFpu)
 GO(gtk_button_box_style_get_type, LFv)
-//GO(gtk_button_clicked, 
-//GO(gtk_button_enter, 
+// GO(gtk_button_clicked,
+// GO(gtk_button_enter,
 GO(gtk_button_get_alignment, vFppp)
 GO(gtk_button_get_event_window, pFp)
 GO(gtk_button_get_focus_on_click, iFp)
@@ -340,28 +340,28 @@ GO(gtk_button_set_use_stock, vFpi)
 GO(gtk_button_set_use_underline, vFpi)
 GO(gtk_buttons_type_get_type, LFv)
 GO(gtk_cairo_should_draw_window, iFpp)
-//GO(gtk_calendar_clear_marks, 
-//GO(gtk_calendar_display_options, 
+// GO(gtk_calendar_clear_marks,
+// GO(gtk_calendar_display_options,
 GO(gtk_calendar_display_options_get_type, LFv)
-//GO(gtk_calendar_freeze, 
+// GO(gtk_calendar_freeze,
 GO(gtk_calendar_get_date, vFpppp)
 GO(gtk_calendar_get_detail_height_rows, iFp)
-//GO(gtk_calendar_get_detail_width_chars, 
+// GO(gtk_calendar_get_detail_width_chars,
 GO(gtk_calendar_get_display_options, uFp)
 GO(gtk_calendar_get_type, LFv)
-//GO(gtk_calendar_mark_day, 
-//GO(gtk_calendar_new, 
-//GO(gtk_calendar_select_day, 
+// GO(gtk_calendar_mark_day,
+// GO(gtk_calendar_new,
+// GO(gtk_calendar_select_day,
 GO(gtk_calendar_select_month, vFpuu)
-//GO(gtk_calendar_set_detail_func, 
+// GO(gtk_calendar_set_detail_func,
 GO(gtk_calendar_set_detail_height_rows, vFpi)
-//GO(gtk_calendar_set_detail_width_chars, 
+// GO(gtk_calendar_set_detail_width_chars,
 GO(gtk_calendar_set_display_options, vFpu)
-//GO(gtk_calendar_thaw, 
+// GO(gtk_calendar_thaw,
 GO(gtk_calendar_unmark_day, vFpu)
-//GO(gtk_cell_editable_editing_done, 
+// GO(gtk_cell_editable_editing_done,
 GO(gtk_cell_editable_get_type, LFv)
-//GO(gtk_cell_editable_remove_widget, 
+// GO(gtk_cell_editable_remove_widget,
 GO(gtk_cell_editable_start_editing, vFpp)
 GO(gtk_cell_layout_add_attribute, vFpppi)
 GO(gtk_cell_layout_clear, vFp)
@@ -371,37 +371,37 @@ GO(gtk_cell_layout_get_type, LFv)
 GO(gtk_cell_layout_pack_end, vFppi)
 GO(gtk_cell_layout_pack_start, vFppi)
 GO(gtk_cell_layout_reorder, vFppi)
-GO(gtk_cell_layout_set_attributes, vFpppppppppp)  // vaarg
-//GOM(gtk_cell_layout_set_cell_data_func, vFEppppp)
+GO(gtk_cell_layout_set_attributes, vFpppppppppp) // vaarg
+// GOM(gtk_cell_layout_set_cell_data_func, vFEppppp)
 GO(gtk_cell_renderer_accel_get_type, LFv)
 GO(gtk_cell_renderer_accel_mode_get_type, LFv)
-//GO(gtk_cell_renderer_accel_new, 
+// GO(gtk_cell_renderer_accel_new,
 GO(gtk_cell_renderer_activate, iFppppppu)
 GO(gtk_cell_renderer_combo_get_type, LFv)
-//GO(gtk_cell_renderer_combo_new, 
-//GO(gtk_cell_renderer_editing_canceled, 
+// GO(gtk_cell_renderer_combo_new,
+// GO(gtk_cell_renderer_editing_canceled,
 GO(gtk_cell_renderer_get_alignment, vFppp)
-//GO(gtk_cell_renderer_get_fixed_size, 
+// GO(gtk_cell_renderer_get_fixed_size,
 GO(gtk_cell_renderer_get_padding, vFppp)
-//GO(gtk_cell_renderer_get_sensitive, 
+// GO(gtk_cell_renderer_get_sensitive,
 GO(gtk_cell_renderer_get_size, vFppppppp)
 GO(gtk_cell_renderer_get_type, LFv)
-//GO(gtk_cell_renderer_get_visible, 
+// GO(gtk_cell_renderer_get_visible,
 GO(gtk_cell_renderer_mode_get_type, LFv)
 GO(gtk_cell_renderer_pixbuf_get_type, LFv)
 GO(gtk_cell_renderer_pixbuf_new, pFv)
 GO(gtk_cell_renderer_progress_get_type, LFv)
-//GO(gtk_cell_renderer_progress_new, 
+// GO(gtk_cell_renderer_progress_new,
 GO(gtk_cell_renderer_render, vFpppppu)
 GO(gtk_cell_renderer_set_alignment, vFpff)
-//GO(gtk_cell_renderer_set_fixed_size, 
+// GO(gtk_cell_renderer_set_fixed_size,
 GO(gtk_cell_renderer_set_padding, vFpii)
-//GO(gtk_cell_renderer_set_sensitive, 
-//GO(gtk_cell_renderer_set_visible, 
+// GO(gtk_cell_renderer_set_sensitive,
+// GO(gtk_cell_renderer_set_visible,
 GO(gtk_cell_renderer_spin_get_type, LFv)
 GO(gtk_cell_renderer_spinner_get_type, LFv)
-//GO(gtk_cell_renderer_spinner_new, 
-//GO(gtk_cell_renderer_spin_new, 
+// GO(gtk_cell_renderer_spinner_new,
+// GO(gtk_cell_renderer_spin_new,
 GO(gtk_cell_renderer_start_editing, pFppppppu)
 GO(gtk_cell_renderer_state_get_type, LFv)
 GO(gtk_cell_renderer_stop_editing, vFpi)
@@ -417,15 +417,15 @@ GO(gtk_cell_renderer_toggle_set_activatable, vFpi)
 GO(gtk_cell_renderer_toggle_set_active, vFpi)
 GO(gtk_cell_renderer_toggle_set_radio, vFpi)
 GO(gtk_cell_type_get_type, LFv)
-//GO(gtk_cell_view_get_cell_renderers, 
+// GO(gtk_cell_view_get_cell_renderers,
 GO(gtk_cell_view_get_displayed_row, pFp)
 GO(gtk_cell_view_get_model, pFp)
 GO(gtk_cell_view_get_size_of_row, iFppp)
 GO(gtk_cell_view_get_type, LFv)
-//GO(gtk_cell_view_new, 
-//GO(gtk_cell_view_new_with_markup, 
+// GO(gtk_cell_view_new,
+// GO(gtk_cell_view_new_with_markup,
 GO(gtk_cell_view_new_with_pixbuf, pFp)
-//GO(gtk_cell_view_new_with_text, 
+// GO(gtk_cell_view_new_with_text,
 GO(gtk_cell_view_set_background_color, vFpp)
 GO(gtk_cell_view_set_displayed_row, vFpp)
 GO(gtk_cell_view_set_model, vFpp)
@@ -453,12 +453,12 @@ GO(gtk_clipboard_get_display, pFp)
 GO(gtk_clipboard_get_for_display, pFpp)
 GO(gtk_clipboard_get_owner, pFp)
 GO(gtk_clipboard_get_type, LFv)
-//GOM(gtk_clipboard_request_contents, vFEpppp)
-//GOM(gtk_clipboard_request_image, vFEppp)
-//GOM(gtk_clipboard_request_rich_text, vFEpppp)
-//GOM(gtk_clipboard_request_targets, vFEppp)
+// GOM(gtk_clipboard_request_contents, vFEpppp)
+// GOM(gtk_clipboard_request_image, vFEppp)
+// GOM(gtk_clipboard_request_rich_text, vFEpppp)
+// GOM(gtk_clipboard_request_targets, vFEppp)
 GOM(gtk_clipboard_request_text, vFEppp)
-//GOM(gtk_clipboard_request_uris, vFEppp)
+// GOM(gtk_clipboard_request_uris, vFEppp)
 GO(gtk_clipboard_set_can_store, vFppi)
 GO(gtk_clipboard_set_image, vFpp)
 GO(gtk_clipboard_set_text, vFppi)
@@ -526,14 +526,14 @@ GO(gtk_clist_set_column_title, vFpip)
 GO(gtk_clist_set_column_visibility, vFpii)
 GO(gtk_clist_set_column_widget, vFpip)
 GO(gtk_clist_set_column_width, vFpii)
-//GOM(gtk_clist_set_compare_func, vFEpp)
+// GOM(gtk_clist_set_compare_func, vFEpp)
 GO(gtk_clist_set_foreground, vFpip)
 GO(gtk_clist_set_hadjustment, vFpp)
 GO(gtk_clist_set_pixmap, vFpiipp)
 GO(gtk_clist_set_pixtext, vFpiipCpp)
 GO(gtk_clist_set_reorderable, vFpi)
 GO(gtk_clist_set_row_data, vFpip)
-//GOM(gtk_clist_set_row_data_full, vFpipp)
+// GOM(gtk_clist_set_row_data_full, vFpipp)
 GO(gtk_clist_set_row_height, vFpu)
 GO(gtk_clist_set_row_style, vFpip)
 GO(gtk_clist_set_selectable, vFpii)
@@ -581,8 +581,8 @@ GO(gtk_color_selection_is_adjusting, iFp)
 GO(gtk_color_selection_new, pFv)
 GO(gtk_color_selection_palette_from_string, iFppp)
 GO(gtk_color_selection_palette_to_string, pFpi)
-//GOM(gtk_color_selection_set_change_palette_hook, pFEp)
-//GOM(gtk_color_selection_set_change_palette_with_screen_hook, pFEp)
+// GOM(gtk_color_selection_set_change_palette_hook, pFEp)
+// GOM(gtk_color_selection_set_change_palette_with_screen_hook, pFEp)
 GO(gtk_color_selection_set_color, vFpp)
 GO(gtk_color_selection_set_current_alpha, vFpW)
 GO(gtk_color_selection_set_current_color, vFpp)
@@ -609,7 +609,7 @@ GO(gtk_combo_box_get_focus_on_click, iFp)
 GO(gtk_combo_box_get_has_entry, iFp)
 GO(gtk_combo_box_get_model, pFp)
 GO(gtk_combo_box_get_popup_accessible, pFp)
-//GOM(gtk_combo_box_get_row_separator_func, pFEp)
+// GOM(gtk_combo_box_get_row_separator_func, pFEp)
 GO(gtk_combo_box_get_row_span_column, iFp)
 GO(gtk_combo_box_get_title, pFp)
 GO(gtk_combo_box_get_type, LFv)
@@ -632,7 +632,7 @@ GO(gtk_combo_box_set_column_span_column, vFpi)
 GO(gtk_combo_box_set_entry_text_column, vFpi)
 GO(gtk_combo_box_set_focus_on_click, vFpi)
 GO(gtk_combo_box_set_model, vFpp)
-//GOM(gtk_combo_box_set_row_separator_func, vFEpppp)
+// GOM(gtk_combo_box_set_row_separator_func, vFEpppp)
 GO(gtk_combo_box_set_row_span_column, vFpi)
 GO(gtk_combo_box_set_title, vFpp)
 GO(gtk_combo_box_set_wrap_width, vFpi)
@@ -657,21 +657,21 @@ GO(gtk_combo_set_use_arrows_always, vFpi)
 GO(gtk_combo_set_value_in_list, vFpii)
 GO(gtk_container_accessible_get_type, LFv)
 GO(gtk_container_add, vFpp)
-GO(gtk_container_add_with_properties, vFpppppppppppp)    //vaarg
+GO(gtk_container_add_with_properties, vFpppppppppppp) // vaarg
 GO(gtk_container_check_resize, vFp)
-//GO2(gtk_container_child_get, vFpppV, gtk_container_child_get_valist)
+// GO2(gtk_container_child_get, vFpppV, gtk_container_child_get_valist)
 GO(gtk_container_child_get_property, vFpppp)
-//GO(gtk_container_child_get_valist, vFpppp)
-//GO2(gtk_container_child_set, vFpppV, gtk_container_child_set_valist)
+// GO(gtk_container_child_get_valist, vFpppp)
+// GO2(gtk_container_child_set, vFpppV, gtk_container_child_set_valist)
 GO(gtk_container_child_set_property, vFpppp)
-//GO(gtk_container_child_set_valist, vFpppp)
+// GO(gtk_container_child_set_valist, vFpppp)
 GO(gtk_container_child_type, LFp)
 GO(gtk_container_class_find_child_property, pFpp)
 GO(gtk_container_class_install_child_property, vFpup)
 GO(gtk_container_class_list_child_properties, pFpp)
 GOM(gtk_container_forall, vFEppp)
 GOM(gtk_container_foreach, vFEppp)
-//GOM(gtk_container_foreach_full, vFEppppp)
+// GOM(gtk_container_foreach_full, vFEppppp)
 GO(gtk_container_get_border_width, uFp)
 GO(gtk_container_get_children, pFp)
 GO(gtk_container_get_focus_chain, iFpp)
@@ -710,78 +710,78 @@ GO(gtk_css_section_get_start_line, uFp)
 GO(gtk_css_section_get_start_position, uFp)
 GO(gtk_css_section_ref, pFp)
 GO(gtk_css_section_unref, vFp)
-//GO(gtk_ctree_collapse, 
-//GO(gtk_ctree_collapse_recursive, 
-//GO(gtk_ctree_collapse_to_depth, 
-//GO(gtk_ctree_expand, 
+// GO(gtk_ctree_collapse,
+// GO(gtk_ctree_collapse_recursive,
+// GO(gtk_ctree_collapse_to_depth,
+// GO(gtk_ctree_expand,
 GO(gtk_ctree_expander_style_get_type, LFv)
-//GO(gtk_ctree_expand_recursive, 
-//GO(gtk_ctree_expand_to_depth, 
+// GO(gtk_ctree_expand_recursive,
+// GO(gtk_ctree_expand_to_depth,
 GO(gtk_ctree_expansion_type_get_type, LFv)
-//GO(gtk_ctree_export_to_gnode, 
-//GO(gtk_ctree_find, 
-//GO(gtk_ctree_find_all_by_row_data, 
-//GO(gtk_ctree_find_all_by_row_data_custom, 
-//GO(gtk_ctree_find_by_row_data, 
-//GO(gtk_ctree_find_by_row_data_custom, 
-//GO(gtk_ctree_find_node_ptr, 
-//GO(gtk_ctree_get_node_info, 
+// GO(gtk_ctree_export_to_gnode,
+// GO(gtk_ctree_find,
+// GO(gtk_ctree_find_all_by_row_data,
+// GO(gtk_ctree_find_all_by_row_data_custom,
+// GO(gtk_ctree_find_by_row_data,
+// GO(gtk_ctree_find_by_row_data_custom,
+// GO(gtk_ctree_find_node_ptr,
+// GO(gtk_ctree_get_node_info,
 GO(gtk_ctree_get_type, LFv)
-//GO(gtk_ctree_insert_gnode, 
-//GO(gtk_ctree_insert_node, 
-//GO(gtk_ctree_is_ancestor, 
-//GO(gtk_ctree_is_hot_spot, 
-//GO(gtk_ctree_is_viewable, 
-//GO(gtk_ctree_last, 
+// GO(gtk_ctree_insert_gnode,
+// GO(gtk_ctree_insert_node,
+// GO(gtk_ctree_is_ancestor,
+// GO(gtk_ctree_is_hot_spot,
+// GO(gtk_ctree_is_viewable,
+// GO(gtk_ctree_last,
 GO(gtk_ctree_line_style_get_type, LFv)
-//GO(gtk_ctree_move, 
-//GO(gtk_ctree_new, 
-//GO(gtk_ctree_new_with_titles, 
-//GO(gtk_ctree_node_get_cell_style, 
-//GO(gtk_ctree_node_get_cell_type, 
-//GO(gtk_ctree_node_get_pixmap, 
-//GO(gtk_ctree_node_get_pixtext, 
-//GO(gtk_ctree_node_get_row_data, 
-//GO(gtk_ctree_node_get_row_style, 
-//GO(gtk_ctree_node_get_selectable, 
-//GO(gtk_ctree_node_get_text, 
+// GO(gtk_ctree_move,
+// GO(gtk_ctree_new,
+// GO(gtk_ctree_new_with_titles,
+// GO(gtk_ctree_node_get_cell_style,
+// GO(gtk_ctree_node_get_cell_type,
+// GO(gtk_ctree_node_get_pixmap,
+// GO(gtk_ctree_node_get_pixtext,
+// GO(gtk_ctree_node_get_row_data,
+// GO(gtk_ctree_node_get_row_style,
+// GO(gtk_ctree_node_get_selectable,
+// GO(gtk_ctree_node_get_text,
 GO(gtk_ctree_node_get_type, LFv)
-//GO(gtk_ctree_node_is_visible, 
-//GO(gtk_ctree_node_moveto, 
-//GO(gtk_ctree_node_nth, 
-//GO(gtk_ctree_node_set_background, 
-//GO(gtk_ctree_node_set_cell_style, 
-//GO(gtk_ctree_node_set_foreground, 
-//GO(gtk_ctree_node_set_pixmap, 
-//GO(gtk_ctree_node_set_pixtext, 
-//GO(gtk_ctree_node_set_row_data, 
-//GO(gtk_ctree_node_set_row_data_full, 
-//GO(gtk_ctree_node_set_row_style, 
-//GO(gtk_ctree_node_set_selectable, 
-//GO(gtk_ctree_node_set_shift, 
-//GO(gtk_ctree_node_set_text, 
+// GO(gtk_ctree_node_is_visible,
+// GO(gtk_ctree_node_moveto,
+// GO(gtk_ctree_node_nth,
+// GO(gtk_ctree_node_set_background,
+// GO(gtk_ctree_node_set_cell_style,
+// GO(gtk_ctree_node_set_foreground,
+// GO(gtk_ctree_node_set_pixmap,
+// GO(gtk_ctree_node_set_pixtext,
+// GO(gtk_ctree_node_set_row_data,
+// GO(gtk_ctree_node_set_row_data_full,
+// GO(gtk_ctree_node_set_row_style,
+// GO(gtk_ctree_node_set_selectable,
+// GO(gtk_ctree_node_set_shift,
+// GO(gtk_ctree_node_set_text,
 GO(gtk_ctree_pos_get_type, LFv)
-//GO(gtk_ctree_post_recursive, 
-//GO(gtk_ctree_post_recursive_to_depth, 
-//GO(gtk_ctree_pre_recursive, 
-//GO(gtk_ctree_pre_recursive_to_depth, 
-//GO(gtk_ctree_real_select_recursive, 
-//GO(gtk_ctree_remove_node, 
-//GO(gtk_ctree_select, 
-//GO(gtk_ctree_select_recursive, 
-//GO(gtk_ctree_set_drag_compare_func, 
-//GO(gtk_ctree_set_expander_style, 
-//GO(gtk_ctree_set_indent, 
-//GO(gtk_ctree_set_line_style, 
-//GO(gtk_ctree_set_node_info, 
-//GO(gtk_ctree_set_show_stub, 
-//GO(gtk_ctree_set_spacing, 
-//GO(gtk_ctree_sort_node, 
-//GO(gtk_ctree_sort_recursive, 
-//GO(gtk_ctree_toggle_expansion, 
-//GO(gtk_ctree_toggle_expansion_recursive, 
-//GO(gtk_ctree_unselect, 
-//GO(gtk_ctree_unselect_recursive, 
+// GO(gtk_ctree_post_recursive,
+// GO(gtk_ctree_post_recursive_to_depth,
+// GO(gtk_ctree_pre_recursive,
+// GO(gtk_ctree_pre_recursive_to_depth,
+// GO(gtk_ctree_real_select_recursive,
+// GO(gtk_ctree_remove_node,
+// GO(gtk_ctree_select,
+// GO(gtk_ctree_select_recursive,
+// GO(gtk_ctree_set_drag_compare_func,
+// GO(gtk_ctree_set_expander_style,
+// GO(gtk_ctree_set_indent,
+// GO(gtk_ctree_set_line_style,
+// GO(gtk_ctree_set_node_info,
+// GO(gtk_ctree_set_show_stub,
+// GO(gtk_ctree_set_spacing,
+// GO(gtk_ctree_sort_node,
+// GO(gtk_ctree_sort_recursive,
+// GO(gtk_ctree_toggle_expansion,
+// GO(gtk_ctree_toggle_expansion_recursive,
+// GO(gtk_ctree_unselect,
+// GO(gtk_ctree_unselect_recursive,
 GO(gtk_curve_get_type, LFv)
 GO(gtk_curve_get_vector, vFpip)
 GO(gtk_curve_new, pFv)
@@ -810,10 +810,10 @@ GO(gtk_dialog_get_response_for_widget, iFpp)
 GO(gtk_dialog_get_type, LFv)
 GO(gtk_dialog_get_widget_for_response, pFpi)
 GO(gtk_dialog_new, pFv)
-GO(gtk_dialog_new_with_buttons, pFppipppppppppppp)    //vaarg
+GO(gtk_dialog_new_with_buttons, pFppipppppppppppp) // vaarg
 GO(gtk_dialog_response, vFpi)
 GO(gtk_dialog_run, iFp)
-GO(gtk_dialog_set_alternative_button_order, vFpiiiiiiiiiiiiiiiiii)  // vaarg, should wrap using gtk_dialog_set_alternative_button_order_from_array
+GO(gtk_dialog_set_alternative_button_order, vFpiiiiiiiiiiiiiiiiii) // vaarg, should wrap using gtk_dialog_set_alternative_button_order_from_array
 GO(gtk_dialog_set_alternative_button_order_from_array, vFpip)
 GO(gtk_dialog_set_default_response, vFpi)
 GO(gtk_dialog_set_has_separator, vFpi)
@@ -910,30 +910,30 @@ GO(gtk_entry_buffer_insert_text, uFpupi)
 GO(gtk_entry_buffer_new, pFpi)
 GO(gtk_entry_buffer_set_max_length, vFpi)
 GO(gtk_entry_buffer_set_text, vFppi)
-//GO(gtk_entry_completion_complete, 
-//GO(gtk_entry_completion_delete_action, 
+// GO(gtk_entry_completion_complete,
+// GO(gtk_entry_completion_delete_action,
 GO(gtk_entry_completion_get_completion_prefix, pFp)
 GO(gtk_entry_completion_get_entry, pFp)
-//GO(gtk_entry_completion_get_inline_completion, 
-//GO(gtk_entry_completion_get_inline_selection, 
-//GO(gtk_entry_completion_get_minimum_key_length, 
+// GO(gtk_entry_completion_get_inline_completion,
+// GO(gtk_entry_completion_get_inline_selection,
+// GO(gtk_entry_completion_get_minimum_key_length,
 GO(gtk_entry_completion_get_model, pFp)
-//GO(gtk_entry_completion_get_popup_completion, 
-//GO(gtk_entry_completion_get_popup_set_width, 
+// GO(gtk_entry_completion_get_popup_completion,
+// GO(gtk_entry_completion_get_popup_set_width,
 GO(gtk_entry_completion_get_popup_single_match, iFp)
 GO(gtk_entry_completion_get_text_column, iFp)
 GO(gtk_entry_completion_get_type, LFv)
 GO(gtk_entry_completion_insert_action_markup, vFpip)
-//GO(gtk_entry_completion_insert_action_text, 
-//GO(gtk_entry_completion_insert_prefix, 
+// GO(gtk_entry_completion_insert_action_text,
+// GO(gtk_entry_completion_insert_prefix,
 GO(gtk_entry_completion_new, pFv)
-//GO(gtk_entry_completion_set_inline_completion, 
-//GO(gtk_entry_completion_set_inline_selection, 
-//GO(gtk_entry_completion_set_match_func, 
-//GO(gtk_entry_completion_set_minimum_key_length, 
+// GO(gtk_entry_completion_set_inline_completion,
+// GO(gtk_entry_completion_set_inline_selection,
+// GO(gtk_entry_completion_set_match_func,
+// GO(gtk_entry_completion_set_minimum_key_length,
 GO(gtk_entry_completion_set_model, vFpp)
-//GO(gtk_entry_completion_set_popup_completion, 
-//GO(gtk_entry_completion_set_popup_set_width, 
+// GO(gtk_entry_completion_set_popup_completion,
+// GO(gtk_entry_completion_set_popup_set_width,
 GO(gtk_entry_completion_set_popup_single_match, vFpi)
 GO(gtk_entry_completion_set_text_column, vFpi)
 GO(gtk_entry_get_activates_default, iFp)
@@ -943,40 +943,40 @@ GO(gtk_entry_get_completion, pFp)
 GO(gtk_entry_get_current_icon_drag_source, iFp)
 GO(gtk_entry_get_cursor_hadjustment, pFp)
 GO(gtk_entry_get_has_frame, iFp)
-//GO(gtk_entry_get_icon_activatable, 
+// GO(gtk_entry_get_icon_activatable,
 GO(gtk_entry_get_icon_at_pos, iFpii)
 GO(gtk_entry_get_icon_gicon, pFpu)
 GO(gtk_entry_get_icon_name, pFpu)
 GO(gtk_entry_get_icon_pixbuf, pFpu)
 GO(gtk_entry_get_icon_sensitive, iFpu)
-//GO(gtk_entry_get_icon_stock, 
+// GO(gtk_entry_get_icon_stock,
 GO(gtk_entry_get_icon_storage_type, uFpu)
 GO(gtk_entry_get_icon_tooltip_markup, pFpu)
-//GO(gtk_entry_get_icon_tooltip_text, 
-//GO(gtk_entry_get_icon_window, 
+// GO(gtk_entry_get_icon_tooltip_text,
+// GO(gtk_entry_get_icon_window,
 GO(gtk_entry_get_inner_border, pFp)
 GO(gtk_entry_get_invisible_char, uFp)
 GO(gtk_entry_get_layout, pFp)
 GO(gtk_entry_get_layout_offsets, vFppp)
-//GO(gtk_entry_get_max_length, 
+// GO(gtk_entry_get_max_length,
 GO(gtk_entry_get_overwrite_mode, iFp)
-//GO(gtk_entry_get_progress_fraction, 
+// GO(gtk_entry_get_progress_fraction,
 GO(gtk_entry_get_progress_pulse_step, dFp)
 GO(gtk_entry_get_text, pFp)
 GO(gtk_entry_get_text_length, WFp)
-//GO(gtk_entry_get_text_window, 
+// GO(gtk_entry_get_text_window,
 GO(gtk_entry_get_type, LFv)
-//GO(gtk_entry_get_visibility, 
+// GO(gtk_entry_get_visibility,
 GO(gtk_entry_get_width_chars, iFp)
 GO(gtk_entry_icon_position_get_type, LFv)
 GO(gtk_entry_im_context_filter_keypress, iFpp)
-//GO(gtk_entry_layout_index_to_text_index, 
+// GO(gtk_entry_layout_index_to_text_index,
 GO(gtk_entry_new, pFv)
 GO(gtk_entry_new_with_buffer, pFp)
 GO(gtk_entry_new_with_max_length, pFi)
 GO(gtk_entry_prepend_text, vFpp)
-//GO(gtk_entry_progress_pulse, 
-//GO(gtk_entry_reset_im_context, 
+// GO(gtk_entry_progress_pulse,
+// GO(gtk_entry_reset_im_context,
 GO(gtk_entry_select_region, vFpii)
 GO(gtk_entry_set_activates_default, vFpi)
 GO(gtk_entry_set_alignment, vFpf)
@@ -985,27 +985,27 @@ GO(gtk_entry_set_completion, vFpp)
 GO(gtk_entry_set_cursor_hadjustment, vFpp)
 GO(gtk_entry_set_editable, vFpi)
 GO(gtk_entry_set_has_frame, vFpi)
-//GO(gtk_entry_set_icon_activatable, 
+// GO(gtk_entry_set_icon_activatable,
 GO(gtk_entry_set_icon_drag_source, vFpupu)
 GO(gtk_entry_set_icon_from_gicon, vFpup)
-//GO(gtk_entry_set_icon_from_icon_name, 
+// GO(gtk_entry_set_icon_from_icon_name,
 GO(gtk_entry_set_icon_from_pixbuf, vFpup)
-//GO(gtk_entry_set_icon_from_stock, 
+// GO(gtk_entry_set_icon_from_stock,
 GO(gtk_entry_set_icon_sensitive, vFpui)
 GO(gtk_entry_set_icon_tooltip_markup, vFpup)
-//GO(gtk_entry_set_icon_tooltip_text, 
+// GO(gtk_entry_set_icon_tooltip_text,
 GO(gtk_entry_set_inner_border, vFpp)
 GO(gtk_entry_set_invisible_char, vFpu)
 GO(gtk_entry_set_max_length, vFpi)
 GO(gtk_entry_set_overwrite_mode, vFpi)
 GO(gtk_entry_set_position, vFpi)
-//GO(gtk_entry_set_progress_fraction, 
+// GO(gtk_entry_set_progress_fraction,
 GO(gtk_entry_set_progress_pulse_step, vFpd)
 GO(gtk_entry_set_text, vFpp)
 GO(gtk_entry_set_visibility, vFpi)
 GO(gtk_entry_set_width_chars, uFp)
 GO(gtk_entry_text_index_to_layout_index, iFpi)
-//GO(gtk_entry_unset_invisible_char, 
+// GO(gtk_entry_unset_invisible_char,
 GOM(gtk_enumerate_printers, vFEpppi)
 GO(gtk_event_box_get_above_child, iFp)
 GO(gtk_event_box_get_type, LFv)
@@ -1051,8 +1051,8 @@ GO(gtk_file_chooser_button_set_title, vFpp)
 GO(gtk_file_chooser_button_set_width_chars, vFpi)
 GO(gtk_file_chooser_confirmation_get_type, LFv)
 GO(gtk_file_chooser_dialog_get_type, LFv)
-GO(gtk_file_chooser_dialog_new, pFppipipipipipipip)  // vaargs (so pFppipV) with additionnal buttons, end with a NULL
-GO(gtk_file_chooser_dialog_new_with_backend, pFppippipipipipipip)   // same but pFppippV
+GO(gtk_file_chooser_dialog_new, pFppipipipipipipip)               // vaargs (so pFppipV) with additionnal buttons, end with a NULL
+GO(gtk_file_chooser_dialog_new_with_backend, pFppippipipipipipip) // same but pFppippV
 GO(gtk_file_chooser_error_get_type, LFv)
 GO(gtk_file_chooser_error_quark, pFv)
 GO(gtk_file_chooser_get_action, uFp)
@@ -1116,7 +1116,7 @@ GO(gtk_file_chooser_unselect_uri, vFpp)
 GO(gtk_file_chooser_widget_get_type, LFv)
 GO(gtk_file_chooser_widget_new, pFu)
 GO(gtk_file_chooser_widget_new_with_backend, pFip)
-//GOM(gtk_file_filter_add_custom, vFEppppp)
+// GOM(gtk_file_filter_add_custom, vFEppppp)
 GO(gtk_file_filter_add_mime_type, vFpp)
 GO(gtk_file_filter_add_pattern, vFpp)
 GO(gtk_file_filter_add_pixbuf_formats, vFp)
@@ -1248,9 +1248,9 @@ GO(gtk_header_bar_pack_end, vFpp)
 GO(gtk_header_bar_set_show_close_button, vFpi)
 GO(gtk_header_bar_set_title, vFpp)
 GO(gtk_hpaned_get_type, LFv)
-//GO(gtk_hpaned_new, 
+// GO(gtk_hpaned_new,
 GO(gtk_hruler_get_type, LFv)
-//GO(gtk_hruler_new, 
+// GO(gtk_hruler_new,
 GO(gtk_hscale_get_type, LFv)
 GO(gtk_hscale_new, pFp)
 GO(gtk_hscale_new_with_range, pFddd)
@@ -1262,10 +1262,10 @@ GO(gtk_hsv_get_color, vFpppp)
 GO(gtk_hsv_get_metrics, vFppp)
 GO(gtk_hsv_get_type, LFv)
 GO(gtk_hsv_is_adjusting, iFp)
-//GO(gtk_hsv_new, 
+// GO(gtk_hsv_new,
 GO(gtk_hsv_set_color, vFpddd)
 GO(gtk_hsv_set_metrics, vFpii)
-//GO(gtk_hsv_to_rgb, 
+// GO(gtk_hsv_to_rgb,
 GO(gtk_icon_factory_add, vFppp)
 GO(gtk_icon_factory_add_default, vFp)
 GO(gtk_icon_factory_get_type, LFv)
@@ -1330,7 +1330,7 @@ GO(gtk_icon_theme_add_builtin_icon, vFpip)
 GO(gtk_icon_theme_append_search_path, vFpp)
 GO(gtk_icon_theme_choose_icon, pFppiu)
 GO(gtk_icon_theme_error_get_type, LFv)
-//GO(gtk_icon_theme_error_quark, 
+// GO(gtk_icon_theme_error_quark,
 GO(gtk_icon_theme_get_default, pFv)
 GO(gtk_icon_theme_get_example_icon_name, pFp)
 GO(gtk_icon_theme_get_for_display, pFp)
@@ -1346,7 +1346,7 @@ GO(gtk_icon_theme_lookup_by_gicon, pFppiu)
 GO(gtk_icon_theme_lookup_icon, pFppiu)
 GO(gtk_icon_theme_lookup_icon_for_scale, pFppiiu)
 GO(gtk_icon_theme_new, pFv)
-//GO(gtk_icon_theme_prepend_search_path, 
+// GO(gtk_icon_theme_prepend_search_path,
 GO(gtk_icon_theme_rescan_if_needed, iFp)
 GO(gtk_icon_theme_set_custom_theme, vFpp)
 GO(gtk_icon_theme_set_screen, vFpp)
@@ -1389,7 +1389,7 @@ GO(gtk_icon_view_new_with_model, pFp)
 GO(gtk_icon_view_path_is_selected, iFpp)
 GO(gtk_icon_view_scroll_to_path, vFppiff)
 GO(gtk_icon_view_select_all, vFp)
-//GOM(gtk_icon_view_selected_foreach, vFpBp)
+// GOM(gtk_icon_view_selected_foreach, vFpBp)
 GO(gtk_icon_view_select_path, vFpp)
 GO(gtk_icon_view_set_columns, vFpi)
 GO(gtk_icon_view_set_column_spacing, vFpi)
@@ -1416,9 +1416,9 @@ GO(gtk_icon_view_unselect_path, vFpp)
 GO(gtk_icon_view_unset_model_drag_dest, vFp)
 GO(gtk_icon_view_unset_model_drag_source, vFp)
 GO(gtk_identifier_get_type, LFv)
-//GOM(gtk_idle_add, uFEBp)
-//GOM(gtk_idle_add_full, uFEiBppB)
-//GOM(gtk_idle_add_priority, uFEiBp)
+// GOM(gtk_idle_add, uFEBp)
+// GOM(gtk_idle_add_full, uFEiBppB)
+// GOM(gtk_idle_add_priority, uFEiBp)
 GO(gtk_idle_remove, vFu)
 GO(gtk_idle_remove_by_data, vFp)
 GO(gtk_image_clear, vFp)
@@ -1494,22 +1494,22 @@ GO(gtk_im_preedit_style_get_type, LFv)
 GO(gtk_im_status_style_get_type, LFv)
 GO(gtk_info_bar_add_action_widget, vFppi)
 GO(gtk_info_bar_add_button, pFppi)
-//GO(gtk_info_bar_add_buttons, 
-//GO(gtk_info_bar_get_action_area, 
+// GO(gtk_info_bar_add_buttons,
+// GO(gtk_info_bar_get_action_area,
 GO(gtk_info_bar_get_content_area, pFp)
 GO(gtk_info_bar_get_message_type, uFp)
 GO(gtk_info_bar_get_type, LFv)
 GO(gtk_info_bar_new, pFv)
-//GO(gtk_info_bar_new_with_buttons, 
+// GO(gtk_info_bar_new_with_buttons,
 GO(gtk_info_bar_response, vFpi)
-//GO(gtk_info_bar_set_default_response, 
+// GO(gtk_info_bar_set_default_response,
 GO(gtk_info_bar_set_message_type, vFpu)
 GO(gtk_info_bar_set_response_sensitive, vFpii)
 GOM(gtk_init, vFEpp)
-//GO(gtk_init_add, 
+// GO(gtk_init_add,
 GOM(gtk_init_check, iFEpp)
 GOM(gtk_init_with_args, iFEpppppp)
-//GOM(gtk_input_add_full, uFEiBBppB)
+// GOM(gtk_input_add_full, uFEiBBppB)
 GO(gtk_input_dialog_get_type, LFv)
 GO(gtk_input_dialog_new, pFv)
 GO(gtk_input_hints_get_type, LFv)
@@ -1517,39 +1517,39 @@ GO(gtk_input_purpose_get_type, LFv)
 GO(gtk_input_remove, vFu)
 GO(gtk_invisible_get_screen, pFp)
 GO(gtk_invisible_get_type, LFv)
-//GO(gtk_invisible_new, 
+// GO(gtk_invisible_new,
 GO(gtk_invisible_new_for_screen, pFp)
 GO(gtk_invisible_set_screen, vFpp)
-//GO(gtk_item_deselect, 
-//GO(gtk_item_factories_path_delete, 
-//GO(gtk_item_factory_add_foreign, 
-//GO(gtk_item_factory_construct, 
-//GO(gtk_item_factory_create_item, 
-//GO(gtk_item_factory_create_items, 
-//GO(gtk_item_factory_create_items_ac, 
-//GO(gtk_item_factory_create_menu_entries, 
-//GO(gtk_item_factory_delete_entries, 
-//GO(gtk_item_factory_delete_entry, 
-//GO(gtk_item_factory_delete_item, 
-//GO(gtk_item_factory_from_path, 
-//GO(gtk_item_factory_from_widget, 
-//GO(gtk_item_factory_get_item, 
-//GO(gtk_item_factory_get_item_by_action, 
+// GO(gtk_item_deselect,
+// GO(gtk_item_factories_path_delete,
+// GO(gtk_item_factory_add_foreign,
+// GO(gtk_item_factory_construct,
+// GO(gtk_item_factory_create_item,
+// GO(gtk_item_factory_create_items,
+// GO(gtk_item_factory_create_items_ac,
+// GO(gtk_item_factory_create_menu_entries,
+// GO(gtk_item_factory_delete_entries,
+// GO(gtk_item_factory_delete_entry,
+// GO(gtk_item_factory_delete_item,
+// GO(gtk_item_factory_from_path,
+// GO(gtk_item_factory_from_widget,
+// GO(gtk_item_factory_get_item,
+// GO(gtk_item_factory_get_item_by_action,
 GO(gtk_item_factory_get_type, LFv)
-//GO(gtk_item_factory_get_widget, 
-//GO(gtk_item_factory_get_widget_by_action, 
-//GO(gtk_item_factory_new, 
-//GO(gtk_item_factory_path_from_widget, 
-//GO(gtk_item_factory_popup, 
-//GO(gtk_item_factory_popup_data, 
-//GO(gtk_item_factory_popup_data_from_widget, 
-//GO(gtk_item_factory_popup_with_data, 
-//GO(gtk_item_factory_set_translate_func, 
+// GO(gtk_item_factory_get_widget,
+// GO(gtk_item_factory_get_widget_by_action,
+// GO(gtk_item_factory_new,
+// GO(gtk_item_factory_path_from_widget,
+// GO(gtk_item_factory_popup,
+// GO(gtk_item_factory_popup_data,
+// GO(gtk_item_factory_popup_data_from_widget,
+// GO(gtk_item_factory_popup_with_data,
+// GO(gtk_item_factory_set_translate_func,
 GO(gtk_item_get_type, LFv)
-//GO(gtk_item_select, 
-//GO(gtk_item_toggle, 
+// GO(gtk_item_select,
+// GO(gtk_item_toggle,
 GO(gtk_justification_get_type, LFv)
-//GOM(gtk_key_snooper_install, uFEBp)
+// GOM(gtk_key_snooper_install, uFEBp)
 GO(gtk_key_snooper_remove, vFu)
 GO(gtk_label_get, vFpp)
 GO(gtk_label_get_angle, dFp)
@@ -1598,19 +1598,19 @@ GO(gtk_label_set_track_visited_links, vFpi)
 GO(gtk_label_set_use_markup, vFpi)
 GO(gtk_label_set_use_underline, vFpi)
 GO(gtk_label_set_width_chars, vFpi)
-//GO(gtk_layout_freeze, 
+// GO(gtk_layout_freeze,
 GO(gtk_layout_get_bin_window, pFp)
-//GO(gtk_layout_get_hadjustment, 
+// GO(gtk_layout_get_hadjustment,
 GO(gtk_layout_get_size, vFppp)
 GO(gtk_layout_get_type, LFv)
 GO(gtk_layout_get_vadjustment, pFp)
 GO(gtk_layout_move, vFppii)
 GO(gtk_layout_new, pFpp)
-//GO(gtk_layout_put, 
-//GO(gtk_layout_set_hadjustment, 
+// GO(gtk_layout_put,
+// GO(gtk_layout_set_hadjustment,
 GO(gtk_layout_set_size, vFpuu)
 GO(gtk_layout_set_vadjustment, vFpp)
-//GO(gtk_layout_thaw, 
+// GO(gtk_layout_thaw,
 GO(gtk_level_bar_mode_get_type, LFv)
 GO(gtk_level_bar_get_type, LFv)
 GO(gtk_license_get_type, LFv)
@@ -1620,7 +1620,7 @@ GO(gtk_link_button_get_visited, iFp)
 GO(gtk_link_button_new, pFp)
 GO(gtk_link_button_new_with_label, pFpp)
 GO(gtk_link_button_set_uri, vFpp)
-//GO(gtk_link_button_set_uri_hook, 
+// GO(gtk_link_button_set_uri_hook,
 GO(gtk_link_button_set_visited, vFpi)
 GO(gtk_list_append_items, vFpp)
 GO(gtk_list_box_get_type, LFv)
@@ -1665,9 +1665,9 @@ GO(gtk_list_store_newv, pFip)
 GO(gtk_list_store_prepend, vFpp)
 GO(gtk_list_store_remove, iFpp)
 GO(gtk_list_store_reorder, vFpp)
-//GO2(gtk_list_store_set, vFppV, gtk_list_store_set_valist)
+// GO2(gtk_list_store_set, vFppV, gtk_list_store_set_valist)
 GO(gtk_list_store_set_column_types, vFpip)
-//GO(gtk_list_store_set_valist, vFppA)
+// GO(gtk_list_store_set_valist, vFppA)
 GO(gtk_list_store_set_value, vFppip)
 GO(gtk_list_store_set_valuesv, vFppppi)
 GO(gtk_list_store_swap, vFppp)
@@ -1684,32 +1684,32 @@ GO(gtk_main_iteration, iFv)
 GO(gtk_main_iteration_do, iFi)
 GO(gtk_main_level, uFv)
 GO(gtk_main_quit, vFv)
-//GO(gtk_marshal_BOOLEAN__POINTER, 
-//GO(gtk_marshal_BOOLEAN__POINTER_INT_INT, 
-//GO(gtk_marshal_BOOLEAN__POINTER_INT_INT_UINT, 
-//GO(gtk_marshal_BOOLEAN__POINTER_POINTER_INT_INT, 
-//GO(gtk_marshal_BOOLEAN__POINTER_STRING_STRING_POINTER, 
-//GO(gtk_marshal_BOOLEAN__VOID, 
-//GO(gtk_marshal_ENUM__ENUM, 
-//GO(gtk_marshal_INT__POINTER, 
-//GO(gtk_marshal_INT__POINTER_CHAR_CHAR, 
-//GO(gtk_marshal_VOID__ENUM_FLOAT, 
-//GO(gtk_marshal_VOID__ENUM_FLOAT_BOOLEAN, 
-//GO(gtk_marshal_VOID__INT_INT, 
-//GO(gtk_marshal_VOID__INT_INT_POINTER, 
-//GO(gtk_marshal_VOID__POINTER_INT, 
-//GO(gtk_marshal_VOID__POINTER_INT_INT_POINTER_UINT_UINT, 
-//GO(gtk_marshal_VOID__POINTER_POINTER, 
-//GO(gtk_marshal_VOID__POINTER_POINTER_POINTER, 
-//GO(gtk_marshal_VOID__POINTER_POINTER_UINT_UINT, 
-//GO(gtk_marshal_VOID__POINTER_STRING_STRING, 
-//GO(gtk_marshal_VOID__POINTER_UINT, 
-//GO(gtk_marshal_VOID__POINTER_UINT_ENUM, 
-//GO(gtk_marshal_VOID__POINTER_UINT_UINT, 
-//GO(gtk_marshal_VOID__STRING_INT_POINTER, 
-//GO(gtk_marshal_VOID__UINT_POINTER_UINT_ENUM_ENUM_POINTER, 
-//GO(gtk_marshal_VOID__UINT_POINTER_UINT_UINT_ENUM, 
-//GO(gtk_marshal_VOID__UINT_STRING, 
+// GO(gtk_marshal_BOOLEAN__POINTER,
+// GO(gtk_marshal_BOOLEAN__POINTER_INT_INT,
+// GO(gtk_marshal_BOOLEAN__POINTER_INT_INT_UINT,
+// GO(gtk_marshal_BOOLEAN__POINTER_POINTER_INT_INT,
+// GO(gtk_marshal_BOOLEAN__POINTER_STRING_STRING_POINTER,
+// GO(gtk_marshal_BOOLEAN__VOID,
+// GO(gtk_marshal_ENUM__ENUM,
+// GO(gtk_marshal_INT__POINTER,
+// GO(gtk_marshal_INT__POINTER_CHAR_CHAR,
+// GO(gtk_marshal_VOID__ENUM_FLOAT,
+// GO(gtk_marshal_VOID__ENUM_FLOAT_BOOLEAN,
+// GO(gtk_marshal_VOID__INT_INT,
+// GO(gtk_marshal_VOID__INT_INT_POINTER,
+// GO(gtk_marshal_VOID__POINTER_INT,
+// GO(gtk_marshal_VOID__POINTER_INT_INT_POINTER_UINT_UINT,
+// GO(gtk_marshal_VOID__POINTER_POINTER,
+// GO(gtk_marshal_VOID__POINTER_POINTER_POINTER,
+// GO(gtk_marshal_VOID__POINTER_POINTER_UINT_UINT,
+// GO(gtk_marshal_VOID__POINTER_STRING_STRING,
+// GO(gtk_marshal_VOID__POINTER_UINT,
+// GO(gtk_marshal_VOID__POINTER_UINT_ENUM,
+// GO(gtk_marshal_VOID__POINTER_UINT_UINT,
+// GO(gtk_marshal_VOID__STRING_INT_POINTER,
+// GO(gtk_marshal_VOID__UINT_POINTER_UINT_ENUM_ENUM_POINTER,
+// GO(gtk_marshal_VOID__UINT_POINTER_UINT_UINT_ENUM,
+// GO(gtk_marshal_VOID__UINT_STRING,
 GO(gtk_match_type_get_type, LFv)
 GO(gtk_menu_attach, vFppuuuu)
 GOM(gtk_menu_attach_to_widget, vFEppp)
@@ -1769,9 +1769,9 @@ GO(gtk_menu_set_tearoff_state, vFpi)
 GO(gtk_menu_set_title, vFpp)
 GO(gtk_menu_shell_activate_item, vFppi)
 GO(gtk_menu_shell_append, vFpp)
-//GO(gtk_menu_shell_cancel, 
-//GO(gtk_menu_shell_deactivate, 
-//GO(gtk_menu_shell_deselect, 
+// GO(gtk_menu_shell_cancel,
+// GO(gtk_menu_shell_deactivate,
+// GO(gtk_menu_shell_deselect,
 GO(gtk_menu_shell_get_take_focus, iFp)
 GO(gtk_menu_shell_get_type, LFv)
 GO(gtk_menu_shell_insert, vFppi)
@@ -1782,18 +1782,18 @@ GO(gtk_menu_shell_set_take_focus, vFpi)
 GO(gtk_menu_tool_button_get_menu, pFp)
 GO(gtk_menu_tool_button_get_type, LFv)
 GO(gtk_menu_tool_button_new, pFpp)
-//GO(gtk_menu_tool_button_new_from_stock, 
-//GO(gtk_menu_tool_button_set_arrow_tooltip, 
+// GO(gtk_menu_tool_button_new_from_stock,
+// GO(gtk_menu_tool_button_set_arrow_tooltip,
 GO(gtk_menu_tool_button_set_arrow_tooltip_markup, vFpp)
-//GO(gtk_menu_tool_button_set_arrow_tooltip_text, 
+// GO(gtk_menu_tool_button_set_arrow_tooltip_text,
 GO(gtk_menu_tool_button_set_menu, vFpp)
 GOM(gtk_message_dialog_format_secondary_markup, vFEppV)
 GOM(gtk_message_dialog_format_secondary_text, vFEppV)
 GO(gtk_message_dialog_get_image, pFp)
 GO(gtk_message_dialog_get_message_area, pFp)
 GO(gtk_message_dialog_get_type, LFv)
-GO(gtk_message_dialog_new, pFpuiippppppppppp)   // vaarg :(
-GO(gtk_message_dialog_new_with_markup, pFpuiippppppppppp)   // vaarg
+GO(gtk_message_dialog_new, pFpuiippppppppppp)             // vaarg :(
+GO(gtk_message_dialog_new_with_markup, pFpuiippppppppppp) // vaarg
 GO(gtk_message_dialog_set_image, vFpp)
 GO(gtk_message_dialog_set_markup, vFpp)
 GO(gtk_message_type_get_type, LFv)
@@ -1878,33 +1878,33 @@ GO(gtk_notebook_set_tab_label_text, vFppp)
 GO(gtk_notebook_set_tab_pos, vFpu)
 GO(gtk_notebook_set_tab_reorderable, vFppi)
 GO(gtk_notebook_set_tab_vborder, vFpu)
-//GOM(gtk_notebook_set_window_creation_hook, pFEppp)
+// GOM(gtk_notebook_set_window_creation_hook, pFEppp)
 GO(gtk_notebook_tab_get_type, LFv)
 GO(gtk_number_up_layout_get_type, LFv)
 GO(gtk_object_add_arg_type, vFpiuu)
 GO(gtk_object_destroy, vFp)
 GO(gtk_object_flags_get_type, LFv)
-GO(gtk_object_get, vFppppppppppp)   // vaarg
+GO(gtk_object_get, vFppppppppppp) // vaarg
 GO(gtk_object_get_data, pFpp)
 GO(gtk_object_get_data_by_id, pFpp)
 GO(gtk_object_get_type, LFv)
 GO(gtk_object_get_user_data, pFp)
-GO(gtk_object_new, pFppppppppppp)   //vaarg
+GO(gtk_object_new, pFppppppppppp) // vaarg
 GO(gtk_object_ref, pFp)
 GO(gtk_object_remove_data, vFpp)
 GO(gtk_object_remove_data_by_id, vFpp)
 GO(gtk_object_remove_no_notify, vFpp)
 GO(gtk_object_remove_no_notify_by_id, vFpp)
-GO(gtk_object_set, vFppppppppppp)   //vaarg
+GO(gtk_object_set, vFppppppppppp) // vaarg
 GO(gtk_object_set_data, vFppp)
 GO(gtk_object_set_data_by_id, vFppp)
-//GOM(gtk_object_set_data_by_id_full, vFEpppp)
+// GOM(gtk_object_set_data_by_id_full, vFEpppp)
 GOM(gtk_object_set_data_full, vFEpppp)
 GO(gtk_object_set_user_data, vFpp)
 GO(gtk_object_sink, vFp)
 GO(gtk_object_unref, vFp)
-//GOM(gtk_object_weakref, vFEppp)
-//GOM(gtk_object_weakunref, vFEppp)
+// GOM(gtk_object_weakref, vFEppp)
+// GOM(gtk_object_weakunref, vFEppp)
 GO(gtk_offscreen_window_get_pixbuf, pFp)
 GO(gtk_offscreen_window_get_pixmap, pFp)
 GO(gtk_offscreen_window_get_type, LFv)
@@ -1930,7 +1930,7 @@ GO(gtk_pack_type_get_type, LFv)
 GO(gtk_page_orientation_get_type, LFv)
 GO(gtk_page_set_get_type, LFv)
 GO(gtk_page_setup_copy, pFp)
-//GO(gtk_page_setup_get_bottom_margin, 
+// GO(gtk_page_setup_get_bottom_margin,
 GO(gtk_page_setup_get_left_margin, dFpi)
 GO(gtk_page_setup_get_orientation, uFp)
 GO(gtk_page_setup_get_page_height, dFpu)
@@ -1941,26 +1941,26 @@ GO(gtk_page_setup_get_paper_width, dFpi)
 GO(gtk_page_setup_get_right_margin, dFpi)
 GO(gtk_page_setup_get_top_margin, dFpi)
 GO(gtk_page_setup_get_type, LFv)
-//GO(gtk_page_setup_load_file, 
+// GO(gtk_page_setup_load_file,
 GO(gtk_page_setup_load_key_file, iFpppp)
 GO(gtk_page_setup_new, pFv)
 GO(gtk_page_setup_new_from_file, pFpp)
 GO(gtk_page_setup_new_from_key_file, pFppp)
-//GO(gtk_page_setup_set_bottom_margin, 
-//GO(gtk_page_setup_set_left_margin, 
+// GO(gtk_page_setup_set_bottom_margin,
+// GO(gtk_page_setup_set_left_margin,
 GO(gtk_page_setup_set_orientation, vFpu)
 GO(gtk_page_setup_set_paper_size, vFpp)
 GO(gtk_page_setup_set_paper_size_and_default_margins, vFpp)
 GO(gtk_page_setup_set_right_margin, vFpdu)
-//GO(gtk_page_setup_set_top_margin, 
+// GO(gtk_page_setup_set_top_margin,
 GO(gtk_page_setup_to_file, iFppp)
 GO(gtk_page_setup_to_key_file, vFppp)
-//GO(gtk_page_setup_unix_dialog_get_page_setup, 
-//GO(gtk_page_setup_unix_dialog_get_print_settings, 
+// GO(gtk_page_setup_unix_dialog_get_page_setup,
+// GO(gtk_page_setup_unix_dialog_get_print_settings,
 GO(gtk_page_setup_unix_dialog_get_type, LFv)
-//GO(gtk_page_setup_unix_dialog_new, 
-//GO(gtk_page_setup_unix_dialog_set_page_setup, 
-//GO(gtk_page_setup_unix_dialog_set_print_settings, 
+// GO(gtk_page_setup_unix_dialog_new,
+// GO(gtk_page_setup_unix_dialog_set_page_setup,
+// GO(gtk_page_setup_unix_dialog_set_print_settings,
 GO(gtk_paint_arrow, vFppuuppuiiiii)
 GO(gtk_paint_box, vFppiipppiiii)
 GO(gtk_paint_box_gap, vFppuuppiiiiuii)
@@ -2037,184 +2037,184 @@ GO(gtk_plug_new_for_display, pFpp)
 GO(gtk_policy_type_get_type, LFv)
 GO(gtk_popover_get_type, LFv)
 GO(gtk_position_type_get_type, LFv)
-//GO(gtk_preview_draw_row, 
-//GO(gtk_preview_get_cmap, 
-//GO(gtk_preview_get_info, 
+// GO(gtk_preview_draw_row,
+// GO(gtk_preview_get_cmap,
+// GO(gtk_preview_get_info,
 GO(gtk_preview_get_type, LFv)
-//GO(gtk_preview_get_visual, 
-//GO(gtk_preview_new, 
-//GO(gtk_preview_put, 
-//GO(gtk_preview_reset, 
-//GO(gtk_preview_set_color_cube, 
-//GO(gtk_preview_set_dither, 
-//GO(gtk_preview_set_expand, 
-//GO(gtk_preview_set_gamma, 
-//GO(gtk_preview_set_install_cmap, 
-//GO(gtk_preview_set_reserved, 
-//GO(gtk_preview_size, 
+// GO(gtk_preview_get_visual,
+// GO(gtk_preview_new,
+// GO(gtk_preview_put,
+// GO(gtk_preview_reset,
+// GO(gtk_preview_set_color_cube,
+// GO(gtk_preview_set_dither,
+// GO(gtk_preview_set_expand,
+// GO(gtk_preview_set_gamma,
+// GO(gtk_preview_set_install_cmap,
+// GO(gtk_preview_set_reserved,
+// GO(gtk_preview_size,
 GO(gtk_preview_type_get_type, LFv)
-//GO(gtk_preview_uninit, 
-//GO(gtk_print_backend_add_printer, 
-//GO(gtk_print_backend_destroy, 
-//GO(gtk_print_backend_error_quark, 
-//GO(gtk_print_backend_find_printer, 
-//GO(gtk_print_backend_get_printer_list, 
+// GO(gtk_preview_uninit,
+// GO(gtk_print_backend_add_printer,
+// GO(gtk_print_backend_destroy,
+// GO(gtk_print_backend_error_quark,
+// GO(gtk_print_backend_find_printer,
+// GO(gtk_print_backend_get_printer_list,
 GO(gtk_print_backend_get_type, LFv)
-//GO(gtk_print_backend_load_modules, 
-//GO(gtk_print_backend_printer_list_is_done, 
-//GO(gtk_print_backend_print_stream, 
-//GO(gtk_print_backend_remove_printer, 
-//GO(gtk_print_backend_set_list_done, 
-//GO(gtk_print_backend_set_password, 
+// GO(gtk_print_backend_load_modules,
+// GO(gtk_print_backend_printer_list_is_done,
+// GO(gtk_print_backend_print_stream,
+// GO(gtk_print_backend_remove_printer,
+// GO(gtk_print_backend_set_list_done,
+// GO(gtk_print_backend_set_password,
 GO(gtk_print_capabilities_get_type, LFv)
 GO(gtk_print_context_create_pango_context, pFp)
 GO(gtk_print_context_create_pango_layout, pFp)
 GO(gtk_print_context_get_cairo_context, pFp)
-//GO(gtk_print_context_get_dpi_x, 
+// GO(gtk_print_context_get_dpi_x,
 GO(gtk_print_context_get_dpi_y, dFp)
 GO(gtk_print_context_get_hard_margins, iFppppp)
-//GO(gtk_print_context_get_height, 
+// GO(gtk_print_context_get_height,
 GO(gtk_print_context_get_page_setup, pFp)
 GO(gtk_print_context_get_pango_fontmap, pFp)
 GO(gtk_print_context_get_type, LFv)
-//GO(gtk_print_context_get_width, 
+// GO(gtk_print_context_get_width,
 GO(gtk_print_context_set_cairo_context, vFppdd)
 GO(gtk_print_duplex_get_type, LFv)
-//GO(gtk_printer_accepts_pdf, 
-//GO(gtk_printer_accepts_ps, 
-//GO(gtk_printer_compare, 
-//GO(gtk_printer_get_backend, 
-//GO(gtk_printer_get_capabilities, 
+// GO(gtk_printer_accepts_pdf,
+// GO(gtk_printer_accepts_ps,
+// GO(gtk_printer_compare,
+// GO(gtk_printer_get_backend,
+// GO(gtk_printer_get_capabilities,
 GO(gtk_printer_get_default_page_size, pFp)
-//GO(gtk_printer_get_description, 
-//GO(gtk_printer_get_hard_margins, 
-//GO(gtk_printer_get_icon_name, 
-//GO(gtk_printer_get_job_count, 
-//GO(gtk_printer_get_location, 
+// GO(gtk_printer_get_description,
+// GO(gtk_printer_get_hard_margins,
+// GO(gtk_printer_get_icon_name,
+// GO(gtk_printer_get_job_count,
+// GO(gtk_printer_get_location,
 GO(gtk_printer_get_name, pFp)
-//GO(gtk_printer_get_state_message, 
+// GO(gtk_printer_get_state_message,
 GO(gtk_printer_get_type, LFv)
-//GO(gtk_printer_has_details, 
-//GO(gtk_printer_is_accepting_jobs, 
-//GO(gtk_printer_is_active, 
+// GO(gtk_printer_has_details,
+// GO(gtk_printer_is_accepting_jobs,
+// GO(gtk_printer_is_active,
 GO(gtk_printer_is_default, iFp)
-//GO(gtk_printer_is_new, 
-//GO(gtk_printer_is_paused, 
-//GO(gtk_printer_is_virtual, 
-//GO(gtk_printer_list_papers, 
-//GO(gtk_printer_new, 
-//GO(gtk_printer_option_allocate_choices, 
-//GO(gtk_printer_option_choices_from_array, 
-//GO(gtk_printer_option_clear_has_conflict, 
-//GO(gtk_printer_option_get_activates_default, 
+// GO(gtk_printer_is_new,
+// GO(gtk_printer_is_paused,
+// GO(gtk_printer_is_virtual,
+// GO(gtk_printer_list_papers,
+// GO(gtk_printer_new,
+// GO(gtk_printer_option_allocate_choices,
+// GO(gtk_printer_option_choices_from_array,
+// GO(gtk_printer_option_clear_has_conflict,
+// GO(gtk_printer_option_get_activates_default,
 GO(gtk_printer_option_get_type, LFv)
-//GO(gtk_printer_option_has_choice, 
-//GO(gtk_printer_option_new, 
-//GO(gtk_printer_option_set, 
-//GO(gtk_printer_option_set_activates_default, 
-//GO(gtk_printer_option_set_add, 
-//GO(gtk_printer_option_set_boolean, 
-//GO(gtk_printer_option_set_clear_conflicts, 
-//GO(gtk_printer_option_set_foreach, 
-//GO(gtk_printer_option_set_foreach_in_group, 
-//GO(gtk_printer_option_set_get_groups, 
+// GO(gtk_printer_option_has_choice,
+// GO(gtk_printer_option_new,
+// GO(gtk_printer_option_set,
+// GO(gtk_printer_option_set_activates_default,
+// GO(gtk_printer_option_set_add,
+// GO(gtk_printer_option_set_boolean,
+// GO(gtk_printer_option_set_clear_conflicts,
+// GO(gtk_printer_option_set_foreach,
+// GO(gtk_printer_option_set_foreach_in_group,
+// GO(gtk_printer_option_set_get_groups,
 GO(gtk_printer_option_set_get_type, LFv)
-//GO(gtk_printer_option_set_has_conflict, 
-//GO(gtk_printer_option_set_lookup, 
-//GO(gtk_printer_option_set_new, 
-//GO(gtk_printer_option_set_remove, 
-//GO(gtk_printer_option_widget_get_external_label, 
+// GO(gtk_printer_option_set_has_conflict,
+// GO(gtk_printer_option_set_lookup,
+// GO(gtk_printer_option_set_new,
+// GO(gtk_printer_option_set_remove,
+// GO(gtk_printer_option_widget_get_external_label,
 GO(gtk_printer_option_widget_get_type, LFv)
-//GO(gtk_printer_option_widget_get_value, 
-//GO(gtk_printer_option_widget_has_external_label, 
-//GO(gtk_printer_option_widget_new, 
-//GO(gtk_printer_option_widget_set_source, 
-//GO(gtk_printer_request_details, 
+// GO(gtk_printer_option_widget_get_value,
+// GO(gtk_printer_option_widget_has_external_label,
+// GO(gtk_printer_option_widget_new,
+// GO(gtk_printer_option_widget_set_source,
+// GO(gtk_printer_request_details,
 GO(gtk_print_error_get_type, LFv)
-//GO(gtk_print_error_quark, 
-//GO(gtk_printer_set_accepts_pdf, 
-//GO(gtk_printer_set_accepts_ps, 
-//GO(gtk_printer_set_description, 
-//GO(gtk_printer_set_has_details, 
-//GO(gtk_printer_set_icon_name, 
-//GO(gtk_printer_set_is_accepting_jobs, 
-//GO(gtk_printer_set_is_active, 
-//GO(gtk_printer_set_is_default, 
-//GO(gtk_printer_set_is_new, 
-//GO(gtk_printer_set_is_paused, 
-//GO(gtk_printer_set_job_count, 
-//GO(gtk_printer_set_location, 
-//GO(gtk_printer_set_state_message, 
-//GO(gtk_print_job_get_printer, 
-//GO(gtk_print_job_get_settings, 
-//GO(gtk_print_job_get_status, 
-//GO(gtk_print_job_get_surface, 
-//GO(gtk_print_job_get_title, 
-//GO(gtk_print_job_get_track_print_status, 
+// GO(gtk_print_error_quark,
+// GO(gtk_printer_set_accepts_pdf,
+// GO(gtk_printer_set_accepts_ps,
+// GO(gtk_printer_set_description,
+// GO(gtk_printer_set_has_details,
+// GO(gtk_printer_set_icon_name,
+// GO(gtk_printer_set_is_accepting_jobs,
+// GO(gtk_printer_set_is_active,
+// GO(gtk_printer_set_is_default,
+// GO(gtk_printer_set_is_new,
+// GO(gtk_printer_set_is_paused,
+// GO(gtk_printer_set_job_count,
+// GO(gtk_printer_set_location,
+// GO(gtk_printer_set_state_message,
+// GO(gtk_print_job_get_printer,
+// GO(gtk_print_job_get_settings,
+// GO(gtk_print_job_get_status,
+// GO(gtk_print_job_get_surface,
+// GO(gtk_print_job_get_title,
+// GO(gtk_print_job_get_track_print_status,
 GO(gtk_print_job_get_type, LFv)
 GO(gtk_print_job_new, pFpppp)
 GOM(gtk_print_job_send, vFEpppp)
 GO(gtk_print_job_set_source_file, iFppp)
-//GO(gtk_print_job_set_status, 
-//GO(gtk_print_job_set_track_print_status, 
+// GO(gtk_print_job_set_status,
+// GO(gtk_print_job_set_track_print_status,
 GO(gtk_print_operation_action_get_type, LFv)
-//GO(gtk_print_operation_cancel, 
-//GO(gtk_print_operation_draw_page_finish, 
+// GO(gtk_print_operation_cancel,
+// GO(gtk_print_operation_draw_page_finish,
 GO(gtk_print_operation_get_default_page_setup, pFp)
 GO(gtk_print_operation_get_embed_page_setup, iFp)
 GO(gtk_print_operation_get_error, vFpp)
-//GO(gtk_print_operation_get_has_selection, 
+// GO(gtk_print_operation_get_has_selection,
 GO(gtk_print_operation_get_n_pages_to_print, iFp)
 GO(gtk_print_operation_get_print_settings, pFp)
 GO(gtk_print_operation_get_status, uFp)
 GO(gtk_print_operation_get_status_string, pFp)
-//GO(gtk_print_operation_get_support_selection, 
+// GO(gtk_print_operation_get_support_selection,
 GO(gtk_print_operation_get_type, LFv)
-//GO(gtk_print_operation_is_finished, 
+// GO(gtk_print_operation_is_finished,
 GO(gtk_print_operation_new, pFv)
-//GO(gtk_print_operation_preview_end_preview, 
+// GO(gtk_print_operation_preview_end_preview,
 GO(gtk_print_operation_preview_get_type, LFv)
 GO(gtk_print_operation_preview_is_selected, iFpi)
 GO(gtk_print_operation_preview_render_page, vFpi)
 GO(gtk_print_operation_result_get_type, LFv)
 GO(gtk_print_operation_run, uFpupp)
-//GO(gtk_print_operation_set_allow_async, 
+// GO(gtk_print_operation_set_allow_async,
 GO(gtk_print_operation_set_current_page, vFpi)
 GO(gtk_print_operation_set_custom_tab_label, vFpp)
 GO(gtk_print_operation_set_default_page_setup, vFpp)
-//GO(gtk_print_operation_set_defer_drawing, 
+// GO(gtk_print_operation_set_defer_drawing,
 GO(gtk_print_operation_set_embed_page_setup, vFpi)
-//GO(gtk_print_operation_set_export_filename, 
-//GO(gtk_print_operation_set_has_selection, 
-//GO(gtk_print_operation_set_job_name, 
-//GO(gtk_print_operation_set_n_pages, 
+// GO(gtk_print_operation_set_export_filename,
+// GO(gtk_print_operation_set_has_selection,
+// GO(gtk_print_operation_set_job_name,
+// GO(gtk_print_operation_set_n_pages,
 GO(gtk_print_operation_set_print_settings, vFpp)
-//GO(gtk_print_operation_set_show_progress, 
-//GO(gtk_print_operation_set_support_selection, 
-//GO(gtk_print_operation_set_track_print_status, 
+// GO(gtk_print_operation_set_show_progress,
+// GO(gtk_print_operation_set_support_selection,
+// GO(gtk_print_operation_set_track_print_status,
 GO(gtk_print_operation_set_unit, vFpu)
-//GO(gtk_print_operation_set_use_full_page, 
+// GO(gtk_print_operation_set_use_full_page,
 GO(gtk_print_pages_get_type, LFv)
 GO(gtk_print_quality_get_type, LFv)
 GO(gtk_print_run_page_setup_dialog, pFppp)
-//GO(gtk_print_run_page_setup_dialog_async, 
+// GO(gtk_print_run_page_setup_dialog_async,
 GO(gtk_print_settings_copy, pFp)
-//GO(gtk_print_settings_foreach, 
+// GO(gtk_print_settings_foreach,
 GO(gtk_print_settings_get, pFpp)
 GO(gtk_print_settings_get_bool, iFpp)
-//GO(gtk_print_settings_get_collate, 
-//GO(gtk_print_settings_get_default_source, 
-//GO(gtk_print_settings_get_dither, 
+// GO(gtk_print_settings_get_collate,
+// GO(gtk_print_settings_get_default_source,
+// GO(gtk_print_settings_get_dither,
 GO(gtk_print_settings_get_double, dFpp)
 GO(gtk_print_settings_get_double_with_default, dFppd)
 GO(gtk_print_settings_get_duplex, uFp)
-//GO(gtk_print_settings_get_finishings, 
+// GO(gtk_print_settings_get_finishings,
 GO(gtk_print_settings_get_int, iFpp)
 GO(gtk_print_settings_get_int_with_default, iFppi)
 GO(gtk_print_settings_get_length, dFppu)
-//GO(gtk_print_settings_get_media_type, 
-//GO(gtk_print_settings_get_n_copies, 
-//GO(gtk_print_settings_get_number_up, 
+// GO(gtk_print_settings_get_media_type,
+// GO(gtk_print_settings_get_n_copies,
+// GO(gtk_print_settings_get_number_up,
 GO(gtk_print_settings_get_number_up_layout, uFp)
 GO(gtk_print_settings_get_orientation, uFp)
 GO(gtk_print_settings_get_output_bin, pFp)
@@ -2222,20 +2222,20 @@ GO(gtk_print_settings_get_page_ranges, pFpp)
 GO(gtk_print_settings_get_page_set, uFp)
 GO(gtk_print_settings_get_paper_height, dFpu)
 GO(gtk_print_settings_get_paper_size, pFp)
-//GO(gtk_print_settings_get_paper_width, 
+// GO(gtk_print_settings_get_paper_width,
 GO(gtk_print_settings_get_printer, pFp)
-//GO(gtk_print_settings_get_printer_lpi, 
+// GO(gtk_print_settings_get_printer_lpi,
 GO(gtk_print_settings_get_print_pages, uFp)
 GO(gtk_print_settings_get_quality, uFp)
 GO(gtk_print_settings_get_resolution, iFp)
-//GO(gtk_print_settings_get_resolution_x, 
+// GO(gtk_print_settings_get_resolution_x,
 GO(gtk_print_settings_get_resolution_y, iFp)
 GO(gtk_print_settings_get_reverse, iFp)
 GO(gtk_print_settings_get_scale, dFp)
 GO(gtk_print_settings_get_type, LFv)
-//GO(gtk_print_settings_get_use_color, 
-//GO(gtk_print_settings_has_key, 
-//GO(gtk_print_settings_load_file, 
+// GO(gtk_print_settings_get_use_color,
+// GO(gtk_print_settings_has_key,
+// GO(gtk_print_settings_load_file,
 GO(gtk_print_settings_load_key_file, iFpppp)
 GO(gtk_print_settings_new, pFv)
 GO(gtk_print_settings_new_from_file, pFpp)
@@ -2243,16 +2243,16 @@ GO(gtk_print_settings_new_from_key_file, pFppp)
 GO(gtk_print_settings_set, vFppp)
 GO(gtk_print_settings_set_bool, vFppi)
 GO(gtk_print_settings_set_collate, vFpi)
-//GO(gtk_print_settings_set_default_source, 
-//GO(gtk_print_settings_set_dither, 
+// GO(gtk_print_settings_set_default_source,
+// GO(gtk_print_settings_set_dither,
 GO(gtk_print_settings_set_double, vFppd)
 GO(gtk_print_settings_set_duplex, vFpu)
-//GO(gtk_print_settings_set_finishings, 
+// GO(gtk_print_settings_set_finishings,
 GO(gtk_print_settings_set_int, vFppi)
 GO(gtk_print_settings_set_length, vFppdu)
-//GO(gtk_print_settings_set_media_type, 
+// GO(gtk_print_settings_set_media_type,
 GO(gtk_print_settings_set_n_copies, vFpi)
-//GO(gtk_print_settings_set_number_up, 
+// GO(gtk_print_settings_set_number_up,
 GO(gtk_print_settings_set_number_up_layout, vFpu)
 GO(gtk_print_settings_set_orientation, vFpu)
 GO(gtk_print_settings_set_output_bin, vFpp)
@@ -2260,7 +2260,7 @@ GO(gtk_print_settings_set_page_ranges, vFppi)
 GO(gtk_print_settings_set_page_set, vFpu)
 GO(gtk_print_settings_set_paper_height, vFpdu)
 GO(gtk_print_settings_set_paper_size, vFpp)
-//GO(gtk_print_settings_set_paper_width, 
+// GO(gtk_print_settings_set_paper_width,
 GO(gtk_print_settings_set_printer, vFpp)
 GO(gtk_print_settings_set_printer_lpi, vFpd)
 GO(gtk_print_settings_set_print_pages, vFpu)
@@ -2269,28 +2269,28 @@ GO(gtk_print_settings_set_resolution, vFpi)
 GO(gtk_print_settings_set_resolution_xy, vFpii)
 GO(gtk_print_settings_set_reverse, vFpi)
 GO(gtk_print_settings_set_scale, vFpd)
-//GO(gtk_print_settings_set_use_color, 
+// GO(gtk_print_settings_set_use_color,
 GO(gtk_print_settings_to_file, iFppp)
 GO(gtk_print_settings_to_key_file, vFppp)
-//GO(gtk_print_settings_unset, 
+// GO(gtk_print_settings_unset,
 GO(gtk_print_status_get_type, LFv)
-//GO(gtk_print_unix_dialog_add_custom_tab, 
-//GO(gtk_print_unix_dialog_get_current_page, 
-//GO(gtk_print_unix_dialog_get_embed_page_setup, 
-//GO(gtk_print_unix_dialog_get_has_selection, 
-//GO(gtk_print_unix_dialog_get_manual_capabilities, 
+// GO(gtk_print_unix_dialog_add_custom_tab,
+// GO(gtk_print_unix_dialog_get_current_page,
+// GO(gtk_print_unix_dialog_get_embed_page_setup,
+// GO(gtk_print_unix_dialog_get_has_selection,
+// GO(gtk_print_unix_dialog_get_manual_capabilities,
 GO(gtk_print_unix_dialog_get_page_setup, pFp)
-//GO(gtk_print_unix_dialog_get_page_setup_set, 
+// GO(gtk_print_unix_dialog_get_page_setup_set,
 GO(gtk_print_unix_dialog_get_selected_printer, pFp)
 GO(gtk_print_unix_dialog_get_settings, pFp)
-//GO(gtk_print_unix_dialog_get_support_selection, 
+// GO(gtk_print_unix_dialog_get_support_selection,
 GO(gtk_print_unix_dialog_get_type, LFv)
 GO(gtk_print_unix_dialog_new, pFpp)
-//GO(gtk_print_unix_dialog_set_current_page, 
+// GO(gtk_print_unix_dialog_set_current_page,
 GO(gtk_print_unix_dialog_set_embed_page_setup, vFpi)
 GO(gtk_print_unix_dialog_set_has_selection, vFpi)
 GO(gtk_print_unix_dialog_set_manual_capabilities, vFpi)
-//GO(gtk_print_unix_dialog_set_page_setup, 
+// GO(gtk_print_unix_dialog_set_page_setup,
 GO(gtk_print_unix_dialog_set_settings, vFpp)
 GO(gtk_print_unix_dialog_set_support_selection, vFpi)
 GO(gtk_private_flags_get_type, LFv)
@@ -2316,24 +2316,24 @@ GO(gtk_progress_bar_set_show_text, vFpi)
 GO(gtk_progress_bar_set_text, vFpp)
 GO(gtk_progress_bar_style_get_type, LFv)
 GO(gtk_progress_bar_update, vFpd)
-//GO(gtk_progress_configure, 
-//GO(gtk_progress_get_current_percentage, 
-//GO(gtk_progress_get_current_text, 
-//GO(gtk_progress_get_percentage_from_value, 
-//GO(gtk_progress_get_text_from_value, 
+// GO(gtk_progress_configure,
+// GO(gtk_progress_get_current_percentage,
+// GO(gtk_progress_get_current_text,
+// GO(gtk_progress_get_percentage_from_value,
+// GO(gtk_progress_get_text_from_value,
 GO(gtk_progress_get_type, LFv)
-//GO(gtk_progress_get_value, 
-//GO(gtk_progress_set_activity_mode, 
-//GO(gtk_progress_set_adjustment, 
-//GO(gtk_progress_set_format_string, 
-//GO(gtk_progress_set_percentage, 
-//GO(gtk_progress_set_show_text, 
-//GO(gtk_progress_set_text_alignment, 
-//GO(gtk_progress_set_value, 
+// GO(gtk_progress_get_value,
+// GO(gtk_progress_set_activity_mode,
+// GO(gtk_progress_set_adjustment,
+// GO(gtk_progress_set_format_string,
+// GO(gtk_progress_set_percentage,
+// GO(gtk_progress_set_show_text,
+// GO(gtk_progress_set_text_alignment,
+// GO(gtk_progress_set_value,
 GO(gtk_propagate_event, vFpp)
-//GOM(gtk_quit_add, iFEuBp)
+// GOM(gtk_quit_add, iFEuBp)
 GO(gtk_quit_add_destroy, vFup)
-//GOM(gtk_quit_add_full, uFuBppB)
+// GOM(gtk_quit_add_full, uFuBppB)
 GO(gtk_quit_remove, vFu)
 GO(gtk_quit_remove_by_data, vFp)
 GO(gtk_radio_action_get_current_value, iFp)
@@ -2441,10 +2441,10 @@ GO(gtk_recent_action_get_type, LFv)
 GO(gtk_recent_action_new, pFpppp)
 GO(gtk_recent_action_new_for_manager, pFppppp)
 GO(gtk_recent_action_set_show_numbers, vFpi)
-//GO(gtk_recent_chooser_add_filter, 
+// GO(gtk_recent_chooser_add_filter,
 GO(gtk_recent_chooser_dialog_get_type, LFv)
-//GO(gtk_recent_chooser_dialog_new, 
-//GO(gtk_recent_chooser_dialog_new_for_manager, 
+// GO(gtk_recent_chooser_dialog_new,
+// GO(gtk_recent_chooser_dialog_new_for_manager,
 GO(gtk_recent_chooser_error_get_type, LFv)
 GO(gtk_recent_chooser_error_quark, uFv)
 GO(gtk_recent_chooser_get_current_item, pFp)
@@ -2452,97 +2452,97 @@ GO(gtk_recent_chooser_get_current_uri, pFp)
 GO(gtk_recent_chooser_get_filter, pFp)
 GO(gtk_recent_chooser_get_items, pFp)
 GO(gtk_recent_chooser_get_limit, iFp)
-//GO(gtk_recent_chooser_get_local_only, 
-//GO(gtk_recent_chooser_get_select_multiple, 
+// GO(gtk_recent_chooser_get_local_only,
+// GO(gtk_recent_chooser_get_select_multiple,
 GO(gtk_recent_chooser_get_show_icons, iFp)
-//GO(gtk_recent_chooser_get_show_not_found, 
-//GO(gtk_recent_chooser_get_show_numbers, 
-//GO(gtk_recent_chooser_get_show_private, 
-//GO(gtk_recent_chooser_get_show_tips, 
+// GO(gtk_recent_chooser_get_show_not_found,
+// GO(gtk_recent_chooser_get_show_numbers,
+// GO(gtk_recent_chooser_get_show_private,
+// GO(gtk_recent_chooser_get_show_tips,
 GO(gtk_recent_chooser_get_sort_type, uFp)
 GO(gtk_recent_chooser_get_type, LFv)
 GO(gtk_recent_chooser_get_uris, pFpp)
 GO(gtk_recent_chooser_list_filters, pFp)
 GO(gtk_recent_chooser_menu_get_show_numbers, iFp)
 GO(gtk_recent_chooser_menu_get_type, LFv)
-//GO(gtk_recent_chooser_menu_new, 
-//GO(gtk_recent_chooser_menu_new_for_manager, 
+// GO(gtk_recent_chooser_menu_new,
+// GO(gtk_recent_chooser_menu_new_for_manager,
 GO(gtk_recent_chooser_menu_set_show_numbers, vFpi)
-//GO(gtk_recent_chooser_remove_filter, 
-//GO(gtk_recent_chooser_select_all, 
+// GO(gtk_recent_chooser_remove_filter,
+// GO(gtk_recent_chooser_select_all,
 GO(gtk_recent_chooser_select_uri, iFppp)
-//GO(gtk_recent_chooser_set_current_uri, 
+// GO(gtk_recent_chooser_set_current_uri,
 GO(gtk_recent_chooser_set_filter, vFpp)
 GO(gtk_recent_chooser_set_limit, vFpi)
-//GO(gtk_recent_chooser_set_local_only, 
-//GO(gtk_recent_chooser_set_select_multiple, 
+// GO(gtk_recent_chooser_set_local_only,
+// GO(gtk_recent_chooser_set_select_multiple,
 GO(gtk_recent_chooser_set_show_icons, vFpi)
-//GO(gtk_recent_chooser_set_show_not_found, 
-//GO(gtk_recent_chooser_set_show_numbers, 
-//GO(gtk_recent_chooser_set_show_private, 
-//GO(gtk_recent_chooser_set_show_tips, 
-//GO(gtk_recent_chooser_set_sort_func, 
+// GO(gtk_recent_chooser_set_show_not_found,
+// GO(gtk_recent_chooser_set_show_numbers,
+// GO(gtk_recent_chooser_set_show_private,
+// GO(gtk_recent_chooser_set_show_tips,
+// GO(gtk_recent_chooser_set_sort_func,
 GO(gtk_recent_chooser_set_sort_type, vFpu)
-//GO(gtk_recent_chooser_unselect_all, 
+// GO(gtk_recent_chooser_unselect_all,
 GO(gtk_recent_chooser_unselect_uri, vFpp)
 GO(gtk_recent_chooser_widget_get_type, LFv)
-//GO(gtk_recent_chooser_widget_new, 
+// GO(gtk_recent_chooser_widget_new,
 GO(gtk_recent_chooser_widget_new_for_manager, pFp)
 GO(gtk_recent_filter_add_age, vFpi)
-//GO(gtk_recent_filter_add_application, 
-//GO(gtk_recent_filter_add_custom, 
+// GO(gtk_recent_filter_add_application,
+// GO(gtk_recent_filter_add_custom,
 GO(gtk_recent_filter_add_group, vFpp)
-//GO(gtk_recent_filter_add_mime_type, 
-//GO(gtk_recent_filter_add_pattern, 
-//GO(gtk_recent_filter_add_pixbuf_formats, 
+// GO(gtk_recent_filter_add_mime_type,
+// GO(gtk_recent_filter_add_pattern,
+// GO(gtk_recent_filter_add_pixbuf_formats,
 GO(gtk_recent_filter_filter, iFpp)
 GO(gtk_recent_filter_flags_get_type, LFv)
 GO(gtk_recent_filter_get_name, pFp)
 GO(gtk_recent_filter_get_needed, uFp)
 GO(gtk_recent_filter_get_type, LFv)
 GO(gtk_recent_filter_new, pFv)
-//GO(gtk_recent_filter_set_name, 
+// GO(gtk_recent_filter_set_name,
 GO(gtk_recent_info_exists, iFp)
-//GO(gtk_recent_info_get_added, 
+// GO(gtk_recent_info_get_added,
 GO(gtk_recent_info_get_age, iFp)
 GO(gtk_recent_info_get_application_info, iFppppp)
-//GO(gtk_recent_info_get_applications, 
-//GO(gtk_recent_info_get_description, 
-//GO(gtk_recent_info_get_display_name, 
+// GO(gtk_recent_info_get_applications,
+// GO(gtk_recent_info_get_description,
+// GO(gtk_recent_info_get_display_name,
 GO(gtk_recent_info_get_groups, pFpp)
 GO(gtk_recent_info_get_icon, pFpi)
 GO(gtk_recent_info_get_mime_type, pFp)
-//GO(gtk_recent_info_get_modified, 
-//GO(gtk_recent_info_get_private_hint, 
-//GO(gtk_recent_info_get_short_name, 
+// GO(gtk_recent_info_get_modified,
+// GO(gtk_recent_info_get_private_hint,
+// GO(gtk_recent_info_get_short_name,
 GO(gtk_recent_info_get_type, LFv)
-//GO(gtk_recent_info_get_uri, 
+// GO(gtk_recent_info_get_uri,
 GO(gtk_recent_info_get_uri_display, pFp)
 GO(gtk_recent_info_get_visited, lFp)
-//GO(gtk_recent_info_has_application, 
+// GO(gtk_recent_info_has_application,
 GO(gtk_recent_info_has_group, iFpp)
-//GO(gtk_recent_info_is_local, 
-//GO(gtk_recent_info_last_application, 
+// GO(gtk_recent_info_is_local,
+// GO(gtk_recent_info_last_application,
 GO(gtk_recent_info_match, iFpp)
 GO(gtk_recent_info_ref, pFp)
 GO(gtk_recent_info_unref, vFp)
 GO(gtk_recent_manager_add_full, iFppp)
-//GO(gtk_recent_manager_add_item, 
+// GO(gtk_recent_manager_add_item,
 GO(gtk_recent_manager_error_get_type, LFv)
-//GO(gtk_recent_manager_error_quark, 
+// GO(gtk_recent_manager_error_quark,
 GO(gtk_recent_manager_get_default, pFv)
-//GO(gtk_recent_manager_get_for_screen, 
+// GO(gtk_recent_manager_get_for_screen,
 GO(gtk_recent_manager_get_items, pFp)
-//GO(gtk_recent_manager_get_limit, 
+// GO(gtk_recent_manager_get_limit,
 GO(gtk_recent_manager_get_type, LFv)
 GO(gtk_recent_manager_has_item, iFpp)
 GO(gtk_recent_manager_lookup_item, pFppp)
 GO(gtk_recent_manager_move_item, iFpppp)
-//GO(gtk_recent_manager_new, 
+// GO(gtk_recent_manager_new,
 GO(gtk_recent_manager_purge_items, iFpp)
 GO(gtk_recent_manager_remove_item, iFppp)
-//GO(gtk_recent_manager_set_limit, 
-//GO(gtk_recent_manager_set_screen, 
+// GO(gtk_recent_manager_set_limit,
+// GO(gtk_recent_manager_set_screen,
 GO(gtk_recent_sort_type_get_type, LFv)
 GO(gtk_relief_style_get_type, LFv)
 GO(gtk_render_activity, vFppdddd)
@@ -2570,27 +2570,27 @@ GO(gtk_requisition_get_type, LFv)
 GO(gtk_resize_mode_get_type, LFv)
 GO(gtk_response_type_get_type, LFv)
 GO(gtk_rgb_to_hsv, vFdddppp)
-//GO(gtk_ruler_draw_pos, 
-//GO(gtk_ruler_draw_ticks, 
-//GO(gtk_ruler_get_metric, 
-//GO(gtk_ruler_get_range, 
+// GO(gtk_ruler_draw_pos,
+// GO(gtk_ruler_draw_ticks,
+// GO(gtk_ruler_get_metric,
+// GO(gtk_ruler_get_range,
 GO(gtk_ruler_get_type, LFv)
-//GO(gtk_ruler_set_metric, 
-//GO(gtk_ruler_set_range, 
+// GO(gtk_ruler_set_metric,
+// GO(gtk_ruler_set_range,
 GO(gtk_scale_add_mark, vFpdup)
 GO(gtk_scale_button_get_adjustment, pFp)
-//GO(gtk_scale_button_get_minus_button, 
-//GO(gtk_scale_button_get_orientation, 
-//GO(gtk_scale_button_get_plus_button, 
+// GO(gtk_scale_button_get_minus_button,
+// GO(gtk_scale_button_get_orientation,
+// GO(gtk_scale_button_get_plus_button,
 GO(gtk_scale_button_get_popup, pFp)
 GO(gtk_scale_button_get_type, LFv)
 GO(gtk_scale_button_get_value, dFp)
 GO(gtk_scale_button_new, pFudddp)
 GO(gtk_scale_button_set_adjustment, vFpp)
 GO(gtk_scale_button_set_icons, vFpp)
-//GO(gtk_scale_button_set_orientation, 
+// GO(gtk_scale_button_set_orientation,
 GO(gtk_scale_button_set_value, vFpd)
-//GO(gtk_scale_clear_marks, 
+// GO(gtk_scale_clear_marks,
 GO(gtk_scale_get_digits, iFp)
 GO(gtk_scale_get_draw_value, iFp)
 GO(gtk_scale_get_layout, pFp)
@@ -2669,29 +2669,29 @@ GO(gtk_settings_get_default, pFv)
 GO(gtk_settings_get_for_screen, pFp)
 GO(gtk_settings_get_type, LFv)
 GO(gtk_settings_install_property, vFp)
-//GOM(gtk_settings_install_property_parser, vFEpB)
+// GOM(gtk_settings_install_property_parser, vFEpB)
 GO(gtk_settings_set_double_property, vFppdp)
 GO(gtk_settings_set_long_property, vFpplp)
 GO(gtk_settings_set_property_value, vFppp)
 GO(gtk_settings_set_string_property, vFpppp)
 GO(gtk_shadow_type_get_type, LFv)
-GO(gtk_show_about_dialog, vFpppppppppppppppppppppppp)   //vaarg
+GO(gtk_show_about_dialog, vFpppppppppppppppppppppppp) // vaarg
 GO(gtk_show_uri, iFppup)
 GO(gtk_show_uri_on_window, iFppup)
 GO(gtk_side_type_get_type, LFv)
-//GO(gtk_signal_compat_matched, 
+// GO(gtk_signal_compat_matched,
 GOM(gtk_signal_connect_full, LFEppppppii)
-//GO(gtk_signal_connect_object_while_alive, 
-//GO(gtk_signal_connect_while_alive, 
-//GO(gtk_signal_emit, 
-//GO(gtk_signal_emit_by_name, 
-//GO(gtk_signal_emit_stop_by_name, 
-//GO(gtk_signal_emitv, 
-//GO(gtk_signal_emitv_by_name, 
-//GO(gtk_signal_new, 
-//GO(gtk_signal_newv, 
+// GO(gtk_signal_connect_object_while_alive,
+// GO(gtk_signal_connect_while_alive,
+// GO(gtk_signal_emit,
+// GO(gtk_signal_emit_by_name,
+// GO(gtk_signal_emit_stop_by_name,
+// GO(gtk_signal_emitv,
+// GO(gtk_signal_emitv_by_name,
+// GO(gtk_signal_new,
+// GO(gtk_signal_newv,
 GO(gtk_signal_run_type_get_type, LFv)
-//GO(gtk_size_group_add_widget, 
+// GO(gtk_size_group_add_widget,
 GO(gtk_size_group_get_ignore_hidden, iFp)
 GO(gtk_size_group_get_mode, uFp)
 GO(gtk_size_group_get_type, LFv)
@@ -2828,7 +2828,7 @@ GO(gtk_style_context_get_scale, iFp)
 GO(gtk_style_context_get_screen, pFp)
 GO(gtk_style_context_get_section, pFpp)
 GO(gtk_style_context_get_state, uFp)
-//GO2(gtk_style_context_get_style, vFpV, gtk_style_context_get_style_valist)
+// GO2(gtk_style_context_get_style, vFpV, gtk_style_context_get_style_valist)
 GO(gtk_style_context_get_style_property, vFppp)
 GOM(gtk_style_context_get_style_valist, vFEpA)
 GOM(gtk_style_context_get_valist, vFEpiA)
@@ -2865,11 +2865,11 @@ GO(gtk_style_context_state_is_running, iFpup)
 GO(gtk_style_context_to_string, pFpu)
 GO(gtk_style_copy, pFp)
 GO(gtk_style_detach, vFp)
-GO(gtk_style_get, vFpippppppppppp)  //vaarg, wrap with gtk_style_get_valist?
+GO(gtk_style_get, vFpippppppppppp) // vaarg, wrap with gtk_style_get_valist?
 GO(gtk_style_get_font, pFp)
 GO(gtk_style_get_style_property, vFpLpp)
 GO(gtk_style_get_type, LFv)
-//GO(gtk_style_get_valist, vFpipA)
+// GO(gtk_style_get_valist, vFpipA)
 GO(gtk_style_lookup_color, iFppp)
 GO(gtk_style_lookup_icon_set, pFpp)
 GO(gtk_style_new, pFv)
@@ -2921,12 +2921,12 @@ GO(gtk_target_table_new_from_list, pFpp)
 GO(gtk_tearoff_menu_item_get_type, LFv)
 GO(gtk_tearoff_menu_item_new, pFv)
 GO(gtk_test_create_simple_window, pFpp)
-//GO(gtk_test_create_widget, 
-//GO(gtk_test_display_button_window, 
+// GO(gtk_test_create_widget,
+// GO(gtk_test_display_button_window,
 GO(gtk_test_find_label, pFpp)
 GO(gtk_test_find_sibling, pFpL)
 GO(gtk_test_find_widget, pFppL)
-//GO(gtk_test_init, 
+// GO(gtk_test_init,
 GO(gtk_test_list_all_types, pFp)
 GO(gtk_test_register_all_types, vFv)
 GO(gtk_test_slider_get_value, dFp)
@@ -2934,7 +2934,7 @@ GO(gtk_test_slider_set_perc, vFpd)
 GO(gtk_test_spin_button_click, iFpui)
 GO(gtk_test_text_get, pFp)
 GO(gtk_test_text_set, vFpp)
-//GO(gtk_test_widget_click, 
+// GO(gtk_test_widget_click,
 GO(gtk_test_widget_send_key, iFpuu)
 GO(gtk_text_anchored_child_set_layout, vFpp)
 GO(gtk_text_attributes_copy, pFp)
@@ -2953,7 +2953,7 @@ GO(gtk_text_buffer_begin_user_action, vFp)
 GO(gtk_text_buffer_copy_clipboard, vFpp)
 GO(gtk_text_buffer_create_child_anchor, pFpp)
 GO(gtk_text_buffer_create_mark, pFpppi)
-GO(gtk_text_buffer_create_tag, pFppppppppppppppp) //vaarg after 3 p
+GO(gtk_text_buffer_create_tag, pFppppppppppppppp) // vaarg after 3 p
 GO(gtk_text_buffer_cut_clipboard, vFppi)
 GO(gtk_text_buffer_delete, vFppp)
 GO(gtk_text_buffer_delete_interactive, iFpppi)
@@ -3004,9 +3004,9 @@ GO(gtk_text_buffer_move_mark_by_name, vFppp)
 GO(gtk_text_buffer_new, pFp)
 GO(gtk_text_buffer_paste_clipboard, vFpppi)
 GO(gtk_text_buffer_place_cursor, vFpp)
-//GOM(gtk_text_buffer_register_deserialize_format, pFEppBpB)
+// GOM(gtk_text_buffer_register_deserialize_format, pFEppBpB)
 GO(gtk_text_buffer_register_deserialize_tagset, pFpp)
-//GOM(gtk_text_buffer_register_serialize_format, pFppBpB)
+// GOM(gtk_text_buffer_register_serialize_format, pFppBpB)
 GO(gtk_text_buffer_register_serialize_tagset, pFpp)
 GO(gtk_text_buffer_remove_all_tags, vFppp)
 GO(gtk_text_buffer_remove_selection_clipboard, vFpp)
@@ -3125,52 +3125,52 @@ GO(gtk_text_iter_starts_line, iFp)
 GO(gtk_text_iter_starts_sentence, iFp)
 GO(gtk_text_iter_starts_word, iFp)
 GO(gtk_text_iter_toggles_tag, iFpp)
-//GO(gtk_text_layout_changed, 
-//GO(gtk_text_layout_clamp_iter_to_vrange, 
-//GO(gtk_text_layout_cursors_changed, 
-//GO(gtk_text_layout_default_style_changed, 
-//GO(gtk_text_layout_draw, 
-//GO(gtk_text_layout_free_line_data, 
-//GO(gtk_text_layout_free_line_display, 
-//GO(gtk_text_layout_get_buffer, 
-//GO(gtk_text_layout_get_cursor_locations, 
-//GO(gtk_text_layout_get_cursor_visible, 
-//GO(gtk_text_layout_get_iter_at_line, 
-//GO(gtk_text_layout_get_iter_at_pixel, 
-//GO(gtk_text_layout_get_iter_at_position, 
-//GO(gtk_text_layout_get_iter_location, 
-//GO(gtk_text_layout_get_line_at_y, 
-//GO(gtk_text_layout_get_line_display, 
-//GO(gtk_text_layout_get_lines, 
-//GO(gtk_text_layout_get_line_yrange, 
-//GO(gtk_text_layout_get_size, 
+// GO(gtk_text_layout_changed,
+// GO(gtk_text_layout_clamp_iter_to_vrange,
+// GO(gtk_text_layout_cursors_changed,
+// GO(gtk_text_layout_default_style_changed,
+// GO(gtk_text_layout_draw,
+// GO(gtk_text_layout_free_line_data,
+// GO(gtk_text_layout_free_line_display,
+// GO(gtk_text_layout_get_buffer,
+// GO(gtk_text_layout_get_cursor_locations,
+// GO(gtk_text_layout_get_cursor_visible,
+// GO(gtk_text_layout_get_iter_at_line,
+// GO(gtk_text_layout_get_iter_at_pixel,
+// GO(gtk_text_layout_get_iter_at_position,
+// GO(gtk_text_layout_get_iter_location,
+// GO(gtk_text_layout_get_line_at_y,
+// GO(gtk_text_layout_get_line_display,
+// GO(gtk_text_layout_get_lines,
+// GO(gtk_text_layout_get_line_yrange,
+// GO(gtk_text_layout_get_size,
 GO(gtk_text_layout_get_type, LFv)
-//GO(gtk_text_layout_invalidate, 
-//GO(gtk_text_layout_invalidate_cursors, 
-//GO(gtk_text_layout_is_valid, 
-//GO(gtk_text_layout_iter_starts_line, 
-//GO(gtk_text_layout_move_iter_to_line_end, 
-//GO(gtk_text_layout_move_iter_to_next_line, 
-//GO(gtk_text_layout_move_iter_to_previous_line, 
-//GO(gtk_text_layout_move_iter_to_x, 
-//GO(gtk_text_layout_move_iter_visually, 
-//GO(gtk_text_layout_new, 
-//GO(gtk_text_layout_set_buffer, 
-//GO(gtk_text_layout_set_contexts, 
-//GO(gtk_text_layout_set_cursor_direction, 
-//GO(gtk_text_layout_set_cursor_visible, 
-//GO(gtk_text_layout_set_default_style, 
-//GO(gtk_text_layout_set_keyboard_direction, 
-//GO(gtk_text_layout_set_overwrite_mode, 
-//GO(gtk_text_layout_set_preedit_string, 
-//GO(gtk_text_layout_set_screen_width, 
-//GO(gtk_text_layout_spew, 
-//GO(gtk_text_layout_validate, 
-//GO(gtk_text_layout_validate_yrange, 
-//GO(gtk_text_layout_wrap, 
-//GO(gtk_text_layout_wrap_loop_end, 
-//GO(gtk_text_layout_wrap_loop_start, 
-//GO(gtk_text_line_segment_split, 
+// GO(gtk_text_layout_invalidate,
+// GO(gtk_text_layout_invalidate_cursors,
+// GO(gtk_text_layout_is_valid,
+// GO(gtk_text_layout_iter_starts_line,
+// GO(gtk_text_layout_move_iter_to_line_end,
+// GO(gtk_text_layout_move_iter_to_next_line,
+// GO(gtk_text_layout_move_iter_to_previous_line,
+// GO(gtk_text_layout_move_iter_to_x,
+// GO(gtk_text_layout_move_iter_visually,
+// GO(gtk_text_layout_new,
+// GO(gtk_text_layout_set_buffer,
+// GO(gtk_text_layout_set_contexts,
+// GO(gtk_text_layout_set_cursor_direction,
+// GO(gtk_text_layout_set_cursor_visible,
+// GO(gtk_text_layout_set_default_style,
+// GO(gtk_text_layout_set_keyboard_direction,
+// GO(gtk_text_layout_set_overwrite_mode,
+// GO(gtk_text_layout_set_preedit_string,
+// GO(gtk_text_layout_set_screen_width,
+// GO(gtk_text_layout_spew,
+// GO(gtk_text_layout_validate,
+// GO(gtk_text_layout_validate_yrange,
+// GO(gtk_text_layout_wrap,
+// GO(gtk_text_layout_wrap_loop_end,
+// GO(gtk_text_layout_wrap_loop_start,
+// GO(gtk_text_line_segment_split,
 GO(gtk_text_mark_get_buffer, pFp)
 GO(gtk_text_mark_get_deleted, iFp)
 GO(gtk_text_mark_get_left_gravity, iFp)
@@ -3192,7 +3192,7 @@ GO(gtk_text_tag_get_type, LFv)
 GO(gtk_text_tag_new, pFp)
 GO(gtk_text_tag_set_priority, vFpi)
 GO(gtk_text_tag_table_add, iFpp)
-//GOM(gtk_text_tag_table_foreach, vFEpBp)
+// GOM(gtk_text_tag_table_foreach, vFEpBp)
 GO(gtk_text_tag_table_get_size, iFp)
 GO(gtk_text_tag_table_get_type, LFv)
 GO(gtk_text_tag_table_lookup, pFpp)
@@ -3262,24 +3262,24 @@ GO(gtk_text_view_set_wrap_mode, vFpu)
 GO(gtk_text_view_starts_display_line, iFpp)
 GO(gtk_text_view_window_to_buffer_coords, vFpuiipp)
 GO(gtk_text_window_type_get_type, LFv)
-//GO(gtk_theme_engine_create_rc_style, 
-//GO(gtk_theme_engine_get, 
+// GO(gtk_theme_engine_create_rc_style,
+// GO(gtk_theme_engine_get,
 GO(gtk_theme_engine_get_type, LFv)
 GOM(gtk_timeout_add, uFEupp)
-//GOM(gtk_timeout_add_full, uFuBppB)
+// GOM(gtk_timeout_add_full, uFuBppB)
 GO(gtk_timeout_remove, vFu)
 GO(gtk_tips_query_get_type, LFv)
-//GO(gtk_tips_query_new, 
-//GO(gtk_tips_query_set_caller, 
-//GO(gtk_tips_query_set_labels, 
-//GO(gtk_tips_query_start_query, 
-//GO(gtk_tips_query_stop_query, 
-//GO(gtk_toggle_action_get_active, 
+// GO(gtk_tips_query_new,
+// GO(gtk_tips_query_set_caller,
+// GO(gtk_tips_query_set_labels,
+// GO(gtk_tips_query_start_query,
+// GO(gtk_tips_query_stop_query,
+// GO(gtk_toggle_action_get_active,
 GO(gtk_toggle_action_get_draw_as_radio, iFp)
 GO(gtk_toggle_action_get_type, LFv)
 GO(gtk_toggle_action_new, pFpppp)
-//GO(gtk_toggle_action_set_active, 
-//GO(gtk_toggle_action_set_draw_as_radio, 
+// GO(gtk_toggle_action_set_active,
+// GO(gtk_toggle_action_set_draw_as_radio,
 GO(gtk_toggle_action_toggled, vFp)
 GO(gtk_toggle_button_get_active, iFp)
 GO(gtk_toggle_button_get_inconsistent, iFp)
@@ -3351,11 +3351,11 @@ GO(gtk_tool_button_set_label_widget, vFpp)
 GO(gtk_tool_button_set_stock_id, vFpp)
 GO(gtk_tool_button_set_use_underline, vFpi)
 GO(gtk_tool_item_get_ellipsize_mode, uFp)
-//GO(gtk_tool_item_get_expand, 
-//GO(gtk_tool_item_get_homogeneous, 
+// GO(gtk_tool_item_get_expand,
+// GO(gtk_tool_item_get_homogeneous,
 GO(gtk_tool_item_get_icon_size, uFp)
-//GO(gtk_tool_item_get_is_important, 
-//GO(gtk_tool_item_get_orientation, 
+// GO(gtk_tool_item_get_is_important,
+// GO(gtk_tool_item_get_orientation,
 GO(gtk_tool_item_get_proxy_menu_item, pFpp)
 GO(gtk_tool_item_get_relief_style, uFp)
 GO(gtk_tool_item_get_text_alignment, fFp)
@@ -3363,9 +3363,9 @@ GO(gtk_tool_item_get_text_orientation, uFp)
 GO(gtk_tool_item_get_text_size_group, pFp)
 GO(gtk_tool_item_get_toolbar_style, uFp)
 GO(gtk_tool_item_get_type, LFv)
-//GO(gtk_tool_item_get_use_drag_window, 
-//GO(gtk_tool_item_get_visible_horizontal, 
-//GO(gtk_tool_item_get_visible_vertical, 
+// GO(gtk_tool_item_get_use_drag_window,
+// GO(gtk_tool_item_get_visible_horizontal,
+// GO(gtk_tool_item_get_visible_vertical,
 GO(gtk_tool_item_group_get_collapsed, iFp)
 GO(gtk_tool_item_group_get_drop_item, pFpii)
 GO(gtk_tool_item_group_get_ellipsize, uFp)
@@ -3376,62 +3376,62 @@ GO(gtk_tool_item_group_get_label_widget, pFp)
 GO(gtk_tool_item_group_get_n_items, uFp)
 GO(gtk_tool_item_group_get_nth_item, pFpu)
 GO(gtk_tool_item_group_get_type, LFv)
-//GO(gtk_tool_item_group_insert, 
-//GO(gtk_tool_item_group_new, 
+// GO(gtk_tool_item_group_insert,
+// GO(gtk_tool_item_group_new,
 GO(gtk_tool_item_group_set_collapsed, vFpi)
 GO(gtk_tool_item_group_set_ellipsize, vFpu)
 GO(gtk_tool_item_group_set_header_relief, vFpu)
 GO(gtk_tool_item_group_set_item_position, vFppi)
 GO(gtk_tool_item_group_set_label, vFpp)
 GO(gtk_tool_item_group_set_label_widget, vFpp)
-//GO(gtk_tool_item_new, 
-//GO(gtk_tool_item_rebuild_menu, 
+// GO(gtk_tool_item_new,
+// GO(gtk_tool_item_rebuild_menu,
 GO(gtk_tool_item_retrieve_proxy_menu_item, pFp)
-//GO(gtk_tool_item_set_expand, 
-//GO(gtk_tool_item_set_homogeneous, 
+// GO(gtk_tool_item_set_expand,
+// GO(gtk_tool_item_set_homogeneous,
 GO(gtk_tool_item_set_is_important, vFpi)
 GO(gtk_tool_item_set_proxy_menu_item, vFppp)
-//GO(gtk_tool_item_set_tooltip, 
+// GO(gtk_tool_item_set_tooltip,
 GO(gtk_tool_item_set_tooltip_markup, vFpp)
-//GO(gtk_tool_item_set_tooltip_text, 
-//GO(gtk_tool_item_set_use_drag_window, 
-//GO(gtk_tool_item_set_visible_horizontal, 
-//GO(gtk_tool_item_set_visible_vertical, 
-//GO(gtk_tool_item_toolbar_reconfigured, 
+// GO(gtk_tool_item_set_tooltip_text,
+// GO(gtk_tool_item_set_use_drag_window,
+// GO(gtk_tool_item_set_visible_horizontal,
+// GO(gtk_tool_item_set_visible_vertical,
+// GO(gtk_tool_item_toolbar_reconfigured,
 GO(gtk_tool_palette_add_drag_dest, vFppuuu)
 GO(gtk_tool_palette_drag_targets_get_type, LFv)
 GO(gtk_tool_palette_get_drag_item, pFpp)
 GO(gtk_tool_palette_get_drag_target_group, pFv)
-//GO(gtk_tool_palette_get_drag_target_item, 
+// GO(gtk_tool_palette_get_drag_target_item,
 GO(gtk_tool_palette_get_drop_group, pFpii)
 GO(gtk_tool_palette_get_drop_item, pFpii)
-//GO(gtk_tool_palette_get_exclusive, 
+// GO(gtk_tool_palette_get_exclusive,
 GO(gtk_tool_palette_get_expand, iFpp)
 GO(gtk_tool_palette_get_group_position, iFpp)
-//GO(gtk_tool_palette_get_hadjustment, 
+// GO(gtk_tool_palette_get_hadjustment,
 GO(gtk_tool_palette_get_icon_size, uFp)
 GO(gtk_tool_palette_get_style, uFp)
 GO(gtk_tool_palette_get_type, LFv)
 GO(gtk_tool_palette_get_vadjustment, pFp)
-//GO(gtk_tool_palette_new, 
+// GO(gtk_tool_palette_new,
 GO(gtk_tool_palette_set_drag_source, vFpu)
-//GO(gtk_tool_palette_set_exclusive, 
+// GO(gtk_tool_palette_set_exclusive,
 GO(gtk_tool_palette_set_expand, vFppi)
 GO(gtk_tool_palette_set_group_position, vFppi)
 GO(gtk_tool_palette_set_icon_size, vFpu)
 GO(gtk_tool_palette_set_style, vFpu)
-//GO(gtk_tool_palette_unset_icon_size, 
-//GO(gtk_tool_palette_unset_style, 
+// GO(gtk_tool_palette_unset_icon_size,
+// GO(gtk_tool_palette_unset_style,
 GO(gtk_tool_shell_get_ellipsize_mode, uFp)
 GO(gtk_tool_shell_get_icon_size, uFp)
-//GO(gtk_tool_shell_get_orientation, 
+// GO(gtk_tool_shell_get_orientation,
 GO(gtk_tool_shell_get_relief_style, uFp)
 GO(gtk_tool_shell_get_style, uFp)
 GO(gtk_tool_shell_get_text_alignment, fFp)
 GO(gtk_tool_shell_get_text_orientation, uFp)
 GO(gtk_tool_shell_get_text_size_group, pFp)
 GO(gtk_tool_shell_get_type, LFv)
-//GO(gtk_tool_shell_rebuild_menu, 
+// GO(gtk_tool_shell_rebuild_menu,
 GO(gtk_tooltip_get_type, LFv)
 GO(gtk_tooltips_data_get, pFp)
 GO(gtk_tooltips_disable, vFp)
@@ -3440,8 +3440,8 @@ GO(gtk_tooltip_set_custom, vFpp)
 GO(gtk_tooltip_set_icon, vFpp)
 GO(gtk_tooltip_set_icon_from_gicon, vFppu)
 GO(gtk_tooltip_set_icon_from_icon_name, vFppu)
-//GO(gtk_tooltip_set_icon_from_stock, 
-//GO(gtk_tooltip_set_markup, 
+// GO(gtk_tooltip_set_icon_from_stock,
+// GO(gtk_tooltip_set_markup,
 GO(gtk_tooltip_set_text, vFpp)
 GO(gtk_tooltip_set_tip_area, vFpp)
 GO(gtk_tooltips_force_window, vFp)
@@ -3452,46 +3452,46 @@ GO(gtk_tooltips_set_delay, vFpu)
 GO(gtk_tooltips_set_tip, vFpppp)
 GO(gtk_tooltip_trigger_tooltip_query, vFp)
 GO(gtk_tray_icon_get_type, LFv)
-//GO(gtk_tree_append, 
-//GO(gtk_tree_child_position, 
-//GO(gtk_tree_clear_items, 
-//GO(gtk_tree_drag_dest_drag_data_received, 
+// GO(gtk_tree_append,
+// GO(gtk_tree_child_position,
+// GO(gtk_tree_clear_items,
+// GO(gtk_tree_drag_dest_drag_data_received,
 GO(gtk_tree_drag_dest_get_type, LFv)
 GO(gtk_tree_drag_dest_row_drop_possible, iFppp)
 GO(gtk_tree_drag_source_drag_data_delete, iFpp)
 GO(gtk_tree_drag_source_drag_data_get, iFppp)
 GO(gtk_tree_drag_source_get_type, LFv)
-//GO(gtk_tree_drag_source_row_draggable, 
+// GO(gtk_tree_drag_source_row_draggable,
 GO(gtk_tree_get_row_drag_data, iFppp)
 GO(gtk_tree_get_type, LFv)
-//GO(gtk_tree_insert, 
-//GO(gtk_tree_item_collapse, 
-//GO(gtk_tree_item_deselect, 
-//GO(gtk_tree_item_expand, 
+// GO(gtk_tree_insert,
+// GO(gtk_tree_item_collapse,
+// GO(gtk_tree_item_deselect,
+// GO(gtk_tree_item_expand,
 GO(gtk_tree_item_get_type, LFv)
-//GO(gtk_tree_item_new, 
-//GO(gtk_tree_item_new_with_label, 
-//GO(gtk_tree_item_remove_subtree, 
-//GO(gtk_tree_item_select, 
-//GO(gtk_tree_item_set_subtree, 
+// GO(gtk_tree_item_new,
+// GO(gtk_tree_item_new_with_label,
+// GO(gtk_tree_item_remove_subtree,
+// GO(gtk_tree_item_select,
+// GO(gtk_tree_item_set_subtree,
 GO(gtk_tree_iter_copy, pFp)
 GO(gtk_tree_iter_free, vFp)
 GO(gtk_tree_iter_get_type, LFv)
-//GO(gtk_tree_model_filter_clear_cache, 
+// GO(gtk_tree_model_filter_clear_cache,
 GO(gtk_tree_model_filter_convert_child_iter_to_iter, iFppp)
-//GO(gtk_tree_model_filter_convert_child_path_to_path, 
+// GO(gtk_tree_model_filter_convert_child_path_to_path,
 GO(gtk_tree_model_filter_convert_iter_to_child_iter, vFppp)
 GO(gtk_tree_model_filter_convert_path_to_child_path, pFpp)
 GO(gtk_tree_model_filter_get_model, pFp)
 GO(gtk_tree_model_filter_get_type, LFv)
 GO(gtk_tree_model_filter_new, pFpp)
-//GO(gtk_tree_model_filter_refilter, 
-//GO(gtk_tree_model_filter_set_modify_func, 
+// GO(gtk_tree_model_filter_refilter,
+// GO(gtk_tree_model_filter_set_modify_func,
 GO(gtk_tree_model_filter_set_visible_column, vFpi)
-//GO(gtk_tree_model_filter_set_visible_func, 
+// GO(gtk_tree_model_filter_set_visible_func,
 GO(gtk_tree_model_flags_get_type, LFv)
-//GOM(gtk_tree_model_foreach, vFEpBp)
-//GO2(gtk_tree_model_get, vFppV, gtk_tree_model_get_valist)
+// GOM(gtk_tree_model_foreach, vFEpBp)
+// GO2(gtk_tree_model_get, vFppV, gtk_tree_model_get_valist)
 GO(gtk_tree_model_get_column_type, LFpi)
 GO(gtk_tree_model_get_flags, uFp)
 GO(gtk_tree_model_get_iter, iFppp)
@@ -3501,7 +3501,7 @@ GO(gtk_tree_model_get_n_columns, iFp)
 GO(gtk_tree_model_get_path, pFpp)
 GO(gtk_tree_model_get_string_from_iter, pFpp)
 GO(gtk_tree_model_get_type, LFv)
-//GO(gtk_tree_model_get_valist, vFppp)
+// GO(gtk_tree_model_get_valist, vFppp)
 GO(gtk_tree_model_get_value, vFppip)
 GO(gtk_tree_model_iter_children, iFppp)
 GO(gtk_tree_model_iter_has_child, iFpp)
@@ -3515,18 +3515,18 @@ GO(gtk_tree_model_row_deleted, vFpp)
 GO(gtk_tree_model_row_has_child_toggled, vFppp)
 GO(gtk_tree_model_row_inserted, vFppp)
 GO(gtk_tree_model_rows_reordered, vFpppp)
-//GO(gtk_tree_model_sort_clear_cache, 
+// GO(gtk_tree_model_sort_clear_cache,
 GO(gtk_tree_model_sort_convert_child_iter_to_iter, iFppp)
-//GO(gtk_tree_model_sort_convert_child_path_to_path, 
+// GO(gtk_tree_model_sort_convert_child_path_to_path,
 GO(gtk_tree_model_sort_convert_iter_to_child_iter, vFppp)
 GO(gtk_tree_model_sort_convert_path_to_child_path, pFpp)
 GO(gtk_tree_model_sort_get_model, pFp)
 GO(gtk_tree_model_sort_get_type, LFv)
 GO(gtk_tree_model_sort_iter_is_valid, iFpp)
 GO(gtk_tree_model_sort_new_with_model, pFp)
-//GO(gtk_tree_model_sort_reset_default_sort_func, 
+// GO(gtk_tree_model_sort_reset_default_sort_func,
 GO(gtk_tree_model_unref_node, vFpp)
-//GO(gtk_tree_new, 
+// GO(gtk_tree_new,
 GO(gtk_tree_path_append_index, vFpi)
 GO(gtk_tree_path_compare, iFpp)
 GO(gtk_tree_path_copy, pFp)
@@ -3540,16 +3540,16 @@ GO(gtk_tree_path_is_ancestor, iFpp)
 GO(gtk_tree_path_is_descendant, iFpp)
 GO(gtk_tree_path_new, pFv)
 GO(gtk_tree_path_new_first, pFv)
-GO(gtk_tree_path_new_from_indices, pFippppppppppppppppp)  // vaarg
+GO(gtk_tree_path_new_from_indices, pFippppppppppppppppp) // vaarg
 GO(gtk_tree_path_new_from_string, pFp)
 GO(gtk_tree_path_next, vFp)
 GO(gtk_tree_path_prepend_index, vFpi)
 GO(gtk_tree_path_prev, vFp)
 GO(gtk_tree_path_to_string, pFp)
 GO(gtk_tree_path_up, iFp)
-//GO(gtk_tree_prepend, 
-//GO(gtk_tree_remove_item, 
-//GO(gtk_tree_remove_items, 
+// GO(gtk_tree_prepend,
+// GO(gtk_tree_remove_item,
+// GO(gtk_tree_remove_items,
 GO(gtk_tree_row_reference_copy, pFp)
 GO(gtk_tree_row_reference_deleted, vFpp)
 GO(gtk_tree_row_reference_free, vFp)
@@ -3561,33 +3561,33 @@ GO(gtk_tree_row_reference_new, pFpp)
 GO(gtk_tree_row_reference_new_proxy, pFppp)
 GO(gtk_tree_row_reference_reordered, vFpppp)
 GO(gtk_tree_row_reference_valid, iFp)
-//GO(gtk_tree_select_child, 
+// GO(gtk_tree_select_child,
 GO(gtk_tree_selection_count_selected_rows, iFp)
 GO(gtk_tree_selection_get_mode, uFp)
 GO(gtk_tree_selection_get_selected, iFppp)
 GO(gtk_tree_selection_get_selected_rows, pFpp)
-//GOM(gtk_tree_selection_get_select_function, BFEp)
+// GOM(gtk_tree_selection_get_select_function, BFEp)
 GO(gtk_tree_selection_get_tree_view, pFp)
 GO(gtk_tree_selection_get_type, LFv)
-//GOM(gtk_tree_selection_get_user_data, pFEp)
+// GOM(gtk_tree_selection_get_user_data, pFEp)
 GO(gtk_tree_selection_iter_is_selected, iFpp)
 GO(gtk_tree_selection_path_is_selected, iFpp)
 GO(gtk_tree_selection_select_all, vFp)
-//GOM(gtk_tree_selection_selected_foreach, vFEpBp)
+// GOM(gtk_tree_selection_selected_foreach, vFEpBp)
 GO(gtk_tree_selection_select_iter, vFpp)
 GO(gtk_tree_selection_select_path, vFpp)
 GO(gtk_tree_selection_select_range, vFppp)
 GO(gtk_tree_selection_set_mode, vFpu)
-//GOM(gtk_tree_selection_set_select_function, vFEpBpB)
+// GOM(gtk_tree_selection_set_select_function, vFEpBpB)
 GO(gtk_tree_selection_unselect_all, vFp)
 GO(gtk_tree_selection_unselect_iter, vFpp)
 GO(gtk_tree_selection_unselect_path, vFpp)
 GO(gtk_tree_selection_unselect_range, vFppp)
-//GO(gtk_tree_select_item, 
+// GO(gtk_tree_select_item,
 GO(gtk_tree_set_row_drag_data, iFppp)
-//GO(gtk_tree_set_selection_mode, 
-//GO(gtk_tree_set_view_lines, 
-//GO(gtk_tree_set_view_mode, 
+// GO(gtk_tree_set_selection_mode,
+// GO(gtk_tree_set_view_lines,
+// GO(gtk_tree_set_view_mode,
 GO(gtk_tree_sortable_get_sort_column_id, iFppp)
 GO(gtk_tree_sortable_get_type, LFv)
 GO(gtk_tree_sortable_has_default_sort_func, iFp)
@@ -3600,27 +3600,27 @@ GO(gtk_tree_store_clear, vFp)
 GO(gtk_tree_store_get_type, LFv)
 GO(gtk_tree_store_insert, vFpppi)
 GO(gtk_tree_store_insert_after, vFpppp)
-//GO(gtk_tree_store_insert_before, 
-//GO(gtk_tree_store_insert_with_values, 
+// GO(gtk_tree_store_insert_before,
+// GO(gtk_tree_store_insert_with_values,
 GO(gtk_tree_store_insert_with_valuesv, vFpppippi)
 GO(gtk_tree_store_is_ancestor, iFppp)
 GO(gtk_tree_store_iter_depth, iFpp)
 GO(gtk_tree_store_iter_is_valid, iFpp)
 GO(gtk_tree_store_move_after, vFppp)
-//GO(gtk_tree_store_move_before, 
+// GO(gtk_tree_store_move_before,
 GOM(gtk_tree_store_new, pFEuV)
 GO(gtk_tree_store_newv, pFip)
 GO(gtk_tree_store_prepend, vFppp)
-//GO(gtk_tree_store_remove, 
+// GO(gtk_tree_store_remove,
 GO(gtk_tree_store_reorder, vFppp)
 GOM(gtk_tree_store_set, vFEppV)
 GO(gtk_tree_store_set_column_types, vFpip)
 GOM(gtk_tree_store_set_valist, vFEppA)
 GO(gtk_tree_store_set_value, vFppip)
 GO(gtk_tree_store_set_valuesv, vFppppi)
-//GO(gtk_tree_store_swap, 
-//GO(gtk_tree_unselect_child, 
-//GO(gtk_tree_unselect_item, 
+// GO(gtk_tree_store_swap,
+// GO(gtk_tree_unselect_child,
+// GO(gtk_tree_unselect_item,
 GO(gtk_tree_view_append_column, iFpp)
 GO(gtk_tree_view_collapse_all, vFp)
 GO(gtk_tree_view_collapse_row, iFpp)
@@ -3655,13 +3655,13 @@ GO(gtk_tree_view_column_get_visible, iFp)
 GO(gtk_tree_view_column_get_widget, pFp)
 GO(gtk_tree_view_column_get_width, iFp)
 GO(gtk_tree_view_column_new, pFv)
-GO(gtk_tree_view_column_new_with_attributes, pFppppppppppppp)   //vaarg
+GO(gtk_tree_view_column_new_with_attributes, pFppppppppppppp) // vaarg
 GO(gtk_tree_view_column_pack_end, vFppi)
 GO(gtk_tree_view_column_pack_start, vFppi)
 GO(gtk_tree_view_column_queue_resize, vFp)
 GO(gtk_tree_view_columns_autosize, vFp)
 GO(gtk_tree_view_column_set_alignment, vFpf)
-GO(gtk_tree_view_column_set_attributes, vFpppppppppppp) //vaarg
+GO(gtk_tree_view_column_set_attributes, vFpppppppppppp) // vaarg
 GOM(gtk_tree_view_column_set_cell_data_func, vFEppppp)
 GO(gtk_tree_view_column_set_clickable, vFpi)
 GO(gtk_tree_view_column_set_expand, vFpi)
@@ -3714,13 +3714,13 @@ GO(gtk_tree_view_get_level_indentation, iFp)
 GO(gtk_tree_view_get_model, pFp)
 GO(gtk_tree_view_get_path_at_pos, iFpiipppp)
 GO(gtk_tree_view_get_reorderable, iFp)
-//GOM(gtk_tree_view_get_row_separator_func, BFEp)
+// GOM(gtk_tree_view_get_row_separator_func, BFEp)
 GO(gtk_tree_view_get_rubber_banding, iFp)
 GO(gtk_tree_view_get_rules_hint, iFp)
 GO(gtk_tree_view_get_search_column, iFp)
 GO(gtk_tree_view_get_search_entry, pFp)
-//GOM(gtk_tree_view_get_search_equal_func, BFEp)
-//GOM(gtk_tree_view_get_search_position_func, BFEp)
+// GOM(gtk_tree_view_get_search_equal_func, BFEp)
+// GOM(gtk_tree_view_get_search_position_func, BFEp)
 GO(gtk_tree_view_get_selection, pFp)
 GO(gtk_tree_view_get_show_expanders, iFp)
 GO(gtk_tree_view_get_tooltip_column, iFp)
@@ -3731,10 +3731,10 @@ GO(gtk_tree_view_get_visible_range, iFppp)
 GO(gtk_tree_view_get_visible_rect, vFpp)
 GO(gtk_tree_view_grid_lines_get_type, LFv)
 GO(gtk_tree_view_insert_column, iFppi)
-GO(gtk_tree_view_insert_column_with_attributes, iFpipppppppppppp) //vaarg
-//GOM(gtk_tree_view_insert_column_with_data_func, iFpippBpB)
+GO(gtk_tree_view_insert_column_with_attributes, iFpipppppppppppp) // vaarg
+// GOM(gtk_tree_view_insert_column_with_data_func, iFpippBpB)
 GO(gtk_tree_view_is_rubber_banding_active, iFp)
-//GOM(gtk_tree_view_map_expanded_rows, vFEpBp)
+// GOM(gtk_tree_view_map_expanded_rows, vFEpBp)
 GO(gtk_tree_view_mode_get_type, LFv)
 GO(gtk_tree_view_move_column_after, vFppp)
 GO(gtk_tree_view_new, pFv)
@@ -3744,10 +3744,10 @@ GO(gtk_tree_view_row_activated, vFppp)
 GO(gtk_tree_view_row_expanded, iFpp)
 GO(gtk_tree_view_scroll_to_cell, vFpppiff)
 GO(gtk_tree_view_scroll_to_point, vFpii)
-//GOM(gtk_tree_view_set_column_drag_function, vFEpBpB)
+// GOM(gtk_tree_view_set_column_drag_function, vFEpBpB)
 GO(gtk_tree_view_set_cursor, vFpppi)
 GO(gtk_tree_view_set_cursor_on_cell, vFppppi)
-//GOM(gtk_tree_view_set_destroy_count_func, vFEpBpB)
+// GOM(gtk_tree_view_set_destroy_count_func, vFEpBpB)
 GO(gtk_tree_view_set_drag_dest_row, vFppu)
 GO(gtk_tree_view_set_enable_search, vFpi)
 GO(gtk_tree_view_set_enable_tree_lines, vFpi)
@@ -3762,13 +3762,13 @@ GO(gtk_tree_view_set_hover_selection, vFpi)
 GO(gtk_tree_view_set_level_indentation, vFpi)
 GO(gtk_tree_view_set_model, vFpp)
 GO(gtk_tree_view_set_reorderable, vFpi)
-//GOM(gtk_tree_view_set_row_separator_func, vFEpBpB)
+// GOM(gtk_tree_view_set_row_separator_func, vFEpBpB)
 GO(gtk_tree_view_set_rubber_banding, vFpi)
 GO(gtk_tree_view_set_rules_hint, vFpi)
 GO(gtk_tree_view_set_search_column, vFpi)
 GO(gtk_tree_view_set_search_entry, vFpp)
 GOM(gtk_tree_view_set_search_equal_func, vFEpppp)
-//GOM(gtk_tree_view_set_search_position_func, vFEpBpB)
+// GOM(gtk_tree_view_set_search_position_func, vFEpBpB)
 GO(gtk_tree_view_set_show_expanders, vFpi)
 GO(gtk_tree_view_set_tooltip_cell, vFppppp)
 GO(gtk_tree_view_set_tooltip_column, vFpi)
@@ -3788,7 +3788,7 @@ GO(gtk_type_init, vFi)
 GO(gtk_type_new, pFi)
 GOM(gtk_type_unique, iFELp)
 GO(gtk_ui_manager_add_ui, vFpupppui)
-//GO(gtk_ui_manager_add_ui_from_file, 
+// GO(gtk_ui_manager_add_ui_from_file,
 GO(gtk_ui_manager_add_ui_from_string, uFpplp)
 GO(gtk_ui_manager_ensure_update, vFp)
 GO(gtk_ui_manager_get_accel_group, pFp)
@@ -3810,20 +3810,20 @@ GO(gtk_unit_get_type, LFv)
 GO(gtk_update_type_get_type, LFv)
 GO(gtk_vbox_get_type, LFv)
 GO(gtk_vbox_new, pFii)
-//GO(gtk_vbutton_box_get_layout_default, 
-//GO(gtk_vbutton_box_get_spacing_default, 
+// GO(gtk_vbutton_box_get_layout_default,
+// GO(gtk_vbutton_box_get_spacing_default,
 GO(gtk_vbutton_box_get_type, LFv)
-//GO(gtk_vbutton_box_new, 
-//GO(gtk_vbutton_box_set_layout_default, 
-//GO(gtk_vbutton_box_set_spacing_default, 
-//GO(gtk_viewport_get_bin_window, 
-//GO(gtk_viewport_get_hadjustment, 
+// GO(gtk_vbutton_box_new,
+// GO(gtk_vbutton_box_set_layout_default,
+// GO(gtk_vbutton_box_set_spacing_default,
+// GO(gtk_viewport_get_bin_window,
+// GO(gtk_viewport_get_hadjustment,
 GO(gtk_viewport_get_shadow_type, uFp)
 GO(gtk_viewport_get_type, LFv)
 GO(gtk_viewport_get_vadjustment, pFp)
 GO(gtk_viewport_get_view_window, pFp)
 GO(gtk_viewport_new, pFpp)
-//GO(gtk_viewport_set_hadjustment, 
+// GO(gtk_viewport_set_hadjustment,
 GO(gtk_viewport_set_shadow_type, vFpu)
 GO(gtk_viewport_set_vadjustment, vFpp)
 GO(gtk_visibility_get_type, LFv)
@@ -3848,15 +3848,15 @@ GO(gtk_widget_can_activate_accel, iFpu)
 GO(gtk_widget_child_focus, iFpi)
 GO(gtk_widget_child_notify, vFp)
 GO(gtk_widget_class_bind_template_child_full, vFppil)
-//GOM(gtk_widget_class_bind_template_callback_full, vFEppB)
+// GOM(gtk_widget_class_bind_template_callback_full, vFEppB)
 GO(gtk_widget_class_find_style_property, pFpp)
 GO(gtk_widget_class_install_style_property, vFpp)
-//GOM(gtk_widget_class_install_style_property_parser, vFEppB)
+// GOM(gtk_widget_class_install_style_property_parser, vFEppB)
 GO(gtk_widget_class_list_style_properties, pFpp)
 GO(gtk_widget_class_path, vFpppp)
 GO(gtk_widget_class_set_accessible_role, vFpu)
 GO(gtk_widget_class_set_accessible_type, vFpL)
-//GOM(gtk_widget_class_set_connect_func, vFEpBpB)
+// GOM(gtk_widget_class_set_connect_func, vFEpBpB)
 GO(gtk_widget_compute_expand, iFpu)
 GO(gtk_widget_create_pango_context, pFp)
 GO(gtk_widget_create_pango_layout, pFpp)
@@ -3981,7 +3981,7 @@ GO(gtk_widget_modify_fg, vFpip)
 GO(gtk_widget_modify_font, vFpp)
 GO(gtk_widget_modify_style, vFpp)
 GO(gtk_widget_modify_text, vFpip)
-GO(gtk_widget_new, pFppppppppppppp) //vaarg
+GO(gtk_widget_new, pFppppppppppppp) // vaarg
 GO(gtk_widget_path, vFpppp)
 GO(gtk_widget_path_append_type, iFpL)
 GO(gtk_widget_path_append_with_siblings, iFppu)
@@ -4043,7 +4043,7 @@ GO(gtk_widget_reset_rc_styles, vFp)
 GO(gtk_widget_reset_shapes, vFp)
 GO(gtk_widget_send_expose, iFpp)
 GO(gtk_widget_send_focus_change, iFpp)
-GO(gtk_widget_set, vFppppppppppppppp) //vaarg
+GO(gtk_widget_set, vFppppppppppppppp) // vaarg
 GO(gtk_widget_set_accel_path, vFppp)
 GO(gtk_widget_set_allocation, vFpp)
 GO(gtk_widget_set_app_paintable, vFpi)
@@ -4107,7 +4107,7 @@ GO(gtk_widget_size_request, vFpp)
 GO(gtk_widget_style_attach, vFp)
 GOM(gtk_widget_style_get, vFEppV)
 GO(gtk_widget_style_get_property, vFppp)
-//GO(gtk_widget_style_get_valist, vFppp)
+// GO(gtk_widget_style_get_valist, vFppp)
 GO(gtk_widget_thaw_child_notify, vFp)
 GO(gtk_widget_translate_coordinates, iFppiipp)
 GO(gtk_widget_trigger_tooltip_query, vFp)
@@ -4247,6 +4247,6 @@ GO(gtk_event_controller_get_type, LFv)
 GO(gtk_stack_set_visible_child_name, vFpp)
 GO(gtk_stack_get_visible_child_name, pFp)
 
-GO(dummy_iFppdd, iFppdd)    // for GtkEventController wrapping
+GO(dummy_iFppdd, iFppdd) // for GtkEventController wrapping
 GO(dummy_iFppUup, iFppUup)
 GO(dummy_pFpLi, pFpLi)

@@ -8,15 +8,16 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef uint32_t (*uFpup_t)(void*, uint32_t, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(curl_multi_setopt, iFpup_t) \
-	GO(curl_easy_setopt, uFpup_t) \
-	GO(curl_share_setopt, uFpup_t)
+#define SUPER()                    \
+    ADDED_FUNCTIONS()              \
+    GO(curl_multi_setopt, iFpup_t) \
+    GO(curl_easy_setopt, uFpup_t)  \
+    GO(curl_share_setopt, uFpup_t)
 
 #endif // __wrappedcurlTYPES_H_

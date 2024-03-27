@@ -8,7 +8,7 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFp_t)(void*);
@@ -21,16 +21,17 @@ typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpppi_t)(void*, void*, void*, int32_t);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(dlclose, iFp_t) \
-	GO(dlerror, pFv_t) \
-	GO(_dl_find_object, iFpp_t) \
-	GO(dladdr, iFpp_t) \
-	GO(dlopen, pFpi_t) \
-	GO(dlsym, pFpp_t) \
-	GO(dlinfo, iFpip_t) \
-	GO(dlmopen, pFppi_t) \
-	GO(dlvsym, pFppp_t) \
-	GO(dladdr1, iFpppi_t)
+#define SUPER()                 \
+    ADDED_FUNCTIONS()           \
+    GO(dlclose, iFp_t)          \
+    GO(dlerror, pFv_t)          \
+    GO(_dl_find_object, iFpp_t) \
+    GO(dladdr, iFpp_t)          \
+    GO(dlopen, pFpi_t)          \
+    GO(dlsym, pFpp_t)           \
+    GO(dlinfo, iFpip_t)         \
+    GO(dlmopen, pFppi_t)        \
+    GO(dlvsym, pFppp_t)         \
+    GO(dladdr1, iFpppi_t)
 
 #endif // __wrappedlibdlTYPES_H_

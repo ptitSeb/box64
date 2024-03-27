@@ -25,7 +25,9 @@
 
 uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog)
 {
-    (void)ip; (void)rep; (void)need_epilog;
+    (void)ip;
+    (void)rep;
+    (void)need_epilog;
 
     uint8_t nextop = F8;
     uint8_t ed, wback;
@@ -40,7 +42,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(v1);
     MAYUSE(j64);
 
-    switch(nextop) {
+    switch (nextop) {
         case 0xC0:
         case 0xC1:
         case 0xC2:
@@ -52,7 +54,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("FFREE STx");
             MESSAGE(LOG_DUMP, "Need Optimization\n");
             x87_purgecache(dyn, ninst, 0, x1, x2, x3);
-            MOV32w(x1, nextop&7);
+            MOV32w(x1, nextop & 7);
             CALL(fpu_do_free, -1);
             break;
         case 0xD0:
@@ -85,9 +87,9 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xDF:
             INST_NAME("FSTP ST0, STx");
             // copy the cache value for st0 to stx
-            x87_get_st_empty(dyn, ninst, x1, x2, nextop&7, X87_ST(nextop&7));
+            x87_get_st_empty(dyn, ninst, x1, x2, nextop & 7, X87_ST(nextop & 7));
             x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
-            x87_swapreg(dyn, ninst, x1, x2, 0, nextop&7);
+            x87_swapreg(dyn, ninst, x1, x2, 0, nextop & 7);
             X87_POP_OR_FAIL(dyn, ninst, x3);
             break;
         case 0xE0:
@@ -153,7 +155,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
         default:
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("FLD double");
                     X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_D);
@@ -209,16 +211,16 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     addr = geted(dyn, addr, ninst, nextop, &ed, x4, x6, &fixedaddress, rex, NULL, 0, 0);
                     LWU(x2, xEmu, offsetof(x64emu_t, top));
                     LHU(x3, xEmu, offsetof(x64emu_t, sw));
-                    if(dyn->e.x87stack) {
+                    if (dyn->e.x87stack) {
                         // update top
                         ADDI(x2, x2, -dyn->e.x87stack);
                         ANDI(x2, x2, 7);
                     }
                     MOV32w(x5, ~0x3800);
-                    AND(x3, x3, x5);    // mask out TOP
-                    SLLI(x2, x2, 11);   // shift TOP to bit 11
-                    OR(x3, x3, x2);     // inject TOP
-                    SH(x3, ed, fixedaddress);   // store whole sw flags
+                    AND(x3, x3, x5);          // mask out TOP
+                    SLLI(x2, x2, 11);         // shift TOP to bit 11
+                    OR(x3, x3, x2);           // inject TOP
+                    SH(x3, ed, fixedaddress); // store whole sw flags
                     break;
                 default:
                     DEFAULT;

@@ -2,10 +2,10 @@
 #error Meh...
 #endif
 
-//clockid_t is uint32?
-// pid_t is uint32 too? (for clock_getcpuclockid)
-// time_t is uint32?
-// mqd_t is int
+// clockid_t is uint32?
+//  pid_t is uint32 too? (for clock_getcpuclockid)
+//  time_t is uint32?
+//  mqd_t is int
 
 GOM(aio_cancel, iFEip)
 // aio_cancel64

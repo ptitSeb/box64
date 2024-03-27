@@ -2,7 +2,9 @@
 
 #include "la64_emitter.h"
 
-#define EMIT(A) *block = (A); ++block;
+#define EMIT(A)   \
+    *block = (A); \
+    ++block;
 void CreateJmpNext(void* addr, void* next)
 {
     uint32_t* block = (uint32_t*)addr;

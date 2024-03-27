@@ -23,7 +23,8 @@
 
 uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog)
 {
-    (void)ip; (void)need_epilog;
+    (void)ip;
+    (void)need_epilog;
 
     uint8_t opcode = F8;
     uint8_t nextop;
@@ -42,21 +43,25 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         return dynarec64_64(dyn, addr-2, ip, ninst, rex, rep, ok, need_epilog);
     }*/
 
-    switch(opcode) {
+    switch (opcode) {
 
         case 0x0F:
             opcode = F8;
-            switch(opcode) {
+            switch (opcode) {
                 case 0x2E:
                     // no special check...
                 case 0x2F:
-                    if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
+                    if (opcode == 0x2F) {
+                        INST_NAME("COMISD Gx, Ex");
+                    } else {
+                        INST_NAME("UCOMISD Gx, Ex");
+                    }
                     SETFLAGS(X_ALL, SF_SET);
                     nextop = F8;
                     GETG;
                     v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-                    if(MODREG) {
-                        v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                    if (MODREG) {
+                        v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         SMREAD();
@@ -71,8 +76,8 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0x6F:
                     INST_NAME("MOVDQA Gx,Ex");
                     nextop = F8;
-                    if(MODREG) {
-                        v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                    if (MODREG) {
+                        v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                         GETGX_empty(v0);
                         VMOVQ(v0, v1);
                     } else {
@@ -88,8 +93,8 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("MOVDQA Ex,Gx");
                     nextop = F8;
                     GETGX(v0, 0);
-                    if(MODREG) {
-                        v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                    if (MODREG) {
+                        v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
                         VMOVQ(v1, v0);
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
@@ -104,8 +109,8 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETG;
                     v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-                    if(MODREG) {
-                        v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                    if (MODREG) {
+                        v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
                         FMOVD(v1, v0);
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
@@ -122,86 +127,142 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0x83:
             nextop = F8;
-            switch((nextop>>3)&7) {
-                case 0: //ADD
-                    if(opcode==0x81) {INST_NAME("ADD Ew, Iw");} else {INST_NAME("ADD Ew, Ib");}
+            switch ((nextop >> 3) & 7) {
+                case 0: // ADD
+                    if (opcode == 0x81) {
+                        INST_NAME("ADD Ew, Iw");
+                    } else {
+                        INST_NAME("ADD Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOVZw(x5, i16);
                     emit_add16(dyn, ninst, ed, x5, x2, x4);
                     EWBACK;
                     break;
-                case 1: //OR
-                    if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
+                case 1: // OR
+                    if (opcode == 0x81) {
+                        INST_NAME("OR Ew, Iw");
+                    } else {
+                        INST_NAME("OR Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOVZw(x5, i16);
                     emit_or16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
-                case 2: //ADC
-                    if(opcode==0x81) {INST_NAME("ADC Ew, Iw");} else {INST_NAME("ADC Ew, Ib");}
+                case 2: // ADC
+                    if (opcode == 0x81) {
+                        INST_NAME("ADC Ew, Iw");
+                    } else {
+                        INST_NAME("ADC Ew, Ib");
+                    }
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOVZw(x5, i16);
                     emit_adc16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
-                case 3: //SBB
-                    if(opcode==0x81) {INST_NAME("SBB Ew, Iw");} else {INST_NAME("SBB Ew, Ib");}
+                case 3: // SBB
+                    if (opcode == 0x81) {
+                        INST_NAME("SBB Ew, Iw");
+                    } else {
+                        INST_NAME("SBB Ew, Ib");
+                    }
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOVZw(x5, i16);
                     emit_sbb16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
-                case 4: //AND
-                    if(opcode==0x81) {INST_NAME("AND Ew, Iw");} else {INST_NAME("AND Ew, Ib");}
+                case 4: // AND
+                    if (opcode == 0x81) {
+                        INST_NAME("AND Ew, Iw");
+                    } else {
+                        INST_NAME("AND Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOVZw(x5, i16);
                     emit_and16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
-                case 5: //SUB
-                    if(opcode==0x81) {INST_NAME("SUB Ew, Iw");} else {INST_NAME("SUB Ew, Ib");}
+                case 5: // SUB
+                    if (opcode == 0x81) {
+                        INST_NAME("SUB Ew, Iw");
+                    } else {
+                        INST_NAME("SUB Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOVZw(x5, i16);
                     emit_sub16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
-                case 6: //XOR
-                    if(opcode==0x81) {INST_NAME("XOR Ew, Iw");} else {INST_NAME("XOR Ew, Ib");}
+                case 6: // XOR
+                    if (opcode == 0x81) {
+                        INST_NAME("XOR Ew, Iw");
+                    } else {
+                        INST_NAME("XOR Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOVZw(x5, i16);
                     emit_xor16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
-                case 7: //CMP
-                    if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
+                case 7: // CMP
+                    if (opcode == 0x81) {
+                        INST_NAME("CMP Ew, Iw");
+                    } else {
+                        INST_NAME("CMP Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     grab_segdata(dyn, addr, ninst, x1, seg);
-                    GETEWO(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    if(i16) {
+                    GETEWO(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
+                    if (i16) {
                         MOVZw(x2, i16);
                         emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
                     } else
@@ -209,24 +270,24 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     break;
             }
             break;
-            
+
         case 0x89:
             INST_NAME("MOV FS:Ew, Gw");
             nextop = F8;
-            GETGD;  // don't need GETGW here
-            if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
-                if(rex.w) {
+            GETGD; // don't need GETGW here
+            if (MODREG) {
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                if (rex.w) {
                     MOVx_REG(ed, gd);
                 } else {
-                    if(ed!=gd) {
+                    if (ed != gd) {
                         BFIx(ed, gd, 0, 16);
                     }
                 }
             } else {
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                if(rex.w) {
+                if (rex.w) {
                     STRx_REG(gd, ed, x4);
                 } else {
                     STRH_REG(gd, ed, x4);
@@ -237,22 +298,22 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0x8B:
             INST_NAME("MOV Gd, FS:Ed");
-            nextop=F8;
+            nextop = F8;
             GETGD;
-            if(MODREG) {   // reg <= reg
-                ed = xRAX+(nextop&7)+(rex.b<<3);
-                if(rex.w) {
+            if (MODREG) { // reg <= reg
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                if (rex.w) {
                     MOVx_REG(gd, ed);
                 } else {
-                    if(ed!=gd) {
+                    if (ed != gd) {
                         BFIx(gd, ed, 0, 16);
                     }
                 }
-            } else {                    // mem <= reg
+            } else { // mem <= reg
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                if(rex.w) {
+                if (rex.w) {
                     LDRx_REG(gd, ed, x4);
                 } else {
                     LDRH_REG(x1, ed, x4);

@@ -24,27 +24,27 @@ GO(pa_channel_map_to_pretty_name, pFp)
 GO(pa_channel_map_valid, iFp)
 GO(pa_channel_position_to_pretty_string, pFi)
 GO(pa_channel_position_to_string, pFi)
-//GO(pa_context_add_autoload, 
+// GO(pa_context_add_autoload,
 GOM(pa_context_connect, iFEppip)
 GO(pa_context_disconnect, vFp)
 GOM(pa_context_drain, pFEppp)
 GO(pa_context_errno, iFp)
 GOM(pa_context_exit_daemon, pFEppp)
-//GO(pa_context_get_autoload_info_by_index, 
-//GO(pa_context_get_autoload_info_by_name, 
-//GO(pa_context_get_autoload_info_list, 
+// GO(pa_context_get_autoload_info_by_index,
+// GO(pa_context_get_autoload_info_by_name,
+// GO(pa_context_get_autoload_info_list,
 GOM(pa_context_get_card_info_by_index, pFEpupp)
-//GO(pa_context_get_card_info_by_name, 
+// GO(pa_context_get_card_info_by_name,
 GOM(pa_context_get_card_info_list, pFEppp)
 GOM(pa_context_get_client_info, pFEpupp)
 GOM(pa_context_get_client_info_list, pFEppp)
 GO(pa_context_get_index, uFp)
-//GO(pa_context_get_module_info, 
+// GO(pa_context_get_module_info,
 GOM(pa_context_get_module_info_list, pFEppp)
 GO(pa_context_get_protocol_version, uFp)
-//GO(pa_context_get_sample_info_by_index, 
-//GO(pa_context_get_sample_info_by_name, 
-//GO(pa_context_get_sample_info_list, 
+// GO(pa_context_get_sample_info_by_index,
+// GO(pa_context_get_sample_info_by_name,
+// GO(pa_context_get_sample_info_list,
 GO(pa_context_get_server, pFp)
 GOM(pa_context_get_server_info, pFEppp)
 GO(pa_context_get_server_protocol_version, uFp)
@@ -61,27 +61,27 @@ GOM(pa_context_get_source_output_info_list, pFEppp)
 GO(pa_context_get_state, uFp)
 GO(pa_context_is_local, iFp)
 GO(pa_context_is_pending, iFp)
-//GO(pa_context_kill_client, 
-//GO(pa_context_kill_sink_input, 
-//GO(pa_context_kill_source_output, 
+// GO(pa_context_kill_client,
+// GO(pa_context_kill_sink_input,
+// GO(pa_context_kill_source_output,
 GOM(pa_context_load_module, pFEppppp)
 GOM(pa_context_move_sink_input_by_index, pFEpuupp)
-//GO(pa_context_move_sink_input_by_name, 
+// GO(pa_context_move_sink_input_by_name,
 GOM(pa_context_move_source_output_by_index, pFEpuupp)
-//GO(pa_context_move_source_output_by_name, 
+// GO(pa_context_move_source_output_by_name,
 GOM(pa_context_new, pFEpp)
 GOM(pa_context_new_with_proplist, pFEppp)
-//GO(pa_context_play_sample, 
-//GO(pa_context_play_sample_with_proplist, 
+// GO(pa_context_play_sample,
+// GO(pa_context_play_sample_with_proplist,
 GOM(pa_context_proplist_remove, pFEpppp)
 GOM(pa_context_proplist_update, pFEpippp)
 GO(pa_context_ref, pFp)
-//GO(pa_context_remove_autoload_by_index, 
-//GO(pa_context_remove_autoload_by_name, 
-//GO(pa_context_remove_sample, 
+// GO(pa_context_remove_autoload_by_index,
+// GO(pa_context_remove_autoload_by_name,
+// GO(pa_context_remove_sample,
 GOM(pa_context_rttime_new, pFEpUpp)
 GOM(pa_context_set_card_profile_by_index, pFEpuppp)
-//GO(pa_context_set_card_profile_by_name, 
+// GO(pa_context_set_card_profile_by_name,
 GOM(pa_context_set_default_sink, pFEpppp)
 GOM(pa_context_set_default_source, pFEpppp)
 GOM(pa_context_set_event_callback, vFEppp)
@@ -89,24 +89,24 @@ GOM(pa_context_set_name, pFEpppp)
 GOM(pa_context_set_sink_input_mute, pFEpuipp)
 GOM(pa_context_set_sink_input_volume, pFEpuppp)
 GOM(pa_context_set_sink_mute_by_index, pFEpuipp)
-//GO(pa_context_set_sink_mute_by_name, 
+// GO(pa_context_set_sink_mute_by_name,
 GOM(pa_context_set_sink_port_by_index, pFEpuppp)
 GOM(pa_context_set_sink_port_by_name, pFEppppp)
 GOM(pa_context_set_sink_volume_by_index, pFEpuppp)
-//GO(pa_context_set_sink_volume_by_name, 
+// GO(pa_context_set_sink_volume_by_name,
 GOM(pa_context_set_source_mute_by_index, pFEpuipp)
-//GO(pa_context_set_source_mute_by_name, 
+// GO(pa_context_set_source_mute_by_name,
 GOM(pa_context_set_source_port_by_index, pFEpuppp)
 GOM(pa_context_set_source_volume_by_index, pFEpuppp)
 GOM(pa_context_set_source_volume_by_name, pFEppppp)
 GOM(pa_context_set_state_callback, vFEppp)
 GOM(pa_context_set_subscribe_callback, vFEppp)
-//GO(pa_context_stat, 
+// GO(pa_context_stat,
 GOM(pa_context_subscribe, pFEpupp)
-//GO(pa_context_suspend_sink_by_index, 
-//GO(pa_context_suspend_sink_by_name, 
-//GO(pa_context_suspend_source_by_index, 
-//GO(pa_context_suspend_source_by_name, 
+// GO(pa_context_suspend_sink_by_index,
+// GO(pa_context_suspend_sink_by_name,
+// GO(pa_context_suspend_source_by_index,
+// GO(pa_context_suspend_source_by_name,
 GOM(pa_context_unload_module, pFEpupp)
 GO(pa_context_unref, vFp)
 GO(pa_cvolume_avg, uFp)
@@ -130,12 +130,12 @@ GOM(pa_ext_device_restore_read_formats_all, pFEppp)
 GOM(pa_ext_device_restore_save_formats, pFEpiuCppp)
 GOM(pa_ext_device_restore_set_subscribe_cb, pFEppp)
 GOM(pa_ext_device_restore_subscribe, pFEpipp)
-//GO(pa_ext_stream_restore_delete, 
-//GO(pa_ext_stream_restore_read, 
-//GO(pa_ext_stream_restore_set_subscribe_cb, 
-//GO(pa_ext_stream_restore_subscribe, 
-//GO(pa_ext_stream_restore_test, 
-//GO(pa_ext_stream_restore_write, 
+// GO(pa_ext_stream_restore_delete,
+// GO(pa_ext_stream_restore_read,
+// GO(pa_ext_stream_restore_set_subscribe_cb,
+// GO(pa_ext_stream_restore_subscribe,
+// GO(pa_ext_stream_restore_test,
+// GO(pa_ext_stream_restore_write,
 GO(pa_format_info_new, pFv)
 GO(pa_frame_size, LFp)
 GO(pa_get_binary_name, pFpL)
@@ -145,7 +145,7 @@ GO(pa_get_host_name, pFpL)
 GO(pa_get_library_version, pFv)
 GO(pa_gettimeofday, pFp)
 GO(pa_get_user_name, pFpL)
-//GO(pa_locale_to_utf8, 
+// GO(pa_locale_to_utf8,
 GOM(pa_mainloop_api_once, vFEppp)
 GO(pa_mainloop_dispatch, iFp)
 GOM(pa_mainloop_free, vFEp)
@@ -157,7 +157,7 @@ GO(pa_mainloop_poll, iFp)
 GO(pa_mainloop_prepare, iFpi)
 GO(pa_mainloop_quit, vFpi)
 GO(pa_mainloop_run, iFpp)
-GOM(pa_mainloop_set_poll_func, vFEppp)  //B is typedef int(*pa_poll_func) (struct pollfd *ufds, unsigned long nfds, int timeout, void *userdata)
+GOM(pa_mainloop_set_poll_func, vFEppp) // B is typedef int(*pa_poll_func) (struct pollfd *ufds, unsigned long nfds, int timeout, void *userdata)
 GO(pa_mainloop_wakeup, vFp)
 GO(pa_msleep, iFL)
 GO(pa_operation_cancel, vFp)
@@ -293,8 +293,8 @@ GO(pa_xrealloc, pFpL)
 GO(pa_xstrdup, pFp)
 GO(pa_xstrndup, pFpL)
 
-GO(pa_stream_begin_write, iFppp)	// 0.9.16+
-GO(pa_stream_cancel_write, iFp)     // 0.9.16+
+GO(pa_stream_begin_write, iFppp) // 0.9.16+
+GO(pa_stream_cancel_write, iFp)  // 0.9.16+
 
-GO(dummy_io_new, pFpiipp)   // dumy function to create Wrapper
-GO(dummy_io_new2, vFppiip)  // and another one
+GO(dummy_io_new, pFpiipp)  // dumy function to create Wrapper
+GO(dummy_io_new2, vFppiip) // and another one

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,9 +18,9 @@
 #include "emu/x64emu_private.h"
 
 #ifdef ANDROID
-	const char* libxcbrandrName = "libxcb-randr.so";
+const char* libxcbrandrName = "libxcb-randr.so";
 #else
-	const char* libxcbrandrName = "libxcb-randr.so.0";
+const char* libxcbrandrName = "libxcb-randr.so.0";
 #endif
 
 #define LIBNAME libxcbrandr

@@ -30,7 +30,7 @@ uintptr_t dynarec64_00(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t opcode;
 
     opcode = PK(0);
-    switch(opcode) {
+    switch (opcode) {
         case 0x00 ... 0x3f: addr = dynarec64_00_0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog); break;
         case 0x40 ... 0x7f: addr = dynarec64_00_1(dyn, addr, ip, ninst, rex, rep, ok, need_epilog); break;
         case 0x80 ... 0xbf: addr = dynarec64_00_2(dyn, addr, ip, ninst, rex, rep, ok, need_epilog); break;

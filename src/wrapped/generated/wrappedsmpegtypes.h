@@ -8,14 +8,15 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(SMPEG_new_rwops, pFppi_t) \
-	GO(SMPEG_setdisplay, vFpppp_t)
+#define SUPER()                  \
+    ADDED_FUNCTIONS()            \
+    GO(SMPEG_new_rwops, pFppi_t) \
+    GO(SMPEG_setdisplay, vFpppp_t)
 
 #endif // __wrappedsmpegTYPES_H_

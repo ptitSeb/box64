@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -20,8 +20,8 @@ EXPORT int my_atk_bridge_adaptor_init(void* argc, void** argv)
     return 0;
 }
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
 #define NEEDED_LIBS "libatk-1.0.so.0", "libSM.so.6", "libICE.so.6", "libXau.so.6", "libxcb.so.1"

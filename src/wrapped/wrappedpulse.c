@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,9 +18,9 @@
 #include "myalign.h"
 
 #ifdef ANDROID
-    const char* pulseName = "libpulse.so";
+const char* pulseName = "libpulse.so";
 #else
-    const char* pulseName = "libpulse.so.0";
+const char* pulseName = "libpulse.so.0";
 #endif
 
 #define LIBNAME pulse
@@ -28,20 +28,20 @@
 // TODO: check my_pa_proplist_setf (not using generated/...)
 
 typedef struct my_pa_mainloop_api_s {
-    void*   data;
-    void*   io_new;
-    void*   io_enable;
-    void*   io_free;
-    void*   io_set_destroy;
-    void*   time_new;
-    void*   time_restart;
-    void*   time_free;
-    void*   time_set_destroy;
-    void*   defer_new;
-    void*   defer_enable;
-    void*   defer_free;
-    void*   defer_set_destroy;
-    void*   quit;
+    void* data;
+    void* io_new;
+    void* io_enable;
+    void* io_free;
+    void* io_set_destroy;
+    void* time_new;
+    void* time_restart;
+    void* time_free;
+    void* time_set_destroy;
+    void* defer_new;
+    void* defer_enable;
+    void* defer_free;
+    void* defer_set_destroy;
+    void* quit;
 } my_pa_mainloop_api_t;
 
 typedef void (*vFpi_t)(void*, int32_t);
@@ -57,7 +57,7 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
     GO(pa_log_level_meta, vFipippV_t)
 #endif
 
-#define ADDED_FUNCTIONS() \
+#define ADDED_FUNCTIONS()
 
 
 #include "generated/wrappedpulsetypes.h"
@@ -65,982 +65,1197 @@ typedef void (*vFipippV_t)(int, void*, int, void*, void*, void*);
 #include "wrappercallback.h"
 
 // TODO: change that static for a map ptr2ptr?
-static my_pa_mainloop_api_t my_mainloop_api = {0};
+static my_pa_mainloop_api_t my_mainloop_api = { 0 };
 static void UpdateautobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_mainloop_api_t* api);
 
 // utility functions
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)   \
-GO(5)   \
-GO(6)   \
-GO(7)   \
-GO(8)   \
-GO(9)   \
-GO(10)  \
-GO(11)  \
-GO(12)  \
-GO(13)  \
-GO(14)  \
-GO(15)  \
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)       \
+    GO(5)       \
+    GO(6)       \
+    GO(7)       \
+    GO(8)       \
+    GO(9)       \
+    GO(10)      \
+    GO(11)      \
+    GO(12)      \
+    GO(13)      \
+    GO(14)      \
+    GO(15)
 
 
-#define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;   \
-static void my_free_##A(void* data)     \
-{                                       \
-    RunFunctionFmt(my_free_fct_##A, "p", data);\
-}
+#define GO(A)                                       \
+    static uintptr_t my_free_fct_##A = 0;           \
+    static void my_free_##A(void* data)             \
+    {                                               \
+        RunFunctionFmt(my_free_fct_##A, "p", data); \
+    }
 SUPER()
 #undef GO
 static void* findFreeFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_free_fct_##A == 0) {           \
+        my_free_fct_##A = (uintptr_t)fct; \
+        return my_free_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio free callback\n");
     return NULL;
 }
 
-#define GO(A)   \
-static uintptr_t my_free_api_fct_##A = 0;   \
-static void my_free_api_##A(my_pa_mainloop_api_t* api, void* p, void* data)     \
-{                                       \
-    RunFunctionFmt(my_free_api_fct_##A, "ppp", api, p, data);\
-}
+#define GO(A)                                                                   \
+    static uintptr_t my_free_api_fct_##A = 0;                                   \
+    static void my_free_api_##A(my_pa_mainloop_api_t* api, void* p, void* data) \
+    {                                                                           \
+        RunFunctionFmt(my_free_api_fct_##A, "ppp", api, p, data);               \
+    }
 SUPER()
 #undef GO
 static void* findFreeAPIFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_free_api_fct_##A == (uintptr_t)fct) return my_free_api_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_free_api_fct_##A == (uintptr_t)fct) return my_free_api_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_free_api_fct_##A == 0) {my_free_api_fct_##A = (uintptr_t)fct; return my_free_api_##A; }
+#undef GO
+#define GO(A)                                 \
+    if (my_free_api_fct_##A == 0) {           \
+        my_free_api_fct_##A = (uintptr_t)fct; \
+        return my_free_api_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio free api callback\n");
     return NULL;
 }
 
 #define GO(A)                                                                                       \
-static uintptr_t my_io_event_fct_##A = 0;                                                           \
-static void my_io_event_##A(my_pa_mainloop_api_t* api, void* e, int fd, int events, void* data)     \
-{                                                                                                   \
-    UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);                           \
-    RunFunctionFmt(my_io_event_fct_##A, "ppiip", api, e, fd, events, data);                         \
-}
+    static uintptr_t my_io_event_fct_##A = 0;                                                       \
+    static void my_io_event_##A(my_pa_mainloop_api_t* api, void* e, int fd, int events, void* data) \
+    {                                                                                               \
+        UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);                       \
+        RunFunctionFmt(my_io_event_fct_##A, "ppiip", api, e, fd, events, data);                     \
+    }
 SUPER()
 #undef GO
 static void* findIOEventFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_io_event_fct_##A == (uintptr_t)fct) return my_io_event_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_io_event_fct_##A == (uintptr_t)fct) return my_io_event_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_io_event_fct_##A == 0) {my_io_event_fct_##A = (uintptr_t)fct; return my_io_event_##A; }
+#undef GO
+#define GO(A)                                 \
+    if (my_io_event_fct_##A == 0) {           \
+        my_io_event_fct_##A = (uintptr_t)fct; \
+        return my_io_event_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio io_event api callback\n");
     return NULL;
 }
 
 #define GO(A)                                                                               \
-static uintptr_t my_time_event_fct_##A = 0;                                                 \
-static void my_time_event_##A(my_pa_mainloop_api_t* api, void* e, void* tv, void* data)     \
-{                                                                                           \
-    UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);                   \
-    RunFunctionFmt(my_time_event_fct_##A, "pppp", api, e, tv, data);                        \
-}
+    static uintptr_t my_time_event_fct_##A = 0;                                             \
+    static void my_time_event_##A(my_pa_mainloop_api_t* api, void* e, void* tv, void* data) \
+    {                                                                                       \
+        UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);               \
+        RunFunctionFmt(my_time_event_fct_##A, "pppp", api, e, tv, data);                    \
+    }
 SUPER()
 #undef GO
 static void* findTimeEventFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    if(!fct) return NULL;
-    #define GO(A) if(my_time_event_fct_##A == (uintptr_t)fct) return my_time_event_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    if (!fct) return NULL;
+#define GO(A) \
+    if (my_time_event_fct_##A == (uintptr_t)fct) return my_time_event_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_time_event_fct_##A == 0) {my_time_event_fct_##A = (uintptr_t)fct; return my_time_event_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_time_event_fct_##A == 0) {           \
+        my_time_event_fct_##A = (uintptr_t)fct; \
+        return my_time_event_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_event api callback\n");
     return NULL;
 }
 
-#define GO(A)                                                                       \
-static uintptr_t my_defer_event_fct_##A = 0;                                        \
-static void my_defer_event_##A(my_pa_mainloop_api_t* api, void* e, void* data)      \
-{                                                                                   \
-    UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);           \
-    RunFunctionFmt(my_defer_event_fct_##A, "ppp", api, e, data);                    \
-}
+#define GO(A)                                                                      \
+    static uintptr_t my_defer_event_fct_##A = 0;                                   \
+    static void my_defer_event_##A(my_pa_mainloop_api_t* api, void* e, void* data) \
+    {                                                                              \
+        UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);      \
+        RunFunctionFmt(my_defer_event_fct_##A, "ppp", api, e, data);               \
+    }
 SUPER()
 #undef GO
 static void* findDeferEventFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    if(!fct) return NULL;
-    #define GO(A) if(my_defer_event_fct_##A == (uintptr_t)fct) return my_defer_event_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    if (!fct) return NULL;
+#define GO(A) \
+    if (my_defer_event_fct_##A == (uintptr_t)fct) return my_defer_event_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_defer_event_fct_##A == 0) {my_defer_event_fct_##A = (uintptr_t)fct; return my_defer_event_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_defer_event_fct_##A == 0) {           \
+        my_defer_event_fct_##A = (uintptr_t)fct; \
+        return my_defer_event_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio defer_event api callback\n");
     return NULL;
 }
 // poll
-#define GO(A)   \
-static uintptr_t my_poll_fct_##A = 0;   \
-static int my_poll_##A(void* ufds, unsigned long nfds, int timeout, void* data)         \
-{                                       \
-    return (int)RunFunctionFmt(my_poll_fct_##A, "pLip", ufds, nfds, timeout, data); \
-}
+#define GO(A)                                                                           \
+    static uintptr_t my_poll_fct_##A = 0;                                               \
+    static int my_poll_##A(void* ufds, unsigned long nfds, int timeout, void* data)     \
+    {                                                                                   \
+        return (int)RunFunctionFmt(my_poll_fct_##A, "pLip", ufds, nfds, timeout, data); \
+    }
 SUPER()
 #undef GO
 static void* find_poll_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_poll_fct_##A == (uintptr_t)fct) return my_poll_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_poll_fct_##A == (uintptr_t)fct) return my_poll_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_poll_fct_##A == 0) {my_poll_fct_##A = (uintptr_t)fct; return my_poll_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_poll_fct_##A == 0) {           \
+        my_poll_fct_##A = (uintptr_t)fct; \
+        return my_poll_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio poll callback\n");
     return NULL;
 }
 // signal
-#define GO(A)   \
-static uintptr_t my_signal_fct_##A = 0;   \
-static void my_signal_##A(my_pa_mainloop_api_t* api, void* e, int sig, void *data)  \
-{                                                                                   \
-    UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);           \
-    RunFunctionFmt(my_signal_fct_##A, "ppip", api, e, sig, data);                   \
-}
+#define GO(A)                                                                          \
+    static uintptr_t my_signal_fct_##A = 0;                                            \
+    static void my_signal_##A(my_pa_mainloop_api_t* api, void* e, int sig, void* data) \
+    {                                                                                  \
+        UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);          \
+        RunFunctionFmt(my_signal_fct_##A, "ppip", api, e, sig, data);                  \
+    }
 SUPER()
 #undef GO
 static void* find_signal_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_signal_fct_##A == (uintptr_t)fct) return my_signal_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_signal_fct_##A == (uintptr_t)fct) return my_signal_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_signal_fct_##A == 0) {my_signal_fct_##A = (uintptr_t)fct; return my_signal_##A; }
+#undef GO
+#define GO(A)                               \
+    if (my_signal_fct_##A == 0) {           \
+        my_signal_fct_##A = (uintptr_t)fct; \
+        return my_signal_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio signal callback\n");
     return NULL;
 }
 // signal_destroy
-#define GO(A)   \
-static uintptr_t my_signal_destroy_fct_##A = 0;   \
-static void my_signal_destroy_##A(my_pa_mainloop_api_t* api, void* e, void *data)   \
-{                                                                                   \
-    UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);           \
-    RunFunctionFmt(my_signal_destroy_fct_##A, "ppp", api, e, data);                 \
-}
+#define GO(A)                                                                         \
+    static uintptr_t my_signal_destroy_fct_##A = 0;                                   \
+    static void my_signal_destroy_##A(my_pa_mainloop_api_t* api, void* e, void* data) \
+    {                                                                                 \
+        UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);         \
+        RunFunctionFmt(my_signal_destroy_fct_##A, "ppp", api, e, data);               \
+    }
 SUPER()
 #undef GO
 static void* find_signal_destroy_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_signal_destroy_fct_##A == (uintptr_t)fct) return my_signal_destroy_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_signal_destroy_fct_##A == (uintptr_t)fct) return my_signal_destroy_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_signal_destroy_fct_##A == 0) {my_signal_destroy_fct_##A = (uintptr_t)fct; return my_signal_destroy_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_signal_destroy_fct_##A == 0) {           \
+        my_signal_destroy_fct_##A = (uintptr_t)fct; \
+        return my_signal_destroy_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio signal_destroy callback\n");
     return NULL;
 }
 
 // prefork
-#define GO(A)   \
-static uintptr_t my_prefork_fct_##A = 0;            \
-static void my_prefork_##A()                        \
-{                                                   \
-    RunFunctionFmt(my_prefork_fct_##A, ""); \
-}
+#define GO(A)                                   \
+    static uintptr_t my_prefork_fct_##A = 0;    \
+    static void my_prefork_##A()                \
+    {                                           \
+        RunFunctionFmt(my_prefork_fct_##A, ""); \
+    }
 SUPER()
 #undef GO
 static void* find_prefork_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_prefork_fct_##A == (uintptr_t)fct) return my_prefork_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_prefork_fct_##A == (uintptr_t)fct) return my_prefork_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_prefork_fct_##A == 0) {my_prefork_fct_##A = (uintptr_t)fct; return my_prefork_##A; }
+#undef GO
+#define GO(A)                                \
+    if (my_prefork_fct_##A == 0) {           \
+        my_prefork_fct_##A = (uintptr_t)fct; \
+        return my_prefork_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio prefork callback\n");
     return NULL;
 }
 // postfork
-#define GO(A)   \
-static uintptr_t my_postfork_fct_##A = 0;           \
-static void my_postfork_##A()                       \
-{                                                   \
-    RunFunctionFmt(my_postfork_fct_##A, "");\
-}
+#define GO(A)                                    \
+    static uintptr_t my_postfork_fct_##A = 0;    \
+    static void my_postfork_##A()                \
+    {                                            \
+        RunFunctionFmt(my_postfork_fct_##A, ""); \
+    }
 SUPER()
 #undef GO
 static void* find_postfork_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_postfork_fct_##A == (uintptr_t)fct) return my_postfork_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_postfork_fct_##A == (uintptr_t)fct) return my_postfork_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_postfork_fct_##A == 0) {my_postfork_fct_##A = (uintptr_t)fct; return my_postfork_##A; }
+#undef GO
+#define GO(A)                                 \
+    if (my_postfork_fct_##A == 0) {           \
+        my_postfork_fct_##A = (uintptr_t)fct; \
+        return my_postfork_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio postfork callback\n");
     return NULL;
 }
 // atfork
-#define GO(A)   \
-static uintptr_t my_atfork_fct_##A = 0;             \
-static void my_atfork_##A()                         \
-{                                                   \
-    RunFunctionFmt(my_atfork_fct_##A, "");  \
-}
+#define GO(A)                                  \
+    static uintptr_t my_atfork_fct_##A = 0;    \
+    static void my_atfork_##A()                \
+    {                                          \
+        RunFunctionFmt(my_atfork_fct_##A, ""); \
+    }
 SUPER()
 #undef GO
 static void* find_atfork_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_atfork_fct_##A == (uintptr_t)fct) return my_atfork_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_atfork_fct_##A == (uintptr_t)fct) return my_atfork_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_atfork_fct_##A == 0) {my_atfork_fct_##A = (uintptr_t)fct; return my_atfork_##A; }
+#undef GO
+#define GO(A)                               \
+    if (my_atfork_fct_##A == 0) {           \
+        my_atfork_fct_##A = (uintptr_t)fct; \
+        return my_atfork_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio atfork callback\n");
     return NULL;
 }
 
 // state_context
-#define GO(A)                                                               \
-static uintptr_t my_state_context_fct_##A = 0;                              \
-static void my_state_context_##A(void* context, void* data)                 \
-{                                                                           \
-    RunFunctionFmt(my_state_context_fct_##A, "pp", context, data);    \
-}
+#define GO(A)                                                          \
+    static uintptr_t my_state_context_fct_##A = 0;                     \
+    static void my_state_context_##A(void* context, void* data)        \
+    {                                                                  \
+        RunFunctionFmt(my_state_context_fct_##A, "pp", context, data); \
+    }
 SUPER()
 #undef GO
 static void* find_state_context_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_state_context_fct_##A == (uintptr_t)fct) return my_state_context_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_state_context_fct_##A == (uintptr_t)fct) return my_state_context_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_state_context_fct_##A == 0) {my_state_context_fct_##A = (uintptr_t)fct; return my_state_context_##A; }
+#undef GO
+#define GO(A)                                      \
+    if (my_state_context_fct_##A == 0) {           \
+        my_state_context_fct_##A = (uintptr_t)fct; \
+        return my_state_context_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio state_context callback\n");
     return NULL;
 }
 // notify_context
-#define GO(A)                                                               \
-static uintptr_t my_notify_context_fct_##A = 0;                             \
-static void my_notify_context_##A(void* context, void* data)                \
-{                                                                           \
-    RunFunctionFmt(my_notify_context_fct_##A, "pp", context, data);   \
-}
+#define GO(A)                                                           \
+    static uintptr_t my_notify_context_fct_##A = 0;                     \
+    static void my_notify_context_##A(void* context, void* data)        \
+    {                                                                   \
+        RunFunctionFmt(my_notify_context_fct_##A, "pp", context, data); \
+    }
 SUPER()
 #undef GO
 static void* find_notify_context_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_notify_context_fct_##A == (uintptr_t)fct) return my_notify_context_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_notify_context_fct_##A == (uintptr_t)fct) return my_notify_context_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_notify_context_fct_##A == 0) {my_notify_context_fct_##A = (uintptr_t)fct; return my_notify_context_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_notify_context_fct_##A == 0) {           \
+        my_notify_context_fct_##A = (uintptr_t)fct; \
+        return my_notify_context_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio notify_context callback\n");
     return NULL;
 }
 // success_context
-#define GO(A)                                                                       \
-static uintptr_t my_success_context_fct_##A = 0;                                    \
-static void my_success_context_##A(void* context, int success, void* data)          \
-{                                                                                   \
-    RunFunctionFmt(my_success_context_fct_##A, "pip", context, success, data); \
-}
+#define GO(A)                                                                      \
+    static uintptr_t my_success_context_fct_##A = 0;                               \
+    static void my_success_context_##A(void* context, int success, void* data)     \
+    {                                                                              \
+        RunFunctionFmt(my_success_context_fct_##A, "pip", context, success, data); \
+    }
 SUPER()
 #undef GO
 static void* find_success_context_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_success_context_fct_##A == (uintptr_t)fct) return my_success_context_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_success_context_fct_##A == (uintptr_t)fct) return my_success_context_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_success_context_fct_##A == 0) {my_success_context_fct_##A = (uintptr_t)fct; return my_success_context_##A; }
+#undef GO
+#define GO(A)                                        \
+    if (my_success_context_fct_##A == 0) {           \
+        my_success_context_fct_##A = (uintptr_t)fct; \
+        return my_success_context_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio success_context callback\n");
     return NULL;
 }
 // event_context
-#define GO(A)                                                                       \
-static uintptr_t my_event_context_fct_##A = 0;                                      \
-static void my_event_context_##A(void* context, void* name, void* p, void* data)    \
-{                                                                                   \
-    RunFunctionFmt(my_event_context_fct_##A, "pppp", context, name, p, data);   \
-}
+#define GO(A)                                                                        \
+    static uintptr_t my_event_context_fct_##A = 0;                                   \
+    static void my_event_context_##A(void* context, void* name, void* p, void* data) \
+    {                                                                                \
+        RunFunctionFmt(my_event_context_fct_##A, "pppp", context, name, p, data);    \
+    }
 SUPER()
 #undef GO
 static void* find_event_context_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_event_context_fct_##A == (uintptr_t)fct) return my_event_context_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_event_context_fct_##A == (uintptr_t)fct) return my_event_context_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_event_context_fct_##A == 0) {my_event_context_fct_##A = (uintptr_t)fct; return my_event_context_##A; }
+#undef GO
+#define GO(A)                                      \
+    if (my_event_context_fct_##A == 0) {           \
+        my_event_context_fct_##A = (uintptr_t)fct; \
+        return my_event_context_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio event_context callback\n");
     return NULL;
 }
 // module_info
 #define GO(A)                                                                   \
-static uintptr_t my_module_info_fct_##A = 0;                                    \
-static void my_module_info_##A(void* context, void* i, int eol, void* data)     \
-{                                                                               \
-    RunFunctionFmt(my_module_info_fct_##A, "ppip", context, i, eol, data);  \
-}
+    static uintptr_t my_module_info_fct_##A = 0;                                \
+    static void my_module_info_##A(void* context, void* i, int eol, void* data) \
+    {                                                                           \
+        RunFunctionFmt(my_module_info_fct_##A, "ppip", context, i, eol, data);  \
+    }
 SUPER()
 #undef GO
 static void* find_module_info_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_module_info_fct_##A == (uintptr_t)fct) return my_module_info_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_module_info_fct_##A == (uintptr_t)fct) return my_module_info_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_module_info_fct_##A == 0) {my_module_info_fct_##A = (uintptr_t)fct; return my_module_info_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_module_info_fct_##A == 0) {           \
+        my_module_info_fct_##A = (uintptr_t)fct; \
+        return my_module_info_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio module_info callback\n");
     return NULL;
 }
 // server_info
-#define GO(A)                                                               \
-static uintptr_t my_server_info_fct_##A = 0;                                \
-static void my_server_info_##A(void* context, void* i, void* data)          \
-{                                                                           \
-    RunFunctionFmt(my_server_info_fct_##A, "ppp", context, i, data);   \
-}
+#define GO(A)                                                            \
+    static uintptr_t my_server_info_fct_##A = 0;                         \
+    static void my_server_info_##A(void* context, void* i, void* data)   \
+    {                                                                    \
+        RunFunctionFmt(my_server_info_fct_##A, "ppp", context, i, data); \
+    }
 SUPER()
 #undef GO
 static void* find_server_info_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_server_info_fct_##A == (uintptr_t)fct) return my_server_info_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_server_info_fct_##A == (uintptr_t)fct) return my_server_info_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_server_info_fct_##A == 0) {my_server_info_fct_##A = (uintptr_t)fct; return my_server_info_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_server_info_fct_##A == 0) {           \
+        my_server_info_fct_##A = (uintptr_t)fct; \
+        return my_server_info_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio server_info callback\n");
     return NULL;
 }
 // client_info
 #define GO(A)                                                                   \
-static uintptr_t my_client_info_fct_##A = 0;                                    \
-static void my_client_info_##A(void* context, void* i, int eol, void* data)     \
-{                                                                               \
-    RunFunctionFmt(my_client_info_fct_##A, "ppip", context, i, eol, data);  \
-}
+    static uintptr_t my_client_info_fct_##A = 0;                                \
+    static void my_client_info_##A(void* context, void* i, int eol, void* data) \
+    {                                                                           \
+        RunFunctionFmt(my_client_info_fct_##A, "ppip", context, i, eol, data);  \
+    }
 SUPER()
 #undef GO
 static void* find_client_info_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_client_info_fct_##A == (uintptr_t)fct) return my_client_info_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_client_info_fct_##A == (uintptr_t)fct) return my_client_info_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_client_info_fct_##A == 0) {my_client_info_fct_##A = (uintptr_t)fct; return my_client_info_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_client_info_fct_##A == 0) {           \
+        my_client_info_fct_##A = (uintptr_t)fct; \
+        return my_client_info_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio client_info callback\n");
     return NULL;
 }
 // context_index
-#define GO(A)                                                                   \
-static uintptr_t my_context_index_fct_##A = 0;                                  \
-static void my_context_index_##A(void* context, uint32_t idx, void* data)       \
-{                                                                               \
-    RunFunctionFmt(my_context_index_fct_##A, "pup", context, idx, data);   \
-}
+#define GO(A)                                                                 \
+    static uintptr_t my_context_index_fct_##A = 0;                            \
+    static void my_context_index_##A(void* context, uint32_t idx, void* data) \
+    {                                                                         \
+        RunFunctionFmt(my_context_index_fct_##A, "pup", context, idx, data);  \
+    }
 SUPER()
 #undef GO
 static void* find_context_index_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_context_index_fct_##A == (uintptr_t)fct) return my_context_index_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_context_index_fct_##A == (uintptr_t)fct) return my_context_index_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_context_index_fct_##A == 0) {my_context_index_fct_##A = (uintptr_t)fct; return my_context_index_##A; }
+#undef GO
+#define GO(A)                                      \
+    if (my_context_index_fct_##A == 0) {           \
+        my_context_index_fct_##A = (uintptr_t)fct; \
+        return my_context_index_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio context_index callback\n");
     return NULL;
 }
 // subscribe_context
-#define GO(A)                                                                           \
-static uintptr_t my_subscribe_context_fct_##A = 0;                                      \
-static void my_subscribe_context_##A(void* context, int evt, uint32_t idx, void* data)  \
-{                                                                                       \
-    RunFunctionFmt(my_subscribe_context_fct_##A, "piup", context, evt, idx, data);  \
-}
+#define GO(A)                                                                              \
+    static uintptr_t my_subscribe_context_fct_##A = 0;                                     \
+    static void my_subscribe_context_##A(void* context, int evt, uint32_t idx, void* data) \
+    {                                                                                      \
+        RunFunctionFmt(my_subscribe_context_fct_##A, "piup", context, evt, idx, data);     \
+    }
 SUPER()
 #undef GO
 static void* find_subscribe_context_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_subscribe_context_fct_##A == (uintptr_t)fct) return my_subscribe_context_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_subscribe_context_fct_##A == (uintptr_t)fct) return my_subscribe_context_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_subscribe_context_fct_##A == 0) {my_subscribe_context_fct_##A = (uintptr_t)fct; return my_subscribe_context_##A; }
+#undef GO
+#define GO(A)                                          \
+    if (my_subscribe_context_fct_##A == 0) {           \
+        my_subscribe_context_fct_##A = (uintptr_t)fct; \
+        return my_subscribe_context_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio subscribe_context callback\n");
     return NULL;
 }
 
 // stream_state
-#define GO(A)                                                       \
-static uintptr_t my_stream_state_fct_##A = 0;                       \
-static void my_stream_state_##A(void* s, void* data)                \
-{                                                                   \
-    RunFunctionFmt(my_stream_state_fct_##A, "pp", s, data);   \
-}
+#define GO(A)                                                   \
+    static uintptr_t my_stream_state_fct_##A = 0;               \
+    static void my_stream_state_##A(void* s, void* data)        \
+    {                                                           \
+        RunFunctionFmt(my_stream_state_fct_##A, "pp", s, data); \
+    }
 SUPER()
 #undef GO
 static void* find_stream_state_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_stream_state_fct_##A == (uintptr_t)fct) return my_stream_state_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_stream_state_fct_##A == (uintptr_t)fct) return my_stream_state_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_stream_state_fct_##A == 0) {my_stream_state_fct_##A = (uintptr_t)fct; return my_stream_state_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_stream_state_fct_##A == 0) {           \
+        my_stream_state_fct_##A = (uintptr_t)fct; \
+        return my_stream_state_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_state callback\n");
     return NULL;
 }
 // stream_success
-#define GO(A)                                                                   \
-static uintptr_t my_stream_success_fct_##A = 0;                                 \
-static void my_stream_success_##A(void* s, int success, void* data)             \
-{                                                                               \
-    RunFunctionFmt(my_stream_success_fct_##A, "pip", s, success, data);    \
-}
+#define GO(A)                                                               \
+    static uintptr_t my_stream_success_fct_##A = 0;                         \
+    static void my_stream_success_##A(void* s, int success, void* data)     \
+    {                                                                       \
+        RunFunctionFmt(my_stream_success_fct_##A, "pip", s, success, data); \
+    }
 SUPER()
 #undef GO
 static void* find_stream_success_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_stream_success_fct_##A == (uintptr_t)fct) return my_stream_success_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_stream_success_fct_##A == (uintptr_t)fct) return my_stream_success_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_stream_success_fct_##A == 0) {my_stream_success_fct_##A = (uintptr_t)fct; return my_stream_success_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_stream_success_fct_##A == 0) {           \
+        my_stream_success_fct_##A = (uintptr_t)fct; \
+        return my_stream_success_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_success callback\n");
     return NULL;
 }
 // stream_notify
-#define GO(A)                                                       \
-static uintptr_t my_stream_notify_fct_##A = 0;                      \
-static void my_stream_notify_##A(void* s, void* data)               \
-{                                                                   \
-    RunFunctionFmt(my_stream_notify_fct_##A, "pp", s, data);  \
-}
+#define GO(A)                                                    \
+    static uintptr_t my_stream_notify_fct_##A = 0;               \
+    static void my_stream_notify_##A(void* s, void* data)        \
+    {                                                            \
+        RunFunctionFmt(my_stream_notify_fct_##A, "pp", s, data); \
+    }
 SUPER()
 #undef GO
 static void* find_stream_notify_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_stream_notify_fct_##A == (uintptr_t)fct) return my_stream_notify_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_stream_notify_fct_##A == (uintptr_t)fct) return my_stream_notify_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_stream_notify_fct_##A == 0) {my_stream_notify_fct_##A = (uintptr_t)fct; return my_stream_notify_##A; }
+#undef GO
+#define GO(A)                                      \
+    if (my_stream_notify_fct_##A == 0) {           \
+        my_stream_notify_fct_##A = (uintptr_t)fct; \
+        return my_stream_notify_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_notify callback\n");
     return NULL;
 }
 // stream_event
-#define GO(A)                                                               \
-static uintptr_t my_stream_event_fct_##A = 0;                               \
-static void my_stream_event_##A(void* s, void* name, void* pl, void* data)  \
-{                                                                           \
-    RunFunctionFmt(my_stream_event_fct_##A, "pppp", s, name, pl, data); \
-}
+#define GO(A)                                                                  \
+    static uintptr_t my_stream_event_fct_##A = 0;                              \
+    static void my_stream_event_##A(void* s, void* name, void* pl, void* data) \
+    {                                                                          \
+        RunFunctionFmt(my_stream_event_fct_##A, "pppp", s, name, pl, data);    \
+    }
 SUPER()
 #undef GO
 static void* find_stream_event_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_stream_event_fct_##A == (uintptr_t)fct) return my_stream_event_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_stream_event_fct_##A == (uintptr_t)fct) return my_stream_event_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_stream_event_fct_##A == 0) {my_stream_event_fct_##A = (uintptr_t)fct; return my_stream_event_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_stream_event_fct_##A == 0) {           \
+        my_stream_event_fct_##A = (uintptr_t)fct; \
+        return my_stream_event_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_event callback\n");
     return NULL;
 }
 // stream_request
-#define GO(A)                                                               \
-static uintptr_t my_stream_request_fct_##A = 0;                             \
-static void my_stream_request_##A(void* s, size_t nbytes, void* data)       \
-{                                                                           \
-    RunFunctionFmt(my_stream_request_fct_##A, "pLp", s, nbytes, data); \
-}
+#define GO(A)                                                              \
+    static uintptr_t my_stream_request_fct_##A = 0;                        \
+    static void my_stream_request_##A(void* s, size_t nbytes, void* data)  \
+    {                                                                      \
+        RunFunctionFmt(my_stream_request_fct_##A, "pLp", s, nbytes, data); \
+    }
 SUPER()
 #undef GO
 static void* find_stream_request_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_stream_request_fct_##A == (uintptr_t)fct) return my_stream_request_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_stream_request_fct_##A == (uintptr_t)fct) return my_stream_request_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_stream_request_fct_##A == 0) {my_stream_request_fct_##A = (uintptr_t)fct; return my_stream_request_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_stream_request_fct_##A == 0) {           \
+        my_stream_request_fct_##A = (uintptr_t)fct; \
+        return my_stream_request_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio stream_request callback\n");
     return NULL;
 }
 // device_restore_read_device_formats
 #define GO(A)                                                                               \
-static uintptr_t my_device_restore_read_device_formats_fct_##A = 0;                         \
-static void my_device_restore_read_device_formats_##A(void* a, void* b, int c, void* d)     \
-{                                                                                           \
-    RunFunctionFmt(my_device_restore_read_device_formats_fct_##A, "ppip", a, b, c, d);  \
-}
+    static uintptr_t my_device_restore_read_device_formats_fct_##A = 0;                     \
+    static void my_device_restore_read_device_formats_##A(void* a, void* b, int c, void* d) \
+    {                                                                                       \
+        RunFunctionFmt(my_device_restore_read_device_formats_fct_##A, "ppip", a, b, c, d);  \
+    }
 SUPER()
 #undef GO
 static void* find_device_restore_read_device_formats_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_device_restore_read_device_formats_fct_##A == (uintptr_t)fct) return my_device_restore_read_device_formats_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_device_restore_read_device_formats_fct_##A == (uintptr_t)fct) return my_device_restore_read_device_formats_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_device_restore_read_device_formats_fct_##A == 0) {my_device_restore_read_device_formats_fct_##A = (uintptr_t)fct; return my_device_restore_read_device_formats_##A; }
+#undef GO
+#define GO(A)                                                           \
+    if (my_device_restore_read_device_formats_fct_##A == 0) {           \
+        my_device_restore_read_device_formats_fct_##A = (uintptr_t)fct; \
+        return my_device_restore_read_device_formats_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio device_restore_read_device_formats callback\n");
     return NULL;
 }
 // card_info
 #define GO(A)                                                      \
-static uintptr_t my_card_info_fct_##A = 0;                         \
-static void my_card_info_##A(void* a, void* b, int c, void* d)     \
-{                                                                  \
-    RunFunctionFmt(my_card_info_fct_##A, "ppip", a, b, c, d);  \
-}
+    static uintptr_t my_card_info_fct_##A = 0;                     \
+    static void my_card_info_##A(void* a, void* b, int c, void* d) \
+    {                                                              \
+        RunFunctionFmt(my_card_info_fct_##A, "ppip", a, b, c, d);  \
+    }
 SUPER()
 #undef GO
 static void* find_card_info_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_card_info_fct_##A == (uintptr_t)fct) return my_card_info_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_card_info_fct_##A == (uintptr_t)fct) return my_card_info_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_card_info_fct_##A == 0) {my_card_info_fct_##A = (uintptr_t)fct; return my_card_info_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_card_info_fct_##A == 0) {           \
+        my_card_info_fct_##A = (uintptr_t)fct; \
+        return my_card_info_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio card_info callback\n");
     return NULL;
 }
 // source_output_info
 #define GO(A)                                                               \
-static uintptr_t my_source_output_info_fct_##A = 0;                         \
-static void my_source_output_info_##A(void* a, void* b, int c, void* d)     \
-{                                                                           \
-    RunFunctionFmt(my_source_output_info_fct_##A, "ppip", a, b, c, d);      \
-}
+    static uintptr_t my_source_output_info_fct_##A = 0;                     \
+    static void my_source_output_info_##A(void* a, void* b, int c, void* d) \
+    {                                                                       \
+        RunFunctionFmt(my_source_output_info_fct_##A, "ppip", a, b, c, d);  \
+    }
 SUPER()
 #undef GO
 static void* find_source_output_info_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_source_output_info_fct_##A == (uintptr_t)fct) return my_source_output_info_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_source_output_info_fct_##A == (uintptr_t)fct) return my_source_output_info_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_source_output_info_fct_##A == 0) {my_source_output_info_fct_##A = (uintptr_t)fct; return my_source_output_info_##A; }
+#undef GO
+#define GO(A)                                           \
+    if (my_source_output_info_fct_##A == 0) {           \
+        my_source_output_info_fct_##A = (uintptr_t)fct; \
+        return my_source_output_info_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio source_output_info callback\n");
     return NULL;
 }
 // device_restore_subscribe
-#define GO(A)                                                                       \
-static uintptr_t my_device_restore_subscribe_fct_##A = 0;                           \
-static void my_device_restore_subscribe_##A(void* a, int b, uint32_t c, void* d)    \
-{                                                                                   \
-    RunFunctionFmt(my_device_restore_subscribe_fct_##A, "piup", a, b, c, d);        \
-}
+#define GO(A)                                                                        \
+    static uintptr_t my_device_restore_subscribe_fct_##A = 0;                        \
+    static void my_device_restore_subscribe_##A(void* a, int b, uint32_t c, void* d) \
+    {                                                                                \
+        RunFunctionFmt(my_device_restore_subscribe_fct_##A, "piup", a, b, c, d);     \
+    }
 SUPER()
 #undef GO
 static void* find_device_restore_subscribe_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_device_restore_subscribe_fct_##A == (uintptr_t)fct) return my_device_restore_subscribe_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_device_restore_subscribe_fct_##A == (uintptr_t)fct) return my_device_restore_subscribe_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_device_restore_subscribe_fct_##A == 0) {my_device_restore_subscribe_fct_##A = (uintptr_t)fct; return my_device_restore_subscribe_##A; }
+#undef GO
+#define GO(A)                                                 \
+    if (my_device_restore_subscribe_fct_##A == 0) {           \
+        my_device_restore_subscribe_fct_##A = (uintptr_t)fct; \
+        return my_device_restore_subscribe_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio device_restore_subscribe callback\n");
     return NULL;
 }
 // mainloop_once
-#define GO(A)                                                               \
-static uintptr_t my_mainloop_once_fct_##A = 0;                              \
-static void my_mainloop_once_##A(void* api, void* b)                        \
-{                                                                           \
-    UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api);   \
-    RunFunctionFmt(my_mainloop_once_fct_##A, "pp", api, b);                 \
-}
+#define GO(A)                                                                 \
+    static uintptr_t my_mainloop_once_fct_##A = 0;                            \
+    static void my_mainloop_once_##A(void* api, void* b)                      \
+    {                                                                         \
+        UpdateautobridgeMainloopAPI(thread_get_emu(), my_lib->w.bridge, api); \
+        RunFunctionFmt(my_mainloop_once_fct_##A, "pp", api, b);               \
+    }
 SUPER()
 #undef GO
 static void* find_mainloop_once_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_mainloop_once_fct_##A == (uintptr_t)fct) return my_mainloop_once_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_mainloop_once_fct_##A == (uintptr_t)fct) return my_mainloop_once_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_mainloop_once_fct_##A == 0) {my_mainloop_once_fct_##A = (uintptr_t)fct; return my_mainloop_once_##A; }
+#undef GO
+#define GO(A)                                      \
+    if (my_mainloop_once_fct_##A == 0) {           \
+        my_mainloop_once_fct_##A = (uintptr_t)fct; \
+        return my_mainloop_once_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio mainloop_once callback\n");
     return NULL;
 }
 // io_new
-#define GO(A)                                                                                                                                           \
-static uintptr_t my_io_new_fct_##A = 0;                                                                                                                 \
-static void* my_io_new_##A(void* api, int fd, int events, void* cb, void* data)                                                                         \
-{                                                                                                                                                       \
-    return (void*)RunFunctionFmt(my_io_new_fct_##A, "piipp", api, fd, events, AddCheckBridge(my_lib->w.bridge, vFppiip, cb, 0, "my_io_new_cb"),data);   \
-}
+#define GO(A)                                                                                                                                              \
+    static uintptr_t my_io_new_fct_##A = 0;                                                                                                                \
+    static void* my_io_new_##A(void* api, int fd, int events, void* cb, void* data)                                                                        \
+    {                                                                                                                                                      \
+        return (void*)RunFunctionFmt(my_io_new_fct_##A, "piipp", api, fd, events, AddCheckBridge(my_lib->w.bridge, vFppiip, cb, 0, "my_io_new_cb"), data); \
+    }
 SUPER()
 #undef GO
 static void* find_io_new_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_io_new_fct_##A == (uintptr_t)fct) return my_io_new_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_io_new_fct_##A == (uintptr_t)fct) return my_io_new_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_io_new_fct_##A == 0) {my_io_new_fct_##A = (uintptr_t)fct; return my_io_new_##A; }
+#undef GO
+#define GO(A)                               \
+    if (my_io_new_fct_##A == 0) {           \
+        my_io_new_fct_##A = (uintptr_t)fct; \
+        return my_io_new_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio io_new callback\n");
     return NULL;
 }
 // io_enable
-#define GO(A)                                                   \
-static uintptr_t my_io_enable_fct_##A = 0;                      \
-static void my_io_enable_##A(void* api, int events)             \
-{                                                               \
-    RunFunctionFmt(my_io_enable_fct_##A, "pi", api, events);    \
-}
+#define GO(A)                                                    \
+    static uintptr_t my_io_enable_fct_##A = 0;                   \
+    static void my_io_enable_##A(void* api, int events)          \
+    {                                                            \
+        RunFunctionFmt(my_io_enable_fct_##A, "pi", api, events); \
+    }
 SUPER()
 #undef GO
 static void* find_io_enable_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_io_enable_fct_##A == (uintptr_t)fct) return my_io_enable_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_io_enable_fct_##A == (uintptr_t)fct) return my_io_enable_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_io_enable_fct_##A == 0) {my_io_enable_fct_##A = (uintptr_t)fct; return my_io_enable_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_io_enable_fct_##A == 0) {           \
+        my_io_enable_fct_##A = (uintptr_t)fct; \
+        return my_io_enable_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio io_enable callback\n");
     return NULL;
 }
 // io_free
-#define GO(A)                                   \
-static uintptr_t my_io_free_fct_##A = 0;        \
-static void my_io_free_##A(void* e)             \
-{                                               \
-    RunFunctionFmt(my_io_free_fct_##A, "p", e); \
-}
+#define GO(A)                                       \
+    static uintptr_t my_io_free_fct_##A = 0;        \
+    static void my_io_free_##A(void* e)             \
+    {                                               \
+        RunFunctionFmt(my_io_free_fct_##A, "p", e); \
+    }
 SUPER()
 #undef GO
 static void* find_io_free_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_io_free_fct_##A == (uintptr_t)fct) return my_io_free_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_io_free_fct_##A == (uintptr_t)fct) return my_io_free_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_io_free_fct_##A == 0) {my_io_free_fct_##A = (uintptr_t)fct; return my_io_free_##A; }
+#undef GO
+#define GO(A)                                \
+    if (my_io_free_fct_##A == 0) {           \
+        my_io_free_fct_##A = (uintptr_t)fct; \
+        return my_io_free_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio io_free callback\n");
     return NULL;
 }
 // io_set_destroy
-#define GO(A)                                                                                                                   \
-static uintptr_t my_io_set_destroy_fct_##A = 0;                                                                                 \
-static void my_io_set_destroy_##A(void* e, void* cb)                                                                            \
-{                                                                                                                               \
-    RunFunctionFmt(my_io_set_destroy_fct_##A, "pp", e, AddCheckBridge(my_lib->w.bridge, vFppp, cb, 0, "my_io_set_destroy_cb")); \
-}
+#define GO(A)                                                                                                                       \
+    static uintptr_t my_io_set_destroy_fct_##A = 0;                                                                                 \
+    static void my_io_set_destroy_##A(void* e, void* cb)                                                                            \
+    {                                                                                                                               \
+        RunFunctionFmt(my_io_set_destroy_fct_##A, "pp", e, AddCheckBridge(my_lib->w.bridge, vFppp, cb, 0, "my_io_set_destroy_cb")); \
+    }
 SUPER()
 #undef GO
 static void* find_io_set_destroy_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_io_set_destroy_fct_##A == (uintptr_t)fct) return my_io_set_destroy_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_io_set_destroy_fct_##A == (uintptr_t)fct) return my_io_set_destroy_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_io_set_destroy_fct_##A == 0) {my_io_set_destroy_fct_##A = (uintptr_t)fct; return my_io_set_destroy_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_io_set_destroy_fct_##A == 0) {           \
+        my_io_set_destroy_fct_##A = (uintptr_t)fct; \
+        return my_io_set_destroy_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio io_set_destroy callback\n");
     return NULL;
 }
 // time_new
-#define GO(A)                                                                                                                                   \
-static uintptr_t my_time_new_fct_##A = 0;                                                                                                       \
-static void* my_time_new_##A(void* api, void* t, void* cb, void* data)                                                                          \
-{                                                                                                                                               \
-    return (void*)RunFunctionFmt(my_time_new_fct_##A, "pppp", api, t, AddCheckBridge(my_lib->w.bridge, vFpppp, cb, 0, "my_time_new_cb"), data); \
-}
+#define GO(A)                                                                                                                                       \
+    static uintptr_t my_time_new_fct_##A = 0;                                                                                                       \
+    static void* my_time_new_##A(void* api, void* t, void* cb, void* data)                                                                          \
+    {                                                                                                                                               \
+        return (void*)RunFunctionFmt(my_time_new_fct_##A, "pppp", api, t, AddCheckBridge(my_lib->w.bridge, vFpppp, cb, 0, "my_time_new_cb"), data); \
+    }
 SUPER()
 #undef GO
 static void* find_time_new_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_time_new_fct_##A == (uintptr_t)fct) return my_time_new_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_time_new_fct_##A == (uintptr_t)fct) return my_time_new_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_time_new_fct_##A == 0) {my_time_new_fct_##A = (uintptr_t)fct; return my_time_new_##A; }
+#undef GO
+#define GO(A)                                 \
+    if (my_time_new_fct_##A == 0) {           \
+        my_time_new_fct_##A = (uintptr_t)fct; \
+        return my_time_new_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_new callback\n");
     return NULL;
 }
 // time_restart
-#define GO(A)                                               \
-static uintptr_t my_time_restart_fct_##A = 0;               \
-static void my_time_restart_##A(void* e, void* t)           \
-{                                                           \
-    RunFunctionFmt(my_time_restart_fct_##A, "pp", e, t);    \
-}
+#define GO(A)                                                \
+    static uintptr_t my_time_restart_fct_##A = 0;            \
+    static void my_time_restart_##A(void* e, void* t)        \
+    {                                                        \
+        RunFunctionFmt(my_time_restart_fct_##A, "pp", e, t); \
+    }
 SUPER()
 #undef GO
 static void* find_time_restart_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_time_restart_fct_##A == (uintptr_t)fct) return my_time_restart_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_time_restart_fct_##A == (uintptr_t)fct) return my_time_restart_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_time_restart_fct_##A == 0) {my_time_restart_fct_##A = (uintptr_t)fct; return my_time_restart_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_time_restart_fct_##A == 0) {           \
+        my_time_restart_fct_##A = (uintptr_t)fct; \
+        return my_time_restart_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_restart callback\n");
     return NULL;
 }
 // time_free
-#define GO(A)                                       \
-static uintptr_t my_time_free_fct_##A = 0;          \
-static void my_time_free_##A(void* e)               \
-{                                                   \
-    RunFunctionFmt(my_time_free_fct_##A, "p", e);   \
-}
+#define GO(A)                                         \
+    static uintptr_t my_time_free_fct_##A = 0;        \
+    static void my_time_free_##A(void* e)             \
+    {                                                 \
+        RunFunctionFmt(my_time_free_fct_##A, "p", e); \
+    }
 SUPER()
 #undef GO
 static void* find_time_free_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_time_free_fct_##A == (uintptr_t)fct) return my_time_free_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_time_free_fct_##A == (uintptr_t)fct) return my_time_free_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_time_free_fct_##A == 0) {my_time_free_fct_##A = (uintptr_t)fct; return my_time_free_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_time_free_fct_##A == 0) {           \
+        my_time_free_fct_##A = (uintptr_t)fct; \
+        return my_time_free_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_free callback\n");
     return NULL;
 }
 // time_set_destroy
-#define GO(A)                                                                                                                       \
-static uintptr_t my_time_set_destroy_fct_##A = 0;                                                                                   \
-static void my_time_set_destroy_##A(void* e, void* cb)                                                                              \
-{                                                                                                                                   \
-    RunFunctionFmt(my_time_set_destroy_fct_##A, "pp", e, AddCheckBridge(my_lib->w.bridge, vFppp, cb, 0, "my_time_set_destroy_cb")); \
-}
+#define GO(A)                                                                                                                           \
+    static uintptr_t my_time_set_destroy_fct_##A = 0;                                                                                   \
+    static void my_time_set_destroy_##A(void* e, void* cb)                                                                              \
+    {                                                                                                                                   \
+        RunFunctionFmt(my_time_set_destroy_fct_##A, "pp", e, AddCheckBridge(my_lib->w.bridge, vFppp, cb, 0, "my_time_set_destroy_cb")); \
+    }
 SUPER()
 #undef GO
 static void* find_time_set_destroy_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_time_set_destroy_fct_##A == (uintptr_t)fct) return my_time_set_destroy_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_time_set_destroy_fct_##A == (uintptr_t)fct) return my_time_set_destroy_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_time_set_destroy_fct_##A == 0) {my_time_set_destroy_fct_##A = (uintptr_t)fct; return my_time_set_destroy_##A; }
+#undef GO
+#define GO(A)                                         \
+    if (my_time_set_destroy_fct_##A == 0) {           \
+        my_time_set_destroy_fct_##A = (uintptr_t)fct; \
+        return my_time_set_destroy_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio time_set_destroy callback\n");
     return NULL;
 }
 // defer_new
-#define GO(A)                                                                                                                                   \
-static uintptr_t my_defer_new_fct_##A = 0;                                                                                                      \
-static void* my_defer_new_##A(void* api, void* cb, void* data)                                                                                  \
-{                                                                                                                                               \
-    return (void*)RunFunctionFmt(my_defer_new_fct_##A, "ppp", api, AddCheckBridge(my_lib->w.bridge, vFpppp, cb, 0, "my_defer_new_cb"), data);   \
-}
+#define GO(A)                                                                                                                                     \
+    static uintptr_t my_defer_new_fct_##A = 0;                                                                                                    \
+    static void* my_defer_new_##A(void* api, void* cb, void* data)                                                                                \
+    {                                                                                                                                             \
+        return (void*)RunFunctionFmt(my_defer_new_fct_##A, "ppp", api, AddCheckBridge(my_lib->w.bridge, vFpppp, cb, 0, "my_defer_new_cb"), data); \
+    }
 SUPER()
 #undef GO
 static void* find_defer_new_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_defer_new_fct_##A == (uintptr_t)fct) return my_defer_new_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_defer_new_fct_##A == (uintptr_t)fct) return my_defer_new_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_defer_new_fct_##A == 0) {my_defer_new_fct_##A = (uintptr_t)fct; return my_defer_new_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_defer_new_fct_##A == 0) {           \
+        my_defer_new_fct_##A = (uintptr_t)fct; \
+        return my_defer_new_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio defer_new callback\n");
     return NULL;
 }
 // defer_enable
-#define GO(A)                                               \
-static uintptr_t my_defer_enable_fct_##A = 0;               \
-static void my_defer_enable_##A(void* e, int b)             \
-{                                                           \
-    RunFunctionFmt(my_defer_enable_fct_##A, "pi", e, b);    \
-}
+#define GO(A)                                                \
+    static uintptr_t my_defer_enable_fct_##A = 0;            \
+    static void my_defer_enable_##A(void* e, int b)          \
+    {                                                        \
+        RunFunctionFmt(my_defer_enable_fct_##A, "pi", e, b); \
+    }
 SUPER()
 #undef GO
 static void* find_defer_enable_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_defer_enable_fct_##A == (uintptr_t)fct) return my_defer_enable_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_defer_enable_fct_##A == (uintptr_t)fct) return my_defer_enable_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_defer_enable_fct_##A == 0) {my_defer_enable_fct_##A = (uintptr_t)fct; return my_defer_enable_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_defer_enable_fct_##A == 0) {           \
+        my_defer_enable_fct_##A = (uintptr_t)fct; \
+        return my_defer_enable_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio defer_enable callback\n");
     return NULL;
 }
 // defer_free
-#define GO(A)                                       \
-static uintptr_t my_defer_free_fct_##A = 0;         \
-static void my_defer_free_##A(void* e)              \
-{                                                   \
-    RunFunctionFmt(my_defer_free_fct_##A, "p", e);  \
-}
+#define GO(A)                                          \
+    static uintptr_t my_defer_free_fct_##A = 0;        \
+    static void my_defer_free_##A(void* e)             \
+    {                                                  \
+        RunFunctionFmt(my_defer_free_fct_##A, "p", e); \
+    }
 SUPER()
 #undef GO
 static void* find_defer_free_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_defer_free_fct_##A == (uintptr_t)fct) return my_defer_free_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_defer_free_fct_##A == (uintptr_t)fct) return my_defer_free_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_defer_free_fct_##A == 0) {my_defer_free_fct_##A = (uintptr_t)fct; return my_defer_free_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_defer_free_fct_##A == 0) {           \
+        my_defer_free_fct_##A = (uintptr_t)fct; \
+        return my_defer_free_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio defer_free callback\n");
     return NULL;
 }
 // defer_set_destroy
-#define GO(A)                                                                                                                           \
-static uintptr_t my_defer_set_destroy_fct_##A = 0;                                                                                      \
-static void my_defer_set_destroy_##A(void* e, void* cb)                                                                                 \
-{                                                                                                                                       \
-    RunFunctionFmt(my_defer_set_destroy_fct_##A, "pp", e, AddCheckBridge(my_lib->w.bridge, vFppp, cb, 0, "my_defer_set_destroy_cb"));   \
-}
+#define GO(A)                                                                                                                             \
+    static uintptr_t my_defer_set_destroy_fct_##A = 0;                                                                                    \
+    static void my_defer_set_destroy_##A(void* e, void* cb)                                                                               \
+    {                                                                                                                                     \
+        RunFunctionFmt(my_defer_set_destroy_fct_##A, "pp", e, AddCheckBridge(my_lib->w.bridge, vFppp, cb, 0, "my_defer_set_destroy_cb")); \
+    }
 SUPER()
 #undef GO
 static void* find_defer_set_destroy_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_defer_set_destroy_fct_##A == (uintptr_t)fct) return my_defer_set_destroy_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_defer_set_destroy_fct_##A == (uintptr_t)fct) return my_defer_set_destroy_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_defer_set_destroy_fct_##A == 0) {my_defer_set_destroy_fct_##A = (uintptr_t)fct; return my_defer_set_destroy_##A; }
+#undef GO
+#define GO(A)                                          \
+    if (my_defer_set_destroy_fct_##A == 0) {           \
+        my_defer_set_destroy_fct_##A = (uintptr_t)fct; \
+        return my_defer_set_destroy_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio defer_set_destroy callback\n");
     return NULL;
 }
 // quit
-#define GO(A)                                           \
-static uintptr_t my_quit_fct_##A = 0;                   \
-static void my_quit_##A(void* e, int retval)            \
-{                                                       \
-    RunFunctionFmt(my_quit_fct_##A, "pi", e, retval);   \
-}
+#define GO(A)                                             \
+    static uintptr_t my_quit_fct_##A = 0;                 \
+    static void my_quit_##A(void* e, int retval)          \
+    {                                                     \
+        RunFunctionFmt(my_quit_fct_##A, "pi", e, retval); \
+    }
 SUPER()
 #undef GO
 static void* find_quit_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_quit_fct_##A == (uintptr_t)fct) return my_quit_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_quit_fct_##A == (uintptr_t)fct) return my_quit_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_quit_fct_##A == 0) {my_quit_fct_##A = (uintptr_t)fct; return my_quit_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_quit_fct_##A == 0) {           \
+        my_quit_fct_##A = (uintptr_t)fct; \
+        return my_quit_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for pulse audio quit callback\n");
     return NULL;
 }
@@ -1049,10 +1264,14 @@ static void* find_quit_Fct(void* fct)
 
 static void UpdateautobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_mainloop_api_t* api)
 {
-    if(!api) {
+    if (!api) {
         return;
     }
-    #define GO(A, W) if(api->A!=my_mainloop_api.A) {api->A=find_##A##_Fct(api->A); AddAutomaticBridge(bridge, W, api->A, 0, NULL);}
+#define GO(A, W)                                        \
+    if (api->A != my_mainloop_api.A) {                  \
+        api->A = find_##A##_Fct(api->A);                \
+        AddAutomaticBridge(bridge, W, api->A, 0, NULL); \
+    }
     GO(io_new, pFpiipp);
     GO(io_enable, vFpi);
     GO(io_free, vFp);
@@ -1066,17 +1285,18 @@ static void UpdateautobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_m
     GO(defer_free, vFp);
     GO(defer_set_destroy, vFpp);
     GO(quit, vFpi);
-    #undef GO
+#undef GO
     memcpy(&my_mainloop_api, api, sizeof(my_mainloop_api));
     return;
 }
 
 static void autobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_mainloop_api_t* api)
 {
-    if(!api) {
+    if (!api) {
         return;
     }
-    #define GO(A, W) if(api->A) AddAutomaticBridge(bridge, W, api->A, 0, NULL)
+#define GO(A, W) \
+    if (api->A) AddAutomaticBridge(bridge, W, api->A, 0, NULL)
     GO(io_new, pFpiipp);
     GO(io_enable, vFpi);
     GO(io_free, vFp);
@@ -1090,7 +1310,7 @@ static void autobridgeMainloopAPI(x64emu_t* emu, bridge_t* bridge, my_pa_mainloo
     GO(defer_free, vFp);
     GO(defer_set_destroy, vFpp);
     GO(quit, vFpi);
-    #undef GO
+#undef GO
     memcpy(&my_mainloop_api, api, sizeof(my_mainloop_api));
     return;
 }
@@ -1165,15 +1385,15 @@ typedef struct my_pa_spawn_api_s {
 
 EXPORT int my_pa_context_connect(x64emu_t* emu, void* context, void* server, int flags, my_pa_spawn_api_t* api)
 {
-    if(!api) {
+    if (!api) {
         return my->pa_context_connect(context, server, flags, api);
     }
-    static my_pa_spawn_api_t a = {0};
-    #define GO(A) a.A = find_##A##_Fct(api->A)
+    static my_pa_spawn_api_t a = { 0 };
+#define GO(A) a.A = find_##A##_Fct(api->A)
     GO(prefork);
     GO(postfork);
     GO(atfork);
-    #undef GO
+#undef GO
     return my->pa_context_connect(context, server, flags, &a);
 }
 
@@ -1321,7 +1541,7 @@ EXPORT void* my_pa_context_set_name(x64emu_t* emu, void* context, void* name, vo
     return my->pa_context_set_name(context, name, find_success_context_Fct(cb), data);
 }
 
-EXPORT void* my_pa_context_set_source_volume_by_name(x64emu_t* emu, void* context, void* name,void* volume, void* cb, void* data)
+EXPORT void* my_pa_context_set_source_volume_by_name(x64emu_t* emu, void* context, void* name, void* volume, void* cb, void* data)
 {
     return my->pa_context_set_source_volume_by_name(context, name, volume, find_success_context_Fct(cb), data);
 }
@@ -1355,9 +1575,9 @@ EXPORT void my_pa_stream_set_read_callback(x64emu_t* emu, void* stream, void* cb
 
 EXPORT int my_pa_stream_write(x64emu_t* emu, void* stream, void* d, size_t nbytes, void* cb, int64_t offset, int seek)
 {
-    if(!my_lib)
+    if (!my_lib)
         return 0;
-    if(!my)
+    if (!my)
         return 0;
     return my->pa_stream_write(stream, d, nbytes, findFreeFct(cb), offset, seek);
 }
@@ -1473,14 +1693,14 @@ EXPORT void my_pa_mainloop_set_poll_func(x64emu_t* emu, void* m, void* f, void* 
 #if 0
 EXPORT void my_pa_log_level_meta(x64emu_t* emu, int level, void* file, int line, void* func, void* format, void* b, va_list V)
 {
-    #ifndef NOALIGN
+#ifndef NOALIGN
     // need to align on arm
     myStackAlign((const char*)format, b, emu->scratch);
     PREPARE_VALIST;
     return my->pa_log_level_meta(level, file, line, func, format, emu->scratch);
-    #else
+#else
     return my->pa_log_level_meta(level, file, line, func, format, V);
-    #endif
+#endif
 }
 #endif
 
@@ -1566,7 +1786,7 @@ EXPORT void* my_pa_context_get_source_output_info(x64emu_t* emu, void* c, uint32
 
 EXPORT void* my_pa_context_rttime_new(x64emu_t* emu, void* c, uint64_t usec, void* cb, void* data)
 {
-    return my->pa_context_rttime_new(c, usec, findTimeEventFct(cb) ,data);
+    return my->pa_context_rttime_new(c, usec, findTimeEventFct(cb), data);
 }
 
 EXPORT void my_pa_mainloop_api_once(x64emu_t* emu, void* mainloop, void* cb, void* data)
@@ -1580,8 +1800,8 @@ void my_autobridge_mainloop_api(x64emu_t* emu, void* api)
     UpdateautobridgeMainloopAPI(emu, my_lib->w.bridge, api);
 }
 
-#define PRE_INIT        \
-    if(box64_nopulse)   \
+#define PRE_INIT       \
+    if (box64_nopulse) \
         return -1;
 
 #include "wrappedlib_init.h"

@@ -44,7 +44,7 @@ static void make_vtable_IDirect3D9Vtbl(x64emu_t* emu, IDirect3D9Vtbl* new, IDire
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(RegisterSoftwareDevice, iWpp);
     GO(GetAdapterCount, uWp);
     GO(GetAdapterIdentifier, iWpuup);
@@ -66,7 +66,7 @@ static void make_vtable_IDirect3D9ExVtbl(x64emu_t* emu, IDirect3D9ExVtbl* new, I
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(RegisterSoftwareDevice, iWpp);
     GO(GetAdapterCount, uWp);
     GO(GetAdapterIdentifier, iWpuup);
@@ -81,7 +81,7 @@ static void make_vtable_IDirect3D9ExVtbl(x64emu_t* emu, IDirect3D9ExVtbl* new, I
     GO(GetDeviceCaps, iWpuip);
     GO(GetAdapterMonitor, pWpu);
     GO(CreateDevice, iWpuipupp);
-	
+
     GO(GetAdapterModeCountEx, uWpup);
     GO(EnumAdapterModesEx, iWpupup);
     GO(GetAdapterDisplayModeEx, iWpupp);
@@ -94,7 +94,7 @@ static void make_vtable_IDirect3D9ExOverlayExtensionVtbl(x64emu_t* emu, IDirect3
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(CheckDeviceOverlayType, iWpuiuuipip);
 }
 
@@ -103,7 +103,7 @@ static void make_vtable_IDirect3DAuthenticatedChannel9Vtbl(x64emu_t* emu, IDirec
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetCertificateSize, iWpp);
     GO(GetCertificate, iWpup);
     GO(NegotiateKeyExchange, iWpup);
@@ -116,7 +116,7 @@ static void make_vtable_IDirect3DBaseTexture9Vtbl(x64emu_t* emu, IDirect3DBaseTe
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -125,7 +125,7 @@ static void make_vtable_IDirect3DBaseTexture9Vtbl(x64emu_t* emu, IDirect3DBaseTe
     GO(GetPriority, uWp);
     GO(PreLoad, vWp);
     GO(GetType, iWp);
-	
+
     GO(SetLOD, uWpu);
     GO(GetLOD, uWp);
     GO(GetLevelCount, uWp);
@@ -139,7 +139,7 @@ static void make_vtable_IDirect3DCryptoSession9Vtbl(x64emu_t* emu, IDirect3DCryp
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetCertificateSize, iWpp);
     GO(GetCertificate, iWpup);
     GO(NegotiateKeyExchange, iWpup);
@@ -156,7 +156,7 @@ static void make_vtable_IDirect3DCubeTexture9Vtbl(x64emu_t* emu, IDirect3DCubeTe
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -165,14 +165,14 @@ static void make_vtable_IDirect3DCubeTexture9Vtbl(x64emu_t* emu, IDirect3DCubeTe
     GO(GetPriority, uWp);
     GO(PreLoad, vWp);
     GO(GetType, iWp);
-	
+
     GO(SetLOD, uWpu);
     GO(GetLOD, uWp);
     GO(GetLevelCount, uWp);
     GO(SetAutoGenFilterType, iWpi);
     GO(GetAutoGenFilterType, iWp);
     GO(GenerateMipSubLevels, vWp);
-	
+
     GO(GetLevelDesc, iWpup);
     GOM(GetCubeMapSurface, iWEpiup);
     GO(LockRect, iWpiuppu);
@@ -185,7 +185,7 @@ static void make_vtable_IDirect3DDevice9Vtbl(x64emu_t* emu, IDirect3DDevice9Vtbl
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(TestCooperativeLevel, iWp);
     GO(GetAvailableTextureMem, uWp);
     GO(EvictManagedResources, iWp);
@@ -309,7 +309,7 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x64emu_t* emu, IDirect3DDevice9Ex
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(TestCooperativeLevel, iWp);
     GO(GetAvailableTextureMem, uWp);
     GO(EvictManagedResources, iWp);
@@ -426,7 +426,7 @@ static void make_vtable_IDirect3DDevice9ExVtbl(x64emu_t* emu, IDirect3DDevice9Ex
     GO(DrawTriPatch, iWpupp);
     GO(DeletePatch, iWpu);
     GOM(CreateQuery, iWEpip);
-	
+
     GO(SetConvolutionMonoKernel, iWpuupp);
     GO(ComposeRects, iWppppupiii);
     GO(PresentEx, iWpppppu);
@@ -449,7 +449,7 @@ static void make_vtable_IDirect3DDevice9VideoVtbl(x64emu_t* emu, IDirect3DDevice
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetContentProtectionCaps, iWpppp);
     GOM(CreateAuthenticatedChannel, iWEpipp);
     GOM(CreateCryptoSession, iWEppppp);
@@ -460,7 +460,7 @@ static void make_vtable_IDirect3DIndexBuffer9Vtbl(x64emu_t* emu, IDirect3DIndexB
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -469,7 +469,7 @@ static void make_vtable_IDirect3DIndexBuffer9Vtbl(x64emu_t* emu, IDirect3DIndexB
     GO(GetPriority, uWp);
     GO(PreLoad, vWp);
     GO(GetType, iWp);
-	
+
     GO(Lock, iWpuupu);
     GO(Unlock, iWp);
     GO(GetDesc, iWpp);
@@ -480,7 +480,7 @@ static void make_vtable_IDirect3DPixelShader9Vtbl(x64emu_t* emu, IDirect3DPixelS
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(GetFunction, iWppp);
 }
@@ -490,7 +490,7 @@ static void make_vtable_IDirect3DQuery9Vtbl(x64emu_t* emu, IDirect3DQuery9Vtbl* 
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(GetType, iWp);
     GO(GetDataSize, uWp);
@@ -503,7 +503,7 @@ static void make_vtable_IDirect3DResource9Vtbl(x64emu_t* emu, IDirect3DResource9
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -519,7 +519,7 @@ static void make_vtable_IDirect3DStateBlock9Vtbl(x64emu_t* emu, IDirect3DStateBl
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(Capture, iWp);
     GO(Apply, iWp);
@@ -530,7 +530,7 @@ static void make_vtable_IDirect3DSurface9Vtbl(x64emu_t* emu, IDirect3DSurface9Vt
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -539,7 +539,7 @@ static void make_vtable_IDirect3DSurface9Vtbl(x64emu_t* emu, IDirect3DSurface9Vt
     GO(GetPriority, uWp);
     GO(PreLoad, vWp);
     GO(GetType, iWp);
-	
+
     GO(GetContainer, iWppp);
     GO(GetDesc, iWpp);
     GO(LockRect, iWpppu);
@@ -553,7 +553,7 @@ static void make_vtable_IDirect3DSwapChain9Vtbl(x64emu_t* emu, IDirect3DSwapChai
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(Present, iWpppppu);
     GO(GetFrontBufferData, iWpp);
     GO(GetBackBuffer, iWpuip); // XXX
@@ -568,7 +568,7 @@ static void make_vtable_IDirect3DSwapChain9ExVtbl(x64emu_t* emu, IDirect3DSwapCh
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(Present, iWpppppu);
     GO(GetFrontBufferData, iWpp);
     GO(GetBackBuffer, iWpuip); // XXX
@@ -576,7 +576,7 @@ static void make_vtable_IDirect3DSwapChain9ExVtbl(x64emu_t* emu, IDirect3DSwapCh
     GO(GetDisplayMode, iWpp);
     GO(GetDevice, iWpp);
     GO(GetPresentParameters, iWpp);
-	
+
     GO(GetLastPresentCount, iWpp);
     GO(GetPresentStats, iWpp);
     GO(GetDisplayModeEx, iWppp);
@@ -587,7 +587,7 @@ static void make_vtable_IDirect3DTexture9Vtbl(x64emu_t* emu, IDirect3DTexture9Vt
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -596,14 +596,14 @@ static void make_vtable_IDirect3DTexture9Vtbl(x64emu_t* emu, IDirect3DTexture9Vt
     GO(GetPriority, uWp);
     GO(PreLoad, vWp);
     GO(GetType, iWp);
-	
+
     GO(SetLOD, uWpu);
     GO(GetLOD, uWp);
     GO(GetLevelCount, uWp);
     GO(SetAutoGenFilterType, iWpi);
     GO(GetAutoGenFilterType, iWp);
     GO(GenerateMipSubLevels, vWp);
-	
+
     GO(GetLevelDesc, iWpup);
     GOM(GetSurfaceLevel, iWEpup);
     GO(LockRect, iWpuppu);
@@ -616,7 +616,7 @@ static void make_vtable_IDirect3DVertexBuffer9Vtbl(x64emu_t* emu, IDirect3DVerte
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -625,7 +625,7 @@ static void make_vtable_IDirect3DVertexBuffer9Vtbl(x64emu_t* emu, IDirect3DVerte
     GO(GetPriority, uWp);
     GO(PreLoad, vWp);
     GO(GetType, iWp);
-	
+
     GO(Lock, iWpuupu);
     GO(Unlock, iWp);
     GO(GetDesc, iWpp);
@@ -636,7 +636,7 @@ static void make_vtable_IDirect3DVertexDeclaration9Vtbl(x64emu_t* emu, IDirect3D
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(GetDeclaration, iWppp);
 }
@@ -646,7 +646,7 @@ static void make_vtable_IDirect3DVertexShader9Vtbl(x64emu_t* emu, IDirect3DVerte
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(GetFunction, iWppp);
 }
@@ -656,7 +656,7 @@ static void make_vtable_IDirect3DVolume9Vtbl(x64emu_t* emu, IDirect3DVolume9Vtbl
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -672,7 +672,7 @@ static void make_vtable_IDirect3DVolumeTexture9Vtbl(x64emu_t* emu, IDirect3DVolu
     GO(QueryInterface, iWppp);
     GO(AddRef, uWp);
     GO(Release, uWp);
-	
+
     GO(GetDevice, iWpp);
     GO(SetPrivateData, iWpppuu);
     GO(GetPrivateData, iWpppp);
@@ -681,14 +681,14 @@ static void make_vtable_IDirect3DVolumeTexture9Vtbl(x64emu_t* emu, IDirect3DVolu
     GO(GetPriority, uWp);
     GO(PreLoad, vWp);
     GO(GetType, iWp);
-	
+
     GO(SetLOD, uWpu);
     GO(GetLOD, uWp);
     GO(GetLevelCount, uWp);
     GO(SetAutoGenFilterType, iWpi);
     GO(GetAutoGenFilterType, iWp);
     GO(GenerateMipSubLevels, vWp);
-	
+
     GO(GetLevelDesc, iWpup);
     GOM(GetVolumeLevel, iWEpup);
     GO(LockBox, iWpuppu);

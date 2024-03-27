@@ -59,7 +59,7 @@ GO(glCreateProgram, uFv)
 GO(glCreateShader, uFu)
 GO(glCreateShaderProgramv, uFuip)
 GO(glCullFace, vFu)
-//GO(glDebugMessageCallback, 
+// GO(glDebugMessageCallback,
 GO(glDebugMessageControl, vFuuuipi)
 GO(glDebugMessageInsert, vFuuuuip)
 GO(glDeleteBuffers, vFip)

@@ -13,12 +13,12 @@ typedef char* cstr_t;
 KHASH_MAP_DECLARE_INT(mapoffsets, cstr_t);
 
 typedef struct lib_s {
-    khash_t(mapoffsets)   *mapoffsets;
-    khash_t(mapsymbols)   *globaldata;
-    library_t             **libraries;
-    int                   libsz;
-    int                   libcap;
-    library_t             *owner;       // in case that maplib is owned by a lib
+    khash_t(mapoffsets) * mapoffsets;
+    khash_t(mapsymbols) * globaldata;
+    library_t** libraries;
+    int libsz;
+    int libcap;
+    library_t* owner; // in case that maplib is owned by a lib
 } lib_t;
 
 #endif //__LIBRARIAN_PRIVATE_H_

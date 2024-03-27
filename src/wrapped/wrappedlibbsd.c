@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -25,19 +25,18 @@ const char* libbsdName = "libbsd.so.0";
 #define LIBNAME libbsd
 
 #ifdef STATICBUILD
-void arc4random_addrandom(unsigned char *dat, int datlen);
+void arc4random_addrandom(unsigned char* dat, int datlen);
 void arc4random_stir(void);
-const char *getprogname(void);
-void setprogname(const char *);
+const char* getprogname(void);
+void setprogname(const char*);
 #endif
 
 #ifndef STATICBUILD
-#define PRE_INIT\
-    if(1)                                                           \
-        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+#define PRE_INIT                                            \
+    if (1)                                                  \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
     else
 #endif
 
 // define all standard library functions
 #include "wrappedlib_init.h"
-

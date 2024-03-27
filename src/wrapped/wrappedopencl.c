@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -25,53 +25,63 @@ const char* openclName = "libOpenCL.so.1";
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // notify_program ...
-#define GO(A)   \
-static uintptr_t my_notify_program_fct_##A = 0;             \
-static void my_notify_program_##A(void* a, void* b)         \
-{                                                   \
-    RunFunctionFmt(my_notify_program_fct_##A, "pp", a, b);  \
-}
+#define GO(A)                                                  \
+    static uintptr_t my_notify_program_fct_##A = 0;            \
+    static void my_notify_program_##A(void* a, void* b)        \
+    {                                                          \
+        RunFunctionFmt(my_notify_program_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* find_notify_program_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_notify_program_fct_##A == (uintptr_t)fct) return my_notify_program_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_notify_program_fct_##A == (uintptr_t)fct) return my_notify_program_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_notify_program_fct_##A == 0) {my_notify_program_fct_##A = (uintptr_t)fct; return my_notify_program_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_notify_program_fct_##A == 0) {           \
+        my_notify_program_fct_##A = (uintptr_t)fct; \
+        return my_notify_program_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for opencl notify_program callback\n");
     return NULL;
 }
 // notity_context ...
-#define GO(A)   \
-static uintptr_t my_notity_context_fct_##A = 0;                         \
-static void my_notity_context_##A(void* a, void* b, size_t c, void* d)  \
-{                                                                       \
-    RunFunctionFmt(my_notity_context_fct_##A, "ppLp", a, b, c, d);      \
-}
+#define GO(A)                                                              \
+    static uintptr_t my_notity_context_fct_##A = 0;                        \
+    static void my_notity_context_##A(void* a, void* b, size_t c, void* d) \
+    {                                                                      \
+        RunFunctionFmt(my_notity_context_fct_##A, "ppLp", a, b, c, d);     \
+    }
 SUPER()
 #undef GO
 static void* find_notity_context_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_notity_context_fct_##A == (uintptr_t)fct) return my_notity_context_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_notity_context_fct_##A == (uintptr_t)fct) return my_notity_context_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_notity_context_fct_##A == 0) {my_notity_context_fct_##A = (uintptr_t)fct; return my_notity_context_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_notity_context_fct_##A == 0) {           \
+        my_notity_context_fct_##A = (uintptr_t)fct; \
+        return my_notity_context_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for opencl notity_context callback\n");
     return NULL;
 }

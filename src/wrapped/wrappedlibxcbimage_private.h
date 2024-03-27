@@ -14,6 +14,6 @@ GO(xcb_image_get_pixel, uFpuu)
 GO(xcb_image_native, pFppi)
 GO(xcb_image_put, uFbpuupwwC)
 GO(xcb_image_put_pixel, vFpuuu)
-GO(xcb_image_shm_get, iFbupppWWu)    //xcb_shm_segment_info_t is a struct with "u u p" => transform to pp?
+GO(xcb_image_shm_get, iFbupppWWu) // xcb_shm_segment_info_t is a struct with "u u p" => transform to pp?
 GO(xcb_image_shm_put, pFpuupppwwwwWWC)
 GO(xcb_image_subimage, pFpuuuupup)

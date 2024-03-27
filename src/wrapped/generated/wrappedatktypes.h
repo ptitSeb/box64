@@ -8,17 +8,18 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void (*vFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint32_t (*uFpp_t)(void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(atk_focus_tracker_init, vFp_t) \
-	GO(atk_add_focus_tracker, uFp_t) \
-	GO(atk_add_global_event_listener, uFpp_t) \
-	GO(atk_add_key_event_listener, uFpp_t)
+#define SUPER()                               \
+    ADDED_FUNCTIONS()                         \
+    GO(atk_focus_tracker_init, vFp_t)         \
+    GO(atk_add_focus_tracker, uFp_t)          \
+    GO(atk_add_global_event_listener, uFpp_t) \
+    GO(atk_add_key_event_listener, uFpp_t)
 
 #endif // __wrappedatkTYPES_H_

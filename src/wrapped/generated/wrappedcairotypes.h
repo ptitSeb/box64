@@ -8,15 +8,16 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(cairo_xcb_device_get_connection, pFp_t) \
-	GO(cairo_set_user_data, iFpppp_t) \
-	GO(cairo_surface_set_user_data, iFpppp_t)
+#define SUPER()                                \
+    ADDED_FUNCTIONS()                          \
+    GO(cairo_xcb_device_get_connection, pFp_t) \
+    GO(cairo_set_user_data, iFpppp_t)          \
+    GO(cairo_surface_set_user_data, iFpppp_t)
 
 #endif // __wrappedcairoTYPES_H_

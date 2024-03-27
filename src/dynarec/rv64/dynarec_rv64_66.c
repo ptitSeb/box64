@@ -43,20 +43,20 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(j64);
     MAYUSE(lock);
 
-    while((opcode==0x2E) || (opcode==0x36) || (opcode==0x66))   // ignoring CS:, SS: or multiple 0x66
+    while ((opcode == 0x2E) || (opcode == 0x36) || (opcode == 0x66)) // ignoring CS:, SS: or multiple 0x66
         opcode = F8;
 
-    while((opcode==0xF2) || (opcode==0xF3)) {
-        rep = opcode-0xF1;
+    while ((opcode == 0xF2) || (opcode == 0xF3)) {
+        rep = opcode - 0xF1;
         opcode = F8;
     }
 
     GETREX();
 
-    if(rex.w && !(opcode==0x0f || opcode==0xf0 || opcode==0x64 || opcode==0x65))   // rex.w cancels "66", but not for 66 0f type of prefix
-        return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode
+    if (rex.w && !(opcode == 0x0f || opcode == 0xf0 || opcode == 0x64 || opcode == 0x65)) // rex.w cancels "66", but not for 66 0f type of prefix
+        return dynarec64_00(dyn, addr - 1, ip, ninst, rex, rep, ok, need_epilog);         // addr-1, to "put back" opcode
 
-    switch(opcode) {
+    switch (opcode) {
         case 0x01:
             INST_NAME("ADD Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -79,7 +79,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
-            ZEXTH(x1 , xRAX);
+            ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             LUI(x3, 0xffff0);
@@ -116,7 +116,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             OR(xRAX, xRAX, x1);
             break;
         case 0x0F:
-            switch(rep) {
+            switch (rep) {
                 case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
                 case 1: addr = dynarec64_66F20F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
                 case 2: addr = dynarec64_66F30F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
@@ -262,20 +262,26 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (ed == gd) {
                 // optimize XOR Gw, Gw
                 CLEAR_FLAGS();
-                IFX(X_PEND) {
+                IFX(X_PEND)
+                {
                     SET_DF(x6, d_xor16);
-                } else IFX(X_ALL) {
+                }
+                else IFX(X_ALL)
+                {
                     SET_DFNONE();
                 }
                 SRLI(ed, ed, 16);
                 SLLI(ed, ed, 16);
-                IFX(X_PEND) {
+                IFX(X_PEND)
+                {
                     SH(ed, xEmu, offsetof(x64emu_t, res));
                 }
-                IFX(X_ZF) {
+                IFX(X_ZF)
+                {
                     ORI(xFlags, xFlags, 1 << F_ZF);
                 }
-                IFX(X_PF) {
+                IFX(X_PF)
+                {
                     ORI(xFlags, xFlags, 1 << F_PF);
                 }
             } else {
@@ -298,20 +304,26 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (ed == gd) {
                 // optimize XOR Gw, Gw
                 CLEAR_FLAGS();
-                IFX(X_PEND) {
+                IFX(X_PEND)
+                {
                     SET_DF(x6, d_xor16);
-                } else IFX(X_ALL) {
+                }
+                else IFX(X_ALL)
+                {
                     SET_DFNONE();
                 }
                 SRLI(ed, ed, 16);
                 SLLI(ed, ed, 16);
-                IFX(X_PEND) {
+                IFX(X_PEND)
+                {
                     SH(ed, xEmu, offsetof(x64emu_t, res));
                 }
-                IFX(X_ZF) {
+                IFX(X_ZF)
+                {
                     ORI(xFlags, xFlags, 1 << F_ZF);
                 }
-                IFX(X_PF) {
+                IFX(X_PF)
+                {
                     ORI(xFlags, xFlags, 1 << F_PF);
                 }
             } else {
@@ -353,7 +365,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i32 = F16;
             ZEXTH(x1, xRAX);
-            if(i32) {
+            if (i32) {
                 MOV32w(x2, i32);
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
             } else {
@@ -369,8 +381,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg16 (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-            gd = xRAX + (opcode&7);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode & 7);
             ZEXTH(x1, gd);
             emit_inc16(dyn, ninst, x1, x2, x3, x4);
             LUI(x3, 0xffff0);
@@ -387,8 +399,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg16 (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-            gd = xRAX + (opcode&7);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode & 7);
             ZEXTH(x1, gd);
             emit_dec16(dyn, ninst, x1, x2, x3, x4, x5);
             LUI(x3, 0xffff0);
@@ -407,7 +419,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x69:
         case 0x6B:
-            if(opcode==0x69) {
+            if (opcode == 0x69) {
                 INST_NAME("IMUL Gw,Ew,Iw");
             } else {
                 INST_NAME("IMUL Gw,Ew,Ib");
@@ -415,13 +427,16 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
             UFLAG_DF(x1, d_imul16);
-            GETSEW(x1, (opcode==0x69)?2:1);
-            if(opcode==0x69) i32 = F16S; else i32 = F8S;
+            GETSEW(x1, (opcode == 0x69) ? 2 : 1);
+            if (opcode == 0x69)
+                i32 = F16S;
+            else
+                i32 = F8S;
             MOV32w(x2, i32);
             MULW(x2, x2, x1);
             ZEXTH(x2, x2);
             UFLAG_RES(x2);
-            gd=x2;
+            gd = x2;
             GWBACK;
             break;
         case 0x70:
@@ -441,83 +456,139 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x7e:
         case 0x7f:
             // just use regular conditional jump
-            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
+            return dynarec64_00(dyn, addr - 1, ip, ninst, rex, rep, ok, need_epilog);
 
         case 0x81:
         case 0x83:
             nextop = F8;
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0: // ADD
-                    if(opcode==0x81) {INST_NAME("ADD Ew, Iw");} else {INST_NAME("ADD Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("ADD Ew, Iw");
+                    } else {
+                        INST_NAME("ADD Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOV64x(x5, i16);
                     emit_add16(dyn, ninst, ed, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 1: // OR
-                    if(opcode==0x81) {INST_NAME("OR Ew, Iw");} else {INST_NAME("OR Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("OR Ew, Iw");
+                    } else {
+                        INST_NAME("OR Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOV64x(x5, i16);
                     emit_or16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
                 case 2: // ADC
-                    if(opcode==0x81) {INST_NAME("ADC Ew, Iw");} else {INST_NAME("ADC Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("ADC Ew, Iw");
+                    } else {
+                        INST_NAME("ADC Ew, Ib");
+                    }
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOV64x(x5, i16);
                     emit_adc16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 3: // SBB
-                    if(opcode==0x81) {INST_NAME("SBB Ew, Iw");} else {INST_NAME("SBB Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("SBB Ew, Iw");
+                    } else {
+                        INST_NAME("SBB Ew, Ib");
+                    }
                     READFLAGS(X_CF);
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOV64x(x5, i16);
                     emit_sbb16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 4: // AND
-                    if(opcode==0x81) {INST_NAME("AND Ew, Iw");} else {INST_NAME("AND Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("AND Ew, Iw");
+                    } else {
+                        INST_NAME("AND Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOV64x(x5, i16);
                     emit_and16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
                 case 5: // SUB
-                    if(opcode==0x81) {INST_NAME("SUB Ew, Iw");} else {INST_NAME("SUB Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("SUB Ew, Iw");
+                    } else {
+                        INST_NAME("SUB Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOV32w(x5, i16);
                     emit_sub16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 6: // XOR
-                    if(opcode==0x81) {INST_NAME("XOR Ew, Iw");} else {INST_NAME("XOR Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("XOR Ew, Iw");
+                    } else {
+                        INST_NAME("XOR Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
                     MOV32w(x5, i16);
                     emit_xor16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
                 case 7: // CMP
-                    if(opcode==0x81) {INST_NAME("CMP Ew, Iw");} else {INST_NAME("CMP Ew, Ib");}
+                    if (opcode == 0x81) {
+                        INST_NAME("CMP Ew, Iw");
+                    } else {
+                        INST_NAME("CMP Ew, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETEW(x1, (opcode==0x81)?2:1);
-                    if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                    if(i16) {
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
+                    if (i16) {
                         MOV64x(x2, i16);
                         emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
                     } else
@@ -538,7 +609,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x87:
             INST_NAME("(LOCK)XCHG Ew, Gw");
             nextop = F8;
-            if(MODREG) {
+            if (MODREG) {
                 GETGD;
                 GETED(0);
                 ADDI(x1, gd, 0);
@@ -602,9 +673,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
             GETGD;
-            if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
-                if(ed!=gd) {
+            if (MODREG) {
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                if (ed != gd) {
                     // we don't use GETGW above, so we need let gd & 0xffff.
                     LUI(x1, 0xffff0);
                     AND(ed, ed, x1);
@@ -620,10 +691,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x8B:
             INST_NAME("MOV Gw, Ew");
             nextop = F8;
-            GETGD;  // don't need GETGW neither
-            if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
-                if(ed!=gd) {
+            GETGD; // don't need GETGW neither
+            if (MODREG) {
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                if (ed != gd) {
                     LUI(x1, 0xffff0);
                     AND(gd, gd, x1);
                     ZEXTH(x2, ed);
@@ -658,23 +729,23 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x95:
         case 0x96:
         case 0x97:
-                gd = xRAX+(opcode&0x07)+(rex.b<<3);
-                if(gd==xRAX) {
-                    INST_NAME("NOP");
-                } else {
-                    INST_NAME("XCHG AX, Reg");
-                    LUI(x4, 0xffff0);
-                    // x2 <- rax
-                    MV(x2, xRAX);
-                    // rax[15:0] <- gd[15:0]
-                    ZEXTH(x3, gd);
-                    AND(xRAX, xRAX, x4);
-                    OR(xRAX, xRAX, x3);
-                    // gd[15:0] <- x2[15:0]
-                    ZEXTH(x2, x2);
-                    AND(gd, gd, x4);
-                    OR(gd, gd, x2);
-                }
+            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
+            if (gd == xRAX) {
+                INST_NAME("NOP");
+            } else {
+                INST_NAME("XCHG AX, Reg");
+                LUI(x4, 0xffff0);
+                // x2 <- rax
+                MV(x2, xRAX);
+                // rax[15:0] <- gd[15:0]
+                ZEXTH(x3, gd);
+                AND(xRAX, xRAX, x4);
+                OR(xRAX, xRAX, x3);
+                // gd[15:0] <- x2[15:0]
+                ZEXTH(x2, x2);
+                AND(gd, gd, x4);
+                OR(gd, gd, x2);
+            }
             break;
         case 0x98:
             INST_NAME("CBW");
@@ -723,9 +794,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xA1:
             INST_NAME("MOV EAX,Od");
-            if (rex.is32bits) u64 = F32; else u64 = F64;
+            if (rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
             MOV64z(x1, u64);
-            if (isLockAddress(u64)) lock = 1; else lock = 0;
+            if (isLockAddress(u64))
+                lock = 1;
+            else
+                lock = 0;
             SMREADLOCK(lock);
             LHU(x2, x1, 0);
             LUI(x3, 0xffff0);
@@ -734,23 +811,26 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
-            if(rex.is32bits)
+            if (rex.is32bits)
                 u64 = F32;
             else
                 u64 = F64;
             MOV64z(x1, u64);
-            if(isLockAddress(u64)) lock=1; else lock = 0;
+            if (isLockAddress(u64))
+                lock = 1;
+            else
+                lock = 0;
             SH(xRAX, x1, 0);
             SMWRITELOCK(lock);
             break;
 
         case 0xA5:
-            if(rep) {
+            if (rep) {
                 INST_NAME("REP MOVSW");
                 CBZ_NEXT(xRCX);
-                ANDI(x1, xFlags, 1<<F_DF);
+                ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
-                MARK;   // Part with DF==0
+                MARK; // Part with DF==0
                 LH(x1, xRSI, 0);
                 SH(x1, xRDI, 0);
                 ADDI(xRSI, xRSI, 2);
@@ -758,7 +838,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK(xRCX);
                 B_NEXT_nocond;
-                MARK2;  // Part with DF==1
+                MARK2; // Part with DF==1
                 LH(x1, xRSI, 0);
                 SUBI(xRSI, xRSI, 2);
                 SH(x1, xRDI, 0);
@@ -779,7 +859,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch (rep) {
                 case 1:
                 case 2:
-                    if (rep == 1) { INST_NAME("REPNZ CMPSW"); } else { INST_NAME("REPZ CMPSW"); }
+                    if (rep == 1) {
+                        INST_NAME("REPNZ CMPSW");
+                    } else {
+                        INST_NAME("REPZ CMPSW");
+                    }
                     MAYSETFLAGS();
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     CBZ_NEXT(xRCX);
@@ -791,7 +875,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     LHU(x2, xRDI, 0);
                     ADDI(xRDI, xRDI, 2);
                     SUBI(xRCX, xRCX, 1);
-                    if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
                     BNEZ_MARK(xRCX);
                     B_MARK3_nocond;
                     MARK2; // Part with DF==1
@@ -800,7 +888,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     LHU(x2, xRDI, 0);
                     SUBI(xRDI, xRDI, 2);
                     SUBI(xRCX, xRCX, 1);
-                    if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
                     BNEZ_MARK2(xRCX);
                     MARK3; // end
                     emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
@@ -827,18 +919,18 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
         case 0xAB:
-            if(rep) {
+            if (rep) {
                 INST_NAME("REP STOSW");
                 CBZ_NEXT(xRCX);
-                ANDI(x1, xFlags, 1<<F_DF);
+                ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
-                MARK;   // Part with DF==0
+                MARK; // Part with DF==0
                 SH(xRAX, xRDI, 0);
                 ADDI(xRDI, xRDI, 2);
                 SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK(xRCX);
                 B_NEXT_nocond;
-                MARK2;  // Part with DF==1
+                MARK2; // Part with DF==1
                 SH(xRAX, xRDI, 0);
                 SUBI(xRDI, xRDI, 2);
                 SUBI(xRCX, xRCX, 1);
@@ -868,17 +960,25 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch (rep) {
                 case 1:
                 case 2:
-                    if(rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
+                    if (rep == 1) {
+                        INST_NAME("REPNZ SCASW");
+                    } else {
+                        INST_NAME("REPZ SCASW");
+                    }
                     MAYSETFLAGS();
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     CBZ_NEXT(xRCX);
-                    GETDIR(x3, x1, rex.w?8:2);
+                    GETDIR(x3, x1, rex.w ? 8 : 2);
                     if (rex.w) {
                         MARK;
                         LD(x2, xRDI, 0);
                         ADD(xRDI, xRDI, x3);
                         ADDI(xRCX, xRCX, -1);
-                        if (rep==1) {BEQ_MARK3(xRAX, x2);} else {BNE_MARK3(xRAX, x2);}
+                        if (rep == 1) {
+                            BEQ_MARK3(xRAX, x2);
+                        } else {
+                            BNE_MARK3(xRAX, x2);
+                        }
                         BNE_MARK(xRCX, xZR);
                         MARK3;
                         emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
@@ -888,7 +988,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LHU(x2, xRDI, 0);
                         ADD(xRDI, xRDI, x3);
                         ADDI(xRCX, xRCX, -1);
-                        if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
+                        if (rep == 1) {
+                            BEQ_MARK3(x1, x2);
+                        } else {
+                            BNE_MARK3(x1, x2);
+                        }
                         BNE_MARK(xRCX, xZR);
                         MARK3;
                         emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
@@ -897,7 +1001,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 default:
                     INST_NAME("SCASW");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETDIR(x3, x1, rex.w?8:2);
+                    GETDIR(x3, x1, rex.w ? 8 : 2);
                     if (rex.w) {
                         LD(x2, xRDI, 0);
                         emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
@@ -920,15 +1024,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xBE:
         case 0xBF:
             INST_NAME("MOV Reg, Iw");
-            gd = xRAX+(opcode&7)+(rex.b<<3);
-            if(rex.w) {
+            gd = xRAX + (opcode & 7) + (rex.b << 3);
+            if (rex.w) {
                 u64 = F64;
                 MOV64x(gd, u64);
             } else {
                 u16 = F16;
                 MOV64x(x1, ~0xffff);
                 AND(gd, gd, x1);
-                if(u16<2048) {
+                if (u16 < 2048) {
                     ORI(gd, gd, u16);
                 } else {
                     MOV32w(x1, u16);
@@ -939,11 +1043,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xC1:
             nextop = F8;
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -953,7 +1057,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 1:
                     INST_NAME("ROR Ew, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -964,7 +1068,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("RCL Ew, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -975,7 +1079,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("RCR Ew, Ib");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -985,17 +1089,17 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 4:
                 case 6:
                     INST_NAME("SHL Ew, Ib");
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    UFLAG_IF {MOV32w(x2, (u8&15));}
+                    UFLAG_IF { MOV32w(x2, (u8 & 15)); }
                     UFLAG_OP12(ed, x2)
-                    if(MODREG) {
-                        SLLI(ed, ed, 48+(u8&15));
+                    if (MODREG) {
+                        SLLI(ed, ed, 48 + (u8 & 15));
                         SRLI(ed, ed, 48);
                     } else {
-                        SLLI(ed, ed, u8&15);
+                        SLLI(ed, ed, u8 & 15);
                     }
                     EWBACK;
                     UFLAG_RES(ed);
@@ -1003,13 +1107,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 5:
                     INST_NAME("SHR Ew, Ib");
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    UFLAG_IF {MOV32w(x2, (u8&15));}
+                    UFLAG_IF { MOV32w(x2, (u8 & 15)); }
                     UFLAG_OP12(ed, x2)
-                    SRLI(ed, ed, u8&15);
+                    SRLI(ed, ed, u8 & 15);
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr16);
@@ -1017,13 +1121,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 7:
                     INST_NAME("SAR Ew, Ib");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
                     GETSEW(x1, 1);
                     u8 = F8;
-                    UFLAG_IF {MOV32w(x2, (u8&15));}
+                    UFLAG_IF { MOV32w(x2, (u8 & 15)); }
                     UFLAG_OP12(ed, x2)
-                    SRAI(ed, ed, u8&15);
-                    if(MODREG) {
+                    SRAI(ed, ed, u8 & 15);
+                    if (MODREG) {
                         ZEXTH(ed, ed);
                     }
                     EWBACK;
@@ -1036,8 +1140,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC7:
             INST_NAME("MOV Ew, Iw");
             nextop = F8;
-            if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
+            if (MODREG) {
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
                 ADDI(x1, xZR, -1);
                 SRLI(x1, x1, 48);
                 AND(ed, ed, x1);
@@ -1055,9 +1159,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD1:
         case 0xD3:
             nextop = F8;
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0:
-                    if(opcode==0xD1) {
+                    if (opcode == 0xD1) {
                         INST_NAME("ROL Ew, 1");
                         MOV32w(x2, 1);
                     } else {
@@ -1065,13 +1169,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x2, xRCX, 15);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     CALL_(rol16, x1, x3);
                     EWBACK;
                     break;
                 case 1:
-                    if(opcode==0xD1) {
+                    if (opcode == 0xD1) {
                         INST_NAME("ROR Ew, 1");
                         MOV32w(x2, 1);
                     } else {
@@ -1079,13 +1183,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x2, xRCX, 15);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     CALL_(ror16, x1, x3);
                     EWBACK;
                     break;
                 case 2:
-                    if(opcode==0xD1) {
+                    if (opcode == 0xD1) {
                         INST_NAME("RCL Ew, 1");
                         MOV32w(x2, 1);
                     } else {
@@ -1094,12 +1198,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     CALL_(rcl16, x1, x3);
                     EWBACK;
                 case 3:
-                    if(opcode==0xD1) {
+                    if (opcode == 0xD1) {
                         INST_NAME("RCR Ew, 1");
                         MOV32w(x2, 1);
                     } else {
@@ -1108,19 +1212,19 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET);
                     GETEW(x1, 1);
                     CALL_(rcr16, x1, x3);
                     EWBACK;
                 case 5:
-                    if(opcode==0xD1) {
+                    if (opcode == 0xD1) {
                         INST_NAME("SHR Ew, 1");
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHR Ew, CL");
                         ANDI(x4, xRCX, 15);
                     }
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 0);
                     UFLAG_OP12(ed, x4)
@@ -1131,14 +1235,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 4:
                 case 6:
-                    if(opcode==0xD1) {
+                    if (opcode == 0xD1) {
                         INST_NAME("SHL Ew, 1");
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SHL Ew, CL");
                         ANDI(x4, xRCX, 15);
                     }
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETEW(x1, 0);
                     UFLAG_OP12(ed, x4)
@@ -1149,14 +1253,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_DF(x3, d_shl16);
                     break;
                 case 7:
-                    if(opcode==0xD1) {
+                    if (opcode == 0xD1) {
                         INST_NAME("SAR Ew, 1");
                         MOV32w(x4, 1);
                     } else {
                         INST_NAME("SAR Ew, CL");
                         ANDI(x4, xRCX, 15);
                     }
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
                     SETFLAGS(X_ALL, SF_PENDING);
                     GETSEW(x1, 0);
                     UFLAG_OP12(ed, x4);
@@ -1176,7 +1280,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xF7:
             nextop = F8;
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0:
                 case 1:
                     INST_NAME("TEST Ew, Iw");
@@ -1245,17 +1349,17 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xFF:
             nextop = F8;
-            switch((nextop>>3)&7) {
+            switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("INC Ew");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 0);
                     emit_inc16(dyn, ninst, x1, x2, x4, x5);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Ew");
-                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 0);
                     emit_dec16(dyn, ninst, x1, x2, x4, x5, x6);
                     EWBACK;

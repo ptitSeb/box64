@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,9 +18,9 @@
 #include "emu/x64emu_private.h"
 
 #ifdef ANDROID
-    const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so";
+const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so";
 #else
-    const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
+const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
 #endif
 #define LIBNAME gdkpixbuf2
 
@@ -29,30 +29,35 @@
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)
 
 // destroy_pixbuf
-#define GO(A)   \
-static uintptr_t my_destroy_pixbuf_fct_##A = 0;                                \
-static void my_destroy_pixbuf_##A(void* pixels, void* data)                    \
-{                                                                              \
-    RunFunctionFmt(my_destroy_pixbuf_fct_##A, "pp", pixels, data);        \
-}
+#define GO(A)                                                          \
+    static uintptr_t my_destroy_pixbuf_fct_##A = 0;                    \
+    static void my_destroy_pixbuf_##A(void* pixels, void* data)        \
+    {                                                                  \
+        RunFunctionFmt(my_destroy_pixbuf_fct_##A, "pp", pixels, data); \
+    }
 SUPER()
 #undef GO
 static void* finddestroy_pixbufFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_destroy_pixbuf_fct_##A == (uintptr_t)fct) return my_destroy_pixbuf_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_destroy_pixbuf_fct_##A == (uintptr_t)fct) return my_destroy_pixbuf_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_destroy_pixbuf_fct_##A == 0) {my_destroy_pixbuf_fct_##A = (uintptr_t)fct; return my_destroy_pixbuf_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_destroy_pixbuf_fct_##A == 0) {           \
+        my_destroy_pixbuf_fct_##A = (uintptr_t)fct; \
+        return my_destroy_pixbuf_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gdk-pixbuf2 destroy_pixbuf callback\n");
     return NULL;
 }
@@ -64,8 +69,8 @@ EXPORT void* my_gdk_pixbuf_new_from_data(x64emu_t* emu, void* data, int32_t colo
     return my->gdk_pixbuf_new_from_data(data, colorspace, has_alpha, bpp, w, h, stride, finddestroy_pixbufFct(destroy_func), destroy_data);
 }
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
 #include "wrappedlib_init.h"

@@ -15,7 +15,7 @@ GOM(SDL_AddEventWatch, vFEpp)
 GOM(SDL_AddTimer, pFEupp)
 GO(SDL_AllocFormat, pFu)
 GO(SDL_AllocPalette, pFi)
-GO(SDL_AllocRW, pFv)    // no need to create a "my_" probably
+GO(SDL_AllocRW, pFv) // no need to create a "my_" probably
 GO(SDL_asin, dFd)
 GO(SDL_asinf, fFf)
 GO(SDL_atan, dFd)
@@ -112,7 +112,7 @@ GO(SDL_FillRect, iFppu)
 GO(SDL_FillRects, iFppiu)
 // SDL_FilterEvents
 GO(SDL_floor, dFd)
-GO(SDL_floorf,fFf)
+GO(SDL_floorf, fFf)
 GO(SDL_FlushEvent, vFu)
 GO(SDL_FlushEvents, vFuu)
 GO(SDL_fmod, dFdd)
@@ -215,7 +215,7 @@ GO(SDL_GetKeyboardState, pFp)
 GO(SDL_GetKeyFromName, iFp)
 GO(SDL_GetKeyFromScancode, iFu)
 GO(SDL_GetKeyName, pFi)
-//GO(SDL_GetMemoryFunctions, vFpppp)
+// GO(SDL_GetMemoryFunctions, vFpppp)
 GO(SDL_GetModState, uFv)
 GO(SDL_GetMouseFocus, pFv)
 GO(SDL_GetMouseState, uFpp)
@@ -228,7 +228,7 @@ GO(SDL_GetNumTouchDevices, iFv)
 GO(SDL_GetNumTouchFingers, iFu)
 GO(SDL_GetNumVideoDisplays, iFv)
 GO(SDL_GetNumVideoDrivers, iFv)
-//GOM(SDL_GetOriginalMemoryFunctions, 
+// GOM(SDL_GetOriginalMemoryFunctions,
 GO(SDL_GetPerformanceCounter, UFv)
 GO(SDL_GetPerformanceFrequency, LFv)
 GO(SDL_GetPixelFormatName, pFu)
@@ -391,7 +391,7 @@ GO(SDL_JoystickGetAxis, wFpi)
 GO(SDL_JoystickGetAxisInitialState, uFpip)
 GO(SDL_JoystickGetBall, iFpipp)
 GO(SDL_JoystickGetButton, CFpi)
-GO(SDL_JoystickGetDeviceGUID, HFi)  // return a struct that is "uint8_t data[16]"
+GO(SDL_JoystickGetDeviceGUID, HFi) // return a struct that is "uint8_t data[16]"
 GO(SDL_JoystickGetDeviceInstanceID, iFi)
 GO(SDL_JoystickGetDevicePlayerIndex, iFi)
 GO(SDL_JoystickGetDeviceProduct, WFi)
@@ -401,7 +401,7 @@ GO(SDL_JoystickGetDeviceVendor, WFi)
 GO(SDL_JoystickGetFirmwareVersion, WFp)
 GO(SDL_JoystickGetGUID, HFp)
 GO(SDL_JoystickGetGUIDFromString, HFp)
-GO(SDL_JoystickGetGUIDString, vFUUpi)   //uint8_t data[16] passed as 1st argument...
+GO(SDL_JoystickGetGUIDString, vFUUpi) // uint8_t data[16] passed as 1st argument...
 GO(SDL_JoystickGetHat, CFpi)
 GO(SDL_JoystickGetPlayerIndex, iFp)
 GO(SDL_JoystickGetProduct, WFp)
@@ -584,12 +584,12 @@ GO(SDL_SetClipRect, uFpp)
 GO(SDL_SetColorKey, iFpiu)
 GO(SDL_SetCursor, vFp)
 GO(SDL_setenv, iFppi)
-GO(SDL_SetError, iFppppp)    // it use ..., so putarbitrary  4 args
+GO(SDL_SetError, iFppppp) // it use ..., so putarbitrary  4 args
 GOM(SDL_SetEventFilter, vFEpp)
 GO(SDL_SetHint, uFpp)
 GO(SDL_SetHintWithPriority, uFppu)
 GO(SDL_SetMainReady, vFv)
-//GOM(SDL_SetMemoryFunctions, 
+// GOM(SDL_SetMemoryFunctions,
 GO(SDL_SetModState, vFu)
 GO(SDL_SetPaletteColors, iFppii)
 // SDL_SetPixelFormatPalette
@@ -702,7 +702,7 @@ GO(SDL_Vulkan_CreateSurface, iFppp)
 GO(SDL_Vulkan_GetDrawableSize, vFppp)
 GO(SDL_Vulkan_GetInstanceExtensions, iFppp)
 GOM(SDL_Vulkan_GetVkGetInstanceProcAddr, pFEv)
-GO(SDL_Vulkan_LoadLibrary, iFp) //TODO: wrap to also call my_dlopen with path?
+GO(SDL_Vulkan_LoadLibrary, iFp) // TODO: wrap to also call my_dlopen with path?
 GO(SDL_Vulkan_UnloadLibrary, vFv)
 GO(SDL_WaitEvent, iFp)
 GO(SDL_WaitEventTimeout, iFpi)

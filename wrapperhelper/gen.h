@@ -47,7 +47,8 @@ struct ObjectInfo {
 
 struct WrapperGenerator {
 
-    void Init(const std::string& libname, const std::string& host_triple, const std::string& guest_triple) {
+    void Init(const std::string& libname, const std::string& host_triple, const std::string& guest_triple)
+    {
         this->host_triple = host_triple;
         this->guest_triple = guest_triple;
         this->libname = libname;
@@ -59,15 +60,17 @@ struct WrapperGenerator {
 
     std::string GenCallbackTypeDefs(clang::ASTContext* Ctx);
 
-    std::string GenFuncDeclare(clang::ASTContext* Ctx) {
-        std::string res{};
+    std::string GenFuncDeclare(clang::ASTContext* Ctx)
+    {
+        std::string res {};
         for (const auto& func : funcs) {
             res += GenDeclare(Ctx, func.second);
         }
         return res;
     }
-    std::string GenRecordDeclare(clang::ASTContext* Ctx) {
-        std::string res{};
+    std::string GenRecordDeclare(clang::ASTContext* Ctx)
+    {
+        std::string res {};
         for (const auto& st : records) {
             if (st.second.host_size == st.second.guest_size)
                 res += GenDeclare(Ctx, st.second);
@@ -78,16 +81,18 @@ struct WrapperGenerator {
         return res;
     }
 
-    std::string GenFuncDefine(clang::ASTContext* Ctx) {
-        std::string res{};
+    std::string GenFuncDefine(clang::ASTContext* Ctx)
+    {
+        std::string res {};
         for (const auto& func : funcs) {
             res += GenDefine(Ctx, func.second);
         }
         return res;
     }
 
-    std::string GenCallbackWrap(clang::ASTContext* Ctx) {
-        std::string res{};
+    std::string GenCallbackWrap(clang::ASTContext* Ctx)
+    {
+        std::string res {};
         for (const auto& func : funcs) {
             res += GenCallbackWrap(Ctx, func.second);
         }
@@ -96,8 +101,9 @@ struct WrapperGenerator {
         }
         return res;
     }
-    
-    std::string GenRecordConvert(clang::ASTContext* Ctx) {
+
+    std::string GenRecordConvert(clang::ASTContext* Ctx)
+    {
         (void)Ctx;
         std::string res;
         for (const auto& record : records) {
@@ -119,6 +125,7 @@ struct WrapperGenerator {
     std::string libname;
     std::string my_lib_type;
     std::string my_lib;
+
 private:
     std::string GenRecordConvert(const RecordInfo& Record);
     std::string GenDeclare(clang::ASTContext* Ctx, const FuncInfo& Func);

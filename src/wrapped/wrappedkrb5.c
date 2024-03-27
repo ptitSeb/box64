@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -17,45 +17,50 @@
 #include "callback.h"
 
 #ifdef ANDROID
-    const char* krb5Name = "libkrb5.so";
+const char* krb5Name = "libkrb5.so";
 #else
-    const char* krb5Name = "libkrb5.so.3";
+const char* krb5Name = "libkrb5.so.3";
 #endif
 
 #define LIBNAME krb5
 
-#define ADDED_FUNCTIONS()           \
+#define ADDED_FUNCTIONS()
 
 #include "generated/wrappedkrb5types.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // krb5_prompter ...
-#define GO(A)   \
-static uintptr_t my_krb5_prompter_fct_##A = 0;                                                  \
-static int my_krb5_prompter_##A(void* a, void* b, void* c, void* d, int e, void* f)             \
-{                                                                                               \
-    return RunFunctionFmt(my_krb5_prompter_fct_##A, "ppppip", a, b, c, d, e, f);          \
-}
+#define GO(A)                                                                           \
+    static uintptr_t my_krb5_prompter_fct_##A = 0;                                      \
+    static int my_krb5_prompter_##A(void* a, void* b, void* c, void* d, int e, void* f) \
+    {                                                                                   \
+        return RunFunctionFmt(my_krb5_prompter_fct_##A, "ppppip", a, b, c, d, e, f);    \
+    }
 SUPER()
 #undef GO
 static void* find_krb5_prompter_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_krb5_prompter_fct_##A == (uintptr_t)fct) return my_krb5_prompter_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_krb5_prompter_fct_##A == (uintptr_t)fct) return my_krb5_prompter_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_krb5_prompter_fct_##A == 0) {my_krb5_prompter_fct_##A = (uintptr_t)fct; return my_krb5_prompter_##A; }
+#undef GO
+#define GO(A)                                      \
+    if (my_krb5_prompter_fct_##A == 0) {           \
+        my_krb5_prompter_fct_##A = (uintptr_t)fct; \
+        return my_krb5_prompter_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libkrb5 krb5_prompter callback\n");
     return NULL;
 }

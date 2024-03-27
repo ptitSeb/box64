@@ -11,14 +11,12 @@ typedef uint32_t ZyanStatus;
     (!((status) & 0x80000000))
 #define ZYAN_FAILED(status) \
     ((status) & 0x80000000)
-#define ZYAN_CHECK(status) \
-    do \
-    { \
+#define ZYAN_CHECK(status)                            \
+    do {                                              \
         const ZyanStatus status_047620348 = (status); \
-        if (!ZYAN_SUCCESS(status_047620348)) \
-        { \
-            return status_047620348; \
-        } \
+        if (!ZYAN_SUCCESS(status_047620348)) {        \
+            return status_047620348;                  \
+        }                                             \
     } while (0)
 /*
  * @brief   Checks, if the bit at index `b` is required to present the ordinal value `n`.
@@ -42,33 +40,17 @@ typedef uint32_t ZyanStatus;
  * Note that this macro returns `0` for `n == 0`.
  */
 #define ZYAN_BITS_TO_REPRESENT(n) \
-    ( \
-        ZYAN_NEEDS_BIT(n,  0) + ZYAN_NEEDS_BIT(n,  1) + \
-        ZYAN_NEEDS_BIT(n,  2) + ZYAN_NEEDS_BIT(n,  3) + \
-        ZYAN_NEEDS_BIT(n,  4) + ZYAN_NEEDS_BIT(n,  5) + \
-        ZYAN_NEEDS_BIT(n,  6) + ZYAN_NEEDS_BIT(n,  7) + \
-        ZYAN_NEEDS_BIT(n,  8) + ZYAN_NEEDS_BIT(n,  9) + \
-        ZYAN_NEEDS_BIT(n, 10) + ZYAN_NEEDS_BIT(n, 11) + \
-        ZYAN_NEEDS_BIT(n, 12) + ZYAN_NEEDS_BIT(n, 13) + \
-        ZYAN_NEEDS_BIT(n, 14) + ZYAN_NEEDS_BIT(n, 15) + \
-        ZYAN_NEEDS_BIT(n, 16) + ZYAN_NEEDS_BIT(n, 17) + \
-        ZYAN_NEEDS_BIT(n, 18) + ZYAN_NEEDS_BIT(n, 19) + \
-        ZYAN_NEEDS_BIT(n, 20) + ZYAN_NEEDS_BIT(n, 21) + \
-        ZYAN_NEEDS_BIT(n, 22) + ZYAN_NEEDS_BIT(n, 23) + \
-        ZYAN_NEEDS_BIT(n, 24) + ZYAN_NEEDS_BIT(n, 25) + \
-        ZYAN_NEEDS_BIT(n, 26) + ZYAN_NEEDS_BIT(n, 27) + \
-        ZYAN_NEEDS_BIT(n, 28) + ZYAN_NEEDS_BIT(n, 29) + \
-        ZYAN_NEEDS_BIT(n, 30) + ZYAN_NEEDS_BIT(n, 31)   \
-    )
+    (                             \
+        ZYAN_NEEDS_BIT(n, 0) + ZYAN_NEEDS_BIT(n, 1) + ZYAN_NEEDS_BIT(n, 2) + ZYAN_NEEDS_BIT(n, 3) + ZYAN_NEEDS_BIT(n, 4) + ZYAN_NEEDS_BIT(n, 5) + ZYAN_NEEDS_BIT(n, 6) + ZYAN_NEEDS_BIT(n, 7) + ZYAN_NEEDS_BIT(n, 8) + ZYAN_NEEDS_BIT(n, 9) + ZYAN_NEEDS_BIT(n, 10) + ZYAN_NEEDS_BIT(n, 11) + ZYAN_NEEDS_BIT(n, 12) + ZYAN_NEEDS_BIT(n, 13) + ZYAN_NEEDS_BIT(n, 14) + ZYAN_NEEDS_BIT(n, 15) + ZYAN_NEEDS_BIT(n, 16) + ZYAN_NEEDS_BIT(n, 17) + ZYAN_NEEDS_BIT(n, 18) + ZYAN_NEEDS_BIT(n, 19) + ZYAN_NEEDS_BIT(n, 20) + ZYAN_NEEDS_BIT(n, 21) + ZYAN_NEEDS_BIT(n, 22) + ZYAN_NEEDS_BIT(n, 23) + ZYAN_NEEDS_BIT(n, 24) + ZYAN_NEEDS_BIT(n, 25) + ZYAN_NEEDS_BIT(n, 26) + ZYAN_NEEDS_BIT(n, 27) + ZYAN_NEEDS_BIT(n, 28) + ZYAN_NEEDS_BIT(n, 29) + ZYAN_NEEDS_BIT(n, 30) + ZYAN_NEEDS_BIT(n, 31))
 
-typedef size_t    ZyanUSize;
-typedef uint8_t    ZyanU8;
-typedef uint16_t    ZyanU16;
-typedef uint32_t    ZyanU32;
-typedef uint64_t    ZyanU64;
-typedef int32_t    ZyanI32;
-typedef int64_t    ZyanI64;
-typedef uint8_t    ZyanBool;
+typedef size_t ZyanUSize;
+typedef uint8_t ZyanU8;
+typedef uint16_t ZyanU16;
+typedef uint32_t ZyanU32;
+typedef uint64_t ZyanU64;
+typedef int32_t ZyanI32;
+typedef int64_t ZyanI64;
+typedef uint8_t ZyanBool;
 
 #define ZYDIS_MAX_INSTRUCTION_LENGTH 15
 #define ZYDIS_MAX_OPERAND_COUNT      10
@@ -102,7 +84,7 @@ typedef ZyanStatus (*ZyanAllocatorAllocate)(struct ZyanAllocator_* allocator, vo
  * @param   element_size    The size of a single element.
  * @param   n               The number of elements earlier passed to `(re-)allocate()`.
  *
-  * @return  A zyan status code.
+ * @return  A zyan status code.
  */
 typedef ZyanStatus (*ZyanAllocatorDeallocate)(struct ZyanAllocator_* allocator, void* p,
     ZyanUSize element_size, ZyanUSize n);
@@ -115,8 +97,7 @@ typedef ZyanStatus (*ZyanAllocatorDeallocate)(struct ZyanAllocator_* allocator, 
  * All fields in this struct should be considered as "private". Any changes may lead to unexpected
  * behavior.
  */
-typedef struct ZyanAllocator_
-{
+typedef struct ZyanAllocator_ {
     /**
      * @brief   The allocate function.
      */
@@ -131,8 +112,7 @@ typedef struct ZyanAllocator_
     ZyanAllocatorDeallocate deallocate;
 } ZyanAllocator;
 
-typedef struct ZyanVector_
-{
+typedef struct ZyanVector_ {
     /**
      * @brief   The memory allocator.
      */
@@ -174,8 +154,7 @@ typedef ZyanU8 ZyanStringFlags;
  * All fields in this struct should be considered as "private". Any changes may lead to unexpected
  * behavior.
  */
-typedef struct ZyanString_
-{
+typedef struct ZyanString_ {
     /**
      * @brief   String flags.
      */
@@ -208,8 +187,7 @@ typedef struct ZyanString_
  * All fields in this struct should be considered as "private". Any changes may lead to unexpected
  * behavior.
  */
-typedef struct ZyanStringView_
-{
+typedef struct ZyanStringView_ {
     /**
      * @brief   The string data.
      *
@@ -219,8 +197,7 @@ typedef struct ZyanStringView_
     ZyanString string;
 } ZyanStringView;
 
-typedef enum ZydisMachineMode_
-{
+typedef enum ZydisMachineMode_ {
     /**
      * @brief 64 bit mode.
      */
@@ -256,8 +233,7 @@ typedef enum ZydisMachineMode_
     ZYDIS_MACHINE_MODE_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_MACHINE_MODE_MAX_VALUE)
 } ZydisMachineMode;
 
-typedef enum ZydisAddressWidth_
-{
+typedef enum ZydisAddressWidth_ {
     ZYDIS_ADDRESS_WIDTH_16,
     ZYDIS_ADDRESS_WIDTH_32,
     ZYDIS_ADDRESS_WIDTH_64,
@@ -272,8 +248,7 @@ typedef enum ZydisAddressWidth_
     ZYDIS_ADDRESS_WIDTH_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_ADDRESS_WIDTH_MAX_VALUE)
 } ZydisAddressWidth;
 
-typedef struct ZydisDecoder_
-{
+typedef struct ZydisDecoder_ {
     /**
      * @brief   The machine mode.
      */
@@ -288,8 +263,7 @@ typedef struct ZydisDecoder_
     uint8_t decoder_mode[ZYDIS_DECODER_MODE_MAX_VALUE + 1];
 } ZydisDecoder;
 
-typedef enum ZydisFormatterStyle_
-{
+typedef enum ZydisFormatterStyle_ {
     /**
      * @brief   Generates `AT&T`-style disassembly.
      */
@@ -319,8 +293,7 @@ typedef enum ZydisFormatterStyle_
 /**
  * @brief   Defines the `ZydisRegister` enum.
  */
-typedef enum ZydisRegister_
-{
+typedef enum ZydisRegister_ {
     ZYDIS_REGISTER_NONE,
 
     // General purpose registers  8-bit
@@ -609,8 +582,7 @@ typedef enum ZydisRegister_
     ZYDIS_REGISTER_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_REGISTER_MAX_VALUE)
 } ZydisRegister;
 
-typedef enum ZydisNumericBase_
-{
+typedef enum ZydisNumericBase_ {
     /**
      * @brief   Decimal system.
      */
@@ -633,8 +605,7 @@ typedef enum ZydisNumericBase_
 /**
  * @brief   Defines the `ZydisSignedness` enum.
  */
-typedef enum ZydisSignedness_
-{
+typedef enum ZydisSignedness_ {
     /**
      * @brief   Automatically choose the most suitable mode based on the operands
      *          `ZydisDecodedOperand.imm.is_signed` attribute.
@@ -661,8 +632,7 @@ typedef enum ZydisSignedness_
 /**
  * @brief   Defines the `ZydisDecorator` enum.
  */
-typedef enum ZydisDecorator_
-{
+typedef enum ZydisDecorator_ {
     ZYDIS_DECORATOR_INVALID,
     /**
      * @brief   The embedded-mask decorator.
@@ -705,8 +675,7 @@ typedef enum ZydisDecorator_
 /**
  * @brief   Defines the `ZydisPadding` enum.
  */
-typedef enum ZydisPadding_
-{
+typedef enum ZydisPadding_ {
     /**
      * @brief   Disables padding.
      */
@@ -715,7 +684,7 @@ typedef enum ZydisPadding_
      * @brief   Padds the value to the current stack-width for addresses, or to the operand-width
      *          for immediate values (hexadecimal only).
      */
-    ZYDIS_PADDING_AUTO     = (-1),
+    ZYDIS_PADDING_AUTO = (-1),
 
     /**
      * @brief   Maximum value of this enum.
@@ -738,8 +707,7 @@ typedef ZyanStatus (*ZydisFormatterRegisterFunc)(const ZydisFormatter* formatter
 typedef ZyanStatus (*ZydisFormatterDecoratorFunc)(const ZydisFormatter* formatter,
     ZydisFormatterBuffer* buffer, ZydisFormatterContext* context, ZydisDecorator decorator);
 
-typedef struct ZydisFormatter_
-{
+typedef struct ZydisFormatter_ {
     /**
      * @brief   The formatter style.
      */
@@ -931,14 +899,13 @@ typedef struct ZydisFormatter_
     ZydisFormatterDecoratorFunc func_print_decorator;
 
     // ummy padding, in case the structure growth...
-    uint32_t    padding[20];
+    uint32_t padding[20];
 } ZydisFormatter;
 
 /**
  * @brief   Defines the `ZydisMnemonic` enum.
  */
-typedef enum ZydisMnemonic_
-{
+typedef enum ZydisMnemonic_ {
     ZYDIS_MNEMONIC_INVALID,
     ZYDIS_MNEMONIC_AAA,
     ZYDIS_MNEMONIC_AAD,
@@ -2550,8 +2517,7 @@ typedef enum ZydisMnemonic_
 /**
  * @brief   Defines the `ZydisOperandType` enum.
  */
-typedef enum ZydisOperandType_
-{
+typedef enum ZydisOperandType_ {
     /**
      * @brief   The operand is not used.
      */
@@ -2593,8 +2559,7 @@ typedef ZyanU64 ZydisInstructionAttributes;
 /**
  * @brief   Defines the `ZydisOperandEncoding` enum.
  */
-typedef enum ZydisOperandEncoding_
-{
+typedef enum ZydisOperandEncoding_ {
     ZYDIS_OPERAND_ENCODING_NONE,
     ZYDIS_OPERAND_ENCODING_MODRM_REG,
     ZYDIS_OPERAND_ENCODING_MODRM_RM,
@@ -2643,8 +2608,7 @@ typedef enum ZydisOperandEncoding_
 /**
  * @brief   Defines the `ZydisOperandVisibility` enum.
  */
-typedef enum ZydisOperandVisibility_
-{
+typedef enum ZydisOperandVisibility_ {
     ZYDIS_OPERAND_VISIBILITY_INVALID,
     /**
      * @brief   The operand is explicitly encoded in the instruction.
@@ -2666,14 +2630,12 @@ typedef enum ZydisOperandVisibility_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS =
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_VISIBILITY_MAX_VALUE)
+    ZYDIS_OPERAND_VISIBILITY_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_OPERAND_VISIBILITY_MAX_VALUE)
 } ZydisOperandVisibility;
 /**
  * @brief   Defines the `ZydisOperandAction` enum.
  */
-typedef enum ZydisOperandAction_
-{
+typedef enum ZydisOperandAction_ {
     /* ------------------------------------------------------------------------------------------ */
     /* Elemental actions                                                                          */
     /* ------------------------------------------------------------------------------------------ */
@@ -2681,19 +2643,19 @@ typedef enum ZydisOperandAction_
     /**
      * @brief   The operand is read by the instruction.
      */
-    ZYDIS_OPERAND_ACTION_READ       = 0x01,
+    ZYDIS_OPERAND_ACTION_READ = 0x01,
     /**
      * @brief   The operand is written by the instruction (must write).
      */
-    ZYDIS_OPERAND_ACTION_WRITE      = 0x02,
+    ZYDIS_OPERAND_ACTION_WRITE = 0x02,
     /**
      * @brief   The operand is conditionally read by the instruction.
      */
-    ZYDIS_OPERAND_ACTION_CONDREAD   = 0x04,
+    ZYDIS_OPERAND_ACTION_CONDREAD = 0x04,
     /**
      * @brief   The operand is conditionally written by the instruction (may write).
      */
-    ZYDIS_OPERAND_ACTION_CONDWRITE  = 0x08,
+    ZYDIS_OPERAND_ACTION_CONDWRITE = 0x08,
 
     /* ------------------------------------------------------------------------------------------ */
     /* Combined actions                                                                           */
@@ -2707,25 +2669,22 @@ typedef enum ZydisOperandAction_
      * @brief   The operand is conditionally read (may read) and conditionally written by the
      *          instruction (may write).
      */
-    ZYDIS_OPERAND_ACTION_CONDREAD_CONDWRITE =
-        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_CONDWRITE,
+    ZYDIS_OPERAND_ACTION_CONDREAD_CONDWRITE = ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_CONDWRITE,
     /**
      * @brief   The operand is read (must read) and conditionally written by the instruction
      *          (may write).
      */
-    ZYDIS_OPERAND_ACTION_READ_CONDWRITE =
-        ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDWRITE,
+    ZYDIS_OPERAND_ACTION_READ_CONDWRITE = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDWRITE,
     /**
      * @brief   The operand is written (must write) and conditionally read by the instruction
      *          (may read).
      */
-    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE =
-        ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_WRITE,
+    ZYDIS_OPERAND_ACTION_CONDREAD_WRITE = ZYDIS_OPERAND_ACTION_CONDREAD | ZYDIS_OPERAND_ACTION_WRITE,
 
     /**
      * @brief   Mask combining all reading access flags.
      */
-    ZYDIS_OPERAND_ACTION_MASK_READ  = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDREAD,
+    ZYDIS_OPERAND_ACTION_MASK_READ = ZYDIS_OPERAND_ACTION_READ | ZYDIS_OPERAND_ACTION_CONDREAD,
     /**
      * @brief   Mask combining all writing access flags.
      */
@@ -2746,8 +2705,7 @@ typedef ZyanU8 ZydisOperandActions;
 /**
  * @brief   Defines the `ZydisElementType` enum.
  */
-typedef enum ZydisElementType_
-{
+typedef enum ZydisElementType_ {
     ZYDIS_ELEMENT_TYPE_INVALID,
     /**
      * @brief   A struct type.
@@ -2798,8 +2756,7 @@ typedef enum ZydisElementType_
 /**
  * @brief   Defines the `ZydisInstructionEncoding` enum.
  */
-typedef enum ZydisInstructionEncoding_
-{
+typedef enum ZydisInstructionEncoding_ {
     /**
      * @brief   The instruction uses the legacy encoding.
      */
@@ -2832,14 +2789,12 @@ typedef enum ZydisInstructionEncoding_
     /**
      * @brief   The minimum number of bits required to represent all values of this enum.
      */
-    ZYDIS_INSTRUCTION_ENCODING_REQUIRED_BITS =
-        ZYAN_BITS_TO_REPRESENT(ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE)
+    ZYDIS_INSTRUCTION_ENCODING_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_INSTRUCTION_ENCODING_MAX_VALUE)
 } ZydisInstructionEncoding;
 /**
  * @brief   Defines the `ZydisOpcodeMap` enum.
  */
-typedef enum ZydisOpcodeMap_
-{
+typedef enum ZydisOpcodeMap_ {
     ZYDIS_OPCODE_MAP_DEFAULT,
     ZYDIS_OPCODE_MAP_0F,
     ZYDIS_OPCODE_MAP_0F38,
@@ -2861,8 +2816,7 @@ typedef enum ZydisOpcodeMap_
 /**
  * @brief   Defines the `ZydisMemoryOperandType` enum.
  */
-typedef enum ZydisMemoryOperandType_
-{
+typedef enum ZydisMemoryOperandType_ {
     ZYDIS_MEMOP_TYPE_INVALID,
     /**
      * @brief   Normal memory operand.
@@ -2896,8 +2850,7 @@ typedef enum ZydisMemoryOperandType_
 /**
  * @brief   Defines the `ZydisDecodedOperand` struct.
  */
-typedef struct ZydisDecodedOperand_
-{
+typedef struct ZydisDecodedOperand_ {
     /**
      * @brief   The operand-id.
      */
@@ -3010,8 +2963,7 @@ typedef struct ZydisDecodedOperand_
         /**
          * @brief   The immediate value.
          */
-        union
-        {
+        union {
             ZyanU64 u;
             ZyanI64 s;
         } value;
@@ -3027,71 +2979,71 @@ typedef ZyanU8 ZydisCPUFlag;
 /**
  * Carry flag.
  */
-#define ZYDIS_CPUFLAG_CF     0
+#define ZYDIS_CPUFLAG_CF 0
 /**
  * Parity flag.
  */
-#define ZYDIS_CPUFLAG_PF     2
+#define ZYDIS_CPUFLAG_PF 2
 /**
  * Adjust flag.
  */
-#define ZYDIS_CPUFLAG_AF     4
+#define ZYDIS_CPUFLAG_AF 4
 /**
  * Zero flag.
  */
-#define ZYDIS_CPUFLAG_ZF     6
+#define ZYDIS_CPUFLAG_ZF 6
 /**
  * Sign flag.
  */
-#define ZYDIS_CPUFLAG_SF     7
+#define ZYDIS_CPUFLAG_SF 7
 /**
  * Trap flag.
  */
-#define ZYDIS_CPUFLAG_TF     8
+#define ZYDIS_CPUFLAG_TF 8
 /**
  * Interrupt enable flag.
  */
-#define ZYDIS_CPUFLAG_IF     9
+#define ZYDIS_CPUFLAG_IF 9
 /**
  * Direction flag.
  */
-#define ZYDIS_CPUFLAG_DF    10
+#define ZYDIS_CPUFLAG_DF 10
 /**
  * Overflow flag.
  */
-#define ZYDIS_CPUFLAG_OF    11
+#define ZYDIS_CPUFLAG_OF 11
 /**
  * I/O privilege level flag.
  */
-#define ZYDIS_CPUFLAG_IOPL  12
+#define ZYDIS_CPUFLAG_IOPL 12
 /**
  * Nested task flag.
  */
-#define ZYDIS_CPUFLAG_NT    14
+#define ZYDIS_CPUFLAG_NT 14
 /**
  * Resume flag.
  */
-#define ZYDIS_CPUFLAG_RF    16
+#define ZYDIS_CPUFLAG_RF 16
 /**
  * Virtual 8086 mode flag.
  */
-#define ZYDIS_CPUFLAG_VM    17
+#define ZYDIS_CPUFLAG_VM 17
 /**
  * Alignment check.
  */
-#define ZYDIS_CPUFLAG_AC    18
+#define ZYDIS_CPUFLAG_AC 18
 /**
  * Virtual interrupt flag.
  */
-#define ZYDIS_CPUFLAG_VIF   19
+#define ZYDIS_CPUFLAG_VIF 19
 /**
  * Virtual interrupt pending.
  */
-#define ZYDIS_CPUFLAG_VIP   20
+#define ZYDIS_CPUFLAG_VIP 20
 /**
  * Able to use CPUID instruction.
  */
-#define ZYDIS_CPUFLAG_ID    21
+#define ZYDIS_CPUFLAG_ID 21
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -3102,7 +3054,7 @@ typedef ZyanU8 ZydisCPUFlag;
  * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
  * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
-#define ZYDIS_CPUFLAG_C0    22
+#define ZYDIS_CPUFLAG_C0 22
 /**
  * FPU condition-code flag 1.
  *
@@ -3110,7 +3062,7 @@ typedef ZyanU8 ZydisCPUFlag;
  * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
  * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
-#define ZYDIS_CPUFLAG_C1    23
+#define ZYDIS_CPUFLAG_C1 23
 /**
  * FPU condition-code flag 2.
  *
@@ -3118,7 +3070,7 @@ typedef ZyanU8 ZydisCPUFlag;
  * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
  * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
-#define ZYDIS_CPUFLAG_C2    24
+#define ZYDIS_CPUFLAG_C2 24
 /**
  * FPU condition-code flag 3.
  *
@@ -3126,18 +3078,17 @@ typedef ZyanU8 ZydisCPUFlag;
  * next major release. Please refer to the `fpu_flags_read`/`fpu_flags_written` field instead and
  * use one of the `ZYDIS_FPUFLAG_XXX` masks to check for specific a flag.
  */
-#define ZYDIS_CPUFLAG_C3    25
+#define ZYDIS_CPUFLAG_C3 25
 
 /**
  * DEPRECATED. This define will be removed in the next major release.
  */
-#define ZYDIS_CPUFLAG_MAX_VALUE     ZYDIS_CPUFLAG_C3
+#define ZYDIS_CPUFLAG_MAX_VALUE ZYDIS_CPUFLAG_C3
 
 /**
  * @brief   Defines the `ZydisMaskMode` enum.
  */
-typedef enum ZydisMaskMode_
-{
+typedef enum ZydisMaskMode_ {
     ZYDIS_MASK_MODE_INVALID,
     /**
      * @brief   Masking is disabled for the current instruction (`K0` register is used).
@@ -3172,8 +3123,7 @@ typedef enum ZydisMaskMode_
 /**
  * @brief   Defines the `ZydisBroadcastMode` enum.
  */
-typedef enum ZydisBroadcastMode_
-{
+typedef enum ZydisBroadcastMode_ {
     ZYDIS_BROADCAST_MODE_INVALID,
     ZYDIS_BROADCAST_MODE_1_TO_2,
     ZYDIS_BROADCAST_MODE_1_TO_4,
@@ -3200,8 +3150,7 @@ typedef enum ZydisBroadcastMode_
 /**
  * @brief   Defines the `ZydisRoundingMode` enum.
  */
-typedef enum ZydisRoundingMode_
-{
+typedef enum ZydisRoundingMode_ {
     ZYDIS_ROUNDING_MODE_INVALID,
     /**
      * @brief   Round to nearest.
@@ -3232,8 +3181,7 @@ typedef enum ZydisRoundingMode_
 /**
  * @brief   Defines the `ZydisSwizzleMode` enum.
  */
-typedef enum ZydisSwizzleMode_
-{
+typedef enum ZydisSwizzleMode_ {
     ZYDIS_SWIZZLE_MODE_INVALID,
     ZYDIS_SWIZZLE_MODE_DCBA,
     ZYDIS_SWIZZLE_MODE_CDAB,
@@ -3256,8 +3204,7 @@ typedef enum ZydisSwizzleMode_
 /**
  * @brief   Defines the `ZydisConversionMode` enum.
  */
-typedef enum ZydisConversionMode_
-{
+typedef enum ZydisConversionMode_ {
     ZYDIS_CONVERSION_MODE_INVALID,
     ZYDIS_CONVERSION_MODE_FLOAT16,
     ZYDIS_CONVERSION_MODE_SINT8,
@@ -3277,8 +3224,7 @@ typedef enum ZydisConversionMode_
 /**
  * @brief   Defines the `ZydisInstructionCategory` enum.
  */
-typedef enum ZydisInstructionCategory_
-{
+typedef enum ZydisInstructionCategory_ {
     ZYDIS_CATEGORY_INVALID,
     ZYDIS_CATEGORY_ADOX_ADCX,
     ZYDIS_CATEGORY_AES,
@@ -3388,8 +3334,7 @@ typedef enum ZydisInstructionCategory_
 /**
  * @brief   Defines the `ZydisISASet` enum.
  */
-typedef enum ZydisISASet_
-{
+typedef enum ZydisISASet_ {
     ZYDIS_ISA_SET_INVALID,
     ZYDIS_ISA_SET_ADOX_ADCX,
     ZYDIS_ISA_SET_AES,
@@ -3558,8 +3503,7 @@ typedef enum ZydisISASet_
 /**
  * @brief   Defines the `ZydisISAExt` enum.
  */
-typedef enum ZydisISAExt_
-{
+typedef enum ZydisISAExt_ {
     ZYDIS_ISA_EXT_INVALID,
     ZYDIS_ISA_EXT_ADOX_ADCX,
     ZYDIS_ISA_EXT_AES,
@@ -3645,8 +3589,7 @@ typedef enum ZydisISAExt_
 /**
  * @brief   Defines the `ZydisBranchType` enum.
  */
-typedef enum ZydisBranchType_
-{
+typedef enum ZydisBranchType_ {
     /**
      * @brief   The instruction is not a branch instruction.
      */
@@ -3676,8 +3619,7 @@ typedef enum ZydisBranchType_
 /**
  * @brief   Defines the `ZydisExceptionClass` enum.
  */
-typedef enum ZydisExceptionClass_
-{
+typedef enum ZydisExceptionClass_ {
     ZYDIS_EXCEPTION_CLASS_NONE,
     // TODO: FP Exceptions
     ZYDIS_EXCEPTION_CLASS_SSE1,
@@ -3732,8 +3674,7 @@ typedef enum ZydisExceptionClass_
 /**
  * @brief   Defines the `ZydisPrefixType` enum.
  */
-typedef enum ZydisPrefixType_
-{
+typedef enum ZydisPrefixType_ {
     /**
      * @brief   The prefix is ignored by the instruction.
      *
@@ -3765,8 +3706,7 @@ typedef enum ZydisPrefixType_
 /**
  * @brief   Defines the `ZydisCPUFlagAction` enum.
  */
-typedef enum ZydisCPUFlagAction_
-{
+typedef enum ZydisCPUFlagAction_ {
     /**
      * @brief   The CPU flag is not touched by the instruction.
      */
@@ -3805,16 +3745,15 @@ typedef enum ZydisCPUFlagAction_
      */
     ZYDIS_CPUFLAG_ACTION_REQUIRED_BITS = ZYAN_BITS_TO_REPRESENT(ZYDIS_CPUFLAG_ACTION_MAX_VALUE)
 } ZydisCPUFlagAction;
- /**
-  * Defines the `ZydisFPUFlags` data-type.
-  */
+/**
+ * Defines the `ZydisFPUFlags` data-type.
+ */
 typedef ZyanU8 ZydisFPUFlags;
 
 /**
  * @brief   Defines the `ZydisDecodedInstruction` struct.
  */
-typedef struct ZydisDecodedInstruction_
-{
+typedef struct ZydisDecodedInstruction_ {
     /**
      * The machine mode used to decode this instruction.
      */
@@ -3874,8 +3813,7 @@ typedef struct ZydisDecodedInstruction_
      * `cpu_flags_read`/`cpu_flags_written` or `fpu_flags_read`/`fpu_flags_written` fields
      * instead.
      */
-    struct ZydisDecodedInstructionAccessedFlags_
-    {
+    struct ZydisDecodedInstructionAccessedFlags_ {
         /**
          * The CPU-flag action.
          *
@@ -3913,8 +3851,7 @@ typedef struct ZydisDecodedInstruction_
     /**
      * Extended info for `AVX` instructions.
      */
-    struct ZydisDecodedInstructionAvx_
-    {
+    struct ZydisDecodedInstructionAvx_ {
         /**
          * The `AVX` vector-length.
          */
@@ -3922,8 +3859,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Info about the embedded writemask-register (`AVX-512` and `KNC` only).
          */
-        struct ZydisDecodedInstructionAvxMask_
-        {
+        struct ZydisDecodedInstructionAvxMask_ {
             /**
              * The masking mode.
              */
@@ -3936,8 +3872,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Contains info about the `AVX` broadcast.
          */
-        struct ZydisDecodedInstructionAvxBroadcast_
-        {
+        struct ZydisDecodedInstructionAvxBroadcast_ {
             /**
              * Signals, if the broadcast is a static broadcast.
              *
@@ -3953,8 +3888,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Contains info about the `AVX` rounding.
          */
-        struct ZydisDecodedInstructionAvxRounding_
-        {
+        struct ZydisDecodedInstructionAvxRounding_ {
             /**
              * The `AVX` rounding-mode.
              */
@@ -3963,8 +3897,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Contains info about the `AVX` register-swizzle (`KNC` only).
          */
-        struct ZydisDecodedInstructionAvxSwizzle_
-        {
+        struct ZydisDecodedInstructionAvxSwizzle_ {
             /**
              * The `AVX` register-swizzle mode.
              */
@@ -3973,8 +3906,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Contains info about the `AVX` data-conversion (`KNC` only).
          */
-        struct ZydisDecodedInstructionAvxConversion_
-        {
+        struct ZydisDecodedInstructionAvxConversion_ {
             /**
              * The `AVX` data-conversion mode.
              */
@@ -3994,8 +3926,7 @@ typedef struct ZydisDecodedInstruction_
     /**
      * Meta info.
      */
-    struct ZydisDecodedInstructionMeta_
-    {
+    struct ZydisDecodedInstructionMeta_ {
         /**
          * The instruction category.
          */
@@ -4021,8 +3952,7 @@ typedef struct ZydisDecodedInstruction_
      * Detailed info about different instruction-parts like `ModRM`, `SIB` or
      * encoding-prefixes.
      */
-    struct ZydisDecodedInstructionRaw_
-    {
+    struct ZydisDecodedInstructionRaw_ {
         /**
          * The number of legacy prefixes.
          */
@@ -4030,8 +3960,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about the legacy prefixes (including `REX`).
          */
-        struct ZydisDecodedInstructionRawPrefixes_
-        {
+        struct ZydisDecodedInstructionRawPrefixes_ {
             /**
              * The prefix type.
              */
@@ -4044,8 +3973,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about the `REX` prefix.
          */
-        struct ZydisDecodedInstructionRawRex_
-        {
+        struct ZydisDecodedInstructionRawRex_ {
             /**
              * 64-bit operand-size promotion.
              */
@@ -4078,8 +4006,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about the `XOP` prefix.
          */
-        struct ZydisDecodedInstructionRawXop_
-        {
+        struct ZydisDecodedInstructionRawXop_ {
             /**
              * Extension of the `ModRM.reg` field (inverted).
              */
@@ -4122,8 +4049,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about the `VEX` prefix.
          */
-        struct ZydisDecodedInstructionRawVex_
-        {
+        struct ZydisDecodedInstructionRawVex_ {
             /**
              * Extension of the `ModRM.reg` field (inverted).
              */
@@ -4170,8 +4096,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about the `EVEX` prefix.
          */
-        struct ZydisDecodedInstructionRawEvex_
-        {
+        struct ZydisDecodedInstructionRawEvex_ {
             /**
              * Extension of the `ModRM.reg` field (inverted).
              */
@@ -4236,10 +4161,9 @@ typedef struct ZydisDecodedInstruction_
             ZyanU8 offset;
         } evex;
         /**
-        * Detailed info about the `MVEX` prefix.
-        */
-        struct ZydisDecodedInstructionRawMvex_
-        {
+         * Detailed info about the `MVEX` prefix.
+         */
+        struct ZydisDecodedInstructionRawMvex_ {
             /**
              * Extension of the `ModRM.reg` field (inverted).
              */
@@ -4298,8 +4222,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about the `ModRM` byte.
          */
-        struct ZydisDecodedInstructionModRm_
-        {
+        struct ZydisDecodedInstructionModRm_ {
             /**
              * The addressing mode.
              */
@@ -4321,8 +4244,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about the `SIB` byte.
          */
-        struct ZydisDecodedInstructionRawSib_
-        {
+        struct ZydisDecodedInstructionRawSib_ {
             /**
              * The scale factor.
              */
@@ -4344,8 +4266,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about displacement-bytes.
          */
-        struct ZydisDecodedInstructionRawDisp_
-        {
+        struct ZydisDecodedInstructionRawDisp_ {
             /**
              * The displacement value
              */
@@ -4364,8 +4285,7 @@ typedef struct ZydisDecodedInstruction_
         /**
          * Detailed info about immediate-bytes.
          */
-        struct ZydisDecodedInstructionRawImm_
-        {
+        struct ZydisDecodedInstructionRawImm_ {
             /**
              * Signals, if the immediate value is signed.
              */
@@ -4378,8 +4298,7 @@ typedef struct ZydisDecodedInstruction_
             /**
              * The immediate value.
              */
-            union ZydisDecodedInstructionRawImmValue_
-            {
+            union ZydisDecodedInstructionRawImmValue_ {
                 ZyanU64 u;
                 ZyanI64 s;
             } value;

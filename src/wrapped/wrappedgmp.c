@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -27,109 +27,127 @@ const char* gmpName = "libgmp.so.10";
 
 // utility functions
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)
 
 // alloc_func
-#define GO(A)   \
-static uintptr_t my_alloc_func_fct_##A = 0;                         \
-static void* my_alloc_func_##A(size_t a)                            \
-{                                                                   \
-    return (void*)RunFunctionFmt(my_alloc_func_fct_##A, "L", a);    \
-}
+#define GO(A)                                                        \
+    static uintptr_t my_alloc_func_fct_##A = 0;                      \
+    static void* my_alloc_func_##A(size_t a)                         \
+    {                                                                \
+        return (void*)RunFunctionFmt(my_alloc_func_fct_##A, "L", a); \
+    }
 SUPER()
 #undef GO
 static void* find_alloc_func_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_alloc_func_fct_##A == (uintptr_t)fct) return my_alloc_func_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_alloc_func_fct_##A == (uintptr_t)fct) return my_alloc_func_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_alloc_func_fct_##A == 0) {my_alloc_func_fct_##A = (uintptr_t)fct; return my_alloc_func_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_alloc_func_fct_##A == 0) {           \
+        my_alloc_func_fct_##A = (uintptr_t)fct; \
+        return my_alloc_func_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libgmp.so.10 alloc_func callback\n");
     return NULL;
 }
 static void* reverse_alloc_func_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
+    if (!fct) return fct;
+    if (CheckBridged(my_lib->w.bridge, fct))
         return (void*)CheckBridged(my_lib->w.bridge, fct);
-    #define GO(A) if(my_alloc_func_##A == fct) return (void*)my_alloc_func_fct_##A;
+#define GO(A) \
+    if (my_alloc_func_##A == fct) return (void*)my_alloc_func_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddBridge(my_lib->w.bridge, pFL, fct, 0, NULL);
 }
 // realloc_func
-#define GO(A)   \
-static uintptr_t my_realloc_func_fct_##A = 0;                           \
-static void* my_realloc_func_##A(void* a, size_t b)                     \
-{                                                                       \
-    return (void*)RunFunctionFmt(my_realloc_func_fct_##A, "pL", a, b);  \
-}
+#define GO(A)                                                              \
+    static uintptr_t my_realloc_func_fct_##A = 0;                          \
+    static void* my_realloc_func_##A(void* a, size_t b)                    \
+    {                                                                      \
+        return (void*)RunFunctionFmt(my_realloc_func_fct_##A, "pL", a, b); \
+    }
 SUPER()
 #undef GO
 static void* find_realloc_func_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_realloc_func_fct_##A == (uintptr_t)fct) return my_realloc_func_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_realloc_func_fct_##A == (uintptr_t)fct) return my_realloc_func_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_realloc_func_fct_##A == 0) {my_realloc_func_fct_##A = (uintptr_t)fct; return my_realloc_func_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_realloc_func_fct_##A == 0) {           \
+        my_realloc_func_fct_##A = (uintptr_t)fct; \
+        return my_realloc_func_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libgmp.so.10 realloc_func callback\n");
     return NULL;
 }
 static void* reverse_realloc_func_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
+    if (!fct) return fct;
+    if (CheckBridged(my_lib->w.bridge, fct))
         return (void*)CheckBridged(my_lib->w.bridge, fct);
-    #define GO(A) if(my_realloc_func_##A == fct) return (void*)my_realloc_func_fct_##A;
+#define GO(A) \
+    if (my_realloc_func_##A == fct) return (void*)my_realloc_func_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddBridge(my_lib->w.bridge, pFpL, fct, 0, NULL);
 }
 // free_func
-#define GO(A)   \
-static uintptr_t my_free_func_fct_##A = 0;          \
-static void my_free_func_##A(void* a)               \
-{                                                   \
-    RunFunctionFmt(my_free_func_fct_##A, "p", a);   \
-}
+#define GO(A)                                         \
+    static uintptr_t my_free_func_fct_##A = 0;        \
+    static void my_free_func_##A(void* a)             \
+    {                                                 \
+        RunFunctionFmt(my_free_func_fct_##A, "p", a); \
+    }
 SUPER()
 #undef GO
 static void* find_free_func_Fct(void* fct)
 {
-    if(!fct) return NULL;
+    if (!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
-    #define GO(A) if(my_free_func_fct_##A == (uintptr_t)fct) return my_free_func_##A;
+    if ((p = GetNativeFnc((uintptr_t)fct))) return p;
+#define GO(A) \
+    if (my_free_func_fct_##A == (uintptr_t)fct) return my_free_func_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_free_func_fct_##A == 0) {my_free_func_fct_##A = (uintptr_t)fct; return my_free_func_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_free_func_fct_##A == 0) {           \
+        my_free_func_fct_##A = (uintptr_t)fct; \
+        return my_free_func_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libgmp.so.10 free_func callback\n");
     return NULL;
 }
 static void* reverse_free_func_Fct(void* fct)
 {
-    if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
+    if (!fct) return fct;
+    if (CheckBridged(my_lib->w.bridge, fct))
         return (void*)CheckBridged(my_lib->w.bridge, fct);
-    #define GO(A) if(my_free_func_##A == fct) return (void*)my_free_func_fct_##A;
+#define GO(A) \
+    if (my_free_func_##A == fct) return (void*)my_free_func_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
 }
 

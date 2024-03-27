@@ -1,4 +1,4 @@
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,87 +19,102 @@
 #include "gtkclass.h"
 
 #ifdef ANDROID
-    const char* gdk3Name = "libgdk-3.so";
+const char* gdk3Name = "libgdk-3.so";
 #else
-    const char* gdk3Name = "libgdk-3.so.0";
+const char* gdk3Name = "libgdk-3.so.0";
 #endif
 #define LIBNAME gdk3
 
-//#define ADDED_FUNCTIONS()
+// #define ADDED_FUNCTIONS()
 
 #include "generated/wrappedgdk3types.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)
 
 // GdkFilterFunc
-#define GO(A)   \
-static uintptr_t my_filter_fct_##A = 0;                                                    \
-static int my_filter_##A(void* xevent, void* event, void* data)                            \
-{                                                                                          \
-    return (int)RunFunctionFmt(my_filter_fct_##A, "ppp", xevent, event, data);        \
-}
+#define GO(A)                                                                      \
+    static uintptr_t my_filter_fct_##A = 0;                                        \
+    static int my_filter_##A(void* xevent, void* event, void* data)                \
+    {                                                                              \
+        return (int)RunFunctionFmt(my_filter_fct_##A, "ppp", xevent, event, data); \
+    }
 SUPER()
 #undef GO
 static void* findFilterFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_filter_fct_##A == (uintptr_t)fct) return my_filter_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_filter_fct_##A == (uintptr_t)fct) return my_filter_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_filter_fct_##A == 0) {my_filter_fct_##A = (uintptr_t)fct; return my_filter_##A; }
+#undef GO
+#define GO(A)                               \
+    if (my_filter_fct_##A == 0) {           \
+        my_filter_fct_##A = (uintptr_t)fct; \
+        return my_filter_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gdk-3 GdkFilterFunc callback\n");
     return NULL;
 }
 // GSourceFunc
-#define GO(A)   \
-static uintptr_t my_GSourceFunc_fct_##A = 0;                                \
-static int my_GSourceFunc_##A(void* a)                                      \
-{                                                                           \
-    return (int)RunFunctionFmt(my_GSourceFunc_fct_##A, "p", a);       \
-}
+#define GO(A)                                                       \
+    static uintptr_t my_GSourceFunc_fct_##A = 0;                    \
+    static int my_GSourceFunc_##A(void* a)                          \
+    {                                                               \
+        return (int)RunFunctionFmt(my_GSourceFunc_fct_##A, "p", a); \
+    }
 SUPER()
 #undef GO
 static void* findGSourceFunc(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GSourceFunc_fct_##A == (uintptr_t)fct) return my_GSourceFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GSourceFunc_fct_##A == (uintptr_t)fct) return my_GSourceFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GSourceFunc_fct_##A == 0) {my_GSourceFunc_fct_##A = (uintptr_t)fct; return my_GSourceFunc_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_GSourceFunc_fct_##A == 0) {           \
+        my_GSourceFunc_fct_##A = (uintptr_t)fct; \
+        return my_GSourceFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gdk-3 GSourceFunc callback\n");
     return NULL;
 }
 // GDestroyNotify
-#define GO(A)   \
-static uintptr_t my_GDestroyNotify_fct_##A = 0;                         \
-static void my_GDestroyNotify_##A(void* data)                           \
-{                                                                       \
-    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data);         \
-}
+#define GO(A)                                                 \
+    static uintptr_t my_GDestroyNotify_fct_##A = 0;           \
+    static void my_GDestroyNotify_##A(void* data)             \
+    {                                                         \
+        RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data); \
+    }
 SUPER()
 #undef GO
 static void* findGDestroyNotifyFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_GDestroyNotify_fct_##A == 0) {           \
+        my_GDestroyNotify_fct_##A = (uintptr_t)fct; \
+        return my_GDestroyNotify_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gdk-3 GDestroyNotify callback\n");
     return NULL;
 }
@@ -109,12 +124,12 @@ static void* findGDestroyNotifyFct(void* fct)
 
 static void my3_event_handler(void* event, my_signal_t* sig)
 {
-    RunFunctionFmt(sig->c_handler, "pp", event, sig->data)        ;
+    RunFunctionFmt(sig->c_handler, "pp", event, sig->data);
 }
 
 EXPORT void my3_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, void* notify)
 {
-    if(!func)
+    if (!func)
         return my->gdk_event_handler_set(func, data, notify);
 
     my_signal_t* sig = new_mysignal(func, data, notify);
@@ -124,12 +139,12 @@ EXPORT void my3_gdk_event_handler_set(x64emu_t* emu, void* func, void* data, voi
 
 static void my3_input_function(my_signal_t* sig, int source, int condition)
 {
-    RunFunctionFmt(sig->c_handler, "pii", sig->data, source, condition)       ;
+    RunFunctionFmt(sig->c_handler, "pii", sig->data, source, condition);
 }
 
 EXPORT int my3_gdk_input_add(x64emu_t* emu, int source, int condition, void* f, void* data)
 {
-    if(!f)
+    if (!f)
         return my->gdk_input_add_full(source, condition, f, data, NULL);
 
     my_signal_t* sig = new_mysignal(f, data, NULL);
@@ -138,7 +153,7 @@ EXPORT int my3_gdk_input_add(x64emu_t* emu, int source, int condition, void* f, 
 
 EXPORT int my3_gdk_input_add_full(x64emu_t* emu, int source, int condition, void* f, void* data, void* notify)
 {
-    if(!f)
+    if (!f)
         return my->gdk_input_add_full(source, condition, f, data, notify);
 
     my_signal_t* sig = new_mysignal(f, data, notify);
@@ -183,8 +198,8 @@ EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, ui
     return my->gdk_threads_add_timeout_full(priotity, interval, findGSourceFunc(f), data, findGDestroyNotifyFct(d));
 }
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
 #define ALTMY my3_

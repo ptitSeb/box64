@@ -49,7 +49,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(lock);
     MAYUSE(cacheupd);
 
-    switch(opcode) {
+    switch (opcode) {
         case 0x00:
             INST_NAME("ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -153,18 +153,18 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
 
         case 0x0F:
-            switch(rep) {
-            case 0:
-                addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
-                break;
-            case 1:
-                addr = dynarec64_F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
-                break;
-            case 2:
-                addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
-                break;
-            default:
-                DEFAULT;
+            switch (rep) {
+                case 0:
+                    addr = dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
+                case 1:
+                    addr = dynarec64_F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
+                case 2:
+                    addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0x10:
@@ -398,7 +398,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             GETED(0);
             emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
-            if(ed!=gd) {
+            if (ed != gd) {
                 WBACK;
             }
             break;
@@ -474,7 +474,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET_PENDING);
             u8 = F8;
             ANDI(x1, xRAX, 0xff);
-            if(u8) {
+            if (u8) {
                 MOV32w(x2, u8);
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
             } else {
@@ -485,7 +485,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("CMP EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
-            if(i64) {
+            if (i64) {
                 MOV64xw(x2, i64);
                 emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
             } else
@@ -496,5 +496,5 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             DEFAULT;
     }
 
-     return addr;
+    return addr;
 }

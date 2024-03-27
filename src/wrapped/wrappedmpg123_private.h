@@ -2,18 +2,18 @@
 #error Meh....
 #endif
 
-//GO(mpg123_add_string, 
-//GO(mpg123_add_substring, 
+// GO(mpg123_add_string,
+// GO(mpg123_add_substring,
 GO(mpg123_chomp_string, iFp)
 GO(mpg123_clip, lFp)
 GO(mpg123_close, iFp)
-//GO(mpg123_copy_string, 
+// GO(mpg123_copy_string,
 GO(mpg123_current_decoder, pFp)
 GO(mpg123_decode, iFppLpLp)
 GO(mpg123_decode_frame, iFpppp)
 GO(mpg123_decode_frame_64, iFpppp)
 GO(mpg123_decoder, iFpp)
-//GO(mpg123_decoders, 
+// GO(mpg123_decoders,
 GO(mpg123_delete, vFp)
 GO(mpg123_delete_pars, vFp)
 GO(mpg123_enc_from_id3, iFC)
@@ -60,7 +60,7 @@ GO(mpg123_index, iFpppp)
 GO(mpg123_index_64, iFpppp)
 GO(mpg123_info, iFpp)
 GO(mpg123_init, iFv)
-//GO(mpg123_init_string, 
+// GO(mpg123_init_string,
 GO(mpg123_length, lFp)
 GO(mpg123_length_64, IFp)
 GO(mpg123_meta_check, iFp)
@@ -85,14 +85,14 @@ GO(mpg123_position_64, iFpIIpppp)
 GO(mpg123_rates, vFpp)
 GO(mpg123_read, iFppLp)
 GO(mpg123_replace_buffer, iFppL)
-//GO(mpg123_replace_reader, 
-//GO(mpg123_replace_reader_64, 
+// GO(mpg123_replace_reader,
+// GO(mpg123_replace_reader_64,
 GOM(mpg123_replace_reader_handle, iFEpppp)
 GOM(mpg123_replace_reader_handle_64, iFEpppp)
-//GO(mpg123_reset_eq, 
-//GO(mpg123_resize_string, 
+// GO(mpg123_reset_eq,
+// GO(mpg123_resize_string,
 GO(mpg123_safe_buffer, LFv)
-//GO(mpg123_scan, 
+// GO(mpg123_scan,
 GO(mpg123_seek, IFpIi)
 GO(mpg123_seek_64, IFpIi)
 GO(mpg123_seek_frame, lFpli)
@@ -103,7 +103,7 @@ GO(mpg123_set_index, iFpplL)
 GO(mpg123_set_index_64, iFppIL)
 GO(mpg123_set_string, iFpp)
 GO(mpg123_set_substring, iFppLL)
-//GO(mpg123_spf, 
+// GO(mpg123_spf,
 GO(mpg123_store_utf8, iFpipL)
 GO(mpg123_strerror, pFp)
 GO(mpg123_strlen, LFpi)
@@ -117,5 +117,5 @@ GO(mpg123_tell_stream_64, IFp)
 GO(mpg123_timeframe, lFpd)
 GO(mpg123_timeframe_64, IFpd)
 GO(mpg123_tpf, dFp)
-//GO(mpg123_volume, 
+// GO(mpg123_volume,
 GO(mpg123_volume_change, iFpd)

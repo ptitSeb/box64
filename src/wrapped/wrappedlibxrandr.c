@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,9 +18,9 @@
 #include "emu/x64emu_private.h"
 
 #ifdef ANDROID
-    const char* libxrandrName = "libXrandr.so";
+const char* libxrandrName = "libXrandr.so";
 #else
-    const char* libxrandrName = "libXrandr.so.2";
+const char* libxrandrName = "libXrandr.so.2";
 #endif
 
 #define LIBNAME libxrandr

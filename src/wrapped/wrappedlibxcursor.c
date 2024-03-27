@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -12,9 +12,9 @@
 #include "x64emu.h"
 
 #ifdef ANDROID
-	const char* libxcursorName = "libXcursor.so";
+const char* libxcursorName = "libXcursor.so";
 #else
-	const char* libxcursorName = "libXcursor.so.1";
+const char* libxcursorName = "libXcursor.so.1";
 #endif
 
 #define LIBNAME libxcursor
@@ -26,4 +26,3 @@
 #endif
 
 #include "wrappedlib_init.h"
-

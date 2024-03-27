@@ -51,7 +51,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(lock);
     MAYUSE(cacheupd);
 
-    switch(opcode) {
+    switch (opcode) {
         case 0x40:
         case 0x41:
         case 0x42:
@@ -61,8 +61,8 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-            gd = xRAX + (opcode&7);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode & 7);
             emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
         case 0x48:
@@ -74,8 +74,8 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg (32bits)");
-            SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
-            gd = xRAX + (opcode&7);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            gd = xRAX + (opcode & 7);
             emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
         case 0x50:
@@ -87,7 +87,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
             PUSH1z(gd);
             break;
         case 0x58:
@@ -99,12 +99,12 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
-            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
             POP1z(gd);
             break;
 
         case 0x60:
-            if(rex.is32bits) {
+            if (rex.is32bits) {
                 INST_NAME("PUSHAD");
                 AND(x1, xRSP, xMASK);
                 PUSH1_32(xRAX);
@@ -120,7 +120,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x61:
-            if(rex.is32bits) {
+            if (rex.is32bits) {
                 INST_NAME("POPAD");
                 POP1_32(xRDI);
                 POP1_32(xRSI);
@@ -136,25 +136,25 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
 
         case 0x63:
-            if(rex.is32bits) {
+            if (rex.is32bits) {
                 // this is ARPL opcode
                 DEFAULT;
             } else {
                 INST_NAME("MOVSXD Gd, Ed");
                 nextop = F8;
                 GETGD;
-                if(rex.w) {
-                    if(MODREG) {   // reg <= reg
-                        ADDIW(gd, xRAX+(nextop&7)+(rex.b<<3), 0);
-                    } else {                    // mem <= reg
+                if (rex.w) {
+                    if (MODREG) { // reg <= reg
+                        ADDIW(gd, xRAX + (nextop & 7) + (rex.b << 3), 0);
+                    } else { // mem <= reg
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LW(gd, ed, fixedaddress);
                     }
                 } else {
-                    if(MODREG) {   // reg <= reg
-                        AND(gd, xRAX+(nextop&7)+(rex.b<<3), xMASK);
-                    } else {                    // mem <= reg
+                    if (MODREG) { // reg <= reg
+                        AND(gd, xRAX + (nextop & 7) + (rex.b << 3), xMASK);
+                    } else { // mem <= reg
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LWU(gd, ed, fixedaddress);
@@ -172,7 +172,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
         case 0x67:
-            if(rex.is32bits)
+            if (rex.is32bits)
                 addr = dynarec64_67_32(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             else
                 addr = dynarec64_67(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
@@ -180,9 +180,9 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x68:
             INST_NAME("PUSH Id");
             i64 = F32S;
-            if(PK(0)==0xC3) {
+            if (PK(0) == 0xC3) {
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
-                TABLE64(x3, addr-4);
+                TABLE64(x3, addr - 4);
                 LW(x1, x3, 0);
                 PUSH1z(x1);
             } else {
@@ -198,26 +198,32 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(4);
             i64 = F32S;
             MOV64xw(x4, i64);
-            if(rex.w) {
+            if (rex.w) {
                 // 64bits imul
-                UFLAG_IF {
+                UFLAG_IF
+                {
                     MULH(x3, ed, x4);
                     MUL(gd, ed, x4);
                     UFLAG_OP1(x3);
                     UFLAG_RES(gd);
                     UFLAG_DF(x3, d_imul64);
-                } else {
+                }
+                else
+                {
                     MULxw(gd, ed, x4);
                 }
             } else {
                 // 32bits imul
-                UFLAG_IF {
+                UFLAG_IF
+                {
                     MUL(gd, ed, x4);
                     UFLAG_RES(gd);
                     SRLI(x3, gd, 32);
                     UFLAG_OP1(x3);
                     UFLAG_DF(x3, d_imul32);
-                } else {
+                }
+                else
+                {
                     MULxw(gd, ed, x4);
                 }
                 ZEROUP(gd);
@@ -237,26 +243,32 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(1);
             i64 = F8S;
             MOV64xw(x4, i64);
-            if(rex.w) {
+            if (rex.w) {
                 // 64bits imul
-                UFLAG_IF {
+                UFLAG_IF
+                {
                     MULH(x3, ed, x4);
                     MUL(gd, ed, x4);
                     UFLAG_OP1(x3);
                     UFLAG_RES(gd);
                     UFLAG_DF(x3, d_imul64);
-                } else {
+                }
+                else
+                {
                     MUL(gd, ed, x4);
                 }
             } else {
                 // 32bits imul
-                UFLAG_IF {
+                UFLAG_IF
+                {
                     MUL(gd, ed, x4);
                     UFLAG_RES(gd);
                     SRLI(x3, gd, 32);
                     UFLAG_OP1(x3);
                     UFLAG_DF(x3, d_imul32);
-                } else {
+                }
+                else
+                {
                     MULW(gd, ed, x4);
                 }
                 ZEROUP(gd);
@@ -288,38 +300,37 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             *ok = 0;
             break;
 
-        #define GO(GETFLAGS, NO, YES, F)                                \
-            READFLAGS(F);                                               \
-            i8 = F8S;                                                   \
-            BARRIER(BARRIER_MAYBE);                                     \
-            JUMP(addr+i8, 1);                                           \
-            GETFLAGS;                                                   \
-            if(dyn->insts[ninst].x64.jmp_insts==-1 ||                   \
-                CHECK_CACHE()) {                                        \
-                /* out of the block */                                  \
-                i32 = dyn->insts[ninst].epilog-(dyn->native_size);      \
-                B##NO##_safe(x1, i32);                                  \
-                if(dyn->insts[ninst].x64.jmp_insts==-1) {               \
-                    if(!(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT))  \
-                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);      \
-                    jump_to_next(dyn, addr+i8, 0, ninst, rex.is32bits); \
-                } else {                                                \
-                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);   \
-                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);\
-                    B(i32);                                             \
-                }                                                       \
-            } else {                                                    \
-                /* inside the block */                                  \
-                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address-(dyn->native_size);    \
-                B##YES##_safe(x1, i32);                                 \
-            }
+#define GO(GETFLAGS, NO, YES, F)                                                            \
+    READFLAGS(F);                                                                           \
+    i8 = F8S;                                                                               \
+    BARRIER(BARRIER_MAYBE);                                                                 \
+    JUMP(addr + i8, 1);                                                                     \
+    GETFLAGS;                                                                               \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+        /* out of the block */                                                              \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+        B##NO##_safe(x1, i32);                                                              \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
+        } else {                                                                            \
+            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+            B(i32);                                                                         \
+        }                                                                                   \
+    } else {                                                                                \
+        /* inside the block */                                                              \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+        B##YES##_safe(x1, i32);                                                             \
+    }
 
-        GOCOND(0x70, "J", "ib");
+            GOCOND(0x70, "J", "ib");
 
-        #undef GO
+#undef GO
         default:
             DEFAULT;
     }
 
-     return addr;
+    return addr;
 }

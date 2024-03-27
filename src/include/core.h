@@ -6,7 +6,7 @@
 #include "library.h"
 
 // exec : 0 = lib, 1 = exec
-int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec);
+int initialize(int argc, const char** argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec);
 
 int emulate(x64emu_t* emu, elfheader_t* elf_header);
 

@@ -5,7 +5,7 @@
 // _fini
 // _init
 GOM(SDL_AddTimer, pFEupp)
-GO(SDL_AllocRW, pFv)    // no need to use a my_ version here
+GO(SDL_AllocRW, pFv) // no need to use a my_ version here
 GO(SDL_CDClose, vFp)
 GO(SDL_CDEject, iFp)
 GO(SDL_CDName, pFi)
@@ -142,7 +142,7 @@ GO(SDL_SetClipRect, uFpp)
 GO(SDL_SetColorKey, iFpuu)
 GO(SDL_SetColors, iFppii)
 GO(SDL_SetCursor, vFp)
-GO(SDL_SetError, vFpppppp)      // use ..., so putting arbitrary number of arguments...
+GO(SDL_SetError, vFpppppp) // use ..., so putting arbitrary number of arguments...
 GOM(SDL_SetEventFilter, vFEp)
 GO(SDL_SetGamma, iFfff)
 GO(SDL_SetGammaRamp, iFppp)
@@ -197,8 +197,8 @@ GO(SDL_mutexP, iFp)
 GO(SDL_mutexV, iFp)
 GO(SDL_revcpy, pFppL)
 GO(SDL_setFramerate, iFpu)
-GO(SDL_snprintf, iFpupppppp)    // use ...
-GO(SDL_sscanf, iFppppppp)       // use ...
+GO(SDL_snprintf, iFpupppppp) // use ...
+GO(SDL_sscanf, iFppppppp)    // use ...
 GO(SDL_strcasecmp, iFpp)
 GO(SDL_strchr, pFpi)
 GO(SDL_strcmp, iFpp)

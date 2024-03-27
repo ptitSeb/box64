@@ -26,7 +26,7 @@ GO(XRenderCreatePicture, pFpppup)
 GO(XRenderCreateRadialGradient, pFppppi)
 GO(XRenderCreateSolidFill, pFpp)
 DATAB(XRenderExtensionInfo, sizeof(void*))
-DATA(XRenderExtensionName, sizeof(void*))   //D
+DATA(XRenderExtensionName, sizeof(void*)) // D
 GO(XRenderFillRectangle, vFpippiiuu)
 GO(XRenderFillRectangles, vFpipppi)
 GO(XRenderFindDisplay, pFp)

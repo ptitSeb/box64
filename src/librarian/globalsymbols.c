@@ -16,7 +16,7 @@
 
 // workaround for Globals symbols
 
-#define GLOB(A, B) \
+#define GLOB(A, B)                                                                                        \
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, 0, NULL)) {  \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p <- %p\n", (void*)globoffs, &A);              \
         memcpy((void*)globoffs, &A, sizeof(A));                                                           \
@@ -26,7 +26,7 @@
         memcpy((void*)globoffs, &A, sizeof(A));                                                           \
     }
 
-#define TOGLOB(A, B) \
+#define TOGLOB(A, B)                                                                                      \
     if (GetGlobalNoWeakSymbolStartEnd(my_context->maplib, #A, &globoffs, &globend, -1, NULL, 0, NULL)) {  \
         printf_log(LOG_DEBUG, "Global " #A " workaround, @%p -> %p\n", (void*)globoffs, &A);              \
         memcpy(&A, (void*)globoffs, sizeof(A));                                                           \
@@ -38,7 +38,7 @@
 
 
 // *********** GTK *****************
-EXPORT void* gdk_display = NULL;   // in case it's used...
+EXPORT void* gdk_display = NULL; // in case it's used...
 
 void my_checkGlobalGdkDisplay()
 {
@@ -59,12 +59,12 @@ void my_setGlobalGThreadsInit()
 char* getGDKX11LibName();
 void** my_GetGTKDisplay()
 {
-    if(gdk_display)
+    if (gdk_display)
         return &gdk_display;
-    
+
     char* name = getGDKX11LibName();
-    library_t * lib = GetLibInternal(name?name:"libgdk-x11-2.0.so.0");
-    if(!lib) return &gdk_display;   // mmm, that will crash later probably
+    library_t* lib = GetLibInternal(name ? name : "libgdk-x11-2.0.so.0");
+    if (!lib) return &gdk_display; // mmm, that will crash later probably
     void* s = dlsym(GetHandle(lib), "gdk_display");
     gdk_display = *(void**)s;
     return s;
@@ -119,7 +119,7 @@ void my_updateGlobalTInfo()
 }
 
 // **************** getopts ****************
-EXPORT char *optarg;
+EXPORT char* optarg;
 EXPORT int optind, opterr, optopt;
 
 void my_updateGlobalOpt()

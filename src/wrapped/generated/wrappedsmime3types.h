@@ -8,7 +8,7 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -18,12 +18,13 @@ typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*);
 typedef void* (*pFppppppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(SEC_PKCS12DecoderValidateBags, iFpp_t) \
-	GO(SEC_PKCS12Encode, iFppp_t) \
-	GO(CERT_DecodeCertPackage, iFpipp_t) \
-	GO(SEC_PKCS12CreateExportContext, pFpppp_t) \
-	GO(SEC_PKCS12DecoderStart, pFpppppppp_t) \
-	GO(NSS_CMSEncoder_Start, pFppppppppppp_t)
+#define SUPER()                                 \
+    ADDED_FUNCTIONS()                           \
+    GO(SEC_PKCS12DecoderValidateBags, iFpp_t)   \
+    GO(SEC_PKCS12Encode, iFppp_t)               \
+    GO(CERT_DecodeCertPackage, iFpipp_t)        \
+    GO(SEC_PKCS12CreateExportContext, pFpppp_t) \
+    GO(SEC_PKCS12DecoderStart, pFpppppppp_t)    \
+    GO(NSS_CMSEncoder_Start, pFppppppppppp_t)
 
 #endif // __wrappedsmime3TYPES_H_

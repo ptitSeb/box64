@@ -21,300 +21,360 @@
 #include "gtkclass.h"
 
 #ifdef ANDROID
-    const char* gio2Name = "libgio-2.0.so";
+const char* gio2Name = "libgio-2.0.so";
 #else
-    const char* gio2Name = "libgio-2.0.so.0";
+const char* gio2Name = "libgio-2.0.so.0";
 #endif
 #define LIBNAME gio2
 
-typedef size_t(*LFv_t)(void);
+typedef size_t (*LFv_t)(void);
 
-#define ADDED_FUNCTIONS() \
- GO(g_application_get_type, LFv_t)          \
- GO(g_dbus_proxy_get_type, LFv_t)           \
+#define ADDED_FUNCTIONS()             \
+    GO(g_application_get_type, LFv_t) \
+    GO(g_dbus_proxy_get_type, LFv_t)
 
 #include "wrappedgio2types.h"
 
 #include "wrappercallback.h"
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)
 
 // GAsyncReadyCallback
-#define GO(A)   \
-static uintptr_t my_GAsyncReadyCallback_fct_##A = 0;                                      \
-static void my_GAsyncReadyCallback_##A(void* source, void* res, void* data)               \
-{                                                                                         \
-    RunFunctionFmt(my_GAsyncReadyCallback_fct_##A, "ppp", source, res, data); \
-}
+#define GO(A)                                                                     \
+    static uintptr_t my_GAsyncReadyCallback_fct_##A = 0;                          \
+    static void my_GAsyncReadyCallback_##A(void* source, void* res, void* data)   \
+    {                                                                             \
+        RunFunctionFmt(my_GAsyncReadyCallback_fct_##A, "ppp", source, res, data); \
+    }
 SUPER()
 #undef GO
 static void* findGAsyncReadyCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GAsyncReadyCallback_fct_##A == (uintptr_t)fct) return my_GAsyncReadyCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GAsyncReadyCallback_fct_##A == (uintptr_t)fct) return my_GAsyncReadyCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GAsyncReadyCallback_fct_##A == 0) {my_GAsyncReadyCallback_fct_##A = (uintptr_t)fct; return my_GAsyncReadyCallback_##A; }
+#undef GO
+#define GO(A)                                            \
+    if (my_GAsyncReadyCallback_fct_##A == 0) {           \
+        my_GAsyncReadyCallback_fct_##A = (uintptr_t)fct; \
+        return my_GAsyncReadyCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GAsyncReadyCallback callback\n");
     return NULL;
 }
 
 // GDestroyNotify
-#define GO(A)   \
-static uintptr_t my_GDestroyNotify_fct_##A = 0;                       \
-static void my_GDestroyNotify_##A(void* data)                         \
-{                                                                     \
-    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data); \
-}
+#define GO(A)                                                 \
+    static uintptr_t my_GDestroyNotify_fct_##A = 0;           \
+    static void my_GDestroyNotify_##A(void* data)             \
+    {                                                         \
+        RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", data); \
+    }
 SUPER()
 #undef GO
 static void* findGDestroyNotifyFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_GDestroyNotify_fct_##A == 0) {           \
+        my_GDestroyNotify_fct_##A = (uintptr_t)fct; \
+        return my_GDestroyNotify_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GDestroyNotify callback\n");
     return NULL;
 }
 
 // GDBusProxyTypeFunc
-#define GO(A)   \
-static uintptr_t my_GDBusProxyTypeFunc_fct_##A = 0;                                                           \
-static int my_GDBusProxyTypeFunc_##A(void* manager, void* path, void* name, void* data)                       \
-{                                                                                                             \
-    return (int)RunFunctionFmt(my_GDBusProxyTypeFunc_fct_##A, "pppp", manager, path, name, data); \
-}
+#define GO(A)                                                                                         \
+    static uintptr_t my_GDBusProxyTypeFunc_fct_##A = 0;                                               \
+    static int my_GDBusProxyTypeFunc_##A(void* manager, void* path, void* name, void* data)           \
+    {                                                                                                 \
+        return (int)RunFunctionFmt(my_GDBusProxyTypeFunc_fct_##A, "pppp", manager, path, name, data); \
+    }
 SUPER()
 #undef GO
 static void* findGDBusProxyTypeFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDBusProxyTypeFunc_fct_##A == (uintptr_t)fct) return my_GDBusProxyTypeFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GDBusProxyTypeFunc_fct_##A == (uintptr_t)fct) return my_GDBusProxyTypeFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GDBusProxyTypeFunc_fct_##A == 0) {my_GDBusProxyTypeFunc_fct_##A = (uintptr_t)fct; return my_GDBusProxyTypeFunc_##A; }
+#undef GO
+#define GO(A)                                           \
+    if (my_GDBusProxyTypeFunc_fct_##A == 0) {           \
+        my_GDBusProxyTypeFunc_fct_##A = (uintptr_t)fct; \
+        return my_GDBusProxyTypeFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GDBusProxyTypeFunc callback\n");
     return NULL;
 }
 
 // GSimpleAsyncThreadFunc
-#define GO(A)   \
-static uintptr_t my_GSimpleAsyncThreadFunc_fct_##A = 0;                                             \
-static void my_GSimpleAsyncThreadFunc_##A(void* res, void* object, void* cancellable)               \
-{                                                                                                   \
-    RunFunctionFmt(my_GSimpleAsyncThreadFunc_fct_##A, "ppp", res, object, cancellable); \
-}
+#define GO(A)                                                                               \
+    static uintptr_t my_GSimpleAsyncThreadFunc_fct_##A = 0;                                 \
+    static void my_GSimpleAsyncThreadFunc_##A(void* res, void* object, void* cancellable)   \
+    {                                                                                       \
+        RunFunctionFmt(my_GSimpleAsyncThreadFunc_fct_##A, "ppp", res, object, cancellable); \
+    }
 SUPER()
 #undef GO
 static void* findGSimpleAsyncThreadFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GSimpleAsyncThreadFunc_fct_##A == (uintptr_t)fct) return my_GSimpleAsyncThreadFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GSimpleAsyncThreadFunc_fct_##A == (uintptr_t)fct) return my_GSimpleAsyncThreadFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GSimpleAsyncThreadFunc_fct_##A == 0) {my_GSimpleAsyncThreadFunc_fct_##A = (uintptr_t)fct; return my_GSimpleAsyncThreadFunc_##A; }
+#undef GO
+#define GO(A)                                               \
+    if (my_GSimpleAsyncThreadFunc_fct_##A == 0) {           \
+        my_GSimpleAsyncThreadFunc_fct_##A = (uintptr_t)fct; \
+        return my_GSimpleAsyncThreadFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GSimpleAsyncThreadFunc callback\n");
     return NULL;
 }
 
 // GCallback
-#define GO(A)   \
-static uintptr_t my_GCallback_fct_##A = 0;                                \
-static void my_GCallback_##A(void* a, void* b, void* c, void* d)          \
-{                                                                         \
-    RunFunctionFmt(my_GCallback_fct_##A, "pppp", a, b, c, d); \
-}
+#define GO(A)                                                        \
+    static uintptr_t my_GCallback_fct_##A = 0;                       \
+    static void my_GCallback_##A(void* a, void* b, void* c, void* d) \
+    {                                                                \
+        RunFunctionFmt(my_GCallback_fct_##A, "pppp", a, b, c, d);    \
+    }
 SUPER()
 #undef GO
 static void* findGCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GCallback_fct_##A == 0) {my_GCallback_fct_##A = (uintptr_t)fct; return my_GCallback_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_GCallback_fct_##A == 0) {           \
+        my_GCallback_fct_##A = (uintptr_t)fct; \
+        return my_GCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GCallback callback\n");
     return NULL;
 }
 
 // GDBusSignalCallback
-#define GO(A)   \
-static uintptr_t my_GDBusSignalCallback_fct_##A = 0;                                                                                         \
-static void my_GDBusSignalCallback_##A(void* connection, void* sender, void* object, void* interface, void* signal, void* param, void* data) \
-{                                                                                                                                            \
-    RunFunctionFmt(my_GDBusSignalCallback_fct_##A, "ppppppp", connection, sender, object, interface, signal, param, data);       \
-}
+#define GO(A)                                                                                                                                    \
+    static uintptr_t my_GDBusSignalCallback_fct_##A = 0;                                                                                         \
+    static void my_GDBusSignalCallback_##A(void* connection, void* sender, void* object, void* interface, void* signal, void* param, void* data) \
+    {                                                                                                                                            \
+        RunFunctionFmt(my_GDBusSignalCallback_fct_##A, "ppppppp", connection, sender, object, interface, signal, param, data);                   \
+    }
 SUPER()
 #undef GO
 static void* findGDBusSignalCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDBusSignalCallback_fct_##A == (uintptr_t)fct) return my_GDBusSignalCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GDBusSignalCallback_fct_##A == (uintptr_t)fct) return my_GDBusSignalCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GDBusSignalCallback_fct_##A == 0) {my_GDBusSignalCallback_fct_##A = (uintptr_t)fct; return my_GDBusSignalCallback_##A; }
+#undef GO
+#define GO(A)                                            \
+    if (my_GDBusSignalCallback_fct_##A == 0) {           \
+        my_GDBusSignalCallback_fct_##A = (uintptr_t)fct; \
+        return my_GDBusSignalCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GDBusSignalCallback callback\n");
     return NULL;
 }
 
 // GDBusMessageFilterFunction
-#define GO(A)   \
-static uintptr_t my_GDBusMessageFilterFunction_fct_##A = 0;                                                         \
-static void my_GDBusMessageFilterFunction_##A(void* connection, void* message, int incoming, void* data)            \
-{                                                                                                                   \
-    RunFunctionFmt(my_GDBusMessageFilterFunction_fct_##A, "ppip", connection, message, incoming, data); \
-}
+#define GO(A)                                                                                                \
+    static uintptr_t my_GDBusMessageFilterFunction_fct_##A = 0;                                              \
+    static void my_GDBusMessageFilterFunction_##A(void* connection, void* message, int incoming, void* data) \
+    {                                                                                                        \
+        RunFunctionFmt(my_GDBusMessageFilterFunction_fct_##A, "ppip", connection, message, incoming, data);  \
+    }
 SUPER()
 #undef GO
 static void* findGDBusMessageFilterFunctionFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDBusMessageFilterFunction_fct_##A == (uintptr_t)fct) return my_GDBusMessageFilterFunction_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GDBusMessageFilterFunction_fct_##A == (uintptr_t)fct) return my_GDBusMessageFilterFunction_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GDBusMessageFilterFunction_fct_##A == 0) {my_GDBusMessageFilterFunction_fct_##A = (uintptr_t)fct; return my_GDBusMessageFilterFunction_##A; }
+#undef GO
+#define GO(A)                                                   \
+    if (my_GDBusMessageFilterFunction_fct_##A == 0) {           \
+        my_GDBusMessageFilterFunction_fct_##A = (uintptr_t)fct; \
+        return my_GDBusMessageFilterFunction_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GDBusMessageFilterFunction callback\n");
     return NULL;
 }
 
 // GBusNameAppearedCallback
-#define GO(A)   \
-static uintptr_t my_GBusNameAppearedCallback_fct_##A = 0;                                                   \
-static void my_GBusNameAppearedCallback_##A(void* connection, void* name, void* owner, void* data)          \
-{                                                                                                           \
-    RunFunctionFmt(my_GBusNameAppearedCallback_fct_##A, "pppp", connection, name, owner, data); \
-}
+#define GO(A)                                                                                          \
+    static uintptr_t my_GBusNameAppearedCallback_fct_##A = 0;                                          \
+    static void my_GBusNameAppearedCallback_##A(void* connection, void* name, void* owner, void* data) \
+    {                                                                                                  \
+        RunFunctionFmt(my_GBusNameAppearedCallback_fct_##A, "pppp", connection, name, owner, data);    \
+    }
 SUPER()
 #undef GO
 static void* findGBusNameAppearedCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GBusNameAppearedCallback_fct_##A == (uintptr_t)fct) return my_GBusNameAppearedCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GBusNameAppearedCallback_fct_##A == (uintptr_t)fct) return my_GBusNameAppearedCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GBusNameAppearedCallback_fct_##A == 0) {my_GBusNameAppearedCallback_fct_##A = (uintptr_t)fct; return my_GBusNameAppearedCallback_##A; }
+#undef GO
+#define GO(A)                                                 \
+    if (my_GBusNameAppearedCallback_fct_##A == 0) {           \
+        my_GBusNameAppearedCallback_fct_##A = (uintptr_t)fct; \
+        return my_GBusNameAppearedCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GBusNameAppearedCallback callback\n");
     return NULL;
 }
 
 // GBusNameVanishedCallback
-#define GO(A)   \
-static uintptr_t my_GBusNameVanishedCallback_fct_##A = 0;                                           \
-static void my_GBusNameVanishedCallback_##A(void* connection, void* name, void* data)               \
-{                                                                                                   \
-    RunFunctionFmt(my_GBusNameVanishedCallback_fct_##A, "ppp", connection, name, data); \
-}
+#define GO(A)                                                                               \
+    static uintptr_t my_GBusNameVanishedCallback_fct_##A = 0;                               \
+    static void my_GBusNameVanishedCallback_##A(void* connection, void* name, void* data)   \
+    {                                                                                       \
+        RunFunctionFmt(my_GBusNameVanishedCallback_fct_##A, "ppp", connection, name, data); \
+    }
 SUPER()
 #undef GO
 static void* findGBusNameVanishedCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GBusNameVanishedCallback_fct_##A == (uintptr_t)fct) return my_GBusNameVanishedCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GBusNameVanishedCallback_fct_##A == (uintptr_t)fct) return my_GBusNameVanishedCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GBusNameVanishedCallback_fct_##A == 0) {my_GBusNameVanishedCallback_fct_##A = (uintptr_t)fct; return my_GBusNameVanishedCallback_##A; }
+#undef GO
+#define GO(A)                                                 \
+    if (my_GBusNameVanishedCallback_fct_##A == 0) {           \
+        my_GBusNameVanishedCallback_fct_##A = (uintptr_t)fct; \
+        return my_GBusNameVanishedCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GBusNameVanishedCallback callback\n");
     return NULL;
 }
 
 // GBusAcquiredCallback
-#define GO(A)   \
-static uintptr_t my_GBusAcquiredCallback_fct_##A = 0;                                           \
-static void my_GBusAcquiredCallback_##A(void* connection, void* name, void* data)               \
-{                                                                                               \
-    RunFunctionFmt(my_GBusAcquiredCallback_fct_##A, "ppp", connection, name, data); \
-}
+#define GO(A)                                                                           \
+    static uintptr_t my_GBusAcquiredCallback_fct_##A = 0;                               \
+    static void my_GBusAcquiredCallback_##A(void* connection, void* name, void* data)   \
+    {                                                                                   \
+        RunFunctionFmt(my_GBusAcquiredCallback_fct_##A, "ppp", connection, name, data); \
+    }
 SUPER()
 #undef GO
 static void* findGBusAcquiredCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GBusAcquiredCallback_fct_##A == (uintptr_t)fct) return my_GBusAcquiredCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GBusAcquiredCallback_fct_##A == (uintptr_t)fct) return my_GBusAcquiredCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GBusAcquiredCallback_fct_##A == 0) {my_GBusAcquiredCallback_fct_##A = (uintptr_t)fct; return my_GBusAcquiredCallback_##A; }
+#undef GO
+#define GO(A)                                             \
+    if (my_GBusAcquiredCallback_fct_##A == 0) {           \
+        my_GBusAcquiredCallback_fct_##A = (uintptr_t)fct; \
+        return my_GBusAcquiredCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GBusAcquiredCallback callback\n");
     return NULL;
 }
 
 // GBusNameAcquiredCallback
-#define GO(A)   \
-static uintptr_t my_GBusNameAcquiredCallback_fct_##A = 0;                                           \
-static void my_GBusNameAcquiredCallback_##A(void* connection, void* name, void* data)               \
-{                                                                                                   \
-    RunFunctionFmt(my_GBusNameAcquiredCallback_fct_##A, "ppp", connection, name, data); \
-}
+#define GO(A)                                                                               \
+    static uintptr_t my_GBusNameAcquiredCallback_fct_##A = 0;                               \
+    static void my_GBusNameAcquiredCallback_##A(void* connection, void* name, void* data)   \
+    {                                                                                       \
+        RunFunctionFmt(my_GBusNameAcquiredCallback_fct_##A, "ppp", connection, name, data); \
+    }
 SUPER()
 #undef GO
 static void* findGBusNameAcquiredCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GBusNameAcquiredCallback_fct_##A == (uintptr_t)fct) return my_GBusNameAcquiredCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GBusNameAcquiredCallback_fct_##A == (uintptr_t)fct) return my_GBusNameAcquiredCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GBusNameAcquiredCallback_fct_##A == 0) {my_GBusNameAcquiredCallback_fct_##A = (uintptr_t)fct; return my_GBusNameAcquiredCallback_##A; }
+#undef GO
+#define GO(A)                                                 \
+    if (my_GBusNameAcquiredCallback_fct_##A == 0) {           \
+        my_GBusNameAcquiredCallback_fct_##A = (uintptr_t)fct; \
+        return my_GBusNameAcquiredCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GBusNameAcquiredCallback callback\n");
     return NULL;
 }
 
 // GBusNameLostCallback
-#define GO(A)   \
-static uintptr_t my_GBusNameLostCallback_fct_##A = 0;                                           \
-static void my_GBusNameLostCallback_##A(void* connection, void* name, void* data)               \
-{                                                                                               \
-    RunFunctionFmt(my_GBusNameLostCallback_fct_##A, "ppp", connection, name, data); \
-}
+#define GO(A)                                                                           \
+    static uintptr_t my_GBusNameLostCallback_fct_##A = 0;                               \
+    static void my_GBusNameLostCallback_##A(void* connection, void* name, void* data)   \
+    {                                                                                   \
+        RunFunctionFmt(my_GBusNameLostCallback_fct_##A, "ppp", connection, name, data); \
+    }
 SUPER()
 #undef GO
 static void* findGBusNameLostCallbackFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GBusNameLostCallback_fct_##A == (uintptr_t)fct) return my_GBusNameLostCallback_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GBusNameLostCallback_fct_##A == (uintptr_t)fct) return my_GBusNameLostCallback_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GBusNameLostCallback_fct_##A == 0) {my_GBusNameLostCallback_fct_##A = (uintptr_t)fct; return my_GBusNameLostCallback_##A; }
+#undef GO
+#define GO(A)                                             \
+    if (my_GBusNameLostCallback_fct_##A == 0) {           \
+        my_GBusNameLostCallback_fct_##A = (uintptr_t)fct; \
+        return my_GBusNameLostCallback_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GBusNameLostCallback callback\n");
     return NULL;
 }
@@ -322,52 +382,57 @@ static void* findGBusNameLostCallbackFct(void* fct)
 // GDBusInterfaceVTable....
 // First the structure GDBusInterfaceVTable statics, with paired x64 source pointer
 typedef struct my_GDBusInterfaceVTable_s {
-  void      (*method_call)    (void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* invocation, void* user_data);
-  void*     (*get_property)   (void* connection, void* sender, void* object_path, void* interface_name, void* error, void* user_data);
-  int       (*set_property)   (void* connection, void* sender, void* object_path, void* interface_name, void* value, void* error, void* user_data);
+    void (*method_call)(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* invocation, void* user_data);
+    void* (*get_property)(void* connection, void* sender, void* object_path, void* interface_name, void* error, void* user_data);
+    int (*set_property)(void* connection, void* sender, void* object_path, void* interface_name, void* value, void* error, void* user_data);
 } my_GDBusInterfaceVTable_t;
 
-#define GO(A)   \
-static my_GDBusInterfaceVTable_t     my_GDBusInterfaceVTable_##A = {0};   \
-static my_GDBusInterfaceVTable_t   *ref_GDBusInterfaceVTable_##A = NULL;
+#define GO(A)                                                             \
+    static my_GDBusInterfaceVTable_t my_GDBusInterfaceVTable_##A = { 0 }; \
+    static my_GDBusInterfaceVTable_t* ref_GDBusInterfaceVTable_##A = NULL;
 SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
-#define GO(A)   \
-static uintptr_t fct_funcs_method_call_##A = 0; \
-static void my_funcs_method_call_##A(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* parameters, void* invocation, void* user_data) { \
-    RunFunctionFmt(fct_funcs_method_call_##A, "pppppppp", connection, sender, object_path, interface_name, method_name, parameters, invocation, user_data); \
-} \
-static uintptr_t fct_funcs_get_property_##A = 0; \
-static void* my_funcs_get_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* error, void* user_data) { \
-    return (void*)RunFunctionFmt(fct_funcs_get_property_##A, "ppppppp", connection, sender, object_path, interface_name, property_name, error, user_data); \
-} \
-static uintptr_t fct_funcs_set_property_##A = 0; \
-static int my_funcs_set_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* value, void* error, void* user_data) { \
-    return (int)RunFunctionFmt(fct_funcs_set_property_##A, "pppppppp", connection, sender, object_path, interface_name, property_name, value, error, user_data); \
-}
+#define GO(A)                                                                                                                                                                             \
+    static uintptr_t fct_funcs_method_call_##A = 0;                                                                                                                                       \
+    static void my_funcs_method_call_##A(void* connection, void* sender, void* object_path, void* interface_name, void* method_name, void* parameters, void* invocation, void* user_data) \
+    {                                                                                                                                                                                     \
+        RunFunctionFmt(fct_funcs_method_call_##A, "pppppppp", connection, sender, object_path, interface_name, method_name, parameters, invocation, user_data);                           \
+    }                                                                                                                                                                                     \
+    static uintptr_t fct_funcs_get_property_##A = 0;                                                                                                                                      \
+    static void* my_funcs_get_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* error, void* user_data)                    \
+    {                                                                                                                                                                                     \
+        return (void*)RunFunctionFmt(fct_funcs_get_property_##A, "ppppppp", connection, sender, object_path, interface_name, property_name, error, user_data);                            \
+    }                                                                                                                                                                                     \
+    static uintptr_t fct_funcs_set_property_##A = 0;                                                                                                                                      \
+    static int my_funcs_set_property_##A(void* connection, void* sender, void* object_path, void* interface_name, void* property_name, void* value, void* error, void* user_data)         \
+    {                                                                                                                                                                                     \
+        return (int)RunFunctionFmt(fct_funcs_set_property_##A, "pppppppp", connection, sender, object_path, interface_name, property_name, value, error, user_data);                      \
+    }
 
 SUPER()
 #undef GO
 // and now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
 static my_GDBusInterfaceVTable_t* findFreeGDBusInterfaceVTable(my_GDBusInterfaceVTable_t* fcts)
 {
-    if(!fcts) return fcts;
-    #define GO(A) if(ref_GDBusInterfaceVTable_##A == fcts) return &my_GDBusInterfaceVTable_##A;
+    if (!fcts) return fcts;
+#define GO(A) \
+    if (ref_GDBusInterfaceVTable_##A == fcts) return &my_GDBusInterfaceVTable_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(ref_GDBusInterfaceVTable_##A == 0) {   \
-        ref_GDBusInterfaceVTable_##A = fcts;                 \
-        my_GDBusInterfaceVTable_##A.method_call = (fcts->method_call)?((GetNativeFnc((uintptr_t)fcts->method_call))?GetNativeFnc((uintptr_t)fcts->method_call):my_funcs_method_call_##A):NULL;    \
-        fct_funcs_method_call_##A = (uintptr_t)fcts->method_call;                            \
-        my_GDBusInterfaceVTable_##A.get_property = (fcts->get_property)?((GetNativeFnc((uintptr_t)fcts->get_property))?GetNativeFnc((uintptr_t)fcts->get_property):my_funcs_get_property_##A):NULL;    \
-        fct_funcs_get_property_##A = (uintptr_t)fcts->get_property;                            \
-        my_GDBusInterfaceVTable_##A.set_property = (fcts->set_property)?((GetNativeFnc((uintptr_t)fcts->set_property))?GetNativeFnc((uintptr_t)fcts->set_property):my_funcs_set_property_##A):NULL;    \
-        fct_funcs_set_property_##A = (uintptr_t)fcts->set_property;                            \
-        return &my_GDBusInterfaceVTable_##A;                \
+#undef GO
+#define GO(A)                                                                                                                                                                                               \
+    if (ref_GDBusInterfaceVTable_##A == 0) {                                                                                                                                                                \
+        ref_GDBusInterfaceVTable_##A = fcts;                                                                                                                                                                \
+        my_GDBusInterfaceVTable_##A.method_call = (fcts->method_call) ? ((GetNativeFnc((uintptr_t)fcts->method_call)) ? GetNativeFnc((uintptr_t)fcts->method_call) : my_funcs_method_call_##A) : NULL;      \
+        fct_funcs_method_call_##A = (uintptr_t)fcts->method_call;                                                                                                                                           \
+        my_GDBusInterfaceVTable_##A.get_property = (fcts->get_property) ? ((GetNativeFnc((uintptr_t)fcts->get_property)) ? GetNativeFnc((uintptr_t)fcts->get_property) : my_funcs_get_property_##A) : NULL; \
+        fct_funcs_get_property_##A = (uintptr_t)fcts->get_property;                                                                                                                                         \
+        my_GDBusInterfaceVTable_##A.set_property = (fcts->set_property) ? ((GetNativeFnc((uintptr_t)fcts->set_property)) ? GetNativeFnc((uintptr_t)fcts->set_property) : my_funcs_set_property_##A) : NULL; \
+        fct_funcs_set_property_##A = (uintptr_t)fcts->set_property;                                                                                                                                         \
+        return &my_GDBusInterfaceVTable_##A;                                                                                                                                                                \
     }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for gio2 GDBusInterfaceVTable callback\n");
     return NULL;
 }
@@ -474,11 +539,11 @@ EXPORT void my_g_async_initable_init_async(x64emu_t* emu, void* initable, int pr
 
 EXPORT void my_g_async_initable_new_valist_async(x64emu_t* emu, size_t type, void* first, x64_va_list_t var_args, int priority, void* cancellable, void* cb, void* data)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(var_args);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(var_args, emu->scratch);
-    #endif
+#endif
     my->g_async_initable_new_valist_async(type, first, VARARGS, priority, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
@@ -565,11 +630,11 @@ EXPORT uint32_t my_g_bus_own_name_on_connection(x64emu_t* emu, void* connection,
 
 EXPORT void my_g_simple_async_result_set_error_va(x64emu_t* emu, void* simple, void* domain, int code, void* fmt, x64_va_list_t V)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
-    #endif
+#endif
     my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
 }
 
@@ -582,7 +647,7 @@ EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, void
 
 EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* err, void* first, uintptr_t* b)
 {
-    #if 0
+#if 0
     // look for number of pairs
     int n = 1;
     emu->scratch[0] = (uint64_t)first;
@@ -595,23 +660,23 @@ EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* er
     emu->scratch[n+1] = 0;
     emu->scratch[n+2] = 0;
     PREPARE_VALIST;
-    #else
+#else
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
-    #endif
+#endif
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
 
 EXPORT void* my_g_initable_new_valist(x64emu_t* emu, void* type, void* first, x64_va_list_t V, void* cancel, void* err)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
-    #endif
+#endif
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
 
-EXPORT void my_g_task_return_new_error(x64emu_t* emu, void* task, uint32_t domain, int code, void *fmt, va_list b)
+EXPORT void my_g_task_return_new_error(x64emu_t* emu, void* task, uint32_t domain, int code, void* fmt, va_list b)
 {
     char* tmp;
     int dummy = vasprintf(&tmp, fmt, b);
@@ -625,12 +690,12 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
     my->g_input_stream_read_async(stream, buffer, count, io_prio, cancel, findGAsyncReadyCallbackFct(f), data);
 }
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
-#define CUSTOM_INIT \
-    SetGApplicationID(my->g_application_get_type());    \
+#define CUSTOM_INIT                                  \
+    SetGApplicationID(my->g_application_get_type()); \
     SetGDBusProxyID(my->g_dbus_proxy_get_type());
 
 #ifdef ANDROID

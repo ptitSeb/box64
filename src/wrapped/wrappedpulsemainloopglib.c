@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -18,9 +18,9 @@
 #include "myalign.h"
 
 #ifdef ANDROID
-    const char* pulsemainloopglibName = "libpulse-mainloop-glib.so";
+const char* pulsemainloopglibName = "libpulse-mainloop-glib.so";
 #else
-    const char* pulsemainloopglibName = "libpulse-mainloop-glib.so.0";
+const char* pulsemainloopglibName = "libpulse-mainloop-glib.so.0";
 #endif
 
 #define LIBNAME pulsemainloopglib
@@ -29,7 +29,7 @@
 
 #include "wrappercallback.h"
 
-void my_autobridge_mainloop_api(x64emu_t* emu, void* api);  // defined in pulse.c
+void my_autobridge_mainloop_api(x64emu_t* emu, void* api); // defined in pulse.c
 EXPORT void* my_pa_glib_mainloop_get_api(x64emu_t* emu, void* mainloop)
 {
     void* ret = my->pa_glib_mainloop_get_api(mainloop);
@@ -37,8 +37,8 @@ EXPORT void* my_pa_glib_mainloop_get_api(x64emu_t* emu, void* mainloop)
     return ret;
 }
 
-#define PRE_INIT        \
-    if(box64_nopulse)   \
+#define PRE_INIT       \
+    if (box64_nopulse) \
         return -1;
 
 #ifdef ANDROID

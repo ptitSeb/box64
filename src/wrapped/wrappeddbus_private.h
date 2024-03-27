@@ -55,7 +55,7 @@ GO(dbus_connection_read_write, iFpi)
 GO(dbus_connection_read_write_dispatch, iFpi)
 GO(dbus_connection_ref, pFp)
 GOM(dbus_connection_register_fallback, iFEpppp)
-//GO(dbus_connection_register_object_path, 
+// GO(dbus_connection_register_object_path,
 GOM(dbus_connection_remove_filter, vFEppp)
 GO(dbus_connection_return_message, vFpp)
 GO(dbus_connection_send, iFppp)
@@ -71,10 +71,10 @@ GO(dbus_connection_set_max_message_size, vFpl)
 GO(dbus_connection_set_max_received_size, vFpl)
 GO(dbus_connection_set_route_peer_messages, vFpi)
 GOM(dbus_connection_set_timeout_functions, iFEpppppp)
-//GO(dbus_connection_set_unix_user_function, 
+// GO(dbus_connection_set_unix_user_function,
 GOM(dbus_connection_set_wakeup_main_function, vFEpppp)
 GOM(dbus_connection_set_watch_functions, iFEpppppp)
-//GO(dbus_connection_set_windows_user_function, 
+// GO(dbus_connection_set_windows_user_function,
 GO(dbus_connection_steal_borrowed_message, vFpp)
 GOM(dbus_connection_try_register_fallback, iFEppppp)
 GOM(dbus_connection_try_register_object_path, iFEppppp)
@@ -88,8 +88,8 @@ GO(dbus_free, vFp)
 GO(dbus_free_string_array, vFp)
 GO(dbus_get_local_machine_id, pFv)
 GO(dbus_get_version, vFppp)
-//GO(dbus_internal_do_not_use_create_uuid, 
-//GO(dbus_internal_do_not_use_get_uuid, 
+// GO(dbus_internal_do_not_use_create_uuid,
+// GO(dbus_internal_do_not_use_get_uuid,
 GO(dbus_malloc, pFL)
 GO(dbus_malloc0, pFL)
 GO(dbus_message_allocate_data_slot, iFp)
@@ -146,7 +146,7 @@ GO(dbus_message_lock, vFp)
 GO(dbus_message_marshal, iFppp)
 GO(dbus_message_new, pFi)
 GO(dbus_message_new_error, pFppp)
-GO(dbus_message_new_error_printf, pFpppppppppppp)   //vaarg, should wrap and use vaprintf...
+GO(dbus_message_new_error_printf, pFpppppppppppp) // vaarg, should wrap and use vaprintf...
 GO(dbus_message_new_method_call, pFpppp)
 GO(dbus_message_new_method_return, pFp)
 GO(dbus_message_new_signal, pFppp)
@@ -184,18 +184,18 @@ GO(dbus_server_allocate_data_slot, iFp)
 GO(dbus_server_disconnect, vFp)
 GO(dbus_server_free_data_slot, vFp)
 GO(dbus_server_get_address, pFp)
-//GO(dbus_server_get_data, 
-//GO(dbus_server_get_id, 
+// GO(dbus_server_get_data,
+// GO(dbus_server_get_id,
 GO(dbus_server_get_is_connected, iFp)
 GO(dbus_server_listen, pFpp)
-//GO(dbus_server_ref, 
-//GO(dbus_server_set_auth_mechanisms, 
+// GO(dbus_server_ref,
+// GO(dbus_server_set_auth_mechanisms,
 GOM(dbus_server_set_data, iFEpipp)
 GOM(dbus_server_set_new_connection_function, vFEpppp)
 GOM(dbus_server_set_timeout_functions, iFEpppppp)
 GOM(dbus_server_set_watch_functions, iFEpppppp)
 GO(dbus_server_unref, vFp)
-GO(dbus_set_error, vFpppppppppp)    //vaarg
+GO(dbus_set_error, vFpppppppppp) // vaarg
 GO(dbus_set_error_const, vFppp)
 GO(dbus_set_error_from_message, iFpp)
 GO(dbus_shutdown, vFv)
@@ -207,7 +207,7 @@ GO(dbus_signature_iter_next, iFp)
 GO(dbus_signature_iter_recurse, vFpp)
 GO(dbus_signature_validate, iFpp)
 GO(dbus_signature_validate_single, iFpp)
-//GO(dbus_threads_init, 
+// GO(dbus_threads_init,
 GO(dbus_threads_init_default, iFv)
 GO(dbus_timeout_get_data, pFp)
 GO(dbus_timeout_get_enabled, iFp)

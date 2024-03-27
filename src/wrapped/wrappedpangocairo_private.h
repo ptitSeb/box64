@@ -4,10 +4,10 @@
 
 GO(pango_cairo_context_get_font_options, pFp)
 GO(pango_cairo_context_get_resolution, dFp)
-//GOM(pango_cairo_context_get_shape_renderer, pFEpp)
+// GOM(pango_cairo_context_get_shape_renderer, pFEpp)
 GO(pango_cairo_context_set_font_options, vFpp)
 GO(pango_cairo_context_set_resolution, vFpd)
-//GOM(pango_cairo_context_set_shape_renderer, vFEpppp)
+// GOM(pango_cairo_context_set_shape_renderer, vFEpppp)
 GO(pango_cairo_create_context, pFp)
 GO(pango_cairo_create_layout, pFp)
 GO(pango_cairo_error_underline_path, vFpdddd)

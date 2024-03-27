@@ -2,9 +2,9 @@
 #error meh!
 #endif
 
-//GO(BZ2_blockSort, 
-//GO(BZ2_bsInitWrite, 
-//GO(BZ2_bz__AssertH__fail, 
+// GO(BZ2_blockSort,
+// GO(BZ2_bsInitWrite,
+// GO(BZ2_bz__AssertH__fail,
 GO(BZ2_bzBuffToBuffCompress, iFpppuiii)
 GO(BZ2_bzBuffToBuffDecompress, iFpppuii)
 GO(BZ2_bzclose, iFp)
@@ -29,9 +29,9 @@ GO(BZ2_bzWrite, vFpppi)
 GO(BZ2_bzWriteClose, vFppipp)
 GO(BZ2_bzWriteClose64, vFppipppp)
 GO(BZ2_bzWriteOpen, pFppiii)
-//GO(BZ2_compressBlock, 
-//GO(BZ2_decompress, 
-//GO(BZ2_hbAssignCodes, 
-//GO(BZ2_hbCreateDecodeTables, 
-//GO(BZ2_hbMakeCodeLengths, 
-//GO(BZ2_indexIntoF, 
+// GO(BZ2_compressBlock,
+// GO(BZ2_decompress,
+// GO(BZ2_hbAssignCodes,
+// GO(BZ2_hbCreateDecodeTables,
+// GO(BZ2_hbMakeCodeLengths,
+// GO(BZ2_indexIntoF,

@@ -8,7 +8,7 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void (*vFpp_t)(void*, void*);
@@ -20,16 +20,17 @@ typedef uint32_t (*uFpuuppp_t)(void*, uint32_t, uint32_t, void*, void*, void*);
 typedef uint32_t (*uFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void*);
 typedef uint32_t (*uFpppufppp_t)(void*, void*, void*, uint32_t, float, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(FAudio_UnregisterForCallbacks, vFpp_t) \
-	GO(FAudio_RegisterForCallbacks, uFpp_t) \
-	GO(FAudio_SetEngineProcedureEXT, vFppp_t) \
-	GO(FAudioCOMConstructWithCustomAllocatorEXT, uFpCppp_t) \
-	GO(FAudioCreateReverb9WithCustomAllocatorEXT, uFpuppp_t) \
-	GO(FAudioCreateReverbWithCustomAllocatorEXT, uFpuppp_t) \
-	GO(FAudioCreateVolumeMeterWithCustomAllocatorEXT, uFpuppp_t) \
-	GO(FAudioCreateWithCustomAllocatorEXT, uFpuuppp_t) \
-	GO(FAPOFX_CreateFXWithCustomAllocatorEXT, uFpppuppp_t) \
-	GO(FAudio_CreateSourceVoice, uFpppufppp_t)
+#define SUPER()                                                  \
+    ADDED_FUNCTIONS()                                            \
+    GO(FAudio_UnregisterForCallbacks, vFpp_t)                    \
+    GO(FAudio_RegisterForCallbacks, uFpp_t)                      \
+    GO(FAudio_SetEngineProcedureEXT, vFppp_t)                    \
+    GO(FAudioCOMConstructWithCustomAllocatorEXT, uFpCppp_t)      \
+    GO(FAudioCreateReverb9WithCustomAllocatorEXT, uFpuppp_t)     \
+    GO(FAudioCreateReverbWithCustomAllocatorEXT, uFpuppp_t)      \
+    GO(FAudioCreateVolumeMeterWithCustomAllocatorEXT, uFpuppp_t) \
+    GO(FAudioCreateWithCustomAllocatorEXT, uFpuuppp_t)           \
+    GO(FAPOFX_CreateFXWithCustomAllocatorEXT, uFpppuppp_t)       \
+    GO(FAudio_CreateSourceVoice, uFpppufppp_t)
 
 #endif // __wrappedfaudioTYPES_H_

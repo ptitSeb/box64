@@ -29,11 +29,11 @@ GO(cairo_device_observer_fill_elapsed, dFp)
 GO(cairo_device_observer_glyphs_elapsed, dFp)
 GO(cairo_device_observer_mask_elapsed, dFp)
 GO(cairo_device_observer_paint_elapsed, dFp)
-//GOM(cairo_device_observer_print, iFEppp)
+// GOM(cairo_device_observer_print, iFEppp)
 GO(cairo_device_observer_stroke_elapsed, dFp)
 GO(cairo_device_reference, pFp)
 GO(cairo_device_release, vFp)
-//GOM(cairo_device_set_user_data, iFEpppp)
+// GOM(cairo_device_set_user_data, iFEpppp)
 GO(cairo_device_status, iFp)
 GO(cairo_device_to_user, vFppp)
 GO(cairo_device_to_user_distance, vFppp)
@@ -46,7 +46,7 @@ GO(cairo_font_face_get_reference_count, uFp)
 GO(cairo_font_face_get_type, uFp)
 GO(cairo_font_face_get_user_data, pFpp)
 GO(cairo_font_face_reference, pFp)
-//GOM(cairo_font_face_set_user_data, iFpppp)
+// GOM(cairo_font_face_set_user_data, iFpppp)
 GO(cairo_font_face_status, uFp)
 GO(cairo_font_options_copy, pFp)
 GO(cairo_font_options_create, pFv)
@@ -102,7 +102,7 @@ GO(cairo_identity_matrix, vFp)
 GO(cairo_image_surface_create, pFiii)
 GO(cairo_image_surface_create_for_data, pFpiiii)
 GO(cairo_image_surface_create_from_png, pFp)
-//GO(cairo_image_surface_create_from_png_stream, 
+// GO(cairo_image_surface_create_from_png_stream,
 GO(cairo_image_surface_get_data, pFp)
 GO(cairo_image_surface_get_format, iFp)
 GO(cairo_image_surface_get_height, iFp)
@@ -171,11 +171,11 @@ GO(cairo_pattern_reference, pFp)
 GO(cairo_pattern_set_extend, vFpu)
 GO(cairo_pattern_set_filter, vFpu)
 GO(cairo_pattern_set_matrix, vFpp)
-//GOM(cairo_pattern_set_user_data, iFEpppp)
+// GOM(cairo_pattern_set_user_data, iFEpppp)
 GO(cairo_pattern_status, uFp)
 GO(cairo_pdf_get_versions, vFpp)
 GO(cairo_pdf_surface_create, pFpdd)
-//GO(cairo_pdf_surface_create_for_stream, 
+// GO(cairo_pdf_surface_create_for_stream,
 GO(cairo_pdf_surface_restrict_to_version, vFpu)
 GO(cairo_pdf_surface_set_size, vFpdd)
 GO(cairo_pdf_version_to_string, pFu)
@@ -184,9 +184,9 @@ GO(cairo_pop_group_to_source, vFp)
 GO(cairo_ps_get_levels, vFpp)
 GO(cairo_ps_level_to_string, pFu)
 GO(cairo_ps_surface_create, pFpdd)
-//GO(cairo_ps_surface_create_for_stream, 
+// GO(cairo_ps_surface_create_for_stream,
 GO(cairo_ps_surface_dsc_begin_page_setup, vFp)
-//GO(cairo_ps_surface_dsc_begin_setup, 
+// GO(cairo_ps_surface_dsc_begin_setup,
 GO(cairo_ps_surface_dsc_comment, vFpp)
 GO(cairo_ps_surface_get_eps, iFp)
 GO(cairo_ps_surface_restrict_to_level, vFpu)
@@ -199,11 +199,11 @@ GO(cairo_raster_source_pattern_get_callback_data, pFp)
 GO(cairo_raster_source_pattern_get_copy, pFp)
 GO(cairo_raster_source_pattern_get_finish, pFp)
 GO(cairo_raster_source_pattern_get_snapshot, pFp)
-//GO(cairo_raster_source_pattern_set_acquire, 
+// GO(cairo_raster_source_pattern_set_acquire,
 GO(cairo_raster_source_pattern_set_callback_data, vFpp)
-//GO(cairo_raster_source_pattern_set_copy, 
-//GO(cairo_raster_source_pattern_set_finish, 
-//GO(cairo_raster_source_pattern_set_snapshot, 
+// GO(cairo_raster_source_pattern_set_copy,
+// GO(cairo_raster_source_pattern_set_finish,
+// GO(cairo_raster_source_pattern_set_snapshot,
 GO(cairo_recording_surface_create, pFup)
 GO(cairo_recording_surface_get_extents, iFpp)
 GO(cairo_recording_surface_ink_extents, vFppppp)
@@ -254,12 +254,12 @@ GO(cairo_scaled_font_get_type, uFp)
 GO(cairo_scaled_font_get_user_data, pFpp)
 GO(cairo_scaled_font_glyph_extents, vFppip)
 GO(cairo_scaled_font_reference, pFp)
-//GOM(cairo_scaled_font_set_user_data, iFEpppp)
+// GOM(cairo_scaled_font_set_user_data, iFEpppp)
 GO(cairo_scaled_font_status, uFp)
 GO(cairo_scaled_font_text_extents, vFppp)
 GO(cairo_scaled_font_text_to_glyphs, uFpddpippppp)
 GO(cairo_script_create, pFp)
-//GO(cairo_script_create_for_stream, 
+// GO(cairo_script_create_for_stream,
 GO(cairo_script_from_recording_surface, uFpp)
 GO(cairo_script_get_mode, uFp)
 GO(cairo_script_set_mode, vFpu)
@@ -318,30 +318,30 @@ GO(cairo_surface_has_show_text_glyphs, iFp)
 GO(cairo_surface_map_to_image, pFpp)
 GO(cairo_surface_mark_dirty, vFp)
 GO(cairo_surface_mark_dirty_rectangle, vFpiiii)
-//GO(cairo_surface_observer_add_fill_callback, 
-//GO(cairo_surface_observer_add_finish_callback, 
-//GO(cairo_surface_observer_add_flush_callback, 
-//GO(cairo_surface_observer_add_glyphs_callback, 
-//GO(cairo_surface_observer_add_mask_callback, 
-//GO(cairo_surface_observer_add_paint_callback, 
-//GO(cairo_surface_observer_add_stroke_callback, 
+// GO(cairo_surface_observer_add_fill_callback,
+// GO(cairo_surface_observer_add_finish_callback,
+// GO(cairo_surface_observer_add_flush_callback,
+// GO(cairo_surface_observer_add_glyphs_callback,
+// GO(cairo_surface_observer_add_mask_callback,
+// GO(cairo_surface_observer_add_paint_callback,
+// GO(cairo_surface_observer_add_stroke_callback,
 GO(cairo_surface_observer_elapsed, dFp)
-//GO(cairo_surface_observer_print, 
+// GO(cairo_surface_observer_print,
 GO(cairo_surface_reference, pFp)
 GO(cairo_surface_set_device_offset, vFpdd)
 GO(cairo_surface_set_device_scale, vFpdd)
 GO(cairo_surface_set_fallback_resolution, vFpdd)
-//GOM(cairo_surface_set_mime_data, iFEpppLpp)
+// GOM(cairo_surface_set_mime_data, iFEpppLpp)
 GOM(cairo_surface_set_user_data, iFEpppp)
 GO(cairo_surface_show_page, vFp)
 GO(cairo_surface_status, uFp)
 GO(cairo_surface_supports_mime_type, iFpp)
 GO(cairo_surface_unmap_image, vFpp)
 GO(cairo_surface_write_to_png, uFpp)
-//GO(cairo_surface_write_to_png_stream, 
+// GO(cairo_surface_write_to_png_stream,
 GO(cairo_svg_get_versions, vFpp)
 GO(cairo_svg_surface_create, pFpdd)
-//GO(cairo_svg_surface_create_for_stream, 
+// GO(cairo_svg_surface_create_for_stream,
 GO(cairo_svg_surface_restrict_to_version, vFpu)
 GO(cairo_svg_version_to_string, pFu)
 GO(cairo_text_cluster_allocate, pFi)
@@ -359,16 +359,16 @@ GO(cairo_user_font_face_get_init_func, pFp)
 GO(cairo_user_font_face_get_render_glyph_func, pFp)
 GO(cairo_user_font_face_get_text_to_glyphs_func, pFp)
 GO(cairo_user_font_face_get_unicode_to_glyph_func, pFp)
-//GO(cairo_user_font_face_set_init_func, 
-//GO(cairo_user_font_face_set_render_glyph_func, 
-//GO(cairo_user_font_face_set_text_to_glyphs_func, 
-//GO(cairo_user_font_face_set_unicode_to_glyph_func, 
+// GO(cairo_user_font_face_set_init_func,
+// GO(cairo_user_font_face_set_render_glyph_func,
+// GO(cairo_user_font_face_set_text_to_glyphs_func,
+// GO(cairo_user_font_face_set_unicode_to_glyph_func,
 GO(cairo_user_to_device, vFppp)
 GO(cairo_user_to_device_distance, vFppp)
 GO(cairo_version, iFv)
 GO(cairo_version_string, pFv)
 GO(cairo_xcb_device_debug_cap_xrender_version, vFpii)
-//GO(cairo_xcb_device_debug_cap_xshm_version, 
+// GO(cairo_xcb_device_debug_cap_xshm_version,
 GO(cairo_xcb_device_debug_get_precision, iFp)
 GO(cairo_xcb_device_debug_set_precision, vFpi)
 GOM(cairo_xcb_device_get_connection, pFEp)
@@ -383,17 +383,17 @@ GO(cairo_xlib_device_debug_set_precision, vFpi)
 GO(cairo_xlib_surface_create, pFpppii)
 GO(cairo_xlib_surface_create_for_bitmap, pFpLpii)
 GO(cairo_xlib_surface_create_with_xrender_format, pFpLppii)
-//GO(cairo_xlib_surface_get_depth, 
+// GO(cairo_xlib_surface_get_depth,
 GO(cairo_xlib_surface_get_display, pFp)
 GO(cairo_xlib_surface_get_drawable, LFp)
 GO(cairo_xlib_surface_get_height, iFp)
 GO(cairo_xlib_surface_get_screen, pFp)
-//GO(cairo_xlib_surface_get_visual, 
-//GO(cairo_xlib_surface_get_width, 
+// GO(cairo_xlib_surface_get_visual,
+// GO(cairo_xlib_surface_get_width,
 GO(cairo_xlib_surface_get_xrender_format, pFp)
 GO(cairo_xlib_surface_set_drawable, vFpLii)
 GO(cairo_xlib_surface_set_size, vFpii)
-//GO(cairo_xml_create, 
-//GO(cairo_xml_create_for_stream, 
-//GO(cairo_xml_for_recording_surface, 
-//GO(cairo_xml_surface_create, 
+// GO(cairo_xml_create,
+// GO(cairo_xml_create_for_stream,
+// GO(cairo_xml_for_recording_surface,
+// GO(cairo_xml_surface_create,

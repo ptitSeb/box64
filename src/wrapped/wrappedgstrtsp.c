@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
+#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
@@ -13,15 +13,15 @@
 #include "x64emu.h"
 
 #ifdef ANDROID
-    const char* gstrtspName = "libgstrtsp-1.0.so";
+const char* gstrtspName = "libgstrtsp-1.0.so";
 #else
-    const char* gstrtspName = "libgstrtsp-1.0.so.0";
+const char* gstrtspName = "libgstrtsp-1.0.so.0";
 #endif
 
 #define LIBNAME gstrtsp
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
 #include "wrappedlib_init.h"

@@ -2,7 +2,7 @@
 #error meh!
 #endif
 
-DATAB(XPresentExtensionInfo, 3*sizeof(void*))
+DATAB(XPresentExtensionInfo, 3 * sizeof(void*))
 DATA(XPresentExtensionName, sizeof(void*))
 GO(XPresentFindDisplay, pFp)
 GO(XPresentFreeInput, vFppp)

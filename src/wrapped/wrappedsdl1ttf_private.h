@@ -46,4 +46,3 @@ GO(TTF_SizeText, iFpppp)
 GO(TTF_SizeUNICODE, iFpppp)
 GO(TTF_SizeUTF8, iFpppp)
 GO(TTF_WasInit, iFv)
-

@@ -8,17 +8,18 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(_ULx86_64_step, iFp_t) \
-	GO(_ULx86_64_get_proc_info, iFpp_t) \
-	GO(_ULx86_64_init_local, iFpp_t) \
-	GO(_ULx86_64_get_reg, iFpip_t)
+#define SUPER()                         \
+    ADDED_FUNCTIONS()                   \
+    GO(_ULx86_64_step, iFp_t)           \
+    GO(_ULx86_64_get_proc_info, iFpp_t) \
+    GO(_ULx86_64_init_local, iFpp_t)    \
+    GO(_ULx86_64_get_reg, iFpip_t)
 
 #endif // __wrappedunwindTYPES_H_

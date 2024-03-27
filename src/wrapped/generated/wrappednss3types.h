@@ -8,18 +8,19 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpIppp_t)(void*, int64_t, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(PK11_SetPasswordFunc, vFp_t) \
-	GO(PORT_SetUCS2_ASCIIConversionFunction, vFp_t) \
-	GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFpp_t) \
-	GO(NSS_RegisterShutdown, iFpp_t) \
-	GO(CERT_PKIXVerifyCert, iFpIppp_t)
+#define SUPER()                                           \
+    ADDED_FUNCTIONS()                                     \
+    GO(PK11_SetPasswordFunc, vFp_t)                       \
+    GO(PORT_SetUCS2_ASCIIConversionFunction, vFp_t)       \
+    GO(CERT_RegisterAlternateOCSPAIAInfoCallBack, iFpp_t) \
+    GO(NSS_RegisterShutdown, iFpp_t)                      \
+    GO(CERT_PKIXVerifyCert, iFpIppp_t)
 
 #endif // __wrappednss3TYPES_H_

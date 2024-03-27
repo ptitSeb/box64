@@ -2,9 +2,9 @@
 #error meh!
 #endif
 
-//GO(__aeabi_d2lz, 
-//GO(__aeabi_d2ulz, 
-//GO(_fini, 
+// GO(__aeabi_d2lz,
+// GO(__aeabi_d2ulz,
+// GO(_fini,
 GO(g_access, iFpi)
 GO(g_allocator_free, vFp)
 GO(g_allocator_new, pFpu)
@@ -47,18 +47,18 @@ GO(g_async_queue_length, iFp)
 GO(g_async_queue_length_unlocked, iFp)
 GO(g_async_queue_lock, vFp)
 GO(g_async_queue_new, pFv)
-//GO(g_async_queue_new_full, 
+// GO(g_async_queue_new_full,
 GO(g_async_queue_pop, pFp)
-//GO(g_async_queue_pop_unlocked, 
+// GO(g_async_queue_pop_unlocked,
 GO(g_async_queue_push, vFpp)
-//GO(g_async_queue_push_sorted, 
-//GO(g_async_queue_push_sorted_unlocked, 
+// GO(g_async_queue_push_sorted,
+// GO(g_async_queue_push_sorted_unlocked,
 GO(g_async_queue_push_unlocked, vFpp)
 GO(g_async_queue_ref, pFp)
-//GO(g_async_queue_ref_unlocked, 
-//GO(g_async_queue_sort, 
-//GO(g_async_queue_sort_unlocked, 
-//GO(g_async_queue_timed_pop, 
+// GO(g_async_queue_ref_unlocked,
+// GO(g_async_queue_sort,
+// GO(g_async_queue_sort_unlocked,
+// GO(g_async_queue_timed_pop,
 GO(g_async_queue_timed_pop_unlocked, pFpp)
 GO(g_async_queue_timeout_pop, pFpU)
 GO(g_async_queue_timeout_pop_unlocked, pFpL)
@@ -68,21 +68,21 @@ GO(g_async_queue_unlock, vFp)
 GO(g_async_queue_unref, vFp)
 GO(g_async_queue_unref_and_unlock, vFp)
 GO2(g_atexit, vFEp, my_atexit)
-//GO(g_atomic_int_add, 
-//GO(g_atomic_int_and, 
+// GO(g_atomic_int_add,
+// GO(g_atomic_int_and,
 GO(g_atomic_int_compare_and_exchange, iFpii)
 GO(g_atomic_int_dec_and_test, iFp)
 GO(g_atomic_int_exchange_and_add, iFpi)
 GO(g_atomic_int_get, iFp)
 GO(g_atomic_int_inc, vFp)
-//GO(g_atomic_int_or, 
-//GO(g_atomic_int_set, 
+// GO(g_atomic_int_or,
+// GO(g_atomic_int_set,
 GO(g_atomic_int_xor, uFpu)
 GO(g_atomic_pointer_add, lFpl)
-//GO(g_atomic_pointer_and, 
+// GO(g_atomic_pointer_and,
 GO(g_atomic_pointer_compare_and_exchange, iFppp)
 GO(g_atomic_pointer_get, pFp)
-//GO(g_atomic_pointer_or, 
+// GO(g_atomic_pointer_or,
 GO(g_atomic_pointer_set, vFpp)
 GO(g_atomic_pointer_xor, LFpL)
 GO(g_base64_decode, pFpp)
@@ -92,53 +92,53 @@ GO(g_base64_encode, pFpL)
 GO(g_base64_encode_close, LFippp)
 GO(g_base64_encode_step, LFpLippp)
 GO(g_basename, pFp)
-//GO(g_bit_lock, 
+// GO(g_bit_lock,
 GO(g_bit_nth_lsf, iFii)
 GO(g_bit_nth_msf, iFLi)
 GO(g_bit_storage, uFL)
 GO(g_bit_trylock, iFpi)
 GO(g_bit_unlock, vFpi)
-//GO(g_blow_chunks, 
-//GO(g_bookmark_file_add_application, 
+// GO(g_blow_chunks,
+// GO(g_bookmark_file_add_application,
 GO(g_bookmark_file_add_group, vFppp)
-//GO(g_bookmark_file_error_quark, 
-//GO(g_bookmark_file_free, 
-//GO(g_bookmark_file_get_added, 
+// GO(g_bookmark_file_error_quark,
+// GO(g_bookmark_file_free,
+// GO(g_bookmark_file_get_added,
 GO(g_bookmark_file_get_app_info, iFppppppp)
 GO(g_bookmark_file_get_applications, pFpppp)
-//GO(g_bookmark_file_get_description, 
-//GO(g_bookmark_file_get_groups, 
+// GO(g_bookmark_file_get_description,
+// GO(g_bookmark_file_get_groups,
 GO(g_bookmark_file_get_icon, iFppppp)
-//GO(g_bookmark_file_get_is_private, 
+// GO(g_bookmark_file_get_is_private,
 GO(g_bookmark_file_get_mime_type, pFppp)
-//GO(g_bookmark_file_get_modified, 
+// GO(g_bookmark_file_get_modified,
 GO(g_bookmark_file_get_size, iFp)
-//GO(g_bookmark_file_get_title, 
+// GO(g_bookmark_file_get_title,
 GO(g_bookmark_file_get_uris, pFpp)
 GO(g_bookmark_file_get_visited, lFppp)
-//GO(g_bookmark_file_has_application, 
-//GO(g_bookmark_file_has_group, 
+// GO(g_bookmark_file_has_application,
+// GO(g_bookmark_file_has_group,
 GO(g_bookmark_file_has_item, iFpp)
 GO(g_bookmark_file_load_from_data, iFppLp)
 GO(g_bookmark_file_load_from_data_dirs, iFpppp)
-//GO(g_bookmark_file_load_from_file, 
+// GO(g_bookmark_file_load_from_file,
 GO(g_bookmark_file_move_item, iFpppp)
 GO(g_bookmark_file_new, pFv)
-//GO(g_bookmark_file_remove_application, 
-//GO(g_bookmark_file_remove_group, 
+// GO(g_bookmark_file_remove_application,
+// GO(g_bookmark_file_remove_group,
 GO(g_bookmark_file_remove_item, iFppp)
-//GO(g_bookmark_file_set_added, 
+// GO(g_bookmark_file_set_added,
 GO(g_bookmark_file_set_app_info, iFppppilp)
-//GO(g_bookmark_file_set_description, 
+// GO(g_bookmark_file_set_description,
 GO(g_bookmark_file_set_groups, vFpppL)
 GO(g_bookmark_file_set_icon, vFpppp)
 GO(g_bookmark_file_set_is_private, vFppi)
-//GO(g_bookmark_file_set_mime_type, 
-//GO(g_bookmark_file_set_modified, 
-//GO(g_bookmark_file_set_title, 
+// GO(g_bookmark_file_set_mime_type,
+// GO(g_bookmark_file_set_modified,
+// GO(g_bookmark_file_set_title,
 GO(g_bookmark_file_set_visited, vFppl)
 GO(g_bookmark_file_to_data, pFppp)
-//GO(g_bookmark_file_to_file, 
+// GO(g_bookmark_file_to_file,
 GOM(g_build_filename, pFEpV)
 GO(g_build_filenamev, pFp)
 GOM(g_build_path, pFEppV) // wrap using g_build_pathv
@@ -155,8 +155,8 @@ GO(g_byte_array_remove_index_fast, pFpu)
 GO(g_byte_array_remove_range, pFpuu)
 GO(g_byte_array_set_size, pFpu)
 GO(g_byte_array_sized_new, pFu)
-//GOM(g_byte_array_sort, vFpB)
-//GOM(g_byte_array_sort_with_data, vFpBp)
+// GOM(g_byte_array_sort, vFpB)
+// GOM(g_byte_array_sort_with_data, vFpBp)
 GO(g_byte_array_unref, vFp)
 GO(g_bytes_compare, iFpp)
 GO(g_bytes_equal, iFpp)
@@ -167,24 +167,24 @@ GO(g_bytes_new, pFpL)
 GO(g_bytes_new_from_bytes, pFpLL)
 GO(g_bytes_new_static, pFpL)
 GO(g_bytes_new_take, pFpL)
-//GOM(g_bytes_new_with_free_func, pFppLBp)
+// GOM(g_bytes_new_with_free_func, pFppLBp)
 GO(g_bytes_ref, pFp)
 GO(g_bytes_unref, vFp)
 GO(g_bytes_unref_to_array, pFp)
 GO(g_bytes_unref_to_data, pFpp)
 GO(g_cache_destroy, vFp)
 GO(g_cache_insert, pFpp)
-//GO(g_cache_key_foreach, 
-//GO(g_cache_new, 
+// GO(g_cache_key_foreach,
+// GO(g_cache_new,
 GO(g_cache_remove, vFpp)
-//GO(g_cache_value_foreach, 
+// GO(g_cache_value_foreach,
 GO(g_chdir, iFp)
 GO(g_checksum_copy, pFp)
 GO(g_checksum_free, vFp)
 GO(g_checksum_get_digest, vFppp)
 GO(g_checksum_get_string, pFp)
 GO(g_checksum_new, pFu)
-//GO(g_checksum_reset, 
+// GO(g_checksum_reset,
 GO(g_checksum_type_get_length, lFu)
 GO(g_checksum_update, vFppl)
 GOM(g_child_watch_add, uFEipp)
@@ -192,7 +192,7 @@ GOM(g_child_watch_add_full, uFEiippp)
 GO(g_child_watch_source_new, pFi)
 GO(g_chmod, iFpi)
 GO(g_clear_error, vFp)
-//GOM(g_clear_pointer, vFEpp)
+// GOM(g_clear_pointer, vFEpp)
 GO(g_close, iFip)
 GO(g_completion_add_items, vFpp)
 GO(g_completion_clear_items, vFp)
@@ -217,12 +217,12 @@ GO(g_cond_timed_wait, iFppp)
 GO(g_cond_wait, vFpp)
 GO(g_cond_wait_until, iFppl)
 GO(g_convert, pFplppppp)
-//GO(g_convert_error_quark, 
+// GO(g_convert_error_quark,
 GO(g_convert_with_fallback, pFplpppppp)
 GO(g_convert_with_iconv, pFplpppp)
 GO(g_creat, iFpi)
 GO(g_datalist_clear, vFp)
-//GOM(g_datalist_foreach, vFEppp)
+// GOM(g_datalist_foreach, vFEppp)
 GO(g_datalist_get_data, pFpp)
 GO(g_datalist_get_flags, uFp)
 GOM(g_datalist_id_dup_data, pFEpupp)
@@ -234,10 +234,10 @@ GO(g_datalist_init, vFp)
 GO(g_datalist_set_flags, vFpu)
 GO(g_datalist_unset_flags, vFpu)
 GO(g_dataset_destroy, vFp)
-//GO(g_dataset_foreach, 
-//GO(g_dataset_id_get_data, 
+// GO(g_dataset_foreach,
+// GO(g_dataset_id_get_data,
 GO(g_dataset_id_remove_no_notify, pFpu)
-//GO(g_dataset_id_set_data_full, 
+// GO(g_dataset_id_set_data_full,
 GO(g_date_add_days, vFpu)
 GO(g_date_add_months, vFpu)
 GO(g_date_add_years, vFpu)
@@ -279,47 +279,47 @@ GO(g_date_subtract_days, vFpu)
 GO(g_date_subtract_months, vFpu)
 GO(g_date_subtract_years, vFpu)
 GO(g_date_time_add, pFpl)
-//GO(g_date_time_add_days, 
+// GO(g_date_time_add_days,
 GO(g_date_time_add_full, pFpiiiiid)
-//GO(g_date_time_add_hours, 
+// GO(g_date_time_add_hours,
 GO(g_date_time_add_minutes, pFpi)
-//GO(g_date_time_add_months, 
+// GO(g_date_time_add_months,
 GO(g_date_time_add_seconds, pFpd)
-//GO(g_date_time_add_weeks, 
-//GO(g_date_time_add_years, 
-//GO(g_date_time_compare, 
+// GO(g_date_time_add_weeks,
+// GO(g_date_time_add_years,
+// GO(g_date_time_compare,
 GO(g_date_time_difference, lFpp)
-//GO(g_date_time_equal, 
+// GO(g_date_time_equal,
 GO(g_date_time_format, pFpp)
-//GO(g_date_time_get_day_of_month, 
-//GO(g_date_time_get_day_of_week, 
-//GO(g_date_time_get_day_of_year, 
-//GO(g_date_time_get_hour, 
+// GO(g_date_time_get_day_of_month,
+// GO(g_date_time_get_day_of_week,
+// GO(g_date_time_get_day_of_year,
+// GO(g_date_time_get_hour,
 GO(g_date_time_get_microsecond, iFp)
-//GO(g_date_time_get_minute, 
-//GO(g_date_time_get_month, 
-//GO(g_date_time_get_second, 
+// GO(g_date_time_get_minute,
+// GO(g_date_time_get_month,
+// GO(g_date_time_get_second,
 GO(g_date_time_get_seconds, dFp)
 GO(g_date_time_get_timezone_abbreviation, pFp)
 GO(g_date_time_get_utc_offset, lFp)
-//GO(g_date_time_get_week_numbering_year, 
-//GO(g_date_time_get_week_of_year, 
-//GO(g_date_time_get_year, 
+// GO(g_date_time_get_week_numbering_year,
+// GO(g_date_time_get_week_of_year,
+// GO(g_date_time_get_year,
 GO(g_date_time_get_ymd, vFpppp)
-//GO(g_date_time_hash, 
+// GO(g_date_time_hash,
 GO(g_date_time_is_daylight_savings, iFp)
 GO(g_date_time_new, pFpiiiiid)
-//GO(g_date_time_new_from_timeval_local, 
+// GO(g_date_time_new_from_timeval_local,
 GO(g_date_time_new_from_timeval_utc, pFp)
-//GO(g_date_time_new_from_unix_local, 
+// GO(g_date_time_new_from_unix_local,
 GO(g_date_time_new_from_unix_utc, pFl)
-//GO(g_date_time_new_local, 
+// GO(g_date_time_new_local,
 GO(g_date_time_new_now, pFp)
-//GO(g_date_time_new_now_local, 
+// GO(g_date_time_new_now_local,
 GO(g_date_time_new_now_utc, pFv)
 GO(g_date_time_new_utc, pFiiiiid)
-//GO(g_date_time_ref, 
-//GO(g_date_time_to_local, 
+// GO(g_date_time_ref,
+// GO(g_date_time_to_local,
 GO(g_date_time_to_timeval, iFpp)
 GO(g_date_time_to_timezone, pFpp)
 GO(g_date_time_to_unix, lFp)
@@ -347,7 +347,7 @@ GO(g_double_equal, iFpp)
 GO(g_double_hash, uFp)
 GO(g_dpgettext, pFppL)
 GO(g_dpgettext2, pFppp)
-GO(g_environ_getenv, pFpp)      // should wrap?
+GO(g_environ_getenv, pFpp) // should wrap?
 GO(g_environ_setenv, pFpppi)
 GO(g_environ_unsetenv, pFpp)
 GO(g_error_copy, pFp)
@@ -382,7 +382,7 @@ GO(g_get_charset, iFp)
 GO(g_get_codeset, pFv)
 GO(g_get_current_dir, pFv)
 GO(g_get_current_time, vFp)
-GO(g_getenv, pFp)       // should wrap?
+GO(g_getenv, pFp) // should wrap?
 GO(g_get_environ, pFv)
 GO(g_get_filename_charsets, iFp)
 GO(g_get_home_dir, pFv)
@@ -390,7 +390,7 @@ GO(g_get_host_name, pFv)
 GO(g_get_language_names, pFv)
 GO(g_get_locale_variants, pFp)
 GO(g_get_monotonic_time, IFv)
-//GO(g_get_num_processors, 
+// GO(g_get_num_processors,
 GO(g_get_prgname, pFv)
 GO(g_get_real_name, pFv)
 GO(g_get_real_time, lFv)
@@ -437,36 +437,36 @@ GO(g_hmac_get_digest, vFppp)
 GO(g_hmac_get_string, pFp)
 GO(g_hmac_new, pFupL)
 GO(g_hmac_ref, pFp)
-//GO(g_hmac_unref, 
+// GO(g_hmac_unref,
 GO(g_hmac_update, vFppl)
-//GO(g_hook_alloc, 
-//GO(g_hook_compare_ids, 
-//GO(g_hook_destroy, 
-//GO(g_hook_destroy_link, 
-//GO(g_hook_find, 
-//GO(g_hook_find_data, 
-//GO(g_hook_find_func, 
-//GO(g_hook_find_func_data, 
-//GO(g_hook_first_valid, 
-//GO(g_hook_free, 
-//GO(g_hook_get, 
-//GO(g_hook_insert_before, 
-//GO(g_hook_insert_sorted, 
-//GO(g_hook_list_clear, 
-//GO(g_hook_list_init, 
-//GO(g_hook_list_invoke, 
-//GO(g_hook_list_invoke_check, 
-//GO(g_hook_list_marshal, 
-//GO(g_hook_list_marshal_check, 
-//GO(g_hook_next_valid, 
-//GO(g_hook_prepend, 
-//GO(g_hook_ref, 
-//GO(g_hook_unref, 
-//GO(g_hostname_is_ascii_encoded, 
-//GO(g_hostname_is_ip_address, 
-//GO(g_hostname_is_non_ascii, 
-//GO(g_hostname_to_ascii, 
-//GO(g_hostname_to_unicode, 
+// GO(g_hook_alloc,
+// GO(g_hook_compare_ids,
+// GO(g_hook_destroy,
+// GO(g_hook_destroy_link,
+// GO(g_hook_find,
+// GO(g_hook_find_data,
+// GO(g_hook_find_func,
+// GO(g_hook_find_func_data,
+// GO(g_hook_first_valid,
+// GO(g_hook_free,
+// GO(g_hook_get,
+// GO(g_hook_insert_before,
+// GO(g_hook_insert_sorted,
+// GO(g_hook_list_clear,
+// GO(g_hook_list_init,
+// GO(g_hook_list_invoke,
+// GO(g_hook_list_invoke_check,
+// GO(g_hook_list_marshal,
+// GO(g_hook_list_marshal_check,
+// GO(g_hook_next_valid,
+// GO(g_hook_prepend,
+// GO(g_hook_ref,
+// GO(g_hook_unref,
+// GO(g_hostname_is_ascii_encoded,
+// GO(g_hostname_is_ip_address,
+// GO(g_hostname_is_non_ascii,
+// GO(g_hostname_to_ascii,
+// GO(g_hostname_to_unicode,
 GO(g_iconv, LFppppp)
 GO(g_iconv_close, iFp)
 GO(g_iconv_open, pFpp)
@@ -567,14 +567,14 @@ GO(g_key_file_set_value, vFpppp)
 GO(g_key_file_to_data, pFppp)
 GO(g_key_file_unref, vFp)
 GO(glib_check_version, pFuuu)
-//GO(glib_gettext, 
-//GO(glib_pgettext, 
-//GO(glib__private__, 
+// GO(glib_gettext,
+// GO(glib_pgettext,
+// GO(glib__private__,
 GO(g_list_alloc, pFv)
 GO(g_list_append, pFpp)
 GO(g_list_concat, pFpp)
 GO(g_list_copy, pFp)
-//GOM(g_list_copy_deep, pFEpBp)
+// GOM(g_list_copy_deep, pFEpBp)
 GO(g_list_delete_link, pFpp)
 GO(g_listenv, pFv)
 GO(g_list_find, pFpp)
@@ -594,10 +594,10 @@ GO(g_list_length, uFp)
 GO(g_list_nth, pFpu)
 GO(g_list_nth_data, pFpu)
 GO(g_list_nth_prev, pFpu)
-//GO(g_list_pop_allocator, 
+// GO(g_list_pop_allocator,
 GO(g_list_position, iFpp)
 GO(g_list_prepend, pFpp)
-//GO(g_list_push_allocator, 
+// GO(g_list_push_allocator,
 GO(g_list_remove, pFpp)
 GO(g_list_remove_all, pFpp)
 GO(g_list_remove_link, pFpp)
@@ -620,13 +620,13 @@ GO(g_main_context_add_poll, vFppi)
 GO(g_main_context_check, iFpipi)
 GO(g_main_context_default, pFv)
 GO(g_main_context_dispatch, vFp)
-//GOM(g_main_context_find_source_by_funcs_user_data, pFEppp)   // 2nd is a GSourceFuncs structures with callbacks..
+// GOM(g_main_context_find_source_by_funcs_user_data, pFEppp)   // 2nd is a GSourceFuncs structures with callbacks..
 GO(g_main_context_find_source_by_id, pFpu)
 GO(g_main_context_find_source_by_user_data, pFpp)
 GOM(g_main_context_get_poll_func, pFEp)
 GO(g_main_context_get_thread_default, pFv)
-//GOM(g_main_context_invoke, vFppp)  // 2nd is GSourceFuncs
-//GOM(g_main_context_invoke_full, vFpippB)  // 3rd is GSourceFuncs
+// GOM(g_main_context_invoke, vFppp)  // 2nd is GSourceFuncs
+// GOM(g_main_context_invoke_full, vFpippB)  // 3rd is GSourceFuncs
 GO(g_main_context_is_owner, iFp)
 GO(g_main_context_iteration, iFpi)
 GO(g_main_context_new, pFv)
@@ -664,8 +664,8 @@ GO(g_mapped_file_new, pFpip)
 GO(g_mapped_file_new_from_fd, pFiip)
 GO(g_mapped_file_ref, pFp)
 GO(g_mapped_file_unref, vFp)
-//GO(g_markup_collect_attributes, 
-//GO(g_markup_error_quark, 
+// GO(g_markup_collect_attributes,
+// GO(g_markup_error_quark,
 GO(g_markup_escape_text, pFpl)
 GO(g_markup_parse_context_end_parse, iFpp)
 GO(g_markup_parse_context_free, vFp)
@@ -675,10 +675,10 @@ GO(g_markup_parse_context_get_position, vFppp)
 GO(g_markup_parse_context_get_user_data, pFp)
 GOM(g_markup_parse_context_new, pFEpipp)
 GO(g_markup_parse_context_parse, iFpplp)
-//GO(g_markup_parse_context_pop, 
-//GO(g_markup_parse_context_push, 
+// GO(g_markup_parse_context_pop,
+// GO(g_markup_parse_context_push,
 GO(g_markup_parse_context_ref, pFp)
-//GO(g_markup_parse_context_unref, 
+// GO(g_markup_parse_context_unref,
 GOM(g_markup_printf_escaped, pFEpV)
 GOM(g_markup_vprintf_escaped, pFEpA)
 GO(g_match_info_expand_references, pFppp)
@@ -696,19 +696,19 @@ GO(g_match_info_matches, iFp)
 GO(g_match_info_next, iFpp)
 GO(g_match_info_ref, pFp)
 GO(g_match_info_unref, vFp)
-//GO(g_mem_chunk_alloc, 
+// GO(g_mem_chunk_alloc,
 GO(g_mem_chunk_alloc0, pFp)
-//GO(g_mem_chunk_clean, 
-//GO(g_mem_chunk_destroy, 
+// GO(g_mem_chunk_clean,
+// GO(g_mem_chunk_destroy,
 GO(g_mem_chunk_free, vFpp)
-//GO(g_mem_chunk_info, 
+// GO(g_mem_chunk_info,
 GO(g_mem_chunk_new, pFpiLi)
 GO(g_mem_chunk_print, vFp)
-//GO(g_mem_chunk_reset, 
+// GO(g_mem_chunk_reset,
 GO(g_memdup, pFpu)
 GO(g_mem_is_system_malloc, iFv)
 GO(g_mem_profile, vFv)
-//GOM(g_mem_set_vtable, vFEp)   // VMemTable needs wrapping
+// GOM(g_mem_set_vtable, vFEp)   // VMemTable needs wrapping
 GO(g_mkdir, iFpi)
 GO(g_mkdir_with_parents, iFpi)
 GO(g_mkdtemp, pFp)
@@ -724,32 +724,32 @@ GO(g_mutex_trylock, iFp)
 GO(g_mutex_unlock, vFp)
 GO(g_node_child_index, iFpp)
 GO(g_node_child_position, iFpp)
-//GO(g_node_children_foreach, 
-//GO(g_node_copy, 
+// GO(g_node_children_foreach,
+// GO(g_node_copy,
 GOM(g_node_copy_deep, pFEppp)
-//GO(g_node_depth, 
+// GO(g_node_depth,
 GO(g_node_destroy, vFp)
 GO(g_node_find, pFpuup)
 GO(g_node_find_child, pFpup)
-//GO(g_node_first_sibling, 
+// GO(g_node_first_sibling,
 GO(g_node_get_root, pFp)
 GO(g_node_insert, pFpip)
 GO(g_node_insert_after, pFppp)
 GO(g_node_insert_before, pFppp)
 GO(g_node_is_ancestor, iFpp)
-//GO(g_node_last_child, 
+// GO(g_node_last_child,
 GO(g_node_last_sibling, pFp)
-//GO(g_node_max_height, 
+// GO(g_node_max_height,
 GO(g_node_n_children, uFp)
 GO(g_node_new, pFp)
 GO(g_node_n_nodes, uFpu)
 GO(g_node_nth_child, pFpu)
-//GO(g_node_pop_allocator, 
+// GO(g_node_pop_allocator,
 GO(g_node_prepend, pFpp)
 GO(g_node_push_allocator, vFp)
-//GO(g_node_reverse_children, 
+// GO(g_node_reverse_children,
 GOM(g_node_traverse, vFEpiiipp)
-//GO(g_node_unlink, 
+// GO(g_node_unlink,
 GO(g_nullify_pointer, vFp)
 GOM(g_once_impl, pFEppp)
 GO(g_once_init_enter, iFp)
@@ -766,7 +766,7 @@ GO(g_option_context_get_help, pFpip)
 GO(g_option_context_get_help_enabled, iFp)
 GO(g_option_context_get_ignore_unknown_options, iFp)
 GO(g_option_context_get_main_group, pFp)
-GO(g_option_context_get_strict_posix, iFp)  // 2.44+
+GO(g_option_context_get_strict_posix, iFp) // 2.44+
 GO(g_option_context_get_summary, pFp)
 GO(g_option_context_new, pFp)
 GO(g_option_context_parse, iFpppp)
@@ -777,18 +777,18 @@ GO(g_option_context_set_ignore_unknown_options, vFpi)
 GO(g_option_context_set_main_group, vFpp)
 GO(g_option_context_set_strict_posix, vFpi) // 2.44+
 GO(g_option_context_set_summary, vFpp)
-//GOM(g_option_context_set_translate_func, vFEpBpB)
+// GOM(g_option_context_set_translate_func, vFEpBpB)
 GO(g_option_context_set_translation_domain, vFpp)
 GO(g_option_error_quark, pFv)
 GO(g_option_group_add_entries, vFpp)
 GO(g_option_group_free, vFp)
 GOM(g_option_group_new, pFEppppp)
 GO(g_option_group_ref, pFp) // 2.44+
-//GOM(g_option_group_set_error_hook, vFEpB)
+// GOM(g_option_group_set_error_hook, vFEpB)
 GOM(g_option_group_set_parse_hooks, vFEppp)
-//GOM(g_option_group_set_translate_func, vFEpBpB)
+// GOM(g_option_group_set_translate_func, vFEpBpB)
 GO(g_option_group_set_translation_domain, vFpp)
-GO(g_option_group_unref, vFp)   // 2.44+
+GO(g_option_group_unref, vFp) // 2.44+
 GO(g_parse_debug_string, uFppu)
 GO(g_path_get_basename, pFp)
 GO(g_path_get_dirname, pFp)
@@ -800,11 +800,11 @@ GO(g_pattern_match_string, iFpp)
 GO(g_pattern_spec_equal, iFpp)
 GO(g_pattern_spec_free, vFp)
 GO(g_pattern_spec_new, pFp)
-//GO(g_pointer_bit_lock, 
+// GO(g_pointer_bit_lock,
 GO(g_pointer_bit_trylock, iFpi)
 GO(g_pointer_bit_unlock, vFpi)
 GO(g_poll, iFpui)
-//GO(g_prefix_error, vFpppppppppp)    //vaarg, should align?
+// GO(g_prefix_error, vFpppppppppp)    //vaarg, should align?
 GOM(g_print, vFEpV)
 GOM(g_printerr, vFEpV)
 GOM(g_printf, iFEpV)
@@ -814,7 +814,7 @@ GOM(g_private_new, pFEp)
 GO(g_private_replace, vFpp)
 GO(g_private_set, vFpp)
 GO(g_propagate_error, vFpp)
-//GO(g_propagate_prefixed_error, vFpppppppppppp)  //vaarg, should align?
+// GO(g_propagate_prefixed_error, vFpppppppppppp)  //vaarg, should align?
 GO(g_ptr_array_add, vFpp)
 GOM(g_ptr_array_foreach, vFEppp)
 GO(g_ptr_array_free, pFpi)
@@ -840,22 +840,22 @@ GO(g_quark_from_string, uFp)
 GO(g_quark_to_string, pFu)
 GO(g_quark_try_string, uFp)
 GO(g_queue_clear, vFp)
-//GOM(g_queue_clear_full, vFEpB)    // 2.60+
+// GOM(g_queue_clear_full, vFEpB)    // 2.60+
 GO(g_queue_copy, pFp)
 GO(g_queue_delete_link, vFpp)
 GO(g_queue_find, pFpp)
 GOM(g_queue_find_custom, pFEppp)
 GOM(g_queue_foreach, vFEppp)
 GO(g_queue_free, vFp)
-//GOM(g_queue_free_full, vFEpB)
+// GOM(g_queue_free_full, vFEpB)
 GO(g_queue_get_length, uFp)
 GO(g_queue_index, iFpp)
 GO(g_queue_init, vFp)
 GO(g_queue_insert_after, vFppp)
-GO(g_queue_insert_after_link, vFppp)    // 2.62+
+GO(g_queue_insert_after_link, vFppp) // 2.62+
 GO(g_queue_insert_before, vFppp)
-GO(g_queue_insert_before_link, vFppp)   // 2.62+
-//GOM(g_queue_insert_sorted, vFEppBp)
+GO(g_queue_insert_before_link, vFppp) // 2.62+
+// GOM(g_queue_insert_sorted, vFEppBp)
 GO(g_queue_is_empty, iFp)
 GO(g_queue_link_index, iFpp)
 GO(g_queue_new, pFv)
@@ -880,7 +880,7 @@ GO(g_queue_push_tail_link, vFpp)
 GO(g_queue_remove, iFpp)
 GO(g_queue_remove_all, uFpp)
 GO(g_queue_reverse, pFp)
-//GOM(g_queue_sort, vFEpBp)
+// GOM(g_queue_sort, vFEpBp)
 GO(g_queue_unlink, vFpp)
 GO(g_rand_copy, pFp)
 GO(g_rand_double, dFp)
@@ -906,7 +906,7 @@ GO(g_rec_mutex_lock, vFp)
 GO(g_rec_mutex_trylock, iFp)
 GO(g_rec_mutex_unlock, vFp)
 GO(g_regex_check_replacement, iFppp)
-//GO(g_regex_error_quark, 
+// GO(g_regex_error_quark,
 GO(g_regex_escape_nul, pFpi)
 GO(g_regex_escape_string, pFpi)
 GO(g_regex_get_capture_count, iFp)
@@ -925,92 +925,92 @@ GO(g_regex_match_simple, iFppuu)
 GO(g_regex_new, pFpuup)
 GO(g_regex_ref, pFp)
 GO(g_regex_replace, pFppLipip)
-//GOM(g_regex_replace_eval, pFEppLiiBpp)
+// GOM(g_regex_replace_eval, pFEppLiiBpp)
 GO(g_regex_replace_literal, pFpplipup)
 GO(g_regex_split, pFppu)
 GO(g_regex_split_full, pFppliuip)
 GO(g_regex_split_simple, pFppuu)
 GO(g_regex_unref, vFp)
 GO(g_relation_count, iFppi)
-//GO(g_relation_delete, 
-//GO(g_relation_destroy, 
-//GO(g_relation_exists, 
-//GO(g_relation_index, 
-//GO(g_relation_insert, 
+// GO(g_relation_delete,
+// GO(g_relation_destroy,
+// GO(g_relation_exists,
+// GO(g_relation_index,
+// GO(g_relation_insert,
 GO(g_relation_new, pFi)
 GO(g_relation_print, vFp)
 GO(g_relation_select, pFppi)
-//GO(g_reload_user_special_dirs_cache, 
+// GO(g_reload_user_special_dirs_cache,
 GO(g_remove, iFp)
 GO(g_rename, iFpp)
 GO(g_return_if_fail_warning, vFppp)
 GO(g_rmdir, iFp)
-//GO(g_rw_lock_clear, 
-//GO(g_rw_lock_init, 
-//GO(g_rw_lock_reader_lock, 
+// GO(g_rw_lock_clear,
+// GO(g_rw_lock_init,
+// GO(g_rw_lock_reader_lock,
 GO(g_rw_lock_reader_trylock, iFp)
 GO(g_rw_lock_reader_unlock, vFp)
-//GO(g_rw_lock_writer_lock, 
-//GO(g_rw_lock_writer_trylock, 
-//GO(g_rw_lock_writer_unlock, 
-//GO(g_scanner_cur_line, 
-//GO(g_scanner_cur_position, 
-//GO(g_scanner_cur_token, 
-//GO(g_scanner_cur_value, 
-//GO(g_scanner_destroy, 
-//GO(g_scanner_eof, 
-//GO(g_scanner_error, 
-//GO(g_scanner_get_next_token, 
-//GO(g_scanner_input_file, 
-//GO(g_scanner_input_text, 
-//GO(g_scanner_lookup_symbol, 
-//GO(g_scanner_new, 
-//GO(g_scanner_peek_next_token, 
-//GO(g_scanner_scope_add_symbol, 
-//GO(g_scanner_scope_foreach_symbol, 
-//GO(g_scanner_scope_lookup_symbol, 
-//GO(g_scanner_scope_remove_symbol, 
-//GO(g_scanner_set_scope, 
-//GO(g_scanner_sync_file_offset, 
-//GO(g_scanner_unexp_token, 
-//GO(g_scanner_warn, 
-//GO(g_sequence_append, 
-//GO(g_sequence_foreach, 
-//GO(g_sequence_foreach_range, 
-//GO(g_sequence_free, 
+// GO(g_rw_lock_writer_lock,
+// GO(g_rw_lock_writer_trylock,
+// GO(g_rw_lock_writer_unlock,
+// GO(g_scanner_cur_line,
+// GO(g_scanner_cur_position,
+// GO(g_scanner_cur_token,
+// GO(g_scanner_cur_value,
+// GO(g_scanner_destroy,
+// GO(g_scanner_eof,
+// GO(g_scanner_error,
+// GO(g_scanner_get_next_token,
+// GO(g_scanner_input_file,
+// GO(g_scanner_input_text,
+// GO(g_scanner_lookup_symbol,
+// GO(g_scanner_new,
+// GO(g_scanner_peek_next_token,
+// GO(g_scanner_scope_add_symbol,
+// GO(g_scanner_scope_foreach_symbol,
+// GO(g_scanner_scope_lookup_symbol,
+// GO(g_scanner_scope_remove_symbol,
+// GO(g_scanner_set_scope,
+// GO(g_scanner_sync_file_offset,
+// GO(g_scanner_unexp_token,
+// GO(g_scanner_warn,
+// GO(g_sequence_append,
+// GO(g_sequence_foreach,
+// GO(g_sequence_foreach_range,
+// GO(g_sequence_free,
 GO(g_sequence_get, pFp)
-//GO(g_sequence_get_begin_iter, 
+// GO(g_sequence_get_begin_iter,
 GO(g_sequence_get_end_iter, pFp)
 GO(g_sequence_get_iter_at_pos, pFpi)
 GO(g_sequence_get_length, iFp)
 GO(g_sequence_insert_before, pFpp)
-//GO(g_sequence_insert_sorted, 
-//GO(g_sequence_insert_sorted_iter, 
+// GO(g_sequence_insert_sorted,
+// GO(g_sequence_insert_sorted_iter,
 GO(g_sequence_iter_compare, iFpp)
 GO(g_sequence_iter_get_position, iFp)
 GO(g_sequence_iter_get_sequence, pFp)
-//GO(g_sequence_iter_is_begin, 
+// GO(g_sequence_iter_is_begin,
 GO(g_sequence_iter_is_end, iFp)
 GO(g_sequence_iter_move, pFpi)
-//GO(g_sequence_iter_next, 
+// GO(g_sequence_iter_next,
 GO(g_sequence_iter_prev, pFp)
-//GO(g_sequence_lookup, 
-//GO(g_sequence_lookup_iter, 
-//GO(g_sequence_move, 
+// GO(g_sequence_lookup,
+// GO(g_sequence_lookup_iter,
+// GO(g_sequence_move,
 GO(g_sequence_move_range, vFppp)
-//GO(g_sequence_new, 
+// GO(g_sequence_new,
 GO(g_sequence_prepend, pFpp)
 GO(g_sequence_range_get_midpoint, pFpp)
 GO(g_sequence_remove, vFp)
 GO(g_sequence_remove_range, vFpp)
-//GO(g_sequence_search, 
-//GO(g_sequence_search_iter, 
+// GO(g_sequence_search,
+// GO(g_sequence_search_iter,
 GO(g_sequence_set, vFpp)
-//GO(g_sequence_sort, 
-//GO(g_sequence_sort_changed, 
-//GO(g_sequence_sort_changed_iter, 
-//GO(g_sequence_sort_iter, 
-//GO(g_sequence_swap, 
+// GO(g_sequence_sort,
+// GO(g_sequence_sort_changed,
+// GO(g_sequence_sort_changed_iter,
+// GO(g_sequence_sort_iter,
+// GO(g_sequence_swap,
 GO(g_set_application_name, vFp)
 GO(g_setenv, iFppi)
 GOM(g_set_error, vFEppipV)
@@ -1018,7 +1018,7 @@ GO(g_set_error_literal, vFpuip)
 GO(g_set_prgname, vFp)
 GOM(g_set_printerr_handler, pFEp)
 GOM(g_set_print_handler, pFEp)
-//GO(g_shell_error_quark, 
+// GO(g_shell_error_quark,
 GO(g_shell_parse_argv, iFpppp)
 GO(g_shell_quote, pFp)
 GO(g_shell_unquote, pFpp)
@@ -1034,7 +1034,7 @@ GO(g_slist_alloc, pFv)
 GO(g_slist_append, pFpp)
 GO(g_slist_concat, pFpp)
 GO(g_slist_copy, pFp)
-//GOM(g_slist_copy_deep, pFEppp)
+// GOM(g_slist_copy_deep, pFEppp)
 GO(g_slist_delete_link, pFpp)
 GO(g_slist_find, pFpp)
 GOM(g_slist_find_custom, pFEppp)
@@ -1051,10 +1051,10 @@ GO(g_slist_last, pFp)
 GO(g_slist_length, uFp)
 GO(g_slist_nth, pFpu)
 GO(g_slist_nth_data, pFpu)
-//GO(g_slist_pop_allocator, 
+// GO(g_slist_pop_allocator,
 GO(g_slist_position, iFpp)
 GO(g_slist_prepend, pFpp)
-//GO(g_slist_push_allocator, 
+// GO(g_slist_push_allocator,
 GO(g_slist_remove, pFpp)
 GO(g_slist_remove_all, pFpp)
 GO(g_slist_remove_link, pFpp)
@@ -1087,7 +1087,7 @@ GO(g_source_remove_child_source, vFpp)
 GO(g_source_remove_poll, vFpp)
 GO(g_source_remove_unix_fd, vFpp)
 GOM(g_source_set_callback, vFEpppp)
-//GOM(g_source_set_callback_indirect, vFEppB)
+// GOM(g_source_set_callback_indirect, vFEppB)
 GO(g_source_set_can_recurse, vFpi)
 GOM(g_source_set_funcs, vFEpp)
 GO(g_source_set_name, vFpp)
@@ -1136,7 +1136,7 @@ GO(g_strchomp, pFp)
 GO(g_strchug, pFp)
 GO(g_strcmp0, iFpp)
 GO(g_strcompress, pFp)
-GOM(g_strconcat, pFEpV)    //vaarg, no va_list equivalent...
+GOM(g_strconcat, pFEpV) // vaarg, no va_list equivalent...
 GO(g_strdelimit, pFppC)
 GO(g_strdown, pFp)
 GO(g_strdup, pFp)
@@ -1213,54 +1213,54 @@ GO(g_str_tokenize_and_fold, pFppp)
 GO(g_strup, pFp)
 GO(g_strv_contains, iFpp)
 GO(g_strv_length, uFp)
-//GO(g_test_add_data_func, 
-//GO(g_test_add_data_func_full, 
-//GO(g_test_add_func, 
-//GO(g_test_add_vtable, 
+// GO(g_test_add_data_func,
+// GO(g_test_add_data_func_full,
+// GO(g_test_add_func,
+// GO(g_test_add_vtable,
 GO(g_test_assert_expected_messages_internal, vFppip)
-//GO(g_test_bug, 
-//GO(g_test_bug_base, 
-//GO(g_test_build_filename, 
-//GO(g_test_create_case, 
+// GO(g_test_bug,
+// GO(g_test_bug_base,
+// GO(g_test_build_filename,
+// GO(g_test_create_case,
 GO(g_test_create_suite, pFp)
 GO(g_test_expect_message, vFpip)
-//GO(g_test_fail, 
-//GO(g_test_failed, 
+// GO(g_test_fail,
+// GO(g_test_failed,
 GO(g_test_get_dir, pFu)
-//GO(g_test_get_filename, 
+// GO(g_test_get_filename,
 GO(g_test_get_root, pFv)
-//GO(g_test_incomplete, 
-//GO(g_test_init, 
+// GO(g_test_incomplete,
+// GO(g_test_init,
 GO(g_test_log_buffer_free, vFp)
 GO(g_test_log_buffer_new, pFv)
 GO(g_test_log_buffer_pop, pFp)
 GO(g_test_log_buffer_push, vFpup)
 GO(g_test_log_msg_free, vFp)
-//GO(g_test_log_set_fatal_handler, 
+// GO(g_test_log_set_fatal_handler,
 GO(g_test_log_type_name, pFu)
-//GO(g_test_maximized_result, 
-//GO(g_test_message, 
-//GO(g_test_minimized_result, 
-//GO(g_test_queue_destroy, 
-//GO(g_test_queue_free, 
+// GO(g_test_maximized_result,
+// GO(g_test_message,
+// GO(g_test_minimized_result,
+// GO(g_test_queue_destroy,
+// GO(g_test_queue_free,
 GO(g_test_rand_double, dFv)
 GO(g_test_rand_double_range, dFdd)
 GO(g_test_rand_int, iFv)
 GO(g_test_rand_int_range, iFii)
-//GO(g_test_run, 
+// GO(g_test_run,
 GO(g_test_run_suite, iFp)
-//GO(g_test_set_nonfatal_assertions, 
+// GO(g_test_set_nonfatal_assertions,
 GO(g_test_skip, vFp)
-//GO(g_test_subprocess, 
+// GO(g_test_subprocess,
 GO(g_test_suite_add, vFpp)
 GO(g_test_suite_add_suite, vFpp)
-//GO(g_test_timer_elapsed, 
-//GO(g_test_timer_last, 
-//GO(g_test_timer_start, 
+// GO(g_test_timer_elapsed,
+// GO(g_test_timer_last,
+// GO(g_test_timer_start,
 GO(g_test_trap_assertions, vFppipLp)
 GO(g_test_trap_fork, iFLu)
-//GO(g_test_trap_has_passed, 
-//GO(g_test_trap_reached_timeout, 
+// GO(g_test_trap_has_passed,
+// GO(g_test_trap_reached_timeout,
 GO(g_test_trap_subprocess, vFpLu)
 GOM(g_thread_create, pFEppip)
 GOM(g_thread_create_full, pFEppLiiip)
@@ -1268,23 +1268,23 @@ GO(g_thread_error_quark, pFv)
 GO(g_thread_exit, vFp)
 GOM(g_thread_foreach, vFEpp)
 GO(g_thread_get_initialized, iFv)
-//GO(g_thread_init_glib, 
+// GO(g_thread_init_glib,
 GO(g_thread_join, pFp)
 GOM(g_thread_new, pFEppp)
-//GO(g_thread_pool_free, 
+// GO(g_thread_pool_free,
 GO(g_thread_pool_get_max_idle_time, uFv)
-//GO(g_thread_pool_get_max_threads, 
+// GO(g_thread_pool_get_max_threads,
 GO(g_thread_pool_get_max_unused_threads, iFv)
-//GO(g_thread_pool_get_num_threads, 
-//GO(g_thread_pool_get_num_unused_threads, 
-//GO(g_thread_pool_new, 
-//GO(g_thread_pool_push, 
+// GO(g_thread_pool_get_num_threads,
+// GO(g_thread_pool_get_num_unused_threads,
+// GO(g_thread_pool_new,
+// GO(g_thread_pool_push,
 GO(g_thread_pool_set_max_idle_time, vFu)
-//GO(g_thread_pool_set_max_threads, 
+// GO(g_thread_pool_set_max_threads,
 GO(g_thread_pool_set_max_unused_threads, vFi)
-//GO(g_thread_pool_set_sort_function, 
-//GO(g_thread_pool_stop_unused_threads, 
-//GO(g_thread_pool_unprocessed, 
+// GO(g_thread_pool_set_sort_function,
+// GO(g_thread_pool_stop_unused_threads,
+// GO(g_thread_pool_unprocessed,
 GO(g_thread_ref, pFp)
 GO(g_thread_self, pFv)
 GO(g_thread_set_priority, vFpi)
@@ -1297,13 +1297,13 @@ GOM(g_timeout_add_seconds, uFEupp)
 GOM(g_timeout_add_seconds_full, uFEiuppp)
 GO(g_timeout_source_new, pFu)
 GO(g_timeout_source_new_seconds, pFu)
-//GO(g_timer_continue, 
-//GO(g_timer_destroy, 
+// GO(g_timer_continue,
+// GO(g_timer_destroy,
 GO(g_timer_elapsed, dFpp)
 GO(g_timer_new, pFv)
-//GO(g_timer_reset, 
-//GO(g_timer_start, 
-//GO(g_timer_stop, 
+// GO(g_timer_reset,
+// GO(g_timer_start,
+// GO(g_timer_stop,
 GO(g_time_val_add, vFpl)
 GO(g_time_val_from_iso8601, iFpp)
 GO(g_time_val_to_iso8601, pFp)
@@ -1312,32 +1312,32 @@ GO(g_time_zone_find_interval, iFpul)
 GO(g_time_zone_get_abbreviation, pFpi)
 GO(g_time_zone_get_offset, iFpi)
 GO(g_time_zone_is_dst, iFpi)
-//GO(g_time_zone_new, 
+// GO(g_time_zone_new,
 GO(g_time_zone_new_local, pFv)
-//GO(g_time_zone_new_utc, 
+// GO(g_time_zone_new_utc,
 GO(g_time_zone_ref, pFp)
-//GO(g_time_zone_unref, 
+// GO(g_time_zone_unref,
 GO(g_trash_stack_height, uFp)
 GO(g_trash_stack_peek, pFp)
 GO(g_trash_stack_pop, pFp)
 GO(g_trash_stack_push, vFpp)
-//GO(g_tree_destroy, 
-//GO(g_tree_foreach, 
-//GO(g_tree_height, 
-//GO(g_tree_insert, 
+// GO(g_tree_destroy,
+// GO(g_tree_foreach,
+// GO(g_tree_height,
+// GO(g_tree_insert,
 GO(g_tree_lookup, pFpp)
 GO(g_tree_lookup_extended, iFpppp)
-//GO(g_tree_new, 
-//GO(g_tree_new_full, 
-//GO(g_tree_new_with_data, 
+// GO(g_tree_new,
+// GO(g_tree_new_full,
+// GO(g_tree_new_with_data,
 GO(g_tree_nnodes, iFp)
 GO(g_tree_ref, pFp)
-//GO(g_tree_remove, 
+// GO(g_tree_remove,
 GO(g_tree_replace, vFppp)
-//GO(g_tree_search, 
+// GO(g_tree_search,
 GO(g_tree_steal, iFpp)
-//GO(g_tree_traverse, 
-//GO(g_tree_unref, 
+// GO(g_tree_traverse,
+// GO(g_tree_unref,
 GO(g_try_malloc, pFL)
 GO(g_try_malloc0, pFL)
 GO(g_try_malloc0_n, pFLL)
@@ -1384,15 +1384,15 @@ GO(g_unicode_canonical_decomposition, pFup)
 GO(g_unicode_canonical_ordering, vFpL)
 GO(g_unicode_script_from_iso15924, iFu)
 GO(g_unicode_script_to_iso15924, uFi)
-//GO(g_unix_error_quark, 
-//GO(g_unix_fd_add, 
-//GO(g_unix_fd_add_full, 
-//GO(g_unix_fd_source_new, 
-//GO(g_unix_open_pipe, 
-//GO(g_unix_set_fd_nonblocking, 
-//GO(g_unix_signal_add, 
-//GO(g_unix_signal_add_full, 
-//GO(g_unix_signal_source_new, 
+// GO(g_unix_error_quark,
+// GO(g_unix_fd_add,
+// GO(g_unix_fd_add_full,
+// GO(g_unix_fd_source_new,
+// GO(g_unix_open_pipe,
+// GO(g_unix_set_fd_nonblocking,
+// GO(g_unix_signal_add,
+// GO(g_unix_signal_add_full,
+// GO(g_unix_signal_source_new,
 GO(g_unlink, iFp)
 GO(g_unsetenv, vFp)
 GO(g_uri_escape_string, pFppi)
@@ -1432,7 +1432,7 @@ GO(g_utf8_to_utf16, pFplppp)
 GO(g_utf8_validate, iFplp)
 GO(g_utime, iFpp)
 GOM(g_variant_builder_add, vFEppV)
-//GO(g_variant_builder_add_parsed, vFppppppppppp) //vaarg
+// GO(g_variant_builder_add_parsed, vFppppppppppp) //vaarg
 GO(g_variant_builder_add_value, vFpp)
 GO(g_variant_builder_clear, vFp)
 GO(g_variant_builder_close, vFp)
@@ -1450,9 +1450,9 @@ GO(g_variant_dict_clear, vFp)
 GO(g_variant_dict_contains, iFpp)
 GO(g_variant_dict_end, pFp)
 GO(g_variant_dict_init, vFpp)
-//GO(g_variant_dict_insert, vFpppppppppppppp) //vaarg
+// GO(g_variant_dict_insert, vFpppppppppppppp) //vaarg
 GO(g_variant_dict_insert_value, vFppp)
-//GO(g_variant_dict_lookup, iFppppppppppppp)  //vaarg
+// GO(g_variant_dict_lookup, iFppppppppppppp)  //vaarg
 GO(g_variant_dict_lookup_value, pFppp)
 GO(g_variant_dict_new, pFp)
 GO(g_variant_dict_ref, pFp)
@@ -1464,14 +1464,14 @@ GO(g_variant_dup_objv, pFpp)
 GO(g_variant_dup_string, pFpp)
 GO(g_variant_dup_strv, pFpp)
 GO(g_variant_equal, iFpp)
-//GO(g_variant_format_string_scan, 
-//GO(g_variant_format_string_scan_type, 
+// GO(g_variant_format_string_scan,
+// GO(g_variant_format_string_scan_type,
 GOM(g_variant_get, vFEppV)
 GO(g_variant_get_boolean, iFp)
 GO(g_variant_get_byte, CFp)
 GO(g_variant_get_bytestring, pFp)
 GO(g_variant_get_bytestring_array, pFpp)
-GO(g_variant_get_child, vFpuppppppppppp)    //vaarg here, only pointers so should be ok
+GO(g_variant_get_child, vFpuppppppppppp) // vaarg here, only pointers so should be ok
 GO(g_variant_get_child_value, pFpL)
 GO(g_variant_get_data, pFp)
 GO(g_variant_get_data_as_bytes, pFp)
@@ -1492,7 +1492,7 @@ GO(g_variant_get_type_string, pFp)
 GO(g_variant_get_uint16, WFp)
 GO(g_variant_get_uint32, uFp)
 GO(g_variant_get_uint64, LFp)
-GO(g_variant_get_va, vFpppp)    // no need to GOM, it's a "scanf" type of function, so using only pointer in va_list
+GO(g_variant_get_va, vFpppp) // no need to GOM, it's a "scanf" type of function, so using only pointer in va_list
 GO(g_variant_get_variant, pFp)
 GO(g_variant_hash, uFp)
 GO(g_variant_is_container, iFp)
@@ -1509,7 +1509,7 @@ GO(g_variant_iter_n_children, LFp)
 GO(g_variant_iter_new, pFp)
 GO(g_variant_iter_next, iFpppppppppppp) // vaarg here, only pointers so should be ok
 GO(g_variant_iter_next_value, pFp)
-GO(g_variant_lookup, iFpppppppppppp)    // vaarg
+GO(g_variant_lookup, iFpppppppppppp) // vaarg
 GO(g_variant_lookup_value, pFppp)
 GO(g_variant_n_children, uFp)
 GOM(g_variant_new, pFEpV)
@@ -1530,9 +1530,9 @@ GO(g_variant_new_int64, pFl)
 GO(g_variant_new_maybe, pFpp)
 GO(g_variant_new_object_path, pFp)
 GO(g_variant_new_objv, pFpi)
-//GO2(g_variant_new_parsed, pFEpV, my_g_variant_new_parsed_va)
+// GO2(g_variant_new_parsed, pFEpV, my_g_variant_new_parsed_va)
 GOM(g_variant_new_parsed_va, pFEpp)
-//GO(g_variant_new_printf,  // needs alignment.....
+// GO(g_variant_new_printf,  // needs alignment.....
 GO(g_variant_new_signature, pFp)
 GO(g_variant_new_string, pFp)
 GO(g_variant_new_strv, pFpi)
@@ -1545,42 +1545,42 @@ GOM(g_variant_new_va, pFEppp)
 GO(g_variant_new_variant, pFp)
 GO(g_variant_parse, pFppppp)
 GO(g_variant_parse_error_print_context, pFpp)
-//GO(g_variant_parse_error_quark, 
-//GO(g_variant_parser_get_error_quark, 
+// GO(g_variant_parse_error_quark,
+// GO(g_variant_parser_get_error_quark,
 GO(g_variant_print, pFpi)
 GO(g_variant_print_string, pFppi)
 GO(g_variant_ref, pFp)
 GO(g_variant_ref_sink, pFp)
-//GO(g_variant_serialised_byteswap, 
-//GO(g_variant_serialised_get_child, 
-//GO(g_variant_serialised_is_normal, 
-//GO(g_variant_serialised_n_children, 
-//GO(g_variant_serialiser_is_object_path, 
-//GO(g_variant_serialiser_is_signature, 
-//GO(g_variant_serialiser_is_string, 
-//GO(g_variant_serialiser_needed_size, 
-//GO(g_variant_serialiser_serialise, 
+// GO(g_variant_serialised_byteswap,
+// GO(g_variant_serialised_get_child,
+// GO(g_variant_serialised_is_normal,
+// GO(g_variant_serialised_n_children,
+// GO(g_variant_serialiser_is_object_path,
+// GO(g_variant_serialiser_is_signature,
+// GO(g_variant_serialiser_is_string,
+// GO(g_variant_serialiser_needed_size,
+// GO(g_variant_serialiser_serialise,
 GO(g_variant_store, vFpp)
 GO(g_variant_take_ref, pFp)
 GO(g_variant_type_checked_, pFp)
 GO(g_variant_type_copy, pFp)
 GO(g_variant_type_dup_string, pFp)
-//GO(g_variant_type_element, 
+// GO(g_variant_type_element,
 GO(g_variant_type_equal, iFpp)
-//GO(g_variant_type_first, 
+// GO(g_variant_type_first,
 GO(g_variant_type_free, vFp)
 GO(g_variant_type_get_string_length, LFp)
 GO(g_variant_type_hash, uFp)
-//GO(g_variant_type_info_assert_no_infos, 
+// GO(g_variant_type_info_assert_no_infos,
 GO(g_variant_type_info_element, pFp)
-//GO(g_variant_type_info_get, 
-//GO(g_variant_type_info_get_type_string, 
-//GO(g_variant_type_info_member_info, 
-//GO(g_variant_type_info_n_members, 
-//GO(g_variant_type_info_query, 
-//GO(g_variant_type_info_query_element, 
-//GO(g_variant_type_info_ref, 
-//GO(g_variant_type_info_unref, 
+// GO(g_variant_type_info_get,
+// GO(g_variant_type_info_get_type_string,
+// GO(g_variant_type_info_member_info,
+// GO(g_variant_type_info_n_members,
+// GO(g_variant_type_info_query,
+// GO(g_variant_type_info_query_element,
+// GO(g_variant_type_info_ref,
+// GO(g_variant_type_info_unref,
 GO(g_variant_type_is_array, iFp)
 GO(g_variant_type_is_basic, iFp)
 GO(g_variant_type_is_container, iFp)
@@ -1609,11 +1609,11 @@ GOM(g_vprintf, iFEpA)
 GOM(g_vsnprintf, iFEpLpA)
 GOM(g_vsprintf, iFEppA)
 GO(g_warn_message, vFppipp)
-//GO(_init, 
+// GO(_init,
 
 DATA(g_ascii_table, sizeof(void*))
 DATA(g_utf8_skip, sizeof(void*))
-//GLOB(g_threads_got_initialized, sizeof(void*))
+// GLOB(g_threads_got_initialized, sizeof(void*))
 DATA(glib_major_version, sizeof(void*))
 DATA(glib_minor_version, sizeof(void*))
 DATA(glib_micro_version, sizeof(void*))

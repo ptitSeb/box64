@@ -10,8 +10,8 @@
 
 // Detect RV64 extensions, by executing on of the opcode with a SIGILL signal handler
 
-static sigjmp_buf sigbuf = {0};
-typedef void(*vFiip_t)(int, int, void*);
+static sigjmp_buf sigbuf = { 0 };
+typedef void (*vFiip_t)(int, int, void*);
 static void detect_sigill(int sig)
 {
     siglongjmp(sigbuf, 1);
@@ -19,12 +19,12 @@ static void detect_sigill(int sig)
 
 static int Check(void* block)
 {
-    static uint64_t buf[2] = {0};
+    static uint64_t buf[2] = { 0 };
     // Clear instruction cache
-    __clear_cache(block, block+box64_pagesize);
+    __clear_cache(block, block + box64_pagesize);
     // Setup SIGILL signal handler
     __sighandler_t old = signal(SIGILL, detect_sigill);
-    if(sigsetjmp(sigbuf, 1)) {
+    if (sigsetjmp(sigbuf, 1)) {
         // didn't work, extension not present
         signal(SIGILL, old);
         return 0;
@@ -38,12 +38,14 @@ static int Check(void* block)
 void RV64_Detect_Function()
 {
     // Alloc memory to execute stuffs
-    void* my_block = mmap(NULL, box64_pagesize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-    if(my_block==(void*)-1) {
+    void* my_block = mmap(NULL, box64_pagesize, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    if (my_block == (void*)-1) {
         return;
     }
     uint32_t* block;
-    #define EMIT(A) *block = (A); ++block
+#define EMIT(A)   \
+    *block = (A); \
+    ++block
 
     // Official extensions
 

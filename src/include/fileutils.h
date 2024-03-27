@@ -3,9 +3,9 @@
 
 #include "pathcoll.h"
 
-#define IS_EXECUTABLE   (1<<0)
-#define IS_FILE         (1<<1)
-       
+#define IS_EXECUTABLE (1 << 0)
+#define IS_FILE       (1 << 1)
+
 
 // 0 : doesn't exist, 1: Does exist
 int FileExist(const char* filename, int flags);

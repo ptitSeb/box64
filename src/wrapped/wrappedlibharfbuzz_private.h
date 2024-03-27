@@ -224,7 +224,7 @@ GOM(hb_ft_face_create, pFEpp)
 GO(hb_ft_face_create_cached, pFp)
 GO(hb_ft_face_create_referenced, pFp)
 GO(hb_ft_font_changed, vFp)
-//GO(hb_ft_font_create, 
+// GO(hb_ft_font_create,
 GO(hb_ft_font_create_referenced, pFp)
 GO(hb_ft_font_get_face, pFp)
 GO(hb_ft_font_get_load_flags, iFp)
@@ -260,7 +260,7 @@ GO(hb_map_is_empty, iFp)
 GO(hb_map_is_equal, iFpp)
 GO(hb_map_reference, pFp)
 GO(hb_map_set, vFpuu)
-//GO(hb_map_set_user_data, 
+// GO(hb_map_set_user_data,
 GO(hb_ot_color_glyph_get_layers, uFpuupp)
 GO(hb_ot_color_glyph_reference_png, pFpu)
 GO(hb_ot_color_glyph_reference_svg, pFpu)
@@ -389,7 +389,7 @@ GO(hb_set_previous, iFpp)
 GO(hb_set_previous_range, iFppp)
 GO(hb_set_reference, pFp)
 GO(hb_set_set, vFpp)
-//GO(hb_set_set_user_data, 
+// GO(hb_set_set_user_data,
 GO(hb_set_subtract, vFpp)
 GO(hb_set_symmetric_difference, vFpp)
 GO(hb_set_union, vFpp)
@@ -406,7 +406,7 @@ GO(hb_shape_plan_get_empty, pFv)
 GO(hb_shape_plan_get_shaper, pFp)
 GO(hb_shape_plan_get_user_data, pFpp)
 GO(hb_shape_plan_reference, pFp)
-//GO(hb_shape_plan_set_user_data, 
+// GO(hb_shape_plan_set_user_data,
 GO(hb_style_get_value, fFpu)
 GO(hb_tag_from_string, uFpi)
 GO(hb_tag_to_string, vFup)

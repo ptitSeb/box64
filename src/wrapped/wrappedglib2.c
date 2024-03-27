@@ -21,26 +21,27 @@
 #include "threads.h"
 
 #ifdef ANDROID
-    const char* glib2Name = "libglib-2.0.so";
+const char* glib2Name = "libglib-2.0.so";
 #else
-    const char* glib2Name = "libglib-2.0.so.0";
+const char* glib2Name = "libglib-2.0.so.0";
 #endif
 #define LIBNAME glib2
 
-typedef void  (*vFppip_t)(void*, void*, int, void*);
+typedef void (*vFppip_t)(void*, void*, int, void*);
 
-#define ADDED_FUNCTIONS() \
-    GO(g_build_filenamev, pFp_t)                \
-    GO(g_variant_get_va, vFpppp_t)              \
-    GO(g_build_pathv, pFpp_t)                   \
-    GO(g_set_error_literal, vFppip_t)           \
-    GO(g_variant_builder_add_value, vFpp_t)     \
+#define ADDED_FUNCTIONS()             \
+    GO(g_build_filenamev, pFp_t)      \
+    GO(g_variant_get_va, vFpppp_t)    \
+    GO(g_build_pathv, pFpp_t)         \
+    GO(g_set_error_literal, vFppip_t) \
+    GO(g_variant_builder_add_value, vFpp_t)
 
 #include "wrappedglib2types.h"
 
 #include "wrappercallback.h"
 
-EXPORT void* my_g_markup_vprintf_escaped(x64emu_t *emu, void* fmt, void* b) {
+EXPORT void* my_g_markup_vprintf_escaped(x64emu_t* emu, void* fmt, void* b)
+{
     // need to align on arm
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
@@ -50,11 +51,12 @@ EXPORT void* my_g_markup_vprintf_escaped(x64emu_t *emu, void* fmt, void* b) {
 EXPORT void* my_g_build_filename(x64emu_t* emu, void* first, uintptr_t* b)
 {
     int n = 0;
-    while (getVArgs(emu, 1, b, n++));
-    void* array[n+1];   // +1 for 1st (NULL terminal already included)
+    while (getVArgs(emu, 1, b, n++))
+        ;
+    void* array[n + 1]; // +1 for 1st (NULL terminal already included)
     array[0] = first;
-    for(int i=0; i<n; ++i)
-        array[i+1] = (void*)getVArgs(emu, 1, b, i);
+    for (int i = 0; i < n; ++i)
+        array[i + 1] = (void*)getVArgs(emu, 1, b, i);
     void* ret = my->g_build_filenamev(array);
     return ret;
 }
@@ -65,672 +67,808 @@ static int my_timeout_cb(my_signal_t* sig)
 }
 EXPORT uint32_t my_g_timeout_add(x64emu_t* emu, uint32_t interval, void* func, void* data)
 {
-    my_signal_t *sig = new_mysignal(func, data, NULL);
+    my_signal_t* sig = new_mysignal(func, data, NULL);
     return my->g_timeout_add_full(0, interval, my_timeout_cb, sig, my_signal_delete);
 }
-typedef int (*GSourceFunc) (void* user_data);
+typedef int (*GSourceFunc)(void* user_data);
 
 typedef struct my_GSourceFuncs_s {
-  int  (*prepare)  (void* source, int* timeout_);
-  int  (*check)    (void* source);
-  int  (*dispatch) (void* source, GSourceFunc callback,void* user_data);
-  void (*finalize) (void* source);
-  GSourceFunc closure;
-  void* marshal;
+    int (*prepare)(void* source, int* timeout_);
+    int (*check)(void* source);
+    int (*dispatch)(void* source, GSourceFunc callback, void* user_data);
+    void (*finalize)(void* source);
+    GSourceFunc closure;
+    void* marshal;
 } my_GSourceFuncs_t;
 
 #define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)   \
-GO(5)   \
-GO(6)   \
-GO(7)   \
-GO(8)   \
-GO(9)   \
+    GO(0)       \
+    GO(1)       \
+    GO(2)       \
+    GO(3)       \
+    GO(4)       \
+    GO(5)       \
+    GO(6)       \
+    GO(7)       \
+    GO(8)       \
+    GO(9)
 
 // GCopyFct
-#define GO(A)   \
-static uintptr_t my_copy_fct_##A = 0;                                     \
-static void* my_copy_##A(void* data)                                      \
-{                                                                         \
-    return (void*)RunFunctionFmt(my_copy_fct_##A, "p", data); \
-}
+#define GO(A)                                                     \
+    static uintptr_t my_copy_fct_##A = 0;                         \
+    static void* my_copy_##A(void* data)                          \
+    {                                                             \
+        return (void*)RunFunctionFmt(my_copy_fct_##A, "p", data); \
+    }
 SUPER()
 #undef GO
 static void* findCopyFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_copy_fct_##A == (uintptr_t)fct) return my_copy_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_copy_fct_##A == (uintptr_t)fct) return my_copy_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_copy_fct_##A == 0) {my_copy_fct_##A = (uintptr_t)fct; return my_copy_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_copy_fct_##A == 0) {           \
+        my_copy_fct_##A = (uintptr_t)fct; \
+        return my_copy_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Copy callback\n");
     return NULL;
 }
 // GFreeFct
-#define GO(A)   \
-static uintptr_t my_free_fct_##A = 0;                       \
-static void my_free_##A(void* data)                         \
-{                                                           \
-    RunFunctionFmt(my_free_fct_##A, "p", data); \
-}
+#define GO(A)                                       \
+    static uintptr_t my_free_fct_##A = 0;           \
+    static void my_free_##A(void* data)             \
+    {                                               \
+        RunFunctionFmt(my_free_fct_##A, "p", data); \
+    }
 SUPER()
 #undef GO
 static void* findFreeFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_free_fct_##A == (uintptr_t)fct) return my_free_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_free_fct_##A == 0) {my_free_fct_##A = (uintptr_t)fct; return my_free_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_free_fct_##A == 0) {           \
+        my_free_fct_##A = (uintptr_t)fct; \
+        return my_free_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Free callback\n");
     return NULL;
 }
 // GDuplicateFct
-#define GO(A)   \
-static uintptr_t my_duplicate_fct_##A = 0;                                     \
-static void* my_duplicate_##A(void* data)                                      \
-{                                                                              \
-    return (void*)RunFunctionFmt(my_duplicate_fct_##A, "p", data); \
-}
+#define GO(A)                                                          \
+    static uintptr_t my_duplicate_fct_##A = 0;                         \
+    static void* my_duplicate_##A(void* data)                          \
+    {                                                                  \
+        return (void*)RunFunctionFmt(my_duplicate_fct_##A, "p", data); \
+    }
 SUPER()
 #undef GO
 static void* findDuplicateFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_duplicate_fct_##A == (uintptr_t)fct) return my_duplicate_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_duplicate_fct_##A == (uintptr_t)fct) return my_duplicate_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_duplicate_fct_##A == 0) {my_duplicate_fct_##A = (uintptr_t)fct; return my_duplicate_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_duplicate_fct_##A == 0) {           \
+        my_duplicate_fct_##A = (uintptr_t)fct; \
+        return my_duplicate_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Duplicate callback\n");
     return NULL;
 }
 // GSourceFuncs....
 // g_source_new callback. First the structure GSourceFuncs statics, with paired x64 source pointer
-#define GO(A)   \
-static my_GSourceFuncs_t     my_gsourcefuncs_##A = {0};   \
-static my_GSourceFuncs_t   *ref_gsourcefuncs_##A = NULL;
+#define GO(A)                                             \
+    static my_GSourceFuncs_t my_gsourcefuncs_##A = { 0 }; \
+    static my_GSourceFuncs_t* ref_gsourcefuncs_##A = NULL;
 SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
-#define GO(A)   \
-static uintptr_t fct_funcs_prepare_##A = 0;                                                \
-static int my_funcs_prepare_##A(void* source, int *timeout_) {                             \
-    return (int)RunFunctionFmt(fct_funcs_prepare_##A, "pp", source, timeout_); \
-}                                                                                          \
-static uintptr_t fct_funcs_check_##A = 0;                                     \
-static int my_funcs_check_##A(void* source) {                                 \
-    return (int)RunFunctionFmt(fct_funcs_check_##A, "p", source); \
-}                                                                             \
-static uintptr_t fct_funcs_dispatch_cb_##A = 0;                                            \
-static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {                  \
-    return (int)RunFunctionFmt(fct_funcs_dispatch_cb_##A, "pppp", a, b, c, d); \
-}                                                                                          \
-static uintptr_t fct_funcs_dispatch_##A = 0;                           \
-static int my_funcs_dispatch_##A(void* source, void* cb, void* data) { \
-    uintptr_t old = fct_funcs_dispatch_cb_##A;                         \
-    fct_funcs_dispatch_cb_##A = (uintptr_t)cb;                         \
-    return (int)RunFunctionFmt(fct_funcs_dispatch_##A, "ppp", source, cb?my_funcs_dispatch_cb_##A:NULL, data); \
-    fct_funcs_dispatch_cb_##A = old;                                   \
-}                                                                      \
-static uintptr_t fct_funcs_finalize_##A = 0;                           \
-static int my_funcs_finalize_##A(void* source) {                       \
-    return (int)RunFunctionFmt(fct_funcs_finalize_##A, "p", source); \
-}
+#define GO(A)                                                                                                          \
+    static uintptr_t fct_funcs_prepare_##A = 0;                                                                        \
+    static int my_funcs_prepare_##A(void* source, int* timeout_)                                                       \
+    {                                                                                                                  \
+        return (int)RunFunctionFmt(fct_funcs_prepare_##A, "pp", source, timeout_);                                     \
+    }                                                                                                                  \
+    static uintptr_t fct_funcs_check_##A = 0;                                                                          \
+    static int my_funcs_check_##A(void* source)                                                                        \
+    {                                                                                                                  \
+        return (int)RunFunctionFmt(fct_funcs_check_##A, "p", source);                                                  \
+    }                                                                                                                  \
+    static uintptr_t fct_funcs_dispatch_cb_##A = 0;                                                                    \
+    static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d)                                            \
+    {                                                                                                                  \
+        return (int)RunFunctionFmt(fct_funcs_dispatch_cb_##A, "pppp", a, b, c, d);                                     \
+    }                                                                                                                  \
+    static uintptr_t fct_funcs_dispatch_##A = 0;                                                                       \
+    static int my_funcs_dispatch_##A(void* source, void* cb, void* data)                                               \
+    {                                                                                                                  \
+        uintptr_t old = fct_funcs_dispatch_cb_##A;                                                                     \
+        fct_funcs_dispatch_cb_##A = (uintptr_t)cb;                                                                     \
+        return (int)RunFunctionFmt(fct_funcs_dispatch_##A, "ppp", source, cb ? my_funcs_dispatch_cb_##A : NULL, data); \
+        fct_funcs_dispatch_cb_##A = old;                                                                               \
+    }                                                                                                                  \
+    static uintptr_t fct_funcs_finalize_##A = 0;                                                                       \
+    static int my_funcs_finalize_##A(void* source)                                                                     \
+    {                                                                                                                  \
+        return (int)RunFunctionFmt(fct_funcs_finalize_##A, "p", source);                                               \
+    }
 SUPER()
 #undef GO
 // and now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
 static my_GSourceFuncs_t* findFreeGSourceFuncs(my_GSourceFuncs_t* fcts)
 {
-    if(!fcts) return fcts;
-    #define GO(A) if(ref_gsourcefuncs_##A == fcts) return &my_gsourcefuncs_##A;
+    if (!fcts) return fcts;
+#define GO(A) \
+    if (ref_gsourcefuncs_##A == fcts) return &my_gsourcefuncs_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(ref_gsourcefuncs_##A == 0) {   \
-        ref_gsourcefuncs_##A = fcts;                 \
-        my_gsourcefuncs_##A.prepare = (fcts->prepare)?((GetNativeFnc((uintptr_t)fcts->prepare))?GetNativeFnc((uintptr_t)fcts->prepare):my_funcs_prepare_##A):NULL;    \
-        fct_funcs_prepare_##A = (uintptr_t)fcts->prepare;                            \
-        my_gsourcefuncs_##A.check = (fcts->check)?((GetNativeFnc((uintptr_t)fcts->check))?GetNativeFnc((uintptr_t)fcts->check):my_funcs_check_##A):NULL;    \
-        fct_funcs_check_##A = (uintptr_t)fcts->check;                            \
-        my_gsourcefuncs_##A.dispatch = (fcts->dispatch)?((GetNativeFnc((uintptr_t)fcts->dispatch))?GetNativeFnc((uintptr_t)fcts->dispatch):my_funcs_dispatch_##A):NULL;    \
-        fct_funcs_dispatch_##A = (uintptr_t)fcts->dispatch;                            \
-        my_gsourcefuncs_##A.finalize = (fcts->finalize)?((GetNativeFnc((uintptr_t)fcts->finalize))?GetNativeFnc((uintptr_t)fcts->finalize):my_funcs_finalize_##A):NULL;    \
-        fct_funcs_finalize_##A = (uintptr_t)fcts->finalize;                            \
-        return &my_gsourcefuncs_##A;                \
+#undef GO
+#define GO(A)                                                                                                                                                                   \
+    if (ref_gsourcefuncs_##A == 0) {                                                                                                                                            \
+        ref_gsourcefuncs_##A = fcts;                                                                                                                                            \
+        my_gsourcefuncs_##A.prepare = (fcts->prepare) ? ((GetNativeFnc((uintptr_t)fcts->prepare)) ? GetNativeFnc((uintptr_t)fcts->prepare) : my_funcs_prepare_##A) : NULL;      \
+        fct_funcs_prepare_##A = (uintptr_t)fcts->prepare;                                                                                                                       \
+        my_gsourcefuncs_##A.check = (fcts->check) ? ((GetNativeFnc((uintptr_t)fcts->check)) ? GetNativeFnc((uintptr_t)fcts->check) : my_funcs_check_##A) : NULL;                \
+        fct_funcs_check_##A = (uintptr_t)fcts->check;                                                                                                                           \
+        my_gsourcefuncs_##A.dispatch = (fcts->dispatch) ? ((GetNativeFnc((uintptr_t)fcts->dispatch)) ? GetNativeFnc((uintptr_t)fcts->dispatch) : my_funcs_dispatch_##A) : NULL; \
+        fct_funcs_dispatch_##A = (uintptr_t)fcts->dispatch;                                                                                                                     \
+        my_gsourcefuncs_##A.finalize = (fcts->finalize) ? ((GetNativeFnc((uintptr_t)fcts->finalize)) ? GetNativeFnc((uintptr_t)fcts->finalize) : my_funcs_finalize_##A) : NULL; \
+        fct_funcs_finalize_##A = (uintptr_t)fcts->finalize;                                                                                                                     \
+        return &my_gsourcefuncs_##A;                                                                                                                                            \
     }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GSourceFuncs callback\n");
     return NULL;
 }
 
 // PollFunc ...
-#define GO(A)   \
-static uintptr_t my_poll_fct_##A = 0;                                                \
-static int my_poll_##A(void* ufds, uint32_t nfsd, int32_t timeout_)                  \
-{                                                                                    \
-    return RunFunctionFmt(my_poll_fct_##A, "pui", ufds, nfsd, timeout_); \
-}
+#define GO(A)                                                                \
+    static uintptr_t my_poll_fct_##A = 0;                                    \
+    static int my_poll_##A(void* ufds, uint32_t nfsd, int32_t timeout_)      \
+    {                                                                        \
+        return RunFunctionFmt(my_poll_fct_##A, "pui", ufds, nfsd, timeout_); \
+    }
 SUPER()
 #undef GO
 static void* findPollFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_poll_fct_##A == (uintptr_t)fct) return my_poll_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_poll_fct_##A == (uintptr_t)fct) return my_poll_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_poll_fct_##A == 0) {my_poll_fct_##A = (uintptr_t)fct; return my_poll_##A; }
+#undef GO
+#define GO(A)                             \
+    if (my_poll_fct_##A == 0) {           \
+        my_poll_fct_##A = (uintptr_t)fct; \
+        return my_poll_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 Poll callback\n");
     return NULL;
 }
 
 static void* reversePollFct(void* fct)
 {
-    if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_poll_fct_##A) return (void*)my_poll_fct_##A;
+    if (!fct) return fct;
+#define GO(A) \
+    if ((uintptr_t)fct == my_poll_fct_##A) return (void*)my_poll_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GPollFunc");
 }
 
 // GHashFunc ...
-#define GO(A)   \
-static uintptr_t my_hashfunc_fct_##A = 0;                                       \
-static uint32_t my_hashfunc_##A(void* key)                                      \
-{                                                                               \
-    return (uint32_t)RunFunctionFmt(my_hashfunc_fct_##A, "p", key); \
-}
+#define GO(A)                                                           \
+    static uintptr_t my_hashfunc_fct_##A = 0;                           \
+    static uint32_t my_hashfunc_##A(void* key)                          \
+    {                                                                   \
+        return (uint32_t)RunFunctionFmt(my_hashfunc_fct_##A, "p", key); \
+    }
 SUPER()
 #undef GO
 static void* findHashFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_hashfunc_fct_##A == (uintptr_t)fct) return my_hashfunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_hashfunc_fct_##A == (uintptr_t)fct) return my_hashfunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_hashfunc_fct_##A == 0) {my_hashfunc_fct_##A = (uintptr_t)fct; return my_hashfunc_##A; }
+#undef GO
+#define GO(A)                                 \
+    if (my_hashfunc_fct_##A == 0) {           \
+        my_hashfunc_fct_##A = (uintptr_t)fct; \
+        return my_hashfunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GHashFunc callback\n");
     return NULL;
 }
 // GEqualFunc ...
-#define GO(A)   \
-static uintptr_t my_equalfunc_fct_##A = 0;                               \
-static int my_equalfunc_##A(void* a, void* b)                            \
-{                                                                        \
-    return RunFunctionFmt(my_equalfunc_fct_##A, "pp", a, b); \
-}
+#define GO(A)                                                    \
+    static uintptr_t my_equalfunc_fct_##A = 0;                   \
+    static int my_equalfunc_##A(void* a, void* b)                \
+    {                                                            \
+        return RunFunctionFmt(my_equalfunc_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findEqualFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_equalfunc_fct_##A == (uintptr_t)fct) return my_equalfunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_equalfunc_fct_##A == (uintptr_t)fct) return my_equalfunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_equalfunc_fct_##A == 0) {my_equalfunc_fct_##A = (uintptr_t)fct; return my_equalfunc_##A; }
+#undef GO
+#define GO(A)                                  \
+    if (my_equalfunc_fct_##A == 0) {           \
+        my_equalfunc_fct_##A = (uintptr_t)fct; \
+        return my_equalfunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GEqualFunc callback\n");
     return NULL;
 }
 // GDestroyFunc ...
-#define GO(A)   \
-static uintptr_t my_destroyfunc_fct_##A = 0;                               \
-static int my_destroyfunc_##A(void* a, void* b)                            \
-{                                                                          \
-    return RunFunctionFmt(my_destroyfunc_fct_##A, "pp", a, b); \
-}
+#define GO(A)                                                      \
+    static uintptr_t my_destroyfunc_fct_##A = 0;                   \
+    static int my_destroyfunc_##A(void* a, void* b)                \
+    {                                                              \
+        return RunFunctionFmt(my_destroyfunc_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findDestroyFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_destroyfunc_fct_##A == (uintptr_t)fct) return my_destroyfunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_destroyfunc_fct_##A == (uintptr_t)fct) return my_destroyfunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_destroyfunc_fct_##A == 0) {my_destroyfunc_fct_##A = (uintptr_t)fct; return my_destroyfunc_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_destroyfunc_fct_##A == 0) {           \
+        my_destroyfunc_fct_##A = (uintptr_t)fct; \
+        return my_destroyfunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GDestroyNotify callback\n");
     return NULL;
 }
 // GSpawnChildSetupFunc ...
-#define GO(A)   \
-static uintptr_t my_spwnchildsetup_fct_##A = 0;                       \
-static void my_spwnchildsetup_##A(void* data)                         \
-{                                                                     \
-    RunFunctionFmt(my_spwnchildsetup_fct_##A, "p", data); \
-}
+#define GO(A)                                                 \
+    static uintptr_t my_spwnchildsetup_fct_##A = 0;           \
+    static void my_spwnchildsetup_##A(void* data)             \
+    {                                                         \
+        RunFunctionFmt(my_spwnchildsetup_fct_##A, "p", data); \
+    }
 SUPER()
 #undef GO
 static void* findSpawnChildSetupFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_spwnchildsetup_fct_##A == (uintptr_t)fct) return my_spwnchildsetup_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_spwnchildsetup_fct_##A == (uintptr_t)fct) return my_spwnchildsetup_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_spwnchildsetup_fct_##A == 0) {my_spwnchildsetup_fct_##A = (uintptr_t)fct; return my_spwnchildsetup_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_spwnchildsetup_fct_##A == 0) {           \
+        my_spwnchildsetup_fct_##A = (uintptr_t)fct; \
+        return my_spwnchildsetup_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GSpawnChildSetup callback\n");
     return NULL;
 }
 // GSourceFunc ...
-#define GO(A)   \
-static uintptr_t my_GSourceFunc_fct_##A = 0;                                \
-static void my_GSourceFunc_##A(void* a, void* b, void* c, void* d)          \
-{                                                                           \
-    RunFunctionFmt(my_GSourceFunc_fct_##A, "pppp", a, b, c, d); \
-}
+#define GO(A)                                                          \
+    static uintptr_t my_GSourceFunc_fct_##A = 0;                       \
+    static void my_GSourceFunc_##A(void* a, void* b, void* c, void* d) \
+    {                                                                  \
+        RunFunctionFmt(my_GSourceFunc_fct_##A, "pppp", a, b, c, d);    \
+    }
 SUPER()
 #undef GO
 static void* findGSourceFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GSourceFunc_fct_##A == (uintptr_t)fct) return my_GSourceFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GSourceFunc_fct_##A == (uintptr_t)fct) return my_GSourceFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GSourceFunc_fct_##A == 0) {my_GSourceFunc_fct_##A = (uintptr_t)fct; return my_GSourceFunc_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_GSourceFunc_fct_##A == 0) {           \
+        my_GSourceFunc_fct_##A = (uintptr_t)fct; \
+        return my_GSourceFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GSourceFunc callback\n");
     return NULL;
 }
 // GCompareFunc ...
-#define GO(A)   \
-static uintptr_t my_GCompareFunc_fct_##A = 0;                                    \
-static int my_GCompareFunc_##A(void* a, void* b)                                 \
-{                                                                                \
-    return (int)RunFunctionFmt(my_GCompareFunc_fct_##A, "pp", a, b); \
-}
+#define GO(A)                                                            \
+    static uintptr_t my_GCompareFunc_fct_##A = 0;                        \
+    static int my_GCompareFunc_##A(void* a, void* b)                     \
+    {                                                                    \
+        return (int)RunFunctionFmt(my_GCompareFunc_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findGCompareFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GCompareFunc_fct_##A == (uintptr_t)fct) return my_GCompareFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GCompareFunc_fct_##A == (uintptr_t)fct) return my_GCompareFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GCompareFunc_fct_##A == 0) {my_GCompareFunc_fct_##A = (uintptr_t)fct; return my_GCompareFunc_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_GCompareFunc_fct_##A == 0) {           \
+        my_GCompareFunc_fct_##A = (uintptr_t)fct; \
+        return my_GCompareFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompareFunc callback\n");
     return NULL;
 }
 // GCompareDataFunc ...
-#define GO(A)   \
-static uintptr_t my_GCompareDataFunc_fct_##A = 0;                                           \
-static int my_GCompareDataFunc_##A(void* a, void* b, void* data)                            \
-{                                                                                           \
-    return (int)RunFunctionFmt(my_GCompareDataFunc_fct_##A, "ppp", a, b, data); \
-}
+#define GO(A)                                                                       \
+    static uintptr_t my_GCompareDataFunc_fct_##A = 0;                               \
+    static int my_GCompareDataFunc_##A(void* a, void* b, void* data)                \
+    {                                                                               \
+        return (int)RunFunctionFmt(my_GCompareDataFunc_fct_##A, "ppp", a, b, data); \
+    }
 SUPER()
 #undef GO
 static void* findGCompareDataFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GCompareDataFunc_fct_##A == (uintptr_t)fct) return my_GCompareDataFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GCompareDataFunc_fct_##A == (uintptr_t)fct) return my_GCompareDataFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GCompareDataFunc_fct_##A == 0) {my_GCompareDataFunc_fct_##A = (uintptr_t)fct; return my_GCompareDataFunc_##A; }
+#undef GO
+#define GO(A)                                         \
+    if (my_GCompareDataFunc_fct_##A == 0) {           \
+        my_GCompareDataFunc_fct_##A = (uintptr_t)fct; \
+        return my_GCompareDataFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompareDataFunc callback\n");
     return NULL;
 }
 // GCompletionFunc ...
-#define GO(A)   \
-static uintptr_t my_GCompletionFunc_fct_##A = 0;                                  \
-static void* my_GCompletionFunc_##A(void* a)                                      \
-{                                                                                 \
-    return (void*)RunFunctionFmt(my_GCompletionFunc_fct_##A, "p", a); \
-}
+#define GO(A)                                                             \
+    static uintptr_t my_GCompletionFunc_fct_##A = 0;                      \
+    static void* my_GCompletionFunc_##A(void* a)                          \
+    {                                                                     \
+        return (void*)RunFunctionFmt(my_GCompletionFunc_fct_##A, "p", a); \
+    }
 SUPER()
 #undef GO
 static void* findGCompletionFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GCompletionFunc_fct_##A == (uintptr_t)fct) return my_GCompletionFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GCompletionFunc_fct_##A == (uintptr_t)fct) return my_GCompletionFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GCompletionFunc_fct_##A == 0) {my_GCompletionFunc_fct_##A = (uintptr_t)fct; return my_GCompletionFunc_##A; }
+#undef GO
+#define GO(A)                                        \
+    if (my_GCompletionFunc_fct_##A == 0) {           \
+        my_GCompletionFunc_fct_##A = (uintptr_t)fct; \
+        return my_GCompletionFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompletionFunc callback\n");
     return NULL;
 }
 // GCompletionStrncmpFunc ...
-#define GO(A)   \
-static uintptr_t my_GCompletionStrncmpFunc_fct_##A = 0;                                        \
-static int my_GCompletionStrncmpFunc_##A(void* a, void* b, unsigned long n)                    \
-{                                                                                              \
-    return (int)RunFunctionFmt(my_GCompletionStrncmpFunc_fct_##A, "ppL", a, b, n); \
-}
+#define GO(A)                                                                          \
+    static uintptr_t my_GCompletionStrncmpFunc_fct_##A = 0;                            \
+    static int my_GCompletionStrncmpFunc_##A(void* a, void* b, unsigned long n)        \
+    {                                                                                  \
+        return (int)RunFunctionFmt(my_GCompletionStrncmpFunc_fct_##A, "ppL", a, b, n); \
+    }
 SUPER()
 #undef GO
 static void* findGCompletionStrncmpFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GCompletionStrncmpFunc_fct_##A == (uintptr_t)fct) return my_GCompletionStrncmpFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GCompletionStrncmpFunc_fct_##A == (uintptr_t)fct) return my_GCompletionStrncmpFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GCompletionStrncmpFunc_fct_##A == 0) {my_GCompletionStrncmpFunc_fct_##A = (uintptr_t)fct; return my_GCompletionStrncmpFunc_##A; }
+#undef GO
+#define GO(A)                                               \
+    if (my_GCompletionStrncmpFunc_fct_##A == 0) {           \
+        my_GCompletionStrncmpFunc_fct_##A = (uintptr_t)fct; \
+        return my_GCompletionStrncmpFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GCompletionStrncmpFunc callback\n");
     return NULL;
 }
 // GIOFunc ...
-#define GO(A)   \
-static uintptr_t my_GIOFunc_fct_##A = 0;                                        \
-static int my_GIOFunc_##A(void* a, int b, void* c)                              \
-{                                                                               \
-    return (int)RunFunctionFmt(my_GIOFunc_fct_##A, "pip", a, b, c); \
-}
+#define GO(A)                                                           \
+    static uintptr_t my_GIOFunc_fct_##A = 0;                            \
+    static int my_GIOFunc_##A(void* a, int b, void* c)                  \
+    {                                                                   \
+        return (int)RunFunctionFmt(my_GIOFunc_fct_##A, "pip", a, b, c); \
+    }
 SUPER()
 #undef GO
 static void* findGIOFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GIOFunc_fct_##A == (uintptr_t)fct) return my_GIOFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GIOFunc_fct_##A == (uintptr_t)fct) return my_GIOFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GIOFunc_fct_##A == 0) {my_GIOFunc_fct_##A = (uintptr_t)fct; return my_GIOFunc_##A; }
+#undef GO
+#define GO(A)                                \
+    if (my_GIOFunc_fct_##A == 0) {           \
+        my_GIOFunc_fct_##A = (uintptr_t)fct; \
+        return my_GIOFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GIOFunc callback\n");
     return NULL;
 }
 // GDestroyNotify ...
-#define GO(A)   \
-static uintptr_t my_GDestroyNotify_fct_##A = 0;                    \
-static void my_GDestroyNotify_##A(void* a)                         \
-{                                                                  \
-    RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", a); \
-}
+#define GO(A)                                              \
+    static uintptr_t my_GDestroyNotify_fct_##A = 0;        \
+    static void my_GDestroyNotify_##A(void* a)             \
+    {                                                      \
+        RunFunctionFmt(my_GDestroyNotify_fct_##A, "p", a); \
+    }
 SUPER()
 #undef GO
 static void* findGDestroyNotifyFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GDestroyNotify_fct_##A == (uintptr_t)fct) return my_GDestroyNotify_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GDestroyNotify_fct_##A == 0) {my_GDestroyNotify_fct_##A = (uintptr_t)fct; return my_GDestroyNotify_##A; }
+#undef GO
+#define GO(A)                                       \
+    if (my_GDestroyNotify_fct_##A == 0) {           \
+        my_GDestroyNotify_fct_##A = (uintptr_t)fct; \
+        return my_GDestroyNotify_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GDestroyNotify callback\n");
     return NULL;
 }
 // GFunc ...
-#define GO(A)   \
-static uintptr_t my_GFunc_fct_##A = 0;                        \
-static void my_GFunc_##A(void* a, void* b)                    \
-{                                                             \
-    RunFunctionFmt(my_GFunc_fct_##A, "pp", a, b); \
-}
+#define GO(A)                                         \
+    static uintptr_t my_GFunc_fct_##A = 0;            \
+    static void my_GFunc_##A(void* a, void* b)        \
+    {                                                 \
+        RunFunctionFmt(my_GFunc_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findGFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GFunc_fct_##A == (uintptr_t)fct) return my_GFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GFunc_fct_##A == (uintptr_t)fct) return my_GFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GFunc_fct_##A == 0) {my_GFunc_fct_##A = (uintptr_t)fct; return my_GFunc_##A; }
+#undef GO
+#define GO(A)                              \
+    if (my_GFunc_fct_##A == 0) {           \
+        my_GFunc_fct_##A = (uintptr_t)fct; \
+        return my_GFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GFunc callback\n");
     return NULL;
 }
 // GHFunc ...
-#define GO(A)   \
-static uintptr_t my_GHFunc_fct_##A = 0;                            \
-static void my_GHFunc_##A(void* a, void* b, void* c)               \
-{                                                                  \
-    RunFunctionFmt(my_GHFunc_fct_##A, "ppp", a, b, c); \
-}
+#define GO(A)                                              \
+    static uintptr_t my_GHFunc_fct_##A = 0;                \
+    static void my_GHFunc_##A(void* a, void* b, void* c)   \
+    {                                                      \
+        RunFunctionFmt(my_GHFunc_fct_##A, "ppp", a, b, c); \
+    }
 SUPER()
 #undef GO
 static void* findGHFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GHFunc_fct_##A == (uintptr_t)fct) return my_GHFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GHFunc_fct_##A == (uintptr_t)fct) return my_GHFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GHFunc_fct_##A == 0) {my_GHFunc_fct_##A = (uintptr_t)fct; return my_GHFunc_##A; }
+#undef GO
+#define GO(A)                               \
+    if (my_GHFunc_fct_##A == 0) {           \
+        my_GHFunc_fct_##A = (uintptr_t)fct; \
+        return my_GHFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GHFunc callback\n");
     return NULL;
 }
 // GHRFunc ...
-#define GO(A)   \
-static uintptr_t my_GHRFunc_fct_##A = 0;                                 \
-static int my_GHRFunc_##A(void* a, void* b, void* c)                     \
-{                                                                        \
-    return RunFunctionFmt(my_GHRFunc_fct_##A, "ppp", a, b, c); \
-}
+#define GO(A)                                                      \
+    static uintptr_t my_GHRFunc_fct_##A = 0;                       \
+    static int my_GHRFunc_##A(void* a, void* b, void* c)           \
+    {                                                              \
+        return RunFunctionFmt(my_GHRFunc_fct_##A, "ppp", a, b, c); \
+    }
 SUPER()
 #undef GO
 static void* findGHRFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GHRFunc_fct_##A == (uintptr_t)fct) return my_GHRFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GHRFunc_fct_##A == (uintptr_t)fct) return my_GHRFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GHRFunc_fct_##A == 0) {my_GHRFunc_fct_##A = (uintptr_t)fct; return my_GHRFunc_##A; }
+#undef GO
+#define GO(A)                                \
+    if (my_GHRFunc_fct_##A == 0) {           \
+        my_GHRFunc_fct_##A = (uintptr_t)fct; \
+        return my_GHRFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GHRFunc callback\n");
     return NULL;
 }
 // GChildWatchFunc ...
-#define GO(A)   \
-static uintptr_t my_GChildWatchFunc_fct_##A = 0;                            \
-static void my_GChildWatchFunc_##A(int a, int b, void* c)                   \
-{                                                                           \
-    RunFunctionFmt(my_GChildWatchFunc_fct_##A, "iip", a, b, c); \
-}
+#define GO(A)                                                       \
+    static uintptr_t my_GChildWatchFunc_fct_##A = 0;                \
+    static void my_GChildWatchFunc_##A(int a, int b, void* c)       \
+    {                                                               \
+        RunFunctionFmt(my_GChildWatchFunc_fct_##A, "iip", a, b, c); \
+    }
 SUPER()
 #undef GO
 static void* findGChildWatchFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GChildWatchFunc_fct_##A == (uintptr_t)fct) return my_GChildWatchFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GChildWatchFunc_fct_##A == (uintptr_t)fct) return my_GChildWatchFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GChildWatchFunc_fct_##A == 0) {my_GChildWatchFunc_fct_##A = (uintptr_t)fct; return my_GChildWatchFunc_##A; }
+#undef GO
+#define GO(A)                                        \
+    if (my_GChildWatchFunc_fct_##A == 0) {           \
+        my_GChildWatchFunc_fct_##A = (uintptr_t)fct; \
+        return my_GChildWatchFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GChildWatchFunc callback\n");
     return NULL;
 }
 // GLogFunc ...
-#define GO(A)   \
-static uintptr_t my_GLogFunc_fct_##A = 0;                                \
-static void my_GLogFunc_##A(void* a, int b, void* c, void* d)            \
-{                                                                        \
-    RunFunctionFmt(my_GLogFunc_fct_##A, "pipp", a, b, c, d); \
-}
+#define GO(A)                                                     \
+    static uintptr_t my_GLogFunc_fct_##A = 0;                     \
+    static void my_GLogFunc_##A(void* a, int b, void* c, void* d) \
+    {                                                             \
+        RunFunctionFmt(my_GLogFunc_fct_##A, "pipp", a, b, c, d);  \
+    }
 SUPER()
 #undef GO
 static void* findGLogFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GLogFunc_fct_##A == (uintptr_t)fct) return my_GLogFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GLogFunc_fct_##A == (uintptr_t)fct) return my_GLogFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GLogFunc_fct_##A == 0) {my_GLogFunc_fct_##A = (uintptr_t)fct; return my_GLogFunc_##A; }
+#undef GO
+#define GO(A)                                 \
+    if (my_GLogFunc_fct_##A == 0) {           \
+        my_GLogFunc_fct_##A = (uintptr_t)fct; \
+        return my_GLogFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GLogFunc callback\n");
     return NULL;
 }
 static void* reverseGLogFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_GLogFunc_fct_##A) return (void*)my_GLogFunc_fct_##A;
+    if (!fct) return fct;
+#define GO(A) \
+    if ((uintptr_t)fct == my_GLogFunc_fct_##A) return (void*)my_GLogFunc_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, vFpipp, fct, 0, "GLogFunc");
 }
 // GPrintFunc ...
-#define GO(A)   \
-static uintptr_t my_GPrintFunc_fct_##A = 0;                    \
-static void my_GPrintFunc_##A(void* a)                         \
-{                                                              \
-    RunFunctionFmt(my_GPrintFunc_fct_##A, "p", a); \
-}
+#define GO(A)                                          \
+    static uintptr_t my_GPrintFunc_fct_##A = 0;        \
+    static void my_GPrintFunc_##A(void* a)             \
+    {                                                  \
+        RunFunctionFmt(my_GPrintFunc_fct_##A, "p", a); \
+    }
 SUPER()
 #undef GO
 static void* findGPrintFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GPrintFunc_fct_##A == (uintptr_t)fct) return my_GPrintFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GPrintFunc_fct_##A == (uintptr_t)fct) return my_GPrintFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GPrintFunc_fct_##A == 0) {my_GPrintFunc_fct_##A = (uintptr_t)fct; return my_GPrintFunc_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_GPrintFunc_fct_##A == 0) {           \
+        my_GPrintFunc_fct_##A = (uintptr_t)fct; \
+        return my_GPrintFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GPrintFunc callback\n");
     return NULL;
 }
 static void* reverseGPrintFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_GPrintFunc_fct_##A) return (void*)my_GPrintFunc_fct_##A;
+    if (!fct) return fct;
+#define GO(A) \
+    if ((uintptr_t)fct == my_GPrintFunc_fct_##A) return (void*)my_GPrintFunc_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return NULL;
 }
 // GOptionArg ...
-#define GO(A)   \
-static uintptr_t my_GOptionArg_fct_##A = 0;                                            \
-static int my_GOptionArg_##A(void* a, void* b, void* c, void* d)                       \
-{                                                                                      \
-    return (int)RunFunctionFmt(my_GOptionArg_fct_##A, "pppp", a, b, c, d); \
-}
+#define GO(A)                                                                  \
+    static uintptr_t my_GOptionArg_fct_##A = 0;                                \
+    static int my_GOptionArg_##A(void* a, void* b, void* c, void* d)           \
+    {                                                                          \
+        return (int)RunFunctionFmt(my_GOptionArg_fct_##A, "pppp", a, b, c, d); \
+    }
 SUPER()
 #undef GO
 static void* findGOptionArgFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GOptionArg_fct_##A == (uintptr_t)fct) return my_GOptionArg_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GOptionArg_fct_##A == (uintptr_t)fct) return my_GOptionArg_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GOptionArg_fct_##A == 0) {my_GOptionArg_fct_##A = (uintptr_t)fct; return my_GOptionArg_##A; }
+#undef GO
+#define GO(A)                                   \
+    if (my_GOptionArg_fct_##A == 0) {           \
+        my_GOptionArg_fct_##A = (uintptr_t)fct; \
+        return my_GOptionArg_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GOptionArg callback\n");
     return NULL;
 }
 static void* reverseGOptionArgFct(void* fct)
 {
-    if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
+    if (!fct) return fct;
+#define GO(A) \
+    if ((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
     SUPER()
-    #undef GO
+#undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, iFpppp, fct, 0, "GOptionArgFunc");
 }
 // GOptionParse ...
-#define GO(A)   \
-static uintptr_t my_GOptionParse_fct_##A = 0;                                            \
-static int my_GOptionParse_##A(void* a, void* b, void* c, void* d)                       \
-{                                                                                      \
-    return (int)RunFunctionFmt(my_GOptionParse_fct_##A, "pppp", a, b, c, d); \
-}
+#define GO(A)                                                                    \
+    static uintptr_t my_GOptionParse_fct_##A = 0;                                \
+    static int my_GOptionParse_##A(void* a, void* b, void* c, void* d)           \
+    {                                                                            \
+        return (int)RunFunctionFmt(my_GOptionParse_fct_##A, "pppp", a, b, c, d); \
+    }
 SUPER()
 #undef GO
 static void* findGOptionParseFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GOptionParse_fct_##A == (uintptr_t)fct) return my_GOptionParse_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GOptionParse_fct_##A == (uintptr_t)fct) return my_GOptionParse_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GOptionParse_fct_##A == 0) {my_GOptionParse_fct_##A = (uintptr_t)fct; return my_GOptionParse_##A; }
+#undef GO
+#define GO(A)                                     \
+    if (my_GOptionParse_fct_##A == 0) {           \
+        my_GOptionParse_fct_##A = (uintptr_t)fct; \
+        return my_GOptionParse_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GOptionParse callback\n");
     return NULL;
 }
 // GNodeTraverseFunc ...
-#define GO(A)   \
-static uintptr_t my_GNodeTraverseFunc_fct_##A = 0;                                    \
-static int my_GNodeTraverseFunc_##A(void* a, void* b)                                 \
-{                                                                                     \
-    return (int)RunFunctionFmt(my_GNodeTraverseFunc_fct_##A, "pp", a, b); \
-}
+#define GO(A)                                                                 \
+    static uintptr_t my_GNodeTraverseFunc_fct_##A = 0;                        \
+    static int my_GNodeTraverseFunc_##A(void* a, void* b)                     \
+    {                                                                         \
+        return (int)RunFunctionFmt(my_GNodeTraverseFunc_fct_##A, "pp", a, b); \
+    }
 SUPER()
 #undef GO
 static void* findGNodeTraverseFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GNodeTraverseFunc_fct_##A == (uintptr_t)fct) return my_GNodeTraverseFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GNodeTraverseFunc_fct_##A == (uintptr_t)fct) return my_GNodeTraverseFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GNodeTraverseFunc_fct_##A == 0) {my_GNodeTraverseFunc_fct_##A = (uintptr_t)fct; return my_GNodeTraverseFunc_##A; }
+#undef GO
+#define GO(A)                                          \
+    if (my_GNodeTraverseFunc_fct_##A == 0) {           \
+        my_GNodeTraverseFunc_fct_##A = (uintptr_t)fct; \
+        return my_GNodeTraverseFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GNodeTraverseFunc callback\n");
     return NULL;
 }
 // GThreadFunc ...
-#define GO(A)   \
-static uintptr_t my_GThreadFunc_fct_##A = 0;                                  \
-static void* my_GThreadFunc_##A(void* a)                                      \
-{                                                                             \
-    return (void*)RunFunctionFmt(my_GThreadFunc_fct_##A, "p", a); \
-}
+#define GO(A)                                                         \
+    static uintptr_t my_GThreadFunc_fct_##A = 0;                      \
+    static void* my_GThreadFunc_##A(void* a)                          \
+    {                                                                 \
+        return (void*)RunFunctionFmt(my_GThreadFunc_fct_##A, "p", a); \
+    }
 SUPER()
 #undef GO
 static void* findGThreadFuncFct(void* fct)
 {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_GThreadFunc_fct_##A == (uintptr_t)fct) return my_GThreadFunc_##A;
+    if (!fct) return fct;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_GThreadFunc_fct_##A == (uintptr_t)fct) return my_GThreadFunc_##A;
     SUPER()
-    #undef GO
-    #define GO(A) if(my_GThreadFunc_fct_##A == 0) {my_GThreadFunc_fct_##A = (uintptr_t)fct; return my_GThreadFunc_##A; }
+#undef GO
+#define GO(A)                                    \
+    if (my_GThreadFunc_fct_##A == 0) {           \
+        my_GThreadFunc_fct_##A = (uintptr_t)fct; \
+        return my_GThreadFunc_##A;               \
+    }
     SUPER()
-    #undef GO
+#undef GO
     printf_log(LOG_NONE, "Warning, no more slot for glib2 GThreadFunc callback\n");
     return NULL;
 }
@@ -742,7 +880,8 @@ EXPORT void my_g_list_free_full(x64emu_t* emu, void* list, void* free_func)
     my->g_list_free_full(list, findFreeFct(free_func));
 }
 
-EXPORT void* my_g_markup_printf_escaped(x64emu_t *emu, void* fmt, void* b) {
+EXPORT void* my_g_markup_printf_escaped(x64emu_t* emu, void* fmt, void* b)
+{
     // need to align on arm
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
@@ -777,11 +916,11 @@ EXPORT void* my_g_variant_new_from_data(x64emu_t* emu, void* type, void* data, s
 
 EXPORT void* my_g_variant_new_parsed_va(x64emu_t* emu, void* fmt, x64_va_list_t b)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(b, emu->scratch);
-    #endif
+#endif
     return my->g_variant_new_parsed_va(fmt, &VARARGS);
 }
 
@@ -883,9 +1022,9 @@ EXPORT void* my_g_main_context_get_poll_func(x64emu_t* emu, void* context)
 {
 
     void* ret = my->g_main_context_get_poll_func(context);
-    if(!ret) return ret;
+    if (!ret) return ret;
     void* r = reversePollFct(ret);
-    if(r) return r;
+    if (r) return r;
     // needs to bridge....
     return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, ret, 0, NULL);
 }
@@ -897,10 +1036,10 @@ EXPORT void my_g_main_context_set_poll_func(x64emu_t* emu, void* context, void* 
 
 EXPORT uint32_t my_g_idle_add_full(x64emu_t* emu, int priority, void* f, void* data, void* notify)
 {
-    if(!f)
+    if (!f)
         return my->g_idle_add_full(priority, f, data, notify);
 
-    my_signal_t *sig = new_mysignal(f, data, notify);
+    my_signal_t* sig = new_mysignal(f, data, notify);
     printf_log(LOG_DEBUG, "glib2 Idle CB with priority %d created for %p, sig=%p\n", priority, f, sig);
     return my->g_idle_add_full(priority, my_timeout_cb, sig, my_signal_delete);
 }
@@ -1070,11 +1209,11 @@ EXPORT uint32_t my_g_idle_add(x64emu_t* emu, void* func, void* data)
 
 EXPORT void* my_g_variant_new_va(x64emu_t* emu, char* fmt, void* endptr, x64_va_list_t* b)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(*b);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(*b, emu->scratch);
-    #endif
+#endif
     va_list* aligned = &VARARGS;
     return my->g_variant_new_va(fmt, endptr, &aligned);
 }
@@ -1085,7 +1224,7 @@ EXPORT void* my_g_variant_new(x64emu_t* emu, char* fmt, uint64_t* V)
     return my->g_variant_new_va(fmt, NULL, &VARARGS);
 }
 
-EXPORT  void my_g_variant_builder_add(x64emu_t* emu, void* builder, void* fmt, uint64_t* V)
+EXPORT void my_g_variant_builder_add(x64emu_t* emu, void* builder, void* fmt, uint64_t* V)
 {
     // equivalent to calling g_variant_new and g_variant_builder_add_value
     CREATE_VALIST_FROM_VAARG(V, emu->scratch, 2);
@@ -1098,12 +1237,12 @@ EXPORT void* my_g_completion_new(x64emu_t* emu, void* f)
     return my->g_completion_new(findGCompletionFct(f));
 }
 
-EXPORT void my_g_completion_set_compare(x64emu_t *emu, void* cmp, void* f)
+EXPORT void my_g_completion_set_compare(x64emu_t* emu, void* cmp, void* f)
 {
     my->g_completion_set_compare(cmp, findGCompletionStrncmpFuncFct(f));
 }
 
-EXPORT void* my_g_log_set_default_handler(x64emu_t *emu, void* f, void* data)
+EXPORT void* my_g_log_set_default_handler(x64emu_t* emu, void* f, void* data)
 {
     return reverseGLogFuncFct(my->g_log_set_default_handler(findGLogFuncFct(f), data));
 }
@@ -1118,84 +1257,84 @@ EXPORT uint32_t my_g_io_add_watch(x64emu_t* emu, void* channel, int cond, void* 
     return my->g_io_add_watch(channel, cond, findGIOFuncFct(f), data);
 }
 
-EXPORT void* my_g_set_print_handler(x64emu_t *emu, void* f)
+EXPORT void* my_g_set_print_handler(x64emu_t* emu, void* f)
 {
     return reverseGPrintFuncFct(my->g_set_print_handler(findGPrintFuncFct(f)));
 }
 
-EXPORT void* my_g_set_printerr_handler(x64emu_t *emu, void* f)
+EXPORT void* my_g_set_printerr_handler(x64emu_t* emu, void* f)
 {
     return reverseGPrintFuncFct(my->g_set_printerr_handler(findGPrintFuncFct(f)));
 }
 
-EXPORT void* my_g_slist_sort(x64emu_t *emu, void* list, void* f)
+EXPORT void* my_g_slist_sort(x64emu_t* emu, void* list, void* f)
 {
     return my->g_slist_sort(list, findGCompareFuncFct(f));
 }
 
-EXPORT void* my_g_slist_sort_with_data(x64emu_t *emu, void* list, void* f, void* data)
+EXPORT void* my_g_slist_sort_with_data(x64emu_t* emu, void* list, void* f, void* data)
 {
     return my->g_slist_sort_with_data(list, findGCompareDataFuncFct(f), data);
 }
 
-EXPORT void* my_g_build_path(x64emu_t *emu, void* sep, void* first, uintptr_t* data)
+EXPORT void* my_g_build_path(x64emu_t* emu, void* sep, void* first, uintptr_t* data)
 {
-    int n = (first)?1:0;
-    void* p = n?((void*)getVArgs(emu, 2, data, 0)):NULL;
-    while(p) {
+    int n = (first) ? 1 : 0;
+    void* p = n ? ((void*)getVArgs(emu, 2, data, 0)) : NULL;
+    while (p) {
         p = (void*)getVArgs(emu, 2, data, n++);
     }
-    ++n;    // final NULL
-    void** args = (void**)box_malloc((n+1) *sizeof(void*));
+    ++n; // final NULL
+    void** args = (void**)box_malloc((n + 1) * sizeof(void*));
     args[0] = first;
-    for(int i=0; i<n; ++i)
-        args[i+1] = (void*)getVArgs(emu, 2, data, i);
+    for (int i = 0; i < n; ++i)
+        args[i + 1] = (void*)getVArgs(emu, 2, data, i);
     p = my->g_build_pathv(sep, args);
     box_free(args);
     return p;
 }
 
-EXPORT void* my_g_list_sort(x64emu_t *emu, void* list, void* f)
+EXPORT void* my_g_list_sort(x64emu_t* emu, void* list, void* f)
 {
     return my->g_list_sort(list, findGCompareFuncFct(f));
 }
 
-EXPORT void* my_g_list_sort_with_data(x64emu_t *emu, void* list, void* f, void* data)
+EXPORT void* my_g_list_sort_with_data(x64emu_t* emu, void* list, void* f, void* data)
 {
     return my->g_list_sort_with_data(list, findGCompareDataFuncFct(f), data);
 }
 
-EXPORT void* my_g_queue_find_custom(x64emu_t *emu, void* queue, void* data, void* f)
+EXPORT void* my_g_queue_find_custom(x64emu_t* emu, void* queue, void* data, void* f)
 {
     return my->g_queue_find_custom(queue, data, findGCompareFuncFct(f));
 }
 
-EXPORT void* my_g_list_find_custom(x64emu_t *emu, void* list, void* data, void* f)
+EXPORT void* my_g_list_find_custom(x64emu_t* emu, void* list, void* data, void* f)
 {
     return my->g_list_find_custom(list, data, findGCompareFuncFct(f));
 }
 
-EXPORT uint32_t my_g_timeout_add_full(x64emu_t *emu, int priority, uint32_t interval, void* f, void* data, void* notify)
+EXPORT uint32_t my_g_timeout_add_full(x64emu_t* emu, int priority, uint32_t interval, void* f, void* data, void* notify)
 {
     return my->g_timeout_add_full(priority, interval, findGSourceFuncFct(f), data, findDestroyFct(notify));
 }
 
-EXPORT uint32_t my_g_timeout_add_seconds(x64emu_t *emu, uint32_t interval, void* f, void* data)
+EXPORT uint32_t my_g_timeout_add_seconds(x64emu_t* emu, uint32_t interval, void* f, void* data)
 {
     return my->g_timeout_add_seconds(interval, findGSourceFuncFct(f), data);
 }
 
-EXPORT uint32_t my_g_timeout_add_seconds_full(x64emu_t *emu, int priority, uint32_t interval, void* f, void* data, void* notify)
+EXPORT uint32_t my_g_timeout_add_seconds_full(x64emu_t* emu, int priority, uint32_t interval, void* f, void* data, void* notify)
 {
     return my->g_timeout_add_seconds_full(priority, interval, findGSourceFuncFct(f), data, findDestroyFct(notify));
 }
 
-EXPORT uint32_t my_g_log_set_handler(x64emu_t *emu, void* domain, int level, void* f, void* data)
+EXPORT uint32_t my_g_log_set_handler(x64emu_t* emu, void* domain, int level, void* f, void* data)
 {
     return my->g_log_set_handler(domain, level, findGLogFuncFct(f), data);
 }
 
-EXPORT void my_g_set_error(x64emu_t *emu, void* err, void* domain, int code, void* fmt, uintptr_t* stack)
+EXPORT void my_g_set_error(x64emu_t* emu, void* err, void* domain, int code, void* fmt, uintptr_t* stack)
 {
     char buf[1000];
     myStackAlign(emu, fmt, stack, emu->scratch, R_EAX, 4);
@@ -1212,11 +1351,11 @@ EXPORT void* my_g_error_new(x64emu_t* emu, void* domain, int code, void* fmt, ui
 }
 EXPORT void* my_g_error_new_valist(x64emu_t* emu, void* domain, int code, void* fmt, x64_va_list_t V)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
-    #endif
+#endif
     return my->g_error_new_valist(domain, code, fmt, VARARGS);
 }
 
@@ -1229,11 +1368,11 @@ EXPORT int my_g_fprintf(x64emu_t* emu, void* f, void* fmt, uintptr_t* b)
 
 EXPORT void my_g_logv(x64emu_t* emu, void* domain, int level, void* fmt, x64_va_list_t V)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     CREATE_VALIST_FROM_VALIST(V, emu->scratch);
-    #endif
+#endif
     my->g_logv(domain, level, fmt, VARARGS);
 }
 EXPORT void my_g_log(x64emu_t* emu, void* domain, int level, void* fmt, uintptr_t* b)
@@ -1280,12 +1419,12 @@ EXPORT void my_g_string_append_printf(x64emu_t* emu, void* string, void* fmt, ui
 
 EXPORT void my_g_string_append_vprintf(x64emu_t* emu, void* string, void* fmt, x64_va_list_t V)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
     PREPARE_VALIST;
-    #endif
+#endif
     return my->g_string_append_vprintf(string, fmt, VARARGS);
 }
 
@@ -1298,12 +1437,12 @@ EXPORT void my_g_string_printf(x64emu_t* emu, void* string, void* fmt, uintptr_t
 
 EXPORT void my_g_string_vprintf(x64emu_t* emu, void* string, void* fmt, x64_va_list_t V)
 {
-    #ifdef CONVERT_VALIST
+#ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
-    #else
+#else
     myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
     PREPARE_VALIST;
-    #endif
+#endif
     return my->g_string_vprintf(string, fmt, VARARGS);
 }
 
@@ -1311,12 +1450,12 @@ EXPORT void* my_g_strjoin(x64emu_t* emu, void* sep, uintptr_t* data)
 {
     int n = 0;
     void* p = (void*)getVArgs(emu, 1, data, 0);
-    while(p) {
+    while (p) {
         p = (void*)getVArgs(emu, 1, data, n++);
     }
-    ++n;    // final NULL
-    void** args = (void**)box_malloc(n *sizeof(void*));
-    for(int i=0; i<n; ++i)
+    ++n; // final NULL
+    void** args = (void**)box_malloc(n * sizeof(void*));
+    for (int i = 0; i < n; ++i)
         args[i] = (void*)getVArgs(emu, 1, data, i);
     p = my->g_strjoinv(sep, args);
     box_free(args);
@@ -1334,13 +1473,13 @@ EXPORT void* my_g_option_group_new(x64emu_t* emu, void* name, void* desc, void* 
 }
 
 typedef struct my_GOptionEntry_s {
-  void*     long_name;
-  char      short_name;
-  int       flags;
-  int       arg;
-  void*     arg_data;
-  void*     description;
-  void*     arg_description;
+    void* long_name;
+    char short_name;
+    int flags;
+    int arg;
+    void* arg_data;
+    void* description;
+    void* arg_description;
 } my_GOptionEntry_t;
 
 EXPORT void my_g_option_context_add_main_entries(x64emu_t* emu, void* context, my_GOptionEntry_t* entries, void* domain)
@@ -1364,16 +1503,16 @@ EXPORT void my_g_option_context_add_main_entries(x64emu_t* emu, void* context, m
 
 EXPORT void* my_g_strconcat(x64emu_t* emu, void* first, uintptr_t* data)
 {
-    int n = (first)?1:0;
-    void* p = n?((void*)getVArgs(emu, 1, data, 0)):NULL;
-    while(p) {
+    int n = (first) ? 1 : 0;
+    void* p = n ? ((void*)getVArgs(emu, 1, data, 0)) : NULL;
+    while (p) {
         p = (void*)getVArgs(emu, 1, data, n++);
     }
-    ++n;    // final NULL
-    void** args = (void**)box_malloc((n+1) *sizeof(void*));
+    ++n; // final NULL
+    void** args = (void**)box_malloc((n + 1) * sizeof(void*));
     args[0] = first;
-    for(int i=0; i<n; ++i)
-        args[i+1] = (void*)getVArgs(emu, 1, data, i);
+    for (int i = 0; i < n; ++i)
+        args[i + 1] = (void*)getVArgs(emu, 1, data, i);
     p = my->g_strjoinv(NULL, args);
     box_free(args);
     return p;
@@ -1439,8 +1578,8 @@ EXPORT void* my_g_once_impl(x64emu_t* emu, void* once, void* f, void* arg)
     return my->g_once_impl(once, findGThreadFuncFct(f), arg);
 }
 
-#define PRE_INIT    \
-    if(box64_nogtk) \
+#define PRE_INIT     \
+    if (box64_nogtk) \
         return -1;
 
 #include "wrappedlib_init.h"

@@ -8,12 +8,13 @@
 #error You should only #include this file inside a wrapped*.c file
 #endif
 #ifndef ADDED_FUNCTIONS
-#define ADDED_FUNCTIONS() 
+#define ADDED_FUNCTIONS()
 #endif
 
 typedef void* (*pFpppu_t)(void*, void*, void*, uint32_t);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(Sound_NewSample, pFpppu_t)
+#define SUPER()       \
+    ADDED_FUNCTIONS() \
+    GO(Sound_NewSample, pFpppu_t)
 
 #endif // __wrappedsdl1soundTYPES_H_

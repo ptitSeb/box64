@@ -4,52 +4,54 @@
 #define one (uint64_t)1
 
 // Returns the packed valid-N-imms-immr (1-1-6-6 bits); returns 0 if bitmask is not encodable
-int convert_bitmask(uint64_t bitmask) {
-	if (!bitmask || !~bitmask) return 0;
-	
-	uint64_t size, mask, pat;
-	
-	for (size = 6; size > 1; --size) {
-		mask = (one << (1 << (size - 1))) - 1;
-		pat = bitmask & mask;
-		// printf("%016lX/%lu: %016lX %016lX %2d\n", bitmask, size, mask, pat, (1 << (size - 1)));
-		if (pat != ((bitmask >> (1 << (size - 1))) & mask)) {
-			// printf("%016lX/%lu: %016lX %016lX xx\n", bitmask, size, pat, (bitmask >> (1 << (size - 1))) & mask);
-			break;
-		}
-	}
-	mask = (size >= 6) ? ((uint64_t)-1) : ((one << (1 << size)) - 1);
-	pat = bitmask & mask;
-	for (uint64_t i = 1; i < 7 - size; ++i) {
-		uint64_t boff = i * (1 << size);
-		if (((bitmask >> boff) & mask) != pat) {
-			// printf("%016lX/%lu: no %lu %lu %016lX %016lX %016lX\n", bitmask, size, i, size, boff, mask, pat);
-			return 0;
-		}
-	}
-	// Note that here, pat != 0 and ~pat & (1 << size) != 0 (otherwise size = 1 and bitmask = all 0 or all 1)
-	int immr = 0;
-	uint64_t last_bit = one << ((1 << size) - 1);
-	// printf("%016lX/%lu: %016lX %016lX %lu\n", bitmask, size, mask, pat, last_bit);
-	if (pat & 1) {
-		while (pat & last_bit) {
-			pat = ((pat - last_bit) << 1) + 1;
-			++immr;
-		}
-	} else {
-		immr = 1 << size;
-		while (!(pat & 1)) {
-			pat >>= 1;
-			--immr;
-		}
-	}
-	// printf("%016lX/%lu: %016lX %016lX %lu %d\n", bitmask, size, mask, pat, last_bit, immr);
-	if (pat & (pat + 1)) return 0; // Not 0...01...1
-	int to = 1;
-	while (pat & (one << to)) ++to;
-	
-	// printf("%016lX/%lu: returning %c%c%02lX%02lX\n", bitmask, size, '2' + (size == 6), (uint64_t)(((0x1E << size) & 0x3F) + (to - 1)), (uint64_t)immr);
-	return 0x2000 + ((size == 6) << 12) + ((((0x1E << size) & 0x3F) + (to - 1)) << 6) + immr;
+int convert_bitmask(uint64_t bitmask)
+{
+    if (!bitmask || !~bitmask) return 0;
+
+    uint64_t size, mask, pat;
+
+    for (size = 6; size > 1; --size) {
+        mask = (one << (1 << (size - 1))) - 1;
+        pat = bitmask & mask;
+        // printf("%016lX/%lu: %016lX %016lX %2d\n", bitmask, size, mask, pat, (1 << (size - 1)));
+        if (pat != ((bitmask >> (1 << (size - 1))) & mask)) {
+            // printf("%016lX/%lu: %016lX %016lX xx\n", bitmask, size, pat, (bitmask >> (1 << (size - 1))) & mask);
+            break;
+        }
+    }
+    mask = (size >= 6) ? ((uint64_t)-1) : ((one << (1 << size)) - 1);
+    pat = bitmask & mask;
+    for (uint64_t i = 1; i < 7 - size; ++i) {
+        uint64_t boff = i * (1 << size);
+        if (((bitmask >> boff) & mask) != pat) {
+            // printf("%016lX/%lu: no %lu %lu %016lX %016lX %016lX\n", bitmask, size, i, size, boff, mask, pat);
+            return 0;
+        }
+    }
+    // Note that here, pat != 0 and ~pat & (1 << size) != 0 (otherwise size = 1 and bitmask = all 0 or all 1)
+    int immr = 0;
+    uint64_t last_bit = one << ((1 << size) - 1);
+    // printf("%016lX/%lu: %016lX %016lX %lu\n", bitmask, size, mask, pat, last_bit);
+    if (pat & 1) {
+        while (pat & last_bit) {
+            pat = ((pat - last_bit) << 1) + 1;
+            ++immr;
+        }
+    } else {
+        immr = 1 << size;
+        while (!(pat & 1)) {
+            pat >>= 1;
+            --immr;
+        }
+    }
+    // printf("%016lX/%lu: %016lX %016lX %lu %d\n", bitmask, size, mask, pat, last_bit, immr);
+    if (pat & (pat + 1)) return 0; // Not 0...01...1
+    int to = 1;
+    while (pat & (one << to))
+        ++to;
+
+    // printf("%016lX/%lu: returning %c%c%02lX%02lX\n", bitmask, size, '2' + (size == 6), (uint64_t)(((0x1E << size) & 0x3F) + (to - 1)), (uint64_t)immr);
+    return 0x2000 + ((size == 6) << 12) + ((((0x1E << size) & 0x3F) + (to - 1)) << 6) + immr;
 }
 
 #if 0

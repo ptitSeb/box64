@@ -23,16 +23,16 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test66DD(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t Test66DD(x64test_t* test, rex_t rex, uintptr_t addr)
 #else
-uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr)
+uintptr_t Run66DD(x64emu_t* emu, rex_t rex, uintptr_t addr)
 #endif
 {
     uint8_t nextop;
-    reg64_t *oped;
-    #ifdef TEST_INTERPRETER
+    reg64_t* oped;
+#ifdef TEST_INTERPRETER
     x64emu_t* emu = test->emu;
-    #endif
+#endif
 
     nextop = F8;
     switch (nextop) {
@@ -82,40 +82,40 @@ uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xFF:
             return 0;
         default:
-        switch((nextop>>3)&7) {
-            case 4: /* FRSTOR m94byte */
-                GETEW(0);
-                fpu_loadenv(emu, (char*)ED, 1);
-                // get the STx
-                {
-                    char* p =(char*)ED;
-                    p += 14;
-                    for (int i=0; i<8; ++i) {
-                        LD2D(p, &ST(i).d);
-                        p+=10;
+            switch ((nextop >> 3) & 7) {
+                case 4: /* FRSTOR m94byte */
+                    GETEW(0);
+                    fpu_loadenv(emu, (char*)ED, 1);
+                    // get the STx
+                    {
+                        char* p = (char*)ED;
+                        p += 14;
+                        for (int i = 0; i < 8; ++i) {
+                            LD2D(p, &ST(i).d);
+                            p += 10;
+                        }
                     }
-                }
-                break;
-            case 6: /* FNSAVE m94byte */
-                GETEW(0);
-                // ENV first...
-                #ifndef TEST_INTERPRETER
-                fpu_savenv(emu, (char*)ED, 1);
-                // save the STx
-                {
-                    char* p =(char*)ED;
-                    p += 14;
-                    for (int i=0; i<8; ++i) {
-                        D2LD(&ST(i).d, p);
-                        p+=10;
+                    break;
+                case 6: /* FNSAVE m94byte */
+                    GETEW(0);
+// ENV first...
+#ifndef TEST_INTERPRETER
+                    fpu_savenv(emu, (char*)ED, 1);
+                    // save the STx
+                    {
+                        char* p = (char*)ED;
+                        p += 14;
+                        for (int i = 0; i < 8; ++i) {
+                            D2LD(&ST(i).d, p);
+                            p += 10;
+                        }
                     }
-                }
-                #endif
-                reset_fpu(emu);
-                break;
-            default:
-                return 0;
-        }
+#endif
+                    reset_fpu(emu);
+                    break;
+                default:
+                    return 0;
+            }
     }
     return addr;
 }
