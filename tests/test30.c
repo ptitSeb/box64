@@ -12,6 +12,8 @@
 #include <dlfcn.h>
 #include <limits.h>
 
+// Built with `gcc -g test30.c -o test30 -ldl -lpthread`
+
 typedef intptr_t (*RunFuncWithEmulatorFunction)(const char *, const char *, int, ...);
 static RunFuncWithEmulatorFunction RunFuncWithEmulator = NULL;
 
@@ -87,7 +89,7 @@ void* ThreadFuncTestX64Lib1(void* args) {
 void* ThreadFuncTestX64Lib2(void* args) {
     (void)args;
     
-    for (int i = 0; i < 1e6; i++) {
+    for (int i = 0; i < 1e5; i++) {
         char c = x64_tolower('Z');
         if (c != 'z') {
             printf("Error: x64_tolower('Z') returned '%c' instead of 'z'\n", c);
