@@ -16,9 +16,7 @@
 #define MAPNAME(N)     MAPNAME2(LIBNAME, N)
 
 // prepare the maps
-// clang-format off
 #define _DOIT(P, Q) QUOTE(generated/wrapped##P##Q.h)
-// clang-format on
 #define DOIT(P, Q)  _DOIT(P, Q)
 #include DOIT(LIBNAME, defs)
 
