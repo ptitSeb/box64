@@ -1559,18 +1559,22 @@ static void add_argv(const char* what) {
 
 static void load_rcfiles()
 {
+    char* rcpath = getenv("BOX64_RCFILE");
+
+    if(rcpath && FileExist(rcpath, IS_FILE))
+	LoadRCFile(rcpath);
     #ifndef TERMUX
-    if(FileExist("/etc/box64.box64rc", IS_FILE))
+    else if(FileExist("/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/etc/box64.box64rc");
     else if(FileExist("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/data/data/com.termux/files/usr/glibc/etc/box64.box64rc");
     #else
-    if(FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
+    else if(FileExist("/data/data/com.termux/files/usr/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/data/data/com.termux/files/usr/etc/box64.box64rc");
     #endif
-
     else
         LoadRCFile(NULL);   // load default rcfile
+
     char* p = getenv("HOME");
     if(p) {
         char tmp[4096];
