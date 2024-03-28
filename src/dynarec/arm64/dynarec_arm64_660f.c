@@ -509,8 +509,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 0);
                     GETEX(q1, 0, 0);
                     v1 = fpu_get_scratch(dyn);
-                    IFX(X_ZF)
-                    {
+                    IFX (X_ZF) {
                         VANDQ(v1, q1, q0);
                         CMEQQ_0_64(v1, v1);
                         UADDLVQ_32(v1, v1);
@@ -518,8 +517,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         UBFXx(x1, x1, 33, 1); // bit33 will only be set if all bits are 1
                         BFIw(xFlags, x1, F_ZF, 1);
                     }
-                    IFX(X_CF)
-                    {
+                    IFX (X_CF) {
                         VBICQ(v1, q1, q0);
                         CMEQQ_0_64(v1, v1);
                         UADDLVQ_32(v1, v1);
@@ -527,8 +525,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         UBFXx(x1, x1, 33, 1);
                         BFIw(xFlags, x1, F_CF, 1);
                     }
-                    IFX(X_PF | X_AF | X_OF | X_SF)
-                    {
+                    IFX (X_PF | X_AF | X_OF | X_SF) {
                         MOV32w(x1, (1 << F_PF) | (1 << F_AF) | (1 << F_OF) | (1 << F_SF));
                         BICw_REG(xFlags, xFlags, x1);
                     }
@@ -2229,8 +2226,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = x4;
             }
             ANDw_mask(x2, gd, 0, 0b000011); // mask=0x0f
-            IFX(X_CF)
-            {
+            IFX (X_CF) {
                 LSRw_REG(x1, ed, x2);
                 BFIw(xFlags, x1, F_CF, 1);
             }
@@ -2371,8 +2367,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEW(x1, 1);
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
-                    IFX(X_CF)
-                    {
+                    IFX (X_CF) {
                         BFXILxw(xFlags, ed, u8, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
                     MOV32w(x4, 1);
@@ -2386,8 +2381,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEW(x1, 1);
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
-                    IFX(X_CF)
-                    {
+                    IFX (X_CF) {
                         BFXILxw(xFlags, ed, u8, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
                     BFCxw(ed, u8, 1);
@@ -2400,8 +2394,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEW(x1, 1);
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
-                    IFX(X_CF)
-                    {
+                    IFX (X_CF) {
                         BFXILxw(xFlags, ed, u8, 1); // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
                     MOV32w(x4, 1);
@@ -2431,8 +2424,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = x4;
             }
             ANDw_mask(x2, gd, 0, 0b000011); // mask=0x0f
-            IFX(X_CF)
-            {
+            IFX (X_CF) {
                 LSRw_REG(x1, ed, x2);
                 BFIw(xFlags, x1, F_CF, 1);
             }

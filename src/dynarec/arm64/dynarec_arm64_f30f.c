@@ -410,8 +410,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             CNT_8(v1, v1);
             UADDLV_8(v1, v1);
             VMOVQDto(gd, v1, 0);
-            IFX(X_ALL)
-            {
+            IFX (X_ALL) {
                 MOV32w(x1, (1 << F_OF) | (1 << F_SF) | (1 << F_ZF) | (1 << F_AF) | (1 << F_CF) | (1 << F_PF));
                 BICw(xFlags, xFlags, x1);
                 CBNZx(gd, 4 + 4);

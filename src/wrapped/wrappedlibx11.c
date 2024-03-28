@@ -1670,7 +1670,7 @@ typedef struct my_XDisplay_s {
     XID resource_mask;
     XID resource_id;
     int resource_shift;
-    XID (*resource_alloc)
+    XID(*resource_alloc)
     (void*);
     int byte_order;
     int bitmap_unit;

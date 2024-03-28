@@ -322,26 +322,23 @@
     ANDN(xFlags, xFlags, s);
 
 #define CLEAR_FLAGS(s) \
-    IFX(X_ALL) { CLEAR_FLAGS_(s) }
+    IFX (X_ALL) { CLEAR_FLAGS_(s) }
 
 #define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2, width)     \
-    IFX(X_AF | X_CF | X_OF)                                           \
-    {                                                                 \
+    IFX (X_AF | X_CF | X_OF) {                                        \
         /* calc borrow chain */                                       \
         /* bc = (res & (~op1 | op2)) | (~op1 & op2) */                \
         OR(scratch1, op1_, op2);                                      \
         AND(scratch2, res, scratch1);                                 \
         AND(op1_, op1_, op2);                                         \
         OR(scratch2, scratch2, op1_);                                 \
-        IFX(X_AF)                                                     \
-        {                                                             \
+        IFX (X_AF) {                                                  \
             /* af = bc & 0x8 */                                       \
             ANDI(scratch1, scratch2, 8);                              \
             BEQZ(scratch1, 8);                                        \
             ORI(xFlags, xFlags, 1 << F_AF);                           \
         }                                                             \
-        IFX(X_CF)                                                     \
-        {                                                             \
+        IFX (X_CF) {                                                  \
             /* cf = bc & (1<<(width-1)) */                            \
             if ((width) == 8) {                                       \
                 ANDI(scratch1, scratch2, 0x80);                       \
@@ -352,8 +349,7 @@
             BEQZ(scratch1, 8);                                        \
             ORI(xFlags, xFlags, 1 << F_CF);                           \
         }                                                             \
-        IFX(X_OF)                                                     \
-        {                                                             \
+        IFX (X_OF) {                                                  \
             /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */ \
             SRLI_D(scratch1, scratch2, (width)-2);                    \
             SRLI_D(scratch2, scratch1, 1);                            \

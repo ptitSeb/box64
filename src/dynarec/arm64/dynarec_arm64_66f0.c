@@ -204,8 +204,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             CBNZx_MARKLOCK(x3);
                         }
                         SMDMB();
-                        IFX(X_ALL | X_PEND)
-                        {
+                        IFX (X_ALL | X_PEND) {
                             MOVxw_REG(x2, x1);
                             emit_add16(dyn, ninst, x2, x5, x3, x4);
                         }

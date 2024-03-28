@@ -105,14 +105,12 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 OR(x5, x5, x9);
                 SC_W(x9, x5, wback, 1, 1);
                 BNEZ_MARK2(x9);
-                IFX(X_ALL | X_PEND)
-                {
+                IFX (X_ALL | X_PEND) {
                     SRLIW(x6, x6, 16);
                     SRLIW(x1, x1, 16);
                 }
                 MARK3;
-                IFX(X_ALL | X_PEND)
-                {
+                IFX (X_ALL | X_PEND) {
                     emit_adc16(dyn, ninst, x1, x6, x3, x4, x5);
                 }
             }
@@ -164,8 +162,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         OR(x4, x4, x3);
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL | X_PEND)
-                        {
+                        IFX (X_ALL | X_PEND) {
                             SLLIW(x1, x1, 16);
                             SRLIW(x1, x1, 16);
                         }
@@ -187,8 +184,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                         MARK3;
                         // final
-                        IFX(X_ALL | X_PEND)
-                        {
+                        IFX (X_ALL | X_PEND) {
                             emit_add16(dyn, ninst, x1, x5, x3, x4, x6);
                         }
                     }

@@ -71,8 +71,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADDxw(x4, x1, gd);
                 SCxw(x3, x4, wback, 1, 1);
                 BNEZ_MARKLOCK(x3);
-                IFX(X_ALL | X_PEND)
-                {
+                IFX (X_ALL | X_PEND) {
                     emit_add32(dyn, ninst, rex, x1, gd, x3, x4, x5);
                 }
             }
@@ -94,8 +93,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 OR(x4, x1, gd);
                 SCxw(x3, x4, wback, 1, 1);
                 BNEZ_MARKLOCK(x3);
-                IFX(X_ALL | X_PEND)
-                emit_or32(dyn, ninst, rex, x1, gd, x3, x4);
+                IFX (X_ALL | X_PEND)
+                    emit_or32(dyn, ninst, rex, x1, gd, x3, x4);
             }
             SMDMB();
             break;
@@ -273,8 +272,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 ADDxw(x4, x1, gd);
                                 SCxw(x3, x4, wback, 1, 1);
                                 BNEZ_MARKLOCK(x3);
-                                IFX(X_ALL | X_PEND)
-                                {
+                                IFX (X_ALL | X_PEND) {
                                     MVxw(x2, x1);
                                     emit_add32(dyn, ninst, rex, x2, gd, x3, x4, x5);
                                 }
@@ -420,14 +418,12 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 OR(x5, x5, x6);
                 SC_W(x4, x5, wback, 1, 1);
                 BNEZ_MARK2(x4);
-                IFX(X_ALL | X_PEND)
-                {
+                IFX (X_ALL | X_PEND) {
                     SRLI(x2, x2, x3); // Gb
                     SRLI(x4, x9, x3); // Eb
                 }
                 MARK3;
-                IFX(X_ALL | X_PEND)
-                {
+                IFX (X_ALL | X_PEND) {
                     emit_adc8(dyn, ninst, x4, x2, x3, x5, x6);
                 }
             }
@@ -452,8 +448,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADDxw(x3, x3, x4);
                 SCxw(x4, x3, wback, 1, 1);
                 BNEZ_MARKLOCK(x4);
-                IFX(X_ALL | X_PEND)
-                {
+                IFX (X_ALL | X_PEND) {
                     emit_adc32(dyn, ninst, rex, x1, gd, x3, x4, x5, x6);
                 }
             }
@@ -475,8 +470,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 AND(x4, x1, gd);
                 SCxw(x3, x4, wback, 1, 1);
                 BNEZ_MARKLOCK(x3);
-                IFX(X_ALL | X_PEND)
-                emit_and32(dyn, ninst, rex, x1, gd, x3, x4);
+                IFX (X_ALL | X_PEND)
+                    emit_and32(dyn, ninst, rex, x1, gd, x3, x4);
             }
             SMDMB();
             break;
@@ -496,8 +491,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SUB(x4, x1, gd);
                 SCxw(x3, x4, wback, 1, 1);
                 BNEZ_MARKLOCK(x3);
-                IFX(X_ALL | X_PEND)
-                emit_sub32(dyn, ninst, rex, x1, gd, x3, x4, x5);
+                IFX (X_ALL | X_PEND)
+                    emit_sub32(dyn, ninst, rex, x1, gd, x3, x4, x5);
             }
             SMDMB();
             break;
@@ -529,8 +524,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         OR(x6, x4, x1);
                         SC_W(x6, x6, x3, 1, 1);
                         BNEZ_MARKLOCK(x6);
-                        IFX(X_ALL | X_PEND)
-                        {
+                        IFX (X_ALL | X_PEND) {
                             SRL(x1, x4, x2);
                             ANDI(x1, x1, 0xFF);
                             emit_or8c(dyn, ninst, x1, u8, x2, x4, x5);
@@ -596,8 +590,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BNEZ_MARK2(x3);
                         SDxw(x4, wback, 0);
                         MARK;
-                        IFX(X_ALL | X_PEND)
-                        emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
+                        IFX (X_ALL | X_PEND)
+                            emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                         SMDMB();
                     }
                     break;
@@ -632,8 +626,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (!rex.w) ZEROUP(x4);
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL | X_PEND)
-                        emit_or32c(dyn, ninst, rex, x1, i64, x3, x4);
+                        IFX (X_ALL | X_PEND)
+                            emit_or32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }
                     break;
                 case 4: // AND
@@ -667,8 +661,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (!rex.w) ZEROUP(x4);
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL | X_PEND)
-                        emit_and32c(dyn, ninst, rex, x1, i64, x3, x4);
+                        IFX (X_ALL | X_PEND)
+                            emit_and32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }
                     break;
                 case 5: // SUB
@@ -701,8 +695,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL | X_PEND)
-                        emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
+                        IFX (X_ALL | X_PEND)
+                            emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                     }
                     break;
                 case 6: // XOR
@@ -735,8 +729,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL | X_PEND)
-                        emit_xor32c(dyn, ninst, rex, x1, i64, x3, x4);
+                        IFX (X_ALL | X_PEND)
+                            emit_xor32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }
                     break;
                 default: DEFAULT;
@@ -795,8 +789,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ADDIxw(x4, x1, 1);
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL | X_PEND)
-                        emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
+                        IFX (X_ALL | X_PEND)
+                            emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
                     }
                     break;
                 case 1: // DEC Ed
@@ -813,8 +807,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ADDIxw(x4, x1, -1);
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL | X_PEND)
-                        emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
+                        IFX (X_ALL | X_PEND)
+                            emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
                     }
                     break;
                 default:

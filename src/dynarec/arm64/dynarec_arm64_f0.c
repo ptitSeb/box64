@@ -614,8 +614,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     STLXRB(x3, x4, wback);
                                     CBNZx_MARKLOCK(x3);
                                     SMDMB();
-                                    IFX(X_ALL | X_PEND)
-                                    {
+                                    IFX (X_ALL | X_PEND) {
                                         MOVxw_REG(x2, x1);
                                         emit_add8(dyn, ninst, x2, gd, x3, x4);
                                     }
@@ -692,8 +691,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 }
                                 if (!ALIGNED_ATOMICxw || !arm64_atomics) {
                                     MARK2;
-                                    IFX(X_ALL | X_PEND)
-                                    {
+                                    IFX (X_ALL | X_PEND) {
                                         MOVxw_REG(x2, x1);
                                         emit_add32(dyn, ninst, rex, x2, gd, x3, x4);
                                     }

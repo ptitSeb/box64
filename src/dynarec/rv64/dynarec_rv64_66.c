@@ -262,26 +262,20 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (ed == gd) {
                 // optimize XOR Gw, Gw
                 CLEAR_FLAGS();
-                IFX(X_PEND)
-                {
+                IFX (X_PEND) {
                     SET_DF(x6, d_xor16);
-                }
-                else IFX(X_ALL)
-                {
+                } else IFX (X_ALL) {
                     SET_DFNONE();
                 }
                 SRLI(ed, ed, 16);
                 SLLI(ed, ed, 16);
-                IFX(X_PEND)
-                {
+                IFX (X_PEND) {
                     SH(ed, xEmu, offsetof(x64emu_t, res));
                 }
-                IFX(X_ZF)
-                {
+                IFX (X_ZF) {
                     ORI(xFlags, xFlags, 1 << F_ZF);
                 }
-                IFX(X_PF)
-                {
+                IFX (X_PF) {
                     ORI(xFlags, xFlags, 1 << F_PF);
                 }
             } else {
@@ -304,26 +298,20 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (ed == gd) {
                 // optimize XOR Gw, Gw
                 CLEAR_FLAGS();
-                IFX(X_PEND)
-                {
+                IFX (X_PEND) {
                     SET_DF(x6, d_xor16);
-                }
-                else IFX(X_ALL)
-                {
+                } else IFX (X_ALL) {
                     SET_DFNONE();
                 }
                 SRLI(ed, ed, 16);
                 SLLI(ed, ed, 16);
-                IFX(X_PEND)
-                {
+                IFX (X_PEND) {
                     SH(ed, xEmu, offsetof(x64emu_t, res));
                 }
-                IFX(X_ZF)
-                {
+                IFX (X_ZF) {
                     ORI(xFlags, xFlags, 1 << F_ZF);
                 }
-                IFX(X_PF)
-                {
+                IFX (X_PF) {
                     ORI(xFlags, xFlags, 1 << F_PF);
                 }
             } else {

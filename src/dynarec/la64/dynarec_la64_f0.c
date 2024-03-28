@@ -114,8 +114,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 ADDxw(x4, x1, gd);
                                 SCxw(x4, wback, 0);
                                 BEQZ_MARKLOCK(x4);
-                                IFX(X_ALL | X_PEND)
-                                {
+                                IFX (X_ALL | X_PEND) {
                                     MVxw(x2, x1);
                                     emit_add32(dyn, ninst, rex, x2, gd, x3, x4, x5);
                                 }
@@ -168,8 +167,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         SCxw(x4, wback, 0);
                         BEQZ_MARKLOCK(x4);
-                        IFX(X_ALL | X_PEND)
-                        {
+                        IFX (X_ALL | X_PEND) {
                             emit_add32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
                         }
                         SMDMB();

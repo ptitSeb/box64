@@ -36,8 +36,7 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_DFNONE();
     }
 
-    IFX(X_AF | X_CF | X_OF)
-    {
+    IFX (X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOT(s5, s1);
     }
@@ -49,20 +48,17 @@ void emit_cmp8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     {
         SB(s6, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s3, s6, 7);
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     CALC_SUB_FLAGS(s5, s2, s6, s3, s4, 8);
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s6, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
 }
@@ -83,19 +79,16 @@ void emit_cmp8_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
         SET_DFNONE();
     }
 
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s3, s1, 7);
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
@@ -115,36 +108,31 @@ void emit_cmp16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
 
-    IFX(X_AF | X_CF | X_OF)
-    {
+    IFX (X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOT(s5, s1);
     }
 
     // It's a cmp, we can't store the result back to s1.
     SUB(s6, s1, s2);
-    IFX(X_ALL)
-    {
+    IFX (X_ALL) {
         ZEXTH(s6, s6);
     }
     IFX_PENDOR0
     {
         SH(s6, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s3, s6, 15);
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     CALC_SUB_FLAGS(s5, s2, s6, s3, s4, 16);
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s6, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
 }
@@ -165,19 +153,16 @@ void emit_cmp16_0(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
         SET_DFNONE();
     }
 
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s3, s1, 15);
         BEQZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
@@ -197,8 +182,7 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
-    IFX(X_AF | X_CF | X_OF)
-    {
+    IFX (X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOT(s5, s1);
     }
@@ -209,8 +193,7 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     {
         SDxw(s6, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         BGE(s6, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
@@ -218,13 +201,11 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         ZEROUP(s6);
     }
     CALC_SUB_FLAGS(s5, s2, s6, s3, s4, rex.w ? 64 : 32);
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s6, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s6, s3, s4);
     }
 }
@@ -244,8 +225,7 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
     {
         SET_DFNONE();
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         if (rex.w) {
             BGE(s1, xZR, 8);
         } else {
@@ -254,13 +234,11 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s3, int
         }
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
@@ -284,19 +262,16 @@ void emit_test8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     {
         SD(s3, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s4, s3, 7);
         BEQZ(s4, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 }
@@ -320,19 +295,16 @@ void emit_test16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
     {
         SH(s3, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s4, s3, 15);
         BEQZ(s4, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 }
@@ -356,23 +328,19 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     {
         SDxw(s3, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF | X_ZF)
-    {
+    IFX (X_SF | X_ZF) {
         if (!rex.w) ZEROUP(s3);
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s4, s3, rex.w ? 63 : 31);
         BEQZ(s4, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 }
@@ -392,8 +360,7 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
 
     if (c >= -2048 && c <= 2047) {
         ANDI(s3, s1, c);
-        IFX(X_SF | X_ZF)
-        {
+        IFX (X_SF | X_ZF) {
             if (!rex.w && c < 0) ZEROUP(s3);
         }
     } else {
@@ -405,19 +372,16 @@ void emit_test32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     {
         SDxw(s3, xEmu, offsetof(x64emu_t, res));
     }
-    IFX(X_SF)
-    {
+    IFX (X_SF) {
         SRLI(s4, s3, rex.w ? 63 : 31);
         BEQZ(s4, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    IFX(X_ZF)
-    {
+    IFX (X_ZF) {
         BNEZ(s3, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
-    IFX(X_PF)
-    {
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 }

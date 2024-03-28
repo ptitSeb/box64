@@ -380,8 +380,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEXSS(v0, 0);
             CLEAR_FLAGS();
             // if isnan(d0) || isnan(v0)
-            IFX(X_ZF | X_PF | X_CF)
-            {
+            IFX (X_ZF | X_PF | X_CF) {
                 FEQS(x3, d0, d0);
                 FEQS(x2, v0, v0);
                 AND(x2, x2, x3);
@@ -391,8 +390,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             MARK;
             // else if isless(d0, v0)
-            IFX(X_CF)
-            {
+            IFX (X_CF) {
                 FLTS(x2, d0, v0);
                 BEQ_MARK2(x2, xZR);
                 ORI(xFlags, xFlags, 1 << F_CF);
@@ -400,8 +398,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             MARK2;
             // else if d0 == v0
-            IFX(X_ZF)
-            {
+            IFX (X_ZF) {
                 FEQS(x2, d0, v0);
                 CBZ_NEXT(x2);
                 ORI(xFlags, xFlags, 1 << F_ZF);

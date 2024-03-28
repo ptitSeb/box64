@@ -231,8 +231,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v0, 0);
             CLEAR_FLAGS();
             // if isnan(d0) || isnan(v0)
-            IFX(X_ZF | X_PF | X_CF)
-            {
+            IFX (X_ZF | X_PF | X_CF) {
                 FEQD(x3, d0, d0);
                 FEQD(x2, v0, v0);
                 AND(x2, x2, x3);
@@ -242,8 +241,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             MARK;
             // else if isless(d0, v0)
-            IFX(X_CF)
-            {
+            IFX (X_CF) {
                 FLTD(x2, d0, v0);
                 BEQ_MARK2(x2, xZR);
                 ORI(xFlags, xFlags, 1 << F_CF);
@@ -251,8 +249,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             MARK2;
             // else if d0 == v0
-            IFX(X_ZF)
-            {
+            IFX (X_ZF) {
                 FEQD(x2, d0, v0);
                 CBZ_NEXT(x2);
                 ORI(xFlags, xFlags, 1 << F_ZF);
@@ -523,13 +520,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(x2, 0);
                     CLEAR_FLAGS();
                     SET_DFNONE();
-                    IFX(X_ZF | X_CF)
-                    {
+                    IFX (X_ZF | X_CF) {
                         LD(x5, wback, fixedaddress + 0);
                         LD(x6, wback, fixedaddress + 8);
 
-                        IFX(X_ZF)
-                        {
+                        IFX (X_ZF) {
                             LD(x3, gback, gdoffset + 0);
                             LD(x4, gback, gdoffset + 8);
                             AND(x3, x3, x5);
@@ -538,8 +533,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BNEZ(x3, 8);
                             ORI(xFlags, xFlags, 1 << F_ZF);
                         }
-                        IFX(X_CF)
-                        {
+                        IFX (X_CF) {
                             LD(x3, gback, gdoffset + 0);
                             NOT(x3, x3);
                             LD(x4, gback, gdoffset + 8);

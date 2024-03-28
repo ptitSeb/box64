@@ -556,7 +556,7 @@ uintptr_t Run0F(x64emu_t* emu, rex_t rex, uintptr_t addr, int* step)
                 GETED(0);
                 GETGD;
                 CHECK_FLAGS(emu);
-                , if (rex.w) {  GD->q[0] = ED->q[0]; } else {  GD->q[0] = ED->dword[0]; }, if (!rex.w) GD->dword[1] = 0;
+                , if (rex.w) { GD->q[0] = ED->q[0]; } else { GD->q[0] = ED->dword[0]; }, if (!rex.w) GD->dword[1] = 0;
                 , )
             /* 0x40 -> 0x4F CMOVxx Gd,Ed */ // conditional move, no sign
 
