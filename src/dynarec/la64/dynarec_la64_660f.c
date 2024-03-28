@@ -55,6 +55,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             FAKEED;
             break;
+        case 0x6E:
+            INST_NAME("MOVD Gx, Ed");
+            nextop = F8;
+            GETGX_empty(v0);
+            v1 = fpu_get_scratch(dyn);
+            GETED(0);
+            VXOR_V(v0, v0, v0);
+            if (rex.w) {
+                MOVGR2FR_D(v1, ed);
+                VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            } else {
+                MOVGR2FR_W(v1, ed);
+                VEXTRINS_W(v0, v1, 0); // v0[31:0] = v1[31:0]
+            }
+            break;
         default:
             DEFAULT;
     }
