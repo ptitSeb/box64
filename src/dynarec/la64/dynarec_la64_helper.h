@@ -174,6 +174,10 @@
     gd = i;                                                   \
     BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
 
+#define GETGX_empty(a)                          \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK(s1) BSTRINS_D(gb1, gd, gb2 + 7, gb2);
 
@@ -523,6 +527,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define x87_forget       STEPNAME(x87_forget)
 #define sse_purge07cache STEPNAME(sse_purge07cache)
+#define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
@@ -595,6 +600,8 @@ void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st);
 // SSE/SSE2 helpers
 // purge the XMM0..XMM7 cache (before function call)
 void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1);
+// get lsx register for an SSE reg, but don't try to synch it if it needed to be created
+int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 

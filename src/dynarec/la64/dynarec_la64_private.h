@@ -9,6 +9,57 @@ typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
+#define LSX_CACHE_NONE   0
+#define LSX_CACHE_ST_D   1
+#define LSX_CACHE_ST_F   2
+#define LSX_CACHE_ST_I64 3
+#define LSX_CACHE_MM     4
+#define LSX_CACHE_XMMW   5
+#define LSX_CACHE_XMMR   6
+#define LSX_CACHE_SCR    7
+
+typedef union lsx_cache_s {
+    int8_t v;
+    struct {
+        uint8_t t : 4; // reg type
+        uint8_t n : 4; // reg number
+    };
+} lsx_cache_t;
+
+typedef union sse_cache_s {
+    int8_t v;
+    struct {
+        uint8_t reg : 7;
+        uint8_t write : 1;
+    };
+} sse_cache_t;
+
+typedef struct lsxcache_s {
+    // LSX cache
+    lsx_cache_t     lsxcache[24];
+    int8_t          stack;
+    int8_t          stack_next;
+    int8_t          stack_pop;
+    int8_t          stack_push;
+    uint8_t         combined1;
+    uint8_t         combined2;
+    uint8_t         swapped;        // the combined reg were swapped
+    uint8_t         barrier;        // is there a barrier at instruction epilog?
+    uint32_t        news;           // bitmask, wich neoncache are new for this opcode
+    // fpu cache
+    int8_t          x87cache[8];    // cache status for the 8 x87 register behind the fpu stack
+    int8_t          x87reg[8];      // reg used for x87cache entry
+    int8_t          freed[8];       // set when FFREE is used, -1 else
+    int8_t          mmxcache[8];    // cache status for the 8 MMX registers
+    sse_cache_t     ssecache[16];   // cache status for the 16 SSE(2) registers
+    int8_t          fpuused[24];    // all 0..24 double reg from fpu, used by x87, sse and mmx
+    int8_t          x87stack;       // cache stack counter
+    int8_t          mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
+    int8_t          fpu_scratch;    // scratch counter
+    int8_t          fpu_extra_qscratch; // some opcode need an extra quad scratch register
+    int8_t          fpu_reg;        // x87/sse/mmx reg counter
+} lsxcache_t;
+
 typedef struct flagcache_s {
     int                 pending;    // is there a pending flags here, or to check?
     int                 dfnone;     // if deferred flags is already set to df_none
@@ -33,6 +84,7 @@ typedef struct instruction_la64_s {
     uint8_t             will_write;
     uint8_t             last_write;
     flagcache_t         f_exit;     // flags status at end of instruction
+    lsxcache_t          lsx;        // lsxcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
 } instruction_la64_t;
 
@@ -52,6 +104,7 @@ typedef struct dynarec_la64_s {
     uintptr_t            tablestart;
     uintptr_t            jmp_next;   // address of the jump_next address
     flagcache_t          f;
+    lsxcache_t           lsx;
     uintptr_t*           next;       // variable array of "next" jump address
     int                  next_sz;
     int                  next_cap;
