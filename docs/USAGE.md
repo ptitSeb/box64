@@ -343,6 +343,9 @@ Define x86_64 bash to launch script
 #### BOX64_NORCFILES
 If the env var exist, no rc files (like /etc/box64.box64rc and ~/.box64rc) will be loaded
 
+#### BOX64_RCFILE
+If the env var is set and file exists, this variable will be used as path to the box64rc file instead of default paths (BOX64_RCFILE is loaded first, default paths are not loaded)
+
 ----
 
 Those variables are only valid inside a rcfile:
