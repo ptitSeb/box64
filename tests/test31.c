@@ -12,7 +12,7 @@
 #include <dlfcn.h>
 #include <limits.h>
 
-// Built with `gcc -g test30.c -o test30 -ldl -lpthread`
+// Built with `gcc -g test31.c -o test31 -ldl -lpthread`
 
 typedef intptr_t (*RunFuncWithEmulatorFunction)(const char *, const char *, int, ...);
 static RunFuncWithEmulatorFunction RunFuncWithEmulator = NULL;
@@ -145,30 +145,13 @@ static void InitBox64() {
 
 
 /**
- * Test Points for API `RunX64Function` of libbox64.so: 
- *     - Thread safety.
- *     - Call x64 function from different libraries.
+ * Test Points for API `BuildBridge` of libbox64.so: 
+ *     - Build a bridge for an arm64 symbol(function)
 */
 int main() {
     InitBox64();
-    const int NUM_THREADS = 2;
-
-    pthread_t threads1[NUM_THREADS];
-    for (int i = 0; i < NUM_THREADS; i++) {
-        pthread_create(&threads1[i], NULL, ThreadFuncTestX64Lib1, NULL);
-    }
-
-    pthread_t threads2[NUM_THREADS];
-    for (int i = 0; i < NUM_THREADS; i++) {
-        pthread_create(&threads2[i], NULL, ThreadFuncTestX64Lib2, NULL);
-    }
-
-    // Wait for all threads to finish
-    for (int i = 0; i < NUM_THREADS; i++) {
-        pthread_join(threads1[i], NULL);
-        pthread_join(threads2[i], NULL);
-    }
-    assert (threads_done == NUM_THREADS * 2);
+    
+    // TODO
 
     printf("All done.\n");
     return 0;
