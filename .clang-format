@@ -11,4 +11,6 @@ SortIncludes: false
 MaxEmptyLinesToKeep: 2
 IndentCaseLabels: true
 AlignConsecutiveMacros: true
+WhitespaceSensitiveMacros: ['QUOTE']
+IfMacros: ['IFX']
 ---
