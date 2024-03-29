@@ -1096,29 +1096,34 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
         // loop all cache entries
         for (int i=0; i<8; ++i)
             if(dyn->n.x87cache[i]!=-1) {
+                int st = dyn->n.x87cache[i]+dyn->n.stack_pop;
                 #if STEP == 1
                 if(!next) {   // don't force promotion here
                     // pre-apply pop, because purge happens in-between
-                    neoncache_promote_double(dyn, ninst, dyn->n.x87cache[i]+dyn->n.stack_pop);
+                    neoncache_promote_double(dyn, ninst, st);
                 }
                 #endif
                 #if STEP == 3
-                if(!next && neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
-                    MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", dyn->n.x87cache[i]);
+                if(!next && neoncache_get_current_st(dyn, ninst, st)!=NEON_CACHE_ST_D) {
+                    MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", st);
                 }
                 #endif
-                ADDw_U12(s3, s2, dyn->n.x87cache[i]);
+                ADDw_U12(s3, s2, dyn->n.x87cache[i]);   // unadjusted count, as it's relative to real top
                 ANDw_mask(s3, s3, 0, 2); //mask=7   // (emu->top + st)&7
-                if(next) {
-                    // need to check if a ST_F need local promotion
-                    if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
-                        FCVT_D_S(0, dyn->n.x87reg[i]);
-                        VSTR64_REG_LSL3(0, s1, s3);    // save the value
-                    } else {
+                switch(neoncache_get_current_st(dyn, ninst, st)) {
+                    case NEON_CACHE_ST_D:
                         VSTR64_REG_LSL3(dyn->n.x87reg[i], s1, s3);    // save the value
-                    }
-                } else {
-                    VSTR64_REG_LSL3(dyn->n.x87reg[i], s1, s3);
+                        break;
+                    case NEON_CACHE_ST_F:
+                        FCVT_D_S(SCRATCH, dyn->n.x87reg[i]);
+                        VSTR64_REG_LSL3(SCRATCH, s1, s3);    // save the value
+                        break;
+                    case NEON_CACHE_ST_I64:
+                        SCVTFDD(SCRATCH, dyn->n.x87reg[i]);
+                        VSTR64_REG_LSL3(SCRATCH, s1, s3);    // save the value
+                        break;
+                }
+                if(!next) {
                     fpu_free_reg(dyn, dyn->n.x87reg[i]);
                     dyn->n.x87reg[i] = -1;
                     dyn->n.x87cache[i] = -1;
@@ -1313,11 +1318,11 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
     if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F) {
-        FCVT_D_S(31, reg);
-        VSTR64_REG_LSL3(31, s1, s2);
+        FCVT_D_S(SCRATCH, reg);
+        VSTR64_REG_LSL3(SCRATCH, s1, s2);
     } else if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_I64) {
-        SCVTFDD(31, reg);
-        VSTR64_REG_LSL3(31, s1, s2);
+        SCVTFDD(SCRATCH, reg);
+        VSTR64_REG_LSL3(SCRATCH, s1, s2);
     } else {
         VSTR64_REG_LSL3(reg, s1, s2);
     }
@@ -1407,11 +1412,11 @@ void x87_free(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int st)
             ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
         }
         if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F) {
-            FCVT_D_S(31, reg);
-            VSTR64_REG_LSL3(31, s1, s2);
+            FCVT_D_S(SCRATCH, reg);
+            VSTR64_REG_LSL3(SCRATCH, s1, s2);
         } else if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_I64) {
-            SCVTFDD(31, reg);
-            VSTR64_REG_LSL3(31, s1, s2);
+            SCVTFDD(SCRATCH, reg);
+            VSTR64_REG_LSL3(SCRATCH, s1, s2);
         } else {
             VSTR64_REG_LSL3(reg, s1, s2);
         }
@@ -1792,7 +1797,6 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
     // There is no VSWP in Arm64 NEON to swap 2 register contents!
     // so use a scratch...
-    #define SCRATCH 31
     if(quad) {
         VMOVQ(SCRATCH, i);
         VMOVQ(i, j);

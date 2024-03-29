@@ -76,6 +76,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             break;
         }
         #endif
+        fpu_propagate_stack(dyn, ninst);
         ip = addr;
         if (reset_n!=-1) {
             dyn->last_ip = 0;
@@ -103,7 +104,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
             dyn->last_ip = 0;   // reset IP if some jump are coming here
         #endif
-        fpu_propagate_stack(dyn, ninst);
         NEW_INST;
         #if STEP == 0
         if(ninst && dyn->insts[ninst-1].x64.barrier_next) {
@@ -170,8 +170,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             next = dyn->insts[ninst].x64.jmp_insts;
         #endif
         if(dyn->insts[ninst].x64.has_next && dyn->insts[next].x64.barrier) {
-            if(dyn->insts[next].x64.barrier&BARRIER_FLOAT)
+            if(dyn->insts[next].x64.barrier&BARRIER_FLOAT) {
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+            }
             if(dyn->insts[next].x64.barrier&BARRIER_FLAGS) {
                 dyn->f.pending = 0;
                 dyn->f.dfnone = 0;
