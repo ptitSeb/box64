@@ -143,14 +143,14 @@ GO(gst_audio_encoder_set_output_format, iFpp)
 //GO(gst_audio_encoder_set_perfect_timestamp, 
 //GO(gst_audio_encoder_set_tolerance, 
 //GO(gst_audio_filter_class_add_pad_templates, 
-//GO(gst_audio_filter_get_type, 
-//GO(gst_audio_flags_get_type, 
+GO(gst_audio_filter_get_type, LFv)
+GO(gst_audio_flags_get_type, LFv)
 GO(gst_audio_format_build_integer, uFiiii)
 GO(gst_audio_format_fill_silence, vFppL)
-//GO(gst_audio_format_flags_get_type, 
+GO(gst_audio_format_flags_get_type, LFv)
 GO(gst_audio_format_from_string, uFp)
 //GO(gst_audio_format_get_info, 
-//GO(gst_audio_format_get_type, 
+GO(gst_audio_format_get_type, LFv)
 GO(gst_audio_format_info_fill_silence, vFppL)
 GO(gst_audio_format_info_get_type, LFv)
 GO(gst_audio_formats_raw, pFp)

@@ -80,7 +80,7 @@ GO(cmsDeleteTransform, vFp)
 //GO(cmsDictNextEntry, 
 GO(cmsDoTransform, vFpppu)
 //GO(cmsDoTransformLineStride, 
-//GO(cmsDoTransformStride, 
+GO(cmsDoTransformStride, vFpppii)
 //GO(_cmsDoubleTo15Fixed16, 
 //GO(_cmsDoubleTo8Fixed8, 
 //GO(cmsDupContext, 
@@ -238,7 +238,7 @@ GO(cmsGetColorSpace, iFp)
 //GO(cmsOpenIOhandlerFromMem, 
 //GO(cmsOpenIOhandlerFromNULL, 
 //GO(cmsOpenIOhandlerFromStream, 
-//GO(cmsOpenProfileFromFile, 
+GO(cmsOpenProfileFromFile, pFpp)
 //GO(cmsOpenProfileFromFileTHR, 
 //GO(cmsOpenProfileFromIOhandler2THR, 
 //GO(cmsOpenProfileFromIOhandlerTHR, 
