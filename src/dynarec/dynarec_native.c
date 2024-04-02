@@ -501,7 +501,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         return NULL;
     }
     // protect the block of it goes over the 1st page
-    if((addr&~box64_pagesize)!=(end&~box64_pagesize)) // need to protect some other pages too
+    if((addr&~(box64_pagesize-1))!=(end&~(box64_pagesize-1))) // need to protect some other pages too
         protectDB(addr, end-addr);  //end is 1byte after actual end
     // compute hash signature
     uint32_t hash = X31_hash_code((void*)addr, end-addr);
