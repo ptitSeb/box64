@@ -103,12 +103,57 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LOAD_XEMU_REM();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             break;
+        case 0x11:
+            INST_NAME("MOVUPS Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                VOR_V(v1, v0, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VST(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
+        case 0x16:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("MOVLHPS Gx,Ex");
+                GETGX(v0, 1);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+            } else {
+                INST_NAME("MOVHPS Gx,Ex");
+                SMREAD();
+                GETGX(v0, 1);
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                FLD_D(v1, ed, fixedaddress);
+            }
+            VILVL_D(v0, v1, v0); // v0[127:64] = v1[63:0]
+            break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
             FAKEED;
             break;
-
+        case 0x29:
+            INST_NAME("MOVAPS Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                VOR_V(v1, v0, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VST(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         #define GO(GETFLAGS, NO, YES, F, I)                                                          \
             READFLAGS(F);                                                                            \
             if (la64_lbt) {                                                                          \

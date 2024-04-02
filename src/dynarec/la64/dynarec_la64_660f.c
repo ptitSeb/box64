@@ -55,19 +55,69 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             FAKEED;
             break;
+        case 0x6C:
+            INST_NAME("PUNPCKLQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+            } else {
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                FLD_D(v1, ed, fixedaddress);
+            }
+            VILVL_D(v0, v1, v0); // v0[127:64] = v1[63:0]
+            break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
             GETGX_empty(v0);
             v1 = fpu_get_scratch(dyn);
-            GETED(0);
+            if (MODREG) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                if (rex.w) {
+                    MOVGR2FR_D(v1, ed);
+                } else {
+                    MOVGR2FR_W(v1, ed);
+                }
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                FLDxw(v1, ed, fixedaddress);
+            }
             VXOR_V(v0, v0, v0);
             if (rex.w) {
-                MOVGR2FR_D(v1, ed);
                 VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
             } else {
-                MOVGR2FR_W(v1, ed);
                 VEXTRINS_W(v0, v1, 0); // v0[31:0] = v1[31:0]
+            }
+            break;
+        case 0x6F:
+            INST_NAME("MOVDQA Gx,Ex");
+            nextop = F8;
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                GETGX_empty(v0);
+                VOR_V(v0, v1, v1);
+            } else {
+                GETGX_empty(v0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                VLD(v0, ed, fixedaddress);
+            }
+            break;
+        case 0xEF:
+            INST_NAME("PXOR Gx,Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG && ((nextop & 7) + (rex.b << 3) == gd)) {
+                // special case for PXOR Gx, Gx
+                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VXOR_V(q0, q0, q0);
+            } else {
+                q0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                GETEX(q1, 0, 0);
+                VXOR_V(q0, q0, q1);
             }
             break;
         default:
