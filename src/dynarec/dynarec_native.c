@@ -404,7 +404,6 @@ void CancelBlock64(int need_lock)
     if(need_lock)
         mutex_lock(&my_context->mutex_dyndump);
     dynarec_native_t* helper = (dynarec_native_t*)current_helper;
-    current_helper = NULL;
     if(helper) {
         memset(static_insts, 0, sizeof(static_insts));
         if(helper->dynablock && helper->dynablock->actual_block) {
@@ -412,6 +411,7 @@ void CancelBlock64(int need_lock)
             helper->dynablock->actual_block = NULL;
         }
     }
+    current_helper = NULL;
     if(need_lock)
         mutex_unlock(&my_context->mutex_dyndump);
 }
