@@ -979,30 +979,36 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
         // loop all cache entries
         for (int i=0; i<8; ++i)
             if(dyn->e.x87cache[i]!=-1) {
+                int st = dyn->e.x87cache[i]+dyn->e.stack_pop;
                 #if STEP == 1
                 if(!next) {   // don't force promotion here
                     // pre-apply pop, because purge happens in-between
-                    extcache_promote_double(dyn, ninst, dyn->e.x87cache[i]+dyn->e.stack_pop);
+                    extcache_promote_double(dyn, ninst, st);
                 }
                 #endif
                 #if STEP == 3
-                if(!next && extcache_get_st_f(dyn, ninst, dyn->e.x87cache[i])>=0) {
-                    MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", dyn->e.x87cache[i]);
+                if(!next && extcache_get_current_st(dyn, ninst, st) != EXT_CACHE_ST_D) {
+                    MESSAGE(LOG_DUMP, "Warning, incoherency with purged ST%d cache\n", st);
                 }
                 #endif
-                ADDI(s3, s2, dyn->e.x87cache[i]);
+                ADDI(s3, s2, dyn->e.x87cache[i]); // unadjusted count, as it's relative to real top
                 ANDI(s3, s3, 7);   // (emu->top + st)&7
                 if(rv64_zba) SH3ADD(s1, s3, xEmu); else {SLLI(s1, s3, 3); ADD(s1, xEmu, s1);}
-                if(next) {
-                    // need to check if a ST_F need local promotion
-                    if(extcache_get_st_f(dyn, ninst, dyn->e.x87cache[i])>=0) {
+                switch(extcache_get_current_st(dyn, ninst, st)) {
+                    case EXT_CACHE_ST_D:
+                        FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));    // save the value
+                        break;
+                    case EXT_CACHE_ST_F:
                         FCVTDS(SCRATCH0, dyn->e.x87reg[i]);
                         FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));    // save the value
-                    } else {
-                        FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));    // save the value
-                    }
-                } else {
-                    FSD(dyn->e.x87reg[i], s1, offsetof(x64emu_t, x87));
+                        break;
+                    case EXT_CACHE_ST_I64:
+                        FMVXD(s2, dyn->e.x87reg[i]);
+                        FCVTDL(SCRATCH0, s2, RD_RTZ);
+                        FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));    // save the value
+                        break;
+                }
+                if(!next) {
                     fpu_free_reg(dyn, dyn->e.x87reg[i]);
                     dyn->e.x87reg[i] = -1;
                     dyn->e.x87cache[i] = -1;
