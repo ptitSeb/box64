@@ -128,6 +128,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("MOVHPS Gx,Ex");
                 SMREAD();
                 GETGX(v0, 1);
+                v1 = fpu_get_scratch(dyn);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 FLD_D(v1, ed, fixedaddress);
             }
