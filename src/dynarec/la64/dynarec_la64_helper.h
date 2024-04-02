@@ -179,12 +179,12 @@
     a = sse_get_reg_empty(dyn, ninst, x1, gd)
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
-#define GBBACK(s1) BSTRINS_D(gb1, gd, gb2 + 7, gb2);
+#define GBBACK() BSTRINS_D(gb1, gd, gb2 + 7, gb2);
 
 // Write eb (ed) back to original register / memory, using s1 as scratch
-#define EBBACK(s1, c)                       \
+#define EBBACK()                            \
     if (wb1) {                              \
-        SUB_D(ed, wback, fixedaddress);     \
+        ST_B(ed, wback, fixedaddress);      \
         SMWRITE();                          \
     } else {                                \
         BSTRINS_D(wback, ed, wb2 + 7, wb2); \
