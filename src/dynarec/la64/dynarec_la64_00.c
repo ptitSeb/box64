@@ -60,7 +60,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             emit_add8(dyn, ninst, x1, x2, x4, x5);
-            EBBACK(x5, 0);
+            EBBACK();
             break;
         case 0x01:
             INST_NAME("ADD Ed, Gd");
@@ -78,7 +78,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             emit_add8(dyn, ninst, x2, x1, x4, x5);
-            GBBACK(x5);
+            GBBACK();
             break;
         case 0x03:
             INST_NAME("ADD Gd, Ed");
@@ -136,7 +136,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             emit_and8(dyn, ninst, x1, x2, x4, x5);
-            EBBACK(x4, 0);
+            EBBACK();
             break;
         case 0x21:
             INST_NAME("AND Ed, Gd");
@@ -154,7 +154,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             emit_and8(dyn, ninst, x2, x1, x4, x5);
-            GBBACK(x5);
+            GBBACK();
             break;
         case 0x23:
             INST_NAME("AND Gd, Ed");
@@ -185,7 +185,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             emit_sub8(dyn, ninst, x1, x2, x4, x5, x6);
-            EBBACK(x5, 0);
+            EBBACK();
             break;
         case 0x29:
             INST_NAME("SUB Ed, Gd");
@@ -203,7 +203,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             emit_sub8(dyn, ninst, x2, x1, x4, x5, x6);
-            GBBACK(x5);
+            GBBACK();
             break;
         case 0x2B:
             INST_NAME("SUB Gd, Ed");
@@ -389,7 +389,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEB(x1, 1);
                     u8 = F8;
                     emit_and8c(dyn, ninst, x1, u8, x2, x4);
-                    EBBACK(x5, 0);
+                    EBBACK();
                     break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
