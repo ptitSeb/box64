@@ -212,15 +212,13 @@ static void neoncache_promote_double_combined(dynarec_arm_t* dyn, int ninst, int
                 neoncache_promote_double_internal(dyn, ninst-1, maxinst, a-dyn->insts[ninst].n.stack_push);
             // go forward is combined is not pop'd
             if(a-dyn->insts[ninst].n.stack_pop>=0)
-                if(!dyn->insts[ninst+1].n.barrier)
+                if(!((ninst+1<dyn->size) && dyn->insts[ninst+1].n.barrier))
                     neoncache_promote_double_forward(dyn, ninst+1, maxinst, a-dyn->insts[ninst].n.stack_pop);
         }
     }
 }
 static void neoncache_promote_double_internal(dynarec_arm_t* dyn, int ninst, int maxinst, int a)
 {
-    if(dyn->insts[ninst+1].n.barrier)
-        return;
     while(ninst>=0) {
         a+=dyn->insts[ninst].n.stack_pop;    // adjust Stack depth: add pop'd ST (going backward)
         int i = neoncache_get_st_f_i64(dyn, ninst, a);

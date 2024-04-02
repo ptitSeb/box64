@@ -405,7 +405,6 @@ void CancelBlock64(int need_lock)
         mutex_lock(&my_context->mutex_dyndump);
     dynarec_native_t* helper = (dynarec_native_t*)current_helper;
     if(helper) {
-        memset(static_insts, 0, sizeof(static_insts));
         if(helper->dynablock && helper->dynablock->actual_block) {
             FreeDynarecMap((uintptr_t)helper->dynablock->actual_block);
             helper->dynablock->actual_block = NULL;
@@ -674,7 +673,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     }
     // ok, free the helper now
     //dynaFree(helper.insts);
-    memset(static_insts, 0, sizeof(static_insts));
     helper.insts = NULL;
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
         printf_log(LOG_NONE, "BOX64: Warning, insts_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));

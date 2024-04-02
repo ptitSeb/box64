@@ -49,6 +49,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     dyn->forward_to = 0;
     dyn->forward_size = 0;
     dyn->forward_ninst = 0;
+    #if STEP == 0
+    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
+    #endif
     fpu_reset(dyn);
     ARCH_INIT();
     int reset_n = -1;
@@ -294,6 +297,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         ++ninst;
         #if STEP == 0
+        memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
         if(ok && (((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)addr))
             || (addr>=box64_nodynarec_start && addr<box64_nodynarec_end)))
         #else

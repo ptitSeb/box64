@@ -22,7 +22,6 @@
 #define SET_HASCALLRET()    dyn->insts[ninst].x64.has_callret = 1
 #define NEW_INST \
         ++dyn->size;                            \
-        memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));     \
         dyn->insts[ninst].x64.addr = ip;        \
         dyn->n.combined1 = dyn->n.combined2 = 0;\
         dyn->n.swapped = 0; dyn->n.barrier = 0; \
