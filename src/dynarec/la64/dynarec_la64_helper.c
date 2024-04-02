@@ -511,6 +511,24 @@ void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
     // TODO
 }
 
+// SSE / SSE2 helpers
+// get lsx register for a SSE reg, create the entry if needed
+int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite)
+{
+    if (dyn->lsx.ssecache[a].v != -1) {
+        if (forwrite) {
+            dyn->lsx.ssecache[a].write = 1; // update only if forwrite
+            dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t = LSX_CACHE_XMMW;
+        }
+        return dyn->lsx.ssecache[a].reg;
+    }
+    dyn->lsx.ssecache[a].reg = fpu_get_reg_xmm(dyn, forwrite ? LSX_CACHE_XMMW : LSX_CACHE_XMMR, a);
+    int ret = dyn->lsx.ssecache[a].reg;
+    dyn->lsx.ssecache[a].write = forwrite;
+    VLD(ret, xEmu, offsetof(x64emu_t, xmm[a]));
+    return ret;
+}
+
 // get lsx register for an SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a)
 {

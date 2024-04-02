@@ -524,6 +524,11 @@ f24-f31  fs0-fs7   Static registers                Callee
 // MemoryStore(GR[rd][63:0], paddr, DOUBLEWORD)
 #define ST_D(rd, rj, imm12) EMIT(type_2RI12(0b0010100111, imm12, rj, rd))
 
+#define FLD_D(fd, rj, imm12) EMIT(type_2RI12(0b0010101110, imm12, rj, fd))
+#define FLD_S(fd, rj, imm12) EMIT(type_2RI12(0b0010101100, imm12, rj, fd))
+#define FST_D(fd, rj, imm12) EMIT(type_2RI12(0b0010101111, imm12, rj, fd))
+#define FST_S(fd, rj, imm12) EMIT(type_2RI12(0b0010101101, imm12, rj, fd))
+
 #define FADD_S(fd, fj, fk)       EMIT(type_3R(0b00000001000000001, fk, fj, fd))
 #define FADD_D(fd, fj, fk)       EMIT(type_3R(0b00000001000000010, fk, fj, fd))
 #define FSUB_S(fd, fj, fk)       EMIT(type_3R(0b00000001000000101, fk, fj, fd))
@@ -1670,6 +1675,15 @@ LSX instruction starts with V, LASX instruction starts with XV.
         else                      \
             LD_D(rd, rj, imm12);  \
     } while (0)
+
+#define FLDxw(rd, rj, imm12)      \
+    do {                          \
+        if (rex.w)                \
+            FLD_D(rd, rj, imm12); \
+        else                      \
+            FLD_S(rd, rj, imm12); \
+    } while (0)
+
 
 #define SDxw(rd, rj, imm12)      \
     do {                         \
