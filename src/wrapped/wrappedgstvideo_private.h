@@ -399,7 +399,7 @@ GO(gst_video_time_code_new_empty, pFv)
 //GO(gst_video_time_code_new_from_date_time, 
 GO(gst_video_time_code_new_from_date_time_full, pFuupuu)
 GO(gst_video_time_code_new_from_string, pFp)
-//GO(gst_video_time_code_nsec_since_daily_jam, 
+GO(gst_video_time_code_nsec_since_daily_jam, UFp)
 GO(gst_video_time_code_to_date_time, pFp)
 GO(gst_video_time_code_to_string, pFp)
 GO(gst_video_transfer_function_from_iso, uFu)

@@ -315,10 +315,10 @@ GO(g_date_time_new_from_timeval_utc, pFp)
 GO(g_date_time_new_from_unix_utc, pFl)
 //GO(g_date_time_new_local, 
 GO(g_date_time_new_now, pFp)
-//GO(g_date_time_new_now_local, 
+GO(g_date_time_new_now_local, pFv)
 GO(g_date_time_new_now_utc, pFv)
 GO(g_date_time_new_utc, pFiiiiid)
-//GO(g_date_time_ref, 
+GO(g_date_time_ref, pFp)
 //GO(g_date_time_to_local, 
 GO(g_date_time_to_timeval, iFpp)
 GO(g_date_time_to_timezone, pFpp)

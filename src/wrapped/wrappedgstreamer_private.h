@@ -62,7 +62,7 @@ GO(gst_buffer_extract_dup, vFpLLpp)
 GO(gst_buffer_fill, LFpLpL)
 GO(gst_buffer_find_memory, iFpLLppp)
 GO(gst_buffer_flags_get_type, LFv)
-//GOM(gst_buffer_foreach_meta, iFEpBp)
+GOM(gst_buffer_foreach_meta, iFEppp)
 GO(gst_buffer_get_all_memory, pFp)
 GO(gst_buffer_get_flags, iFp)
 GO(gst_buffer_get_max_memory, uFv)
@@ -326,7 +326,7 @@ GO(gst_clock_get_calibration, vFppppp)
 GO(gst_clock_get_internal_time, LFp)
 GO(gst_clock_get_master, pFp)
 //GO(gst_clock_get_resolution, 
-//GO(gst_clock_get_time, 
+GO(gst_clock_get_time, UFp)
 //GO(gst_clock_get_timeout, 
 //GO(gst_clock_get_type, 
 //GO(gst_clock_id_compare_func, 
@@ -1040,7 +1040,7 @@ GO(gst_pad_set_offset, vFpI)
 GOM(gst_pad_set_query_function_full, vFEpppp)
 //GOM(gst_pad_set_unlink_function_full, vFEpBpB)
 GOM(gst_pad_start_task, iFEpppp)
-//GOM(gst_pad_sticky_events_foreach, vFEpBp)
+GOM(gst_pad_sticky_events_foreach, vFEppp)
 GO(gst_pad_stop_task, iFp)
 GO(gst_pad_store_sticky_event, iFpp)
 GO(gst_pad_template_flags_get_type, LFv)

@@ -610,6 +610,52 @@ static void* findGstPadIterIntLinkFunctionFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPadIterIntLinkFunction callback\n");
     return NULL;
 }
+//GstPadStickyEventsForeachFunction
+#define GO(A)   \
+static uintptr_t my_GstPadStickyEventsForeachFunction_fct_##A = 0;                              \
+static int my_GstPadStickyEventsForeachFunction_##A(void* a, void* b, void* c)                  \
+{                                                                                               \
+    return (int)RunFunctionFmt(my_GstPadStickyEventsForeachFunction_fct_##A, "ppp", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* findGstPadStickyEventsForeachFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstPadStickyEventsForeachFunction_fct_##A == (uintptr_t)fct) return my_GstPadStickyEventsForeachFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstPadStickyEventsForeachFunction_fct_##A == 0) {my_GstPadStickyEventsForeachFunction_fct_##A = (uintptr_t)fct; return my_GstPadStickyEventsForeachFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPadStickyEventsForeachFunction callback\n");
+    return NULL;
+}
+//GstBufferForeachMetaFunc
+#define GO(A)   \
+static uintptr_t my_GstBufferForeachMetaFunc_fct_##A = 0;                              \
+static int my_GstBufferForeachMetaFunc_##A(void* a, void* b, void* c)                  \
+{                                                                                      \
+    return (int)RunFunctionFmt(my_GstBufferForeachMetaFunc_fct_##A, "ppp", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* findGstBufferForeachMetaFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstBufferForeachMetaFunc_fct_##A == (uintptr_t)fct) return my_GstBufferForeachMetaFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstBufferForeachMetaFunc_fct_##A == 0) {my_GstBufferForeachMetaFunc_fct_##A = (uintptr_t)fct; return my_GstBufferForeachMetaFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstBufferForeachMetaFunc callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -1080,6 +1126,16 @@ EXPORT int my_gst_type_find_register(x64emu_t* emu, void* plugin, void* name, ui
 EXPORT void my_gst_pad_set_iterate_internal_links_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)
 {
     my->gst_pad_set_iterate_internal_links_function_full(pad, findGstPadIterIntLinkFunctionFct(f), data, findDestroyFct(d));
+}
+
+EXPORT void my_gst_pad_sticky_events_foreach(x64emu_t* emu, void* pad, void* f, void* data)
+{
+    my->gst_pad_sticky_events_foreach(pad, findGstPadStickyEventsForeachFunctionFct(f), data);
+}
+
+EXPORT int my_gst_buffer_foreach_meta(x64emu_t* emu, void* buff, void* f, void* data)
+{
+    return my->gst_buffer_foreach_meta(buff, findGstBufferForeachMetaFuncFct(f), data);
 }
 
 #define PRE_INIT    \

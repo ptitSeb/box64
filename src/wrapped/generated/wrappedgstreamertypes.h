@@ -52,6 +52,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_make_element_message_details, pFpV_t) \
 	GO(gst_tag_list_new, pFpV_t) \
 	GO(gst_caps_features_new_valist, pFpA_t) \
+	GO(gst_pad_sticky_events_foreach, vFppp_t) \
 	GO(gst_structure_filter_and_map_in_place, vFppp_t) \
 	GO(gst_tag_list_foreach, vFppp_t) \
 	GO(gst_bin_add_many, vFppV_t) \
@@ -61,6 +62,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_caps_set_simple_valist, vFppA_t) \
 	GO(gst_structure_remove_fields_valist, vFppA_t) \
 	GO(gst_structure_set_valist, vFppA_t) \
+	GO(gst_buffer_foreach_meta, iFppp_t) \
 	GO(gst_caps_foreach, iFppp_t) \
 	GO(gst_element_foreach_sink_pad, iFppp_t) \
 	GO(gst_init_check, iFppp_t) \
