@@ -108,17 +108,17 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 DEFAULT;
             }
-	    break;
+            break;
         case 0x07:
             if (rex.is32bits) {
                 INST_NAME("POP ES");
                 POP1_32(x1);
                 SH(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
-                SW(x1, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
+                SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
             } else {
                 DEFAULT;
             }
-	    break;
+            break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -137,7 +137,6 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
             WBACK;
             break;
-
         case 0x0A:
             INST_NAME("OR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -252,18 +251,18 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 DEFAULT;
             }
-	    break;
+            break;
         case 0x17:
             if (rex.is32bits) {
                 INST_NAME("POP SS");
                 SMREAD();
                 POP1_32(x1);
                 SH(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
-                SW(x1, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
+                SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
             } else {
                 DEFAULT;
             }
-	    break;
+            break;
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
@@ -330,18 +329,18 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 DEFAULT;
             }
-	    break;
+            break;
         case 0x1F:
             if (rex.is32bits) {
                 INST_NAME("POP DS");
                 SMREAD();
                 POP1_32(x1);
                 SH(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
-                SW(x1, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
+                SW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
             } else {
                 DEFAULT;
             }
-	    break;
+            break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
