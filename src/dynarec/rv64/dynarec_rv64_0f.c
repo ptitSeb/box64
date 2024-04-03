@@ -1015,6 +1015,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LD(x3, wback, fixedaddress);
             SD(x3, gback, gdoffset + 0);
             break;
+        case 0x70:
+            INST_NAME("PSHUFW Gm, Em, Ib");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 1);
+            u8 = F8;
+            LHU(x3, gback, gdoffset + ((u8 >> (0 * 2)) & 3) * 2);
+            LHU(x4, gback, gdoffset + ((u8 >> (1 * 2)) & 3) * 2);
+            LHU(x5, wback, fixedaddress + ((u8 >> (2 * 2)) & 3) * 2);
+            LHU(x6, wback, fixedaddress + ((u8 >> (3 * 2)) & 3) * 2);
+            SH(x3, gback, gdoffset + 0 * 2);
+            SH(x4, gback, gdoffset + 1 * 2);
+            SH(x5, gback, gdoffset + 2 * 2);
+            SH(x6, gback, gdoffset + 3 * 2);
+            break;
         case 0x71:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
