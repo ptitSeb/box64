@@ -331,7 +331,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x1F:
-            if (rex.is32bits) {
+            if(rex.is32bits) {
                 INST_NAME("POP DS");
                 SMREAD();
                 POP1_32(x1);
