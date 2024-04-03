@@ -751,7 +751,7 @@ GO(gst_iterator_free, vFp)
 //GO(gst_iterator_item_get_type, 
 //GO(gst_iterator_new, 
 //GO(gst_iterator_new_list, 
-//GO(gst_iterator_new_single, 
+GO(gst_iterator_new_single, pFLp)
 GO(gst_iterator_next, iFpp)
 //GO(gst_iterator_push, 
 //GO(gst_iterator_result_get_type, 
@@ -1034,7 +1034,7 @@ GO(gst_pad_set_element_private, vFpp)
 //GOM(gst_pad_set_event_full_function_full, vFpBpB)
 GOM(gst_pad_set_event_function_full, vFEpppp)
 GOM(gst_pad_set_getrange_function_full, vFEpppp)
-//GOM(gst_pad_set_iterate_internal_links_function_full, vFEpBpB)
+GOM(gst_pad_set_iterate_internal_links_function_full, vFEpppp)
 GOM(gst_pad_set_link_function_full, vFEpppp)
 GO(gst_pad_set_offset, vFpI)
 GOM(gst_pad_set_query_function_full, vFEpppp)

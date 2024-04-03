@@ -587,6 +587,29 @@ static void* findGstTypeFindFunctionFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstTypeFindFunction callback\n");
     return NULL;
 }
+//GstPadIterIntLinkFunction
+#define GO(A)   \
+static uintptr_t my_GstPadIterIntLinkFunction_fct_##A = 0;                          \
+static void* my_GstPadIterIntLinkFunction_##A(void* a, void* b)                     \
+{                                                                                   \
+    return (void*)RunFunctionFmt(my_GstPadIterIntLinkFunction_fct_##A, "pp", a, b); \
+}
+SUPER()
+#undef GO
+static void* findGstPadIterIntLinkFunctionFct(void* fct)
+{
+    if(!fct) return fct;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_GstPadIterIntLinkFunction_fct_##A == (uintptr_t)fct) return my_GstPadIterIntLinkFunction_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GstPadIterIntLinkFunction_fct_##A == 0) {my_GstPadIterIntLinkFunction_fct_##A = (uintptr_t)fct; return my_GstPadIterIntLinkFunction_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gstreamer GstPadIterIntLinkFunction callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -1052,6 +1075,11 @@ EXPORT void* my_gst_task_new(x64emu_t* emu, void* f, void* data, void* d)
 EXPORT int my_gst_type_find_register(x64emu_t* emu, void* plugin, void* name, uint32_t rank, void* f, void* ext, void* caps, void* data, void* d)
 {
     return my->gst_type_find_register(plugin, name, rank, findGstTypeFindFunctionFct(f), ext, caps, data, findDestroyFct(f));
+}
+
+EXPORT void my_gst_pad_set_iterate_internal_links_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)
+{
+    my->gst_pad_set_iterate_internal_links_function_full(pad, findGstPadIterIntLinkFunctionFct(f), data, findDestroyFct(d));
 }
 
 #define PRE_INIT    \

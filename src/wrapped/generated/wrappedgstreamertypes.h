@@ -85,6 +85,7 @@ typedef int32_t (*iFiipppppppp_t)(int32_t, int32_t, void*, void*, void*, void*, 
 	GO(gst_pad_set_chain_function_full, vFpppp_t) \
 	GO(gst_pad_set_event_function_full, vFpppp_t) \
 	GO(gst_pad_set_getrange_function_full, vFpppp_t) \
+	GO(gst_pad_set_iterate_internal_links_function_full, vFpppp_t) \
 	GO(gst_pad_set_link_function_full, vFpppp_t) \
 	GO(gst_pad_set_query_function_full, vFpppp_t) \
 	GO(gst_iterator_fold, iFpppp_t) \
