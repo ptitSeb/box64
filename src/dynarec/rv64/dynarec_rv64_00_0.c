@@ -108,6 +108,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 DEFAULT;
             }
+	    break;
         case 0x07:
             if (rex.is32bits) {
                 INST_NAME("POP ES");
@@ -117,6 +118,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 DEFAULT;
             }
+	    break;
         case 0x08:
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -250,6 +252,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 DEFAULT;
             }
+	    break;
         case 0x17:
             if (rex.is32bits) {
                 INST_NAME("POP SS");
@@ -260,6 +263,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 DEFAULT;
             }
+	    break;
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
@@ -317,7 +321,27 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOV64xw(x2, i64);
             emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
-
+        case 0x1E:
+            if (rex.is32bits) {
+                INST_NAME("PUSH DS");
+                LHU(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+                PUSH1_32(x1);
+                SMWRITE();
+            } else {
+                DEFAULT;
+            }
+	    break;
+        case 0x1F:
+            if (rex.is32bits) {
+                INST_NAME("POP DS");
+                SMREAD();
+                POP1_32(x1);
+                SH(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
+                SW(x1, xEmu, offsetof(x64emu_t, segs_serial[_DS]));
+            } else {
+                DEFAULT;
+            }
+	    break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
