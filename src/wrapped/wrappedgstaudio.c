@@ -32,6 +32,7 @@ typedef size_t  (*LFv_t)();
 
 #define ADDED_FUNCTIONS()                   \
     GO(gst_audio_decoder_get_type, LFv_t)   \
+    GO(gst_audio_filter_get_type, LFv_t)    \
 
 #include "generated/wrappedgstaudiotypes.h"
 
@@ -42,7 +43,8 @@ typedef size_t  (*LFv_t)();
         return -1;
 
 #define CUSTOM_INIT \
-    SetGstAudioDecoderID(my->gst_audio_decoder_get_type());
+    SetGstAudioDecoderID(my->gst_audio_decoder_get_type()); \
+    SetGstAudioFilterID(my->gst_audio_filter_get_type());
 
 #ifdef ANDROID
 #define NEEDED_LIBS "libgstreamer-1.0.so"

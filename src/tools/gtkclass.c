@@ -4418,6 +4418,48 @@ static void bridgeGstVideoFilterInstance(my_GstVideoFilter_t* class)
 {
     bridgeGstBaseTransformInstance(&class->parent);
 }
+// ----- GstAudioFilterClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstAudioFilter, setup, int, (void* filter, void* info), "pp", filter, info);
+
+#define SUPERGO()       \
+    GO(setup, iFpp);    \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstAudioFilterClass(my_GstAudioFilterClass_t* class)
+{
+    wrapGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GstAudioFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstAudioFilterClass(my_GstAudioFilterClass_t* class)
+{
+    unwrapGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GstAudioFilter (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstAudioFilterClass(my_GstAudioFilterClass_t* class)
+{
+    bridgeGstBaseTransformClass(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GstAudioFilter (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
+static void unwrapGstAudioFilterInstance(my_GstAudioFilter_t* class)
+{
+    unwrapGstBaseTransformInstance(&class->parent);
+}
+// autobridge
+static void bridgeGstAudioFilterInstance(my_GstAudioFilter_t* class)
+{
+    bridgeGstBaseTransformInstance(&class->parent);
+}
 // ----- GDBusProxyClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GDBusProxy, g_properties_changed, void, (void* proxy, void* changed_properties, const char* const* invalidated_properties), "ppp", proxy, changed_properties, invalidated_properties);

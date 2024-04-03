@@ -2081,6 +2081,29 @@ typedef struct my_GstVideoFilterClass_s {
   void* _gst_reserved[4];
 } my_GstVideoFilterClass_t;
 
+typedef struct my_GstAudioInfo_s {
+  void*     finfo;
+  int       flags;
+  int       layout;
+  int       rate;
+  int       channels;
+  int       bpf;
+  int       position[64];
+  void*     _gst_reserved[20];
+} my_GstAudioInfo_t;
+
+typedef struct my_GstAudioFilter_s {
+  my_GstBaseTransform_t parent;
+  my_GstAudioInfo_t     info;
+  void*                 _gst_reserved[20];
+} my_GstAudioFilter_t;
+
+typedef struct my_GstAudioFilterClass_s {
+  my_GstBaseTransformClass_t  parent_class;
+  int   (*setup) (void * filter, void* info);
+  void* _gst_reserved[20];
+} my_GstAudioFilterClass_t;
+
 typedef struct my_GDBusProxy_s
 {
   my_GObject_t  parent;
@@ -2238,6 +2261,7 @@ GTKCLASS(GstPushSrc)                \
 GTKCLASS(GstGLBaseSrc)              \
 GTKCLASS(GstAudioDecoder)           \
 GTKCLASS(GstVideoFilter)            \
+GTKCLASS(GstAudioFilter)            \
 GTKIFACE(GstURIHandler)             \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
