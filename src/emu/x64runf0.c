@@ -760,6 +760,26 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 }
                                 native_lock_xchg_d(&emu->context->mutex_16b, 0); // unlock
 #else
+                                if(((uintptr_t)ED)&0xf) {
+                                    do {
+                                        native_lock_read_b(ED);
+                                        tmp64u = ED->q[0];
+                                        tmp64u2 = ED->q[1];
+                                        if(R_RAX == tmp64u && R_RDX == tmp64u2) {
+                                            SET_FLAG(F_ZF);
+                                            tmp32s = native_lock_write_b(ED, emu->regs[_BX].byte[0]);
+                                            if(!tmp32s) {
+                                                ED->q[0] = R_RBX;
+                                                ED->q[1] = R_RCX;
+                                            }
+                                        } else {
+                                            CLEAR_FLAG(F_ZF);
+                                            R_RAX = tmp64u;
+                                            R_RDX = tmp64u2;
+                                            tmp32s = 0;
+                                        }
+                                    } while(tmp32s);
+                                } else
                                 do {
                                     native_lock_read_dq(&tmp64u, &tmp64u2, ED);
                                     if(R_RAX == tmp64u && R_RDX == tmp64u2) {
@@ -774,6 +794,23 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 } while(tmp32s);
 #endif
                             } else
+                                if(((uintptr_t)ED)&0x7) {
+                                    do {
+                                        native_lock_get_b(ED);
+                                        tmp64u = ED->q[0];
+                                        if((R_EAX == (tmp64u&0xffffffff)) && (R_EDX == ((tmp64u>>32)&0xffffffff))) {
+                                            SET_FLAG(F_ZF);
+                                            tmp32s = native_lock_write_b(ED, emu->regs[_BX].byte[0]);
+                                            if(!tmp32s)
+                                                ED->q[0] = R_EBX|(((uint64_t)R_ECX)<<32);
+                                        } else {
+                                            CLEAR_FLAG(F_ZF);
+                                            R_RAX = tmp64u&0xffffffff;
+                                            R_RDX = (tmp64u>>32)&0xffffffff;
+                                            tmp32s = 0;
+                                        }
+                                    } while(tmp32s);
+                                } else
                                 do {
                                     tmp64u = native_lock_read_dd(ED);
                                     if((R_EAX == (tmp64u&0xffffffff)) && (R_EDX == ((tmp64u>>32)&0xffffffff))) {
