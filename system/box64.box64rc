@@ -1,10 +1,10 @@
-# System-wide .box64rc 
+#System - wide.box64rc
 
-# Note that process name are case insensitive!
+#Note that process name are case insensitive !
 
 #
-# Linux process
-# 
+#Linux process
+#
 [3dSen.x86_64]
 BOX64_DYNAREC_BLEEDING_EDGE=0   # avoid the use of STRONGMEM for much better performances
 BOX64_DYNAREC_SAFEFLAGS=0
@@ -15,7 +15,7 @@ BOX64_MAXCPU=4  # surprisingly, having too much cpu core slow down things.4 is m
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [7z]
-# Those are safe to use on 7z and give a bit of a boost
+#Those are safe to use on 7z and give a bit of a boost
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_BIGBLOCK=2
 BOX64_DYNAREC_FORWARD=512
@@ -23,7 +23,7 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [7zz]
-# Those are safe to use on 7z and give a bit of a boost
+#Those are safe to use on 7z and give a bit of a boost
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_BIGBLOCK=2
 BOX64_DYNAREC_FORWARD=512
@@ -31,7 +31,7 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [bash]
-# LOG tend to mess up script execution in bash
+#LOG tend to mess up script execution in bash
 BOX64_LOG=0
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
@@ -50,7 +50,7 @@ BOX64_PREFER_EMULATED=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [dontstarve]
-# use emulated sdl2
+#use emulated sdl2
 BOX64_EMULATED_LIBS=libSDL2-2.0.so.0
 
 [dontstarve_steam_x64]
@@ -80,7 +80,7 @@ BOX64_ENV1=BOX64_DYNAREC_FORWARD=1024
 BOX64_ENV2=BOX64_DYNAREC_CALLRET=1
 
 [GridAutosport]
-#BOX64_DYNAREC_BIGBLOCK=2
+#BOX64_DYNAREC_BIGBLOCK = 2
 BOX64_NOSANDBOX=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 BOX64_MAXCPU=16
@@ -116,22 +116,22 @@ BOX64_MALLOC_HACK=1
 [NuclearBlaze]
 BOX64_EMULATED_LIBS=libopenal.so.1
 BOX64_DYNAREC_SAFEFLAGS=0
-#BOX64_DYNAREC_BIGBLOCK=3
-#BOX64_DYNAREC_FORWARD=1024
+#BOX64_DYNAREC_BIGBLOCK = 3
+#BOX64_DYNAREC_FORWARD = 1024
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [pressure-vessel-wrap]
 BOX64_NOGTK=1
 
 [ProjectZomboid64]
-# This one is still a bit unstable. This might help, but will also slowdown emulation
+#This one is still a bit unstable.This might help, but will also slowdown emulation
 BOX64_DYNAREC_STRONGMEM=3
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_JVM=0
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [Soma.bin.x86_64]
-# This is needed or the physics engine will not behave correctly
+#This is needed or the physics engine will not behave correctly
 BOX64_DYNAREC_FASTROUND=0
 
 [spotify]
@@ -139,7 +139,7 @@ BOX64_NOSANDBOX=1
 BOX64_INPROCESSGPU=1
 BOX64_DYNAREC_STRONGMEM=1
 BOX64_MALLOC_HACK=2
-# this is to save some memory
+#this is to save some memory
 BOX64_DYNAREC_BIGBLOCK=0
 
 [steam]
@@ -150,13 +150,13 @@ BOX64_EMULATED_LIBS=libudev.so.0
 BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 
 #[steamwebhelper]
-#BOX64_NOSANDBOX=1
-#BOX64_INPROCESSGPU=1
-#BOX64_LOG=0
-#BOX64_MALLOC_HACK=2
-#BOX64_DYNAREC_BIGBLOCK=0
-#BOX64_DYNAREC_CALLRET=1
-#BOX64_DYNAREC_STRONGMEM=2
+#BOX64_NOSANDBOX = 1
+#BOX64_INPROCESSGPU = 1
+#BOX64_LOG = 0
+#BOX64_MALLOC_HACK = 2
+#BOX64_DYNAREC_BIGBLOCK = 0
+#BOX64_DYNAREC_CALLRET = 1
+#BOX64_DYNAREC_STRONGMEM = 2
 
 [steamwebhelper.exe]
 BOX64_DYNAREC_STRONGMEM=4
@@ -180,7 +180,7 @@ BOX64_SDL2_JGUID=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [Torchlight2.bin.x86_64]
-# Those are safe to use on 7z and give a bit of a boost
+#Those are safe to use on 7z and give a bit of a boost
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_BIGBLOCK=2
 BOX64_DYNAREC_FORWARD=512
@@ -213,7 +213,7 @@ BOX64_MAXCPU=64
 BOX64_DYNAREC_CALLRET=0 # prevent segfaulting
 
 #
-# Wine process
+#Wine process
 #
 
 [BatmanAK.exe]
