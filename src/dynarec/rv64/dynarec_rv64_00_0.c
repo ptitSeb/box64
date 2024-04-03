@@ -100,6 +100,23 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             i64 = F32S;
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
+        case 0x06:
+            if (rex.is32bits) {
+                INST_NAME("PUSH ES");
+                LHU(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+                PUSH1_32(x1);
+            } else {
+                DEFAULT;
+            }
+        case 0x07:
+            if (rex.is32bits) {
+                INST_NAME("POP ES");
+                POP1_32(x1);
+                SH(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
+                SW(x1, xEmu, offsetof(x64emu_t, segs_serial[_ES]));
+            } else {
+                DEFAULT;
+            }
         case 0x08:
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -224,6 +241,25 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOV64xw(x1, i64);
             emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);
             break;
+        case 0x16:
+            if (rex.is32bits) {
+                INST_NAME("PUSH SS");
+                LHU(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
+                PUSH1_32(x1);
+                SMWRITE();
+            } else {
+                DEFAULT;
+            }
+        case 0x17:
+            if (rex.is32bits) {
+                INST_NAME("POP SS");
+                SMREAD();
+                POP1_32(x1);
+                SH(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
+                SW(x1, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
+            } else {
+                DEFAULT;
+            }
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
