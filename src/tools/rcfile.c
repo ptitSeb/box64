@@ -301,7 +301,7 @@ static void addParam(const char* name, my_params_t* param)
     k = kh_get(params, params, name);
     if(k==kh_end(params)) {
         int ret;
-        k = kh_put(params, params, strdup(name), &ret);
+        k = kh_put(params, params, box_strdup(name), &ret);
     } else {
         clearParam(&kh_value(params, k));
     }
@@ -410,7 +410,7 @@ void LoadRCFile(const char* filename)
                 else if(!strcmp(key, #NAME)) {                          \
                     current_param.is_##name##_present = 1;              \
                     if(current_param.name) free(current_param.name);    \
-                    current_param.name = strdup(val);                   \
+                    current_param.name = box_strdup(val);               \
                 }
             #define ENTRYSTRING_(NAME, name) ENTRYSTRING(NAME, name)
             #define ENTRYDSTRING(NAME, name) ENTRYSTRING(NAME, name)
@@ -523,7 +523,7 @@ void ApplyParams(const char* name)
     #define ENTRYINTPOS(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%d\n", #NAME, param->name);}
     #define ENTRYSTRING(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name);}
     #define ENTRYSTRING_(NAME, name)  
-    #define ENTRYDSTRING(NAME, name) if(param->is_##name##_present) {if(name) free(name); name = strdup(param->name); printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name);}
+    #define ENTRYDSTRING(NAME, name) if(param->is_##name##_present) {if(name) free(name); name = box_strdup(param->name); printf_log(LOG_INFO, "Applying %s=%s\n", #NAME, param->name);}
     #define ENTRYADDR(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%zd\n", #NAME, param->name);}
     #define ENTRYULONG(NAME, name) if(param->is_##name##_present) {name = param->name; printf_log(LOG_INFO, "Applying %s=%lld\n", #NAME, param->name);}
     SUPER()
@@ -590,7 +590,7 @@ void ApplyParams(const char* name)
     if(param->is_bash_present && FileIsX64ELF(param->bash)) {
         if(my_context->bashpath)
             free(my_context->bashpath);
-        my_context->bashpath = strdup(param->bash);
+        my_context->bashpath = box_strdup(param->bash);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_BASH", param->bash);
     }
     #ifdef HAVE_TRACE
