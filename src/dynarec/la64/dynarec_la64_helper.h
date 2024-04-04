@@ -195,6 +195,17 @@
         VLD(a, ed, fixedaddress);                                                            \
     }
 
+// Get Ex as a double, not a quad (warning, x1 get used, x2 might too)
+#define GETEXSD(a, D)                                                                        \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);                     \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        a = fpu_get_scratch(dyn);                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, D); \
+        FLD_D(a, ed, fixedaddress);                                                            \
+    }
+
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK() BSTRINS_D(gb1, gd, gb2 + 7, gb2);
 
@@ -505,6 +516,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F30F STEPNAME(dynarec64_F30F)
 #define dynarec64_660F STEPNAME(dynarec64_660F)
 #define dynarec64_F0   STEPNAME(dynarec64_F0)
+#define dynarec64_F20F STEPNAME(dynarec64_F20F)
 
 #define geted               STEPNAME(geted)
 #define geted32             STEPNAME(geted32)
@@ -640,6 +652,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 #if STEP < 3
 #define PASS3(A)
