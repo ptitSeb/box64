@@ -7,6 +7,18 @@
 #include "debug.h"
 
 static const char* Xt[] = {"xZR", "r1", "r2", "sp", "xEmu", "x1_r5", "x2_r6", "x3_r7", "x4_r8", "x5_r9", "x6_r10", "xMASK_r11", "xRAX_r12", "xRCX_r13", "xRDX_r14", "xRBX_r15", "xRSP_r16", "xRBP_r17", "xRSI_r18", "xRDI_r19", "xRIP_r20", "r21", "r22", "xR8_r23", "xR9_r24", "xR10_r25", "xR11_r26", "xR12_r27", "xR13_r28", "xR14_r29", "xR15_r30", "xFlags_r31"};
+static const char* fpnames[] = {
+    "fa0",  "fa1",  "fa2",  "fa3",  "fa4",  "fa5",  "fa6",  "fa7",
+    "ft0",  "ft1",  "ft2",  "ft3",  "ft4",  "ft5",  "ft6",  "ft7",
+    "ft8",  "ft9",  "ft10", "ft11", "ft12", "ft13", "ft14", "ft15",
+    "fs0",  "fs1",  "fs2",  "fs3",  "fs4",  "fs5",  "fs6",  "fs7",
+};
+static const char* vrpnames[] = {
+    "vra0",  "vra1",  "vra2",  "vra3",  "vra4",  "vra5",  "vra6",  "vra7",
+    "vrt0",  "vrt1",  "vrt2",  "vrt3",  "vrt4",  "vrt5",  "vrt6",  "vrt7",
+    "vrt8",  "vrt9",  "vrt10", "vrt11", "vrt12", "vrt13", "vrt14", "vrt15",
+    "vrs0",  "vrs1",  "vrs2",  "vrs3",  "vrs4",  "vrs5",  "vrs6",  "vrs7",
+};
 
 typedef struct la64_print_s {
     int d, j, k, a;
@@ -448,6 +460,26 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
     // ST.D
     if(isMask(opcode, "0010100111iiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "ST.D", Xt[Rd], Xt[Rj], signExtend(imm, 12));
+        return buff;
+    }
+    // FLD.D
+    if(isMask(opcode, "0010101110iiiiiiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "FLD.D", fpnames[Rd], Xt[Rj], signExtend(imm, 12));
+        return buff;
+    }
+    // FADD.D
+    if(isMask(opcode, "00000001000000010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FADD.D", fpnames[Rd], fpnames[Rj], fpnames[Rk]);
+        return buff;
+    }
+    // FSUB.D
+    if(isMask(opcode, "00000001000000110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSUB.D", fpnames[Rd], fpnames[Rj], fpnames[Rk]);
+        return buff;
+    }
+    // VLD
+    if(isMask(opcode, "0010110000iiiiiiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VLD.D", vrpnames[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;
     }
     // EXT.W.H

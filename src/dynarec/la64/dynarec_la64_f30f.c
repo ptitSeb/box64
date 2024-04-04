@@ -53,6 +53,22 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             FAKEED;
             break;
+        case 0x7E:
+            INST_NAME("MOVQ Gx, Ex");
+            nextop = F8;
+            // Will load Gx as SD. Is that a good choice?
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                GETGX_empty(v0);
+                FMOV_D(v0, v1);
+            } else {
+                GETGX_empty(v0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                FLD_D(v0, ed, fixedaddress);
+            }
+            ST_D(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 8);
+            break;
         default:
             DEFAULT;
     }
