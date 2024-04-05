@@ -122,6 +122,18 @@
 // GETEW will use i for ed, and can use r3 for wback.
 #define GETEW(i, D) GETEWW(x3, i, D)
 
+// GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDO(O, D)                                                                            \
+    if (MODREG) {                                                                               \
+        ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
+        wback = 0;                                                                              \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, D); \
+        LDXxw(x1, wback, O);                                                                    \
+        ed = x1;                                                                                \
+    }
+
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED                                   \
     if (!MODREG) {                               \
@@ -303,6 +315,15 @@
 #define B_NEXT_nocond                                                         \
     j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0; \
     B(j64)
+
+// Branch to MARKSEG if reg is 0 (use j64)
+#define CBZ_MARKSEG(reg)                   \
+    j64 = GETMARKSEG - (dyn->native_size); \
+    BEQZ(reg, j64);
+// Branch to MARKSEG if reg is not 0 (use j64)
+#define CBNZ_MARKSEG(reg)                  \
+    j64 = GETMARKSEG - (dyn->native_size); \
+    BNEZ(reg, j64);
 
 #define IFX(A)      if ((dyn->insts[ninst].x64.gen_flags & (A)))
 #define IFXA(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A)) && (B))
@@ -525,6 +546,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define dynarec64_00   STEPNAME(dynarec64_00)
 #define dynarec64_0F   STEPNAME(dynarec64_0F)
+#define dynarec64_64   STEPNAME(dynarec64_64)
 #define dynarec64_66   STEPNAME(dynarec64_66)
 #define dynarec64_F30F STEPNAME(dynarec64_F30F)
 #define dynarec64_660F STEPNAME(dynarec64_660F)
@@ -538,6 +560,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define jump_to_next        STEPNAME(jump_to_next)
 #define ret_to_epilog       STEPNAME(ret_to_epilog)
 #define call_c              STEPNAME(call_c)
+#define grab_segdata        STEPNAME(grab_segdata)
 #define emit_cmp16          STEPNAME(emit_cmp16)
 #define emit_cmp16_0        STEPNAME(emit_cmp16_0)
 #define emit_cmp32          STEPNAME(emit_cmp32)
@@ -555,6 +578,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sub32c         STEPNAME(emit_sub32c)
 #define emit_sub8           STEPNAME(emit_sub8)
 #define emit_sub8c          STEPNAME(emit_sub8c)
+#define emit_sbb32          STEPNAME(emit_sbb32)
 #define emit_neg32          STEPNAME(emit_neg32)
 #define emit_or32           STEPNAME(emit_or32)
 #define emit_or32c          STEPNAME(emit_or32c)
@@ -599,6 +623,7 @@ void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
+void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_cmp32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
@@ -616,6 +641,7 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sub8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4, int s5);
+void emit_sbb32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_neg32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3);
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
@@ -666,6 +692,7 @@ void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2
 uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

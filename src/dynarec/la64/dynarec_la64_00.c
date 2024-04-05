@@ -141,6 +141,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x19:
+            INST_NAME("SBB Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            WBACK;
+            break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -335,6 +345,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                 }
             }
+            break;
+        case 0x64:
+            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
+            break;
+        case 0x65:
+            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
             break;
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
