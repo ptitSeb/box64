@@ -1445,6 +1445,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAF:
+            // TODO: Refine this
             INST_NAME("IMUL Gd, Ed");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;

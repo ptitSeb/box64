@@ -309,6 +309,76 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 #define SEXT_W(rd, rs1) SLLI_W(rd, rs1, 0)
 
+// product = signed(GR[rj][31:0]) * signed(GR[rk][31:0])
+// GR[rd] = SignExtend(product[31:0], GRLEN)
+#define MUL_W(rd, rj, rk) EMIT(type_3R(0b00000000000111000, rk, rj, rd))
+
+// product = signed(GR[rj][31:0]) * signed(GR[rk][31:0])
+// GR[rd] = SignExtend(product[63:32], GRLEN)
+#define MULH_W(rd, rj, rk) EMIT(type_3R(0b00000000000111001, rk, rj, rd))
+
+// product = unsigned(GR[rj][31:0]) * unsigned(GR[rk][31:0])
+// GR[rd] = SignExtend(product[63:32], GRLEN)
+#define MULH_WU(rd, rj, rk) EMIT(type_3R(0b00000000000111010, rk, rj, rd))
+
+// product = signed(GR[rj][63:0]) * signed(GR[rk][63:0])
+// GR[rd] = product[63:0]
+#define MUL_D(rd, rj, rk) EMIT(type_3R(0b00000000000111011, rk, rj, rd))
+
+// product = signed(GR[rj][63:0]) * signed(GR[rk][63:0])
+// GR[rd] = product[127:64]
+#define MULH_D(rd, rj, rk) EMIT(type_3R(0b00000000000111100, rk, rj, rd))
+
+// product = unsigned(GR[rj][63:0]) * unsigned(GR[rk][63:0])
+// GR[rd] = product[127:64]
+#define MULH_DU(rd, rj, rk) EMIT(type_3R(0b00000000000111101, rk, rj, rd))
+
+// product = signed(GR[rj][31:0]) * signed(GR[rk][31:0])
+// GR[rd] = product[63:0]
+#define MULW_D_W(rd, rj, rk) EMIT(type_3R(0b00000000000111110, rk, rj, rd))
+
+// product = unsigned(GR[rj][31:0]) * unsigned(GR[rk][31:0])
+// GR[rd] = product[63:0]
+#define MULW_D_WU(rd, rj, rk) EMIT(type_3R(0b00000000000111111, rk, rj, rd))
+
+// quotient = signed(GR[rj][31:0]) / signed(GR[rk][31:0])
+// GR[rd] = SignExtend(quotient[31:0], GRLEN)
+#define DIV_W(rd, rj, rk) EMIT(type_3R(0b00000000001000000, rk, rj, rd))
+
+// quotient = unsigned(GR[rj][31:0]) / unsigned(GR[rk][31:0])
+// GR[rd] = SignExtend(quotient[31:0], GRLEN)
+#define DIV_WU(rd, rj, rk) EMIT(type_3R(0b00000000001000010, rk, rj, rd))
+
+// remainder = signed(GR[rj][31:0]) % signed(GR[rk][31:0])
+// GR[rd] = SignExtend(remainder[31:0], GRLEN)
+#define MOD_W(rd, rj, rk) EMIT(type_3R(0b00000000001000001, rk, rj, rd))
+
+// remainder = unsigned(GR[rj][31:0]) % unsigned(GR[rk][31:0])
+// GR[rd] = SignExtend(remainder[31:0], GRLEN)
+#define MOD_WU(rd, rj, rk) EMIT(type_3R(0b00000000001000011, rk, rj, rd))
+
+// GR[rd] = signed(GR[rj][63:0]) / signed(GR[rk][63:0])
+#define DIV_D(rd, rj, rk) EMIT(type_3R(0b00000000001000100, rk, rj, rd))
+
+// GR[rd] = unsigned(GR[rj][63:0]) / unsigned(GR[rk][63:0])
+#define DIV_DU(rd, rj, rk) EMIT(type_3R(0b00000000001000110, rk, rj, rd))
+
+// GR[rd] = signed(GR[rj] [63:0]) % signed(GR[rk] [63:0])
+#define MOD_D(rd, rj, rk) EMIT(type_3R(0b00000000001000101, rk, rj, rd))
+
+// GR[rd] = unsigned(GR[rj] [63:0]) % unsigned(GR[rk] [63:0])
+#define MOD_DU(rd, rj, rk) EMIT(type_3R(0b00000000001000111, rk, rj, rd))
+
+#define MULxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w) {           \
+            MUL_D(rd, rj, rk); \
+        } else {               \
+            MUL_W(rd, rj, rk); \
+        }                      \
+    } while (0)
+
+
 // bstr32[31:msbw+1] = GR[rd][31: msbw+1]
 // bstr32[msbw:lsbw] = GR[rj][msbw-lsbw:0]
 // bstr32[lsbw-1:0] = GR[rd][lsbw-1:0]
@@ -1708,6 +1778,8 @@ LSX instruction starts with V, LASX instruction starts with XV.
         else                   \
             SUB_W(rd, rj, rk); \
     } while (0)
+
+#define NEGxw(rd, rs1) SUBxw(rd, xZR, rs1)
 
 #define SUBz(rd, rj, rk)       \
     do {                       \

@@ -441,6 +441,19 @@
 #ifndef SET_HASCALLRET
 #define SET_HASCALLRET()
 #endif
+#define UFLAG_OP1(A) \
+    if (dyn->insts[ninst].x64.gen_flags) { SDxw(A, xEmu, offsetof(x64emu_t, op1)); }
+#define UFLAG_OP2(A) \
+    if (dyn->insts[ninst].x64.gen_flags) { SDxw(A, xEmu, offsetof(x64emu_t, op2)); }
+#define UFLAG_OP12(A1, A2)                       \
+    if (dyn->insts[ninst].x64.gen_flags) {       \
+        SDxw(A1, xEmu, offsetof(x64emu_t, op1)); \
+        SDxw(A2, xEmu, offsetof(x64emu_t, op2)); \
+    }
+#define UFLAG_RES(A) \
+    if (dyn->insts[ninst].x64.gen_flags) { SDxw(A, xEmu, offsetof(x64emu_t, res)); }
+#define UFLAG_DF(r, A) \
+    if (dyn->insts[ninst].x64.gen_flags) { SET_DF(r, A) }
 #define UFLAG_IF if (dyn->insts[ninst].x64.gen_flags)
 #ifndef DEFAULT
 #define DEFAULT \
@@ -542,8 +555,10 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sub32c         STEPNAME(emit_sub32c)
 #define emit_sub8           STEPNAME(emit_sub8)
 #define emit_sub8c          STEPNAME(emit_sub8c)
+#define emit_neg32          STEPNAME(emit_neg32)
 #define emit_or32           STEPNAME(emit_or32)
 #define emit_or32c          STEPNAME(emit_or32c)
+#define emit_or8            STEPNAME(emit_or8)
 #define emit_xor32          STEPNAME(emit_xor32)
 #define emit_and8           STEPNAME(emit_and8)
 #define emit_and8c          STEPNAME(emit_and8c)
@@ -601,8 +616,10 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
 void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sub8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4, int s5);
+void emit_neg32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3);
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
+void emit_or8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
