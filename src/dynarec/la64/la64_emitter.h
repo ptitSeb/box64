@@ -441,6 +441,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 // PC = PC + SignExtend({imm26, 2'b0}, GRLEN)
 #define B(imm28) EMIT(type_I26(0b010100, ((imm28)>>2)))
+#define B__(reg1, reg2, imm28) B(imm28)
 
 #define BEQ_safe(rj, rd, imm)                      \
     if {                                           \

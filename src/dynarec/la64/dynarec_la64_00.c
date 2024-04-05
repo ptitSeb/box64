@@ -284,6 +284,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
             break;
+        case 0x3C:
+            INST_NAME("CMP AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            if (u8) {
+                MOV32w(x2, u8);
+                emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            } else {
+                emit_cmp8_0(dyn, ninst, x1, x3, x4);
+            }
+            break;
         case 0x3D:
             INST_NAME("CMP EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -367,6 +379,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOV64z(x3, i64);
                 PUSH1z(x3);
             }
+            break;
+
+        case 0x6A:
+            INST_NAME("PUSH Ib");
+            i64 = F8S;
+            MOV64z(x3, i64);
+            PUSH1z(x3);
             break;
 
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
@@ -631,6 +650,60 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LD_BU(x2, x1, 0);
             BSTRINS_D(xRAX, x2, 7, 0);
             break;
+        case 0xA6:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) {
+                        INST_NAME("REPNZ CMPSB");
+                    } else {
+                        INST_NAME("REPZ CMPSB");
+                    }
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    CBZ_NEXT(xRCX);
+                    ANDI(x1, xFlags, 1 << F_DF);
+                    BNEZ_MARK2(x1);
+                    MARK; // Part with DF==0
+                    LD_BU(x1, xRSI, 0);
+                    ADDI_D(xRSI, xRSI, 1);
+                    LD_BU(x2, xRDI, 0);
+                    ADDI_D(xRDI, xRDI, 1);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNEZ_MARK(xRCX);
+                    B_MARK3_nocond;
+                    MARK2; // Part with DF==1
+                    LD_BU(x1, xRSI, 0);
+                    ADDI_D(xRSI, xRSI, -1);
+                    LD_BU(x2, xRDI, 0);
+                    ADDI_D(xRDI, xRDI, -1);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNEZ_MARK2(xRCX);
+                    MARK3; // end
+                    emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+                default:
+                    INST_NAME("CMPSB");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETDIR(x3, x1, 1);
+                    LD_BU(x1, xRSI, 0);
+                    LD_BU(x2, xRDI, 0);
+                    ADD_D(xRSI, xRSI, x3);
+                    ADD_D(xRDI, xRDI, x3);
+                    emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+            }
+            break;
         case 0xA8:
             INST_NAME("TEST AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -687,6 +760,76 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 u32 = F32;
                 MOV32w(gd, u32);
+            }
+            break;
+        case 0xC0:
+            nextop = F8;
+            // TODO: refine these...
+            switch ((nextop >> 3) & 7) {
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, Ib");
+                    GETEB(x1, 1);
+                    u8 = (F8) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF {
+                            MOV32w(x4, u8);
+                            UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        SLLI_W(ed, ed, u8);
+                        EBBACK();
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shl8);
+                    } else {
+                        NOP();
+                    }
+                    break;
+                case 5:
+                    INST_NAME("SHR Eb, Ib");
+                    GETEB(x1, 1);
+                    u8 = (F8) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF {
+                            MOV32w(x4, u8);
+                            UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        if (u8) {
+                            SRLI_W(ed, ed, u8);
+                            EBBACK();
+                        }
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shr8);
+                    } else {
+                        NOP();
+                    }
+                    break;
+                case 7:
+                    INST_NAME("SAR Eb, Ib");
+                    GETSEB(x1, 1);
+                    u8 = (F8) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF {
+                            MOV32w(x4, u8);
+                            UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        if (u8) {
+                            SRAI_W(ed, ed, u8);
+                            EBBACK();
+                        }
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_sar8);
+                    } else {
+                        NOP();
+                    }
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0xC1:

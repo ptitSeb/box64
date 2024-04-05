@@ -125,7 +125,7 @@
 // GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O, D)                                                                            \
     if (MODREG) {                                                                               \
-        ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
         wback = 0;                                                                              \
     } else {                                                                                    \
         SMREAD();                                                                               \
@@ -172,7 +172,28 @@
         wb1 = 1;                                                                                \
         ed = i;                                                                                 \
     }
-
+// GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
+#define GETSEB(i, D)                                                                            \
+    if (MODREG) {                                                                               \
+        if (rex.rex) {                                                                          \
+            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                       \
+            wb2 = 0;                                                                            \
+        } else {                                                                                \
+            wback = (nextop & 7);                                                               \
+            wb2 = (wback >> 2) * 8;                                                             \
+            wback = TO_LA64(wback & 3);                                                         \
+        }                                                                                       \
+        if (wb2) { SRLI_D(i, wback, wb2); }                                                     \
+        EXT_W_B(i, i);                                                                          \
+        wb1 = 0;                                                                                \
+        ed = i;                                                                                 \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, D); \
+        LD_B(i, wback, fixedaddress);                                                           \
+        wb1 = 1;                                                                                \
+        ed = i;                                                                                 \
+    }
 // GETGB will use i for gd
 #define GETGB(i)                                              \
     if (rex.rex) {                                            \
@@ -290,6 +311,12 @@
 // Branch to MARKLOCK if reg1!=reg2 (use j64)
 #define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
 
+// Branch to MARK if reg1==reg2 (use j64)
+#define BEQ_MARK(reg1, reg2) Bxx_gen(EQ, MARK, reg1, reg2)
+// Branch to MARK2 if reg1==reg2 (use j64)
+#define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1, reg2)
+// Branch to MARK3 if reg1==reg2 (use j64)
+#define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARKLOCK if reg1==reg2 (use j64)
 #define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1==0 (use j64)
@@ -303,6 +330,13 @@
 #define BNEZ_MARK3(reg) BxxZ_gen(NE, MARK3, reg)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BxxZ_gen(NE, MARKLOCK, reg)
+
+// Branch to MARK1 instruction unconditionnal (use j64)
+#define B_MARK1_nocond Bxx_gen(__, MARK1, 0, 0)
+// Branch to MARK2 instruction unconditionnal (use j64)
+#define B_MARK2_nocond Bxx_gen(__, MARK2, 0, 0)
+// Branch to MARK3 instruction unconditionnal (use j64)
+#define B_MARK3_nocond Bxx_gen(__, MARK3, 0, 0)
 
 // Branch to NEXT if reg1==0 (use j64)
 #define CBZ_NEXT(reg1)                                                        \
@@ -418,6 +452,10 @@
             ORI(xFlags, xFlags, 1 << F_OF);                           \
         }                                                             \
     }
+
+#ifndef MAYSETFLAGS
+#define MAYSETFLAGS()
+#endif
 
 #ifndef READFLAGS
 #define READFLAGS(A)                                \
