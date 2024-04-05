@@ -311,6 +311,12 @@
 // Branch to MARKLOCK if reg1!=reg2 (use j64)
 #define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
 
+// Branch to MARK if reg1==reg2 (use j64)
+#define BEQ_MARK(reg1, reg2) Bxx_gen(EQ, MARK, reg1, reg2)
+// Branch to MARK2 if reg1==reg2 (use j64)
+#define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1, reg2)
+// Branch to MARK3 if reg1==reg2 (use j64)
+#define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARKLOCK if reg1==reg2 (use j64)
 #define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK if reg1==0 (use j64)
@@ -324,6 +330,13 @@
 #define BNEZ_MARK3(reg) BxxZ_gen(NE, MARK3, reg)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BxxZ_gen(NE, MARKLOCK, reg)
+
+// Branch to MARK1 instruction unconditionnal (use j64)
+#define B_MARK1_nocond Bxx_gen(__, MARK1, 0, 0)
+// Branch to MARK2 instruction unconditionnal (use j64)
+#define B_MARK2_nocond Bxx_gen(__, MARK2, 0, 0)
+// Branch to MARK3 instruction unconditionnal (use j64)
+#define B_MARK3_nocond Bxx_gen(__, MARK3, 0, 0)
 
 // Branch to NEXT if reg1==0 (use j64)
 #define CBZ_NEXT(reg1)                                                        \
@@ -439,6 +452,10 @@
             ORI(xFlags, xFlags, 1 << F_OF);                           \
         }                                                             \
     }
+
+#ifndef MAYSETFLAGS
+#define MAYSETFLAGS()
+#endif
 
 #ifndef READFLAGS
 #define READFLAGS(A)                                \

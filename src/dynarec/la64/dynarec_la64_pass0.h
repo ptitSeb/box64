@@ -5,6 +5,7 @@
     if (ninst) dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr
 
 #define MESSAGE(A, ...)
+#define MAYSETFLAGS() dyn->insts[ninst].x64.may_set = 1
 #define READFLAGS(A)                     \
     dyn->insts[ninst].x64.use_flags = A; \
     dyn->f.dfnone = 1;                   \
