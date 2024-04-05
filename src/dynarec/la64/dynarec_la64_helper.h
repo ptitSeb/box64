@@ -125,7 +125,7 @@
 // GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDO(O, D)                                                                            \
     if (MODREG) {                                                                               \
-        ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
         wback = 0;                                                                              \
     } else {                                                                                    \
         SMREAD();                                                                               \

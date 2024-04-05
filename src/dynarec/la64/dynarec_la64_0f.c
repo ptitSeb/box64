@@ -261,6 +261,26 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LD_D(xRDX, xEmu, offsetof(x64emu_t, regs[_DX]));
             LD_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
             break;
+        case 0xA3:
+            INST_NAME("BT Ed, Gd");
+            SETFLAGS(X_CF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                SRAIxw(x1, gd, 5 + rex.w);        // r1 = (gd>>5)
+                ALSL_D(x3, wback, x1, 2 + rex.w); // (&ed) += r1*4;
+                LDxw(x1, x3, fixedaddress);
+                ed = x1;
+            }
+            ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
+            SRLIxw(x4, ed, x2);
+            BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
             SETFLAGS(X_ALL, SF_PENDING);
