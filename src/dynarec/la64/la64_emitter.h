@@ -1643,6 +1643,20 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define X64_ROTLI_D(rj, imm6)   EMIT(type_2RI6(0x55, imm6, rj, 0x17))
 #define X64_RCLI_D(rj, imm6)    EMIT(type_2RI6(0x55, imm6, rj, 0x1b))
 
+// Warning, these are LBT addons that uses LBT4.eflags internally
+#define ADC_B(rd, rj, rk) EMIT(type_3R(0x60, rk, rj, rd))
+#define ADC_H(rd, rj, rk) EMIT(type_3R(0x61, rk, rj, rd))
+#define ADC_W(rd, rj, rk) EMIT(type_3R(0x62, rk, rj, rd))
+#define ADC_D(rd, rj, rk) EMIT(type_3R(0x63, rk, rj, rd))
+#define SBC_B(rd, rj, rk) EMIT(type_3R(0x64, rk, rj, rd))
+#define SBC_H(rd, rj, rk) EMIT(type_3R(0x65, rk, rj, rd))
+#define SBC_W(rd, rj, rk) EMIT(type_3R(0x66, rk, rj, rd))
+#define SBC_D(rd, rj, rk) EMIT(type_3R(0x67, rk, rj, rd))
+#define RCR_B(rd, rj, rk) EMIT(type_3R(0x68, rk, rj, rd))
+#define RCR_H(rd, rj, rk) EMIT(type_3R(0x69, rk, rj, rd))
+#define RCR_W(rd, rj, rk) EMIT(type_3R(0x6a, rk, rj, rd))
+#define RCR_D(rd, rj, rk) EMIT(type_3R(0x6b, rk, rj, rd))
+
 ////////////////////////////////////////////////////////////////////////////////
 
 
