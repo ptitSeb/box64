@@ -39,7 +39,10 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if (la64_lbt) {
         IFX(X_ALL) {
-            X64_ADD_WU(s1, s2);
+            if (rex.w)
+                X64_ADD_DU(s1, s2);
+            else
+                X64_ADD_WU(s1, s2);
         }
         ADDxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -465,7 +468,10 @@ void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if (la64_lbt) {
         IFX(X_ALL) {
-            X64_SUB_WU(s1, s2);
+            if (rex.w)
+                X64_SUB_DU(s1, s2);
+            else
+                X64_SUB_WU(s1, s2);
         }
         SUBxw(s1, s1, s2);
         if (!rex.w) ZEROUP(s1);
@@ -575,5 +581,81 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+
+// emit NEG32 instruction, from s1, store result in s1 using s2 and s3 as scratch
+void emit_neg32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3)
+{
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s3, rex.w ? d_neg64 : d_neg32);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (!la64_lbt) {
+        IFX (X_AF | X_OF) {
+            MV(s3, s1); // s3 = op1
+        }
+    }
+
+    IFXA (X_ALL, la64_lbt) {
+        if (rex.w)
+            X64_SUB_DU(xZR, s1);
+        else
+            X64_SUB_WU(xZR, s1);
+    }
+
+    NEGxw(s1, s1);
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) {
+        if (!rex.w) {
+            ZEROUP(s1);
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        BEQZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+
+    IFX (X_AF | X_OF) {
+        OR(s3, s1, s3); // s3 = res | op1
+        IFX (X_AF) {
+            /* af = bc & 0x8 */
+            ANDI(s2, s3, 8);
+            BEQZ(s2, 8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX (X_OF) {
+            /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */
+            SRLI_D(s2, s3, (rex.w ? 64 : 32) - 2);
+            SRLI_D(s3, s2, 1);
+            XOR(s2, s2, s3);
+            ANDI(s2, s2, 1);
+            BEQZ(s2, 8);
+            ORI(xFlags, xFlags, 1 << F_OF);
+        }
+    }
+    IFX (X_SF) {
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s2);
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
     }
 }

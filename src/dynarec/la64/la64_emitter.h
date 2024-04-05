@@ -1779,6 +1779,8 @@ LSX instruction starts with V, LASX instruction starts with XV.
             SUB_W(rd, rj, rk); \
     } while (0)
 
+#define NEGxw(rd, rs1) SUBxw(rd, xZR, rs1)
+
 #define SUBz(rd, rj, rk)       \
     do {                       \
         if (rex.is32bits)      \
