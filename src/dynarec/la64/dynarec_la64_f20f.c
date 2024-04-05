@@ -52,7 +52,6 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ed = (nextop & 7) + (rex.b << 3);
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
                 v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
-                VXOR_V(v0, v0, v0);
             } else {
                 SMREAD();
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
