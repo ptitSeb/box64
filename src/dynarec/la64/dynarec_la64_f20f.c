@@ -49,18 +49,18 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETG;
             if(MODREG) {
-                ed = (nextop&7)+ (rex.b<<3);
+                ed = (nextop & 7) + (rex.b << 3);
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-                d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
-                FMOV_D(v0, d0);
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
             } else {
                 SMREAD();
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                v1 = fpu_get_scratch(dyn);
+                VXOR_V(v0, v0, v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 8, 0);
-                FLD_D(v0, ed, fixedaddress);
-                // reset upper part
-                ST_D(xZR, xEmu, offsetof(x64emu_t, xmm[gd])+8);
+                FLD_D(v1, ed, fixedaddress);
             }
+            VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
             break;
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
@@ -68,15 +68,19 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             // TODO: fastnan handling
             GETGX(v0, 1);
             GETEXSD(v1, 0);
-            FADD_D(v0, v0, v1);
+            d0 = fpu_get_scratch(dyn);
+            FADD_D(d0, v0, v1);
+            VEXTRINS_D(v0, d0, 0); // v0[63:0] = v1[63:0]
             break;
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
-            //TODO: fastnan handling
+            // TODO: fastnan handling
             GETGX(v0, 1);
             GETEXSD(v1, 0);
-            FSUB_D(v0, v0, v1);
+            d0 = fpu_get_scratch(dyn);
+            FSUB_D(d0, v0, v1);
+            VEXTRINS_D(v0, d0, 0); // v0[63:0] = v1[63:0]
             break;
         default:
             DEFAULT;
