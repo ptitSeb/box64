@@ -122,6 +122,18 @@
 // GETEW will use i for ed, and can use r3 for wback.
 #define GETEW(i, D) GETEWW(x3, i, D)
 
+// GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETEDO(O, D)                                                                            \
+    if (MODREG) {                                                                               \
+        ed = xRAX + (nextop & 7) + (rex.b << 3);                                                \
+        wback = 0;                                                                              \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, D); \
+        LDXxw(x1, wback, O);                                                                    \
+        ed = x1;                                                                                \
+    }
+
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED                                   \
     if (!MODREG) {                               \
