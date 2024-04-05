@@ -701,6 +701,76 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOV32w(gd, u32);
             }
             break;
+        case 0xC0:
+            nextop = F8;
+            // TODO: refine these...
+            switch ((nextop >> 3) & 7) {
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, Ib");
+                    GETEB(x1, 1);
+                    u8 = (F8) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF {
+                            MOV32w(x4, u8);
+                            UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        SLLI_W(ed, ed, u8);
+                        EBBACK();
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shl8);
+                    } else {
+                        NOP();
+                    }
+                    break;
+                case 5:
+                    INST_NAME("SHR Eb, Ib");
+                    GETEB(x1, 1);
+                    u8 = (F8) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF {
+                            MOV32w(x4, u8);
+                            UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        if (u8) {
+                            SRLI_W(ed, ed, u8);
+                            EBBACK();
+                        }
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_shr8);
+                    } else {
+                        NOP();
+                    }
+                    break;
+                case 7:
+                    INST_NAME("SAR Eb, Ib");
+                    GETSEB(x1, 1);
+                    u8 = (F8) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_PENDING);
+                        UFLAG_IF {
+                            MOV32w(x4, u8);
+                            UFLAG_OP2(x4);
+                        };
+                        UFLAG_OP1(ed);
+                        if (u8) {
+                            SRAI_W(ed, ed, u8);
+                            EBBACK();
+                        }
+                        UFLAG_RES(ed);
+                        UFLAG_DF(x3, d_sar8);
+                    } else {
+                        NOP();
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xC1:
             nextop = F8;
             switch ((nextop >> 3) & 7) {

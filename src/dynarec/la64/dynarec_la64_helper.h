@@ -172,7 +172,28 @@
         wb1 = 1;                                                                                \
         ed = i;                                                                                 \
     }
-
+// GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
+#define GETSEB(i, D)                                                                            \
+    if (MODREG) {                                                                               \
+        if (rex.rex) {                                                                          \
+            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                       \
+            wb2 = 0;                                                                            \
+        } else {                                                                                \
+            wback = (nextop & 7);                                                               \
+            wb2 = (wback >> 2) * 8;                                                             \
+            wback = TO_LA64(wback & 3);                                                         \
+        }                                                                                       \
+        if (wb2) { SRLI_D(i, wback, wb2); }                                                     \
+        EXT_W_B(i, i);                                                                          \
+        wb1 = 0;                                                                                \
+        ed = i;                                                                                 \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, D); \
+        LD_B(i, wback, fixedaddress);                                                           \
+        wb1 = 1;                                                                                \
+        ed = i;                                                                                 \
+    }
 // GETGB will use i for gd
 #define GETGB(i)                                              \
     if (rex.rex) {                                            \
