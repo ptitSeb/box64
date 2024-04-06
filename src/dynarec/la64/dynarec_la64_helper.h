@@ -157,6 +157,17 @@
         SMWRITE();                         \
     }
 
+// Write w back to original register / memory (w needs to be 16bits only!)
+#define EWBACKW(w)                    \
+    if (wb1) {                        \
+        ST_H(w, wback, fixedaddress); \
+        SMWRITE();                    \
+    } else {                          \
+        BSTRINS_D(wback, w, 15, 0);   \
+    }
+// Write ed back to original register / memory
+#define EWBACK EWBACKW(ed)
+
 // GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D)                                                                             \
     if (MODREG) {                                                                               \
