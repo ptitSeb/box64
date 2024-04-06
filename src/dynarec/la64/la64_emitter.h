@@ -247,7 +247,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = SRL(GR[rj][63:0], GR[rk][5:0])
 #define SRL_D(rd, rj, rk) EMIT(type_3R(0b00000000000110010, rk, rj, rd))
 // GR[rd] = SRA(GR[rj][63:0], GR[rk][5:0])
-#define SLA_D(rd, rj, rk) EMIT(type_3R(0b00000000000110011, rk, rj, rd))
+#define SRA_D(rd, rj, rk) EMIT(type_3R(0b00000000000110011, rk, rj, rd))
 // GR[rd] = ROTR(GR[rj][63:0], GR[rk][5:0])
 #define ROTR_D(rd, rj, rk) EMIT(type_3R(0b00000000000110111, rk, rj, rd))
 
@@ -269,13 +269,25 @@ f24-f31  fs0-fs7   Static registers                Callee
 // GR[rd] = ROTR(GR[rj][31:0], imm5) (Rotate To Right)
 #define ROTRI_W(rd, rj, imm5) EMIT(type_2RI5(0b00000000010011001, imm5, rj, rd))
 
+#define SRAxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w) {           \
+            SRA_D(rd, rj, rk); \
+        } else {               \
+            SRA_W(rd, rj, rk); \
+            ZEROUP(rd);        \
+        }                      \
+    } while (0)
+
 // Shift Left Immediate
-#define SLLIxw(rd, rs1, imm)  \
-    if (rex.w) {              \
-        SLLI_D(rd, rs1, imm); \
-    } else {                  \
-        SLLI_W(rd, rs1, imm); \
-    }
+#define SLLIxw(rd, rs1, imm)      \
+    do {                          \
+        if (rex.w) {              \
+            SLLI_D(rd, rs1, imm); \
+        } else {                  \
+            SLLI_W(rd, rs1, imm); \
+        }                         \
+    } while (0)
 // Shift Right Logical Immediate
 #define SRLIxw(rd, rs1, imm)      \
     do {                          \
@@ -399,6 +411,36 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 // ZERO the upper part
 #define ZEROUP(rd) BSTRINS_D(rd, xZR, 63, 32);
+
+#define CLO_W(rd, rj)     EMIT(type_2R(0b0000000000000000000100, rj, rd))
+#define CLZ_W(rd, rj)     EMIT(type_2R(0b0000000000000000000101, rj, rd))
+#define CTO_W(rd, rj)     EMIT(type_2R(0b0000000000000000000110, rj, rd))
+#define CTZ_W(rd, rj)     EMIT(type_2R(0b0000000000000000000111, rj, rd))
+#define CLO_D(rd, rj)     EMIT(type_2R(0b0000000000000000001000, rj, rd))
+#define CLZ_D(rd, rj)     EMIT(type_2R(0b0000000000000000001001, rj, rd))
+#define CTO_D(rd, rj)     EMIT(type_2R(0b0000000000000000001010, rj, rd))
+#define CTZ_D(rd, rj)     EMIT(type_2R(0b0000000000000000001011, rj, rd))
+#define REVB_2H(rd, rj)   EMIT(type_2R(0b0000000000000000001100, rj, rd))
+#define REVB_4H(rd, rj)   EMIT(type_2R(0b0000000000000000001101, rj, rd))
+#define REVB_2W(rd, rj)   EMIT(type_2R(0b0000000000000000001110, rj, rd))
+#define REVB_D(rd, rj)    EMIT(type_2R(0b0000000000000000001111, rj, rd))
+#define REVH_2W(rd, rj)   EMIT(type_2R(0b0000000000000000010000, rj, rd))
+#define REVH_D(rd, rj)    EMIT(type_2R(0b0000000000000000010001, rj, rd))
+#define BITREV_4B(rd, rj) EMIT(type_2R(0b0000000000000000010010, rj, rd))
+#define BITREV_8B(rd, rj) EMIT(type_2R(0b0000000000000000010011, rj, rd))
+#define BITREV_W(rd, rj)  EMIT(type_2R(0b0000000000000000010100, rj, rd))
+#define BITREV_D(rd, rj)  EMIT(type_2R(0b0000000000000000010101, rj, rd))
+
+#define REVBxw(rd, rj)       \
+    do {                     \
+        if (rex.w) {         \
+            REVB_D(rd, rj);  \
+        } else {             \
+            REVB_2W(rd, rj); \
+            ZEROUP(rd);      \
+        }                    \
+    } while (0)
+
 
 // GR[rd] = SignExtend(GR[rj][7:0], GRLEN)
 #define EXT_W_B(rd, rj) EMIT(type_2R(0b0000000000000000010111, rj, rd))

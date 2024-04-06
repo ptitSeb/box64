@@ -106,6 +106,33 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VLD(v0, ed, fixedaddress);
             }
             break;
+        case 0xBE:
+            INST_NAME("MOVSX Gw, Eb");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                if (rex.rex) {
+                    ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                    eb1 = ed;
+                    eb2 = 0;
+                } else {
+                    ed = (nextop & 7);
+                    eb1 = TO_LA64(ed & 3); // Ax, Cx, Dx or Bx
+                    eb2 = (ed & 4) >> 2;   // L or H
+                }
+                if (eb2) {
+                    SRLI_D(x1, eb1, eb2 * 8);
+                    EXT_W_B(x1, x1);
+                } else {
+                    EXT_W_B(x1, eb1);
+                }
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0);
+                LD_B(x1, ed, fixedaddress);
+            }
+            BSTRINS_D(gd, x1, 15, 0);
+            break;
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;
