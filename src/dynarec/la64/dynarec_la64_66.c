@@ -133,6 +133,26 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRPICK_D(gd, x2, 15, 0);
             }
             break;
+        case 0xC1:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 5:
+                    INST_NAME("SHR Ew, Ib");
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 1);
+                    u8 = F8;
+                    UFLAG_IF { MOV32w(x2, (u8 & 15)); }
+                    UFLAG_OP12(ed, x2)
+                    SRLI_D(ed, ed, u8 & 15);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_shr16);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }

@@ -111,6 +111,17 @@
         LDz(x1, wback, fixedaddress);                                                           \
         ed = x1;                                                                                \
     }
+// GETEDH can use hint for ed, and x1 or x2 for wback (depending on hint), might also use x3. wback is 0 if ed is xEAX..xEDI
+#define GETEDH(hint, D)                                                                                                                 \
+    if (MODREG) {                                                                                                                       \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                                                                      \
+        wback = 0;                                                                                                                      \
+    } else {                                                                                                                            \
+        SMREAD();                                                                                                                       \
+        addr = geted(dyn, addr, ninst, nextop, &wback, (hint == x2) ? x1 : x2, (hint == x1) ? x1 : x3, &fixedaddress, rex, NULL, 1, D); \
+        LDxw(hint, wback, fixedaddress);                                                                                                \
+        ed = hint;                                                                                                                      \
+    }
 // GETEWW will use i for ed, and can use w for wback.
 #define GETEWW(w, i, D)                                                                       \
     if (MODREG) {                                                                             \
@@ -156,6 +167,17 @@
             ST_W(ed, wback, fixedaddress); \
         SMWRITE();                         \
     }
+
+// Write w back to original register / memory (w needs to be 16bits only!)
+#define EWBACKW(w)                    \
+    if (wb1) {                        \
+        ST_H(w, wback, fixedaddress); \
+        SMWRITE();                    \
+    } else {                          \
+        BSTRINS_D(wback, w, 15, 0);   \
+    }
+// Write ed back to original register / memory
+#define EWBACK EWBACKW(ed)
 
 // GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D)                                                                             \
@@ -640,6 +662,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_shl32c         STEPNAME(emit_shl32c)
 #define emit_shr32c         STEPNAME(emit_shr32c)
 #define emit_sar32c         STEPNAME(emit_sar32c)
+#define emit_ror32c         STEPNAME(emit_ror32c)
 
 #define emit_pf STEPNAME(emit_pf)
 
@@ -707,6 +730,7 @@ void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 
 void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 
