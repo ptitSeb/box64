@@ -211,8 +211,12 @@
             wb2 = (wback >> 2) * 8;                                                             \
             wback = TO_LA64(wback & 3);                                                         \
         }                                                                                       \
-        if (wb2) { SRLI_D(i, wback, wb2); }                                                     \
-        EXT_W_B(i, i);                                                                          \
+        if (wb2) {                                                                              \
+            SRLI_D(i, wback, wb2);                                                              \
+            EXT_W_B(i, i);                                                                      \
+        } else {                                                                                \
+            EXT_W_B(i, wback);                                                                  \
+        }                                                                                       \
         wb1 = 0;                                                                                \
         ed = i;                                                                                 \
     } else {                                                                                    \
