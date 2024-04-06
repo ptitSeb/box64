@@ -76,6 +76,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FST_D(v0, ed, fixedaddress);
                 SMWRITE2();
             }
+            break;
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
