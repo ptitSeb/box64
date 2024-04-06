@@ -1343,6 +1343,32 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_neg32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
                     break;
+                case 4:
+                    INST_NAME("MUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, rex.w ? d_mul64 : d_mul32);
+                    GETED(0);
+                    if (rex.w) {
+                        if (ed == xRDX)
+                            gd = x3;
+                        else
+                            gd = xRDX;
+                        MULH_DU(gd, xRAX, ed);
+                        MUL_D(xRAX, xRAX, ed);
+                        if (gd != xRDX) { MV(xRDX, gd); }
+                    } else {
+                        AND(x3, xRAX, xMASK);
+                        if (MODREG) {
+                            AND(x4, ed, xMASK);
+                            ed = x4;
+                        }
+                        MUL_D(xRDX, x3, ed); // 64 <- 32x32
+                        AND(xRAX, xRDX, xMASK);
+                        SRLI_D(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    break;
                 default:
                     DEFAULT;
             }
