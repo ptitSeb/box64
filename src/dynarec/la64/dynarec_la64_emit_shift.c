@@ -319,3 +319,62 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
+
+
+// emit ROR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
+{
+    if (!c) return;
+
+    IFX (X_PEND) {
+        MOV32w(s3, c);
+        SDxw(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w ? d_ror64 : d_ror32);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+    if (!c) {
+        IFX (X_PEND) {
+            SDxw(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    if (la64_lbt) {
+        IFX (X_ALL) {
+            if (rex.w)
+                X64_ROTRI_D(s1, c);
+            else
+                X64_ROTRI_W(s1, c);
+        }
+    }
+
+    SRLIxw(s3, s1, c);
+    SLLIxw(s1, s1, (rex.w ? 64 : 32) - c);
+    OR(s1, s3, s1);
+
+    if (!rex.w) ZEROUP(s1);
+
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) return;
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_OF) {
+        // the OF flag is set to the exclusive OR of the two most-significant bits of the result
+        if (c == 1) {
+            SRLI_D(s3, s1, rex.w ? 62 : 30);
+            SRLI_D(s4, s3, 1);
+            XOR(s3, s3, s4);
+            ANDI(s3, s3, 1);
+            SLLI_D(s3, s3, F_OF);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+}
