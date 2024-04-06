@@ -412,6 +412,36 @@ f24-f31  fs0-fs7   Static registers                Callee
 // ZERO the upper part
 #define ZEROUP(rd) BSTRINS_D(rd, xZR, 63, 32);
 
+#define CLO_W(rd, rj)     EMIT(type_2R(0b0000000000000000000100, rj, rd))
+#define CLZ_W(rd, rj)     EMIT(type_2R(0b0000000000000000000101, rj, rd))
+#define CTO_W(rd, rj)     EMIT(type_2R(0b0000000000000000000110, rj, rd))
+#define CTZ_W(rd, rj)     EMIT(type_2R(0b0000000000000000000111, rj, rd))
+#define CLO_D(rd, rj)     EMIT(type_2R(0b0000000000000000001000, rj, rd))
+#define CLZ_D(rd, rj)     EMIT(type_2R(0b0000000000000000001001, rj, rd))
+#define CTO_D(rd, rj)     EMIT(type_2R(0b0000000000000000001010, rj, rd))
+#define CTZ_D(rd, rj)     EMIT(type_2R(0b0000000000000000001011, rj, rd))
+#define REVB_2H(rd, rj)   EMIT(type_2R(0b0000000000000000001100, rj, rd))
+#define REVB_4H(rd, rj)   EMIT(type_2R(0b0000000000000000001101, rj, rd))
+#define REVB_2W(rd, rj)   EMIT(type_2R(0b0000000000000000001110, rj, rd))
+#define REVB_D(rd, rj)    EMIT(type_2R(0b0000000000000000001111, rj, rd))
+#define REVH_2W(rd, rj)   EMIT(type_2R(0b0000000000000000010000, rj, rd))
+#define REVH_D(rd, rj)    EMIT(type_2R(0b0000000000000000010001, rj, rd))
+#define BITREV_4B(rd, rj) EMIT(type_2R(0b0000000000000000010010, rj, rd))
+#define BITREV_8B(rd, rj) EMIT(type_2R(0b0000000000000000010011, rj, rd))
+#define BITREV_W(rd, rj)  EMIT(type_2R(0b0000000000000000010100, rj, rd))
+#define BITREV_D(rd, rj)  EMIT(type_2R(0b0000000000000000010101, rj, rd))
+
+#define REVBxw(rd, rj)       \
+    do {                     \
+        if (rex.w) {         \
+            REVB_D(rd, rj);  \
+        } else {             \
+            REVB_2W(rd, rj); \
+            ZEROUP(rd);      \
+        }                    \
+    } while (0)
+
+
 // GR[rd] = SignExtend(GR[rj][7:0], GRLEN)
 #define EXT_W_B(rd, rj) EMIT(type_2R(0b0000000000000000010111, rj, rd))
 
