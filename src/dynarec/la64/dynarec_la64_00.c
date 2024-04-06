@@ -293,6 +293,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
             break;
+        case 0x3A:
+            INST_NAME("CMP Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_cmp8(dyn, ninst, x2, x1, x3, x4, x5, x6);
+            break;
         case 0x3C:
             INST_NAME("CMP AL, Ib");
             SETFLAGS(X_ALL, SF_SET_PENDING);
