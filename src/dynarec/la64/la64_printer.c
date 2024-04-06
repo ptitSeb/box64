@@ -477,6 +477,21 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSUB.D", fpnames[Rd], fpnames[Rj], fpnames[Rk]);
         return buff;
     }
+    // FMUL.D
+    if(isMask(opcode, "00000001000001010kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FMUL.D", fpnames[Rd], fpnames[Rj], fpnames[Rk]);
+        return buff;
+    }
+    // FDIV.D
+    if(isMask(opcode, "00000001000001110kkkkkjjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FDIV.D", fpnames[Rd], fpnames[Rj], fpnames[Rk]);
+        return buff;
+    }
+    // VEXTRINS.D
+    if(isMask(opcode, "01110011100000iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VEXTRINS.D", fpnames[Rd], fpnames[Rj], signExtend(imm, 8));
+        return buff;
+    }
     // VLD
     if(isMask(opcode, "0010110000iiiiiiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VLD.D", vrpnames[Rd], Xt[Rj], signExtend(imm, 12));
