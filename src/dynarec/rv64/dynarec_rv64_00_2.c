@@ -625,8 +625,8 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BNEZ_MARK2(x1);
                 MARK;   // Part with DF==0
                 LBU(x1, xRSI, 0);
-                ADDI(xRSI, xRSI, 1);
                 LBU(x2, xRDI, 0);
+                ADDI(xRSI, xRSI, 1);
                 ADDI(xRDI, xRDI, 1);
                 SUBI(xRCX, xRCX, 1);
                 if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
@@ -634,8 +634,8 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 B_MARK3_nocond;
                 MARK2;   // Part with DF==1
                 LBU(x1, xRSI, 0);
-                SUBI(xRSI, xRSI, 1);
                 LBU(x2, xRDI, 0);
+                SUBI(xRSI, xRSI, 1);
                 SUBI(xRDI, xRDI, 1);
                 SUBI(xRCX, xRCX, 1);
                 if (rep==1) {BEQ_MARK3(x1, x2);} else {BNE_MARK3(x1, x2);}
@@ -667,8 +667,8 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     BNEZ_MARK2(x1);
                     MARK; // Part with DF==0
                     LDxw(x1, xRSI, 0);
-                    ADDI(xRSI, xRSI, rex.w ? 8 : 4);
                     LDxw(x2, xRDI, 0);
+                    ADDI(xRSI, xRSI, rex.w ? 8 : 4);
                     ADDI(xRDI, xRDI, rex.w ? 8 : 4);
                     SUBI(xRCX, xRCX, 1);
                     if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
@@ -676,8 +676,8 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     B_MARK3_nocond;
                     MARK2; // Part with DF==1
                     LDxw(x1, xRSI, 0);
-                    SUBI(xRSI, xRSI, rex.w ? 8 : 4);
                     LDxw(x2, xRDI, 0);
+                    SUBI(xRSI, xRSI, rex.w ? 8 : 4);
                     SUBI(xRDI, xRDI, rex.w ? 8 : 4);
                     SUBI(xRCX, xRCX, 1);
                     if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
