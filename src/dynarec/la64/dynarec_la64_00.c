@@ -463,6 +463,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_and8c(dyn, ninst, x1, u8, x2, x4);
                     EBBACK();
                     break;
+                case 5: // SUB
+                    INST_NAME("SUB Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
+                    EBBACK();
+                    break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -689,6 +697,37 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64z(x1, u64);
             LD_BU(x2, x1, 0);
             BSTRINS_D(xRAX, x2, 7, 0);
+            break;
+        case 0xA5:
+            if (rep) {
+                INST_NAME("REP MOVSD");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1 << F_DF);
+                BNEZ_MARK2(x1);
+                MARK; // Part with DF==0
+                LDxw(x1, xRSI, 0);
+                SDxw(x1, xRDI, 0);
+                ADDI_D(xRSI, xRSI, rex.w ? 8 : 4);
+                ADDI_D(xRDI, xRDI, rex.w ? 8 : 4);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2; // Part with DF==1
+                LDxw(x1, xRSI, 0);
+                SDxw(x1, xRDI, 0);
+                ADDI_D(xRSI, xRSI, rex.w ? -8 : -4);
+                ADDI_D(xRDI, xRDI, rex.w ? -8 : -4);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSD");
+                GETDIR(x3, x1, rex.w ? 8 : 4);
+                LDxw(x1, xRSI, 0);
+                SDxw(x1, xRDI, 0);
+                ADD_D(xRSI, xRSI, x3);
+                ADD_D(xRDI, xRDI, x3);
+            }
             break;
         case 0xA6:
             switch (rep) {
