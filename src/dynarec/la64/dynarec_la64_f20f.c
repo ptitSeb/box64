@@ -68,9 +68,9 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             if(MODREG) {
-                ed = (nextop&7)+ (rex.b<<3);
+                ed = (nextop & 7) + (rex.b << 3);
                 d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
-                FMOV_D(d0, v0);
+                VEXTRINS_D(d0, v0, 0); // d0[63:0] = v0[63:0]
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 FST_D(v0, ed, fixedaddress);
@@ -85,7 +85,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FADD_D(d0, v0, v1);
-            VEXTRINS_D(v0, d0, 0); // v0[63:0] = v1[63:0]
+            VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
@@ -95,7 +95,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FMUL_D(d0, v0, v1);
-            VEXTRINS_D(v0, d0, 0); // v0[63:0] = v1[63:0]
+            VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
@@ -105,7 +105,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FSUB_D(d0, v0, v1);
-            VEXTRINS_D(v0, d0, 0); // v0[63:0] = v1[63:0]
+            VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
@@ -115,7 +115,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FDIV_D(d0, v0, v1);
-            VEXTRINS_D(v0, d0, 0); // v0[63:0] = v1[63:0]
+            VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         default:
             DEFAULT;
