@@ -1247,6 +1247,19 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_shl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
                     break;
+                case 7:
+                    INST_NAME("SAR Ed, CL");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+                    GETED(0);
+                    if (!rex.w && MODREG) { ZEROUP(ed); }
+                    CBZ_NEXT(x3);
+                    UFLAG_OP12(ed, x3);
+                    SRAxw(ed, ed, x3);
+                    WBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, rex.w ? d_sar64 : d_sar32);
+                    break;
                 default:
                     DEFAULT;
             }
