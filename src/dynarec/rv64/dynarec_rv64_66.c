@@ -760,8 +760,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 B_NEXT_nocond;
                 MARK2;  // Part with DF==1
                 LH(x1, xRSI, 0);
-                SUBI(xRSI, xRSI, 2);
                 SH(x1, xRDI, 0);
+                SUBI(xRSI, xRSI, 2);
                 SUBI(xRDI, xRDI, 2);
                 SUBI(xRCX, xRCX, 1);
                 BNEZ_MARK2(xRCX);
@@ -787,8 +787,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     BNEZ_MARK2(x1);
                     MARK; // Part with DF==0
                     LHU(x1, xRSI, 0);
-                    ADDI(xRSI, xRSI, 2);
                     LHU(x2, xRDI, 0);
+                    ADDI(xRSI, xRSI, 2);
                     ADDI(xRDI, xRDI, 2);
                     SUBI(xRCX, xRCX, 1);
                     if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }
@@ -796,8 +796,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     B_MARK3_nocond;
                     MARK2; // Part with DF==1
                     LHU(x1, xRSI, 0);
-                    SUBI(xRSI, xRSI, 2);
                     LHU(x2, xRDI, 0);
+                    SUBI(xRSI, xRSI, 2);
                     SUBI(xRDI, xRDI, 2);
                     SUBI(xRCX, xRCX, 1);
                     if (rep == 1) { BEQ_MARK3(x1, x2); } else { BNE_MARK3(x1, x2); }

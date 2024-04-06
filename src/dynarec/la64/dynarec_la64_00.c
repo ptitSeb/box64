@@ -666,8 +666,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     BNEZ_MARK2(x1);
                     MARK; // Part with DF==0
                     LD_BU(x1, xRSI, 0);
-                    ADDI_D(xRSI, xRSI, 1);
                     LD_BU(x2, xRDI, 0);
+                    ADDI_D(xRSI, xRSI, 1);
                     ADDI_D(xRDI, xRDI, 1);
                     ADDI_D(xRCX, xRCX, -1);
                     if (rep == 1) {
@@ -679,8 +679,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     B_MARK3_nocond;
                     MARK2; // Part with DF==1
                     LD_BU(x1, xRSI, 0);
-                    ADDI_D(xRSI, xRSI, -1);
                     LD_BU(x2, xRDI, 0);
+                    ADDI_D(xRSI, xRSI, -1);
                     ADDI_D(xRDI, xRDI, -1);
                     ADDI_D(xRCX, xRCX, -1);
                     if (rep == 1) {
