@@ -12,6 +12,6 @@ MaxEmptyLinesToKeep: 2
 IndentCaseLabels: true
 AlignConsecutiveMacros: true
 WhitespaceSensitiveMacros: ['QUOTE']
-IfMacros: ['IFX', 'IFX2', 'IFXA', 'IF_PEND0R0', 'IFXX', 'IFX2X', 'IFXN', 'UFLAG_IF', 'PASS2IF']
+IfMacros: ['IFX', 'IFX2', 'IFXA', 'IFX_PENDOR0', 'IFXX', 'IFX2X', 'IFXN', 'UFLAG_IF', 'PASS2IF']
 UseTab: Never
 ---
