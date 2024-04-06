@@ -91,6 +91,14 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x85:
+            INST_NAME("TEST Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;

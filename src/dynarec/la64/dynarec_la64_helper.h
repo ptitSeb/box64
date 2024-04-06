@@ -83,6 +83,12 @@
 // GETGD    get x64 register in gd
 #define GETGD gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3));
 
+// GETGW extract x64 register in gd, that is i
+#define GETGW(i)                                         \
+    gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    BSTRPICK_D(i, gd, 15, 0);                            \
+    gd = i;
+
 // GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED(D)                                                                                \
     if (MODREG) {                                                                               \
@@ -606,6 +612,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_cmp8           STEPNAME(emit_cmp8)
 #define emit_cmp8_0         STEPNAME(emit_cmp8_0)
 #define emit_test8          STEPNAME(emit_test8)
+#define emit_test16         STEPNAME(emit_test16)
 #define emit_test32         STEPNAME(emit_test32)
 #define emit_test32c        STEPNAME(emit_test32c)
 #define emit_add32          STEPNAME(emit_add32)
@@ -672,6 +679,7 @@ void emit_cmp8_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp16_0(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_cmp32_0(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4);
 void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_test16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);

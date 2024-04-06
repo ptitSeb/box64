@@ -132,7 +132,7 @@ void emit_cmp16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     CLEAR_FLAGS(s3);
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
-        NOR(s5, s5, s1);
+        NOR(s5, xZR, s1);
     }
 
     // It's a cmp, we can't store the result back to s1.
@@ -325,6 +325,47 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
     IFX(X_PF) {
+        emit_pf(dyn, ninst, s3, s4, s5);
+    }
+}
+
+// emit TEST16 instruction, from test s1, s2, using s3, s4 and s5 as scratch
+void emit_test16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX_PENDOR0 {
+        SET_DF(s3, d_tst16);
+    } else {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX (X_ALL) {
+            X64_AND_H(s1, s2);
+        }
+
+        IFX_PENDOR0 {
+            AND(s3, s1, s2);
+            ST_H(s3, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+    CLEAR_FLAGS(s3);
+    AND(s3, s1, s2); // res = s1 & s2
+
+    IFX_PENDOR0 {
+        ST_H(s3, xEmu, offsetof(x64emu_t, res));
+    }
+
+    IFX (X_SF) {
+        SRLI_D(s4, s3, 15);
+        BEQZ(s4, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_ZF) {
+        BNEZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
         emit_pf(dyn, ninst, s3, s4, s5);
     }
 }
