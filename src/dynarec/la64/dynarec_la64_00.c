@@ -1440,6 +1440,47 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_RES(xRAX);
                     UFLAG_OP1(xRDX);
                     break;
+                case 6:
+                    INST_NAME("DIV Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    if (!rex.w) {
+                        SET_DFNONE();
+                        GETED(0);
+                        SLLI_D(x3, xRDX, 32);
+                        AND(x2, xRAX, xMASK);
+                        OR(x3, x3, x2);
+                        if (MODREG) {
+                            AND(x4, ed, xMASK);
+                            ed = x4;
+                        }
+                        DIV_DU(x2, x3, ed);
+                        MOD_DU(xRDX, x3, ed);
+                        AND(xRAX, x2, xMASK);
+                        ZEROUP(xRDX);
+                    } else {
+                        if (ninst
+                            && dyn->insts[ninst - 1].x64.addr
+                            && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x31
+                            && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0xD2) {
+                            SET_DFNONE();
+                            GETED(0);
+                            DIV_DU(x2, xRAX, ed);
+                            MOD_DU(xRDX, xRAX, ed);
+                            MV(xRAX, x2);
+                        } else {
+                            GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            BEQ_MARK(xRDX, xZR);
+                            if (ed != x1) { MV(x1, ed); }
+                            CALL(div64, -1);
+                            B_NEXT_nocond;
+                            MARK;
+                            DIV_DU(x2, xRAX, ed);
+                            MOD_DU(xRDX, xRAX, ed);
+                            MV(xRAX, x2);
+                            SET_DFNONE();
+                        }
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
