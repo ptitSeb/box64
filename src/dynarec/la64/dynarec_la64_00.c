@@ -526,6 +526,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     WBACK;
                     break;
+                case 6: // XOR
+                    if (opcode == 0x81) {
+                        INST_NAME("XOR Ed, Id");
+                    } else {
+                        INST_NAME("XOR Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81)
+                        i64 = F32S;
+                    else
+                        i64 = F8S;
+                    emit_xor32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACK;
+                    break;
                 case 7: // CMP
                     if (opcode == 0x81) {
                         INST_NAME("CMP Ed, Id");
