@@ -151,6 +151,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
             break;
+        case 0x1C:
+            INST_NAME("SBB AL, Ib");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_sbb8c(dyn, ninst, x1, u8, x3, x4, x5, x6);
+            BSTRINS_D(xRAX, x1, 7, 0);
+            break;
         case 0x20:
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -268,6 +277,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
+        case 0x38:
+            INST_NAME("CMP Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -283,6 +300,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(0);
             emit_cmp32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
+            break;
+        case 0x3A:
+            INST_NAME("CMP Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_cmp8(dyn, ninst, x2, x1, x3, x4, x5, x6);
             break;
         case 0x3C:
             INST_NAME("CMP AL, Ib");
@@ -499,6 +524,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         i64 = F8S;
                     emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
+                    WBACK;
+                    break;
+                case 6: // XOR
+                    if (opcode == 0x81) {
+                        INST_NAME("XOR Ed, Id");
+                    } else {
+                        INST_NAME("XOR Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81)
+                        i64 = F32S;
+                    else
+                        i64 = F8S;
+                    emit_xor32c(dyn, ninst, rex, ed, i64, x3, x4);
                     WBACK;
                     break;
                 case 7: // CMP
@@ -1302,6 +1342,32 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETED(0);
                     emit_neg32(dyn, ninst, rex, ed, x3, x4);
                     WBACK;
+                    break;
+                case 4:
+                    INST_NAME("MUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, rex.w ? d_mul64 : d_mul32);
+                    GETED(0);
+                    if (rex.w) {
+                        if (ed == xRDX)
+                            gd = x3;
+                        else
+                            gd = xRDX;
+                        MULH_DU(gd, xRAX, ed);
+                        MUL_D(xRAX, xRAX, ed);
+                        if (gd != xRDX) { MV(xRDX, gd); }
+                    } else {
+                        AND(x3, xRAX, xMASK);
+                        if (MODREG) {
+                            AND(x4, ed, xMASK);
+                            ed = x4;
+                        }
+                        MUL_D(xRDX, x3, ed); // 64 <- 32x32
+                        AND(xRAX, xRDX, xMASK);
+                        SRLI_D(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
                     break;
                 default:
                     DEFAULT;
