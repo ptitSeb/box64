@@ -275,6 +275,7 @@ f24-f31  fs0-fs7   Static registers                Callee
             SRA_D(rd, rj, rk); \
         } else {               \
             SRA_W(rd, rj, rk); \
+            ZEROUP(rd);        \
         }                      \
     } while (0)
 
