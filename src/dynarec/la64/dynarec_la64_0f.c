@@ -279,7 +279,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
             SRLIxw(x4, ed, x2);
-            BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            if (la64_lbt)
+                X64_SET_EFLAGS(x4, X_CF);
+            else
+                BSTRINS_D(xFlags, x4, F_CF, F_CF);
             break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
@@ -294,6 +297,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.w) {
                 // 64bits imul
                 UFLAG_IF {
+                    if (la64_lbt) {
+                        X64_MUL_D(gd, ed);
+                    }
                     MULH_D(x3, gd, ed);
                     MUL_D(gd, gd, ed);
                     IFX (X_PEND) {
@@ -303,7 +309,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         SET_DFNONE();
                     }
-                    IFX (X_CF | X_OF) {
+                    IFXA (X_CF | X_OF, !la64_lbt) {
                         SRAI_D(x4, gd, 63);
                         XOR(x3, x3, x4);
                         SNEZ(x3, x3);
@@ -320,6 +326,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 // 32bits imul
                 UFLAG_IF {
+                    if (la64_lbt) {
+                        X64_MUL_W(gd, ed);
+                    }
                     MUL_D(gd, gd, ed);
                     SRLI_D(x3, gd, 32);
                     SLLI_W(gd, gd, 0);
@@ -330,7 +339,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else IFX (X_CF | X_OF) {
                         SET_DFNONE();
                     }
-                    IFX (X_CF | X_OF) {
+                    IFXA (X_CF | X_OF, !la64_lbt) {
                         SRAI_W(x4, gd, 31);
                         SUB_D(x3, x3, x4);
                         SNEZ(x3, x3);
@@ -344,8 +353,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else {
                     MULxw(gd, gd, ed);
                 }
-                SLLI_D(gd, gd, 32);
-                SRLI_D(gd, gd, 32);
+                ZEROUP(gd);
             }
             break;
         case 0xB6:
