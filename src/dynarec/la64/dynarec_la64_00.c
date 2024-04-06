@@ -552,6 +552,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
                     EBBACK();
                     break;
+                case 6: // XOR
+                    INST_NAME("XOR Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_xor8c(dyn, ninst, x1, u8, x2, x4);
+                    EBBACK();
+                    break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -799,6 +807,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 EXT_W_H(xRAX, xRAX);
                 ZEROUP(xRAX);
+            }
+            break;
+        case 0x99:
+            INST_NAME("CDQ");
+            if (rex.w) {
+                SRAI_D(xRDX, xRAX, 63);
+            } else {
+                SRAI_W(xRDX, xRAX, 31);
+                BSTRPICK_D(xRDX, xRDX, 31, 0);
             }
             break;
         case 0xA0:
