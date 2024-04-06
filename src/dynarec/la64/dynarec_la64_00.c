@@ -332,25 +332,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
             break;
         case 0x63:
-            if(rex.is32bits) {
+            if (rex.is32bits) {
                 // this is ARPL opcode
                 DEFAULT;
             } else {
                 INST_NAME("MOVSXD Gd, Ed");
                 nextop = F8;
                 GETGD;
-                if(rex.w) {
-                    if(MODREG) {   // reg <= reg
-                        ADDI_W(gd, TO_LA64((nextop&7)+(rex.b<<3)), 0);
-                    } else {                    // mem <= reg
+                if (rex.w) {
+                    if (MODREG) { // reg <= reg
+                        ADDI_W(gd, TO_LA64((nextop & 7) + (rex.b << 3)), 0);
+                    } else { // mem <= reg
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LD_W(gd, ed, fixedaddress);
                     }
                 } else {
-                    if(MODREG) {   // reg <= reg
-                        AND(gd, xRAX+(nextop&7)+(rex.b<<3), xMASK);
-                    } else {                    // mem <= reg
+                    if (MODREG) { // reg <= reg
+                        AND(gd, TO_LA64((nextop & 7) + (rex.b << 3)), xMASK);
+                    } else { // mem <= reg
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                         LD_WU(gd, ed, fixedaddress);
@@ -1038,10 +1038,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, CL");
-                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
-                    ANDI(x3, xRCX, rex.w?0x3f:0x1f);
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETED(0);
-                    if(!rex.w && MODREG) { ZEROUP(ed); }
+                    if (!rex.w && MODREG) { ZEROUP(ed); }
                     CBZ_NEXT(x3);
                     emit_shl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
