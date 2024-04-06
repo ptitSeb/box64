@@ -463,6 +463,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_and8c(dyn, ninst, x1, u8, x2, x4);
                     EBBACK();
                     break;
+                case 5: // SUB
+                    INST_NAME("SUB Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_sub8c(dyn, ninst, x1, u8, x2, x4, x5, x6);
+                    EBBACK();
+                    break;
                 case 7: // CMP
                     INST_NAME("CMP Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
