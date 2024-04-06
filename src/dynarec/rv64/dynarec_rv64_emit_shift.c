@@ -21,6 +21,168 @@
 #include "dynarec_rv64_functions.h"
 #include "dynarec_rv64_helper.h"
 
+// emit SHL8 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
+void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+{
+    if (!c) return;
+    // c != 0
+
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        MOV64x(s3, c);
+        SB(s3, xEmu, offsetof(x64emu_t, op2));
+        SB(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_shl8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX(X_CF|X_OF) {
+        SRLI(s3, s1, 8-c);
+        ANDI(s5, s3, 1); // LSB == F_CF
+        IFX(X_CF) {
+            OR(xFlags, xFlags, s5);
+        }
+    }
+
+    SLLI(s1, s1, c);
+    ANDI(s1, s1, 0xff);
+
+    IFX(X_SF) {
+        SLTIU(s3, s1, 128);
+        BGE(s3, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_OF) {
+        // OF flag is affected only on 1-bit shifts
+        if (c == 1) {
+            SRLI(s3, s1, 7);
+            XOR(s3, s3, s5);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit SHR8 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
+void emit_shr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+{
+    if (!c) return;
+    // c != 0
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        MOV64x(s3, c);
+        SB(s3, xEmu, offsetof(x64emu_t, op2));
+        SB(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_shr8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+    IFX(X_CF) {
+        if (c > 1) {
+            SRAI(s3, s1, c-1);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        } else {
+            // no need to shift
+            ANDI(s3, s1, 1); // LSB == F_CF
+        }
+        OR(xFlags, xFlags, s3);
+    }
+    IFX(X_OF) {
+        // OF flag is affected only on 1-bit shifts
+        // OF flag is set to the most-significant bit of the original operand
+        if (c == 1) {
+            SRLI(s3, s1, 7);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+
+    SRLI(s1, s1, c);
+    ANDI(s1, s1, 0xff);
+
+    IFX(X_SF) {
+        SLTIU(s3, s1, 128);
+        BGE(s3, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit SAR8 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
+void emit_sar8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+{
+    if (!c) return;
+    // c != 0
+    CLEAR_FLAGS();
+    IFX(X_PEND) {
+        MOV64x(s3, c);
+        SB(s3, xEmu, offsetof(x64emu_t, op2));
+        SB(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, d_shr8);
+    } else IFX(X_ALL) {
+        SET_DFNONE();
+    }
+    IFX(X_CF) {
+        if (c > 1) {
+            SRAI(s3, s1, c-1);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        } else {
+            // no need to shift
+            ANDI(s3, s1, 1); // LSB == F_CF
+        }
+        OR(xFlags, xFlags, s3);
+    }
+    IFX(X_OF) {
+        // OF flag is affected only on 1-bit shifts
+        // OF flag is set to the most-significant bit of the original operand
+        if (c == 1) {
+            SRLI(s3, s1, 7);
+            ANDI(s3, s3, 1);
+            SLLI(s3, s3, F_OF2);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+
+    SRLI(s1, s1, c);
+    ANDI(s1, s1, 0xff);
+
+    IFX(X_SF) {
+        SLTIU(s3, s1, 128);
+        BGE(s3, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX(X_PEND) {
+        SB(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX(X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX(X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
 // emit SHL32 instruction, from s1 , shift s2, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
