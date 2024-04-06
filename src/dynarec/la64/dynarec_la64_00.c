@@ -654,6 +654,35 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             break;
+        case 0x87:
+            INST_NAME("(LOCK) XCHG Ed, Gd");
+            nextop = F8;
+            if (MODREG) {
+                GETGD;
+                GETED(0);
+                MVxw(x1, gd);
+                MVxw(gd, ed);
+                MVxw(ed, x1);
+            } else {
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                SMDMB();
+                ANDI(x3, ed, (1 << (2 + rex.w)) - 1);
+                BNEZ_MARK(x3);
+                MARKLOCK;
+                LLxw(x1, ed, 0);
+                MVxw(x3, gd);
+                SCxw(x3, ed, 0);
+                BEQZ_MARKLOCK(x3);
+                B_MARK2_nocond;
+                MARK;
+                LDxw(x1, ed, 0);
+                SDxw(gd, ed, 0);
+                MARK2;
+                SMDMB();
+                MVxw(gd, x1);
+            }
+            break;
         case 0x88:
             INST_NAME("MOV Eb, Gb");
             nextop = F8;
