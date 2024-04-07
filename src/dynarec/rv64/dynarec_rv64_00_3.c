@@ -550,8 +550,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         INST_NAME("SHL Eb, CL");
                         ANDI(x2, xRCX, 7);
-                        BEQ_NEXT(x4, xZR);
+                        BEQ_NEXT(x2, xZR);
                     }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETSEB(x1, 0);
                     emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
@@ -559,12 +562,15 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 5:
                     if(opcode==0xD0) {
                         INST_NAME("SHR Eb, 1");
-                        MOV32w(x4, 1);
+                        MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHR Eb, CL");
-                        ANDI(x4, xRCX, 0x1F);
-                        BEQ_NEXT(x4, xZR);
+                        ANDI(x2, xRCX, 0x1F);
+                        BEQ_NEXT(x2, xZR);
                     }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETSEB(x1, 0);
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
@@ -572,12 +578,15 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 7:
                     if(opcode==0xD0) {
                         INST_NAME("SAR Eb, 1");
-                        MOV32w(x4, 1);
+                        MOV32w(x2, 1);
                     } else {
                         INST_NAME("SAR Eb, CL");
-                        ANDI(x4, xRCX, 0x1f);
-                        BEQ_NEXT(x4, xZR);
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                     }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETSEB(x1, 0);
                     emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);

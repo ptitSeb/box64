@@ -1107,56 +1107,51 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 5:
                     if(opcode==0xD1) {
                         INST_NAME("SHR Ew, 1");
-                        MOV32w(x4, 1);
+                        MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHR Ew, CL");
-                        ANDI(x4, xRCX, 15);
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                     }
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETEW(x1, 0);
-                    UFLAG_OP12(ed, x4)
-                    SRL(ed, ed, x4);
+                    emit_shr16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr16);
                     break;
                 case 4:
                 case 6:
                     if(opcode==0xD1) {
                         INST_NAME("SHL Ew, 1");
-                        MOV32w(x4, 1);
+                        MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHL Ew, CL");
-                        ANDI(x4, xRCX, 15);
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                     }
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETEW(x1, 0);
-                    UFLAG_OP12(ed, x4)
-                    SLL(ed, ed, x4);
-                    ZEXTH(ed, ed);
+                    emit_shl16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl16);
                     break;
                 case 7:
                     if(opcode==0xD1) {
                         INST_NAME("SAR Ew, 1");
-                        MOV32w(x4, 1);
+                        MOV32w(x2, 1);
                     } else {
                         INST_NAME("SAR Ew, CL");
-                        ANDI(x4, xRCX, 15);
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                     }
-                    UFLAG_IF {MESSAGE(LOG_DUMP, "Need Optimization for flags\n");}
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETSEW(x1, 0);
-                    UFLAG_OP12(ed, x4);
-                    SRA(ed, ed, x4);
-                    ZEXTH(ed, ed);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
+                    GETEW(x1, 0);
+                    emit_sar16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar16);
                     break;
                 default:
                     DEFAULT;
