@@ -555,7 +555,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    GETSEB(x1, 0);
+                    GETEB(x1, 0);
                     emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
@@ -571,7 +571,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    GETSEB(x1, 0);
+                    GETEB(x1, 0);
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
