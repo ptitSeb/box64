@@ -532,7 +532,7 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
 
-    SLL(s1, s1, s2);
+    SLLxw(s1, s1, s2);
 
     IFX(X_SF) {
         BGE(s1, xZR, 8);
