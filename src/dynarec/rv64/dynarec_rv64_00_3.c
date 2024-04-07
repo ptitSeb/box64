@@ -99,60 +99,44 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 4:
                 case 6:
                     INST_NAME("SHL Eb, Ib");
-                    GETEB(x1, 1);
-                    u8 = (F8)&0x1f;
-                    if(u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
-                        UFLAG_IF{
-                            MOV32w(x4, u8); UFLAG_OP2(x4);
-                        };
-                        UFLAG_OP1(ed);
-                        SLLIW(ed, ed, u8);
-                        EBBACK(x5, 1);
-                        UFLAG_RES(ed);
-                        UFLAG_DF(x3, d_shl8);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
+                        GETEB(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_shl8c(dyn, ninst, ed, u8, x4, x5, x6);
+                        EBBACK(x5, 0);
                     } else {
-                        NOP();
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 5:
                     INST_NAME("SHR Eb, Ib");
-                    GETEB(x1, 1);
-                    u8 = (F8)&0x1f;
-                    if(u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
-                        UFLAG_IF{
-                            MOV32w(x4, u8); UFLAG_OP2(x4);
-                        };
-                        UFLAG_OP1(ed);
-                        if(u8) {
-                            SRLIW(ed, ed, u8);
-                            EBBACK(x5, 1);
-                        }
-                        UFLAG_RES(ed);
-                        UFLAG_DF(x3, d_shr8);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
+                        GETEB(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_shr8c(dyn, ninst, ed, u8, x4, x5, x6);
+                        EBBACK(x5, 0);
                     } else {
-                        NOP();
+                        FAKEED;
+                        F8;
                     }
                     break;
                 case 7:
                     INST_NAME("SAR Eb, Ib");
-                    GETSEB(x1, 1);
-                    u8 = (F8)&0x1f;
-                    if(u8) {
-                        SETFLAGS(X_ALL, SF_PENDING);
-                        UFLAG_IF{
-                            MOV32w(x4, u8); UFLAG_OP2(x4);
-                        };
-                        UFLAG_OP1(ed);
-                        if(u8) {
-                            SRAIW(ed, ed, u8);
-                            EBBACK(x5, 1);
-                        }
-                        UFLAG_RES(ed);
-                        UFLAG_DF(x3, d_sar8);
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING);
+                        GETSEB(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_sar8c(dyn, ninst, ed, u8, x4, x5, x6);
+                        EBBACK(x5, 0);
                     } else {
-                        NOP();
+                        FAKEED;
+                        F8;
                     }
                     break;
                 default:
@@ -506,15 +490,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         INST_NAME("ROL Eb, CL");
                         ANDI(x2, xRCX, 7);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_PENDING);
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1, 0);
-                    UFLAG_OP12(ed, x2);
-                    SLL(x3, ed, x2);
-                    SRLI(x4, x3, 8);
-                    OR(ed, x3, x4);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_rol8);
+                    CALL_(rol8, ed, x3);
+                    EBBACK(x5, 0);
                     break;
                 case 1:
                     if(opcode==0xD0) {
@@ -524,16 +505,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         INST_NAME("ROR Eb, CL");
                         ANDI(x2, xRCX, 7);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_PENDING);
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1, 0);
-                    UFLAG_OP12(ed, x2);
-                    SRL(x3, ed, x2);
-                    SLLI(x4, ed, 8);
-                    SRL(x4, x4, x2);
-                    OR(ed, x3, x4);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_ror8);
+                    CALL_(ror8, ed, x3);
+                    EBBACK(x5, 0);
                     break;
                 case 2:
                     if(opcode==0xD0) {
@@ -572,47 +549,47 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHL Eb, CL");
-                        ANDI(x2, xRCX, 7);
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETEB(x1, 0);
-                    UFLAG_OP12(ed, x2)
-                    SLL(ed, ed, x2);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl8);
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK(x5, 0);
                     break;
                 case 5:
                     if(opcode==0xD0) {
                         INST_NAME("SHR Eb, 1");
-                        MOV32w(x4, 1);
+                        MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHR Eb, CL");
-                        ANDI(x4, xRCX, 0x1F);
+                        ANDI(x2, xRCX, 0x1F);
+                        BEQ_NEXT(x2, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETEB(x1, 0);
-                    UFLAG_OP12(ed, x4);
-                    SRLW(ed, ed, x4);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr8);
+                    emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK(x5, 0);
                     break;
                 case 7:
                     if(opcode==0xD0) {
                         INST_NAME("SAR Eb, 1");
-                        MOV32w(x4, 1);
+                        MOV32w(x2, 1);
                     } else {
                         INST_NAME("SAR Eb, CL");
-                        ANDI(x4, xRCX, 0x1f);
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
+                    if(box64_dynarec_safeflags>1)
+                        MAYSETFLAGS();
                     GETSEB(x1, 0);
-                    UFLAG_OP12(ed, x4)
-                    SRA(ed, ed, x4);
-                    EBBACK(x3, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar8);
+                    emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK(x5, 0);
                     break;
                 default:
                     DEFAULT;
