@@ -1161,6 +1161,9 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_shl8c          STEPNAME(emit_shl8c)
 #define emit_shr8c          STEPNAME(emit_shr8c)
 #define emit_sar8c          STEPNAME(emit_sar8c)
+#define emit_shl8           STEPNAME(emit_shl8)
+#define emit_shr8           STEPNAME(emit_shr8)
+#define emit_sar8           STEPNAME(emit_sar8)
 #define emit_shl16c         STEPNAME(emit_shl16c)
 #define emit_shr16c         STEPNAME(emit_shr16c)
 #define emit_sar16c         STEPNAME(emit_sar16c)
@@ -1306,6 +1309,9 @@ void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_shr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_sar8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
+void emit_shl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_shr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_sar8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_shr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_sar16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5);

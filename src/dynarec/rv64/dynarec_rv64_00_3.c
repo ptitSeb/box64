@@ -490,15 +490,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         INST_NAME("ROL Eb, CL");
                         ANDI(x2, xRCX, 7);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_PENDING);
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1, 0);
-                    UFLAG_OP12(ed, x2);
-                    SLL(x3, ed, x2);
-                    SRLI(x4, x3, 8);
-                    OR(ed, x3, x4);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_rol8);
+                    CALL_(rol8, ed, x3);
+                    EBBACK(x5, 0);
                     break;
                 case 1:
                     if(opcode==0xD0) {
@@ -508,16 +505,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         INST_NAME("ROR Eb, CL");
                         ANDI(x2, xRCX, 7);
                     }
-                    SETFLAGS(X_OF|X_CF, SF_PENDING);
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF|X_CF, SF_SET);
                     GETEB(x1, 0);
-                    UFLAG_OP12(ed, x2);
-                    SRL(x3, ed, x2);
-                    SLLI(x4, ed, 8);
-                    SRL(x4, x4, x2);
-                    OR(ed, x3, x4);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_ror8);
+                    CALL_(ror8, ed, x3);
+                    EBBACK(x5, 0);
                     break;
                 case 2:
                     if(opcode==0xD0) {
@@ -557,14 +550,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         INST_NAME("SHL Eb, CL");
                         ANDI(x2, xRCX, 7);
+                        BEQ_NEXT(x4, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETEB(x1, 0);
-                    UFLAG_OP12(ed, x2)
-                    SLL(ed, ed, x2);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shl8);
+                    GETSEB(x1, 0);
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK(x5, 0);
                     break;
                 case 5:
                     if(opcode==0xD0) {
@@ -573,14 +563,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         INST_NAME("SHR Eb, CL");
                         ANDI(x4, xRCX, 0x1F);
+                        BEQ_NEXT(x4, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    GETEB(x1, 0);
-                    UFLAG_OP12(ed, x4);
-                    SRLW(ed, ed, x4);
-                    EBBACK(x5, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_shr8);
+                    GETSEB(x1, 0);
+                    emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK(x5, 0);
                     break;
                 case 7:
                     if(opcode==0xD0) {
@@ -589,14 +576,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         INST_NAME("SAR Eb, CL");
                         ANDI(x4, xRCX, 0x1f);
+                        BEQ_NEXT(x4, xZR);
                     }
-                    SETFLAGS(X_ALL, SF_PENDING);
                     GETSEB(x1, 0);
-                    UFLAG_OP12(ed, x4)
-                    SRA(ed, ed, x4);
-                    EBBACK(x3, 1);
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, d_sar8);
+                    emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK(x5, 0);
                     break;
                 default:
                     DEFAULT;
