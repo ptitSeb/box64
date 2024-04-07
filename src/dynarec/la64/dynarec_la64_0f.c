@@ -278,7 +278,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x1;
             }
             ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
-            SRLIxw(x4, ed, x2);
+            SRLxw(x4, ed, x2);
             if (la64_lbt)
                 X64_SET_EFLAGS(x4, X_CF);
             else
