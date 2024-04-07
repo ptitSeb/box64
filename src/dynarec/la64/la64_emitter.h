@@ -279,6 +279,16 @@ f24-f31  fs0-fs7   Static registers                Callee
         }                      \
     } while (0)
 
+#define SRLxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w) {           \
+            SRL_D(rd, rj, rk); \
+        } else {               \
+            SRL_W(rd, rj, rk); \
+            ZEROUP(rd);        \
+        }                      \
+    } while (0)
+
 // Shift Left Immediate
 #define SLLIxw(rd, rs1, imm)      \
     do {                          \
