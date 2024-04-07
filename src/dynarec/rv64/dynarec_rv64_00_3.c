@@ -549,7 +549,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHL Eb, CL");
-                        ANDI(x2, xRCX, 7);
+                        ANDI(x2, xRCX, 0x1f);
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
