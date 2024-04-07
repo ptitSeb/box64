@@ -925,8 +925,8 @@
     dyn->doublepop = 0;
 
 #if STEP < 2
-#define GETIP(A)
-#define GETIP_(A)
+#define GETIP(A) TABLE64(0, 0)
+#define GETIP_(A) TABLE64(0, 0)
 #else
 // put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
 #define GETIP(A)                                        \
