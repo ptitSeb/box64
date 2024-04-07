@@ -1149,7 +1149,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    GETEW(x1, 0);
+                    GETSEW(x1, 0);
                     emit_sar16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
                     break;
