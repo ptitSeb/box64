@@ -27,6 +27,7 @@ GO(ubrk_setText_67, vFppip)
 GO(ubrk_setUText_67, vFppp)
 GO(ubrk_swap_67, iFppipp)
 
+GO(ucnv_getDefaultName_67, pFv)
 GO(ucnv_open_67, pFpp)
 GO(ucnv_setDefaultName_67, vFp)
 
