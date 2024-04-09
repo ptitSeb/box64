@@ -1726,34 +1726,21 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                                     \
     } while (0)
 
-#define MOV32w(rd, imm32) MOV32w_(rd, imm32, 1)
-// GR[rd] = imm64
-#define MOV64x(rd, imm64)                               \
-    do {                                                \
-        MOV32w_(rd, imm64, 0);                          \
-        if (((uint64_t)(imm64)) > 0xffffffffu) {        \
-            LU32I_D(rd, ((uint64_t)(imm64)) >> 32);     \
-            LU52I_D(rd, rd, ((uint64_t)(imm64)) >> 52); \
-        }                                               \
-    } while (0)
-
-#define MOV64xw(A, B)     \
-    do {                  \
-        if (rex.w) {      \
-            MOV64x(A, B); \
-        } else {          \
-            MOV32w(A, B); \
-        }                 \
-    } while (0)
-
-#define MOV64z(A, B)        \
-    do {                    \
-        if (rex.is32bits) { \
-            MOV32w(A, B);   \
-        } else {            \
-            MOV64x(A, B);   \
-        }                   \
-    } while (0)
+// MOV64x/MOV32w is quite complex, so use a function for this
+#define MOV64x(A, B) la64_move64(dyn, ninst, A, B)
+#define MOV32w(A, B) la64_move32(dyn, ninst, A, B, 1)
+#define MOV64xw(A, B) \
+    if (rex.w) {      \
+        MOV64x(A, B); \
+    } else {          \
+        MOV32w(A, B); \
+    }
+#define MOV64z(A, B)    \
+    if (rex.is32bits) { \
+        MOV32w(A, B);   \
+    } else {            \
+        MOV64x(A, B);   \
+    }
 
 // rd[63:0] = rj[63:0] (pseudo instruction)
 #define MV(rd, rj) ADDI_D(rd, rj, 0)

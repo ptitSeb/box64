@@ -688,6 +688,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define fpu_unreflectcache  STEPNAME(fpu_unreflectcache)
 
 #define CacheTransform STEPNAME(CacheTransform)
+#define la64_move64    STEPNAME(la64_move64)
+#define la64_move32    STEPNAME(la64_move32)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
@@ -768,6 +770,9 @@ int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite);
 int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
+
+void la64_move64(dynarec_la64_t* dyn, int ninst, int reg, int64_t val);
+void la64_move32(dynarec_la64_t* dyn, int ninst, int reg, int32_t val, int zeroup);
 
 #if STEP < 2
 #define CHECK_CACHE() 0
