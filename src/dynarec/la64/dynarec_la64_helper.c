@@ -1067,3 +1067,31 @@ void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2
     if(cacheupd&1)
         flagsCacheTransform(dyn, ninst, s1);
 }
+
+void la64_move32(dynarec_la64_t* dyn, int ninst, int reg, int32_t val, int zeroup)
+{
+    if ((val & 0xfff) == val) {
+        ORI(reg, xZR, val);
+    } else if (((val << 20) >> 20) == val) {
+        ADDI_W(reg, xZR, val & 0xfff);
+    } else if ((val & 0xfff) == 0) {
+        LU12I_W(reg, (val >> 12) & 0xfffff);
+    } else {
+        LU12I_W(reg, (val >> 12) & 0xfffff);
+        ORI(reg, reg, val & 0xfff);
+    }
+    if (zeroup && val < 0) ZEROUP(reg);
+}
+
+void la64_move64(dynarec_la64_t* dyn, int ninst, int reg, int64_t val)
+{
+    la64_move32(dyn, ninst, reg, val, 0);
+    if (((val << 32) >> 32) == val) {
+        return;
+    }
+    LU32I_D(reg, (val >> 32) & 0xfffff);
+    if (((val << 12) >> 12) == val) {
+        return;
+    }
+    LU52I_D(reg, reg, (val >> 52) & 0xfff);
+}
