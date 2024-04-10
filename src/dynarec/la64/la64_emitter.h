@@ -207,6 +207,9 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define LLxw(rd, rj, imm) EMIT(type_2RI14(0b00100000 | (rex.w ? 0b10 : 0b00), imm >> 2, rj, rd))
 #define SCxw(rd, rj, imm) EMIT(type_2RI14(0b00100001 | (rex.w ? 0b10 : 0b00), imm >> 2, rj, rd))
 
+// DBAR hint
+#define DBAR(hint) EMIT(type_hint(0b00111000011100100, hint))
+
 // GR[rd] = GR[rj] & GR[rk]
 #define AND(rd, rj, rk) EMIT(type_3R(0b00000000000101001, rk, rj, rd))
 // GR[rd] = GR[rj] | GR[rk]
@@ -316,6 +319,15 @@ f24-f31  fs0-fs7   Static registers                Callee
         } else {                  \
             SRAI_W(rd, rs1, imm); \
         }                         \
+    } while (0)
+
+#define ROTRIxw(rd, rs1, imm)      \
+    do {                           \
+        if (rex.w) {               \
+            ROTRI_D(rd, rs1, imm); \
+        } else {                   \
+            ROTRI_W(rd, rs1, imm); \
+        }                          \
     } while (0)
 
 // rd = rj + (rk << imm6)
@@ -1906,8 +1918,5 @@ LSX instruction starts with V, LASX instruction starts with XV.
             PUSH1(reg);     \
         }                   \
     } while (0)
-
-// DBAR hint
-#define DBAR(hint) EMIT(type_hint(0b00111000011100100, hint))
 
 #endif //__ARM64_EMITTER_H__
