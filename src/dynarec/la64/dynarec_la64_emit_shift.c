@@ -417,9 +417,7 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
     }
 
-    SRLIxw(s3, s1, c);
-    SLLIxw(s1, s1, (rex.w ? 64 : 32) - c);
-    OR(s1, s3, s1);
+    ROTRIxw(s1, s1, c);
 
     if (!rex.w) ZEROUP(s1);
 
