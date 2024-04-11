@@ -61,12 +61,12 @@ uintptr_t dynarec64_66F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     GETEW(x1, 0);
                     MOV32w(x2, 0x82f63b78);
                     for(int j=0; j<2; ++j) {
-                        SRL(x5, ed, 8*j);
+                        SRLI(x5, ed, 8*j);
                         ANDI(x3, x5, 0xFF);
                         XOR(gd, gd, x3);
                         for (int i = 0; i < 8; i++) {
                             SRLI((i&1)?gd:x4, (i&1)?x4:gd, 1);
-                            ANDI(x6, (i&1)?x4:gd, 1);
+                            BEXTI(x6, (i&1)?x4:gd, 0);
                             BEQZ(x6, 4+4);
                             XOR((i&1)?gd:x4, (i&1)?gd:x4, x2);
                         }
