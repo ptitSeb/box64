@@ -65,6 +65,20 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             VEXTRINS_W(v0, v1, 0);
             break;
+        case 0x11:
+            INST_NAME("MOVSS Ex, Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if (MODREG) {
+                q0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                VEXTRINS_W(q0, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                FST_S(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
             nextop = F8;
