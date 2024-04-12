@@ -1029,9 +1029,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Ew, Iw");
             nextop = F8;
             if(MODREG) {
-                ed = xRAX+(nextop&7)+(rex.b<<3);
-                ADDI(x1, xZR, -1);
-                SRLI(x1, x1, 48);
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                LUI(x1, 0xffff0);
                 AND(ed, ed, x1);
                 u16 = F16;
                 MOV32w(x1, u16);
