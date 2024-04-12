@@ -70,6 +70,20 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             FAKEED;
             break;
+        case 0x2A:
+            INST_NAME("CVTSI2SS Gx, Ed");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETED(0);
+            d1 = fpu_get_scratch(dyn);
+            MOVGR2FR_D(d1, ed);
+            if(rex.w) {
+                FFINT_S_L(d1, d1);
+            } else {
+                FFINT_S_W(d1, d1);
+            }
+            VEXTRINS_W(v0, d1, 0);
+            break;
         case 0x6F:
             INST_NAME("MOVDQU Gx, Ex");
             nextop = F8;
