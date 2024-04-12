@@ -983,6 +983,19 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD_D(xRDI, xRDI, x3);
             }
             break;
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+            INST_NAME("MOV xL, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if (rex.rex)
+                gb1 = TO_LA64((opcode & 7) + (rex.b << 3));
+            else
+                gb1 = TO_LA64(opcode & 3);
+            BSTRINS_D(gb1, x1, 7, 0);
+            break;
         case 0xB8:
         case 0xB9:
         case 0xBA:
