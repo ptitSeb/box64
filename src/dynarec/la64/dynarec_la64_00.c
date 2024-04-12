@@ -1683,6 +1683,52 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     }
                     break;
+                case 7:
+                    INST_NAME("IDIV Ed");
+                    SKIPTEST(x1);
+                    SETFLAGS(X_ALL, SF_SET);
+                    if (!rex.w) {
+                        SET_DFNONE()
+                        GETSED(0);
+                        SLLI_D(x3, xRDX, 32);
+                        AND(x2, xRAX, xMASK);
+                        OR(x3, x3, x2);
+                        DIV_D(x2, x3, ed);
+                        MOD_D(xRDX, x3, ed);
+                        AND(xRAX, x2, xMASK);
+                        ZEROUP(xRDX);
+                    } else {
+                        if (ninst && dyn->insts
+                            && dyn->insts[ninst - 1].x64.addr
+                            && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x48
+                            && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0x99) {
+                            SET_DFNONE()
+                            GETED(0);
+                            DIV_D(x2, xRAX, ed);
+                            MOD_D(xRDX, xRAX, ed);
+                            MV(xRAX, x2);
+                        } else {
+                            GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            // need to see if RDX == 0 and RAX not signed
+                            // or RDX == -1 and RAX signed
+                            BNE_MARK2(xRDX, xZR);
+                            BGE_MARK(xRAX, xZR);
+                            MARK2;
+                            NOR(x2, xZR, xRDX);
+                            BNE_MARK3(x2, xZR);
+                            BLT_MARK(xRAX, xZR);
+                            MARK3;
+                            if (ed != x1) MV(x1, ed);
+                            CALL((void*)idiv64, -1);
+                            B_NEXT_nocond;
+                            MARK;
+                            DIV_D(x2, xRAX, ed);
+                            MOD_D(xRDX, xRAX, ed);
+                            MV(xRAX, x2);
+                            SET_DFNONE()
+                        }
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
