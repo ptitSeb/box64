@@ -412,7 +412,10 @@ void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
     }
 
-    if (la64_lbt) return;
+    if (la64_lbt) {
+        if (!rex.w) ZEROUP(s1);
+        return;
+    }
 
     CLEAR_FLAGS(s3);
     // test sign bit before zeroup.
