@@ -48,6 +48,23 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(j64);
 
     switch (opcode) {
+        case 0x10:
+            INST_NAME("MOVSS Gx, Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                v1 = fpu_get_scratch(dyn);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                VXOR_V(v0, v0, v0);
+                FLD_S(v1, ed, fixedaddress);
+            }
+            VEXTRINS_W(v0, v1, 0);
+            break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
             nextop = F8;
