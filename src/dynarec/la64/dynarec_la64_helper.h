@@ -271,6 +271,17 @@
         FLD_D(a, ed, fixedaddress);                                                            \
     }
 
+// Get Ex as a single, not a quad (warning, x1 get used)
+#define GETEXSS(a, w, D)                                                                     \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        a = fpu_get_scratch(dyn);                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, D); \
+        FLD_S(a, ed, fixedaddress);                                                          \
+    }
+
 // Write gb (gd) back to original register / memory, using s1 as scratch
 #define GBBACK() BSTRINS_D(gb1, gd, gb2 + 7, gb2);
 

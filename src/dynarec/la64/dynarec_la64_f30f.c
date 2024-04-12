@@ -54,7 +54,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETG;
             if(MODREG) {
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 v1 = fpu_get_scratch(dyn);
@@ -82,6 +82,15 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 FFINT_S_W(d1, d1);
             }
+            VEXTRINS_W(v0, d1, 0);
+            break;
+        case 0x5E:
+            INST_NAME("DIVSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            d1 = fpu_get_scratch(dyn);
+            GETEXSS(d0, 0, 0);
+            FDIV_S(d1, v0, d0);
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x6F:
