@@ -153,6 +153,22 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0xC7:
+            INST_NAME("MOV Ew, Iw");
+            nextop = F8;
+            if (MODREG) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                u16 = F16;
+                MOV32w(x1, u16);
+                BSTRINS_D(ed, x1, 15, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 2);
+                u16 = F16;
+                MOV32w(x1, u16);
+                ST_H(x1, ed, fixedaddress);
+                SMWRITELOCK(lock);
+            }
+            break;
         default:
             DEFAULT;
     }
