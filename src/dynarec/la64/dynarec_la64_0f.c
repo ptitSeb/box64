@@ -389,6 +389,61 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LD_HU(gd, ed, fixedaddress);
             }
             break;
+        case 0xBC:
+            INST_NAME("BSF Gd, Ed");
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if (!rex.w && MODREG) {
+                AND(x4, ed, xMASK);
+                ed = x4;
+            }
+            BNE_MARK(ed, xZR);
+            if (la64_lbt) {
+                ADDI_D(x3, xZR, 1 << F_ZF);
+                X64_SET_EFLAGS(x3, X_ZF);
+            } else {
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            B_NEXT_nocond;
+            MARK;
+            // gd is undefined if ed is all zeros, don't worry.
+            if (rex.w)
+                CTZ_D(gd, ed);
+            else
+                CTZ_W(gd, ed);
+            if (la64_lbt) {
+                X64_SET_EFLAGS(xZR, X_ZF);
+            } else {
+                ADDI_D(x3, xZR, ~(1 << F_ZF));
+                OR(xFlags, xFlags, x3);
+            }
+            break;
+        case 0xBD:
+            INST_NAME("BSR Gd, Ed");
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if (!rex.w && MODREG) {
+                AND(x4, ed, xMASK);
+                ed = x4;
+            }
+            BNE_MARK(ed, xZR);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+            B_NEXT_nocond;
+            MARK;
+            ANDI(xFlags, xFlags, ~(1 << F_ZF));
+            if (rex.w)
+                CLZ_D(gd, ed);
+            else
+                CLZ_W(gd, ed);
+            ADDI_D(x1, xZR, rex.w ? 63 : 31);
+            SUB_D(gd, x1, gd);
+            break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
             nextop = F8;

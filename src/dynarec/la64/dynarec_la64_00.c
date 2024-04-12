@@ -301,6 +301,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGB(x2);
             emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
             break;
+        case 0x35:
+            INST_NAME("XOR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -983,6 +989,19 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD_D(xRDI, xRDI, x3);
             }
             break;
+        case 0xB0:
+        case 0xB1:
+        case 0xB2:
+        case 0xB3:
+            INST_NAME("MOV xL, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if (rex.rex)
+                gb1 = TO_LA64((opcode & 7) + (rex.b << 3));
+            else
+                gb1 = TO_LA64(opcode & 3);
+            BSTRINS_D(gb1, x1, 7, 0);
+            break;
         case 0xB8:
         case 0xB9:
         case 0xBA:
@@ -1661,6 +1680,52 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             MOD_DU(xRDX, xRAX, ed);
                             MV(xRAX, x2);
                             SET_DFNONE();
+                        }
+                    }
+                    break;
+                case 7:
+                    INST_NAME("IDIV Ed");
+                    SKIPTEST(x1);
+                    SETFLAGS(X_ALL, SF_SET);
+                    if (!rex.w) {
+                        SET_DFNONE()
+                        GETSED(0);
+                        SLLI_D(x3, xRDX, 32);
+                        AND(x2, xRAX, xMASK);
+                        OR(x3, x3, x2);
+                        DIV_D(x2, x3, ed);
+                        MOD_D(xRDX, x3, ed);
+                        AND(xRAX, x2, xMASK);
+                        ZEROUP(xRDX);
+                    } else {
+                        if (ninst && dyn->insts
+                            && dyn->insts[ninst - 1].x64.addr
+                            && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0x48
+                            && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr + 1) == 0x99) {
+                            SET_DFNONE()
+                            GETED(0);
+                            DIV_D(x2, xRAX, ed);
+                            MOD_D(xRDX, xRAX, ed);
+                            MV(xRAX, x2);
+                        } else {
+                            GETEDH(x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
+                            // need to see if RDX == 0 and RAX not signed
+                            // or RDX == -1 and RAX signed
+                            BNE_MARK2(xRDX, xZR);
+                            BGE_MARK(xRAX, xZR);
+                            MARK2;
+                            NOR(x2, xZR, xRDX);
+                            BNE_MARK3(x2, xZR);
+                            BLT_MARK(xRAX, xZR);
+                            MARK3;
+                            if (ed != x1) MV(x1, ed);
+                            CALL((void*)idiv64, -1);
+                            B_NEXT_nocond;
+                            MARK;
+                            DIV_D(x2, xRAX, ed);
+                            MOD_D(xRDX, xRAX, ed);
+                            MV(xRAX, x2);
+                            SET_DFNONE()
                         }
                     }
                     break;

@@ -151,6 +151,25 @@
         ed = x1;                                                                                \
     }
 
+// GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
+#define GETSED(D)                                                                               \
+    if (MODREG) {                                                                               \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
+        wback = 0;                                                                              \
+        if (!rex.w) {                                                                           \
+            ADD_W(x1, ed, xZR);                                                                 \
+            ed = x1;                                                                            \
+        }                                                                                       \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+        if (rex.w)                                                                              \
+            LD_D(x1, wback, fixedaddress);                                                      \
+        else                                                                                    \
+            LD_W(x1, wback, fixedaddress);                                                      \
+        ed = x1;                                                                                \
+    }
+
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED                                   \
     if (!MODREG) {                               \
@@ -373,6 +392,13 @@
 #define BNEZ_MARK3(reg) BxxZ_gen(NE, MARK3, reg)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BxxZ_gen(NE, MARKLOCK, reg)
+
+// Branch to MARK if reg1<reg2 (use j64)
+#define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
+// Branch to MARK if reg1<reg2 (use j64)
+#define BLTU_MARK(reg1, reg2) Bxx_gen(LTU, MARK, reg1, reg2)
+// Branch to MARK if reg1>=reg2 (use j64)
+#define BGE_MARK(reg1, reg2) Bxx_gen(GE, MARK, reg1, reg2)
 
 // Branch to MARK1 instruction unconditionnal (use j64)
 #define B_MARK1_nocond Bxx_gen(__, MARK1, 0, 0)
