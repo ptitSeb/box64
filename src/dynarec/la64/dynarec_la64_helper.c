@@ -445,6 +445,51 @@ void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
     CLEARIP();
 }
 
+void retn_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex, int n)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MESSAGE(LOG_DUMP, "Retn to epilog\n");
+    POP1z(xRIP);
+    if (n > 0x7ff) {
+        MOV64x(w1, n);
+        ADDz(xRSP, xRSP, x1);
+    } else {
+        ADDIz(xRSP, xRSP, n);
+    }
+    MVz(x1, xRIP);
+    SMEND();
+    if (box64_dynarec_callret) {
+        // pop the actual return address from RV64 stack
+        LD_D(x2, xSP, 0);     // native addr
+        LD_D(x6, xSP, 8);     // x86 addr
+        ADDI_D(xSP, xSP, 16); // pop
+        BNE(x6, xRIP, 2 * 4); // is it the right address?
+        BR(x2);
+        // not the correct return address, regular jump, but purge the stack first, it's unsync now...
+        ADDI_D(xSP, xSavedSP, -16);
+    }
+
+    uintptr_t tbl = rex.is32bits ? getJumpTable32() : getJumpTable64();
+    MOV64x(x3, tbl);
+    if (!rex.is32bits) {
+        BSTRPICK_D(x2, xRIP, JMPTABL_START3 + JMPTABL_SHIFT3 - 1, JMPTABL_START3);
+        ALSL_D(x3, x2, x3, 3);
+        LD_D(x3, x3, 0);
+    }
+    BSTRPICK_D(x2, xRIP, JMPTABL_START2 + JMPTABL_SHIFT2 - 1, JMPTABL_START2);
+    ALSL_D(x3, x2, x3, 3);
+    LD_D(x3, x3, 0);
+    BSTRPICK_D(x2, xRIP, JMPTABL_START1 + JMPTABL_SHIFT1 - 1, JMPTABL_START1);
+    ALSL_D(x3, x2, x3, 3);
+    LD_D(x3, x3, 0);
+    BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
+    ALSL_D(x3, x2, x3, 3);
+    LD_D(x2, x3, 0);
+    BR(x2); // save LR
+    CLEARIP();
+}
+
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
 {
     MAYUSE(fnc);

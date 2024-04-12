@@ -629,6 +629,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define jump_to_epilog_fast STEPNAME(jump_to_epilog_fast)
 #define jump_to_next        STEPNAME(jump_to_next)
 #define ret_to_epilog       STEPNAME(ret_to_epilog)
+#define retn_to_epilog      STEPNAME(retn_to_epilog)
 #define call_c              STEPNAME(call_c)
 #define grab_segdata        STEPNAME(grab_segdata)
 #define emit_cmp16          STEPNAME(emit_cmp16)
@@ -702,6 +703,7 @@ void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex);
+void retn_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex, int n);
 void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int save_reg);
 void grab_segdata(dynarec_la64_t* dyn, uintptr_t addr, int ninst, int reg, int segment);
 void emit_cmp8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5, int s6);
