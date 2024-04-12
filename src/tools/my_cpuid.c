@@ -224,7 +224,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
     switch(tmp32u) {
         case 0x0:
             // emulate a P4. TODO: Emulate a Core2?
-            R_EAX = 0x00000015;//0x80000004;
+            R_EAX = 0x0000000f;//was 0x15 before, but something seems wrong for leaf 0x15, and cpu-z take that as pure cpu speed...
             // return GenuineIntel
             R_EBX = 0x756E6547;
             R_EDX = 0x49656E69;
@@ -390,7 +390,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             break;
 
         case 0x80000000:        // max extended
-            R_EAX = 0x80000007;
+            R_EAX = 0x80000005; // was 0x80000007 before, but L2 cache description 0x80000006 is not correct and make some AC games to assert about l2 cache value coherency...
             break;
         case 0x80000001:        //Extended Processor Signature and Feature Bits
             R_EAX = 0;  // reserved
