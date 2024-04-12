@@ -601,7 +601,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     WBACK;
                     break;
                 case 1: // OR
-                    if (opcode == 0x81) { INST_NAME("OR Ed, Id"); } else { INST_NAME("OR Ed, Ib"); }
+                    if (opcode == 0x81) {
+                        INST_NAME("OR Ed, Id");
+                    } else {
+                        INST_NAME("OR Ed, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81) i64 = F32S; else i64 = F8S;
@@ -609,11 +613,32 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     WBACK;
                     break;
                 case 4: // AND
-                    if (opcode == 0x81) { INST_NAME("AND Ed, Id"); } else { INST_NAME("AND Ed, Ib"); }
+                    if (opcode == 0x81) {
+                        INST_NAME("AND Ed, Id");
+                    } else {
+                        INST_NAME("AND Ed, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81) i64 = F32S; else i64 = F8S;
                     emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACK;
+                    break;
+                case 3: // SBB
+                    if (opcode == 0x81) {
+                        INST_NAME("SBB Ed, Id");
+                    } else {
+                        INST_NAME("SBB Ed, Ib");
+                    }
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81)
+                        i64 = F32S;
+                    else
+                        i64 = F8S;
+                    MOV64xw(x5, i64);
+                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x6);
                     WBACK;
                     break;
                 case 5: // SUB
