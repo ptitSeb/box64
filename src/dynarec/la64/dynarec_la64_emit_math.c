@@ -536,9 +536,9 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         IFX(X_PEND) {} else {MOV64xw(s2, c);}
         IFX(X_ALL) {
             if (rex.w) {
-                X64_SUB_WU(s1, s2);
-            } else {
                 X64_SUB_DU(s1, s2);
+            } else {
+                X64_SUB_WU(s1, s2);
             }
         }
         SUBxw(s1, s1, s2);
@@ -664,9 +664,9 @@ void emit_sbb32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if (la64_lbt) {
         if (rex.w) {
-            SBC_W(s3, s1, s2);
-        } else {
             SBC_D(s3, s1, s2);
+        } else {
+            SBC_W(s3, s1, s2);
         }
         IFX (X_ALL) {
             if (rex.w)
