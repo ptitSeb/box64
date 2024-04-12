@@ -128,6 +128,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_or32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
+        case 0x0C:
+            INST_NAME("OR AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u8 = F8;
+            ANDI(x1, xRAX, 0xff);
+            emit_or8c(dyn, ninst, x1, u8, x3, x4, x5);
+            BSTRINS_D(xRAX, x1, 7, 0);
+            break;
         case 0x0D:
             INST_NAME("OR EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -593,7 +601,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     WBACK;
                     break;
                 case 1: // OR
-                    if (opcode == 0x81) { INST_NAME("OR Ed, Id"); } else { INST_NAME("OR Ed, Ib"); }
+                    if (opcode == 0x81) {
+                        INST_NAME("OR Ed, Id");
+                    } else {
+                        INST_NAME("OR Ed, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81) i64 = F32S; else i64 = F8S;
@@ -601,11 +613,32 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     WBACK;
                     break;
                 case 4: // AND
-                    if (opcode == 0x81) { INST_NAME("AND Ed, Id"); } else { INST_NAME("AND Ed, Ib"); }
+                    if (opcode == 0x81) {
+                        INST_NAME("AND Ed, Id");
+                    } else {
+                        INST_NAME("AND Ed, Ib");
+                    }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETED((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81) i64 = F32S; else i64 = F8S;
                     emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    WBACK;
+                    break;
+                case 3: // SBB
+                    if (opcode == 0x81) {
+                        INST_NAME("SBB Ed, Id");
+                    } else {
+                        INST_NAME("SBB Ed, Ib");
+                    }
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81)
+                        i64 = F32S;
+                    else
+                        i64 = F8S;
+                    MOV64xw(x5, i64);
+                    emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x6);
                     WBACK;
                     break;
                 case 5: // SUB

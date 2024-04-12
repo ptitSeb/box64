@@ -48,10 +48,73 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(j64);
 
     switch (opcode) {
+        case 0x10:
+            INST_NAME("MOVSS Gx, Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                v1 = fpu_get_scratch(dyn);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                VXOR_V(v0, v0, v0);
+                FLD_S(v1, ed, fixedaddress);
+            }
+            VEXTRINS_W(v0, v1, 0);
+            break;
+        case 0x11:
+            INST_NAME("MOVSS Ex, Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if (MODREG) {
+                q0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                VEXTRINS_W(q0, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                FST_S(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x1E:
             INST_NAME("NOP / ENDBR32 / ENDBR64");
             nextop = F8;
             FAKEED;
+            break;
+        case 0x2A:
+            INST_NAME("CVTSI2SS Gx, Ed");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETED(0);
+            d1 = fpu_get_scratch(dyn);
+            MOVGR2FR_D(d1, ed);
+            if(rex.w) {
+                FFINT_S_L(d1, d1);
+            } else {
+                FFINT_S_W(d1, d1);
+            }
+            VEXTRINS_W(v0, d1, 0);
+            break;
+        case 0x59:
+            INST_NAME("MULSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            d1 = fpu_get_scratch(dyn);
+            GETEXSS(d0, 0, 0);
+            FMUL_S(d1, v0, d0);
+            VEXTRINS_W(v0, d1, 0);
+            break;
+        case 0x5E:
+            INST_NAME("DIVSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            d1 = fpu_get_scratch(dyn);
+            GETEXSS(d0, 0, 0);
+            FDIV_S(d1, v0, d0);
+            VEXTRINS_W(v0, d1, 0);
             break;
         case 0x6F:
             INST_NAME("MOVDQU Gx, Ex");
