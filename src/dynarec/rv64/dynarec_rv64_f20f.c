@@ -156,7 +156,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MOV32w(x2, 0x82f63b78);
                     for (int i = 0; i < 8; i++) {
                         SRLI((i&1)?gd:x4, (i&1)?x4:gd, 1);
-                        BEXTI(x6, (i&1)?x4:gd, 0);
+                        ANDI(x6, (i&1)?x4:gd, 1);
                         BEQZ(x6, 4+4);
                         XOR((i&1)?gd:x4, (i&1)?gd:x4, x2);
                     }
@@ -173,7 +173,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XOR(gd, gd, x3);
                         for (int i = 0; i < 8; i++) {
                             SRLI((i&1)?gd:x4, (i&1)?x4:gd, 1);
-                            BEXTI(x6, (i&1)?x4:gd, 0);
+                            ANDI(x6, (i&1)?x4:gd, 1);
                             BEQZ(x6, 4+4);
                             XOR((i&1)?gd:x4, (i&1)?gd:x4, x2);
                         }
