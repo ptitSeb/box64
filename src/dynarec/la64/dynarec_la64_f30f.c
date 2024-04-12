@@ -98,6 +98,15 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             VEXTRINS_W(v0, d1, 0);
             break;
+        case 0x59:
+            INST_NAME("MULSS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            d1 = fpu_get_scratch(dyn);
+            GETEXSS(d0, 0, 0);
+            FMUL_S(d1, v0, d0);
+            VEXTRINS_W(v0, d1, 0);
+            break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
