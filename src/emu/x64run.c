@@ -956,32 +956,32 @@ x64emurun:
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             switch(rep) {
                 case 1:
-                    tmp64u = R_RCX;
-                    while(tmp64u) {
-                        --tmp64u;
+                    if(R_RCX) {
+                        while(R_RCX) {
+                            --R_RCX;
+                            tmp8u  = *(uint8_t*)R_RDI;
+                            tmp8u2 = *(uint8_t*)R_RSI;
+                            R_RDI += tmp8s;
+                            R_RSI += tmp8s;
+                            if(tmp8u==tmp8u2)
+                                break;
+                        }
+                        cmp8(emu, tmp8u2, tmp8u);
+                    }
+                    break;
+                case 2:
+                    if(R_RCX) {
+                        while(R_RCX) {
+                            --R_RCX;
                         tmp8u  = *(uint8_t*)R_RDI;
                         tmp8u2 = *(uint8_t*)R_RSI;
                         R_RDI += tmp8s;
                         R_RSI += tmp8s;
-                        if(tmp8u==tmp8u2)
+                        if(tmp8u!=tmp8u2)
                             break;
+                        }
+                        cmp8(emu, tmp8u2, tmp8u);
                     }
-                    if(R_RCX) cmp8(emu, tmp8u2, tmp8u);
-                    R_RCX = tmp64u;
-                    break;
-                case 2:
-                    tmp64u = R_RCX;
-                    while(tmp64u) {
-                        --tmp64u;
-                    tmp8u  = *(uint8_t*)R_RDI;
-                    tmp8u2 = *(uint8_t*)R_RSI;
-                    R_RDI += tmp8s;
-                    R_RSI += tmp8s;
-                    if(tmp8u!=tmp8u2)
-                        break;
-                    }
-                    if(R_RCX) cmp8(emu, tmp8u2, tmp8u);
-                    R_RCX = tmp64u;
                     break;
                 default:
                     tmp8u  = *(uint8_t*)R_RDI;
@@ -998,58 +998,58 @@ x64emurun:
                 tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
             switch(rep) {
                 case 1:
-                    tmp64u = R_RCX;
-                    if(rex.w) {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp64u3 = *(uint64_t*)R_RDI;
-                            tmp64u2 = *(uint64_t*)R_RSI;
-                            R_RDI += tmp8s;
-                            R_RSI += tmp8s;
-                            if(tmp64u3==tmp64u2)
-                                break;
+                    if(R_RCX) {
+                        if(rex.w) {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp64u3 = *(uint64_t*)R_RDI;
+                                tmp64u2 = *(uint64_t*)R_RSI;
+                                R_RDI += tmp8s;
+                                R_RSI += tmp8s;
+                                if(tmp64u3==tmp64u2)
+                                    break;
+                            }
+                            cmp64(emu, tmp64u2, tmp64u3);
+                        } else {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp32u  = *(uint32_t*)R_RDI;
+                                tmp32u2 = *(uint32_t*)R_RSI;
+                                R_RDI += tmp8s;
+                                R_RSI += tmp8s;
+                                if(tmp32u==tmp32u2)
+                                    break;
+                            }
+                            cmp32(emu, tmp32u2, tmp32u);
                         }
-                        if(R_RCX) cmp64(emu, tmp64u2, tmp64u3);
-                    } else {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp32u  = *(uint32_t*)R_RDI;
-                            tmp32u2 = *(uint32_t*)R_RSI;
-                            R_RDI += tmp8s;
-                            R_RSI += tmp8s;
-                            if(tmp32u==tmp32u2)
-                                break;
-                        }
-                        if(R_RCX) cmp32(emu, tmp32u2, tmp32u);
                     }
-                    R_RCX = tmp64u;
                     break;
                 case 2:
-                    tmp64u = R_RCX;
-                    if(rex.w) {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp64u3 = *(uint64_t*)R_RDI;
-                            tmp64u2 = *(uint64_t*)R_RSI;
-                            R_RDI += tmp8s;
-                            R_RSI += tmp8s;
-                            if(tmp64u3!=tmp64u2)
-                                break;
+                    if(R_RCX) {
+                        if(rex.w) {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp64u3 = *(uint64_t*)R_RDI;
+                                tmp64u2 = *(uint64_t*)R_RSI;
+                                R_RDI += tmp8s;
+                                R_RSI += tmp8s;
+                                if(tmp64u3!=tmp64u2)
+                                    break;
+                            }
+                            cmp64(emu, tmp64u2, tmp64u3);
+                        } else {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp32u  = *(uint32_t*)R_RDI;
+                                tmp32u2 = *(uint32_t*)R_RSI;
+                                R_RDI += tmp8s;
+                                R_RSI += tmp8s;
+                                if(tmp32u!=tmp32u2)
+                                    break;
+                            }
+                            cmp32(emu, tmp32u2, tmp32u);
                         }
-                        if(R_RCX) cmp64(emu, tmp64u2, tmp64u3);
-                    } else {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp32u  = *(uint32_t*)R_RDI;
-                            tmp32u2 = *(uint32_t*)R_RSI;
-                            R_RDI += tmp8s;
-                            R_RSI += tmp8s;
-                            if(tmp32u!=tmp32u2)
-                                break;
-                        }
-                        if(R_RCX) cmp32(emu, tmp32u2, tmp32u);
                     }
-                    R_RCX = tmp64u;
                     break;
                 default:
                     if(rex.w) {
@@ -1149,28 +1149,28 @@ x64emurun:
             tmp8s = ACCESS_FLAG(F_DF)?-1:+1;
             switch(rep) {
                 case 1:
-                    tmp64u = R_RCX;
-                    while(tmp64u) {
-                        --tmp64u;
-                        tmp8u = *(uint8_t*)R_RDI;
-                        R_RDI += tmp8s;
-                        if(R_AL==tmp8u)
-                            break;
+                    if(R_RCX) {
+                        while(R_RCX) {
+                            --R_RCX;
+                            tmp8u = *(uint8_t*)R_RDI;
+                            R_RDI += tmp8s;
+                            if(R_AL==tmp8u)
+                                break;
+                        }
+                        cmp8(emu, R_AL, tmp8u);
                     }
-                    if(R_RCX) cmp8(emu, R_AL, tmp8u);
-                    R_RCX = tmp64u;
                     break;
                 case 2:
-                    tmp64u = R_RCX;
-                    while(tmp64u) {
-                        --tmp64u;
-                        tmp8u = *(uint8_t*)R_RDI;
-                        R_EDI += tmp8s;
-                        if(R_AL!=tmp8u)
-                            break;
+                    if(R_RCX) {
+                        while(R_RCX) {
+                            --R_RCX;
+                            tmp8u = *(uint8_t*)R_RDI;
+                            R_EDI += tmp8s;
+                            if(R_AL!=tmp8u)
+                                break;
+                        }
+                        if(R_RCX) cmp8(emu, R_AL, tmp8u);
                     }
-                    if(R_RCX) cmp8(emu, R_AL, tmp8u);
-                    R_RCX = tmp64u;
                     break;
                 default:
                     cmp8(emu, R_AL, *(uint8_t*)R_RDI);
@@ -1184,50 +1184,50 @@ x64emurun:
                 tmp8s = ACCESS_FLAG(F_DF)?-4:+4;
             switch(rep) {
                 case 1:
-                    tmp64u = R_RCX;
-                    if(rex.w) {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp64u2 = *(uint64_t*)R_RDI;
-                            R_RDI += tmp8s;
-                            if(R_RAX==tmp64u2)
-                                break;
+                    if(R_RCX) {
+                        if(rex.w) {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp64u2 = *(uint64_t*)R_RDI;
+                                R_RDI += tmp8s;
+                                if(R_RAX==tmp64u2)
+                                    break;
+                            }
+                            cmp64(emu, R_RAX, tmp64u2);
+                        } else {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp32u = *(uint32_t*)R_RDI;
+                                R_RDI += tmp8s;
+                                if(R_EAX==tmp32u)
+                                    break;
+                            }
+                            cmp32(emu, R_EAX, tmp32u);
                         }
-                        if(R_RCX) cmp64(emu, R_RAX, tmp64u2);
-                    } else {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp32u = *(uint32_t*)R_RDI;
-                            R_RDI += tmp8s;
-                            if(R_EAX==tmp32u)
-                                break;
-                        }
-                        if(R_RCX) cmp32(emu, R_EAX, tmp32u);
                     }
-                    R_RCX = tmp64u;
                     break;
                 case 2:
-                    tmp64u = R_RCX;
-                    if(rex.w) {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp64u2 = *(uint64_t*)R_RDI;
-                            R_RDI += tmp8s;
-                            if(R_RAX!=tmp64u2)
-                                break;
+                    if(R_RCX) {
+                        if(rex.w) {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp64u2 = *(uint64_t*)R_RDI;
+                                R_RDI += tmp8s;
+                                if(R_RAX!=tmp64u2)
+                                    break;
+                            }
+                            cmp64(emu, R_RAX, tmp64u2);
+                        } else {
+                            while(R_RCX) {
+                                --R_RCX;
+                                tmp32u = *(uint32_t*)R_RDI;
+                                R_RDI += tmp8s;
+                                if(R_EAX!=tmp32u)
+                                    break;
+                            }
+                            cmp32(emu, R_EAX, tmp32u);
                         }
-                        if(R_RCX) cmp64(emu, R_RAX, tmp64u2);
-                    } else {
-                        while(tmp64u) {
-                            --tmp64u;
-                            tmp32u = *(uint32_t*)R_RDI;
-                            R_RDI += tmp8s;
-                            if(R_EAX!=tmp32u)
-                                break;
-                        }
-                        if(R_RCX) cmp32(emu, R_EAX, tmp32u);
                     }
-                    R_RCX = tmp64u;
                     break;
                 default:
                     if(rex.w)

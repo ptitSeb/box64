@@ -139,9 +139,9 @@ static void emuthread_destroy(void* p)
 	emuthread_t *et = (emuthread_t*)p;
 	if(!et)
 		return;
-	void* ptr;
 	// check tlsdata
-	/*if (my_context && (ptr = pthread_getspecific(my_context->tlskey)) != NULL)
+	/*void* ptr;
+	if (my_context && (ptr = pthread_getspecific(my_context->tlskey)) != NULL)
         free_tlsdatasize(ptr);*/
 	// free x64emu
 	if(et) {
@@ -477,6 +477,7 @@ EXPORT int my_pthread_setattr_default_np(x64emu_t* emu, pthread_attr_t* attr)
 	PTHREAD_ATTR_ALIGN(attr);
 	int ret = pthread_setattr_default_np(PTHREAD_ATTR(attr));
 	PTHREAD_ATTR_UNALIGN(attr);
+	return ret;
 }
 #endif	//!ANDROID
 #endif
@@ -658,7 +659,6 @@ static void* findkey_dtorFct(void* fct)
 #undef SUPER
 
 // custom implementation of pthread_once...
-static __thread uintptr_t my_once_callback_fct = 0;
 int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 {
 	if(*once)	// quick test first

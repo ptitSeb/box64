@@ -356,7 +356,6 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
         return NULL;
     }
     if(dl->dllibs[nlib].lib) {
-        int deepbind = GetDeepBind(dl->dllibs[nlib].lib);
         if(my_dlsym_lib(dl->dllibs[nlib].lib, rsymbol, &start, &end, -1, NULL)==0) {
             // not found
             printf_dlsym(LOG_NEVER, "%p\nCall to dlsym(%s, \"%s\") Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol);
@@ -502,7 +501,6 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
         return NULL;
     }
     if(dl->dllibs[nlib].lib) {
-        int deepbind = GetDeepBind(dl->dllibs[nlib].lib);
         if(my_dlsym_lib(dl->dllibs[nlib].lib, rsymbol, &start, &end, version, vername)==0) {
             // not found
                 printf_dlsym(LOG_NEVER, "%p\nCall to dlvsym(%s, \"%s\", %s) Symbol not found\n", NULL, GetNameLib(dl->dllibs[nlib].lib), rsymbol, vername?vername:"(nil)");
@@ -586,7 +584,7 @@ EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* re
     elfheader_t* h = FindElfAddress(my_context, (uintptr_t)addr);
     if(h) {
         // find an actual elf
-        const char* name = FindNearestSymbolName(h, addr, &start, &sz);
+        /*const char* name =*/ FindNearestSymbolName(h, addr, &start, &sz);
         result->dlfo_map_start = (void*)start;
         result->dlfo_map_end = (void*)(start+sz-1);
         result->dlfo_eh_frame = (void*)(h->ehframehdr+h->delta);

@@ -186,28 +186,6 @@ static void* find_EndElement_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for expat EndElement callback\n");
     return NULL;
 }
-// CharacterData ...
-#define GO(A)   \
-static uintptr_t my_CharacterData_fct_##A = 0;                                    \
-static void my_CharacterData_##A(void* data, void* name, int len)                 \
-{                                                                                 \
-    RunFunctionFmt(my_CharacterData_fct_##A, "ppi", data, name, len);         \
-}
-SUPER()
-#undef GO
-static void* find_CharacterData_Fct(void* fct)
-{
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_CharacterData_fct_##A == (uintptr_t)fct) return my_CharacterData_##A;
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_CharacterData_fct_##A == 0) {my_CharacterData_fct_##A = (uintptr_t)fct; return my_CharacterData_##A; }
-    SUPER()
-    #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat CharacterData callback\n");
-    return NULL;
-}
 // ProcessingInstruction ...
 #define GO(A)   \
 static uintptr_t my_ProcessingInstruction_fct_##A = 0;                            \

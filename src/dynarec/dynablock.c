@@ -145,15 +145,6 @@ static int IntervalIntersects(uintptr_t start1, uintptr_t end1, uintptr_t start2
     return 1;
 }
 
-static int MarkedDynablock(dynablock_t* db)
-{
-    if(db) {
-        if(getNeedTest((uintptr_t)db->x64_addr))
-            return 1; // already done
-    }
-    return 0;
-}
-
 void MarkRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size)
 {
     // Mark will try to find *any* blocks that intersect the range to mark

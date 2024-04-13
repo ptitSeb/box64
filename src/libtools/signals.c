@@ -362,9 +362,10 @@ uint64_t RunFunctionHandler(int* exit, int dynarec, x64_ucontext_t* sigcontext, 
     emu->flags.quitonlongjmp = oldquitonlongjmp;
 
     #ifdef DYNAREC
-    if(box64_dynarec_test)
+    if(box64_dynarec_test) {
         emu->test.test = 0;
         emu->test.clean = 0;
+    }
     #endif
 
     if(emu->flags.longjmp) {

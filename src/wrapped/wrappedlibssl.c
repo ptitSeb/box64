@@ -457,7 +457,7 @@ EXPORT void my_SSL_set_psk_client_callback(x64emu_t* emu, void* ctx, void* cb)
 EXPORT void my_SSL_set_psk_server_callback(x64emu_t* emu, void* ctx, void* cb)
 {
     (void)emu;
-    my->SSL_set_psk_server_callback(ctx, find_client_cb_Fct(cb));
+    my->SSL_set_psk_server_callback(ctx, find_server_cb_Fct(cb));
 }
 
 EXPORT void my_SSL_set_psk_use_session_callback(x64emu_t* emu, void* ctx, void* cb)

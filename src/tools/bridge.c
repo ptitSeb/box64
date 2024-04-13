@@ -223,11 +223,12 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
 const char* getBridgeName(void* addr)
 {
     onebridge_t* one = (onebridge_t*)(((uintptr_t)addr&~(sizeof(onebridge_t)-1)));   // align to start of bridge
-    if(one->C3==0xC3 && one->S=='S' && one->C=='C')
+    if(one->C3==0xC3 && one->S=='S' && one->C=='C') {
         if(one->w==NULL)
             return "ExitEmulation";
         else
             return one->name;
+    }
     return NULL;
 }
 

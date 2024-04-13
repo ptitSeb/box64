@@ -1601,7 +1601,6 @@ void CreateCPUInfoFile(int fd)
     }
     int n = getNCpu();
     // generate fake CPUINFO
-    int gigahertz=(freq>=1000.);
     #define P \
     dummy = write(fd, buff, strlen(buff))
     for (int i=0; i<n; ++i) {
@@ -3449,7 +3448,7 @@ void startTimedExit()
 {
     static int started = 0;
     if(started)
-        exit;
+        return;
     started = 1;
     pthread_t exit_thread;
     pthread_create(&exit_thread, NULL, timed_exit_thread, NULL);
