@@ -1002,6 +1002,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 gb1 = TO_LA64(opcode & 3);
             BSTRINS_D(gb1, x1, 7, 0);
             break;
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            INST_NAME("MOV xH, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if (rex.rex) {
+                gb1 = TO_LA64((opcode & 7) + (rex.b << 3));
+                BSTRINS_D(gb1, x1, 7, 0);
+            } else {
+                gb1 = TO_LA64(opcode & 3);
+                BSTRINS_D(gb1, x1, 15, 8);
+            }
+            break;
         case 0xB8:
         case 0xB9:
         case 0xBA:
