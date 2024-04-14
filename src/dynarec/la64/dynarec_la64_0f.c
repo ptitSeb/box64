@@ -184,6 +184,21 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         #undef GO
 
+        case 0x57:
+            INST_NAME("XORPS Gx, Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG && ((nextop & 7) + (rex.b << 3) == gd)) {
+                // special case for XORPS Gx, Gx
+                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VXOR_V(q0, q0, q0);
+            } else {
+                q0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                GETEX(q1, 0, 0);
+                VXOR_V(q0, q0, q1);
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
             READFLAGS(F);                                                                           \
             i32_ = F32S;                                                                            \

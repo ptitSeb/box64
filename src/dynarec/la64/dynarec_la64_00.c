@@ -274,6 +274,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_sub32c(dyn, ninst, rex, xRAX, i64, x2, x3, x4, x5);
             break;
+        case 0x30:
+            INST_NAME("XOR Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_xor8(dyn, ninst, x1, x2, x4, x5);
+            EBBACK();
+            break;
         case 0x31:
             INST_NAME("XOR Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -1001,6 +1010,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             else
                 gb1 = TO_LA64(opcode & 3);
             BSTRINS_D(gb1, x1, 7, 0);
+            break;
+        case 0xB4:
+        case 0xB5:
+        case 0xB6:
+        case 0xB7:
+            INST_NAME("MOV xH, Ib");
+            u8 = F8;
+            MOV32w(x1, u8);
+            if (rex.rex) {
+                gb1 = TO_LA64((opcode & 7) + (rex.b << 3));
+                BSTRINS_D(gb1, x1, 7, 0);
+            } else {
+                gb1 = TO_LA64(opcode & 3);
+                BSTRINS_D(gb1, x1, 15, 8);
+            }
             break;
         case 0xB8:
         case 0xB9:

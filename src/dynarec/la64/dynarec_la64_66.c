@@ -65,10 +65,50 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x39:
+            INST_NAME("CMP Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0: // ADD
+                    if (opcode == 0x81) {
+                        INST_NAME("ADD Ew, Iw");
+                    } else {
+                        INST_NAME("ADD Ew, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
+                    MOV64x(x5, i16);
+                    emit_add16(dyn, ninst, ed, x5, x2, x4, x6);
+                    EWBACK;
+                    break;
+                case 5: // SUB
+                    if (opcode == 0x81) {
+                        INST_NAME("SUB Ew, Iw");
+                    } else {
+                        INST_NAME("SUB Ew, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
+                    MOV32w(x5, i16);
+                    emit_sub16(dyn, ninst, x1, x5, x2, x4, x6);
+                    EWBACK;
+                    break;
                 case 7: // CMP
                     if (opcode == 0x81) {
                         INST_NAME("CMP Ew, Iw");
