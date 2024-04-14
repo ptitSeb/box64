@@ -52,6 +52,28 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     GETREX();
 
     switch (opcode) {
+        case 0x01:
+            INST_NAME("LOCK ADD Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            SMDMB();
+            if ((nextop & 0xC0) == 0xC0) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LLxw(x1, wback, 0);
+                ADDxw(x4, x1, gd);
+                SCxw(x4, wback, 0);
+                BEQZ_MARKLOCK(x4);
+                IFX (X_ALL | X_PEND) {
+                    emit_add32(dyn, ninst, rex, x1, gd, x3, x4, x5);
+                }
+            }
+            SMDMB();
+            break;
         case 0x0F:
             nextop = F8;
             switch (nextop) {
