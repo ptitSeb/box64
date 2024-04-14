@@ -1325,6 +1325,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD3:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("ROL Ed, CL");
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET);
+                    GETED(0);
+                    emit_rol32(dyn, ninst, rex, ed, xRCX, x3, x4);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, CL");
