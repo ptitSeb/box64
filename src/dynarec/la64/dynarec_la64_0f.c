@@ -418,7 +418,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 X64_SET_EFLAGS(xZR, X_ZF);
             } else {
                 ADDI_D(x3, xZR, ~(1 << F_ZF));
-                OR(xFlags, xFlags, x3);
+                AND(xFlags, xFlags, x3);
             }
             break;
         case 0xBD:
@@ -433,10 +433,20 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = x4;
             }
             BNE_MARK(ed, xZR);
-            ORI(xFlags, xFlags, 1 << F_ZF);
+            if (la64_lbt) {
+                ADDI_D(x3, xZR, 1 << F_ZF);
+                X64_SET_EFLAGS(x3, X_ZF);
+            } else {
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
             B_NEXT_nocond;
             MARK;
-            ANDI(xFlags, xFlags, ~(1 << F_ZF));
+            if (la64_lbt) {
+                X64_SET_EFLAGS(xZR, X_ZF);
+            } else {
+                ADDI_D(x3, xZR, ~(1 << F_ZF));
+                AND(xFlags, xFlags, x3);
+            }
             if (rex.w)
                 CLZ_D(gd, ed);
             else
