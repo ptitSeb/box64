@@ -274,6 +274,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i64 = F32S;
             emit_sub32c(dyn, ninst, rex, xRAX, i64, x2, x3, x4, x5);
             break;
+        case 0x30:
+            INST_NAME("XOR Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_xor8(dyn, ninst, x1, x2, x4, x5);
+            EBBACK();
+            break;
         case 0x31:
             INST_NAME("XOR Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
