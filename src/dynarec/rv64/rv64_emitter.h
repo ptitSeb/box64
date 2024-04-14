@@ -450,8 +450,22 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1>>rs2 arithmetic
 #define SRAW(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0111011))
 
-#define SLLxw(rd, rs1, rs2) EMIT(R_type(0b0000000, rs2, rs1, 0b001, rd, rex.w ? 0b0110011 : 0b0111011))
-#define SRLxw(rd, rs1, rs2) EMIT(R_type(0b0000000, rs2, rs1, 0b101, rd, rex.w ? 0b0110011 : 0b0111011))
+#define SLLxw(rd, rs1, rs2) \
+    if (rex.w) {            \
+        SLL(rd, rs1, rs2);  \
+    } else {                \
+        SLLW(rd, rs1, rs2); \
+        ZEROUP(rd);         \
+    }
+
+#define SRLxw(rd, rs1, rs2) \
+    if (rex.w) {            \
+        SRL(rd, rs1, rs2);  \
+    } else {                \
+        SRLW(rd, rs1, rs2); \
+        ZEROUP(rd);         \
+    }
+
 #define SRAxw(rd, rs1, rs2) \
     if (rex.w) {            \
         SRA(rd, rs1, rs2);  \
@@ -468,15 +482,17 @@ f28–31  ft8–11  FP temporaries                  Caller
         SLLI(rd, rs1, imm);  \
     } else {                 \
         SLLIW(rd, rs1, imm); \
+        ZEROUP(rd);          \
     }
 // Shift Right Logical Immediate, 32-bit, sign-extended
 #define SRLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm) \
-    if (rex.w) {             \
-        SRLI(rd, rs1, imm);  \
-    } else {                 \
-        SRLIW(rd, rs1, imm); \
+#define SRLIxw(rd, rs1, imm)      \
+    if (rex.w) {                  \
+        SRLI(rd, rs1, imm);       \
+    } else {                      \
+        SRLIW(rd, rs1, imm);      \
+        if (imm == 0) ZEROUP(rd); \
     }
 // Shift Right Arithmetic Immediate, 32-bit, sign-extended
 #define SRAIW(rd, rs1, imm5) EMIT(I_type((imm5) | (0b0100000 << 5), rs1, 0b101, rd, 0b0011011))
@@ -486,6 +502,7 @@ f28–31  ft8–11  FP temporaries                  Caller
         SRAI(rd, rs1, imm);  \
     } else {                 \
         SRAIW(rd, rs1, imm); \
+        ZEROUP(rd);          \
     }
 
 #define CSRRW(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b001, rd, 0b1110011))

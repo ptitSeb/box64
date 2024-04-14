@@ -292,6 +292,16 @@ f24-f31  fs0-fs7   Static registers                Callee
         }                      \
     } while (0)
 
+#define SLLxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w) {           \
+            SLL_D(rd, rj, rk); \
+        } else {               \
+            SLL_W(rd, rj, rk); \
+            ZEROUP(rd);        \
+        }                      \
+    } while (0)
+
 // Shift Left Immediate
 #define SLLIxw(rd, rs1, imm)      \
     do {                          \
@@ -299,16 +309,18 @@ f24-f31  fs0-fs7   Static registers                Callee
             SLLI_D(rd, rs1, imm); \
         } else {                  \
             SLLI_W(rd, rs1, imm); \
+            ZEROUP(rd);           \
         }                         \
     } while (0)
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm)      \
-    do {                          \
-        if (rex.w) {              \
-            SRLI_D(rd, rs1, imm); \
-        } else {                  \
-            SRLI_W(rd, rs1, imm); \
-        }                         \
+#define SRLIxw(rd, rs1, imm)          \
+    do {                              \
+        if (rex.w) {                  \
+            SRLI_D(rd, rs1, imm);     \
+        } else {                      \
+            SRLI_W(rd, rs1, imm);     \
+            if (imm == 0) ZEROUP(rd); \
+        }                             \
     } while (0)
 
 // Shift Right Arithmetic Immediate
@@ -318,6 +330,7 @@ f24-f31  fs0-fs7   Static registers                Callee
             SRAI_D(rd, rs1, imm); \
         } else {                  \
             SRAI_W(rd, rs1, imm); \
+            ZEROUP(rd);           \
         }                         \
     } while (0)
 
@@ -327,6 +340,7 @@ f24-f31  fs0-fs7   Static registers                Callee
             ROTRI_D(rd, rs1, imm); \
         } else {                   \
             ROTRI_W(rd, rs1, imm); \
+            ZEROUP(rd);            \
         }                          \
     } while (0)
 
@@ -1856,6 +1870,8 @@ LSX instruction starts with V, LASX instruction starts with XV.
         else                     \
             ST_D(rd, rj, imm12); \
     } while (0)
+
+#define NEG_D(rd, rs1) SUB_D(rd, xZR, rs1)
 
 #define SUBxw(rd, rj, rk)      \
     do {                       \
