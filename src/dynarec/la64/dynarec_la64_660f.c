@@ -133,6 +133,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             BSTRINS_D(gd, x1, 15, 0);
             break;
+        case 0xD6:
+            INST_NAME("MOVQ Ex, Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if (MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
+                VXOR_V(v1, v1, v1);
+                VEXTRINS_D(v1, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                FST_D(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;
