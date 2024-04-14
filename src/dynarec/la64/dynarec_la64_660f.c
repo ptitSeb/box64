@@ -142,7 +142,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VXOR_V(v1, v1, v1);
                 VEXTRINS_D(v1, v0, 0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 FST_D(v0, ed, fixedaddress);
                 SMWRITE2();
             }
