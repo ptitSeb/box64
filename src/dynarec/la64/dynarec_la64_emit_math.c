@@ -531,7 +531,6 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         SET_DFNONE();
     }
 
-    CLEAR_FLAGS(s3);
     if (la64_lbt) {
         IFX(X_PEND) {} else {MOV64xw(s2, c);}
         IFX(X_ALL) {
@@ -549,6 +548,7 @@ void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         return;
     }
 
+    CLEAR_FLAGS(s3);
     IFX(X_AF | X_CF | X_OF) {
         // for later flag calculation
         NOR(s5, xZR, s1);
