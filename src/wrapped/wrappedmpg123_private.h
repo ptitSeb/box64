@@ -59,6 +59,7 @@ GO(mpg123_id3, iFppp)
 GO(mpg123_index, iFpppp)
 GO(mpg123_index_64, iFpppp)
 GO(mpg123_info, iFpp)
+GO(mpg123_info2, iFpp)
 GO(mpg123_init, iFv)
 //GO(mpg123_init_string, 
 GO(mpg123_length, lFp)
