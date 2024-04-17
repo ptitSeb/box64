@@ -275,6 +275,10 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         return Run6664(emu, rex, _GS, addr);
         #endif
 
+    case 0x68:                       /* PUSH u16 */
+        tmp16u = F16;
+        Push16(emu, tmp16u);
+        break;
     case 0x69:                      /* IMUL Gw,Ew,Iw */
         nextop = F8;
         GETEW(rex.w?4:2);

@@ -425,6 +425,12 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
 
+        case 0x68:
+            INST_NAME("PUSH Iw");
+            u16 = F16;
+            MOV32w(x2, u16);
+            PUSH1_16(x2);
+            break;
         case 0x69:
         case 0x6B:
             if(opcode==0x69) {
