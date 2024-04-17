@@ -45,7 +45,9 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
         } else {
-            ADD(s5, s1, s2);
+            AND(s3, s1, xMASK);
+            AND(s4, s2, xMASK);
+            ADD(s5, s3, s4);
             SRLI(s5, s5, 0x20);
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
@@ -137,7 +139,9 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
         } else {
-            ADD(s5, s1, s2);
+            AND(s3, s1, xMASK);
+            AND(s4, s2, xMASK);
+            ADD(s5, s3, s4);
             SRLI(s5, s5, 0x20);
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
@@ -1145,7 +1149,7 @@ void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         BEQZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_CF);
     }
-    
+
     IFX(X_AF | X_OF) {
         OR(s3, s1, s3); // s3 = res | op1
         IFX(X_AF) {
@@ -1162,7 +1166,7 @@ void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             ANDI(s2, s2, 1);
             BEQZ(s2, 8);
             ORI(xFlags, xFlags, 1 << F_OF2);
-        }    
+        }
     }
     IFX(X_SF) {
         BGE(s1, xZR, 8);
@@ -1204,7 +1208,7 @@ void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
         BEQZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_CF);
     }
-    
+
     IFX(X_AF | X_OF) {
         OR(s3, s1, s3); // s3 = res | op1
         IFX(X_AF) {
@@ -1221,7 +1225,7 @@ void emit_neg16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
             ANDI(s2, s2, 1);
             BEQZ(s2, 8);
             ORI(xFlags, xFlags, 1 << F_OF2);
-        }    
+        }
     }
     IFX(X_SF) {
         SRLI(s3, s1, 15-F_SF);    // put sign bit in place
@@ -1261,7 +1265,7 @@ void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
         BEQZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_CF);
     }
-    
+
     IFX(X_AF | X_OF) {
         OR(s3, s1, s3); // s3 = res | op1
         IFX(X_AF) {
@@ -1278,7 +1282,7 @@ void emit_neg8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
             ANDI(s2, s2, 1);
             BEQZ(s2, 8);
             ORI(xFlags, xFlags, 1 << F_OF2);
-        }    
+        }
     }
     IFX(X_SF) {
         ANDI(s3, s1, 1 << F_SF);    // 1<<F_SF is sign bit, so just mask
@@ -1381,7 +1385,9 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             ADD(s5, s5, s4); // hi
             SRAI(s6, s5, 0x20);
         } else {
-            ADD(s5, s1, s2);
+            AND(s3, s1, xMASK);
+            AND(s4, s2, xMASK);
+            ADD(s5, s3, s4);
             SRLI(s6, s5, 0x20);
         }
     }
