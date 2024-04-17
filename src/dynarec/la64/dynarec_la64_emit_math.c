@@ -68,7 +68,9 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
         } else {
-            ADD_D(s5, s1, s2);
+            AND(s3, s1, xMASK);
+            AND(s4, s2, xMASK);
+            ADD_D(s5, s3, s4);
             SRLI_D(s5, s5, 0x20);
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
@@ -184,7 +186,9 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
         } else {
-            ADD_D(s5, s1, s2);
+            AND(s3, s1, xMASK);
+            AND(s4, s2, xMASK);
+            ADD_D(s5, s3, s4);
             SRLI_D(s5, s5, 0x20);
             BEQZ(s5, 8);
             ORI(xFlags, xFlags, 1 << F_CF);
