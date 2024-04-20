@@ -34,10 +34,12 @@ uint64_t DecodeBitMasks(int N, int imms, int immr)
     if(s==levels) return 0;
     uint64_t mask = (1LL<<(s+1))-1;
     if(r) { // rotate
-         mask=(mask>>r)|(mask<<(e-r));
-         mask&=((1LL<<e)-1);
+        mask=(mask>>r)|(mask<<(e-r));
+        if(e<64) {
+            mask&=((1LL<<e)-1);
+        }
     }
-    while (e<64) {  // replicate
+    while(e<64) {  // replicate
         mask|=(mask<<e);
         e<<=1;
     }
