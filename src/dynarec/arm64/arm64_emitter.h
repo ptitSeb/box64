@@ -1564,6 +1564,15 @@ int convert_bitmask(uint64_t bitmask);
 // Signed saturating extract Unsigned Narrow, takes Rn element and reduce 16->8 with Unsigned saturation and fit higher part of Rd
 #define SQXTUN2_8(Rd, Rn)           EMIT(QXTUN_vector(1, 1, 0b00, Rn, Rd))
 
+#define XTN_vector(Q, size, Rn, Rd) ((Q)<<30 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b10010<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+// Xtract narrow to X bits
+#define XTN_8(Vd, Vn)               EMIT(XTN_vector(0, 0b00, Vn, Vd))
+#define XTN_16(Vd, Vn)              EMIT(XTN_vector(0, 0b01, Vn, Vd))
+#define XTN_32(Vd, Vn)              EMIT(XTN_vector(0, 0b10, Vn, Vd))
+#define XTN2_8(Vd, Vn)              EMIT(XTN_vector(1, 0b00, Vn, Vd))
+#define XTN2_16(Vd, Vn)             EMIT(XTN_vector(1, 0b01, Vn, Vd))
+#define XTN2_32(Vd, Vn)             EMIT(XTN_vector(1, 0b10, Vn, Vd))
+
 // Integer CMP
 // EQual
 #define CMEQ_vector(Q, U, size, Rm, Rn, Rd)     ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 1<<21 | (Rm)<<16 | 0b10001<<11 | 1<<10 | (Rn)<<5 | (Rd))

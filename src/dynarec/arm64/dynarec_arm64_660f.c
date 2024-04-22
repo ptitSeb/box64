@@ -1236,7 +1236,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     ADDx_U12(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
                     if(MODREG) {
                         ed = (nextop&7)+(rex.b<<3);
-                        sse_reflect_reg(dyn, ninst, ed);
+                        if(ed>7)
+                            sse_reflect_reg(dyn, ninst, ed);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
@@ -1286,33 +1287,147 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET);
                     nextop = F8;
                     GETG;
-                    sse_reflect_reg(dyn, ninst, gd);
-                    ADDx_U12(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
-                    if(MODREG) {
-                        ed = (nextop&7)+(rex.b<<3);
-                        sse_reflect_reg(dyn, ninst, ed);
-                        ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
-                        if(ed!=x1) {
-                            MOVx_REG(x1, ed);
+                    u8 = geted_ib(dyn, addr, ninst, nextop);
+                    if((u8&0b1100)==0b1000) {
+                        // this case is (un)signed word, equal each
+                        GETGX(v0, 0);
+                        GETEX(v1, 0, 1);
+                        u8 = F8;
+                        q0 = fpu_get_scratch(dyn);
+                        if(u8&1) {
+                            //16bits
+                            VCMEQQ_16(q0, v0, v1);   // equal => mask regs
+                            XTN_8(q0, q0);          // 8 bits mask, in lower 64bits
+                            // transform that a mask in x1
+                            q1 = fpu_get_scratch(dyn);
+                            VSHL_8(q0, q0, 7);  // keep only bit 0x80
+                            TABLE64(x1, (uintptr_t)&mask_shift8);
+                            VLDR64_U12(q1, x1, 0);     // load shift
+                            USHL_8(q0, q0, q1); // shift
+                            UADDLV_8(q0, q0);   // accumulate
+                            VMOVBto(x1, q0, 0);
+                        } else {
+                            //8 bits
+                            VCMEQQ_8(q0, v0, v1);   // equal => mask regs
+                            // transform that a mask in x1
+                            q1 = fpu_get_scratch(dyn);
+                            d0 = fpu_get_scratch(dyn);
+                            VSHL_8(d0, q0, 7);  // keep only bit 0x80
+                            TABLE64(x1, (uintptr_t)&mask_shift8);
+                            VLDR64_U12(q1, x1, 0);     // load shift
+                            USHL_8(d0, d0, q1); // shift
+                            UADDLV_8(d0, d0);   // accumulate
+                            VMOVBto(x1, d0, 0);
+                            // high part
+                            VMOVeD(d0, 0, q0, 1);
+                            VSHL_8(d0, d0, 7);  // keep only bit 0x80
+                            USHL_8(d0, d0, q1); // shift
+                            UADDLV_8(d0, d0);   // accumulate
+                            VMOVBto(x2, d0, 0);
+                            BFIw(x1, x2, 8, 8); // insert
                         }
+                        // get abs of eax / edx and find min
+                        ADDSxw_U12(x2, xRAX, 0);
+                        Bcond(cPL, 4+4);
+                        NEGxw_REG(x2, x2);
+                        ADDSxw_U12(x3, xRDX, 0);
+                        Bcond(cPL, 4+4);
+                        NEGxw_REG(x3, x3);
+                        MOV32w(x4, (u8&1)?8:16);
+                        CMPSw_REG(x3, x4);
+                        CSELw(x3, x3, x4, cLT); // x3 is lmem
+                        CMPSw_REG(x2, x4);
+                        CSELw(x2, x2, x4, cLT); // x2 is lreg
+                        CMPSw_REG(x2, x3);
+                        CSELw(x5, x3, x2, cLT); // x5 is max(lmem, lreg)
+                        CSELw(x2, x2, x3, cLT); // x2 is min(lmem, lreg)
+                        // x2 is min length 0-n_packed
+                        MVNw_REG(x4, xZR);
+                        LSLw_REG(x7, x4, x2);
+                        BICw_REG(x1, x1, x7);
+                        LSLw_REG(x4, x4, x5);
+                        ORRw_REG(x1, x1, x4);
+                        ANDw_mask(x1, x1, 0, (u8&1)?7:15);
+                        // x1 is intres1, transform to intres2
+                        switch((u8>>4)&3) {
+                            case 0b01:
+                                MOV32w(x4, (1<<((u8&1)?8:16))-1);
+                                EORw_REG(x1, x1, x4);
+                                break;
+                            case 0b11:
+                                MOV32w(x4, 1);
+                                LSLw_REG(x4, x4, x3);
+                                SUBw_U12(x4, x4, 1);
+                                EORw_REG(x1, x1, x4);
+                        }
+                        // flags
+                        IFX(X_ALL) {
+                            SET_DFNONE(x4);
+                            IFX(X_CF) {
+                                CMPSw_REG(x1, xZR);
+                                CSETw(x4, cNE);
+                                BFIw(xFlags, x4, F_CF, 1);
+                            }
+                            IFX(X_ZF|X_SF) {
+                                MOV32w(x4, 8);
+                                IFX(X_ZF) {
+                                    CMPSw_REG(x3, x4);
+                                    CSETw(x4, cLT);
+                                    BFIw(xFlags, x4, F_ZF, 1);
+                                }
+                                IFX(F_SF) {
+                                    CMPSw_REG(x2, x4);
+                                    CSETw(x4, cLT);
+                                    BFIw(xFlags, x4, F_SF, 1);
+                                }
+                            }
+                            IFX(X_OF) {
+                                BFIw(xFlags, x1, F_OF, 1);
+                            }
+                            IFX(X_AF) {
+                                CMPSw_U12(x1, 0);
+                                CSETw(x4, cEQ);
+                                CMPSw_U12(x3, (u8&1)?8:16);
+                                CSETw(x5, cEQ);
+                                ANDw_REG(x4, x4, x5);
+                                BFIw(xFlags, x4, F_AF, 1);
+                            }
+                            IFX(X_PF) {
+                                BFCw(xFlags, F_PF, 1);
+                            }
+                        }
+                    } else {
+                        if(gd>7)    // no need to reflect cache as xmm0-xmm7 will be saved before the function call anyway
+                            sse_reflect_reg(dyn, ninst, gd);
+                        ADDx_U12(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+                        if(MODREG) {
+                            ed = (nextop&7)+(rex.b<<3);
+                            if(ed>7)
+                                sse_reflect_reg(dyn, ninst, ed);
+                            ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                        } else {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                            if(ed!=x1) {
+                                MOVx_REG(x1, ed);
+                            }
+                        }
+                        MOVw_REG(x2, xRDX);
+                        MOVw_REG(x4, xRAX);
+                        u8 = F8;
+                        MOV32w(x5, u8);
+                        CALL(sse42_compare_string_explicit_len, x1);
                     }
-                    MOVx_REG(x2, xRDX);
-                    MOVx_REG(x4, xRAX);
-                    u8 = F8;
-                    MOV32w(x5, u8);
-                    CALL(sse42_compare_string_explicit_len, x1);
-                    CBNZw_MARK(x1);
-                    MOV32w(xRCX, (u8&1)?8:16);
-                    B_NEXT_nocond;
-                    MARK;
                     if(u8&0b1000000) {
+                        CBNZw_MARK(x1);
+                        MOV32w(xRCX, (u8&1)?8:16);
+                        B_NEXT_nocond;
+                        MARK;
                         CLZw(xRCX, x1);
                         MOV32w(x2, 31);
                         SUBw_REG(xRCX, x2, xRCX);
                     } else {
-                        RBITxw(xRCX, x1);
+                        ORRw_mask(xRCX, x1, (u8&1)?0b011000:0b010000,0);
+                        RBITw(xRCX, xRCX);
                         CLZw(xRCX, xRCX);
                     }
                     break;
@@ -1325,7 +1440,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     ADDx_U12(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
                     if(MODREG) {
                         ed = (nextop&7)+(rex.b<<3);
-                        sse_reflect_reg(dyn, ninst, ed);
+                        if(ed>7)
+                            sse_reflect_reg(dyn, ninst, ed);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
@@ -1373,11 +1489,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
                     nextop = F8;
                     GETG;
-                    sse_reflect_reg(dyn, ninst, gd);
+                    if(gd>7)
+                        sse_reflect_reg(dyn, ninst, gd);
                     ADDx_U12(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
                     if(MODREG) {
                         ed = (nextop&7)+(rex.b<<3);
-                        sse_reflect_reg(dyn, ninst, ed);
+                        if(ed>7)
+                            sse_reflect_reg(dyn, ninst, ed);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
