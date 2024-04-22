@@ -50,8 +50,6 @@ void EXPORT my___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) 
 
     SetRSP(emu, GetRBP(emu));   // restore RSP
     SetRBP(emu, Pop64(emu));    // restore RBP
-    SetRSP(emu, old_rsp);
-    SetRBP(emu, old_rbp);
     emu->quit = 1; // finished!
 }
 #else
