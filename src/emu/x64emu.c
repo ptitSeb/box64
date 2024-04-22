@@ -427,7 +427,9 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
 #endif
     // start with FPU regs...
     if(emu->fpu_stack) {
-        for (int i=0; i<emu->fpu_stack; i++) {
+        int stack = emu->fpu_stack;
+        if(stack>8) stack = 8;
+        for (int i=0; i<stack; i++) {
             sprintf(tmp, "ST%d=%f", i, ST(i).d);
             strcat(buff, tmp);
             int c = 10-strlen(tmp);
