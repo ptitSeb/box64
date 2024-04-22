@@ -1576,6 +1576,17 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "%cSHLL%s V%d.%s, V%d.%s, #%d", a.U?'U':'S', a.Q?"2":"", Rd, Va, Rn, Vd, sh);
         return buff;
     }
+    if(isMask(opcode, "0Q0011110hhhhiii010101nnnnnddddd", &a) && (a.h != 0b1000)) {
+        const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
+        int sz = 3;
+        if((a.h&0b1111)==0b0001) sz=0;
+        else if((a.h&0b1110)==0b0010) sz=1;
+        else if((a.h&0b1100)==0b0100) sz=2;
+        int sh=(((a.h)<<3)|(imm)) - (8<<sz);
+        const char* Vd = Y[(sz<<1)|a.Q];
+        snprintf(buff, sizeof(buff), "SHL%s V%d.%s, V%d.%s, #%d", a.Q?"Q":"", Rd, Vd, Rn, Vd, sh);
+        return buff;
+    }
 
     // DUP
     if(isMask(opcode, "0Q001110000iiiii000001nnnnnddddd", &a)) {
