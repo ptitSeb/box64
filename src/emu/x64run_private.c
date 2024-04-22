@@ -40,11 +40,18 @@ void EXPORT my___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) 
     printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_init\n", my_context->argc, my_context->argv, my_context->envv, main);
     // should call structors->preinit_array and structors->init_array!
     // call main and finish
+    Push64(emu, GetRBP(emu));   // set frame pointer
+    SetRBP(emu, GetRSP(emu));   // save RSP
+    SetRSP(emu, GetRSP(emu)&~0xFLL);    // Align RSP
     PushExit(emu);
     R_RIP=(uintptr_t)main;
 
     DynaRun(emu);
 
+    SetRSP(emu, GetRBP(emu));   // restore RSP
+    SetRBP(emu, Pop64(emu));    // restore RBP
+    SetRSP(emu, old_rsp);
+    SetRBP(emu, old_rbp);
     emu->quit = 1; // finished!
 }
 #else
