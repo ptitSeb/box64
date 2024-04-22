@@ -776,7 +776,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
-    SET_NODF();
+    //SET_NODF();
 }
 
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
@@ -822,7 +822,7 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
 
     fpu_popcache(dyn, ninst, x3, 1);
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
-    SET_NODF();
+    //SET_NODF();
 }
 
 void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int segment)

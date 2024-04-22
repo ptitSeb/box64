@@ -69,7 +69,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch(nextop) {
                 case 0xD0:
                     INST_NAME("FAKE xgetbv");
-                    SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+                    SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                     GETIP(ip);
                     STORE_XEMU_CALL(xRIP);
                     CALL(native_ud, -1);
@@ -166,7 +166,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x09:
             INST_NAME("WBINVD");
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_ud, -1);
@@ -178,7 +178,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x0B:
             INST_NAME("UD2");
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_ud, -1);
@@ -202,7 +202,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x0E:
             INST_NAME("femms");
-            SETFLAGS(X_ALL, SF_SET);    // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(xRIP);
             CALL(native_ud, -1);
@@ -486,7 +486,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISS Gx, Ex");} else {INST_NAME("UCOMISS Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             nextop = F8;
             GETGX(v0, 0);
             GETEXSS(s0, 0, 0);

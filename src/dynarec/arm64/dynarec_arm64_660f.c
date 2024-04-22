@@ -1229,7 +1229,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
                 case 0x60:
                     INST_NAME("PCMPESTRM Gx, Ex, Ib");
-                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     nextop = F8;
                     GETG;
                     sse_forget_reg(dyn, ninst, gd);
@@ -1284,11 +1284,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     break;
                 case 0x61:
                     INST_NAME("PCMPESTRI Gx, Ex, Ib");
-                    SETFLAGS(X_ALL, SF_SET);
                     nextop = F8;
                     GETG;
                     u8 = geted_ib(dyn, addr, ninst, nextop);
                     if((u8&0b1100)==0b1000) {
+                        SETFLAGS(X_ALL, SF_SET);
                         // this case is (un)signed word, equal each
                         GETGX(v0, 0);
                         GETEX(v1, 0, 1);
@@ -1397,6 +1397,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             }
                         }
                     } else {
+                        SETFLAGS(X_ALL, SF_SET_DF);
                         if(gd>7)    // no need to reflect cache as xmm0-xmm7 will be saved before the function call anyway
                             sse_reflect_reg(dyn, ninst, gd);
                         ADDx_U12(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
@@ -1433,7 +1434,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     break;
                 case 0x62:
                     INST_NAME("PCMPISTRM Gx, Ex, Ib");
-                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     nextop = F8;
                     GETG;
                     sse_forget_reg(dyn, ninst, gd);
@@ -1486,7 +1487,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     break;
                 case 0x63:
                     INST_NAME("PCMPISTRI Gx, Ex, Ib");
-                    SETFLAGS(X_OF|X_CF|X_AF|X_ZF|X_SF|X_PF, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_DF);
                     nextop = F8;
                     GETG;
                     if(gd>7)

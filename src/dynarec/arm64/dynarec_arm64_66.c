@@ -978,7 +978,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    SETFLAGS(X_OF | X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -990,7 +990,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    SETFLAGS(X_OF | X_CF, SF_SET);
+                    SETFLAGS(X_OF | X_CF, SF_SET_DF);
                     GETEW(x1, 1);
                     u8 = F8;
                     MOV32w(x2, u8);
@@ -1078,7 +1078,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Ew, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOV32w(x2, 1);
                     GETEW(x1, 0);
                     CALL_(rcl16, x1, x3);
@@ -1088,7 +1088,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Ew, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOV32w(x2, 1);
                     GETEW(x1, 0);
                     CALL_(rcr16, x1, x3);
@@ -1179,7 +1179,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     READFLAGS(X_CF);
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
                     GETEW(x1, 0);
                     CALL_(rcl16, x1, x3);
@@ -1191,7 +1191,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     READFLAGS(X_CF);
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     ANDw_mask(x2, xRCX, 0, 0b00100);
                     GETEW(x1, 0);
                     CALL_(rcr16, x1, x3);
@@ -1299,6 +1299,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("DIV Ew");
                     SETFLAGS(X_ALL, SF_SET);
+                    SET_DFNONE(x1);
                     GETEW(x1, 0);
                     UXTHw(x2, xRAX);
                     BFIw(x2, xRDX, 16, 16);
@@ -1321,6 +1322,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("IDIV Ew");
                     SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
+                    SET_DFNONE(x1);
                     GETSEW(x1, 0);
                     if(box64_dynarec_div0) {
                         CBNZw_MARK3(ed);

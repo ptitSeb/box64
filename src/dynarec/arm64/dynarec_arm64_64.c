@@ -784,7 +784,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Ed, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOV32w(x2, 1);
                     GETEDO(x6, 0);
                     if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
@@ -796,7 +796,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Ed, 1");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     MOV32w(x2, 1);
                     GETEDO(x6, 0);
                     if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
@@ -887,7 +887,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Ed, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     if(rex.w) {
                         ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
@@ -904,7 +904,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Ed, CL");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET);
+                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     if(rex.w) {
                         ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
@@ -1031,8 +1031,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
+                    SET_DFNONE(x2);
                     if(!rex.w) {
-                        SET_DFNONE(x2);
                         GETEDO(x6, 0);
                         if(box64_dynarec_div0) {
                             CBNZx_MARK3(ed);
@@ -1059,7 +1059,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                            && dyn->insts[ninst-1].x64.addr
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x31
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0xD2) {
-                            SET_DFNONE(x2);
                             GETEDO(x6, 0);
                             if(box64_dynarec_div0) {
                                 CBNZx_MARK3(ed);
@@ -1094,7 +1093,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             UDIVx(x2, xRAX, ed);
                             MSUBx(xRDX, x2, ed, xRAX);
                             MOVx_REG(xRAX, x2);
-                            SET_DFNONE(x2);
                         }
                     }
                     break;
@@ -1102,8 +1100,8 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("IDIV Ed");
                     NOTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
+                    SET_DFNONE(x2)
                     if(!rex.w) {
-                        SET_DFNONE(x2)
                         GETSEDOw(x6, 0);
                         MOVw_REG(x3, xRAX);
                         ORRx_REG_LSL(x3, x3, xRDX, 32);
@@ -1126,7 +1124,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                            &&  dyn->insts[ninst-1].x64.addr
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0x48
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr+1)==0x99) {
-                            SET_DFNONE(x2)
                             GETEDO(x6, 0);
                             if(box64_dynarec_div0) {
                                 CBNZx_MARK3(ed);
@@ -1163,7 +1160,6 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             SDIVx(x2, xRAX, ed);
                             MSUBx(xRDX, x2, ed, xRAX);
                             MOVx_REG(xRAX, x2);
-                            SET_DFNONE(x2)
                         }
                     }
                     break;
@@ -1196,7 +1192,7 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     {
                         READFLAGS(X_PEND);          // that's suspicious
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);    //Hack to put flag in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF);    //Hack to put flag in "don't care" state
                     }
                     GETEDOz(x6, 0);
                     if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
