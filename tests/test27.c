@@ -20,8 +20,10 @@ typedef double d64x2 __attribute__ ((vector_size (16)));
 const char* string1 = "This is a string";
 const char* string2 = "This\0 string    ";
 const char* string3 = "is\0             ";
-const char* string4 = "maestrum-foo-bar";
+const char* string4 = "maentrum-foo-bar";
 const char* string5 = "\0               ";
+const char* string6 = "bar-foo     \0   ";
+const char* string7 = " sihT foo  str  ";
 
 typedef union {
         __m128i mm;
@@ -57,24 +59,36 @@ int main(int argc, const char** argv)
   v128 a, b, c;
   int ret;
   int fa, fc, fo, fs, fz;
+  #define GOFE(A, LA, B, LB, C)         \
+    fa = _mm_cmpestra(A, LA, B, LB, C); \
+    fc = _mm_cmpestrc(A, LA, B, LB, C); \
+    fo = _mm_cmpestro(A, LA, B, LB, C); \
+    fs = _mm_cmpestrs(A, LA, B, LB, C); \
+    fz = _mm_cmpestrz(A, LA, B, LB, C)  \
+
+  #define GOFI(A, B, C)         \
+    fa = _mm_cmpistra(A, B, C); \
+    fc = _mm_cmpistrc(A, B, C); \
+    fo = _mm_cmpistro(A, B, C); \
+    fs = _mm_cmpistrs(A, B, C); \
+    fz = _mm_cmpistrz(A, B, C)  \
+
+  #define GOE(A, LA, B, LB, C)          \
+    ret = _mm_cmpestri(a.mm, LA, b.mm, LB, C);\
+    printf("_mm_cmpestri(\"%s\", %d, \"%s\", %d, 0x%x) => %d\n", A, LA, B, LB, C, ret); \
+    GOFE(a.mm, LA, b.mm, LB, C);              \ 
+    printf("_mm_cmpestri(\"%s\", %d, \"%s\", %d, 0x%x) flags: a:%d s:%d z:%d c:%d o:%d\n", A, LA, B, LB, C, fa, fs, fz, fc, fo); \
+    c.mm = _mm_cmpestrm(a.mm, LA, b.mm, LB, C); \
+    printf("mm_cmpestrm(\"%s\", %d, \"%s\", %d, 0x%x) = %016x-%016x\n", A, LA, B, LB, C, c.u64[1], c.u64[0]); \
+
   #define GO1(A, B, C)  \
-    ret = _mm_cmpestri(a.mm, strlen(A), b.mm, strlen(B), C); \
-    printf("_mm_cmpestri(\"%s\", %d, \"%s\", %d, 0x%x) => %d\n", A, strlen(A), B, strlen(B), C, ret); \
-    fa = _mm_cmpestra(a.mm, strlen(A), b.mm, strlen(B), C); \
-    fc = _mm_cmpestrc(a.mm, strlen(A), b.mm, strlen(B), C); \
-    fo = _mm_cmpestro(a.mm, strlen(A), b.mm, strlen(B), C); \
-    fs = _mm_cmpestrs(a.mm, strlen(A), b.mm, strlen(B), C); \
-    fz = _mm_cmpestrz(a.mm, strlen(A), b.mm, strlen(B), C); \
-    printf("_mm_cmpestri(\"%s\", %d, \"%s\", %d, 0x%x) flags: a:%d s:%d z:%d c:%d o:%d\n", A, strlen(A), B, strlen(B), C, fa, fs, fz, fc, fo); \
-    c.mm = _mm_cmpestrm(a.mm, strlen(A), b.mm, strlen(B), C); \
-    printf("mm_cmpestrm(\"%s\", %d, \"%s\", %d, 0x%x) = %016x-%016x\n", A, strlen(A), B, strlen(B), C, c.u64[1], c.u64[0]); \
+    GOE(A, strlen(A), B, strlen(B), C);       \
+    GOE(A, ((C)&1)?8:16, B, ((C)&1)?8:16, C); \
+    GOE(A, strlen(A), B, ((C)&1)?8:16, C);    \
+    GOE(A, ((C)&1)?8:16, B, strlen(B), C);    \
     ret = _mm_cmpistri(a.mm, b.mm, C); \
     printf("_mm_cmpistri(\"%s\", \"%s\", 0x%x) => %d\n", A, B, C, ret); \
-    fa = _mm_cmpistra(a.mm, b.mm, C); \
-    fc = _mm_cmpistrc(a.mm, b.mm, C); \
-    fo = _mm_cmpistro(a.mm, b.mm, C); \
-    fs = _mm_cmpistrs(a.mm, b.mm, C); \
-    fz = _mm_cmpistrz(a.mm, b.mm, C); \
+    GOFI(a.mm, b.mm, C);              \
     printf("_mm_cmpestri(\"%s\", \"%s\", 0x%x) flags: a:%d s:%d z:%d c:%d o:%d\n", A, B, C, fa, fs, fz, fc, fo); \
     c.mm = _mm_cmpistrm(a.mm, b.mm, C); \
     printf("mm_cmpestrm(\"%s\", \"%s\", 0x%x) = %016x-%016x\n", A, B, C, c.u64[1], c.u64[0])
@@ -82,26 +96,47 @@ int main(int argc, const char** argv)
   #define GO(A, B, C)	\
     a = load_string(A); \
     b = load_string(B); \
-    GO1(A, B, C);	\
+    GO1(A, B, C);	      \
     a = load_stringw(A);\
     b = load_stringw(B);\
-    GO1(A, B, C+1)	\
+    GO1(A, B, C+1);	    \
+    a = load_string(B); \
+    b = load_string(A); \
+    GO1(B, A, C);	      \
+    a = load_stringw(B);\
+    b = load_stringw(A);\
+    GO1(B, A, C+1)	    \
 
   #define GO2(C) \
   GO(string1, string2, C); \
-  GO(string2, string1, C); \
   GO(string1, string3, C); \
-  GO(string3, string1, C); \
   GO(string1, string4, C); \
-  GO(string4, string1, C); \
   GO(string1, string5, C); \
-  GO(string5, string1, C);
+  GO(string1, string6, C); \
+  GO(string1, string7, C); \
+  GO(string2, string3, C); \
+  GO(string2, string4, C); \
+  GO(string2, string5, C); \
+  GO(string2, string6, C); \
+  GO(string2, string7, C); \
+  GO(string3, string4, C); \
+  GO(string3, string5, C); \
+  GO(string3, string6, C); \
+  GO(string3, string7, C); \
+  GO(string4, string5, C); \
+  GO(string4, string6, C); \
+  GO(string4, string7, C); \
+  GO(string5, string6, C); \
+  GO(string5, string7, C); \
+  GO(string6, string7, C); \
+
 
   GO2(0x00)
   GO2(0x04)
   GO2(0x08)
   GO2(0x0c)
   GO2(0x10)
+  GO2(0x18)
   GO2(0x30)
   GO2(0b1001100)
   GO2(0b0101100)
