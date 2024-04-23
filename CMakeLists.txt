@@ -1344,12 +1344,10 @@ add_test(feround ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 set_tests_properties(feround PROPERTIES ENVIRONMENT "BOX64_SYNC_ROUNDING=1")
 
-# TODO: need to regen test with latest test27.c sources
-
-#add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test27_android -D TEST_OUTPUT=tmpfile27.txt
-#    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref27.txt
-#    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+add_test(sse4_2 ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test27_android -D TEST_OUTPUT=tmpfile27.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref27.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
 add_test(shaext ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test28_android -D TEST_OUTPUT=tmpfile28.txt
