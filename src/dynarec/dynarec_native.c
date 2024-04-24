@@ -508,10 +508,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     for(int ii=0; ii<helper.jmp_sz; ++ii) {
         int i = helper.jmps[ii];
         uintptr_t j = helper.insts[i].x64.jmp;
+        helper.insts[i].x64.jmp_insts = -1;
         if(j<start || j>=end || j==helper.insts[i].x64.addr) {
             if(j==helper.insts[i].x64.addr) // if there is a loop on some opcode, make the block "always to tested"
                 helper.always_test = 1;
-            helper.insts[i].x64.jmp_insts = -1;
             helper.insts[i].x64.need_after |= X_PEND;
         } else {
             // find jump address instruction
