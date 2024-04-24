@@ -15,6 +15,8 @@ typedef struct x64emu_s x64emu_t;
 #define LN2		0.69314718055994531
 #define LG2		0.3010299956639812
 
+#define TAGS_EMPTY 0b1111111111111111
+
 #define ST0 emu->x87[emu->top]
 #define ST1 emu->x87[(emu->top+1)&7]
 #define ST(a) emu->x87[(emu->top+(a))&7]
@@ -32,7 +34,8 @@ static inline void fpu_do_push(x64emu_t* emu)
     }*/
     if(emu->fpu_stack<8)
         ++emu->fpu_stack; 
-    emu->p_regs[newtop].tag = 0;    // full
+    emu->fpu_tags<<=2;  // st0 full
+    emu->fpu_tags &= TAGS_EMPTY;
     emu->top = newtop;
 }
 
@@ -47,8 +50,16 @@ static inline void fpu_do_pop(x64emu_t* emu)
     if(emu->fpu_stack>0)
         --emu->fpu_stack;
     
-    emu->p_regs[curtop].tag = 0b11;    // empty
+    emu->fpu_tags>>=2;
+    emu->fpu_tags |= 0b1100000000000000;    // top empty
     emu->top = (emu->top+1)&7;
+    // check tags
+    /*while((emu->fpu_tags&0b11) && emu->fpu_stack) {
+        --emu->fpu_stack;
+        emu->top = (emu->top+1)&7;
+        emu->fpu_tags>>=2;
+        emu->fpu_tags |= 0b1100000000000000;    // top empty
+    }*/
 }
 
 void fpu_do_free(x64emu_t* emu, int i);
@@ -128,7 +139,7 @@ static inline double fpu_round(x64emu_t* emu, double d) {
 
 static inline void fpu_fxam(x64emu_t* emu) {
     emu->sw.f.F87_C1 = (ST0.ud[1]&0x80000000)?1:0;
-    if((emu->fpu_stack<=0) || (emu->p_regs[(emu->top)&7].tag == 0b11)) {
+    if((emu->fpu_stack<=0) || (emu->fpu_tags&0b11)) {
         //Empty
         emu->sw.f.F87_C3 = 1;
         emu->sw.f.F87_C2 = 0;

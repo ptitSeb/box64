@@ -2161,7 +2161,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(box64_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // lets play safe here too
             }
-            BARRIER(BARRIER_FLOAT);
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
             i32 = F16;
             retn_to_epilog(dyn, ninst, rex, i32);
             *need_epilog = 0;
@@ -2173,7 +2173,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(box64_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
-            BARRIER(BARRIER_FLOAT);
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
             ret_to_epilog(dyn, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
@@ -3041,19 +3041,20 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
+                    /*if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
                         BARRIER_NEXT(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
                         *need_epilog = 0;
                         *ok = 0;
-                    }
+                    }*/
                     if(rex.is32bits) {
                         MOV32w(x2, addr);
                     } else {
                         TABLE64(x2, addr);
                     }
+                    fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
                     PUSH1z(x2);
                     if(box64_dynarec_callret) {
                         SET_HASCALLRET();

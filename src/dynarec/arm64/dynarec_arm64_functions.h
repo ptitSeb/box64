@@ -58,4 +58,7 @@ void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode);
 // reset the cache
 void fpu_reset(dynarec_native_t* dyn);
 void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
+
+// is st freed
+int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
 #endif //__DYNAREC_ARM_FUNCTIONS_H__

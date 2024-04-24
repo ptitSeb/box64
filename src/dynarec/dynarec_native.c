@@ -103,7 +103,7 @@ void add_jump(dynarec_native_t *dyn, int ninst) {
 int get_first_jump(dynarec_native_t *dyn, int next) {
     for(int i=0; i<dyn->jmp_sz; ++i)
         if(dyn->insts[dyn->jmps[i]].x64.jmp == next)
-            return i;
+            return dyn->jmps[i];
     return -2;
 }
 
@@ -544,9 +544,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
                 if(helper.insts[i2].x64.addr==j)
                     k=i2;
             }*/
-            if(k!=-1 && !helper.insts[i].barrier_maybe)
-                helper.insts[k].x64.barrier |= BARRIER_FULL;
-            helper.insts[i].x64.jmp_insts = k;
+            if(k!=-1) {
+                if(k!=-1 && !helper.insts[i].barrier_maybe)
+                    helper.insts[k].x64.barrier |= BARRIER_FULL;
+                helper.insts[i].x64.jmp_insts = k;
+            }
         }
     }
     // no need for next and jmps anymore

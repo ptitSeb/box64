@@ -11,10 +11,10 @@
 
 void fpu_do_free(x64emu_t* emu, int i)
 {
-    emu->p_regs[(emu->top+i)&7].tag = 0b11;    // empty
+    emu->fpu_tags |= 0b11 << (i);   // empty
     // check if all empty
     for(int j=0; j<8; ++j)
-        if(emu->p_regs[j].tag != 0b11)
+        if(emu->fpu_tags != TAGS_EMPTY)
             return;
     emu->fpu_stack = 0;
 }
@@ -27,8 +27,7 @@ void reset_fpu(x64emu_t* emu)
     emu->sw.x16 = 0x0000;
     emu->top = 0;
     emu->fpu_stack = 0;
-    for(int i=0; i<8; ++i)
-        emu->p_regs[i].tag = 0b11;  // STx is empty
+    emu->fpu_tags = TAGS_EMPTY;
 }
 
 void fpu_fbst(x64emu_t* emu, uint8_t* d) {
@@ -258,9 +257,7 @@ void fpu_loadenv(x64emu_t* emu, char* p, int b16)
     p+=(b16)?2:4;
     // tagword: 2bits*8
     // tags... (only full = 0b11 / free = 0b00)
-    uint16_t tags = *(uint16_t*)p;
-    for(int i=0; i<8; ++i)
-        emu->p_regs[i].tag = (tags>>(i*2))&0b11;
+    emu->fpu_tags = *(uint16_t*)p;
     // intruction pointer: 16bits
     // data (operand) pointer: 16bits
     // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
@@ -277,10 +274,7 @@ void fpu_savenv(x64emu_t* emu, char* p, int b16)
     if(!b16) {*(uint16_t*)p = 0; p+=2;}
     // tagword: 2bits*8
     // tags...
-    uint16_t tags = 0;
-    for (int i=0; i<8; ++i)
-        tags |= (emu->p_regs[i].tag)<<(i*2);
-    *(uint16_t*)p = tags;
+    *(uint16_t*)p = emu->fpu_tags;
     // other stuff are not pushed....
 }
 
@@ -325,14 +319,14 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->p_regs[0].tag)?8:0;
+        stack = (emu->fpu_tags&0b11)?8:0;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
+        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
     p->TagWord = tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
@@ -353,15 +347,15 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->p_regs[0].tag)?8:0;
+        stack = (emu->fpu_tags&0b11)?8:0;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->p_regs[i].tag)<<(i*2)==0b11)?0:1;
-    p->TagWord = tags;
+        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
+    p->TagWord = emu->fpu_tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
     p->DataOffset = 0;
@@ -382,12 +376,12 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
         applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
-    for(int i=0; i<8; ++i)
-        emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
+    for (int i=0; i<8; ++i)
+        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->p_regs[0].tag)?8:0;
+        stack = (emu->fpu_tags&0b11)?8:0;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
@@ -406,11 +400,11 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
     for(int i=0; i<8; ++i)
-        emu->p_regs[i].tag = (tags>>(i*2))?0:0b11;
+        emu->fpu_tags |= ((tags>>i)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->p_regs[0].tag)?8:0;
+        stack = (emu->fpu_tags&0b11)?8:0;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));

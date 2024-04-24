@@ -82,10 +82,10 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
     }
     //memcpy(ref->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     //memcpy(ref->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
-	/*if(ref->p_regs != emu->p_regs) {
+	if(ref->fpu_tags != emu->fpu_tags) {
         BANNER;
-        printf_log(LOG_NONE, "X87 PREG: %x | %x\n", ref->p_regs, emu->p_regs);
-    }*/
+        printf_log(LOG_NONE, "X87 TAGS: %x | %x\n", ref->fpu_tags, emu->fpu_tags);
+    }
 	if(ref->cw.x16 != emu->cw.x16) {
         BANNER;
         printf_log(LOG_NONE, "X87 CW: %x | %x\n", ref->cw.x16, emu->cw.x16);

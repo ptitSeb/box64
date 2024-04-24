@@ -896,27 +896,27 @@
 #define X87_POP_OR_FAIL(dyn, ninst, scratch)            x87_do_pop(dyn, ninst, scratch)
 #else
 #define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) \
-    if (dyn->e.stack == +8) {                         \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
-        dyn->abort = 1;                               \
-        return addr;                                  \
-    }                                                 \
+    if ((dyn->e.x87stack==8) || (dyn->e.pushed==8)) {   \
+        if(box64_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->e.x87stack, dyn->e.pushed, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
     var = x87_do_push(dyn, ninst, scratch, t);
 
 #define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch) \
-    if (dyn->e.stack == +8) {                       \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
-        dyn->abort = 1;                               \
-        return addr;                                \
-    }                                               \
+    if ((dyn->e.x87stack==8) || (dyn->e.pushed==8)) {   \
+        if(box64_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->e.x87stack, dyn->e.pushed, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
     x87_do_push_empty(dyn, ninst, scratch);
 
 #define X87_POP_OR_FAIL(dyn, ninst, scratch) \
-    if (dyn->e.stack == -8) {                \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Pop, stack=%d on inst %d\n", dyn->e.x87stack, ninst); \
-        dyn->abort = 1;                               \
-        return addr;                         \
-    }                                        \
+    if ((dyn->e.x87stack==-8) || (dyn->e.poped==8)) {   \
+        if(box64_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Pop, stack=%d/%d on inst %d\n", dyn->e.x87stack, dyn->e.poped, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
     x87_do_pop(dyn, ninst, scratch);
 #endif
 
@@ -1196,6 +1196,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_get_extcache      STEPNAME(x87_get_extcache)
 #define x87_get_st            STEPNAME(x87_get_st)
 #define x87_get_st_empty      STEPNAME(x87_get_st)
+#define x87_free              STEPNAME(x87_free)
 #define x87_refresh           STEPNAME(x87_refresh)
 #define x87_forget            STEPNAME(x87_forget)
 #define x87_reget_st          STEPNAME(x87_reget_st)
@@ -1358,6 +1359,8 @@ int x87_get_extcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a);
 int x87_get_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int t);
 // get vfpu register for a x87 reg, create the entry if needed. Do not fetch the Stx if not already in cache
 int x87_get_st_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int t);
+// Free st, using the FFREE opcode (so it's freed but stack is not moved)
+void x87_free(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int st);
 // refresh a value from the cache ->emu (nothing done if value is not cached)
 void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st);
 // refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)

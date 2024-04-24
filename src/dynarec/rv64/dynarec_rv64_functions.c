@@ -422,11 +422,23 @@ void extcacheUnwind(extcache_t* cache)
             }
         }
         cache->x87stack-=cache->stack_push;
+        cache->tags>>=(cache->stack_push*2);
         cache->stack-=cache->stack_push;
+        if(cache->pushed>=cache->stack_push)
+            cache->pushed-=cache->stack_push;
+        else
+            cache->pushed = 0;
         cache->stack_push = 0;
     }
     cache->x87stack+=cache->stack_pop;
     cache->stack_next = cache->stack;
+    if(cache->stack_pop) {
+        if(cache->poped>=cache->stack_pop)
+            cache->poped-=cache->stack_pop;
+        else
+            cache->poped = 0;
+        cache->tags<<=(cache->stack_pop*2);
+    }
     cache->stack_pop = 0;
     cache->barrier = 0;
     // And now, rebuild the x87cache info with extcache
@@ -631,6 +643,9 @@ static void x87_reset(extcache_t* e)
     e->combined1 = e->combined2 = 0;
     e->swapped = 0;
     e->barrier = 0;
+    e->pushed = 0;
+    e->poped = 0;
+
     for(int i=0; i<24; ++i)
         if (e->extcache[i].t == EXT_CACHE_ST_F
             || e->extcache[i].t == EXT_CACHE_ST_D
@@ -665,4 +680,9 @@ void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
     mmx_reset(&dyn->insts[ninst].e);
     sse_reset(&dyn->insts[ninst].e);
     fpu_reset_reg_extcache(&dyn->insts[ninst].e);
+}
+
+int fpu_is_st_freed(dynarec_rv64_t* dyn, int ninst, int st)
+{
+    return (dyn->e.tags&(0b11<<(st*2)))?1:0;
 }

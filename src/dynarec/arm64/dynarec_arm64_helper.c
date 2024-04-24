@@ -941,6 +941,9 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
     dyn->n.stack+=1;
     dyn->n.stack_next+=1;
     dyn->n.stack_push+=1;
+    ++dyn->n.pushed;
+    if(dyn->n.poped)
+        --dyn->n.poped;
     // move all regs in cache, and find a free one
     for(int j=0; j<24; ++j)
         if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D)
@@ -948,9 +951,8 @@ int x87_do_push(dynarec_arm_t* dyn, int ninst, int s1, int t)
          ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_I64))
             ++dyn->n.neoncache[j].n;
     int ret = -1;
+    dyn->n.tags<<=2;
     for(int i=0; i<8; ++i) {
-        if(dyn->n.freed[i]!=-1)
-            ++dyn->n.freed[i];
         if(dyn->n.x87cache[i]!=-1)
             ++dyn->n.x87cache[i];
         else if(ret==-1) {
@@ -973,6 +975,9 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
     dyn->n.stack+=1;
     dyn->n.stack_next+=1;
     dyn->n.stack_push+=1;
+    ++dyn->n.pushed;
+    if(dyn->n.poped)
+        --dyn->n.poped;
     // move all regs in cache
     for(int j=0; j<24; ++j)
         if((dyn->n.neoncache[j].t == NEON_CACHE_ST_D)
@@ -980,9 +985,8 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
          ||(dyn->n.neoncache[j].t == NEON_CACHE_ST_I64))
             ++dyn->n.neoncache[j].n;
     int ret = -1;
+    dyn->n.tags<<=2;
     for(int i=0; i<8; ++i) {
-        if(dyn->n.freed[i]!=-1)
-            ++dyn->n.freed[i];
         if(dyn->n.x87cache[i]!=-1)
             ++dyn->n.x87cache[i];
         else if(ret==-1)
@@ -1008,17 +1012,11 @@ void static internal_x87_dopop(dynarec_arm_t* dyn)
 }
 int static internal_x87_dofree(dynarec_arm_t* dyn)
 {
-    int ret = 0;
-    for(int i=0; i<8; ++i)
-        if(dyn->n.freed[i]!=-1) {
-            --dyn->n.freed[i];
-            if(dyn->n.freed[i]<=0) {
-                MESSAGE(LOG_DUMP, "\t--------x87 FREED ST0, poping 1 more\n");
-                dyn->n.freed[i] = -1;
-                ret = 1;
-            }
-        }
-    return ret;
+    if(dyn->n.tags&0b11) {
+        MESSAGE(LOG_DUMP, "\t--------x87 FREED ST0, poping 1 more\n");
+        return 1;
+    }
+    return 0;
 }
 void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
 {
@@ -1028,6 +1026,10 @@ void x87_do_pop(dynarec_arm_t* dyn, int ninst, int s1)
         dyn->n.x87stack-=1;
         dyn->n.stack_next-=1;
         dyn->n.stack_pop+=1;
+        dyn->n.tags>>=2;
+        ++dyn->n.poped;
+        if(dyn->n.pushed)
+            --dyn->n.pushed;
         // move all regs in cache, poping ST0
         internal_x87_dopop(dyn);
     } while(internal_x87_dofree(dyn));
@@ -1051,8 +1053,9 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
     int a = dyn->n.x87stack;
     if(a!=0) {
         // reset x87stack
-        if(!next)
+        if(!next) {
             dyn->n.x87stack = 0;
+        }
         // Add x87stack to emu fpu_stack
         LDRw_U12(s2, xEmu, offsetof(x64emu_t, fpu_stack));
         if(a>0) {
@@ -1063,31 +1066,33 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
         STRw_U12(s2, xEmu, offsetof(x64emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
         LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
-        // update tags (and top at the same time)
         if(a>0) {
-            // new tag to fulls
-            MOVZw(s3, 0);
-            ADDx_U12(s1, xEmu, offsetof(x64emu_t, p_regs));
-            for (int i=0; i<a; ++i) {
-                SUBw_U12(s2, s2, 1);
-                ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + st)&7
-                if(x87_is_stcached(dyn, i)) // to handle ffree
-                    STRw_REG_LSL2(s3, s1, s2);
-            }
+            SUBw_U12(s2, s2, a);
         } else {
-            // empty tags
-            MOVZw(s3, 0b11);
-            ADDx_U12(s1, xEmu, offsetof(x64emu_t, p_regs));
-            for (int i=0; i<-a; ++i) {
-                STRw_REG_LSL2(s3, s1, s2);
-                ADDw_U12(s2, s2, 1);
-                ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + st)&7
-            }
+            ADDw_U12(s2, s2, -a);
         }
+        ANDw_mask(s2, s2, 0, 2);
         STRw_U12(s2, xEmu, offsetof(x64emu_t, top));
+        // update tags (and top at the same time)
+        LDRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+        if(a>0) {
+            LSLw_IMM(s1, s1, a*2);
+        } else {
+            ORRw_mask(s1, s1, 0b010000, 0b001111);  // 0xffff0000
+            LSRw_IMM(s1, s1, -a*2);
+        }
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
     } else {
         LDRw_U12(s2, xEmu, offsetof(x64emu_t, top));
     }
+    // check if free is used
+    if(dyn->n.tags) {
+        LDRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+        MOV32w(s3, dyn->n.tags);
+        ORRw_REG(s1, s1, s3);
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+    }
+
     if(ret!=0) {
         // --- set values
         // prepare offset to fpu => s1
@@ -1133,11 +1138,13 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
     }
     if(!next) {
         dyn->n.stack_next = 0;
-        for(int i=0; i<8; ++i)
-            dyn->n.freed[i] = -1;
+        dyn->n.tags = 0;
         #if STEP < 2
         // refresh the cached valued, in case it's a purge outside a instruction
         dyn->insts[ninst].n.barrier = 1;
+        dyn->n.pushed = 0;
+        dyn->n.poped = 0;
+
         #endif
     }
     MESSAGE(LOG_DUMP, "\t---Purge x87 Cache and Synch Stackcount\n");
@@ -1165,6 +1172,15 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
         }
         ANDw_mask(s2, s2, 0, 2);  //mask=7
         STRw_U12(s2, xEmu, offsetof(x64emu_t, top));
+        // update tags
+        LDRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+        if(a>0) {
+            LSLw_IMM(s1, s1, a*2);
+        } else {
+            ORRw_mask(s1, s1, 0b010000, 0b001111);  // 0xffff0000
+            LSRw_IMM(s1, s1, -a*2);
+        }
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
     }
     int ret = 0;
     for (int i=0; (i<8) && (!ret); ++i)
@@ -1213,6 +1229,15 @@ static void x87_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, in
         }
         ANDw_mask(s2, s2, 0, 2);  //mask=7
         STRw_U12(s2, xEmu, offsetof(x64emu_t, top));
+        // update tags
+        LDRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
+        if(a>0) {
+            ORRw_mask(s1, s1, 0b010000, 0b001111);  // 0xffff0000
+            LSRw_IMM(s1, s1, a*2);
+        } else {
+            LSLw_IMM(s1, s1, -a*2);
+        }
+        STRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
     }
 }
 
@@ -1439,17 +1464,8 @@ void x87_free(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int st)
             ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
         }
     }
-    // mark as free
-    ADDx_U12(s1, xEmu, offsetof(x64emu_t, p_regs));
-    MOVZw(s3, 0b11);
-    STRw_REG_LSL2(s3, s1, s2);
     // add mark in the freed array
-    for(int i=0; i<8; ++i)
-        if(dyn->n.freed[i]==-1) {
-            dyn->n.freed[i]=st;
-            MESSAGE(LOG_DUMP, "\t--------x87 Marked ST%d as Freed\n", st);
-            break;
-        }
+    dyn->n.tags |= 0b11<<(st*2);
     MESSAGE(LOG_DUMP, "\t--------x87 FFREE for ST%d\n", st);
 }
 
@@ -1984,26 +2000,15 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         STRw_U12(s3, xEmu, offsetof(x64emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
         LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
-        // update tags (and top at the same time)
+        // update tags
+        LDRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
         if(a>0) {
-            // new tag to fulls
-            MOVZw(s2, 0);
-            ADDx_U12(s1, xEmu, offsetof(x64emu_t, p_regs));
-            for (int i=0; i<a; ++i) {
-                SUBw_U12(s3, s3, 1);
-                ANDw_mask(s3, s3, 0, 2);    // (emu->top + st)&7
-                STRw_REG_LSL2(s2, s1, s3);    // that slot is full
-            }
+            LSLw_IMM(s2, s2, a*2);
         } else {
-            // empty tags
-            MOVZw(s2, 0b11);
-            ADDx_U12(s1, xEmu, offsetof(x64emu_t, p_regs));
-            for (int i=0; i<-a; ++i) {
-                STRw_REG_LSL2(s2, s1, s3);    // empty slot before leaving it
-                ADDw_U12(s3, s3, 1);
-                ANDw_mask(s3, s3, 0, 2);    // (emu->top + st)&7
-            }
+            ORRw_mask(s2, s2, 0b010000, 0b001111);  // 0xffff0000
+            LSRw_IMM(s2, s2, -a*2);
         }
+        STRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
         STRw_U12(s3, xEmu, offsetof(x64emu_t, top));
         s3_top = 0;
         stack_cnt = cache_i2.stack;
@@ -2243,8 +2248,14 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     #if STEP > 1
     // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
     dyn->n = dyn->insts[ninst].n;
+    #else
+    dyn->n = dyn->insts[reset_n].n;
+    #endif
     neoncacheUnwind(&dyn->n);
-    #ifdef HAVE_TRACE
+    #if STEP == 0
+    if(box64_dynarec_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->n.x87stack);
+        #endif
+    #if defined(HAVE_TRACE) && (STEP>2)
     if(box64_dynarec_dump)
         if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neon_cache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in neoncache: reset=");
@@ -2274,9 +2285,6 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
             MESSAGE(LOG_DEBUG, "\n");
         }
     #endif //HAVE_TRACE
-    #else
-    dyn->n = dyn->insts[reset_n].n;
-    #endif
 }
 
 // propagate ST stack state, especial stack pop that are deferred

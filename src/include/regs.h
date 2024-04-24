@@ -32,10 +32,6 @@ typedef union {
 	uint8_t  byte[8];
 } reg64_t;
 
-typedef struct {
-    uint32_t tag;
-} fpu_p_reg_t;
-
 typedef enum {
 	ROUND_Nearest = 0,		
 	ROUND_Down    = 1,

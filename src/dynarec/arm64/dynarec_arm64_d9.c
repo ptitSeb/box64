@@ -136,40 +136,44 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             i1 = x87_get_current_cache(dyn, ninst, 0, NEON_CACHE_ST_D);
             // value put in x14
             if(i1==-1) {
-                // not in cache, so check Empty status and load it
-                i2 = -dyn->n.x87stack;
-                LDRw_U12(x3, xEmu, offsetof(x64emu_t, fpu_stack));
-                if(i2) {
-                    if(i2<0) {
-                        ADDw_U12(x3, x3, -i2);
-                    } else {
-                        SUBw_U12(x3, x3, i2);
+                if(fpu_is_st_freed(dyn, ninst, 0)) {
+                    MOV32w(x4, 0b100000100000000);
+                    B_MARK3_nocond;
+                } else {
+                    // not in cache, so check Empty status and load it
+                    i2 = -dyn->n.x87stack;
+                    LDRw_U12(x3, xEmu, offsetof(x64emu_t, fpu_stack));
+                    if(i2) {
+                        if(i2<0) {
+                            ADDw_U12(x3, x3, -i2);
+                        } else {
+                            SUBw_U12(x3, x3, i2);
+                        }
                     }
-                }
-                CMPSw_U12(x3, 0);
-                MOV32w(x3, 0b100000100000000);
-                CSELx(x4, x3, x4, cLE); // empty: C3,C2,C0 = 101
-                B_MARK3(cLE);
-                // x4 will be the actual top
-                LDRw_U12(x4, xEmu, offsetof(x64emu_t, top));
-                if(i2) {
-                    if(i2<0) {
-                        SUBw_U12(x4, x4, -i2);
-                    } else {
-                        ADDw_U12(x4, x4, i2);
+                    CMPSw_U12(x3, 0);
+                    MOV32w(x3, 0b100000100000000);
+                    CSELx(x4, x3, x4, cLE); // empty: C3,C2,C0 = 101
+                    B_MARK3(cLE);
+                    // x4 will be the actual top
+                    LDRw_U12(x4, xEmu, offsetof(x64emu_t, top));
+                    if(i2) {
+                        if(i2<0) {
+                            SUBw_U12(x4, x4, -i2);
+                        } else {
+                            ADDw_U12(x4, x4, i2);
+                        }
+                        ANDw_mask(x4, x4, 0, 3);    // (emu->top + i)&7
                     }
-                    ANDw_mask(x4, x4, 0, 3);    // (emu->top + i)&7
+                    // load tag
+                    LDRH_U12(x3, xEmu, offsetof(x64emu_t, fpu_tags));
+                    TSTw_mask(x3, 0, 1);    // 0b11
+                    MOV32w(x3, 0b100000100000000);
+                    CSELx(x4, x3, x4, cNE); // empty: C3,C2,C0 = 101
+                    B_MARK3(cNE);
+                    // load x2 with ST0 anyway, for sign extraction
+                    ADDx_REG_LSL(x1, xEmu, x4, 3);
+                    LDRx_U12(x2, x1, offsetof(x64emu_t, x87));
                 }
-                // load tag
-                ADDx_U12(x1, xEmu, offsetof(x64emu_t, p_regs));
-                LDRw_REG_LSL2(x3, x1, x4);
-                CMPSw_U12(x3, 0b11);    // empty
-                MOV32w(x3, 0b100000100000000);
-                CSELx(x4, x3, x4, cEQ); // empty: C3,C2,C0 = 101
-                B_MARK3(cEQ);
-                // load x2 with ST0 anyway, for sign extraction
-                ADDx_REG_LSL(x1, xEmu, x4, 3);
-                LDRx_U12(x2, x1, offsetof(x64emu_t, x87));
             } else {
                 // simply move from cache reg to x2
                 v1 = dyn->n.x87reg[i1];
