@@ -782,7 +782,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFX(X_ALL|X_PEND)
-                            emit_inc32(dyn, ninst, rex, x1, x3, x4, x5, x6);
+                            emit_dec32(dyn, ninst, rex, x1, x3, x4, x5, x6);
                     }
                     break;
                 default:

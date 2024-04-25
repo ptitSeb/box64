@@ -674,7 +674,11 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
 
-    SLLxw(s1, s1, s2);
+    if (rex.w) {
+        SLL(s1, s1, s2);
+    } else {
+        SLLW(s1, s1, s2);
+    }
 
     IFX(X_SF) {
         BGE(s1, xZR, 8);
@@ -730,7 +734,11 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
     }
 
-    SLLIxw(s1, s1, c);
+    if (rex.w) {
+        SLLI(s1, s1, c);
+    } else {
+        SLLIW(s1, s1, c);
+    }
 
     IFX(X_SF) {
         BGE(s1, xZR, 8);
@@ -855,13 +863,17 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
     }
 
-    SRLIxw(s1, s1, c);
+    if (rex.w) {
+        SRLI(s1, s1, c);
+    } else {
+        SRLIW(s1, s1, c);
+    }
 
     IFX(X_SF) {
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    if (!rex.w) {
+    if (!rex.w && c == 0) {
         ZEROUP(s1);
     }
     IFX(X_PEND) {
@@ -910,7 +922,11 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         OR(xFlags, xFlags, s3);
     }
 
-    SRAIxw(s1, s1, c);
+    if (rex.w) {
+        SRAI(s1, s1, c);
+    } else {
+        SRAIW(s1, s1, c);
+    }
 
     // SRAIW sign-extends, so test sign bit before clearing upper bits
     IFX(X_SF) {
