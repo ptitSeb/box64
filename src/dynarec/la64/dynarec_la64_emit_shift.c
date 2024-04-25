@@ -373,12 +373,12 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 
     if (rex.w) {
-        SRAI(s1, s1, c);
+        SRAI_D(s1, s1, c);
     } else {
-        SRAIW(s1, s1, c);
+        SRAI_W(s1, s1, c);
     }
 
-    // SRAIW sign-extends, so test sign bit before clearing upper bits
+    // SRAI_W sign-extends, so test sign bit before clearing upper bits
     IFX(X_SF) {
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
