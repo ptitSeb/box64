@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -61,6 +62,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VILVL_H(v0, q0, v0);
+            break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            VILVH_H(q0, q1, q0);
             break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
@@ -140,6 +148,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             BSTRINS_D(gd, x1, 15, 0);
             break;
+        case 0xD4:
+            INST_NAME("PADDQ Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VADD_D(v0, v0, q0);
+            break;
         case 0xD6:
             INST_NAME("MOVQ Ex, Gx");
             nextop = F8;
@@ -153,6 +168,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FST_D(v0, ed, fixedaddress);
                 SMWRITE2();
             }
+            break;
+        case 0xDB:
+            INST_NAME("PAND Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VAND_V(v0, v0, q0);
             break;
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");

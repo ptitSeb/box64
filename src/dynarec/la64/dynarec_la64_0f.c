@@ -491,6 +491,31 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             if (!rex.w) ZEROUP(gd);
             break;
+        case 0xBF:
+            INST_NAME("MOVSX Gd, Ew");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                EXT_W_H(gd, ed);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);
+                LD_H(gd, ed, fixedaddress);
+            }
+            if (!rex.w) ZEROUP(gd);
+            break;
+        case 0xC6:
+            INST_NAME("SHUFPS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 1);
+            u8 = F8;
+            if (v0 != v1) {
+                VEXTRINS_D(v0, v1, 0x11); // v0[127:64] = v1[127:64]
+            }
+            VSHUF4I_W(v0, v0, u8);
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:

@@ -2123,6 +2123,23 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSHUF.D", Vt[Rd], Vt[Rj], Vt[Rk]);
         return buff;
     }
+    if (isMask(opcode, "01110011100100iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x", "VSHUF4I.B", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011100101iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x", "VSHUF4I.H", Vt[Rd], Vt[Rj], imm);
+
+        return buff;
+    }
+    if (isMask(opcode, "01110011100110iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x", "VSHUF4I.W", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
+    if (isMask(opcode, "01110011100111iiiiiiiijjjjjddddd", &a)) {
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x", "VSHUF4I.D", Vt[Rd], Vt[Rj], imm);
+        return buff;
+    }
     if (isMask(opcode, "01110011100000iiiiiiiijjjjjddddd", &a)) {
         snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VEXTRINS.D", Vt[Rd], Vt[Rj], signExtend(imm, 8));
         return buff;
