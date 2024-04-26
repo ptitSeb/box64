@@ -505,6 +505,23 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             if (!rex.w) ZEROUP(gd);
             break;
+        case 0xC6:
+            INST_NAME("SHUFPS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0, 1);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 1);
+                v1 = fpu_get_scratch(dyn);
+                VLD(v1, ed, fixedaddress);
+            }
+            u8 = F8;
+            q0 = fpu_get_scratch(dyn);
+            VOR_V(q0, v1, v1);
+            VEXTRINS_D(q0, v0, 0);
+            VSHUF4I_W(v0, q0, u8);
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:
