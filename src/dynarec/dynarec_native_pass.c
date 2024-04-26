@@ -213,8 +213,15 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
         }
         #else
+        // check if block need to be stopped, because it's a 00 00 opcode or is out of readable space
+        int ok_to_continue = (ok && getProtection(addr) && getProtection(addr+1));
+        if(ok && (!ok_to_continue || !(*(uint16_t*)addr))) {
+            if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, ok_to_continue?"Address is not readable":"Next opcode is 00 00");
+            ok = 0;
+            need_epilog = 1;
+        }
         if(dyn->forward) {
-            if(dyn->forward_to == addr && !need_epilog) {
+            if(dyn->forward_to == addr && !need_epilog && ok_to_continue) {
                 // we made it!
                 reset_n = get_first_jump(dyn, addr);
                 if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x64.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
