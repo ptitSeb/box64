@@ -354,7 +354,7 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
             need &=~X_PEND;
             need |= X_ALL;
         }
-        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SET)) {
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SET || dyn->insts[ninst].x64.state_flags==SF_SET_NODF)) {
             need &=~X_PEND;
             need |= dyn->insts[ninst].x64.set_flags;    // SF_SET will compute all flags, it's not SUBSET!
         }
