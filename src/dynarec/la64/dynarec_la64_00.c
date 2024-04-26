@@ -738,7 +738,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 GETGB(x3);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                AMSWAP_DB_B(x1, gd, ed);
+                // AMSWAP_DB_B(x1, gd, ed);
+                SMDMB();
+                LD_BU(x1, ed, 0);
+                ST_B(gd, ed, 0);
+                SMDMB();
                 BSTRINS_D(gb1, x1, gb2 + 7, gb2);
             }
             break;
