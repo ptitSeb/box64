@@ -9,6 +9,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -725,6 +726,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(0);
             emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            break;
+        case 0x86:
+            INST_NAME("(LOCK)XCHG Eb, Gb");
+            nextop = F8;
+            if (MODREG) {
+                GETGB(x1);
+                GETEB(x2, 0);
+                BSTRINS_D(wback, gd, wb2 + 7, wb2);
+                BSTRINS_D(gb1, ed, gb2 + 7, gb2);
+            } else {
+                GETGB(x3);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                AMSWAP_DB_B(x1, gd, ed);
+                BSTRINS_D(gb1, x1, gb2 + 7, gb2);
+            }
             break;
         case 0x87:
             INST_NAME("(LOCK) XCHG Ed, Gd");
