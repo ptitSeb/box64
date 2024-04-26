@@ -511,14 +511,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGX(v0, 1);
             GETEX(v1, 0, 1);
             u8 = F8;
-            if (v0 == v1) {
-                VSHUF4I_W(v0, v0, u8);
-            } else {
-                q0 = fpu_get_scratch(dyn);
-                VOR_V(q0, v1, v1);
-                VEXTRINS_D(q0, v0, 0);
-                VSHUF4I_W(v0, q0, u8);
+            if (v0 != v1) {
+                VEXTRINS_D(v0, v1, 0x11); // v0[127:64] = v1[127:64]
             }
+            VSHUF4I_W(v0, v0, u8);
             break;
         case 0xC8:
         case 0xC9:
