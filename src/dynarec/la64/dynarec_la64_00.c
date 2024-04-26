@@ -1675,6 +1675,28 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_RES(xRAX);
                     UFLAG_OP1(xRDX);
                     break;
+                case 5:
+                    INST_NAME("IMUL EAX, Ed");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_DF(x2, rex.w ? d_imul64 : d_imul32);
+                    GETSED(0);
+                    if (rex.w) {
+                        if (ed == xRDX)
+                            gd = x3;
+                        else
+                            gd = xRDX;
+                        MULH_D(gd, xRAX, ed);
+                        MUL_D(xRAX, xRAX, ed);
+                        if (gd != xRDX) { MV(xRDX, gd); }
+                    } else {
+                        ADDI_W(x3, xRAX, 0); // sign extend 32bits-> 64bits
+                        MUL_D(xRDX, x3, ed); // 64 <- 32x32
+                        AND(xRAX, xRDX, xMASK);
+                        SRLI_D(xRDX, xRDX, 32);
+                    }
+                    UFLAG_RES(xRAX);
+                    UFLAG_OP1(xRDX);
+                    break;
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
