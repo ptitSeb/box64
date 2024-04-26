@@ -62,6 +62,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q0, 0, 0);
             VILVL_H(v0, q0, v0);
             break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            VILVH_H(q0, q1, q0);
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
