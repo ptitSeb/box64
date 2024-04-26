@@ -115,6 +115,9 @@ int rv64_xtheadmac = 0;
 int rv64_xtheadfmv = 0;
 #elif defined(LA64)
 int la64_lbt = 0;
+int la64_lam_bh = 0;
+int la64_lamcas = 0;
+int la64_scq = 0;
 #endif
 #else   //DYNAREC
 int box64_dynarec = 0;
@@ -456,10 +459,23 @@ HWCAP2_ECV
     char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
     if(p == NULL || p[0] == '0') {
         uint32_t cpucfg2 = 0, idx = 2;
-        // there are other extensions, but we don't care.
         asm volatile("cpucfg %0, %1" : "=r"(cpucfg2) : "r"(idx));
+        if ((cpucfg2 >> 6) & 0b1) {
+            printf_log(LOG_INFO, "with extension LSX");
+        } else {
+            printf_log(LOG_INFO, "\nMissing LSX extension support, disabling Dynarec\n");
+            box64_dynarec = 0;
+            return;
+        }
+
         if (la64_lbt = (cpucfg2 >> 18) & 0b1)
-            printf_log(LOG_INFO, "with extension LBT_X86");
+            printf_log(LOG_INFO, " LBT_X86");
+        if (la64_lam_bh = (cpucfg2 >> 27) & 0b1)
+            printf_log(LOG_INFO, " LAM_BT");
+        if (la64_lamcas = (cpucfg2 >> 28) & 0b1)
+            printf_log(LOG_INFO, " LAMCAS");
+        if (la64_scq = (cpucfg2 >> 30) & 0b1)
+            printf_log(LOG_INFO, " SCQ");
     }
 #elif defined(RV64)
     void RV64_Detect_Function();
