@@ -214,7 +214,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         #else
         // check if block need to be stopped, because it's a 00 00 opcode or is out of readable space
-        int ok_to_continue = (ok && getProtection(addr) && getProtection(addr+1));
+        int ok_to_continue = (getProtection(addr) && getProtection(addr+1));
         if(ok && (!ok_to_continue || !(*(uint16_t*)addr))) {
             if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, ok_to_continue?"Address is not readable":"Next opcode is 00 00");
             ok = 0;
