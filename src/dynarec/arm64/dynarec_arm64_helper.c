@@ -1987,32 +1987,6 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     }
     int stack_cnt = dyn->n.stack_next;
     int s3_top = 0xffff;
-    if(stack_cnt != cache_i2.stack) {
-        MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
-        int a = stack_cnt - cache_i2.stack;
-        // Add x87stack to emu fpu_stack
-        LDRw_U12(s3, xEmu, offsetof(x64emu_t, fpu_stack));
-        if(a>0) {
-            ADDw_U12(s3, s3, a);
-        } else {
-            SUBw_U12(s3, s3, -a);
-        }
-        STRw_U12(s3, xEmu, offsetof(x64emu_t, fpu_stack));
-        // Sub x87stack to top, with and 7
-        LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
-        // update tags
-        LDRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
-        if(a>0) {
-            LSLw_IMM(s2, s2, a*2);
-        } else {
-            ORRw_mask(s2, s2, 0b010000, 0b001111);  // 0xffff0000
-            LSRw_IMM(s2, s2, -a*2);
-        }
-        STRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
-        STRw_U12(s3, xEmu, offsetof(x64emu_t, top));
-        s3_top = 0;
-        stack_cnt = cache_i2.stack;
-    }
     neoncache_t cache = dyn->n;
     int s1_val = 0;
     int s2_val = 0;
@@ -2082,6 +2056,32 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                 }
             }
         }
+    }
+    if(stack_cnt != cache_i2.stack) {
+        MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
+        int a = stack_cnt - cache_i2.stack;
+        // Add x87stack to emu fpu_stack
+        LDRw_U12(s3, xEmu, offsetof(x64emu_t, fpu_stack));
+        if(a>0) {
+            ADDw_U12(s3, s3, a);
+        } else {
+            SUBw_U12(s3, s3, -a);
+        }
+        STRw_U12(s3, xEmu, offsetof(x64emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
+        // update tags
+        LDRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
+        if(a>0) {
+            LSLw_IMM(s2, s2, a*2);
+        } else {
+            ORRw_mask(s2, s2, 0b010000, 0b001111);  // 0xffff0000
+            LSRw_IMM(s2, s2, -a*2);
+        }
+        STRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
+        STRw_U12(s3, xEmu, offsetof(x64emu_t, top));
+        s3_top = 0;
+        stack_cnt = cache_i2.stack;
     }
     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
 #endif
