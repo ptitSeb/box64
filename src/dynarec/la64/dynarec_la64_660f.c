@@ -72,6 +72,26 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VLD(v0, ed, fixedaddress);
             }
             break;
+        case 0x38: // SSSE3 opcodes
+            nextop = F8;
+            switch (nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gx, Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VLDI(v0, 0b0000010001111); // broadcast 0b10001111 as byte
+                    VAND_V(v0, v0, q1);
+                    VMINI_BU(v0, v0, 0x1f);
+                    VXOR_V(v1, v1, v1);
+                    VSHUF_B(q0, v1, q0, v0);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x61:
             INST_NAME("PUNPCKLWD Gx,Ex");
             nextop = F8;
