@@ -107,6 +107,15 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FMUL_S(d1, v0, d0);
             VEXTRINS_W(v0, d1, 0);
             break;
+        case 0x5A:
+            INST_NAME("CVTSS2SD Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEXSS(v1, 0, 0);
+            d1 = fpu_get_scratch(dyn);
+            FCVT_D_S(d1, v1);
+            VEXTRINS_D(v0, d1, 0);
+            break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
