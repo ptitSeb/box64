@@ -1713,7 +1713,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
      || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine64"))) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
-        if(wine_preloaded) {
+        if(wine_preloaded || 1) {
             wine_prereserve(prereserve);
         }
         // special case for winedbg, doesn't work anyway
