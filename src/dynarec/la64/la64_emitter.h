@@ -1669,6 +1669,22 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVSHUF_W(vd, vj, vk)         EMIT(type_3R(0b01110101011110110, vk, vj, vd))
 #define XVSHUF_D(vd, vj, vk)         EMIT(type_3R(0b01110101011110111, vk, vj, vd))
 #define XVPERM_W(vd, vj, vk)         EMIT(type_3R(0b01110101011111010, vk, vj, vd))
+#define XVPERMI_W(vd, vj, imm8)      EMIT(type_2RI8(0b01110111111001, imm8, vj, vd))
+#define XVPERMI_D(vd, vj, imm8)      EMIT(type_2RI8(0b01110111111010, imm8, vj, vd))
+#define XVPERMI_Q(vd, vj, imm8)      EMIT(type_2RI8(0b01110111111011, imm8, vj, vd))
+
+#define VEXT2XV_H_B(vd, vj)          EMIT(type_2R(0b0111011010011111000100, vj, vd))
+#define VEXT2XV_W_B(vd, vj)          EMIT(type_2R(0b0111011010011111000101, vj, vd))
+#define VEXT2XV_D_B(vd, vj)          EMIT(type_2R(0b0111011010011111000110, vj, vd))
+#define VEXT2XV_W_H(vd, vj)          EMIT(type_2R(0b0111011010011111000111, vj, vd))
+#define VEXT2XV_D_H(vd, vj)          EMIT(type_2R(0b0111011010011111001000, vj, vd))
+#define VEXT2XV_D_W(vd, vj)          EMIT(type_2R(0b0111011010011111001001, vj, vd))
+#define VEXT2XV_HU_BU(vd, vj)        EMIT(type_2R(0b0111011010011111001010, vj, vd))
+#define VEXT2XV_WU_BU(vd, vj)        EMIT(type_2R(0b0111011010011111001011, vj, vd))
+#define VEXT2XV_DU_BU(vd, vj)        EMIT(type_2R(0b0111011010011111001100, vj, vd))
+#define VEXT2XV_WU_HU(vd, vj)        EMIT(type_2R(0b0111011010011111001101, vj, vd))
+#define VEXT2XV_DU_HU(vd, vj)        EMIT(type_2R(0b0111011010011111001110, vj, vd))
+#define VEXT2XV_DU_WU(vd, vj)        EMIT(type_2R(0b0111011010011111001111, vj, vd))
 
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LBT extension instructions

@@ -121,6 +121,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     VPICKOD_H(v1, q1, q0);
                     VSADD_H(q0, v0, v1);
                     break;
+                case 0x04:
+                    INST_NAME("PMADDUBSW Gx,Ex");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    VEXT2XV_HU_BU(v0, q0);
+                    VEXT2XV_H_B(v1, q1);
+                    XVMUL_H(v0, v0, v1);
+                    XVPERMI_Q(v1, v0, 1); // v1[127:0] = v0[255:128];
+                    VPICKEV_H(q0, v1, v0);
+                    VPICKOD_H(v0, v1, v0);
+                    VSADD_H(q0, v0, q0);
+                    break;
                 default:
                     DEFAULT;
             }
