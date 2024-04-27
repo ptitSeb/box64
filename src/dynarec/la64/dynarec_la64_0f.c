@@ -170,6 +170,47 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITE2();
             }
             break;
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if (opcode == 0x2F) {
+                INST_NAME("COMISS Gx, Ex");
+            } else {
+                INST_NAME("UCOMISS Gx, Ex");
+            }
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGX(d0, 0);
+            GETEXSS(v0, 0, 0);
+            CLEAR_FLAGS(x2);
+            // if isnan(d0) || isnan(v0)
+            IFX (X_ZF | X_PF | X_CF) {
+                FCMP_S(fcc0, d0, v0, cUN);
+                BCEQZ_MARK(fcc0);
+                ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
+                B_MARK3_nocond;
+            }
+            MARK;
+            // else if isless(d0, v0)
+            IFX (X_CF) {
+                FCMP_S(fcc1, d0, v0, cLT);
+                BCEQZ_MARK2(fcc1);
+                ORI(xFlags, xFlags, 1 << F_CF);
+                B_MARK3_nocond;
+            }
+            MARK2;
+            // else if d0 == v0
+            IFX (X_ZF) {
+                FCMP_S(fcc2, d0, v0, cEQ);
+                BCEQZ_MARK3(fcc2);
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            MARK3;
+            IFX (X_ALL) {
+                SPILL_EFLAGS();
+            }
+            break;
         #define GO(GETFLAGS, NO, YES, F, I)                                                          \
             READFLAGS(F);                                                                            \
             if (la64_lbt) {                                                                          \
