@@ -80,41 +80,69 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
-            // TODO: fastnan handling
             GETGX(v0, 1);
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FADD_D(d0, v0, v1);
+            if (!box64_dynarec_fastnan) {
+                FCMP_D(fcc0, v0, v1, cUN);
+                BCNEZ_MARK(fcc0);
+                FCMP_D(fcc1, d0, d0, cOR);
+                BCNEZ_MARK(fcc1);
+                FNEG_D(d0, d0);
+            }
+            MARK;
             VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
-            // TODO: fastnan handling
             GETGX(v0, 1);
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FMUL_D(d0, v0, v1);
+            if (!box64_dynarec_fastnan) {
+                FCMP_D(fcc0, v0, v1, cUN);
+                BCNEZ_MARK(fcc0);
+                FCMP_D(fcc1, d0, d0, cOR);
+                BCNEZ_MARK(fcc1);
+                FNEG_D(d0, d0);
+            }
+            MARK;
             VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
-            // TODO: fastnan handling
             GETGX(v0, 1);
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FSUB_D(d0, v0, v1);
+            if (!box64_dynarec_fastnan) {
+                FCMP_D(fcc0, v0, v1, cUN);
+                BCNEZ_MARK(fcc0);
+                FCMP_D(fcc1, d0, d0, cOR);
+                BCNEZ_MARK(fcc1);
+                FNEG_D(d0, d0);
+            }
+            MARK;
             VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
-            // TODO: fastnan handling
             GETGX(v0, 1);
             GETEXSD(v1, 0);
             d0 = fpu_get_scratch(dyn);
             FDIV_D(d0, v0, v1);
+            if (!box64_dynarec_fastnan) {
+                FCMP_D(fcc0, v0, v1, cUN);
+                BCNEZ_MARK(fcc0);
+                FCMP_D(fcc1, d0, d0, cOR);
+                BCNEZ_MARK(fcc1);
+                FNEG_D(d0, d0);
+            }
+            MARK;
             VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
             break;
         default:
