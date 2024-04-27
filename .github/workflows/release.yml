@@ -138,9 +138,9 @@ jobs:
         if: ${{ matrix.platform != 'TEGRAX1' }}
         run: |
           if [[ ${{ matrix.platform }} != 'X64' ]]; then
-            mkdir qemu8.1.0
-            wget -O- -q https://archive.archlinux.org/packages/q/qemu-user-static/qemu-user-static-8.1.0-2-x86_64.pkg.tar.zst | tar -I zstd -C qemu8.1.0 -xf -
-            sudo cp qemu8.1.0/usr/bin/* /usr/bin/
+            mkdir qemu9.0.0
+            wget -O- -q https://archive.archlinux.org/packages/q/qemu-user-static/qemu-user-static-9.0.0-1-x86_64.pkg.tar.zst | tar -I zstd -C qemu9.0.0 -xf -
+            sudo cp qemu9.0.0/usr/bin/* /usr/bin/
           fi
 
           cd build
