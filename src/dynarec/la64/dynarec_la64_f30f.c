@@ -141,6 +141,21 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FDIV_S(d1, v0, d0);
             VEXTRINS_W(v0, d1, 0);
             break;
+        case 0x5F:
+            INST_NAME("MAXSS Gx, Ex");
+            nextop = F8;
+            GETGX(d0, 1);
+            GETEXSS(d1, 0, 0);
+            FCMP_S(fcc0, d0, d1, cUN);
+            BCNEZ_MARK(fcc0);
+            FCMP_S(fcc1, d0, d1, cLT);
+            BCEQZ_MARK2(fcc1);
+            MARK;
+            v1 = fpu_get_scratch(dyn);
+            FMOV_S(v1, d1);
+            VEXTRINS_W(d0, v1, 0);
+            MARK2;
+            break;
         case 0x6F:
             INST_NAME("MOVDQU Gx, Ex");
             nextop = F8;
