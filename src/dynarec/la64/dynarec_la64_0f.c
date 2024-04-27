@@ -139,6 +139,22 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             FAKEED;
             break;
+        case 0x28:
+            INST_NAME("MOVAPS Gx,Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VOR_V(v0, v1, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VLD(v0, ed, fixedaddress);
+            }
+            break;
         case 0x29:
             INST_NAME("MOVAPS Ex,Gx");
             nextop = F8;
@@ -152,6 +168,47 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
                 SMWRITE2();
+            }
+            break;
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if (opcode == 0x2F) {
+                INST_NAME("COMISS Gx, Ex");
+            } else {
+                INST_NAME("UCOMISS Gx, Ex");
+            }
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGX(d0, 0);
+            GETEXSS(v0, 0, 0);
+            CLEAR_FLAGS(x2);
+            // if isnan(d0) || isnan(v0)
+            IFX (X_ZF | X_PF | X_CF) {
+                FCMP_S(fcc0, d0, v0, cUN);
+                BCEQZ_MARK(fcc0);
+                ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
+                B_MARK3_nocond;
+            }
+            MARK;
+            // else if isless(d0, v0)
+            IFX (X_CF) {
+                FCMP_S(fcc1, d0, v0, cLT);
+                BCEQZ_MARK2(fcc1);
+                ORI(xFlags, xFlags, 1 << F_CF);
+                B_MARK3_nocond;
+            }
+            MARK2;
+            // else if d0 == v0
+            IFX (X_ZF) {
+                FCMP_S(fcc2, d0, v0, cEQ);
+                BCEQZ_MARK3(fcc2);
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            MARK3;
+            IFX (X_ALL) {
+                SPILL_EFLAGS();
             }
             break;
         #define GO(GETFLAGS, NO, YES, F, I)                                                          \
@@ -511,10 +568,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGX(v0, 1);
             GETEX(v1, 0, 1);
             u8 = F8;
-            if (v0 != v1) {
-                VEXTRINS_D(v0, v1, 0x11); // v0[127:64] = v1[127:64]
+            if (v0 == v1) {
+                VSHUF4I_W(v0, v0, u8);
+            } else {
+                q1 = fpu_get_scratch(dyn);
+                VSHUF4I_W(v0, v0, u8);
+                VSHUF4I_W(q1, v1, u8);
+                VEXTRINS_D(v0, q1, 0x11); // v0[127:64] = q1[127:64]
             }
-            VSHUF4I_W(v0, v0, u8);
             break;
         case 0xC8:
         case 0xC9:

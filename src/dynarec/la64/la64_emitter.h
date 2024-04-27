@@ -109,6 +109,38 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define wZR     xZR
 #define r0      xZR
 
+#define fcc0 0
+#define fcc1 1
+#define fcc2 2
+#define fcc3 3
+#define fcc4 4
+#define fcc5 5
+#define fcc6 6
+#define fcc7 7
+
+#define cAF  0x0
+#define cUN  0x8
+#define cEQ  0x4
+#define cUEQ 0xC
+#define cLT  0x2
+#define cULT 0xA
+#define cLE  0x6
+#define cULE 0xE
+#define cNE  0x10
+#define cOR  0x14
+#define cUNE 0x18
+#define sAF  0x1
+#define sUN  0x9
+#define sEQ  0x5
+#define sUEQ 0xD
+#define sLT  0x3
+#define sULT 0xB
+#define sLE  0x7
+#define sULE 0xF
+#define sNE  0x11
+#define sOR  0x15
+#define sUNE 0x19
+
 // split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
 #define SPLIT20(A) (((A) + 0x800) >> 12)
 #define SPLIT12(A) ((A) & 0xfff)
@@ -508,7 +540,10 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define BEQZ(rj, imm23) EMIT(type_1RI21(0b010000, ((imm23)>>2), rj))
 // if GR[rj] != 0:
 //     PC = PC + SignExtend({imm21, 2'b0}, GRLEN)
-#define BNEZ(rj, imm23) EMIT(type_1RI21(0b010001, ((imm23)>>2), rj))
+#define BNEZ(rj, imm23) EMIT(type_1RI21(0b010001, ((imm23) >> 2), rj))
+
+#define BCEQZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23)>>2), 0b00000 | cj))
+#define BCNEZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23)>>2), 0b01000 | cj))
 
 // GR[rd] = PC + 4
 // PC = GR[rj] + SignExtend({imm16, 2'b0}, GRLEN)

@@ -56,6 +56,22 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             FAKEED;
             break;
+        case 0x28:
+            INST_NAME("MOVAPD Gx,Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VOR_V(v0, v1, v1);
+            } else {
+                SMREAD();
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VLD(v0, ed, fixedaddress);
+            }
+            break;
         case 0x61:
             INST_NAME("PUNPCKLWD Gx,Ex");
             nextop = F8;
@@ -119,6 +135,31 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 VLD(v0, ed, fixedaddress);
+            }
+            break;
+        case 0x7E:
+            INST_NAME("MOVD Ed,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if (rex.w) {
+                if (MODREG) {
+                    ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                    MOVFR2GR_D(ed, v0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                    FST_D(v0, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            } else {
+                if (MODREG) {
+                    ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                    MOVFR2GR_S(ed, v0);
+                    ZEROUP(ed);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                    FST_S(v0, ed, fixedaddress);
+                    SMWRITE2();
+                }
             }
             break;
         case 0xBE:

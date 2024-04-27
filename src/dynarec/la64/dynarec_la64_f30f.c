@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -107,6 +108,30 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FMUL_S(d1, v0, d0);
             VEXTRINS_W(v0, d1, 0);
             break;
+        case 0x5A:
+            INST_NAME("CVTSS2SD Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEXSS(v1, 0, 0);
+            d1 = fpu_get_scratch(dyn);
+            FCVT_D_S(d1, v1);
+            VEXTRINS_D(v0, d1, 0);
+            break;
+        case 0x5D:
+            INST_NAME("MINSS Gx, Ex");
+            nextop = F8;
+            GETGX(d0, 1);
+            GETEXSS(d1, 0, 0);
+            FCMP_S(fcc0, d0, d1, cUN);
+            BCNEZ_MARK(fcc0);
+            FCMP_S(fcc1, d1, d0, cLT);
+            BCEQZ_MARK2(fcc1);
+            MARK;
+            v1 = fpu_get_scratch(dyn);
+            FMOV_S(v1, d1);
+            VEXTRINS_W(d0, v1, 0);
+            MARK2;
+            break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
@@ -115,6 +140,21 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEXSS(d0, 0, 0);
             FDIV_S(d1, v0, d0);
             VEXTRINS_W(v0, d1, 0);
+            break;
+        case 0x5F:
+            INST_NAME("MAXSS Gx, Ex");
+            nextop = F8;
+            GETGX(d0, 1);
+            GETEXSS(d1, 0, 0);
+            FCMP_S(fcc0, d0, d1, cUN);
+            BCNEZ_MARK(fcc0);
+            FCMP_S(fcc1, d0, d1, cLT);
+            BCEQZ_MARK2(fcc1);
+            MARK;
+            v1 = fpu_get_scratch(dyn);
+            FMOV_S(v1, d1);
+            VEXTRINS_W(d0, v1, 0);
+            MARK2;
             break;
         case 0x6F:
             INST_NAME("MOVDQU Gx, Ex");
@@ -144,6 +184,28 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FLD_D(v1, ed, fixedaddress);
             }
             VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            break;
+        case 0xC2:
+            INST_NAME("CMPSS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEXSS(v1, 0, 1);
+            u8 = F8;
+            switch (u8 & 7) {
+                case 0: FCMP_S(fcc0, v0, v1, cEQ); break;  // Equal
+                case 1: FCMP_S(fcc0, v0, v1, cLT); break;  // Less than
+                case 2: FCMP_S(fcc0, v0, v1, cLE); break;  // Less or equal
+                case 3: FCMP_S(fcc0, v0, v1, cUN); break;  // NaN
+                case 4: FCMP_S(fcc0, v0, v1, cUNE); break; // Not Equal or unordered
+                case 5: FCMP_S(fcc0, v1, v0, cULE); break; // Greater or equal or unordered
+                case 6: FCMP_S(fcc0, v1, v0, cULT); break; // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                case 7: FCMP_S(fcc0, v0, v1, cOR); break;  // not NaN
+            }
+            MOVCF2GR(x2, fcc0);
+            NEG_D(x2, x2);
+            q1 = fpu_get_scratch(dyn);
+            MOVGR2FR_W(q1, x2);
+            VEXTRINS_W(v0, q1, 0);
             break;
         default:
             DEFAULT;
