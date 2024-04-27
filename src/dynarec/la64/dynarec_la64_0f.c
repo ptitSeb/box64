@@ -139,6 +139,22 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             FAKEED;
             break;
+        case 0x28:
+            INST_NAME("MOVAPS Gx,Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VOR_V(v0, v1, v1);
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VLD(v0, ed, fixedaddress);
+            }
+            break;
         case 0x29:
             INST_NAME("MOVAPS Ex,Gx");
             nextop = F8;
