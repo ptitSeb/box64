@@ -542,8 +542,10 @@ void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet
 	et->fnc = (uintptr_t)f;
 	et->arg = arg;
 	#ifdef DYNAREC
-	// pre-creation of the JIT code for the entry point of the thread
-	DBGetBlock(emu, (uintptr_t)f, 1, 0);	// function wrapping are 64bits only on box64
+	if(box64_dynarec) {
+		// pre-creation of the JIT code for the entry point of the thread
+		DBGetBlock(emu, (uintptr_t)f, 1, 0);	// function wrapping are 64bits only on box64
+	}
 	#endif
 	*pet =  et;
 	return pthread_routine;
