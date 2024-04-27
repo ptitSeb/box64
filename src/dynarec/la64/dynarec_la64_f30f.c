@@ -185,6 +185,28 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
             break;
+        case 0xC2:
+            INST_NAME("CMPSS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEXSS(v1, 0, 1);
+            u8 = F8;
+            switch (u8 & 7) {
+                case 0: FCMP_S(fcc0, v0, v1, cEQ); break;  // Equal
+                case 1: FCMP_S(fcc0, v0, v1, cLT); break;  // Less than
+                case 2: FCMP_S(fcc0, v0, v1, cLE); break;  // Less or equal
+                case 3: FCMP_S(fcc0, v0, v1, cUN); break;  // NaN
+                case 4: FCMP_S(fcc0, v0, v1, cUNE); break; // Not Equal or unordered
+                case 5: FCMP_S(fcc0, v1, v0, cULE); break; // Greater or equal or unordered
+                case 6: FCMP_S(fcc0, v1, v0, cULT); break; // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                case 7: FCMP_S(fcc0, v0, v1, cOR); break;  // not NaN
+            }
+            MOVCF2GR(x2, fcc0);
+            NEG_D(x2, x2);
+            q1 = fpu_get_scratch(dyn);
+            MOVGR2FR_W(q1, x2);
+            VEXTRINS_W(v0, q1, 0);
+            break;
         default:
             DEFAULT;
     }
