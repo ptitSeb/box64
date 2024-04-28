@@ -23,7 +23,7 @@ const char* string3 = "is\0             ";
 const char* string4 = "maentrum-foo-bar";
 const char* string5 = "\0               ";
 const char* string6 = "bar-foo     \0   ";
-const char* string7 = " sihT foo  str  ";
+const char* string7 = " sihT foo  str i";
 
 typedef union {
         __m128i mm;
@@ -76,10 +76,10 @@ int main(int argc, const char** argv)
   #define GOE(A, LA, B, LB, C)          \
     ret = _mm_cmpestri(a.mm, LA, b.mm, LB, C);\
     printf("_mm_cmpestri(\"%s\", %d, \"%s\", %d, 0x%x) => %d\n", A, LA, B, LB, C, ret); \
-    GOFE(a.mm, LA, b.mm, LB, C);              \ 
+    GOFE(a.mm, LA, b.mm, LB, C);              \
     printf("_mm_cmpestri(\"%s\", %d, \"%s\", %d, 0x%x) flags: a:%d s:%d z:%d c:%d o:%d\n", A, LA, B, LB, C, fa, fs, fz, fc, fo); \
     c.mm = _mm_cmpestrm(a.mm, LA, b.mm, LB, C); \
-    printf("mm_cmpestrm(\"%s\", %d, \"%s\", %d, 0x%x) = %016x-%016x\n", A, LA, B, LB, C, c.u64[1], c.u64[0]); \
+    printf("_mm_cmpestrm(\"%s\", %d, \"%s\", %d, 0x%x) = %016x-%016x\n", A, LA, B, LB, C, c.u64[1], c.u64[0]); \
 
   #define GO1(A, B, C)  \
     GOE(A, strlen(A), B, strlen(B), C);       \
@@ -91,7 +91,7 @@ int main(int argc, const char** argv)
     GOFI(a.mm, b.mm, C);              \
     printf("_mm_cmpestri(\"%s\", \"%s\", 0x%x) flags: a:%d s:%d z:%d c:%d o:%d\n", A, B, C, fa, fs, fz, fc, fo); \
     c.mm = _mm_cmpistrm(a.mm, b.mm, C); \
-    printf("mm_cmpestrm(\"%s\", \"%s\", 0x%x) = %016x-%016x\n", A, B, C, c.u64[1], c.u64[0])
+    printf("_mm_cmpestrm(\"%s\", \"%s\", 0x%x) = %016x-%016x\n", A, B, C, c.u64[1], c.u64[0])
 
   #define GO(A, B, C)	\
     a = load_string(A); \
@@ -99,13 +99,19 @@ int main(int argc, const char** argv)
     GO1(A, B, C);	      \
     a = load_stringw(A);\
     b = load_stringw(B);\
-    GO1(A, B, C+1);	    \
+    GO1(A, B, C|1);	    \
     a = load_string(B); \
     b = load_string(A); \
     GO1(B, A, C);	      \
     a = load_stringw(B);\
     b = load_stringw(A);\
-    GO1(B, A, C+1)	    \
+    GO1(B, A, C|1);     \
+    a = load_string(B); \
+    b = load_string(A); \
+    GO1(B, A, C|64);	  \
+    a = load_stringw(B);\
+    b = load_stringw(A);\
+    GO1(B, A, C|1|64)	  \
 
   #define GO2(C) \
   GO(string1, string2, C); \
@@ -136,13 +142,17 @@ int main(int argc, const char** argv)
   GO2(0x08)
   GO2(0x0c)
   GO2(0x10)
+  GO2(0x14)
   GO2(0x18)
+  GO2(0x1c)
+  GO2(0x20)
+  GO2(0x24)
+  GO2(0x28)
+  GO2(0x2c)
   GO2(0x30)
-  GO2(0b1001100)
-  GO2(0b0101100)
-  GO2(0b0110100)
-  GO2(0b0110110)
-  GO2(0b1110100)
+  GO2(0x34)
+  GO2(0x38)
+  GO2(0x3c)
 
   unsigned int crc = 0;
   printf("crc32(0x%x, byte:0x%x) => ", crc, 0);

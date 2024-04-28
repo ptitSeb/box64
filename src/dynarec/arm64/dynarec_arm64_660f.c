@@ -1250,9 +1250,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     u8 = F8;
                     MOV32w(x5, u8);
                     CALL(sse42_compare_string_explicit_len, x1);
-                    q0 = sse_get_reg_empty(dyn, ninst, x2, gd);
-                    q1 = fpu_get_scratch(dyn);
+                    q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
+                        q1 = fpu_get_scratch(dyn);
                         switch(u8&1) {
                             case 0b00:
                                 VDUPQB(q0, x1); // load the low 8bits of the mask
@@ -1453,9 +1453,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     u8 = F8;
                     MOV32w(x3, u8);
                     CALL(sse42_compare_string_implicit_len, x1);
-                    q0 = sse_get_reg_empty(dyn, ninst, x2, gd);
-                    q1 = fpu_get_scratch(dyn);
+                    q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
+                        q1 = fpu_get_scratch(dyn);
                         switch(u8&1) {
                             case 0b00:
                                 VDUPQB(q0, x1); // load the low 8bits of the mask
