@@ -1127,12 +1127,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, GX, R_EAX, tmp8u);
                 if(tmp8u&0b1000000) {
                     switch(tmp8u&1) {
-                        case 0: for(int i=0; i<16; ++i) GX->ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
-                        case 1: for(int i=0; i<8; ++i) GX->uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                        case 0: for(int i=0; i<16; ++i) emu->xmm[0].ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                        case 1: for(int i=0; i<8; ++i) emu->xmm[0].uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
                     }
                 } else {
-                    GX->q[1] = GX->q[0] = 0;
-                    GX->uw[0] = tmp32u;
+                    emu->xmm[0].q[1] = emu->xmm[0].q[0] = 0;
+                    emu->xmm[0].uw[0] = tmp32u;
                 }
                 break;
             case 0x61:  /* PCMPESTRI */
@@ -1156,12 +1156,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 tmp32u = sse42_compare_string_implicit_len(emu, EX, GX, tmp8u);
                 if(tmp8u&0b1000000) {
                     switch(tmp8u&1) {
-                        case 0: for(int i=0; i<16; ++i) GX->ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
-                        case 1: for(int i=0; i<8; ++i) GX->uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                        case 0: for(int i=0; i<16; ++i) emu->xmm[0].ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                        case 1: for(int i=0; i<8; ++i) emu->xmm[0].uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
                     }
                 } else {
-                    GX->q[1] = GX->q[0] = 0;
-                    GX->uw[0] = tmp32u;
+                    emu->xmm[0].q[1] = emu->xmm[0].q[0] = 0;
+                    emu->xmm[0].uw[0] = tmp32u;
                 }
                 break;
             case 0x63:  /* PCMPISTRI */
