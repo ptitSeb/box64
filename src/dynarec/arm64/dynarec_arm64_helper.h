@@ -702,12 +702,12 @@
     LDRH_U12(s3, xEmu, offsetof(x64emu_t, sw));   /*offset is 8bits right?*/\
     MOV32w(s1, 0b0100011100000000);                                         \
     BICw_REG(s3, s3, s1);                                                   \
+    /* greater than leave 0 */                                              \
     CSETw(s1, cMI); /* 1 if less than, 0 else */                            \
-    MOV32w(s2, 0b01000101); /* unordered */                                 \
-    CSELw(s1, s2, s1, cVS);                                                 \
     MOV32w(s2, 0b01000000); /* zero */                                      \
     CSELw(s1, s2, s1, cEQ);                                                 \
-    /* greater than leave 0 */                                              \
+    MOV32w(s2, 0b01000101); /* unordered */                                 \
+    CSELw(s1, s2, s1, cVS);                                                 \
     ORRw_REG_LSL(s3, s3, s1, 8);                                            \
     STRH_U12(s3, xEmu, offsetof(x64emu_t, sw))
 
