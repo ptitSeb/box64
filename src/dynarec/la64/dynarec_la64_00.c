@@ -1723,6 +1723,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET);
+                    // TODO: handle zero divisor
                     if (!rex.w) {
                         SET_DFNONE();
                         GETED(0);
@@ -1765,6 +1766,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("IDIV Ed");
                     SKIPTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
+                    // TODO: handle zero divisor
                     if (!rex.w) {
                         SET_DFNONE()
                         GETSED(0);
