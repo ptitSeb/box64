@@ -190,8 +190,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             ok = 1;
             // we use the 1st predecessor here
             int ii = ninst+1;
-            if(ii<dyn->size && !dyn->insts[ii].pred_sz) {
-                while(ii<dyn->size && !dyn->insts[ii].pred_sz) {
+            if(ii<dyn->size && !dyn->insts[ii].x64.alive) {
+                while(ii<dyn->size && !dyn->insts[ii].x64.alive) {
                     // may need to skip opcodes to advance
                     ++ninst;
                     NEW_INST;

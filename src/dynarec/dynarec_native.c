@@ -298,23 +298,35 @@ int Table64(dynarec_native_t *dyn, uint64_t val, int pass)
     return delta;
 }
 
+static void recurse_mark_alive(dynarec_native_t* dyn, int i)
+{
+    if(dyn->insts[i].x64.alive)
+        return;
+    dyn->insts[i].x64.alive = 1;
+    if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts!=-1)
+        recurse_mark_alive(dyn, dyn->insts[i].x64.jmp_insts);
+    if(i<dyn->size-1 && dyn->insts[i].x64.has_next)
+        recurse_mark_alive(dyn, i+1);
+}
+
 static int sizePredecessors(dynarec_native_t* dyn)
 {
     int pred_sz = 1;    // to be safe
     // compute total size of predecessor to allocate the array
+    // mark alive...
+    recurse_mark_alive(dyn, 0);
     // first compute the jumps
+    int jmpto;
     for(int i=0; i<dyn->size; ++i) {
-        if(dyn->insts[i].x64.jmp && (dyn->insts[i].x64.jmp_insts!=-1)) {
+        if(dyn->insts[i].x64.alive && dyn->insts[i].x64.jmp && ((jmpto=dyn->insts[i].x64.jmp_insts)!=-1)) {
             pred_sz++;
-            dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz++;
+            dyn->insts[jmpto].pred_sz++;
         }
     }
     // remove "has_next" from orphan branch
     for(int i=0; i<dyn->size-1; ++i) {
-        if(!dyn->insts[i].x64.has_next) {
-            if(dyn->insts[i+1].x64.has_next && !dyn->insts[i+1].pred_sz)
-                dyn->insts[i+1].x64.has_next = 0;
-        }
+        if(dyn->insts[i].x64.has_next && !dyn->insts[i+1].x64.alive)
+            dyn->insts[i].x64.has_next = 0;
     }
     // second the "has_next"
     for(int i=0; i<dyn->size-1; ++i) {
@@ -335,7 +347,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
         dyn->insts[i].pred_sz=0;  // reset size, it's reused to actually fill pred[]
     }
     // fill pred
-    for(int i=0; i<dyn->size; ++i) {
+    for(int i=0; i<dyn->size; ++i) if(dyn->insts[i].x64.alive) {
         if((i!=dyn->size-1) && dyn->insts[i].x64.has_next)
             dyn->insts[i+1].pred[dyn->insts[i+1].pred_sz++] = i;
         if(dyn->insts[i].x64.jmp && (dyn->insts[i].x64.jmp_insts!=-1)) {

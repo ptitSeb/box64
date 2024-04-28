@@ -34,11 +34,12 @@ typedef struct instruction_x64_s {
     int32_t     size;       // size of the instruction
     uintptr_t   jmp;        // offset to jump to, even if conditionnal (0 if not), no relative offset here
     int         jmp_insts;  // instuction to jump to (-1 if out of the block)
-    uint8_t     jmp_cond;   // 1 of conditionnal jump
-    uint8_t     has_next;   // does this opcode can continue to the next?
+    uint8_t     jmp_cond:1;   // 1 of conditionnal jump
+    uint8_t     has_next:1;   // does this opcode can continue to the next?
+    uint8_t     has_callret:1;    // this instruction have an optimised call setup
+    uint8_t     alive:1;    // this opcode gets executed (0 if dead code in that block)
     uint8_t     barrier;    // next instruction is a jump point, so no optim allowed
     uint8_t     barrier_next;   // next instruction needs a barrier
-    uint8_t     has_callret;    // this instruction have an optimised call setup
     uint8_t     state_flags;// One of SF_XXX state
     uint8_t     use_flags;  // 0 or combination of X_?F
     uint8_t     set_flags;  // 0 or combination of X_?F
