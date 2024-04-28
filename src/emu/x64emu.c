@@ -437,6 +437,8 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
             while(c--) strcat(buff, " ");
             if(i==3) strcat(buff, "\n");
         }
+        sprintf(tmp, " C3210 = %d%d%d%d", emu->sw.f.F87_C3, emu->sw.f.F87_C2, emu->sw.f.F87_C1, emu->sw.f.F87_C0);
+        strcat(buff, tmp);
         strcat(buff, "\n");
     }
     for (int i=0; i<6; ++i) {
