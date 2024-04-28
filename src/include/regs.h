@@ -233,12 +233,12 @@ typedef union {
         uint16_t F87_PE:1;
         uint16_t F87_SF:1;
         uint16_t F87_ES:1;
-        uint16_t F87_C0:1;
-		uint16_t F87_C1:1;
-		uint16_t F87_C2:1;
-		uint16_t F87_TOP:3;
-		uint16_t F87_C3:1;
-		uint16_t F87_B:1;
+        uint16_t F87_C0:1;	// bit 8
+		uint16_t F87_C1:1;	// bit 9
+		uint16_t F87_C2:1;	// bit 10
+		uint16_t F87_TOP:3; // bits 11-13
+		uint16_t F87_C3:1;	// bit 14
+		uint16_t F87_B:1;	// bit 15
     } f;
     uint16_t    x16;
 } x87flags_t;
