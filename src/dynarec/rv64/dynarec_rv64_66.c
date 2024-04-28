@@ -1215,6 +1215,16 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SLLI(x3, xRDX, 48);
                     SRLI(x3, x3, 32);
                     OR(x2, x2, x3);
+                    if(box64_dynarec_div0) {
+                        BNE_MARK3(ed, xZR);
+                        GETIP_(ip);
+                        STORE_XEMU_CALL(x6);
+                        CALL(native_div0, -1);
+                        CLEARIP();
+                        LOAD_XEMU_CALL();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
                     DIVUW(x3, x2, ed);
                     REMUW(x4, x2, ed);
                     MOV64x(x5, ~0xffff);
@@ -1231,6 +1241,16 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     NOTEST(x1);
                     SETFLAGS(X_ALL, SF_SET);
                     GETSEW(x1, 0);
+                    if(box64_dynarec_div0) {
+                        BNE_MARK3(ed, xZR);
+                        GETIP_(ip);
+                        STORE_XEMU_CALL(x6);
+                        CALL(native_div0, -1);
+                        CLEARIP();
+                        LOAD_XEMU_CALL();
+                        jump_to_epilog(dyn, 0, xRIP, ninst);
+                        MARK3;
+                    }
                     ZEXTH(x2, xRAX);
                     SLLI(x3, xRDX, 48);
                     SRLI(x3, x3, 32);
