@@ -76,7 +76,8 @@ typedef struct blocklist_s {
     void*               first;
 } blocklist_t;
 
-#define MMAPSIZE (64*1024)      // allocate 64b sized blocks
+#define MMAPSIZE (64*1024)      // allocate 64kb sized blocks
+#define DYNMMAPSZ (2*1024*1024) // allocate 2Mb block for dynarec
 
 static int                 n_blocks = 0;       // number of blocks for custom malloc
 static int                 c_blocks = 0;       // capacity of blocks for custom malloc
@@ -584,7 +585,7 @@ uintptr_t AllocDynarecMap(size_t size)
         // check if new
         if(!list->chunks[i].size) {
             // alloc a new block, aversized or not, we are at the end of the list
-            size_t allocsize = (sz>MMAPSIZE)?sz:MMAPSIZE;
+            size_t allocsize = (sz>DYNMMAPSZ)?sz:DYNMMAPSZ;
             // allign sz with pagesize
             allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
             #ifndef USE_MMAP
@@ -595,11 +596,26 @@ uintptr_t AllocDynarecMap(size_t size)
             }
             mprotect(p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
             #else
-            void* p = internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-            if(p==(void*)-1) {
+            void* p=MAP_FAILED;
+            // disabling for now. explicit hugepage needs to be enabled to be used on userspace 
+            // with`/sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages` as the number of allowaed 2M huge page
+            // At least with a 2M allocation, transparent huge page should kick-in
+            #if 0//def MAP_HUGETLB
+            if(allocsize==DYNMMAPSZ) {
+                p = internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE|MAP_HUGETLB, -1, 0);
+                if(p!=MAP_FAILED) printf_log(LOG_INFO, "Allocated a dynarec memory block with HugeTLB\n");
+                else printf_log(LOG_INFO, "Failled to allocated a dynarec memory block with HugeTLB (%s)\n", strerror(errno));
+            }
+            #endif
+            if(p==MAP_FAILED)
+                p = internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+            if(p==MAP_FAILED) {
                 dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes (%s)\n", allocsize, strerror(errno));
                 return 0;
             }
+            #ifdef MADV_HUGEPAGE
+            madvise(p, allocsize, MADV_HUGEPAGE);
+            #endif
             #endif
 #ifdef TRACE_MEMSTAT
             dynarec_allocated += allocsize;
