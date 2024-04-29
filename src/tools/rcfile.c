@@ -549,8 +549,10 @@ void ApplyParams(const char* name)
         cycle_log = new_cycle_log;
         initCycleLog(my_context);
     }
+    #ifdef DYNAREC
     if(param->is_box64_dynarec_jvm_present && !param->is_box64_jvm_present)
         box64_jvm = box64_dynarec_jvm;
+    #endif
     if(!box64_maxcpu_immutable) {
         if(new_maxcpu!=box64_maxcpu && box64_maxcpu && box64_maxcpu<new_maxcpu) {
         printf_log(LOG_INFO, "Not applying BOX64_MAXCPU=%d because a lesser value is already active: %d\n", new_maxcpu, box64_maxcpu);
