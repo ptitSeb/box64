@@ -2070,6 +2070,13 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         STRw_U12(s3, xEmu, offsetof(x64emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
         LDRw_U12(s3, xEmu, offsetof(x64emu_t, top));
+        if(a>0) {
+            SUBw_U12(s3, s3, a);
+        } else {
+            ADDw_U12(s3, s3, -a);
+        }
+        ANDw_mask(s3, s3, 0, 2);   //mask=7
+        STRw_U12(s3, xEmu, offsetof(x64emu_t, top));
         // update tags
         LDRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
         if(a>0) {
@@ -2079,7 +2086,6 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
             LSRw_IMM(s2, s2, -a*2);
         }
         STRH_U12(s2, xEmu, offsetof(x64emu_t, fpu_tags));
-        STRw_U12(s3, xEmu, offsetof(x64emu_t, top));
         s3_top = 0;
         stack_cnt = cache_i2.stack;
     }
