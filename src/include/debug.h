@@ -30,7 +30,6 @@ extern int box64_dynarec_div0;
 extern int box64_dynarec_safeflags;
 extern int box64_dynarec_callret;
 extern int box64_dynarec_bleeding_edge;
-extern int box64_dynarec_jvm;
 extern int box64_dynarec_tbb;
 extern int box64_dynarec_wait;
 extern int box64_dynarec_missing;
@@ -69,6 +68,7 @@ extern int la64_scq;
 #endif
 #endif
 extern int box64_libcef;
+extern int box64_jvm;
 extern int box64_sdl2_jguid;
 extern int dlsym_error;    // log dlsym error
 extern int cycle_log;      // if using rolling logs

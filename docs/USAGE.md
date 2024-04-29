@@ -207,9 +207,9 @@ Detect MonoBleedingEdge and apply conservative settings
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
 
 #### BOX64_DYNAREC_JVM *
-Detect libjvm and apply conservative settings
+Detect libjvm and apply conservative settings. Obsolete, use BOX64_JVM instead.
 * 0 : Don't detect libjvm
-* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 SSE42=0 if detected (Default)
 
 #### BOX64_DYNAREC_WAIT *
 Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
@@ -245,6 +245,11 @@ Box64 will sync rounding mode with fesetround/fegetround.
 Detect libcef and apply malloc_hack settings
 * 0 : Don't detect libcef
 * 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
+
+#### BOX64_JVM *
+Detect libjvm and apply conservative settings
+* 0 : Don't detect libjvm
+* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 SSE42=0 if detected (Default)
 
 #### BOX64_SDL2_JGUID *
 Need a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2

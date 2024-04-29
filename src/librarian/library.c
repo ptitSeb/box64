@@ -339,7 +339,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             box64_dynarec_strongmem = 3;
         }
         #endif
-        if(libname && box64_dynarec_jvm && strstr(libname, "libjvm.so")) {
+        if(libname && box64_jvm && strstr(libname, "libjvm.so")) {
             #ifdef DYNAREC
             printf_dump(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem, hide SSE 4.2\n");
             box64_dynarec_bigblock = 0;

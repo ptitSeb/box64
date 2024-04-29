@@ -79,7 +79,6 @@ int box64_dynarec_fastround = 1;
 int box64_dynarec_safeflags = 1;
 int box64_dynarec_callret = 0;
 int box64_dynarec_bleeding_edge = 1;
-int box64_dynarec_jvm = 1;
 int box64_dynarec_tbb = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_missing = 0;
@@ -123,6 +122,7 @@ int la64_scq = 0;
 int box64_dynarec = 0;
 #endif
 int box64_libcef = 1;
+int box64_jvm = 1;
 int box64_sdl2_jguid = 0;
 int dlsym_error = 0;
 int cycle_log = 0;
@@ -727,9 +727,9 @@ void LoadLogEnv()
     if(p) {
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='1')
-                box64_dynarec_jvm = p[0]-'0';
+                box64_jvm = p[0]-'0';
         }
-        if(!box64_dynarec_jvm)
+        if(!box64_jvm)
             printf_log(LOG_INFO, "Dynarec will not detect libjvm\n");
     }
     p = getenv("BOX64_DYNAREC_TBB");
@@ -844,6 +844,15 @@ void LoadLogEnv()
         }
         if(!box64_libcef)
             printf_log(LOG_INFO, "BOX64 will not detect libcef\n");
+    }
+    p = getenv("BOX64_JVM");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_jvm = p[0]-'0';
+        }
+        if(!box64_jvm)
+            printf_log(LOG_INFO, "BOX64 will not detect libjvm\n");
     }
     p = getenv("BOX64_SDL2_JGUID");
     if(p) {
