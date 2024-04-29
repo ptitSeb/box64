@@ -597,6 +597,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 else
                     GX->f[i] = 1.0f/sqrtf(EX->f[i]);
             }
+            #ifdef TEST_INTERPRETER
+            *notest = 1;
+            #endif
             break;
         case 0x53:                      /* RCPPS Gx, Ex */
             nextop = F8;
@@ -604,6 +607,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETGX;
             for(int i=0; i<4; ++i)
                 GX->f[i] = 1.0f/EX->f[i];
+            #ifdef TEST_INTERPRETER
+            *notest = 1;
+            #endif
             break;
         case 0x54:                      /* ANDPS Gx, Ex */
             nextop = F8;

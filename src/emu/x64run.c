@@ -1873,6 +1873,9 @@ x64emurun:
                     if(!EB->byte[0])
                         emit_div0(emu, (void*)R_RIP, 0);
                     idiv8(emu, EB->byte[0]);
+                    #ifdef TEST_INTERPRETER
+                    *notest = 1;
+                    #endif
                     break;
             }
             break;
@@ -1908,6 +1911,9 @@ x64emurun:
                         if(!ED->q[0])
                             emit_div0(emu, (void*)R_RIP, 0);
                         idiv64(emu, ED->q[0]);
+                        #ifdef TEST_INTERPRETER
+                        *notest = 1;
+                        #endif
                         break;
                 }
             } else {
