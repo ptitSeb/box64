@@ -96,6 +96,7 @@ ENTRYBOOL(BOX64_CRASHHANDLER, box64_dummy_crashhandler) \
 ENTRYBOOL(BOX64_NOPULSE, box64_nopulse)                 \
 ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \
 ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
+ENTRYBOOL(BOX64_SSE42, box64_sse42)                     \
 ENTRYBOOL(BOX64_FUTEX_WAITV, box64_futex_waitv)         \
 ENTRYSTRING_(BOX64_BASH, bash)                          \
 ENTRYINT(BOX64_JITGDB, jit_gdb, 0, 3, 2)                \

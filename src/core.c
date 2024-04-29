@@ -147,6 +147,7 @@ int box64_prefer_wrapped = 0;
 int box64_sse_flushto0 = 0;
 int box64_x87_no80bits = 0;
 int box64_sync_rounding = 0;
+int box64_sse42 = 1;
 int fix_64bit_inodes = 0;
 int box64_dummy_crashhandler = 1;
 int box64_mapclean = 0;
@@ -969,6 +970,15 @@ void LoadLogEnv()
         if(!box64_futex_waitv)
             printf_log(LOG_INFO, "Disable the use of futex waitv syscall\n");
         #endif
+    }
+    p = getenv("BOX64_SSE42");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_sse42 = p[0]-'0';
+        }
+        if(!box64_sse42)
+            printf_log(LOG_INFO, "Do not expose SSE 4.2 capabilities\n");
     }
     p = getenv("BOX64_FIX_64BIT_INODES");
     if(p) {
