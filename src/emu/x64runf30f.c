@@ -24,7 +24,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t TestF30F(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t TestF30F(x64test_t *test, rex_t rex, uintptr_t addr, int *notest)
 #else
 uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif

@@ -781,7 +781,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_TEST");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
+            if(p[0]>='0' && p[0]<='2')
                 box64_dynarec_test = p[0]-'0';
         }
         if(box64_dynarec_test) {
@@ -790,7 +790,9 @@ void LoadLogEnv()
             box64_dynarec_x87double = 1;
             box64_dynarec_div0 = 1;
             box64_dynarec_callret = 0;
-            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
+            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter%s (%s slow, only for testing)\n",
+                                 box64_dynarec_test == 2 ? " thread-safely" : "",
+                                 box64_dynarec_test == 2 ? "extremely" : "super");
         }
     }
 

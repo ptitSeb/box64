@@ -46,7 +46,7 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 }
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test660F(x64test_t *test, rex_t rex, uintptr_t addr)
+uintptr_t Test660F(x64test_t *test, rex_t rex, uintptr_t addr, int *notest)
 #else
 uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #endif

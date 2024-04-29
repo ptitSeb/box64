@@ -22,6 +22,7 @@
 #include "rcfile.h"
 #include "gltools.h"
 #include "rbtree.h"
+#include "dynarec.h"
 
 EXPORTDYN
 void initAllHelpers(box64context_t* context)
@@ -211,6 +212,10 @@ box64context_t *NewBox64Context(int argc)
     context->sel_serial = 1;
 
     init_custommem_helper(context);
+
+    #ifdef DYNAREC
+    x64test_init();
+    #endif
 
     context->maplib = NewLibrarian(context);
     context->local_maplib = NewLibrarian(context);

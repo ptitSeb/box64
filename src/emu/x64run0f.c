@@ -31,7 +31,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step)
+uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step, int *notest)
 #else
 uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 #endif
@@ -93,6 +93,8 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 case 0xD0:
                     #ifndef TEST_INTERPRETER
                     emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                    #else
+                    *notest = 1;
                     #endif
                     break;
                 case 0xE0:
@@ -112,6 +114,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     R_RAX = tmp64u & 0xffffffff;
                     R_RDX = tmp64u >> 32;
                     R_RCX = 0;  // should be low of IA32_TSC
+                    #ifdef TEST_INTERPRETER
+                    *notest = 1;
+                    #endif
                     break;
                 default:
                     return 0;
@@ -146,6 +151,8 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             #ifndef TEST_INTERPRETER
             R_RIP = addr;
             x64Syscall(emu);
+            #else
+            *notest = 1;
             #endif
             break;
         case 0x06:                      /* CLTS */
@@ -160,12 +167,16 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
+            #else
+            *notest = 1;
             #endif
             break;
 
         case 0x0B:                      /* UD2 */
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #else
+            *notest = 1;
             #endif
             break;
 
@@ -183,6 +194,8 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x0E:                      /* FEMMS */
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            #else
+            *notest = 1;
             #endif
             break;
 
@@ -374,6 +387,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 tmp64u<<=box64_rdtsc_shift;
             R_RDX = tmp64u>>32;
             R_RAX = tmp64u&0xFFFFFFFF;
+            #ifdef TEST_INTERPRETER
+            *notest = 1;
+            #endif
             break;
 
         case 0x38:  // these are some SSE3 opcodes
@@ -953,6 +969,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
+            #ifdef TEST_INTERPRETER
+            *notest = 1;
+            #endif
             , addr += tmp32s;
             ,,
         )                               /* 0x80 -> 0x8F Jxx */ //STEP3
@@ -979,6 +998,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0xA2:                      /* CPUID */
             tmp32u = R_EAX;
             my_cpuid(emu, tmp32u);
+            #ifdef TEST_INTERPRETER
+            *notest = 1;
+            #endif
             break;
         case 0xA3:                      /* BT Ed,Gd */
             CHECK_FLAGS(emu);

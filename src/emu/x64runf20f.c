@@ -24,7 +24,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t TestF20F(x64test_t *test, rex_t rex, uintptr_t addr, int *step)
+uintptr_t TestF20F(x64test_t *test, rex_t rex, uintptr_t addr, int *step, int *notest)
 #else
 uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 #endif

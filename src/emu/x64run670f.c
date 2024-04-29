@@ -28,7 +28,7 @@
 #include "x64compstrings.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test670F(x64test_t *test, rex_t rex, int rep, uintptr_t addr)
+uintptr_t Test670F(x64test_t *test, rex_t rex, int rep, uintptr_t addr, int *notest)
 #else
 uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 #endif

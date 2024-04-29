@@ -23,7 +23,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test6764_32(x64test_t *test, rex_t rex, int rep, int seg, uintptr_t addr)
+uintptr_t Test6764_32(x64test_t *test, rex_t rex, int rep, int seg, uintptr_t addr, int *notest)
 #else
 uintptr_t Run6764_32(x64emu_t *emu, rex_t rex, int rep, int seg, uintptr_t addr)
 #endif
