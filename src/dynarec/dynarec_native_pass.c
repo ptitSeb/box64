@@ -102,7 +102,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 }
             }
             reset_n = -1;
-        } 
+        }
         #if STEP > 0
         else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
             dyn->last_ip = 0;   // reset IP if some jump are coming here
@@ -122,9 +122,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }
         if(box64_dynarec_test) {
-            MESSAGE(LOG_DUMP, "TEST INIT ----\n");
+            MESSAGE(LOG_DUMP, "TEST STEP ----\n");
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
-            GO_TRACE(x64test_init, 1, x5);
+            GO_TRACE(x64test_step, 1, x5);
             fpu_unreflectcache(dyn, ninst, x1, x2, x3);
             MESSAGE(LOG_DUMP, "----------\n");
         }

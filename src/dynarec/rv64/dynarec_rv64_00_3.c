@@ -947,6 +947,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xE9:
         case 0xEB:
             BARRIER(BARRIER_MAYBE);
+            if (box64_dynarec_test == 2) { NOTEST(x1); }
             if(opcode==0xE9) {
                 INST_NAME("JMP Id");
                 i32 = F32S;

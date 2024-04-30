@@ -1210,6 +1210,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SD(x3, wback, fixedaddress);
             break;
 #define GO(GETFLAGS, NO, YES, F)                                                            \
+    if (box64_dynarec_test == 2) { NOTEST(x1); }                                            \
     READFLAGS(F);                                                                           \
     i32_ = F32S;                                                                            \
     BARRIER(BARRIER_MAYBE);                                                                 \

@@ -151,6 +151,7 @@ jobs:
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest -j$(nproc) --output-on-failure
           elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_LA64NOEXT=1 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
+            INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_TEST=2 BOX64_DYNAREC_LA64NOEXT=1 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/system/lib64 BOX64_DYNAREC=0 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
@@ -161,6 +162,7 @@ jobs:
           elif [[ ${{ matrix.platform }} != 'X64' ]]; then # AArch64
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ BOX64_DYNAREC=0 ctest -j$(nproc) --output-on-failure
             INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ ctest -j$(nproc) --output-on-failure
+            INTERPRETER=qemu-aarch64-static QEMU_LD_PREFIX=/usr/aarch64-linux-gnu/ BOX64_DYNAREC_TEST=2 ctest -j$(nproc) --output-on-failure
           else
             ctest -j$(nproc) --output-on-failure
           fi

@@ -148,8 +148,9 @@ Forbid dynablock creation in the interval specified (helpfull for debugging beha
 
 #### BOX64_DYNAREC_TEST *
 Dynarec will compare it's execution with the interpreter (super slow, only for testing)
- * 0 : No comparison
- * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different
+ * 0 : No comparison. (Default.)
+ * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different.
+ * 2 : Thread-safe tests, extremely slow.
 
 #### BOX64_DYNAREC_BIGBLOCK *
 Enables/Disables Box64's Dynarec building BigBlock.

@@ -111,7 +111,11 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     GO(0x00, add)                   /* ADD 0x00 -> 0x05 */
     GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
     case 0x0F:
+        #ifdef TEST_INTERPRETER
+        return Test670F(test, rex, rep, addr);
+        #else
         return Run670F(emu, rex, rep, addr);
+        #endif
     GO(0x10, adc)                   /* ADC 0x10 -> 0x15 */
     GO(0x18, sbb)                   /* SBB 0x18 -> 0x1D */
     GO(0x20, and)                   /* AND 0x20 -> 0x25 */
@@ -405,6 +409,9 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                     break;
                 case 7:                 /* IDIV Ed */
                     idiv64(emu, ED->q[0]);
+                    #ifdef TEST_INTERPRETER
+                    test->notest = 1;
+                    #endif
                     break;
             }
         } else {

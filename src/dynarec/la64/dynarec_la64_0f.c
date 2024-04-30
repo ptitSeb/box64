@@ -257,6 +257,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
+            if (box64_dynarec_test == 2) { NOTEST(x1); }                                            \
             READFLAGS(F);                                                                           \
             i32_ = F32S;                                                                            \
             BARRIER(BARRIER_MAYBE);                                                                 \
