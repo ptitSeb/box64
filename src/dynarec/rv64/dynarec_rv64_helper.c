@@ -2015,30 +2015,6 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
     }
     int stack_cnt = dyn->e.stack_next;
     int s3_top = 0xffff;
-    if(stack_cnt != cache_i2.stack) {
-        MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
-        int a = stack_cnt - cache_i2.stack;
-        // Add x87stack to emu fpu_stack
-        LWU(s3, xEmu, offsetof(x64emu_t, fpu_stack));
-        ADDI(s3, s3, a);
-        SW(s3, xEmu, offsetof(x64emu_t, fpu_stack));
-        // Sub x87stack to top, with and 7
-        LWU(s3, xEmu, offsetof(x64emu_t, top));
-        // update tags
-        LH(s2, xEmu, offsetof(x64emu_t, fpu_tags));
-        if(a>0) {
-            SLLI(s2, s2, a*2);
-        } else {
-            SLLI(s3, xMASK, 16);    // 0xffff0000
-            OR(s2, s2, s3);
-            SRLI(s2, s2, -a*2);
-        }
-        SH(s2, xEmu, offsetof(x64emu_t, fpu_tags));
-        SW(s3, xEmu, offsetof(x64emu_t, top));
-        s3_top = 0;
-        stack_cnt = cache_i2.stack;
-    }
-
     extcache_t cache = dyn->e;
     int s1_val = 0;
     int s2_val = 0;
@@ -2107,6 +2083,31 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
                 }
             }
         }
+    }
+    if(stack_cnt != cache_i2.stack) {
+        MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
+        int a = stack_cnt - cache_i2.stack;
+        // Add x87stack to emu fpu_stack
+        LWU(s3, xEmu, offsetof(x64emu_t, fpu_stack));
+        ADDI(s3, s3, a);
+        SW(s3, xEmu, offsetof(x64emu_t, fpu_stack));
+        // Sub x87stack to top, with and 7
+        LWU(s3, xEmu, offsetof(x64emu_t, top));
+        SUBI(s3, s3, a);
+        ANDI(s3, s3, 7);
+        SW(s3, xEmu, offsetof(x64emu_t, top));
+        // update tags
+        LH(s2, xEmu, offsetof(x64emu_t, fpu_tags));
+        if(a>0) {
+            SLLI(s2, s2, a*2);
+        } else {
+            SLLI(s3, xMASK, 16);    // 0xffff0000
+            OR(s2, s2, s3);
+            SRLI(s2, s2, -a*2);
+        }
+        SH(s2, xEmu, offsetof(x64emu_t, fpu_tags));
+        s3_top = 0;
+        stack_cnt = cache_i2.stack;
     }
     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
 #endif
