@@ -1412,8 +1412,8 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         if(rv64_zbb) {
             ANDN(s3, s4, s1);   // s3 = ~res & (op1 | op2)
         } else {
-            NOT(s2, s1);     // s2 = ~res
-            AND(s3, s2, s4); // s3 = ~res & (op1 | op2)
+            NOT(s3, s1);     // s2 = ~res
+            AND(s3, s3, s4); // s3 = ~res & (op1 | op2)
         }
         OR(s3, s3, s5);  // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
