@@ -31,7 +31,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step, int *notest)
+uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step)
 #else
 uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 #endif
@@ -94,7 +94,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     #ifndef TEST_INTERPRETER
                     emit_signal(emu, SIGILL, (void*)R_RIP, 0);
                     #else
-                    *notest = 1;
+                    test->notest = 1;
                     #endif
                     break;
                 case 0xE0:
@@ -115,7 +115,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     R_RDX = tmp64u >> 32;
                     R_RCX = 0;  // should be low of IA32_TSC
                     #ifdef TEST_INTERPRETER
-                    *notest = 1;
+                    test->notest = 1;
                     #endif
                     break;
                 default:
@@ -152,7 +152,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             R_RIP = addr;
             x64Syscall(emu);
             #else
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
         case 0x06:                      /* CLTS */
@@ -168,7 +168,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             #else
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
 
@@ -176,7 +176,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             #else
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
 
@@ -195,7 +195,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
             #else
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
 
@@ -388,7 +388,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             R_RDX = tmp64u>>32;
             R_RAX = tmp64u&0xFFFFFFFF;
             #ifdef TEST_INTERPRETER
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
 
@@ -598,7 +598,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GX->f[i] = 1.0f/sqrtf(EX->f[i]);
             }
             #ifdef TEST_INTERPRETER
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
         case 0x53:                      /* RCPPS Gx, Ex */
@@ -608,7 +608,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             for(int i=0; i<4; ++i)
                 GX->f[i] = 1.0f/EX->f[i];
             #ifdef TEST_INTERPRETER
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
         case 0x54:                      /* ANDPS Gx, Ex */
@@ -976,7 +976,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
             #ifdef TEST_INTERPRETER
-            *notest = 1;
+            test->notest = 1;
             #endif
             , addr += tmp32s;
             ,,
@@ -1005,7 +1005,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             tmp32u = R_EAX;
             my_cpuid(emu, tmp32u);
             #ifdef TEST_INTERPRETER
-            *notest = 1;
+            test->notest = 1;
             #endif
             break;
         case 0xA3:                      /* BT Ed,Gd */

@@ -23,7 +23,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test67(x64test_t *test, rex_t rex, int rep, uintptr_t addr, int *notest)
+uintptr_t Test67(x64test_t *test, rex_t rex, int rep, uintptr_t addr)
 #else
 uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 #endif
@@ -41,7 +41,7 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     #endif
     if(rex.is32bits)
     #ifdef TEST_INTERPRETER
-        return Test67_32(test, rex, rep, addr, notest);
+        return Test67_32(test, rex, rep, addr);
     #else
         return Run67_32(emu, rex, rep, addr);
     #endif
@@ -112,7 +112,7 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     GO(0x08, or)                    /*  OR 0x08 -> 0x0D */
     case 0x0F:
         #ifdef TEST_INTERPRETER
-        return Test670F(test, rex, rep, addr, notest);
+        return Test670F(test, rex, rep, addr);
         #else
         return Run670F(emu, rex, rep, addr);
         #endif
@@ -177,7 +177,7 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0x66:
         #ifdef TEST_INTERPRETER
-        return Test6766(test, rex, rep, addr, notest);
+        return Test6766(test, rex, rep, addr);
         #else
         return Run6766(emu, rex, rep, addr);
         #endif
@@ -410,7 +410,7 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 case 7:                 /* IDIV Ed */
                     idiv64(emu, ED->q[0]);
                     #ifdef TEST_INTERPRETER
-                    *notest = 1;
+                    test->notest = 1;
                     #endif
                     break;
             }

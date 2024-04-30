@@ -26,7 +26,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test66(x64test_t *test, rex_t rex, int rep, uintptr_t addr, int *notest)
+uintptr_t Test66(x64test_t *test, rex_t rex, int rep, uintptr_t addr)
 #else
 uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 #endif
@@ -130,19 +130,19 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         switch(rep) {
             case 0:
                 #ifdef TEST_INTERPRETER
-                return Test660F(test, rex, addr, notest);
+                return Test660F(test, rex, addr);
                 #else
                 return Run660F(emu, rex, addr);
                 #endif
             case 1:
                 #ifdef TEST_INTERPRETER
-                return Test66F20F(test, rex, addr, notest);
+                return Test66F20F(test, rex, addr);
                 #else
                 return Run66F20F(emu, rex, addr);
                 #endif
             case 2:
                 #ifdef TEST_INTERPRETER
-                return Test66F30F(test, rex, addr, notest);
+                return Test66F30F(test, rex, addr);
                 #else
                 return Run66F30F(emu, rex, addr);
                 #endif
@@ -264,13 +264,13 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0x64:                              /* FS: */
         #ifdef TEST_INTERPRETER
-        return Test6664(test, rex, _FS, addr, notest);
+        return Test6664(test, rex, _FS, addr);
         #else
         return Run6664(emu, rex, _FS, addr);
         #endif
     case 0x65:                              /* GS: */
         #ifdef TEST_INTERPRETER
-        return Test6664(test, rex, _GS, addr, notest);
+        return Test6664(test, rex, _GS, addr);
         #else
         return Run6664(emu, rex, _GS, addr);
         #endif
@@ -781,14 +781,14 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0xD9:                              /* x87 opcdes */
         #ifdef TEST_INTERPRETER
-        return Test66D9(test, rex, addr, notest);
+        return Test66D9(test, rex, addr);
         #else
         return Run66D9(emu, rex, addr);
         #endif
 
     case 0xDD:                              /* x87 opcdes */
         #ifdef TEST_INTERPRETER
-        return Test66DD(test, rex, addr, notest);
+        return Test66DD(test, rex, addr);
         #else
         return Run66DD(emu, rex, addr);
         #endif
@@ -804,7 +804,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
 
     case 0xF0:                              /* LOCK: */
         #ifdef TEST_INTERPRETER
-        return Test66F0(test, rex, addr, notest);
+        return Test66F0(test, rex, addr);
         #else
         return Run66F0(emu, rex, addr);
         #endif
@@ -838,7 +838,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                 case 7:                 /* IDIV Ed */
                     idiv64(emu, ED->q[0]);
                     #ifdef TEST_INTERPRETER
-                    *notest = 1;
+                    test->notest = 1;
                     #endif
                     break;
             }

@@ -23,7 +23,7 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t Test64(x64test_t *test, rex_t rex, int seg, uintptr_t addr, int *notest)
+uintptr_t Test64(x64test_t *test, rex_t rex, int seg, uintptr_t addr)
 #else
 uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
 #endif
@@ -432,14 +432,14 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             break;
         case 0x64:                      /* FS: prefix */
             #ifdef TEST_INTERPRETER
-            return Test64(test, rex, _FS, addr, notest);
+            return Test64(test, rex, _FS, addr);
             #else
             return Run64(emu, rex, _FS, addr);
             #endif
             break;
         case 0x65:                      /* GS: prefix */
             #ifdef TEST_INTERPRETER
-            return Test64(test, rex, _GS, addr, notest);
+            return Test64(test, rex, _GS, addr);
             #else
             return Run64(emu, rex, _GS, addr);
             #endif
@@ -733,7 +733,7 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     case 7:                 /* IDIV Ed */
                         idiv64(emu, ED->q[0]);
                         #ifdef TEST_INTERPRETER
-                        *notest = 1;
+                        test->notest = 1;
                         #endif
                         break;
                 }

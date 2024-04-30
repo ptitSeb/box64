@@ -161,9 +161,8 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
     ref->old_ip = ip;
 
     if (box64_dynarec_test == 2) pthread_mutex_lock(&mutex_global_test);
-    int notest = 0;
-    RunTest(test, &notest);
-    if (box64_dynarec_test == 2 && notest) pthread_mutex_unlock(&mutex_global_test);
+    RunTest(test);
+    if (box64_dynarec_test == 2 && test->notest) pthread_mutex_unlock(&mutex_global_test);
     // this will be analyzed next step
 }
 
