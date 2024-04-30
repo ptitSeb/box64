@@ -158,6 +158,7 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
     // do a dry single step
     test->memsize = 0;
     test->clean = 1;
+    test->notest = 0;
     ref->old_ip = ip;
 
     if (box64_dynarec_test == 2) pthread_mutex_lock(&mutex_global_test);
