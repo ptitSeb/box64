@@ -10,6 +10,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -24,6 +25,8 @@
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "dynarec_la64_helper.h"
+
+#define SCRATCH 31
 
 static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, int* l, int i12);
 
@@ -848,7 +851,6 @@ static void swapCache(dynarec_la64_t* dyn, int ninst, int i, int j, lsxcache_t* 
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
     // There is no VSWP in Arm64 NEON to swap 2 register contents!
     // so use a scratch...
-#define SCRATCH 31
     if (quad) {
         VOR_V(SCRATCH, i, i);
         VOR_V(i, j, j);
@@ -861,7 +863,6 @@ static void swapCache(dynarec_la64_t* dyn, int ninst, int i, int j, lsxcache_t* 
         VXOR_V(j, j, j);
         VEXTRINS_D(j, SCRATCH, 0);
     }
-#undef SCRATCH
     tmp.v = cache->lsxcache[i].v;
     cache->lsxcache[i].v = cache->lsxcache[j].v;
     cache->lsxcache[j].v = tmp.v;
@@ -895,7 +896,9 @@ static void loadCache(dynarec_la64_t* dyn, int ninst, int stack_cnt, int s1, int
             break;
         case LSX_CACHE_MM:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
-            VLD(i, xEmu, offsetof(x64emu_t, mmx[n]));
+            FLD_D(SCRATCH, xEmu, offsetof(x64emu_t, mmx[n]));
+            VXOR_V(i, i, i);
+            VEXTRINS_D(i, SCRATCH, 0);
             break;
         case LSX_CACHE_ST_D:
         case LSX_CACHE_ST_F:
@@ -925,7 +928,7 @@ static void unloadCache(dynarec_la64_t* dyn, int ninst, int stack_cnt, int s1, i
             break;
         case LSX_CACHE_MM:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
-            VST(i, xEmu, offsetof(x64emu_t, mmx[n]));
+            FST_D(i, xEmu, offsetof(x64emu_t, mmx[n]));
             break;
         case LSX_CACHE_ST_D:
         case LSX_CACHE_ST_F:
@@ -1070,7 +1073,7 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
     if(dyn->f.dfnone)  // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
-    int go = 0;
+    int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)?1:0;
     switch (dyn->insts[jmp].f_entry.pending) {
         case SF_UNKNOWN: break;
         case SF_SET:
@@ -1088,12 +1091,10 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
             && dyn->f.pending!=SF_SET_PENDING
             && dyn->f.pending!=SF_PENDING)
                 go = 1;
-            else
-                go = (dyn->insts[jmp].f_entry.dfnone  == dyn->f.dfnone)?0:1;
+            else if (dyn->insts[jmp].f_entry.dfnone !=dyn->f.dfnone)
+                go = 1;
             break;
     }
-    if(dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)
-        go = 1;
     if(go) {
         if(dyn->f.pending!=SF_PENDING) {
             LD_W(s1, xEmu, offsetof(x64emu_t, df));

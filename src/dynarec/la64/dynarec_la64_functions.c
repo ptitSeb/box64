@@ -20,7 +20,7 @@
 #include "emu/x87emu_private.h"
 #include "x64trace.h"
 #include "signals.h"
-#include "dynarec_la64.h"
+#include "dynarec_native.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "custommem.h"
@@ -80,6 +80,71 @@ static void fpu_reset_reg_lsxcache(lsxcache_t* lsx)
 void fpu_reset_reg(dynarec_la64_t* dyn)
 {
     fpu_reset_reg_lsxcache(&dyn->lsx);
+}
+
+static int isCacheEmpty(dynarec_native_t* dyn, int ninst)
+{
+    if (dyn->insts[ninst].lsx.stack_next) {
+        return 0;
+    }
+    for (int i = 0; i < 24; ++i)
+        if (dyn->insts[ninst].lsx.lsxcache[i].v) { // there is something at ninst for i
+            if (!(
+                    (dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_F
+                        || dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_D
+                        || dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_I64)
+                    && dyn->insts[ninst].lsx.lsxcache[i].n < dyn->insts[ninst].lsx.stack_pop))
+                return 0;
+        }
+    return 1;
+}
+
+int fpuCacheNeedsTransform(dynarec_la64_t* dyn, int ninst)
+{
+    int i2 = dyn->insts[ninst].x64.jmp_insts;
+    if (i2 < 0)
+        return 1;
+    if ((dyn->insts[i2].x64.barrier & BARRIER_FLOAT))
+        // if the barrier as already been apply, no transform needed
+        return ((dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) ? 0 : (isCacheEmpty(dyn, ninst) ? 0 : 1);
+    int ret = 0;
+    if (!i2) { // just purge
+        if (dyn->insts[ninst].lsx.stack_next) {
+            return 1;
+        }
+        for (int i = 0; i < 24 && !ret; ++i)
+            if (dyn->insts[ninst].lsx.lsxcache[i].v) { // there is something at ninst for i
+                if (!(
+                        (dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_F
+                            || dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_D
+                            || dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_I64)
+                        && dyn->insts[ninst].lsx.lsxcache[i].n < dyn->insts[ninst].lsx.stack_pop))
+                    ret = 1;
+            }
+        return ret;
+    }
+    // Check if ninst can be compatible to i2
+    if (dyn->insts[ninst].lsx.stack_next != dyn->insts[i2].lsx.stack - dyn->insts[i2].lsx.stack_push) {
+        return 1;
+    }
+    lsxcache_t cache_i2 = dyn->insts[i2].lsx;
+    lsxcacheUnwind(&cache_i2);
+
+    for (int i = 0; i < 24; ++i) {
+        if (dyn->insts[ninst].lsx.lsxcache[i].v) { // there is something at ninst for i
+            if (!cache_i2.lsxcache[i].v) {         // but there is nothing at i2 for i
+                ret = 1;
+            } else if (dyn->insts[ninst].lsx.lsxcache[i].v != cache_i2.lsxcache[i].v) { // there is something different
+                if (dyn->insts[ninst].lsx.lsxcache[i].n != cache_i2.lsxcache[i].n) {    // not the same x64 reg
+                    ret = 1;
+                } else if (dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_XMMR && cache_i2.lsxcache[i].t == LSX_CACHE_XMMW) { /* nothing */
+                } else
+                    ret = 1;
+            }
+        } else if (cache_i2.lsxcache[i].v)
+            ret = 1;
+    }
+    return ret;
 }
 
 void lsxcacheUnwind(lsxcache_t* cache)

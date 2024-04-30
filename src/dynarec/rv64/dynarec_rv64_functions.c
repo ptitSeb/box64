@@ -20,7 +20,7 @@
 #include "emu/x87emu_private.h"
 #include "x64trace.h"
 #include "signals.h"
-#include "dynarec_rv64.h"
+#include "dynarec_native.h"
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
 #include "custommem.h"

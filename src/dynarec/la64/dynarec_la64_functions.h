@@ -19,6 +19,9 @@ void fpu_free_reg(dynarec_la64_t* dyn, int reg);
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_la64_t* dyn);
 
+// FPU Cache transformation (for loops) // Specific, need to be written by backend
+int fpuCacheNeedsTransform(dynarec_la64_t* dyn, int ninst);
+
 // Undo the changes of a lsxcache to get the status before the instruction
 void lsxcacheUnwind(lsxcache_t* cache);
 
