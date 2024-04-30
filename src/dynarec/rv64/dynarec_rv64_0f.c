@@ -69,7 +69,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("FAKE xgetbv");
                         nextop = F8;
                         addr = fakeed(dyn, addr, ninst, nextop);
-                        SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
+                        SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
                         GETIP(ip);
                         STORE_XEMU_CALL(x3);
                         CALL(native_ud, -1);
@@ -123,7 +123,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0x09:
             INST_NAME("WBINVD");
-            SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_ud, -1);
@@ -135,7 +135,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0x0B:
             INST_NAME("UD2");
-            SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
+            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
             GETIP(ip);
             STORE_XEMU_CALL(x3);
             CALL(native_ud, -1);

@@ -738,8 +738,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
         FLAGS_ADJUST_FROM11(xFlags, xFlags, reg);
     }
-    SET_NODF();
-    dyn->last_ip = 0;
+    //SET_NODF();
 }
 
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
@@ -800,7 +799,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     fpu_popcache(dyn, ninst, x3, 1);
     LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
     FLAGS_ADJUST_FROM11(xFlags, xFlags, x3);
-    SET_NODF();
+    //SET_NODF();
 }
 
 void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
