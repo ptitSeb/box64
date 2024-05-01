@@ -3064,6 +3064,7 @@ void pFpupupppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void uFippuuuuiiiiuuiiiiiiiipp(x64emu_t *emu, uintptr_t fnc);
 void vFpppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
+void pFpupuupppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void iFpppppppppppppppppppppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 
 #if defined(HAVE_LD80BITS)

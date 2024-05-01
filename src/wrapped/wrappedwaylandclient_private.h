@@ -61,7 +61,7 @@ GO(wl_proxy_marshal_array_constructor_versioned, pFpuppu)
 //GO(wl_proxy_marshal_array_flags, 
 GO(wl_proxy_marshal_constructor, pFpupppppppppppppppp)  //VAARGS
 GO(wl_proxy_marshal_constructor_versioned, pFpupupppppppppppppppp)  //VAARGS
-//GO(wl_proxy_marshal_flags, 
+GO(wl_proxy_marshal_flags, pFpupuupppppppppppppppppppp) //VAARGS
 GO(wl_proxy_set_queue, vFpp)
 //GO(wl_proxy_set_tag, 
 GO(wl_proxy_set_user_data, vFpp)
