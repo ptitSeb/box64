@@ -24,14 +24,17 @@
     } else                                         \
         dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET() dyn->insts[ninst].x64.has_callret = 1
-#define NEW_INST                                                                                                  \
-    ++dyn->size;                                                                                                  \
-    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));                                                  \
-    dyn->insts[ninst].x64.addr = ip;                                                                              \
-    dyn->insts[ninst].f_entry = dyn->f;                                                                           \
+#define NEW_INST                                 \
+    ++dyn->size;                                 \
+    dyn->insts[ninst].x64.addr = ip;             \
+    dyn->lsx.combined1 = dyn->lsx.combined2 = 0; \
+    dyn->lsx.swapped = 0;                        \
+    dyn->lsx.barrier = 0;                        \
+    dyn->insts[ninst].f_entry = dyn->f;          \
     if (ninst) { dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; }
 #define INST_EPILOG                    \
     dyn->insts[ninst].f_exit = dyn->f; \
+    dyn->insts[ninst].lsx = dyn->lsx;  \
     dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0;
 #define INST_NAME(name)
 #define DEFAULT                                                                                                                                     \
