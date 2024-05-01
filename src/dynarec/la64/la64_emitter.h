@@ -141,6 +141,22 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define sOR  0x15
 #define sUNE 0x19
 
+#define FCSR0 0
+#define FCSR1 1
+#define FCSR2 2
+#define FCSR3 3
+
+#define FR_V 28
+#define FR_Z 27
+#define FR_O 26
+#define FR_U 25
+#define FR_I 24
+
+#define RM_RNE 0b0000000000
+#define RM_RZ  0b0100000000
+#define RM_RP  0b1000000000
+#define RM_RM  0b1100000000
+
 // split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
 #define SPLIT20(A) (((A) + 0x800) >> 12)
 #define SPLIT12(A) ((A) & 0xfff)
@@ -1230,6 +1246,10 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VFMAXA_D(vd, vj, vk)        EMIT(type_3R(0b01110001010000010, vk, vj, vd))
 #define VFMINA_S(vd, vj, vk)        EMIT(type_3R(0b01110001010000101, vk, vj, vd))
 #define VFMINA_D(vd, vj, vk)        EMIT(type_3R(0b01110001010000110, vk, vj, vd))
+#define VFCVTL_S_H(vd, vj)          EMIT(type_2R(0b0111001010011101111010, vj, vd))
+#define VFCVTH_S_H(vd, vj)          EMIT(type_2R(0b0111001010011101111011, vj, vd))
+#define VFCVTL_D_S(vd, vj)          EMIT(type_2R(0b0111001010011101111100, vj, vd))
+#define VFCVTH_D_S(vd, vj)          EMIT(type_2R(0b0111001010011101111101, vj, vd))
 #define VFCVT_H_S(vd, vj, vk)       EMIT(type_3R(0b01110001010001100, vk, vj, vd))
 #define VFCVT_S_D(vd, vj, vk)       EMIT(type_3R(0b01110001010001101, vk, vj, vd))
 #define VFTINT_W_S(vd, vj)          EMIT(type_2R(0b0111001010011110001100, vj, vd))
