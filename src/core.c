@@ -690,7 +690,7 @@ void LoadLogEnv()
                 box64_dynarec_fastround = p[0]-'0';
         }
         if(!box64_dynarec_fastround)
-            printf_log(LOG_INFO, "Dynarec will try tp generate x86 precise IEEE->int rounding\n");
+            printf_log(LOG_INFO, "Dynarec will try to generate x86 precise IEEE->int rounding\n");
     }
     p = getenv("BOX64_DYNAREC_SAFEFLAGS");
     if(p) {

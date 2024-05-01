@@ -134,6 +134,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 VEXTRINS_D(v0, q1, 0);
             }
             break;
+        case 0x14:
+            INST_NAME("UNPCKLPS Gx, Ex");
+            nextop = F8;
+            SMREAD();
+            GETEX(q0, 0, 0);
+            GETGX(v0, 1);
+            VILVL_W(v0, q0, v0);
+            break;
         case 0x16:
             nextop = F8;
             if (MODREG) {
@@ -270,6 +278,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETEX(q1, 0, 0);
                 VXOR_V(q0, q0, q1);
             }
+            break;
+        case 0x5A:
+            INST_NAME("CVTPS2PD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGX(q1, 1);
+            VFCVTL_D_S(q1, q0);
             break;
 
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
