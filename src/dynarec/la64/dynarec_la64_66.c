@@ -65,6 +65,16 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x19:
+            INST_NAME("SBB Ew, Gw");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_sbb16(dyn, ninst, x1, x2, x4, x5, x6);
+            EWBACK;
+            break;
         case 0x39:
             INST_NAME("CMP Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);

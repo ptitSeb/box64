@@ -738,7 +738,9 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sub8c          STEPNAME(emit_sub8c)
 #define emit_sbb8           STEPNAME(emit_sbb8)
 #define emit_sbb8c          STEPNAME(emit_sbb8c)
+#define emit_sbb16          STEPNAME(emit_sbb16)
 #define emit_sbb32          STEPNAME(emit_sbb32)
+#define emit_neg8           STEPNAME(emit_neg8)
 #define emit_neg32          STEPNAME(emit_neg32)
 #define emit_or32           STEPNAME(emit_or32)
 #define emit_or32c          STEPNAME(emit_or32c)
@@ -816,7 +818,9 @@ void emit_sub8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 void emit_sub8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4, int s5);
 void emit_sbb8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sbb8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6);
+void emit_sbb16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sbb32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_neg8(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_neg32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3);
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
