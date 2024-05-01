@@ -194,6 +194,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x60:
+            INST_NAME("PUNPCKLBW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VILVL_B(v0, q0, v0);
+            break;
         case 0x61:
             INST_NAME("PUNPCKLWD Gx,Ex");
             nextop = F8;
@@ -201,12 +208,69 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q0, 0, 0);
             VILVL_H(v0, q0, v0);
             break;
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VILVL_W(v0, q0, v0);
+            break;
+        case 0x64:
+            INST_NAME("PCMPGTB Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VSLT_B(v0, v1, v0);
+            break;
+        case 0x65:
+            INST_NAME("PCMPGTW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VSLT_H(v0, v1, v0);
+            break;
+        case 0x66:
+            INST_NAME("PCMPGTD Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VSLT_W(v0, v1, v0);
+            break;
+        case 0x67:
+            INST_NAME("PACKUSWB Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            if (v0 == v1) {
+                VMAXI_H(v0, v0, 0);
+                VPICKEV_B(v0, v0, v0);
+            } else {
+                q1 = fpu_get_scratch(dyn);
+                VMAXI_H(v0, v0, 0);
+                VMAXI_H(q1, v1, 0);
+                VPICKEV_B(v0, q1, v0);
+            }
+            break;
+        case 0x68:
+            INST_NAME("PUNPCKHBW Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            VILVH_B(q0, q1, q0);
+            break;
         case 0x69:
             INST_NAME("PUNPCKHWD Gx,Ex");
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             VILVH_H(q0, q1, q0);
+            break;
+        case 0x6A:
+            INST_NAME("PUNPCKHDQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            VILVH_W(q0, q1, q0);
             break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
@@ -258,6 +322,167 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 VLD(v0, ed, fixedaddress);
             }
+            break;
+        case 0x70:
+            INST_NAME("PSHUFD Gx,Ex,Ib");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 1);
+            u8 = F8;
+            VSHUF4I_W(v0, v1, u8);
+            break;
+        case 0x71:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLW Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 15) {
+                            VXOR_V(q0, q0, q0);
+                        } else if (u8) {
+                            VSRLI_H(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAW Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8 > 15) u8 = 15;
+                    if (u8) {
+                        VSRAI_H(q0, q0, u8);
+                    }
+                    PUTEX(q0);
+                    break;
+                case 6:
+                    INST_NAME("PSLLW Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 15) {
+                            VXOR_V(q0, q0, q0);
+                        } else {
+                            VSLLI_H(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
+        case 0x72:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLD Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 31) {
+                            VXOR_V(q0, q0, q0);
+                        } else if (u8) {
+                            VSRLI_W(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                case 4:
+                    INST_NAME("PSRAD Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8 > 31) u8 = 31;
+                    if (u8) {
+                        VSRAI_W(q0, q0, u8);
+                    }
+                    PUTEX(q0);
+                    break;
+                case 6:
+                    INST_NAME("PSLLD Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 31) {
+                            VXOR_V(q0, q0, q0);
+                        } else {
+                            VSLLI_W(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0x73:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("PSRLQ Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            VXOR_V(q0, q0, q0);
+                        } else {
+                            VSRLI_D(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                case 3:
+                    INST_NAME("PSRLDQ Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 15) {
+                            XVOR_V(q0, q0, q0);
+                        } else {
+                            VBSRL_V(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                case 6:
+                    INST_NAME("PSLLQ Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 63) {
+                            XVOR_V(q0, q0, q0);
+                        } else {
+                            VSLLI_D(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                case 7:
+                    INST_NAME("PSLLDQ Ex, Ib");
+                    GETEX(q0, 1, 1);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 15) {
+                            VXOR_V(q0, q0, q0);
+                        } else if (u8 > 0) {
+                            VBSLL_V(q0, q0, u8);
+                        }
+                        PUTEX(q0);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0x76:
+            INST_NAME("PCMPEQD Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VSEQ_W(v0, v0, q0);
             break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
@@ -318,6 +543,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q0, 0, 0);
             VADD_D(v0, v0, q0);
             break;
+        case 0xD5:
+            INST_NAME("PMULLW Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            VMUL_H(q0, q0, q1);
+            break;
         case 0xD6:
             INST_NAME("MOVQ Ex, Gx");
             nextop = F8;
@@ -339,6 +571,27 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q0, 0, 0);
             VAND_V(v0, v0, q0);
             break;
+        case 0xDF:
+            INST_NAME("PANDN Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VANDN_V(v0, v0, q0);
+            break;
+        case 0xE4:
+            INST_NAME("PMULHUW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VMUH_HU(v0, v0, v1);
+            break;
+        case 0xEB:
+            INST_NAME("POR Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VOR_V(v0, v0, q0);
+            break;
         case 0xEF:
             INST_NAME("PXOR Gx,Ex");
             nextop = F8;
@@ -352,6 +605,55 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(q1, 0, 0);
                 VXOR_V(q0, q0, q1);
             }
+            break;
+        case 0xF8:
+            INST_NAME("PSUBB Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VSUB_B(v0, v0, q0);
+            break;
+        case 0xF9:
+            INST_NAME("PSUBW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VSUB_H(v0, v0, q0);
+            break;
+        case 0xFA:
+            INST_NAME("PSUBD Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VSUB_W(v0, v0, q0);
+            break;
+        case 0xFB:
+            INST_NAME("PSUBQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VSUB_D(v0, v0, q0);
+            break;
+        case 0xFC:
+            INST_NAME("PADDB Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VADD_B(v0, v0, q0);
+            break;
+        case 0xFD:
+            INST_NAME("PADDW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VADD_H(v0, v0, q0);
+            break;
+        case 0xFE:
+            INST_NAME("PADDD Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VADD_W(v0, v0, q0);
             break;
         default:
             DEFAULT;
