@@ -2157,11 +2157,11 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if (isMask(opcode, "0010110000iiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VLD.D", Vt[Rd], Xt[Rj], signExtend(imm, 12));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VLD", Vt[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;
     }
     if (isMask(opcode, "0010110001iiiiiiiiiiiijjjjjddddd", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VST.D", Vt[Rd], Xt[Rj], signExtend(imm, 12));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %d", "VST", Vt[Rd], Xt[Rj], signExtend(imm, 12));
         return buff;
     }
     if (isMask(opcode, "00000000000000001000000000101000", &a)) {

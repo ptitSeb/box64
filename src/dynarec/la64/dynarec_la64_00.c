@@ -121,6 +121,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
             WBACK;
             break;
+        case 0x0A:
+            INST_NAME("OR Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_or8(dyn, ninst, x2, x1, x4, x5);
+            GBBACK();
+            break;
         case 0x0B:
             INST_NAME("OR Gd, Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -553,6 +562,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x80:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0: // ADD
+                    INST_NAME("ADD Eb, Ib");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEB(x1, 1);
+                    u8 = F8;
+                    emit_add8c(dyn, ninst, x1, u8, x2, x4, x5);
+                    EBBACK();
+                    break;
                 case 1: // OR
                     INST_NAME("OR Eb, Ib");
                     SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -827,6 +844,40 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
                 SMWRITELOCK(lock);
             }
+            break;
+        case 0x8A:
+            INST_NAME("MOV Gb, Eb");
+            nextop = F8;
+            if (rex.rex) {
+                gb1 = gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3));
+                gb2 = 0;
+            } else {
+                gd = (nextop & 0x38) >> 3;
+                gb1 = TO_LA64(gd & 3);
+                gb2 = ((gd & 4) << 1);
+            }
+            if (MODREG) {
+                if (rex.rex) {
+                    wback = TO_LA64((nextop & 7) + (rex.b << 3));
+                    wb2 = 0;
+                } else {
+                    wback = (nextop & 7);
+                    wb2 = (wback >> 2);
+                    wback = TO_LA64(wback & 3);
+                }
+                if (wb2) {
+                    BSTRPICK_D(x4, wback, 7 + wb2 * 8, wb2 * 8);
+                    ed = x4;
+                } else {
+                    ed = wback;
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                SMREADLOCK(lock);
+                LD_BU(x4, wback, fixedaddress);
+                ed = x4;
+            }
+            BSTRINS_D(gb1, ed, gb2 + 7, gb2);
             break;
         case 0x8B:
             INST_NAME("MOV Gd, Ed");

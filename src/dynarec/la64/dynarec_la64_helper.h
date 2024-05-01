@@ -279,6 +279,13 @@
         VLD(a, ed, fixedaddress);                                                            \
     }
 
+// Put Back EX if it was a memory and not an emm register
+#define PUTEX(a)                  \
+    if (!MODREG) {                \
+        VST(a, ed, fixedaddress); \
+        SMWRITE2();               \
+    }
+
 // Get Ex as a double, not a quad (warning, x1 get used, x2 might too)
 #define GETEXSD(a, D)                                                                        \
     if (MODREG) {                                                                            \
