@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -116,6 +117,21 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
                 SMWRITE2();
+            }
+            break;
+        case 0x12:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("MOVHLPS Gx,Ex");
+                GETGX(v0, 1);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                VEXTRINS_D(v0, v1, 1);
+            } else {
+                INST_NAME("MOVLPS Gx,Ex");
+                GETGX(v0, 1);
+                SMREAD();
+                GETEX(q1, 0, 0);
+                VEXTRINS_D(v0, q1, 0);
             }
             break;
         case 0x16:
