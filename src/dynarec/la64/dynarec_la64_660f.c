@@ -51,6 +51,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(j64);
 
     switch (opcode) {
+        case 0x14:
+            INST_NAME("UNPCKLPD Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                v1 = fpu_get_scratch(dyn);
+                FLD_D(v1, ed, fixedaddress);
+            }
+            VEXTRINS_D(v0, v1, 0x10);
+            break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
@@ -194,6 +208,17 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x5A:
+            INST_NAME("CVTPD2PS Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0, 0);
+            GETGX_empty(v0);
+            // TODO: is there any way to support !box64_dynarec_fastround?
+            q0 = fpu_get_scratch(dyn);
+            VFCVT_S_D(q0, v1, v1);
+            VXOR_V(v0, v0, v0);
+            VEXTRINS_D(v0, q0, 0);
+            break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
             nextop = F8;
@@ -284,6 +309,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FLD_D(v1, ed, fixedaddress);
             }
             VILVL_D(v0, v1, v0); // v0[127:64] = v1[63:0]
+            break;
+        case 0x6D:
+            INST_NAME("PUNPCKHQDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+            } else {
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 8, 0);
+                FLD_D(v1, ed, fixedaddress + 8);
+                VEXTRINS_D(v1, v1, 0x10);
+            }
+            VILVH_D(v0, v1, v0);
             break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
@@ -507,6 +546,19 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FST_S(v0, ed, fixedaddress);
                     SMWRITE2();
                 }
+            }
+            break;
+        case 0x7F:
+            INST_NAME("MOVDQA Ex, Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                VOR_V(v1, v0, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VST(v0, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0xBE:

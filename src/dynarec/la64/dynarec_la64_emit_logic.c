@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -92,6 +93,46 @@ void emit_xor8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
     IFX (X_ZF) {
         BNEZ(s1, 8);
         ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
+
+// emit XOR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        SET_DF(s4, d_xor16);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+
+    IFXA (X_ALL, la64_lbt) {
+        X64_XOR_W(s1, s2);
+    }
+
+    XOR(s1, s1, s2);
+    BSTRINS_D(s1, s1, 15, 0);
+
+    IFX (X_PEND) {
+        ST_H(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) return;
+
+    CLEAR_FLAGS(s3);
+    IFX (X_ZF | X_SF) {
+        IFX (X_ZF) {
+            BNEZ(s1, 8);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+        }
+        IFX (X_SF) {
+            SRLI_D(s3, s1, 15);
+            BEQZ(s3, 8);
+            ORI(xFlags, xFlags, 1 << F_SF);
+        }
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -378,6 +419,43 @@ void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
 }
 
+
+// emit OR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+void emit_or16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX (X_PEND) {
+        SET_DF(s3, d_or16);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFXA (X_ALL, la64_lbt) {
+        X64_OR_W(s1, s2);
+    }
+
+    OR(s1, s1, s2);
+    BSTRPICK_D(s1, s1, 15, 0);
+    IFX (X_PEND) {
+        ST_D(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) return;
+
+    CLEAR_FLAGS(s3);
+    IFX (X_SF) {
+        SRLI_D(s3, s1, 15);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+}
 
 // emit OR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
