@@ -156,8 +156,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 if (ed != gd) {
-                    BSTRINS_W(ed, gd, 15, 0);
-                    ZEROUP(ed);
+                    BSTRINS_D(ed, gd, 15, 0);
+                    if (is32bits) ZEROUP(ed);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
@@ -181,6 +181,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MV(x2, xRAX);
                 BSTRPICK_D(xRAX, gd, 15, 0);
                 BSTRPICK_D(gd, x2, 15, 0);
+                if (is32bits) {
+                    ZEROUP(xRAX);
+                    ZEROUP(gd);
+                }
             }
             break;
         case 0xC1:
@@ -211,6 +215,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u16 = F16;
                 MOV32w(x1, u16);
                 BSTRINS_D(ed, x1, 15, 0);
+                if (is32bits) { ZEROUP(ed); }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 2);
                 u16 = F16;
