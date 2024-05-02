@@ -974,27 +974,21 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 case 2:
-                    INST_NAME("RCL Ew, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    INST_NAME("RCL Ew, 1");
                     READFLAGS(X_CF);
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(rcl16, x1, x3);
+                    emit_rcl8c(dyn, ninst, ed, u8, x4, x5);
                     EWBACK;
                     break;
                 case 3:
-                    INST_NAME("RCR Ew, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    INST_NAME("RCR Ew, 1");
                     READFLAGS(X_CF);
-                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
-                    SETFLAGS(X_OF | X_CF, SF_SET_DF);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(rcr16, x1, x3);
+                    emit_rcr8c(dyn, ninst, ed, u8, x4, x5);
                     EWBACK;
                     break;
                 case 4:
@@ -1076,22 +1070,16 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Ew, 1");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    MOV32w(x2, 1);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 0);
-                    CALL_(rcl16, x1, x3);
+                    emit_rcl16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ew, 1");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    MOV32w(x2, 1);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEW(x1, 0);
-                    CALL_(rcr16, x1, x3);
+                    emit_rcr16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
                     break;
                 case 4:

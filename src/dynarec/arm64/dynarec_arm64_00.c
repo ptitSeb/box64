@@ -2420,14 +2420,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Eb, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_rol8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Eb, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_ror8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
@@ -2435,7 +2435,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 2:
                     INST_NAME("RCL Eb, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_rcl8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
@@ -2443,7 +2443,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3:
                     INST_NAME("RCR Eb, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
