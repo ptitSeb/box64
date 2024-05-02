@@ -83,7 +83,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1 , xRAX);
             MOV32w(x2, i32);
             emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
-            INSHz(xRAX, x1, x3, x4, 1, 0);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x06:
             INST_NAME("PUSH ES");
@@ -121,7 +121,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
-            INSHz(xRAX, x1, x3, x4, 1, 0);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x0F:
             switch(rep) {
@@ -158,7 +158,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i16);
             emit_adc16(dyn, ninst, x1, x2, x3, x4, x5);
-            INSHz(xRAX, x1, x3, x4, 1, 0);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x19:
             INST_NAME("SBB Ew, Gw");
@@ -188,7 +188,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i16 = F16;
             MOV64xw(x2, i16);
             emit_sbb16(dyn, ninst, x1, x2, x3, x4, x5);
-            INSHz(xRAX, x1, x3, x4, 1, 0);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x1E:
             INST_NAME("PUSH DS");
@@ -226,7 +226,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
-            INSHz(xRAX, x1, x3, x4, 1, 0);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x29:
             INST_NAME("SUB Ew, Gw");
@@ -253,7 +253,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
-            INSHz(xRAX, x1, x3, x4, 1, 0);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x31:
             INST_NAME("XOR Ew, Gw");
@@ -334,7 +334,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_xor16(dyn, ninst, x1, x2, x3, x4, x5);
-            INSHz(xRAX, x1, x3, x4, 1, 0);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x39:
             INST_NAME("CMP Ew, Gw");
@@ -546,8 +546,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETGD;
                 GETED(0);
                 MV(x1, gd);
-                INSHz(gd, ed, x3, x4, 1, 1);
-                INSHz(ed, x1, x3, x4, 0, 1);
+                INSH(gd, ed, x3, x4, 1, 1);
+                INSH(ed, x1, x3, x4, 0, 1);
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -592,7 +592,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
                 MARK2;
                 SMDMB();
-                INSHz(gd, x1, x3, x4, 1, 0);
+                INSH(gd, x1, x3, x4, 1, 0);
             }
             break;
         case 0x89:
@@ -602,7 +602,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 if (ed != gd) {
-                    INSHz(ed, gd, x2, x3, 1, 1);
+                    INSH(ed, gd, x2, x3, 1, 1);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
@@ -617,13 +617,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 if (ed != gd) {
-                    INSHz(gd, ed, x2, x3, 1, 1);
+                    INSH(gd, ed, x2, x3, 1, 1);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);
                 LHU(x1, ed, fixedaddress);
-                INSHz(gd, x1, x2, x3, 1, 0);
+                INSH(gd, x1, x2, x3, 1, 0);
             }
             break;
         case 0x8C:
@@ -631,7 +631,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             LHU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
             if ((nextop & 0xC0) == 0xC0) { // reg <= seg
-                INSHz(xRAX + (nextop & 7) + (rex.b << 3), x3, x1, x2, 1, 0);
+                INSH(xRAX + (nextop & 7) + (rex.b << 3), x3, x1, x2, 1, 0);
             } else { // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 SH(x3, ed, fixedaddress);
@@ -652,15 +652,15 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else {
                     INST_NAME("XCHG AX, Reg");
                     MV(x2, xRAX);
-                    INSHz(xRAX, gd, x3, x4, 1, 1);
-                    INSHz(gd, x2, x3, x4, 0, 1);
+                    INSH(xRAX, gd, x3, x4, 1, 1);
+                    INSH(gd, x2, x3, x4, 0, 1);
                 }
             break;
         case 0x98:
             INST_NAME("CBW");
             SLLI(x1, xRAX, 56);
             SRAI(x1, x1, 56);
-            INSHz(xRAX, x1, x2, x3, 1, 1);
+            INSH(xRAX, x1, x2, x3, 1, 1);
             break;
         case 0x99:
             INST_NAME("CWD");
@@ -704,7 +704,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (isLockAddress(u64)) lock = 1; else lock = 0;
             SMREADLOCK(lock);
             LHU(x2, x1, 0);
-            INSHz(xRAX, x2, x3, x4, 1, 0);
+            INSH(xRAX, x2, x3, x4, 1, 0);
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
@@ -833,7 +833,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETDIR(x1, x2, 2);
                 LHU(x2, xRSI, 0);
                 ADD(xRSI, xRSI, x1);
-                INSHz(xRAX, x2, x3, x4, 1, 0);
+                INSH(xRAX, x2, x3, x4, 1, 0);
             }
             break;
         case 0xAF:
@@ -895,7 +895,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u16 = F16;
             MOV32w(x1, u16);
             gd = xRAX + (opcode & 7) + (rex.b << 3);
-            INSHz(gd, x1, x2, x3, 1, 0);
+            INSH(gd, x1, x2, x3, 1, 0);
             break;
 
         case 0xC1:
@@ -993,7 +993,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = xRAX + (nextop & 7) + (rex.b << 3);
                 u16 = F16;
                 MOV32w(x1, u16);
-                INSHz(ed, x1, x2, x3, 1, 0);
+                INSH(ed, x1, x2, x3, 1, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 2);
                 u16 = F16;
@@ -1165,8 +1165,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     DIVUW(x3, x2, ed);
                     REMUW(x4, x2, ed);
-                    INSHz(xRAX, x3, x5, x6, 1, 1);
-                    INSHz(xRDX, x4, x5, x6, 0, 1);
+                    INSH(xRAX, x3, x5, x6, 1, 1);
+                    INSH(xRDX, x4, x5, x6, 0, 1);
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
@@ -1190,8 +1190,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(x2, x2, x3);
                     DIVW(x3, x2, ed);
                     REMW(x4, x2, ed);
-                    INSHz(xRAX, x3, x5, x6, 1, 1);
-                    INSHz(xRDX, x4, x5, x6, 0, 1);
+                    INSH(xRAX, x3, x5, x6, 1, 1);
+                    INSH(xRDX, x4, x5, x6, 0, 1);
                     break;
                 default:
                     DEFAULT;
