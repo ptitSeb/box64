@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "rv64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -82,9 +83,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1 , xRAX);
             MOV32w(x2, i32);
             emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
-            LUI(x3, 0xffff0);
-            AND(xRAX, xRAX, x3);
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x06:
             INST_NAME("PUSH ES");
@@ -122,9 +121,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
-            LUI(x3, 0xffff0);
-            AND(xRAX, xRAX, x3);
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x0F:
             switch(rep) {
@@ -158,17 +155,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i16 = F16;
-            SRLI(x6, xMASK, 16);
-            AND(x1, xRAX, x6);
+            ZEXTH(x1, xRAX);
             MOV32w(x2, i16);
             emit_adc16(dyn, ninst, x1, x2, x3, x4, x5);
-            if (rv64_zbb) {
-                ANDN(xRAX, xRAX, x6);
-            } else {
-                NOT(x6, x6);
-                AND(xRAX, xRAX, x6);
-            }
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x19:
             INST_NAME("SBB Ew, Gw");
@@ -198,9 +188,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i16 = F16;
             MOV64xw(x2, i16);
             emit_sbb16(dyn, ninst, x1, x2, x3, x4, x5);
-            SRLI(xRAX, xRAX, 16);
-            SLLI(xRAX, xRAX, 16);
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x1E:
             INST_NAME("PUSH DS");
@@ -238,9 +226,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
-            LUI(x3, 0xffff0);
-            AND(xRAX, xRAX, x3);
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x29:
             INST_NAME("SUB Ew, Gw");
@@ -267,9 +253,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
-            LUI(x2, 0xffff0);
-            AND(xRAX, xRAX, x2);
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x31:
             INST_NAME("XOR Ew, Gw");
@@ -350,9 +334,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ZEXTH(x1, xRAX);
             MOV32w(x2, i32);
             emit_xor16(dyn, ninst, x1, x2, x3, x4, x5);
-            LUI(x5, 0xffff0);
-            AND(xRAX, xRAX, x5);
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x3, x4, 1, 0);
             break;
         case 0x39:
             INST_NAME("CMP Ew, Gw");
@@ -563,14 +545,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 GETGD;
                 GETED(0);
-                ADDI(x1, gd, 0);
-                LUI(x3, 0xffff0);
-                AND(gd, gd, x3);
-                ZEXTH(x4, ed);
-                OR(gd, gd, x4);
-                AND(ed, ed, x3);
-                ZEXTH(x4, x1);
-                OR(ed, ed, x4);
+                MV(x1, gd);
+                INSH(gd, ed, x3, x4, 1, 1);
+                INSH(ed, x1, x3, x4, 0, 1);
             } else {
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
@@ -615,9 +592,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
                 MARK2;
                 SMDMB();
-                LUI(x5, 0xffff0);
-                AND(gd, gd, x5);
-                OR(gd, gd, x1);
+                INSH(gd, x1, x3, x4, 1, 0);
             }
             break;
         case 0x89:
@@ -626,12 +601,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
-                if(ed!=gd) {
-                    // we don't use GETGW above, so we need let gd & 0xffff.
-                    LUI(x1, 0xffff0);
-                    AND(ed, ed, x1);
-                    ZEXTH(x2, gd);
-                    OR(ed, ed, x2);
+                if (ed != gd) {
+                    INSH(ed, gd, x2, x3, 1, 1);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
@@ -645,29 +616,24 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;  // don't need GETGW neither
             if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
-                if(ed!=gd) {
-                    LUI(x1, 0xffff0);
-                    AND(gd, gd, x1);
-                    ZEXTH(x2, ed);
-                    OR(gd, gd, x2);
+                if (ed != gd) {
+                    INSH(gd, ed, x2, x3, 1, 1);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);
                 LHU(x1, ed, fixedaddress);
-                LUI(x4, 0xffff0);
-                AND(gd, gd, x4);
-                OR(gd, gd, x1);
+                INSH(gd, x1, x2, x3, 1, 0);
             }
             break;
         case 0x8C:
             INST_NAME("MOV Ed, Seg");
             nextop = F8;
+            LHU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
             if ((nextop & 0xC0) == 0xC0) { // reg <= seg
-                LHU(xRAX + (nextop & 7) + (rex.b << 3), xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
+                INSH(xRAX + (nextop & 7) + (rex.b << 3), x3, x1, x2, 1, 0);
             } else { // mem <= seg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                LHU(x3, xEmu, offsetof(x64emu_t, segs[(nextop & 0x38) >> 3]));
                 SH(x3, ed, fixedaddress);
                 SMWRITE2();
             }
@@ -685,28 +651,16 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("NOP");
                 } else {
                     INST_NAME("XCHG AX, Reg");
-                    LUI(x4, 0xffff0);
-                    // x2 <- rax
                     MV(x2, xRAX);
-                    // rax[15:0] <- gd[15:0]
-                    ZEXTH(x3, gd);
-                    AND(xRAX, xRAX, x4);
-                    OR(xRAX, xRAX, x3);
-                    // gd[15:0] <- x2[15:0]
-                    ZEXTH(x2, x2);
-                    AND(gd, gd, x4);
-                    OR(gd, gd, x2);
+                    INSH(xRAX, gd, x3, x4, 1, 1);
+                    INSH(gd, x2, x3, x4, 0, 1);
                 }
             break;
         case 0x98:
             INST_NAME("CBW");
             SLLI(x1, xRAX, 56);
             SRAI(x1, x1, 56);
-            LUI(x2, 0xffff0);
-            AND(xRAX, xRAX, x2);
-            NOT(x2, x2);
-            AND(x1, x1, x2);
-            OR(xRAX, xRAX, x1);
+            INSH(xRAX, x1, x2, x3, 1, 1);
             break;
         case 0x99:
             INST_NAME("CWD");
@@ -750,9 +704,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (isLockAddress(u64)) lock = 1; else lock = 0;
             SMREADLOCK(lock);
             LHU(x2, x1, 0);
-            LUI(x3, 0xffff0);
-            AND(xRAX, xRAX, x3);
-            OR(xRAX, xRAX, x2);
+            INSH(xRAX, x2, x3, x4, 1, 0);
             break;
         case 0xA3:
             INST_NAME("MOV Od,EAX");
@@ -881,9 +833,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETDIR(x1, x2, 2);
                 LHU(x2, xRSI, 0);
                 ADD(xRSI, xRSI, x1);
-                LUI(x1, 0xffff0);
-                AND(xRAX, xRAX, x1);
-                OR(xRAX, xRAX, x2);
+                INSH(xRAX, x2, x3, x4, 1, 0);
             }
             break;
         case 0xAF:
@@ -942,21 +892,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xBE:
         case 0xBF:
             INST_NAME("MOV Reg, Iw");
-            gd = xRAX+(opcode&7)+(rex.b<<3);
-            if(rex.w) {
-                u64 = F64;
-                MOV64x(gd, u64);
-            } else {
-                u16 = F16;
-                MOV64x(x1, ~0xffff);
-                AND(gd, gd, x1);
-                if(u16<2048) {
-                    ORI(gd, gd, u16);
-                } else {
-                    MOV32w(x1, u16);
-                    OR(gd, gd, x1);
-                }
-            }
+            u16 = F16;
+            MOV32w(x1, u16);
+            gd = xRAX + (opcode & 7) + (rex.b << 3);
+            INSH(gd, x1, x2, x3, 1, 0);
             break;
 
         case 0xC1:
@@ -1052,11 +991,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             if(MODREG) {
                 ed = xRAX + (nextop & 7) + (rex.b << 3);
-                LUI(x1, 0xffff0);
-                AND(ed, ed, x1);
                 u16 = F16;
                 MOV32w(x1, u16);
-                ORI(ed, ed, x1);
+                INSH(ed, x1, x2, x3, 1, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 2);
                 u16 = F16;
@@ -1228,14 +1165,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     DIVUW(x3, x2, ed);
                     REMUW(x4, x2, ed);
-                    MOV64x(x5, ~0xffff);
-                    AND(xRAX, xRAX, x5);
-                    AND(xRDX, xRDX, x5);
-                    NOT(x5, x5);
-                    AND(x3, x3, x5);
-                    AND(x4, x4, x5);
-                    OR(xRAX, xRAX, x3);
-                    OR(xRDX, xRDX, x4);
+                    INSH(xRAX, x3, x5, x6, 1, 1);
+                    INSH(xRDX, x4, x5, x6, 0, 1);
                     break;
                 case 7:
                     INST_NAME("IDIV Ew");
@@ -1259,14 +1190,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(x2, x2, x3);
                     DIVW(x3, x2, ed);
                     REMW(x4, x2, ed);
-                    MOV64x(x5, ~0xffff);
-                    AND(xRAX, xRAX, x5);
-                    AND(xRDX, xRDX, x5);
-                    NOT(x5, x5);
-                    AND(x3, x3, x5);
-                    AND(x4, x4, x5);
-                    OR(xRAX, xRAX, x3);
-                    OR(xRDX, xRDX, x4);
+                    INSH(xRAX, x3, x5, x6, 1, 1);
+                    INSH(xRDX, x4, x5, x6, 0, 1);
                     break;
                 default:
                     DEFAULT;

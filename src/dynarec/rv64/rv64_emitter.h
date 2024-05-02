@@ -832,6 +832,18 @@ f28–31  ft8–11  FP temporaries                  Caller
         SLLI(rd, rs, 48); \
         SRLI(rd, rd, 48); \
     }
+
+// Insert low 16bits in rs to low 16bits of rd
+#define INSH(rd, rs, s1, s2, init_s1, zexth_rs) \
+    if (init_s1) LUI(s1, 0xffff0);              \
+    AND(rd, rd, s1);                            \
+    if (zexth_rs) {                             \
+        ZEXTH(s2, rs);                          \
+        OR(rd, rd, s2);                         \
+    } else {                                    \
+        OR(rd, rd, rs);                         \
+    }
+
 // Rotate left (register)
 #define ROL(rd, rs1, rs2) EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, 0b0110011))
 // Rotate left word (register)

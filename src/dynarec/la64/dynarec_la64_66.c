@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -156,8 +157,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 if (ed != gd) {
-                    BSTRINS_W(ed, gd, 15, 0);
-                    ZEROUP(ed);
+                    BSTRINS_D(ed, gd, 15, 0);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
@@ -179,8 +179,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("XCHG AX, Reg");
                 MV(x2, xRAX);
-                BSTRPICK_D(xRAX, gd, 15, 0);
-                BSTRPICK_D(gd, x2, 15, 0);
+                BSTRINS_D(xRAX, gd, 15, 0);
+                BSTRINS_D(gd, x2, 15, 0);
             }
             break;
         case 0xC1:
