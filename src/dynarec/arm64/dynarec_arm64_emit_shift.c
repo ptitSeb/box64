@@ -1011,23 +1011,27 @@ void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     } else IFX(X_ALL) {
         SET_DFNONE(s4);
     }
-    BFIw(x1, xFlags, 8, 1); // insert cf
+    BFIw(s1, xFlags, 8, 1); // insert cf
     IFX(X_OF|X_CF) {
-        LSRw_IMM(x2, x1, 8-(c%9));
+        if(c%9!=8) {
+            LSRw_IMM(s3, s1, 8-(c%9));
+        } else {
+            MOVw_REG(s3, s1);
+        }
     }
-    ORRw_REG_LSL(x1, x1, x1, 9);    // insert x1 again
+    ORRw_REG_LSL(s1, s1, s1, 9);    // insert s1 again
     if(c%9) {
-        LSRw_IMM(x1, x1, 9-(c%9)); // do the rcl
+        LSRw_IMM(s1, s1, 9-(c%9)); // do the rcl
     }
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_OF|X_CF) {
-        BFIw(xFlags, x2, F_CF, 1);
+        BFIw(xFlags, s3, F_CF, 1);
         IFX(X_OF) {
             if(c==1) {
-                EORw_REG_LSR(x2, x2, x1, 7);
-                BFIw(xFlags, x2, F_OF, 1);
+                EORw_REG_LSR(s3, s3, s1, 7);
+                BFIw(xFlags, s3, F_OF, 1);
             }
         }
     }
@@ -1051,30 +1055,30 @@ void emit_rcr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
     IFX(X_OF|X_CF) {
         if(c%9) {
             if((c%9)==1) {
-                MOVx_REG(x2, x1);
+                MOVx_REG(s3, s1);
             } else {
-                LSRw_IMM(x2, x1, (c%9)-1);
+                LSRw_IMM(s3, s1, (c%9)-1);
             }
         } else {
-            MOVw_REG(x2, xFlags);
+            MOVw_REG(s3, xFlags);
         }
     }
-    BFIw(x1, xFlags, 8, 1); // insert cf
-    ORRw_REG_LSL(x1, x1, x1, 9);    // insert x1 again
+    BFIw(s1, xFlags, 8, 1); // insert cf
+    ORRw_REG_LSL(s1, s1, s1, 9);    // insert s1 again
     if(c%9) {
-        LSRw_IMM(x1, x1, (c%9)); // do the rcr
+        LSRw_IMM(s1, s1, (c%9)); // do the rcr
     }
     IFX(X_PEND) {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_OF|X_CF) {
+        BFIw(xFlags, s3, F_CF, 1);
         IFX(X_OF) {
             if(c==1) {
-                EORw_REG_LSR(x2, x2, x1, 7);
-                BFIw(xFlags, x2, F_OF, 1);
+                EORw_REG_LSR(s3, s3, s1, 7);
+                BFIw(xFlags, s3, F_OF, 1);
             }
         }
-        BFIw(xFlags, x2, F_CF, 1);
     }
 }
 
