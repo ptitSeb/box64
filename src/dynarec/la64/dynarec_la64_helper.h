@@ -746,8 +746,10 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_or32c          STEPNAME(emit_or32c)
 #define emit_or8            STEPNAME(emit_or8)
 #define emit_or8c           STEPNAME(emit_or8c)
+#define emit_or16           STEPNAME(emit_or16)
 #define emit_xor8           STEPNAME(emit_xor8)
 #define emit_xor8c          STEPNAME(emit_xor8c)
+#define emit_xor16          STEPNAME(emit_xor16)
 #define emit_xor32          STEPNAME(emit_xor32)
 #define emit_xor32c         STEPNAME(emit_xor32c)
 #define emit_and8           STEPNAME(emit_and8)
@@ -826,8 +828,10 @@ void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_or8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_or8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4);
+void emit_or16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_xor32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
