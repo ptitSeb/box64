@@ -573,6 +573,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
                 BSTRPICK_D(gd, wback, wb2 + 7, wb2);
                 EXT_W_B(gd, gd);
+                ZEROUP(gd);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x1, &fixedaddress, rex, NULL, 1, 0);

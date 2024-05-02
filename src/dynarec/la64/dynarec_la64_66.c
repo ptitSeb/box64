@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -157,7 +158,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 if (ed != gd) {
                     BSTRINS_D(ed, gd, 15, 0);
-                    if (is32bits) ZEROUP(ed);
+                    if (rex.is32bits) ZEROUP(ed);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
@@ -179,9 +180,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("XCHG AX, Reg");
                 MV(x2, xRAX);
-                BSTRPICK_D(xRAX, gd, 15, 0);
-                BSTRPICK_D(gd, x2, 15, 0);
-                if (is32bits) {
+                BSTRINS_D(xRAX, gd, 15, 0);
+                BSTRINS_D(gd, x2, 15, 0);
+                if (rex.is32bits) {
                     ZEROUP(xRAX);
                     ZEROUP(gd);
                 }
@@ -215,7 +216,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u16 = F16;
                 MOV32w(x1, u16);
                 BSTRINS_D(ed, x1, 15, 0);
-                if (is32bits) { ZEROUP(ed); }
+                if (rex.is32bits) { ZEROUP(ed); }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 2);
                 u16 = F16;
