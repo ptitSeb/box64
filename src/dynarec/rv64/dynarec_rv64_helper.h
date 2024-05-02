@@ -934,7 +934,6 @@
             BEQ(x3, xZR, j64);                      \
         }                                           \
         CALL_(UpdateFlags, -1, 0);                  \
-        FLAGS_ADJUST_FROM11(xFlags, xFlags, x3);    \
         MARKF;                                      \
         dyn->f.pending = SF_SET;                    \
         SET_DFOK();                                 \
