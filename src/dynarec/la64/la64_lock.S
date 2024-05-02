@@ -161,7 +161,7 @@ la64_lock_cas_d:
     ll.w $a3, $a0, 0
     bne  $a3, $a1, 16
     sc.w $a2, $a0, 0
-    li.d $a0, 0
+    xori $a0, $a2, 1
     ret
     li.d $a0, 1
     ret
@@ -170,7 +170,7 @@ la64_lock_cas_dd:
     ll.d $a3, $a0, 0
     bne  $a3, $a1, 1f
     sc.d $a2, $a0, 0
-    li.d $a0, 0
+    xori $a0, $a2, 1    // sc return success in $a2, overwriting it! 0 = fail, 1 = success
 1:
     ret
     li.d $a0, 1
@@ -180,8 +180,9 @@ la64_lock_cas_dq:
     ll.d $a4, $a0, 0
     bne  $a4, $a2, 1f
     sc.d $a1, $a0, 0
+    beqz $a1, 1f
     st.d $a3, $a0, 8
-    li.d $a0, 0
+    xori $a0, $a1, 1
     ret
 1:
     li.d $a0, 1
