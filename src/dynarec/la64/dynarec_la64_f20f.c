@@ -93,6 +93,65 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             VEXTRINS_D(v0, d1, 0);
             break;
+        case 0x2C:
+            INST_NAME("CVTTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEXSD(q0, 0, 0);
+            if (!box64_dynarec_fastround) {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+            }
+            d1 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                FTINTRZ_L_D(d1, q0);
+                MOVFR2GR_D(gd, d1);
+            } else {
+                FTINTRZ_W_D(d1, q0);
+                MOVFR2GR_S(gd, d1);
+            }
+            if (!rex.w) ZEROUP(gd);
+            if (!box64_dynarec_fastround) {
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
+        case 0x2D:
+            INST_NAME("CVTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEXSD(q0, 0, 0);
+            if (!box64_dynarec_fastround) {
+                MOVGR2FCSR(FCSR2, xZR); // reset all bits
+            }
+            d1 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x2, x3);
+            if (rex.w) {
+                FTINT_L_D(d1, q0);
+                MOVFR2GR_D(gd, d1);
+            } else {
+                FTINT_W_D(d1, q0);
+                MOVFR2GR_S(gd, d1);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            if (!box64_dynarec_fastround) {
+                MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
+                AND(x5, x5, x3);
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
@@ -126,6 +185,15 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             MARK;
             VEXTRINS_D(v0, d0, 0); // v0[63:0] = d0[63:0]
+            break;
+        case 0x5A:
+            INST_NAME("CVTSD2SS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEXSD(d0, 0, 0);
+            d1 = fpu_get_scratch(dyn);
+            FCVT_S_D(d1, d0);
+            VEXTRINS_W(v0, d1, 0);
             break;
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");

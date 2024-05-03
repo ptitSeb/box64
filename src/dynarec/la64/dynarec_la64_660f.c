@@ -248,6 +248,27 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x54:
+            INST_NAME("ANDPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGX(v0, 1);
+            VAND_V(v0, v0, q0);
+            break;
+        case 0x57:
+            INST_NAME("XORPD Gx, Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG && ((nextop & 7) + (rex.b << 3) == gd)) {
+                // special case for XORPD Gx, Gx
+                q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VXOR_V(q0, q0, q0);
+            } else {
+                q0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+                GETEX(q1, 0, 0);
+                VXOR_V(q0, q0, q1);
+            }
+            break;
         case 0x5A:
             INST_NAME("CVTPD2PS Gx, Ex");
             nextop = F8;
@@ -600,6 +621,18 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VST(v0, ed, fixedaddress);
                 SMWRITE2();
             }
+            break;
+        case 0xAF:
+            INST_NAME("IMUL Gw,Ew");
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            UFLAG_DF(x1, d_imul16);
+            GETSEW(x1, 0);
+            GETSGW(x2);
+            MUL_W(x2, x2, x1);
+            UFLAG_RES(x2);
+            BSTRPICK_D(x2, x2, 15, 0);
+            GWBACK;
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");

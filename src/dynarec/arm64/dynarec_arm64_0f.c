@@ -657,7 +657,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEM(q1, 0);
                     ABS_32(q0, q1);
                     break;
-                
+
                 case 0xC8:
                     INST_NAME("SHA1NEXTE Gx, Ex");
                     nextop = F8;
@@ -900,7 +900,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 v1 = v0;
                             else
                                 v1 = fpu_get_scratch(dyn);
-                        } else 
+                        } else
                             v1 = q1;
                         if(v1!=v0) {
                             VEXTQ_8(v1, q1, q1, 8);
@@ -1916,7 +1916,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
                 }
                 break;
-                
+
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
             SETFLAGS(X_CF, SF_SUBSET);
