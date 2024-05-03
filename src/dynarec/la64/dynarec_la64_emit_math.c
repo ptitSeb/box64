@@ -1024,3 +1024,101 @@ void emit_neg32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
 }
+
+// emit ADC32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
+void emit_adc32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, rex.w ? d_adc64 : d_adc32b);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (la64_lbt) {
+        IFX (X_ALL) {
+            if (rex.w)
+                X64_ADC_D(s1, s2);
+            else
+                X64_ADC_W(s1, s2);
+        }
+        if (rex.w)
+            ADC_D(s1, s1, s2);
+        else
+            ADC_W(s1, s1, s2);
+
+        IFX (X_PEND) {
+            SDxw(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    IFX (X_CF) {
+        if (rex.w) {
+            AND(s5, xMASK, s1);
+            AND(s4, xMASK, s2);
+            ADD_D(s5, s5, s4); // lo
+            SRLI_D(s3, s1, 0x20);
+            SRLI_D(s4, s2, 0x20);
+            ADD_D(s4, s4, s3);
+            SRLI_D(s5, s5, 0x20);
+            ADD_D(s5, s5, s4); // hi
+            SRAI_D(s6, s5, 0x20);
+        } else {
+            AND(s3, s1, xMASK);
+            AND(s4, s2, xMASK);
+            ADD_D(s5, s3, s4);
+            SRLI_D(s6, s5, 0x20);
+        }
+    }
+    IFX (X_AF | X_OF) {
+        OR(s4, s1, s2);  // s4 = op1 | op2
+        AND(s5, s1, s2); // s5 = op1 & op2
+    }
+
+    ADDxw(s1, s1, s2);
+    ANDI(s3, xFlags, 1 << F_CF);
+    ADDxw(s1, s1, s3);
+
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        BEQZ(s6, 8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+    IFX (X_AF | X_OF) {
+        ANDN(s3, s4, s1); // s3 = ~res & (op1 | op2)
+        OR(s3, s3, s5);   // cc = (~res & (op1 | op2)) | (op1 & op2)
+        IFX (X_AF) {
+            ANDI(s4, s3, 0x08); // AF: cc & 0x08
+            BEQZ(s4, 8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX (X_OF) {
+            SRLI_D(s3, s3, rex.w ? 62 : 30);
+            SRLI_D(s4, s3, 1);
+            XOR(s3, s3, s4);
+            ANDI(s3, s3, 1); // OF: xor of two MSB's of cc
+            BEQZ(s3, 8);
+            ORI(xFlags, xFlags, 1 << F_OF);
+        }
+    }
+    IFX (X_SF) {
+        BGE(s1, xZR, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+}

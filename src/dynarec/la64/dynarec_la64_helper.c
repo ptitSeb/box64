@@ -585,6 +585,43 @@ void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
     // TODO
 }
 
+// Set rounding according to mxcsr flags, return reg to restore flags
+int sse_setround(dynarec_la64_t* dyn, int ninst, int s1, int s2)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MAYUSE(s1);
+    MAYUSE(s2);
+    LD_W(s1, xEmu, offsetof(x64emu_t, mxcsr));
+    SRLI_D(s1, s1, 13);
+    ANDI(s1, s1, 0b11);
+    // MMX/x87 Round mode: 0..3: Nearest, Down, Up, Chop
+    // LA64: 0..3: Nearest, TowardZero, TowardsPositive, TowardsNegative
+    // 0->0, 1->3, 2->2, 3->1
+    BEQ(s1, xZR, 32);
+    ADDI_D(s2, xZR, 2);
+    BEQ(s1, s2, 24);
+    ADDI_D(s2, xZR, 3);
+    BEQ(s1, s2, 12);
+    ADDI_D(s1, xZR, 3);
+    B(8);
+    ADDI_D(s1, xZR, 1);
+    // done
+    SLLI_D(s1, s1, 8);
+    MOVFCSR2GR(s2, FCSR3);
+    MOVGR2FCSR(FCSR3, s1); // exange RM with current
+    return s2;
+}
+
+// Restore round flag
+void x87_restoreround(dynarec_la64_t* dyn, int ninst, int s1)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MAYUSE(s1);
+    MOVGR2FCSR(FCSR3, s1);
+}
+
 // SSE / SSE2 helpers
 // get lsx register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite)

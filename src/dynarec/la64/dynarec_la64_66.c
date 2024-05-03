@@ -58,6 +58,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         return dynarec64_00(dyn, addr - 1, ip, ninst, rex, rep, ok, need_epilog);         // addr-1, to "put back" opcode
 
     switch (opcode) {
+        case 0x01:
+            INST_NAME("ADD Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_add16(dyn, ninst, x1, x2, x4, x5, x6);
+            EWBACK;
+            break;
         case 0x03:
             INST_NAME("ADD Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -66,6 +75,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEW(x2, 0);
             emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
             GWBACK;
+            break;
+        case 0x05:
+            INST_NAME("ADD AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            BSTRPICK_D(x1, xRAX, 15, 0);
+            MOV32w(x2, i32);
+            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
+            BSTRINS_D(xRAX, x1, 15, 0);
             break;
         case 0x09:
             INST_NAME("OR Ew, Gw");
@@ -92,6 +110,24 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEW(x1, 0);
             emit_sbb16(dyn, ninst, x1, x2, x4, x5, x6);
             EWBACK;
+            break;
+        case 0x21:
+            INST_NAME("AND Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_and16(dyn, ninst, x1, x2, x4, x5);
+            EWBACK;
+            break;
+        case 0x23:
+            INST_NAME("AND Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_and16(dyn, ninst, x1, x2, x3, x4);
+            GWBACK;
             break;
         case 0x25:
             INST_NAME("AND AX, Iw");
@@ -411,6 +447,46 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
+        case 0xD1:
+        case 0xD3:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 4:
+                case 6:
+                    if (opcode == 0xD1) {
+                        INST_NAME("SHL Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHL Ew, CL");
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    if (box64_dynarec_safeflags > 1)
+                        MAYSETFLAGS();
+                    GETEW(x1, 0);
+                    emit_shl16(dyn, ninst, x1, x2, x5, x4, x6);
+                    EWBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0xF7:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                case 1:
+                    INST_NAME("TEST Ew, Iw");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, 2);
+                    u16 = F16;
+                    MOV32w(x2, u16);
+                    emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                default:
+                    DEFAULT;
+            }
         default:
             DEFAULT;
     }

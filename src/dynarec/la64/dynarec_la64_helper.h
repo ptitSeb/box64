@@ -176,6 +176,11 @@
         addr = fakeed(dyn, addr, ninst, nextop); \
     }
 
+// GETGW extract x64 register in gd, that is i, Signed extented
+#define GETSGW(i)                                        \
+    gd = TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    EXT_W_H(i, gd);                                      \
+    gd = i;
 
 // Write back ed in wback (if wback not 0)
 #define WBACK                              \
@@ -186,7 +191,20 @@
             ST_W(ed, wback, fixedaddress); \
         SMWRITE();                         \
     }
-
+// GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
+#define GETSEW(i, D)                                                                           \
+    if (MODREG) {                                                                              \
+        wback = TO_LA64((nextop & 7) + (rex.b << 3));                                          \
+        EXT_W_H(i, wback);                                                                     \
+        ed = i;                                                                                \
+        wb1 = 0;                                                                               \
+    } else {                                                                                   \
+        SMREAD();                                                                              \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, i, &fixedaddress, rex, NULL, 1, D); \
+        LD_H(i, wback, fixedaddress);                                                          \
+        ed = i;                                                                                \
+        wb1 = 1;                                                                               \
+    }
 // Write w back to original register / memory (w needs to be 16bits only!)
 #define EWBACKW(w)                    \
     if (wb1) {                        \
@@ -734,6 +752,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_add8           STEPNAME(emit_add8)
 #define emit_add8c          STEPNAME(emit_add8c)
 #define emit_add16          STEPNAME(emit_add16)
+#define emit_adc32          STEPNAME(emit_adc32)
 #define emit_sub16          STEPNAME(emit_sub16)
 #define emit_sub32          STEPNAME(emit_sub32)
 #define emit_sub32c         STEPNAME(emit_sub32c)
@@ -760,6 +779,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_and16          STEPNAME(emit_and16)
 #define emit_and32          STEPNAME(emit_and32)
 #define emit_and32c         STEPNAME(emit_and32c)
+#define emit_shl16          STEPNAME(emit_shl16)
 #define emit_shl32          STEPNAME(emit_shl32)
 #define emit_shl32c         STEPNAME(emit_shl32c)
 #define emit_shr8           STEPNAME(emit_shr8)
@@ -771,7 +791,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define emit_pf STEPNAME(emit_pf)
 
-
+#define x87_restoreround  STEPNAME(x87_restoreround)
+#define sse_setround      STEPNAME(sse_setround)
 #define x87_forget       STEPNAME(x87_forget)
 #define sse_purge07cache STEPNAME(sse_purge07cache)
 #define sse_get_reg       STEPNAME(sse_get_reg)
@@ -818,6 +839,7 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 void emit_add8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_add8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s2, int s3, int s4);
 void emit_add16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_adc32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6);
 void emit_sub16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sub32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_sub32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5);
@@ -844,6 +866,7 @@ void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 void emit_and16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
+void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
@@ -866,7 +889,10 @@ void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
-
+// Restore round flag
+void x87_restoreround(dynarec_la64_t* dyn, int ninst, int s1);
+// Set rounding according to mxcsr flags, return reg to restore flags
+int sse_setround(dynarec_la64_t* dyn, int ninst, int s1, int s2);
 // refresh a value from the cache ->emu and then forget the cache (nothing done if value is not cached)
 void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st);
 

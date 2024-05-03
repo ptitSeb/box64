@@ -655,6 +655,23 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_or32c(dyn, ninst, rex, ed, i64, x3, x4);
                     WBACK;
                     break;
+                case 2: // ADC
+                    if (opcode == 0x81) {
+                        INST_NAME("ADC Ed, Id");
+                    } else {
+                        INST_NAME("ADC Ed, Ib");
+                    }
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81)
+                        i64 = F32S;
+                    else
+                        i64 = F8S;
+                    MOV64xw(x5, i64);
+                    emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x1);
+                    WBACK;
+                    break;
                 case 4: // AND
                     if (opcode == 0x81) {
                         INST_NAME("AND Ed, Id");
@@ -1810,6 +1827,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = F8;
                     MOV32w(x2, u8);
                     emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                case 2:
+                    INST_NAME("NOT Eb");
+                    GETEB(x1, 0);
+                    NOR(x1, x1, xZR);
+                    EBBACK();
                     break;
                 case 3:
                     INST_NAME("NEG Eb");
