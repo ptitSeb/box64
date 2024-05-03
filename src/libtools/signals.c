@@ -1396,6 +1396,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(repeated_page == ((uintptr_t)addr&~(box64_pagesize-1))) {
             ++repeated_count;   // Access eoor multiple time on same page, disable dynarec on this page a few time...
             dynarec_log(LOG_DEBUG, "Detecting a Hotpage at %p (%d)\n", (void*)repeated_page, repeated_count);
+            SetHotPage(repeated_page);
         } else {
             repeated_page = (uintptr_t)addr&~(box64_pagesize-1);
             repeated_count = 0;

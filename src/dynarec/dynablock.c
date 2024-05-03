@@ -261,6 +261,8 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
 
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 {
+    if(isInHotPage(addr))
+        return NULL;
     dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, 1, is32bits);
     if(db && db->done && db->block && getNeedTest(addr)) {
         if(db->always_test)
