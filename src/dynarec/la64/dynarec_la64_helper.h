@@ -198,6 +198,9 @@
 // Write ed back to original register / memory
 #define EWBACK EWBACKW(ed)
 
+// Write back gd in correct register
+#define GWBACK BSTRINS_D((TO_LA64(((nextop & 0x38) >> 3) + (rex.r << 3))), gd, 15, 0);
+
 // GETEB will use i for ed, and can use r3 for wback.
 #define GETEB(i, D)                                                                             \
     if (MODREG) {                                                                               \
@@ -754,6 +757,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_xor32c         STEPNAME(emit_xor32c)
 #define emit_and8           STEPNAME(emit_and8)
 #define emit_and8c          STEPNAME(emit_and8c)
+#define emit_and16          STEPNAME(emit_and16)
 #define emit_and32          STEPNAME(emit_and32)
 #define emit_and32c         STEPNAME(emit_and32c)
 #define emit_shl32          STEPNAME(emit_shl32)
@@ -836,6 +840,7 @@ void emit_xor32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s4);
+void emit_and16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_and32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);

@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -76,6 +77,21 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FST_D(v0, ed, fixedaddress);
                 SMWRITE2();
             }
+            break;
+        case 0x2A:
+            INST_NAME("CVTSI2SD Gx, Ed");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETED(0);
+            d1 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                MOVGR2FR_D(d1, ed);
+                FFINT_D_L(d1, d1);
+            } else {
+                MOVGR2FR_W(d1, ed);
+                FFINT_D_W(d1, d1);
+            }
+            VEXTRINS_D(v0, d1, 0);
             break;
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
