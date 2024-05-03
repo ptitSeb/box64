@@ -333,7 +333,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("MOV Reg16, Iw");
             u16 = F16;
             MOV32w(x1, u16);
-            gd = xRAX + (opcode & 7) + (rex.b << 3);
+            gd = TO_LA64((opcode & 7) + (rex.b << 3));
             BSTRINS_D(gd, x1, 15, 0);
             break;
         case 0xC1:
