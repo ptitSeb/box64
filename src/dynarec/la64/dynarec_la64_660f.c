@@ -86,6 +86,46 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VLD(v0, ed, fixedaddress);
             }
             break;
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if (opcode == 0x2F) {
+                INST_NAME("COMISD Gx, Ex");
+            } else {
+                INST_NAME("UCOMISD Gx, Ex");
+            }
+            SETFLAGS(X_ALL, SF_SET);
+            SET_DFNONE();
+            nextop = F8;
+            GETGX(d0, 0);
+            GETEXSD(v0, 0, 0);
+
+            CLEAR_FLAGS(x3);
+            // if isnan(d0) || isnan(v0)
+            IFX (X_ZF | X_PF | X_CF) {
+                FCMP_D(fcc0, d0, v0, cUN);
+                BCEQZ_MARK(fcc0);
+                ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
+                B_MARK3_nocond;
+            }
+            MARK;
+            // else if isless(d0, v0)
+            IFX (X_CF) {
+                FCMP_D(fcc1, d0, v0, cLT);
+                BCEQZ_MARK2(fcc1);
+                ORI(xFlags, xFlags, 1 << F_CF);
+                B_MARK3_nocond;
+            }
+            MARK2;
+            // else if d0 == v0
+            IFX (X_ZF) {
+                FCMP_D(fcc2, d0, v0, cEQ);
+                BCEQZ_MARK3(fcc2);
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            MARK3;
+            SPILL_EFLAGS();
+            break;
         case 0x38: // SSSE3 opcodes
             nextop = F8;
             switch (nextop) {

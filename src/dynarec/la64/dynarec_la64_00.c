@@ -300,9 +300,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETED(0);
             emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
-            if(ed!=gd) {
+            if (ed != gd) {
                 WBACK;
             }
+            break;
+        case 0x32:
+            INST_NAME("XOR Gb, Eb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETEB(x1, 0);
+            GETGB(x2);
+            emit_xor8(dyn, ninst, x2, x1, x4, x5);
+            GBBACK();
             break;
         case 0x33:
             INST_NAME("XOR Gd, Ed");
@@ -312,6 +321,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
+        case 0x35:
+            INST_NAME("XOR EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
+            break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -319,12 +334,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEB(x1, 0);
             GETGB(x2);
             emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
-            break;
-        case 0x35:
-            INST_NAME("XOR EAX, Id");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
-            i64 = F32S;
-            emit_xor32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
@@ -1048,6 +1057,31 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64xw(x2, i64);
             emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
+        case 0xAA:
+            if (rep) {
+                INST_NAME("REP STOSB");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1 << F_DF);
+                BNEZ_MARK2(x1);
+                MARK; // Part with DF==0
+                ST_B(xRAX, xRDI, 0);
+                ADDI_D(xRDI, xRDI, 1);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2; // Part with DF==1
+                ST_B(xRAX, xRDI, 0);
+                ADDI_D(xRDI, xRDI, -1);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("STOSB");
+                GETDIR(x3, x1, 1);
+                ST_B(xRAX, xRDI, 0);
+                ADD_D(xRDI, xRDI, x3);
+            }
+            break;
         case 0xAB:
             if (rep) {
                 INST_NAME("REP STOSD");
@@ -1448,6 +1482,30 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL();
                 }
+            }
+            break;
+        case 0xD0:
+        case 0xD2: // TODO: Jump if CL is 0
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 5:
+                    if (opcode == 0xD0) {
+                        INST_NAME("SHR Eb, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHR Eb, CL");
+                        ANDI(x2, xRCX, 0x1F);
+                        BEQ_NEXT(x2, xZR);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    if (box64_dynarec_safeflags > 1)
+                        MAYSETFLAGS();
+                    GETEB(x1, 0);
+                    emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                default:
+                    DEFAULT;
             }
             break;
         case 0xD1:

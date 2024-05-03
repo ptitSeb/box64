@@ -158,6 +158,24 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             VILVL_D(v0, v1, v0); // v0[127:64] = v1[63:0]
             break;
+        case 0x18:
+            nextop = F8;
+            if ((nextop & 0xC0) == 0xC0) {
+                INST_NAME("NOP (multibyte)");
+            } else
+                switch ((nextop >> 3) & 7) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                        INST_NAME("PREFETCHh Ed");
+                        FAKEED;
+                        break;
+                    default:
+                        INST_NAME("NOP (multibyte)");
+                        FAKEED;
+                }
+            break;
         case 0x1F:
             INST_NAME("NOP (multibyte)");
             nextop = F8;
