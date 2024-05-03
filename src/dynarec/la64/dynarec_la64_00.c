@@ -1073,6 +1073,56 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ADD_D(xRDI, xRDI, x3);
             }
             break;
+        case 0xAE:
+            switch (rep) {
+                case 1:
+                case 2:
+                    if (rep == 1) {
+                        INST_NAME("REPNZ SCASB");
+                    } else {
+                        INST_NAME("REPZ SCASB");
+                    }
+                    MAYSETFLAGS();
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    CBZ_NEXT(xRCX);
+                    ANDI(x1, xRAX, 0xff);
+                    ANDI(x2, xFlags, 1 << F_DF);
+                    BNEZ_MARK2(x2);
+                    MARK; // Part with DF==0
+                    LD_BU(x2, xRDI, 0);
+                    ADDI_D(xRDI, xRDI, 1);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNE_MARK(xRCX, xZR);
+                    B_MARK3_nocond;
+                    MARK2; // Part with DF==1
+                    LD_BU(x2, xRDI, 0);
+                    ADDI_D(xRDI, xRDI, -1);
+                    ADDI_D(xRCX, xRCX, -1);
+                    if (rep == 1) {
+                        BEQ_MARK3(x1, x2);
+                    } else {
+                        BNE_MARK3(x1, x2);
+                    }
+                    BNE_MARK2(xRCX, xZR);
+                    MARK3; // end
+                    emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+                default:
+                    INST_NAME("SCASB");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETDIR(x3, x1, 1);
+                    ANDI(x1, xRAX, 0xff);
+                    LD_BU(x2, xRDI, 0);
+                    ADD_D(xRDI, xRDI, x3);
+                    emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                    break;
+            }
+            break;
         case 0xB0:
         case 0xB1:
         case 0xB2:

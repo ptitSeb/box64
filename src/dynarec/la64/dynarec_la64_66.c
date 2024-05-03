@@ -58,7 +58,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         return dynarec64_00(dyn, addr - 1, ip, ninst, rex, rep, ok, need_epilog);         // addr-1, to "put back" opcode
 
     switch (opcode) {
-
+        case 0x03:
+            INST_NAME("ADD Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
+            GWBACK;
+            break;
         case 0x0F:
             switch (rep) {
                 case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
@@ -76,6 +84,42 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_sbb16(dyn, ninst, x1, x2, x4, x5, x6);
             EWBACK;
             break;
+        case 0x25:
+            INST_NAME("AND AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            BSTRPICK_D(x1, xRAX, 15, 0);
+            MOV32w(x2, i32);
+            emit_and16(dyn, ninst, x1, x2, x3, x4);
+            BSTRINS_D(xRAX, x1, 0, 15);
+            break;
+        case 0x29:
+            INST_NAME("SUB Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_sub16(dyn, ninst, x2, x1, x4, x5, x6);
+            EWBACK;
+            break;
+        case 0x2B:
+            INST_NAME("SUB Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
+            GWBACK;
+            break;
+        case 0x2D:
+            INST_NAME("SUB AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            BSTRPICK_D(x1, xRAX, 15, 0);
+            MOV32w(x2, i32);
+            emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
+            BSTRINS_D(xRAX, x1, 0, 15);
+            break;
         case 0x31:
             INST_NAME("XOR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -91,6 +135,14 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x2);
             GETEW(x1, 0);
+            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            break;
+        case 0x3B:
+            INST_NAME("CMP Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
             emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
             break;
         case 0x81:
@@ -207,6 +259,20 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINS_D(xRAX, gd, 15, 0);
                 BSTRINS_D(gd, x2, 15, 0);
             }
+            break;
+        case 0xB8:
+        case 0xB9:
+        case 0xBA:
+        case 0xBB:
+        case 0xBC:
+        case 0xBD:
+        case 0xBE:
+        case 0xBF:
+            INST_NAME("MOV Reg16, Iw");
+            u16 = F16;
+            MOV32w(x1, u16);
+            gd = xRAX + (opcode & 7) + (rex.b << 3);
+            BSTRINS_D(gd, x1, 15, 0);
             break;
         case 0xC1:
             nextop = F8;
