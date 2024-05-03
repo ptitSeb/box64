@@ -97,7 +97,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEXSD(v1, 0);
+            GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FADD_D(d0, v0, v1);
             if (!box64_dynarec_fastnan) {
@@ -114,7 +114,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEXSD(v1, 0);
+            GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FMUL_D(d0, v0, v1);
             if (!box64_dynarec_fastnan) {
@@ -131,7 +131,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEXSD(v1, 0);
+            GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FSUB_D(d0, v0, v1);
             if (!box64_dynarec_fastnan) {
@@ -148,7 +148,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            GETEXSD(v1, 0);
+            GETEXSD(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             FDIV_D(d0, v0, v1);
             if (!box64_dynarec_fastnan) {

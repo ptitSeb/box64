@@ -290,14 +290,14 @@
     }
 
 // Get Ex as a double, not a quad (warning, x1 get used, x2 might too)
-#define GETEXSD(a, D)                                                                        \
+#define GETEXSD(a, w, D)                                                                     \
     if (MODREG) {                                                                            \
-        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);                     \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
     } else {                                                                                 \
-        SMREAD();                                                                            \
+        SMREAD(); /* TODO */                                                                 \
         a = fpu_get_scratch(dyn);                                                            \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, D); \
-        FLD_D(a, ed, fixedaddress);                                                            \
+        FLD_D(a, ed, fixedaddress);                                                          \
     }
 
 // Get Ex as a single, not a quad (warning, x1 get used)
@@ -762,6 +762,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_and32c         STEPNAME(emit_and32c)
 #define emit_shl32          STEPNAME(emit_shl32)
 #define emit_shl32c         STEPNAME(emit_shl32c)
+#define emit_shr8           STEPNAME(emit_shr8)
 #define emit_shr32          STEPNAME(emit_shr32)
 #define emit_shr32c         STEPNAME(emit_shr32c)
 #define emit_sar32c         STEPNAME(emit_sar32c)
@@ -845,6 +846,7 @@ void emit_and32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_and32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
+void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
