@@ -91,7 +91,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BSTRPICK_D(x1, xRAX, 15, 0);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
-            BSTRINS_D(xRAX, x1, 0, 15);
+            BSTRINS_D(xRAX, x1, 15, 0);
             break;
         case 0x29:
             INST_NAME("SUB Ew, Gw");
@@ -118,7 +118,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BSTRPICK_D(x1, xRAX, 15, 0);
             MOV32w(x2, i32);
             emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
-            BSTRINS_D(xRAX, x1, 0, 15);
+            BSTRINS_D(xRAX, x1, 15, 0);
             break;
         case 0x31:
             INST_NAME("XOR Ew, Gw");
