@@ -28,7 +28,7 @@
 .global la64_lock_get_dd
 
 la64_lock_xchg_b:
-    amswap_db.b $a2, $a1, $a0
+    .word 0x385e1486 // amswap_db.b $a2, $a1, $a0
     move        $a0, $a2
     ret
 
@@ -156,14 +156,14 @@ la64_lock_store_dd:
 
 la64_lock_cas_b:
     ext.w.b     $a3, $a1
-    amcas_db.b  $a1, $a2, $a0
+    .word 0x385a1885 // amcas_db.b  $a1, $a2, $a0
     xor         $a0, $a1, $a3
     sltu        $a0, $zero, $a0
     ret
 
 la64_lock_cas_h:
     ext.w.h     $a3, $a1
-    amcas_db.h  $a1, $a2, $a0
+    .word 0x385a9885 // amcas_db.h  $a1, $a2, $a0
     xor         $a0, $a1, $a3
     sltu        $a0, $zero, $a0
     ret
