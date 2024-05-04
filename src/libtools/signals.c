@@ -879,6 +879,31 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b11111111110000000000000000000000)==0b10101101000000000000000000000000) {
+        // This is (V)STP qreg1, qreg2, [reg3 + off]
+        int scale = 2+((opcode>>30)&3);
+        int val1 = opcode&31;
+        int val2 = (opcode>>10)&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>15)&0b1111111;
+        if((offset>>(7-1))&1)
+            offset |= (0xffffffffffffffffll<<7);
+        offset <<= scale;
+        uintptr_t addr= p->uc_mcontext.regs[dest] + offset;
+        if((((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<4; ++i)
+                ((volatile uint32_t*)addr)[0+i] = (fpsimd->vregs[val1]>>(i*32))&0xffffffff;
+            for(int i=0; i<4; ++i)
+                ((volatile uint32_t*)addr)[4+i] = (fpsimd->vregs[val2]>>(i*32))&0xffffffff;
+        } else {
+            for(int i=0; i<16; ++i)
+                ((volatile uint8_t*)addr)[i] = (fpsimd->vregs[val1]>>(i*8))&0xff;
+            for(int i=0; i<16; ++i)
+                ((volatile uint8_t*)addr)[16+i] = (fpsimd->vregs[val2]>>(i*8))&0xff;
+        }
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
     if((opcode&0b10111111111111111111110000000000)==0b00001101000000001000010000000000) {
         // this is ST1.D
         int idx = (opcode>>30)&1;
@@ -1362,7 +1387,16 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
 #endif
     if((sig==SIGBUS) && (addr!=pc) && sigbus_specialcases(info, ucntx, pc, fpsimd)) {
         // special case fixed, restore everything and just continues
-        printf_log(LOG_DEBUG, "Special unalinged cased fixed, continue");
+        if(box64_log>=LOG_DEBUG || box64_showsegv) {
+            static void*  old_pc[2] = {0};
+            static int old_pc_i = 0;
+            if(old_pc[0]!=pc && old_pc[1]!=pc) {
+                old_pc[old_pc_i++] = pc;
+                if(old_pc_i==2)
+                    old_pc_i = 0;
+                printf_log(LOG_INFO, "Special unalinged cased fixed @%p, opcode=%08x (addr=%p)\n", pc, *(uint32_t*)pc, addr);
+            }
+        }
         return;
     }
     int Locks = unlockMutex();
