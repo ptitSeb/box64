@@ -308,31 +308,36 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
 }
 
-// CAS
-uint8_t extract_byte(uint32_t val, void* address){
+// will go badly if address is unaligned
+static uint8_t extract_byte(uint32_t val, void* address)
+{
     int idx = (((uintptr_t)address)&3)*8;
     return (val>>idx)&0xff;
 }
-uint32_t insert_byte(uint32_t val, uint8_t b, void* address){
+
+static uint32_t insert_byte(uint32_t val, uint8_t b, void* address)
+{
     int idx = (((uintptr_t)address)&3)*8;
     val&=~(0xff<<idx);
     val|=(((uint32_t)b)<<idx);
     return val;
 }
 
-// will go badly if address is unaligned
-uint16_t extract_half(uint32_t val, void* address){
+static uint16_t extract_half(uint32_t val, void* address)
+{
     int idx = (((uintptr_t)address)&3)*8;
     return (val>>idx)&0xffff;
 }
-uint32_t insert_half(uint32_t val, uint16_t h, void* address){
+
+static uint32_t insert_half(uint32_t val, uint16_t h, void* address)
+{
     int idx = (((uintptr_t)address)&3)*8;
     val&=~(0xffff<<idx);
     val|=(((uint32_t)h)<<idx);
     return val;
 }
 
-uint8_t la64_lock_xchg_b(void* addr, uint8_t val)
+uint8_t la64_lock_xchg_b_slow(void* addr, uint8_t val)
 {
     uint32_t ret;
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
@@ -342,24 +347,14 @@ uint8_t la64_lock_xchg_b(void* addr, uint8_t val)
     return extract_byte(ret, addr);
 }
 
-uint16_t la64_lock_xchg_h(void* addr, uint16_t val)
-{
-    uint32_t ret;
-    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
-    do {
-        ret = *aligned;
-    } while(la64_lock_cas_d(aligned, ret, insert_half(ret, val, addr)));
-    return extract_half(ret, addr);
-}
-
-int la64_lock_cas_b(void* addr, uint8_t ref, uint8_t val)
+int la64_lock_cas_b_slow(void* addr, uint8_t ref, uint8_t val)
 {
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
     uint32_t tmp = *aligned;
     return la64_lock_cas_d(aligned, ref, insert_byte(tmp, val, addr));
 }
 
-int la64_lock_cas_h(void* addr, uint16_t ref, uint16_t val)
+int la64_lock_cas_h_slow(void* addr, uint16_t ref, uint16_t val)
 {
     uint32_t* aligned = (uint32_t*)(((uintptr_t)addr)&~3);
     uint32_t tmp = *aligned;
