@@ -691,6 +691,13 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
                 }
                 break;
             case R_X86_64_64:
+                if(GetSymbolStartEnd(my_context->globdata, symname, &globoffs, &globend, version, vername, 1, veropt)) {
+                    if(offs!=globoffs) {
+                        offs = globoffs;
+                        sym_elf = my_context->elfs[0];
+                        elfsym = ElfDynSymLookup(sym_elf, symname);
+                    }
+                }
                 if (!offs && !elfsym) {
                     printf_log(LOG_INFO, "%s: Symbol %s not found, cannot apply R_X86_64_64 @%p (%p) in %s\n", (bind==STB_GLOBAL)?"Error":"Warning", symname, p, *(void**)p, head->name);
                     if(bind==STB_GLOBAL)
