@@ -956,3 +956,12 @@ GO(vkLatencySleepNV, iFpUp)
 GO(vkQueueNotifyOutOfBandNV, vFpp)
 GO(vkSetLatencyMarkerNV, vFpUp)
 GO(vkSetLatencySleepModeNV, iFpUp)
+
+// VK_AMDX_shader_enqueue
+GO(vkCmdDispatchGraphAMDX, vFpUp)
+GO(vkCmdDispatchGraphIndirectAMDX, vFpUp)
+GO(vkCmdDispatchGraphIndirectCountAMDX, vFpUU)
+GO(vkCmdInitializeGraphScratchMemoryAMDX, vFpU)
+GOM(vkCreateExecutionGraphPipelinesAMDX, iFEpUuppp)
+GO(vkGetExecutionGraphPipelineNodeIndexAMDX, iFpUpp)
+GO(vkGetExecutionGraphPipelineScratchSizeAMDX, iFpUp)

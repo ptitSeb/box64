@@ -135,6 +135,7 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateDisplayModeKHR, iFpUppp_t) \
 	GO(vkRegisterDisplayEventEXT, iFpUppp_t) \
 	GO(vkCreateComputePipelines, iFpUuppp_t) \
+	GO(vkCreateExecutionGraphPipelinesAMDX, iFpUuppp_t) \
 	GO(vkCreateGraphicsPipelines, iFpUuppp_t) \
 	GO(vkCreateRayTracingPipelinesNV, iFpUuppp_t) \
 	GO(vkCreateRayTracingPipelinesKHR, iFpUUuppp_t) \
