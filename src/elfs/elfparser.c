@@ -129,20 +129,20 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     h->numSHEntries = header.e_shnum;
     h->SHIdx = header.e_shstrndx;
     h->e_type = header.e_type;
-    if(header.e_shentsize && header.e_shnum) {
-        // special cases for nums
-        if(h->numSHEntries == 0) {
-            printf_dump(LOG_DEBUG, "Read number of Sections in 1st Section\n");
-            // read 1st section header and grab actual number from here
-            fseeko64(f, header.e_shoff, SEEK_SET);
-            Elf64_Shdr section;
-            if(fread(&section, sizeof(Elf64_Shdr), 1, f)!=1) {
-                box_free(h);
-                printf_log(LOG_INFO, "Cannot read Initial Section Header\n");
-                return NULL;
-            }
-            h->numSHEntries = section.sh_size;
+    // special cases for nums
+    if(header.e_shentsize && !h->numSHEntries) {
+        printf_dump(LOG_DEBUG, "Read number of Sections in 1st Section\n");
+        // read 1st section header and grab actual number from here
+        fseeko64(f, header.e_shoff, SEEK_SET);
+        Elf64_Shdr section;
+        if(fread(&section, sizeof(Elf64_Shdr), 1, f)!=1) {
+            box_free(h);
+            printf_log(LOG_INFO, "Cannot read Initial Section Header\n");
+            return NULL;
         }
+        h->numSHEntries = section.sh_size;
+    }
+    if(header.e_shentsize && h->numSHEntries) {
         // now read all section headers
         printf_dump(LOG_DEBUG, "Read %zu Section header\n", h->numSHEntries);
         h->SHEntries = (Elf64_Shdr*)box_calloc(h->numSHEntries, sizeof(Elf64_Shdr));
