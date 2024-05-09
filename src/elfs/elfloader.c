@@ -928,7 +928,7 @@ void AddSymbols(lib_t *maplib, elfheader_t* h)
     checkHookedSymbols(h);
     #endif
 }
-
+extern path_collection_t box64_addlibs;
 /*
 $ORIGIN – Provides the directory the object was loaded from. This token is typical
 used for locating dependencies in unbundled packages. For more details of this
@@ -1021,7 +1021,12 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
     for (size_t i=0; i<h->numDynamic; ++i)
         if(h->Dynamic[i].d_tag==DT_NEEDED)
             h->needed->names[j++] = h->DynStrTab+h->delta+h->Dynamic[i].d_un.d_val;
-
+    if(h==my_context->elfs[0] && box64_addlibs.size) {
+        for(int i=0; i<box64_addlibs.size; ++i) {
+            printf_log(LOG_INFO, "BOX64, Adding %s to needed libs of %s\n", box64_addlibs.paths[i], h->name);
+            add1lib_neededlib_name(h->needed, NULL, box64_addlibs.paths[i]);
+        }
+    }
     // TODO: Add LD_LIBRARY_PATH and RPATH handling
     if(AddNeededLib(maplib, local, bindnow, deepbind, h->needed, h, box64, emu)) {
         printf_log(LOG_INFO, "Error loading one of needed lib\n");

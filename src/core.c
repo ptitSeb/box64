@@ -55,6 +55,7 @@ int box64_cefdisablegpu = 0;
 int box64_cefdisablegpucompositor = 0;
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
+path_collection_t box64_addlibs = {0};
 int box64_maxcpu = 0;
 int box64_maxcpu_immutable = 0;
 #if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
@@ -1195,6 +1196,12 @@ int GatherEnv(char*** dest, char** env, char* prog)
     return 0;
 }
 
+void AddNewLibs(const char* list)
+{
+    AppendList(&box64_addlibs, list, 0);
+    printf_log(LOG_INFO, "BOX64: Adding %s to the libs\n", list);
+}
+
 void PrintFlags() {
 	printf("Environment Variables:\n");
     printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
@@ -1368,6 +1375,9 @@ void LoadEnvVars(box64context_t *context)
             context->no_sigill = 1;
             printf_log(LOG_INFO, "BOX64: Disabling handling of SigILL\n");
         }
+    }
+    if(getenv("BOX64_ADDLIBS")) {
+        AddNewLibs(getenv("BOX64_ADDLIBS"));
     }
     // check BOX64_PATH and load it
     LoadEnvPath(&context->box64_path, ".:bin", "BOX64_PATH");
@@ -1834,24 +1844,23 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
                 printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
             printf_log(LOG_INFO, "\n");
         }
-    } else {
-        if(getenv("LD_PRELOAD")) {
-            char* p = getenv("LD_PRELOAD");
-            if(strstr(p, "libtcmalloc_minimal.so.0"))
-                box64_tcmalloc_minimal = 1;
-            if(strstr(p, "libtcmalloc_minimal.so.4"))
-                box64_tcmalloc_minimal = 1;
-            if(strstr(p, "libtcmalloc_minimal_debug.so.4"))
-                box64_tcmalloc_minimal = 1;
-            if(strstr(p, "libasan.so"))
-                box64_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
-            ParseList(p, &ld_preload, 0);
-            if (ld_preload.size && box64_log) {
-                printf_log(LOG_INFO, "BOX64 trying to Preload ");
-                for (int i=0; i<ld_preload.size; ++i)
-                    printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
-                printf_log(LOG_INFO, "\n");
-            }
+    }
+    if(getenv("LD_PRELOAD")) {
+        char* p = getenv("LD_PRELOAD");
+        if(strstr(p, "libtcmalloc_minimal.so.0"))
+            box64_tcmalloc_minimal = 1;
+        if(strstr(p, "libtcmalloc_minimal.so.4"))
+            box64_tcmalloc_minimal = 1;
+        if(strstr(p, "libtcmalloc_minimal_debug.so.4"))
+            box64_tcmalloc_minimal = 1;
+        if(strstr(p, "libasan.so"))
+            box64_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
+        AppendList(&ld_preload, p, 0);
+        if (ld_preload.size && box64_log) {
+            printf_log(LOG_INFO, "BOX64 trying to Preload ");
+            for (int i=0; i<ld_preload.size; ++i)
+                printf_log(LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log(LOG_INFO, "\n");
         }
     }
     // print PATH and LD_LIB used

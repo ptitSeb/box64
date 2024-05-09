@@ -113,6 +113,9 @@ BOX64_MAXCPU=4
 [LotCG.x86_64]
 BOX64_DYNAREC_FASTROUND=0
 
+[Mini Metro]
+BOX64_ADDLIBS=libstdc++.so.6
+
 [nacl_helper]
 BOX64_MALLOC_HACK=1
 

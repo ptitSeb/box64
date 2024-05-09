@@ -1180,6 +1180,25 @@ void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name)
     needed->size++;
     needed->init_size++;
 }
+void add1lib_neededlib_name(needed_libs_t* needed, library_t* lib, const char* name)
+{
+    if(!needed || !name)
+        return;
+    // check if lib is already present
+    for (int i=0; i<needed->size; ++i)
+        if(!strcmp(needed->names[i], name))
+            return;
+    // add it
+    if(needed->size==needed->cap) {
+        needed->cap = needed->size+1;
+        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+        needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+    }
+    needed->libs[needed->size] = lib;
+    needed->names[needed->size] = (char*)name;
+    needed->size++;
+    needed->init_size++;
+}
 void add1libref_neededlib(needed_libs_t* needed, library_t* lib)
 {
     if(!needed || !lib)

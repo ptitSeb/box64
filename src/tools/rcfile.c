@@ -46,6 +46,9 @@ static const char default_rcfile[] =
 "[LotCG.x86_64]\n"
 "BOX64_DYNAREC_FASTROUND=0\n"
 "\n"
+"[Mini Metro]\n"
+"BOX64_ADDLIBS=stdc++.so.6\n"
+"\n"
 "[pressure-vessel-wrap]\n"
 "BOX64_NOGTK=1\n"
 "\n"
@@ -110,6 +113,7 @@ ENTRYBOOL(BOX64_JVM, box64_jvm)                         \
 ENTRYBOOL(BOX64_SDL2_JGUID, box64_sdl2_jguid)           \
 ENTRYINT(BOX64_MALLOC_HACK, box64_malloc_hack, 0, 2, 2) \
 ENTRYINTPOS(BOX64_MAXCPU, new_maxcpu)                   \
+ENTRYSTRING_(BOX64_ADDLIBS, new_addlibs)                \
 ENTRYSTRING_(BOX64_ENV, new_env)                        \
 ENTRYSTRING_(BOX64_ENV1, new_env1)                      \
 ENTRYSTRING_(BOX64_ENV2, new_env2)                      \
@@ -483,6 +487,7 @@ extern FILE* ftrace;
 extern char* ftrace_name;
 void openFTrace(const char* newtrace);
 void addNewEnvVar(const char* s);
+void AddNewLibs(const char* libs);
 #ifdef DYNAREC
 void GatherDynarecExtensions();
 #endif
@@ -573,6 +578,9 @@ void ApplyParams(const char* name)
     if(param->is_emulated_libs_present) {
         AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
         printf_log(LOG_INFO, "Applying %s=%s\n", "BOX64_EMULATED_LIBS", param->emulated_libs);
+    }
+    if(param->is_new_addlibs_present) {
+        AddNewLibs(param->new_addlibs);
     }
     if(param->is_new_env_present) {
         addNewEnvVar(param->new_env);

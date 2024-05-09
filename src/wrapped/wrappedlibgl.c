@@ -435,12 +435,6 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
         s->resolved = 1;                                                        \
         s->addr = (uintptr_t)find_glXSwapIntervalEXT_Fct(symb);                 \
     }                                                                           \
-    if(!box64_wine && GetLibInternal("libgcc_s.so.1")) {                        \
-        setNeededLibs(lib, 1, "libstdc++.so.6");                                \
-    }                                                                           \
-
-// This is a small hack to allow loading of libstdc++ as a dependancy for libGL as this is a the case with mesa. Some game, like Mini Metro on Steam don't have 
-// libstdc++.so.6 as a dependancy and yet needs it to run properly, rellying on other dependancies to work
 
 #include "wrappedlib_init.h"
 
