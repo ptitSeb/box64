@@ -19,6 +19,7 @@
 #include "dynablock_private.h"
 #include "bridge.h"
 #include "dynarec_next.h"
+#include "custommem.h"
 #endif
 #ifdef HAVE_TRACE
 #include "elfloader.h"
@@ -55,9 +56,13 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     if(!block) {
         #ifdef HAVE_TRACE
         if(LOG_INFO<=box64_dynarec_log) {
-            dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-            elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
-            dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s), RIP=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)", (void*)*x3);
+            if(checkInHotPage(addr)) {
+                dynarec_log(LOG_INFO, "Not trying to run a block from a Hotpage at %p\n", (void*)addr);
+            } else {
+                dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
+                elfheader_t* h = FindElfAddress(my_context, (uintptr_t)x2-4);
+                dynarec_log(LOG_INFO, "Warning, jumping to a no-block address %p from %p (db=%p, x64addr=%p(elf=%s), RIP=%p)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, h?ElfName(h):"(none)", (void*)*x3);
+            }
         }
         #endif
         //tableupdate(native_epilog, addr, table);

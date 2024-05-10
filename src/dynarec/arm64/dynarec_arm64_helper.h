@@ -702,12 +702,12 @@
     LDRH_U12(s3, xEmu, offsetof(x64emu_t, sw));   /*offset is 8bits right?*/\
     MOV32w(s1, 0b0100011100000000);                                         \
     BICw_REG(s3, s3, s1);                                                   \
+    /* greater than leave 0 */                                              \
     CSETw(s1, cMI); /* 1 if less than, 0 else */                            \
-    MOV32w(s2, 0b01000101); /* unordered */                                 \
-    CSELw(s1, s2, s1, cVS);                                                 \
     MOV32w(s2, 0b01000000); /* zero */                                      \
     CSELw(s1, s2, s1, cEQ);                                                 \
-    /* greater than leave 0 */                                              \
+    MOV32w(s2, 0b01000101); /* unordered */                                 \
+    CSELw(s1, s2, s1, cVS);                                                 \
     ORRw_REG_LSL(s3, s3, s1, 8);                                            \
     STRH_U12(s3, xEmu, offsetof(x64emu_t, sw))
 
@@ -812,28 +812,28 @@
 #define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)     x87_do_push_empty(dyn, ninst, scratch)
 #define X87_POP_OR_FAIL(dyn, ninst, scratch)            x87_do_pop(dyn, ninst, scratch)
 #else
-#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t) \
-    if (dyn->n.x87stack == +8) {                      \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->n.x87stack, ninst); \
-        dyn->abort = 1;                               \
-        return addr;                                  \
-    }                                                 \
+#define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t)   \
+    if ((dyn->n.x87stack==8) || (dyn->n.pushed==8)) {   \
+        if(box64_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->n.x87stack, dyn->n.pushed, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
     var = x87_do_push(dyn, ninst, scratch, t)
 
-#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch) \
-    if (dyn->n.x87stack == +8) {                       \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Push, stack=%d on inst %d\n", dyn->n.x87stack, ninst); \
-        dyn->abort = 1;                             \
-        return addr;                                \
-    }                                               \
+#define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)     \
+    if ((dyn->n.x87stack==8) || (dyn->n.pushed==8)) {   \
+        if(box64_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->n.x87stack, dyn->n.pushed, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
     x87_do_push_empty(dyn, ninst, scratch)
 
-#define X87_POP_OR_FAIL(dyn, ninst, scratch) \
-    if (dyn->n.x87stack == -8) {                \
-        if(box64_dynarec_dump) dynarec_log(LOG_INFO, " Warning, suspicious x87 Pop, stack=%d on inst %d\n", dyn->n.x87stack, ninst); \
-        dyn->abort = 1;                      \
-        return addr;                         \
-    }                                        \
+#define X87_POP_OR_FAIL(dyn, ninst, scratch)            \
+    if ((dyn->n.x87stack==-8) || (dyn->n.poped==8)) {   \
+        if(box64_dynarec_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Pop, stack=%d/%d on inst %d\n", dyn->n.x87stack, dyn->n.poped, ninst); \
+        dyn->abort = 1;                                 \
+        return addr;                                    \
+    }                                                   \
     x87_do_pop(dyn, ninst, scratch)
 #endif
 
@@ -1100,6 +1100,8 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_ror16c     STEPNAME(emit_ror16c)
 #define emit_rcl8c      STEPNAME(emit_rcl8c)
 #define emit_rcr8c      STEPNAME(emit_rcr8c)
+#define emit_rcl16c     STEPNAME(emit_rcl16c)
+#define emit_rcr16c     STEPNAME(emit_rcr16c)
 #define emit_shrd32c    STEPNAME(emit_shrd32c)
 #define emit_shrd32     STEPNAME(emit_shrd32)
 #define emit_shld32c    STEPNAME(emit_shld32c)
@@ -1255,6 +1257,8 @@ void emit_rol16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 void emit_ror16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_rcl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_rcr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
+void emit_rcl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
+void emit_rcr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4);

@@ -996,6 +996,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         #define GO(GETFLAGS, NO, YES, F)                                \
+            if (box64_dynarec_test == 2) { NOTEST(x1); }                \
             READFLAGS(F);                                               \
             i8 = F8S;                                                   \
             BARRIER(BARRIER_MAYBE);                                     \
@@ -2161,7 +2162,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(box64_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // lets play safe here too
             }
-            BARRIER(BARRIER_FLOAT);
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
             i32 = F16;
             retn_to_epilog(dyn, ninst, rex, i32);
             *need_epilog = 0;
@@ -2173,7 +2174,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(box64_dynarec_safeflags) {
                 READFLAGS(X_PEND);  // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
-            BARRIER(BARRIER_FLOAT);
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3);  // using next, even if there no next
             ret_to_epilog(dyn, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
@@ -2393,7 +2394,19 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 *ok = 0;
             }
             break;
-
+        case 0xCE:
+            if(!rex.is32bits) {
+                DEFAULT;
+            } else {
+                INST_NAME("INTO");
+                READFLAGS(X_OF);
+                GETIP(ip);
+                TBZ_NEXT(wFlags, F_OF);
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_int, -1);
+                LOAD_XEMU_CALL(xRIP);
+            }
+            break;
         case 0xCF:
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET_NODF);    // Not a hack, EFLAGS are restored
@@ -2407,14 +2420,14 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Eb, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_rol8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Eb, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_ror8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
@@ -2422,7 +2435,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 2:
                     INST_NAME("RCL Eb, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_rcl8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
@@ -2430,7 +2443,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3:
                     INST_NAME("RCR Eb, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
                     GETEB(x1, 0);
                     emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
@@ -3041,19 +3054,20 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
+                    /*if(box64_dynarec_callret && box64_dynarec_bigblock>1) {
                         BARRIER(BARRIER_FULL);
                         BARRIER_NEXT(BARRIER_FULL);
                     } else {
                         BARRIER(BARRIER_FLOAT);
                         *need_epilog = 0;
                         *ok = 0;
-                    }
+                    }*/
                     if(rex.is32bits) {
                         MOV32w(x2, addr);
                     } else {
                         TABLE64(x2, addr);
                     }
+                    fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
                     PUSH1z(x2);
                     if(box64_dynarec_callret) {
                         SET_HASCALLRET();
@@ -3081,6 +3095,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE9:
         case 0xEB:
             BARRIER(BARRIER_MAYBE);
+            if (box64_dynarec_test == 2) { NOTEST(x1); }
             if(opcode==0xEB && PK(0)==0xFF) {
                 INST_NAME("JMP ib");
                 MESSAGE(LOG_DEBUG, "Hack for EB FF opcode");

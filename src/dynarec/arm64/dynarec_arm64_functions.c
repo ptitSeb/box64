@@ -389,6 +389,7 @@ void neoncacheUnwind(neoncache_t* cache)
         // unswap
         int a = -1;
         int b = -1;
+        // in neoncache
         for(int j=0; j<24 && ((a==-1) || (b==-1)); ++j)
             if((cache->neoncache[j].t == NEON_CACHE_ST_D || cache->neoncache[j].t == NEON_CACHE_ST_F || cache->neoncache[j].t == NEON_CACHE_ST_I64)) {
                 if(cache->neoncache[j].n == cache->combined1)
@@ -401,11 +402,12 @@ void neoncacheUnwind(neoncache_t* cache)
             cache->neoncache[a].n = cache->neoncache[b].n;
             cache->neoncache[b].n = tmp;
         }
+        // done
         cache->swapped = 0;
         cache->combined1 = cache->combined2 = 0;
     }
     if(cache->news) {
-        // reove the newly created neoncache
+        // remove the newly created neoncache
         for(int i=0; i<24; ++i)
             if(cache->news&(1<<i))
                 cache->neoncache[i].v = 0;
@@ -422,11 +424,23 @@ void neoncacheUnwind(neoncache_t* cache)
             }
         }
         cache->x87stack-=cache->stack_push;
+        cache->tags>>=(cache->stack_push*2);
         cache->stack-=cache->stack_push;
+        if(cache->pushed>=cache->stack_push)
+            cache->pushed-=cache->stack_push;
+        else
+            cache->pushed = 0;
         cache->stack_push = 0;
     }
     cache->x87stack+=cache->stack_pop;
     cache->stack_next = cache->stack;
+    if(cache->stack_pop) {
+        if(cache->poped>=cache->stack_pop)
+            cache->poped-=cache->stack_pop;
+        else
+            cache->poped = 0;
+        cache->tags<<=(cache->stack_pop*2);
+    }
     cache->stack_pop = 0;
     cache->barrier = 0;
     // And now, rebuild the x87cache info with neoncache
@@ -594,10 +608,9 @@ void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
 
 static void x87_reset(neoncache_t* n)
 {
-    for (int i=0; i<8; ++i) {
+    for (int i=0; i<8; ++i)
         n->x87cache[i] = -1;
-        n->freed[i] = -1;
-    }
+    n->tags = 0;
     n->x87stack = 0;
     n->stack = 0;
     n->stack_next = 0;
@@ -606,6 +619,9 @@ static void x87_reset(neoncache_t* n)
     n->combined1 = n->combined2 = 0;
     n->swapped = 0;
     n->barrier = 0;
+    n->pushed = 0;
+    n->poped = 0;
+
     for(int i=0; i<24; ++i)
         if(n->neoncache[i].t == NEON_CACHE_ST_F
          || n->neoncache[i].t == NEON_CACHE_ST_D
@@ -640,4 +656,9 @@ void fpu_reset_ninst(dynarec_arm_t* dyn, int ninst)
     mmx_reset(&dyn->insts[ninst].n);
     sse_reset(&dyn->insts[ninst].n);
     fpu_reset_reg_neoncache(&dyn->insts[ninst].n);
+}
+
+int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st)
+{
+    return (dyn->n.tags&(0b11<<(st*2)))?1:0;
 }

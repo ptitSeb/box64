@@ -657,7 +657,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETEM(q1, 0);
                     ABS_32(q0, q1);
                     break;
-                
+
                 case 0xC8:
                     INST_NAME("SHA1NEXTE Gx, Ex");
                     nextop = F8;
@@ -900,7 +900,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 v1 = v0;
                             else
                                 v1 = fpu_get_scratch(dyn);
-                        } else 
+                        } else
                             v1 = q1;
                         if(v1!=v0) {
                             VEXTQ_8(v1, q1, q1, 8);
@@ -1551,6 +1551,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         #define GO(GETFLAGS, NO, YES, F)   \
+            if (box64_dynarec_test == 2) { NOTEST(x1); }                \
             READFLAGS(F);                                               \
             i32_ = F32S;                                                \
             BARRIER(BARRIER_MAYBE);                                     \
@@ -1885,6 +1886,36 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
             }
             break;
+
+            case 0xB1:
+                // rep has no impact on this opcode
+                INST_NAME("CMPXCHG Ed, Gd");
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                nextop = F8;
+                GETGD;
+                if(MODREG) {
+                    ed = xRAX+(nextop&7)+(rex.b<<3);
+                    wback = 0;
+                    UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
+                    MOVxw_REG(x1, ed);  // save value
+                    CMPSxw_REG(xRAX, x1);
+                    B_MARK2(cNE);
+                    MOVxw_REG(ed, gd);
+                    MARK2;
+                    MOVxw_REG(xRAX, x1);
+                    B_NEXT_nocond;
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
+                    LDxw(x1, wback, fixedaddress);
+                    CMPSxw_REG(xRAX, x1);
+                    B_MARK(cNE);
+                    // EAX == Ed
+                    STxw(gd, wback, fixedaddress);
+                    MARK;
+                    UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
+                    MOVxw_REG(xRAX, x1);    // upper par of RAX will be erase on 32bits, no mater what
+                }
+                break;
 
         case 0xB3:
             INST_NAME("BTR Ed, Gd");

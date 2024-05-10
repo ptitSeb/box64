@@ -2406,6 +2406,7 @@
 #() uFppppppp
 #() uFbCuuuuu
 #() uFbuuuwwu
+#() uFbuupwwC
 #() LFEppLppU
 #() LFEpppppu
 #() LFpLLuupp
@@ -2616,7 +2617,6 @@
 #() uFpppppupp
 #() uFbCuuuCup
 #() uFbWWWWWWp
-#() uFbpuupwwC
 #() LFELpupupu
 #() LFEpiupppp
 #() LFpLpuuLLu
@@ -3026,6 +3026,7 @@
 #() iFpppppppppppppppppppppp
 #() uFippuuuuiiiiuuiiiiiiiipp
 #() vFpppppppppppppppppppppppp
+#() pFpupuupppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) DFY
@@ -4006,11 +4007,13 @@ wrappedgtkx112:
   - gtk_toolbar_prepend_element
 - pFpipppppppi:
   - gtk_toolbar_insert_element
+wrappedicui18n64:
 wrappedicui18n66:
 wrappedicui18n67:
 wrappedicui18n72:
 wrappedicui18n73:
 wrappedicui18n74:
+wrappedicuuc64:
 wrappedicuuc66:
 wrappedicuuc67:
 wrappedicuuc72:
@@ -5620,6 +5623,7 @@ wrappedvulkan:
   - vkRegisterDisplayEventEXT
 - iFpUuppp:
   - vkCreateComputePipelines
+  - vkCreateExecutionGraphPipelinesAMDX
   - vkCreateGraphicsPipelines
   - vkCreateRayTracingPipelinesNV
 - iFpUUuppp:

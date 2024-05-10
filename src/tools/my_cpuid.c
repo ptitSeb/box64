@@ -257,7 +257,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     //| 1<<12     // fma    // some games treat FMA as AVX
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<19     // SSE4_1
-                    | 1<<20     // SSE4_2
+                    | (box64_sse42?(1<<20):0)     // SSE4_2 can be hiden
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
                     | 1<<25     // aesni

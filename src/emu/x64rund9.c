@@ -192,7 +192,10 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             emu->top=(emu->top-1)&7;    // this will probably break a few things
             break;
         case 0xF7:  /* FINCSTP */
-            emu->top=(emu->top+1)&7;    // this will probably break a few things
+            if(emu->fpu_tags&0b11)
+                fpu_do_pop(emu);
+            else
+                emu->top=(emu->top+1)&7;    // this will probably break a few things
             break;
         case 0xF9:  /* FYL2XP1 */
             ST(1).d *= log2(ST0.d + 1.0);

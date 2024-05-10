@@ -109,6 +109,54 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define wZR     xZR
 #define r0      xZR
 
+#define fcc0 0
+#define fcc1 1
+#define fcc2 2
+#define fcc3 3
+#define fcc4 4
+#define fcc5 5
+#define fcc6 6
+#define fcc7 7
+
+#define cAF  0x0
+#define cUN  0x8
+#define cEQ  0x4
+#define cUEQ 0xC
+#define cLT  0x2
+#define cULT 0xA
+#define cLE  0x6
+#define cULE 0xE
+#define cNE  0x10
+#define cOR  0x14
+#define cUNE 0x18
+#define sAF  0x1
+#define sUN  0x9
+#define sEQ  0x5
+#define sUEQ 0xD
+#define sLT  0x3
+#define sULT 0xB
+#define sLE  0x7
+#define sULE 0xF
+#define sNE  0x11
+#define sOR  0x15
+#define sUNE 0x19
+
+#define FCSR0 0
+#define FCSR1 1
+#define FCSR2 2
+#define FCSR3 3
+
+#define FR_V 28
+#define FR_Z 27
+#define FR_O 26
+#define FR_U 25
+#define FR_I 24
+
+#define RM_RNE 0b0000000000
+#define RM_RZ  0b0100000000
+#define RM_RP  0b1000000000
+#define RM_RM  0b1100000000
+
 // split a 32bits value in 20bits + 12bits, adjust the upper part is 12bits is negative
 #define SPLIT20(A) (((A) + 0x800) >> 12)
 #define SPLIT12(A) ((A) & 0xfff)
@@ -128,6 +176,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define type_I26(opc, imm26)             ((opc) << 26 | ((imm26) & 0xFFFF) << 10 | ((imm26 >> 16) & 0x3FF))
 
 // Made-up formats not found in the spec.
+#define type_1RI13(opc, imm13, rd)       ((opc) << 18 | ((imm13) & 0x1FFFF) << 5 | (rd))
 #define type_2RI3(opc, imm3, rj, rd)     ((opc) << 13 | ((imm3)  & 0x7 )  << 10 | (rj) << 5 | (rd))
 #define type_2RI4(opc, imm4, rj, rd)     ((opc) << 14 | ((imm4)  & 0xF )  << 10 | (rj) << 5 | (rd))
 #define type_2RI5(opc, imm5, rj, rd)     ((opc) << 15 | ((imm5)  & 0x1F)  << 10 | (rj) << 5 | (rd))
@@ -508,7 +557,10 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define BEQZ(rj, imm23) EMIT(type_1RI21(0b010000, ((imm23)>>2), rj))
 // if GR[rj] != 0:
 //     PC = PC + SignExtend({imm21, 2'b0}, GRLEN)
-#define BNEZ(rj, imm23) EMIT(type_1RI21(0b010001, ((imm23)>>2), rj))
+#define BNEZ(rj, imm23) EMIT(type_1RI21(0b010001, ((imm23) >> 2), rj))
+
+#define BCEQZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23)>>2), 0b00000 | cj))
+#define BCNEZ(cj, imm23) EMIT(type_1RI21(0b010010, ((imm23)>>2), 0b01000 | cj))
 
 // GR[rd] = PC + 4
 // PC = GR[rj] + SignExtend({imm16, 2'b0}, GRLEN)
@@ -685,6 +737,60 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define LDX_HU(rd, rj, rk) EMIT(type_3R(0b00111000001001000, rk, rj, rd))
 #define LDX_WU(rd, rj, rk) EMIT(type_3R(0b00111000001010000, rk, rj, rd))
 
+// Beware the position of rj and rk are swapped in atomic instructions.
+#define AMCAS_B(rd, rk, rj)     EMIT(type_3R(0b00111000010110000, rk, rj, rd))
+#define AMCAS_H(rd, rk, rj)     EMIT(type_3R(0b00111000010110001, rk, rj, rd))
+#define AMCAS_W(rd, rk, rj)     EMIT(type_3R(0b00111000010110010, rk, rj, rd))
+#define AMCAS_D(rd, rk, rj)     EMIT(type_3R(0b00111000010110011, rk, rj, rd))
+#define AMCAS_DB_B(rd, rk, rj)  EMIT(type_3R(0b00111000010110100, rk, rj, rd))
+#define AMCAS_DB_H(rd, rk, rj)  EMIT(type_3R(0b00111000010110101, rk, rj, rd))
+#define AMCAS_DB_W(rd, rk, rj)  EMIT(type_3R(0b00111000010110110, rk, rj, rd))
+#define AMCAS_DB_D(rd, rk, rj)  EMIT(type_3R(0b00111000010110111, rk, rj, rd))
+#define AMSWAP_B(rd, rk, rj)    EMIT(type_3R(0b00111000010111000, rk, rj, rd))
+#define AMSWAP_H(rd, rk, rj)    EMIT(type_3R(0b00111000010111001, rk, rj, rd))
+#define AMADD_B(rd, rk, rj)     EMIT(type_3R(0b00111000010111010, rk, rj, rd))
+#define AMADD_H(rd, rk, rj)     EMIT(type_3R(0b00111000010111011, rk, rj, rd))
+#define AMSWAP_DB_B(rd, rk, rj) EMIT(type_3R(0b00111000010111100, rk, rj, rd))
+#define AMSWAP_DB_H(rd, rk, rj) EMIT(type_3R(0b00111000010111101, rk, rj, rd))
+#define AMADD_DB_B(rd, rk, rj)  EMIT(type_3R(0b00111000010111110, rk, rj, rd))
+#define AMADD_DB_H(rd, rk, rj)  EMIT(type_3R(0b00111000010111111, rk, rj, rd))
+#define AMSWAP_W(rd, rk, rj)    EMIT(type_3R(0b00111000011000000, rk, rj, rd))
+#define AMSWAP_D(rd, rk, rj)    EMIT(type_3R(0b00111000011000001, rk, rj, rd))
+#define AMADD_W(rd, rk, rj)     EMIT(type_3R(0b00111000011000010, rk, rj, rd))
+#define AMADD_D(rd, rk, rj)     EMIT(type_3R(0b00111000011000011, rk, rj, rd))
+#define AMAND_W(rd, rk, rj)     EMIT(type_3R(0b00111000011000100, rk, rj, rd))
+#define AMAND_D(rd, rk, rj)     EMIT(type_3R(0b00111000011000101, rk, rj, rd))
+#define AMOR_W(rd, rk, rj)      EMIT(type_3R(0b00111000011000110, rk, rj, rd))
+#define AMOR_D(rd, rk, rj)      EMIT(type_3R(0b00111000011000111, rk, rj, rd))
+#define AMXOR_W(rd, rk, rj)     EMIT(type_3R(0b00111000011001000, rk, rj, rd))
+#define AMXOR_D(rd, rk, rj)     EMIT(type_3R(0b00111000011001001, rk, rj, rd))
+#define AMMAX_W(rd, rk, rj)     EMIT(type_3R(0b00111000011001010, rk, rj, rd))
+#define AMMAX_D(rd, rk, rj)     EMIT(type_3R(0b00111000011001011, rk, rj, rd))
+#define AMMIN_W(rd, rk, rj)     EMIT(type_3R(0b00111000011001100, rk, rj, rd))
+#define AMMIN_D(rd, rk, rj)     EMIT(type_3R(0b00111000011001101, rk, rj, rd))
+#define AMMAX_WU(rd, rk, rj)    EMIT(type_3R(0b00111000011001110, rk, rj, rd))
+#define AMMAX_DU(rd, rk, rj)    EMIT(type_3R(0b00111000011001111, rk, rj, rd))
+#define AMMIN_WU(rd, rk, rj)    EMIT(type_3R(0b00111000011010000, rk, rj, rd))
+#define AMMIN_DU(rd, rk, rj)    EMIT(type_3R(0b00111000011010001, rk, rj, rd))
+#define AMSWAP_DB_W(rd, rk, rj) EMIT(type_3R(0b00111000011010010, rk, rj, rd))
+#define AMSWAP_DB_D(rd, rk, rj) EMIT(type_3R(0b00111000011010011, rk, rj, rd))
+#define AMADD_DB_W(rd, rk, rj)  EMIT(type_3R(0b00111000011010100, rk, rj, rd))
+#define AMADD_DB_D(rd, rk, rj)  EMIT(type_3R(0b00111000011010101, rk, rj, rd))
+#define AMAND_DB_W(rd, rk, rj)  EMIT(type_3R(0b00111000011010110, rk, rj, rd))
+#define AMAND_DB_D(rd, rk, rj)  EMIT(type_3R(0b00111000011010111, rk, rj, rd))
+#define AMOR_DB_W(rd, rk, rj)   EMIT(type_3R(0b00111000011011000, rk, rj, rd))
+#define AMOR_DB_D(rd, rk, rj)   EMIT(type_3R(0b00111000011011001, rk, rj, rd))
+#define AMXOR_DB_W(rd, rk, rj)  EMIT(type_3R(0b00111000011011010, rk, rj, rd))
+#define AMXOR_DB_D(rd, rk, rj)  EMIT(type_3R(0b00111000011011011, rk, rj, rd))
+#define AMMAX_DB_W(rd, rk, rj)  EMIT(type_3R(0b00111000011011100, rk, rj, rd))
+#define AMMAX_DB_D(rd, rk, rj)  EMIT(type_3R(0b00111000011011101, rk, rj, rd))
+#define AMMIN_DB_W(rd, rk, rj)  EMIT(type_3R(0b00111000011011110, rk, rj, rd))
+#define AMMIN_DB_D(rd, rk, rj)  EMIT(type_3R(0b00111000011011111, rk, rj, rd))
+#define AMMAX_DB_WU(rd, rk, rj) EMIT(type_3R(0b00111000011100000, rk, rj, rd))
+#define AMMAX_DB_DU(rd, rk, rj) EMIT(type_3R(0b00111000011100001, rk, rj, rd))
+#define AMMIN_DB_WU(rd, rk, rj) EMIT(type_3R(0b00111000011100010, rk, rj, rd))
+#define AMMIN_DB_DU(rd, rk, rj) EMIT(type_3R(0b00111000011100011, rk, rj, rd))
+
 #define FLD_D(fd, rj, imm12) EMIT(type_2RI12(0b0010101110, imm12, rj, fd))
 #define FLD_S(fd, rj, imm12) EMIT(type_2RI12(0b0010101100, imm12, rj, fd))
 #define FST_D(fd, rj, imm12) EMIT(type_2RI12(0b0010101111, imm12, rj, fd))
@@ -801,16 +907,16 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 */
 
-#define VADD_B(vd, vj, vk)          EMIT(type_3R(0b01110000000010100, vj, vj, vd))
-#define VADD_H(vd, vj, vk)          EMIT(type_3R(0b01110000000010101, vj, vj, vd))
-#define VADD_W(vd, vj, vk)          EMIT(type_3R(0b01110000000010110, vj, vj, vd))
-#define VADD_D(vd, vj, vk)          EMIT(type_3R(0b01110000000010111, vj, vj, vd))
-#define VADD_Q(vd, vj, vk)          EMIT(type_3R(0b01110001001011010, vj, vj, vd))
-#define VSUB_B(vd, vj, vk)          EMIT(type_3R(0b01110000000011000, vj, vj, vd))
-#define VSUB_H(vd, vj, vk)          EMIT(type_3R(0b01110000000011001, vj, vj, vd))
-#define VSUB_W(vd, vj, vk)          EMIT(type_3R(0b01110000000011010, vj, vj, vd))
-#define VSUB_D(vd, vj, vk)          EMIT(type_3R(0b01110000000011011, vj, vj, vd))
-#define VSUB_Q(vd, vj, vk)          EMIT(type_3R(0b01110001001011011, vj, vj, vd))
+#define VADD_B(vd, vj, vk)          EMIT(type_3R(0b01110000000010100, vk, vj, vd))
+#define VADD_H(vd, vj, vk)          EMIT(type_3R(0b01110000000010101, vk, vj, vd))
+#define VADD_W(vd, vj, vk)          EMIT(type_3R(0b01110000000010110, vk, vj, vd))
+#define VADD_D(vd, vj, vk)          EMIT(type_3R(0b01110000000010111, vk, vj, vd))
+#define VADD_Q(vd, vj, vk)          EMIT(type_3R(0b01110001001011010, vk, vj, vd))
+#define VSUB_B(vd, vj, vk)          EMIT(type_3R(0b01110000000011000, vk, vj, vd))
+#define VSUB_H(vd, vj, vk)          EMIT(type_3R(0b01110000000011001, vk, vj, vd))
+#define VSUB_W(vd, vj, vk)          EMIT(type_3R(0b01110000000011010, vk, vj, vd))
+#define VSUB_D(vd, vj, vk)          EMIT(type_3R(0b01110000000011011, vk, vj, vd))
+#define VSUB_Q(vd, vj, vk)          EMIT(type_3R(0b01110001001011011, vk, vj, vd))
 #define VSADD_B(vd, vj, vk)         EMIT(type_3R(0b01110000010001100, vk, vj, vd))
 #define VSADD_H(vd, vj, vk)         EMIT(type_3R(0b01110000010001101, vk, vj, vd))
 #define VSADD_W(vd, vj, vk)         EMIT(type_3R(0b01110000010001110, vk, vj, vd))
@@ -911,6 +1017,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VADDA_H(vd, vj, vk)         EMIT(type_3R(0b01110000010111001, vk, vj, vd))
 #define VADDA_W(vd, vj, vk)         EMIT(type_3R(0b01110000010111010, vk, vj, vd))
 #define VADDA_D(vd, vj, vk)         EMIT(type_3R(0b01110000010111011, vk, vj, vd))
+#define VMAXI_B(vd, vj, imm5)       EMIT(type_3R(0b01110010100100000, imm5, vj, vd))
+#define VMAXI_H(vd, vj, imm5)       EMIT(type_3R(0b01110010100100001, imm5, vj, vd))
+#define VMAXI_W(vd, vj, imm5)       EMIT(type_3R(0b01110010100100010, imm5, vj, vd))
+#define VMAXI_D(vd, vj, imm5)       EMIT(type_3R(0b01110010100100011, imm5, vj, vd))
+#define VMAXI_BU(vd, vj, imm5)      EMIT(type_3R(0b01110010100101000, imm5, vj, vd))
+#define VMAXI_HU(vd, vj, imm5)      EMIT(type_3R(0b01110010100101001, imm5, vj, vd))
+#define VMAXI_WU(vd, vj, imm5)      EMIT(type_3R(0b01110010100101010, imm5, vj, vd))
+#define VMAXI_DU(vd, vj, imm5)      EMIT(type_3R(0b01110010100101011, imm5, vj, vd))
 #define VMAX_B(vd, vj, vk)          EMIT(type_3R(0b01110000011100000, vk, vj, vd))
 #define VMAX_H(vd, vj, vk)          EMIT(type_3R(0b01110000011100001, vk, vj, vd))
 #define VMAX_W(vd, vj, vk)          EMIT(type_3R(0b01110000011100010, vk, vj, vd))
@@ -919,6 +1033,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VMAX_HU(vd, vj, vk)         EMIT(type_3R(0b01110000011101001, vk, vj, vd))
 #define VMAX_WU(vd, vj, vk)         EMIT(type_3R(0b01110000011101010, vk, vj, vd))
 #define VMAX_DU(vd, vj, vk)         EMIT(type_3R(0b01110000011101011, vk, vj, vd))
+#define VMINI_B(vd, vj, imm5)          EMIT(type_3R(0b01110010100100100, imm5, vj, vd))
+#define VMINI_H(vd, vj, imm5)          EMIT(type_3R(0b01110010100100101, imm5, vj, vd))
+#define VMINI_W(vd, vj, imm5)          EMIT(type_3R(0b01110010100100110, imm5, vj, vd))
+#define VMINI_D(vd, vj, imm5)          EMIT(type_3R(0b01110010100100111, imm5, vj, vd))
+#define VMINI_BU(vd, vj, imm5)         EMIT(type_3R(0b01110010100101100, imm5, vj, vd))
+#define VMINI_HU(vd, vj, imm5)         EMIT(type_3R(0b01110010100101101, imm5, vj, vd))
+#define VMINI_WU(vd, vj, imm5)         EMIT(type_3R(0b01110010100101110, imm5, vj, vd))
+#define VMINI_DU(vd, vj, imm5)         EMIT(type_3R(0b01110010100101111, imm5, vj, vd))
 #define VMIN_B(vd, vj, vk)          EMIT(type_3R(0b01110000011100100, vk, vj, vd))
 #define VMIN_H(vd, vj, vk)          EMIT(type_3R(0b01110000011100101, vk, vj, vd))
 #define VMIN_W(vd, vj, vk)          EMIT(type_3R(0b01110000011100110, vk, vj, vd))
@@ -1016,6 +1138,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VSIGNCOV_W(vd, vj, vk)      EMIT(type_3R(0b01110001001011110, vk, vj, vd))
 #define VSIGNCOV_D(vd, vj, vk)      EMIT(type_3R(0b01110001001011111, vk, vj, vd))
 #define VAND_V(vd, vj, vk)          EMIT(type_3R(0b01110001001001100, vk, vj, vd))
+#define VLDI(vd, imm13)             EMIT(type_1RI13(0b01110011111000, imm13, vd))
 #define VOR_V(vd, vj, vk)           EMIT(type_3R(0b01110001001001101, vk, vj, vd))
 #define VXOR_V(vd, vj, vk)          EMIT(type_3R(0b01110001001001110, vk, vj, vd))
 #define VNOR_V(vd, vj, vk)          EMIT(type_3R(0b01110001001001111, vk, vj, vd))
@@ -1033,6 +1156,18 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VSRA_H(vd, vj, vk)          EMIT(type_3R(0b01110000111011001, vk, vj, vd))
 #define VSRA_W(vd, vj, vk)          EMIT(type_3R(0b01110000111011010, vk, vj, vd))
 #define VSRA_D(vd, vj, vk)          EMIT(type_3R(0b01110000111011011, vk, vj, vd))
+#define VSLLI_B(vd, vj, imm3)       EMIT(type_2RI3(0b0111001100101100001, imm3, vj, vd))
+#define VSLLI_H(vd, vj, imm4)       EMIT(type_2RI4(0b011100110010110001, imm4, vj, vd))
+#define VSLLI_W(vd, vj, imm5)       EMIT(type_2RI5(0b01110011001011001, imm5, vj, vd))
+#define VSLLI_D(vd, vj, imm6)       EMIT(type_2RI6(0b0111001100101101, imm6, vj, vd))
+#define VSRLI_B(vd, vj, imm3)       EMIT(type_2RI3(0b0111001100110000001, imm3, vj, vd))
+#define VSRLI_H(vd, vj, imm4)       EMIT(type_2RI4(0b011100110011000001, imm4, vj, vd))
+#define VSRLI_W(vd, vj, imm5)       EMIT(type_2RI5(0b01110011001100001, imm5, vj, vd))
+#define VSRLI_D(vd, vj, imm6)       EMIT(type_2RI6(0b0111001100110001, imm6, vj, vd))
+#define VSRAI_B(vd, vj, imm3)       EMIT(type_2RI3(0b0111001100110100001, imm3, vj, vd))
+#define VSRAI_H(vd, vj, imm4)       EMIT(type_2RI4(0b011100110011010001, imm4, vj, vd))
+#define VSRAI_W(vd, vj, imm5)       EMIT(type_2RI5(0b01110011001101001, imm5, vj, vd))
+#define VSRAI_D(vd, vj, imm6)       EMIT(type_2RI6(0b0111001100110101, imm6, vj, vd))
 #define VROTR_B(vd, vj, vk)         EMIT(type_3R(0b01110000111011100, vk, vj, vd))
 #define VROTR_H(vd, vj, vk)         EMIT(type_3R(0b01110000111011101, vk, vj, vd))
 #define VROTR_W(vd, vj, vk)         EMIT(type_3R(0b01110000111011110, vk, vj, vd))
@@ -1111,6 +1246,16 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VFMAXA_D(vd, vj, vk)        EMIT(type_3R(0b01110001010000010, vk, vj, vd))
 #define VFMINA_S(vd, vj, vk)        EMIT(type_3R(0b01110001010000101, vk, vj, vd))
 #define VFMINA_D(vd, vj, vk)        EMIT(type_3R(0b01110001010000110, vk, vj, vd))
+#define VFSQRT_S(vd, vj)            EMIT(type_2R(0b0111001010011100111001, vj, vd))
+#define VFSQRT_D(vd, vj)            EMIT(type_2R(0b0111001010011100111010, vj, vd))
+#define VFRECIP_S(vd, vj)           EMIT(type_2R(0b0111001010011100111101, vj, vd))
+#define VFRECIP_D(vd, vj)           EMIT(type_2R(0b0111001010011100111110, vj, vd))
+#define VFRSQRT_S(vd, vj)           EMIT(type_2R(0b0111001010011101000001, vj, vd))
+#define VFRSQRT_D(vd, vj)           EMIT(type_2R(0b0111001010011101000010, vj, vd))
+#define VFCVTL_S_H(vd, vj)          EMIT(type_2R(0b0111001010011101111010, vj, vd))
+#define VFCVTH_S_H(vd, vj)          EMIT(type_2R(0b0111001010011101111011, vj, vd))
+#define VFCVTL_D_S(vd, vj)          EMIT(type_2R(0b0111001010011101111100, vj, vd))
+#define VFCVTH_D_S(vd, vj)          EMIT(type_2R(0b0111001010011101111101, vj, vd))
 #define VFCVT_H_S(vd, vj, vk)       EMIT(type_3R(0b01110001010001100, vk, vj, vd))
 #define VFCVT_S_D(vd, vj, vk)       EMIT(type_3R(0b01110001010001101, vk, vj, vd))
 #define VFTINT_W_S(vd, vj)          EMIT(type_2R(0b0111001010011110001100, vj, vd))
@@ -1169,6 +1314,8 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VSLT_HU(vd, vj, vk)         EMIT(type_3R(0b01110000000010001, vk, vj, vd))
 #define VSLT_WU(vd, vj, vk)         EMIT(type_3R(0b01110000000010010, vk, vj, vd))
 #define VSLT_DU(vd, vj, vk)         EMIT(type_3R(0b01110000000010011, vk, vj, vd))
+#define VBSLL_V(vd, vj, imm5)       EMIT(type_2RI5(0b01110010100011100, imm5, vj, vd))
+#define VBSRL_V(vd, vj, imm5)       EMIT(type_2RI5(0b01110010100011101, imm5, vj, vd))
 #define VPACKEV_B(vd, vj, vk)       EMIT(type_3R(0b01110001000101100, vk, vj, vd))
 #define VPACKEV_H(vd, vj, vk)       EMIT(type_3R(0b01110001000101101, vk, vj, vd))
 #define VPACKEV_W(vd, vj, vk)       EMIT(type_3R(0b01110001000101110, vk, vj, vd))
@@ -1193,16 +1340,20 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VILVH_H(vd, vj, vk)         EMIT(type_3R(0b01110001000111001, vk, vj, vd))
 #define VILVH_W(vd, vj, vk)         EMIT(type_3R(0b01110001000111010, vk, vj, vd))
 #define VILVH_D(vd, vj, vk)         EMIT(type_3R(0b01110001000111011, vk, vj, vd))
+#define VSHUF_B(vd, vj, vk, va)     EMIT(type_4R(0b000011010101, va, vk, vj, vd))
 #define VSHUF_H(vd, vj, vk)         EMIT(type_3R(0b01110001011110101, vk, vj, vd))
 #define VSHUF_W(vd, vj, vk)         EMIT(type_3R(0b01110001011110110, vk, vj, vd))
 #define VSHUF_D(vd, vj, vk)         EMIT(type_3R(0b01110001011110111, vk, vj, vd))
+#define VSHUF4I_B(vd, vj, imm8)     EMIT(type_2RI8(0b01110011100100, imm8, vj, vd))
+#define VSHUF4I_H(vd, vj, imm8)     EMIT(type_2RI8(0b01110011100101, imm8, vj, vd))
+#define VSHUF4I_W(vd, vj, imm8)     EMIT(type_2RI8(0b01110011100110, imm8, vj, vd))
+#define VSHUF4I_D(vd, vj, imm8)     EMIT(type_2RI8(0b01110011100111, imm8, vj, vd))
 #define VEXTRINS_D(vd, vj, imm8)    EMIT(type_2RI8(0b01110011100000, imm8, vj, vd))
 #define VEXTRINS_W(vd, vj, imm8)    EMIT(type_2RI8(0b01110011100001, imm8, vj, vd))
 #define VEXTRINS_H(vd, vj, imm8)    EMIT(type_2RI8(0b01110011100010, imm8, vj, vd))
 #define VEXTRINS_B(vd, vj, imm8)    EMIT(type_2RI8(0b01110011100011, imm8, vj, vd))
 #define VLD(vd, rj, imm12)          EMIT(type_2RI12(0b0010110000, imm12, rj, vd))
 #define VST(vd, rj, imm12)          EMIT(type_2RI12(0b0010110001, imm12, rj, vd))
-
 
 #define XVADD_B(vd, vj, vk)          EMIT(type_3R(0b01110100000010100, vk, vj, vd))
 #define XVADD_H(vd, vj, vk)          EMIT(type_3R(0b01110100000010101, vk, vj, vd))
@@ -1414,6 +1565,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVMOD_HU(vd, vj, vk)         EMIT(type_3R(0b01110100111001101, vk, vj, vd))
 #define XVMOD_WU(vd, vj, vk)         EMIT(type_3R(0b01110100111001110, vk, vj, vd))
 #define XVMOD_DU(vd, vj, vk)         EMIT(type_3R(0b01110100111001111, vk, vj, vd))
+#define VSAT_B(vd, vj, imm3)         EMIT(type_2RI3(0b0111001100100100001, imm3, vj, vd))
+#define VSAT_H(vd, vj, imm4)         EMIT(type_2RI4(0b011100110010010001, imm4, vj, vd))
+#define VSAT_W(vd, vj, imm5)         EMIT(type_2RI5(0b01110011001001001, imm5, vj, vd))
+#define VSAT_D(vd, vj, imm6)         EMIT(type_2RI6(0b0111001100100101, imm6, vj, vd))
+#define VSAT_BU(vd, vj, imm3)        EMIT(type_2RI3(0b0111001100101000001, imm3, vj, vd))
+#define VSAT_HU(vd, vj, imm4)        EMIT(type_2RI4(0b011100110010100001, imm4, vj, vd))
+#define VSAT_WU(vd, vj, imm5)        EMIT(type_2RI5(0b01110011001010001, imm5, vj, vd))
+#define VSAT_DU(vd, vj, imm6)        EMIT(type_2RI6(0b0111001100101001, imm6, vj, vd))
 #define XVSIGNCOV_B(vd, vj, vk)      EMIT(type_3R(0b01110101001011100, vk, vj, vd))
 #define XVSIGNCOV_H(vd, vj, vk)      EMIT(type_3R(0b01110101001011101, vk, vj, vd))
 #define XVSIGNCOV_W(vd, vj, vk)      EMIT(type_3R(0b01110101001011110, vk, vj, vd))
@@ -1558,6 +1717,22 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define XVSHUF_W(vd, vj, vk)         EMIT(type_3R(0b01110101011110110, vk, vj, vd))
 #define XVSHUF_D(vd, vj, vk)         EMIT(type_3R(0b01110101011110111, vk, vj, vd))
 #define XVPERM_W(vd, vj, vk)         EMIT(type_3R(0b01110101011111010, vk, vj, vd))
+#define XVPERMI_W(vd, vj, imm8)      EMIT(type_2RI8(0b01110111111001, imm8, vj, vd))
+#define XVPERMI_D(vd, vj, imm8)      EMIT(type_2RI8(0b01110111111010, imm8, vj, vd))
+#define XVPERMI_Q(vd, vj, imm8)      EMIT(type_2RI8(0b01110111111011, imm8, vj, vd))
+
+#define VEXT2XV_H_B(vd, vj)          EMIT(type_2R(0b0111011010011111000100, vj, vd))
+#define VEXT2XV_W_B(vd, vj)          EMIT(type_2R(0b0111011010011111000101, vj, vd))
+#define VEXT2XV_D_B(vd, vj)          EMIT(type_2R(0b0111011010011111000110, vj, vd))
+#define VEXT2XV_W_H(vd, vj)          EMIT(type_2R(0b0111011010011111000111, vj, vd))
+#define VEXT2XV_D_H(vd, vj)          EMIT(type_2R(0b0111011010011111001000, vj, vd))
+#define VEXT2XV_D_W(vd, vj)          EMIT(type_2R(0b0111011010011111001001, vj, vd))
+#define VEXT2XV_HU_BU(vd, vj)        EMIT(type_2R(0b0111011010011111001010, vj, vd))
+#define VEXT2XV_WU_BU(vd, vj)        EMIT(type_2R(0b0111011010011111001011, vj, vd))
+#define VEXT2XV_DU_BU(vd, vj)        EMIT(type_2R(0b0111011010011111001100, vj, vd))
+#define VEXT2XV_WU_HU(vd, vj)        EMIT(type_2R(0b0111011010011111001101, vj, vd))
+#define VEXT2XV_DU_HU(vd, vj)        EMIT(type_2R(0b0111011010011111001110, vj, vd))
+#define VEXT2XV_DU_WU(vd, vj)        EMIT(type_2R(0b0111011010011111001111, vj, vd))
 
 ////////////////////////////////////////////////////////////////////////////////
 // (undocumented) LBT extension instructions

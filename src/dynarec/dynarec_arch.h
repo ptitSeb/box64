@@ -22,16 +22,17 @@
 #define instruction_native_t        instruction_la64_t
 #define dynarec_native_t            dynarec_la64_t
 
-#define ADDITIONNAL_DEFINITION()
+#define ADDITIONNAL_DEFINITION() \
+    int fpuCacheNeedsTransform(dynarec_native_t* dyn, int ninst);
 
-// TODO
-#define OTHER_CACHE()
+#define OTHER_CACHE() \
+    if (fpuCacheNeedsTransform(dyn, ninst)) ret |= 2;
 
 #include "la64/la64_printer.h"
 #include "la64/dynarec_la64_private.h"
 #include "la64/dynarec_la64_functions.h"
-// TODO
-#define MAXBLOCK_SIZE ((1<<19)-200)
+// Limit here is unconditionnal jump, that is signed 28bits
+#define MAXBLOCK_SIZE ((1 << 27) - 200)
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
@@ -46,7 +47,7 @@
 #include "rv64/rv64_printer.h"
 #include "rv64/dynarec_rv64_private.h"
 #include "rv64/dynarec_rv64_functions.h"
-// Limit here is unconditionnal jump, thjat is signed 21bits
+// Limit here is unconditionnal jump, that is signed 21bits
 #define MAXBLOCK_SIZE ((1<<20)-200)
 #else
 #error Unsupported platform

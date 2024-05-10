@@ -788,7 +788,7 @@ GO(initstate_r, iFupLp)
 GO(innetgr, iFpppp)
 GO(inotify_add_watch, iFipu)
 GO(inotify_init, iFv)
-GO(inotify_init1, iFi)
+GO(inotify_init1, iFO)
 GO(inotify_rm_watch, iFii)
 GO(insque, vFpp)
 //GO(__internal_endnetgrent, 

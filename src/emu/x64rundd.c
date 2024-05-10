@@ -45,7 +45,7 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xC5:
         case 0xC6:
         case 0xC7:
-            fpu_do_free(emu, nextop-0xC0);
+            fpu_do_free(emu, nextop&7);
             break;
 
         case 0xD0:  /* FST ST0, STx */

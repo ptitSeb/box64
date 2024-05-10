@@ -60,11 +60,6 @@ extern uint32_t rv64_lock_get_d(void* p);
 extern void* rv64_lock_get_dd(void* p);
 
 // Not defined in assembler but in dynarec_rv64_functions
-uint8_t extract_byte(uint32_t val, void* address);
-uint32_t insert_byte(uint32_t val, uint8_t b, void* address);
-uint16_t extract_half(uint32_t val, void* address);
-uint32_t insert_half(uint32_t val, uint16_t h, void* address);
-
 uint8_t rv64_lock_xchg_b(void* addr, uint8_t v);
 extern int rv64_lock_cas_b(void* p, uint8_t ref, uint8_t val);
 extern int rv64_lock_cas_h(void* p, uint16_t ref, uint16_t val);

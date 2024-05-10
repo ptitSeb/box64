@@ -267,7 +267,7 @@ void emit_shr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
         ADDI(s3, xZR, 1);
-        BEQ(s2, s3, 4+3*4);
+        BNE(s2, s3, 4 + 3 * 4);
         SRLI(s3, s1, 7);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
@@ -586,7 +586,7 @@ void emit_shr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
         ADDI(s3, xZR, 1);
-        BEQ(s2, s3, 4+3*4);
+        BNE(s2, s3, 4 + 3 * 4);
         SRLI(s3, s1, 15);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
@@ -674,7 +674,11 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
 
-    SLLxw(s1, s1, s2);
+    if (rex.w) {
+        SLL(s1, s1, s2);
+    } else {
+        SLLW(s1, s1, s2);
+    }
 
     IFX(X_SF) {
         BGE(s1, xZR, 8);
@@ -730,7 +734,11 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
     }
 
-    SLLIxw(s1, s1, c);
+    if (rex.w) {
+        SLLI(s1, s1, c);
+    } else {
+        SLLIW(s1, s1, c);
+    }
 
     IFX(X_SF) {
         BGE(s1, xZR, 8);
@@ -785,7 +793,7 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         // OF flag is affected only on 1-bit shifts
         // OF flag is set to the most-significant bit of the original operand
         ADDI(s3, xZR, 1);
-        BEQ(s2, s3, 4+3*4);
+        BNE(s2, s3, 4 + 3 * 4);
         SRLIxw(s3, s1, rex.w?63:31);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
@@ -855,13 +863,17 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
     }
 
-    SRLIxw(s1, s1, c);
+    if (rex.w) {
+        SRLI(s1, s1, c);
+    } else {
+        SRLIW(s1, s1, c);
+    }
 
     IFX(X_SF) {
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    if (!rex.w) {
+    if (!rex.w && c == 0) {
         ZEROUP(s1);
     }
     IFX(X_PEND) {
@@ -910,7 +922,11 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         OR(xFlags, xFlags, s3);
     }
 
-    SRAIxw(s1, s1, c);
+    if (rex.w) {
+        SRAI(s1, s1, c);
+    } else {
+        SRAIW(s1, s1, c);
+    }
 
     // SRAIW sign-extends, so test sign bit before clearing upper bits
     IFX(X_SF) {

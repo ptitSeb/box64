@@ -52,11 +52,14 @@ typedef struct extcache_s {
     uint8_t             combined2;
     uint8_t             swapped;        // the combined reg were swapped
     uint8_t             barrier;        // is there a barrier at instruction epilog?
+    uint8_t             pushed;         // positive pushed value (to check for overflow)
+    uint8_t             poped;          // positive poped value (to check for underflow)
     uint32_t            news;           // bitmask, wich neoncache are new for this opcode
     sse_old_t           olds[16];       // SSE regs has changed or has been removed
     // fpu cache
     int8_t              x87cache[8];    // cache status for the 8 x87 register behind the fpu stack
     int8_t              x87reg[8];      // reg used for x87cache entry
+    int16_t             tags;           // similar to fpu_tags
     int8_t              mmxcache[8];    // cache status for the 8 MMX registers
     sse_cache_t         ssecache[16];   // cache status for the 16 SSE(2) registers
     int8_t              fpuused[24];    // all 10..31 & 0..1 double reg from fpu, used by x87, sse and mmx

@@ -103,7 +103,7 @@ void add_jump(dynarec_native_t *dyn, int ninst) {
 int get_first_jump(dynarec_native_t *dyn, int next) {
     for(int i=0; i<dyn->jmp_sz; ++i)
         if(dyn->insts[dyn->jmps[i]].x64.jmp == next)
-            return i;
+            return dyn->jmps[i];
     return -2;
 }
 
@@ -298,23 +298,35 @@ int Table64(dynarec_native_t *dyn, uint64_t val, int pass)
     return delta;
 }
 
+static void recurse_mark_alive(dynarec_native_t* dyn, int i)
+{
+    if(dyn->insts[i].x64.alive)
+        return;
+    dyn->insts[i].x64.alive = 1;
+    if(dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts!=-1)
+        recurse_mark_alive(dyn, dyn->insts[i].x64.jmp_insts);
+    if(i<dyn->size-1 && dyn->insts[i].x64.has_next)
+        recurse_mark_alive(dyn, i+1);
+}
+
 static int sizePredecessors(dynarec_native_t* dyn)
 {
     int pred_sz = 1;    // to be safe
     // compute total size of predecessor to allocate the array
+    // mark alive...
+    recurse_mark_alive(dyn, 0);
     // first compute the jumps
+    int jmpto;
     for(int i=0; i<dyn->size; ++i) {
-        if(dyn->insts[i].x64.jmp && (dyn->insts[i].x64.jmp_insts!=-1)) {
+        if(dyn->insts[i].x64.alive && dyn->insts[i].x64.jmp && ((jmpto=dyn->insts[i].x64.jmp_insts)!=-1)) {
             pred_sz++;
-            dyn->insts[dyn->insts[i].x64.jmp_insts].pred_sz++;
+            dyn->insts[jmpto].pred_sz++;
         }
     }
     // remove "has_next" from orphan branch
     for(int i=0; i<dyn->size-1; ++i) {
-        if(!dyn->insts[i].x64.has_next) {
-            if(dyn->insts[i+1].x64.has_next && !dyn->insts[i+1].pred_sz)
-                dyn->insts[i+1].x64.has_next = 0;
-        }
+        if(dyn->insts[i].x64.has_next && !dyn->insts[i+1].x64.alive)
+            dyn->insts[i].x64.has_next = 0;
     }
     // second the "has_next"
     for(int i=0; i<dyn->size-1; ++i) {
@@ -335,7 +347,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
         dyn->insts[i].pred_sz=0;  // reset size, it's reused to actually fill pred[]
     }
     // fill pred
-    for(int i=0; i<dyn->size; ++i) {
+    for(int i=0; i<dyn->size; ++i) if(dyn->insts[i].x64.alive) {
         if((i!=dyn->size-1) && dyn->insts[i].x64.has_next)
             dyn->insts[i+1].pred[dyn->insts[i+1].pred_sz++] = i;
         if(dyn->insts[i].x64.jmp && (dyn->insts[i].x64.jmp_insts!=-1)) {
@@ -350,13 +362,9 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
     while (ninst>=0) {
         // need pending but instruction is only a subset: remove pend and use an X_ALL instead
         need |= dyn->insts[ninst].x64.need_after;
-        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SUBSET)) {
+        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SUBSET || dyn->insts[ninst].x64.state_flags==SF_SET || dyn->insts[ninst].x64.state_flags==SF_SET_NODF)) {
             need &=~X_PEND;
             need |= X_ALL;
-        }
-        if((need&X_PEND) && (dyn->insts[ninst].x64.state_flags==SF_SET)) {
-            need &=~X_PEND;
-            need |= dyn->insts[ninst].x64.set_flags;    // SF_SET will compute all flags, it's not SUBSET!
         }
         if((need&X_PEND) && dyn->insts[ninst].x64.state_flags==SF_SUBSET_PENDING) {
             need |= X_ALL&~(dyn->insts[ninst].x64.set_flags);
@@ -508,10 +516,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     for(int ii=0; ii<helper.jmp_sz; ++ii) {
         int i = helper.jmps[ii];
         uintptr_t j = helper.insts[i].x64.jmp;
+        helper.insts[i].x64.jmp_insts = -1;
         if(j<start || j>=end || j==helper.insts[i].x64.addr) {
             if(j==helper.insts[i].x64.addr) // if there is a loop on some opcode, make the block "always to tested"
                 helper.always_test = 1;
-            helper.insts[i].x64.jmp_insts = -1;
             helper.insts[i].x64.need_after |= X_PEND;
         } else {
             // find jump address instruction
@@ -544,9 +552,11 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
                 if(helper.insts[i2].x64.addr==j)
                     k=i2;
             }*/
-            if(k!=-1 && !helper.insts[i].barrier_maybe)
-                helper.insts[k].x64.barrier |= BARRIER_FULL;
-            helper.insts[i].x64.jmp_insts = k;
+            if(k!=-1) {
+                if(k!=-1 && !helper.insts[i].barrier_maybe)
+                    helper.insts[k].x64.barrier |= BARRIER_FULL;
+                helper.insts[i].x64.jmp_insts = k;
+            }
         }
     }
     // no need for next and jmps anymore

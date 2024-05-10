@@ -620,6 +620,13 @@ EXPORT int my_vkCreateShadersEXT(x64emu_t* emu, void* device, uint32_t count, vo
     return ret;
 }
 
+EXPORT int my_vkCreateExecutionGraphPipelinesAMDX(x64emu_t* emu, void* device, uint64_t pipelineCache, uint32_t count, void** pCreateInfos, my_VkAllocationCallbacks_t* pAllocator, void* pPipeLines)
+{
+    my_VkAllocationCallbacks_t my_alloc;
+    int ret = my->vkCreateExecutionGraphPipelinesAMDX(device, pipelineCache, count, pCreateInfos, find_VkAllocationCallbacks(&my_alloc, pAllocator), pPipeLines);
+    return ret;
+}
+
 DESTROY64(vkDestroyShaderEXT)
 
 

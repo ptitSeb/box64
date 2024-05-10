@@ -732,6 +732,9 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                         break;
                     case 7:                 /* IDIV Ed */
                         idiv64(emu, ED->q[0]);
+                        #ifdef TEST_INTERPRETER
+                        test->notest = 1;
+                        #endif
                         break;
                 }
             } else {

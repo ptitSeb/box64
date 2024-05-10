@@ -70,22 +70,39 @@
 #define wZR     xZR
 
 // conditions
+// Z == 1
 #define cEQ 0b0000
+// Z != 1
 #define cNE 0b0001
+// C == 1
 #define cCS 0b0010
+// C == 1
 #define cHS cCS
+// C != 1
 #define cCC 0b0011
+// C != 1
 #define cLO cCC
+// N == 1
 #define cMI 0b0100
+// N != 1
 #define cPL 0b0101
+// V == 1
 #define cVS 0b0110
+// V != 1
 #define cVC 0b0111
+// C == 1 && Z == 0
 #define cHI 0b1000
+// C !=1 || Z == 1
 #define cLS 0b1001
+// N == V
 #define cGE 0b1010
+// N != V
 #define cLT 0b1011
+// N == V && Z == 0
 #define cGT 0b1100
+// N != V || Z == 1
 #define cLE 0b1101
+// always
 #define c__ 0b1110
 
 int convert_bitmask(uint64_t bitmask);

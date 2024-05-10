@@ -69,6 +69,7 @@ needed_libs_t* new_neededlib(int n);
 needed_libs_t* copy_neededlib(needed_libs_t* needed);
 void add1_neededlib(needed_libs_t* needed);
 void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name);
+void add1lib_neededlib_name(needed_libs_t* needed, library_t* lib, const char* name);
 void add1libref_neededlib(needed_libs_t* needed, library_t* lib);
 
 typedef struct base_segment_s {

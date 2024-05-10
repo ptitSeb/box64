@@ -148,8 +148,9 @@ Forbid dynablock creation in the interval specified (helpfull for debugging beha
 
 #### BOX64_DYNAREC_TEST *
 Dynarec will compare it's execution with the interpreter (super slow, only for testing)
- * 0 : No comparison
- * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different
+ * 0 : No comparison. (Default.)
+ * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different.
+ * 2 : Thread-safe tests, extremely slow.
 
 #### BOX64_DYNAREC_BIGBLOCK *
 Enables/Disables Box64's Dynarec building BigBlock.
@@ -207,9 +208,9 @@ Detect MonoBleedingEdge and apply conservative settings
 * 1 : Detect MonoBleedingEdge, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
 
 #### BOX64_DYNAREC_JVM *
-Detect libjvm and apply conservative settings
+Detect libjvm and apply conservative settings. Obsolete, use BOX64_JVM instead.
 * 0 : Don't detect libjvm
-* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 if detected (Default)
+* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 SSE42=0 if detected (Default)
 
 #### BOX64_DYNAREC_WAIT *
 Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
@@ -245,6 +246,11 @@ Box64 will sync rounding mode with fesetround/fegetround.
 Detect libcef and apply malloc_hack settings
 * 0 : Don't detect libcef
 * 1 : Detect libcef, and apply MALLOC_HACK=2 if detected (Default)
+
+#### BOX64_JVM *
+Detect libjvm and apply conservative settings
+* 0 : Don't detect libjvm
+* 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 SSE42=0 if detected (Default)
 
 #### BOX64_SDL2_JGUID *
 Need a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2
@@ -305,6 +311,11 @@ Disables the loading of wrapped GTK libraries.
 Disables the load of vulkan libraries.
  * 0 : Load vulkan libraries if found.
  * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
+
+#### BOX64_SSE42 *
+Expose or not SSE 4.2 capabilites
+ * 0 : Do not expose SSE 4.2 capabilites (default when libjvm is detected)
+ * 1 : Expose SSE 4.2 capabilites (Default.)
 
 #### BOX64_FUTEX_WAITV *
 Use of the new fuext_waitc syscall

@@ -334,16 +334,21 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             box64_dynarec_bigblock = 0;
             box64_dynarec_strongmem = 1;
         }
-        if(libname && box64_dynarec_jvm && strstr(libname, "libjvm.so")) {
-            printf_dump(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem\n");
-            box64_dynarec_bigblock = 0;
-            box64_dynarec_strongmem = 1;
-        }
         if(libname && box64_dynarec_tbb && strstr(libname, "libtbb.so")) {
             printf_dump(LOG_INFO, "libtbb detected, enable Dynarec StrongMem\n");
             box64_dynarec_strongmem = 3;
         }
         #endif
+        if(libname && box64_jvm && strstr(libname, "libjvm.so")) {
+            #ifdef DYNAREC
+            printf_dump(LOG_INFO, "libjvm detected, disable Dynarec BigBlock and enable Dynarec StrongMem, hide SSE 4.2\n");
+            box64_dynarec_bigblock = 0;
+            box64_dynarec_strongmem = 1;
+            #else
+            printf_dump(LOG_INFO, "libjvm detected, hide SSE 4.2\n");
+            #endif
+            box64_sse42 = 0;
+        }
         if(libname && box64_libcef && strstr(libname, "libcef.so")) {
             printf_dump(LOG_INFO, "libcef detected, using malloc_hack_2\n");
             box64_malloc_hack = 2;
@@ -1163,6 +1168,25 @@ void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name)
     // check if lib is already present
     for (int i=0; i<needed->size; ++i)
         if(needed->libs[i]==lib)
+            return;
+    // add it
+    if(needed->size==needed->cap) {
+        needed->cap = needed->size+1;
+        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
+        needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+    }
+    needed->libs[needed->size] = lib;
+    needed->names[needed->size] = (char*)name;
+    needed->size++;
+    needed->init_size++;
+}
+void add1lib_neededlib_name(needed_libs_t* needed, library_t* lib, const char* name)
+{
+    if(!needed || !name)
+        return;
+    // check if lib is already present
+    for (int i=0; i<needed->size; ++i)
+        if(!strcmp(needed->names[i], name))
             return;
     // add it
     if(needed->size==needed->cap) {
