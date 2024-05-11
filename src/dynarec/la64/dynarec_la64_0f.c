@@ -607,6 +607,65 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LD_HU(gd, ed, fixedaddress);
             }
             break;
+        case 0xBA:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 4:
+                    INST_NAME("BT Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8 &= rex.w ? 0x3f : 0x1f;
+                    BSTRPICK_D(x4, ed, u8, u8);
+                    if (la64_lbt)
+                        X64_SET_EFLAGS(x4, X_CF);
+                    else
+                        BSTRINS_D(xFlags, x4, 0, 0);
+                    break;
+                case 5:
+                    INST_NAME("BTS Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8 &= (rex.w ? 0x3f : 0x1f);
+                    BSTRPICK_D(x4, ed, u8, u8);
+                    if (la64_lbt)
+                        X64_SET_EFLAGS(x4, X_CF);
+                    else
+                        BSTRINS_D(xFlags, x4, 0, 0);
+                    ADDI_D(x4, xZR, -1);
+                    BSTRINS_D(ed, x4, u8, u8);
+                    if (wback) {
+                        SDxw(ed, wback, fixedaddress);
+                        SMWRITE();
+                    }
+                    MARK;
+                    break;
+                case 6:
+                    INST_NAME("BTR Ed, Ib");
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    SET_DFNONE();
+                    GETED(1);
+                    u8 = F8;
+                    u8 &= (rex.w ? 0x3f : 0x1f);
+                    BSTRPICK_D(x4, ed, u8, u8);
+                    if (la64_lbt)
+                        X64_SET_EFLAGS(x4, X_CF);
+                    else
+                        BSTRINS_D(xFlags, x4, 0, 0);
+                    BSTRINS_D(ed, xZR, u8, u8);
+                    if (wback) {
+                        SDxw(ed, wback, fixedaddress);
+                        SMWRITE();
+                    }
+                    MARK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
             SETFLAGS(X_ZF, SF_SUBSET);
