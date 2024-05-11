@@ -94,6 +94,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_or16(dyn, ninst, x1, x2, x4, x2);
             EWBACK;
             break;
+        case 0x0B:
+            INST_NAME("OR Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_or16(dyn, ninst, x1, x2, x4, x5);
+            GWBACK;
+            break;
         case 0x0F:
             switch (rep) {
                 case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
@@ -451,6 +460,21 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD3:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 5:
+                    if (opcode == 0xD1) {
+                        INST_NAME("SHR Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SHR Ew, CL");
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    if (box64_dynarec_safeflags > 1) MAYSETFLAGS();
+                    GETEW(x1, 0);
+                    emit_shr16(dyn, ninst, x1, x2, x5, x4, x6);
+                    EWBACK;
+                    break;
                 case 4:
                 case 6:
                     if (opcode == 0xD1) {
@@ -466,6 +490,22 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MAYSETFLAGS();
                     GETEW(x1, 0);
                     emit_shl16(dyn, ninst, x1, x2, x5, x4, x6);
+                    EWBACK;
+                    break;
+                case 7:
+                    if (opcode == 0xD1) {
+                        INST_NAME("SAR Ew, 1");
+                        MOV32w(x2, 1);
+                    } else {
+                        INST_NAME("SAR Ew, CL");
+                        ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
+                    if (box64_dynarec_safeflags > 1)
+                        MAYSETFLAGS();
+                    GETSEW(x1, 0);
+                    emit_sar16(dyn, ninst, x1, x2, x5, x4, x6);
                     EWBACK;
                     break;
                 default:

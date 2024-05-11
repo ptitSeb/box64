@@ -255,6 +255,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             VAND_V(v0, v0, q0);
             break;
+        case 0x55:
+            INST_NAME("ANDNPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGX(v0, 1);
+            VANDN_V(v0, v0, q0);
+            break;
+        case 0x56:
+            INST_NAME("ORPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGX(v0, 1);
+            VOR_V(v0, v0, q0);
+            break;
         case 0x57:
             INST_NAME("XORPD Gx, Ex");
             nextop = F8;
