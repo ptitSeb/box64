@@ -893,6 +893,10 @@ int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t)
             ret=dyn->e.x87reg[i]=fpu_get_reg_x87(dyn, t, 0);
             dyn->e.extcache[EXTIDX(ret)].t = X87_ST0;
         }
+    if(ret==-1) {
+        MESSAGE(LOG_DUMP, "Incoherent x87 stack cache, aborting\n");
+        dyn->abort = 1;
+    }
     return ret;
 }
 void x87_do_push_empty(dynarec_rv64_t* dyn, int ninst, int s1)
