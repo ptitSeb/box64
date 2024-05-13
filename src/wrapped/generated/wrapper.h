@@ -2296,6 +2296,7 @@ void vFlipuiip(x64emu_t *emu, uintptr_t fnc);
 void vFlliiiip(x64emu_t *emu, uintptr_t fnc);
 void vFpiiiipp(x64emu_t *emu, uintptr_t fnc);
 void vFpiiliip(x64emu_t *emu, uintptr_t fnc);
+void vFpiiLiip(x64emu_t *emu, uintptr_t fnc);
 void vFpiipCpp(x64emu_t *emu, uintptr_t fnc);
 void vFpiipppp(x64emu_t *emu, uintptr_t fnc);
 void vFpipipii(x64emu_t *emu, uintptr_t fnc);

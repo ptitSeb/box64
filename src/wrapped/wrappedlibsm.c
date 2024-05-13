@@ -120,6 +120,39 @@ static void* findRequestFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libSM Request callback\n");
     return NULL;
 }
+// SmcErrorHandler
+#define GO(A)   \
+static uintptr_t my_SmcErrorHandler_fct_##A = 0;        \
+static void my_SmcErrorHandler_##A(void* a, int b, int c, unsigned long d, int e, int f, void* g)     \
+{                                               \
+    RunFunctionFmt(my_SmcErrorHandler_fct_##A, "piiLiip", a, b, c, d, e, f, g);\
+}
+SUPER()
+#undef GO
+static void* findSmcErrorHandlerFct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_SmcErrorHandler_fct_##A == (uintptr_t)fct) return my_SmcErrorHandler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_SmcErrorHandler_fct_##A == 0) {my_SmcErrorHandler_fct_##A = (uintptr_t)fct; return my_SmcErrorHandler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSM SmcErrorHandler callback\n");
+    return NULL;
+}
+static void* reverse_SmcErrorHandler_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(my_lib->w.bridge, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    #define GO(A) if(my_SmcErrorHandler_##A == fct) return (void*)my_SmcErrorHandler_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFpiiLiip, fct, 0, NULL);
+}
 
 #undef SUPER
 
@@ -133,6 +166,11 @@ EXPORT int my_SmcRequestSaveYourselfPhase2(x64emu_t* emu, void* smcConn, void* c
 {
     (void)emu;
     return my->SmcRequestSaveYourselfPhase2(smcConn, findRequestFct(cb), data);
+}
+
+EXPORT void* my_SmcSetErrorHandler(x64emu_t* emu, void* f)
+{
+    return reverse_SmcErrorHandler_Fct(my->SmcSetErrorHandler(findSmcErrorHandlerFct(f)));
 }
 
 #include "wrappedlib_init.h"

@@ -2258,6 +2258,7 @@
 #() vFlliiiip
 #() vFpiiiipp
 #() vFpiiliip
+#() vFpiiLiip
 #() vFpiipCpp
 #() vFpiipppp
 #() vFpipipii
@@ -3345,6 +3346,7 @@ wrappedgcrypt:
 wrappedgdk3:
 - vFpp:
   - gdk_init
+  - gdk_threads_set_lock_functions
 - iFpp:
   - gdk_init_check
 - uFpp:
@@ -4483,6 +4485,12 @@ wrappedlibibus:
 - vFppppippp:
   - ibus_config_set_value_async
 wrappedlibice:
+- pFp:
+  - IceSetErrorHandler
+  - IceSetIOErrorHandler
+- iFpp:
+  - IceAddConnectionWatch
+  - IceRemoveConnectionWatch
 wrappedlibm:
 - iFv:
   - fegetround
@@ -4703,6 +4711,8 @@ wrappedlibrt:
 - iFipip:
   - lio_listio
 wrappedlibsm:
+- pFp:
+  - SmcSetErrorHandler
 - iFppp:
   - SmcRequestSaveYourselfPhase2
 - iFpipp:
