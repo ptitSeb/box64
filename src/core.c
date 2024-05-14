@@ -1807,10 +1807,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
         box64_wine = 1;
     }
-    if(box64_wine) {
-        // disabling the use of futex_waitv for now
-        setenv("WINEFSYNC", "0", 1);
-    }
     // Create a new context
     my_context = NewBox64Context(argc - nextarg);
 
