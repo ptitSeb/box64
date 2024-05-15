@@ -150,6 +150,19 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 VEXTRINS_D(v0, q1, 0);
             }
             break;
+        case 0x13:
+            nextop = F8;
+            INST_NAME("MOVLPS Ex,Gx");
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                VEXTRINS_D(v1, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                FST_D(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x14:
             INST_NAME("UNPCKLPS Gx, Ex");
             nextop = F8;
