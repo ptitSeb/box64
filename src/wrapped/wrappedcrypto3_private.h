@@ -850,7 +850,7 @@ GO(CRYPTO_free_ex_data, vFipp)
 //GO(CRYPTO_get_dynlock_value, 
 GO(CRYPTO_get_ex_data, pFpi)
 //GO(CRYPTO_get_ex_data_implementation, 
-//GO(CRYPTO_get_ex_new_index, 
+GO(CRYPTO_get_ex_new_index, iFilpppp)
 //GO(CRYPTO_get_id_callback, 
 //GO(CRYPTO_get_locked_mem_ex_functions, 
 //GO(CRYPTO_get_locked_mem_functions, 
@@ -3587,8 +3587,8 @@ GO(X509_get_version, lFp)
 GO(X509_get_X509_PUBKEY, pFp)
 //GO(X509_gmtime_adj, 
 //GO(X509_http_nbio, 
-//GO(X509_INFO_free, 
-//GO(X509_INFO_new, 
+GO(X509_INFO_free, vFp)
+GO(X509_INFO_new, pFv)
 //GO(X509_issuer_and_serial_cmp, 
 //GO(X509_issuer_and_serial_hash, 
 //GO(X509_issuer_name_cmp, 
