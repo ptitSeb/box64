@@ -1899,7 +1899,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
                 MOVxw_REG(x1, ed);  // save value
                 CMPSxw_REG(xRAX, x1);
-                CSELxw(ed, gd, ed, cEQ);
+                if(rex.w) {
+                    CSELxw(ed, gd, ed, cEQ);
+                } else {
+                    B_MARK2(cNE);
+                    MOVw_REG(ed, gd);
+                    MARK2;
+                }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 LDxw(x1, wback, fixedaddress);
