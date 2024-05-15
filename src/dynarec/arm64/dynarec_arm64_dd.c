@@ -169,12 +169,11 @@ uintptr_t dynarec64_DD(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MSR_fpsr(x5);
                         FRINTRRD(s0, v1, 3);
                         FCVTZSxD(x2, s0);
-                        STx(x2, ed, fixedaddress);
                         MRS_fpsr(x5);   // get back FPSR to check the IOC bit
                         TBZ_MARK3(x5, FPSR_IOC);
-                        ORRx_mask(x5, xZR, 1, 1, 0);    //0x8000000000000000
-                        STx(x5, ed, fixedaddress);
+                        ORRx_mask(x2, xZR, 1, 1, 0);    //0x8000000000000000
                         MARK3;
+                        STx(x2, ed, fixedaddress);
                     }
                 }
                 X87_POP_OR_FAIL(dyn, ninst, x3);
