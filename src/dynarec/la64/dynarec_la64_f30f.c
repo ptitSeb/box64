@@ -241,6 +241,19 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
             break;
+        case 0x7F:
+            INST_NAME("MOVDQU Ex,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
+                VOR_V(v1, v0, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                VST(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex, Ib");
             nextop = F8;
