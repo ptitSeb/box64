@@ -1581,11 +1581,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0xC7:                      /* CMPXCHG8B Eq */
             CHECK_FLAGS(emu);
             nextop = F8;
-            GETED(0);
-            #ifdef TEST_INTERPRETER
-            test->memsize = 16;
-            ((uint64_t*)test->mem)[1] = ((uint64_t*)test->memaddr)[1];
-            #endif
+            GETE8xw(0);
             switch((nextop>>3)&7) {
                 case 1:
                     if(rex.w) {
