@@ -373,7 +373,7 @@ GO(gst_video_tile_mode_get_type, LFv)
 GO(gst_video_tile_type_get_type, LFv)
 GO(gst_video_time_code_add_frames, vFpl)
 GO(gst_video_time_code_add_interval, pFpp)
-//GO(gst_video_time_code_clear, 
+GO(gst_video_time_code_clear, vFp)
 GO(gst_video_time_code_compare, iFpp)
 GO(gst_video_time_code_copy, pFp)
 GO(gst_video_time_code_flags_get_type, LFv)
