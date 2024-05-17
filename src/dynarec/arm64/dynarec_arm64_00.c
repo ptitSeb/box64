@@ -2074,27 +2074,43 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Ed, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    READFLAGS(X_CF);
-                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    GETEDW(x4, x1, 1);
-                    u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
-                    WBACK;
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20));
+                    if(u8) {
+                        READFLAGS(X_CF);
+                        SETFLAGS(X_CF|X_OF, SF_SUBSET); // removed PENDING on purpose
+                        GETED(1);
+                        u8 = (F8)&(rex.w?0x3f:0x1f);
+                        emit_rcl32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    } else {
+                        if(MODREG && ! rex.w && !rex.is32bits) {
+                            GETED(1);
+                            MOVw_REG(ed, ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    READFLAGS(X_CF);
-                    u8 = geted_ib(dyn, addr, ninst, nextop)&0x1f;
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    GETEDW(x4, x1, 1);
-                    u8 = F8;
-                    MOV32w(x2, u8);
-                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
-                    WBACK;
+                    u8 = geted_ib(dyn, addr, ninst, nextop)&(0x1f+(rex.w*0x20));
+                    if(u8) {
+                        READFLAGS(X_CF);
+                        SETFLAGS(X_CF|X_OF, SF_SUBSET); // removed PENDING on purpose
+                        GETED(1);
+                        u8 = (F8)&(rex.w?0x3f:0x1f);
+                        emit_rcr32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    } else {
+                        if(MODREG && ! rex.w && !rex.is32bits) {
+                            GETED(1);
+                            MOVw_REG(ed, ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
                     break;
                 case 4:
                 case 6:
@@ -2435,7 +2451,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 2:
                     INST_NAME("RCL Eb, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEB(x1, 0);
                     emit_rcl8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
@@ -2443,7 +2459,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3:
                     INST_NAME("RCR Eb, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEB(x1, 0);
                     emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
                     EBBACK;
@@ -2491,22 +2507,18 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Ed, 1");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    MOV32w(x2, 1);
-                    GETEDW(x4, x1, 0);
-                    CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
+                    GETED(0);
+                    emit_rcl32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    MOV32w(x2, 1);
-                    GETEDW(x4, x1, 0);
-                    CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
+                    GETED(0);
+                    emit_rcr32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACK;
                     break;
                 case 4:

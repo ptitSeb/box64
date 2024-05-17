@@ -976,7 +976,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCL Ew, Ib");
                     if (geted_ib(dyn, addr, ninst, nextop) & 31) {
                         READFLAGS(X_CF);
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
                         u8 = F8;
                         emit_rcl16c(dyn, ninst, ed, u8, x4, x5);
@@ -990,7 +990,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("RCR Ew, Ib");
                     if (geted_ib(dyn, addr, ninst, nextop) & 31) {
                         READFLAGS(X_CF);
-                        SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
                         u8 = F8;
                         emit_rcr16c(dyn, ninst, ed, u8, x4, x5);
@@ -1080,7 +1080,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 2:
                     INST_NAME("RCL Ew, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEW(x1, 0);
                     emit_rcl16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
@@ -1088,7 +1088,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 3:
                     INST_NAME("RCR Ew, 1");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEW(x1, 0);
                     emit_rcr16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
