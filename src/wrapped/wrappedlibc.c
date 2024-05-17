@@ -2865,7 +2865,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         if((flags&MAP_SHARED) && (fd>0)) {
             uint32_t flags = fcntl(fd, F_GETFL);
             if((flags&O_ACCMODE)==O_RDWR) {
-                if((box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region as NEVERCLEAN because fd have O_RDWR attribute\n");}
+                if((box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
                 prot |= PROT_NEVERCLEAN;
             }
         }
