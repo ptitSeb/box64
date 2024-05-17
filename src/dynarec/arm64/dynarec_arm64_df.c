@@ -273,7 +273,9 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 if(ed!=x1) {MOVx_REG(x1, ed);}
+                s0 = x87_stackcount(dyn, ninst, x3);
                 CALL(fpu_fbld, -1);
+                x87_unstackcount(dyn, ninst, x3, s0);
                 break;
             case 5:
                 INST_NAME("FILD ST0, i64");

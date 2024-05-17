@@ -996,8 +996,6 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
         MESSAGE(LOG_DUMP, "Incoherent x87 stack cache, aborting\n");
         dyn->abort = 1;
     }
-    if(s1)
-        x87_stackcount(dyn, ninst, s1);
 }
 void static internal_x87_dopop(dynarec_arm_t* dyn)
 {
