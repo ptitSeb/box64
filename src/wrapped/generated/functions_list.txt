@@ -3262,6 +3262,7 @@ wrappeddbusmenuglib:
   - dbusmenu_menuitem_send_about_to_show
 - iFppp:
   - dbusmenu_client_add_type_handler
+wrappeddecor0:
 wrappedevent21:
 - vFpiwpp:
   - event_set

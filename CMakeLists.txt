@@ -457,6 +457,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbusglib1.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbusmenuglib.c"
+    "${BOX64_ROOT}/src/wrapped/wrappeddecor0.c"
     "${BOX64_ROOT}/src/wrapped/wrappedevent21.c"
     "${BOX64_ROOT}/src/wrapped/wrappedexpat.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfaudio.c"
