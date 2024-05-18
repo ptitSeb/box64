@@ -133,7 +133,12 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        if(c>7) {
+            // the 0xff area will be 0, so PF is known
+            MOV32w(s3, 1);
+            BFIw(xFlags, s3, F_PF, 1);
+        } else
+            emit_pf(dyn, ninst, s1, s3, s4);
     }
 }
 
@@ -221,8 +226,8 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
         BFIw(xFlags, s4, F_ZF, 1);
     }
     IFX(X_SF) {
-        LSRxw(s4, s1, (rex.w)?63:31);
-        BFIx(xFlags, s4, F_SF, 1);
+        // no sign if c>0
+        BFCw(xFlags, F_SF, 1);
     }
     if(box64_dynarec_test)
         IFX(X_AF) {
@@ -612,7 +617,12 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             BFCw(xFlags, F_AF, 1);
         }
         IFX(X_PF) {
-            emit_pf(dyn, ninst, s1, s3, s4);
+            if(c>7) {
+                // the 0xff area will be 0, so PF is known
+                MOV32w(s3, 1);
+                BFIw(xFlags, s3, F_PF, 1);
+            } else
+                emit_pf(dyn, ninst, s1, s3, s4);
         }
     } else {
         IFX(X_CF) {
