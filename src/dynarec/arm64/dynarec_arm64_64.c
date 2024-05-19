@@ -793,27 +793,19 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 2:
                     INST_NAME("RCL Ed, 1");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    MOV32w(x2, 1);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEDO(x6, 0);
-                    if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
-                    if(ed!=x1) {MOVxw_REG(x1, ed);}
-                    CALL_(rcl32, ed, x6);
-                    WBACK;
+                    emit_rcl32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACKO(x6);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
-                    MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
-                    SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    MOV32w(x2, 1);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEDO(x6, 0);
-                    if(wback) {ADDx_REG(x6, x6, wback); wback=x6;}
-                    if(ed!=x1) {MOVxw_REG(x1, ed);}
-                    CALL_(rcr32, ed, x6);
-                    WBACK;
+                    emit_rcr32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACKO(x6);
                     break;
                 case 4:
                 case 6:
