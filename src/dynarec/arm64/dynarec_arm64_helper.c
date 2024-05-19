@@ -696,6 +696,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
     SMEND();
+    SET_DFNONE(x2);
     // POP IP
     NOTEST(x2);
     if(is64bits) {
@@ -893,7 +894,7 @@ void x87_unstackcount(dynarec_arm_t* dyn, int ninst, int scratch, int count)
         return;
     if(dyn->n.mmxcount)
         mmx_purgecache(dyn, ninst, 0, scratch);
-    MESSAGE(LOG_DUMP, "\tUnsynch x87 Stackcount (%d)\n", count);
+    MESSAGE(LOG_DUMP, "\tUnsynch x87 Unstackcount (%d)\n", count);
     int a = -count;
     // Add x87stack to emu fpu_stack
     LDRw_U12(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
@@ -1071,7 +1072,7 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
         }
         ANDw_mask(s2, s2, 0, 2);
         STRw_U12(s2, xEmu, offsetof(x64emu_t, top));
-        // update tags (and top at the same time)
+        // update tags
         LDRH_U12(s1, xEmu, offsetof(x64emu_t, fpu_tags));
         if(a>0) {
             LSLw_IMM(s1, s1, a*2);

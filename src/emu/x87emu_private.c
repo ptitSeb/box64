@@ -13,9 +13,8 @@ void fpu_do_free(x64emu_t* emu, int i)
 {
     emu->fpu_tags |= 0b11 << (i);   // empty
     // check if all empty
-    for(int j=0; j<8; ++j)
-        if(emu->fpu_tags != TAGS_EMPTY)
-            return;
+    if(emu->fpu_tags != TAGS_EMPTY)
+        return;
     emu->fpu_stack = 0;
 }
 
@@ -376,8 +375,9 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
         applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
+    emu->fpu_tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
+        emu->fpu_tags |= (((tags>>(i*2))&1)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
@@ -399,8 +399,9 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
         applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
+    emu->fpu_tags = 0;
     for(int i=0; i<8; ++i)
-        emu->fpu_tags |= ((tags>>i)?0:0b11)<<(i*2);
+        emu->fpu_tags |= (((tags>>i)&1)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
