@@ -487,12 +487,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Shift Right Logical Immediate, 32-bit, sign-extended
 #define SRLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm)      \
-    if (rex.w) {                  \
-        SRLI(rd, rs1, imm);       \
-    } else {                      \
-        SRLIW(rd, rs1, imm);      \
-        if (imm == 0) ZEROUP(rd); \
+#define SRLIxw(rd, rs1, imm)        \
+    if (rex.w) {                    \
+        SRLI(rd, rs1, imm);         \
+    } else {                        \
+        SRLIW(rd, rs1, imm);        \
+        if ((imm) == 0) ZEROUP(rd); \
     }
 // Shift Right Arithmetic Immediate, 32-bit, sign-extended
 #define SRAIW(rd, rs1, imm5) EMIT(I_type((imm5) | (0b0100000 << 5), rs1, 0b101, rd, 0b0011011))
