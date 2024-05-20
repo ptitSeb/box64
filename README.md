@@ -57,6 +57,8 @@ Because Box64 works by directly translating function calls from x86_64 to host s
 So understand that box64 will only run 64-bit linux binaries. For 32-bit binaries, you need box86 (with all the multiarch or proot trickery it implies on a 64-bit OS).
 Note that many installer (mojo setup based) will fall back to "x86" when detecting ARM64 OS, and so will try to use box86 for the setup, even if an x86_64 version exist. You can hack your way around with a fake "uname" that return "x86_64" when the argument is "-m"
 
+An alternative solution is to use Wine with new WoW64, but you will be limited to 32bits windows apps and games.
+
 ----
 
 Notes about Box64 configuration
@@ -94,7 +96,7 @@ Notes about Wine
 ----
 
 Wine64 is supported on box64. Proton too. Be aware that 64-bit Wine also includes 32-bit components, to be able to run 32-bit Windows programs. The 32-bit apps will need box86 and will not run without it. On a system where both box64 and box86 are present and working, a wine 64-bit setup can run both 32-bit and 64-bit Windows programs (just use `wine` and `wine64` respectively).
-Note that the new 32-bit PE in 64-bit processes that the Wine team is currently implementing in Wine 7.+ is now supported, but the support is quite young so there might be some residual issues.
+Note that the new 32-bit PE in 64-bit processes that the Wine team is currently implementing in Wine 7.+ is now supported. It's called "new WoW64" and it's working fine on box64, allowing the use of 32bits windows program on 64bits only system.
 
 ----
 
