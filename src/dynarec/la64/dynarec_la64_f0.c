@@ -207,7 +207,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (i64 >= -2048 && i64 < 2048) {
                             ADDIxw(x4, x1, i64);
                         } else {
-                            ADDxw(x4, x1, x4);
+                            ADDxw(x4, x1, x3);
                         }
                         SCxw(x4, wback, 0);
                         BEQZ_MARKLOCK(x4);
@@ -237,13 +237,15 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
+                        if (i64 <= -2048 || i64 > 2048) {
+                            MOV64xw(x3, i64);
+                        }
                         MARKLOCK;
                         LLxw(x1, wback, 0);
                         if (i64 > -2048 && i64 <= 2048) {
                             ADDIxw(x4, x1, -i64);
                         } else {
-                            MOV64xw(x4, i64);
-                            SUBxw(x4, x1, x4);
+                            SUBxw(x4, x1, x3);
                         }
                         SCxw(x4, wback, 0);
                         BEQZ_MARKLOCK(x4);
