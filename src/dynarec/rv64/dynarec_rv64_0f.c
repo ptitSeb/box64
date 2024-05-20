@@ -1351,6 +1351,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (wback) {
                 SDxw(ed, wback, fixedaddress);
                 SMWRITE();
+            } else if(!rex.w) {
+                ZEROUP(ed);
             }
             break;
         case 0xAC:
@@ -1522,6 +1524,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (wback) {
                 SDxw(ed, wback, fixedaddress);
                 SMWRITE();
+            } else if(!rex.w) {
+                ZEROUP(ed);
             }
             break;
         case 0xB6:
@@ -1600,6 +1604,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
                         SMWRITE();
+                    } else if(!rex.w) {
+                        ZEROUP(ed);
                     }
                     MARK;
                     break;
@@ -1627,6 +1633,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
                         SMWRITE();
+                    } else if(!rex.w) {
+                        ZEROUP(ed);
                     }
                     MARK;
                     break;
@@ -1649,6 +1657,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
                         SMWRITE();
+                    } else if(!rex.w) {
+                        ZEROUP(ed);
                     }
                     break;
                 default:
@@ -1683,6 +1693,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (wback) {
                 SDxw(ed, wback, fixedaddress);
                 SMWRITE();
+            } else if(!rex.w) {
+                ZEROUP(ed);
             }
             break;
         case 0xBC:
