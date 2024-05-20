@@ -165,7 +165,7 @@ typedef struct box64context_s {
     rbtree*             db_sizes;
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
-    #ifdef __riscv
+    #if defined(__riscv) || defined(__loongarch64)
     uint32_t            mutex_16b;
     #endif
     #endif
