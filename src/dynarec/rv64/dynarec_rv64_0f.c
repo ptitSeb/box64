@@ -1793,9 +1793,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGD;
             GETED(0);
-            MV(x9, ed);
+            if(ed!=gd)
+                MV(x9, ed);
             emit_add32(dyn, ninst, rex, ed, gd, x4, x5, x6);
-            MV(gd, x9);
+            if(ed!=gd)
+                MVxw(gd, x9);
             WBACK;
             break;
         case 0xC2:

@@ -648,9 +648,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 DEFAULT;
             } else {                    // mem <= reg
                 addr = geted32(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
-                if(ed!=gd) {
-                    AND(gd, ed, xMASK);
-                }
+                AND(gd, ed, xMASK);
             }
             break;
 

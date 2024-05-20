@@ -872,13 +872,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETDIR(x3, x1, rex.w?8:2);
                     if (rex.w) {
                         LD(x2, xRDI, 0);
+                        ADD(xRDI, xRDI, x3);
                         emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
                     } else {
                         ZEXTH(x1, xRAX);
                         LHU(x2, xRDI, 0);
+                        ADD(xRDI, xRDI, x3);
                         emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
                     }
-                    ADD(xRDI, xRDI, x3);
                     break;
             }
             break;
