@@ -341,13 +341,18 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
+            q0 = fpu_get_scratch(dyn);
+            VLDI(q0, 0b0010011111111); // broadcast 0xff as 16-bit elements to all lanes
             if (v0 == v1) {
                 VMAXI_H(v0, v0, 0);
+                VMIN_H(v0, v0, q0);
                 VPICKEV_B(v0, v0, v0);
             } else {
                 q1 = fpu_get_scratch(dyn);
                 VMAXI_H(v0, v0, 0);
                 VMAXI_H(q1, v1, 0);
+                VMIN_H(v0, v0, q0);
+                VMIN_H(q1, q1, q0);
                 VPICKEV_B(v0, q1, v0);
             }
             break;
