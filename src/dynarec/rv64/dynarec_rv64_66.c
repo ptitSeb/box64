@@ -1012,7 +1012,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROL Ew, CL");
-                        ANDI(x2, xRCX, 15);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
@@ -1026,7 +1026,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROR Ew, CL");
-                        ANDI(x2, xRCX, 15);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
@@ -1040,7 +1040,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("RCL Ew, CL");
-                        ANDI(x2, xRCX, 15);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
@@ -1048,13 +1048,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 1);
                     CALL_(rcl16, x1, x3);
                     EWBACK;
+                    break;
                 case 3:
                     if(opcode==0xD1) {
                         INST_NAME("RCR Ew, 1");
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("RCR Ew, CL");
-                        ANDI(x2, xRCX, 15);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE("LOG_DUMP", "Need optimization\n");
                     READFLAGS(X_CF);
@@ -1062,6 +1063,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 1);
                     CALL_(rcr16, x1, x3);
                     EWBACK;
+                    break;
                 case 5:
                     if(opcode==0xD1) {
                         INST_NAME("SHR Ew, 1");
