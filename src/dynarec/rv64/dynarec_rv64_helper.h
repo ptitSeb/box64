@@ -276,8 +276,7 @@
             if (rv64_xtheadbb) {                                                                \
                 TH_EXTU(i, wback, 15, 8);                                                       \
             } else {                                                                            \
-                MV(i, wback);                                                                   \
-                SRLI(i, i, wb2);                                                                \
+                SRLI(i, wback, wb2);                                                            \
                 ANDI(i, i, 0xff);                                                               \
             }                                                                                   \
         } else                                                                                  \
@@ -306,8 +305,7 @@
             if (rv64_xtheadbb) {                                                                \
                 TH_EXTU(i, wback, 15, 8);                                                       \
             } else {                                                                            \
-                MV(i, wback);                                                                   \
-                SRLI(i, i, wb2);                                                                \
+                SRLI(i, wback, wb2);                                                            \
                 ANDI(i, i, 0xff);                                                               \
             }                                                                                   \
         } else                                                                                  \
@@ -392,8 +390,7 @@
         if (rv64_xtheadbb) {                                \
             TH_EXTU(gd, gb1, 15, 8);                        \
         } else {                                            \
-            MV(gd, gb1);                                    \
-            SRLI(gd, gd, 8);                                \
+            SRLI(gd, gb1, 8);                               \
             ANDI(gd, gd, 0xff);                             \
         }                                                   \
     } else                                                  \

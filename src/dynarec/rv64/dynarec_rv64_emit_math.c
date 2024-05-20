@@ -286,10 +286,10 @@ void emit_add8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         if(rv64_zbb) {
             ANDN(s3, s3, s1);   // s3 = ~res & (op1 | op2)
         } else {
-            NOT(s4, s1);   // s4 = ~res
-            AND(s3, s4, s3);   // s3 = ~res & (op1 | op2)
+            NOT(s2, s1);   // s4 = ~res
+            AND(s3, s2, s3);   // s3 = ~res & (op1 | op2)
         }
-        OR(s3, s3, s2);   // cc = (~res & (op1 | op2)) | (op1 & op2)
+        OR(s3, s3, s4);   // cc = (~res & (op1 | op2)) | (op1 & op2)
         IFX(X_AF) {
             ANDI(s4, s3, 0x08); // AF: cc & 0x08
             BEQZ(s4, 8);
@@ -621,7 +621,8 @@ void emit_inc8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     }
     IFX(X_SF) {
-        BGE(s1, xZR, 8);
+        ANDI(s2, s1, 0x80);
+        BEQZ(s2, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     ANDI(s1, s1, 0xff);
@@ -676,7 +677,8 @@ void emit_dec8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
         }
     }
     IFX(X_SF) {
-        BGE(s1, xZR, 8);
+        ANDI(s2, s1, 0x80);
+        BEQZ(s2, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
     ANDI(s1, s1, 0xff);
@@ -1378,6 +1380,8 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         if (rex.w) {
             AND(s5, xMASK, s1);
             if(rv64_zba) ADDUW(s5, s2, s5); else {AND(s4, xMASK, s2); ADD(s5, s5, s4);} // lo
+            ANDI(s3, xFlags, 1);
+            ADD(s5, s5, s3);    // add carry
             SRLI(s3, s1, 0x20);
             SRLI(s4, s2, 0x20);
             ADD(s4, s4, s3);
@@ -1388,6 +1392,8 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             AND(s3, s1, xMASK);
             AND(s4, s2, xMASK);
             ADD(s5, s3, s4);
+            ANDI(s3, xFlags, 1);
+            ADD(s5, s5, s3);    // add carry
             SRLI(s6, s5, 0x20);
         }
     }

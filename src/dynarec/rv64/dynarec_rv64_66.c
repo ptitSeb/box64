@@ -1134,7 +1134,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 2:
                     INST_NAME("NOT Ew");
                     GETEW(x1, 0);
-                    NOT(ed, ed); // No flags affected
+                    MOV32w(x3, 0xffff);
+                    XOR(ed, ed, x3); // No flags affected
                     EWBACK;
                     break;
                 case 3:
