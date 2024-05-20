@@ -745,7 +745,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                             GETGD;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                             if (rex.w) {
-#if defined(__riscv)
+#if defined(__riscv) || defined(__loongarch64)
                                 while (native_lock_xchg_d(&emu->context->mutex_16b, 1)); // lock
                                 tmp64u = ((uint64_t*)ED)[0];
                                 tmp64u2 = ((uint64_t*)ED)[1];
