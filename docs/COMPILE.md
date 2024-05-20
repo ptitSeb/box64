@@ -80,7 +80,6 @@ Warning, you need a 64bit OS:
 
 #### for Raspberry Pi 5
 
-If your Raspberry Pi OS use 16K pages use `RPI5ARM64PS16K` instead of `RPI5ARM64`:
 ```
 -D RPI5ARM64=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
 ```
@@ -150,7 +149,7 @@ Using a 64bit OS:
 
 #### for M1
 
-Only test on Asahi for now, using the default "16K page" kernel
+Only test on Asahi with Fedora, using the default "16K page" kernel
 
 ```
 -D M1=1 -D CMAKE_BUILD_TYPE=RelWithDebInfo
