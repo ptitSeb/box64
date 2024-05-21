@@ -827,11 +827,11 @@ void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int s
     MESSAGE(LOG_DUMP, "----%s Offset\n", (segment==_FS)?"FS":"GS");
 }
 
-void x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch)
+int x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch)
 {
     MAYUSE(scratch);
     if(!dyn->e.x87stack)
-        return;
+        return 0;
     if(dyn->e.mmxcount)
         mmx_purgecache(dyn, ninst, 0, scratch);
     MESSAGE(LOG_DUMP, "\tSynch x87 Stackcount (%d)\n", dyn->e.x87stack);
@@ -848,10 +848,35 @@ void x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch)
     // reset x87stack, but not the stack count of extcache
     dyn->e.x87stack = 0;
     dyn->e.stack_next -= dyn->e.stack;
+    int ret = dyn->e.stack;
     dyn->e.stack = 0;
     MESSAGE(LOG_DUMP, "\t------x87 Stackcount\n");
+    return ret;
 }
-
+void x87_unstackcount(dynarec_rv64_t* dyn, int ninst, int scratch, int count)
+{
+    MAYUSE(scratch);
+    if(!count)
+        return;
+    if(dyn->e.mmxcount)
+        mmx_purgecache(dyn, ninst, 0, scratch);
+    MESSAGE(LOG_DUMP, "\tSynch x87 Unstackcount (%d)\n", count);
+    int a = -count;
+    // Add x87stack to emu fpu_stack
+    LW(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
+    ADDI(scratch, scratch, a);
+    SW(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
+    // Sub x87stack to top, with and 7
+    LW(scratch, xEmu, offsetof(x64emu_t, top));
+    SUBI(scratch, scratch, a);
+    ANDI(scratch, scratch, 7);
+    SW(scratch, xEmu, offsetof(x64emu_t, top));
+    // reset x87stack, but not the stack count of extcache
+    dyn->e.x87stack = count;
+    dyn->e.stack = count;
+    dyn->e.stack_next += dyn->e.stack;
+    MESSAGE(LOG_DUMP, "\t------x87 Unstackcount\n");
+}
 int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b)
 {
     int i1 = extcache_get_st(dyn, ninst, a);
@@ -1217,7 +1242,6 @@ int x87_get_st_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int 
 
 void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
 {
-    x87_stackcount(dyn, ninst, s1);
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
         if(dyn->e.x87cache[i] == st)
@@ -1230,11 +1254,12 @@ void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
     // Get top
     LW(s2, xEmu, offsetof(x64emu_t, top));
     // Update
-    if(st) {
-        ADDI(s2, s2, st);
+    int a = st - dyn->e.x87stack;
+    if(a) {
+        ADDI(s2, s2, a);
         ANDI(s2, s2, 7);    // (emu->top + i)&7
     }
-    ADD(s1, xEmu, s2);
+    if(rv64_zba) SH3ADD(s1, s2, xEmu); else {SLLI(s2, s2, 3); ADD(s1, xEmu, s2);}
     if (dyn->e.extcache[EXTIDX(reg)].t == EXT_CACHE_ST_F) {
         FCVTDS(SCRATCH0, reg);
         FSD(SCRATCH0, s1, offsetof(x64emu_t, x87));
@@ -1250,7 +1275,6 @@ void x87_refresh(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
 
 void x87_forget(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
 {
-    x87_stackcount(dyn, ninst, s1);
     int ret = -1;
     for (int i=0; (i<8) && (ret==-1); ++i)
         if(dyn->e.x87cache[i] == st)

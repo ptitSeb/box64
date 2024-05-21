@@ -212,7 +212,9 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     x87_forget(dyn, ninst, x1, x2, 0);
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                     if (ed != x1) { MV(x1, ed); }
+                    s0 = x87_stackcount(dyn, ninst, x3);
                     CALL(fpu_fbst, -1);
+                    x87_unstackcount(dyn, ninst, x3, s0);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
                 case 7:
