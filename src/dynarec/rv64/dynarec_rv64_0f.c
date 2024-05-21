@@ -1000,6 +1000,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGM();
             if (MODREG) {
                 ed = xRAX + (nextop & 7) + (rex.b << 3);
+                if (!rex.w) {
+                    AND(x4, ed, xMASK);
+                    ed = x4;
+                }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, 0);
                 LDxw(x4, ed, fixedaddress);
