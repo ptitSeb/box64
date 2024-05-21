@@ -3074,7 +3074,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
             v0 = fpu_get_scratch(dyn);
-            v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 64);
