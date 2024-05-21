@@ -1,3 +1,27 @@
+box64 (0.2.8) unstable; urgency=low
+
+* Wrapping: More libs and function wrapping (gtk3, vulkan...)
+* Reworked X11 Callback handling, for better stability
+* Reworked exit and the load/unload of libs and symbol resolution
+* Some more profiles in box64rc
+* Better way to rename executable (including wine ones) so driver like mesa can apply the correct profile
+* Reworked memory managment in the Dynarec, limiting amount of dynamic allocation
+* Improved memory tracking and managment. Also introduce BOX64_MMAP32 to force 32bits compatible mmap for external libs (like mesa)
+* => Allow Vulkan drvier on Wine/WOW64 games to allocate 32bits compatible memory, allowing dxvk on 32bits.
+* Reworked memory managment in the Dynarec, limiting amount of dynamic allocation
+* Lots of improvments in x87 handling (virtual stack, rounding, ffree, etc.)
+* => should improve games stability
+* Dynarec: ARM64 some opcodes optimisation, especialy shift and rotation ones
+* Dynarec: RV64 lots of opcoded added.
+* => Some games on linux now have a good speed. Game on Wine are still a bit slow, and dxvk still have issues
+* Dynarec: Added Loogarch backend! Note that Loongarch are 16K pagesize platform by default.
+* => Linux games are running, and with good speed, especialy on 3A6000 platforms. Games on Wine are not working yet due to 16k pagesize limitation
+* Dynarec: Better handling of large block in the dynarec
+* Dynarec: Lots of improvments and fixes to BOX86_DYNAREC_CALLRET optimisation.
+* => It can be used on more software now, and combine with BOX64_DYNAREC_BOGBLOCKS 2 or 3 can gives some good speed boosts.
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 31 May 2024 17:30:33 -0100
+
 box64 (0.2.6) unstable; urgency=low
 
  * X64Libs: Updated libstdc++ & libgcc_s
