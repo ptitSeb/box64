@@ -2656,9 +2656,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETGM(d0);
             GETEM(d1, 0);
             v0 = fpu_get_scratch(dyn);
-            VMOVeD(v0, 0, d1, 0);
-            VMOVeD(v0, 1, d1, 0);
-            SQXTN_32(v0, v0); // 2*q1 in 32bits now
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, d1);
+            MOVI_32(v1, 32);
+            UMIN_32(v0, v0, v1); // limit to 0 .. +32 values
+            VDUPQ_32(v0, v0, 0);
             SSHL_32(d0, d0, v0);
             break;
         case 0xF3:
@@ -2666,7 +2668,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGM(d0);
             GETEM(d1, 0);
-            USHL_R_64(d0, d0, d1);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            UQXTN_32(v0, d1);
+            MOVI_32(v1, 64);
+            UMIN_32(v0, v0, v1); // limit to 0 .. +64 values
+            USHL_R_64(d0, d0, v0);
             break;
         case 0xF4:
             INST_NAME("PMULUDQ Gm,Em");
