@@ -75,7 +75,7 @@ void emit_shl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -138,7 +138,7 @@ void emit_shl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
             MOV32w(s3, 1);
             BFIw(xFlags, s3, F_PF, 1);
         } else
-            emit_pf(dyn, ninst, s1, s3, s4);
+            emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -185,7 +185,7 @@ void emit_shr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -234,7 +234,7 @@ void emit_shr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -277,7 +277,7 @@ void emit_sar32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -318,7 +318,7 @@ void emit_shl8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -358,7 +358,7 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
             BFCw(xFlags, F_AF, 1);
         }
         IFX(X_PF) {
-            emit_pf(dyn, ninst, s1, s3, s4);
+            emit_pf(dyn, ninst, s1, s4);
         }
     } else {
         IFX(X_CF) {
@@ -422,7 +422,7 @@ void emit_shr8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -462,7 +462,7 @@ void emit_shr8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -496,7 +496,7 @@ void emit_sar8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -527,7 +527,7 @@ void emit_sar8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
                 BFCw(xFlags, F_OF, 1);
         }
         IFX(X_PF) {
-            emit_pf(dyn, ninst, s1, s3, s4);
+            emit_pf(dyn, ninst, s1, s4);
         }
     } else {
         LSRw(s3, s1, 7);
@@ -577,7 +577,7 @@ void emit_shl16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -622,7 +622,7 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
                 MOV32w(s3, 1);
                 BFIw(xFlags, s3, F_PF, 1);
             } else
-                emit_pf(dyn, ninst, s1, s3, s4);
+                emit_pf(dyn, ninst, s1, s4);
         }
     } else {
         IFX(X_CF) {
@@ -679,7 +679,7 @@ void emit_shr16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -720,7 +720,7 @@ void emit_shr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -754,7 +754,7 @@ void emit_sar16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -788,7 +788,7 @@ void emit_sar16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             BFCw(xFlags, F_AF, 1);
         }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
@@ -1238,7 +1238,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1293,7 +1293,7 @@ void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1341,7 +1341,7 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1387,7 +1387,7 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1431,7 +1431,7 @@ void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1468,7 +1468,7 @@ void emit_shrd16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1519,7 +1519,7 @@ void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
 
@@ -1559,6 +1559,6 @@ void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s1, s3, s4);
+        emit_pf(dyn, ninst, s1, s4);
     }
 }
