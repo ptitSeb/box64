@@ -252,7 +252,6 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         LSRxw(s4, s3, rex.w?63:31);
         BFIw(xFlags, s4, F_SF, 1);
     }
-    // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s3, s5);
     }
@@ -283,7 +282,6 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         LSRw(s4, s5, 15);
         BFIw(xFlags, s4, F_SF, 1);
     }
-    // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s5, s4);
     }
@@ -314,7 +312,6 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         LSRw(s4, s5, 7);
         BFIw(xFlags, s4, F_SF, 1);
     }
-    // PF: (((emu->x64emu_parity_tab[(res) / 32] >> ((res) % 32)) & 1) == 0)
     IFX(X_PF) {
         emit_pf(dyn, ninst, s5, s4);
     }

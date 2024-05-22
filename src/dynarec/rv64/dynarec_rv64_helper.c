@@ -2250,19 +2250,22 @@ void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 
 void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
 {
-    MAYUSE(dyn); MAYUSE(ninst);
-    // PF: (((emu->x64emu_parity_tab[(res&0xff) / 32] >> ((res&0xff) % 32)) & 1) == 0)
-    MOV64x(s4, (uintptr_t)GetParityTab());
-    SRLI(s3, s1, 3);
-    ANDI(s3, s3, 28);
-    ADD(s4, s4, s3);
-    LW(s4, s4, 0);
-    NOT(s4, s4);
-    SRLW(s4, s4, s1);
-    ANDI(s4, s4, 1);
+    MAYUSE(dyn);
+    MAYUSE(ninst);
 
-    BEQZ(s4, 8);
-    ORI(xFlags, xFlags, 1 << F_PF);
+    SRLI(s3, s1, 4);
+    XOR(s3, s3, s1);
+
+    SRLI(s4, s3, 2);
+    XOR(s4, s3, s4);
+
+    SRLI(s3, s4, 1);
+    XOR(s3, s3, s4);
+
+    ANDI(s3, s3, 1);
+    XORI(s3, s3, 1);
+    SLLI(s3, s3, F_PF);
+    OR(xFlags, xFlags, s3);
 }
 
 void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
