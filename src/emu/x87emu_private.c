@@ -318,14 +318,14 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+        stack = (emu->fpu_tags)?0:8;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
+        tags |= (((emu->fpu_tags>>(i*2))&0b11)?0:1)<<i;
     p->TagWord = tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
@@ -346,14 +346,14 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+        stack = (emu->fpu_tags)?0:8;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
+        tags |= (((emu->fpu_tags>>(i*2))&0b11)?0:1)<<i;
     p->TagWord = emu->fpu_tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
@@ -377,11 +377,11 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
     uint8_t tags = p->TagWord;
     emu->fpu_tags = 0;
     for (int i=0; i<8; ++i)
-        emu->fpu_tags |= (((tags>>(i*2))&1)?0:0b11)<<(i*2);
+        emu->fpu_tags |= (((tags>>i)&1)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+        stack = (emu->fpu_tags)?0:8;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
@@ -405,7 +405,7 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
     int top = emu->top&7;
     int stack = 8-top;
     if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+        stack = (emu->fpu_tags)?0:8;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
