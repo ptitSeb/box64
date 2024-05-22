@@ -700,9 +700,9 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 0);
             if (MODREG) {
                 v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
-                q0 = fpu_get_scratch(dyn);
                 if (v0 == v1) {
                     // clear upper bits
+                    q0 = fpu_get_scratch(dyn);
                     VXOR_V(q0, q0, q0);
                     VEXTRINS_D(q0, v0, 0);
                     VOR_V(v1, q0, q0);
