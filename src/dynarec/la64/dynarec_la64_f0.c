@@ -229,7 +229,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
-                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
                         emit_sub32c(dyn, ninst, rex, ed, i64, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);

@@ -229,8 +229,6 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
             nextop = F8;
-            GETGX_empty(v0);
-            VXOR_V(v0, v0, v0);
             if (MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
             } else {
@@ -239,7 +237,17 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 v1 = fpu_get_scratch(dyn);
                 FLD_D(v1, ed, fixedaddress);
             }
-            VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            GETGX_empty(v0);
+            if (v0 == v1) {
+                // clear upper bits..
+                q1 = fpu_get_scratch(dyn);
+                VXOR_V(q1, q1, q1);
+                VEXTRINS_D(q1, v1, 0); // q1[63:0] = v1[63:0]
+                VOR_V(v0, q1, q1);
+            } else {
+                VXOR_V(v0, v0, v0);
+                VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            }
             break;
         case 0x7F:
             INST_NAME("MOVDQU Ex,Gx");
