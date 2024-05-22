@@ -165,6 +165,12 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     // load tag
                     LDRH_U12(x3, xEmu, offsetof(x64emu_t, fpu_tags));
+                    if(i2<0) {
+                        LSLw_IMM(x3, x3, -i2*2);
+                    } else if(i2>0) {
+                        ORRw_mask(x3, x3, 0b010000, 0b001111);  // 0xffff0000
+                        LSRw_IMM(x3, x3, i2*2);
+                    }
                     TSTw_mask(x3, 0, 1);    // 0b11
                     B_MARK3(cNE);   // empty: C3,C2,C0 = 101
                     // load x2 with ST0 anyway, for sign extraction
