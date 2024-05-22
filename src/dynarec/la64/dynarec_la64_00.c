@@ -786,9 +786,35 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     AMSWAP_DB_B(x1, gd, ed);
                 else {
                     SMDMB();
-                    LD_BU(x1, ed, 0);
-                    ST_B(gd, ed, 0);
-                    SMDMB();
+
+                    // calculate shift amount
+                    ANDI(x6, ed, 0x3);
+                    SLLI_D(x6, x6, 3);
+
+                    // align address to 4-bytes to use ll.w/sc.w
+                    ADDI_D(x4, xZR, 0xffc);
+                    AND(x2, ed, x4);
+
+                    // load aligned data
+                    LD_WU(x5, x2, 0);
+
+                    // insert gd byte into the aligned data
+                    ADDI_D(x4, xZR, 0xff);
+                    SLL_D(x4, x4, x6);
+                    NOR(x4, x4, xZR);
+                    AND(x4, x5, x4);
+                    SLL_D(x5, gd, x6);
+                    OR(x4, x5, x5);
+
+                    // do aligned ll/sc sequence
+                    MARKLOCK;
+                    LL_W(x1, x2, 0);
+                    MV(x5, x4);
+                    SC_W(x5, x2, 0);
+                    BEQZ_MARKLOCK(x5);
+
+                    // extract loaded byte
+                    SRL_D(x1, x1, x6);
                 }
                 BSTRINS_D(gb1, x1, gb2 + 7, gb2);
             }
