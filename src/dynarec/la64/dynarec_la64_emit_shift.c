@@ -721,6 +721,9 @@ void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         ANDI(s4, s2, 0x1f);
     }
 
+    if (!rex.w) ZEROUP(s1);
+    BEQ_NEXT(s4, xZR);
+
     SLLxw(s3, s1, s4);
     NEG_D(s4, s4);
     ADDI_D(s4, s4, rex.w ? 64 : 32);
