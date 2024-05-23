@@ -249,31 +249,49 @@ long double LD2localLD(void* ld)
 
 void fpu_loadenv(x64emu_t* emu, char* p, int b16)
 {
-    emu->cw.x16 = *(uint16_t*)p;
-    p+=(b16)?2:4;
-    emu->sw.x16 = *(uint16_t*)p;
+    if(b16) {
+        uint16_t* p16 = (uint16_t*)p;
+        emu->cw.x16 = *p16++;
+        emu->sw.x16 = *p16++;
+        // tagword: 2bits*8
+        // tags... (only full = 0b11 / free = 0b00)
+        emu->fpu_tags = ~*(p16++);
+        // intruction pointer: 16bits
+        // data (operand) pointer: 16bits
+        // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
+    } else {
+        uint32_t* p32 = (uint32_t*)p;
+        emu->cw.x16 = *p32++;
+        emu->sw.x16 = *p32++;
+        // tagword: 2bits*8
+        // tags... (only full = 0b11 / free = 0b00)
+        emu->fpu_tags = ~*(p32++);
+        // intruction pointer: 16bits
+        // data (operand) pointer: 16bits
+        // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
+    }
     emu->top = emu->sw.f.F87_TOP;
-    p+=(b16)?2:4;
-    // tagword: 2bits*8
-    // tags... (only full = 0b11 / free = 0b00)
-    emu->fpu_tags = *(uint16_t*)p;
-    // intruction pointer: 16bits
-    // data (operand) pointer: 16bits
-    // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
 }
 
 void fpu_savenv(x64emu_t* emu, char* p, int b16)
 {
     emu->sw.f.F87_TOP = emu->top&7;
-    *(uint16_t*)p = emu->cw.x16;
-    p+=2;
-    if(!b16) {*(uint16_t*)p = 0; p+=2;}
-    *(uint16_t*)p = emu->sw.x16;
-    p+=2;
-    if(!b16) {*(uint16_t*)p = 0; p+=2;}
-    // tagword: 2bits*8
-    // tags...
-    *(uint16_t*)p = emu->fpu_tags;
+    if(b16) {
+        uint16_t* p16 = (uint16_t*)p;
+        *p16++ = emu->cw.x16;
+        *p16++ = emu->sw.x16;
+        // tagword: 2bits*8
+        // tags...
+        *p16++ = ~emu->fpu_tags;
+    } else {
+        uint32_t* p32 = (uint32_t*)p;
+        *p32++ = emu->cw.x16;
+        *p32++ = emu->sw.x16;
+        // tagword: 2bits*8
+        // tags...
+        *p32++ = ~emu->fpu_tags;
+
+    }
     // other stuff are not pushed....
 }
 
@@ -317,8 +335,8 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     // should save flags & all
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags)?0:8;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
@@ -345,8 +363,8 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     // should save flags & all
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags)?0:8;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
@@ -380,8 +398,8 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
         emu->fpu_tags |= (((tags>>i)&1)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags)?0:8;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
@@ -404,8 +422,8 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
         emu->fpu_tags |= (((tags>>i)&1)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags)?0:8;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
