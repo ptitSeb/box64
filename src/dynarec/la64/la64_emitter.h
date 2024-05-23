@@ -1357,6 +1357,9 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VLD(vd, rj, imm12)          EMIT(type_2RI12(0b0010110000, imm12, rj, vd))
 #define VST(vd, rj, imm12)          EMIT(type_2RI12(0b0010110001, imm12, rj, vd))
 
+#define VFCMP_S(vd, vj, vk, cond)   EMIT(type_4R(0b000011000101, cond, vk, vj, vd))
+#define VFCMP_D(vd, vj, vk, cond)   EMIT(type_4R(0b000011000110, cond, vk, vj, vd))
+
 #define XVADD_B(vd, vj, vk)          EMIT(type_3R(0b01110100000010100, vk, vj, vd))
 #define XVADD_H(vd, vj, vk)          EMIT(type_3R(0b01110100000010101, vk, vj, vd))
 #define XVADD_W(vd, vj, vk)          EMIT(type_3R(0b01110100000010110, vk, vj, vd))
