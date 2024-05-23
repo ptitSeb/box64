@@ -114,6 +114,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 FTINTRZ_W_S(d1, d0);
                 MOVFR2GR_S(gd, d1);
+                ZEROUP(gd);
             }
             if (!rex.w) ZEROUP(gd);
             if (!box64_dynarec_fastround) {

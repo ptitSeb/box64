@@ -324,6 +324,22 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITELOCK(lock);
             }
             break;
+        case 0x8B:
+            INST_NAME("MOV Gw, Ew");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                if (ed != gd) {
+                    BSTRINS_D(gd, ed, 15, 0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                SMREADLOCK(lock);
+                LD_HU(x1, ed, fixedaddress);
+                BSTRINS_D(gd, x1, 15, 0);
+            }
+            break;
         case 0x90:
         case 0x91:
         case 0x92:
@@ -523,6 +539,27 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u16 = F16;
                     MOV32w(x2, u16);
                     emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0xFF:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("INC Ew");
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    GETEW(x1, 0);
+                    emit_inc16(dyn, ninst, x1, x2, x4, x5);
+                    EWBACK;
+                    break;
+                case 1:
+                    INST_NAME("DEC Ew");
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    GETEW(x1, 0);
+                    emit_dec16(dyn, ninst, x1, x2, x4, x5, x6);
+                    EWBACK;
                     break;
                 default:
                     DEFAULT;

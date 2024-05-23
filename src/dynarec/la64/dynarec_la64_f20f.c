@@ -108,6 +108,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 FTINTRZ_W_D(d1, q0);
                 MOVFR2GR_S(gd, d1);
+                ZEROUP(gd);
             }
             if (!rex.w) ZEROUP(gd);
             if (!box64_dynarec_fastround) {
@@ -138,6 +139,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 FTINT_W_D(d1, q0);
                 MOVFR2GR_S(gd, d1);
+                ZEROUP(gd);
             }
             x87_restoreround(dyn, ninst, u8);
             if (!box64_dynarec_fastround) {
