@@ -639,6 +639,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n74.c"
     "${BOX64_ROOT}/src/wrapped/wrappedidn2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedanl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedpsl5.c"
 )
 endif()
 if(ANDROID)
