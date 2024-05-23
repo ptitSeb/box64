@@ -104,6 +104,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LOAD_XEMU_REM();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             break;
+        case 0x0B:
+            INST_NAME("UD2");
+            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL();
+            CALL(native_ud, -1);
+            LOAD_XEMU_CALL();
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0x10:
             INST_NAME("MOVUPS Gx,Ex");
             nextop = F8;

@@ -149,6 +149,109 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             DEFAULT;
                     }
                     break;
+                case 0xC7:
+                    switch (rep) {
+                        case 0:
+                            if (rex.w) {
+                                INST_NAME("LOCK CMPXCHG16B Gq, Eq");
+                            } else {
+                                INST_NAME("LOCK CMPXCHG8B Gq, Eq");
+                            }
+                            SETFLAGS(X_ZF, SF_SUBSET);
+                            nextop = F8;
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                            if (la64_lbt) {
+                                X64_SET_EFLAGS(xZR, X_ZF);
+                            } else {
+                                ADDI_D(x2, xZR, ~(1 << F_ZF));
+                                AND(xFlags, xFlags, x2);
+                            }
+                            if (rex.w) {
+                                if (la64_scq) {
+                                    MARKLOCK;
+                                    LL_D(x2, wback, 0);
+                                    LD_D(x3, wback, 8);
+                                    // compare RDX:RAX with x3:x2
+                                    BNE_MARK(x2, xRAX);
+                                    BNE_MARK(x3, xRDX);
+                                    MV(x5, xRBX);
+                                    SC_Q(x5, xRCX, wback);
+                                    BEQZ_MARKLOCK(x5);
+                                    if (la64_lbt) {
+                                        ADDI_D(x5, xZR, -1);
+                                        X64_SET_EFLAGS(x5, X_ZF);
+                                    } else {
+                                        ORI(xFlags, xFlags, 1 << F_ZF);
+                                    }
+                                    B_MARK3_nocond;
+                                    MARK;
+                                    MV(xRAX, x2);
+                                    MV(xRDX, x3);
+                                    MARK3;
+                                    SMDMB();
+                                } else {
+                                    // if scq extension is not available, implement it with mutex
+                                    LD_D(x6, xEmu, offsetof(x64emu_t, context));
+                                    ADDI_D(x6, x6, offsetof(box64context_t, mutex_16b));
+                                    ADDI_D(x4, xZR, 1);
+                                    MARKLOCK;
+                                    AMSWAP_DB_W(x5, x4, x6);
+                                    // x4 == 1 if locked
+                                    BNEZ_MARKLOCK(x5);
+
+                                    LD_D(x2, wback, 0);
+                                    LD_D(x3, wback, 8);
+                                    BNE_MARK(x2, xRAX);
+                                    BNE_MARK(x3, xRDX);
+                                    ST_D(xRBX, wback, 0);
+                                    ST_D(xRCX, wback, 8);
+                                    if (la64_lbt) {
+                                        ADDI_D(x5, xZR, -1);
+                                        X64_SET_EFLAGS(x5, X_ZF);
+                                    } else {
+                                        ORI(xFlags, xFlags, 1 << F_ZF);
+                                    }
+                                    B_MARK3_nocond;
+                                    MARK;
+                                    MV(xRAX, x2);
+                                    MV(xRDX, x3);
+                                    MARK3;
+
+                                    // unlock
+                                    AMSWAP_DB_W(xZR, xZR, x6);
+                                }
+                            } else {
+                                SMDMB();
+                                AND(x3, xRAX, xMASK);
+                                SLLI_D(x2, xRDX, 32);
+                                OR(x3, x3, x2);
+                                AND(x4, xRBX, xMASK);
+                                SLLI_D(x2, xRCX, 32);
+                                OR(x4, x4, x2);
+                                MARKLOCK;
+                                LL_D(x2, wback, 0);
+                                BNE_MARK(x2, x3); // EDX_EAX != Ed
+                                MV(x5, x4);
+                                SC_D(x5, wback, 0);
+                                BEQZ_MARKLOCK(x5);
+                                if (la64_lbt) {
+                                    ADDI_D(x5, xZR, -1);
+                                    X64_SET_EFLAGS(x5, X_ZF);
+                                } else {
+                                    ORI(xFlags, xFlags, 1 << F_ZF);
+                                }
+                                B_MARK3_nocond;
+                                MARK;
+                                SLLI_D(xRDX, x2, 32);
+                                AND(xRAX, x2, xMASK);
+                                MARK3;
+                                SMDMB();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 default:
                     DEFAULT;
             }

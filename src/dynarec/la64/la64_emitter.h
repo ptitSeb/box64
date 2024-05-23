@@ -253,6 +253,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define LL_D(rd, rj, imm) EMIT(type_2RI14(0b00100010, imm >> 2, rj, rd))
 #define SC_D(rd, rj, imm) EMIT(type_2RI14(0b00100011, imm >> 2, rj, rd))
 
+#define SC_Q(rd, rk, rj) EMIT(type_3R(0b00111000010101110, rk, rj, rd))
+
 #define LLxw(rd, rj, imm) EMIT(type_2RI14(0b00100000 | (rex.w ? 0b10 : 0b00), imm >> 2, rj, rd))
 #define SCxw(rd, rj, imm) EMIT(type_2RI14(0b00100001 | (rex.w ? 0b10 : 0b00), imm >> 2, rj, rd))
 
