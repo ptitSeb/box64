@@ -473,7 +473,7 @@ HWCAP2_ECV
         if (la64_lbt = (cpucfg2 >> 18) & 0b1)
             printf_log(LOG_INFO, " LBT_X86");
         if (la64_lam_bh = (cpucfg2 >> 27) & 0b1)
-            printf_log(LOG_INFO, " LAM_BT");
+            printf_log(LOG_INFO, " LAM_BH");
         if (la64_lamcas = (cpucfg2 >> 28) & 0b1)
             printf_log(LOG_INFO, " LAMCAS");
         if (la64_scq = (cpucfg2 >> 30) & 0b1)
