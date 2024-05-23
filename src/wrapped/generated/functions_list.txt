@@ -5018,6 +5018,7 @@ wrappedpng16:
 - pFppppppp:
   - png_create_read_struct_2
   - png_create_write_struct_2
+wrappedpsl5:
 wrappedpulse:
 - vFp:
   - pa_mainloop_free
