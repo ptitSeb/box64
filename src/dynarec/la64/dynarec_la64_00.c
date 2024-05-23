@@ -2055,6 +2055,20 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xFF:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0: // INC Ed
+                    INST_NAME("INC Ed");
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
+                    WBACK;
+                    break;
+                case 1: // DEC Ed
+                    INST_NAME("DEC Ed");
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
+                    WBACK;
+                    break;
                 case 2:
                     INST_NAME("CALL Ed");
                     PASS2IF((box64_dynarec_safeflags > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1)
