@@ -30,7 +30,9 @@ void native_fistp64(x64emu_t* emu, int64_t* ed);
 void native_fistt64(x64emu_t* emu, int64_t* ed);
 void native_fld(x64emu_t* emu, uint8_t* ed);
 void native_fsave(x64emu_t* emu, uint8_t* ed);
+void native_fsave16(x64emu_t* emu, uint8_t* ed);
 void native_frstor(x64emu_t* emu, uint8_t* ed);
+void native_frstor16(x64emu_t* emu, uint8_t* ed);
 void native_fprem1(x64emu_t* emu);
 
 void native_aesd(x64emu_t* emu, int xmm);

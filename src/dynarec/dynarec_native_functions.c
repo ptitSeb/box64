@@ -204,7 +204,18 @@ void native_fsave(x64emu_t* emu, uint8_t* ed)
     uint8_t* p = ed;
     p += 28;
     for (int i=0; i<8; ++i) {
-        LD2D(p, &ST(i).d);
+        LD2D(p, &emu->x87[7-i].d);
+        p+=10;
+    }
+}
+void native_fsave16(x64emu_t* emu, uint8_t* ed)
+{
+    fpu_savenv(emu, (char*)ed, 1);
+
+    uint8_t* p = ed;
+    p += 14;
+    for (int i=0; i<8; ++i) {
+        LD2D(p, &emu->x87[7-i].d);
         p+=10;
     }
 }
@@ -215,7 +226,19 @@ void native_frstor(x64emu_t* emu, uint8_t* ed)
     uint8_t* p = ed;
     p += 28;
     for (int i=0; i<8; ++i) {
-        D2LD(&ST(i).d, p);
+        D2LD(&emu->x87[7-i].d, p);
+        p+=10;
+    }
+
+}
+void native_frstor16(x64emu_t* emu, uint8_t* ed)
+{
+    fpu_loadenv(emu, (char*)ed, 1);
+
+    uint8_t* p = ed;
+    p += 14;
+    for (int i=0; i<8; ++i) {
+        D2LD(&emu->x87[7-i].d, p);
         p+=10;
     }
 

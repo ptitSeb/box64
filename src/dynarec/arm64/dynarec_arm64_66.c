@@ -13,6 +13,7 @@
 #include "box64stack.h"
 #include "callback.h"
 #include "emu/x64run_private.h"
+#include "emu/x87emu_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
 #include "custommem.h"
@@ -1242,6 +1243,54 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     emit_sar16(dyn, ninst, x1, x2, x5, x4);
                     EWBACK;
                     break;
+            }
+            break;
+        
+        case 0xD9:
+            nextop = F8;
+            if(MODREG) {
+                DEFAULT;
+            } else
+                switch((nextop>>3)&7) {
+                    case 6:
+                        INST_NAME("FNSTENV Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3); // maybe only x87, not SSE?
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x1) {MOVx_REG(x1, ed);}
+                        MOV32w(x2, 1);
+                        CALL(fpu_savenv, -1);
+                        break;
+                    default:
+                        DEFAULT;
+            }
+            break;
+
+        case 0xDD:
+            nextop = F8;
+            if(MODREG) {
+                DEFAULT;
+            } else
+                switch((nextop>>3)&7) {
+                    case 4:
+                        INST_NAME("FRSTOR Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x1) {MOVx_REG(x1, ed);}
+                        CALL(native_frstor16, -1);
+                        break;
+                    case 6:
+                        INST_NAME("FNSAVE Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                        if(ed!=x1) {MOVx_REG(x1, ed);}
+                        CALL(native_fsave16, -1);
+                        CALL(reset_fpu, -1);
+                        break;
+                    default:
+                        DEFAULT;
             }
             break;
 
