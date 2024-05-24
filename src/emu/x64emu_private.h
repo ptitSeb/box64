@@ -91,10 +91,6 @@ typedef struct x64emu_s {
     multiuint_t res_sav;
     deferred_flags_t df_sav;
     uint32_t    *x64emu_parity_tab; // helper
-    #ifdef HAVE_TRACE
-    reg64_t     oldregs[16];
-    uintptr_t   prev2_ip;
-    #endif
     // segments
     uint16_t    segs[6];        // only 32bits value?
     uint16_t    dummy_seg6, dummy_seg7; // to stay aligned
@@ -116,6 +112,8 @@ typedef struct x64emu_s {
     #ifdef HAVE_TRACE
     sse_regs_t  old_xmm[16];
     sse_regs_t  old_ymm[16];
+    reg64_t     oldregs[16];
+    uintptr_t   prev2_ip;
     #endif
     // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];
