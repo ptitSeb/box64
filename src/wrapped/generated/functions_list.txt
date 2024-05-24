@@ -290,6 +290,7 @@
 #() lFpl
 #() lFpp
 #() LFEL
+#() LFEp
 #() LFii
 #() LFuu
 #() LFUp
@@ -5268,6 +5269,8 @@ wrappedsdl2:
 - UFp:
   - SDL_ReadBE64
   - SDL_ReadLE64
+- LFp:
+  - SDL_GetThreadID
 - pFv:
   - SDL_GetBasePath
   - SDL_Vulkan_GetVkGetInstanceProcAddr

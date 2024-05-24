@@ -328,6 +328,7 @@ void lFpd(x64emu_t *emu, uintptr_t fnc);
 void lFpl(x64emu_t *emu, uintptr_t fnc);
 void lFpp(x64emu_t *emu, uintptr_t fnc);
 void LFEL(x64emu_t *emu, uintptr_t fnc);
+void LFEp(x64emu_t *emu, uintptr_t fnc);
 void LFii(x64emu_t *emu, uintptr_t fnc);
 void LFuu(x64emu_t *emu, uintptr_t fnc);
 void LFUp(x64emu_t *emu, uintptr_t fnc);
