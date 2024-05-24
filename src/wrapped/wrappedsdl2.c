@@ -820,6 +820,17 @@ EXPORT void my2_SDL_GetJoystickGUIDInfo(SDL_JoystickGUID guid, uint16_t *vend, u
     }
 }
 
+EXPORT unsigned long my2_SDL_GetThreadID(x64emu_t* emu, void* thread)
+{
+    unsigned long ret = my->SDL_GetThreadID(thread);
+    int max = 10;
+    while (!ret && max--) {
+        sched_yield();
+        ret = my->SDL_GetThreadID(thread);
+    }
+    return ret;
+}
+
 #undef HAS_MY
 
 #define ALTMY my2_
