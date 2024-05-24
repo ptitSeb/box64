@@ -66,7 +66,9 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 switch(nextop) {
                     case 0xD0:
-                        INST_NAME("FAKE xgetbv");
+                        //TODO
+                        DEFAULT;
+                        /*INST_NAME("FAKE xgetbv");
                         nextop = F8;
                         addr = fakeed(dyn, addr, ninst, nextop);
                         SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
@@ -76,7 +78,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LOAD_XEMU_CALL();
                         jump_to_epilog(dyn, 0, xRIP, ninst);
                         *need_epilog = 0;
-                        *ok = 0;
+                        *ok = 0;*/
                         break;
 
                     case 0xF9:

@@ -261,6 +261,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
                     | 1<<25     // aesni
+                    | 1<<26     // xsave
                     ; 
             break;
         case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
@@ -334,15 +335,34 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EAX = 0;
             break;
         case 0xD:   // Processor Extended State Enumeration Main Leaf / Sub Leaf
-            if(R_CX==0) {
-                R_EAX = 1 | 2;  // x87 SSE saved
-                R_EBX = 512;    // size of xsave/xrstor
-                R_ECX = 512;    // same
-                R_EDX = 0;      // more bits
-            } else if(R_CX==1){
-                R_EAX = R_ECX = R_EBX = R_EDX = 0;  // XSAVEOPT and co are not available
-            } else {
+            switch(R_CX) {
+            case 0:
+                R_EAX = 0b11;       // x87 SSE saved
+                R_EBX = 512+64;     // size of xsave/xrstor
+                R_ECX = 512+64;     // same
+                R_EDX = 0;          // more bits
+                break;
+            case 1:
+                R_EAX = 0;      // XSAVEOPT (0) and XSAVEC (1), XGETBV with ECX=1 (2) XSAVES (3) and XFD (4) not supported yet
+                R_ECX = R_EBX = R_EDX = 0;
+                break;
+            case 2:
+                // componant 0: x87
+                R_EAX = 160; // size of the x87 block
+                R_EBX = 0;  // offset
+                R_ECX = 0;
+                R_EDX = 0;
+                break;
+            case 3:
+                // componant 1: sse
+                R_EAX = 16*16; // size of the x87 block
+                R_EBX = 160;  // offset
+                R_ECX = 0;
+                R_EDX = 0;
+                break;
+            default:
                 R_EAX = R_ECX = R_EBX = R_EDX = 0;
+                break;
             }
             break;
         case 0xE:   //?

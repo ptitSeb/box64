@@ -91,11 +91,16 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             if(MODREG)
             switch(nextop) {
                 case 0xD0:
-                    #ifndef TEST_INTERPRETER
-                    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    #else
-                    test->notest = 1;
-                    #endif
+                    if(R_RCX) {
+                        #ifndef TEST_INTERPRETER
+                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                        #else
+                        test->notest = 1;
+                        #endif
+                    } else {
+                        R_RAX = 0b11;   // x87 & SSE for now
+                        R_RDX = 0;
+                    }
                     break;
                 case 0xE0:
                 case 0xE1:
@@ -1285,6 +1290,18 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 case 3:                 /* STMXCSR Md */
                     GETED(0);
                     ED->dword[0] = emu->mxcsr.x32;
+                    break;
+                case 4:                 /* XSAVE Ed */
+                    _GETED(0);
+                    #ifdef TEST_INTERPRETER
+                    emu->sw.f.F87_TOP = emu->top&7;
+                    #else
+                    fpu_xsave(emu, ED, rex.is32bits);
+                    #endif
+                    break;
+                case 5:                 /* XRSTOR Ed */
+                    _GETED(0);
+                    fpu_xrstor(emu, ED, rex.is32bits);
                     break;
                 case 7:                 /* CLFLUSH Ed */
                     _GETED(0);

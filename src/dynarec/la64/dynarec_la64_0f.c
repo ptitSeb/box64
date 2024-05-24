@@ -66,6 +66,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 switch(nextop) {
                     case 0xD0:
+                        //TODO
+                        DEFAULT;
+                        /*
                         INST_NAME("FAKE xgetbv");
                         nextop = F8;
                         addr = fakeed(dyn, addr, ninst, nextop);
@@ -77,6 +80,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         jump_to_epilog(dyn, 0, xRIP, ninst);
                         *need_epilog = 0;
                         *ok = 0;
+                        */
                         break;
                     default:
                         DEFAULT;
