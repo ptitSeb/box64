@@ -337,10 +337,10 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0xD:   // Processor Extended State Enumeration Main Leaf / Sub Leaf
             switch(R_CX) {
             case 0:
-                R_EAX = 0b11;       // x87 SSE saved
-                R_EBX = 512+64;     // size of xsave/xrstor
-                R_ECX = 512+64;     // same
-                R_EDX = 0;          // more bits
+                R_EAX = 0b111;          // x87 SSE AVX saved
+                R_EBX = 512+64+16*16;     // size of xsave/xrstor
+                R_ECX = 512+64+16*16;     // same
+                R_EDX = 0;              // more bits
                 break;
             case 1:
                 R_EAX = 0;      // XSAVEOPT (0) and XSAVEC (1), XGETBV with ECX=1 (2) XSAVES (3) and XFD (4) not supported yet
@@ -355,8 +355,15 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 break;
             case 3:
                 // componant 1: sse
-                R_EAX = 16*16; // size of the x87 block
+                R_EAX = 16*16; // size of the sse block
                 R_EBX = 160;  // offset
+                R_ECX = 0;
+                R_EDX = 0;
+                break;
+            case 4:
+                // componant 2: avx
+                R_EAX = 16*16; // size of the avx block
+                R_EBX = 512+64;  // offset
                 R_ECX = 0;
                 R_EDX = 0;
                 break;

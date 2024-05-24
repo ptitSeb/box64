@@ -98,7 +98,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         test->notest = 1;
                         #endif
                     } else {
-                        R_RAX = 0b11;   // x87 & SSE for now
+                        R_RAX = 0b111;   // x87 & SSE & AVX for now
                         R_RDX = 0;
                     }
                     break;

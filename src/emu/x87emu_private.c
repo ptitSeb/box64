@@ -354,7 +354,8 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
 }
 
 void fpu_fxsave64(x64emu_t* emu, void* ed)
@@ -380,7 +381,8 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
 }
 
 void fpu_fxrstor32(x64emu_t* emu, void* ed)
@@ -404,7 +406,8 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
 }
 
 void fpu_fxrstor64(x64emu_t* emu, void* ed)
@@ -428,7 +431,8 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
 }
 
 typedef struct xsaveheader_s {
@@ -441,10 +445,10 @@ void fpu_xsave(x64emu_t* emu, void* ed, int is32bits)
 {
     xsave64_t *p = (xsave64_t*)ed;
     xsaveheader_t *h = (xsaveheader_t*)(p+1);
-    uint32_t rfbm = (0b11&R_EAX);
-    h->xstate_bv =(h->xstate_bv&~0b11)|rfbm;
+    uint32_t rfbm = (0b111&R_EAX);
+    h->xstate_bv =(h->xstate_bv&~0b111)|rfbm;
     h->xcomp_bv = 0;
-    if(h->xstate_bv&0b01) {
+    if(h->xstate_bv&0b001) {
         int top = emu->top&7;
         int stack = 8-top;
         if(emu->fpu_tags == TAGS_EMPTY)
@@ -464,13 +468,18 @@ void fpu_xsave(x64emu_t* emu, void* ed, int is32bits)
         for(int i=0; i<8; ++i)
             memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     }
-    if(((h->xstate_bv&0b10)||(h->xstate_bv&0b100))&&!(h->xstate_bv&0b01)) {
+    if(((h->xstate_bv&0b010)||(h->xstate_bv&0b100))&&!(h->xstate_bv&0b001)) {
         p->MxCsr = emu->mxcsr.x32;
     }
     // copy SSE regs
     if(h->xstate_bv&0b10) {
         for(int i=0; i<is32bits?8:16; ++i)
             memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
+    }
+    if(h->xstate_bv&0b100) {
+        sse_regs_t* avx = (sse_regs_t*)(h+1);
+        for(int i=0; i<is32bits?8:16; ++i)
+            memcpy(&avx[i], &emu->ymm[i], 16);
     }
 }
 
@@ -479,11 +488,11 @@ void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits)
     xsave64_t *p = (xsave64_t*)ed;
     xsaveheader_t *h = (xsaveheader_t*)(p+1);
     int compressed = (h->xcomp_bv>>63);
-    uint32_t rfbm = (0b11&R_EAX);
+    uint32_t rfbm = (0b111&R_EAX);
     uint32_t to_restore = rfbm & h->xstate_bv;
     uint32_t to_init = rfbm & ~h->xstate_bv;
     // check componant to restore
-    if(to_restore&0b01) {
+    if(to_restore&0b001) {
         emu->cw.x16 = p->ControlWord;
         emu->sw.x16 = p->StatusWord;
         emu->mxcsr.x32 = p->MxCsr;
@@ -501,15 +510,27 @@ void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits)
         // copy back MMX regs...
         for(int i=0; i<8; ++i)
             memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
-    } else if(to_init&0b01) {
+    } else if(to_init&0b001) {
         reset_fpu(emu);
     }
-    if(((to_restore&0b10)||(to_restore&0b100))&&!(to_restore&0b01)) {
+    if(((to_restore&0b010)||(to_restore&0b100))&&!(to_restore&0b001)) {
         emu->mxcsr.x32 = p->MxCsr;
     }
-    if(to_restore&0b10) {
+    if(to_restore&0b010) {
         // copy SSE regs
         for(int i=0; i<is32bits?8:16; ++i)
             memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
+    } else if(to_init&0b010) {
+        for(int i=0; i<is32bits?8:16; ++i)
+            memset(&emu->xmm[i], 0, 16);
+    }
+    if(to_restore&0b100) {
+        // copy AVX upper part of regs
+        sse_regs_t* avx = (sse_regs_t*)(h+1);
+        for(int i=0; i<is32bits?8:16; ++i)
+            memcpy(&emu->ymm[i], &avx[i], 16);
+    } else if(to_init&0b100) {
+        for(int i=0; i<is32bits?8:16; ++i)
+            memcpy(&emu->ymm[i], 0, 16);
     }
 }

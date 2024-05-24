@@ -93,6 +93,7 @@ extern int box64_sse_flushto0;
 extern int box64_x87_no80bits;
 extern int box64_sync_rounding;
 extern int box64_sse42;
+extern int box64_avx;
 extern int allow_missing_libs;
 extern int box64_mapclean;
 extern int box64_prefer_wrapped;

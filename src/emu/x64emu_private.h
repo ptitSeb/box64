@@ -63,6 +63,7 @@ typedef struct x64emu_s {
     reg64_t     ip;
     // sse
     sse_regs_t  xmm[16];
+    sse_regs_t  ymm[16];
     // fpu / mmx
 	mmx87_regs_t x87[8];
 	mmx87_regs_t mmx[8];
@@ -114,6 +115,7 @@ typedef struct x64emu_s {
     x64test_t   test;       // used for dynarec testing
     #ifdef HAVE_TRACE
     sse_regs_t  old_xmm[16];
+    sse_regs_t  old_ymm[16];
     #endif
     // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
     uint64_t    scratch[200];

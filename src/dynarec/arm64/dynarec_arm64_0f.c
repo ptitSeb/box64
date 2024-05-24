@@ -73,7 +73,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     B_MARK(cEQ);
                     UDF(0);
                     MARK;
-                    MOV32w(xRAX, 0b11);
+                    MOV32w(xRAX, 0b111);
                     MOV32w(xRDX, 0);
                     break;
                 case 0xE0:
