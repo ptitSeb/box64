@@ -33,7 +33,7 @@ Print box64 version and quit.
 =head1 CONFIGURATION FILE
 
 B<Box64> now have configurations files. There are 2 files loaded.
-F</etc/box4.box64rc> and F<~/.box64rc>. Both files have the same syntax, and is
+F</etc/box64.box64rc> and F<~/.box64rc>. Both files have the same syntax, and is
 basically an ini files. Section in square brackets define the process name, and
 the rest is the environment variable. B<Box64> comes with a default file that
 should be installed for better stability. Note that the priority is:
