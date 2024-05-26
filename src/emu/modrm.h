@@ -77,6 +77,8 @@
 #define GETEM32(D)          opem=GetEm32O(emu, &addr, rex, nextop, D, 0)
 #define GETGM               opgm=GetGm(emu, &addr, rex, nextop)
 #endif
+#define GETVX               opvx=&emu->xmm[vex.v]
+#define GETVY               opvy=&emu->ymm[vex.v]
 #define ED  oped
 #define GD  opgd
 #define EB  oped
@@ -85,8 +87,10 @@
 #define GW  opgd
 #define EX  opex
 #define GX  opgx
+#define VX  opvx
 #define EY  opey
 #define GY  opgy
+#define VY  opvy
 #define EM  opem
 #define GM  opgm
 #define FAKEED(D)           GetEd(emu, &addr, rex, nextop, D)
