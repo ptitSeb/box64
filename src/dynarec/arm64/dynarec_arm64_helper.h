@@ -280,6 +280,19 @@
                     ed = i;                 \
                     wb1 = 1;                \
                 }
+//GETEW will use i for ed, and can use r3 for wback.
+#define GETEW32(i, D) if(MODREG) {          \
+                    wback = xRAX+(nextop&7)+(rex.b<<3);\
+                    UXTHw(i, wback);        \
+                    ed = i;                 \
+                    wb1 = 0;                \
+                } else {                    \
+                    SMREAD();               \
+                    addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
+                    LDH(i, wback, fixedaddress);   \
+                    ed = i;                 \
+                    wb1 = 1;                \
+                }
 //GETEWO will use i for ed, i is also Offset, and can use r3 for wback.
 #define GETEWO(i, D) if(MODREG) {               \
                     wback = xRAX+(nextop&7)+(rex.b<<3);\
