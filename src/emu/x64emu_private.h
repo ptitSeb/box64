@@ -38,7 +38,7 @@ typedef struct x64test_s {
     int         test;
     int         clean;
     int         notest;
-    uint8_t     mem[16];
+    uint8_t     mem[32];
 } x64test_t;
 
 typedef struct emu_flags_s {

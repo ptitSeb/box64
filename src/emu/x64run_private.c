@@ -2002,3 +2002,9 @@ sse_regs_t* GetGx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
     uint8_t m = (v&0x38)>>3;
     return &emu->xmm[(m&7)+(rex.r<<3)];
 }
+
+sse_regs_t* GetGy(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
+{
+    uint8_t m = (v&0x38)>>3;
+    return &emu->ymm[(m&7)+(rex.r<<3)];
+}

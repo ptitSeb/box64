@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
 #define F16     *(uint16_t*)(addr+=2, addr-2)
@@ -41,6 +43,8 @@
 #define GETEX32(D)          opex=TestEx32O(test, &addr, rex, nextop, D, 0)
 #define GETEX_OFFS(D, O)    opex=TestExO(test, &addr, rex, nextop, D, O)
 #define GETGX               opgx=GetGx(test->emu, &addr, rex, nextop)
+#define GETGY               opgy=GetGy(emu, &addr, rex, nextop)
+#define GETEY               opey=(opex>=&emu->xmm[0] && opex<=&emu->xmm[15])?((sse_regs_t*)((uintptr_t)opex+offsetof(x64emu_t, ymm)-offsetof(x64emu_t, xmm))):((sse_regs_t*)((uintptr_t)opex+16))
 #define GETEM(D)            opem=TestEm(test, &addr, rex, nextop, D)
 #define GETEM32(D)          opem=TestEm32O(test, &addr, rex, nextop, D, 0)
 #define GETGM               opgm=GetGm(test->emu, &addr, rex, nextop)
@@ -67,6 +71,8 @@
 #define GETEX32(D)          opex=GetEx32O(emu, &addr, rex, nextop, D, 0)
 #define GETEX_OFFS(D, O)    opex=GetExO(emu, &addr, rex, nextop, D, O)
 #define GETGX               opgx=GetGx(emu, &addr, rex, nextop)
+#define GETGY               opgy=GetGy(emu, &addr, rex, nextop)
+#define GETEY               opey=(opex>=&emu->xmm[0] && opex<=&emu->xmm[15])?((sse_regs_t*)((uintptr_t)opex+offsetof(x64emu_t, ymm)-offsetof(x64emu_t, xmm))):((sse_regs_t*)((uintptr_t)opex+16))
 #define GETEM(D)            opem=GetEm(emu, &addr, rex, nextop, D)
 #define GETEM32(D)          opem=GetEm32O(emu, &addr, rex, nextop, D, 0)
 #define GETGM               opgm=GetGm(emu, &addr, rex, nextop)
@@ -79,6 +85,8 @@
 #define GW  opgd
 #define EX  opex
 #define GX  opgx
+#define EY  opey
+#define GY  opgy
 #define EM  opem
 #define GM  opgm
 #define FAKEED(D)           GetEd(emu, &addr, rex, nextop, D)

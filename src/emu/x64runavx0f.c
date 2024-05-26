@@ -31,9 +31,9 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t TestAVX(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
+uintptr_t TestAVX_0F(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
 #else
-uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
+uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 #endif
 {
     uint8_t opcode;
@@ -51,12 +51,22 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 #ifdef TEST_INTERPRETER
     x64emu_t *emu = test->emu;
 #endif
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_NONE))
-        return RunAVX_0F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
-        return RunAVX_660F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F3))
-        return RunAVX_F30F(emu, vex, addr, step);
+    opcode = F8;
 
-    return 0;
+    switch(opcode) {
+
+        case 0x77:
+            if(!vex.l) {    // VZEROUPPER
+                if(vex.v!=0) {
+                    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                } else {
+                    memset(emu->ymm, 0, sizeof(sse_regs_t)*(vex.rex.is32bits)?16:8);
+                }
+            } else
+                return 0;
+            break;
+        default:
+            return 0;
+    }
+    return addr;
 }
