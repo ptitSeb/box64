@@ -58,7 +58,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
-        case 0x64:  /* VPCMPGTB Gx,Ex */
+        case 0x64:  /* VPCMPGTB Gx,Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -66,14 +66,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETVY;
             for(int i=0; i<16; ++i)
-                VX->ub[i] = (GX->sb[i]>EX->sb[i])?0xFF:0x00;
+                GX->ub[i] = (VX->sb[i]>EX->sb[i])?0xFF:0x00;
             if(vex.l)
                 for(int i=0; i<16; ++i)
-                    VY->ub[i] = (GY->sb[i]>EY->sb[i])?0xFF:0x00;
+                    GY->ub[i] = (VY->sb[i]>EY->sb[i])?0xFF:0x00;
             else
-                VY->q[0] = GY->q[1] = 0;
+                GY->q[0] = GY->q[1] = 0;
             break;
-        case 0x65:  /* VPCMPGTW Gx,Ex */
+        case 0x65:  /* VPCMPGTW Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -81,14 +81,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETVY;
             for(int i=0; i<8; ++i)
-                VX->uw[i] = (GX->sw[i]>EX->sw[i])?0xFFFF:0x0000;
+                GX->uw[i] = (VX->sw[i]>EX->sw[i])?0xFFFF:0x0000;
             if(vex.l)
                 for(int i=0; i<8; ++i)
-                    VY->uw[i] = (GY->sw[i]>EY->sw[i])?0xFFFF:0x0000;
+                    GY->uw[i] = (VY->sw[i]>EY->sw[i])?0xFFFF:0x0000;
             else
-                VY->q[0] = GY->q[1] = 0;
+                GY->q[0] = GY->q[1] = 0;
             break;
-        case 0x66:  /* VPCMPGTD Gx,Ex */
+        case 0x66:  /* VPCMPGTD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -96,12 +96,48 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GETVY;
             for(int i=0; i<4; ++i)
-                VX->ud[i] = (GX->sd[i]>EX->sd[i])?0xFFFFFFFF:0x00000000;
+                GX->ud[i] = (VX->sd[i]>EX->sd[i])?0xFFFFFFFF:0x00000000;
             if(vex.l)
                 for(int i=0; i<4; ++i)
-                    VY->ud[i] = (GY->sd[i]>EY->sd[i])?0xFFFFFFFF:0x00000000;
+                    GY->ud[i] = (VY->sd[i]>EY->sd[i])?0xFFFFFFFF:0x00000000;
             else
-                VY->q[0] = GY->q[1] = 0;
+                GY->q[0] = GY->q[1] = 0;
+            break;
+
+        case 0x6C:  /* VPUNPCKLQDQ Gx,E Vx, x */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETVY;
+            if(GX!=VX)
+                GX->q[0] = VX->q[0];
+            GX->q[1] = EX->q[0];
+            if(vex.l) {
+                GETEY;
+                if(GY!=VY)
+                    GY->q[0] = VY->q[0];
+                GY->q[1] = EY->q[0];
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            break;
+        case 0x6D:  /* VPUNPCKHQDQ Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETVY;
+            GX->q[0] = VX->q[1];
+            GX->q[1] = EX->q[1];
+            if(vex.l) {
+                GETEY;
+                GY->q[0] = VY->q[1];
+                GY->q[1] = EY->q[1];
+
+            } else
+                GY->q[0] = GY->q[1] = 0;
             break;
 
         case 0x70:  /* VPSHUFD Gx,Ex,Ib */
@@ -131,7 +167,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(!vex.l && MODREG)
                 memset(VY, 0, 16);
             switch((nextop>>3)&7) {
-                case 2:                 /* PSRLD Ex, Ib */
+                case 2:                 /* PSRLD Vx, Ex, Ib */
                     tmp8u = F8;
                     if(vex.l) {
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
@@ -142,7 +178,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                             for (int i=0; i<4; ++i) VX->ud[i] = EX->ud[i] >> tmp8u;
                     }
                     break;
-                case 4:                 /* PSRAD Ex, Ib */
+                case 4:                 /* PSRAD Vx, Ex, Ib */
                     tmp8u = F8;
                     if(vex.l) {
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
@@ -151,7 +187,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                         for (int i=0; i<4; ++i) VX->sd[i] = EX->sd[i] >> tmp8u;
                     }
                     break;
-                case 6:                 /* PSLLD Ex, Ib */
+                case 6:                 /* PSLLD Vx, Ex, Ib */
                     tmp8u = F8;
                     if(vex.l) {
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
@@ -175,7 +211,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(!vex.l && MODREG)
                 memset(VY, 0, 16);
             switch((nextop>>3)&7) {
-                case 2:                 /* PSRLQ Ex, Ib */
+                case 2:                 /* PSRLQ Vx, Ex, Ib */
                     tmp8u = F8;
                     if(vex.l) {
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
@@ -186,7 +222,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                             {VX->q[0] = EX->q[0] >> tmp8u; VX->q[1] = EX->q[1] >> tmp8u;}
                     }
                     break;
-                case 3:                 /* PSRLDQ Ex, Ib */
+                case 3:                 /* PSRLDQ Vx, Ex, Ib */
                     tmp8u = F8;
                     if(vex.l) {
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
@@ -205,7 +241,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                         }
                     }
                     break;
-                case 6:                 /* PSLLQ Ex, Ib */
+                case 6:                 /* PSLLQ Vx, Ex, Ib */
                     tmp8u = F8;
                     if(vex.l) {
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
@@ -216,7 +252,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                             {VX->q[0] = EX->q[0] << tmp8u; VX->q[1] = EX->q[1] << tmp8u;}
                     }
                     break;
-                case 7:                 /* PSLLDQ Ex, Ib */
+                case 7:                 /* PSLLDQ Vx, Ex, Ib */
                     tmp8u = F8;
                     if(vex.l) {
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
@@ -240,7 +276,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
-        case 0xDB:  /* VPAND Gx,Ex */
+        case 0xDB:  /* VPAND Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -258,7 +294,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
-        case 0xEB:  /* VPOR Gx,Ex */
+        case 0xEB:  /* VPOR Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -276,7 +312,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
-        case 0xEF:                      /* VPXOR Gx,Ex */
+        case 0xEF:                      /* VPXOR Gx,Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
