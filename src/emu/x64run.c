@@ -28,6 +28,27 @@
 
 int my_setcontext(x64emu_t* emu, void* ucp);
 
+static const char* avx_prefix_string(uint16_t p)
+{
+    switch(p) {
+        case 0: return "0";
+        case 1: return "66";
+        case 2: return "F3";
+        case 3: return "F2";
+        default: return "??";
+    }
+}
+static const char* avx_map_string(uint16_t m)
+{
+    switch(m) {
+        case 0: return "0";
+        case 1: return "0F";
+        case 2: return "0F38";
+        case 3: return "0F3A";
+        default: return "??";
+    }
+}
+
 #ifdef TEST_INTERPRETER
 int RunTest(x64test_t *test)
 #else
@@ -1353,8 +1374,32 @@ x64emurun:
                 emu->segs_serial[_ES] = 0;
                 GD->dword[0] = *(uint32_t*)ED;
             } else {
-                // AVX not supported yet
-                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                vex_t vex = {0};
+                vex.rex = rex;
+                tmp8u = F8;
+                vex.m = tmp8u&0b00011111;
+                vex.rex.b = (tmp8u&0b00100000)?0:1;
+                vex.rex.x = (tmp8u&0b01000000)?0:1;
+                vex.rex.r = (tmp8u&0b10000000)?0:1;
+                tmp8u = F8;
+                vex.p = tmp8u&0b00000011;
+                vex.l = (tmp8u>>2)&1;
+                vex.v = ((~tmp8u)>>3)&0b1111;
+                vex.rex.w = (tmp8u>>7)&1;
+                #ifdef TEST_INTERPRETER 
+                if(!(addr = TestAVX(test, vex, addr, &step)))
+                    unimp = 1;
+                #else
+                if(!(addr = RunAVX(emu, vex, addr, &step))) {
+                    printf_log(LOG_NONE, "Unimplemented AVX opcode prefix %s map %s ", avx_prefix_string(vex.p), avx_prefix_string(vex.m));
+                    unimp = 1;
+                    goto fini;
+                }
+                if(step==2) {
+                    STEP2;
+                }
+                #endif
+                break;
             }
             break;
         case 0xC5:                      /* LDS Gd,Ed */
@@ -1366,8 +1411,31 @@ x64emurun:
                 emu->segs_serial[_DS] = 0;
                 GD->dword[0] = *(uint32_t*)ED;
             } else {
-                // AVX not supported yet
-                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                vex_t vex = {0};
+                vex.rex = rex;
+                tmp8u = F8;
+                vex.p = tmp8u&0b00000011;
+                vex.l = (tmp8u>>2)&1;
+                vex.v = ((~tmp8u)>>3)&0b1111;
+                vex.rex.r = (tmp8u&0b10000000)?0:1;
+                vex.rex.b = 0;
+                vex.rex.x = 0;
+                vex.rex.w = 0;
+                vex.m = VEX_M_0F;
+                #ifdef TEST_INTERPRETER 
+                if(!(addr = TestAVX(test, vex, addr, &step)))
+                    unimp = 1;
+                #else
+                if(!(addr = RunAVX(emu, vex, addr, &step))) {
+                    printf_log(LOG_NONE, "Unimplemented AVX opcode prefix %s map %s ", avx_prefix_string(vex.p), avx_map_string(vex.m));
+                    unimp = 1;
+                    goto fini;
+                }
+                if(step==2) {
+                    STEP2;
+                }
+                #endif
+                break;
             }
             break;
         case 0xC6:                      /* MOV Eb,Ib */

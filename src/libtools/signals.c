@@ -119,8 +119,7 @@ struct x64_fpstate
   uint32_t          mxcsr_mask;
   struct x64_fpreg  _st[8];
   struct x64_xmmreg _xmm[16];
-  uint32_t          res[12];
-  uint32_t          res2[12];
+  uint32_t          res[24];
 }__attribute__((packed));
 
 typedef struct x64_fpstate *x64_fpregset_t;
@@ -988,6 +987,8 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 
     // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
     // setup stack frame
+    frame -= 512+64+16*16;
+    void* xstate = (void*)frame;
     frame -= sizeof(siginfo_t);
     siginfo_t* info2 = (siginfo_t*)frame;
     memcpy(info2, info, sizeof(siginfo_t));
@@ -1082,10 +1083,10 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 #endif
 #endif
     // get FloatPoint status
-    sigcontext->uc_mcontext.fpregs = (struct x64_libc_fpstate*)&sigcontext->xstate;
-    fpu_fxsave64(emu, &sigcontext->xstate);
-    // add custom SIGN in reserved area
-    //((unsigned int *)(&sigcontext.xstate.fpstate.padding))[8*4+12] = 0x46505853;  // not yet, when XSAVE / XRSTR will be ready
+    sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
+    fpu_xsave_mask(emu, xstate, 0, 0b111);
+    memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
+    ((struct x64_fpstate*)xstate)->res[12] = 0x46505853;   // magic number to signal an XSTATE type of fpregs
     // get signal mask
 
     if(new_ss) {

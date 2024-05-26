@@ -217,6 +217,7 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed);
 void fpu_fxsave64(x64emu_t* emu, void* ed);
 void fpu_fxrstor64(x64emu_t* emu, void* ed);
 void fpu_xsave(x64emu_t* emu, void* ed, int is32bits);
+void fpu_xsave_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask);
 void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits);
 
 #endif //__X87RUN_PRIVATE_H_

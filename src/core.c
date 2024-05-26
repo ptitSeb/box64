@@ -993,6 +993,15 @@ void LoadLogEnv()
         if(!box64_sse42)
             printf_log(LOG_INFO, "Do not expose SSE 4.2 capabilities\n");
     }
+    p = getenv("BOX64_AVX");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_avx = p[0]-'0';
+        }
+        if(box64_avx)
+            printf_log(LOG_INFO, "Will expose AVX capabilities\n");
+    }
     p = getenv("BOX64_FIX_64BIT_INODES");
     if(p) {
         if(strlen(p)==1) {

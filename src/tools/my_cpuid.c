@@ -262,6 +262,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<23     // POPCOUNT
                     | 1<<25     // aesni
                     | 1<<26     // xsave
+                    | 1<<27     // osxsave
+                    | box64_avx<<28 // AVX
                     ; 
             break;
         case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
