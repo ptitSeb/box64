@@ -536,6 +536,6 @@ void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits)
             memcpy(&emu->ymm[i], &avx[i], 16);
     } else if(to_init&0b100) {
         for(int i=0; i<(is32bits?8:16); ++i)
-            memcpy(&emu->ymm[i], 0, 16);
+            memset(&emu->ymm[i], 0, 16);
     }
 }
