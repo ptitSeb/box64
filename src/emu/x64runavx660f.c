@@ -240,21 +240,39 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0xDB:  /* VPAND Gx,Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GX->q[0] = VX->q[0] & EX->q[0];
+            GX->q[1] = VX->q[1] & EX->q[1];
+            GETGY;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                GY->q[0] = VY->q[0] & EY->q[0];
+                GY->q[1] = VY->q[1] & EY->q[1];
+            } else {
+                GY->q[0] = GY->q[1] = 0;
+            }
+            break;
+
         case 0xEB:  /* VPOR Gx,Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
-            VX->q[0] = GX->q[0] | EX->q[0];
-            VX->q[1] = GX->q[1] | EX->q[1];
+            GX->q[0] = VX->q[0] | EX->q[0];
+            GX->q[1] = VX->q[1] | EX->q[1];
             GETGY;
-            GETVY;
             if(vex.l) {
                 GETEY;
-                VY->q[0] = GY->q[0] | EY->q[0];
-                VY->q[1] = GY->q[1] | EY->q[1];
+                GETVY;
+                GY->q[0] = VY->q[0] | EY->q[0];
+                GY->q[1] = VY->q[1] | EY->q[1];
             } else {
-                VY->q[0] = VY->q[1] = 0;
+                GY->q[0] = GY->q[1] = 0;
             }
             break;
 
@@ -266,13 +284,13 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             VX->q[0] = GX->q[0] ^ EX->q[0];
             VX->q[1] = GX->q[1] ^ EX->q[1];
             GETGY;
-            GETVY;
             if(vex.l) {
                 GETEY;
-                VY->q[0] = GY->q[0] ^ EY->q[0];
-                VY->q[1] = GY->q[1] ^ EY->q[1];
+                GETVY;
+                GY->q[0] = VY->q[0] ^ EY->q[0];
+                GY->q[1] = VY->q[1] ^ EY->q[1];
             } else {
-                VY->q[0] = VY->q[1] = 0;
+                GY->q[0] = GY->q[1] = 0;
             }
 
             break;
