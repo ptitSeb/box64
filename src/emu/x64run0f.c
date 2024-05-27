@@ -457,6 +457,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     nextop = F8;
                     GETEM(0);
                     GETGM;
+                    if(GM==EM) {
+                        eam1 = *EM;
+                        EM = &eam1;
+                    }
                     for (int i=0; i<4; ++i) {
                         tmp32s = (int32_t)(GM->ub[i*2+0])*EM->sb[i*2+0] + (int32_t)(GM->ub[i*2+1])*EM->sb[i*2+1];
                         GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);

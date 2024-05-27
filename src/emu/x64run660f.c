@@ -332,6 +332,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETEX(0);
                 GETGX;
+                if(GX==EX) {
+                    eax1 = *EX;
+                    EX=&eax1;
+                }
                 for (int i=0; i<8; ++i) {
                     tmp32s = (int32_t)(GX->ub[i*2+0])*EX->sb[i*2+0] + (int32_t)(GX->ub[i*2+1])*EX->sb[i*2+1];
                     GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
@@ -1083,6 +1087,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETEX(1);
                 GETGX;
+                if(GX==EX) {
+                    eax1 = *EX;
+                    EX=&eax1;
+                }
                 tmp8u = F8;
                 {
                     int src = tmp8u&3;
