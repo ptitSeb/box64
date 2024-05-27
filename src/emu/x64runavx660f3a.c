@@ -114,7 +114,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 tmp32u = EX->ud[0];
             for(int i=0; i<4; ++i)
-                GX->ud[i] = (tmp8u&(1<<i))?((i==(tmp8u>>4)&3)?tmp32u:VX->ud[i]):0;
+                GX->ud[i] = (tmp8u&(1<<i))?((i==((tmp8u>>4)&3))?tmp32u:VX->ud[i]):0;
             GY->q[0] = GY->q[1] = 0;
             break;
 
