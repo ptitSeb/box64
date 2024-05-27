@@ -30,6 +30,27 @@
 
 #include "modrm.h"
 
+static const char* avx_prefix_string(uint16_t p)
+{
+    switch(p) {
+        case VEX_P_NONE: return "0";
+        case VEX_P_66: return "66";
+        case VEX_P_F2: return "F2";
+        case VEX_P_F3: return "F3";
+        default: return "??";
+    }
+}
+static const char* avx_map_string(uint16_t m)
+{
+    switch(m) {
+        case VEX_M_NONE: return "0";
+        case VEX_M_0F: return "0F";
+        case VEX_M_0F38: return "0F38";
+        case VEX_M_0F3A: return "0F3A";
+        default: return "??";
+    }
+}
+
 #ifdef TEST_INTERPRETER
 uintptr_t TestAVX(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
 #else
@@ -52,17 +73,21 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     x64emu_t *emu = test->emu;
 #endif
     if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_NONE))
-        return RunAVX_0F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
-        return RunAVX_660F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F2))
-        return RunAVX_F20F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F3))
-        return RunAVX_F30F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_66))
-        return RunAVX_660F38(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_66))
-        return RunAVX_660F3A(emu, vex, addr, step);
+        addr = RunAVX_0F(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
+        addr = RunAVX_660F(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F2))
+        addr = RunAVX_F20F(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F3))
+        addr = RunAVX_F30F(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_66))
+        addr = RunAVX_660F38(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_66))
+        addr = RunAVX_660F3A(emu, vex, addr, step);
+    else addr = 0;
 
-    return 0;
+    if(!addr)
+        printf_log(LOG_NONE, "Unimplemented AVX opcode prefix %s map %s ", avx_prefix_string(vex.p), avx_map_string(vex.m));
+
+    return addr;
 }

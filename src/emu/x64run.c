@@ -28,27 +28,6 @@
 
 int my_setcontext(x64emu_t* emu, void* ucp);
 
-static const char* avx_prefix_string(uint16_t p)
-{
-    switch(p) {
-        case VEX_P_NONE: return "0";
-        case VEX_P_66: return "66";
-        case VEX_P_F2: return "F2";
-        case VEX_P_F3: return "F3";
-        default: return "??";
-    }
-}
-static const char* avx_map_string(uint16_t m)
-{
-    switch(m) {
-        case VEX_M_NONE: return "0";
-        case VEX_M_0F: return "0F";
-        case VEX_M_0F38: return "0F38";
-        case VEX_M_0F3A: return "0F3A";
-        default: return "??";
-    }
-}
-
 #ifdef TEST_INTERPRETER
 int RunTest(x64test_t *test)
 #else
@@ -1391,7 +1370,6 @@ x64emurun:
                     unimp = 1;
                 #else
                 if(!(addr = RunAVX(emu, vex, addr, &step))) {
-                    printf_log(LOG_NONE, "Unimplemented AVX opcode prefix %s map %s ", avx_prefix_string(vex.p), avx_map_string(vex.m));
                     unimp = 1;
                     goto fini;
                 }
@@ -1427,7 +1405,6 @@ x64emurun:
                     unimp = 1;
                 #else
                 if(!(addr = RunAVX(emu, vex, addr, &step))) {
-                    printf_log(LOG_NONE, "Unimplemented AVX opcode prefix %s map %s ", avx_prefix_string(vex.p), avx_map_string(vex.m));
                     unimp = 1;
                     goto fini;
                 }

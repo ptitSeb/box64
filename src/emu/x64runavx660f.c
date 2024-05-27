@@ -64,13 +64,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            GETVY;
             for(int i=0; i<16; ++i)
                 GX->ub[i] = (VX->sb[i]>EX->sb[i])?0xFF:0x00;
-            if(vex.l)
+            if(vex.l) {
+                GETEY;
+                GETVY;
                 for(int i=0; i<16; ++i)
                     GY->ub[i] = (VY->sb[i]>EY->sb[i])?0xFF:0x00;
-            else
+            } else
                 GY->q[0] = GY->q[1] = 0;
             break;
         case 0x65:  /* VPCMPGTW Gx, Vx, Ex */
@@ -79,13 +80,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            GETVY;
             for(int i=0; i<8; ++i)
                 GX->uw[i] = (VX->sw[i]>EX->sw[i])?0xFFFF:0x0000;
-            if(vex.l)
+            if(vex.l) {
+                GETEY;
+                GETVY;
                 for(int i=0; i<8; ++i)
                     GY->uw[i] = (VY->sw[i]>EY->sw[i])?0xFFFF:0x0000;
-            else
+            } else
                 GY->q[0] = GY->q[1] = 0;
             break;
         case 0x66:  /* VPCMPGTD Gx, Vx, Ex */
@@ -94,13 +96,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            GETVY;
             for(int i=0; i<4; ++i)
                 GX->ud[i] = (VX->sd[i]>EX->sd[i])?0xFFFFFFFF:0x00000000;
-            if(vex.l)
+            if(vex.l) {
+                GETEY;
+                GETVY;
                 for(int i=0; i<4; ++i)
                     GY->ud[i] = (VY->sd[i]>EY->sd[i])?0xFFFFFFFF:0x00000000;
-            else
+            } else
                 GY->q[0] = GY->q[1] = 0;
             break;
 
@@ -110,15 +113,15 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            GETVY;
+            GX->q[1] = EX->q[0];
             if(GX!=VX)
                 GX->q[0] = VX->q[0];
-            GX->q[1] = EX->q[0];
             if(vex.l) {
                 GETEY;
+                GETVY;
+                GY->q[1] = EY->q[0];
                 if(GY!=VY)
                     GY->q[0] = VY->q[0];
-                GY->q[1] = EY->q[0];
             } else
                 GY->q[0] = GY->q[1] = 0;
             break;
@@ -128,36 +131,34 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            GETVY;
             GX->q[0] = VX->q[1];
             GX->q[1] = EX->q[1];
             if(vex.l) {
                 GETEY;
+                GETVY;
                 GY->q[0] = VY->q[1];
                 GY->q[1] = EY->q[1];
-
             } else
                 GY->q[0] = GY->q[1] = 0;
             break;
 
-        case 0x6F:  // VMOVDQA
+        case 0x6F:  // VMOVDQA GX, EX
             nextop = F8;
             GETEX(0);
             GETGX;
+            GETGY;
             GX->q[0] = EX->q[0];
             GX->q[1] = EX->q[1];
             if(vex.l) {
-                GETGY;
                 GETEY;
-                if(MODREG) {
-                    GY->q[0] = EY->q[0];
-                    GY->q[1] = EY->q[1];
-                } else
-                    GY->q[0] = GY->q[1] = 0;
-            }
+                GY->q[0] = EY->q[0];
+                GY->q[1] = EY->q[1];
+            }   else
+                GY->q[0] = GY->q[1] = 0;
             break;
         case 0x70:  /* VPSHUFD Gx,Ex,Ib */
             nextop = F8;
+            // do not use vex.v
             GETEX(1);
             GETGX;
             GETGY;
@@ -177,42 +178,48 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         case 0x72:  /* GRP */
             nextop = F8;
             GETEX(1);
-            GETEY;
             GETVX;
             GETVY;
-            if(!vex.l && MODREG)
-                memset(VY, 0, 16);
             switch((nextop>>3)&7) {
-                case 2:                 /* PSRLD Vx, Ex, Ib */
+                case 2:                 /* VPSRLD Vx, Ex, Ib */
                     tmp8u = F8;
+                    if(tmp8u>31)
+                        {VX->q[0] = VX->q[1] = 0;}
+                    else
+                        for (int i=0; i<4; ++i) VX->ud[i] = EX->ud[i] >> tmp8u;
                     if(vex.l) {
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    } else {
+                        GETEY;
                         if(tmp8u>31)
-                            {VX->q[0] = VX->q[1] = 0;}
+                            {VY->q[0] = VY->q[1] = 0;}
                         else
-                            for (int i=0; i<4; ++i) VX->ud[i] = EX->ud[i] >> tmp8u;
-                    }
+                            for (int i=0; i<4; ++i) VY->ud[i] = EY->ud[i] >> tmp8u;
+                    } else
+                        VY->q[0] = VY->q[1] = 0;
                     break;
-                case 4:                 /* PSRAD Vx, Ex, Ib */
+                case 4:                 /* VPSRAD Vx, Ex, Ib */
                     tmp8u = F8;
+                    if(tmp8u>31) tmp8u=31;
+                    for (int i=0; i<4; ++i) VX->sd[i] = EX->sd[i] >> tmp8u;
                     if(vex.l) {
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    } else {
-                        if(tmp8u>31) tmp8u=31;
-                        for (int i=0; i<4; ++i) VX->sd[i] = EX->sd[i] >> tmp8u;
-                    }
+                        GETEY;
+                        for (int i=0; i<4; ++i) VY->sd[i] = EY->sd[i] >> tmp8u;
+                    } else
+                        VY->q[0] = VY->q[1] = 0;
                     break;
-                case 6:                 /* PSLLD Vx, Ex, Ib */
+                case 6:                 /* VPSLLD Vx, Ex, Ib */
                     tmp8u = F8;
+                    if(tmp8u>31)
+                        {VX->q[0] = VX->q[1] = 0;}
+                    else
+                        for (int i=0; i<4; ++i) VX->ud[i] = EX->ud[i] << tmp8u;
                     if(vex.l) {
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    } else {
+                        GETEY;
                         if(tmp8u>31)
-                            {VX->q[0] = VX->q[1] = 0;}
+                            {VY->q[0] = VY->q[1] = 0;}
                         else
-                            for (int i=0; i<4; ++i) VX->ud[i] = EX->ud[i] << tmp8u;
-                    }
+                            for (int i=0; i<4; ++i) VY->ud[i] = EY->ud[i] << tmp8u;
+                    } else
+                        VY->q[0] = VY->q[1] = 0;
                     break;
                 default:
                     return 0;
@@ -221,75 +228,118 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         case 0x73:  /* GRP */
             nextop = F8;
             GETEX(1);
-            GETEY;
             GETVX;
             GETVY;
-            if(!vex.l && MODREG)
-                memset(VY, 0, 16);
             switch((nextop>>3)&7) {
-                case 2:                 /* PSRLQ Vx, Ex, Ib */
+                case 2:                 /* VPSRLQ Vx, Ex, Ib */
                     tmp8u = F8;
+                    if(tmp8u>63)
+                        {VX->q[0] = VX->q[1] = 0;}
+                    else
+                        {VX->q[0] = EX->q[0] >> tmp8u; VX->q[1] = EX->q[1] >> tmp8u;}
                     if(vex.l) {
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    } else {
+                        GETEY;
                         if(tmp8u>63)
-                            {VX->q[0] = VX->q[1] = 0;}
+                            {VY->q[0] = VY->q[1] = 0;}
                         else
-                            {VX->q[0] = EX->q[0] >> tmp8u; VX->q[1] = EX->q[1] >> tmp8u;}
-                    }
+                            {VY->q[0] = EY->q[0] >> tmp8u; VY->q[1] = EY->q[1] >> tmp8u;}
+                    } else
+                        VY->q[0] = VY->q[1] = 0;
                     break;
-                case 3:                 /* PSRLDQ Vx, Ex, Ib */
+                case 3:                 /* VPSRLDQ Vx, Ex, Ib */
                     tmp8u = F8;
+                    if(tmp8u>15)
+                        {VX->q[0] = VX->q[1] = 0;}
+                    else if (tmp8u!=0) {
+                        tmp8u*=8;
+                        if (tmp8u < 64) {
+                            VX->q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
+                            VX->q[1] = (EX->q[1] >> tmp8u);
+                        } else {
+                            VX->q[0] = EX->q[1] >> (tmp8u - 64);
+                            VX->q[1] = 0;
+                        }
+                    }
                     if(vex.l) {
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    } else {
+                        GETEY;
                         if(tmp8u>15)
-                            {VX->q[0] = VX->q[1] = 0;}
+                            {VY->q[0] = VY->q[1] = 0;}
                         else if (tmp8u!=0) {
                             tmp8u*=8;
                             if (tmp8u < 64) {
-                                VX->q[0] = (EX->q[0] >> tmp8u) | (EX->q[1] << (64 - tmp8u));
-                                VX->q[1] = (EX->q[1] >> tmp8u);
+                                VY->q[0] = (EY->q[0] >> tmp8u) | (EY->q[1] << (64 - tmp8u));
+                                VY->q[1] = (EY->q[1] >> tmp8u);
                             } else {
-                                VX->q[0] = EX->q[1] >> (tmp8u - 64);
-                                VX->q[1] = 0;
+                                VY->q[0] = EY->q[1] >> (tmp8u - 64);
+                                VY->q[1] = 0;
                             }
                         }
-                    }
+                    } else
+                        VY->q[0] = VY->q[1] = 0;
                     break;
-                case 6:                 /* PSLLQ Vx, Ex, Ib */
+                case 6:                 /* VPSLLQ Vx, Ex, Ib */
                     tmp8u = F8;
+                    if(tmp8u>63)
+                        {VX->q[0] = VX->q[1] = 0;}
+                    else
+                        {VX->q[0] = EX->q[0] << tmp8u; VX->q[1] = EX->q[1] << tmp8u;}
                     if(vex.l) {
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    } else {
+                        GETEY;
                         if(tmp8u>63)
-                            {VX->q[0] = VX->q[1] = 0;}
+                            {VY->q[0] = VY->q[1] = 0;}
                         else
-                            {VX->q[0] = EX->q[0] << tmp8u; VX->q[1] = EX->q[1] << tmp8u;}
-                    }
+                            {VY->q[0] = EY->q[0] << tmp8u; VY->q[1] = EY->q[1] << tmp8u;}
+                    } else
+                        VY->q[0] = VY->q[1] = 0;
                     break;
-                case 7:                 /* PSLLDQ Vx, Ex, Ib */
+                case 7:                 /* VPSLLDQ Vx, Ex, Ib */
                     tmp8u = F8;
+                    if(tmp8u>15)
+                        {VX->q[0] = VX->q[1] = 0;}
+                    else if (tmp8u!=0) {
+                        tmp8u*=8;
+                        if (tmp8u < 64) {
+                            VX->q[1] = (EX->q[1] << tmp8u) | (EX->q[0] >> (64 - tmp8u));
+                            VX->q[0] = (EX->q[0] << tmp8u);
+                        } else {
+                            VX->q[1] = EX->q[0] << (tmp8u - 64);
+                            VX->q[0] = 0;
+                        }
+                    }
                     if(vex.l) {
-                        emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                    } else {
+                        GETEY;
                         if(tmp8u>15)
-                            {VX->q[0] = VX->q[1] = 0;}
+                            {VY->q[0] = VY->q[1] = 0;}
                         else if (tmp8u!=0) {
                             tmp8u*=8;
                             if (tmp8u < 64) {
-                                VX->q[1] = (EX->q[1] << tmp8u) | (EX->q[0] >> (64 - tmp8u));
-                                VX->q[0] = (EX->q[0] << tmp8u);
+                                VY->q[1] = (EY->q[1] << tmp8u) | (EY->q[0] >> (64 - tmp8u));
+                                VY->q[0] = (EY->q[0] << tmp8u);
                             } else {
-                                VX->q[1] = EX->q[0] << (tmp8u - 64);
-                                VX->q[0] = 0;
+                                VY->q[1] = EY->q[0] << (tmp8u - 64);
+                                VY->q[0] = 0;
                             }
                         }
-                    }
+                    } else
+                        VY->q[0] = VY->q[1] = 0;
                     break;
                 default:
                     return 0;
             }
+            break;
+
+        case 0x7F:  // VMOVDQA EX, GX
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            if(vex.l) {
+                GETEY;
+                EY->q[0] = GY->q[0];
+                EY->q[1] = GY->q[1];
+            } // no upper raz?
             break;
 
         case 0xDB:  /* VPAND Gx, Vx, Ex */
