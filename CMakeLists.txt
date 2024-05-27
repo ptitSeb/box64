@@ -400,6 +400,7 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64runavx660f.c"
     "${BOX64_ROOT}/src/emu/x64runavxf20f.c"
     "${BOX64_ROOT}/src/emu/x64runavxf30f.c"
+    "${BOX64_ROOT}/src/emu/x64runavx660f38.c"
     "${BOX64_ROOT}/src/emu/x64runavx660f3a.c"
 )
 

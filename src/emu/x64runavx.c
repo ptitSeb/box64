@@ -59,6 +59,8 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         return RunAVX_F20F(emu, vex, addr, step);
     if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F3))
         return RunAVX_F30F(emu, vex, addr, step);
+    if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_66))
+        return RunAVX_660F38(emu, vex, addr, step);
     if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_66))
         return RunAVX_660F3A(emu, vex, addr, step);
 

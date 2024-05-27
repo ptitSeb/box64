@@ -27,7 +27,7 @@ typedef struct rex_s {
 #define VEX_P_F2    3
 #define VEX_M_NONE  0
 #define VEX_M_0F    1
-#define VEX_M_OF38  2
+#define VEX_M_0F38  2
 #define VEX_M_0F3A  3
 typedef struct vex_s {
     rex_t       rex;
@@ -177,6 +177,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
+uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 
 uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
@@ -211,6 +212,7 @@ uintptr_t TestAVX_OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_66OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F2OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F3OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
+uintptr_t TestAVX_F3OF38(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F3OF3A(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 
 

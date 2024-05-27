@@ -43,7 +43,7 @@ static const char* avx_map_string(uint16_t m)
     switch(m) {
         case VEX_M_NONE: return "0";
         case VEX_M_0F: return "0F";
-        case VEX_M_OF38: return "0F38";
+        case VEX_M_0F38: return "0F38";
         case VEX_M_0F3A: return "0F3A";
         default: return "??";
     }
