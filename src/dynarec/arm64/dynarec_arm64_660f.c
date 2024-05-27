@@ -1369,28 +1369,29 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 BFIw(xFlags, x4, F_CF, 1);
                             }
                             IFX(X_ZF|X_SF) {
-                                MOV32w(x4, 8);
+                                MOV32w(x4, (u8&1)?8:16);
                                 IFX(X_ZF) {
                                     CMPSw_REG(x3, x4);
-                                    CSETw(x4, cLT);
-                                    BFIw(xFlags, x4, F_ZF, 1);
+                                    CSETw(x5, cLT);
+                                    BFIw(xFlags, x5, F_ZF, 1);
                                 }
                                 IFX(F_SF) {
                                     CMPSw_REG(x2, x4);
-                                    CSETw(x4, cLT);
-                                    BFIw(xFlags, x4, F_SF, 1);
+                                    CSETw(x5, cLT);
+                                    BFIw(xFlags, x5, F_SF, 1);
                                 }
                             }
                             IFX(X_OF) {
                                 BFIw(xFlags, x1, F_OF, 1);
                             }
                             IFX(X_AF) {
-                                CMPSw_U12(x1, 0);
+                                BFCw(wFlags, F_AF, 1);
+                                /*CMPSw_U12(x1, 0);
                                 CSETw(x4, cEQ);
                                 CMPSw_U12(x3, (u8&1)?8:16);
                                 CSETw(x5, cEQ);
                                 ANDw_REG(x4, x4, x5);
-                                BFIw(xFlags, x4, F_AF, 1);
+                                BFIw(xFlags, x4, F_AF, 1);*/
                             }
                             IFX(X_PF) {
                                 BFCw(xFlags, F_PF, 1);
