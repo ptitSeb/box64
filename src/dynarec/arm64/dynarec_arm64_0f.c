@@ -740,7 +740,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else
                             v1 = q1;
                         VREV64Q_32(q0, q0);
-                        VREV64Q_32(v1, q1);
+                        if(q0==q1) {
+                            VMOVQ(v1, q0);
+                        } else {
+                            VREV64Q_32(v1, q1);
+                        }
                         VZIP1Q_64(v0, v1, q0);
                         VZIP2Q_64(v1, v1, q0);
                         SHA256H(v1, v0, d0);
@@ -894,10 +898,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         VREV64Q_32(v0, v0);
                         VEORQ(d1, d1, d1);
                         if(MODREG) {
-                            if(q0==q1)
-                                v1 = v0;
-                            else
-                                v1 = fpu_get_scratch(dyn);
+                            v1 = fpu_get_scratch(dyn);
                         } else
                             v1 = q1;
                         if(v1!=v0) {
