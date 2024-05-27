@@ -104,7 +104,8 @@ uint32_t sse42_compare_string_explicit_len(x64emu_t* emu, sse_regs_t* mem, int l
     CONDITIONAL_SET_FLAG(lmem<n_packed, F_ZF);
     CONDITIONAL_SET_FLAG(lreg<n_packed, F_SF);
     CONDITIONAL_SET_FLAG(intres2&1, F_OF);
-    CONDITIONAL_SET_FLAG(((!intres2) && (lmem==n_packed)), F_AF);
+    //CONDITIONAL_SET_FLAG(((!intres2) && (lmem==n_packed)), F_AF);
+    CLEAR_FLAG(F_AF);
     CLEAR_FLAG(F_PF);
     
     return intres2;
