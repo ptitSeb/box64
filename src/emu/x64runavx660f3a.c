@@ -69,6 +69,38 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x0F:          // VPALIGNR GX, VX, EX, u8
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            if(tmp8u>31)
+                {GX->q[0] = GX->q[1] = 0;}
+            else
+            {
+                for (int i=0; i<16; ++i, ++tmp8u)
+                    eax1.ub[i] = (tmp8u>15)?((tmp8u>31)?0:VX->ub[tmp8u-16]):EX->ub[tmp8u];
+                GX->q[0] = eax1.q[0];
+                GX->q[1] = eax1.q[1];
+            }
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                if(tmp8u>31)
+                    {GY->q[0] = GY->q[1] = 0;}
+                else
+                {
+                    for (int i=0; i<16; ++i, ++tmp8u)
+                        eax1.ub[i] = (tmp8u>15)?((tmp8u>31)?0:VY->ub[tmp8u-16]):EY->ub[tmp8u];
+                    GY->q[0] = eax1.q[0];
+                    GY->q[1] = eax1.q[1];
+                }
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            break;
+
         case 0x44:    /* VPCLMULQDQ Gx, Vx, Ex, imm8 */
             nextop = F8;
             GETGX;
