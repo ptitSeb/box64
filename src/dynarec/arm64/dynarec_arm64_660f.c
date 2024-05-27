@@ -358,16 +358,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
+                    if(q0==q1)
+                        d0 = fpu_get_scratch(dyn);
+                    else
+                        d0 = q0;
                     UXTL_8(v0, q0);   // this is unsigned, so 0 extended
                     SXTL_8(v1, q1);   // this is signed
                     VMULQ_16(v0, v0, v1);
                     SADDLPQ_16(v1, v0);
                     UXTL2_8(v0, q0);   // this is unsigned
-                    SQXTN_16(q0, v1);   // SQXTN reset the vector so need to grab the high part first
+                    SQXTN_16(d0, v1);   // SQXTN reset the vector so need to grab the high part first
                     SXTL2_8(v1, q1);   // this is signed
                     VMULQ_16(v0, v0, v1);
                     SADDLPQ_16(v0, v0);
-                    SQXTN2_16(q0, v0);
+                    SQXTN2_16(d0, v0);
+                    if(q0!=d0)
+                        VMOVQ(q0, d0);
                     break;
 
                 case 0x05:
