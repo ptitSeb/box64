@@ -30,10 +30,21 @@
 
 #include "modrm.h"
 
+static __int128_t pclmul_helper(uint64_t X, uint64_t Y)
+{
+    __int128 result = 0;
+    __int128 op2 = Y;
+    for (int i=0; i<64; ++i)
+        if(X&(1LL<<i))
+            result ^= (op2<<i);
+
+    return result;
+}
+
 #ifdef TEST_INTERPRETER
-uintptr_t TestAVX_F30F(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
+uintptr_t TestAVX_660F3A(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
 #else
-uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
+uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 #endif
 {
     uint8_t opcode;
@@ -58,19 +69,20 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
-        case 0x6F:  // VMOVDQU
+        case 0x44:    /* VPCLMULQDQ Gx, Vx, Ex, imm8 */
             nextop = F8;
-            GETEX(0);
             GETGX;
-            memcpy(GX, EX, 16);    // unaligned...
+            GETEX(1);
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            GX->u128 = pclmul_helper(VX->q[tmp8u&1], EX->q[(tmp8u>>4)&1]);
             if(vex.l) {
-                GETGY;
+                GETVY;
                 GETEY;
-                if(MODREG)
-                    memcpy(GY, EY, 16);
-                else
-                    memset(GY, 0, 16);
-            }
+                GY->u128 = pclmul_helper(VY->q[tmp8u&1], EY->q[(tmp8u>>4)&1]);
+            } else
+                GY->q[0] = GY->q[1] = 0;
             break;
 
         default:

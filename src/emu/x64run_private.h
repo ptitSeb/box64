@@ -175,8 +175,9 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr);
 uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
+uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
-
+uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step);
 
 uintptr_t Test0F(x64test_t *test, rex_t rex, uintptr_t addr, int *step);
 uintptr_t Test64(x64test_t *test, rex_t rex, int seg, uintptr_t addr);
@@ -208,7 +209,9 @@ uintptr_t TestF30F(x64test_t *test, rex_t rex, uintptr_t addr);
 uintptr_t TestAVX(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_66OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
+uintptr_t TestAVX_F2OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 uintptr_t TestAVX_F3OF(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
+uintptr_t TestAVX_F3OF3A(x64test_t *test, vex_t vex, uintptr_t addr, int *step);
 
 
 void x64Syscall(x64emu_t *emu);

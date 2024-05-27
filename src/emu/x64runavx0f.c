@@ -45,13 +45,15 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     uint64_t tmp64u, tmp64u2;
     int64_t tmp64s;
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1;
-    mmx87_regs_t *opem, *opgm, eam1;
+    sse_regs_t *opex, *opgx, *opvx, eax1;
+    sse_regs_t *opey, *opgy, *opvy, eay1;
 
 #ifdef TEST_INTERPRETER
     x64emu_t *emu = test->emu;
 #endif
     opcode = F8;
+
+    rex_t rex = vex.rex;
 
     switch(opcode) {
 

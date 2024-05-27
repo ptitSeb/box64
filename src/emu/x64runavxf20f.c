@@ -31,9 +31,9 @@
 #include "modrm.h"
 
 #ifdef TEST_INTERPRETER
-uintptr_t TestAVX(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
+uintptr_t TestAVX_F20F(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
 #else
-uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
+uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 #endif
 {
     uint8_t opcode;
@@ -45,22 +45,21 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     uint64_t tmp64u, tmp64u2;
     int64_t tmp64s;
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1;
-    mmx87_regs_t *opem, *opgm, eam1;
+    sse_regs_t *opex, *opgx, *opvx, eax1;
+    sse_regs_t *opey, *opgy, *opvy, eay1;
+
 
 #ifdef TEST_INTERPRETER
     x64emu_t *emu = test->emu;
 #endif
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_NONE))
-        return RunAVX_0F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
-        return RunAVX_660F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F2))
-        return RunAVX_F20F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F3))
-        return RunAVX_F30F(emu, vex, addr, step);
-    if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_66))
-        return RunAVX_660F3A(emu, vex, addr, step);
+    opcode = F8;
 
-    return 0;
+    rex_t rex = vex.rex;
+
+    switch(opcode) {
+
+        default:
+            return 0;
+    }
+    return addr;
 }
