@@ -350,20 +350,6 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                 R_ECX = R_EBX = R_EDX = 0;
                 break;
             case 2:
-                // componant 0: x87
-                R_EAX = 160; // size of the x87 block
-                R_EBX = 0;  // offset
-                R_ECX = 0;
-                R_EDX = 0;
-                break;
-            case 3:
-                // componant 1: sse
-                R_EAX = 16*16; // size of the sse block
-                R_EBX = 160;  // offset
-                R_ECX = 0;
-                R_EDX = 0;
-                break;
-            case 4:
                 // componant 2: avx
                 R_EAX = 16*16; // size of the avx block
                 R_EBX = 512+64;  // offset
