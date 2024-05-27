@@ -140,6 +140,22 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = GY->q[1] = 0;
             break;
 
+        case 0x6F:  // VMOVDQA
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->q[0] = EX->q[0];
+            GX->q[1] = EX->q[1];
+            if(vex.l) {
+                GETGY;
+                GETEY;
+                if(MODREG) {
+                    GY->q[0] = EY->q[0];
+                    GY->q[1] = EY->q[1];
+                } else
+                    GY->q[0] = GY->q[1] = 0;
+            }
+            break;
         case 0x70:  /* VPSHUFD Gx,Ex,Ib */
             nextop = F8;
             GETEX(1);
