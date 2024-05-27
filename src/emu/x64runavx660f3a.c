@@ -56,6 +56,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     uint64_t tmp64u, tmp64u2;
     int64_t tmp64s;
     reg64_t *oped, *opgd;
+    float tmpf;
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
 
@@ -97,6 +98,46 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->q[0] = eax1.q[0];
                     GY->q[1] = eax1.q[1];
                 }
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            break;
+
+        case 0x21:  /* VINSRTPS Gx, Vx, Ex, imm8 */
+            nextop = F8;
+            GETGX;
+            GETEX(1);
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            if(MODREG) {
+                tmp32u = EX->ud[(tmp8u>>6)&3];
+            } else
+                tmp32u = EX->ud[0];
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = (tmp8u&(1<<i))?((i==(tmp8u>>4)&3)?tmp32u:VX->ud[i]):0;
+            GY->q[0] = GY->q[1] = 0;
+            break;
+
+        case 0x40:  /* DPPS Gx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            tmpf = 0.0f;
+            for(int i=0; i<4; ++i)
+                if(tmp8u&(1<<(i+4)))
+                    tmpf += VX->f[i]*EX->f[i];
+            for(int i=0; i<4; ++i)
+                GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
+            if(vex.l) {
+                tmpf = 0.0f;
+                for(int i=0; i<4; ++i)
+                    if(tmp8u&(1<<(i+4)))
+                        tmpf += VY->f[i]*EY->f[i];
+                for(int i=0; i<4; ++i)
+                    GY->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
             } else
                 GY->q[0] = GY->q[1] = 0;
             break;

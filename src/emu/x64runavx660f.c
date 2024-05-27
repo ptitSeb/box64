@@ -141,7 +141,18 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->q[0] = GY->q[1] = 0;
             break;
-
+        case 0x6E:                      /* VMOVD GX, Ed */
+            nextop = F8;
+            GETED(0);
+            GETGX;
+            if(rex.w)
+                GX->q[0] = ED->q[0];
+            else
+                GX->q[0] = ED->dword[0];    // zero extended
+            GX->q[1] = 0;
+            GETGY;
+            GY->q[0] = GY->q[1] = 0;
+            break;
         case 0x6F:  // VMOVDQA GX, EX
             nextop = F8;
             GETEX(0);
@@ -328,6 +339,19 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x7E:                       /* VMOVD Ed, Gx */
+            nextop = F8;
+            GETED(0);
+            GETGX;
+            if(rex.w)
+                ED->q[0] = GX->q[0];
+            else {
+                if(MODREG)
+                    ED->q[0] = GX->ud[0];
+                else
+                    ED->dword[0] = GX->ud[0];
+            }
+            break;
         case 0x7F:  // VMOVDQA EX, GX
             nextop = F8;
             GETEX(0);

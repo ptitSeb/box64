@@ -57,7 +57,103 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
-        case 0x57:                      /* XORPS Gx, Ex */
+        case 0x10:  /* VMOVUPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            GX->q[0] = EX->q[0];
+            GX->q[1] = EX->q[1];
+            if(vex.l) {
+                GETEY;
+                GY->q[0] = EY->q[0];
+                GY->q[1] = EY->q[1];
+            } else {
+                GY->q[0] = GY->q[1] = 0;
+            }
+            break;
+        case 0x11:  /* VMOVUPS Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            if(vex.l) {
+                GETEY;
+                GETGY;
+                EY->q[0] = GY->q[0];
+                EY->q[1] = GY->q[1];
+            }
+            break;
+
+        case 0x28:  /* VMOVAPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            GX->q[0] = EX->q[0];
+            GX->q[1] = EX->q[1];
+            if(vex.l) {
+                GETEY;
+                GY->q[0] = EY->q[0];
+                GY->q[1] = EY->q[1];
+            } else {
+                GY->q[0] = GY->q[1] = 0;
+            }
+            break;
+        case 0x29:  /* VMOVAPS Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            if(vex.l) {
+                GETEY;
+                GETGY;
+                EY->q[0] = GY->q[0];
+                EY->q[1] = GY->q[1];
+            }
+            break;
+            
+        case 0x52:                      /* VRSQRTPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            for(int i=0; i<4; ++i) {
+                if(EX->f[i]==0)
+                    GX->f[i] = 1.0f/EX->f[i];
+                else if (EX->f[i]<0)
+                    GX->f[i] = NAN;
+                else if (isnan(EX->f[i]))
+                    GX->f[i] = EX->f[i];
+                else if (isinf(EX->f[i]))
+                    GX->f[i] = 0.0;
+                else
+                    GX->f[i] = 1.0f/sqrtf(EX->f[i]);
+            }
+            if(vex.l) {
+                GETEY;
+                for(int i=0; i<4; ++i) {
+                    if(EY->f[i]==0)
+                        GY->f[i] = 1.0f/EY->f[i];
+                    else if (EY->f[i]<0)
+                        GY->f[i] = NAN;
+                    else if (isnan(EY->f[i]))
+                        GY->f[i] = EY->f[i];
+                    else if (isinf(EY->f[i]))
+                        GY->f[i] = 0.0;
+                    else
+                        GY->f[i] = 1.0f/sqrtf(EY->f[i]);
+                }
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            #ifdef TEST_INTERPRETER
+            test->notest = 1;
+            #endif
+            break;
+
+        case 0x57:                      /* XORPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -75,6 +171,40 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = GY->q[1] = 0;
             break;
 
+        case 0x59:                      /* VMULPS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = VX->f[i] * EX->f[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->f[i] = VY->f[i] * EY->f[i];
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            break;
+
+        case 0x5C:                      /* VSUBPS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = VX->f[i] - EX->f[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->f[i] = VY->f[i] - EY->f[i];
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            break;
+
         case 0x77:
             if(!vex.l) {    // VZEROUPPER
                 if(vex.v!=0) {
@@ -85,6 +215,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 return 0;
             break;
+
         default:
             return 0;
     }

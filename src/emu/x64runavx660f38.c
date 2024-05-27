@@ -81,7 +81,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     VY = &eay1;
                 }
                 for (int i=0; i<16; ++i) {
-                    if(EX->ub[i]&128)
+                    if(EY->ub[i]&128)
                         GY->ub[i] = 0;
                     else
                         GY->ub[i] = VY->ub[EY->ub[i]&15];
