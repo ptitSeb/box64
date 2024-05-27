@@ -2337,7 +2337,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             // rep has no impact here
             nextop = F8;
             switch((nextop>>3)&7) {
-                case 1:
+            case 1:
                 INST_NAME("CMPXCHG8B Gq, Eq");
                 SETFLAGS(X_ZF, SF_SUBSET);
                 SMREAD();
@@ -2362,6 +2362,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BFIw(xFlags, x1, F_ZF, 1);
                 }
                 SMWRITE();
+                break;
+            case 4:
+                INST_NAME("Unsupported XSAVEC Ed");
+                FAKEED;
+                UDF(0);
                 break;
             default:
                 DEFAULT;
