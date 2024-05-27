@@ -58,19 +58,29 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
-        case 0x6F:  // VMOVDQU
+        case 0x6F:  // VMOVDQU Gx, Ex
             nextop = F8;
             GETEX(0);
             GETGX;
             memcpy(GX, EX, 16);    // unaligned...
+            GETGY;
+            if(vex.l) {
+                GETEY;
+                memcpy(GY, EY, 16);
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            break;
+
+        case 0x7F:  /* VMOVDQU Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            memcpy(EX, GX, 16);    // unaligned...
             if(vex.l) {
                 GETGY;
                 GETEY;
-                if(MODREG)
-                    memcpy(GY, EY, 16);
-                else
-                    memset(GY, 0, 16);
-            }
+                memcpy(EY, GY, 16);
+            } // no ymm raz here it seems
             break;
 
         default:
