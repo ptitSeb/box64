@@ -58,6 +58,47 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x10:  /* VMOVSS Gx Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->ud[0] = EX->ud[0];
+            if(MODREG) {
+                GETVX;
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            } else {
+                // EX is not a register (reg to reg only move 31:0)
+                GX->ud[1] = GX->ud[2] = GX->ud[3] = 0;
+            }
+            GETGY;
+            GY->q[0] = GY->q[1] = 0;
+            break;
+        case 0x11:  /* MOVSS Ex Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->ud[0] = GX->ud[0];
+            if(MODREG) {
+                GETVX;
+                EX->ud[1] = VX->ud[1];
+                EX->q[1] = VX->q[1];
+                GETEY;
+                EY->q[0] = EY->q[1] = 0;
+            }
+            break;
+
+        case 0x5A:  /* VCVTSS2SD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GX->d[0] = EX->f[0];
+            GX->q[1] = VX->q[1];
+            GY->q[0] = GY->q[1] = 0;
+            break;
+
         case 0x6F:  // VMOVDQU Gx, Ex
             nextop = F8;
             GETEX(0);

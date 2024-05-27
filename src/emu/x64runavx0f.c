@@ -57,6 +57,24 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x57:                      /* XORPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = VX->ud[i] ^ EX->ud[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = VY->ud[i] ^ EY->ud[i];
+
+            } else
+                GY->q[0] = GY->q[1] = 0;
+            break;
+
         case 0x77:
             if(!vex.l) {    // VZEROUPPER
                 if(vex.v!=0) {

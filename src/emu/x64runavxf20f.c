@@ -58,6 +58,33 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x10:  /* VMOVSD Gx Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->q[0] = EX->q[0];
+            if(MODREG) {
+                GETVX;
+                GX->q[1] = VX->q[1];
+            } else {
+                GX->q[1] = 0;
+            }
+            GETGY;
+            GY->q[0] = GY->q[1] = 0;
+            break;
+        case 0x11:  /* MOVSS Ex Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            if(MODREG) {
+                GETVX;
+                EX->q[1] = VX->q[1];
+                GETEY;
+                EY->q[0] = EY->q[1] = 0;
+            }
+            break;
+        
         default:
             return 0;
     }
