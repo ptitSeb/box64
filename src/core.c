@@ -150,6 +150,7 @@ int box64_x87_no80bits = 0;
 int box64_sync_rounding = 0;
 int box64_sse42 = 1;
 int box64_avx = 0;
+int box64_avx2 = 0;
 int fix_64bit_inodes = 0;
 int box64_dummy_crashhandler = 1;
 int box64_mapclean = 0;
@@ -996,11 +997,16 @@ void LoadLogEnv()
     p = getenv("BOX64_AVX");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='0'+1)
+            if(p[0]>='0' && p[0]<='0'+2)
                 box64_avx = p[0]-'0';
         }
         if(box64_avx)
             printf_log(LOG_INFO, "Will expose AVX capabilities\n");
+        if(box64_avx==2) {
+            box64_avx=1;
+            box64_avx2 = 1;
+            printf_log(LOG_INFO, "Will expose AVX2 capabilities\n");
+        }
     }
     p = getenv("BOX64_FIX_64BIT_INODES");
     if(p) {
