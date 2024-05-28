@@ -74,7 +74,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GY->u128 = 0;
             break;
-        case 0x11:  /* MOVSD Ex Gx */
+        case 0x11:  /* VMOVSD Ex Gx */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -85,6 +85,18 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 EY->u128 = 0;
             }
+            break;
+        case 0x12:  /* VMOVDDUP Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            GX->q[1] = GX->q[0] = EX->q[0];
+            if(vex.l) {
+                GETEY;
+                GY->q[1] = GY->q[0] = EY->q[0];
+            } else
+                GY->u128 = 0;
             break;
 
         case 0x2A:  /* VCVTSI2SD Gx, Vx, Ed */
@@ -196,6 +208,21 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
+        case 0x5D:  /* VMINSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            if (VX->d[0] == 0.0 && EX->d[0]  == 0.0)
+                GX->d[0] = EX->d[0];
+            else if (isnan(VX->d[0]) || isnan(EX->d[0]) || isgreater(VX->d[0], EX->d[0]))
+                GX->d[0] = EX->d[0];
+            else
+                GX->d[0] = VX->d[0];
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
         case 0x5E:  /* VDIVSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -210,6 +237,21 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(!is_nan && isnan(GX->d[0]))
                 GX->d[0] = -NAN;
             #endif
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
+        case 0x5F:  /* VMAXSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            if (VX->d[0] == 0.0 && EX->d[0]  == 0.0)
+                GX->d[0] = EX->d[0];
+            else if (isnan(VX->d[0]) || isnan(EX->d[0]) || isgreater(EX->d[0], VX->d[0]))
+                GX->d[0] = EX->d[0];
+            else
+                GX->d[0] = VX->d[0];
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
             break;

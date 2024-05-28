@@ -59,6 +59,105 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x10:                      /* MOVUPD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            memcpy(GX, EX, 16); // unaligned...
+            if(vex.l) {
+                GETEY;
+                memcpy(GY, EY, 16); // unaligned...
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x11:                      /* MOVUPD Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            memcpy(EX, GX, 16); // unaligned...
+            if(vex.l) {
+                GETEY;
+                GETGY;
+                memcpy(EY, GY, 16); // unaligned...
+            }
+            break;
+        case 0x12:                      /* VMOVLPD Gx, Vx, Eq */
+            nextop = F8;
+            GETE8(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GX->q[0] = ED->q[0];
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
+        case 0x13:                      /* VMOVLPD Eq, Gx */
+            nextop = F8;
+            GETE8(0);
+            GETGX;
+            ED->q[0] = GX->q[0];
+            break;
+
+        case 0x16:                      /* VMOVHPD Gx, Vx, Ed */
+            nextop = F8;
+            GETE8(0);
+            GETGX;
+            GETVX;
+            GX->q[1] = ED->q[0];
+            GX->q[0] = VX->q[0];
+            GETGY;
+            GY->u128 = 0;
+            break;
+        case 0x17:                      /* VMOVHPD Ed, Gx */
+            nextop = F8;
+            GETE8(0);
+            GETGX;
+            ED->q[0] = GX->q[1];
+            break;
+
+        case 0x28:                      /* VMOVAPD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            GX->q[0] = EX->q[0];
+            GX->q[1] = EX->q[1];
+            if(vex.l) {
+                GETEY;
+                GY->q[0] = EY->q[0];
+                GY->q[1] = EY->q[1];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x29:                      /* VMOVAPD Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            if(vex.l) {
+                GETEY;
+                GETGY;
+                EY->q[0] = GY->q[0];
+                EY->q[1] = GY->q[1];
+            }
+            break;
+
+        case 0x2B:                      /* MOVNTPD Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            if(vex.l) {
+                GETGY;
+                GETEY;
+                EY->q[0] = GY->q[0];
+                EY->q[1] = GY->q[1];
+            }
+            break;
+
         case 0x2F:                      /* VCOMISD Gx, Ex */
             RESET_FLAGS(emu);
             nextop = F8;
@@ -74,6 +173,15 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 SET_FLAG(F_ZF); CLEAR_FLAG(F_PF); CLEAR_FLAG(F_CF);
             }
             CLEAR_FLAG(F_OF); CLEAR_FLAG(F_AF); CLEAR_FLAG(F_SF);
+            break;
+
+        case 0x50:  /* VMOVMSKPD Gd, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGD;
+            GD->q[0] = 0;
+            for(int i=0; i<2; ++i)
+                GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
             break;
 
         case 0x54:  /* VANDPD Gx, Vx, Ex */
@@ -207,6 +315,28 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
+        case 0x5D:                      /* VMINPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<2; ++i)
+                if (isnan(VX->d[i]) || isnan(EX->d[i]) || isgreater(VX->d[i], EX->d[i]))
+                    GX->d[i] = EX->d[i];
+                else
+                    GX->d[i] = VX->d[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<2; ++i)
+                    if (isnan(VY->d[i]) || isnan(EY->d[i]) || isgreater(VY->d[i], EY->d[i]))
+                        GY->d[i] = EY->d[i];
+                    else
+                        GY->d[i] = VY->d[i];
+            } else
+                GY->u128 = 0;
+            break;
         case 0x5E:  /* VDIVPD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -236,6 +366,28 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                         GY->d[i] = -NAN;
                     #endif
                 }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x5F:                      /* VMAXPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<2; ++i)
+                if (isnan(VX->d[i]) || isnan(EX->d[i]) || isgreater(EX->d[i], VX->d[i]))
+                    GX->d[i] = EX->d[i];
+                else
+                    GX->d[i] = VX->d[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<2; ++i)
+                    if (isnan(VY->d[i]) || isnan(EY->d[i]) || isgreater(EY->d[i], VY->d[i]))
+                        GY->d[i] = EY->d[i];
+                    else
+                        GY->d[i] = VY->d[i];
             } else
                 GY->u128 = 0;
             break;
@@ -751,6 +903,18 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
+        case 0xD6:  /* VMOVQ Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            if(MODREG) {
+                EX->q[1] = 0;
+                GETEY;
+                EY->u128 = 0;
+            }
+            break;
+
         case 0xDB:  /* VPAND Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -795,6 +959,19 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GX->q[1] = 0;
             GY->u128 = 0;
+            break;
+        case 0xE7:   /* VMOVNTDQ Ex, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            EX->q[0] = GX->q[0];
+            EX->q[1] = GX->q[1];
+            if(vex.l) {
+                GETEY;
+                GETGY;
+                EY->q[0] = GY->q[0];
+                EY->q[1] = GY->q[1];
+            }
             break;
 
         case 0xEB:  /* VPOR Gx, Vx, Ex */

@@ -191,6 +191,21 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = EX->u128;
             break;
 
+        case 0x2A:  /* VMOVNTDQA Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            GX->q[0] = EX->q[0];
+            GX->q[1] = EX->q[1];
+            if(vex.l) {
+                GETEY;
+                GY->q[0] = EY->q[0];
+                GY->q[1] = EY->q[1];
+            } else
+                GY->u128 = 0;
+            break;
+
         case 0x2C:  /*VMASKMOVPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);

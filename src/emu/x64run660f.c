@@ -1387,7 +1387,6 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if (isnan(GX->d[1]) || isnan(EX->d[1]) || isgreater(EX->d[1], GX->d[1]))
             GX->d[1] = EX->d[1];
         break;
-
     case 0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = F8;
         GETEX(0);

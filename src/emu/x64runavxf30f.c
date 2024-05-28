@@ -91,6 +91,35 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 EY->q[0] = EY->q[1] = 0;
             }
             break;
+        case 0x12:  /* VMOVSLDUP Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            GX->ud[1] = GX->ud[0] = EX->ud[0];
+            GX->ud[3] = GX->ud[2] = EX->ud[2];
+            if(vex.l) {
+                GETEY;
+                GY->ud[1] = GY->ud[0] = EY->ud[0];
+                GY->ud[3] = GY->ud[2] = EY->ud[2];
+            } else
+                GY->u128 = 0;
+            break;
+
+        case 0x16:  /* MOVSHDUP Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            GX->ud[1] = GX->ud[0] = EX->ud[1];
+            GX->ud[3] = GX->ud[2] = EX->ud[3];
+            if(vex.l) {
+                GETEY;
+                GY->ud[1] = GY->ud[0] = EY->ud[1];
+                GY->ud[3] = GY->ud[2] = EY->ud[3];
+            } else
+                GY->u128 = 0;
+            break;
 
         case 0x2A:  /* VCVTSI2SS Gx, Vx, Ed */
             nextop = F8;
@@ -250,6 +279,24 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
+        case 0x5D:  /* VMINSS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            if (VX->f[0] == 0.0 && EX->f[0]  == 0.0)
+                GX->f[0] = EX->f[0];
+            else if (isnan(VX->f[0]) || isnan(EX->f[0]) || isgreater(VX->f[0], EX->f[0]))
+                GX->f[0] = EX->f[0];
+            else
+                GX->f[0] = VX->f[0];
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
         case 0x5E:  /* VDIVSS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -257,6 +304,24 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             GX->f[0] = VX->f[0] / EX->f[0];
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
+        case 0x5F:  /* VMAXSS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            if (VX->f[0] == 0.0 && EX->f[0]  == 0.0)
+                GX->f[0] = EX->f[0];
+            else if (isnan(VX->f[0]) || isnan(EX->f[0]) || isgreater(EX->f[0], VX->f[0]))
+                GX->f[0] = EX->f[0];
+            else
+                GX->f[0] = VX->f[0];
             if(GX!=VX) {
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
@@ -277,6 +342,15 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = GY->q[1] = 0;
             break;
 
+        case 0x7E:  /* MOVQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GX->q[0] = EX->q[0];
+            GX->q[1] = 0;
+            GETGY;
+            GY->u128 = 0;
+            break;
         case 0x7F:  /* VMOVDQU Ex, Gx */
             nextop = F8;
             GETEX(0);
