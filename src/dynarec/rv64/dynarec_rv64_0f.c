@@ -902,6 +902,44 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LWU(x3, wback, fixedaddress);
             SW(x3, gback, gdoffset + 4 * 1);
             break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            MOV64x(x5, 127);
+            MOV64x(x6, -128);
+            for (int i = 0; i < 4; ++i) {
+                LH(x3, gback, gdoffset + i * 2);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x5, 4 + 4);
+                    MV(x3, x5);
+                    BGE(x3, x6, 4 + 4);
+                    MV(x3, x6);
+                }
+                SB(x3, gback, gdoffset + i);
+            }
+            if (MODREG && gd == ed) {
+                LW(x3, gback, gdoffset + 0);
+                SW(x3, gback, gdoffset + 4);
+            } else
+                for (int i = 0; i < 4; ++i) {
+                    LH(x3, wback, fixedaddress + i * 2);
+                    if (rv64_zbb) {
+                        MIN(x3, x3, x5);
+                        MAX(x3, x3, x6);
+                    } else {
+                        BLT(x3, x5, 4 + 4);
+                        MV(x3, x5);
+                        BGE(x3, x6, 4 + 4);
+                        MV(x3, x6);
+                    }
+                    SB(x3, gback, gdoffset + 4 + i);
+                }
+            break;
         case 0x67:
             INST_NAME("PACKUSWB Gm, Em");
             nextop = F8;
