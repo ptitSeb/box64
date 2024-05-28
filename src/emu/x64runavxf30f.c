@@ -87,6 +87,94 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x2A:  /* VCVTSI2SS Gx, Vx, Ed */
+            nextop = F8;
+            GETED(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            if(rex.w)
+                GX->f[0] = ED->sq[0];
+            else
+                GX->f[0] = ED->sdword[0];
+            GX->ud[1] = VX->ud[1];
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
+
+        case 0x2C:  /* VCVTTSS2SI Gd, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGD;
+            if (rex.w) {
+                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>(float)0x7fffffffffffffffLL)
+                    GD->q[0] = 0x8000000000000000LL;
+                else
+                    GD->sq[0] = EX->f[0];
+            } else {
+                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+                    GD->dword[0] = 0x80000000;
+                else
+                    GD->sdword[0] = EX->f[0];
+                GD->dword[1] = 0;
+            }
+            break;
+        case 0x2D:  /* VCVTSS2SI Gd, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGD;
+            if(rex.w) {
+                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>(float)0x7fffffffffffffffLL)
+                    GD->q[0] = 0x8000000000000000LL;
+                else
+                    switch(emu->mxcsr.f.MXCSR_RC) {
+                        case ROUND_Nearest: {
+                            int round = fegetround();
+                            fesetround(FE_TONEAREST);
+                            GD->sq[0] = nearbyintf(EX->f[0]);
+                            fesetround(round);
+                            break;
+                        }
+                        case ROUND_Down:
+                            GD->sq[0] = floorf(EX->f[0]);
+                            break;
+                        case ROUND_Up:
+                            GD->sq[0] = ceilf(EX->f[0]);
+                            break;
+                        case ROUND_Chop:
+                            GD->sq[0] = EX->f[0];
+                            break;
+                    }
+            } else {
+                if(isnanf(EX->f[0]))
+                    tmp64s = INT32_MIN;
+                else
+                    switch(emu->mxcsr.f.MXCSR_RC) {
+                        case ROUND_Nearest: {
+                            int round = fegetround();
+                            fesetround(FE_TONEAREST);
+                            tmp64s = nearbyintf(EX->f[0]);
+                            fesetround(round);
+                            break;
+                        }
+                        case ROUND_Down:
+                            tmp64s = floorf(EX->f[0]);
+                            break;
+                        case ROUND_Up:
+                            tmp64s = ceilf(EX->f[0]);
+                            break;
+                        case ROUND_Chop:
+                            tmp64s = EX->f[0];
+                            break;
+                    }
+                if (tmp64s==(int32_t)tmp64s)
+                    GD->sdword[0] = (int32_t)tmp64s;
+                else
+                    GD->sdword[0] = INT32_MIN;
+                GD->dword[1] = 0;
+            }
+            break;
+
         case 0x58:  /* VADDSS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -111,7 +199,38 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GX->q[1] = VX->q[1];
             GY->q[0] = GY->q[1] = 0;
             break;
-
+        case 0x5B:  /* VCVTTPS2DQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            for(int i=0; i<4; ++i) {
+                if(isnanf(EX->f[i]))
+                    tmp64s = INT32_MIN;
+                else
+                    tmp64s = EX->f[i];
+                if (tmp64s==(int32_t)tmp64s) {
+                    GX->sd[i] = (int32_t)tmp64s;
+                } else {
+                    GX->sd[i] = INT32_MIN;
+                }
+            }
+            if(vex.l) {
+                GETEY;
+                for(int i=0; i<4; ++i) {
+                    if(isnanf(EY->f[i]))
+                        tmp64s = INT32_MIN;
+                    else
+                        tmp64s = EY->f[i];
+                    if (tmp64s==(int32_t)tmp64s) {
+                        GY->sd[i] = (int32_t)tmp64s;
+                    } else {
+                        GY->sd[i] = INT32_MIN;
+                    }
+                }
+            } else
+                GY->u128 = 0;
+            break;
         case 0x5C:  /* VSUBSS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -123,7 +242,21 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
             }
-            GY->q[0] = GY->q[1] = 0;
+            GY->u128 = 0;
+            break;
+
+        case 0x5E:  /* VDIVSS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GX->f[0] = VX->f[0] / EX->f[0];
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
             break;
 
         case 0x6F:  // VMOVDQU Gx, Ex

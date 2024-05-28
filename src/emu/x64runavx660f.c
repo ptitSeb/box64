@@ -47,6 +47,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
+    int is_nan;
 
 
 #ifdef TEST_INTERPRETER
@@ -205,7 +206,40 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        
+
+        case 0x5E:  /* VDIVPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for (int i=0; i<2; ++i) {
+                #ifndef NOALIGN
+                is_nan = isnan(VX->d[i]) || isnan(EX->d[i]);
+                #endif
+                GX->d[i] = VX->d[i] / EX->d[i];
+                #ifndef NOALIGN
+                if(!is_nan && isnan(GX->d[i]))
+                    GX->d[i] = -NAN;
+                #endif
+            }
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for (int i=0; i<2; ++i) {
+                    #ifndef NOALIGN
+                    is_nan = isnan(VY->d[i]) || isnan(EY->d[i]);
+                    #endif
+                    GY->d[i] = VY->d[i] / EY->d[i];
+                    #ifndef NOALIGN
+                    if(!is_nan && isnan(GY->d[i]))
+                        GY->d[i] = -NAN;
+                    #endif
+                }
+            } else
+                GY->u128 = 0;
+            break;
+
         case 0x64:  /* VPCMPGTB Gx,Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -613,6 +647,34 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else {
                 GY->q[0] = GY->q[1] = 0;
             }
+            break;
+
+        case 0xE6:  /* CVTTPD2DQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+                GX->sd[0] = 0x80000000;
+            else
+                GX->sd[0] = EX->d[0];
+            if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>0x7fffffff)
+                GX->sd[1] = 0x80000000;
+            else
+                GX->sd[1] = EX->d[1];
+            if(vex.l) {
+                GETEY;
+                if(isnan(EY->d[0]) || isinf(EY->d[0]) || EY->d[0]>0x7fffffff)
+                    GX->sd[2] = 0x80000000;
+                else
+                    GX->sd[2] = EY->d[0];
+                if(isnan(EY->d[1]) || isinf(EY->d[1]) || EY->d[1]>0x7fffffff)
+                    GX->sd[3] = 0x80000000;
+                else
+                    GX->sd[3] = EY->d[1];
+            } else
+                GX->q[1] = 0;
+            GY->u128 = 0;
             break;
 
         case 0xEB:  /* VPOR Gx, Vx, Ex */

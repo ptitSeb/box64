@@ -57,6 +57,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     int64_t tmp64s;
     reg64_t *oped, *opgd;
     float tmpf;
+    double tmpd;
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
     // AES opcodes constants
@@ -170,6 +171,14 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x17:      // VEXTRACTPS ED, GX, u8
+            nextop = F8;
+            GETED(1);
+            GETGX;
+            tmp8u = F8;
+            ED->dword[0] = GX->ud[tmp8u&3];
+            if(MODREG) ED->dword[1] = 0;
+            break;
         case 0x18:  /* VINSERTF128 Gx, Ex, imm8 */
             nextop = F8;
             GETEX(1);
@@ -217,7 +226,20 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
-        case 0x40:  /* DPPS Gx, Ex, Ib */
+        case 0x39:  /* VEXTRACTI128 Ex, Gx, Ib */
+            nextop = F8;
+            GETGX;
+            GETEX(1);
+            GETGY;
+            tmp8u = F8;
+            EX->u128 = (tmp8u&1)?GY->u128:GX->u128;
+            if(MODREG) {
+                GETEY;
+                EY->u128 = 0;
+            }
+            break;
+
+        case 0x40:  /* VDPPS Gx, VX, Ex, Ib */
             nextop = F8;
             GETEX(1);
             GETGX;
@@ -231,12 +253,41 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             for(int i=0; i<4; ++i)
                 GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
             if(vex.l) {
+                GETEY;
+                GETVY;
                 tmpf = 0.0f;
                 for(int i=0; i<4; ++i)
                     if(tmp8u&(1<<(i+4)))
                         tmpf += VY->f[i]*EY->f[i];
                 for(int i=0; i<4; ++i)
                     GY->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x41:  /* VDPPD Gx, Vx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            tmpd = 0.0;
+            if(tmp8u&(1<<(4+0)))
+                tmpd += VX->d[0]*EX->d[0];
+            if(tmp8u&(1<<(4+1)))
+                tmpd += VX->d[1]*EX->d[1];
+            GX->d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
+            GX->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                tmpd = 0.0;
+                if(tmp8u&(1<<(4+0)))
+                    tmpd += VY->d[0]*EY->d[0];
+                if(tmp8u&(1<<(4+1)))
+                    tmpd += VY->d[1]*EY->d[1];
+                GY->d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
+                GY->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
             } else
                 GY->u128 = 0;
             break;

@@ -268,7 +268,20 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-
+        case 0x5A:                      /* VCVTPS2PD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l) {
+                GETEY;
+                GY->d[1] = EX->f[3];
+                GY->d[0] = EX->f[2];
+            } else
+                GY->u128 = 0;
+            GX->d[1] = EX->f[1];
+            GX->d[0] = EX->f[0];
+            break;
         case 0x5B:                      /* VCVTDQ2PS Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -303,6 +316,24 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
+
+        case 0x5E:                      /* VDIVPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = VX->f[i] / EX->f[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->f[i] = VY->f[i] / EY->f[i];
+            } else
+                GY->u128 = 0;
+            break;
+
 
         case 0x77:
             if(!vex.l) {    // VZEROUPPER

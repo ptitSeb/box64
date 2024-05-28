@@ -59,7 +59,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 {
     uint8_t opcode;
     uint8_t nextop;
-    uint8_t tmp8u;
+    uint8_t tmp8u, u8;
     int8_t tmp8s;
     int32_t tmp32s, tmp32s2;
     uint32_t tmp32u, tmp32u2;
@@ -231,6 +231,140 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GX->u128 = EX->u128;
             GY->u128 = EX->u128;
+            break;
+
+        case 0x92:  /* VGATHERDPD/VGATHERDPS Gx, VSIB, Vx */
+            nextop = F8;
+            if(((nextop&7)!=4) || MODREG) {
+                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            }
+            GETGX;
+            GETVX;
+            GETGY;
+            GETVY;
+            tmp8u = F8; //SIB
+            // compute base
+            tmp64u = emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
+            if(nextop&0x40)
+                tmp64u += F8S;
+            else if(nextop&0x80)
+                tmp64u += F32S;
+            // get vxmm
+            EX = &emu->xmm[((tmp8u>>3)&7)+(rex.x<<3)];
+            EY = &emu->ymm[((tmp8u>>3)&7)+(rex.x<<3)];
+            u8 = tmp8u>>6;
+            // prepare mask
+            if(!vex.l)
+                VY->u128 = 0;
+            if(rex.w)
+                for(int i=0; i<2; ++i)
+                    VX->sq[i]>>=63;
+            else
+                for(int i=0; i<4; ++i)
+                    VX->sd[i]>>=31;
+            // go gather
+            if(rex.w) {
+                for(int i=0; i<2; ++i)
+                    if(VX->q[i]) {
+                        GX->q[i] = *(uint64_t*)(tmp64u + (EX->sd[i]<<u8));
+                        VX->q[i] = 0;
+                    }
+            } else {
+                for(int i=0; i<4; ++i)
+                    if(VX->ud[i]) {
+                        GX->ud[i] = *(uint32_t*)(tmp64u + (EX->sd[i]<<u8));
+                        VX->ud[i] = 0;
+                    }
+            }
+            if(vex.l) {
+                if(rex.w)
+                    for(int i=0; i<2; ++i)
+                        VY->sq[i]>>=63;
+                else
+                    for(int i=0; i<4; ++i)
+                        VY->sd[i]>>=31;
+                if(rex.w) {
+                    for(int i=0; i<2; ++i)
+                        if(VY->q[i]) {
+                            GY->q[i] = *(uint64_t*)(tmp64u + (EX->sd[2+i]<<u8));
+                            VY->q[i] = 0;
+                        }
+                } else {
+                    for(int i=0; i<4; ++i)
+                        if(VY->ud[i]) {
+                            GY->ud[i] = *(uint32_t*)(tmp64u + (EY->sd[i]<<u8));
+                            VY->ud[i] = 0;
+                        }
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x93:  /* VGATHERQPD/VGATHERQPS Gx, VSIB, Vx */
+            nextop = F8;
+            if(((nextop&7)!=4) || MODREG) {
+                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            }
+            GETGX;
+            GETVX;
+            GETGY;
+            GETVY;
+            tmp8u = F8; //SIB
+            // compute base
+            tmp64u = emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
+            if(nextop&0x40)
+                tmp64u += F8S;
+            else if(nextop&0x80)
+                tmp64u += F32S;
+            // get vxmm
+            EX = &emu->xmm[((tmp8u>>3)&7)+(rex.x<<3)];
+            EY = &emu->ymm[((tmp8u>>3)&7)+(rex.x<<3)];
+            u8 = tmp8u>>6;
+            // prepare mask
+            if(!vex.l) {
+                VY->u128 = 0;
+            }
+            if(!vex.l || !rex.w)
+                GY->u128 = 0;
+            if(rex.w)
+                for(int i=0; i<2; ++i)
+                    VX->sq[i]>>=63;
+            else
+                for(int i=0; i<4; ++i)
+                    VX->sd[i]>>=31;
+            // go gather
+            if(rex.w) {
+                for(int i=0; i<2; ++i)
+                    if(VX->q[i]) {
+                        GX->q[i] = *(uint64_t*)(tmp64u + (EX->sq[i]<<u8));
+                        VX->q[i] = 0;
+                    }
+            } else {
+                for(int i=0; i<(vex.l?4:2); ++i)
+                    if(VX->ud[i]) {
+                        GX->ud[i] = *(uint32_t*)(tmp64u + (((i>1)?EY->sq[i-2]:EX->sq[i])<<u8));
+                        VX->ud[i] = 0;
+                    }
+            }
+            if(vex.l) {
+                if(rex.w)
+                    for(int i=0; i<2; ++i)
+                        VY->sq[i]>>=63;
+                else
+                    VY->u128=0;
+                if(rex.w) {
+                    for(int i=0; i<2; ++i)
+                        if(VY->q[i]) {
+                            GY->q[i] = *(uint64_t*)(tmp64u + (EY->sq[i]<<u8));
+                            VY->q[i] = 0;
+                        }
+                } else {
+                    VY->u128 = 0;
+                }
+            }
+            if(!rex.w && !vex.l) {
+                GX->q[1] = 0;
+                VX->q[1] = 0;
+            }
             break;
 
         case 0xDB:  /* VAESIMC Gx, Ex */

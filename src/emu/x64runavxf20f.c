@@ -48,6 +48,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
+    int is_nan;
 
 
 #ifdef TEST_INTERPRETER
@@ -86,6 +87,90 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x2A:  /* VCVTSI2SD Gx, Vx, Ed */
+            nextop = F8;
+            GETED(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            if(rex.w) {
+                GX->d[0] = ED->sq[0];
+            } else {
+                GX->d[0] = ED->sdword[0];
+            }
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
+
+        case 0x2C:  /* VCVTTSD2SI Gd, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGD;
+            if(rex.w)
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffffffffffffLL)
+                    GD->q[0] = 0x8000000000000000LL;
+                else
+                    GD->sq[0] = EX->d[0];
+            else {
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+                    GD->dword[0] = 0x80000000;
+                else
+                    GD->sdword[0] = EX->d[0];
+                GD->dword[1] = 0;
+            }
+            break;
+        case 0x2D:  /* VCVTSD2SI Gd, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGD;
+            if(rex.w) {
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffffffffffffLL)
+                    GD->q[0] = 0x8000000000000000LL;
+                else
+                    switch(emu->mxcsr.f.MXCSR_RC) {
+                        case ROUND_Nearest: {
+                            int round = fegetround();
+                            fesetround(FE_TONEAREST);
+                            GD->sq[0] = nearbyint(EX->d[0]);
+                            fesetround(round);
+                            break;
+                        }
+                        case ROUND_Down:
+                            GD->sq[0] = floor(EX->d[0]);
+                            break;
+                        case ROUND_Up:
+                            GD->sq[0] = ceil(EX->d[0]);
+                            break;
+                        case ROUND_Chop:
+                            GD->sq[0] = EX->d[0];
+                            break;
+                    }
+            } else {
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+                    GD->dword[0] = 0x80000000;
+                else
+                    switch(emu->mxcsr.f.MXCSR_RC) {
+                        case ROUND_Nearest: {
+                            int round = fegetround();
+                            fesetround(FE_TONEAREST);
+                            GD->sdword[0] = nearbyint(EX->d[0]);
+                            fesetround(round);
+                            break;
+                        }
+                        case ROUND_Down:
+                            GD->sdword[0] = floor(EX->d[0]);
+                            break;
+                        case ROUND_Up:
+                            GD->sdword[0] = ceil(EX->d[0]);
+                            break;
+                        case ROUND_Chop:
+                            GD->sdword[0] = EX->d[0];
+                            break;
+                    }
+                GD->dword[1] = 0;
+            }
+            break;
+
         case 0x58:  /* VADDSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -96,6 +181,36 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(GX!=VX) {
                 GX->q[1] = VX->q[1];
             }
+            GY->u128 = 0;
+            break;
+
+        case 0x5A:  /* VCVTSD2SS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GX->f[0] = EX->d[0];
+            GX->ud[1] = VX->ud[1];
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
+
+        case 0x5E:  /* VDIVSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            #ifndef NOALIGN
+            is_nan = isnan(VX->d[0]) || isnan(EX->d[0]);
+            #endif
+            GX->d[0] = VX->d[0] / EX->d[0];
+            #ifndef NOALIGN
+            if(!is_nan && isnan(GX->d[0]))
+                GX->d[0] = -NAN;
+            #endif
+            GX->q[1] = VX->q[1];
             GY->u128 = 0;
             break;
 
