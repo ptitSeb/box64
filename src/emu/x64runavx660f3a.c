@@ -90,6 +90,24 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x02:      /* VBLENDD Gx, Vx, Ex, u8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = (tmp8u&(1<<i))?EX->ud[i]:VX->ud[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = (tmp8u&(1<<(i+4)))?EY->ud[i]:VY->ud[i];
+            } else
+                GY->u128 = 0;
+            break;
+
         case 0x0C:      /* VBLENDPS Gx, Vx, Ex, u8 */
             nextop = F8;
             GETEX(1);
@@ -121,6 +139,23 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETVY;
                 for(int i=0; i<2; ++i)
                     GY->q[i] = (tmp8u&(1<<(i+2)))?EY->q[i]:VY->q[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x0E:      /* VBLENDW Gx, Vx, Ex, u8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            for(int i=0; i<8; ++i)
+                GX->uw[i] = (tmp8u&(1<<i))?EX->uw[i]:VX->uw[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<8; ++i)
+                    GY->uw[i] = (tmp8u&(1<<i))?EY->uw[i]:VY->uw[i];
             } else
                 GY->u128 = 0;
             break;
@@ -410,6 +445,26 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETVY;
                 for(int i=0; i<2; ++i)
                     GY->q[i] = (emu->ymm[tmp8u].q[i]>>63)?EY->q[i]:VY->q[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x4C:      /* VBLENDPVB Gx, Vx, Ex, XMM/u8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            tmp8u>>=4;
+            if(rex.is32bits)
+                tmp8u&=7;
+            for(int i=0; i<16; ++i)
+                GX->ub[i] = (emu->xmm[tmp8u].ub[i]&0x80)?EX->ub[i]:VX->ub[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<16; ++i)
+                    GY->ub[i] = (emu->ymm[tmp8u].ub[i]&0x80)?EY->ub[i]:VY->ub[i];
             } else
                 GY->u128 = 0;
             break;

@@ -351,6 +351,32 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x58:  /* VPBROADCASTD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = EX->ud[0];
+            if(vex.l)
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = EX->ud[0];
+            else
+                GY->u128 = 0;
+            break;
+        case 0x59:  /* VPBROADCASTQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            for(int i=0; i<2; ++i)
+                GX->q[i] = EX->q[0];
+            if(vex.l)
+                for(int i=0; i<2; ++i)
+                    GY->q[i] = EX->q[0];
+            else
+                GY->u128 = 0;
+            break;
         case 0x5A:  /* VBROADCASTI128 Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -358,6 +384,33 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GX->u128 = EX->u128;
             GY->u128 = EX->u128;
+            break;
+
+        case 0x78:  /* VPBROADCASTB Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            for(int i=0; i<16; ++i)
+                GX->ub[i] = EX->ub[0];
+            if(vex.l)
+                for(int i=0; i<16; ++i)
+                    GY->ub[i] = EX->ub[0];
+            else
+                GY->u128 = 0;
+            break;
+        case 0x79:  /* VPBROADCASTW Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            for(int i=0; i<8; ++i)
+                GX->uw[i] = EX->uw[0];
+            if(vex.l)
+                for(int i=0; i<8; ++i)
+                    GY->uw[i] = EX->uw[0];
+            else
+                GY->u128 = 0;
             break;
 
         case 0x92:  /* VGATHERDPD/VGATHERDPS Gx, VSIB, Vx */
