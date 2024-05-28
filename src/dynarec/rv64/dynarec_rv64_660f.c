@@ -2762,8 +2762,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
                 ADD(x3, x3, x4);
-                BLT(x3, x5, 8);
-                ADDI(x3, xZR, 0xFF);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x5);
+                } else {
+                    BLT(x3, x5, 8);
+                    ADDI(x3, xZR, 0xFF);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -3000,7 +3004,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LB(x3, gback, gdoffset + i);
                 LB(x4, wback, fixedaddress + i);
                 ADDW(x3, x3, x4);
-                SEXTH(x3, x3);
                 if (rv64_zbb) {
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
