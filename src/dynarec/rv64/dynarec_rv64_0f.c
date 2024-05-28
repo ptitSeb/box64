@@ -1983,6 +1983,16 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = xRAX + (opcode & 7) + (rex.b << 3);
             REV8xw(gd, gd, x1, x2, x3, x4);
             break;
+        case 0xD4:
+            INST_NAME("PADDQ Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            LD(x1, wback, fixedaddress);
+            LD(x2, gback, gdoffset);
+            ADD(x1, x1, x2);
+            SD(x1, gback, gdoffset);
+            break;
         case 0xD5:
             INST_NAME("PMULLW Gm, Em");
             nextop = F8;
