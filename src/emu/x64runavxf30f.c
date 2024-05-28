@@ -68,7 +68,6 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
             } else {
-                // EX is not a register (reg to reg only move 31:0)
                 GX->ud[1] = GX->ud[2] = GX->ud[3] = 0;
             }
             GETGY;
@@ -150,6 +149,46 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 memcpy(EY, GY, 16);
             } // no ymm raz here it seems
+            break;
+
+        case 0xC2:  /* VCMPSS Gx, Vx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            tmp8s = 0;
+            switch(tmp8u&7) {
+                case 0: tmp8s=(VX->f[0] == EX->f[0]); break;
+                case 1: tmp8s=isless(VX->f[0], EX->f[0]) && !(isnan(VX->f[0]) || isnan(EX->f[0])); break;
+                case 2: tmp8s=islessequal(VX->f[0], EX->f[0]) && !(isnan(VX->f[0]) || isnan(EX->f[0])); break;
+                case 3: tmp8s=isnan(VX->f[0]) || isnan(EX->f[0]); break;
+                case 4: tmp8s=isnan(VX->f[0]) || isnan(EX->f[0]) || (VX->f[0] != EX->f[0]); break;
+                case 5: tmp8s=isnan(VX->f[0]) || isnan(EX->f[0]) || isgreaterequal(VX->f[0], EX->f[0]); break;
+                case 6: tmp8s=isnan(VX->f[0]) || isnan(EX->f[0]) || isgreater(VX->f[0], EX->f[0]); break;
+                case 7: tmp8s=!isnan(VX->f[0]) && !isnan(EX->f[0]); break;
+            }
+            GX->ud[0]=(tmp8s)?0xffffffff:0;
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
+
+        case 0xE6:  /* VCVTDQ2PD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l) {
+                GY->d[1] = EX->sd[3];
+                GY->d[0] = EX->sd[2];
+            } else
+                GY->u128 = 0;
+            GX->d[1] = EX->sd[1];
+            GX->d[0] = EX->sd[0];
             break;
 
         default:

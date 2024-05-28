@@ -59,6 +59,25 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     float tmpf;
     sse_regs_t *opex, *opgx, *opvx, eax1;
     sse_regs_t *opey, *opgy, *opvy, eay1;
+    // AES opcodes constants
+    const uint8_t subbytes[256] = {
+        0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
+        0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
+        0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
+        0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
+        0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84,
+        0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf,
+        0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8,
+        0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2,
+        0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73,
+        0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb,
+        0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79,
+        0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08,
+        0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a,
+        0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
+        0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
+        0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
+    };
 
 
 #ifdef TEST_INTERPRETER
@@ -70,7 +89,41 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
-        case 0x0F:          // VPALIGNR GX, VX, EX, u8
+        case 0x0C:      /* VBLENDPS Gx, Vx, Ex, u8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = (tmp8u&(1<<i))?EX->ud[i]:VX->ud[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = (tmp8u&(1<<(i+4)))?EY->ud[i]:VY->ud[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x0D:      /* VBLENDPD Gx, Vx, Ex, u8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            for(int i=0; i<2; ++i)
+                GX->q[i] = (tmp8u&(1<<i))?EX->q[i]:VX->q[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<2; ++i)
+                    GY->q[i] = (tmp8u&(1<<(i+2)))?EY->q[i]:VY->q[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x0F:      /* VPALIGNR GX, VX, EX, u8 */
             nextop = F8;
             GETEX(1);
             GETGX;
@@ -90,7 +143,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 if(tmp8u>31)
-                    {GY->q[0] = GY->q[1] = 0;}
+                    {GY->u128 = 0;}
                 else
                 {
                     for (int i=0; i<16; ++i, ++tmp8u)
@@ -99,10 +152,56 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->q[1] = eax1.q[1];
                 }
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
 
-        case 0x21:  /* VINSRTPS Gx, Vx, Ex, imm8 */
+        case 0x16:      // VPEXTRD/Q ED, GX, u8
+            nextop = F8;
+            GETED(1);
+            GETGX;
+            tmp8u = F8;
+            if(rex.w) {
+                ED->q[0] = GX->q[tmp8u&1];
+            } else {
+                if(MODREG)
+                    ED->q[0] = GX->ud[tmp8u&3];
+                else
+                    ED->dword[0] = GX->ud[tmp8u&3];
+            }
+            break;
+
+        case 0x18:  /* VINSERTF128 Gx, Ex, imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETVY;
+            tmp8u = F8;
+            if(tmp8u&1) {
+                GY->u128 = EX->u128;
+                if(GX!=VX);
+                    GX->u128 = VX->u128;
+            } else {
+                GX->u128 = EX->u128;
+                if(GY!=VY)
+                    GY->u128 = VY->u128;
+            }
+            break;
+        case 0x19:  /* VEXTRACT128 Ex, Gx, imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETGY;
+            tmp8u = F8;
+            EX->u128 = (tmp8u&1)?GY->u128:GX->u128;
+            if(MODREG) {
+                GETEY;
+                EY->u128 = 0;
+            }
+            break;
+
+        case 0x21:  /* VINSERTPS Gx, Vx, Ex, imm8 */
             nextop = F8;
             GETGX;
             GETEX(1);
@@ -114,8 +213,8 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 tmp32u = EX->ud[0];
             for(int i=0; i<4; ++i)
-                GX->ud[i] = (tmp8u&(1<<i))?((i==((tmp8u>>4)&3))?tmp32u:VX->ud[i]):0;
-            GY->q[0] = GY->q[1] = 0;
+                GX->ud[i] = (tmp8u&(1<<i))?0:((i==((tmp8u>>4)&3))?tmp32u:VX->ud[i]);
+            GY->u128 = 0;
             break;
 
         case 0x40:  /* DPPS Gx, Ex, Ib */
@@ -139,7 +238,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 for(int i=0; i<4; ++i)
                     GY->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
 
         case 0x44:    /* VPCLMULQDQ Gx, Vx, Ex, imm8 */
@@ -155,7 +254,65 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GY->u128 = pclmul_helper(VY->q[tmp8u&1], EY->q[(tmp8u>>4)&1]);
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
+            break;
+
+        case 0x4A:      /* VBLENDVPS Gx, Vx, Ex, XMMImm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = (F8)>>4;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = (emu->xmm[tmp8u].ud[i]>>31)?EX->ud[i]:VX->ud[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = (emu->ymm[tmp8u].ud[i]>>31)?EY->ud[i]:VY->ud[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x4B:      /* VBLENDVPD Gx, Vx, Ex, XMMImm8 */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = (F8)>>4;
+            for(int i=0; i<2; ++i)
+                GX->q[i] = (emu->xmm[tmp8u].q[i]>>63)?EX->q[i]:VX->q[i];
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<2; ++i)
+                    GY->q[i] = (emu->ymm[tmp8u].q[i]>>63)?EY->q[i]:VY->q[i];
+            } else
+                GY->u128 = 0;
+            break;
+
+        case 0xDF:      // VAESKEYGENASSIST Gx, Ex, u8
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            tmp32u = F8;
+            for (int i = 4; i < 8; ++i)
+                GX->ub[i] = subbytes[EX->ub[i]];
+            for (int i = 12; i < 16; ++i)
+                GX->ub[i] = subbytes[EX->ub[i]];
+            GX->ud[0] = GX->ud[1];
+            tmp8u = GX->ub[4];
+            GX->ud[1] = GX->ud[1] >> 8;
+            GX->ub[7] = tmp8u;
+            GX->ud[1] ^= tmp32u;
+            GX->ud[2] = GX->ud[3];
+            tmp8u = GX->ub[12];
+            GX->ud[3] = GX->ud[3] >> 8;
+            GX->ub[15] = tmp8u;
+            GX->ud[3] ^= tmp32u;
+            GETGY;
+            GY->u128 = 0;
             break;
 
         default:

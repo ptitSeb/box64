@@ -57,21 +57,10 @@ uintptr_t TestAVX(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
 uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 #endif
 {
-    uint8_t opcode;
-    uint8_t nextop;
-    uint8_t tmp8u;
-    int8_t tmp8s;
-    int32_t tmp32s, tmp32s2;
-    uint32_t tmp32u, tmp32u2;
-    uint64_t tmp64u, tmp64u2;
-    int64_t tmp64s;
-    reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1;
-    mmx87_regs_t *opem, *opgm, eam1;
-
 #ifdef TEST_INTERPRETER
     x64emu_t *emu = test->emu;
 #endif
+    uint8_t opcode = PK(0);
     if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_NONE))
         addr = RunAVX_0F(emu, vex, addr, step);
     else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
@@ -87,7 +76,7 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     else addr = 0;
 
     if(!addr)
-        printf_log(LOG_NONE, "Unimplemented AVX opcode prefix %s map %s ", avx_prefix_string(vex.p), avx_map_string(vex.m));
+        printf_log(LOG_NONE, "Unimplemented AVX opcode prefix %s map %s opcode %X ", avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
 
     return addr;
 }

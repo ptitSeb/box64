@@ -325,6 +325,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         //1<<3 |  // BMI1 
                         box64_avx2<<5 |  //AVX2
                         //1<<8 | //BMI2
+                        box64_avx2<<9 | //VAES
                         1<<29|  // SHA extension
                         0;
             } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
