@@ -821,7 +821,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Sign-extend byte
 #define SEXTB(rd, rs) EMIT(R_type(0b0110000, 0b00100, rs, 0b001, rd, 0b0010011))
 // Sign-extend half-word
-#define SEXTH(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
+#define SEXTH_(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
+// Sign-extend half-word
+#define SEXTH(rd, rs)     \
+    if (rv64_zbb)         \
+        SEXTH_(rd, rs);   \
+    else {                \
+        SLLI(rd, rs, 48); \
+        SRAI(rd, rd, 48); \
+    }
 // Zero-extend half-word
 #define ZEXTH_(rd, rs) EMIT(R_type(0b0000100, 0b00000, rs, 0b100, rd, 0b0111011))
 // Zero-extend half-word
