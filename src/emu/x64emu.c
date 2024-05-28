@@ -428,7 +428,10 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                 }
                 strcat(buff, tmp);
             }
-            if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
+            if(box64_avx)
+                if ((i&1)==1) strcat(buff, "\n"); else strcat(buff, " ");
+            else
+                if ((i&3)==3) strcat(buff, "\n"); else strcat(buff, " ");
         }
     }
 #endif

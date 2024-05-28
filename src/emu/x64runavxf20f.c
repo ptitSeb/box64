@@ -214,6 +214,83 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
+        case 0x7C:  /* VHADDPS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            GX->f[0] = VX->f[0] + VX->f[1];
+            GX->f[1] = VX->f[2] + VX->f[3];
+            if(EX==VX) {
+                GX->f[2] = GX->f[0];
+                GX->f[3] = GX->f[1];
+            } else {
+                GX->f[2] = EX->f[0] + EX->f[1];
+                GX->f[3] = EX->f[2] + EX->f[3];
+            }
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                GETVY;
+                GY->f[0] = VY->f[0] + VY->f[1];
+                GY->f[1] = VY->f[2] + VY->f[3];
+                if(EY==VY) {
+                    GY->f[2] = GY->f[0];
+                    GY->f[3] = GY->f[1];
+                } else {
+                    GY->f[2] = EY->f[0] + EY->f[1];
+                    GY->f[3] = EY->f[2] + EY->f[3];
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x7D:  /* VHSUBPS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            GX->f[0] = VX->f[0] - VX->f[1];
+            GX->f[1] = VX->f[2] - VX->f[3];
+            if(EX==VX) {
+                GX->f[2] = GX->f[0];
+                GX->f[3] = GX->f[1];
+            } else {
+                GX->f[2] = EX->f[0] - EX->f[1];
+                GX->f[3] = EX->f[2] - EX->f[3];
+            }
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                GETVY;
+                GY->f[0] = VY->f[0] - VY->f[1];
+                GY->f[1] = VY->f[2] - VY->f[3];
+                if(EY==VY) {
+                    GY->f[2] = GY->f[0];
+                    GY->f[3] = GY->f[1];
+                } else {
+                    GY->f[2] = EY->f[0] - EY->f[1];
+                    GY->f[3] = EY->f[2] - EY->f[3];
+                }
+            } else
+                GY->u128 = 0;
+            break;
+
         case 0xC2:  /* VCMPSD Gx, Vx, Ex, Ib */
             nextop = F8;
             GETEX(1);
@@ -332,6 +409,19 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GX->q[1] = 0;
             GY->u128 = 0;
+            break;
+
+        case 0xF0:  /* VLDDQU Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            memcpy(GX, EX, 16);
+            if(vex.l) {
+                GETEY;
+                memcpy(GY, EY, 16);
+            } else
+                GY->u128 = 0;
             break;
 
         default:

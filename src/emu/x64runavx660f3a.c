@@ -226,6 +226,24 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
+        case 0x38:  /* VINSERTI128 Gx, Ex, imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETVY;
+            tmp8u = F8;
+            if(tmp8u&1) {
+                GY->u128 = EX->u128;
+                if(GX!=VX);
+                    GX->u128 = VX->u128;
+            } else {
+                GX->u128 = EX->u128;
+                if(GY!=VY)
+                    GY->u128 = VY->u128;
+            }
+            break;
         case 0x39:  /* VEXTRACTI128 Ex, Gx, Ib */
             nextop = F8;
             GETGX;

@@ -545,6 +545,126 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x7C:  /* VHADDPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            #ifndef NOALIGN
+            is_nan = isnan(VX->d[0]) || isnan(VX->d[1]);
+            #endif
+            GX->d[0] = VX->d[0] + VX->d[1];
+            #ifndef NOALIGN
+            if(!is_nan && isnan(GX->d[0]))
+                GX->d[0] = -NAN;
+            #endif
+            if(EX==VX) {
+                GX->d[1] = GX->d[0];
+            } else {
+                #ifndef NOALIGN
+                is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
+                #endif
+                GX->d[1] = EX->d[0] + EX->d[1];
+                #ifndef NOALIGN
+                if(!is_nan && isnan(GX->d[1]))
+                    GX->d[1] = -NAN;
+                #endif
+            }
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                GETVY;
+                #ifndef NOALIGN
+                is_nan = isnan(VY->d[0]) || isnan(VY->d[1]);
+                #endif
+                GY->d[0] = VY->d[0] + VY->d[1];
+                #ifndef NOALIGN
+                if(!is_nan && isnan(GY->d[0]))
+                    GY->d[0] = -NAN;
+                #endif
+                if(EY==VY) {
+                    GY->d[1] = GY->d[0];
+                } else {
+                    #ifndef NOALIGN
+                    is_nan = isnan(EY->d[0]) || isnan(EY->d[1]);
+                    #endif
+                    GY->d[1] = EY->d[0] + EY->d[1];
+                    #ifndef NOALIGN
+                    if(!is_nan && isnan(GY->d[1]))
+                        GY->d[1] = -NAN;
+                    #endif
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x7D:  /* VHSUBPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            #ifndef NOALIGN
+            is_nan = isnan(VX->d[0]) || isnan(VX->d[1]);
+            #endif
+            GX->d[0] = VX->d[0] - VX->d[1];
+            #ifndef NOALIGN
+            if(!is_nan && isnan(GX->d[0]))
+                GX->d[0] = -NAN;
+            #endif
+            if(EX==VX) {
+                GX->d[1] = GX->d[0];
+            } else {
+                #ifndef NOALIGN
+                is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
+                #endif
+                GX->d[1] = EX->d[0] - EX->d[1];
+                #ifndef NOALIGN
+                if(!is_nan && isnan(GX->d[1]))
+                    GX->d[1] = -NAN;
+                #endif
+            }
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                GETVY;
+                #ifndef NOALIGN
+                is_nan = isnan(VY->d[0]) || isnan(VY->d[1]);
+                #endif
+                GY->d[0] = VY->d[0] - VY->d[1];
+                #ifndef NOALIGN
+                if(!is_nan && isnan(GY->d[0]))
+                    GY->d[0] = -NAN;
+                #endif
+                if(EY==VY) {
+                    GY->d[1] = GY->d[0];
+                } else {
+                    #ifndef NOALIGN
+                    is_nan = isnan(EY->d[0]) || isnan(EY->d[1]);
+                    #endif
+                    GY->d[1] = EY->d[0] - EY->d[1];
+                    #ifndef NOALIGN
+                    if(!is_nan && isnan(GY->d[1]))
+                        GY->d[1] = -NAN;
+                    #endif
+                }
+            } else
+                GY->u128 = 0;
+            break;
         case 0x7E:                       /* VMOVD Ed, Gx */
             nextop = F8;
             GETED(0);
@@ -712,6 +832,21 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = GY->q[1] = 0;
             }
 
+            break;
+
+        case 0xF7:  /* VMASKMOVDQU Gx, Ex */
+            nextop = F8;
+            if(vex.l) {
+                emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            }
+            GETEX(0);
+            GETGX;
+            VX = (sse_regs_t *)(R_RDI);
+            for (int i=0; i<16; ++i) {
+                if(EX->ub[i]&0x80)
+                    VX->ub[i] = GX->ub[i];
+            }
+            // no raz of upper ymm
             break;
 
         default:

@@ -207,20 +207,50 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-
+        case 0x2D:  /*VMASKMOVPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<2; ++i)
+                GX->q[i] = (VX->q[i]>>63)?EX->q[i]:0;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<2; ++i)
+                    GY->q[i] = (VY->q[i]>>63)?EY->q[i]:0;
+            } else
+                GY->u128 = 0;
+            break;
         case 0x2E:  /*VMASKMOVPS Ex, Vx, Gx */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             for(int i=0; i<4; ++i)
-                EX->ud[i] = (VX->ud[i]>>31)?GX->ud[i]:0;
+                if(VX->ud[i]>>31) EX->ud[i] = GX->ud[i];
             if(vex.l) {
                 GETGY;
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i)
-                    EY->ud[i] = (VY->ud[i]>>31)?GY->ud[i]:0;
+                    if(VY->ud[i]>>31) EY->ud[i] = GY->ud[i];
+            }
+            break;
+        case 0x2F:  /*VMASKMOVPD Ex, Vx, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            for(int i=0; i<2; ++i)
+                if(VX->q[i]>>63) EX->q[i] = GX->q[i];
+            if(vex.l) {
+                GETGY;
+                GETEY;
+                GETVY;
+                for(int i=0; i<2; ++i)
+                    if(VY->q[i]>>63) EY->q[i] = GY->q[i];
             }
             break;
 

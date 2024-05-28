@@ -30,6 +30,11 @@
 
 #include "modrm.h"
 
+#ifdef __clang__
+extern int isinff(float);
+extern int isnanf(float);
+#endif
+
 #ifdef TEST_INTERPRETER
 uintptr_t TestAVX_F30F(x64test_t *test, vex_t vex, uintptr_t addr, int *step)
 #else
