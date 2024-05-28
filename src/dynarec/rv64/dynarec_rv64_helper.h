@@ -174,12 +174,7 @@
 #define GETSEW(i, D)                                                                           \
     if (MODREG) {                                                                              \
         wback = xRAX + (nextop & 7) + (rex.b << 3);                                            \
-        if (rv64_zbb)                                                                          \
-            SEXTH(i, wback);                                                                   \
-        else {                                                                                 \
-            SLLI(i, wback, 48);                                                                \
-            SRAI(i, i, 48);                                                                    \
-        }                                                                                      \
+        SEXTH(i, wback);                                                                       \
         ed = i;                                                                                \
         wb1 = 0;                                                                               \
     } else {                                                                                   \

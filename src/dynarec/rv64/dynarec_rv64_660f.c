@@ -582,7 +582,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0);
-                    MOV64x(x5, ~(1 << 31));
                     for (int i = 0; i < 4; ++i) {
                         LW(x4, wback, fixedaddress + i * 4);
                         BGE(x4, xZR, 4 + 4);
@@ -2763,8 +2762,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
                 ADD(x3, x3, x4);
-                BLT(x3, x5, 8);
-                ADDI(x3, xZR, 0xFF);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x5);
+                } else {
+                    BLT(x3, x5, 8);
+                    ADDI(x3, xZR, 0xFF);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -2993,23 +2996,27 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
+            ADDI(x5, xZR, 0x7f);
+            ADDI(x6, xZR, 0xf80);
             for (int i = 0; i < 16; ++i) {
                 // tmp16s = (int16_t)GX->sb[i] + EX->sb[i];
                 // GX->sb[i] = (tmp16s>127)?127:((tmp16s<-128)?-128:tmp16s);
                 LB(x3, gback, gdoffset + i);
                 LB(x4, wback, fixedaddress + i);
                 ADDW(x3, x3, x4);
-                SLLIW(x3, x3, 16);
-                SRAIW(x3, x3, 16);
-                ADDI(x4, xZR, 0x7f);
-                BLT(x3, x4, 12); // tmp16s>127?
-                SB(x4, gback, gdoffset + i);
-                J(24); // continue
-                ADDI(x4, xZR, 0xf80);
-                BLT(x4, x3, 12); // tmp16s<-128?
-                SB(x4, gback, gdoffset + i);
-                J(8); // continue
-                SB(x3, gback, gdoffset + i);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                    SB(x3, gback, gdoffset + i);
+                } else {
+                    BLT(x3, x5, 12); // tmp16s>127?
+                    SB(x5, gback, gdoffset + i);
+                    J(20); // continue
+                    BLT(x6, x3, 12); // tmp16s<-128?
+                    SB(x6, gback, gdoffset + i);
+                    J(8); // continue
+                    SB(x3, gback, gdoffset + i);
+                }
             }
             break;
         case 0xED:
