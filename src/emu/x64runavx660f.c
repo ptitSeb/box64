@@ -214,6 +214,21 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             }
             break;
+        case 0x56:  /* VORPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GX->u128 = VX->u128 | EX->u128;
+            GETGY;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                GY->u128 = VY->u128 | EY->u128;
+            } else {
+                GY->u128 = 0;
+            }
+            break;
 
         case 0x58:  /* VADDPD Gx, Vx, Ex */
             nextop = F8;
@@ -232,7 +247,36 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             }
             break;
-
+        case 0x59:  /* MULPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<2; ++i) {
+                #ifndef NOALIGN
+                    // mul generate a -NAN only if doing (+/-)inf * (+/-)0
+                    if((isinf(VX->d[i]) && EX->d[i]==0.0) || (isinf(EX->d[i]) && VX->d[i]==0.0))
+                        GX->d[i] = -NAN;
+                    else
+                #endif
+                GX->d[i] = VX->d[i] * EX->d[i];
+            }
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for(int i=0; i<2; ++i) {
+                    #ifndef NOALIGN
+                        // mul generate a -NAN only if doing (+/-)inf * (+/-)0
+                        if((isinf(VY->d[i]) && EY->d[i]==0.0) || (isinf(EY->d[i]) && VY->d[i]==0.0))
+                            GY->d[i] = -NAN;
+                        else
+                    #endif
+                    GY->d[i] = VY->d[i] * EY->d[i];
+                }
+            } else
+                GY->u128 = 0;
+            break;
         case 0x5A:      /* VCVTPD2PS Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -392,6 +436,46 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
+        case 0x63:  /* VPACKSSWB Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            GETVY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            if(VX==EX) {
+                for(int i=0; i<8; ++i)
+                    GX->sb[i] = (EX->sw[i]<-128)?-128:((EX->sw[i]>127)?127:EX->sw[i]);
+                GX->q[1] = GX->q[0];
+            } else {
+                for(int i=0; i<8; ++i)
+                    GX->sb[i] = (VX->sw[i]<-128)?-128:((VX->sw[i]>127)?127:VX->sw[i]);
+                for(int i=0; i<8; ++i)
+                    GX->sb[8+i] = (EX->sw[i]<-128)?-128:((EX->sw[i]>127)?127:EX->sw[i]);
+            }
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                if(VY==EY) {
+                    for(int i=0; i<8; ++i)
+                        GY->sb[i] = (EY->sw[i]<-128)?-128:((EY->sw[i]>127)?127:EY->sw[i]);
+                    GY->q[1] = GY->q[0];
+                } else {
+                    for(int i=0; i<8; ++i)
+                        GY->sb[i] = (VY->sw[i]<-128)?-128:((VY->sw[i]>127)?127:VY->sw[i]);
+                    for(int i=0; i<8; ++i)
+                        GY->sb[8+i] = (EY->sw[i]<-128)?-128:((EY->sw[i]>127)?127:EY->sw[i]);
+                }
+            } else
+                GY->u128 = 0;
+            break;
         case 0x64:  /* VPCMPGTB Gx,Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -440,26 +524,74 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->q[0] = GY->q[1] = 0;
             break;
-
-        case 0x6B:  /* VPACKSSDW Gx,Vx, Ex */
+        case 0x67:  /* VPACKUSWB Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            GETEY;
+            GETVY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            if(VX==EX) {
+                for(int i=0; i<8; ++i)
+                    GX->ub[i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
+                GX->q[1] = GX->q[0];
+            } else {
+                for(int i=0; i<8; ++i)
+                    GX->ub[i] = (VX->sw[i]<0)?0:((VX->sw[i]>0xff)?0xff:VX->sw[i]);
+                for(int i=0; i<8; ++i)
+                    GX->ub[8+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
+            }
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                if(VY==EY) {
+                    for(int i=0; i<8; ++i)
+                        GY->ub[i] = (EY->sw[i]<0)?0:((EY->sw[i]>0xff)?0xff:EY->sw[i]);
+                    GY->q[1] = GY->q[0];
+                } else {
+                    for(int i=0; i<8; ++i)
+                        GY->ub[i] = (VY->sw[i]<0)?0:((VY->sw[i]>0xff)?0xff:VY->sw[i]);
+                    for(int i=0; i<8; ++i)
+                        GY->ub[8+i] = (EY->sw[i]<0)?0:((EY->sw[i]>0xff)?0xff:EY->sw[i]);
+                }
+            } else
+                GY->u128 = 0;
+            break;
+
+        case 0x6B:  /* VPACKSSDW Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            GETVY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
             for(int i=0; i<4; ++i)
                 GX->sw[i] = (VX->sd[i]<-32768)?-32768:((VX->sd[i]>32767)?32767:VX->sd[i]);
-            if(GX==EX)
+            if(VX==EX)
                 GX->q[1] = GX->q[0];
             else
                 for(int i=0; i<4; ++i)
                     GX->sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
             if(vex.l) {
-                GETEY;
-                GETVY;
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
                 for(int i=0; i<4; ++i)
                     GY->sw[i] = (VY->sd[i]<-32768)?-32768:((VY->sd[i]>32767)?32767:VY->sd[i]);
-                if(GY==EY)
+                if(VY==EY)
                     GY->q[1] = GY->q[0];
                 else
                     for(int i=0; i<4; ++i)

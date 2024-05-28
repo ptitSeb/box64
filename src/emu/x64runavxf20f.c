@@ -195,7 +195,24 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             GY->u128 = 0;
             break;
-
+        case 0x59:  /* VMULSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            #ifndef NOALIGN
+                // mul generate a -NAN only if doing (+/-)inf * (+/-)0
+                if((isinf(GX->d[0]) && EX->d[0]==0.0) || (isinf(EX->d[0]) && GX->d[0]==0.0))
+                    GX->d[0] = -NAN;
+                else
+            #endif
+            GX->d[0] = VX->d[0] * EX->d[0];
+            if(GX!=VX) {
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
         case 0x5A:  /* VCVTSD2SS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);

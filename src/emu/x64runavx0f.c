@@ -293,7 +293,21 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             }
             break;
-
+        case 0x56:                      /* VORPS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GX->u128 = VX->u128 | EX->u128;
+            GETGY;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                GY->u128 = VY->u128 | EY->u128;
+            } else {
+                GY->u128 = 0;
+            }
+            break;
         case 0x57:                      /* XORPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);

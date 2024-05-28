@@ -309,7 +309,60 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-
+        case 0x42:  /* VMPSADBW Gx, Vx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETVX; GETGY; GETVY; GETEY;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX=&eax1;
+            }
+            if(GX==VX) {
+                eay1 = *VX;
+                VX=&eay1;
+            }
+            tmp8u = F8;
+            {
+                int src = tmp8u&3;
+                int dst = (tmp8u>>2)&1;
+                int b[11];
+                for (int i=0; i<11; ++i)
+                    b[i] = VX->ub[dst*4+i];
+                for(int i=0; i<8; ++i) {
+                    int tmp = abs(b[i+0]-EX->ub[src*4+0]);
+                    tmp += abs(b[i+1]-EX->ub[src*4+1]);
+                    tmp += abs(b[i+2]-EX->ub[src*4+2]);
+                    tmp += abs(b[i+3]-EX->ub[src*4+3]);
+                    GX->uw[i] = tmp;
+                }
+            }
+            if(vex.l) {
+                if(GY==EY) {
+                    eax1 = *EY;
+                    EY=&eax1;
+                }
+                if(GY==VY) {
+                    eay1 = *VY;
+                    VY=&eay1;
+                }
+                {
+                    int src = (tmp8u>>3)&3;
+                    int dst = (tmp8u>>5)&1;
+                    int b[11];
+                    for (int i=0; i<11; ++i)
+                        b[i] = VY->ub[dst*4+i];
+                    for(int i=0; i<8; ++i) {
+                        int tmp = abs(b[i+0]-EY->ub[src*4+0]);
+                        tmp += abs(b[i+1]-EY->ub[src*4+1]);
+                        tmp += abs(b[i+2]-EY->ub[src*4+2]);
+                        tmp += abs(b[i+3]-EY->ub[src*4+3]);
+                        GY->uw[i] = tmp;
+                    }
+                }
+            } else
+                GY->u128 = 0;
+            break;
+                
         case 0x44:    /* VPCLMULQDQ Gx, Vx, Ex, imm8 */
             nextop = F8;
             GETGX;

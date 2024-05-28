@@ -222,7 +222,19 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             GY->q[0] = GY->q[1] = 0;
             break;
-
+        case 0x59:  /* VMULSS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GX->f[0] = VX->f[0] * EX->f[0];
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->q[0] = GY->q[1] = 0;
+            break;
         case 0x5A:  /* VCVTSS2SD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
