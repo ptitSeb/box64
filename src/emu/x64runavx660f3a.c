@@ -49,7 +49,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 {
     uint8_t opcode;
     uint8_t nextop;
-    uint8_t tmp8u;
+    uint8_t tmp8u, u8;
     int8_t tmp8s;
     int32_t tmp32s, tmp32s2;
     uint32_t tmp32u, tmp32u2;
@@ -130,7 +130,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            tmp8u = F8;
+            u8 = tmp8u = F8;
             if(tmp8u>31)
                 {GX->q[0] = GX->q[1] = 0;}
             else
@@ -143,12 +143,12 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(vex.l) {
                 GETEY;
                 GETVY;
-                if(tmp8u>31)
+                if(u8>31)
                     {GY->u128 = 0;}
                 else
                 {
-                    for (int i=0; i<16; ++i, ++tmp8u)
-                        eax1.ub[i] = (tmp8u>15)?((tmp8u>31)?0:VY->ub[tmp8u-16]):EY->ub[tmp8u];
+                    for (int i=0; i<16; ++i, ++u8)
+                        eax1.ub[i] = (u8>15)?((u8>31)?0:VY->ub[u8-16]):EY->ub[u8];
                     GY->q[0] = eax1.q[0];
                     GY->q[1] = eax1.q[1];
                 }
