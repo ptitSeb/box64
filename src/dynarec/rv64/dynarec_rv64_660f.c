@@ -582,7 +582,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0);
-                    MOV64x(x5, ~(1 << 31));
                     for (int i = 0; i < 4; ++i) {
                         LW(x4, wback, fixedaddress + i * 4);
                         BGE(x4, xZR, 4 + 4);
