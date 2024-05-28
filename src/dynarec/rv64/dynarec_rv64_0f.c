@@ -456,6 +456,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SB(x4, gback, gdoffset + i);
                     }
                     break;
+                case 0x1D:
+                    INST_NAME("PABSW Gm,Em");
+                    nextop = F8;
+                    GETGM();
+                    GETEM(x2, 0);
+                    for (int i = 0; i < 4; ++i) {
+                        LH(x4, wback, fixedaddress + i * 2);
+                        BGE(x4, xZR, 4 + 4);
+                        NEG(x4, x4);
+                        SH(x4, gback, gdoffset + i * 2);
+                    }
+                    break;
                 case 0x1E:
                     INST_NAME("PABSD Gm,Em");
                     nextop = F8;
