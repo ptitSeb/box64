@@ -5714,6 +5714,8 @@ wrappedxml2:
   - xmlCtxtReadIO
 wrappedxshmfence:
 wrappedxslt:
+- vFv:
+  - xsltInit
 - vFp:
   - xsltSetLoaderFunc
 - vFpp:

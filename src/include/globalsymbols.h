@@ -16,4 +16,8 @@ void my_updateGlobalTInfo(void);
 void my_checkGlobalOpt(void);
 void my_updateGlobalOpt(void);
 
+// libxslt
+void my_checkGlobalXslt(void);
+void my_updateGlobalXslt(void);
+
 #endif //_GLOBAL_SYMBOLS_H_

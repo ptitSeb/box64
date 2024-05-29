@@ -11,12 +11,14 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFv_t)(void);
 typedef void (*vFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(xsltInit, vFv_t) \
 	GO(xsltSetLoaderFunc, vFp_t) \
 	GO(xsltSetCtxtSortFunc, vFpp_t) \
 	GO(xsltRegisterExtModuleFunction, iFppp_t) \
