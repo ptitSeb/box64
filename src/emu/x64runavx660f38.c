@@ -468,6 +468,58 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
+        case 0x0E:  /* VTESTPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            if(vex.l) {GETEY; GETGY;}
+            // ZF
+            u8 = 0;
+            for(int i=0; i<4 && !u8; ++i)
+                u8 |= ((EX->ud[i]>>31)&(GX->ud[i]>>31));
+            if(vex.l && !u8)
+                for(int i=0; i<4 && !u8; ++i)
+                    u8 |= ((EY->ud[i]>>31)&(GY->ud[i]>>31));
+            CONDITIONAL_SET_FLAG(!u8, F_ZF);
+            // CF
+            u8 = 0;
+            for(int i=0; i<4 && !u8; ++i)
+                u8 |= ((EX->ud[i]>>31)&((~GX->ud[i])>>31));
+            if(vex.l && !u8)
+                for(int i=0; i<4 && !u8; ++i)
+                    u8 |= ((EY->ud[i]>>31)&((~GY->ud[i])>>31));
+            CONDITIONAL_SET_FLAG(!u8, F_CF);
+            CLEAR_FLAG(F_AF);
+            CLEAR_FLAG(F_OF);
+            CLEAR_FLAG(F_SF);
+            CLEAR_FLAG(F_PF);
+            break;
+        case 0x0F:  /* VTESTPD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            if(vex.l) {GETEY; GETGY;}
+            // ZF
+            u8 = 0;
+            for(int i=0; i<2 && !u8; ++i)
+                u8 |= ((EX->q[i]>>63)&(GX->q[i]>>63));
+            if(vex.l && !u8)
+                for(int i=0; i<2 && !u8; ++i)
+                    u8 |= ((EY->q[i]>>63)&(GY->q[i]>>63));
+            CONDITIONAL_SET_FLAG(!u8, F_ZF);
+            // CF
+            u8 = 0;
+            for(int i=0; i<2 && !u8; ++i)
+                u8 |= ((EX->q[i]>>63)&((~GX->q[i])>>63));
+            if(vex.l && !u8)
+                for(int i=0; i<2 && !u8; ++i)
+                    u8 |= ((EY->q[i]>>63)&((~GY->q[i])>>63));
+            CONDITIONAL_SET_FLAG(!u8, F_CF);
+            CLEAR_FLAG(F_AF);
+            CLEAR_FLAG(F_OF);
+            CLEAR_FLAG(F_SF);
+            CLEAR_FLAG(F_PF);
+            break;
 
         case 0x16:  /* VPERMPS Gx, Vx, Ex */
             // same code as 0x36

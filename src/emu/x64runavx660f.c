@@ -99,7 +99,32 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             ED->q[0] = GX->q[0];
             break;
-
+        case 0x14:                      /* VUNPCKLPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETVX; GETGY;
+            GX->q[1] = EX->q[0];
+            GX->q[0] = VX->q[0];
+            if(vex.l) {
+                GETEY; GETVY;
+                GY->q[1] = EY->q[0];
+                GY->q[0] = VY->q[0];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x15:                      /* VUNPCKHPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETVX; GETGY;
+            GX->q[0] = VX->q[1];
+            GX->q[1] = EX->q[1];
+            if(vex.l) {
+                GETEY; GETVY;
+                GY->q[0] = VY->q[1];
+                GY->q[1] = EY->q[1];
+            } else
+                GY->u128 = 0;
+            break;
         case 0x16:                      /* VMOVHPD Gx, Vx, Ed */
             nextop = F8;
             GETE8(0);
@@ -159,6 +184,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x2E:                      /* VUCOMISD Gx, Ex */
         case 0x2F:                      /* VCOMISD Gx, Ex */
             RESET_FLAGS(emu);
             nextop = F8;
@@ -183,6 +209,31 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GD->q[0] = 0;
             for(int i=0; i<2; ++i)
                 GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
+            break;
+        case 0x51:                      /* VSQRTPD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETGY;
+            for (int i=0; i<2; ++i) {
+                #ifndef NOALIGN
+                if(EX->d[i]<0.0)        // on x86, default nan are negative
+                    GX->d[i] = -NAN;    // but input NAN are not touched (so sqrt(+nan) -> +nan)
+                else
+                #endif
+                GX->d[i] = sqrt(EX->d[i]);
+            }
+            if(vex.l) {
+                GETEY;
+                for (int i=0; i<2; ++i) {
+                    #ifndef NOALIGN
+                    if(EY->d[i]<0.0)
+                        GY->d[i] = -NAN;
+                    else
+                    #endif
+                    GY->d[i] = sqrt(EY->d[i]);
+                }
+            } else
+                GY->u128 = 0;
             break;
 
         case 0x54:  /* VANDPD Gx, Vx, Ex */
@@ -373,7 +424,23 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-
+        case 0x5C:  /* VSUBPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GX->d[0] = VX->d[0] - EX->d[0];
+            GX->d[1] = VX->d[1] - EX->d[1];
+            GETGY;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                GY->d[0] = VY->d[0] - EY->d[0];
+                GY->d[1] = VY->d[1] - EY->d[1];
+            } else {
+                GY->u128 = 0;
+            }
+            break;
         case 0x5D:                      /* VMINPD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -1231,6 +1298,22 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGD;
             tmp8u = F8;
             GD->q[0] = EX->uw[tmp8u&7];  // 16bits extract, 0 extended
+            break;
+        case 0xC6:  /* VSHUFPD Gx, Vx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETVX; GETGY;
+            tmp8u = F8;
+            eax1.q[0] = VX->q[tmp8u&1];
+            eax1.q[1] = EX->q[(tmp8u>>1)&1];
+            GX->u128 = eax1.u128;
+            if(vex.l) {
+                GETEY; GETVY;
+                eax1.q[0] = VY->q[(tmp8u>>2)&1];
+                eax1.q[1] = EY->q[(tmp8u>>3)&1];
+                GY->u128 = eax1.u128;
+            } else
+                GY->u128 = 0;
             break;
 
         case 0xD0:  /* VADDSUBPD Gx, Vx, Ex */

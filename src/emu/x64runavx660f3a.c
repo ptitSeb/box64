@@ -213,6 +213,185 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x08:          // VROUNDPS Gx, Ex, u8
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETGY;
+            tmp8u = F8; // ignoring bit 3 interupt thingy
+            if(tmp8u&4)
+                tmp8u = emu->mxcsr.f.MXCSR_RC;
+            else
+                tmp8u &= 3;
+            switch(tmp8u) {
+                case ROUND_Nearest: {
+                    int round = fegetround();
+                    fesetround(FE_TONEAREST);
+                    for(int i=0; i<4; ++i)
+                        GX->f[i] = nearbyintf(EX->f[i]);
+                    fesetround(round);
+                    break;
+                }
+                case ROUND_Down:
+                    for(int i=0; i<4; ++i)
+                        GX->f[i] = floorf(EX->f[i]);
+                    break;
+                case ROUND_Up:
+                    for(int i=0; i<4; ++i)
+                        GX->f[i] = ceilf(EX->f[i]);
+                    break;
+                case ROUND_Chop:
+                    for(int i=0; i<4; ++i)
+                        GX->f[i] = truncf(EX->f[i]);
+                    break;
+            }
+            if(vex.l) {
+                GETEY;
+                switch(tmp8u) {
+                    case ROUND_Nearest: {
+                        int round = fegetround();
+                        fesetround(FE_TONEAREST);
+                        for(int i=0; i<4; ++i)
+                            GY->f[i] = nearbyintf(EY->f[i]);
+                        fesetround(round);
+                        break;
+                    }
+                    case ROUND_Down:
+                        for(int i=0; i<4; ++i)
+                            GY->f[i] = floorf(EY->f[i]);
+                        break;
+                    case ROUND_Up:
+                        for(int i=0; i<4; ++i)
+                            GY->f[i] = ceilf(EY->f[i]);
+                        break;
+                    case ROUND_Chop:
+                        for(int i=0; i<4; ++i)
+                            GY->f[i] = truncf(EY->f[i]);
+                        break;
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x09:          // VROUNDPD Gx, Ex, u8
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETGY;
+            tmp8u = F8; // ignoring bit 3 interupt thingy
+            if(tmp8u&4)
+                tmp8u = emu->mxcsr.f.MXCSR_RC;
+            else
+                tmp8u &= 3;
+            switch(tmp8u) {
+                case ROUND_Nearest: {
+                    int round = fegetround();
+                    fesetround(FE_TONEAREST);
+                    GX->d[0] = nearbyint(EX->d[0]);
+                    GX->d[1] = nearbyint(EX->d[1]);
+                    fesetround(round);
+                    break;
+                }
+                case ROUND_Down:
+                    GX->d[0] = floor(EX->d[0]);
+                    GX->d[1] = floor(EX->d[1]);
+                    break;
+                case ROUND_Up:
+                    GX->d[0] = ceil(EX->d[0]);
+                    GX->d[1] = ceil(EX->d[1]);
+                    break;
+                case ROUND_Chop:
+                    GX->d[0] = trunc(EX->d[0]);
+                    GX->d[1] = trunc(EX->d[1]);
+                    break;
+            }
+            if(vex.l) {
+                GETEY;
+                switch(tmp8u) {
+                    case ROUND_Nearest: {
+                        int round = fegetround();
+                        fesetround(FE_TONEAREST);
+                        GY->d[0] = nearbyint(EY->d[0]);
+                        GY->d[1] = nearbyint(EY->d[1]);
+                        fesetround(round);
+                        break;
+                    }
+                    case ROUND_Down:
+                        GY->d[0] = floor(EY->d[0]);
+                        GY->d[1] = floor(EY->d[1]);
+                        break;
+                    case ROUND_Up:
+                        GY->d[0] = ceil(EY->d[0]);
+                        GY->d[1] = ceil(EY->d[1]);
+                        break;
+                    case ROUND_Chop:
+                        GY->d[0] = trunc(EY->d[0]);
+                        GY->d[1] = trunc(EY->d[1]);
+                        break;
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x0A:          // VROUNDSS Gx, Vx, Ex, u8
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETVX; GETGY;
+            tmp8u = F8; // ignoring bit 3 interupt thingy
+            if(tmp8u&4)
+                tmp8u = emu->mxcsr.f.MXCSR_RC;
+            else
+                tmp8u &= 3;
+            switch(tmp8u) {
+                case ROUND_Nearest: {
+                    int round = fegetround();
+                    fesetround(FE_TONEAREST);
+                    GX->f[0] = nearbyintf(EX->f[0]);
+                    fesetround(round);
+                    break;
+                }
+                case ROUND_Down:
+                    GX->f[0] = floorf(EX->f[0]);
+                    break;
+                case ROUND_Up:
+                    GX->f[0] = ceilf(EX->f[0]);
+                    break;
+                case ROUND_Chop:
+                    GX->f[0] = truncf(EX->f[0]);
+                    break;
+            }
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
+        case 0x0B:          // VROUNDSD Gx, Vx, Ex, u8
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETVX; GETGY;
+            tmp8u = F8; // ignoring bit 3 interupt thingy
+            if(tmp8u&4)
+                tmp8u = emu->mxcsr.f.MXCSR_RC;
+            else
+                tmp8u &= 3;
+            switch(tmp8u) {
+                case ROUND_Nearest: {
+                    int round = fegetround();
+                    fesetround(FE_TONEAREST);
+                    GX->d[0] = nearbyint(EX->d[0]);
+                    fesetround(round);
+                    break;
+                }
+                case ROUND_Down:
+                    GX->d[0] = floor(EX->d[0]);
+                    break;
+                case ROUND_Up:
+                    GX->d[0] = ceil(EX->d[0]);
+                    break;
+                case ROUND_Chop:
+                    GX->d[0] = trunc(EX->d[0]);
+                    break;
+            }
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
         case 0x0C:      /* VBLENDPS Gx, Vx, Ex, u8 */
             nextop = F8;
             GETEX(1);

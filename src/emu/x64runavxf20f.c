@@ -183,6 +183,18 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x51:  /* VSQRTSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETVX; GETGY;
+            if(EX->d[0]<0.0 )
+                GX->d[0] = -NAN;
+            else
+                GX->d[0] = sqrt(EX->d[0]);
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
+
         case 0x58:  /* VADDSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -190,9 +202,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             GX->d[0] = VX->d[0] + EX->d[0];
-            if(GX!=VX) {
-                GX->q[1] = VX->q[1];
-            }
+            GX->q[1] = VX->q[1];
             GY->u128 = 0;
             break;
         case 0x59:  /* VMULSD Gx, Vx, Ex */
@@ -225,6 +235,16 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
+        case 0x5C:  /* VSUBSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GX->d[0] = VX->d[0] - EX->d[0];
+            GX->q[1] = VX->q[1];
+            GY->u128 = 0;
+            break;
         case 0x5D:  /* VMINSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);

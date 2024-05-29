@@ -76,7 +76,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->ud[1] = GX->ud[2] = GX->ud[3] = 0;
             }
             GETGY;
-            GY->q[0] = GY->q[1] = 0;
+            GY->u128 = 0;
             break;
         case 0x11:  /* MOVSS Ex Gx */
             nextop = F8;
@@ -209,6 +209,43 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x51:  /* VSQRTSS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETVX; GETGY;
+            if(EX->f[0]<0.0 )
+                GX->f[0] = -NAN;
+            else
+                GX->f[0] = sqrt(EX->f[0]);
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
+        case 0x52:  /* VRSQRTSS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETVX; GETGY;
+            GX->f[0] = 1.0f/sqrtf(EX->f[0]);
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
+        case 0x53:  /* VRCPSS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETVX; GETGY;
+            GX->f[0] = 1.0f/EX->f[0];
+            if(GX!=VX) {
+                GX->ud[1] = VX->ud[1];
+                GX->q[1] = VX->q[1];
+            }
+            GY->u128 = 0;
+            break;
+
         case 0x58:  /* VADDSS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -220,7 +257,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
             }
-            GY->q[0] = GY->q[1] = 0;
+            GY->u128 = 0;
             break;
         case 0x59:  /* VMULSS Gx, Vx, Ex */
             nextop = F8;
@@ -233,7 +270,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
             }
-            GY->q[0] = GY->q[1] = 0;
+            GY->u128 = 0;
             break;
         case 0x5A:  /* VCVTSS2SD Gx, Vx, Ex */
             nextop = F8;
@@ -243,7 +280,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GX->d[0] = EX->f[0];
             GX->q[1] = VX->q[1];
-            GY->q[0] = GY->q[1] = 0;
+            GY->u128 = 0;
             break;
         case 0x5B:  /* VCVTTPS2DQ Gx, Ex */
             nextop = F8;
@@ -351,7 +388,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 memcpy(GY, EY, 16);
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
         case 0x70:  /* VPSHUFHW Gx, Ex, Ib */
             nextop = F8;

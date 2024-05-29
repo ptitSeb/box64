@@ -129,7 +129,23 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-
+        case 0x15:                      /* VUNPCKHPS Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETVX; GETGY;
+            GX->ud[0] = VX->ud[2];
+            GX->ud[1] = EX->ud[2];
+            GX->ud[2] = VX->ud[3];
+            GX->ud[3] = EX->ud[3];
+            if(vex.l) {
+                GETEY; GETVY;
+                GY->ud[0] = VY->ud[2];
+                GY->ud[1] = EY->ud[2];
+                GY->ud[2] = VY->ud[3];
+                GY->ud[3] = EY->ud[3];
+            } else
+                GY->u128 = 0;
+            break;
         case 0x16:
             nextop = F8;               
             GETEX(0);
@@ -194,6 +210,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x2E:                      /* VUCOMISS Gx, Ex */
         case 0x2F:                      /* VCOMISS Gx, Ex */
             RESET_FLAGS(emu);
             nextop = F8;
@@ -224,7 +241,19 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GD->dword[0] |= ((EY->ud[i]>>31)&1)<<(i+4);
             }
             break;
-
+        case 0x51:                      /* VSQRTPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETGY;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = (EX->f[i]<0)?(-NAN):sqrtf(EX->f[i]);
+            if(vex.l) {
+                GETEY;
+                for(int i=0; i<4; ++i)
+                    GY->f[i] = (EY->f[i]<0)?(-NAN):sqrtf(EY->f[i]);
+            } else
+                GY->u128 = 0;
+            break;
         case 0x52:                      /* VRSQRTPS Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -262,7 +291,22 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             test->notest = 1;
             #endif
             break;
-
+        case 0x53:                      /* VRCPPS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX; GETGY;
+            for(int i=0; i<4; ++i)
+                GX->f[i] = 1.0f/EX->f[i];
+            if(vex.l) {
+                GETEY;
+                for(int i=0; i<4; ++i)
+                    GY->f[i] = 1.0f/EY->f[i];
+            } else
+                GY->u128 = 0;
+            #ifdef TEST_INTERPRETER
+            test->notest = 1;
+            #endif
+            break;
         case 0x54:                      /* VANDPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -473,6 +517,29 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 return 0;
+            break;
+
+        case 0xAE:                      /* Grp Ed (SSE) */
+            nextop = F8;
+            if(MODREG)
+                return 0;
+            else
+            switch((nextop>>3)&7) {
+                case 2:                 /* VLDMXCSR Md */
+                    GETED(0);
+                    emu->mxcsr.x32 = ED->dword[0];
+                    #ifndef TEST_INTERPRETER
+                    if(box64_sse_flushto0)
+                        applyFlushTo0(emu);
+                    #endif
+                    break;
+                case 3:                 /* VSTMXCSR Md */
+                    GETED(0);
+                    ED->dword[0] = emu->mxcsr.x32;
+                    break;
+                default:
+                    return 0;
+            }
             break;
 
         case 0xC2:                      /* VCMPPS Gx, Vx, Ex, Ib */
