@@ -23,6 +23,7 @@
 #include "bridge.h"
 #include "signals.h"
 #include "x64shaext.h"
+#include "x64compstrings.h"
 #ifdef DYNAREC
 #include "custommem.h"
 #include "../dynarec/native_lock.h"
@@ -58,8 +59,8 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     reg64_t *oped, *opgd;
     float tmpf;
     double tmpd;
-    sse_regs_t *opex, *opgx, *opvx, eax1;
-    sse_regs_t *opey, *opgy, *opvy, eay1;
+    sse_regs_t *opex, *opgx, *opvx, eax1,eax2;
+    sse_regs_t *opey, *opgy, *opvy, eay1,eay2;
     // AES opcodes constants
     const uint8_t subbytes[256] = {
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -90,6 +91,26 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
+        case 0x00:  /* VPERMQ Gx, Ex, Imm8 */
+        case 0x01:  /* VPERMPD Gx, Ex, Imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETGY;
+            GETEY;
+            u8 = F8;
+            if(!vex.l)  emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+                eay1 = *EY;
+                EY = &eay1;
+            }
+            for(int i=0; i<2; ++i)
+                GX->q[i] = (((u8>>(i*2))&3)>1)?EY->q[(u8>>(i*2))&1]:EX->q[(u8>>(i*2))&1];
+            for(int i=2; i<4; ++i)
+                GY->q[i-2] = (((u8>>(i*2))&3)>1)?EY->q[(u8>>(i*2))&1]:EX->q[(u8>>(i*2))&1];
+            break;
         case 0x02:      /* VBLENDD Gx, Vx, Ex, u8 */
             nextop = F8;
             GETEX(1);
@@ -106,6 +127,90 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->ud[i] = (tmp8u&(1<<(i+4)))?EY->ud[i]:VY->ud[i];
             } else
                 GY->u128 = 0;
+            break;
+
+        case 0x04:  /* VPERMILPS Gx, Ex, Imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETGY;
+            GETEY;
+            u8 = F8;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = EX->ud[(u8>>(i*2))&3];
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = EY->ud[(u8>>(i*2))&3];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x05:  /* VPERMILD Gx, Ex, Imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETGY;
+            GETEY;
+            u8 = F8;
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+            }
+            for(int i=0; i<2; ++i)
+                GX->q[i] = EX->q[(u8>>i)&1];
+            if(vex.l) {
+                if(GY==EY) {
+                    eay1 = *EY;
+                    EY = &eay1;
+                }
+                for(int i=0; i<2; ++i)
+                    GY->q[i] = EY->q[(u8>>(i+2))&1];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x06:  /* VPERM2F128 Gx, Vx, Ex, Imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETEY;
+            GETGY;
+            GETVY;
+            u8 = F8;
+            if(!vex.l) emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+                eay1 = *EY;
+                EY = &eay1;
+            }
+            if(GX==VX) {
+                eax2 = *VX;
+                VX = &eax2;
+                eay2 = *VY;
+                VY = &eay2;
+            }
+            switch(u8&0x0f) {
+                case 0 : GX->u128 = VX->u128; break;
+                case 1 : GX->u128 = VY->u128; break;
+                case 2 : GX->u128 = EX->u128; break;
+                case 3 : GX->u128 = EY->u128; break;
+                default: GX->u128 = 0; break;
+            }
+            switch((u8>>4)&0x0f) {
+                case 0 : GY->u128 = VX->u128; break;
+                case 1 : GY->u128 = VY->u128; break;
+                case 2 : GY->u128 = EX->u128; break;
+                case 3 : GY->u128 = EY->u128; break;
+                default: GY->u128 = 0; break;
+            }
             break;
 
         case 0x0C:      /* VBLENDPS Gx, Vx, Ex, u8 */
@@ -191,6 +296,26 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
+        case 0x14:      // VPEXTRB ED, GX, u8
+            nextop = F8;
+            GETED(1);
+            GETGX;
+            tmp8u = F8;
+            if(MODREG)
+                ED->q[0] = GX->ub[tmp8u&0x0f];
+            else
+                ED->byte[0] = GX->ub[tmp8u&0x0f];
+            break;
+        case 0x15:      // VPEXTRW Ew,Gx,Ib
+            nextop = F8;
+            GETED(1);
+            GETGX;
+            tmp8u = F8;
+            if(MODREG)
+                ED->q[0] = GX->uw[tmp8u&7];  // 16bits extract, 0 extended
+            else
+                ED->word[0] = GX->uw[tmp8u&7];
+            break;
         case 0x16:      // VPEXTRD/Q ED, GX, u8
             nextop = F8;
             GETED(1);
@@ -414,6 +539,44 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
+        case 0x46:  /* VPERM2I128 Gx, Vx, Ex, Imm8 */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            GETVX;
+            GETEY;
+            GETGY;
+            GETVY;
+            u8 = F8;
+            if(!vex.l) emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            if(GX==EX) {
+                eax1 = *EX;
+                EX = &eax1;
+                eay1 = *EY;
+                EY = &eay1;
+            }
+            if(GX==VX) {
+                eax2 = *VX;
+                VX = &eax2;
+                eay2 = *VY;
+                VY = &eay2;
+            }
+            switch(u8&0x0f) {
+                case 0 : GX->u128 = VX->u128; break;
+                case 1 : GX->u128 = VY->u128; break;
+                case 2 : GX->u128 = EX->u128; break;
+                case 3 : GX->u128 = EY->u128; break;
+                default: GX->u128 = 0; break;
+            }
+            switch((u8>>4)&0x0f) {
+                case 0 : GY->u128 = VX->u128; break;
+                case 1 : GY->u128 = VY->u128; break;
+                case 2 : GY->u128 = EX->u128; break;
+                case 3 : GY->u128 = EY->u128; break;
+                default: GY->u128 = 0; break;
+            }
+            break;
+
         case 0x4A:      /* VBLENDVPS Gx, Vx, Ex, XMMImm8 */
             nextop = F8;
             GETEX(1);
@@ -433,7 +596,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x4B:      /* VBLENDVPD Gx, Vx, Ex, XMMImm8 */
             nextop = F8;
-            GETEX(0);
+            GETEX(1);
             GETGX;
             GETVX;
             GETGY;
@@ -467,6 +630,67 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->ub[i] = (emu->ymm[tmp8u].ub[i]&0x80)?EY->ub[i]:VY->ub[i];
             } else
                 GY->u128 = 0;
+            break;
+
+        case 0x60:  /* VPCMPESTRM */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            tmp8u = F8;
+            tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, GX, R_EAX, tmp8u);
+            if(tmp8u&0b1000000) {
+                switch(tmp8u&1) {
+                    case 0: for(int i=0; i<16; ++i) emu->xmm[0].ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                    case 1: for(int i=0; i<8; ++i) emu->xmm[0].uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                }
+            } else {
+                emu->xmm[0].q[1] = emu->xmm[0].q[0] = 0;
+                emu->xmm[0].uw[0] = tmp32u;
+                emu->ymm[0].u128 = 0;
+            }
+            break;
+        case 0x61:  /* VPCMPESTRI */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            tmp8u = F8;
+            tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, GX, R_EAX, tmp8u);
+            if(!tmp32u)
+                R_RCX = (tmp8u&1)?8:16;
+            else if(tmp8u&0b1000000)
+                R_RCX = 31-__builtin_clz(tmp32u);
+            else
+                R_RCX = __builtin_ffs(tmp32u) - 1;
+            break;
+        case 0x62:  /* VPCMPISTRM */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            tmp8u = F8;
+            tmp32u = sse42_compare_string_implicit_len(emu, EX, GX, tmp8u);
+            if(tmp8u&0b1000000) {
+                switch(tmp8u&1) {
+                    case 0: for(int i=0; i<16; ++i) emu->xmm[0].ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
+                    case 1: for(int i=0; i<8; ++i) emu->xmm[0].uw[i] = ((tmp32u>>i)&1)?0xffff:0x0000; break;
+                }
+            } else {
+                emu->xmm[0].q[1] = emu->xmm[0].q[0] = 0;
+                emu->xmm[0].uw[0] = tmp32u;
+                emu->ymm[0].u128 = 0;
+            }
+            break;
+        case 0x63:  /* VPCMPISTRI */
+            nextop = F8;
+            GETEX(1);
+            GETGX;
+            tmp8u = F8;
+            tmp32u = sse42_compare_string_implicit_len(emu, EX, GX, tmp8u);
+            if(!tmp32u)
+                R_RCX = (tmp8u&1)?8:16;
+            else if(tmp8u&0b1000000)
+                R_RCX = 31-__builtin_clz(tmp32u);
+            else
+                R_RCX = __builtin_ffs(tmp32u) - 1;
             break;
 
         case 0xDF:      // VAESKEYGENASSIST Gx, Ex, u8

@@ -230,7 +230,21 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             }
             break;
-
+        case 0x57:  /* VXORPD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GX->u128 = VX->u128 ^ EX->u128;
+            GETGY;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                GY->u128 = VY->u128 ^ EY->u128;
+            } else {
+                GY->u128 = 0;
+            }
+            break;
         case 0x58:  /* VADDPD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -829,6 +843,54 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     return 0;
             }
             break;
+        case 0x74:  /* VPCMPEQB Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for (int i=0; i<16; ++i)
+                GX->ub[i] = (VX->ub[i]==EX->ub[i])?0xff:0;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for (int i=0; i<16; ++i)
+                    GY->ub[i] = (VY->ub[i]==EY->ub[i])?0xff:0;
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x75:  /* VPCMPEQW Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for (int i=0; i<8; ++i)
+                GX->uw[i] = (VX->uw[i]==EX->uw[i])?0xffff:0;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for (int i=0; i<8; ++i)
+                    GY->uw[i] = (VY->uw[i]==EY->uw[i])?0xffff:0;
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x76:  /* VPCMPEQD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for (int i=0; i<4; ++i)
+                GX->ud[i] = (VX->ud[i]==EX->ud[i])?0xffffffff:0;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+                for (int i=0; i<4; ++i)
+                    GY->ud[i] = (VY->ud[i]==EY->ud[i])?0xffffffff:0;
+            } else
+                GY->u128 = 0;
+            break;
 
         case 0x7C:  /* VHADDPD Gx, Vx, Ex */
             nextop = F8;
@@ -1017,6 +1079,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
+            break;
+
+        case 0xC5:  /* VPEXTRW Gw,Ex,Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGD;
+            tmp8u = F8;
+            GD->q[0] = EX->uw[tmp8u&7];  // 16bits extract, 0 extended
             break;
 
         case 0xD0:  /* VADDSUBPD Gx, Vx, Ex */
