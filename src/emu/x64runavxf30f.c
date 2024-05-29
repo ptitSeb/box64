@@ -353,6 +353,34 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->q[0] = GY->q[1] = 0;
             break;
+        case 0x70:  /* VPSHUFHW Gx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETGY;
+            tmp8u = F8;
+            if(GX==EX) {
+                for (int i=0; i<4; ++i)
+                    eax1.uw[4+i] = EX->uw[4+((tmp8u>>(i*2))&3)];
+                GX->q[1] = eax1.q[1];
+            } else {
+                for (int i=0; i<4; ++i)
+                    GX->uw[4+i] = EX->uw[4+((tmp8u>>(i*2))&3)];
+                GX->q[0] = EX->q[0];
+            }
+            if(vex.l) {
+                GETEY;
+                if(GY==EY) {
+                    for (int i=0; i<4; ++i)
+                        eay1.uw[4+i] = EY->uw[4+((tmp8u>>(i*2))&3)];
+                    GY->q[1] = eay1.q[1];
+                } else {
+                    for (int i=0; i<4; ++i)
+                        GY->uw[4+i] = EY->uw[4+((tmp8u>>(i*2))&3)];
+                    GY->q[0] = EY->q[0];
+                }
+            } else
+                GY->u128 = 0;
+            break;
 
         case 0x7E:  /* MOVQ Gx, Ex */
             nextop = F8;

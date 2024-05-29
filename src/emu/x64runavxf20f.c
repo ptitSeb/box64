@@ -273,6 +273,35 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
+        case 0x70:  /* VPSHUFLW Gx, Ex, Ib */
+            nextop = F8;
+            GETEX(1);
+            GETGX; GETGY;
+            tmp8u = F8;
+            if(GX==EX) {
+                for (int i=0; i<4; ++i)
+                    eax1.uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+                GX->q[0] = eax1.q[0];
+            } else {
+                for (int i=0; i<4; ++i)
+                    GX->uw[i] = EX->uw[(tmp8u>>(i*2))&3];
+                GX->q[1] = EX->q[1];
+            }
+            if(vex.l) {
+                GETEY;
+                if(GY==EY) {
+                    for (int i=0; i<4; ++i)
+                        eay1.uw[i] = EY->uw[(tmp8u>>(i*2))&3];
+                    GY->q[0] = eay1.q[0];
+                } else {
+                    for (int i=0; i<4; ++i)
+                        GY->uw[i] = EY->uw[(tmp8u>>(i*2))&3];
+                    GY->q[1] = EY->q[1];
+                }
+            } else
+                GY->u128 = 0;
+            break;
+
         case 0x7C:  /* VHADDPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);

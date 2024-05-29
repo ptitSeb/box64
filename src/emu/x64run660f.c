@@ -1391,27 +1391,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=7; i>0; --i)  // 0 is untouched
+        for(int i=7; i>=0; --i) {
             GX->ub[2 * i] = GX->ub[i];
-        if(GX==EX)
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = GX->ub[2 * i];
-        else
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = EX->ub[i];
+            GX->ub[2 * i + 1] = EX->ub[i];
+        }
         break;
     case 0x61:  /* PUNPCKLWD Gx,Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=3; i>0; --i)
+        for(int i=3; i>=0; --i) {
             GX->uw[2 * i] = GX->uw[i];
-        if(GX==EX)
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = GX->uw[2 * i];
-        else
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = EX->uw[i];
+            GX->uw[2 * i + 1] = EX->uw[i];
+        }
         break;
     case 0x62:  /* PUNPCKLDQ Gx,Ex */
         nextop = F8;
@@ -1476,27 +1468,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=0; i<8; ++i)
+        for(int i=0; i<8; ++i) {
             GX->ub[2 * i] = GX->ub[i + 8];
-        if(GX==EX)
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = GX->ub[2 * i];
-        else
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = EX->ub[i + 8];
+            GX->ub[2 * i + 1] = EX->ub[i + 8];
+        }
         break;
     case 0x69:  /* PUNPCKHWD Gx,Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=0; i<4; ++i)
+        for(int i=0; i<4; ++i) {
             GX->uw[2 * i] = GX->uw[i + 4];
-        if(GX==EX)
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = GX->uw[2 * i];
-        else
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = EX->uw[i + 4];
+            GX->uw[2 * i + 1] = EX->uw[i + 4];
+        }
         break;
     case 0x6A:  /* PUNPCKHDQ Gx,Ex */
         nextop = F8;
