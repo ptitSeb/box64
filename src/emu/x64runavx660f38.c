@@ -61,6 +61,8 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     uint8_t nextop;
     uint8_t tmp8u, u8;
     int8_t tmp8s;
+    int16_t tmp16s;
+    uint16_t tmp16u;
     int32_t tmp32s, tmp32s2;
     uint32_t tmp32u, tmp32u2;
     uint64_t tmp64u, tmp64u2;
@@ -254,6 +256,126 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
+        case 0x04:  /* VPMADDUBSW Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for (int i=0; i<8; ++i) {
+                tmp32s = (int32_t)(VX->ub[i*2+0])*EX->sb[i*2+0] + (int32_t)(VX->ub[i*2+1])*EX->sb[i*2+1];
+                GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+            }
+            if(vex.l) {
+                GETEY; GETVY;
+                for (int i=0; i<8; ++i) {
+                    tmp32s = (int32_t)(VY->ub[i*2+0])*EY->sb[i*2+0] + (int32_t)(VY->ub[i*2+1])*EY->sb[i*2+1];
+                    GY->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x05:  /* VPHSUBW Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            u8 = (VX==EX);
+            if(GX==EX) {eax1=*EX; EX=&eax1;}
+            for (int i=0; i<4; ++i)
+                GX->sw[i] = VX->sw[i*2+0] - VX->sw[i*2+1];
+            if(u8) {
+                GX->q[1] = GX->q[0];
+            } else {
+                for (int i=0; i<4; ++i)
+                    GX->sw[4+i] = EX->sw[i*2+0] - EX->sw[i*2+1];
+            }
+            if(vex.l) {
+                GETVY;
+                if(EY==GY) {eay1=*EY; EY=&eay1;}
+                for (int i=0; i<4; ++i)
+                    GY->sw[i] = VY->sw[i*2+0] - VY->sw[i*2+1];
+                if(u8) {
+                    GY->q[1] = GY->q[0];
+                } else {
+                    for (int i=0; i<4; ++i)
+                        GY->sw[4+i] = EY->sw[i*2+0] - EY->sw[i*2+1];
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x06:  /* VPHSUBD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            u8 = (VX==EX);
+            if(GX==EX) {eax1=*EX; EX=&eax1;}
+            for (int i=0; i<2; ++i)
+                GX->sd[i] = VX->sd[i*2+0] - VX->sd[i*2+1];
+            if(u8) {
+                GX->q[1] = GX->q[0];
+            } else {
+                for (int i=0; i<2; ++i)
+                    GX->sd[2+i] = EX->sd[i*2+0] - EX->sd[i*2+1];
+            }
+            if(vex.l) {
+                GETVY;
+                if(EY==GY) {eay1=*EY; EY=&eay1;}
+                GY->sd[0] = VY->sd[0] - VY->sd[1];
+                GY->sd[1] = VY->sd[2] - VY->sd[3];
+                if(u8) {
+                    GY->q[1] = GY->q[0];
+                } else {
+                    GY->sd[2] = EY->sd[0] - EY->sd[1];
+                    GY->sd[3] = EY->sd[2] - EY->sd[3];
+                }
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x07:  /* PHSUBSW Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            GETEY;
+            u8 = (VX==EX);
+            if(GX==EX) {eax1=*EX; EX=&eax1;}
+            for (int i=0; i<4; ++i) {
+                tmp32s = VX->sw[i*2+0] - VX->sw[i*2+1];
+                GX->sw[i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+            }
+            if(u8) {
+                GX->q[1] = GX->q[0];
+            } else {
+                for (int i=0; i<4; ++i) {
+                    tmp32s = EX->sw[i*2+0] - EX->sw[i*2+1];
+                    GX->sw[4+i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                }
+            }
+            if(vex.l) {
+                GETVY;
+                if(EY==GY) {eay1=*EY; EY=&eay1;}
+                for (int i=0; i<4; ++i) {
+                    tmp32s = VY->sw[i*2+0] - VY->sw[i*2+1];
+                    GY->sw[i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                }
+                if(u8) {
+                    GY->q[1] = GY->q[0];
+                } else {
+                    for (int i=0; i<4; ++i) {
+                        tmp32s = EY->sw[i*2+0] - EY->sw[i*2+1];
+                        GY->sw[4+i] = (tmp32s<-32768)?-32768:((tmp32s>32767)?32767:tmp32s);
+                    }
+                }
+            } else
+                GY->u128 = 0;
+            break;
 
         case 0x0C:  /* VPERMILPS Gx, Vx, Ex */
             nextop = F8;
@@ -410,6 +532,85 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
+        case 0x20:  /* VPMOVSXBW Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=7; i>=0; --i)
+                    GY->sw[i] = EX->sb[8+i];
+            else
+                GY->u128 = 0;
+            for(int i=7; i>=0; --i)
+                GX->sw[i] = EX->sb[i];
+            break;
+        case 0x21:  /* VPMOVSXBD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=3; i>=0; --i)
+                    GY->sd[i] = EX->sb[4+i];
+            else
+                GY->u128 = 0;
+            for(int i=3; i>=0; --i)
+                GX->sd[i] = EX->sb[i];
+            break;
+        case 0x22:  /* VPMOVSXBQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=1; i>=0; --i)
+                    GY->sq[i] = EX->sb[2+i];
+            else
+                GY->u128 = 0;
+            for(int i=1; i>=0; --i)
+                GX->sq[i] = EX->sb[i];
+            break;
+        case 0x23:  /* VPMOVSXWD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=3; i>=0; --i)
+                    GY->sd[i] = EX->sw[4+i];
+            else
+                GY->u128 = 0;
+            for(int i=3; i>=0; --i)
+                GX->sd[i] = EX->sw[i];
+            break;
+        case 0x24:  /* VPMOVSXWQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=1; i>=0; --i)
+                    GY->sq[i] = EX->sw[2+i];
+            else
+                GY->u128 = 0;
+            for(int i=1; i>=0; --i)
+                GX->sq[i] = EX->sw[i];
+            break;
+        case 0x25:  /* VPMOVSXDQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=1; i>=0; --i)
+                    GY->sq[i] = EX->sd[2+i];
+            else
+                GY->u128 = 0;
+            for(int i=1; i>=0; --i)
+                GX->sq[i] = EX->sd[i];
+            break;
+
         case 0x29:  /* VPCMPEQQ Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -536,7 +737,84 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     if(VY->q[i]>>63) EY->q[i] = GY->q[i];
             }
             break;
-
+        case 0x30: /* VPMOVZXBW Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=7; i>=0; --i)
+                    GY->uw[i] = EX->ub[7+1+i];
+            else
+                GY->u128 = 0;
+            for(int i=7; i>=0; --i)
+                GX->uw[i] = EX->ub[i];
+            break;
+        case 0x31: /* VPMOVZXBD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=3; i>=0; --i)
+                    GY->ud[i] = EX->ub[3+1+i];
+            else
+                GY->u128 = 0;
+            for(int i=3; i>=0; --i)
+                GX->ud[i] = EX->ub[i];
+            break;
+        case 0x32: /* VPMOVZXBQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=1; i>=0; --i)
+                    GY->q[i] = EX->ub[1+1+i];
+            else
+                GY->u128 = 0;
+            for(int i=1; i>=0; --i)
+                GX->q[i] = EX->ub[i];
+            break;
+        case 0x33: /* VPMOVZXWD Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=3; i>=0; --i)
+                    GY->ud[i] = EX->uw[3+1+i];
+            else
+                GY->u128 = 0;
+            for(int i=3; i>=0; --i)
+                GX->ud[i] = EX->uw[i];
+            break;
+        case 0x34: /* VPMOVZXWQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=1; i>=0; --i)
+                    GY->q[i] = EX->uw[1+1+i];
+            else
+                GY->u128 = 0;
+            for(int i=1; i>=0; --i)
+                GX->q[i] = EX->uw[i];
+            break;
+        case 0x35: /* VPMOVZXDQ Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l)
+                for(int i=1; i>=0; --i)
+                    GY->q[i] = EX->ud[1+1+i];
+            else
+                GY->u128 = 0;
+            for(int i=1; i>=0; --i)
+                GX->q[i] = EX->ud[i];
+            break;
         case 0x36:  /* VPERMD Gx, Vx, Ex */
             // same code as 0x16
             nextop = F8;
@@ -584,23 +862,145 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x38:  /* VPERMILD Gx, Vx, Ex */
+        case 0x38:  /* VPMINSB Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
-            GETEY;
-            GETVY;
-            if(GX==EX) {eax1 = *EX; EX = &eax1;}
-            for(int i=0; i<2; ++i)
-                GX->q[i] = EX->q[(VX->q[i]>>1)&1];
+            for(int i=0; i<16; ++i)
+                GX->sb[i] = (VX->sb[i]>EX->sb[i])?EX->sb[i]:VX->sb[i];
             if(vex.l) {
-                if(GY==EY) {eay1 = *EY; EY = &eay1;}
-                for(int i=0; i<2; ++i)
-                    GY->q[i] = EY->q[(VY->q[i]>>1)&1];
+                GETEY; GETVY;
+                for(int i=0; i<16; ++i)
+                    GY->sb[i] = (VY->sb[i]>EY->sb[i])?EY->sb[i]:VY->sb[i];
             } else
                 GY->u128 = 0;
+            break;
+        case 0x39:  /* VPMINSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->sd[i] = (VX->sd[i]>EX->sd[i])?EX->sd[i]:VX->sd[i];
+            if(vex.l) {
+                GETEY; GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->sd[i] = (VY->sd[i]>EY->sd[i])?EY->sd[i]:VY->sd[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x3A:  /* VPMINUW Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<8; ++i)
+                GX->uw[i] = (VX->uw[i]>EX->uw[i])?EX->uw[i]:VX->uw[i];
+            if(vex.l) {
+                GETEY; GETVY;
+                for(int i=0; i<8; ++i)
+                    GY->uw[i] = (VY->uw[i]>EY->uw[i])?EY->uw[i]:VY->uw[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x3B:  /* VPMINUD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = (VX->ud[i]>EX->ud[i])?EX->ud[i]:VX->ud[i];
+            if(vex.l) {
+                GETEY; GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = (VY->ud[i]>EY->ud[i])?EY->ud[i]:VY->ud[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x3C:  /* VPMAXSB Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<16; ++i)
+                GX->sb[i] = (VX->sb[i]<EX->sb[i])?EX->sb[i]:VX->sb[i];
+            if(vex.l) {
+                GETEY; GETVY;
+                for(int i=0; i<16; ++i)
+                    GY->sb[i] = (VY->sb[i]<EY->sb[i])?EY->sb[i]:VY->sb[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x3D:  /* VPMAXSD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->sd[i] = (VX->sd[i]<EX->sd[i])?EX->sd[i]:VX->sd[i];
+            if(vex.l) {
+                GETEY; GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->sd[i] = (VY->sd[i]<EY->sd[i])?EY->sd[i]:VY->sd[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x3E:  /* VPMAXUW Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<8; ++i)
+                GX->uw[i] = (VX->uw[i]<EX->uw[i])?EX->uw[i]:VX->uw[i];
+            if(vex.l) {
+                GETEY; GETVY;
+                for(int i=0; i<8; ++i)
+                    GY->uw[i] = (VY->uw[i]<EY->uw[i])?EY->uw[i]:VY->uw[i];
+            } else
+                GY->u128 = 0;
+            break;
+        case 0x3F:  /* VPMAXUD Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            for(int i=0; i<4; ++i)
+                GX->ud[i] = (VX->ud[i]<EX->ud[i])?EX->ud[i]:VX->ud[i];
+            if(vex.l) {
+                GETEY; GETVY;
+                for(int i=0; i<4; ++i)
+                    GY->ud[i] = (VY->ud[i]<EY->ud[i])?EY->ud[i]:VY->ud[i];
+            } else
+                GY->u128 = 0;
+            break;
+
+        case 0x41:  /* PHMINPOSUW Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            tmp16u = EX->uw[0];
+            tmp16s = 0;
+            for(int i=1; i<8; ++i) {
+                if(EX->uw[i]<tmp16u) {
+                    tmp16u = EX->uw[i];
+                    tmp16s = i;
+                }
+            }
+            GX->q[1] = 0;
+            GX->uw[0] = tmp16u;
+            GX->uw[1] = tmp16s;
+            GX->ud[1] = 0;
+            GETGY;
+            GY->u128 = 0;
             break;
 
         case 0x58:  /* VPBROADCASTD Gx, Ex */
@@ -663,6 +1063,62 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->uw[i] = EX->uw[0];
             else
                 GY->u128 = 0;
+            break;
+
+        case 0x8C:  /*VMASKMOVD/Q Gx, Vx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            GETGY;
+            if(rex.w) {
+                for(int i=0; i<2; ++i)
+                    GX->q[i] = (VX->q[i]>>63)?EX->q[i]:0;
+                if(vex.l) {
+                    GETEY;
+                    GETVY;
+                    for(int i=0; i<2; ++i)
+                        GY->q[i] = (VY->q[i]>>63)?EY->q[i]:0;
+                } else
+                    GY->u128 = 0;
+            } else {
+                for(int i=0; i<4; ++i)
+                    GX->ud[i] = (VX->ud[i]>>31)?EX->ud[i]:0;
+                if(vex.l) {
+                    GETEY;
+                    GETVY;
+                    for(int i=0; i<4; ++i)
+                        GY->ud[i] = (VY->ud[i]>>31)?EY->ud[i]:0;
+                } else
+                    GY->u128 = 0;
+            }
+            break;
+        case 0x8E:  /*VMASKMOVD/Q Ex, Vx, Gx */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETVX;
+            if(rex.w) {
+                for(int i=0; i<2; ++i)
+                    if(VX->q[i]>>63) EX->q[i] = GX->q[i];
+                if(vex.l) {
+                    GETGY;
+                    GETEY;
+                    GETVY;
+                    for(int i=0; i<2; ++i)
+                        if(VY->q[i]>>63) EY->q[i] = GY->q[i];
+                }
+            } else {
+                for(int i=0; i<4; ++i)
+                    if(VX->ud[i]>>31) EX->ud[i] = GX->ud[i];
+                if(vex.l) {
+                    GETGY;
+                    GETEY;
+                    GETVY;
+                    for(int i=0; i<4; ++i)
+                        if(VY->ud[i]>>31) EY->ud[i] = GY->ud[i];
+                }
+            }
             break;
 
         case 0x90:  /* VPGATHERDD Gx, VSIB, Vx */

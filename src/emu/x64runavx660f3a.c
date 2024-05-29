@@ -370,6 +370,18 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
+        case 0x20:      // VPINSRB GX, Vx, ED, u8
+            nextop = F8;
+            GETED(1);   // It's ED, and not EB
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            if(GX!=VX)
+                GX->u128 = VX->u128;
+            GX->ub[tmp8u&0xf] = ED->byte[0];
+            GY->u128 = 0;
+            break;
         case 0x21:  /* VINSERTPS Gx, Vx, Ex, imm8 */
             nextop = F8;
             GETGX;
@@ -383,6 +395,21 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 tmp32u = EX->ud[0];
             for(int i=0; i<4; ++i)
                 GX->ud[i] = (tmp8u&(1<<i))?0:((i==((tmp8u>>4)&3))?tmp32u:VX->ud[i]);
+            GY->u128 = 0;
+            break;
+        case 0x22:      // VPINSRD Gx, Vx, ED, u8
+            nextop = F8;
+            GETED(1);
+            GETGX;
+            GETVX;
+            GETGY;
+            tmp8u = F8;
+            if(GX!=VX)
+                GX->u128 = VX->u128;
+            if(rex.w)
+                GX->q[tmp8u&0x1] = ED->q[0];
+            else
+                GX->ud[tmp8u&0x3] = ED->dword[0];
             GY->u128 = 0;
             break;
 
