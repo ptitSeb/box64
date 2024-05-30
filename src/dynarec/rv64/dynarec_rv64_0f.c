@@ -564,6 +564,34 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x3A: // more SSE3 opcodes
             opcode = F8;
             switch (opcode) {
+                case 0x0F:
+                    INST_NAME("PALIGNR Gm, Em, Ib");
+                    nextop = F8;
+                    GETGM();
+                    GETEM(x2, 1);
+                    u8 = F8;
+                    if (u8 > 15) {
+                        SD(xZR, gback, gdoffset);
+                    } else if (u8 > 7) {
+                        if (u8 > 8) {
+                            LD(x1, gback, gdoffset);
+                            SRLI(x1, x1, (u8 - 8) * 8);
+                            SD(x1, gback, gdoffset);
+                        }
+                    } else {
+                        if (u8 > 0) {
+                            LD(x3, wback, fixedaddress);
+                            LD(x1, gback, gdoffset);
+                            SRLI(x3, x3, u8 * 8);
+                            SLLI(x1, x1, (8 - u8) * 8);
+                            OR(x1, x1, x3);
+                            SD(x1, gback, gdoffset);
+                        } else {
+                            LD(x1, wback, fixedaddress);
+                            SD(x1, gback, gdoffset);
+                        }
+                    }
+                    break;
                 case 0xCC:
                     INST_NAME("SHA1RNDS4 Gx, Ex, Ib");
                     nextop = F8;
