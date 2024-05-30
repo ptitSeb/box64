@@ -1607,6 +1607,7 @@
 #() iFppuuu
 #() iFppuup
 #() iFppupi
+#() iFppupu
 #() iFppupp
 #() iFppUup
 #() iFpplii
@@ -4727,6 +4728,7 @@ wrappedlibsndfile:
   - sf_close
 - pFpipp:
   - sf_open_virtual
+wrappedlibssh2:
 wrappedlibssl:
 - pFp:
   - SSL_get_verify_callback
