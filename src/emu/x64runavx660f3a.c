@@ -518,7 +518,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             ED->dword[0] = GX->ud[tmp8u&3];
             if(MODREG) ED->dword[1] = 0;
             break;
-        case 0x18:  /* VINSERTF128 Gx, Ex, imm8 */
+        case 0x18:  /* VINSERTF128 Gx, Vx, Ex, imm8 */
             nextop = F8;
             GETEX(1);
             GETGX;

@@ -457,6 +457,11 @@
 #define GETVX_empty(a)                  \
     a = sse_get_reg_empty(dyn, ninst, x1, vex.v)
 
+#define GETGY_VY(a, w1, b, w2, k1, k2)                      \
+    if(w2) b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2); \
+    a = ymm_get_reg(dyn, ninst, x1, gd, vex.v, w1, k1, k2); \
+    if(!w2) b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2)
+
 #define GETGY_empty_VY(a, b, w2, k1, k2)                    \
     b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2); \
     a = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, k1, k2)
@@ -1031,6 +1036,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F30F     STEPNAME(dynarec64_F30F)
 #define dynarec64_AVX      STEPNAME(dynarec64_AVX)
 #define dynarec64_AVX_0F   STEPNAME(dynarec64_AVX_0F)
+#define dynarec64_AVX_66_0F3A   STEPNAME(dynarec64_AVX_66_0F3A)
 
 #define geted           STEPNAME(geted)
 #define geted32         STEPNAME(geted32)
@@ -1448,6 +1454,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)

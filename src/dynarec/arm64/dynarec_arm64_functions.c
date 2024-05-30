@@ -110,7 +110,6 @@ static int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
                 dyn->n.neoncache[reg].t=t;
             return reg;
         }
-        return -1;
     } else {
         // found a slot!
         dyn->n.neoncache[reg].t=t;
