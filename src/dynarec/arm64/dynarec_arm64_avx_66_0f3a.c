@@ -107,6 +107,58 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else YMM0(gd);
             break;
 
+        case 0x15:
+            INST_NAME("VPEXTRW Ed, Gx, imm8");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 1);
+                ed = x1;
+            }
+            u8 = F8;
+            VMOVHto(ed, v0, u8&7);
+            if(!MODREG)
+                STH(ed, wback, fixedaddress);
+            break;
+        case 0x16:
+            INST_NAME("VPEXTRD/Q Ed, Gx, imm8");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 1);
+                ed = x1;
+            }
+            u8 = F8;
+            if(rex.w) {
+                VMOVQDto(ed, v0, u8&1);
+            } else {
+                VMOVSto(ed, v0, u8&3);
+            }
+            if(!MODREG)
+                STxw(ed, wback, fixedaddress);
+            break;
+        case 0x17:
+            INST_NAME("VEXTRACTPS Ed, Gx, imm8");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
+                ed = x1;
+            }
+            u8 = F8;
+            VMOVSto(ed, v0, u8&3);
+            if(!MODREG)
+                STW(ed, wback, fixedaddress);
+            break;
         case 0x18:
             INST_NAME("VINSERTF128 Gx, Vx, Ex, imm8");
             nextop = F8;

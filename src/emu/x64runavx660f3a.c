@@ -509,7 +509,6 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     ED->dword[0] = GX->ud[tmp8u&3];
             }
             break;
-
         case 0x17:      // VEXTRACTPS ED, GX, u8
             nextop = F8;
             GETED(1);
