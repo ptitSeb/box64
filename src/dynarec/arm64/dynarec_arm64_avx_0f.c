@@ -64,6 +64,29 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
 
     switch(opcode) {
 
+        case 0x14:
+            INST_NAME("VUNPCKLPS Gx, Vx, Ex");
+            nextop = F8;
+            SMREAD();
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VZIP1Q_32(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VZIP1Q_32(v0, v2, v1);
+            } else YMM0(gd);
+            break;
+        case 0x15:
+            INST_NAME("VUNPCKHPS Gx, Vx, Ex");
+            nextop = F8;
+            SMREAD();
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VZIP2Q_32(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VZIP2Q_32(v0, v2, v1);
+            } else YMM0(gd);
+            break;
+
         case 0x57:
             INST_NAME("VXORPS Gx, Vx, Ex");
             nextop = F8;
@@ -93,6 +116,51 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 GETGY_empty_VYEY(v0, v2, v1);
                 VFMULQS(v0, v2, v1);
             } else YMM0(gd)
+            break;
+
+        case 0x77:
+            INST_NAME("VZEROUPPER");
+            if(!vex.l) {
+                if(vex.v!=0) {
+                    UDF(0);
+                } else {
+                    for(int i=0; i<(rex.is32bits?8:16); ++i) {
+                        YMM0(i);
+                    }
+                }
+            } else {
+                DEFAULT;
+            }
+            break;
+
+        case 0xAE:
+            nextop = F8;
+            if(MODREG) {
+                DEFAULT;
+            } else
+                switch((nextop>>3)&7) {
+                    case 2:
+                        INST_NAME("VLDMXCSR Md");
+                        GETED(0);
+                        STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        if(box64_sse_flushto0) {
+                            MRS_fpcr(x1);                   // get fpscr
+                            LSRw_IMM(x3, ed, 15);           // get FZ bit
+                            BFIw(x1, x3, 24, 1);            // inject FZ bit
+                            EORw_REG_LSR(x3, x3, ed, 1);    // FZ xor DAZ
+                            BFIw(x1, x3, 1, 1);             // inject AH bit
+                            MSR_fpcr(x1);                   // put new fpscr
+                        }
+                        break;
+                    case 3:
+                        INST_NAME("VSTMXCSR Md");
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                        LDRw_U12(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        STW(x4, ed, fixedaddress);
+                        break;
+                    default:
+                        DEFAULT;
+                }
             break;
 
         case 0xC6:
