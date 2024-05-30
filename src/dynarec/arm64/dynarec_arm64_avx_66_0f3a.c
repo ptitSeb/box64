@@ -127,6 +127,21 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(v0!=v2)
                 VMOVQ((u8&1)?v0:q0, (u8&1)?v2:q2);
             break;
+        case 0x19:
+            INST_NAME("VEXTRACTF128 Ex, Gx, imm8");
+            nextop = F8;
+            u8 = geted_ib(dyn, addr, ninst, nextop);
+            if(u8&1) {GETG; GETGY(v0, 0, -1, -1, -1);} else {GETGX(v0, 0);}
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v1, v0);
+                YMM0((nextop&7)+(rex.b<<3));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 1);
+                VST128(v0, ed, fixedaddress);
+            }
+            F8; // read u8, but it's been already handled
+            break;
 
         default:
             DEFAULT;

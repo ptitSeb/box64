@@ -465,6 +465,9 @@
 #define GETGY_empty(a, k1, k2, k3)                          \
     a = ymm_get_reg_empty(dyn, ninst, x1, gd, k1, k2, k3)
 
+#define GETGY(a, w, k1, k2, k3)                             \
+    a = ymm_get_reg(dyn, ninst, x1, gd, w, k1, k2, k3)
+
 #define GETGY_empty_VY(a, b, w2, k1, k2)                    \
     b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2); \
     a = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, k1, k2)
@@ -584,7 +587,7 @@
         SMWRITE2();                         \
     }
 
-#define YMM0(a) avx_mark_zero(dyn, ninst, gd);
+#define YMM0(a) ymm_mark_zero(dyn, ninst, a);
 
 // Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
 // F_DF is 1<<10, so 1 ROR 11*2 (so F_OF)
@@ -1209,11 +1212,12 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_get_reg     STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
-#define sse_forget_reg   STEPNAME(sse_forget_reg)
-#define sse_purge07cache STEPNAME(sse_purge07cache)
-#define sse_reflect_reg  STEPNAME(sse_reflect_reg)
-#define ymm_get_reg     STEPNAME(ymm_get_reg)
+#define sse_forget_reg    STEPNAME(sse_forget_reg)
+#define sse_purge07cache  STEPNAME(sse_purge07cache)
+#define sse_reflect_reg   STEPNAME(sse_reflect_reg)
+#define ymm_get_reg       STEPNAME(ymm_get_reg)
 #define ymm_get_reg_empty STEPNAME(ymm_get_reg_empty)
+#define ymm_mark_zero     STEPNAME(ymm_mark_zero)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
@@ -1465,6 +1469,8 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07);
 int ymm_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite, int k1, int k2, int k3);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int k2, int k3);
+// mark an ymm upper part has zero (forgetting upper part if needed)
+void ymm_mark_zero(dynarec_arm_t* dyn, int ninst, int a);
 
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

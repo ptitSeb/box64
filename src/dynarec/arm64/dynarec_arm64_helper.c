@@ -1789,6 +1789,15 @@ int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int 
     return ret;
 }
 
+void ymm_mark_zero(dynarec_arm_t* dyn, int ninst, int a)
+{
+    // look if already exist
+    for(int i=0; i<32; ++i)
+        if((dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) && dyn->n.neoncache[i].n==a) {
+            dyn->n.neoncache[i].v = 0;  // forget it!
+        }
+    avx_mark_zero(dyn, ninst, a);
+}
 
 void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
 {
