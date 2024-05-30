@@ -2025,6 +2025,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SDxw(gd, ed, fixedaddress);
             }
             break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd,Em,Ib");
+            nextop = F8;
+            GETGD;
+            GETEM(x2, 0);
+            u8 = (F8)&3;
+            LHU(gd, wback, fixedaddress + u8 * 2);
+            break;
         case 0xC6: // TODO: Optimize this!
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
