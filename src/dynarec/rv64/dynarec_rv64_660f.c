@@ -1732,7 +1732,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(x1, 0);
             GETGX();
-            SSE_LOOP_DS(x3, x4, SLT(x4, x4, x3); SLLI(x3, x4, 63); SRAI(x3, x3, 63));
+            SSE_LOOP_DS(x3, x4, SLT(x4, x4, x3); NEG(x3, x4));
             break;
         case 0x67:
             INST_NAME("PACKUSWB Gx, Ex");

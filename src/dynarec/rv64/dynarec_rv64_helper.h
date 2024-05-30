@@ -548,6 +548,14 @@
         SW(GX1, gback, gdoffset + i * 4);      \
     }
 
+#define MMX_LOOP_DS(GX1, EX1, F)               \
+    for (int i = 0; i < 2; ++i) {              \
+        LW(GX1, gback, gdoffset + i * 4);      \
+        LW(EX1, wback, fixedaddress + i * 4);  \
+        F;                                     \
+        SW(GX1, gback, gdoffset + i * 4);      \
+    }
+
 #define MMX_LOOP_W(GX1, EX1, F)                \
     for (int i = 0; i < 4; ++i) {              \
         LHU(GX1, gback, gdoffset + i * 2);     \
