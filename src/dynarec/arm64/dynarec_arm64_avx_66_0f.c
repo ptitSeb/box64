@@ -119,6 +119,34 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else YMM0(gd);
             break;
 
+        case 0x6B:
+            INST_NAME("PACKSSDW Gx,Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            if(v0==v1) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q0, v0);
+            }
+            SQXTN_16(v0, v2);
+            if(v2==v1) {
+                VMOVeD(v0, 1, v0, 0);
+            } else {
+                SQXTN2_16(v0, (v0==v1)?q0:v1);
+            }
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                if(v0==v1) {
+                    VMOVQ(q0, v0);
+                }
+                SQXTN_16(v0, v2);
+                if(v2==v1) {
+                    VMOVeD(v0, 1, v0, 0);
+                } else {
+                    SQXTN2_16(v0, (v0==v1)?q0:v1);
+                }
+            } else YMM0(gd);
+            break;
+
         case 0x6F:
             INST_NAME("MOVDQA Gx,Ex");
             nextop = F8;
