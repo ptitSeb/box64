@@ -476,13 +476,21 @@
     GETGX_empty(gx)
 
 // Get empty GY, and non-writen VY and EY
-#define GETGY_empty_VYEY(gy, vy, ey)                                                \
-    vy = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (nextop&7)+(rex.b<<3), -1);      \
+#define GETGY_empty_VYEY(gy, vy, ey)                                                            \
+    vy = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);    \
+    if(MODREG)                                                                                  \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);              \
+    else                                                                                        \
+        VLD128(ey, ed, fixedaddress+16);                                                        \
+    gy = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
+
+// Get empty GY, and non-writen EY
+#define GETGY_empty_EY(gy, ey)                                                      \
     if(MODREG)                                                                      \
-        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);  \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, -1, -1);     \
     else                                                                            \
         VLD128(ey, ed, fixedaddress+16);                                            \
-    gy = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (nextop&7)+(rex.b<<3), -1)
+    gy = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
 
 // Get EX as a quad, (x1 is used)
 #define GETEX_Y(a, w, D)                                                                                \
@@ -1065,6 +1073,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F30F     STEPNAME(dynarec64_F30F)
 #define dynarec64_AVX      STEPNAME(dynarec64_AVX)
 #define dynarec64_AVX_0F   STEPNAME(dynarec64_AVX_0F)
+#define dynarec64_AVX_66_0F     STEPNAME(dynarec64_AVX_66_0F)
 #define dynarec64_AVX_66_0F38   STEPNAME(dynarec64_AVX_66_0F38)
 #define dynarec64_AVX_66_0F3A   STEPNAME(dynarec64_AVX_66_0F3A)
 
@@ -1484,6 +1493,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
