@@ -64,6 +64,85 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
 
     switch(opcode) {
 
+        case 0x10:
+            INST_NAME("VMOVUPS Gx,Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                ed = (nextop&7)+(rex.b<<3);
+                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+                if(vex.l) {
+                    v1 = ymm_get_reg(dyn, ninst, x1, ed, 0, gd, -1, -1);
+                    v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, ed, -1, -1);
+                    VMOVQ(v0, v1);
+                }
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VLD128(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
+                if(vex.l) {
+                    v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
+                    VLD128(v0, ed, fixedaddress+16);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x11:
+            INST_NAME("VMOVUPS Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if(MODREG) {
+                ed = (nextop&7)+(rex.b<<3);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                VMOVQ(v1, v0);
+                if(vex.l) {
+                    v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, ed, -1, -1);
+                    v1 = ymm_get_reg_empty(dyn, ninst, x1, ed, gd, -1, -1);
+                    VMOVQ(v1, v0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VST128(v0, ed, fixedaddress);
+                if(vex.l) {
+                    v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, ed, -1, -1);
+                    VST128(v0, ed, fixedaddress+16);
+                }
+                SMWRITE2();
+            }
+            break;
+        case 0x12:
+            nextop = F8;
+            if(MODREG) {
+                INST_NAME("VMOVHLPS Gx,Ex");
+                GETGX(v0, 1);
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                VMOVeD(v0, 0, v1, 1);
+            } else {
+                INST_NAME("VMOVLPS Gx,Ex");
+                GETGX(v0, 1);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                VLD1_64(v0, 0, ed);
+            }
+            YMM0(gd);
+            break;
+        case 0x13:
+            nextop = F8;
+            INST_NAME("VMOVLPS Ex,Gx");
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                VMOVeD(v1, 0, v0, 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                VST1_64(v0, 0, ed);  // better to use VST1 than VSTR_64, to avoid NEON->VFPU transfert I assume
+                SMWRITE2();
+            }
+            break;
         case 0x14:
             INST_NAME("VUNPCKLPS Gx, Vx, Ex");
             nextop = F8;
