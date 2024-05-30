@@ -194,7 +194,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("FISTTP Ed, ST0");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 if(arm64_frintts) {
                     FRINT32ZD(s0, v1);
                     FCVTZSwD(x5, s0);
@@ -220,7 +220,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                 u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 if(arm64_frintts) {
                     FRINT32XD(s0, v1);
                     FCVTZSwD(x5, s0);
@@ -246,7 +246,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                 u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 if(arm64_frintts) {
                     FRINT32XD(s0, v1);
                     FCVTZSwD(x5, s0);

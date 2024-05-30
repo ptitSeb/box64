@@ -1075,6 +1075,6 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         }                                  \
     } while (0)
 
-#define PURGE_YMM0()    /* TODO */
+#define PURGE_YMM()    /* TODO */
 
 #endif //__DYNAREC_LA64_HELPER_H__

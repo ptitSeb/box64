@@ -99,7 +99,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             GETED(0);
-            d1 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn, ninst);
             if(rex.w) {
                 SCVTFDx(d1, ed);
             } else {
@@ -140,7 +140,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 MSR_fpsr(x5);
             }
             u8 = sse_setround(dyn, ninst, x1, x2, x3);
-            d1 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn, ninst);
             FRINTID(d1, q0);
             x87_restoreround(dyn, ninst, u8);
             FCVTZSxwD(gd, d1);
@@ -207,10 +207,10 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            d1 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
-                v1 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn, ninst);
                 FCMLTD_0(v1, d0);
                 SHL_64(v1, v1, 63);
                 FSQRTD(d1, d0);
@@ -225,11 +225,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
             GETGX(d1, 1);
-            v1 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                q0 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -247,11 +247,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
             GETGX(d1, 1);
-            v1 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                q0 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -270,7 +270,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             GETEXSD(d0, 0, 0);
-            d1 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn, ninst);
             FCVT_S_D(d1, d0);
             VMOVeS(v0, 0, d1, 0);
             break;
@@ -279,11 +279,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
             GETGX(d1, 1);
-            v1 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                q0 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -304,7 +304,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEXSD(v1, 0, 0);
             // MINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
             #if 0
-            d0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn, ninst);
             FMINNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
             VMOVeD(v0, 0, d0, 0);   // to not erase uper part
             #else
@@ -317,11 +317,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
             GETGX(v0, 1);
-            d1 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(v1, 0, 0);
             if(!box64_dynarec_fastnan) {
-                d0 = fpu_get_scratch(dyn);
-                q0 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 FMAXD(d0, v0, v1);      // propagate NAN
                 FCMEQD(d0, d0, d0);     // 0 if NAN, 1 if not NAN
@@ -342,7 +342,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEXSD(v1, 0, 0);
             // MAXSD: if any input is NaN, or Ex[0]>Gx[0], copy Ex[0] -> Gx[0]
             #if 0
-            d0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn, ninst);
             FMAXNMD(d0, v0, v1);    // NaN handling may be slightly different, is that a problem?
             VMOVeD(v0, 0, d0, 0);   // to not erase uper part
             #else
@@ -361,7 +361,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             u8 = F8;
             if(u8==0b00000000 || u8==0b01010101 || u8==0b10101010 || u8==0b11111111) {
                 if(v0==v1) {
-                    d0 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn, ninst);
                     VMOVQ(d0, v1);
                 }
                 VDUP_16(v0, v1, u8&3);
@@ -375,7 +375,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     u64 |= ((uint64_t)((u8>>(i*2))&3)*2+1)<<(i*16+8);
                 }
                 MOV64x(x2, u64);
-                d0 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn, ninst);
                 VMOVQDfrom(d0, 0, x2);
                 VTBL1_8(d0, v1, d0);
                 VMOVeD(v0, 0, d0, 0);
@@ -393,7 +393,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
-                v1 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn, ninst);
                 VLD128(v1, ed, fixedaddress);
             }
             VFADDPQS(v0, v0, v1);
@@ -406,10 +406,10 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
-                v1 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn, ninst);
                 VLD128(v1, ed, fixedaddress);
             }
-            d0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn, ninst);
             VUZP1Q_32(d0, v0, v1);
             VUZP2Q_32(v0, v0, v1);
             VFSUBQS(v0, d0, v0);
@@ -439,7 +439,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            q0 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn, ninst);
             static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
             MAYUSE(addsubps);
             TABLE64(x2, (uintptr_t)&addsubps);
@@ -472,7 +472,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
                 ORRw_mask(x4, xZR, 1, 0);    //0x80000000
-                d0 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn, ninst);
                 for(int i=0; i<2; ++i) {
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);

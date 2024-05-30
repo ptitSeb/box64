@@ -155,7 +155,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_F);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 ed = x1;
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 #if 0
                 // this version needs ARM v8.5, and doesn't handle saturation for 32bits integer not fitting 16bits
                 FRINT32ZD(s0, v1);
@@ -194,7 +194,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 ed = x1;
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 #if 0
                 FRINT32XD(s0, v1);
                 // no saturation instruction on Arm, so using NEON
@@ -234,7 +234,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
                 ed = x1;
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 #if 0
                 FRINT32XD(s0, v1);
                 // no saturation instruction on Arm, so using NEON
@@ -323,7 +323,7 @@ uintptr_t dynarec64_DF(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                 ed = x1;
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 if(ST_IS_I64(0)) {
                     VST64(v1, wback, fixedaddress);
                 } else {

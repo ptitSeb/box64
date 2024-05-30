@@ -202,7 +202,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             if(MODREG) {
                                 s0 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
                             } else {
-                                s0 = fpu_get_scratch(dyn);
+                                s0 = fpu_get_scratch(dyn, ninst);
                                 SMREAD();
                                 addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
                                 VLD32(s0, ed, fixedaddress);

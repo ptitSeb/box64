@@ -82,7 +82,7 @@ typedef struct instruction_arm64_s {
     uintptr_t           natcall;
     uint16_t            retn;
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
-    uint16_t            purge_ymm0; // need to purge some ymm0 because of a loop
+    uint16_t            purge_ymm;  // need to purge some ymm
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;

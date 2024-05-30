@@ -68,24 +68,24 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("VSHUFPS Gx, Vx, Ex, Ib");
             nextop = F8;
             GETVX(v2, 0);
-            GETGX_empty(v0);
             if(!MODREG) {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
                 v1 = -1; // to avoid a warning
             } else
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+            GETGX_empty(v0);
             u8 = F8;
             if(v2==v1 && (u8&0x3)==((u8>>2)&3) && (u8&0xf)==((u8>>4)&0xf)) {
                 VDUPQ_32(v0, v2, u8&3);
             } else if(v2==v1 && (u8==0xe0)) {   // easy special case
                 VMOVQ(v0, v2);
                 VMOVeS(v0, 1, v0, 0);
-            } else if(v0==v1 && (u8==0xe5)) {   // easy special case
+            } else if(v2==v1 && (u8==0xe5)) {   // easy special case
                 VMOVQ(v0, v2);
                 VMOVeS(v0, 0, v0, 1);
             } else {
-                d0 = fpu_get_scratch(dyn);
-                // first two elements from Gx
+                d0 = fpu_get_scratch(dyn, ninst);
+                // first two elements from Vx
                 for(int i=0; i<2; ++i) {
                     VMOVeS(d0, i, v2, (u8>>(i*2))&3);
                 }
@@ -104,7 +104,34 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 VMOVQ(v0, d0);
             }
             if(vex.l) {
-                DEFAULT;    /* TDOD! */
+                if(MODREG)
+                    v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);
+                GETGY_empty_VY(v0, v2, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                if(v2==v1 && (u8&0x3)==((u8>>2)&3) && (u8&0xf)==((u8>>4)&0xf)) {
+                    VDUPQ_32(v0, v2, u8&3);
+                } else if(v2==v1 && (u8==0xe0)) {
+                    VMOVQ(v0, v2);
+                    VMOVeS(v0, 1, v0, 0);
+                } else if(v2==v1 && (u8==0xe5)) {
+                    VMOVQ(v0, v2);
+                    VMOVeS(v0, 0, v0, 1);
+                } else {
+                    for(int i=0; i<2; ++i) {
+                        VMOVeS(d0, i, v2, (u8>>(i*2))&3);
+                    }
+                    if(MODREG) {
+                        for(int i=2; i<4; ++i) {
+                            VMOVeS(d0, i, v1, (u8>>(i*2))&3);
+                        }
+                    } else {
+                        SMREAD();
+                        for(int i=2; i<4; ++i) {
+                            ADDx_U12(x2, ed, 16+((u8>>(i*2))&3)*4);
+                            VLD1_32(d0, i, x2);
+                        }
+                    }
+                    VMOVQ(v0, d0);
+                }
             } else YMM0(gd);
             break;
 

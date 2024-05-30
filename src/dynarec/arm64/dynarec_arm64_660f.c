@@ -135,7 +135,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                v1 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn, ninst);
                 ADDx_U12(ed, ed, 8);
                 VLD1_64(v0, 1, ed);
             }
@@ -243,7 +243,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
                     ORRw_mask(x2, xZR, 1, 0);    //0x80000000
-                    d0 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn, ninst);
                     for (int i=0; i<2; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         if (i) {
@@ -283,7 +283,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
                     ORRw_mask(x2, xZR, 1, 0);    //0x80000000
-                    d0 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn, ninst);
                     for (int i=0; i<2; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         if (i) {
@@ -322,7 +322,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    d0 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn, ninst);
                     MOVIQ_8(d0, 0b10001111);
                     VANDQ(d0, d0, q1);  // mask the index
                     VTBLQ1_8(q0, q0, d0);
@@ -346,7 +346,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     VUZP1Q_16(v0, q0, q1);
                     VUZP2Q_16(q0, q0, q1);
                     SQADDQ_16(q0, q0, v0);
@@ -356,10 +356,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v0 = fpu_get_scratch(dyn);
-                    v1 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn, ninst);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(q0==q1)
-                        d0 = fpu_get_scratch(dyn);
+                        d0 = fpu_get_scratch(dyn, ninst);
                     else
                         d0 = q0;
                     UXTL_8(v0, q0);   // this is unsigned, so 0 extended
@@ -381,7 +381,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     VUZP2Q_16(v0, q0, q1);
                     VUZP1Q_16(q0, q0, q1);
                     VSUBQ_16(q0, q0, v0);
@@ -391,7 +391,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     VUZP2Q_32(v0, q0, q1);
                     VUZP1Q_32(q0, q0, q1);
                     VSUBQ_32(q0, q0, v0);
@@ -401,7 +401,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     VUZP2Q_16(v0, q0, q1);
                     VUZP1Q_16(q0, q0, q1);
                     SQSUBQ_16(q0, q0, v0);
@@ -411,8 +411,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v1 = fpu_get_scratch(dyn);
-                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     NEGQ_8(v0, q0);     // get NEG
                     CMLTQ_0_8(v1, q1);  // calculate mask
                     VBICQ(q0, q0, v1);  // apply not mask on dest
@@ -426,8 +426,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v1 = fpu_get_scratch(dyn);
-                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     NEGQ_16(v0, q0);    // get NEG
                     CMLTQ_0_16(v1, q1); // calculate mask
                     VBICQ(q0, q0, v1);  // apply not mask on dest
@@ -441,8 +441,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
-                    v1 = fpu_get_scratch(dyn);
-                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     NEGQ_32(v0, q0);    // get NEG
                     CMLTQ_0_32(v1, q1); // calculate mask
                     VBICQ(q0, q0, v1);  // apply not mask on dest
@@ -465,7 +465,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     v0 = sse_get_reg(dyn, ninst, x1, 0, 0);
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(q0!=q1) {
                         VSSHRQ_8(v1, v0, 7);    // bit[7]-> bit[7..0]
                         VBICQ(q0, q0, v1);
@@ -480,7 +480,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     v0 = sse_get_reg(dyn, ninst, x1, 0, 0);
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(q0!=q1) {
                         VSSHRQ_32(v1, v0, 31);    // bit[31]-> bit[31..0]
                         VBICQ(q0, q0, v1);
@@ -494,7 +494,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     v0 = sse_get_reg(dyn, ninst, x1, 0, 0);
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(q0!=q1) {
                         VSSHRQ_64(v1, v0, 63);    // bit[63]-> bit[63..0]
                         VBICQ(q0, q0, v1);
@@ -509,7 +509,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     SETFLAGS(X_ALL, SF_SET);
                     GETGX(q0, 0);
                     GETEX(q1, 0, 0);
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     IFX(X_ZF) {
                         VANDQ(v1, q1, q0);
                         CMEQQ_0_64(v1, v1);
@@ -612,7 +612,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         v0 = q0;
                     } else {
                         if(MODREG)
-                            v0 = fpu_get_scratch(dyn);
+                            v0 = fpu_get_scratch(dyn, ninst);
                         else
                             v0 = q1;
                         VUZP1Q_32(v0, q1, q1);
@@ -638,8 +638,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     nextop = F8;
                     GETEX(q1, 0, 0);
                     GETGX(q0, 1);
-                    v0 = fpu_get_scratch(dyn);
-                    v1 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn, ninst);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     VEORQ(v0, v0, v0);
                     SMAXQ_32(v1, v0, q0);    // values < 0 => 0
                     UQXTN_16(q0, v1);
@@ -793,7 +793,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(arm64_aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
-                        v0 = fpu_get_scratch(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                         VEORQ(v0, q0, q1);
                         AESE(v0, q1);
                         AESMC(v0, v0);
@@ -814,7 +814,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(arm64_aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
-                        v0 = fpu_get_scratch(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                         VEORQ(v0, q0, q1);
                         AESE(v0, q1);
                         VEORQ(q0, v0, q1);
@@ -834,7 +834,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(arm64_aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
-                        v0 = fpu_get_scratch(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                         VEORQ(v0, q0, q1);
                         AESD(v0, q1);
                         AESIMC(v0, v0);
@@ -855,7 +855,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(arm64_aes) {
                         GETEX(q1, 0, 0);
                         GETGX(q0, 1);
-                        v0 = fpu_get_scratch(dyn);  // ARM64 internal operation differs a bit from x86_64
+                        v0 = fpu_get_scratch(dyn, ninst);  // ARM64 internal operation differs a bit from x86_64
                         VEORQ(v0, q0, q1);
                         AESD(v0, q1);
                         VEORQ(q0, v0, q1);
@@ -914,7 +914,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0, 1);
                     GETGX_empty(q0);
                     u8 = F8;
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(u8&4) {
                         u8 = sse_setround(dyn, ninst, x1, x2, x3);
                         VFRINTISQ(q0, q1);
@@ -929,7 +929,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETEX(q1, 0, 1);
                     GETGX_empty(q0);
                     u8 = F8;
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(u8&4) {
                         u8 = sse_setround(dyn, ninst, x1, x2, x3);
                         VFRINTIDQ(q0, q1);
@@ -944,7 +944,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEXSS(q1, 0, 1);
                     u8 = F8;
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(u8&4) {
                         u8 = sse_setround(dyn, ninst, x1, x2, x3);
                         FRINTXS(v1, q1);
@@ -960,7 +960,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEXSD(q1, 0, 1);
                     u8 = F8;
-                    v1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn, ninst);
                     if(u8&4) {
                         u8 = sse_setround(dyn, ninst, x1, x2, x3);
                         FRINTXD(v1, q1);
@@ -1044,7 +1044,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(u8>31) {
                         VEORQ(q0, q0, q0);
                     } else if(u8>15) {
-                        d0 = fpu_get_scratch(dyn);
+                        d0 = fpu_get_scratch(dyn, ninst);
                         VEORQ(d0, d0, d0);
                         VEXTQ_8(q0, q0, d0, u8-16);
                     } else {
@@ -1133,7 +1133,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     INST_NAME("INSERTPS Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
-                    d0 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn, ninst);
                     VMOVQ(d0, q0);
                     if (MODREG) {
                         q1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
@@ -1172,7 +1172,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETGX(q0, 1);
                     GETEX(q1, 0, 1);
                     u8 = F8;
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch(dyn, ninst);
                     VFMULQS(v0, q0, q1);
                     // mask some, duplicate all, mask some
                     for(int i=0; i<4; ++i)
@@ -1258,7 +1258,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     CALL(sse42_compare_string_explicit_len, x1);
                     q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
-                        q1 = fpu_get_scratch(dyn);
+                        q1 = fpu_get_scratch(dyn, ninst);
                         switch(u8&1) {
                             case 0b00:
                                 VDUPQB(q0, x1); // load the low 8bits of the mask
@@ -1299,13 +1299,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         GETGX(v0, 0);
                         GETEX(v1, 0, 1);
                         u8 = F8;
-                        q0 = fpu_get_scratch(dyn);
+                        q0 = fpu_get_scratch(dyn, ninst);
                         if(u8&1) {
                             //16bits
                             VCMEQQ_16(q0, v0, v1);   // equal => mask regs
                             XTN_8(q0, q0);          // 8 bits mask, in lower 64bits
                             // transform that a mask in x1
-                            q1 = fpu_get_scratch(dyn);
+                            q1 = fpu_get_scratch(dyn, ninst);
                             VSHL_8(q0, q0, 7);  // keep only bit 0x80
                             TABLE64(x1, (uintptr_t)&mask_shift8);
                             VLDR64_U12(q1, x1, 0);     // load shift
@@ -1316,8 +1316,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             //8 bits
                             VCMEQQ_8(q0, v0, v1);   // equal => mask regs
                             // transform that a mask in x1
-                            q1 = fpu_get_scratch(dyn);
-                            d0 = fpu_get_scratch(dyn);
+                            q1 = fpu_get_scratch(dyn, ninst);
+                            d0 = fpu_get_scratch(dyn, ninst);
                             VSHL_8(d0, q0, 7);  // keep only bit 0x80
                             TABLE64(x1, (uintptr_t)&mask_shift8);
                             VLDR64_U12(q1, x1, 0);     // load shift
@@ -1462,7 +1462,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     CALL(sse42_compare_string_implicit_len, x1);
                     q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
-                        q1 = fpu_get_scratch(dyn);
+                        q1 = fpu_get_scratch(dyn, ninst);
                         switch(u8&1) {
                             case 0b00:
                                 VDUPQB(q0, x1); // load the low 8bits of the mask
@@ -1592,8 +1592,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                v1 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 VFCMEQQD(v0, q0, q0);    // 0 if NAN, 1 if not NAN
                 VFSQRTQD(q1, q0);
@@ -1647,8 +1647,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                v1 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 VFMAXQD(v0, q0, q1);    // propagate NAN
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -1667,8 +1667,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                v1 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 VFMAXQD(v0, q0, q1);    // propagate NAN
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -1710,7 +1710,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 MSR_fpsr(x5);
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 MOV32w(x4, 0x80000000);
-                d0 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn, ninst);
                 for(int i=0; i<4; ++i) {
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
@@ -1731,8 +1731,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                v1 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 VFMAXQD(v0, q0, q1);    // propagate NAN
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -1753,7 +1753,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
             if(!box64_dynarec_fastnan && v0!=v1) {
-                q0 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VANDQ(v0, v0, q0);
                 VBICQ(q0, v1, q0);
@@ -1767,8 +1767,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                v1 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 VFMAXQD(v0, q0, q1);    // propagate NAN
                 VFCMEQQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -1789,7 +1789,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             // FMIN/FMAX wll not copy the value if v0[x] is NaN
             // but x86 will copy if either v0[x] or v1[x] is NaN, so lets force a copy if source is NaN
             if(!box64_dynarec_fastnan && v0!=v1) {
-                q0 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn, ninst);
                 VFCMEQQD(q0, v0, v0);   // 0 is NaN, 1 is not NaN, so MASK for NaN
                 VANDQ(v0, v0, q0);
                 VBICQ(q0, v1, q0);
@@ -1998,7 +1998,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         (8)|(9<<8)|(10<<16)|(11<<24),
                         (12)|(13<<8)|(14<<16)|(15<<24)
                     };
-                    d0 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn, ninst);
                     tmp64u = swp[(u8>>(0*2))&3] | (swp[(u8>>(1*2))&3]<<32);
                     MOV64x(x2, tmp64u);
                     VMOVQDfrom(d0, 0, x2);
@@ -2141,7 +2141,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(u8>15) {
                             VEORQ(q0, q0, q0);
                         } else {
-                            q1 = fpu_get_scratch(dyn);
+                            q1 = fpu_get_scratch(dyn, ninst);
                             VEORQ(q1, q1, q1);
                             VEXTQ_8(q0, q0, q1, u8);
                         }
@@ -2169,7 +2169,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(u8>15) {
                             VEORQ(q0, q0, q0);
                         } else if(u8>0) {
-                            q1 = fpu_get_scratch(dyn);
+                            q1 = fpu_get_scratch(dyn, ninst);
                             VEORQ(q1, q1, q1);
                             VEXTQ_8(q0, q1, q0, 16-u8);
                         }
@@ -2209,8 +2209,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q1, 1);
             GETEX(q0, 0, 0);
             if(!box64_dynarec_fastnan) {
-                v0 = fpu_get_scratch(dyn);
-                v1 = fpu_get_scratch(dyn);
+                v0 = fpu_get_scratch(dyn, ninst);
+                v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
                 // but need to mix low/high part
                 VTRNQ1_64(v0, q1, q0);
@@ -2231,7 +2231,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(q1, 0, 0);
             GETGX(q0, 1);
-            v0 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
             VUZP1Q_64(v0, q0, q1);
             VUZP2Q_64(q0, q0, q1);
             VFSUBQD(q0, v0, q0);
@@ -2627,7 +2627,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 2: VFCMGEQD(v0, v1, v0); break;   // Less or equal
                 case 3: VFCMEQQD(v0, v0, v0);
                         if(v0!=v1) {
-                            q0 = fpu_get_scratch(dyn);
+                            q0 = fpu_get_scratch(dyn, ninst);
                             VFCMEQQD(q0, v1, v1);
                             VANDQ(v0, v0, q0);
                         }
@@ -2638,7 +2638,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 6: VFCMGEQD(v0, v1, v0); VMVNQ(v0, v0); break;   // Greater or unordered
                 case 7: VFCMEQQD(v0, v0, v0);
                         if(v0!=v1) {
-                            q0 = fpu_get_scratch(dyn);
+                            q0 = fpu_get_scratch(dyn, ninst);
                             VFCMEQQD(q0, v1, v1);
                             VANDQ(v0, v0, q0);
                         }
@@ -2686,7 +2686,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVeD(v0, 1, v0, 0);
             } else {
                 if(v0==v1)
-                    q0 = fpu_get_scratch(dyn);
+                    q0 = fpu_get_scratch(dyn, ninst);
                 else
                     q0 = v0;
                 VMOVeD(q0, 0, v0, (u8&1));
@@ -2720,8 +2720,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 16);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +16 values
@@ -2734,7 +2734,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
             VFSUBQD(v0, q0, q1);
             VFADDQD(q0, q0, q1);
             VMOVeD(q0, 0, v0, 0);
@@ -2744,8 +2744,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 32);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +32 values
@@ -2758,8 +2758,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 64);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +64 values
@@ -2798,9 +2798,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xD7:
             nextop = F8;
             INST_NAME("PMOVMSKB Gd, Ex");
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
             GETEX(q0, 0, 0);
             GETGD;
             TABLE64(x1, (uintptr_t)&mask_shift8);
@@ -2888,8 +2888,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 15);
             UMIN_32(v0, v0, v1);    // limit to -15 .. +15 values
@@ -2902,8 +2902,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 31);
             UMIN_32(v0, v0, v1);        // limit to 0 .. +31 values
@@ -2923,8 +2923,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            q0 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
             VUMULL_16(q0, v0, v1);
             VUMULL2_16(q1, v0, v1);
             UQSHRN_16(v0, q0, 16);
@@ -2935,8 +2935,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            q0 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
             VSMULL_16(q0, v0, v1);
             VSMULL2_16(q1, v0, v1);
             SQSHRN_16(v0, q0, 16);
@@ -2955,7 +2955,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                 MSR_fpsr(x5);
                 ORRw_mask(x4, xZR, 1, 0);    //0x80000000
-                d0 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn, ninst);
                 for(int i=0; i<2; ++i) {
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
@@ -3054,8 +3054,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 16);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +16 values
@@ -3067,8 +3067,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 32);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +32 values
@@ -3080,8 +3080,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
-            v1 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
             UQXTN_32(v0, q1);
             MOVI_32(v1, 64);
             UMIN_32(v0, v0, v1);    // limit to 0 .. +64 values
@@ -3093,10 +3093,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            q0 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn, ninst);
             VUZP1Q_32(q0, v0, v0);  //A3 A2 A1 A0 -> A3 A1 A2 A0
             if(MODREG) {
-                q1 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn, ninst);
             } else {
                 q1 = v1;
             }
@@ -3108,8 +3108,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            q0 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
             VSMULL_16(q0, v0, v1);
             VSMULL2_16(q1, v0, v1);
             VADDPQ_32(v0, q0, q1);
@@ -3119,8 +3119,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn, ninst);
+            d1 = fpu_get_scratch(dyn, ninst);
             VEOR(d1, d1, d1);   // is it necessary?
             UABDL_8(d0, q0, q1);
             UADDLVQ_16(d1, d0);
@@ -3134,10 +3134,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            v0 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch(dyn, ninst);
             VLDR128_U12(v0, xRDI, 0);
             if(MODREG)
-                v1 = fpu_get_scratch(dyn); // need to preserve the register
+                v1 = fpu_get_scratch(dyn, ninst); // need to preserve the register
             else
                 v1 = q1;
             VSSHRQ_8(v1, q1, 7);  // get the mask

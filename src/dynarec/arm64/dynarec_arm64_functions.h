@@ -6,15 +6,17 @@
 #define SCRATCH0    24
 
 // Get an FPU scratch reg
-int fpu_get_scratch(dynarec_arm_t* dyn);
+int fpu_get_scratch(dynarec_arm_t* dyn, int ninst);
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn);
 // Get an x87 double reg
-int fpu_get_reg_x87(dynarec_arm_t* dyn, int t, int n);
+int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n);
 // Get an MMX double reg
-int fpu_get_reg_emm(dynarec_arm_t* dyn, int emm);
+int fpu_get_reg_emm(dynarec_arm_t* dyn, int ninst, int emm);
 // Get an XMM quad reg
 int fpu_get_reg_xmm(dynarec_arm_t* dyn, int t, int xmm);
+// Get an YMM upper quad reg, while keeping up to 3 other YMM reg (-1 to no keep)
+int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k2, int k3);
 // Free a FPU/MMX/XMM reg
 void fpu_free_reg(dynarec_arm_t* dyn, int reg);
 // Reset fpu regs counter
