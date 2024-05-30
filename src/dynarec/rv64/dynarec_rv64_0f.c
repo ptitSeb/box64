@@ -968,6 +968,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SB(x3, gback, gdoffset + 4 + i);
                 }
             break;
+        case 0x64:
+            INST_NAME("PCMPGTB Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            for (int i = 0; i < 8; ++i) {
+                // GX->ub[i] = (GX->sb[i]>EX->sb[i])?0xFF:0x00;
+                LB(x3, wback, fixedaddress + i);
+                LB(x4, gback, gdoffset + i);
+                SLT(x3, x3, x4);
+                NEG(x3, x3);
+                SB(x3, gback, gdoffset + i);
+            }
+            break;
         case 0x67:
             INST_NAME("PACKUSWB Gm, Em");
             nextop = F8;
