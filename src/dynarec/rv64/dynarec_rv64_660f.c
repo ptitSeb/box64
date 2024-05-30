@@ -266,7 +266,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0);
-                    sse_forget_reg(dyn, ninst, x5);
 
                     ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
 
@@ -1170,28 +1169,64 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX();
                     GETEX(x2, 1);
                     u8 = F8;
-                    sse_forget_reg(dyn, ninst, x5);
-                    ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
-                    // perserve gd
-                    LD(x3, gback, gdoffset + 0);
-                    LD(x4, gback, gdoffset + 8);
-                    SD(x3, x5, 0);
-                    SD(x4, x5, 8);
                     if (u8 > 31) {
                         SD(xZR, gback, gdoffset + 0);
                         SD(xZR, gback, gdoffset + 8);
+                    } else if (u8 > 23) {
+                        LD(x5, gback, gdoffset + 8);
+                        if (u8 > 24) {
+                            SRLI(x5, x5, 8 * (u8 - 24));
+                        }
+                        SD(x5, gback, gdoffset + 0);
+                        SD(xZR, gback, gdoffset + 8);
+                    } else if (u8 > 15) {
+                        if (u8 > 16) {
+                            LD(x5, gback, gdoffset + 8);
+                            LD(x4, gback, gdoffset + 0);
+                            SRLI(x3, x5, 8 * (u8 - 16)); // lower of higher 64 bits
+                            SLLI(x5, x5, 8 * (24 - u8)); // higher of lower 64 bits
+                            SD(x3, gback, gdoffset + 8);
+                            SRLI(x4, x4, 8 * (u8 - 16)); // lower of lower 64 bits
+                            OR(x4, x4, x5); // lower 64 bits
+                            SD(x4, gback, gdoffset + 0);
+                        }
+                    } else if (u8 > 7) {
+                        if (u8 > 8) {
+                            LD(x5, gback, gdoffset + 8);
+                            LD(x4, gback, gdoffset + 0);
+                            LD(x3, wback, fixedaddress + 8);
+                            SLLI(x5, x5, 8 * (16 - u8)); // higher of higher 64 bits
+                            SRLI(x1, x4, 8 * (u8 - 8)); // lower of higher 64 bits
+                            SLLI(x4, x4, 8 * (16 - u8)); // higher of lower 64 bits
+                            OR(x5, x1, x5); // higher 64 bits
+                            SRLI(x3, x3, 8 * (u8 - 8)); // lower of lower 64 bits
+                            SD(x5, gback, gdoffset + 8);
+                            OR(x4, x4, x3); // lower 64 bits
+                            SD(x4, gback, gdoffset + 0);
+                        } else {
+                            LD(x5, gback, gdoffset + 0);
+                            LD(x4, wback, fixedaddress + 8);
+                            SD(x5, gback, gdoffset + 8);
+                            SD(x4, gback, gdoffset + 0);
+                        }
                     } else {
-                        for (int i = 0; i < 16; ++i, ++u8) {
-                            if (u8 > 15) {
-                                if (u8 > 31) {
-                                    SB(xZR, gback, gdoffset + i);
-                                    continue;
-                                } else
-                                    LBU(x3, x5, u8 - 16);
-                            } else {
-                                LBU(x3, wback, fixedaddress + u8);
-                            }
-                            SB(x3, gback, gdoffset + i);
+                        if (u8 > 0) {
+                            LD(x5, gback, gdoffset + 0);
+                            LD(x4, wback, fixedaddress + 8);
+                            LD(x3, wback, fixedaddress + 0);
+                            SLLI(x5, x5, 8 * (8 - u8)); // higher of higher 64 bits
+                            SRLI(x1, x4, 8 * (u8 - 0)); // lower of higher 64 bits
+                            SLLI(x4, x4, 8 * (8 - u8)); // higher of lower 64 bits
+                            OR(x5, x1, x5); // higher 64 bits
+                            SRLI(x3, x3, 8 * (u8 - 0)); // lower of lower 64 bits
+                            SD(x5, gback, gdoffset + 8);
+                            OR(x4, x4, x3); // lower 64 bits
+                            SD(x4, gback, gdoffset + 0);
+                        } else {
+                            LD(x5, wback, fixedaddress + 8);
+                            LD(x4, wback, fixedaddress + 0);
+                            SD(x5, gback, gdoffset + 8);
+                            SD(x4, gback, gdoffset + 0);
                         }
                     }
                     break;
@@ -2776,15 +2811,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
+            MOV32w(x5, 65535);
             for (int i = 0; i < 8; ++i) {
                 // tmp32s = (int32_t)GX->uw[i] + EX->uw[i];
                 // GX->uw[i] = (tmp32s>65535)?65535:tmp32s;
                 LHU(x3, gback, gdoffset + i * 2);
                 LHU(x4, wback, fixedaddress + i * 2);
                 ADDW(x3, x3, x4);
-                MOV32w(x4, 65536);
-                BLT(x3, x4, 8);
-                ADDIW(x3, x4, -1);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x5);
+                } else {
+                    BGE(x5, x3, 8); // tmp32s <= 65535?
+                    MV(x3, x5);
+                }
                 SH(x3, gback, gdoffset + i * 2);
             }
             break;
