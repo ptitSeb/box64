@@ -74,6 +74,26 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 VEORQ(v0, v2, v1);
             } else YMM0(gd)
             break;
+        case 0x58:
+            INST_NAME("VADDPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VFADDQS(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VFADDQS(v0, v2, v1);
+            } else YMM0(gd)
+            break;
+        case 0x59:
+            INST_NAME("VMULPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VFMULQS(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VFMULQS(v0, v2, v1);
+            } else YMM0(gd)
+            break;
 
         case 0xC6:
             INST_NAME("VSHUFPS Gx, Vx, Ex, Ib");

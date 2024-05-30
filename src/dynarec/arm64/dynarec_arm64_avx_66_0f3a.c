@@ -108,7 +108,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             break;
 
         case 0x18:
-            INST_NAME("VINSERTF128 Gx, Ex, imm8");
+            INST_NAME("VINSERTF128 Gx, Vx, Ex, imm8");
             nextop = F8;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
@@ -117,9 +117,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 v1 = -1; // to avoid a warning
             }
             u8 = F8;
-            GETGX(v0, 1);
             GETVX(v2, 0);
-            GETGY_VY(q0, 1, q2, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+            GETGX_empty(v0);
+            GETGY_empty_VY(q0, q2, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
             if(MODREG)
                 VMOVQ((u8&1)?q0:v0, v1);
             else

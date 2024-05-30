@@ -459,7 +459,7 @@
 
 #define GETGY_VY(a, w1, b, w2, k1, k2)                      \
     if(w2) b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2); \
-    a = ymm_get_reg(dyn, ninst, x1, gd, vex.v, w1, k1, k2); \
+    a = ymm_get_reg(dyn, ninst, x1, gd, w1, vex.v, k1, k2); \
     if(!w2) b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2)
 
 #define GETGY_empty(a, k1, k2, k3)                          \
