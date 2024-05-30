@@ -982,6 +982,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SB(x3, gback, gdoffset + i);
             }
             break;
+        case 0x65:
+            INST_NAME("PCMPGTW Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            MMX_LOOP_WS(x3, x4, SLT(x3, x4, x3); NEG(x3, x3));
+            break;
         case 0x66:
             INST_NAME("PCMPGTD Gm,Em");
             nextop = F8;
