@@ -2776,15 +2776,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
+            MOV32w(x5, 65535);
             for (int i = 0; i < 8; ++i) {
                 // tmp32s = (int32_t)GX->uw[i] + EX->uw[i];
                 // GX->uw[i] = (tmp32s>65535)?65535:tmp32s;
                 LHU(x3, gback, gdoffset + i * 2);
                 LHU(x4, wback, fixedaddress + i * 2);
                 ADDW(x3, x3, x4);
-                MOV32w(x4, 65536);
-                BLT(x3, x4, 8);
-                ADDIW(x3, x4, -1);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x5);
+                } else {
+                    BGE(x5, x3, 8); // tmp32s <= 65535?
+                    MV(x3, x5);
+                }
                 SH(x3, gback, gdoffset + i * 2);
             }
             break;

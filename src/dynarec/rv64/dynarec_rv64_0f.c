@@ -2036,6 +2036,27 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SB(x3, gback, gdoffset + i);
             }
             break;
+        case 0xDD:
+            INST_NAME("PADDUSW Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            MOV32w(x5, 65535);
+            for (int i = 0; i < 4; ++i) {
+                // tmp32s = (int32_t)GX->uw[i] + EX->uw[i];
+                // GX->uw[i] = (tmp32s>65535)?65535:tmp32s;
+                LHU(x3, gback, gdoffset + i * 2);
+                LHU(x4, wback, fixedaddress + i * 2);
+                ADDW(x3, x3, x4);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x5);
+                } else {
+                    BGE(x5, x3, 8); // tmp32s <= 65535?
+                    MV(x3, x5);
+                }
+                SH(x3, gback, gdoffset + i * 2);
+            }
+            break;
         case 0xE2:
             INST_NAME("PSRAD Gm, Em");
             nextop = F8;
