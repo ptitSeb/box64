@@ -2085,6 +2085,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(x3, gback, gdoffset + i * 2);
             }
             break;
+        case 0xDF:
+            INST_NAME("PANDN Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            LD(x1, gback, gdoffset);
+            LD(x3, wback, fixedaddress);
+            if (rv64_zbb) {
+                ANDN(x1, x3, x1);
+            } else {
+                NOT(x1, x1);
+                AND(x1, x1, x3);
+            }
+            SD(x1, gback, gdoffset);
+            break;
         case 0xE2:
             INST_NAME("PSRAD Gm, Em");
             nextop = F8;
