@@ -119,6 +119,37 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else YMM0(gd);
             break;
 
+        case 0x64:
+            INST_NAME("VPCMPGTB Gx,Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VCMGTQ_8(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VCMGTQ_8(v0, v2, v1);
+            } else YMM0(gd);
+            break;
+        case 0x65:
+            INST_NAME("VPCMPGTW Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VCMGTQ_16(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VCMGTQ_16(v0, v2, v1);
+            } else YMM0(gd);
+            break;
+        case 0x66:
+            INST_NAME("VPCMPGTD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VCMGTQ_32(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VCMGTQ_32(v0, v2, v1);
+            } else YMM0(gd);
+            break;
+
         case 0x6B:
             INST_NAME("PACKSSDW Gx,Ex");
             nextop = F8;
