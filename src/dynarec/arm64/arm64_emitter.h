@@ -1483,7 +1483,7 @@ int convert_bitmask(uint64_t bitmask);
 #define VUZP1Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 0, Rn, Rt))
 #define VUZP2Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 1, Rn, Rt))
 
-#define BITBIF_gen(Q, opc2, Rm, Rn, Rd) ((Q)<<30 | 0b101110101<<21 | (Rm)<<16 | 0b000111<<10 | (Rn)<<4 | (Rd))
+#define BITBIF_gen(Q, opc2, Rm, Rn, Rd) ((Q)<<30 | 0b101110101<<21 | (Rm)<<16 | 0b000111<<10 | (Rn)<<5 | (Rd))
 // Bitwise insert Vn in Vd if Vm is "0"
 #define VBIF(Vd, Vn,Vm)             EMIT(BITBIF_gen(0, 0b11, Vm, Vn, Vd))
 // Bitwise insert Vn in Vd if Vm is "0"

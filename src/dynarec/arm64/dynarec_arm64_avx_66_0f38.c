@@ -79,6 +79,71 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else YMM0(gd);
             break;
 
+        case 0x2C:
+            INST_NAME("VMASKMOVPS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            q0 = fpu_get_scratch(dyn, ninst);
+            // create mask
+            VSSHRQ_32(q0, v2, 31);
+            VANDQ(v0, v1, q0);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VSSHRQ_32(q0, v2, 31);
+                VANDQ(v0, v1, q0);
+            } else YMM0(gd);
+            break;
+        case 0x2D:
+            INST_NAME("VMASKMOVPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            q0 = fpu_get_scratch(dyn, ninst);
+            // create mask
+            VSSHRQ_64(q0, v2, 63);
+            VANDQ(v0, v1, q0);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VSSHRQ_64(q0, v2, 63);
+                VANDQ(v0, v1, q0);
+            } else YMM0(gd);
+            break;
+        case 0x2E:
+            INST_NAME("VMASKMOVPS Ex, Gx, Vx");
+            nextop = F8;
+            GETGXVXEX(v0, v2, v1, 0);
+            q0 = fpu_get_scratch(dyn, ninst);
+            // create mask
+            VSSHRQ_32(q0, v2, 31);
+            VBITQ(v1, v0, q0);
+            if(!MODREG)
+                VST128(v1, ed, fixedaddress);
+            if(vex.l) {
+                GETGYVYEY(v0, v2, v1);
+                VSSHRQ_32(q0, v2, 31);
+                VBITQ(v1, v0, q0);
+                if(!MODREG)
+                    VST128(v1, ed, fixedaddress+16);
+            }
+            break;
+        case 0x2F:
+            INST_NAME("VMASKMOVPD Ex, Gx, Vx");
+            nextop = F8;
+            GETGXVXEX(v0, v2, v1, 0);
+            q0 = fpu_get_scratch(dyn, ninst);
+            // create mask
+            VSSHRQ_64(q0, v2, 63);
+            VBITQ(v1, v0, q0);
+            if(!MODREG)
+                VST128(v1, ed, fixedaddress);
+            if(vex.l) {
+                GETGYVYEY(v0, v2, v1);
+                VSSHRQ_64(q0, v2, 63);
+                VBITQ(v1, v0, q0);
+                if(!MODREG)
+                    VST128(v1, ed, fixedaddress+16);
+            }
+            break;
+
         default:
             DEFAULT;
     }

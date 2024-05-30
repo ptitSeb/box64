@@ -952,6 +952,12 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "VMUL V%d.%s, V%d.%s, V%d.%s", Rd, Vd, Rn, Vd, Rm, Vd);
         return buff;
     }
+    // VBIT / VBIF
+    if(isMask(opcode, "0Q1011101o1mmmmm000111nnnnnddddd", &a)) {
+        char q = a.Q?'Q':'D';
+        snprintf(buff, sizeof(buff), "VBI%c %c%d, %c%d, %c%d", a.o?'F':'T', q, Rd, q, Rn, q, Rm);
+        return buff;
+    }
     // CMP
     if(isMask(opcode, "0Q101110ff1mmmmm100011nnnnnddddd", &a)) {
         const char* Y[] = {"8B", "16B", "4H", "8H", "2S", "4S", "??", "2D"};
