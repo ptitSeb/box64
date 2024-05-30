@@ -466,6 +466,32 @@
     b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2); \
     a = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, k1, k2)
 
+// Get empty GX, and non-writen VX and EX
+#define GETGX_empty_VXEX(gx, vx, ex, D)     \
+    GETVX(vx, 0);                           \
+    GETEX_Y(ex, 0, D);                      \
+    GETGX_empty(gx)
+
+// Get empty GY, and non-writen VY and EY
+#define GETGY_empty_VYEY(gy, vy, ey)                                                \
+    vy = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (nextop&7)+(rex.b<<3), -1);      \
+    if(MODREG)                                                                      \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);  \
+    else                                                                            \
+        VLD128(ey, ed, fixedaddress+16);                                            \
+    gy = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (nextop&7)+(rex.b<<3), -1)
+
+// Get EX as a quad, (x1 is used)
+#define GETEX_Y(a, w, D)                                                                                \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
+    } else {                                                                                            \
+        if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
+        a = fpu_get_scratch(dyn, ninst);                                                                \
+        VLD128(a, ed, fixedaddress);                                                                    \
+    }
+
 // Get EX as a quad, (x1 is used)
 #define GETEX(a, w, D)                                                                                  \
     if(MODREG) {                                                                                        \
