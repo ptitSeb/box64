@@ -349,14 +349,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("PHADDSW Gx, Ex");
                     nextop = F8;
                     GETGX();
+                    MOV64x(x5, 32767);
+                    MOV64x(x6, -32768);
                     for (int i = 0; i < 4; ++i) {
                         // tmp32s = GX->sw[i*2+0]+GX->sw[i*2+1];
                         // GX->sw[i] = sat(tmp32s);
                         LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
                         LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
                         ADDW(x3, x3, x4);
-                        SAT16(x3, x4);
-                        SH(x3, gback, gdoffset + 2 * i);
+                        if (rv64_zbb) {
+                            MIN(x3, x3, x5);
+                            MAX(x3, x3, x6);
+                        } else {
+                            BLT(x3, x5, 4 + 4);
+                            MV(x3, x5);
+                            BLT(x6, x3, 4 + 4);
+                            MV(x3, x6);
+                        }
+                        SH(x3, gback, gdoffset + i * 2);
                     }
                     if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
                         // GX->q[1] = GX->q[0];
@@ -370,13 +380,21 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             LH(x3, wback, fixedaddress + 2 * (i * 2 + 0));
                             LH(x4, wback, fixedaddress + 2 * (i * 2 + 1));
                             ADDW(x3, x3, x4);
-                            SAT16(x3, x4);
+                            if (rv64_zbb) {
+                                MIN(x3, x3, x5);
+                                MAX(x3, x3, x6);
+                            } else {
+                                BLT(x3, x5, 4 + 4);
+                                MV(x3, x5);
+                                BLT(x6, x3, 4 + 4);
+                                MV(x3, x6);
+                            }
                             SH(x3, gback, gdoffset + 2 * (4 + i));
                         }
                     }
                     break;
                 case 0x04:
-                    INST_NAME("PADDUBSW Gx, Ex");
+                    INST_NAME("PMADDUBSW Gx, Ex");
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0);
@@ -1732,7 +1750,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(x1, 0);
             GETGX();
-            SSE_LOOP_DS(x3, x4, SLT(x4, x4, x3); SLLI(x3, x4, 63); SRAI(x3, x3, 63));
+            SSE_LOOP_DS(x3, x4, SLT(x4, x4, x3); NEG(x3, x4));
             break;
         case 0x67:
             INST_NAME("PACKUSWB Gx, Ex");
@@ -2754,9 +2772,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
                 SUB(x3, x3, x4);
-                NOT(x4, x3);
-                SRAI(x4, x4, 63);
-                AND(x3, x3, x4);
+                if (rv64_zbb) {
+                    MAX(x3, x3, xZR);
+                } else {
+                    NOT(x4, x3);
+                    SRAI(x4, x4, 63);
+                    AND(x3, x3, x4);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -2765,7 +2787,17 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
-            SSE_LOOP_W(x3, x4, SUB(x3, x3, x4); NOT(x4, x3); SRAI(x4, x4, 63); AND(x3, x3, x4));
+            SSE_LOOP_W(x3, x4,
+                SUB(x3, x3, x4);
+                if (rv64_zbb) {
+                    MAX(x3, x3, xZR);
+                } else {
+                    NOT(x4, x3);
+                    SRAI(x4, x4, 63);
+                    AND(x3, x3, x4);
+                }
+                SH(x3, gback, gdoffset + i * 2);
+            );
             break;
         case 0xDA:
             INST_NAME("PMINUB Gx, Ex");
@@ -2976,22 +3008,23 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
+            ADDI(x5, xZR, 0x7f);
+            ADDI(x6, xZR, 0xf80);
             for (int i = 0; i < 16; ++i) {
                 // tmp16s = (int16_t)GX->sb[i] - EX->sb[i];
                 // GX->sb[i] = (tmp16s<-128)?-128:((tmp16s>127)?127:tmp16s);
                 LB(x3, gback, gdoffset + i);
                 LB(x4, wback, fixedaddress + i);
                 SUBW(x3, x3, x4);
-                SLLIW(x3, x3, 16);
-                SRAIW(x3, x3, 16);
-                ADDI(x4, xZR, 0x7f);
-                BLT(x3, x4, 12); // tmp16s>127?
-                SB(x4, gback, gdoffset + i);
-                J(24); // continue
-                ADDI(x4, xZR, 0xf80);
-                BLT(x4, x3, 12); // tmp16s<-128?
-                SB(x4, gback, gdoffset + i);
-                J(8); // continue
+                if (rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x5, 4 + 4);
+                    MV(x3, x5);
+                    BLT(x6, x3, 4 + 4);
+                    MV(x3, x6);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -3000,14 +3033,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
+            MOV64x(x5, 32767);
+            MOV64x(x6, -32768);
             for (int i = 0; i < 8; ++i) {
                 // tmp32s = (int32_t)GX->sw[i] - EX->sw[i];
                 // GX->sw[i] = sat16(tmp32s);
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
                 SUBW(x3, x3, x4);
-                SAT16(x3, x4);
-                SH(x3, gback, gdoffset + 2 * i);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x5, 4 + 4);
+                    MV(x3, x5);
+                    BLT(x6, x3, 4 + 4);
+                    MV(x3, x6);
+                }
+                SH(x3, gback, gdoffset + i * 2);
             }
             break;
         case 0xEA:
@@ -3035,8 +3078,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
-            ADDI(x5, xZR, 0x7f);
-            ADDI(x6, xZR, 0xf80);
+            MOV64x(x5, 127);
+            MOV64x(x6, -128);
             for (int i = 0; i < 16; ++i) {
                 // tmp16s = (int16_t)GX->sb[i] + EX->sb[i];
                 // GX->sb[i] = (tmp16s>127)?127:((tmp16s<-128)?-128:tmp16s);
@@ -3046,16 +3089,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 if (rv64_zbb) {
                     MIN(x3, x3, x5);
                     MAX(x3, x3, x6);
-                    SB(x3, gback, gdoffset + i);
                 } else {
-                    BLT(x3, x5, 12); // tmp16s>127?
-                    SB(x5, gback, gdoffset + i);
-                    J(20); // continue
-                    BLT(x6, x3, 12); // tmp16s<-128?
-                    SB(x6, gback, gdoffset + i);
-                    J(8); // continue
-                    SB(x3, gback, gdoffset + i);
+                    BLT(x3, x5, 4 + 4);
+                    MV(x3, x5);
+                    BLT(x6, x3, 4 + 4);
+                    MV(x3, x6);
                 }
+                SB(x3, gback, gdoffset + i);
             }
             break;
         case 0xED:
@@ -3063,14 +3103,24 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
+            MOV64x(x5, 32767);
+            MOV64x(x6, -32768);
             for (int i = 0; i < 8; ++i) {
                 // tmp32s = (int32_t)GX->sw[i] + EX->sw[i];
                 // GX->sw[i] = sat16(tmp32s);
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
                 ADDW(x3, x3, x4);
-                SAT16(x3, x4);
-                SH(x3, gback, gdoffset + 2 * i);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x5, 4 + 4);
+                    MV(x3, x5);
+                    BLT(x6, x3, 4 + 4);
+                    MV(x3, x6);
+                }
+                SH(x3, gback, gdoffset + i * 2);
             }
             break;
         case 0xEE:

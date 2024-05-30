@@ -548,6 +548,14 @@
         SW(GX1, gback, gdoffset + i * 4);      \
     }
 
+#define MMX_LOOP_DS(GX1, EX1, F)               \
+    for (int i = 0; i < 2; ++i) {              \
+        LW(GX1, gback, gdoffset + i * 4);      \
+        LW(EX1, wback, fixedaddress + i * 4);  \
+        F;                                     \
+        SW(GX1, gback, gdoffset + i * 4);      \
+    }
+
 #define MMX_LOOP_W(GX1, EX1, F)                \
     for (int i = 0; i < 4; ++i) {              \
         LHU(GX1, gback, gdoffset + i * 2);     \
@@ -1660,16 +1668,6 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
 #define FCOMIS(v1, v2, s1, s2, s3, s4, s5) FCOMI(S, v1, v2, s1, s2, s3, s4, s5)
 #define FCOMID(v1, v2, s1, s2, s3, s4, s5) FCOMI(D, v1, v2, s1, s2, s3, s4, s5)
-
-// reg = (reg < -32768) ? -32768 : ((reg > 32767) ? 32767 : reg)
-#define SAT16(reg, s)             \
-    LUI(s, 0xFFFF8); /* -32768 */ \
-    BGE(reg, s, 4 + 2 * 4);       \
-    MV(reg, s);                   \
-    J(4 + 4 * 3);                 \
-    LUI(s, 8); /* 32768 */        \
-    BLT(reg, s, 4 + 4);           \
-    ADDIW(reg, s, -1);
 
 #define PURGE_YMM0()    /* TODO */
 
