@@ -756,6 +756,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f30f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_0f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_66_0f38.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_66_0f3a.c"
     )
 endif()

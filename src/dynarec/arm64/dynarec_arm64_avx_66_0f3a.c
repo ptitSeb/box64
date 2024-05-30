@@ -61,6 +61,52 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
 
     switch(opcode) {
 
+        case 0x0C:
+            INST_NAME("VPBLENDPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX_empty_VXEX(q0, q2, q1, 1);
+            u8 = F8;
+            if(q0==q1) {
+                for(int i=0; i<4; ++i)
+                    if(u8&(1<<i)) {
+                        VMOVeS(q0, i, q1, i);
+                    } else if(q0!=q2)
+                        VMOVeS(q0, i, q2, i);
+            } else {
+                if(q0!=q2)
+                    VMOVQ(q0, q2);
+                if((u8&15)==0b0011) {
+                    VMOVeD(q0, 0, q1, 0);
+                } else if((u8&15)==0b1100) {
+                    VMOVeD(q0, 1, q1, 1);
+                } else for(int i=0; i<4; ++i)
+                    if(u8&(1<<i)) {
+                        VMOVeS(q0, i, q1, i);
+                    }
+            }
+            if(vex.l) {
+                GETGY_empty_VYEY(q0, q2, q1);
+                if(q0==q1) {
+                    for(int i=0; i<4; ++i)
+                        if(u8&(1<<(i+4))) {
+                            VMOVeS(q0, i, q1, i);
+                        } else if(q0!=q2)
+                            VMOVeS(q0, i, q2, i);
+                } else {
+                    if(q0!=q2)
+                        VMOVQ(q0, q2);
+                    if((u8>>4)==0b0011) {
+                        VMOVeD(q0, 0, q1, 0);
+                    } else if((u8>>4)==0b1100) {
+                        VMOVeD(q0, 1, q1, 1);
+                    } else for(int i=0; i<4; ++i)
+                        if(u8&(1<<(i+4))) {
+                            VMOVeS(q0, i, q1, i);
+                        }
+                }
+            } else YMM0(gd);
+            break;
+
         case 0x18:
             INST_NAME("VINSERTF128 Gx, Ex, imm8");
             nextop = F8;

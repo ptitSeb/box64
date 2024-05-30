@@ -1483,6 +1483,16 @@ int convert_bitmask(uint64_t bitmask);
 #define VUZP1Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 0, Rn, Rt))
 #define VUZP2Q_64(Rt, Rn, Rm)       EMIT(UZP_gen(1, 0b11, Rm, 1, Rn, Rt))
 
+#define BITBIF_gen(Q, opc2, Rm, Rn, Rd) ((Q)<<30 | 0b101110101<<21 | (Rm)<<16 | 0b000111<<10 | (Rn)<<4 | (Rd))
+// Bitwise insert Vn in Vd if Vm is "0"
+#define VBIF(Vd, Vn,Vm)             EMIT(BITBIF_gen(0, 0b11, Vm, Vn, Vd))
+// Bitwise insert Vn in Vd if Vm is "0"
+#define VBIFQ(Vd, Vn,Vm)            EMIT(BITBIF_gen(1, 0b11, Vm, Vn, Vd))
+// Bitwise insert Vn in Vd if Vm is "1"
+#define VBIT(Vd, Vn,Vm)             EMIT(BITBIF_gen(0, 0b10, Vm, Vn, Vd))
+// Bitwise insert Vn in Vd if Vm is "1"
+#define VBITQ(Vd, Vn,Vm)            EMIT(BITBIF_gen(1, 0b10, Vm, Vn, Vd))
+
 #define DUP_element(Q, imm5, Rn, Rd)    ((Q)<<30 | 0b01110000<<21 | (imm5)<<16 | 1<<10 | (Rn)<<5 | (Rd))
 #define VDUP_8(Vd, Vn, idx)         EMIT(DUP_element(0, ((idx)<<1|1), Vn, Vd))
 #define VDUPQ_8(Vd, Vn, idx)        EMIT(DUP_element(1, ((idx)<<1|1), Vn, Vd))
@@ -1812,6 +1822,7 @@ int convert_bitmask(uint64_t bitmask);
 #define MOVI_vector(Q, op, abc, cmode, defgh, Rd)   ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | (cmode)<<12 | 1<<10 | (defgh)<<5 | (Rd))
 #define MOVIQ_8(Rd, imm8)           EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 #define MOVIQ_16(Rd, imm8, lsl8)    EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b1000|((lsl8)?0b10:0), ((imm8)&0b11111), Rd))
+#define MOVIQ_64(Rd, imm8)          EMIT(MOVI_vector(1, 1, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 #define MOVI_8(Rd, imm8)            EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 #define MOVI_16(Rd, imm8, lsl8)     EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b1000|((lsl8)?0b10:0), ((imm8)&0b11111), Rd))
 #define MOVI_32(Rd, imm8)           EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b0000, ((imm8)&0b11111), Rd))
