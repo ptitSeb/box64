@@ -1377,7 +1377,6 @@ x64emurun:
                     STEP2;
                 }
                 #endif
-                break;
             }
             break;
         case 0xC5:                      /* LDS Gd,Ed */
@@ -1412,7 +1411,6 @@ x64emurun:
                     STEP2;
                 }
                 #endif
-                break;
             }
             break;
         case 0xC6:                      /* MOV Eb,Ib */

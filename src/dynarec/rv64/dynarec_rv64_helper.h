@@ -1671,4 +1671,6 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     BLT(reg, s, 4 + 4);           \
     ADDIW(reg, s, -1);
 
+#define PURGE_YMM0()    /* TODO */
+
 #endif //__DYNAREC_RV64_HELPER_H__

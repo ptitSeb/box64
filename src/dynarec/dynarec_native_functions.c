@@ -507,7 +507,7 @@ uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 }
 #undef F8
 
-int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn)
+int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, uint16_t* retn)
 {
     (void)dyn;
 
@@ -532,4 +532,32 @@ int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, 
     return 0;
 #undef PK32
 #undef PK
+}
+
+// AVX
+void avx_mark_zero(dynarec_native_t* dyn, int ninst, int reg)
+{
+    dyn->ymm_zero |= (1<<reg);
+}
+
+int is_avx_zero(dynarec_native_t* dyn, int ninst, int reg)
+{
+    return (dyn->ymm_zero>>reg)&1;
+}
+int is_avx_zero_unset(dynarec_native_t* dyn, int ninst, int reg)
+{
+    if((dyn->ymm_zero>>reg)&1) {
+        dyn->ymm_zero &= ~(1<<reg);
+        return 1;    
+    }
+    return 0;
+}
+void avx_mark_zero_reset(dynarec_native_t* dyn, int ninst)
+{
+    dyn->ymm_zero = 0;
+}
+
+void avx_unmark_zero(dynarec_native_t* dyn, int ninst, int reg)
+{
+    dyn->ymm_zero &= ~(1<<reg);
 }

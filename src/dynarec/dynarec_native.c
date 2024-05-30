@@ -553,9 +553,15 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
                     k=i2;
             }*/
             if(k!=-1) {
-                if(k!=-1 && !helper.insts[i].barrier_maybe)
+                if(!helper.insts[i].barrier_maybe)
                     helper.insts[k].x64.barrier |= BARRIER_FULL;
                 helper.insts[i].x64.jmp_insts = k;
+                if(helper.insts[i].ymm_zero || helper.insts[k].ymm_zero) {
+                    // move to pureg the reg that are present in k (jump to) but not in i (jump from)
+                    uint16_t to_purge = helper.insts[k].ymm_zero & ~helper.insts[i].ymm_zero;
+                    helper.insts[k].purge_ymm0 |= to_purge;
+                    helper.insts[k].ymm_zero &= ~to_purge;
+                }
             }
         }
     }

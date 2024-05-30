@@ -76,7 +76,7 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     else addr = 0;
 
     if(!addr)
-        printf_log(LOG_NONE, "Unimplemented AVX opcode size %d prefix %s map %s opcode %02X ", 128<<vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
+        printf_log(LOG_INFO, "Unimplemented AVX opcode size %d prefix %s map %s opcode %02X ", 128<<vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
 
     return addr;
 }

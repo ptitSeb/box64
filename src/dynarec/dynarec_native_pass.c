@@ -80,6 +80,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         #endif
         fpu_propagate_stack(dyn, ninst);
+        if(dyn->insts[ninst].purge_ymm0)
+            PURGE_YMM0();
         ip = addr;
         if (reset_n!=-1) {
             dyn->last_ip = 0;

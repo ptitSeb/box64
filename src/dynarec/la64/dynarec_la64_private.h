@@ -79,7 +79,9 @@ typedef struct instruction_la64_s {
     uintptr_t           marklock;
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
     uintptr_t           natcall;
-    int                 retn;
+    uint16_t            retn;
+    uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
+    uint16_t            purge_ymm0; // need to purge some ymm0 because of a loop
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;
@@ -119,6 +121,7 @@ typedef struct dynarec_la64_s {
     uintptr_t            forward_to; // address of the next jump to (to check if everything is ok)
     int32_t              forward_size;   // size at the forward point
     int                  forward_ninst;  // ninst at the forward point
+    uint16_t             ymm_zero;   // bitmap of ymm to zero at purge
     uint8_t              smread;    // for strongmem model emulation
     uint8_t              smwrite;    // for strongmem model emulation
     uint8_t              always_test;

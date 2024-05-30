@@ -1673,6 +1673,18 @@ static void sse_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1)
                 dyn->n.ssecache[i].v = -1;
             }
         }
+    //AVX
+    if(dyn->ymm_zero) {
+        if (old==-1) {
+            MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next?"locally ":"");
+            ++old;
+        }
+        for(int i=0; i<16; ++i)
+            if(is_avx_zero(dyn, ninst, i))
+                STPx_S7_offset(xZR, xZR, xEmu, offsetof(x64emu_t, ymm[i]));
+        if(!next)
+            avx_mark_zero_reset(dyn, ninst);
+    }
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
@@ -1684,10 +1696,17 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
         if(dyn->n.ssecache[i].v!=-1 && dyn->n.ssecache[i].write) {
             VSTR128_U12(dyn->n.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
+    //AVX
+    if(dyn->ymm_zero)
+        for(int i=0; i<16; ++i)
+            if(is_avx_zero(dyn, ninst, i))
+                STPx_S7_offset(xZR, xZR, xEmu, offsetof(x64emu_t, ymm[i]));
 }
 
 void sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a)
 {
+    if(is_avx_zero(dyn, ninst, a))
+        STPx_S7_offset(xZR, xZR, xEmu, offsetof(x64emu_t, ymm[a]));
     if(dyn->n.ssecache[a].v==-1)
         return;
     if(dyn->n.neoncache[dyn->n.ssecache[a].reg].t == NEON_CACHE_XMMW) {
@@ -1708,10 +1727,13 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
     if(!n)
         return;
     MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
-    for (int i=start; i<16; ++i)
+    for (int i=start; i<16; ++i) {
         if((dyn->n.ssecache[i].v!=-1) && (dyn->n.ssecache[i].write)) {
             VSTR128_U12(dyn->n.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
+        if(is_avx_zero(dyn, ninst, i))
+            STPx_S7_offset(xZR, xZR, xEmu, offsetof(x64emu_t, ymm[i]));
+    }
     MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
 }
 
@@ -1778,6 +1800,13 @@ static int findCacheSlot(dynarec_arm_t* dyn, int ninst, int t, int n, neoncache_
                 case NEON_CACHE_XMMW:
                     if(t==NEON_CACHE_XMMR)
                         return i;
+                case NEON_CACHE_YMMR:
+                    if(t==NEON_CACHE_YMMW)
+                        return i;
+                    break;
+                case NEON_CACHE_YMMW:
+                    if(t==NEON_CACHE_YMMR)
+                        return i;
                     break;
             }
         }
@@ -1790,9 +1819,9 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
     if (i==j)
         return;
     int quad = 0;
-    if(cache->neoncache[i].t==NEON_CACHE_XMMR || cache->neoncache[i].t==NEON_CACHE_XMMW)
+    if(cache->neoncache[i].t==NEON_CACHE_XMMR || cache->neoncache[i].t==NEON_CACHE_XMMW || cache->neoncache[i].t==NEON_CACHE_YMMR || cache->neoncache[i].t==NEON_CACHE_YMMW)
         quad =1;
-    if(cache->neoncache[j].t==NEON_CACHE_XMMR || cache->neoncache[j].t==NEON_CACHE_XMMW)
+    if(cache->neoncache[j].t==NEON_CACHE_XMMR || cache->neoncache[j].t==NEON_CACHE_XMMW || cache->neoncache[j].t==NEON_CACHE_YMMR || cache->neoncache[j].t==NEON_CACHE_YMMW)
         quad =1;
 
     if(!cache->neoncache[i].v) {
@@ -1821,7 +1850,6 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
         VMOV(i, j);
         VMOV(j, SCRATCH);
     }
-    #undef SCRATCH
     tmp.v = cache->neoncache[i].v;
     cache->neoncache[i].v = cache->neoncache[j].v;
     cache->neoncache[j].v = tmp.v;
@@ -1851,6 +1879,11 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
         case NEON_CACHE_XMMW:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             VLDR128_U12(i, xEmu, offsetof(x64emu_t, xmm[n]));
+            break;
+        case NEON_CACHE_YMMR:
+        case NEON_CACHE_YMMW:
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
+            VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[n]));
             break;
         case NEON_CACHE_MM:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
@@ -1900,11 +1933,16 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
 {
     switch(t) {
         case NEON_CACHE_XMMR:
+        case NEON_CACHE_YMMR:
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
             break;
         case NEON_CACHE_XMMW:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             VSTR128_U12(i, xEmu, offsetof(x64emu_t, xmm[n]));
+            break;
+        case NEON_CACHE_YMMW:
+            MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
+            VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[n]));
             break;
         case NEON_CACHE_MM:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
@@ -2047,11 +2085,18 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                     cache.neoncache[i].t = NEON_CACHE_ST_D;
                 } else if(cache.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
                     { cache.neoncache[i].t = NEON_CACHE_XMMW; }
+                else if(cache.neoncache[i].t == NEON_CACHE_YMMR && cache_i2.neoncache[i].t == NEON_CACHE_YMMW)
+                    { cache.neoncache[i].t = NEON_CACHE_YMMW; }
                 else if(cache.neoncache[i].t == NEON_CACHE_XMMW && cache_i2.neoncache[i].t == NEON_CACHE_XMMR) {
                     // refresh cache...
                     MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
                     VSTR128_U12(i, xEmu, offsetof(x64emu_t, xmm[cache.neoncache[i].n]));
                     cache.neoncache[i].t = NEON_CACHE_XMMR;
+                } else if(cache.neoncache[i].t == NEON_CACHE_YMMW && cache_i2.neoncache[i].t == NEON_CACHE_YMMR) {
+                    // refresh cache...
+                    MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
+                    VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[cache.neoncache[i].n]));
+                    cache.neoncache[i].t = NEON_CACHE_YMMR;
                 }
             }
         }
@@ -2308,4 +2353,15 @@ void fpu_propagate_stack(dynarec_arm_t* dyn, int ninst)
     dyn->n.news = 0;
     dyn->n.stack_push = 0;
     dyn->n.swapped = 0;
+}
+
+void avx_purge_ymm0(dynarec_arm_t* dyn, int ninst)
+{
+    if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Purge YMM Zero mask=%04x --------\n", dyn->insts[ninst].purge_ymm0);
+    for(int i=0; i<16; ++i)
+        if(dyn->insts[ninst].purge_ymm0&(1<<i) && is_avx_zero(dyn, ninst, i)) {
+            STPx_S7_offset(xZR, xZR, xEmu, offsetof(x64emu_t, ymm[i]));
+            avx_unmark_zero(dyn, ninst, i);
+        }
+    if(box64_dynarec_dump) dynarec_log(LOG_NONE, "---------- Purge YMM Zero\n");
 }

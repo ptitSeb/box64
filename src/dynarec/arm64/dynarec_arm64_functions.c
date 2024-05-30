@@ -88,7 +88,7 @@ int fpu_get_reg_xmm(dynarec_arm_t* dyn, int t, int xmm)
 static void fpu_reset_reg_neoncache(neoncache_t* n)
 {
     n->fpu_reg = 0;
-    for (int i=0; i<24; ++i) {
+    for (int i=0; i<32; ++i) {
         n->fpuused[i]=0;
         n->neoncache[i].v = 0;
     }
@@ -456,7 +456,7 @@ void neoncacheUnwind(neoncache_t* cache)
         cache->ssecache[i*2+1].v = -1;
     }
     int x87reg = 0;
-    for(int i=0; i<24; ++i) {
+    for(int i=0; i<32; ++i) {
         if(cache->neoncache[i].v) {
             cache->fpuused[i] = 1;
             switch (cache->neoncache[i].t) {
@@ -467,6 +467,8 @@ void neoncacheUnwind(neoncache_t* cache)
                     break;
                 case NEON_CACHE_XMMR:
                 case NEON_CACHE_XMMW:
+                case NEON_CACHE_YMMR:
+                case NEON_CACHE_YMMW:
                     cache->ssecache[cache->neoncache[i].n].reg = i;
                     cache->ssecache[cache->neoncache[i].n].write = (cache->neoncache[i].t==NEON_CACHE_XMMW)?1:0;
                     ++cache->fpu_reg;
@@ -543,6 +545,8 @@ const char* getCacheName(int t, int n)
         case NEON_CACHE_MM: sprintf(buff, "MM%d", n); break;
         case NEON_CACHE_XMMW: sprintf(buff, "XMM%d", n); break;
         case NEON_CACHE_XMMR: sprintf(buff, "xmm%d", n); break;
+        case NEON_CACHE_YMMW: sprintf(buff, "YMM%d", n); break;
+        case NEON_CACHE_YMMR: sprintf(buff, "ymm%d", n); break;
         case NEON_CACHE_SCR: sprintf(buff, "Scratch"); break;
         case NEON_CACHE_NONE: buff[0]='\0'; break;
     }
@@ -580,7 +584,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dynarec_log(LOG_NONE, ", jmp=out");
         if(dyn->last_ip)
             dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);
-        for(int ii=0; ii<24; ++ii) {
+        for(int ii=0; ii<32; ++ii) {
             switch(dyn->insts[ninst].n.neoncache[ii].t) {
                 case NEON_CACHE_ST_D: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_ST_F: dynarec_log(LOG_NONE, " S%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
@@ -588,11 +592,15 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
                 case NEON_CACHE_MM: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_XMMW: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_XMMR: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
-                case NEON_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_YMMW: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                case NEON_CACHE_YMMR: dynarec_log(LOG_NONE, " Q%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
+                //case NEON_CACHE_SCR: dynarec_log(LOG_NONE, " D%d:%s", ii, getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n)); break;
                 case NEON_CACHE_NONE:
                 default:    break;
             }
         }
+        if(dyn->ymm_zero)
+            dynarec_log(LOG_NONE, " ymm0_mask=%04x", dyn->ymm_zero);
         if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)
             dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack);
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)

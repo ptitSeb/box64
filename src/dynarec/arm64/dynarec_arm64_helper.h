@@ -449,6 +449,14 @@
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg_empty(dyn, ninst, x1, gd)
 
+// Get VX as a quad (might use x1)
+#define GETVX(a, w)                     \
+    a = sse_get_reg(dyn, ninst, x1, vex.v, w)
+
+// Get an empty VX (use x1)
+#define GETVX_empty(a)                  \
+    a = sse_get_reg_empty(dyn, ninst, x1, vex.v)
+
 // Get EX as a quad, (x1 is used)
 #define GETEX(a, w, D)                                                                                  \
     if(MODREG) {                                                                                        \
@@ -530,6 +538,7 @@
         SMWRITE2();                         \
     }
 
+#define YMM0(a) avx_mark_zero(dyn, ninst, gd);
 
 // Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
 // F_DF is 1<<10, so 1 ROR 11*2 (so F_OF)
@@ -1016,6 +1025,8 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_66F0     STEPNAME(dynarec64_66F0)
 #define dynarec64_F20F     STEPNAME(dynarec64_F20F)
 #define dynarec64_F30F     STEPNAME(dynarec64_F30F)
+#define dynarec64_AVX      STEPNAME(dynarec64_AVX)
+#define dynarec64_AVX_0F   STEPNAME(dynarec64_AVX_0F)
 
 #define geted           STEPNAME(geted)
 #define geted32         STEPNAME(geted32)
@@ -1162,6 +1173,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_purgecache  STEPNAME(x87_purgecache)
 #define fpu_reflectcache STEPNAME(fpu_reflectcache)
 #define fpu_unreflectcache STEPNAME(fpu_unreflectcache)
+#define avx_purge_ymm0  STEPNAME(avx_purge_ymm0)
 
 #define CacheTransform       STEPNAME(CacheTransform)
 
@@ -1322,6 +1334,8 @@ int x87_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+// purge ymm_zero mask according to purge_ymm0
+void avx_purge_ymm0(dynarec_arm_t* dyn, int ninst);
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
@@ -1420,6 +1434,8 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)
@@ -1577,5 +1593,6 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         }                                       \
     }
 
+#define PURGE_YMM0()    avx_purge_ymm0(dyn, ninst)
 
 #endif //__DYNAREC_ARM64_HELPER_H__
