@@ -1669,7 +1669,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 #define FCOMIS(v1, v2, s1, s2, s3, s4, s5) FCOMI(S, v1, v2, s1, s2, s3, s4, s5)
 #define FCOMID(v1, v2, s1, s2, s3, s4, s5) FCOMI(D, v1, v2, s1, s2, s3, s4, s5)
 
-#define PURGE_YMM0()    /* TODO */
+#define PURGE_YMM()    /* TODO */
 
 // reg = (reg < -32768) ? -32768 : ((reg > 32767) ? 32767 : reg)
 #define SAT16(reg, s)             \
