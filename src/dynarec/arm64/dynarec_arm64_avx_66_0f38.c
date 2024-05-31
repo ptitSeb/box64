@@ -115,8 +115,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             // create mask
             VSSHRQ_32(q0, v2, 31);
             VBITQ(v1, v0, q0);
-            if(!MODREG)
+            if(!MODREG) {
                 VST128(v1, ed, fixedaddress);
+            }
             if(vex.l) {
                 GETGYVYEY(v0, v2, v1);
                 VSSHRQ_32(q0, v2, 31);
@@ -133,14 +134,16 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             // create mask
             VSSHRQ_64(q0, v2, 63);
             VBITQ(v1, v0, q0);
-            if(!MODREG)
+            if(!MODREG) {
                 VST128(v1, ed, fixedaddress);
+            }
             if(vex.l) {
                 GETGYVYEY(v0, v2, v1);
                 VSSHRQ_64(q0, v2, 63);
                 VBITQ(v1, v0, q0);
-                if(!MODREG)
+                if(!MODREG) {
                     VST128(v1, ed, fixedaddress+16);
+                }
             }
             break;
 

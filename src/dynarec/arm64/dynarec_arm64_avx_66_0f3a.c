@@ -120,8 +120,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             u8 = F8;
             VMOVHto(ed, v0, u8&7);
-            if(!MODREG)
+            if(!MODREG) {
                 STH(ed, wback, fixedaddress);
+            }
             break;
         case 0x16:
             INST_NAME("VPEXTRD/Q Ed, Gx, imm8");
@@ -140,8 +141,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else {
                 VMOVSto(ed, v0, u8&3);
             }
-            if(!MODREG)
+            if(!MODREG) {
                 STxw(ed, wback, fixedaddress);
+            }
             break;
         case 0x17:
             INST_NAME("VEXTRACTPS Ed, Gx, imm8");
@@ -156,8 +158,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             u8 = F8;
             VMOVSto(ed, v0, u8&3);
-            if(!MODREG)
+            if(!MODREG) {
                 STW(ed, wback, fixedaddress);
+            }
             break;
         case 0x18:
             INST_NAME("VINSERTF128 Gx, Vx, Ex, imm8");

@@ -193,10 +193,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 GETGX_empty(v0);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
-                VLD128(v0, ed, fixedaddress);
+                VLDR128_U12(v0, ed, fixedaddress);
                 if(vex.l) {
                     GETGY_empty(v0, -1, -1, -1);
-                    VLD128(v0, ed, fixedaddress+16);
+                    VLDR128_U12(v0, ed, fixedaddress+16);
                 }
             }
             if(!vex.l) YMM0(gd);

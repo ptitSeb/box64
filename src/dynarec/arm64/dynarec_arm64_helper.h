@@ -517,6 +517,7 @@
     } else {                                                                                            \
         if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
+        unscaled = 0;                                                                                   \
         a = fpu_get_scratch(dyn, ninst);                                                                \
         VLD128(a, ed, fixedaddress);                                                                    \
     }
