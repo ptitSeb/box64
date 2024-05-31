@@ -2755,59 +2755,46 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(x2, 0);
             GETGD;
-            #define MYGO(s)            \
-                if (rv64_zba) {        \
-                    SH1ADD(gd, gd, s); \
-                } else {               \
-                    SLLI(gd, gd, 1);   \
-                    OR(gd, gd, s);     \
-                }
-            #define MYGO2(first)          \
-                if (!first) { MYGO(x6); } \
-                MYGO(x3);                 \
-                MYGO(x4);                 \
-                MYGO(x5);
-            #define MYGO3(first, high, sr)    \
-                if (rv64_zbs) {               \
-                    if (first) {              \
-                        BEXTI(gd, sr, high);  \
-                    } else {                  \
-                        BEXTI(x6, sr, high);  \
-                    }                         \
-                    BEXTI(x3, sr, high - 8);  \
-                    BEXTI(x4, sr, high - 16); \
-                    BEXTI(x5, sr, high - 24); \
-                } else {                      \
-                    if (first) {              \
-                        SRLI(gd, sr, high);   \
-                    } else {                  \
-                        SRLI(x6, sr, high);   \
-                    }                         \
-                    SRLI(x3, sr, high - 8);   \
-                    SRLI(x4, sr, high - 16);  \
-                    SRLI(x5, sr, high - 24);  \
-                    if (first) {              \
-                        ANDI(gd, gd, 1);      \
-                    } else {                  \
-                        ANDI(x6, x6, 1);      \
-                    }                         \
-                    ANDI(x3, x3, 1);          \
-                    ANDI(x4, x4, 1);          \
-                    ANDI(x5, x5, 1);          \
-                }
             LD(x1, wback, fixedaddress + 8); // high part
             LD(x2, wback, fixedaddress + 0); // low part, also destroyed wback(x2)
-            MYGO3(1, 63, x1);
-            MYGO2(1);
-            MYGO3(0, 31, x1);
-            MYGO2(0);
-            MYGO3(0, 63, x2);
-            MYGO2(0);
-            MYGO3(0, 31, x2);
-            MYGO2(0);
-            #undef MYGO
-            #undef MYGO2
-            #undef MYGO3
+            for (int i = 0; i < 8; i++) {
+                if (rv64_zbs) {
+                    if (i == 0) {
+                        BEXTI(gd, x1, 63);
+                    } else {
+                        BEXTI(x6, x1, 63 - i * 8);
+                    }
+                } else {
+                    if (i == 0) {
+                        SRLI(gd, x1, 63);
+                    } else {
+                        SRLI(x6, x1, 63 - i * 8);
+                        ANDI(x6, x6, 1);
+                    }
+                }
+                if (i != 0) {
+                    if (rv64_zba) {
+                        SH1ADD(gd, gd, x6);
+                    } else {
+                        SLLI(gd, gd, 1);
+                        OR(gd, gd, x6);
+                    }
+                }
+            }
+            for (int i = 0; i < 8; i++) {
+                if (rv64_zbs) {
+                    BEXTI(x6, x2, 63 - i * 8);
+                } else {
+                    SRLI(x6, x2, 63 - i * 8);
+                    ANDI(x6, x6, 1);
+                }
+                if (rv64_zba) {
+                    SH1ADD(gd, gd, x6);
+                } else {
+                    SLLI(gd, gd, 1);
+                    OR(gd, gd, x6);
+                }
+            }
             break;
         case 0xD8:
             INST_NAME("PSUBUSB Gx, Ex");
