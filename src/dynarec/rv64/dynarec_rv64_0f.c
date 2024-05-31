@@ -541,6 +541,27 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     }
                     break;
+                case 0x06:
+                    INST_NAME("PHSUBD Gm,Em");
+                    nextop = F8;
+                    GETGM();
+                    // GM->sd[0] += GM->sd[1];
+                    LW(x3, gback, gdoffset + 0 * 4);
+                    LW(x4, gback, gdoffset + 1 * 4);
+                    SUBW(x3, x3, x4);
+                    SW(x3, gback, gdoffset + 0 * 4);
+                    if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
+                        // GM->sd[1] = GM->sd[0];
+                        SW(x3, gback, gdoffset + 1 * 4);
+                    } else {
+                        GETEM(x2, 0);
+                        // GM->sd[1] = EM->sd[0] + EM->sd[1];
+                        LW(x3, wback, fixedaddress + 0 * 4);
+                        LW(x4, wback, fixedaddress + 1 * 4);
+                        SUBW(x3, x3, x4);
+                        SW(x3, gback, gdoffset + 1 * 4);
+                    }
+                    break;
                 case 0x1C:
                     INST_NAME("PABSB Gm,Em");
                     nextop = F8;
