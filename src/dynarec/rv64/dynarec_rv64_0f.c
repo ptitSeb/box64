@@ -2371,6 +2371,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(x3, gback, gdoffset + i * 2);
             }
             break;
+        case 0xDE:
+            INST_NAME("PMAXUB Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            for (int i = 0; i < 8; ++i) {
+                LBU(x3, gback, gdoffset + i);
+                LBU(x4, wback, fixedaddress + i);
+                if (rv64_zbb) {
+                    MAXU(x3, x3, x4);
+                } else {
+                    BLTU(x4, x3, 8);
+                    MV(x3, x4);
+                }
+                SB(x3, gback, gdoffset + i);
+            }
+            break;
         case 0xDF:
             INST_NAME("PANDN Gm, Em");
             nextop = F8;
