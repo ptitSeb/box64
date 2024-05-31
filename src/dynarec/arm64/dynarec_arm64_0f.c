@@ -2642,7 +2642,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SQADD_16(d0, d0, d1);
             break;
         case 0xEE:
-            INST_NAME("PMAXSW Gx,Ex");
+            INST_NAME("PMAXSW Gm,Em");
             nextop = F8;
             GETGM(v0);
             GETEM(q0, 0);

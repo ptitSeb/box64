@@ -2539,6 +2539,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SH(x3, gback, gdoffset + 2 * i);
             }
             break;
+        case 0xEE:
+            INST_NAME("PMAXSW Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x1, 0);
+            MMX_LOOP_WS(x3, x4,
+                if (rv64_zbb) {
+                    MAX(x3, x3, x4);
+                } else {
+                    BGE(x3, x4, 8);
+                    MV(x3, x4);
+                }
+            );
+            break;
         case 0xEF:
             INST_NAME("PXOR Gm,Em");
             nextop = F8;
