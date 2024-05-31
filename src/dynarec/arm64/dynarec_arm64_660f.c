@@ -900,6 +900,26 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         STH(x1, ed, fixedaddress);
                     }
                     break;
+
+                case 0xF6:
+                    INST_NAME("ADCX Gd, Ed");
+                    nextop = F8;
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_CF, SF_SUBSET);
+                    GETED(0);
+                    GETGD;
+                    MRS_nzvc(x3);
+                    BFIx(x3, xFlags, 29, 1); // set C
+                    MSR_nzvc(x3);      // load CC into ARM CF
+                    IFX(X_CF) {
+                        ADCSxw_REG(gd, gd, ed);
+                        CSETw(x3, cCS);
+                        BFIw(xFlags, x3, F_CF, 1);
+                    } else {
+                        ADCxw_REG(gd, gd, ed);
+                    }
+                    break;
+
                 default:
                     DEFAULT;
             }

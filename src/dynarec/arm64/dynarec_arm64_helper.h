@@ -90,6 +90,8 @@
 
 // GETGD    get x64 register in gd
 #define GETGD   gd = xRAX+((nextop&0x38)>>3)+(rex.r<<3)
+// GETVD    get x64 register in vd
+#define GETVD   vd = xRAX+vex.v
 //GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED(D)  if(MODREG) {                          \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
@@ -510,13 +512,21 @@
         VLD128(ey, ed, fixedaddress+16);                                            \
     gy = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
 
-// Get EX as a quad, (x1 is used)
+// Get empty VY, and non-writen EY
+#define GETVY_empty_EY(vy, ey)                                                      \
+    if(MODREG)                                                                      \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, vex.v, -1, -1);     \
+    else                                                                            \
+        VLD128(ey, ed, fixedaddress+16);                                            \
+    vy = ymm_get_reg_empty(dyn, ninst, x1, vex.v, -1, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
+
+// Get EX as a quad, (x3 is used)
 #define GETEX_Y(a, w, D)                                                                                \
     if(MODREG) {                                                                                        \
-        a = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), w);                                      \
+        a = sse_get_reg(dyn, ninst, x3, (nextop&7)+(rex.b<<3), w);                                      \
     } else {                                                                                            \
         if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
         unscaled = 0;                                                                                   \
         a = fpu_get_scratch(dyn, ninst);                                                                \
         VLD128(a, ed, fixedaddress);                                                                    \
@@ -1093,8 +1103,10 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_AVX      STEPNAME(dynarec64_AVX)
 #define dynarec64_AVX_0F   STEPNAME(dynarec64_AVX_0F)
 #define dynarec64_AVX_66_0F     STEPNAME(dynarec64_AVX_66_0F)
+#define dynarec64_AVX_F3_0F     STEPNAME(dynarec64_AVX_F2_0F38)
 #define dynarec64_AVX_66_0F38   STEPNAME(dynarec64_AVX_66_0F38)
 #define dynarec64_AVX_66_0F3A   STEPNAME(dynarec64_AVX_66_0F3A)
+#define dynarec64_AVX_F2_0F38   STEPNAME(dynarec64_AVX_F2_0F38)
 
 #define geted           STEPNAME(geted)
 #define geted32         STEPNAME(geted32)
@@ -1516,8 +1528,10 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 uintptr_t dynarec64_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_F2_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)
