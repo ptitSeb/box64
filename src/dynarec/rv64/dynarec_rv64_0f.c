@@ -2321,6 +2321,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0);
             MMX_LOOP_W(x3, x4, SUB(x3, x3, x4); SLT(x4, xZR, x3); NEG(x4, x4); AND(x3, x3, x4));
             break;
+        case 0xDA:
+            INST_NAME("PMINUB Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            for (int i = 0; i < 8; ++i) {
+                LBU(x3, gback, gdoffset + i);
+                LBU(x4, wback, fixedaddress + i);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x4);
+                } else {
+                    BLTU(x3, x4, 8);
+                    MV(x3, x4);
+                }
+                SB(x3, gback, gdoffset + i);
+            }
+            break;
         case 0xDB:
             INST_NAME("PAND Gm, Em");
             nextop = F8;
