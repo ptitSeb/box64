@@ -58,11 +58,35 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 #endif
 {
 #ifdef TEST_INTERPRETER
-    x64emu_t *emu = test->emu;
-#endif
+    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_NONE))
+        addr = TestAVX_0F(test, vex, addr, step);
+    else  if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_NONE))
+        addr = TestAVX_0F38(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
+        addr = TestAVX_660F(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F2))
+        addr = TestAVX_F20F(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F3))
+        addr = TestAVX_F30F(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_66))
+        addr = TestAVX_660F38(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_66))
+        addr = TestAVX_660F3A(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F2))
+        addr = TestAVX_F20F38(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F3))
+        addr = TestAVX_F30F38(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_F2))
+        addr = TestAVX_F20F3A(test, vex, addr, step);
+    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_F3))
+        addr = TestAVX_F30F3A(test, vex, addr, step);
+    else addr = 0;
+#else
     uint8_t opcode = PK(0);
     if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_NONE))
         addr = RunAVX_0F(emu, vex, addr, step);
+    else  if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_NONE))
+        addr = RunAVX_0F38(emu, vex, addr, step);
     else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
         addr = RunAVX_660F(emu, vex, addr, step);
     else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F2))
@@ -73,10 +97,19 @@ uintptr_t RunAVX(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         addr = RunAVX_660F38(emu, vex, addr, step);
     else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_66))
         addr = RunAVX_660F3A(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F2))
+        addr = RunAVX_F20F38(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F3))
+        addr = RunAVX_F30F38(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_F2))
+        addr = RunAVX_F20F3A(emu, vex, addr, step);
+    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_F3))
+        addr = RunAVX_F30F3A(emu, vex, addr, step);
     else addr = 0;
 
     if(!addr)
         printf_log(LOG_INFO, "Unimplemented AVX opcode size %d prefix %s map %s opcode %02X ", 128<<vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
+#endif
 
     return addr;
 }

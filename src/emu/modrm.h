@@ -79,8 +79,10 @@
 #endif
 #define GETVX               opvx=&emu->xmm[vex.v]
 #define GETVY               opvy=&emu->ymm[vex.v]
+#define GETVD               opvd=&emu->regs[vex.v]
 #define ED  oped
 #define GD  opgd
+#define VD  opvd
 #define EB  oped
 #define GB  opgd->byte[0]
 #define EW  oped

@@ -379,6 +379,7 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64run66dd.c"
     "${BOX64_ROOT}/src/emu/x64run66f0.c"
     "${BOX64_ROOT}/src/emu/x64run67.c"
+    "${BOX64_ROOT}/src/emu/x64run67avx.c"
     "${BOX64_ROOT}/src/emu/x64run67_32.c"
     "${BOX64_ROOT}/src/emu/x64run6764_32.c"
     "${BOX64_ROOT}/src/emu/x64run670f.c"
@@ -397,11 +398,16 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64runf30f.c"
     "${BOX64_ROOT}/src/emu/x64runavx.c"
     "${BOX64_ROOT}/src/emu/x64runavx0f.c"
+    "${BOX64_ROOT}/src/emu/x64runavx0f38.c"
     "${BOX64_ROOT}/src/emu/x64runavx660f.c"
     "${BOX64_ROOT}/src/emu/x64runavxf20f.c"
     "${BOX64_ROOT}/src/emu/x64runavxf30f.c"
     "${BOX64_ROOT}/src/emu/x64runavx660f38.c"
     "${BOX64_ROOT}/src/emu/x64runavx660f3a.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf20f38.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf30f38.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf20f3a.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf30f3a.c"
 )
 
 if(STATICBUILD)

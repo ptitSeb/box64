@@ -59,7 +59,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     uint16_t tmp16u;
     int32_t tmp32s;
     uint32_t tmp32u;
-    uint64_t tmp64u;
+    uint64_t tmp64u, tmp64u2;
     int64_t tmp64s, i64[4];
     float tmpf;
     double tmpd;
@@ -810,6 +810,32 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETED(0);
                 GETGD;
                 ED->word[0] = __builtin_bswap16(GD->word[0]);
+                break;
+
+            case 0xF6: /* ADCX Gd, Rd */
+                nextop = F8;
+                GETED(0);
+                GETGD;
+            	CHECK_FLAGS(emu);
+                if(rex.w) {
+                    if (ACCESS_FLAG(F_CF)) {
+                        tmp64u = 1 + (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                        tmp64u2 = 1 + GD->q[0] + ED->q[0];
+                        }
+                    else {
+                        tmp64u = (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                        tmp64u2 = GD->q[0] + ED->q[0];
+                        }
+                    tmp64u = (tmp64u >> 32) + (GD->q[0] >> 32) + (ED->q[0] >> 32);
+                    CONDITIONAL_SET_FLAG(tmp64u & 0x100000000L, F_CF);
+                    GD->q[0] = tmp64u2;
+                } else {
+                    if (ACCESS_FLAG(F_CF))
+                        GD->q[0] = 1LL + GD->dword[0] + ED->dword[0];
+                    else
+                        GD->q[0] = (uint64_t)GD->dword[0] + ED->dword[0];
+                	CONDITIONAL_SET_FLAG(GD->q[0] & 0x100000000LL, F_CF);
+                }
                 break;
             default:
                 return 0;

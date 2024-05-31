@@ -1345,8 +1345,8 @@ x64emurun:
             #endif
             break;
         case 0xC4:                      /* LES Gd,Ed */
-            if(rex.is32bits && !(PK(0)&0x80)) {
-                nextop = F8;
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
                 GETED(0);
                 GETGD;
                 emu->segs[_ES] = *(__uint16_t*)(((char*)ED)+4);
@@ -1355,7 +1355,7 @@ x64emurun:
             } else {
                 vex_t vex = {0};
                 vex.rex = rex;
-                tmp8u = F8;
+                tmp8u = nextop;
                 vex.m = tmp8u&0b00011111;
                 vex.rex.b = (tmp8u&0b00100000)?0:1;
                 vex.rex.x = (tmp8u&0b01000000)?0:1;
@@ -1380,8 +1380,8 @@ x64emurun:
             }
             break;
         case 0xC5:                      /* LDS Gd,Ed */
-            if(rex.is32bits && !(PK(0)&0x80)) {
-                nextop = F8;
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
                 GETED(0);
                 GETGD;
                 emu->segs[_DS] = *(__uint16_t*)(((char*)ED)+4);
@@ -1390,7 +1390,7 @@ x64emurun:
             } else {
                 vex_t vex = {0};
                 vex.rex = rex;
-                tmp8u = F8;
+                tmp8u = nextop;
                 vex.p = tmp8u&0b00000011;
                 vex.l = (tmp8u>>2)&1;
                 vex.v = ((~tmp8u)>>3)&0b1111;

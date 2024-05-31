@@ -67,7 +67,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     uint32_t tmp32u, tmp32u2;
     uint64_t tmp64u, tmp64u2;
     int64_t tmp64s;
-    reg64_t *oped, *opgd;
+    reg64_t *oped, *opgd, *opvd;
     sse_regs_t *opex, *opgx, *opvx, eax1, eax2;
     sse_regs_t *opey, *opgy, *opvy, eay1, eay2;
     // AES opcodes constants
@@ -1635,6 +1635,20 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = eax1.u128 ^ EY->u128;
             } else
                 GY->u128 = 0;
+            break;
+
+        case 0xF7:  /* SHLX Gd, Ed, Vd */
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            GETVD;
+            if(rex.w) {
+                u8 = VD->q[0] & 0x3f;
+                GD->q[0] = ED->q[0] << u8;
+            } else {
+                u8 = VD->dword[0] & 0x1f;
+                GD->q[0] = ED->dword[0] << u8;
+            }
             break;
 
         default:

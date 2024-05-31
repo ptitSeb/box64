@@ -1639,7 +1639,7 @@ void CreateCPUInfoFile(int fd)
         P;
         sprintf(buff, "bogomips\t: %g\n", getBogoMips());
         P;
-        sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fxsr cpuid pclmulqdq cx16 aes movbe pni sse4_1%s%s lzcnt popcnt%s%s\n", box64_sse42?" sse4_2":"", box64_avx?" avx":"", box64_avx2?" avx2":"", box64_avx2?" vaes":"");
+        sprintf(buff, "flags\t\t: fpu cx8 sep ht cmov clflush mmx sse sse2 syscall tsc lahf_lm ssse3 ht tm lm fxsr cpuid pclmulqdq cx16 aes movbe pni sse4_1%s%s lzcnt popcnt%s%s%s%s\n", box64_sse42?" sse4_2":"", box64_avx?" avx":"", box64_avx?" bmi1":"", box64_avx2?" avx2":"", box64_avx?" bmi2":"", box64_avx2?" vaes":"");
         P;
         sprintf(buff, "address sizes\t: 48 bits physical, 48 bits virtual\n");
         P;
