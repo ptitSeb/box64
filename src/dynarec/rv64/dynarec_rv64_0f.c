@@ -2314,6 +2314,63 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0);
             MMX_LOOP_WS(x3, x4, MULW(x3, x3, x4));
             break;
+        case 0xD7:
+            INST_NAME("PMOVMSKB Gd, Em");
+            nextop = F8;
+            GETGD;
+            GETEM(x2, 0);
+            if (rv64_zbs && rv64_zba) {
+                LD(x1, wback, fixedaddress);
+                BEXTI(gd, x1, 63);
+                BEXTI(x3, x1, 55);
+                BEXTI(x4, x1, 47);
+                BEXTI(x5, x1, 39);
+                SH1ADD(gd, gd, x3);
+                SH1ADD(gd, gd, x4);
+                SH1ADD(gd, gd, x5);
+                BEXTI(x6, x1, 31);
+                BEXTI(x3, x1, 23);
+                BEXTI(x4, x1, 15);
+                BEXTI(x5, x1, 7);
+                SH1ADD(gd, gd, x6);
+                SH1ADD(gd, gd, x3);
+                SH1ADD(gd, gd, x4);
+                SH1ADD(gd, gd, x5);
+            } else {
+                #define MYGO(d, s)       \
+                    if (rv64_zba) {      \
+                        SH1ADD(d, d, s); \
+                    } else {             \
+                        SLLI(d, d, 1);   \
+                        OR(d, d, s);     \
+                    }
+                LD(x1, wback, fixedaddress);
+                SRLI(gd, x1, 63);
+                SRLI(x3, x1, 55);
+                SRLI(x4, x1, 47);
+                SRLI(x5, x1, 39);
+                ANDI(gd, gd, 1);
+                ANDI(x3, x3, 1);
+                ANDI(x4, x4, 1);
+                ANDI(x5, x5, 1);
+                MYGO(gd, x3);
+                MYGO(gd, x4);
+                MYGO(gd, x5);
+                SRLI(x6, x1, 31);
+                SRLI(x3, x1, 23);
+                SRLI(x4, x1, 15);
+                SRLI(x5, x1, 7);
+                ANDI(x6, x6, 1);
+                ANDI(x3, x3, 1);
+                ANDI(x4, x4, 1);
+                ANDI(x5, x5, 1);
+                MYGO(gd, x6);
+                MYGO(gd, x3);
+                MYGO(gd, x4);
+                MYGO(gd, x5);
+                #undef MYGO
+            }
+            break;
         case 0xD9:
             INST_NAME("PSUBUSW Gm, Em");
             nextop = F8;
