@@ -2807,8 +2807,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 16; ++i) {
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
-                BLTU(x3, x4, 8);
-                MV(x3, x4);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x4);
+                } else {
+                    BLTU(x3, x4, 8);
+                    MV(x3, x4);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -2867,8 +2871,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 16; ++i) {
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
-                BLTU(x4, x3, 8);
-                MV(x3, x4);
+                if (rv64_zbb) {
+                    MAXU(x3, x3, x4);
+                } else {
+                    BLTU(x4, x3, 8);
+                    MV(x3, x4);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -3061,8 +3069,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 8; ++i) {
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
-                BLT(x3, x4, 8);
-                MV(x3, x4);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x4);
+                } else {
+                    BLT(x3, x4, 8);
+                    MV(x3, x4);
+                }
                 SH(x3, gback, gdoffset + 2 * i);
             }
             break;
@@ -3128,7 +3140,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
-            SSE_LOOP_WS(x3, x4, BGE(x3, x4, 8); MV(x3, x4));
+            SSE_LOOP_WS(x3, x4,
+                if (rv64_zbb) {
+                    MAX(x3, x3, x4);
+                } else {
+                    BGE(x3, x4, 8);
+                    MV(x3, x4);
+                }
+            );
             break;
         case 0xEF:
             INST_NAME("PXOR Gx, Ex");
