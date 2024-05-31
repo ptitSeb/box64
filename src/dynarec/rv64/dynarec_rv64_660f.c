@@ -2755,12 +2755,45 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(x2, 0);
             GETGD;
-            MV(gd, xZR);
-            for (int i = 0; i < 16; ++i) {
-                LB(x1, wback, fixedaddress + i);
-                SLT(x3, x1, xZR);
-                if (i > 0) SLLI(x3, x3, i);
-                OR(gd, gd, x3);
+            LD(x1, wback, fixedaddress + 8); // high part
+            LD(x2, wback, fixedaddress + 0); // low part, also destroyed wback(x2)
+            for (int i = 0; i < 8; i++) {
+                if (rv64_zbs) {
+                    if (i == 0) {
+                        BEXTI(gd, x1, 63);
+                    } else {
+                        BEXTI(x6, x1, 63 - i * 8);
+                    }
+                } else {
+                    if (i == 0) {
+                        SRLI(gd, x1, 63);
+                    } else {
+                        SRLI(x6, x1, 63 - i * 8);
+                        ANDI(x6, x6, 1);
+                    }
+                }
+                if (i != 0) {
+                    if (rv64_zba) {
+                        SH1ADD(gd, gd, x6);
+                    } else {
+                        SLLI(gd, gd, 1);
+                        OR(gd, gd, x6);
+                    }
+                }
+            }
+            for (int i = 0; i < 8; i++) {
+                if (rv64_zbs) {
+                    BEXTI(x6, x2, 63 - i * 8);
+                } else {
+                    SRLI(x6, x2, 63 - i * 8);
+                    ANDI(x6, x6, 1);
+                }
+                if (rv64_zba) {
+                    SH1ADD(gd, gd, x6);
+                } else {
+                    SLLI(gd, gd, 1);
+                    OR(gd, gd, x6);
+                }
             }
             break;
         case 0xD8:
@@ -2807,8 +2840,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 16; ++i) {
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
-                BLTU(x3, x4, 8);
-                MV(x3, x4);
+                if (rv64_zbb) {
+                    MINU(x3, x3, x4);
+                } else {
+                    BLTU(x3, x4, 8);
+                    MV(x3, x4);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -2867,8 +2904,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 16; ++i) {
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
-                BLTU(x4, x3, 8);
-                MV(x3, x4);
+                if (rv64_zbb) {
+                    MAXU(x3, x3, x4);
+                } else {
+                    BLTU(x4, x3, 8);
+                    MV(x3, x4);
+                }
                 SB(x3, gback, gdoffset + i);
             }
             break;
@@ -3061,8 +3102,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 8; ++i) {
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
-                BLT(x3, x4, 8);
-                MV(x3, x4);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x4);
+                } else {
+                    BLT(x3, x4, 8);
+                    MV(x3, x4);
+                }
                 SH(x3, gback, gdoffset + 2 * i);
             }
             break;
@@ -3128,7 +3173,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX();
             GETEX(x2, 0);
-            SSE_LOOP_WS(x3, x4, BGE(x3, x4, 8); MV(x3, x4));
+            SSE_LOOP_WS(x3, x4,
+                if (rv64_zbb) {
+                    MAX(x3, x3, x4);
+                } else {
+                    BGE(x3, x4, 8);
+                    MV(x3, x4);
+                }
+            );
             break;
         case 0xEF:
             INST_NAME("PXOR Gx, Ex");
