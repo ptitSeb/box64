@@ -5517,6 +5517,7 @@ wrappedunwind:
 wrappedutil:
 - iFpppp:
   - forkpty
+wrappedvipscpp42:
 wrappedvorbisfile:
 - iFppplPPPP:
   - ov_open_callbacks
