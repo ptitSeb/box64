@@ -359,6 +359,70 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l)  YMM0(gd);
             break;
 
+        case 0x72:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("VPSRLD Vx, Ex, Ib");
+                    for(int l=0; l<1+vex.l; ++l) {
+                        if(!l) {
+                            GETVX_empty_EX(v0, v1,  1);
+                            u8 = F8;
+                        } else {
+                            GETVY_empty_EY(v0, v1);
+                        }
+                        if(u8) {
+                            if (u8>31) {
+                                VEORQ(v0, v0, v0);
+                            } else if(u8) {
+                                VSHRQ_32(v0, v1, u8);
+                            }
+                        } else if(v0!=v1)
+                            VMOVQ(v0, v1);
+                    }
+                    if(!vex.l) YMM0(vex.v);
+                    break;
+                case 4:
+                    INST_NAME("VPSRAD Vx, Ex, Ib");
+                    for(int l=0; l<1+vex.l; ++l) {
+                        if(!l) {
+                            GETVX_empty_EX(v0, v1, 1);
+                            u8 = F8;
+                        } else {
+                            GETVY_empty_EY(v0, v1);
+                        }
+                        if(u8>31) u8=31;
+                        if(u8) {
+                            VSSHRQ_32(v0, v1, u8);
+                        } else if(v0!=v1)
+                            VMOVQ(v0, v1);
+                    }
+                    if(!vex.l) YMM0(vex.v);
+                    break;
+                case 6:
+                    INST_NAME("VPSLLD Vx, Ex, Ib");
+                    for(int l=0; l<1+vex.l; ++l) {
+                        if(!l) {
+                            GETVX_empty_EX(v0, v1, 1);
+                            u8 = F8;
+                        } else {
+                            GETVY_empty_EY(v0, v1);
+                        }
+                        if(u8) {
+                            if (u8>31) {
+                                VEORQ(v0, v0, v0);
+                            } else {
+                                VSHLQ_32(v0, v1, u8);
+                            }
+                        } else if(v0!=v1)
+                            VMOVQ(v0, v1);
+                    }
+                    if(!vex.l) YMM0(vex.v);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x73:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -452,6 +516,28 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     break;
                 default:
                     DEFAULT;
+            }
+            break;
+
+        case 0x7F:
+            INST_NAME("MOVDQA Ex,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                VMOVQ(v1, v0);
+                if(vex.l) {
+                    GETGYEY(v1, v0);
+                    VMOVQ(v1, v0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY(v0, 0, -1, -1, -1);
+                    VSTR128_U12(v0, ed, fixedaddress+16);
+                }
+                SMWRITE2();
             }
             break;
 
@@ -683,6 +769,69 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     GETGY_empty_VYEY(v0, v2,v1);
                     VEORQ(v0, v1, v2);
                 }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xF8:
+            INST_NAME("VPSUBB Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VSUBQ_8(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xF9:
+            INST_NAME("VPSUBW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VSUBQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xFA:
+            INST_NAME("VPSUBD Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VSUBQ_32(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xFB:
+            INST_NAME("VPSUBQ Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VSUBQ_64(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xFC:
+            INST_NAME("VPADDB Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VADDQ_8(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xFD:
+            INST_NAME("VPADDW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VADDQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xFE:
+            INST_NAME("VPADDD Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VADDQ_32(v0, v2, v1);
             }
             if(!vex.l) YMM0(gd);
             break;

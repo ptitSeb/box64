@@ -459,6 +459,11 @@
 #define GETVX_empty(a)                  \
     a = sse_get_reg_empty(dyn, ninst, x1, vex.v)
 
+// Get empty VX, and non-writen  EX
+#define GETVX_empty_EX(vx, ex, D)           \
+    GETEX_Y(ex, 0, D);                      \
+    GETVX_empty(vx)
+
 #define GETGY_VY(a, w1, b, w2, k1, k2)                      \
     if(w2) b = ymm_get_reg(dyn, ninst, x1, vex.v, w2, gd, k1, k2); \
     a = ymm_get_reg(dyn, ninst, x1, gd, w1, vex.v, k1, k2); \
@@ -508,6 +513,14 @@
     else                                                                                        \
         VLD128(ey, ed, fixedaddress+16);                                                        \
     gy = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
+
+// Get EY and non-writen GY
+#define GETGYEY(gy, ey)                                                                         \
+    if(MODREG)                                                                                  \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, gd, -1, -1);                 \
+    else                                                                                        \
+        VLD128(ey, ed, fixedaddress+16);                                                        \
+    gy = ymm_get_reg(dyn, ninst, x1, gd, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1)
 
 // Get empty GY, and non-writen EY
 #define GETGY_empty_EY(gy, ey)                                                      \
