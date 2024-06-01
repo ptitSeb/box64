@@ -1037,16 +1037,17 @@ void emit_adc32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     if (la64_lbt) {
+        if (rex.w)
+            ADC_D(s1, s1, s2);
+        else
+            ADC_W(s1, s1, s2);
+
         IFX (X_ALL) {
             if (rex.w)
                 X64_ADC_D(s1, s2);
             else
                 X64_ADC_W(s1, s2);
         }
-        if (rex.w)
-            ADC_D(s1, s1, s2);
-        else
-            ADC_W(s1, s1, s2);
 
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
