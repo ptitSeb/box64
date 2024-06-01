@@ -230,12 +230,12 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 // Unaligned
                                 ANDI(x5, wback, -(1 << (rex.w + 2)));
                                 MARK2; // Use MARK2 as a "MARKLOCK" since we're running out of marks.
-                                LDxw(x6, wback, 0);
-                                LRxw(x1, x5, 1, 1);
-                                SUBxw(x3, x6, xRAX);
+                                LDxw(x1, wback, 0);
+                                LRxw(x6, x5, 1, 1);
+                                SUBxw(x3, x1, xRAX);
                                 BNEZ_MARK(x3);
                                 // EAX == Ed
-                                SCxw(x4, x1, x5, 1, 1);
+                                SCxw(x4, x6, x5, 1, 1);
                                 BNEZ_MARK2(x4);
                                 SDxw(gd, wback, 0);
                                 MARK;
