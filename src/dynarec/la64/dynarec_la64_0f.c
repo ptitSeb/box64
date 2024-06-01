@@ -66,21 +66,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 switch(nextop) {
                     case 0xD0:
-                        //TODO
-                        DEFAULT;
-                        /*
-                        INST_NAME("FAKE xgetbv");
-                        nextop = F8;
-                        addr = fakeed(dyn, addr, ninst, nextop);
-                        SETFLAGS(X_ALL, SF_SET); // Hack to set flags in "don't care" state
-                        GETIP(ip);
-                        STORE_XEMU_CALL();
-                        CALL(native_ud, -1);
-                        LOAD_XEMU_CALL();
-                        jump_to_epilog(dyn, 0, xRIP, ninst);
-                        *need_epilog = 0;
-                        *ok = 0;
-                        */
+                        INST_NAME("XGETBV");
+                        BEQZ_MARK(xRCX);
+                        EMIT(0); // Is there any assigned illegal instruction?
+                        MARK;
+                        MOV32w(xRAX, 0b111);
+                        MOV32w(xRDX, 0);
                         break;
                     default:
                         DEFAULT;
@@ -543,6 +534,31 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 X64_SET_EFLAGS(x4, X_CF);
             else
                 BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            break;
+        case 0xAE:
+            nextop = F8;
+            if (MODREG)
+                switch (nextop) {
+                    case 0xE8:
+                        INST_NAME("LFENCE");
+                        SMDMB();
+                        break;
+                    case 0xF0:
+                        INST_NAME("MFENCE");
+                        SMDMB();
+                        break;
+                    case 0xF8:
+                        INST_NAME("SFENCE");
+                        SMDMB();
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            else
+                switch ((nextop >> 3) & 7) {
+                    default:
+                        DEFAULT;
+                }
             break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
