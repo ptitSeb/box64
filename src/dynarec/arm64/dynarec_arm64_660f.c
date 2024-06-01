@@ -136,8 +136,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 v1 = fpu_get_scratch(dyn, ninst);
-                ADDx_U12(ed, ed, 8);
-                VLD1_64(v0, 1, ed);
+                ADDx_U12(x1, ed, 8);
+                VLD1_64(v0, 1, x1);
             }
             break;
         case 0x16:

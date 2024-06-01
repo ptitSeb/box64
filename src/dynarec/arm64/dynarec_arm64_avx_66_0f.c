@@ -63,6 +63,277 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
 
     switch(opcode) {
 
+        case 0x10:
+            INST_NAME("VMOVUPD Gx,Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+                if(vex.l) {
+                    GETGY_empty_EY(v0, v1);
+                    VMOVQ(v0, v1);
+                }
+            } else {
+                SMREAD();
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY_empty(v0, -1, -1, -1);
+                    VLDR128_U12(v0, ed, fixedaddress+16);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x11:
+            INST_NAME("VMOVUPD Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v1, v0);
+                if(vex.l) {
+                    GETGYEY_empty(v0, v1);
+                    VMOVQ(v1, v0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY(v0, 0, -1, -1, -1);
+                    VSTR128_U12(v0, ed, fixedaddress+16);
+                }
+                SMWRITE2();
+            }
+            break;
+        case 0x12:
+            INST_NAME("VMOVLPD Gx, Vx, Eq");
+            nextop = F8;
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            GETGX_empty_VX(v0, v2);
+            if(v0==v2) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q0, v2);
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+            VLD1_64(v0, 0, ed);
+            VMOVeD(v0, 1, (v0==v2)?q0:v2, 1);
+            YMM0(gd);
+            break;
+        case 0x13:
+            INST_NAME("VMOVLPD Eq, Gx");
+            nextop = F8;
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            GETGX(v0, 0);
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+            VST1_64(v0, 0, ed);
+            SMWRITE2();
+            break;
+        case 0x14:
+            INST_NAME("VUNPCKLPD Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}
+                VZIP1Q_64(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x15:
+            INST_NAME("VUNPCKHPD Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}
+                VZIP2Q_64(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x16:
+            INST_NAME("VMOVHPD Gx, Vx, Eq");
+            nextop = F8;
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            GETGX_empty_VX(v0, v2);
+            if(v0==v2) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q0, v2);
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+            VLD1_64(v0, 1, ed);
+            VMOVeD(v0, 0, (v0==v2)?q0:v2, 0);
+            YMM0(gd);
+            break;
+        case 0x17:
+            INST_NAME("VMOVHPD Eq, Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+            VST1_64(v0, 1, ed);
+            SMWRITE2();
+            break;
+
+        case 0x28:
+            INST_NAME("VMOVAPD Gx,Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+                if(vex.l) {
+                    GETGY_empty_EY(v0, v1);
+                    VMOVQ(v0, v1);
+                }
+            } else {
+                SMREAD();
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY_empty(v0, -1, -1, -1);
+                    VLDR128_U12(v0, ed, fixedaddress+16);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x29:
+            INST_NAME("VMOVAPD Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v1, v0);
+                if(vex.l) {
+                    GETGYEY_empty(v0, v1);
+                    VMOVQ(v1, v0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY(v0, 0, -1, -1, -1);
+                    VSTR128_U12(v0, ed, fixedaddress+16);
+                }
+                SMWRITE2();
+            }
+            break;
+
+        case 0x2B:
+            INST_NAME("VMOVNTPD Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v1, v0);
+                if(vex.l) {
+                    GETGYEY_empty(v0, v1);
+                    VMOVQ(v1, v0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY(v0, 0, -1, -1, -1);
+                    VSTR128_U12(v0, ed, fixedaddress+16);
+                }
+            }
+            break;
+
+        case 0x2E:
+            // no special check...
+        case 0x2F:
+            if(opcode==0x2F) {INST_NAME("VCOMISD Gx, Ex");} else {INST_NAME("VUCOMISD Gx, Ex");}
+            SETFLAGS(X_ALL, SF_SET);
+            nextop = F8;
+            GETGX(v0, 0);
+            GETEXSD(q0, 0, 0);
+            FCMPD(v0, q0);
+            FCOMI(x1, x2);
+            break;
+
+        case 0x54:
+            INST_NAME("VANDPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VANDQ(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VANDQ(v0, v2, v1);
+            } else YMM0(gd)
+            break;
+        case 0x55:
+            INST_NAME("VANDNPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VBICQ(v0, v1, v2);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VBICQ(v0, v1, v2);
+            } else YMM0(gd)
+            break;
+        case 0x56:
+            INST_NAME("VORPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VORRQ(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VORRQ(v0, v2, v1);
+            } else YMM0(gd)
+            break;
+        case 0x57:
+            INST_NAME("VXORPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VEORQ(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VEORQ(v0, v2, v1);
+            } else YMM0(gd)
+            break;
+        case 0x58:
+            INST_NAME("VADDPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VFADDQD(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VFADDQD(v0, v2, v1);
+            } else YMM0(gd)
+            break;
+        case 0x59:
+            INST_NAME("VMULPD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX_empty_VXEX(v0, v2, v1, 0);
+            VFMULQD(v0, v2, v1);
+            if(vex.l) {
+                GETGY_empty_VYEY(v0, v2, v1);
+                VFMULQD(v0, v2, v1);
+            } else YMM0(gd)
+            break;
+
         case 0x5B:
             INST_NAME("VCVTPS2DQ Gx, Ex");
             nextop = F8;
@@ -519,6 +790,58 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
 
+        case 0x74:
+            INST_NAME("VPCMPEQB Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}
+                VCMEQQ_8(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x75:
+            INST_NAME("VPCMPEQW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}
+                VCMEQQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x76:
+            INST_NAME("VPCMPEQD Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {GETGX_empty_VXEX(v0, v2, v1, 0);} else {GETGY_empty_VYEY(v0, v2, v1);}
+                VCMEQQ_32(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
+        case 0x7E:
+            INST_NAME("VMOVD Ed,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(rex.w) {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    VMOVQDto(ed, v0, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                    VST64(v0, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            } else {
+                if(MODREG) {
+                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                    VMOVSto(ed, v0, 0);
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                    VST32(v0, ed, fixedaddress);
+                    SMWRITE2();
+                }
+            }
+            break;
         case 0x7F:
             INST_NAME("MOVDQA Ex,Gx");
             nextop = F8;
