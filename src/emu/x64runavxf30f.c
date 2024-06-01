@@ -63,7 +63,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
-        case 0x10:  /* VMOVSS Gx Ex */
+        case 0x10:  /* VMOVSS Gx, [Vx,] Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -78,7 +78,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             GY->u128 = 0;
             break;
-        case 0x11:  /* MOVSS Ex Gx */
+        case 0x11:  /* VMOVSS Ex, [Vx,] Gx */
             nextop = F8;
             GETEX(0);
             GETGX;

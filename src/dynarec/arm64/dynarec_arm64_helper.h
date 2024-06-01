@@ -490,8 +490,13 @@
     GETEX_Y(ex, 0, D);                      \
     GETGX_empty(gx)
 
+// Get empty GX, and non-writen EX
+#define GETGX_empty_EX(gx, ex, D)           \
+    GETEX_Y(ex, 0, D);                      \
+    GETGX_empty(gx)
+
 // Get empty GX, and non-writen VX
-#define GETGX_empty_VX(gx, vx, D)           \
+#define GETGX_empty_VX(gx, vx)              \
     GETVX(vx, 0);                           \
     GETGX_empty(gx)
 
@@ -500,6 +505,11 @@
     GETVX(vx, 0);                           \
     GETEX_Y(ex, 1, D);                      \
     GETGX(gx, 0)
+
+#define GETGXVXEX_empty(gx, vx, ex, D)      \
+    GETVX(vx, 0);                           \
+    GETGX(gx, 0);                           \
+    GETEX_empty_Y(ex, D);
 
 // Get empty GY, and non-writen VY and EY
 #define GETGY_empty_VYEY(gy, vy, ey)                                                            \
@@ -549,6 +559,17 @@
         a = sse_get_reg(dyn, ninst, x3, (nextop&7)+(rex.b<<3), w);                                      \
     } else {                                                                                            \
         if(w) {WILLWRITE2();} else {SMREAD();}                                                          \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
+        unscaled = 0;                                                                                   \
+        a = fpu_get_scratch(dyn, ninst);                                                                \
+        VLD128(a, ed, fixedaddress);                                                                    \
+    }
+// Get EX as a quad, (x3 is used)
+#define GETEX_empty_Y(a, D)                                                                             \
+    if(MODREG) {                                                                                        \
+        a = sse_get_reg_empty(dyn, ninst, x3, (nextop&7)+(rex.b<<3));                                   \
+    } else {                                                                                            \
+        WILLWRITE2();                                                                                   \
         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
         unscaled = 0;                                                                                   \
         a = fpu_get_scratch(dyn, ninst);                                                                \

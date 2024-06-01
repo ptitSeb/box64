@@ -291,7 +291,6 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 }
             }
             break;
-
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;

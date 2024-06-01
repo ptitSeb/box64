@@ -190,7 +190,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else {
                 for(int l=0; l<1+vex.l; ++l) {
                     if(!l) {
-                        GETGX_empty_VX(v0, v2, 0);
+                        GETGX_empty_VX(v0, v2);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     } else {
                         GETGY_empty_VY(v0, v2, 0, -1, -1);
@@ -219,7 +219,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else {
                 for(int l=0; l<1+vex.l; ++l) {
                     if(!l) {
-                        GETGX_empty_VX(v0, v2, 0);
+                        GETGX_empty_VX(v0, v2);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         ADDx_U12(x1, ed, 8);
                     } else {

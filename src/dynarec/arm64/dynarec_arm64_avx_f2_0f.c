@@ -123,7 +123,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x2A:
             INST_NAME("VCVTSI2SD Gx, Vx, Ed");
             nextop = F8;
-            GETGX_empty_VX(v0, v1, 0);
+            GETGX_empty_VX(v0, v1);
             GETED(0);
             d1 = fpu_get_scratch(dyn, ninst);
             if(rex.w) {
