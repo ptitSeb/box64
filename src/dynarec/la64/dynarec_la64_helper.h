@@ -413,6 +413,10 @@
 #define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARKLOCK if reg1==reg2 (use j64)
 #define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
+// Branch to MARK if reg1==0 (use j64)
+#define BEQZ_MARK(reg) BxxZ_gen(EQ, MARK, reg)
+// Branch to MARK2 if reg1==0 (use j64)
+#define BEQZ_MARK2(reg) BxxZ_gen(EQ, MARK2, reg)
 // Branch to MARKLOCK if reg1==0 (use j64)
 #define BEQZ_MARKLOCK(reg) BxxZ_gen(EQ, MARKLOCK, reg)
 
@@ -450,8 +454,8 @@
 // Branch to MARK if reg1>=reg2 (use j64)
 #define BGE_MARK(reg1, reg2) Bxx_gen(GE, MARK, reg1, reg2)
 
-// Branch to MARK1 instruction unconditionnal (use j64)
-#define B_MARK1_nocond Bxx_gen(__, MARK1, 0, 0)
+// Branch to MARK instruction unconditionnal (use j64)
+#define B_MARK_nocond Bxx_gen(__, MARK, 0, 0)
 // Branch to MARK2 instruction unconditionnal (use j64)
 #define B_MARK2_nocond Bxx_gen(__, MARK2, 0, 0)
 // Branch to MARK3 instruction unconditionnal (use j64)
