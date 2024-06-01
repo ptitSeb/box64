@@ -275,8 +275,6 @@ int getNCpu();
 #ifdef DYNAREC
 void GatherDynarecExtensions()
 {
-    if(box64_dynarec==0)    // no need to check if no dynarec
-        return;
 #ifdef ARM64
 /*
 HWCAP_FP
