@@ -186,7 +186,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             break;
         case 0x18:
-            INST_NAME("VINSERTF128 Gx, Vx, Ex, imm8");
+        case 0x38:
+            if(opcode==0x18) {INST_NAME("VINSERTF128 Gx, Vx, Ex, imm8");} else {INST_NAME("VINSERTI128 Gx, Vx, Ex, imm8");}
             nextop = F8;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
@@ -206,7 +207,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VMOVQ((u8&1)?v0:q0, (u8&1)?v2:q2);
             break;
         case 0x19:
-            INST_NAME("VEXTRACTF128 Ex, Gx, imm8");
+        case 0x39:
+            if(opcode==0x19) {INST_NAME("VEXTRACTF128 Ex, Gx, imm8");} else {INST_NAME("VEXTRACTI128 Ex, Gx, imm8");}
             nextop = F8;
             u8 = geted_ib(dyn, addr, ninst, nextop);
             if(u8&1) {GETG; GETGY(v0, 0, -1, -1, -1);} else {GETGX(v0, 0);}
