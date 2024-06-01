@@ -229,17 +229,6 @@ rv64_lock_cas_dd:
     li a0, 1
     ret
 
-rv64_lock_cas_dq:
-    mv a4, a0
-    lr.d t0, (a0)
-    bne t0, a1, 1f
-    sc.d a0, a2, (a0)
-    sd a3,(a4)
-    ret
-1:
-    li a0, 1
-    ret
-
 rv64_lock_get_b:
     fence   rw, rw
     lb      a0, 0(a0)

@@ -191,9 +191,8 @@ la64_lock_cas_dd:
 la64_lock_cas_dq:
     ll.d $a4, $a0, 0
     bne  $a4, $a2, 1f
-    sc.d $a1, $a0, 0
+    .word 0x38571c85 // sc.q $a1, $a3, $a0
     beqz $a1, 1f
-    st.d $a3, $a0, 8
     xori $a0, $a1, 1
     ret
 1:
