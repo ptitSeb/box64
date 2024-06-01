@@ -86,6 +86,21 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x7E:
+            INST_NAME("MOVQ Gx, Ex");
+            nextop = F8;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7) + (rex.b<<3), 0);
+                GETGX_empty(v0);
+                FMOVD(v0, v1);
+            } else {
+                GETGX_empty(v0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                VLD64(v0, ed, fixedaddress);
+            }
+            YMM0(gd);
+            break;
         case 0x7F:
             INST_NAME("VMOVDQU Ex, Gx");
             nextop = F8;
