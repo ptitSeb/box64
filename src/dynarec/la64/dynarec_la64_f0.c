@@ -98,6 +98,9 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             } else {
                                 SMDMB();
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
+                                BNEZ_MARK3(x1);
+                                // Aligned
                                 MARKLOCK;
                                 MV(x4, gd);
                                 LLxw(x1, wback, 0);
@@ -106,6 +109,20 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 // EAX == Ed
                                 SCxw(x4, wback, 0);
                                 BEQZ_MARKLOCK(x4);
+                                B_MARK_nocond;
+                                MARK3;
+                                // Unaligned
+                                ADDI_D(x5, xZR, -(1 << (rex.w + 2)));
+                                AND(x5, x5, wback);
+                                MARK2;
+                                LDxw(x1, wback, 0);
+                                LLxw(x6, x5, 0);
+                                SUBxw(x3, x1, xRAX);
+                                BNEZ_MARK(x3);
+                                // EAX == Ed
+                                SCxw(x6, x5, 0);
+                                BEQZ_MARK2(x6);
+                                SDxw(gd, wback, 0);
                                 MARK;
                                 UFLAG_IF { emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6); }
                                 MVxw(xRAX, x1);
@@ -409,7 +426,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
                     SMDMB();
                     if (MODREG) {
-                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
                         emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
