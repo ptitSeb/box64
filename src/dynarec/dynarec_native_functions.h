@@ -36,10 +36,15 @@ void native_frstor16(x64emu_t* emu, uint8_t* ed);
 void native_fprem1(x64emu_t* emu);
 
 void native_aesd(x64emu_t* emu, int xmm);
+void native_aesd_y(x64emu_t* emu, int ymm);
 void native_aese(x64emu_t* emu, int xmm);
+void native_aese_y(x64emu_t* emu, int ymm);
 void native_aesdlast(x64emu_t* emu, int xmm);
+void native_aesdlast_y(x64emu_t* emu, int ymm);
 void native_aeselast(x64emu_t* emu, int xmm);
+void native_aeselast_y(x64emu_t* emu, int ymm);
 void native_aesimc(x64emu_t* emu, int xmm);
+void native_aesimc_y(x64emu_t* emu, int ymm);
 void native_aeskeygenassist(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
 void native_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
 void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8);
