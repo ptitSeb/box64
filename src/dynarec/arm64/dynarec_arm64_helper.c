@@ -1630,6 +1630,22 @@ void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a)
     if(dyn->n.neoncache[dyn->n.ssecache[a].reg].t == NEON_CACHE_XMMW) {
         VSTR128_U12(dyn->n.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
     }
+    // YMM part too
+    if(is_avx_zero_unset(dyn, ninst, a)) {
+        //only  ymm[0] can be accessed with STP :(
+        if(!a)
+            STPx_S7_offset(xZR, xZR, xEmu, offsetof(x64emu_t, ymm[a]));
+        else {
+            STRx_U12(xZR, xEmu, offsetof(x64emu_t, ymm[a]));
+            STRx_U12(xZR, xEmu, offsetof(x64emu_t, ymm[a])+8);
+        }
+    } else for(int i=0; i<32; ++i)
+        if((dyn->n.neoncache[i].t == NEON_CACHE_YMMW) || (dyn->n.neoncache[i].t == NEON_CACHE_YMMR)) {
+            if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
+                VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+            fpu_free_reg(dyn, i);
+
+    }
     fpu_free_reg(dyn, dyn->n.ssecache[a].reg);
     dyn->n.ssecache[a].v = -1;
     return;
@@ -1725,6 +1741,9 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
                 }
                 STPx_S7_offset(xZR, xZR, s1, i*16);
             }
+        for(int i=0; i<32; ++i)
+                if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
+                    VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
     }
 }
 
@@ -1738,6 +1757,9 @@ void sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a)
             STRx_U12(xZR, xEmu, offsetof(x64emu_t, ymm[a]));
             STRx_U12(xZR, xEmu, offsetof(x64emu_t, ymm[a])+8);
         }
+    } else for(int i=0; i<32; ++i)
+        if((dyn->n.neoncache[i].t == NEON_CACHE_YMMW) && (dyn->n.neoncache[i].n == a)) {
+            VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[a]));
     }
     if(dyn->n.ssecache[a].v==-1)
         return;

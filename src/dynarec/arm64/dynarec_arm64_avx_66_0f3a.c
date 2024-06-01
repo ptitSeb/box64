@@ -107,6 +107,29 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else YMM0(gd);
             break;
 
+        case 0x0F:
+            INST_NAME("VPALIGNR Gx, Vx, Ex, Ib");
+            nextop = F8;
+            d0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {
+                    GETGX_empty_VXEX(v0, v2, v1, 1);
+                    u8 = F8;
+                } else {
+                    GETGY_empty_VYEY(v0, v2, v1);
+                }
+                if(u8>31) {
+                    VEORQ(v0, v0, v0);
+                } else if(u8>15) {
+                    if(!l) VEORQ(d0, d0, d0);
+                    VEXTQ_8(v0, v2, d0, u8-16);
+                } else {
+                    VEXTQ_8(v0, v1, v2, u8);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0x15:
             INST_NAME("VPEXTRW Ed, Gx, imm8");
             nextop = F8;
@@ -196,6 +219,68 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VST128(v0, ed, fixedaddress);
             }
             F8; // read u8, but it's been already handled
+            break;
+
+        case 0x44:
+            INST_NAME("PCLMULQDQ Gx, Vx, Ex, Ib");
+            nextop = F8;
+            if(arm64_pmull) {
+                d0 = fpu_get_scratch(dyn, ninst);
+                for(int l=0; l<1+vex.l; ++l) {
+                    if(!l) {
+                        GETGX_empty_VXEX(v0, v2, v1, 1);
+                        u8 = F8;
+                    } else {
+                        GETGY_empty_VYEY(v0, v2, v1);
+                    }
+                    switch (u8&0b00010001) {
+                        case 0b00000000:
+                            PMULL_128(v0, v2, v1);
+                            break;
+                        case 0b00010001:
+                            PMULL2_128(v0, v2, v1);
+                            break;
+                        case 0b00000001:
+                            VEXTQ_8(d0, v2, v2, 8); // Swap Up/Lower 64bits parts
+                            PMULL_128(v0, d0, v1);
+                            break;
+                        case 0b00010000:
+                            VEXTQ_8(d0, v2, v2, 8); // Swap Up/Lower 64bits parts
+                            PMULL2_128(v0, d0, v1);
+                            break;
+                    }
+                }
+            } else {
+                for(int l=0; l<1+vex.l; ++l) {
+                    if(!l) {
+                        GETG;
+                        sse_forget_reg(dyn, ninst, gd);
+                        sse_reflect_reg(dyn, ninst, vex.v);
+                    }
+                    MOV32w(x1, gd); // gx
+                    MOV32w(x2, vex.v); // vx
+                    if(MODREG) {
+                        if(!l) {
+                            ed = (nextop&7)+(rex.b<<3);
+                            sse_forget_reg(dyn, ninst, ed);
+                        }
+                        MOV32w(x3, ed);
+                    } else {
+                        if(!l) {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                            if(ed!=x3) {
+                                MOVx_REG(x3, ed);
+                            }
+                        } else {
+                            ADDx_U12(x3, ed, 16);
+                        }
+                    }
+                    if(!l) u8 = F8;
+                    MOV32w(x4, u8);
+                    CALL_(l?native_pclmul_y:native_pclmul_x, -1, x3);
+                }
+            }
+            if(!vex.l) YMM0(gd);
             break;
 
         default:

@@ -42,6 +42,8 @@ void native_aeselast(x64emu_t* emu, int xmm);
 void native_aesimc(x64emu_t* emu, int xmm);
 void native_aeskeygenassist(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
 void native_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
+void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8);
+void native_pclmul_y(x64emu_t* emu, int gy, int vy, void* p, uint32_t u8);
 
 void native_clflush(x64emu_t* emu, void* p);
 

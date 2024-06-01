@@ -2894,7 +2894,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(q0, 0, 0);
             VBICQ(v0, q0, v0);
             break;
-
          case 0xE0:
             INST_NAME("PAVGB Gx, Ex");
             nextop = F8;
@@ -2902,7 +2901,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEX(v1, 0, 0);
             URHADDQ_8(v0, v0, v1);
             break;
-
         case 0xE1:
             INST_NAME("PSRAW Gx,Ex");
             nextop = F8;

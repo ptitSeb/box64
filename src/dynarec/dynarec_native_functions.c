@@ -416,6 +416,40 @@ void native_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8)
     GX->q[0] = result&0xffffffffffffffffLL;
     GX->q[1] = (result>>64)&0xffffffffffffffffLL;
 }
+void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8)
+{
+
+    sse_regs_t *EX = ((uintptr_t)p<16)?((sse_regs_t*)p):&emu->xmm[(uintptr_t)p];
+    sse_regs_t *GX = &emu->xmm[gx];
+    sse_regs_t *VX = &emu->xmm[vx];
+    int g = (u8&1)?1:0;
+    int e = (u8&0b10000)?1:0;
+    __int128 result = 0;
+    __int128 op2 = EX->q[e];
+    for (int i=0; i<64; ++i)
+        if(VX->q[g]&(1LL<<i))
+            result ^= (op2<<i);
+
+    GX->q[0] = result&0xffffffffffffffffLL;
+    GX->q[1] = (result>>64)&0xffffffffffffffffLL;
+}
+void native_pclmul_y(x64emu_t* emu, int gy, int vy, void* p, uint32_t u8)
+{
+
+    sse_regs_t *EY = ((uintptr_t)p<16)?((sse_regs_t*)p):&emu->ymm[(uintptr_t)p];
+    sse_regs_t *GY = &emu->ymm[gy];
+    sse_regs_t *VY = &emu->ymm[vy];
+    int g = (u8&1)?1:0;
+    int e = (u8&0b10000)?1:0;
+    __int128 result = 0;
+    __int128 op2 = EY->q[e];
+    for (int i=0; i<64; ++i)
+        if(VY->q[g]&(1LL<<i))
+            result ^= (op2<<i);
+
+    GY->q[0] = result&0xffffffffffffffffLL;
+    GY->q[1] = (result>>64)&0xffffffffffffffffLL;
+}
 
 void native_clflush(x64emu_t* emu, void* p)
 {

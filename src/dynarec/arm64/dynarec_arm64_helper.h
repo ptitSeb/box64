@@ -1476,11 +1476,11 @@ int mmx_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int
 int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite);
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a);
-// forget neon register for a SSE reg, create the entry if needed
+// forget neon register for a SSE reg, YMM high part too
 void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a);
 // purge the XMM0..XMM7 cache (before function call)
 void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1);
-// Push current value to the cache
+// Push current value to the cache (ymm too)
 void sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a);
 // common coproc helpers
 // reset the cache with n
