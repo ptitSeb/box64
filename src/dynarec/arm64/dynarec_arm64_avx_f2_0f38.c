@@ -79,6 +79,15 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 LSRx(gd, x3, 32);
             }
             break;
+        case 0xF7:
+            INST_NAME("SHRX Gd, Ed, Vd");
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            GETVD;
+            ANDx_mask(x3, vd, 1, 0, rex.w?5:4); // mask 0x3f/0x1f
+            LSRxw_REG(gd, ed, x3);
+            break;
 
         default:
             DEFAULT;
