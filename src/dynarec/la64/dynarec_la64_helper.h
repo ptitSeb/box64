@@ -111,6 +111,17 @@
         LDz(x1, wback, fixedaddress);                                                           \
         ed = x1;                                                                                \
     }
+// GETED32 can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED32(D)                                                                                \
+    if (MODREG) {                                                                                 \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                                \
+        wback = 0;                                                                                \
+    } else {                                                                                      \
+        SMREAD();                                                                                 \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+        LDxw(x1, wback, fixedaddress);                                                            \
+        ed = x1;                                                                                  \
+    }
 // GETEDH can use hint for ed, and x1 or x2 for wback (depending on hint), might also use x3. wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, D)                                                                                                                 \
     if (MODREG) {                                                                                                                       \
@@ -727,6 +738,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_0F   STEPNAME(dynarec64_0F)
 #define dynarec64_64   STEPNAME(dynarec64_64)
 #define dynarec64_66   STEPNAME(dynarec64_66)
+#define dynarec64_67   STEPNAME(dynarec64_67)
 #define dynarec64_F30F STEPNAME(dynarec64_F30F)
 #define dynarec64_660F STEPNAME(dynarec64_660F)
 #define dynarec64_F0   STEPNAME(dynarec64_F0)
@@ -800,6 +812,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sar32c         STEPNAME(emit_sar32c)
 #define emit_ror32c         STEPNAME(emit_ror32c)
 #define emit_rol32          STEPNAME(emit_rol32)
+#define emit_rol32c         STEPNAME(emit_rol32c)
 
 #define emit_pf STEPNAME(emit_pf)
 
@@ -809,6 +822,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_purge07cache STEPNAME(sse_purge07cache)
 #define sse_get_reg       STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
+#define sse_forget_reg    STEPNAME(sse_forget_reg)
+#define sse_reflect_reg   STEPNAME(sse_reflect_reg)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
@@ -895,6 +910,7 @@ void emit_sar16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 
 void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 
@@ -923,6 +939,10 @@ void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1);
 int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite);
 // get lsx register for an SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a);
+// forget float register for a SSE reg, create the entry if needed
+void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a);
+// Push current value to the cache
+void sse_reflect_reg(dynarec_la64_t* dyn, int ninst, int a);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
@@ -940,6 +960,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);

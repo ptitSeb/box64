@@ -324,6 +324,150 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
     return addr;
 }
 
+/* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
+uintptr_t geted32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MAYUSE(delta);
+
+    int lock = l ? ((l == LOCK_LOCK) ? 1 : 2) : 0;
+    if (lock == 2)
+        *l = 0;
+    uint8_t ret = x2;
+    *fixaddress = 0;
+    if (hint > 0) ret = hint;
+    int maxval = 2047;
+    if (i12 > 1)
+        maxval -= i12;
+    MAYUSE(scratch);
+    if (!(nextop & 0xC0)) {
+        if ((nextop & 7) == 4) {
+            uint8_t sib = F8;
+            int sib_reg = ((sib >> 3) & 0x7) + (rex.x << 3);
+            int sib_reg2 = (sib & 0x7) + (rex.b << 3);
+            if ((sib & 0x7) == 5) {
+                int64_t tmp = F32S;
+                if (sib_reg != 4) {
+                    if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
+                        MOV64x(scratch, tmp);
+                        if ((sib >> 6)) {
+                            SLLI_D(ret, TO_LA64(sib_reg), sib >> 6);
+                            ADD_W(ret, ret, scratch);
+                        } else
+                            ADD_W(ret, TO_LA64(sib_reg), scratch);
+                    } else {
+                        if (sib >> 6)
+                            SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
+                        else
+                            ret = TO_LA64(sib_reg);
+                        *fixaddress = tmp;
+                    }
+                } else {
+                    switch (lock) {
+                        case 1: addLockAddress(tmp); break;
+                        case 2:
+                            if (isLockAddress(tmp)) *l = 1;
+                            break;
+                    }
+                    MOV64x(ret, tmp);
+                }
+            } else {
+                if (sib_reg != 4) {
+                    if ((sib >> 6)) {
+                        SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
+                        ADD_W(ret, ret, TO_LA64(sib_reg2));
+                    } else
+                        ADD_W(ret, TO_LA64(sib_reg2), TO_LA64(sib_reg));
+                } else {
+                    ret = TO_LA64(sib_reg2);
+                }
+            }
+        } else if ((nextop & 7) == 5) {
+            uint32_t tmp = F32;
+            MOV32w(ret, tmp);
+            GETIP(addr + delta);
+            ADD_W(ret, ret, xRIP);
+            switch (lock) {
+                case 1: addLockAddress(addr + delta + tmp); break;
+                case 2:
+                    if (isLockAddress(addr + delta + tmp)) *l = 1;
+                    break;
+            }
+        } else {
+            ret = TO_LA64((nextop & 7) + (rex.b << 3));
+            if (ret == hint) {
+                AND(hint, ret, xMASK); // to clear upper part
+            }
+        }
+    } else {
+        int64_t i64;
+        uint8_t sib = 0;
+        int sib_reg = 0;
+        if ((nextop & 7) == 4) {
+            sib = F8;
+            sib_reg = ((sib >> 3) & 7) + (rex.x << 3);
+        }
+        int sib_reg2 = (sib & 0x07) + (rex.b << 3);
+        if (nextop & 0x80)
+            i64 = F32S;
+        else
+            i64 = F8S;
+        if (i64 == 0 || ((i64 >= -2048) && (i64 <= 2047) && i12)) {
+            *fixaddress = i64;
+            if ((nextop & 7) == 4) {
+                if (sib_reg != 4) {
+                    if (sib >> 6) {
+                        SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
+                        ADD_W(ret, ret, TO_LA64(sib_reg2));
+                    } else
+                        ADD_W(ret, TO_LA64(sib_reg2), TO_LA64(sib_reg));
+                } else {
+                    ret = TO_LA64(sib_reg2);
+                }
+            } else {
+                ret = TO_LA64((nextop & 0x07) + (rex.b << 3));
+            }
+        } else {
+            if (i64 >= -2048 && i64 <= 2047) {
+                if ((nextop & 7) == 4) {
+                    if (sib_reg != 4) {
+                        if (sib >> 6) {
+                            SLLI_D(scratch, TO_LA64(sib_reg), sib >> 6);
+                            ADD_W(scratch, scratch, TO_LA64(sib_reg2));
+                        } else
+                            ADD_W(scratch, TO_LA64(sib_reg2), TO_LA64(sib_reg));
+                    } else {
+                        scratch = TO_LA64(sib_reg2);
+                    }
+                } else
+                    scratch = TO_LA64((nextop & 0x07) + (rex.b << 3));
+                ADDI_W(ret, scratch, i64);
+            } else {
+                MOV32w(scratch, i64);
+                if ((nextop & 7) == 4) {
+                    if (sib_reg != 4) {
+                        ADD_W(scratch, scratch, TO_LA64(sib_reg2));
+                        if (sib >> 6) {
+                            SLLI_D(ret, TO_LA64(sib_reg), (sib >> 6));
+                            ADD_W(ret, ret, scratch);
+                        } else
+                            ADD_W(ret, scratch, TO_LA64(sib_reg));
+                    } else {
+                        PASS3(int tmp = TO_LA64(sib_reg2));
+                        ADD_W(ret, tmp, scratch);
+                    }
+                } else {
+                    PASS3(int tmp = TO_LA64((nextop & 0x07) + (rex.b << 3)));
+                    ADD_W(ret, tmp, scratch);
+                }
+            }
+        }
+    }
+    *ed = ret;
+    return addr;
+}
+
 void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst)
 {
     MAYUSE(dyn);
@@ -651,6 +795,27 @@ int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a)
     dyn->lsx.ssecache[a].reg = fpu_get_reg_xmm(dyn, LSX_CACHE_XMMW, a);
     dyn->lsx.ssecache[a].write = 1; // it will be write...
     return dyn->lsx.ssecache[a].reg;
+}
+// forget ext register for a SSE reg, does nothing if the regs is not loaded
+void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
+{
+    if (dyn->lsx.ssecache[a].v == -1)
+        return;
+    if (dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t == LSX_CACHE_XMMW) {
+        VST(dyn->lsx.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+    }
+    fpu_free_reg(dyn, dyn->lsx.ssecache[a].reg);
+    dyn->lsx.ssecache[a].v = -1;
+    return;
+}
+
+void sse_reflect_reg(dynarec_la64_t* dyn, int ninst, int a)
+{
+    if (dyn->lsx.ssecache[a].v == -1)
+        return;
+    if (dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t == LSX_CACHE_XMMW) {
+        VST(dyn->lsx.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+    }
 }
 
 // purge the SSE cache for XMM0..XMM7 (to use before function native call)

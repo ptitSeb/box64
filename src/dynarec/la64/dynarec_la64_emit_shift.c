@@ -751,3 +751,61 @@ void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         OR(xFlags, xFlags, s3);
     }
 }
+
+
+// emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
+{
+    if (!c) return;
+
+    IFX (X_PEND) {
+        MOV32w(s3, c);
+        SDxw(s3, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s4, rex.w ? d_rol64 : d_rol32);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+    if (!c) {
+        IFX (X_PEND) {
+            SDxw(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    if (la64_lbt) {
+        IFX (X_CF | X_OF) {
+            if (rex.w)
+                X64_ROTLI_D(s1, c);
+            else
+                X64_ROTLI_W(s1, c);
+        }
+    }
+
+    ROTRIxw(s1, s1, (rex.w ? 64 : 32) - c);
+
+    if (!rex.w) ZEROUP(s1);
+
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    if (la64_lbt) return;
+
+    IFX (X_CF | X_OF) {
+        MOV64x(s3, (1UL << F_CF | 1UL << F_OF));
+        ANDN(xFlags, xFlags, s3);
+    }
+    IFX (X_CF | X_OF) {
+        ANDI(s4, s1, 1 << F_CF);
+        IFX (X_CF) OR(xFlags, xFlags, s4);
+    }
+    IFX (X_OF) {
+        // the OF flag is set to the exclusive OR of the CF bit (after the rotate) and the most-significant bit of the result.
+        if (c == 1) {
+            SRLIxw(s3, s1, rex.w ? 63 : 31);
+            XOR(s3, s3, s4);
+            SLLI_D(s3, s3, F_OF);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+}

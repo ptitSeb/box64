@@ -103,6 +103,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_or16(dyn, ninst, x1, x2, x4, x5);
             GWBACK;
             break;
+        case 0x0D:
+            INST_NAME("OR AX, Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i32 = F16;
+            BSTRPICK_D(x1, xRAX, 15, 0);
+            MOV32w(x2, i32);
+            emit_or16(dyn, ninst, x1, x2, x3, x4);
+            BSTRINS_D(xRAX, x1, 15, 0);
+            break;
         case 0x0F:
             switch (rep) {
                 case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
@@ -210,6 +219,27 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
+            break;
+        case 0x69:
+        case 0x6B:
+            if (opcode == 0x69) {
+                INST_NAME("IMUL Gw,Ew,Iw");
+            } else {
+                INST_NAME("IMUL Gw,Ew,Ib");
+            }
+            SETFLAGS(X_ALL, SF_PENDING);
+            nextop = F8;
+            GETSEW(x1, (opcode == 0x69) ? 2 : 1);
+            if (opcode == 0x69)
+                i32 = F16S;
+            else
+                i32 = F8S;
+            MOV32w(x2, i32);
+            MUL_W(x2, x2, x1);
+            UFLAG_RES(x2);
+            gd = x2;
+            GWBACK;
+            UFLAG_DF(x1, d_imul16);
             break;
         case 0x81:
         case 0x83:
