@@ -66,13 +66,8 @@
 #define native_lock_write_d(A, B)           rv64_lock_cas_d(A, tmpcas, B)
 #define native_lock_read_dd(A)              tmpcas=*(uint64_t*)(A)
 #define native_lock_write_dd(A, B)          rv64_lock_cas_dd(A, tmpcas, B)
-// there is no atomic move on 16bytes, so faking it
-#define native_lock_read_dq(A, B, C)       \
-    do {                                   \
-        *A = tmpcas = ((uint64_t*)(C))[0]; \
-        *B = ((uint64_t*)(C))[1];          \
-    } while (0)
-#define native_lock_write_dq(A, B, C)       rv64_lock_cas_dq(C, A, tmpcas, B);
+#define native_lock_read_dq(A, B, C)        // never used
+#define native_lock_write_dq(A, B, C)       // never used
 #define native_lock_get_b(A)                rv64_lock_get_b(A)
 #define native_lock_get_d(A)                rv64_lock_get_d(A)
 #define native_lock_get_dd(A)               rv64_lock_get_dd(A)
