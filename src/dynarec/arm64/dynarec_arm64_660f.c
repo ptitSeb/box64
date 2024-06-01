@@ -800,12 +800,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VEORQ(q0, v0, q1);
                     } else {
                         GETG;
+                        GETEX(q1, 0, 0);
+                        if(MODREG && (gd==(nextop&7)+(rex.b<<3))) {
+                            d0 = fpu_get_scratch(dyn, ninst);
+                            VMOVQ(d0, q1);
+                        } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
                         CALL(native_aese, -1);
                         GETGX(q0, 1);
-                        GETEX(q1, 0, 0);
-                        VEORQ(q0, q0, q1);
+                        VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
                     break;
                 case 0xDD:
@@ -820,12 +824,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VEORQ(q0, v0, q1);
                     } else {
                         GETG;
+                        GETEX(q1, 0, 0);
+                        if(MODREG && (gd==(nextop&7)+(rex.b<<3))) {
+                            d0 = fpu_get_scratch(dyn, ninst);
+                            VMOVQ(d0, q1);
+                        } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
                         CALL(native_aeselast, -1);
                         GETGX(q0, 1);
-                        GETEX(q1, 0, 0);
-                        VEORQ(q0, q0, q1);
+                        VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
                     break;
                 case 0xDE:
@@ -841,12 +849,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VEORQ(q0, v0, q1);
                     } else {
                         GETG;
+                        GETEX(q1, 0, 0);
+                        if(MODREG && (gd==(nextop&7)+(rex.b<<3))) {
+                            d0 = fpu_get_scratch(dyn, ninst);
+                            VMOVQ(d0, q1);
+                        } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
                         CALL(native_aesd, -1);
                         GETGX(q0, 1);
-                        GETEX(q1, 0, 0);
-                        VEORQ(q0, q0, q1);
+                        VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
                     break;
                 case 0xDF:
@@ -861,12 +873,16 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VEORQ(q0, v0, q1);
                     } else {
                         GETG;
+                        GETEX(q1, 0, 0);
+                        if(MODREG && (gd==(nextop&7)+(rex.b<<3))) {
+                            d0 = fpu_get_scratch(dyn, ninst);
+                            VMOVQ(d0, q1);
+                        } else d0 = -1;
                         sse_forget_reg(dyn, ninst, gd);
                         MOV32w(x1, gd);
                         CALL(native_aesdlast, -1);
                         GETGX(q0, 1);
-                        GETEX(q1, 0, 0);
-                        VEORQ(q0, q0, q1);
+                        VEORQ(q0, q0, (d0!=-1)?d0:q1);
                     }
                     break;
                 case 0xF0:
