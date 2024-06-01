@@ -534,16 +534,22 @@
     if(MODREG)                                                                                  \
         ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, gd, -1, -1);                 \
     else                                                                                        \
-        VLD128(ey, ed, fixedaddress+16);                                                        \
+        VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
     gy = ymm_get_reg(dyn, ninst, x1, gd, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1)
+
+// Get empty EY and non-writen GY
+#define GETGYEY_empty(gy, ey)                                                                   \
+    gy = ymm_get_reg(dyn, ninst, x1, gd, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1);       \
+    if(MODREG)                                                                                  \
+        ey = ymm_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3), gd, -1, -1)
 
 // Get empty GY, and non-writen EY
 #define GETGY_empty_EY(gy, ey)                                                      \
     if(MODREG)                                                                      \
         ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, -1, -1);     \
     else                                                                            \
-        VLD128(ey, ed, fixedaddress+16);                                            \
-    gy = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
+        VLDR128_U12(ey, ed, fixedaddress+16);                                       \
+    gy = ymm_get_reg_empty(dyn, ninst, x1, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1)
 
 // Get empty VY, and non-writen EY
 #define GETVY_empty_EY(vy, ey)                                                      \
@@ -551,7 +557,7 @@
         ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, vex.v, -1, -1);     \
     else                                                                            \
         VLD128(ey, ed, fixedaddress+16);                                            \
-    vy = ymm_get_reg_empty(dyn, ninst, x1, vex.v, -1, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
+    vy = ymm_get_reg_empty(dyn, ninst, x1, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1)
 
 // Get EX as a quad, (x3 is used)
 #define GETEX_Y(a, w, D)                                                                                \
@@ -572,8 +578,6 @@
         WILLWRITE2();                                                                                   \
         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
         unscaled = 0;                                                                                   \
-        a = fpu_get_scratch(dyn, ninst);                                                                \
-        VLD128(a, ed, fixedaddress);                                                                    \
     }
 
 // Get EX as a quad, (x1 is used)
