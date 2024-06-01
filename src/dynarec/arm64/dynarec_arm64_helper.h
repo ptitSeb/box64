@@ -480,6 +480,11 @@
     GETEX_Y(ex, 0, D);                      \
     GETGX_empty(gx)
 
+// Get empty GX, and non-writen VX
+#define GETGX_empty_VX(gx, vx, D)           \
+    GETVX(vx, 0);                           \
+    GETGX_empty(gx)
+
 // Get EX and and non-writen VX and GX
 #define GETGXVXEX(gx, vx, ex, D)            \
     GETVX(vx, 0);                           \
