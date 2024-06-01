@@ -56,6 +56,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
     MAYUSE(s0);
     MAYUSE(j64);
     MAYUSE(cacheupd);
+    #if STEP > 1
+    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+    #endif
 
     /* Remember to not create a new fpu_scratch after some GY/VY/EY is created, because Y can be in the scratch area and might overlap (and scratch will win) */
 
@@ -864,6 +867,77 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
 
+        case 0xC4:
+            INST_NAME("VPINSRW Gx, Vx, Ed, Ib");
+            nextop = F8;
+            GETGX_empty_VX(v0, v2);
+            if(v0!=v2) VMOVQ(v0, v2);
+            if(MODREG) {
+                u8 = (F8)&7;
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                VMOVQHfrom(v0, u8, ed);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                u8 = (F8)&7;
+                VLD1_16(v0, u8, wback);
+            }
+            YMM0(gd);
+            break;
+        case 0xC5:
+            INST_NAME("VPEXTRW Gd, Ex, Ib");
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                GETEX(v0, 0, 1);
+                u8 = (F8)&7;
+                VMOVHto(gd, v0, u8);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
+                u8 = (F8)&7;
+                LDRH_U12(gd, wback, u8*2);
+            }
+            break;
+
+        case 0xD7:
+            nextop = F8;
+            INST_NAME("VPMOVMSKB Gd, Ex");
+            v0 = fpu_get_scratch(dyn, ninst);
+            v1 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
+            GETEX_Y(q0, 0, 0);
+            GETGD;
+            TABLE64(x1, (uintptr_t)&mask_shift8);
+            VLDR64_U12(v0, x1, 0);     // load shift
+            MOVI_8(v1, 0x80);   // load mask
+            VAND(q1, v1, q0);
+            USHL_8(q1, q1, v0); // shift
+            UADDLV_8(q1, q1);   // accumalte
+            VMOVBto(gd, q1, 0);
+            // and now the high part
+            VMOVeD(q1, 0, q0, 1);
+            VAND(q1, v1, q1);  // keep highest bit
+            USHL_8(q1, q1, v0); // shift
+            UADDLV_8(q1, q1);   // accumalte
+            VMOVBto(x1, q1, 0);
+            BFIx(gd, x1, 8, 8);
+            if(vex.l) {
+                GETEY(q0);
+                VAND(q1, v1, q0);
+                USHL_8(q1, q1, v0); // shift
+                UADDLV_8(q1, q1);   // accumalte
+                VMOVBto(x1, q1, 0);
+                BFIx(gd, x1, 16, 8);
+                // and now the high part
+                VMOVeD(q1, 0, q0, 1);
+                VAND(q1, v1, q1);  // keep highest bit
+                USHL_8(q1, q1, v0); // shift
+                UADDLV_8(q1, q1);   // accumalte
+                VMOVBto(x1, q1, 0);
+                BFIx(gd, x1, 24, 8);
+            }
+            break;
         case 0xD8:
             INST_NAME("VPSUBUSB Gx, Vx, Ex");
             nextop = F8;

@@ -537,6 +537,13 @@
         VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
     gy = ymm_get_reg(dyn, ninst, x1, gd, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1)
 
+// Get EY
+#define GETEY(ey)                                                                               \
+    if(MODREG)                                                                                  \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, -1, -1, -1);                 \
+    else                                                                                        \
+        VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
+
 // Get empty EY and non-writen GY
 #define GETGYEY_empty(gy, ey)                                                                   \
     gy = ymm_get_reg(dyn, ninst, x1, gd, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1);       \
