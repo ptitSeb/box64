@@ -1093,6 +1093,53 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0xC4:
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
+                DEFAULT;
+            } else {
+                if(rex.is32bits) {
+                    DEFAULT;
+                    return addr;
+                }
+                vex_t vex = {0};
+                vex.rex = rex;
+                u8 = nextop;
+                vex.m = u8&0b00011111;
+                vex.rex.b = (u8&0b00100000)?0:1;
+                vex.rex.x = (u8&0b01000000)?0:1;
+                vex.rex.r = (u8&0b10000000)?0:1;
+                u8 = F8;
+                vex.p = u8&0b00000011;
+                vex.l = (u8>>2)&1;
+                vex.v = ((~u8)>>3)&0b1111;
+                vex.rex.w = (u8>>7)&1;
+                addr = dynarec64_67_AVX(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            }
+            break;
+        case 0xC5:
+            nextop = F8;
+            if(rex.is32bits && !(MODREG)) {
+                DEFAULT;
+            } else {
+                if(rex.is32bits) {
+                    DEFAULT;
+                    return addr;
+                }
+                vex_t vex = {0};
+                vex.rex = rex;
+                u8 = nextop;
+                vex.p = u8&0b00000011;
+                vex.l = (u8>>2)&1;
+                vex.v = ((~u8)>>3)&0b1111;
+                vex.rex.r = (u8&0b10000000)?0:1;
+                vex.rex.b = 0;
+                vex.rex.x = 0;
+                vex.rex.w = 0;
+                vex.m = VEX_M_0F;
+                addr = dynarec64_67_AVX(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            }
+            break;
         case 0xC6:
             INST_NAME("MOV Eb, Ib");
             nextop=F8;
@@ -1344,6 +1391,20 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xFF:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0: // INC Ed
+                    INST_NAME("INC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETED32(0);
+                    emit_inc32(dyn, ninst, rex, ed, x3, x4);
+                    WBACK;
+                    break;
+                case 1: //DEC Ed
+                    INST_NAME("DEC Ed");
+                    SETFLAGS(X_ALL&~X_CF, SF_SUBSET_PENDING);
+                    GETED32(0);
+                    emit_dec32(dyn, ninst, rex, ed, x3, x4);
+                    WBACK;
+                    break;
                 case 2: // CALL Ed
                     INST_NAME("CALL Ed");
                     PASS2IF((box64_dynarec_safeflags>1) ||

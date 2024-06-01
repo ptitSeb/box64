@@ -337,6 +337,9 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         if(rex.is32bits && !(MODREG)) {
             return 0;
         } else {
+            if(rex.is32bits) {
+                return 0;
+            }
             vex_t vex = {0};
             vex.rex = rex;
             tmp8u = nextop;
@@ -361,6 +364,9 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         if(rex.is32bits && !(MODREG)) {
             return 0;
         } else {
+            if(rex.is32bits) {
+                return 0;
+            }
             vex_t vex = {0};
             vex.rex = rex;
             tmp8u = nextop;
