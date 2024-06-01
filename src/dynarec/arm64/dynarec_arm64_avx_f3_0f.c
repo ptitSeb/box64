@@ -62,7 +62,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
     switch(opcode) {
 
         case 0x6F:
-            INST_NAME("VMOVDQU Gx,Ex");// no alignment constraint on NEON here, so same as MOVDQA
+            INST_NAME("VMOVDQU Gx, Ex");// no alignment constraint on NEON here, so same as MOVDQA
             nextop = F8;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
@@ -84,6 +84,29 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 }
             }
             if(!vex.l) YMM0(gd);
+            break;
+
+        case 0x7F:
+            INST_NAME("VMOVDQU Ex, Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3));
+                VMOVQ(v1, v0);
+                if(vex.l) {
+                    GETGY(v0, 0, (nextop&7) + (rex.b<<3), -1, -1);
+                    v1 = ymm_get_reg_empty(dyn, ninst, x1, (nextop&7) + (rex.b<<3), gd, -1, -1);
+                    VMOVQ(v1, v0);
+                } // no ymm raz here it seems
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY(v0, 0, -1, -1, -1);
+                    VSTR128_U12(v0, ed, fixedaddress+16);
+                }
+                SMWRITE2();
+            }
             break;
 
         default:
