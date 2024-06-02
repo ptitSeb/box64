@@ -311,6 +311,74 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SPILL_EFLAGS();
             }
             break;
+        case 0x38:
+            // SSE3
+            nextop = F8;
+            switch (nextop) {
+                case 0xC8 ... 0xCD:
+                    u8 = nextop;
+                    switch (u8) {
+                        case 0xC8:
+                            INST_NAME("SHA1NEXTE Gx, Ex");
+                            break;
+                        case 0xC9:
+                            INST_NAME("SHA1MSG1 Gx, Ex");
+                            break;
+                        case 0xCA:
+                            INST_NAME("SHA1MSG2 Gx, Ex");
+                            break;
+                        case 0xCB:
+                            INST_NAME("SHA256RNDS2 Gx, Ex");
+                            break;
+                        case 0xCC:
+                            INST_NAME("SHA256MSG1 Gx, Ex");
+                            break;
+                        case 0xCD:
+                            INST_NAME("SHA256MSG2 Gx, Ex");
+                            break;
+                    }
+                    nextop = F8;
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        sse_reflect_reg(dyn, ninst, ed);
+                        ADDI_D(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x2) {
+                            MV(x2, ed);
+                        }
+                    }
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    sse_reflect_reg(dyn, ninst, 0);
+                    switch (u8) {
+                        case 0xC8:
+                            CALL(sha1nexte, -1);
+                            break;
+                        case 0xC9:
+                            CALL(sha1msg1, -1);
+                            break;
+                        case 0xCA:
+                            CALL(sha1msg2, -1);
+                            break;
+                        case 0xCB:
+                            CALL(sha256rnds2, -1);
+                            break;
+                        case 0xCC:
+                            CALL(sha256msg1, -1);
+                            break;
+                        case 0xCD:
+                            CALL(sha256msg2, -1);
+                            break;
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         #define GO(GETFLAGS, NO, YES, F, I)                                                          \
             READFLAGS(F);                                                                            \
             if (la64_lbt) {                                                                          \
@@ -341,6 +409,16 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         #undef GO
 
+        case 0x50:
+            INST_NAME("MOVMSPKPS Gd, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGD;
+            q1 = fpu_get_scratch(dyn);
+            VMSKLTZ_W(q1, q0);
+            MOVFR2GR_S(gd, q1);
+            BSTRPICK_D(gd, gd, 31, 0);
+            break;
         case 0x51:
             INST_NAME("SQRTPS Gx, Ex");
             nextop = F8;
@@ -355,6 +433,15 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
             VFRSQRT_S(q1, q0);
+            break;
+        case 0x53:
+            INST_NAME("RCPPS Gx, Ex");
+            nextop = F8;
+            SKIPTEST(x1);
+            GETEX(q0, 0, 0);
+            GETGX_empty(q1);
+            // TODO: use v1.1 vfrecipe when possible
+            VFRECIP_S(q1, q0);
             break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
@@ -426,12 +513,42 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGX(v0, 1);
             VFSUB_S(v0, v0, q0);
             break;
+        case 0x5D:
+            INST_NAME("MINPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            if (!box64_dynarec_fastnan && v0 != v1) {
+                q0 = fpu_get_scratch(dyn);
+                // always copy from v1 if any oprand is NaN
+                VFCMP_S(q0, v0, v1, cUN);
+                VANDN_V(v0, q0, v0);
+                VAND_V(q0, q0, v1);
+                VOR_V(v0, v0, q0);
+            }
+            VFMIN_S(v0, v0, v1);
+            break;
         case 0x5E:
             INST_NAME("DIVPS Gx, Ex");
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(v0, 1);
             VFDIV_S(v0, v0, q0);
+            break;
+        case 0x5F:
+            INST_NAME("MAXPS Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            if (!box64_dynarec_fastnan && v0 != v1) {
+                q0 = fpu_get_scratch(dyn);
+                // always copy from v1 if any oprand is NaN
+                VFCMP_S(q0, v0, v1, cUN);
+                VANDN_V(v0, q0, v0);
+                VAND_V(q0, q0, v1);
+                VOR_V(v0, v0, q0);
+            }
+            VFMAX_S(v0, v0, v1);
             break;
 
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
@@ -556,6 +673,20 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             else
                 switch ((nextop >> 3) & 7) {
+                    case 2:
+                        INST_NAME("LDMXCSR Md");
+                        GETED(0);
+                        ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        if (box64_sse_flushto0) {
+                            // TODO
+                        }
+                        break;
+                    case 3:
+                        INST_NAME("STMXCSR Md");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        LD_WU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                        ST_W(x4, wback, fixedaddress);
+                        break;
                     default:
                         DEFAULT;
                 }

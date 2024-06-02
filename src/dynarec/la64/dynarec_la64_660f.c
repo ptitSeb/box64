@@ -277,6 +277,76 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x3A: // these are some more SSSE3+ opcodes
+            opcode = F8;
+            switch (opcode) {
+                case 0x0F:
+                    INST_NAME("PALIGNR Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 1);
+                    u8 = F8;
+                    if (u8 > 31) {
+                        VXOR_V(q0, q0, q0);
+                    } else if (u8 > 15) {
+                        VBSRL_V(q0, q0, u8 - 16);
+                    } else if (!u8) {
+                        VOR_V(q0, q1, q1);
+                    } else {
+                        d0 = fpu_get_scratch(dyn);
+                        VBSLL_V(q0, q0, 16 - u8);
+                        VBSRL_V(d0, q1, u8);
+                        VOR_V(q0, q0, d0);
+                    }
+                    break;
+                case 0x44:
+                    INST_NAME("PCLMULQDQ Gx, Ex, Ib");
+                    nextop = F8;
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd); // gx
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        sse_forget_reg(dyn, ninst, ed);
+                        MOV32w(x2, ed);
+                        MOV32w(x3, 0); // p = NULL
+                    } else {
+                        MOV32w(x2, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 0, 1);
+                        if (ed != x3) {
+                            MV(x3, ed);
+                        }
+                    }
+                    u8 = F8;
+                    MOV32w(x4, u8);
+                    CALL(native_pclmul, -1);
+                    break;
+                case 0xDF:
+                    INST_NAME("AESKEYGENASSIST Gx, Ex, Ib"); // AES-NI
+                    nextop = F8;
+                    GETG;
+                    sse_forget_reg(dyn, ninst, gd);
+                    MOV32w(x1, gd); // gx
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        sse_forget_reg(dyn, ninst, ed);
+                        MOV32w(x2, ed);
+                        MOV32w(x3, 0); // p = NULL
+                    } else {
+                        MOV32w(x2, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
+                        if (ed != x3) {
+                            MV(x3, ed);
+                        }
+                    }
+                    u8 = F8;
+                    MOV32w(x4, u8);
+                    CALL(native_aeskeygenassist, -1);
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;

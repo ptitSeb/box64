@@ -167,6 +167,25 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     DEFAULT;
             }
             break;
+        case 0x11:
+            INST_NAME("ADC Ed, Gd");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_adc32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
+            WBACK;
+            break;
+        case 0x13:
+            INST_NAME("ADC Gd, Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_adc32(dyn, ninst, rex, gd, ed, x3, x4, x5, x6);
+            break;
         case 0x18:
             INST_NAME("SBB Eb, Gb");
             READFLAGS(X_CF);
@@ -186,6 +205,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             emit_sbb32(dyn, ninst, rex, ed, gd, x3, x4, x5);
             WBACK;
+            break;
+        case 0x1B:
+            INST_NAME("SBB Gd, Ed");
+            READFLAGS(X_CF);
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            GETED(0);
+            emit_sbb32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
         case 0x1C:
             INST_NAME("SBB AL, Ib");
@@ -459,6 +487,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
+        case 0x67:
+            if (rex.is32bits) {
+                DEFAULT;
+            } else
+                addr = dynarec64_67(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
         case 0x68:
             INST_NAME("PUSH Id");
@@ -1372,6 +1406,26 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC1:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
+                    // flags are not affected if count is 0, we make it a nop if possible.
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                        GETED(1);
+                        F8;
+                        emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
@@ -1607,6 +1661,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xD1:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Ed, 1");
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, 1");
