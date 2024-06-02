@@ -44,7 +44,7 @@
 #define GETEX_OFFS(D, O)    opex=TestExO(test, &addr, rex, nextop, D, O)
 #define GETGX               opgx=GetGx(test->emu, &addr, rex, nextop)
 #define GETGY               opgy=GetGy(test->emu, &addr, rex, nextop)
-#define GETEY               opey=(opex>=&test->emu->xmm[0] && opex<=&test->emu->xmm[15])?((sse_regs_t*)((uintptr_t)opex+offsetof(x64emu_t, ymm)-offsetof(x64emu_t, xmm))):((sse_regs_t*)((uintptr_t)opex+16))
+#define GETEY               opey=TestEy(test, &addr, rex, nextop)
 #define GETEM(D)            opem=TestEm(test, &addr, rex, nextop, D)
 #define GETEM32(D)          opem=TestEm32O(test, &addr, rex, nextop, D, 0)
 #define GETGM               opgm=GetGm(test->emu, &addr, rex, nextop)

@@ -1906,6 +1906,20 @@ sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8
         return (sse_regs_t*)test->mem;
     }
 }
+sse_regs_t* TestEy(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+        test->memsize=0;
+        return &test->emu->ymm[(m&0x07)+(rex.b<<3)];
+    } else {
+        sse_regs_t* ret = (sse_regs_t*)(test->memaddr+16);
+        test->memsize += 16;
+        ((uint64_t*)test->mem)[2] = ret->q[0];
+        ((uint64_t*)test->mem)[3] = ret->q[1];
+        return (sse_regs_t*)&test->mem[16];
+    }
+}
 
 sse_regs_t* GetExO(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, uintptr_t offset)
 {
