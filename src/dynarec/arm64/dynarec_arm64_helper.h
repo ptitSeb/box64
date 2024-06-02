@@ -517,7 +517,7 @@
     if(MODREG)                                                                                  \
         ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);              \
     else                                                                                        \
-        VLD128(ey, ed, fixedaddress+16);                                                        \
+        VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
     gy = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
 
 // Get EY and non-writen VY and GY
@@ -526,8 +526,15 @@
     if(MODREG)                                                                                  \
         ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, gd, vex.v, -1);              \
     else                                                                                        \
-        VLD128(ey, ed, fixedaddress+16);                                                        \
+        VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
     gy = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
+
+// Get empty EY and non-writen VY and GY
+#define GETGYVYEY_empty(gy, vy, ey)                                                             \
+    vy = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);    \
+    gy = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);    \
+    if(MODREG)                                                                                  \
+        ey = ymm_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3), gd, vex.v, -1)
 
 // Get EY and non-writen GY
 #define GETGYEY(gy, ey)                                                                         \
@@ -561,9 +568,9 @@
 // Get empty VY, and non-writen EY
 #define GETVY_empty_EY(vy, ey)                                                      \
     if(MODREG)                                                                      \
-        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, vex.v, -1, -1);     \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, vex.v, -1, -1);  \
     else                                                                            \
-        VLD128(ey, ed, fixedaddress+16);                                            \
+        VLDR128_U12(ey, ed, fixedaddress+16);                                       \
     vy = ymm_get_reg_empty(dyn, ninst, x1, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1)
 
 // Get EX as a quad, (x3 is used)
@@ -575,7 +582,7 @@
         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
         unscaled = 0;                                                                                   \
         a = fpu_get_scratch(dyn, ninst);                                                                \
-        VLD128(a, ed, fixedaddress);                                                                    \
+        VLDR128_U12(a, ed, fixedaddress);                                                               \
     }
 // Get EX as a quad, (x3 is used)
 #define GETEX_empty_Y(a, D)                                                                             \
@@ -583,6 +590,7 @@
         a = sse_get_reg_empty(dyn, ninst, x3, (nextop&7)+(rex.b<<3));                                   \
     } else {                                                                                            \
         WILLWRITE2();                                                                                   \
+        a = fpu_get_scratch(dyn, ninst);                                                                \
         addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, D);  \
         unscaled = 0;                                                                                   \
     }

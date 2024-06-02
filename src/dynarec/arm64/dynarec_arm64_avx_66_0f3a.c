@@ -223,6 +223,39 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             F8; // read u8, but it's been already handled
             break;
 
+        case 0x21:
+            INST_NAME("VINSERTPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX_empty_VX(v0, v2);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                u8 = F8;
+                if(v0==v1) {
+                    d0 = fpu_get_scratch(dyn, ninst);
+                    VMOVQ(d0, v1);
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VMOVeS(v0, (u8>>4)&3, d0, (u8>>6)&3);
+                } else {
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VMOVeS(v0, (u8>>4)&3, v1, (u8>>6)&3);
+                }
+            } else {
+                if(v0!=v2) VMOVQ(v0, v2);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 1);
+                u8 = F8;
+                LDW(x2, wback, fixedaddress);
+                VMOVQSfrom(v0, (u8>>4)&3, x2);
+            }
+            uint8_t zmask = u8 & 0xf;
+            for (uint8_t i=0; i<4; i++) {
+                if (zmask & (1<<i)) {
+                    VMOVQSfrom(v0, i, wZR);
+                }
+            }
+            YMM0(gd);
+            break;
+
         case 0x44:
             INST_NAME("PCLMULQDQ Gx, Vx, Ex, Ib");
             nextop = F8;

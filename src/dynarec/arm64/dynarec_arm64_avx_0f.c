@@ -81,11 +81,11 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xffe<<4, 15, rex, NULL, 0, 0);
-                VLD128(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);   // no alignment issue with ARMv8 NEON :)
                 if(vex.l) {
                     v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
-                    VLD128(v0, ed, fixedaddress+16);
+                    VLDR128_U12(v0, ed, fixedaddress+16);
                 }
             }
             if(!vex.l) YMM0(gd);
@@ -105,11 +105,11 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     VMOVQ(v1, v0);
                 }
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xffe<<4, 15, rex, NULL, 0, 0);
-                VST128(v0, ed, fixedaddress);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
                 if(vex.l) {
                     v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, ed, -1, -1);
-                    VST128(v0, ed, fixedaddress+16);
+                    VSTR128_U12(v0, ed, fixedaddress+16);
                 }
                 SMWRITE2();
             }
