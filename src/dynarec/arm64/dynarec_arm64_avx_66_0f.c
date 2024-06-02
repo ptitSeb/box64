@@ -878,7 +878,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                                 VEORQ(v0, v0, v0);
                             } else {
                                 if(!l) VEORQ(q1, q1, q1);
-                                VEXTQ_8(v0, v1, q1, u8);
+                                VEXTQ_8(v0, v1, q1, u8);E5:
                             }
                         } else if(v0!=v1)
                             VMOVQ(v0, v1);
@@ -1059,6 +1059,20 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l) YMM0(gd);
             break;
+        case 0xD6:
+            INST_NAME("VMOVQ Ex, Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOV(v1, v0);
+                YMM0((nextop&7)+(rex.b<<3));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff<<3, 7, rex, NULL, 0, 0);
+                VSTR64_U12(v0, ed, fixedaddress);
+            }
+            break;
         case 0xD7:
             nextop = F8;
             INST_NAME("VPMOVMSKB Gd, Ex");
@@ -1215,6 +1229,42 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0xE5:
+            INST_NAME("VPMULHW Gx, Vx, Ex");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VSMULL_16(q0, v2, v1);
+                VSMULL2_16(q1, v2, v1);
+                SQSHRN_16(v0, q0, 16);
+                SQSHRN2_16(v0, q1, 16);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
+        case 0xE7:
+            INST_NAME("VMOVNTDQ Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                VMOVQ(v1, v0);
+                if(vex.l) {
+                    GETGYEY_empty(v0, v1);
+                    VMOVQ(v1, v0);
+                }
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                VSTR128_U12(v0, ed, fixedaddress);
+                if(vex.l) {
+                    GETGY(v0, 0, -1, -1, -1);
+                    VSTR128_U12(v0, ed, fixedaddress+16);
+                }
+            }
+            break;
         case 0xE8:
             INST_NAME("VPSUBSB Gx, Vx, Ex");
             nextop = F8;
@@ -1328,6 +1378,21 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l) YMM0(gd);
             break;
+
+        case 0xF5:
+            INST_NAME("VPMADDWD Gx, Vx, Ex");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VSMULL_16(q0, v2, v1);
+                VSMULL2_16(q1, v2, v1);
+                VADDPQ_32(v0, q0, q1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0xF8:
             INST_NAME("VPSUBB Gx, Vx, Ex");
             nextop = F8;
