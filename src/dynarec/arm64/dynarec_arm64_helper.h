@@ -1500,7 +1500,6 @@ void arm64_move64(dynarec_arm_t* dyn, int ninst, int reg, uint64_t val);
 #define neoncache_st_coherency STEPNAME(neoncache_st_coherency)
 int neoncache_st_coherency(dynarec_arm_t* dyn, int ninst, int a, int b);
 // scratch fpu regs for convertions
-#define SCRATCH 31
 
 #if STEP == 0
 #define ST_IS_F(A)          0

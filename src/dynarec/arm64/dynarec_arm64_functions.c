@@ -70,6 +70,8 @@ void fpu_free_reg(dynarec_arm_t* dyn, int reg)
     dyn->n.fpuused[reg] = 0;
     if(dyn->n.neoncache[reg].t!=NEON_CACHE_ST_F && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_D && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_I64)
         dyn->n.neoncache[reg].v = 0;
+    if(dyn->n.fpu_scratch && reg==SCRATCH0+dyn->n.fpu_scratch-1)
+        --dyn->n.fpu_scratch;
 }
 // Get an MMX double reg
 int fpu_get_reg_emm(dynarec_arm_t* dyn, int ninst, int emm)

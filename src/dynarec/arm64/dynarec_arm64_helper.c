@@ -1119,12 +1119,20 @@ void x87_purgecache(dynarec_arm_t* dyn, int ninst, int next, int s1, int s2, int
                         VSTR64_REG_LSL3(dyn->n.x87reg[i], s1, s3);    // save the value
                         break;
                     case NEON_CACHE_ST_F:
-                        FCVT_D_S(SCRATCH, dyn->n.x87reg[i]);
-                        VSTR64_REG_LSL3(SCRATCH, s1, s3);    // save the value
+                        {
+                            int scratch = fpu_get_scratch(dyn, ninst);
+                            FCVT_D_S(scratch, dyn->n.x87reg[i]);
+                            VSTR64_REG_LSL3(scratch, s1, s3);    // save the value
+                            fpu_free_reg(dyn, scratch);
+                        }
                         break;
                     case NEON_CACHE_ST_I64:
-                        SCVTFDD(SCRATCH, dyn->n.x87reg[i]);
-                        VSTR64_REG_LSL3(SCRATCH, s1, s3);    // save the value
+                        {
+                            int scratch = fpu_get_scratch(dyn, ninst);
+                            SCVTFDD(scratch, dyn->n.x87reg[i]);
+                            VSTR64_REG_LSL3(scratch, s1, s3);    // save the value
+                            fpu_free_reg(dyn, scratch);
+                        }
                         break;
                 }
                 if(!next) {
@@ -1342,11 +1350,15 @@ void x87_forget(dynarec_arm_t* dyn, int ninst, int s1, int s2, int st)
         ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
     }
     if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F) {
-        FCVT_D_S(SCRATCH, reg);
-        VSTR64_REG_LSL3(SCRATCH, s1, s2);
+        int scratch = fpu_get_scratch(dyn, ninst);
+        FCVT_D_S(scratch, reg);
+        VSTR64_REG_LSL3(scratch, s1, s2);
+        fpu_free_reg(dyn, scratch);
     } else if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_I64) {
-        SCVTFDD(SCRATCH, reg);
-        VSTR64_REG_LSL3(SCRATCH, s1, s2);
+        int scratch = fpu_get_scratch(dyn, ninst);
+        SCVTFDD(scratch, reg);
+        VSTR64_REG_LSL3(scratch, s1, s2);
+        fpu_free_reg(dyn, scratch);
     } else {
         VSTR64_REG_LSL3(reg, s1, s2);
     }
@@ -1436,11 +1448,15 @@ void x87_free(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int st)
             ANDw_mask(s2, s2, 0, 2); //mask=7    // (emu->top + i)&7
         }
         if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_F) {
-            FCVT_D_S(SCRATCH, reg);
-            VSTR64_REG_LSL3(SCRATCH, s1, s2);
+            int scratch = fpu_get_scratch(dyn, ninst);
+            FCVT_D_S(scratch, reg);
+            VSTR64_REG_LSL3(scratch, s1, s2);
+            fpu_free_reg(dyn, scratch);
         } else if(dyn->n.neoncache[reg].t==NEON_CACHE_ST_I64) {
-            SCVTFDD(SCRATCH, reg);
-            VSTR64_REG_LSL3(SCRATCH, s1, s2);
+            int scratch = fpu_get_scratch(dyn, ninst);
+            SCVTFDD(scratch, reg);
+            VSTR64_REG_LSL3(scratch, s1, s2);
+            fpu_free_reg(dyn, scratch);
         } else {
             VSTR64_REG_LSL3(reg, s1, s2);
         }
@@ -1965,15 +1981,17 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
     // There is no VSWP in Arm64 NEON to swap 2 register contents!
     // so use a scratch...
+    int scratch = fpu_get_scratch(dyn, ninst);
     if(quad) {
-        VMOVQ(SCRATCH, i);
+        VMOVQ(scratch, i);
         VMOVQ(i, j);
-        VMOVQ(j, SCRATCH);
+        VMOVQ(j, scratch);
     } else {
-        VMOV(SCRATCH, i);
+        VMOV(scratch, i);
         VMOV(i, j);
-        VMOV(j, SCRATCH);
+        VMOV(j, scratch);
     }
+    fpu_free_reg(dyn, scratch);
     tmp.v = cache->neoncache[i].v;
     cache->neoncache[i].v = cache->neoncache[j].v;
     cache->neoncache[j].v = tmp.v;
