@@ -878,7 +878,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                                 VEORQ(v0, v0, v0);
                             } else {
                                 if(!l) VEORQ(q1, q1, q1);
-                                VEXTQ_8(v0, v1, q1, u8);E5:
+                                VEXTQ_8(v0, v1, q1, u8);
                             }
                         } else if(v0!=v1)
                             VMOVQ(v0, v1);
