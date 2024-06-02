@@ -607,7 +607,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = EX->u128;
             break;
 
-        case 0x1C:  /* PABSB Gx, Ex */
+        case 0x1C:  /* VPABSB Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -623,7 +623,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x1D:  /* PABSW Gx, Ex */
+        case 0x1D:  /* VPABSW Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -639,7 +639,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x1E:  /* PABSD Gx, Ex */
+        case 0x1E:  /* VPABSD Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
