@@ -395,6 +395,54 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else YMM0(gd);
             break;
 
+        case 0x60:
+            INST_NAME("VPUNPCKLBW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VZIP1Q_8(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x61:
+            INST_NAME("VPUNPCKLWD Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VZIP1Q_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x62:
+            INST_NAME("VPUNPCKLDQ Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VZIP1Q_32(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x63:
+            INST_NAME("VPACKSSWB Gx,Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(v0==v1 && v1!=v2) {
+                    if(!l) q0 = fpu_get_scratch(dyn, ninst);
+                    SQXTN_8(q0, v1);
+                }
+                SQXTN_8(v0, v2);
+                if(v1==v2) {
+                    VMOVeD(v0, 1, v0, 0);
+                } else {
+                    if(v0==v1)
+                        VMOVeD(v0, 1, q0, 0);
+                    else
+                        SQXTN2_8(v0, v1);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x64:
             INST_NAME("VPCMPGTB Gx,Vx, Ex");
             nextop = F8;
@@ -425,7 +473,54 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VCMGTQ_32(v0, v2, v1);
             } else YMM0(gd);
             break;
-
+        case 0x67:
+            INST_NAME("VPACKUSWB Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(v0==v1 && v1!=v2) {
+                    if(!l) q0 = fpu_get_scratch(dyn, ninst);
+                    SQXTUN_8(q0, v1);
+                }
+                SQXTUN_8(v0, v2);
+                if(v1==v2) {
+                    VMOVeD(v0, 1, v0, 0);
+                } else {
+                    if(v0==v1)
+                        VMOVeD(v0, 1, q0, 0);
+                    else
+                        SQXTUN2_8(v0, v1);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x68:
+            INST_NAME("VPUNPCKHBW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VZIP2Q_8(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x69:
+            INST_NAME("VPUNPCKHWD Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VZIP2Q_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x6A:
+            INST_NAME("VPUNPCKHDQ Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VZIP2Q_32(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x6B:
             INST_NAME("PACKSSDW Gx,Ex");
             nextop = F8;
@@ -520,7 +615,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             YMM0(gd);
             break;
         case 0x6F:
-            INST_NAME("MOVDQA Gx,Ex");
+            INST_NAME("VMOVDQA Gx, Ex");
             nextop = F8;
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
@@ -533,7 +628,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             } else {
                 GETGX_empty(v0);
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
                 VLDR128_U12(v0, ed, fixedaddress);
                 if(vex.l) {
                     GETGY_empty(v0, -1, -1, -1);
@@ -632,7 +727,53 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l)  YMM0(gd);
             break;
-
+        case 0x71:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 2:
+                    INST_NAME("VPSRLW Vx, Ex, Ib");
+                    for(int l=0; l<1+vex.l; ++l) {
+                        if(!l) { GETVX_empty_EX(v0, v1, 1); u8 = F8; } else { GETVY_empty_EY(v0, v1); }
+                        if(u8) {
+                            if (u8>15) {
+                                VEORQ(v0, v0, v0);
+                            } else if(u8) {
+                                VSHRQ_16(v0, v1, u8);
+                            }
+                        } else if(v0!=v1) VMOVQ(v0, v1);
+                    }
+                    if(!vex.l) YMM0(vex.v);
+                    break;
+                case 4:
+                    INST_NAME("VPSRAW Vx, Ex, Ib");
+                    for(int l=0; l<1+vex.l; ++l) {
+                        if(!l) { GETVX_empty_EX(v0, v1, 1); u8 = F8; } else { GETVY_empty_EY(v0, v1); }
+                        if(u8>15) u8=15;
+                        if(u8) {
+                            VSSHRQ_16(v0, v1, u8);
+                        } else if(v0!=v1) VMOVQ(v0, v1);
+                    }
+                    if(!vex.l) YMM0(vex.v);
+                    break;
+                case 6:
+                    INST_NAME("VPSLLW Vx, Ex, Ib");
+                    for(int l=0; l<1+vex.l; ++l) {
+                        if(!l) { GETVX_empty_EX(v0, v1, 1); u8 = F8; } else { GETVY_empty_EY(v0, v1); }
+                        if(u8) {
+                            if (u8>15) {
+                                VEORQ(v0, v0, v0);
+                            } else {
+                                VSHLQ_16(v0, v1, u8);
+                            }
+                        } else if(v0!=v1) VMOVQ(v0, v1);
+                    }
+                    if(!vex.l) YMM0(vex.v);
+                    break;
+                default:
+                    *ok = 0;
+                    DEFAULT;
+            }
+            break;
         case 0x72:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -900,6 +1041,24 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
 
+        case 0xD4:
+            INST_NAME("VPADDQ Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VADDQ_64(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xD5:
+            INST_NAME("VPMULLW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VMULQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0xD7:
             nextop = F8;
             INST_NAME("VPMOVMSKB Gd, Ex");
