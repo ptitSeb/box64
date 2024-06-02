@@ -67,7 +67,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int is_nan;
     #endif
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1, *opex2;
+    sse_regs_t *opex, *opgx, eax1, *opex2, eax2;
     mmx87_regs_t *opem, *opgm;
     // AES opcodes constants
                             //   A0 B1 C2 D3 E4 F5 G6 H7 I8 J9 Ka Lb Mc Nd Oe Pf
@@ -735,14 +735,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = subbytes[eax1.ub[i]];
                 //STATE ← MixColumns( STATE );
                 for(int j=0; j<4; ++j) {
-                    GX->ub[0+j*4] = ff_mult(0x02, eax1.ub[0+j*4]) ^ ff_mult(0x03, eax1.ub[1+j*4]) ^               eax1.ub[2+j*4]  ^               eax1.ub[3+j*4] ;
-                    GX->ub[1+j*4] =               eax1.ub[0+j*4]  ^ ff_mult(0x02, eax1.ub[1+j*4]) ^ ff_mult(0x03, eax1.ub[2+j*4]) ^               eax1.ub[3+j*4] ;
-                    GX->ub[2+j*4] =               eax1.ub[0+j*4]  ^               eax1.ub[1+j*4]  ^ ff_mult(0x02, eax1.ub[2+j*4]) ^ ff_mult(0x03, eax1.ub[3+j*4]);
-                    GX->ub[3+j*4] = ff_mult(0x03, eax1.ub[0+j*4]) ^               eax1.ub[1+j*4]  ^               eax1.ub[2+j*4]  ^ ff_mult(0x02, eax1.ub[3+j*4]);
+                    eax2.ub[0+j*4] = ff_mult(0x02, eax1.ub[0+j*4]) ^ ff_mult(0x03, eax1.ub[1+j*4]) ^               eax1.ub[2+j*4]  ^               eax1.ub[3+j*4] ;
+                    eax2.ub[1+j*4] =               eax1.ub[0+j*4]  ^ ff_mult(0x02, eax1.ub[1+j*4]) ^ ff_mult(0x03, eax1.ub[2+j*4]) ^               eax1.ub[3+j*4] ;
+                    eax2.ub[2+j*4] =               eax1.ub[0+j*4]  ^               eax1.ub[1+j*4]  ^ ff_mult(0x02, eax1.ub[2+j*4]) ^ ff_mult(0x03, eax1.ub[3+j*4]);
+                    eax2.ub[3+j*4] = ff_mult(0x03, eax1.ub[0+j*4]) ^               eax1.ub[1+j*4]  ^               eax1.ub[2+j*4]  ^ ff_mult(0x02, eax1.ub[3+j*4]);
                 }
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax2.q[0] ^ EX->q[0];
+                GX->q[1] = eax2.q[1] ^ EX->q[1];
                 break;
             case 0xDD:  /* AESENCLAST Gx, Ex */
                 nextop = F8;
@@ -755,10 +755,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = GX->ub[shiftrows[i]];
                 //STATE ← SubBytes( STATE );
                 for(int i=0; i<16; ++i)
-                    GX->ub[i] = subbytes[eax1.ub[i]];
+                    eax1.ub[i] = subbytes[eax1.ub[i]];
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax1.q[0] ^ EX->q[0];
+                GX->q[1] = eax1.q[1] ^ EX->q[1];
                 break;
             case 0xDE:  /* AESDEC Gx, Ex */
                 nextop = F8;
@@ -774,14 +774,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = invsubbytes[eax1.ub[i]];
                 //STATE ← InvMixColumns( STATE );
                 for(int j=0; j<4; ++j) {
-                    GX->ub[0+j*4] = ff_mult(0x0E, eax1.ub[0+j*4]) ^ ff_mult(0x0B, eax1.ub[1+j*4]) ^ ff_mult(0x0D, eax1.ub[2+j*4]) ^ ff_mult(0x09, eax1.ub[3+j*4]);
-                    GX->ub[1+j*4] = ff_mult(0x09, eax1.ub[0+j*4]) ^ ff_mult(0x0E, eax1.ub[1+j*4]) ^ ff_mult(0x0B, eax1.ub[2+j*4]) ^ ff_mult(0x0D, eax1.ub[3+j*4]);
-                    GX->ub[2+j*4] = ff_mult(0x0D, eax1.ub[0+j*4]) ^ ff_mult(0x09, eax1.ub[1+j*4]) ^ ff_mult(0x0E, eax1.ub[2+j*4]) ^ ff_mult(0x0B, eax1.ub[3+j*4]);
-                    GX->ub[3+j*4] = ff_mult(0x0B, eax1.ub[0+j*4]) ^ ff_mult(0x0D, eax1.ub[1+j*4]) ^ ff_mult(0x09, eax1.ub[2+j*4]) ^ ff_mult(0x0E, eax1.ub[3+j*4]);
+                    eax2.ub[0+j*4] = ff_mult(0x0E, eax1.ub[0+j*4]) ^ ff_mult(0x0B, eax1.ub[1+j*4]) ^ ff_mult(0x0D, eax1.ub[2+j*4]) ^ ff_mult(0x09, eax1.ub[3+j*4]);
+                    eax2.ub[1+j*4] = ff_mult(0x09, eax1.ub[0+j*4]) ^ ff_mult(0x0E, eax1.ub[1+j*4]) ^ ff_mult(0x0B, eax1.ub[2+j*4]) ^ ff_mult(0x0D, eax1.ub[3+j*4]);
+                    eax2.ub[2+j*4] = ff_mult(0x0D, eax1.ub[0+j*4]) ^ ff_mult(0x09, eax1.ub[1+j*4]) ^ ff_mult(0x0E, eax1.ub[2+j*4]) ^ ff_mult(0x0B, eax1.ub[3+j*4]);
+                    eax2.ub[3+j*4] = ff_mult(0x0B, eax1.ub[0+j*4]) ^ ff_mult(0x0D, eax1.ub[1+j*4]) ^ ff_mult(0x09, eax1.ub[2+j*4]) ^ ff_mult(0x0E, eax1.ub[3+j*4]);
                 }
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax2.q[0] ^ EX->q[0];
+                GX->q[1] = eax2.q[1] ^ EX->q[1];
                 break;
             case 0xDF:  /* AESDECLAST Gx, Ex */
                 nextop = F8;
@@ -794,10 +794,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = GX->ub[invshiftrows[i]];
                 //STATE ← InvSubBytes( STATE );
                 for(int i=0; i<16; ++i)
-                    GX->ub[i] = invsubbytes[eax1.ub[i]];
+                    eax1.ub[i] = invsubbytes[eax1.ub[i]];
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax1.q[0] ^ EX->q[0];
+                GX->q[1] = eax1.q[1] ^ EX->q[1];
                 break;
             case 0xF0: /* MOVBE Gw, Ew */
                 nextop = F8;
