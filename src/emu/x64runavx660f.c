@@ -623,7 +623,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 for(int i=0; i<16; ++i)
                     GY->ub[i] = (VY->sb[i]>EY->sb[i])?0xFF:0x00;
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
         case 0x65:  /* VPCMPGTW Gx, Vx, Ex */
             nextop = F8;
@@ -639,7 +639,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 for(int i=0; i<8; ++i)
                     GY->uw[i] = (VY->sw[i]>EY->sw[i])?0xFFFF:0x0000;
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
         case 0x66:  /* VPCMPGTD Gx, Vx, Ex */
             nextop = F8;
@@ -655,7 +655,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 for(int i=0; i<4; ++i)
                     GY->ud[i] = (VY->sd[i]>EY->sd[i])?0xFFFFFFFF:0x00000000;
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
         case 0x67:  /* VPACKUSWB Gx, Vx, Ex */
             nextop = F8;
@@ -799,7 +799,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[1] = EY->q[0];
                 GY->q[0] = VY->q[0];
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
         case 0x6D:  /* VPUNPCKHQDQ Gx, Vx, Ex */
             nextop = F8;
@@ -815,7 +815,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = VY->q[1];
                 GY->q[1] = EY->q[1];
             } else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
         case 0x6E:                      /* VMOVD GX, Ed */
             nextop = F8;
@@ -827,7 +827,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->q[0] = ED->dword[0];    // zero extended
             GX->q[1] = 0;
             GETGY;
-            GY->q[0] = GY->q[1] = 0;
+            GY->u128 = 0;
             break;
         case 0x6F:  // VMOVDQA GX, EX
             nextop = F8;
@@ -841,7 +841,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = EY->q[0];
                 GY->q[1] = EY->q[1];
             }   else
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             break;
         case 0x70:  /* VPSHUFD Gx,Ex,Ib */
             nextop = F8;
@@ -1514,7 +1514,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = VY->q[0] & EY->q[0];
                 GY->q[1] = VY->q[1] & EY->q[1];
             } else {
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             }
             break;
         case 0xDC:  /* VPADDUSB Gx, Vx, Ex */
@@ -1793,7 +1793,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->q[0] = VY->q[0] | EY->q[0];
                 GY->q[1] = VY->q[1] | EY->q[1];
             } else {
-                GY->q[0] = GY->q[1] = 0;
+                GY->u128 = 0;
             }
             break;
         case 0xEC:  /* VPADDSB Gx,Vx, Ex */
