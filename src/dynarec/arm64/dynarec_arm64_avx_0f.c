@@ -260,6 +260,28 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             FCOMI(x1, x2);
             break;
 
+        case 0x52:
+            INST_NAME("VRSQRTPS Gx, Ex");
+            nextop = F8;
+            SKIPTEST(x1);
+            v0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_EX(q0, q1, 0); } else { GETGY_empty_EY(q0, q1); }
+                if(!l) {
+                    if(q1==q0)
+                        v1 = fpu_get_scratch(dyn, ninst);
+                    else
+                        v1 = q1;
+                }
+                // more precise
+                VFRSQRTEQS(v0, q1);
+                VFMULQS(v1, v0, q1);
+                VFRSQRTSQS(v1, v1, v0);
+                VFMULQS(q0, v1, v0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0x54:
             INST_NAME("VANDPS Gx, Vx, Ex");
             nextop = F8;

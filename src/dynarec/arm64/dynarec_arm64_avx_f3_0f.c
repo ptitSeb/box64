@@ -182,6 +182,29 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
 
+        case 0x52:
+            INST_NAME("VRSQRTSS Gx, Vx Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETVX(v2, 0);
+            GETEXSS(v1, 0, 0);
+            d0 = fpu_get_scratch(dyn, ninst);
+            d1 = fpu_get_scratch(dyn, ninst);
+            // so here: F32: Imm8 = abcd efgh that gives => aBbbbbbc defgh000 00000000 00000000
+            // and want 1.0f = 0x3f800000
+            // so 00111111 10000000 00000000 00000000
+            // a = 0, b = 1, c = 1, d = 1, efgh=0
+            // 0b01110000
+            FMOVS_8(d0, 0b01110000);
+            FSQRTS(d1, v1);
+            FDIVS(d0, d0, d1);
+            if(v0!=v2) {
+                VMOVQ(v0, v2);
+            }
+            VMOVeS(v0, 0, d0, 0);
+            YMM0(gd);
+            break;
+
         case 0x58:
             INST_NAME("VADDSS Gx, Vx, Ex");
             nextop = F8;
