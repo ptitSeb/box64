@@ -1741,10 +1741,10 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
                 }
                 STPx_S7_offset(xZR, xZR, s1, i*16);
             }
-        for(int i=0; i<32; ++i)
-                if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
-                    VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
     }
+    for(int i=0; i<32; ++i)
+            if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
+                VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
 }
 
 void sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a)
