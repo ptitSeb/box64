@@ -2450,8 +2450,10 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     #if STEP > 1
     // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
     dyn->n = dyn->insts[ninst].n;
+    dyn->ymm_zero = dyn->insts[ninst].ymm_zero;
     #else
     dyn->n = dyn->insts[reset_n].n;
+    dyn->ymm_zero = dyn->insts[reset_n].ymm_zero;
     #endif
     neoncacheUnwind(&dyn->n);
     #if STEP == 0

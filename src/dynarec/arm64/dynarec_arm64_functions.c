@@ -694,7 +694,9 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             }
         }
         if(dyn->ymm_zero)
-            dynarec_log(LOG_NONE, " ymm0_mask=%04x", dyn->ymm_zero);
+            dynarec_log(LOG_NONE, " ymm0=%04x", dyn->ymm_zero);
+        if(dyn->insts[ninst].purge_ymm)
+            dynarec_log(LOG_NONE, " purgeYmm=%04x", dyn->insts[ninst].purge_ymm);
         if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)
             dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack);
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
