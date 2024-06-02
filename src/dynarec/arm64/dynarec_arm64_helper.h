@@ -506,6 +506,12 @@
     GETEX_Y(ex, 1, D);                      \
     GETGX(gx, 0)
 
+// Get GX and and non-writen VX and EX
+#define GETGX_VXEX(gx, vx, ex, D)            \
+    GETVX(vx, 0);                           \
+    GETEX_Y(ex, 0, D);                      \
+    GETGX(gx, 1)
+
 #define GETGXVXEX_empty(gx, vx, ex, D)      \
     GETVX(vx, 0);                           \
     GETGX(gx, 0);                           \
@@ -528,6 +534,15 @@
     else                                                                                        \
         VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
     gy = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
+
+// Get GY and non-writen VY and EY
+#define GETGY_VYEY(gy, vy, ey)                                                                  \
+    vy = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);    \
+    if(MODREG)                                                                                  \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, -1);              \
+    else                                                                                        \
+        VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
+    gy = ymm_get_reg(dyn, ninst, x1, gd, 1, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1)
 
 // Get empty EY and non-writen VY and GY
 #define GETGYVYEY_empty(gy, vy, ey)                                                             \

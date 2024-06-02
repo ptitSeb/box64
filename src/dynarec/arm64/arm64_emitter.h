@@ -1080,6 +1080,12 @@ int convert_bitmask(uint64_t bitmask);
 #define VMOVHto(Wd, Vn, index)      EMIT(UMOV_gen(0, ((index)<<2) | 2, Vn, Wd))
 #define VMOVSto(Wd, Vn, index)      EMIT(UMOV_gen(0, ((index)<<3) | 4, Vn, Wd))
 
+#define SMOV_gen(Q, imm5, Rn, Rd)   ((Q)<<30 | 0b01110000<<21 | (imm5)<<16 | 0b01<<13 | 0<<12 | 1<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define SMOVQDto(Xd, Vn, index)     EMIT(SMOV_gen(1, ((index)<<4) | 8, Vn, Xd))
+#define SMOVQBto(Xd, Vn, index)     EMIT(SMOV_gen(1, ((index)<<1) | 1, Vn, Xd))
+#define SMOVQHto(Xd, Vn, index)     EMIT(SMOV_gen(1, ((index)<<2) | 2, Vn, Xd))
+#define SMOVQSto(Xd, Vn, index)     EMIT(SMOV_gen(1, ((index)<<3) | 4, Vn, Xd))
+
 #define MVN_vector(Q, Rn, Rd)       ((Q)<<30 | 1<<29 | 0b01110<<24 | 0b10000<<17 | 0b00101<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 #define VMVNQ(Rd, Rn)               EMIT(MVN_vector(1, Rn, Rd))
 
@@ -1160,11 +1166,6 @@ int convert_bitmask(uint64_t bitmask);
 #define FMUL_scalar(type, Rm, Rn, Rd)   (0b11110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | 0b10<<10 | (Rn)<<5 | Rd)
 #define FMULS(Sd, Sn, Sm)           EMIT(FMUL_scalar(0b00, Sm, Sn, Sd))
 #define FMULD(Dd, Dn, Dm)           EMIT(FMUL_scalar(0b01, Dm, Dn, Dd))
-
-#define FMLA_vector(Q, op, sz, Rm, Rn, Rd)	((Q)<<30 | 0b01110<<24 | (op)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11001<<11 | 1<<10 | (Rn)<<5 | (Rd))
-#define VFMLAS(Sd, Sn, Sm)	        EMIT(FMLA_vector(0, 0, 0, Sm, Sn, Sd))
-#define VFMLAQS(Sd, Sn, Sm)	        EMIT(FMLA_vector(1, 0, 0, Sm, Sn, Sd))
-#define VFMLAQD(Dd, Dn, Dm)	        EMIT(FMLA_vector(1, 0, 1, Dm, Dn, Dd))
 
 // DIV
 #define FDIV_vector(Q, sz, Rm, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11111<<11 | 1<<10 | (Rn)<<5 | (Rd))
@@ -1449,6 +1450,21 @@ int convert_bitmask(uint64_t bitmask);
 #define FMAXNMS(Sd, Sn, Sm)         EMIT(FMINMAX_scalar(0b00, Sm, 0b10, Sn, Sd))
 // FMAXNM NaN vs Number: number is picked
 #define FMAXNMD(Dd, Dn, Dm)         EMIT(FMINMAX_scalar(0b01, Dm, 0b10, Dn, Dd))
+
+// Fused Add Multiply
+#define FMADD_gen(type, o1, Rm, o0, Ra, Rn, Rd) (0b11111<<24 | (type)<<22 | (o1)<<21 | (Rm)<<16 | (o0)<<0 | (Ra)<<10 | (Rn)<<5 | (Rd))
+// scalar Rd = Ra + Rn*Rm
+#define FMADD_32(Sd, Sa, Sn, Sm)    EMIT(FMADD_gen(0b00, 0, Sm, 0, Sa, Sn, Sd))
+// scalar Rd = Ra + Rn*Rm
+#define FMADD_64(Dd, Da, Dn, Dm)    EMIT(FMADD_gen(0b01, 0, Dm, 0, Da, Dn, Dd))
+
+#define FMLA_vector(Q, op, sz, Rm, Rn, Rd)  ((Q)<<30 | 0b01110<<24 | (op)<<23 | (sz)<<22 | 1<<21 | (Rm)<<16 | 0b11001<<11 | 1<<10 | (Rn)<<5 | (Rd))
+// Vd += Vn*Vm
+#define VFMLAS(Vd, Vn, Vm)          EMIT(FMLA_vector(0, 0, 0, Vm, Vn, Vd))
+// Vd += Vn*Vm
+#define VFMLAQS(Vd, Vn, Vm)         EMIT(FMLA_vector(1, 0, 0, Vm, Vn, Vd))
+// Vd += Vn*Vm
+#define VFMLAQD(Vd, Vn, Vm)         EMIT(FMLA_vector(1, 0, 1, Vm, Vn, Vd))
 
 // ZIP / UZP
 #define ZIP_gen(Q, size, Rm, op, Rn, Rd)    ((Q)<<30 | 0b001110<<24 | (size)<<22 | (Rm)<<16 | (op)<<14 | 0b11<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
