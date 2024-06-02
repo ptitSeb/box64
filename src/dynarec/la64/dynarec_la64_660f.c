@@ -290,11 +290,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VXOR_V(q0, q0, q0);
                     } else if (u8 > 15) {
                         VBSRL_V(q0, q0, u8 - 16);
+                    } else if (!u8) {
+                        VOR_V(q0, q1, q1);
                     } else {
                         d0 = fpu_get_scratch(dyn);
-                        VOR_V(d0, q1, q1);
-                        XVPERMI_Q(d0, q0, 0x2); // d0[255:128] = q0[127:0];
-                        VBSRL_V(q0, d0, u8);
+                        VBSLL_V(q0, q0, 16 - u8);
+                        VBSRL_V(d0, q1, u8);
+                        VOR_V(q0, q0, d0);
                     }
                     break;
                 case 0x44:

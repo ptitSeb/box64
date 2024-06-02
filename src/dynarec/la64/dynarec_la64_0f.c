@@ -518,7 +518,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            // TODO: box64_dynarec_fastnan
+            if (!box64_dynarec_fastnan && v0 != v1) {
+                q0 = fpu_get_scratch(dyn);
+                // always copy from v1 if any oprand is NaN
+                VFCMP_S(q0, v0, v1, cUN);
+                VANDN_V(v0, q0, v0);
+                VAND_V(q0, q0, v1);
+                VOR_V(v0, v0, q0);
+            }
             VFMIN_S(v0, v0, v1);
             break;
         case 0x5E:
@@ -533,7 +540,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
-            // TODO: box64_dynarec_fastnan
+            if (!box64_dynarec_fastnan && v0 != v1) {
+                q0 = fpu_get_scratch(dyn);
+                // always copy from v1 if any oprand is NaN
+                VFCMP_S(q0, v0, v1, cUN);
+                VANDN_V(v0, q0, v0);
+                VAND_V(q0, q0, v1);
+                VOR_V(v0, v0, q0);
+            }
             VFMAX_S(v0, v0, v1);
             break;
 
