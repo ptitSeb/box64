@@ -1891,7 +1891,7 @@ sse_regs_t* GetEx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t 
     } else return (sse_regs_t*)GetECommon(emu, addr, rex, m, delta);
 }
 
-sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, int sz)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
@@ -1899,9 +1899,8 @@ sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8
         return &test->emu->xmm[(m&0x07)+(rex.b<<3)];
     } else {
         sse_regs_t* ret = (sse_regs_t*)GetECommon(test->emu, addr, rex, m, delta);
-        test->memsize = 16;
-        ((uint64_t*)test->mem)[0] = ret->q[0];
-        ((uint64_t*)test->mem)[1] = ret->q[1];
+        test->memsize = sz;
+        memcpy(test->mem, ret, sz);
         test->memaddr = (uintptr_t)ret;
         return (sse_regs_t*)test->mem;
     }

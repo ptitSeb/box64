@@ -65,7 +65,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0x10:  /* VMOVSS Gx, [Vx,] Ex */
             nextop = F8;
-            GETEX(0);
+            GETEX4(0);
             GETGX;
             GX->ud[0] = EX->ud[0];
             if(MODREG) {
@@ -80,7 +80,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x11:  /* VMOVSS Ex, [Vx,] Gx */
             nextop = F8;
-            GETEX(0);
+            GETEX4(0);
             GETGX;
             EX->ud[0] = GX->ud[0];
             if(MODREG) {
