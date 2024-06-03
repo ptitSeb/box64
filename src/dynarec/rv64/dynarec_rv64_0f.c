@@ -2714,6 +2714,26 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SW(x1, gback, gdoffset + i * 4);
             }
             break;
+        case 0xF6:
+            INST_NAME("PSADBW Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            MV(x6, xZR);
+            for (int i = 0; i < 8; ++i) {
+                LBU(x3, gback, gdoffset + i);
+                LBU(x4, wback, fixedaddress + i);
+                SUBW(x3, x3, x4);
+                SRAIW(x5, x3, 31);
+                XOR(x3, x5, x3);
+                SUBW(x3, x3, x5);
+                ANDI(x3, x3, 0xff);
+                ADDW(x6, x6, x3);
+                if (i == 7) {
+                    SD(x6, gback, gdoffset + 0);
+                }
+            }
+            break;
         case 0xF7:
             INST_NAME("MASKMOVQ Gm, Em");
             nextop = F8;
