@@ -2357,6 +2357,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = xRAX + (opcode & 7) + (rex.b << 3);
             REV8xw(gd, gd, x1, x2, x3, x4);
             break;
+        case 0xD1:
+            INST_NAME("PSRLW Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x4, 0);
+            LD(x1, wback, fixedaddress);
+            ADDI(x2, xZR, 15);
+            BLTU_MARK(x2, x1);
+            for (int i = 0; i < 4; ++i) {
+                LHU(x3, gback, gdoffset + 2 * i);
+                SRL(x3, x3, x1);
+                SH(x3, gback, gdoffset + 2 * i);
+            }
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, gdoffset + 0);
+            break;
         case 0xD2:
             INST_NAME("PSRLD Gm, Em");
             nextop = F8;
