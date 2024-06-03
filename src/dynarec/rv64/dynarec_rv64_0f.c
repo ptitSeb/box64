@@ -2374,6 +2374,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MARK;
             SD(xZR, gback, gdoffset + 0);
             break;
+        case 0xD3:
+            INST_NAME("PSRLQ Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x4, 0);
+            LD(x1, wback, fixedaddress);
+            ADDI(x2, xZR, 63);
+            BLTU_MARK(x2, x1);
+            LD(x3, gback, gdoffset + 0);
+            SRL(x3, x3, x1);
+            SD(x3, gback, gdoffset + 0);
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, gdoffset + 0);
+            break;
         case 0xD4:
             INST_NAME("PADDQ Gm,Em");
             nextop = F8;
