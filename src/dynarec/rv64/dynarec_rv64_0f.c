@@ -2535,6 +2535,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SB(x3, gback, gdoffset + i);
             }
             break;
+        case 0xE1:
+            INST_NAME("PSRAW Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x4, 0);
+            LBU(x1, wback, fixedaddress);
+            ADDI(x2, xZR, 15);
+            if (rv64_zbb) {
+                MINU(x1, x1, x2);
+            } else {
+                BLTU(x1, x2, 4 + 4);
+                MV(x1, x2);
+            }
+            for (int i = 0; i < 4; ++i) {
+                LH(x3, gback, gdoffset + 2 * i);
+                SRAW(x3, x3, x1);
+                SH(x3, gback, gdoffset + 2 * i);
+            }
+            break;
         case 0xE2:
             INST_NAME("PSRAD Gm, Em");
             nextop = F8;
