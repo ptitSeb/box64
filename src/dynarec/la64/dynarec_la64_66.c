@@ -309,6 +309,22 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_sub16(dyn, ninst, x1, x5, x2, x4, x6);
                     EWBACK;
                     break;
+                case 6: // XOR
+                    if (opcode == 0x81) {
+                        INST_NAME("XOR Ew, Iw");
+                    } else {
+                        INST_NAME("XOR Ew, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, (opcode == 0x81) ? 2 : 1);
+                    if (opcode == 0x81)
+                        i16 = F16S;
+                    else
+                        i16 = F8S;
+                    MOV32w(x5, i16);
+                    emit_xor16(dyn, ninst, x1, x5, x2, x4, x6);
+                    EWBACK;
+                    break;
                 case 7: // CMP
                     if (opcode == 0x81) {
                         INST_NAME("CMP Ew, Iw");
@@ -387,6 +403,45 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINS_D(xRAX, gd, 15, 0);
                 BSTRINS_D(gd, x2, 15, 0);
             }
+            break;
+        case 0xA5:
+            if (rep) {
+                INST_NAME("REP MOVSW");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1 << F_DF);
+                BNEZ_MARK2(x1);
+                MARK; // Part with DF==0
+                LD_H(x1, xRSI, 0);
+                ST_H(x1, xRDI, 0);
+                ADDI_D(xRSI, xRSI, 2);
+                ADDI_D(xRDI, xRDI, 2);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2; // Part with DF==1
+                LD_H(x1, xRSI, 0);
+                ST_H(x1, xRDI, 0);
+                ADDI_D(xRSI, xRSI, -2);
+                ADDI_D(xRDI, xRDI, -2);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSW");
+                GETDIR(x3, x1, 2);
+                LD_H(x1, xRSI, 0);
+                ST_H(x1, xRDI, 0);
+                ADD_D(xRSI, xRSI, x3);
+                ADD_D(xRDI, xRDI, x3);
+            }
+            break;
+        case 0xA9:
+            INST_NAME("TEST AX,Iw");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            u16 = F16;
+            MOV32w(x2, u16);
+            BSTRPICK_D(x1, xRAX, 15, 0);
+            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
         case 0xAB:
             if (rep) {
@@ -569,6 +624,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u16 = F16;
                     MOV32w(x2, u16);
                     emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    break;
+                case 3:
+                    INST_NAME("NEG Ew");
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETEW(x1, 0);
+                    emit_neg16(dyn, ninst, ed, x2, x4);
+                    EWBACK;
                     break;
                 default:
                     DEFAULT;

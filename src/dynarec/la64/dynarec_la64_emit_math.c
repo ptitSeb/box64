@@ -1541,3 +1541,65 @@ void emit_dec32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         ORI(xFlags, xFlags, 1 << F_ZF);
     }
 }
+
+
+// emit NEG16 instruction, from s1, store result in s1 using s2 and s3 as scratch
+void emit_neg16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    IFX (X_PEND) {
+        ST_H(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s3, d_neg16);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+    IFX (X_AF | X_OF) {
+        MV(s3, s1); // s3 = op1
+    }
+
+    NOR(s1, s1, xZR);
+    BSTRPICK_D(s1, s1, 15, 0);
+    IFX (X_PEND) {
+        ST_H(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        BEQZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+
+    IFX (X_AF | X_OF) {
+        OR(s3, s1, s3); // s3 = res | op1
+        IFX (X_AF) {
+            /* af = bc & 0x8 */
+            ANDI(s2, s3, 8);
+            BEQZ(s2, 8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX (X_OF) {
+            /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */
+            SRLI_D(s2, s3, 14);
+            SRLI_D(s3, s2, 1);
+            XOR(s2, s2, s3);
+            ANDI(s2, s2, 1);
+            BEQZ(s2, 8);
+            ORI(xFlags, xFlags, 1 << F_OF);
+        }
+    }
+    IFX (X_SF) {
+        SRLI_D(s3, s1, 15 - F_SF); // put sign bit in place
+        ANDI(s3, s3, 1 << F_SF);   // 1<<F_SF is sign bit, so just mask
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s2);
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+
+    IFXA (X_ALL, la64_lbt) {
+        SPILL_EFLAGS();
+    }
+}

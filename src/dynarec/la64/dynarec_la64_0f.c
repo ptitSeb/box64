@@ -270,6 +270,20 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SMWRITE2();
             }
             break;
+        case 0x2B:
+            INST_NAME("MOVNTPS Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                VOR_V(v1, v0, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VST(v0, ed, fixedaddress);
+            }
+            break;
         case 0x2E:
             // no special check...
         case 0x2F:
@@ -651,6 +665,27 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 X64_SET_EFLAGS(x4, X_CF);
             else
                 BSTRINS_D(xFlags, x4, F_CF, F_CF);
+            break;
+        case 0xA4:
+            nextop = F8;
+            INST_NAME("SHLD Ed, Gd, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            GETED(1);
+            GETGD;
+            u8 = F8;
+            emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+            WBACK;
+            break;
+        case 0xAC:
+            nextop = F8;
+            INST_NAME("SHRD Ed, Gd, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            GETED(1);
+            GETGD;
+            u8 = F8;
+            u8 &= (rex.w ? 0x3f : 0x1f);
+            emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+            WBACK;
             break;
         case 0xAE:
             nextop = F8;

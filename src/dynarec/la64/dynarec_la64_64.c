@@ -8,6 +8,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "la64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -60,6 +61,15 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     GETREX();
 
     switch (opcode) {
+        case 0x03:
+            INST_NAME("ADD Gd, Seg:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
         case 0x33:
             INST_NAME("XOR Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
@@ -68,6 +78,20 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGD;
             GETEDO(x4, 0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
+            break;
+        case 0x89:
+            INST_NAME("MOV Seg:Ed, Gd");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            if (MODREG) { // reg <= reg
+                MVxw(TO_LA64((nextop & 7) + (rex.b << 3)), gd);
+            } else { // mem <= reg
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                ADD_D(x4, ed, x4);
+                SDxw(gd, x4, fixedaddress);
+                SMWRITE2();
+            }
             break;
         case 0x8B:
             INST_NAME("MOV Gd, Seg:Ed");
@@ -81,6 +105,27 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 ADD_D(x4, ed, x4);
                 LDxw(gd, x4, fixedaddress);
+            }
+            break;
+        case 0xC7:
+            INST_NAME("MOV Seg:Ed, Id");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            if (MODREG) { // reg <= i32
+                i64 = F32S;
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                MOV64xw(ed, i64);
+            } else { // mem <= i32
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 4);
+                i64 = F32S;
+                if (i64) {
+                    MOV64xw(x3, i64);
+                    ed = x3;
+                } else
+                    ed = xZR;
+                ADD_D(x4, wback, x4);
+                SDxw(ed, x4, fixedaddress);
+                SMWRITE2();
             }
             break;
         default:

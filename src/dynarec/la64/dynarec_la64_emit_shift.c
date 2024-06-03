@@ -809,3 +809,154 @@ void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
     }
 }
+
+
+void emit_shld32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
+{
+    c &= (rex.w ? 0x3f : 0x1f);
+
+    IFX (X_PEND) {
+        if (c) {
+            MOV64x(s3, c);
+            SDxw(s3, xEmu, offsetof(x64emu_t, op2));
+        } else
+            SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, rex.w ? d_shld64 : d_shld32);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+
+    if (!c) {
+        IFX (X_PEND) {
+            SDxw(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        if (c > 0) {
+            SRLI_D(s3, s1, (rex.w ? 64 : 32) - c);
+            ANDI(s4, s3, 1); // F_CF
+            OR(xFlags, xFlags, s4);
+        }
+    }
+    IFX (X_OF) {
+        // Store sign for later use.
+        if (c == 1) SRLIxw(s4, s1, rex.w ? 63 : 31);
+    }
+
+    SLLIxw(s3, s1, c);
+    SRLIxw(s1, s2, (rex.w ? 64 : 32) - c);
+    OR(s1, s1, s3);
+
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX (X_SF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_OF) {
+        // the OF flag is set if a sign change occurred
+        if (c == 1) {
+            SRLIxw(s3, s1, rex.w ? 63 : 31);
+            XOR(s3, s3, s4);
+            SLLI_D(s3, s3, F_OF);
+            ORI(xFlags, xFlags, s3);
+        }
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+
+    IFXA (X_ALL, la64_lbt) {
+        SPILL_EFLAGS();
+    }
+}
+
+
+// emit SHRD32 instruction, from s1, fill s2 , constant c, store result in s1 using s3 and s4 as scratch
+void emit_shrd32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
+{
+    c &= (rex.w ? 0x3f : 0x1f);
+
+    IFX (X_PEND) {
+        if (c) {
+            MOV64x(s3, c);
+            SDxw(s3, xEmu, offsetof(x64emu_t, op2));
+        } else
+            SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SET_DF(s4, rex.w ? d_shrd64 : d_shrd32);
+    } else IFX (X_ALL) {
+        SET_DFNONE();
+    }
+    if (!c) {
+        IFX (X_PEND) {
+            SDxw(s1, xEmu, offsetof(x64emu_t, res));
+        }
+        return;
+    }
+
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        if (c > 1) {
+            SRAI_D(s3, s1, c - 1);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        } else {
+            ANDI(s3, s1, 1); // LSB == F_CF
+        }
+        OR(xFlags, xFlags, s3);
+    }
+    IFX (X_OF) {
+        // Store sign for later use.
+        if (c == 1) SRLIxw(s4, s1, rex.w ? 63 : 31);
+    }
+
+    SRLIxw(s3, s1, c);
+    SLLIxw(s1, s2, (rex.w ? 64 : 32) - c);
+    OR(s1, s1, s3);
+
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX (X_SF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        BEQZ(s3, 8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    IFX (X_ZF) {
+        BNEZ(s1, 8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_OF) {
+        // the OF flag is set if a sign change occurred
+        if (c == 1) {
+            SRLI_D(s3, s1, rex.w ? 63 : 31);
+            XOR(s3, s3, s4);
+            SLLI_D(s3, s3, F_OF);
+            OR(xFlags, xFlags, s3);
+        }
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+
+    IFXA (X_ALL, la64_lbt) {
+        SPILL_EFLAGS();
+    }
+}
