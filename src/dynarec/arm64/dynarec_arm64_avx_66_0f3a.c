@@ -343,6 +343,19 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             YMM0(gd);
             break;
+        case 0x22:
+            INST_NAME("VINSERTD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX_empty_VX(v0, v2);
+            GETED(1);
+            u8 = F8;
+            if(v0!=v2) VMOVQ(v0, v2);
+            if(rex.w)
+                VMOVQDfrom(v0, u8&1, ed);
+            else
+                VMOVQSfrom(v0, u8&3, ed);
+            YMM0(gd);
+            break;
 
         case 0x44:
             INST_NAME("PCLMULQDQ Gx, Vx, Ex, Ib");

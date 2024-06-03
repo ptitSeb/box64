@@ -140,6 +140,37 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VDUPQ_32(v0, v1, 0);
             } else YMM0(gd);
             break;
+        case 0x19:
+            INST_NAME("VBROADCASTSD Gx, Ex");
+            nextop = F8;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                v1 = fpu_get_scratch(dyn, ninst);
+                VLD64(v1, ed, fixedaddress);
+            }
+            GETGX_empty(v0);
+            VDUPQ_64(v0, v1, 0);
+            if(vex.l) {
+                GETGY_empty(v0, -1, -1, -1);
+                VDUPQ_64(v0, v1, 0);
+            } else YMM0(gd);
+            break;
+        case 0x1A:
+            INST_NAME("VBROADCASTF128 Gx, Ex");
+            nextop = F8;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                GETGX_empty(v0);
+                VMOVQ(v0, v1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                VLD128(v0, ed, fixedaddress);
+            }
+            GETGY_empty(v1, -1, -1, -1);
+            VMOVQ(v1, v0);
+            break;
 
         case 0x1C:
             INST_NAME("VPABSB Gx, Ex");
