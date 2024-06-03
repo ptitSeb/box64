@@ -187,16 +187,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VADDSD Gx, Vx, Ex");
             nextop = F8;
             d1 = fpu_get_scratch(dyn, ninst);
-            GETGX_empty_VX(v0, v2);
             GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            FADDD(d1, v2, v1);
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FADDD(d1, v0, v1);
             VMOVeD(v0, 0, d1, 0);
             YMM0(gd)
             break;
@@ -204,16 +200,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VMULSD Gx, Vx, Ex");
             nextop = F8;
             d1 = fpu_get_scratch(dyn, ninst);
-            GETGX_empty_VX(v0, v2);
             GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            FMULD(d1, v2, v1);
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FMULD(d1, v0, v1);
             VMOVeD(v0, 0, d1, 0);
             YMM0(gd)
             break;
@@ -221,16 +213,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VCVTSD2SS Gx, Vx, Ex");
             nextop = F8;
             d1 = fpu_get_scratch(dyn, ninst);
-            GETGX_empty_VX(v0, v2);
             GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            FCVT_S_D(d1, v1);
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FCVT_S_D(d1, v1);
             VMOVeS(v0, 0, d1, 0);
             YMM0(gd)
             break;
@@ -239,16 +227,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VSUBSD Gx, Vx, Ex");
             nextop = F8;
             d1 = fpu_get_scratch(dyn, ninst);
-            GETGX_empty_VX(v0, v2);
             GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            FSUBD(d1, v2, v1);
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FSUBD(d1, v0, v1);
             VMOVeD(v0, 0, d1, 0);
             YMM0(gd)
             break;
@@ -256,16 +240,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VMINSD Gx, Vx, Ex");
             nextop = F8;
             d1 = fpu_get_scratch(dyn, ninst);
-            GETGX_empty_VX(v0, v2);
             GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            FCMPD(v2, v1);
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FCMPD(v0, v1);
             B_NEXT(cLS);    //Less than or equal
             VMOVeD(v0, 0, v1, 0);   // to not erase uper part
             YMM0(gd)
@@ -274,16 +254,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VDIVSD Gx, Vx, Ex");
             nextop = F8;
             d1 = fpu_get_scratch(dyn, ninst);
-            GETGX_empty_VX(v0, v2);
             GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            FDIVD(d1, v2, v1);
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FDIVD(d1, v0, v1);
             VMOVeD(v0, 0, d1, 0);
             YMM0(gd)
             break;
@@ -291,16 +267,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VMAXSD Gx, Vx, Ex");
             nextop = F8;
             d1 = fpu_get_scratch(dyn, ninst);
-            GETGX_empty_VX(v0, v2);
             GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            FCMPD(v2, v1);
             if(v0!=v2) {
-                if(v0==v1)  {
-                    VMOV(d1, v1);
-                    v1 = d1;
-                }
                 VMOVQ(v0, v2);
             }
-            FCMPD(v0, v1);
             B_NEXT(cGE);    //Greater than or equal
             VMOVeD(v0, 0, v1, 0);   // to not erase uper part
             YMM0(gd)
