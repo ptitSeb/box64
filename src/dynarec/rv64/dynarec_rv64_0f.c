@@ -2674,24 +2674,51 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FSD(v0, ed, fixedaddress);
             }
             break;
+        case 0xE8:
+            INST_NAME("PSUBSB Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            ADDI(x5, xZR, 0x7f);
+            ADDI(x6, xZR, 0xf80);
+            for (int i = 0; i < 8; ++i) {
+                LB(x3, gback, gdoffset + i);
+                LB(x4, wback, fixedaddress + i);
+                SUBW(x3, x3, x4);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x5, 4 + 4);
+                    MV(x3, x5);
+                    BLT(x6, x3, 4 + 4);
+                    MV(x3, x6);
+                }
+                SB(x3, gback, gdoffset + i);
+            }
+            break;
         case 0xE9:
             INST_NAME("PSUBSW Gm,Em");
             nextop = F8;
             GETGM();
             GETEM(x2, 0);
+            MOV64x(x5, 32767);
+            MOV64x(x6, -32768);
             for (int i = 0; i < 4; ++i) {
                 // tmp32s = (int32_t)GM->sw[i] - EM->sw[i];
                 // GM->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
                 LH(x3, gback, gdoffset + 2 * i);
                 LH(x4, wback, fixedaddress + 2 * i);
                 SUBW(x3, x3, x4);
-                LUI(x4, 0xFFFF8); // -32768
-                BGE(x3, x4, 12);
-                SH(x4, gback, gdoffset + 2 * i);
-                J(20);      // continue
-                LUI(x4, 8); // 32768
-                BLT(x3, x4, 8);
-                ADDIW(x3, x4, -1);
+                if (rv64_zbb) {
+                    MIN(x3, x3, x5);
+                    MAX(x3, x3, x6);
+                } else {
+                    BLT(x3, x5, 4 + 4);
+                    MV(x3, x5);
+                    BLT(x6, x3, 4 + 4);
+                    MV(x3, x6);
+                }
                 SH(x3, gback, gdoffset + 2 * i);
             }
             break;
