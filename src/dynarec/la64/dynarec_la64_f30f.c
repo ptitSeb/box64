@@ -165,6 +165,27 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FCVT_D_S(d1, v1);
             VEXTRINS_D(v0, d1, 0);
             break;
+        case 0x5B:
+            INST_NAME("CVTTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0, 0);
+            GETGX_empty(v0);
+            VFTINTRZ_W_S(v0, v1);
+            if (!box64_dynarec_fastround) {
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMP_S(q0, v1, v1, cEQ);
+                VLDI(q1, 0b1001110000000); // broadcast 0x80000000
+                VAND_V(v0, q0, v0);
+                VANDN_V(d1, q0, q1);
+                VOR_V(v0, v0, d1);
+                VSUBI_WU(d1, q1, 1);
+                VSEQ_W(q0, v0, d1);
+                VSRLI_W(q0, q0, 31);
+                VADD_W(v0, v0, q0);
+            }
+            break;
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;
