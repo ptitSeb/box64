@@ -680,6 +680,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SB(x3, gback, gdoffset + i);
                     }
                     break;
+                case 0x0A:
+                    INST_NAME("PSIGND Gm,Em");
+                    nextop = F8;
+                    GETGM();
+                    GETEM(x2, 0);
+                    for (int i = 0; i < 2; ++i) {
+                        LW(x3, gback, gdoffset + i * 4);
+                        LW(x4, wback, fixedaddress + i * 4);
+                        SLT(x1, xZR, x4);
+                        SRAI(x5, x4, 63);
+                        OR(x1, x1, x5);
+                        MUL(x3, x1, x3);
+                        SW(x3, gback, gdoffset + i * 4);
+                    }
+                    break;
                 case 0x0B:
                     INST_NAME("PMULHRSW Gm,Em");
                     nextop = F8;
