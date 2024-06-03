@@ -465,7 +465,7 @@ void emit_or16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 
     IFXA (X_ALL, la64_lbt) {
-        X64_OR_W(s1, s2);
+        X64_OR_H(s1, s2);
     }
 
     OR(s1, s1, s2);
