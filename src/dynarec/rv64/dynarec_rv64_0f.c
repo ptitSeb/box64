@@ -2935,6 +2935,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0);
             MMX_LOOP_W(x3, x4, SUBW(x3, x3, x4));
             break;
+        case 0xFA:
+            INST_NAME("PSUBD Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            MMX_LOOP_D(x3, x4, SUBW(x3, x3, x4));
+            break;
         case 0xFC:
             INST_NAME("PADDB Gm, Em");
             nextop = F8;
