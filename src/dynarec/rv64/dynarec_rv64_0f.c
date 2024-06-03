@@ -2733,6 +2733,22 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SD(x3, gback, gdoffset + 0);
             }
             break;
+        case 0xF1:
+            INST_NAME("PSLLW Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            ADDI(x4, xZR, 63); // value greater than 63 will be masked
+            MMX_LOOP_W(x1, x3,
+                if (rv64_zbb) {
+                    MINU(x3, x3, x4);
+                } else {
+                    BLTU(x3, x4, 4 + 4);
+                    MV(x3, x4);
+                }
+                SLL(x1, x1, x3);
+            );
+            break;
         case 0xF2:
             INST_NAME("PSLLD Gm,Em");
             nextop = F8;
