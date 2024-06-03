@@ -2733,6 +2733,30 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SD(x3, gback, gdoffset + 0);
             }
             break;
+        case 0xF2:
+            INST_NAME("PSLLD Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            ADDI(x4, xZR, 63); // value greater than 63 will be masked
+            LW(x1, gback, gdoffset + 0 * 4);
+            LWU(x3, wback, fixedaddress + 0 * 4);
+            LW(x5, gback, gdoffset + 1 * 4);
+            LWU(x6, wback, fixedaddress + 1 * 4);
+            if (rv64_zbb) {
+                MINU(x3, x3, x4);
+                MINU(x6, x6, x4);
+            } else {
+                BLTU(x3, x4, 4 + 4);
+                MV(x3, x4);
+                BLTU(x6, x4, 4 + 4);
+                MV(x6, x4);
+            }
+            SLL(x1, x1, x3);
+            SLL(x5, x5, x6);
+            SW(x1, gback, gdoffset + 0 * 4);
+            SW(x5, gback, gdoffset + 1 * 4);
+            break;
         case 0xF4:
             INST_NAME("PMULUDQ Gm,Em");
             nextop = F8;
