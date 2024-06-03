@@ -1324,6 +1324,14 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         char s = (a.t==0b00)?'S':((a.t==0b01)?'D':'?');
         int n = (a.t==0)?1:2;
         snprintf(buff, sizeof(buff), "FM%s V%d.%d%c, V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"SUB":"ADD", Rd, n, s, Ra, n, s, Rn, n, s, Rm, n, s);
+        return buff;
+    }
+    // FNMADD
+    if(isMask(opcode, "00011111tt1mmmmmoaaaaannnnnddddd", &a)) {
+        char s = (a.t==0b00)?'S':((a.t==0b01)?'D':'?');
+        int n = (a.t==0)?1:2;
+        snprintf(buff, sizeof(buff), "FNM%s V%d.%d%c, V%d.%d%c, V%d.%d%c, V%d.%d%c", option?"SUB":"ADD", Rd, n, s, Ra, n, s, Rn, n, s, Rm, n, s);
+        return buff;
     }
     // FMLA
     if(isMask(opcode, "0Q001110of1mmmmm110011nnnnnddddd", &a)) {
