@@ -513,7 +513,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 if(vex.v!=0) {
                     emit_signal(emu, SIGILL, (void*)R_RIP, 0);
                 } else {
-                    memset(emu->ymm, 0, sizeof(sse_regs_t)*(vex.rex.is32bits)?16:8);
+                    memset(emu->ymm, 0, sizeof(sse_regs_t)*((vex.rex.is32bits)?8:16));
                 }
             } else
                 return 0;
