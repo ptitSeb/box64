@@ -2757,6 +2757,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SW(x1, gback, gdoffset + 0 * 4);
             SW(x5, gback, gdoffset + 1 * 4);
             break;
+        case 0xF3:
+            INST_NAME("PSLLQ Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            ADDI(x4, xZR, 63);
+            LD(x1, gback, gdoffset + 0);
+            LD(x3, wback, fixedaddress + 0);
+            BLTU_MARK(x4, x3);
+            SLL(x1, x1, x3);
+            SD(x1, gback, gdoffset + 0);
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, gdoffset + 0);
+            break;
         case 0xF4:
             INST_NAME("PMULUDQ Gm,Em");
             nextop = F8;
