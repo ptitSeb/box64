@@ -2738,40 +2738,42 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGM();
             GETEM(x2, 0);
-            ADDI(x4, xZR, 63); // value greater than 63 will be masked
-            MMX_LOOP_W(x1, x3,
-                if (rv64_zbb) {
-                    MINU(x3, x3, x4);
-                } else {
-                    BLTU(x3, x4, 4 + 4);
-                    MV(x3, x4);
-                }
-                SLL(x1, x1, x3);
-            );
+            ADDI(x4, xZR, 15);
+            LD(x1, wback, fixedaddress + 0);
+            BLTU_MARK(x4, x1);
+            LH(x3, gback, gdoffset + 0 * 2);
+            LH(x4, gback, gdoffset + 1 * 2);
+            LH(x5, gback, gdoffset + 2 * 2);
+            LH(x6, gback, gdoffset + 3 * 2);
+            SLL(x3, x3, x1);
+            SLL(x4, x4, x1);
+            SLL(x5, x5, x1);
+            SLL(x6, x6, x1);
+            SH(x3, gback, gdoffset + 0 * 2);
+            SH(x4, gback, gdoffset + 1 * 2);
+            SH(x5, gback, gdoffset + 2 * 2);
+            SH(x6, gback, gdoffset + 3 * 2);
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, gdoffset + 0);
             break;
         case 0xF2:
             INST_NAME("PSLLD Gm,Em");
             nextop = F8;
             GETGM();
             GETEM(x2, 0);
-            ADDI(x4, xZR, 63); // value greater than 63 will be masked
-            LW(x1, gback, gdoffset + 0 * 4);
-            LWU(x3, wback, fixedaddress + 0 * 4);
-            LW(x5, gback, gdoffset + 1 * 4);
-            LWU(x6, wback, fixedaddress + 1 * 4);
-            if (rv64_zbb) {
-                MINU(x3, x3, x4);
-                MINU(x6, x6, x4);
-            } else {
-                BLTU(x3, x4, 4 + 4);
-                MV(x3, x4);
-                BLTU(x6, x4, 4 + 4);
-                MV(x6, x4);
-            }
-            SLL(x1, x1, x3);
-            SLL(x5, x5, x6);
-            SW(x1, gback, gdoffset + 0 * 4);
-            SW(x5, gback, gdoffset + 1 * 4);
+            ADDI(x4, xZR, 31);
+            LD(x1, wback, fixedaddress + 0);
+            BLTU_MARK(x4, x1);
+            LW(x3, gback, gdoffset + 0 * 4);
+            LW(x4, gback, gdoffset + 1 * 4);
+            SLL(x3, x3, x1);
+            SLL(x4, x4, x1);
+            SW(x3, gback, gdoffset + 0 * 4);
+            SW(x4, gback, gdoffset + 1 * 4);
+            B_NEXT_nocond;
+            MARK;
+            SD(xZR, gback, gdoffset + 0);
             break;
         case 0xF3:
             INST_NAME("PSLLQ Gm,Em");
