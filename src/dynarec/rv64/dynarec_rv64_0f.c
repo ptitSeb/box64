@@ -2454,6 +2454,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0xD8:
+            INST_NAME("PSUBUSB Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            for (int i = 0; i < 8; ++i) {
+                LBU(x3, gback, gdoffset + i);
+                LBU(x4, wback, fixedaddress + i);
+                SUB(x3, x3, x4);
+                if (rv64_zbb) {
+                    MAX(x3, x3, xZR);
+                } else {
+                    NOT(x4, x3);
+                    SRAI(x4, x4, 63);
+                    AND(x3, x3, x4);
+                }
+                SB(x3, gback, gdoffset + i);
+            }
+            break;
         case 0xD9:
             INST_NAME("PSUBUSW Gm, Em");
             nextop = F8;
