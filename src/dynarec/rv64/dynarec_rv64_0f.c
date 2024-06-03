@@ -2688,6 +2688,16 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SD(x3, gback, gdoffset + 0);
             }
             break;
+        case 0xF4:
+            INST_NAME("PMULUDQ Gm,Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            LWU(x3, gback, gdoffset + 0 * 4);
+            LWU(x4, wback, fixedaddress + 0 * 4);
+            MUL(x3, x3, x4);
+            SD(x3, gback, gdoffset + 0);
+            break;
         case 0xF5:
             INST_NAME("PMADDWD Gm, Em");
             nextop = F8;
