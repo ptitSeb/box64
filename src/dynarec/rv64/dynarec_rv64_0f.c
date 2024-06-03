@@ -2916,6 +2916,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SB(x2, xRDI, i);
             }
             break;
+        case 0xF8:
+            INST_NAME("PSUBB Gm, Em");
+            nextop = F8;
+            GETGM();
+            GETEM(x2, 0);
+            for (int i = 0; i < 8; ++i) {
+                LB(x3, wback, fixedaddress + i);
+                LB(x4, gback, gdoffset + i);
+                SUB(x3, x4, x3);
+                SB(x3, gback, gdoffset + i);
+            }
+            break;
         case 0xF9:
             INST_NAME("PSUBW Gm, Em");
             nextop = F8;
