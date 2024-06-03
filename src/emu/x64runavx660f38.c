@@ -1154,7 +1154,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
-        case 0x45:  /* VPSLRVD/Q Gx, Vx, Ex */
+        case 0x45:  /* VPSRLVD/Q Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX; GETVX; GETGY;
