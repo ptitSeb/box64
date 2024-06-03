@@ -561,11 +561,12 @@ void neoncacheUnwind(neoncache_t* cache)
                     break;
                 case NEON_CACHE_XMMR:
                 case NEON_CACHE_XMMW:
-                case NEON_CACHE_YMMR:
-                case NEON_CACHE_YMMW:
                     cache->ssecache[cache->neoncache[i].n].reg = i;
                     cache->ssecache[cache->neoncache[i].n].write = (cache->neoncache[i].t==NEON_CACHE_XMMW)?1:0;
                     ++cache->fpu_reg;
+                    break;
+                case NEON_CACHE_YMMR:
+                case NEON_CACHE_YMMW:
                     break;
                 case NEON_CACHE_ST_F:
                 case NEON_CACHE_ST_D:

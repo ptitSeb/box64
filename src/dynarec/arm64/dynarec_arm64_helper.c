@@ -1910,7 +1910,7 @@ static int findCacheSlot(dynarec_arm_t* dyn, int ninst, int t, int n, neoncache_
 {
     neon_cache_t f;
     f.n = n; f.t = t;
-    for(int i=0; i<24; ++i) {
+    for(int i=0; i<32; ++i) {
         if(cache->neoncache[i].v == f.v)
             return i;
         if(cache->neoncache[i].n == n) {
@@ -1940,6 +1940,7 @@ static int findCacheSlot(dynarec_arm_t* dyn, int ninst, int t, int n, neoncache_
                 case NEON_CACHE_XMMW:
                     if(t==NEON_CACHE_XMMR)
                         return i;
+                    break;
                 case NEON_CACHE_YMMR:
                     if(t==NEON_CACHE_YMMW)
                         return i;
@@ -2181,13 +2182,13 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_MM, i, &cache_i2)==-1)
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n);
     }
-    for(int i=0; i<24; ++i) {
+    for(int i=0; i<32; ++i) {
         if(cache.neoncache[i].v)
             if(findCacheSlot(dyn, ninst, cache.neoncache[i].t, cache.neoncache[i].n, &cache_i2)==-1)
                 unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, i, cache.neoncache[i].t, cache.neoncache[i].n);
     }
     // and now load/swap the missing one
-    for(int i=0; i<24; ++i) {
+    for(int i=0; i<32; ++i) {
         if(cache_i2.neoncache[i].v) {
             if(cache_i2.neoncache[i].v != cache.neoncache[i].v) {
                 int j;
