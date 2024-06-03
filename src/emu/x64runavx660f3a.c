@@ -111,7 +111,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             for(int i=2; i<4; ++i)
                 GY->q[i-2] = (((u8>>(i*2))&3)>1)?EY->q[(u8>>(i*2))&1]:EX->q[(u8>>(i*2))&1];
             break;
-        case 0x02:      /* VBLENDD Gx, Vx, Ex, u8 */
+        case 0x02:      /* VPBLENDD Gx, Vx, Ex, u8 */
             nextop = F8;
             GETEX(1);
             GETGX;
@@ -426,7 +426,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x0E:      /* VBLENDW Gx, Vx, Ex, u8 */
+        case 0x0E:      /* VPBLENDW Gx, Vx, Ex, u8 */
             nextop = F8;
             GETEX(1);
             GETGX;
