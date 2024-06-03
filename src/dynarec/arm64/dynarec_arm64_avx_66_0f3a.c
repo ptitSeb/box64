@@ -77,6 +77,27 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             VMOVeD(v1, 0, ((u8>>5)&1)?q1:q0, (u8>>4)&1);
             VMOVeD(v1, 1, ((u8>>7)&1)?q1:q0, (u8>>6)&1);
             break;
+        case 0x02:
+            INST_NAME("VPBLENDD Gx, Vx, Ex, u8");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8;} else { GETGY_empty_VYEY(v0, v2, v1); u8 >>=4;}
+                wb1 = 0; // mask
+                for(int i=0; i<4; ++i)
+                    if(u8&(1<<i))
+                        wb1 |= (3<<(i*2));
+                MOVI_64(q0, wb1);   // load 8bits value as a 8bytes mask
+                SXTL_16(q0, q0);    // expand 16bits to 32bits...
+                if(v0==v1) {
+                    VBIFQ(v0, v2, q0);
+                } else {
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VBITQ(v0, v1, q0);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         case 0x04:
             INST_NAME("VPERMILPS Gx, Ex, Imm8");
@@ -113,6 +134,36 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x08:
+            INST_NAME("VROUNDPS Gx, Ex, Ib");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_EX(v0, v1, 1); u8 = F8; } else { GETGY_empty_EY(v0, v1); }
+                if(u8&4) {
+                    if(!l) wb1 = sse_setround(dyn, ninst, x1, x2, x4);
+                    VFRINTISQ(v0, v1);
+                    if(l || !vex.l) x87_restoreround(dyn, ninst, wb1);
+                } else {
+                    VFRINTRSQ(v0, v1, round_round[u8&3]);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x09:
+            INST_NAME("VROUNDPD Gx, Ex, Ib");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_EX(v0, v1, 1); u8 = F8; } else { GETGY_empty_EY(v0, v1); }
+                if(u8&4) {
+                    if(!l) wb1 = sse_setround(dyn, ninst, x1, x2, x4);
+                    VFRINTIDQ(v0, v1);
+                    if(l || !vex.l) x87_restoreround(dyn, ninst, wb1);
+                } else {
+                    VFRINTRDQ(v0, v1, round_round[u8&3]);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x0A:
             INST_NAME("VROUNDSS Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -195,6 +246,25 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else YMM0(gd);
             break;
 
+        case 0x0E:
+            INST_NAME("VPBLENDW Gx, Vx, Ex, u8");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8;} else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(!l) {
+                    MOVI_64(q0, u8);
+                    SXTL_8(q0, q0);    // expand 8bits to 16bits...
+                }
+                if(v0==v1) {
+                    VBIFQ(v0, v2, q0);
+                } else {
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VBITQ(v0, v1, q0);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x0F:
             INST_NAME("VPALIGNR Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -218,6 +288,23 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x14:
+            INST_NAME("VPEXTRB Ed, Gx, imm8");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, 1);
+                ed = x1;
+            }
+            u8 = F8;
+            VMOVBto(ed, v0, u8&0x0f);
+            if(!MODREG) {
+                STB(ed, wback, fixedaddress);
+            }
+            break;
         case 0x15:
             INST_NAME("VPEXTRW Ed, Gx, imm8");
             nextop = F8;
@@ -311,6 +398,16 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             F8; // read u8, but it's been already handled
             break;
 
+        case 0x20:
+            INST_NAME("VINSERTD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX_empty_VX(v0, v2);
+            GETED(1);
+            u8 = F8;
+            if(v0!=v2) VMOVQ(v0, v2);
+            VMOVQBfrom(v0, u8&0xf, ed);
+            YMM0(gd);
+            break;
         case 0x21:
             INST_NAME("VINSERTPS Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -355,6 +452,38 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             else
                 VMOVQSfrom(v0, u8&3, ed);
             YMM0(gd);
+            break;
+
+        case 0x40:
+            INST_NAME("VDPPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            u8 = geted_ib(dyn, addr, ninst, nextop);
+            q0 = fpu_get_scratch(dyn, ninst);
+            // first mask
+            wb1 = 0; // mask
+            for(int i=0; i<4; ++i)
+                if(u8&(1<<i))
+                    wb1 |= (3<<(i*2));
+            MOVI_64(q0, wb1);   // load 8bits value as a 8bytes mask
+            SXTL_16(q0, q0);    // expand 16bits to 32bits...
+            q1 = fpu_get_scratch(dyn, ninst);
+            // second mask
+            wb1 = 0; // mask
+            for(int i=0; i<4; ++i)
+                if((u8>>4)&(1<<i))
+                    wb1 |= (3<<(i*2));
+            MOVI_64(q1, wb1);   // load 8bits value as a 8bytes mask
+            SXTL_16(q1, q1);    // expand 16bits to 32bits...
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8; } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VFMULQS(v0, v2, v1);
+                VANDQ(v0, v0, q1);  // second mask
+                VFADDPQS(v0, v0, v0);
+                FADDPS(v0, v0);
+                VDUPQ_32(v0, v0, 0);
+                VANDQ(v0, v0, q0);  // first mask
+            }
+            if(!vex.l) YMM0(gd);
             break;
 
         case 0x44:
@@ -456,6 +585,64 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             break;
 
+        case 0x4A:
+            INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            u8 = geted_ib(dyn, addr, ninst, nextop)>>4;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { 
+                    q1 = sse_get_reg(dyn, ninst, x1, u8, 0);
+                    GETGX_empty_VXEX(v0, v2, v1, 1); 
+                    F8;
+                } else { 
+                    v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, u8, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                    if(MODREG)
+                        v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, u8);
+                    else
+                        VLDR128_U12(v1, ed, fixedaddress+16);
+                    q1 = ymm_get_reg(dyn, ninst, x1, u8, 0, vex.v, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                    v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, u8, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                }
+                VSSHRQ_32(q0, q1, 31);   // create mask
+                if(v0==v1)
+                    VBIFQ(v0, v2, q0);
+                else {
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VBITQ(v0, v1, q0);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0x4B:
+            INST_NAME("VBLENDVPD Gx, Vx, Ex, XMMImm8");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            u8 = geted_ib(dyn, addr, ninst, nextop)>>4;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { 
+                    q1 = sse_get_reg(dyn, ninst, x1, u8, 0);
+                    GETGX_empty_VXEX(v0, v2, v1, 1); 
+                    F8;
+                } else { 
+                    v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, u8, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                    if(MODREG)
+                        v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, u8);
+                    else
+                        VLDR128_U12(v1, ed, fixedaddress+16);
+                    q1 = ymm_get_reg(dyn, ninst, x1, u8, 0, vex.v, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                    v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, u8, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                }
+                VSSHRQ_64(q0, q1, 63);   // create mask
+                if(v0==v1)
+                    VBIFQ(v0, v2, q0);
+                else {
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VBITQ(v0, v1, q0);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         default:
             DEFAULT;

@@ -1029,6 +1029,19 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "MOVI V%d.%s, #0x%x", Rd, Vd, imm<<8);
         return buff;
     }
+    // MOV immediate 64bits
+    if(isMask(opcode, "0Q10111100000iii111001iiiiiddddd", &a)) {
+        uint64_t tmp64u = 0;
+        for(int i=0; i<8; ++i)
+            if((imm)&(1<<i))
+                tmp64u |= 0xffLL<<(i*8);
+
+        if(a.Q)
+            snprintf(buff, sizeof(buff), "MOVI V%d.2D, #0x%016x", Rd, tmp64u);
+        else
+            snprintf(buff, sizeof(buff), "MOVI D%d, #0x%016x", Rd, tmp64u);
+        return buff;
+    }
 
     // Shift
     if(isMask(opcode, "0QU011110hhhhrrr000001nnnnnddddd", &a)) {
