@@ -665,6 +665,21 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     }
                     break;
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gm,Em");
+                    nextop = F8;
+                    GETGM();
+                    GETEM(x2, 0);
+                    for (int i = 0; i < 4; ++i) {
+                        LH(x3, gback, gdoffset + i * 2);
+                        LH(x4, wback, fixedaddress + i * 2);
+                        MUL(x3, x3, x4);
+                        SRAI(x3, x3, 14);
+                        ADDI(x3, x3, 1);
+                        SRAI(x3, x3, 1);
+                        SH(x3, gback, gdoffset + i * 2);
+                    }
+                    break;
                 case 0x1C:
                     INST_NAME("PABSB Gm,Em");
                     nextop = F8;
