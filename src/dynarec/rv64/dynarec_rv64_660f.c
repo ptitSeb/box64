@@ -469,10 +469,10 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     for (int i = 0; i < 8; ++i) {
                         LH(x3, gback, gdoffset + i * 2);
                         LH(x4, wback, fixedaddress + i * 2);
-                        BGE(x4, xZR, 4 + 4);
-                        NEG(x3, x3);
-                        BNE(x4, xZR, 4 + 4);
-                        MOV_U12(x3, 0);
+                        SLT(x1, xZR, x4);
+                        SRAI(x5, x4, 63);
+                        OR(x1, x1, x5);
+                        MUL(x3, x1, x3);
                         SH(x3, gback, gdoffset + i * 2);
                     }
                     break;
