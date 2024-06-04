@@ -111,6 +111,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             dyn->last_ip = 0;   // reset IP if some jump are coming here
         #endif
         NEW_INST;
+        MESSAGE(LOG_DUMP, "New Instruction x64:%p, native:%p\n", (void*)addr, (void*)dyn->block);
         #if STEP == 0
         if(ninst && dyn->insts[ninst-1].x64.barrier_next) {
             BARRIER(dyn->insts[ninst-1].x64.barrier_next);
@@ -211,7 +212,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are available
                 if(reset_n==-1) {
                     reset_n = -2;
-                    MESSAGE(LOG_DEBUG, "Warning, Reset Caches mark not found\n");
+                    if(!dyn->insts[ninst].x64.has_callret) {
+                        MESSAGE(LOG_DEBUG, "Warning, Reset Caches mark not found\n");
+                    }
                 }
             }
         }
