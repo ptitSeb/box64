@@ -434,7 +434,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LLxw(x1, wback, 0);
                         ADDIxw(x4, x1, -1);
                         SCxw(x4, wback, 0);
-                        BNEZ_MARKLOCK(x4);
+                        BEQZ_MARKLOCK(x4);
                         IFX (X_ALL | X_PEND)
                             emit_dec32(dyn, ninst, rex, x1, x3, x4, x5, x6);
                     }
