@@ -104,8 +104,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
             reset_n = -1;
         }
-        if(dyn->insts[ninst].purge_ymm)
-            PURGE_YMM();
         #if STEP > 0
         else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
             dyn->last_ip = 0;   // reset IP if some jump are coming here
@@ -310,6 +308,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         if((ok>0) && dyn->insts[ninst].x64.has_callret)
             reset_n = -2;
+        if((ok>0) && reset_n==-1 && dyn->insts[ninst+1].purge_ymm)
+            PURGE_YMM();
         ++ninst;
         #if STEP == 0
         memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));

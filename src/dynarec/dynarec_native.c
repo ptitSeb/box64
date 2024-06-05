@@ -357,7 +357,7 @@ static void fillPredecessors(dynarec_native_t* dyn)
     }
 }
 
-// updateNeed goes backward, from last instruction to top
+// updateNeed for the current block. recursive function that goes backward
 static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
     while (ninst>=0) {
         // need pending but instruction is only a subset: remove pend and use an X_ALL instead
@@ -396,6 +396,32 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
         --ninst;
         if(!ok)
             return ninst;
+    }
+    return ninst;
+}
+
+// ypdate Ymm0 and Purge_ymm0.
+static int updateYmm0(dynarec_native_t* dyn, int ninst, uint16_t mask) {
+    while (ninst<dyn->size) {
+        uint16_t ymm0 = mask&~dyn->insts[ninst].purge_ymm; // current ymm0
+        uint16_t to_purge = dyn->insts[ninst].ymm_zero & ~ymm0; // the new to purge
+        uint16_t ymm0_out = (mask|dyn->insts[ninst].ymm0_add)&~dyn->insts[ninst].ymm0_sub; // ymm0 at the output
+        //check if need to recurse further
+        int ok = (ymm0==dyn->insts[ninst].ymm_zero) && (!to_purge) && (ymm0_out==dyn->insts[ninst].ymm0_out);
+        if(ok && dyn->insts[ninst].x64.has_next)
+            ok = (dyn->insts[ninst+1].ymm_zero==(ymm0_out&~dyn->insts[ninst+1].purge_ymm));
+        if(ok && dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts!=-1)
+            ok = (dyn->insts[dyn->insts[ninst].x64.jmp_insts].ymm_zero==(ymm0_out&~dyn->insts[dyn->insts[ninst].x64.jmp_insts].purge_ymm));
+        if(ok)
+            return ninst+1;
+        dyn->insts[ninst].ymm_zero = ymm0;
+        dyn->insts[ninst].purge_ymm |= to_purge;
+        dyn->insts[ninst].ymm0_out = ymm0_out;
+        if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts!=-1)
+            updateYmm0(dyn, dyn->insts[ninst].x64.jmp_insts, ymm0_out);
+        if(!dyn->insts[ninst].x64.has_next)
+            return ninst+1;
+        ++ninst;
     }
     return ninst;
 }
@@ -556,12 +582,6 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
                 if(!helper.insts[i].barrier_maybe)
                     helper.insts[k].x64.barrier |= BARRIER_FULL;
                 helper.insts[i].x64.jmp_insts = k;
-                if(helper.insts[i].ymm_zero || helper.insts[k].ymm_zero) {
-                    // move to pureg the reg that are present in k (jump to) but not in i (jump from)
-                    uint16_t to_purge = helper.insts[k].ymm_zero & ~helper.insts[i].ymm_zero;
-                    helper.insts[k].purge_ymm |= to_purge;
-                    helper.insts[k].ymm_zero &= ~to_purge;
-                }
             }
         }
     }
@@ -578,6 +598,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     int pos = helper.size;
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
+    pos = 0;
+    while(pos<helper.size)
+        pos = updateYmm0(&helper, pos, helper.insts[pos].ymm_zero);
     // remove fpu stuff on non-executed code
     for(int i=1; i<helper.size-1; ++i)
         if(!helper.insts[i].pred_sz) {

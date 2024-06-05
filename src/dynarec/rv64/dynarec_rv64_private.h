@@ -92,6 +92,9 @@ typedef struct instruction_rv64_s {
     uint16_t            retn;
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint16_t            purge_ymm;  // need to purge some ymm
+    uint16_t            ymm0_add;   // the ymm0 added by the opcode
+    uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
+    uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
     int                 barrier_maybe;
     flagcache_t         f_exit;     // flags status at end of intruction
     extcache_t          e;          // extcache at end of intruction (but before poping)

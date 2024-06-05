@@ -2002,9 +2002,9 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
 {
     if(cache->neoncache[i].v) {
         int quad = 0;
-        if(t==NEON_CACHE_XMMR || t==NEON_CACHE_XMMW)
+        if(t==NEON_CACHE_XMMR || t==NEON_CACHE_XMMW || t==NEON_CACHE_YMMR || t==NEON_CACHE_YMMW)
             quad = 1;
-        if(cache->neoncache[i].t==NEON_CACHE_XMMR || cache->neoncache[i].t==NEON_CACHE_XMMW)
+        if(cache->neoncache[i].t==NEON_CACHE_XMMR || cache->neoncache[i].t==NEON_CACHE_XMMW || cache->neoncache[i].t==NEON_CACHE_YMMR || cache->neoncache[i].t==NEON_CACHE_YMMW)
             quad = 1;
         int j = i+1;
         while(cache->neoncache[j].v)
@@ -2171,10 +2171,15 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     int s1_val = 0;
     int s2_val = 0;
     // unload every uneeded cache
-    // check SSE first, than MMX, in order, for optimisation issue
+    // check SSE first, than MMX, in order, to optimise successive memory write
     for(int i=0; i<16; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache);
         if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache_i2)==-1)
+            unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n);
+    }
+    for(int i=0; i<16; ++i) {
+        int j=findCacheSlot(dyn, ninst, NEON_CACHE_YMMW, i, &cache);
+        if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_YMMW, i, &cache_i2)==-1)
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n);
     }
     for(int i=0; i<8; ++i) {
@@ -2347,7 +2352,7 @@ void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
     mmx_reflectcache(dyn, ninst, s1);
-    sse_reflectcache(dyn, ninst, s1);
+    //sse_reflectcache(dyn, ninst, s1); // no need, it's pushed/unpushed during call
 }
 
 void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
@@ -2464,7 +2469,7 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     if(box64_dynarec_dump)
         if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neon_cache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in neoncache: reset=");
-            for(int i=0; i<24; ++i)
+            for(int i=0; i<32; ++i)
                 if(dyn->insts[reset_n].n.neoncache[i].v)
                     MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[reset_n].n.neoncache[i].t, dyn->insts[reset_n].n.neoncache[i].n));
             if(dyn->insts[reset_n].n.combined1 || dyn->insts[reset_n].n.combined2)
@@ -2472,7 +2477,7 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
             if(dyn->insts[reset_n].n.stack_push || dyn->insts[reset_n].n.stack_pop)
                 MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[reset_n].n.stack_push, -dyn->insts[reset_n].n.stack_pop);
             MESSAGE(LOG_DEBUG, " ==> ");
-            for(int i=0; i<24; ++i)
+            for(int i=0; i<32; ++i)
                 if(dyn->insts[ninst].n.neoncache[i].v)
                     MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->insts[ninst].n.neoncache[i].t, dyn->insts[ninst].n.neoncache[i].n));
             if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
@@ -2480,7 +2485,7 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
             if(dyn->insts[ninst].n.stack_push || dyn->insts[ninst].n.stack_pop)
                 MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->insts[ninst].n.stack_push, -dyn->insts[ninst].n.stack_pop);
             MESSAGE(LOG_DEBUG, " -> ");
-            for(int i=0; i<24; ++i)
+            for(int i=0; i<32; ++i)
                 if(dyn->n.neoncache[i].v)
                     MESSAGE(LOG_DEBUG, " %02d:%s", i, getCacheName(dyn->n.neoncache[i].t, dyn->n.neoncache[i].n));
             if(dyn->n.combined1 || dyn->n.combined2)
@@ -2513,12 +2518,12 @@ void fpu_propagate_stack(dynarec_arm_t* dyn, int ninst)
     dyn->n.swapped = 0;
 }
 
-void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, int s1)
+void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1)
 {
     MESSAGE(LOG_NONE, "Purge YMM mask=%04x --------\n", dyn->insts[ninst].purge_ymm);
     int s1_set = 0;
     for(int i=0; i<16; ++i)
-        if(dyn->insts[ninst].purge_ymm&(1<<i)) {
+        if(mask&(1<<i)) {
             if(is_avx_zero_unset(dyn, ninst, i)) {
                 if(!s1_set) {
                     ADDx_U12(s1, xEmu, offsetof(x64emu_t, ymm[0]));

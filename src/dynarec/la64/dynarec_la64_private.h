@@ -82,6 +82,9 @@ typedef struct instruction_la64_s {
     uint16_t            retn;
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint16_t            purge_ymm;  // need to purge some ymm
+    uint16_t            ymm0_add;   // the ymm0 added by the opcode
+    uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
+    uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;

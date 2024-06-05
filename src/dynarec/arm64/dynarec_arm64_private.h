@@ -57,7 +57,6 @@ typedef struct neoncache_s {
     int8_t              x87stack;       // cache stack counter
     int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t              fpu_scratch;    // scratch counter
-    int8_t              fpu_extra_qscratch; // some opcode need an extra quad scratch register
     int8_t              fpu_reg;        // x87/sse/mmx reg counter
 } neoncache_t;
 
@@ -83,6 +82,9 @@ typedef struct instruction_arm64_s {
     uint16_t            retn;
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint16_t            purge_ymm;  // need to purge some ymm
+    uint16_t            ymm0_add;   // the ymm0 added by the opcode
+    uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
+    uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;

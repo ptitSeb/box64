@@ -540,7 +540,6 @@ void neoncacheUnwind(neoncache_t* cache)
     // And now, rebuild the x87cache info with neoncache
     cache->mmxcount = 0;
     cache->fpu_scratch = 0;
-    cache->fpu_extra_qscratch = 0;
     cache->fpu_reg = 0;
     for(int i=0; i<8; ++i) {
         cache->x87cache[i] = -1;
@@ -694,8 +693,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
                 default:    break;
             }
         }
-        if(dyn->ymm_zero)
-            dynarec_log(LOG_NONE, " ymm0=%04x", dyn->ymm_zero);
+        if(dyn->ymm_zero || dyn->insts[ninst].ymm0_add || dyn->insts[ninst].ymm0_sub)
+            dynarec_log(LOG_NONE, " ymm0=%04x(+%0x4-%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_add ,dyn->insts[ninst].ymm0_sub);
         if(dyn->insts[ninst].purge_ymm)
             dynarec_log(LOG_NONE, " purgeYmm=%04x", dyn->insts[ninst].purge_ymm);
         if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)

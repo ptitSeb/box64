@@ -32,6 +32,9 @@
 #define INST_EPILOG                             \
         dyn->insts[ninst].f_exit = dyn->f;      \
         dyn->insts[ninst].n = dyn->n;           \
+        dyn->insts[ninst].ymm0_add = dyn->ymm_zero&~dyn->insts[ninst].ymm_zero; \
+        dyn->insts[ninst].ymm0_sub = dyn->insts[ninst].ymm_zero&~dyn->ymm_zero; \
+        dyn->insts[ninst].ymm0_out = dyn->ymm_zero;\
         dyn->insts[ninst].x64.has_next = (ok>0)?1:0;
 #define INST_NAME(name) 
 #define DEFAULT                         \

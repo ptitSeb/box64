@@ -562,7 +562,7 @@
 // Get EY
 #define GETEY(ey)                                                                               \
     if(MODREG)                                                                                  \
-        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, -1, -1, -1);                 \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, -1, -1, -1);                 \
     else                                                                                        \
         VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
 
@@ -1499,7 +1499,7 @@ void x87_restoreround(dynarec_arm_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // purge ymm_zero mask according to purge_ymm
-void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, int s1);
+void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1);
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
@@ -1772,6 +1772,6 @@ uintptr_t dynarec64_AVX_F2_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         }                                       \
     }
 
-#define PURGE_YMM()    avx_purge_ymm(dyn, ninst, x1)
+#define PURGE_YMM()    avx_purge_ymm(dyn, ninst, dyn->insts[ninst+1].purge_ymm, x1)
 
 #endif //__DYNAREC_ARM64_HELPER_H__
