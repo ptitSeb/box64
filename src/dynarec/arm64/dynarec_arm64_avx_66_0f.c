@@ -57,7 +57,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
     MAYUSE(j64);
     MAYUSE(cacheupd);
     #if STEP > 1
-    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+    static const int8_t mask_shift8[] = { 0, 1, 2, 3, 4, 5, 6, 7 };
     #endif
 
     /* Remember to not create a new fpu_scratch after some GY/VY/EY is created, because Y can be in the scratch area and might overlap (and scratch will win) */
@@ -1245,34 +1245,30 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             GETEX_Y(q0, 0, 0);
             GETGD;
-            TABLE64(x1, (uintptr_t)&mask_shift8);
-            VLDR64_U12(v0, x1, 0);     // load shift
-            MOVI_8(v1, 0x80);   // load mask
-            VAND(q1, v1, q0);
-            USHL_8(q1, q1, v0); // shift
-            UADDLV_8(q1, q1);   // accumalte
-            VMOVBto(gd, q1, 0);
+            TABLE64(x2, (uintptr_t)&mask_shift8);
+            VLDR64_U12(v0, x2, 0);     // load shift
+            VDUPQ_64(v0, v0, 0);
+            VSHRQ_8(q1, q0, 7);
+            USHLQ_8(q1, q1, v0); // shift
+            UADDLV_8(v1, q1);   // accumalte
+            VMOVBto(gd, v1, 0);
             // and now the high part
-            VMOVeD(q1, 0, q0, 1);
-            VAND(q1, v1, q1);  // keep highest bit
-            USHL_8(q1, q1, v0); // shift
+            VMOVeD(q1, 0, q1, 1);
             UADDLV_8(q1, q1);   // accumalte
-            VMOVBto(x1, q1, 0);
-            BFIx(gd, x1, 8, 8);
+            VMOVBto(x2, q1, 0);
+            BFIw(gd, x2, 8, 8);
             if(vex.l) {
                 GETEY(q0);
-                VAND(q1, v1, q0);
-                USHL_8(q1, q1, v0); // shift
-                UADDLV_8(q1, q1);   // accumalte
-                VMOVBto(x1, q1, 0);
-                BFIx(gd, x1, 16, 8);
+                VSHRQ_8(q1, q0, 7);
+                USHLQ_8(q1, q1, v0); // shift
+                UADDLV_8(v1, q1);   // accumalte
+                VMOVBto(x2, v1, 0);
+                BFIw(gd, x2, 16, 8);
                 // and now the high part
-                VMOVeD(q1, 0, q0, 1);
-                VAND(q1, v1, q1);  // keep highest bit
-                USHL_8(q1, q1, v0); // shift
+                VMOVeD(q1, 0, q1, 1);
                 UADDLV_8(q1, q1);   // accumalte
-                VMOVBto(x1, q1, 0);
-                BFIx(gd, x1, 24, 8);
+                VMOVBto(x2, q1, 0);
+                BFIw(gd, x2, 24, 8);
             }
             break;
         case 0xD8:
