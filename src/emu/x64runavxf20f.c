@@ -407,15 +407,25 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             tmp8u = F8;
             tmp8s = 0;
-            switch(tmp8u&7) {
-                case 0: tmp8s=(VX->d[0] == EX->d[0]); break;
-                case 1: tmp8s=isless(VX->d[0], EX->d[0]) && !(isnan(VX->d[0]) || isnan(EX->d[0])); break;
-                case 2: tmp8s=islessequal(VX->d[0], EX->d[0]) && !(isnan(VX->d[0]) || isnan(EX->d[0])); break;
-                case 3: tmp8s=isnan(VX->d[0]) || isnan(EX->d[0]); break;
-                case 4: tmp8s=isnan(VX->d[0]) || isnan(EX->d[0]) || (VX->d[0] != EX->d[0]); break;
-                case 5: tmp8s=isnan(VX->d[0]) || isnan(EX->d[0]) || isgreaterequal(VX->d[0], EX->d[0]); break;
-                case 6: tmp8s=isnan(VX->d[0]) || isnan(EX->d[0]) || isgreater(VX->d[0], EX->d[0]); break;
-                case 7: tmp8s=!isnan(VX->d[0]) && !isnan(EX->d[0]); break;
+            int is_nan = isnan(VX->d[0]) || isnan(EX->d[0]);
+            // the 1f..0f opcode are singaling/unsignaling, wich is not handled
+            switch(tmp8u&0x0f) {
+                case 0x00: tmp8s=(VX->d[0] == EX->d[0]) && !is_nan; break;
+                case 0x01: tmp8s=isless(VX->d[0], EX->d[0]) && !is_nan; break;
+                case 0x02: tmp8s=islessequal(VX->d[0], EX->d[0]) && !is_nan; break;
+                case 0x03: tmp8s=is_nan; break;
+                case 0x04: tmp8s=(VX->d[0] != EX->d[0]) || is_nan; break;
+                case 0x05: tmp8s=is_nan || isgreaterequal(VX->d[0], EX->d[0]); break;
+                case 0x06: tmp8s=is_nan || isgreater(VX->d[0], EX->d[0]); break;
+                case 0x07: tmp8s=!is_nan; break;
+                case 0x08: tmp8s=(VX->d[0] == EX->d[0]) || is_nan; break;
+                case 0x09: tmp8s=isless(VX->d[0], EX->d[0]) || is_nan; break;
+                case 0x0a: tmp8s=islessequal(VX->d[0], EX->d[0]) || is_nan; break;
+                case 0x0b: tmp8s=0; break;
+                case 0x0c: tmp8s=(VX->d[0] != EX->d[0]) && !is_nan; break;
+                case 0x0d: tmp8s=isgreaterequal(VX->d[0], EX->d[0]) && !is_nan; break;
+                case 0x0e: tmp8s=isgreater(VX->d[0], EX->d[0]) && !is_nan; break;
+                case 0x0f: tmp8s=1; break;
             }
             GX->q[0]=(tmp8s)?0xffffffffffffffffLL:0LL;
             GX->q[1] = VX->q[1];
