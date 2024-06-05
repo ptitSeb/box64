@@ -2420,8 +2420,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ORI(xFlags, xFlags, 1 << F_CF);
                         XOR(ed, ed, x6);
                     }
-                    EWBACK;
                     MARK;
+                    EWBACK;
                     break;
                 case 7:
                     INST_NAME("BTC Ew, Ib");

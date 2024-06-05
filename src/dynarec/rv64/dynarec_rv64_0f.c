@@ -2068,13 +2068,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ORI(xFlags, xFlags, 1 << F_CF);
                         XOR(ed, ed, x6);
                     }
+                    MARK;
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
                         SMWRITE();
                     } else if(!rex.w) {
                         ZEROUP(ed);
                     }
-                    MARK;
                     break;
                 case 7:
                     INST_NAME("BTC Ed, Ib");
