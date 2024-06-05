@@ -1227,9 +1227,9 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     }
 }
 
-void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
+void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5)
 {
-    c&=15;
+    c&=0x1f;
     CLEAR_FLAGS();
 
     IFX(X_PEND) {
@@ -1248,6 +1248,11 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         }
         return;
     }
+
+    // create concat first
+    SLLI(s5, s2, 16);
+    OR(s1, s1, s5);
+
     IFX(X_CF) {
         if (c > 1) {
             SRAI(s3, s1, c-1);
@@ -1263,9 +1268,7 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         if (c == 1) SRLI(s4, s1, 15);
     }
 
-    SRLIxw(s3, s1, c);
-    SLLIxw(s1, s2, 16-c);
-    OR(s1, s1, s3);
+    SRLI(s1, s1, c);
     ZEXTH(s1, s1);
 
     IFX(X_SF) {
