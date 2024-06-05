@@ -320,7 +320,16 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 }
             }
             break;
-
+        case 0x51:
+            INST_NAME("VSQRTPS Gx, Ex");
+            nextop = F8;
+            SKIPTEST(x1);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_EX(q0, q1, 0); } else { GETGY_empty_EY(q0, q1); }
+                VFSQRTQS(q0, q1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x52:
             INST_NAME("VRSQRTPS Gx, Ex");
             nextop = F8;

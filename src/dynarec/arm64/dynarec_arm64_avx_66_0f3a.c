@@ -647,6 +647,35 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
+        case 0x4C:
+            INST_NAME("VBLENDPVB Gx, Vx, Ex, XMMImm8");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            u8 = geted_ib(dyn, addr, ninst, nextop)>>4;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { 
+                    q1 = sse_get_reg(dyn, ninst, x1, u8, 0);
+                    GETGX_empty_VXEX(v0, v2, v1, 1); 
+                    F8;
+                } else { 
+                    v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, u8, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                    if(MODREG)
+                        v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0, gd, vex.v, u8);
+                    else
+                        VLDR128_U12(v1, ed, fixedaddress+16);
+                    q1 = ymm_get_reg(dyn, ninst, x1, u8, 0, vex.v, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                    v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, u8, (MODREG)?((nextop&7)+(rex.b<<3)):-1);
+                }
+                VSSHRQ_8(q0, q1, 7);   // create mask
+                if(v0==v1)
+                    VBIFQ(v0, v2, q0);
+                else {
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VBITQ(v0, v1, q0);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         default:
             DEFAULT;

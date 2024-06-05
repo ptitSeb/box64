@@ -39,7 +39,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
     int q0, q1, q2;
     int d0, d1, d2;
     int s0;
-    uint64_t tmp64u;
+    uint64_t tmp64u, u64;
     int64_t j64;
     int64_t fixedaddress;
     int unscaled;
@@ -375,6 +375,34 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l) YMM0(gd);
             break;
+        case 0x70:
+            INST_NAME("VPSHUFHW Gx, Ex, Ib");
+            nextop = F8;
+            d0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETEX(v1, 0, 1); GETGX(v0, 1); u8 = F8; } else { GETGY(v0, 1, MODREG?((nextop&7)+(rex.b<<3)):-1, -1, -1); GETEY(v1); }
+                if(u8==0b00000000 || u8==0b01010101 || u8==0b10101010 || u8==0b11111111) {
+                    VDUP_16(d0, v1, 4+(u8&3));
+                } else {
+                    // only high part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
+                    if(!l) {
+                        u64 = 0;
+                        for (int i=0; i<4; ++i) {
+                            u64 |= ((uint64_t)((u8>>(i*2))&3)*2+8)<<(i*16+0);
+                            u64 |= ((uint64_t)((u8>>(i*2))&3)*2+9)<<(i*16+8);
+                        }
+                        MOV64x(x2, u64);
+                    }
+                    VMOVQDfrom(d0, 0, x2);
+                    VTBL1_8(d0, v1, d0);
+                }
+                VMOVeD(v0, 1, d0, 0);
+                if(v0!=v1) {
+                    VMOVeD(v0, 0, v1, 0);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
@@ -420,10 +448,13 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETEXSS(v1, 0, 1);
             GETGX_empty_VX(v0, v2);
             u8 = F8;
-            if(((u8&15)==12)||((u8&15)==13)||((u8&15)==9)||((u8&15)==10))
-                FCMPS(v1, v2);
-            else
-                FCMPS(v2, v1);
+            if(((u8&15)!=12) && ((u8&15)!=15)) {
+                if(((u8&15)==12)||((u8&15)==13)||((u8&15)==9)||((u8&15)==10))
+                    FCMPS(v1, v2);
+                else
+                    FCMPS(v2, v1);
+            }
+            // TODO: create a test for this one, there might be an issue with cases 9, 10 and 13
             if(v0!=v2) VMOVQ(v0, v2);
             switch(u8&7) {
                 case 0x00: CSETMw(x2, cEQ); break;  // Equal
@@ -435,8 +466,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 case 0x06: CSETMw(x2, cHI); break;  // Greater or unordered
                 case 0x07: CSETMw(x2, cVC); break;  // not NaN
                 case 0x08: CSETMw(x2, cEQ); CSETMw(x3, cVS); ORRw_REG(x2, x2, x3); break;  // Equal than or ordered
-                case 0x09: CSETMw(x2, cCS); break;  // Less than or ordered
-                case 0x0a: CSETMw(x2, cHI); break;  // Less or equal or ordered
+                case 0x09: CSETMw(x2, cCS); break;  // Less than or unordered
+                case 0x0a: CSETMw(x2, cHI); break;  // Less or equal or unordered
                 case 0x0b: MOV32w(x2, 0); break;    // false
                 case 0x0c: CSETMw(x2, cNE); CSETMw(x3, cVC); ANDw_REG(x2, x2, x3); break;  // Not Equal not unordered
                 case 0x0d: CSETMw(x2, cCC); break;  // Greater or equal not unordered
@@ -445,6 +476,25 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             VMOVQSfrom(v0, 0, x2);
             YMM0(gd);
+            break;
+
+        case 0xE6:
+            INST_NAME("VCVTDQ2PD Gx, Ex");
+            nextop = F8;
+            if(vex.l) {
+                GETEX_Y(v1, 0, 0);
+            } else {
+                GETEXSD(v1, 0, 0);
+            }
+            GETGX_empty(v0);
+            d0 = fpu_get_scratch(dyn, ninst);
+            if(vex.l) {
+                q0 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
+                SXTL2_32(q0, v1);
+                SCVTQFD(q0, q0);
+            } else YMM0(gd);
+            SXTL_32(v0, v1);
+            SCVTQFD(v0, v0);
             break;
 
         default:
