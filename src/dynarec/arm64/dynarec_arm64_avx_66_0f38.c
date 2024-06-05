@@ -123,6 +123,31 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x0C:
+            INST_NAME("VPERMILPS Gx, Vx, Ex");
+            nextop = F8;
+            q1 = fpu_get_scratch(dyn, ninst);
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                // transform u32 index in V1 to 4 u8 index in q0 for VTBL
+                MOVIQ_32(q0, 3); // index and 3
+                VANDQ(q0, v1, q0);
+                SQXTN_16(q0, q0);   // index in 16bits
+                VSHL_16(q0, q0, 1); // double the index
+                VZIP1Q_16(q0, q0, q0);   // repeat the index by pair
+                MOVIQ_32_lsl(q1, 1, 2);    // q1 as 16bits is 0 / 1
+                VADDQ_16(q0, q0, q1);
+                SQXTN_8(q0, q0);   // index in 8bits
+                VSHL_8(q0, q0, 1); // double the index
+                VZIP1Q_8(q0, q0, q0);   // repeat the index by pair
+                MOVIQ_16(q1, 1, 1);
+                VADDQ_8(q0, q0, q1);
+                VTBLQ1_8(v0, v2, q0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0x17:
             INST_NAME("VPTEST GX, EX");
             SETFLAGS(X_ALL, SF_SET);
@@ -148,17 +173,19 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             IFX(X_ZF) {
                 VANDQ(v2, v0, v1);
+                CMEQQ_0_64(v2, v2);
                 UQXTN_32(v2, v2);
                 VMOVQDto(x2, v2, 0);
-                CMPSw_U12(x2, 0);
+                ADDSx_U12(xZR, x2, 1);
                 CSETw(x2, cEQ);
                 BFIw(xFlags, x2, F_ZF, 1);
             }
             IFX(X_CF) {
                 VBICQ(v2, v1, v0);
+                CMEQQ_0_64(v2, v2);
                 UQXTN_32(v2, v2);
                 VMOVQDto(x2, v2, 0);
-                CMPSw_U12(x2, 0);
+                ADDSx_U12(xZR, x2, 1);
                 CSETw(x2, cEQ);
                 BFIw(xFlags, x2, F_CF, 1);
             }

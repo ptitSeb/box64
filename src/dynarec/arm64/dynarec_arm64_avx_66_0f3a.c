@@ -111,7 +111,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     GETGY_empty_EY(v0, v1);
                     if(v0==v1) {VMOVQ(q1, v1);}
                 }
-                for(int i=0; i<4; ++i)
+                if(u8==0x00 || u8==0x55 || u8==0xAA || u8==0xFF)
+                    VDUPQ_32(v0, (v0==v1)?q1:v1, u8&3);
+                else for(int i=0; i<4; ++i)
                     VMOVeS(v0, i, (v0==v1)?q1:v1, (u8>>(i*2))&3);
             }
             if(!vex.l) YMM0(gd);
@@ -128,7 +130,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     GETGY_empty_EY(v0, v1);
                     if(v0==v1) {VMOVQ(q1, v1);}
                 }
-                for(int i=0; i<2; ++i)
+                if(((u8>>(l*2))&1)==((u8>>(1+l*2))&1))
+                    VDUPQ_64(v0, (v0==v1)?q1:v1, ((u8>>(l*2))&1));
+                else for(int i=0; i<2; ++i)
                     VMOVeD(v0, i, (v0==v1)?q1:v1, (u8>>(i+l*2))&1);
             }
             if(!vex.l) YMM0(gd);

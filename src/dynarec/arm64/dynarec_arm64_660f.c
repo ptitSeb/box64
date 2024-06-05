@@ -1742,8 +1742,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VFCVTZSQS(v0, v0);
             } else {
                 MRS_fpsr(x5);
-                BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                MSR_fpsr(x5);
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 MOV32w(x4, 0x80000000);
                 d0 = fpu_get_scratch(dyn, ninst);

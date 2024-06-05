@@ -1862,9 +1862,11 @@ int convert_bitmask(uint64_t bitmask);
 #define MOVIQ_8(Rd, imm8)           EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 #define MOVIQ_16(Rd, imm8, lsl8)    EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b1000|((lsl8)?0b10:0), ((imm8)&0b11111), Rd))
 #define MOVIQ_32(Rd, imm8)          EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), 0b0000, ((imm8)&0b11111), Rd))
+#define MOVIQ_32_lsl(Rd, imm8, lsl8) EMIT(MOVI_vector(1, 0, (((imm8)>>5)&0b111), (lsl8<<1), ((imm8)&0b11111), Rd))
 #define MOVIQ_64(Rd, imm8)          EMIT(MOVI_vector(1, 1, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 #define MOVI_8(Rd, imm8)            EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 #define MOVI_16(Rd, imm8, lsl8)     EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b1000|((lsl8)?0b10:0), ((imm8)&0b11111), Rd))
+#define MOVI_32_lsl(Rd, imm8, lsl8) EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), (lsl8<<1), ((imm8)&0b11111), Rd))
 #define MOVI_32(Rd, imm8)           EMIT(MOVI_vector(0, 0, (((imm8)>>5)&0b111), 0b0000, ((imm8)&0b11111), Rd))
 #define MOVI_64(Rd, imm8)           EMIT(MOVI_vector(0, 1, (((imm8)>>5)&0b111), 0b1110, ((imm8)&0b11111), Rd))
 

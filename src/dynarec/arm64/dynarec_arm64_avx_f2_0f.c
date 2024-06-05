@@ -39,7 +39,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
     int q0, q1, q2;
     int d0, d1, d2;
     int s0;
-    uint64_t tmp64u;
+    uint64_t tmp64u, u64;
     int64_t j64;
     int64_t fixedaddress;
     int unscaled;
@@ -242,8 +242,9 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
+            // VMINSD: if any input is NaN, or Ex[0]<Gx[0], copy Ex[0] -> Gx[0]
             FCMPD(v2, v1);
-            FCSELD(d1, v2, v1, cLS);
+            FCSELD(d1, v1, v2, cCS);
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
@@ -256,7 +257,20 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
+            if(!box64_dynarec_fastnan) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FMAXD(q0, v2, v1);    // propagate NAN
+                FCMEQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
+            }
             FDIVD(d1, v2, v1);
+            if(!box64_dynarec_fastnan) {
+                FCMEQD(q1, d1, d1);    // 0 => out is NAN
+                VBIC(q1, q0, q1);      // forget it in any input was a NAN already
+                VSHLQ_64(q1, q1, 63);   // only keep the sign bit
+                VORR(d1, d1, q1);      // NAN -> -NAN
+            }
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
@@ -269,13 +283,69 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
-            FCMPD(v2, v1);
-            FCSELD(d1, v2, v1, cGE);
+            FCMPD(v1, v2);
+            FCSELD(d1, v1, v2, cCS);
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, d1, 0);   // to not erase uper part
             YMM0(gd)
+            break;
+
+        case 0x70:
+            INST_NAME("VPSHUFLW Gx, Ex, Ib");
+            nextop = F8;
+            d0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETEX(v1, 0, 1); GETGX(v0, 1); u8 = F8; } else { GETGY(v0, 1, MODREG?((nextop&7)+(rex.b<<3)):-1, -1, -1); GETEY(v1); }
+                if(u8==0b00000000 || u8==0b01010101 || u8==0b10101010 || u8==0b11111111) {
+                    if(v0==v1) {
+                        VMOVQ(d0, v1);
+                    }
+                    VDUP_16(v0, v1, u8&3);
+                    if(v0==v1)
+                        v1 = d0;
+                } else {
+                    // only low part need to be suffled. VTBL only handle 8bits value, so the 16bits suffles need to be changed in 8bits
+                    if(!l) {
+                        u64 = 0;
+                        for (int i=0; i<4; ++i) {
+                            u64 |= ((uint64_t)((u8>>(i*2))&3)*2+0)<<(i*16+0);
+                            u64 |= ((uint64_t)((u8>>(i*2))&3)*2+1)<<(i*16+8);
+                        }
+                        MOV64x(x2, u64);
+                    }
+                    VMOVQDfrom(d0, 0, x2);
+                    VTBL1_8(d0, v1, d0);
+                    VMOVeD(v0, 0, d0, 0);
+                }
+                if(v0!=v1) {
+                    VMOVeD(v0, 1, v1, 1);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
+        case 0xC2:
+            INST_NAME("CMPSD Gx, Ex, Ib");
+            nextop = F8;
+            GETEXSD(v1, 0, 1);
+            GETGX_empty_VX(v0, v2);
+            u8 = F8;
+            FCMPD(v2, v1);
+            if(v0!=v2) VMOVQ(v0, v2);
+            switch(u8&7) {
+                case 0: CSETMx(x2, cEQ); break;   // Equal
+                case 1: CSETMx(x2, cCC); break;   // Less than
+                case 2: CSETMx(x2, cLS); break;   // Less or equal
+                case 3: CSETMx(x2, cVS); break;   // NaN
+                case 4: CSETMx(x2, cNE); break;   // Not Equal or unordered
+                case 5: CSETMx(x2, cCS); break;   // Greater or equal or unordered
+                case 6: CSETMx(x2, cHI); break;   // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                case 7: CSETMx(x2, cVC); break;   // not NaN
+            }
+            VMOVQDfrom(v0, 0, x2);
+            YMM0(gd);
             break;
 
         default:

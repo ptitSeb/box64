@@ -182,6 +182,17 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
 
+        case 0x51:
+            INST_NAME("SQRTSS Gx, Ex");
+            nextop = F8;
+            GETEXSS(d0, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            d1 = fpu_get_scratch(dyn, ninst);
+            FSQRTS(d1, d0);
+            if(v0!=v2) VMOVQ(v0, v2);
+            VMOVeS(v0, 0, d1, 0);
+            YMM0(gd);
+            break;
         case 0x52:
             INST_NAME("VRSQRTSS Gx, Vx Ex");
             nextop = F8;
@@ -305,7 +316,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
             FCMPS(v2, v1);
-            FCSELS(d1, v2, v1, cLS);
+            FCSELS(d1, v1, v2, cCS);
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
@@ -331,8 +342,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSS(v1, 0, 0);
             GETGX_empty_VX(v0, v2);
-            FCMPS(v2, v1);
-            FCSELS(d1, v2, v1, cGE);
+            FCMPS(v1, v2);
+            FCSELS(d1, v1, v2, cCS);
             if(v0!=v2) {
                 VMOVQ(v0, v2);
             }
@@ -401,6 +412,39 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 }
                 SMWRITE2();
             }
+            break;
+
+        case 0xC2:
+            INST_NAME("VCMPSS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEXSS(v1, 0, 1);
+            GETGX_empty_VX(v0, v2);
+            u8 = F8;
+            if(((u8&15)==12)||((u8&15)==13)||((u8&15)==9)||((u8&15)==10))
+                FCMPS(v1, v2);
+            else
+                FCMPS(v2, v1);
+            if(v0!=v2) VMOVQ(v0, v2);
+            switch(u8&7) {
+                case 0x00: CSETMw(x2, cEQ); break;  // Equal
+                case 0x01: CSETMw(x2, cCC); break;  // Less than
+                case 0x02: CSETMw(x2, cLS); break;  // Less or equal
+                case 0x03: CSETMw(x2, cVS); break;  // NaN
+                case 0x04: CSETMw(x2, cNE); break;  // Not Equal or unordered
+                case 0x05: CSETMw(x2, cCS); break;  // Greater or equal or unordered
+                case 0x06: CSETMw(x2, cHI); break;  // Greater or unordered
+                case 0x07: CSETMw(x2, cVC); break;  // not NaN
+                case 0x08: CSETMw(x2, cEQ); CSETMw(x3, cVS); ORRw_REG(x2, x2, x3); break;  // Equal than or ordered
+                case 0x09: CSETMw(x2, cCS); break;  // Less than or ordered
+                case 0x0a: CSETMw(x2, cHI); break;  // Less or equal or ordered
+                case 0x0b: MOV32w(x2, 0); break;    // false
+                case 0x0c: CSETMw(x2, cNE); CSETMw(x3, cVC); ANDw_REG(x2, x2, x3); break;  // Not Equal not unordered
+                case 0x0d: CSETMw(x2, cCC); break;  // Greater or equal not unordered
+                case 0x0e: CSETMw(x2, cLS); break;  // Greater not unordered
+                case 0x0f: MOV32w(x2, 0xffffffff); break; // true
+            }
+            VMOVQSfrom(v0, 0, x2);
+            YMM0(gd);
             break;
 
         default:
