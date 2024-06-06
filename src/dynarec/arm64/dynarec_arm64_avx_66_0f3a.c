@@ -402,6 +402,54 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             F8; // read u8, but it's been already handled
             break;
 
+        case 0x1D:
+            INST_NAME("VCVTPS2PH Ex, Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x3, (nextop&7)+(rex.b<<3));
+            } else {
+                WILLWRITE2();
+                v1 = fpu_get_scratch(dyn, ninst);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<(3+vex.l), vex.l?15:7, rex, NULL, 0, 1);
+            }
+            if(vex.l && v0==v1) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q0, v0);
+                v0 = q0;
+            }
+            u8 = F8;
+            if(u8&4) {
+                s0 = sse_setround(dyn, ninst, x1, x2, x6);
+            } else {
+                u8&=3;
+                if(u8==1) u8=2;
+                else if(u8==2) u8=1;
+                MRS_fpcr(x1);               // get fpscr
+                MOV32w(x2, u8);
+                MOVx_REG(x6, x1);
+                BFIx(x1, x2, 22, 2);     // inject new round
+                MSR_fpcr(x1);               // put new fpscr
+                s0 = x6;
+            }
+            FCVTN16(v1, v0);
+            if(vex.l) {
+                GETGY(v0, 0, MODREG?((nextop&7)+(rex.b<<3)):-1, -1,-1);
+                FCVTN162(v1, v0);
+            }
+            x87_restoreround(dyn, ninst, s0);
+            if(MODREG) {
+                YMM0((nextop&7)+(rex.b<<3));
+            } else {
+                if(vex.l) {
+                    VST128(v1, ed, fixedaddress);
+                } else {
+                    VST64(v1, ed, fixedaddress);
+                }
+                SMWRITE2();
+            }
+            break;
+
         case 0x20:
             INST_NAME("VINSERTD Gx, Vx, Ex, Ib");
             nextop = F8;

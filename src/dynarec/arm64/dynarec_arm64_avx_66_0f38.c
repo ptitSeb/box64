@@ -158,6 +158,23 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x13:
+            INST_NAME("VCVTPH2PS Gx, Ex");
+            nextop = F8;
+            GETEX_Y(v1, 0, 0);
+            GETGX_empty(v0);
+            if(vex.l && v0==v1) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q1, v1);
+                v1 = q1;
+            }
+            FCVTL16(v0, v1);
+            if(vex.l) {
+                GETGY_empty(v0, -1, -1, -1);
+                FCVTL162(v0, v1);
+            } else YMM0(gd);
+            break;
+
         case 0x17:
             INST_NAME("VPTEST GX, EX");
             SETFLAGS(X_ALL, SF_SET);
