@@ -258,6 +258,7 @@ GO("libanl.so.1", anl)
 GO("libpsl.so.5", psl5)
 GO("libssh2.so.1", libssh2)
 GO("libp11-kit.so.0", p11kit)
+GO("libtasn1.so.6", libtasn1)
 
 #ifdef ANDROID
 GO("libc.so", libc)
