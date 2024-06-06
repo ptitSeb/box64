@@ -9,6 +9,11 @@
 #include <pmmintrin.h>
 #include <immintrin.h> 
 
+#ifdef __clang__
+extern int isinff(float);
+extern int isnanf(float);
+#endif
+
 typedef unsigned char u8x16 __attribute__ ((vector_size (16)));
 typedef unsigned short u16x8 __attribute__ ((vector_size (16)));
 typedef unsigned int  u32x4 __attribute__ ((vector_size (16)));
