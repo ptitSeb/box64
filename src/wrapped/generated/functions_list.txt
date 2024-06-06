@@ -4999,6 +4999,7 @@ wrappedopencl:
   - clBuildProgram
 - pFpupppp:
   - clCreateContext
+wrappedp11kit:
 wrappedpam:
 wrappedpango:
 - vFpp:
