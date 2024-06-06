@@ -92,6 +92,7 @@ int arm64_aes = 0;
 int arm64_pmull = 0;
 int arm64_crc32 = 0;
 int arm64_atomics = 0;
+int arm64_asimdhp = 0;
 int arm64_sha1 = 0;
 int arm64_sha2 = 0;
 int arm64_uscat = 0;
@@ -404,6 +405,8 @@ HWCAP2_ECV
     // ATOMIC use are disable for now. They crashes Batman Arkham Knight, bossibly other (also seems to make steamwebhelper unstable)
     if(hwcap&HWCAP_ATOMICS)
         arm64_atomics = 1;
+    if(hwcap&HWCAP_ASIMDHP)
+        arm64_asimdhp = 1;
     #ifdef HWCAP_SHA1
     if(hwcap&HWCAP_SHA1)
         arm64_sha1 = 1;
@@ -442,6 +445,8 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " PMULL");
     if(arm64_atomics)
         printf_log(LOG_INFO, " ATOMICS");
+    if(arm64_asimdhp)
+        printf_log(LOG_INFO, " ASIMDHP");
     if(arm64_sha1)
         printf_log(LOG_INFO, " SHA1");
     if(arm64_sha2)

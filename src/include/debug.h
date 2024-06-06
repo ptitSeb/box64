@@ -40,6 +40,7 @@ extern int arm64_aes;
 extern int arm64_pmull;
 extern int arm64_crc32;
 extern int arm64_atomics;
+extern int arm64_asimdhp;
 extern int arm64_sha1;
 extern int arm64_sha2;
 extern int arm64_uscat;

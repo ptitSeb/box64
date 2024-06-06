@@ -840,6 +840,23 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             YMM0(gd);
             break;
 
+        case 0x9D:
+            INST_NAME("VFNMADD132SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETVX(v2, 0);
+            if(rex.w) {GETEXSD(v1, 0, 0);} else {GETEXSS(v1, 0, 0);}
+            q0 = fpu_get_scratch(dyn, ninst);
+            if(rex.w) {
+                FMSUB_64(q0, v2, v1, v0);
+                VMOVeD(v0, 0, q0, 0);
+            } else {
+                FMSUB_32(q0, v2, v1, v0);
+                VMOVeS(v0, 0, q0, 0);
+            }
+            YMM0(gd);
+            break;
+
         case 0xA8:
             INST_NAME("VFMADD213PS/D Gx, Vx, Ex");
             nextop = F8;
@@ -886,7 +903,39 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
+        case 0xAB:
+            INST_NAME("VFMSUB213SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETVX(v2, 0);
+            if(rex.w) {GETEXSD(v1, 0, 0);} else {GETEXSS(v1, 0, 0);}
+            q0 = fpu_get_scratch(dyn, ninst);
+            if(rex.w) {
+                FNMSUB_64(q0, v1, v0, v2);
+                VMOVeD(v0, 0, q0, 0);
+            } else {
+                FNMSUB_32(q0, v1, v0, v2);
+                VMOVeS(v0, 0, q0, 0);
+            }
+            YMM0(gd);
+            break;
 
+        case 0xAD:
+            INST_NAME("VFMNADD213SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETVX(v2, 0);
+            if(rex.w) {GETEXSD(v1, 0, 0);} else {GETEXSS(v1, 0, 0);}
+            q0 = fpu_get_scratch(dyn, ninst);
+            if(rex.w) {
+                FMSUB_64(q0, v1, v0, v2);
+                VMOVeD(v0, 0, q0, 0);
+            } else {
+                FMSUB_32(q0, v1, v0, v2);
+                VMOVeS(v0, 0, q0, 0);
+            }
+            YMM0(gd);
+            break;
         case 0xAE:
             INST_NAME("VFNMSUB213PS/D Gx, Vx, Ex");
             nextop = F8;

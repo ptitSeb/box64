@@ -448,15 +448,15 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETEXSS(v1, 0, 1);
             GETGX_empty_VX(v0, v2);
             u8 = F8;
-            if(((u8&15)!=12) && ((u8&15)!=15)) {
-                if(((u8&15)==12)||((u8&15)==13)||((u8&15)==9)||((u8&15)==10))
+            if(((u8&15)!=11) && ((u8&15)!=15)) {
+                if((u8&15)>7)
                     FCMPS(v1, v2);
                 else
                     FCMPS(v2, v1);
             }
             // TODO: create a test for this one, there might be an issue with cases 9, 10 and 13
             if(v0!=v2) VMOVQ(v0, v2);
-            switch(u8&7) {
+            switch(u8&15) {
                 case 0x00: CSETMw(x2, cEQ); break;  // Equal
                 case 0x01: CSETMw(x2, cCC); break;  // Less than
                 case 0x02: CSETMw(x2, cLS); break;  // Less or equal
@@ -465,13 +465,13 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 case 0x05: CSETMw(x2, cCS); break;  // Greater or equal or unordered
                 case 0x06: CSETMw(x2, cHI); break;  // Greater or unordered
                 case 0x07: CSETMw(x2, cVC); break;  // not NaN
-                case 0x08: CSETMw(x2, cEQ); CSETMw(x3, cVS); ORRw_REG(x2, x2, x3); break;  // Equal than or ordered
-                case 0x09: CSETMw(x2, cCS); break;  // Less than or unordered
-                case 0x0a: CSETMw(x2, cHI); break;  // Less or equal or unordered
+                case 0x08: CSETMw(x2, cEQ); CSETMw(x3, cVS); ORRw_REG(x2, x2, x3); break;  // Equal or unordered
+                case 0x09: CSETMw(x2, cHI); break;  // Less than or unordered
+                case 0x0a: CSETMw(x2, cCS); break;  // Less or equal or unordered
                 case 0x0b: MOV32w(x2, 0); break;    // false
-                case 0x0c: CSETMw(x2, cNE); CSETMw(x3, cVC); ANDw_REG(x2, x2, x3); break;  // Not Equal not unordered
-                case 0x0d: CSETMw(x2, cCC); break;  // Greater or equal not unordered
-                case 0x0e: CSETMw(x2, cLS); break;  // Greater not unordered
+                case 0x0c: CSETMw(x2, cNE); CSETMw(x3, cVS); BICw(x2, x2, x3); break;  // Not Equal not unordered
+                case 0x0d: CSETMw(x2, cLS); break;  // Greater or equal not unordered
+                case 0x0e: CSETMw(x2, cCC); break;  // Greater not unordered
                 case 0x0f: MOV32w(x2, 0xffffffff); break; // true
             }
             VMOVQSfrom(v0, 0, x2);

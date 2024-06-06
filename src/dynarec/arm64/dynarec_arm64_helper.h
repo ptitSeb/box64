@@ -1181,6 +1181,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F30F     STEPNAME(dynarec64_F30F)
 #define dynarec64_AVX      STEPNAME(dynarec64_AVX)
 #define dynarec64_AVX_0F   STEPNAME(dynarec64_AVX_0F)
+#define dynarec64_AVX_0F38 STEPNAME(dynarec64_AVX_0F38)
 #define dynarec64_AVX_66_0F     STEPNAME(dynarec64_AVX_66_0F)
 #define dynarec64_AVX_F2_0F     STEPNAME(dynarec64_AVX_F2_0F)
 #define dynarec64_AVX_F3_0F     STEPNAME(dynarec64_AVX_F3_0F)
@@ -1608,6 +1609,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);

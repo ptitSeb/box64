@@ -264,6 +264,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<26     // xsave
                     | 1<<27     // osxsave
                     | box64_avx<<28 // AVX
+                    | box64_avx<<29 // F16C
                     ; 
             break;
         case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
@@ -325,7 +326,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         box64_avx<<3 |  // BMI1 
                         box64_avx2<<5 |  //AVX2
                         box64_avx2<<8 | //BMI2
-                        box64_avx2<<9 | //VAES
+                        box64_avx<<9 | //VAES
                         box64_avx2<<19 | //ADX
                         1<<29|  // SHA extension
                         0;
