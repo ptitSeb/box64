@@ -1375,18 +1375,30 @@ int convert_bitmask(uint64_t bitmask);
 #define FCVTN(Vd, Vn)               EMIT(FCVTN_vector(0, 1, Vn, Vd))
 // Convert Vn from 2*Double to higher Vd as 2*float, use FPCR rounding
 #define FCVTN2(Vd, Vn)              EMIT(FCVTN_vector(1, 1, Vn, Vd))
+// Convert Vn from 2*Float to lower Vd as 2*float16 and clears the upper half, use FPCR rounding
+#define FCVTN16(Vd, Vn)             EMIT(FCVTN_vector(0, 0, Vn, Vd))
+// Convert Vn from 2*Float to higher Vd as 2*float16, use FPCR rounding
+#define FCVTN162(Vd, Vn)            EMIT(FCVTN_vector(1, 0, Vn, Vd))
 
 #define FCVTXN_vector(Q, sz, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10110<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Convert Vn from 2*Double to lower Vd as 2*float and clears the upper half
 #define FCVTXN(Vd, Vn)              EMIT(FCVTXN_vector(0, 1, Vn, Vd))
 // Convert Vn from 2*Double to higher Vd as 2*float
 #define FCVTXN2(Vd, Vn)             EMIT(FCVTXN_vector(1, 1, Vn, Vd))
+// Convert Vn from 2*Float to lower Vd as 2*float16 and clears the upper half
+#define FCVTXN16(Vd, Vn)            EMIT(FCVTXN_vector(0, 0, Vn, Vd))
+// Convert Vn from 2*Float to higher Vd as 2*float16
+#define FCVTXN162(Vd, Vn)           EMIT(FCVTXN_vector(1, 0, Vn, Vd))
 
 #define FCVTL_vector(Q, sz, Rn, Rd)     ((Q)<<30 | 0<<29 | 0b01110<<24 | (sz)<<22 | 0b10000<<17 | 0b10111<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
 // Convert lower Vn from 2*float to Vd as 2*double
 #define FCVTL(Vd, Vn)               EMIT(FCVTL_vector(0, 1, Vn, Vd))
 // Convert higher Vn from 2*float to Vd as 2*double
 #define FCVTL2(Vd, Vn)              EMIT(FCVTL_vector(1, 1, Vn, Vd))
+// Convert lower Vn from 2*float16 to Vd as 2*float
+#define FCVTL16(Vd, Vn)             EMIT(FCVTL_vector(0, 0, Vn, Vd))
+// Convert higher Vn from 2*float16 to Vd as 2*float
+#define FCVTL162(Vd, Vn)            EMIT(FCVTL_vector(1, 0, Vn, Vd))
 
 #define SCVTF_scalar(sf, type, rmode, opcode, Rn, Rd)   ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (rmode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
 #define SCVTFSw(Sd, Wn)             EMIT(SCVTF_scalar(0, 0b00, 0b00, 0b010, Wn, Sd))

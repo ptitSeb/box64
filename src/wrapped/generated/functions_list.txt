@@ -2044,6 +2044,7 @@
 #() iFppipip
 #() iFppippi
 #() iFppippu
+#() iFppippp
 #() iFppIppp
 #() iFppuiii
 #() iFppuIII
@@ -4778,6 +4779,7 @@ wrappedlibssl3:
   - SSL_callback_ctrl
 - iFlpppp:
   - SSL_get_ex_new_index
+wrappedlibtasn1:
 wrappedlibtinfo:
 - iFpip:
   - tputs
@@ -5000,6 +5002,7 @@ wrappedopencl:
   - clBuildProgram
 - pFpupppp:
   - clCreateContext
+wrappedp11kit:
 wrappedpam:
 wrappedpango:
 - vFpp:

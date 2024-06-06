@@ -655,6 +655,8 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedanl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpsl5.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibssh2.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedp11kit.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibtasn1.c"
 )
 endif()
 if(ANDROID)
@@ -764,6 +766,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f30f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_0f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_0f38.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_66_0f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f2_0f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f3_0f.c"

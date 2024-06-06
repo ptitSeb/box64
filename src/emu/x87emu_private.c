@@ -541,3 +541,100 @@ void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits)
             memset(&emu->ymm[i], 0, 16);
     }
 }
+
+typedef union f16_s {
+    uint16_t u16;
+    struct {
+        uint16_t fraction:10;
+        uint16_t exponant:5;
+        uint16_t sign:1;
+    };
+} f16_t;
+
+typedef union f32_s {
+    uint32_t u32;
+    struct {
+        uint32_t fraction:23;
+        uint32_t exponant:8;
+        uint32_t sign:1;
+    };
+} f32_t;
+
+uint32_t cvtf16_32(uint16_t v)
+{
+    f16_t in = (f16_t)v;
+    f32_t ret = {0};
+    ret.sign = in.sign;
+    ret.fraction = in.fraction<<13;
+    if(!in.exponant)
+        ret.exponant = 0;
+    else if(in.exponant==0b11111)
+        ret.exponant = 0b11111111;
+    else {
+        int e = in.exponant - 15;
+        ret.exponant = e + 127;
+    }
+    return ret.u32;
+}
+uint16_t cvtf32_16(uint32_t v, uint8_t rounding)
+{
+    f32_t in = (f32_t)v;
+    f16_t ret = {0};
+    ret.sign = in.sign;
+    rounding&=3;
+    if(!in.exponant) {
+        // zero and denormals
+        ret.exponant = 0;
+        ret.fraction = in.fraction>>13;
+        return ret.u16;
+    } else if(in.exponant==0b11111111) {
+        // nan and infinites
+        ret.exponant = 0b11111;
+        ret.fraction = in.fraction;
+        return ret.u16;
+    } else {
+        // regular numbers
+        int e = in.exponant - 127;
+        uint16_t f = (in.fraction>>13);
+        uint16_t r = in.fraction&0b1111111111111;
+        switch(rounding) {
+            case 0: // nearest even
+                if(r>=0b1000000000000)
+                    ++f;
+                break;
+            case 1: // round down
+                f += r?ret.sign:0;
+                break;
+            case 2: // round up
+                f += r?(1-ret.sign):0;
+                break;
+            case 3: // truncate
+                break;
+        }
+        if(f>0b1111111111) {
+            ++e;
+            f>>=1;
+        }
+        // remove msb, it's implicit
+        if(!f) e = -15;
+        else if(e<-14) { 
+            // flush to zero
+            e = -15; f = 0;
+        }
+        else if(e>15) { 
+            if((rounding==1 && !in.sign) || (rounding==2 && in.sign) || (rounding==3)) {
+                // Clamp to max
+                f=0b1111111111;
+                e = 15;
+            } else {
+                // overflow to inifity
+                f=0;
+                e = 16;
+            }
+        }
+        ret.fraction = f;
+        ret.exponant = e+15;
+    }
+
+    return ret.u16;
+}

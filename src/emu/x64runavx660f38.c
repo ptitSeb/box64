@@ -521,6 +521,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             CLEAR_FLAG(F_PF);
             break;
 
+        case 0x13:  /* VCVTPH2PS Gx, Ex */
+            nextop = F8;
+            GETEX(0);
+            GETGX;
+            GETGY;
+            if(vex.l) {
+                for(int i=3; i>=0; --i)
+                    GY->ud[i] = cvtf16_32(EX->uw[4+i]);
+            } else GY->u128 = 0;
+            for(int i=3; i>=0; --i)
+                GX->ud[i] = cvtf16_32(EX->uw[i]);
+            break;
+
         case 0x16:  /* VPERMPS Gx, Vx, Ex */
             // same code as 0x36
             nextop = F8;

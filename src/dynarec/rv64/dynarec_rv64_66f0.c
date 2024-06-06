@@ -33,6 +33,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     uint8_t wback, wb1, wb2, gb1, gb2;
     int32_t i32;
     int64_t i64, j64;
+    uint64_t u64;
     int64_t fixedaddress;
     int unscaled;
     MAYUSE(gb1);
@@ -127,9 +128,9 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(MODREG) {
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
+                        if(opcode==0x81) u64 = F16; else u64 = F8;
                         ed = xRAX+(nextop&7)+(rex.b<<3);
-                        MOV32w(x5, i32);
+                        MOV64x(x5, u64);
                         ZEXTH(x6, ed);
                         emit_add16(dyn, ninst, x6, x5, x3, x4, x2);
                         SRLI(ed, ed, 16);
@@ -137,8 +138,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         OR(ed, ed, x6);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
-                        if(opcode==0x81) i32 = F16S; else i32 = F8S;
-                        MOV32w(x5, i32);
+                        if(opcode==0x81) u64 = F16; else u64 = F8;
+                        MOV64x(x5, u64);
 
                         ANDI(x3, wback, 0b10);
                         BNEZ_MARK(x3);

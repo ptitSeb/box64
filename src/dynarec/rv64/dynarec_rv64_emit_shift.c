@@ -710,14 +710,15 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SHL32 instruction, from s1 , constant c, store result in s1 using s3, s4 and s5 as scratch
 void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
 {
-    if (!c) return;
+    if (!c) {
+        if (!rex.w) ZEROUP(s1);
+        return;
+    }
 
     CLEAR_FLAGS();
     IFX(X_PEND) {
-        if (c) {
-            MOV64x(s3, c);
-            SDxw(s3, xEmu, offsetof(x64emu_t, op2));
-        } else SDxw(xZR, xEmu, offsetof(x64emu_t, op2));
+        MOV64x(s3, c);
+        SDxw(s3, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, rex.w?d_shl64:d_shl32);
     } else IFX(X_ALL) {
@@ -725,12 +726,10 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
 
     IFX(X_CF|X_OF) {
-        if (c > 0) {
-            SRLI(s3, s1, (rex.w?64:32)-c);
-            ANDI(s5, s3, 1); // LSB == F_CF
-            IFX(X_CF) {
-                OR(xFlags, xFlags, s5);
-            }
+        SRLI(s3, s1, (rex.w?64:32)-c);
+        ANDI(s5, s3, 1); // LSB == F_CF
+        IFX(X_CF) {
+            OR(xFlags, xFlags, s5);
         }
     }
 
@@ -823,7 +822,10 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit SHR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
-    if (!c) return;
+    if (!c) {
+        if (!rex.w) ZEROUP(s1);
+        return;
+    }
 
     CLEAR_FLAGS();
 
@@ -836,12 +838,6 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_DF(s4, rex.w?d_shr64:d_shr32);
     } else IFX(X_ALL) {
         SET_DFNONE();
-    }
-    if(!c) {
-        IFX(X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
     }
     IFX(X_CF) {
         if (c > 1) {
@@ -891,7 +887,10 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit SAR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
-    if (!c) return;
+    if (!c) {
+        if (!rex.w) ZEROUP(s1);
+        return;
+    }
 
     CLEAR_FLAGS();
 
@@ -904,12 +903,6 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_DF(s4, rex.w?d_sar64:d_sar32);
     } else IFX(X_ALL) {
         SET_DFNONE();
-    }
-    if(!c) {
-        IFX(X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
     }
     IFX(X_CF) {
         if (c > 1) {
@@ -970,7 +963,12 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     if(rv64_zbb) {
-        ROLxw(s1, s1, s4);
+        if (rex.w) {
+            ROL(s1, s1, s4);
+        } else {
+            ROLW(s1, s1, s4);
+            ZEROUP(s1);
+        }
     } else {
         SLLxw(s3, s1, s4);
         NEG(s4, s4);
@@ -1021,7 +1019,12 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     if(rv64_zbb) {
-        RORxw(s1, s1, s4);
+        if (rex.w) {
+            ROR(s1, s1, s4);
+        } else {
+            RORW(s1, s1, s4);
+            ZEROUP(s1);
+        }
     } else {
         SRLxw(s3, s1, s4);
         NEG(s4, s4);
@@ -1055,7 +1058,10 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 // emit ROL32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
-    if (!c) return;
+    if (!c) {
+        if (!rex.w) ZEROUP(s1);
+        return;
+    }
 
     IFX(X_CF | X_OF) {
         ANDI(xFlags, xFlags, ~(1UL<<F_CF | 1UL<<F_OF2));
@@ -1067,12 +1073,6 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_DF(s4, rex.w?d_rol64:d_rol32);
     } else IFX(X_ALL) {
         SET_DFNONE();
-    }
-    if(!c) {
-        IFX(X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
     }
     if(rv64_zbb) {
         RORIxw(s1, s1, (rex.w?64:32)-c);
@@ -1107,7 +1107,10 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit ROR32 instruction, from s1 , constant c, store result in s1 using s3 and s4 as scratch
 void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4)
 {
-    if (!c) return;
+    if (!c) {
+        if (!rex.w) ZEROUP(s1);
+        return;
+    }
 
     IFX(X_CF | X_OF) {
         ANDI(xFlags, xFlags, ~(1UL<<F_CF | 1UL<<F_OF2));
@@ -1119,12 +1122,6 @@ void emit_ror32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_DF(s4, rex.w?d_ror64:d_ror32);
     } else IFX(X_ALL) {
         SET_DFNONE();
-    }
-    if(!c) {
-        IFX(X_PEND) {
-            SDxw(s1, xEmu, offsetof(x64emu_t, res));
-        }
-        return;
     }
     if(rv64_zbb) {
         RORIxw(s1, s1, c);
@@ -1175,6 +1172,7 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         SET_DFNONE();
     }
     if(!c) {
+        if (!rex.w) ZEROUP(s1);
         IFX(X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -1227,9 +1225,9 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     }
 }
 
-void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4)
+void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5)
 {
-    c&=15;
+    c&=0x1f;
     CLEAR_FLAGS();
 
     IFX(X_PEND) {
@@ -1248,6 +1246,11 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         }
         return;
     }
+
+    // create concat first
+    SLLI(s5, s2, 16);
+    OR(s1, s1, s5);
+
     IFX(X_CF) {
         if (c > 1) {
             SRAI(s3, s1, c-1);
@@ -1263,9 +1266,13 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         if (c == 1) SRLI(s4, s1, 15);
     }
 
-    SRLIxw(s3, s1, c);
-    SLLIxw(s1, s2, 16-c);
-    OR(s1, s1, s3);
+    if (rv64_zbb) {
+        RORIW(s1, s1, c);
+    } else {
+        SRLI(s5, s1, c);
+        SLLI(s1, s1, 32 - c);
+        OR(s1, s1, s5);
+    }
     ZEXTH(s1, s1);
 
     IFX(X_SF) {
@@ -1311,6 +1318,9 @@ void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     }
 
     if(!c) {
+        if (!rex.w) {
+            ZEROUP(s1);
+        }
         IFX(X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -1429,6 +1439,7 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     } else IFX(X_ALL) {
         SET_DFNONE();
     }
+
     MOV32w(s3, (rex.w?64:32));
     SUB(s3, s3, s5);
     IFX(X_CF) {
@@ -1475,7 +1486,7 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 
 void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5)
 {
-    c&=15;
+    c&=0x1f;
     CLEAR_FLAGS();
     IFX(X_PEND) {
         if (c) {
@@ -1494,21 +1505,32 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         }
         return;
     }
+
+    // create concat first
+    SLLI(s5, s2, 16);
+    OR(s1, s1, s5);
+
     IFX(X_CF) {
-        if (c > 0) {
+        if (c < 16) {
             SRLI(s3, s1, 16-c);
-            ANDI(s5, s3, 1); // LSB == F_CF
-            OR(xFlags, xFlags, s5);
+        } else {
+            SRLI(s3, s2, 32-c);
         }
+        ANDI(s5, s3, 1); // LSB == F_CF
+        OR(xFlags, xFlags, s5);
     }
     IFX(X_OF) {
         // Store sign for later use.
         if (c == 1) SRLI(s5, s1, 15);
     }
 
-    SLLIxw(s3, s1, c);
-    SRLIxw(s1, s2, 16-c);
-    OR(s1, s1, s3);
+    if (rv64_zbb) {
+        RORIW(s1, s1, 32 - c);
+    } else {
+        SLLI(s3, s1, c);
+        SRLI(s1, s1, 32 - c);
+        OR(s1, s1, s3);
+    }
     ZEXTH(s1, s1);
 
     IFX(X_SF) {
