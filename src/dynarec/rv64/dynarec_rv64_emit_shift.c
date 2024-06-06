@@ -1268,7 +1268,9 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         if (c == 1) SRLI(s4, s1, 15);
     }
 
-    SRLI(s1, s1, c);
+    SRLI(s5, s1, c);
+    SLLI(s1, s1, 32 - c);
+    OR(s1, s1, s5);
     ZEXTH(s1, s1);
 
     IFX(X_SF) {
