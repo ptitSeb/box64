@@ -2219,11 +2219,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            MV(x9, ed);
+            if (!(MODREG && wback == gb1 && wb2 == gb2))
+                MV(x9, ed);
             emit_add8(dyn, ninst, ed, gd, x4, x5);
-            MV(gd, x9);
+            if (!(MODREG && wback == gb1 && wb2 == gb2))
+                MV(gd, x9);
             EBBACK(x5, 0);
-            GBBACK(x5);
+            if (!(MODREG && wback == gb1 && wb2 == gb2))
+                GBBACK(x5);
             break;
         case 0xC1:
             INST_NAME("XADD Ed, Gd");
