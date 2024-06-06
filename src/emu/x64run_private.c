@@ -1051,37 +1051,7 @@ void UpdateFlags(x64emu_t *emu)
             }
             CONDITIONAL_SET_FLAG(emu->res.u64 & (1L << 63), F_CF);
             break;
-        case d_rcl8:
-            cnt = emu->op2.u8%9;
-            CONDITIONAL_SET_FLAG(emu->op1.u8>>(9-cnt) & 1, F_CF);
-            // should for cnt==1
-            CONDITIONAL_SET_FLAG(((emu->res.u8>>7) ^ ACCESS_FLAG(F_CF)) & 1, F_OF);
-            break;
-        case d_rcr8:
-            cnt = emu->op2.u8%9;
-            // should for cnt==1, using "before" CF
-            CONDITIONAL_SET_FLAG(((emu->res.u8>>7) ^ ACCESS_FLAG(F_CF)) & 1, F_OF);
-            // new CF
-            CONDITIONAL_SET_FLAG(((cnt==1)?emu->op1.u8:(emu->op1.u8>>(cnt-1))) & 1, F_CF);
-            break;
-        case d_rcl16:
-            cnt = emu->op2.u16%17;
-            CONDITIONAL_SET_FLAG(emu->op1.u16>>(17-cnt) & 1, F_CF);
-            // should for cnt==1
-            CONDITIONAL_SET_FLAG(((emu->res.u16>>15) ^ ACCESS_FLAG(F_CF)) & 1, F_OF);
-            break;
-        case d_rcr16:
-            cnt = emu->op2.u16%17;
-            // should for cnt==1, using "before" CF
-            CONDITIONAL_SET_FLAG(((emu->res.u16>>15) ^ ACCESS_FLAG(F_CF)) & 1, F_OF);
-            // new CF
-            CONDITIONAL_SET_FLAG(((cnt==1)?emu->op1.u16:(emu->op1.u16>>(cnt-1))) & 1, F_CF);
-            break;
 
-        case d_rcl32:
-        case d_rcl64:
-        case d_rcr32:
-        case d_rcr64:
         case d_unknown:
             printf_log(LOG_NONE, "Box64: %p trying to evaluate Unknown deferred Flags\n", (void*)R_RIP);
             break;
@@ -1921,7 +1891,7 @@ sse_regs_t* GetEx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t 
     } else return (sse_regs_t*)GetECommon(emu, addr, rex, m, delta);
 }
 
-sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta)
+sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t delta, int sz)
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
@@ -1929,11 +1899,24 @@ sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8
         return &test->emu->xmm[(m&0x07)+(rex.b<<3)];
     } else {
         sse_regs_t* ret = (sse_regs_t*)GetECommon(test->emu, addr, rex, m, delta);
-        test->memsize = 16;
-        ((uint64_t*)test->mem)[0] = ret->q[0];
-        ((uint64_t*)test->mem)[1] = ret->q[1];
+        test->memsize = sz;
+        memcpy(test->mem, ret, sz);
         test->memaddr = (uintptr_t)ret;
         return (sse_regs_t*)test->mem;
+    }
+}
+sse_regs_t* TestEy(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v)
+{
+    uint8_t m = v&0xC7;    // filter Ed
+    if(m>=0xC0) {
+        test->memsize=0;
+        return &test->emu->ymm[(m&0x07)+(rex.b<<3)];
+    } else {
+        sse_regs_t* ret = (sse_regs_t*)(test->memaddr+16);
+        test->memsize += 16;
+        ((uint64_t*)test->mem)[2] = ret->q[0];
+        ((uint64_t*)test->mem)[3] = ret->q[1];
+        return (sse_regs_t*)&test->mem[16];
     }
 }
 
@@ -2031,4 +2014,10 @@ sse_regs_t* GetGx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
 {
     uint8_t m = (v&0x38)>>3;
     return &emu->xmm[(m&7)+(rex.r<<3)];
+}
+
+sse_regs_t* GetGy(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
+{
+    uint8_t m = (v&0x38)>>3;
+    return &emu->ymm[(m&7)+(rex.r<<3)];
 }

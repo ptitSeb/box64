@@ -11,7 +11,13 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFp_t)(void*);
+typedef int32_t (*iFpp_t)(void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(IceSetErrorHandler, pFp_t) \
+	GO(IceSetIOErrorHandler, pFp_t) \
+	GO(IceAddConnectionWatch, iFpp_t) \
+	GO(IceRemoveConnectionWatch, iFpp_t)
 
 #endif // __wrappedlibiceTYPES_H_

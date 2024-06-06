@@ -15,6 +15,7 @@
 #include "box64context.h"
 #include "librarian.h"
 #include "callback.h"
+#include "globalsymbols.h"
 
 const char *xsltName =
 #ifdef ANDROID
@@ -151,6 +152,11 @@ EXPORT int my_xsltSetSecurityPrefs(x64emu_t* emu, void* sec, void* option, void*
 EXPORT void my_xsltSetCtxtSortFunc(x64emu_t* emu, void* ctx, void* handler)
 {
     return my->xsltSetCtxtSortFunc(ctx, find_xsltSortFunc_Fct(handler));
+}
+
+EXPORT void my_xsltInit(x64emu_t* emu) {
+    my->xsltInit();
+    my_checkGlobalXslt();
 }
 
 #include "wrappedlib_init.h"

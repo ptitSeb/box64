@@ -120,7 +120,7 @@ GO(xsltGetSecurityPrefs, pFpi)
 GO(xsltGetUTF8Char, iFpp)
 GO(xsltGetXIncludeDefault, iFv)
 GO(xsltIf, vFpppp)
-GO(xsltInit, vFv)
+GOM(xsltInit, vFEv)
 GO(xsltInitAllDocKeys, iFp)
 GO(xsltInitCtxtExts, iFp)
 //GO(xsltInitCtxtKey, 
@@ -245,3 +245,5 @@ GO(xsltXPathCompileFlags, pFppi)
 GO(xsltXPathFunctionLookup, pFppp)
 GO(xsltXPathGetTransformContext, pFp)
 //GO(xsltXPathVariableLookup, 
+
+DATA(xsltMaxVars, 4)

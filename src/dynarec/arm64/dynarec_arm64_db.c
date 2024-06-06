@@ -194,7 +194,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("FISTTP Ed, ST0");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 if(arm64_frintts) {
                     FRINT32ZD(s0, v1);
                     FCVTZSwD(x5, s0);
@@ -220,7 +220,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                 u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 if(arm64_frintts) {
                     FRINT32XD(s0, v1);
                     FCVTZSwD(x5, s0);
@@ -246,7 +246,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                 u8 = x87_setround(dyn, ninst, x1, x2, x4); // x1 have the modified RPSCR reg
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
-                s0 = fpu_get_scratch(dyn);
+                s0 = fpu_get_scratch(dyn, ninst);
                 if(arm64_frintts) {
                     FRINT32XD(s0, v1);
                     FCVTZSwD(x5, s0);
@@ -271,14 +271,15 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             case 5:
                 INST_NAME("FLD tbyte");
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                if((PK(0)==0xDB && ((PK(1)>>3)&7)==7) || (PK(0)>=0x40 && PK(0)<=0x4f && PK(1)==0xDB && ((PK(2)>>3)&7)==7)) {
+                if((PK(0)==0xDB && ((PK(1)>>3)&7)==7) || (!rex.is32bits && PK(0)>=0x40 && PK(0)<=0x4f && PK(1)==0xDB && ((PK(2)>>3)&7)==7)) {
+                    NOTEST(x5);
                     // the FLD is immediatly followed by an FSTP
                     LDRx_U12(x5, ed, 0);
                     LDRH_U12(x6, ed, 8);
                     // no persistant scratch register, so unrool both instruction here...
                     MESSAGE(LOG_DUMP, "\tHack: FSTP tbyte\n");
                     nextop = F8;    // 0xDB or rex
-                    if(nextop>=0x40 && nextop<=0x4f) {
+                    if(!rex.is32bits && nextop>=0x40 && nextop<=0x4f) {
                         rex.rex = nextop;
                         nextop = F8;    //0xDB
                     } else
@@ -295,8 +296,12 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(ed!=x1) {
                             MOVx_REG(x1, ed);
                         }
-                        X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x3);
+                        X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, 0);
+                        // sync top
+                        s0 = x87_stackcount(dyn, ninst, x3);
                         CALL(native_fld, -1);
+                        // go back with the top & stack counter
+                        x87_unstackcount(dyn, ninst, x3, s0);
                     }
                 }
                 break;

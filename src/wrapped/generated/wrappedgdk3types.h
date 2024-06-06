@@ -22,6 +22,7 @@ typedef uint32_t (*uFiuppp_t)(int32_t, uint32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gdk_init, vFpp_t) \
+	GO(gdk_threads_set_lock_functions, vFpp_t) \
 	GO(gdk_init_check, iFpp_t) \
 	GO(gdk_threads_add_idle, uFpp_t) \
 	GO(gdk_event_handler_set, vFppp_t) \

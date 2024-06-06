@@ -35,7 +35,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     uint8_t tmp8u;
     uint32_t tmp32u;
     int64_t tmp64s;
-    uint64_t tmp64u;
+    uint64_t tmp64u, tmp64u2;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx, eax1;
     mmx87_regs_t *opem;
@@ -169,6 +169,41 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             else
                 GD->sdword[0] = INT32_MIN;
             GD->dword[1] = 0;
+        }
+        break;
+    
+    case 0x38:  /* MAP 0F38 */
+        opcode = F8;
+        switch(opcode) {
+
+            case 0xF6: /* ADOX Gd, Rd */
+                nextop = F8;
+                GETED(0);
+                GETGD;
+                CHECK_FLAGS(emu);
+                if(rex.w) {
+                    if (ACCESS_FLAG(F_OF)) {
+                        tmp64u = 1 + (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                        tmp64u2 = 1 + GD->q[0] + ED->q[0];
+                        }
+                    else {
+                        tmp64u = (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                        tmp64u2 = GD->q[0] + ED->q[0];
+                        }
+                    tmp64u = (tmp64u >> 32) + (GD->q[0] >> 32) + (ED->q[0] >> 32);
+                    CONDITIONAL_SET_FLAG(tmp64u & 0x100000000L, F_OF);
+                    GD->q[0] = tmp64u2;
+                } else {
+                    if (ACCESS_FLAG(F_OF))
+                        GD->q[0] = 1LL + GD->dword[0] + ED->dword[0];
+                    else
+                        GD->q[0] = (uint64_t)GD->dword[0] + ED->dword[0];
+                    CONDITIONAL_SET_FLAG(GD->q[0] & 0x100000000LL, F_OF);
+                }
+                break;
+
+            default:
+                return 0;
         }
         break;
 

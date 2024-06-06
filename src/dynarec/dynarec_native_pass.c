@@ -49,6 +49,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     dyn->forward_to = 0;
     dyn->forward_size = 0;
     dyn->forward_ninst = 0;
+    dyn->ymm_zero = 0;
     #if STEP == 0
     memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
     #endif
@@ -108,6 +109,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             dyn->last_ip = 0;   // reset IP if some jump are coming here
         #endif
         NEW_INST;
+        MESSAGE(LOG_DUMP, "New Instruction x64:%p, native:%p\n", (void*)addr, (void*)dyn->block);
         #if STEP == 0
         if(ninst && dyn->insts[ninst-1].x64.barrier_next) {
             BARRIER(dyn->insts[ninst-1].x64.barrier_next);
@@ -208,20 +210,21 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are available
                 if(reset_n==-1) {
                     reset_n = -2;
-                    MESSAGE(LOG_DEBUG, "Warning, Reset Caches mark not found\n");
+                    if(!dyn->insts[ninst].x64.has_callret) {
+                        MESSAGE(LOG_DEBUG, "Warning, Reset Caches mark not found\n");
+                    }
                 }
             }
         }
         #else
-        // check if block need to be stopped, because it's a 00 00 opcode or is out of readable space
-        int ok_to_continue = (getProtection(addr) && getProtection(addr+1));
-        if(ok && (!ok_to_continue || !(*(uint16_t*)addr))) {
-            if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, ok_to_continue?"Address is not readable":"Next opcode is 00 00");
-            ok = ok_to_continue?0:-1;
+        // check if block need to be stopped, because it's a 00 00 opcode (unreadeable is already checked earlier)
+        if((ok>0) && !dyn->forward && !(*(uint8_t*)addr) && !(*(uint8_t*)(addr+1))) {
+            if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Stopping block at %p reason: %s\n", (void*)addr, "Next opcode is 00 00");
+            ok = 0;
             need_epilog = 1;
         }
         if(dyn->forward) {
-            if(dyn->forward_to == addr && !need_epilog && ok_to_continue && ok>=0) {
+            if(dyn->forward_to == addr && !need_epilog && ok>=0) {
                 // we made it!
                 reset_n = get_first_jump(dyn, addr);
                 if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x64.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
@@ -303,15 +306,17 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
             #endif
         }
-        if(ok && dyn->insts[ninst].x64.has_callret)
+        if((ok>0) && dyn->insts[ninst].x64.has_callret)
             reset_n = -2;
+        if((ok>0) && reset_n==-1 && dyn->insts[ninst+1].purge_ymm)
+            PURGE_YMM();
         ++ninst;
         #if STEP == 0
         memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
-        if(ok && (((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)addr))
+        if((ok>0) && (((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)addr))
             || (addr>=box64_nodynarec_start && addr<box64_nodynarec_end)))
         #else
-        if(ok && (ninst==dyn->size))
+        if((ok>0) && (ninst==dyn->size))
         #endif
         {
             #if STEP == 0

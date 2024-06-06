@@ -490,10 +490,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROL Eb, CL");
-                        ANDI(x2, xRCX, 7);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     GETEB(x1, 0);
                     CALL_(rol8, ed, x3);
@@ -505,10 +504,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROR Eb, CL");
-                        ANDI(x2, xRCX, 7);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
-                    READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
                     GETEB(x1, 0);
                     CALL_(ror8, ed, x3);
@@ -520,7 +518,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("RCL Eb, CL");
-                        ANDI(x2, xRCX, 7);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
@@ -535,7 +533,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("RCR Eb, CL");
-                        ANDI(x2, xRCX, 7);
+                        ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
@@ -625,6 +623,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w ? ((void*)rcl64) : ((void*)rcl32), ed, x4);
                     WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, 1");
@@ -635,6 +634,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
                     WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:
@@ -691,6 +691,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w ? ((void*)rcl64) : ((void*)rcl32), ed, x4);
                     WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, CL");
@@ -701,6 +702,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
                     WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:

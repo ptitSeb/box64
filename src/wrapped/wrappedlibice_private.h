@@ -3,7 +3,7 @@
 #endif
 
 //GO(IceAcceptConnection, 
-//GO(IceAddConnectionWatch, 
+GOM(IceAddConnectionWatch, iFEpp)
 //GO(_IceAddOpcodeMapping, 
 //GO(_IceAddReplyWait, 
 //GO(IceAllocScratch, 
@@ -70,11 +70,11 @@ GO(IceProcessMessages, iFppp)
 //GO(IceRegisterForProtocolReply, 
 //GO(IceRegisterForProtocolSetup, 
 //GO(IceRelease, 
-//GO(IceRemoveConnectionWatch, 
+GOM(IceRemoveConnectionWatch, iFEpp)
 //GO(_IceSearchReplyWaits, 
-//GO(IceSetErrorHandler, 
+GOM(IceSetErrorHandler, pFEp)
 //GO(IceSetHostBasedAuthProc, 
-//GO(IceSetIOErrorHandler, 
+GOM(IceSetIOErrorHandler, pFEp)
 //GO(IceSetPaAuthData, 
 //GO(_IceSetReplyReady, 
 //GO(IceSetShutdownNegotiation, 

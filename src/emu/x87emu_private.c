@@ -13,9 +13,8 @@ void fpu_do_free(x64emu_t* emu, int i)
 {
     emu->fpu_tags |= 0b11 << (i);   // empty
     // check if all empty
-    for(int j=0; j<8; ++j)
-        if(emu->fpu_tags != TAGS_EMPTY)
-            return;
+    if(emu->fpu_tags != TAGS_EMPTY)
+        return;
     emu->fpu_stack = 0;
 }
 
@@ -250,31 +249,49 @@ long double LD2localLD(void* ld)
 
 void fpu_loadenv(x64emu_t* emu, char* p, int b16)
 {
-    emu->cw.x16 = *(uint16_t*)p;
-    p+=(b16)?2:4;
-    emu->sw.x16 = *(uint16_t*)p;
+    if(b16) {
+        uint16_t* p16 = (uint16_t*)p;
+        emu->cw.x16 = *p16++;
+        emu->sw.x16 = *p16++;
+        // tagword: 2bits*8
+        // tags... (only full = 0b11 / free = 0b00)
+        emu->fpu_tags = ~*(p16++);
+        // intruction pointer: 16bits
+        // data (operand) pointer: 16bits
+        // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
+    } else {
+        uint32_t* p32 = (uint32_t*)p;
+        emu->cw.x16 = *p32++;
+        emu->sw.x16 = *p32++;
+        // tagword: 2bits*8
+        // tags... (only full = 0b11 / free = 0b00)
+        emu->fpu_tags = ~*(p32++);
+        // intruction pointer: 16bits
+        // data (operand) pointer: 16bits
+        // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
+    }
     emu->top = emu->sw.f.F87_TOP;
-    p+=(b16)?2:4;
-    // tagword: 2bits*8
-    // tags... (only full = 0b11 / free = 0b00)
-    emu->fpu_tags = *(uint16_t*)p;
-    // intruction pointer: 16bits
-    // data (operand) pointer: 16bits
-    // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
 }
 
 void fpu_savenv(x64emu_t* emu, char* p, int b16)
 {
     emu->sw.f.F87_TOP = emu->top&7;
-    *(uint16_t*)p = emu->cw.x16;
-    p+=2;
-    if(!b16) {*(uint16_t*)p = 0; p+=2;}
-    *(uint16_t*)p = emu->sw.x16;
-    p+=2;
-    if(!b16) {*(uint16_t*)p = 0; p+=2;}
-    // tagword: 2bits*8
-    // tags...
-    *(uint16_t*)p = emu->fpu_tags;
+    if(b16) {
+        uint16_t* p16 = (uint16_t*)p;
+        *p16++ = emu->cw.x16;
+        *p16++ = emu->sw.x16;
+        // tagword: 2bits*8
+        // tags...
+        *p16++ = ~emu->fpu_tags;
+    } else {
+        uint32_t* p32 = (uint32_t*)p;
+        *p32++ = emu->cw.x16;
+        *p32++ = emu->sw.x16;
+        // tagword: 2bits*8
+        // tags...
+        *p32++ = ~emu->fpu_tags;
+
+    }
     // other stuff are not pushed....
 }
 
@@ -318,15 +335,15 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     // should save flags & all
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
+        tags |= (((emu->fpu_tags>>(i*2))&0b11)?0:1)<<i;
     p->TagWord = tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
@@ -337,7 +354,8 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
 }
 
 void fpu_fxsave64(x64emu_t* emu, void* ed)
@@ -346,15 +364,15 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     // should save flags & all
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     emu->sw.f.F87_TOP = top;
     p->ControlWord = emu->cw.x16;
     p->StatusWord = emu->sw.x16;
     p->MxCsr = emu->mxcsr.x32;
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
+        tags |= (((emu->fpu_tags>>(i*2))&0b11)?0:1)<<i;
     p->TagWord = emu->fpu_tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
@@ -363,7 +381,8 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&p->XmmRegisters[0], &emu->xmm[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
 }
 
 void fpu_fxrstor32(x64emu_t* emu, void* ed)
@@ -376,17 +395,19 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
         applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
+    emu->fpu_tags = 0;
     for (int i=0; i<8; ++i)
-        tags |= ((emu->fpu_tags>>(i*2))&0b11)?0:1;
+        emu->fpu_tags |= (((tags>>i)&1)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
 }
 
 void fpu_fxrstor64(x64emu_t* emu, void* ed)
@@ -399,15 +420,124 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
         applyFlushTo0(emu);
     emu->top = emu->sw.f.F87_TOP;
     uint8_t tags = p->TagWord;
+    emu->fpu_tags = 0;
     for(int i=0; i<8; ++i)
-        emu->fpu_tags |= ((tags>>i)?0:0b11)<<(i*2);
+        emu->fpu_tags |= (((tags>>i)&1)?0:0b11)<<(i*2);
     int top = emu->top&7;
     int stack = 8-top;
-    if(top==0)  // check if stack is full or empty, based on tag[0]
-        stack = (emu->fpu_tags&0b11)?8:0;
+    if(emu->fpu_tags == TAGS_EMPTY)
+        stack = 0;
     // copy back MMX regs...
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
-    memcpy(&emu->xmm[0], &p->XmmRegisters[0], sizeof(emu->xmm));
+    for(int i=0; i<16; ++i)
+        memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
+}
+
+typedef struct xsaveheader_s {
+    uint64_t xstate_bv;
+    uint64_t xcomp_bv;
+    uint8_t  reserved[64-16];
+} xsaveheader_t;
+
+void fpu_xsave_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask)
+{
+    xsave64_t *p = (xsave64_t*)ed;
+    xsaveheader_t *h = (xsaveheader_t*)(p+1);
+    uint32_t rfbm = (0b111&mask);
+    h->xstate_bv =(h->xstate_bv&~0b111)|rfbm;
+    h->xcomp_bv = 0;
+    if(h->xstate_bv&0b001) {
+        int top = emu->top&7;
+        int stack = 8-top;
+        if(emu->fpu_tags == TAGS_EMPTY)
+            stack = 0;
+        emu->sw.f.F87_TOP = top;
+        p->ControlWord = emu->cw.x16;
+        p->StatusWord = emu->sw.x16;
+        p->MxCsr = emu->mxcsr.x32;
+        uint8_t tags = 0;
+        for (int i=0; i<8; ++i)
+            tags |= (((emu->fpu_tags>>(i*2))&0b11)?0:1)<<i;
+        p->TagWord = emu->fpu_tags;
+        p->ErrorOpcode = 0;
+        p->ErrorOffset = 0;
+        p->DataOffset = 0;
+        // copy FPU/MMX regs...
+        for(int i=0; i<8; ++i)
+            memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
+    }
+    if(((h->xstate_bv&0b010)||(h->xstate_bv&0b100))&&!(h->xstate_bv&0b001)) {
+        p->MxCsr = emu->mxcsr.x32;
+    }
+    // copy SSE regs
+    if(h->xstate_bv&0b10) {
+        for(int i=0; i<(is32bits?8:16); ++i)
+            memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
+    }
+    if(h->xstate_bv&0b100) {
+        sse_regs_t* avx = (sse_regs_t*)(h+1);
+        for(int i=0; i<(is32bits?8:16); ++i)
+            memcpy(&avx[i], &emu->ymm[i], 16);
+    }
+}
+
+void fpu_xsave(x64emu_t* emu, void* ed, int is32bits)
+{
+    uint64_t mask = R_EAX | (((uint64_t)R_EDX)<<32);
+    fpu_xsave_mask(emu, ed, is32bits, mask);
+}
+
+void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits)
+{
+    xsave64_t *p = (xsave64_t*)ed;
+    xsaveheader_t *h = (xsaveheader_t*)(p+1);
+    int compressed = (h->xcomp_bv>>63);
+    uint64_t mask = R_EAX | (((uint64_t)R_EDX)<<32);
+    uint32_t rfbm = (0b111&mask);
+    uint32_t to_restore = rfbm & h->xstate_bv;
+    uint32_t to_init = rfbm & ~h->xstate_bv;
+    // check componant to restore
+    if(to_restore&0b001) {
+        emu->cw.x16 = p->ControlWord;
+        emu->sw.x16 = p->StatusWord;
+        emu->mxcsr.x32 = p->MxCsr;
+        if(box64_sse_flushto0)
+            applyFlushTo0(emu);
+        emu->top = emu->sw.f.F87_TOP;
+        uint8_t tags = p->TagWord;
+        emu->fpu_tags = 0;
+        for(int i=0; i<8; ++i)
+            emu->fpu_tags |= (((tags>>i)&1)?0:0b11)<<(i*2);
+        int top = emu->top&7;
+        int stack = 8-top;
+        if(emu->fpu_tags == TAGS_EMPTY)
+            stack = 0;
+        // copy back MMX regs...
+        for(int i=0; i<8; ++i)
+            memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
+    } else if(to_init&0b001) {
+        reset_fpu(emu);
+    }
+    if(((to_restore&0b010)||(to_restore&0b100))&&!(to_restore&0b001)) {
+        emu->mxcsr.x32 = p->MxCsr;
+    }
+    if(to_restore&0b010) {
+        // copy SSE regs
+        for(int i=0; i<(is32bits?8:16); ++i)
+            memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
+    } else if(to_init&0b010) {
+        for(int i=0; i<(is32bits?8:16); ++i)
+            memset(&emu->xmm[i], 0, 16);
+    }
+    if(to_restore&0b100) {
+        // copy AVX upper part of regs
+        sse_regs_t* avx = (sse_regs_t*)(h+1);
+        for(int i=0; i<(is32bits?8:16); ++i)
+            memcpy(&emu->ymm[i], &avx[i], 16);
+    } else if(to_init&0b100) {
+        for(int i=0; i<(is32bits?8:16); ++i)
+            memset(&emu->ymm[i], 0, 16);
+    }
 }

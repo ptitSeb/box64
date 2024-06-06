@@ -103,6 +103,28 @@ static void* findGDestroyNotifyFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for gdk-3 GDestroyNotify callback\n");
     return NULL;
 }
+// GCallback  (generic function with 6 arguments, hopefully it's enough)
+#define GO(A)   \
+static uintptr_t my_GCallback_fct_##A = 0;                                                      \
+static void* my_GCallback_##A(void* a, void* b, void* c, void* d)             \
+{                                                                                               \
+    return (void*)RunFunctionFmt(my_GCallback_fct_##A, "pppp", a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* findGCallbackFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GCallback_fct_##A == (uintptr_t)fct) return my_GCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GCallback_fct_##A == 0) {my_GCallback_fct_##A = (uintptr_t)fct; return my_GCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gdk3 generic GCallback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -181,6 +203,11 @@ EXPORT uint32_t my3_gdk_threads_add_idle(x64emu_t* emu, void* f, void* data)
 EXPORT uint32_t my3_gdk_threads_add_timeout_full(x64emu_t* emu, int priotity, uint32_t interval, void* f, void* data, void* d)
 {
     return my->gdk_threads_add_timeout_full(priotity, interval, findGSourceFunc(f), data, findGDestroyNotifyFct(d));
+}
+
+EXPORT void my3_gdk_threads_set_lock_functions(x64emu_t* emu, void* enter_fn, void* leave_fn)
+{
+    my->gdk_threads_set_lock_functions(findGCallbackFct(enter_fn), findGCallbackFct(leave_fn));
 }
 
 #define PRE_INIT    \

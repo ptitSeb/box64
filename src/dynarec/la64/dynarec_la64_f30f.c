@@ -114,6 +114,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 FTINTRZ_W_S(d1, d0);
                 MOVFR2GR_S(gd, d1);
+                ZEROUP(gd);
             }
             if (!rex.w) ZEROUP(gd);
             if (!box64_dynarec_fastround) {
@@ -163,6 +164,27 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d1 = fpu_get_scratch(dyn);
             FCVT_D_S(d1, v1);
             VEXTRINS_D(v0, d1, 0);
+            break;
+        case 0x5B:
+            INST_NAME("CVTTPS2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0, 0);
+            GETGX_empty(v0);
+            VFTINTRZ_W_S(v0, v1);
+            if (!box64_dynarec_fastround) {
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFCMP_S(q0, v1, v1, cEQ);
+                VLDI(q1, 0b1001110000000); // broadcast 0x80000000
+                VAND_V(v0, q0, v0);
+                VANDN_V(d1, q0, q1);
+                VOR_V(v0, v0, d1);
+                VSUBI_WU(d1, q1, 1);
+                VSEQ_W(q0, v0, d1);
+                VSRLI_W(q0, q0, 31);
+                VADD_W(v0, v0, q0);
+            }
             break;
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
@@ -229,8 +251,6 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
             nextop = F8;
-            GETGX_empty(v0);
-            VXOR_V(v0, v0, v0);
             if (MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
             } else {
@@ -239,7 +259,30 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 v1 = fpu_get_scratch(dyn);
                 FLD_D(v1, ed, fixedaddress);
             }
-            VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            GETGX_empty(v0);
+            if (v0 == v1) {
+                // clear upper bits..
+                q1 = fpu_get_scratch(dyn);
+                VXOR_V(q1, q1, q1);
+                VEXTRINS_D(q1, v1, 0); // q1[63:0] = v1[63:0]
+                VOR_V(v0, q1, q1);
+            } else {
+                VXOR_V(v0, v0, v0);
+                VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            }
+            break;
+        case 0x7F:
+            INST_NAME("MOVDQU Ex,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
+                VOR_V(v1, v0, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                VST(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
             break;
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex, Ib");

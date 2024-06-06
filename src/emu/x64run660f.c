@@ -59,7 +59,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     uint16_t tmp16u;
     int32_t tmp32s;
     uint32_t tmp32u;
-    uint64_t tmp64u;
+    uint64_t tmp64u, tmp64u2;
     int64_t tmp64s, i64[4];
     float tmpf;
     double tmpd;
@@ -67,7 +67,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     int is_nan;
     #endif
     reg64_t *oped, *opgd;
-    sse_regs_t *opex, *opgx, eax1, *opex2;
+    sse_regs_t *opex, *opgx, eax1, *opex2, eax2;
     mmx87_regs_t *opem, *opgm;
     // AES opcodes constants
                             //   A0 B1 C2 D3 E4 F5 G6 H7 I8 J9 Ka Lb Mc Nd Oe Pf
@@ -332,6 +332,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETEX(0);
                 GETGX;
+                if(GX==EX) {
+                    eax1 = *EX;
+                    EX=&eax1;
+                }
                 for (int i=0; i<8; ++i) {
                     tmp32s = (int32_t)(GX->ub[i*2+0])*EX->sb[i*2+0] + (int32_t)(GX->ub[i*2+1])*EX->sb[i*2+1];
                     GX->sw[i] = (tmp32s>32767)?32767:((tmp32s<-32768)?-32768:tmp32s);
@@ -731,14 +735,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = subbytes[eax1.ub[i]];
                 //STATE ← MixColumns( STATE );
                 for(int j=0; j<4; ++j) {
-                    GX->ub[0+j*4] = ff_mult(0x02, eax1.ub[0+j*4]) ^ ff_mult(0x03, eax1.ub[1+j*4]) ^               eax1.ub[2+j*4]  ^               eax1.ub[3+j*4] ;
-                    GX->ub[1+j*4] =               eax1.ub[0+j*4]  ^ ff_mult(0x02, eax1.ub[1+j*4]) ^ ff_mult(0x03, eax1.ub[2+j*4]) ^               eax1.ub[3+j*4] ;
-                    GX->ub[2+j*4] =               eax1.ub[0+j*4]  ^               eax1.ub[1+j*4]  ^ ff_mult(0x02, eax1.ub[2+j*4]) ^ ff_mult(0x03, eax1.ub[3+j*4]);
-                    GX->ub[3+j*4] = ff_mult(0x03, eax1.ub[0+j*4]) ^               eax1.ub[1+j*4]  ^               eax1.ub[2+j*4]  ^ ff_mult(0x02, eax1.ub[3+j*4]);
+                    eax2.ub[0+j*4] = ff_mult(0x02, eax1.ub[0+j*4]) ^ ff_mult(0x03, eax1.ub[1+j*4]) ^               eax1.ub[2+j*4]  ^               eax1.ub[3+j*4] ;
+                    eax2.ub[1+j*4] =               eax1.ub[0+j*4]  ^ ff_mult(0x02, eax1.ub[1+j*4]) ^ ff_mult(0x03, eax1.ub[2+j*4]) ^               eax1.ub[3+j*4] ;
+                    eax2.ub[2+j*4] =               eax1.ub[0+j*4]  ^               eax1.ub[1+j*4]  ^ ff_mult(0x02, eax1.ub[2+j*4]) ^ ff_mult(0x03, eax1.ub[3+j*4]);
+                    eax2.ub[3+j*4] = ff_mult(0x03, eax1.ub[0+j*4]) ^               eax1.ub[1+j*4]  ^               eax1.ub[2+j*4]  ^ ff_mult(0x02, eax1.ub[3+j*4]);
                 }
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax2.q[0] ^ EX->q[0];
+                GX->q[1] = eax2.q[1] ^ EX->q[1];
                 break;
             case 0xDD:  /* AESENCLAST Gx, Ex */
                 nextop = F8;
@@ -751,10 +755,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = GX->ub[shiftrows[i]];
                 //STATE ← SubBytes( STATE );
                 for(int i=0; i<16; ++i)
-                    GX->ub[i] = subbytes[eax1.ub[i]];
+                    eax1.ub[i] = subbytes[eax1.ub[i]];
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax1.q[0] ^ EX->q[0];
+                GX->q[1] = eax1.q[1] ^ EX->q[1];
                 break;
             case 0xDE:  /* AESDEC Gx, Ex */
                 nextop = F8;
@@ -770,14 +774,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = invsubbytes[eax1.ub[i]];
                 //STATE ← InvMixColumns( STATE );
                 for(int j=0; j<4; ++j) {
-                    GX->ub[0+j*4] = ff_mult(0x0E, eax1.ub[0+j*4]) ^ ff_mult(0x0B, eax1.ub[1+j*4]) ^ ff_mult(0x0D, eax1.ub[2+j*4]) ^ ff_mult(0x09, eax1.ub[3+j*4]);
-                    GX->ub[1+j*4] = ff_mult(0x09, eax1.ub[0+j*4]) ^ ff_mult(0x0E, eax1.ub[1+j*4]) ^ ff_mult(0x0B, eax1.ub[2+j*4]) ^ ff_mult(0x0D, eax1.ub[3+j*4]);
-                    GX->ub[2+j*4] = ff_mult(0x0D, eax1.ub[0+j*4]) ^ ff_mult(0x09, eax1.ub[1+j*4]) ^ ff_mult(0x0E, eax1.ub[2+j*4]) ^ ff_mult(0x0B, eax1.ub[3+j*4]);
-                    GX->ub[3+j*4] = ff_mult(0x0B, eax1.ub[0+j*4]) ^ ff_mult(0x0D, eax1.ub[1+j*4]) ^ ff_mult(0x09, eax1.ub[2+j*4]) ^ ff_mult(0x0E, eax1.ub[3+j*4]);
+                    eax2.ub[0+j*4] = ff_mult(0x0E, eax1.ub[0+j*4]) ^ ff_mult(0x0B, eax1.ub[1+j*4]) ^ ff_mult(0x0D, eax1.ub[2+j*4]) ^ ff_mult(0x09, eax1.ub[3+j*4]);
+                    eax2.ub[1+j*4] = ff_mult(0x09, eax1.ub[0+j*4]) ^ ff_mult(0x0E, eax1.ub[1+j*4]) ^ ff_mult(0x0B, eax1.ub[2+j*4]) ^ ff_mult(0x0D, eax1.ub[3+j*4]);
+                    eax2.ub[2+j*4] = ff_mult(0x0D, eax1.ub[0+j*4]) ^ ff_mult(0x09, eax1.ub[1+j*4]) ^ ff_mult(0x0E, eax1.ub[2+j*4]) ^ ff_mult(0x0B, eax1.ub[3+j*4]);
+                    eax2.ub[3+j*4] = ff_mult(0x0B, eax1.ub[0+j*4]) ^ ff_mult(0x0D, eax1.ub[1+j*4]) ^ ff_mult(0x09, eax1.ub[2+j*4]) ^ ff_mult(0x0E, eax1.ub[3+j*4]);
                 }
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax2.q[0] ^ EX->q[0];
+                GX->q[1] = eax2.q[1] ^ EX->q[1];
                 break;
             case 0xDF:  /* AESDECLAST Gx, Ex */
                 nextop = F8;
@@ -790,10 +794,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     eax1.ub[i] = GX->ub[invshiftrows[i]];
                 //STATE ← InvSubBytes( STATE );
                 for(int i=0; i<16; ++i)
-                    GX->ub[i] = invsubbytes[eax1.ub[i]];
+                    eax1.ub[i] = invsubbytes[eax1.ub[i]];
                 //DEST[127:0] ← STATE XOR RoundKey;
-                GX->q[0] ^= EX->q[0];
-                GX->q[1] ^= EX->q[1];
+                GX->q[0] = eax1.q[0] ^ EX->q[0];
+                GX->q[1] = eax1.q[1] ^ EX->q[1];
                 break;
             case 0xF0: /* MOVBE Gw, Ew */
                 nextop = F8;
@@ -806,6 +810,32 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETED(0);
                 GETGD;
                 ED->word[0] = __builtin_bswap16(GD->word[0]);
+                break;
+
+            case 0xF6: /* ADCX Gd, Rd */
+                nextop = F8;
+                GETED(0);
+                GETGD;
+            	CHECK_FLAGS(emu);
+                if(rex.w) {
+                    if (ACCESS_FLAG(F_CF)) {
+                        tmp64u = 1 + (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                        tmp64u2 = 1 + GD->q[0] + ED->q[0];
+                        }
+                    else {
+                        tmp64u = (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                        tmp64u2 = GD->q[0] + ED->q[0];
+                        }
+                    tmp64u = (tmp64u >> 32) + (GD->q[0] >> 32) + (ED->q[0] >> 32);
+                    CONDITIONAL_SET_FLAG(tmp64u & 0x100000000L, F_CF);
+                    GD->q[0] = tmp64u2;
+                } else {
+                    if (ACCESS_FLAG(F_CF))
+                        GD->q[0] = 1LL + GD->dword[0] + ED->dword[0];
+                    else
+                        GD->q[0] = (uint64_t)GD->dword[0] + ED->dword[0];
+                	CONDITIONAL_SET_FLAG(GD->q[0] & 0x100000000LL, F_CF);
+                }
                 break;
             default:
                 return 0;
@@ -1083,6 +1113,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETEX(1);
                 GETGX;
+                if(GX==EX) {
+                    eax1 = *EX;
+                    EX=&eax1;
+                }
                 tmp8u = F8;
                 {
                     int src = tmp8u&3;
@@ -1379,32 +1413,23 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if (isnan(GX->d[1]) || isnan(EX->d[1]) || isgreater(EX->d[1], GX->d[1]))
             GX->d[1] = EX->d[1];
         break;
-
     case 0x60:  /* PUNPCKLBW Gx,Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=7; i>0; --i)  // 0 is untouched
+        for(int i=7; i>=0; --i) {
             GX->ub[2 * i] = GX->ub[i];
-        if(GX==EX)
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = GX->ub[2 * i];
-        else
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = EX->ub[i];
+            GX->ub[2 * i + 1] = EX->ub[i];
+        }
         break;
     case 0x61:  /* PUNPCKLWD Gx,Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=3; i>0; --i)
+        for(int i=3; i>=0; --i) {
             GX->uw[2 * i] = GX->uw[i];
-        if(GX==EX)
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = GX->uw[2 * i];
-        else
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = EX->uw[i];
+            GX->uw[2 * i + 1] = EX->uw[i];
+        }
         break;
     case 0x62:  /* PUNPCKLDQ Gx,Ex */
         nextop = F8;
@@ -1469,27 +1494,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=0; i<8; ++i)
+        for(int i=0; i<8; ++i) {
             GX->ub[2 * i] = GX->ub[i + 8];
-        if(GX==EX)
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = GX->ub[2 * i];
-        else
-            for(int i=0; i<8; ++i)
-                GX->ub[2 * i + 1] = EX->ub[i + 8];
+            GX->ub[2 * i + 1] = EX->ub[i + 8];
+        }
         break;
     case 0x69:  /* PUNPCKHWD Gx,Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        for(int i=0; i<4; ++i)
+        for(int i=0; i<4; ++i) {
             GX->uw[2 * i] = GX->uw[i + 4];
-        if(GX==EX)
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = GX->uw[2 * i];
-        else
-            for(int i=0; i<4; ++i)
-                GX->uw[2 * i + 1] = EX->uw[i + 4];
+            GX->uw[2 * i + 1] = EX->uw[i + 4];
+        }
         break;
     case 0x6A:  /* PUNPCKHDQ Gx,Ex */
         nextop = F8;

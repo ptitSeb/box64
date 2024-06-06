@@ -61,7 +61,7 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        v1 = fpu_get_scratch(dyn);
+                        v1 = fpu_get_scratch(dyn, ninst);
                         VLDR64_REG(v1, ed, x4);
                     }
                     FCMPD(v0, v1);

@@ -174,12 +174,7 @@
 #define GETSEW(i, D)                                                                           \
     if (MODREG) {                                                                              \
         wback = xRAX + (nextop & 7) + (rex.b << 3);                                            \
-        if (rv64_zbb)                                                                          \
-            SEXTH(i, wback);                                                                   \
-        else {                                                                                 \
-            SLLI(i, wback, 48);                                                                \
-            SRAI(i, i, 48);                                                                    \
-        }                                                                                      \
+        SEXTH(i, wback);                                                                       \
         ed = i;                                                                                \
         wb1 = 0;                                                                               \
     } else {                                                                                   \
@@ -276,8 +271,7 @@
             if (rv64_xtheadbb) {                                                                \
                 TH_EXTU(i, wback, 15, 8);                                                       \
             } else {                                                                            \
-                MV(i, wback);                                                                   \
-                SRLI(i, i, wb2);                                                                \
+                SRLI(i, wback, wb2);                                                            \
                 ANDI(i, i, 0xff);                                                               \
             }                                                                                   \
         } else                                                                                  \
@@ -306,8 +300,7 @@
             if (rv64_xtheadbb) {                                                                \
                 TH_EXTU(i, wback, 15, 8);                                                       \
             } else {                                                                            \
-                MV(i, wback);                                                                   \
-                SRLI(i, i, wb2);                                                                \
+                SRLI(i, wback, wb2);                                                            \
                 ANDI(i, i, 0xff);                                                               \
             }                                                                                   \
         } else                                                                                  \
@@ -392,8 +385,7 @@
         if (rv64_xtheadbb) {                                \
             TH_EXTU(gd, gb1, 15, 8);                        \
         } else {                                            \
-            MV(gd, gb1);                                    \
-            SRLI(gd, gd, 8);                                \
+            SRLI(gd, gb1, 8);                               \
             ANDI(gd, gd, 0xff);                             \
         }                                                   \
     } else                                                  \
@@ -552,6 +544,14 @@
     for (int i = 0; i < 2; ++i) {              \
         LWU(GX1, gback, gdoffset + i * 4);     \
         LWU(EX1, wback, fixedaddress + i * 4); \
+        F;                                     \
+        SW(GX1, gback, gdoffset + i * 4);      \
+    }
+
+#define MMX_LOOP_DS(GX1, EX1, F)               \
+    for (int i = 0; i < 2; ++i) {              \
+        LW(GX1, gback, gdoffset + i * 4);      \
+        LW(EX1, wback, fixedaddress + i * 4);  \
         F;                                     \
         SW(GX1, gback, gdoffset + i * 4);      \
     }
@@ -720,8 +720,12 @@
 #define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!=reg2 (use j64)
 #define BNE_MARK3(reg1, reg2) Bxx_gen(NE, MARK3, reg1, reg2)
+// Branch to MARK3 if reg1!>=reg2 (use j64)
+#define BGE_MARK3(reg1, reg2) Bxx_gen(GE, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!=0 (use j64)
 #define BNEZ_MARK3(reg) BNE_MARK3(reg, xZR)
+// Branch to MARK3 if reg1==0 (use j64)
+#define BEQZ_MARK3(reg) BEQ_MARK3(reg, xZR)
 // Branch to MARK3 instruction unconditionnal (use j64)
 #define B_MARK3_nocond Bxx_gen(__, MARK3, 0, 0)
 // Branch to MARKLOCK if reg1!=reg2 (use j64)
@@ -1202,6 +1206,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define x87_forget            STEPNAME(x87_forget)
 #define x87_reget_st          STEPNAME(x87_reget_st)
 #define x87_stackcount        STEPNAME(x87_stackcount)
+#define x87_unstackcount      STEPNAME(x87_unstackcount)
 #define x87_swapreg           STEPNAME(x87_swapreg)
 #define x87_setround          STEPNAME(x87_setround)
 #define x87_restoreround      STEPNAME(x87_restoreround)
@@ -1343,7 +1348,9 @@ void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
 // cache of the local stack counter, to avoid upadte at every call
-void x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch);
+int x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch);
+// restore local stack counter
+void x87_unstackcount(dynarec_rv64_t* dyn, int ninst, int scratch, int count);
 // fpu push. Return the Dd value to be used
 int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t);
 // fpu push. Do not allocate a cache register. Needs a scratch register to do x87stack synch (or 0 to not do it)
@@ -1627,6 +1634,42 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
 #define FCOMS(v1, v2, s1, s2, s3, s4, s5) FCOM(S, v1, v2, s1, s2, s3, s4, s5)
 #define FCOMD(v1, v2, s1, s2, s3, s4, s5) FCOM(D, v1, v2, s1, s2, s3, s4, s5)
+
+#define FCOMI(w, v1, v2, s1, s2, s3, s4, s5)                    \
+    IFX(X_OF|X_AF|X_SF|X_PEND) {                                \
+        MOV64x(s2, ~((1<<F_OF2)|(1<<F_AF)|(1<<F_SF)));          \
+        AND(xFlags, xFlags, s2);                                \
+    }                                                           \
+    IFX(X_CF|X_PF|X_ZF|X_PEND) {                                \
+        MOV32w(s2, 0b01000101);                                 \
+        if(rv64_zbb) {                                          \
+            ANDN(xFlags, xFlags, s2);                           \
+        } else {                                                \
+            NOT(s3, s2);                                        \
+            AND(xFlags, xFlags, s3);                            \
+        }                                                       \
+        FEQ##w(s5, v1, v1);                                     \
+        FEQ##w(s4, v2, v2);                                     \
+        AND(s5, s5, s4);                                        \
+        BEQZ(s5, 5*4); /* undefined/NaN */                      \
+        FEQ##w(s5, v1, v2);                                     \
+        BNEZ(s5, 5*4);       /* equal */                        \
+        FLT##w(s1, v1, v2); /* s1 = (v1<v2)?1:0 */              \
+        J(4*4); /* end */                                       \
+        /* undefined/NaN */                                     \
+        MV(s1, s2);                                             \
+        J(2*4); /* end */                                       \
+        /* equal */                                             \
+        ADDI(s1, xZR, 0b01000000);                              \
+        /* end */                                               \
+        OR(xFlags, xFlags, s1);                                 \
+    }                                                           \
+    SET_DFNONE()
+
+#define FCOMIS(v1, v2, s1, s2, s3, s4, s5) FCOMI(S, v1, v2, s1, s2, s3, s4, s5)
+#define FCOMID(v1, v2, s1, s2, s3, s4, s5) FCOMI(D, v1, v2, s1, s2, s3, s4, s5)
+
+#define PURGE_YMM()    /* TODO */
 
 // reg = (reg < -32768) ? -32768 : ((reg > 32767) ? 32767 : reg)
 #define SAT16(reg, s)             \

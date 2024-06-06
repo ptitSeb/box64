@@ -8,7 +8,6 @@ SET(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
 option(RPI3ARM64 "Set to ON if targeting an RaspberryPI3 device with multiarch arm64 and armhf" ${RPI3ARM64})
 option(RPI4ARM64 "Set to ON if targeting an RaspberryPI4 device with multiarch arm64 and armhf" ${RPI4ARM64})
 option(RPI5ARM64 "Set to ON if targeting an RaspberryPi5 device with multiarch arm64 and armhf" ${RPI5ARM64})
-option(RPI5ARM64PS16K "Set to ON if targeting an RaspberryPi5 device with multiarch arm64, armhf, and 16k pages" ${RPI5ARM64PS16K})
 option(RK3326 "Set to ON if targeting an Rockchip RK3326 based device" ${RK3326})
 option(RK3399 "Set to ON if targeting an Rockchip RK3399 based device" ${RK3399})
 option(RK3588 "Set to ON if targeting an Rockchip RK3588(S) based device" ${RK3588})
@@ -56,7 +55,6 @@ if(RV64)
     set(ARM_DYNAREC OFF CACHE BOOL "")
     set(RV64_DYNAREC ON CACHE BOOL "")
     set(LARCH64_DYNAREC OFF CACHE BOOL "")
-    set(PAGE16K OFF CACHE BOOL "")
 endif()
 if(PPC64LE)
     set(LD80BITS OFF CACHE BOOL "")
@@ -64,10 +62,6 @@ if(PPC64LE)
     set(ARM_DYNAREC OFF CACHE BOOL "")
     set(RV64_DYNAREC OFF CACHE BOOL "")
     set(LARCH64_DYNAREC OFF CACHE BOOL "")
-    set(PAGE16K OFF CACHE BOOL "")
-endif()
-if(RPI5ARM64PS16K)
-    set(RPI5ARM64 ON CACHE BOOL "")
 endif()
 if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR PHYTIUM OR SD845 OR SD888 OR SD8G2 OR LX2160A OR M1 OR ARM64 OR ADLINK)
     set(LD80BITS OFF CACHE BOOL "")
@@ -76,22 +70,15 @@ if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326
     set(RV64_DYNAREC OFF CACHE BOOL "")
     set(LARCH64_DYNAREC OFF CACHE BOOL "")
 endif()
-if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR PHYTIUM OR SD845 OR SD888 OR SD8G2 OR LX2160A OR ADLINK)
-    set(PAGE16K OFF CACHE BOOL "")
-endif()
 if(RK3399 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64)
     set(SAVE_MEM ON CACHE BOOL "")
 endif()
 if(RK3588)
     set(BAD_SIGNAL ON CACHE BOOL "")
 endif()
-if(M1 OR LARCH64 OR RPI5ARM64PS16K)
-    set(PAGE16K ON CACHE BOOL "")
-endif()
 if(SW64)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
-    set(PAGE8K ON CACHE BOOL "")
 endif()
 if(ANDROID)
     set(NOLOADADDR ON CACHE BOOL "")
@@ -103,9 +90,6 @@ option(NOALIGN "Set to ON if host device doesn't need re-align (i.e. i386)" ${NO
 option(ARM_DYNAREC "Set to ON to use ARM Dynamic Recompilation" ${ARM_DYNAREC})
 option(RV64_DYNAREC "Set to ON to use RISC-V Dynamic Recompilation" ${RV64_DYNAREC})
 option(LARCH64_DYNAREC "Set to ON to use LOONGARCH64 Dynamic Recompilation" ${LARCH64_DYNAREC})
-option(PAGE8K "Set to ON if host device have PageSize of 8K (instead of 4K)" ${PAGE8K})
-option(PAGE16K "Set to ON if host device have PageSize of 16K (instead of 4K)" ${PAGE16K})
-option(PAGE64K "Set to ON if host device have PageSize of 64K (instead of 4K)" ${PAGE64K})
 option(STATICBUILD "Set to ON to have a static build (Warning, not working)" ${STATICBUILD})
 option(NO_LIB_INSTALL "Set ON to not install a few x86_64 libs that are used by many program" ${NO_LIB_INSTALL})
 option(NO_CONF_INSTALL "Set ON to not install config files" ${NO_CONF_INSTALL})
@@ -249,17 +233,6 @@ if(STATICBUILD)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
     set(HAVE_TRACE OFF)
 endif()
-if(PAGE8K)
-    add_definitions(-DPAGE8K)
-endif()
-
-if(PAGE16K)
-    add_definitions(-DPAGE16K)
-endif()
-
-if(PAGE64K)
-    add_definitions(-DPAGE64K)
-endif()
 
 if(NOGIT)
     add_definitions(-DNOGIT)
@@ -340,6 +313,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/box64context.c"
     "${BOX64_ROOT}/src/build_info.c"
     "${BOX64_ROOT}/src/custommem.c"
+    "${BOX64_ROOT}/src/custommmap.c"
     "${BOX64_ROOT}/src/dynarec/dynarec.c"
     "${BOX64_ROOT}/src/elfs/elfloader.c"
     "${BOX64_ROOT}/src/elfs/elfparser.c"
@@ -406,6 +380,7 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64run66dd.c"
     "${BOX64_ROOT}/src/emu/x64run66f0.c"
     "${BOX64_ROOT}/src/emu/x64run67.c"
+    "${BOX64_ROOT}/src/emu/x64run67avx.c"
     "${BOX64_ROOT}/src/emu/x64run67_32.c"
     "${BOX64_ROOT}/src/emu/x64run6764_32.c"
     "${BOX64_ROOT}/src/emu/x64run670f.c"
@@ -422,6 +397,18 @@ set(INTERPRETER
     "${BOX64_ROOT}/src/emu/x64runf0.c"
     "${BOX64_ROOT}/src/emu/x64runf20f.c"
     "${BOX64_ROOT}/src/emu/x64runf30f.c"
+    "${BOX64_ROOT}/src/emu/x64runavx.c"
+    "${BOX64_ROOT}/src/emu/x64runavx0f.c"
+    "${BOX64_ROOT}/src/emu/x64runavx0f38.c"
+    "${BOX64_ROOT}/src/emu/x64runavx660f.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf20f.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf30f.c"
+    "${BOX64_ROOT}/src/emu/x64runavx660f38.c"
+    "${BOX64_ROOT}/src/emu/x64runavx660f3a.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf20f38.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf30f38.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf20f3a.c"
+    "${BOX64_ROOT}/src/emu/x64runavxf30f3a.c"
 )
 
 if(STATICBUILD)
@@ -457,6 +444,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappeddbus.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbusglib1.c"
     "${BOX64_ROOT}/src/wrapped/wrappeddbusmenuglib.c"
+    "${BOX64_ROOT}/src/wrapped/wrappeddecor0.c"
     "${BOX64_ROOT}/src/wrapped/wrappedevent21.c"
     "${BOX64_ROOT}/src/wrapped/wrappedexpat.c"
     "${BOX64_ROOT}/src/wrapped/wrappedfaudio.c"
@@ -665,6 +653,8 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedicui18n74.c"
     "${BOX64_ROOT}/src/wrapped/wrappedidn2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedanl.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedpsl5.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibssh2.c"
 )
 endif()
 if(ANDROID)
@@ -754,6 +744,7 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_66.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67_32.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_67_avx.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_6764_32.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d8.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_d9.c"
@@ -771,6 +762,15 @@ if(ARM_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_66f0.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f20f.c"
     "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_f30f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_0f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_66_0f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f2_0f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f3_0f.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_66_0f38.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_66_0f3a.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f2_0f38.c"
+    "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_avx_f2_0f3a.c"
     )
 endif()
 
@@ -849,6 +849,7 @@ if(LARCH64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_0f.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_64.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_66.c"
+    "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_67.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_f30f.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_660f.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_f0.c"
@@ -1226,6 +1227,14 @@ add_test(lock ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test29 -D TEST_OUTPUT=tmpfile29.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref29.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+add_test(avx_intrinsics ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test30 -D TEST_OUTPUT=tmpfile30.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref30.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+set_tests_properties(avx_intrinsics PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0;BOX64_AVX=2")
+
 else()
 
 add_test(bootSyscall ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
@@ -1360,6 +1369,15 @@ add_test(lock ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test29_android -D TEST_OUTPUT=tmpfile29.txt
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref29.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+#add_test(avx_intrinsics ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+#    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test30_android -D TEST_OUTPUT=tmpfile30.txt
+#    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref30.txt
+#    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+#
+#set_tests_properties(avx_intrinsics PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0 BOX64_AVX=2")
+
+
 endif()
 
 if(NOT ANDROID)

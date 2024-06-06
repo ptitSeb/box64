@@ -257,10 +257,8 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 6:     /* FNSTENV m */
                 // warning, incomplete
-                _GETED(0);
-                #ifndef TEST_INTERPRETER
+                GETE8(0);
                 fpu_savenv(emu, (char*)ED, 0);
-                #endif
                 // intruction pointer: 48bits
                 // data (operand) pointer: 48bits
                 // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)

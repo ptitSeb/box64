@@ -332,6 +332,59 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         }
         break;
 
+    case 0xC4:                      /* LES Gd,Ed */
+        nextop = F8;
+        if(rex.is32bits && !(MODREG)) {
+            return 0;
+        } else {
+            if(rex.is32bits) {
+                return 0;
+            }
+            vex_t vex = {0};
+            vex.rex = rex;
+            tmp8u = nextop;
+            vex.m = tmp8u&0b00011111;
+            vex.rex.b = (tmp8u&0b00100000)?0:1;
+            vex.rex.x = (tmp8u&0b01000000)?0:1;
+            vex.rex.r = (tmp8u&0b10000000)?0:1;
+            tmp8u = F8;
+            vex.p = tmp8u&0b00000011;
+            vex.l = (tmp8u>>2)&1;
+            vex.v = ((~tmp8u)>>3)&0b1111;
+            vex.rex.w = (tmp8u>>7)&1;
+            #ifdef TEST_INTERPRETER 
+            addr = Test67AVX(test, vex, addr);
+            #else
+            addr = Run67AVX(emu, vex, addr);
+            #endif
+        }
+        break;
+    case 0xC5:                      /* LDS Gd,Ed */
+        nextop = F8;
+        if(rex.is32bits && !(MODREG)) {
+            return 0;
+        } else {
+            if(rex.is32bits) {
+                return 0;
+            }
+            vex_t vex = {0};
+            vex.rex = rex;
+            tmp8u = nextop;
+            vex.p = tmp8u&0b00000011;
+            vex.l = (tmp8u>>2)&1;
+            vex.v = ((~tmp8u)>>3)&0b1111;
+            vex.rex.r = (tmp8u&0b10000000)?0:1;
+            vex.rex.b = 0;
+            vex.rex.x = 0;
+            vex.rex.w = 0;
+            vex.m = VEX_M_0F;
+            #ifdef TEST_INTERPRETER 
+            addr = Test67AVX(test, vex, addr);
+            #else
+            addr = Run67AVX(emu, vex, addr);
+            #endif
+        }
+        break;
     case 0xC6:                      /* MOV Eb,Ib */
         nextop = F8;
         GETEB32(1);
@@ -460,7 +513,29 @@ uintptr_t Run67(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
     case 0xFF:
         nextop = F8;
         switch((nextop>>3)&7) {
-            case 2:                 /* CALL NEAR Ed */
+                case 0:                 /* INC Ed */
+                GETED32(0);
+                if(rex.w)
+                    ED->q[0] = inc64(emu, ED->q[0]);
+                else {
+                    if(MODREG)
+                        ED->q[0] = inc32(emu, ED->dword[0]);
+                    else
+                        ED->dword[0] = inc32(emu, ED->dword[0]);
+                }
+                break;
+            case 1:                 /* DEC Ed */
+                GETED32(0);
+                if(rex.w)
+                    ED->q[0] = dec64(emu, ED->q[0]);
+                else {
+                    if(MODREG)
+                        ED->q[0] = dec32(emu, ED->dword[0]);
+                    else
+                        ED->dword[0] = dec32(emu, ED->dword[0]);
+                }
+                break;
+           case 2:                 /* CALL NEAR Ed */
                 GETED32(0);
                 tmp64u = (uintptr_t)getAlternate((void*)ED->q[0]);
                 Push64(emu, addr);

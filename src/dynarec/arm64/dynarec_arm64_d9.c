@@ -151,27 +151,30 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         }
                     }
                     CMPSw_U12(x3, 0);
-                    MOV32w(x3, 0b100000100000000);
-                    CSELx(x4, x3, x4, cLE); // empty: C3,C2,C0 = 101
+                    MOV32w(x4, 0b100000100000000);  // empty: C3,C2,C0 = 101
                     B_MARK3(cLE);
-                    // x4 will be the actual top
-                    LDRw_U12(x4, xEmu, offsetof(x64emu_t, top));
+                    // x5 will be the actual top
+                    LDRw_U12(x5, xEmu, offsetof(x64emu_t, top));
                     if(i2) {
                         if(i2<0) {
-                            SUBw_U12(x4, x4, -i2);
+                            SUBw_U12(x5, x5, -i2);
                         } else {
-                            ADDw_U12(x4, x4, i2);
+                            ADDw_U12(x5, x5, i2);
                         }
-                        ANDw_mask(x4, x4, 0, 3);    // (emu->top + i)&7
+                        ANDw_mask(x5, x5, 0, 3);    // (emu->top + i)&7
                     }
                     // load tag
                     LDRH_U12(x3, xEmu, offsetof(x64emu_t, fpu_tags));
+                    if(i2<0) {
+                        LSLw_IMM(x3, x3, -i2*2);
+                    } else if(i2>0) {
+                        ORRw_mask(x3, x3, 0b010000, 0b001111);  // 0xffff0000
+                        LSRw_IMM(x3, x3, i2*2);
+                    }
                     TSTw_mask(x3, 0, 1);    // 0b11
-                    MOV32w(x3, 0b100000100000000);
-                    CSELx(x4, x3, x4, cNE); // empty: C3,C2,C0 = 101
-                    B_MARK3(cNE);
+                    B_MARK3(cNE);   // empty: C3,C2,C0 = 101
                     // load x2 with ST0 anyway, for sign extraction
-                    ADDx_REG_LSL(x1, xEmu, x4, 3);
+                    ADDx_REG_LSL(x1, xEmu, x5, 3);
                     LDRx_U12(x2, x1, offsetof(x64emu_t, x87));
                 }
             } else {
@@ -183,8 +186,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             LSRx_IMM(x1, x2, 20+32);
             ANDSx_mask(x1, x1, 1, 0b00000, 0b001010); // 0x7ff
             B_MARK(cNE); // not zero or denormal
-            ANDx_mask(x1, x3, 1, 0, 0b111110); // 0x7fffffffffffffff
-            ORRx_REG(x1, x1, x2);
+            ANDSx_mask(x1, x2, 1, 0, 0b111110); // 0x7fffffffffffffff
             MOV32w(x4, 0b100000000000000); // Zero: C3,C2,C0 = 100
             MOV32w(x5, 0b100010000000000); // Denormal: C3,C2,C0 = 110
             CSELx(x4, x4, x5, cEQ);
@@ -335,7 +337,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
-            s0 = fpu_get_scratch(dyn);
+            s0 = fpu_get_scratch(dyn, ninst);
             FDIVD(s0, v1, v2);
             FRINTRRD(s0, s0, 0b00); // Nearest == TieToEven?
             FCVTZSxD(x4, s0);
@@ -383,7 +385,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             #else
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
-            s0 = fpu_get_scratch(dyn);
+            s0 = fpu_get_scratch(dyn, ninst);
             FDIVD(s0, v1, v2);
             FRINTZD(s0, s0);
             FCVTZSxD(x4, s0);
@@ -494,7 +496,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(ST_IS_F(0))
                     s0 = v1;
                 else {
-                    s0 = fpu_get_scratch(dyn);
+                    s0 = fpu_get_scratch(dyn, ninst);
                     FCVT_S_D(s0, v1);
                 }
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);

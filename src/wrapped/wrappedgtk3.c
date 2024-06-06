@@ -478,7 +478,7 @@ static void* findGtkClipboardTextReceivedFuncFct(void* fct)
 }
 
 #undef SUPER
-/*
+
 EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
 {
     void* btn = first;
@@ -488,7 +488,7 @@ EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first,
         btn = (void*)*(b++);
     }
 }
-*/
+
 EXPORT void my3_gtk_message_dialog_format_secondary_text(x64emu_t* emu, void* dialog, void* fmt, void* b)
 {
     char* buf = NULL;

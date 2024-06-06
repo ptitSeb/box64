@@ -111,6 +111,17 @@
         LDz(x1, wback, fixedaddress);                                                           \
         ed = x1;                                                                                \
     }
+// GETED32 can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED32(D)                                                                                \
+    if (MODREG) {                                                                                 \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                                \
+        wback = 0;                                                                                \
+    } else {                                                                                      \
+        SMREAD();                                                                                 \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+        LDxw(x1, wback, fixedaddress);                                                            \
+        ed = x1;                                                                                  \
+    }
 // GETEDH can use hint for ed, and x1 or x2 for wback (depending on hint), might also use x3. wback is 0 if ed is xEAX..xEDI
 #define GETEDH(hint, D)                                                                                                                 \
     if (MODREG) {                                                                                                                       \
@@ -413,6 +424,10 @@
 #define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARKLOCK if reg1==reg2 (use j64)
 #define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
+// Branch to MARK if reg1==0 (use j64)
+#define BEQZ_MARK(reg) BxxZ_gen(EQ, MARK, reg)
+// Branch to MARK2 if reg1==0 (use j64)
+#define BEQZ_MARK2(reg) BxxZ_gen(EQ, MARK2, reg)
 // Branch to MARKLOCK if reg1==0 (use j64)
 #define BEQZ_MARKLOCK(reg) BxxZ_gen(EQ, MARKLOCK, reg)
 
@@ -450,8 +465,8 @@
 // Branch to MARK if reg1>=reg2 (use j64)
 #define BGE_MARK(reg1, reg2) Bxx_gen(GE, MARK, reg1, reg2)
 
-// Branch to MARK1 instruction unconditionnal (use j64)
-#define B_MARK1_nocond Bxx_gen(__, MARK1, 0, 0)
+// Branch to MARK instruction unconditionnal (use j64)
+#define B_MARK_nocond Bxx_gen(__, MARK, 0, 0)
 // Branch to MARK2 instruction unconditionnal (use j64)
 #define B_MARK2_nocond Bxx_gen(__, MARK2, 0, 0)
 // Branch to MARK3 instruction unconditionnal (use j64)
@@ -723,6 +738,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_0F   STEPNAME(dynarec64_0F)
 #define dynarec64_64   STEPNAME(dynarec64_64)
 #define dynarec64_66   STEPNAME(dynarec64_66)
+#define dynarec64_67   STEPNAME(dynarec64_67)
 #define dynarec64_F30F STEPNAME(dynarec64_F30F)
 #define dynarec64_660F STEPNAME(dynarec64_660F)
 #define dynarec64_F0   STEPNAME(dynarec64_F0)
@@ -763,7 +779,14 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_sbb16          STEPNAME(emit_sbb16)
 #define emit_sbb32          STEPNAME(emit_sbb32)
 #define emit_neg8           STEPNAME(emit_neg8)
+#define emit_neg16          STEPNAME(emit_neg16)
 #define emit_neg32          STEPNAME(emit_neg32)
+#define emit_inc8           STEPNAME(emit_inc8)
+#define emit_inc16          STEPNAME(emit_inc16)
+#define emit_inc32          STEPNAME(emit_inc32)
+#define emit_dec8           STEPNAME(emit_dec8)
+#define emit_dec16          STEPNAME(emit_dec16)
+#define emit_dec32          STEPNAME(emit_dec32)
 #define emit_or32           STEPNAME(emit_or32)
 #define emit_or32c          STEPNAME(emit_or32c)
 #define emit_or8            STEPNAME(emit_or8)
@@ -783,11 +806,16 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define emit_shl32          STEPNAME(emit_shl32)
 #define emit_shl32c         STEPNAME(emit_shl32c)
 #define emit_shr8           STEPNAME(emit_shr8)
+#define emit_shr16          STEPNAME(emit_shr16)
 #define emit_shr32          STEPNAME(emit_shr32)
 #define emit_shr32c         STEPNAME(emit_shr32c)
+#define emit_sar16          STEPNAME(emit_sar16)
 #define emit_sar32c         STEPNAME(emit_sar32c)
+#define emit_shld32c        STEPNAME(emit_shld32c)
+#define emit_shrd32c        STEPNAME(emit_shrd32c)
 #define emit_ror32c         STEPNAME(emit_ror32c)
 #define emit_rol32          STEPNAME(emit_rol32)
+#define emit_rol32c         STEPNAME(emit_rol32c)
 
 #define emit_pf STEPNAME(emit_pf)
 
@@ -797,6 +825,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_purge07cache STEPNAME(sse_purge07cache)
 #define sse_get_reg       STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
+#define sse_forget_reg    STEPNAME(sse_forget_reg)
+#define sse_reflect_reg   STEPNAME(sse_reflect_reg)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
@@ -850,7 +880,14 @@ void emit_sbb8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 void emit_sbb16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sbb32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_neg8(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
+void emit_neg16(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 void emit_neg32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3);
+void emit_inc8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_inc16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_inc32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_dec8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
+void emit_dec16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_dec32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_or32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_or32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_or8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
@@ -870,11 +907,16 @@ void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
 void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5);
 void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_sar16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
+void emit_shld32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
+void emit_shrd32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 
 void emit_pf(dynarec_la64_t* dyn, int ninst, int s1, int s3, int s4);
 
@@ -903,6 +945,10 @@ void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1);
 int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite);
 // get lsx register for an SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a);
+// forget float register for a SSE reg, create the entry if needed
+void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a);
+// Push current value to the cache
+void sse_reflect_reg(dynarec_la64_t* dyn, int ninst, int a);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
@@ -920,6 +966,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
@@ -1058,5 +1105,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             X64_SET_EFLAGS(xFlags, X_ALL); \
         }                                  \
     } while (0)
+
+#define PURGE_YMM()    /* TODO */
 
 #endif //__DYNAREC_LA64_HELPER_H__

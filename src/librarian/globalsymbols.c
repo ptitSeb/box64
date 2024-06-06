@@ -139,3 +139,17 @@ void my_checkGlobalOpt()
     GLOB(opterr, "GLIBC_2.2.5");
     GLOB(optopt, "GLIBC_2.2.5");
 }
+
+// **************** libxslt ****************
+EXPORT int xsltMaxVars;
+void my_updateGlobalXslt()
+{
+    uintptr_t globoffs, globend;
+    TOGLOB(xsltMaxVars, "LIBXML2_1.0.24");
+}
+
+void my_checkGlobalXslt()
+{
+    uintptr_t globoffs, globend;
+    GLOB(xsltMaxVars, "LIBXML2_1.0.24");
+}

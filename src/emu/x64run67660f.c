@@ -63,6 +63,29 @@ uintptr_t Run67660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GX->ud[i] = (GX->ud[i]==EX->ud[i])?0xffffffff:0;
         break;
 
+    case 0x7E:                      /* MOVD Ed, Gx */
+        nextop = F8;
+        GETED32(0);
+        GETGX;
+        if(rex.w)
+            ED->q[0] = GX->q[0];
+        else {
+            if(MODREG)
+                ED->q[0] = GX->ud[0];
+            else
+                ED->dword[0] = GX->ud[0];
+        }
+        break;
+
+    case 0xD6:                      /* MOVQ Ex,Gx */
+        nextop = F8;
+        GETEX32(0);
+        GETGX;
+        EX->q[0] = GX->q[0];
+        if(MODREG)
+            EX->q[1] = 0;
+        break;
+
     default:
         return 0;
     }

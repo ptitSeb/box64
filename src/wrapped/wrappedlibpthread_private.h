@@ -254,7 +254,7 @@ GOM(__pthread_unregister_cancel, vFEp)
 //GO(__pthread_unregister_cancel_restore, 
 //GO(__pthread_unwind, 
 GOM(__pthread_unwind_next, vFEp)
-GO(pthread_yield, iFv)
+GO2(pthread_yield, iFv, sched_yield)
 //GO(raise, 
 //GO(__res_state, 
 GO(sem_close, iFp)

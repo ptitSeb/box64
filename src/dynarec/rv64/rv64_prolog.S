@@ -57,8 +57,8 @@ rv64_prolog:
     srli    x5, x8, 11-5
     andi    x5, x5, 1<<5
     or      x8, x8, x5
-    ld      x5, 552(a0) // grab an old value of emu->xSPSave
-    sd      sp, 552(a0) // save current sp to emu->xSPSave
+    ld      x5, 808(a0) // grab an old value of emu->xSPSave
+    sd      sp, 808(a0) // save current sp to emu->xSPSave
     // push sentinel onto the stack
     sd      x5, -16(sp)
     sd      zero, -8(sp)

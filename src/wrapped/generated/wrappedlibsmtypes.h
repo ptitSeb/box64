@@ -11,11 +11,13 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef void* (*pFppiiLpppip_t)(void*, void*, int32_t, int32_t, uintptr_t, void*, void*, void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(SmcSetErrorHandler, pFp_t) \
 	GO(SmcRequestSaveYourselfPhase2, iFppp_t) \
 	GO(SmcInteractRequest, iFpipp_t) \
 	GO(SmcOpenConnection, pFppiiLpppip_t)

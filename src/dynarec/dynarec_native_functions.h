@@ -30,16 +30,25 @@ void native_fistp64(x64emu_t* emu, int64_t* ed);
 void native_fistt64(x64emu_t* emu, int64_t* ed);
 void native_fld(x64emu_t* emu, uint8_t* ed);
 void native_fsave(x64emu_t* emu, uint8_t* ed);
+void native_fsave16(x64emu_t* emu, uint8_t* ed);
 void native_frstor(x64emu_t* emu, uint8_t* ed);
+void native_frstor16(x64emu_t* emu, uint8_t* ed);
 void native_fprem1(x64emu_t* emu);
 
 void native_aesd(x64emu_t* emu, int xmm);
+void native_aesd_y(x64emu_t* emu, int ymm);
 void native_aese(x64emu_t* emu, int xmm);
+void native_aese_y(x64emu_t* emu, int ymm);
 void native_aesdlast(x64emu_t* emu, int xmm);
+void native_aesdlast_y(x64emu_t* emu, int ymm);
 void native_aeselast(x64emu_t* emu, int xmm);
+void native_aeselast_y(x64emu_t* emu, int ymm);
 void native_aesimc(x64emu_t* emu, int xmm);
+void native_aesimc_y(x64emu_t* emu, int ymm);
 void native_aeskeygenassist(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
 void native_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8);
+void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8);
+void native_pclmul_y(x64emu_t* emu, int gy, int vy, void* p, uint32_t u8);
 
 void native_clflush(x64emu_t* emu, void* p);
 
@@ -63,7 +72,14 @@ uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop);
 
 // Is what pointed at addr a native call? And if yes, to what function?
-int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, int* retn);
+int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, uint16_t* retn);
+
+// AVX utilities
+void avx_mark_zero(dynarec_native_t* dyn, int ninst, int reg);
+int is_avx_zero(dynarec_native_t* dyn, int ninst, int reg);
+int is_avx_zero_unset(dynarec_native_t* dyn, int ninst, int reg);
+void avx_mark_zero_reset(dynarec_native_t* dyn, int ninst);
+void avx_unmark_zero(dynarec_native_t* dyn, int ninst, int reg);
 
 ADDITIONNAL_DEFINITION()
 

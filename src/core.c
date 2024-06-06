@@ -149,6 +149,8 @@ int box64_sse_flushto0 = 0;
 int box64_x87_no80bits = 0;
 int box64_sync_rounding = 0;
 int box64_sse42 = 1;
+int box64_avx = 0;
+int box64_avx2 = 0;
 int fix_64bit_inodes = 0;
 int box64_dummy_crashhandler = 1;
 int box64_mapclean = 0;
@@ -273,8 +275,6 @@ int getNCpu();
 #ifdef DYNAREC
 void GatherDynarecExtensions()
 {
-    if(box64_dynarec==0)    // no need to check if no dynarec
-        return;
 #ifdef ARM64
 /*
 HWCAP_FP
@@ -473,7 +473,7 @@ HWCAP2_ECV
         if (la64_lbt = (cpucfg2 >> 18) & 0b1)
             printf_log(LOG_INFO, " LBT_X86");
         if (la64_lam_bh = (cpucfg2 >> 27) & 0b1)
-            printf_log(LOG_INFO, " LAM_BT");
+            printf_log(LOG_INFO, " LAM_BH");
         if (la64_lamcas = (cpucfg2 >> 28) & 0b1)
             printf_log(LOG_INFO, " LAMCAS");
         if (la64_scq = (cpucfg2 >> 30) & 0b1)
@@ -991,6 +991,20 @@ void LoadLogEnv()
         }
         if(!box64_sse42)
             printf_log(LOG_INFO, "Do not expose SSE 4.2 capabilities\n");
+    }
+    p = getenv("BOX64_AVX");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+2)
+                box64_avx = p[0]-'0';
+        }
+        if(box64_avx)
+            printf_log(LOG_INFO, "Will expose AVX capabilities\n");
+        if(box64_avx==2) {
+            box64_avx=1;
+            box64_avx2 = 1;
+            printf_log(LOG_INFO, "Will expose AVX2 capabilities\n");
+        }
     }
     p = getenv("BOX64_FIX_64BIT_INODES");
     if(p) {
@@ -1806,10 +1820,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // check if this is wineserver
     if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
         box64_wine = 1;
-    }
-    if(box64_wine) {
-        // disabling the use of futex_waitv for now
-        setenv("WINEFSYNC", "0", 1);
     }
     // Create a new context
     my_context = NewBox64Context(argc - nextarg);

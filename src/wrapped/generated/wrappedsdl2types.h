@@ -17,6 +17,7 @@ typedef int32_t (*iFp_t)(void*);
 typedef int64_t (*IFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
+typedef uintptr_t (*LFp_t)(void*);
 typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
@@ -74,6 +75,7 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_ReadU8, uFp_t) \
 	GO(SDL_ReadBE64, UFp_t) \
 	GO(SDL_ReadLE64, UFp_t) \
+	GO(SDL_GetThreadID, LFp_t) \
 	GO(SDL_GetBasePath, pFv_t) \
 	GO(SDL_Vulkan_GetVkGetInstanceProcAddr, pFv_t) \
 	GO(SDL_GL_GetProcAddress, pFp_t) \
