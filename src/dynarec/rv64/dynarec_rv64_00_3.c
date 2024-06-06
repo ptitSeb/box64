@@ -198,6 +198,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
                     WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 3:
                     INST_NAME("RCR Ed, Ib");
@@ -209,6 +210,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEDW(x4, x1, 0);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
                     WBACK;
+                    if(!wback && !rex.w) ZEROUP(ed);
                     break;
                 case 4:
                 case 6:
