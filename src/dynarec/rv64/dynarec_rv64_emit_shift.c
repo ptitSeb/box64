@@ -1278,9 +1278,13 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         if (c == 1) SRLI(s4, s1, 15);
     }
 
-    SRLI(s5, s1, c);
-    SLLI(s1, s1, 32 - c);
-    OR(s1, s1, s5);
+    if (rv64_zbb) {
+        RORIW(s1, s1, c);
+    } else {
+        SRLI(s5, s1, c);
+        SLLI(s1, s1, 32 - c);
+        OR(s1, s1, s5);
+    }
     ZEXTH(s1, s1);
 
     IFX(X_SF) {
@@ -1494,7 +1498,7 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 
 void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4, int s5)
 {
-    c&=15;
+    c&=0x1f;
     CLEAR_FLAGS();
     IFX(X_PEND) {
         if (c) {
@@ -1513,21 +1517,32 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
         }
         return;
     }
+
+    // create concat first
+    SLLI(s5, s2, 16);
+    OR(s1, s1, s5);
+
     IFX(X_CF) {
-        if (c > 0) {
+        if (c < 16) {
             SRLI(s3, s1, 16-c);
-            ANDI(s5, s3, 1); // LSB == F_CF
-            OR(xFlags, xFlags, s5);
+        } else {
+            SRLI(s3, s2, 32-c);
         }
+        ANDI(s5, s3, 1); // LSB == F_CF
+        OR(xFlags, xFlags, s5);
     }
     IFX(X_OF) {
         // Store sign for later use.
         if (c == 1) SRLI(s5, s1, 15);
     }
 
-    SLLIxw(s3, s1, c);
-    SRLIxw(s1, s2, 16-c);
-    OR(s1, s1, s3);
+    if (rv64_zbb) {
+        RORIW(s1, s1, 32 - c);
+    } else {
+        SLLI(s3, s1, c);
+        SRLI(s1, s1, 32 - c);
+        OR(s1, s1, s3);
+    }
     ZEXTH(s1, s1);
 
     IFX(X_SF) {
