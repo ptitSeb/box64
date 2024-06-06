@@ -970,7 +970,12 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     if(rv64_zbb) {
-        ROLxw(s1, s1, s4);
+        if (rex.w) {
+            ROL(s1, s1, s4);
+        } else {
+            ROLW(s1, s1, s4);
+            ZEROUP(s1);
+        }
     } else {
         SLLxw(s3, s1, s4);
         NEG(s4, s4);
@@ -1021,7 +1026,12 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     if(rv64_zbb) {
-        RORxw(s1, s1, s4);
+        if (rex.w) {
+            ROR(s1, s1, s4);
+        } else {
+            RORW(s1, s1, s4);
+            ZEROUP(s1);
+        }
     } else {
         SRLxw(s3, s1, s4);
         NEG(s4, s4);
