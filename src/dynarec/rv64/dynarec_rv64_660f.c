@@ -2433,7 +2433,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     BEXTI(x3, ed, u8); // F_CF is 1
                     ANDI(xFlags, xFlags, ~1);
                     OR(xFlags, xFlags, x3);
-                    if (u8 <= 0x10) {
+                    if (u8 <= 10) {
                         XORI(ed, ed, (1LL << u8));
                     } else {
                         MOV64xw(x3, (1LL << u8));
