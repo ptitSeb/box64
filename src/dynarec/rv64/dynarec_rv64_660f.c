@@ -2547,11 +2547,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            MV(x9, ed);
+            if (!(MODREG && wback == xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3)))
+                MV(x9, ed);
             emit_add16(dyn, ninst, ed, gd, x4, x5, x6);
-            MV(gd, x9);
+            if (!(MODREG && wback == xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3)))
+                MV(gd, x9);
             EWBACK;
-            GWBACK;
+            if (!(MODREG && wback == xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3)))
+                GWBACK;
             break;
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex, Ib");
