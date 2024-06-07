@@ -95,6 +95,7 @@ typedef struct instruction_rv64_s {
     uint16_t            ymm0_add;   // the ymm0 added by the opcode
     uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
     uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
+    uint16_t            ymm0_pass2, ymm0_pass3;
     int                 barrier_maybe;
     flagcache_t         f_exit;     // flags status at end of intruction
     extcache_t          e;          // extcache at end of intruction (but before poping)

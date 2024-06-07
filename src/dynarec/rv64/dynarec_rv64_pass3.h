@@ -14,8 +14,10 @@
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
     if(box64_dynarec_dump) print_newinst(dyn, ninst);   \
-    if(ninst)                                           \
-        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4);
+    if(ninst) {                                         \
+        addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
+        dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;   \
+    }
 #define INST_EPILOG
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 
