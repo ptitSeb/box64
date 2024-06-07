@@ -261,8 +261,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
                     | 1<<25     // aesni
-                    | 1<<26     // xsave
-                    | 1<<27     // osxsave
+                    | box64_avx<<26 // xsave
+                    | box64_avx<<27 // osxsave
                     | box64_avx<<28 // AVX
                     | box64_avx<<29 // F16C
                     ; 
