@@ -1207,8 +1207,10 @@ static void x87_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int 
             ADDw_U12(s3, s2, dyn->n.x87cache[i]);
             ANDw_mask(s3, s3, 0, 2); // mask=7   // (emu->top + i)&7
             if(neoncache_get_st_f(dyn, ninst, dyn->n.x87cache[i])>=0) {
-                FCVT_D_S(SCRATCH0, dyn->n.x87reg[i]);
-                VSTR64_REG_LSL3(SCRATCH0, s1, s3);
+                int scratch = fpu_get_scratch(dyn, ninst);
+                FCVT_D_S(scratch, dyn->n.x87reg[i]);
+                VSTR64_REG_LSL3(scratch, s1, s3);
+                fpu_free_reg(dyn, scratch);
             } else
                 VSTR64_REG_LSL3(dyn->n.x87reg[i], s1, s3);
         }
@@ -1981,18 +1983,15 @@ static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *
     neon_cache_t tmp;
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
     // There is no VSWP in Arm64 NEON to swap 2 register contents!
-    // so use a scratch...
-    int scratch = fpu_get_scratch(dyn, ninst);
     if(quad) {
-        VMOVQ(scratch, i);
-        VMOVQ(i, j);
-        VMOVQ(j, scratch);
+        VEORQ(i, i, j);
+        VEORQ(j, i, j);
+        VEORQ(i, i, j);
     } else {
-        VMOV(scratch, i);
-        VMOV(i, j);
-        VMOV(j, scratch);
+        VEOR(i, i, j);
+        VEOR(j, i, j);
+        VEOR(i, i, j);
     }
-    fpu_free_reg(dyn, scratch);
     tmp.v = cache->neoncache[i].v;
     cache->neoncache[i].v = cache->neoncache[j].v;
     cache->neoncache[j].v = tmp.v;
@@ -2131,7 +2130,6 @@ static void unloadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, in
 
 static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
 {
-#if STEP > 0
     int i2 = dyn->insts[ninst].x64.jmp_insts;
     if(i2<0)
         return;
@@ -2251,7 +2249,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     }
     // ymm0
     s3_top = 1;
-    if(dyn->ymm_zero && (dyn->ymm_zero&~dyn->insts[i2].ymm_zero)) {
+    if(dyn->ymm_zero && dyn->insts[i2].purge_ymm) {
         for(int i=0; i<16; ++i)
             if(dyn->insts[i2].purge_ymm&(1<<i))
                 if(is_avx_zero(dyn, ninst, i)) {
@@ -2295,11 +2293,9 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         stack_cnt = cache_i2.stack;
     }
     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
-#endif
 }
 static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
 {
-#if STEP > 1
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
@@ -2338,7 +2334,6 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
         CALL_(UpdateFlags, -1, 0);
         MARKF2;
     }
-#endif
 }
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
@@ -2466,8 +2461,8 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->n.x87stack);
         #endif
     #if defined(HAVE_TRACE) && (STEP>2)
-    if(box64_dynarec_dump)
-        if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neon_cache_t))) {
+    if(box64_dynarec_dump && 0) //disable for now, need more work
+        if(memcmp(&dyn->n, &dyn->insts[reset_n].n, sizeof(neoncache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in neoncache: reset=");
             for(int i=0; i<32; ++i)
                 if(dyn->insts[reset_n].n.neoncache[i].v)
@@ -2520,11 +2515,15 @@ void fpu_propagate_stack(dynarec_arm_t* dyn, int ninst)
 
 void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1)
 {
-    MESSAGE(LOG_NONE, "Purge YMM mask=%04x --------\n", dyn->insts[ninst].purge_ymm);
     int s1_set = 0;
+    int do_something = 0;
     for(int i=0; i<16; ++i)
         if(mask&(1<<i)) {
             if(is_avx_zero_unset(dyn, ninst, i)) {
+                if(!do_something) {
+                    MESSAGE(LOG_NONE, "Purge YMM mask=%04x --------\n", mask);
+                    do_something = 1;
+                }
                 if(!s1_set) {
                     ADDx_U12(s1, xEmu, offsetof(x64emu_t, ymm[0]));
                     s1_set = 1;
@@ -2537,10 +2536,84 @@ void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1)
                     dyn->n.neoncache[j].v = 0;
                     j=32;
                 } else if(dyn->n.neoncache[j].t==NEON_CACHE_YMMW && dyn->n.neoncache[j].n==i) {
+                    if(!do_something) {
+                        MESSAGE(LOG_NONE, "Purge YMM mask=%04x --------\n", mask);
+                        do_something = 1;
+                    }
                     VSTR128_U12(j, xEmu, offsetof(x64emu_t, ymm[i]));
                     dyn->n.neoncache[j].v = 0;
                     j=32;
                 }
         }
-    MESSAGE(LOG_NONE, "---------- Purge YMM\n");
+    if(do_something)
+        MESSAGE(LOG_NONE, "---------- Purge YMM\n");
+}
+
+// Get an YMM quad reg, while preserving up to 3 other YMM regs
+int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k2, int k3)
+{
+    int i = -1;
+    #if STEP >1
+    // check the cached neoncache, it should be exact
+    // look for it
+    for(int ii=0; ii<32 && i==-1; ++ii)
+        if(dyn->insts[ninst].n.neoncache[ii].n==ymm && (dyn->insts[ninst].n.neoncache[ii].t==NEON_CACHE_YMMR || dyn->insts[ninst].n.neoncache[ii].t==NEON_CACHE_YMMW))
+            i = ii;
+    if(i!=-1) {
+        // already there!
+        if((dyn->n.neoncache[i].t==NEON_CACHE_YMMW  || dyn->n.neoncache[i].t==NEON_CACHE_YMMR) && dyn->n.neoncache[i].n==ymm) {
+            if(t==NEON_CACHE_YMMW)
+                dyn->n.neoncache[i].t=t;
+            return i;
+        }
+        // check if free or should be purge before...
+        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
+            VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+        dyn->n.neoncache[i].t=t;
+        dyn->n.neoncache[i].n=ymm;
+        return i;
+    }
+    printf_log(LOG_NONE, "BOX64 Dynarec: Warning, unable to find YMM %d in neoncache at inst=%d\n", ymm, ninst);
+    #else
+    i = EMM0;
+    // first pass see if a slot is free in EMM/x87 slots
+    for(int j=0; j<8; ++j) {
+        if(!dyn->n.fpuused[i+j] && !(dyn->mmx87&(1<<j))) {
+            int ret = internal_mark_ymm(dyn, t, ymm, i+j);
+            if(ret>=0) return ret;
+        }
+    }
+    // no slot in the emm space, look for scratch space in reverse
+    i = SCRATCH0;
+    for(int j=7; j>=dyn->n.fpu_scratch; --j) 
+        if(!(dyn->scratchs&(1<<j))) {
+            int ret = internal_mark_ymm(dyn, t, ymm, i+j);
+            if(ret>=0) return ret;
+    }
+    // no free slot, needs to purge a value... First loop on the YMMR, they are easier to purge
+    i = EMM0;
+    int keep = 0;
+    for(int j=0; j<8; ++j) {
+        if(!dyn->n.fpuused[i+j] && !(dyn->mmx87&(1<<j))) {
+            // should a test be done to check if ymm is already in the purge list?
+            if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3) && dyn->n.neoncache[i+j].t==NEON_CACHE_YMMR) {
+                dyn->n.neoncache[i+j].v = 0;
+                return internal_mark_ymm(dyn, t, ymm, i+j);
+            }
+        }
+    }
+    // make space in the scratch area
+    i = SCRATCH0;
+    for(int j=dyn->n.fpu_scratch; j<8; ++j) {
+            // should a test be done to check if ymm is already in the purge list?
+            if(!(dyn->scratchs&(1<<j)) &&!is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
+                // Save the reg and recycle it
+                VSTR128_U12(i+j, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i+j].n]));
+                dyn->n.neoncache[i+j].v = 0;
+                return internal_mark_ymm(dyn, t, ymm, i+j);
+            }
+    }
+    #endif
+    printf_log(LOG_NONE, "BOX64 Dynarec: Error, unable to free a reg for YMM %d at inst=%d\n", ymm, ninst);
+    return i;
 }

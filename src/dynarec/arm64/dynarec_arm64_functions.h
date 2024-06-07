@@ -4,6 +4,11 @@
 #include "../dynarec_native_functions.h"
 
 #define SCRATCH0    24
+#define XMM0    0
+#define XMM8    16
+#define X870    8
+#define EMM0    8
+
 
 // Get an FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst);
@@ -15,12 +20,14 @@ int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n);
 int fpu_get_reg_emm(dynarec_arm_t* dyn, int ninst, int emm);
 // Get an XMM quad reg
 int fpu_get_reg_xmm(dynarec_arm_t* dyn, int t, int xmm);
-// Get an YMM upper quad reg, while keeping up to 3 other YMM reg (-1 to no keep)
-int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k2, int k3);
 // Free a FPU/MMX/XMM reg
 void fpu_free_reg(dynarec_arm_t* dyn, int reg);
 // Reset fpu regs counter
 void fpu_reset_reg(dynarec_arm_t* dyn);
+// internal YMM handling
+int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg);
+// is ymm neoncache[reg] one of k1, k2, k3?
+int is_ymm_to_keep(dynarec_arm_t* dyn, int reg, int k1, int k2, int k3);
 
 // ---- Neon cache functions
 // Get type for STx

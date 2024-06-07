@@ -26,18 +26,13 @@
 #include "custommem.h"
 #include "bridge.h"
 
-#define XMM0    0
-#define XMM8    16
-#define X870    8
-#define EMM0    8
-
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 {
     int ret = SCRATCH0 + dyn->n.fpu_scratch++;
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
+        dyn->scratchs |= (1<<(dyn->n.fpu_scratch-1)); // mark as not free
         dyn->n.neoncache[ret].v = 0; // reset it
     }
     return ret;
@@ -54,7 +49,7 @@ int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)
     while (dyn->n.fpuused[i]) ++i;
     if(dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[i].n); // mark as purged
+        dyn->mmx87 |= (1<<(i-1-X870)); // mark as purged
         dyn->n.neoncache[i].v = 0; // reset it
     }
     dyn->n.fpuused[i] = 1;
@@ -79,7 +74,7 @@ int fpu_get_reg_emm(dynarec_arm_t* dyn, int ninst, int emm)
     int ret = EMM0 + emm;
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
+        dyn->mmx87 |= (1<<emm); // mark as purged
         dyn->n.neoncache[ret].v = 0; // reset it
     }
     dyn->n.fpuused[ret] = 1;
@@ -103,7 +98,7 @@ int fpu_get_reg_xmm(dynarec_arm_t* dyn, int t, int xmm)
     dyn->n.news |= (1<<i);
     return i;
 }
-static int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
+int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
 {
     if(dyn->n.neoncache[reg].t==NEON_CACHE_YMMR || dyn->n.neoncache[reg].t==NEON_CACHE_YMMW) {
         if(dyn->n.neoncache[reg].n == ymm) {
@@ -120,7 +115,7 @@ static int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
     }
     return -1;
 }
-static int is_ymm_to_keep(dynarec_arm_t* dyn, int reg, int k1, int k2, int k3)
+int is_ymm_to_keep(dynarec_arm_t* dyn, int reg, int k1, int k2, int k3)
 {
     if(k1!=-1 && dyn->n.neoncache[reg].n==k1)
         return 1;
@@ -130,49 +125,7 @@ static int is_ymm_to_keep(dynarec_arm_t* dyn, int reg, int k1, int k2, int k3)
         return 1;
     return 0;
 }
-// Get an YMM quad reg, while preserving up to 3 other YMM regs
-int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k2, int k3)
-{
-    int i = EMM0;
-    // first pass see if a slot is free in EMM/x87 slots
-    for(int j=0; j<8; ++j) {
-        if(!dyn->n.fpuused[i+j]) {
-            int ret = internal_mark_ymm(dyn, t, ymm, i+j);
-            if(ret>=0) return ret;
-        }
-    }
-    // no slot in the emm space, look for scratch space in reverse
-    i = SCRATCH0;
-    for(int j=7; j>=dyn->n.fpu_scratch; --j) {
-        int ret = internal_mark_ymm(dyn, t, ymm, i+j);
-        if(ret>=0) return ret;
-    }
-    // no free slot, needs to purge a value... First loop on the YMMR, they are easier to purge
-    i = EMM0;
-    int keep = 0;
-    for(int j=0; j<8; ++j) {
-        if(!dyn->n.fpuused[i+j]) {
-            // should a test be done to check if ymm is already in the purge list?
-            if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3) && dyn->n.neoncache[i+j].t==NEON_CACHE_YMMR) {
-                dyn->insts[ninst].purge_ymm |= 1<<dyn->n.neoncache[i+j].n;
-                dyn->n.neoncache[i+j].v = 0;
-                return internal_mark_ymm(dyn, t, ymm, i+j);
-            }
-        }
-    }
-    // make space in the scratch area
-    i = SCRATCH0;
-    for(int j=dyn->n.fpu_scratch; j<8; ++j) {
-            // should a test be done to check if ymm is already in the purge list?
-            if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
-                dyn->insts[ninst].purge_ymm |= 1<<dyn->n.neoncache[i+j].n;
-                dyn->n.neoncache[i+j].v = 0;
-                return internal_mark_ymm(dyn, t, ymm, i+j);
-            }
-    }
-    printf_log(LOG_NONE, "BOX64 Dynarec: Error, unable to free a reg for YMM %d at inst=%d\n", ymm, ninst);
-    return i;
-}
+
 // Reset fpu regs counter
 static void fpu_reset_reg_neoncache(neoncache_t* n)
 {
@@ -693,10 +646,20 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
                 default:    break;
             }
         }
+        if(memcmp(dyn->insts[ninst].n.neoncache, dyn->n.neoncache, sizeof(dyn->n.neoncache))) {
+            dynarec_log(LOG_NONE, " %s(Change:", (box64_dynarec_dump>1)?"\e[1;91m":"");
+            for(int ii=0; ii<32; ++ii) if(dyn->insts[ninst].n.neoncache[ii].v!=dyn->n.neoncache[ii].v) {
+                dynarec_log(LOG_NONE, " V%d:%s", ii, getCacheName(dyn->n.neoncache[ii].t, dyn->n.neoncache[ii].n));
+                dynarec_log(LOG_NONE, "->%s", getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n));
+            }
+            dynarec_log(LOG_NONE, ")%s", (box64_dynarec_dump>1)?"\e[32m":"");
+        }
         if(dyn->ymm_zero || dyn->insts[ninst].ymm0_add || dyn->insts[ninst].ymm0_sub)
-            dynarec_log(LOG_NONE, " ymm0=%04x(+%0x4-%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_add ,dyn->insts[ninst].ymm0_sub);
+            dynarec_log(LOG_NONE, " ymm0=%04x(+%04x-%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_add ,dyn->insts[ninst].ymm0_sub);
         if(dyn->insts[ninst].purge_ymm)
             dynarec_log(LOG_NONE, " purgeYmm=%04x", dyn->insts[ninst].purge_ymm);
+        if(dyn->mmx87 || dyn->scratchs)
+            dynarec_log(LOG_NONE, " mask=%04x-%04x", dyn->mmx87, dyn->scratchs);
         if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)
             dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack);
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)

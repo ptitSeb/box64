@@ -605,8 +605,10 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     for(int i=1; i<helper.size-1; ++i)
         if(!helper.insts[i].pred_sz) {
             int ii = i;
-            while(ii<helper.size && !helper.insts[ii].pred_sz)
+            while(ii<helper.size && !helper.insts[ii].pred_sz) {
                 fpu_reset_ninst(&helper, ii++);
+                helper.insts[ii].ymm0_sub = helper.insts[ii].ymm0_add = helper.insts[ii].ymm0_out = helper.insts[ii].purge_ymm = 0;
+            }
             i = ii;
         }
 
@@ -661,6 +663,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     int oldtable64size = helper.table64size;
     size_t oldnativesize = helper.native_size;
     size_t oldinstsize = helper.insts_size;
+    int oldsize= helper.size;
     helper.native_size = 0;
     helper.table64size = 0; // reset table64 (but not the cap)
     helper.insts_size = 0;  // reset
@@ -696,14 +699,17 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         return NULL;
     }
     if((oldnativesize!=helper.native_size) || (oldtable64size<helper.table64size)) {
-        printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%zu) & pass3 (%zu)!\n", sz, helper.native_size+helper.table64size*8);
+        printf_log(LOG_NONE, "BOX64: Warning, size difference in block between pass2 (%zu, %d) & pass3 (%zu, %d)!\n", oldnativesize+oldtable64size*8, oldsize, helper.native_size+helper.table64size*8, helper.size);
         uint8_t *dump = (uint8_t*)helper.start;
         printf_log(LOG_NONE, "Dump of %d x64 opcodes:\n", helper.size);
         for(int i=0; i<helper.size; ++i) {
-            printf_log(LOG_NONE, "%p:", dump);
+            printf_log(LOG_NONE, "%s%p:", (helper.insts[i].size2!=helper.insts[i].size)?"=====> ":"", dump);
             for(; dump<(uint8_t*)helper.insts[i+1].x64.addr; ++dump)
                 printf_log(LOG_NONE, " %02X", *dump);
-            printf_log(LOG_NONE, "\t%d -> %d\n", helper.insts[i].size2, helper.insts[i].size);
+            printf_log(LOG_NONE, "\t%d -> %d", helper.insts[i].size2, helper.insts[i].size);
+            if(helper.insts[i].ymm0_pass2 || helper.insts[i].ymm0_pass3)
+                printf_log(LOG_NONE, "\t %04x -> %04x", helper.insts[i].ymm0_pass2, helper.insts[i].ymm0_pass3);
+            printf_log(LOG_NONE, "\n");
         }
         printf_log(LOG_NONE, "Table64 \t%d -> %d\n", oldtable64size*8, helper.table64size*8);
         printf_log(LOG_NONE, " ------------\n");
