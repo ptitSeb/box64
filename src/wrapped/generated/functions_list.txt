@@ -4605,6 +4605,7 @@ wrappedlibncursesw6:
   - mvprintw
 - iFpiipV:
   - mvwprintw
+wrappedlibnettle8:
 wrappedlibnuma:
 wrappedlibogg:
 wrappedlibpanel:
