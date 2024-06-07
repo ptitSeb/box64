@@ -72,11 +72,11 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 ed = (nextop&7)+(rex.b<<3);
                 v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                VMOVQ(v0, v1);
+                if(v0!=v1) VMOVQ(v0, v1);
                 if(vex.l) {
                     v1 = ymm_get_reg(dyn, ninst, x1, ed, 0, gd, -1, -1);
                     v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, ed, -1, -1);
-                    VMOVQ(v0, v1);
+                    if(v0!=v1) VMOVQ(v0, v1);
                 }
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
