@@ -209,6 +209,11 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GD->q[0] = 0;
             for(int i=0; i<2; ++i)
                 GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
+            if(vex.l) {
+                GETEY;
+                for(int i=0; i<2; ++i)
+                    GD->dword[0] |= ((EY->q[i]>>63)&1)<<(i+2);
+            }
             break;
         case 0x51:                      /* VSQRTPD Gx, Ex */
             nextop = F8;
