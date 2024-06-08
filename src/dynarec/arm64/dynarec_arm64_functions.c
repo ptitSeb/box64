@@ -41,6 +41,7 @@ int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 void fpu_reset_scratch(dynarec_arm_t* dyn)
 {
     dyn->n.fpu_scratch = 0;
+    dyn->ymm_used = 0;
 }
 // Get a x87 double reg
 int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)

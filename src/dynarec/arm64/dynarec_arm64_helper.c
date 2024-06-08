@@ -1834,6 +1834,12 @@ void ymm_mark_zero(dynarec_arm_t* dyn, int ninst, int a)
     // look if already exist
     for(int i=0; i<32; ++i)
         if((dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) && dyn->n.neoncache[i].n==a) {
+            if(dyn->ymm_used&(1<<a)) {
+                // special case, the reg was just added in the opcode and cannot be marked as 0, so just RAZ it now
+                dyn->n.neoncache[i].t = NEON_CACHE_YMMW;
+                VEORQ(i, i, i);
+                return;
+            }
             dyn->n.neoncache[i].v = 0;  // forget it!
         }
     avx_mark_zero(dyn, ninst, a);
@@ -2553,6 +2559,7 @@ void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1)
 int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k2, int k3)
 {
     int i = -1;
+    dyn->ymm_used|=(1<<ymm);
     #if STEP >1
     // check the cached neoncache, it should be exact
     // look for it
