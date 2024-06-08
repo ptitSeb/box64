@@ -1764,6 +1764,21 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l) YMM0(gd);
             break;
+        case 0xF6:
+            INST_NAME("VPSADBW Gx, Vx, Ex");
+            nextop = F8;
+            d0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                UABDL_8(d0, v2, v1);
+                UADDLVQ_16(d0, d0);
+                VMOVeD(v0, 0, d0, 0);
+                UABDL2_8(d0, v2, v1);
+                UADDLVQ_16(d0, d0);
+                VMOVeD(v0, 1, d0, 0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         case 0xF8:
             INST_NAME("VPSUBB Gx, Vx, Ex");

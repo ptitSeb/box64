@@ -712,6 +712,27 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
+        case 0x41:
+            INST_NAME("PHMINPOSUW Gx, Ex");
+            nextop = F8;
+            GETEX(v1, 0, 0);
+            GETGX_empty(v0);
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
+            // get the min value
+            UMINVQ_16(q0, v1);  //q0.uw[0] = min value
+            VDUPQ_16(q1, q0, 0);    // vector of min value
+            VCMEQQ_16(q1, q1, v1);  // bit field of the element that are the min value
+            UQXTN_8(q1, q1);       // same bit field, but on 8bits elements only, easier to handle
+            VMOVQDto(x1, q1, 0);    // grab the bit field as a 64bits value
+            VEORQ(v0, v0, v0);      // RAZ everything
+            RBITx(x1, x1);          // reverse, we want trailling zero but can only count leading ones
+            CLZx(x1, x1);
+            VMOVeH(v0, 0, q0, 0);   // set up min
+            LSRw(x1, x1, 3);        // divide by 8, that's our index...
+            VMOVQHfrom(v0, 1, x1);
+            YMM0(gd);
+            break;
 
         case 0x45:
             INST_NAME("VPSRLVD/Q Gx, Vx, Ex");
@@ -871,6 +892,39 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x8E:
+            INST_NAME("VMASKMOVD/Q Ex, Vx, Gx");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {
+                    GETGX(v0, 0); GETVX(v2, 0);
+                    if(MODREG) {
+                        s0 = (nextop&7)+(rex.b<<3);
+                        v1 = sse_get_reg_empty(dyn, ninst, x1, s0);
+                    } else {
+                        s0 = -1;
+                        v1 = fpu_get_scratch(dyn, ninst);
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                        VLDR128_U12(v1, ed, fixedaddress);
+                    }
+                } else {
+                    GETGY(v0, 0, vex.v, s0, -1); v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1);
+                    if(MODREG)
+                        v1 = ymm_get_reg_empty(dyn, ninst, x1, s0, gd, vex.v, -1);
+                    else
+                        VLDR128_U12(v1, ed, fixedaddress+16);
+                }
+                if(rex.w)
+                    VSSHRQ_64(q0, v2, 63);
+                else
+                    VSSHRQ_32(q0, v2, 31);
+                VBITQ(v1, v0, q0);
+                if(!MODREG)
+                    VSTR128_U12(v1, ed, fixedaddress+16*l);
+            }
+            // no raz of upper ymm
+            break;
 
         case 0x90:
         case 0x92:
@@ -954,6 +1008,23 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VMOVeD(v0, 0, q0, 0);
             } else {
                 FMADD_32(q0, v2, v1, v0);
+                VMOVeS(v0, 0, q0, 0);
+            }
+            YMM0(gd);
+            break;
+
+        case 0x9B:
+            INST_NAME("VFMSUB132SS/D Gx, Vx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETVX(v2, 0);
+            if(rex.w) {GETEXSD(v1, 0, 0);} else {GETEXSS(v1, 0, 0);}
+            q0 = fpu_get_scratch(dyn, ninst);
+            if(rex.w) {
+                FNMSUB_64(q0, v2, v1, v0);
+                VMOVeD(v0, 0, q0, 0);
+            } else {
+                FNMSUB_32(q0, v2, v1, v0);
                 VMOVeS(v0, 0, q0, 0);
             }
             YMM0(gd);

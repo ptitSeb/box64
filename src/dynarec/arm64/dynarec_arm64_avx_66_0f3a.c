@@ -137,6 +137,49 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
+        case 0x06:
+            INST_NAME("VPERM2F128 Gx, Vx, Ex, Imm8");
+            nextop = F8;
+            if(!vex.l) UDF(0);
+            if(MODREG) {
+                s0 = (nextop&7)+(rex.b<<3);
+                v1 = sse_get_reg_empty(dyn, ninst, x1, s0);
+            } else {
+                s0 = -1;
+                v1 = fpu_get_scratch(dyn, ninst);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+            }
+            u8 = F8;
+            GETVX(v2, 0);
+            GETGX_empty(v0);
+            if((v0==v2) && ((u8&0xf0)==0)) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q0, v2);
+                v2 = q0;
+            }
+            if((v0==v1) && ((u8&0xf0)==0x20)) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q1, v1);
+                v1 = q1;
+            }
+            switch(u8&0x0f) {
+                case 0: if(v0!=v2) VMOVQ(v0, v2); break;
+                case 1: d2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1); VMOVQ(v0, d2); break;
+                case 2: if(MODREG) { if(v0!=v1) VMOVQ(v0, v1); } else { VLDR128_U12(v0, ed, fixedaddress); } break;
+                case 3: if(MODREG) { d1 = ymm_get_reg(dyn, ninst, x1, s0, 0, gd, vex.v, -1); VMOVQ(v0, d1); } else { VLDR128_U12(v0, ed, fixedaddress+16); } break;
+                default: VEORQ(v0, v0, v0);
+            }
+            if((u8&0xf0)==0x10) { if((u8&0x0f)!=1) d2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, s0, -1); }
+            if(MODREG && ((u8&0xf0)==0x30)) { if((u8&0x0f)!=3) d1 = ymm_get_reg(dyn, ninst, x1, s0, 0, gd, vex.v, -1); }
+            v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, s0, -1);
+            switch((u8>>4)&0x0f) {
+                case 0: VMOVQ(v0, v2); break;
+                case 1: if(v0!=d2) VMOVQ(v0, d2); break;
+                case 2: if(MODREG) { if(v0!=v1) VMOVQ(v0, v1); } else { VLDR128_U12(v0, ed, fixedaddress); } break;
+                case 3: if(MODREG) { if(v0!=d1) VMOVQ(v0, d1); } else { VLDR128_U12(v0, ed, fixedaddress+16); } break;
+                default: VEORQ(v0, v0, v0);
+            }
+            break;
 
         case 0x08:
             INST_NAME("VROUNDPS Gx, Ex, Ib");
