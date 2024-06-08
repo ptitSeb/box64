@@ -276,6 +276,26 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             FCOMI(x1, x2);
             break;
 
+        case 0x50:
+            nextop = F8;
+            INST_NAME("VMOVMSKPD Gd, Ex");
+            GETEX_Y(q0, 0, 0);
+            GETGD;
+            VMOVQDto(x1, q0, 0);
+            VMOVQDto(gd, q0, 1);
+            LSRx(gd, gd, 62);
+            BFXILx(gd, x1, 63, 1);
+            if(vex.l) {
+                GETEY(q0);
+                VMOVQDto(x1, q0, 0);
+                VMOVQDto(x2, q0, 1);
+                LSRx(x1, x1, 63);
+                LSRx(x2, x2, 63);
+                BFIx(gd, x1, 2, 1);
+                BFIx(gd, x2, 3, 1);
+            }
+            break;
+
         case 0x54:
             INST_NAME("VANDPD Gx, Vx, Ex");
             nextop = F8;
@@ -1118,6 +1138,39 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 }
                 SMWRITE2();
             }
+            break;
+
+        case 0xC2:
+            INST_NAME("VCMPPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8; } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(((u8&15)==3) || ((u8&15)==7) || ((u8&15)==8) || ((u8&15)==9) || ((u8&15)==10) || ((u8&15)==12) || ((u8&15)==13) || ((u8&15)==14)) {
+                    VFMAXQD(q0, v2, v1);    // propagate NAN
+                    VFCMEQQD(((u8&15)==7)?v0:q0, q0, q0);   // 0 if NAN, 1 if not NAN
+                }
+                switch(u8&0xf) {
+                    // the inversion of the params in the comparison is there to handle NaN the same way SSE does
+                    case 0x00: VFCMEQQD(v0, v2, v1); break;   // Equal, not unordered
+                    case 0x01: VFCMGTQD(v0, v1, v2); break;   // Less than
+                    case 0x02: VFCMGEQD(v0, v1, v2); break;   // Less or equal
+                    case 0x03: VMVNQ(v0, q0); break;   // unordered
+                    case 0x04: VFCMEQQD(v0, v2, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
+                    case 0x05: VFCMGTQD(v0, v1, v2); VMVNQ(v0, v0); break;   // Greater or equal or unordered
+                    case 0x06: VFCMGEQD(v0, v1, v2); VMVNQ(v0, v0); break;   // Greater or unordered
+                    case 0x07: break;  // ordered
+                    case 0x08: VFCMEQQD(v0, v2, v1); VORNQ(v0, v0, q0); break;   // Equal, or unordered
+                    case 0x09: VFCMGTQD(v0, v1, v2); VORNQ(v0, v0, q0); break;   // Less than or unordered
+                    case 0x0a: VFCMGEQD(v0, v1, v2); VORNQ(v0, v0, q0); break;   // Less or equal or unordered
+                    case 0x0b: VEORQ(v0, v0, v0); break; // false
+                    case 0x0c: VFCMEQQD(v0, v2, v1); VBICQ(v0, q0, v0); break;
+                    case 0x0d: VFCMGEQD(v0, v2, v1); break;
+                    case 0x0e: VFCMGTQD(v0, v2, v1); break;
+                    case 0x0f: MOVIQ_64(v0, 0xff); break; //true
+                }
+            }
+            if(!vex.l) YMM0(gd);
             break;
 
         case 0xC4:

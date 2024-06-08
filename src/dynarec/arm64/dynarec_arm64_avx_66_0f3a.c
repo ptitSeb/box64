@@ -249,7 +249,20 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
             } else YMM0(gd);
             break;
-
+        case 0x0D:
+            INST_NAME("VPBLENDPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(q0, q2, q1, 1); u8 = F8; } else { GETGY_empty_VYEY(q0, q2, q1); }
+                switch(u8>>(l*2)&3) {
+                    case 0b00: if(q0!=q2) VMOVQ(q0, q2); break;    //  VxVx
+                    case 0b01: if(q0!=q1) VMOVeD(q0, 0, q1, 0); if(q0!=q2) VMOVeD(q0, 1, q2, 1); break; // Ex[0]Vx[1]
+                    case 0b10: if(q0!=q2) VMOVeD(q0, 0, q2, 0); if(q0!=q1) VMOVeD(q0, 1, q1, 1); break; // Vx[0]Ex[1]
+                    case 0b11: if(q0!=q1) VMOVQ(q0, q1); break;    //  ExEx
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x0E:
             INST_NAME("VPBLENDW Gx, Vx, Ex, u8");
             nextop = F8;

@@ -37,6 +37,23 @@ int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
     }
     return ret;
 }
+// Get 2 consicutive FPU scratch reg
+int fpu_get_double_scratch(dynarec_arm_t* dyn, int ninst)
+{
+    int ret = SCRATCH0 + dyn->n.fpu_scratch;
+    if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
+        // should only happens in step 0...
+        dyn->scratchs |= (1<<(dyn->n.fpu_scratch)); // mark as not free
+        dyn->n.neoncache[ret].v = 0; // reset it
+    }
+    if(dyn->n.neoncache[ret+1].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret+1].t==NEON_CACHE_YMMW) {
+        // should only happens in step 0...
+        dyn->scratchs |= (1<<(dyn->n.fpu_scratch+1)); // mark as not free
+        dyn->n.neoncache[ret+1].v = 0; // reset it
+    }
+    dyn->n.fpu_scratch+=2;
+    return ret;
+}
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn)
 {

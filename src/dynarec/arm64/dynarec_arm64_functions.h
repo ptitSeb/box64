@@ -12,6 +12,8 @@
 
 // Get an FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst);
+// Get 2 consecutive FPU scratch reg
+int fpu_get_double_scratch(dynarec_arm_t* dyn, int ninst);
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_arm_t* dyn);
 // Get an x87 double reg

@@ -183,6 +183,32 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
 
+        case 0x51:
+            INST_NAME("VSQRTSD Gx, Vx, Ex");
+            nextop = F8;
+            d1 = fpu_get_scratch(dyn, ninst);
+            GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            if(!box64_dynarec_fastnan) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FCMEQD(q0, v1, v1);    // 0 if NAN, 1 if not NAN
+            }
+            FSQRTD(d1, v1);
+            if(!box64_dynarec_fastnan) {
+                FCMEQD(q1, d1, d1);    // 0 => out is NAN
+                VBIC(q1, q0, q1);      // forget it in any input was a NAN already
+                VSHLQ_64(q1, q1, 63);   // only keep the sign bit
+                VORR(d1, d1, q1);      // NAN -> -NAN
+            }
+            if(v0!=v2) {
+                VMOVQ(v0, v2);
+            }
+            VMOVeD(v0, 0, d1, 0);
+            YMM0(gd)
+            break;
+
         case 0x58:
             INST_NAME("VADDSD Gx, Vx, Ex");
             nextop = F8;
