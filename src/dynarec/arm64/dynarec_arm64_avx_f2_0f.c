@@ -356,14 +356,14 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(!l) {
                     GETEX_Y(v1, 0, 0);
                     GETGX_empty(v0);
-                } else {
-                    if(box64_dynarec_fastround)
+                    if(!box64_dynarec_fastround || vex.l)
                         d0 = fpu_get_scratch(dyn, ninst);
+                } else {
                     GETEY(v1);
                 }
                 if(box64_dynarec_fastround) {
-                    VFRINTIDQ(v0, v1);
-                    VFCVTNSQD(v0, v0);  // convert double -> int64
+                    VFRINTIDQ(l?d0:v0, v1);
+                    VFCVTNSQD(l?d0:v0, l?d0:v0);  // convert double -> int64
                     if(!l)
                         SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
                     else
@@ -374,7 +374,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         MSR_fpsr(x5);
                         ORRw_mask(x4, xZR, 1, 0);    //0x80000000
-                        d0 = fpu_get_scratch(dyn, ninst);
                     }
                     for(int i=0; i<2; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit

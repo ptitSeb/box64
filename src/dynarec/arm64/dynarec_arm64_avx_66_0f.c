@@ -1457,7 +1457,51 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0xE6:
+            INST_NAME("VCVTTPD2DQ Gx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {
+                    GETEX_Y(v1, 0, 0);
+                    GETGX_empty(v0);
+                } else {
+                    if(box64_dynarec_fastround)
+                        d0 = fpu_get_scratch(dyn, ninst);
+                    GETEY(v1);
+                }
+                if(box64_dynarec_fastround) {
+                    VFCVTZSQD(l?d0:v0, v1); // convert double -> int64
+                    if(!l)
+                        SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+                    else
+                        SQXTN2_32(v0, d0);   // convert int64 -> int32 with saturation in higher part
+                } else {
+                    if(!l) {
+                        MRS_fpsr(x5);
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        ORRw_mask(x4, xZR, 1, 0);    //0x80000000
+                        d0 = fpu_get_scratch(dyn, ninst);
+                    }
+                    for(int i=0; i<2; ++i) {
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        if(i) {
+                            VMOVeD(d0, 0, v1, i);
+                            FCVTZSwD(x1, d0);
+                        } else {
+                            FCVTZSwD(x1, v1);
+                        }
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TSTw_mask(x5, 0, 0);    // mask = 1 = FPSR_IOC
+                        CSELx(x1, x1, x4, cEQ);
+                        VMOVQSfrom(v0, i+l*2, x1);
+                    }
+                    if(!vex.l && !l) VMOVQDfrom(v0, 1, xZR);
+                }
+            }
+            YMM0(gd);
+            break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex,Gx");
             nextop = F8;

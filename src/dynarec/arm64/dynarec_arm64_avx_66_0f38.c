@@ -840,6 +840,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) {YMM0(gd); YMM0(vex.v);}
             break;
 
+        case 0x98:
+            INST_NAME("VFMADD132PS/D Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_VXEX(v0, v2, v1, 0); } else { GETGY_VYEY(v0, v2, v1); }
+                if(!l && v0!=v2) q0 = fpu_get_scratch(dyn, ninst);
+                if(v0!=v2) VMOVQ(q0, v2); else q0 = v2;
+                if(rex.w) VFMLAQD(q0, v0, v1); else VFMLAQS(q0, v0, v1);
+                VMOVQ(v0, q0);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x99:
             INST_NAME("VFMADD132SS/D Gx, Vx, Ex");
             nextop = F8;
