@@ -58,7 +58,7 @@ int fpu_get_double_scratch(dynarec_arm_t* dyn, int ninst)
 void fpu_reset_scratch(dynarec_arm_t* dyn)
 {
     dyn->n.fpu_scratch = 0;
-    dyn->ymm_used = 0;
+    dyn->n.ymm_used = 0;
 }
 // Get a x87 double reg
 int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)
@@ -118,14 +118,14 @@ int fpu_get_reg_xmm(dynarec_arm_t* dyn, int t, int xmm)
 }
 int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
 {
-    if(dyn->n.neoncache[reg].t==NEON_CACHE_YMMR || dyn->n.neoncache[reg].t==NEON_CACHE_YMMW) {
+    if((dyn->n.neoncache[reg].t==NEON_CACHE_YMMR) || (dyn->n.neoncache[reg].t==NEON_CACHE_YMMW)) {
         if(dyn->n.neoncache[reg].n == ymm) {
             // already there!
             if(t==NEON_CACHE_YMMW)
                 dyn->n.neoncache[reg].t=t;
             return reg;
         }
-    } else {
+    } else if(!dyn->n.neoncache[reg].v) {
         // found a slot!
         dyn->n.neoncache[reg].t=t;
         dyn->n.neoncache[reg].n=ymm;
@@ -135,11 +135,13 @@ int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
 }
 int is_ymm_to_keep(dynarec_arm_t* dyn, int reg, int k1, int k2, int k3)
 {
-    if(k1!=-1 && dyn->n.neoncache[reg].n==k1)
+    if((k1!=-1) && (dyn->n.neoncache[reg].n==k1))
         return 1;
-    if(k2!=-1 && dyn->n.neoncache[reg].n==k2)
+    if((k2!=-1) && (dyn->n.neoncache[reg].n==k2))
         return 1;
-    if(k3!=-1 && dyn->n.neoncache[reg].n==k3)
+    if((k3!=-1) && (dyn->n.neoncache[reg].n==k3))
+        return 1;
+    if((dyn->n.neoncache[reg].t==NEON_CACHE_YMMR || dyn->n.neoncache[reg].t==NEON_CACHE_YMMW) && (dyn->n.ymm_used&(1<<dyn->n.neoncache[reg].n)))
         return 1;
     return 0;
 }
@@ -537,6 +539,7 @@ void neoncacheUnwind(neoncache_t* cache)
                     break;
                 case NEON_CACHE_YMMR:
                 case NEON_CACHE_YMMW:
+                    cache->fpuused[i] = 0;  // YMM does not mark the fpu reg as used
                     break;
                 case NEON_CACHE_ST_F:
                 case NEON_CACHE_ST_D:
@@ -672,6 +675,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             }
             dynarec_log(LOG_NONE, ")%s", (box64_dynarec_dump>1)?"\e[32m":"");
         }
+        if(dyn->insts[ninst].n.ymm_used)
+            dynarec_log(LOG_NONE, " ymmUsed=%04x", dyn->insts[ninst].n.ymm_used);
         if(dyn->ymm_zero || dyn->insts[ninst].ymm0_add || dyn->insts[ninst].ymm0_sub)
             dynarec_log(LOG_NONE, " ymm0=%04x(+%04x-%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_add ,dyn->insts[ninst].ymm0_sub);
         if(dyn->insts[ninst].purge_ymm)

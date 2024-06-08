@@ -58,6 +58,7 @@ typedef struct neoncache_s {
     int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t              fpu_scratch;    // scratch counter
     int8_t              fpu_reg;        // x87/sse/mmx reg counter
+    uint16_t            ymm_used;       // mask of the ymm regs used in this opcode
 } neoncache_t;
 
 typedef struct flagcache_s {
@@ -126,7 +127,6 @@ typedef struct dynarec_arm_s {
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
-    uint16_t            ymm_used;   // mask of the ymm regs used in this opcode
     uint8_t             smwrite;    // for strongmem model emulation
     uint8_t             smread;
     uint8_t             doublepush;
