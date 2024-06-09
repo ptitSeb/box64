@@ -74,7 +74,7 @@ Notes about Unity game emulation
 ----
 
 Running Unity games should just work, but you should also note that many Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers). Also many newer Unity3D (like KSP) games use the BC7 compressed textures, which is not supported on many ARM integrated GPU.
-Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
+Hint: on Pi4 and Pi5 use `MESA_GL_VERSION_OVERRIDE=3.2`, with `BOX64_DYNAREC_STRONGMEM=1` to prevent freezes and enable strong memory mode, and use Panfrost `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
 
 ----
 
