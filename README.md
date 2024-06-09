@@ -64,7 +64,7 @@ An alternative solution is to use Wine with new WoW64, but you will be limited t
 Notes about Box64 configuration
 ----
 
-Box64 now have configurations files. There are 2 files loaded. `/etc/box64.box64rc` and `~/.box64rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](USAGE.md) for detail on what parameters can be put. Box64 comes with a default file that should be installed for better stability. The file in in `system/box64.box64rc` and should be installed to `/etc/box64.box64rc` If, for some reason, you don't want to install that file here, at least copy it to `~/.box64rc` or some game may not function correctly.
+Box64 now have configurations files. There are 2 files loaded. `/etc/box64.box64rc` and `~/.box64rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](https://github.com/ptitSeb/box64/blob/main/docs/USAGE.md) for detail on what parameters can be put. Box64 comes with a default file that should be installed for better stability. The file in in `system/box64.box64rc` and should be installed to `/etc/box64.box64rc` If, for some reason, you don't want to install that file here, at least copy it to `~/.box64rc` or some game may not function correctly.
 Note that the priority is: `~/.box64rc` > `/etc/box64.box64rc` > command line
 So, your settings in `~/.box64rc` may override the setting from your command line...
 
