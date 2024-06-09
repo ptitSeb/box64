@@ -407,7 +407,7 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
     if(!i2) { // just purge
         if(dyn->insts[ninst].n.stack_next)
             return 1;
-        if(dyn->insts[ninst].ymm_zero)
+        if(dyn->insts[ninst].ymm0_out)
             return 1;
         for(int i=0; i<32 && !ret; ++i)
             if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
@@ -424,7 +424,7 @@ int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst) {
     if(dyn->insts[ninst].n.stack_next != dyn->insts[i2].n.stack-dyn->insts[i2].n.stack_push) {
         return 1;
     }
-    if(dyn->insts[ninst].ymm_zero && (dyn->insts[ninst].ymm_zero&~dyn->insts[i2].ymm_zero))
+    if(dyn->insts[ninst].ymm0_out && (dyn->insts[ninst].ymm0_out&~dyn->insts[i2].ymm0_in))
         return 1;
     neoncache_t cache_i2 = dyn->insts[i2].n;
     neoncacheUnwind(&cache_i2);
@@ -673,12 +673,12 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
                 dynarec_log(LOG_NONE, " V%d:%s", ii, getCacheName(dyn->n.neoncache[ii].t, dyn->n.neoncache[ii].n));
                 dynarec_log(LOG_NONE, "->%s", getCacheName(dyn->insts[ninst].n.neoncache[ii].t, dyn->insts[ninst].n.neoncache[ii].n));
             }
-            dynarec_log(LOG_NONE, ")%s", (box64_dynarec_dump>1)?"\e[32m":"");
+            dynarec_log(LOG_NONE, ")%s", (box64_dynarec_dump>1)?"\e[0;32m":"");
         }
         if(dyn->insts[ninst].n.ymm_used)
             dynarec_log(LOG_NONE, " ymmUsed=%04x", dyn->insts[ninst].n.ymm_used);
-        if(dyn->ymm_zero || dyn->insts[ninst].ymm0_add || dyn->insts[ninst].ymm0_sub)
-            dynarec_log(LOG_NONE, " ymm0=%04x(+%04x-%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_add ,dyn->insts[ninst].ymm0_sub);
+        if(dyn->ymm_zero || dyn->insts[ninst].ymm0_add || dyn->insts[ninst].ymm0_sub || dyn->insts[ninst].ymm0_out)
+            dynarec_log(LOG_NONE, " ymm0=(%04x/%04x+%04x-%04x=%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_in, dyn->insts[ninst].ymm0_add ,dyn->insts[ninst].ymm0_sub, dyn->insts[ninst].ymm0_out);
         if(dyn->insts[ninst].purge_ymm)
             dynarec_log(LOG_NONE, " purgeYmm=%04x", dyn->insts[ninst].purge_ymm);
         if(dyn->mmx87 || dyn->scratchs)

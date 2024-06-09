@@ -1797,19 +1797,24 @@ int ymm_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite, int 
         if((dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) && dyn->n.neoncache[i].n==a) {
             if(forwrite) {
                 dyn->n.neoncache[i].t = NEON_CACHE_YMMW;
-                dyn->ymm_zero&=~(1<<a);
             }
+            dyn->ymm_zero&=~(1<<a);
+            #if STEP == 0
+            dyn->insts[ninst].ymm0_sub |= (1<<a);
+            #endif
             return i;
         }
     // nope, grab a new one
     int ret =  fpu_get_reg_ymm(dyn, ninst, forwrite?NEON_CACHE_YMMW:NEON_CACHE_YMMR, a, k1, k2, k3);
     if(dyn->ymm_zero&(1<<a)) {
         VEORQ(ret, ret, ret);
-        if(forwrite)
-            dyn->ymm_zero&=~(1<<a);
+        dyn->ymm_zero&=~(1<<a);
     } else {
         VLDR128_U12(ret, xEmu, offsetof(x64emu_t, ymm[a]));
     }
+    #if STEP == 0
+    dyn->insts[ninst].ymm0_sub |= (1<<a);
+    #endif
     return ret;
 }
 // get neon register for a YMM reg, but don't try to synch it if it needed to be created
@@ -1820,12 +1825,18 @@ int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int 
         if((dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) && dyn->n.neoncache[i].n==a) {
             dyn->n.neoncache[i].t = NEON_CACHE_YMMW;
             dyn->ymm_zero&=~(1<<a);
+            #if STEP == 0
+            dyn->insts[ninst].ymm0_sub |= (1<<a);
+            #endif
             return i;
         }
     // nope, grab a new one
     int ret =  fpu_get_reg_ymm(dyn, ninst, NEON_CACHE_YMMW, a, k1, k2, k3);
     if(dyn->ymm_zero&(1<<a))
         dyn->ymm_zero&=~(1<<a);
+    #if STEP == 0
+    dyn->insts[ninst].ymm0_sub |= (1<<a);
+    #endif
     return ret;
 }
 
@@ -1842,6 +1853,9 @@ void ymm_mark_zero(dynarec_arm_t* dyn, int ninst, int a)
             }
             dyn->n.neoncache[i].v = 0;  // forget it!
         }
+    #if STEP == 0
+    dyn->insts[ninst].ymm0_add |= (1<<a);
+    #endif
     avx_mark_zero(dyn, ninst, a);
 }
 
@@ -2457,10 +2471,10 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     #if STEP > 1
     // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
     dyn->n = dyn->insts[ninst].n;
-    dyn->ymm_zero = dyn->insts[ninst].ymm_zero;
+    dyn->ymm_zero = dyn->insts[ninst].ymm0_out;
     #else
     dyn->n = dyn->insts[reset_n].n;
-    dyn->ymm_zero = dyn->insts[reset_n].ymm_zero;
+    dyn->ymm_zero = dyn->insts[reset_n].ymm0_out;
     #endif
     neoncacheUnwind(&dyn->n);
     #if STEP == 0

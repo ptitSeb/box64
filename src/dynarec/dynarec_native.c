@@ -400,27 +400,29 @@ static int updateNeed(dynarec_native_t* dyn, int ninst, uint8_t need) {
     return ninst;
 }
 
-// ypdate Ymm0 and Purge_ymm0.
-static int updateYmm0(dynarec_native_t* dyn, int ninst, uint16_t mask) {
-    while (ninst<dyn->size) {
-        uint16_t ymm0 = mask&~dyn->insts[ninst].purge_ymm; // current ymm0
-        uint16_t to_purge = dyn->insts[ninst].ymm_zero & ~ymm0; // the new to purge
-        uint16_t ymm0_out = (mask|dyn->insts[ninst].ymm0_add)&~dyn->insts[ninst].ymm0_sub; // ymm0 at the output
-        //check if need to recurse further
-        int ok = (ymm0==dyn->insts[ninst].ymm_zero) && (!to_purge) && (ymm0_out==dyn->insts[ninst].ymm0_out);
-        if(ok && dyn->insts[ninst].x64.has_next)
-            ok = (dyn->insts[ninst+1].ymm_zero==(ymm0_out&~dyn->insts[ninst+1].purge_ymm));
-        if(ok && dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts!=-1)
-            ok = (dyn->insts[dyn->insts[ninst].x64.jmp_insts].ymm_zero==(ymm0_out&~dyn->insts[dyn->insts[ninst].x64.jmp_insts].purge_ymm));
-        if(ok)
-            return ninst+1;
-        dyn->insts[ninst].ymm_zero = ymm0;
-        dyn->insts[ninst].purge_ymm |= to_purge;
-        dyn->insts[ninst].ymm0_out = ymm0_out;
-        if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts!=-1)
-            updateYmm0(dyn, dyn->insts[ninst].x64.jmp_insts, ymm0_out);
-        if(!dyn->insts[ninst].x64.has_next)
-            return ninst+1;
+// update Ymm0 and Purge_ymm0.
+static int updateYmm0(dynarec_native_t* dyn, int ninst) {
+    int ok = 1;
+    while (ok && ninst<dyn->size) {
+        uint16_t ymm0 = dyn->insts[ninst].ymm0_in; // entry ymm0
+        ymm0&=~dyn->insts[ninst].purge_ymm; // entry after purge
+        uint16_t ymm0_out = (ymm0|dyn->insts[ninst].ymm0_add)&~dyn->insts[ninst].ymm0_sub;  // ymm0 after the opcode
+        ok = dyn->insts[ninst].x64.has_next;    // continue?
+        if(ok) ok = (dyn->insts[ninst].ymm0_in!=ymm0) || (dyn->insts[ninst+1].ymm0_in!=ymm0_out); // continue if there has been any change...
+        if(ok) dyn->insts[ninst+1].ymm0_in=ymm0_out;   // make the change
+        dyn->insts[ninst].ymm0_out = ymm0_out;  // update ymm0_out
+        dyn->insts[ninst].ymm0_in = ymm0;  // write purged ymm0, as it's done at the entry
+        int jmp = (dyn->insts[ninst].x64.jmp)?dyn->insts[ninst].x64.jmp_insts:-1;
+        if(jmp!=-1) {
+            // check if a purge is needed at jump point
+            ymm0_out&=~dyn->insts[jmp].purge_ymm;
+            uint16_t ymm0_jmp = dyn->insts[jmp].ymm0_in;
+            uint16_t to_purge = ymm0_jmp&~ymm0_out; // if there are too many ymm0 at jump point
+            if(to_purge) {
+                dyn->insts[jmp].purge_ymm|=to_purge;
+                updateYmm0(dyn, jmp);
+            }
+        }
         ++ninst;
     }
     return ninst;
@@ -600,14 +602,14 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         pos = updateNeed(&helper, pos, 0);
     pos = 0;
     while(pos<helper.size)
-        pos = updateYmm0(&helper, pos, helper.insts[pos].ymm_zero);
+        pos = updateYmm0(&helper, pos);
     // remove fpu stuff on non-executed code
     for(int i=1; i<helper.size-1; ++i)
         if(!helper.insts[i].pred_sz) {
             int ii = i;
             while(ii<helper.size && !helper.insts[ii].pred_sz) {
                 fpu_reset_ninst(&helper, ii++);
-                helper.insts[ii].ymm0_sub = helper.insts[ii].ymm0_add = helper.insts[ii].ymm0_out = helper.insts[ii].purge_ymm = 0;
+                helper.insts[ii].ymm0_in = helper.insts[ii].ymm0_sub = helper.insts[ii].ymm0_add = helper.insts[ii].ymm0_out = helper.insts[ii].purge_ymm = 0;
             }
             i = ii;
         }

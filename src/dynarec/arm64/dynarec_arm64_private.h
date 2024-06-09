@@ -81,8 +81,8 @@ typedef struct instruction_arm64_s {
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
     uintptr_t           natcall;
     uint16_t            retn;
-    uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint16_t            purge_ymm;  // need to purge some ymm
+    uint16_t            ymm0_in;    // bitmap of ymm to zero at purge
     uint16_t            ymm0_add;   // the ymm0 added by the opcode
     uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
     uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
