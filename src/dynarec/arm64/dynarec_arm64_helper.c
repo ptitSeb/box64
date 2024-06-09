@@ -2269,16 +2269,16 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     }
     // ymm0
     s3_top = 1;
-    if(dyn->ymm_zero && dyn->insts[i2].purge_ymm) {
+    uint16_t to_purge = dyn->ymm_zero&~dyn->insts[i2].ymm0_in;
+    if(dyn->ymm_zero && (dyn->insts[i2].purge_ymm|to_purge)) {
         for(int i=0; i<16; ++i)
-            if(dyn->insts[i2].purge_ymm&(1<<i))
-                if(is_avx_zero(dyn, ninst, i)) {
-                    if(s3_top) {
-                        ADDx_U12(s3, xEmu,offsetof(x64emu_t, ymm[0]));
-                        s3_top = 0;
-                    }
-                    STPx_S7_offset(xZR, xZR, s3, i*16);
+            if(is_avx_zero(dyn, ninst, i) && (dyn->insts[i2].purge_ymm|to_purge)&(1<<i)) {
+                if(s3_top) {
+                    ADDx_U12(s3, xEmu,offsetof(x64emu_t, ymm[0]));
+                    s3_top = 0;
                 }
+                STPx_S7_offset(xZR, xZR, s3, i*16);
+            }
     }
     if(stack_cnt != cache_i2.stack) {
         MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
