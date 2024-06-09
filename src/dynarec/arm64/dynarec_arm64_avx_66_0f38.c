@@ -433,7 +433,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(MODREG) {
                         if(!l) q1 = fpu_get_scratch(dyn, ninst);
                     } else
-                        q1 = q0;
+                        q1 = v0;
                     VUZP1Q_32(q1, v1, v1);
                 }
                 VSMULL_32(v0, q1, q0);
