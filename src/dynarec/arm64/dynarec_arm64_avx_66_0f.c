@@ -1119,14 +1119,14 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
         case 0x7F:
-            INST_NAME("MOVDQA Ex,Gx");
+            INST_NAME("VMOVDQA Ex,Gx");
             nextop = F8;
             GETGX(v0, 0);
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
                 VMOVQ(v1, v0);
                 if(vex.l) {
-                    GETGYEY(v1, v0);
+                    GETGYEY(v0, v1);
                     VMOVQ(v1, v0);
                 }
             } else {
