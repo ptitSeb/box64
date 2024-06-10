@@ -87,6 +87,33 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x04:
+            INST_NAME("PMADDUBSW Gx, Vx, Ex");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            q1 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(v0==v1 || v0==v2) {
+                    if(!l) d0 = fpu_get_scratch(dyn, ninst);
+                } else
+                    d0 = v0;
+                UXTL_8(q0, v2);   // this is unsigned, so 0 extended
+                SXTL_8(q1, v1);   // this is signed
+                VMULQ_16(q0, q0, q1);
+                SADDLPQ_16(q1, q0);
+                UXTL2_8(q0, v2);   // this is unsigned
+                SQXTN_16(d0, q1);   // SQXTN reset the vector so need to grab the high part first
+                SXTL2_8(q1, v1);   // this is signed
+                VMULQ_16(q0, q0, q1);
+                SADDLPQ_16(q0, q0);
+                SQXTN2_16(d0, q0);
+                if(v0!=d0)
+                    VMOVQ(v0, d0);
+            }
+            if(!vex.l) YMM0(gd); 
+            break;
+
         case 0x08:
             INST_NAME("VPSIGNB Gx, Vx, Ex");
             nextop = F8;
@@ -957,18 +984,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     v2 = sse_get_reg(dyn, ninst, x1, vex.v, 1);
                     v1 = sse_get_reg(dyn, ninst, x1, eb2, 0);
                 } else {
-                    v0 = ymm_get_reg(dyn, ninst, x1, gd, 1, vex.v, eb2, -1);
-                    v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 1, gd, eb2, -1);
-                    v1 = ymm_get_reg(dyn, ninst, x1, eb2, 0, gd, vex.v, -1);
+                    v0 = ymm_get_reg(dyn, ninst, x1, gd, 1, vex.v, (!rex.w)?eb2:-1, -1);
+                    v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 1, gd, (!rex.w)?eb2:-1, -1);
+                    if(!rex.w) v1 = ymm_get_reg(dyn, ninst, x1, eb2, 0, gd, vex.v, -1);
                 }
                 // prepare mask
                 if(rex.w) VSSHRQ_64(v2, v2, 63); else VSSHRQ_32(v2, v2, 31);    // prescale the values
-                if(wb1) VSHLQ_32(q1, v1, wb1); else q1 = v1;
+                if(wb1) { if(!l || !rex.w) VSHLQ_32(q1, v1, wb1); } else q1 = v1;
                 // slow gather, not much choice here...
                 if(rex.w) for(int i=0; i<2; ++i) {
                     VMOVQDto(x4, v2, i);
                     TBZ(x4, 0, 4+4*4);
-                    SMOVQSto(x4, q1, i);
+                    SMOVQSto(x4, q1, i+l*2);
                     ADDx_REG(x4, x4, ed);
                     VLD1_64(v0, i, x4);
                     VMOVQDfrom(v2, i, xZR);
