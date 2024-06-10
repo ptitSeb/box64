@@ -10,7 +10,7 @@ Linux Userspace x86_64 Emulator with a twist
 
 Box64 lets you run x86_64 Linux programs (such as games) on non-x86_64 Linux systems, like ARM (host system needs to be 64-bit little-endian).
 
-You can find many Box64 videos on the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g) or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) YouTube channels.
+You can find many Box64 videos on the [MicroLinux](https://www.youtube.com/channel/UCwFQAEj1lp3out4n7BeBatQ), [Pi Labs](https://www.youtube.com/channel/UCgfQjdc5RceRlTGfuthBs7g), or [The Byteman](https://www.youtube.com/channel/UCEr8lpIJ3B5Ctc5BvcOHSnA) YouTube channels.
 
 Since Box64 uses the native versions of some "system" libraries, like libc, libm, SDL, and OpenGL, it's easy to integrate and use with most applications, and performance can be surprisingly high in many cases. Take a look at thoses bench analysis for an example [here](https://box86.org/index.php/2021/06/game-performances/).
 
@@ -104,6 +104,7 @@ Notes about Vulkan
 ----
 
 Box64 wraps Vulkan libraries, but note that it as mostly been tested with an AMD RX550 card and on the Freedreno driver, so some extensions may be missing depending on your graphics card.
+Note: Raspberry Pi Os does not natively include Vulkan Runtime packages for programs to use, please manualy install vulkan drivers for games if your on Raspbian.
 
 ----
 
