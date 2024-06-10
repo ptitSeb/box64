@@ -104,7 +104,6 @@ Notes about Vulkan
 ----
 
 Box64 wraps Vulkan libraries, but note that it as mostly been tested with an AMD RX550 card and on the Freedreno driver, so some extensions may be missing depending on your graphics card.
-Note: Raspberry Pi Os does not natively include Vulkan Runtime packages for programs to use, please manualy install vulkan drivers for games if your on Raspbian.
 
 ----
 
