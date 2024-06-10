@@ -69,13 +69,15 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             GETGX_empty_EX(v0, q0, 1);
             u8 = F8;
-            if(v0==q0) {d0 = fpu_get_scratch(dyn, ninst); d1 = fpu_get_scratch(dyn, ninst);}
+            if(v0==q0) d0 = fpu_get_scratch(dyn, ninst);
+            if(v0==q0 || !MODREG) d1 = fpu_get_scratch(dyn, ninst);
+            q1 = d1;
             GETGY_empty_EY(v1, q1);
-            if(v0==q0) { VMOVQ(d0, v0); VMOVQ(d1, v1); q0 = d0; q1 = d1;} else {d1 = q1; d0 = q0;}
+            if(v0==q0) { VMOVQ(d0, q0); VMOVQ(d1, q1); } else {d1 = q1; d0 = q0;}
             VMOVeD(v0, 0, ((u8>>1)&1)?d1:d0, (u8>>0)&1);
             VMOVeD(v0, 1, ((u8>>3)&1)?d1:d0, (u8>>2)&1);
-            VMOVeD(v1, 0, ((u8>>5)&1)?q1:q0, (u8>>4)&1);
-            VMOVeD(v1, 1, ((u8>>7)&1)?q1:q0, (u8>>6)&1);
+            VMOVeD(v1, 0, ((u8>>5)&1)?d1:d0, (u8>>4)&1);
+            VMOVeD(v1, 1, ((u8>>7)&1)?d1:d0, (u8>>6)&1);
             break;
         case 0x02:
             INST_NAME("VPBLENDD Gx, Vx, Ex, u8");
