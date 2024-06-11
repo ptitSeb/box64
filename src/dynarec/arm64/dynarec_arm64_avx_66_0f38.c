@@ -873,6 +873,14 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VMOVQ(q0, v0);
             } else YMM0(gd);
             break;
+        case 0x5A:
+            INST_NAME("VBROADCASTI128 Gx, Ex");
+            nextop = F8;
+            GETGX_empty_EX(v0, v1, 0);
+            if(v0!=v1) VMOVQ(v0, v1);
+            GETGY_empty(v0, -1, -1, -1);
+            VMOVQ(v0, v1);
+            break;
 
         case 0x78:
             INST_NAME("VBROADCASTB Gx, Ex");
