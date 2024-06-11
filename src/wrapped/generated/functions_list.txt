@@ -4786,6 +4786,7 @@ wrappedlibtinfo:
 wrappedlibtinfo6:
 - iFpip:
   - tputs
+wrappedlibunistring2:
 wrappedlibusb1:
 - iFp:
   - libusb_cancel_transfer
