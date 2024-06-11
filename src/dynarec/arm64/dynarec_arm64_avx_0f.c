@@ -535,8 +535,8 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             break;
 
         case 0x77:
-            INST_NAME("VZEROUPPER");
             if(!vex.l) {
+                INST_NAME("VZEROUPPER");
                 if(vex.v!=0) {
                     UDF(0);
                 } else {
@@ -545,7 +545,16 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     }
                 }
             } else {
-                DEFAULT;
+                INST_NAME("VZEROALL");
+                if(vex.v!=0) {
+                    UDF(0);
+                } else {
+                    for(int i=0; i<(rex.is32bits?8:16); ++i) {
+                        v0 = sse_get_reg_empty(dyn, ninst, x1, i);
+                        VEORQ(v0, v0, v0);
+                        YMM0(i);
+                    }
+                }
             }
             break;
 
