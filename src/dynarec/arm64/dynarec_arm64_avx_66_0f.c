@@ -1205,6 +1205,31 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 LDRH_U12(gd, wback, u8*2);
             }
             break;
+        case 0xC6:
+            INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8; } else { GETGY_empty_VYEY(v0, v2, v1); u8>>=2; }
+                if((u8&3)==0b01)
+                    VEXTQ_8(v0, v2, v1, 8);
+                else if(v0==v1 && v0==v2) {
+                    switch(u8&3) {
+                        case 0b00: VDUPQ_64(v0, v0, 0); break;
+                        case 0b01: VEXTQ_8(v0, v2, v1, 8); break;
+                        case 0b10: break;
+                        case 0b11: VDUPQ_64(v0, v0, 1); break;
+                    }
+                } else if(v0==v1) {
+                    VMOVeD(v0, 1, v1, (u8>>1)&1);
+                    VMOVeD(v0, 0, v2, u8&1);
+                } else {
+                    if(v0!=v2 || (u8&1)) VMOVeD(v0, 0, v2, u8&1);
+                    VMOVeD(v0, 1, v1, (u8>>1)&1);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         case 0xD0:
             INST_NAME("VADDSUBPD Gx, Vx, Ex");
@@ -1462,11 +1487,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             MOVI_32(q1, 15);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to -15 .. +15 values
-                NEG_16(q0, q0);
-                VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
+                if(!l) {
+                    UQXTN_32(q0, v1);
+                    UMIN_32(q0, q0, q1);    // limit to -15 .. +15 values
+                    NEG_16(q0, q0);
+                    VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                }
                 SSHLQ_16(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
@@ -1478,16 +1505,26 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             MOVI_32(q1, 31);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);        // limit to 0 .. +31 values
-                NEG_32(q0, q0);
-                VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
+                if(!l) {
+                    UQXTN_32(q0, v1);
+                    UMIN_32(q0, q0, q1);        // limit to 0 .. +31 values
+                    NEG_32(q0, q0);
+                    VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
+                }
                 SSHLQ_32(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0xE3:
+            INST_NAME("VPAVGW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                URHADDQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0xE4:
             INST_NAME("VPMULHUW Gx, Vx, Ex");
             nextop = F8;

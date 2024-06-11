@@ -196,6 +196,18 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             }
             YMM0(gd);
             break;
+        case 0x17:
+            INST_NAME("VMOVHPS Ex,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                VMOVeD(v1, 0, v0, 1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                VST1_64(v0, 1, ed);
+            }
+            break;
 
         case 0x28:
             INST_NAME("VMOVAPS Gx, Ex");
