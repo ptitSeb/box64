@@ -76,7 +76,15 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0x01:
+            INST_NAME("VPHADDW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VADDPQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x02:
             INST_NAME("VPHADDD Gx, Vx, Ex");
             nextop = F8;
@@ -159,7 +167,15 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0x0B:
+            INST_NAME("VPMULHRSW Gx,Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                SQRDMULHQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0x0C:
             INST_NAME("VPERMILPS Gx, Vx, Ex");
             nextop = F8;
