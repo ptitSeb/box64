@@ -260,6 +260,7 @@ GO("libssh2.so.1", libssh2)
 GO("libp11-kit.so.0", p11kit)
 GO("libtasn1.so.6", libtasn1)
 GO("libnettle.so.8", libnettle8)
+GO("libunistring.so.2", libunistring2)
 
 #ifdef ANDROID
 GO("libc.so", libc)
