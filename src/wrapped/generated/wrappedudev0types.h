@@ -11,9 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void (*vFpp_t)(void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS() \
-	GO(udev_set_log_fn, vFpp_t)
+#define SUPER() ADDED_FUNCTIONS()
 
 #endif // __wrappedudev0TYPES_H_

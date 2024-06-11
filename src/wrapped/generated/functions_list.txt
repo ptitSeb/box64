@@ -5506,8 +5506,6 @@ wrappedtcmallocminimal:
   - mmap
   - mmap64
 wrappedudev0:
-- vFpp:
-  - udev_set_log_fn
 wrappedudev1:
 - vFpp:
   - udev_set_log_fn
