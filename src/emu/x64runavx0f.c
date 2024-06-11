@@ -515,8 +515,14 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 } else {
                     memset(emu->ymm, 0, sizeof(sse_regs_t)*((vex.rex.is32bits)?8:16));
                 }
-            } else
-                return 0;
+            } else {    // VZEROALL
+                if(vex.v!=0) {
+                    emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+                } else {
+                    memset(emu->xmm, 0, sizeof(sse_regs_t)*((vex.rex.is32bits)?8:16));
+                    memset(emu->ymm, 0, sizeof(sse_regs_t)*((vex.rex.is32bits)?8:16));
+                }
+            }
             break;
 
         case 0xAE:                      /* Grp Ed (SSE) */
