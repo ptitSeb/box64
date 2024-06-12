@@ -4472,6 +4472,7 @@ wrappedlibharfbuzz:
 - pFpuupp:
   - hb_blob_create
   - hb_blob_create_or_fail
+wrappedlibhogweed6:
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async
