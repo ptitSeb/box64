@@ -448,6 +448,33 @@ static void* find_wl_buffer_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_buffer_listener callback\n");
     return NULL;
 }
+// zwp_relative_pointer_v1_listener ...
+typedef struct my_zwp_relative_pointer_v1_listener_s {
+    uintptr_t   relative_motion; //vFppuuiiii
+} my_zwp_relative_pointer_v1_listener_t;
+#define GO(A)   \
+static my_zwp_relative_pointer_v1_listener_t* ref_zwp_relative_pointer_v1_listener_##A = NULL;                                              \
+static void* my_zwp_relative_pointer_v1_listener_relative_motion_##A(void* a, void* b, uint32_t c, uint32_t d, int e, int f, int g, int h)  \
+{                                                                                                                                           \
+    RunFunctionFmt(ref_zwp_relative_pointer_v1_listener_##A->relative_motion, "ppuuiiii", a, b, c, d, e, f, g, h);                          \
+}                                                                                                                                           \
+static my_zwp_relative_pointer_v1_listener_t my_zwp_relative_pointer_v1_listener_fct_##A = {                                                \
+    (uintptr_t)my_zwp_relative_pointer_v1_listener_relative_motion_##A,                                                                     \
+};
+SUPER()
+#undef GO
+static void* find_zwp_relative_pointer_v1_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_zwp_relative_pointer_v1_listener_##A == fct) return &my_zwp_relative_pointer_v1_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_zwp_relative_pointer_v1_listener_##A == 0) {ref_zwp_relative_pointer_v1_listener_##A = fct; return &my_zwp_relative_pointer_v1_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_relative_pointer_v1_listener callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -474,6 +501,8 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wl_keyboard_listener_Fct(l);
     } else if(!strcmp(proxy_name, "wl_buffer")) {
         l = find_wl_buffer_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "zwp_relative_pointer_v1")) {
+        l = find_zwp_relative_pointer_v1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "BOX64: Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
