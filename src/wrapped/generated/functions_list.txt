@@ -1738,6 +1738,7 @@
 #() pFpuuup
 #() pFpuupp
 #() pFpuLpp
+#() pFpuppu
 #() pFpuppp
 #() pFpUdii
 #() pFpfffi
@@ -2937,6 +2938,7 @@
 #() vFffffffffffff
 #() vFpipppiiiipii
 #() vFpippppiiiipi
+#() vFpupppppppppp
 #() vFppiiiiddddii
 #() vFppiiuuuiupup
 #() vFppiipppiiiii
@@ -3020,13 +3022,16 @@
 #() iFpppppppppppppppppp
 #() LFpppppppppppppppppp
 #() pFippppppppppppppppp
+#() pFpupppppppppppppppp
 #() vFpiiiiiiiiiiiiiiiiii
 #() uFbWWWCCCCCCCCWCCCCCC
 #() pFiiiippppppppppppppp
 #() pFpippppppppppppppppp
+#() pFpupupppppppppppppppp
 #() iFpppppppppppppppppppppp
 #() uFippuuuuiiiiuuiiiiiiiipp
 #() vFpppppppppppppppppppppppp
+#() pFpupuupppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(HAVE_LD80BITS) DFD
 #defined(HAVE_LD80BITS) DFY
@@ -5649,6 +5654,10 @@ wrappedvulkan:
   - vkGetPhysicalDeviceSparseImageFormatProperties
 - vFpiiiupupup:
   - vkCmdPipelineBarrier
+wrappedwaylandclient:
+- iFppp:
+  - wl_proxy_add_listener
+wrappedwaylandcursor:
 wrappedwaylandegl:
 wrappedxinerama:
 wrappedxkbcommon:

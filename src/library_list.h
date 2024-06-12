@@ -229,8 +229,8 @@ GO("liblcms2.so.2", lcms2)
 GO("libevent-2.1.so.7", event21)
 GO("libsoftokn3.so", softokn3)
 GO("libwayland-egl.so.1", waylandegl)
-//GO("libwayland-client.so.0", waylandclient)   // Wrapping is wrong, use native for now
-//GO("libwayland-cursor.so.0", waylandcursor)   // Wrapping is wrong, use native for now
+GO("libwayland-client.so.0", waylandclient)
+GO("libwayland-cursor.so.0", waylandcursor)
 GO("libva.so.2", libva)
 GO("libva-drm.so.2", libvadrm)
 GO("libva-x11.so.2", libvax11)
