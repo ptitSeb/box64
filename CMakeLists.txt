@@ -625,8 +625,8 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedunwind.c"
     "${BOX64_ROOT}/src/wrapped/wrappedutil.c"
     "${BOX64_ROOT}/src/wrapped/wrappedvorbisfile.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedwaylandclient.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedwaylandcursor.c"
+    #"${BOX64_ROOT}/src/wrapped/wrappedwaylandclient.c"
+    #"${BOX64_ROOT}/src/wrapped/wrappedwaylandcursor.c"
     "${BOX64_ROOT}/src/wrapped/wrappedwaylandegl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxinerama.c"
     "${BOX64_ROOT}/src/wrapped/wrappedxkbcommon.c"
@@ -1001,6 +1001,9 @@ if(NOT _x86 AND NOT _x86_64)
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedtls.so.12 DESTINATION ${INSTALL_PATH})
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedcrypto.so.7 DESTINATION ${INSTALL_PATH})
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedcrypto.so.3 DESTINATION ${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libffi.so.8 DESTINATION ${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libwayland-client.so.0 DESTINATION ${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libwayland-cursor.so.0 DESTINATION ${INSTALL_PATH})
             # Create symlinks
             install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${INSTALL_PATH}libssl.so.1.1 ${INSTALL_PATH}libssl.so.1.0.0)")
             install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${INSTALL_PATH}libcrypto.so.1.1 ${INSTALL_PATH}libcrypto.so.1.0.0)")
@@ -1018,6 +1021,9 @@ if(NOT _x86 AND NOT _x86_64)
         install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedtls.so.12 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
         install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedcrypto.so.7 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
         install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedcrypto.so.3 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+        install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libffi.so.8 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+        install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libwayland-client.so.0 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+        install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libwayland-cursor.so.0 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 	endif()
    endif()
 endif()
