@@ -517,7 +517,7 @@ void computeRDTSC()
     printf_log(LOG_INFO, "Will use time-based emulation for rdtsc, even if hardware counter are available\n");
     #endif
     uint64_t freq = ReadTSCFrequency(NULL);
-    if(freq<(box64_rdtsc_1ghz)?1000000000LL:1000000) {
+    if(freq<((box64_rdtsc_1ghz)?1000000000LL:1000000)) {
         box64_rdtsc = 1;
         if(hardware) printf_log(LOG_INFO, "Hardware counter to slow (%d kHz), not using it\n", freq/1000);
         hardware = 0;
