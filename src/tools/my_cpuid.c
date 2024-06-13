@@ -468,3 +468,10 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EDX = 0;
     }   
 }
+
+uint32_t helper_getcpu(x64emu_t* emu) {
+    uint32_t cpu, node;
+    if(!getcpu(&cpu, &node))
+        return (node&0xff)<<12 | (cpu&0xff);
+    return 0;
+}

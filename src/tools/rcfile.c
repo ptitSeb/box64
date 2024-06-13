@@ -99,6 +99,7 @@ ENTRYBOOL(BOX64_CRASHHANDLER, box64_dummy_crashhandler) \
 ENTRYBOOL(BOX64_NOPULSE, box64_nopulse)                 \
 ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \
 ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
+ENTRYBOOL(BOX64_RDTSC_1GHZ, box64_rdtsc_1ghz)           \
 ENTRYBOOL(BOX64_SSE42, box64_sse42)                     \
 ENTRYINT(BOX64_AVX, new_avx, 0, 2, 2)                   \
 ENTRYBOOL(BOX64_FUTEX_WAITV, box64_futex_waitv)         \
@@ -489,6 +490,7 @@ extern char* ftrace_name;
 void openFTrace(const char* newtrace);
 void addNewEnvVar(const char* s);
 void AddNewLibs(const char* libs);
+void computeRDTSC();
 #ifdef DYNAREC
 void GatherDynarecExtensions();
 #endif
@@ -568,6 +570,8 @@ void ApplyParams(const char* name)
             box64_avx = 1; box64_avx2 = 1;
         }
     }
+    if(param->is_box64_rdtsc_1ghz_present)
+        computeRDTSC();
     #ifdef DYNAREC
     if(param->is_box64_dynarec_jvm_present && !param->is_box64_jvm_present)
         box64_jvm = box64_dynarec_jvm;

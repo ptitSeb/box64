@@ -65,6 +65,7 @@ int box64_mmap32 = 0;
 #endif
 int box64_ignoreint3 = 0;
 int box64_rdtsc = 0;
+int box64_rdtsc_1ghz = 0;
 uint8_t box64_rdtsc_shift = 0;
 #ifdef DYNAREC
 int box64_dynarec = 1;
@@ -504,6 +505,45 @@ HWCAP2_ECV
 }
 #endif
 
+void computeRDTSC()
+{
+    int hardware  = 0;
+    box64_rdtsc_shift = 0;
+    #if defined(ARM64) || defined(RV64)
+    hardware = 1;
+    box64_rdtsc = 0;    // allow hardxare counter
+    #else
+    box64_rdtsc = 1;
+    printf_log(LOG_INFO, "Will use time-based emulation for rdtsc, even if hardware counter are available\n");
+    #endif
+    uint64_t freq = ReadTSCFrequency(NULL);
+    if(freq<(box64_rdtsc_1ghz)?1000000000LL:1000000) {
+        box64_rdtsc = 1;
+        if(hardware) printf_log(LOG_INFO, "Hardware counter to slow (%d kHz), not using it\n", freq/1000);
+        hardware = 0;
+        freq = ReadTSCFrequency(NULL);
+    }
+    uint64_t efreq = freq;
+    while(efreq<2000000000) {    // minium 2GHz
+        ++box64_rdtsc_shift;
+        efreq = freq<<box64_rdtsc_shift;
+    }
+    printf_log(LOG_INFO, "Will use %s counter measured at ", box64_rdtsc?"Software":"Hardware");
+    int ghz = freq>=1000000000LL;
+    if(ghz) freq/=100000000LL; else freq/=100000;
+    if(ghz) printf_log(LOG_INFO, "%d.%d GHz", freq/10, freq%10);
+    if(!ghz && (freq>=1000)) printf_log(LOG_INFO, "%d MHz", freq/10);
+    if(!ghz && (freq<1000)) printf_log(LOG_INFO, "%d.%d MHz", freq/10, freq%10);
+    if(box64_rdtsc_shift) {
+        printf_log(LOG_INFO, " emulating ");
+        ghz = efreq>=1000000000LL;
+        if(ghz) efreq/=100000000LL; else efreq/=100000;
+        if(ghz) printf_log(LOG_INFO, "%d.%d GHz", efreq/10, efreq%10);
+        if(!ghz && (efreq>=1000)) printf_log(LOG_INFO, "%d MHz", efreq/10);
+        if(!ghz && (efreq<1000)) printf_log(LOG_INFO, "%d.%d MHz", efreq/10, efreq%10);
+    }
+    printf_log(LOG_INFO, "\n");
+}
 
 EXPORTDYN
 void LoadLogEnv()
@@ -1005,6 +1045,15 @@ void LoadLogEnv()
             printf_log(LOG_INFO, "Will expose AVX2 capabilities\n");
         }
     }
+    p = getenv("BOX64_RDTSC_1GHZ");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_rdtsc_1ghz = p[0]-'0';
+        }
+        if(!box64_rdtsc_1ghz)
+            printf_log(LOG_INFO, "Will require a hardware counter of 1GHz minimum or will fallback to software\n");
+    }
     p = getenv("BOX64_FIX_64BIT_INODES");
     if(p) {
         if(strlen(p)==1) {
@@ -1087,41 +1136,7 @@ void LoadLogEnv()
     const char* cpuname = getCpuName();
     printf_log(LOG_INFO, " PageSize:%zd Running on %s with %d Cores\n", box64_pagesize, cpuname, ncpu);
     // grab and calibrate hardware counter
-    int hardware  = 0;
-    #if defined(ARM64) || defined(RV64)
-    hardware = 1;
-    box64_rdtsc = 0;    // allow hardxare counter
-    #else
-    box64_rdtsc = 1;
-    printf_log(LOG_INFO, "Will use time-based emulation for rdtsc, even if hardware counter are available\n");
-    #endif
-    uint64_t freq = ReadTSCFrequency(NULL);
-    if(freq<1000000) {
-        box64_rdtsc = 1;
-        if(hardware) printf_log(LOG_INFO, "Hardware counter to slow (%d kHz), not using it\n", freq/1000);
-        hardware = 0;
-        freq = ReadTSCFrequency(NULL);
-    }
-    uint64_t efreq = freq;
-    while(efreq<2000000000) {    // minium 2GHz
-        ++box64_rdtsc_shift;
-        efreq = freq<<box64_rdtsc_shift;
-    }
-    printf_log(LOG_INFO, "Will use %s counter measured at ", box64_rdtsc?"Software":"Hardware");
-    int ghz = freq>=1000000000LL;
-    if(ghz) freq/=100000000LL; else freq/=100000;
-    if(ghz) printf_log(LOG_INFO, "%d.%d GHz", freq/10, freq%10);
-    if(!ghz && (freq>=1000)) printf_log(LOG_INFO, "%d MHz", freq/10);
-    if(!ghz && (freq<1000)) printf_log(LOG_INFO, "%d.%d MHz", freq/10, freq%10);
-    if(box64_rdtsc_shift) {
-        printf_log(LOG_INFO, " emulating ");
-        ghz = efreq>=1000000000LL;
-        if(ghz) efreq/=100000000LL; else efreq/=100000;
-        if(ghz) printf_log(LOG_INFO, "%d.%d GHz", efreq/10, efreq%10);
-        if(!ghz && (efreq>=1000)) printf_log(LOG_INFO, "%d MHz", efreq/10);
-        if(!ghz && (efreq<1000)) printf_log(LOG_INFO, "%d.%d MHz", efreq/10, efreq%10);
-    }
-    printf_log(LOG_INFO, "\n");
+    computeRDTSC();
 }
 
 EXPORTDYN
