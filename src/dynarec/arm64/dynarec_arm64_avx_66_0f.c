@@ -1094,6 +1094,34 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x7C:
+            INST_NAME("VHADDPD Gx, Vx, Ex");
+            nextop = F8;
+            if(!box64_dynarec_fastnan) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+            }
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(!box64_dynarec_fastnan) {
+                    // check if any input value was NAN
+                    // but need to mix low/high part
+                    VTRNQ1_64(q0, v2, v1);
+                    VTRNQ2_64(q1, v2, v1);
+                    VFMAXQD(q0, q0, q1);    // propagate NAN
+                    VFCMEQQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
+                }
+                VFADDPQD(v0, v2, v1);
+                if(!box64_dynarec_fastnan) {
+                    VFCMEQQD(q1, v0, v0);    // 0 => out is NAN
+                    VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
+                    VSHLQ_64(q1, q1, 63);   // only keep the sign bit
+                    VORRQ(v0, v0, q1);      // NAN -> -NAN
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0x7E:
             INST_NAME("VMOVD Ed,Gx");
             nextop = F8;
