@@ -352,6 +352,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x7C:
+            INST_NAME("VHADDPS Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VFADDPQS(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
@@ -421,6 +431,29 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             x87_restoreround(dyn, ninst, u8);
             YMM0(gd);
+            break;
+
+        case 0xF0:
+            INST_NAME("LDDQU Gx,Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+                if(vex.l) {
+                    GETGY_empty_EY(v0, v1);
+                    VMOVQ(v0, v1);
+                }
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 7, rex, NULL, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
+                v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
+                VLDR128_U12(v0, ed, fixedaddress+16);
+            }
+            if(!vex.l) YMM0(gd);
             break;
 
         default:
