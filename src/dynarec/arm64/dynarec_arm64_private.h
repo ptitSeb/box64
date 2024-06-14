@@ -58,6 +58,7 @@ typedef struct neoncache_s {
     int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t              fpu_scratch;    // scratch counter
     int8_t              fpu_reg;        // x87/sse/mmx reg counter
+    uint16_t            ymm_used;       // mask of the ymm regs used in this opcode
 } neoncache_t;
 
 typedef struct flagcache_s {
@@ -80,11 +81,12 @@ typedef struct instruction_arm64_s {
     int                 pass2choice;// value for choices that are fixed on pass2 for pass3
     uintptr_t           natcall;
     uint16_t            retn;
-    uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint16_t            purge_ymm;  // need to purge some ymm
+    uint16_t            ymm0_in;    // bitmap of ymm to zero at purge
     uint16_t            ymm0_add;   // the ymm0 added by the opcode
     uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
     uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
+    uint16_t            ymm0_pass2, ymm0_pass3;
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;
@@ -131,6 +133,8 @@ typedef struct dynarec_arm_s {
     uint8_t             doublepop;
     uint8_t             always_test;
     uint8_t             abort;      // abort the creation of the block
+    uint8_t             scratchs;   // mask of the 8 scratch neon register globaly used in the dynablock
+    uint8_t             mmx87;      // mask of the 8 mmx/x87 neon register globaly used in the dynablock
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

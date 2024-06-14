@@ -1991,6 +1991,7 @@
 #() iFpiCCpu
 #() iFpiuuup
 #() iFpiuupp
+#() iFpipiii
 #() iFpipipi
 #() iFpipipp
 #() iFpipupp
@@ -4473,6 +4474,7 @@ wrappedlibharfbuzz:
 - pFpuupp:
   - hb_blob_create
   - hb_blob_create_or_fail
+wrappedlibhogweed6:
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async
@@ -4606,6 +4608,7 @@ wrappedlibncursesw6:
   - mvprintw
 - iFpiipV:
   - mvwprintw
+wrappedlibnettle8:
 wrappedlibnuma:
 wrappedlibogg:
 wrappedlibpanel:
@@ -4786,6 +4789,7 @@ wrappedlibtinfo:
 wrappedlibtinfo6:
 - iFpip:
   - tputs
+wrappedlibunistring2:
 wrappedlibusb1:
 - iFp:
   - libusb_cancel_transfer
@@ -5505,8 +5509,6 @@ wrappedtcmallocminimal:
   - mmap
   - mmap64
 wrappedudev0:
-- vFpp:
-  - udev_set_log_fn
 wrappedudev1:
 - vFpp:
   - udev_set_log_fn
@@ -5655,6 +5657,8 @@ wrappedvulkan:
 - vFpiiiupupup:
   - vkCmdPipelineBarrier
 wrappedwaylandclient:
+- iFppp:
+  - wl_proxy_add_listener
 wrappedwaylandcursor:
 wrappedwaylandegl:
 wrappedxinerama:

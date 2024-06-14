@@ -276,6 +276,26 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             FCOMI(x1, x2);
             break;
 
+        case 0x50:
+            nextop = F8;
+            INST_NAME("VMOVMSKPD Gd, Ex");
+            GETEX_Y(q0, 0, 0);
+            GETGD;
+            VMOVQDto(x1, q0, 0);
+            VMOVQDto(gd, q0, 1);
+            LSRx(gd, gd, 62);
+            BFXILx(gd, x1, 63, 1);
+            if(vex.l) {
+                GETEY(q0);
+                VMOVQDto(x1, q0, 0);
+                VMOVQDto(x2, q0, 1);
+                LSRx(x1, x1, 63);
+                LSRx(x2, x2, 63);
+                BFIx(gd, x1, 2, 1);
+                BFIx(gd, x2, 3, 1);
+            }
+            break;
+
         case 0x54:
             INST_NAME("VANDPD Gx, Vx, Ex");
             nextop = F8;
@@ -1074,6 +1094,34 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x7C:
+            INST_NAME("VHADDPD Gx, Vx, Ex");
+            nextop = F8;
+            if(!box64_dynarec_fastnan) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+            }
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(!box64_dynarec_fastnan) {
+                    // check if any input value was NAN
+                    // but need to mix low/high part
+                    VTRNQ1_64(q0, v2, v1);
+                    VTRNQ2_64(q1, v2, v1);
+                    VFMAXQD(q0, q0, q1);    // propagate NAN
+                    VFCMEQQD(q0, q0, q0);    // 0 if NAN, 1 if not NAN
+                }
+                VFADDPQD(v0, v2, v1);
+                if(!box64_dynarec_fastnan) {
+                    VFCMEQQD(q1, v0, v0);    // 0 => out is NAN
+                    VBICQ(q1, q0, q1);      // forget it in any input was a NAN already
+                    VSHLQ_64(q1, q1, 63);   // only keep the sign bit
+                    VORRQ(v0, v0, q1);      // NAN -> -NAN
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0x7E:
             INST_NAME("VMOVD Ed,Gx");
             nextop = F8;
@@ -1099,14 +1147,14 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
         case 0x7F:
-            INST_NAME("MOVDQA Ex,Gx");
+            INST_NAME("VMOVDQA Ex,Gx");
             nextop = F8;
             GETGX(v0, 0);
             if(MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
                 VMOVQ(v1, v0);
                 if(vex.l) {
-                    GETGYEY(v1, v0);
+                    GETGYEY(v0, v1);
                     VMOVQ(v1, v0);
                 }
             } else {
@@ -1118,6 +1166,39 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 }
                 SMWRITE2();
             }
+            break;
+
+        case 0xC2:
+            INST_NAME("VCMPPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8; } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(((u8&15)==3) || ((u8&15)==7) || ((u8&15)==8) || ((u8&15)==9) || ((u8&15)==10) || ((u8&15)==12) || ((u8&15)==13) || ((u8&15)==14)) {
+                    VFMAXQD(q0, v2, v1);    // propagate NAN
+                    VFCMEQQD(((u8&15)==7)?v0:q0, q0, q0);   // 0 if NAN, 1 if not NAN
+                }
+                switch(u8&0xf) {
+                    // the inversion of the params in the comparison is there to handle NaN the same way SSE does
+                    case 0x00: VFCMEQQD(v0, v2, v1); break;   // Equal, not unordered
+                    case 0x01: VFCMGTQD(v0, v1, v2); break;   // Less than
+                    case 0x02: VFCMGEQD(v0, v1, v2); break;   // Less or equal
+                    case 0x03: VMVNQ(v0, q0); break;   // unordered
+                    case 0x04: VFCMEQQD(v0, v2, v1); VMVNQ(v0, v0); break;   // Not Equal (or unordered on ARM, not on X86...)
+                    case 0x05: VFCMGTQD(v0, v1, v2); VMVNQ(v0, v0); break;   // Greater or equal or unordered
+                    case 0x06: VFCMGEQD(v0, v1, v2); VMVNQ(v0, v0); break;   // Greater or unordered
+                    case 0x07: break;  // ordered
+                    case 0x08: VFCMEQQD(v0, v2, v1); VORNQ(v0, v0, q0); break;   // Equal, or unordered
+                    case 0x09: VFCMGTQD(v0, v1, v2); VORNQ(v0, v0, q0); break;   // Less than or unordered
+                    case 0x0a: VFCMGEQD(v0, v1, v2); VORNQ(v0, v0, q0); break;   // Less or equal or unordered
+                    case 0x0b: VEORQ(v0, v0, v0); break; // false
+                    case 0x0c: VFCMEQQD(v0, v2, v1); VBICQ(v0, q0, v0); break;
+                    case 0x0d: VFCMGEQD(v0, v2, v1); break;
+                    case 0x0e: VFCMGTQD(v0, v2, v1); break;
+                    case 0x0f: MOVIQ_64(v0, 0xff); break; //true
+                }
+            }
+            if(!vex.l) YMM0(gd);
             break;
 
         case 0xC4:
@@ -1152,6 +1233,31 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 LDRH_U12(gd, wback, u8*2);
             }
             break;
+        case 0xC6:
+            INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 1); u8 = F8; } else { GETGY_empty_VYEY(v0, v2, v1); u8>>=2; }
+                if((u8&3)==0b01)
+                    VEXTQ_8(v0, v2, v1, 8);
+                else if(v0==v1 && v0==v2) {
+                    switch(u8&3) {
+                        case 0b00: VDUPQ_64(v0, v0, 0); break;
+                        case 0b01: VEXTQ_8(v0, v2, v1, 8); break;
+                        case 0b10: break;
+                        case 0b11: VDUPQ_64(v0, v0, 1); break;
+                    }
+                } else if(v0==v1) {
+                    VMOVeD(v0, 1, v1, (u8>>1)&1);
+                    VMOVeD(v0, 0, v2, u8&1);
+                } else {
+                    if(v0!=v2 || (u8&1)) VMOVeD(v0, 0, v2, u8&1);
+                    VMOVeD(v0, 1, v1, (u8>>1)&1);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         case 0xD0:
             INST_NAME("VADDSUBPD Gx, Vx, Ex");
@@ -1172,11 +1278,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             MOVI_32(q1, 16);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to 0 .. +16 values
-                NEG_32(q0, q0);         // neg to do shr
-                VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
+                if(!l) {
+                    UQXTN_32(q0, v1);
+                    UMIN_32(q0, q0, q1);    // limit to 0 .. +16 values
+                    NEG_32(q0, q0);         // neg to do shr
+                    VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                }
                 USHLQ_16(v0, v2, q0);   // SHR x8
             }
             if(!vex.l) YMM0(gd);
@@ -1188,11 +1296,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             MOVI_32(q1, 32);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to 0 .. +32 values
-                NEG_32(q0, q0);         // neg to do shr
-                VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
+                if(!l) {
+                    UQXTN_32(q0, v1);
+                    UMIN_32(q0, q0, q1);    // limit to 0 .. +32 values
+                    NEG_32(q0, q0);         // neg to do shr
+                    VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                }
                 USHLQ_32(v0, v2, q0);   // SHR x4
             }
             if(!vex.l) YMM0(gd);
@@ -1204,11 +1314,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             MOVI_32(q1, 64);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to 0 .. +64 values
-                NEG_32(q0, q0);         // neg to do shr
-                VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
+                if(!l) {
+                    UQXTN_32(q0, v1);
+                    UMIN_32(q0, q0, q1);    // limit to 0 .. +64 values
+                    NEG_32(q0, q0);         // neg to do shr
+                    VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                }
                 USHLQ_64(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
@@ -1403,11 +1515,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             MOVI_32(q1, 15);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);    // limit to -15 .. +15 values
-                NEG_16(q0, q0);
-                VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
+                if(!l) {
+                    UQXTN_32(q0, v1);
+                    UMIN_32(q0, q0, q1);    // limit to -15 .. +15 values
+                    NEG_16(q0, q0);
+                    VDUPQ_16(q0, q0, 0);    // only the low 8bits will be used anyway
+                }
                 SSHLQ_16(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
@@ -1419,16 +1533,26 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             q1 = fpu_get_scratch(dyn, ninst);
             MOVI_32(q1, 31);
             for(int l=0; l<1+vex.l; ++l) {
-                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                UQXTN_32(q0, v1);
-                UMIN_32(q0, q0, q1);        // limit to 0 .. +31 values
-                NEG_32(q0, q0);
-                VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
+                if(!l) {
+                    UQXTN_32(q0, v1);
+                    UMIN_32(q0, q0, q1);        // limit to 0 .. +31 values
+                    NEG_32(q0, q0);
+                    VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
+                }
                 SSHLQ_32(v0, v2, q0);
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0xE3:
+            INST_NAME("VPAVGW Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                URHADDQ_16(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
         case 0xE4:
             INST_NAME("VPMULHUW Gx, Vx, Ex");
             nextop = F8;
@@ -1457,7 +1581,51 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             if(!vex.l) YMM0(gd);
             break;
-
+        case 0xE6:
+            INST_NAME("VCVTTPD2DQ Gx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) {
+                    GETEX_Y(v1, 0, 0);
+                    GETGX_empty(v0);
+                } else {
+                    if(box64_dynarec_fastround)
+                        d0 = fpu_get_scratch(dyn, ninst);
+                    GETEY(v1);
+                }
+                if(box64_dynarec_fastround) {
+                    VFCVTZSQD(l?d0:v0, v1); // convert double -> int64
+                    if(!l)
+                        SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
+                    else
+                        SQXTN2_32(v0, d0);   // convert int64 -> int32 with saturation in higher part
+                } else {
+                    if(!l) {
+                        MRS_fpsr(x5);
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        ORRw_mask(x4, xZR, 1, 0);    //0x80000000
+                        d0 = fpu_get_scratch(dyn, ninst);
+                    }
+                    for(int i=0; i<2; ++i) {
+                        BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
+                        if(i) {
+                            VMOVeD(d0, 0, v1, i);
+                            FCVTZSwD(x1, d0);
+                        } else {
+                            FCVTZSwD(x1, v1);
+                        }
+                        MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                        TSTw_mask(x5, 0, 0);    // mask = 1 = FPSR_IOC
+                        CSELx(x1, x1, x4, cEQ);
+                        VMOVQSfrom(v0, i+l*2, x1);
+                    }
+                    if(!vex.l && !l) VMOVQDfrom(v0, 1, xZR);
+                }
+            }
+            YMM0(gd);
+            break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex,Gx");
             nextop = F8;
@@ -1664,6 +1832,21 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VSMULL_16(q0, v2, v1);
                 VSMULL2_16(q1, v2, v1);
                 VADDPQ_32(v0, q0, q1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+        case 0xF6:
+            INST_NAME("VPSADBW Gx, Vx, Ex");
+            nextop = F8;
+            d0 = fpu_get_scratch(dyn, ninst);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                UABDL_8(d0, v2, v1);
+                UADDLVQ_16(d0, d0);
+                VMOVeD(v0, 0, d0, 0);
+                UABDL2_8(d0, v2, v1);
+                UADDLVQ_16(d0, d0);
+                VMOVeD(v0, 1, d0, 0);
             }
             if(!vex.l) YMM0(gd);
             break;

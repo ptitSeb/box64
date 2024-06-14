@@ -118,7 +118,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         tmp64u<<=box64_rdtsc_shift;
                     R_RAX = tmp64u & 0xffffffff;
                     R_RDX = tmp64u >> 32;
-                    R_RCX = 0;  // should be low of IA32_TSC
+                    R_RCX = helper_getcpu(emu);
                     #ifdef TEST_INTERPRETER
                     test->notest = 1;
                     #endif

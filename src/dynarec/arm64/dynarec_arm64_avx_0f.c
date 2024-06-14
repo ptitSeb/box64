@@ -72,11 +72,11 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 ed = (nextop&7)+(rex.b<<3);
                 v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
-                VMOVQ(v0, v1);
+                if(v0!=v1) VMOVQ(v0, v1);
                 if(vex.l) {
                     v1 = ymm_get_reg(dyn, ninst, x1, ed, 0, gd, -1, -1);
                     v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, ed, -1, -1);
-                    VMOVQ(v0, v1);
+                    if(v0!=v1) VMOVQ(v0, v1);
                 }
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
@@ -195,6 +195,18 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 VLD1_64(v0, 1, ed);
             }
             YMM0(gd);
+            break;
+        case 0x17:
+            INST_NAME("VMOVHPS Ex,Gx");
+            nextop = F8;
+            GETGX(v0, 0);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1);
+                VMOVeD(v1, 0, v0, 1);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
+                VST1_64(v0, 1, ed);
+            }
             break;
 
         case 0x28:
@@ -523,8 +535,8 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             break;
 
         case 0x77:
-            INST_NAME("VZEROUPPER");
             if(!vex.l) {
+                INST_NAME("VZEROUPPER");
                 if(vex.v!=0) {
                     UDF(0);
                 } else {
@@ -533,7 +545,16 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     }
                 }
             } else {
-                DEFAULT;
+                INST_NAME("VZEROALL");
+                if(vex.v!=0) {
+                    UDF(0);
+                } else {
+                    for(int i=0; i<(rex.is32bits?8:16); ++i) {
+                        v0 = sse_get_reg_empty(dyn, ninst, x1, i);
+                        VEORQ(v0, v0, v0);
+                        YMM0(i);
+                    }
+                }
             }
             break;
 

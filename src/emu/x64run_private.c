@@ -1567,9 +1567,12 @@ reg64_t* TestEw(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t 
         return &test->emu->regs[(m&0x07)+(rex.b<<3)];
     } else {
         reg64_t* ret =  GetECommon(test->emu, addr, rex, m, delta);
-        test->memsize = 2;
+        test->memsize = rex.w?8:2;
         test->memaddr = (uintptr_t)ret;
-        *(uint16_t*)test->mem = ret->word[0];
+        if(rex.w)
+            *(uint64_t*)test->mem = ret->q[0];
+        else
+            *(uint16_t*)test->mem = ret->word[0];
         return (reg64_t*)test->mem;
     }
 }

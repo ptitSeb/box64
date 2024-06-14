@@ -14,6 +14,7 @@ extern int box64_maxcpu;
 extern int box64_mmap32;
 extern int box64_ignoreint3;
 extern int box64_rdtsc;
+extern int box64_rdtsc_1ghz;
 extern uint8_t box64_rdtsc_shift;
 #ifdef DYNAREC
 extern int box64_dynarec_dump;

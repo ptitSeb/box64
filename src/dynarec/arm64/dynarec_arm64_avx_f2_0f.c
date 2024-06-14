@@ -183,6 +183,32 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             break;
 
+        case 0x51:
+            INST_NAME("VSQRTSD Gx, Vx, Ex");
+            nextop = F8;
+            d1 = fpu_get_scratch(dyn, ninst);
+            GETEXSD(v1, 0, 0);
+            GETGX_empty_VX(v0, v2);
+            if(!box64_dynarec_fastnan) {
+                q0 = fpu_get_scratch(dyn, ninst);
+                q1 = fpu_get_scratch(dyn, ninst);
+                // check if any input value was NAN
+                FCMEQD(q0, v1, v1);    // 0 if NAN, 1 if not NAN
+            }
+            FSQRTD(d1, v1);
+            if(!box64_dynarec_fastnan) {
+                FCMEQD(q1, d1, d1);    // 0 => out is NAN
+                VBIC(q1, q0, q1);      // forget it in any input was a NAN already
+                VSHLQ_64(q1, q1, 63);   // only keep the sign bit
+                VORR(d1, d1, q1);      // NAN -> -NAN
+            }
+            if(v0!=v2) {
+                VMOVQ(v0, v2);
+            }
+            VMOVeD(v0, 0, d1, 0);
+            YMM0(gd)
+            break;
+
         case 0x58:
             INST_NAME("VADDSD Gx, Vx, Ex");
             nextop = F8;
@@ -326,6 +352,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
 
+        case 0x7C:
+            INST_NAME("VHADDPS Gx, Vx, Ex");
+            nextop = F8;
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                VFADDPQS(v0, v2, v1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
@@ -356,14 +392,14 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 if(!l) {
                     GETEX_Y(v1, 0, 0);
                     GETGX_empty(v0);
-                } else {
-                    if(box64_dynarec_fastround)
+                    if(!box64_dynarec_fastround || vex.l)
                         d0 = fpu_get_scratch(dyn, ninst);
+                } else {
                     GETEY(v1);
                 }
                 if(box64_dynarec_fastround) {
-                    VFRINTIDQ(v0, v1);
-                    VFCVTNSQD(v0, v0);  // convert double -> int64
+                    VFRINTIDQ(l?d0:v0, v1);
+                    VFCVTNSQD(l?d0:v0, l?d0:v0);  // convert double -> int64
                     if(!l)
                         SQXTN_32(v0, v0);   // convert int64 -> int32 with saturation in lower part, RaZ high part
                     else
@@ -374,7 +410,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                         MSR_fpsr(x5);
                         ORRw_mask(x4, xZR, 1, 0);    //0x80000000
-                        d0 = fpu_get_scratch(dyn, ninst);
                     }
                     for(int i=0; i<2; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
@@ -396,6 +431,29 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             x87_restoreround(dyn, ninst, u8);
             YMM0(gd);
+            break;
+
+        case 0xF0:
+            INST_NAME("LDDQU Gx,Ex");
+            nextop = F8;
+            GETG;
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                VMOVQ(v0, v1);
+                if(vex.l) {
+                    GETGY_empty_EY(v0, v1);
+                    VMOVQ(v0, v1);
+                }
+            } else {
+                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xffe<<4, 7, rex, NULL, 0, 0);
+                VLDR128_U12(v0, ed, fixedaddress);
+                v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, -1, -1, -1);
+                VLDR128_U12(v0, ed, fixedaddress+16);
+            }
+            if(!vex.l) YMM0(gd);
             break;
 
         default:

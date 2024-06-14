@@ -566,6 +566,13 @@
     else                                                                                        \
         VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
 
+// Get written EY
+#define GETEYw(ey)                                                                              \
+    if(MODREG)                                                                                  \
+        ey = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, -1, -1, -1);                 \
+    else                                                                                        \
+        VLDR128_U12(ey, ed, fixedaddress+16);                                                   \
+
 // Get empty EY and non-writen GY
 #define GETGYEY_empty(gy, ey)                                                                   \
     gy = ymm_get_reg(dyn, ninst, x1, gd, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1, -1);       \
@@ -1328,6 +1335,7 @@ void* arm64_next(x64emu_t* emu, uintptr_t addr);
 #define ymm_get_reg       STEPNAME(ymm_get_reg)
 #define ymm_get_reg_empty STEPNAME(ymm_get_reg_empty)
 #define ymm_mark_zero     STEPNAME(ymm_mark_zero)
+#define fpu_get_reg_ymm   STEPNAME(fpu_get_reg_ymm)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
@@ -1580,7 +1588,8 @@ int ymm_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite, int 
 int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int k2, int k3);
 // mark an ymm upper part has zero (forgetting upper part if needed)
 void ymm_mark_zero(dynarec_arm_t* dyn, int ninst, int a);
-
+// Get an YMM upper quad reg, while keeping up to 3 other YMM reg (-1 to no keep)
+int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k2, int k3);
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);

@@ -150,6 +150,13 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
     #define ARCH_SET_FS          0x1002
     #define ARCH_GET_FS          0x1003
     #define ARCH_GET_GS          0x1004
+    #define ARCH_GET_CPUID			0x1011
+    #define ARCH_SET_CPUID			0x1012
+    #define ARCH_GET_XCOMP_SUPP		0x1021
+    #define ARCH_GET_XCOMP_PERM		0x1022
+    #define ARCH_REQ_XCOMP_PERM		0x1023
+    #define ARCH_GET_XCOMP_GUEST_PERM	0x1024
+    #define ARCH_REQ_XCOMP_GUEST_PERM	0x1025
     int seg = 0;
     int idx = 0;
     errno = 0;
@@ -198,6 +205,12 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
                 pthread_setspecific(my_context->segtls[idx].key, addr);
             ResetSegmentsCache(emu);
             return 0;
+        case ARCH_GET_XCOMP_SUPP:
+        case ARCH_GET_XCOMP_PERM:
+        case ARCH_REQ_XCOMP_PERM:
+            // unsupported, this is for AVX512...
+            errno = ENOSYS;
+            return -1;
     }
     // other are unsupported
     printf_log(LOG_INFO, "warning, call to unsupported arch_prctl(0x%x, %p)\n", code, addr);

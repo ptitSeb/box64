@@ -64,7 +64,7 @@ An alternative solution is to use Wine with new WoW64, but you will be limited t
 Notes about Box64 configuration
 ----
 
-Box64 now have configurations files. There are 2 files loaded. `/etc/box64.box64rc` and `~/.box64rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](USAGE.md) for detail on what parameters can be put. Box64 comes with a default file that should be installed for better stability. The file in in `system/box64.box64rc` and should be installed to `/etc/box64.box64rc` If, for some reason, you don't want to install that file here, at least copy it to `~/.box64rc` or some game may not function correctly.
+Box64 now have configurations files. There are 2 files loaded. `/etc/box64.box64rc` and `~/.box64rc`. Both files have the same syntax, and is basicaly an ini files. Section in square brakets define the process name, and the rest is the env. var. to set. Looke at [Usage](https://github.com/ptitSeb/box64/blob/main/docs/USAGE.md) for detail on what parameters can be put. Box64 comes with a default file that should be installed for better stability. The file in in `system/box64.box64rc` and should be installed to `/etc/box64.box64rc` If, for some reason, you don't want to install that file here, at least copy it to `~/.box64rc` or some game may not function correctly.
 Note that the priority is: `~/.box64rc` > `/etc/box64.box64rc` > command line
 So, your settings in `~/.box64rc` may override the setting from your command line...
 
@@ -74,7 +74,7 @@ Notes about Unity game emulation
 ----
 
 Running Unity games should just work, but you should also note that many Unity3D games require OpenGL 3+ which can be tricky to provide on ARM SBC (single-board computers). Also many newer Unity3D (like KSP) games use the BC7 compressed textures, which is not supported on many ARM integrated GPU.
-Hint: on Pi4, use `MESA_GL_VERSION_OVERRIDE=3.2` and with Panfrost use `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
+Hint: on Pi4 and Pi5 use `MESA_GL_VERSION_OVERRIDE=3.2`, with `BOX64_DYNAREC_STRONGMEM=1` to prevent freezes and enable strong memory mode, and use Panfrost `PAN_MESA_DEBUG=gl3` to use higher profile if the game starts then quits before showing anything.
 
 ----
 

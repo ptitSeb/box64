@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFppp_t)(void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(wl_proxy_add_listener, iFppp_t)
 
 #endif // __wrappedwaylandclientTYPES_H_

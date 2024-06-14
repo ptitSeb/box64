@@ -423,6 +423,11 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     FAKEED;
                     UDF(0);
                     break;
+                case 5:
+                    INST_NAME("(unsupported) INCSSPD/INCSSPQ Ed");
+                    FAKEED;
+                    UDF(0);
+                    break;
                 case 6:
                     INST_NAME("(unsupported) UMONITOR Ed");
                     FAKEED;

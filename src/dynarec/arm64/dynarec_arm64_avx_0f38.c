@@ -61,6 +61,52 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
 
     switch(opcode) {
 
+        case 0xF2:
+            INST_NAME("ANDN Gd, Vd, Ed");
+            nextop = F8;
+            SETFLAGS(X_ALL, SF_SET);
+            GETGD;
+            GETED(0);
+            GETVD;
+            BICxw(gd, ed, vd);
+            break;
+        case 0xF3:
+            nextop = F8;
+            switch((nextop>>3)&7) {
+                case 1:
+                    INST_NAME("BLSR Vd, Ed");
+                    SETFLAGS(X_ALL, SF_SET);
+                    GETED(0);
+                    GETVD;
+                    IFX(X_CF) {
+                        TSTxw_REG(ed, ed);
+                        CSETMw(x3, cEQ);
+                        BFIw(xFlags, x3, F_CF, 1);
+                    }
+                    SUBxw_U12(x3, ed, 1);
+                    IFX(X_ZF)
+                        ANDSxw_REG(vd, ed, x3);
+                    else
+                        ANDxw_REG(vd, ed, x3);
+                    IFX(X_ZF) {
+                        CSETMw(x3, cEQ);
+                        BFIw(xFlags, x3, F_ZF, 1);
+                    }
+                    IFX(X_SF) {
+                        LSRxw(x3, vd, rex.w?63:31);
+                        BFIw(xFlags, x3, F_SF, 1);
+                    }
+                    IFX(X_OF) BFCw(xFlags, F_OF, 1);
+                    if(box64_dynarec_test) {
+                        IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                        IFX(X_PF) BFCw(xFlags, F_PF, 1);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
         case 0xF5:
             INST_NAME("BZHI Gd, Ed, Vd");
             nextop = F8;

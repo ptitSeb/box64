@@ -2029,6 +2029,7 @@ void iFpiippp(x64emu_t *emu, uintptr_t fnc);
 void iFpiCCpu(x64emu_t *emu, uintptr_t fnc);
 void iFpiuuup(x64emu_t *emu, uintptr_t fnc);
 void iFpiuupp(x64emu_t *emu, uintptr_t fnc);
+void iFpipiii(x64emu_t *emu, uintptr_t fnc);
 void iFpipipi(x64emu_t *emu, uintptr_t fnc);
 void iFpipipp(x64emu_t *emu, uintptr_t fnc);
 void iFpipupp(x64emu_t *emu, uintptr_t fnc);

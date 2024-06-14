@@ -375,7 +375,6 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(q0!=d0)
                         VMOVQ(q0, d0);
                     break;
-
                 case 0x05:
                     INST_NAME("PHSUBW Gx, Ex");
                     nextop = F8;
@@ -1616,11 +1615,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("PMOVMSKD Gd, Ex");
             GETEX(q0, 0, 0);
             GETGD;
-            VMOVQDto(x1, q0, 1);
-            VMOVQDto(gd, q0, 0);
-            LSRx(x1, x1, 63);
-            LSRx(gd, gd, 63);
-            BFIx(gd, x1, 1, 1);
+            VMOVQDto(x1, q0, 0);
+            VMOVQDto(gd, q0, 1);
+            LSRx(gd, gd, 62);
+            BFXILx(gd, x1, 63, 1);
             break;
         case 0x51:
             INST_NAME("SQRTPD Gx, Ex");

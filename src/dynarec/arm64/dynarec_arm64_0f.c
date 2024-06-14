@@ -101,7 +101,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     LSRx(xRDX, x1, 32);
                     MOVw_REG(xRAX, x1);   // wipe upper part
-                    MOVw_REG(xRCX, xZR);    // IA32_TSC, 0 for now
+                    CALL_(helper_getcpu, x1, x3);
+                    MOVw_REG(xRCX, x1);    // IA32_TSC, 0 for now
                     break;
                 default:
                     DEFAULT;
