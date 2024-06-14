@@ -109,7 +109,7 @@ EXPORT void* my_vkGetDeviceProcAddr(x64emu_t* emu, void* device, void* name)
         #define GO(A, W) if(!strcmp(rname, #A)) my->A = (W)my->vkGetDeviceProcAddr(device, name);
         SUPER()
         #undef GO
-    } 
+    }
     if(!symbol) {
         printf_dlsym(LOG_DEBUG, "%p\n", NULL);
         return NULL;    // easy
@@ -678,7 +678,7 @@ EXPORT int my_vkCreateDebugUtilsMessengerEXT(x64emu_t* emu, void* device, my_VkD
         info->pfnUserCallback = find_DebugUtilsMessengerCallback_Fct(info->pfnUserCallback);
         info = (my_VkDebugUtilsMessengerCreateInfoEXT_t*)info->pNext;
     }
-    return my->vkCreateDebugUtilsMessengerEXT(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p); 
+    return my->vkCreateDebugUtilsMessengerEXT(device, pAllocateInfo, find_VkAllocationCallbacks(&my_alloc, pAllocator), p);
 }
 DESTROY(vkDestroyDebugUtilsMessengerEXT)
 
@@ -747,7 +747,7 @@ EXPORT void my_vkGetPhysicalDeviceProperties(x64emu_t* emu, void* device, void* 
     my->vkGetPhysicalDeviceProperties(device, pProps);
 }
 
-EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x64emu_t* emu, void* device, int format, int type, int samples, int usage, int tiling, uint32_t* count, void** pProps)
+EXPORT void my_vkGetPhysicalDeviceSparseImageFormatProperties(x64emu_t* emu, void* device, int format, int type, int samples, uint32_t usage, int tiling, uint32_t* count, void** pProps)
 {
     my->vkGetPhysicalDeviceSparseImageFormatProperties(device, format, type, samples, usage, tiling, count, pProps);
 }
@@ -774,7 +774,7 @@ EXPORT void my_vkGetPhysicalDeviceMemoryProperties(x64emu_t* emu, void* device, 
     my->vkGetPhysicalDeviceMemoryProperties(device, pProps);
 }
 
-EXPORT void my_vkCmdPipelineBarrier(x64emu_t* emu, void* device, int src, int dst, int dep,
+EXPORT void my_vkCmdPipelineBarrier(x64emu_t* emu, void* device, uint32_t src, uint32_t dst, uint32_t dep,
     uint32_t barrierCount, void* pBarriers, uint32_t bufferCount, void* pBuffers, uint32_t imageCount, void* pImages)
 {
     my->vkCmdPipelineBarrier(device, src, dst, dep, barrierCount, pBarriers, bufferCount, pBuffers, imageCount, pImages);
@@ -790,10 +790,10 @@ EXPORT int my_vkCreateDebugReportCallbackEXT(x64emu_t* emu, void* instance,
     return my->vkCreateDebugReportCallbackEXT(instance, &dbg, find_VkAllocationCallbacks(&my_alloc, alloc), callback);
 }
 
-EXPORT int my_vkDestroyDebugReportCallbackEXT(x64emu_t* emu, void* instance, void* callback, void* alloc)
+EXPORT void my_vkDestroyDebugReportCallbackEXT(x64emu_t* emu, void* instance, void* callback, void* alloc)
 {
     my_VkAllocationCallbacks_t my_alloc;
-    return my->vkDestroyDebugReportCallbackEXT(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
+    my->vkDestroyDebugReportCallbackEXT(instance, callback, find_VkAllocationCallbacks(&my_alloc, alloc));
 }
 
 CREATE(vkCreateHeadlessSurfaceEXT)
