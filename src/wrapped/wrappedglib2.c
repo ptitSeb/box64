@@ -1346,20 +1346,25 @@ typedef struct my_GOptionEntry_s {
 EXPORT void my_g_option_context_add_main_entries(x64emu_t* emu, void* context, my_GOptionEntry_t* entries, void* domain)
 {
     my_GOptionEntry_t* p = entries;
-    while (p->long_name) {
+    int idx = 0;
+    while (p && p->long_name) {
         // wrap Callbacks
-        if (p->arg == 3)
-            p->arg_data = findGOptionArgFct(p->arg_data);
         ++p;
+        ++idx;
     }
-    my->g_option_context_add_main_entries(context, entries, domain);
     p = entries;
-    while (p->long_name) {
-        // unwrap Callbacks
+    my_GOptionEntry_t my_entries[idx+1];
+    idx = 0;
+    while (p && p->long_name) {
+        // wrap Callbacks
+        my_entries[idx] = *p;
         if (p->arg == 3)
-            p->arg_data = reverseGOptionArgFct(p->arg_data);
+            my_entries[idx].arg_data = findGOptionArgFct(p->arg_data);
         ++p;
+        ++idx;
     }
+    if(p) my_entries[idx] = *p;
+    my->g_option_context_add_main_entries(context, entries?my_entries:NULL, domain);
 }
 
 EXPORT void* my_g_strconcat(x64emu_t* emu, void* first, uintptr_t* data)
