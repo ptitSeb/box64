@@ -2409,8 +2409,8 @@ GO(xdr_void, iFv)
 //GO(__xmknod, iFipup)
 //GO(__xmknodat, iFiipup)
 #else
-GO(__xmknod, iFipup)
-GO(__xmknodat, iFiipup)
+GOM(__xmknod, iFEipup)
+GOM(__xmknodat, iFEiipup)
 #endif
 GO(__xpg_basename, pFp)
 GOW(__xpg_sigpause, iFi)

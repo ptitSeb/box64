@@ -1209,6 +1209,20 @@ EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
     return r;
 }
 
+EXPORT int my___xmknod(x64emu_t* emu, int v, char* path, uint32_t mode, dev_t* dev)
+{
+    (void)emu;
+    (void)v;
+    return mknod((const char*)path, mode, *dev);
+}
+
+EXPORT int my___xmknodat(x64emu_t* emu, int v, int dirfd, char* path, uint32_t mode, dev_t* dev)
+{
+    (void)emu;
+    (void)v;
+    return mknodat(dirfd, (const char*)path, mode, *dev);
+}
+
 EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
     (void)emu; (void)v;
