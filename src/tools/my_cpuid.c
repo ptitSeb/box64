@@ -470,10 +470,12 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
 }
 
 uint32_t helper_getcpu(x64emu_t* emu) {
-    #ifndef ANDROID
+    #if defined(__GLIBC__) && defined(__GLIBC_MINOR__) && !defined(ANDROID)
+    #if __GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ > 28)
     uint32_t cpu, node;
     if(!getcpu(&cpu, &node))
         return (node&0xff)<<12 | (cpu&0xff);
+    #endif
     #endif
     return 0;
 }
