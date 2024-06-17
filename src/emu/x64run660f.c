@@ -2255,7 +2255,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0xD6:                      /* MOVQ Ex,Gx */
         nextop = F8;
-        GETEX(0);
+        GETEX8(0);
         GETGX;
         EX->q[0] = GX->q[0];
         if(MODREG)

@@ -436,7 +436,7 @@ x64emurun:
             break;
         case 0x63:                      /* MOVSXD Gd,Ed */
             nextop = F8;
-            GETED(0);
+            GETE4(0);
             GETGD;
             if(rex.is32bits) {
                 // ARPL here

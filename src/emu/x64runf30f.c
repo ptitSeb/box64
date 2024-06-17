@@ -54,7 +54,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
     case 0x10:  /* MOVSS Gx Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         GX->ud[0] = EX->ud[0];
         if(!MODREG) {
@@ -64,7 +64,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         break;
     case 0x11:  /* MOVSS Ex Gx */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         EX->ud[0] = GX->ud[0];
         break;
