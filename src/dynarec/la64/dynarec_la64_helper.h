@@ -202,6 +202,13 @@
             ST_W(ed, wback, fixedaddress); \
         SMWRITE();                         \
     }
+
+#define WBACKO(O)            \
+    if (wback) {             \
+        SDXxw(ed, wback, O); \
+        SMWRITE2();          \
+    }
+
 // GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
 #define GETSEW(i, D)                                                                           \
     if (MODREG) {                                                                              \
@@ -1104,6 +1111,12 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         if (la64_lbt) {                    \
             X64_SET_EFLAGS(xFlags, X_ALL); \
         }                                  \
+    } while (0)
+
+#define REGENERATE_MASK()       \
+    do {                        \
+        ADDI_W(xMASK, xZR, -1); \
+        LU32I_D(xMASK, 0);      \
     } while (0)
 
 #define PURGE_YMM()    /* TODO */

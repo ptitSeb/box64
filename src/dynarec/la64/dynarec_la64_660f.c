@@ -51,6 +51,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(j64);
 
     switch (opcode) {
+        case 0x11:
+            INST_NAME("MOVUPD Ex,Gx");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            if (MODREG) {
+                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
+                VOR_V(v1, v0, v0);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VST(v0, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x12:
             INST_NAME("MOVLPD Gx, Eq");
             nextop = F8;
@@ -914,6 +928,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(q1, 0, 0);
                 VXOR_V(q0, q0, q1);
             }
+            break;
+        case 0xF4:
+            INST_NAME("PMULUDQ Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VMULWEV_D_WU(v0, v0, v1);
             break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
