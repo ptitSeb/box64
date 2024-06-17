@@ -257,6 +257,14 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VEXTRINS_D(v0, v1, 0);
             MARK2;
             break;
+        case 0x70:
+            INST_NAME("PSHUFLW Gx, Ex, Ib");
+            nextop = F8;
+            GETEX(v1, 0, 1);
+            GETGX(v0, 1);
+            u8 = F8;
+            VSHUF4I_H(v0, v1, u8);
+            break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;

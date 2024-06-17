@@ -2059,6 +2059,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
             ST_W(rd, rj, imm12); \
     } while (0)
 
+#define SDXxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w)             \
+            STX_D(rd, rj, rk); \
+        else                   \
+            STX_W(rd, rj, rk); \
+    } while (0)
+
 #define SDz(rd, rj, imm12)       \
     do {                         \
         if (rex.is32bits)        \
