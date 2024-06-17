@@ -3062,9 +3062,9 @@
 #!defined(NOALIGN) iFEipiip
 #!defined(STATICBUILD) iFlip
 #!defined(STATICBUILD) iFLLi
-#!defined(STATICBUILD) iFipup
 #!defined(STATICBUILD) iFLLiW
-#!defined(STATICBUILD) iFiipup
+#!defined(STATICBUILD) iFEipup
+#!defined(STATICBUILD) iFEiipup
 #!defined(STATICBUILD) iFpipppL
 #() vFEv -> vFE
 #() iFEv -> iFE
@@ -4262,6 +4262,8 @@ wrappedlibc:
   - __vdprintf_chk
 - iFipii:
   - epoll_wait
+- iFipup:
+  - __xmknod
 - iFippi:
   - fstatat
   - fstatat64
@@ -4298,6 +4300,8 @@ wrappedlibc:
   - ptrace
 - vFpLLpp:
   - qsort_r
+- iFiipup:
+  - __xmknodat
 - iFiippi:
   - __fxstatat
   - __fxstatat64

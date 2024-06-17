@@ -3114,9 +3114,9 @@ void iFEipiip(x64emu_t *emu, uintptr_t fnc);
 #if !defined(STATICBUILD)
 void iFlip(x64emu_t *emu, uintptr_t fnc);
 void iFLLi(x64emu_t *emu, uintptr_t fnc);
-void iFipup(x64emu_t *emu, uintptr_t fnc);
 void iFLLiW(x64emu_t *emu, uintptr_t fnc);
-void iFiipup(x64emu_t *emu, uintptr_t fnc);
+void iFEipup(x64emu_t *emu, uintptr_t fnc);
+void iFEiipup(x64emu_t *emu, uintptr_t fnc);
 void iFpipppL(x64emu_t *emu, uintptr_t fnc);
 #endif
 

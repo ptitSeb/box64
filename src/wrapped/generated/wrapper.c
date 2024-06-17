@@ -3114,9 +3114,9 @@ typedef int32_t (*iFEipiip_t)(x64emu_t*, int32_t, void*, int32_t, int32_t, void*
 #if !defined(STATICBUILD)
 typedef int32_t (*iFlip_t)(intptr_t, int32_t, void*);
 typedef int32_t (*iFLLi_t)(uintptr_t, uintptr_t, int32_t);
-typedef int32_t (*iFipup_t)(int32_t, void*, uint32_t, void*);
 typedef int32_t (*iFLLiW_t)(uintptr_t, uintptr_t, int32_t, uint16_t);
-typedef int32_t (*iFiipup_t)(int32_t, int32_t, void*, uint32_t, void*);
+typedef int32_t (*iFEipup_t)(x64emu_t*, int32_t, void*, uint32_t, void*);
+typedef int32_t (*iFEiipup_t)(x64emu_t*, int32_t, int32_t, void*, uint32_t, void*);
 typedef int32_t (*iFpipppL_t)(void*, int32_t, void*, void*, void*, uintptr_t);
 #endif
 
@@ -6198,9 +6198,9 @@ void iFEipiip(x64emu_t *emu, uintptr_t fcn) { iFEipiip_t fn = (iFEipiip_t)fcn; R
 #if !defined(STATICBUILD)
 void iFlip(x64emu_t *emu, uintptr_t fcn) { iFlip_t fn = (iFlip_t)fcn; R_RAX=(int32_t)fn((intptr_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX); }
 void iFLLi(x64emu_t *emu, uintptr_t fcn) { iFLLi_t fn = (iFLLi_t)fcn; R_RAX=(int32_t)fn((uintptr_t)R_RDI, (uintptr_t)R_RSI, (int32_t)R_RDX); }
-void iFipup(x64emu_t *emu, uintptr_t fcn) { iFipup_t fn = (iFipup_t)fcn; R_RAX=(int32_t)fn((int32_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (void*)R_RCX); }
 void iFLLiW(x64emu_t *emu, uintptr_t fcn) { iFLLiW_t fn = (iFLLiW_t)fcn; R_RAX=(int32_t)fn((uintptr_t)R_RDI, (uintptr_t)R_RSI, (int32_t)R_RDX, (uint16_t)R_RCX); }
-void iFiipup(x64emu_t *emu, uintptr_t fcn) { iFiipup_t fn = (iFiipup_t)fcn; R_RAX=(int32_t)fn((int32_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (uint32_t)R_RCX, (void*)R_R8); }
+void iFEipup(x64emu_t *emu, uintptr_t fcn) { iFEipup_t fn = (iFEipup_t)fcn; R_RAX=(int32_t)fn(emu, (int32_t)R_RDI, (void*)R_RSI, (uint32_t)R_RDX, (void*)R_RCX); }
+void iFEiipup(x64emu_t *emu, uintptr_t fcn) { iFEiipup_t fn = (iFEiipup_t)fcn; R_RAX=(int32_t)fn(emu, (int32_t)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (uint32_t)R_RCX, (void*)R_R8); }
 void iFpipppL(x64emu_t *emu, uintptr_t fcn) { iFpipppL_t fn = (iFpipppL_t)fcn; R_RAX=(int32_t)fn((void*)R_RDI, (int32_t)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (uintptr_t)R_R9); }
 #endif
 
@@ -8040,9 +8040,7 @@ int isSimpleWrapper(wrapper_t fun) {
 #if !defined(STATICBUILD)
 	if (fun == &iFlip) return 1;
 	if (fun == &iFLLi) return 1;
-	if (fun == &iFipup) return 1;
 	if (fun == &iFLLiW) return 1;
-	if (fun == &iFiipup) return 1;
 	if (fun == &iFpipppL) return 1;
 #endif
 	return 0;
