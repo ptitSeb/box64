@@ -91,6 +91,7 @@ BOX64_MAXCPU=16
 
 [Kingdom Rush Origins]
 BOX64_RESERVE_HIGH=1
+BOX64_EMULATED_LIBS=libmpg123.so.0:libvorbisfile.so.3:libvorbis.so.0:libogg.so.0:libSDL2-2.0.so.0
 
 [heroic]
 BOX64_NOSANDBOX=1
