@@ -1470,6 +1470,7 @@
 #() vFppupp
 #() vFppfff
 #() vFppddp
+#() vFppLLL
 #() vFppLpL
 #() vFpppii
 #() vFpppip
@@ -1478,6 +1479,7 @@
 #() vFpppup
 #() vFpppff
 #() vFpppdd
+#() vFpppLp
 #() vFppppi
 #() vFppppu
 #() vFppppL
@@ -1623,6 +1625,7 @@
 #() iFpppup
 #() iFpppUi
 #() iFpppLi
+#() iFpppLL
 #() iFpppLp
 #() iFppppi
 #() iFppppu
@@ -2124,6 +2127,7 @@
 #() LFpLippp
 #() LFpLLLLL
 #() LFppLLpL
+#() LFppLpLL
 #() LFSpLiip
 #() pFEpiupp
 #() pFEpippp
@@ -2547,6 +2551,7 @@
 #() vFppuppiiu
 #() vFpplppppi
 #() vFpplppppp
+#() vFppLpLpLp
 #() vFpppipppu
 #() vFpppuiiii
 #() vFppppiipi

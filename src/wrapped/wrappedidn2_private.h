@@ -15,11 +15,11 @@ GO(idn2_strerror, pFi)
 //GO(idn2_to_ascii_4i, 
 //GO(idn2_to_ascii_4i2, 
 //GO(idn2_to_ascii_4z, 
-//GO(idn2_to_ascii_8z, 
+GO(idn2_to_ascii_8z, iFppi)
 //GO(idn2_to_ascii_lz, 
 //GO(idn2_to_unicode_44i, 
 //GO(idn2_to_unicode_4z4z, 
 //GO(idn2_to_unicode_8z4z, 
-//GO(idn2_to_unicode_8z8z, 
+GO(idn2_to_unicode_8z8z, iFppi)
 //GO(idn2_to_unicode_8zlz, 
 //GO(idn2_to_unicode_lzlz, 
