@@ -2602,22 +2602,21 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
     i = EMM0;
     // first pass see if a slot is free in EMM/x87 slots
     for(int j=0; j<8; ++j) {
-        if(!dyn->n.fpuused[i+j] && !(dyn->mmx87&(1<<j))) {
+        if(!dyn->n.fpuused[i+j]) {
             int ret = internal_mark_ymm(dyn, t, ymm, i+j);
             if(ret>=0) return ret;
         }
     }
     // no slot in the emm space, look for scratch space in reverse
     i = SCRATCH0;
-    for(int j=7; j>=dyn->n.fpu_scratch; --j) 
-        if(!(dyn->scratchs&(1<<j))) {
-            int ret = internal_mark_ymm(dyn, t, ymm, i+j);
-            if(ret>=0) return ret;
+    for(int j=7; j>=dyn->n.fpu_scratch; --j) {
+        int ret = internal_mark_ymm(dyn, t, ymm, i+j);
+        if(ret>=0) return ret;
     }
     // no free slot, needs to purge a value... First loop on the YMMR, they are easier to purge
     i = EMM0;
     for(int j=0; j<8; ++j) {
-        if(!dyn->n.fpuused[i+j] && !(dyn->mmx87&(1<<j))) {
+        if(!dyn->n.fpuused[i+j]) {
             // should a test be done to check if ymm is already in the purge list?
             if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3) && (dyn->n.neoncache[i+j].t==NEON_CACHE_YMMR)) {
                 dyn->n.neoncache[i+j].v = 0;
@@ -2627,18 +2626,17 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
         }
     }
     i = SCRATCH0;
-    for(int j=dyn->n.fpu_scratch; j<8; ++j) 
-        if(!(dyn->scratchs&(1<<j))) {
-            if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3) && (dyn->n.neoncache[i+j].t==NEON_CACHE_YMMR)) {
-                dyn->n.neoncache[i+j].v = 0;
-                int ret = internal_mark_ymm(dyn, t, ymm, i+j);
-                if(ret>=0) return ret;
-            }
+    for(int j=dyn->n.fpu_scratch; j<8; ++j) {
+        if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3) && (dyn->n.neoncache[i+j].t==NEON_CACHE_YMMR)) {
+            dyn->n.neoncache[i+j].v = 0;
+            int ret = internal_mark_ymm(dyn, t, ymm, i+j);
+            if(ret>=0) return ret;
+        }
     }
     // make space in the scratch area
     for(int j=dyn->n.fpu_scratch; j<8; ++j) {
             // should a test be done to check if ymm is already in the purge list?
-            if(!(dyn->scratchs&(1<<j)) && !is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
+            if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
                 // Save the reg and recycle it
                 VSTR128_U12(i+j, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i+j].n]));
                 dyn->n.neoncache[i+j].v = 0;
@@ -2649,7 +2647,7 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
     // last resort, go back in the EMM area...
     i = EMM0;
     for(int j=7; j>=0; --j) {
-        if(!dyn->n.fpuused[i+j] && !(dyn->mmx87&(1<<j))) {
+        if(!dyn->n.fpuused[i+j]) {
             // should a test be done to check if ymm is already in the purge list?
             if((dyn->n.neoncache[i+j].t==NEON_CACHE_YMMW) && !is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
                 VSTR128_U12(i+j, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i+j].n]));
