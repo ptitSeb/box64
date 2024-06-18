@@ -1799,6 +1799,7 @@ int ymm_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite, int 
                 dyn->n.neoncache[i].t = NEON_CACHE_YMMW;
             }
             dyn->ymm_zero&=~(1<<a);
+            dyn->n.ymm_used|=(1<<a);
             #if STEP == 0
             dyn->insts[ninst].ymm0_sub |= (1<<a);
             #endif
@@ -1825,6 +1826,7 @@ int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int 
         if((dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) && dyn->n.neoncache[i].n==a) {
             dyn->n.neoncache[i].t = NEON_CACHE_YMMW;
             dyn->ymm_zero&=~(1<<a);
+            dyn->n.ymm_used|=(1<<a);
             #if STEP == 0
             dyn->insts[ninst].ymm0_sub |= (1<<a);
             #endif
@@ -2189,6 +2191,20 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     int s1_val = 0;
     int s2_val = 0;
     // unload every uneeded cache
+    // ymm0 first
+    s3_top = 1;
+    uint16_t to_purge = dyn->ymm_zero&~dyn->insts[i2].ymm0_in;
+    if(dyn->ymm_zero && (dyn->insts[i2].purge_ymm|to_purge)) {
+        MESSAGE(LOG_DUMP, "\t- YMM Zero %04x / %04x\n", dyn->ymm_zero, (dyn->insts[i2].purge_ymm|to_purge));
+        for(int i=0; i<16; ++i)
+            if(is_avx_zero(dyn, ninst, i) && (dyn->insts[i2].purge_ymm|to_purge)&(1<<i)) {
+                if(s3_top) {
+                    ADDx_U12(s3, xEmu,offsetof(x64emu_t, ymm[0]));
+                    s3_top = 0;
+                }
+                STPx_S7_offset(xZR, xZR, s3, i*16);
+            }
+    }
     // check SSE first, than MMX, in order, to optimise successive memory write
     for(int i=0; i<16; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache);
@@ -2266,19 +2282,6 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                 }
             }
         }
-    }
-    // ymm0
-    s3_top = 1;
-    uint16_t to_purge = dyn->ymm_zero&~dyn->insts[i2].ymm0_in;
-    if(dyn->ymm_zero && (dyn->insts[i2].purge_ymm|to_purge)) {
-        for(int i=0; i<16; ++i)
-            if(is_avx_zero(dyn, ninst, i) && (dyn->insts[i2].purge_ymm|to_purge)&(1<<i)) {
-                if(s3_top) {
-                    ADDx_U12(s3, xEmu,offsetof(x64emu_t, ymm[0]));
-                    s3_top = 0;
-                }
-                STPx_S7_offset(xZR, xZR, s3, i*16);
-            }
     }
     if(stack_cnt != cache_i2.stack) {
         MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
