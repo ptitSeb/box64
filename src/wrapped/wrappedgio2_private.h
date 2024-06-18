@@ -947,7 +947,7 @@ GOM(g_initable_new_valist, pFEppApp)
 GO(g_input_stream_close, iFppp)
 //GO(g_input_stream_close_async, 
 GO(g_input_stream_close_finish, iFppp)
-//GO(g_input_stream_get_type, 
+GO(g_input_stream_get_type, LFv)
 GO(g_input_stream_has_pending, iFp)
 //GO(g_input_stream_is_closed, 
 GO(g_input_stream_read, lFppLpp)

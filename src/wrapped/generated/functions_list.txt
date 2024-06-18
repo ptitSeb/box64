@@ -371,6 +371,7 @@
 #() vFiLL
 #() vFipi
 #() vFipu
+#() vFipL
 #() vFipp
 #() vFCCC
 #() vFWWW
@@ -1692,6 +1693,7 @@
 #() pFEpipA
 #() pFEpupp
 #() pFEpUpp
+#() pFEpLpp
 #() pFEppii
 #() pFEppip
 #() pFEppLp
@@ -3591,6 +3593,8 @@ wrappedglib2:
   - g_error_new_valist
 - pFpupp:
   - g_datalist_id_dup_data
+- pFpLpp:
+  - g_bytes_new_with_free_func
 - pFppip:
   - g_thread_create
 - pFpppp:

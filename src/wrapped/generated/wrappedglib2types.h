@@ -47,6 +47,7 @@ typedef void* (*pFpipp_t)(void*, int32_t, void*, void*);
 typedef void* (*pFpipV_t)(void*, int32_t, void*, ...);
 typedef void* (*pFpipA_t)(void*, int32_t, void*, va_list);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
+typedef void* (*pFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef void* (*pFppip_t)(void*, void*, int32_t, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpiLpp_t)(void*, int32_t, uintptr_t, void*, void*);
@@ -156,6 +157,7 @@ typedef int32_t (*iFpppippppppp_t)(void*, void*, void*, int32_t, void*, void*, v
 	GO(g_error_new, pFpipV_t) \
 	GO(g_error_new_valist, pFpipA_t) \
 	GO(g_datalist_id_dup_data, pFpupp_t) \
+	GO(g_bytes_new_with_free_func, pFpLpp_t) \
 	GO(g_thread_create, pFppip_t) \
 	GO(g_hash_table_new_full, pFpppp_t) \
 	GO(g_list_insert_sorted_with_data, pFpppp_t) \
