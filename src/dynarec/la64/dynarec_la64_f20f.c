@@ -154,6 +154,22 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+        case 0x51:
+            INST_NAME("SQRTSD Gx, Ex");
+            nextop = F8;
+            GETGX_empty(v0);
+            d1 = fpu_get_scratch(dyn);
+            GETEXSD(d0, 0, 0);
+            FSQRT_D(d1, d0);
+            if (!box64_dynarec_fastnan) {
+                v1 = fpu_get_scratch(dyn);
+                MOVGR2FR_D(v1, xZR);
+                FCMP_D(fcc0, d0, v1, cLT);
+                BCEQZ(fcc0, 4 + 4);
+                FNEG_D(d1, d1);
+            }
+            VEXTRINS_D(v0, d1, 0);
+            break;
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;

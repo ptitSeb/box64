@@ -220,6 +220,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
             break;
+        case 0x64:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
+            break;
+        case 0x65:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _GS, ok, need_epilog);
+            break;
+        case 0x66:
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
         case 0x69:
         case 0x6B:
             if (opcode == 0x69) {
@@ -536,6 +545,20 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr16);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ew, Ib");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
+                    GETSEW(x1, 1);
+                    u8 = F8;
+                    UFLAG_IF { MOV32w(x2, (u8 & 15)); }
+                    UFLAG_OP12(ed, x2)
+                    SRAI_D(ed, ed, u8 & 15);
+                    if (MODREG) BSTRPICK_D(ed, ed, 15, 0);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
                     break;
                 default:
                     DEFAULT;

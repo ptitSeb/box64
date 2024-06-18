@@ -337,6 +337,42 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SMDMB();
                     }
                     break;
+                case 1: // OR
+                    if (opcode == 0x81) {
+                        INST_NAME("LOCK OR Ed, Id");
+                    } else {
+                        INST_NAME("LOCK OR Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    if (MODREG) {
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        emit_or32c(dyn, ninst, rex, ed, i64, x3, x4);
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        if (i64 <= -2048 || i64 > 2048)
+                            MOV64xw(x3, i64);
+                        MARKLOCK;
+                        LLxw(x1, wback, 0);
+                        if (i64 >= -2048 && i64 < 2048) {
+                            ORI(x4, x1, i64);
+                        } else {
+                            OR(x4, x1, x3);
+                        }
+                        if (!rex.w) ZEROUP(x4);
+                        SCxw(x4, wback, 0);
+                        BEQZ_MARKLOCK(x4);
+                        IFX (X_ALL | X_PEND)
+                            emit_or32c(dyn, ninst, rex, x1, i64, x3, x4);
+                    }
+                    break;
                 case 5: // SUB
                     if (opcode == 0x81) {
                         INST_NAME("LOCK SUB Ed, Id");

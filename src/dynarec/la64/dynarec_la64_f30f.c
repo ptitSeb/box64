@@ -284,6 +284,30 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0xBC:
+            INST_NAME("TZCNT Gd, Ed");
+            SETFLAGS(X_ZF, SF_SUBSET);
+            SET_DFNONE();
+            nextop = F8;
+            GETED(0);
+            GETGD;
+            if (!rex.w && MODREG) {
+                AND(x4, ed, xMASK);
+                ed = x4;
+            }
+            RESTORE_EFLAGS(x1);
+            ANDI(xFlags, xFlags, ~((1 << F_ZF) | (1 << F_CF)));
+            BNE_MARK(ed, xZR);
+            ORI(xFlags, xFlags, 1 << F_CF);
+            MOV32w(gd, rex.w ? 64 : 32);
+            SPILL_EFLAGS();
+            B_NEXT_nocond;
+            MARK;
+            CTZxw(gd, ed);
+            BNE(gd, xZR, 4 + 4);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+            SPILL_EFLAGS();
+            break;
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex, Ib");
             nextop = F8;

@@ -79,6 +79,15 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEDO(x4, 0);
             emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
             break;
+        case 0x64:
+            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
+            break;
+        case 0x65:
+            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
+            break;
+        case 0x66:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, seg, ok, need_epilog);
+            break;
         case 0x81:
         case 0x83:
             nextop = F8;
