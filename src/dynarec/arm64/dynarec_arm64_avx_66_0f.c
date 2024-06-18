@@ -654,7 +654,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(!vex.l) YMM0(gd);
             break;
         case 0x6B:
-            INST_NAME("PACKSSDW Gx,Ex");
+            INST_NAME("VPACKSSDW Gx, Vx, Ex");
             nextop = F8;
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) {
@@ -663,7 +663,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     GETGY_empty_VYEY(v0, v2, v1);
                 }
                 if(v0==v1) {
-                    q0 = fpu_get_scratch(dyn, ninst);
+                    if(!l) q0 = fpu_get_scratch(dyn, ninst);
                     VMOVQ(q0, v0);
                 }
                 SQXTN_16(v0, v2);
