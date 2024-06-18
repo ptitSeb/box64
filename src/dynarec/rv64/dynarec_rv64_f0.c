@@ -550,7 +550,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         if (i64 < -2048 || i64 >= 2048)
-                            MOV64xw(x4, i64);
+                            MOV64xw(x9, i64);
                         ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                         BNEZ_MARK3(x1);
                         // Aligned
@@ -559,7 +559,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (i64 >= -2048 && i64 < 2048)
                             ADDIxw(x4, x1, i64);
                         else
-                            ADDxw(x4, x1, x4);
+                            ADDxw(x4, x1, x9);
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         B_MARK_nocond;
@@ -572,7 +572,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (i64 >= -2048 && i64 < 2048)
                             ADDIxw(x4, x6, i64);
                         else
-                            ADDxw(x4, x6, x4);
+                            ADDxw(x4, x6, x9);
                         SCxw(x3, x1, x5, 1, 1);
                         BNEZ_MARK2(x3);
                         SDxw(x4, wback, 0);
@@ -596,13 +596,14 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                        if (i64 < -2048 || i64 >= 2048)
+                            MOV64xw(x9, i64);
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
-                        if (i64>=-2048 && i64<2048) {
+                        if (i64 >= -2048 && i64 < 2048) {
                             ORI(x4, x1, i64);
                         } else {
-                            MOV64xw(x4, i64);
-                            OR(x4, x1, x4);
+                            OR(x4, x1, x9);
                         }
                         if (!rex.w) ZEROUP(x4);
                         SCxw(x3, x4, wback, 1, 1);
@@ -625,13 +626,14 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                        if (i64 < -2048 || i64 >= 2048)
+                            MOV64xw(x9, i64);
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
-                        if (i64>=-2048 && i64<2048) {
+                        if (i64 >= -2048 && i64 < 2048) {
                             ANDI(x4, x1, i64);
                         } else {
-                            MOV64xw(x4, i64);
-                            AND(x4, x1, x4);
+                            AND(x4, x1, x9);
                         }
                         if (!rex.w) ZEROUP(x4);
                         SCxw(x3, x4, wback, 1, 1);
@@ -654,13 +656,14 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
+                        if (i64 <= -2048 || i64 > 2048)
+                            MOV64xw(x9, i64);
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
-                        if (i64>-2048 && i64<=2048) {
+                        if (i64 > -2048 && i64 <= 2048) {
                             ADDIxw(x4, x1, -i64);
                         } else {
-                            MOV64xw(x4, i64);
-                            SUBxw(x4, x1, x4);
+                            SUBxw(x4, x1, x9);
                         }
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
@@ -688,13 +691,14 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F32S;
                         else
                             i64 = F8S;
+                        if (i64 < -2048 || i64 >= 2048)
+                            MOV64xw(x9, i64);
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
-                        if (i64 >= -2048 && i64 <= 2047) {
+                        if (i64 >= -2048 && i64 < 2048) {
                             XORI(x4, x1, i64);
                         } else {
-                            MOV64xw(x4, i64);
-                            XOR(x4, x1, x4);
+                            XOR(x4, x1, x9);
                         }
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
