@@ -1444,6 +1444,11 @@ EXPORT void* my_g_once_impl(x64emu_t* emu, void* once, void* f, void* arg)
     return my->g_once_impl(once, findGThreadFuncFct(f), arg);
 }
 
+EXPORT void* my_g_bytes_new_with_free_func(x64emu_t* emu, void* data, unsigned long n, void* notify, void* user)
+{
+    return my->g_bytes_new_with_free_func(data, n, findGDestroyNotifyFct(notify), user);
+}
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
