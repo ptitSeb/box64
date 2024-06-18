@@ -335,7 +335,7 @@ Define x86_64 bash to launch script
  * XXX=yyyy
  will add XXX=yyyy env. var. and continue with BOX86_ENV2 ... until var doesn't exist
 
-#### BOX64_RESERVE_HIGH
+#### BOX64_RESERVE_HIGH *
 * 0 : Don't try to pe-reserve high memory (beyond 47bits) (Default)
 * 1 : Try to reserve (without allocating it) memory beyond 47bits (seems unstable)
 

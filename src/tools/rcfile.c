@@ -121,6 +121,7 @@ ENTRYSTRING_(BOX64_ENV1, new_env1)                      \
 ENTRYSTRING_(BOX64_ENV2, new_env2)                      \
 ENTRYSTRING_(BOX64_ENV3, new_env3)                      \
 ENTRYSTRING_(BOX64_ENV4, new_env4)                      \
+ENTRYBOOL(BOX64_RESERVE_HIGH, new_reserve_high)         \
 
 #ifdef HAVE_TRACE
 #define SUPER2()                                        \
@@ -491,6 +492,7 @@ void openFTrace(const char* newtrace);
 void addNewEnvVar(const char* s);
 void AddNewLibs(const char* libs);
 void computeRDTSC();
+void my_reserveHighMem();
 #ifdef DYNAREC
 void GatherDynarecExtensions();
 #endif
@@ -511,6 +513,7 @@ void ApplyParams(const char* name)
     int new_maxcpu = box64_maxcpu;
     int new_avx = box64_avx2?2:box64_avx;
     int box64_dynarec_jvm = box64_jvm;
+    int new_reserve_high = 0;
     if(!strcmp(name, old_name)) {
         return;
     }
@@ -558,6 +561,8 @@ void ApplyParams(const char* name)
         cycle_log = new_cycle_log;
         initCycleLog(my_context);
     }
+    if(new_reserve_high)
+        my_reserveHighMem();
     if(param->is_new_avx_present) {
         if(!new_avx) {
             printf_log(LOG_INFO, "Hidding AVX extension");

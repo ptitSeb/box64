@@ -1499,15 +1499,12 @@ static void atfork_child_custommem(void)
     init_mutexes();
 }
 
-void reserveHighMem()
+void my_reserveHighMem()
 {
-    char* p = getenv("BOX64_RESERVE_HIGH");
-    #if 0//def ADLINK
-    if(p && p[0]=='0')
-    #else
-    if(!p || p[0]=='0')
-    #endif
-        return; // don't reserve by default
+    static int reserved = 0;
+    if(reserved || !have48bits)
+        return;
+    reserved = 1;
     uintptr_t cur = 1ULL<<47;
     uintptr_t bend = 0;
     uint32_t prot;
@@ -1522,6 +1519,19 @@ void reserveHighMem()
         }
         cur = bend;
     }
+
+}
+
+void reserveHighMem()
+{
+    char* p = getenv("BOX64_RESERVE_HIGH");
+    #if 0//def ADLINK
+    if(p && p[0]=='0')
+    #else
+    if(!p || p[0]=='0')
+    #endif
+        return; // don't reserve by default
+    my_reserveHighMem();
 }
 
 void init_custommem_helper(box64context_t* ctx)
