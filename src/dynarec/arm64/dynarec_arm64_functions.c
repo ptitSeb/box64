@@ -30,6 +30,7 @@
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 {
     int ret = SCRATCH0 + dyn->n.fpu_scratch++;
+    if(dyn->n.ymm_used) printf_log(LOG_INFO, "Warning, getting a scratch register after getting some YMM at inst=%d\n", ninst);
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
         dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
@@ -41,6 +42,7 @@ int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 int fpu_get_double_scratch(dynarec_arm_t* dyn, int ninst)
 {
     int ret = SCRATCH0 + dyn->n.fpu_scratch;
+    if(dyn->n.ymm_used) printf_log(LOG_INFO, "Warning, getting a double scratch register after getting some YMM at inst=%d\n", ninst);
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
         dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
