@@ -133,7 +133,7 @@ GO(__gmpn_add_n, LFpppL)
 //GO(__gmpn_cmp, 
 GO(__gmpn_cnd_add_n, LFLpppL)
 GO(__gmpn_cnd_sub_n, LFLpppL)
-//GO(__gmpn_cnd_swap, 
+GO(__gmpn_cnd_swap, vFippL)
 //GO(__gmpn_com, 
 //GO(__gmpn_compute_powtab, 
 GO(__gmpn_copyd, vFppL)
@@ -279,25 +279,25 @@ GO(__gmpn_rshift, LFppLu)
 //GO(__gmpn_sbpi1_div_qr, 
 //GO(__gmpn_scan0, 
 //GO(__gmpn_scan1, 
-//GO(__gmpn_sec_add_1, 
-//GO(__gmpn_sec_add_1_itch, 
+GO(__gmpn_sec_add_1, LFppLL)
+GO(__gmpn_sec_add_1_itch, LFL)
 //GO(__gmpn_sec_div_qr, 
 //GO(__gmpn_sec_div_qr_itch, 
-//GO(__gmpn_sec_div_r, 
-//GO(__gmpn_sec_div_r_itch, 
-//GO(__gmpn_sec_invert, 
-//GO(__gmpn_sec_invert_itch, 
-//GO(__gmpn_sec_mul, 
-//GO(__gmpn_sec_mul_itch, 
+GO(__gmpn_sec_div_r, LFppLpLL)
+GO(__gmpn_sec_div_r_itch, LFL)
+GO(__gmpn_sec_invert, iFpppLL)
+GO(__gmpn_sec_invert_itch, LFL)
+GO(__gmpn_sec_mul, vFpppLp)
+GO(__gmpn_sec_mul_itch, LFL)
 //GO(__gmpn_sec_pi1_div_qr, 
 //GO(__gmpn_sec_pi1_div_r, 
-//GO(__gmpn_sec_powm, 
-//GO(__gmpn_sec_powm_itch, 
+GO(__gmpn_sec_powm, vFppLpLpLp)
+GO(__gmpn_sec_powm_itch, LFLL)
 //GO(__gmpn_sec_sqr, 
 //GO(__gmpn_sec_sqr_itch, 
-//GO(__gmpn_sec_sub_1, 
+GO(__gmpn_sec_sub_1, LFppLL)
 //GO(__gmpn_sec_sub_1_itch, 
-//GO(__gmpn_sec_tabselect, 
+GO(__gmpn_sec_tabselect, vFppLLL)
 //GO(__gmpn_set_str, 
 //GO(__gmpn_sizeinbase, 
 GO(__gmpn_sqr, vFppL)
@@ -582,7 +582,7 @@ GO(__gmpz_sqrt, vFpp)
 //GO(__gmpz_sqrtrem, 
 //GO(__gmpz_stronglucas, 
 GO(__gmpz_sub, vFppp)
-//GO(__gmpz_submul, 
+GO(__gmpz_submul, vFppp)
 GO(__gmpz_submul_ui, vFppL)
 GO(__gmpz_sub_ui, vFppu)
 //GO(__gmpz_swap, 
