@@ -868,6 +868,16 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SMWRITE2();
             }
             break;
+        case 0xD7:
+            INST_NAME("PMOVMSKB Gd, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGD;
+            v0 = fpu_get_scratch(dyn);
+            VMSKLTZ_B(v0, q0);
+            MOVFR2GR_D(x1, v0);
+            BSTRINS_D(gd, x1, 15, 0);
+            break;
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;

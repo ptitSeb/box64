@@ -855,6 +855,7 @@ if(LARCH64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_0f.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_64.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_66.c"
+    "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_6664.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_67.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_f30f.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_660f.c"
