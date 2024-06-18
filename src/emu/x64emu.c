@@ -424,7 +424,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
                     emu->old_ymm[i].q[0] = emu->ymm[i].q[0];
                     emu->old_ymm[i].q[1] = emu->ymm[i].q[1];
                 } else {
-                    sprintf(tmp, "-:%016lx-%016lx", emu->ymm[i].q[1], emu->ymm[i].q[0]);
+                    sprintf(tmp, "-%016lx-%016lx", emu->ymm[i].q[1], emu->ymm[i].q[0]);
                 }
                 strcat(buff, tmp);
             }
