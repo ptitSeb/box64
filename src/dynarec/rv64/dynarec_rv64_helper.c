@@ -507,9 +507,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
         if(JMPTABLE_MASK0<2048) {
             ANDI(x2, xRIP, JMPTABLE_MASK0);
         } else {
-            if(JMPTABLE_MASK1!=JMPTABLE_MASK0) {
-                MOV64x(x4, JMPTABLE_MASK0);    // x4 = mask
-            }
+            MOV64x(x4, JMPTABLE_MASK0); // x4 = mask
             AND(x2, xRIP, x4);
         }
         if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
