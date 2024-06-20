@@ -475,6 +475,57 @@ static void* find_zwp_relative_pointer_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_relative_pointer_v1_listener callback\n");
     return NULL;
 }
+// zxdg_output_v1_listener ...
+typedef struct my_zxdg_output_v1_listener_s {
+    uintptr_t   logical_position; //vFppii
+    uintptr_t   logical_size; //vFppii
+    uintptr_t   done; //vFpp
+    uintptr_t   name; //vFppp
+    uintptr_t   description; //vFppp
+} my_zxdg_output_v1_listener_t;
+#define GO(A)   \
+static my_zxdg_output_v1_listener_t* ref_zxdg_output_v1_listener_##A = NULL;                                              \
+static void* my_zxdg_output_v1_listener_logical_position_##A(void* a, void* b, int32_t c, int32_t d)  \
+{                                                                                                                                           \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->logical_position, "ppii", a, b, c, d);                          \
+}                                                                                                                                           \
+static void* my_zxdg_output_v1_listener_logical_size_##A(void* a, void* b, int32_t c, int32_t d)  \
+{                                                                                                                                           \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->logical_size, "ppii", a, b, c, d);                          \
+}                                                                                                                                           \
+static void* my_zxdg_output_v1_listener_done_##A(void* a, void* b)  \
+{                                                                                                                                           \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->done, "pp", a, b);                          \
+}                                                                                                                                           \
+static void* my_zxdg_output_v1_listener_name_##A(void* a, void* b, void* c)  \
+{                                                                                                                                           \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->name, "ppp", a, b, c);                          \
+}                                                                                                                                           \
+static void* my_zxdg_output_v1_listener_description_##A(void* a, void* b, void* c)  \
+{                                                                                                                                           \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->description, "ppp", a, b, c);                          \
+}                                                                                                                                           \
+static my_zxdg_output_v1_listener_t my_zxdg_output_v1_listener_fct_##A = {                                                \
+    (uintptr_t)my_zxdg_output_v1_listener_logical_position_##A,                                                                     \
+    (uintptr_t)my_zxdg_output_v1_listener_logical_size_##A,                                                                     \
+    (uintptr_t)my_zxdg_output_v1_listener_done_##A,                                                                     \
+    (uintptr_t)my_zxdg_output_v1_listener_name_##A,                                                                     \
+    (uintptr_t)my_zxdg_output_v1_listener_description_##A,                                                                     \
+};
+SUPER()
+#undef GO
+static void* find_zxdg_output_v1_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_zxdg_output_v1_listener_##A == fct) return &my_zxdg_output_v1_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_zxdg_output_v1_listener_##A == 0) {ref_zxdg_output_v1_listener_##A = fct; return &my_zxdg_output_v1_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zxdg_output_v1_listener callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -503,6 +554,8 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wl_buffer_listener_Fct(l);
     } else if(!strcmp(proxy_name, "zwp_relative_pointer_v1")) {
         l = find_zwp_relative_pointer_v1_listener_Fct(l);
+    } else if(!strcmp(proxy_name, "zxdg_output_v1")) {
+        l = find_zxdg_output_v1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "BOX64: Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
