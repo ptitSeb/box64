@@ -658,6 +658,9 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         if (i64 <= -2048 || i64 > 2048)
                             MOV64xw(x9, i64);
+                        ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
+                        BNEZ_MARK3(x1);
+                        // Aligned
                         MARKLOCK;
                         LRxw(x1, wback, 1, 1);
                         if (i64 > -2048 && i64 <= 2048) {
@@ -667,8 +670,25 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         SCxw(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
-                        IFX(X_ALL|X_PEND)
+                        B_MARK_nocond;
+                        MARK3;
+                        // Unaligned
+                        ANDI(x5, wback, -(1 << (rex.w + 2)));
+                        MARK2; // Use MARK2 as a "MARKLOCK" since we're running out of marks.
+                        LDxw(x6, wback, 0);
+                        LRxw(x1, x5, 1, 1);
+                        if (i64 > -2048 && i64 <= 2048) {
+                            ADDIxw(x4, x6, -i64);
+                        } else {
+                            SUBxw(x4, x6, x9);
+                        }
+                        SCxw(x3, x1, x5, 1, 1);
+                        BNEZ_MARK2(x3);
+                        SDxw(x4, wback, 0);
+                        MARK;
+                        IFX (X_ALL | X_PEND)
                             emit_sub32c(dyn, ninst, rex, x1, i64, x3, x4, x5, x6);
+                        SMDMB();
                     }
                     break;
                 case 6: // XOR
