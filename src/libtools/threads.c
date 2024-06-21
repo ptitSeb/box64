@@ -712,6 +712,12 @@ static pthread_cond_t* alignCond(pthread_cond_t* pc)
 	return pc;
 }
 
+EXPORT int my_pthread_cond_signal(x64emu_t* emu, pthread_cond_t* cond)
+{
+	(void)emu;
+	int ret = pthread_cond_signal(alignCond(cond));
+	return ret;
+}
 EXPORT int my_pthread_cond_timedwait(x64emu_t* emu, pthread_cond_t* cond, void* mutex, void* abstime)
 {
 	(void)emu;
