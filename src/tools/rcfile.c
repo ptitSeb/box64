@@ -565,13 +565,13 @@ void ApplyParams(const char* name)
         my_reserveHighMem();
     if(param->is_new_avx_present) {
         if(!new_avx) {
-            printf_log(LOG_INFO, "Hidding AVX extension");
+            printf_log(LOG_INFO, "Hidding AVX extension\n");
             box64_avx = 0; box64_avx2 = 0;
         } else if(new_avx==1) {
-            printf_log(LOG_INFO, "Exposing AVX extension");
+            printf_log(LOG_INFO, "Exposing AVX extension\n");
             box64_avx = 1; box64_avx2 = 0;
         } else if(new_avx==2) {
-            printf_log(LOG_INFO, "Exposing AVX/AVX2 extensions");
+            printf_log(LOG_INFO, "Exposing AVX/AVX2 extensions\n");
             box64_avx = 1; box64_avx2 = 1;
         }
     }
@@ -664,17 +664,19 @@ void ApplyParams(const char* name)
     #ifdef DYNAREC
     if(param->is_box64_nodynarec_present) {
         uintptr_t no_start = 0, no_end = 0;
-        char* p;
-        no_start = strtoul(param->box64_nodynarec, &p, 0);
-        if(p!=param->box64_nodynarec && p[0]=='-') {
-            char* p2;
-            ++p;
-            no_end = strtoul(p, &p2, 0);
-            if(p2!=p && no_end>no_start) {
-                box64_nodynarec_start = no_start;
-                box64_nodynarec_end = no_end;
-                printf_log(LOG_INFO, "Appling BOX64_NODYNAREC=%p-%p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
-            }
+        int ok = 0;
+        if(sscanf(param->box64_nodynarec, "0x%lX-0x%lX", &no_start, &no_end)==2)
+            ok = 1;
+        if(!ok && sscanf(param->box64_nodynarec, "%lx-%lx", &no_start, &no_end)==2)
+            ok = 1;
+        if(!ok && sscanf(param->box64_nodynarec, "%ld-%ld", &no_start, &no_end)==2)
+            ok = 1;
+        if(ok && no_end>no_start) {
+            box64_nodynarec_start = no_start;
+            box64_nodynarec_end = no_end;
+            printf_log(LOG_INFO, "Appling BOX64_NODYNAREC=%p-%p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+        } else {
+            printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", param->box64_nodynarec, (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
         }
     }
     if(param->is_box64_dynarec_forward_present) {
