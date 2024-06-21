@@ -107,7 +107,7 @@ GOM(pthread_cond_broadcast, iFEp)
 GOM(pthread_cond_destroy, iFEp)
 GOM(pthread_cond_init, iFEpp)
 #endif
-GO(pthread_cond_signal, iFp)
+GOM(pthread_cond_signal, iFEp)
 GOM(pthread_cond_timedwait, iFEppp)
 GOM(pthread_cond_wait, iFEpp)
 GOM(pthread_create, iFEpppp)
