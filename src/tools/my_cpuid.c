@@ -451,7 +451,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0x80000006:    // L2 cache line size and associativity
             R_EAX = 0;
             R_EBX = 0;
-            R_ECX = 0;
+            R_ECX = 64 | (0x6<<12) | (256<<16); // bits: 0-7 line size, 15-12: assoc (using special encoding), 31-16: size in K    //TODO: read info from /sys/devices/system/cpu/cpuX/cache/index2
             R_EDX = 0;
             break;
         case 0x80000007:    // Invariant TSC
