@@ -2186,13 +2186,12 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         }
     }
     int stack_cnt = dyn->n.stack_next;
-    int s3_top = 0xffff;
     neoncache_t cache = dyn->n;
     int s1_val = 0;
     int s2_val = 0;
     // unload every uneeded cache
     // ymm0 first
-    s3_top = 1;
+    int s3_top = 1;
     uint16_t to_purge = dyn->ymm_zero&~dyn->insts[i2].ymm0_in;
     if(dyn->ymm_zero && (dyn->insts[i2].purge_ymm|to_purge)) {
         MESSAGE(LOG_DUMP, "\t- YMM Zero %04x / %04x\n", dyn->ymm_zero, (dyn->insts[i2].purge_ymm|to_purge));
@@ -2205,6 +2204,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                 STPx_S7_offset(xZR, xZR, s3, i*16);
             }
     }
+    s3_top = 0xffff;
     // check SSE first, than MMX, in order, to optimise successive memory write
     for(int i=0; i<16; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache);
