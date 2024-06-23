@@ -416,12 +416,15 @@ static int updateYmm0(dynarec_native_t* dyn, int ninst) {
         if(jmp!=-1) {
             // check if a purge is needed at jump point
             ymm0_out&=~dyn->insts[jmp].purge_ymm;
+            ok = (dyn->insts[jmp].pred_sz==1) && (dyn->insts[jmp].ymm0_in!=ymm0_out);
+            if(dyn->insts[jmp].pred_sz==1)
+                dyn->insts[jmp].ymm0_in = ymm0_out;
             uint16_t ymm0_jmp = dyn->insts[jmp].ymm0_in;
             uint16_t to_purge = ymm0_jmp&~ymm0_out; // if there are too many ymm0 at jump point
-            if(to_purge) {
+            if(to_purge)
                 dyn->insts[jmp].purge_ymm|=to_purge;
+            if(to_purge || ok)
                 updateYmm0(dyn, jmp);
-            }
         }
         ++ninst;
     }
@@ -600,19 +603,20 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     int pos = helper.size;
     while (pos>=0)
         pos = updateNeed(&helper, pos, 0);
-    pos = 0;
-    while(pos<helper.size)
-        pos = updateYmm0(&helper, pos);
     // remove fpu stuff on non-executed code
     for(int i=1; i<helper.size-1; ++i)
         if(!helper.insts[i].pred_sz) {
             int ii = i;
             while(ii<helper.size && !helper.insts[ii].pred_sz) {
-                fpu_reset_ninst(&helper, ii++);
+                fpu_reset_ninst(&helper, ii);
                 helper.insts[ii].ymm0_in = helper.insts[ii].ymm0_sub = helper.insts[ii].ymm0_add = helper.insts[ii].ymm0_out = helper.insts[ii].purge_ymm = 0;
+                ++ii;
             }
             i = ii;
         }
+    pos = 0;
+    while(pos<helper.size)
+        pos = updateYmm0(&helper, pos);
 
 
     // pass 1, float optimizations, first pass for flags
