@@ -1037,9 +1037,9 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
                 tmp64u |= 0xffLL<<(i*8);
 
         if(a.Q)
-            snprintf(buff, sizeof(buff), "MOVI V%d.2D, #0x%016x", Rd, tmp64u);
+            snprintf(buff, sizeof(buff), "MOVI V%d.2D, #0x%016lx", Rd, tmp64u);
         else
-            snprintf(buff, sizeof(buff), "MOVI D%d, #0x%016x", Rd, tmp64u);
+            snprintf(buff, sizeof(buff), "MOVI D%d, #0x%016lx", Rd, tmp64u);
         return buff;
     }
 
