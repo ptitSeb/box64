@@ -1543,7 +1543,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             }
             break;
         case 0xBC:                      /* BSF Ed,Gd */
-            CHECK_FLAGS(emu);
+            RESET_FLAGS(emu);
             nextop = F8;
             GETED(0);
             GETGD;
@@ -1570,7 +1570,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             }
             break;
         case 0xBD:                      /* BSR Ed,Gd */
-            CHECK_FLAGS(emu);
+            RESET_FLAGS(emu);
             nextop = F8;
             GETED(0);
             GETGD;

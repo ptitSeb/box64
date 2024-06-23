@@ -2138,7 +2138,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xBC:
             INST_NAME("BSF Gd, Ed");
-            SETFLAGS(X_ZF, SF_SUBSET);
+            SETFLAGS(X_ZF, SF_SET_DF);
             SET_DFNONE(x1);
             nextop = F8;
             GETED(0);
@@ -2149,13 +2149,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CLZxw(gd, x1);    // x2 gets leading 0 == BSF
             MARK;
             IFX(X_ZF) {
-                CSETw(x1, cEQ);    //ZF not set
+                CSETw(x1, cEQ);    //other flags are undefined
                 BFIw(xFlags, x1, F_ZF, 1);
             }
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
-            SETFLAGS(X_ZF, SF_SUBSET);
+            SETFLAGS(X_ZF, SF_SET_DF);
             SET_DFNONE(x1);
             nextop = F8;
             GETED(0);
@@ -2167,7 +2167,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             NEGxw_REG(gd, gd);   // complement
             MARK;
             IFX(X_ZF) {
-                CSETw(x1, cEQ);    //ZF not set
+                CSETw(x1, cEQ);    //other flags are undefined
                 BFIw(xFlags, x1, F_ZF, 1);
             }
             break;
