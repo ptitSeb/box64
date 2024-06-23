@@ -2148,8 +2148,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             RBITxw(x1, ed);   // reverse
             CLZxw(gd, x1);    // x2 gets leading 0 == BSF
             MARK;
-            CSETw(x1, cEQ);    //ZF not set
-            BFIw(xFlags, x1, F_ZF, 1);
+            IFX(X_ZF) {
+                CSETw(x1, cEQ);    //ZF not set
+                BFIw(xFlags, x1, F_ZF, 1);
+            }
             break;
         case 0xBD:
             INST_NAME("BSR Gd, Ed");
@@ -2164,8 +2166,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SUBxw_U12(gd, gd, rex.w?63:31);
             NEGxw_REG(gd, gd);   // complement
             MARK;
-            CSETw(x1, cEQ);    //ZF not set
-            BFIw(xFlags, x1, F_ZF, 1);
+            IFX(X_ZF) {
+                CSETw(x1, cEQ);    //ZF not set
+                BFIw(xFlags, x1, F_ZF, 1);
+            }
             break;
         case 0xBE:
             INST_NAME("MOVSX Gd, Eb");
