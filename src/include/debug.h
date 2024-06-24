@@ -47,6 +47,7 @@ extern int arm64_uscat;
 extern int arm64_flagm;
 extern int arm64_flagm2;
 extern int arm64_frintts;
+extern int arm64_rndr;
 #elif defined(RV64)
 extern int rv64_zba;
 extern int rv64_zbb;

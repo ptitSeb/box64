@@ -2369,6 +2369,25 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 FAKEED;
                 UDF(0);
                 break;
+            case 6:
+                INST_NAME("RNDR Ed");
+                SETFLAGS(X_ALL, SF_SET_DF);
+                SET_DFNONE(x1);
+                IFX(F_OF|F_SF|F_ZF|F_PF|F_AF) {
+                    MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
+                    BICw(xFlags, xFlags, x1);
+                }
+                if(arm64_rndr) {
+                    MRS_rndr(x1);
+                    IFX(X_CF) { CSETw(x3, cNE); }
+                } else {
+                    CALL(rex.w?((void*)get_random64):((void*)get_random32), x1);
+                    IFX(X_CF) { MOV32w(x3, 1); }
+                }
+                IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
+                STxw(x1, wback, fixedaddress);
+                break;
             default:
                 DEFAULT;
             }
