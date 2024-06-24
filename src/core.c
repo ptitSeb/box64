@@ -87,6 +87,8 @@ int box64_dynarec_missing = 0;
 int box64_dynarec_aligned_atomics = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
+uintptr_t box64_dynarec_test_start = 0;
+uintptr_t box64_dynarec_test_end = 0;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -832,7 +834,22 @@ void LoadLogEnv()
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='2')
                 box64_dynarec_test = p[0]-'0';
+            box64_dynarec_test_start = 0x0;
+            box64_dynarec_test_end = 0x0;
+        } else if (strchr(p,'-')) {
+            if(sscanf(p, "%ld-%ld", &box64_dynarec_test_start, &box64_dynarec_test_end)!=2) {
+                if(sscanf(p, "0x%lX-0x%lX", &box64_dynarec_test_start, &box64_dynarec_test_end)!=2)
+                    sscanf(p, "%lx-%lx", &box64_dynarec_test_start, &box64_dynarec_test_end);
+            }
+            if(box64_dynarec_test_end>box64_dynarec_test_start) {
+                box64_dynarec_test = 1;
+                printf_log(LOG_INFO, "Dynarec test in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+            } else {
+                box64_dynarec_test = 0;
+                printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", p, (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+            }
         }
+
         if(box64_dynarec_test) {
             box64_dynarec_fastnan = 0;
             box64_dynarec_fastround = 0;

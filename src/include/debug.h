@@ -21,6 +21,7 @@ extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;
 extern int box64_dynarec_forced;
 extern uintptr_t box64_nodynarec_start, box64_nodynarec_end;
+extern uintptr_t box64_dynarec_test_start, box64_dynarec_test_end;
 extern int box64_dynarec_bigblock;
 extern int box64_dynarec_forward;
 extern int box64_dynarec_strongmem;

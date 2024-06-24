@@ -124,7 +124,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }
-        if(box64_dynarec_test) {
+        if(box64_dynarec_test && (!box64_dynarec_test_end || (ip>=box64_dynarec_test_start && ip<box64_dynarec_test_end) )) {
             MESSAGE(LOG_DUMP, "TEST STEP ----\n");
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
             GO_TRACE(x64test_step, 1, x5);
