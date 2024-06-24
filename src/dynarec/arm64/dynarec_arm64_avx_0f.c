@@ -640,8 +640,16 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             } else if(v2==v1 && (u8==0xe5)) {   // easy special case
                 VMOVQ(v0, v2);
                 VMOVeS(v0, 0, v0, 1);
+            } else if(MODREG && u8==0x88) {
+                VUZP1Q_32(v0, v2, v1);
+            } else if(MODREG && u8==0xdd) {
+                VUZP2Q_32(v0, v2, v1);
             } else {
-                d0 = fpu_get_scratch(dyn, ninst);
+                if((v0==v1) || (v0==v2)) {
+                    d0 = fpu_get_scratch(dyn, ninst); s0 = 0;
+                } else {
+                    d0 = v0; s0 = 1;
+                }
                 // first two elements from Vx
                 for(int i=0; i<2; ++i) {
                     VMOVeS(d0, i, v2, (u8>>(i*2))&3);
@@ -658,7 +666,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                         VLD1_32(d0, i, x2);
                     }
                 }
-                VMOVQ(v0, d0);
+                if(v0!=d0) VMOVQ(v0, d0);
             }
             if(vex.l) {
                 if(MODREG)
@@ -672,7 +680,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 } else if(v2==v1 && (u8==0xe5)) {
                     VMOVQ(v0, v2);
                     VMOVeS(v0, 0, v0, 1);
+                } else if(MODREG && u8==0x88) {
+                    VUZP1Q_32(v0, v2, v1);
+                } else if(MODREG && u8==0xdd) {
+                    VUZP2Q_32(v0, v2, v1);
                 } else {
+                    if(s0) d0 = v0;
                     for(int i=0; i<2; ++i) {
                         VMOVeS(d0, i, v2, (u8>>(i*2))&3);
                     }

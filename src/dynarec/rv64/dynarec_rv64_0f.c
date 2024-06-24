@@ -1820,15 +1820,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xAE:
             nextop = F8;
-            if ((nextop & 0xF8) == 0xE8) {
-                INST_NAME("LFENCE");
-                SMDMB();
-            } else if ((nextop & 0xF8) == 0xF0) {
-                INST_NAME("MFENCE");
-                SMDMB();
-            } else if ((nextop & 0xF8) == 0xF8) {
-                INST_NAME("SFENCE");
-                SMDMB();
+            if (MODREG) {
+                switch (nextop) {
+                    case 0xE8:
+                        INST_NAME("LFENCE");
+                        SMDMB();
+                        break;
+                    case 0xF0:
+                        INST_NAME("MFENCE");
+                        SMDMB();
+                        break;
+                    case 0xF8:
+                        INST_NAME("SFENCE");
+                        SMDMB();
+                        break;
+                    default:
+                        DEFAULT;
+                }
             } else {
                 switch ((nextop >> 3) & 7) {
                     case 0:
@@ -1836,26 +1844,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         SKIPTEST(x1);
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        if (MODREG) {
-                            DEFAULT;
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
-                            if (ed != x1) { MV(x1, ed); }
-                            CALL(rex.w ? ((void*)fpu_fxsave64) : ((void*)fpu_fxsave32), -1);
-                        }
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        CALL(rex.w ? ((void*)fpu_fxsave64) : ((void*)fpu_fxsave32), -1);
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization\n");
                         SKIPTEST(x1);
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
-                        if (MODREG) {
-                            DEFAULT;
-                        } else {
-                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
-                            if (ed != x1) { MV(x1, ed); }
-                            CALL(rex.w ? ((void*)fpu_fxrstor64) : ((void*)fpu_fxrstor32), -1);
-                        }
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        CALL(rex.w ? ((void*)fpu_fxrstor64) : ((void*)fpu_fxrstor32), -1);
                         break;
                     case 2:
                         INST_NAME("LDMXCSR Md");

@@ -189,8 +189,8 @@ GO(gnutls_dtls_set_timeouts, vFpuu)
 //GO(gnutls_ecc_curve_get_pk, 
 //GO(gnutls_ecc_curve_get_size, 
 //GO(gnutls_ecc_curve_list, 
-GO(_gnutls_ecdh_compute_key, iFppp)
-GO(gnutls_ecdh_compute_key, iFppp)
+GO(_gnutls_ecdh_compute_key, iFipppppp)
+GO(gnutls_ecdh_compute_key, iFipppppp)
 //GO(gnutls_encode_ber_digest_info, 
 //GO(_gnutls_encode_ber_rs_raw, 
 //GO(gnutls_error_is_fatal, 

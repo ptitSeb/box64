@@ -30,9 +30,10 @@
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 {
     int ret = SCRATCH0 + dyn->n.fpu_scratch++;
+    if(dyn->n.ymm_used) printf_log(LOG_INFO, "Warning, getting a scratch register after getting some YMM at inst=%d\n", ninst);
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->scratchs |= (1<<(dyn->n.fpu_scratch-1)); // mark as not free
+        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
         dyn->n.neoncache[ret].v = 0; // reset it
     }
     return ret;
@@ -41,14 +42,15 @@ int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 int fpu_get_double_scratch(dynarec_arm_t* dyn, int ninst)
 {
     int ret = SCRATCH0 + dyn->n.fpu_scratch;
+    if(dyn->n.ymm_used) printf_log(LOG_INFO, "Warning, getting a double scratch register after getting some YMM at inst=%d\n", ninst);
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->scratchs |= (1<<(dyn->n.fpu_scratch)); // mark as not free
+        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
         dyn->n.neoncache[ret].v = 0; // reset it
     }
     if(dyn->n.neoncache[ret+1].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret+1].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->scratchs |= (1<<(dyn->n.fpu_scratch+1)); // mark as not free
+        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret+1].n); // mark as purged
         dyn->n.neoncache[ret+1].v = 0; // reset it
     }
     dyn->n.fpu_scratch+=2;
@@ -67,7 +69,7 @@ int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)
     while (dyn->n.fpuused[i]) ++i;
     if(dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->mmx87 |= (1<<(i-1-X870)); // mark as purged
+        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[i].n); // mark as purged
         dyn->n.neoncache[i].v = 0; // reset it
     }
     dyn->n.fpuused[i] = 1;
@@ -92,7 +94,7 @@ int fpu_get_reg_emm(dynarec_arm_t* dyn, int ninst, int emm)
     int ret = EMM0 + emm;
     if(dyn->n.neoncache[ret].t==NEON_CACHE_YMMR || dyn->n.neoncache[ret].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
-        dyn->mmx87 |= (1<<emm); // mark as purged
+        dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[ret].n); // mark as purged
         dyn->n.neoncache[ret].v = 0; // reset it
     }
     dyn->n.fpuused[ret] = 1;
@@ -646,6 +648,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)
                 dynarec_log(LOG_NONE, "%s%d", ii?"/":"", dyn->insts[ninst].pred[ii]);
         }
+        if(!dyn->insts[ninst].x64.alive)
+            dynarec_log(LOG_NONE, " not executed");
         if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts>=0)
             dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
         if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts==-1)
@@ -681,8 +685,6 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dynarec_log(LOG_NONE, " ymm0=(%04x/%04x+%04x-%04x=%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_in, dyn->insts[ninst].ymm0_add ,dyn->insts[ninst].ymm0_sub, dyn->insts[ninst].ymm0_out);
         if(dyn->insts[ninst].purge_ymm)
             dynarec_log(LOG_NONE, " purgeYmm=%04x", dyn->insts[ninst].purge_ymm);
-        if(dyn->mmx87 || dyn->scratchs)
-            dynarec_log(LOG_NONE, " mask=%04x-%04x", dyn->mmx87, dyn->scratchs);
         if(dyn->n.stack || dyn->insts[ninst].n.stack_next || dyn->insts[ninst].n.x87stack)
             dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->n.stack, dyn->insts[ninst].n.stack_next, dyn->insts[ninst].n.stack_push, dyn->insts[ninst].n.stack_pop, dyn->insts[ninst].n.x87stack);
         if(dyn->insts[ninst].n.combined1 || dyn->insts[ninst].n.combined2)
@@ -741,6 +743,7 @@ void fpu_reset(dynarec_arm_t* dyn)
     mmx_reset(&dyn->n);
     sse_reset(&dyn->n);
     fpu_reset_reg(dyn);
+    dyn->ymm_zero = 0;
 }
 
 void fpu_reset_ninst(dynarec_arm_t* dyn, int ninst)

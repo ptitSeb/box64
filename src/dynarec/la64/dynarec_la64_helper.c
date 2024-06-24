@@ -685,9 +685,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
             LD_D(xRIP, xEmu, offsetof(x64emu_t, ip));
 #undef GO
     }
-    // regenerate mask
-    ADDI_W(xMASK, xZR, -1);
-    LU32I_D(xMASK, 0);
+    REGENERATE_MASK();
 
     fpu_popcache(dyn, ninst, reg, 0);
     if (saveflags) {

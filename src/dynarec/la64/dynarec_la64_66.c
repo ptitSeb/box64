@@ -220,6 +220,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 emit_cmp16_0(dyn, ninst, x1, x3, x4);
             }
             break;
+        case 0x64:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
+            break;
+        case 0x65:
+            addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _GS, ok, need_epilog);
+            break;
+        case 0x66:
+            addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            break;
         case 0x69:
         case 0x6B:
             if (opcode == 0x69) {
@@ -404,6 +413,38 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRINS_D(gd, x2, 15, 0);
             }
             break;
+
+        case 0xA4:
+            if (rep) {
+                INST_NAME("REP MOVSB");
+                CBZ_NEXT(xRCX);
+                ANDI(x1, xFlags, 1 << F_DF);
+                BNEZ_MARK2(x1);
+                MARK; // Part with DF==0
+                LD_BU(x1, xRSI, 0);
+                ST_B(x1, xRDI, 0);
+                ADDI_D(xRSI, xRSI, 1);
+                ADDI_D(xRDI, xRDI, 1);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK(xRCX);
+                B_NEXT_nocond;
+                MARK2; // Part with DF==1
+                LD_BU(x1, xRSI, 0);
+                ST_B(x1, xRDI, 0);
+                ADDI_D(xRSI, xRSI, -1);
+                ADDI_D(xRDI, xRDI, -1);
+                ADDI_D(xRCX, xRCX, -1);
+                BNEZ_MARK2(xRCX);
+                // done
+            } else {
+                INST_NAME("MOVSB");
+                GETDIR(x3, x1, 1);
+                LD_BU(x1, xRSI, 0);
+                ST_B(x1, xRDI, 0);
+                ADD_D(xRSI, xRSI, x3);
+                ADD_D(xRDI, xRDI, x3);
+            }
+            break;
         case 0xA5:
             if (rep) {
                 INST_NAME("REP MOVSW");
@@ -536,6 +577,20 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     EWBACK;
                     UFLAG_RES(ed);
                     UFLAG_DF(x3, d_shr16);
+                    break;
+                case 7:
+                    INST_NAME("SAR Ew, Ib");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    UFLAG_IF { MESSAGE(LOG_DUMP, "Need Optimization for flags\n"); }
+                    GETSEW(x1, 1);
+                    u8 = F8;
+                    UFLAG_IF { MOV32w(x2, (u8 & 15)); }
+                    UFLAG_OP12(ed, x2)
+                    SRAI_D(ed, ed, u8 & 15);
+                    if (MODREG) BSTRPICK_D(ed, ed, 15, 0);
+                    EWBACK;
+                    UFLAG_RES(ed);
+                    UFLAG_DF(x3, d_sar16);
                     break;
                 default:
                     DEFAULT;

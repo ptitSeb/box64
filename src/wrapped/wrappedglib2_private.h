@@ -167,7 +167,7 @@ GO(g_bytes_new, pFpL)
 GO(g_bytes_new_from_bytes, pFpLL)
 GO(g_bytes_new_static, pFpL)
 GO(g_bytes_new_take, pFpL)
-//GOM(g_bytes_new_with_free_func, pFppLBp)
+GOM(g_bytes_new_with_free_func, pFEpLpp)
 GO(g_bytes_ref, pFp)
 GO(g_bytes_unref, vFp)
 GO(g_bytes_unref_to_array, pFp)
@@ -613,7 +613,9 @@ GO(g_log_set_always_fatal, iFi)
 GOM(g_log_set_default_handler, pFEpp)
 GO(g_log_set_fatal_mask, iFpi)
 GOM(g_log_set_handler, uFEpipp)
+GO(g_log_writer_is_journald, iFi)
 GOM(g_logv, vFEpipA)
+GO(g_log_structured_array, vFipL)
 GO(g_lstat, iFpp)
 GO(g_main_context_acquire, iFp)
 GO(g_main_context_add_poll, vFppi)
@@ -1389,7 +1391,7 @@ GO(g_unicode_script_to_iso15924, uFi)
 //GO(g_unix_error_quark, 
 //GO(g_unix_fd_add, 
 //GO(g_unix_fd_add_full, 
-//GO(g_unix_fd_source_new, 
+GO(g_unix_fd_source_new, pFii)
 //GO(g_unix_open_pipe, 
 //GO(g_unix_set_fd_nonblocking, 
 //GO(g_unix_signal_add, 

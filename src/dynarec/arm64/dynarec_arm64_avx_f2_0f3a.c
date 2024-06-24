@@ -63,6 +63,7 @@ uintptr_t dynarec64_AVX_F2_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
 
         case 0xF0:
             INST_NAME("RORX Gd, Ed, Ib");
+            nextop = F8;
             GETGD;
             GETED(1);
             u8 = F8;

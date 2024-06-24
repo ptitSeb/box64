@@ -821,10 +821,13 @@
 
 
 #define SET_DFNONE()                           \
+    do {                                       \
+    dyn->f.dfnone_here=1;                      \
     if (!dyn->f.dfnone) {                      \
         SW(xZR, xEmu, offsetof(x64emu_t, df)); \
         dyn->f.dfnone = 1;                     \
-    }
+    } } while(0);
+
 #define SET_DF(S, N)                         \
     if ((N) != d_none) {                     \
         MOV_U12(S, (N));                     \
@@ -833,7 +836,7 @@
     } else                                   \
         SET_DFNONE()
 #define SET_NODF() dyn->f.dfnone = 0
-#define SET_DFOK() dyn->f.dfnone = 1
+#define SET_DFOK() dyn->f.dfnone = 1; dyn->f.dfnone_here=1
 
 #define CLEAR_FLAGS() \
     IFX(X_ALL) { ANDI(xFlags, xFlags, ~((1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF2) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF))); }

@@ -52,6 +52,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
 
     GETREX();
+    SKIPTEST(x1);   // DYNAREC_TEST doesn't work, by nature, on atomic opration
 
     switch(opcode) {
         case 0x00:

@@ -63,7 +63,8 @@ typedef struct neoncache_s {
 
 typedef struct flagcache_s {
     int                 pending;    // is there a pending flags here, or to check?
-    int                 dfnone;     // if deferred flags is already set to df_none
+    uint8_t             dfnone;     // if deferred flags is already set to df_none
+    uint8_t             dfnone_here;// defered flags is cleared in this opcode
 } flagcache_t;
 
 typedef struct instruction_arm64_s {
@@ -133,8 +134,6 @@ typedef struct dynarec_arm_s {
     uint8_t             doublepop;
     uint8_t             always_test;
     uint8_t             abort;      // abort the creation of the block
-    uint8_t             scratchs;   // mask of the 8 scratch neon register globaly used in the dynablock
-    uint8_t             mmx87;      // mask of the 8 mmx/x87 neon register globaly used in the dynablock
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

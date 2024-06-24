@@ -100,6 +100,7 @@ int arm64_flagm = 0;
 int arm64_flagm2 = 0;
 int arm64_frintts = 0;
 int arm64_afp = 0;
+int arm64_rndr = 0;
 #elif defined(RV64)
 int rv64_zba = 0;
 int rv64_zbb = 0;
@@ -386,6 +387,8 @@ HWCAP2_MTE
     Functionality implied by ID_AA64PFR1_EL1.MTE == 0b0010. => Full Memory Tagging Extension is implemented.
 HWCAP2_ECV
     Functionality implied by ID_AA64MMFR0_EL1.ECV == 0b0001.
+HWCAP2_AFP
+    AFP = 0b0001 => The AArch64-FPCR.{AH, FIZ, NEP} fields are supported. (Alternate floating-point behavior)
 */
     unsigned long hwcap = real_getauxval(AT_HWCAP);
     if(!hwcap)  // no HWCap: provide a default...
@@ -433,6 +436,10 @@ HWCAP2_ECV
     if(hwcap2&HWCAP2_AFP)
         arm64_afp = 1;
     #endif
+    #ifdef HWCAP2_RNG
+    if(hwcap2&HWCAP2_RNG)
+        arm64_rndr = 1;
+    #endif
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
         printf_log(LOG_INFO, " AES");
@@ -456,6 +463,8 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " FRINT");
     if(arm64_afp)
         printf_log(LOG_INFO, " AFP");
+    if(arm64_rndr)
+        printf_log(LOG_INFO, " RNDR");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch ");
     char* p = getenv("BOX64_DYNAREC_LA64NOEXT");

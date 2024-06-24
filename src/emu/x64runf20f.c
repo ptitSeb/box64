@@ -51,7 +51,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0x10:  /* MOVSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         GX->q[0] = EX->q[0];
         if(!MODREG) {
@@ -61,25 +61,25 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x11:  /* MOVSD Ex, Gx */
         nextop = F8;
-        GETEX(0);
+        GETEX8(0);
         GETGX;
         EX->q[0] = GX->q[0];
         break;
     case 0x12:  /* MOVDDUP Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         GX->q[1] = GX->q[0] = EX->q[0];
         break;
 
     case 0x1E:  /* NOP */
         nextop = F8;
-        GETED(0);
+        _GETED(0);
         break;
 
     case 0x2A:  /* CVTSI2SD Gx, Ed */
         nextop = F8;
-        GETED(0);
+        _GETED(0);
         GETGX;
         if(rex.w) {
             GX->d[0] = ED->sq[0];
@@ -90,7 +90,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0x2C:  /* CVTTSD2SI Gd, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGD;
         if(rex.w)
             if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffffffffffffLL)
@@ -107,7 +107,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x2D:  /* CVTSD2SI Gd, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGD;
         if(rex.w) {
             if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffffffffffffLL)
@@ -163,7 +163,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
                 case 0xF0:  // CRC32 Gd, Eb
                     nextop = F8;
-                    GETEB(0);
+                    _GETEB(0);
                     GETGD;
                     GD->dword[0] ^=  EB->byte[0];
                     for (int i = 0; i < 8; i++) {
@@ -176,7 +176,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     break;
                 case 0xF1:  // CRC32 Gd, Ed
                     nextop = F8;
-                    GETED(0);
+                    _GETED(0);
                     GETGD;
                     for(int j=0; j<4*(rex.w+1); ++j) {
                         GD->dword[0] ^=  ED->byte[j];
@@ -197,7 +197,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         
     case 0x51:  /* SQRTSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         if(EX->d[0]<0.0 )
             GX->d[0] = -NAN;
@@ -207,7 +207,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0x58:  /* ADDSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         #ifndef NOALIGN
         // add generate a -NAN only if doing inf + -inf
@@ -219,7 +219,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x59:  /* MULSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         #ifndef NOALIGN
             // mul generate a -NAN only if doing (+/-)inf * (+/-)0
@@ -231,14 +231,14 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x5A:  /* CVTSD2SS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         GX->f[0] = EX->d[0];
         break;
 
     case 0x5C:  /* SUBSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         #ifndef NOALIGN
             // sub generate a -NAN only if doing inf - inf
@@ -250,7 +250,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x5D:  /* MINSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         if (GX->d[0] == 0.0 && EX->d[0]  == 0.0)
             GX->d[0] = EX->d[0];
@@ -259,7 +259,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x5E:  /* DIVSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         #ifndef NOALIGN
         is_nan = isnan(GX->d[0]) || isnan(EX->d[0]);
@@ -272,7 +272,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x5F:  /* MAXSD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         if (GX->d[0] == 0.0 && EX->d[0]  == 0.0)
             GX->d[0] = EX->d[0];
@@ -282,7 +282,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0x70:  /* PSHUFLW Gx, Ex, Ib */
         nextop = F8;
-        GETEX(1);
+        _GETEX(1);
         GETGX;
         tmp8u = F8;
         if(GX==EX) {
@@ -298,7 +298,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0x7C:  /* HADDPS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         GX->f[0] += GX->f[1];
         GX->f[1] = GX->f[2] + GX->f[3];
@@ -312,7 +312,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
     case 0x7D:  /* HSUBPS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         GX->f[0] -= GX->f[1];
         GX->f[1] = GX->f[2] - GX->f[3];
@@ -333,7 +333,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         
     case 0xC2:  /* CMPSD Gx, Ex, Ib */
         nextop = F8;
-        GETEX(1);
+        _GETEX(1);
         GETGX;
         tmp8u = F8;
         tmp8s = 0;
@@ -352,7 +352,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0xD0:  /* ADDSUBPS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         GX->f[0] -= EX->f[0];
         GX->f[1] += EX->f[1];
@@ -362,14 +362,14 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0xD6:  /* MOVDQ2Q Gm, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGM;
         GM->q = EX->q[0];
         break;
 
     case 0xE6:  /* CVTPD2DQ Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         switch(emu->mxcsr.f.MXCSR_RC) {
             case ROUND_Nearest: {
@@ -409,7 +409,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     case 0xF0:  /* LDDQU Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        _GETEX(0);
         GETGX;
         memcpy(GX, EX, 16);
         break;

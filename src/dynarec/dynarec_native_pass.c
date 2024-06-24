@@ -108,6 +108,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         else if(ninst && (dyn->insts[ninst].pred_sz>1 || (dyn->insts[ninst].pred_sz==1 && dyn->insts[ninst].pred[0]!=ninst-1)))
             dyn->last_ip = 0;   // reset IP if some jump are coming here
         #endif
+        dyn->f.dfnone_here = 0;
         NEW_INST;
         MESSAGE(LOG_DUMP, "New Instruction x64:%p, native:%p\n", (void*)addr, (void*)dyn->block);
         #if STEP == 0
@@ -191,23 +192,25 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(!ok && !need_epilog && (addr < (dyn->start+dyn->isize))) {
             ok = 1;
             // we use the 1st predecessor here
-            int ii = ninst+1;
-            if(ii<dyn->size && !dyn->insts[ii].x64.alive) {
-                while(ii<dyn->size && !dyn->insts[ii].x64.alive) {
+            if((ninst+1)<dyn->size && !dyn->insts[ninst+1].x64.alive) {
+                // reset fpu value...
+                dyn->f.dfnone = 0;
+                dyn->f.pending = 0;
+                fpu_reset(dyn);
+                while((ninst+1)<dyn->size && !dyn->insts[ninst+1].x64.alive) {
                     // may need to skip opcodes to advance
                     ++ninst;
                     NEW_INST;
                     MESSAGE(LOG_DEBUG, "Skipping unused opcode\n");
                     INST_NAME("Skipped opcode");
+                    addr += dyn->insts[ninst].x64.size;
                     INST_EPILOG;
-                    addr += dyn->insts[ii].x64.size;
-                    ++ii;
                 }
             }
-            if((dyn->insts[ii].x64.barrier&BARRIER_FULL)==BARRIER_FULL)
+            if((dyn->insts[ninst+1].x64.barrier&BARRIER_FULL)==BARRIER_FULL)
                 reset_n = -2;    // hack to say Barrier!
             else {
-                reset_n = getNominalPred(dyn, ii);  // may get -1 if no predecessor are available
+                reset_n = getNominalPred(dyn, ninst+1);  // may get -1 if no predecessor are available
                 if(reset_n==-1) {
                     reset_n = -2;
                     if(!dyn->insts[ninst].x64.has_callret) {
@@ -226,7 +229,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(dyn->forward) {
             if(dyn->forward_to == addr && !need_epilog && ok>=0) {
                 // we made it!
-                reset_n = get_first_jump(dyn, addr);
+                reset_n = dyn->forward_ninst;
                 if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x64.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
                 if(dyn->insts[dyn->forward_ninst].x64.has_callret && !dyn->insts[dyn->forward_ninst].x64.has_next)
                     dyn->insts[dyn->forward_ninst].x64.has_next = 1;  // this block actually continue

@@ -202,6 +202,13 @@
             ST_W(ed, wback, fixedaddress); \
         SMWRITE();                         \
     }
+
+#define WBACKO(O)            \
+    if (wback) {             \
+        SDXxw(ed, wback, O); \
+        SMWRITE2();          \
+    }
+
 // GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
 #define GETSEW(i, D)                                                                           \
     if (MODREG) {                                                                              \
@@ -545,10 +552,12 @@
     LOAD_REG(R15);
 
 #define SET_DFNONE()                             \
+    do {                                         \
+    dyn->f.dfnone_here=1;                        \
     if (!dyn->f.dfnone) {                        \
         ST_W(xZR, xEmu, offsetof(x64emu_t, df)); \
         dyn->f.dfnone = 1;                       \
-    }
+    } } while(0);
 #define SET_DF(S, N)                           \
     if ((N) != d_none) {                       \
         MOV32w(S, (N));                        \
@@ -557,7 +566,7 @@
     } else                                     \
         SET_DFNONE()
 #define SET_NODF() dyn->f.dfnone = 0
-#define SET_DFOK() dyn->f.dfnone = 1
+#define SET_DFOK() dyn->f.dfnone = 1; dyn->f.dfnone_here=1
 
 #define CLEAR_FLAGS_(s) \
     MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); ANDN(xFlags, xFlags, s);
@@ -738,6 +747,7 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_0F   STEPNAME(dynarec64_0F)
 #define dynarec64_64   STEPNAME(dynarec64_64)
 #define dynarec64_66   STEPNAME(dynarec64_66)
+#define dynarec64_6664 STEPNAME(dynarec64_6664)
 #define dynarec64_67   STEPNAME(dynarec64_67)
 #define dynarec64_F30F STEPNAME(dynarec64_F30F)
 #define dynarec64_660F STEPNAME(dynarec64_660F)
@@ -966,6 +976,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int seg, int* ok, int* need_epilog);
 uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
+uintptr_t dynarec64_6664(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog);
 uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
@@ -1104,6 +1115,12 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         if (la64_lbt) {                    \
             X64_SET_EFLAGS(xFlags, X_ALL); \
         }                                  \
+    } while (0)
+
+#define REGENERATE_MASK()       \
+    do {                        \
+        ADDI_W(xMASK, xZR, -1); \
+        LU32I_D(xMASK, 0);      \
     } while (0)
 
 #define PURGE_YMM()    /* TODO */

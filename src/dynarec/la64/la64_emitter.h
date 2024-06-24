@@ -528,6 +528,15 @@ f24-f31  fs0-fs7   Static registers                Callee
         }                    \
     } while (0)
 
+#define CTZxw(rd, rj)      \
+    do {                   \
+        if (rex.w) {       \
+            CTZ_D(rd, rj); \
+        } else {           \
+            CTZ_W(rd, rj); \
+        }                  \
+    } while (0)
+
 
 // GR[rd] = SignExtend(GR[rj][7:0], GRLEN)
 #define EXT_W_B(rd, rj) EMIT(type_2R(0b0000000000000000010111, rj, rd))
@@ -2057,6 +2066,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
             ST_D(rd, rj, imm12); \
         else                     \
             ST_W(rd, rj, imm12); \
+    } while (0)
+
+#define SDXxw(rd, rj, rk)      \
+    do {                       \
+        if (rex.w)             \
+            STX_D(rd, rj, rk); \
+        else                   \
+            STX_W(rd, rj, rk); \
     } while (0)
 
 #define SDz(rd, rj, imm12)       \

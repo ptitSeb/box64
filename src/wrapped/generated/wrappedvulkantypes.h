@@ -24,8 +24,8 @@ typedef int32_t (*iFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpUppp_t)(void*, uint64_t, void*, void*, void*);
 typedef int32_t (*iFpUuppp_t)(void*, uint64_t, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpUUuppp_t)(void*, uint64_t, uint64_t, uint32_t, void*, void*, void*);
-typedef void (*vFpiiiiipp_t)(void*, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
-typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*, uint32_t, void*, uint32_t, void*);
+typedef void (*vFpiiiuipp_t)(void*, int32_t, int32_t, int32_t, uint32_t, int32_t, void*, void*);
+typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, void*, uint32_t, void*, uint32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(vkDestroyDevice, vFpp_t) \
@@ -74,11 +74,11 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkDestroyValidationCacheEXT, vFpUp_t) \
 	GO(vkDestroyVideoSessionKHR, vFpUp_t) \
 	GO(vkDestroyVideoSessionParametersKHR, vFpUp_t) \
+	GO(vkDestroyDebugReportCallbackEXT, vFppp_t) \
 	GO(vkDestroyDebugUtilsMessengerEXT, vFppp_t) \
 	GO(vkFreeMemory, iFpUp_t) \
 	GO(vkCreateDeferredOperationKHR, iFppp_t) \
 	GO(vkCreateInstance, iFppp_t) \
-	GO(vkDestroyDebugReportCallbackEXT, iFppp_t) \
 	GO(vkGetPhysicalDeviceDisplayPropertiesKHR, iFppp_t) \
 	GO(vkGetDisplayPlaneCapabilitiesKHR, iFpUup_t) \
 	GO(vkAllocateMemory, iFpppp_t) \
@@ -139,7 +139,7 @@ typedef void (*vFpiiiupupup_t)(void*, int32_t, int32_t, int32_t, uint32_t, void*
 	GO(vkCreateGraphicsPipelines, iFpUuppp_t) \
 	GO(vkCreateRayTracingPipelinesNV, iFpUuppp_t) \
 	GO(vkCreateRayTracingPipelinesKHR, iFpUUuppp_t) \
-	GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiiipp_t) \
-	GO(vkCmdPipelineBarrier, vFpiiiupupup_t)
+	GO(vkGetPhysicalDeviceSparseImageFormatProperties, vFpiiiuipp_t) \
+	GO(vkCmdPipelineBarrier, vFpuuuupupup_t)
 
 #endif // __wrappedvulkanTYPES_H_

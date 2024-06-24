@@ -93,7 +93,7 @@ GOM(mpg123_replace_reader_handle_64, iFEpppp)
 //GO(mpg123_reset_eq, 
 //GO(mpg123_resize_string, 
 GO(mpg123_safe_buffer, LFv)
-//GO(mpg123_scan, 
+GO(mpg123_scan, iFp)
 GO(mpg123_seek, IFpIi)
 GO(mpg123_seek_64, IFpIi)
 GO(mpg123_seek_frame, lFpli)

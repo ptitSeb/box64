@@ -436,7 +436,7 @@ x64emurun:
             break;
         case 0x63:                      /* MOVSXD Gd,Ed */
             nextop = F8;
-            GETED(0);
+            GETE4(0);
             GETGD;
             if(rex.is32bits) {
                 // ARPL here
@@ -1869,6 +1869,16 @@ x64emurun:
                 R_RIP = addr;
                 goto fini;
             }
+            #endif
+            break;
+        case 0xF1:                      /* INT1 */
+            if(!rex.is32bits) {
+                unimp = 1;
+                goto fini;
+            }
+            emu->old_ip = R_RIP;
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 128);
             #endif
             break;
 

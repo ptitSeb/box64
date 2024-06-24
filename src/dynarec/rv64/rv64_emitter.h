@@ -181,6 +181,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 // nop
 #define NOP() ADDI(xZR, xZR, 0)
 
+#define UDF() EMIT(0xc0001073)
+
 // rd = rs1 + rs2
 #define ADD(rd, rs1, rs2) EMIT(R_type(0b0000000, rs2, rs1, 0b000, rd, 0b0110011))
 // rd = rs1 + rs2

@@ -154,6 +154,22 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             break;
+        case 0x51:
+            INST_NAME("SQRTSD Gx, Ex");
+            nextop = F8;
+            GETGX_empty(v0);
+            d1 = fpu_get_scratch(dyn);
+            GETEXSD(d0, 0, 0);
+            FSQRT_D(d1, d0);
+            if (!box64_dynarec_fastnan) {
+                v1 = fpu_get_scratch(dyn);
+                MOVGR2FR_D(v1, xZR);
+                FCMP_D(fcc0, d0, v1, cLT);
+                BCEQZ(fcc0, 4 + 4);
+                FNEG_D(d1, d1);
+            }
+            VEXTRINS_D(v0, d1, 0);
+            break;
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
@@ -256,6 +272,14 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MARK;
             VEXTRINS_D(v0, v1, 0);
             MARK2;
+            break;
+        case 0x70:
+            INST_NAME("PSHUFLW Gx, Ex, Ib");
+            nextop = F8;
+            GETEX(v1, 0, 1);
+            GETGX(v0, 1);
+            u8 = F8;
+            VSHUF4I_H(v0, v1, u8);
             break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");

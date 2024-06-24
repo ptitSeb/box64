@@ -1130,7 +1130,7 @@ int printFunctionAddr(uintptr_t nextaddr, const char* text)
         if(nextaddr==start)
             printf_log(LOG_NONE, " (%s%s:%s)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname);
         else
-            printf_log(LOG_NONE, " (%s%s:%s + %ld)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname, nextaddr - start);
+            printf_log(LOG_NONE, " (%s%s:%s + 0x%lx)", text, ElfName(FindElfAddress(my_context, nextaddr)), symbname, nextaddr - start);
         return 1;
     }
     return 0;
