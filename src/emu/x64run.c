@@ -1872,10 +1872,6 @@ x64emurun:
             #endif
             break;
         case 0xF1:                      /* INT1 */
-            if(!rex.is32bits) {
-                unimp = 1;
-                goto fini;
-            }
             emu->old_ip = R_RIP;
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 128);
