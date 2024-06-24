@@ -1390,7 +1390,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVY;
             tmp8u = F8; //SIB
             // compute base
-            tmp64u = emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
+            tmp64u = ((tmp8u&0x7)==5 && !(nextop&0xC0))?(F32S64):emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
             if(nextop&0x40)
                 tmp64u += F8S;
             else if(nextop&0x80)
@@ -1457,7 +1457,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVY;
             tmp8u = F8; //SIB
             // compute base
-            tmp64u = emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
+            tmp64u = (((tmp8u&0x7)==5) && !(nextop&0xC0))?(F32S64):emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
             if(nextop&0x40)
                 tmp64u += F8S;
             else if(nextop&0x80)
