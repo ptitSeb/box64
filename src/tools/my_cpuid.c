@@ -231,7 +231,15 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_ECX = 0x6C65746E;
             break;
         case 0x1:
-            R_EAX = 0x00000601; // family and all
+            R_EAX = (0x1<<0) | // stepping
+                    (0x6<<4) | // model
+                    (0x6<<8) | // familly
+                    (0x0<<12)| // Processor type
+                    (0x0<<14)| // reserved
+                    (0x4<<16)| // extended model
+                    (0x0<<20)| // extended familly
+
+                    0 ; // family and all, simulating Haswell type of cpu
             R_EBX = 0 | (8<<0x8) | (ncluster<<16);          // Brand index, CLFlush (8), Max APIC ID (16-23), Local APIC ID (24-31)
             /*{
                 int cpu = sched_getcpu();
@@ -265,6 +273,7 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                     | box64_avx<<27 // osxsave
                     | box64_avx<<28 // AVX
                     | box64_avx<<29 // F16C
+                    | box64_avx2<<30     // RDRAND
                     ; 
             break;
         case 0x2:   // TLB and Cache info. Sending 1st gen P4 info...
@@ -326,10 +335,15 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
                         box64_avx<<3 |  // BMI1 
                         box64_avx2<<5 |  //AVX2
                         box64_avx2<<8 | //BMI2
-                        box64_avx<<9 | //VAES
                         box64_avx2<<19 | //ADX
                         1<<29|  // SHA extension
                         0;
+                R_RCX = 
+                        box64_avx<<9   | //VAES
+                        box64_avx2<<10 | //VPCLMULQDQ.
+                        0;
+                R_RDX = 0;
+
             } else {R_EAX = R_ECX = R_EBX = R_EDX = 0;}
             break;
         case 0xB:   // Extended Topology Enumeration Leaf
@@ -414,7 +428,9 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
         case 0x80000001:        //Extended Processor Signature and Feature Bits
             R_EAX = 0;  // reserved
             R_EBX = 0;  // reserved
-            R_ECX = (1<<0) | (1<<5) | (1<<8); // LAHF_LM | LZCNT | PREFETCHW
+            R_ECX = (1<<0)  // LAHF_LM 
+                | (1<<5)    // LZCNT
+                | (1<<8);   // PREFETCHW
             R_EDX = 1       // x87 FPU 
                 | (1<<8)    // cx8: cmpxchg8b opcode
                 | (1<<11)   // syscall
@@ -478,4 +494,39 @@ uint32_t helper_getcpu(x64emu_t* emu) {
     #endif
     #endif
     return 0;
+}
+
+uint32_t fallback_random32()
+{
+    return random() ^ (random()<<1);
+}
+
+uint32_t get_random32()
+{
+    uint32_t ret;
+    FILE* f = fopen("/dev/urandom", "rb");
+    if(f) {
+        if(fread(&ret, sizeof(ret), 1, f)!=1)
+            ret = fallback_random32();
+        fclose(f);
+    } else
+        ret = fallback_random32();
+    return ret;
+}
+uint64_t fallback_random64()
+{
+    return random() ^ (((uint64_t)random())<<18) ^ (((uint64_t)random())<<41);
+}
+
+uint64_t get_random64()
+{
+    uint64_t ret;
+    FILE* f = fopen("/dev/urandom", "rb");
+    if(f) {
+        if(fread(&ret, sizeof(ret), 1, f)!=1)
+            ret = fallback_random64();
+        fclose(f);
+    } else
+        ret = fallback_random64();
+    return ret;
 }

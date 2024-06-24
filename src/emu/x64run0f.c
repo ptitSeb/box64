@@ -1704,12 +1704,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GX->q[0] = eax1.q[0];
             GX->q[1] = eax1.q[1];
             break;
-        case 0xC7:                      /* CMPXCHG8B Eq */
+        case 0xC7:
             CHECK_FLAGS(emu);
             nextop = F8;
             GETE8xw(0);
             switch((nextop>>3)&7) {
-                case 1:
+                case 1:     /* CMPXCHG8B Eq */
                     if(rex.w) {
                         tmp64u = ED->q[0];
                         tmp64u2= ED->q[1];
@@ -1734,6 +1734,22 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                             R_RAX = tmp32u;
                             R_RDX = tmp32u2;
                         }
+                    }
+                    break;
+                case 6:     /* RDRAND Ed */
+                    RESET_FLAGS(emu);
+                    CLEAR_FLAG(F_OF);
+                    CLEAR_FLAG(F_SF);
+                    CLEAR_FLAG(F_PF);
+                    CLEAR_FLAG(F_ZF);
+                    CLEAR_FLAG(F_AF);
+                    SET_FLAG(F_CF);
+                    if(rex.w)
+                        ED->q[0] = get_random64();
+                    else {
+                        ED->dword[0] = get_random32();
+                        if(MODREG)
+                            ED->dword[1] = 1;
                     }
                     break;
                 default:
