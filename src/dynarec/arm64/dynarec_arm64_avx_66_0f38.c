@@ -1053,7 +1053,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(((nextop&7)!=4) || MODREG) {UDF(0);}
             GETG;
             u8 = F8; //SIB
-            eb1 = xRAX + (u8&0x7)+(rex.b<<3); // base
+            if((u8&0x7)==0x5 && !(nextop&0xC0)) {
+                MOV64x(x5, F32S64);
+                eb1 = x5;
+            } else
+                eb1 = xRAX + (u8&0x7)+(rex.b<<3); // base
             eb2 = ((u8>>3)&7)+(rex.x<<3); // index
             if(nextop&0x40)
                 i32 = F8S;
@@ -1070,7 +1074,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             // ed is base
             wb1 = u8>>6;    // scale
-            if(wb1) q1 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) {
                     v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
@@ -1082,21 +1085,20 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(!rex.w) v1 = ymm_get_reg(dyn, ninst, x1, eb2, 0, gd, vex.v, -1);
                 }
                 // prepare mask
-                if(rex.w) VSSHRQ_64(v2, v2, 63); else VSSHRQ_32(v2, v2, 31);    // prescale the values
-                if(wb1) { if(!l || !rex.w) VSHLQ_32(q1, v1, wb1); } else q1 = v1;
+                if(rex.w) VSSHRQ_64(v2, v2, 63); else VSSHRQ_32(v2, v2, 31);
                 // slow gather, not much choice here...
                 if(rex.w) for(int i=0; i<2; ++i) {
                     VMOVQDto(x4, v2, i);
-                    TBZ(x4, 0, 4+4*4);
-                    SMOVQSto(x4, q1, i+l*2);
-                    ADDx_REG(x4, x4, ed);
+                    CBZw(x4, 4+4*4);
+                    SMOVQSto(x4, v1, i+l*2);
+                    ADDx_REG_LSL(x4, ed, x4, wb1);
                     VLD1_64(v0, i, x4);
                     VMOVQDfrom(v2, i, xZR);
                 } else for(int i=0; i<4; ++i) {
                     VMOVSto(x4, v2, i);
-                    TBZ(x4, 0, 4+4*4);
-                    SMOVQSto(x4, q1, i);
-                    ADDx_REG(x4, x4, ed);
+                    CBZw(x4, 4+4*4);
+                    SMOVQSto(x4, v1, i);
+                    ADDx_REG_LSL(x4, ed, x4, wb1);
                     VLD1_32(v0, i, x4);
                     VMOVQSfrom(v2, i, xZR);
                 }
