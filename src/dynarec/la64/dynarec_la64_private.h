@@ -62,7 +62,8 @@ typedef struct lsxcache_s {
 
 typedef struct flagcache_s {
     int                 pending;    // is there a pending flags here, or to check?
-    int                 dfnone;     // if deferred flags is already set to df_none
+    uint8_t             dfnone;     // if deferred flags is already set to df_none
+    uint8_t             dfnone_here;// defered flags is cleared in this opcode
 } flagcache_t;
 
 typedef struct instruction_la64_s {

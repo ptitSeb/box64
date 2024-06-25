@@ -648,6 +648,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)
                 dynarec_log(LOG_NONE, "%s%d", ii?"/":"", dyn->insts[ninst].pred[ii]);
         }
+        if(!dyn->insts[ninst].x64.alive)
+            dynarec_log(LOG_NONE, " not executed");
         if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts>=0)
             dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
         if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts==-1)
@@ -741,6 +743,7 @@ void fpu_reset(dynarec_arm_t* dyn)
     mmx_reset(&dyn->n);
     sse_reset(&dyn->n);
     fpu_reset_reg(dyn);
+    dyn->ymm_zero = 0;
 }
 
 void fpu_reset_ninst(dynarec_arm_t* dyn, int ninst)

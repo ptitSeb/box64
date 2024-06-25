@@ -115,6 +115,14 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 }
                 if(u8==0x00 || u8==0x55 || u8==0xAA || u8==0xFF)
                     VDUPQ_32(v0, (v0==v1)?q1:v1, u8&3);
+                else if(u8==0x50)
+                    VZIP1Q_32(v0, v1, v1);
+                else if(u8==0xFA)
+                    VZIP2Q_32(v0, v1, v1);
+                else if(u8==0xA0)
+                    VTRNQ1_32(v0, v1, v1);
+                else if(u8==0xF5)
+                    VTRNQ2_32(v0, v1, v1);
                 else for(int i=0; i<4; ++i)
                     VMOVeS(v0, i, (v0==v1)?q1:v1, (u8>>(i*2))&3);
             }
@@ -254,7 +262,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             nextop = F8;
             GETGX_empty_VXEX(q0, q2, q1, 1);
             u8 = F8;
-            if(q0==q1) {
+            if((u8&0xf)==0xf) {
+                if(q0!=q1) VMOVQ(q0, q1);
+            } else if(q0==q1) {
                 for(int i=0; i<4; ++i)
                     if(u8&(1<<i)) {
                         VMOVeS(q0, i, q1, i);
@@ -274,7 +284,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             if(vex.l) {
                 GETGY_empty_VYEY(q0, q2, q1);
-                if(q0==q1) {
+                if((u8&0xf0)==0xf0) {
+                    if(q0!=q1) VMOVQ(q0, q1);
+                } else if(q0==q1) {
                     for(int i=0; i<4; ++i)
                         if(u8&(1<<(i+4))) {
                             VMOVeS(q0, i, q1, i);
@@ -435,7 +447,12 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             u8 = F8;
             GETVX(v2, 0);
             GETGX_empty(v0);
-            GETGY_empty_VY(q0, q2, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+            if(v0==v2 && u8==1) {
+                GETGY_empty(q0, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                q2 = q0;
+            } else {
+                GETGY_empty_VY(q0, q2, 0, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+            }
             if(MODREG)
                 VMOVQ((u8&1)?q0:v0, v1);
             else

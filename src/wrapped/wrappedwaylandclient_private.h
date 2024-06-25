@@ -2,10 +2,10 @@
 #error meh!
 #endif
 
-//GO(wl_array_add, 
+GO(wl_array_add, pFpL)
 //GO(wl_array_copy, 
-//GO(wl_array_init, 
-//GO(wl_array_release, 
+GO(wl_array_init, vFp)
+GO(wl_array_release, vFp)
 DATA(wl_buffer_interface, 40)
 //DATA(wl_callback_interface, 
 DATA(wl_compositor_interface, 40)
@@ -35,11 +35,11 @@ GO(wl_display_roundtrip_queue, iFpp)
 GO(wl_event_queue_destroy, vFp)
 DATA(wl_keyboard_interface, 40)
 //GO(wl_list_empty, 
-//GO(wl_list_init, 
-//GO(wl_list_insert, 
+GO(wl_list_init, vFp)
+GO(wl_list_insert, vFpp)
 //GO(wl_list_insert_list, 
 //GO(wl_list_length, 
-//GO(wl_list_remove, 
+GO(wl_list_remove, vFp)
 //GO(wl_log_set_handler_client, 
 DATA(wl_output_interface, 40)
 DATA(wl_pointer_interface, 40)

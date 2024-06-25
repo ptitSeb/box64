@@ -552,10 +552,12 @@
     LOAD_REG(R15);
 
 #define SET_DFNONE()                             \
+    do {                                         \
+    dyn->f.dfnone_here=1;                        \
     if (!dyn->f.dfnone) {                        \
         ST_W(xZR, xEmu, offsetof(x64emu_t, df)); \
         dyn->f.dfnone = 1;                       \
-    }
+    } } while(0);
 #define SET_DF(S, N)                           \
     if ((N) != d_none) {                       \
         MOV32w(S, (N));                        \
@@ -564,7 +566,7 @@
     } else                                     \
         SET_DFNONE()
 #define SET_NODF() dyn->f.dfnone = 0
-#define SET_DFOK() dyn->f.dfnone = 1
+#define SET_DFOK() dyn->f.dfnone = 1; dyn->f.dfnone_here=1
 
 #define CLEAR_FLAGS_(s) \
     MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); ANDN(xFlags, xFlags, s);

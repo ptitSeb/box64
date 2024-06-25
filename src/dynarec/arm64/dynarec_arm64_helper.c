@@ -2186,13 +2186,12 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         }
     }
     int stack_cnt = dyn->n.stack_next;
-    int s3_top = 0xffff;
     neoncache_t cache = dyn->n;
     int s1_val = 0;
     int s2_val = 0;
     // unload every uneeded cache
     // ymm0 first
-    s3_top = 1;
+    int s3_top = 1;
     uint16_t to_purge = dyn->ymm_zero&~dyn->insts[i2].ymm0_in;
     if(dyn->ymm_zero && (dyn->insts[i2].purge_ymm|to_purge)) {
         MESSAGE(LOG_DUMP, "\t- YMM Zero %04x / %04x\n", dyn->ymm_zero, (dyn->insts[i2].purge_ymm|to_purge));
@@ -2205,6 +2204,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                 STPx_S7_offset(xZR, xZR, s3, i*16);
             }
     }
+    s3_top = 0xffff;
     // check SSE first, than MMX, in order, to optimise successive memory write
     for(int i=0; i<16; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache);
@@ -2323,7 +2323,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return;
-    if(dyn->f.dfnone)  // flags are fully known, nothing we can do more
+    if(dyn->f.dfnone || dyn->insts[jmp].f_exit.dfnone_here)  // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
     int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)?1:0;
@@ -2475,11 +2475,11 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
     dyn->n = dyn->insts[ninst].n;
     dyn->ymm_zero = dyn->insts[ninst].ymm0_in;
+    neoncacheUnwind(&dyn->n);
     #else
     dyn->n = dyn->insts[reset_n].n;
-    dyn->ymm_zero = dyn->insts[reset_n].ymm0_in;
+    dyn->ymm_zero = dyn->insts[reset_n].ymm0_out;
     #endif
-    neoncacheUnwind(&dyn->n);
     #if STEP == 0
     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->n.x87stack);
         #endif

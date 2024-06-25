@@ -548,36 +548,86 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x2E:
             INST_NAME("VMASKMOVPS Ex, Gx, Vx");
             nextop = F8;
-            GETGXVXEX(v0, v2, v1, 0);
             q0 = fpu_get_scratch(dyn, ninst);
-            // create mask
+            GETVX(v2, 0);
+            GETGX(v0, 0);
             VSSHRQ_32(q0, v2, 31);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x3, (nextop&7)+(rex.b<<3), 1);
+            } else {
+                WILLWRITE2();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                unscaled = 0;
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if mask as anything, else scipt the whole read/write to avoid a SEGFAULT.
+                // TODO: let a segfault trigger and check if the mask is null instead and ignore the segfault / actually triger: needs to implement SSE reg tracking first!
+                SQXTN_32(v1, q0);
+                VMOVQDto(x4, v1, 0);
+                CBZx(x4, 4+3*4);
+                VLDR128_U12(v1, ed, fixedaddress);
+            }
+            // create mask
             VBITQ(v1, v0, q0);
             if(!MODREG) {
                 VSTR128_U12(v1, ed, fixedaddress);
             }
-            if(vex.l) {
-                GETGYVYEY(v0, v2, v1);
+            if(vex.l && !is_avx_zero(dyn, ninst, vex.v)) {
+                v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 VSSHRQ_32(q0, v2, 31);
+                if(MODREG)
+                    v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, gd, vex.v, -1);
+                else {
+                    SQXTN_32(v1, q0);
+                    VMOVQDto(x4, v1, 0);
+                    CBZx(x4, 4+3*4);
+                    VLDR128_U12(v1, ed, fixedaddress+16);
+                }
                 VBITQ(v1, v0, q0);
-                if(!MODREG)
+                if(!MODREG) {
                     VSTR128_U12(v1, ed, fixedaddress+16);
+                }
             }
             break;
         case 0x2F:
             INST_NAME("VMASKMOVPD Ex, Gx, Vx");
             nextop = F8;
-            GETGXVXEX(v0, v2, v1, 0);
             q0 = fpu_get_scratch(dyn, ninst);
-            // create mask
+            q1 = fpu_get_scratch(dyn, ninst);
+            GETVX(v2, 0);
+            GETGX(v0, 0);
             VSSHRQ_64(q0, v2, 63);
+            if(MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x3, (nextop&7)+(rex.b<<3), 1);
+            } else {
+                WILLWRITE2();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                unscaled = 0;
+                v1 = fpu_get_scratch(dyn, ninst);
+                // check if mask as anything, else scipt the whole read/write to avoid a SEGFAULT.
+                // TODO: let a segfault trigger and check if the mask is null instead and ignore the segfault / actually triger: needs to implement SSE reg tracking first!
+                SQXTN_32(q1, q0);
+                VMOVQDto(x4, q1, 0);
+                CBZx(x4, 4+3*4);
+                VLDR128_U12(v1, ed, fixedaddress);
+            }
+            // create mask
             VBITQ(v1, v0, q0);
             if(!MODREG) {
                 VSTR128_U12(v1, ed, fixedaddress);
             }
-            if(vex.l) {
-                GETGYVYEY(v0, v2, v1);
+            if(vex.l && !is_avx_zero(dyn, ninst, vex.v)) {
+                v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 VSSHRQ_64(q0, v2, 63);
+                if(MODREG)
+                    v1 = ymm_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 1, gd, vex.v, -1);
+                else {
+                    SQXTN_32(q1, q0);
+                    VMOVQDto(x4, q1, 0);
+                    CBZx(x4, 4+3*4);
+                    VLDR128_U12(v1, ed, fixedaddress+16);
+                }
                 VBITQ(v1, v0, q0);
                 if(!MODREG) {
                     VSTR128_U12(v1, ed, fixedaddress+16);
@@ -1003,7 +1053,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(((nextop&7)!=4) || MODREG) {UDF(0);}
             GETG;
             u8 = F8; //SIB
-            eb1 = xRAX + (u8&0x7)+(rex.b<<3); // base
+            if((u8&0x7)==0x5 && !(nextop&0xC0)) {
+                MOV64x(x5, F32S64);
+                eb1 = x5;
+            } else
+                eb1 = xRAX + (u8&0x7)+(rex.b<<3); // base
             eb2 = ((u8>>3)&7)+(rex.x<<3); // index
             if(nextop&0x40)
                 i32 = F8S;
@@ -1020,7 +1074,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             // ed is base
             wb1 = u8>>6;    // scale
-            if(wb1) q1 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) {
                     v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
@@ -1032,21 +1085,20 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(!rex.w) v1 = ymm_get_reg(dyn, ninst, x1, eb2, 0, gd, vex.v, -1);
                 }
                 // prepare mask
-                if(rex.w) VSSHRQ_64(v2, v2, 63); else VSSHRQ_32(v2, v2, 31);    // prescale the values
-                if(wb1) { if(!l || !rex.w) VSHLQ_32(q1, v1, wb1); } else q1 = v1;
+                if(rex.w) VSSHRQ_64(v2, v2, 63); else VSSHRQ_32(v2, v2, 31);
                 // slow gather, not much choice here...
                 if(rex.w) for(int i=0; i<2; ++i) {
                     VMOVQDto(x4, v2, i);
-                    TBZ(x4, 0, 4+4*4);
-                    SMOVQSto(x4, q1, i+l*2);
-                    ADDx_REG(x4, x4, ed);
+                    CBZw(x4, 4+4*4);
+                    SMOVQSto(x4, v1, i+l*2);
+                    ADDx_REG_LSL(x4, ed, x4, wb1);
                     VLD1_64(v0, i, x4);
                     VMOVQDfrom(v2, i, xZR);
                 } else for(int i=0; i<4; ++i) {
                     VMOVSto(x4, v2, i);
-                    TBZ(x4, 0, 4+4*4);
-                    SMOVQSto(x4, q1, i);
-                    ADDx_REG(x4, x4, ed);
+                    CBZw(x4, 4+4*4);
+                    SMOVQSto(x4, v1, i);
+                    ADDx_REG_LSL(x4, ed, x4, wb1);
                     VLD1_32(v0, i, x4);
                     VMOVQSfrom(v2, i, xZR);
                 }

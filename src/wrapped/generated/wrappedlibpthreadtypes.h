@@ -40,6 +40,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_barrierattr_init, iFp_t) \
 	GO(pthread_cond_broadcast, iFp_t) \
 	GO(pthread_cond_destroy, iFp_t) \
+	GO(pthread_cond_signal, iFp_t) \
 	GO(pthread_condattr_destroy, iFp_t) \
 	GO(pthread_condattr_init, iFp_t) \
 	GO(pthread_getattr_default_np, iFp_t) \

@@ -9,7 +9,7 @@
 //GO(rxkb_context_include_path_append_default, 
 GO(rxkb_context_new, pFu)
 //GO(rxkb_context_parse, 
-//GO(rxkb_context_parse_default_ruleset, 
+GO(rxkb_context_parse_default_ruleset, uFp)
 //GO(rxkb_context_ref, 
 //GO(rxkb_context_set_log_fn, 
 //GO(rxkb_context_set_log_level, 
@@ -31,7 +31,7 @@ GO(rxkb_layout_get_description, pFp)
 GO(rxkb_layout_get_name, pFp)
 //GO(rxkb_layout_get_popularity, 
 GO(rxkb_layout_get_variant, pFp)
-//GO(rxkb_layout_next, 
+GO(rxkb_layout_next, pFp)
 //GO(rxkb_layout_ref, 
 //GO(rxkb_layout_unref, 
 //GO(rxkb_model_first, 

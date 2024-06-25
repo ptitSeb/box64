@@ -87,6 +87,8 @@ int box64_dynarec_missing = 0;
 int box64_dynarec_aligned_atomics = 0;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
+uintptr_t box64_dynarec_test_start = 0;
+uintptr_t box64_dynarec_test_end = 0;
 #ifdef ARM64
 int arm64_asimd = 0;
 int arm64_aes = 0;
@@ -100,6 +102,7 @@ int arm64_flagm = 0;
 int arm64_flagm2 = 0;
 int arm64_frintts = 0;
 int arm64_afp = 0;
+int arm64_rndr = 0;
 #elif defined(RV64)
 int rv64_zba = 0;
 int rv64_zbb = 0;
@@ -386,6 +389,8 @@ HWCAP2_MTE
     Functionality implied by ID_AA64PFR1_EL1.MTE == 0b0010. => Full Memory Tagging Extension is implemented.
 HWCAP2_ECV
     Functionality implied by ID_AA64MMFR0_EL1.ECV == 0b0001.
+HWCAP2_AFP
+    AFP = 0b0001 => The AArch64-FPCR.{AH, FIZ, NEP} fields are supported. (Alternate floating-point behavior)
 */
     unsigned long hwcap = real_getauxval(AT_HWCAP);
     if(!hwcap)  // no HWCap: provide a default...
@@ -433,6 +438,10 @@ HWCAP2_ECV
     if(hwcap2&HWCAP2_AFP)
         arm64_afp = 1;
     #endif
+    #ifdef HWCAP2_RNG
+    if(hwcap2&HWCAP2_RNG)
+        arm64_rndr = 1;
+    #endif
     printf_log(LOG_INFO, "Dynarec for ARM64, with extension: ASIMD");
     if(arm64_aes)
         printf_log(LOG_INFO, " AES");
@@ -456,6 +465,8 @@ HWCAP2_ECV
         printf_log(LOG_INFO, " FRINT");
     if(arm64_afp)
         printf_log(LOG_INFO, " AFP");
+    if(arm64_rndr)
+        printf_log(LOG_INFO, " RNDR");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch ");
     char* p = getenv("BOX64_DYNAREC_LA64NOEXT");
@@ -823,7 +834,22 @@ void LoadLogEnv()
         if(strlen(p)==1) {
             if(p[0]>='0' && p[0]<='2')
                 box64_dynarec_test = p[0]-'0';
+            box64_dynarec_test_start = 0x0;
+            box64_dynarec_test_end = 0x0;
+        } else if (strchr(p,'-')) {
+            if(sscanf(p, "%ld-%ld", &box64_dynarec_test_start, &box64_dynarec_test_end)!=2) {
+                if(sscanf(p, "0x%lX-0x%lX", &box64_dynarec_test_start, &box64_dynarec_test_end)!=2)
+                    sscanf(p, "%lx-%lx", &box64_dynarec_test_start, &box64_dynarec_test_end);
+            }
+            if(box64_dynarec_test_end>box64_dynarec_test_start) {
+                box64_dynarec_test = 1;
+                printf_log(LOG_INFO, "Dynarec test in the range %p - %p\n", (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+            } else {
+                box64_dynarec_test = 0;
+                printf_log(LOG_INFO, "Ignoring BOX64_NODYNAREC=%s (%p-%p)\n", p, (void*)box64_nodynarec_start, (void*)box64_nodynarec_end);
+            }
         }
+
         if(box64_dynarec_test) {
             box64_dynarec_fastnan = 0;
             box64_dynarec_fastround = 0;

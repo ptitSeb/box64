@@ -151,6 +151,7 @@ Dynarec will compare it's execution with the interpreter (super slow, only for t
  * 0 : No comparison. (Default.)
  * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different.
  * 2 : Thread-safe tests, extremely slow.
+ * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynarec is tested (inclusive-exclusive)
 
 #### BOX64_DYNAREC_BIGBLOCK *
 Enables/Disables Box64's Dynarec building BigBlock.

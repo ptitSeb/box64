@@ -868,10 +868,15 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 if(VX->ud[i]>>31) EX->ud[i] = GX->ud[i];
             if(vex.l) {
                 GETGY;
-                GETEY;
                 GETVY;
-                for(int i=0; i<4; ++i)
-                    if(VY->ud[i]>>31) EY->ud[i] = GY->ud[i];
+                #ifdef TEST_INTERPRETER
+                if(VX->u128)
+                #endif
+                {
+                    GETEY;
+                    for(int i=0; i<4; ++i)
+                        if(VY->ud[i]>>31) EY->ud[i] = GY->ud[i];
+                }
             }
             break;
         case 0x2F:  /*VMASKMOVPD Ex, Vx, Gx */
@@ -883,10 +888,15 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 if(VX->q[i]>>63) EX->q[i] = GX->q[i];
             if(vex.l) {
                 GETGY;
-                GETEY;
                 GETVY;
-                for(int i=0; i<2; ++i)
-                    if(VY->q[i]>>63) EY->q[i] = GY->q[i];
+                #ifdef TEST_INTERPRETER
+                if(VX->u128)
+                #endif
+                {
+                    GETEY;
+                    for(int i=0; i<2; ++i)
+                        if(VY->q[i]>>63) EY->q[i] = GY->q[i];
+                }
             }
             break;
         case 0x30: /* VPMOVZXBW Gx, Ex */
@@ -1380,7 +1390,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVY;
             tmp8u = F8; //SIB
             // compute base
-            tmp64u = emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
+            tmp64u = ((tmp8u&0x7)==5 && !(nextop&0xC0))?(F32S64):emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
             if(nextop&0x40)
                 tmp64u += F8S;
             else if(nextop&0x80)
@@ -1447,7 +1457,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVY;
             tmp8u = F8; //SIB
             // compute base
-            tmp64u = emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
+            tmp64u = (((tmp8u&0x7)==5) && !(nextop&0xC0))?(F32S64):emu->regs[(tmp8u&0x7)+(rex.b<<3)].q[0];
             if(nextop&0x40)
                 tmp64u += F8S;
             else if(nextop&0x80)

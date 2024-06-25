@@ -1871,6 +1871,12 @@ x64emurun:
             }
             #endif
             break;
+        case 0xF1:                      /* INT1 */
+            emu->old_ip = R_RIP;
+            #ifndef TEST_INTERPRETER
+            emit_signal(emu, SIGSEGV, (void*)R_RIP, 128);
+            #endif
+            break;
 
         case 0xF4:                      /* HLT */
             // this is a privilege opcode...
