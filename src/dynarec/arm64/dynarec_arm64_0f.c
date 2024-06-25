@@ -2337,7 +2337,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC7:
             // rep has no impact here
             nextop = F8;
-            switch((nextop>>3)&7) {
+            if(MODREG) { DEFAULT; }
+            else switch((nextop>>3)&7) {
             case 1:
                 INST_NAME("CMPXCHG8B Gq, Eq");
                 SETFLAGS(X_ZF, SF_SUBSET);
@@ -2370,10 +2371,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UDF(0);
                 break;
             case 6:
-                INST_NAME("RNDR Ed");
+                INST_NAME("RDRAND Ed");
                 SETFLAGS(X_ALL, SF_SET_DF);
                 SET_DFNONE(x1);
-                IFX(F_OF|F_SF|F_ZF|F_PF|F_AF) {
+                IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
                     MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
                     BICw(xFlags, xFlags, x1);
                 }
