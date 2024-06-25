@@ -142,7 +142,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(i2) {
                         ADDI(x3, x3, i2);
                     }
-                    MOV32w(x4, 0b100000100000000);
+                    MOV32w(x4, 0b100000100000000); // empty: C3,C2,C0 = 101
                     BGE_MARK3(xZR, x3);
                     // x5 will be the actual top
                     LWU(x5, xEmu, offsetof(x64emu_t, top));
@@ -152,11 +152,17 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     // load tag
                     LHU(x3, xEmu, offsetof(x64emu_t, fpu_tags));
-                    MOV32w(x4, 0b100000100000000);
+                    if (i2 < 0) {
+                        SLLI(x3, x3, -i2 * 2);
+                    } else if (i2 > 0) {
+                        LUI(x2, 0xffff0);
+                        OR(x3, x3, x2);
+                        SRLI(x3, x3, i2 * 2);
+                    }
                     ANDI(x2, x3, 0b11);
                     BNEZ_MARK3(x2); // empty: C3,C2,C0 = 101
                     // load x2 with ST0 anyway, for sign extraction
-                    if(rv64_zba) SH3ADD(x1, x2, xEmu); else {SLLI(x2, x2, 3); ADD(x1, xEmu, x2);}
+                    if(rv64_zba) SH3ADD(x1, x5, xEmu); else {SLLI(x5, x5, 3); ADD(x1, xEmu, x5);}
                     LD(x2, x1, offsetof(x64emu_t, x87));
                 }
             } else {
@@ -186,7 +192,6 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MARK3;
             // Extract signa & Update SW
             SRLI(x1, x2, 63);
-            ANDI(x4, x4, ~(1<<9));
             SLLI(x1, x1, 9);
             OR(x4, x4, x1); //C1
             LHU(x1, xEmu, offsetof(x64emu_t, sw));
