@@ -29,7 +29,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
     (void)ip; (void)need_epilog;
 
     uint8_t opcode = F8;
-     uint8_t nextop, u8;
+    uint8_t nextop, u8;
     uint8_t gd, ed, vd;
     uint8_t wback, wb1, wb2;
     uint8_t eb1, eb2, gb1, gb2;
@@ -56,8 +56,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
     MAYUSE(s0);
     MAYUSE(j64);
     MAYUSE(cacheupd);
-    uint8_t nextop;
+
     rex_t rex = vex.rex;
+
 
     switch(opcode) {
 
