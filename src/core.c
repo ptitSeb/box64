@@ -108,6 +108,7 @@ int rv64_zba = 0;
 int rv64_zbb = 0;
 int rv64_zbc = 0;
 int rv64_zbs = 0;
+int rv64_vector = 0;
 int rv64_xtheadba = 0;
 int rv64_xtheadbb = 0;
 int rv64_xtheadbs = 0;
@@ -501,6 +502,7 @@ HWCAP2_AFP
     if(rv64_zbb) printf_log(LOG_INFO, " Zbb");
     if(rv64_zbc) printf_log(LOG_INFO, " Zbc");
     if(rv64_zbs) printf_log(LOG_INFO, " Zbs");
+    if(rv64_vector) printf_log(LOG_INFO, " Vector");
     if(rv64_xtheadba) printf_log(LOG_INFO, " XTheadBa");
     if(rv64_xtheadbb) printf_log(LOG_INFO, " XTheadBb");
     if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
