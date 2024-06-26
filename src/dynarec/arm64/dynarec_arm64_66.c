@@ -979,7 +979,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if (u8) {
                         SETFLAGS(X_CF | X_OF, SF_SUBSET_PENDING);
                         GETEW(x1, 1);
-                        u8 = F8;
+                        u8 = (F8)&0x1f;
                         emit_rol16c(dyn, ninst, x1, u8, x4, x5);
                         EWBACK;
                     } else {
@@ -992,7 +992,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if (geted_ib(dyn, addr, ninst, nextop) & 15) {
                         SETFLAGS(X_CF | X_OF, SF_SUBSET_PENDING);
                         GETEW(x1, 1);
-                        u8 = F8;
+                        u8 = (F8)&0x1f;
                         emit_ror16c(dyn, ninst, x1, u8, x4, x5);
                         EWBACK;
                     } else {
