@@ -477,6 +477,29 @@ static void* findGtkClipboardTextReceivedFuncFct(void* fct)
     return NULL;
 }
 
+// GtkFileFilterFunc ...
+#define GO(A)   \
+static uintptr_t my_GtkFileFilterFunc_fct_##A = 0;                                      \
+static int my_GtkFileFilterFunc_##A(void* a, void* b)                                   \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_GtkFileFilterFunc_fct_##A, "pp", a, b);         \
+}
+SUPER()
+#undef GO
+static void* find_GtkFileFilterFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkFileFilterFunc_fct_##A == (uintptr_t)fct) return my_GtkFileFilterFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkFileFilterFunc_fct_##A == 0) {my_GtkFileFilterFunc_fct_##A = (uintptr_t)fct; return my_GtkFileFilterFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkFileFilterFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -517,6 +540,12 @@ EXPORT void* my3_gtk_type_class(x64emu_t* emu, size_t type)
 {
     void* class = my->gtk_type_class(type);
     return wrapCopyGTKClass(class, type);
+}
+
+EXPORT void my3_gtk_file_filter_add_custom(x64emu_t* emu, void* filter, uint32_t needed, void* f, void* data, void* d)
+{
+    (void)emu;
+    my->gtk_file_filter_add_custom(filter, needed, find_GtkFileFilterFunc_Fct(f), data, findGDestroyNotifyFct(d));
 }
 
 EXPORT void my3_gtk_init(x64emu_t* emu, void* argc, void* argv)

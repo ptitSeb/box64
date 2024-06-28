@@ -199,6 +199,7 @@ void vFpd(x64emu_t *emu, uintptr_t fnc);
 void vFpl(x64emu_t *emu, uintptr_t fnc);
 void vFpL(x64emu_t *emu, uintptr_t fnc);
 void vFpp(x64emu_t *emu, uintptr_t fnc);
+void vFpV(x64emu_t *emu, uintptr_t fnc);
 void vFpS(x64emu_t *emu, uintptr_t fnc);
 void vFSi(x64emu_t *emu, uintptr_t fnc);
 void vFbi(x64emu_t *emu, uintptr_t fnc);

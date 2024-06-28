@@ -199,6 +199,7 @@ typedef void (*vFpd_t)(void*, double);
 typedef void (*vFpl_t)(void*, intptr_t);
 typedef void (*vFpL_t)(void*, uintptr_t);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFpV_t)(void*, void*);
 typedef void (*vFpS_t)(void*, void*);
 typedef void (*vFSi_t)(void*, int32_t);
 typedef void (*vFbi_t)(void*, int32_t);
@@ -3291,6 +3292,7 @@ void vFpd(x64emu_t *emu, uintptr_t fcn) { vFpd_t fn = (vFpd_t)fcn; fn((void*)R_R
 void vFpl(x64emu_t *emu, uintptr_t fcn) { vFpl_t fn = (vFpl_t)fcn; fn((void*)R_RDI, (intptr_t)R_RSI); }
 void vFpL(x64emu_t *emu, uintptr_t fcn) { vFpL_t fn = (vFpL_t)fcn; fn((void*)R_RDI, (uintptr_t)R_RSI); }
 void vFpp(x64emu_t *emu, uintptr_t fcn) { vFpp_t fn = (vFpp_t)fcn; fn((void*)R_RDI, (void*)R_RSI); }
+void vFpV(x64emu_t *emu, uintptr_t fcn) { vFpV_t fn = (vFpV_t)fcn; fn((void*)R_RDI, (void*)(R_RSP + 8)); }
 void vFpS(x64emu_t *emu, uintptr_t fcn) { vFpS_t fn = (vFpS_t)fcn; fn((void*)R_RDI, io_convert((void*)R_RSI)); }
 void vFSi(x64emu_t *emu, uintptr_t fcn) { vFSi_t fn = (vFSi_t)fcn; fn(io_convert((void*)R_RDI), (int32_t)R_RSI); }
 void vFbi(x64emu_t *emu, uintptr_t fcn) { vFbi_t fn = (vFbi_t)fcn; void *aligned_xcb = align_xcb_connection((void*)R_RDI); fn(aligned_xcb, (int32_t)R_RSI); unalign_xcb_connection(aligned_xcb, (void*)R_RDI); }
