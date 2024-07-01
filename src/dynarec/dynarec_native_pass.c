@@ -229,7 +229,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(dyn->forward) {
             if(dyn->forward_to == addr && !need_epilog && ok>=0) {
                 // we made it!
-                reset_n = dyn->forward_ninst;
+                reset_n = get_first_jump(dyn, addr);
                 if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x64.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
                 if(dyn->insts[dyn->forward_ninst].x64.has_callret && !dyn->insts[dyn->forward_ninst].x64.has_next)
                     dyn->insts[dyn->forward_ninst].x64.has_next = 1;  // this block actually continue

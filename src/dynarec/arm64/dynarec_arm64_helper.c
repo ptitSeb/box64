@@ -2323,7 +2323,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return;
-    if(dyn->f.dfnone || dyn->insts[jmp].f_exit.dfnone_here)  // flags are fully known, nothing we can do more
+    if(dyn->f.dfnone || (dyn->insts[jmp].f_exit.dfnone_here && !dyn->insts[jmp].x64.use_flags))  // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
     int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)?1:0;
