@@ -40,6 +40,7 @@
 #() iFP
 #() iFb
 #() IFv
+#() IFi
 #() IFI
 #() IFf
 #() IFd
@@ -415,6 +416,7 @@
 #() vFLup
 #() vFLpL
 #() vFLpp
+#() vFpic
 #() vFpii
 #() vFpiI
 #() vFpiC
@@ -513,10 +515,12 @@
 #() iFLpp
 #() iFpwp
 #() iFpii
+#() iFpiI
 #() iFpiC
 #() iFpiW
 #() iFpiu
 #() iFpiU
+#() iFpid
 #() iFpil
 #() iFpiL
 #() iFpip
@@ -2397,6 +2401,7 @@
 #() iFpppLppp
 #() iFppppilp
 #() iFppppipp
+#() iFppppIip
 #() iFppppdpu
 #() iFpppppip
 #() iFpppppLp
@@ -4750,6 +4755,7 @@ wrappedlibsndfile:
   - sf_close
 - pFpipp:
   - sf_open_virtual
+wrappedlibsqlite3:
 wrappedlibssh2:
 wrappedlibssl:
 - pFp:
