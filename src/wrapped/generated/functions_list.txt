@@ -161,6 +161,7 @@
 #() vFpl
 #() vFpL
 #() vFpp
+#() vFpV
 #() vFpS
 #() vFSi
 #() vFbi
@@ -2917,6 +2918,7 @@
 #() iFiiiiiiiiiip
 #() iFpiippiiipip
 #() iFpippupppppp
+#() iFpuppppppppp
 #() iFpLipiiiippp
 #() iFpLLpiiuuiiL
 #() iFppippipppip
@@ -3910,6 +3912,8 @@ wrappedgtk3:
   - gtk_text_iter_forward_find_char
 - vFpippp:
   - gtk_tree_sortable_set_sort_func
+- vFpuppp:
+  - gtk_file_filter_add_custom
 - vFppppp:
   - gtk_tree_view_column_set_cell_data_func
 - iFppuppp:

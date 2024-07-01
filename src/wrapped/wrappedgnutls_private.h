@@ -37,7 +37,7 @@ GO(gnutls_alpn_set_protocols, iFppuu)
 //GO(_gnutls_buffer_append_str, 
 //GO(_gnutls_buffer_init, 
 //GO(_gnutls_buffer_to_datum, 
-//GO(gnutls_bye, 
+GO(gnutls_bye, iFpi)
 //GO(gnutls_certificate_activation_time_peers, 
 GO(gnutls_certificate_allocate_credentials, iFp)
 //GO(gnutls_certificate_client_get_request_status, 
@@ -79,23 +79,23 @@ GO(gnutls_certificate_get_peers, pFpp)
 //GO(gnutls_certificate_set_retrieve_function, 
 //GO(gnutls_certificate_set_retrieve_function2, 
 //GO(gnutls_certificate_set_trust_list, 
-//GO(gnutls_certificate_set_verify_flags, 
+GO(gnutls_certificate_set_verify_flags, vFpu)
 //GO(gnutls_certificate_set_verify_function, 
 //GO(gnutls_certificate_set_verify_limits, 
 //GO(gnutls_certificate_set_x509_crl, 
-//GO(gnutls_certificate_set_x509_crl_file, 
+GO(gnutls_certificate_set_x509_crl_file, iFppi)
 //GO(gnutls_certificate_set_x509_crl_mem, 
 GO(gnutls_certificate_set_x509_key, iFppip)
-//GO(gnutls_certificate_set_x509_key_file, 
-//GO(gnutls_certificate_set_x509_key_file2, 
+GO(gnutls_certificate_set_x509_key_file, iFpppi)
+GO(gnutls_certificate_set_x509_key_file2, iFpppipu)
 //GO(gnutls_certificate_set_x509_key_mem, 
 //GO(gnutls_certificate_set_x509_key_mem2, 
 //GO(gnutls_certificate_set_x509_simple_pkcs12_file, 
 //GO(gnutls_certificate_set_x509_simple_pkcs12_mem, 
-//GO(gnutls_certificate_set_x509_system_trust, 
+GO(gnutls_certificate_set_x509_system_trust, iFp)
 //GO(gnutls_certificate_set_x509_trust, 
-//GO(gnutls_certificate_set_x509_trust_dir, 
-//GO(gnutls_certificate_set_x509_trust_file, 
+GO(gnutls_certificate_set_x509_trust_dir, iFppi)
+GO(gnutls_certificate_set_x509_trust_file, iFppi)
 //GO(gnutls_certificate_set_x509_trust_mem, 
 //GO(gnutls_certificate_type_get, 
 //GO(gnutls_certificate_type_get_id, 
@@ -103,7 +103,7 @@ GO(gnutls_certificate_set_x509_key, iFppip)
 //GO(gnutls_certificate_type_list, 
 //GO(gnutls_certificate_verification_status_print, 
 //GO(gnutls_certificate_verify_peers, 
-//GO(gnutls_certificate_verify_peers2, 
+GO(gnutls_certificate_verify_peers2, iFpp)
 //GO(gnutls_certificate_verify_peers3, 
 GO(gnutls_check_version, pFp)
 //GO(_gnutls_cidr_to_string, 
@@ -123,7 +123,7 @@ GO(gnutls_cipher_get_key_size, LFp)
 GO(gnutls_cipher_init, iFpppp)
 //GO(gnutls_cipher_list, 
 //GO(gnutls_cipher_set_iv, 
-//GO(gnutls_cipher_suite_get_name, 
+GO(gnutls_cipher_suite_get_name, pFiii)
 //GO(gnutls_cipher_suite_info, 
 GO(gnutls_cipher_tag, iFppL)
 //GO(gnutls_compression_get, 
@@ -193,7 +193,7 @@ GO(_gnutls_ecdh_compute_key, iFipppppp)
 GO(gnutls_ecdh_compute_key, iFipppppp)
 //GO(gnutls_encode_ber_digest_info, 
 //GO(_gnutls_encode_ber_rs_raw, 
-//GO(gnutls_error_is_fatal, 
+GO(gnutls_error_is_fatal, iFi)
 //GO(gnutls_error_to_alert, 
 //GO(gnutls_est_record_overhead_size, 
 GO(gnutls_privkey_export_dh_raw, iFppppu)
@@ -203,6 +203,7 @@ GO(gnutls_privkey_export_dh_raw, iFppppu)
 //GO(gnutls_ext_set_data, 
 //GO(gnutls_fingerprint, 
 //GO(gnutls_fips140_mode_enabled, 
+GO(gnutls_free, vFp)
 GO(gnutls_global_deinit, vFv)
 GO(gnutls_global_init, iFv)
 //GO(gnutls_global_set_audit_log_function, 
@@ -283,7 +284,7 @@ GO(gnutls_mac_get_key_size, LFp)
 //GO(gnutls_ocsp_req_set_extension, 
 //GO(gnutls_ocsp_req_set_nonce, 
 //GO(gnutls_ocsp_resp_check_crt, 
-//GO(gnutls_ocsp_resp_deinit, 
+GO(gnutls_ocsp_resp_deinit, vFp)
 //GO(gnutls_ocsp_resp_export, 
 //GO(gnutls_ocsp_resp_get_certs, 
 //GO(gnutls_ocsp_resp_get_extension, 
@@ -295,17 +296,17 @@ GO(gnutls_mac_get_key_size, LFp)
 //GO(gnutls_ocsp_resp_get_response, 
 //GO(gnutls_ocsp_resp_get_signature, 
 //GO(gnutls_ocsp_resp_get_signature_algorithm, 
-//GO(gnutls_ocsp_resp_get_single, 
+GO(gnutls_ocsp_resp_get_single, iFpuppppppppp)
 //GO(gnutls_ocsp_resp_get_status, 
 //GO(gnutls_ocsp_resp_get_version, 
-//GO(gnutls_ocsp_resp_import, 
-//GO(gnutls_ocsp_resp_init, 
+GO(gnutls_ocsp_resp_import, iFpp)
+GO(gnutls_ocsp_resp_init, iFp)
 //GO(gnutls_ocsp_resp_print, 
 //GO(gnutls_ocsp_resp_verify, 
 //GO(gnutls_ocsp_resp_verify_direct, 
-//GO(gnutls_ocsp_status_request_enable_client, 
-//GO(gnutls_ocsp_status_request_get, 
-//GO(gnutls_ocsp_status_request_is_checked, 
+GO(gnutls_ocsp_status_request_enable_client, iFppLp)
+GO(gnutls_ocsp_status_request_get, iFpp)
+GO(gnutls_ocsp_status_request_is_checked, uFpu)
 //GO(gnutls_oid_to_digest, 
 //GO(gnutls_oid_to_ecc_curve, 
 //GO(gnutls_oid_to_mac, 
@@ -396,7 +397,7 @@ GO(gnutls_mac_get_key_size, LFp)
 //GO(gnutls_pem_base64_encode, 
 //GO(gnutls_pem_base64_encode2, 
 GO(gnutls_perror, vFi)
-//GO(gnutls_pk_algorithm_get_name, 
+GO(gnutls_pk_algorithm_get_name, pFi)
 //GO(gnutls_pk_bits_to_sec_param, 
 //GO(gnutls_pkcs11_add_provider, 
 //GO(gnutls_pkcs11_copy_attached_extension, 
@@ -572,7 +573,7 @@ GO(gnutls_privkey_sign_hash, iFppupp)
 //GO(gnutls_privkey_verify_params, 
 //GO(gnutls_privkey_verify_seed, 
 //GO(gnutls_protocol_get_id, 
-//GO(gnutls_protocol_get_name, 
+GO(gnutls_protocol_get_name, pFi)
 GO(gnutls_protocol_get_version, iFp)
 //GO(gnutls_protocol_list, 
 //GO(gnutls_psk_allocate_client_credentials, 
@@ -592,7 +593,7 @@ GO(gnutls_protocol_get_version, iFp)
 //GO(gnutls_psk_set_server_params_function, 
 GO(gnutls_pubkey_deinit, vFp)
 GO(gnutls_pubkey_encrypt_data, iFpupp)
-//GO(gnutls_pubkey_export, 
+GO(gnutls_pubkey_export, iFpipp)
 //GO(gnutls_pubkey_export2, 
 GO(gnutls_pubkey_export_dsa_raw, iFppppp)
 GO(gnutls_pubkey_export_dh_raw, iFpupu)
@@ -617,7 +618,7 @@ GO(gnutls_pubkey_import_rsa_raw, iFppp)
 //GO(gnutls_pubkey_import_tpm_raw, 
 //GO(gnutls_pubkey_import_tpm_url, 
 //GO(gnutls_pubkey_import_url, 
-//GO(gnutls_pubkey_import_x509, 
+GO(gnutls_pubkey_import_x509, iFppu)
 //GO(gnutls_pubkey_import_x509_crq, 
 //GO(gnutls_pubkey_import_x509_raw, 
 GO(gnutls_pubkey_init, iFp)
@@ -632,11 +633,11 @@ GO(gnutls_pubkey_verify_hash2, iFppupp)
 //GO(gnutls_range_split, 
 //GO(gnutls_record_can_use_length_hiding, 
 //GO(gnutls_record_check_corked, 
-//GO(gnutls_record_check_pending, 
+GO(gnutls_record_check_pending, LFp)
 //GO(gnutls_record_cork, 
 //GO(gnutls_record_disable_padding, 
 //GO(gnutls_record_discard_queued, 
-//GO(gnutls_record_get_direction, 
+GO(gnutls_record_get_direction, iFp)
 //GO(gnutls_record_get_discarded, 
 GO(gnutls_record_get_max_size, LFp)
 //GO(gnutls_record_get_state, 
@@ -654,7 +655,7 @@ GO(gnutls_record_send, lFppL)
 //GO(gnutls_register_custom_url, 
 //GO(gnutls_rehandshake, 
 //GO(_gnutls_resolve_priorities, 
-//GO(gnutls_rnd, 
+GO(gnutls_rnd, iFipL)
 //GO(gnutls_rnd_refresh, 
 //GO(_gnutls_rsa_pms_set_version, 
 //GO(gnutls_safe_renegotiation_status, 
@@ -670,7 +671,7 @@ GO(gnutls_session_channel_binding, iFpip)
 //GO(gnutls_session_ext_master_secret_status, 
 //GO(gnutls_session_ext_register, 
 //GO(gnutls_session_force_valid, 
-//GO(gnutls_session_get_data, 
+GO(gnutls_session_get_data, iFppp)
 //GO(gnutls_session_get_data2, 
 //GO(gnutls_session_get_desc, 
 //GO(gnutls_session_get_flags, 
@@ -682,7 +683,7 @@ GO(gnutls_session_channel_binding, iFpip)
 //GO(gnutls_session_get_verify_cert_status, 
 //GO(gnutls_session_is_resumed, 
 //GO(gnutls_session_resumption_requested, 
-//GO(gnutls_session_set_data, 
+GO(gnutls_session_set_data, iFppL)
 //GO(gnutls_session_set_id, 
 //GO(gnutls_session_set_premaster, 
 //GO(gnutls_session_set_ptr, 
@@ -730,7 +731,7 @@ GO(gnutls_set_default_priority, iFp)
 //GO(gnutls_srtp_set_profile_direct, 
 //GO(gnutls_store_commitment, 
 //GO(gnutls_store_pubkey, 
-//GO(gnutls_strerror, 
+GO(gnutls_strerror, pFi)
 //GO(gnutls_strerror_name, 
 //GO(gnutls_subject_alt_names_deinit, 
 //GO(gnutls_subject_alt_names_get, 
@@ -887,9 +888,9 @@ GOM(gnutls_transport_set_push_function, vFEpp)
 //GO(gnutls_x509_crq_sign2, 
 //GO(gnutls_x509_crq_verify, 
 //GO(gnutls_x509_crt_check_email, 
-//GO(gnutls_x509_crt_check_hostname, 
+GO(gnutls_x509_crt_check_hostname, uFpp)
 //GO(gnutls_x509_crt_check_hostname2, 
-//GO(gnutls_x509_crt_check_issuer, 
+GO(gnutls_x509_crt_check_issuer, uFpp)
 //GO(gnutls_x509_crt_check_key_purpose, 
 //GO(gnutls_x509_crt_check_revocation, 
 //GO(gnutls_x509_crt_cpy_crl_dist_points, 
@@ -898,7 +899,7 @@ GO(gnutls_x509_crt_deinit, vFp)
 //GO(gnutls_x509_crt_equals2, 
 GO(gnutls_x509_crt_export, iFpppp)
 //GO(gnutls_x509_crt_export2, 
-//GO(gnutls_x509_crt_get_activation_time, 
+GO(gnutls_x509_crt_get_activation_time, lFp)
 //GO(gnutls_x509_crt_get_authority_info_access, 
 //GO(gnutls_x509_crt_get_authority_key_gn_serial, 
 //GO(gnutls_x509_crt_get_authority_key_id, 
@@ -906,11 +907,11 @@ GO(gnutls_x509_crt_export, iFpppp)
 //GO(gnutls_x509_crt_get_ca_status, 
 //GO(gnutls_x509_crt_get_crl_dist_points, 
 //GO(gnutls_x509_crt_get_dn, 
-//GO(gnutls_x509_crt_get_dn2, 
+GO(gnutls_x509_crt_get_dn2, iFpp)
 //GO(gnutls_x509_crt_get_dn3, 
-//GO(gnutls_x509_crt_get_dn_by_oid, 
+GO(gnutls_x509_crt_get_dn_by_oid, iFppuupp)
 //GO(gnutls_x509_crt_get_dn_oid, 
-//GO(gnutls_x509_crt_get_expiration_time, 
+GO(gnutls_x509_crt_get_expiration_time, lFp)
 //GO(gnutls_x509_crt_get_extension_by_oid, 
 //GO(gnutls_x509_crt_get_extension_by_oid2, 
 //GO(gnutls_x509_crt_get_extension_data, 
@@ -923,7 +924,7 @@ GO(gnutls_x509_crt_export, iFpppp)
 //GO(gnutls_x509_crt_get_issuer_alt_name2, 
 //GO(gnutls_x509_crt_get_issuer_alt_othername_oid, 
 //GO(gnutls_x509_crt_get_issuer_dn, 
-//GO(gnutls_x509_crt_get_issuer_dn2, 
+GO(gnutls_x509_crt_get_issuer_dn2, iFpp)
 //GO(gnutls_x509_crt_get_issuer_dn3, 
 //GO(gnutls_x509_crt_get_issuer_dn_by_oid, 
 //GO(gnutls_x509_crt_get_issuer_dn_oid, 
@@ -932,7 +933,7 @@ GO(gnutls_x509_crt_export, iFpppp)
 //GO(gnutls_x509_crt_get_key_purpose_oid, 
 //GO(gnutls_x509_crt_get_key_usage, 
 //GO(gnutls_x509_crt_get_name_constraints, 
-//GO(gnutls_x509_crt_get_pk_algorithm, 
+GO(gnutls_x509_crt_get_pk_algorithm, iFpp)
 //GO(gnutls_x509_crt_get_pk_dsa_raw, 
 //GO(gnutls_x509_crt_get_pk_ecc_raw, 
 //GO(gnutls_x509_crt_get_pk_oid, 
@@ -954,7 +955,7 @@ GO(gnutls_x509_crt_export, iFpppp)
 //GO(gnutls_x509_crt_get_subject_key_id, 
 //GO(gnutls_x509_crt_get_subject_unique_id, 
 //GO(gnutls_x509_crt_get_tlsfeatures, 
-//GO(gnutls_x509_crt_get_version, 
+GO(gnutls_x509_crt_get_version, iFp)
 GO(gnutls_x509_crt_import, iFppp)
 //GO(gnutls_x509_crt_import_pkcs11, 
 //GO(gnutls_x509_crt_import_url, 
