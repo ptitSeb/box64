@@ -367,6 +367,18 @@ void DumpRelATable(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name)
     }
 }
 
+void DumpRelRTable(elfheader_t *h, int cnt, Elf64_Relr *relr, const char *name)
+{
+    if(box64_dump && h->relr) {
+        const char* elfname = ElfName(h);
+        printf_dump(LOG_NEVER, "ELF Dump %s Table(%d) @%p\n", name, cnt, relr);
+        for (int i = 0; i<cnt; ++i)
+            printf_dump(LOG_NEVER, "  %s:%s[%d] = %p\n", elfname, name,
+                i, (void*)relr[i]);
+        printf_dump(LOG_NEVER, "ELF Dump %s Table=====\n", name);
+    }
+}
+
 void DumpBinary(char* p, int sz)
 {
     // dump p as 

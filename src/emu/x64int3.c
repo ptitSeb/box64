@@ -26,12 +26,12 @@
 #include "wrapper.h"
 #include "box64context.h"
 #include "librarian.h"
-#include "elfload_dump.h"
 #include "signals.h"
 #include "tools/bridge_private.h"
 
 #include <elf.h>
 #include "elfloader.h"
+#include "elfload_dump.h"
 #include "elfs/elfloader_private.h"
 
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);

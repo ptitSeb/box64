@@ -784,11 +784,39 @@ int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbin
     }
     return bindnow?ret_ok:0;
 }
+
+int RelocateElfRELR(elfheader_t *head, int cnt, Elf64_Relr *relr) {
+    Elf64_Addr *where = NULL;
+    for (int i = 0; i < cnt; i++) {
+        Elf64_Relr p = relr[i];
+        if ((p & 1) == 0) {
+            where = (Elf64_Addr *)(p + head->delta);
+            printf_dump(LOG_NEVER, "Apply (even) RELR %p -> %p\n", *where, *where + head->delta);
+            *where++ += head->delta;
+        } else {
+            for (long j = 0; (p >>= 1) != 0; j++)
+                if ((p & 1) != 0) {
+                    printf_dump(LOG_NEVER, "Apply (odd) RELR %p -> %p\n", where[j], where[j] + head->delta);
+                    where[j] += head->delta;
+                }
+            where += CHAR_BIT * sizeof(Elf64_Relr) - 1;
+        }
+    }
+    return 0;
+}
+
 int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
     if((head->flags&DF_BIND_NOW) && !bindnow) {
         bindnow = 1;
         printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
+    }
+    if(head->relr) {
+        int cnt = head->relrsz / head->relrent;
+        DumpRelRTable(head, cnt, (Elf64_Relr *)(head->relr + head->delta), "RelR");
+        printf_dump(LOG_DEBUG, "Applying %d Relocation(s) without Addend for %s bindnow=%d, deepbind=%d\n", cnt, head->name, bindnow, deepbind);
+        if(RelocateElfRELR(head, cnt, (Elf64_Relr *)(head->relr + head->delta)))
+            return -1;
     }
     if(head->rel) {
         int cnt = head->relsz / head->relent;

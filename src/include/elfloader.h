@@ -1,6 +1,7 @@
 #ifndef __ELF_LOADER_H_
 #define __ELF_LOADER_H_
 #include <stdio.h>
+#include <elf.h>
 
 typedef struct elfheader_s elfheader_t;
 typedef struct lib_s lib_t;
@@ -13,6 +14,24 @@ typedef struct kh_defaultversion_s kh_defaultversion_t;
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
 #endif
+
+// Define for handling .relr.dyn section (since glibc 2.36)
+// See Also https://lists.gnu.org/archive/html/info-gnu/2022-08/msg00000.html
+//
+// if glibc 2.36 is widely used in the future, this part can be removed
+#ifndef DT_RELR
+
+// Copy from (glibc 2.36) elf.h
+
+#define SHT_RELR	  19            /* RELR relative relocations */
+
+typedef Elf32_Word	Elf32_Relr;
+typedef Elf64_Xword	Elf64_Relr;
+
+#define DT_RELRSZ	35		/* Total size of RELR relative relocations */
+#define DT_RELR		36		/* Address of RELR relative relocations */
+#define DT_RELRENT	37		/* Size of one RELR relative relocaction */
+#endif // DT_RELR
 
 // Open an elfheader. Transfert control of f to elfheader also!
 elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec); // exec : 0 = lib, 1 = exec
