@@ -120,7 +120,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             GOTEST(x1, x2);
         }
         if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
-        fpu_reset_scratch(dyn);
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }
@@ -169,7 +168,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(dyn->abort)
             return ip;
         INST_EPILOG;
-
+        fpu_reset_scratch(dyn);
         int next = ninst+1;
         #if STEP > 0
         if(!dyn->insts[ninst].x64.has_next && dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts!=-1)
