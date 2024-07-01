@@ -4750,6 +4750,7 @@ wrappedlibsndfile:
   - sf_close
 - pFpipp:
   - sf_open_virtual
+wrappedlibsqlite3:
 wrappedlibssh2:
 wrappedlibssl:
 - pFp:
