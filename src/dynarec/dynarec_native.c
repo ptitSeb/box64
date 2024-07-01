@@ -590,11 +590,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
             }
         }
     }
-    // no need for next and jmps anymore
+    // no need for next anymore
     helper.next_sz = helper.next_cap = 0;
     helper.next = NULL;
-    helper.jmp_sz = helper.jmp_cap = 0;
-    helper.jmps = NULL;
     // fill predecessors with the jump address
     int alloc_size = sizePredecessors(&helper);
     helper.predecessor = (int*)alloca(alloc_size*sizeof(int));
@@ -679,6 +677,9 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         CancelBlock64(0);
         return NULL;
     }
+    // no need for jmps anymore
+    helper.jmp_sz = helper.jmp_cap = 0;
+    helper.jmps = NULL;
     // keep size of instructions for signal handling
     block->instsize = instsize;
     helper.table64 = NULL;
