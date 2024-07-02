@@ -74,6 +74,29 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_FASTROUND=0
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
+[BALDI.x86_64]
+BOX64_DYNAREC_STRONGMEM=1 #little to no performance impact also makes game not crash
+BOX64_PREFER_EMULATED=1
+
+[Baldi's Fun New School Plus Ultimate Edition.x86_64]
+BOX64_DYNAREC_STRONGMEM=2 #needed paramiter or else it just dies
+BOX64_PREFER_EMULATED=1
+
+[picohot]
+# good game
+BOX64_DYNAREC_STRONGMEM=1 #needed or else it just crashes
+BOX64_CRASHHANDLER=0
+BOX64_PREFER_EMULATED=1
+
+[Start Survey Linux.x86_64]
+BOX64_DYNAREC_STRONGMEM=2 #Likes to crash without it
+BOX64_PREFER_EMULATED=1
+
+[My Dystopian Robot Girlfriend.x86_64]
+BOX64_DYNAREC_STRONGMEM=3 # Fixes memory leak related crashes
+BOX64_CRASHHANDLER=0 # Better crash handler and not dummy lib
+BOX64_PREFER_EMULATED=1 # Load in heavy stuff first
+
 [geekbench6]
 BOX64_ENV=BOX64_DYNAREC_STRONGMEM=3
 BOX64_ENV1=BOX64_RESERVE_HIGH=1
