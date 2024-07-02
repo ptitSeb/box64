@@ -150,6 +150,7 @@ void add_next(dynarec_rv64_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_rv64_t *dyn, uintptr_t addr);
 void add_jump(dynarec_rv64_t *dyn, int ninst);
 int get_first_jump(dynarec_rv64_t *dyn, int next);
+int get_first_jump_addr(dynarec_rv64_t *dyn, uintptr_t next);
 int is_nops(dynarec_rv64_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_rv64_t *dyn, uintptr_t addr, int n);
 

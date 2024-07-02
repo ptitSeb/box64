@@ -137,6 +137,7 @@ void add_next(dynarec_la64_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_la64_t *dyn, uintptr_t addr);
 void add_jump(dynarec_la64_t *dyn, int ninst);
 int get_first_jump(dynarec_la64_t *dyn, int next);
+int get_first_jump_addr(dynarec_la64_t *dyn, uintptr_t next);
 int is_nops(dynarec_la64_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_la64_t *dyn, uintptr_t addr, int n);
 
