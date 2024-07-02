@@ -1104,6 +1104,7 @@ GO(gnutls_x509_privkey_get_pk_algorithm2, iFpp)
 //GO(gnutls_x509_rdn_get_oid, 
 GO(gnutls_x509_spki_deinit, vFp)
 GO(gnutls_x509_spki_init, vFp)
+GO(gnutls_x509_spki_set_rsa_oaep_params, iFpup)
 GO(gnutls_x509_spki_set_rsa_pss_params, vFppu)
 //GO(gnutls_x509_tlsfeatures_add, 
 //GO(gnutls_x509_tlsfeatures_check_crt, 
