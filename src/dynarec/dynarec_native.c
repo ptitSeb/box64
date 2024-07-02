@@ -101,6 +101,11 @@ void add_jump(dynarec_native_t *dyn, int ninst) {
     dyn->jmps[dyn->jmp_sz++] = ninst;
 }
 int get_first_jump(dynarec_native_t *dyn, int next) {
+    if(next<0 || next>dyn->size)
+        return -2;
+    return get_first_jump_addr(dyn, dyn->insts[next].x64.addr);
+}
+int get_first_jump_addr(dynarec_native_t *dyn, uintptr_t next) {
     for(int i=0; i<dyn->jmp_sz; ++i)
         if(dyn->insts[dyn->jmps[i]].x64.jmp == next)
             return dyn->jmps[i];
@@ -612,6 +617,17 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
             }
             i = ii;
         }
+    // remove trailling dead code
+    while(helper.size && !helper.insts[helper.size-1].x64.alive) {
+        helper.isize-=helper.insts[helper.size-1].x64.size;
+        --helper.size;
+    }
+    if(!helper.size) {
+        // NULL block after removing dead code, how is that possible?
+        dynarec_log(LOG_INFO, "Warning, null-sized dynarec block after trimming dead code (%p)\n", (void*)addr);
+        CancelBlock64(0);
+        return CreateEmptyBlock(block, addr);
+    }
     pos = 0;
     while(pos<helper.size)
         pos = updateYmm0(&helper, pos);

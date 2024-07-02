@@ -59,6 +59,9 @@ typedef struct neoncache_s {
     int8_t              fpu_scratch;    // scratch counter
     int8_t              fpu_reg;        // x87/sse/mmx reg counter
     uint16_t            ymm_used;       // mask of the ymm regs used in this opcode
+    uint64_t            ymm_regs;       // 4bits (0-15) position of 16 ymmXX regs removed
+    uint16_t            ymm_write;      // 1bits of ymmXX removed write
+    uint16_t            ymm_removed;    // 1bits if ymmXX was removed
 } neoncache_t;
 
 typedef struct flagcache_s {
@@ -140,6 +143,7 @@ void add_next(dynarec_arm_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_arm_t *dyn, uintptr_t addr);
 void add_jump(dynarec_arm_t *dyn, int ninst);
 int get_first_jump(dynarec_arm_t *dyn, int next);
+int get_first_jump_addr(dynarec_arm_t *dyn, uintptr_t next);
 int is_nops(dynarec_arm_t *dyn, uintptr_t addr, int n);
 int is_instructions(dynarec_arm_t *dyn, uintptr_t addr, int n);
 
