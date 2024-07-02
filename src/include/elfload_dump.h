@@ -18,6 +18,7 @@ void DumpDynamicRPath(elfheader_t *h);
 void DumpDynSym(elfheader_t *h);
 void DumpRelTable(elfheader_t *h, int cnt, Elf64_Rel *rel, const char* name);
 void DumpRelATable(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name);
+void DumpRelRTable(elfheader_t *h, int cnt, Elf64_Relr *relr, const char *name);
 
 void DumpBinary(char* p, int sz);
 

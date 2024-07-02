@@ -219,6 +219,15 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                 case DT_RELAENT:
                     h->relaent = val;
                     break;
+                case DT_RELR:
+                    h->relr = ptr;
+                    break;
+                case DT_RELRSZ:
+                    h->relrsz = val;
+                    break;
+                case DT_RELRENT:
+                    h->relrent = val;
+                    break;
                 case DT_PLTGOT:
                     h->pltgot = ptr;
                     break;
