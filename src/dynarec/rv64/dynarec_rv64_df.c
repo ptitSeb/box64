@@ -179,7 +179,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SH(x4, wback, fixedaddress);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
-		case 4:
+                case 4:
                     INST_NAME("FIST Ew, ST0");
                     v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
                     u8 = x87_setround(dyn, ninst, x1, x2);
