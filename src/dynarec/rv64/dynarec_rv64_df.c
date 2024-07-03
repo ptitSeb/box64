@@ -179,6 +179,33 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SH(x4, wback, fixedaddress);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
+                case 4:
+                    INST_NAME("FIST Ew, ST0");
+                    v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_F);
+                    u8 = x87_setround(dyn, ninst, x1, x2);
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                    if(!box64_dynarec_fastround) {
+                        FSFLAGSI(0); // reset all bits
+                    }
+                    if (ST_IS_F(0)) {
+                        FCVTWS(x4, v1, RD_DYN);
+                    } else {
+                        FCVTWD(x4, v1, RD_DYN);
+                    }
+                    x87_restoreround(dyn, ninst, u8);
+                    if(!box64_dynarec_fastround) {
+                        FRFLAGS(x5);   // get back FPSR to check the IOC bit
+                        ANDI(x5, x5, 1<<FR_NV);
+                        BNEZ_MARK(x5);
+                        SLLIW(x5, x4, 16);
+                        SRAIW(x5, x5, 16);
+                        BEQ_MARK2(x5, x4);
+                        MARK;
+                        MOV32w(x4, 0x8000);
+                    }
+                    MARK2;
+                    SH(x4, wback, fixedaddress);
+                    break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
                     X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_I64);
