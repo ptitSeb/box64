@@ -1206,6 +1206,23 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Vector extension emitter
 
+#define VECTOR_SEW8  0b000
+#define VECTOR_SEW16 0b001
+#define VECTOR_SEW32 0b010
+#define VECTOR_SEW64 0b011
+
+#define VECTOR_MASKED   0
+#define VECTOR_UNMASKED 1
+
+#define VECTOR_NFIELD1 0b000
+#define VECTOR_NFIELD2 0b001
+#define VECTOR_NFIELD3 0b010
+#define VECTOR_NFIELD4 0b011
+#define VECTOR_NFIELD5 0b100
+#define VECTOR_NFIELD6 0b101
+#define VECTOR_NFIELD7 0b110
+#define VECTOR_NFIELD8 0b111
+
 //  configuration setting
 //  https://github.com/riscv/riscv-v-spec/blob/master/vcfg-format.adoc
 #define VSETIVLI(rd, zimm, zimm10) EMIT(I_type(0b110000000000 | (zimm10), zimm, 0b111, rd, 0b1010111)) // 11...............111.....1010111

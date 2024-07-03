@@ -821,6 +821,7 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_df.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f0.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_660f.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_660f_vector.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66f20f.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66f30f.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_6664.c"
