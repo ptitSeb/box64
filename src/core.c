@@ -129,6 +129,7 @@ int box64_dynarec = 0;
 #endif
 int box64_libcef = 1;
 int box64_jvm = 1;
+int box64_unityplayer = 1;
 int box64_sdl2_jguid = 0;
 int dlsym_error = 0;
 int cycle_log = 0;
@@ -923,6 +924,15 @@ void LoadLogEnv()
         }
         if(!box64_jvm)
             printf_log(LOG_INFO, "BOX64 will not detect libjvm\n");
+    }
+    p = getenv("BOX64_UNITYPLAYER");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_unityplayer = p[0]-'0';
+        }
+        if(!box64_unityplayer)
+            printf_log(LOG_INFO, "BOX64 will not detect UnityPlayer.dll\n");
     }
     p = getenv("BOX64_SDL2_JGUID");
     if(p) {
