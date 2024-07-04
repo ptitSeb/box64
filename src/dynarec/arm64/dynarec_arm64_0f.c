@@ -2337,8 +2337,29 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xC7:
             // rep has no impact here
             nextop = F8;
-            if(MODREG) { DEFAULT; }
-            else switch((nextop>>3)&7) {
+            if(MODREG) switch((nextop>>3)&7) { 
+            case 6:
+                INST_NAME("RDRAND Ed");
+                SETFLAGS(X_ALL, SF_SET_DF);
+                SET_DFNONE(x1);
+                GETED(0);
+                IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
+                    MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
+                    BICw(xFlags, xFlags, x1);
+                }
+                if(arm64_rndr) {
+                    MRS_rndr(x1);
+                    IFX(X_CF) { CSETw(x3, cNE); }
+                } else {
+                    CALL(rex.w?((void*)get_random64):((void*)get_random32), x1);
+                    IFX(X_CF) { MOV32w(x3, 1); }
+                }
+                IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
+                MOVxw_REG(ed, x1);
+                break;
+            default:
+                DEFAULT;
+            } else switch((nextop>>3)&7) {
             case 1:
                 INST_NAME("CMPXCHG8B Gq, Eq");
                 SETFLAGS(X_ZF, SF_SUBSET);
