@@ -1894,43 +1894,29 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             if (rex.w) {
                 // 64bits imul
-                UFLAG_IF
-                {
+                UFLAG_IF {
                     MULH(x3, gd, ed);
                     MUL(gd, gd, ed);
                     UFLAG_OP1(x3);
                     UFLAG_RES(gd);
                     UFLAG_DF(x3, d_imul64);
-                }
-                else
-                {
+                } else {
                     MULxw(gd, gd, ed);
                 }
             } else {
                 // 32bits imul
-                UFLAG_IF
-                {
-                    SLLI(gd, gd, 32);
-                    SRAI(gd, gd, 32);
-                    if(MODREG) {
-                        SLLI(x1, ed, 32);
-                        ed = x1;
-                    } else {
-                        SLLI(ed, ed, 32);
-                    }
-                    SRAI(ed, ed, 32);
-                    MUL(gd, gd, ed);
+                UFLAG_IF {
+                    SEXT_W(gd, gd);
+                    SEXT_W(x3, ed);
+                    MUL(gd, gd, x3);
                     UFLAG_RES(gd);
                     SRLI(x3, gd, 32);
                     UFLAG_OP1(x3);
                     UFLAG_DF(x3, d_imul32);
-                }
-                else
-                {
+                } else {
                     MULxw(gd, gd, ed);
                 }
-                SLLI(gd, gd, 32);
-                SRLI(gd, gd, 32);
+                ZEROUP(gd);
             }
             break;
         case 0xB3:
