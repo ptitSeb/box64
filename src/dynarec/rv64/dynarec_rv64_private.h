@@ -30,12 +30,13 @@ typedef union ext_cache_s {
 } ext_cache_t;
 
 typedef union sse_cache_s {
-    int8_t v;
+    int16_t v;
     struct {
-        uint8_t reg:5;
-        uint8_t vector:1;
-        uint8_t single:1;
-        uint8_t write:1;
+        uint16_t reg : 7;
+        uint16_t vector : 1;
+        uint16_t single : 1;
+        uint16_t write : 1;
+        uint16_t unused : 7;
     };
 } sse_cache_t;
 
