@@ -197,7 +197,7 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
             my_context->segtls[idx].base = (uintptr_t)addr;
             my_context->segtls[idx].limit = 0;
             my_context->segtls[idx].present = 1;
-            if(idx>8 && !my_context->segtls[idx].key_init) {
+            if(idx>=8 && !my_context->segtls[idx].key_init) {
                 pthread_key_create(&my_context->segtls[idx].key, NULL);
                 my_context->segtls[idx].key_init = 1;
             }
