@@ -965,3 +965,11 @@ GO(vkCmdInitializeGraphScratchMemoryAMDX, vFpU)
 GOM(vkCreateExecutionGraphPipelinesAMDX, iFEpUuppp)
 GO(vkGetExecutionGraphPipelineNodeIndexAMDX, iFpUpp)
 GO(vkGetExecutionGraphPipelineScratchSizeAMDX, iFpUp)
+
+// VK_KHR_maintenance6
+GO(vkCmdBindDescriptorSets2KHR, vFpp)
+GO(vkCmdPushConstants2KHR, vFpp)
+GO(vkCmdBindDescriptorBufferEmbeddedSamplers2EXT, vFpp)
+GO(vkCmdSetDescriptorBufferOffsets2EXT, vFpp)
+GO(vkCmdPushDescriptorSet2KHR, vFpp)
+GO(vkCmdPushDescriptorSetWithTemplate2KH, vFpp)
