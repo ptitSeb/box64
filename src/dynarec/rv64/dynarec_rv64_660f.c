@@ -511,7 +511,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0);
-                    sse_forget_reg(dyn, ninst, 0); // forget xmm[0]
+                    sse_forget_reg(dyn, ninst, x6, 0); // forget xmm[0]
                     for (int i = 0; i < 16; ++i) {
                         LB(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i);
                         BGE(x3, xZR, 12); // continue
@@ -920,11 +920,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_ALL, SF_SET_DF);
                     nextop = F8;
                     GETG;
-                    sse_reflect_reg(dyn, ninst, gd);
+                    sse_reflect_reg(dyn, ninst, x6, gd);
                     ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
                     if (MODREG) {
                         ed = (nextop & 7) + (rex.b << 3);
-                        sse_reflect_reg(dyn, ninst, ed);
+                        sse_reflect_reg(dyn, ninst, x6, ed);
                         ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 1);
@@ -957,7 +957,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX();
                     GETEX(x2, 0);
                     SSE_LOOP_MV_Q(x3);
-                    sse_forget_reg(dyn, ninst, gd);
+                    sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
                     CALL(native_aesimc, -1);
                     break;
@@ -965,7 +965,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESENC Gx, Ex"); // AES-NI
                     nextop = F8;
                     GETG;
-                    sse_forget_reg(dyn, ninst, gd);
+                    sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
                     CALL(native_aese, -1);
                     GETGX();
@@ -976,7 +976,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESENCLAST Gx, Ex"); // AES-NI
                     nextop = F8;
                     GETG;
-                    sse_forget_reg(dyn, ninst, gd);
+                    sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
                     CALL(native_aeselast, -1);
                     GETGX();
@@ -987,7 +987,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESDEC Gx, Ex"); // AES-NI
                     nextop = F8;
                     GETG;
-                    sse_forget_reg(dyn, ninst, gd);
+                    sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
                     CALL(native_aesd, -1);
                     GETGX();
@@ -999,7 +999,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESDECLAST Gx, Ex"); // AES-NI
                     nextop = F8;
                     GETG;
-                    sse_forget_reg(dyn, ninst, gd);
+                    sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd);
                     CALL(native_aesdlast, -1);
                     GETGX();
@@ -1333,11 +1333,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;
                     GETG;
-                    sse_forget_reg(dyn, ninst, gd);
+                    sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd); // gx
                     if (MODREG) {
                         ed = (nextop & 7) + (rex.b << 3);
-                        sse_forget_reg(dyn, ninst, ed);
+                        sse_forget_reg(dyn, ninst, x6, ed);
                         MOV32w(x2, ed);
                         MOV32w(x3, 0); // p = NULL
                     } else {
@@ -1355,11 +1355,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESKEYGENASSIST Gx, Ex, Ib"); // AES-NI
                     nextop = F8;
                     GETG;
-                    sse_forget_reg(dyn, ninst, gd);
+                    sse_forget_reg(dyn, ninst, x6, gd);
                     MOV32w(x1, gd); // gx
                     if (MODREG) {
                         ed = (nextop & 7) + (rex.b << 3);
-                        sse_forget_reg(dyn, ninst, ed);
+                        sse_forget_reg(dyn, ninst, x6, ed);
                         MOV32w(x2, ed);
                         MOV32w(x3, 0); // p = NULL
                     } else {

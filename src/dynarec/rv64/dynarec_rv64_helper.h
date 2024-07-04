@@ -473,10 +473,10 @@
         FLD(a, ed, fixedaddress);                                                            \
     }
 
-// Will get pointer to GX in general register a, will purge SS or SD if loaded. can use gback as load address
+// Will get pointer to GX in general register a, will purge SS or SD if loaded. May use x3. can use gback as load address
 #define GETGX()                                 \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
-    sse_forget_reg(dyn, ninst, gd);             \
+    sse_forget_reg(dyn, ninst, x3, gd);         \
     gback = xEmu;                               \
     gdoffset = offsetof(x64emu_t, xmm[gd])
 
@@ -484,7 +484,7 @@
 #define GETEX(a, D)                                                                            \
     if (MODREG) {                                                                              \
         ed = (nextop & 7) + (rex.b << 3);                                                      \
-        sse_forget_reg(dyn, ninst, ed);                                                        \
+        sse_forget_reg(dyn, ninst, x3, ed);                                                    \
         fixedaddress = offsetof(x64emu_t, xmm[ed]);                                            \
         wback = xEmu;                                                                          \
     } else {                                                                                   \
@@ -492,6 +492,18 @@
         ed = 16;                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 0, D); \
         fixedaddress = 0; /* TODO: optimize this! */                                           \
+    }
+
+// Get EX as a quad, (x1 is used)
+#define GETEX_vector(a, w, D)                                                                \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);              \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        ADDI(x2, ed, fixedaddress);                                                          \
+        VLE8_V(a, x2, VECTOR_UNMASKED, VECTOR_NFIELD1);                                      \
     }
 
 #define GETGM()                     \
@@ -1093,6 +1105,8 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F20F   STEPNAME(dynarec64_F20F)
 #define dynarec64_F30F   STEPNAME(dynarec64_F30F)
 
+#define dynarec64_660F_vector STEPNAME(dynarec64_660F_vector)
+
 #define geted               STEPNAME(geted)
 #define geted32             STEPNAME(geted32)
 #define geted16             STEPNAME(geted16)
@@ -1223,6 +1237,10 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_purge07cache      STEPNAME(sse_purge07cache)
 #define sse_reflect_reg       STEPNAME(sse_reflect_reg)
 
+#define sse_get_reg_empty_vector STEPNAME(sse_get_reg_empty_vector)
+#define sse_get_reg_vector       STEPNAME(sse_get_reg_vector)
+#define sse_forget_reg_vector    STEPNAME(sse_forget_reg_vector)
+
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
 #define fpu_reset_cache     STEPNAME(fpu_reset_cache)
@@ -1237,6 +1255,8 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define CacheTransform STEPNAME(CacheTransform)
 #define rv64_move64    STEPNAME(rv64_move64)
 #define rv64_move32    STEPNAME(rv64_move32)
+
+#define vector_vsetvl_emul1 STEPNAME(vector_vsetvl_emul1)
 
 /* setup r2 to address pointed by */
 uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta);
@@ -1392,6 +1412,8 @@ void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val);
 void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup);
 
+void vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew);
+
 #if STEP < 2
 #define CHECK_CACHE() 0
 #else
@@ -1435,14 +1457,20 @@ void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
 // SSE/SSE2 helpers
 //  get float register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
+// get rvv register for a SSE reg, create the entry if needed
+int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwrite);
 // get float register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
+// get rvv register for an SSE reg, but don't try to synch it if it needed to be created
+int sse_get_reg_empty_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 // forget float register for a SSE reg, create the entry if needed
-void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
+void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
+// forget rvv register for a SSE reg, does nothing if the regs is not loaded
+void sse_forget_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 // purge the XMM0..XMM7 cache (before function call)
 void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
 // Push current value to the cache
-void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int a);
+void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
 // common coproc helpers
 // reset the cache with n
@@ -1488,6 +1516,8 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int rep, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+
+uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)

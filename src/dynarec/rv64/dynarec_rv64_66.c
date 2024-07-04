@@ -38,6 +38,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int64_t fixedaddress;
     int unscaled;
     int lock;
+    uintptr_t retaddr = 0;
     MAYUSE(u8);
     MAYUSE(u16);
     MAYUSE(u64);
@@ -125,7 +126,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x0F:
             switch(rep) {
-                case 0: addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
+                case 0: {
+                    if (rv64_vector) {
+                        retaddr = dynarec64_660F_vector(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                        addr = retaddr ? retaddr : dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    } else
+                        addr = dynarec64_660F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                    break;
+                }
                 case 1: addr = dynarec64_66F20F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
                 case 2: addr = dynarec64_66F30F(dyn, addr, ip, ninst, rex, ok, need_epilog); break;
             }
