@@ -24,7 +24,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
 {
     (void)ip;
     (void)need_epilog;
-    uintptr_t old_addr = addr;
     uint8_t opcode = F8;
     uint8_t nextop, u8, s8;
     int32_t i32;
@@ -65,7 +64,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             break;
         default:
             // fallback to the scalar version
-            return dynarec64_660F(dyn, old_addr, ip, ninst, rex, ok, need_epilog);
+            return 0;
     }
     return addr;
 }
