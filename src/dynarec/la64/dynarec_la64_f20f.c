@@ -279,7 +279,14 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(v1, 0, 1);
             GETGX(v0, 1);
             u8 = F8;
-            VSHUF4I_H(v0, v1, u8);
+            if (v0 != v1) {
+                VSHUF4I_H(v0, v1, u8);
+                VEXTRINS_D(v0, v1, 0x11); // v0[127:64] = v1[127:64]
+            } else {
+                q0 = fpu_get_scratch(dyn);
+                VSHUF4I_H(q0, v1, u8);
+                VEXTRINS_D(v0, q0, 0x0); // v0[63:0] = q0[63:0]
+            }
             break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
