@@ -787,6 +787,7 @@
 #() vFiiip
 #() vFiiCp
 #() vFiill
+#() vFiipV
 #() vFiuip
 #() vFiuuu
 #() vFiulp
@@ -1170,6 +1171,7 @@
 #() LFippp
 #() LFuipL
 #() LFpCii
+#() LFpupL
 #() LFpLCL
 #() LFpLLp
 #() LFpLpL
@@ -1677,6 +1679,7 @@
 #() lFpuipC
 #() lFpuuLL
 #() lFppupp
+#() lFppllp
 #() lFppLpL
 #() lFppLpp
 #() LFELppi
@@ -2122,6 +2125,7 @@
 #() lFipLpLL
 #() lFpipill
 #() lFpuuLLp
+#() lFpplllp
 #() lFppLipp
 #() lFpppLpp
 #() LFEupppp

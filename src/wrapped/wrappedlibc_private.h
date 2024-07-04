@@ -297,7 +297,7 @@ GOW(erand48_r, iFppp)
 GOM(err, vFEipV)
 //DATAB(errno, 
 GO(__errno_location, pFv)
-//GOW(error, vFiipV)
+GOW(error, vFiipV)
 //GOW(error_at_line, vFiipupV)
 //DATAB(error_message_count, 
 //DATAB(error_one_per_line, 
@@ -980,6 +980,7 @@ GO2(__isoc23_strtol, lFppi, strtol)
 GO2(__isoc23_strtoll, IFppi, strtoll)
 GO2(__isoc23_strtoul, LFppi, strtoul)
 GO2(__isoc23_strtoull, UFppi, strtoull)
+GO2(__isoc23_wcstol, LFppi, wcstol)
 GOM(__isoc99_fscanf, iFEppV)
 //GO(__isoc99_fwscanf, iFppV)
 GOM(__isoc99_scanf, iFEpV)
@@ -1560,7 +1561,7 @@ GOWM(register_printf_specifier, iFEipp)
 GOWM(register_printf_type, iFEp)
 //GO(registerrpc, // Deprecated?
 GO(remap_file_pages, iFpLiLi)
-//GOW(re_match, iFppii!)
+GOW(re_match, lFppllp)
 //GOW(re_match_2, iFppipii!i)
 //DATA(re_max_failures, 
 GO(remove, iFp)
@@ -1570,7 +1571,7 @@ GO(rename, iFpp)
 GOW(renameat, iFipip)
 GOW(renameat2, iFipipu)
 //DATAB(_res, 
-//GOW(re_search, iFppiii!)
+GOW(re_search, lFpplllp)
 //GOW(re_search_2, iFppipiii!i)
 //GOW(re_set_registers, vFp!upp)
 GOW(re_set_syntax, LFL)
@@ -1579,6 +1580,7 @@ GO(__res_iclose, vFpi)
 GO(__res_init, iFv)
 GO(__res_nclose, vFp)
 GO(__res_ninit, iFp)
+GO(res_nsearch, iFppiipi)
 //GO(__resolv_context_get, 
 //GO(__resolv_context_get_override, 
 //GO(__resolv_context_get_preinit, 
@@ -2209,7 +2211,7 @@ GOW(wcpcpy, pFpp)
 GO(wcpncpy, pFppL)
 //GO(__wcpncpy_chk, 
 GO(wcrtomb, LFpup)
-//GO(__wcrtomb_chk, 
+GO(__wcrtomb_chk, LFpupL)
 GOW(wcscasecmp, iFpp)
 GO(__wcscasecmp_l, iFppp)
 GOW(wcscasecmp_l, iFppp)
