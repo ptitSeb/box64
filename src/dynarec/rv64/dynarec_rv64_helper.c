@@ -1964,11 +1964,9 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int i, int j, extcache_t *
         // SWAP
         ext_cache_t tmp;
         MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
-#define SCRATCH 31
-        VOR_VV(SCRATCH, i, i, VECTOR_UNMASKED);
-        VOR_VV(i, j, j, VECTOR_UNMASKED);
-        VOR_VV(j, SCRATCH, SCRATCH, VECTOR_UNMASKED);
-#undef SCRATCH
+        VXOR_VV(i, i, j, VECTOR_UNMASKED);
+        VXOR_VV(j, i, j, VECTOR_UNMASKED);
+        VXOR_VV(i, i, j, VECTOR_UNMASKED);
         tmp.v = cache->extcache[i].v;
         cache->extcache[i].v = cache->extcache[j].v;
         cache->extcache[j].v = tmp.v;
