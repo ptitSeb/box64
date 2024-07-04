@@ -25,7 +25,7 @@ const char* libsqlite3Name = "libsqlite3.so.0";
 
 #include "generated/wrappedlibsqlite3types.h"
 
-#include "wrappercallback.h"
+//#include "wrappercallback.h"
 
 // Insert my_* functions here...
 
