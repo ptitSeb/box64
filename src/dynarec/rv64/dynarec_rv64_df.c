@@ -206,6 +206,15 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SH(x4, wback, fixedaddress);
                     X87_POP_OR_FAIL(dyn, ninst, x3);
                     break;
+                case 4:
+                    INST_NAME("FBLD ST0, tbytes");
+                    X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, x1);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                    if(ed != x1) { MV(x1, ed); }
+                    s0 = x87_stackcount(dyn, ninst, x3);
+                    CALL(fpu_fbld, -1);
+                    x87_unstackcount(dyn, ninst, x3, s0);
+                    break;
                 case 5:
                     INST_NAME("FILD ST0, i64");
                     X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_I64);
