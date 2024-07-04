@@ -182,6 +182,7 @@ static const scwrap_t syscallwrap[] = {
     [114] = {__NR_setregid, 2},
     [118] = {__NR_getresuid, 3},
     [120] = {__NR_getresgid, 3},
+    [121] = {__NR_getpgid, 1},
     [125] = {__NR_capget, 2},
     [126] = {__NR_capset, 2},
     [127] = {__NR_rt_sigpending, 2},
@@ -688,6 +689,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         #endif
+        case 111: // sys_getpgrp
+            S_RAX = getpgrp();
+            break;
         case 131: // sys_sigaltstack
             S_RAX = my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             if(S_RAX==-1)
