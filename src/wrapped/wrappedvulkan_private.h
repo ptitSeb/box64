@@ -311,6 +311,9 @@ GO(vkGetPhysicalDeviceXcbPresentationSupportKHR, uFpubp)
 GOM(vkCreateXlibSurfaceKHR, iFEpppp)
 GO(vkGetPhysicalDeviceXlibPresentationSupportKHR, uFpupp)
 
+// VK_KHR_android_surface
+GOM(vkCreateAndroidSurfaceKHR, iFEpppp)
+
 // VK_KHR_swapchain
 GO(vkAcquireNextImageKHR, iFpUUUUp)
 GO(vkAcquireNextImage2KHR, iFppp)
