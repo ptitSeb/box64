@@ -5619,6 +5619,7 @@ wrappedvulkan:
   - vkAllocateMemory
   - vkCreateAccelerationStructureKHR
   - vkCreateAccelerationStructureNV
+  - vkCreateAndroidSurfaceKHR
   - vkCreateBuffer
   - vkCreateBufferView
   - vkCreateCommandPool

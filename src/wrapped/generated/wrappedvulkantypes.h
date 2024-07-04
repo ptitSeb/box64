@@ -84,6 +84,7 @@ typedef void (*vFpuuuupupup_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, vo
 	GO(vkAllocateMemory, iFpppp_t) \
 	GO(vkCreateAccelerationStructureKHR, iFpppp_t) \
 	GO(vkCreateAccelerationStructureNV, iFpppp_t) \
+	GO(vkCreateAndroidSurfaceKHR, iFpppp_t) \
 	GO(vkCreateBuffer, iFpppp_t) \
 	GO(vkCreateBufferView, iFpppp_t) \
 	GO(vkCreateCommandPool, iFpppp_t) \
