@@ -212,7 +212,8 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 // 32bits imul
                 UFLAG_IF {
-                    MUL(gd, ed, x4);
+                    SEXT_W(x3, ed);
+                    MUL(gd, x3, x4);
                     UFLAG_RES(gd);
                     SRLI(x3, gd, 32);
                     UFLAG_OP1(x3);
@@ -251,7 +252,8 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 // 32bits imul
                 UFLAG_IF {
-                    MUL(gd, ed, x4);
+                    SEXT_W(x3, ed);
+                    MUL(gd, x3, x4);
                     UFLAG_RES(gd);
                     SRLI(x3, gd, 32);
                     UFLAG_OP1(x3);

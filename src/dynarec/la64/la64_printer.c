@@ -2237,31 +2237,31 @@ const char* la64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
     if (isMask(opcode, "00000000001111101kkkkkjjjjj00001", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.B", Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.H", Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "00000000001111101kkkkkjjjjj00010", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.B", Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.W", Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "00000000001111101kkkkkjjjjj00011", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.B", Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.D", Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "00000000001111101kkkkkjjjjj00100", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.B", Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.BU", Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "00000000001111101kkkkkjjjjj00101", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.B", Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.HU", Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "00000000001111101kkkkkjjjjj00110", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.B", Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.WU", Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "00000000001111101kkkkkjjjjj00111", &a)) {
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.B", Xt[Rj], Xt[Rk]);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "X64MUL.DU", Xt[Rj], Xt[Rk]);
         return buff;
     }
     if (isMask(opcode, "00000000001111110kkkkkjjjjj00000", &a)) {
