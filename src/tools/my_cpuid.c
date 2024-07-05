@@ -430,7 +430,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EBX = 0;  // reserved
             R_ECX = (1<<0)  // LAHF_LM 
                 | (1<<5)    // LZCNT
-                | (1<<8);   // PREFETCHW
+                | (1<<8)   // PREFETCHW
+                ;
             R_EDX = 1       // x87 FPU 
                 | (1<<8)    // cx8: cmpxchg8b opcode
                 | (1<<11)   // syscall
