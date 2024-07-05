@@ -1930,7 +1930,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     PrintCollection(&my_context->box64_path, "BOX64 BIN PATH");
     // lets build argc/argv stuff
     printf_log(LOG_INFO, "Looking for %s\n", prog);
-    my_context->argv[0] = ResolveFile(prog, &my_context->box64_path);
+    my_context->argv[0] = ResolveFileSoft(prog, &my_context->box64_path);
     // check if box86 is present
     {
         my_context->box86path = box_strdup(my_context->box64path);
