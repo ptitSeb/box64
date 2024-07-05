@@ -63,12 +63,39 @@ static void* find_cups_dest_cb_t_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libcups cups_dest_cb_t callback\n");
     return NULL;
 }
+// cups_password_cb2_t ...
+#define GO(A)   \
+static uintptr_t my_cups_password_cb2_t_fct_##A = 0;                                        \
+static void* my_cups_password_cb2_t_##A(void* a, void* b, void* c, void* d, void* e)        \
+{                                                                                           \
+    return (void*)RunFunctionFmt(my_cups_password_cb2_t_fct_##A, "ppppp", a, b, c, d, e);   \
+}
+SUPER()
+#undef GO
+static void* find_cups_password_cb2_t_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_cups_password_cb2_t_fct_##A == (uintptr_t)fct) return my_cups_password_cb2_t_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_cups_password_cb2_t_fct_##A == 0) {my_cups_password_cb2_t_fct_##A = (uintptr_t)fct; return my_cups_password_cb2_t_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcups cups_password_cb2_t callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
 EXPORT int my_cupsEnumDests(x64emu_t* emu, uint32_t flags, int msec, int* cancel, uint32_t type, uint32_t mask, void* f, void* data)
 {
     return my->cupsEnumDests(flags, msec, cancel, type, mask, find_cups_dest_cb_t_Fct(f), data);
+}
+
+EXPORT void my_cupsSetPasswordCB2(x64emu_t* emu, void* f, void* data)
+{
+    my->cupsSetPasswordCB2(find_cups_password_cb2_t_Fct(f), data);
 }
 
 #include "wrappedlib_init.h"

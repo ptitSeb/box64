@@ -4367,6 +4367,8 @@ wrappedlibc:
 wrappedlibcmusl:
 wrappedlibcrypt:
 wrappedlibcups:
+- vFpp:
+  - cupsSetPasswordCB2
 - iFuipuupp:
   - cupsEnumDests
 wrappedlibdl:

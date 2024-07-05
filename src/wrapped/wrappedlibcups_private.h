@@ -208,7 +208,7 @@ GO(cupsSetDefaultDest, vFppip)
 //GO(_cupsSetLocale, 
 //GO(_cupsSetNegotiateAuthString, 
 //GO(cupsSetPasswordCB, 
-//GO(cupsSetPasswordCB2, 
+GOM(cupsSetPasswordCB2, vFEpp)
 //GO(cupsSetServer, 
 //GO(cupsSetServerCertCB, 
 //GO(cupsSetServerCredentials, 
