@@ -69,6 +69,7 @@ void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode);
 // reset the cache
 void fpu_reset(dynarec_native_t* dyn);
 void fpu_reset_ninst(dynarec_native_t* dyn, int ninst);
+void arm64_fpu_reset(dynarec_native_t* dyn, int ninst, int step);
 
 // is st freed
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);

@@ -168,6 +168,10 @@ static void fpu_reset_reg_neoncache(neoncache_t* n)
         n->fpuused[i]=0;
         n->neoncache[i].v = 0;
     }
+    n->ymm_regs = 0;
+    n->ymm_removed = 0;
+    n->ymm_used = 0;
+    n->ymm_write = 0;
 
 }
 void fpu_reset_reg(dynarec_arm_t* dyn)
@@ -767,7 +771,7 @@ static void sse_reset(neoncache_t* n)
             n->neoncache[i].v = 0;
 }
 
-void fpu_reset(dynarec_arm_t* dyn)
+void fpu_reset(dynarec_native_t* dyn)
 {
     x87_reset(&dyn->n);
     mmx_reset(&dyn->n);
@@ -776,12 +780,21 @@ void fpu_reset(dynarec_arm_t* dyn)
     dyn->ymm_zero = 0;
 }
 
-void fpu_reset_ninst(dynarec_arm_t* dyn, int ninst)
+void fpu_reset_ninst(dynarec_native_t* dyn, int ninst)
 {
     x87_reset(&dyn->insts[ninst].n);
     mmx_reset(&dyn->insts[ninst].n);
     sse_reset(&dyn->insts[ninst].n);
     fpu_reset_reg_neoncache(&dyn->insts[ninst].n);
+
+}
+
+void arm64_fpu_reset(dynarec_native_t* dyn, int ninst, int step)
+{
+    if(step<2) {
+        dyn->insts[ninst].ymm0_in = 0;
+        dyn->insts[ninst].ymm0_out = 0;
+    }
 }
 
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st)

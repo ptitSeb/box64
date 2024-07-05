@@ -89,12 +89,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->f.dfnone = 0;
                 dyn->f.pending = 0;
                 fpu_reset(dyn);
+                ARM_FPU_RESET();
             } else {
                 fpu_reset_cache(dyn, ninst, reset_n);
                 dyn->f = dyn->insts[reset_n].f_exit;
                 if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) {
                     MESSAGE(LOG_DEBUG, "Apply Barrier Float\n");
                     fpu_reset(dyn);
+                    ARM_FPU_RESET();
                 }
                 if(dyn->insts[ninst].x64.barrier&BARRIER_FLAGS) {
                     MESSAGE(LOG_DEBUG, "Apply Barrier Flags\n");
