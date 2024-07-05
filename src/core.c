@@ -538,7 +538,7 @@ void computeRDTSC()
         freq = ReadTSCFrequency(NULL);
     }
     uint64_t efreq = freq;
-    while(efreq<2000000000) {    // minium 2GHz
+    while(efreq<2000000000 && box64_rdtsc_shift<31) {    // minium 2GHz, but not too much shift
         ++box64_rdtsc_shift;
         efreq = freq<<box64_rdtsc_shift;
     }
