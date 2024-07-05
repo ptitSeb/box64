@@ -5,6 +5,41 @@
 
 */
 
+/* 
+    ARM64 Linux Call Convention
+
+SP	 	    The Stack Pointer.
+r30	LR	    The Link Register.
+r29	FP	    The Frame Pointer
+r19…r28	 	Callee-saved registers
+r18	 	    The Platform Register, if needed; otherwise a temporary register. See notes.
+r17	IP1	    The second intra-procedure-call temporary register (can be used by call veneers and PLT code); at other times may be used as a temporary register.
+r16	IP0	    The first intra-procedure-call scratch register (can be used by call veneers and PLT code); at other times may be used as a temporary register.
+r9…r15	 	Temporary registers
+r8	 	    Indirect result location register
+r0…r7	 	Parameter/result registers
+
+For SIMD:
+The first eight registers, v0-v7, are used to pass argument values into a subroutine and to return result values from a function. 
+    They may also be used to hold intermediate values within a routine (but, in general, only between subroutine calls).
+
+Registers v8-v15 must be preserved by a callee across subroutine calls; 
+    the remaining registers (v0-v7, v16-v31) do not need to be preserved (or should be preserved by the caller).
+    Additionally, only the bottom 64 bits of each value stored in v8-v15 need to be preserved [8];
+    it is the responsibility of the caller to preserve larger values.
+
+For SVE:
+z0-z7 are used to pass scalable vector arguments to a subroutine, and to return scalable vector results from a function.
+    If a subroutine takes at least one argument in scalable vector registers or scalable predicate registers,
+    or returns results in such regisers, the subroutine must ensure that the entire contents of z8-z23 are preserved across the call.
+    In other cases it need only preserve the low 64 bits of z8-z15, as described in SIMD and Floating-Point registers.
+p0-p3 are used to pass scalable predicate arguments to a subroutine and to return scalable predicate results from a function.
+    If a subroutine takes at least one argument in scalable vector registers or scalable predicate registers,
+    or returns results in such registers, the subroutine must ensure that p4-p15 are preserved across the call.
+    In other cases it need not preserve any scalable predicate register contents.
+
+*/
+
 // x86 Register mapping
 #define xRAX    10
 #define xRCX    11
