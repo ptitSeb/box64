@@ -32,6 +32,7 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
     uint8_t nextop;
     uint16_t tmp16u;
     int16_t tmp16s;
+    uint64_t tmp64u;
     reg64_t *oped, *opgd;
     sse_regs_t *opex, *opgx;
     #ifdef TEST_INTERPRETER
@@ -159,6 +160,15 @@ uintptr_t Run6664(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                 GW->q[0] = EW->q[0];
             else
                 GW->word[0] = EW->word[0];
+            break;
+        case 0x8D:                              /* LEA Gw,M */
+            nextop = F8;
+            GETGW;
+            tmp64u = GETEA(0);
+            if(rex.w)
+                GW->q[0] = tmp64u;
+            else
+                GW->word[0] = (uint16_t)tmp64u;
             break;
         case 0xC7:                      /* MOV FS:Ew,Iw */
             nextop = F8;

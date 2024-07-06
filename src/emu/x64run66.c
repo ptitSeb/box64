@@ -399,12 +399,12 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
         break;
     case 0x8D:                              /* LEA Gw,M */
         nextop = F8;
-        GETGD;
+        GETGW;
         tmp64u = GETEA(0);
         if(rex.w)
-            GD->q[0] = tmp64u;
+            GW->q[0] = tmp64u;
         else
-            GD->word[0] = (uint16_t)tmp64u;
+            GW->word[0] = (uint16_t)tmp64u;
         break;
     case 0x8E:                               /* MOV Seg,Ew */
         nextop = F8;
