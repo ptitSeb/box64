@@ -5,6 +5,7 @@ typedef struct dynablock_s dynablock_t;
 typedef struct x64emu_s x64emu_t;
 typedef struct instsize_s instsize_t;
 
+
 //#define USE_CUSTOM_MEM
 #ifdef USE_CUSTOM_MEM
 #define dynaMalloc customMalloc

@@ -688,6 +688,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
         if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts==-1)
             dynarec_log(LOG_NONE, ", jmp=out");
+        if(dyn->insts[ninst].x64.has_callret)
+            dynarec_log(LOG_NONE, ", callret");
         if(dyn->last_ip)
             dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);
         for(int ii=0; ii<32; ++ii) {
@@ -787,14 +789,6 @@ void fpu_reset_ninst(dynarec_native_t* dyn, int ninst)
     sse_reset(&dyn->insts[ninst].n);
     fpu_reset_reg_neoncache(&dyn->insts[ninst].n);
 
-}
-
-void arm64_fpu_reset(dynarec_native_t* dyn, int ninst, int step)
-{
-    if(step<2) {
-        dyn->insts[ninst].ymm0_in = 0;
-        dyn->insts[ninst].ymm0_out = 0;
-    }
 }
 
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st)

@@ -28,13 +28,11 @@
         dyn->e.swapped = 0; dyn->e.barrier = 0; \
         for(int i=0; i<16; ++i) dyn->e.olds[i].v = 0;\
         dyn->insts[ninst].f_entry = dyn->f;     \
-        dyn->insts[ninst].ymm0_in = dyn->ymm_zero;\
         if(ninst) {dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr;}
 
 #define INST_EPILOG                             \
         dyn->insts[ninst].f_exit = dyn->f;      \
         dyn->insts[ninst].e = dyn->e;           \
-        dyn->insts[ninst].ymm0_out = dyn->ymm_zero;\
         dyn->insts[ninst].x64.has_next = (ok>0)?1:0;
 #define INST_NAME(name) 
 #define DEFAULT                         \

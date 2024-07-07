@@ -17,7 +17,6 @@
 #include "arm64/dynarec_arm64_functions.h"
 // Limit here is defined by LD litteral, that is 19bits
 #define MAXBLOCK_SIZE ((1<<19)-200)
-#define ARM_FPU_RESET() arm64_fpu_reset(dyn, ninst, STEP)
 #elif defined(LA64)
 
 #define instruction_native_t        instruction_la64_t
@@ -34,7 +33,6 @@
 #include "la64/dynarec_la64_functions.h"
 // Limit here is unconditionnal jump, that is signed 28bits
 #define MAXBLOCK_SIZE ((1 << 27) - 200)
-#define ARM_FPU_RESET()
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
@@ -51,7 +49,6 @@
 #include "rv64/dynarec_rv64_functions.h"
 // Limit here is unconditionnal jump, that is signed 21bits
 #define MAXBLOCK_SIZE ((1<<20)-200)
-#define ARM_FPU_RESET()
 #else
 #error Unsupported platform
 #endif

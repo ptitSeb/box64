@@ -1806,6 +1806,8 @@ int ymm_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite, int 
             return i;
         }
     // nope, grab a new one
+    if(dyn->ymm_zero&(1<<a))
+        forwrite = 1;   // if the reg was zero, then it will need to be write back
     int ret =  fpu_get_reg_ymm(dyn, ninst, forwrite?NEON_CACHE_YMMW:NEON_CACHE_YMMR, a, k1, k2, k3);
     if(dyn->ymm_zero&(1<<a)) {
         VEORQ(ret, ret, ret);
@@ -2365,6 +2367,12 @@ void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     x87_reflectcache(dyn, ninst, s1, s2, s3);
     mmx_reflectcache(dyn, ninst, s1);
     //sse_reflectcache(dyn, ninst, s1); // no need, it's pushed/unpushed during call
+    // but ymm0 needs to be pushed
+    if(dyn->ymm_zero) {
+        ADDx_U12(s1, xEmu, offsetof(x64emu_t, ymm[0]));
+        for(int i=0; i<16; ++i)
+            STPx_S7_offset(xZR, xZR, s1, 16*i);
+    }
 }
 
 void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
