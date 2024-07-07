@@ -976,3 +976,7 @@ GO(vkCmdBindDescriptorBufferEmbeddedSamplers2EXT, vFpp)
 GO(vkCmdSetDescriptorBufferOffsets2EXT, vFpp)
 GO(vkCmdPushDescriptorSet2KHR, vFpp)
 GO(vkCmdPushDescriptorSetWithTemplate2KHR, vFpp)
+
+// VK_KHR_dynamic_rendering_local_read
+GO(vkCmdSetRenderingAttachmentLocationsKHR, vFpp)
+GO(vkCmdSetRenderingInputAttachmentIndicesKHR, vFpp)
