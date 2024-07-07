@@ -980,3 +980,6 @@ GO(vkCmdPushDescriptorSetWithTemplate2KHR, vFpp)
 // VK_KHR_dynamic_rendering_local_read
 GO(vkCmdSetRenderingAttachmentLocationsKHR, vFpp)
 GO(vkCmdSetRenderingInputAttachmentIndicesKHR, vFpp)
+
+// VK_KHR_line_rasterization
+GO(vkCmdSetLineStippleKHR, vFpuW)
