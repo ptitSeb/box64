@@ -1400,6 +1400,33 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             YMM0(gd);
             break;
 
+        case 0xB6:
+            INST_NAME("VFMADDSUB231PS/D Gx, Vx, Ex");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
+            static double addsubpd[2] = {-1., 1.};
+            MAYUSE(addsubps); MAYUSE(addsubpd);
+            TABLE64(x2, (rex.w)?((uintptr_t)&addsubpd):((uintptr_t)&addsubps));
+            VLDR128_U12(q0, x2, 0);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_VXEX(v0, v2, v1, 0); if(v0==v2 || v0==v1) q1 = fpu_get_scratch(dyn, ninst); } else { GETGY_VYEY(v0, v2, v1); }
+                if(v0!=v1 && v0!=v2) {
+                    q1 = v0;
+                }
+                if(rex.w) {
+                    VFMULQD(q1, v0, q0);
+                    VFMLAQD(q1, v1, v2);
+                } else {
+                    VFMULQS(q1, v0, q0);
+                    VFMLAQS(q1, v1, v2);
+                }
+                if(q1!=v0)
+                    VMOVQ(v0, q1);
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0xB8:
             INST_NAME("VFMADD231PS/D Gx, Vx, Ex");
             nextop = F8;
