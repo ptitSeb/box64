@@ -2371,7 +2371,8 @@ void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     if(dyn->ymm_zero) {
         ADDx_U12(s1, xEmu, offsetof(x64emu_t, ymm[0]));
         for(int i=0; i<16; ++i)
-            STPx_S7_offset(xZR, xZR, s1, 16*i);
+            if(dyn->ymm_zero&(1<<i))
+                STPx_S7_offset(xZR, xZR, s1, 16*i);
     }
 }
 
