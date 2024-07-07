@@ -737,6 +737,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         FLAGS_ADJUST_FROM11(xFlags, xFlags, reg);
     }
     //SET_NODF();
+    CLEARIP();
 }
 
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
