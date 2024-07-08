@@ -2578,6 +2578,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
+                        UFLAG_DF(x2, d_none);
                         TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
                         B_NEXT(cEQ);
                     }
@@ -2589,13 +2590,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LSRw_REG(ed, ed, x2);
                     EBBACK;
                     UFLAG_IF {  // calculate flags directly
-                        CMPSw_U12(x2, 7);
-                        B_MARK(cNE);
-                            ADDxw_REG_LSR(x3, ed, ed, 7);
-                            BFIw(xFlags, x3, F_OF, 1);
-                        MARK;
-                        BFIw(xFlags, ed, F_CF, 1);
-                        UFLAG_DF(x2, d_none);
+                        IFX(X_OF) {
+                            CMPSw_U12(x2, 7);
+                            B_MARK(cNE);
+                                EORxw_REG_LSR(x3, ed, ed, 7);
+                                BFIw(xFlags, x3, F_OF, 1);
+                            MARK;
+                        }
+                        IFX(X_CF) {
+                            BFIw(xFlags, ed, F_CF, 1);
+                        }
                     }
                     break;
                 case 1:
@@ -2604,6 +2608,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
+                        UFLAG_DF(x2, d_none);
                         TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
                         B_NEXT(cEQ);
                     }
@@ -2613,14 +2618,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LSRw_REG(ed, ed, x2);
                     EBBACK;
                     UFLAG_IF {  // calculate flags directly
-                        CMPSw_U12(x2, 1);
-                        B_MARK(cNE);
-                            LSRxw(x2, ed, 6); // x2 = d>>30
-                            EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
-                            BFIw(xFlags, x2, F_OF, 1);
-                        MARK;
-                        BFXILw(xFlags, ed, 7, 1);
-                        UFLAG_DF(x2, d_none);
+                        IFX(X_OF) {
+                            CMPSw_U12(x2, 1);
+                            B_MARK(cNE);
+                                LSRxw(x2, ed, 6); // x2 = d>>6
+                                EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>6) ^ ((d>>6)>>1))
+                                BFIw(xFlags, x2, F_OF, 1);
+                            MARK;
+                        }
+                        IFX(X_CF) {
+                            BFXILw(xFlags, ed, 7, 1);
+                        }
                     }
                     break;
                 case 2:
@@ -2704,6 +2712,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
+                        UFLAG_DF(x2, d_none);
                         if(rex.w) {
                             ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                         } else {
@@ -2726,13 +2735,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     RORxw_REG(ed, ed, x3);
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
-                        CMPSw_U12(x3, rex.w?63:31);
-                        B_MARK(cNE);
-                            ADDxw_REG_LSR(x1, ed, ed, rex.w?63:31);
-                            BFIw(xFlags, x1, F_OF, 1);
-                        MARK;
-                        BFIw(xFlags, ed, F_CF, 1);
-                        UFLAG_DF(x2, d_none);
+                        IFX(X_OF) {
+                            CMPSw_U12(x3, rex.w?63:31);
+                            B_MARK(cNE);
+                                ADDxw_REG_LSR(x1, ed, ed, rex.w?63:31);
+                                BFIw(xFlags, x1, F_OF, 1);
+                            MARK;
+                        }
+                        IFX(X_CF) {
+                            BFIw(xFlags, ed, F_CF, 1);
+                        }
                     }
                     break;
                 case 1:
@@ -2741,6 +2753,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
+                        UFLAG_DF(x2, d_none);
                         if(rex.w) {
                             ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                         } else {
@@ -2761,14 +2774,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     RORxw_REG(ed, ed, x3);
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
-                        CMPSw_U12(x3, 1);
-                        B_MARK(cNE);
-                            LSRxw(x2, ed, rex.w?62:30); // x2 = d>>30
-                            EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
-                            BFIw(xFlags, x2, F_OF, 1);
-                        MARK;
-                        BFXILxw(xFlags, ed, rex.w?63:31, 1);
-                        UFLAG_DF(x2, d_none);
+                        IFX(X_OF) {
+                            CMPSw_U12(x3, 1);
+                            B_MARK(cNE);
+                                LSRxw(x2, ed, rex.w?62:30); // x2 = d>>30
+                                EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
+                                BFIw(xFlags, x2, F_OF, 1);
+                            MARK;
+                        }
+                        IFX(X_CF) {
+                            BFXILxw(xFlags, ed, rex.w?63:31, 1);
+                        }
                     }
                     break;
                 case 2:
