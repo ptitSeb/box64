@@ -248,6 +248,15 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VLD(v0, ed, fixedaddress);
             }
             break;
+        case 0x70:
+            INST_NAME("PSHUFHW Gx, Ex, Ib");
+            nextop = F8;
+            GETEX(v1, 0, 1);
+            GETGX(v0, 1);
+            u8 = F8;
+            VSHUF4I_H(v0, v1, u8);
+            VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            break;
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
             nextop = F8;

@@ -297,6 +297,30 @@
     gd = i;                                                   \
     BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
 
+// GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
+#define GETEBO(i, D)                                                                            \
+    if (MODREG) {                                                                               \
+        if (rex.rex) {                                                                          \
+            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                       \
+            wb2 = 0;                                                                            \
+        } else {                                                                                \
+            wback = (nextop & 7);                                                               \
+            wb2 = (wback >> 2) * 8;                                                             \
+            wback = TO_LA64(wback & 3);                                                         \
+        }                                                                                       \
+        BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                     \
+        wb1 = 0;                                                                                \
+        ed = i;                                                                                 \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+        ADD_D(x3, wback, i);                                                                    \
+        if (wback != x3) wback = x3;                                                            \
+        LD_B(i, wback, fixedaddress);                                                           \
+        wb1 = 1;                                                                                \
+        ed = i;                                                                                 \
+    }
+
 // Get GX as a quad (might use x1)
 #define GETGX(a, w)                             \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
