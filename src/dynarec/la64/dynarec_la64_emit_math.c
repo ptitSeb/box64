@@ -144,7 +144,9 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX(X_PEND | X_AF | X_CF | X_OF)
     {
         MOV64xw(s2, c);
-    } else if (la64_lbt) MOV64xw(s2, c);
+    } else if (la64_lbt) {
+        MOV64xw(s2, c);
+    }
     IFX(X_PEND)
     {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
