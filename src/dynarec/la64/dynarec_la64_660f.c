@@ -361,6 +361,32 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+
+        #define GO(GETFLAGS, NO, YES, F, I)                                                          \
+            READFLAGS(F);                                                                            \
+            if (la64_lbt) {                                                                          \
+                X64_SETJ(x1, I);                                                                     \
+            } else {                                                                                 \
+                GETFLAGS;                                                                            \
+            }                                                                                        \
+            nextop = F8;                                                                             \
+            GETGD;                                                                                   \
+            if (MODREG) {                                                                            \
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
+            } else {                                                                                 \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0); \
+                LD_HU(x4, ed, fixedaddress);                                                         \
+                ed = x4;                                                                             \
+            }                                                                                        \
+            if (la64_lbt)                                                                            \
+                BEQZ(x1, 4 + 4);                                                                     \
+            else                                                                                     \
+                B##NO(x1, 4 + 4);                                                                    \
+            BSTRINS_D(gd, ed, 15, 0);
+
+        GOCOND(0x40, "CMOV", "Gd, Ed");
+        #undef GO
+
         case 0x54:
             INST_NAME("ANDPD Gx, Ex");
             nextop = F8;
@@ -905,6 +931,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             VMUH_HU(v0, v0, v1);
+            break;
+        case 0xE5:
+            INST_NAME("PMULHW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VMUH_H(v0, v0, v1);
             break;
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
