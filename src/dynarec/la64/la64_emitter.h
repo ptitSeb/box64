@@ -482,19 +482,19 @@ f24-f31  fs0-fs7   Static registers                Callee
 // bstr32[msbw:lsbw] = GR[rj][msbw-lsbw:0]
 // bstr32[lsbw-1:0] = GR[rd][lsbw-1:0]
 // GR[rd] = SignExtend(bstr32[31:0], GRLEN)
-#define BSTRINS_W(rd, rj, msbw5, lsbw5) EMIT(type_2RI12(0b0000000001, 0b100000000000 | (msbw5 & 0x1F) << 6 | (lsbw5 & 0x1F), rj, rd))
+#define BSTRINS_W(rd, rj, msbw5, lsbw5) EMIT(type_2RI12(0b0000000001, 0b100000000000 | ((msbw5) & 0x1F) << 6 | ((lsbw5) & 0x1F), rj, rd))
 
 // GR[rd][63:msbd+1] = GR[rd][63:msbd+1]
 // GR[rd][msbd:lsbd] = GR[rj][msbd-lsbd:0]
 // GR[rd][lsbd-1:0] = GR[rd][lsbd-1:0]
-#define BSTRINS_D(rd, rj, msbd6, lsbd6) EMIT(type_2RI12(0b0000000010, (msbd6 & 0x3F) << 6 | (lsbd6 & 0x3F), rj, rd))
+#define BSTRINS_D(rd, rj, msbd6, lsbd6) EMIT(type_2RI12(0b0000000010, ((msbd6) & 0x3F) << 6 | ((lsbd6) & 0x3F), rj, rd))
 
 // bstr32[31:0] = ZeroExtend(GR[rj][msbw:lsbw], 32)
 // GR[rd] = SignExtend(bstr32[31:0], GRLEN)
-#define BSTRPICK_W(rd, rj, msbw5, lsbw5) EMIT(type_2RI12(0b0000000001, 0b100000100000 | (msbw5 & 0x1F) << 6 | (lsbw5 & 0x1F), rj, rd))
+#define BSTRPICK_W(rd, rj, msbw5, lsbw5) EMIT(type_2RI12(0b0000000001, 0b100000100000 | ((msbw5) & 0x1F) << 6 | ((lsbw5) & 0x1F), rj, rd))
 
 // GR[rd] = ZeroExtend(GR[rj][msbd:lsbd], 64)
-#define BSTRPICK_D(rd, rj, msbd6, lsbd6) EMIT(type_2RI12(0b0000000011, (msbd6 & 0x3F) << 6 | (lsbd6 & 0x3F), rj, rd))
+#define BSTRPICK_D(rd, rj, msbd6, lsbd6) EMIT(type_2RI12(0b0000000011, ((msbd6) & 0x3F) << 6 | ((lsbd6) & 0x3F), rj, rd))
 
 // ZERO the upper part
 #define ZEROUP(rd) BSTRINS_D(rd, xZR, 63, 32);
