@@ -325,7 +325,7 @@ Elf64_Sym* ElfSymTabLookup(elfheader_t* h, const char* symname)
 {
     if(!h->SymTab)
         return 0;
-    for(int i=0; i<h->numSymTab; ++i) {
+    for(size_t i=0; i<h->numSymTab; ++i) {
         Elf64_Sym* sym = &h->SymTab[i];
         int type = ELF64_ST_TYPE(sym->st_info);
         if(type==STT_FUNC || type==STT_TLS || type==STT_OBJECT) {
@@ -341,7 +341,7 @@ Elf64_Sym* ElfDynSymLookup(elfheader_t* h, const char* symname)
 {
     if(!h->DynSym)
         return 0;
-    for(int i=0; i<h->numDynSym; ++i) {
+    for(size_t i=0; i<h->numDynSym; ++i) {
         Elf64_Sym* sym = &h->DynSym[i];
         int type = ELF64_ST_TYPE(sym->st_info);
         if(type==STT_FUNC || type==STT_TLS || type==STT_OBJECT) {
