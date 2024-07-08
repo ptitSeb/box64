@@ -26,23 +26,23 @@
 
 static uint8_t ff_mult(uint8_t a, uint8_t b)
 {
-	int retval = 0;
+    int retval = 0;
 
-	for(int i = 0; i < 8; i++) {
-		if((b & 1) == 1)
-			retval ^= a;
+    for(int i = 0; i < 8; i++) {
+        if((b & 1) == 1)
+            retval ^= a;
 
-		if((a & 0x80)) {
-			a <<= 1;
-			a  ^= 0x1b;
-		} else {
-			a <<= 1;
-		}
+        if((a & 0x80)) {
+            a <<= 1;
+            a  ^= 0x1b;
+        } else {
+            a <<= 1;
+        }
 
-		b >>= 1;
-	}
+        b >>= 1;
+    }
 
-	return retval;
+    return retval;
 }
 
 #ifdef TEST_INTERPRETER
@@ -816,7 +816,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 nextop = F8;
                 GETED(0);
                 GETGD;
-            	CHECK_FLAGS(emu);
+                CHECK_FLAGS(emu);
                 if(rex.w) {
                     if (ACCESS_FLAG(F_CF)) {
                         tmp64u = 1 + (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
@@ -834,7 +834,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         GD->q[0] = 1LL + GD->dword[0] + ED->dword[0];
                     else
                         GD->q[0] = (uint64_t)GD->dword[0] + ED->dword[0];
-                	CONDITIONAL_SET_FLAG(GD->q[0] & 0x100000000LL, F_CF);
+                    CONDITIONAL_SET_FLAG(GD->q[0] & 0x100000000LL, F_CF);
                 }
                 break;
             default:

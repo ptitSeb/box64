@@ -2798,7 +2798,7 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
     return readlinkat(fd, path, buf, bufsize);
 }
 #ifndef MAP_FIXED_NOREPLACE
-#define MAP_FIXED_NOREPLACE	0x200000
+#define MAP_FIXED_NOREPLACE 0x200000
 #endif
 #ifndef MAP_32BIT
 #define MAP_32BIT 0x40
@@ -3174,9 +3174,9 @@ EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)
 
 #if 0
 #ifdef PANDORA
-#define RENAME_NOREPLACE	(1 << 0)
-#define RENAME_EXCHANGE		(1 << 1)
-#define RENAME_WHITEOUT		(1 << 2)
+#define RENAME_NOREPLACE    (1 << 0)
+#define RENAME_EXCHANGE     (1 << 1)
+#define RENAME_WHITEOUT     (1 << 2)
 EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath, uint32_t flags)
 {
     // simulate that function, but
@@ -3209,8 +3209,8 @@ EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath
 #endif
 
 #ifndef __NR_memfd_create
-#define MFD_CLOEXEC		    0x0001U
-#define MFD_ALLOW_SEALING	0x0002U
+#define MFD_CLOEXEC         0x0001U
+#define MFD_ALLOW_SEALING   0x0002U
 EXPORT int my_memfd_create(x64emu_t* emu, void* name, uint32_t flags)
 {
     // try to simulate that function
@@ -3225,7 +3225,7 @@ EXPORT int my_memfd_create(x64emu_t* emu, void* name, uint32_t flags)
 #endif
 
 #ifndef GRND_RANDOM
-#define GRND_RANDOM	0x0002
+#define GRND_RANDOM 0x0002
 #endif
 EXPORT int my_getentropy(x64emu_t* emu, void* buffer, size_t length)
 {

@@ -14,7 +14,7 @@
 #define PN_XNUM (0xffff)
 #endif
 #ifndef DT_GNU_HASH
-#define DT_GNU_HASH	0x6ffffef5
+#define DT_GNU_HASH 0x6ffffef5
 #endif
 
 int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t type)

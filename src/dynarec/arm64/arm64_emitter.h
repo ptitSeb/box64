@@ -8,16 +8,16 @@
 /* 
     ARM64 Linux Call Convention
 
-SP	 	    The Stack Pointer.
-r30	LR	    The Link Register.
-r29	FP	    The Frame Pointer
-r19…r28	 	Callee-saved registers
-r18	 	    The Platform Register, if needed; otherwise a temporary register. See notes.
-r17	IP1	    The second intra-procedure-call temporary register (can be used by call veneers and PLT code); at other times may be used as a temporary register.
-r16	IP0	    The first intra-procedure-call scratch register (can be used by call veneers and PLT code); at other times may be used as a temporary register.
-r9…r15	 	Temporary registers
-r8	 	    Indirect result location register
-r0…r7	 	Parameter/result registers
+SP          The Stack Pointer.
+r30 LR      The Link Register.
+r29 FP      The Frame Pointer
+r19…r28     Callee-saved registers
+r18         The Platform Register, if needed; otherwise a temporary register. See notes.
+r17 IP1     The second intra-procedure-call temporary register (can be used by call veneers and PLT code); at other times may be used as a temporary register.
+r16 IP0     The first intra-procedure-call scratch register (can be used by call veneers and PLT code); at other times may be used as a temporary register.
+r9…r15      Temporary registers
+r8          Indirect result location register
+r0…r7       Parameter/result registers
 
 For SIMD:
 The first eight registers, v0-v7, are used to pass argument values into a subroutine and to return result values from a function. 
@@ -817,9 +817,9 @@ int convert_bitmask(uint64_t bitmask);
 #define MSR_fpsr(Rt)                    EMIT(MRS_gen(0, 1, 3, 4, 4, 1, Rt))
 // mrs   x0, cntvct_el0     op0=0b11 op1=0b011 CRn=0b1110 CRm=0b0000 op2=0b010
 #define MRS_cntvct_el0(Rt)              EMIT(MRS_gen(1, 1, 0b011, 0b1110, 0b0000, 0b010, Rt))
-// mrs   x0, cntpctss_el0     op0=0b11 op1=0b011 CRn=0b1110 CRm=0b0000 op2=0b101
+// mrs   x0, cntpctss_el0   op0=0b11 op1=0b011 CRn=0b1110 CRm=0b0000 op2=0b101
 #define MRS_cntpctss_el0(Rt)            EMIT(MRS_gen(1, 1, 0b011, 0b1110, 0b0000, 0b101, Rt))
-// mrs   rt, rndr           op0=0b11	op1=0b011	CRn=0b0010	CRm=0b0100	op2=0b000
+// mrs   rt, rndr           op0=0b11 op1=0b011 CRn=0b0010 CRm=0b0100 op2=0b000
 #define MRS_rndr(Rt)                    EMIT(MRS_gen(1, 1, 0b011, 0b0010, 0b0100, 0b000, Rt))
 // NEON Saturation Bit
 #define FPSR_QC 27
@@ -1725,8 +1725,8 @@ int convert_bitmask(uint64_t bitmask);
 #define VCHIQQ_64(Rd, Rn, Rm)       EMIT(CMG_vector(1, 1, 0b11, 0, Rm, Rn, Rd))
 
 // Less Than 0
-#define CMLT_0_vector(Q, size, Rn, Rd)		((Q)<<30 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b01010<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
-#define CMLT_0_8(Rd, Rn)		    EMIT(CMLT_0_vector(0, 0b00, Rn, Rd))
+#define CMLT_0_vector(Q, size, Rn, Rd)      ((Q)<<30 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | 0b01010<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
+#define CMLT_0_8(Rd, Rn)            EMIT(CMLT_0_vector(0, 0b00, Rn, Rd))
 #define CMLT_0_16(Rd, Rn)           EMIT(CMLT_0_vector(0, 0b01, Rn, Rd))
 #define CMLT_0_32(Rd, Rn)           EMIT(CMLT_0_vector(0, 0b10, Rn, Rd))
 #define CMLTQ_0_8(Rd, Rn)           EMIT(CMLT_0_vector(1, 0b00, Rn, Rd))

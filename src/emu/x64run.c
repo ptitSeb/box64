@@ -275,7 +275,7 @@ x64emurun:
                 goto fini;
             }
             break;
-	    case 0x2E:	    /* segments are ignored */
+        case 0x2E:          /* segments are ignored */
         case 0x26:
         case 0x36:          /* SS: (ignored) */
             break;

@@ -516,7 +516,7 @@ void UnalignStat64(const void* source, void* dest)
     struct stat *st = (struct stat*) source;
     
     x64st->__pad0 = 0;
-	memset(x64st->__glibc_reserved, 0, sizeof(x64st->__glibc_reserved));
+    memset(x64st->__glibc_reserved, 0, sizeof(x64st->__glibc_reserved));
     x64st->st_dev      = st->st_dev;
     x64st->st_ino      = st->st_ino;
     x64st->st_mode     = st->st_mode;

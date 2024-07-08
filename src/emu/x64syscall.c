@@ -367,23 +367,23 @@ typedef struct old_utsname_s {
 } old_utsname_t;
 
 //struct x86_pt_regs {
-//	long ebx;
-//	long ecx;
-//	long edx;
-//	long esi;
-//	long edi;
-//	long ebp;
-//	long eax;
-//	int  xds;
-//	int  xes;
-//	int  xfs;
-//	int  xgs;
-//	long orig_eax;
-//	long eip;
-//	int  xcs;
-//	long eflags;
-//	long esp;
-//	int  xss;
+//    long ebx;
+//    long ecx;
+//    long edx;
+//    long esi;
+//    long edi;
+//    long ebp;
+//    long eax;
+//    int  xds;
+//    int  xes;
+//    int  xfs;
+//    int  xgs;
+//    long orig_eax;
+//    long eip;
+//    int  xcs;
+//    long eflags;
+//    long esp;
+//    int  xss;
 //};
 
 static int clone_fn(void* arg)
@@ -657,11 +657,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #endif
         #ifndef __NR_rename
-	    case 82: // sys_rename
-    	    S_RAX = rename((void*)R_RDI, (void*)R_RSI);
+        case 82: // sys_rename
+            S_RAX = rename((void*)R_RDI, (void*)R_RSI);
             if(S_RAX==-1)
                 S_RAX = -errno;
-	    break;
+        break;
         #endif
         #ifndef __NR_mkdir
         case 83: // sys_mkdir

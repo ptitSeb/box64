@@ -31,9 +31,9 @@ uint32_t X31_hash_code(void* addr, int len)
 {
     if(!len) return 0;
     uint8_t* p = (uint8_t*)addr;
-	int32_t h = *p;
-	for (--len, ++p; len; --len, ++p) h = (h << 5) - h + (int32_t)*p;
-	return (uint32_t)h;
+    int32_t h = *p;
+    for (--len, ++p; len; --len, ++p) h = (h << 5) - h + (int32_t)*p;
+    return (uint32_t)h;
 }
 
 dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)

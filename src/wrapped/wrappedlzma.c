@@ -26,30 +26,30 @@ const char* lzmaName = "liblzma.so.5";
 #include "wrappercallback.h"
 
 typedef struct lzma_allocator_s {
-	void *(*alloc)(void *opaque, size_t nmemb, size_t size);
-	void (*free)(void *opaque, void *ptr);
-	void *opaque;
+    void *(*alloc)(void *opaque, size_t nmemb, size_t size);
+    void (*free)(void *opaque, void *ptr);
+    void *opaque;
 } lzma_allocator_t;
 
 typedef struct lzma_stream_s {
-	const uint8_t *next_in;
-	size_t avail_in;
-	uint64_t total_in;
-	uint8_t *next_out;
-	size_t avail_out;
-	uint64_t total_out;
-	lzma_allocator_t *allocator;
-	void* internal;
-	void *reserved_ptr1;
-	void *reserved_ptr2;
-	void *reserved_ptr3;
-	void *reserved_ptr4;
-	uint64_t reserved_int1;
-	uint64_t reserved_int2;
-	size_t reserved_int3;
-	size_t reserved_int4;
-	int reserved_enum1;
-	int reserved_enum2;
+    const uint8_t *next_in;
+    size_t avail_in;
+    uint64_t total_in;
+    uint8_t *next_out;
+    size_t avail_out;
+    uint64_t total_out;
+    lzma_allocator_t *allocator;
+    void* internal;
+    void *reserved_ptr1;
+    void *reserved_ptr2;
+    void *reserved_ptr3;
+    void *reserved_ptr4;
+    uint64_t reserved_int1;
+    uint64_t reserved_int2;
+    size_t reserved_int3;
+    size_t reserved_int4;
+    int reserved_enum1;
+    int reserved_enum2;
 } lzma_stream_t;
 
 #define SUPER() \

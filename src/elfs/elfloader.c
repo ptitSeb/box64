@@ -941,7 +941,7 @@ uintptr_t GetLastByte(elfheader_t* h)
 }
 
 #ifndef STB_GNU_UNIQUE
-#define STB_GNU_UNIQUE	10
+#define STB_GNU_UNIQUE 10
 #endif
 
 void checkHookedSymbols(elfheader_t* h); // in mallochook.c
