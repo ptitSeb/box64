@@ -10,4 +10,13 @@ override_dh_auto_configure:
 		  -DNOGIT=1
 
 override_dh_shlibdeps:
-	dh_shlibdeps --exclude=libgcc_s.so.1 --exclude=libpng12.so.0 --exclude=libstdc++.so.5 --exclude=libstdc++.so.6
+	dh_shlibdeps --exclude=libgcc_s.so.1 \
+	--exclude=libpng12.so.0 \
+	--exclude=libstdc++.so.5 \
+	--exclude=libstdc++.so.6 \
+	--exclude=libmbedcrypto.so.7 \
+	--exclude=libssl.so.1.1 \
+	--exclude=libunwind.so.8 \
+	--exclude=libmbedtls.so.14 \
+	--exclude=libcrypto.so.1.1 \
+	--exclude=libmbedx509.so.1
