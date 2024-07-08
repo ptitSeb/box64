@@ -19,4 +19,6 @@ override_dh_shlibdeps:
 	--exclude=libunwind.so.8 \
 	--exclude=libmbedtls.so.14 \
 	--exclude=libcrypto.so.1.1 \
-	--exclude=libmbedx509.so.1
+	--exclude=libmbedx509.so.1 \
+	--exclude=libcrypto.so.1.0.0 \
+	--exclude=libssl.1.0.0
