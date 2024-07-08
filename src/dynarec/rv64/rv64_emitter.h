@@ -965,11 +965,16 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Single-bit Set (Immediate)
 #define BSETI(rd, rs1, imm) EMIT(R_type(0b0010100, imm, rs1, 0b001, rd, 0b0010011))
 
-// Single-bit Extract (Register), s0 can be the same as rs2
+// Single-bit Extract (Register)
 #define BEXT(rd, rs1, rs2, s0)              \
-    if (rv64_zbs)                           \
-        BEXT_(rd, rs1, rs2);                \
-    else {                                  \
+    if (rv64_zbs) {                         \
+        if (rex.w) {                        \
+            BEXT_(rd, rs1, rs2);            \
+        } else {                            \
+            ANDI(s0, rs2, 0x1f);            \
+            BEXT_(rd, rs1, s0);             \
+        }                                   \
+    } else {                                \
         ANDI(s0, rs2, rex.w ? 0x3f : 0x1f); \
         SRL(rd, rs1, s0);                   \
         ANDI(rd, rd, 1);                    \
