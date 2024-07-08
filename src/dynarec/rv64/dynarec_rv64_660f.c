@@ -2463,9 +2463,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ed = x1;
                 wback = x3;
             }
-            if (rv64_zbs)
-                BEXT_(x4, ed, gd);
-            else {
+            if (rv64_zbs) {
+                if (rex.w) {
+                    BEXT_(x4, ed, gd);
+                } else {
+                    ANDI(x2, gd, 0xf);
+                    BEXT_(x4, ed, x2);
+                }
+            } else {
                 ANDI(x2, gd, rex.w ? 0x3f : 0xf);
                 SRL(x4, ed, x2);
                 ANDI(x4, x4, 1);
