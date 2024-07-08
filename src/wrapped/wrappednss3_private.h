@@ -330,7 +330,7 @@ GO(NSS_Get_SECKEY_RSAPSSParamsTemplate, pFpi)
 //GO(NSS_Get_SEC_UTF8StringTemplate, 
 GO(NSS_Get_sgn_DigestInfoTemplate, pFpi)
 GO(NSS_GetVersion, pFv)
-//GO(NSS_Init, 
+GO(NSS_Init, iFp)
 GO(NSS_InitContext, pFpppppu)
 GO(NSS_Initialize, iFppppu)
 //GO(__nss_InitLock, 
