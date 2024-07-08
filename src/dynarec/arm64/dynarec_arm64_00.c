@@ -760,7 +760,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 INST_NAME("BOUND Gd, Ed");
                 nextop = F8;
-                FAKEED(0);
+                FAKEED;
             }
             break;
         case 0x63:

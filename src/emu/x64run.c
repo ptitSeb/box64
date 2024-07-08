@@ -65,10 +65,10 @@ int Run(x64emu_t *emu, int step)
     //ref opcode: http://ref.x64asm.net/geek32.html#xA1
     printf_log(LOG_DEBUG, "Run X86 (%p), RIP=%p, Stack=%p is32bits=%d\n", emu, (void*)addr, (void*)R_RSP, is32bits);
 
-x64emurun:
 #ifdef TEST_INTERPRETER
     test->memsize = 0;
 #else
+x64emurun:
     while(1) 
 #endif
     {
