@@ -112,18 +112,18 @@ f28–31  ft8–11  FP temporaries                  Caller
 // MOV64x/MOV32w is quite complex, so use a function for this
 #define MOV64x(A, B) rv64_move64(dyn, ninst, A, B)
 #define MOV32w(A, B) rv64_move32(dyn, ninst, A, B, 1)
-#define MOV64xw(A, B) \
+#define MOV64xw(A, B) do { \
     if (rex.w) {      \
         MOV64x(A, B); \
     } else {          \
         MOV32w(A, B); \
-    }
-#define MOV64z(A, B)    \
+    } } while (0)
+#define MOV64z(A, B) do { \
     if (rex.is32bits) { \
         MOV32w(A, B);   \
     } else {            \
         MOV64x(A, B);   \
-    }
+    } } while (0)
 
 // ZERO the upper part
 #define ZEROUP(r) AND(r, r, xMASK)
@@ -225,19 +225,19 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 (pseudo instruction)
 #define MV(rd, rs1) ADDI(rd, rs1, 0)
 // rd = rs1 (pseudo instruction)
-#define MVxw(rd, rs1)        \
+#define MVxw(rd, rs1) do {   \
     if (rex.w) {             \
         MV(rd, rs1);         \
     } else {                 \
         AND(rd, rs1, xMASK); \
-    }
+    } } while (0)
 // rd = rs1 (pseudo instruction)
-#define MVz(rd, rs1)         \
+#define MVz(rd, rs1) do {    \
     if (rex.is32bits) {      \
         AND(rd, rs1, xMASK); \
     } else {                 \
         MV(rd, rs1);         \
-    }
+    } } while (0)
 // rd = !rs1
 #define NOT(rd, rs1) XORI(rd, rs1, -1)
 // rd = -rs1
@@ -452,60 +452,60 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1>>rs2 arithmetic
 #define SRAW(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0111011))
 
-#define SLLxw(rd, rs1, rs2) \
-    if (rex.w) {            \
-        SLL(rd, rs1, rs2);  \
-    } else {                \
-        SLLW(rd, rs1, rs2); \
-        ZEROUP(rd);         \
-    }
+#define SLLxw(rd, rs1, rs2) do { \
+    if (rex.w) {                 \
+        SLL(rd, rs1, rs2);       \
+    } else {                     \
+        SLLW(rd, rs1, rs2);      \
+        ZEROUP(rd);              \
+    } } while (0)
 
-#define SRLxw(rd, rs1, rs2) \
-    if (rex.w) {            \
-        SRL(rd, rs1, rs2);  \
-    } else {                \
-        SRLW(rd, rs1, rs2); \
-        ZEROUP(rd);         \
-    }
+#define SRLxw(rd, rs1, rs2) do { \
+    if (rex.w) {                 \
+        SRL(rd, rs1, rs2);       \
+    } else {                     \
+        SRLW(rd, rs1, rs2);      \
+        ZEROUP(rd);              \
+    } } while (0)
 
-#define SRAxw(rd, rs1, rs2) \
-    if (rex.w) {            \
-        SRA(rd, rs1, rs2);  \
-    } else {                \
-        SRAW(rd, rs1, rs2); \
-        ZEROUP(rd);         \
-    }
+#define SRAxw(rd, rs1, rs2) do { \
+    if (rex.w) {                 \
+        SRA(rd, rs1, rs2);       \
+    } else {                     \
+        SRAW(rd, rs1, rs2);      \
+        ZEROUP(rd);              \
+    } } while (0)
 
 // Shift Left Immediate, 32-bit, sign-extended
 #define SLLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b001, rd, 0b0011011))
 // Shift Left Immediate
-#define SLLIxw(rd, rs1, imm) \
-    if (rex.w) {             \
-        SLLI(rd, rs1, imm);  \
-    } else {                 \
-        SLLIW(rd, rs1, imm); \
-        ZEROUP(rd);          \
-    }
+#define SLLIxw(rd, rs1, imm) do { \
+    if (rex.w) {                  \
+        SLLI(rd, rs1, imm);       \
+    } else {                      \
+        SLLIW(rd, rs1, imm);      \
+        ZEROUP(rd);               \
+    } } while (0)
 // Shift Right Logical Immediate, 32-bit, sign-extended
 #define SRLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm)        \
+#define SRLIxw(rd, rs1, imm) do {   \
     if (rex.w) {                    \
         SRLI(rd, rs1, imm);         \
     } else {                        \
         SRLIW(rd, rs1, imm);        \
         if ((imm) == 0) ZEROUP(rd); \
-    }
+    } } while (0)
 // Shift Right Arithmetic Immediate, 32-bit, sign-extended
 #define SRAIW(rd, rs1, imm5) EMIT(I_type((imm5) | (0b0100000 << 5), rs1, 0b101, rd, 0b0011011))
 // Shift Right Arithmetic Immediate
-#define SRAIxw(rd, rs1, imm) \
-    if (rex.w) {             \
-        SRAI(rd, rs1, imm);  \
-    } else {                 \
-        SRAIW(rd, rs1, imm); \
-        ZEROUP(rd);          \
-    }
+#define SRAIxw(rd, rs1, imm) do { \
+    if (rex.w) {                  \
+        SRAI(rd, rs1, imm);       \
+    } else {                      \
+        SRAIW(rd, rs1, imm);      \
+        ZEROUP(rd);               \
+    } } while (0)
 
 #define CSRRW(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b001, rd, 0b1110011))
 #define CSRRS(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b010, rd, 0b1110011))

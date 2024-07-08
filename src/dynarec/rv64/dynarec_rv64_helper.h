@@ -392,7 +392,7 @@
         ANDI(gd, gb1, 0xff);
 
 // Write gb (gd) back to original register / memory, using s1 as scratch
-#define GBBACK(s1)                        \
+#define GBBACK(s1) do {                   \
     if (gb2) {                            \
         MOV64x(s1, 0xffffffffffff00ffLL); \
         AND(gb1, gb1, s1);                \
@@ -401,7 +401,7 @@
     } else {                              \
         ANDI(gb1, gb1, ~0xff);            \
         OR(gb1, gb1, gd);                 \
-    }
+    } } while (0)
 
 // Write eb (ed) back to original register / memory, using s1 as scratch
 #define EBBACK(s1, c)                     \

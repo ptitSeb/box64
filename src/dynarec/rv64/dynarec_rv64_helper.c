@@ -954,7 +954,7 @@ void x87_do_push_empty(dynarec_rv64_t* dyn, int ninst, int s1)
     if(s1)
         x87_stackcount(dyn, ninst, s1);
 }
-void static internal_x87_dopop(dynarec_rv64_t* dyn)
+static void internal_x87_dopop(dynarec_rv64_t* dyn)
 {
     for(int i=0; i<8; ++i)
         if(dyn->e.x87cache[i]!=-1) {
@@ -965,7 +965,7 @@ void static internal_x87_dopop(dynarec_rv64_t* dyn)
             }
         }
 }
-int static internal_x87_dofree(dynarec_rv64_t* dyn)
+static int internal_x87_dofree(dynarec_rv64_t* dyn)
 {
     if(dyn->e.tags&0b11) {
         MESSAGE(LOG_DUMP, "\t--------x87 FREED ST0, poping 1 more\n");

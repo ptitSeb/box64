@@ -623,10 +623,9 @@ static inline uint64_t readCycleCounter()
 static inline uint64_t readFreq()
 {
     static size_t val = -1;
-    if (val != -1) return val;
 
     val = readBinarySizeFromFile("/sys/firmware/devicetree/base/cpus/timebase-frequency");
-    if (val != -1) return val;
+    if (val != (size_t)-1) return val;
 
     // fallback to rdtime + sleep
     struct timespec ts;
