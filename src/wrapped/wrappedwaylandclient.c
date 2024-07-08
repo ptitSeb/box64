@@ -41,13 +41,13 @@ typedef struct my_wl_registry_listener_s {
 } my_wl_registry_listener_t;
 #define GO(A)   \
 static my_wl_registry_listener_t* ref_wl_registry_listener_##A = NULL;                              \
-static void* my_wl_registry_listener_global_##A(void* a, void* b, uint32_t c, void* d, uint32_t e)  \
+static void my_wl_registry_listener_global_##A(void* a, void* b, uint32_t c, void* d, uint32_t e)   \
 {                                                                                                   \
-    return (void*)RunFunctionFmt(ref_wl_registry_listener_##A->global, "ppupu", a, b, c, d, e);     \
+    RunFunctionFmt(ref_wl_registry_listener_##A->global, "ppupu", a, b, c, d, e);                   \
 }                                                                                                   \
-static void* my_wl_registry_listener_global_remove_##A(void* a, void* b, uint32_t c)                \
+static void my_wl_registry_listener_global_remove_##A(void* a, void* b, uint32_t c)                 \
 {                                                                                                   \
-    return (void*)RunFunctionFmt(ref_wl_registry_listener_##A->global_remove, "ppu", a, b, c);      \
+    RunFunctionFmt(ref_wl_registry_listener_##A->global_remove, "ppu", a, b, c);                    \
 }                                                                                                   \
 static my_wl_registry_listener_t my_wl_registry_listener_fct_##A = {                                \
     (uintptr_t)my_wl_registry_listener_global_##A,                                                  \
@@ -74,13 +74,13 @@ typedef struct my_xdg_surface_listener_s {
 } my_xdg_surface_listener_t;
 #define GO(A)   \
 static my_xdg_surface_listener_t* ref_xdg_surface_listener_##A = NULL;                                  \
-static void* my_xdg_surface_listener_configure_##A(void* a, void* b, int c, int d, void* e, uint32_t f) \
+static void my_xdg_surface_listener_configure_##A(void* a, void* b, int c, int d, void* e, uint32_t f)  \
 {                                                                                                       \
-    return (void*)RunFunctionFmt(ref_xdg_surface_listener_##A->configure, "ppiipu", a, b, c, d, e, f);  \
+    RunFunctionFmt(ref_xdg_surface_listener_##A->configure, "ppiipu", a, b, c, d, e, f);                \
 }                                                                                                       \
-static void* my_xdg_surface_listener_close_##A(void* a, void* b)                                        \
+static void my_xdg_surface_listener_close_##A(void* a, void* b)                                         \
 {                                                                                                       \
-    return (void*)RunFunctionFmt(ref_xdg_surface_listener_##A->close, "pp", a, b);                      \
+    RunFunctionFmt(ref_xdg_surface_listener_##A->close, "pp", a, b);                                    \
 }                                                                                                       \
 static my_xdg_surface_listener_t my_xdg_surface_listener_fct_##A = {                                    \
     (uintptr_t)my_xdg_surface_listener_configure_##A,                                                   \
@@ -107,13 +107,13 @@ typedef struct my_xdg_toplevel_listener_s {
 } my_xdg_toplevel_listener_t;
 #define GO(A)   \
 static my_xdg_toplevel_listener_t* ref_xdg_toplevel_listener_##A = NULL;                            \
-static void* my_xdg_toplevel_listener_configure_##A(void* a, void* b, int c, int d, void* e)        \
+static void my_xdg_toplevel_listener_configure_##A(void* a, void* b, int c, int d, void* e)         \
 {                                                                                                   \
-    return (void*)RunFunctionFmt(ref_xdg_toplevel_listener_##A->configure, "ppiip", a, b, c, d, e); \
+    RunFunctionFmt(ref_xdg_toplevel_listener_##A->configure, "ppiip", a, b, c, d, e);               \
 }                                                                                                   \
-static void* my_xdg_toplevel_listener_close_##A(void* a, void* b)                                   \
+static void my_xdg_toplevel_listener_close_##A(void* a, void* b)                                    \
 {                                                                                                   \
-    return (void*)RunFunctionFmt(ref_xdg_toplevel_listener_##A->close, "pp", a, b);                 \
+    RunFunctionFmt(ref_xdg_toplevel_listener_##A->close, "pp", a, b);                               \
 }                                                                                                   \
 static my_xdg_toplevel_listener_t my_xdg_toplevel_listener_fct_##A = {                              \
     (uintptr_t)my_xdg_toplevel_listener_configure_##A,                                              \
@@ -139,9 +139,9 @@ typedef struct my_xdg_wm_base_listener_s {
 } my_xdg_wm_base_listener_t;
 #define GO(A)   \
 static my_xdg_wm_base_listener_t* ref_xdg_wm_base_listener_##A = NULL;                \
-static void* my_xdg_wm_base_listener_ping_##A(void* a, void* b, uint32_t c)           \
+static void my_xdg_wm_base_listener_ping_##A(void* a, void* b, uint32_t c)            \
 {                                                                                     \
-    return (void*)RunFunctionFmt(ref_xdg_wm_base_listener_##A->ping, "ppu", a, b, c); \
+    RunFunctionFmt(ref_xdg_wm_base_listener_##A->ping, "ppu", a, b, c);               \
 }                                                                                     \
 static my_xdg_wm_base_listener_t my_xdg_wm_base_listener_fct_##A = {                  \
     (uintptr_t)my_xdg_wm_base_listener_ping_##A,                                      \
@@ -166,9 +166,9 @@ typedef struct my_wl_shm_listener_s {
 } my_wl_shm_listener_t;
 #define GO(A)   \
 static my_wl_shm_listener_t* ref_wl_shm_listener_##A = NULL;                       \
-static void* my_wl_shm_listener_format_##A(void* a, void* b, uint32_t c)           \
+static void my_wl_shm_listener_format_##A(void* a, void* b, uint32_t c)            \
 {                                                                                  \
-    return (void*)RunFunctionFmt(ref_wl_shm_listener_##A->format, "ppu", a, b, c); \
+    RunFunctionFmt(ref_wl_shm_listener_##A->format, "ppu", a, b, c);               \
 }                                                                                  \
 static my_wl_shm_listener_t my_wl_shm_listener_fct_##A = {                         \
     (uintptr_t)my_wl_shm_listener_format_##A,                                      \
@@ -198,29 +198,29 @@ typedef struct my_wl_output_listener_s {
 } my_wl_output_listener_t;
 #define GO(A)   \
 static my_wl_output_listener_t* ref_wl_output_listener_##A = NULL;                                                            \
-static void* my_wl_output_listener_geometry_##A(void* a, void* b, int c, int d, int e, int f, int g, void* h, void* i, int j) \
+static void my_wl_output_listener_geometry_##A(void* a, void* b, int c, int d, int e, int f, int g, void* h, void* i, int j)  \
 {                                                                                                                             \
-    return (void*)RunFunctionFmt(ref_wl_output_listener_##A->geometry, "ppiiiiippi", a, b, c, d, e, f, g, h, i, j);           \
+    RunFunctionFmt(ref_wl_output_listener_##A->geometry, "ppiiiiippi", a, b, c, d, e, f, g, h, i, j);                         \
 }                                                                                                                             \
-static void* my_wl_output_listener_mode_##A(void* a, void* b, uint32_t c, int d, int e, int f)                                \
+static void my_wl_output_listener_mode_##A(void* a, void* b, uint32_t c, int d, int e, int f)                                 \
 {                                                                                                                             \
-    return (void*)RunFunctionFmt(ref_wl_output_listener_##A->mode, "ppuiii", a, b, c, d, e, f);                               \
+    RunFunctionFmt(ref_wl_output_listener_##A->mode, "ppuiii", a, b, c, d, e, f);                                             \
 }                                                                                                                             \
-static void* my_wl_output_listener_done_##A(void* a, void* b)                                                                 \
+static void my_wl_output_listener_done_##A(void* a, void* b)                                                                  \
 {                                                                                                                             \
-    return (void*)RunFunctionFmt(ref_wl_output_listener_##A->done, "pp", a, b);                                               \
+    RunFunctionFmt(ref_wl_output_listener_##A->done, "pp", a, b);                                                             \
 }                                                                                                                             \
-static void* my_wl_output_listener_scale_##A(void* a, void* b, int c)                                                         \
+static void my_wl_output_listener_scale_##A(void* a, void* b, int c)                                                          \
 {                                                                                                                             \
-    return (void*)RunFunctionFmt(ref_wl_output_listener_##A->scale, "ppi", a, b, c);                                          \
+    RunFunctionFmt(ref_wl_output_listener_##A->scale, "ppi", a, b, c);                                                        \
 }                                                                                                                             \
-static void* my_wl_output_listener_name_##A(void* a, void* b, void* c)                                                        \
+static void my_wl_output_listener_name_##A(void* a, void* b, void* c)                                                         \
 {                                                                                                                             \
-    return (void*)RunFunctionFmt(ref_wl_output_listener_##A->name, "ppp", a, b, c);                                           \
+    RunFunctionFmt(ref_wl_output_listener_##A->name, "ppp", a, b, c);                                                         \
 }                                                                                                                             \
-static void* my_wl_output_listener_description_##A(void* a, void* b, void* c)                                                 \
+static void my_wl_output_listener_description_##A(void* a, void* b, void* c)                                                  \
 {                                                                                                                             \
-    return (void*)RunFunctionFmt(ref_wl_output_listener_##A->description, "ppp", a, b, c);                                    \
+    RunFunctionFmt(ref_wl_output_listener_##A->description, "ppp", a, b, c);                                                  \
 }                                                                                                                             \
 static my_wl_output_listener_t my_wl_output_listener_fct_##A = {                                                              \
     (uintptr_t)my_wl_output_listener_geometry_##A,                                                                            \
@@ -251,13 +251,13 @@ typedef struct my_wl_seat_listener_s {
 } my_wl_seat_listener_t;
 #define GO(A)   \
 static my_wl_seat_listener_t* ref_wl_seat_listener_##A = NULL;                            \
-static void* my_wl_seat_listener_capabilities_##A(void* a, void* b, uint32_t c)           \
+static void my_wl_seat_listener_capabilities_##A(void* a, void* b, uint32_t c)            \
 {                                                                                         \
-    return (void*)RunFunctionFmt(ref_wl_seat_listener_##A->capabilities, "ppu", a, b, c); \
+    RunFunctionFmt(ref_wl_seat_listener_##A->capabilities, "ppu", a, b, c);               \
 }                                                                                         \
-static void* my_wl_seat_listener_name_##A(void* a, void* b, void* c)                      \
+static void my_wl_seat_listener_name_##A(void* a, void* b, void* c)                       \
 {                                                                                         \
-    return (void*)RunFunctionFmt(ref_wl_seat_listener_##A->name, "ppp", a, b, c);         \
+    RunFunctionFmt(ref_wl_seat_listener_##A->name, "ppp", a, b, c);                       \
 }                                                                                         \
 static my_wl_seat_listener_t my_wl_seat_listener_fct_##A = {                              \
     (uintptr_t)my_wl_seat_listener_capabilities_##A,                                      \
@@ -293,49 +293,49 @@ typedef struct my_wl_pointer_listener_s {
 } my_wl_pointer_listener_t;
 #define GO(A)   \
 static my_wl_pointer_listener_t* ref_wl_pointer_listener_##A = NULL;                                             \
-static void* my_wl_pointer_listener_enter_##A(void* a, void* b, uint32_t c, void* d, int e, int f)               \
+static void my_wl_pointer_listener_enter_##A(void* a, void* b, uint32_t c, void* d, int e, int f)                \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->enter, "ppupii", a, b, c, d, e, f);                \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->enter, "ppupii", a, b, c, d, e, f);                              \
 }                                                                                                                \
-static void* my_wl_pointer_listener_leave_##A(void* a, void* b, uint32_t c, void* d)                             \
+static void my_wl_pointer_listener_leave_##A(void* a, void* b, uint32_t c, void* d)                              \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->leave, "ppup", a, b, c, d);                        \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->leave, "ppup", a, b, c, d);                                      \
 }                                                                                                                \
-static void* my_wl_pointer_listener_motion_##A(void* a, void* b, uint32_t c, int d, int e)                       \
+static void my_wl_pointer_listener_motion_##A(void* a, void* b, uint32_t c, int d, int e)                        \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->motion, "ppuii", a, b, c, d, e);                   \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->motion, "ppuii", a, b, c, d, e);                                 \
 }                                                                                                                \
-static void* my_wl_pointer_listener_button_##A(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, uint32_t f) \
+static void my_wl_pointer_listener_button_##A(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, uint32_t f)  \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->button, "ppuuuu", a, b, c, d, e, f);               \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->button, "ppuuuu", a, b, c, d, e, f);                             \
 }                                                                                                                \
-static void* my_wl_pointer_listener_axis_##A(void* a, void* b, uint32_t c, uint32_t d, int e)                    \
+static void my_wl_pointer_listener_axis_##A(void* a, void* b, uint32_t c, uint32_t d, int e)                     \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->axis, "ppuui", a, b, c, d, e);                     \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->axis, "ppuui", a, b, c, d, e);                                   \
 }                                                                                                                \
-static void* my_wl_pointer_listener_frame_##A(void* a, void* b)                                                  \
+static void my_wl_pointer_listener_frame_##A(void* a, void* b)                                                   \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->frame, "pp", a, b);                                \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->frame, "pp", a, b);                                              \
 }                                                                                                                \
-static void* my_wl_pointer_listener_axis_source_##A(void* a, void* b, uint32_t c)                                \
+static void my_wl_pointer_listener_axis_source_##A(void* a, void* b, uint32_t c)                                 \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->axis_source, "ppu", a, b, c);                      \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->axis_source, "ppu", a, b, c);                                    \
 }                                                                                                                \
-static void* my_wl_pointer_listener_axis_stop_##A(void* a, void* b, uint32_t c, uint32_t d)                      \
+static void my_wl_pointer_listener_axis_stop_##A(void* a, void* b, uint32_t c, uint32_t d)                       \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->axis_stop, "ppuu", a, b, c, d);                    \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->axis_stop, "ppuu", a, b, c, d);                                  \
 }                                                                                                                \
-static void* my_wl_pointer_listener_axis_discrete_##A(void* a, void* b, uint32_t c, int d)                       \
+static void my_wl_pointer_listener_axis_discrete_##A(void* a, void* b, uint32_t c, int d)                        \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->axis_discrete, "ppui", a, b, c, d);                \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->axis_discrete, "ppui", a, b, c, d);                              \
 }                                                                                                                \
-static void* my_wl_pointer_listener_axis_value120_##A(void* a, void* b, uint32_t c, int d)                       \
+static void my_wl_pointer_listener_axis_value120_##A(void* a, void* b, uint32_t c, int d)                        \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->axis_value120, "ppui", a, b, c, d);                \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->axis_value120, "ppui", a, b, c, d);                              \
 }                                                                                                                \
-static void* my_wl_pointer_listener_axis_relative_direction_##A(void* a, void* b, uint32_t c, uint32_t d)        \
+static void my_wl_pointer_listener_axis_relative_direction_##A(void* a, void* b, uint32_t c, uint32_t d)         \
 {                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_pointer_listener_##A->axis_relative_direction, "ppuu", a, b, c, d);      \
+    RunFunctionFmt(ref_wl_pointer_listener_##A->axis_relative_direction, "ppuu", a, b, c, d);                    \
 }                                                                                                                \
 static my_wl_pointer_listener_t my_wl_pointer_listener_fct_##A = {                                               \
     (uintptr_t)my_wl_pointer_listener_enter_##A,                                                                 \
@@ -375,29 +375,29 @@ typedef struct my_wl_keyboard_listener_s {
 } my_wl_keyboard_listener_t;
 #define GO(A)   \
 static my_wl_keyboard_listener_t* ref_wl_keyboard_listener_##A = NULL;                                                           \
-static void* my_wl_keyboard_listener_keymap_##A(void* a, void* b, uint32_t c, int d, uint32_t e)                                 \
+static void my_wl_keyboard_listener_keymap_##A(void* a, void* b, uint32_t c, int d, uint32_t e)                                  \
 {                                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_keyboard_listener_##A->keymap, "ppuiu", a, b, c, d, e);                                  \
+    RunFunctionFmt(ref_wl_keyboard_listener_##A->keymap, "ppuiu", a, b, c, d, e);                                                \
 }                                                                                                                                \
-static void* my_wl_keyboard_listener_enter_##A(void* a, void* b, uint32_t c, void* d)                                            \
+static void my_wl_keyboard_listener_enter_##A(void* a, void* b, uint32_t c, void* d)                                             \
 {                                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_keyboard_listener_##A->enter, "ppup", a, b, c, d);                                       \
+    RunFunctionFmt(ref_wl_keyboard_listener_##A->enter, "ppup", a, b, c, d);                                                     \
 }                                                                                                                                \
-static void* my_wl_keyboard_listener_leave_##A(void* a, void* b, uint32_t c, void* d)                                            \
+static void my_wl_keyboard_listener_leave_##A(void* a, void* b, uint32_t c, void* d)                                             \
 {                                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_keyboard_listener_##A->leave, "ppup", a, b, c, d);                                       \
+    RunFunctionFmt(ref_wl_keyboard_listener_##A->leave, "ppup", a, b, c, d);                                                     \
 }                                                                                                                                \
-static void* my_wl_keyboard_listener_key_##A(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g)       \
+static void my_wl_keyboard_listener_key_##A(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g)        \
 {                                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_keyboard_listener_##A->key, "ppuuuuu", a, b, c, d, e, f, g);                             \
+    RunFunctionFmt(ref_wl_keyboard_listener_##A->key, "ppuuuuu", a, b, c, d, e, f, g);                                           \
 }                                                                                                                                \
-static void* my_wl_keyboard_listener_modifiers_##A(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g) \
+static void my_wl_keyboard_listener_modifiers_##A(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g)  \
 {                                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_keyboard_listener_##A->modifiers, "ppuuuuu", a, b, c, d, e, f, g);                       \
+    RunFunctionFmt(ref_wl_keyboard_listener_##A->modifiers, "ppuuuuu", a, b, c, d, e, f, g);                                     \
 }                                                                                                                                \
-static void* my_wl_keyboard_listener_repeat_info_##A(void* a, void* b, int c, int d)                                             \
+static void my_wl_keyboard_listener_repeat_info_##A(void* a, void* b, int c, int d)                                              \
 {                                                                                                                                \
-    return (void*)RunFunctionFmt(ref_wl_keyboard_listener_##A->repeat_info, "ppii", a, b, c, d);                                 \
+    RunFunctionFmt(ref_wl_keyboard_listener_##A->repeat_info, "ppii", a, b, c, d);                                               \
 }                                                                                                                                \
 static my_wl_keyboard_listener_t my_wl_keyboard_listener_fct_##A = {                                                             \
     (uintptr_t)my_wl_keyboard_listener_keymap_##A,                                                                               \
@@ -427,9 +427,9 @@ typedef struct my_wl_buffer_listener_s {
 } my_wl_buffer_listener_t;
 #define GO(A)   \
 static my_wl_buffer_listener_t* ref_wl_buffer_listener_##A = NULL;                 \
-static void* my_wl_buffer_listener_release_##A(void* a, void* b)                   \
+static void my_wl_buffer_listener_release_##A(void* a, void* b)                    \
 {                                                                                  \
-    return (void*)RunFunctionFmt(ref_wl_buffer_listener_##A->release, "pp", a, b); \
+    RunFunctionFmt(ref_wl_buffer_listener_##A->release, "pp", a, b);               \
 }                                                                                  \
 static my_wl_buffer_listener_t my_wl_buffer_listener_fct_##A = {                   \
     (uintptr_t)my_wl_buffer_listener_release_##A,                                  \
@@ -454,9 +454,9 @@ typedef struct my_zwp_relative_pointer_v1_listener_s {
 } my_zwp_relative_pointer_v1_listener_t;
 #define GO(A)   \
 static my_zwp_relative_pointer_v1_listener_t* ref_zwp_relative_pointer_v1_listener_##A = NULL;                                              \
-static void* my_zwp_relative_pointer_v1_listener_relative_motion_##A(void* a, void* b, uint32_t c, uint32_t d, int e, int f, int g, int h)  \
+static void my_zwp_relative_pointer_v1_listener_relative_motion_##A(void* a, void* b, uint32_t c, uint32_t d, int e, int f, int g, int h)   \
 {                                                                                                                                           \
-    return (void*)RunFunctionFmt(ref_zwp_relative_pointer_v1_listener_##A->relative_motion, "ppuuiiii", a, b, c, d, e, f, g, h);            \
+    RunFunctionFmt(ref_zwp_relative_pointer_v1_listener_##A->relative_motion, "ppuuiiii", a, b, c, d, e, f, g, h);                          \
 }                                                                                                                                           \
 static my_zwp_relative_pointer_v1_listener_t my_zwp_relative_pointer_v1_listener_fct_##A = {                                                \
     (uintptr_t)my_zwp_relative_pointer_v1_listener_relative_motion_##A,                                                                     \
@@ -485,25 +485,25 @@ typedef struct my_zxdg_output_v1_listener_s {
 } my_zxdg_output_v1_listener_t;
 #define GO(A)   \
 static my_zxdg_output_v1_listener_t* ref_zxdg_output_v1_listener_##A = NULL;                             \
-static void* my_zxdg_output_v1_listener_logical_position_##A(void* a, void* b, int32_t c, int32_t d)     \
+static void my_zxdg_output_v1_listener_logical_position_##A(void* a, void* b, int32_t c, int32_t d)      \
 {                                                                                                        \
-    return (void*)RunFunctionFmt(ref_zxdg_output_v1_listener_##A->logical_position, "ppii", a, b, c, d); \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->logical_position, "ppii", a, b, c, d);               \
 }                                                                                                        \
-static void* my_zxdg_output_v1_listener_logical_size_##A(void* a, void* b, int32_t c, int32_t d)         \
+static void my_zxdg_output_v1_listener_logical_size_##A(void* a, void* b, int32_t c, int32_t d)          \
 {                                                                                                        \
-    return (void*)RunFunctionFmt(ref_zxdg_output_v1_listener_##A->logical_size, "ppii", a, b, c, d);     \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->logical_size, "ppii", a, b, c, d);                   \
 }                                                                                                        \
-static void* my_zxdg_output_v1_listener_done_##A(void* a, void* b)                                       \
+static void my_zxdg_output_v1_listener_done_##A(void* a, void* b)                                        \
 {                                                                                                        \
-    return (void*)RunFunctionFmt(ref_zxdg_output_v1_listener_##A->done, "pp", a, b);                     \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->done, "pp", a, b);                                   \
 }                                                                                                        \
-static void* my_zxdg_output_v1_listener_name_##A(void* a, void* b, void* c)                              \
+static void my_zxdg_output_v1_listener_name_##A(void* a, void* b, void* c)                               \
 {                                                                                                        \
-    return (void*)RunFunctionFmt(ref_zxdg_output_v1_listener_##A->name, "ppp", a, b, c);                 \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->name, "ppp", a, b, c);                               \
 }                                                                                                        \
-static void* my_zxdg_output_v1_listener_description_##A(void* a, void* b, void* c)                       \
+static void my_zxdg_output_v1_listener_description_##A(void* a, void* b, void* c)                        \
 {                                                                                                        \
-    return (void*)RunFunctionFmt(ref_zxdg_output_v1_listener_##A->description, "ppp", a, b, c);          \
+    RunFunctionFmt(ref_zxdg_output_v1_listener_##A->description, "ppp", a, b, c);                        \
 }                                                                                                        \
 static my_zxdg_output_v1_listener_t my_zxdg_output_v1_listener_fct_##A = {                               \
     (uintptr_t)my_zxdg_output_v1_listener_logical_position_##A,                                          \
