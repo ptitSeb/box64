@@ -639,7 +639,7 @@
     }
 
 #ifndef MAYSETFLAGS
-#define MAYSETFLAGS()
+#define MAYSETFLAGS() do {} while (0)
 #endif
 
 #ifndef READFLAGS
