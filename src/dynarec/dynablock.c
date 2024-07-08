@@ -48,7 +48,7 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
             mutex_lock(&my_context->mutex_dyndump);
         db->done = 0;
         db->gone = 1;
-        int db_size = db->x64_size;
+        uintptr_t db_size = db->x64_size;
         if(db_size && my_context) {
             uint32_t n = rb_get(my_context->db_sizes, db_size);
             if(n>1)
@@ -94,7 +94,7 @@ void FreeDynablock(dynablock_t* db, int need_lock)
         dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->actual_block, db->size);
         db->done = 0;
         db->gone = 1;
-        int db_size = db->x64_size;
+        uintptr_t db_size = db->x64_size;
         if(db_size && my_context) {
             uint32_t n = rb_get(my_context->db_sizes, db_size);
             if(n>1)

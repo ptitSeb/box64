@@ -998,7 +998,7 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
         dyn->abort = 1;
     }
 }
-void static internal_x87_dopop(dynarec_arm_t* dyn)
+static void internal_x87_dopop(dynarec_arm_t* dyn)
 {
     for(int i=0; i<8; ++i)
         if(dyn->n.x87cache[i]!=-1) {
@@ -1009,7 +1009,7 @@ void static internal_x87_dopop(dynarec_arm_t* dyn)
             }
         }
 }
-int static internal_x87_dofree(dynarec_arm_t* dyn)
+static int internal_x87_dofree(dynarec_arm_t* dyn)
 {
     if(dyn->n.tags&0b11) {
         MESSAGE(LOG_DUMP, "\t--------x87 FREED ST0, poping 1 more\n");
@@ -1761,8 +1761,8 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
             }
     }
     for(int i=0; i<32; ++i)
-            if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
-                VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+        if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
+            VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
 }
 
 void sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a)
