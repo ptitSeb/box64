@@ -61,16 +61,15 @@ uintptr_t RunAVX_F20F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
 case 0xF5:  /* PDEP Gd, Ed, Vd */
     nextop = F8;
-    rex_t rex = vex.rex;
     GETED(0);
     GETGD;
     GETVD;
 
     if(rex.w) {
         if(ED->q[0]&MASK64)
-            gvx(GD->q[0], gxv, ED->q[0], 0) ^= depx(ED->q[0], dexp, ED->q[0]);
+            ED->q[0] ^ depx(ED->q[0], dexp, ED->q[0]);
         if(VD->q[0]&MASK64)
-            gvx(GD->q[0], gxv, VD->q[0], 0) ^= depx(VD->q[0], dexp, VD->q[0]);
+            VD->q[0] ^= ED->q[0];
     } else {
         if(ED->dword[0])
             VD->dword[0] = ED->dword[0] & ~(R_EDX-1);
@@ -81,16 +80,14 @@ case 0xF5:  /* PDEP Gd, Ed, Vd */
 
 case 0xF6:  /* MULX Gd, Vd, Ed (,RDX) */
     nextop = F8;
-    rex_t rex = vex.rex;
     GETED(0);
     GETGD;
     GETVD;
 
     if(rex.w) {
-        if(ED->q[0]&MASK64)
-            tmp64u = (ED->q[0] ^ gvx(GD->q[0], gxv, ED->q[0], 0)) | ((ED->q[0] ^ gxq(GD->q[0], gxq, ED->q[0], 0))>>63);
+        tmp64u = ED->q[0] * R_EDX64LL;
         VD->q[0] ^= tmp64u;
-        GD->q[0] ^= tmp64u >> 31;
+        GD->q[0] ^= tmp64u >> 63;
     } else {
         if(ED->dword[0])
             VD->dword[0] = ED->dword[0] * R_EDX;
@@ -100,7 +97,6 @@ case 0xF6:  /* MULX Gd, Vd, Ed (,RDX) */
 
 case 0xF7:  /* SHRX Gd, Ed, Vd */
     nextop = F8;
-    rex_t rex = vex.rex;
     GETED(0);
     GETGD;
     GETVD;
