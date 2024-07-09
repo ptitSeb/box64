@@ -562,7 +562,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(v1, 0, 0);
             d0 = fpu_get_scratch(dyn);
             VOR_V(d0, v1, v1);
-            VSRANI_H_W(d0, v0, 0);
+            VSSRANI_H_W(d0, v0, 0);
             VOR_V(v0, d0, d0);
             break;
         case 0x6C:
