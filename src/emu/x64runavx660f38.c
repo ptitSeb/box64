@@ -32,23 +32,23 @@
 
 static uint8_t ff_mult(uint8_t a, uint8_t b)
 {
-	int retval = 0;
+    int retval = 0;
 
-	for(int i = 0; i < 8; i++) {
-		if((b & 1) == 1)
-			retval ^= a;
+    for(int i = 0; i < 8; i++) {
+        if((b & 1) == 1)
+            retval ^= a;
 
-		if((a & 0x80)) {
-			a <<= 1;
-			a  ^= 0x1b;
-		} else {
-			a <<= 1;
-		}
+        if((a & 0x80)) {
+            a <<= 1;
+            a  ^= 0x1b;
+        } else {
+            a <<= 1;
+        }
 
-		b >>= 1;
-	}
+        b >>= 1;
+    }
 
-	return retval;
+    return retval;
 }
 
 #ifdef TEST_INTERPRETER

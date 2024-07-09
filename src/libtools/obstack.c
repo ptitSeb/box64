@@ -110,11 +110,11 @@ static void* reverse_freefunFct(library_t* lib, void* fct)
 #if 0
 struct i386_obstack
 {
-  long	chunk_size;
+  long    chunk_size;
   struct _obstack_chunk *chunk;
-  char	*object_base;
-  char	*next_free;
-  char	*chunk_limit;
+  char    *object_base;
+  char    *next_free;
+  char    *chunk_limit;
   union
   {
     uintptr_t tempint;

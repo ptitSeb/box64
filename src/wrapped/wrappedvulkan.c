@@ -597,6 +597,7 @@ EXPORT int my_vkCreateXcbSurfaceKHR(x64emu_t* emu, void* instance, void* info, m
     return ret;
 }
 CREATE(vkCreateXlibSurfaceKHR)
+CREATE(vkCreateAndroidSurfaceKHR)
 CREATE(vkCreateRenderPass2)
 CREATE(vkCreateRenderPass2KHR)
 

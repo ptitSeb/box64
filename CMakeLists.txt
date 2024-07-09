@@ -209,9 +209,7 @@ elseif(ARM64)
     #add_definitions(-pipe -march=native)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+simd")
 elseif(ARM_DYNAREC)
-    if(NOT ANDROID)
-        set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto")
-    endif()
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8-a+crc+simd+crypto")
 endif()
 if(ANDROID)
     add_definitions(-DANDROID)
@@ -660,6 +658,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibnettle8.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibunistring2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibhogweed6.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibsqlite3.c"
 )
 endif()
 if(ANDROID)
@@ -822,6 +821,7 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_df.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f0.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_660f.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_660f_vector.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66f20f.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66f30f.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_6664.c"
@@ -994,7 +994,9 @@ if(NOT _x86 AND NOT _x86_64)
     		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libgcc_s.so.1 DESTINATION ${INSTALL_PATH})
     		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libpng12.so.0 DESTINATION ${INSTALL_PATH})
     		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libcrypto.so.1.1 DESTINATION ${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libcrypto.so.1.0.0 DESTINATION ${INSTALL_PATH})
     		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libssl.so.1.1 DESTINATION ${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libssl.so.1.0.0 DESTINATION ${INSTALL_PATH})
     		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libunwind.so.8 DESTINATION ${INSTALL_PATH})
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedx509.so.1 DESTINATION ${INSTALL_PATH})
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedx509.so.0 DESTINATION ${INSTALL_PATH})
@@ -1002,16 +1004,15 @@ if(NOT _x86 AND NOT _x86_64)
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedtls.so.12 DESTINATION ${INSTALL_PATH})
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedcrypto.so.7 DESTINATION ${INSTALL_PATH})
             install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedcrypto.so.3 DESTINATION ${INSTALL_PATH})
-            # Create symlinks
-            install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${INSTALL_PATH}libssl.so.1.1 ${INSTALL_PATH}libssl.so.1.0.0)")
-            install(CODE "execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${INSTALL_PATH}libcrypto.so.1.1 ${INSTALL_PATH}libcrypto.so.1.0.0)")
 	else()
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libstdc++.so.5 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libstdc++.so.6 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libgcc_s.so.1 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libpng12.so.0 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libcrypto.so.1.1 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+        install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libcrypto.so.1.0.0 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libssl.so.1.1 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+        install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libssl.so.1.0.0 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libunwind.so.8 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 		install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedx509.so.1 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
         install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedx509.so.0 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})

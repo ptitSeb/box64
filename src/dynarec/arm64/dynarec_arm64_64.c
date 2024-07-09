@@ -428,6 +428,24 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x70:
+        case 0x71:
+        case 0x72:
+        case 0x73:
+        case 0x74:
+        case 0x75:
+        case 0x76:
+        case 0x77:
+        case 0x78:
+        case 0x79:
+        case 0x7A:
+        case 0x7B:
+        case 0x7C:
+        case 0x7D:
+        case 0x7E:
+        case 0x7F:
+            // just use regular conditional jump
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
         case 0x80:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -968,6 +986,10 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
+
+        case 0xEB:
+            // just use regular inconditional jump
+            return dynarec64_00(dyn, addr-1, ip, ninst, rex, rep, ok, need_epilog);
 
         case 0xF7:
             nextop = F8;

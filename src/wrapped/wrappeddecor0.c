@@ -25,6 +25,6 @@ const char* decor0Name = "libdecor-0.so.0";
 
 #include "generated/wrappeddecor0types.h"
 
-#include "wrappercallback.h"
+//#include "wrappercallback.h"
 
 #include "wrappedlib_init.h"

@@ -182,23 +182,23 @@ struct mmap_arg_struct {
 #undef st_mtime
 
 struct x64_pt_regs {
-	long ebx;
-	long ecx;
-	long edx;
-	long esi;
-	long edi;
-	long ebp;
-	long eax;
-	int  xds;
-	int  xes;
-	int  xfs;
-	int  xgs;
-	long orig_eax;
-	long eip;
-	int  xcs;
-	long eflags;
-	long esp;
-	int  xss;
+    long ebx;
+    long ecx;
+    long edx;
+    long esi;
+    long edi;
+    long ebp;
+    long eax;
+    int  xds;
+    int  xes;
+    int  xfs;
+    int  xgs;
+    long orig_eax;
+    long eip;
+    int  xcs;
+    long eflags;
+    long esp;
+    int  xss;
 };
 
 #ifndef __NR_olduname

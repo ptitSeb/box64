@@ -1,39 +1,11 @@
 Compiling/Installing
 ----
 
-### Debian-based Linux 
-You can use the [Pi-Apps-Coders apt repository](https://github.com/Pi-Apps-Coders/box64-debs) to install precompiled box64 debs, updated every 24 hours. 
+If you don't want to compile box64 yourself and prefer to use third-party pre-build version, go to the [end of the document](#pre-build-packages) for alternatives.
 
-```
-# check if .list file already exists
-if [ -f /etc/apt/sources.list.d/box64.list ]; then
-  sudo rm -f /etc/apt/sources.list.d/box64.list || exit 1
-fi
+You can also generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
 
-# check if .sources file already exists
-if [ -f /etc/apt/sources.list.d/box64.sources ]; then
-  sudo rm -f /etc/apt/sources.list.d/box64.sources || exit 1
-fi
-
-# download gpg key from specified url
-if [ -f /usr/share/keyrings/box64-archive-keyring.gpg ]; then
-  sudo rm -f /usr/share/keyrings/box64-archive-keyring.gpg
-fi
-sudo mkdir -p /usr/share/keyrings
-wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | sudo gpg --dearmor -o /usr/share/keyrings/box64-archive-keyring.gpg
-
-# create .sources file
-echo "Types: deb
-URIs: https://Pi-Apps-Coders.github.io/box64-debs/debian
-Suites: ./
-Signed-By: /usr/share/keyrings/box64-archive-keyring.gpg" | sudo tee /etc/apt/sources.list.d/box64.sources >/dev/null
-
-sudo apt update
-sudo apt install box64-generic-arm -y
-```
-
-Alternatively, you can generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
-
+## Per-platform compiling instructions
 ----
 
 ### The general approach is:
@@ -278,7 +250,7 @@ Also, the Static Build is highly experimental, but feedback are always welcomed.
 
 ----
 
-Testing
+## Testing
 ----
 A few tests are included with box64.
 
@@ -288,6 +260,39 @@ The tests are very basic and only tests some functionality for now.
 
 ----
 
-Debian Packaging
+## Debian Packaging
 ----
 Box64 can also be packaged into a .deb file ***using the source code zip from the releases page*** with `DEB_BUILD_OPTIONS=nostrip dpkg-buildpackage -us -uc -nc`. Configure any additional cmake options you might want in `debian/rules`.
+
+## Pre-build packages
+----
+### Debian-based Linux 
+You can use the [Pi-Apps-Coders apt repository](https://github.com/Pi-Apps-Coders/box64-debs) to install precompiled box64 debs, updated every 24 hours. 
+
+```
+# check if .list file already exists
+if [ -f /etc/apt/sources.list.d/box64.list ]; then
+  sudo rm -f /etc/apt/sources.list.d/box64.list || exit 1
+fi
+
+# check if .sources file already exists
+if [ -f /etc/apt/sources.list.d/box64.sources ]; then
+  sudo rm -f /etc/apt/sources.list.d/box64.sources || exit 1
+fi
+
+# download gpg key from specified url
+if [ -f /usr/share/keyrings/box64-archive-keyring.gpg ]; then
+  sudo rm -f /usr/share/keyrings/box64-archive-keyring.gpg
+fi
+sudo mkdir -p /usr/share/keyrings
+wget -qO- "https://pi-apps-coders.github.io/box64-debs/KEY.gpg" | sudo gpg --dearmor -o /usr/share/keyrings/box64-archive-keyring.gpg
+
+# create .sources file
+echo "Types: deb
+URIs: https://Pi-Apps-Coders.github.io/box64-debs/debian
+Suites: ./
+Signed-By: /usr/share/keyrings/box64-archive-keyring.gpg" | sudo tee /etc/apt/sources.list.d/box64.sources >/dev/null
+
+sudo apt update
+sudo apt install box64-generic-arm -y
+```

@@ -784,7 +784,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (la64_lbt) {
                         X64_MUL_W(gd, ed);
                     }
-                    MUL_D(gd, gd, ed);
+                    SLLI_W(gd, gd, 0);
+                    SLLI_W(x3, ed, 0);
+                    MUL_D(gd, gd, x3);
                     SRLI_D(x3, gd, 32);
                     SLLI_W(gd, gd, 0);
                     IFX (X_PEND) {

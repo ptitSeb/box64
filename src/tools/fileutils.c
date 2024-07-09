@@ -42,11 +42,19 @@ int FileExist(const char* filename, int flags)
     return 1;
 }
 
-char* ResolveFile(const char* filename, path_collection_t* paths)
-{
+static char* ResolvePathInner(const char* path, int resolve_symlink) {
+    if (resolve_symlink) {
+        return box_realpath(path, NULL);
+    } else {
+        return box_strdup(path);
+    }
+}
+
+static char* ResolveFileInner(const char* filename, path_collection_t* paths, int resolve_symlink) {
     char p[MAX_PATH];
-    if(filename[0]=='/')
-        return box_strdup(filename);
+    if(filename[0]=='/') {
+        return ResolvePathInner(filename, resolve_symlink);
+    }
     for (int i=0; i<paths->size; ++i) {
         if(paths->paths[i][0]!='/') {
             // not an absolute path...
@@ -57,11 +65,20 @@ char* ResolveFile(const char* filename, path_collection_t* paths)
         } else
             strcpy(p, paths->paths[i]);
         strcat(p, filename);
-        if(FileExist(p, IS_FILE))
-            return box_realpath(p, NULL);
+        if(FileExist(p, IS_FILE)) {
+            return ResolvePathInner(p, resolve_symlink);
+        }
     }
 
-    return box_strdup(filename); //NULL;
+    return ResolvePathInner(filename, resolve_symlink);
+}
+
+char* ResolveFile(const char* filename, path_collection_t* paths) {
+    return ResolveFileInner(filename, paths, 1);
+}
+
+char* ResolveFileSoft(const char* filename, path_collection_t* paths) {
+    return ResolveFileInner(filename, paths, 0);
 }
 
 int FileIsX64ELF(const char* filename)

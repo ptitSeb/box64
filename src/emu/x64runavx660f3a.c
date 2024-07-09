@@ -527,7 +527,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             tmp8u = F8;
             if(tmp8u&1) {
                 GY->u128 = EX->u128;
-                if(GX!=VX);
+                if(GX!=VX)
                     GX->u128 = VX->u128;
             } else {
                 GX->u128 = EX->u128;
@@ -625,7 +625,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             tmp8u = F8;
             if(tmp8u&1) {
                 GY->u128 = EX->u128;
-                if(GX!=VX);
+                if(GX!=VX)
                     GX->u128 = VX->u128;
             } else {
                 GX->u128 = EX->u128;

@@ -253,6 +253,11 @@ Detect libjvm and apply conservative settings
 * 0 : Don't detect libjvm
 * 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 SSE42=0 if detected (Default)
 
+#### BOX64_UNITYPLAYER *
+Detect UnityPlayer.dll and apply strongmem settings
+* 0 : Don't detect UnityPlayer.dll
+* 1 : Detect UnityPlayer.dll, and apply BOX64_DYNAREC_STRONGMEM=1 if detected (Default)
+
 #### BOX64_SDL2_JGUID *
 Need a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2
 * 0 : Don't use any workaround

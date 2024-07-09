@@ -58,19 +58,19 @@ typedef struct emu_flags_s {
 
 typedef struct x64emu_s {
     // cpu
-	reg64_t     regs[16];
-	x64flags_t  eflags;
+    reg64_t     regs[16];
+    x64flags_t  eflags;
     reg64_t     ip;
     // sse
     sse_regs_t  xmm[16];
     sse_regs_t  ymm[16];
     // fpu / mmx
-	mmx87_regs_t x87[8];
-	mmx87_regs_t mmx[8];
-	x87flags_t  sw;
-	uint32_t    top;        // top is part of sw, but it's faster to have it separately
+    mmx87_regs_t x87[8];
+    mmx87_regs_t mmx[8];
+    x87flags_t  sw;
+    uint32_t    top;        // top is part of sw, but it's faster to have it separately
     int         fpu_stack;
-	x87control_t cw;
+    x87control_t cw;
     uint16_t    dummy_cw;   // align...
     mmxcontrol_t mxcsr;
     #ifdef RV64         // it would be better to use a dedicated register for this like arm64 xSavedSP, but we're running of of free registers.

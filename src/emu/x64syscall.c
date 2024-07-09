@@ -182,6 +182,7 @@ static const scwrap_t syscallwrap[] = {
     [114] = {__NR_setregid, 2},
     [118] = {__NR_getresuid, 3},
     [120] = {__NR_getresgid, 3},
+    [121] = {__NR_getpgid, 1},
     [125] = {__NR_capget, 2},
     [126] = {__NR_capset, 2},
     [127] = {__NR_rt_sigpending, 2},
@@ -366,23 +367,23 @@ typedef struct old_utsname_s {
 } old_utsname_t;
 
 //struct x86_pt_regs {
-//	long ebx;
-//	long ecx;
-//	long edx;
-//	long esi;
-//	long edi;
-//	long ebp;
-//	long eax;
-//	int  xds;
-//	int  xes;
-//	int  xfs;
-//	int  xgs;
-//	long orig_eax;
-//	long eip;
-//	int  xcs;
-//	long eflags;
-//	long esp;
-//	int  xss;
+//    long ebx;
+//    long ecx;
+//    long edx;
+//    long esi;
+//    long edi;
+//    long ebp;
+//    long eax;
+//    int  xds;
+//    int  xes;
+//    int  xfs;
+//    int  xgs;
+//    long orig_eax;
+//    long eip;
+//    int  xcs;
+//    long eflags;
+//    long esp;
+//    int  xss;
 //};
 
 static int clone_fn(void* arg)
@@ -656,11 +657,11 @@ void EXPORT x64Syscall(x64emu_t *emu)
             break;
         #endif
         #ifndef __NR_rename
-	    case 82: // sys_rename
-    	    S_RAX = rename((void*)R_RDI, (void*)R_RSI);
+        case 82: // sys_rename
+            S_RAX = rename((void*)R_RDI, (void*)R_RSI);
             if(S_RAX==-1)
                 S_RAX = -errno;
-	    break;
+        break;
         #endif
         #ifndef __NR_mkdir
         case 83: // sys_mkdir
@@ -688,6 +689,9 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         #endif
+        case 111: // sys_getpgrp
+            S_RAX = getpgrp();
+            break;
         case 131: // sys_sigaltstack
             S_RAX = my_sigaltstack(emu, (void*)R_RDI, (void*)R_RSI);
             if(S_RAX==-1)

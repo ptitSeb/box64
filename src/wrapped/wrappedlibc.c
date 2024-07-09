@@ -2270,7 +2270,7 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
 EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
 {
     // need to use BOX64_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x64 = FileIsX64ELF(fullpath);
@@ -2387,7 +2387,7 @@ EXPORT int32_t my_execle(x64emu_t* emu, const char* path)
 EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
 {
     // need to use BOX64_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x64 = FileIsX64ELF(fullpath);
@@ -2465,7 +2465,7 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
 {
     // need to use BOX64_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x64 = FileIsX64ELF(fullpath);
@@ -2798,7 +2798,7 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
     return readlinkat(fd, path, buf, bufsize);
 }
 #ifndef MAP_FIXED_NOREPLACE
-#define MAP_FIXED_NOREPLACE	0x200000
+#define MAP_FIXED_NOREPLACE 0x200000
 #endif
 #ifndef MAP_32BIT
 #define MAP_32BIT 0x40
@@ -2881,6 +2881,22 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
             if((flags&O_ACCMODE)==O_RDWR) {
                 if((box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "Note: Marking the region (%p-%p prot=%x) as NEVERCLEAN because fd have O_RDWR attribute\n", ret, ret+length, prot);}
                 prot |= PROT_NEVERCLEAN;
+            }
+        }
+        static int unityplayer_detected = 0;
+        if(fd>0 && box64_unityplayer && !unityplayer_detected) {
+            char filename[4096];
+            char buf[128];
+            sprintf(buf, "/proc/self/fd/%d", fd);
+            ssize_t r = readlink(buf, filename, sizeof(filename)-1);
+            if(r!=1) filename[r]=0;
+            if(r>0 && strlen(filename)>strlen("UnityPlayer.dll") && !strcasecmp(filename+strlen(filename)-strlen("UnityPlayer.dll"), "UnityPlayer.dll")) {
+                printf_log(LOG_INFO, "BOX64: Detected UnityPlayer.dll\n");
+                #ifdef DYNAREC
+                if(!box64_dynarec_strongmem)
+                    box64_dynarec_strongmem = 1;
+                #endif
+                unityplayer_detected = 1;
             }
         }
         if(emu)
@@ -3158,9 +3174,9 @@ EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)
 
 #if 0
 #ifdef PANDORA
-#define RENAME_NOREPLACE	(1 << 0)
-#define RENAME_EXCHANGE		(1 << 1)
-#define RENAME_WHITEOUT		(1 << 2)
+#define RENAME_NOREPLACE    (1 << 0)
+#define RENAME_EXCHANGE     (1 << 1)
+#define RENAME_WHITEOUT     (1 << 2)
 EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath, uint32_t flags)
 {
     // simulate that function, but
@@ -3193,8 +3209,8 @@ EXPORT int my_renameat2(int olddirfd, void* oldpath, int newdirfd, void* newpath
 #endif
 
 #ifndef __NR_memfd_create
-#define MFD_CLOEXEC		    0x0001U
-#define MFD_ALLOW_SEALING	0x0002U
+#define MFD_CLOEXEC         0x0001U
+#define MFD_ALLOW_SEALING   0x0002U
 EXPORT int my_memfd_create(x64emu_t* emu, void* name, uint32_t flags)
 {
     // try to simulate that function
@@ -3209,7 +3225,7 @@ EXPORT int my_memfd_create(x64emu_t* emu, void* name, uint32_t flags)
 #endif
 
 #ifndef GRND_RANDOM
-#define GRND_RANDOM	0x0002
+#define GRND_RANDOM 0x0002
 #endif
 EXPORT int my_getentropy(x64emu_t* emu, void* buffer, size_t length)
 {

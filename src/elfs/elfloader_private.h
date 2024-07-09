@@ -68,6 +68,9 @@ typedef struct elfheader_s {
     uintptr_t   rela;
     size_t      relasz;
     int         relaent;
+    uintptr_t   relr;
+    size_t      relrsz;
+    int         relrent;
     uintptr_t   jmprel;
     size_t      pltsz;
     int         pltent;

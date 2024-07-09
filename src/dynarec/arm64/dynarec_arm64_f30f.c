@@ -481,14 +481,18 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETED(0);
             GETGD;
-            TSTxw_REG(ed, ed);
-            CSETw(x3, cEQ);
-            BFIw(xFlags, x3, F_CF, 1);  // CF = is source 0?
+            IFX(X_CF) {
+                TSTxw_REG(ed, ed);
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_CF, 1);  // CF = is source 0?
+            }
             RBITxw(x3, ed);   // reverse
             CLZxw(gd, x3);    // x2 gets leading 0 == TZCNT
-            TSTxw_REG(gd, gd);
-            CSETw(x3, cEQ);
-            BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
+            IFX(X_ZF) {
+                TSTxw_REG(gd, gd);
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
+            }
             break;
         case 0xBD:
             INST_NAME("LZCNT Gd, Ed");
@@ -497,13 +501,17 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETED(0);
             GETGD;
-            TSTxw_REG(ed, ed);
-            CSETw(x3, cEQ);
-            BFIw(xFlags, x3, F_CF, 1);  // CF = is source 0?
+            IFX(X_CF) {
+                TSTxw_REG(ed, ed);
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_CF, 1);  // CF = is source 0?
+            }
             CLZxw(gd, ed);    // x2 gets leading 0 == LZCNT
-            TSTxw_REG(gd, gd);
-            CSETw(x3, cEQ);
-            BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
+            IFX(X_ZF) {
+                TSTxw_REG(gd, gd);
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
+            }
             break;
 
         case 0xC2:

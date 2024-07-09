@@ -14,7 +14,7 @@
 #define PN_XNUM (0xffff)
 #endif
 #ifndef DT_GNU_HASH
-#define DT_GNU_HASH	0x6ffffef5
+#define DT_GNU_HASH 0x6ffffef5
 #endif
 
 int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t type)
@@ -218,6 +218,15 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
                     break;
                 case DT_RELAENT:
                     h->relaent = val;
+                    break;
+                case DT_RELR:
+                    h->relr = ptr;
+                    break;
+                case DT_RELRSZ:
+                    h->relrsz = val;
+                    break;
+                case DT_RELRENT:
+                    h->relrent = val;
                     break;
                 case DT_PLTGOT:
                     h->pltgot = ptr;

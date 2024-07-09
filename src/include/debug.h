@@ -54,6 +54,7 @@ extern int rv64_zba;
 extern int rv64_zbb;
 extern int rv64_zbc;
 extern int rv64_zbs;
+extern int rv64_vector;
 extern int rv64_xtheadba;
 extern int rv64_xtheadbb;
 extern int rv64_xtheadbs;
@@ -72,6 +73,7 @@ extern int la64_scq;
 #endif
 extern int box64_libcef;
 extern int box64_jvm;
+extern int box64_unityplayer;
 extern int box64_sdl2_jguid;
 extern int dlsym_error;    // log dlsym error
 extern int cycle_log;      // if using rolling logs

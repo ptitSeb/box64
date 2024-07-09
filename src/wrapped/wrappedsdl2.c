@@ -661,19 +661,19 @@ EXPORT void* my2_SDL_GL_GetProcAddress(x64emu_t* emu, void* name)
     return getGLProcAddress(emu, (glprocaddress_t)my->SDL_GL_GetProcAddress, rname);
 }
 
-#define nb_once	16
+#define nb_once 16
 typedef void(*sdl2_tls_dtor)(void*);
 static uintptr_t dtor_emu[nb_once] = {0};
 static void tls_dtor_callback(int n, void* a)
 {
-	if(dtor_emu[n]) {
+    if(dtor_emu[n]) {
         RunFunctionFmt(dtor_emu[n], "p", a);
-	}
+    }
 }
 #define GO(N) \
 void tls_dtor_callback_##N(void* a) \
 { \
-	tls_dtor_callback(N, a); \
+    tls_dtor_callback(N, a); \
 }
 
 GO(0)
@@ -694,26 +694,26 @@ GO(14)
 GO(15)
 #undef GO
 static const sdl2_tls_dtor dtor_cb[nb_once] = {
-	 tls_dtor_callback_0, tls_dtor_callback_1, tls_dtor_callback_2, tls_dtor_callback_3
-	,tls_dtor_callback_4, tls_dtor_callback_5, tls_dtor_callback_6, tls_dtor_callback_7
-	,tls_dtor_callback_8, tls_dtor_callback_9, tls_dtor_callback_10,tls_dtor_callback_11
-	,tls_dtor_callback_12,tls_dtor_callback_13,tls_dtor_callback_14,tls_dtor_callback_15
+     tls_dtor_callback_0, tls_dtor_callback_1, tls_dtor_callback_2, tls_dtor_callback_3
+    ,tls_dtor_callback_4, tls_dtor_callback_5, tls_dtor_callback_6, tls_dtor_callback_7
+    ,tls_dtor_callback_8, tls_dtor_callback_9, tls_dtor_callback_10,tls_dtor_callback_11
+    ,tls_dtor_callback_12,tls_dtor_callback_13,tls_dtor_callback_14,tls_dtor_callback_15
 };
 EXPORT int64_t my2_SDL_TLSSet(x64emu_t* emu, uint64_t id, void* value, void* dtor)
 {
-	if(!dtor)
-		return my->SDL_TLSSet(id, value, NULL);
-	int n = 0;
-	while (n<nb_once) {
-		if(!dtor_emu[n] || (dtor_emu[n])==((uintptr_t)dtor)) {
-			dtor_emu[n] = (uintptr_t)dtor;
-			return my->SDL_TLSSet(id, value, dtor_cb[n]);
-		}
-		++n;
-	}
-	printf_log(LOG_NONE, "Error: SDL2 SDL_TLSSet with destructor: no more slot!\n");
-	//emu->quit = 1;
-	return -1;
+    if(!dtor)
+        return my->SDL_TLSSet(id, value, NULL);
+    int n = 0;
+    while (n<nb_once) {
+        if(!dtor_emu[n] || (dtor_emu[n])==((uintptr_t)dtor)) {
+            dtor_emu[n] = (uintptr_t)dtor;
+            return my->SDL_TLSSet(id, value, dtor_cb[n]);
+        }
+        ++n;
+    }
+    printf_log(LOG_NONE, "Error: SDL2 SDL_TLSSet with destructor: no more slot!\n");
+    //emu->quit = 1;
+    return -1;
 }
 
 EXPORT void my2_SDL_AddEventWatch(x64emu_t* emu, void* p, void* userdata)

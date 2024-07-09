@@ -61,6 +61,9 @@ void fpu_reset_scratch(dynarec_arm_t* dyn)
 {
     dyn->n.fpu_scratch = 0;
     dyn->n.ymm_used = 0;
+    dyn->n.ymm_regs = 0;
+    dyn->n.ymm_write = 0;
+    dyn->n.ymm_removed = 0;
 }
 // Get a x87 double reg
 int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)
@@ -83,6 +86,15 @@ void fpu_free_reg(dynarec_arm_t* dyn, int reg)
 {
     // TODO: check upper limit?
     dyn->n.fpuused[reg] = 0;
+    if(dyn->n.neoncache[reg].t==NEON_CACHE_YMMR || dyn->n.neoncache[reg].t==NEON_CACHE_YMMW) {
+        dyn->n.ymm_removed |= 1<<dyn->n.neoncache[reg].n;
+        if(dyn->n.neoncache[reg].t==NEON_CACHE_YMMW)
+            dyn->n.ymm_write |= 1<<dyn->n.neoncache[reg].n;
+        if(reg>SCRATCH0)
+            dyn->n.ymm_regs |= (8LL+reg-SCRATCH0)<<(dyn->n.neoncache[reg].n*4);
+        else
+            dyn->n.ymm_regs |= ((uint64_t)(reg-EMM0))<<(dyn->n.neoncache[reg].n*4);
+    }
     if(dyn->n.neoncache[reg].t!=NEON_CACHE_ST_F && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_D && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_I64)
         dyn->n.neoncache[reg].v = 0;
     if(dyn->n.fpu_scratch && reg==SCRATCH0+dyn->n.fpu_scratch-1)
@@ -156,6 +168,10 @@ static void fpu_reset_reg_neoncache(neoncache_t* n)
         n->fpuused[i]=0;
         n->neoncache[i].v = 0;
     }
+    n->ymm_regs = 0;
+    n->ymm_removed = 0;
+    n->ymm_used = 0;
+    n->ymm_write = 0;
 
 }
 void fpu_reset_reg(dynarec_arm_t* dyn)
@@ -560,6 +576,24 @@ void neoncacheUnwind(neoncache_t* cache)
             cache->fpuused[i] = 0;
         }
     }
+    // add back removed YMM
+    if(cache->ymm_removed) {
+        for(int i=0; i<16; ++i)
+            if(cache->ymm_removed&(1<<i)) {
+                int reg = cache->ymm_regs>>(i*4)&15;
+                if(reg>7)
+                    reg = reg - 8 + SCRATCH0;
+                else
+                    reg = reg + EMM0;
+                if(cache->neoncache[reg].v)
+                    printf_log(LOG_INFO, "Warning, recreating YMM%d on non empty slot %s", i, getCacheName(cache->neoncache[reg].t, cache->neoncache[reg].n));
+                cache->neoncache[reg].t = (cache->ymm_write&(1<<i))?NEON_CACHE_YMMW:NEON_CACHE_YMMR;
+                cache->neoncache[reg].n = i;
+            }
+        cache->ymm_regs = 0;
+        cache->ymm_write = cache->ymm_removed = 0;
+    }
+    cache->ymm_used = 0;
 }
 
 #define F8      *(uint8_t*)(addr++)
@@ -654,6 +688,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dynarec_log(LOG_NONE, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
         if(dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts==-1)
             dynarec_log(LOG_NONE, ", jmp=out");
+        if(dyn->insts[ninst].x64.has_callret)
+            dynarec_log(LOG_NONE, ", callret");
         if(dyn->last_ip)
             dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);
         for(int ii=0; ii<32; ++ii) {
@@ -737,7 +773,7 @@ static void sse_reset(neoncache_t* n)
             n->neoncache[i].v = 0;
 }
 
-void fpu_reset(dynarec_arm_t* dyn)
+void fpu_reset(dynarec_native_t* dyn)
 {
     x87_reset(&dyn->n);
     mmx_reset(&dyn->n);
@@ -746,12 +782,13 @@ void fpu_reset(dynarec_arm_t* dyn)
     dyn->ymm_zero = 0;
 }
 
-void fpu_reset_ninst(dynarec_arm_t* dyn, int ninst)
+void fpu_reset_ninst(dynarec_native_t* dyn, int ninst)
 {
     x87_reset(&dyn->insts[ninst].n);
     mmx_reset(&dyn->insts[ninst].n);
     sse_reset(&dyn->insts[ninst].n);
     fpu_reset_reg_neoncache(&dyn->insts[ninst].n);
+
 }
 
 int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st)

@@ -11,7 +11,7 @@
 
 int get_cpuMhz()
 {
-	int MHz = 0;
+    int MHz = 0;
     char *p = NULL;
     if((p=getenv("BOX64_CPUMHZ"))) {
         MHz = atoi(p);
@@ -69,11 +69,11 @@ int get_cpuMhz()
         }
     }
     #endif
-	if(!MHz)
-		MHz = 1000; // default to 1Ghz...
+    if(!MHz)
+        MHz = 1000; // default to 1Ghz...
     sprintf(cpumhz, "%d", MHz);
     setenv("BOX64_CPUMHZ", cpumhz, 1);  // set actual value
-	return MHz;
+    return MHz;
 }
 static int nCPU = 0;
 static double bogoMips = 100.;
@@ -430,7 +430,8 @@ void my_cpuid(x64emu_t* emu, uint32_t tmp32u)
             R_EBX = 0;  // reserved
             R_ECX = (1<<0)  // LAHF_LM 
                 | (1<<5)    // LZCNT
-                | (1<<8);   // PREFETCHW
+                | (1<<8)   // PREFETCHW
+                ;
             R_EDX = 1       // x87 FPU 
                 | (1<<8)    // cx8: cmpxchg8b opcode
                 | (1<<11)   // syscall

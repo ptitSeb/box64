@@ -120,7 +120,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             GOTEST(x1, x2);
         }
         if(dyn->insts[ninst].pred_sz>1) {SMSTART();}
-        fpu_reset_scratch(dyn);
         if((dyn->insts[ninst].x64.need_before&~X_PEND) && !dyn->insts[ninst].pred_sz) {
             READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);
         }
@@ -169,11 +168,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(dyn->abort)
             return ip;
         INST_EPILOG;
-
+        fpu_reset_scratch(dyn);
         int next = ninst+1;
         #if STEP > 0
-        if(!dyn->insts[ninst].x64.has_next && dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts!=-1)
-            next = dyn->insts[ninst].x64.jmp_insts;
         if(dyn->insts[ninst].x64.has_next && dyn->insts[next].x64.barrier) {
             if(dyn->insts[next].x64.barrier&BARRIER_FLOAT) {
                 fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
@@ -229,7 +226,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(dyn->forward) {
             if(dyn->forward_to == addr && !need_epilog && ok>=0) {
                 // we made it!
-                reset_n = dyn->forward_ninst;
+                reset_n = get_first_jump_addr(dyn, addr);
                 if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Forward extend block for %d bytes %s%p -> %p (ninst %d - %d)\n", dyn->forward_to-dyn->forward, dyn->insts[dyn->forward_ninst].x64.has_callret?"(opt. call) ":"", (void*)dyn->forward, (void*)dyn->forward_to, reset_n, ninst);
                 if(dyn->insts[dyn->forward_ninst].x64.has_callret && !dyn->insts[dyn->forward_ninst].x64.has_next)
                     dyn->insts[dyn->forward_ninst].x64.has_next = 1;  // this block actually continue
@@ -267,7 +264,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                         reset_n = get_first_jump(dyn, next);
                     }
                     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "Extend block %p, %s%p -> %p (ninst=%d, jump from %d)\n", dyn, dyn->insts[ninst].x64.has_callret?"(opt. call) ":"", (void*)addr, (void*)next, ninst+1, dyn->insts[ninst].x64.has_callret?ninst:reset_n);
-                } else if(next && (next-addr)<box64_dynarec_forward && (getProtection(next)&PROT_READ)/*box64_dynarec_bigblock>=stopblock*/) {
+                } else if(next && (int)(next-addr)<box64_dynarec_forward && (getProtection(next)&PROT_READ)/*box64_dynarec_bigblock>=stopblock*/) {
                     if(!((box64_dynarec_bigblock<stopblock) && !isJumpTableDefault64((void*)next))) {
                         if(dyn->forward) {
                             if(next<dyn->forward_to)

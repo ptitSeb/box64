@@ -293,7 +293,7 @@ GO(pa_xrealloc, pFpL)
 GO(pa_xstrdup, pFp)
 GO(pa_xstrndup, pFpL)
 
-GO(pa_stream_begin_write, iFppp)	// 0.9.16+
+GO(pa_stream_begin_write, iFppp)    // 0.9.16+
 GO(pa_stream_cancel_write, iFp)     // 0.9.16+
 
 GO(dummy_io_new, pFpiipp)   // dumy function to create Wrapper

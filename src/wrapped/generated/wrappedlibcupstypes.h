@@ -11,9 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFuipuupp_t)(uint32_t, int32_t, void*, uint32_t, uint32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(cupsSetPasswordCB2, vFpp_t) \
 	GO(cupsEnumDests, iFuipuupp_t)
 
 #endif // __wrappedlibcupsTYPES_H_

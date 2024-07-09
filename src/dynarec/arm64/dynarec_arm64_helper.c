@@ -743,7 +743,6 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
     if(saveflags) {
         STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
-    fpu_pushcache(dyn, ninst, reg, 0);
     if(ret!=-2) {
         STPx_S7_preindex(xEmu, savereg, xSP, -16);   // ARM64 stack needs to be 16byte aligned
         STPx_S7_offset(xRAX, xRCX, xEmu, offsetof(x64emu_t, regs[_AX]));    // x9..x15, x16,x17,x18 those needs to be saved by caller
@@ -751,6 +750,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
         STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
         STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
+        fpu_pushcache(dyn, ninst, savereg, 0);
     }
     TABLE64(reg, (uintptr_t)fnc);
     BLR(reg);
@@ -772,8 +772,8 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
         GO(RSI, RDI);
         GO(R8, R9);
         #undef GO
+        fpu_popcache(dyn, ninst, savereg, 0);   // savereg will not be used
     }
-    fpu_popcache(dyn, ninst, reg, 0);
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
@@ -998,7 +998,7 @@ void x87_do_push_empty(dynarec_arm_t* dyn, int ninst, int s1)
         dyn->abort = 1;
     }
 }
-void static internal_x87_dopop(dynarec_arm_t* dyn)
+static void internal_x87_dopop(dynarec_arm_t* dyn)
 {
     for(int i=0; i<8; ++i)
         if(dyn->n.x87cache[i]!=-1) {
@@ -1009,7 +1009,7 @@ void static internal_x87_dopop(dynarec_arm_t* dyn)
             }
         }
 }
-int static internal_x87_dofree(dynarec_arm_t* dyn)
+static int internal_x87_dofree(dynarec_arm_t* dyn)
 {
     if(dyn->n.tags&0b11) {
         MESSAGE(LOG_DUMP, "\t--------x87 FREED ST0, poping 1 more\n");
@@ -1658,7 +1658,7 @@ void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a)
             STRx_U12(xZR, xEmu, offsetof(x64emu_t, ymm[a])+8);
         }
     } else for(int i=0; i<32; ++i)
-        if((dyn->n.neoncache[i].t == NEON_CACHE_YMMW) || (dyn->n.neoncache[i].t == NEON_CACHE_YMMR)) {
+        if(((dyn->n.neoncache[i].t == NEON_CACHE_YMMW) || (dyn->n.neoncache[i].t == NEON_CACHE_YMMR)) && (dyn->n.neoncache[i].n==a)) {
             if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
                 VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
             fpu_free_reg(dyn, i);
@@ -1761,8 +1761,8 @@ static void sse_reflectcache(dynarec_arm_t* dyn, int ninst, int s1)
             }
     }
     for(int i=0; i<32; ++i)
-            if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
-                VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+        if(dyn->n.neoncache[i].t == NEON_CACHE_YMMW)
+            VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
 }
 
 void sse_reflect_reg(dynarec_arm_t* dyn, int ninst, int a)
@@ -1806,6 +1806,8 @@ int ymm_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite, int 
             return i;
         }
     // nope, grab a new one
+    if(dyn->ymm_zero&(1<<a))
+        forwrite = 1;   // if the reg was zero, then it will need to be write back
     int ret =  fpu_get_reg_ymm(dyn, ninst, forwrite?NEON_CACHE_YMMW:NEON_CACHE_YMMR, a, k1, k2, k3);
     if(dyn->ymm_zero&(1<<a)) {
         VEORQ(ret, ret, ret);
@@ -1853,7 +1855,7 @@ void ymm_mark_zero(dynarec_arm_t* dyn, int ninst, int a)
                 VEORQ(i, i, i);
                 return;
             }
-            dyn->n.neoncache[i].v = 0;  // forget it!
+            fpu_free_reg(dyn, i);
         }
     #if STEP == 0
     dyn->insts[ninst].ymm0_add |= (1<<a);
@@ -1869,8 +1871,6 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
     for (int i=start; i<16; i++) {
         if((dyn->n.ssecache[i].v!=-1) && (dyn->n.ssecache[i].write))
             ++n;
-        if(is_avx_zero(dyn, ninst, i))
-            ++n;
     }
     for(int i=0; i<32; ++i)
         if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
@@ -1878,23 +1878,16 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
     if(!n)
         return;
     MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
-    int s1_set = 0;
     for (int i=start; i<16; ++i) {
         if((dyn->n.ssecache[i].v!=-1) && (dyn->n.ssecache[i].write)) {
             VSTR128_U12(dyn->n.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
-        if(is_avx_zero(dyn, ninst, i)) {
-            if(!s1_set) {
-                ADDx_U12(s1, xEmu, offsetof(x64emu_t, ymm[0]));
-                s1_set = 1;
-            }
-            STPx_S7_offset(xZR, xZR, s1, i*16);
-        }
     }
-    // purge the YMM values
-    for(int i=0; i<32; ++i)
+    // push the YMM values
+    for(int i=0; i<32; ++i) {
         if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
             VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+    }
     MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
 }
 
@@ -1906,6 +1899,9 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
     for (int i=start; i<16; i++)
         if(dyn->n.ssecache[i].v!=-1)
             ++n;
+    for(int i=0; i<32; ++i)
+        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW || dyn->n.neoncache[i].t==NEON_CACHE_YMMR)
+            ++n;
     if(!n)
         return;
     MESSAGE(LOG_DUMP, "\tPop XMM Cache (%d)------\n", n);
@@ -1916,7 +1912,7 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
             dyn->n.neoncache[dyn->n.ssecache[i].reg].t = NEON_CACHE_XMMR;*/
         }
     for(int i=0; i<32; ++i)
-        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
+        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW || dyn->n.neoncache[i].t==NEON_CACHE_YMMR)
             VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
     MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
 }
@@ -2265,11 +2261,11 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                     MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
                     SCVTFDD(i, i);
                     cache.neoncache[i].t = NEON_CACHE_ST_D;
-                } else if(cache.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW)
-                    { cache.neoncache[i].t = NEON_CACHE_XMMW; }
-                else if(cache.neoncache[i].t == NEON_CACHE_YMMR && cache_i2.neoncache[i].t == NEON_CACHE_YMMW)
-                    { cache.neoncache[i].t = NEON_CACHE_YMMW; }
-                else if(cache.neoncache[i].t == NEON_CACHE_XMMW && cache_i2.neoncache[i].t == NEON_CACHE_XMMR) {
+                } else if(cache.neoncache[i].t == NEON_CACHE_XMMR && cache_i2.neoncache[i].t == NEON_CACHE_XMMW) {
+                    cache.neoncache[i].t = NEON_CACHE_XMMW;
+                } else if(cache.neoncache[i].t == NEON_CACHE_YMMR && cache_i2.neoncache[i].t == NEON_CACHE_YMMW) {
+                    cache.neoncache[i].t = NEON_CACHE_YMMW;
+                } else if(cache.neoncache[i].t == NEON_CACHE_XMMW && cache_i2.neoncache[i].t == NEON_CACHE_XMMR) {
                     // refresh cache...
                     MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.neoncache[i].t, cache.neoncache[i].n));
                     VSTR128_U12(i, xEmu, offsetof(x64emu_t, xmm[cache.neoncache[i].n]));
@@ -2323,7 +2319,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return;
-    if(dyn->f.dfnone || dyn->insts[jmp].f_exit.dfnone_here)  // flags are fully known, nothing we can do more
+    if(dyn->f.dfnone || (dyn->insts[jmp].f_exit.dfnone_here && !dyn->insts[jmp].x64.use_flags))  // flags are fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
     int go = (dyn->insts[jmp].f_entry.dfnone && !dyn->f.dfnone)?1:0;
@@ -2371,6 +2367,13 @@ void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
     x87_reflectcache(dyn, ninst, s1, s2, s3);
     mmx_reflectcache(dyn, ninst, s1);
     //sse_reflectcache(dyn, ninst, s1); // no need, it's pushed/unpushed during call
+    // but ymm0 needs to be pushed
+    if(dyn->ymm_zero) {
+        ADDx_U12(s1, xEmu, offsetof(x64emu_t, ymm[0]));
+        for(int i=0; i<16; ++i)
+            if(dyn->ymm_zero&(1<<i))
+                STPx_S7_offset(xZR, xZR, s1, 16*i);
+    }
 }
 
 void fpu_unreflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
@@ -2481,7 +2484,7 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     dyn->ymm_zero = dyn->insts[reset_n].ymm0_out;
     #endif
     #if STEP == 0
-    if(box64_dynarec_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->n.x87stack);
+    if(box64_dynarec_dump && dyn->n.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->n.x87stack, ninst, reset_n);
         #endif
     #if defined(HAVE_TRACE) && (STEP>2)
     if(box64_dynarec_dump && 0) //disable for now, need more work

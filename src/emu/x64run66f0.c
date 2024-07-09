@@ -139,6 +139,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETEW(0);                                               \
             GETGW;                                                  \
             GW->word[0] = OP##16(emu, GW->word[0], EW->word[0]);    \
+            break;                                                  \
         case B+5:                                                   \
             R_AX = OP##16(emu, R_AX, F16);                          \
             break;

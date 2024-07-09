@@ -40,6 +40,7 @@
 #() iFP
 #() iFb
 #() IFv
+#() IFi
 #() IFI
 #() IFf
 #() IFd
@@ -161,6 +162,7 @@
 #() vFpl
 #() vFpL
 #() vFpp
+#() vFpV
 #() vFpS
 #() vFSi
 #() vFbi
@@ -414,6 +416,7 @@
 #() vFLup
 #() vFLpL
 #() vFLpp
+#() vFpic
 #() vFpii
 #() vFpiI
 #() vFpiC
@@ -512,10 +515,12 @@
 #() iFLpp
 #() iFpwp
 #() iFpii
+#() iFpiI
 #() iFpiC
 #() iFpiW
 #() iFpiu
 #() iFpiU
+#() iFpid
 #() iFpil
 #() iFpiL
 #() iFpip
@@ -782,6 +787,7 @@
 #() vFiiip
 #() vFiiCp
 #() vFiill
+#() vFiipV
 #() vFiuip
 #() vFiuuu
 #() vFiulp
@@ -1165,6 +1171,7 @@
 #() LFippp
 #() LFuipL
 #() LFpCii
+#() LFpupL
 #() LFpLCL
 #() LFpLLp
 #() LFpLpL
@@ -1672,6 +1679,7 @@
 #() lFpuipC
 #() lFpuuLL
 #() lFppupp
+#() lFppllp
 #() lFppLpL
 #() lFppLpp
 #() LFELppi
@@ -2117,6 +2125,7 @@
 #() lFipLpLL
 #() lFpipill
 #() lFpuuLLp
+#() lFpplllp
 #() lFppLipp
 #() lFpppLpp
 #() LFEupppp
@@ -2396,6 +2405,7 @@
 #() iFpppLppp
 #() iFppppilp
 #() iFppppipp
+#() iFppppIip
 #() iFppppdpu
 #() iFpppppip
 #() iFpppppLp
@@ -2917,6 +2927,7 @@
 #() iFiiiiiiiiiip
 #() iFpiippiiipip
 #() iFpippupppppp
+#() iFpuppppppppp
 #() iFpLipiiiippp
 #() iFpLLpiiuuiiL
 #() iFppippipppip
@@ -3910,6 +3921,8 @@ wrappedgtk3:
   - gtk_text_iter_forward_find_char
 - vFpippp:
   - gtk_tree_sortable_set_sort_func
+- vFpuppp:
+  - gtk_file_filter_add_custom
 - vFppppp:
   - gtk_tree_view_column_set_cell_data_func
 - iFppuppp:
@@ -4354,6 +4367,8 @@ wrappedlibc:
 wrappedlibcmusl:
 wrappedlibcrypt:
 wrappedlibcups:
+- vFpp:
+  - cupsSetPasswordCB2
 - iFuipuupp:
   - cupsEnumDests
 wrappedlibdl:
@@ -4746,6 +4761,7 @@ wrappedlibsndfile:
   - sf_close
 - pFpipp:
   - sf_open_virtual
+wrappedlibsqlite3:
 wrappedlibssh2:
 wrappedlibssl:
 - pFp:
@@ -5605,6 +5621,7 @@ wrappedvulkan:
   - vkAllocateMemory
   - vkCreateAccelerationStructureKHR
   - vkCreateAccelerationStructureNV
+  - vkCreateAndroidSurfaceKHR
   - vkCreateBuffer
   - vkCreateBufferView
   - vkCreateCommandPool

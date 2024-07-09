@@ -203,6 +203,19 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
                     }
                     break;
 
+                case 0x58:
+                    switch(rep) {
+                        case 2: /* ADDSS Gx, FS:Ex */
+                            nextop = F8;
+                            GETEX_OFFS(0, tlsdata);
+                            GETGX;
+                            GX->f[0] += EX->f[0];
+                            break;
+
+                        default:
+                            return 0;
+                    }
+                    break;
                 case 0x59:
                     switch(rep) {
                         case 2: /* MULSS Gx, FS:Ex */

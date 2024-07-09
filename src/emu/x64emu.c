@@ -38,14 +38,14 @@ typedef struct cleanup_s {
 
 static uint32_t x86emu_parity_tab[8] =
 {
-	0x96696996,
-	0x69969669,
-	0x69969669,
-	0x96696996,
-	0x69969669,
-	0x96696996,
-	0x96696996,
-	0x69969669,
+    0x96696996,
+    0x69969669,
+    0x69969669,
+    0x96696996,
+    0x69969669,
+    0x96696996,
+    0x96696996,
+    0x69969669,
 };
 
 static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
@@ -219,20 +219,20 @@ void FreeX64EmuFromStack(x64emu_t **emu)
 
 void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
 {
-	memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
+    memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
     memcpy(&newemu->ip, &emu->ip, sizeof(emu->ip));
-	memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
+    memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
     memset(newemu->segs_serial, 0, sizeof(newemu->segs_serial));
-	memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
-	memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
+    memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
+    memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
     newemu->fpu_tags = emu->fpu_tags;
-	newemu->cw = emu->cw;
-	newemu->sw = emu->sw;
-	newemu->top = emu->top;
+    newemu->cw = emu->cw;
+    newemu->sw = emu->sw;
+    newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
     memcpy(newemu->ymm, emu->ymm, sizeof(emu->ymm));
@@ -254,23 +254,23 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
 
 void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)
 {
-	memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
+    memcpy(newemu->regs, emu->regs, sizeof(emu->regs));
     memcpy(&newemu->ip, &emu->ip, sizeof(emu->ip));
-	memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
+    memcpy(&newemu->eflags, &emu->eflags, sizeof(emu->eflags));
     newemu->old_ip = emu->old_ip;
     memcpy(newemu->segs, emu->segs, sizeof(emu->segs));
     memcpy(newemu->segs_serial, emu->segs_serial, sizeof(emu->segs_serial));
     memcpy(newemu->segs_offs, emu->segs_offs, sizeof(emu->segs_offs));
-	memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
-	memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
+    memcpy(newemu->x87, emu->x87, sizeof(emu->x87));
+    memcpy(newemu->mmx, emu->mmx, sizeof(emu->mmx));
     memcpy(newemu->xmm, emu->xmm, sizeof(emu->xmm));
     memcpy(newemu->ymm, emu->ymm, sizeof(emu->ymm));
     memcpy(newemu->fpu_ld, emu->fpu_ld, sizeof(emu->fpu_ld));
     memcpy(newemu->fpu_ll, emu->fpu_ll, sizeof(emu->fpu_ll));
     newemu->fpu_tags = emu->fpu_tags;
-	newemu->cw = emu->cw;
-	newemu->sw = emu->sw;
-	newemu->top = emu->top;
+    newemu->cw = emu->cw;
+    newemu->sw = emu->sw;
+    newemu->top = emu->top;
     newemu->fpu_stack = emu->fpu_stack;
     newemu->df = emu->df;
     newemu->df_sav = emu->df_sav;
@@ -623,10 +623,9 @@ static inline uint64_t readCycleCounter()
 static inline uint64_t readFreq()
 {
     static size_t val = -1;
-    if (val != -1) return val;
 
     val = readBinarySizeFromFile("/sys/firmware/devicetree/base/cpus/timebase-frequency");
-    if (val != -1) return val;
+    if (val != (size_t)-1) return val;
 
     // fallback to rdtime + sleep
     struct timespec ts;

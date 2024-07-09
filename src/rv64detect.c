@@ -68,6 +68,12 @@ void RV64_Detect_Function()
     BR(xRA);
     rv64_zbs = Check(my_block);
 
+    // Test Vector v1.0 with CSRR zero, vcsr
+    block = (uint32_t*)my_block;
+    CSRRS(xZR, xZR, 0x00f);
+    BR(xRA);
+    rv64_vector = Check(my_block); // TODO: also check vlen >= 128
+
     // THead vendor extensions
     if (!rv64_zba) {
         // Test XTheadBa with TH_ADDSL

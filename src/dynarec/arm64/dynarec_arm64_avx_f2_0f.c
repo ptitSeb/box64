@@ -384,6 +384,27 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             YMM0(gd);
             break;
 
+        case 0xD0:
+            INST_NAME("VADDSUBPS Gx, Vx, Ex");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn, ninst);
+            static float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
+            MAYUSE(addsubps);
+            TABLE64(x2, (uintptr_t)&addsubps);
+            VLDR128_U12(q0, x2, 0);
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); if(v0==v1) q1 = fpu_get_scratch(dyn, ninst); } else { GETGY_empty_VYEY(v0, v2, v1); }
+                if(v0==v1) {
+                    VFMULQS(q1, v1, q0);
+                    VFADDQS(v0, v2, q1);
+                } else {
+                    if(v0!=v2) VMOVQ(v0, v2);
+                    VFMLAQS(v0, v1, q0);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
+
         case 0xE6:
             INST_NAME("VCVTPD2DQ Gx, Ex");
             nextop = F8;

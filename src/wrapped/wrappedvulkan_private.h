@@ -311,6 +311,9 @@ GO(vkGetPhysicalDeviceXcbPresentationSupportKHR, uFpubp)
 GOM(vkCreateXlibSurfaceKHR, iFEpppp)
 GO(vkGetPhysicalDeviceXlibPresentationSupportKHR, uFpupp)
 
+// VK_KHR_android_surface
+GOM(vkCreateAndroidSurfaceKHR, iFEpppp)
+
 // VK_KHR_swapchain
 GO(vkAcquireNextImageKHR, iFpUUUUp)
 GO(vkAcquireNextImage2KHR, iFppp)
@@ -965,3 +968,18 @@ GO(vkCmdInitializeGraphScratchMemoryAMDX, vFpU)
 GOM(vkCreateExecutionGraphPipelinesAMDX, iFEpUuppp)
 GO(vkGetExecutionGraphPipelineNodeIndexAMDX, iFpUpp)
 GO(vkGetExecutionGraphPipelineScratchSizeAMDX, iFpUp)
+
+// VK_KHR_maintenance6
+GO(vkCmdBindDescriptorSets2KHR, vFpp)
+GO(vkCmdPushConstants2KHR, vFpp)
+GO(vkCmdBindDescriptorBufferEmbeddedSamplers2EXT, vFpp)
+GO(vkCmdSetDescriptorBufferOffsets2EXT, vFpp)
+GO(vkCmdPushDescriptorSet2KHR, vFpp)
+GO(vkCmdPushDescriptorSetWithTemplate2KHR, vFpp)
+
+// VK_KHR_dynamic_rendering_local_read
+GO(vkCmdSetRenderingAttachmentLocationsKHR, vFpp)
+GO(vkCmdSetRenderingInputAttachmentIndicesKHR, vFpp)
+
+// VK_KHR_line_rasterization
+GO(vkCmdSetLineStippleKHR, vFpuW)

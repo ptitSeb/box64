@@ -1,7 +1,7 @@
 #define INIT    
 #define FINI
-#define MESSAGE(A, ...)  
-#define EMIT(A)     
+#define MESSAGE(A, ...) do {} while (0)
+#define EMIT(A) do {} while (0)
 #define NEW_INST                                \
         dyn->insts[ninst].f_entry = dyn->f;     \
         dyn->n.combined1 = dyn->n.combined2 = 0;\

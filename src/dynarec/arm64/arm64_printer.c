@@ -1651,7 +1651,7 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
         if((imm&0b0001)==0b0001) sz=0;
         else if((imm&0b0011)==0b0010) sz=1;
         else if((imm&0b0111)==0b0100) sz=2;
-        int sh=imm - (1<<sz);
+        int sh=(imm>>sz) - 1;
         const char* Vd = Y[(sz<<1)|a.Q];
         const char* Vn = Z[sz];
         snprintf(buff, sizeof(buff), "DUP V%d.%s, V%d.%s[%d]", Rd, Vd, Rn, Vn, sh);

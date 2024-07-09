@@ -27,29 +27,29 @@ const char* libsmName = "libSM.so.6";
 
 typedef struct my_SmcCallbacks_s {
     struct {
-	void*	 callback;
-	void*	 client_data;
+        void*    callback;
+        void*    client_data;
     } save_yourself;
 
     struct {
-	void*	 callback;
-	void*	 client_data;
+        void*    callback;
+        void*    client_data;
     } die;
 
     struct {
-	void*	 callback;
-	void*		 client_data;
+        void*    callback;
+        void*    client_data;
     } save_complete;
 
     struct {
-	void* callback;
-	void*		 client_data;
+        void*   callback;
+        void*    client_data;
     } shutdown_cancelled;
 } my_SmcCallbacks_t;
-#define SmcSaveYourselfProcMask		    (1L << 0)
-#define SmcDieProcMask			        (1L << 1)
-#define SmcSaveCompleteProcMask		    (1L << 2)
-#define SmcShutdownCancelledProcMask	(1L << 3)
+#define SmcSaveYourselfProcMask         (1L << 0)
+#define SmcDieProcMask                  (1L << 1)
+#define SmcSaveCompleteProcMask         (1L << 2)
+#define SmcShutdownCancelledProcMask    (1L << 3)
 
 static uintptr_t my_save_yourself_fct = 0;
 static void my_save_yourself(void* smcConn, void* clientData, int saveType, int shutdown, int interactStyle, int fast)
