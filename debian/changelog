@@ -1,3 +1,29 @@
+box64 (0.3.0) unstable; urgency=low
+
+* AVX and AVX2 implemented, along with BMI1, BMI2, ADX, FMA, F16C and RDANDR extension!
+* Introduced BOX64_AVX env. var. to enable/disable AVX extension:
+*   => BOX64_AVX=1 enable AVX, BMI1, F16C and VAES extension
+*   => BOX64_AVX=2 also enable AVX2, BMI2, FMA, ADX,VPCLMULQDQ and RDRAND
+* Dynarec: Implemented most AVX/AVX2 and friends in ARM64 Dynarec (using only NEON, so available on all ARM64 CPU)
+*   => ARM64 Dynarec build have all AVX/AVX2 extensions enabled by default
+* Improved CPUID opcodes, adding a few leaf, fixing same. Returnning an Haswell type of CPU now (was Pentium IV before)
+* Dynarec: Small optim in the emit_pf helper, on all 3 backends
+* Dynarec: ARM64 some fixes to a few opcodes
+* Dynarec: LA64 many new opcodes added, and fixes.
+* Dynarec: RV64 some new opcodes added, many fixes.
+* Dynarec: RV64 Adding some infrastructure to use RVV (if available) for SIMD emulation.
+* Dynarec: Many small changes and fixes around handling of x87, registers and internal jump.
+* WRAPPING: Added a workaround on SDL_GetThreadID to fix a race condition that was happening mostly on LA64 and broke many SDL games
+* WRAPPING: More libs and functions wrapped. Some wrapping fixes too (including a nasty error on some rare libGL functions)
+* WRAPPING: Wayland is now supported. Wine-wayland at least works now
+* Dynarec: LA64 improved LOCK CMPXCHG handling, and better 16Byte LOCK handling too (fixes many Unity3D games)
+* Dynarec: RV64 improved LOCK CMPXCHG handling
+* COSIM: Many fixes and improvment, to make BOX64_DYNAREC_TEST more usable
+* Detect when a Wine program use UnityPlayer.dll to atumaticaly use BOX64_DYNAREC_STRONGMEM=1 (unless it's already set), so more games just work
+* ElfLoader: Added a new type of relocation
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Thu, 9 Jul 2024 10:30:33 -0100
+
 box64 (0.2.8) unstable; urgency=low
 
 * Wrapping: More libs and function wrapping (gtk3, vulkan...)
