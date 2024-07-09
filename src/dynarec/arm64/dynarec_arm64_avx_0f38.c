@@ -59,7 +59,6 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
 
     rex_t rex = vex.rex;
 
-
     switch(opcode) {
 
         case 0xF2:
@@ -71,7 +70,6 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             GETVD;
             BICxw(gd, ed, vd);
             break;
-
         case 0xF3:
             nextop = F8;
             switch((nextop>>3)&7) {
@@ -80,22 +78,30 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                     SETFLAGS(X_ALL, SF_SET);
                     GETED(0);
                     GETVD;
-                    TSTxw_REG(ed, ed);
-                    CSETMw(x3, cEQ);
-                    BFIw(xFlags, x3, F_CF, 1);
+                    IFX(X_CF) {
+                        TSTxw_REG(ed, ed);
+                        CSETMw(x3, cEQ);
+                        BFIw(xFlags, x3, F_CF, 1);
+                    }
                     SUBxw_U12(x3, ed, 1);
-                    ANDSxw_REG(vd, ed, x3);
-                    CSETMw(x3, cEQ);
-                    BFIw(xFlags, x3, F_ZF, 1);
-                    LSRxw(x3, vd, rex.w ? 63 : 31);
-                    BFIw(xFlags, x3, F_SF, 1);
-                    BFCw(xFlags, F_OF, 1);
+                    IFX(X_ZF)
+                        ANDSxw_REG(vd, ed, x3);
+                    else
+                        ANDxw_REG(vd, ed, x3);
+                    IFX(X_ZF) {
+                        CSETMw(x3, cEQ);
+                        BFIw(xFlags, x3, F_ZF, 1);
+                    }
+                    IFX(X_SF) {
+                        LSRxw(x3, vd, rex.w?63:31);
+                        BFIw(xFlags, x3, F_SF, 1);
+                    }
+                    IFX(X_OF) BFCw(xFlags, F_OF, 1);
                     if(box64_dynarec_test) {
-                        BFCw(xFlags, F_AF, 1);
-                        BFCw(xFlags, F_PF, 1);
+                        IFX(X_AF) BFCw(xFlags, F_AF, 1);
+                        IFX(X_PF) BFCw(xFlags, F_PF, 1);
                     }
                     break;
-
                 default:
                     DEFAULT;
             }
@@ -109,25 +115,28 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             GETED(0);
             GETVD;
             UXTBw(x1, vd);
-            CMPSw_U12(x1, rex.w ? 64 : 32);
+            CMPSw_U12(x1, rex.w?64:32);
             CSETxw(x2, cPL);
-            BFIw(xFlags, x2, F_CF, 1);
-            MVNxw_REG(x2, x2); // prepare mask
+            IFX(F_CF) {
+                BFIw(xFlags, x2, F_CF, 1);
+            }
+            MVNxw_REG(x2, x2); //prepare mask
             B_MARK(cPL);
             LSLxw_REG(x2, x2, x1);
             MARK;
-            if (X_ZF) {
+            IFX(X_ZF) {
                 BICSxw(gd, ed, x2);
                 CSETw(x3, cEQ);
                 BFIw(xFlags, x3, F_ZF, 1);
-            } else {
+            } else
                 BICxw(gd, ed, x2);
+            IFX(X_SF) {
+                LSRxw(x3, gd, rex.w?63:31);
+                BFIw(xFlags, x3, F_SF, 1);
             }
-            LSRxw(x3, gd, rex.w ? 63 : 31);
-            BFIw(xFlags, x3, F_SF, 1);
-            BFCw(xFlags, F_AF, 1);
-            BFCw(xFlags, F_PF, 1);
-            BFCw(xFlags, F_OF, 1);
+            IFX(X_AF) BFCw(xFlags, F_AF, 1);
+            IFX(X_PF) BFCw(xFlags, F_PF, 1);
+            IFX(X_OF) BFCw(xFlags, F_OF, 1);
             break;
 
         default:
