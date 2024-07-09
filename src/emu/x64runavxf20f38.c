@@ -1,5 +1,4 @@
 #define _GNU_SOURCE
-#define MASK64 0xFFFFFFFFFFFFFFFFLL
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,6 +57,7 @@ uintptr_t RunAVX_F20F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     rex_t rex = vex.rex;
 
     switch(opcode) {
+#define MASK64 0xFFFFFFFFFFFFFFFFLL
 
 case 0xF5:  /* PDEP Gd, Ed, Vd */
     nextop = F8;
@@ -67,15 +67,15 @@ case 0xF5:  /* PDEP Gd, Ed, Vd */
     GETVD;
 
     if(rex.w) {
-        if(ED->default_op[0]&MASK64)
-            gvx(GD->default_op[0], gxv, dex(GD->default_op[0]), 0) ^= depx(ED->default_op[0], dexp, dex(ED->default_op[0]));
-        if(VD->default_op[0]&MASK64)
-            gvx(GD->default_op[0], gxv, devx(VD->default_op[0], dexp, dex(VD->default_op[0])));
+        if(ED->q[0]&MASK64)
+            gvx(GD->q[0], gxv, ED->q[0], 0) ^= depx(ED->q[0], dexp, ED->q[0]);
+        if(VD->q[0]&MASK64)
+            gvx(GD->q[0], gxv, VD->q[0], 0) ^= depx(VD->q[0], dexp, VD->q[0]);
     } else {
-        if(ED->default_op[0])
-            VD->default_op[0] = ED->default_op[0] & ~(R_EDX-1);
-        if(VD->default_op[0])
-            GD->default_op[0] = VD->default_op[0] & ~(R_EDX-1);
+        if(ED->dword[0])
+            VD->dword[0] = ED->dword[0] & ~(R_EDX-1);
+        if(VD->dword[0])
+            GD->dword[0] = VD->dword[0] & ~(R_EDX-1);
     }
     break;
 
@@ -87,14 +87,14 @@ case 0xF6:  /* MULX Gd, Vd, Ed (,RDX) */
     GETVD;
 
     if(rex.w) {
-        if(ED->default_op[0]&MASK64)
-            tmp64u = (ED->default_op[0] ^ gvx(ED->default_op[0], gxv, dex(ED->default_op[0]))) | ((ED->default_op[0] ^ gxq(ED->default_op[0], gxq, dex(ED->default_op[0])))>>63);
-        VD->default_op[0] ^= tmp64u;
-        GD->default_op[0] ^= tmp64u >> 31;
+        if(ED->q[0]&MASK64)
+            tmp64u = (ED->q[0] ^ gvx(GD->q[0], gxv, ED->q[0], 0)) | ((ED->q[0] ^ gxq(GD->q[0], gxq, ED->q[0], 0))>>63);
+        VD->q[0] ^= tmp64u;
+        GD->q[0] ^= tmp64u >> 31;
     } else {
-        if(ED->default_op[0])
-            VD->default_op[0] = ED->default_op[0] * R_EDX;
-        GD->default_op[0] = VD->default_op[0];
+        if(ED->dword[0])
+            VD->dword[0] = ED->dword[0] * R_EDX;
+        GD->dword[0] = VD->dword[0];
     }
     break;
 
@@ -106,11 +106,11 @@ case 0xF7:  /* SHRX Gd, Ed, Vd */
     GETVD;
 
     if(rex.w) {
-        u8 = VD->default_op[0] & 0x3f;
-        GD->default_op[0] = ED->default_op[0] >> u8;
+        u8 = VD->q[0] & 0x3f;
+        GD->q[0] = ED->q[0] >> u8;
     } else {
-        u8 = VD->default_op[0] & 0x1f;
-        GD->default_op[0] = ED->default_op[0] >> u8;
+        u8 = VD->dword[0] & 0x1f;
+        GD->dword[0] = ED->dword[0] >> u8;
     }
     break;
 
