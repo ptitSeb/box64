@@ -145,11 +145,11 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             tmp32u = VD->byte[0];   // start
             if(rex.w) {
                 GD->q[0] = ED->q[0];
-                if(tmp32u<64) GD->q[0] &= ~((-1LL<<tmp32u));
+                if(tmp32u<64) GD->q[0] &= ~((((uint64_t)-1)<<tmp32u));
                 CONDITIONAL_SET_FLAG((tmp32u>63), F_CF);
             } else {
                 GD->q[0] = ED->dword[0];
-                if(tmp32u<32) GD->dword[0] &= ~((-1<<tmp32u));
+                if(tmp32u<32) GD->dword[0] &= ~((((uint64_t)-1)<<tmp32u));
                 CONDITIONAL_SET_FLAG((tmp32u>31), F_CF);
             }
             CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]==0):(GD->dword[0]==0), F_ZF);

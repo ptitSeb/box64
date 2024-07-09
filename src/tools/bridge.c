@@ -99,7 +99,7 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
 
     mutex_lock(&my_context->mutex_bridge);
     b = bridge->last;
-    if(b->sz == NBRICK) {
+    if(b->sz == (int)NBRICK) {
         b->next = NewBrick(b->b);
         b = b->next;
         bridge->last = b;
@@ -202,7 +202,7 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
     int sz = -1;
     mutex_lock(&my_context->mutex_bridge);
     b = bridge->last;
-    if(b->sz == NBRICK) {
+    if(b->sz == (int)NBRICK) {
         b->next = NewBrick(b->b);
         b = b->next;
         bridge->last = b;

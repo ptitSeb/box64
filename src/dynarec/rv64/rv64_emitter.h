@@ -112,18 +112,18 @@ f28–31  ft8–11  FP temporaries                  Caller
 // MOV64x/MOV32w is quite complex, so use a function for this
 #define MOV64x(A, B) rv64_move64(dyn, ninst, A, B)
 #define MOV32w(A, B) rv64_move32(dyn, ninst, A, B, 1)
-#define MOV64xw(A, B) \
+#define MOV64xw(A, B) do { \
     if (rex.w) {      \
         MOV64x(A, B); \
     } else {          \
         MOV32w(A, B); \
-    }
-#define MOV64z(A, B)    \
+    } } while (0)
+#define MOV64z(A, B) do { \
     if (rex.is32bits) { \
         MOV32w(A, B);   \
     } else {            \
         MOV64x(A, B);   \
-    }
+    } } while (0)
 
 // ZERO the upper part
 #define ZEROUP(r) AND(r, r, xMASK)
@@ -225,19 +225,19 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1 (pseudo instruction)
 #define MV(rd, rs1) ADDI(rd, rs1, 0)
 // rd = rs1 (pseudo instruction)
-#define MVxw(rd, rs1)        \
+#define MVxw(rd, rs1) do {   \
     if (rex.w) {             \
         MV(rd, rs1);         \
     } else {                 \
         AND(rd, rs1, xMASK); \
-    }
+    } } while (0)
 // rd = rs1 (pseudo instruction)
-#define MVz(rd, rs1)         \
+#define MVz(rd, rs1) do {    \
     if (rex.is32bits) {      \
         AND(rd, rs1, xMASK); \
     } else {                 \
         MV(rd, rs1);         \
-    }
+    } } while (0)
 // rd = !rs1
 #define NOT(rd, rs1) XORI(rd, rs1, -1)
 // rd = -rs1
@@ -344,10 +344,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 // 4-bytes[rs1+imm12] = rs2
 #define SW(rs2, rs1, imm12) EMIT(S_type(imm12, rs2, rs1, 0b010, 0b0100011))
 
-#define PUSH1(reg)           \
-    do {                     \
-        SD(reg, xRSP, -8);   \
-        SUBI(xRSP, xRSP, 8); \
+#define PUSH1(reg)            \
+    do {                      \
+        SD(reg, xRSP, 0xFF8); \
+        SUBI(xRSP, xRSP, 8);  \
     } while (0)
 #define POP1(reg)                             \
     do {                                      \
@@ -356,7 +356,7 @@ f28–31  ft8–11  FP temporaries                  Caller
     } while (0)
 #define PUSH1_32(reg)         \
     do {                      \
-        SW(reg, xRSP, -4);    \
+        SW(reg, xRSP, 0xFFC); \
         SUBIW(xRSP, xRSP, 4); \
     } while (0)
 #define POP1_32(reg)                           \
@@ -378,10 +378,10 @@ f28–31  ft8–11  FP temporaries                  Caller
         PUSH1(reg);     \
     }
 
-#define PUSH1_16(reg)        \
-    do {                     \
-        SH(reg, xRSP, -2);   \
-        SUBI(xRSP, xRSP, 2); \
+#define PUSH1_16(reg)         \
+    do {                      \
+        SH(reg, xRSP, 0xFFE); \
+        SUBI(xRSP, xRSP, 2);  \
     } while (0)
 
 #define POP1_16(reg)                          \
@@ -452,60 +452,60 @@ f28–31  ft8–11  FP temporaries                  Caller
 // rd = rs1>>rs2 arithmetic
 #define SRAW(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b101, rd, 0b0111011))
 
-#define SLLxw(rd, rs1, rs2) \
-    if (rex.w) {            \
-        SLL(rd, rs1, rs2);  \
-    } else {                \
-        SLLW(rd, rs1, rs2); \
-        ZEROUP(rd);         \
-    }
+#define SLLxw(rd, rs1, rs2) do { \
+    if (rex.w) {                 \
+        SLL(rd, rs1, rs2);       \
+    } else {                     \
+        SLLW(rd, rs1, rs2);      \
+        ZEROUP(rd);              \
+    } } while (0)
 
-#define SRLxw(rd, rs1, rs2) \
-    if (rex.w) {            \
-        SRL(rd, rs1, rs2);  \
-    } else {                \
-        SRLW(rd, rs1, rs2); \
-        ZEROUP(rd);         \
-    }
+#define SRLxw(rd, rs1, rs2) do { \
+    if (rex.w) {                 \
+        SRL(rd, rs1, rs2);       \
+    } else {                     \
+        SRLW(rd, rs1, rs2);      \
+        ZEROUP(rd);              \
+    } } while (0)
 
-#define SRAxw(rd, rs1, rs2) \
-    if (rex.w) {            \
-        SRA(rd, rs1, rs2);  \
-    } else {                \
-        SRAW(rd, rs1, rs2); \
-        ZEROUP(rd);         \
-    }
+#define SRAxw(rd, rs1, rs2) do { \
+    if (rex.w) {                 \
+        SRA(rd, rs1, rs2);       \
+    } else {                     \
+        SRAW(rd, rs1, rs2);      \
+        ZEROUP(rd);              \
+    } } while (0)
 
 // Shift Left Immediate, 32-bit, sign-extended
 #define SLLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b001, rd, 0b0011011))
 // Shift Left Immediate
-#define SLLIxw(rd, rs1, imm) \
-    if (rex.w) {             \
-        SLLI(rd, rs1, imm);  \
-    } else {                 \
-        SLLIW(rd, rs1, imm); \
-        ZEROUP(rd);          \
-    }
+#define SLLIxw(rd, rs1, imm) do { \
+    if (rex.w) {                  \
+        SLLI(rd, rs1, imm);       \
+    } else {                      \
+        SLLIW(rd, rs1, imm);      \
+        ZEROUP(rd);               \
+    } } while (0)
 // Shift Right Logical Immediate, 32-bit, sign-extended
 #define SRLIW(rd, rs1, imm5) EMIT(I_type(imm5, rs1, 0b101, rd, 0b0011011))
 // Shift Right Logical Immediate
-#define SRLIxw(rd, rs1, imm)        \
+#define SRLIxw(rd, rs1, imm) do {   \
     if (rex.w) {                    \
         SRLI(rd, rs1, imm);         \
     } else {                        \
         SRLIW(rd, rs1, imm);        \
         if ((imm) == 0) ZEROUP(rd); \
-    }
+    } } while (0)
 // Shift Right Arithmetic Immediate, 32-bit, sign-extended
 #define SRAIW(rd, rs1, imm5) EMIT(I_type((imm5) | (0b0100000 << 5), rs1, 0b101, rd, 0b0011011))
 // Shift Right Arithmetic Immediate
-#define SRAIxw(rd, rs1, imm) \
-    if (rex.w) {             \
-        SRAI(rd, rs1, imm);  \
-    } else {                 \
-        SRAIW(rd, rs1, imm); \
-        ZEROUP(rd);          \
-    }
+#define SRAIxw(rd, rs1, imm) do { \
+    if (rex.w) {                  \
+        SRAI(rd, rs1, imm);       \
+    } else {                      \
+        SRAIW(rd, rs1, imm);      \
+        ZEROUP(rd);               \
+    } } while (0)
 
 #define CSRRW(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b001, rd, 0b1110011))
 #define CSRRS(rd, rs1, csr)  EMIT(I_type(csr, rs1, 0b010, rd, 0b1110011))
@@ -1243,58 +1243,58 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VLM_V(vd, rs1)  EMIT(I_type(0b000000101011, rs1, 0b000, vd, 0b0000111))  // 000000101011.....000.....0000111
 #define VSM_V(vs3, rs1) EMIT(I_type(0b000000101011, rs1, 0b000, vs3, 0b0100111)) // 000000101011.....000.....0100111
 
-#define VLE8_V(vd, rs1, vm, nf)   EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b000, vd, 0b0000111))  // ...000.00000.....000.....0000111
-#define VLE16_V(vd, rs1, vm, nf)  EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b101, vd, 0b0000111))  // ...000.00000.....101.....0000111
-#define VLE32_V(vd, rs1, vm, nf)  EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b110, vd, 0b0000111))  // ...000.00000.....110.....0000111
-#define VLE64_V(vd, rs1, vm, nf)  EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b111, vd, 0b0000111))  // ...000.00000.....111.....0000111
-#define VSE8_V(vs3, rs1, vm, nf)  EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b000, vs3, 0b0100111)) // ...000.00000.....000.....0100111
-#define VSE16_V(vs3, rs1, vm, nf) EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b101, vs3, 0b0100111)) // ...000.00000.....101.....0100111
-#define VSE32_V(vs3, rs1, vm, nf) EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b110, vs3, 0b0100111)) // ...000.00000.....110.....0100111
-#define VSE64_V(vs3, rs1, vm, nf) EMIT(I_type((nf << 9) | (vm << 5), rs1, 0b111, vs3, 0b0100111)) // ...000.00000.....111.....0100111
+#define VLE8_V(vd, rs1, vm, nf)   EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b000, vd, 0b0000111))  // ...000.00000.....000.....0000111
+#define VLE16_V(vd, rs1, vm, nf)  EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b101, vd, 0b0000111))  // ...000.00000.....101.....0000111
+#define VLE32_V(vd, rs1, vm, nf)  EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b110, vd, 0b0000111))  // ...000.00000.....110.....0000111
+#define VLE64_V(vd, rs1, vm, nf)  EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b111, vd, 0b0000111))  // ...000.00000.....111.....0000111
+#define VSE8_V(vs3, rs1, vm, nf)  EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b000, vs3, 0b0100111)) // ...000.00000.....000.....0100111
+#define VSE16_V(vs3, rs1, vm, nf) EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b101, vs3, 0b0100111)) // ...000.00000.....101.....0100111
+#define VSE32_V(vs3, rs1, vm, nf) EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b110, vs3, 0b0100111)) // ...000.00000.....110.....0100111
+#define VSE64_V(vs3, rs1, vm, nf) EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b111, vs3, 0b0100111)) // ...000.00000.....111.....0100111
 
 //  Vector Indexed-Unordered Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#76-vector-indexed-instructions
 
-#define VLUXEI8_V(vd, rs1, vs2, vm, nf)   EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
-#define VLUXEI16_V(vd, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
-#define VLUXEI32_V(vd, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
-#define VLUXEI64_V(vd, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
-#define VSUXEI8_V(vs3, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
-#define VSUXEI16_V(vs3, rs1, vs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
-#define VSUXEI32_V(vs3, rs1, vs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
-#define VSUXEI64_V(vs3, rs1, vs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
+#define VLUXEI8_V(vd, rs1, vs2, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
+#define VLUXEI16_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
+#define VLUXEI32_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
+#define VLUXEI64_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
+#define VSUXEI8_V(vs3, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
+#define VSUXEI16_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
+#define VSUXEI32_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
+#define VSUXEI64_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
 
 //  Vector Strided Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#75-vector-strided-instructions
 
-#define VLSE8_V(vd, rs1, rs2, vm, nf)   EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vd, 0b0000111))  // ...010...........000.....0000111
-#define VLSE16_V(vd, rs1, rs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vd, 0b0000111))  // ...010...........101.....0000111
-#define VLSE32_V(vd, rs1, rs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vd, 0b0000111))  // ...010...........110.....0000111
-#define VLSE64_V(vd, rs1, rs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vd, 0b0000111))  // ...010...........111.....0000111
-#define VSSE8_V(vs3, rs1, rs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vs3, 0b0100111)) // ...010...........000.....0100111
-#define VSSE16_V(vs3, rs1, rs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vs3, 0b0100111)) // ...010...........101.....0100111
-#define VSSE32_V(vs3, rs1, rs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vs3, 0b0100111)) // ...010...........110.....0100111
-#define VSSE64_V(vs3, rs1, rs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vs3, 0b0100111)) // ...010...........111.....0100111
+#define VLSE8_V(vd, rs1, rs2, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vd, 0b0000111))  // ...010...........000.....0000111
+#define VLSE16_V(vd, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vd, 0b0000111))  // ...010...........101.....0000111
+#define VLSE32_V(vd, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vd, 0b0000111))  // ...010...........110.....0000111
+#define VLSE64_V(vd, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vd, 0b0000111))  // ...010...........111.....0000111
+#define VSSE8_V(vs3, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vs3, 0b0100111)) // ...010...........000.....0100111
+#define VSSE16_V(vs3, rs1, rs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vs3, 0b0100111)) // ...010...........101.....0100111
+#define VSSE32_V(vs3, rs1, rs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vs3, 0b0100111)) // ...010...........110.....0100111
+#define VSSE64_V(vs3, rs1, rs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vs3, 0b0100111)) // ...010...........111.....0100111
 
 //  Vector Indexed-Ordered Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#76-vector-indexed-instructions
 
-#define VLOXEI8_V(vd, rs1, vs2, vm, nf)   EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vd, 0b0000111))  // ...011...........000.....0000111
-#define VLOXEI16_V(vd, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vd, 0b0000111))  // ...011...........101.....0000111
-#define VLOXEI32_V(vd, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vd, 0b0000111))  // ...011...........110.....0000111
-#define VLOXEI64_V(vd, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vd, 0b0000111))  // ...011...........111.....0000111
-#define VSOXEI8_V(vs3, rs1, vs2, vm, nf)  EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vs3, 0b0100111)) // ...011...........000.....0100111
-#define VSOXEI16_V(vs3, rs1, vs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vs3, 0b0100111)) // ...011...........101.....0100111
-#define VSOXEI32_V(vs3, rs1, vs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vs3, 0b0100111)) // ...011...........110.....0100111
-#define VSOXEI64_V(vs3, rs1, vs2, vm, nf) EMIT(R_type((nf << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vs3, 0b0100111)) // ...011...........111.....0100111
+#define VLOXEI8_V(vd, rs1, vs2, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vd, 0b0000111))  // ...011...........000.....0000111
+#define VLOXEI16_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vd, 0b0000111))  // ...011...........101.....0000111
+#define VLOXEI32_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vd, 0b0000111))  // ...011...........110.....0000111
+#define VLOXEI64_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vd, 0b0000111))  // ...011...........111.....0000111
+#define VSOXEI8_V(vs3, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vs3, 0b0100111)) // ...011...........000.....0100111
+#define VSOXEI16_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vs3, 0b0100111)) // ...011...........101.....0100111
+#define VSOXEI32_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vs3, 0b0100111)) // ...011...........110.....0100111
+#define VSOXEI64_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vs3, 0b0100111)) // ...011...........111.....0100111
 
 //  Unit-stride F31..29=0ault-Only-First Loads
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#77-unit-stride-fault-only-first-loads
 
-#define VLE8FF_V(vd, rs1, vm, nf)  EMIT(R_type((nf << 4) | (vm), 0b10000, rs1, 0b000, vd, 0b0000111)) // ...000.10000.....000.....0000111
-#define VLE16FF_V(vd, rs1, vm, nf) EMIT(R_type((nf << 4) | (vm), 0b10000, rs1, 0b101, vd, 0b0000111)) // ...000.10000.....101.....0000111
-#define VLE32FF_V(vd, rs1, vm, nf) EMIT(R_type((nf << 4) | (vm), 0b10000, rs1, 0b110, vd, 0b0000111)) // ...000.10000.....110.....0000111
-#define VLE64FF_V(vd, rs1, vm, nf) EMIT(R_type((nf << 4) | (vm), 0b10000, rs1, 0b111, vd, 0b0000111)) // ...000.10000.....111.....0000111
+#define VLE8FF_V(vd, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm), 0b10000, rs1, 0b000, vd, 0b0000111)) // ...000.10000.....000.....0000111
+#define VLE16FF_V(vd, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm), 0b10000, rs1, 0b101, vd, 0b0000111)) // ...000.10000.....101.....0000111
+#define VLE32FF_V(vd, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm), 0b10000, rs1, 0b110, vd, 0b0000111)) // ...000.10000.....110.....0000111
+#define VLE64FF_V(vd, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm), 0b10000, rs1, 0b111, vd, 0b0000111)) // ...000.10000.....111.....0000111
 
 //  Vector Load/Store Whole Registers
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#79-vector-loadstore-whole-register-instructions

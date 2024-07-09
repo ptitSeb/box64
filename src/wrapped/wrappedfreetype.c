@@ -20,7 +20,7 @@
 
 const char* freetypeName = 
 #ifdef ANDROID
-	"libfreetype.so"
+    "libfreetype.so"
 #else
     "libfreetype.so.6"
 #endif

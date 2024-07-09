@@ -2515,7 +2515,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     MOV32w(x4, 1);
                     BFIxw(ed, x4, u8, 1);
-                    EWBACK(x1);
+                    EWBACK;
                     break;
                 case 6:
                     INST_NAME("BTR Ew, Ib");
@@ -2528,7 +2528,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
                     BFCxw(ed, u8, 1);
-                    EWBACK(x1);
+                    EWBACK;
                     break;
                 case 7:
                     INST_NAME("BTC Ew, Ib");
@@ -2542,7 +2542,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     MOV32w(x4, 1);
                     EORxw_REG_LSL(ed, ed, x4, u8);
-                    EWBACK(x1);
+                    EWBACK;
                     break;
                 default:
                     DEFAULT;

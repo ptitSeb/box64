@@ -296,7 +296,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     ssize_t new_size = asize + (paddr-new_addr);    // so need new_size to compensate
                     while(getProtection(new_addr) && (new_size>0)) {// but then, there might be some overlap
                         uintptr_t diff = ALIGN(new_addr+1) - new_addr; // next page
-                        if(diff<new_size)
+                        if(diff<(size_t)new_size)
                             new_size -= diff;
                         else
                             new_size = 0;
@@ -941,7 +941,7 @@ uintptr_t GetLastByte(elfheader_t* h)
 }
 
 #ifndef STB_GNU_UNIQUE
-#define STB_GNU_UNIQUE	10
+#define STB_GNU_UNIQUE 10
 #endif
 
 void checkHookedSymbols(elfheader_t* h); // in mallochook.c

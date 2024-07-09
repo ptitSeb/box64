@@ -166,9 +166,9 @@ static void* find_OnProcessingPassStartFunc_Fct(void* fct)
 }
 typedef struct my_FAudioEngineCallback_s
 {
-	void* OnCriticalError;
-	void* OnProcessingPassEnd;
-	void* OnProcessingPassStart;
+    void* OnCriticalError;
+    void* OnProcessingPassEnd;
+    void* OnProcessingPassStart;
 } my_FAudioEngineCallback_t;
 // OnBufferEndFunc ...
 #define GO(A)   \
@@ -326,13 +326,13 @@ static void* find_OnVoiceProcessingPassStartFunc_Fct(void* fct)
 }
 typedef struct my_FAudioVoiceCallback_s
 {
-	void* OnBufferEnd;
-	void* OnBufferStart;
-	void* OnLoopEnd;
-	void* OnStreamEnd;
-	void* OnVoiceError;
-	void* OnVoiceProcessingPassEnd;
-	void* OnVoiceProcessingPassStart;
+    void* OnBufferEnd;
+    void* OnBufferStart;
+    void* OnLoopEnd;
+    void* OnStreamEnd;
+    void* OnVoiceError;
+    void* OnVoiceProcessingPassEnd;
+    void* OnVoiceProcessingPassStart;
 } my_FAudioVoiceCallback_t;
 // FAudioEngineCallEXT ...
 #define GO(A)   \

@@ -5,7 +5,7 @@
                 dyn->insts_size += 1+((dyn->insts[ninst].x64.size>(dyn->insts[ninst].size/4))?dyn->insts[ninst].x64.size:(dyn->insts[ninst].size/4))/15; \
         }
 
-#define MESSAGE(A, ...)  
+#define MESSAGE(A, ...) do {} while (0)
 #define EMIT(A)     do{dyn->insts[ninst].size+=4; dyn->native_size+=4;}while(0)
 #define NEW_INST                                                                                        \
         if(ninst) {                                                                                     \

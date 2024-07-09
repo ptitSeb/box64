@@ -944,7 +944,7 @@ GO(XSetIconName, iFppp)
 GO(XSetIconSizes, iFpLpi)
 GOM(XSetICValues, pFEpV)         // use vaarg
 //GO(_XSetImage, 
-GOM(XSetIMValues, pFEpV)	// use vaarg
+GOM(XSetIMValues, pFEpV)    // use vaarg
 GO(XSetInputFocus, iFpLiL)
 GOM(XSetIOErrorHandler, pFEp)
 GO(_XSetLastRequestRead, uFpp)

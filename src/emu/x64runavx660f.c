@@ -963,7 +963,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             switch((nextop>>3)&7) {
                 case 2:                 /* VPSRLQ Vx, Ex, Ib */
                     tmp8u = F8;
-                    if(tmp8u>63) VX->u128;
+                    if(tmp8u>63) VX->u128 = 0;
                     else
                         {VX->q[0] = EX->q[0] >> tmp8u; VX->q[1] = EX->q[1] >> tmp8u;}
                     if(vex.l) {

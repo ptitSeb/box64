@@ -1273,7 +1273,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX();
                     GETED(1);
                     u8 = F8;
-                    SB(ed, gback, gdoffset + u8 & 0xF);
+                    SB(ed, gback, gdoffset + (u8 & 0xF));
                     break;
                 case 0x21:
                     INST_NAME("INSERTPS GX, EX, Ib");

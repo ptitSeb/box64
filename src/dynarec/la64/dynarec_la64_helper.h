@@ -621,7 +621,7 @@
                 ANDI(scratch1, scratch2, 0x80);                       \
             } else {                                                  \
                 SRLI_D(scratch1, scratch2, (width)-1);                \
-                if (width != 64) ANDI(scratch1, scratch1, 1);         \
+                if ((width) != 64) ANDI(scratch1, scratch1, 1);       \
             }                                                         \
             BEQZ(scratch1, 8);                                        \
             ORI(xFlags, xFlags, 1 << F_CF);                           \
@@ -639,7 +639,7 @@
     }
 
 #ifndef MAYSETFLAGS
-#define MAYSETFLAGS()
+#define MAYSETFLAGS() do {} while (0)
 #endif
 
 #ifndef READFLAGS

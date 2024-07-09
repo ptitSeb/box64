@@ -488,13 +488,13 @@ HWCAP2_AFP
             return;
         }
 
-        if (la64_lbt = (cpucfg2 >> 18) & 0b1)
+        if ((la64_lbt = (cpucfg2 >> 18) & 0b1))
             printf_log(LOG_INFO, " LBT_X86");
-        if (la64_lam_bh = (cpucfg2 >> 27) & 0b1)
+        if ((la64_lam_bh = (cpucfg2 >> 27) & 0b1))
             printf_log(LOG_INFO, " LAM_BH");
-        if (la64_lamcas = (cpucfg2 >> 28) & 0b1)
+        if ((la64_lamcas = (cpucfg2 >> 28) & 0b1))
             printf_log(LOG_INFO, " LAMCAS");
-        if (la64_scq = (cpucfg2 >> 30) & 0b1)
+        if ((la64_scq = (cpucfg2 >> 30) & 0b1))
             printf_log(LOG_INFO, " SCQ");
     }
 #elif defined(RV64)
@@ -1278,7 +1278,7 @@ void AddNewLibs(const char* list)
 }
 
 void PrintFlags() {
-	printf("Environment Variables:\n");
+    printf("Environment Variables:\n");
     printf(" BOX64_PATH is the box64 version of PATH (default is '.:bin')\n");
     printf(" BOX64_LD_LIBRARY_PATH is the box64 version LD_LIBRARY_PATH (default is '.:lib:lib64')\n");
     printf(" BOX64_LOG with 0/1/2/3 or NONE/INFO/DEBUG/DUMP to set the printed debug info (level 3 is level 2 + BOX64_DUMP)\n");
@@ -1412,31 +1412,31 @@ void LoadEnvVars(box64context_t *context)
         if (strcmp(getenv("BOX64_SSE_FLUSHTO0"), "1")==0) {
             box64_sse_flushto0 = 1;
             printf_log(LOG_INFO, "BOX64: Direct apply of SSE Flush to 0 flag\n");
-    	}
+        }
     }
     if(getenv("BOX64_X87_NO80BITS")) {
         if (strcmp(getenv("BOX64_X87_NO80BITS"), "1")==0) {
             box64_x87_no80bits = 1;
             printf_log(LOG_INFO, "BOX64: All 80bits x87 long double will be handle as double\n");
-    	}
+        }
     }
     if(getenv("BOX64_SYNC_ROUNDING")) {
         if (strcmp(getenv("BOX64_SYNC_ROUNDING"), "1")==0) {
             box64_sync_rounding = 1;
             printf_log(LOG_INFO, "BOX64: Rouding mode with be synced with fesetround/fegetround\n");
-    	}
+        }
     }
     if(getenv("BOX64_PREFER_WRAPPED")) {
         if (strcmp(getenv("BOX64_PREFER_WRAPPED"), "1")==0) {
             box64_prefer_wrapped = 1;
             printf_log(LOG_INFO, "BOX64: Prefering Wrapped libs\n");
-    	}
+        }
     }
     if(getenv("BOX64_PREFER_EMULATED")) {
         if (strcmp(getenv("BOX64_PREFER_EMULATED"), "1")==0) {
             box64_prefer_emulated = 1;
             printf_log(LOG_INFO, "BOX64: Prefering Emulated libs\n");
-    	}
+        }
     }
 
     if(getenv("BOX64_NOSIGSEGV")) {
@@ -1684,7 +1684,7 @@ static void load_rcfiles()
     char* rcpath = getenv("BOX64_RCFILE");
 
     if(rcpath && FileExist(rcpath, IS_FILE))
-	LoadRCFile(rcpath);
+    LoadRCFile(rcpath);
     #ifndef TERMUX
     else if(FileExist("/etc/box64.box64rc", IS_FILE))
         LoadRCFile("/etc/box64.box64rc");

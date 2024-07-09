@@ -1035,7 +1035,7 @@
 #define SET_DFOK()          dyn->f.dfnone = 1; dyn->f.dfnone_here=1
 
 #ifndef MAYSETFLAGS
-#define MAYSETFLAGS()
+#define MAYSETFLAGS() do {} while (0)
 #endif
 
 #ifndef READFLAGS

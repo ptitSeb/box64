@@ -532,7 +532,7 @@ void adjustregs(x64emu_t* emu) {
         }
         ++idx;
     }
-    dynarec_log(LOG_INFO, "Checking opcode: rex=%02hhx is32bits=%d, is66=%d %02hhX %02hhX %02hhX %02hhX\n", rex.rex, rex.is32bits, is66, mem[idx+0], mem[idx+1], mem[idx+2], mem[idx+3]);
+    dynarec_log(LOG_INFO, "Checking opcode: rex=%02hhx is32bits=%d, rep=%d is66=%d %02hhX %02hhX %02hhX %02hhX\n", rex.rex, rex.is32bits, rep, is66, mem[idx+0], mem[idx+1], mem[idx+2], mem[idx+3]);
 #ifdef DYNAREC
 #ifdef ARM64
     if(mem[idx+0]==0xA4) {

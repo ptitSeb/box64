@@ -353,12 +353,14 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         emit_or32c(dyn, ninst, rex, ed, i64, x3, x4);
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 4 : 1);
-                        if (opcode == 0x81)
+                        if (opcode == 0x81) {
                             i64 = F32S;
-                        else
+                        } else {
                             i64 = F8S;
-                        if (i64 <= -2048 || i64 > 2048)
+                        }
+                        if (i64 <= -2048 || i64 > 2048) {
                             MOV64xw(x3, i64);
+                        }
                         MARKLOCK;
                         LLxw(x1, wback, 0);
                         if (i64 >= -2048 && i64 < 2048) {

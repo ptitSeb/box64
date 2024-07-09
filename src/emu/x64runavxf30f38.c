@@ -70,14 +70,14 @@ uintptr_t RunAVX_F30F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 for(int i=0; i<64; ++i)
                     if(ED->q[0]&(1LL<<i))
                         tmp64u |= ((VD->q[0]>>i)&1LL)<<(u8++);
-                    GD->q[0] = tmp64u;
+                GD->q[0] = tmp64u;
             } else {
                 tmp32u = 0;
                 u8 = 0;
                 for(int i=0; i<32; ++i)
                     if(ED->dword[0]&(1<<i))
                         tmp32u |= ((VD->dword[0]>>i)&1)<<(u8++);
-                    GD->q[0] = tmp32u;
+                GD->q[0] = tmp32u;
             }
             break;
         case 0xF7:  /* SARX Gd, Ed, Vd */
