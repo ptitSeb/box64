@@ -113,7 +113,8 @@ case 0xF7:  /* SHRX Gd, Ed, Vd */
         GD->dword[0] = ED->dword[0] >> u8;
     }
     break;
-
-default:
+     default:
+        return 0;
+    }
     return addr;
 }
