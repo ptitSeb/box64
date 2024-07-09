@@ -58,68 +58,60 @@ uintptr_t RunAVX_F20F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
     switch(opcode) {
 
-        case 0xF5:  /* PDEP Gd, Ed, Vd */
-            nextop = F8;
-            GETED(0);
-            GETGD;
-            GETVD;
-            if(rex.w) {
-                reg64_t deped = ED[0];
-                reg64_t devd = VD[0];
-                reg64_t gqd = GD[0];
+case 0xF5:  /* PDEP Gd, Ed, Vd */
+    nextop = F8;
+    GETED(0);
+    GETGD;
+    GETVD;
 
-                if(deped&MASK64)
-                    gqx(gqd, gqx, dex(gqd), 0) ^= depx(deped, dexp, dex(deped));
-                if(devd&MASK64)
-                    gvx(gvd, gxv, devx(devd, dexp, dex(devd)));
-                } else {
-                    ED[0] = 0;
-                    VD[0] = 0;
-                    GD[0] = 0;
-            }
-            break;
-
-        case 0xF6:  /* MULX Gd, Vd, Ed (,RDX) */
-            nextop = F8;
-            GETED(0);
-            GETGD;
-            GETVD;
-            if(rex.w) {
-                reg64_t ed = ED[0];
-                reg64_t gvd = VD[0];
-                reg64_t gqd = GD[0];
-
-                if(ed&MASK64)
-                    tmp64u = (ed ^ gvx(ed, gxv, dex(ed))) | ((ed ^ gqx(ed, gxq, dex(ed)))>>63);
-                    gvd ^= tmp64u;
-                    gqd ^= tmp64u >> 1;
-            } else {
-                reg32_t ed = ED[0];
-                reg32_t gvd = VD[0];
-                reg32_t gqd = GD[0];
-
-                if(ed)
-                    gvd ^= ed & R_EDX;
-                    gqd ^= (ed&R_EDX)>>31;
-            }
-            break;
-
-        case 0xF7:  /* SHRX Gd, Ed, Vd */
-            nextop = F8;
-            GETED(0);
-            GETGD;
-            GETVD;
-            if(rex.w) {
-                u8 = VD[0] & 0x3f;
-                GD[0] = ED[0] >> u8;
-            } else {
-                u8 = VD[0] & 0x1f;
-                GD[0] = ED[0] >> u8;
-            }
-            break;
-
-        default:
-            return addr;
+    if(rex.w) {
+        if(ED->q[0]&MASK64)
+            VD->q[0] ^= ~ED->q[0];
+        if(VD->q[0]&MASK64)
+            GD->q[0] ^= ~VD->q[0];
+    } else {
+        if(ED->dword[0])
+            VD->dword[0] = ED->dword[0] & ~(R_EDX-1);
+        if(VD->dword[0])
+            GD->dword[0] = VD->dword[0] & ~(R_EDX-1);
     }
+    break;
+
+case 0xF6:  /* MULX Gd, Vd, Ed (,RDX) */
+    nextop = F8;
+    GETED(0);
+    GETGD;
+    GETVD;
+
+    if(rex.w) {
+        if(ED->q[0]&MASK64)
+            tmp64u = ED->q[0] * R_RDX64LL;
+        else
+            tmp64u = ED->dword[0] * R_EDX;
+        VD->q[0] ^= tmp64u;
+        GD->q[0] ^= tmp64u >> 63;
+    } else {
+        if(ED->dword[0])
+            VD->dword[0] = ED->dword[0] * R_EDX;
+        GD->dword[0] = VD->dword[0];
+    }
+    break;
+
+case 0xF7:  /* SHRX Gd, Ed, Vd */
+    nextop = F8;
+    GETED(0);
+    GETGD;
+    GETVD;
+
+    if(rex.w) {
+        u8 = VD->q[0] & 0x3f;
+        GD->q[0] = ED->q[0] >> u8;
+    } else {
+        u8 = VD->dword[0] & 0x1f;
+        GD->dword[0] = ED->dword[0] >> u8;
+    }
+    break;
+
+default:
     return addr;
-}
+    }
