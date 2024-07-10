@@ -555,6 +555,16 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q1, 0, 0);
             VILVH_W(q0, q1, q0);
             break;
+        case 0x6B:
+            INST_NAME("PACKSSDW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            d0 = fpu_get_scratch(dyn);
+            VOR_V(d0, v1, v1);
+            VSSRANI_H_W(d0, v0, 0);
+            VOR_V(v0, d0, d0);
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx,Ex");
             nextop = F8;
@@ -925,6 +935,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(q0, 0, 0);
             VANDN_V(v0, v0, q0);
             break;
+        case 0xE0:
+            INST_NAME("PAVGB Gx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VAVGR_BU(v0, v0, v1);
+            break;
         case 0xE4:
             INST_NAME("PMULHUW Gx,Ex");
             nextop = F8;
@@ -978,6 +995,36 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             VMULWEV_D_WU(v0, v0, v1);
+            break;
+        case 0xF6:
+            INST_NAME("PSADBW Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VABSD_BU(q0, q0, q1);
+
+            // 8bit -> 16bit merge
+            VPICKEV_B(d0, q0, q0);
+            VPICKOD_B(d1, q0, q0);
+            VEXTH_HU_BU(d0, d0);
+            VEXTH_HU_BU(d1, d1);
+            VADD_H(q0, d0, d1);
+
+            // 16bit to 32bit merge
+            VPICKEV_H(d0, q0, q0);
+            VPICKOD_H(d1, q0, q0);
+            VEXTH_WU_HU(d0, d0);
+            VEXTH_WU_HU(d1, d1);
+            VADD_W(q0, d0, d1);
+
+            // 32bit to 64bit merge
+            VPICKEV_W(d0, q0, q0);
+            VPICKOD_W(d1, q0, q0);
+            VEXTH_DU_WU(d0, d0);
+            VEXTH_DU_WU(d1, d1);
+            VADD_D(q0, d0, d1);
             break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");

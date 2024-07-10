@@ -729,7 +729,7 @@ void emit_sbb8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
             X64_SBC_B(s1, s2);
         }
 
-        MV(s1, s3);
+        ANDI(s1, s3, 0xff);
         IFX (X_PEND)
             ST_B(s1, xEmu, offsetof(x64emu_t, res));
         return;
