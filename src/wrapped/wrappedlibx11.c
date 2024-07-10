@@ -1665,6 +1665,8 @@ EXPORT void* my__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, int type, size_t
 }
 
 #define CUSTOM_INIT                 \
+    AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XLockMutex_fn"), 0, "_XLockMutex_fn"); \
+    AddAutomaticBridge(lib->w.bridge, vFp, *(void**)dlsym(lib->w.lib, "_XUnlockMutex_fn"), 0, "_XUnlockMutex_fn"); \
     if(box64_x11threads) my->XInitThreads();
 
 #ifdef ANDROID

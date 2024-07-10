@@ -1054,7 +1054,7 @@ GO(Xutf8TextPropertyToTextList, iFpppp)
 //GO(_Xutf8TextPropertyToTextList, 
 GOM(XVaCreateNestedList, pFEiV)
 GO(XVendorRelease, iFp)
-//GO(_XVIDtoVisual, 
+GO(_XVIDtoVisual, pFpp)
 GO(XVisualIDFromVisual, LFp)
 GO(XWarpPointer, iFpLLiiuuii)
 GO(XwcDrawImageString, vFpLppiipi)
