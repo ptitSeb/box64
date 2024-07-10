@@ -598,7 +598,7 @@ void neoncacheUnwind(neoncache_t* cache)
 
 #define F8      *(uint8_t*)(addr++)
 #define F32S64  (uint64_t)(int64_t)*(int32_t*)(addr+=4, addr-4)
-// Get if ED will have the correct parity. Not emiting anything. Parity is 2 for DWORD or 3 for QWORD
+// Get if ED will have the correct parity. Not emitting anything. Parity is 2 for DWORD or 3 for QWORD
 int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta)
 {
     (void)dyn; (void)ninst;

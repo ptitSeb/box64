@@ -584,7 +584,7 @@ uintptr_t fakeed(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
     }
     return addr;
 }
-// return Ib on a mod/rm opcode without emiting anything
+// return Ib on a mod/rm opcode without emitting anything
 uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nextop)
 {
     addr = fakeed(dyn, addr, ninst, nextop);

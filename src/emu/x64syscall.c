@@ -776,7 +776,7 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 sigset_t * set = (sigset_t *)R_RSI;
                 if(sigismember(set, SIGSEGV)) {
                     sigdelset(set, SIGSEGV);
-                    printf_log(LOG_INFO, "Warning, signalfd on SIGSEGV unsuported\n");
+                    printf_log(LOG_INFO, "Warning, signalfd on SIGSEGV unsupported\n");
                 }
                 S_RAX = signalfd(S_EDI, set, 0);
                 if(S_RAX==-1)
@@ -1060,7 +1060,7 @@ long EXPORT my_syscall(x64emu_t *emu)
                 sigset_t * set = (sigset_t *)R_RDX;
                 if(sigismember(set, SIGSEGV)) {
                     sigdelset(set, SIGSEGV);
-                    printf_log(LOG_INFO, "Warning, signalfd on SIGSEGV unsuported\n");
+                    printf_log(LOG_INFO, "Warning, signalfd on SIGSEGV unsupported\n");
                 }
                 return signalfd(S_ESI, set, 0);
             }

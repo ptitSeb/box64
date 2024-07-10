@@ -566,7 +566,7 @@ void ApplyParams(const char* name)
         my_reserveHighMem();
     if(param->is_new_avx_present) {
         if(!new_avx) {
-            printf_log(LOG_INFO, "Hidding AVX extension\n");
+            printf_log(LOG_INFO, "Hiding AVX extension\n");
             box64_avx = 0; box64_avx2 = 0;
         } else if(new_avx==1) {
             printf_log(LOG_INFO, "Exposing AVX extension\n");
