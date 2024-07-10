@@ -294,7 +294,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CALL(native_ftan, -1);
             x87_unstackcount(dyn, ninst, x1, i1);
             if(PK(0)==0xdd && PK(1)==0xd8) {
-                MESSAGE(LOG_DUMP, "Optimized next DD D8 fstp st0, st0, not emiting 1\n");
+                MESSAGE(LOG_DUMP, "Optimized next DD D8 fstp st0, st0, not emitting 1\n");
                 u8 = F8;
                 u8 = F8;
             } else {

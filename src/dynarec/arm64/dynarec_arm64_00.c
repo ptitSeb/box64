@@ -1498,7 +1498,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE(x1);
             if(box64_wine) {    // should this be done all the time?
                 TBZ_NEXT(xFlags, F_TF);
-                // go to epilog, TF should trigger at end of next opcode, so using Interpretor only
+                // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
                 jump_to_epilog(dyn, addr, 0, ninst);
             }
             break;

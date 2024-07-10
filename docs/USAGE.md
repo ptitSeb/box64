@@ -143,7 +143,7 @@ Enables/Disables trace for generated code.
  * 1 : Enable trace for generated code (like regular Trace, this will slow down the program a lot and generate huge logs).
 
 #### BOX64_NODYNAREC  *
-Forbid dynablock creation in the interval specified (helpfull for debugging behaviour difference between Dynarec and Interpreter)
+Forbid dynablock creation in the interval specified (helpful for debugging behaviour difference between Dynarec and Interpreter)
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynablock cannot start (inclusive-exclusive)
 
 #### BOX64_DYNAREC_TEST *
@@ -214,7 +214,7 @@ Detect libjvm and apply conservative settings. Obsolete, use BOX64_JVM instead.
 * 1 : Detect libjvm, and apply BIGBLOCK=0 STRONGMEM=1 SSE42=0 if detected (Default)
 
 #### BOX64_DYNAREC_WAIT *
-Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is not multithreaded)
 * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
 * 1 : Dynarec will wait for FillBlock to be ready (Default)
 
@@ -270,12 +270,12 @@ Need a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2
 
 #### BOX64_LD_PRELOAD
  * XXXX[:YYYYY] force loading XXXX (and YYYY...) libraries with the binary
- PreLoaded libs can be emulated or native, and are treated the same way as if they were comming from the binary
+ PreLoaded libs can be emulated or native, and are treated the same way as if they were coming from the binary
  
 #### BOX64_EMULATED_LIBS *
  * XXXX[:YYYYY] force lib XXXX (and YYYY...) to be emulated (and not wrapped)
 Some games uses an old version of some libraries, with an ABI incompatible with native version.
-Note that LittleInferno for example is auto detected, and libvorbis.so.0 is automatical added to emulated libs, and same for Don't Starve (and Together / Server variant) that use an old SDL2 too
+Note that LittleInferno for example is auto detected, and libvorbis.so.0 is automatically added to emulated libs, and same for Don't Starve (and Together / Server variant) that use an old SDL2 too
 
 #### BOX64_ALLOWMISSINGLIBS *
 Allow Box64 to continue even if a library is missing.
@@ -289,13 +289,13 @@ Box64 will use wrapped libs even if the lib is specified with absolute path
 
 #### BOX64_PREFER_EMULATED *
 Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11
- * 0 : Native libs are prefered (Default.)
- * 1 : Emulated libs are prefered (Default for program running inside pressure-vessel)
+ * 0 : Native libs are preferred (Default.)
+ * 1 : Emulated libs are preferred (Default for program running inside pressure-vessel)
 
 #### BOX64_CRASHHANDLER *
 Box64 will use a dummy crashhandler.so library
  * 0 : Use Emulated crashhandler.so library if needed
- * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut)
+ * 1 : Use an internal dummy (completely empty) crashhandler.so library (default)
 
 #### BOX64_MALLOC_HACK *
 How Box64 will handle hooking of malloc operators

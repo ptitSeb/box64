@@ -1423,7 +1423,7 @@ void LoadEnvVars(box64context_t *context)
     if(getenv("BOX64_SYNC_ROUNDING")) {
         if (strcmp(getenv("BOX64_SYNC_ROUNDING"), "1")==0) {
             box64_sync_rounding = 1;
-            printf_log(LOG_INFO, "BOX64: Rouding mode with be synced with fesetround/fegetround\n");
+            printf_log(LOG_INFO, "BOX64: Rounding mode will be synced with fesetround/fegetround\n");
         }
     }
     if(getenv("BOX64_PREFER_WRAPPED")) {
@@ -1672,7 +1672,7 @@ static void add_argv(const char* what) {
         if(!strcmp(my_context->argv[i], what))
             there = 1;
     if(!there) {
-        printf_log(LOG_INFO, "Inserting \"%s\" to the argments\n", what);
+        printf_log(LOG_INFO, "Inserting \"%s\" to the arguments\n", what);
         my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
         my_context->argv[my_context->argc] = box_strdup(what);
         my_context->argc++;

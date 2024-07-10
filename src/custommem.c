@@ -304,7 +304,7 @@ int printBlockCoherent(int i)
         m = n;
     }
     if(m!=last) {
-        printf_log(LOG_NONE, "Last block %p is behond expexted block %p for block %d\n", m, last, i);
+        printf_log(LOG_NONE, "Last block %p is beyond expected block %p for block %d\n", m, last, i);
         ret = 0;
     }
 

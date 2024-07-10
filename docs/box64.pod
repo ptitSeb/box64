@@ -77,7 +77,7 @@ When set to 1, don't prints the banner including version and build.
 =item B<BOX64_LD_PRELOAD>=I<lib1>[:I<lib2>:...]
 
 Force loading libraries with the  binary. PreLoaded libs can be emulated or
-native, and are treated the same way as if they were comming from the binary.
+native, and are treated the same way as if they were coming from the binary.
 
 =item B<BOX64_ENV>=I<env=val>
 
@@ -263,7 +263,7 @@ down the program a lot and generate huge logs.
 
 =item B<BOX64_NODYNAREC>=I<0xXXXXXXXX-0xYYYYYYYY>
 
-Forbid dynablock creation in the interval specified (helpfull for debugging
+Forbid dynablock creation in the interval specified (helpful for debugging
 behaviour difference between Dynarec and Interpreter)
 
 =item B<BOX64_DYNAREC_TEST>=I<0|1>
@@ -343,7 +343,7 @@ Detect MonoBleedingEdge and apply conservative settings
 
 =item B<BOX64_DYNAREC_WAIT>=I<0|1>
 
-Behavior with FillBlock is not availble (FillBlock build Dynarec blocks and is not multithreaded)
+Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is not multithreaded)
 
     * 0 : Dynarec will not wait for FillBlock to ready and use Interpreter instead (might speedup a bit massive multithread or JIT programs)
     * 1 : Dynarec will wait for FillBlock to be ready (Default)
@@ -388,7 +388,7 @@ You can also use B<SDL_VIDEO_GL_DRIVER>
 Force lib XXXX (and YYYY...) to be emulated (and not wrapped) Some games uses
 an old version of some libraries, with an ABI incompatible with native version.
 Note that LittleInferno for example is auto detected, and libvorbis.so.0 is
-automatical added to emulated libs, and same for Don't Starve (and Together /
+automatically added to emulated libs, and same for Don't Starve (and Together /
 Server variant) that use an old SDL2 too
 
 =item B<BOX64_ALLOWMISSINGLIBS>=I<0|1>
@@ -410,15 +410,15 @@ Box64 will use wrapped libs even if the lib is specified with absolute path
 Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL,
 vulkan and X11
 
-   * 0 : Native libs are prefered (Default.)
-   * 1 : Emulated libs are prefered (Default for program running inside pressure-vessel)
+   * 0 : Native libs are preferred (Default.)
+   * 1 : Emulated libs are preferred (Default for program running inside pressure-vessel)
 
 =item B<BOX64_CRASHHANDLER>=I<0|1>
 
 Box64 will use a dummy crashhandler.so library
 
     * 0 : Use Emulated crashhandler.so library if needed
-    * 1 : Use an internal dummy (completly empty) crashhandler.so library (defaut)
+    * 1 : Use an internal dummy (completely empty) crashhandler.so library (default)
 
 =item B<BOX64_MALLOC_HACK>=I<0|1|2>
 
