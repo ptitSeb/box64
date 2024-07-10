@@ -792,7 +792,7 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
             strcpy(buff, "my_");
         strcat(buff, name);
         #ifdef STATICBUILD
-        symbol = kh_value(lib->w.mydatamap, k).addr;
+        symbol = (void*)kh_value(lib->w.mydatamap, k).addr;
         #else
         symbol = dlsym(my_context->box64lib, buff);
         #endif
