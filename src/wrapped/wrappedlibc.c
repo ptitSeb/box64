@@ -3675,6 +3675,10 @@ EXPORT char* my_program_invocation_short_name = NULL;
 EXPORT char my___libc_single_threaded = 0;
 
 #ifdef STATICBUILD
+uint32_t arc4random() __attribute__((weak))
+{
+    return get_random32();
+}
 #include "libtools/static_libc.h"
 #endif
 

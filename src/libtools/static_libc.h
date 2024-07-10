@@ -80,7 +80,6 @@ void my_obstack_free(struct obstack * obstack, void* block);
 void my__obstack_free(struct obstack * obstack, void* block);
 int my__obstack_begin(struct obstack * obstack, size_t size, size_t alignment, void* chunkfun, void* freefun);
 extern int __adjtimex(void*);
-extern uint32_t arc4random();
 extern void __assert(void*, void*, int);
 extern void __assert_fail(void*, void*, uint32_t, void*);
 extern void __assert_perror_fail(int, void*, uint32_t, void*);
