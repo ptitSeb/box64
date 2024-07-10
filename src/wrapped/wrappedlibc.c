@@ -3685,7 +3685,17 @@ EXPORT char my___libc_single_threaded = 0;
     else
 #endif
 
-#ifdef ANDROID
+#if defined(ANDROID)
+#ifdef STATICBUILD
+#define NEEDED_LIBS_DEF   3,\
+    "libpthread.so",        \
+    "libdl.so" ,            \
+    "libm.so"
+#define NEEDED_LIBS_234 3,  \
+    "libpthread.so",        \
+    "libdl.so" ,            \
+    "libm.so"
+#else
 #define NEEDED_LIBS_DEF   4,\
     "libpthread.so",        \
     "libdl.so" ,            \
@@ -3696,6 +3706,22 @@ EXPORT char my___libc_single_threaded = 0;
     "libdl.so" ,            \
     "libm.so",              \
     "libbsd.so"
+#endif
+#else
+#ifdef STATICBUILD
+#define NEEDED_LIBS_DEF   5,\
+    "ld-linux-x86-64.so.2", \
+    "libpthread.so.0",      \
+    "libdl.so.2",           \
+    "libutil.so.1",         \
+    "librt.so.1"
+#define NEEDED_LIBS_234 6,  \
+    "ld-linux-x86-64.so.2", \
+    "libpthread.so.0",      \
+    "libdl.so.2",           \
+    "libutil.so.1",         \
+    "libresolv.so.2",       \
+    "librt.so.1"
 #else
 #define NEEDED_LIBS_DEF   6,\
     "ld-linux-x86-64.so.2", \
@@ -3712,6 +3738,7 @@ EXPORT char my___libc_single_threaded = 0;
     "libresolv.so.2",       \
     "librt.so.1",           \
     "libbsd.so.0"
+#endif
 #endif
 
 #undef HAS_MY

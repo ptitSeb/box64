@@ -2459,8 +2459,10 @@ GO(__errno, pFv)
 #ifdef STATICBUILD
 GO(dummy_pFLp, pFLp)
 GO(dummy_pFpLLp, pFpLLp)
+GO(arc4random, uFv)
 #else
 // not needed in no-static build
 //GO(dummy_pFLp, pFLp)
 //GO(dummy_pFpLLp, pFpLLp)
+//GO(arc4random, uFv)
 #endif

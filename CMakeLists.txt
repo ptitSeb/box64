@@ -412,7 +412,7 @@ set(INTERPRETER
 if(STATICBUILD)
 set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedlibbsd.c"
+    #"${BOX64_ROOT}/src/wrapped/wrappedlibbsd.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibcmusl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibdl.c"
@@ -922,7 +922,7 @@ add_dependencies(${BOX64} WRAPPERS)
 #target_link_libraries(${BOX64} c m dl rt pthread resolv)
 if(STATICBUILD)
     #set_target_properties(${BOX64} PROPERTIES LINK_FLAGS "-fuse-ld=gold -static -Wl,--no-relax -Wl,--allow-multiple-definition -ldl -lrt -lpthread -lresolv -lc -lutil -lm -Wl,-defsym,_DYNAMIC=0 -pthread")
-    target_link_libraries(${BOX64} c m dl pthread resolv util bsd c)
+    target_link_libraries(${BOX64} c m dl pthread resolv util c)
 else()
     if(ANDROID)
         if(TERMUX)
