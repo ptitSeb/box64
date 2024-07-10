@@ -72,6 +72,7 @@ int my_pthread_condattr_setpshared(x64emu_t* emu, my_condattr_t* c, int p);
 int my_pthread_cond_init(x64emu_t* emu, pthread_cond_t *pc, my_condattr_t* c);
 int my_pthread_cond_destroy(x64emu_t* emu, pthread_cond_t *pc);
 int my_pthread_cond_broadcast(x64emu_t* emu, pthread_cond_t *pc);
+int my_pthread_cond_signal(x64emu_t* emu, pthread_cond_t* cond);
 int my_pthread_barrierattr_destroy(x64emu_t* emu, my_barrierattr_t* b);
 int my_pthread_barrierattr_getpshared(x64emu_t* emu, my_barrierattr_t* b, void* p);
 int my_pthread_barrierattr_init(x64emu_t* emu, my_barrierattr_t* b);

@@ -39,7 +39,7 @@ extern int __res_dnok(void* a) {return res_dnok(a);}
 extern int __res_hnok(void* a) {return res_hnok(a);}
 extern int __res_mailok(void* a) {return res_mailok(a);}
 extern int __res_mkquery(int a, void* b, int c, int d, void* e, int f, void* g, void* h, int i) {return res_mkquery(a, b, c, d, e, f, g, h, i);}
-extern int __res_nquery(int a, void* b, int c, int d, void* e, int f) {return res_nquery(a, b, c, d, e, f);}
+extern int __res_nquery(void* a, void* b, int c, int d, void* e, int f) {return res_nquery(a, b, c, d, e, f);}
 extern int __res_nsearch(void* a, void* b, int c, int d, void* e, int f) {return res_nsearch(a, b, c, d, e, f);}
 extern int __res_ownok(void* a) {return res_ownok(a);}
 extern int __res_query(void* a, int b, int c, void* d, int e) {return res_query(a, b, c, d, e);}

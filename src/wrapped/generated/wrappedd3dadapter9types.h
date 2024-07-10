@@ -11,11 +11,57 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void* (*pWp_t)(void*);
-typedef int32_t (*iWip_t)(int32_t, void*);
+typedef int32_t (*iWpp_t)(void*, void*);
+typedef int32_t (*iWpip_t)(void*, int32_t, void*);
+typedef int32_t (*iWpup_t)(void*, uint32_t, void*);
+typedef int32_t (*iWppu_t)(void*, void*, uint32_t);
+typedef int32_t (*iWppp_t)(void*, void*, void*);
+typedef int32_t (*iWpiup_t)(void*, int32_t, uint32_t, void*);
+typedef int32_t (*iWpipp_t)(void*, int32_t, void*, void*);
+typedef int32_t (*iWpuuip_t)(void*, uint32_t, uint32_t, int32_t, void*);
+typedef int32_t (*iWppppp_t)(void*, void*, void*, void*, void*);
+typedef int32_t (*iWpuuiipp_t)(void*, uint32_t, uint32_t, int32_t, int32_t, void*, void*);
+typedef int32_t (*iWpuuuipp_t)(void*, uint32_t, uint32_t, uint32_t, int32_t, void*, void*);
+typedef int32_t (*iWpuuiippu_t)(void*, uint32_t, uint32_t, int32_t, int32_t, void*, void*, uint32_t);
+typedef int32_t (*iWpuuuiipp_t)(void*, uint32_t, uint32_t, uint32_t, int32_t, int32_t, void*, void*);
+typedef int32_t (*iWpuipupppp_t)(void*, uint32_t, int32_t, void*, uint32_t, void*, void*, void*, void*);
+typedef int32_t (*iWpuuiiuipp_t)(void*, uint32_t, uint32_t, int32_t, int32_t, uint32_t, int32_t, void*, void*);
+typedef int32_t (*iWpuuuuiipp_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, int32_t, int32_t, void*, void*);
+typedef int32_t (*iWpuipuppppp_t)(void*, uint32_t, int32_t, void*, uint32_t, void*, void*, void*, void*, void*);
+typedef int32_t (*iWpuuiiuippu_t)(void*, uint32_t, uint32_t, int32_t, int32_t, uint32_t, int32_t, void*, void*, uint32_t);
+typedef int32_t (*iWpuuuuuiipp_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, int32_t, int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(D3DAdapter9GetProc, pWp_t) \
-	GO(dummy_d3d, iWip_t)
+	GO(EndStateBlock, iWpp_t) \
+	GO(GetDepthStencilSurface, iWpp_t) \
+	GO(GetDirect3D, iWpp_t) \
+	GO(CreateQuery, iWpip_t) \
+	GO(CreateStateBlock, iWpip_t) \
+	GO(GetRenderTarget, iWpup_t) \
+	GO(GetSurfaceLevel, iWpup_t) \
+	GO(GetSwapChain, iWpup_t) \
+	GO(GetVolumeLevel, iWpup_t) \
+	GO(CheckResourceResidency, iWppu_t) \
+	GO(CreateAdditionalSwapChain, iWppp_t) \
+	GO(CreatePixelShader, iWppp_t) \
+	GO(CreateVertexDeclaration, iWppp_t) \
+	GO(CreateVertexShader, iWppp_t) \
+	GO(GetCubeMapSurface, iWpiup_t) \
+	GO(CreateAuthenticatedChannel, iWpipp_t) \
+	GO(GetBackBuffer, iWpuuip_t) \
+	GO(CreateCryptoSession, iWppppp_t) \
+	GO(CreateIndexBuffer, iWpuuiipp_t) \
+	GO(CreateOffscreenPlainSurface, iWpuuiipp_t) \
+	GO(CreateVertexBuffer, iWpuuuipp_t) \
+	GO(CreateOffscreenPlainSurfaceEx, iWpuuiippu_t) \
+	GO(CreateCubeTexture, iWpuuuiipp_t) \
+	GO(CreateDevice, iWpuipupppp_t) \
+	GO(CreateDepthStencilSurface, iWpuuiiuipp_t) \
+	GO(CreateRenderTarget, iWpuuiiuipp_t) \
+	GO(CreateTexture, iWpuuuuiipp_t) \
+	GO(CreateDeviceEx, iWpuipuppppp_t) \
+	GO(CreateDepthStencilSurfaceEx, iWpuuiiuippu_t) \
+	GO(CreateRenderTargetEx, iWpuuiiuippu_t) \
+	GO(CreateVolumeTexture, iWpuuuuuiipp_t)
 
 #endif // __wrappedd3dadapter9TYPES_H_
