@@ -170,11 +170,9 @@ void CreateJmpNext(void* addr, void* next);
 #define GO_TRACE(A, B, s0)  \
     GETIP(addr);            \
     MV(A1, xRIP);           \
-    FLAGS_ADJUST_TO11(xFlags, xFlags, s0); \
     STORE_XEMU_CALL(s0);    \
     MOV64x(A2, B);          \
     CALL(A, -1);            \
-    LOAD_XEMU_CALL();       \
-    FLAGS_ADJUST_FROM11(xFlags, xFlags, s0);
+    LOAD_XEMU_CALL()
 
 #endif //__DYNAREC_RV64_PRIVATE_H_
