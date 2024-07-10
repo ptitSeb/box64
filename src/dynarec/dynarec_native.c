@@ -412,8 +412,12 @@ static void updateYmm0s(dynarec_native_t* dyn, int ninst, int max_ninst_reached)
         //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "update ninst=%d (%d): can_incr=%d\n", ninst, max_ninst_reached, can_incr);
         uint16_t new_purge_ymm, new_ymm0_in, new_ymm0_out;
 
-        if (ninst && dyn->insts[ninst].pred_sz && dyn->insts[ninst].x64.alive) {
-            uint16_t ymm0_union = 0, ymm0_inter = (uint16_t)-1; // The union of the empty set is empty, the intersection is the universe
+        if (dyn->insts[ninst].pred_sz && dyn->insts[ninst].x64.alive) {
+            // The union of the empty set is empty (0), the intersection is the universe (-1)
+            // The first instruction is the entry point, which has a virtual pred with ymm0_out = 0
+            // Similarly, float barriers reset ymm0s
+            uint16_t ymm0_union = 0;
+            uint16_t ymm0_inter = (ninst && !(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) ? ((uint16_t)-1) : (uint16_t)0;
             for (int i = 0; i < dyn->insts[ninst].pred_sz; ++i) {
                 int pred = dyn->insts[ninst].pred[i];
                 //if(box64_dynarec_dump) dynarec_log(LOG_NONE, "\twith pred[%d] = %d", i, pred);
