@@ -37,9 +37,15 @@ jobs:
           - platform: TEGRAX1
             type: Trace
             os: ubuntu-20.04
+        exclude:
           - platform: TEGRAX1
             type: StaticBuild
-            os: ubuntu-20.04
+          - platform: ANDROID
+            type: StaticBuild
+          - platform: TERMUX
+            type: StaticBuild
+          - platform: X64
+            type: StaticBuild  
 
     runs-on: ${{ matrix.os }}
     steps:

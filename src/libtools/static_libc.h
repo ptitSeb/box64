@@ -129,6 +129,7 @@ extern char* __getcwd_chk(char*, size_t, size_t);
 extern int __getgroups_chk(int, __gid_t*, size_t);
 extern void* __getmntent_r(void*, void*, void*, int);
 //extern int getnetname(char *);
+extern int __getpagesize();
 extern int __getpid(void);
 //extern int getpublickey (const char *, char *);
 extern int __getrlimit(int, void*);

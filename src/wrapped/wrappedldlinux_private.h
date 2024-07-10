@@ -15,12 +15,13 @@
 // _dl_tls_setup
 DATA(__libc_enable_secure, sizeof(void*))
 DATAM(__libc_stack_end, sizeof(void*))
-DATAB(_r_debug, 40)
 #ifdef STATICBUILD
+//DATAB(_r_debug, 40)
 //DATA(__pointer_chk_guard, sizeof(void*))
 //DATA(_rtld_global, sizeof(void*))
 //DATA(_rtld_global_ro, sizeof(void*))
 #else
+DATAB(_r_debug, 40)
 DATA(__pointer_chk_guard, sizeof(void*))
 DATA(_rtld_global, sizeof(void*))
 DATA(_rtld_global_ro, sizeof(void*))
