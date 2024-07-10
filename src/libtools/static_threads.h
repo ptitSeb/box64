@@ -85,3 +85,10 @@ void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, 
 void my__pthread_cleanup_push(x64emu_t* emu, void* buffer, void* routine, void* arg);
 void my__pthread_cleanup_pop_restore(x64emu_t* emu, void* buffer, int exec);
 void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec);
+
+extern int __pthread_mutexattr_destroy(pthread_mutexattr_t *attr);
+extern int __pthread_mutexattr_init(pthread_mutexattr_t *attr);
+extern int __pthread_mutexattr_settype(pthread_mutexattr_t *attr, int t);
+extern int __pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att);
+extern int pthread_mutexattr_getkind_np(pthread_mutexattr_t *attr, void* p);
+extern int pthread_mutexattr_setkind_np(pthread_mutexattr_t *attr, int k);

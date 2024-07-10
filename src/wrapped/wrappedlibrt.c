@@ -159,7 +159,7 @@ EXPORT int my_lio_listio(x64emu_t* emu, int mode, void* list[], int nent, struct
 #include <mqueue.h>
 #include <sys/mman.h>
 
-extern int __mq_open_2(void*, int);
+extern int __mq_open_2(const char*, int);
 #endif
 
 #include "wrappedlib_init.h"
