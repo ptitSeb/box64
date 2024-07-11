@@ -1224,6 +1224,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         uintptr_t bend;
         uint32_t oprot;
         rb_get_end(memprot, cur, &oprot, &bend);
+        if(bend>end) bend = end;
         uint32_t dyn=(oprot&PROT_DYN);
         if(!(dyn&PROT_NEVERPROT)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
