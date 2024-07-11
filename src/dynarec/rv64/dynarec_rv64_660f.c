@@ -2276,7 +2276,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEW(x1, 0);
             GETGW(x2);
             u8 = F8;
-            emit_shld16c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
+            emit_shld16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
             EWBACK;
             break;
         case 0xAB:
@@ -2302,7 +2302,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEW(x1, 0);
             GETGW(x2);
             u8 = F8;
-            emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x3, x4, x5);
+            emit_shrd16c(dyn, ninst, rex, ed, gd, u8, x6, x4, x5);
             EWBACK;
             break;
         case 0xAF:
@@ -2430,14 +2430,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEW(x1, 1);
                     u8 = F8;
                     u8 &= rex.w ? 0x3f : 15;
-                    BEXTI(x3, ed, u8); // F_CF is 1
+                    BEXTI(x6, ed, u8); // F_CF is 1
                     ANDI(xFlags, xFlags, ~1);
-                    OR(xFlags, xFlags, x3);
+                    OR(xFlags, xFlags, x6);
                     if (u8 <= 10) {
                         XORI(ed, ed, (1LL << u8));
                     } else {
-                        MOV64xw(x3, (1LL << u8));
-                        XOR(ed, ed, x3);
+                        MOV64xw(x6, (1LL << u8));
+                        XOR(ed, ed, x6);
                     }
                     EWBACK;
                     break;
@@ -2514,7 +2514,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             B_NEXT_nocond;
             MARK;
             ANDI(xFlags, xFlags, ~(1 << F_ZF));
-            CLZxw(gd, ed, 0, x1, x2, x3);
+            CLZxw(gd, ed, 0, x1, x2, x6);
             ADDI(x1, xZR, rex.w ? 63 : 31);
             SUB(gd, x1, gd);
             GWBACK;

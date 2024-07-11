@@ -168,9 +168,9 @@
         ed = i;                                                                               \
         wb1 = 1;                                                                              \
     }
-// GETEW will use i for ed, and can use r3 for wback.
+// GETEW will use i for ed, and *may* use x3 for wback.
 #define GETEW(i, D) GETEWW(x3, i, D)
-// GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
+// GETSEW will use i for ed, and *may* use x3 for wback. This is the Signed version
 #define GETSEW(i, D)                                                                           \
     if (MODREG) {                                                                              \
         wback = xRAX + (nextop & 7) + (rex.b << 3);                                            \

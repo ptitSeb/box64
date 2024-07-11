@@ -74,7 +74,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
+            emit_add16(dyn, ninst, x1, x2, x5, x4, x6);
             GWBACK;
             break;
         case 0x05:
@@ -103,7 +103,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x2);
             GETEW(x1, 0);
-            emit_or16(dyn, ninst, x1, x2, x4, x2);
+            emit_or16(dyn, ninst, x1, x2, x4, x5);
             EWBACK;
             break;
         case 0x0B:
@@ -145,7 +145,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x2);
             GETEW(x1, 0);
-            emit_adc16(dyn, ninst, x1, x2, x4, x3, x5);
+            emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
             EWBACK;
             break;
         case 0x13:
@@ -155,7 +155,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_adc16(dyn, ninst, x1, x2, x4, x3, x5);
+            emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
             GWBACK;
             break;
         case 0x15:
@@ -185,7 +185,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_sbb16(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_sbb16(dyn, ninst, x1, x2, x6, x4, x5);
             GWBACK;
             break;
         case 0x1D:
@@ -251,7 +251,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_sub16(dyn, ninst, x1, x2, x6, x4, x5);
             GWBACK;
             break;
         case 0x2D:
@@ -350,7 +350,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x2);
             GETEW(x1, 0);
-            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            emit_cmp16(dyn, ninst, x1, x2, x9, x4, x5, x6);
             break;
         case 0x3B:
             INST_NAME("CMP Gw, Ew");
@@ -358,7 +358,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            emit_cmp16(dyn, ninst, x1, x2, x9, x4, x5, x6);
             break;
         case 0x3D:
             INST_NAME("CMP AX, Iw");
@@ -531,9 +531,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if(opcode==0x81) u64 = F16; else u64 = (uint16_t)(int16_t)F8S;
                     if(u64) {
                         MOV64x(x2, u64);
-                        emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                        emit_cmp16(dyn, ninst, x1, x2, x9, x4, x5, x6);
                     } else
-                        emit_cmp16_0(dyn, ninst, x1, x3, x4);
+                        emit_cmp16_0(dyn, ninst, x1, x9, x4);
                     break;
                 default:
                     DEFAULT;
@@ -545,7 +545,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEW(x1, 0);
             GETGW(x2);
-            emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_test16(dyn, ninst, x1, x2, x6, x4, x5);
             break;
         case 0x87:
             INST_NAME("(LOCK)XCHG Ew, Gw");
@@ -1170,13 +1170,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 2);
                     u16 = F16;
                     MOV32w(x2, u16);
-                    emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
+                    emit_test16(dyn, ninst, x1, x2, x6, x4, x5);
                     break;
                 case 2:
                     INST_NAME("NOT Ew");
                     GETEW(x1, 0);
-                    MOV32w(x3, 0xffff);
-                    XOR(ed, ed, x3); // No flags affected
+                    MOV32w(x5, 0xffff);
+                    XOR(ed, ed, x5); // No flags affected
                     EWBACK;
                     break;
                 case 3:
@@ -1192,9 +1192,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SET_DFNONE();
                     GETEW(x1, 0);
                     ZEXTH(x2, xRAX);
-                    SLLI(x3, xRDX, 48);
-                    SRLI(x3, x3, 32);
-                    OR(x2, x2, x3);
+                    SLLI(x9, xRDX, 48);
+                    SRLI(x9, x9, 32);
+                    OR(x2, x2, x9);
                     if(box64_dynarec_div0) {
                         BNE_MARK3(ed, xZR);
                         GETIP_(ip);
@@ -1205,9 +1205,9 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         jump_to_epilog(dyn, 0, xRIP, ninst);
                         MARK3;
                     }
-                    DIVUW(x3, x2, ed);
+                    DIVUW(x9, x2, ed);
                     REMUW(x4, x2, ed);
-                    INSH(xRAX, x3, x5, x6, 1, 1);
+                    INSH(xRAX, x9, x5, x6, 1, 1);
                     INSH(xRDX, x4, x5, x6, 0, 1);
                     break;
                 case 7:
