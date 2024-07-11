@@ -759,43 +759,7 @@ typedef struct {
 #define XNStringConversionCallback "stringConversionCallback"
 
 // utility functions
-#define SUPER() \
-GO(0)   \
-GO(1)   \
-GO(2)   \
-GO(3)   \
-GO(4)   \
-GO(5)   \
-GO(6)   \
-GO(7)   \
-GO(8)   \
-GO(9)   \
-GO(10)  \
-GO(11)  \
-GO(12)  \
-GO(13)  \
-GO(14)  \
-GO(15)  \
-GO(16)  \
-GO(17)  \
-GO(18)  \
-GO(19)  \
-GO(20)  \
-GO(21)  \
-GO(22)  \
-GO(23)  \
-GO(24)  \
-GO(25)  \
-GO(26)  \
-GO(27)  \
-GO(28)  \
-GO(29)  \
-GO(30)  \
-GO(31)
-
-
-
-
+#include "super100.h"
 
 // XNGeometryCallback
 #define GO(A)   \
