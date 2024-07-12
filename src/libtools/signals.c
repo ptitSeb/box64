@@ -1266,7 +1266,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             #undef GO
             for(int i=0; i<6; ++i)
                 emu->segs_serial[i] = 0;
-            printf_log(/*LOG_DEBUG*/LOG_INFO, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p\n", (void*)R_RIP, (void*)R_RSP);
+            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p\n", (void*)R_RIP, (void*)R_RSP);
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
@@ -1318,7 +1318,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     GO(FS);
     #undef GO
 
-    printf_log(/*LOG_DEBUG*/LOG_INFO, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
+    printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits) {
         //relockMutex(Locks);   // the thread will exit, so no relock there
         #ifdef DYNAREC
