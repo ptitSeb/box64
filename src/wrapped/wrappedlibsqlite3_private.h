@@ -93,7 +93,7 @@ GO(sqlite3_errcode, iFp)
 GO(sqlite3_errmsg, pFp)
 GO(sqlite3_errmsg16, pFp)
 GO(sqlite3_errstr, pFi)
-GO(sqlite3_exec, iFppipp) 
+// GO(sqlite3_exec, 
 GO(sqlite3_expanded_sql, pFp)
 GO(sqlite3_extended_errcode, iFp)
 GO(sqlite3_extended_result_codes, iFpi)
