@@ -101,6 +101,7 @@ static const scwrap_t syscallwrap[] = {
     [16] = {__NR_ioctl, 3},
     [17] = {__NR_pread64, 4},
     [18] = {__NR_pwrite64, 4},
+    [19] = {__NR_readv, 3},
     [20] = {__NR_writev, 3},
     #ifdef __NR_access
     [21] = {__NR_access, 2},
