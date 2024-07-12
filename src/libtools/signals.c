@@ -975,7 +975,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = (uintptr_t)emu->regs[_SP].q[0];
+            frame = ((uintptr_t)emu->regs[_SP].q[0] - 200) & 0x0f;
         } else {
             frame = (uintptr_t)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
             used_stack = 1;
@@ -1082,6 +1082,20 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
 #error Unsupported architecture
 #endif
 #endif
+    if(R_CS==0x23) {
+        // trucate regs to 32bits, just in case
+        #define GO(R)   sigcontext->uc_mcontext.gregs[X64_R##R]&=0xFFFFFFFF
+        GO(AX);
+        GO(CX);
+        GO(DX);
+        GO(DI);
+        GO(SI);
+        GO(BP);
+        GO(SP);
+        GO(BX);
+        GO(IP);
+        #undef GO
+    }
     // get FloatPoint status
     sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
     fpu_xsave_mask(emu, xstate, 0, 0b111);
@@ -1238,7 +1252,6 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             GO(R15);
             #undef GO
             emu->ip.q[0]=sigcontext->uc_mcontext.gregs[X64_RIP];
-            sigcontext->uc_mcontext.gregs[X64_RIP] = R_RIP;
             // flags
             emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
             // get segments
@@ -1253,7 +1266,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             #undef GO
             for(int i=0; i<6; ++i)
                 emu->segs_serial[i] = 0;
-            printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p\n", (void*)R_RIP);
+            printf_log(/*LOG_DEBUG*/LOG_INFO, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p\n", (void*)R_RIP, (void*)R_RSP);
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
             if(used_stack)  // release stack
@@ -1305,7 +1318,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     GO(FS);
     #undef GO
 
-    printf_log(LOG_DEBUG, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "Sigactionhanlder main function returned (exit=%d, restorer=%p)\n", exits, (void*)restorer);
     if(exits) {
         //relockMutex(Locks);   // the thread will exit, so no relock there
         #ifdef DYNAREC
