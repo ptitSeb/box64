@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(sqlite3_exec, iFppppp_t)
 
 #endif // __wrappedlibsqlite3TYPES_H_
