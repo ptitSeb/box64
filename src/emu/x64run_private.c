@@ -1098,7 +1098,10 @@ uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg)
 
 const char* getAddrFunctionName(uintptr_t addr)
 {
-    static char ret[1000];
+    static char rets[8][1000];
+    static int idx = 0;
+    char* ret = rets[idx];
+    idx = (idx+1)&7;
     uint64_t sz = 0;
     uintptr_t start = 0;
     elfheader_t* elf = FindElfAddress(my_context, addr);

@@ -1611,7 +1611,6 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         const char* name = (log_minimum<=box64_log)?GetNativeName(pc):NULL;
         uintptr_t x64pc = (uintptr_t)-1;
         const char* x64name = NULL;
-        const char* elfname = NULL;
         // Adjust RIP for special case of NULL function run
         if(sig==SIGSEGV && R_RIP==0x1 && (uintptr_t)info->si_addr==0x0)
             R_RIP = 0x0;
@@ -1646,15 +1645,16 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
         if(!db && (sig==SIGSEGV) && ((uintptr_t)addr==(x64pc-1)))
             x64pc--;
         if(log_minimum<=box64_log) {
-            signal_jmpbuf_active = 1;
-            if(sigsetjmp(SIG_JMPBUF, 1)) {
-                // segfault while gathering function name...
-            } else
-                x64name = getAddrFunctionName(x64pc);
-            signal_jmpbuf_active = 0;
             elfheader_t* elf = FindElfAddress(my_context, x64pc);
-            if(elf)
-                elfname = ElfName(elf);
+            if(elf) {
+                signal_jmpbuf_active = 1;
+                if(sigsetjmp(SIG_JMPBUF, 1)) {
+                    // segfault while gathering function name...
+                    x64name = "?";
+                } else
+                    x64name = getAddrFunctionName(x64pc);
+                signal_jmpbuf_active = 0;
+            }
         }
         if(jit_gdb) {
             pid_t pid = getpid();
@@ -1763,8 +1763,8 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             uint32_t hash = 0;
             if(db)
                 hash = X31_hash_code(db->x64_addr, db->x64_size);
-            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p",
-                GetTID(), signame, pc, name, (void*)x64pc, elfname?:"???", x64name?:"???", rsp,
+            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/\"%s\", rsp=%p, stack=%p:%p own=%p fp=%p), for accessing %p (code=%d/prot=%x), db=%p(%p:%p/%p:%p/%s:%s, hash:%x/%x) handler=%p",
+                GetTID(), signame, pc, name, (void*)x64pc, x64name?:"???", rsp,
                 emu->init_stack, emu->init_stack+emu->size_stack, emu->stack2free, (void*)R_RBP,
                 addr, info->si_code,
                 prot, db, db?db->block:0, db?(db->block+db->size):0,
@@ -1821,7 +1821,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "Repeated SIGSEGV with Access error on %p for
             #warning TODO
 #endif
 #else
-            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/%s:\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, elfname?:"???", x64name?:"???", rsp, addr, info->si_code);
+            printf_log(log_minimum, "%04d|%s @%p (%s) (x64pc=%p/\"%s\", rsp=%p), for accessing %p (code=%d)", GetTID(), signame, pc, name, (void*)x64pc, x64name?:"???", rsp, addr, info->si_code);
 #endif
             if(!shown_regs) {
                 for (int i=0; i<16; ++i) {
