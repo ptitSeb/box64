@@ -1260,8 +1260,10 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
     size = ALIGN(size);
     LOCK_PROT();
     rb_set(mmapmem, addr, addr+size, 1);
-    if(!prot)
+    if(!prot) {
         rb_set(mapallmem, addr, addr+size, 1);
+        rb_unset(memprot, addr, addr+size);
+    }
     UNLOCK_PROT();
     if(prot)
         setProtection(addr, size, prot);
@@ -1276,6 +1278,7 @@ void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
     else {
         LOCK_PROT();
         rb_set(mapallmem, addr, addr+size, 1);
+        rb_unset(memprot, addr, addr+size);
         UNLOCK_PROT();
     }
 }
