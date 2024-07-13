@@ -975,7 +975,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     int used_stack = 0;
     if(new_ss) {
         if(new_ss->ss_flags == SS_ONSTACK) { // already using it!
-            frame = ((uintptr_t)emu->regs[_SP].q[0] - 200) & 0x0f;
+            frame = ((uintptr_t)emu->regs[_SP].q[0] - 128) & ~0x0f;
         } else {
             frame = (uintptr_t)(((uintptr_t)new_ss->ss_sp + new_ss->ss_size - 16) & ~0x0f);
             used_stack = 1;
@@ -1269,8 +1269,6 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             printf_log(LOG_DEBUG, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p\n", (void*)R_RIP, (void*)R_RSP);
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
-            if(used_stack)  // release stack
-                new_ss->ss_flags = 0;
             //relockMutex(Locks);   // do not relock mutex, because of the siglongjmp, whatever was running is canceled
             #ifdef DYNAREC
             if(Locks & is_dyndump_locked)
