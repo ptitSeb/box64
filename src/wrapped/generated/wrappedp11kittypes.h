@@ -11,7 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(p11_kit_pin_unregister_callback, vFppp_t) \
+	GO(p11_kit_pin_register_callback, iFpppp_t)
 
 #endif // __wrappedp11kitTYPES_H_

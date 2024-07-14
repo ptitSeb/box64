@@ -549,6 +549,7 @@
 #() iFpLl
 #() iFpLL
 #() iFpLp
+#() iFppc
 #() iFppi
 #() iFppI
 #() iFppC
@@ -666,6 +667,7 @@
 #() LFpLL
 #() LFpLp
 #() LFppi
+#() LFppC
 #() LFppu
 #() LFppL
 #() LFppp
@@ -904,6 +906,7 @@
 #() vFpLii
 #() vFpLuu
 #() vFpLLL
+#() vFpLpu
 #() vFpLpL
 #() vFpLpp
 #() vFppii
@@ -990,10 +993,12 @@
 #() iFuuuu
 #() iFuupi
 #() iFuupp
+#() iFupup
 #() iFupLp
 #() iFuppi
 #() iFuppu
 #() iFuppp
+#() iFLpLp
 #() iFLppp
 #() iFpwww
 #() iFpwpp
@@ -1477,7 +1482,9 @@
 #() vFppfff
 #() vFppddp
 #() vFppLLL
+#() vFppLLp
 #() vFppLpL
+#() vFppLpp
 #() vFpppii
 #() vFpppip
 #() vFpppui
@@ -1570,6 +1577,7 @@
 #() iFpuuui
 #() iFpuuup
 #() iFpuuLL
+#() iFpuuLp
 #() iFpuupp
 #() iFpulup
 #() iFpulpp
@@ -1819,6 +1827,7 @@
 #() vFEppipV
 #() vFEppipA
 #() vFEppupp
+#() vFEpppLp
 #() vFEppppp
 #() vFiiiiii
 #() vFiiiuil
@@ -1920,6 +1929,7 @@
 #() vFpdddii
 #() vFpddddd
 #() vFpddddp
+#() vFpLpLLL
 #() vFppiiii
 #() vFppiiip
 #() vFppiiuu
@@ -1950,7 +1960,9 @@
 #() vFpppipu
 #() vFpppuii
 #() vFpppuuu
+#() vFpppLpp
 #() vFppppii
+#() vFppppLp
 #() vFpppppi
 #() vFpppppu
 #() vFpppppU
@@ -2220,6 +2232,9 @@
 #() vFEpipppp
 #() vFEpuipuV
 #() vFEppippp
+#() vFEpppLpp
+#() vFEppppup
+#() vFEppppLp
 #() vFEpppppp
 #() vFiiiiiip
 #() vFiiiiuup
@@ -2273,6 +2288,7 @@
 #() vFudddddd
 #() vFlipuiip
 #() vFlliiiip
+#() vFLpuLpLp
 #() vFpiiiipp
 #() vFpiiliip
 #() vFpiiLiip
@@ -2333,6 +2349,7 @@
 #() iFEppuppp
 #() iFEppLpIi
 #() iFEpppiiu
+#() iFEpppLpp
 #() iFEpppppL
 #() iFEpppppp
 #() iFiiiiiip
@@ -2374,6 +2391,7 @@
 #() iFpLpiiii
 #() iFpLpiiuu
 #() iFpLpiipi
+#() iFpLpLpip
 #() iFpLppiii
 #() iFppiiiip
 #() iFppiiuup
@@ -2394,6 +2412,7 @@
 #() iFppLiipp
 #() iFppLippp
 #() iFppLuuii
+#() iFppLpppp
 #() iFpppiiuu
 #() iFpppiiup
 #() iFpppiuwu
@@ -2505,8 +2524,11 @@
 #() vFEipAippp
 #() vFEppipppp
 #() vFEppLippp
+#() vFEppLpLpp
 #() vFEpppippp
 #() vFEpppuipV
+#() vFEpppLLpp
+#() vFEppppLpp
 #() vFEpppppuu
 #() vFiiiiuuip
 #() vFiilliilp
@@ -2536,6 +2558,7 @@
 #() vFuuuuuuuu
 #() vFuuufffff
 #() vFffffffff
+#() vFLLLpLppp
 #() vFpiiiiiii
 #() vFpiiiiiip
 #() vFpiiiipii
@@ -2548,6 +2571,7 @@
 #() vFpuppLLLL
 #() vFpUiUiupi
 #() vFpUuuUUUu
+#() vFpLpLpLpp
 #() vFpLppiipi
 #() vFppiiiiii
 #() vFppiiipii
@@ -2563,6 +2587,7 @@
 #() vFppLpLpLp
 #() vFpppipppu
 #() vFpppuiiii
+#() vFpppLpppp
 #() vFppppiipi
 #() vFpppppuuu
 #() vFpppppppp
@@ -2572,6 +2597,9 @@
 #() iFEpUUuppp
 #() iFEppipppp
 #() iFEppppipp
+#() iFEppppLpp
+#() iFEpppppuu
+#() iFEppppppp
 #() iFiiiiiiip
 #() iFiiupiupi
 #() iFiuuCCuup
@@ -2600,6 +2628,7 @@
 #() iFpLLLiipi
 #() iFpLLppppp
 #() iFpLpipppp
+#() iFpLpLpLpp
 #() iFpLppLpip
 #() iFpLpppupu
 #() iFpLpppppp
@@ -2688,6 +2717,7 @@
 #() vFEpuuuippp
 #() vFEppiipppp
 #() vFEpppiippp
+#() vFEpppLLpLp
 #() vFEppppippp
 #() vFiiiiiiiii
 #() vFiiiiiiill
@@ -2717,6 +2747,7 @@
 #() vFpipiuiipp
 #() vFpipppiipi
 #() vFpuuuuuuuu
+#() vFpLpLpLLpp
 #() vFpLpppippp
 #() vFppiiiiiii
 #() vFppiiiiipi
@@ -2745,6 +2776,7 @@
 #() iFEpppipppp
 #() iFEppplPPPP
 #() iFEpppppupp
+#() iFEppppppuu
 #() iFEppPPPPPP
 #() iFiiiiiiiip
 #() iFiiiipiiip
@@ -2760,6 +2792,7 @@
 #() iFpLiuiiLLL
 #() iFpLLiiuuii
 #() iFpLpiiuuii
+#() iFpLpLpLLpp
 #() iFpLpppupup
 #() iFpLppppppp
 #() iFppiiiiiii
@@ -2816,6 +2849,7 @@
 #() vFEiippppppp
 #() vFEpippppppp
 #() vFEpppiipppp
+#() vFEpppLuLpLp
 #() vFiiiiiiiiii
 #() vFiiiiiiiiiu
 #() vFiiiiiiiiui
@@ -2863,6 +2897,7 @@
 #() iFpLpLUUUUpL
 #() iFppuuiiiiii
 #() iFppuuiiuupi
+#() iFppLpLpLLpp
 #() iFpppiiipipi
 #() iFpppLLipppp
 #() iFpppppiiuup
@@ -2889,6 +2924,7 @@
 #() iWEpuuiiuipp
 #() iWEpuuuuiipp
 #() vFEpuuuupupup
+#() vFEppLpLpLLpp
 #() vFiiiiillliip
 #() vFiiiiilllilp
 #() vFuiiiiiiiiip
@@ -2919,6 +2955,7 @@
 #() vFppupppuiiii
 #() vFppppppppppp
 #() iFEiipppppppp
+#() iFEppLpLpLLpp
 #() iFEpppipppppp
 #() iFEppppiiiiuu
 #() iFEpppppppppp
@@ -4500,6 +4537,24 @@ wrappedlibharfbuzz:
   - hb_blob_create
   - hb_blob_create_or_fail
 wrappedlibhogweed6:
+- vFpppp:
+  - nettle_ecdsa_generate_keypair
+  - nettle_mpz_random
+  - nettle_mpz_random_size
+- vFpppLpp:
+  - nettle_ecdsa_sign
+  - nettle_gostdsa_sign
+- iFpppLpp:
+  - nettle_rsa_encrypt
+- iFppppLpp:
+  - nettle_dsa_sign
+  - nettle_rsa_pkcs1_sign_tr
+- iFpppppuu:
+  - nettle_dsa_generate_params
+- iFppppppp:
+  - nettle_rsa_decrypt_tr
+- iFppppppuu:
+  - nettle_rsa_generate_keypair
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async
@@ -4634,6 +4689,39 @@ wrappedlibncursesw6:
 - iFpiipV:
   - mvwprintw
 wrappedlibnettle8:
+- vFppp:
+  - nettle_cmac128_set_key
+  - nettle_cmac64_set_key
+  - nettle_gcm_set_key
+- vFpppLp:
+  - nettle_cmac128_update
+  - nettle_cmac64_update
+- vFppppup:
+  - nettle_cmac128_digest
+  - nettle_cmac64_digest
+- vFppppLp:
+  - nettle_gcm_digest
+- vFppLpLpp:
+  - nettle_cbc_decrypt
+  - nettle_cbc_encrypt
+  - nettle_cfb8_decrypt
+  - nettle_cfb8_encrypt
+  - nettle_cfb_decrypt
+  - nettle_cfb_encrypt
+  - nettle_ctr_crypt
+- vFpppLLpp:
+  - nettle_hkdf_extract
+- vFppppLpp:
+  - nettle_gcm_decrypt
+  - nettle_gcm_encrypt
+- vFpppLLpLp:
+  - nettle_hkdf_expand
+- vFpppLuLpLp:
+  - nettle_pbkdf2
+- vFppLpLpLLpp:
+  - nettle_ccm_encrypt_message
+- iFppLpLpLLpp:
+  - nettle_ccm_decrypt_message
 wrappedlibnuma:
 wrappedlibogg:
 wrappedlibpanel:
@@ -5036,6 +5124,10 @@ wrappedopencl:
 - pFpupppp:
   - clCreateContext
 wrappedp11kit:
+- vFppp:
+  - p11_kit_pin_unregister_callback
+- iFpppp:
+  - p11_kit_pin_register_callback
 wrappedpam:
 wrappedpango:
 - vFpp:

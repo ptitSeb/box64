@@ -1405,6 +1405,7 @@ void LoadEnvVars(box64context_t *context)
     AddPath("libunwind.so.8", &context->box64_emulated_libs, 0);
     AddPath("libpng12.so.0", &context->box64_emulated_libs, 0);
     AddPath("libcurl.so.4", &context->box64_emulated_libs, 0);
+    AddPath("libgnutls.so.30", &context->box64_emulated_libs, 0);
     AddPath("libtbbmalloc.so.2", &context->box64_emulated_libs, 0);
     AddPath("libtbbmalloc_proxy.so.2", &context->box64_emulated_libs, 0);
 
