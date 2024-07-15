@@ -100,6 +100,7 @@ ENTRYBOOL(BOX64_NOPULSE, box64_nopulse)                 \
 ENTRYBOOL(BOX64_NOGTK, box64_nogtk)                     \
 ENTRYBOOL(BOX64_NOVULKAN, box64_novulkan)               \
 ENTRYBOOL(BOX64_RDTSC_1GHZ, box64_rdtsc_1ghz)           \
+ENTRYBOOL(BOX64_SHAEXT, box64_shaext)                   \
 ENTRYBOOL(BOX64_SSE42, box64_sse42)                     \
 ENTRYINT(BOX64_AVX, new_avx, 0, 2, 2)                   \
 ENTRYBOOL(BOX64_FUTEX_WAITV, box64_futex_waitv)         \
