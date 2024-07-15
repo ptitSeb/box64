@@ -4579,6 +4579,7 @@ wrappedlibice:
 - iFpp:
   - IceAddConnectionWatch
   - IceRemoveConnectionWatch
+wrappedlibltdl7:
 wrappedlibm:
 - iFv:
   - fegetround
@@ -4900,6 +4901,7 @@ wrappedlibssl3:
 - iFlpppp:
   - SSL_get_ex_new_index
 wrappedlibtasn1:
+wrappedlibtiff5:
 wrappedlibtinfo:
 - iFpip:
   - tputs
