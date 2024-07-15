@@ -14,7 +14,7 @@
 const char* libtiff5Name = "libtiff.so.5";
 #define LIBNAME libtiff5
 
-// #include "generated/wrappedlibtiff5types.h"
+#include "generated/wrappedlibtiff5types.h"
 
 // Insert code here
 
