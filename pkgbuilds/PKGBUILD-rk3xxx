@@ -1,6 +1,6 @@
 # Maintainer: Jai-JAP <jai.jap.318@gmail.com>
 # Author: Sebastien Chevalier <ptitseb@box86.org>
-pkgname=box86-rk3xxx-git
+pkgname=box64-rk3xxx-git
 pkgver=r2431.60c6858
 pkgrel=1
 pkgdesc="Linux Userspace x86_64 Emulator with a twist, targeted at ARM64 Linux devices."
