@@ -2296,6 +2296,7 @@
 #() vFpiipppp
 #() vFpipipii
 #() vFpippppu
+#() vFpuiippp
 #() vFpuuuuuu
 #() vFpuuUUuu
 #() vFpuupupu
@@ -2305,6 +2306,7 @@
 #() vFpUiUiup
 #() vFpUuuUip
 #() vFpUUUUuu
+#() vFpfffppp
 #() vFpddiidd
 #() vFpdddddd
 #() vFpLiLiLp
@@ -4579,7 +4581,6 @@ wrappedlibice:
 - iFpp:
   - IceAddConnectionWatch
   - IceRemoveConnectionWatch
-wrappedlibltdl7:
 wrappedlibm:
 - iFv:
   - fegetround
