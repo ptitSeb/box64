@@ -3,7 +3,7 @@
 #endif
 
 //GO(TIFFVGetFieldDefaulted,
-GO(TIFFVGetField, iFpWA)
+// GO(TIFFVGetField, iFpWA)
 GO(TIFFCleanup, vFp)
 GO(TIFFFreeDirectory, vFp)
 GO(TIFFFlush, iFp)
@@ -28,7 +28,7 @@ GO(TIFFInitZIP, iFpi)
 GO(TIFFInitLZMA, iFpi)
 GO(TIFFInitZSTD, iFpi)
 GO(TIFFInitWebP, iFpi)
-GO(TIFFCIELabToXYZ, vFpuiippp)
+// GO(TIFFCIELabToXYZ, vFpuiippp)
 GO(TIFFXYZToRGB, iFpppp)
 GO(TIFFCIELabToRGBInit, iFpp)
 //GO(TIFFYCbCrtoRGB
