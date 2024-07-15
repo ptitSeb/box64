@@ -2003,6 +2003,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     UFLAG_RES(x1);
                     BSTRINS_D(xRAX, x1, 15, 0);
                     break;
+                case 6:
+                    INST_NAME("DIV Eb");
+                    MESSAGE(LOG_DUMP, "Need Optimization\n");
+                    SETFLAGS(X_ALL, SF_SET_DF);
+                    GETEB(x1, 0);
+                    CALL(div8, -1);
+                    break;
                 default:
                     DEFAULT;
             }
