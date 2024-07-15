@@ -51,6 +51,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     MAYUSE(j64);
 
     switch (opcode) {
+        case 0x10:
+            INST_NAME("MOVUPD Gx,Ex");
+            nextop = F8;
+            GETG;
+            v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+            if (MODREG) {
+                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                VOR_V(v0, v1, v1);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VLD(v0, ed, fixedaddress);
+            }
+            break;
         case 0x11:
             INST_NAME("MOVUPD Ex,Gx");
             nextop = F8;
