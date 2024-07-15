@@ -4581,7 +4581,6 @@ wrappedlibice:
 - iFpp:
   - IceAddConnectionWatch
   - IceRemoveConnectionWatch
-wrappedlibltdl7:
 wrappedlibm:
 - iFv:
   - fegetround
