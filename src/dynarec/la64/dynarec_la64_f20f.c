@@ -292,7 +292,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
             GETGX(v0, 1);
-            GETEXSS(v1, 0, 1);
+            GETEXSD(v1, 0, 1);
             u8 = F8;
             switch (u8 & 7) {
                 case 0: FCMP_D(fcc0, v0, v1, cEQ); break;  // Equal
