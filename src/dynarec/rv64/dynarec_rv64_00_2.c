@@ -246,35 +246,27 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SLLI(x1, x1, 3);
 
                 // align address to 4-bytes to use ll.w/sc.w
-                ADDI(x4, xZR, 0xffc);
-                AND(x6, ed, x4);
+                ANDI(x6, ed, ~3);
 
-                // load aligned data
-                LWU(x5, x6, 0);
-
-                // insert gd byte into the aligned data
+                // prepare mask
                 ADDI(x4, xZR, 0xff);
                 SLL(x4, x4, x1);
                 NOT(x4, x4);
-                AND(x4, x5, x4);
-                SLL(x5, gd, x1);
-                OR(x4, x4, x5);
+                SLL(x9, gd, x1);
 
-                // do aligned ll/sc sequence
+                // do aligned ll/sc sequence, reusing x2 (ed might be x2 but is no longer needed)
                 MARKLOCK;
-                LR_W(x1, x6, 1, 1);
-                SC_W(x5, x4, x6, 1, 1);
+                LR_W(x2, x6, 1, 1);
+                AND(x5, x2, x4);
+                OR(x5, x5, x9);
+                SC_W(x5, x5, x6, 1, 1);
                 BNEZ_MARKLOCK(x5);
 
-                // calculate shift amount again
-                ANDI(x4, ed, 0x3);
-                SLLI(x4, x4, 3);
-
                 // extract loaded byte
-                SRL(x1, x1, x4);
+                SRL(gd, x2, x1);
+                ANDI(gd, gd, 0xff);
 
-                gd = x1;
-                GBBACK(x3);
+                GBBACK(x5);
             }
             break;
         case 0x87:
