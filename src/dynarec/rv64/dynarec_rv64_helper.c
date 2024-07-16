@@ -11,6 +11,7 @@
 #include "dynarec.h"
 #include "emu/x64emu_private.h"
 #include "emu/x64run_private.h"
+#include "rv64_emitter.h"
 #include "x64run.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -1611,8 +1612,10 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 
         if (dyn->e.ssecache[a].single != single) {
             if (single) {
-                // writing back the double, to clear upper 32 bit.
-                FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+                // writing back the float
+                FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+                // clear upper 32 bit
+                SW(xZR, xEmu, offsetof(x64emu_t, xmm[a]) + 4);
             }
             dyn->e.olds[a].changed = 1;
             dyn->e.olds[a].purged = 0;
