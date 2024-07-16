@@ -1674,6 +1674,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
+                case 1:
+                    INST_NAME("ROR Ed, 1");
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING);
+                    GETED(0);
+                    emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    if (!wback && !rex.w) ZEROUP(ed);
+                    break;
                 case 4:
                 case 6:
                     INST_NAME("SHL Ed, 1");
