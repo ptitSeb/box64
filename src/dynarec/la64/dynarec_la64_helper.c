@@ -249,7 +249,7 @@ static uintptr_t geted_32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_
         } else {
             ret = TO_LA64((nextop & 7));
             if (ret == hint) {
-                AND(hint, ret, xMASK); // to clear upper part
+                ZEROUP2(hint, ret); // to clear upper part
             }
         }
     } else {
@@ -397,7 +397,7 @@ uintptr_t geted32(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
         } else {
             ret = TO_LA64((nextop & 7) + (rex.b << 3));
             if (ret == hint) {
-                AND(hint, ret, xMASK); // to clear upper part
+                ZEROUP2(hint, ret); // to clear upper part
             }
         }
     } else {
@@ -685,7 +685,6 @@ void call_c(dynarec_la64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
             LD_D(xRIP, xEmu, offsetof(x64emu_t, ip));
 #undef GO
     }
-    REGENERATE_MASK();
 
     fpu_popcache(dyn, ninst, reg, 0);
     if (saveflags) {

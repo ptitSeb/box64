@@ -64,8 +64,5 @@ la64_prolog:
     addi.d $sp,  $sp, -16
     // save old sp into xSavedSP
     addi.d $r22, $sp, 16
-    // setup xMASK
-    addi.w  $r11, $r0, -1
-    lu32i.d $r11, 0
     //jump to function
     jirl   $r0,  $a1, 0

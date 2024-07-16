@@ -124,7 +124,7 @@ uintptr_t dynarec64_67(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (gd != xRDX) MV(xRDX, gd);
                     } else {
                         MUL_D(xRDX, xRAX, ed); // 64 <- 32x32
-                        AND(xRAX, xRDX, xMASK);
+                        ZEROUP2(xRAX, xRDX);
                         SRLI_W(xRDX, xRDX, 32);
                     }
                     UFLAG_RES(xRAX);
