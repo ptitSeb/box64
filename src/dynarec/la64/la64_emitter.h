@@ -79,8 +79,7 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define x4      8
 #define x5      9
 #define x6      10
-// used to clear the upper 32bits
-#define xMASK   11
+#define x7      11
 // 32bits version of scratch
 #define w1      x1
 #define w2      x2
@@ -498,7 +497,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define BSTRPICK_D(rd, rj, msbd6, lsbd6) EMIT(type_2RI12(0b0000000011, ((msbd6) & 0x3F) << 6 | ((lsbd6) & 0x3F), rj, rd))
 
 // ZERO the upper part
-#define ZEROUP(rd) BSTRINS_D(rd, xZR, 63, 32);
+#define ZEROUP(rd)      BSTRPICK_D(rd, rd, 31, 0)
+#define ZEROUP2(rd, rj) BSTRPICK_D(rd, rj, 31, 0)
 
 #define CLO_W(rd, rj)     EMIT(type_2R(0b0000000000000000000100, rj, rd))
 #define CLZ_W(rd, rj)     EMIT(type_2R(0b0000000000000000000101, rj, rd))
@@ -2025,23 +2025,23 @@ LSX instruction starts with V, LASX instruction starts with XV.
 // rd[63:0] = rj[63:0] (pseudo instruction)
 #define MV(rd, rj) ADDI_D(rd, rj, 0)
 // rd = rj (pseudo instruction)
-#define MVxw(rd, rj)            \
-    do {                        \
-        if (rex.w) {            \
-            MV(rd, rj);         \
-        } else {                \
-            AND(rd, rj, xMASK); \
-        }                       \
+#define MVxw(rd, rj)         \
+    do {                     \
+        if (rex.w) {         \
+            MV(rd, rj);      \
+        } else {             \
+            ZEROUP2(rd, rj); \
+        }                    \
     } while (0)
 
 // rd = rj (pseudo instruction)
-#define MVz(rd, rj)             \
-    do {                        \
-        if (rex.is32bits) {     \
-            AND(rd, rj, xMASK); \
-        } else {                \
-            MV(rd, rj);         \
-        }                       \
+#define MVz(rd, rj)          \
+    do {                     \
+        if (rex.is32bits) {  \
+            ZEROUP2(rd, rj); \
+        } else {             \
+            MV(rd, rj);      \
+        }                    \
     } while (0)
 
 #define ADDIxw(rd, rj, imm12)      \

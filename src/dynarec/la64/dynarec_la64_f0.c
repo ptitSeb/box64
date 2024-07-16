@@ -239,10 +239,10 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 }
                             } else {
                                 SMDMB();
-                                AND(x3, xRAX, xMASK);
+                                ZEROUP2(x3, xRAX);
                                 SLLI_D(x2, xRDX, 32);
                                 OR(x3, x3, x2);
-                                AND(x4, xRBX, xMASK);
+                                ZEROUP2(x4, xRBX);
                                 SLLI_D(x2, xRCX, 32);
                                 OR(x4, x4, x2);
                                 MARKLOCK;
@@ -260,7 +260,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 B_MARK3_nocond;
                                 MARK;
                                 SLLI_D(xRDX, x2, 32);
-                                AND(xRAX, x2, xMASK);
+                                ZEROUP2(xRAX, x2);
                                 MARK3;
                                 SMDMB();
                             }

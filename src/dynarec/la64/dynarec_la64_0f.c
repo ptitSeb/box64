@@ -913,7 +913,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEROUP2(x4, ed);
                 ed = x4;
             }
             BNE_MARK(ed, xZR);
@@ -945,7 +945,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEROUP2(x4, ed);
                 ed = x4;
             }
             BNE_MARK(ed, xZR);

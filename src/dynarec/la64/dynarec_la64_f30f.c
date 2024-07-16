@@ -301,7 +301,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(0);
             GETGD;
             if (!rex.w && MODREG) {
-                AND(x4, ed, xMASK);
+                ZEROUP2(x4, ed);
                 ed = x4;
             }
             RESTORE_EFLAGS(x1);
