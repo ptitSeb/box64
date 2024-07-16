@@ -102,7 +102,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGW(x2);
             GETEW(x1, 0);
-            emit_or16(dyn, ninst, x1, x2, x4, x2);
+            emit_or16(dyn, ninst, x1, x2, x4, x5);
             EWBACK;
             break;
         case 0x0B:
