@@ -254,16 +254,16 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 NOT(x4, x4);
                 SLL(x9, gd, x1);
 
-                // do aligned ll/sc sequence, reusing ed
+                // do aligned ll/sc sequence, reusing x2 (ed might be x2 but is no longer needed)
                 MARKLOCK;
-                LR_W(ed, x6, 1, 1);
-                AND(x5, ed, x4);
+                LR_W(x2, x6, 1, 1);
+                AND(x5, x2, x4);
                 OR(x5, x5, x9);
                 SC_W(x5, x5, x6, 1, 1);
                 BNEZ_MARKLOCK(x5);
 
                 // extract loaded byte
-                SRL(gd, ed, x1);
+                SRL(gd, x2, x1);
                 ANDI(gd, gd, 0xff);
 
                 GBBACK(x5);
