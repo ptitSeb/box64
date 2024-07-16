@@ -69,13 +69,16 @@ void wine_prereserve(const char* reserve)
 
     int idx = 0;
     while(my_wine_reserve[idx].addr && my_wine_reserve[idx].size) {
-        if(!isBlockFree(my_wine_reserve[idx].addr, my_wine_reserve[idx].size)) {
+        void* ret = NULL;
+        if(!isBlockFree(my_wine_reserve[idx].addr, my_wine_reserve[idx].size) && ((ret=mmap(my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 0, MAP_ANONYMOUS|MAP_NORESERVE, -1, 0))==my_wine_reserve[idx].addr)) {
             printf_log(LOG_NONE, "Warning, prereserve of %p:0x%lx is not free\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
+            if(ret)
+                munmap(ret, my_wine_reserve[idx].size);
             my_wine_reserve[idx].addr = NULL;
             my_wine_reserve[idx].size = 0;
         } else {
             setProtection_mmap((uintptr_t)my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 0);
-            printf_log(LOG_DEBUG, "WINE prereserve of %p:0x%lx done\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
+            printf_log(/*LOG_DEBUG*/LOG_INFO, "WINE prereserve of %p:0x%lx done\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
             ++idx;
         }
     }
@@ -88,6 +91,20 @@ void* get_wine_prereserve()
     if(!wine_preloaded)
         wine_prereserve(NULL);
     return (void*)my_wine_reserve;
+}
+
+extern int box64_quit;
+int isAddrInPrereserve(uintptr_t addr)
+{
+    if(!wine_preloaded || box64_quit)
+        return 0;
+    int idx = 0;
+    while(my_wine_reserve[idx].addr && my_wine_reserve[idx].size) {
+        if(addr>=(uintptr_t)my_wine_reserve[idx].addr && addr<((uintptr_t)my_wine_reserve[idx].addr+my_wine_reserve[idx].size))
+            return 1;
+        ++idx;
+    }
+    return 0;
 }
 
 #ifdef DYNAREC
