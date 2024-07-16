@@ -254,8 +254,14 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(v1, 0, 1);
             GETGX(v0, 1);
             u8 = F8;
-            VSHUF4I_H(v0, v1, u8);
-            VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            if (v0 == v1) {
+                q0 = fpu_get_scratch(dyn);
+                VSHUF4I_H(q0, v1, u8);
+                VEXTRINS_D(v0, q0, 0x11); // v0[127:64] = q0[127:64]
+            } else {
+                VSHUF4I_H(v0, v1, u8);
+                VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
+            }
             break;
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
