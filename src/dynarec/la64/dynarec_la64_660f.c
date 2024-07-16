@@ -798,6 +798,20 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     DEFAULT;
             }
             break;
+        case 0x74:
+            INST_NAME("PCMPEQB Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VSEQ_B(v0, v0, q0);
+            break;
+        case 0x75:
+            INST_NAME("PCMPEQW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(q0, 0, 0);
+            VSEQ_H(v0, v0, q0);
+            break;
         case 0x76:
             INST_NAME("PCMPEQD Gx,Ex");
             nextop = F8;
@@ -881,6 +895,50 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LD_B(x1, ed, fixedaddress);
             }
             BSTRINS_D(gd, x1, 15, 0);
+            break;
+        case 0xC4:
+            INST_NAME("PINSRW Gx, Ed, Ib");
+            nextop = F8;
+            GETGX(v0, 1);
+            if (MODREG) {
+                u8 = (F8) & 7;
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 1);
+                u8 = (F8) & 7;
+                ed = x3;
+                LD_HU(ed, wback, fixedaddress);
+            }
+            d0 = fpu_get_scratch(dyn);
+            MOVGR2FR_D(d0, ed);
+            VEXTRINS_H(v0, d0, (u8 << 4));
+            break;
+        case 0xC5:
+            INST_NAME("PEXTRW Gd, Ex, Ib");
+            nextop = F8;
+            GETGD;
+            if (MODREG) {
+                GETEX(v0, 0, 1);
+                u8 = (F8) & 7;
+                v1 = fpu_get_scratch(dyn);
+                VBSRL_V(v1, v0, (u8 << 1));
+                MOVFR2GR_D(gd, v1);
+                BSTRPICK_D(gd, gd, 15, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x4, &fixedaddress, rex, NULL, 1, 1);
+                u8 = (F8) & 7;
+                LD_HU(gd, wback, (u8 << 1));
+            }
+            break;
+        case 0xC6:
+            INST_NAME("SHUFPD Gx, Ex, Ib");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 1);
+            u8 = F8;
+            VSHUF4I_D(v0, v1, (u8 & 1) | ((u8 & 2) << 1));
             break;
         case 0xD4:
             INST_NAME("PADDQ Gx, Ex");
