@@ -441,8 +441,42 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            // TODO: fastnan handling
+            if (!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_D(v0, q0, q1, cUN);
+            }
             VFADD_D(q1, q1, q0);
+            if (!box64_dynarec_fastnan) {
+                VFCMP_D(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
+                VSLLI_D(v1, v1, 48);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
+            break;
+        case 0x59:
+            INST_NAME("MULPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGX(q1, 1);
+            if (!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_D(v0, q0, q1, cUN);
+            }
+            VFMUL_D(q1, q1, q0);
+            if (!box64_dynarec_fastnan) {
+                VFCMP_D(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
+                VSLLI_D(v1, v1, 48);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
             break;
         case 0x5A:
             INST_NAME("CVTPD2PS Gx, Ex");
@@ -483,8 +517,42 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            // TODO: fastnan handling
+            if (!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_D(v0, q0, q1, cUN);
+            }
             VFSUB_D(q1, q1, q0);
+            if (!box64_dynarec_fastnan) {
+                VFCMP_D(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
+                VSLLI_D(v1, v1, 48);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
+            break;
+        case 0x5E:
+            INST_NAME("DIVPD Gx, Ex");
+            nextop = F8;
+            GETEX(q0, 0, 0);
+            GETGX(q1, 1);
+            if (!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                v1 = fpu_get_scratch(dyn);
+                VFCMP_D(v0, q0, q1, cUN);
+            }
+            VFDIV_D(q1, q1, q0);
+            if (!box64_dynarec_fastnan) {
+                VFCMP_D(v1, q1, q1, cUN);
+                VANDN_V(v0, v0, v1);
+                VLDI(v1, 0b011111111000); // broadcast 0xFFFFFFFFFFFFFFF8
+                VSLLI_D(v1, v1, 48);
+                VAND_V(v1, v0, v1);
+                VANDN_V(v0, v0, q1);
+                VOR_V(q1, v0, v1);
+            }
             break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gx,Ex");
@@ -506,6 +574,21 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(q0, 0, 0);
             VILVL_W(v0, q0, v0);
+            break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            q0 = fpu_get_scratch(dyn);
+            if (v0 == v1) {
+                VSAT_H(v0, v0, 7);
+                VPICKEV_B(v0, v0, v0);
+            } else {
+                VSAT_H(v0, v0, 7);
+                VSAT_H(q0, v1, 7);
+                VPICKEV_B(v0, q0, v0);
+            }
             break;
         case 0x64:
             INST_NAME("PCMPGTB Gx,Ex");
@@ -938,7 +1021,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(v1, 0, 1);
             u8 = F8;
-            VSHUF4I_D(v0, v1, (u8 & 1) | ((u8 & 2) << 1));
+            VSHUF4I_D(v0, v1, 0x8 | (u8 & 1) | ((u8 & 2) << 1));
             break;
         case 0xD4:
             INST_NAME("PADDQ Gx, Ex");

@@ -192,6 +192,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
             EWBACK;
             break;
+        case 0x33:
+            INST_NAME("XOR Gw, Ew");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_xor16(dyn, ninst, x1, x2, x3, x4, x5);
+            GWBACK;
+            break;
         case 0x39:
             INST_NAME("CMP Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
