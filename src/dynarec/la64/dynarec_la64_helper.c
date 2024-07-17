@@ -739,18 +739,18 @@ int sse_setround(dynarec_la64_t* dyn, int ninst, int s1, int s2)
     // MMX/x87 Round mode: 0..3: Nearest, Down, Up, Chop
     // LA64: 0..3: Nearest, TowardZero, TowardsPositive, TowardsNegative
     // 0->0, 1->3, 2->2, 3->1
-    BEQ(s1, xZR, 32);
+    BEQ(s1, xZR, 4 + 4 * 8); // done + 4
     ADDI_D(s2, xZR, 2);
-    BEQ(s1, s2, 24);
+    BEQ(s1, s2, 4 + 4 * 5); // done
     ADDI_D(s2, xZR, 3);
-    BEQ(s1, s2, 12);
+    BEQ(s1, s2, 4 + 4 * 2);
     ADDI_D(s1, xZR, 3);
     B(8);
     ADDI_D(s1, xZR, 1);
     // done
     SLLI_D(s1, s1, 8);
     MOVFCSR2GR(s2, FCSR3);
-    MOVGR2FCSR(FCSR3, s1); // exange RM with current
+    MOVGR2FCSR(FCSR3, s1); // exchange RM with current
     return s2;
 }
 
