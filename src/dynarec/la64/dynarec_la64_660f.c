@@ -327,6 +327,54 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VOR_V(q0, q0, d0);
                     }
                     break;
+                case 0x16:
+                    if (rex.w) {
+                        INST_NAME("PEXTRQ Ed, Gx, Ib");
+                    } else {
+                        INST_NAME("PEXTRD Ed, Gx, Ib");
+                    }
+                    nextop = F8;
+                    GETGX(q0, 0);
+                    d0 = fpu_get_scratch(dyn);
+                    if (MODREG) {
+                        ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                        u8 = F8;
+                        if (rex.w) {
+                            VBSRL_V(d0, q0, (u8 & 1) * 8);
+                            MOVFR2GR_D(ed, d0);
+                        } else {
+                            VBSRL_V(d0, q0, (u8 & 3) * 4);
+                            MOVFR2GR_S(ed, d0);
+                            ZEROUP(ed);
+                        }
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 1, 1);
+                        u8 = F8;
+                        if (rex.w) {
+                            VBSRL_V(d0, q0, (u8 & 1) * 8);
+                            FST_D(d0, ed, fixedaddress);
+                        } else {
+                            VBSRL_V(d0, q0, (u8 & 3) * 4);
+                            FST_S(d0, ed, fixedaddress);
+                        }
+                        SMWRITE2();
+                    }
+                    break;
+                case 0x22:
+                    INST_NAME("PINSRD Gx, ED, Ib");
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETED(1);
+                    u8 = F8;
+                    d0 = fpu_get_scratch(dyn);
+                    if (rex.w) {
+                        MOVGR2FR_D(d0, ed);
+                        VEXTRINS_D(q0, d0, (u8 & 1) << 4);
+                    } else {
+                        MOVGR2FR_W(d0, ed);
+                        VEXTRINS_W(q0, d0, (u8 & 3) << 4);
+                    }
+                    break;
                 case 0x44:
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
                     nextop = F8;
@@ -495,6 +543,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
             u8 = sse_setround(dyn, ninst, x6, x4);
+            if (v0 == v1 && !box64_dynarec_fastround) {
+                v1 = fpu_get_scratch(dyn);
+                VOR_V(v1, v0, v0);
+            }
             VFTINT_W_S(v0, v1);
             if (!box64_dynarec_fastround) {
                 q0 = fpu_get_scratch(dyn);

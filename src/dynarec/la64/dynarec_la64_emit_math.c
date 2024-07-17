@@ -1558,7 +1558,7 @@ void emit_neg16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
         MV(s3, s1); // s3 = op1
     }
 
-    NOR(s1, s1, xZR);
+    NEG_D(s1, s1);
     BSTRPICK_D(s1, s1, 15, 0);
     IFX (X_PEND) {
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
