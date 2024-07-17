@@ -1514,14 +1514,14 @@ x64emurun:
                 // 32bits syscall
                 #ifndef TEST_INTERPRETER
                 x86Syscall(emu);
-                STEP;
+                STEP2;
                 #else
                 test->notest = 1;
                 #endif
             } else {
                 #ifndef TEST_INTERPRETER
                 emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-                STEP;
+                STEP2;
                 #else
                 test->notest = 1;
                 #endif
@@ -1537,7 +1537,7 @@ x64emurun:
             CHECK_FLAGS(emu);
             if(ACCESS_FLAG(F_OF))
                 emit_signal(emu, SIGSEGV, (void*)R_RIP, 128);
-            STEP;
+            STEP2;
             #endif
             break;
         case 0xCF:                      /* IRET */
