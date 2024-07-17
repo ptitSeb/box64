@@ -149,7 +149,7 @@ GO(gst_audio_format_build_integer, uFiiii)
 GO(gst_audio_format_fill_silence, vFppL)
 GO(gst_audio_format_flags_get_type, LFv)
 GO(gst_audio_format_from_string, uFp)
-//GO(gst_audio_format_get_info, 
+GO(gst_audio_format_get_info, pFu)
 GO(gst_audio_format_get_type, LFv)
 GO(gst_audio_format_info_fill_silence, vFppL)
 GO(gst_audio_format_info_get_type, LFv)
