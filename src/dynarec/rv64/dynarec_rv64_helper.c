@@ -1959,7 +1959,7 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int i, int j, extcache_t *
         if (!cache->extcache[i].v) {
             // a mov is enough, no need to swap
             MESSAGE(LOG_DUMP, "\t  - Moving %d <- %d\n", i, j);
-            VOR_VV(i, j, j, VECTOR_UNMASKED);
+            VMV_V_V(i, j);
             cache->extcache[i].v = cache->extcache[j].v;
             cache->extcache[j].v = 0;
             return;
@@ -2024,7 +2024,7 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
         int j = i + 1;
         while (cache->extcache[j].v) ++j;
         MESSAGE(LOG_DUMP, "\t  - Moving away %d\n", i);
-        VOR_VV(j, i, i, VECTOR_UNMASKED);
+        VMV_V_V(j, i);
         cache->extcache[j].v = cache->extcache[i].v;
     } else if (cache->extcache[i].v) {
         int single = 0;
