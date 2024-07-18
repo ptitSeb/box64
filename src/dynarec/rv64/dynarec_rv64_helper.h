@@ -1010,6 +1010,9 @@
     *ok = -1;   \
     BARRIER(2)
 #endif
+#ifndef DEFAULT_VECTOR
+#define DEFAULT_VECTOR return 0
+#endif
 
 #ifndef TABLE64
 #define TABLE64(A, V)
