@@ -30,6 +30,14 @@ BOX64_DYNAREC_FORWARD=512
 BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
+[BALDI.x86_64]
+BOX64_DYNAREC_STRONGMEM=1 #little to no performance impact also makes game not crash
+BOX64_PREFER_EMULATED=1
+
+[Baldi's Fun New School Plus Ultimate Edition.x86_64]
+BOX64_DYNAREC_STRONGMEM=2 #needed paramiter or else it just dies
+BOX64_PREFER_EMULATED=1
+
 [bash]
 # LOG tend to mess up script execution in bash
 BOX64_LOG=0
@@ -74,29 +82,6 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_FASTROUND=0
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
-[BALDI.x86_64]
-BOX64_DYNAREC_STRONGMEM=1 #little to no performance impact also makes game not crash
-BOX64_PREFER_EMULATED=1
-
-[Baldi's Fun New School Plus Ultimate Edition.x86_64]
-BOX64_DYNAREC_STRONGMEM=2 #needed paramiter or else it just dies
-BOX64_PREFER_EMULATED=1
-
-[picohot]
-# good game
-BOX64_DYNAREC_STRONGMEM=1 #needed or else it just crashes
-BOX64_CRASHHANDLER=0
-BOX64_PREFER_EMULATED=1
-
-[Start Survey Linux.x86_64]
-BOX64_DYNAREC_STRONGMEM=2 #Likes to crash without it
-BOX64_PREFER_EMULATED=1
-
-[My Dystopian Robot Girlfriend.x86_64]
-BOX64_DYNAREC_STRONGMEM=3 # Fixes memory leak related crashes
-BOX64_CRASHHANDLER=0 # Better crash handler and not dummy lib
-BOX64_PREFER_EMULATED=1 # Load in heavy stuff first
-
 [geekbench6]
 BOX64_ENV=BOX64_DYNAREC_STRONGMEM=3
 BOX64_ENV1=BOX64_RESERVE_HIGH=1
@@ -106,15 +91,14 @@ BOX64_ENV=BOX64_DYNAREC_BIGBLOCK=2
 BOX64_ENV1=BOX64_DYNAREC_FORWARD=1024
 BOX64_ENV2=BOX64_DYNAREC_CALLRET=1
 
+[GoatGame]
+BOX64_DYNAREC_STRONGMEM=1
+
 [GridAutosport]
 #BOX64_DYNAREC_BIGBLOCK=2
 BOX64_NOSANDBOX=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 BOX64_MAXCPU=16
-
-[Kingdom Rush Origins]
-BOX64_RESERVE_HIGH=1
-BOX64_EMULATED_LIBS=libmpg123.so.0:libvorbisfile.so.3:libvorbis.so.0:libogg.so.0:libSDL2-2.0.so.0
 
 [heroic]
 BOX64_NOSANDBOX=1
@@ -134,11 +118,20 @@ BOX64_DYNAREC_SAFEFLAGS=0
 [Hue.x86_64]
 BOX64_MAXCPU=16
 
+[Kingdom Rush Origins]
+BOX64_RESERVE_HIGH=1
+BOX64_EMULATED_LIBS=libmpg123.so.0:libvorbisfile.so.3:libvorbis.so.0:libogg.so.0:libSDL2-2.0.so.0
+
 [Kingdom.x86_64]
 BOX64_MAXCPU=4
 
 [LotCG.x86_64]
 BOX64_DYNAREC_FASTROUND=0
+
+[My Dystopian Robot Girlfriend.x86_64]
+BOX64_DYNAREC_STRONGMEM=3 # Fixes memory leak related crashes
+BOX64_CRASHHANDLER=0 # Better crash handler and not dummy lib
+BOX64_PREFER_EMULATED=1 # Load in heavy stuff first
 
 [Mini Metro]
 BOX64_ADDLIBS=libstdc++.so.6
@@ -159,6 +152,12 @@ BOX64_DYNAREC_FASTROUND=0
 [pressure-vessel-wrap]
 BOX64_NOGTK=1
 
+[picohot]
+# good game
+BOX64_DYNAREC_STRONGMEM=1 #needed or else it just crashes
+BOX64_CRASHHANDLER=0
+BOX64_PREFER_EMULATED=1
+
 [ProjectZomboid64]
 # This one is still a bit unstable. This might help, but will also slowdown emulation
 BOX64_DYNAREC_STRONGMEM=3
@@ -167,6 +166,10 @@ BOX64_DYNAREC_ALIGNED_ATOMICS=1
 BOX64_JVM=0
 BOX64_SSE42=0
 BOX64_MAXCPU=4
+
+[ShovelKnight]
+BOX64_SDL2_JGUID=1
+BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [Soma.bin.x86_64]
 # This is needed or the physics engine will not behave correctly
@@ -180,12 +183,13 @@ BOX64_MALLOC_HACK=2
 # this is to save some memory
 BOX64_DYNAREC_BIGBLOCK=0
 
+[Start Survey Linux.x86_64]
+BOX64_DYNAREC_STRONGMEM=2 #Likes to crash without it
+BOX64_PREFER_EMULATED=1
+
 [steam]
 BOX64_CRASHHANDLER=1
 BOX64_EMULATED_LIBS=libudev.so.0
-
-[streaming_client]
-BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 
 #[steamwebhelper]
 #BOX64_NOSANDBOX=1
@@ -196,15 +200,8 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 #BOX64_DYNAREC_CALLRET=1
 #BOX64_DYNAREC_STRONGMEM=2
 
-[steamwebhelper.exe]
-BOX64_DYNAREC_STRONGMEM=4
-BOX64_DYNAREC_BIGBLOCK=0
-BOX64_DYNAREC_SAFEFLAGS=2
-
-[steam.exe]
-BOX64_DYNAREC_BIGBLOCK=0
-BOX64_DYNAREC_STRONGMEM=1
-BOX64_CEFDISABLEGPU=1
+[streaming_client]
+BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 
 [steam-runtime-check-requirements]
 BOX64_EXIT=1
@@ -212,10 +209,6 @@ BOX64_EXIT=1
 [steam-runtime-launcher-service]
 BOX64_NOGTK=1
 BOX64_EXIT=1
-
-[ShovelKnight]
-BOX64_SDL2_JGUID=1
-BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
 [Torchlight2.bin.x86_64]
 # Those are safe to use on 7z and give a bit of a boost
@@ -309,6 +302,33 @@ BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_RDTSC_1GHZ=1
 BOX64_DYNAREC_STRONGMEM=2
 
+# All the EA/Origin launcher process. Not 100% working yet
+[EALocalHostSvc.exe]
+BOX64_DYNAREC_STRONGMEM=1
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_BIGBLOCK=0
+
+[EABackgroundService.exe]
+BOX64_DYNAREC_STRONGMEM=1
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_BIGBLOCK=0
+
+[EACefSubprocess.exe]
+BOX64_DYNAREC_STRONGMEM=3
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_BIGBLOCK=0
+
+[Link2EA.exe]
+BOX64_DYNAREC_STRONGMEM=2
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_BIGBLOCK=0
+
+[EADesktop.exe]
+BOX64_DYNAREC_STRONGMEM=2
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_BIGBLOCK=0
+#Last of the EA/Origin Launcher process
+
 [Fallout4.exe]
 BOX64_DYNAREC_STRONGMEM=1
 
@@ -361,27 +381,34 @@ BOX64_DYNAREC_STRONGMEM=1
 [MMRX.exe]
 BOX64_DYNAREC_STRONGMEM=1
 
+[Risk of Rain 2.exe]
+BOX64_DYNAREC_STRONGMEM=1
+
 [RocketLeague.exe]
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_STRONGMEM=1
 
-[Risk of Rain 2.exe]
+[steam.exe]
+BOX64_DYNAREC_BIGBLOCK=0
 BOX64_DYNAREC_STRONGMEM=1
+BOX64_CEFDISABLEGPU=1
+
+[steamwebhelper.exe]
+BOX64_DYNAREC_STRONGMEM=4
+BOX64_DYNAREC_BIGBLOCK=0
+BOX64_DYNAREC_SAFEFLAGS=2
 
 [Sunblaze.exe]
 BOX64_DYNAREC_STRONGMEM=1
 
-[witcher3.exe]
-BOX64_DYNAREC_STRONGMEM=1
-
 [Unturned.exe]
 BOX64_DYNAREC_SAFEFLAGS=2
+
+[witcher3.exe]
+BOX64_DYNAREC_STRONGMEM=1
 
 [YandareSimulator.exe]
 BOX64_DYNAREC_STRONGMEM=2
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_BIGBLOCK=0
 BOX64_DYNAREC_CALLRET=0
-
-[GoatGame]
-BOX64_DYNAREC_STRONGMEM=1
