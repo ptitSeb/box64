@@ -45,6 +45,48 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     MAYUSE(eb2);
     MAYUSE(j64);
     switch (opcode) {
+        case 0x1F:
+            return 0;
+        case 0x28:
+            INST_NAME("MOVAPD Gx, Ex");
+            nextop = F8;
+            // FIXME
+            vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW8);
+
+            GETG;
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0);
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                VOR_VV(v0, v1, v1, VECTOR_UNMASKED);
+            } else {
+                SMREAD();
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                VLE8_V(v0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            break;
+        case 0x6E:
+            return 0;
+        case 0x6F:
+            INST_NAME("MOVDQA Gx, Ex");
+            nextop = F8;
+            // FIXME
+            vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW8);
+
+            if (MODREG) {
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                GETGX_empty_vector(v0);
+                VOR_VV(v0, v1, v1, VECTOR_UNMASKED);
+            } else {
+                GETGX_empty_vector(v0);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                VLE8_V(v0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            break;
+        case 0x7E:
+            return 0;
         case 0xEF:
             INST_NAME("PXOR Gx, Ex");
             nextop = F8;
