@@ -526,6 +526,11 @@
         fixedaddress = 0; /* TODO: optimize this! */                                           \
     }
 
+#define GETGX_empty_vector(a)                   \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = sse_get_reg_empty_vector(dyn, ninst, x1, gd)
+
+
 #define SSE_LOOP_D_ITEM(GX1, EX1, F, i)    \
     LWU(GX1, gback, gdoffset + i * 4);     \
     LWU(EX1, wback, fixedaddress + i * 4); \
