@@ -55,6 +55,7 @@ extern int rv64_zbb;
 extern int rv64_zbc;
 extern int rv64_zbs;
 extern int rv64_vector;
+extern int rv64_vlen;
 extern int rv64_xtheadba;
 extern int rv64_xtheadbb;
 extern int rv64_xtheadbs;
