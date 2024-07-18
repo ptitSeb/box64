@@ -50,11 +50,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x28:
             INST_NAME("MOVAPD Gx, Ex");
             nextop = F8;
-            // FIXME
-            vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW8);
-
             GETG;
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY);
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0);
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
@@ -63,7 +61,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMREAD();
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                VLE8_V(v0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                VL1RE64_V(v0, ed);
             }
             break;
         case 0x38: // SSSE3 opcodes
@@ -72,9 +70,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 case 0x00:
                     INST_NAME("PSHUFB Gx, Ex");
                     nextop = F8;
-                    // FIXME
-                    vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW8);
-
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
                     GETGX_vector(q0, 1);
                     GETEX_vector(q1, 0, 0);
                     v0 = fpu_get_scratch(dyn);
@@ -94,10 +90,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x6F:
             INST_NAME("MOVDQA Gx, Ex");
             nextop = F8;
-            // FIXME
-            vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW8);
-
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                 GETGX_empty_vector(v0);
                 VMV_V_V(v0, v1);
@@ -105,7 +99,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGX_empty_vector(v0);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
-                VLE8_V(v0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                VL1RE64_V(v0, ed);
             }
             break;
         case 0x7E:
@@ -113,9 +107,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xEF:
             INST_NAME("PXOR Gx, Ex");
             nextop = F8;
-            // FIXME: we should try to minimize vsetvl usage as it may hurts performance a lot.
-            vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW8);
-
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY);
             GETG;
             if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
                 // special case

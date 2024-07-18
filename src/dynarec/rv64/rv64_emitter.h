@@ -1215,6 +1215,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VECTOR_SEW16 0b001
 #define VECTOR_SEW32 0b010
 #define VECTOR_SEW64 0b011
+#define VECTOR_SEWNA  0b111  // N/A
+#define VECTOR_SEWANY 0b1000 // any sew would be ok, but not N/A.
 
 #define VECTOR_MASKED   0
 #define VECTOR_UNMASKED 1
