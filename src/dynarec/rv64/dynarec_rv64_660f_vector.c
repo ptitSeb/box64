@@ -63,8 +63,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         default:
-            // fallback to the scalar version
-            return 0;
+            DEFAULT_VECTOR;
     }
+
     return addr;
 }
