@@ -58,12 +58,35 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0);
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
-                VOR_VV(v0, v1, v1, VECTOR_UNMASKED);
+                VMV_V_V(v0, v1);
             } else {
                 SMREAD();
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
                 VLE8_V(v0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            break;
+        case 0x38: // SSSE3 opcodes
+            nextop = F8;
+            switch (nextop) {
+                case 0x00:
+                    INST_NAME("PSHUFB Gx, Ex");
+                    nextop = F8;
+                    // FIXME
+                    vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW8);
+
+                    GETGX_vector(q0, 1);
+                    GETEX_vector(q1, 0, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    ADDI(x4, xZR, 0b000010001111);
+                    VMV_V_X(v0, x4); // broadcast the mask
+                    VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                    VRGATHER_VV(v1, v0, q0, VECTOR_UNMASKED); // registers cannot be overlapped!!
+                    VMV_V_V(q0, v1);
+                    break;
+                default:
+                    DEFAULT_VECTOR;
             }
             break;
         case 0x6E:
@@ -77,7 +100,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (MODREG) {
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                 GETGX_empty_vector(v0);
-                VOR_VV(v0, v1, v1, VECTOR_UNMASKED);
+                VMV_V_V(v0, v1);
             } else {
                 GETGX_empty_vector(v0);
                 SMREAD();

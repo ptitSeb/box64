@@ -494,6 +494,11 @@
         fixedaddress = 0; /* TODO: optimize this! */                                           \
     }
 
+// Get GX as a quad (might use x1)
+#define GETGX_vector(a, w)                      \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = sse_get_reg_vector(dyn, ninst, x1, gd, w)
+
 // Get EX as a quad, (x1 is used)
 #define GETEX_vector(a, w, D)                                                                \
     if (MODREG) {                                                                            \
