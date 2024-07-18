@@ -72,7 +72,17 @@ void RV64_Detect_Function()
     block = (uint32_t*)my_block;
     CSRRS(xZR, xZR, 0x00f);
     BR(xRA);
-    rv64_vector = Check(my_block); // TODO: also check vlen >= 128
+    rv64_vector = Check(my_block);
+
+    if (rv64_vector) {
+        int vlenb = 0;
+        asm volatile("csrr %0, 0xc22" : "=r"(vlenb));
+        rv64_vlen = vlenb * 8;
+        if (vlenb < 16) {
+            // we need vlen >= 128
+            rv64_vector = 0;
+        }
+    }
 
     // THead vendor extensions
     if (!rv64_zba) {
