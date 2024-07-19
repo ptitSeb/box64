@@ -46,6 +46,8 @@ int extcache_no_i64(dynarec_rv64_t* dyn, int ninst, int st, int a);
 // FPU Cache transformation (for loops) // Specific, need to be written par backend
 int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst);
 
+int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst);
+
 // Undo the changes of a extcache to get the status before the instruction
 void extcacheUnwind(extcache_t* cache);
 
