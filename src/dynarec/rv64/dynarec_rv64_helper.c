@@ -2439,16 +2439,18 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
 {
     MESSAGE(LOG_DEBUG, "Reset Caches with %d\n",reset_n);
     #if STEP > 1
-    // for STEP 2 & 3, just need to refrest with current, and undo the changes (push & swap)
+    // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
     dyn->e = dyn->insts[ninst].e;
+    dyn->vector_sew = dyn->insts[ninst].vector_sew;
     #else
     dyn->e = dyn->insts[reset_n].e;
+    dyn->vector_sew = dyn->insts[reset_n].vector_sew;
     #endif
     extcacheUnwind(&dyn->e);
     #if STEP == 0
     if(box64_dynarec_dump) dynarec_log(LOG_NONE, "New x87stack=%d\n", dyn->e.x87stack);
     #endif
-    #if defined(HAVE_TRACE) && (STEP>2)
+    #if defined(HAVE_TRACE) && (STEP > 2)
     if(box64_dynarec_dump)
         if(memcmp(&dyn->e, &dyn->insts[reset_n].e, sizeof(ext_cache_t))) {
             MESSAGE(LOG_DEBUG, "Warning, difference in extcache: reset=");
@@ -2477,7 +2479,7 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
                 MESSAGE(LOG_DEBUG, " (%d:%d)", dyn->e.stack_push, -dyn->e.stack_pop);
             MESSAGE(LOG_DEBUG, "\n");
         }
-    #endif //HAVE_TRACE
+#endif // HAVE_TRACE
 }
 
 // propagate ST stack state, especial stack pop that are deferred

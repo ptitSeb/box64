@@ -1107,6 +1107,7 @@
     dyn->smread = dyn->smwrite = 0; \
     dyn->doublepush = 0;            \
     dyn->doublepop = 0;
+#define ARCH_RESET()
 
 #if STEP < 2
 #define GETIP(A) TABLE64(0, 0)

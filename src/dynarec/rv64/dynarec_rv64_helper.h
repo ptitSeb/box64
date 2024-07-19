@@ -1031,8 +1031,10 @@
 #define FTABLE64(A, V)
 #endif
 
-#define ARCH_INIT()
-
+#define ARCH_INIT() \
+    dyn->vector_sew = VECTOR_SEWNA;
+#define ARCH_RESET() \
+    dyn->vector_sew = VECTOR_SEWNA;
 
 #if STEP < 2
 #define GETIP(A) TABLE64(0, 0)
