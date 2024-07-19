@@ -81,6 +81,38 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VRGATHER_VV(v1, v0, q0, VECTOR_UNMASKED); // registers cannot be overlapped!!
                     VMV_V_V(q0, v1);
                     break;
+                case 0x01 ... 0x07:
+                    // pairwise opcodes are complicated, fallback to scalar.
+                    return 0;
+                case 0x08 ... 0x0a:
+                    if (nextop == 0x08) {
+                        INST_NAME("PSIGNB Gx, Ex");
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
+                        i32 = 7;
+                    } else if (nextop == 0x09) {
+                        INST_NAME("PSIGNW Gx, Ex");
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
+                        i32 = 15;
+                    } else {
+                        INST_NAME("PSIGND Gx, Ex");
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
+                        i32 = 31;
+                    }
+                    nextop = F8;
+                    GETGX_vector(q0, 1);
+                    GETEX_vector(q1, 0, 0);
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    // absolute
+                    VSRA_VI(v0, i32, q1, VECTOR_UNMASKED);
+                    VXOR_VV(v1, v0, q0, VECTOR_UNMASKED);
+                    VSUB_VV(v1, v0, v1, VECTOR_UNMASKED);
+                    // handle zeroing
+                    VMSEQ_VI(VECTOR_MASKREG, 0, q1, VECTOR_UNMASKED);
+                    VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                    VADC_VIM(v0, 0x1f, v0); // implies VECTOR_MASKREG
+                    VAND_VV(q0, v1, v0, VECTOR_UNMASKED);
+                    break;
                 default:
                     DEFAULT_VECTOR;
             }

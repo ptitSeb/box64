@@ -1230,6 +1230,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VECTOR_NFIELD7 0b110
 #define VECTOR_NFIELD8 0b111
 
+#define VECTOR_MASKREG 0 // fixed to v0
+
 //  configuration setting
 //  https://github.com/riscv/riscv-v-spec/blob/master/vcfg-format.adoc
 #define VSETIVLI(rd, zimm, zimm10) EMIT(I_type(0b110000000000 | (zimm10), zimm, 0b111, rd, 0b1010111)) // 11...............111.....1010111
