@@ -1075,6 +1075,36 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = F8;
             VSHUF4I_D(v0, v1, 0x8 | (u8 & 1) | ((u8 & 2) << 1));
             break;
+        case 0xD2:
+            INST_NAME("PSRLD Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            VSAT_DU(v0, q1, 31);
+            VREPLVEI_W(v0, v0, 0);
+            VLDI(v1, 0b1000000011111); // broadcast 31 as uint32
+            VSLT_WU(v1, v1, v0);
+            VMINI_WU(v0, v0, 31);
+            VSRL_W(q0, q0, v0);
+            VSRL_W(q0, q0, v1);
+            break;
+        case 0xD3:
+            INST_NAME("PSRLQ Gx,Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            VREPLVEI_D(v0, q1, 0);
+            VLDI(v1, 0b0110000111111); // broadcast 63 as uint64
+            VMIN_DU(d0, v0, v1);
+            VSLT_DU(v1, v1, v0);
+            VSRL_D(q0, q0, d0);
+            VSRL_D(q0, q0, v1);
+            break;
         case 0xD4:
             INST_NAME("PADDQ Gx, Ex");
             nextop = F8;
@@ -1121,6 +1151,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOVFR2GR_D(x1, v0);
             BSTRPICK_D(gd, x1, 15, 0);
             break;
+        case 0xD9:
+            INST_NAME("PSUBUSW Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            VSSUB_HU(q0, q0, q1);
+            break;
         case 0xDB:
             INST_NAME("PAND Gx,Ex");
             nextop = F8;
@@ -1148,6 +1185,23 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             VAVGR_BU(v0, v0, v1);
+            break;
+        case 0xE1:
+            INST_NAME("PSRAW Gx, Ex");
+            nextop = F8;
+            GETGX(q0, 1);
+            GETEX(q1, 0, 0);
+            v0 = fpu_get_scratch(dyn);
+            VMINI_HU(v0, q1, 15);
+            VREPLVEI_H(v0, v0, 0);
+            VSRA_H(q0, q0, v0);
+            break;
+        case 0xE3:
+            INST_NAME("PAVGW Gx,Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETEX(v1, 0, 0);
+            VAVGR_HU(v0, v0, v1);
             break;
         case 0xE4:
             INST_NAME("PMULHUW Gx,Ex");
