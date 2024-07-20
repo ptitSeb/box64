@@ -176,6 +176,8 @@ f24-f31  fs0-fs7   Static registers                Callee
 
 // Made-up formats not found in the spec.
 #define type_1RI13(opc, imm13, rd)       ((opc) << 18 | ((imm13) & 0x1FFFF) << 5 | (rd))
+#define type_2RI1(opc, imm1, rj, rd)     ((opc) << 11 | ((imm1) & 0x1) << 10 | (rj) << 5 | (rd))
+#define type_2RI2(opc, imm2, rj, rd)     ((opc) << 12 | ((imm2) & 0x3) << 10 | (rj) << 5 | (rd))
 #define type_2RI3(opc, imm3, rj, rd)     ((opc) << 13 | ((imm3)  & 0x7 )  << 10 | (rj) << 5 | (rd))
 #define type_2RI4(opc, imm4, rj, rd)     ((opc) << 14 | ((imm4)  & 0xF )  << 10 | (rj) << 5 | (rd))
 #define type_2RI5(opc, imm5, rj, rd)     ((opc) << 15 | ((imm5)  & 0x1F)  << 10 | (rj) << 5 | (rd))
@@ -1380,6 +1382,14 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define VSLT_HU(vd, vj, vk)         EMIT(type_3R(0b01110000000010001, vk, vj, vd))
 #define VSLT_WU(vd, vj, vk)         EMIT(type_3R(0b01110000000010010, vk, vj, vd))
 #define VSLT_DU(vd, vj, vk)         EMIT(type_3R(0b01110000000010011, vk, vj, vd))
+#define VREPLVE_B(vd, vj, rk)          EMIT(type_3R(0b01110001001000100, rk, vj, vd))
+#define VREPLVE_H(vd, vj, rk)          EMIT(type_3R(0b01110001001000101, rk, vj, vd))
+#define VREPLVE_W(vd, vj, rk)          EMIT(type_3R(0b01110001001000110, rk, vj, vd))
+#define VREPLVE_D(vd, vj, rk)          EMIT(type_3R(0b01110001001000111, rk, vj, vd))
+#define VREPLVEI_B(vd, vk, imm4)       EMIT(type_2RI4(0b011100101111011110, imm4, vk, vd))
+#define VREPLVEI_H(vd, vk, imm3)       EMIT(type_2RI3(0b0111001011110111110, imm3, vk, vd))
+#define VREPLVEI_W(vd, vk, imm2)       EMIT(type_2RI2(0b01110010111101111110, imm2, vk, vd))
+#define VREPLVEI_D(vd, vk, imm1)       EMIT(type_2RI1(0b011100101111011111110, imm1, vk, vd))
 #define VBSLL_V(vd, vj, imm5)       EMIT(type_2RI5(0b01110010100011100, imm5, vj, vd))
 #define VBSRL_V(vd, vj, imm5)       EMIT(type_2RI5(0b01110010100011101, imm5, vj, vd))
 #define VPACKEV_B(vd, vj, vk)       EMIT(type_3R(0b01110001000101100, vk, vj, vd))

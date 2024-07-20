@@ -75,6 +75,27 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             SMDMB();
             break;
+        case 0x09:
+            INST_NAME("LOCK OR Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            SMDMB();
+            if (MODREG) {
+                ed = TO_LA64((nextop & 7) + (rex.b << 3));
+                emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                MARKLOCK;
+                LLxw(x1, wback, 0);
+                OR(x4, x1, gd);
+                SCxw(x4, wback, 0);
+                BEQZ_MARKLOCK(x4);
+                IFX (X_ALL | X_PEND)
+                    emit_or32(dyn, ninst, rex, x1, gd, x3, x4);
+            }
+            SMDMB();
+            break;
         case 0x0F:
             nextop = F8;
             switch (nextop) {

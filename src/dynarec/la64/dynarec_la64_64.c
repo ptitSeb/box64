@@ -70,6 +70,15 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEDO(x4, 0);
             emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
             break;
+        case 0x2B:
+            INST_NAME("SUB Gd, Seg:Ed");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            nextop = F8;
+            GETGD;
+            GETEDO(x4, 0);
+            emit_sub32(dyn, ninst, rex, gd, ed, x3, x4, x5);
+            break;
         case 0x33:
             INST_NAME("XOR Gd, Seg:Ed");
             SETFLAGS(X_ALL, SF_SET_PENDING);
