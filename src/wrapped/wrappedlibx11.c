@@ -1054,98 +1054,86 @@ GO(XNStatusDrawCallback)            \
 GO(XNR6PreeditCallback)             \
 GO(XNStringConversionCallback)
 
-#define VA_CALL(FUNC, FIRST_ARG, VAARGS, VAARGSZ, RESULT)       \
+#define VA_CALL(FUNC, FIRST_ARG, N, VAARGSZ, RESULT)       \
 switch (VAARGSZ)                                                \
 {                                                               \
 case 2:                                                         \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], NULL);       \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), NULL);       \
     break;                                                      \
 case 4:                                                         \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], NULL);     \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), NULL);     \
     break;                                                                          \
 case 6:                                                                             \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], NULL);   \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), NULL);   \
     break;                                                                                              \
 case 8:                                                                                                 \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], NULL); \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), getVArgs(emu, N, va, 6), getVArgs(emu, N, va, 7), NULL); \
     break;                                                                                                                  \
 case 10:                                                                                                                    \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9], NULL);   \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), getVArgs(emu, N, va, 6), getVArgs(emu, N, va, 7), getVArgs(emu, N, va, 8), getVArgs(emu, N, va, 9), NULL);   \
     break;                                                                                                                                          \
 case 12:                                                                                                                                            \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], NULL);  \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), getVArgs(emu, N, va, 6), getVArgs(emu, N, va, 7), getVArgs(emu, N, va, 8), getVArgs(emu, N, va, 9),  getVArgs(emu, N, va, 10), getVArgs(emu, N, va, 11), NULL);  \
     break;                                                                                                                                                                  \
 case 14:                                                                                                                                                                    \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], NULL);  \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), getVArgs(emu, N, va, 6), getVArgs(emu, N, va, 7), getVArgs(emu, N, va, 8), getVArgs(emu, N, va, 9),  getVArgs(emu, N, va, 10), getVArgs(emu, N, va, 11), getVArgs(emu, N, va, 12), getVArgs(emu, N, va, 13), NULL);  \
     break;                                                                                                                                                                                          \
 case 16:                                                                                                                                                                                            \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], VAARGS[14], VAARGS[15], NULL);  \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), getVArgs(emu, N, va, 6), getVArgs(emu, N, va, 7), getVArgs(emu, N, va, 8), getVArgs(emu, N, va, 9),  getVArgs(emu, N, va, 10), getVArgs(emu, N, va, 11), getVArgs(emu, N, va, 12), getVArgs(emu, N, va, 13), getVArgs(emu, N, va, 14), getVArgs(emu, N, va, 15), NULL);  \
     break;                                                                                                                                                                                                                  \
 case 18:                                                                                                                                                                                                                    \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], VAARGS[14], VAARGS[15], VAARGS[16], VAARGS[17], NULL);  \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), getVArgs(emu, N, va, 6), getVArgs(emu, N, va, 7), getVArgs(emu, N, va, 8), getVArgs(emu, N, va, 9),  getVArgs(emu, N, va, 10), getVArgs(emu, N, va, 11), getVArgs(emu, N, va, 12), getVArgs(emu, N, va, 13), getVArgs(emu, N, va, 14), getVArgs(emu, N, va, 15), getVArgs(emu, N, va, 16), getVArgs(emu, N, va, 17), NULL);  \
     break;                                                                                                                                                                                                                                          \
 case 20:                                                                                                                                                                                                                                            \
-    RESULT = FUNC(FIRST_ARG, VAARGS[0], VAARGS[1], VAARGS[2], VAARGS[3], VAARGS[4], VAARGS[5], VAARGS[6], VAARGS[7], VAARGS[8], VAARGS[9],  VAARGS[10], VAARGS[11], VAARGS[12], VAARGS[13], VAARGS[14], VAARGS[15], VAARGS[16], VAARGS[17], VAARGS[18], VAARGS[19], NULL);  \
+    RESULT = FUNC(FIRST_ARG, getVArgs(emu, N, va, 0), getVArgs(emu, N, va, 1), getVArgs(emu, N, va, 2), getVArgs(emu, N, va, 3), getVArgs(emu, N, va, 4), getVArgs(emu, N, va, 5), getVArgs(emu, N, va, 6), getVArgs(emu, N, va, 7), getVArgs(emu, N, va, 8), getVArgs(emu, N, va, 9),  getVArgs(emu, N, va, 10), getVArgs(emu, N, va, 11), getVArgs(emu, N, va, 12), getVArgs(emu, N, va, 13), getVArgs(emu, N, va, 14), getVArgs(emu, N, va, 15), getVArgs(emu, N, va, 16), getVArgs(emu, N, va, 17), getVArgs(emu, N, va, 18), getVArgs(emu, N, va, 19), NULL);  \
     break;                                                                                                                                                                                                                                                                  \
 default:                                                                                                                \
     printf_log(LOG_NONE, "warning: %s's vasize (%d) is too large, need create new call case!\n", __func__, VAARGSZ);    \
     break;                                                                                                              \
 }
 
-#define GO(A)                                           \
-if (new_va[i] && strcmp((char*)new_va[i], A) == 0) {    \
-    XICCallback* origin = (XICCallback*)new_va[i+1];    \
-    new_va[i+1] = find##A##Fct(origin);                 \
+#define GO(A)                                                                       \
+if (getVArgs(emu, 1, va, i) && strcmp((char*)getVArgs(emu, 1, va, i), A) == 0) {    \
+    XICCallback* origin = (XICCallback*)getVArgs(emu, 1, va, i+1);                  \
+    setVArgs(emu, 1, va, i+1, (uintptr_t)find##A##Fct(origin));                     \
 }
 
 EXPORT void* my_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2 ;
-    void** new_va = box_malloc(sizeof(void*) * n);
 
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = (void*)getVArgs(emu, 1, va, i);
-        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
 
     void* res = NULL;
-    VA_CALL(my->XVaCreateNestedList, unused, new_va, n, res);
-    box_free(new_va);
+    VA_CALL(my->XVaCreateNestedList, unused, 1, n, res);
     return res;
 }
 
 EXPORT void* my_XCreateIC(x64emu_t* emu, void* xim, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2;
-    void** new_va = box_malloc(sizeof(void*) * n);
 
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = (void*)getVArgs(emu, 1, va, i);
-        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
 
     void* res = NULL;
-    VA_CALL(my->XCreateIC, xim, new_va, n, res);
-    box_free(new_va);
+    VA_CALL(my->XCreateIC, xim, 1, n, res);
     return res;
 }
 
 EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2;
-    void** new_va = box_malloc(sizeof(void*) * n);
 
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = (void*)getVArgs(emu, 1, va, i);
-        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
 
     void* res = NULL;
-    VA_CALL(my->XSetICValues, xic, new_va, n, res);
-    box_free(new_va);
+    VA_CALL(my->XSetICValues, xic, 1, n, res);
     return res;
 }
 #undef GO
@@ -1153,23 +1141,19 @@ EXPORT void* my_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
 EXPORT void* my_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
     int n = 0;
     while (getVArgs(emu, 1, va, n)) n+=2;
-    void** new_va = box_malloc(sizeof(void*) * n);
 
-    #define GO(A)                                           \
-    if (new_va[i] && strcmp((char*)new_va[i], A) == 0) {    \
-        XIMCallback* origin = (XIMCallback*)new_va[i+1];    \
-        new_va[i+1] = find##A##Fct(origin);                 \
+    #define GO(A)                                                                       \
+    if (getVArgs(emu, 1, va, i) && strcmp((char*)getVArgs(emu, 1, va, i), A) == 0) {    \
+        XIMCallback* origin = (XIMCallback*)getVArgs(emu, 1, va, i+1);                  \
+        setVArgs(emu, 1, va, i+1, (uintptr_t)find##A##Fct(origin));                     \
     }
     for (int i = 0; i < n; i += 2) {
-        new_va[i] = (void*)getVArgs(emu, 1, va, i);
-        new_va[i+1] = (void*)getVArgs(emu, 1, va, i+1);
         SUPER()
     }
     #undef GO
 
     void* res = NULL;
-    VA_CALL(my->XSetIMValues, xim, new_va, n, res)
-    box_free(new_va);
+    VA_CALL(my->XSetIMValues, xim, 1, n, res)
     return res;
 }
 #undef VA_CALL

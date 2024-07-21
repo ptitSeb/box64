@@ -624,6 +624,14 @@ uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N)
     return emu->regs[regs_abi[pos+N]].q[0];
 }
 
+void setVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N, uintptr_t a)
+{
+    if((pos+N)>5)
+        b[pos+N-6] = a;
+    else
+        emu->regs[regs_abi[pos+N]].q[0] = a;
+}
+
 #ifndef CONVERT_VALIST
 void myStackAlignValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, x64_va_list_t va)
 {

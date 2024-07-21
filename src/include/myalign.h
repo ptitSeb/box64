@@ -218,6 +218,7 @@ void* add_xcb_connection(void* src);
 void del_xcb_connection(void* src);
 
 uintptr_t getVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N);
+void setVArgs(x64emu_t* emu, int pos, uintptr_t* b, int N, uintptr_t a);
 
 // longjmp / setjmp
 typedef struct jump_buff_x64_s {
