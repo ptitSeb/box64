@@ -2176,10 +2176,11 @@ x64emurun:
         }
 #ifndef TEST_INTERPRETER
         // check the TRACE flag before going to next
-        if(ACCESS_FLAG(F_TF)) {
-            if(tf_next) {
+        if(ACCESS_FLAG(F_TF) || (tf_next<0)) {
+            if(tf_next>0) {
                 tf_next = 0;
             } else {
+                tf_next = 0;
                 R_RIP = addr;
                 emit_signal(emu, SIGTRAP, (void*)addr, 1);
                 if(emu->quit) goto fini;
