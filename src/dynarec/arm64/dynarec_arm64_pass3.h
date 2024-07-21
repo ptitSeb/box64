@@ -15,6 +15,7 @@
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST        \
     if(ninst) {                                                  \
+        if(dyn->insts[ninst].address!=(uintptr_t)dyn->block-(uintptr_t)dyn->native_start) dyn->abort = 1;   \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;   \
     }
