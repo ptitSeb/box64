@@ -1367,13 +1367,14 @@ int getMmapped(uintptr_t addr)
 }
 
 #define LOWEST (void*)0x10000
+#define WINE_LOWEST (void*)0x30000000
 #define MEDIUM (void*)0x40000000
 #define HIGH   (void*)0x60000000
 
 void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
     uint32_t prot;
-    if(hint<LOWEST) hint = LOWEST;
+    if(hint<LOWEST) hint = box64_wine?WINE_LOWEST:LOWEST;
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
     if(!mask) mask = 0xffff;
