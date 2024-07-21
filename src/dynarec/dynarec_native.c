@@ -737,7 +737,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     helper.insts_size = 0;  // reset
     native_pass3(&helper, addr, alternate, is32bits);
     if(helper.abort) {
-        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
+        if(box64_dynarec_dump || box64_dynarec_log)dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");
         CancelBlock64(0);
         return NULL;
     }
@@ -764,7 +764,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     __clear_cache(actual_p, actual_p+sz);   // need to clear the cache before execution...
     block->hash = X31_hash_code(block->x64_addr, block->x64_size);
     // Check if something changed, to abort if it is
-    if((block->hash != hash)) {
+    if((helper.abort || (block->hash != hash))) {
         dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
         CancelBlock64(0);
         return NULL;
