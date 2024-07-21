@@ -2385,7 +2385,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     //LDRx_U12(x3, x1, offsetof(box64context_t, signals[SIGTRAP]));
                     CMPSx_U12(x3, 0);
                     B_NEXT(cEQ);
-                    GETIP(ip);
+                    GETIP(addr);  // update RIP
                     STORE_XEMU_CALL(xRIP);
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL(xRIP);
@@ -2401,7 +2401,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("INT 29/2c/2d");
                 // lets do nothing
                 MESSAGE(LOG_INFO, "INT 29/2c/2d Windows interruption\n");
-                GETIP(ip);
+                GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(xRIP);
                 MOV32w(x1, u8);
                 CALL(native_int, -1);
@@ -2422,10 +2422,20 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MARK;
                 LOAD_XEMU_REM();
                 jump_to_epilog(dyn, 0, xRIP, ninst);
+            } else if(u8==0x03) {
+                INST_NAME("INT 3");
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                GETIP(addr);
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_int3, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
             } else {
                 INST_NAME("INT n");
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
-                GETIP(ip);
+                GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(xRIP);
                 CALL(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
@@ -2440,7 +2450,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 INST_NAME("INTO");
                 READFLAGS(X_OF);
-                GETIP(ip);
+                GETIP(addr);
                 TBZ_NEXT(wFlags, F_OF);
                 STORE_XEMU_CALL(xRIP);
                 CALL(native_int, -1);

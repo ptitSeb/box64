@@ -1,2 +1,6 @@
 sig = 11
 got bad_ptr
+sig = 5
+si_addr: 0, si_code: 128, si_errno: 0, RIP offset: 1, TRAPERR=0 TRAPNO=3
+sig = 5
+si_addr: 0, si_code: 128, si_errno: 0, RIP offset: 2, TRAPERR=0 TRAPNO=3

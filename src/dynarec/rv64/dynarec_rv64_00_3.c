@@ -442,7 +442,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("INT 29/2c/2d");
                 // lets do nothing
                 MESSAGE(LOG_INFO, "INT 29/2c/2d Windows interruption\n");
-                GETIP(ip);
+                GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(x3);
                 MOV32w(x1, u8);
                 CALL(native_int, -1);
@@ -462,10 +462,20 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MARK;
                 LOAD_XEMU_REM(x3);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
+            } else if (u8==0x03) {
+                INST_NAME("INT 3");
+                SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+                GETIP(addr);
+                STORE_XEMU_CALL(x3);
+                CALL(native_int3, -1);
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
             } else {
                 INST_NAME("INT n");
                 SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
-                GETIP(ip);
+                GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(x3);
                 CALL(native_priv, -1);
                 LOAD_XEMU_CALL();

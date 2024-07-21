@@ -364,9 +364,10 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
         }
         return;
     }
-    if(!box64_ignoreint3 && my_context->signals[SIGTRAP])
-        emit_signal(emu, SIGTRAP, (void*)R_RIP, 128);
-    else {
+    if(!box64_ignoreint3 && my_context->signals[SIGTRAP]) {
+        R_RIP = *addr;  // update RIP
+        emit_signal(emu, SIGTRAP, NULL, 3);
+    } else {
         printf_log(LOG_DEBUG, "%04d|Warning, ignoring unsupported Int 3 call @%p\n", GetTID(), (void*)R_RIP);
         R_RIP = *addr;
     }

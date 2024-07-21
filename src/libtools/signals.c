@@ -1164,11 +1164,9 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
                 info2->si_signo = SIGTRAP;
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 3;
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
-                sigcontext->uc_mcontext.gregs[X64_RIP]+=2;   // segfault after the INT
             } else if(int_n==0x04) {
                 sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 4;
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
-                sigcontext->uc_mcontext.gregs[X64_RIP]+=2;   // segfault after the INT
             } else if (int_n==0x29 || int_n==0x2c || int_n==0x2d) {
                 sigcontext->uc_mcontext.gregs[X64_ERR] = 0x02|(int_n<<3);
             } else {
@@ -1186,10 +1184,13 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 19;
     } else if(sig==SIGILL)
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 6;
-    else if(sig==SIGTRAP)
+    else if(sig==SIGTRAP) {
+        info2->si_code = 128;
         sigcontext->uc_mcontext.gregs[X64_TRAPNO] = info->si_code;
+        sigcontext->uc_mcontext.gregs[X64_ERR] = 0;
+    }
     //TODO: SIGABRT generate what?
-    printf_log(LOG_DEBUG, "Signal %d: TRAPNO=%d, ERR=%d, RIP=%p\n", sig, sigcontext->uc_mcontext.gregs[X64_TRAPNO], sigcontext->uc_mcontext.gregs[X64_ERR],sigcontext->uc_mcontext.gregs[X64_RIP]);
+    printf_log(LOG_DEBUG, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[X64_TRAPNO], sigcontext->uc_mcontext.gregs[X64_ERR],sigcontext->uc_mcontext.gregs[X64_RIP]);
     // call the signal handler
     x64_ucontext_t sigcontext_copy = *sigcontext;
     // save old value from emu

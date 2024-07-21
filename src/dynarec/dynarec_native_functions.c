@@ -188,7 +188,7 @@ void native_singlestep(x64emu_t* emu)
 
 void native_int3(x64emu_t* emu)
 {
-    emit_signal(emu, SIGTRAP, (void*)R_RIP, 128);
+    emit_signal(emu, SIGTRAP, NULL, 3);
 }
 
 void native_div0(x64emu_t* emu)
