@@ -1256,6 +1256,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VSE32_V(vs3, rs1, vm, nf) EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b110, vs3, 0b0100111)) // ...000.00000.....110.....0100111
 #define VSE64_V(vs3, rs1, vm, nf) EMIT(I_type(((nf) << 9) | (vm << 5), rs1, 0b111, vs3, 0b0100111)) // ...000.00000.....111.....0100111
 
+#define VLE_V(vd, rs1, sew, vm, nf) EMIT(I_type(((nf) << 9) | (vm << 5), rs1, (sew == 0b000 ? 0b000 : (0b100 | sew)), vd, 0b0000111))
+#define VSE_V(vd, rs1, sew, vm, nf) EMIT(I_type(((nf) << 9) | (vm << 5), rs1, (sew == 0b000 ? 0b000 : (0b100 | sew)), vs3, 0b0100111))
+
 //  Vector Indexed-Unordered Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#76-vector-indexed-instructions
 
