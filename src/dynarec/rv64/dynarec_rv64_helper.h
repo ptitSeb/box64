@@ -495,20 +495,20 @@
     }
 
 // Get GX as a quad (might use x1)
-#define GETGX_vector(a, w)                      \
+#define GETGX_vector(a, w, sew)                 \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
-    a = sse_get_reg_vector(dyn, ninst, x1, gd, w)
+    a = sse_get_reg_vector(dyn, ninst, x1, gd, w, sew)
 
 // Get EX as a quad, (x1 is used)
-#define GETEX_vector(a, w, D)                                                                \
+#define GETEX_vector(a, w, D, sew)                                                           \
     if (MODREG) {                                                                            \
-        a = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);              \
+        a = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, sew);         \
     } else {                                                                                 \
         SMREAD();                                                                            \
         addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, D); \
         a = fpu_get_scratch(dyn);                                                            \
         ADDI(x2, ed, fixedaddress);                                                          \
-        VL1RE64_V(a, x2);                                                                    \
+        VLE_V(a, x2, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
     }
 
 #define GETGM()                     \
@@ -1486,7 +1486,7 @@ void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int a);
 //  get float register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
 // get rvv register for a SSE reg, create the entry if needed
-int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwrite);
+int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwrite, int sew);
 // get float register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
 // get rvv register for an SSE reg, but don't try to synch it if it needed to be created
