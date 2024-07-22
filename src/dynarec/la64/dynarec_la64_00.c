@@ -1624,18 +1624,19 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     jump_to_epilog_fast(dyn, 0, xRIP, ninst);
                 }
             } else {
+                INST_NAME("INT 3");
                 if (!box64_ignoreint3) {
-                    INST_NAME("INT 3");
                     // check if TRAP signal is handled
-                    LD_D(x1, xEmu, offsetof(x64emu_t, context));
-                    MOV64x(x2, offsetof(box64context_t, signals[SIGTRAP]));
-                    ADD_D(x2, x2, x1);
-                    LD_D(x3, x2, 0);
+                    TABLE64(x1, (uintptr_t)my_context);
+                    MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
+                    LDX_D(x3, x1, x2);
                     CBZ_NEXT(x3);
-                    GETIP(ip);
+                    GETIP(addr);
                     STORE_XEMU_CALL();
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL();
+                    *need_epilog = 0;
+                    *ok = 0;
                 }
             }
             break;
