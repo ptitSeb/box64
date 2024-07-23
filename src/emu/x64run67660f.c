@@ -86,9 +86,17 @@ uintptr_t Run67660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             EX->q[1] = 0;
         break;
 
+    case 0xEF:                      /* PXOR Gx,Ex */
+        nextop = F8;
+        GETEX32(0);
+        GETGX;
+        GX->q[0] ^= EX->q[0];
+        GX->q[1] ^= EX->q[1];
+        break;
+
     case 0xFE:  /* PADDD Gx,Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX32(0);
         GETGX;
         GX->sd[0] += EX->sd[0];
         GX->sd[1] += EX->sd[1];
