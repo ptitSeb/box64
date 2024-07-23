@@ -2055,7 +2055,7 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
             SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
             ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
-            VLE8_V(i, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VLE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
             break;
         case EXT_CACHE_SS:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
@@ -2115,7 +2115,7 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
             ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
-            VSE8_V(i, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
             break;
         case EXT_CACHE_SS:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));

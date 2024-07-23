@@ -363,7 +363,11 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst) {
             if(!cache_i2.extcache[i].v) {    // but there is nothing at i2 for i
                 ret = 1;
             } else if(dyn->insts[ninst].e.extcache[i].v!=cache_i2.extcache[i].v) {  // there is something different
-                ret = 1;
+                if (dyn->insts[ninst].e.extcache[i].n != cache_i2.extcache[i].n) {  // not the same x64 reg
+                    ret = 1;
+                } else if (dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_XMMR && cache_i2.extcache[i].t == EXT_CACHE_XMMW) { /* nothing */
+                } else
+                    ret = 1;
             }
         } else if(cache_i2.extcache[i].v)
             ret = 1;
@@ -495,7 +499,7 @@ void extcacheUnwind(extcache_t* cache)
                     break;
                 case EXT_CACHE_XMMR:
                 case EXT_CACHE_XMMW:
-                    cache->ssecache[cache->extcache[i].n].reg = i;
+                    cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 1;
                     cache->ssecache[cache->extcache[i].n].write = (cache->extcache[i].t == EXT_CACHE_XMMW) ? 1 : 0;
                     ++cache->fpu_reg;

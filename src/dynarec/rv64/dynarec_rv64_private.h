@@ -154,7 +154,7 @@ typedef struct dynarec_rv64_s {
 
 // convert idx (0..24) to reg index (10..31 0..1)
 #define EXTREG(A)   (((A)+10)&31)
-// convert reg index (10..31 0..1) or idx (0..24)
+// convert reg index (10..31 0..1) to idx (0..24)
 #define EXTIDX(A)   (((A)-10)&31)
 
 void add_next(dynarec_rv64_t *dyn, uintptr_t addr);
