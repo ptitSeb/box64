@@ -680,6 +680,14 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             }
                             break;
 
+                        case 0xFE:
+                            INST_NAME("PADDD Gx,Ex");
+                            nextop = F8;
+                            GETGX(v0, 1);
+                            GETEX32(v1, 0, 0);
+                            VADDQ_32(v0, v0, v1);
+                            break;
+
                             default:
                                 DEFAULT;
                     }
