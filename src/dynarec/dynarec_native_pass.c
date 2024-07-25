@@ -169,6 +169,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(ninst && dyn->insts[ninst-1].x64.barrier_next) {
             BARRIER(dyn->insts[ninst-1].x64.barrier_next);
         }
+        #endif
         int next = ninst+1;
         #if STEP > 0
         if(dyn->insts[ninst].x64.has_next && dyn->insts[next].x64.barrier) {
