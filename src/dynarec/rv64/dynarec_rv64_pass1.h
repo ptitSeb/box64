@@ -17,3 +17,4 @@
         dyn->insts[ninst].f_exit = dyn->f
 
 #define INST_NAME(name)
+#define LAST_BARRIER_NEXT(A)

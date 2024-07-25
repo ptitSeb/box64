@@ -19,3 +19,4 @@
 #define INST_NAME(name)
 #define TABLE64(A, V)   {Table64(dyn, (V), 2); EMIT(0); EMIT(0);}
 #define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; Table64(dyn, v.q, 2); EMIT(0); EMIT(0);}
+#define LAST_BARRIER_NEXT(A)

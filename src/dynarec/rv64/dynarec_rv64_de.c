@@ -45,6 +45,7 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC6:
         case 0xC7:
             INST_NAME("FADDP STx, ST0");
+            LAST_BARRIER_NEXT(BARRIER_FLOAT);
             v2 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop&7));
             v1 = x87_get_st(dyn, ninst, x1, x2, nextop&7, X87_COMBINE(0, nextop&7));
             if(ST_IS_F(0)) {

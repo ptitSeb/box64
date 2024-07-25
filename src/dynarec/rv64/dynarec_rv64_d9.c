@@ -210,6 +210,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xE8:
             INST_NAME("FLD1");
+            LAST_BARRIER_NEXT(BARRIER_FLOAT);
             X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 MOV32w(x1, 0x3f800000);
@@ -246,6 +247,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xEE:
             INST_NAME("FLDZ");
+            LAST_BARRIER_NEXT(BARRIER_FLOAT);
             X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_F);
             if(ST_IS_F(0)) {
                 FMVWX(v1, xZR);

@@ -47,6 +47,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
         case 0xE0:
             INST_NAME("FNSTSW AX");
+            LAST_BARRIER_NEXT(BARRIER_FULL);
             LWU(x2, xEmu, offsetof(x64emu_t, top));
             LHU(x1, xEmu, offsetof(x64emu_t, sw));
             MOV32w(x3, 0b1100011111111111); // mask
