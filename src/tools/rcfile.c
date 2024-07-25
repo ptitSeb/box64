@@ -282,6 +282,7 @@ SUPER()
 KHASH_MAP_INIT_STR(params, my_params_t)
 
 static kh_params_t *params = NULL;
+static kh_params_t *params_gen = NULL;
 
 static void clearParam(my_params_t* param)
 {
@@ -306,17 +307,18 @@ static void clearParam(my_params_t* param)
     #undef ENTRYULONG
 }
 
-static void addParam(const char* name, my_params_t* param)
+static void addParam(const char* name, my_params_t* param, int gen)
 {
     khint_t k;
-    k = kh_get(params, params, name);
-    if(k==kh_end(params)) {
+    kh_params_t* khp = gen?params_gen:params;
+    k = kh_get(params, khp, name);
+    if(k==kh_end(khp)) {
         int ret;
-        k = kh_put(params, params, box_strdup(name), &ret);
+        k = kh_put(params, khp, box_strdup(name), &ret);
     } else {
-        clearParam(&kh_value(params, k));
+        clearParam(&kh_value(khp, k));
     }
-    my_params_t *p = &kh_value(params, k);
+    my_params_t *p = &kh_value(khp, k);
     memcpy(p, param, sizeof(my_params_t));
 }
 
@@ -364,6 +366,8 @@ void LoadRCFile(const char* filename)
     // init the hash table if needed
     if(!params)
         params = kh_init(params);
+    if(!params_gen)
+        params_gen = kh_init(params);
     // prepare to parse the file
     char* line = NULL;
     size_t lsize = 0;
@@ -372,6 +376,7 @@ void LoadRCFile(const char* filename)
     int dummy;
     size_t len;
     char* p;
+    int decor = 1;
     // parsing
     while ((dummy = getline(&line, &lsize, f)) != -1) {
         // remove comments
@@ -383,12 +388,16 @@ void LoadRCFile(const char* filename)
         if(line[0]=='[' && strchr(line, ']')) {
             // new entry, will need to add current one
             if(current_name)
-                addParam(current_name, &current_param);
+                addParam(current_name, &current_param, (decor==2));
+            if(line[1]=='*' && line[(intptr_t)(strchr(line, ']')-line)-1]=='*')
+                decor = 2;
+            else
+                decor = 1;
             // prepare a new entry
             memset(&current_param, 0, sizeof(current_param));
             free(current_name);
-            current_name = LowerCase(line+1);
-            *strchr(current_name, ']') = '\0';
+            current_name = LowerCase(line+decor);
+            *(strchr(current_name, ']')+1-decor) = '\0';
             trimString(current_name);
         } else if(strchr(line, '=')) {
             // actual parameters
@@ -463,7 +472,7 @@ void LoadRCFile(const char* filename)
     }
     // last entry to be pushed too
     if(current_name) {
-        addParam(current_name, &current_param);
+        addParam(current_name, &current_param, (decor==2));
         free(current_name);
     }
     free(line);
@@ -507,28 +516,39 @@ const char* GetLastApplyName()
 {
     return old_name;
 }
+void internal_ApplyParams(const char* name, const my_params_t* param);
 void ApplyParams(const char* name)
 {
     if(!name || !params)
         return;
+    if(!strcmp(name, old_name)) {
+        return;
+    }
+    strncpy(old_name, name, 255);
+    khint_t k1;
+    {
+        char* lname = LowerCase(name);
+        k1 = kh_get(params, params, lname);
+        my_params_t* param;
+        const char* k2;
+        kh_foreach_ref(params_gen, k2, param, 
+            if(strstr(lname, k2))
+                internal_ApplyParams(name, param);
+        )
+        free(lname);
+    }
+    if(k1 == kh_end(params))
+        return;
+    my_params_t* param = &kh_value(params, k1);
+    internal_ApplyParams(name, param);
+}
+
+void internal_ApplyParams(const char* name, const my_params_t* param) {
     int new_cycle_log = cycle_log;
     int new_maxcpu = box64_maxcpu;
     int new_avx = box64_avx2?2:box64_avx;
     int box64_dynarec_jvm = box64_jvm;
     int new_reserve_high = 0;
-    if(!strcmp(name, old_name)) {
-        return;
-    }
-    strncpy(old_name, name, 255);
-    khint_t k;
-    {
-        char* lname = LowerCase(name);
-        k = kh_get(params, params, lname);
-        free(lname);
-    }
-    if(k == kh_end(params))
-        return;
-    my_params_t* param = &kh_value(params, k);
     int want_exit = 0;
     #ifdef DYNAREC
     int olddynarec = box64_dynarec;

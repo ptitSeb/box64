@@ -3,6 +3,19 @@
 # Note that process name are case insensitive!
 
 #
+# Generic names
+#
+[*setup*]
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_BIGBLOCK=0
+BOX64_DYNAREC_CALLRET=0
+
+[*install*]
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_BIGBLOCK=0
+BOX64_DYNAREC_CALLRET=0
+
+#
 # Linux process
 # 
 [3dSen.x86_64]
