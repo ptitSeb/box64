@@ -112,11 +112,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         dyn->f.dfnone_here = 0;
         NEW_INST;
         MESSAGE(LOG_DUMP, "New Instruction x64:%p, native:%p\n", (void*)addr, (void*)dyn->block);
-        #if STEP == 0
-        if(ninst && dyn->insts[ninst-1].x64.barrier_next) {
-            BARRIER(dyn->insts[ninst-1].x64.barrier_next);
-        }
-        #endif
         if(!ninst) {
             GOTEST(x1, x2);
         }

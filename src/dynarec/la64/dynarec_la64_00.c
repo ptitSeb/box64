@@ -1846,7 +1846,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET); // Hack to set flags to "dont'care" state
                     SKIPTEST(x1);
                     BARRIER(BARRIER_FULL);
-                    // BARRIER_NEXT(BARRIER_FULL);
                     if (dyn->last_ip && (addr - dyn->last_ip < 0x1000)) {
                         ADDI_D(x2, xRIP, addr - dyn->last_ip);
                     } else {
