@@ -205,6 +205,9 @@ static const scwrap_t syscallwrap[] = {
     #endif
     [161] = {__NR_chroot, 1},
     [186] = {__NR_gettid, 0 },    //0xBA
+    [194] = {__NR_listxattr, 3},
+    [195] = {__NR_llistxattr, 3},
+    [196] = {__NR_flistxattr, 3},
     [200] = {__NR_tkill, 2 },
     #ifdef __NR_time
     [201] = {__NR_time, 1},
