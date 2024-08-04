@@ -831,6 +831,37 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SMDMB();
             }
             break;
+        case 0x20:
+            INST_NAME("LOCK AND Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop = F8;
+            GETGD;
+            if(MODREG) {
+                GETEB(x1, 0);
+                GETGB(x2);
+                emit_and8(dyn, ninst, x1, x2, x4, x5);
+                EBBACK;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                GETGB(x5);
+                if(arm64_atomics) {
+                    MVNxw_REG(x1, gd);
+                    UFLAG_IF {
+                        LDCLRALB(x1, x1, wback);
+                        emit_and8(dyn, ninst, x1, gd, x3, x4);
+                    } else {
+                        STCLRLB(x1, wback);
+                    }
+                } else {
+                    MARKLOCK;
+                    LDAXRB(x1, wback);
+                    emit_and8(dyn, ninst, x1, gd, x3, x4);
+                    STLXRB(x3, x1, wback);
+                    CBNZx_MARKLOCK(x3);
+                    SMDMB();
+                }
+            }
+            break;
         case 0x21:
             INST_NAME("LOCK AND Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
