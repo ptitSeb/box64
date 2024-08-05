@@ -854,6 +854,11 @@
     if ((N) != d_none) {                     \
         MOV_U12(S, (N));                     \
         SW(S, xEmu, offsetof(x64emu_t, df)); \
+        if(dyn->f.pending==SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after&X_PEND)) {  \
+            CALL_(UpdateFlags, -1, 0);       \
+            dyn->f.pending = SF_SET;         \
+            SET_NODF();                      \
+        }                                    \
         dyn->f.dfnone = 0;                   \
     } else                                   \
         SET_DFNONE()

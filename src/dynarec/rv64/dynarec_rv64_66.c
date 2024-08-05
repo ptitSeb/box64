@@ -426,7 +426,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            UFLAG_DF(x1, d_imul16);
             GETSEW(x1, (opcode==0x69)?2:1);
             if(opcode==0x69) i32 = F16S; else i32 = F8S;
             MOV32w(x2, i32);
@@ -435,6 +434,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             UFLAG_RES(x2);
             gd=x2;
             GWBACK;
+            UFLAG_DF(x1, d_imul16);
             break;
         case 0x70:
         case 0x71:
