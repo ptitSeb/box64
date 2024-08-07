@@ -52,6 +52,7 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol);
     GO(gst_bin_get_type, LFv_t)             \
     GO(gst_pad_get_type, LFv_t)             \
     GO(gst_uri_handler_get_type, LFv_t)     \
+    GO(gst_buffer_pool_get_type, LFv_t)     \
     GO(gst_structure_new_empty, pFp_t)      \
     GO(gst_caps_new_empty, pFv_t)           \
     GO(gst_caps_replace, iFpp_t)            \
@@ -1149,7 +1150,8 @@ EXPORT int my_gst_buffer_foreach_meta(x64emu_t* emu, void* buff, void* f, void* 
     SetGstElementID(my->gst_element_get_type());               \
     SetGstBinID(my->gst_bin_get_type());                       \
     SetGstPadID(my->gst_pad_get_type());                       \
-    SetGstURIHandlerID(my->gst_uri_handler_get_type());
+    SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
+    SetGstBufferPoolID(my->gst_buffer_pool_get_type());        \
 
 #ifdef ANDROID
 #define NEEDED_LIBS "libgtk-3.so"

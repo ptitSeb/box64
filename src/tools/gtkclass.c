@@ -4460,6 +4460,108 @@ static void bridgeGstAudioFilterInstance(my_GstAudioFilter_t* class)
 {
     bridgeGstBaseTransformInstance(&class->parent);
 }
+// ----- GstBufferPoolClass ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GstBufferPool, get_options, void*,(void* pool), "p", pool);
+WRAPPER(GstBufferPool, set_config, int ,(void* pool, void* config), "pp", pool, config);
+WRAPPER(GstBufferPool, start, int ,(void* pool), "p", pool);
+WRAPPER(GstBufferPool, stop, int ,(void* pool), "p", pool);
+WRAPPER(GstBufferPool, acquire_buffer, int ,(void* pool, void* buffer, void* params), "ppp", pool, buffer, params);
+WRAPPER(GstBufferPool, alloc_buffer, int ,(void* pool, void* buffer, void* params), "ppp", pool, buffer, params);
+WRAPPER(GstBufferPool, reset_buffer, void ,(void* pool, void* buffer), "pp", pool, buffer);
+WRAPPER(GstBufferPool, release_buffer, void ,(void* pool, void* buffer), "pp", pool, buffer);
+WRAPPER(GstBufferPool, free_buffer, void ,(void* pool, void* buffer), "pp", pool, buffer);
+WRAPPER(GstBufferPool, flush_start, void ,(void* pool), "p", pool);
+WRAPPER(GstBufferPool, flush_stop, void ,(void* pool), "p", pool);
+
+#define SUPERGO()               \
+    GO(get_options, pFp);       \
+    GO(set_config, iFpp);       \
+    GO(start, iFp);             \
+    GO(stop, iFp);              \
+    GO(acquire_buffer, iFppp);  \
+    GO(alloc_buffer, iFppp);    \
+    GO(reset_buffer, vFpp);     \
+    GO(release_buffer, vFpp);   \
+    GO(free_buffer, vFpp);      \
+    GO(flush_start, vFp);       \
+    GO(flush_stop, vFp);        \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstBufferPoolClass(my_GstBufferPoolClass_t* class)
+{
+    wrapGstObjectClass(&class->object_class);
+    #define GO(A, W) class->A = reverse_##A##_GstBufferPool (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstBufferPoolClass(my_GstBufferPoolClass_t* class)
+{
+    unwrapGstObjectClass(&class->object_class);
+    #define GO(A, W)   class->A = find_##A##_GstBufferPool (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstBufferPoolClass(my_GstBufferPoolClass_t* class)
+{
+    bridgeGstObjectClass(&class->object_class);
+    #define GO(A, W) autobridge_##A##_GstBufferPool (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
+static void unwrapGstBufferPoolInstance(my_GstBufferPool_t* class)
+{
+    unwrapGstObjectInstance(&class->object);
+}
+// autobridge
+static void bridgeGstBufferPoolInstance(my_GstBufferPool_t* class)
+{
+    bridgeGstObjectInstance(&class->object);
+}
+// ----- GstVideoBufferPoolClass ------
+// wrapper x86 -> natives of callbacks
+
+#define SUPERGO()               \
+
+// wrap (so bridge all calls, just in case)
+static void wrapGstVideoBufferPoolClass(my_GstVideoBufferPoolClass_t* class)
+{
+    wrapGstBufferPoolClass(&class->parent);
+    #define GO(A, W) class->A = reverse_##A##_GstVideoBufferPool (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGstVideoBufferPoolClass(my_GstVideoBufferPoolClass_t* class)
+{
+    unwrapGstBufferPoolClass(&class->parent);
+    #define GO(A, W)   class->A = find_##A##_GstVideoBufferPool (class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGstVideoBufferPoolClass(my_GstVideoBufferPoolClass_t* class)
+{
+    bridgeGstBufferPoolClass(&class->parent);
+    #define GO(A, W) autobridge_##A##_GstBufferPool (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+#undef SUPERGO
+
+static void unwrapGstVideoBufferPoolInstance(my_GstVideoBufferPool_t* class)
+{
+    unwrapGstBufferPoolInstance(&class->bufferpool);
+}
+// autobridge
+static void bridgeGstVideoBufferPoolInstance(my_GstVideoBufferPool_t* class)
+{
+    bridgeGstBufferPoolInstance(&class->bufferpool);
+}
 // ----- GDBusProxyClass ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GDBusProxy, g_properties_changed, void, (void* proxy, void* changed_properties, const char* const* invalidated_properties), "ppp", proxy, changed_properties, invalidated_properties);

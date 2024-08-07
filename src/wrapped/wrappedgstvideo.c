@@ -37,6 +37,7 @@ typedef size_t  (*LFv_t)();
     GO(gst_video_aggregator_get_type, LFv_t)        \
     GO(gst_video_aggregator_pad_get_type, LFv_t)    \
     GO(gst_video_filter_get_type, LFv_t)            \
+    GO(gst_video_buffer_pool_get_type, LFv_t)       \
 
 #include "generated/wrappedgstbasetypes.h"
 
@@ -52,7 +53,8 @@ typedef size_t  (*LFv_t)();
     SetGstVideoSinkID(my->gst_video_sink_get_type());\
     SetGstVideoAggregatorID(my->gst_video_aggregator_get_type());\
     SetGstVideoAggregatorPadID(my->gst_video_aggregator_pad_get_type());\
-    SetGstVideoFilterID(my->gst_video_filter_get_type());
+    SetGstVideoFilterID(my->gst_video_filter_get_type());\
+    SetGstVideoBufferPoolID(my->gst_video_buffer_pool_get_type());\
 
 #ifdef ANDROID
 #define NEEDED_LIBS "libgstreamer-1.0.so"
