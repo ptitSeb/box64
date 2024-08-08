@@ -446,7 +446,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 B##NO(x1, 4 + 4);                                                                    \
             BSTRINS_D(gd, ed, 15, 0);
 
-        GOCOND(0x40, "CMOV", "Gd, Ed");
+            GOCOND(0x40, "CMOV", "Gd, Ed");
         #undef GO
 
         case 0x54:
@@ -996,13 +996,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("IMUL Gw,Ew");
             SETFLAGS(X_ALL, SF_PENDING);
             nextop = F8;
-            UFLAG_DF(x1, d_imul16);
             GETSEW(x1, 0);
             GETSGW(x2);
             MUL_W(x2, x2, x1);
             UFLAG_RES(x2);
             BSTRPICK_D(x2, x2, 15, 0);
             GWBACK;
+            UFLAG_DF(x1, d_imul16);
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");
