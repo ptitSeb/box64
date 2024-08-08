@@ -311,7 +311,7 @@ static inline uint8_t shl8(x64emu_t *emu, uint8_t d, uint8_t s)
 		emu->df = d_shl8;
 		emu->op1.u8 = d;
 		emu->op2.u8 = s;
-		emu->res.u8 = d << s;
+		emu->res.u8 = (s>7) ? 0 : (d<<s);
 
 		return emu->res.u8;
 	} else 
@@ -327,7 +327,7 @@ static inline uint16_t shl16(x64emu_t *emu, uint16_t d, uint8_t s)
 		emu->df = d_shl16;
 		emu->op1.u16 = d;
 		emu->op2.u16 = s;
-		emu->res.u16 = d << s;
+		emu->res.u16 = (s>15) ? 0 : (d<<s);
 		return emu->res.u16;
 	} else
 		return d;
@@ -374,7 +374,7 @@ static inline uint8_t shr8(x64emu_t *emu, uint8_t d, uint8_t s)
 		emu->df = d_shr8;
 		emu->op1.u8 = d;
 		emu->op2.u8 = s;
-		emu->res.u8 = d >> s;
+		emu->res.u8 = (s>7) ? 0 : (d>>s);
 
 		return emu->res.u8;
 	} else
@@ -390,7 +390,7 @@ static inline uint16_t shr16(x64emu_t *emu, uint16_t d, uint8_t s)
 		emu->df = d_shr16;
 		emu->op1.u16 = d;
 		emu->op2.u16 = s;
-		emu->res.u16 = d >> s;
+		emu->res.u16 = (s>15) ? 0 : (d>>s);
 
 		return emu->res.u16;
 	} else
@@ -438,7 +438,10 @@ static inline uint8_t sar8(x64emu_t *emu, uint8_t d, uint8_t s)
 		emu->df = d_sar8;
 		emu->op1.u8 = d;
 		emu->op2.u8 = s;
-		emu->res.u8 = (uint8_t)(((int8_t)d)>>s);
+		if (s > 7)
+			emu->res.u8 = (d&0x80) ? 0xff : 0;
+		else
+			emu->res.u8 = (uint8_t)(((int8_t)d)>>s);
 
 		return emu->res.u8;
 	} else
@@ -454,7 +457,10 @@ static inline uint16_t sar16(x64emu_t *emu, uint16_t d, uint8_t s)
 		emu->df = d_sar16;
 		emu->op1.u16 = d;
 		emu->op2.u16 = s;
-		emu->res.u16 = (uint16_t)(((int16_t)d)>>s);
+		if (s > 15)
+			emu->res.u16 = (d&0x8000) ? 0xffff : 0;
+		else
+			emu->res.u16 = (uint16_t)(((int16_t)d)>>s);
 
 		return emu->res.u16;
 	} else
