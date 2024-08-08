@@ -1028,7 +1028,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 4:
                     INST_NAME("MUL AL, Ed");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x1, d_mul8);
                     GETEB(x1, 0);
                     ANDI(x2, xRAX, 0xff);
                     MULW(x1, x2, x1);
@@ -1037,11 +1036,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     AND(xRAX, xRAX, x2);
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
+                    UFLAG_DF(x1, d_mul8);
                     break;
                 case 5:
                     INST_NAME("IMUL AL, Eb");
                     SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x1, d_imul8);
                     GETSEB(x1, 0);
                     SLLI(x2, xRAX, 56);
                     SRAI(x2, x2, 56);
@@ -1051,6 +1050,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     AND(xRAX, xRAX, x2);
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
+                    UFLAG_DF(x1, d_imul8);
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
@@ -1097,8 +1097,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 4:
                     INST_NAME("MUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x2, rex.w?d_mul64:d_mul32);
+                    SETFLAGS(X_ALL, SF_SET);
+                    CLEAR_FLAGS();
+                    SET_DFNONE();
                     GETED(0);
                     if(rex.w) {
                         if(ed==xRDX) gd=x3; else gd=xRDX;
@@ -1115,13 +1116,23 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         AND(xRAX, xRDX, xMASK);
                         SRLI(xRDX, xRDX, 32);
                     }
-                    UFLAG_RES(xRAX);
-                    UFLAG_OP1(xRDX);
+                    IFX (X_CF | X_OF) {
+                        // CF = OF = RDX != 0
+                        SNEZ(x6, xRDX);
+                        IFX (X_CF) {
+                            OR(xFlags, xFlags, x6); // F_CF == 0
+                        }
+                        IFX (X_OF) {
+                            SLLI(x6, x6, F_OF2);
+                            OR(xFlags, xFlags, x6);
+                        }
+                    }
                     break;
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING);
-                    UFLAG_DF(x2, rex.w?d_imul64:d_imul32);
+                    SETFLAGS(X_ALL, SF_SET);
+                    CLEAR_FLAGS();
+                    SET_DFNONE();
                     GETSED(0);
                     if(rex.w) {
                         if(ed==xRDX) gd=x3; else gd=xRDX;
@@ -1134,8 +1145,19 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         AND(xRAX, xRDX, xMASK);
                         SRLI(xRDX, xRDX, 32);
                     }
-                    UFLAG_RES(xRAX);
-                    UFLAG_OP1(xRDX);
+                    IFX (X_CF | X_OF) {
+                        // CF = OF = SignExtend(RAX) != RDX:RAX
+                        SRAIxw(x6, xRAX, rex.w ? 63 : 31);
+                        SUBxw(x6, xRDX, x6);
+                        SNEZ(x6, x6);
+                        IFX (X_CF) {
+                            OR(xFlags, xFlags, x6); // F_CF == 0
+                        }
+                        IFX (X_OF) {
+                            SLLI(x6, x6, F_OF2);
+                            OR(xFlags, xFlags, x6);
+                        }
+                    }
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
