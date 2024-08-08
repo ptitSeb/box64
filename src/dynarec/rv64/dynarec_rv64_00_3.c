@@ -501,58 +501,62 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 0:
                     if(opcode==0xD0) {
                         INST_NAME("ROL Eb, 1");
+                        GETEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROL Eb, CL");
+                        GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    GETEB(x1, 0);
                     CALL_(rol8, ed, x3);
                     EBBACK(x5, 0);
                     break;
                 case 1:
                     if(opcode==0xD0) {
                         INST_NAME("ROR Eb, 1");
+                        GETEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("ROR Eb, CL");
+                        GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    GETEB(x1, 0);
                     CALL_(ror8, ed, x3);
                     EBBACK(x5, 0);
                     break;
                 case 2:
                     if(opcode==0xD0) {
                         INST_NAME("RCL Eb, 1");
+                        GETEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("RCL Eb, CL");
+                        GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    GETEB(x1, 0);
                     CALL_(rcl8, ed, x3);
                     EBBACK(x5, 0);
                     break;
                 case 3:
                     if(opcode==0xD0) {
                         INST_NAME("RCR Eb, 1");
+                        GETEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("RCR Eb, CL");
+                        GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
                     }
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    GETEB(x1, 0);
                     CALL_(rcr8, ed, x3);
                     EBBACK(x5, 0);
                     break;
@@ -560,48 +564,51 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 6:
                     if(opcode==0xD0) {
                         INST_NAME("SHL Eb, 1");
+                        GETEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHL Eb, CL");
+                        GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    GETEB(x1, 0);
                     emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
                 case 5:
                     if(opcode==0xD0) {
                         INST_NAME("SHR Eb, 1");
+                        GETEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHR Eb, CL");
+                        GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1F);
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    GETEB(x1, 0);
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
                 case 7:
                     if(opcode==0xD0) {
                         INST_NAME("SAR Eb, 1");
+                        GETSEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("SAR Eb, CL");
+                        GETSEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    GETSEB(x1, 0);
                     emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK(x5, 0);
                     break;
