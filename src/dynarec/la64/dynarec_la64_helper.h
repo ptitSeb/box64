@@ -575,47 +575,57 @@
     LOAD_REG(R14);      \
     LOAD_REG(R15);
 
-#define SET_DFNONE()                             \
-    do {                                         \
-    dyn->f.dfnone_here=1;                        \
-    if (!dyn->f.dfnone) {                        \
-        ST_W(xZR, xEmu, offsetof(x64emu_t, df)); \
-        dyn->f.dfnone = 1;                       \
-    } } while(0);
-#define SET_DF(S, N)                           \
-    if ((N) != d_none) {                       \
-        MOV32w(S, (N));                        \
-        ST_W(S, xEmu, offsetof(x64emu_t, df)); \
-        dyn->f.dfnone = 0;                     \
-    } else                                     \
-        SET_DFNONE()
-#define SET_NODF() dyn->f.dfnone = 0
-#define SET_DFOK() dyn->f.dfnone = 1; dyn->f.dfnone_here=1
+#define SET_DFNONE()                                 \
+    do {                                             \
+        dyn->f.dfnone_here = 1;                      \
+        if (!dyn->f.dfnone) {                        \
+            ST_W(xZR, xEmu, offsetof(x64emu_t, df)); \
+            dyn->f.dfnone = 1;                       \
+        }                                            \
+    } while (0);
 
-#define CLEAR_FLAGS_(s) \
-    MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); ANDN(xFlags, xFlags, s);
+#define SET_DF(S, N)                                           \
+    if ((N) != d_none) {                                       \
+        MOV32w(S, (N));                                        \
+        ST_W(S, xEmu, offsetof(x64emu_t, df));                 \
+        if (dyn->f.pending == SF_PENDING                       \
+            && dyn->insts[ninst].x64.need_after                \
+            && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
+            CALL_(UpdateFlags, -1, 0);                         \
+            dyn->f.pending = SF_SET;                           \
+            SET_NODF();                                        \
+        }                                                      \
+        dyn->f.dfnone = 0;                                     \
+    } else                                                     \
+        SET_DFNONE()
+
+#define SET_NODF() dyn->f.dfnone = 0
+#define SET_DFOK()     \
+    dyn->f.dfnone = 1; \
+    dyn->f.dfnone_here = 1
+
+#define CLEAR_FLAGS_(s)                                                                                       \
+    MOV64x(s, (1UL << F_AF) | (1UL << F_CF) | (1UL << F_OF) | (1UL << F_ZF) | (1UL << F_SF) | (1UL << F_PF)); \
+    ANDN(xFlags, xFlags, s);
 
 #define CLEAR_FLAGS(s) \
-    IFX(X_ALL) { CLEAR_FLAGS_(s) }
+    IFX (X_ALL) { CLEAR_FLAGS_(s) }
 
 #define CALC_SUB_FLAGS(op1_, op2, res, scratch1, scratch2, width)     \
-    IFX(X_AF | X_CF | X_OF)                                           \
-    {                                                                 \
+    IFX (X_AF | X_CF | X_OF) {                                        \
         /* calc borrow chain */                                       \
         /* bc = (res & (~op1 | op2)) | (~op1 & op2) */                \
         OR(scratch1, op1_, op2);                                      \
         AND(scratch2, res, scratch1);                                 \
         AND(op1_, op1_, op2);                                         \
         OR(scratch2, scratch2, op1_);                                 \
-        IFX(X_AF)                                                     \
-        {                                                             \
+        IFX (X_AF) {                                                  \
             /* af = bc & 0x8 */                                       \
             ANDI(scratch1, scratch2, 8);                              \
             BEQZ(scratch1, 8);                                        \
             ORI(xFlags, xFlags, 1 << F_AF);                           \
         }                                                             \
-        IFX(X_CF)                                                     \
-        {                                                             \
+        IFX (X_CF) {                                                  \
             /* cf = bc & (1<<(width-1)) */                            \
             if ((width) == 8) {                                       \
                 ANDI(scratch1, scratch2, 0x80);                       \
@@ -626,8 +636,7 @@
             BEQZ(scratch1, 8);                                        \
             ORI(xFlags, xFlags, 1 << F_CF);                           \
         }                                                             \
-        IFX(X_OF)                                                     \
-        {                                                             \
+        IFX (X_OF) {                                                  \
             /* of = ((bc >> (width-2)) ^ (bc >> (width-1))) & 0x1; */ \
             SRLI_D(scratch1, scratch2, (width)-2);                    \
             SRLI_D(scratch2, scratch1, 1);                            \
@@ -639,7 +648,9 @@
     }
 
 #ifndef MAYSETFLAGS
-#define MAYSETFLAGS() do {} while (0)
+#define MAYSETFLAGS() \
+    do {              \
+    } while (0)
 #endif
 
 #ifndef READFLAGS
@@ -713,7 +724,7 @@
 #define ARCH_RESET()
 
 #if STEP < 2
-#define GETIP(A) TABLE64(0, 0)
+#define GETIP(A)  TABLE64(0, 0)
 #define GETIP_(A) TABLE64(0, 0)
 #else
 // put value in the Table64 even if not using it for now to avoid difference between Step2 and Step3. Needs to be optimized later...
@@ -857,8 +868,8 @@ void* la64_next(x64emu_t* emu, uintptr_t addr);
 
 #define x87_restoreround  STEPNAME(x87_restoreround)
 #define sse_setround      STEPNAME(sse_setround)
-#define x87_forget       STEPNAME(x87_forget)
-#define sse_purge07cache STEPNAME(sse_purge07cache)
+#define x87_forget        STEPNAME(x87_forget)
+#define sse_purge07cache  STEPNAME(sse_purge07cache)
 #define sse_get_reg       STEPNAME(sse_get_reg)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 #define sse_forget_reg    STEPNAME(sse_forget_reg)
@@ -1127,13 +1138,13 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         }
 
 // Restore xFlags from LBT.eflags
-#define RESTORE_EFLAGS(s)               \
-    do {                                \
-        if (la64_lbt) {                 \
-            CLEAR_FLAGS_(s);            \
-            X64_GET_EFLAGS(s, X_ALL);   \
-            OR(xFlags, xFlags, s);      \
-        }                               \
+#define RESTORE_EFLAGS(s)             \
+    do {                              \
+        if (la64_lbt) {               \
+            CLEAR_FLAGS_(s);          \
+            X64_GET_EFLAGS(s, X_ALL); \
+            OR(xFlags, xFlags, s);    \
+        }                             \
     } while (0)
 
 // Spill xFlags to LBT.eflags
@@ -1144,6 +1155,6 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         }                                  \
     } while (0)
 
-#define PURGE_YMM()    /* TODO */
+#define PURGE_YMM() /* TODO */
 
 #endif //__DYNAREC_LA64_HELPER_H__
