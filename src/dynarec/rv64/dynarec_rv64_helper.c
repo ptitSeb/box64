@@ -1160,6 +1160,8 @@ static void x87_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, i
         ADDI(s2, s2, a);
         ANDI(s2, s2, 7);
         SW(s2, xEmu, offsetof(x64emu_t, top));
+        // update tags
+        LH(s1, xEmu, offsetof(x64emu_t, fpu_tags));
         if(a>0) {
             SLLI(s3, xMASK, 16);    // 0xffff0000
             OR(s1, s1, s3);
@@ -1167,6 +1169,7 @@ static void x87_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, i
         } else {
             SLLI(s1, s1, -a*2);
         }
+        SH(s1, xEmu, offsetof(x64emu_t, fpu_tags));
     }
 }
 
