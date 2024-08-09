@@ -67,6 +67,7 @@ int box64_ignoreint3 = 0;
 int box64_rdtsc = 0;
 int box64_rdtsc_1ghz = 0;
 uint8_t box64_rdtsc_shift = 0;
+char* box64_new_args = NULL;
 #ifdef DYNAREC
 int box64_dynarec = 1;
 int box64_dynarec_dump = 0;
@@ -85,7 +86,6 @@ int box64_dynarec_tbb = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_missing = 0;
 int box64_dynarec_aligned_atomics = 0;
-char* box64_new_args = NULL;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 uintptr_t box64_dynarec_test_start = 0;
