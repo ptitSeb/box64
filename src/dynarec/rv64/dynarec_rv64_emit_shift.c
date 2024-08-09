@@ -478,16 +478,8 @@ void emit_sar16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         }
         OR(xFlags, xFlags, s3);
     }
-    IFX(X_OF) {
-        // OF flag is affected only on 1-bit shifts
-        // OF flag is set to the most-significant bit of the original operand
-        if (c == 1) {
-            SRLI(s3, s1, 15);
-            ANDI(s3, s3, 1);
-            SLLI(s3, s3, F_OF2);
-            OR(xFlags, xFlags, s3);
-        }
-    }
+    // For the SAR instruction, the OF flag is cleared for all 1-bit shifts.
+    // OF nop
     IFX(X_SF) {
         // SF is the same as the original operand
         BGE(s1, xZR, 8);
@@ -914,6 +906,8 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         }
         OR(xFlags, xFlags, s3);
     }
+    // For the SAR instruction, the OF flag is cleared for all 1-bit shifts.
+    // OF nop
 
     if (rex.w) {
         SRAI(s1, s1, c);
