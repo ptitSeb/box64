@@ -118,7 +118,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     if(u8) {
                         ADDI(x2, xZR, u8);
-                        emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+                        emit_cmp8(dyn, ninst, x1, x2, x9, x4, x5, x6);
                     } else {
                         emit_cmp8_0(dyn, ninst, x1, x3, x4);
                     }
@@ -215,7 +215,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop=F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_test8(dyn, ninst, x1, x2, x6, x4, x5);
             break;
         case 0x85:
             INST_NAME("TEST Ed, Gd");

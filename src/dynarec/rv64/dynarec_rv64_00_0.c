@@ -192,7 +192,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_adc8(dyn, ninst, x1, x2, x4, x5, x3);
+            emit_adc8(dyn, ninst, x1, x2, x4, x5, x6);
             EBBACK(x5, 0);
             break;
         case 0x11:
@@ -212,7 +212,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEB(x2, 0);
             GETGB(x1);
-            emit_adc8(dyn, ninst, x1, x2, x4, x3, x5);
+            emit_adc8(dyn, ninst, x1, x2, x4, x6, x5);
             GBBACK(x5);
             break;
         case 0x13:
@@ -290,7 +290,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEB(x2, 0);
             GETGB(x1);
-            emit_sbb8(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_sbb8(dyn, ninst, x1, x2, x6, x4, x5);
             GBBACK(x5);
             break;
         case 0x1B:
@@ -502,7 +502,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
+            emit_cmp8(dyn, ninst, x1, x2, x9, x4, x5, x6);
             break;
         case 0x39:
             INST_NAME("CMP Ed, Gd");
@@ -518,7 +518,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_cmp8(dyn, ninst, x2, x1, x3, x4, x5, x6);
+            emit_cmp8(dyn, ninst, x2, x1, x9, x4, x5, x6);
             break;
         case 0x3B:
             INST_NAME("CMP Gd, Ed");
