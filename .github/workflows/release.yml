@@ -163,11 +163,16 @@ jobs:
           cd build
           if [[ ${{ matrix.platform }} == 'RISCV' ]]; then
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ ctest -j$(nproc) --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,v=false BOX64_DYNAREC=0 ctest -j$(nproc) --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,v=false,zba=true,zbb=true,zbc=true,zbs=true ctest -j$(nproc) --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=false,zba=true,zbb=true,zbc=true,zbs=true ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,v=true,vlen=128,vext_spec=v1.0 ctest -j$(nproc) --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=true,vlen=128,vext_spec=v1.0 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,v=true,vlen=256,vext_spec=v1.0 ctest -j$(nproc) --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=true,vlen=256,vext_spec=v1.0 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ QEMU_CPU=rv64,v=false,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest -j$(nproc) --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=false,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
           elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_LA64NOEXT=1 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_TEST=2 BOX64_DYNAREC_LA64NOEXT=1 ctest -j$(nproc) --repeat until-pass:20 --output-on-failure
