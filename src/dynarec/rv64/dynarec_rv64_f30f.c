@@ -85,7 +85,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVSLDUP Gx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0);
+            GETEX(x2, 0, 8);
 
             // GX->ud[1] = GX->ud[0] = EX->ud[0];
             // GX->ud[3] = GX->ud[2] = EX->ud[2];
@@ -100,7 +100,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVSHDUP Gx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0);
+            GETEX(x2, 0, 12);
 
             // GX->ud[1] = GX->ud[0] = EX->ud[1];
             // GX->ud[3] = GX->ud[2] = EX->ud[3];
@@ -273,14 +273,14 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVDQU Gx,Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0);
+            GETEX(x2, 0, 8);
             SSE_LOOP_MV_Q(x3);
             break;
         case 0x70: // TODO: Optimize this!
             INST_NAME("PSHUFHW Gx, Ex, Ib");
             nextop = F8;
             GETGX();
-            GETEX(x2, 1);
+            GETEX(x2, 1, 14);
             u8 = F8;
             int32_t idx;
 
@@ -323,7 +323,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVDQU Ex,Gx");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0);
+            GETEX(x2, 0, 8);
             SSE_LOOP_MV_Q2(x3);
             if (!MODREG) SMWRITE2();
             break;
@@ -332,7 +332,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("CVTTPS2DQ Gx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0);
+            GETEX(x2, 0, 12);
             v0 = fpu_get_scratch(dyn);
             for (int i = 0; i < 4; ++i) {
                 if (!box64_dynarec_fastround) {
@@ -491,7 +491,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0);
+            GETEX(x2, 0, 4);
             q0 = fpu_get_scratch(dyn);
             q1 = fpu_get_scratch(dyn);
             LW(x3, wback, fixedaddress + 0);
