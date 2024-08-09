@@ -481,17 +481,16 @@
     gdoffset = offsetof(x64emu_t, xmm[gd])
 
 // Get Ex address in general register a, will purge SS or SD if it's reg and is loaded. May use x3. Use wback as load address!
-#define GETEX(a, D)                                                                            \
-    if (MODREG) {                                                                              \
-        ed = (nextop & 7) + (rex.b << 3);                                                      \
-        sse_forget_reg(dyn, ninst, x3, ed);                                                    \
-        fixedaddress = offsetof(x64emu_t, xmm[ed]);                                            \
-        wback = xEmu;                                                                          \
-    } else {                                                                                   \
-        SMREAD();                                                                              \
-        ed = 16;                                                                               \
-        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 0, D); \
-        fixedaddress = 0; /* TODO: optimize this! */                                           \
+#define GETEX(a, D, I12)                                                                         \
+    if (MODREG) {                                                                                \
+        ed = (nextop & 7) + (rex.b << 3);                                                        \
+        sse_forget_reg(dyn, ninst, x3, ed);                                                      \
+        fixedaddress = offsetof(x64emu_t, xmm[ed]);                                              \
+        wback = xEmu;                                                                            \
+    } else {                                                                                     \
+        SMREAD();                                                                                \
+        ed = 16;                                                                                 \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
     }
 
 // Get GX as a quad (might use x1)
@@ -518,17 +517,16 @@
     gdoffset = offsetof(x64emu_t, mmx[gd])
 
 // Get EM, might use x3
-#define GETEM(a, D)                                                                            \
-    if (MODREG) {                                                                              \
-        ed = (nextop & 7);                                                                     \
-        mmx_forget_reg(dyn, ninst, ed);                                                        \
-        fixedaddress = offsetof(x64emu_t, mmx[ed]);                                            \
-        wback = xEmu;                                                                          \
-    } else {                                                                                   \
-        SMREAD();                                                                              \
-        ed = 8;                                                                                \
-        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, 0, D); \
-        fixedaddress = 0; /* TODO: optimize this! */                                           \
+#define GETEM(a, D, I12)                                                                         \
+    if (MODREG) {                                                                                \
+        ed = (nextop & 7);                                                                       \
+        mmx_forget_reg(dyn, ninst, ed);                                                          \
+        fixedaddress = offsetof(x64emu_t, mmx[ed]);                                              \
+        wback = xEmu;                                                                            \
+    } else {                                                                                     \
+        SMREAD();                                                                                \
+        ed = 8;                                                                                  \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
     }
 
 #define GETGX_empty_vector(a)                   \

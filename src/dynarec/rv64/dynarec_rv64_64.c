@@ -76,7 +76,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             INST_NAME("MOVUPS Ex,Gx");
                             nextop = F8;
                             GETGX();
-                            GETEX(x2, 0);
+                            GETEX(x2, 0, 8);
                             if(!MODREG) {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
                                 ADD(x4, x4, wback);
