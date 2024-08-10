@@ -366,6 +366,9 @@ void emit_shl8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
             BFXILw(xFlags, s3, 7, 1);   // insert F_CF from s3[7:1]
         }
         MOVw_REG(s1, xZR);
+        IFX(X_PEND) {
+            STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
+        }
         IFX(X_OF) {
             BFCw(xFlags, F_OF, 1);
         }
@@ -630,6 +633,9 @@ void emit_shl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             BFXILw(xFlags, s3, 15, 1);   // insert F_CF from s3[15:1]
         }
         MOVw_REG(s1, xZR);
+        IFX(X_PEND) {
+            STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
+        }
         IFX(X_OF) {
             BFCw(xFlags, F_OF, 1);
         }
