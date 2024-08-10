@@ -80,6 +80,9 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             }
         }
         MV(s1, xZR);
+        IFX(X_PEND) {
+            SB(s1, xEmu, offsetof(x64emu_t, res));
+        }
         // OF nop
         // SF nop
         // AF nop
@@ -391,6 +394,9 @@ void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             }
         }
         MV(s1, xZR);
+        IFX(X_PEND) {
+            SH(s1, xEmu, offsetof(x64emu_t, res));
+        }
         // OF nop
         // SF nop
         // AF nop
