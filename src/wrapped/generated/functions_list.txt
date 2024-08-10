@@ -1033,6 +1033,7 @@
 #() iFpuuL
 #() iFpuup
 #() iFpuUp
+#() iFpuLi
 #() iFpuLL
 #() iFpuLp
 #() iFpupi
@@ -1062,6 +1063,7 @@
 #() iFpLLL
 #() iFpLLp
 #() iFpLpi
+#() iFpLpu
 #() iFpLpf
 #() iFpLpd
 #() iFpLpD
@@ -1526,6 +1528,7 @@
 #() iFiiipu
 #() iFiiipp
 #() iFiiupp
+#() iFiippp
 #() iFiuuuu
 #() iFiuuup
 #() iFiuLip
@@ -1581,6 +1584,7 @@
 #() iFpuupp
 #() iFpulup
 #() iFpulpp
+#() iFpuLup
 #() iFpuLpL
 #() iFpuLpp
 #() iFpupui
@@ -1636,6 +1640,7 @@
 #() iFpppii
 #() iFpppip
 #() iFpppui
+#() iFpppuu
 #() iFpppup
 #() iFpppUi
 #() iFpppLi
@@ -1929,6 +1934,7 @@
 #() vFpdddii
 #() vFpddddd
 #() vFpddddp
+#() vFpLLLLu
 #() vFpLpLLL
 #() vFppiiii
 #() vFppiiip
@@ -2026,6 +2032,7 @@
 #() iFpWipip
 #() iFpWpppp
 #() iFpuiCpp
+#() iFpuiLpp
 #() iFpuippp
 #() iFpuuuuu
 #() iFpuuuup
@@ -2034,6 +2041,7 @@
 #() iFpuuLpp
 #() iFpuupuu
 #() iFpuuppp
+#() iFpuLuLu
 #() iFpuLLpp
 #() iFpupuui
 #() iFpupLpL
@@ -2050,6 +2058,7 @@
 #() iFpLuipp
 #() iFpLuupp
 #() iFpLupip
+#() iFpLLLLu
 #() iFpLLLLL
 #() iFpLLppp
 #() iFpLpipi
@@ -2070,8 +2079,10 @@
 #() iFppippp
 #() iFppIppp
 #() iFppuiii
+#() iFppuipp
 #() iFppuIII
 #() iFppuupp
+#() iFppulup
 #() iFppuLpp
 #() iFppupip
 #() iFppuppp
@@ -2414,6 +2425,7 @@
 #() iFppLiipp
 #() iFppLippp
 #() iFppLuuii
+#() iFppLLLLu
 #() iFppLpppp
 #() iFpppiiuu
 #() iFpppiiup
@@ -2421,6 +2433,7 @@
 #() iFpppippi
 #() iFpppippp
 #() iFpppuiii
+#() iFpppulup
 #() iFpppLppp
 #() iFppppilp
 #() iFppppipp
@@ -2623,6 +2636,7 @@
 #() iFpuupuupp
 #() iFpuuppiip
 #() iFpuuppppp
+#() iFpuLLLppL
 #() iFpupppppp
 #() iFpUuuLpUu
 #() iFpduuulul
@@ -4431,6 +4445,7 @@ wrappedlibdl:
 wrappedlibdrm:
 - vFpV:
   - drmMsg
+wrappedlibdrmamdgpu:
 wrappedlibegl:
 - pFp:
   - eglGetProcAddress
