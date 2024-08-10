@@ -616,7 +616,7 @@ void emit_sar16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX(X_PEND) {
         SH(s2, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
-        SET_DF(s4, d_sar8);
+        SET_DF(s4, d_sar16);
     } else IFX(X_ALL) {
         SET_DFNONE();
     }
