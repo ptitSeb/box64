@@ -125,6 +125,12 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
                     GETGM;
                     EM->q = GM->q;
                     break;
+                case 2: /* MOVDQU Ex, Gx */
+                    nextop = F8;
+                    GETEX32(0);
+                    GETGX;
+                    memcpy(EX, GX, 16);
+                    break;
                 default:
                     return 0;
             }
