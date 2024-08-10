@@ -103,6 +103,27 @@ uintptr_t dynarec64_67_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         }
         
     }
+    else if((vex.m==VEX_M_0F) && (vex.p==VEX_P_66)) {
+        switch(opcode) {
+            case 0xD6:
+                INST_NAME("VMOVQ Ex, Gx");
+                nextop = F8;
+                GETG;
+                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                if(MODREG) {
+                    v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop&7)+(rex.b<<3));
+                    VMOV(v1, v0);
+                    YMM0((nextop&7)+(rex.b<<3));
+                } else {
+                    addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff<<3, 7, rex, NULL, 0, 0);
+                    VSTR64_U12(v0, ed, fixedaddress);
+                }
+                break;
+
+            default:
+                DEFAULT;
+        }
+    }
     else {DEFAULT;}
 
     if((*ok==-1) && (box64_dynarec_log>=LOG_INFO || box64_dynarec_dump || box64_dynarec_missing)) {

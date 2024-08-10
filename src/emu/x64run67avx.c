@@ -76,7 +76,7 @@ uintptr_t Run67AVX(x64emu_t *emu, vex_t vex, uintptr_t addr)
 
     rex_t rex = vex.rex;
 
-    if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F2))
+    if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F2)) {
         switch(opcode) {
 
             case 0xF6:  /* MULX Gd, Vd, Ed (,RDX) */
@@ -97,7 +97,23 @@ uintptr_t Run67AVX(x64emu_t *emu, vex_t vex, uintptr_t addr)
 
             default: addr = 0;
         }
-    else addr = 0;
+    } else if ((vex.m==VEX_M_0F) && (vex.p==VEX_P_66)) {
+        switch(opcode) {
+            case 0xD6:  /* VMOVQ Ex, Gx */
+                nextop = F8;
+                GETEX32(0);
+                GETGX;
+                EX->q[0] = GX->q[0];
+                if(MODREG) {
+                    EX->q[1] = 0;
+                    GETEY;
+                    EY->u128 = 0;
+                }
+                break;
+
+            default: addr = 0;
+        }
+    } else addr = 0;
 
     if(!addr)
         printf_log(LOG_INFO, "Unimplemented 67 AVX opcode size %d prefix %s map %s opcode %02X ", 128<<vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
