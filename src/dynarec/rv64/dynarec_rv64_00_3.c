@@ -692,7 +692,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("ROL Ed, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     GETED(0);
-                    emit_rol32(dyn, ninst, rex, ed, xRCX, x3, x4);
+                    ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    emit_rol32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;
@@ -700,7 +701,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("ROR Ed, CL");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     GETED(0);
-                    emit_ror32(dyn, ninst, rex, ed, xRCX, x3, x4);
+                    ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    emit_ror32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
                     if(!wback && !rex.w) ZEROUP(ed);
                     break;

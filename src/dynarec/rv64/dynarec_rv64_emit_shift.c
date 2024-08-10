@@ -946,15 +946,10 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 {
     int64_t j64;
 
-    if(rex.w) {
-        ANDI(s4, s2, 0x3f);
-    } else {
-        ANDI(s4, s2, 0x1f);
-    }
     if (!rex.w) {
         ZEROUP(s1);
     }
-    BEQ_NEXT(s4, xZR);
+    BEQ_NEXT(s2, xZR);
     IFX(X_PEND) {
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_rol64:d_rol32);
@@ -964,14 +959,14 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if(rv64_zbb) {
         if (rex.w) {
-            ROL(s1, s1, s4);
+            ROL(s1, s1, s2);
         } else {
-            ROLW(s1, s1, s4);
+            ROLW(s1, s1, s2);
             ZEROUP(s1);
         }
     } else {
-        SLLxw(s3, s1, s4);
-        NEG(s4, s4);
+        SLLxw(s3, s1, s2);
+        NEG(s4, s2);
         ADDI(s4, s4, rex.w?64:32);
         SRLxw(s1, s1, s4);
         OR(s1, s3, s1);
@@ -1003,15 +998,10 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 {
     int64_t j64;
 
-    if(rex.w) {
-        ANDI(s4, s2, 0x3f);
-    } else {
-        ANDI(s4, s2, 0x1f);
-    }
     if (!rex.w) {
         ZEROUP(s1);
     }
-    BEQ_NEXT(s4, xZR);
+    BEQ_NEXT(s2, xZR);
     IFX(X_PEND) {
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, rex.w?d_ror64:d_ror32);
@@ -1021,14 +1011,14 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if(rv64_zbb) {
         if (rex.w) {
-            ROR(s1, s1, s4);
+            ROR(s1, s1, s2);
         } else {
-            RORW(s1, s1, s4);
+            RORW(s1, s1, s2);
             ZEROUP(s1);
         }
     } else {
-        SRLxw(s3, s1, s4);
-        NEG(s4, s4);
+        SRLxw(s3, s1, s2);
+        NEG(s4, s2);
         ADDI(s4, s4, rex.w?64:32);
         SLLxw(s1, s1, s4);
         OR(s1, s3, s1);
