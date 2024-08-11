@@ -977,7 +977,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROL Ew, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 15;
                     if (u8) {
-                        SETFLAGS(X_CF | X_OF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
                         u8 = (F8)&0x1f;
                         emit_rol16c(dyn, ninst, x1, u8, x4, x5);
@@ -990,7 +990,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 1:
                     INST_NAME("ROR Ew, Ib");
                     if (geted_ib(dyn, addr, ninst, nextop) & 15) {
-                        SETFLAGS(X_CF | X_OF, SF_SUBSET_PENDING);
+                        SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
                         u8 = (F8)&0x1f;
                         emit_ror16c(dyn, ninst, x1, u8, x4, x5);
@@ -1006,7 +1006,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         READFLAGS(X_CF);
                         SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
-                        u8 = F8;
+                        u8 = (F8)&0x1f;
                         emit_rcl16c(dyn, ninst, ed, u8, x4, x5);
                         EWBACK;
                     } else {
@@ -1020,7 +1020,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         READFLAGS(X_CF);
                         SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
-                        u8 = F8;
+                        u8 = (F8)&0x1f;
                         emit_rcr16c(dyn, ninst, ed, u8, x4, x5);
                         EWBACK;
                     } else {
@@ -1093,14 +1093,14 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ew, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEW(x1, 0);
                     emit_rol16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEW(x1, 0);
                     emit_ror16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;

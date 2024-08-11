@@ -797,14 +797,14 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEDO(x6, 0);
                     emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACKO(x6);
                     break;
                 case 1:
                     INST_NAME("ROR Ed, 1");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEDO(x6, 0);
                     emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
                     WBACKO(x6);

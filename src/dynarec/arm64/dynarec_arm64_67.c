@@ -1050,7 +1050,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch((nextop>>3)&7) {
                 case 0:
                     INST_NAME("ROL Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETED32(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -1058,7 +1058,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     INST_NAME("ROR Ed, Ib");
-                    SETFLAGS(X_OF|X_CF, SF_SUBSET_PENDING);
+                    SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETED32(1);
                     u8 = (F8)&(rex.w?0x3f:0x1f);
                     emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
