@@ -2038,10 +2038,9 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
                         SMWRITE();
-                    } else if(!rex.w) {
-                        ZEROUP(ed);
                     }
                     MARK;
+                    if (!rex.w && !wback) ZEROUP(ed);
                     break;
                 case 6:
                     INST_NAME("BTR Ed, Ib");
