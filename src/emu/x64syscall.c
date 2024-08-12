@@ -720,6 +720,10 @@ void EXPORT x64Syscall(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         #endif
+        case 175: // sys_init_module
+            // huh?
+            S_RAX = -EPERM;
+            break;
         #ifndef __NR_time
         case 201: // sys_time
             R_RAX = (uintptr_t)time((void*)R_RDI);
