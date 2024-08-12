@@ -1031,6 +1031,10 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 160:
             return setrlimit(S_ESI, (void*)R_RDX);
         #endif
+        case 175: // sys_init_module
+            // huh?
+            errno = -EPERM;
+            return -1;
         #ifndef __NR_time
         case 201: // sys_time
             return (intptr_t)time((void*)R_RSI);
