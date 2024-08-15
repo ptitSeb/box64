@@ -37,6 +37,7 @@ option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info o
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
 option(CI "Set to ON if running in CI" ${CI})
 option(WITH_MOLD "Set to ON to use with mold" ${WITH_MOLD})
+option(BOX32, "Set to ON to add Linux 32bits support (experimental, do not use)" ${BOX32})
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
@@ -230,6 +231,9 @@ if(STATICBUILD)
     set(BUILD_SHARED_LIBS OFF)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
     set(HAVE_TRACE OFF)
+endif()
+if(BOX32)
+    add_definitions(-DBOX32)
 endif()
 
 if(NOGIT)
