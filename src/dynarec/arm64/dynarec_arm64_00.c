@@ -2384,11 +2384,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LDRx_REG(x3, x1, x2);
                     //LDRx_U12(x3, x1, offsetof(box64context_t, signals[SIGTRAP]));
                     CMPSx_U12(x3, 0);
-                    B_NEXT(cEQ);
+                    B_MARK(cEQ);
                     GETIP(addr);  // update RIP
                     STORE_XEMU_CALL(xRIP);
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL(xRIP);
+                    MARK;
+                    jump_to_epilog(dyn, addr, 0, ninst);
                     *need_epilog = 0;
                     *ok = 0;
                 }
