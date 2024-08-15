@@ -1045,6 +1045,25 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
 
+        case 0x90:
+        case 0x91:
+        case 0x92:
+        case 0x93:
+        case 0x94:
+        case 0x95:
+        case 0x96:
+        case 0x97:
+            gd = xRAX+(opcode&0x07)+(rex.b<<3);
+            if(gd==xRAX) {
+                INST_NAME("NOP");
+            } else {
+                INST_NAME("XCHG EAX, Reg");
+                MOVxw_REG(x2, xRAX);
+                MOVxw_REG(xRAX, gd);
+                MOVxw_REG(gd, x2);
+            }
+            break;
+
         case 0xC1:
             nextop = F8;
             switch((nextop>>3)&7) {
