@@ -1645,11 +1645,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     TABLE64(x1, (uintptr_t)my_context);
                     MOV32w(x2, offsetof(box64context_t, signals[SIGTRAP]));
                     LDX_D(x3, x1, x2);
-                    CBZ_NEXT(x3);
+                    BEQZ_MARK(x3);
                     GETIP(addr);
                     STORE_XEMU_CALL();
                     CALL(native_int3, -1);
                     LOAD_XEMU_CALL();
+                    MARK;
+                    jump_to_epilog(dyn, addr, 0, ninst);
                     *need_epilog = 0;
                     *ok = 0;
                 }
