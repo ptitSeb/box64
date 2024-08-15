@@ -779,7 +779,7 @@ void checkHookedSymbols(elfheader_t* h)
     for (size_t i=0; i<h->numSymTab; ++i) {
         int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
         int sz = ELF64_ST_TYPE(h->SymTab[i].st_size);
-        if(type==STT_FUNC && sz) {
+        if((type==STT_FUNC) && sz && (h->SymTab[i].st_shndx!=0 && h->SymTab[i].st_shndx<=65521)) {
             const char * symname = h->StrTab+h->SymTab[i].st_name;
             #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
             #define GO2(A, B)
