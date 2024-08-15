@@ -209,6 +209,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (strstr(s, "puts")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
+                } else if (!strcmp(s, "syscall")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, %p....)", tid, *(void**)(R_RSP), s, (int)R_EDI, (void*)R_RSI, (void*)R_RDX);
+                    perr = 1;
                 } else if (strstr(s, "strlen")==s) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
@@ -345,11 +348,11 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     }
                     break;
                 }
-                if(perr==1 && ((int)R_EAX)<0)
+                if(perr==1 && (S_EAX)<0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
-                else if(perr==3 && ((int64_t)R_RAX)==-1)
+                else if(perr==3 && (S_RAX)==-1)
                     snprintf(buff3, 64, " (errno=%d:\"%s\")", errno, strerror(errno));
 
                 if(cycle_log)
