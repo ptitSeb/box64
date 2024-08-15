@@ -304,6 +304,15 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_fchmodat4
     [434] = {__NR_fchmodat4, 4},
     #endif
+    #ifdef __NR_landlock_create_ruleset	
+    [444] = {__NR_landlock_create_ruleset, 3},
+    #endif
+    #ifdef __NR_landlock_add_rule
+    [445] = {__NR_landlock_add_rule, 4},
+    #endif
+    #ifdef __NR_landlock_restrict_self
+    [446] = {__NR_landlock_restrict_self, 2},
+    #endif
     //[449] = {__NR_futex_waitv, 5},
 };
 
