@@ -420,14 +420,12 @@ void extcacheUnwind(extcache_t* cache)
         cache->news = 0;
     }
     // add/change bad regs
-    for(int i=0; i<16; ++i) {
-        if (cache->extcache[i].t == EXT_CACHE_SS || cache->extcache[i].t == EXT_CACHE_SD) {
-            if (cache->olds[i].changed) {
-                cache->extcache[i].t = cache->olds[i].single ? EXT_CACHE_SS : EXT_CACHE_SD;
-            } else if (cache->olds[i].purged) {
-                cache->extcache[i].n = i;
-                cache->extcache[i].t = cache->olds[i].single ? EXT_CACHE_SS : EXT_CACHE_SD;
-            }
+    for (int i = 0; i < 16; ++i) {
+        if (cache->olds[i].changed) {
+            cache->extcache[i].t = cache->olds[i].single ? EXT_CACHE_SS : EXT_CACHE_SD;
+        } else if (cache->olds[i].purged) {
+            cache->extcache[i].n = i;
+            cache->extcache[i].t = cache->olds[i].single ? EXT_CACHE_SS : EXT_CACHE_SD;
         }
     }
 
