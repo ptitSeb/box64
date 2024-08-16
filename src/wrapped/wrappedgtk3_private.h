@@ -1598,6 +1598,7 @@ GO(gtk_label_set_track_visited_links, vFpi)
 GO(gtk_label_set_use_markup, vFpi)
 GO(gtk_label_set_use_underline, vFpi)
 GO(gtk_label_set_width_chars, vFpi)
+GO(gtk_label_set_xalign, vFpf)
 //GO(gtk_layout_freeze, 
 GO(gtk_layout_get_bin_window, pFp)
 //GO(gtk_layout_get_hadjustment, 
