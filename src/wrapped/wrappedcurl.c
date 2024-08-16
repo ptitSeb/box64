@@ -718,6 +718,146 @@ static void* find_ssl_ctx_callback_Fct(void* fct)
     return NULL;
 }
 
+// malloc_callback
+#define GO(A)                                                             \
+    static uintptr_t my_malloc_callback_fct_##A = 0;                      \
+    static void* my_malloc_callback_##A(size_t a)                         \
+    {                                                                     \
+        return (void*)RunFunctionFmt(my_malloc_callback_fct_##A, "L", a); \
+    }
+SUPER()
+#undef GO
+static void* find_malloc_callback_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_malloc_callback_fct_##A == (uintptr_t)fct) return my_malloc_callback_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                        \
+    if (my_malloc_callback_fct_##A == 0) {           \
+        my_malloc_callback_fct_##A = (uintptr_t)fct; \
+        return my_malloc_callback_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl malloc_callback callback\n");
+    return NULL;
+}
+
+// free_callback
+#define GO(A)                                             \
+    static uintptr_t my_free_callback_fct_##A = 0;        \
+    static void my_free_callback_##A(void* a)             \
+    {                                                     \
+        RunFunctionFmt(my_free_callback_fct_##A, "p", a); \
+    }
+SUPER()
+#undef GO
+static void* find_free_callback_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_free_callback_fct_##A == (uintptr_t)fct) return my_free_callback_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                      \
+    if (my_free_callback_fct_##A == 0) {           \
+        my_free_callback_fct_##A = (uintptr_t)fct; \
+        return my_free_callback_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl free_callback callback\n");
+    return NULL;
+}
+
+// realloc_callback
+#define GO(A)                                                                  \
+    static uintptr_t my_realloc_callback_fct_##A = 0;                          \
+    static void* my_realloc_callback_##A(void* a, size_t b)                    \
+    {                                                                          \
+        return (void*)RunFunctionFmt(my_realloc_callback_fct_##A, "pL", a, b); \
+    }
+SUPER()
+#undef GO
+static void* find_realloc_callback_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_realloc_callback_fct_##A == (uintptr_t)fct) return my_realloc_callback_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                         \
+    if (my_realloc_callback_fct_##A == 0) {           \
+        my_realloc_callback_fct_##A = (uintptr_t)fct; \
+        return my_realloc_callback_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl realloc_callback callback\n");
+    return NULL;
+}
+
+// strdup_callback
+#define GO(A)                                                             \
+    static uintptr_t my_strdup_callback_fct_##A = 0;                      \
+    static void* my_strdup_callback_##A(void* a)                          \
+    {                                                                     \
+        return (void*)RunFunctionFmt(my_strdup_callback_fct_##A, "p", a); \
+    }
+SUPER()
+#undef GO
+static void* find_strdup_callback_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_strdup_callback_fct_##A == (uintptr_t)fct) return my_strdup_callback_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                        \
+    if (my_strdup_callback_fct_##A == 0) {           \
+        my_strdup_callback_fct_##A = (uintptr_t)fct; \
+        return my_strdup_callback_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl strdup_callback callback\n");
+    return NULL;
+}
+
+
+// calloc_callback
+#define GO(A)                                                                 \
+    static uintptr_t my_calloc_callback_fct_##A = 0;                          \
+    static void* my_calloc_callback_##A(size_t a, size_t b)                   \
+    {                                                                         \
+        return (void*)RunFunctionFmt(my_calloc_callback_fct_##A, "LL", a, b); \
+    }
+SUPER()
+#undef GO
+static void* find_calloc_callback_Fct(void* fct)
+{
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+#define GO(A) \
+    if (my_calloc_callback_fct_##A == (uintptr_t)fct) return my_calloc_callback_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                        \
+    if (my_calloc_callback_fct_##A == 0) {           \
+        my_calloc_callback_fct_##A = (uintptr_t)fct; \
+        return my_calloc_callback_##A;               \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for curl calloc_callback callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT uint32_t my_curl_easy_setopt(x64emu_t* emu, void* handle, uint32_t option, void* param)
@@ -794,6 +934,16 @@ EXPORT uint32_t my_curl_share_setopt(x64emu_t* emu, void* handle, CURLSHoption o
         default:
             return my->curl_share_setopt(handle, option, param);
     }
+}
+
+EXPORT int my_curl_global_init_mem(x64emu_t* emu, long flags, void* m, void* f, void* r, void* s, void* c)
+{
+    return my->curl_global_init_mem(flags,
+        find_malloc_callback_Fct(m),
+        find_free_callback_Fct(f),
+        find_realloc_callback_Fct(r),
+        find_strdup_callback_Fct(s),
+        find_calloc_callback_Fct(c));
 }
 
 #include "wrappedlib_init.h"
