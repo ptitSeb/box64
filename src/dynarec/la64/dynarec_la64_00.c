@@ -1664,16 +1664,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 5:
                     if (opcode == 0xD0) {
                         INST_NAME("SHR Eb, 1");
+                        GETEB(x1, 0);
                         MOV32w(x2, 1);
                     } else {
                         INST_NAME("SHR Eb, CL");
+                        GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1F);
                         BEQ_NEXT(x2, xZR);
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING); // some flags are left undefined
                     if (box64_dynarec_safeflags > 1)
                         MAYSETFLAGS();
-                    GETEB(x1, 0);
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
@@ -1733,7 +1734,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROL Ed, CL");
                     SETFLAGS(X_OF | X_CF, SF_SUBSET);
                     GETED(0);
-                    emit_rol32(dyn, ninst, rex, ed, xRCX, x3, x4);
+                    ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    emit_rol32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
@@ -1741,7 +1743,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROR Ed, CL");
                     SETFLAGS(X_OF | X_CF, SF_SUBSET);
                     GETED(0);
-                    emit_ror32(dyn, ninst, rex, ed, xRCX, x3, x4);
+                    ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    emit_ror32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
