@@ -17,7 +17,7 @@
 #define DT_GNU_HASH 0x6ffffef5
 #endif
 
-int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t type)
+static int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t type)
 {
     if(type && (s->sh_type != type)) {
         printf_log(LOG_INFO, "Section Header \"%s\" (off=%ld, size=%ld) has incorect type (%d != %d)\n", name, s->sh_offset, s->sh_size, s->sh_type, type);
@@ -36,7 +36,7 @@ int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t type)
     return 0;
 }
 
-int FindSection(Elf64_Shdr *s, int n, char* SHStrTab, const char* name)
+static int FindSection(Elf64_Shdr *s, int n, char* SHStrTab, const char* name)
 {
     for (int i=0; i<n; ++i) {
         if(s[i].sh_type!=SHT_NULL)
@@ -46,7 +46,7 @@ int FindSection(Elf64_Shdr *s, int n, char* SHStrTab, const char* name)
     return 0;
 }
 
-void LoadNamedSection(FILE *f, Elf64_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, size_t* num)
+static void LoadNamedSection(FILE *f, Elf64_Shdr *s, int size, char* SHStrTab, const char* name, const char* clearname, uint32_t type, void** what, size_t* num)
 {
     int n = FindSection(s, size, SHStrTab, name);
     printf_dump(LOG_DEBUG, "Loading %s (idx = %d)\n", clearname, n);
@@ -61,7 +61,7 @@ void LoadNamedSection(FILE *f, Elf64_Shdr *s, int size, char* SHStrTab, const ch
     }
 }
 
-elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
+elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
 {
     Elf64_Ehdr header;
     int level = (exec)?LOG_INFO:LOG_DEBUG;
@@ -394,7 +394,7 @@ elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec)
     return h;
 }
 
-const char* BindSym(int bind)
+const char* BindSym64(int bind)
 {
     switch(bind) {
         case STB_GLOBAL: return "STB_GLOBAL";

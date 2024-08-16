@@ -176,9 +176,9 @@ typedef struct elfheader_s {
 #define ELF64_ST_VISIBILITY(o)   ((o) & 0x03)
 #endif
 
-elfheader_t* ParseElfHeader(FILE* f, const char* name, int exec);
+elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec);
 
-const char* BindSym(int bind);
+const char* BindSym64(int bind);
 
 Elf64_Half GetSymbolVersionFlag(elfheader_t* h, int index);
 
