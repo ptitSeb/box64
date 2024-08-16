@@ -1055,6 +1055,37 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x3A: // these are some more SSSE3+ opcodes
             opcode = F8;
             switch (opcode) {
+                case 0x0A:
+                    INST_NAME("ROUNDSS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETEXSS(d0, 1);
+                    GETGXSS_empty(v0);
+                    d1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    u8 = F8;
+                    FEQS(x2, d0, d0);
+                    BNEZ_MARK(x2);
+                    if (v0 != d0) FMVS(v0, d0);
+                    B_NEXT_nocond;
+                    MARK; // d0 is not nan
+                    FABSS(v1, d0);
+                    MOV64x(x3, 1ULL << __FLT_MANT_DIG__);
+                    FCVTSW(d1, x3, RD_RTZ);
+                    FLTS(x3, v1, d1);
+                    BNEZ_MARK2(x3);
+                    if (v0 != d0) FMVS(v0, d0);
+                    B_NEXT_nocond;
+                    MARK2;
+                    if (u8 & 4) {
+                        u8 = sse_setround(dyn, ninst, x4, x2);
+                        FCVTWS(x5, d0, RD_DYN);
+                        FCVTSW(v0, x5, RD_RTZ);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        FCVTWS(x5, d0, round_round[u8 & 3]);
+                        FCVTSW(v0, x5, RD_RTZ);
+                    }
+                    break;
                 case 0x0B:
                     INST_NAME("ROUNDSD Gx, Ex, Ib");
                     nextop = F8;
