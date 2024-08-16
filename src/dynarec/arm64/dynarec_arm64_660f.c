@@ -1006,7 +1006,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     VMOVeD(q0, 0, v1, 0);
                     break;
                 case 0x0C:
-                    INST_NAME("PBLENDPS Gx, Ex, Ib");
+                    INST_NAME("BLENDPS Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 1);
@@ -1021,7 +1021,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                     break;
                 case 0x0D:
-                    INST_NAME("PBLENDPD Gx, Ex, Ib");
+                    INST_NAME("BLENDPD Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 1);

@@ -1062,6 +1062,62 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x3A: // these are some more SSSE3+ opcodes
             opcode = F8;
             switch (opcode) {
+                case 0x09:
+                    INST_NAME("ROUNDPD Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 1, 8);
+                    u8 = F8;
+                    d0 = fpu_get_scratch(dyn);
+                    d1 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
+                    FCVTDL(d1, x3, RD_RTZ);
+
+                    // i = 0
+                    FLD(d0, wback, fixedaddress);
+                    FEQD(x4, d0, d0);
+                    BNEZ(x4, 8);
+                    B_MARK_nocond;
+                    // d0 is not nan
+                    FABSD(v1, d0);
+                    FLTD(x4, v1, d1);
+                    BNEZ(x4, 8);
+                    B_MARK_nocond;
+                    if (u8 & 4) {
+                        u8 = sse_setround(dyn, ninst, x4, x5);
+                        FCVTLD(x5, d0, RD_DYN);
+                        FCVTDL(d0, x5, RD_RTZ);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        FCVTLD(x5, d0, round_round[u8 & 3]);
+                        FCVTDL(d0, x5, RD_RTZ);
+                    }
+                    MARK;
+                    FSD(d0, gback, gdoffset + 0);
+
+                    // i = 1
+                    FLD(d0, wback, fixedaddress + 8);
+                    FEQD(x4, d0, d0);
+                    BNEZ(x4, 8);
+                    B_MARK2_nocond;
+                    // d0 is not nan
+                    FABSD(v1, d0);
+                    FLTD(x4, v1, d1);
+                    BNEZ(x4, 8);
+                    B_MARK2_nocond;
+                    if (u8 & 4) {
+                        u8 = sse_setround(dyn, ninst, x4, x5);
+                        FCVTLD(x5, d0, RD_DYN);
+                        FCVTDL(d0, x5, RD_RTZ);
+                        x87_restoreround(dyn, ninst, u8);
+                    } else {
+                        FCVTLD(x5, d0, round_round[u8 & 3]);
+                        FCVTDL(d0, x5, RD_RTZ);
+                    }
+                    MARK2;
+                    FSD(d0, gback, gdoffset + 8);
+                    break;
                 case 0x0A:
                     INST_NAME("ROUNDSS Gx, Ex, Ib");
                     nextop = F8;
@@ -1124,61 +1180,17 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         FCVTDL(v0, x5, RD_RTZ);
                     }
                     break;
-                case 0x09:
-                    INST_NAME("ROUNDPD Gx, Ex, Ib");
+                case 0x0C:
+                    INST_NAME("BLENDPS Gx, Ex, Ib");
                     nextop = F8;
                     GETGX();
-                    GETEX(x2, 1, 8);
-                    u8 = F8;
-                    d0 = fpu_get_scratch(dyn);
-                    d1 = fpu_get_scratch(dyn);
-                    v1 = fpu_get_scratch(dyn);
-                    MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
-                    FCVTDL(d1, x3, RD_RTZ);
-
-                    // i = 0
-                    FLD(d0, wback, fixedaddress);
-                    FEQD(x4, d0, d0);
-                    BNEZ(x4, 8);
-                    B_MARK_nocond;
-                    // d0 is not nan
-                    FABSD(v1, d0);
-                    FLTD(x4, v1, d1);
-                    BNEZ(x4, 8);
-                    B_MARK_nocond;
-                    if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x4, x5);
-                        FCVTLD(x5, d0, RD_DYN);
-                        FCVTDL(d0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, u8);
-                    } else {
-                        FCVTLD(x5, d0, round_round[u8 & 3]);
-                        FCVTDL(d0, x5, RD_RTZ);
-                    }
-                    MARK;
-                    FSD(d0, gback, gdoffset + 0);
-
-                    // i = 1
-                    FLD(d0, wback, fixedaddress + 8);
-                    FEQD(x4, d0, d0);
-                    BNEZ(x4, 8);
-                    B_MARK2_nocond;
-                    // d0 is not nan
-                    FABSD(v1, d0);
-                    FLTD(x4, v1, d1);
-                    BNEZ(x4, 8);
-                    B_MARK2_nocond;
-                    if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x4, x5);
-                        FCVTLD(x5, d0, RD_DYN);
-                        FCVTDL(d0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, u8);
-                    } else {
-                        FCVTLD(x5, d0, round_round[u8 & 3]);
-                        FCVTDL(d0, x5, RD_RTZ);
-                    }
-                    MARK2;
-                    FSD(d0, gback, gdoffset + 8);
+                    GETEX(x2, 1, 12);
+                    u8 = F8 & 0b1111;
+                    for (int i = 0; i < 4; ++i)
+                        if (u8 & (1 << i)) {
+                            LWU(x1, wback, fixedaddress + i * 4);
+                            SW(x1, gback, gdoffset + i * 4);
+                        }
                     break;
                 case 0x0E:
                     INST_NAME("PBLENDW Gx, Ex, Ib");
