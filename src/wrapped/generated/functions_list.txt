@@ -2355,6 +2355,7 @@
 #() vFpppppip
 #() vFppppppu
 #() vFppppppp
+#() iFElppppp
 #() iFEpupppp
 #() iFEpUuppp
 #() iFEpLiLpp
@@ -3279,6 +3280,8 @@ wrappedcurl:
 - uFpup:
   - curl_easy_setopt
   - curl_share_setopt
+- iFlppppp:
+  - curl_global_init_mem
 wrappedd3dadapter9:
 - pWp:
   - D3DAdapter9GetProc

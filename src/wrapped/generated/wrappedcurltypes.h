@@ -13,10 +13,12 @@
 
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef uint32_t (*uFpup_t)(void*, uint32_t, void*);
+typedef int32_t (*iFlppppp_t)(intptr_t, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(curl_multi_setopt, iFpup_t) \
 	GO(curl_easy_setopt, uFpup_t) \
-	GO(curl_share_setopt, uFpup_t)
+	GO(curl_share_setopt, uFpup_t) \
+	GO(curl_global_init_mem, iFlppppp_t)
 
 #endif // __wrappedcurlTYPES_H_
