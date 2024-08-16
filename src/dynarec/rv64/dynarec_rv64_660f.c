@@ -684,6 +684,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SD(x3, gback, gdoffset + i * 8);
                     }
                     break;
+                case 0x29:
+                    INST_NAME("PCMPEQQ Gx, Ex"); // SSE4 opcode!
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0, 8);
+                    SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4); SNEZ(x3, x3); ADDI(x3, x3, -1));
+                    break;
                 case 0x2B:
                     INST_NAME("PACKUSDW Gx, Ex");
                     nextop = F8;
@@ -1293,6 +1300,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LWU(ed, gback, gdoffset + 4 * (u8 & 3));
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
+                        SMWRITE2();
+                    }
+                    break;
+                case 0x17:
+                    INST_NAME("EXTRACTPS Ew, Gx, Ib");
+                    nextop = F8;
+                    GETGX();
+                    GETED(1);
+                    u8 = F8;
+                    LWU(ed, gback, gdoffset + 4 * (u8 & 3));
+                    if (wback) {
+                        SW(ed, wback, fixedaddress);
                         SMWRITE2();
                     }
                     break;
