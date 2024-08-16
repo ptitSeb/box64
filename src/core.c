@@ -58,6 +58,7 @@ int box64_dynarec_test = 0;
 path_collection_t box64_addlibs = {0};
 int box64_maxcpu = 0;
 int box64_maxcpu_immutable = 0;
+int box64_is32bits = 0;
 #if defined(SD845) || defined(SD888) || defined(SD8G2) || defined(TEGRAX1)
 int box64_mmap32 = 1;
 #else
@@ -2084,6 +2085,11 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         FreeCollection(&ld_preload);
         return -1;
     }
+    #ifdef BOX32
+    box64_is32bits = FileIsX86ELF(my_context->fullpath);
+    if(box64_is32bits)
+        printf_log(LOG_INFO, "BOX64: Using Box32 to load 32bits elf\n");
+    #endif
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->fullpath):0;
