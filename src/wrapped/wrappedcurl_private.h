@@ -24,20 +24,20 @@ GO(curl_free, vFp)
 //GO(curl_getenv, 
 GO(curl_global_cleanup, vFv)
 GO(curl_global_init, uFu)
-//GO(curl_global_init_mem, 
+GOM(curl_global_init_mem, iFElppppp)
 GO(curl_global_sslset, uFupp)
-//GO(curl_maprintf, 
-//GO(curl_mfprintf, 
-//GO(curl_mime_addpart, 
-//GO(curl_mime_data, 
-//GO(curl_mime_data_cb, 
-//GO(curl_mime_encoder, 
-//GO(curl_mime_filedata, 
-//GO(curl_mime_filename, 
-//GO(curl_mime_free, 
-//GO(curl_mime_headers, 
-//GO(curl_mime_init, 
-//GO(curl_mime_name, 
+// GO(curl_maprintf,
+// GO(curl_mfprintf,
+GO(curl_mime_addpart, pFp)
+GO(curl_mime_data, iFppL)
+// GO(curl_mime_data_cb,
+// GO(curl_mime_encoder,
+GO(curl_mime_filedata, iFpp)
+// GO(curl_mime_filename,
+// GO(curl_mime_free,
+// GO(curl_mime_headers,
+GO(curl_mime_init, pFp)
+GO(curl_mime_name, iFpp)
 //GO(curl_mime_subparts, 
 //GO(curl_mime_type, 
 //GO(curl_mprintf, 
