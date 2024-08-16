@@ -669,12 +669,17 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xA4:
             nextop = F8;
             INST_NAME("SHLD Ed, Gd, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
-            GETED(1);
-            GETGD;
-            u8 = F8;
-            emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
-            WBACK;
+            if (geted_ib(dyn, addr, ninst, nextop)) {
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETED(1);
+                GETGD;
+                u8 = F8;
+                emit_shld32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+                WBACK;
+            } else {
+                FAKEED;
+                F8;
+            }
             break;
         case 0xAB:
             INST_NAME("BTS Ed, Gd");
@@ -716,13 +721,18 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xAC:
             nextop = F8;
             INST_NAME("SHRD Ed, Gd, Ib");
-            SETFLAGS(X_ALL, SF_SET_PENDING);
-            GETED(1);
-            GETGD;
-            u8 = F8;
-            u8 &= (rex.w ? 0x3f : 0x1f);
-            emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
-            WBACK;
+            if (geted_ib(dyn, addr, ninst, nextop)) {
+                SETFLAGS(X_ALL, SF_SET_PENDING);
+                GETED(1);
+                GETGD;
+                u8 = F8;
+                u8 &= (rex.w ? 0x3f : 0x1f);
+                emit_shrd32c(dyn, ninst, rex, ed, gd, u8, x3, x4);
+                WBACK;
+            } else {
+                FAKEED;
+                F8;
+            }
             break;
         case 0xAE:
             nextop = F8;
@@ -916,6 +926,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
                         SMWRITE();
+                    } else if (!rex.w) {
+                        ZEROUP(ed);
                     }
                     MARK;
                     break;
@@ -935,6 +947,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (wback) {
                         SDxw(ed, wback, fixedaddress);
                         SMWRITE();
+                    } else if (!rex.w) {
+                        ZEROUP(ed);
                     }
                     MARK;
                     break;
