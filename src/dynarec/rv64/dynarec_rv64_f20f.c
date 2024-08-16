@@ -416,6 +416,37 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             NEG(x2, x2);
             FMVDX(d0, x2);
             break;
+        case 0xD0:
+            INST_NAME("ADDSUBPS Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 12);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            // GX->f[0] -= EX->f[0];
+            FLW(d0, wback, fixedaddress + 0);
+            FLW(d1, gback, gdoffset + 0);
+            FSUBS(d1, d1, d0);
+            FSW(d1, gback, gdoffset + 0);
+
+            // GX->f[1] += EX->f[1];
+            FLW(d0, wback, fixedaddress + 4);
+            FLW(d1, gback, gdoffset + 4);
+            FADDS(d1, d1, d0);
+            FSW(d1, gback, gdoffset + 4);
+
+            // GX->f[2] -= EX->f[2];
+            FLW(d0, wback, fixedaddress + 8);
+            FLW(d1, gback, gdoffset + 8);
+            FSUBS(d1, d1, d0);
+            FSW(d1, gback, gdoffset + 8);
+
+            // GX->f[3] += EX->f[3];
+            FLW(d0, wback, fixedaddress + 12);
+            FLW(d1, gback, gdoffset + 12);
+            FADDS(d1, d1, d0);
+            FSW(d1, gback, gdoffset + 12);
+            break;
         case 0xE6:
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;

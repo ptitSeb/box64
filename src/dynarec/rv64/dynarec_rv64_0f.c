@@ -66,21 +66,26 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if(MODREG) {
                 switch(nextop) {
                     case 0xD0:
-                        //TODO
-                        DEFAULT;
-                        /*INST_NAME("FAKE xgetbv");
-                        nextop = F8;
-                        addr = fakeed(dyn, addr, ninst, nextop);
-                        SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
-                        GETIP(ip);
-                        STORE_XEMU_CALL(x3);
-                        CALL(native_ud, -1);
-                        LOAD_XEMU_CALL();
-                        jump_to_epilog(dyn, 0, xRIP, ninst);
-                        *need_epilog = 0;
-                        *ok = 0;*/
+                        INST_NAME("XGETBV");
+                        AND(x1, xRCX, xMASK);
+                        BEQZ_MARK(x1);
+                        UDF();
+                        MARK;
+                        MOV32w(xRAX, 0b111);
+                        MOV32w(xRDX, 0);
                         break;
-
+                    case 0xE0:
+                    case 0xE1:
+                    case 0xE2:
+                    case 0xE3:
+                    case 0xE4:
+                    case 0xE5:
+                    case 0xE6:
+                    case 0xE7:
+                        INST_NAME("SMSW Ed");
+                        ed = xRAX + (nextop & 7) + (rex.b << 3);
+                        MOV32w(ed, (1 << 0) | (1 << 4)); // only PE and ET set...
+                        break;
                     case 0xF9:
                         INST_NAME("RDTSCP");
                         NOTEST(x1);
