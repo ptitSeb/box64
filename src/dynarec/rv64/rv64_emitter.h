@@ -796,14 +796,14 @@ f28–31  ft8–11  FP temporaries                  Caller
         else                                      \
             CTZW(rd, rs);                         \
     } else {                                      \
-        NEG(s2, ed);                              \
-        AND(s2, s2, ed);                          \
-        TABLE64(x3, 0x03f79d71b4ca8b09ULL);       \
-        MUL(s2, s2, x3);                          \
+        NEG(s2, rs);                              \
+        AND(s2, s2, rs);                          \
+        TABLE64(s1, 0x03f79d71b4ca8b09ULL);       \
+        MUL(s2, s2, s1);                          \
         SRLI(s2, s2, 64 - 6);                     \
         TABLE64(s1, (uintptr_t) & deBruijn64tab); \
         ADD(s1, s1, s2);                          \
-        LBU(gd, s1, 0);                           \
+        LBU(rd, s1, 0);                           \
     }
 
 // Count set bits
