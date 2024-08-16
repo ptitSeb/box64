@@ -927,10 +927,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         sse_reflect_reg(dyn, ninst, x6, ed);
                         ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                        if (ed != x1) {
-                            MV(x1, ed);
-                        }
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        if (ed != x1) MV(x1, ed);
                     }
                     // prepare rest arguments
                     MV(x2, xRDX);
@@ -948,7 +946,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ADDI(x2, xZR, 31);
                         SUB(xRCX, x2, xRCX);
                     } else {
-                        CTZxw(xRCX, xRCX, 0, x1, x2);
+                        CTZxw(xRCX, x1, 0, x2, x3);
                     }
                     break;
                 case 0xDB:
@@ -1350,6 +1348,37 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     MOV32w(x4, u8);
                     CALL(native_pclmul, -1);
+                    break;
+                case 0x63:
+                    INST_NAME("PCMPISTRI Gx, Ex, Ib");
+                    SETFLAGS(X_ALL, SF_SET_DF);
+                    nextop = F8;
+                    GETG;
+                    sse_reflect_reg(dyn, ninst, x6, gd);
+                    ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    if (MODREG) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        sse_reflect_reg(dyn, ninst, x6, ed);
+                        ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                    } else {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        if (ed != x1) MV(x1, ed);
+                    }
+                    u8 = F8;
+                    MOV32w(x3, u8);
+                    CALL(sse42_compare_string_implicit_len, x1);
+                    ZEROUP(x1);
+                    BNEZ_MARK(x1);
+                    MOV32w(xRCX, (u8 & 1) ? 8 : 16);
+                    B_NEXT_nocond;
+                    MARK;
+                    if (u8 & 0b1000000) {
+                        CLZxw(xRCX, x1, 0, x2, x3, x4);
+                        ADDI(x2, xZR, 31);
+                        SUB(xRCX, x2, xRCX);
+                    } else {
+                        CTZxw(xRCX, x1, 0, x2, x3);
+                    }
                     break;
                 case 0xDF:
                     INST_NAME("AESKEYGENASSIST Gx, Ex, Ib"); // AES-NI
