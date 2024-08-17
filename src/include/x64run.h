@@ -9,8 +9,8 @@ int RunTest(x64test_t *test);
 void DynaRun(x64emu_t *emu);
 
 uint32_t LibSyscall(x64emu_t *emu);
-void PltResolver(x64emu_t* emu);
-extern uintptr_t pltResolver;
+void PltResolver64(x64emu_t* emu);
+extern uintptr_t pltResolver64;
 int GetTID(void);
 
 #endif //__X64RUN_H_

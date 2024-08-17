@@ -13,7 +13,7 @@
 #define SHT_CHECKSUM 0x6ffffff8
 #endif
 
-const char* DumpSection(Elf64_Shdr *s, char* SST) {
+static const char* DumpSection(Elf64_Shdr *s, char* SST) {
     static char buff[400];
     switch (s->sh_type) {
         case SHT_NULL:
@@ -64,7 +64,7 @@ const char* DumpSection(Elf64_Shdr *s, char* SST) {
     return buff;
 }
 
-const char* DumpDynamic(Elf64_Dyn *s) {
+static const char* DumpDynamic(Elf64_Dyn *s) {
     static char buff[200];
     switch (s->d_tag) {
         case DT_NULL:
@@ -148,7 +148,7 @@ const char* DumpDynamic(Elf64_Dyn *s) {
     return buff;
 }
 
-const char* DumpPHEntry(Elf64_Phdr *e)
+static const char* DumpPHEntry(Elf64_Phdr *e)
 {
     static char buff[500];
     memset(buff, 0, sizeof(buff));
@@ -175,7 +175,7 @@ const char* DumpPHEntry(Elf64_Phdr *e)
     return buff;
 }
 
-const char* DumpRelType(int t)
+const char* DumpRelType64(int t)
 {
     static char buff[50];
     memset(buff, 0, sizeof(buff));
@@ -229,7 +229,7 @@ const char* DumpRelType(int t)
     return buff;
 }
 
-const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version)
+static const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version)
 {
     static char buff[4096];
     const char* vername = (version==-1)?"(none)":((version==0)?"*local*":((version==1)?"*global*":GetSymbolVersion(h, version)));
@@ -241,16 +241,16 @@ const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version)
     return buff;
 }
 
-const char* SymName(elfheader_t *h, Elf64_Sym* sym)
+const char* SymName64(elfheader_t *h, Elf64_Sym* sym)
 {
     return h->DynStr+sym->st_name;
 }
-const char* IdxSymName(elfheader_t *h, int sym)
+static const char* IdxSymName(elfheader_t *h, int sym)
 {
-    return h->DynStr+h->DynSym[sym].st_name;
+    return h->DynStr+h->DynSym._64[sym].st_name;
 }
 
-void DumpMainHeader(Elf64_Ehdr *header, elfheader_t *h)
+void DumpMainHeader64(Elf64_Ehdr *header, elfheader_t *h)
 {
     if(box64_dump) {
         printf_dump(LOG_NEVER, "ELF Dump main header\n");
@@ -266,108 +266,116 @@ void DumpMainHeader(Elf64_Ehdr *header, elfheader_t *h)
 
         printf_dump(LOG_NEVER, "ELF Dump PEntries (%zu)\n", h->numPHEntries);
         for (size_t i=0; i<h->numPHEntries; ++i)
-            printf_dump(LOG_NEVER, "  PHEntry %04zu : %s\n", i, DumpPHEntry(h->PHEntries+i));
+            printf_dump(LOG_NEVER, "  PHEntry %04zu : %s\n", i, DumpPHEntry(h->PHEntries._64+i));
         printf_dump(LOG_NEVER, "ELF Dump PEntries ====\n");
 
         printf_dump(LOG_NEVER, "ELF Dump Sections (%zu)\n", h->numSHEntries);
         for (size_t i=0; i<h->numSHEntries; ++i)
-            printf_dump(LOG_NEVER, "  Section %04zu : %s\n", i, DumpSection(h->SHEntries+i, h->SHStrTab));
+            printf_dump(LOG_NEVER, "  Section %04zu : %s\n", i, DumpSection(h->SHEntries._64+i, h->SHStrTab));
         printf_dump(LOG_NEVER, "ELF Dump Sections ====\n");
     }
 }
 
-void DumpSymTab(elfheader_t *h)
+void DumpSymTab64(elfheader_t *h)
 {
-    if(box64_dump && h->SymTab) {
+    if(box64_dump && h->SymTab._64) {
         const char* name = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump SymTab(%zu)=\n", h->numSymTab);
         for (size_t i=0; i<h->numSymTab; ++i)
             printf_dump(LOG_NEVER, "  %s:SymTab[%zu] = \"%s\", value=%p, size=%ld, info/other=%d/%d index=%d\n", name, 
-                i, h->StrTab+h->SymTab[i].st_name, (void*)h->SymTab[i].st_value, h->SymTab[i].st_size,
-                h->SymTab[i].st_info, h->SymTab[i].st_other, h->SymTab[i].st_shndx);
+                i, h->StrTab+h->SymTab._64[i].st_name, (void*)h->SymTab._64[i].st_value, h->SymTab._64[i].st_size,
+                h->SymTab._64[i].st_info, h->SymTab._64[i].st_other, h->SymTab._64[i].st_shndx);
         printf_dump(LOG_NEVER, "ELF Dump SymTab=====\n");
     }
 }
 
-void DumpDynamicSections(elfheader_t *h)
+void DumpDynamicSections64(elfheader_t *h)
 {
-    if(box64_dump && h->Dynamic) {
+    if(box64_dump && h->Dynamic._64) {
         printf_dump(LOG_NEVER, "ELF Dump Dynamic(%zu)=\n", h->numDynamic);
         for (size_t i=0; i<h->numDynamic; ++i)
-            printf_dump(LOG_NEVER, "  Dynamic %04zu : %s\n", i, DumpDynamic(h->Dynamic+i));
+            printf_dump(LOG_NEVER, "  Dynamic %04zu : %s\n", i, DumpDynamic(h->Dynamic._64+i));
         printf_dump(LOG_NEVER, "ELF Dump Dynamic=====\n");
     }
 }
 
-void DumpDynSym(elfheader_t *h)
+void DumpDynSym64(elfheader_t *h)
 {
-    if(box64_dump && h->DynSym) {
+    if(box64_dump && h->DynSym._64) {
         const char* name = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump DynSym(%zu)=\n", h->numDynSym);
         for (size_t i=0; i<h->numDynSym; ++i) {
             int version = h->VerSym?((Elf64_Half*)((uintptr_t)h->VerSym+h->delta))[i]:-1;
-            printf_dump(LOG_NEVER, "  %s:DynSym[%zu] = %s\n", name, i, DumpSym(h, h->DynSym+i, version));
+            printf_dump(LOG_NEVER, "  %s:DynSym[%zu] = %s\n", name, i, DumpSym(h, h->DynSym._64+i, version));
         }
         printf_dump(LOG_NEVER, "ELF Dump DynSym=====\n");
     }
 }
 
+void DumpDynamicNeeded32(elfheader_t *h) { /* TODO */}
 void DumpDynamicNeeded(elfheader_t *h)
 {
-    if(box64_dump && h->DynStrTab) {
-        printf_dump(LOG_NEVER, "ELF Dump DT_NEEDED=====\n");
-        for (size_t i=0; i<h->numDynamic; ++i)
-            if(h->Dynamic[i].d_tag==DT_NEEDED) {
-                printf_dump(LOG_NEVER, "  Needed : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val + h->delta);
-            }
-        printf_dump(LOG_NEVER, "ELF Dump DT_NEEDED=====\n");
-    }
+    if(box64_is32bits)
+        DumpDynamicNeeded32(h);
+    else
+        if(box64_dump && h->DynStrTab) {
+            printf_dump(LOG_NEVER, "ELF Dump DT_NEEDED=====\n");
+            for (size_t i=0; i<h->numDynamic; ++i)
+                if(h->Dynamic._64[i].d_tag==DT_NEEDED) {
+                    printf_dump(LOG_NEVER, "  Needed : %s\n", h->DynStrTab+h->Dynamic._64[i].d_un.d_val + h->delta);
+                }
+            printf_dump(LOG_NEVER, "ELF Dump DT_NEEDED=====\n");
+        }
 }
 
+void DumpDynamicRPath32(elfheader_t *h) { /* TODO */}
 void DumpDynamicRPath(elfheader_t *h)
 {
-    if(box64_dump && h->DynStrTab) {
-        printf_dump(LOG_NEVER, "ELF Dump DT_RPATH/DT_RUNPATH=====\n");
-        for (size_t i=0; i<h->numDynamic; ++i) {
-            if(h->Dynamic[i].d_tag==DT_RPATH) {
-                printf_dump(LOG_NEVER, "   RPATH : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val + h->delta);
+    if(box64_is32bits)
+        DumpDynamicRPath32(h);
+    else
+        if(box64_dump && h->DynStrTab) {
+            printf_dump(LOG_NEVER, "ELF Dump DT_RPATH/DT_RUNPATH=====\n");
+            for (size_t i=0; i<h->numDynamic; ++i) {
+                if(h->Dynamic._64[i].d_tag==DT_RPATH) {
+                    printf_dump(LOG_NEVER, "   RPATH : %s\n", h->DynStrTab+h->Dynamic._64[i].d_un.d_val + h->delta);
+                }
+                if(h->Dynamic._64[i].d_tag==DT_RUNPATH) {
+                    printf_dump(LOG_NEVER, " RUNPATH : %s\n", h->DynStrTab+h->Dynamic._64[i].d_un.d_val + h->delta);
+                }
             }
-            if(h->Dynamic[i].d_tag==DT_RUNPATH) {
-                printf_dump(LOG_NEVER, " RUNPATH : %s\n", h->DynStrTab+h->Dynamic[i].d_un.d_val + h->delta);
-            }
+            printf_dump(LOG_NEVER, "=====ELF Dump DT_RPATH/DT_RUNPATH\n");
         }
-        printf_dump(LOG_NEVER, "=====ELF Dump DT_RPATH/DT_RUNPATH\n");
-    }
 }
 
-void DumpRelTable(elfheader_t *h, int cnt, Elf64_Rel *rel, const char* name)
+void DumpRelTable64(elfheader_t *h, int cnt, Elf64_Rel *rel, const char* name)
 {
     if(box64_dump) {
         const char* elfname = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump %s Table(%d) @%p\n", name, cnt, rel);
         for (int i = 0; i<cnt; ++i)
             printf_dump(LOG_NEVER, "  %s:Rel[%d] = %p (0x%lX: %s, sym=0x%0lX/%s)\n", elfname,
-                i, (void*)rel[i].r_offset, rel[i].r_info, DumpRelType(ELF64_R_TYPE(rel[i].r_info)), 
+                i, (void*)rel[i].r_offset, rel[i].r_info, DumpRelType64(ELF64_R_TYPE(rel[i].r_info)), 
                 ELF64_R_SYM(rel[i].r_info), IdxSymName(h, ELF64_R_SYM(rel[i].r_info)));
         printf_dump(LOG_NEVER, "ELF Dump Rel Table=====\n");
     }
 }
 
-void DumpRelATable(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name)
+void DumpRelATable64(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name)
 {
     if(box64_dump && h->rela) {
         const char* elfname = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump %s Table(%d) @%p\n", name, cnt, rela);
         for (int i = 0; i<cnt; ++i)
             printf_dump(LOG_NEVER, "  %s:%s[%d] = %p (0x%lX: %s, sym=0x%lX/%s) Addend=0x%lx\n", elfname, name,
-                i, (void*)rela[i].r_offset, rela[i].r_info, DumpRelType(ELF64_R_TYPE(rela[i].r_info)), 
+                i, (void*)rela[i].r_offset, rela[i].r_info, DumpRelType64(ELF64_R_TYPE(rela[i].r_info)), 
                 ELF64_R_SYM(rela[i].r_info), IdxSymName(h, ELF64_R_SYM(rela[i].r_info)), 
                 rela[i].r_addend);
         printf_dump(LOG_NEVER, "ELF Dump %s Table=====\n", name);
     }
 }
 
-void DumpRelRTable(elfheader_t *h, int cnt, Elf64_Relr *relr, const char *name)
+void DumpRelRTable64(elfheader_t *h, int cnt, Elf64_Relr *relr, const char *name)
 {
     if(box64_dump && h->relr) {
         const char* elfname = ElfName(h);

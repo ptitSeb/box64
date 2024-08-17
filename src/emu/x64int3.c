@@ -127,14 +127,14 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 const char *s = bridge->name;
                 if(!s)
                     s = GetNativeName((void*)a);
-                if(a==(uintptr_t)PltResolver) {
+                if(a==(uintptr_t)PltResolver64) {
                     if(cycle_log) {
                         uintptr_t addr = *((uint64_t*)(R_RSP));
                         int slot = *((uint64_t*)(R_RSP+8));
                         elfheader_t *h = (elfheader_t*)addr;
                         Elf64_Rela * rel = (Elf64_Rela *)(h->jmprel + h->delta) + slot;
-                        Elf64_Sym *sym = &h->DynSym[ELF64_R_SYM(rel->r_info)];
-                        const char* symname = SymName(h, sym);
+                        Elf64_Sym *sym = &h->DynSym._64[ELF64_R_SYM(rel->r_info)];
+                        const char* symname = SymName64(h, sym);
                         snprintf(buff, 256, "%04d|PltResolver \"%s\"", tid, symname?symname:"???");
                     } else {
                         snprintf(buff, 256, "%s", " ... ");
