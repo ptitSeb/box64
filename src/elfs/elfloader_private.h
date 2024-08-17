@@ -203,10 +203,14 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec);
 
 const char* BindSym(int bind);
 
-Elf64_Half GetSymbolVersionFlag(elfheader_t* h, int index);
+uint16_t GetSymbolVersionFlag(elfheader_t* h, int index);
 
 uint32_t old_elf_hash(const char* name);
 uint32_t new_elf_hash(const char *name);
+
+Elf32_Sym* ElfLookup32(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt);
+Elf32_Sym* ElfSymTabLookup32(elfheader_t* h, const char* symname);
+Elf32_Sym* ElfDynSymLookup32(elfheader_t* h, const char* symname);
 
 Elf64_Sym* ElfLookup64(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt);
 Elf64_Sym* ElfSymTabLookup64(elfheader_t* h, const char* symname);

@@ -374,6 +374,11 @@ static void new_elf_hash_dump(elfheader_t* h)
     printf_log(LOG_NONE, "\n===============\n");
 }
 
+#ifndef BOX32
+Elf32_Sym* ElfLookup32(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt) { return NULL; }
+Elf32_Sym* ElfSymTabLookup32(elfheader_t* h, const char* symname) { return NULL; }
+Elf32_Sym* ElfDynSymLookup32(elfheader_t* h, const char* symname) { return NULL; }
+#endif
 Elf64_Sym* ElfLookup64(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
 {
     if(h->gnu_hash)

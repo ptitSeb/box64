@@ -46,7 +46,7 @@ void* my__IO_2_1_stdin_  = NULL;
 void* my__IO_2_1_stdout_ = NULL;
 
 // return the index of header (-1 if it doesn't exist)
-int getElfIndex(box64context_t* ctx, elfheader_t* head) {
+static int getElfIndex(box64context_t* ctx, elfheader_t* head) {
     for (int i=0; i<ctx->elfsize; ++i)
         if(ctx->elfs[i]==head)
             return i;
@@ -463,17 +463,10 @@ static int IsSymInElfSpace(const elfheader_t* h, Elf64_Sym* sym)
     if(!h || !sym)
         return 0;
     uintptr_t addr = (uintptr_t)sym;
-    if(box64_is32bits) {
-        if(h->SymTab._32 && addr>=(uintptr_t)h->SymTab._32 && addr<(uintptr_t)&h->SymTab._32[h->numSymTab])
-            return 1;
-        if(h->DynSym._32 && addr>=(uintptr_t)h->DynSym._32 && addr<(uintptr_t)&h->DynSym._32[h->numDynSym])
-            return 1;
-    } else {
-        if(h->SymTab._64 && addr>=(uintptr_t)h->SymTab._64 && addr<(uintptr_t)&h->SymTab._64[h->numSymTab])
-            return 1;
-        if(h->DynSym._64 && addr>=(uintptr_t)h->DynSym._64 && addr<(uintptr_t)&h->DynSym._64[h->numDynSym])
-            return 1;
-    }
+    if(h->SymTab._64 && addr>=(uintptr_t)h->SymTab._64 && addr<(uintptr_t)&h->SymTab._64[h->numSymTab])
+        return 1;
+    if(h->DynSym._64 && addr>=(uintptr_t)h->DynSym._64 && addr<(uintptr_t)&h->DynSym._64[h->numDynSym])
+        return 1;
     return 0;
 }
 static elfheader_t* FindElfSymbol(box64context_t *context, Elf64_Sym* sym)
@@ -487,7 +480,7 @@ static elfheader_t* FindElfSymbol(box64context_t *context, Elf64_Sym* sym)
     return NULL;
 }
 
-int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t** p, size_t size, int version, const char* vername, int veropt)
+static int FindR64COPYRel(elfheader_t* h, const char* name, uintptr_t *offs, uint64_t** p, size_t size, int version, const char* vername, int veropt)
 {
     if(!h)
         return 0;
@@ -535,7 +528,7 @@ EXPORT uintptr_t my__dl_tlsdesc_undefweak(x64emu_t* emu)
     return td->arg;
 }
 
-void GrabX64CopyMainElfReloc(elfheader_t* head)
+static void GrabX64CopyMainElfReloc(elfheader_t* head)
 {
     if(head->rela) {
         int cnt = head->relasz / head->relaent;
@@ -553,21 +546,6 @@ void GrabX64CopyMainElfReloc(elfheader_t* head)
                 int veropt = flags?0:1;
                 uintptr_t offs = sym->st_value + head->delta;
                 AddUniqueSymbol(my_context->globdata, symname, offs, sym->st_size, version, vername, veropt);
-            }
-        }
-    }
-}
-void CheckGNUUniqueBindings(elfheader_t* head)
-{
-    if(head->rela) {
-        int cnt = head->relasz / head->relaent;
-        Elf64_Rela* rela = (Elf64_Rela *)(head->rela + head->delta);
-        printf_dump(LOG_DEBUG, "Checking for symbol with STB_GNU_UNIQUE bindingsfor %s\n", head->name);
-        for (int i=0; i<cnt; ++i) {
-            int bind = ELF64_ST_BIND(rela[i].r_info);
-            if(bind == STB_GNU_UNIQUE) {
-                head->gnuunique = 1;
-                return; // can stop searching
             }
         }
     }
@@ -857,7 +835,12 @@ static int RelocateElfRELR(elfheader_t *head, int cnt, Elf64_Relr *relr) {
     return 0;
 }
 
-int RelocateElf32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head) { /* TODO */ return -1; }
+int RelocateElf32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
+#ifndef BOX32
+{ return -1; }
+#else
+ ;
+#endif
 int RelocateElf64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
     if((head->flags&DF_BIND_NOW) && !bindnow) {
