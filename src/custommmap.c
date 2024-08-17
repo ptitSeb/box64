@@ -15,6 +15,7 @@
 
 typedef void x64emu_t;
 extern void* mapallmem;
+extern int box64_is32bits;
 void setProtection(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
 void* internal_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
@@ -28,7 +29,7 @@ extern int box64_mmap32;
 EXPORT void* mmap64(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
 {
     void* ret;
-    if(!addr && ((running32bits && box64_mmap32) || (flags&0x40)))
+    if(!addr && ((running32bits && box64_mmap32) || (flags&0x40) || box64_is32bits))
         ret = my_mmap64(NULL, addr, length, prot, flags | 0x40, fd, offset);
     else
         ret = internal_mmap(addr, length, prot, flags, fd, offset);

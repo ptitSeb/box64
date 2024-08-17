@@ -202,7 +202,12 @@ const char* ElfPath(elfheader_t* head)
     return head->path;
 }
 
-int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin) { /*TODO*/ return 1; }
+int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin)
+#ifndef BOX32
+{ return 1; }
+#else
+ ;
+#endif
 int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 {
     if(box64_is32bits)

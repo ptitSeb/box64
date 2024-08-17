@@ -2087,8 +2087,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     #ifdef BOX32
     box64_is32bits = FileIsX86ELF(my_context->fullpath);
-    if(box64_is32bits)
+    if(box64_is32bits) {
         printf_log(LOG_INFO, "BOX64: Using Box32 to load 32bits elf\n");
+        reserveHighMem();
+    }
     #endif
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
     if(!elf_header) {
