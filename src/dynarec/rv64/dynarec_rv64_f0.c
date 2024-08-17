@@ -300,17 +300,19 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 LD(x9, xEmu, offsetof(x64emu_t, context));
                                 ADDI(x9, x9, offsetof(box64context_t, mutex_16b));
                                 ADDI(x4, xZR, 1);
-                                MARKLOCK;
+                                MARK2;
                                 AMOSWAP_W(x4, x4, x9, 1, 1);
                                 // x4 == 1 if locked
-                                BNEZ_MARKLOCK(x4);
+                                BNEZ_MARK2(x4);
 
                                 SMDMB();
-                                LD(x2, wback, 0);
                                 LD(x3, wback, 8);
+                                MARKLOCK;
+                                LR_D(x2, wback, 1, 1);
                                 BNE_MARK(x2, xRAX);
                                 BNE_MARK(x3, xRDX);
-                                SD(xRBX, wback, 0);
+                                SC_D(x5, xRBX, wback, 1, 1);
+                                BNEZ_MARKLOCK(x5);
                                 SD(xRCX, wback, 8);
                                 ORI(xFlags, xFlags, 1<<F_ZF);
                                 B_MARK3_nocond;
