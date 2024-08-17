@@ -55,7 +55,7 @@ int getElfIndex(box64context_t* ctx, elfheader_t* head) {
 
 elfheader_t* LoadAndCheckElfHeader(FILE* f, const char* name, int exec)
 {
-    elfheader_t *h = ParseElfHeader64(f, name, exec);
+    elfheader_t *h = box64_is32bits?ParseElfHeader32(f, name, exec):ParseElfHeader64(f, name, exec);
     if(!h)
         return NULL;
 

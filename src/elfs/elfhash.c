@@ -18,7 +18,12 @@
 #include "elfload_dump.h"
 #include "elfloader_private.h"
 
-const char* GetSymbolVersion32(elfheader_t* h, int version) { /* TODO */ return NULL; }
+const char* GetSymbolVersion32(elfheader_t* h, int version)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
 const char* GetSymbolVersion64(elfheader_t* h, int version)
 {
     if(version<2)
@@ -44,7 +49,12 @@ const char* GetSymbolVersion(elfheader_t* h, int version)
     return box64_is32bits?GetSymbolVersion32(h, version):GetSymbolVersion64(h, version);
 }
 
-const char* GetParentSymbolVersion32(elfheader_t* h, int index) { /* TODO */ return NULL; }
+const char* GetParentSymbolVersion32(elfheader_t* h, int index)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
 const char* GetParentSymbolVersion64(elfheader_t* h, int index)
 {
     if(!h->VerDef._64 || (index<1))
@@ -111,7 +121,12 @@ uint16_t GetSymbolVersionFlag(elfheader_t* h, int index) {
 }
 
 
-int GetVersionIndice32(elfheader_t* h, const char* vername) { /* TODO */ return 0; }
+int GetVersionIndice32(elfheader_t* h, const char* vername)
+#ifndef BOX32
+{ return 0; }
+#else
+ ;
+#endif
 int GetVersionIndice64(elfheader_t* h, const char* vername)
 {
     if(!vername)
@@ -132,7 +147,12 @@ int GetVersionIndice(elfheader_t* h, const char* vername)
     return box64_is32bits?GetVersionIndice32(h, vername):GetVersionIndice64(h, vername);
 }
 
-int GetNeededVersionCnt32(elfheader_t* h, const char* libname) { /* TODO */ return 0; }
+int GetNeededVersionCnt32(elfheader_t* h, const char* libname)
+#ifndef BOX32
+{ return 0; }
+#else
+ ;
+#endif
 int GetNeededVersionCnt64(elfheader_t* h, const char* libname)
 {
     if(!libname)
@@ -153,7 +173,12 @@ int GetNeededVersionCnt(elfheader_t* h, const char* libname)
     return box64_is32bits?GetNeededVersionCnt32(h, libname):GetNeededVersionCnt64(h, libname);
 }
 
-const char* GetNeededVersionString32(elfheader_t* h, const char* libname, int idx) { /* TODO */ return NULL; }
+const char* GetNeededVersionString32(elfheader_t* h, const char* libname, int idx)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
 const char* GetNeededVersionString64(elfheader_t* h, const char* libname, int idx)
 {
     if(!libname)

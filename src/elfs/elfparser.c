@@ -61,6 +61,9 @@ static void LoadNamedSection(FILE *f, Elf64_Shdr *s, int size, char* SHStrTab, c
     }
 }
 
+#ifndef BOX32
+elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec) { return NULL; }
+#endif
 elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
 {
     Elf64_Ehdr header;

@@ -174,7 +174,9 @@ static const char* DumpPHEntry(Elf64_Phdr *e)
     }
     return buff;
 }
-
+#ifndef BOX32
+const char* DumpRelType32(int t) { return NULL; }
+#endif
 const char* DumpRelType64(int t)
 {
     static char buff[50];
@@ -241,6 +243,9 @@ static const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version)
     return buff;
 }
 
+#ifndef BOX32
+const char* SymName32(elfheader_t *h, Elf32_Sym* sym) { return NULL; }
+#endif
 const char* SymName64(elfheader_t *h, Elf64_Sym* sym)
 {
     return h->DynStr+sym->st_name;
@@ -250,6 +255,9 @@ static const char* IdxSymName(elfheader_t *h, int sym)
     return h->DynStr+h->DynSym._64[sym].st_name;
 }
 
+#ifndef BOX32
+void DumpMainHeader32(Elf32_Ehdr *header, elfheader_t *h) { }
+#endif
 void DumpMainHeader64(Elf64_Ehdr *header, elfheader_t *h)
 {
     if(box64_dump) {
@@ -275,7 +283,9 @@ void DumpMainHeader64(Elf64_Ehdr *header, elfheader_t *h)
         printf_dump(LOG_NEVER, "ELF Dump Sections ====\n");
     }
 }
-
+#ifndef BOX32
+void DumpSymTab32(elfheader_t *h) { }
+#endif
 void DumpSymTab64(elfheader_t *h)
 {
     if(box64_dump && h->SymTab._64) {
@@ -289,6 +299,9 @@ void DumpSymTab64(elfheader_t *h)
     }
 }
 
+#ifndef BOX32
+void DumpDynamicSections32(elfheader_t *h) { }
+#endif
 void DumpDynamicSections64(elfheader_t *h)
 {
     if(box64_dump && h->Dynamic._64) {
@@ -299,6 +312,9 @@ void DumpDynamicSections64(elfheader_t *h)
     }
 }
 
+#ifndef BOX32
+void DumpDynSym32(elfheader_t *h) { }
+#endif
 void DumpDynSym64(elfheader_t *h)
 {
     if(box64_dump && h->DynSym._64) {
@@ -312,7 +328,12 @@ void DumpDynSym64(elfheader_t *h)
     }
 }
 
-void DumpDynamicNeeded32(elfheader_t *h) { /* TODO */}
+void DumpDynamicNeeded32(elfheader_t *h)
+#ifndef BOX32
+ {  }
+#else
+ ;
+#endif
 void DumpDynamicNeeded(elfheader_t *h)
 {
     if(box64_is32bits)
@@ -328,7 +349,12 @@ void DumpDynamicNeeded(elfheader_t *h)
         }
 }
 
-void DumpDynamicRPath32(elfheader_t *h) { /* TODO */}
+void DumpDynamicRPath32(elfheader_t *h) 
+#ifndef BOX32
+{  }
+#else
+ ;
+#endif
 void DumpDynamicRPath(elfheader_t *h)
 {
     if(box64_is32bits)
@@ -348,6 +374,9 @@ void DumpDynamicRPath(elfheader_t *h)
         }
 }
 
+#ifndef BOX32
+void DumpRelTable32(elfheader_t *h, int cnt, Elf32_Rel *rel, const char* name) { }
+#endif
 void DumpRelTable64(elfheader_t *h, int cnt, Elf64_Rel *rel, const char* name)
 {
     if(box64_dump) {
@@ -360,7 +389,9 @@ void DumpRelTable64(elfheader_t *h, int cnt, Elf64_Rel *rel, const char* name)
         printf_dump(LOG_NEVER, "ELF Dump Rel Table=====\n");
     }
 }
-
+#ifndef BOX32
+void DumpRelATable32(elfheader_t *h, int cnt, Elf32_Rela *rela, const char* name) { }
+#endif
 void DumpRelATable64(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name)
 {
     if(box64_dump && h->rela) {
@@ -375,6 +406,9 @@ void DumpRelATable64(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name
     }
 }
 
+#ifndef BOX32
+void DumpRelRTable32(elfheader_t *h, int cnt, Elf32_Relr *relr, const char *name) { }
+#endif
 void DumpRelRTable64(elfheader_t *h, int cnt, Elf64_Relr *relr, const char *name)
 {
     if(box64_dump && h->relr) {

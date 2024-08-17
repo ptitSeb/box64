@@ -198,6 +198,7 @@ typedef struct elfheader_s {
 #define ELF64_ST_VISIBILITY(o)   ((o) & 0x03)
 #endif
 
+elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec);
 elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec);
 
 const char* BindSym(int bind);

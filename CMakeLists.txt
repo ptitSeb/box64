@@ -363,6 +363,12 @@ if(NOT STATICBUILD)
         "${BOX64_ROOT}/src/librarian/globalsymbols.c"
         )
 endif()
+if(BOX32)
+    list(APPEND ELFLOADER_SRC
+        "${BOX64_ROOT}/src/elfs/elfparser32.c"
+        "${BOX64_ROOT}/src/elfs/elfload_dump32.c"
+    )
+endif()
 if(NOT ANDROID)
     list(APPEND ELFLOADER_SRC
         "${BOX64_ROOT}/src/libtools/obstack.c"
