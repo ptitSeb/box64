@@ -2145,6 +2145,18 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         FreeCollection(&ld_preload);
         return -1;
     }
+    if(!strcmp(prgname, "heroic")) {
+        // check if heroic needs patching (for the 2.15.1 version)
+        uint8_t* address = GetBaseAddress(elf_header);
+        if(address[0x422f6e1]==0x72 && address[0x422f6e2]==0x44 && address[0x422f6e0]==0xF8 && address[0x422f727]==0xcc) {
+            printf_log(LOG_INFO, "Patched heroic!\n");
+            uintptr_t page = ((uintptr_t)&address[0x422f6e1])&~(box64_pagesize-1);
+            int prot = getProtection(page);
+            mprotect((void*)page, box64_pagesize, PROT_READ|PROT_WRITE|PROT_EXEC);
+            address[0x422f6e1]=0x90; address[0x422f6e2]=0x90;
+            mprotect((void*)page, box64_pagesize, prot);
+        }
+    }
     if(ElfCheckIfUseTCMallocMinimal(elf_header)) {
         if(!box64_tcmalloc_minimal) {
             // need to reload with tcmalloc_minimal as a LD_PRELOAD!
