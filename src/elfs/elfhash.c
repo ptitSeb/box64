@@ -18,14 +18,20 @@
 #include "elfload_dump.h"
 #include "elfloader_private.h"
 
-const char* GetSymbolVersion(elfheader_t* h, int version)
+const char* GetSymbolVersion32(elfheader_t* h, int version)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
+const char* GetSymbolVersion64(elfheader_t* h, int version)
 {
     if(version<2)
         return NULL;
     /*if(version==1)
         return "*";*/
-    if(h->VerNeed) {
-        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+    if(h->VerNeed._64) {
+        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed._64 + h->delta);
         while(ver) {
             Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
             for(int j=0; j<ver->vn_cnt; ++j) {
@@ -38,12 +44,22 @@ const char* GetSymbolVersion(elfheader_t* h, int version)
     }
     return GetParentSymbolVersion(h, version);  // if symbol is "internal", use Def table instead
 }
-
-const char* GetParentSymbolVersion(elfheader_t* h, int index)
+const char* GetSymbolVersion(elfheader_t* h, int version)
 {
-    if(!h->VerDef || (index<1))
+    return box64_is32bits?GetSymbolVersion32(h, version):GetSymbolVersion64(h, version);
+}
+
+const char* GetParentSymbolVersion32(elfheader_t* h, int index)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
+const char* GetParentSymbolVersion64(elfheader_t* h, int index)
+{
+    if(!h->VerDef._64 || (index<1))
         return NULL;
-    Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef + h->delta);
+    Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef._64 + h->delta);
     while(def) {
         if(def->vd_ndx==index) {
             if(def->vd_cnt<1)
@@ -57,26 +73,37 @@ const char* GetParentSymbolVersion(elfheader_t* h, int index)
     }
     return NULL;
 }
-
-Elf64_Half GetParentSymbolVersionFlag(elfheader_t* h, int index)
+const char* GetParentSymbolVersion(elfheader_t* h, int version)
 {
-    if(!h->VerDef || (index<1))
-        return (Elf64_Half)-1;
-    Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef + h->delta);
+    return box64_is32bits?GetParentSymbolVersion32(h, version):GetParentSymbolVersion64(h, version);
+}
+
+uint16_t GetParentSymbolVersionFlag32(elfheader_t* h, int index) { /* TODO */ return (uint16_t)-1; }
+uint16_t GetParentSymbolVersionFlag64(elfheader_t* h, int index)
+{
+    if(!h->VerDef._64 || (index<1))
+        return (uint16_t)-1;
+    Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef._64 + h->delta);
     while(def) {
         if(def->vd_ndx==index) {
             return def->vd_flags;
         }
         def = def->vd_next?((Elf64_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
     }
-    return (Elf64_Half)-1;
+    return (uint16_t)-1;
 }
-Elf64_Half GetSymbolVersionFlag(elfheader_t* h, int version)
+uint16_t GetParentSymbolVersionFlag(elfheader_t* h, int index)
+{
+    return box64_is32bits?GetParentSymbolVersionFlag32(h, index):GetParentSymbolVersionFlag64(h, index);
+}
+
+uint16_t GetSymbolVersionFlag32(elfheader_t* h, int version) { /* TODO */ return (uint16_t)-1; }
+uint16_t GetSymbolVersionFlag64(elfheader_t* h, int version)
 {
     if(version<2)
-        return (Elf64_Half)-1;
-    if(h->VerNeed) {
-        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+        return (uint16_t)-1;
+    if(h->VerNeed._64) {
+        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed._64 + h->delta);
         while(ver) {
             Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
             for(int j=0; j<ver->vn_cnt; ++j) {
@@ -89,14 +116,23 @@ Elf64_Half GetSymbolVersionFlag(elfheader_t* h, int version)
     }
     return GetParentSymbolVersionFlag(h, version);  // if symbol is "internal", use Def table instead
 }
+uint16_t GetSymbolVersionFlag(elfheader_t* h, int index) {
+    return box64_is32bits?GetSymbolVersionFlag32(h, index):GetSymbolVersionFlag64(h, index);
+}
 
 
-int GetVersionIndice(elfheader_t* h, const char* vername)
+int GetVersionIndice32(elfheader_t* h, const char* vername)
+#ifndef BOX32
+{ return 0; }
+#else
+ ;
+#endif
+int GetVersionIndice64(elfheader_t* h, const char* vername)
 {
     if(!vername)
         return 0;
-    if(h->VerDef) {
-        Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef + h->delta);
+    if(h->VerDef._64) {
+        Elf64_Verdef *def = (Elf64_Verdef*)((uintptr_t)h->VerDef._64 + h->delta);
         while(def) {
             Elf64_Verdaux *aux = (Elf64_Verdaux*)((uintptr_t)def + def->vd_aux);
             if(!strcmp(h->DynStr+aux->vda_name, vername))
@@ -106,13 +142,23 @@ int GetVersionIndice(elfheader_t* h, const char* vername)
     }
     return 0;
 }
+int GetVersionIndice(elfheader_t* h, const char* vername)
+{
+    return box64_is32bits?GetVersionIndice32(h, vername):GetVersionIndice64(h, vername);
+}
 
-int GetNeededVersionCnt(elfheader_t* h, const char* libname)
+int GetNeededVersionCnt32(elfheader_t* h, const char* libname)
+#ifndef BOX32
+{ return 0; }
+#else
+ ;
+#endif
+int GetNeededVersionCnt64(elfheader_t* h, const char* libname)
 {
     if(!libname)
         return 0;
-    if(h->VerNeed) {
-        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+    if(h->VerNeed._64) {
+        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed._64 + h->delta);
         while(ver) {
             char *filename = h->DynStr + ver->vn_file;
             if(!strcmp(filename, libname))
@@ -122,13 +168,23 @@ int GetNeededVersionCnt(elfheader_t* h, const char* libname)
     }
     return 0;
 }
+int GetNeededVersionCnt(elfheader_t* h, const char* libname)
+{
+    return box64_is32bits?GetNeededVersionCnt32(h, libname):GetNeededVersionCnt64(h, libname);
+}
 
-const char* GetNeededVersionString(elfheader_t* h, const char* libname, int idx)
+const char* GetNeededVersionString32(elfheader_t* h, const char* libname, int idx)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
+const char* GetNeededVersionString64(elfheader_t* h, const char* libname, int idx)
 {
     if(!libname)
-        return 0;
-    if(h->VerNeed) {
-        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed + h->delta);
+        return NULL;
+    if(h->VerNeed._64) {
+        Elf64_Verneed *ver = (Elf64_Verneed*)((uintptr_t)h->VerNeed._64 + h->delta);
         while(ver) {
             char *filename = h->DynStr + ver->vn_file;
             Elf64_Vernaux *aux = (Elf64_Vernaux*)((uintptr_t)ver + ver->vn_aux);
@@ -144,6 +200,10 @@ const char* GetNeededVersionString(elfheader_t* h, const char* libname, int idx)
         }
     }
     return NULL;
+}
+const char* GetNeededVersionString(elfheader_t* h, const char* libname, int idx)
+{
+    return box64_is32bits?GetNeededVersionString32(h, libname, idx):GetNeededVersionString64(h, libname, idx);
 }
 
 int GetNeededVersionForLib(elfheader_t* h, const char* libname, const char* ver)
@@ -197,7 +257,7 @@ uint32_t old_elf_hash(const char* name)
     return h;
 }
 
-Elf64_Sym* old_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
+static Elf64_Sym* old_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
 {
     // Prepare hash table
     const uint32_t *hashtab = (uint32_t*)(h->hash + h->delta);
@@ -209,16 +269,16 @@ Elf64_Sym* old_elf_lookup(elfheader_t* h, const char* symname, int ver, const ch
     const uint32_t hash = old_elf_hash(symname);
     // Search for it
     for (uint32_t i = buckets[hash % nbuckets]; i; i = chains[i]) {
-        const char* name = h->DynStr + h->DynSym[i].st_name;
+        const char* name = h->DynStr + h->DynSym._64[i].st_name;
         if (!strcmp(symname, name) && SymbolMatch(h, i, ver, vername, local, veropt)) {
-            return &h->DynSym[i];
+            return &h->DynSym._64[i];
         }
     }
     return NULL;
 }
 
 
-void old_elf_hash_dump(elfheader_t* h)
+static void old_elf_hash_dump(elfheader_t* h)
 {
     // Prepare hash table
     const uint32_t *hashtab = (uint32_t*)(h->hash + h->delta);
@@ -229,7 +289,7 @@ void old_elf_hash_dump(elfheader_t* h)
     printf_log(LOG_NONE, "------------ Dump HASH from %s\n", h->name);
     printf_log(LOG_NONE, "Buckets[%d] = \n", nbuckets);
     for(uint32_t i=0; i<nbuckets; ++i) {
-        const char* name = h->DynStr + h->DynSym[buckets[i]].st_name;
+        const char* name = h->DynStr + h->DynSym._64[buckets[i]].st_name;
         printf_log(LOG_NONE, "%d: %s\n", buckets[i], name);
     }
     printf_log(LOG_NONE,"Chains[%d] = ", nchains);
@@ -246,7 +306,7 @@ uint32_t new_elf_hash(const char *name)
     return h;
 }
 
-Elf64_Sym* new_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
+static Elf64_Sym* new_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
 {
     // Prepare hash table
     const uint32_t *hashtab = (uint32_t*)(h->gnu_hash + h->delta);
@@ -272,10 +332,10 @@ Elf64_Sym* new_elf_lookup(elfheader_t* h, const char* symname, int ver, const ch
     if (symidx < symoffset)
         return NULL;
     while(1) {
-        const char* name = h->DynStr + h->DynSym[symidx].st_name;
+        const char* name = h->DynStr + h->DynSym._64[symidx].st_name;
         const uint32_t symhash = chains[symidx-symoffset];
         if ((hash|1) == (symhash|1) && !strcmp(name, symname) && SymbolMatch(h, symidx, ver, vername, local, veropt)) {
-            return &h->DynSym[symidx];
+            return &h->DynSym._64[symidx];
         }
         if(symhash&1)
             return NULL;
@@ -283,7 +343,7 @@ Elf64_Sym* new_elf_lookup(elfheader_t* h, const char* symname, int ver, const ch
     }
 }
 
-void new_elf_hash_dump(elfheader_t* h)
+static void new_elf_hash_dump(elfheader_t* h)
 {
     // Prepare hash table
     const uint32_t *hashtab = (uint32_t*)(h->gnu_hash + h->delta);
@@ -301,7 +361,7 @@ void new_elf_hash_dump(elfheader_t* h)
         uint32_t symidx = buckets[i];
         printf_log(LOG_NONE, "%d:", symidx);
         while(symidx>=symoffset) {
-            const char* name = h->DynStr + h->DynSym[symidx].st_name;
+            const char* name = h->DynStr + h->DynSym._64[symidx].st_name;
             const uint32_t hash = chains[symidx-symoffset];
             if(hash&1)
                 symidx=0;
@@ -314,19 +374,24 @@ void new_elf_hash_dump(elfheader_t* h)
     printf_log(LOG_NONE, "\n===============\n");
 }
 
-Elf64_Sym* ElfLookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
+#ifndef BOX32
+Elf32_Sym* ElfLookup32(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt) { return NULL; }
+Elf32_Sym* ElfSymTabLookup32(elfheader_t* h, const char* symname) { return NULL; }
+Elf32_Sym* ElfDynSymLookup32(elfheader_t* h, const char* symname) { return NULL; }
+#endif
+Elf64_Sym* ElfLookup64(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
 {
     if(h->gnu_hash)
         return new_elf_lookup(h, symname, ver, vername, local, veropt);
     return old_elf_lookup(h, symname, ver, vername, local, veropt);
 }
 
-Elf64_Sym* ElfSymTabLookup(elfheader_t* h, const char* symname)
+Elf64_Sym* ElfSymTabLookup64(elfheader_t* h, const char* symname)
 {
-    if(!h->SymTab)
+    if(!h->SymTab._64)
         return 0;
     for(size_t i=0; i<h->numSymTab; ++i) {
-        Elf64_Sym* sym = &h->SymTab[i];
+        Elf64_Sym* sym = &h->SymTab._64[i];
         int type = ELF64_ST_TYPE(sym->st_info);
         if(type==STT_FUNC || type==STT_TLS || type==STT_OBJECT) {
             const char * name = h->StrTab+sym->st_name;
@@ -337,12 +402,12 @@ Elf64_Sym* ElfSymTabLookup(elfheader_t* h, const char* symname)
     return NULL;
 }
 
-Elf64_Sym* ElfDynSymLookup(elfheader_t* h, const char* symname)
+Elf64_Sym* ElfDynSymLookup64(elfheader_t* h, const char* symname)
 {
-    if(!h->DynSym)
+    if(!h->DynSym._64)
         return 0;
     for(size_t i=0; i<h->numDynSym; ++i) {
-        Elf64_Sym* sym = &h->DynSym[i];
+        Elf64_Sym* sym = &h->DynSym._64[i];
         int type = ELF64_ST_TYPE(sym->st_info);
         if(type==STT_FUNC || type==STT_TLS || type==STT_OBJECT) {
             const char * name = h->DynStr+sym->st_name;

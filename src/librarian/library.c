@@ -232,6 +232,10 @@ int DummyLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr
 }
 
 static void initWrappedLib(library_t *lib, box64context_t* context) {
+    if(box64_is32bits) {
+        // TODO
+        return; // nothing wrapped yet
+    }
     int nb = sizeof(wrappedlibs) / sizeof(wrappedlib_t);
     for (int i=0; i<nb; ++i) {
         if(strcmp(lib->name, wrappedlibs[i].name)==0) {

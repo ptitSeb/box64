@@ -776,11 +776,15 @@ void checkHookedSymbols(elfheader_t* h)
     int hooked_symtab = 0;
     if(box64_malloc_hack==1)
         return;
+    if(box64_is32bits) {
+        /* TODO? */
+        return;
+    }
     for (size_t i=0; i<h->numSymTab; ++i) {
-        int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
-        int sz = ELF64_ST_TYPE(h->SymTab[i].st_size);
-        if((type==STT_FUNC) && sz && (h->SymTab[i].st_shndx!=0 && h->SymTab[i].st_shndx<=65521)) {
-            const char * symname = h->StrTab+h->SymTab[i].st_name;
+        int type = ELF64_ST_TYPE(h->SymTab._64[i].st_info);
+        int sz = ELF64_ST_TYPE(h->SymTab._64[i].st_size);
+        if((type==STT_FUNC) && sz && (h->SymTab._64[i].st_shndx!=0 && h->SymTab._64[i].st_shndx<=65521)) {
+            const char * symname = h->StrTab+h->SymTab._64[i].st_name;
             #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
             #define GO2(A, B)
             SUPER()
@@ -790,14 +794,14 @@ void checkHookedSymbols(elfheader_t* h)
     }
     if(hooked<2) {
         for (size_t i=0; i<h->numDynSym && hooked<2; ++i) {
-            const char * symname = h->DynStr+h->DynSym[i].st_name;
-            int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
-            int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
-            int vis = h->DynSym[i].st_other&0x3;
+            const char * symname = h->DynStr+h->DynSym._64[i].st_name;
+            int bind = ELF64_ST_BIND(h->DynSym._64[i].st_info);
+            int type = ELF64_ST_TYPE(h->DynSym._64[i].st_info);
+            int vis = h->DynSym._64[i].st_other&0x3;
             if((type==STT_FUNC) 
-            && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
-                uintptr_t offs = h->DynSym[i].st_value + h->delta;
-                size_t sz = h->DynSym[i].st_size;
+            && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym._64[i].st_shndx!=0 && h->DynSym._64[i].st_shndx<=65521)) {
+                uintptr_t offs = h->DynSym._64[i].st_value + h->delta;
+                size_t sz = h->DynSym._64[i].st_size;
                 if(bind!=STB_LOCAL && bind!=STB_WEAK && sz>=sizeof(reloc_jmp_t)) {
                     #define GO(A, B) if(!strcmp(symname, #A)) ++hooked; else if(!strcmp(symname, "__libc_" #A)) ++hooked;
                     #define GO2(A, B)
@@ -814,11 +818,11 @@ void checkHookedSymbols(elfheader_t* h)
     printf_log(LOG_INFO, "Redirecting overridden malloc%s from %s function for %s\n", malloc_hack_2?" with hack":"", hooked_symtab?"symtab":"dynsym", ElfName(h));
     if(hooked_symtab) {
         for (size_t i=0; i<h->numSymTab; ++i) {
-            int type = ELF64_ST_TYPE(h->SymTab[i].st_info);
+            int type = ELF64_ST_TYPE(h->SymTab._64[i].st_info);
             if(type==STT_FUNC) {
-                const char * symname = h->StrTab+h->SymTab[i].st_name;
-                uintptr_t offs = h->SymTab[i].st_value + h->delta;
-                size_t sz = h->SymTab[i].st_size;
+                const char * symname = h->StrTab+h->SymTab._64[i].st_name;
+                uintptr_t offs = h->SymTab._64[i].st_value + h->delta;
+                size_t sz = h->SymTab._64[i].st_size;
                 #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
                 #define GO2(A, B)
                 SUPER()
@@ -833,14 +837,14 @@ void checkHookedSymbols(elfheader_t* h)
         }
     } else {
         for (size_t i=0; i<h->numDynSym; ++i) {
-            const char * symname = h->DynStr+h->DynSym[i].st_name;
-            int bind = ELF64_ST_BIND(h->DynSym[i].st_info);
-            int type = ELF64_ST_TYPE(h->DynSym[i].st_info);
-            int vis = h->DynSym[i].st_other&0x3;
+            const char * symname = h->DynStr+h->DynSym._64[i].st_name;
+            int bind = ELF64_ST_BIND(h->DynSym._64[i].st_info);
+            int type = ELF64_ST_TYPE(h->DynSym._64[i].st_info);
+            int vis = h->DynSym._64[i].st_other&0x3;
             if((type==STT_FUNC) 
-            && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym[i].st_shndx!=0 && h->DynSym[i].st_shndx<=65521)) {
-                uintptr_t offs = h->DynSym[i].st_value + h->delta;
-                size_t sz = h->DynSym[i].st_size;
+            && (vis==STV_DEFAULT || vis==STV_PROTECTED) && (h->DynSym._64[i].st_shndx!=0 && h->DynSym._64[i].st_shndx<=65521)) {
+                uintptr_t offs = h->DynSym._64[i].st_value + h->delta;
+                size_t sz = h->DynSym._64[i].st_size;
                 if(bind!=STB_LOCAL && bind!=STB_WEAK) {
                     #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
                     #define GO2(A, B)

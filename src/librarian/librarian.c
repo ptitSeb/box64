@@ -709,8 +709,12 @@ int GetSymTabStartEnd(lib_t* maplib, const char* name, uintptr_t* start, uintptr
         return 0;
     for(int i=0; i<maplib->libsz; ++i) {
         elfheader_t* h = GetElf(maplib->libraries[i]);
-        if(h && ElfGetSymTabStartEnd(h, start, end, name))
-            return 1;
+        if(box64_is32bits) {
+            /* TODO */
+        } else {
+            if(h && ElfGetSymTabStartEnd64(h, start, end, name))
+                return 1;
+        }
     }
     return 0;
 }

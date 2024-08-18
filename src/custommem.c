@@ -1438,6 +1438,21 @@ void* find47bitBlockElf(size_t size, int mainbin, uintptr_t mask)
     return ret;
 }
 
+void* find31bitBlockElf(size_t size, int mainbin, uintptr_t mask)
+{
+    static void* startingpoint = NULL;
+    if(!startingpoint) {
+        startingpoint = (void*)WINE_LOWEST;
+    }
+    void* mainaddr = (void*)0x1000000;
+    void* ret = find31bitBlockNearHint(MEDIUM, size, mask);
+    if(!ret)
+        ret = find31bitBlockNearHint(LOWEST, size, mask);
+    if(!mainbin)
+        startingpoint = (void*)(((uintptr_t)startingpoint+size+0x1000000)&~0xffffff);
+    return ret;
+}
+
 int isBlockFree(void* hint, size_t size)
 {
     uint32_t prot;
@@ -1510,10 +1525,10 @@ static void atfork_child_custommem(void)
 void my_reserveHighMem()
 {
     static int reserved = 0;
-    if(reserved || !have48bits)
+    if(reserved || (!have48bits && !box64_is32bits))
         return;
     reserved = 1;
-    uintptr_t cur = 1ULL<<47;
+    uintptr_t cur = box64_is32bits?(1ULL<<32):(1ULL<<47);
     uintptr_t bend = 0;
     uint32_t prot;
     while (bend!=0xffffffffffffffffLL) {
@@ -1533,12 +1548,13 @@ void my_reserveHighMem()
 void reserveHighMem()
 {
     char* p = getenv("BOX64_RESERVE_HIGH");
+    if(!box64_is32bits)
     #if 0//def ADLINK
-    if(p && p[0]=='0')
+        if(p && p[0]=='0')
     #else
-    if(!p || p[0]=='0')
+        if(!p || p[0]=='0')
     #endif
-        return; // don't reserve by default
+            return; // don't reserve by default
     my_reserveHighMem();
 }
 

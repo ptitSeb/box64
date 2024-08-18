@@ -608,7 +608,7 @@ int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, 
     if(!addr || !getProtection(addr))
         return 0;
     onebridge_t *b = (onebridge_t*)(addr);
-    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver) {
+    if(b->CC==0xCC && b->S=='S' && b->C=='C' && b->w!=(wrapper_t)0 && b->f!=(uintptr_t)PltResolver64) {
         // found !
         if(retn) *retn = (b->C3==0xC2)?b->N:0;
         if(calladdress) *calladdress = addr+1;

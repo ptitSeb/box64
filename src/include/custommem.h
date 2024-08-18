@@ -102,6 +102,7 @@ void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask);
 void* find47bitBlock(size_t size);
 void* find47bitBlockNearHint(void* hint, size_t size, uintptr_t mask); // mask can be 0 for default one (0xffff)
 void* find47bitBlockElf(size_t size, int mainbin, uintptr_t mask);
+void* find31bitBlockElf(size_t size, int mainbin, uintptr_t mask);
 int isBlockFree(void* hint, size_t size);
 
 // unlock mutex that are locked by current thread (for signal handling). Return a mask of unlock mutex
@@ -124,5 +125,7 @@ int checkInHotPage(uintptr_t addr);
 
 void* internal_mmap(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
 int internal_munmap(void* addr, unsigned long length);
+
+void reserveHighMem();
 
 #endif //__CUSTOM_MEM__H_

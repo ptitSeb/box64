@@ -45,7 +45,6 @@ int CalcLoadAddr(elfheader_t* head);
 int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin);
 void FreeElfMemory(elfheader_t* head);
 int isElfHasNeededVer(elfheader_t* head, const char* libname, elfheader_t* verneeded);
-void GrabX64CopyMainElfReloc(elfheader_t* head);
 int RelocateElf(lib_t *maplib, lib_t* local_maplib, int bindnow, int deepbind, elfheader_t* head);
 int RelocateElfPlt(lib_t *maplib, lib_t* local_maplib, int bindnow, int deepbind, elfheader_t* head);
 void CalcStack(elfheader_t* h, uint64_t* stacksz, size_t* stackalign);
@@ -91,7 +90,7 @@ int GetNeededVersionForLib(elfheader_t* h, const char* libname, const char* ver)
 void* ElfGetLocalSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *sz, const char* symname, int* ver, const char** vername, int local, int* veropt);
 void* ElfGetGlobalSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *sz, const char* symname, int* ver, const char** vername, int local, int* veropt);
 void* ElfGetWeakSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *sz, const char* symname, int* ver, const char** vername, int local, int* veropt);
-int ElfGetSymTabStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname);
+int ElfGetSymTabStartEnd64(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname);
 
 void* GetNativeSymbolUnversioned(void* lib, const char* name);
 
