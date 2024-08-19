@@ -302,6 +302,11 @@ include_directories(
     "${BOX64_ROOT}/src"
     "${BOX64_ROOT}/src/wrapped/generated"
 )
+if(BOX32)
+    include_directories(
+        "${BOX64_ROOT}/src/wrapped32/generated"
+    )
+endif()
 
 # git_head.h is a generated file
 set_source_files_properties(
@@ -369,6 +374,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/elfs/elfloader32.c"
         "${BOX64_ROOT}/src/elfs/elfparser32.c"
         "${BOX64_ROOT}/src/elfs/elfload_dump32.c"
+        "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c"
     )
 endif()
 if(NOT ANDROID)
@@ -725,6 +731,46 @@ endif ()
 add_custom_target(WRAPPERS DEPENDS "${BOX64_ROOT}/src/wrapped/generated/functions_list.txt")
 #add_custom_target(PRINTER DEPENDS "${BOX64_ROOT}/src/dynarec/last_run.txt")
 
+if(BOX32)
+    set(WRAPPEDS32
+        "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedldlinux.c"
+        #"${BOX64_ROOT}/src/wrapped32/wrappedlibc.c"
+        #"${BOX64_ROOT}/src/wrapped32/wrappedlibdl.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibm.c"
+        #"${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
+        #"${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
+    )
+    string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
+    #set(WRAPPEDS32_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_genvate.h")
+    foreach(A ${WRAPPEDS32})
+        string(REPLACE ".c" "_private.h" C ${A})
+        string(REPLACE "${MODROOT}" "${BOX64_ROOT}" B ${C})
+        set(WRAPPEDS32_HEAD ${WRAPPEDS32_HEAD} ${B})
+        set_source_files_properties(${A} PROPERTIES OBJECT_DEPENDS ${B})
+    endforeach()
+    
+    set(WRAPPER32 "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c" "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.h")
+
+    if(NOT CI)
+        add_custom_command(
+            OUTPUT "${BOX64_ROOT}/src/wrapped32/generated/functions_list.txt"
+            COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/rebuild_wrappers_32.py"
+            "${BOX64_ROOT}"
+            "PANDORA" "HAVE_LD80BITS" "NOALIGN" "HAVE_TRACE" "ANDROID" "TERMUX" "STATICBUILD" "--"
+            ${WRAPPEDS32_HEAD}
+            MAIN_DEPENDENCY "${BOX64_ROOT}/rebuild_wrappers_32.py"
+            DEPENDS ${WRAPPEDS32} ${WRAPPEDS32_HEAD}
+            BYPRODUCTS ${WRAPPER32}
+        )
+    endif()
+
+    add_custom_target(WRAPPERS32 DEPENDS "${BOX64_ROOT}/src/wrapped32/generated/functions_list.txt")
+else()
+    set(WRAPPEDS32)
+endif()
+
+
 if(DYNAREC)
     set(DYNAREC_SRC
         "${BOX64_ROOT}/src/dynarec/dynablock.c"
@@ -885,6 +931,11 @@ if(DYNAREC)
         ${DYNAREC_PASS}
         "${BOX64_ROOT}/src/dynarec/dynarec_native_pass.c"
     )
+    if(BOX32)
+        list(APPEND DYNAREC_PASS
+            "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.h"
+        )
+    endif()
 
     add_library(dynarec_native OBJECT ${DYNAREC_SRC})
 
@@ -902,6 +953,12 @@ if(DYNAREC)
     add_dependencies(native_pass1 WRAPPERS)
     add_dependencies(native_pass2 WRAPPERS)
     add_dependencies(native_pass3 WRAPPERS)
+    if(BOX32)
+        add_dependencies(native_pass0 WRAPPERS32)
+        add_dependencies(native_pass1 WRAPPERS32)
+        add_dependencies(native_pass2 WRAPPERS32)
+        add_dependencies(native_pass3 WRAPPERS32)
+    endif()
 
     add_library(dynarec STATIC
         $<TARGET_OBJECTS:dynarec_native>
@@ -918,21 +975,24 @@ if(DYNAREC)
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
         COMMAND sh -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
-        DEPENDS dynarec ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
+        DEPENDS dynarec ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS} ${WRAPPEDS32}
         VERBATIM)
 else()
     add_custom_command(
         OUTPUT "${BOX64_ROOT}/src/git_head.h"
         COMMAND sh -c "echo \\\#define GITREV \\\"$(git rev-parse --short HEAD)\\\">\"${BOX64_ROOT}/src/git_head.h\""
-        DEPENDS ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS}
+        DEPENDS ${ELFLOADER_SRC} ${INTERPRETER} ${WRAPPEDS} ${WRAPPEDS32}
         VERBATIM)
 endif()
 
 add_library(interpreter OBJECT ${INTERPRETER})
 
-add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} "${BOX64_ROOT}/src/git_head.h")
+add_executable(${BOX64} ${ELFLOADER_SRC} ${WRAPPEDS} ${WRAPPEDS32} "${BOX64_ROOT}/src/git_head.h")
 set_target_properties(${BOX64} PROPERTIES ENABLE_EXPORTS ON)
 add_dependencies(${BOX64} WRAPPERS)
+if(BOX32)
+    add_dependencies(${BOX64} WRAPPERS32)
+endif()
 #add_dependencies(${BOX64} PRINTER)
 #target_link_libraries(${BOX64} c m dl rt pthread resolv)
 if(STATICBUILD)

@@ -1,0 +1,117 @@
+#() iFv -> iFv
+#() iFi -> iFi
+#() iFf -> iFf
+#() iFd -> iFd
+#() iFp -> iFp
+#() IFf -> IFf
+#() IFd -> IFd
+#() UFs -> UFs
+#() fFf -> fFf
+#() dFd -> dFd
+#() iFpi -> iFpi
+#() UFss -> UFss
+#() fFif -> fFif
+#() fFfi -> fFfi
+#() fFff -> fFff
+#() fFfD -> fFfD
+#() fFfp -> fFfp
+#() dFid -> dFid
+#() dFdi -> dFdi
+#() dFdd -> dFdd
+#() dFdD -> dFdD
+#() dFdp -> dFdp
+#() pFEv -> pFEv
+#() pFEp -> pFEp
+#() vFfpp -> vFfpp
+#() vFdpp -> vFdpp
+#() fFfff -> fFfff
+#() fFffp -> fFffp
+#() dFddd -> dFddd
+#() dFddp -> dFddp
+#defined(HAVE_LD80BITS) DFD -> DFD
+#defined(HAVE_LD80BITS) DFDD -> DFDD
+#defined(HAVE_LD80BITS) DFDp -> DFDp
+#!defined(HAVE_LD80BITS) KFK -> KFK
+#!defined(HAVE_LD80BITS) KFKK -> KFKK
+#!defined(HAVE_LD80BITS) KFKp -> KFKp
+#() UFsvvs -> UFss
+wrappedcrashhandler:
+wrappedldlinux:
+- pFv:
+  - ___tls_get_addr
+- pFp:
+  - __tls_get_addr
+wrappedlibm:
+- UFs:
+  - cacosf
+  - cacoshf
+  - casinf
+  - casinhf
+  - catanf
+  - catanhf
+  - ccosf
+  - ccoshf
+  - cexpf
+  - clogf
+  - cprojf
+  - csinf
+  - csinhf
+  - csqrtf
+  - ctanf
+  - ctanhf
+- fFf:
+  - __acosf_finite
+  - __acoshf_finite
+  - __asinf_finite
+  - __coshf_finite
+  - __exp2f_finite
+  - __expf_finite
+  - __log10f_finite
+  - __log2f_finite
+  - __logf_finite
+  - __sinhf_finite
+  - __sqrtf_finite
+- dFd:
+  - __acos_finite
+  - __acosh_finite
+  - __asin_finite
+  - __cosh_finite
+  - __exp2_finite
+  - __exp_finite
+  - __log10_finite
+  - __log2_finite
+  - __log_finite
+  - __sinh_finite
+  - __sqrt_finite
+- DFD:
+  - pow10l
+- KFK:
+  - acoshl
+  - acosl
+  - asinhl
+  - asinl
+  - atanhl
+  - cbrtl
+  - erfcl
+  - erfl
+  - ldexpl
+  - lgammal
+  - logl
+  - pow10l
+  - tgammal
+- fFff:
+  - __atan2f_finite
+  - __hypotf_finite
+  - __powf_finite
+- dFdd:
+  - __atan2_finite
+  - __hypot_finite
+  - __pow_finite
+- KFKK:
+  - fmodl
+  - powl
+- KFKp:
+  - frexpl
+  - lgammal_r
+- UFsvvs:
+  - cpowf
