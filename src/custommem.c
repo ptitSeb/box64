@@ -1533,9 +1533,17 @@ void my_reserveHighMem()
     uint32_t prot;
     while (bend!=0xffffffffffffffffLL) {
         if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
+            // create a border at 39bits...
+            if(cur<(1ULL<<39) && bend>(1ULL<<39))
+                bend = 1ULL<<39;
+            // create a border at 47bits
+            if(cur<(1ULL<<47) && bend>(1ULL<<47))
+                bend = 1ULL<<47;
+            // create a border at 48bits
+            if(cur<(1ULL<<48) && bend>(1ULL<<48))
+                bend = 1ULL<<48;
             void* ret = internal_mmap((void*)cur, bend-cur, 0, MAP_ANONYMOUS|MAP_FIXED|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-            printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, bend, ret, strerror(errno));
-            printf_log(LOG_DEBUG, "mmap %p-%p\n", cur, bend);
+            printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, bend, ret, (ret==MAP_FAILED)?strerror(errno):"ok");
             if(ret!=(void*)-1) {
                 rb_set(mapallmem, cur, bend, 1);
             }
