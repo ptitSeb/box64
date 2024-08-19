@@ -49,6 +49,12 @@ wrappedlib_t wrappedlibs[] = {
 #include "library_list.h"
 #endif
 };
+
+wrappedlib_t wrappedlibs32[] = {
+#ifdef BOX32
+#include "library_list_32.h"
+#endif
+};
 #undef GO
 
 KHASH_MAP_IMPL_STR(symbolmap, symbol1_t)
@@ -232,14 +238,11 @@ int DummyLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr
 }
 
 static void initWrappedLib(library_t *lib, box64context_t* context) {
-    if(box64_is32bits) {
-        // TODO
-        return; // nothing wrapped yet
-    }
-    int nb = sizeof(wrappedlibs) / sizeof(wrappedlib_t);
+    int nb = (box64_is32bits?sizeof(wrappedlibs32):sizeof(wrappedlibs)) / sizeof(wrappedlib_t);
     for (int i=0; i<nb; ++i) {
-        if(strcmp(lib->name, wrappedlibs[i].name)==0) {
-            if(wrappedlibs[i].init(lib, context)) {
+        wrappedlib_t* w = box64_is32bits?(&wrappedlibs32[i]):(&wrappedlibs[i]);
+        if(strcmp(lib->name, w->name)==0) {
+            if(w->init(lib, context)) {
                 // error!
                 const char* error_str = dlerror();
                 if(error_str)   // don't print the message if there is no error string from last error
@@ -247,7 +250,7 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
                 return; // non blocker...
             }
             printf_dump(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
-            lib->fini = wrappedlibs[i].fini;
+            lib->fini = w->fini;
             lib->getglobal = WrappedLib_GetGlobal;
             lib->getweak = WrappedLib_GetWeak;
             lib->getlocal = WrappedLib_GetLocal;
@@ -793,7 +796,7 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
         if(lib->w.altmy)
             strcpy(buff, lib->w.altmy);
         else
-            strcpy(buff, "my_");
+            strcpy(buff, box64_is32bits?"my32_":"my_");
         strcat(buff, name);
         #ifdef STATICBUILD
         symbol = (void*)kh_value(lib->w.mydatamap, k).addr;
@@ -828,7 +831,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             if(lib->w.altmy)
                 strcpy(buff, lib->w.altmy);
             else
-                strcpy(buff, "my_");
+                strcpy(buff, box64_is32bits?"my32_":"my_");
             strcat(buff, name);
             #ifdef STATICBUILD
             symbol = (void*)s->addr;
@@ -856,7 +859,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             if(lib->w.altmy)
                 strcpy(buff, lib->w.altmy);
             else
-                strcpy(buff, "my_");
+                strcpy(buff, box64_is32bits?"my32_":"my_");
             strcat(buff, name);
             #ifdef STATICBUILD
             symbol = (void*)s->addr;
@@ -921,7 +924,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 if(lib->w.altmy)
                     strcpy(buff, lib->w.altmy);
                 else
-                    strcpy(buff, "my_");
+                    strcpy(buff, box64_is32bits?"my32_":"my_");
                 strcat(buff, name);
                 #ifdef STATICBUILD
                 symbol = (void*)s->addr;
