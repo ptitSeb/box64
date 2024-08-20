@@ -2168,7 +2168,6 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
 
 static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
-#if STEP > 1
     int i2 = dyn->insts[ninst].x64.jmp_insts;
     if(i2<0)
         return;
@@ -2302,11 +2301,9 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
         stack_cnt = cache_i2.stack;
     }
     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
-#endif
 }
 static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
 {
-#if STEP > 1
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
@@ -2347,19 +2344,16 @@ static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
         CALL_(UpdateFlags, -1, 0);
         MARKF2;
     }
-#endif
 }
 
 static void sewTransform(dynarec_rv64_t* dyn, int ninst, int s1)
 {
-#if STEP > 1
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if (jmp < 0) return;
     if (dyn->insts[jmp].vector_sew == VECTOR_SEWNA) return;
     MESSAGE(LOG_DUMP, "\tSEW changed to %d ---- ninst=%d -> %d\n", dyn->insts[jmp].vector_sew, ninst, jmp);
     vector_vsetvl_emul1(dyn, ninst, s1, dyn->insts[jmp].vector_sew);
-#endif
 }
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {

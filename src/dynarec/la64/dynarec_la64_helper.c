@@ -1146,7 +1146,6 @@ static void unloadCache(dynarec_la64_t* dyn, int ninst, int stack_cnt, int s1, i
 
 static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
 {
-#if STEP > 1
     int i2 = dyn->insts[ninst].x64.jmp_insts;
     if (i2 < 0)
         return;
@@ -1259,12 +1258,10 @@ static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, in
         }
     }
     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
-#endif
 }
 
 static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
 {
-#if STEP > 1
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
@@ -1303,7 +1300,6 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
         CALL_(UpdateFlags, -1, 0);
         MARKF2;
     }
-#endif
 }
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
