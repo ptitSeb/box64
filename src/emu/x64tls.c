@@ -11,6 +11,9 @@
 #include "x64emu_private.h"
 #include "x64tls.h"
 #include "elfloader.h"
+#ifdef BOX32
+#include "box32.h"
+#endif
 
 typedef struct thread_area_s
 {
@@ -118,12 +121,19 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_t* td, int size)
         return (uint32_t)-1;
     }
 
-    /*
-    my_context->segtls[idx].base = td->base_addr;
-    my_context->segtls[idx].limit = td->limit;
-    pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
-    */
-    
+    if(box64_is32bits) {
+        emu->segs_serial[_GS] = 0;
+        my_context->segtls[idx].base = td->base_addr;
+        my_context->segtls[idx].limit = td->limit;
+        my_context->segtls[idx].present = 1;
+        if(idx>8 && !my_context->segtls[idx].key_init) {
+            pthread_key_create(&my_context->segtls[idx].key, NULL);
+            my_context->segtls[idx].key_init = 1;
+        }
+        if(my_context->segtls[idx].key_init)
+            pthread_setspecific(my_context->segtls[idx].key, (void*)my_context->segtls[idx].base);
+    }
+
     ResetSegmentsCache(emu);
 
     return 0;
@@ -220,6 +230,7 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
 
 
 #define POS_TLS     0x200
+#define POS_TLS_32  0x50
 /*
  tls record should looks like:
  void*      tcb             0x00
@@ -255,7 +266,7 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
     // Setup the GS segment:
     int dtssize = sizeDTS(context);
     int datasize = sizeTLSData(context->tlssize);
-    void *ptr_oversized = (char*)box_malloc(dtssize+POS_TLS+datasize);
+    void *ptr_oversized = (char*)box_malloc(dtssize+(box64_is32bits?POS_TLS_32:POS_TLS)+datasize);
     void *ptr = (void*)((uintptr_t)ptr_oversized + datasize);
     memcpy((void*)((uintptr_t)ptr-context->tlssize), context->tlsdata, context->tlssize);
     tlsdatasize_t *data = (tlsdatasize_t*)box_calloc(1, sizeof(tlsdatasize_t));
@@ -264,23 +275,45 @@ static tlsdatasize_t* setupTLSData(box64context_t* context)
     data->ptr = ptr_oversized;
     data->n_elfs = context->elfsize;
     pthread_setspecific(context->tlskey, data);
-    // copy canary...
-    memset((void*)((uintptr_t)ptr), 0, POS_TLS+dtssize);            // set to 0 remining bytes
-    memcpy((void*)((uintptr_t)ptr+0x28), context->canary, sizeof(void*));      // put canary in place
-    uintptr_t tlsptr = (uintptr_t)ptr;
-    memcpy((void*)((uintptr_t)ptr+0x0), &tlsptr, sizeof(void*));
-    memcpy((void*)((uintptr_t)ptr+0x10), &tlsptr, sizeof(void*));  // set tcb and self same address
-    uintptr_t dtp = (uintptr_t)ptr+POS_TLS;
-    memcpy((void*)(tlsptr+sizeof(void*)), &dtp, sizeof(void*));
-    if(dtssize) {
-        for (int i=0; i<context->elfsize; ++i) {
-            // set pointer
-            dtp = (uintptr_t)ptr + GetTLSBase(context->elfs[i]);
-            *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16) = dtp;
-            *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16+8) = i; // index
+    #ifdef BOX32
+    if(box64_is32bits) {
+        // copy canary...
+        memset((void*)((uintptr_t)ptr), 0, POS_TLS_32+dtssize);        // set to 0 remining bytes
+        memcpy((void*)((uintptr_t)ptr+0x14), context->canary, 4);      // put canary in place
+        ptr_t tlsptr = to_ptrv(ptr);
+        memcpy((void*)((uintptr_t)ptr+0x0), &tlsptr, 4);
+        ptr_t dtp = to_ptrv(ptr+POS_TLS_32);
+        memcpy(from_ptrv(tlsptr+0x4), &dtp, 4);
+        if(dtssize) {
+            for (int i=0; i<context->elfsize; ++i) {
+                // set pointer
+                dtp = to_ptrv(ptr + GetTLSBase(context->elfs[i]));
+                memcpy((void*)((uintptr_t)ptr+POS_TLS_32+i*8), &dtp, 4);
+                memcpy((void*)((uintptr_t)ptr+POS_TLS_32+i*8+4), &i, 4); // index
+            }
         }
+        memcpy((void*)((uintptr_t)ptr+0x10), &context->vsyscall, 4);  // address of vsyscall
+    } else
+    #endif
+    {
+        // copy canary...
+        memset((void*)((uintptr_t)ptr), 0, POS_TLS+dtssize);            // set to 0 remining bytes
+        memcpy((void*)((uintptr_t)ptr+0x28), context->canary, sizeof(void*));      // put canary in place
+        uintptr_t tlsptr = (uintptr_t)ptr;
+        memcpy((void*)((uintptr_t)ptr+0x0), &tlsptr, sizeof(void*));
+        memcpy((void*)((uintptr_t)ptr+0x10), &tlsptr, sizeof(void*));  // set tcb and self same address
+        uintptr_t dtp = (uintptr_t)ptr+POS_TLS;
+        memcpy((void*)(tlsptr+sizeof(void*)), &dtp, sizeof(void*));
+        if(dtssize) {
+            for (int i=0; i<context->elfsize; ++i) {
+                // set pointer
+                dtp = (uintptr_t)ptr + GetTLSBase(context->elfs[i]);
+                *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16) = dtp;
+                *(uint64_t*)((uintptr_t)ptr+POS_TLS+i*16+8) = i; // index
+            }
+        }
+        memcpy((void*)((uintptr_t)ptr+0x20), &context->vsyscall, sizeof(void*));  // address of vsyscall
     }
-    memcpy((void*)((uintptr_t)ptr+0x20), &context->vsyscall, sizeof(void*));  // address of vsyscall
     return data;
 }
 
@@ -356,7 +389,9 @@ void* GetSegmentBase(uint32_t desc)
         return NULL;
     }
     int base = desc>>3;
-    if(base==0x8 && !my_context->segtls[base].key_init)
+    if(!box64_is32bits && base==0x8 && !my_context->segtls[base].key_init)
+        return GetSeg43Base();
+    if(box64_is32bits && (base==0x6))
         return GetSeg43Base();
     if(base>15) {
         printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);

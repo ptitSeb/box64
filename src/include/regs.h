@@ -319,6 +319,7 @@ typedef union {
 #define R_R13 emu->regs[_R13].q[0]
 #define R_R14 emu->regs[_R14].q[0]
 #define R_R15 emu->regs[_R15].q[0]
+#define R_EIP emu->ip.dword[0]
 #define R_EAX emu->regs[_AX].dword[0]
 #define R_EBX emu->regs[_BX].dword[0]
 #define R_ECX emu->regs[_CX].dword[0]

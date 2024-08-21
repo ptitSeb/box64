@@ -42,9 +42,19 @@ void PushString(x64emu_t *emu, const char* s)
     memcpy((void*)R_RSP, s, sz);
 }
 
+void SetupInitialStack32(x64emu_t *emu)
+#ifndef BOX32
+ { }
+#else
+ ;
+#endif
 EXPORTDYN
 void SetupInitialStack(x64emu_t *emu)
 {
+    if(box64_is32bits) {
+        SetupInitialStack32(emu);
+        return;
+    }
     // start with 0
     Push64(emu, 0);
     // push program executed

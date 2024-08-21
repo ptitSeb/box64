@@ -50,6 +50,12 @@ static inline void Push16(x64emu_t *emu, uint16_t v)
     *((uint16_t*)R_RSP) = v;
 }
 
+static inline void Push_32(x64emu_t *emu, uint32_t v)
+{
+    R_ESP -= 4;
+    *((uint32_t*)(uintptr_t)R_ESP) = v;
+}
+
 static inline void Push32(x64emu_t *emu, uint32_t v)
 {
     R_RSP -= 4;
@@ -67,6 +73,13 @@ static inline uint16_t Pop16(x64emu_t *emu)
 {
     uint16_t* st = (uint16_t*)R_RSP;
     R_RSP += 2;
+    return *st;
+}
+
+static inline uint32_t Pop_32(x64emu_t *emu)
+{
+    uint32_t* st = (uint32_t*)(uintptr_t)R_RSP;
+    R_ESP += 4;
     return *st;
 }
 

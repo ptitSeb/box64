@@ -189,6 +189,7 @@ char* box64_custom_gstreamer = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint32_t default_gs = 0x53;
+uint32_t default_fs = 0x53;
 int jit_gdb = 0;
 int box64_tcmalloc_minimal = 0;
 
@@ -2252,10 +2253,15 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // stack setup is much more complicated then just that!
     SetupInitialStack(emu); // starting here, the argv[] don't need free anymore
     SetupX64Emu(emu, NULL);
-    SetRSI(emu, my_context->argc);
-    SetRDX(emu, (uint64_t)my_context->argv);
-    SetRCX(emu, (uint64_t)my_context->envv);
-    SetRBP(emu, 0); // Frame pointer so to "No more frame pointer"
+    if(box64_is32bits) {
+        SetEAX(emu, my_context->argc);
+        SetEBX(emu, my_context->argv32);
+    } else {
+        SetRSI(emu, my_context->argc);
+        SetRDX(emu, (uint64_t)my_context->argv);
+        SetRCX(emu, (uint64_t)my_context->envv);
+        SetRBP(emu, 0); // Frame pointer so to "No more frame pointer"
+    }
 
     // child fork to handle traces
     pthread_atfork(NULL, NULL, my_child_fork);

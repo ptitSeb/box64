@@ -7,11 +7,18 @@
 #ifdef DYNAREC
 #include "dynarec/native_lock.h"
 #endif
+#ifndef BOX32_DEF
+#define BOX32_DEF
+typedef uint32_t ptr_t;
+typedef int32_t long_t;
+typedef uint32_t ulong_t;
+#endif
 
 #ifdef DYNAREC
 // disabling for now, seems to have a negative impact on performances
 //#define USE_CUSTOM_MUTEX
 #endif
+
 
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
@@ -97,9 +104,11 @@ typedef struct box64context_s {
 
     int                 argc;
     char**              argv;
+    ptr_t               argv32;
 
     int                 envc;
     char**              envv;
+    ptr_t               envv32;
 
     int                 orig_argc;
     char**              orig_argv;
