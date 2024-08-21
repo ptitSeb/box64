@@ -1198,6 +1198,11 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 	for ctn in CType.getSingletons():
 		CType[ctn].generate_converters()
 	
+	# Detect functions which return in an x87 register
+	return_x87: str = "DKdf"
+	if any(c not in FileSpec.values for c in return_x87):
+		raise NotImplementedError("Invalid character")
+	
 	# Files header and guard
 	files_header = {
 		"wrapper32.c": """
@@ -1500,6 +1505,21 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 				function_writer(file, funtype, funtype.redirected.orig.name + "_t")
 			if not clauses.empty():
 				file.write("#endif\n")
+		
+		# Write the isRetX87Wrapper function
+		# isRetX87Wrapper
+		file.write("\nint isRetX87Wrapper32(wrapper_t fun) {\n")
+		for clauses in gbls:
+			empty = True
+			for funtype in gbls[clauses]:
+				if funtype.orig.name[0] in return_x87: # TODO: put this in a function (functions would request the ABI for more info)
+					if empty and (not clauses.empty()):
+						file.write("#if " + str(clauses) + "\n")
+						empty = False
+					file.write("\tif (fun == &" + funtype.orig.name + "_32) return 1;\n")
+			if not empty:
+				file.write("#endif\n")
+		file.write("\treturn 0;\n}\n")
 		
 		file.write(files_guard["wrapper32.c"].format(lbr="{", rbr="}", version=ver))
 	

@@ -1469,7 +1469,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		inttext = ""
 		file.write("\n")
 		for k1 in simple_idxs:
-			file.write("#{inttext}if defined({k1})\nint isSimpleWrapper(wrapper_t fun) {{\n".format(inttext=inttext, k1=k1))
+			file.write("#{inttext}if defined({k1})\nint isSimpleWrapper(wrapper_t fun) {{\n\tif (box64_is32bits) return 0;\n".format(inttext=inttext, k1=k1))
 			inttext = "el"
 			for k in simple_idxs[k1]:
 				if k != str(Clauses()):
@@ -1479,9 +1479,10 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				if k != str(Clauses()):
 					file.write("#endif\n")
 			file.write("\treturn 0;\n}\n")
-		file.write("\n#else\nint isSimpleWrapper(wrapper_t fun) {\n\treturn 0;\n}\n#endif\n")
+		file.write("#else\nint isSimpleWrapper(wrapper_t fun) {\n\treturn 0;\n}\n#endif\n")
 		
 		# Write the isRetX87Wrapper function
+		file.write("\nint isRetX87Wrapper32(wrapper_t fun)\n#ifndef BOX32\n{ return 0; }\n#else\n ;\n#endif\n")
 		file.write("\nint isRetX87Wrapper(wrapper_t fun) {\n")
 		for k in retx87_idxs:
 			if k != str(Clauses()):
@@ -1565,6 +1566,6 @@ if __name__ == '__main__':
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.4.0.21") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.4.0.23") != 0:
 		exit(2)
 	exit(0)

@@ -10,6 +10,9 @@ void DynaRun(x64emu_t *emu);
 
 uint32_t LibSyscall(x64emu_t *emu);
 void PltResolver64(x64emu_t* emu);
+#ifdef BOX32
+void PltResolver32(x64emu_t* emu);
+#endif
 extern uintptr_t pltResolver64;
 int GetTID(void);
 

@@ -88,6 +88,10 @@ static uint8_t Peek8(uintptr_t addr, uintptr_t offset)
 
 void x64Int3(x64emu_t* emu, uintptr_t* addr)
 {
+    if(box64_is32bits) {
+        x86Int3(emu,addr);
+        return;
+    }
     onebridge_t* bridge = (onebridge_t*)(*addr-1);
     if(Peek8(*addr, 0)=='S' && Peek8(*addr, 1)=='C') // Signature for "Out of x86 door"
     {
@@ -394,3 +398,11 @@ void print_cycle_log(int loglevel) {
         }
     }
 }
+
+#ifndef BOX32
+void x86Int3(x64emu_t* emu, uintptr_t* addr)
+{
+    printf_log(LOG_NONE, "Error: Calling 32bits wrapped function without box32 support built in\n");
+    abort();
+}
+#endif

@@ -159,3 +159,33 @@ void KFKp_32(x64emu_t *emu, uintptr_t fcn) { KFKp_t fn = (KFKp_t)fcn; double db 
 #endif
 
 void UFsvvs_32(x64emu_t *emu, uintptr_t fcn) { UFss_t fn = (UFss_t)fcn; ui64_t r; r.u = (uint64_t)fn(from_ptrv(R_ESP + 4), from_ptrv(R_ESP + 12)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
+
+int isRetX87Wrapper32(wrapper_t fun) {
+	if (fun == &fFf_32) return 1;
+	if (fun == &dFd_32) return 1;
+	if (fun == &fFif_32) return 1;
+	if (fun == &fFfi_32) return 1;
+	if (fun == &fFff_32) return 1;
+	if (fun == &fFfD_32) return 1;
+	if (fun == &fFfp_32) return 1;
+	if (fun == &dFid_32) return 1;
+	if (fun == &dFdi_32) return 1;
+	if (fun == &dFdd_32) return 1;
+	if (fun == &dFdD_32) return 1;
+	if (fun == &dFdp_32) return 1;
+	if (fun == &fFfff_32) return 1;
+	if (fun == &fFffp_32) return 1;
+	if (fun == &dFddd_32) return 1;
+	if (fun == &dFddp_32) return 1;
+#if defined(HAVE_LD80BITS)
+	if (fun == &DFD_32) return 1;
+	if (fun == &DFDD_32) return 1;
+	if (fun == &DFDp_32) return 1;
+#endif
+#if !defined(HAVE_LD80BITS)
+	if (fun == &KFK_32) return 1;
+	if (fun == &KFKK_32) return 1;
+	if (fun == &KFKp_32) return 1;
+#endif
+	return 0;
+}

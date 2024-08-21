@@ -375,6 +375,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/elfs/elfparser32.c"
         "${BOX64_ROOT}/src/elfs/elfload_dump32.c"
         "${BOX64_ROOT}/src/tools/box32stack.c"
+        "${BOX64_ROOT}/src/emu/x86int3.c"
         "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c"
     )
 endif()
