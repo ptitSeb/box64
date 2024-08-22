@@ -42,14 +42,14 @@ jobs:
             type: StaticBuild
           - platform: ANDROID
             type: StaticBuild
+          - platform: TERMUX
+            type: StaticBuild
+          - platform: X64
+            type: StaticBuild
           - platform: ANDROID
             type: Box32
           - platform: TERMUX
-            type: StaticBuild
-          - platform: TERMUX
             type: Box32
-          - platform: X64
-            type: StaticBuild
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -166,7 +166,8 @@ jobs:
           make -j$(nproc) VERBOSE=1
 
       - name: "Test Box64"
-        if: ${{ matrix.platform != 'TEGRAX1' }}
+        ## Qemu doesn't like Box32 test, so disabling it on non-native platform
+        if: ${{ matrix.platform != 'TEGRAX1' }} && !( ${{ matrix.platform != 'X64' }} && ${{matrix.type == 'Box32'}} )
         run: |
           if [[ ${{ matrix.platform }} != 'X64' ]]; then
             mkdir qemu9.0.0
