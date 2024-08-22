@@ -5,6 +5,8 @@
 #define X64_VA_MAX_REG  (6*8)
 #define X64_VA_MAX_XMM  ((6*8)+(8*16))
 
+#define ALIGN64_16(A) (uint64_t*)((((uintptr_t)A)+15)&~15LL)
+
 #ifdef __x86_64__
 // x86_64, 6 64bits general regs and 16 or 8? 128bits float regs
 /*

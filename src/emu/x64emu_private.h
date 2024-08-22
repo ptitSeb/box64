@@ -116,6 +116,7 @@ typedef struct x64emu_s {
     uintptr_t   prev2_ip;
     #endif
     // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
+    __int128_t  dummy_align;    // here to have scratch 128bits aligned
     uint64_t    scratch[200];
     // local stack, do be deleted when emu is freed
     void*       stack2free; // this is the stack to free (can be NULL)
