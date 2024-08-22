@@ -37,7 +37,7 @@ option(BAD_SIGNAL "Set to ON to activate the workaround for incoherent si_info o
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
 option(CI "Set to ON if running in CI" ${CI})
 option(WITH_MOLD "Set to ON to use with mold" ${WITH_MOLD})
-option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" ${BOX32})
+option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" ${BO64})
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
@@ -1494,4 +1494,136 @@ foreach(file ${extension_tests})
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/extensions/${testname}.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
 endforeach()
+endif()
+
+if(BOX32)
+    add_test(NAME bootSyscall_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test01 -D TEST_OUTPUT=tmpfile01.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref01.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    add_test(NAME bootSyscallC_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test02 -D TEST_OUTPUT=tmpfile02.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref02.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    add_test(NAME printf_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test03 -D TEST_OUTPUT=tmpfile03.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref03.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    add_test(NAME args_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test04 -D TEST_ARGS2=yeah -D TEST_OUTPUT=tmpfile04.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref04.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    add_test(NAME maths1_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test05 -D TEST_ARGS2=7 -D TEST_OUTPUT=tmpfile05.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref05.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME threadsStart_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test06 -D TEST_OUTPUT=tmpfile06.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref06.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME trig_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test07 -D TEST_OUTPUT=tmpfile07.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref07.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME pi_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test08 -D TEST_OUTPUT=tmpfile08.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref08.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME fork_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test09 -D TEST_OUTPUT=tmpfile09.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref09.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME cppThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test10 -D TEST_OUTPUT=tmpfile10.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref10.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME tlsData_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test11 -D TEST_OUTPUT=tmpfile11.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref11.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME fpu_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test12 -D TEST_OUTPUT=tmpfile12.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref12.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME contexts_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test13 -D TEST_OUTPUT=tmpfile13.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref13.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #if(NOT LD80BITS)
+    #    add_test(NAME conditionalThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test14 -D TEST_OUTPUT=tmpfile14.txt
+    #        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref14.txt
+    #        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    #endif()
+
+    #add_test(NAME linkingIndirectNoversion_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test15 -D TEST_OUTPUT=tmpfile15.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref15.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME linkingIndirectVersion_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test16 -D TEST_OUTPUT=tmpfile16.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref16.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME sse_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test17 -D TEST_OUTPUT=tmpfile17.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/#tests/ref17.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #set_tests_properties(sse_32bits PROPERTIES ENVIRONMENT "BOX32_DYNAREC_FASTNAN=0;BOX32_DYNAREC_FASTROUND=0")
+
+    #add_test(NAME longjumpInSignals_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test18 -D TEST_OUTPUT=tmpfile18.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref18.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME x87_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test19 -D TEST_OUTPUT=tmpfile19.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref19.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME idiv_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test20 -D TEST_OUTPUT=tmpfile20.txt
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref20.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #add_test(NAME multiple_dlopen_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test21 -D TEST_OUTPUT=tmpfile21.txt 
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref21.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    #file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests32/extensions/*.c")
+    #foreach(file ${extension_tests})
+    #    get_filename_component(testname "${file}" NAME_WE)
+    #    add_test(NAME "${testname}_32bits" COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/extensions/${testname} -D TEST_OUTPUT=tmpfile-${testname}.txt
+    #        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/extensions/${testname}.txt
+    #        -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
+    #endforeach()
+
+    #add_test(NAME sse_optimized_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
+    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test17_o2 -D TEST_OUTPUT=tmpfile17_o2.txt 
+    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref17_o2.txt
+    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    #
+    #set_tests_properties(sse_optimized_32bits PROPERTIES ENVIRONMENT "BOX32_DYNAREC_FASTNAN=0;BOX32_DYNAREC_FASTROUND=0")    
+        
+    #add_test(bswap_32bits ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    #        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test23 -D TEST_OUTPUT=tmpfile23.txt
+    #        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref23.txt
+    #        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 endif()

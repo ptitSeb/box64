@@ -1,0 +1,5 @@
+Thread: thread_state = 1.
+Main thread: thread_state == 1.
+Thread: thread_state = 2.
+Main thread: thread_state == 2.
+Finished with no errors.
