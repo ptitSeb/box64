@@ -138,7 +138,7 @@ jobs:
             echo BOX64_BUILD_TYPE=RelWithDebInfo >> $GITHUB_ENV
             echo BOX64_HAVE_TRACE=1 >> $GITHUB_ENV
             echo BOX64_STATICBUILD=0 >> $GITHUB_ENV
-            echo BOX64_BOX31=0 >> $GITHUB_ENV
+            echo BOX64_BOX32=0 >> $GITHUB_ENV
           fi
 
       - name: "Display Build info"
