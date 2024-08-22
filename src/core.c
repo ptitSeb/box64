@@ -2345,10 +2345,19 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
     // emulate!
     printf_log(LOG_DEBUG, "Start x64emu on Main\n");
     // Stack is ready, with stacked: NULL env NULL argv argc
-    SetRIP(emu, my_context->ep);
     ResetFlags(emu);
-    Push64(emu, my_context->exit_bridge);  // push to pop it just after
-    SetRDX(emu, Pop64(emu));    // RDX is exit function
+    #ifdef BOX32
+    if(box64_is32bits) {
+        SetEIP(emu, my_context->ep);
+        Push32(emu, my_context->exit_bridge);  // push to pop it just after
+        SetEDX(emu, Pop32(emu));    // RDX is exit function
+    } else
+    #endif
+    {
+        SetRIP(emu, my_context->ep);
+        Push64(emu, my_context->exit_bridge);  // push to pop it just after
+        SetRDX(emu, Pop64(emu));    // RDX is exit function
+    }
     Run(emu, 0);
     // Get EAX
     int ret = GetEAX(emu);

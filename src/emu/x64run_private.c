@@ -24,6 +24,9 @@
 #endif
 #include "x64tls.h"
 #include "bridge.h"
+#ifdef BOX32
+#include "box32.h"
+#endif
 
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x)     (((x) ^ ((x)>>1)) & 0x1)
@@ -53,7 +56,7 @@ void EXPORT my___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) 
     emu->quit = 1; // finished!
 }
 #else
-int32_t EXPORT my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
+EXPORT int32_t my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
     (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
 
@@ -106,6 +109,33 @@ int32_t EXPORT my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, c
     }
     return (int)GetEAX(emu);
 }
+#ifdef BOX32
+int32_t EXPORT my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
+{
+    // let's cheat and set all args...
+    Push_32(emu, my_context->envv32);
+    Push_32(emu, my_context->argv32);
+    Push_32(emu, my_context->argc);
+    if(init) {
+        PushExit_32(emu);
+        R_EIP=to_ptrv(*init);
+        printf_log(LOG_DEBUG, "Calling init(%p) from __libc_start_main\n", *init);
+        DynaRun(emu);
+        if(emu->error)  // any error, don't bother with more
+            return 0;
+        emu->quit = 0;
+    }
+    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_start_main\n", my_context->argc, my_context->argv, my_context->envv, main);
+    // call main and finish
+    PushExit_32(emu);
+    R_EIP=to_ptrv(main);
+
+    DynaRun(emu);
+
+    emu->quit = 1; // finished!
+    return 0;
+}
+#endif
 #endif
 
 const char* GetNativeName(void* p)

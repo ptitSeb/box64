@@ -64,9 +64,17 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     // set default value
     R_RIP = start;
     R_RSP = (stack + stacksize) & ~7;   // align stack start, always
+    #ifdef BOX32
+    if(box64_is32bits && R_RSP==0x100000000LL) {    // special case, stack is just a bit too high
+        R_RSP -= 16;
+    }
+    #endif
     // fake init of segments...
     if(box64_is32bits) {
-
+        emu->segs[_CS] = 0x23;
+        emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x2b;
+        emu->segs[_FS] = default_fs;
+        emu->segs[_GS] = 0x33;
     } else {
         emu->segs[_CS] = 0x33;
         emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x2b;
@@ -81,7 +89,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
 EXPORTDYN
 x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
-    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
+    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with %cIP=%p and Stack=%p/0x%X\n", box64_is32bits?'E':'R', (void*)start, (void*)stack, stacksize);
 
     x64emu_t *emu = (x64emu_t*)box_calloc(1, sizeof(x64emu_t));
 
@@ -329,10 +337,14 @@ void SetEBP(x64emu_t *emu, uint32_t v)
 {
     R_EBP = v;
 }
-//void SetESP(x64emu_t *emu, uint32_t v)
-//{
-//    R_ESP = v;
-//}
+void SetESP(x64emu_t *emu, uint32_t v)
+{
+    R_ESP = v;
+}
+void SetEIP(x64emu_t *emu, uint32_t v)
+{
+    R_EIP = v;
+}
 void SetRAX(x64emu_t *emu, uint64_t v)
 {
     R_RAX = v;

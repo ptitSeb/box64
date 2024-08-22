@@ -1171,8 +1171,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"from_locale(from_ptri(ptr_t, R_ESP + {p})), ",       # a
 		"from_locale_d(from_ptri(ptr_t, R_ESP + {p})), ",     # A
 		"from_ptrv(R_ESP + {p}), ",                   		  # V
-		"of_convert(from_ptri(int32_t, R_ESP + {p})), ",      # O
-		"io_convert(from_ptriv(R_ESP + {p})), ",     		  # S
+		"of_convert32(from_ptri(int32_t, R_ESP + {p})), ",    # O
+		"io_convert32(from_ptriv(R_ESP + {p})), ",     		  # S
 		"(_2uint_struct_t){{from_ptri(uint32_t, R_ESP + {p}),from_ptri(uint32_t, R_ESP + {p} + 4)}}, ", # 2
 		"arg_{p}, ",                                          # P
 		"from_ptriv(R_ESP + {p}), ",                 		  # N
@@ -1275,7 +1275,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		
 		#define ST0val ST0.d
 		
-		int of_convert(int);
+		int of_convert32(int);
 		
 		""",
 		"wrapper32.h": """

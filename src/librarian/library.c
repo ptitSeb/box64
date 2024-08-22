@@ -40,6 +40,12 @@
 #endif
 
 #undef GO
+#ifdef BOX32
+#define GO(P, N) int wrapped##N##_init32(library_t* lib, box64context_t *box64); \
+                 void wrapped##N##_fini32(library_t* lib);
+#include "library_list_32.h"
+#undef GO
+#endif
 
 #define GO(P, N) {P, wrapped##N##_init, wrapped##N##_fini},
 wrappedlib_t wrappedlibs[] = {
@@ -49,7 +55,8 @@ wrappedlib_t wrappedlibs[] = {
 #include "library_list.h"
 #endif
 };
-
+#undef GO
+#define GO(P, N) {P, wrapped##N##_init32, wrapped##N##_fini32},
 wrappedlib_t wrappedlibs32[] = {
 #ifdef BOX32
 #include "library_list_32.h"

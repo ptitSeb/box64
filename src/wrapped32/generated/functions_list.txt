@@ -1,14 +1,54 @@
+#() vFv -> vFv
+#() vFi -> vFi
+#() vFu -> vFu
+#() vFp -> vFp
+#() vFA -> vFA
 #() iFv -> iFv
 #() iFi -> iFi
+#() iFI -> iFI
+#() iFu -> iFu
 #() iFf -> iFf
 #() iFd -> iFd
+#() iFL -> iFL
 #() iFp -> iFp
+#() iFh -> iFh
+#() iFH -> iFH
 #() IFf -> IFf
 #() IFd -> IFd
+#() uFv -> uFv
+#() uFu -> uFu
+#() uFU -> uFU
 #() UFs -> UFs
 #() fFf -> fFf
+#() dFv -> dFv
 #() dFd -> dFd
+#() lFi -> lFi
+#() LFv -> LFv
+#() LFL -> LFL
+#() pFL -> pFL
+#() aFa -> aFa
+#() vFEv -> vFEv
+#() vFEp -> vFEp
+#() iFEv -> iFEv
+#() iFEi -> iFEi
+#() iFEL -> iFEL
+#() iFEp -> iFEp
+#() iFEO -> iFEO
+#() iFii -> iFii
+#() iFiI -> iFiI
+#() iFiu -> iFiu
+#() iFip -> iFip
+#() iFuu -> iFuu
+#() iFli -> iFli
 #() iFpi -> iFpi
+#() iFpp -> iFpp
+#() iFhp -> iFhp
+#() IFII -> IFII
+#() uFEu -> uFEu
+#() uFEV -> uFEV
+#() uFpa -> uFpa
+#() UFii -> UFii
+#() UFUU -> UFUU
 #() UFss -> UFss
 #() fFif -> fFif
 #() fFfi -> fFfi
@@ -20,20 +60,60 @@
 #() dFdd -> dFdd
 #() dFdD -> dFdD
 #() dFdp -> dFdp
+#() LFpp -> LFpp
 #() pFEv -> pFEv
 #() pFEp -> pFEp
+#() pFLL -> pFLL
+#() aFia -> aFia
+#() vFEip -> vFEip
+#() vFEpi -> vFEpi
+#() vFEpu -> vFEpu
 #() vFfpp -> vFfpp
 #() vFdpp -> vFdpp
+#() iFEpp -> iFEpp
+#() iFEpV -> iFEpV
+#() iFiii -> iFiii
+#() iFiiI -> iFiiI
+#() iFiiu -> iFiiu
+#() iFiiO -> iFiiO
+#() iFiII -> iFiII
+#() iFiuu -> iFiuu
+#() iFiLN -> iFiLN
+#() iFuii -> iFuii
+#() iFuui -> iFuui
+#() iFuuu -> iFuuu
+#() iFuLp -> iFuLp
+#() iFpuu -> iFpuu
+#() iFppL -> iFppL
+#() IFiIi -> IFiIi
 #() fFfff -> fFfff
 #() fFffp -> fFffp
 #() dFddd -> dFddd
 #() dFddp -> dFddp
+#() pFEip -> pFEip
+#() pFppL -> pFppL
+#() hFEpp -> hFEpp
+#() aFipa -> aFipa
+#() lFpBp_i -> lFpBi
+#() vFEipV -> vFEipV
+#() iFEiiN -> iFEiiN
+#() iFEipp -> iFEipp
+#() iFEppp -> iFEppp
+#() iFiiII -> iFiiII
+#() iFiuui -> iFiuui
+#() LFpLLh -> LFpLLh
+#() pFppuL -> pFppuL
+#() pFppLL -> pFppLL
+#() iFEppiV -> iFEppiV
+#() iFiLLLL -> iFiLLLL
+#() iFEpippppp -> iFEpippppp
 #defined(HAVE_LD80BITS) DFD -> DFD
 #defined(HAVE_LD80BITS) DFDD -> DFDD
 #defined(HAVE_LD80BITS) DFDp -> DFDp
 #!defined(HAVE_LD80BITS) KFK -> KFK
 #!defined(HAVE_LD80BITS) KFKK -> KFKK
 #!defined(HAVE_LD80BITS) KFKp -> KFKp
+#() iFEvpV -> iFEpV
 #() UFsvvs -> UFss
 wrappedcrashhandler:
 wrappedldlinux:
@@ -41,6 +121,36 @@ wrappedldlinux:
   - ___tls_get_addr
 - pFp:
   - __tls_get_addr
+wrappedlibc:
+- vFv:
+- vFp:
+- iFv:
+- iFi:
+  - __close_nocancel
+- iFL:
+- iFp:
+- iFO:
+- uFu:
+- uFV:
+- LFL:
+- pFL:
+- vFip:
+- vFpi:
+- vFpu:
+- iFpp:
+- iFpV:
+- IFII:
+- UFUU:
+- pFip:
+- hFpp:
+- vFipV:
+- iFvpV:
+- iFiiN:
+- iFipp:
+- iFppp:
+- iFiiII:
+- iFppiV:
+- iFpippppp:
 wrappedlibm:
 - UFs:
   - cacosf

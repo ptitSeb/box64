@@ -103,6 +103,13 @@ static inline void PushExit(x64emu_t* emu)
     *((uint64_t*)R_RSP) = my_context->exit_bridge;
 }
 
+#ifdef BOX32
+static inline void PushExit_32(x64emu_t* emu)
+{
+    R_ESP -= 4;
+    *((ptr_t*)(uintptr_t)R_ESP) = my_context->exit_bridge;
+}
+#endif
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
 reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta);

@@ -335,7 +335,6 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/emu/x64run_private.c"
     "${BOX64_ROOT}/src/emu/x64shaext.c"
     "${BOX64_ROOT}/src/emu/x64syscall.c"
-    "${BOX64_ROOT}/src/emu/x86syscall.c"
     "${BOX64_ROOT}/src/emu/x64tls.c"
     "${BOX64_ROOT}/src/emu/x64trace.c"
     "${BOX64_ROOT}/src/librarian/librarian.c"
@@ -370,6 +369,7 @@ if(NOT STATICBUILD)
 endif()
 if(BOX32)
     list(APPEND ELFLOADER_SRC
+        "${BOX64_ROOT}/src/box32.c"
         "${BOX64_ROOT}/src/elfs/elfhash32.c"
         "${BOX64_ROOT}/src/elfs/elfloader32.c"
         "${BOX64_ROOT}/src/elfs/elfparser32.c"
@@ -378,7 +378,13 @@ if(BOX32)
         "${BOX64_ROOT}/src/emu/x86int3.c"
         "${BOX64_ROOT}/src/libtools/myalign32.c"
         "${BOX64_ROOT}/src/libtools/myalign64_32.c"
+        "${BOX64_ROOT}/src/emu/x86syscall_32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c"
+        "${BOX64_ROOT}/src/wrapped32/generated/converter32.c"
+    )
+else()
+    list(APPEND ELFLOADER_SRC
+        "${BOX64_ROOT}/src/emu/x86syscall.c"
     )
 endif()
 if(NOT ANDROID)
@@ -739,7 +745,7 @@ if(BOX32)
     set(WRAPPEDS32
         "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedldlinux.c"
-        #"${BOX64_ROOT}/src/wrapped32/wrappedlibc.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibc.c"
         #"${BOX64_ROOT}/src/wrapped32/wrappedlibdl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibm.c"
         #"${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"

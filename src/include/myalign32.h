@@ -16,14 +16,14 @@ typedef struct {
    void *reg_save_area;
 } va_list[1];
 */
-#define CREATE_SYSV_VALIST(A)             \
+#define CREATE_SYSV_VALIST_32(A)          \
   va_list sysv_varargs;                   \
   sysv_varargs->gp_offset=X64_VA_MAX_REG; \
   sysv_varargs->fp_offset=X64_VA_MAX_XMM; \
   sysv_varargs->reg_save_area=(A);        \
   sysv_varargs->overflow_arg_area=A
 
-#define CONVERT_VALIST(A)                 \
+#define CONVERT_VALIST_32(A)              \
   va_list sysv_varargs;                   \
   sysv_varargs->gp_offset=X64_VA_MAX_REG; \
   sysv_varargs->fp_offset=X64_VA_MAX_XMM; \
@@ -44,34 +44,34 @@ typedef struct  va_list {
     int vr_offs; // offset from  vr_top to next FP/SIMD register arg
 } va_list;
 */
-#define CREATE_SYSV_VALIST(A) \
+#define CREATE_SYSV_VALIST_32(A) \
   va_list sysv_varargs; \
   sysv_varargs.__gr_offs=(8*8); \
   sysv_varargs.__vr_offs=(8*16); \
   sysv_varargs.__stack=(A);
 
-#define CONVERT_VALIST(A)                                         \
-  va_list sysv_varargs;                                           \
+#define CONVERT_VALIST_32(A)                                     \
+  va_list sysv_varargs;                                          \
   sysv_varargs.__gr_offs=(8*8);                                  \
   sysv_varargs.__vr_offs=(8*16));                                \
   sysv_varargs.__stack=(A);
 
 
 #elif defined(__loongarch64) || defined(__powerpc64__) || defined(__riscv)
-#define CREATE_SYSV_VALIST(A) \
+#define CREATE_SYSV_VALIST_32(A) \
   va_list sysv_varargs = (va_list)A
 
-#define CREATE_VALIST_FROM_VALIST(VA, SCRATCH)                          \
+#define CREATE_VALIST_FROM_VALIST_32(VA, SCRATCH)                          \
   va_list sysv_varargs = (va_list)A
 
 #else
 #error Unknown architecture!
 #endif
 
-#define VARARGS sysv_varargs
-#define PREPARE_VALIST CREATE_SYSV_VALIST(emu->scratch)
-#define VARARGS_(A) sysv_varargs
-#define PREPARE_VALIST_(A) CREATE_SYSV_VALIST(A)
+#define VARARGS_32 sysv_varargs
+#define PREPARE_VALIST_32 CREATE_SYSV_VALIST_32(emu->scratch)
+#define VARARGS_32_(A) sysv_varargs
+#define PREPARE_VALIST_32_(A) CREATE_SYSV_VALIST_32(A)
 
 void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack);
 void myStackAlignGVariantNew32(const char* fmt, uint32_t* st, uint64_t* mystack);
@@ -400,5 +400,8 @@ typedef struct my_GValue_s
 void alignNGValue(my_GValue_t* v, void* value, int n);
 void unalignNGValue(void* value, my_GValue_t* v, int n);
 #endif
+
+int of_convert32(int a);
+int of_unconvert32(int a);
 
 #endif//__MY_ALIGN32__H_

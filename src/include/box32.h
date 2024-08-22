@@ -104,9 +104,4 @@ void fini_hash_helper();
 
 typedef struct x86emu_s x86emu_t;
 
-void* my_mmap(x86emu_t* emu, void* addr, unsigned long length, int prot, int flags, int fd, int offset);
-void* my_mmap64(x86emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
-int my_munmap(x86emu_t* emu, void* addr, unsigned long length);
-int my_mprotect(x86emu_t* emu, void *addr, unsigned long len, int prot);
-
 #endif //__BOX32_64__H_
