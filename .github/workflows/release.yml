@@ -28,7 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RPI5ARM64, RK3326, RK3399, RK3588, PHYTIUM, SD845, SD888, ADLINK, ARM64, ANDROID, TERMUX, LARCH64]
-        type: [Release, Trace, StaticBuild]
+        type: [Release, Trace, StaticBuild, Box32]
         os: [ubuntu-latest]
         include:
           - platform: TEGRAX1
@@ -42,8 +42,12 @@ jobs:
             type: StaticBuild
           - platform: ANDROID
             type: StaticBuild
+          - platform: ANDROID
+            type: Box32
           - platform: TERMUX
             type: StaticBuild
+          - platform: TERMUX
+            type: Box32
           - platform: X64
             type: StaticBuild
 
@@ -119,14 +123,22 @@ jobs:
             echo BOX64_BUILD_TYPE=Release >> $GITHUB_ENV
             echo BOX64_HAVE_TRACE=0 >> $GITHUB_ENV
             echo BOX64_STATICBUILD=0 >> $GITHUB_ENV
+            echo BOX64_BOX32=0 >> $GITHUB_ENV
           elif [[ ${{ matrix.type }} == 'StaticBuild' ]]; then
             echo BOX64_BUILD_TYPE=Release >> $GITHUB_ENV
             echo BOX64_HAVE_TRACE=0 >> $GITHUB_ENV
             echo BOX64_STATICBUILD=1 >> $GITHUB_ENV
+            echo BOX64_BOX32=0 >> $GITHUB_ENV
+          elif [[ ${{ matrix.type }} == 'Box32' ]]; then
+            echo BOX64_BUILD_TYPE=Release >> $GITHUB_ENV
+            echo BOX64_HAVE_TRACE=0 >> $GITHUB_ENV
+            echo BOX64_STATICBUILD=0 >> $GITHUB_ENV
+            echo BOX64_BOX32=1 >> $GITHUB_ENV
           else
             echo BOX64_BUILD_TYPE=RelWithDebInfo >> $GITHUB_ENV
             echo BOX64_HAVE_TRACE=1 >> $GITHUB_ENV
             echo BOX64_STATICBUILD=0 >> $GITHUB_ENV
+            echo BOX64_BOX31=0 >> $GITHUB_ENV
           fi
 
       - name: "Display Build info"
@@ -136,6 +148,7 @@ jobs:
           echo "Build type: ${{ env.BOX64_BUILD_TYPE }}"
           echo "Trace Enabled: ${{ env.BOX64_HAVE_TRACE }}"
           echo "StaticBuild Enabled: ${{ env.BOX64_STATICBUILD }}"
+          echo "Box32 Enabled: ${{ env.BOX64_BOX32 }}"
 
       - name: "Build Box64"
         run: |
@@ -147,6 +160,7 @@ jobs:
                    -DCMAKE_BUILD_TYPE=${{ env.BOX64_BUILD_TYPE }}\
                    -DHAVE_TRACE=${{ env.BOX64_HAVE_TRACE }}\
                    -DSTATICBUILD=${{ env.BOX64_STATICBUILD }}\
+                   -DBOX32=${{ env.BOX64_BOX32 }}\
                    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON\
                    -DCI=${{ matrix.platform != 'ANDROID' }}
           make -j$(nproc) VERBOSE=1
