@@ -749,7 +749,7 @@ if(BOX32)
         #"${BOX64_ROOT}/src/wrapped32/wrappedlibdl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibm.c"
         #"${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
-        #"${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
     )
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
     #set(WRAPPEDS32_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_genvate.h")

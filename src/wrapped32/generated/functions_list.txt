@@ -23,6 +23,7 @@
 #() dFv -> dFv
 #() dFd -> dFd
 #() lFi -> lFi
+#() lFp -> lFp
 #() LFv -> LFv
 #() LFL -> LFL
 #() pFL -> pFL
@@ -39,6 +40,7 @@
 #() iFiu -> iFiu
 #() iFip -> iFip
 #() iFuu -> iFuu
+#() iFup -> iFup
 #() iFli -> iFli
 #() iFpi -> iFpi
 #() iFpp -> iFpp
@@ -83,8 +85,10 @@
 #() iFuui -> iFuui
 #() iFuuu -> iFuuu
 #() iFuLp -> iFuLp
+#() iFpip -> iFpip
 #() iFpuu -> iFpuu
 #() iFppL -> iFppL
+#() iFpOu -> iFpOu
 #() IFiIi -> IFiIi
 #() fFfff -> fFfff
 #() fFffp -> fFffp
@@ -225,3 +229,4 @@ wrappedlibm:
   - lgammal_r
 - UFsvvs:
   - cpowf
+wrappedlibrt:
