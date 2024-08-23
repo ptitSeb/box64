@@ -644,7 +644,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define FCVTLS(rd, frs1, rm) EMIT(R_type(0b1100000, 0b00010, frs1, rm, rd, 0b1010011))
 // Convert from Single to unsigned 64bits
 #define FCVTLUS(rd, frs1, rm) EMIT(R_type(0b1100000, 0b00011, frs1, rm, rd, 0b1010011))
-// onvert from Single to signed 32/64bits (trucated)
+// Convert from Single to signed 32/64bits (trucated)
 #define FCVTSxw(rd, frs1, rm) EMIT(R_type(0b1100000, rex.w ? 0b00010 : 0b00000, frs1, rm, rd, 0b1010011))
 
 // RV32D
