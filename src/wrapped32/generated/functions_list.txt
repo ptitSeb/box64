@@ -132,6 +132,8 @@
 #() iFiLLLL -> iFiLLLL
 #() iFEBh_ppp -> iFEBppp
 #() iFEpippppp -> iFEpippppp
+#defined(ANDROID) pFv -> pFv
+#defined(ANDROID) vFEpppp -> vFEpppp
 #defined(HAVE_LD80BITS) DFD -> DFD
 #defined(HAVE_LD80BITS) DFDD -> DFDD
 #defined(HAVE_LD80BITS) DFDp -> DFDp
@@ -173,6 +175,8 @@ wrappedlibc:
 - iFiiN:
 - iFipp:
 - iFppp:
+- vFpppp:
+  - __libc_init
 - iFiiII:
 - iFppiV:
 - iFpippppp:

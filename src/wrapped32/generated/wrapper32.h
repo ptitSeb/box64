@@ -172,6 +172,11 @@ void iFiLLLL_32(x64emu_t *emu, uintptr_t fnc);
 void iFEBh_ppp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpippppp_32(x64emu_t *emu, uintptr_t fnc);
 
+#if defined(ANDROID)
+void pFv_32(x64emu_t *emu, uintptr_t fnc);
+void vFEpppp_32(x64emu_t *emu, uintptr_t fnc);
+#endif
+
 #if defined(HAVE_LD80BITS)
 void DFD_32(x64emu_t *emu, uintptr_t fnc);
 void DFDD_32(x64emu_t *emu, uintptr_t fnc);

@@ -207,6 +207,11 @@ typedef int32_t (*iFiLLLL_t)(int32_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t
 typedef int32_t (*iFEBh_ppp_t)(x64emu_t*, struct_h_t*, void*, void*, void*);
 typedef int32_t (*iFEpippppp_t)(x64emu_t*, void*, int32_t, void*, void*, void*, void*, void*);
 
+#if defined(ANDROID)
+typedef void* (*pFv_t)(void);
+typedef void (*vFEpppp_t)(x64emu_t*, void*, void*, void*, void*);
+#endif
+
 #if defined(HAVE_LD80BITS)
 typedef long double (*DFD_t)(long double);
 typedef long double (*DFDD_t)(long double, long double);
@@ -353,6 +358,11 @@ void iFEppiV_32(x64emu_t *emu, uintptr_t fcn) { iFEppiV_t fn = (iFEppiV_t)fcn; R
 void iFiLLLL_32(x64emu_t *emu, uintptr_t fcn) { iFiLLLL_t fn = (iFiLLLL_t)fcn; R_EAX = fn(from_ptri(int32_t, R_ESP + 4), to_ulong(from_ptri(ulong_t, R_ESP + 8)), to_ulong(from_ptri(ulong_t, R_ESP + 12)), to_ulong(from_ptri(ulong_t, R_ESP + 16)), to_ulong(from_ptri(ulong_t, R_ESP + 20))); }
 void iFEBh_ppp_32(x64emu_t *emu, uintptr_t fcn) { iFEBh_ppp_t fn = (iFEBh_ppp_t)fcn; struct_h_t arg_4; R_EAX = fn(emu, *(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL, from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12), from_ptriv(R_ESP + 16)); if (*(ptr_t*)(from_ptr((R_ESP + 4)))) to_struct_h(*(ptr_t*)(from_ptr((R_ESP + 4))), &arg_4); }
 void iFEpippppp_32(x64emu_t *emu, uintptr_t fcn) { iFEpippppp_t fn = (iFEpippppp_t)fcn; R_EAX = fn(emu, from_ptriv(R_ESP + 4), from_ptri(int32_t, R_ESP + 8), from_ptriv(R_ESP + 12), from_ptriv(R_ESP + 16), from_ptriv(R_ESP + 20), from_ptriv(R_ESP + 24), from_ptriv(R_ESP + 28)); }
+
+#if defined(ANDROID)
+void pFv_32(x64emu_t *emu, uintptr_t fcn) { pFv_t fn = (pFv_t)fcn; R_EAX = to_ptrv(fn()); }
+void vFEpppp_32(x64emu_t *emu, uintptr_t fcn) { vFEpppp_t fn = (vFEpppp_t)fcn; fn(emu, from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12), from_ptriv(R_ESP + 16)); }
+#endif
 
 #if defined(HAVE_LD80BITS)
 void DFD_32(x64emu_t *emu, uintptr_t fcn) { DFD_t fn = (DFD_t)fcn; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4))); fpu_do_push(emu); ST0val = ld; }

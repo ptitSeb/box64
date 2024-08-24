@@ -36,11 +36,13 @@ typedef int32_t (*iFvpV_t)(void, void*, ...);
 typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFiiII_t)(int32_t, int32_t, int64_t, int64_t);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(__close_nocancel, iFi_t)
+	GO(__close_nocancel, iFi_t) \
+	GO(__libc_init, vFpppp_t)
 
 #endif // __wrappedlibcTYPES32_H_
