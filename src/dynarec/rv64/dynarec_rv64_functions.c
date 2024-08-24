@@ -415,17 +415,24 @@ void extcacheUnwind(extcache_t* cache)
     if(cache->news) {
         // remove the newly created extcache
         for(int i=0; i<24; ++i)
-            if(cache->news&(1<<i))
+            if((cache->news&(1<<i)) && !cache->olds[i].changed)
                 cache->extcache[i].v = 0;
         cache->news = 0;
     }
     // add/change bad regs
     for (int i = 0; i < 16; ++i) {
-        if (cache->olds[i].changed) {
-            cache->extcache[i].t = cache->olds[i].single ? EXT_CACHE_SS : EXT_CACHE_SD;
-        } else if (cache->olds[i].purged) {
-            cache->extcache[i].n = i;
-            cache->extcache[i].t = cache->olds[i].single ? EXT_CACHE_SS : EXT_CACHE_SD;
+        if (cache->olds[i].changed || cache->olds[i].purged) {
+            if (cache->olds[i].type == EXT_CACHE_OLD_XMMR)
+                cache->extcache[i].t = EXT_CACHE_XMMR;
+            else if (cache->olds[i].type == EXT_CACHE_OLD_XMMW)
+                cache->extcache[i].t = EXT_CACHE_XMMW;
+            else if (cache->olds[i].type == EXT_CACHE_OLD_SS)
+                cache->extcache[i].t = EXT_CACHE_SS;
+            else if (cache->olds[i].type == EXT_CACHE_OLD_SD)
+                cache->extcache[i].t = EXT_CACHE_SD;
+
+            if (cache->olds[i].purged)
+                cache->extcache[i].n = i;
         }
     }
 

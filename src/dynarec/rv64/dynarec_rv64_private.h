@@ -21,6 +21,11 @@ typedef struct instsize_s instsize_t;
 #define EXT_CACHE_XMMW   8
 #define EXT_CACHE_XMMR   9
 
+#define EXT_CACHE_OLD_SD   0
+#define EXT_CACHE_OLD_SS   1
+#define EXT_CACHE_OLD_XMMW 2
+#define EXT_CACHE_OLD_XMMR 3
+
 typedef union ext_cache_s {
     int8_t           v;
     struct {
@@ -32,11 +37,10 @@ typedef union ext_cache_s {
 typedef union sse_cache_s {
     int16_t v;
     struct {
-        uint16_t reg : 7;
+        uint16_t reg : 13;
         uint16_t vector : 1;
         uint16_t single : 1;
         uint16_t write : 1;
-        uint16_t unused : 7;
     };
 } sse_cache_t;
 
@@ -46,7 +50,7 @@ typedef union sse_old_s {
         uint8_t     changed:1;
         uint8_t     purged:1;
         uint8_t     reg:4;
-        uint8_t     single:1;
+        uint8_t     type:2;
     };
 } sse_old_t;
 
