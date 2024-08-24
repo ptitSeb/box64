@@ -34,6 +34,9 @@ void initAllHelpers(box64context_t* context)
     if(inited)
         return;
     my_context = context;
+    #ifdef BOX32
+    init_hash_helper();
+    #endif
     init_pthread_helper();
     init_bridge_helper();
     init_signal_helper(context);
@@ -50,6 +53,9 @@ void finiAllHelpers(box64context_t* context)
     fini_pthread_helper(context);
     fini_signal_helper();
     fini_bridge_helper();
+    #ifdef BOX32
+    fini_hash_helper();
+    #endif
     fini_custommem_helper(context);
     finied = 1;
 }

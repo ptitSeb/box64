@@ -111,7 +111,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #endif
         dyn->f.dfnone_here = 0;
         NEW_INST;
-        MESSAGE(LOG_DUMP, "New Instruction x64:%p, native:%p\n", (void*)addr, (void*)dyn->block);
+        MESSAGE(LOG_DUMP, "New Instruction %s:%p, native:%p\n", is32bits?"x86":"x64",(void*)addr, (void*)dyn->block);
         if(!ninst) {
             GOTEST(x1, x2);
         }

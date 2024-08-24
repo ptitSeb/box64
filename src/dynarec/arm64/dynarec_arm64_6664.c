@@ -62,7 +62,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         v1 = fpu_get_scratch(dyn, ninst);
-                        VLDR64_REG(v1, ed, x4);
+                        if(rex.is32bits)
+                            VLDR64_REG_SXTW(v1, x4, ed);
+                        else
+                            VLDR64_REG(v1, ed, x4);
                     }
                     FCMPD(v0, v1);
                     FCOMI(x1, x2);
@@ -80,7 +83,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         SMREAD();
-                        VLDR128_REG(v0, ed, x4);
+                        if(rex.is32bits)
+                            VLDR128_REG_SXTW(v0, x4, ed);
+                        else
+                            VLDR128_REG(v0, ed, x4);
                     }
                     break;
 
@@ -94,7 +100,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        VSTR128_REG(v0, ed, x4);
+                        if(rex.is32bits)
+                            VSTR128_REG_SXTW(v0, x4, ed);
+                        else
+                            VSTR128_REG(v0, ed, x4);
                         SMWRITE2();
                     }
                     break;
@@ -110,7 +119,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                        VSTR64_REG(v0, ed, x4);
+                        if(rex.is32bits)
+                            VSTR64_REG_SXTW(v0, x4, ed);
+                        else
+                            VSTR64_REG(v0, ed, x4);
                         SMWRITE();
                     }
                     break;
@@ -229,7 +241,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 if(rex.w) {
                     STRx_REG(gd, ed, x4);
                 } else {
-                    STRH_REG(gd, ed, x4);
+                    if(rex.is32bits)
+                        STRH_REG_SXTW(gd, x4, ed);
+                    else
+                        STRH_REG(gd, ed, x4);
                 }
                 SMWRITE();
             }
@@ -255,7 +270,10 @@ uintptr_t dynarec64_6664(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 if(rex.w) {
                     LDRx_REG(gd, ed, x4);
                 } else {
-                    LDRH_REG(x1, ed, x4);
+                    if(rex.is32bits)
+                        LDRH_REG_SXTW(x1, x4, ed);
+                    else
+                        LDRH_REG(x1, ed, x4);
                     BFIx(gd, x1, 0, 16);
                 }
             }

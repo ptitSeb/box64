@@ -29,6 +29,9 @@
 #include "dynablock.h"
 #include "dynarec/native_lock.h"
 #endif
+#ifdef BOX32
+#include "box32.h"
+#endif
 
 //void _pthread_cleanup_push_defer(void* buffer, void* routine, void* arg);	// declare hidden functions
 //void _pthread_cleanup_pop_restore(void* buffer, int exec);
@@ -124,14 +127,6 @@ int GetStackSize(x64emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize)
 
 void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
-typedef struct emuthread_s {
-	uintptr_t 	fnc;
-	void*		arg;
-	x64emu_t*	emu;
-	int			cancel_cap, cancel_size;
-	x64_unwind_buff_t **cancels;
-} emuthread_t;
-
 static pthread_key_t thread_key;
 
 static void emuthread_destroy(void* p)
@@ -144,6 +139,10 @@ static void emuthread_destroy(void* p)
 	if (my_context && (ptr = pthread_getspecific(my_context->tlskey)) != NULL)
         free_tlsdatasize(ptr);*/
 	// free x64emu
+	#ifdef BOX32
+	if(box64_is32bits && !et->join)
+		to_hash_d(et->self);
+	#endif
 	if(et) {
 		FreeX64Emu(&et->emu);
 		box_free(et);
@@ -158,9 +157,13 @@ static void emuthread_cancel(void* p)
 	// check cancels threads
 	for(int i=et->cancel_size-1; i>=0; --i) {
 		et->emu->flags.quitonlongjmp = 0;
-		my_longjmp(et->emu, et->cancels[i]->__cancel_jmp_buf, 1);
+		my_longjmp(et->emu, ((x64_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
+	#ifdef BOX32
+	if(box64_is32bits)
+		to_hash_d(et->self);
+	#endif
 	box_free(et->cancels);
 	et->cancels=NULL;
 	et->cancel_size = et->cancel_cap = 0;
@@ -182,6 +185,12 @@ void thread_set_emu(x64emu_t* emu)
 	}
 	et->emu = emu;
 	et->emu->type = EMUTYPE_MAIN;
+	#ifdef BOX32
+	if(box64_is32bits) {
+		et->self = (uintptr_t)pthread_self();
+		et->hself = to_hash(et->self);
+	}
+	#endif
 	pthread_setspecific(thread_key, et);
 }
 
@@ -1097,6 +1106,10 @@ EXPORT int my_pthread_barrier_init(x64emu_t* emu, pthread_barrier_t* bar, my_bar
 
 void init_pthread_helper()
 {
+	#ifdef BOX32
+	if(box64_is32bits)
+		init_pthread_helper_32();
+	#endif
 	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
 	real_pthread_cleanup_pop_restore = (vFpi_t)dlsym(NULL, "_pthread_cleanup_pop_restore");
 	real_pthread_cond_clockwait = (iFppip_t)dlsym(NULL, "pthread_cond_clockwait");
@@ -1129,6 +1142,10 @@ void clean_current_emuthread()
 
 void fini_pthread_helper(box64context_t* context)
 {
+	#ifdef BOX32
+	if(box64_is32bits)
+		fini_pthread_helper_32(context);
+	#endif
 	CleanStackSize(context);
 	clean_current_emuthread();
 }

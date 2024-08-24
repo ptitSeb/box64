@@ -1009,7 +1009,7 @@ GOM(__libc_init_first, vFEipV)  //%%
 // __libc_sa_len
 // __libc_siglongjmp
 GOM(__libc_start_main, iFEpippppp) //%%
-GO2(__libc_sigaction, iFEipp, my_sigaction) //%%
+GO2(__libc_sigaction, iFEipp, my32_sigaction) //%%
 // __libc_system
 // __libc_thread_freeres
 //GO(__libc_valloc, pFL)

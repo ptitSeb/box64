@@ -777,7 +777,7 @@ class Function:
 		
 		if self.is2:
 			self.fun2 = line.split(',')[2].split(')')[0].strip()
-			if self.type.hasemu != self.fun2.startswith("my_") and not self._noE:
+			if self.type.hasemu != self.fun2.startswith("my32_") and not self._noE:
 				# If this raises because of a different prefix, open a pull request
 				print("\033[91mThis is probably not what you meant!\033[m ({0}:{1})".format(filename, line[:-1]), file=sys.stderr)
 				self.invalid = True

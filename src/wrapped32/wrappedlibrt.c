@@ -72,4 +72,9 @@ EXPORT int my32_timer_create(x64emu_t* emu, uint32_t clockid, void* sevp, timer_
     return timer_create(clockid, &sevent, timerid);
 }
 
+#define PRE_INIT\
+    if(1)                                                   \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
+    else
+
 #include "wrappedlib_init32.h"

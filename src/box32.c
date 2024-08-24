@@ -57,8 +57,10 @@ uintptr_t from_hash(ulong_t l) {
     }
     // get value from hash table second
     uintptr_t ret = 0;
-    if(!hash_running)
+    if(!hash_running) {
+        //printf_log(LOG_INFO, "Warning, from_hash used but hash not running\n");
         return ret;
+    }
     pthread_rwlock_rdlock(&hash_lock);
     khint_t k = kh_get(from, hash_from, l);
     if (k==kh_end(hash_from)) {
@@ -83,8 +85,10 @@ ulong_t to_hash(uintptr_t p) {
         return 0xffffffff;
     }
     ulong_t ret = 0;
-    if(!hash_running)
+    if(!hash_running) {
+        //printf_log(LOG_INFO, "Warning, to_hash used but hash not running\n");
         return ret;
+    }
     khint_t k;
     pthread_rwlock_rdlock(&hash_lock);
     k = kh_get(to, hash_to, p);
@@ -114,8 +118,10 @@ ulong_t to_hash_d(uintptr_t p) {
     if(p==0xffffffffffffffffll)
         return 0xffffffff;
     ulong_t ret = 0;
-    if(!hash_running)
+    if(!hash_running) {
+        //printf_log(LOG_INFO, "Warning, to_hash_d used but hash not running\n");
         return ret;
+    }
     khint_t k;
     pthread_rwlock_wrlock(&hash_lock);
     k = kh_get(to, hash_to, p);
@@ -190,6 +196,7 @@ void* from_locale(ptr_t l) {
     // get value from hash table second
     void* ret = 0;
     if(!hash_running) {
+        //printf_log(LOG_INFO, "Warning, from_locale used but hash not running\n");
         return ret;
     }
     pthread_rwlock_rdlock(&hash_lock);
@@ -218,6 +225,7 @@ ptr_t to_locale(void* p) {
     }
     ptr_t ret = 0;
     if(!hash_running) {
+        //printf_log(LOG_INFO, "Warning, to_locale used but hash not running\n");
         return ret;
     }
     khint_t k;

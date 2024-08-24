@@ -378,6 +378,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/emu/x86int3.c"
         "${BOX64_ROOT}/src/libtools/myalign32.c"
         "${BOX64_ROOT}/src/libtools/myalign64_32.c"
+        "${BOX64_ROOT}/src/libtools/threads32.c"
         "${BOX64_ROOT}/src/emu/x86syscall_32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/converter32.c"
@@ -748,7 +749,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibc.c"
         #"${BOX64_ROOT}/src/wrapped32/wrappedlibdl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibm.c"
-        #"${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
     )
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
@@ -1547,10 +1548,10 @@ if(BOX32)
     #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref10.txt
     #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    #add_test(NAME tlsData_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test11 -D TEST_OUTPUT=tmpfile11.txt
-    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref11.txt
-    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    add_test(NAME tlsData_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test11 -D TEST_OUTPUT=tmpfile11.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref11.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
     add_test(NAME fpu_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test12 -D TEST_OUTPUT=tmpfile12.txt

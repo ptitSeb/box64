@@ -2841,11 +2841,10 @@ EXPORT int my32___libc_single_threaded = 0;
 #else
 //#define NEEDED_LIBS   4,\
 //    "ld-linux.so.2",    \
-//    "libpthread.so.0",  \
 //    "libdl.so.2",       \
 //    "librt.so.1"
 #define NEEDED_LIBS         \
-    "ld-linux.so.2"
+    "ld-linux.so.2", "libpthread.so.0", "librt.so.1"
 #endif
 
 #define CUSTOM_INIT         \

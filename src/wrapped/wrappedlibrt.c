@@ -162,4 +162,9 @@ EXPORT int my_lio_listio(x64emu_t* emu, int mode, void* list[], int nent, struct
 extern int __mq_open_2(const char*, int);
 #endif
 
+#define PRE_INIT\
+    if(1)                                                   \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL); \
+    else
+
 #include "wrappedlib_init.h"

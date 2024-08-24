@@ -26,7 +26,9 @@
 #() lFp -> lFp
 #() LFv -> LFv
 #() LFL -> LFL
+#() pFu -> pFu
 #() pFL -> pFL
+#() hFv -> hFv
 #() aFa -> aFa
 #() vFEv -> vFEv
 #() vFEp -> vFEp
@@ -34,6 +36,7 @@
 #() iFEi -> iFEi
 #() iFEL -> iFEL
 #() iFEp -> iFEp
+#() iFEh -> iFEh
 #() iFEO -> iFEO
 #() iFii -> iFii
 #() iFiI -> iFiI
@@ -45,6 +48,7 @@
 #() iFpi -> iFpi
 #() iFpp -> iFpp
 #() iFhp -> iFhp
+#() iFhh -> iFhh
 #() IFII -> IFII
 #() uFEu -> uFEu
 #() uFEV -> uFEV
@@ -67,11 +71,14 @@
 #() pFEp -> pFEp
 #() pFLL -> pFLL
 #() aFia -> aFia
+#() iFHBp_ -> iFHB
 #() vFEip -> vFEip
 #() vFEpi -> vFEpi
 #() vFEpu -> vFEpu
 #() vFfpp -> vFfpp
 #() vFdpp -> vFdpp
+#() iFEpi -> iFEpi
+#() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
 #() iFiii -> iFiii
@@ -81,13 +88,19 @@
 #() iFiII -> iFiII
 #() iFiuu -> iFiuu
 #() iFiLN -> iFiLN
+#() iFipp -> iFipp
 #() iFuii -> iFuii
+#() iFuip -> iFuip
 #() iFuui -> iFuui
 #() iFuuu -> iFuuu
 #() iFuLp -> iFuLp
+#() iFupp -> iFupp
+#() iFpiu -> iFpiu
 #() iFpip -> iFpip
 #() iFpuu -> iFpuu
+#() iFppu -> iFppu
 #() iFppL -> iFppL
+#() iFppp -> iFppp
 #() iFpOu -> iFpOu
 #() IFiIi -> IFiIi
 #() fFfff -> fFfff
@@ -96,12 +109,18 @@
 #() dFddp -> dFddp
 #() pFEip -> pFEip
 #() pFppL -> pFppL
+#() pFpOM -> pFpOM
 #() hFEpp -> hFEpp
 #() aFipa -> aFipa
 #() lFpBp_i -> lFpBi
 #() vFEipV -> vFEipV
+#() vFEppp -> vFEppp
 #() iFEiiN -> iFEiiN
 #() iFEipp -> iFEipp
+#() iFELup -> iFELup
+#() iFEpup -> iFEpup
+#() iFEppu -> iFEppu
+#() iFEppL -> iFEppL
 #() iFEppp -> iFEppp
 #() iFiiII -> iFiiII
 #() iFiuui -> iFiuui
@@ -110,6 +129,7 @@
 #() pFppLL -> pFppLL
 #() iFEppiV -> iFEppiV
 #() iFiLLLL -> iFiLLLL
+#() iFEBh_ppp -> iFEBppp
 #() iFEpippppp -> iFEpippppp
 #defined(HAVE_LD80BITS) DFD -> DFD
 #defined(HAVE_LD80BITS) DFDD -> DFDD
@@ -229,4 +249,85 @@ wrappedlibm:
   - lgammal_r
 - UFsvvs:
   - cpowf
+wrappedlibpthread:
+- vFv:
+  - __pthread_initialize
+- vFp:
+  - __pthread_register_cancel
+  - __pthread_unregister_cancel
+  - __pthread_unwind_next
+- iFp:
+  - __pthread_mutex_destroy
+  - __pthread_mutex_lock
+  - __pthread_mutex_trylock
+  - __pthread_mutex_unlock
+  - pthread_attr_destroy
+  - pthread_attr_init
+  - pthread_cond_broadcast@GLIBC_2.0
+  - pthread_cond_destroy@GLIBC_2.0
+  - pthread_cond_signal@GLIBC_2.0
+  - pthread_mutex_destroy
+  - pthread_mutex_lock
+  - pthread_mutex_trylock
+  - pthread_mutex_unlock
+  - pthread_rwlock_rdlock
+  - pthread_rwlock_unlock
+  - pthread_rwlock_wrlock
+- iFh:
+  - pthread_detach
+- vFpi:
+  - _pthread_cleanup_pop
+  - _pthread_cleanup_pop_restore
+- iFpi:
+  - pthread_attr_setdetachstate
+  - pthread_attr_setinheritsched
+  - pthread_attr_setschedpolicy
+  - pthread_attr_setscope
+  - pthread_kill
+  - pthread_mutexattr_setkind_np
+- iFpL:
+  - pthread_attr_setguardsize
+  - pthread_attr_setstacksize
+- iFpp:
+  - __pthread_key_create
+  - __pthread_mutex_init
+  - __pthread_once
+  - pthread_attr_getdetachstate
+  - pthread_attr_getguardsize
+  - pthread_attr_getinheritsched
+  - pthread_attr_getschedparam
+  - pthread_attr_getschedpolicy
+  - pthread_attr_getscope
+  - pthread_attr_getstackaddr
+  - pthread_attr_getstacksize
+  - pthread_attr_setschedparam
+  - pthread_attr_setstackaddr
+  - pthread_cond_init@GLIBC_2.0
+  - pthread_cond_wait
+  - pthread_cond_wait@GLIBC_2.0
+  - pthread_key_create
+  - pthread_mutex_init
+  - pthread_mutex_timedlock
+  - pthread_once
+  - pthread_setname_np
+- vFppp:
+  - _pthread_cleanup_push
+  - _pthread_cleanup_push_defer
+- iFLup:
+  - pthread_setaffinity_np
+- iFpup:
+  - pthread_attr_setaffinity_np
+  - pthread_getaffinity_np
+- iFppu:
+  - pthread_getname_np
+- iFppL:
+  - pthread_attr_setstack
+- iFppp:
+  - __pthread_atfork
+  - pthread_atfork
+  - pthread_attr_getstack
+  - pthread_cond_timedwait
+  - pthread_cond_timedwait@GLIBC_2.0
+- iFhppp:
+  - pthread_create
 wrappedlibrt:
