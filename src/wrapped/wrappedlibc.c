@@ -3698,27 +3698,10 @@ __attribute__((weak)) uint32_t arc4random()
 #endif
 
 #if defined(ANDROID)
-#ifdef STATICBUILD
-#define NEEDED_LIBS_DEF   3,\
-    "libpthread.so",        \
+#define NEEDED_LIBS_DEF   2,\
     "libdl.so" ,            \
     "libm.so"
-#define NEEDED_LIBS_234 3,  \
-    "libpthread.so",        \
-    "libdl.so" ,            \
-    "libm.so"
-#else
-#define NEEDED_LIBS_DEF   4,\
-    "libpthread.so",        \
-    "libdl.so" ,            \
-    "libm.so",              \
-    "libbsd.so"
-#define NEEDED_LIBS_234 4,  \
-    "libpthread.so",        \
-    "libdl.so" ,            \
-    "libm.so",              \
-    "libbsd.so"
-#endif
+#define NEEDED_LIBS_234 0
 #else
 #ifdef STATICBUILD
 #define NEEDED_LIBS_DEF   5,\
