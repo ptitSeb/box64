@@ -650,6 +650,7 @@ EXPORT int my32_pthread_attr_setscope(x64emu_t* emu, void* attr, int scope)
     // but PTHREAD_SCOPE_PROCESS doesn't seem supported on ARM linux, and PTHREAD_SCOPE_SYSTEM is default
 }
 
+#ifndef ANDROID
 EXPORT void my32__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, void* arg)
 {
 	real_pthread_cleanup_push_defer(buffer, findcleanup_routineFct(routine), arg);
@@ -718,6 +719,7 @@ EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t 
 
     return ret;
 }
+#endif
 
 EXPORT int my32_pthread_kill(x64emu_t* emu, void* thread, int sig)
 {

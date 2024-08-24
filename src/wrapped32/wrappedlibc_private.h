@@ -2160,11 +2160,18 @@ GOM(fallocate64, iFiiII)    //%%,noE
 
 //GOM(modify_ldt, iFEipL) // there is suposedly no glibc wrapper for this one
 
+#ifdef ANDROID
+GOM(__libc_init, vFEpppp)
+GO(__errno, pFv)
+#else
+// Those symbols don't exist in non-Android builds
 //GOM(__libc_init,
+//GO(__errno,
+#endif
+
 //GOM(stat,
 //GOM(lstat,
 //GOM(fstat,
-//GO(__errno,
 //GO(setprogname,
 //GO(getprogname,
 
