@@ -107,7 +107,12 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     x64_ucontext_t* old_uc_link = emu->uc_link;
     emu->uc_link = NULL;
 
-    PushExit(emu);
+    #ifdef BOX32
+    if(box64_is32bits)
+        PushExit_32(emu);
+    else
+    #endif
+        PushExit(emu);
     R_RIP = addr;
     emu->df = d_none;
     DynaRun(emu);

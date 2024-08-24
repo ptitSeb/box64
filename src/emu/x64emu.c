@@ -173,7 +173,7 @@ void CallCleanup(x64emu_t *emu, elfheader_t* h)
     if(!h)
         return;
     for(int i=h->clean_sz-1; i>=0; --i) {
-        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        printf_log(LOG_DEBUG, "Call cleanup #%d (args:%d, arg:%p)\n", i, h->cleanups[i].arg, h->cleanups[i].a);
         RunFunctionWithEmu(emu, 0, (uintptr_t)(h->cleanups[i].f), h->cleanups[i].arg, h->cleanups[i].a );
         // now remove the cleanup
         if(i!=h->clean_sz-1)

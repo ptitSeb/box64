@@ -90,16 +90,16 @@ static Elf32_Sym* new_elf_lookup(elfheader_t* h, const char* symname, int ver, c
     const uint32_t symoffset = hashtab[1];
     const uint32_t bloom_size = hashtab[2];
     const uint32_t bloom_shift = hashtab[3];
-    const uint64_t *blooms = (uint64_t*)&hashtab[4];
+    const uint32_t *blooms = (uint32_t*)&hashtab[4];
     const uint32_t *buckets = (uint32_t*)&blooms[bloom_size];
     const uint32_t *chains = &buckets[nbuckets];
     // get hash from symname to lookup
     const uint32_t hash = new_elf_hash(symname);
     // early check with bloom: if at least one bit is not set, a symbol is surely missing.
-    uint64_t word = blooms[(hash/64)%bloom_size];
-    uint64_t mask = 0
-        | 1LL << (hash%64)
-        | 1LL << ((hash>>bloom_shift)%64);
+    uint32_t word = blooms[(hash/32)%bloom_size];
+    uint32_t mask = 0
+        | 1LL << (hash%32)
+        | 1LL << ((hash>>bloom_shift)%32);
     if ((word & mask) != mask) {
         return NULL;
     }
@@ -127,7 +127,7 @@ static void new_elf_hash_dump(elfheader_t* h)
     const uint32_t symoffset = hashtab[1];
     const uint32_t bloom_size = hashtab[2];
     const uint32_t bloom_shift = hashtab[3];
-    const uint64_t *blooms = (uint64_t*)&hashtab[4];
+    const uint32_t *blooms = (uint32_t*)&hashtab[4];
     const uint32_t *buckets = (uint32_t*)&blooms[bloom_size];
     const uint32_t *chains = &buckets[nbuckets];
     printf_log(LOG_NONE, "===============Dump GNU_HASH from %s\n", h->name);

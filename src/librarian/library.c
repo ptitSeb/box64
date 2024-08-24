@@ -376,7 +376,7 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
 {
     char libname[MAX_PATH];
     strcpy(libname, path);
-    int found = FileIsX64ELF(libname);
+    int found = box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname);
     if(found)
         if(loadEmulatedLib(libname, lib, context, verneeded))
             return;
@@ -385,14 +385,14 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
         {
             strcpy(libname, context->box64_ld_lib.paths[i]);
             strcat(libname, path);
-            if(FileIsX64ELF(libname))
+            if(box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname))
                 if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;
             // also try x86_64 variant
             strcpy(libname, context->box64_ld_lib.paths[i]);
-            strcat(libname, "x86_64/");
+            strcat(libname, box64_is32bits?"i386/":"x86_64/");
             strcat(libname, path);
-            if(FileIsX64ELF(libname))
+            if(box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname))
                 if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;            
         }

@@ -1270,7 +1270,11 @@ int GatherEnv(char*** dest, char** env, char* prog)
         (*dest)[idx++] = box_strdup("BOX64_PATH=.:bin");
     }
     if(!ld_path) {
+        #ifdef BOX32
+        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64:i386:libs:bin");
+        #else
         (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64");
+        #endif
     }
     // add "_=prog" at the end...
     if(prog) {
@@ -1383,24 +1387,7 @@ void LoadEnvVars(box64context_t *context)
             }
         } while(p);
     }
-    // check BOX64_LD_LIBRARY_PATH and load it
-    LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
-    #ifndef TERMUX
-    if(FileExist("/lib/x86_64-linux-gnu", 0))
-        AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
-        AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    if(FileExist("/usr/x86_64-linux-gnu/lib", 0))
-        AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
-    if(FileExist("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", 0))
-        AddPath("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    #else
-    //TODO: Add Termux Library Path - Lily
-    if(FileExist("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", 0))
-        AddPath("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    #endif
-    if(getenv("LD_LIBRARY_PATH"))
-        PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
+
     if(getenv("BOX64_EMULATED_LIBS")) {
         char* p = getenv("BOX64_EMULATED_LIBS");
         ParseList(p, &context->box64_emulated_libs, 0);
@@ -1496,6 +1483,54 @@ void LoadEnvVars(box64context_t *context)
         }
     }
 #endif
+}
+
+EXPORTDYN
+void LoadLDPath(box64context_t *context)
+{
+    // check BOX64_LD_LIBRARY_PATH and load it
+    #ifdef BOX32
+    if(box64_is32bits)
+        LoadEnvPath(&context->box64_ld_lib, ".:lib:i386:bin:libs", "BOX64_LD_LIBRARY_PATH");
+    else
+    #endif
+    LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
+    #ifndef TERMUX
+    if(box64_is32bits) {
+        #ifdef BOX32
+        if(FileExist("/lib/i386-linux-gnu", 0))
+            AddPath("/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/lib/i386-linux-gnu", 0))
+            AddPath("/usr/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/i386-linux-gnu/lib", 0))
+            AddPath("/usr/i386-linux-gnu/lib", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/glibc/lib/i386-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/glibc/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        #endif
+    } else {
+        if(FileExist("/lib/x86_64-linux-gnu", 0))
+            AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
+            AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/x86_64-linux-gnu/lib", 0))
+            AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+    }
+    #else
+    //TODO: Add Termux Library Path - Lily
+    if(box64_is32bits) {
+        #ifdef BOX32
+        if(FileExist("/data/data/com.termux/files/usr/lib/i386-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        #endif
+    } else {
+        if(FileExist("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+    }
+    #endif
+    if(getenv("LD_LIBRARY_PATH"))
+        PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
 }
 
 EXPORTDYN
@@ -2094,6 +2129,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         reserveHighMem();
         init_pthread_helper_32();
     }
+    LoadLDPath(my_context);
     #endif
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
     if(!elf_header) {

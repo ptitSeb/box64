@@ -291,9 +291,11 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, *(void**)from_ptr(R_ESP), s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                 }
-                pthread_mutex_lock(&emu->context->mutex_trace);
-                printf_log(LOG_NONE, "%s =>", buff);
-                pthread_mutex_unlock(&emu->context->mutex_trace);
+                if(!cycle_log) {
+                    mutex_lock(&emu->context->mutex_trace);
+                    printf_log(LOG_NONE, "%s =>", buff);
+                    mutex_unlock(&emu->context->mutex_trace);
+                }
                 w(emu, a);   // some function never come back, so unlock the mutex first!
                 if(post)
                     switch(post) {
@@ -322,9 +324,13 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==3 && ((int)R_EAX)==-1)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
-                pthread_mutex_lock(&emu->context->mutex_trace);
-                printf_log(LOG_NONE, " return 0x%08X%s%s\n", R_EAX, buff2, buff3);
-                pthread_mutex_unlock(&emu->context->mutex_trace);
+                if(cycle_log)
+                    snprintf(buffret, 128, "0x%lX%s%s", R_RAX, buff2, buff3);
+                else {
+                    mutex_lock(&emu->context->mutex_trace);
+                    printf_log(LOG_NONE, " return 0x%lX%s%s\n", R_RAX, buff2, buff3);
+                    mutex_unlock(&emu->context->mutex_trace);
+                }
             } else
                 w(emu, a);
         }

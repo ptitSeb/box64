@@ -177,7 +177,7 @@ GO(closelog, vFv)
 GOM(__cxa_atexit, iFEppp) //%%
 GOM(atexit, iFEp)           //%% just in case
 GOM(__cxa_finalize, vFEp) //%%
-//DATAM(__cpu_model, 16)
+DATAM(__cpu_model, 16)
 //GOM(__cxa_thread_atexit_impl, iFEppp) //%%
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit

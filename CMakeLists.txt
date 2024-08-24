@@ -1108,6 +1108,24 @@ if(NOT _x86 AND NOT _x86_64)
         install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libmbedcrypto.so.3 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
 	endif()
    endif()
+   if(BOX32)
+    set(INSTALL_PATH "/usr/lib/i386-linux-gnu/")
+    if(NOT NO_LIB_INSTALL)
+    	if(NOT TERMUX)
+    		install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.5 DESTINATION ${INSTALL_PATH})
+    		install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.6 DESTINATION ${INSTALL_PATH})
+    		install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION ${INSTALL_PATH})
+    		install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libpng12.so.0 DESTINATION ${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libunwind.so.8 DESTINATION ${INSTALL_PATH})
+        else()
+            install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.5 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libstdc++.so.6 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libgcc_s.so.1 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libpng12.so.0 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+            install(FILES ${CMAKE_SOURCE_DIR}/x86lib/libunwind.so.8 DESTINATION ${TERMUX_PATH}${INSTALL_PATH})
+       endif()
+    endif()
+  endif()
 endif()
 
 if(NOT TARGET uninstall)
@@ -1543,10 +1561,10 @@ if(BOX32)
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref09.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    #add_test(NAME cppThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test10 -D TEST_OUTPUT=tmpfile10.txt
-    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref10.txt
-    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    add_test(NAME cppThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test10 -D TEST_OUTPUT=tmpfile10.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref10.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
     add_test(NAME tlsData_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test11 -D TEST_OUTPUT=tmpfile11.txt
