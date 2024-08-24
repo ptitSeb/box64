@@ -252,8 +252,10 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec)
                     printf_log(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %d\n", h->initarray_sz);
                     break;
                 case DT_PREINIT_ARRAYSZ:
-                    if(val)
-                        printf_log(LOG_NONE, "Warning, PreInit Array (size=%d) present and ignored!\n", val);
+                    #ifndef ANDROID
+                        if(val)
+                            printf_log(LOG_NONE, "Warning, PreInit Array (size=%d) present and ignored!\n", val);
+                    #endif
                     break;
                 case DT_FINI: // Exit hook
                     h->finientry = ptr;
