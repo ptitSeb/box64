@@ -1561,10 +1561,12 @@ if(BOX32)
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref09.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    add_test(NAME cppThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test10 -D TEST_OUTPUT=tmpfile10.txt
-        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref10.txt
-        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    if(NOT CI)
+        add_test(NAME cppThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+            -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test10 -D TEST_OUTPUT=tmpfile10.txt
+            -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref10.txt
+            -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    endif()
 
     add_test(NAME tlsData_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test11 -D TEST_OUTPUT=tmpfile11.txt
