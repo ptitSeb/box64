@@ -1541,10 +1541,10 @@ if(BOX32)
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref05.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    #add_test(NAME threadsStart_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test06 -D TEST_OUTPUT=tmpfile06.txt
-    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref06.txt
-    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    add_test(NAME threadsStart_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test06 -D TEST_OUTPUT=tmpfile06.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref06.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
     add_test(NAME trig_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test07 -D TEST_OUTPUT=tmpfile07.txt
@@ -1583,12 +1583,12 @@ if(BOX32)
     #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref13.txt
     #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    #if(NOT LD80BITS)
-    #    add_test(NAME conditionalThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-    #        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test14 -D TEST_OUTPUT=tmpfile14.txt
-    #        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref14.txt
-    #        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
-    #endif()
+    if(NOT LD80BITS)
+        add_test(NAME conditionalThreads_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+            -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test14 -D TEST_OUTPUT=tmpfile14.txt
+            -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref14.txt
+            -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    endif()
 
     #add_test(NAME linkingIndirectNoversion_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test15 -D TEST_OUTPUT=tmpfile15.txt
