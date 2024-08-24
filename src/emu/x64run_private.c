@@ -110,6 +110,26 @@ EXPORT int32_t my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, c
     return (int)GetEAX(emu);
 }
 #ifdef BOX32
+#ifdef ANDROID
+void EXPORT my32___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) , int (*main)(int, char**, char**), void const * const structors )
+{
+    //TODO: register fini
+    // let's cheat and set all args...
+    Push_32(emu, (uint32_t)my_context->envv32);
+    Push_32(emu, (uint32_t)my_context->argv32);
+    Push_32(emu, (uint32_t)my_context->argc);
+
+    printf_log(LOG_DEBUG, "Transfert to main(%d, %p, %p)=>%p from __libc_init\n", my_context->argc, my_context->argv, my_context->envv, main);
+    // should call structors->preinit_array and structors->init_array!
+    // call main and finish
+    PushExit_32(emu);
+    R_EIP=to_ptrv(main);
+
+    DynaRun(emu);
+
+    emu->quit = 1; // finished!
+}
+#else
 int32_t EXPORT my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), void (*rtld_fini) (void), void (* stack_end))
 {
     // let's cheat and set all args...
@@ -135,6 +155,7 @@ int32_t EXPORT my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *,
     emu->quit = 1; // finished!
     return 0;
 }
+#endif
 #endif
 #endif
 
