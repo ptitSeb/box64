@@ -468,7 +468,7 @@ GOM(getcontext, iFEp)         //%%
 // __getdomainname_chk
 GOW(getdtablesize, iFv)
 GOW(getegid, iFv)
-//GO(getenv, pFp)
+GO(getenv, pFp)
 //GOW(geteuid, pFv)
 // getfsent
 // getfsfile
@@ -1442,8 +1442,8 @@ GOW(sched_getscheduler, iFi)
 //GOW(sched_setscheduler, iFiip)
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
-//GO2(__secure_getenv, pFp, getenv)   //__secure_getenv not always defined
-//GO2(secure_getenv, pFp, getenv)     // secure_getenv either
+GO(__secure_getenv, pFp)
+GO(secure_getenv, pFp)
 // seed48
 // seed48_r // Weak
 //GO(seekdir, vFpi)

@@ -67,6 +67,7 @@ void LFv_32(x64emu_t *emu, uintptr_t fnc);
 void LFL_32(x64emu_t *emu, uintptr_t fnc);
 void pFu_32(x64emu_t *emu, uintptr_t fnc);
 void pFL_32(x64emu_t *emu, uintptr_t fnc);
+void pFp_32(x64emu_t *emu, uintptr_t fnc);
 void hFv_32(x64emu_t *emu, uintptr_t fnc);
 void aFa_32(x64emu_t *emu, uintptr_t fnc);
 void vFEv_32(x64emu_t *emu, uintptr_t fnc);
