@@ -2843,8 +2843,8 @@ EXPORT int my32___libc_single_threaded = 0;
     else
 
 #ifdef ANDROID
-#define NEEDED_LIBS  \
-        "libm.so", "libdl.so"
+//#define NEEDED_LIBS  \
+//        "libm.so", "libdl.so"
 #else
 //#define NEEDED_LIBS   4,\
 //    "ld-linux.so.2",    \
