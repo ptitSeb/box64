@@ -2129,8 +2129,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         reserveHighMem();
         init_pthread_helper_32();
     }
-    LoadLDPath(my_context);
     #endif
+    LoadLDPath(my_context);
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->fullpath):0;
