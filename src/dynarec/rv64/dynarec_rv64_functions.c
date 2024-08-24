@@ -415,7 +415,7 @@ void extcacheUnwind(extcache_t* cache)
     if(cache->news) {
         // remove the newly created extcache
         for(int i=0; i<24; ++i)
-            if(cache->news&(1<<i))
+            if((cache->news&(1<<i)) && !cache->olds[i].changed)
                 cache->extcache[i].v = 0;
         cache->news = 0;
     }
@@ -432,7 +432,7 @@ void extcacheUnwind(extcache_t* cache)
                 cache->extcache[i].t = EXT_CACHE_SD;
 
             if (cache->olds[i].purged)
-                cache->extcache[i].n = cache->olds[i].reg;
+                cache->extcache[i].n = i;
         }
     }
 
