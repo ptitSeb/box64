@@ -9,10 +9,6 @@
 #include "elfload_dump.h"
 #include "elfloader_private.h"
 
-#ifndef SHT_CHECKSUM
-#define SHT_CHECKSUM 0x6ffffff8
-#endif
-
 static const char* DumpSection(Elf64_Shdr *s, char* SST) {
     static char buff[400];
     switch (s->sh_type) {

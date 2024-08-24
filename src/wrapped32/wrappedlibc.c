@@ -2349,12 +2349,18 @@ EXPORT const unsigned short int *my32___ctype_b;
 EXPORT const int32_t *my32___ctype_tolower;
 EXPORT const int32_t *my32___ctype_toupper;
 
+#ifdef ANDROID
+static void ctSetup()
+{
+}
+#else
 static void ctSetup()
 {
     my32___ctype_b = *(__ctype_b_loc());
     my32___ctype_toupper = *(__ctype_toupper_loc());
     my32___ctype_tolower = *(__ctype_tolower_loc());
 }
+#endif
 
 #if 0
 EXPORT void my32___register_frame_info(void* a, void* b)
@@ -2837,7 +2843,8 @@ EXPORT int my32___libc_single_threaded = 0;
     else
 
 #ifdef ANDROID
-#define NEEDED_LIBS   0
+#define NEEDED_LIBS  \
+        "libm.so", "libdl.so"
 #else
 //#define NEEDED_LIBS   4,\
 //    "ld-linux.so.2",    \

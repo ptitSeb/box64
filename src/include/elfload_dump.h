@@ -26,4 +26,8 @@ void DumpRelRTable64(elfheader_t *h, int cnt, Elf64_Relr *relr, const char *name
 
 void DumpBinary(char* p, int sz);
 
+#ifndef SHT_CHECKSUM
+#define SHT_CHECKSUM 0x6ffffff8
+#endif
+
 #endif //ELFLOADER_DUMP_H
