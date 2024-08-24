@@ -65,8 +65,14 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     R_RIP = start;
     R_RSP = (stack + stacksize) & ~7;   // align stack start, always
     #ifdef BOX32
-    if(box64_is32bits && R_RSP==0x100000000LL) {    // special case, stack is just a bit too high
-        R_RSP -= 16;
+    if(box64_is32bits) {
+        if(stack>=0x100000000LL) {
+            printf_log(LOG_NONE, "BOX32: Stack pointer too high (%p), aborting\n", (void*)stack);
+            abort();
+        }
+        if(R_RSP>=0x100000000LL) {    // special case, stack is just a bit too high
+            R_RSP = 0x100000000LL - 16;
+        }
     }
     #endif
     // fake init of segments...
