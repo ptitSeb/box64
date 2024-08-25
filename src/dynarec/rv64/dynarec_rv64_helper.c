@@ -2294,6 +2294,15 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
                     FMVXD(s1, EXTREG(i));
                     FCVTDL(EXTREG(i), s1, RD_RTZ);
                     cache.extcache[i].t = EXT_CACHE_ST_D;
+                } else if (cache.extcache[i].t == EXT_CACHE_XMMR && cache_i2.extcache[i].t == EXT_CACHE_XMMW) {
+                    cache.extcache[i].t = EXT_CACHE_XMMW;
+                } else if (cache.extcache[i].t == EXT_CACHE_XMMW && cache_i2.extcache[i].t == EXT_CACHE_XMMR) {
+                    // refresh cache...
+                    MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.extcache[i].t, cache.extcache[i].n));
+                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
+                    ADDI(s1, xEmu, offsetof(x64emu_t, xmm[cache.extcache[i].n]));
+                    VSE_V(EXTREG(i), s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                    cache.extcache[i].t = EXT_CACHE_XMMR;
                 }
             }
         }
