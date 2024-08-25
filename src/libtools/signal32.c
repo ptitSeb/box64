@@ -39,49 +39,47 @@
 
 
 /* Definitions taken from the kernel headers.  */
-#ifndef REG_EAX
 enum
 {
-  REG_GS = 0,
-# define REG_GS         REG_GS
-  REG_FS,
-# define REG_FS         REG_FS
-  REG_ES,
-# define REG_ES         REG_ES
-  REG_DS,
-# define REG_DS         REG_DS
-  REG_EDI,
-# define REG_EDI        REG_EDI
-  REG_ESI,
-# define REG_ESI        REG_ESI
-  REG_EBP,
-# define REG_EBP        REG_EBP
-  REG_ESP,
-# define REG_ESP        REG_ESP
-  REG_EBX,
-# define REG_EBX        REG_EBX
-  REG_EDX,
-# define REG_EDX        REG_EDX
-  REG_ECX,
-# define REG_ECX        REG_ECX
-  REG_EAX,
-# define REG_EAX        REG_EAX
-  REG_TRAPNO,
-# define REG_TRAPNO        REG_TRAPNO
-  REG_ERR,
-# define REG_ERR        REG_ERR
-  REG_EIP,
-# define REG_EIP        REG_EIP
-  REG_CS,
-# define REG_CS                REG_CS
-  REG_EFL,
-# define REG_EFL        REG_EFL
-  REG_UESP,
-# define REG_UESP        REG_UESP
-  REG_SS
-# define REG_SS        REG_SS
+  I386_GS = 0,
+# define I386_GS         I386_GS
+  I386_FS,
+# define I386_FS         I386_FS
+  I386_ES,
+# define I386_ES         I386_ES
+  I386_DS,
+# define I386_DS         I386_DS
+  I386_EDI,
+# define I386_EDI        I386_EDI
+  I386_ESI,
+# define I386_ESI        I386_ESI
+  I386_EBP,
+# define I386_EBP        I386_EBP
+  I386_ESP,
+# define I386_ESP        I386_ESP
+  I386_EBX,
+# define I386_EBX        I386_EBX
+  I386_EDX,
+# define I386_EDX        I386_EDX
+  I386_ECX,
+# define I386_ECX        I386_ECX
+  I386_EAX,
+# define I386_EAX        I386_EAX
+  I386_TRAPNO,
+# define I386_TRAPNO        I386_TRAPNO
+  I386_ERR,
+# define I386_ERR        I386_ERR
+  I386_EIP,
+# define I386_EIP        I386_EIP
+  I386_CS,
+# define I386_CS                I386_CS
+  I386_EFL,
+# define I386_EFL        I386_EFL
+  I386_UESP,
+# define I386_UESP        I386_UESP
+  I386_SS
+# define I386_SS        I386_SS
 };
-#endif
 
 typedef uint32_t i386_gregset_t[19];
 struct i386_fpreg
@@ -361,24 +359,24 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
         // longjmp inside signal handler, lets grab all relevent value and do the actual longjmp in the signal handler
         emu->flags.longjmp = 0;
         if(sigcontext) {
-            sigcontext->uc_mcontext.gregs[REG_EAX] = R_EAX;
-            sigcontext->uc_mcontext.gregs[REG_ECX] = R_ECX;
-            sigcontext->uc_mcontext.gregs[REG_EDX] = R_EDX;
-            sigcontext->uc_mcontext.gregs[REG_EDI] = R_EDI;
-            sigcontext->uc_mcontext.gregs[REG_ESI] = R_ESI;
-            sigcontext->uc_mcontext.gregs[REG_EBP] = R_EBP;
-            sigcontext->uc_mcontext.gregs[REG_ESP] = R_ESP;
-            sigcontext->uc_mcontext.gregs[REG_EBX] = R_EBX;
-            sigcontext->uc_mcontext.gregs[REG_EIP] = R_EIP;
+            sigcontext->uc_mcontext.gregs[I386_EAX] = R_EAX;
+            sigcontext->uc_mcontext.gregs[I386_ECX] = R_ECX;
+            sigcontext->uc_mcontext.gregs[I386_EDX] = R_EDX;
+            sigcontext->uc_mcontext.gregs[I386_EDI] = R_EDI;
+            sigcontext->uc_mcontext.gregs[I386_ESI] = R_ESI;
+            sigcontext->uc_mcontext.gregs[I386_EBP] = R_EBP;
+            sigcontext->uc_mcontext.gregs[I386_ESP] = R_ESP;
+            sigcontext->uc_mcontext.gregs[I386_EBX] = R_EBX;
+            sigcontext->uc_mcontext.gregs[I386_EIP] = R_EIP;
             // flags
-            sigcontext->uc_mcontext.gregs[REG_EFL] = emu->eflags.x64;
+            sigcontext->uc_mcontext.gregs[I386_EFL] = emu->eflags.x64;
             // get segments
-            sigcontext->uc_mcontext.gregs[REG_CS] = R_CS;
-            sigcontext->uc_mcontext.gregs[REG_DS] = R_DS;
-            sigcontext->uc_mcontext.gregs[REG_ES] = R_ES;
-            sigcontext->uc_mcontext.gregs[REG_SS] = R_SS;
-            sigcontext->uc_mcontext.gregs[REG_FS] = R_FS;
-            sigcontext->uc_mcontext.gregs[REG_GS] = R_GS;
+            sigcontext->uc_mcontext.gregs[I386_CS] = R_CS;
+            sigcontext->uc_mcontext.gregs[I386_DS] = R_DS;
+            sigcontext->uc_mcontext.gregs[I386_ES] = R_ES;
+            sigcontext->uc_mcontext.gregs[I386_SS] = R_SS;
+            sigcontext->uc_mcontext.gregs[I386_FS] = R_FS;
+            sigcontext->uc_mcontext.gregs[I386_GS] = R_GS;
         } else {
             printf_log(LOG_NONE, "Warning, longjmp in signal but no sigcontext to change\n");
         }
@@ -470,60 +468,60 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     frame -= sizeof(i386_ucontext_t);
     i386_ucontext_t   *sigcontext = (i386_ucontext_t*)frame;
     // get general register
-    sigcontext->uc_mcontext.gregs[REG_EAX] = R_EAX;
-    sigcontext->uc_mcontext.gregs[REG_ECX] = R_ECX;
-    sigcontext->uc_mcontext.gregs[REG_EDX] = R_EDX;
-    sigcontext->uc_mcontext.gregs[REG_EDI] = R_EDI;
-    sigcontext->uc_mcontext.gregs[REG_ESI] = R_ESI;
-    sigcontext->uc_mcontext.gregs[REG_EBP] = R_EBP;
-    sigcontext->uc_mcontext.gregs[REG_ESP] = R_ESP;
-    sigcontext->uc_mcontext.gregs[REG_EBX] = R_EBX;
-    sigcontext->uc_mcontext.gregs[REG_EIP] = R_EIP;//emu->old_ip;   // old_ip should be more accurate as the "current" IP, but it's not always up-to-date
+    sigcontext->uc_mcontext.gregs[I386_EAX] = R_EAX;
+    sigcontext->uc_mcontext.gregs[I386_ECX] = R_ECX;
+    sigcontext->uc_mcontext.gregs[I386_EDX] = R_EDX;
+    sigcontext->uc_mcontext.gregs[I386_EDI] = R_EDI;
+    sigcontext->uc_mcontext.gregs[I386_ESI] = R_ESI;
+    sigcontext->uc_mcontext.gregs[I386_EBP] = R_EBP;
+    sigcontext->uc_mcontext.gregs[I386_ESP] = R_ESP;
+    sigcontext->uc_mcontext.gregs[I386_EBX] = R_EBX;
+    sigcontext->uc_mcontext.gregs[I386_EIP] = R_EIP;//emu->old_ip;   // old_ip should be more accurate as the "current" IP, but it's not always up-to-date
     // flags
-    sigcontext->uc_mcontext.gregs[REG_EFL] = emu->eflags.x64;
+    sigcontext->uc_mcontext.gregs[I386_EFL] = emu->eflags.x64;
     // get segments
-    sigcontext->uc_mcontext.gregs[REG_CS] = R_CS;
-    sigcontext->uc_mcontext.gregs[REG_DS] = R_DS;
-    sigcontext->uc_mcontext.gregs[REG_ES] = R_ES;
-    sigcontext->uc_mcontext.gregs[REG_SS] = R_SS;
-    sigcontext->uc_mcontext.gregs[REG_FS] = R_FS;
-    sigcontext->uc_mcontext.gregs[REG_GS] = R_GS;
+    sigcontext->uc_mcontext.gregs[I386_CS] = R_CS;
+    sigcontext->uc_mcontext.gregs[I386_DS] = R_DS;
+    sigcontext->uc_mcontext.gregs[I386_ES] = R_ES;
+    sigcontext->uc_mcontext.gregs[I386_SS] = R_SS;
+    sigcontext->uc_mcontext.gregs[I386_FS] = R_FS;
+    sigcontext->uc_mcontext.gregs[I386_GS] = R_GS;
 #if defined(DYNAREC)
 #if defined(ARM64)
     if(db && p) {
-        sigcontext->uc_mcontext.gregs[REG_EAX] = p->uc_mcontext.regs[10];
-        sigcontext->uc_mcontext.gregs[REG_ECX] = p->uc_mcontext.regs[11];
-        sigcontext->uc_mcontext.gregs[REG_EDX] = p->uc_mcontext.regs[12];
-        sigcontext->uc_mcontext.gregs[REG_EBX] = p->uc_mcontext.regs[13];
-        sigcontext->uc_mcontext.gregs[REG_ESP] = p->uc_mcontext.regs[14];
-        sigcontext->uc_mcontext.gregs[REG_EBP] = p->uc_mcontext.regs[15];
-        sigcontext->uc_mcontext.gregs[REG_ESI] = p->uc_mcontext.regs[16];
-        sigcontext->uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.regs[17];
-        sigcontext->uc_mcontext.gregs[REG_EIP] = getX64Address(db, (uintptr_t)pc);
+        sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.regs[10];
+        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.regs[11];
+        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.regs[12];
+        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.regs[13];
+        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.regs[14];
+        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.regs[15];
+        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.regs[16];
+        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.regs[17];
+        sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
     }
 #elif defined(LA64)
     if(db && p) {
-        sigcontext->uc_mcontext.gregs[REG_EAX] = p->uc_mcontext.__gregs[12];
-        sigcontext->uc_mcontext.gregs[REG_ECX] = p->uc_mcontext.__gregs[13];
-        sigcontext->uc_mcontext.gregs[REG_EDX] = p->uc_mcontext.__gregs[14];
-        sigcontext->uc_mcontext.gregs[REG_EBX] = p->uc_mcontext.__gregs[15];
-        sigcontext->uc_mcontext.gregs[REG_ESP] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[REG_EBP] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[REG_ESI] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[REG_EIP] = getX64Address(db, (uintptr_t)pc);
+        sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.__gregs[12];
+        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[13];
+        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[14];
+        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[15];
+        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[16];
+        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[17];
+        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[18];
+        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[19];
+        sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
     }
 #elif defined(RV64)
     if(db && p) {
-        sigcontext->uc_mcontext.gregs[REG_EAX] = p->uc_mcontext.__gregs[16];
-        sigcontext->uc_mcontext.gregs[REG_ECX] = p->uc_mcontext.__gregs[17];
-        sigcontext->uc_mcontext.gregs[REG_EDX] = p->uc_mcontext.__gregs[18];
-        sigcontext->uc_mcontext.gregs[REG_EBX] = p->uc_mcontext.__gregs[19];
-        sigcontext->uc_mcontext.gregs[REG_ESP] = p->uc_mcontext.__gregs[20];
-        sigcontext->uc_mcontext.gregs[REG_EBP] = p->uc_mcontext.__gregs[21];
-        sigcontext->uc_mcontext.gregs[REG_ESI] = p->uc_mcontext.__gregs[22];
-        sigcontext->uc_mcontext.gregs[REG_EDI] = p->uc_mcontext.__gregs[23];
-        sigcontext->uc_mcontext.gregs[REG_EIP] = getX64Address(db, (uintptr_t)pc);
+        sigcontext->uc_mcontext.gregs[I386_EAX] = p->uc_mcontext.__gregs[16];
+        sigcontext->uc_mcontext.gregs[I386_ECX] = p->uc_mcontext.__gregs[17];
+        sigcontext->uc_mcontext.gregs[I386_EDX] = p->uc_mcontext.__gregs[18];
+        sigcontext->uc_mcontext.gregs[I386_EBX] = p->uc_mcontext.__gregs[19];
+        sigcontext->uc_mcontext.gregs[I386_ESP] = p->uc_mcontext.__gregs[20];
+        sigcontext->uc_mcontext.gregs[I386_EBP] = p->uc_mcontext.__gregs[21];
+        sigcontext->uc_mcontext.gregs[I386_ESI] = p->uc_mcontext.__gregs[22];
+        sigcontext->uc_mcontext.gregs[I386_EDI] = p->uc_mcontext.__gregs[23];
+        sigcontext->uc_mcontext.gregs[I386_EIP] = getX64Address(db, (uintptr_t)pc);
     }
 #else
 #error Unsupported architecture
@@ -566,21 +564,21 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     */
     uint32_t prot = getProtection((uintptr_t)info->si_addr);
     if(sig==SIGBUS)
-        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 17;
+        sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 17;
     else if(sig==SIGSEGV) {
-        if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[REG_EIP]) {
-            sigcontext->uc_mcontext.gregs[REG_ERR] = (info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
+        if((uintptr_t)info->si_addr == sigcontext->uc_mcontext.gregs[I386_EIP]) {
+            sigcontext->uc_mcontext.gregs[I386_ERR] = (info->si_errno==0x1234)?0:((info->si_errno==0xdead)?(0x2|(info->si_code<<3)):0x0010);    // execution flag issue (probably), unless it's a #GP(0)
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = ((info->si_code==SEGV_ACCERR) || (info->si_errno==0x1234) || (info->si_errno==0xdead) || ((uintptr_t)info->si_addr==0))?13:14;
         } else if(info->si_code==SEGV_ACCERR && !(prot&PROT_WRITE)) {
-            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0002;    // write flag issue
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 14;
+            sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0002;    // write flag issue
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
         } else {
-            if((info->si_code!=SEGV_ACCERR) && labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[REG_ESP])<16)
-                sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 12; // stack overflow probably
+            if((info->si_code!=SEGV_ACCERR) && labs((intptr_t)info->si_addr-(intptr_t)sigcontext->uc_mcontext.gregs[I386_ESP])<16)
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 12; // stack overflow probably
             else
-                sigcontext->uc_mcontext.gregs[REG_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
-            //REG_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
-            sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0004;    // read error? there is no execute control in box64 anyway
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = (info->si_code == SEGV_ACCERR)?13:14;
+            //I386_ERR seems to be INT:8 CODE:8. So for write access segfault it's 0x0002 For a read it's 0x0004 (and 8 for exec). For an int 2d it could be 0x2D01 for example
+            sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0004;    // read error? there is no execute control in box64 anyway
         }
         if(info->si_code == SEGV_ACCERR && old_code)
             *old_code = -1;
@@ -595,35 +593,35 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             // some special cases...
             if(int_n==3) {
                 info2->si_signo = SIGTRAP;
-                sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 3;
-                sigcontext->uc_mcontext.gregs[REG_ERR] = 0;
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 3;
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
             } else if(int_n==0x04) {
-                sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 4;
-                sigcontext->uc_mcontext.gregs[REG_ERR] = 0;
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 4;
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
             } else if (int_n==0x29 || int_n==0x2c || int_n==0x2d) {
-                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x02|(int_n<<3);
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0x02|(int_n<<3);
             } else {
-                sigcontext->uc_mcontext.gregs[REG_ERR] = 0x0a|(int_n<<3);
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0x0a|(int_n<<3);
             }
         } else if(info->si_errno==0xcafe) {
             info2->si_errno = 0;
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 0;
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 0;
             info2->si_signo = SIGFPE;
         }
     } else if(sig==SIGFPE) {
         if (info->si_code == FPE_INTOVF)
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 4;
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 4;
         else
-            sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 19;
+            sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 19;
     } else if(sig==SIGILL)
-        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = 6;
+        sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 6;
     else if(sig==SIGTRAP) {
         info2->si_code = 128;
-        sigcontext->uc_mcontext.gregs[REG_TRAPNO] = info->si_code;
-        sigcontext->uc_mcontext.gregs[REG_ERR] = 0;
+        sigcontext->uc_mcontext.gregs[I386_TRAPNO] = info->si_code;
+        sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
     }
     //TODO: SIGABRT generate what?
-    printf_log(LOG_DEBUG, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[REG_TRAPNO], sigcontext->uc_mcontext.gregs[REG_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[REG_EIP]));
+    printf_log(LOG_DEBUG, "Signal %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p\n", sig, (void*)info2->si_addr, sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]));
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
     // save old value from emu
@@ -638,7 +636,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     // set stack pointer
     R_ESP = frame;
     // set frame pointer
-    R_EBP = sigcontext->uc_mcontext.gregs[REG_EBP];
+    R_EBP = sigcontext->uc_mcontext.gregs[I386_EBP];
 
     int exits = 0;
     int ret;
@@ -662,7 +660,7 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
         if(emu->jmpbuf) {
-            #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[REG_E##R]
+            #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[I386_E##R]
             GO(AX);
             GO(CX);
             GO(DX);
@@ -672,11 +670,11 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             GO(SP);
             GO(BX);
             #undef GO
-            emu->ip.q[0]=sigcontext->uc_mcontext.gregs[REG_EIP];
+            emu->ip.q[0]=sigcontext->uc_mcontext.gregs[I386_EIP];
             // flags
-            emu->eflags.x64=sigcontext->uc_mcontext.gregs[REG_EFL];
+            emu->eflags.x64=sigcontext->uc_mcontext.gregs[I386_EFL];
             // get segments
-            #define GO(S) if(emu->segs[_##S]!=sigcontext->uc_mcontext.gregs[REG_##S])  emu->segs[_##S]=sigcontext->uc_mcontext.gregs[REG_##S]
+            #define GO(S) if(emu->segs[_##S]!=sigcontext->uc_mcontext.gregs[I386_##S])  emu->segs[_##S]=sigcontext->uc_mcontext.gregs[I386_##S]
             GO(CS);
             GO(DS);
             GO(ES);
@@ -703,10 +701,10 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
             siglongjmp(emu->jmpbuf, 1);
             #endif
         }
-        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[REG_EIP]!=sigcontext_copy.uc_mcontext.gregs[REG_EIP])?" (EIP changed)":"");
+        printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[I386_EIP]!=sigcontext_copy.uc_mcontext.gregs[I386_EIP])?" (EIP changed)":"");
     }
     // restore regs...
-    #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[REG_##R]
+    #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[I386_##R]
     GO(EAX);
     GO(ECX);
     GO(EDX);
@@ -716,8 +714,8 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     GO(ESP);
     GO(EBX);
     #undef GO
-    emu->eflags.x64=sigcontext->uc_mcontext.gregs[REG_EFL];
-    #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[REG_##R]
+    emu->eflags.x64=sigcontext->uc_mcontext.gregs[I386_EFL];
+    #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[I386_##R]
     GO(CS);
     GO(DS);
     GO(ES);
@@ -748,22 +746,22 @@ EXPORT int my32_getcontext(x64emu_t* emu, void* ucp)
     u->uc_stack.ss_sp = 0;
     u->uc_stack.ss_size = 0;    // this need to filled
     // get general register
-    u->uc_mcontext.gregs[REG_EAX] = R_EAX;
-    u->uc_mcontext.gregs[REG_ECX] = R_ECX;
-    u->uc_mcontext.gregs[REG_EDX] = R_EDX;
-    u->uc_mcontext.gregs[REG_EDI] = R_EDI;
-    u->uc_mcontext.gregs[REG_ESI] = R_ESI;
-    u->uc_mcontext.gregs[REG_EBP] = R_EBP;
-    u->uc_mcontext.gregs[REG_EIP] = *(uint32_t*)from_ptrv(R_ESP);
-    u->uc_mcontext.gregs[REG_ESP] = R_ESP+4;
-    u->uc_mcontext.gregs[REG_EBX] = R_EBX;
+    u->uc_mcontext.gregs[I386_EAX] = R_EAX;
+    u->uc_mcontext.gregs[I386_ECX] = R_ECX;
+    u->uc_mcontext.gregs[I386_EDX] = R_EDX;
+    u->uc_mcontext.gregs[I386_EDI] = R_EDI;
+    u->uc_mcontext.gregs[I386_ESI] = R_ESI;
+    u->uc_mcontext.gregs[I386_EBP] = R_EBP;
+    u->uc_mcontext.gregs[I386_EIP] = *(uint32_t*)from_ptrv(R_ESP);
+    u->uc_mcontext.gregs[I386_ESP] = R_ESP+4;
+    u->uc_mcontext.gregs[I386_EBX] = R_EBX;
     // get segments
-    u->uc_mcontext.gregs[REG_GS] = R_GS;
-    u->uc_mcontext.gregs[REG_FS] = R_FS;
-    u->uc_mcontext.gregs[REG_ES] = R_ES;
-    u->uc_mcontext.gregs[REG_DS] = R_DS;
-    u->uc_mcontext.gregs[REG_CS] = R_CS;
-    u->uc_mcontext.gregs[REG_SS] = R_SS;
+    u->uc_mcontext.gregs[I386_GS] = R_GS;
+    u->uc_mcontext.gregs[I386_FS] = R_FS;
+    u->uc_mcontext.gregs[I386_ES] = R_ES;
+    u->uc_mcontext.gregs[I386_DS] = R_DS;
+    u->uc_mcontext.gregs[I386_CS] = R_CS;
+    u->uc_mcontext.gregs[I386_SS] = R_SS;
     // get FloatPoint status
     if(u->uc_mcontext.fpregs)
         save_fpreg(emu, from_ptrv(u->uc_mcontext.fpregs));
@@ -783,22 +781,22 @@ EXPORT int my32_setcontext(x64emu_t* emu, void* ucp)
     emu->init_stack = from_ptrv(u->uc_stack.ss_sp);
     emu->size_stack = from_ulong(u->uc_stack.ss_size);
     // set general register
-    R_EAX = u->uc_mcontext.gregs[REG_EAX];
-    R_ECX = u->uc_mcontext.gregs[REG_ECX];
-    R_EDX = u->uc_mcontext.gregs[REG_EDX];
-    R_EDI = u->uc_mcontext.gregs[REG_EDI];
-    R_ESI = u->uc_mcontext.gregs[REG_ESI];
-    R_EBP = u->uc_mcontext.gregs[REG_EBP];
-    R_EIP = u->uc_mcontext.gregs[REG_EIP];
-    R_ESP = u->uc_mcontext.gregs[REG_ESP];
-    R_EBX = u->uc_mcontext.gregs[REG_EBX];
+    R_EAX = u->uc_mcontext.gregs[I386_EAX];
+    R_ECX = u->uc_mcontext.gregs[I386_ECX];
+    R_EDX = u->uc_mcontext.gregs[I386_EDX];
+    R_EDI = u->uc_mcontext.gregs[I386_EDI];
+    R_ESI = u->uc_mcontext.gregs[I386_ESI];
+    R_EBP = u->uc_mcontext.gregs[I386_EBP];
+    R_EIP = u->uc_mcontext.gregs[I386_EIP];
+    R_ESP = u->uc_mcontext.gregs[I386_ESP];
+    R_EBX = u->uc_mcontext.gregs[I386_EBX];
     // get segments
-    R_GS = u->uc_mcontext.gregs[REG_GS];
-    R_FS = u->uc_mcontext.gregs[REG_FS];
-    R_ES = u->uc_mcontext.gregs[REG_ES];
-    R_DS = u->uc_mcontext.gregs[REG_DS];
-    R_CS = u->uc_mcontext.gregs[REG_CS];
-    R_SS = u->uc_mcontext.gregs[REG_SS];
+    R_GS = u->uc_mcontext.gregs[I386_GS];
+    R_FS = u->uc_mcontext.gregs[I386_FS];
+    R_ES = u->uc_mcontext.gregs[I386_ES];
+    R_DS = u->uc_mcontext.gregs[I386_DS];
+    R_CS = u->uc_mcontext.gregs[I386_CS];
+    R_SS = u->uc_mcontext.gregs[I386_SS];
     // set FloatPoint status
     if(u->uc_mcontext.fpregs)
         load_fpreg(emu, from_ptrv(u->uc_mcontext.fpregs));
@@ -815,11 +813,11 @@ EXPORT int my32_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, i
 //    printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
     i386_ucontext_t *u = (i386_ucontext_t*)ucp;
     // setup stack
-    u->uc_mcontext.gregs[REG_ESP] = to_ptr(u->uc_stack.ss_sp + u->uc_stack.ss_size - 4);
+    u->uc_mcontext.gregs[I386_ESP] = to_ptr(u->uc_stack.ss_sp + u->uc_stack.ss_size - 4);
     // setup the function
-    u->uc_mcontext.gregs[REG_EIP] = to_ptrv(fnc);
+    u->uc_mcontext.gregs[I386_EIP] = to_ptrv(fnc);
     // setup args
-    uint32_t* esp = (uint32_t*)from_ptr(u->uc_mcontext.gregs[REG_ESP]);
+    uint32_t* esp = (uint32_t*)from_ptr(u->uc_mcontext.gregs[I386_ESP]);
     for (int i=0; i<argc; ++i) {
         // push value
         --esp;
@@ -828,7 +826,7 @@ EXPORT int my32_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, i
     // push the return value
     --esp;
     *esp = to_ptr(my_context->exit_bridge);
-    u->uc_mcontext.gregs[REG_ESP] = (uintptr_t)esp;
+    u->uc_mcontext.gregs[I386_ESP] = (uintptr_t)esp;
     
     return 0;
 }
