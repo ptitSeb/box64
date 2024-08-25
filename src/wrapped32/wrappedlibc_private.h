@@ -1529,7 +1529,7 @@ GOW(shutdown, iFii)
 //GOWM(__sigaction, iFEipp)  //%%
 //GO(sigaddset, iFpi)
 // __sigaddset
-//GOWM(sigaltstack, iFEpp)   //%%
+GOWM(sigaltstack, iFEpp)   //%%
 // sigandset
 GOW(sigblock, iFi)
 //GO(sigdelset, iFpi)
@@ -1544,7 +1544,7 @@ GO(siginterrupt, iFii)  // no need to wrap this one?
 //GO(sigismember, iFpi)
 // __sigismember
 GOM(siglongjmp, vFEip) //%%
-GOWM(signal, pFEip)     //%%
+GOW2(signal, pFEip, my_signal)
 // signalfd
 GO(__signbit, iFd)
 GO(__signbitf, iFf)

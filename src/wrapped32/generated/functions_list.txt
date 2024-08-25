@@ -169,6 +169,7 @@ wrappedlibc:
 - IFII:
 - UFUU:
 - pFip:
+  - signal
 - hFpp:
 - vFipV:
 - iFvpV:

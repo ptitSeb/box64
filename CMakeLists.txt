@@ -1612,10 +1612,10 @@ if(BOX32)
 
     set_tests_properties(sse_32bits PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0;BOX64_DYNAREC_FASTROUND=0")
 
-    #add_test(NAME longjumpInSignals_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
-    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test18 -D TEST_OUTPUT=tmpfile18.txt
-    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref18.txt
-    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    add_test(NAME longjumpInSignals_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test18 -D TEST_OUTPUT=tmpfile18.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref18.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
     add_test(NAME x87_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test19 -D TEST_OUTPUT=tmpfile19.txt

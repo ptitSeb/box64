@@ -43,6 +43,7 @@ typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__close_nocancel, iFi_t) \
+	GO(signal, pFip_t) \
 	GO(__libc_init, vFpppp_t)
 
 #endif // __wrappedlibcTYPES32_H_
