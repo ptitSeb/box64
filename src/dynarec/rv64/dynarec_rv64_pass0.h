@@ -56,21 +56,10 @@
         dynarec_log(LOG_NONE, "\n");    \
         }
 
-#define DEFAULT_VECTOR                                                                                       \
-    if (box64_dynarec_log >= LOG_INFO || box64_dynarec_dump || box64_dynarec_missing) {                      \
-        dynarec_log(LOG_NONE, "%p: Dynarec fallback to scalar version because of %s Opcode"                  \
-                              " %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
-            (void*)ip, rex.is32bits ? "x86 " : "x64 ",                                                       \
-            PKip(0),                                                                                         \
-            PKip(1), PKip(2), PKip(3),                                                                       \
-            PKip(4), PKip(5), PKip(6),                                                                       \
-            PKip(7), PKip(8), PKip(9),                                                                       \
-            PKip(10), PKip(11), PKip(12),                                                                    \
-            PKip(13), PKip(14));                                                                             \
-        printFunctionAddr(ip, " => ");                                                                       \
-        dynarec_log(LOG_NONE, "\n");                                                                         \
-    }                                                                                                        \
-    return 0
-
-#define SET_ELEMENT_WIDTH(s1, sew) \
-    dyn->vector_sew = sew;
+#define SET_ELEMENT_WIDTH(s1, sew, set)                  \
+    do {                                                 \
+        if (sew != VECTOR_SEWANY && set)                 \
+            dyn->vector_sew = sew;                       \
+        else if (dyn->vector_sew == VECTOR_SEWNA && set) \
+            dyn->vector_sew = VECTOR_SEW8;               \
+    } while (0)

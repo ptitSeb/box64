@@ -154,6 +154,7 @@ typedef struct dynarec_rv64_s {
     uint8_t             always_test;
     uint8_t             abort;
     uint8_t             vector_sew;
+    uint8_t             vector_eew; // effective element width
 } dynarec_rv64_t;
 
 // convert idx (0..24) to reg index (10..31 0..1)

@@ -25,3 +25,19 @@
 
 #define TABLE64(A, V)   {int val64offset = Table64(dyn, (V), 3); MESSAGE(LOG_DUMP, "  Table64: 0x%lx\n", (V)); AUIPC(A, SPLIT20(val64offset)); LD(A, A, SPLIT12(val64offset));}
 #define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; int val64offset = Table64(dyn, v.q, 3); MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); AUIPC(x1, SPLIT20(val64offset)); FLD(A, x1, SPLIT12(val64offset));}
+
+#define DEFAULT_VECTOR                                                                                       \
+    if (box64_dynarec_log >= LOG_INFO || box64_dynarec_dump || box64_dynarec_missing) {                      \
+        dynarec_log(LOG_NONE, "%p: Dynarec fallback to scalar version because of %s Opcode"                  \
+                              " %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
+            (void*)ip, rex.is32bits ? "x86 " : "x64 ",                                                       \
+            PKip(0),                                                                                         \
+            PKip(1), PKip(2), PKip(3),                                                                       \
+            PKip(4), PKip(5), PKip(6),                                                                       \
+            PKip(7), PKip(8), PKip(9),                                                                       \
+            PKip(10), PKip(11), PKip(12),                                                                    \
+            PKip(13), PKip(14));                                                                             \
+        printFunctionAddr(ip, " => ");                                                                       \
+        dynarec_log(LOG_NONE, "\n");                                                                         \
+    }                                                                                                        \
+    return 0
