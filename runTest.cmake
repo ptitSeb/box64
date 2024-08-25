@@ -19,10 +19,10 @@ set(ENV{BOX64_LOG} 0)
 set(ENV{BOX64_NOBANNER} 1)
 if( EXISTS ${CMAKE_SOURCE_DIR}/x64lib )
   # we are inside box64 folder
-  set(ENV{LD_LIBRARY_PATH} ${CMAKE_SOURCE_DIR}/x64lib)
+  set(ENV{BOX64_LD_LIBRARY_PATH} ${CMAKE_SOURCE_DIR}/x64lib)
 else()
   # we are inside build folder
-  set(ENV{LD_LIBRARY_PATH} ${CMAKE_SOURCE_DIR}/../x64lib)
+  set(ENV{BOX64_LD_LIBRARY_PATH} ${CMAKE_SOURCE_DIR}/../x64lib)
 endif( EXISTS ${CMAKE_SOURCE_DIR}/x64lib )
 
 # run the test program, capture the stdout/stderr and the result var
