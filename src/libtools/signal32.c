@@ -39,6 +39,7 @@
 
 
 /* Definitions taken from the kernel headers.  */
+#ifndef REG_EAX
 enum
 {
   REG_GS = 0,
@@ -80,6 +81,7 @@ enum
   REG_SS
 # define REG_SS        REG_SS
 };
+#endif
 
 typedef uint32_t i386_gregset_t[19];
 struct i386_fpreg
