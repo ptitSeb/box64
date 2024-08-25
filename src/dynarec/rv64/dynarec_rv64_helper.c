@@ -1782,9 +1782,11 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
                 ++old;
             }
             if (dyn->e.ssecache[i].vector) {
-                SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
-                ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                if (dyn->e.ssecache[i].write) {
+                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
+                    ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
+                    VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                }
             } else if (dyn->e.ssecache[i].single)
                 FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             else
