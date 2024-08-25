@@ -44,7 +44,7 @@
 
 #define OTHER_CACHE()                                 \
     if (fpuCacheNeedsTransform(dyn, ninst)) ret |= 2; \
-    if (sewNeedsTransform(dyn, ninst)) ret |= 3;
+    if (sewNeedsTransform(dyn, ninst)) ret |= 4;
 
 #include "rv64/rv64_printer.h"
 #include "rv64/dynarec_rv64_private.h"
