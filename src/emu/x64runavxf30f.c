@@ -147,7 +147,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 else
                     GD->sq[0] = EX->f[0];
             } else {
-                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>0x7fffffff)
+                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>(float)0x7fffffff)
                     GD->dword[0] = 0x80000000;
                 else
                     GD->sdword[0] = EX->f[0];
