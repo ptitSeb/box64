@@ -3700,7 +3700,6 @@ __attribute__((weak)) uint32_t arc4random()
 #if defined(ANDROID)
 #define NEEDED_LIBS_DEF   2,\
     "libdl.so" ,            \
-    "libpthread.so",        \
     "libm.so"
 #define NEEDED_LIBS_234 0
 #else

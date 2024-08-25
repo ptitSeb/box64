@@ -502,7 +502,6 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlcms2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedldlinux.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibasound.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedlibbsd.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibc.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibcmusl.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibcrypt.c"
@@ -531,7 +530,6 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibpanel.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpci.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibpcre.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibresolv.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibrt.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibsm.c"
@@ -678,6 +676,11 @@ endif()
 if(ANDROID)
     list(APPEND WRAPPEDS
         "${BOX64_ROOT}/src/wrapped/wrappedandroidshmem.c"
+    )
+else()
+    list(APPEND WRAPPEDS
+        "${BOX64_ROOT}/src/wrapped/wrappedlibbsd.c"
+        "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     )
 endif()
 if(TERMUX)

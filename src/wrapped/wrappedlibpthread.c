@@ -18,12 +18,8 @@
 #include "box64context.h"
 #include "librarian.h"
 
-const char* libpthreadName = 
-#ifdef ANDROID
-    "libc.so";
-#else
-    "libpthread.so.0";
-#endif
+const char* libpthreadName = "libpthread.so.0";
+
 #define LIBNAME libpthread
 
 //EXPORT int my_pthread_attr_setschedparam(x64emu_t* emu, void* attr, void* param)
