@@ -512,13 +512,7 @@ HWCAP2_AFP
     if(rv64_zbb) printf_log(LOG_INFO, " Zbb");
     if(rv64_zbc) printf_log(LOG_INFO, " Zbc");
     if(rv64_zbs) printf_log(LOG_INFO, " Zbs");
-    if (rv64_vector) {
-        char* p = getenv("BOX64_DYNAREC_RV64VEXT");
-        if (p != NULL && p[0] == '1')
-            printf_log(LOG_INFO, " Vector (vlen: %d)", rv64_vlen);
-        else
-            rv64_vector = 0;
-    }
+    if (rv64_vector) printf_log(LOG_INFO, " Vector (vlen: %d)", rv64_vlen);
     if(rv64_xtheadba) printf_log(LOG_INFO, " XTheadBa");
     if(rv64_xtheadbb) printf_log(LOG_INFO, " XTheadBb");
     if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
