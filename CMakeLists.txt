@@ -678,8 +678,13 @@ if(ANDROID)
         "${BOX64_ROOT}/src/wrapped/wrappedandroidshmem.c"
     )
 else()
+    if(NOT STATICBUILD)
+        list(APPEND WRAPPEDS
+            "${BOX64_ROOT}/src/wrapped/wrappedlibbsd.c"
+        )
+    endif()
+
     list(APPEND WRAPPEDS
-        "${BOX64_ROOT}/src/wrapped/wrappedlibbsd.c"
         "${BOX64_ROOT}/src/wrapped/wrappedlibpthread.c"
     )
 endif()

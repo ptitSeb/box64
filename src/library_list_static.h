@@ -4,9 +4,7 @@
 
 GO("libc.musl-x86_64.so.1", libcmusl)
 #ifdef ANDROID
-GO("libpthread.so", libpthread)
 GO("librt.so", librt)
-//GO("libbsd.so", libbsd)
 GO("libc.so", libc)
 GO("libm.so", libm)
 GO("libdl.so", libdl)
