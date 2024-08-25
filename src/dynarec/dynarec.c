@@ -104,7 +104,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     multiuint_t old_res_sav= emu->res_sav;
     deferred_flags_t old_df_sav= emu->df_sav;
     // uc_link
-    x64_ucontext_t* old_uc_link = emu->uc_link;
+    void* old_uc_link = emu->uc_link;
     emu->uc_link = NULL;
 
     #ifdef BOX32
@@ -142,6 +142,9 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
 }
 
 int my_setcontext(x64emu_t* emu, void* ucp);
+#ifdef BOX32
+int my32_setcontext(x64emu_t* emu, void* ucp);
+#endif
 void DynaRun(x64emu_t* emu)
 {
     // prepare setjump for signal handling
@@ -211,7 +214,12 @@ void DynaRun(x64emu_t* emu)
             }
             if(emu->quit && emu->uc_link) {
                 emu->quit = 0;
-                my_setcontext(emu, emu->uc_link);
+                #ifdef BOX32
+                if(box64_is32bits)
+                    my32_setcontext(emu, emu->uc_link);
+                else
+                #endif
+                    my_setcontext(emu, emu->uc_link);
             }
         }
 #endif

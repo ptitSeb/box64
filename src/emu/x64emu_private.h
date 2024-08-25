@@ -5,6 +5,9 @@
 
 typedef struct box64context_s box64context_t;
 typedef struct x64_ucontext_s x64_ucontext_t;
+#ifdef BOX32
+typedef struct i386_ucontext_s i386_ucontext_t;
+#endif
 
 #define ERR_UNIMPL  1
 #define ERR_DIVBY0  2
@@ -127,7 +130,7 @@ typedef struct x64emu_s {
     uintptr_t   old_savedsp;
     #endif
 
-    x64_ucontext_t *uc_link; // to handle setcontext
+    void*       uc_link; // to handle setcontext (can be x64_ucontext_t or a i386_ucontext_t)
 
     int         type;       // EMUTYPE_xxx define
 } x64emu_t;
