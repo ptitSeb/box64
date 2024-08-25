@@ -72,5 +72,10 @@
     }                                                                                                        \
     return 0
 
-#define SET_ELEMENT_WIDTH(s1, sew) \
-    dyn->vector_sew = sew;
+#define SET_ELEMENT_WIDTH(s1, sew, set)                  \
+    do {                                                 \
+        if (sew != VECTOR_SEWANY && set)                 \
+            dyn->vector_sew = sew;                       \
+        else if (dyn->vector_sew == VECTOR_SEWNA && set) \
+            dyn->vector_sew = VECTOR_SEW8;               \
+    } while (0)

@@ -1732,9 +1732,9 @@ void sse_forget_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a)
     if (dyn->e.ssecache[a].vector == 0)
         return sse_forget_reg(dyn, ninst, s1, a);
     if (dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t == EXT_CACHE_XMMW) {
-        SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+        SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 1);
         ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
-        VSE8_V(dyn->e.ssecache[a].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        VSE_V(dyn->e.ssecache[a].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
     }
     fpu_free_reg(dyn, dyn->e.ssecache[a].reg);
     dyn->e.olds[a].changed = 0;
@@ -1756,9 +1756,9 @@ void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1)
                 ++old;
             }
             if (dyn->e.ssecache[i].vector) {
-                SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+                SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
                 ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                VSE8_V(dyn->e.ssecache[i].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             } else if (dyn->e.ssecache[i].single)
                 FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             else
@@ -1782,9 +1782,9 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
                 ++old;
             }
             if (dyn->e.ssecache[i].vector) {
-                SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+                SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
                 ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                VSE8_V(dyn->e.ssecache[i].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             } else if (dyn->e.ssecache[i].single)
                 FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             else
@@ -1808,9 +1808,9 @@ static void sse_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
     for (int i = 0; i < 16; ++i)
         if (dyn->e.ssecache[i].v != -1) {
             if (dyn->e.ssecache[i].vector) {
-                SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+                SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
                 ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                VSE8_V(dyn->e.ssecache[i].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             } else if (dyn->e.ssecache[i].single)
                 FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             else
@@ -1823,9 +1823,9 @@ void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
     if (dyn->e.ssecache[a].v == -1)
         return;
     if (dyn->e.ssecache[a].vector) {
-        SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+        SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
         ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
-        VSE8_V(dyn->e.ssecache[a].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        VSE_V(dyn->e.ssecache[a].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
     } else if (dyn->e.ssecache[a].single)
         FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
     else
@@ -1847,9 +1847,9 @@ void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
         for (int i=start; i<8; ++i)
             if(dyn->e.ssecache[i].v!=-1) {
                 if (dyn->e.ssecache[i].vector) {
-                    SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
                     ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                    VSE8_V(dyn->e.ssecache[i].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                    VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 } else if (dyn->e.ssecache[i].single)
                     FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 else
@@ -1894,9 +1894,9 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
         for (int i=start; i<8; ++i)
             if(dyn->e.ssecache[i].v!=-1) {
                 if (dyn->e.ssecache[i].vector) {
-                    SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
                     ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                    VLE8_V(dyn->e.ssecache[i].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                    VLE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 } else if (dyn->e.ssecache[i].single)
                     FLW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 else
@@ -2077,9 +2077,9 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
         case EXT_CACHE_XMMR:
         case EXT_CACHE_XMMW:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
-            SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+            SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
             ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
-            VLE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VLE_V(reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             break;
         case EXT_CACHE_SS:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
@@ -2137,9 +2137,9 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
             break;
         case EXT_CACHE_XMMW:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
-            SET_ELEMENT_WIDTH(s1, VECTOR_SEW8);
+            SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
             ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
-            VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VSE_V(reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             break;
         case EXT_CACHE_SS:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
@@ -2532,9 +2532,9 @@ void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
 
 // Use vector extension as like SIMD for now, this function sets the specified element width,
 // other configs are set automatically.
-void vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew)
+int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew)
 {
-    if (sew == VECTOR_SEWNA) return;
+    if (sew == VECTOR_SEWNA) return VECTOR_SEW8;
     if (sew == VECTOR_SEWANY) sew = VECTOR_SEW8;
     /* mu:   mask undisturbed
      * tu:   tail undisturbed
@@ -2545,4 +2545,5 @@ void vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew)
     uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | 0b000;
     ADDI(s1, xZR, 16 >> sew);
     VSETVLI(xZR, s1, vtypei);
+    return sew;
 }
