@@ -41,6 +41,40 @@ static int SymbolMatch(elfheader_t* h, uint32_t i, int ver, const char* vername,
     return strcmp(vername, symvername)?0:1;
 }
 
+uint16_t GetParentSymbolVersionFlag32(elfheader_t* h, int index)
+{
+    if(!h->VerDef._32 || (index<1))
+        return (uint16_t)-1;
+    Elf32_Verdef *def = (Elf32_Verdef*)((uintptr_t)h->VerDef._32 + h->delta);
+    while(def) {
+        if(def->vd_ndx==index) {
+            return def->vd_flags;
+        }
+        def = def->vd_next?((Elf32_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
+    }
+    return (uint16_t)-1;
+}
+
+uint16_t GetSymbolVersionFlag32(elfheader_t* h, int version)
+{
+    if(version<2)
+        return (uint16_t)-1;
+    if(h->VerNeed._32) {
+        Elf32_Verneed *ver = (Elf32_Verneed*)((uintptr_t)h->VerNeed._32 + h->delta);
+        while(ver) {
+            Elf32_Vernaux *aux = (Elf32_Vernaux*)((uintptr_t)ver + ver->vn_aux);
+            for(int j=0; j<ver->vn_cnt; ++j) {
+                if(aux->vna_other==version) 
+                    return aux->vna_flags;
+                aux = (Elf32_Vernaux*)((uintptr_t)aux + aux->vna_next);
+            }
+            ver = ver->vn_next?((Elf32_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
+        }
+    }
+    return GetParentSymbolVersionFlag32(h, version);  // if symbol is "internal", use Def table instead
+}
+
+
 static Elf32_Sym* old_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
 {
     // Prepare hash table
