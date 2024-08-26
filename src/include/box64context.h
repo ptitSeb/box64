@@ -33,6 +33,7 @@ typedef struct kh_defaultversion_s kh_defaultversion_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct library_s library_t;
 typedef struct linkmap_s linkmap_t;
+typedef struct linkmap32_s linkmap32_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
 typedef struct rbtree rbtree;
 typedef struct atfork_fnc_s {
@@ -184,6 +185,7 @@ typedef struct box64context_s {
     library_t           *sdl2lib;
     library_t           *sdl2mixerlib;
     linkmap_t           *linkmap;
+    linkmap32_t         *linkmap32;
     void*               sdl1allocrw;    // SDL1 AllocRW/FreeRW function
     void*               sdl1freerw;
     void*               sdl2allocrw;    // SDL2 AllocRW/FreeRW function

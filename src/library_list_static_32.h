@@ -8,5 +8,3 @@ GO("libc.so.6", libc)
 GO("libm.so.6", libm)
 GO("libdl.so.2", libdl)
 GO("ld-linux.so.2", ldlinux)
-
-GO("crashhandler.so", crashhandler)

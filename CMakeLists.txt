@@ -744,15 +744,26 @@ add_custom_target(WRAPPERS DEPENDS "${BOX64_ROOT}/src/wrapped/generated/function
 #add_custom_target(PRINTER DEPENDS "${BOX64_ROOT}/src/dynarec/last_run.txt")
 
 if(BOX32)
+    if(STATICBUILD)
     set(WRAPPEDS32
-        "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedldlinux.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibc.c"
-        #"${BOX64_ROOT}/src/wrapped32/wrappedlibdl.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibdl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibm.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
     )
+    else()
+    set(WRAPPEDS32
+        "${BOX64_ROOT}/src/wrapped32/wrappedldlinux.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibc.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibdl.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibm.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
+    )
+    endif()
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})
     #set(WRAPPEDS32_HEAD "${BOX64_ROOT}/src/wrapped/wrappedd3dadapter9_genvate.h")
     foreach(A ${WRAPPEDS32})
@@ -1625,10 +1636,10 @@ if(BOX32)
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref20.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
-    #add_test(NAME multiple_dlopen_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
-    #    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test21 -D TEST_OUTPUT=tmpfile21.txt 
-    #    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref21.txt
-    #    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+    add_test(NAME multiple_dlopen_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64} 
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test21 -D TEST_OUTPUT=tmpfile21.txt 
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref21.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
     file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests32/extensions/*.c")
     foreach(file ${extension_tests})

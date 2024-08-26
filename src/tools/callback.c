@@ -385,7 +385,12 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
 
     if(oldip==R_RIP) {
         R_RSP = R_RBP;      // restore stack only if EIP is the one expected (else, it means return value is not the one expected)
-        R_RBP = Pop64(emu); //Pop EBP
+        #ifdef BOX32
+        if(box64_is32bits)
+            R_RBP = Pop_32(emu); //Pop EBP
+        else
+        #endif
+            R_RBP = Pop64(emu); //Pop EBP
     }
 
     emu->quit = old_quit;

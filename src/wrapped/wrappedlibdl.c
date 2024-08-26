@@ -64,6 +64,47 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
 #endif
 
 #define CLEARERR    if(dl->last_error) {box_free(dl->last_error); dl->last_error = NULL;}
+void dl_clear_error()
+{
+    dlprivate_t *dl = my_context->dlprivate;
+    CLEARERR;
+}
+
+void dl_set_error(const char* msg)
+{
+    dlprivate_t *dl = my_context->dlprivate;
+    if(!dl->last_error)
+        dl->last_error = box_calloc(1, 129);
+    snprintf(dl->last_error, 129, "%s", msg);
+}
+
+library_t* dl_get_library(void* handle)
+{
+    dlprivate_t *dl = my_context->dlprivate;
+    CLEARERR
+    size_t nlib = (size_t)handle;
+    --nlib;
+    // size_t is unsigned
+    if(nlib>=dl->lib_sz) {
+        if(!dl->last_error)
+            dl->last_error = box_calloc(1, 129);
+        snprintf(dl->last_error, 129, "Bad handle %p)\n", handle);
+        return (void*)-1LL;
+    }
+    if(!dl->dllibs[nlib].count || !dl->dllibs[nlib].full) {
+        if(!dl->last_error)
+            dl->last_error = box_calloc(1, 129);
+        snprintf(dl->last_error, 129, "Bad handle %p (already closed))\n", handle);
+        return (void*)-1LL;
+    }
+    return dl->dllibs[nlib].lib;
+}
+
+char* dl_last_error()
+{
+    dlprivate_t *dl = my_context->dlprivate;
+    return dl->last_error;
+}
 
 void RemoveDlopen(library_t** lib, size_t idx)
 {
@@ -612,6 +653,11 @@ void closeAllDLOpenned()
 #ifdef STATICBUILD
 //extern void* _dlfcn_hook;
 #endif
+
+#define PRE_INIT\
+    if(1)                                                           \
+        lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);    \
+    else
 
 #define CUSTOM_FINI \
     closeAllDLOpenned();

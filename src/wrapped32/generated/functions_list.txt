@@ -109,6 +109,8 @@
 #() dFddd -> dFddd
 #() dFddp -> dFddp
 #() pFEip -> pFEip
+#() pFEpi -> pFEpi
+#() pFEpp -> pFEpp
 #() pFppL -> pFppL
 #() pFpOM -> pFpOM
 #() hFEpp -> hFEpp
@@ -119,6 +121,7 @@
 #() iFEiiN -> iFEiiN
 #() iFEipp -> iFEipp
 #() iFELup -> iFELup
+#() iFEpip -> iFEpip
 #() iFEpup -> iFEpup
 #() iFEppu -> iFEppu
 #() iFEppL -> iFEppL
@@ -126,9 +129,12 @@
 #() iFiiII -> iFiiII
 #() iFiuui -> iFiuui
 #() LFpLLh -> LFpLLh
+#() pFEppi -> pFEppi
+#() pFEppp -> pFEppp
 #() pFppuL -> pFppuL
 #() pFppLL -> pFppLL
 #() iFEppiV -> iFEppiV
+#() iFEpppi -> iFEpppi
 #() iFiLLLL -> iFiLLLL
 #() iFEBh_ppp -> iFEBppp
 #() iFEpippppp -> iFEpippppp
@@ -181,6 +187,26 @@ wrappedlibc:
 - iFiiII:
 - iFppiV:
 - iFpippppp:
+wrappedlibdl:
+- iFp:
+  - dlclose
+- pFv:
+  - dlerror
+- iFpp:
+  - _dl_find_object
+  - dladdr
+- pFpi:
+  - dlopen
+- pFpp:
+  - dlsym
+- iFpip:
+  - dlinfo
+- pFppi:
+  - dlmopen
+- pFppp:
+  - dlvsym
+- iFpppi:
+  - dladdr1
 wrappedlibm:
 - UFs:
   - cacosf

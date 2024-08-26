@@ -12,6 +12,9 @@
 #include "x64emu.h"
 #include "box64context.h"
 #include "elfloader.h"
+#ifdef BOX32
+#include "box32.h"
+#endif
 
 #include "bridge.h"
 
@@ -254,15 +257,31 @@ static int AddNeededLib_add(lib_t** maplib, int local, needed_libs_t* needed, in
 
     if (lib->type == LIB_EMULATED) {
         // Need to add library to the linkmap (put here so the link is ordered)
-        linkmap_t *lm = addLinkMapLib(lib);
-        if(!lm) {
-            // Crashed already
-            printf_dump(LOG_DEBUG, "Failure to add lib linkmap\n");
-            return 1;
+        #ifdef BOX32
+        if(box64_is32bits) {
+            linkmap32_t *lm = addLinkMapLib32(lib);
+            if(!lm) {
+                // Crashed already
+                printf_dump(LOG_DEBUG, "Failure to add lib linkmap\n");
+                return 1;
+            }
+            lm->l_addr = (Elf32_Addr)to_ptrv(GetElfDelta(lib->e.elf));
+            lm->l_name = to_ptrv(lib->name);
+            lm->l_ld = to_ptrv(GetDynamicSection(lib->e.elf));
+        } else
+        #endif
+        {
+            linkmap_t *lm = addLinkMapLib(lib);
+            if(!lm) {
+                // Crashed already
+                printf_dump(LOG_DEBUG, "Failure to add lib linkmap\n");
+                return 1;
+            }
+            lm->l_addr = (Elf64_Addr)GetElfDelta(lib->e.elf);
+            lm->l_name = lib->name;
+            lm->l_ld = GetDynamicSection(lib->e.elf);
         }
-        lm->l_addr = (Elf64_Addr)GetElfDelta(lib->e.elf);
-        lm->l_name = lib->name;
-        lm->l_ld = GetDynamicSection(lib->e.elf);
+        //TODO: it seems to never be removed!
     }
     IncRefCount(lib, emu);
     return 0;
