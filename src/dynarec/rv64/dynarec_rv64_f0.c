@@ -49,7 +49,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     GETREX();
 
-    // TODO: Add support for unligned memory access for all the LOCK ones.
+    // TODO: Add support for unaligned memory access for all the LOCK ones.
     // TODO: Add support for BOX4_DYNAREC_ALIGNED_ATOMICS.
 
     switch(opcode) {

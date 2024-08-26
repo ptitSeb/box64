@@ -888,7 +888,7 @@ int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b)
     return i1;
 }
 
-// On step 1, Float/Double for ST is actualy computed and back-propagated
+// On step 1, Float/Double for ST is actually computed and back-propagated
 // On step 2-3, the value is just read for inst[...].n.neocache[..]
 // the reg returned is *2 for FLOAT
 int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t)

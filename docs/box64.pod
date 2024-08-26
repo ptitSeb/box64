@@ -205,14 +205,14 @@ Disable handling of SigILL (to ease debugging mainly).
 
 Show Segfault signal even if a signal handler is present
 
-    * 0 : Don"t force show the SIGSEGV analysis (Default.)
+    * 0 : Don't force show the SIGSEGV analysis (Default.)
     * 1 : Show SIGSEGV detail, even if a signal handler is present
 
 =item B<BOX64_SHOWBT>=I<0|1>
 
-Show some Backtrace (Nativ e and Emulated) whgen a signal (SEGV, ILL or BUS) is caught
+Show some Backtrace (Nativ e and Emulated) when a signal (SEGV, ILL or BUS) is caught
 
-    * 0 : Don"t show backtraces (Default.)
+    * 0 : Don't show backtraces (Default.)
     * 1 : Show Backtrace detail (for native, box64 is rename as the x86_64 binary run)
 
 =item B<BOX64_X11THREADS>=I<0|1>
@@ -407,7 +407,7 @@ Box64 will use wrapped libs even if the lib is specified with absolute path
 
 =item B<BOX64_PREFER_EMULATED>=I<0|1>
 
-Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL,
+Box64 will prefer emulated libs first (except for glibc, alsa, pulse, GL,
 vulkan and X11
 
    * 0 : Native libs are preferred (Default.)
@@ -465,7 +465,7 @@ script. yyyy needs to be a full path to a valid x86_64 version of bash
 
     * 0 : Just print the Segfault message on segfault (default)
     * 1 : Launch `gdb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting. When in gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in is stack) then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then simply  `set waiting=0` to exit the infinite loop.
-    * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX64_JITGDB=1`. This mode can be usefullwhen programs redirect all console output to a file (like Unity3D Games)
+    * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX64_JITGDB=1`. This mode can be usefull when programs redirect all console output to a file (like Unity3D Games)
 
 =back
 
