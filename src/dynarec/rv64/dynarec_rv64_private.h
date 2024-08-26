@@ -87,10 +87,10 @@ typedef struct flagcache_s {
 
 typedef struct instruction_rv64_s {
     instruction_x64_t   x64;
-    uintptr_t           address;    // (start) address of the arm emitted instruction
+    uintptr_t           address;    // (start) address of the riscv emitted instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, or barrier stuff)
-    int                 size;       // size of the arm emitted instruction
-    int                 size2;      // size of the arm emitted instruction after pass2
+    int                 size;       // size of the riscv emitted instruction
+    int                 size2;      // size of the riscv emitted instruction after pass2
     int                 pred_sz;    // size of predecessor list
     int                 *pred;      // predecessor array
     uintptr_t           mark[3];
@@ -120,8 +120,8 @@ typedef struct dynarec_rv64_s {
     uintptr_t           start;      // start of the block
     uint32_t            isize;      // size in byte of x64 instructions included
     void*               block;      // memory pointer where next instruction is emitted
-    uintptr_t           native_start;  // start of the arm code
-    size_t              native_size;   // size of emitted arm code
+    uintptr_t           native_start;  // start of the riscv code
+    size_t              native_size;   // size of emitted riscv code
     uintptr_t           last_ip;    // last set IP in RIP (or NULL if unclean state) TODO: move to a cache something
     uint64_t*           table64;   // table of 64bits value
     int                 table64size;// size of table (will be appended at end of executable code)

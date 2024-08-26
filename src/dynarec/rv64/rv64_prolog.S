@@ -1,4 +1,4 @@
-//arm prologue for dynarec
+//riscv prologue for dynarec
 //Save stuff, prepare stack and register
 //called with pointer to emu as 1st parameter
 //and address to jump to as 2nd parameter
