@@ -1718,7 +1718,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             NOTEST(x1);
             MV(A1, xRAX);
             CALL_(my_cpuid, -1, 0);
-            // BX and DX are not synchronized durring the call, so need to force the update
+            // BX and DX are not synchronized during the call, so need to force the update
             LD(xRDX, xEmu, offsetof(x64emu_t, regs[_DX]));
             LD(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
             break;

@@ -7,7 +7,7 @@ Env. var with * can also be put inside box64rc files.
 Box64 look for 2 places for rcfile: `/etc/box64.box64rc` and `~/.box64rc`
 The second takes precedence to the first, on an APP level 
 (that means if an [MYAPP] my appears in both file, only the settings in `~/.box64rc` will be applied)
-There is also some égeneric" name, like [*SETUP*] that will be applied to every program containg "setup" in the name
+There is also some égeneric" name, like [*SETUP*] that will be applied to every program containing "setup" in the name
 (Note that this is not a full regex rules, it's just a name between '[*' and '*]', nothing else)
 
 #### BOX64_LOG *
@@ -43,7 +43,7 @@ Enables/Disables the logging of `dlsym` errors.
 #### BOX64_TRACE_FILE *
 Send all log and trace to a file instead of `stdout`
 Also, if name contains `%pid` then this is replaced by the actual PID of box64 instance
-End the filename with `+` to have thetrace appended instead of overwritten
+End the filename with `+` to have the trace appended instead of overwritten
 Use `stderr` to use this instead of default `stdout` 
 
 #### BOX64_TRACE *
@@ -97,7 +97,7 @@ Show Segfault signal even if a signal handler is present
  * 1 : Show SIGSEGV detail, even if a signal handler is present
 
 #### BOX64_SHOWBT *
-Show some Backtrace (Nativ e and Emulated) whgen a signal (SEGV, ILL or BUS) is caught
+Show some Backtrace (Native and Emulated) when a signal (SEGV, ILL or BUS) is caught
  * 0 : Don"t show backtraces (Default.)
  * 1 : Show Backtrace detail (for native, box64 is rename as the x86_64 binary run)
 
@@ -151,7 +151,7 @@ Forbid dynablock creation in the interval specified (helpful for debugging behav
 #### BOX64_DYNAREC_TEST *
 Dynarec will compare it's execution with the interpreter (super slow, only for testing)
  * 0 : No comparison. (Default.)
- * 1 : Each opcode runs on interepter and on Dynarec, and regs and memory are compared and print if different.
+ * 1 : Each opcode runs on interpreter and on Dynarec, and regs and memory are compared and print if different.
  * 2 : Thread-safe tests, extremely slow.
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynarec is tested (inclusive-exclusive)
 
@@ -203,7 +203,7 @@ Optimisation of CALL/RET opcodes (not compatible with jit/dynarec/smc)
 #### BOX64_DYNAREC_ALIGNED_ATOMICS *
 Generated code for aligned atomics only
 * 0 : The code generated can handle unaligned atomics (Default)
-* 1 : Generated code only for aligned atomics (faster and less code generated, but will SEGBUS if LOCK prefix is unsed on unaligned data)
+* 1 : Generated code only for aligned atomics (faster and less code generated, but will SEGBUS if LOCK prefix is unused on unaligned data)
 
 #### BOX64_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
@@ -290,7 +290,7 @@ Box64 will use wrapped libs even if the lib is specified with absolute path
  * 1 : Use Wrapped native libs even if path is absolute
 
 #### BOX64_PREFER_EMULATED *
-Box64 will prefer emulated libs first (execpt for glibc, alsa, pulse, GL, vulkan and X11
+Box64 will prefer emulated libs first (except for glibc, alsa, pulse, GL, vulkan and X11
  * 0 : Native libs are preferred (Default.)
  * 1 : Emulated libs are preferred (Default for program running inside pressure-vessel)
 
@@ -321,14 +321,14 @@ Disables the load of vulkan libraries.
  * 1 : Disables the load of vulkan libraries, both the native and the i386 version (can be useful on Pi4, where the vulkan driver is not quite there yet.)
 
 #### BOX64_SHAEXT *
-Expose or not SHAEXT (a.k.a. SHA_NI) capabilites
- * 0 : Do not expose SHAEXT capabilites
- * 1 : Expose SHAEXT capabilites (Default.)
+Expose or not SHAEXT (a.k.a. SHA_NI) capabilities
+ * 0 : Do not expose SHAEXT capabilities
+ * 1 : Expose SHAEXT capabilities (Default.)
 
 #### BOX64_SSE42 *
-Expose or not SSE 4.2 capabilites
- * 0 : Do not expose SSE 4.2 capabilites (default when libjvm is detected)
- * 1 : Expose SSE 4.2 capabilites (Default.)
+Expose or not SSE 4.2 capabilities
+ * 0 : Do not expose SSE 4.2 capabilities (default when libjvm is detected)
+ * 1 : Expose SSE 4.2 capabilities (Default.)
 
 #### BOX64_FUTEX_WAITV *
 Use of the new fuext_waitc syscall
@@ -361,7 +361,7 @@ Define x86_64 bash to launch script
  `set waiting=0` to exit the infinite loop.
  * 2 : Launch `gdbserver` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process, and go in an endless loop, waiting.
  Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1:1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with ` BOX64_JITGDB=1`.
- This mode can be usefullwhen programs redirect all console output to a file (like Unity3D Games)
+ This mode can be usefull when programs redirect all console output to a file (like Unity3D Games)
  * 3 : Launch `lldb` when a segfault, bus error or illegal instruction signal is trapped, attached to the offending process and go in an endless loop, waiting.
 
 #### BOX64_NORCFILES

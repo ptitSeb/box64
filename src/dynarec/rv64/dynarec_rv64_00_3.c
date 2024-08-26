@@ -1181,7 +1181,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                            && dyn->insts[ninst-1].x64.addr
                            && *(uint8_t*)(dyn->insts[ninst-1].x64.addr)==0xB8
                            && *(uint32_t*)(dyn->insts[ninst-1].x64.addr+1)==0) {
-                            // hack for some protection that check a divide by zero actualy trigger a divide by zero exception
+                            // hack for some protection that check a divide by zero actually trigger a divide by zero exception
                             MESSAGE(LOG_INFO, "Divide by 0 hack\n");
                             GETIP(ip);
                             STORE_XEMU_CALL(x3);

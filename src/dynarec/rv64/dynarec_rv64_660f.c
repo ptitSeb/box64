@@ -269,7 +269,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                     ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
 
-                    // perserve gd
+                    // preserve gd
                     LD(x3, gback, gdoffset + 0);
                     LD(x4, gback, gdoffset + 8);
                     SD(x3, x5, 0);

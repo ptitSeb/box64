@@ -888,7 +888,7 @@ int extcache_st_coherency(dynarec_rv64_t* dyn, int ninst, int a, int b)
     return i1;
 }
 
-// On step 1, Float/Double for ST is actualy computed and back-propagated
+// On step 1, Float/Double for ST is actually computed and back-propagated
 // On step 2-3, the value is just read for inst[...].n.neocache[..]
 // the reg returned is *2 for FLOAT
 int x87_do_push(dynarec_rv64_t* dyn, int ninst, int s1, int t)
@@ -2229,7 +2229,7 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
     extcache_t cache = dyn->e;
     int s1_val = 0;
     int s2_val = 0;
-    // unload every uneeded cache
+    // unload every unneeded cache
     // check SSE first, than MMX, in order, for optimisation issue
     for (int i = 0; i < 16; ++i) {
         int j = findCacheSlot(dyn, ninst, EXT_CACHE_SS, i, &cache);
@@ -2400,7 +2400,7 @@ void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2
 
 void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup)
 {
-    // Depending on val, the following insns are emitted.
+    // Depending on val, the following insts are emitted.
     // val == 0               -> ADDI
     // lo12 != 0 && hi20 == 0 -> ADDI
     // lo12 == 0 && hi20 != 0 -> LUI
@@ -2449,7 +2449,7 @@ void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 
 void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
-    // need to undo the top and stack tracking that must not be reflected permenatly yet
+    // need to undo the top and stack tracking that must not be reflected permanently yet
     x87_unreflectcache(dyn, ninst, s1, s2, s3);
 }
 

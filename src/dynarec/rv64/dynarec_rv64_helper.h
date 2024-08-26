@@ -1399,7 +1399,7 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
 void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4);
 
 // x87 helper
-// cache of the local stack counter, to avoid upadte at every call
+// cache of the local stack counter, to avoid update at every call
 int x87_stackcount(dynarec_rv64_t* dyn, int ninst, int scratch);
 // restore local stack counter
 void x87_unstackcount(dynarec_rv64_t* dyn, int ninst, int scratch, int count);

@@ -91,10 +91,10 @@ typedef struct flagcache_s {
 
 typedef struct instruction_rv64_s {
     instruction_x64_t   x64;
-    uintptr_t           address;    // (start) address of the arm emitted instruction
+    uintptr_t           address;    // (start) address of the riscv emitted instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, or barrier stuff)
-    int                 size;       // size of the arm emitted instruction
-    int                 size2;      // size of the arm emitted instrucion after pass2
+    int                 size;       // size of the riscv emitted instruction
+    int                 size2;      // size of the riscv emitted instruction after pass2
     int                 pred_sz;    // size of predecessor list
     int                 *pred;      // predecessor array
     uintptr_t           mark[3];
@@ -111,8 +111,8 @@ typedef struct instruction_rv64_s {
     uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
     uint16_t            ymm0_pass2, ymm0_pass3;
     int                 barrier_maybe;
-    flagcache_t         f_exit;     // flags status at end of intruction
-    extcache_t          e;          // extcache at end of intruction (but before poping)
+    flagcache_t         f_exit;     // flags status at end of instruction
+    extcache_t          e;          // extcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
     uint8_t             vector_sew;
 } instruction_rv64_t;
@@ -124,8 +124,8 @@ typedef struct dynarec_rv64_s {
     uintptr_t           start;      // start of the block
     uint32_t            isize;      // size in byte of x64 instructions included
     void*               block;      // memory pointer where next instruction is emitted
-    uintptr_t           native_start;  // start of the arm code
-    size_t              native_size;   // size of emitted arm code
+    uintptr_t           native_start;  // start of the riscv code
+    size_t              native_size;   // size of emitted riscv code
     uintptr_t           last_ip;    // last set IP in RIP (or NULL if unclean state) TODO: move to a cache something
     uint64_t*           table64;   // table of 64bits value
     int                 table64size;// size of table (will be appended at end of executable code)
