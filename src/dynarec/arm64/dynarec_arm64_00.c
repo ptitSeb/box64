@@ -2332,7 +2332,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 addr+=2;
                 //BARRIER(BARRIER_FLOAT);
                 INST_NAME("Special Box64 instruction");
-                if((PK64(0)==0))
+                if(PK64(0)==0)
                 {
                     addr+=8;
                     MESSAGE(LOG_DEBUG, "Exit x64 Emu\n");
