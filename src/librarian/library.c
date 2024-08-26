@@ -40,6 +40,16 @@
 #endif
 
 #undef GO
+#ifdef BOX32
+#define GO(P, N) int wrapped##N##_init32(library_t* lib, box64context_t *box64); \
+                 void wrapped##N##_fini32(library_t* lib);
+#ifdef STATICBUILD
+#include "library_list_static_32.h"
+#else
+#include "library_list_32.h"
+#endif
+#undef GO
+#endif
 
 #define GO(P, N) {P, wrapped##N##_init, wrapped##N##_fini},
 wrappedlib_t wrappedlibs[] = {
@@ -47,6 +57,17 @@ wrappedlib_t wrappedlibs[] = {
 #include "library_list_static.h"
 #else
 #include "library_list.h"
+#endif
+};
+#undef GO
+#define GO(P, N) {P, wrapped##N##_init32, wrapped##N##_fini32},
+wrappedlib_t wrappedlibs32[] = {
+#ifdef BOX32
+#ifdef STATICBUILD
+#include "library_list_static_32.h"
+#else
+#include "library_list_32.h"
+#endif
 #endif
 };
 #undef GO
@@ -232,14 +253,11 @@ int DummyLib_GetLocal(library_t* lib, const char* name, uintptr_t *offs, uintptr
 }
 
 static void initWrappedLib(library_t *lib, box64context_t* context) {
-    if(box64_is32bits) {
-        // TODO
-        return; // nothing wrapped yet
-    }
-    int nb = sizeof(wrappedlibs) / sizeof(wrappedlib_t);
+    int nb = (box64_is32bits?sizeof(wrappedlibs32):sizeof(wrappedlibs)) / sizeof(wrappedlib_t);
     for (int i=0; i<nb; ++i) {
-        if(strcmp(lib->name, wrappedlibs[i].name)==0) {
-            if(wrappedlibs[i].init(lib, context)) {
+        wrappedlib_t* w = box64_is32bits?(&wrappedlibs32[i]):(&wrappedlibs[i]);
+        if(strcmp(lib->name, w->name)==0) {
+            if(w->init(lib, context)) {
                 // error!
                 const char* error_str = dlerror();
                 if(error_str)   // don't print the message if there is no error string from last error
@@ -247,7 +265,7 @@ static void initWrappedLib(library_t *lib, box64context_t* context) {
                 return; // non blocker...
             }
             printf_dump(LOG_INFO, "Using native(wrapped) %s\n", lib->name);
-            lib->fini = wrappedlibs[i].fini;
+            lib->fini = w->fini;
             lib->getglobal = WrappedLib_GetGlobal;
             lib->getweak = WrappedLib_GetWeak;
             lib->getlocal = WrappedLib_GetLocal;
@@ -366,7 +384,7 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
 {
     char libname[MAX_PATH];
     strcpy(libname, path);
-    int found = FileIsX64ELF(libname);
+    int found = box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname);
     if(found)
         if(loadEmulatedLib(libname, lib, context, verneeded))
             return;
@@ -375,14 +393,14 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
         {
             strcpy(libname, context->box64_ld_lib.paths[i]);
             strcat(libname, path);
-            if(FileIsX64ELF(libname))
+            if(box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname))
                 if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;
             // also try x86_64 variant
             strcpy(libname, context->box64_ld_lib.paths[i]);
-            strcat(libname, "x86_64/");
+            strcat(libname, box64_is32bits?"i386/":"x86_64/");
             strcat(libname, path);
-            if(FileIsX64ELF(libname))
+            if(box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname))
                 if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;            
         }
@@ -793,7 +811,7 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
         if(lib->w.altmy)
             strcpy(buff, lib->w.altmy);
         else
-            strcpy(buff, "my_");
+            strcpy(buff, box64_is32bits?"my32_":"my_");
         strcat(buff, name);
         #ifdef STATICBUILD
         symbol = (void*)kh_value(lib->w.mydatamap, k).addr;
@@ -828,7 +846,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             if(lib->w.altmy)
                 strcpy(buff, lib->w.altmy);
             else
-                strcpy(buff, "my_");
+                strcpy(buff, box64_is32bits?"my32_":"my_");
             strcat(buff, name);
             #ifdef STATICBUILD
             symbol = (void*)s->addr;
@@ -856,7 +874,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             if(lib->w.altmy)
                 strcpy(buff, lib->w.altmy);
             else
-                strcpy(buff, "my_");
+                strcpy(buff, box64_is32bits?"my32_":"my_");
             strcat(buff, name);
             #ifdef STATICBUILD
             symbol = (void*)s->addr;
@@ -921,7 +939,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 if(lib->w.altmy)
                     strcpy(buff, lib->w.altmy);
                 else
-                    strcpy(buff, "my_");
+                    strcpy(buff, box64_is32bits?"my32_":"my_");
                 strcat(buff, name);
                 #ifdef STATICBUILD
                 symbol = (void*)s->addr;
@@ -1077,6 +1095,64 @@ int GetDeepBind(library_t* lib)
         return 0;
     return lib->deepbind;
 }
+
+#ifdef BOX32
+linkmap32_t* getLinkMapLib32(library_t* lib)
+{
+    linkmap32_t* lm = my_context->linkmap32;
+    while(lm) {
+        if(lm->l_lib == lib)
+            return lm;
+        lm = (linkmap32_t*)from_ptrv(lm->l_next);
+    }
+    return NULL;
+}
+linkmap32_t* getLinkMapElf32(elfheader_t* h)
+{
+    linkmap32_t* lm = my_context->linkmap32;
+    while(lm) {
+        if(lm->l_lib && lm->l_lib->type==LIB_EMULATED && lm->l_lib->e.elf == h)
+            return lm;
+        lm = (linkmap32_t*)from_ptrv(lm->l_next);
+    }
+    return NULL;
+}
+linkmap32_t* addLinkMapLib32(library_t* lib)
+{
+    if(!my_context->linkmap32) {
+        my_context->linkmap32 = (linkmap32_t*)box_calloc(1, sizeof(linkmap32_t));
+        my_context->linkmap32->l_lib = lib;
+        return my_context->linkmap32;
+    }
+    linkmap32_t* lm = my_context->linkmap32;
+    while(lm->l_next)
+        lm = (linkmap32_t*)from_ptrv(lm->l_next);
+    lm->l_next = to_ptrv(box_calloc(1, sizeof(linkmap32_t)));
+    linkmap32_t* l_next = (linkmap32_t*)from_ptrv(lm->l_next);
+    l_next->l_lib = lib;
+    l_next->l_prev = to_ptrv(lm);
+    return l_next;
+}
+void removeLinkMapLib32(library_t* lib)
+{
+    linkmap32_t* lm = getLinkMapLib32(lib);
+    if(!lm) return;
+    if(lm->l_next)
+        ((linkmap32_t*)from_ptrv(lm->l_next))->l_prev = lm->l_prev;
+    if(lm->l_prev)
+        ((linkmap32_t*)from_ptrv(lm->l_prev))->l_next = lm->l_next;
+    box_free(lm);
+}
+
+void AddMainElfToLinkmap32(elfheader_t* elf)
+{
+    linkmap32_t* lm = addLinkMapLib32(NULL);    // main elf will have a null lib link
+
+    lm->l_addr = (Elf32_Addr)to_ptrv(GetElfDelta(elf));
+    lm->l_name = to_ptrv(my_context->fullpath);
+    lm->l_ld = to_ptrv(GetDynamicSection(elf));
+}
+#endif
 
 linkmap_t* getLinkMapLib(library_t* lib)
 {

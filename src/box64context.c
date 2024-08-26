@@ -23,6 +23,9 @@
 #include "gltools.h"
 #include "rbtree.h"
 #include "dynarec.h"
+#ifdef BOX32
+#include "box32.h"
+#endif
 
 EXPORTDYN
 void initAllHelpers(box64context_t* context)
@@ -31,6 +34,9 @@ void initAllHelpers(box64context_t* context)
     if(inited)
         return;
     my_context = context;
+    #ifdef BOX32
+    init_hash_helper();
+    #endif
     init_pthread_helper();
     init_bridge_helper();
     init_signal_helper(context);
@@ -47,6 +53,9 @@ void finiAllHelpers(box64context_t* context)
     fini_pthread_helper(context);
     fini_signal_helper();
     fini_bridge_helper();
+    #ifdef BOX32
+    fini_hash_helper();
+    #endif
     fini_custommem_helper(context);
     finied = 1;
 }
@@ -75,6 +84,7 @@ void free_tlsdatasize(void* p)
 }
 
 void x64Syscall(x64emu_t *emu);
+void x86Syscall(x64emu_t *emu);
 
 int unlockMutex()
 {
@@ -223,15 +233,21 @@ box64context_t *NewBox64Context(int argc)
     context->system = NewBridge();
     // Cannot use Bridge name as the map is not initialized yet
     // create vsyscall
-    context->vsyscall = AddBridge(context->system, vFEv, x64Syscall, 0, NULL);
+    context->vsyscall = AddBridge(context->system, vFEv, box64_is32bits?x86Syscall:x64Syscall, 0, NULL);
     // create the vsyscalls
-    context->vsyscalls[0] = AddVSyscall(context->system, 96);
-    context->vsyscalls[1] = AddVSyscall(context->system, 201);
-    context->vsyscalls[2] = AddVSyscall(context->system, 309);
-    // create the alternate to map at address
-    addAlternate((void*)0xffffffffff600000, (void*)context->vsyscalls[0]);
-    addAlternate((void*)0xffffffffff600400, (void*)context->vsyscalls[1]);
-    addAlternate((void*)0xffffffffff600800, (void*)context->vsyscalls[2]);
+    if(box64_is32bits) {
+        #ifdef BOX32
+        addAlternate((void*)0xffffe400, from_ptrv(context->vsyscall));
+        #endif
+    } else {
+        context->vsyscalls[0] = AddVSyscall(context->system, 96);
+        context->vsyscalls[1] = AddVSyscall(context->system, 201);
+        context->vsyscalls[2] = AddVSyscall(context->system, 309);
+        // create the alternate to map at address
+        addAlternate((void*)0xffffffffff600000, (void*)context->vsyscalls[0]);
+        addAlternate((void*)0xffffffffff600400, (void*)context->vsyscalls[1]);
+        addAlternate((void*)0xffffffffff600800, (void*)context->vsyscalls[2]);
+    }
     // create exit bridge
     context->exit_bridge = AddBridge(context->system, NULL, NULL, 0, NULL);
     // get handle to box64 itself

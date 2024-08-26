@@ -213,10 +213,13 @@
                 } else {                                \
                     SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    LDRxw_REG(x1, wback, O);            \
+                    if(rex.is32bits)                    \
+                        LDRxw_REG_SXTW(x1, O, wback);   \
+                    else                                \
+                        LDRxw_REG(x1, wback, O);        \
                     ed = x1;                            \
                 }
-#define WBACKO(O)   if(wback) {STRxw_REG(ed, wback, O); SMWRITE2();}
+#define WBACKO(O)   if(wback) {if(rex.is32bits) STRxw_REG_SXTW(ed, O, wback); else STRxw_REG(ed, wback, O); SMWRITE2();}
 //GETEDOx can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETEDOx(O, D)  if(MODREG) {                     \
                     ed = xRAX+(nextop&7)+(rex.b<<3);    \
@@ -224,7 +227,10 @@
                 } else {                                \
                     SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    LDRx_REG(x1, wback, O);             \
+                    if(rex.is32bits)                    \
+                        LDRx_REG_SXTW(x1, O, wback);    \
+                    else                                \
+                        LDRx_REG(x1, wback, O);         \
                     ed = x1;                            \
                 }
 //GETEDOz can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
@@ -234,7 +240,10 @@
                 } else {                                \
                     SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    LDRz_REG(x1, wback, O);             \
+                    if(rex.is32bits)                    \
+                        LDRz_REG_SXTW(x1, O, wback);    \
+                    else                                \
+                        LDRz_REG(x1, wback, O);         \
                     ed = x1;                            \
                 }
 #define GETSEDOw(O, D)  if((nextop&0xC0)==0xC0) {       \
@@ -245,7 +254,10 @@
                 } else {                                \
                     SMREAD();                           \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, NULL, 0, D); \
-                    LDRSW_REG(x1, wback, O);            \
+                    if(rex.is32bits)                    \
+                        LDRSW_REG_SXTW(x1, O, wback);   \
+                    else                                \
+                        LDRSW_REG(x1, wback, O);        \
                     wb = ed = x1;                       \
                 }
 //FAKEELike GETED, but doesn't get anything
@@ -304,7 +316,7 @@
                 } else {                        \
                     SMREAD();                   \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, D); \
-                    ADDx_REG(x3, wback, i);     \
+                    ADDz_REG(x3, wback, i);     \
                     if(wback!=x3) wback = x3;   \
                     LDH(i, wback, fixedaddress);\
                     wb1 = 1;                    \
@@ -365,7 +377,7 @@
                 } else {                        \
                     SMREAD();                   \
                     addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
-                    ADDx_REG(x3, wback, i);     \
+                    ADDz_REG(x3, wback, i);     \
                     if(wback!=x3) wback = x3;   \
                     LDB(i, wback, fixedaddress);\
                     wb1 = 1;                    \

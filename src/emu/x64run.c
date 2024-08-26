@@ -27,6 +27,9 @@
 #include "modrm.h"
 
 int my_setcontext(x64emu_t* emu, void* ucp);
+#ifdef BOX32
+int my32_setcontext(x64emu_t* emu, void* ucp);
+#endif
 
 #ifdef TEST_INTERPRETER
 int RunTest(x64test_t *test)
@@ -2232,7 +2235,12 @@ if(emu->segs[_CS]!=0x33 && emu->segs[_CS]!=0x23) printf_log(LOG_NONE, "Warning, 
     // setcontext handling
     else if(emu->quit && emu->uc_link) {
         emu->quit = 0;
-        my_setcontext(emu, emu->uc_link);
+        #ifdef BOX32
+        if(box64_is32bits)
+            my32_setcontext(emu, emu->uc_link);
+        else
+        #endif
+            my_setcontext(emu, emu->uc_link);
         addr = R_RIP;
         goto x64emurun;
     }

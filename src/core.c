@@ -189,6 +189,7 @@ char* box64_custom_gstreamer = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint32_t default_gs = 0x53;
+uint32_t default_fs = 0x53;
 int jit_gdb = 0;
 int box64_tcmalloc_minimal = 0;
 
@@ -1269,7 +1270,11 @@ int GatherEnv(char*** dest, char** env, char* prog)
         (*dest)[idx++] = box_strdup("BOX64_PATH=.:bin");
     }
     if(!ld_path) {
+        #ifdef BOX32
+        (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64:i386:libs:bin");
+        #else
         (*dest)[idx++] = box_strdup("BOX64_LD_LIBRARY_PATH=.:lib:lib64:x86_64:bin64:libs64");
+        #endif
     }
     // add "_=prog" at the end...
     if(prog) {
@@ -1382,24 +1387,7 @@ void LoadEnvVars(box64context_t *context)
             }
         } while(p);
     }
-    // check BOX64_LD_LIBRARY_PATH and load it
-    LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
-    #ifndef TERMUX
-    if(FileExist("/lib/x86_64-linux-gnu", 0))
-        AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
-        AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    if(FileExist("/usr/x86_64-linux-gnu/lib", 0))
-        AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
-    if(FileExist("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", 0))
-        AddPath("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    #else
-    //TODO: Add Termux Library Path - Lily
-    if(FileExist("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", 0))
-        AddPath("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
-    #endif
-    if(getenv("LD_LIBRARY_PATH"))
-        PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
+
     if(getenv("BOX64_EMULATED_LIBS")) {
         char* p = getenv("BOX64_EMULATED_LIBS");
         ParseList(p, &context->box64_emulated_libs, 0);
@@ -1495,6 +1483,54 @@ void LoadEnvVars(box64context_t *context)
         }
     }
 #endif
+}
+
+EXPORTDYN
+void LoadLDPath(box64context_t *context)
+{
+    // check BOX64_LD_LIBRARY_PATH and load it
+    #ifdef BOX32
+    if(box64_is32bits)
+        LoadEnvPath(&context->box64_ld_lib, ".:lib:i386:bin:libs", "BOX64_LD_LIBRARY_PATH");
+    else
+    #endif
+    LoadEnvPath(&context->box64_ld_lib, ".:lib:lib64:x86_64:bin64:libs64", "BOX64_LD_LIBRARY_PATH");
+    #ifndef TERMUX
+    if(box64_is32bits) {
+        #ifdef BOX32
+        if(FileExist("/lib/i386-linux-gnu", 0))
+            AddPath("/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/lib/i386-linux-gnu", 0))
+            AddPath("/usr/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/i386-linux-gnu/lib", 0))
+            AddPath("/usr/i386-linux-gnu/lib", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/glibc/lib/i386-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/glibc/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        #endif
+    } else {
+        if(FileExist("/lib/x86_64-linux-gnu", 0))
+            AddPath("/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/lib/x86_64-linux-gnu", 0))
+            AddPath("/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/x86_64-linux-gnu/lib", 0))
+            AddPath("/usr/x86_64-linux-gnu/lib", &context->box64_ld_lib, 1);
+        if(FileExist("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/glibc/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+    }
+    #else
+    //TODO: Add Termux Library Path - Lily
+    if(box64_is32bits) {
+        #ifdef BOX32
+        if(FileExist("/data/data/com.termux/files/usr/lib/i386-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
+        #endif
+    } else {
+        if(FileExist("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", 0))
+            AddPath("/data/data/com.termux/files/usr/lib/x86_64-linux-gnu", &context->box64_ld_lib, 1);
+    }
+    #endif
+    if(getenv("LD_LIBRARY_PATH"))
+        PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
 }
 
 EXPORTDYN
@@ -1957,12 +1993,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // check if box86 is present
     {
         my_context->box86path = box_strdup(my_context->box64path);
+        #ifndef BOX32
         char* p = strrchr(my_context->box86path, '6');  // get the 6 of box64
         p[0] = '8'; p[1] = '6'; // change 64 to 86
         if(!FileExist(my_context->box86path, IS_FILE)) {
             box_free(my_context->box86path);
             my_context->box86path = NULL;
         }
+        #endif
     }
     const char* prgname = strrchr(prog, '/');
     if(!prgname)
@@ -2089,9 +2127,12 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     box64_is32bits = FileIsX86ELF(my_context->fullpath);
     if(box64_is32bits) {
         printf_log(LOG_INFO, "BOX64: Using Box32 to load 32bits elf\n");
+        loadProtectionFromMap();
         reserveHighMem();
+        init_pthread_helper_32();
     }
     #endif
+    LoadLDPath(my_context);
     elfheader_t *elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
     if(!elf_header) {
         int x86 = my_context->box86path?FileIsX86ELF(my_context->fullpath):0;
@@ -2252,10 +2293,15 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // stack setup is much more complicated then just that!
     SetupInitialStack(emu); // starting here, the argv[] don't need free anymore
     SetupX64Emu(emu, NULL);
-    SetRSI(emu, my_context->argc);
-    SetRDX(emu, (uint64_t)my_context->argv);
-    SetRCX(emu, (uint64_t)my_context->envv);
-    SetRBP(emu, 0); // Frame pointer so to "No more frame pointer"
+    if(box64_is32bits) {
+        SetEAX(emu, my_context->argc);
+        SetEBX(emu, my_context->argv32);
+    } else {
+        SetRSI(emu, my_context->argc);
+        SetRDX(emu, (uint64_t)my_context->argv);
+        SetRCX(emu, (uint64_t)my_context->envv);
+        SetRBP(emu, 0); // Frame pointer so to "No more frame pointer"
+    }
 
     // child fork to handle traces
     pthread_atfork(NULL, NULL, my_child_fork);
@@ -2339,10 +2385,19 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
     // emulate!
     printf_log(LOG_DEBUG, "Start x64emu on Main\n");
     // Stack is ready, with stacked: NULL env NULL argv argc
-    SetRIP(emu, my_context->ep);
     ResetFlags(emu);
-    Push64(emu, my_context->exit_bridge);  // push to pop it just after
-    SetRDX(emu, Pop64(emu));    // RDX is exit function
+    #ifdef BOX32
+    if(box64_is32bits) {
+        SetEIP(emu, my_context->ep);
+        Push32(emu, my_context->exit_bridge);  // push to pop it just after
+        SetEDX(emu, Pop32(emu));    // RDX is exit function
+    } else
+    #endif
+    {
+        SetRIP(emu, my_context->ep);
+        Push64(emu, my_context->exit_bridge);  // push to pop it just after
+        SetRDX(emu, Pop64(emu));    // RDX is exit function
+    }
     Run(emu, 0);
     // Get EAX
     int ret = GetEAX(emu);

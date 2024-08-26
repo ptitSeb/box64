@@ -18,6 +18,8 @@ Box64 integrates with DynaRec (dynamic recompiler) for the ARM64 and RV64 platfo
 
 Some x64 internal opcodes use parts of "Realmode X86 Emulator Library", see [x64primop.c](src/emu/x64primop.c) for copyright details
 
+Box64 now have an option Box32 part, that allows to run 32bits x86 program on 64bits system. Note that this option is experimental and a work in progress. Basically, nothing work with it yet, so unless you plan an helping with the development, don't bother enabling it (and don't create issue ticket about box32 not being able to run X or Y program). The main goals with box32 is to be able to run SteamCMD first. Then Linux Steam and Wine/Proton might come later.
+
 <img src="docs/img/Box64Icon.png" width="96" height="96">
 
 Logo and Icon made by @grayduck, thanks!

@@ -295,7 +295,6 @@ void fpu_savenv(x64emu_t* emu, char* p, int b16)
     // other stuff are not pushed....
 }
 
-// this is the 64bits version (slightly different than the 32bits!)
 typedef struct xsave32_s {
     uint16_t ControlWord;        /* 000 */
     uint16_t StatusWord;         /* 002 */
@@ -311,9 +310,10 @@ typedef struct xsave32_s {
     uint32_t MxCsr;              /* 018 */
     uint32_t MxCsr_Mask;         /* 01c */
     sse_regs_t FloatRegisters[8];/* 020 */  // fpu/mmx are store in 128bits here
-    sse_regs_t XmmRegisters[16]; /* 0a0 */
-    uint8_t  Reserved4[96];      /* 1a0 */
+    sse_regs_t XmmRegisters[8];  /* 0a0 */
+    uint8_t  Reserved4[56*4];    /* 1a0 */
 } xsave32_t;
+// this is the 64bits version (slightly different than the 32bits!)
 typedef struct xsave64_s {
     uint16_t ControlWord;        /* 000 */
     uint16_t StatusWord;         /* 002 */
@@ -354,8 +354,7 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     // copy SSE regs
-    for(int i=0; i<16; ++i)
-        memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
+    memcpy(p->XmmRegisters, emu->xmm, 8*16);
 }
 
 void fpu_fxsave64(x64emu_t* emu, void* ed)
@@ -381,8 +380,7 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy(&p->FloatRegisters[i].q[0], (i<stack)?&ST(i):&emu->mmx[i], sizeof(mmx87_regs_t));
     // copy SSE regs
-    for(int i=0; i<16; ++i)
-        memcpy(&p->XmmRegisters[i], &emu->xmm[i], 16);
+    memcpy(p->XmmRegisters, emu->xmm, 16*16);
 }
 
 void fpu_fxrstor32(x64emu_t* emu, void* ed)
@@ -406,8 +404,7 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
-    for(int i=0; i<16; ++i)
-        memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
+    memcpy(emu->xmm, p->XmmRegisters, 8*16);
 }
 
 void fpu_fxrstor64(x64emu_t* emu, void* ed)
@@ -431,8 +428,7 @@ void fpu_fxrstor64(x64emu_t* emu, void* ed)
     for(int i=0; i<8; ++i)
         memcpy((i<stack)?&ST(i):&emu->mmx[i], &p->FloatRegisters[i].q[0], sizeof(mmx87_regs_t));
     // copy SSE regs
-    for(int i=0; i<16; ++i)
-        memcpy(&emu->xmm[i], &p->XmmRegisters[i], 16);
+    memcpy(emu->xmm, p->XmmRegisters, 16*16);
 }
 
 typedef struct xsaveheader_s {

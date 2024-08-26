@@ -41,6 +41,40 @@ static int SymbolMatch(elfheader_t* h, uint32_t i, int ver, const char* vername,
     return strcmp(vername, symvername)?0:1;
 }
 
+uint16_t GetParentSymbolVersionFlag32(elfheader_t* h, int index)
+{
+    if(!h->VerDef._32 || (index<1))
+        return (uint16_t)-1;
+    Elf32_Verdef *def = (Elf32_Verdef*)((uintptr_t)h->VerDef._32 + h->delta);
+    while(def) {
+        if(def->vd_ndx==index) {
+            return def->vd_flags;
+        }
+        def = def->vd_next?((Elf32_Verdef*)((uintptr_t)def + def->vd_next)):NULL;
+    }
+    return (uint16_t)-1;
+}
+
+uint16_t GetSymbolVersionFlag32(elfheader_t* h, int version)
+{
+    if(version<2)
+        return (uint16_t)-1;
+    if(h->VerNeed._32) {
+        Elf32_Verneed *ver = (Elf32_Verneed*)((uintptr_t)h->VerNeed._32 + h->delta);
+        while(ver) {
+            Elf32_Vernaux *aux = (Elf32_Vernaux*)((uintptr_t)ver + ver->vn_aux);
+            for(int j=0; j<ver->vn_cnt; ++j) {
+                if(aux->vna_other==version) 
+                    return aux->vna_flags;
+                aux = (Elf32_Vernaux*)((uintptr_t)aux + aux->vna_next);
+            }
+            ver = ver->vn_next?((Elf32_Verneed*)((uintptr_t)ver + ver->vn_next)):NULL;
+        }
+    }
+    return GetParentSymbolVersionFlag32(h, version);  // if symbol is "internal", use Def table instead
+}
+
+
 static Elf32_Sym* old_elf_lookup(elfheader_t* h, const char* symname, int ver, const char* vername, int local, int veropt)
 {
     // Prepare hash table
@@ -90,16 +124,16 @@ static Elf32_Sym* new_elf_lookup(elfheader_t* h, const char* symname, int ver, c
     const uint32_t symoffset = hashtab[1];
     const uint32_t bloom_size = hashtab[2];
     const uint32_t bloom_shift = hashtab[3];
-    const uint64_t *blooms = (uint64_t*)&hashtab[4];
+    const uint32_t *blooms = (uint32_t*)&hashtab[4];
     const uint32_t *buckets = (uint32_t*)&blooms[bloom_size];
     const uint32_t *chains = &buckets[nbuckets];
     // get hash from symname to lookup
     const uint32_t hash = new_elf_hash(symname);
     // early check with bloom: if at least one bit is not set, a symbol is surely missing.
-    uint64_t word = blooms[(hash/64)%bloom_size];
-    uint64_t mask = 0
-        | 1LL << (hash%64)
-        | 1LL << ((hash>>bloom_shift)%64);
+    uint32_t word = blooms[(hash/32)%bloom_size];
+    uint32_t mask = 0
+        | 1LL << (hash%32)
+        | 1LL << ((hash>>bloom_shift)%32);
     if ((word & mask) != mask) {
         return NULL;
     }
@@ -127,7 +161,7 @@ static void new_elf_hash_dump(elfheader_t* h)
     const uint32_t symoffset = hashtab[1];
     const uint32_t bloom_size = hashtab[2];
     const uint32_t bloom_shift = hashtab[3];
-    const uint64_t *blooms = (uint64_t*)&hashtab[4];
+    const uint32_t *blooms = (uint32_t*)&hashtab[4];
     const uint32_t *buckets = (uint32_t*)&blooms[bloom_size];
     const uint32_t *chains = &buckets[nbuckets];
     printf_log(LOG_NONE, "===============Dump GNU_HASH from %s\n", h->name);

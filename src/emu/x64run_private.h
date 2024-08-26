@@ -50,6 +50,12 @@ static inline void Push16(x64emu_t *emu, uint16_t v)
     *((uint16_t*)R_RSP) = v;
 }
 
+static inline void Push_32(x64emu_t *emu, uint32_t v)
+{
+    R_ESP -= 4;
+    *((uint32_t*)(uintptr_t)R_ESP) = v;
+}
+
 static inline void Push32(x64emu_t *emu, uint32_t v)
 {
     R_RSP -= 4;
@@ -67,6 +73,13 @@ static inline uint16_t Pop16(x64emu_t *emu)
 {
     uint16_t* st = (uint16_t*)R_RSP;
     R_RSP += 2;
+    return *st;
+}
+
+static inline uint32_t Pop_32(x64emu_t *emu)
+{
+    uint32_t* st = (uint32_t*)(uintptr_t)R_RSP;
+    R_ESP += 4;
     return *st;
 }
 
@@ -90,6 +103,13 @@ static inline void PushExit(x64emu_t* emu)
     *((uint64_t*)R_RSP) = my_context->exit_bridge;
 }
 
+#ifdef BOX32
+static inline void PushExit_32(x64emu_t* emu)
+{
+    R_ESP -= 4;
+    *((ptr_t*)(uintptr_t)R_ESP) = my_context->exit_bridge;
+}
+#endif
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
 reg64_t* GetECommon(x64emu_t* emu, uintptr_t* addr, rex_t rex, uint8_t m, uint8_t delta);
@@ -232,6 +252,7 @@ void x64Syscall(x64emu_t *emu);
 void x64Int3(x64emu_t* emu, uintptr_t* addr);
 x64emu_t* x64emu_fork(x64emu_t* e, int forktype);
 void x86Syscall(x64emu_t *emu); //32bits syscall
+void x86Int3(x64emu_t* emu, uintptr_t* addr);
 
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 #define GetGSBaseEmu(emu)    GetSegmentBaseEmu(emu, _GS)

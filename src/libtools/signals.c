@@ -269,6 +269,10 @@ static void sigstack_key_alloc() {
     pthread_key_create(&sigstack_key, sigstack_destroy);
 }
 
+x64_stack_t* sigstack_getstack() {
+    return (x64_stack_t*)pthread_getspecific(sigstack_key);
+}
+
 // this allow handling "safe" function that just abort if accessing a bad address
 static __thread JUMPBUFF signal_jmpbuf;
 #ifdef ANDROID
@@ -923,8 +927,17 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd)
     return 0;
 }
 
+#ifdef BOX32
+void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
+#endif
 void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        my_sigactionhandler_oldcode_32(sig, simple, info, ucntx, old_code, cur_db);
+        return;
+    }
+    #endif
     int Locks = unlockMutex();
 
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig]));
@@ -2184,7 +2197,7 @@ EXPORT int my_getcontext(x64emu_t* emu, void* ucp)
     // get signal mask
     sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&u->uc_sigmask);
     // ensure uc_link is properly initialized
-    u->uc_link = emu->uc_link;
+    u->uc_link = (x64_ucontext_t*)emu->uc_link;
 
     return 0;
 }

@@ -875,7 +875,12 @@ int RelocateElf(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, e
     return box64_is32bits?RelocateElf32(maplib, local_maplib, bindnow, deepbind, head):RelocateElf64(maplib, local_maplib, bindnow, deepbind, head);
 }
 
-int RelocateElfPlt32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head) { /* TODO */ return -1; }
+int RelocateElfPlt32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
+#ifndef BOX32
+{ return -1; }
+#else
+ ;
+#endif
 int RelocateElfPlt64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
     int need_resolver = 0;
@@ -953,7 +958,12 @@ uintptr_t GetLastByte(elfheader_t* h)
 #endif
 
 void checkHookedSymbols(elfheader_t* h); // in mallochook.c
-void AddSymbols32(lib_t *maplib, elfheader_t* h) { /* TODO */ }
+void AddSymbols32(lib_t *maplib, elfheader_t* h)
+#ifndef BOX32
+{ }
+#else
+ ;
+#endif
 void AddSymbols(lib_t *maplib, elfheader_t* h)
 {
     if(box64_is32bits) {
@@ -1121,15 +1131,10 @@ void startMallocHook();
 #else
 void startMallocHook() {}
 #endif
-void RunElfInit32(elfheader_t* h, x64emu_t *emu) { /* TODO*/ }
 void RunElfInit(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->init_done)
         return;
-    if(box64_is32bits) {
-        RunElfInit32(h, emu);
-        return;
-    }
     // reset Segs Cache
     memset(emu->segs_serial, 0, sizeof(emu->segs_serial));
     uintptr_t p = h->initentry + h->delta;
@@ -1157,11 +1162,24 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
         RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
     printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
-    Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
-    for (size_t i=0; i<h->initarray_sz; ++i) {
-        if(addr[i]) {
-            printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+    #ifdef BOX32
+    if(box64_is32bits) {
+        Elf32_Addr *addr = (Elf32_Addr*)(h->initarray + h->delta);
+        for (size_t i=0; i<h->initarray_sz; ++i) {
+            if(addr[i]) {
+                printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), from_ptrv(addr[i]));
+                RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+            }
+        }
+    } else
+    #endif
+    {
+        Elf64_Addr *addr = (Elf64_Addr*)(h->initarray + h->delta);
+        for (size_t i=0; i<h->initarray_sz; ++i) {
+            if(addr[i]) {
+                printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+                RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+            }
         }
     }
 
@@ -1191,15 +1209,10 @@ void RunDeferredElfInit(x64emu_t *emu)
     box_free(List);
 }
 
-void RunElfFini32(elfheader_t* h, x64emu_t *emu) { /* TODO */ }
 void RunElfFini(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->fini_done || !h->init_done)
         return;
-    if(box64_is32bits) {
-        RunElfFini32(h, emu);
-        return;
-    }
     h->fini_done = 1;
     // Call the registered cxa_atexit functions
     CallCleanup(emu, h);
@@ -1208,10 +1221,21 @@ void RunElfFini(elfheader_t* h, x64emu_t *emu)
     printf_log(LOG_DEBUG, "Android does not support Fini for %s\n", ElfName(h));
 #else
     // first check fini array
-    Elf64_Addr *addr = (Elf64_Addr*)(h->finiarray + h->delta);
-    for (int i=h->finiarray_sz-1; i>=0; --i) {
-        printf_dump(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
-        RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
+    #ifdef BOX32
+    if(box64_is32bits) {
+        Elf32_Addr *addr = (Elf32_Addr*)(h->finiarray + h->delta);
+        for (int i=h->finiarray_sz-1; i>=0; --i) {
+            printf_dump(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), from_ptrv(addr[i]));
+            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
+        }
+    } else
+    #endif
+    {
+        Elf64_Addr *addr = (Elf64_Addr*)(h->finiarray + h->delta);
+        for (int i=h->finiarray_sz-1; i>=0; --i) {
+            printf_dump(LOG_DEBUG, "Calling Fini[%d] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+            RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 0);
+        }
     }
     // then the "old-style" fini
     if(h->finientry) {
@@ -1499,7 +1523,12 @@ EXPORT int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data) {
     return ret;
 }
 
-void ResetSpecialCaseMainElf32(elfheader_t* h) { /* TODO */ }
+void ResetSpecialCaseMainElf32(elfheader_t* h)
+#ifndef BOX32
+{ }
+#else
+ ;
+#endif
 void ResetSpecialCaseMainElf(elfheader_t* h)
 {
     if(box64_is32bits) {
@@ -1620,7 +1649,12 @@ static Elf64_Sym* ElfLocateSymbol(elfheader_t* head, uintptr_t *offs, uintptr_t 
     return sym;
 }
 
-void* ElfGetLocalSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt) { /* TOODO */ return NULL; }
+void* ElfGetLocalSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
 void* ElfGetLocalSymbolStartEnd64(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
 {
     Elf64_Sym* sym = ElfLocateSymbol(head, offs, end, symname, ver, vername, local, veropt);
@@ -1636,7 +1670,12 @@ void* ElfGetLocalSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *e
     return box64_is32bits?ElfGetLocalSymbolStartEnd32(head, offs, end, symname, ver, vername, local, veropt):ElfGetLocalSymbolStartEnd64(head, offs, end, symname, ver, vername, local, veropt);
 }
 
-void* ElfGetGlobalSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt) { /*T ODO */ return NULL; }
+void* ElfGetGlobalSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
 void* ElfGetGlobalSymbolStartEnd64(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
 {
     Elf64_Sym* sym = ElfLocateSymbol(head, offs, end, symname, ver, vername, local, veropt);
@@ -1652,7 +1691,12 @@ void* ElfGetGlobalSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *
     return box64_is32bits?ElfGetGlobalSymbolStartEnd32(head, offs, end, symname, ver, vername, local, veropt):ElfGetGlobalSymbolStartEnd64(head, offs, end, symname, ver, vername, local, veropt);
 }
 
-void* ElfGetWeakSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt) { /* TODO */ return NULL; }
+void* ElfGetWeakSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
 void* ElfGetWeakSymbolStartEnd64(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
 {
     Elf64_Sym* sym = ElfLocateSymbol(head, offs, end, symname, ver, vername, local, veropt);
@@ -1668,7 +1712,12 @@ void* ElfGetWeakSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *en
     return box64_is32bits?ElfGetWeakSymbolStartEnd32(head, offs, end, symname, ver, vername, local, veropt):ElfGetWeakSymbolStartEnd64(head, offs, end, symname, ver, vername, local, veropt);
 }
 
-int ElfGetSymTabStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname) { /* TODO */ return 0; }
+int ElfGetSymTabStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname)
+#ifndef BOX32
+{ return 0; }
+#else
+ ;
+#endif
 int ElfGetSymTabStartEnd64(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname)
 {
     Elf64_Sym* sym = ElfSymTabLookup64(head, symname);

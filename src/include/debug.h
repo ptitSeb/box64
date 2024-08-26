@@ -121,7 +121,7 @@ extern int box64_x11threads;
 extern int box64_x11glx;
 extern char* box64_libGL;
 extern uintptr_t fmod_smc_start, fmod_smc_end; // to handle libfmod (from Unreal) SMC (self modifying code)
-extern uint32_t default_gs;
+extern uint32_t default_gs, default_fs;
 extern int jit_gdb; // launch gdb when a segfault is trapped
 extern int box64_tcmalloc_minimal;  // when using tcmalloc_minimal
 #define LOG_NONE 0

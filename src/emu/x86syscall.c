@@ -266,7 +266,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
             R_EAX = R_EBX; // faking the syscall here, we don't want to really terminate the thread now
             break;
         /*case 123:   // SYS_modify_ldt
-            R_EAX = my_modify_ldt(emu, R_EBX, (thread_area_t*)(uintptr_t)R_ECX, R_EDX);
+            R_EAX = my32_modify_ldt(emu, R_EBX, (thread_area_t*)(uintptr_t)R_ECX, R_EDX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;*/

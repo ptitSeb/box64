@@ -1521,21 +1521,68 @@ static void atfork_child_custommem(void)
     // (re)init mutex if it was lock before the fork
     init_mutexes();
 }
-
+#ifdef BOX32
+void reverveHigMem32(void)
+{
+    loadProtectionFromMap();
+    uintptr_t cur_size = 1024LL*1024*1024*1024; // start with 1TB check
+    void* cur;
+    while(cur_size>=65536) {
+        cur = internal_mmap(NULL, cur_size, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        if((cur==MAP_FAILED) || (cur<(void*)0x100000000LL)) {
+            if(cur!=MAP_FAILED) {
+                //printf_log(LOG_DEBUG, " Failed to reserve high %p (%zx)\n", cur, cur_size);
+                internal_munmap(cur, cur_size);
+            } //else 
+              //  printf_log(LOG_DEBUG, " Failed to reserve %zx sized block\n", cur_size);
+            cur_size>>=1;
+        } else {
+            rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)cur+cur_size, 1);
+            //printf_log(LOG_DEBUG, "Reserved high %p (%zx)\n", cur, cur_size);
+        }
+    }
+    printf_log(LOG_INFO, "Memory higher than 32bits reserved\n");
+    if(box64_log>=LOG_DEBUG) {
+        uintptr_t start=0x100000000LL;
+        int prot;
+        uintptr_t bend;
+        while (bend!=0xffffffffffffffffLL) {
+            if(rb_get_end(mapallmem, start, &prot, &bend)) {
+                    printf_log(LOG_DEBUG, " Reserved: %p - %p (%d)\n", (void*)start, (void*)bend, prot);
+            }
+            start = bend;
+        }
+    }
+}
+#endif
 void my_reserveHighMem()
 {
     static int reserved = 0;
     if(reserved || (!have48bits && !box64_is32bits))
         return;
     reserved = 1;
+    #ifdef BOX32
+    if(box64_is32bits) {
+        reverveHigMem32();
+        return;
+    }
+    #endif
     uintptr_t cur = box64_is32bits?(1ULL<<32):(1ULL<<47);
     uintptr_t bend = 0;
     uint32_t prot;
     while (bend!=0xffffffffffffffffLL) {
         if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
-            void* ret = internal_mmap((void*)cur, bend-cur, 0, MAP_ANONYMOUS|MAP_FIXED|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
-            printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, bend, ret, strerror(errno));
-            printf_log(LOG_DEBUG, "mmap %p-%p\n", cur, bend);
+            // create a border at 39bits...
+            if(cur<(1ULL<<39) && bend>(1ULL<<39))
+                bend = 1ULL<<39;
+            // create a border at 47bits
+            if(cur<(1ULL<<47) && bend>(1ULL<<47))
+                bend = 1ULL<<47;
+            // create a border at 48bits
+            if(cur<(1ULL<<48) && bend>(1ULL<<48))
+                bend = 1ULL<<48;
+            void* ret = internal_mmap((void*)cur, bend-cur, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+            printf_log(LOG_DEBUG, "Reserve %p-%p => %p (%s)\n", (void*)cur, bend, ret, (ret==MAP_FAILED)?strerror(errno):"ok");
             if(ret!=(void*)-1) {
                 rb_set(mapallmem, cur, bend, 1);
             }

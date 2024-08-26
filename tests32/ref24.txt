@@ -1,0 +1,640 @@
+Testing rint(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing rint(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing rint(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rint(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rint(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rint(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rint(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rint(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+
+Testing rintf(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing rintf(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing rintf(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rintf(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rintf(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rintf(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rintf(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing rintf(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+
+Testing nearbyint(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing nearbyint(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing nearbyint(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyint(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyint(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyint(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyint(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyint(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing nearbyintf(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+
+Testing llrintf(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing llrintf(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing llrintf(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrintf(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrintf(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrintf(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrintf(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrintf(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+
+Testing llrint(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing llrint(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing llrint(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrint(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrint(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrint(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrint(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing llrint(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+
+Testing lrintf(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing lrintf(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing lrintf(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrintf(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrintf(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrintf(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrintf(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrintf(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+
+Testing lrint(1.000000)
+FE_UPWARD: 1.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing lrint(1.300000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 1.0
+Current rounding mode: 0x0
+
+Testing lrint(1.500000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrint(1.800000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 1.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 1.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrint(2.000000)
+FE_UPWARD: 2.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrint(2.300000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrint(2.500000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 2.0
+Current rounding mode: 0x0
+
+Testing lrint(2.800000)
+FE_UPWARD: 3.0
+Current rounding mode: 0x800
+FE_DOWNWARD: 2.0
+Current rounding mode: 0x400
+FE_TOWARDZERO: 2.0
+Current rounding mode: 0xc00
+FE_TONEAREST: 3.0
+Current rounding mode: 0x0
+

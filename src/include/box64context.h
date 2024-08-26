@@ -7,11 +7,18 @@
 #ifdef DYNAREC
 #include "dynarec/native_lock.h"
 #endif
+#ifndef BOX32_DEF
+#define BOX32_DEF
+typedef uint32_t ptr_t;
+typedef int32_t long_t;
+typedef uint32_t ulong_t;
+#endif
 
 #ifdef DYNAREC
 // disabling for now, seems to have a negative impact on performances
 //#define USE_CUSTOM_MUTEX
 #endif
+
 
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
@@ -26,6 +33,7 @@ typedef struct kh_defaultversion_s kh_defaultversion_t;
 typedef struct kh_mapsymbols_s kh_mapsymbols_t;
 typedef struct library_s library_t;
 typedef struct linkmap_s linkmap_t;
+typedef struct linkmap32_s linkmap32_t;
 typedef struct kh_threadstack_s kh_threadstack_t;
 typedef struct rbtree rbtree;
 typedef struct atfork_fnc_s {
@@ -97,9 +105,11 @@ typedef struct box64context_s {
 
     int                 argc;
     char**              argv;
+    ptr_t               argv32;
 
     int                 envc;
     char**              envv;
+    ptr_t               envv32;
 
     int                 orig_argc;
     char**              orig_argv;
@@ -175,6 +185,7 @@ typedef struct box64context_s {
     library_t           *sdl2lib;
     library_t           *sdl2mixerlib;
     linkmap_t           *linkmap;
+    linkmap32_t         *linkmap32;
     void*               sdl1allocrw;    // SDL1 AllocRW/FreeRW function
     void*               sdl1freerw;
     void*               sdl2allocrw;    // SDL2 AllocRW/FreeRW function

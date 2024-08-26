@@ -1,0 +1,8 @@
+Create/start 2 threads
+Thread 1: Entered (10/20)
+Thread 1: foo(), TLS data=0 2 "-1-"
+Thread 2: Entered (10/20)
+Thread 2: foo(), TLS data=1 4 "-2-"
+Thread 2: bar(), TLS data=1 4 "-2-"
+Thread 1: bar(), TLS data=0 2 "-1-"
+Main completed

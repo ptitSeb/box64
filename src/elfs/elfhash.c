@@ -78,7 +78,12 @@ const char* GetParentSymbolVersion(elfheader_t* h, int version)
     return box64_is32bits?GetParentSymbolVersion32(h, version):GetParentSymbolVersion64(h, version);
 }
 
-uint16_t GetParentSymbolVersionFlag32(elfheader_t* h, int index) { /* TODO */ return (uint16_t)-1; }
+uint16_t GetParentSymbolVersionFlag32(elfheader_t* h, int index)
+#ifndef BOX32
+ { return (uint16_t)-1; }
+#else
+ ;
+#endif
 uint16_t GetParentSymbolVersionFlag64(elfheader_t* h, int index)
 {
     if(!h->VerDef._64 || (index<1))
@@ -97,7 +102,12 @@ uint16_t GetParentSymbolVersionFlag(elfheader_t* h, int index)
     return box64_is32bits?GetParentSymbolVersionFlag32(h, index):GetParentSymbolVersionFlag64(h, index);
 }
 
-uint16_t GetSymbolVersionFlag32(elfheader_t* h, int version) { /* TODO */ return (uint16_t)-1; }
+uint16_t GetSymbolVersionFlag32(elfheader_t* h, int version)
+#ifndef BOX32
+{ return (uint16_t)-1; }
+#else
+ ;
+#endif
 uint16_t GetSymbolVersionFlag64(elfheader_t* h, int version)
 {
     if(version<2)

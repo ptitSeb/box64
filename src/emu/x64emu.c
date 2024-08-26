@@ -64,11 +64,29 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     // set default value
     R_RIP = start;
     R_RSP = (stack + stacksize) & ~7;   // align stack start, always
+    #ifdef BOX32
+    if(box64_is32bits) {
+        if(stack>=0x100000000LL) {
+            printf_log(LOG_NONE, "BOX32: Stack pointer too high (%p), aborting\n", (void*)stack);
+            abort();
+        }
+        if(R_RSP>=0x100000000LL) {    // special case, stack is just a bit too high
+            R_RSP = 0x100000000LL - 16;
+        }
+    }
+    #endif
     // fake init of segments...
-    emu->segs[_CS] = 0x33;
-    emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x2b;
-    emu->segs[_FS] = 0x43;
-    emu->segs[_GS] = default_gs;
+    if(box64_is32bits) {
+        emu->segs[_CS] = 0x23;
+        emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x2b;
+        emu->segs[_FS] = default_fs;
+        emu->segs[_GS] = 0x33;
+    } else {
+        emu->segs[_CS] = 0x33;
+        emu->segs[_DS] = emu->segs[_ES] = emu->segs[_SS] = 0x2b;
+        emu->segs[_FS] = 0x43;
+        emu->segs[_GS] = default_gs;
+    }
     // setup fpu regs
     reset_fpu(emu);
     emu->mxcsr.x32 = 0x1f80;
@@ -77,7 +95,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
 EXPORTDYN
 x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
-    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with EIP=%p and Stack=%p/0x%X\n", (void*)start, (void*)stack, stacksize);
+    printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with %cIP=%p and Stack=%p/0x%X\n", box64_is32bits?'E':'R', (void*)start, (void*)stack, stacksize);
 
     x64emu_t *emu = (x64emu_t*)box_calloc(1, sizeof(x64emu_t));
 
@@ -161,7 +179,7 @@ void CallCleanup(x64emu_t *emu, elfheader_t* h)
     if(!h)
         return;
     for(int i=h->clean_sz-1; i>=0; --i) {
-        printf_log(LOG_DEBUG, "Call cleanup #%d\n", i);
+        printf_log(LOG_DEBUG, "Call cleanup #%d (args:%d, arg:%p)\n", i, h->cleanups[i].arg, h->cleanups[i].a);
         RunFunctionWithEmu(emu, 0, (uintptr_t)(h->cleanups[i].f), h->cleanups[i].arg, h->cleanups[i].a );
         // now remove the cleanup
         if(i!=h->clean_sz-1)
@@ -325,10 +343,14 @@ void SetEBP(x64emu_t *emu, uint32_t v)
 {
     R_EBP = v;
 }
-//void SetESP(x64emu_t *emu, uint32_t v)
-//{
-//    R_ESP = v;
-//}
+void SetESP(x64emu_t *emu, uint32_t v)
+{
+    R_ESP = v;
+}
+void SetEIP(x64emu_t *emu, uint32_t v)
+{
+    R_EIP = v;
+}
 void SetRAX(x64emu_t *emu, uint64_t v)
 {
     R_RAX = v;
@@ -373,7 +395,7 @@ uint64_t GetRBP(x64emu_t *emu)
 {
     return R_RBP;
 }
-/*void SetFS(x64emu_t *emu, uint16_t v)
+void SetFS(x64emu_t *emu, uint16_t v)
 {
     emu->segs[_FS] = v;
     emu->segs_serial[_FS] = 0;
@@ -381,7 +403,7 @@ uint64_t GetRBP(x64emu_t *emu)
 uint16_t GetFS(x64emu_t *emu)
 {
     return emu->segs[_FS];
-}*/
+}
 
 
 void ResetFlags(x64emu_t *emu)
@@ -572,9 +594,14 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     uint64_t old_rip = R_RIP;
     //Push64(emu, GetRBP(emu));   // set frame pointer
     //SetRBP(emu, GetRSP(emu));   // save RSP
-    R_RSP -= 200;
-    R_RSP &= ~63LL;
-    PushExit(emu);
+    //R_RSP -= 200;
+    //R_RSP &= ~63LL;
+    #ifdef BOX32
+    if(box64_is32bits)
+        PushExit_32(emu);
+    else
+    #endif
+        PushExit(emu);
     R_RIP = addr;
     emu->df = d_none;
     Run(emu, 0);
