@@ -90,7 +90,7 @@ typedef struct instruction_rv64_s {
     uintptr_t           address;    // (start) address of the arm emitted instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, or barrier stuff)
     int                 size;       // size of the arm emitted instruction
-    int                 size2;      // size of the arm emitted instrucion after pass2
+    int                 size2;      // size of the arm emitted instruction after pass2
     int                 pred_sz;    // size of predecessor list
     int                 *pred;      // predecessor array
     uintptr_t           mark[3];
@@ -107,8 +107,8 @@ typedef struct instruction_rv64_s {
     uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
     uint16_t            ymm0_pass2, ymm0_pass3;
     int                 barrier_maybe;
-    flagcache_t         f_exit;     // flags status at end of intruction
-    extcache_t          e;          // extcache at end of intruction (but before poping)
+    flagcache_t         f_exit;     // flags status at end of instruction
+    extcache_t          e;          // extcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
     uint8_t             vector_sew;
 } instruction_rv64_t;
