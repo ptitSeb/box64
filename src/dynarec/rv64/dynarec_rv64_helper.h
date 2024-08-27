@@ -1759,7 +1759,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             gb = xRAX + (gd & 3);                                                    \
         }                                                                            \
         if (src##2) { ANDI(s1, src, 0xf00); }                                        \
-        SLLI(s1, (src##2 ? s1 : src), 64 - src##2);                                  \
+        SLLI(s1, (src##2 ? s1 : src), 64 - src##2 - 8);                              \
         if (rv64_zbb) {                                                              \
             RORI(dst, dst, 8 + dst##2);                                              \
         } else {                                                                     \
