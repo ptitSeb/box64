@@ -143,6 +143,7 @@ int internal_mark_ymm(dynarec_arm_t* dyn, int t, int ymm, int reg)
         // found a slot!
         dyn->n.neoncache[reg].t=t;
         dyn->n.neoncache[reg].n=ymm;
+        dyn->n.news |= (1<<reg);
         return reg;
     }
     return -1;
@@ -493,7 +494,7 @@ void neoncacheUnwind(neoncache_t* cache)
     }
     if(cache->news) {
         // remove the newly created neoncache
-        for(int i=0; i<24; ++i)
+        for(int i=0; i<32; ++i)
             if(cache->news&(1<<i))
                 cache->neoncache[i].v = 0;
         cache->news = 0;
