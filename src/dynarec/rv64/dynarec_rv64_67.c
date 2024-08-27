@@ -28,7 +28,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     uint8_t opcode = F8;
     uint8_t nextop;
-    uint8_t gd, ed, wback, wb, wb1, wb2, gb1, gb2, eb1, eb2;
+    uint8_t gd, ed, wback, wb, wb1, wb2, gb, gb1, gb2, eb1, eb2;
     int64_t fixedaddress;
     int unscaled;
     int8_t  i8;
@@ -75,6 +75,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(gb, wb, x1, ADD(gb, gb, x1));
             GETEB32(x2, 0);
             GETGB(x1);
             emit_add8(dyn, ninst, x1, x2, x3, x4);
@@ -109,6 +110,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("OR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(gb, wb, x1, OR(gb, gb, x1));
             GETEB32(x2, 0);
             GETGB(x1);
             emit_or8(dyn, ninst, x1, x2, x3, x4);
@@ -268,6 +270,12 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(gb, wb, x1, {
+                SUB(gb, gb, x1);
+                ANDI(x2, xFlags, 1 << F_CF);
+                SLLI(x2, x2, 64 - 8);
+                SUB(gb, gb, x2);
+            });
             GETEB32(x2, 0);
             GETGB(x1);
             emit_sbb8(dyn, ninst, x1, x2, x3, x4, x5);
@@ -339,6 +347,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUB Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(gb, wb, x1, SUB(gb, gb, x1));
             GETEB32(x2, 0);
             GETGB(x1);
             emit_sub8(dyn, ninst, x1, x2, x3, x4, x5);
@@ -373,6 +382,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(gb, wb, x1, XOR(gb, gb, x1));
             GETEB32(x2, 0);
             GETGB(x1);
             emit_xor8(dyn, ninst, x1, x2, x3, x4);

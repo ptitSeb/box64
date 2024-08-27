@@ -1743,4 +1743,35 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     BLT(reg, s, 4 + 4);           \
     ADDIW(reg, s, -1);
 
+#define FAST_8BIT_OPERATION(dst, src, s1, OP)                                        \
+    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+        if (rex.rex) {                                                               \
+            wb = xRAX + (nextop & 7) + (rex.b << 3);                                 \
+            wb2 = 0;                                                                 \
+            gb = xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3);                       \
+            gb2 = 0;                                                                 \
+        } else {                                                                     \
+            wb = (nextop & 7);                                                       \
+            wb2 = (wb >> 2) * 8;                                                     \
+            wb = xRAX + (wb & 3);                                                    \
+            gd = (nextop & 0x38) >> 3;                                               \
+            gb2 = ((gd & 4) >> 2) * 8;                                               \
+            gb = xRAX + (gd & 3);                                                    \
+        }                                                                            \
+        if (src##2) { ANDI(s1, src, 0xf00); }                                        \
+        SLLI(s1, (src##2 ? s1 : src), 64 - src##2 - 8);                              \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 8 + dst##2);                                              \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 8 + dst##2);                                           \
+        }                                                                            \
+        OP;                                                                          \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 64 - 8 - dst##2);                                         \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 64 - 8 - dst##2);                                      \
+        }                                                                            \
+        break;                                                                       \
+    }
+
 #endif //__DYNAREC_RV64_HELPER_H__
