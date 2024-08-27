@@ -832,18 +832,18 @@ void grab_segdata(dynarec_arm_t* dyn, uintptr_t addr, int ninst, int reg, int se
     int64_t j64;
     MAYUSE(j64);
     MESSAGE(LOG_DUMP, "Get %s Offset\n", (segment==_FS)?"FS":"GS");
-    int t1 = x1, t2 = x4;
-    if(reg==t1) ++t1;
+    int t2 = x4;
     if(reg==t2) ++t2;
     LDRw_U12(t2, xEmu, offsetof(x64emu_t, segs_serial[segment]));
-    LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
     if(segment==_GS) {
+        LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
         CBNZw_MARKSEG(t2);   // fast check
     } else {
-        LDRx_U12(t1, xEmu, offsetof(x64emu_t, context));
-        LDRw_U12(t1, t1, offsetof(box64context_t, sel_serial));
-        SUBw_REG(t1, t1, t2);
-        CBZw_MARKSEG(t1);
+        LDRx_U12(reg, xEmu, offsetof(x64emu_t, context));
+        LDRw_U12(reg, reg, offsetof(box64context_t, sel_serial));
+        SUBw_REG(t2, reg, t2);
+        LDRx_U12(reg, xEmu, offsetof(x64emu_t, segs_offs[segment]));
+        CBZw_MARKSEG(t2);
     }
     MOVZw(x1, segment);
     call_c(dyn, ninst, GetSegmentBaseEmu, t2, reg, 1, 0);
