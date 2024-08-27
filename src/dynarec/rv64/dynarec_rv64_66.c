@@ -63,6 +63,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(ed, gd, x1, ADD(ed, ed, x1));
             GETGW(x2);
             GETEW(x1, 0);
             emit_add16(dyn, ninst, x1, x2, x4, x5, x6);
@@ -72,6 +73,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("ADD Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(gd, ed, x1, ADD(gd, gd, x1));
             GETGW(x1);
             GETEW(x2, 0);
             emit_add16(dyn, ninst, x1, x2, x5, x4, x6);
@@ -101,6 +103,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("OR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(ed, gd, x1, OR(ed, ed, x1));
             GETGW(x2);
             GETEW(x1, 0);
             emit_or16(dyn, ninst, x1, x2, x4, x5);
@@ -110,6 +113,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("OR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(gd, ed, x1, OR(gd, gd, x1));
             GETGW(x1);
             GETEW(x2, 0);
             emit_or16(dyn, ninst, x1, x2, x4, x5);
@@ -143,6 +147,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(ed, gd, x1, {
+                ADD(ed, ed, x1);
+                ANDI(x2, xFlags, 1 << F_CF);
+                SLLI(x2, x2, 64 - 16);
+                ADD(ed, ed, x2);
+            });
             GETGW(x2);
             GETEW(x1, 0);
             emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
@@ -153,6 +163,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(gd, ed, x1, {
+                ADD(gd, gd, x1);
+                ANDI(x2, xFlags, 1 << F_CF);
+                SLLI(x2, x2, 64 - 16);
+                ADD(gd, gd, x2);
+            });
             GETGW(x1);
             GETEW(x2, 0);
             emit_adc16(dyn, ninst, x1, x2, x4, x6, x5);
@@ -173,6 +189,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(ed, gd, x1, {
+                SUB(ed, ed, x1);
+                ANDI(x2, xFlags, 1 << F_CF);
+                SLLI(x2, x2, 64 - 16);
+                SUB(ed, ed, x2);
+            });
             GETGW(x2);
             GETEW(x1, 0);
             emit_sbb16(dyn, ninst, x1, x2, x4, x5, x6);
@@ -183,6 +205,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             READFLAGS(X_CF);
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(gd, ed, x1, {
+                SUB(gd, gd, x1);
+                ANDI(x2, xFlags, 1 << F_CF);
+                SLLI(x2, x2, 64 - 16);
+                SUB(gd, gd, x2);
+            });
             GETGW(x1);
             GETEW(x2, 0);
             emit_sbb16(dyn, ninst, x1, x2, x6, x4, x5);
@@ -240,6 +268,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUB Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(ed, gd, x1, SUB(ed, ed, x1));
             GETGW(x1);
             GETEW(x2, 0);
             emit_sub16(dyn, ninst, x2, x1, x4, x5, x6);
@@ -249,6 +278,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SUB Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_16BIT_OPERATION(gd, ed, x1, SUB(gd, gd, x1));
             GETGW(x1);
             GETEW(x2, 0);
             emit_sub16(dyn, ninst, x1, x2, x6, x4, x5);
@@ -267,73 +297,39 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            // try to determine ed and gd
-            ed = 0;
-            GETGD;
-            if (MODREG) {
-                GETED(0);
+            if (MODREG && !dyn->insts[ninst].x64.gen_flags) {
+                gd = xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3);
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                if (ed == gd) {
+                    SRLI(ed, ed, 16);
+                    SLLI(ed, ed, 16);
+                    break;
+                }
             }
-            if (ed == gd) {
-                // optimize XOR Gw, Gw
-                CLEAR_FLAGS();
-                IFX(X_PEND) {
-                    SET_DF(x6, d_xor16);
-                } else IFX(X_ALL) {
-                    SET_DFNONE();
-                }
-                SRLI(ed, ed, 16);
-                SLLI(ed, ed, 16);
-                IFX(X_PEND) {
-                    SH(ed, xEmu, offsetof(x64emu_t, res));
-                }
-                IFX(X_ZF) {
-                    ORI(xFlags, xFlags, 1 << F_ZF);
-                }
-                IFX(X_PF) {
-                    ORI(xFlags, xFlags, 1 << F_PF);
-                }
-            } else {
-                GETGW(x2);
-                GETEW(x1, 0);
-                emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
-                EWBACK;
-            }
+            FAST_16BIT_OPERATION(ed, gd, x1, XOR(ed, ed, x1));
+            GETGW(x2);
+            GETEW(x1, 0);
+            emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
+            EWBACK;
             break;
         case 0x33:
             INST_NAME("XOR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
-            // try to determine ed and gd
-            ed = 0;
-            GETGD;
-            if (MODREG) {
-                GETED(0);
+            if (MODREG && !dyn->insts[ninst].x64.gen_flags) {
+                gd = xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3);
+                ed = xRAX + (nextop & 7) + (rex.b << 3);
+                if (ed == gd) {
+                    SRLI(gd, gd, 16);
+                    SLLI(gd, gd, 16);
+                    break;
+                }
             }
-            if (ed == gd) {
-                // optimize XOR Gw, Gw
-                CLEAR_FLAGS();
-                IFX(X_PEND) {
-                    SET_DF(x6, d_xor16);
-                } else IFX(X_ALL) {
-                    SET_DFNONE();
-                }
-                SRLI(ed, ed, 16);
-                SLLI(ed, ed, 16);
-                IFX(X_PEND) {
-                    SH(ed, xEmu, offsetof(x64emu_t, res));
-                }
-                IFX(X_ZF) {
-                    ORI(xFlags, xFlags, 1 << F_ZF);
-                }
-                IFX(X_PF) {
-                    ORI(xFlags, xFlags, 1 << F_PF);
-                }
-            } else {
-                GETGW(x1);
-                GETEW(x2, 0);
-                emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
-                GWBACK;
-            }
+            FAST_16BIT_OPERATION(gd, ed, x1, XOR(gd, gd, x1));
+            GETGW(x1);
+            GETEW(x2, 0);
+            emit_xor16(dyn, ninst, x1, x2, x4, x5, x6);
+            GWBACK;
             break;
         case 0x35:
             INST_NAME("XOR AX, Iw");

@@ -1774,4 +1774,23 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         break;                                                                       \
     }
 
+#define FAST_16BIT_OPERATION(dst, src, s1, OP)                                       \
+    if (MODREG && (rv64_zbb || rv64_xtheadbb) && !dyn->insts[ninst].x64.gen_flags) { \
+        gd = xRAX + ((nextop & 0x38) >> 3) + (rex.r << 3);                           \
+        ed = xRAX + (nextop & 7) + (rex.b << 3);                                     \
+        SLLI(s1, src, 64 - 16);                                                      \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 16);                                                      \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 16);                                                   \
+        }                                                                            \
+        OP;                                                                          \
+        if (rv64_zbb) {                                                              \
+            RORI(dst, dst, 64 - 16);                                                 \
+        } else {                                                                     \
+            TH_SRRI(dst, dst, 64 - 16);                                              \
+        }                                                                            \
+        break;                                                                       \
+    }
+
 #endif //__DYNAREC_RV64_HELPER_H__
