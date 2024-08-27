@@ -382,6 +382,7 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(gb, wb, x1, XOR(gb, gb, x1));
             GETEB32(x2, 0);
             GETGB(x1);
             emit_xor8(dyn, ninst, x1, x2, x3, x4);

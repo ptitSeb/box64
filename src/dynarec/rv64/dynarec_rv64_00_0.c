@@ -475,6 +475,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("XOR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(wb, gb, x1, XOR(wb, wb, x1));
             GETEB(x1, 0);
             GETGB(x2);
             emit_xor8(dyn, ninst, x1, x2, x4, x5);
@@ -495,6 +496,7 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("XOR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
+            FAST_8BIT_OPERATION(gb, wb, x1, XOR(gb, gb, x1));
             GETEB(x1, 0);
             GETGB(x2);
             emit_xor8(dyn, ninst, x2, x1, x4, x5);
