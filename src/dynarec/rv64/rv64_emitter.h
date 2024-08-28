@@ -1020,11 +1020,11 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Extract and sign-extend bits.
 // reg[rd] := sign_extend(reg[rs1][imm1:imm2])
-#define TH_EXT(rd, rs1, imm1, imm2) EMIT(I_type((((imm1) & 0x1f) << 6) | ((imm2) & 0x1f), rs1, 0b010, rd, 0b0001011))
+#define TH_EXT(rd, rs1, imm1, imm2) EMIT(I_type((((imm1) & 0x3f) << 6) | ((imm2) & 0x3f), rs1, 0b010, rd, 0b0001011))
 
 // Extract and zero-extend bits.
 // reg[rd] := zero_extend(reg[rs1][imm1:imm2])
-#define TH_EXTU(rd, rs1, imm1, imm2) EMIT(I_type((((imm1) & 0x1f) << 6) | ((imm2) & 0x1f), rs1, 0b011, rd, 0b0001011))
+#define TH_EXTU(rd, rs1, imm1, imm2) EMIT(I_type((((imm1) & 0x3f) << 6) | ((imm2) & 0x3f), rs1, 0b011, rd, 0b0001011))
 
 // Find first '0'-bit
 // for i=xlen..0:
