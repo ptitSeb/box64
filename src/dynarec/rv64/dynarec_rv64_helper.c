@@ -277,6 +277,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                 } else
                     scratch = xRAX+(nextop&0x07);
                 ADDIW(ret, scratch, i32);
+                ZEROUP(ret);
             } else {
                 MOV32w(scratch, i32);
                 if((nextop&7)==4) {
@@ -286,7 +287,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                             SLLI(ret, xRAX + sib_reg, (sib >> 6));
                             ADDW(ret, ret, scratch);
                         } else
-                            ADDW(ret, scratch, xRAX+sib_reg);
+                            ADDW(ret, scratch, xRAX + sib_reg);
                     } else {
                         PASS3(int tmp = xRAX+sib_reg2);
                         ADDW(ret, tmp, scratch);
@@ -295,6 +296,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                     PASS3(int tmp = xRAX+(nextop&0x07));
                     ADDW(ret, tmp, scratch);
                 }
+                ZEROUP(ret);
             }
         }
     }
@@ -415,6 +417,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                 } else
                     scratch = xRAX+(nextop&0x07)+(rex.b<<3);
                 ADDIW(ret, scratch, i64);
+                ZEROUP(ret);
             } else {
                 MOV32w(scratch, i64);
                 if((nextop&7)==4) {
@@ -424,7 +427,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                             SLLI(ret, xRAX + sib_reg, (sib >> 6));
                             ADDW(ret, ret, scratch);
                         } else
-                            ADDW(ret, scratch, xRAX+sib_reg);
+                            ADDW(ret, scratch, xRAX + sib_reg);
                     } else {
                         PASS3(int tmp = xRAX+sib_reg2);
                         ADDW(ret, tmp, scratch);
@@ -433,6 +436,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                     PASS3(int tmp = xRAX+(nextop&0x07)+(rex.b<<3));
                     ADDW(ret, tmp, scratch);
                 }
+                ZEROUP(ret);
             }
         }
     }
