@@ -105,14 +105,13 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s2, int s3, int s4, int s5)
 {
     CLEAR_FLAGS();
-    if(s1==xRSP && (!dyn->insts || dyn->insts[ninst].x64.gen_flags==X_PEND))
-    {
+    if (s1 == xRSP && (!dyn->insts || dyn->insts[ninst].x64.gen_flags == X_PEND)) {
         // special case when doing math on ESP and only PEND is needed: ignoring it!
-        if(c >= -2048 && c < 2048) {
-            ADDIxw(s1, s1, c);
+        if (c >= -2048 && c < 2048) {
+            ADDI(s1, s1, c);
         } else {
-            MOV64xw(s2, c);
-            ADDxw(s1, s1, s2);
+            MOV64x(s2, c);
+            ADD(s1, s1, s2);
         }
         return;
     }
