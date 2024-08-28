@@ -190,12 +190,14 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                 int64_t tmp = F32S;
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<-2048) || (tmp>maxval) || !i12)) {
-                        MOV32w(scratch, tmp);
+                        // no need to zero up, as we did it below
+                        rv64_move32(dyn, ninst, scratch, tmp, 0);
                         if((sib>>6)) {
                             SLLI(ret, xRAX + sib_reg, sib >> 6);
                             ADDW(ret, ret, scratch);
                         } else
                             ADDW(ret, xRAX+sib_reg, scratch);
+                        ZEROUP(ret);
                     } else {
                         if(sib>>6)
                             SLLI(ret, xRAX+sib_reg, (sib>>6));
@@ -217,6 +219,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                         ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
                 }
@@ -256,6 +259,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                         ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
                 }
@@ -279,7 +283,8 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                 ADDIW(ret, scratch, i32);
                 ZEROUP(ret);
             } else {
-                MOV32w(scratch, i32);
+                // no need to zero up, as we did it below
+                rv64_move32(dyn, ninst, scratch, i32, 0);
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         ADDW(scratch, scratch, xRAX+sib_reg2);
@@ -334,6 +339,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                             ADDW(ret, ret, scratch);
                         } else
                             ADDW(ret, xRAX+sib_reg, scratch);
+                        ZEROUP(ret);
                     } else {
                         if(sib>>6)
                             SLLI(ret, xRAX+sib_reg, (sib>>6));
@@ -355,6 +361,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                         ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
                 }
@@ -364,6 +371,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             MOV32w(ret, tmp);
             GETIP(addr+delta);
             ADDW(ret, ret, xRIP);
+            ZEROUP(ret);
             switch(lock) {
                 case 1: addLockAddress(addr+delta+tmp); break;
                 case 2: if(isLockAddress(addr+delta+tmp)) *l=1; break;
@@ -396,6 +404,7 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                         ADDW(ret, ret, xRAX + sib_reg2);
                     } else
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
                 }
@@ -2418,10 +2427,8 @@ void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zerou
         src = reg;
     }
     if (lo12 || !hi20) ADDIW(reg, src, lo12);
-    if((zeroup && ((hi20&0x80000) || (!hi20 && (lo12&0x800))))
-    || (!zeroup && !(val&0x80000000) && ((hi20&0x80000) || (!hi20 && (lo12&0x800))))) {
+    if (zeroup && (val & 0x80000000))
         ZEROUP(reg);
-    }
 }
 
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
