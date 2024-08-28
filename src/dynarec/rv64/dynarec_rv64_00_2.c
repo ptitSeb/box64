@@ -423,7 +423,10 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 DEFAULT;
             } else {     // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
-                if (gd != ed) MV(gd, ed);
+                if (gd != ed) { MV(gd, ed); }
+                if (!rex.w || rex.is32bits) {
+                    ZEROUP(gd); // truncate the higher 32bits as asked
+                }
             }
             break;
         case 0x8E:

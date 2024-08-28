@@ -195,8 +195,9 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                         if((sib>>6)) {
                             SLLI(ret, xRAX + sib_reg, sib >> 6);
                             ADDW(ret, ret, scratch);
-                        } else
+                        } else {
                             ADDW(ret, xRAX+sib_reg, scratch);
+                        }
                         ZEROUP(ret);
                     } else {
                         if(sib>>6)
@@ -217,8 +218,9 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                     if((sib>>6)) {
                         SLLI(ret, xRAX + sib_reg, (sib >> 6));
                         ADDW(ret, ret, xRAX + sib_reg2);
-                    } else
+                    } else {
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    }
                     ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
@@ -257,8 +259,9 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                     if(sib>>6) {
                         SLLI(ret, xRAX + sib_reg, (sib >> 6));
                         ADDW(ret, ret, xRAX + sib_reg2);
-                    } else
+                    } else {
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    }
                     ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
@@ -337,8 +340,9 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                         if((sib>>6)) {
                             SLLI(ret, xRAX + sib_reg, sib >> 6);
                             ADDW(ret, ret, scratch);
-                        } else
+                        } else {
                             ADDW(ret, xRAX+sib_reg, scratch);
+                        }
                         ZEROUP(ret);
                     } else {
                         if(sib>>6)
@@ -359,8 +363,9 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                     if((sib>>6)) {
                         SLLI(ret, xRAX + sib_reg, (sib >> 6));
                         ADDW(ret, ret, xRAX + sib_reg2);
-                    } else
+                    } else {
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    }
                     ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
@@ -402,8 +407,9 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                     if(sib>>6) {
                         SLLI(ret, xRAX + sib_reg, (sib >> 6));
                         ADDW(ret, ret, xRAX + sib_reg2);
-                    } else
+                    } else {
                         ADDW(ret, xRAX+sib_reg2, xRAX+sib_reg);
+                    }
                     ZEROUP(ret);
                 } else {
                     ret = xRAX+sib_reg2;
@@ -2427,8 +2433,9 @@ void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zerou
         src = reg;
     }
     if (lo12 || !hi20) ADDIW(reg, src, lo12);
-    if (zeroup && (val & 0x80000000))
+    if (zeroup && (val & 0x80000000)) {
         ZEROUP(reg);
+    }
 }
 
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
