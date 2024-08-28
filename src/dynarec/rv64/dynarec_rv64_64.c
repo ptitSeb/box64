@@ -79,7 +79,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             GETEX(x2, 0, 8);
                             if(!MODREG) {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
-                                ADD(x4, x4, wback);
+                                ADDz(x4, x4, wback);
                                 wback = x4;
                             }
                             LD(x3, gback, gdoffset+0);
@@ -101,7 +101,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
-                                ADD(x4, x4, ed);
+                                ADDz(x4, x4, ed);
                                 ed = x4;
                                 FSD(v0, ed, fixedaddress);
                                 SMWRITE2();
@@ -118,7 +118,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             } else {
                                 grab_segdata(dyn, addr, ninst, x4, seg);
                                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
-                                ADD(x4, x4, ed);
+                                ADDz(x4, x4, ed);
                                 ed = x4;
                                 FSW(v0, ed, fixedaddress);
                                 SMWRITE2();
@@ -373,7 +373,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MVxw(xRAX+(nextop&7)+(rex.b<<3), gd);
             } else {                    // mem <= reg
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                ADD(x4, ed, x4);
+                ADDz(x4, ed, x4);
                 SDxw(gd, x4, fixedaddress);
                 SMWRITE2();
             }
@@ -389,7 +389,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {       // mem <= reg
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                ADD(x4, ed, x4);
+                ADDz(x4, ed, x4);
                 LDxw(gd, x4, fixedaddress);
             }
             break;
@@ -403,7 +403,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
-                ADD(x4, wback, x4);
+                ADDz(x4, wback, x4);
                 LHU(x1, x4, 0);
                 ed = x1;
             }
@@ -420,12 +420,12 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 POP1z(x3); // so this can handle POP [ESP] and maybe some variant too
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
                 if (ed == xRSP) {
-                    ADD(x4, ed, x4);
+                    ADDz(x4, ed, x4);
                     SDz(x3, x4, 0);
                 } else {
                     // complicated to just allow a segfault that can be recovered correctly
                     ADDIz(xRSP, xRSP, rex.is32bits ? -4 : -8);
-                    ADD(x4, ed, x4);
+                    ADDz(x4, ed, x4);
                     SDz(x3, x4, 0);
                     ADDIz(xRSP, xRSP, rex.is32bits ? 4 : 8);
                 }
@@ -440,7 +440,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u64 = F64;
             // TODO: could be optimized.
             MOV64z(x1, u64);
-            ADD(x1, x1, x4);
+            ADDz(x1, x1, x4);
             LDxw(xRAX, x1, 0);
             break;
 
@@ -453,7 +453,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 u64 = F64;
             // TODO: could be optimized.
             MOV64z(x1, u64);
-            ADD(x1, x1, x4);
+            ADDz(x1, x1, x4);
             SDxw(xRAX, x1, 0);
             SMWRITE2();
             break;
@@ -500,7 +500,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ed = x3;
                 } else
                     ed = xZR;
-                ADD(x4, wback, x4);
+                ADDz(x4, wback, x4);
                 SB(ed, x4, fixedaddress);
                 SMWRITE2();
             }
@@ -521,7 +521,7 @@ uintptr_t dynarec64_64(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ed = x3;
                 } else
                     ed = xZR;
-                ADD(x4, wback, x4);
+                ADDz(x4, wback, x4);
                 SDxw(ed, x4, fixedaddress);
                 SMWRITE2();
             }

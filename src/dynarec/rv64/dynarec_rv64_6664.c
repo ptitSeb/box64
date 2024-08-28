@@ -56,7 +56,7 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                ADD(x4, ed, x4);
+                ADDz(x4, ed, x4);
                 if(rex.w) {
                     SD(gd, x4, fixedaddress);
                 } else {
@@ -86,7 +86,7 @@ uintptr_t dynarec64_6664(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                ADD(x4, ed, x4);
+                ADDz(x4, ed, x4);
                 if(rex.w) {
                     LD(gd, x4, fixedaddress);
                 } else {
