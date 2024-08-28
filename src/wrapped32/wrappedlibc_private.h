@@ -166,7 +166,7 @@ GO(closelog, vFv)
 //GO(ctime, pFp)
 //GO(ctime_r, pFpp)
 //DATAM(__ctype_b, 4)
-//GO(__ctype_b_loc, pFv)
+GOM(__ctype_b_loc, pFEv)
 //GOW(__ctype_get_mb_cur_max, LFv)
 //DATAM(__ctype_tolower, 4)
 //GO(__ctype_tolower_loc, pFv)
@@ -367,9 +367,9 @@ GOW(fpathconf, iFii)
 GOM(__fprintf_chk, iFEhvpV) //%%
 // __fpu_control    // type B
 //GO(__fpurge, vFp)
-//GOW(fputc, iFip)
+GOW(fputc, iFih)
 //GO(fputc_unlocked, iFip)
-GOW(fputs, iFhp)    // Weak
+GOW(fputs, iFph)    // Weak
 //GO(fputs_unlocked, iFpp)
 //GO(fputwc, iFip)
 //GO(fputwc_unlocked, iFip)
@@ -469,7 +469,7 @@ GOW(getcwd, tFpL)
 GOW(getdtablesize, iFv)
 GOW(getegid, iFv)
 GO(getenv, tFp)
-//GOW(geteuid, pFv)
+GOW(geteuid, pFv)
 // getfsent
 // getfsfile
 // getfsspec
@@ -1188,7 +1188,7 @@ GOW(ntohs, uFu)
 // __obstack_vprintf_chk
 //GOWM(on_exit, iFEpp)  //%%
 //GO2(__on_exit, iFEpp, my_on_exit)   //%%
-//GOWM(open, iFEpOu)    //%%
+GOWM(open, iFEpOu)    //%%
 //GOWM(__open, iFEpOu)  //%%
 //GO(__open_2, iFpO)
 GOWM(open64, iFEpOu)  //%%
@@ -1319,7 +1319,7 @@ GO(putwchar_unlocked, iFi)
 //GO(qfcvt_r, iFKipppL)
 #endif
 // qgcvt
-//GOM(qsort, vFEpLLp) //%%
+GOM(qsort, vFEpLLp) //%%
 //GOM(qsort_r, vFEpLLpp) //%%
 // query_module // Weak
 //GO(quotactl, iFipip)
@@ -1582,7 +1582,7 @@ GO(srand48, vFi)
 // srand48_r    // Weak
 GOW(srandom, vFu)
 //GOW(srandom_r, iFup)
-//GOM(sscanf, iFEppV) //%%
+GOM(sscanf, iFEppV) //%%
 // ssignal  // Weak
 // sstk
 GOM(__stack_chk_fail, vFEv) //%%
@@ -1613,13 +1613,13 @@ GOW(strcasecmp, iFpp)
 //GO(__strcasestr, pFpp)
 //GO(strcat, pFpp)
 //GO(__strcat_chk, pFppL)
-//GO(strchr, pFpi)
+GO(strchr, pFpi)
 //GOW(strchrnul, pFpi)
 GO(strcmp, iFpp)
 //GO(strcoll, iFpp)
 //GO(__strcoll_l, iFppp)
 //GOW(strcoll_l, iFppp)
-//GO(strcpy, pFpp)
+GO(strcpy, pFpp)
 GO(__strcpy_chk, pFppL)
 // __strcpy_small
 GO(strcspn, LFpp)
@@ -1645,7 +1645,7 @@ GOW(strncasecmp, iFppL)
 // strncasecmp_l    // Weak
 GO(strncat, pFppL)
 //GO(__strncat_chk, pFppLL)
-//GO(strncmp, iFppL)
+GO(strncmp, iFppL)
 //GO(strncpy, pFppL)
 //GO(__strncpy_chk, pFppLL)
 //GOW(strndup, pFpL)
@@ -1847,7 +1847,7 @@ GOW(umask, uFu)
 //GO(__underflow, iFp)
 //GOW(ungetc, iFip)
 //GO(ungetwc, iFip)
-//GOW(unlink, iFp)
+GOW(unlink, iFp)
 //GO(unlinkat, iFipi)
 GO(unlockpt, iFi)
 //GOW(unsetenv, iFp)
@@ -2104,7 +2104,7 @@ GOW(wmemmove, pFppL)
 //GO(__xmknodat, iFiipip)
 //GO(__xpg_basename, pFp)
 // __xpg_sigpause   // Weak
-//GO(__xpg_strerror_r, pFipu)
+GO(__xpg_strerror_r, tFipu)
 // xprt_register
 // xprt_unregister
 //GOM(__xstat, iFEipp) //%%

@@ -76,6 +76,7 @@ typedef struct  va_list {
 #define PREPARE_VALIST_32_(A) CREATE_SYSV_VALIST_32(A)
 
 void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack);
+void myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack);
 void myStackAlignGVariantNew32(const char* fmt, uint32_t* st, uint64_t* mystack);
 void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack);
 

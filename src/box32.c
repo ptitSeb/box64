@@ -11,7 +11,7 @@
 
 KHASH_MAP_INIT_INT64(to, ulong_t);
 KHASH_MAP_INIT_INT(from, uintptr_t);
-KHASH_MAP_INIT_STR(strings, char*);
+KHASH_MAP_INIT_STR(strings, ptr_t);
 
 static kh_from_t*   hash_from;
 static kh_to_t*     hash_to;
@@ -304,8 +304,9 @@ ptr_t to_cstring(char* p) {
         ret = to_ptrv(box_strdup(p));
         int r;
         k = kh_put(strings, const_strings, (char*)from_ptrv(ret), &r);
+        kh_value(const_strings, k) = ret;
     } else
-        ret = to_ptrv(kh_value(const_strings, k));
+        ret = kh_value(const_strings, k);
     pthread_rwlock_unlock(&hash_lock);
     return ret;
 }
@@ -319,7 +320,7 @@ ptr_t to_cstring_d(char* p) {
     if(k==kh_end(const_strings)) {
         // assert?
     } else {
-        ret = to_ptrv(kh_value(const_strings, k));
+        ret = kh_value(const_strings, k);
         kh_del(strings, const_strings, k);
         free(from_ptrv(ret));
     }

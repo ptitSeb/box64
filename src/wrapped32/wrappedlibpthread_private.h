@@ -130,8 +130,8 @@ GO(pthread_rwlockattr_setkind_np, iFpi)
 // pthread_rwlockattr_setpshared
 // __pthread_rwlock_destroy
 GO(pthread_rwlock_destroy, iFp)
-GO(__pthread_rwlock_init, iFpp)
-GO(pthread_rwlock_init, iFpp)
+GOM(__pthread_rwlock_init, iFpp)    //%noE
+GOM(pthread_rwlock_init, iFpp)  //%noE
 GO(__pthread_rwlock_rdlock, iFp)
 GOM(pthread_rwlock_rdlock, iFp) //%noE
 // pthread_rwlock_timedrdlock

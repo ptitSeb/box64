@@ -62,6 +62,7 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(__pthread_key_create, iFpp_t) \
 	GO(__pthread_mutex_init, iFpp_t) \
 	GO(__pthread_once, iFpp_t) \
+	GO(__pthread_rwlock_init, iFpp_t) \
 	GO(pthread_attr_getdetachstate, iFpp_t) \
 	GO(pthread_attr_getguardsize, iFpp_t) \
 	GO(pthread_attr_getinheritsched, iFpp_t) \
@@ -79,6 +80,7 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_mutex_init, iFpp_t) \
 	GO(pthread_mutex_timedlock, iFpp_t) \
 	GO(pthread_once, iFpp_t) \
+	GO(pthread_rwlock_init, iFpp_t) \
 	GO(pthread_setname_np, iFpp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \

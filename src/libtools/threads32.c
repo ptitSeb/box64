@@ -293,6 +293,20 @@ EXPORT void my32___pthread_unregister_cancel(x64emu_t* emu, x64_unwind_buff_t* b
 	}
 }
 
+#define X86_RWLOCK_SIZE	32
+EXPORT int my32_pthread_rwlock_init(void* rdlock, void* attr)
+{
+	// the structure is bigger, but the "active" part should be the same size, so just save/restoore the padding at init
+	uint8_t buff[sizeof(pthread_rwlock_t)];
+	if(rdlock && sizeof(pthread_rwlock_t)>X86_RWLOCK_SIZE) {
+		memcpy(buff, rdlock+32, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+	}
+	int ret = pthread_rwlock_init(rdlock, attr);
+	memcpy(rdlock+32, buff, sizeof(pthread_rwlock_t)-X86_RWLOCK_SIZE);
+	return ret;
+}
+EXPORT int my32___pthread_rwlock_init(void*, void*) __attribute__((alias("my32_pthread_rwlock_init")));
+
 EXPORT void my32___pthread_unwind_next(x64emu_t* emu, void* p)
 {
 	emu->quit = 1;

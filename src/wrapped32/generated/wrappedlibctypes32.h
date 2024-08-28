@@ -38,7 +38,9 @@ typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFpOu_t)(void*, int32_t, uint32_t);
+typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFiiII_t)(int32_t, int32_t, int64_t, int64_t);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
@@ -50,6 +52,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__close_nocancel, iFi_t) \
+	GO(__ctype_b_loc, pFv_t) \
 	GO(__errno_location, pFv_t) \
 	GO(alphasort64, iFpp_t) \
 	GO(signal, pFip_t) \

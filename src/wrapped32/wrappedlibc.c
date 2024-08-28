@@ -870,19 +870,6 @@ EXPORT int my32_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) // prob
 }
 
 
-
-EXPORT int my32_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b)
-{
-    //myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST_32_(b);
-    void* f = vsscanf;
-
-    return ((iFppp_t)f)(stream, fmt, VARARGS_32_(b));
-}
-
-EXPORT int my32__vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
-EXPORT int my32_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
-
 EXPORT int my32__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vfscanf")));
 EXPORT int my32___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
 
@@ -898,6 +885,16 @@ EXPORT int my32___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b)
 }
 #endif
 #endif
+EXPORT int my32_vsscanf(x64emu_t* emu, void* buff, void* fmt, void* b)
+{
+    myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch);
+    PREPARE_VALIST_32;
+    vsscanf(buff, fmt, VARARGS_32);
+}
+
+EXPORT int my32__vsscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
+EXPORT int my32_sscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
+
 EXPORT int my32_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
@@ -1355,7 +1352,7 @@ static void qsort_r(void* base, size_t nmemb, size_t size, __compar_d_fn_t compa
     return qsort_r_helper(base, size, compar, arg, 0, nmemb - 1);
 }
 #endif
-
+#endif
 typedef struct compare_r_s {
     x64emu_t* emu;
     uintptr_t f;
@@ -1379,7 +1376,7 @@ EXPORT void my32_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, v
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
     qsort_r(base, nmemb, size, (__compar_d_fn_t)my32_compare_r_cb, &args);
 }
-
+#if 0
 EXPORT void* my32_bsearch(x64emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
     return bsearch(key, base, nmemb, size, findcompareFct(fnc));
@@ -2273,6 +2270,16 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
     if(d1_) d1 = (struct dirent64*)from_ptrv(*d1_);
     if(d2_) d2 = (struct dirent64*)from_ptrv(*d2_);
     return alphasort64(d1_?(&d1):NULL, d2_?(&d2):NULL);
+}
+
+EXPORT void* my32___ctype_b_loc(x64emu_t* emu)
+{
+    const unsigned short** src =__ctype_b_loc();
+    if(src != emu->orig_ctype) {
+        memcpy(emu->libctype, *src-128, 384*sizeof(short));
+        emu->orig_ctype = src;
+    }
+    return &emu->libctype[128];
 }
 
 EXPORT struct __processor_model
