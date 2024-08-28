@@ -1633,6 +1633,8 @@ if(BOX32)
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref19.txt
         -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
+    set_tests_properties(x87_32bits PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTROUND=0")
+
     add_test(NAME idiv_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
         -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test20 -D TEST_OUTPUT=tmpfile20.txt
         -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref20.txt
