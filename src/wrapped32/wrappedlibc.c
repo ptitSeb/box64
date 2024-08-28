@@ -57,31 +57,6 @@
 #include "globalsymbols.h"
 #include "box32.h"
 
-#ifdef PANDORA
-#ifndef __NR_preadv
-#define __NR_preadv                     (__NR_SYSCALL_BASE+361)
-#endif
-#ifndef __NR_pwritev
-#define __NR_pwritev                    (__NR_SYSCALL_BASE+362)
-#endif
-#ifndef __NR_accept4
-#define __NR_accept4                    (__NR_SYSCALL_BASE+366)
-#endif
-#ifndef __NR_sendmmsg
-#define __NR_sendmmsg			        (__NR_SYSCALL_BASE+374)
-#endif
-#ifndef __NR_prlimit64
-#define __NR_prlimit64                  (__NR_SYSCALL_BASE+369)
-#endif
-#ifndef __NR_recvmmsg
-#define __NR_recvmmsg                   (__NR_SYSCALL_BASE+365)
-#endif
-#elif defined(__arm__)
-#ifndef __NR_accept4
-#define __NR_accept4                    (__NR_SYSCALL_BASE+366)
-#endif
-#endif
-
 // need to undef all read / read64 stuffs!
 #undef pread
 #undef pwrite
@@ -140,6 +115,7 @@ static const char* libcName =
 static library_t* my_lib = NULL;
 
 extern int fix_64bit_inodes;
+typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 #if 0
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
@@ -163,7 +139,6 @@ typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
-typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFu_t)(uint32_t);
 #define SUPER() \
@@ -2083,7 +2058,6 @@ EXPORT int32_t my32___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* ob
     printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
     return 0;
 }
-#if 0
 #ifndef ANDROID
 extern void __chk_fail();
 EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
@@ -2095,6 +2069,7 @@ EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
 }
 #endif
 
+#if 0
 EXPORT int32_t my32_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {
     // not always implemented on old linux version...
@@ -2190,25 +2165,25 @@ EXPORT int32_t my32___poll_chk(void* a, uint32_t b, int c, int l)
     return poll(a, b, c);   // no check...
 }
 
+#endif
 EXPORT int32_t my32_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
     // Implemented starting glibc 2.14+
     library_t* lib = my_lib;
     if(!lib) return 0;
-    iFiiV_t f = dlsym(lib->priv.w.lib, "fcntl64");
     if(b==F_SETFL)
         d1 = of_convert32(d1);
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
-        my32_flock64_t fl;
-        AlignFlock64(&fl, (void*)d1);
-        int ret = f?f(a, b, &fl):fcntl(a, b, &fl);
-        UnalignFlock64((void*)d1, &fl);
+        my_flock64_t fl;
+        AlignFlock64_32(&fl, from_ptrv(d1));
+        int ret = fcntl(a, b, &fl);
+        UnalignFlock64_32(from_ptrv(d1), &fl);
         return ret;
     }
     //TODO: check if better to use the syscall or regular fcntl?
     //return syscall(__NR_fcntl64, a, b, d1);   // should be enough
-    int ret = f?f(a, b, d1):fcntl(a, b, d1);
+    int ret = fcntl(a, b, d1);
 
     if(b==F_GETFL && ret!=-1)
         ret = of_unconvert32(ret);
@@ -2231,10 +2206,10 @@ EXPORT int32_t my32_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
         d1 = of_convert32(d1);
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
-        my32_flock64_t fl;
-        AlignFlock64(&fl, (void*)d1);
+        my_flock64_t fl;
+        AlignFlock64_32(&fl, from_ptrv(d1));
         int ret = fcntl(a, b, &fl);
-        UnalignFlock64((void*)d1, &fl);
+        UnalignFlock64_32(from_ptrv(d1), &fl);
         return ret;
     }
     int ret = fcntl(a, b, d1);
@@ -2244,7 +2219,7 @@ EXPORT int32_t my32_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
     return ret;    
 }
 EXPORT int32_t my32___fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6) __attribute__((alias("my32_fcntl")));
-
+#if 0
 EXPORT int32_t my32_preadv64(x64emu_t* emu, int32_t fd, void* v, int32_t c, int64_t o)
 {
     library_t* lib = my_lib;
@@ -2319,6 +2294,36 @@ EXPORT int my32_getopt_long_only(int argc, char* const argv[], const char* optst
     return ret;
 }
 #endif
+
+EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
+{
+    const struct dirent64* d1 = NULL;
+    const struct dirent64* d2 = NULL;
+    if(d1_) d1 = (struct dirent64*)from_ptrv(*d1_);
+    if(d2_) d2 = (struct dirent64*)from_ptrv(*d2_);
+    return alphasort64(d1_?(&d1):NULL, d2_?(&d2):NULL);
+}
+
+EXPORT const void* my32_setlocale(x64emu_t* emu, int l, void* loc)
+{
+    #define VAL_MAX 20
+    static char* val[VAL_MAX] = {0};
+    static int idx = 0;
+    const char* ret = setlocale(l, loc);
+    if(!ret)
+        return ret;
+    //check if value already exist in array
+    for(int i=0; i<idx; ++i)
+        if(!strcmp(val[i], ret))
+            return val[i];
+    if(idx+1==VAL_MAX) {
+        printf_log(LOG_NONE, "BOX32, no enough slot for setlocale\n");
+        return ret;
+    }
+    val[idx] = strdup(ret);
+    return val[idx++];
+    #undef MAX_VAL
+}
 
 EXPORT struct __processor_model
 {

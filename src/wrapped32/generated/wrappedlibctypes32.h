@@ -30,6 +30,7 @@ typedef int32_t (*iFpV_t)(void*, ...);
 typedef int64_t (*IFII_t)(int64_t, int64_t);
 typedef uint64_t (*UFUU_t)(uint64_t, uint64_t);
 typedef void* (*pFip_t)(int32_t, void*);
+typedef void* (*pFia_t)(int32_t, void*);
 typedef uintptr_t (*hFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
 typedef int32_t (*iFvpV_t)(void, void*, ...);
@@ -43,7 +44,9 @@ typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__close_nocancel, iFi_t) \
+	GO(alphasort64, iFpp_t) \
 	GO(signal, pFip_t) \
+	GO(setlocale, pFia_t) \
 	GO(__libc_init, vFpppp_t)
 
 #endif // __wrappedlibcTYPES32_H_

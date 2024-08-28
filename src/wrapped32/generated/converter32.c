@@ -21,6 +21,17 @@ void to_struct_L(ptr_t d, const struct_L_t *src) {
 	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
 }
 
+void from_struct_LL(struct_LL_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L1 = from_ulong(*(ulong_t*)src); src += 4;
+}
+void to_struct_LL(ptr_t d, const struct_LL_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L1); dest += 4;
+}
 
 void from_struct_h(struct_h_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);

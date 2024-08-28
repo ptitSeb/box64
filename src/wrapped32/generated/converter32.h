@@ -14,6 +14,12 @@ typedef struct struct_L_s {
 } struct_L_t;
 void from_struct_L(struct_L_t *dest, ptr_t src);
 void to_struct_L(ptr_t dest, const struct_L_t *src);
+typedef struct struct_LL_s {
+	unsigned long L0;
+	unsigned long L1;
+} struct_LL_t;
+void from_struct_LL(struct_LL_t *dest, ptr_t src);
+void to_struct_LL(ptr_t dest, const struct_LL_t *src);
 typedef struct struct_h_s {
 	uintptr_t h0;
 } struct_h_t;

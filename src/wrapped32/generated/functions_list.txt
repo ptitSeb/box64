@@ -26,6 +26,7 @@
 #() lFp -> lFp
 #() LFv -> LFv
 #() LFL -> LFL
+#() LFp -> LFp
 #() pFu -> pFu
 #() pFL -> pFL
 #() pFp -> pFp
@@ -71,8 +72,11 @@
 #() pFEv -> pFEv
 #() pFEp -> pFEp
 #() pFLL -> pFLL
-#() aFia -> aFia
+#() pFpL -> pFpL
 #() iFHBp_ -> iFHB
+#() fFpBp_ -> fFpB
+#() dFpBp_ -> dFpB
+#() iFuBLL_ -> iFuB
 #() vFEip -> vFEip
 #() vFEpi -> vFEpi
 #() vFEpu -> vFEpu
@@ -99,6 +103,7 @@
 #() iFpiu -> iFpiu
 #() iFpip -> iFpip
 #() iFpuu -> iFpuu
+#() iFpLL -> iFpLL
 #() iFppu -> iFppu
 #() iFppL -> iFppL
 #() iFppp -> iFppp
@@ -109,12 +114,15 @@
 #() dFddd -> dFddd
 #() dFddp -> dFddp
 #() pFEip -> pFEip
+#() pFEia -> pFEia
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
+#() pFpiL -> pFpiL
 #() pFppL -> pFppL
 #() pFpOM -> pFpOM
 #() hFEpp -> hFEpp
 #() aFipa -> aFipa
+#() IFpBp_i -> IFpBi
 #() lFpBp_i -> lFpBi
 #() vFEipV -> vFEipV
 #() vFEppp -> vFEppp
@@ -131,6 +139,7 @@
 #() LFpLLh -> LFpLLh
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
+#() pFpiLL -> pFpiLL
 #() pFppuL -> pFppuL
 #() pFppLL -> pFppLL
 #() iFEppiV -> iFEppiV
@@ -171,11 +180,14 @@ wrappedlibc:
 - vFpi:
 - vFpu:
 - iFpp:
+  - alphasort64
 - iFpV:
 - IFII:
 - UFUU:
 - pFip:
   - signal
+- pFia:
+  - setlocale
 - hFpp:
 - vFipV:
 - iFvpV:

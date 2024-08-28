@@ -362,7 +362,7 @@ typedef struct  __attribute__((packed)) x86_ftsent_s {
 
 void UnalignFTSENT(void* dest, void* source); // Arm -> x86
 void AlignFTSENT(void* dest, void* source);   // x86 -> Arm
-
+#endif
 typedef struct my_flock64_s {
 	uint16_t  l_type;
 	uint16_t  l_whence;
@@ -379,9 +379,9 @@ typedef struct __attribute__((packed)) x86_flock64_s {
 	int       l_pid;
 } x86_flock64_t;
 
-void UnalignFlock64(void* dest, void* source); // Arm -> x86
-void AlignFlock64(void* dest, void* source);   // x86 -> Arm
-
+void UnalignFlock64_32(void* dest, void* source); // Arm -> x86
+void AlignFlock64_32(void* dest, void* source);   // x86 -> Arm
+#if 0
 // defined in wrapperlibc.c
 int of_convert(int);    // x86->arm
 int of_unconvert(int);  // arm->x86
