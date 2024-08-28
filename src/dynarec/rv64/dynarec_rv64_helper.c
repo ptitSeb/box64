@@ -190,6 +190,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                 int64_t tmp = F32S;
                 if (sib_reg!=4) {
                     if(tmp && ((tmp<-2048) || (tmp>maxval) || !i12)) {
+                        // no need to zero up, as we did it below
                         rv64_move32(dyn, ninst, scratch, tmp, 0);
                         if((sib>>6)) {
                             SLLI(ret, xRAX + sib_reg, sib >> 6);
@@ -282,6 +283,7 @@ static uintptr_t geted_32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_
                 ADDIW(ret, scratch, i32);
                 ZEROUP(ret);
             } else {
+                // no need to zero up, as we did it below
                 rv64_move32(dyn, ninst, scratch, i32, 0);
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
