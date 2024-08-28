@@ -121,7 +121,7 @@ GOW(calloc, pFLL)
 //GO(cfsetispeed, iFpu)
 //GO(cfsetospeed, iFpu)
 //GO(cfsetspeed, iFpi)
-//GOW(chdir, iFp)
+GOW(chdir, iFp)
 //DATA(__check_rhosts_file, 4)
 // chflags
 // __chk_fail
@@ -259,7 +259,7 @@ GOM(epoll_create1, iFEO)    //%%
 // erand48_r    // Weak
 //GO(err, vFippppppppp)
 // errno    // type B
-//GO(__errno_location, pFv)
+GOM(__errno_location, pFEv)
 //GOW(error, vFiippppppppp)  // Simple attempt: there is a vararg, but the alignment will/may be off if it tries some Double in the "printf" part
 // error_at_line    // Weak
 // error_message_count  // type B
@@ -356,7 +356,7 @@ GOW(_flushlbf, vFv)
 // fmtmsg
 //GO(fnmatch, iFppi)
 GOM(fopen, hFEpp)           //%%
-//GOWM(fopen64, pFEpp)         //%%
+GOWM(fopen64, hFEpp)         //%%
 //GOM(fopencookie, pFEpppppp) //%% last 4p are a struct with 4 callbacks...
 GOWM(fork, iFEv)             //%%
 GOM(__fork, iFEv)           //%%
@@ -364,7 +364,7 @@ GOM(__fork, iFEv)           //%%
 GOW(fpathconf, iFii)
 //GO(__fpending, uFp)
 //GOM(fprintf, iFEppV) //%%
-//GOM(__fprintf_chk, iFEpvpV) //%%
+GOM(__fprintf_chk, iFEhvpV) //%%
 // __fpu_control    // type B
 //GO(__fpurge, vFp)
 //GOW(fputc, iFip)
@@ -389,7 +389,7 @@ GOW(freelocale, vFA)
 GO(__freelocale, vFA)
 //GO(fremovexattr, iFip)
 //GO(freopen, pFppp)
-//GO(freopen64, pFppp)
+GO(freopen64, hFppH)
 // frexp    // Weak
 // frexpf   // Weak
 // frexpl   // Weak
@@ -455,7 +455,7 @@ GO(getchar_unlocked, iFv)
 GOM(getcontext, iFEp)         //%%
 //GOW(getc_unlocked, iFp)
 //GO(get_current_dir_name, pFv)
-//GOW(getcwd, pFpL)
+GOW(getcwd, tFpL)
 //GO(__getcwd_chk, pFpLL)
 //GO(getdate, pFp)
 // getdate_err  // type B
@@ -468,7 +468,7 @@ GOM(getcontext, iFEp)         //%%
 // __getdomainname_chk
 GOW(getdtablesize, iFv)
 GOW(getegid, iFv)
-GO(getenv, pFp)
+GO(getenv, tFp)
 //GOW(geteuid, pFv)
 // getfsent
 // getfsfile
@@ -1042,7 +1042,7 @@ GOW(lseek64, IFiIi)
 //GO(lsetxattr, iFpppui)
 //GO(lutimes, iFpp)
 //GOM(__lxstat, iFEipp)       //%%
-//GOM(__lxstat64, iFEipp)     //%%
+GOM(__lxstat64, iFEipp)     //%%
 //GO(madvise, iFpLi)
 GOM(makecontext, iFEppiV)   //%%
 //GOW(mallinfo, pFv)
@@ -1094,7 +1094,7 @@ GO(memmove, pFppL)
 GO(memset, pFpiL)
 GO(__memset_chk, pFpiLL)
 //GO(mincore, iFpLp)
-//GOW(mkdir, iFpu)
+GOW(mkdir, iFpu)
 //GO(mkdirat, iFipu)
 //GO(mkdtemp, pFp)
 //GO(mkfifo, iFpu)
@@ -1191,7 +1191,7 @@ GOW(ntohs, uFu)
 //GOWM(open, iFEpOu)    //%%
 //GOWM(__open, iFEpOu)  //%%
 //GO(__open_2, iFpO)
-//GOWM(open64, iFEpOu)  //%%
+GOWM(open64, iFEpOu)  //%%
 // __open64 // Weak
 //GO(__open64_2, iFpO)
 //GOW(openat, iFipON)
@@ -1341,7 +1341,7 @@ GOW(random, iFv)
 //GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 //GOM(readdir_r, iFEppp)  //%% should also be weak
-//GOM(readlink, iFEppL) //%%
+GOM(readlink, iFEppL) //%%
 //GOM(readlinkat, iFEippL)
 // __readlinkat_chk
 // __readlink_chk
@@ -1349,7 +1349,7 @@ GOW(random, iFv)
 GO(realloc, pFpL)
 //DATAV(__realloc_hook, 4)
 //GOM(realpath, pFEpp) //%%
-//GO(__realpath_chk, pFppu)
+GO(__realpath_chk, pFppu)
 // reboot
 // re_comp  // Weak
 // re_compile_fastmap   // Weak
@@ -1483,7 +1483,7 @@ GO(sethostent, vFi)
 GOM(setjmp, iFEp) //%%
 GOM(_setjmp, iFEp) //%%
 //GO(setlinebuf, vFp)
-GOM(setlocale, pFEia)
+GO(setlocale, tFip)
 // setlogin
 GO(setlogmask, iFi)
 //GOW(setmntent, pFpp)
@@ -1568,7 +1568,7 @@ GOW(sigsetmask, iFi)
 //GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
 //GOM(snprintf, iFEpLpV) //%%
-//GOM(__snprintf_chk, iFEpLiipV) //%%
+GOM(__snprintf_chk, iFEpLiipV) //%%
 //GOM(__snprintf, iFEpLpV) //%%
 // sockatmark
 GOW(socket, iFiii)
@@ -1620,7 +1620,7 @@ GO(strcmp, iFpp)
 //GO(__strcoll_l, iFppp)
 //GOW(strcoll_l, iFppp)
 //GO(strcpy, pFpp)
-//GO(__strcpy_chk, pFppL)
+GO(__strcpy_chk, pFppL)
 // __strcpy_small
 GO(strcspn, LFpp)
 // __strcspn_c1
@@ -1640,10 +1640,10 @@ GO(strcspn, LFpp)
 //GO(__strftime_l, LFpLppL)
 //GOW(strftime_l, LFpLppL)
 GO(strlen, LFp)
-//GOW(strncasecmp, iFppL)
+GOW(strncasecmp, iFppL)
 // __strncasecmp_l
 // strncasecmp_l    // Weak
-//GO(strncat, pFppL)
+GO(strncat, pFppL)
 //GO(__strncat_chk, pFppLL)
 //GO(strncmp, iFppL)
 //GO(strncpy, pFppL)
@@ -1791,7 +1791,7 @@ GO(tcsetpgrp, iFii)
 //GO(tempnam, pFpp)
 //GOW(textdomain, pFp)
 // tfind    // Weak
-//GO(time, LFp)
+GO(time, LFrL_)
 //GO(timegm, LFp)
 // timelocal    // Weak
 GO(timerfd_create, iFii)
@@ -1889,9 +1889,9 @@ GOWM(vfork, iFEv) //%%
 //GOM(vprintf, iFEpp)               //%%
 //GOM(__vprintf_chk, iFEvpp)        //%%
 // vscanf   // Weak
-//GOWM(vsnprintf, iFEpLppp)         //%%
+GOWM(vsnprintf, iFEpLppp)         //%%
 //GOWM(__vsnprintf, iFEpuppp)       //%%
-//GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
+GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
 //GOWM(vsprintf, iFEppp)            //%%
 //GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 //GOM(vsscanf, iFEppp) //%%
@@ -2108,7 +2108,7 @@ GOW(wmemmove, pFppL)
 // xprt_register
 // xprt_unregister
 //GOM(__xstat, iFEipp) //%%
-//GOM(__xstat64, iFEipp) //%%
+GOM(__xstat64, iFEipp) //%%
 
 // forcing a custom __gmon_start__ that does nothing
 GOM(__gmon_start__, vFEv) //%%

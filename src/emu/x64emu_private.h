@@ -133,6 +133,9 @@ typedef struct x64emu_s {
     void*       uc_link; // to handle setcontext (can be x64_ucontext_t or a i386_ucontext_t)
 
     int         type;       // EMUTYPE_xxx define
+    #ifdef BOX32
+    int         libc_err;   // copy of errno from libc
+    #endif
 } x64emu_t;
 
 #define EMUTYPE_NONE    0

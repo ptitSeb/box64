@@ -159,7 +159,7 @@ wrappedtestundefs32.h:
 """
 
 # Free characters:
-#      FG  J      QR T   XYZ    e g  jk mno q  t   xyz01 3456789
+#      FG  J      QR T   XYZ    e g  jk mno q      xyz01 3456789
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -583,8 +583,8 @@ class FileSpec:
 	# CONSTANT- rvalues: valid replacement values (outside of structures)
 	# CONSTANT- validrepl: valid replacement values (for structures)
 	#           structs: structure ids and additional data
-	values:    Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_']
-	rvalues:   Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_']
+	values:    Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't']
+	rvalues:   Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't']
 	validrepl: Sequence[str] = ['c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_']
 	
 	def __init__(self) -> None:
@@ -777,7 +777,7 @@ class Function:
 		
 		if self.is2:
 			self.fun2 = line.split(',')[2].split(')')[0].strip()
-			if ( self.type.hasemu != self.fun2.startswith("my32_") and self.type.hasemu != self.fun2.startswith("my_")) and not self._noE:
+			if (self.type.hasemu != self.fun2.startswith("my32_") and self.type.hasemu != self.fun2.startswith("my_")) and not self._noE:
 				# If this raises because of a different prefix, open a pull request
 				print("\033[91mThis is probably not what you meant!\033[m ({0}:{1})".format(filename, line[:-1]), file=sys.stderr)
 				self.invalid = True
@@ -1131,10 +1131,10 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"R_EAX = to_long(fn({0}));",                                          # l
 		"R_EAX = to_ulong(fn({0}));",                                         # L
 		"R_EAX = to_ptrv(fn({0}));",                                          # p
-		"R_EAX = to_hash(fn({0}));",										  # h
-		"R_EAX = to_hash_d(fn({0}));",										  # H
-		"R_EAX = to_locale(fn({0}));",										  # a
-		"R_EAX = to_locale_d(fn({0}));",									  # A
+		"R_EAX = to_hash(fn({0}));",                                          # h
+		"R_EAX = to_hash_d(fn({0}));",                                        # H
+		"R_EAX = to_locale(fn({0}));",                                        # a
+		"R_EAX = to_locale_d(fn({0}));",                                      # A
 		"\n#error Invalid return type: va_list\n",                            # V
 		"\n#error Invalid return type: at_flags\n",                           # O
 		"\n#error Invalid return type: _io_file*\n",                          # S
@@ -1147,6 +1147,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"\n#error Invalid return type: rw structure declaration\n",           # b
 		"\n#error Invalid return type: wo structure declaration\n",           # B
 		"\n#error Invalid return type: end of structure declaration\n",       # _
+		"R_EAX = to_cstring(fn({0}));",                                       # t
 	]
 	asargs = [
 		"emu, ",                                              # E
@@ -1182,6 +1183,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"\n#error Invalid argument type: rw structure declaration\n",     # b
 		"\n#error Invalid argument type: wo structure declaration\n",     # B
 		"\n#error Invalid argument type: end of structure declaration\n", # _
+		"\n#error Invalid argument type: maybe-high string\n", # t
 	]
 	if len(FileSpec.values) != len(asreturns):
 		raise NotImplementedError("len(values) = {lenval} != len(asreturns) = {lenvals}".format(lenval=len(FileSpec.values), lenvals=len(asreturns)))
@@ -1311,9 +1313,10 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		// N = ... automatically sending 1 arg
 		// M = ... automatically sending 2 args
 		// P = Vulkan struct pointer
-		// s..._ = pointer to read-only structure
+		// r..._ = pointer to read-only structure
 		// B..._ = pointer to write-only structure
 		// b..._ = pointer to read-write structure
+		// t = char* as a return value (copies to a lower address if the return address is too high)
 		
 		""",
 		"converter32.c": """
@@ -1380,8 +1383,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		files_guard[fhdr] = trim(files_guard[fhdr])
 	
 	# Typedefs
-	#           E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        h            H            a        A        V        O          S        2                  P        N      M      s        r               b               B               _
-	tdtypes = ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "uintptr_t", "uintptr_t", "void*", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "...", "...", "void*", "\n#error _\n", "\n#error _\n", "\n#error _\n", "\n#error _\n"]
+	#           E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        h            H            a        A        V        O          S        2                  P        N      M      s        r               b               B               _               t
+	tdtypes = ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "uintptr_t", "uintptr_t", "void*", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "...", "...", "void*", "\n#error _\n", "\n#error _\n", "\n#error _\n", "\n#error _\n", "char*"]
 	if len(FileSpec.values) != len(tdtypes):
 		raise NotImplementedError("len(values) = {lenval} != len(tdtypes) = {lentypes}".format(lenval=len(FileSpec.values), lentypes=len(tdtypes)))
 	def generate_typedefs(funs: Iterable[FunctionType], file):
@@ -1406,8 +1409,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 				                                   for i in range(2, len(funtype.orig.replaced))) + ");\n")
 	
 	# Wrappers
-	#         E  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  h  H  a  A  V  O  S  2  P  N  M  s  r  b  B  _
-	deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 8, 4, 0, 0, 0, 1, 1, 4, 1]
+	#         E  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  h  H  a  A  V  O  S  2  P  N  M  s  r  b  B  _  t
+	deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 8, 4, 0, 0, 0, 1, 1, 4, 1, 4]
 	# Asserts
 	if len(FileSpec.values) != len(deltas):
 		raise NotImplementedError("len(values) = {lenval} != len(deltas) = {lendeltas}".format(lenval=len(FileSpec.values), lendeltas=len(deltas)))

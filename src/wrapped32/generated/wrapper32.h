@@ -33,9 +33,10 @@ typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 // N = ... automatically sending 1 arg
 // M = ... automatically sending 2 args
 // P = Vulkan struct pointer
-// s..._ = pointer to read-only structure
+// r..._ = pointer to read-only structure
 // B..._ = pointer to write-only structure
 // b..._ = pointer to read-write structure
+// t = char* as a return value (copies to a lower address if the return address is too high)
 
 void vFv_32(x64emu_t *emu, uintptr_t fnc);
 void vFi_32(x64emu_t *emu, uintptr_t fnc);
@@ -71,6 +72,8 @@ void pFL_32(x64emu_t *emu, uintptr_t fnc);
 void pFp_32(x64emu_t *emu, uintptr_t fnc);
 void hFv_32(x64emu_t *emu, uintptr_t fnc);
 void aFa_32(x64emu_t *emu, uintptr_t fnc);
+void tFp_32(x64emu_t *emu, uintptr_t fnc);
+void LFrL__32(x64emu_t *emu, uintptr_t fnc);
 void vFEv_32(x64emu_t *emu, uintptr_t fnc);
 void vFEp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEv_32(x64emu_t *emu, uintptr_t fnc);
@@ -87,6 +90,7 @@ void iFuu_32(x64emu_t *emu, uintptr_t fnc);
 void iFup_32(x64emu_t *emu, uintptr_t fnc);
 void iFli_32(x64emu_t *emu, uintptr_t fnc);
 void iFpi_32(x64emu_t *emu, uintptr_t fnc);
+void iFpu_32(x64emu_t *emu, uintptr_t fnc);
 void iFpp_32(x64emu_t *emu, uintptr_t fnc);
 void iFhp_32(x64emu_t *emu, uintptr_t fnc);
 void iFhh_32(x64emu_t *emu, uintptr_t fnc);
@@ -112,6 +116,8 @@ void pFEv_32(x64emu_t *emu, uintptr_t fnc);
 void pFEp_32(x64emu_t *emu, uintptr_t fnc);
 void pFLL_32(x64emu_t *emu, uintptr_t fnc);
 void pFpL_32(x64emu_t *emu, uintptr_t fnc);
+void tFip_32(x64emu_t *emu, uintptr_t fnc);
+void tFpL_32(x64emu_t *emu, uintptr_t fnc);
 void iFHBp__32(x64emu_t *emu, uintptr_t fnc);
 void fFpBp__32(x64emu_t *emu, uintptr_t fnc);
 void dFpBp__32(x64emu_t *emu, uintptr_t fnc);
@@ -153,13 +159,14 @@ void fFffp_32(x64emu_t *emu, uintptr_t fnc);
 void dFddd_32(x64emu_t *emu, uintptr_t fnc);
 void dFddp_32(x64emu_t *emu, uintptr_t fnc);
 void pFEip_32(x64emu_t *emu, uintptr_t fnc);
-void pFEia_32(x64emu_t *emu, uintptr_t fnc);
 void pFEpi_32(x64emu_t *emu, uintptr_t fnc);
 void pFEpp_32(x64emu_t *emu, uintptr_t fnc);
 void pFpiL_32(x64emu_t *emu, uintptr_t fnc);
+void pFppu_32(x64emu_t *emu, uintptr_t fnc);
 void pFppL_32(x64emu_t *emu, uintptr_t fnc);
 void pFpOM_32(x64emu_t *emu, uintptr_t fnc);
 void hFEpp_32(x64emu_t *emu, uintptr_t fnc);
+void hFppH_32(x64emu_t *emu, uintptr_t fnc);
 void aFipa_32(x64emu_t *emu, uintptr_t fnc);
 void IFpBp_i_32(x64emu_t *emu, uintptr_t fnc);
 void lFpBp_i_32(x64emu_t *emu, uintptr_t fnc);
@@ -173,6 +180,8 @@ void iFEpup_32(x64emu_t *emu, uintptr_t fnc);
 void iFEppu_32(x64emu_t *emu, uintptr_t fnc);
 void iFEppL_32(x64emu_t *emu, uintptr_t fnc);
 void iFEppp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEpOu_32(x64emu_t *emu, uintptr_t fnc);
+void iFEhpV_32(x64emu_t *emu, uintptr_t fnc);
 void iFiiII_32(x64emu_t *emu, uintptr_t fnc);
 void iFiuui_32(x64emu_t *emu, uintptr_t fnc);
 void LFpLLh_32(x64emu_t *emu, uintptr_t fnc);
@@ -185,6 +194,9 @@ void iFEppiV_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpppi_32(x64emu_t *emu, uintptr_t fnc);
 void iFiLLLL_32(x64emu_t *emu, uintptr_t fnc);
 void iFEBh_ppp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEpuppp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEpLppp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEpLiipV_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpippppp_32(x64emu_t *emu, uintptr_t fnc);
 
 #if defined(ANDROID)
@@ -206,4 +218,6 @@ void KFKp_32(x64emu_t *emu, uintptr_t fnc);
 
 void iFEvpV_32(x64emu_t *emu, uintptr_t fnc);
 void UFsvvs_32(x64emu_t *emu, uintptr_t fnc);
+void iFEhvpV_32(x64emu_t *emu, uintptr_t fnc);
+void iFEpuvvppp_32(x64emu_t *emu, uintptr_t fnc);
 #endif // __WRAPPER32_H_

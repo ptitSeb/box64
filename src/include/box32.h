@@ -99,6 +99,10 @@ void* from_locale_d(ptr_t l);
 ptr_t to_locale(void* p);
 ptr_t to_locale_d(void* p);
 
+char* from_cstring(ptr_t p);
+ptr_t to_cstring(char* p);
+ptr_t to_cstring_d(char* p);
+
 void init_hash_helper();
 void fini_hash_helper();
 

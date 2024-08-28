@@ -12,6 +12,7 @@ void to_struct_p(ptr_t d, const struct_p_t *src) {
 }
 
 void from_struct_L(struct_L_t *dest, ptr_t s) {
+	if(!s) return;
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
 }
@@ -22,6 +23,7 @@ void to_struct_L(ptr_t d, const struct_L_t *src) {
 }
 
 void from_struct_LL(struct_LL_t *dest, ptr_t s) {
+	if(!s) return;
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
 	dest->L1 = from_ulong(*(ulong_t*)src); src += 4;

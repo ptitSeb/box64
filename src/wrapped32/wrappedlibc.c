@@ -134,7 +134,6 @@ typedef int32_t (*iFiiiV_t)(int, int, int, ...);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
-typedef int32_t (*iFpLpp_t)(void*, size_t, void*, void*);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
 typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
@@ -707,19 +706,15 @@ EXPORT int my32_dprintf(x64emu_t *emu, int fd, void* fmt, void* V)  {
 }
 EXPORT int my32___dprintf_chk(x64emu_t *emu, int fd, void* fmt, void* V) __attribute__((alias("my32_dprintf")));
 
+#endif
 EXPORT int my32_fprintf(x64emu_t *emu, void* F, void* fmt, void* V)  {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, V, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vfprintf;
-    return ((iFppp_t)f)(F, fmt, VARARGS_32);
-    #else
-    return vfprintf((FILE*)F, (const char*)fmt, (va_list)V);
-    #endif
+    return vfprintf(F, fmt, VARARGS_32);
 }
 EXPORT int my32___fprintf_chk(x64emu_t *emu, void* F, void* fmt, void* V) __attribute__((alias("my32_fprintf")));
-
+#if 0
 EXPORT int my32_wprintf(x64emu_t *emu, void* fmt, void* V) {
     #ifndef NOALIGN
     // need to align on arm
@@ -798,21 +793,17 @@ EXPORT int my32_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void *
     #endif
 }
 EXPORT int my32___snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) __attribute__((alias("my32_snprintf")));
+#endif
 
 EXPORT int my32___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int f1, int f2, void * fmt, void * b) {
     (void)f1; (void)f2;
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vsnprintf;
-    return ((iFpLpp_t)f)(buff, s, fmt, VARARGS_32);
-    #else
-    return vsnprintf((char*)buff, s, (char*)fmt, b);
-    #endif
+    return vsnprintf(buff, s, fmt, VARARGS_32);
 }
 
-
+#if 0
 EXPORT int my32_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
     #ifndef NOALIGN
     // need to align on arm
@@ -906,24 +897,17 @@ EXPORT int my32___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b)
   return ((iFppp_t)f)(stream, fmt, VARARGS_32);
 }
 #endif
-
+#endif
 EXPORT int my32_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS_32);
+    int r = vsnprintf(buff, s, fmt, VARARGS_32);
     return r;
-    #else
-    void* f = vsnprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
-    return r;
-    #endif
 }
 EXPORT int my32___vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vsnprintf")));
 EXPORT int my32___vsnprintf_chk(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vsnprintf")));
-
+#if 0
 EXPORT int my32_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list V)
 {
     #ifndef NOALIGN
@@ -1243,15 +1227,15 @@ EXPORT int my32___xstat(x64emu_t* emu, int v, void* path, void* buf)
     r = FillStatFromStat64(v, &st, buf);
     return r;
 }
-
+#endif
 EXPORT int my32___xstat64(x64emu_t* emu, int v, void* path, void* buf)
 {
     struct stat64 st;
     int r = stat64((const char*)path, &st);
-    UnalignStat64(&st, buf);
+    UnalignStat64_32(&st, buf);
     return r;
 }
-
+#if 0
 EXPORT int my32___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
     if (v == 1)
@@ -1275,15 +1259,15 @@ EXPORT int my32___lxstat(x64emu_t* emu, int v, void* name, void* buf)
     r = FillStatFromStat64(v, &st, buf);
     return r;
 }
-
+#endif
 EXPORT int my32___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 {
     struct stat64 st;
     int r = lstat64((const char*)name, &st);
-    UnalignStat64(&st, buf);
+    UnalignStat64_32(&st, buf);
     return r;
 }
-
+#if 0
 EXPORT int my32___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
     struct  stat64 st;
@@ -1665,18 +1649,6 @@ EXPORT int32_t my32_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_
 {
     if(isProcSelf((const char*)pathname, "cmdline")) {
         // special case for self command line...
-        #if 0
-        char tmpcmdline[200] = {0};
-        char tmpbuff[100] = {0};
-        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
-        int tmp = mkstemp64(tmpbuff);
-        int dummy;
-        if(tmp<0) return open64(pathname, flags, mode);
-        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek64(tmp, 0, SEEK_SET);
-        #else
         int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
         if(tmp<0) return open64(pathname, flags, mode);
         shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
@@ -1685,7 +1657,6 @@ EXPORT int32_t my32_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_
         for (int i=1; i<emu->context->argc; ++i)
             dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek(tmp, 0, SEEK_SET);
-        #endif
         return tmp;
     }
     if(isProcSelf((const char*)pathname, "exe")) {
@@ -2304,27 +2275,6 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
     return alphasort64(d1_?(&d1):NULL, d2_?(&d2):NULL);
 }
 
-EXPORT const void* my32_setlocale(x64emu_t* emu, int l, void* loc)
-{
-    #define VAL_MAX 20
-    static char* val[VAL_MAX] = {0};
-    static int idx = 0;
-    const char* ret = setlocale(l, loc);
-    if(!ret)
-        return ret;
-    //check if value already exist in array
-    for(int i=0; i<idx; ++i)
-        if(!strcmp(val[i], ret))
-            return val[i];
-    if(idx+1==VAL_MAX) {
-        printf_log(LOG_NONE, "BOX32, no enough slot for setlocale\n");
-        return ret;
-    }
-    val[idx] = strdup(ret);
-    return val[idx++];
-    #undef MAX_VAL
-}
-
 EXPORT struct __processor_model
 {
   unsigned int __cpu_vendor;
@@ -2459,6 +2409,7 @@ EXPORT void* my32_realpath(x64emu_t* emu, void* path, void* resolved_path)
         return realpath(path, resolved_path);
 }
 
+#endif
 EXPORT int my32_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bufsize)
 {
     if(isProcSelf(path, "exe")) {
@@ -2469,7 +2420,6 @@ EXPORT int my32_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t 
     return readlinkat(fd, path, buf, bufsize);
 }
 
-#endif
 EXPORT void* my32_mmap(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int offset)
 {
     if(prot&PROT_WRITE) 
@@ -2841,6 +2791,14 @@ EXPORT ptr_t my32_stdout = 0;
 EXPORT ptr_t my32_stderr = 0;
 
 EXPORT int my32___libc_single_threaded = 0;
+
+EXPORT void* my32___errno_location(x64emu_t* emu)
+{
+    // TODO: Find a better way to do this
+    // cannot use __thread as it makes the address not 32bits
+    emu->libc_err = errno;
+    return &emu->libc_err;
+}
 
 #define PRE_INIT\
     if(1)                                                           \

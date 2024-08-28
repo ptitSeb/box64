@@ -32,6 +32,8 @@
 #() pFp -> pFp
 #() hFv -> hFv
 #() aFa -> aFa
+#() tFp -> tFp
+#() LFrL_ -> LFB
 #() vFEv -> vFEv
 #() vFEp -> vFEp
 #() iFEv -> iFEv
@@ -48,6 +50,7 @@
 #() iFup -> iFup
 #() iFli -> iFli
 #() iFpi -> iFpi
+#() iFpu -> iFpu
 #() iFpp -> iFpp
 #() iFhp -> iFhp
 #() iFhh -> iFhh
@@ -73,6 +76,8 @@
 #() pFEp -> pFEp
 #() pFLL -> pFLL
 #() pFpL -> pFpL
+#() tFip -> tFip
+#() tFpL -> tFpL
 #() iFHBp_ -> iFHB
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
@@ -114,13 +119,14 @@
 #() dFddd -> dFddd
 #() dFddp -> dFddp
 #() pFEip -> pFEip
-#() pFEia -> pFEia
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
 #() pFpiL -> pFpiL
+#() pFppu -> pFppu
 #() pFppL -> pFppL
 #() pFpOM -> pFpOM
 #() hFEpp -> hFEpp
+#() hFppH -> hFppH
 #() aFipa -> aFipa
 #() IFpBp_i -> IFpBi
 #() lFpBp_i -> lFpBi
@@ -134,6 +140,8 @@
 #() iFEppu -> iFEppu
 #() iFEppL -> iFEppL
 #() iFEppp -> iFEppp
+#() iFEpOu -> iFEpOu
+#() iFEhpV -> iFEhpV
 #() iFiiII -> iFiiII
 #() iFiuui -> iFiuui
 #() LFpLLh -> LFpLLh
@@ -146,6 +154,9 @@
 #() iFEpppi -> iFEpppi
 #() iFiLLLL -> iFiLLLL
 #() iFEBh_ppp -> iFEBppp
+#() iFEpuppp -> iFEpuppp
+#() iFEpLppp -> iFEpLppp
+#() iFEpLiipV -> iFEpLiipV
 #() iFEpippppp -> iFEpippppp
 #defined(ANDROID) pFv -> pFv
 #defined(ANDROID) vFEpppp -> vFEpppp
@@ -157,6 +168,8 @@
 #!defined(HAVE_LD80BITS) KFKp -> KFKp
 #() iFEvpV -> iFEpV
 #() UFsvvs -> UFss
+#() iFEhvpV -> iFEhpV
+#() iFEpuvvppp -> iFEpuppp
 wrappedcrashhandler:
 wrappedldlinux:
 - pFv:
@@ -175,6 +188,8 @@ wrappedlibc:
 - uFu:
 - uFV:
 - LFL:
+- pFv:
+  - __errno_location
 - pFL:
 - vFip:
 - vFpi:
@@ -186,19 +201,23 @@ wrappedlibc:
 - UFUU:
 - pFip:
   - signal
-- pFia:
-  - setlocale
 - hFpp:
 - vFipV:
 - iFvpV:
 - iFiiN:
 - iFipp:
+- iFppL:
 - iFppp:
+- iFpOu:
 - vFpppp:
   - __libc_init
 - iFiiII:
 - iFppiV:
+- iFhvpV:
+- iFpLppp:
+- iFpLiipV:
 - iFpippppp:
+- iFpuvvppp:
 wrappedlibdl:
 - iFp:
   - dlclose

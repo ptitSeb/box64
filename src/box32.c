@@ -11,6 +11,7 @@
 
 KHASH_MAP_INIT_INT64(to, ulong_t);
 KHASH_MAP_INIT_INT(from, uintptr_t);
+KHASH_MAP_INIT_STR(strings, char*);
 
 static kh_from_t*   hash_from;
 static kh_to_t*     hash_to;
@@ -22,6 +23,7 @@ static int          hash_running = 0;
 // locale
 static kh_from_t*   locale_from;
 static kh_to_t*     locale_to;
+static kh_strings_t* const_strings;
 
 
 void init_hash_helper() {
@@ -29,6 +31,7 @@ void init_hash_helper() {
     hash_to = kh_init(to);
     locale_from = kh_init(from);
     locale_to = kh_init(to);
+    const_strings = kh_init(strings);
     pthread_rwlock_init(&hash_lock, NULL);
     hash_running = 1;
 }
@@ -43,6 +46,8 @@ void fini_hash_helper() {
     locale_from = NULL;
     kh_destroy(to, locale_to);
     locale_to = NULL;
+    kh_destroy(strings, const_strings); //TODO: does not free memory correctly
+    const_strings = NULL;
     pthread_rwlock_destroy(&hash_lock);
 }
 
@@ -277,6 +282,46 @@ ptr_t to_locale_d(void* p) {
         kh_del(to, locale_to, k);
         k = kh_get(from, locale_from, ret);
         kh_del(from, locale_from, k);
+    }
+    pthread_rwlock_unlock(&hash_lock);
+    return ret;
+}
+
+char* from_cstring(ptr_t p) {
+    return (char*)from_ptrv(p);
+}
+
+ptr_t to_cstring(char* p) {
+    if((uintptr_t)p<0x100000000LL)
+        return to_ptrv(p);
+    ptr_t ret = 0;
+    pthread_rwlock_rdlock(&hash_lock);
+    khint_t k = kh_get(strings, const_strings, p);
+    if(k==kh_end(const_strings)) {
+        // create a new key, but need write lock!
+        pthread_rwlock_unlock(&hash_lock);
+        pthread_rwlock_wrlock(&hash_lock);
+        ret = to_ptrv(box_strdup(p));
+        int r;
+        k = kh_put(strings, const_strings, (char*)from_ptrv(ret), &r);
+    } else
+        ret = to_ptrv(kh_value(const_strings, k));
+    pthread_rwlock_unlock(&hash_lock);
+    return ret;
+}
+
+ptr_t to_cstring_d(char* p) {
+    if((uintptr_t)p<0x100000000LL)
+        return to_ptrv(p);
+    ptr_t ret = 0;
+    pthread_rwlock_wrlock(&hash_lock);
+    khint_t k = kh_get(strings, const_strings, p);
+    if(k==kh_end(const_strings)) {
+        // assert?
+    } else {
+        ret = to_ptrv(kh_value(const_strings, k));
+        kh_del(strings, const_strings, k);
+        free(from_ptrv(ret));
     }
     pthread_rwlock_unlock(&hash_lock);
     return ret;
