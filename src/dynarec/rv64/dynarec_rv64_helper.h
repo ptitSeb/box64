@@ -213,7 +213,7 @@
     } else {                                                                                   \
         SMREAD();                                                                              \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 1, D); \
-        ADD(S, wback, O);                                                                      \
+        ADDz(S, wback, O);                                                                     \
         LDxw(x1, S, fixedaddress);                                                             \
         ed = x1;                                                                               \
     }
@@ -225,15 +225,15 @@
     } else {                                                                                   \
         SMREAD();                                                                              \
         addr = geted(dyn, addr, ninst, nextop, &wback, x2, S, &fixedaddress, rex, NULL, 1, D); \
-        ADD(S, wback, O);                                                                      \
+        ADDz(S, wback, O);                                                                     \
         LDz(x1, S, fixedaddress);                                                              \
         ed = x1;                                                                               \
     }
-#define WBACKO(O)         \
-    if (wback) {          \
-        ADD(O, wback, O); \
-        SDxw(ed, O, 0);   \
-        SMWRITE2();       \
+#define WBACKO(O)          \
+    if (wback) {           \
+        ADDz(O, wback, O); \
+        SDxw(ed, O, 0);    \
+        SMWRITE2();        \
     }
 
 // FAKEED like GETED, but doesn't get anything
@@ -310,7 +310,7 @@
     } else {                                                                                    \
         SMREAD();                                                                               \
         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
-        ADD(x3, wback, i);                                                                      \
+        ADDz(x3, wback, i);                                                                     \
         if (wback != x3) wback = x3;                                                            \
         LBU(i, wback, fixedaddress);                                                            \
         wb1 = 1;                                                                                \

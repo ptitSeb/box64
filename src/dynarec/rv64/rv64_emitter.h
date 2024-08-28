@@ -357,12 +357,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define PUSH1_32(reg)         \
     do {                      \
         SW(reg, xRSP, 0xFFC); \
-        SUBIW(xRSP, xRSP, 4); \
+        SUBI(xRSP, xRSP, 4);  \
     } while (0)
-#define POP1_32(reg)                           \
-    do {                                       \
-        LWU(reg, xRSP, 0);                     \
-        if (reg != xRSP) ADDIW(xRSP, xRSP, 4); \
+#define POP1_32(reg)                          \
+    do {                                      \
+        LWU(reg, xRSP, 0);                    \
+        if (reg != xRSP) ADDI(xRSP, xRSP, 4); \
     } while (0)
 
 #define POP1z(reg)      \
