@@ -722,6 +722,19 @@ int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, ui
     return 0;
 }
 
+int GetAnySymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int veropt)
+{
+    if(!maplib)
+        return 0;
+    for(int i=0; i<maplib->libsz; ++i) {
+        elfheader_t* h = GetElf(maplib->libraries[i]);
+        if(h && ElfGetSymbolStartEnd(h, start, end, name, NULL, NULL, 1, &veropt))
+            return 1;
+    }
+    return 0;
+
+}
+
 int GetSymTabStartEnd(lib_t* maplib, const char* name, uintptr_t* start, uintptr_t* end)
 {
     if(!maplib)
@@ -729,7 +742,8 @@ int GetSymTabStartEnd(lib_t* maplib, const char* name, uintptr_t* start, uintptr
     for(int i=0; i<maplib->libsz; ++i) {
         elfheader_t* h = GetElf(maplib->libraries[i]);
         if(box64_is32bits) {
-            /* TODO */
+            if(h && ElfGetSymTabStartEnd32(h, start, end, name))
+                return 1;
         } else {
             if(h && ElfGetSymTabStartEnd64(h, start, end, name))
                 return 1;

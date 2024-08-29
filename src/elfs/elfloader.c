@@ -1712,6 +1712,25 @@ void* ElfGetWeakSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *en
     return box64_is32bits?ElfGetWeakSymbolStartEnd32(head, offs, end, symname, ver, vername, local, veropt):ElfGetWeakSymbolStartEnd64(head, offs, end, symname, ver, vername, local, veropt);
 }
 
+void* ElfGetSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
+#ifndef BOX32
+{ return NULL; }
+#else
+ ;
+#endif
+void* ElfGetSymbolStartEnd64(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
+{
+    Elf64_Sym* sym = ElfLocateSymbol(head, offs, end, symname, ver, vername, local, veropt);
+    if(!sym) return NULL;
+    if(offs) *offs = sym->st_value + head->delta;
+    if(end) *end = sym->st_value + head->delta + sym->st_size;
+    return sym;
+}
+void* ElfGetSymbolStartEnd(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
+{
+    return box64_is32bits?ElfGetSymbolStartEnd32(head, offs, end, symname, ver, vername, local, veropt):ElfGetSymbolStartEnd64(head, offs, end, symname, ver, vername, local, veropt);
+}
+
 int ElfGetSymTabStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname)
 #ifndef BOX32
 { return 0; }

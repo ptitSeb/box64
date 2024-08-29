@@ -36,6 +36,7 @@ int GetGlobalNoWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* st
 int GetLocalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, elfheader_t *self, int version, const char* vername, int veropt, void** elfsym);
 elfheader_t* GetGlobalSymbolElf(lib_t *maplib, const char* name, int version, const char* vername, int veropt);
 int IsGlobalNoWeakSymbolInNative(lib_t *maplib, const char* name, int version, const char* vername, int veropt);
+int GetAnySymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uintptr_t* end, int version, const char* vername, int veropt);
 int GetSymTabStartEnd(lib_t* maplib, const char* name, uintptr_t* start, uintptr_t* end);
 
 void MapLibRemoveLib(lib_t* maplib, library_t* lib);

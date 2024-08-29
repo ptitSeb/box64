@@ -805,6 +805,15 @@ void* ElfGetWeakSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *
     return sym;
 }
 
+void* ElfGetSymbolStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname, int* ver, const char** vername, int local, int* veropt)
+{
+    Elf32_Sym* sym = ElfLocateSymbol(head, offs, end, symname, ver, vername, local, veropt);
+    if(!sym) return NULL;
+    if(offs) *offs = sym->st_value + head->delta;
+    if(end) *end = sym->st_value + head->delta + sym->st_size;
+    return sym;
+}
+
 int ElfGetSymTabStartEnd32(elfheader_t* head, uintptr_t *offs, uintptr_t *end, const char* symname)
 {
     Elf32_Sym* sym = ElfSymTabLookup32(head, symname);

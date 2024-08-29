@@ -1551,10 +1551,16 @@ void setupTraceInit()
             if(s_trace_start || s_trace_end)
                 SetTraceEmu(s_trace_start, s_trace_end);
         } else {
-            if (GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
-                SetTraceEmu(s_trace_start, s_trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            } else if(GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+            int veropt = 1;
+            int ver = 0;
+            const char* vername = NULL;
+            int search = 0;
+            for(int i=0; i<my_context->elfsize && !search; ++i) {
+                search = ElfGetSymbolStartEnd(my_context->elfs[i], &s_trace_start, &s_trace_end, p, &ver, &vername, 1, &veropt)?1:0;
+                if(!search)
+                    search = ElfGetSymTabStartEnd(my_context->elfs[i], &s_trace_start, &s_trace_end, p);
+            }
+            if(search) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
@@ -1578,42 +1584,19 @@ void setupTraceMapLib(lib_t* maplib)
         return;
     char* p = trace_func;
     uintptr_t s_trace_start=0, s_trace_end=0;
-    if(maplib) {
-        if (GetGlobalSymbolStartEnd(maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
-            SetTraceEmu(s_trace_start, s_trace_end);
-            printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            box_free(trace_func);
-            trace_func = NULL;
-            return;
-        } else if(GetLocalSymbolStartEnd(maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
-            SetTraceEmu(s_trace_start, s_trace_end);
-            printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            box_free(trace_func);
-            trace_func = NULL;
-            return;
-        } else if(GetSymTabStartEnd(maplib, p, &s_trace_start, &s_trace_end)) {
-            SetTraceEmu(s_trace_start, s_trace_end);
-            printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            box_free(trace_func);
-            trace_func = NULL;
-            return;
-        }
-    }
-    if (my_context->elfs && GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+    void* search = NULL;
+    if(GetAnySymbolStartEnd(maplib, p, &s_trace_start, &s_trace_end, 0, NULL, 1)) {
         SetTraceEmu(s_trace_start, s_trace_end);
         printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
         box_free(trace_func);
         trace_func = NULL;
-    } else if(my_context->elfs && GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+        return;
+    } else if(GetSymTabStartEnd(maplib, p, &s_trace_start, &s_trace_end)) {
         SetTraceEmu(s_trace_start, s_trace_end);
         printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
         box_free(trace_func);
         trace_func = NULL;
-    } else if(GetSymTabStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end)) {
-        SetTraceEmu(s_trace_start, s_trace_end);
-        printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-        box_free(trace_func);
-        trace_func = NULL;
+        return;
     } else {
         printf_log(LOG_NONE, "Warning, Symbol to trace (\"%s\") not found. Trying to set trace later\n", p);
         SetTraceEmu(0, 1);  // disabling trace, mostly
@@ -1645,10 +1628,18 @@ void setupTrace()
                 }
             }
         } else {
-            if (my_context->elfs && GetGlobalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
-                SetTraceEmu(s_trace_start, s_trace_end);
-                printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
-            } else if(my_context->elfs && GetLocalSymbolStartEnd(my_context->maplib, p, &s_trace_start, &s_trace_end, NULL, -1, NULL, 0, NULL)) {
+            int search = 0;
+            if (my_context->elfs) {
+                int veropt = 1;
+                int ver = 0;
+                const char* vername = NULL;
+                for(int i=0; i<my_context->elfsize && !search; ++i) {
+                    search = ElfGetSymbolStartEnd(my_context->elfs[i], &s_trace_start, &s_trace_end, p, &ver, &vername, 1, &veropt)?1:0;
+                    if(!search)
+                        search = ElfGetSymTabStartEnd(my_context->elfs[i], &s_trace_start, &s_trace_end, p);
+                }
+            } 
+            if(search) {
                 SetTraceEmu(s_trace_start, s_trace_end);
                 printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
             } else {
