@@ -72,3 +72,33 @@ void to_struct_ppppp(ptr_t d, const struct_ppppp_t *src) {
 	*(ptr_t*)dest = to_ptrv(src->p3); dest += 4;
 	*(ptr_t*)dest = to_ptrv(src->p4); dest += 4;
 }
+
+void from_struct_iiiiiiiiilt(struct_iiiiiiiiilt_t* dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->i0 = *(int*)src; src += 4;
+	dest->i1 = *(int*)src; src += 4;
+	dest->i2 = *(int*)src; src += 4;
+	dest->i3 = *(int*)src; src += 4;
+	dest->i4 = *(int*)src; src += 4;
+	dest->i5 = *(int*)src; src += 4;
+	dest->i6 = *(int*)src; src += 4;
+	dest->i7 = *(int*)src; src += 4;
+	dest->i8 = *(int*)src; src += 4;
+	dest->l9 = from_long(*(long_t*)src); src += 4;
+	dest->p10 = *(void**)src; src += 4;
+}
+void to_struct_iiiiiiiiilt(ptr_t d, const struct_iiiiiiiiilt_t* src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(int*)dest = src->i0; dest += 4;
+	*(int*)dest = src->i1; dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+	*(int*)dest = src->i3; dest += 4;
+	*(int*)dest = src->i4; dest += 4;
+	*(int*)dest = src->i5; dest += 4;
+	*(int*)dest = src->i6; dest += 4;
+	*(int*)dest = src->i7; dest += 4;
+	*(int*)dest = src->i8; dest += 4;
+	*(long_t*)dest = to_long(src->l9); dest += 4;
+	*(ptr_t*)dest = to_cstring(src->p10); dest += 4;
+}

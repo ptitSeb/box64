@@ -4,6 +4,8 @@
 
 // FILE* is h (because stdin/stdout/stderr might be 64bits, maybe other special file can be too)
 // locale_t needs special handling, with to_locale / from_locale (and is a / A)
+// struct utimbuf is: LL
+// struct tm is: iiiiiiiiilt
 
 // a64l
 //GO(abort, vFv)
@@ -554,7 +556,7 @@ GOW(getpt, iFv)
 //GO(getpwuid_r, iFuppup)
 //GOW(getresgid, iFppp)
 //GOW(getresuid, iFppp)
-GO(getrlimit, iFip)
+GOM(getrlimit, iFEip)
 GO(getrlimit64, iFip)
 // getrpcbyname
 // getrpcbyname_r
@@ -1025,7 +1027,7 @@ GOW(listen, iFii)
 // loc2 // type B
 //GOW(localeconv, pFv)
 //GO(localtime, pFp)
-//GOW(localtime_r, pFpp)
+GOWM(localtime_r, pFEpp)
 GO(lockf, iFiiu)
 GO(lockf64, iFiiI)
 // locs // type B
@@ -1081,7 +1083,7 @@ GOW(mallopt, iFii)  // Weak
 //GO(memchr, pFpiL)
 GO(memcmp, iFppL)
 GO(memcpy, pFppL)
-GO(__memcpy_chk, pFppuL)
+GO(__memcpy_chk, pFppLL)
 // memfrob
 //GO(memmem, pFpupu)
 GO(memmove, pFppL)
@@ -1500,7 +1502,7 @@ GOW(setregid, iFuu)
 GOW(setresgid, iFuuu)
 GOW(setresuid, iFuuu)
 GOW(setreuid, iFuu)
-GO(setrlimit, iFip) // needs wrapping?
+GOM(setrlimit, iFEip)
 GO(setrlimit64, iFip)
 // setrpcent
 // setservent
@@ -1860,7 +1862,7 @@ GO(__uselocale, aFa)
 // user2netname
 GO(usleep, iFu)
 // ustat
-//GO(utime, iFpp)
+GO(utime, iFprLL_)
 //GO(utimensat, iFippi)
 //GOW(utimes, iFpp)   //TODO: check, signature is int utimes(const char *filename, const struct timeval times[2]);
 //GOW(utmpname, iFp)
@@ -2023,7 +2025,7 @@ GOW(wmemmove, pFppL)
 // __woverflow
 //GOM(wprintf, iFEpV) //%%
 //GOM(__wprintf_chk, iFEipV) //%%
-//GOW(write, lFipL)
+GOW(write, lFipL)
 //GOW(__write, lFipL)
 //GOW(writev, lFipi)
 // wscanf

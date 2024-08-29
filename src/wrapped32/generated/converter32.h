@@ -39,5 +39,20 @@ typedef struct struct_ppppp_s {
 } struct_ppppp_t;
 void from_struct_ppppp(struct_ppppp_t *dest, ptr_t src);
 void to_struct_ppppp(ptr_t dest, const struct_ppppp_t *src);
+typedef struct struct_iiiiiiiiilt_s {
+	int i0;
+	int i1;
+	int i2;
+	int i3;
+	int i4;
+	int i5;
+	int i6;
+	int i7;
+	int i8;
+	long l9;
+	void* p10;
+} struct_iiiiiiiiilt_t;
+void from_struct_iiiiiiiiilt(struct_iiiiiiiiilt_t* dest, ptr_t src);
+void to_struct_iiiiiiiiilt(ptr_t dest, const struct_iiiiiiiiilt_t* src);
 
 #endif // __CONVERTER_H_

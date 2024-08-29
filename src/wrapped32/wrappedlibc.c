@@ -35,6 +35,7 @@
 #include <getopt.h>
 #include <pwd.h>
 #include <locale.h>
+#include <sys/resource.h>
 
 #include "wrappedlibs.h"
 
@@ -56,6 +57,7 @@
 #include "bridge.h"
 #include "globalsymbols.h"
 #include "box32.h"
+#include "converter32.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -2037,6 +2039,36 @@ EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
 }
 #endif
 
+EXPORT int my32_getrlimit(x64emu_t* emu, int what, uint32_t* pr)
+{
+    struct rlimit64 l = {0};
+    int ret = getrlimit64(what, &l);
+    if(pr) {
+        pr[0] = (l.rlim_cur<0x100000000LL)?l.rlim_cur:0xffffffff;
+        pr[1] = (l.rlim_max<0x100000000LL)?l.rlim_max:0xffffffff;
+    }
+    return ret;
+}
+EXPORT int my32_setrlimit(x64emu_t* emu, int what, uint32_t* pr)
+{
+    struct rlimit64 l = {0};
+    l.rlim_cur = (pr[0]!=0xffffffff)?pr[0]:0xffffffffffffffffLL;
+    l.rlim_max = (pr[1]!=0xffffffff)?pr[1]:0xffffffffffffffffLL;
+    return setrlimit64(what, &l);
+}
+
+EXPORT void* my32_localtime_r(x64emu_t* emu, void* t, void* res)
+{
+    struct_L_t t_ = {0};
+    struct_iiiiiiiiilt_t res_ = {0};
+    if(t) from_struct_L(&t_, to_ptrv(t));
+    if(res) from_struct_iiiiiiiiilt(&res_, to_ptrv(res));
+    void* ret = localtime_r(t?((void*)&t_):NULL, res?((void*)&res_):NULL);
+    if(ret==&res_)
+        return res;
+    return ret;
+}
+
 #if 0
 EXPORT int32_t my32_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {
@@ -2275,10 +2307,7 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 EXPORT void* my32___ctype_b_loc(x64emu_t* emu)
 {
     const unsigned short** src =__ctype_b_loc();
-    if(src != emu->orig_ctype) {
-        memcpy(emu->libctype, *src-128, 384*sizeof(short));
-        emu->orig_ctype = src;
-    }
+    memcpy(emu->libctype, &((*src)[-128]), 384*sizeof(short));
     return &emu->libctype[128];
 }
 

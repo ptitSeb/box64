@@ -136,7 +136,6 @@ typedef struct x64emu_s {
     #ifdef BOX32
     int         libc_err;   // copy of errno from libc
     unsigned short libctype[384];   // copy from __ctype_b because, again, is thread local
-    const unsigned short **orig_ctype;    // source used for this copy
     #endif
 } x64emu_t;
 

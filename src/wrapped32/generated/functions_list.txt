@@ -86,11 +86,13 @@
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
 #() iFuBLL_ -> iFuB
+#() iFprLL_ -> iFpB
 #() vFEip -> vFEip
 #() vFEpi -> vFEpi
 #() vFEpu -> vFEpu
 #() vFfpp -> vFfpp
 #() vFdpp -> vFdpp
+#() iFEip -> iFEip
 #() iFEpi -> iFEpi
 #() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
@@ -122,6 +124,7 @@
 #() fFffp -> fFffp
 #() dFddd -> dFddd
 #() dFddp -> dFddp
+#() lFipL -> lFipL
 #() pFEip -> pFEip
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
@@ -154,7 +157,6 @@
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
 #() pFpiLL -> pFpiLL
-#() pFppuL -> pFppuL
 #() pFppLL -> pFppLL
 #() vFEpLLp -> vFEpLLp
 #() iFEppiV -> iFEppiV
@@ -201,6 +203,9 @@ wrappedlibc:
 - vFip:
 - vFpi:
 - vFpu:
+- iFip:
+  - getrlimit
+  - setrlimit
 - iFpp:
   - alphasort64
 - iFpV:
@@ -208,6 +213,8 @@ wrappedlibc:
 - UFUU:
 - pFip:
   - signal
+- pFpp:
+  - localtime_r
 - hFpp:
 - vFipV:
 - iFvpV:

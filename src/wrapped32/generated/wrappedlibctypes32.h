@@ -26,11 +26,13 @@ typedef void* (*pFL_t)(uintptr_t);
 typedef void (*vFip_t)(int32_t, void*);
 typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
+typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpV_t)(void*, ...);
 typedef int64_t (*IFII_t)(int64_t, int64_t);
 typedef uint64_t (*UFUU_t)(uint64_t, uint64_t);
 typedef void* (*pFip_t)(int32_t, void*);
+typedef void* (*pFpp_t)(void*, void*);
 typedef uintptr_t (*hFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
 typedef int32_t (*iFvpV_t)(void, void*, ...);
@@ -54,8 +56,11 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(__close_nocancel, iFi_t) \
 	GO(__ctype_b_loc, pFv_t) \
 	GO(__errno_location, pFv_t) \
+	GO(getrlimit, iFip_t) \
+	GO(setrlimit, iFip_t) \
 	GO(alphasort64, iFpp_t) \
 	GO(signal, pFip_t) \
+	GO(localtime_r, pFpp_t) \
 	GO(__libc_init, vFpppp_t)
 
 #endif // __wrappedlibcTYPES32_H_
