@@ -54,10 +54,11 @@ uintptr_t dynarec64_6664(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 grab_segdata(dyn, addr, ninst, x4, seg);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                ADDz(x4, ed, x4);
                 if (rex.w) {
-                    LDX_D(gd, ed, x4);
+                    LD_D(gd, x4, fixedaddress);
                 } else {
-                    LDX_HU(x1, ed, x4);
+                    LD_HU(x1, x4, fixedaddress);
                     BSTRINS_D(gd, x1, 15, 0);
                 }
             }

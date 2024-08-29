@@ -2006,20 +2006,6 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-// GR[rd] = imm32
-#define MOV32w_(rd, imm32, zeroup)            \
-    do {                                      \
-        if (((uint32_t)(imm32)) > 0xfffu) {   \
-            LU12I_W(rd, (imm32) >> 12);       \
-            ORI(rd, rd, imm32);               \
-            if (zeroup && (int32_t)imm32 < 0) \
-                ZEROUP(rd);                   \
-        } else {                              \
-            ORI(rd, xZR, imm32);              \
-        }                                     \
-    } while (0)
-
 // MOV64x/MOV32w is quite complex, so use a function for this
 #define MOV64x(A, B) la64_move64(dyn, ninst, A, B)
 #define MOV32w(A, B) la64_move32(dyn, ninst, A, B, 1)
@@ -2084,10 +2070,12 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 #define ADDz(rd, rj, rk)       \
     do {                       \
-        if (rex.is32bits)      \
-            ADD_W(rd, rj, rk); \
-        else                   \
+        if (!rex.is32bits)     \
             ADD_D(rd, rj, rk); \
+        else {                 \
+            ADD_W(rd, rj, rk); \
+            ZEROUP(rd);        \
+        }                      \
     } while (0)
 
 #define LDxw(rd, rj, imm12)       \
@@ -2183,12 +2171,12 @@ LSX instruction starts with V, LASX instruction starts with XV.
 #define PUSH1_32(reg)           \
     do {                        \
         ST_W(reg, xRSP, -4);    \
-        ADDI_W(xRSP, xRSP, -4); \
+        ADDI_D(xRSP, xRSP, -4); \
     } while (0);
 #define POP1_32(reg)                            \
     do {                                        \
         LD_WU(reg, xRSP, 0);                    \
-        if (reg != xRSP) ADDI_W(xRSP, xRSP, 4); \
+        if (reg != xRSP) ADDI_D(xRSP, xRSP, 4); \
     } while (0);
 
 // POP reg

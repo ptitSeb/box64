@@ -151,15 +151,21 @@
 #define GETEW(i, D) GETEWW(x3, i, D)
 
 // GETEDO can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
-#define GETEDO(O, D)                                                                            \
-    if (MODREG) {                                                                               \
-        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                              \
-        wback = 0;                                                                              \
-    } else {                                                                                    \
-        SMREAD();                                                                               \
-        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, D); \
-        LDXxw(x1, wback, O);                                                                    \
-        ed = x1;                                                                                \
+#define GETEDO(O, D)                                                                                \
+    if (MODREG) {                                                                                   \
+        ed = TO_LA64((nextop & 7) + (rex.b << 3));                                                  \
+        wback = 0;                                                                                  \
+    } else {                                                                                        \
+        SMREAD();                                                                                   \
+        if (rex.is32bits) {                                                                         \
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+            ADDz(O, wback, O);                                                                      \
+            LD_WU(x1, O, fixedaddress);                                                             \
+        } else {                                                                                    \
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, D); \
+            LDXxw(x1, wback, O);                                                                    \
+        }                                                                                           \
+        ed = x1;                                                                                    \
     }
 
 // GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
@@ -203,10 +209,15 @@
         SMWRITE();                         \
     }
 
-#define WBACKO(O)            \
-    if (wback) {             \
-        SDXxw(ed, wback, O); \
-        SMWRITE2();          \
+#define WBACKO(O)                \
+    if (wback) {                 \
+        if (rex.is32bits) {      \
+            ADDz(O, wback, O);   \
+            ST_W(ed, O, 0);      \
+        } else {                 \
+            SDXxw(ed, wback, O); \
+        }                        \
+        SMWRITE2();              \
     }
 
 // GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
@@ -298,27 +309,32 @@
     BSTRPICK_D(gd, gb1, gb2 + 7, gb2);
 
 // GETEBO will use i for ed, i is also Offset, and can use r3 for wback.
-#define GETEBO(i, D)                                                                            \
-    if (MODREG) {                                                                               \
-        if (rex.rex) {                                                                          \
-            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                       \
-            wb2 = 0;                                                                            \
-        } else {                                                                                \
-            wback = (nextop & 7);                                                               \
-            wb2 = (wback >> 2) * 8;                                                             \
-            wback = TO_LA64(wback & 3);                                                         \
-        }                                                                                       \
-        BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                     \
-        wb1 = 0;                                                                                \
-        ed = i;                                                                                 \
-    } else {                                                                                    \
-        SMREAD();                                                                               \
-        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
-        ADD_D(x3, wback, i);                                                                    \
-        if (wback != x3) wback = x3;                                                            \
-        LD_B(i, wback, fixedaddress);                                                           \
-        wb1 = 1;                                                                                \
-        ed = i;                                                                                 \
+#define GETEBO(i, D)                                                                                \
+    if (MODREG) {                                                                                   \
+        if (rex.rex) {                                                                              \
+            wback = TO_LA64((nextop & 7) + (rex.b << 3));                                           \
+            wb2 = 0;                                                                                \
+        } else {                                                                                    \
+            wback = (nextop & 7);                                                                   \
+            wb2 = (wback >> 2) * 8;                                                                 \
+            wback = TO_LA64(wback & 3);                                                             \
+        }                                                                                           \
+        BSTRPICK_D(i, wback, wb2 + 7, wb2);                                                         \
+        wb1 = 0;                                                                                    \
+        ed = i;                                                                                     \
+    } else {                                                                                        \
+        SMREAD();                                                                                   \
+        if (rex.is32bits) {                                                                         \
+            addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+            ADDz(x3, wback, i);                                                                     \
+            if (wback != x3) wback = x3;                                                            \
+            LD_BU(i, wback, fixedaddress);                                                          \
+        } else {                                                                                    \
+            addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, D); \
+            LDX_BU(i, wback, i);                                                                    \
+        }                                                                                           \
+        wb1 = 1;                                                                                    \
+        ed = i;                                                                                     \
     }
 
 // Get GX as a quad (might use x1)
