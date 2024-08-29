@@ -2064,9 +2064,11 @@ EXPORT void* my32_localtime_r(x64emu_t* emu, void* t, void* res)
     if(t) from_struct_L(&t_, to_ptrv(t));
     if(res) from_struct_iiiiiiiiilt(&res_, to_ptrv(res));
     void* ret = localtime_r(t?((void*)&t_):NULL, res?((void*)&res_):NULL);
-    if(ret==&res_)
+    if(ret==&res_) {
+        to_struct_iiiiiiiiilt(to_ptrv(res), &res_);
         return res;
-    return ret;
+    }
+    return NULL;
 }
 
 #if 0
