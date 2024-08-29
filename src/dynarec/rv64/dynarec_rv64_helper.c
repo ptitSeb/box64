@@ -373,7 +373,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
             }
         } else if((nextop&7)==5) {
             uint32_t tmp = F32;
-            MOV32w(ret, tmp);
+            // no need to zero up, as we did it below
+            rv64_move32(dyn, ninst, ret, tmp, 0);
             GETIP(addr+delta);
             ADDW(ret, ret, xRIP);
             ZEROUP(ret);
@@ -434,7 +435,8 @@ uintptr_t geted32(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
                 ADDIW(ret, scratch, i64);
                 ZEROUP(ret);
             } else {
-                MOV32w(scratch, i64);
+                // no need to zero up, as we did it below
+                rv64_move32(dyn, ninst, scratch, i64, 0);
                 if((nextop&7)==4) {
                     if (sib_reg!=4) {
                         ADDW(scratch, scratch, xRAX+sib_reg2);
