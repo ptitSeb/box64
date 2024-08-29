@@ -180,6 +180,7 @@ void IFpBp_i_32(x64emu_t *emu, uintptr_t fnc);
 void lFpBp_i_32(x64emu_t *emu, uintptr_t fnc);
 void vFEipV_32(x64emu_t *emu, uintptr_t fnc);
 void vFEppp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEiip_32(x64emu_t *emu, uintptr_t fnc);
 void iFEiiN_32(x64emu_t *emu, uintptr_t fnc);
 void iFEipp_32(x64emu_t *emu, uintptr_t fnc);
 void iFELup_32(x64emu_t *emu, uintptr_t fnc);

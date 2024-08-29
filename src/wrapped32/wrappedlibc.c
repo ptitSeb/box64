@@ -1178,16 +1178,16 @@ EXPORT int my32___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
     r = FillStatFromStat64(vers, &st, buf);
     return r;
 }
-
+#endif
 EXPORT int my32___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
 {
     struct stat64 st;
     int r = fstat64(fd, &st);
     //int r = syscall(__NR_stat64, fd, &st);
-    UnalignStat64(&st, buf);
+    UnalignStat64_32(&st, buf);
     return r;
 }
-
+#if 0
 EXPORT int my32_stat64(x64emu_t* emu, void* path, void* buf)
 {
     struct stat64 st;
@@ -2309,8 +2309,12 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 EXPORT void* my32___ctype_b_loc(x64emu_t* emu)
 {
     const unsigned short** src =__ctype_b_loc();
-    memcpy(emu->libctype, &((*src)[-128]), 384*sizeof(short));
-    return &emu->libctype[128];
+    if(src != emu->ref_ctype) {
+        memcpy(emu->libctype, &((*src)[-128]), 384*sizeof(short));
+        emu->ref_ctype = src;
+        emu->ctype = emu->libctype+128;
+    }
+    return &emu->ctype;
 }
 
 EXPORT struct __processor_model

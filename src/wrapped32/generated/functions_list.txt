@@ -140,6 +140,7 @@
 #() lFpBp_i -> lFpBi
 #() vFEipV -> vFEipV
 #() vFEppp -> vFEppp
+#() iFEiip -> iFEiip
 #() iFEiiN -> iFEiiN
 #() iFEipp -> iFEipp
 #() iFELup -> iFELup
@@ -218,12 +219,14 @@ wrappedlibc:
 - hFpp:
 - vFipV:
 - iFvpV:
+- iFiip:
 - iFiiN:
 - iFipp:
 - iFppL:
 - iFppp:
 - iFppV:
 - iFpOu:
+- lFipL:
 - vFpLLp:
 - vFpppp:
   - __libc_init

@@ -436,7 +436,7 @@ GOW(fwrite, LFpLLh)
 //GO(__fwriting, iFp)
 // fwscanf
 //GOM(__fxstat, iFEiip)       //%%
-//GOM(__fxstat64, iFEiip)     //%% need reaalign of struct stat64
+GOM(__fxstat64, iFEiip)     //%% need reaalign of struct stat64
 //GOM(__fxstatat, iFEiippi)   //%%
 //GOM(__fxstatat64, iFEiippi) //%% struct stat64 again
 // __gai_sigqueue
@@ -1335,7 +1335,7 @@ GOW(random, iFv)
 // rcmd
 // rcmd_af
 // __rcmd_errstr    // type B
-//GOM(read, lFipL) //%%,noE
+GOM(read, lFipL) //%%,noE
 //GOW(__read, lFipL)
 // readahead    // Weak
 //GO(__read_chk, lFipLL)
