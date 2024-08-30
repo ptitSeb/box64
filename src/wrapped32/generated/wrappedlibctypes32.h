@@ -68,6 +68,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(alphasort64, iFpp_t) \
 	GO(statvfs64, iFhp_t) \
 	GO(signal, pFip_t) \
+	GO(gmtime_r, pFpp_t) \
 	GO(localtime_r, pFpp_t) \
 	GO(__libc_init, vFpppp_t)
 

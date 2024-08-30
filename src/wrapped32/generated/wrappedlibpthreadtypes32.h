@@ -22,7 +22,6 @@ typedef int32_t (*iFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFLup_t)(uintptr_t, uint32_t, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
-typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppLL_t)(void*, void*, uintptr_t, uintptr_t);
@@ -37,6 +36,7 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(__pthread_mutex_lock, iFp_t) \
 	GO(__pthread_mutex_trylock, iFp_t) \
 	GO(__pthread_mutex_unlock, iFp_t) \
+	GO(__pthread_mutexattr_init, iFp_t) \
 	GO(pthread_attr_destroy, iFp_t) \
 	GO(pthread_attr_init, iFp_t) \
 	GO(pthread_cond_broadcast, iFp_t) \
@@ -49,6 +49,7 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_mutex_lock, iFp_t) \
 	GO(pthread_mutex_trylock, iFp_t) \
 	GO(pthread_mutex_unlock, iFp_t) \
+	GO(pthread_mutexattr_init, iFp_t) \
 	GO(pthread_rwlock_rdlock, iFp_t) \
 	GO(pthread_rwlock_unlock, iFp_t) \
 	GO(pthread_rwlock_wrlock, iFp_t) \
@@ -86,13 +87,11 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_mutex_timedlock, iFpp_t) \
 	GO(pthread_once, iFpp_t) \
 	GO(pthread_rwlock_init, iFpp_t) \
-	GO(pthread_setname_np, iFpp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
 	GO(pthread_setaffinity_np, iFLup_t) \
 	GO(pthread_attr_setaffinity_np, iFpup_t) \
 	GO(pthread_getaffinity_np, iFpup_t) \
-	GO(pthread_getname_np, iFppu_t) \
 	GO(pthread_attr_setstack, iFppL_t) \
 	GO(__pthread_atfork, iFppp_t) \
 	GO(pthread_atfork, iFppp_t) \

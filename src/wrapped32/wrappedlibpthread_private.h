@@ -81,7 +81,7 @@ GO(pthread_getcpuclockid, iFup)
 GO(pthread_getschedparam, iFupp)
 GO(__pthread_getspecific, pFu)
 GO(pthread_getspecific, pFu)
-GOM(pthread_getname_np, iFEppu)  //not present on Pandora
+GO(pthread_getname_np, iFhpL)
 GOM(__pthread_initialize, vFv)  //%noE doesn't exist anymore...
 // __pthread_initialize_minimal
 GO(pthread_join, iFHBp_)
@@ -97,8 +97,8 @@ GO(pthread_mutexattr_getprotocol, iFpp)
 // pthread_mutexattr_getpshared
 // pthread_mutexattr_getrobust_np
 GO(pthread_mutexattr_gettype, iFpp)
-GO(__pthread_mutexattr_init, iFp)
-GO(pthread_mutexattr_init, iFp)
+GO2(__pthread_mutexattr_init, iFp, my32_pthread_mutexattr_init)
+GOM(pthread_mutexattr_init, iFEp)
 GO(pthread_mutexattr_setprioceiling, iFpi)
 GO(pthread_mutexattr_setprotocol, iFpp)
 GO(pthread_mutexattr_setpshared, iFpi)
@@ -150,7 +150,7 @@ GOM(pthread_setaffinity_np, iFELup)
 GO(pthread_setcancelstate, iFip)
 GO(pthread_setcanceltype, iFip)
 GO(pthread_setconcurrency, iFi)
-GOM(pthread_setname_np, iFEpp)   // not present on the Pandora
+GO(pthread_setname_np, iFhp)
 GO(pthread_setschedparam, iFuip)
 GO(pthread_setschedprio, iFpi)
 GO(__pthread_setspecific, iFup)

@@ -113,7 +113,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     perr = 1;
                 } else  if(!strcmp(s, "opendir")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
-                    perr = 1;
+                    perr = 2;
                 } else  if(strstr(s, "__open")==s || !strcmp(s, "open") || !strcmp(s, "my_open64")) {
                     tmp = from_ptrv(*(ptr_t*)from_ptr(R_ESP+4));
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %d (,%d))", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, (tmp)?tmp:"(nil)", *(int*)from_ptr(R_ESP+8), *(int*)from_ptr(R_ESP+12));

@@ -152,7 +152,7 @@ GO(clock, LFv)
 // __clone
 GOW(close, iFi)
 // __close  // Weak
-//GOW(closedir, iFp)
+GOW(closedir, iFp)
 GO(closelog, vFv)
 //GO(__cmsg_nxthdr, pFpp)
 //GO(confstr, uFipu)
@@ -309,7 +309,7 @@ GOM(fcntl64, iFEiiN) //%%
 GO(fdatasync, iFi)
 // fdetach
 //GO(fdopen, pFip)
-//GOW(fdopendir, pFi)
+GOW(fdopendir, pFi)
 //GOW(feof, iFp)
 //GO(feof_unlocked, iFp)
 //GOW(ferror, iFp)
@@ -378,7 +378,7 @@ GOW(fputs, iFph)    // Weak
 //GO(fputwc_unlocked, iFip)
 //GO(fputws, iFpp)
 //GO(fputws_unlocked, iFpp)
-//GOW(fread, LFpLLp)
+GOW(fread, LFpLLh)
 //GO(__freadable, iFp)
 //GO(__fread_chk, uFpuuup)
 //GO(__freading, iFp)
@@ -618,7 +618,7 @@ GO(getwchar_unlocked, iFv)
 // glob_pattern_p   // Weak
 //GO(gmtime, pFp)
 //GO(__gmtime_r, pFpp)
-//GOW(gmtime_r, pFpp)
+GOWM(gmtime_r, pFEpp)
 GO(gnu_dev_major, uFU)
 GO(gnu_dev_makedev, UFii)       // dev_t seems to be a u64
 GO(gnu_dev_minor, uFU)
@@ -1202,7 +1202,7 @@ GOWM(open64, iFEpOu)  //%%
 //GOW(openat64, iFipON)
 //GO(__openat64_2, iFipON)
 // __open_catalog
-//GOW(opendir, pFp)
+GOW(opendir, pFp)
 //GO(openlog, vFpii)
 // open_memstream
 // open_wmemstream
@@ -1341,7 +1341,7 @@ GOM(read, lFipL) //%%,noE
 // readahead    // Weak
 //GO(__read_chk, lFipLL)
 //GOM(readdir, pFEp)  //%% should also be weak
-//GO(readdir64, pFp)  // check if alignement is correct
+GO(readdir64, pFp)  // check if alignement is correct
 // readdir64_r
 //GOM(readdir_r, iFEppp)  //%% should also be weak
 GOM(readlink, iFEppL) //%%
@@ -1452,7 +1452,7 @@ GO(secure_getenv, pFp)
 //GO(seekdir, vFpi)
 //GOW(select, iFipppp)
 //GO(__select, iFipppp)
-//GO(semctl, iFiiiN)
+GO(semctl, iFiiiN)
 GOW(semget, iFuii)
 //GOW(semop, iFipL)
 //GO(semtimedop, iFipup)
@@ -1519,7 +1519,7 @@ GOW(setuid, iFu)
 // setusershell
 GOW(setutent, vFv)
 // setutxent
-//GOW(setvbuf, iFppiL)
+GOW(setvbuf, iFhpiL)
 //GO(setxattr, iFpppui)
 // sgetspent
 // sgetspent_r  // Weak
@@ -1639,7 +1639,7 @@ GO(strcspn, LFpp)
 // __strfmon_l
 // strfmon_l    // Weak
 // strfry
-//GO(strftime, LFpLpp)
+GO(strftime, LFpLpriiiiiiiiilt_)
 //GO(__strftime_l, LFpLppL)
 //GOW(strftime_l, LFpLppL)
 GO(strlen, LFp)
@@ -1647,13 +1647,13 @@ GOW(strncasecmp, iFppL)
 // __strncasecmp_l
 // strncasecmp_l    // Weak
 GO(strncat, pFppL)
-//GO(__strncat_chk, pFppLL)
+GO(__strncat_chk, pFppLL)
 GO(strncmp, iFppL)
-//GO(strncpy, pFppL)
-//GO(__strncpy_chk, pFppLL)
-//GOW(strndup, pFpL)
-//GO(__strndup, pFpL)
-//GO(strnlen, LFpL)
+GO(strncpy, pFppL)
+GO(__strncpy_chk, pFppLL)
+GOW(strndup, pFpL)
+GO(__strndup, pFpL)
+GO(strnlen, LFpL)
 //GO(strpbrk, pFpp)
 // __strpbrk_c2
 // __strpbrk_c3
@@ -1936,15 +1936,15 @@ GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
 //GOW(wcscoll, iFpp)
 //GO(__wcscoll_l, iFppp)
 //GOW(wcscoll_l, iFppp)
-//GO(wcscpy, pFpp)
+GO(wcscpy, pFpp)
 //GO(__wcscpy_chk, pFppu)
 //GO(wcscspn, uFpp)
-//GO(wcsdup, pFp)
+GO(wcsdup, pFp)
 //GO(wcsftime, LFpLpp)
 //GO(__wcsftime_l, LFpLppp)
 //GOW(wcsftime_l, LFpLppp)
-//GOW(wcslen, LFp)
-//GOW(wcsncasecmp, iFppu)
+GOW(wcslen, LFp)
+GOW(wcsncasecmp, iFppL)
 // __wcsncasecmp_l
 //GOW(wcsncasecmp_l, iFppup)
 //GO(wcsncat, pFppu)

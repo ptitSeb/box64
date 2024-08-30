@@ -20,39 +20,6 @@
 static const char* libpthreadName = "libpthread.so.0";
 #define LIBNAME libpthread
 
-typedef int (*iFpp_t)(void*, void*);
-typedef int (*iFppu_t)(void*, void*, uint32_t);
-EXPORT int my32_pthread_setname_np(x64emu_t* emu, void* t, void* n)
-{
-    static void* f = NULL;
-    static int need_load = 1;
-    if(need_load) {
-        library_t* lib = GetLibInternal(libpthreadName);
-        if(!lib) return 0;
-        f = dlsym(lib->w.lib, "pthread_setname_np");
-        need_load = 0;
-    }
-    if(f)
-        return ((iFpp_t)f)(t, n);
-    return 0;
-}
-EXPORT int my32_pthread_getname_np(x64emu_t* emu, void* t, void* n, uint32_t s)
-{
-    static void* f = NULL;
-    static int need_load = 1;
-    if(need_load) {
-        library_t* lib = GetLibInternal(libpthreadName);
-        if(!lib) return 0;
-        f = dlsym(lib->w.lib, "pthread_getname_np");
-        need_load = 0;
-    }
-    if(f)
-        return ((iFppu_t)f)(t, n, s);
-    else 
-        strncpy((char*)n, "dummy", s);
-    return 0;
-}
-
 EXPORT int my32_pthread_rwlock_wrlock(pthread_rwlock_t *rwlock)
 {
     return pthread_rwlock_wrlock(rwlock);

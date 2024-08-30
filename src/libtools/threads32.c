@@ -816,6 +816,15 @@ EXPORT int my32_pthread_mutex_destroy(pthread_mutex_t *m)
 }
 #define getAlignedMutexWithInit(A, B)	getAlignedMutex(A)
 
+EXPORT int my32_pthread_mutexattr_init(x64emu_t* emu, pthread_mutexattr_t* att)
+{
+	// mutexattr is 4 bytes on x86, but 8 on 64bits platforms...
+	uint32_t save = att?(((uint32_t*)att)[1]):0;
+	int ret = pthread_mutexattr_init(att);
+	if(att) ((uint32_t*)att)[1] = save;
+	return ret;
+}
+
 EXPORT int my32___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias("my32_pthread_mutex_destroy")));
 
 EXPORT int my32_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)

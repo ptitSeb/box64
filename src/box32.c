@@ -135,7 +135,7 @@ ulong_t to_hash_d(uintptr_t p) {
     } else {
         ret = kh_value(hash_to, k);
         // delete both entries
-        k = kh_get(to, hash_to, p);
+        //k = kh_get(to, hash_to, p);
         kh_del(to, hash_to, k);
         k = kh_get(from, hash_from, ret);
         kh_del(from, hash_from, k);
