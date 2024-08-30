@@ -82,7 +82,7 @@ GO(xcb_change_property_checked, uFbCuuuCup)
 //GO(xcb_change_property_data_end, 
 //GO(xcb_change_property_data_length, 
 //GO(xcb_change_property_sizeof, 
-//GO(xcb_change_save_set, 
+GO(xcb_change_save_set, uFbCu)
 //GO(xcb_change_save_set_checked, 
 GO(xcb_change_window_attributes, uFbuup)
 //GO(xcb_change_window_attributes_aux, 
