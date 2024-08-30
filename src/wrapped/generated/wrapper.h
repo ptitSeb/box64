@@ -648,6 +648,7 @@ void uFppi(x64emu_t *emu, uintptr_t fnc);
 void uFppu(x64emu_t *emu, uintptr_t fnc);
 void uFppL(x64emu_t *emu, uintptr_t fnc);
 void uFppp(x64emu_t *emu, uintptr_t fnc);
+void uFbCu(x64emu_t *emu, uintptr_t fnc);
 void uFbWW(x64emu_t *emu, uintptr_t fnc);
 void uFbWu(x64emu_t *emu, uintptr_t fnc);
 void uFbuC(x64emu_t *emu, uintptr_t fnc);
