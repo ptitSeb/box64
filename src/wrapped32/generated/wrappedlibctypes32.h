@@ -29,6 +29,7 @@ typedef void (*vFpu_t)(void*, uint32_t);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpV_t)(void*, ...);
+typedef int32_t (*iFhp_t)(uintptr_t, void*);
 typedef int64_t (*IFII_t)(int64_t, int64_t);
 typedef uint64_t (*UFUU_t)(uint64_t, uint64_t);
 typedef void* (*pFip_t)(int32_t, void*);
@@ -47,8 +48,11 @@ typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFiiII_t)(int32_t, int32_t, int64_t, int64_t);
+typedef int32_t (*iFLLLL_t)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFhvpV_t)(uintptr_t, void, void*, ...);
+typedef int32_t (*iFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef int32_t (*iFpLppp_t)(void*, uintptr_t, void*, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
@@ -57,10 +61,12 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__close_nocancel, iFi_t) \
 	GO(__ctype_b_loc, pFv_t) \
+	GO(__ctype_tolower_loc, pFv_t) \
 	GO(__errno_location, pFv_t) \
 	GO(getrlimit, iFip_t) \
 	GO(setrlimit, iFip_t) \
 	GO(alphasort64, iFpp_t) \
+	GO(statvfs64, iFhp_t) \
 	GO(signal, pFip_t) \
 	GO(localtime_r, pFpp_t) \
 	GO(__libc_init, vFpppp_t)

@@ -3,6 +3,7 @@
 #endif
 // General note: pthread_t is unsigned long int
 // cpu_set_t is a struct with an array, default size is fixed for all architecture
+// struct timespec is: LL
 
 // __errno_location
 // fork
@@ -61,13 +62,13 @@ GO2(pthread_cond_broadcast@GLIBC_2.0, iFEp, my32_pthread_cond_broadcast_old)
 GO2(pthread_cond_destroy@GLIBC_2.0, iFEp, my32_pthread_cond_destroy_old)
 GO2(pthread_cond_init@GLIBC_2.0, iFEpp, my32_pthread_cond_init_old)
 GO2(pthread_cond_signal@GLIBC_2.0, iFEp, my32_pthread_cond_signal_old)
-GO2(pthread_cond_timedwait@GLIBC_2.0, iFEppp, my32_pthread_cond_timedwait_old)
+GO2(pthread_cond_timedwait@GLIBC_2.0, iFEpprLL_, my32_pthread_cond_timedwait_old)
 GO2(pthread_cond_wait@GLIBC_2.0, iFEpp, my32_pthread_cond_wait_old)
-GO(pthread_cond_broadcast, iFp)
-GO(pthread_cond_destroy, iFp)
-GO(pthread_cond_init, iFpp)
-GO(pthread_cond_signal, iFp)
-GOM(pthread_cond_timedwait, iFEppp)
+GOM(pthread_cond_broadcast, iFEp)
+GOM(pthread_cond_destroy, iFEp)
+GOM(pthread_cond_init, iFEpp)
+GOM(pthread_cond_signal, iFEp)
+GOM(pthread_cond_timedwait, iFEpprLL_)
 GOM(pthread_cond_wait, iFEpp)
 GOM(pthread_create, iFEBh_ppp)
 GOM(pthread_detach, iFEh)

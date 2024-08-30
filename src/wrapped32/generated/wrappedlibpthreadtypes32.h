@@ -25,6 +25,7 @@ typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFppLL_t)(void*, void*, uintptr_t, uintptr_t);
 typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -38,8 +39,11 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(__pthread_mutex_unlock, iFp_t) \
 	GO(pthread_attr_destroy, iFp_t) \
 	GO(pthread_attr_init, iFp_t) \
+	GO(pthread_cond_broadcast, iFp_t) \
 	GO(pthread_cond_broadcast@GLIBC_2.0, iFp_t) \
+	GO(pthread_cond_destroy, iFp_t) \
 	GO(pthread_cond_destroy@GLIBC_2.0, iFp_t) \
+	GO(pthread_cond_signal, iFp_t) \
 	GO(pthread_cond_signal@GLIBC_2.0, iFp_t) \
 	GO(pthread_mutex_destroy, iFp_t) \
 	GO(pthread_mutex_lock, iFp_t) \
@@ -73,6 +77,7 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_attr_getstacksize, iFpp_t) \
 	GO(pthread_attr_setschedparam, iFpp_t) \
 	GO(pthread_attr_setstackaddr, iFpp_t) \
+	GO(pthread_cond_init, iFpp_t) \
 	GO(pthread_cond_init@GLIBC_2.0, iFpp_t) \
 	GO(pthread_cond_wait, iFpp_t) \
 	GO(pthread_cond_wait@GLIBC_2.0, iFpp_t) \
@@ -92,8 +97,8 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(__pthread_atfork, iFppp_t) \
 	GO(pthread_atfork, iFppp_t) \
 	GO(pthread_attr_getstack, iFppp_t) \
-	GO(pthread_cond_timedwait, iFppp_t) \
-	GO(pthread_cond_timedwait@GLIBC_2.0, iFppp_t) \
+	GO(pthread_cond_timedwait, iFppLL_t) \
+	GO(pthread_cond_timedwait@GLIBC_2.0, iFppLL_t) \
 	GO(pthread_create, iFhppp_t)
 
 #endif // __wrappedlibpthreadTYPES32_H_

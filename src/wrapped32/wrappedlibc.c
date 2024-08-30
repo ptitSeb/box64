@@ -36,6 +36,7 @@
 #include <pwd.h>
 #include <locale.h>
 #include <sys/resource.h>
+#include <sys/statvfs.h>
 
 #include "wrappedlibs.h"
 
@@ -432,6 +433,15 @@ static void* findon_exitFct(void* fct)
 }
 #undef SUPER
 #endif
+
+EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
+{
+    struct statvfs s = {0};
+    int ret = statvfs(f, &s);
+    if(r)
+        UnalignStatVFS64_32(&s, r);
+    return ret;
+}
 
 // some my32_XXX declare and defines
 int32_t my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), 
@@ -906,37 +916,23 @@ EXPORT int my32_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, voi
 }
 EXPORT int my32___vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vsnprintf")));
 EXPORT int my32___vsnprintf_chk(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vsnprintf")));
-#if 0
 EXPORT int my32_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list V)
 {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, VARARGS_32);
+    int r = vasprintf(strp, fmt, VARARGS_32);
     return r;
-    #else
-    void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
-    return r;
-    #endif
 }
 EXPORT int my32___vasprintf_chk(x64emu_t* emu, void* strp, int flags, void* fmt, void* b, va_list V)
 {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, VARARGS_32);
+    int r = vasprintf(strp, fmt, VARARGS_32);
     return r;
-    #else
-    void* f = vasprintf;
-    int r = ((iFppp_t)f)(strp, fmt, (uint32_t*)b);
-    return r;
-    #endif
 }
+#if 0
 
 EXPORT int my32___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void* fmt, void* b)
 {
@@ -2309,12 +2305,26 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 EXPORT void* my32___ctype_b_loc(x64emu_t* emu)
 {
     const unsigned short** src =__ctype_b_loc();
+    if((uintptr_t)src<0x100000000LL)
+        return src;
     if(src != emu->ref_ctype) {
         memcpy(emu->libctype, &((*src)[-128]), 384*sizeof(short));
         emu->ref_ctype = src;
         emu->ctype = emu->libctype+128;
     }
     return &emu->ctype;
+}
+EXPORT void* my32___ctype_tolower_loc(x64emu_t* emu)
+{
+    const int** src =__ctype_tolower_loc();
+    if((uintptr_t)src<0x100000000LL)
+        return src;
+    if(src != emu->ref_tolower) {
+        memcpy(emu->libctolower, &((*src)[-128]), 384*sizeof(int));
+        emu->ref_tolower = src;
+        emu->tolower = emu->libctolower+128;
+    }
+    return &emu->tolower;
 }
 
 EXPORT struct __processor_model
@@ -2727,14 +2737,14 @@ EXPORT void* my32___libc_dlsym(x64emu_t* emu, void* handle, void* name)
 #endif
 // all obstack function defined in obstack.c file
 void obstackSetup();
-#if 0
+
 EXPORT int my32_nanosleep(const struct timespec *req, struct timespec *rem)
 {
     if(!req)
         return 0;   // workaround for some strange calls
     return nanosleep(req, rem);
 }
-#endif
+
 // wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
 EXPORT void* my32_malloc(unsigned long size)
 {

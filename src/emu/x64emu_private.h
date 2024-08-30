@@ -135,9 +135,12 @@ typedef struct x64emu_s {
     int         type;       // EMUTYPE_xxx define
     #ifdef BOX32
     int         libc_err;   // copy of errno from libc
-    unsigned short libctype[384];   // copy from __ctype_b because, again, is thread local
-    const unsigned short** ref_ctype;
-    const unsigned short* ctype;
+    unsigned short          libctype[384];   // copy from __ctype_b address might be too high
+    const unsigned short**  ref_ctype;
+    const unsigned short*   ctype;
+    int         libctolower[384];   // copy from __ctype_b_tolower address might be too high
+    const int** ref_tolower;
+    const int*  tolower;
     #endif
 } x64emu_t;
 

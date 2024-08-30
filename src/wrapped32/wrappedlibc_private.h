@@ -5,6 +5,7 @@
 // FILE* is h (because stdin/stdout/stderr might be 64bits, maybe other special file can be too)
 // locale_t needs special handling, with to_locale / from_locale (and is a / A)
 // struct utimbuf is: LL
+// struct timespec is: LL
 // struct tm is: iiiiiiiiilt
 
 // a64l
@@ -171,7 +172,7 @@ GO(closelog, vFv)
 GOM(__ctype_b_loc, pFEv)
 //GOW(__ctype_get_mb_cur_max, LFv)
 //DATAM(__ctype_tolower, 4)
-//GO(__ctype_tolower_loc, pFv)
+GOM(__ctype_tolower_loc, pFEv)
 //DATAM(__ctype_toupper, 4)
 //GO(__ctype_toupper_loc, pFv)
 // __curbrk // type B
@@ -328,7 +329,7 @@ GOW(fgetc_unlocked, iFh)
 //GO(fgetpos64, iFpp)
 // fgetpwent
 // fgetpwent_r  // Weak
-//GOW(fgets, pFpip)
+GOW(fgets, pFpih)
 //GO(__fgets_chk, pFpuip)
 // fgetspent
 // fgetspent_r  // Weak
@@ -1080,7 +1081,7 @@ GOW(mallopt, iFii)  // Weak
 //GOW(memalign, pFLL)
 //DATAV(__memalign_hook, 4)
 //GOW(memccpy, pFppiL)
-//GO(memchr, pFpiL)
+GO(memchr, pFpiL)
 GO(memcmp, iFppL)
 GO(memcpy, pFppL)
 GO(__memcpy_chk, pFppLL)
@@ -1134,7 +1135,7 @@ GOW(mkdir, iFpu)
 //GO(munlockall, iFv)
 //GOM(munmap, iFEpL)       //%%
 // muntrace
-//GOWM(nanosleep, iFpp)	 //%%,noE
+GOWM(nanosleep, iFrLL_BLL_)	 //%%,noE
 // __nanosleep  // Weak
 // netname2host
 // netname2user
@@ -1395,7 +1396,7 @@ GO(__res_init, iFv)
 //GO(__res_state, pFv)
 //DATA(re_syntax_options, 4)    // type B
 // revoke
-//GO(rewind, vFp)
+GO(rewind, vFh)
 //GO(rewinddir, vFp)
 // rexec
 // rexec_af
@@ -1594,7 +1595,7 @@ GOM(__stack_chk_fail, vFEv) //%%
 // __statfs
 //GOWM(statfs64, iFpp)     //%%,noE
 //GO(statvfs, iFpp)
-//GOW(statvfs64, iFpp)    // is alignment ok?
+GOWM(statvfs64, iFEhp)
 DATAM(stderr, 4)
 DATAM(stdin, 4)
 DATAM(stdout, 4)
@@ -1658,7 +1659,7 @@ GO(strncmp, iFppL)
 // __strpbrk_c3
 //GO(strptime, pFppp)
 // strptime_l   // Weak
-//GO(strrchr, pFpi)
+GO(strrchr, pFpi)
 //GOW(strsep, pFpp)
 // __strsep_1c
 // __strsep_2c
@@ -1669,7 +1670,7 @@ GO(strncmp, iFppL)
 // __strspn_c1
 // __strspn_c2
 // __strspn_c3
-//GO(strstr, pFpp)
+GO(strstr, pFpp)
 GO(strtod, dFpBp_)
 //GO(__strtod_internal, dFppi)
 //GO(__strtod_l, dFppp)
@@ -1868,8 +1869,8 @@ GO(utime, iFprLL_)
 //GOW(utmpname, iFp)
 // utmpxname
 //GOW(valloc, pFu)
-//GOM(vasprintf, iFEpppp) //%%
-//GOM(__vasprintf_chk, iFEpippp) //%%
+GOM(vasprintf, iFEpppp) //%%
+GOM(__vasprintf_chk, iFEpippp) //%%
 // vdprintf // Weak
 // __vdprintf_chk
 //GOM(verr, vFEpV) //%%

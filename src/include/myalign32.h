@@ -1,6 +1,7 @@
 #ifndef __MY_ALIGN32__H_
 #define __MY_ALIGN32__H_
 #include <stdint.h>
+#include "box32.h"
 
 #define X64_VA_MAX_REG  (6*8)
 #define X64_VA_MAX_XMM  ((6*8)+(8*16))
@@ -161,6 +162,25 @@ struct i386_statfs64 {
   uint32_t    f_flags;
   uint32_t    f_spare[4];
 } __attribute__((packed));
+
+struct i386_statvfs64 {
+  ulong_t f_bsize;
+  ulong_t f_frsize;
+  uint64_t f_blocks;
+  uint64_t f_bfree;
+  uint64_t f_bavail;
+  uint64_t f_files;
+  uint64_t f_ffree;
+  uint64_t f_favail;
+  ulong_t f_fsid;
+  int __f_unused;
+  ulong_t f_flag;
+  ulong_t f_namemax;
+  unsigned int f_type;
+  int __f_spare[5];
+} __attribute__((packed));
+
+void UnalignStatVFS64_32(const void* source, void* dest);
 #if 0
 typedef struct {
   unsigned char *data;

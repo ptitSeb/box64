@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <asm/stat.h>
 #include <sys/vfs.h>
+#include <sys/statvfs.h>
 
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
@@ -77,6 +78,26 @@ void UnalignStatFS64_32(const void* source, void* dest)
     i386st->f_spare[2]  = st->f_spare[2];
     i386st->f_spare[3]  = st->f_spare[3];
 }
+
+void UnalignStatVFS64_32(const void* source, void* dest)
+{
+    struct i386_statvfs64 *i386st = (struct i386_statvfs64*)dest;
+    struct statvfs *st = (struct statvfs*) source;
+
+    i386st->f_bsize     = st->f_bsize;
+    i386st->f_frsize    = st->f_frsize;
+    i386st->f_blocks    = st->f_blocks;
+    i386st->f_bfree     = st->f_bfree;
+    i386st->f_bavail    = st->f_bavail;
+    i386st->f_files     = st->f_files;
+    i386st->f_ffree     = st->f_ffree;
+    i386st->f_favail    = st->f_favail;
+    i386st->f_fsid      = st->f_fsid;
+    i386st->f_flag      = st->f_flag;
+    i386st->f_namemax   = st->f_namemax;
+    i386st->f_type      = st->f_type;
+}
+
 #define TRANSFERT   \
 GO(l_type)          \
 GO(l_whence)        \

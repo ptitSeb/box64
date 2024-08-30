@@ -2,6 +2,7 @@
 #() vFi -> vFi
 #() vFu -> vFu
 #() vFp -> vFp
+#() vFh -> vFh
 #() vFA -> vFA
 #() iFv -> iFv
 #() iFi -> iFi
@@ -87,6 +88,7 @@
 #() dFpBp_ -> dFpB
 #() iFuBLL_ -> iFuB
 #() iFprLL_ -> iFpB
+#() iFrLL_BLL_ -> iFBB
 #() vFEip -> vFEip
 #() vFEpi -> vFEpi
 #() vFEpu -> vFEpu
@@ -97,6 +99,7 @@
 #() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
+#() iFEhp -> iFEhp
 #() iFiii -> iFiii
 #() iFiiI -> iFiiI
 #() iFiiu -> iFiiu
@@ -129,6 +132,7 @@
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
 #() pFpiL -> pFpiL
+#() pFpih -> pFpih
 #() pFppu -> pFppu
 #() pFppL -> pFppL
 #() pFpOM -> pFpOM
@@ -159,11 +163,14 @@
 #() pFEppp -> pFEppp
 #() pFpiLL -> pFpiLL
 #() pFppLL -> pFppLL
+#() iFEpprLL_ -> iFEppB
 #() vFEpLLp -> vFEpLLp
 #() iFEppiV -> iFEppiV
 #() iFEpppi -> iFEpppi
+#() iFEpppp -> iFEpppp
 #() iFiLLLL -> iFiLLLL
 #() iFEBh_ppp -> iFEBppp
+#() iFEpippp -> iFEpippp
 #() iFEpuppp -> iFEpuppp
 #() iFEpLppp -> iFEpLppp
 #() iFEpLiipV -> iFEpLiipV
@@ -199,6 +206,7 @@ wrappedlibc:
 - LFL:
 - pFv:
   - __ctype_b_loc
+  - __ctype_tolower_loc
   - __errno_location
 - pFL:
 - vFip:
@@ -210,6 +218,8 @@ wrappedlibc:
 - iFpp:
   - alphasort64
 - iFpV:
+- iFhp:
+  - statvfs64
 - IFII:
 - UFUU:
 - pFip:
@@ -231,8 +241,11 @@ wrappedlibc:
 - vFpppp:
   - __libc_init
 - iFiiII:
+- iFLLLL:
 - iFppiV:
+- iFpppp:
 - iFhvpV:
+- iFpippp:
 - iFpLppp:
 - iFpLiipV:
 - iFpippppp:
@@ -345,8 +358,11 @@ wrappedlibpthread:
   - __pthread_mutex_unlock
   - pthread_attr_destroy
   - pthread_attr_init
+  - pthread_cond_broadcast
   - pthread_cond_broadcast@GLIBC_2.0
+  - pthread_cond_destroy
   - pthread_cond_destroy@GLIBC_2.0
+  - pthread_cond_signal
   - pthread_cond_signal@GLIBC_2.0
   - pthread_mutex_destroy
   - pthread_mutex_lock
@@ -385,6 +401,7 @@ wrappedlibpthread:
   - pthread_attr_getstacksize
   - pthread_attr_setschedparam
   - pthread_attr_setstackaddr
+  - pthread_cond_init
   - pthread_cond_init@GLIBC_2.0
   - pthread_cond_wait
   - pthread_cond_wait@GLIBC_2.0
@@ -410,6 +427,7 @@ wrappedlibpthread:
   - __pthread_atfork
   - pthread_atfork
   - pthread_attr_getstack
+- iFppLL:
   - pthread_cond_timedwait
   - pthread_cond_timedwait@GLIBC_2.0
 - iFhppp:
