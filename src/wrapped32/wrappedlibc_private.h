@@ -97,7 +97,7 @@ GOM(alphasort64, iFEpp)
 //GOW(bcmp, iFppL)
 //GO(bcopy, vFppL)
 // bdflush
-//GOW(bind, iFipu)
+GOW(bind, iFipu)
 // bindresvport
 //GOW(bindtextdomain, pFpp)
 //GOW(bind_textdomain_codeset, pFpp)
@@ -157,8 +157,8 @@ GO(closelog, vFv)
 //GO(__cmsg_nxthdr, pFpp)
 //GO(confstr, uFipu)
 // __confstr_chk
-//GOW(connect, iFipu)
-//GOW(__connect, iFipu)
+GOW(connect, iFipu)
+GOW(__connect, iFipu)
 // copysign // Weak
 // copysignf    // Weak
 // copysignl    // Weak
@@ -385,7 +385,7 @@ GOW(fread, LFpLLh)
 //GO(fread_unlocked, uFpuup)
 //GO(__fread_unlocked_chk, uFpuuup)
 GO(free, vFp)
-//GO(freeaddrinfo, vFp)
+GOM(freeaddrinfo, vFEp)
 //DATAV(__free_hook, 4)
 //GO(freeifaddrs, vFp)
 GOW(freelocale, vFA)
@@ -446,7 +446,7 @@ GOM(__fxstat64, iFEiip)     //%% need reaalign of struct stat64
 // __gconv_get_cache
 // __gconv_get_modules_db
 // gcvt
-//GO(getaddrinfo, iFpppp)
+GOM(getaddrinfo, iFEpppp)
 // getaliasbyname
 // getaliasbyname_r
 // getaliasent
@@ -577,7 +577,7 @@ GO(getrlimit64, iFip)
 // getservent
 //GO(getservent_r, iFppup)
 GO(getsid, uFu)
-//GOW(getsockname, iFipp)
+GOW(getsockname, iFipp)
 //GOW(getsockopt, iFiiipp)
 // getsourcefilter
 //GO(getspent, pFv)
@@ -1230,8 +1230,8 @@ GOW(pause, iFv)
 // pmap_rmtcall
 // pmap_set
 // pmap_unset
-//GOW(poll, iFpui)    // poll have an array of struct as 1st argument
-//GO(__poll, iFpui)
+GOW(poll, iFpLi)    // poll have an array of struct as 1st argument
+GO(__poll, iFpLi)
 //GO(popen, pFpp)
 GO(posix_fadvise, iFiuui)
 GO(posix_fadvise64, iFiuui)
@@ -1357,7 +1357,7 @@ GO(__realpath_chk, pFppu)
 // re_comp  // Weak
 // re_compile_fastmap   // Weak
 //GOW(re_compile_pattern, pFpup)
-//GO(recv, lFipLi)
+GO(recv, lFipLi)
 //GO(__recv_chk, iFipuui)
 //GOW(recvfrom, lFipLipp)
 // __recvfrom_chk
@@ -1456,7 +1456,7 @@ GO(semctl, iFiiiN)
 GOW(semget, iFuii)
 //GOW(semop, iFipL)
 //GO(semtimedop, iFipup)
-//GOW(send, lFipLi)
+GOW(send, lFipLi)
 // __send   // Weak
 //GO(sendfile, lFiipL)
 //GO(sendfile64, lFiipL)
@@ -1508,7 +1508,7 @@ GO(setrlimit64, iFip)
 // setrpcent
 // setservent
 GOW(setsid, iFv)
-//GOW(setsockopt, iFiiipu)
+GOW(setsockopt, iFiiipu)
 // setsourcefilter
 GO(setspent, vFv)
 // setstate // Weak

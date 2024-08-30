@@ -110,6 +110,7 @@
 #() iFiII -> iFiII
 #() iFiuu -> iFiuu
 #() iFiLN -> iFiLN
+#() iFipu -> iFipu
 #() iFipp -> iFipp
 #() iFuii -> iFuii
 #() iFuip -> iFuip
@@ -120,6 +121,7 @@
 #() iFpiu -> iFpiu
 #() iFpip -> iFpip
 #() iFpuu -> iFpuu
+#() iFpLi -> iFpLi
 #() iFpLL -> iFpLL
 #() iFppu -> iFppu
 #() iFppL -> iFppL
@@ -163,6 +165,7 @@
 #() iFiiII -> iFiiII
 #() iFiuui -> iFiuui
 #() iFhpiL -> iFhpiL
+#() lFipLi -> lFipLi
 #() LFpLLh -> LFpLLh
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
@@ -174,6 +177,7 @@
 #() iFEppiV -> iFEppiV
 #() iFEpppi -> iFEpppi
 #() iFEpppp -> iFEpppp
+#() iFiiipu -> iFiiipu
 #() iFiLLLL -> iFiLLLL
 #() iFEBh_ppp -> iFEBppp
 #() iFEpippp -> iFEpippp
@@ -201,6 +205,7 @@ wrappedldlinux:
 wrappedlibc:
 - vFv:
 - vFp:
+  - freeaddrinfo
 - iFv:
 - iFi:
   - __close_nocancel
@@ -251,6 +256,7 @@ wrappedlibc:
 - iFLLLL:
 - iFppiV:
 - iFpppp:
+  - getaddrinfo
 - iFhvpV:
 - iFpippp:
 - iFpLppp:

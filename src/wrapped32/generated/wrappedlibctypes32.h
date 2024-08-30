@@ -59,6 +59,7 @@ typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*
 typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(freeaddrinfo, vFp_t) \
 	GO(__close_nocancel, iFi_t) \
 	GO(__ctype_b_loc, pFv_t) \
 	GO(__ctype_tolower_loc, pFv_t) \
@@ -70,6 +71,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(signal, pFip_t) \
 	GO(gmtime_r, pFpp_t) \
 	GO(localtime_r, pFpp_t) \
-	GO(__libc_init, vFpppp_t)
+	GO(__libc_init, vFpppp_t) \
+	GO(getaddrinfo, iFpppp_t)
 
 #endif // __wrappedlibcTYPES32_H_

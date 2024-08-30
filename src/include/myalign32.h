@@ -427,4 +427,17 @@ void unalignNGValue(void* value, my_GValue_t* v, int n);
 int of_convert32(int a);
 int of_unconvert32(int a);
 
+struct i386_addrinfo
+{
+  int ai_flags;
+  int ai_family;
+  int ai_socktype;
+  int ai_protocol;
+  uint32_t ai_addrlen;
+  ptr_t ai_addr;	    // struct sockaddr *
+  ptr_t ai_canonname;   // char *
+  ptr_t ai_next;        // struct addrinfo *
+} __attribute__((packed));
+
+
 #endif//__MY_ALIGN32__H_

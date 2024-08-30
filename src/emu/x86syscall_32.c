@@ -152,7 +152,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 256, __NR_epoll_wait, 4 },
     //{ 265, __NR_clock_gettime, 2 },
     //{ 266, __NR_clock_getres, 2 },
-    //{ 270, __NR_tgkill, 3 },
+    { 270, __NR_tgkill, 3 },
     //{ 271, __NR_utimes, 2 },
     //{ 291, __NR_inotify_init, 0},
     //{ 292, __NR_inotify_add_watch, 3},

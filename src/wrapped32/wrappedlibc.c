@@ -37,6 +37,8 @@
 #include <locale.h>
 #include <sys/resource.h>
 #include <sys/statvfs.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 #include "wrappedlibs.h"
 
@@ -2306,6 +2308,50 @@ EXPORT int my32_getopt_long_only(int argc, char* const argv[], const char* optst
     return ret;
 }
 #endif
+
+EXPORT int my32_getaddrinfo(x64emu_t* emu, void* node, void* service, struct i386_addrinfo* hints, ptr_t* res)
+{
+    struct addrinfo* hints_ = (struct addrinfo*)hints;  // only first part is used, wich is identical
+    struct addrinfo* p = {0};
+    int ret = getaddrinfo(node, service, hints_, &p);
+    if(!ret && p) {
+        // counting the number of "next"
+        struct addrinfo* p2 = p;
+        int idx = 0;
+        while(p2) {++idx; p2 = p2->ai_next;}
+        // doing the malloc!
+        void* r = box_malloc(idx*sizeof(struct i386_addrinfo)+sizeof(void*));
+        ptr_t p3 = to_ptrv(r);
+        *res = p3;
+        p2 = p;
+        for(int i=0; i<idx; ++i) {
+            struct i386_addrinfo* dest = (struct i386_addrinfo*)from_ptrv(p3);
+            p3+=sizeof(struct i386_addrinfo);
+            if(!i) {
+                *(void**)from_ptrv(p3) = p;
+                p3+=sizeof(void*);
+            }
+            dest->ai_flags = p2->ai_flags;
+            dest->ai_family = p2->ai_family;
+            dest->ai_socktype = p2->ai_socktype;
+            dest->ai_protocol = p2->ai_protocol;
+            dest->ai_addrlen = p2->ai_addrlen;
+            dest->ai_addr = to_ptrv(p2->ai_addr);
+            dest->ai_canonname = to_cstring(p2->ai_canonname);
+            p2 = p2->ai_next;
+            dest->ai_next = p2?p3:0;
+        }
+    } else
+        *res = 0;
+    return ret;
+}
+
+EXPORT void my32_freeaddrinfo(x64emu_t* emu, void* a) {
+    if(!a) return;
+    void* orig = *(void**)(a+sizeof(struct i386_addrinfo));
+    freeaddrinfo(orig);
+    box_free(a);
+}
 
 EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 {
