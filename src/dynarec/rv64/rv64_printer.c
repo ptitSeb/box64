@@ -7,1783 +7,5676 @@
 #include "rv64_printer.h"
 #include "debug.h"
 
+static const char gpr[32][9] = {
+    "zero",
+    "ra",
+    "sp",
+    "gp",
+    "tp",
+    "t0_mask",
+    "t1",
+    "t2_rip",
+    "s0_flags",
+    "s1",
+    "a0",
+    "a1",
+    "a2",
+    "a3",
+    "a4",
+    "a5",
+    "a6_rax",
+    "a7_rcx",
+    "s2_rdx",
+    "s3_rbx",
+    "s4_rsp",
+    "s5_rbp",
+    "s6_rsi",
+    "s7_rdi",
+    "s8_r8",
+    "s9_r9",
+    "s10_r10",
+    "s11_r11",
+    "t3_r12",
+    "t4_r13",
+    "t5_r14",
+    "t6_r15",
+};
+
+static const char fpr[32][5] = {
+    "ft0",
+    "ft1",
+    "ft2",
+    "ft3",
+    "ft4",
+    "ft5",
+    "ft6",
+    "ft7",
+    "fs0",
+    "fs1",
+    "fa0",
+    "fa1",
+    "fa2",
+    "fa3",
+    "fa4",
+    "fa5",
+    "fa6",
+    "fa7",
+    "fs2",
+    "fs3",
+    "fs4",
+    "fs5",
+    "fs6",
+    "fs7",
+    "fs8",
+    "fs9",
+    "fs10",
+    "fs11",
+    "ft8",
+    "ft9",
+    "ft10",
+    "ft11",
+};
+
+static const char vpr[32][4] = {
+    "v0",
+    "v1",
+    "v2",
+    "v3",
+    "v4",
+    "v5",
+    "v6",
+    "v7",
+    "v8",
+    "v9",
+    "v10",
+    "v11",
+    "v12",
+    "v13",
+    "v14",
+    "v15",
+    "v16",
+    "v17",
+    "v18",
+    "v19",
+    "v20",
+    "v21",
+    "v22",
+    "v23",
+    "v24",
+    "v25",
+    "v26",
+    "v27",
+    "v28",
+    "v29",
+    "v30",
+    "v31",
+};
+
+static const char vm[2][5] = {
+    "v0.t",
+    "none",
+};
+
+static const char aq[4][5] = {
+    "none",
+    "aq",
+};
+
+static const char rl[4][5] = {
+    "none",
+    "rl",
+};
+
+static const char rm[8][4] = {
+    "rne",
+    "rtz",
+    "rdn",
+    "rup",
+    "rmm",
+    "n/a",
+    "n/a",
+    "dyn",
+};
+
+static const char nf[8][4] = {
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+};
+
+#define BX(v, b)                 (((v) >> b) & 1)
+#define FX(v, high, low)         (((v) >> low) & ((1ULL << (high - low + 1)) - 1))
+#define SIGN_EXTEND(val, val_sz) (((int32_t)(val) << (32 - (val_sz))) >> (32 - (val_sz)))
+
 typedef struct {
     int8_t rd;
     int8_t rs1;
     int8_t rs2;
     int8_t rs3;
+    int8_t vd;
+    int8_t vs1;
+    int8_t vs2;
+    int8_t vs3;
+    int8_t aq;
+    int8_t rl;
+    int8_t vm;
+    int8_t rm;
+    int8_t nf;
+
     int32_t imm;
     int32_t imm2;
-    uint16_t csr;
-    char *name;
-    bool rvc;
-    bool f;
-} insn_t;
+    char* name;
+} rv64_print_t;
 
-static const char gpnames[32][9] = {
-    "zero", "ra",   "sp",   "gp",   "tp",   "t0_mask",   "t1",   "t2_rip",
-    "s0_flags",   "s1",   "a0",   "a1",   "a2",   "a3",   "a4",   "a5",
-    "a6_rax",   "a7_rcx",   "s2_rdx",   "s3_rbx",   "s4_rsp",   "s5_rbp",   "s6_rsi",   "s7_rdi",
-    "s8_r8",   "s9_r9",   "s10_r10",  "s11_r11",  "t3_r12",   "t4_r13",   "t5_r14",   "t6_r15",
-};
-
-static const char fpnames[32][5] = {
-    "ft0",  "ft1",  "ft2",  "ft3",  "ft4",  "ft5",  "ft6",  "ft7",
-    "fs0",  "fs1",  "fa0",  "fa1",  "fa2",  "fa3",  "fa4",  "fa5",
-    "fa6",  "fa7",  "fs2",  "fs3",  "fs4",  "fs5",  "fs6",  "fs7",
-    "fs8",  "fs9",  "fs10", "fs11", "ft8",  "ft9",  "ft10", "ft11",
-};
-
-#define QUADRANT(data) (((data) >>  0) & 0x3 )
-
-/**
- * normal types
-*/
-#define OPCODE(data)    (((data) >>  2) & 0x1f)
-#define RD(data)        (((data) >>  7) & 0x1f)
-#define RS1(data)       (((data) >> 15) & 0x1f)
-#define RS2(data)       (((data) >> 20) & 0x1f)
-#define RS3(data)       (((data) >> 27) & 0x1f)
-#define FUNCT2(data)    (((data) >> 25) & 0x3)
-#define FUNCT3(data)    (((data) >> 12) & 0x7)
-#define FUNCT7(data)    (((data) >> 25) & 0x7f)
-#define IMM116(data)    (((data) >> 26) & 0x3f)
-#define AQ(data)        (((data) >> 26) & 0x1)
-#define RL(data)        (((data) >> 25) & 0x1)
-#define THIMM2(data)    (((data) >> 20) & 0x3f)
-#define THFUNCT12(data) (((data) >> 20) & 0xfff)
-#define THFUNCT5(data)  (((data) >> 27) & 0x1f)
-
-static inline insn_t insn_utype_read(uint32_t data)
+const char* rv64_print(uint32_t opcode, uintptr_t addr)
 {
-    return (insn_t) {
-        .imm = (int32_t)data & 0xfffff000,
-        .rd = RD(data),
-    };
-}
-
-static inline insn_t insn_itype_read(uint32_t data)
-{
-    return (insn_t) {
-        .imm = (int32_t)data >> 20,
-        .rs1 = RS1(data),
-        .rd = RD(data),
-    };
-}
-
-static inline insn_t insn_jtype_read(uint32_t data)
-{
-    uint32_t imm20   = (data >> 31) & 0x1;
-    uint32_t imm101  = (data >> 21) & 0x3ff;
-    uint32_t imm11   = (data >> 20) & 0x1;
-    uint32_t imm1912 = (data >> 12) & 0xff;
-
-    int32_t imm = (imm20 << 20) | (imm1912 << 12) | (imm11 << 11) | (imm101 << 1);
-    imm = (imm << 11) >> 11;
-
-    return (insn_t) {
-        .imm = imm,
-        .rd = RD(data),
-    };
-}
-
-static inline insn_t insn_btype_read(uint32_t data)
-{
-    uint32_t imm12  = (data >> 31) & 0x1;
-    uint32_t imm105 = (data >> 25) & 0x3f;
-    uint32_t imm41  = (data >>  8) & 0xf;
-    uint32_t imm11  = (data >>  7) & 0x1;
-
-    int32_t imm = (imm12 << 12) | (imm11 << 11) |(imm105 << 5) | (imm41 << 1);
-    imm = (imm << 19) >> 19;
-
-    return (insn_t) {
-        .imm = imm,
-        .rs1 = RS1(data),
-        .rs2 = RS2(data),
-    };
-}
-
-static inline insn_t insn_rtype_read(uint32_t data)
-{
-    return (insn_t) {
-        .rs1 = RS1(data),
-        .rs2 = RS2(data),
-        .rd = RD(data),
-    };
-}
-
-static inline insn_t insn_stype_read(uint32_t data)
-{
-    uint32_t imm115 = (data >> 25) & 0x7f;
-    uint32_t imm40  = (data >>  7) & 0x1f;
-
-    int32_t imm = (imm115 << 5) | imm40;
-    imm = (imm << 20) >> 20;
-    return (insn_t) {
-        .imm = imm,
-        .rs1 = RS1(data),
-        .rs2 = RS2(data),
-    };
-}
-
-static inline insn_t insn_csrtype_read(uint32_t data)
-{
-    return (insn_t) {
-        .csr = data >> 20,
-        .rs1 = RS1(data),
-        .rd =  RD(data),
-    };
-}
-
-static inline insn_t insn_fprtype_read(uint32_t data)
-{
-    return (insn_t) {
-        .rs1 = RS1(data),
-        .rs2 = RS2(data),
-        .rs3 = RS3(data),
-        .rd =  RD(data),
-    };
-}
-
-/**
- * compressed types
-*/
-#define COPCODE(data)     (((data) >> 13) & 0x7 )
-#define CFUNCT1(data)     (((data) >> 12) & 0x1 )
-#define CFUNCT2LOW(data)  (((data) >>  5) & 0x3 )
-#define CFUNCT2HIGH(data) (((data) >> 10) & 0x3 )
-#define RP1(data)         (((data) >>  7) & 0x7 )
-#define RP2(data)         (((data) >>  2) & 0x7 )
-#define RC1(data)         (((data) >>  7) & 0x1f)
-#define RC2(data)         (((data) >>  2) & 0x1f)
-
-static inline insn_t insn_catype_read(uint16_t data)
-{
-    return (insn_t) {
-        .rd = RP1(data) + 8,
-        .rs2 = RP2(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_crtype_read(uint16_t data)
-{
-    return (insn_t) {
-        .rs1 = RC1(data),
-        .rs2 = RC2(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_citype_read(uint16_t data)
-{
-    uint32_t imm40 = (data >>  2) & 0x1f;
-    uint32_t imm5  = (data >> 12) & 0x1;
-    int32_t imm = (imm5 << 5) | imm40;
-    imm = (imm << 26) >> 26;
-
-    return (insn_t) {
-        .imm = imm,
-        .rd = RC1(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_citype_read2(uint16_t data)
-{
-    uint32_t imm86 = (data >>  2) & 0x7;
-    uint32_t imm43 = (data >>  5) & 0x3;
-    uint32_t imm5  = (data >> 12) & 0x1;
-
-    int32_t imm = (imm86 << 6) | (imm43 << 3) | (imm5 << 5);
-
-    return (insn_t) {
-        .imm = imm,
-        .rd = RC1(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_citype_read3(uint16_t data)
-{
-    uint32_t imm5  = (data >>  2) & 0x1;
-    uint32_t imm87 = (data >>  3) & 0x3;
-    uint32_t imm6  = (data >>  5) & 0x1;
-    uint32_t imm4  = (data >>  6) & 0x1;
-    uint32_t imm9  = (data >> 12) & 0x1;
-
-    int32_t imm = (imm5 << 5) | (imm87 << 7) | (imm6 << 6) | (imm4 << 4) | (imm9 << 9);
-    imm = (imm << 22) >> 22;
-
-    return (insn_t) {
-        .imm = imm,
-        .rd = RC1(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_citype_read4(uint16_t data)
-{
-    uint32_t imm5  = (data >> 12) & 0x1;
-    uint32_t imm42 = (data >>  4) & 0x7;
-    uint32_t imm76 = (data >>  2) & 0x3;
-
-    int32_t imm = (imm5 << 5) | (imm42 << 2) | (imm76 << 6);
-
-    return (insn_t) {
-        .imm = imm,
-        .rd = RC1(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_citype_read5(uint16_t data)
-{
-    uint32_t imm1612 = (data >>  2) & 0x1f;
-    uint32_t imm17   = (data >> 12) & 0x1;
-
-    int32_t imm = (imm1612 << 12) | (imm17 << 17);
-    imm = (imm << 14) >> 14;
-    return (insn_t) {
-        .imm = imm,
-        .rd = RC1(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_cbtype_read(uint16_t data)
-{
-    uint32_t imm5  = (data >>  2) & 0x1;
-    uint32_t imm21 = (data >>  3) & 0x3;
-    uint32_t imm76 = (data >>  5) & 0x3;
-    uint32_t imm43 = (data >> 10) & 0x3;
-    uint32_t imm8  = (data >> 12) & 0x1;
-
-    int32_t imm = (imm8 << 8) | (imm76 << 6) | (imm5 << 5) | (imm43 << 3) | (imm21 << 1);
-    imm = (imm << 23) >> 23;
-
-    return (insn_t) {
-        .imm = imm,
-        .rs1 = RP1(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_cbtype_read2(uint16_t data)
-{
-    uint32_t imm40 = (data >>  2) & 0x1f;
-    uint32_t imm5  = (data >> 12) & 0x1;
-    int32_t imm = (imm5 << 5) | imm40;
-    imm = (imm << 26) >> 26;
-
-    return (insn_t) {
-        .imm = imm,
-        .rd = RP1(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_cstype_read(uint16_t data)
-{
-    uint32_t imm76 = (data >>  5) & 0x3;
-    uint32_t imm53 = (data >> 10) & 0x7;
-
-    int32_t imm = ((imm76 << 6) | (imm53 << 3));
-
-    return (insn_t) {
-        .imm = imm,
-        .rs1 = RP1(data) + 8,
-        .rs2 = RP2(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_cstype_read2(uint16_t data)
-{
-    uint32_t imm6  = (data >>  5) & 0x1;
-    uint32_t imm2  = (data >>  6) & 0x1;
-    uint32_t imm53 = (data >> 10) & 0x7;
-
-    int32_t imm = ((imm6 << 6) | (imm2 << 2) | (imm53 << 3));
-
-    return (insn_t) {
-        .imm = imm,
-        .rs1 = RP1(data) + 8,
-        .rs2 = RP2(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_cjtype_read(uint16_t data)
-{
-    uint32_t imm5  = (data >>  2) & 0x1;
-    uint32_t imm31 = (data >>  3) & 0x7;
-    uint32_t imm7  = (data >>  6) & 0x1;
-    uint32_t imm6  = (data >>  7) & 0x1;
-    uint32_t imm10 = (data >>  8) & 0x1;
-    uint32_t imm98 = (data >>  9) & 0x3;
-    uint32_t imm4  = (data >> 11) & 0x1;
-    uint32_t imm11 = (data >> 12) & 0x1;
-
-    int32_t imm = ((imm5 << 5) | (imm31 << 1) | (imm7 << 7) | (imm6 << 6) |
-               (imm10 << 10) | (imm98 << 8) | (imm4 << 4) | (imm11 << 11));
-    imm = (imm << 20) >> 20;
-    return (insn_t) {
-        .imm = imm,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_cltype_read(uint16_t data)
-{
-    uint32_t imm6  = (data >>  5) & 0x1;
-    uint32_t imm2  = (data >>  6) & 0x1;
-    uint32_t imm53 = (data >> 10) & 0x7;
-
-    int32_t imm = (imm6 << 6) | (imm2 << 2) | (imm53 << 3);
-
-    return (insn_t) {
-        .imm = imm,
-        .rs1 = RP1(data) + 8,
-        .rd  = RP2(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_cltype_read2(uint16_t data)
-{
-    uint32_t imm76 = (data >>  5) & 0x3;
-    uint32_t imm53 = (data >> 10) & 0x7;
-
-    int32_t imm = (imm76 << 6) | (imm53 << 3);
-
-    return (insn_t) {
-        .imm = imm,
-        .rs1 = RP1(data) + 8,
-        .rd  = RP2(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_csstype_read(uint16_t data)
-{
-    uint32_t imm86 = (data >>  7) & 0x7;
-    uint32_t imm53 = (data >> 10) & 0x7;
-
-    int32_t imm = (imm86 << 6) | (imm53 << 3);
-
-    return (insn_t) {
-        .imm = imm,
-        .rs2 = RC2(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_csstype_read2(uint16_t data)
-{
-    uint32_t imm76 = (data >> 7) & 0x3;
-    uint32_t imm52 = (data >> 9) & 0xf;
-
-    int32_t imm = (imm76 << 6) | (imm52 << 2);
-
-    return (insn_t) {
-        .imm = imm,
-        .rs2 = RC2(data),
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_ciwtype_read(uint16_t data)
-{
-    uint32_t imm3  = (data >>  5) & 0x1;
-    uint32_t imm2  = (data >>  6) & 0x1;
-    uint32_t imm96 = (data >>  7) & 0xf;
-    uint32_t imm54 = (data >> 11) & 0x3;
-
-    int32_t imm = (imm3 << 3) | (imm2 << 2) | (imm96 << 6) | (imm54 << 4);
-
-    return (insn_t) {
-        .imm = imm,
-        .rd = RP2(data) + 8,
-        .rvc = true,
-    };
-}
-
-static inline insn_t insn_th1type_read(uint32_t data)
-{
-    return (insn_t) {
-        .rs1 = RS1(data),
-        .rs2 = RS2(data),
-        .rd = RD(data),
-        .imm = FUNCT2(data),
-    };
-}
-
-static inline insn_t insn_th2type_read(uint32_t data)
-{
-    return (insn_t) {
-        .rs1 = RS1(data),
-        .rd = RD(data),
-        .imm = IMM116(data),
-        .imm2 = THIMM2(data),
-    };
-}
-
-#define RN(r) insn.f ? fpnames[insn.r] : gpnames[insn.r]
-
-#define PRINT_none() snprintf(buff, sizeof(buff), "%s", insn.name); return buff
-#define PRINT_rd_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, RN(rd), RN(rs1)); return buff
-#define PRINT_rd_rs1_rs2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2)); return buff
-#define PRINT_rd_rs1_rs2_rs3() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s, %s", insn.name, RN(rd), RN(rs1), RN(rs2), RN(rs3)); return buff
-#define PRINT_rd_rs1_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s0x%x", insn.name, RN(rd), RN(rs1), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
-#define PRINT_rd_rs1_immx() snprintf(buff, sizeof(buff), "%s\t%s, %s, 0x%x", insn.name, RN(rd), RN(rs1), insn.imm); return buff
-#define PRINT_rd_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %s0x%x(%s)", insn.name, RN(rd), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm, gpnames[insn.rs1]); return buff
-#define PRINT_rs2_imm_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %s0x%x(%s)", insn.name, RN(rs2), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm, gpnames[insn.rs1]); return buff
-#define PRINT_rd_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s0x%x", insn.name, RN(rd), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
-#define PRINT_rd_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, pc%s0x%x # 0x%"PRIx64, insn.name, RN(rd), insn.imm>=0?"+":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
-#define PRINT_imm_rel() snprintf(buff, sizeof(buff), "%s\tpc%s0x%x # 0x%"PRIx64, insn.name, insn.imm>=0?"+":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
-#define PRINT_rd_immx() snprintf(buff, sizeof(buff), "%s\t%s, 0x%x", insn.name, RN(rd), insn.imm); return buff
-#define PRINT_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s0x%x", insn.name, RN(rs1), RN(rs2), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
-#define PRINT_rs1_rs2_imm_rel() snprintf(buff, sizeof(buff), "%s\t%s, %s, pc%s0x%x # 0x%"PRIx64, insn.name, RN(rs1), RN(rs2), insn.imm>=0?"+":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm+(uint64_t)addr); return buff
-#define PRINT_fd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], fpnames[insn.rs1]); return buff
-#define PRINT_xd_fs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, gpnames[insn.rd], fpnames[insn.rs1]); return buff
-#define PRINT_fd_xs1() snprintf(buff, sizeof(buff), "%s\t%s, %s", insn.name, fpnames[insn.rd], gpnames[insn.rs1]); return buff
-#define PRINT_rd_fs1_fs2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s", insn.name, gpnames[insn.rd], RN(rs1), RN(rs2)); return buff
-#define PRINT_rd_rs1_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs1]); return buff
-#define PRINT_rd_rs1_rs2_aqrl() snprintf(buff, sizeof(buff), "%s%s%s\t%s, %s, (%s)", insn.name, aq?".aq":"", rl?".rl":"", gpnames[insn.rd], gpnames[insn.rs2], gpnames[insn.rs1]); return buff
-#define PRINT_rd_rs1_rs2_imm() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s, %s0x%x", insn.name, RN(rd), RN(rs1), RN(rs2), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
-#define PRINT_rd_rs1_imm1_imm2() snprintf(buff, sizeof(buff), "%s\t%s, %s, %s0x%x, %s0x%x", insn.name, RN(rd), RN(rs1), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm, insn.imm2>=0?"":"-", insn.imm2>=0?insn.imm2:-insn.imm2); return buff
-#define PRINT_rd1_rd2_rs1_imm_4() snprintf(buff, sizeof(buff), "%s\t%s, %s, (%s), %s0x%x, 4", insn.name, RN(rd), RN(rs2), RN(rs1), insn.imm>=0?"":"-", insn.imm>=0?insn.imm:-insn.imm); return buff
-
-// TODO: display csr name
-#define PRINT_rd_csr_rs1() snprintf(buff, sizeof(buff), "%s\t%s, %d, %s", insn.name, RN(rd), insn.csr, RN(rs1)); return buff
-#define PRINT_rd_csr_uimm() snprintf(buff, sizeof(buff), "%s\t%s, %d, %d", insn.name, RN(rd), insn.csr, (uint32_t)insn.imm); return buff
-
-const char* rv64_print(uint32_t data, uintptr_t addr)
-{
-    static char buff[200] = {0};
-
-    insn_t insn = { 0 };
-    uint32_t quadrant = QUADRANT(data);
-    switch (quadrant) {
-    case 0x0: {
-        uint32_t copcode = COPCODE(data);
-
-        switch (copcode) {
-        case 0x0:
-            insn =  insn_ciwtype_read(data);
-            insn.rs1 = 2;
-            insn.name = "addi";
-            assert(insn.imm != 0);
-            PRINT_rd_rs1_imm();
-        case 0x1:
-            insn =  insn_cltype_read2(data);
-            insn.name = "fld";
-            insn.f = true;
-            PRINT_rd_imm_rs1();
-        case 0x2:
-            insn =  insn_cltype_read(data);
-            insn.name = "lw";
-            PRINT_rd_imm_rs1();
-        case 0x3:
-            insn =  insn_cltype_read2(data);
-            insn.name = "ld";
-            PRINT_rd_imm_rs1();
-        case 0x5:
-            insn =  insn_cstype_read(data);
-            insn.name = "fsd";
-            insn.f = true;
-            PRINT_rs2_imm_rs1();
-        case 0x6:
-            insn =  insn_cstype_read2(data);
-            insn.name = "sw";
-            PRINT_rd_imm_rs1();
-        case 0x7:
-            insn =  insn_cstype_read(data);
-            insn.name = "sd";
-            PRINT_rs2_imm_rs1();
-        }
-    }
-    case 0x1: {
-        uint32_t copcode = COPCODE(data);
-
-        switch (copcode) {
-        case 0x0:
-            insn =  insn_citype_read(data);
-            insn.rs1 = insn.rd;
-            insn.name = "addi";
-            PRINT_rd_rs1_imm();
-        case 0x1:
-            insn =  insn_citype_read(data);
-            assert(insn.rd != 0);
-            insn.rs1 = insn.rd;
-            insn.name = "addiw";
-            PRINT_rd_rs1_imm();
-        case 0x2:
-            insn =  insn_citype_read(data);
-            insn.rs1 = 0;
-            insn.name = "addi";
-            PRINT_rd_rs1_imm();
-        case 0x3: {
-            int32_t rd = RC1(data);
-            if (rd == 2) {
-                insn =  insn_citype_read3(data);
-                assert(insn.imm != 0);
-                insn.rs1 = insn.rd;
-                insn.name = "addi";
-                PRINT_rd_rs1_imm();
-            } else {
-                insn =  insn_citype_read5(data);
-                assert(insn.imm != 0);
-                insn.name = "lui";
-                PRINT_rd_immx();
-            }
-        }
-        case 0x4: {
-            uint32_t cfunct2high = CFUNCT2HIGH(data);
-
-            switch (cfunct2high) {
-            case 0x0:  
-            case 0x1:  
-            case 0x2: {
-                insn =  insn_cbtype_read2(data);
-                insn.rs1 = insn.rd;
-
-                if (cfunct2high == 0x0) {
-                    insn.name = "srli";
-                } else if (cfunct2high == 0x1) {
-                    insn.name = "srai";
-                } else {
-                    insn.name = "andi";
-                }
-                PRINT_rd_rs1_imm();
-            }
-            case 0x3: {
-                uint32_t cfunct1 = CFUNCT1(data);
-
-                switch (cfunct1) {
-                case 0x0: {
-                    uint32_t cfunct2low = CFUNCT2LOW(data);
-
-                    insn =  insn_catype_read(data);
-                    insn.rs1 = insn.rd;
-
-                    switch (cfunct2low) {
-                    case 0x0:
-                        insn.name = "sub";
-                        break;
-                    case 0x1:
-                        insn.name = "xor";
-                        break;
-                    case 0x2:
-                        insn.name = "or";
-                        break;
-                    case 0x3:
-                        insn.name = "and";
-                        break;
-                    }
-                    break;
-                }
-                case 0x1: {
-                    uint32_t cfunct2low = CFUNCT2LOW(data);
-
-                    insn =  insn_catype_read(data);
-                    insn.rs1 = insn.rd;
-
-                    switch (cfunct2low) {
-                    case 0x0:
-                        insn.name = "subw";
-                        break;
-                    case 0x1:
-                        insn.name = "addw";
-                        break;
-                    default:
-                        goto unknown;
-                    }
-                    break;
-                }
-                }
-                PRINT_rd_rs1_rs2();
-            }
-            }
-        }
-        case 0x5:
-            insn =  insn_cjtype_read(data);
-            insn.rd = 0;
-            insn.name = "jal";
-            PRINT_rd_imm();
-        case 0x6:
-        case 0x7:
-            insn =  insn_cbtype_read(data);
-            insn.rs2 = 0;
-            insn.name = copcode == 0x6 ? "beq" : "bne";
-            PRINT_rs1_rs2_imm();
-        }
-    }
-    case 0x2: {
-        uint32_t copcode = COPCODE(data);
-        switch (copcode) {
-        case 0x0:
-            insn =  insn_citype_read(data);
-            insn.rs1 = insn.rd;
-            insn.name = "slli";
-            PRINT_rd_rs1_imm();
-        case 0x1:
-            insn =  insn_citype_read2(data);
-            insn.rs1 = 2;
-            insn.f = true;
-            insn.name = "fld";
-            PRINT_rd_imm_rs1();
-        case 0x2:
-            insn =  insn_citype_read4(data);
-            assert(insn.rd != 0);
-            insn.rs1 = 2;
-            insn.name = "lw";
-            PRINT_rd_imm_rs1();
-        case 0x3:
-            insn =  insn_citype_read2(data);
-            assert(insn.rd != 0);
-            insn.rs1 = 2;
-            insn.name = "ld";
-            PRINT_rd_imm_rs1();
-        case 0x4: {
-            uint32_t cfunct1 = CFUNCT1(data);
-
-            switch (cfunct1) {
-            case 0x0: {
-                insn =  insn_crtype_read(data);
-
-                if (insn.rs2 == 0) {
-                    assert(insn.rs1 != 0);
-                    insn.rd = 0;
-                    insn.name = "jalr";
-                    PRINT_rd_imm_rs1();
-                } else {
-                    insn.rd = insn.rs1;
-                    insn.rs1 = 0;
-                    insn.name = "add";
-                    PRINT_rd_rs1_rs2();
-                }
-            }
-            case 0x1: {
-                insn =  insn_crtype_read(data);
-                if (insn.rs1 == 0 && insn.rs2 == 0) {
-                    insn.name = "ebreak";
-                    PRINT_none();
-                } else if (insn.rs2 == 0) {
-                    insn.rd = 1;
-                    insn.name = "jalr";
-                    PRINT_rd_imm_rs1();
-                } else {
-                    insn.rd = insn.rs1;
-                    insn.name = "add";
-                    PRINT_rd_rs1_rs2();
-                }
-            }
-            }
-        }
-        case 0x5:
-            insn =  insn_csstype_read(data);
-            insn.rs1 = 2;
-            insn.f = true;
-            insn.name = "fsd";
-            PRINT_rs2_imm_rs1();
-        case 0x6:
-            insn =  insn_csstype_read2(data);
-            insn.rs1 = 2;
-            insn.name = "sw";
-            PRINT_rs2_imm_rs1();
-        case 0x7:
-            insn =  insn_csstype_read(data);
-            insn.rs1 = 2;
-            insn.name = "sd";
-            PRINT_rs2_imm_rs1();
-        }
-    }
-    case 0x3: {
-        uint32_t opcode = OPCODE(data);
-        switch (opcode) {
-        case 0x0: {
-            uint32_t funct3 = FUNCT3(data);
-
-            insn =  insn_itype_read(data);
-            switch (funct3) {
-            case 0x0:
-                insn.name = "lb";
-                break;
-            case 0x1:
-                insn.name = "lh";
-                break;
-            case 0x2:
-                insn.name = "lw";
-                break;
-            case 0x3:
-                insn.name = "ld";
-                break;
-            case 0x4:
-                insn.name = "lbu";
-                break;
-            case 0x5:
-                insn.name = "lhu";
-                break;
-            case 0x6:
-                insn.name = "lwu";
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rd_imm_rs1();
-        }
-        case 0x1: {
-            uint32_t funct3 = FUNCT3(data);
-
-            insn =  insn_itype_read(data);
-            switch (funct3) {
-            case 0x2:
-                insn.name = "flw";
-                insn.f = true;
-                break;
-            case 0x3:
-                insn.name = "fld";
-                insn.f = true;
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rd_imm_rs1();
-        }
-        case 0x2: { /* thead custom-0 */
-            uint32_t funct3 = FUNCT3(data);
-
-            switch (funct3) {
-            case 0x1: {
-                if (RS3(data) == 0x0) {
-                    insn = insn_th1type_read(data);
-                    insn.name = "th.addsl";
-                    PRINT_rd_rs1_rs2_imm();
-                } else if (IMM116(data) == 0x4) {
-                    insn = insn_itype_read(data);
-                    insn.name = "th.srri";
-                    insn.imm &= 0b111111;
-                    PRINT_rd_rs1_imm();
-                } else if (IMM116(data) == 0x22) {
-                    insn = insn_itype_read(data);
-                    insn.name = "th.tst";
-                    insn.imm &= 0b111111;
-                    PRINT_rd_rs1_imm();
-                } else if (FUNCT7(data) == 0xa) {
-                    insn = insn_itype_read(data);
-                    insn.name = "th.srriw";
-                    insn.imm &= 0b11111;
-                    PRINT_rd_rs1_imm();
-                } else if (THFUNCT12(data) == 0x840) {
-                    insn = insn_rtype_read(data);
-                    insn.name = "th.ff0";
-                    PRINT_rd_rs1();
-                } else if (THFUNCT12(data) == 0x860) {
-                    insn = insn_rtype_read(data);
-                    insn.name = "th.ff1";
-                    PRINT_rd_rs1();
-                } else if (THFUNCT12(data) == 0x820) {
-                    insn = insn_rtype_read(data);
-                    insn.name = "th.rev";
-                    PRINT_rd_rs1();
-                } else if (THFUNCT12(data) == 0x900) {
-                    insn = insn_rtype_read(data);
-                    insn.name = "th.revw";
-                    PRINT_rd_rs1();
-                } else if (THFUNCT12(data) == 0x800) {
-                    insn = insn_rtype_read(data);
-                    insn.name = "th.tstnbz";
-                    PRINT_rd_rs1();
-                }
-                goto unknown;
-            }
-            case 0x2: {
-                insn = insn_th2type_read(data);
-                insn.name = "th.ext";
-                PRINT_rd_rs1_imm1_imm2();
-            }
-            case 0x3: {
-                insn = insn_th2type_read(data);
-                insn.name = "th.extu";
-                PRINT_rd_rs1_imm1_imm2();
-            }
-            case 0x4: {
-                switch (THFUNCT5(data)) {
-                case 0x1f: {
-                    insn = insn_th1type_read(data);
-                    insn.name = "th.ldd";
-                    PRINT_rd1_rd2_rs1_imm_4();
-                }
-                default:
-                    goto unknown;
-                }
-            }
-            case 0x5: {
-                switch (THFUNCT5(data)) {
-                case 0x1f: {
-                    insn = insn_th1type_read(data);
-                    insn.name = "th.sdd";
-                    PRINT_rd1_rd2_rs1_imm_4();
-                }
-                default:
-                    goto unknown;
-                }
-            }
-            default:
-                goto unknown;
-            }
-            break;
-        }
-        case 0x3: {
-            uint32_t funct3 = FUNCT3(data);
-
-            switch (funct3) {
-            case 0x0: {
-                insn.name = "fence";
-                // TODO: handle pred succ
-                PRINT_none();
-            }
-            case 0x1: {
-                insn.name = "fence.i";
-                PRINT_none();
-            }
-            default:
-                goto unknown;
-            }
-        }
-        case 0x4: {
-            int hex = 0;
-            int mv_alias = 0;
-            int nop_alias = 0;
-            int not_alias = 0;
-            uint32_t funct3 = FUNCT3(data);
-
-            insn =  insn_itype_read(data);
-            switch (funct3) {
-            case 0x0:
-                insn.name = "addi";
-                if (insn.imm == 0) {
-                    if (insn.rd == 0 && insn.rs1 == 0) {
-                        nop_alias = 1;
-                        insn.name = "nop";
-                    } else {
-                        mv_alias = 1;
-                        insn.name = "mv";
-                    }
-                }
-                break;
-            case 0x1: {
-                uint32_t imm116 = IMM116(data);
-                switch (imm116) {
-                case 0x0:
-                    insn.name = "slli";
-                    break;
-                case 0x18: {
-                    uint32_t rs2 = RS2(data);
-                    switch (rs2) {
-                    case 0x0:
-                        insn.name = "clz";
-                        break;
-                    case 0x1:
-                        insn.name = "ctz";
-                        break;
-                    case 0x2:
-                        insn.name = "cpop";
-                        break;
-                    case 0x4:
-                        insn.name = "sext.b";
-                        break;
-                    case 0x5:
-                        insn.name = "sext.h";
-                        break;
-                    default:
-                        goto unknown;
-                    }
-                    PRINT_rd_rs1();
-                }
-                default:
-                    goto unknown;
-                }
-                break;
-            }
-            case 0x2:
-                insn.name = "slti";
-                break;
-            case 0x3:
-                insn.name = "sltiu";
-                break;
-            case 0x4:
-                insn.name = "xori";
-                hex = 1;
-                if (insn.imm == -1) {
-                    not_alias = 1;
-                    insn.name = "not";
-                }
-                break;
-            case 0x5: {
-                uint32_t imm116 = IMM116(data);
-
-                if (imm116 == 0x0) {
-                    insn.name = "srli";
-                } else if (imm116 == 0x10) {
-                    insn.name = "srai";
-                    insn.imm &= 0b111111;
-                } else if (imm116 == 0x12) {
-                    insn.name = "bexti";
-                    insn.imm &= 0b111111;
-                } else if (imm116 == 0x18) {
-                    insn.name = "rori";
-                    insn.imm &= 0b111111;
-                } else if (insn.imm==0b011010111000) {
-                    insn.name = "rev8";
-                    PRINT_rd_rs1();
-                }
-                break;
-            }
-            case 0x6:
-                insn.name = "ori";
-                hex = 1;
-                break;
-            case 0x7:
-                insn.name = "andi";
-                hex = 1;
-                break;
-            }
-            if (not_alias) {
-                PRINT_rd_rs1();
-            } else if (nop_alias) {
-                PRINT_none();
-            } else if (mv_alias) {
-                PRINT_rd_rs1();
-            } else if(hex) {
-                PRINT_rd_rs1_immx();
-            } else {
-                PRINT_rd_rs1_imm();
-            }
-        }
-        case 0x5: {
-            insn =  insn_utype_read(data);
-            insn.name = "auipc";
-            PRINT_rd_imm_rel();
-        }
-        case 0x6: {
-            uint32_t funct3 = FUNCT3(data);
-            uint32_t funct7 = FUNCT7(data);
-
-            insn =  insn_itype_read(data);
-
-            switch (funct3) {
-            case 0x0:
-                insn.name = "addiw";
-                break;
-            case 0x1:
-                switch (funct7) {
-                case 0x0:
-                    insn.name = "slliw";
-                    break;
-                case 0x4:
-                    insn.name = "slli.uw";
-                    break;
-                case 0x30: {
-                    uint32_t rs2 = RS2(data);
-                    switch (rs2) {
-                    case 0x0:
-                        insn.name = "clzw";
-                        break;
-                    case 0x1:
-                        insn.name = "ctzw";
-                        break;
-                    case 0x2:
-                        insn.name = "cpopw";
-                        break;
-                    default:
-                        goto unknown;
-                    }
-                    PRINT_rd_rs1();
-                }
-                default:
-                    goto unknown;
-                }
-                break;
-            case 0x5: {
-                switch (funct7) {
-                case 0x0:
-                    insn.name = "srliw";
-                    break;
-                case 0x20:
-                    insn.name = "sraiw";
-                    insn.imm &= 0b11111;
-                    break;
-                case 0x30:
-                    insn.name = "roriw";
-                    insn.imm &= 0b11111;
-                    break;
-                default:
-                    goto unknown;
-                }
-                break;
-            }
-            default:
-                goto unknown;
-            }
-            PRINT_rd_rs1_imm();
-        }
-        case 0x8: {
-            uint32_t funct3 = FUNCT3(data);
-
-            insn =  insn_stype_read(data);
-            switch (funct3) {
-            case 0x0:
-                insn.name = "sb";
-                break;
-            case 0x1:
-                insn.name = "sh";
-                break;
-            case 0x2:
-                insn.name = "sw";
-                break;
-            case 0x3:
-                insn.name = "sd";
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rs2_imm_rs1();
-        }
-        case 0x9: {
-            uint32_t funct3 = FUNCT3(data);
-
-            insn =  insn_stype_read(data);
-            switch (funct3) {
-            case 0x2:
-                insn.name = "fsw";
-                insn.f = true;
-                break;
-            case 0x3:
-                insn.name = "fsd";
-                insn.f = true;
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rs2_imm_rs1();
-        }
-        case 0xb: {
-            uint32_t funct3 = FUNCT3(data);
-            uint32_t rs1 = RS3(data);
-            bool aq = AQ(data), rl = RL(data);
-            insn =  insn_rtype_read(data);
-            switch(funct3) {
-            case 0x2:
-                switch (rs1) {
-                case 0x2:
-                    insn.name = "lr.w";
-                    PRINT_rd_rs1_aqrl();
-                case 0x3:
-                    insn.name = "sc.w";
-                    PRINT_rd_rs1_rs2_aqrl();
-                }
-            case 0x3:
-                switch (rs1) {
-                case 0x2:
-                    insn.name = "lr.d";
-                    PRINT_rd_rs1_aqrl();
-                case 0x3:
-                    insn.name = "sc.d";
-                    PRINT_rd_rs1_rs2_aqrl();
-                }
-            default:
-                goto unknown;
-            }
-        }
-        case 0xc: {
-            insn =  insn_rtype_read(data);
-
-            uint32_t funct3 = FUNCT3(data);
-            uint32_t funct7 = FUNCT7(data);
-
-            switch (funct7) {
-            case 0x0: {
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "add";
-                    break;
-                case 0x1:
-                    insn.name = "sll";
-                    break;
-                case 0x2:
-                    insn.name = "slt";
-                    break;
-                case 0x3:
-                    insn.name = "sltu";
-                    break;
-                case 0x4:
-                    insn.name = "xor";
-                    break;
-                case 0x5:
-                    insn.name = "srl";
-                    break;
-                case 0x6:
-                    insn.name = "or";
-                    break;
-                case 0x7:
-                    insn.name = "and";
-                    break;
-                }
-            }
-            break;
-            case 0x1: {
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "mul";
-                    break;
-                case 0x1:
-                    insn.name = "mulh";
-                    break;
-                case 0x2:
-                    insn.name = "mulhsu";
-                    break;
-                case 0x3:
-                    insn.name = "mulhu";
-                    break;
-                case 0x4:
-                    insn.name = "div";
-                    break;
-                case 0x5:
-                    insn.name = "divu";
-                    break;
-                case 0x6:
-                    insn.name = "rem";
-                    break;
-                case 0x7:
-                    insn.name = "remu";
-                    break;
-                }
-            }
-            break;
-            case 0x5: {
-                switch (funct3) {
-                case 0x4:
-                    insn.name = "min";
-                    break;
-                case 0x5:
-                    insn.name = "minu";
-                    break;
-                case 0x6:
-                    insn.name = "max";
-                    break;
-                case 0x7:
-                    insn.name = "maxu";
-                    break;
-                default:
-                    goto unknown;
-                }
-            }
-            break;
-            case 0x10: {
-                switch (funct3) {
-                case 0x2:
-                    insn.name = "sh1add";
-                    break;
-                case 0x4:
-                    insn.name = "sh2add";
-                    break;
-                case 0x6:
-                    insn.name = "sh3add";
-                    break;
-                default:
-                    goto unknown;
-                }
-            }
-            break;
-            case 0x20: {
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "sub";
-                    break;
-                case 0x4:
-                    insn.name = "xnor";
-                    break;
-                case 0x5:
-                    insn.name = "sra";
-                    break;
-                case 0x6:
-                    insn.name = "orn";
-                    break;
-                case 0x7:
-                    insn.name = "andn";
-                    break;
-                default:
-                    goto unknown;
-                }
-                break;
-            }
-            case 0x24: {
-                switch (funct3) {
-                case 0x5:
-                    insn.name = "bext";
-                    break;
-                default:
-                    goto unknown;
-                }
-                break;
-            }
-            case 0x30: {
-                switch (funct3) {
-                case 0x1:
-                    insn.name = "rol";
-                    break;
-                case 0x5:
-                    insn.name = "ror";
-                    break;
-                default:
-                    goto unknown;
-                }
-            }
-            default:
-                goto unknown;
-            }
-            PRINT_rd_rs1_rs2();
-        }
-        case 0xd: {
-            insn =  insn_utype_read(data);
-            insn.name = "lui";
-            PRINT_rd_immx();
-        }
-        case 0xe: {
-            insn =  insn_rtype_read(data);
-
-            uint32_t funct3 = FUNCT3(data);
-            uint32_t funct7 = FUNCT7(data);
-
-            switch (funct7) {
-            case 0x0: {
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "addw";
-                    break;
-                case 0x1:
-                    insn.name = "sllw";
-                    break;
-                case 0x5:
-                    insn.name = "srlw";
-                    break;
-                default:
-                    goto unknown;
-                }
-            }
-            break;
-            case 0x1: {
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "mulw";
-                    break;
-                case 0x4:
-                    insn.name = "divw";
-                    break;
-                case 0x5:
-                    insn.name = "divuw";
-                    break;
-                case 0x6:
-                    insn.name = "remw";
-                    break;
-                case 0x7:
-                    insn.name = "remuw";
-                    break;
-                default:
-                    goto unknown;
-                }
-            }
-            break;
-            case 0x4: {
-                switch (funct3) {
-                    case 0x0:
-                        insn.name = "add.uw";
-                        break;
-                    case 0x4:
-                        assert(insn.rs2 == 0);
-                        insn.name = "zext.h";
-                        PRINT_rd_rs1();
-                    default:
-                        goto unknown;
-                }
-            }
-            break;
-            case 0x10: {
-                switch (funct3) {
-                    case 0x2:
-                        insn.name = "sh1add.uw";
-                        break;
-                    case 0x4:
-                        insn.name = "sh2add.uw";
-                        break;
-                    case 0x6:
-                        insn.name = "sh3add.uw";
-                        break;
-                    default:
-                        goto unknown;
-                }
-            }
-            break;
-            case 0x20: {
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "subw";
-                    break;
-                case 0x5:
-                    insn.name = "sraw";
-                    break;
-                default:
-                    goto unknown;
-                }
-            }
-            break;
-            case 0x30: {
-                switch (funct3) {
-                case 0x1:
-                    insn.name = "rolw";
-                    break;
-                case 0x5:
-                    insn.name = "rorw";
-                    break;
-                default:
-                    goto unknown;
-                }
-            }
-            default:
-                goto unknown;
-            }
-            PRINT_rd_rs1_rs2();
-        }
-        case 0x10: {
-            uint32_t funct2 = FUNCT2(data);
-
-            insn =  insn_fprtype_read(data);
-            switch (funct2) {
-            case 0x0:
-                insn.name = "fmadd.s";
-                insn.f = true;
-                break;
-            case 0x1:
-                insn.name = "fmadd.d";
-                insn.f = true;
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rd_rs1_rs2();
-        }
-        case 0x11: {
-            uint32_t funct2 = FUNCT2(data);
-
-            insn =  insn_fprtype_read(data);
-            switch (funct2) {
-            case 0x0:
-                insn.name = "fmsub.s";
-                insn.f = true;
-                break;
-            case 0x1:
-                insn.name = "fmsub.d";
-                insn.f = true;
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rd_rs1_rs2();
-        }
-        case 0x12: {
-            uint32_t funct2 = FUNCT2(data);
-
-            insn =  insn_fprtype_read(data);
-            switch (funct2) {
-            case 0x0:
-                insn.name = "fnmsub.s";
-                insn.f = true;
-                break;
-            case 0x1:
-                insn.name = "fnmsub.d";
-                insn.f = true;
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rd_rs1_rs2_rs3();
-        }
-        case 0x13: {
-            uint32_t funct2 = FUNCT2(data);
-
-            insn =  insn_fprtype_read(data);
-            switch (funct2) {
-            case 0x0:
-                insn.name = "fnmadd.s";
-                insn.f = true;
-                break;
-            case 0x1:
-                insn.name = "fnmadd.d";
-                insn.f = true;
-                break;
-            default:
-                goto unknown;
-            }
-            PRINT_rd_rs1_rs2_rs3();
-        }
-        case 0x14: {
-            uint32_t funct7 = FUNCT7(data);
-
-            insn =  insn_rtype_read(data);
-            insn.f = true;
-            switch (funct7) {
-            case 0x0: 
-                insn.name = "fadd.s";
-                PRINT_rd_rs1_rs2();
-            case 0x1: 
-                insn.name = "fadd.d";
-                PRINT_rd_rs1_rs2();
-            case 0x4: 
-                insn.name = "fsub.s";
-                PRINT_rd_rs1_rs2();
-            case 0x5: 
-                insn.name = "fsub.d";
-                PRINT_rd_rs1_rs2();
-            case 0x8: 
-                insn.name = "fmul.s";
-                PRINT_rd_rs1_rs2();
-            case 0x9: 
-                insn.name = "fmul.d";
-                PRINT_rd_rs1_rs2();
-            case 0xc: 
-                insn.name = "fdiv.s";
-                PRINT_rd_rs1_rs2();
-            case 0xd: 
-                insn.name = "fdiv.d";
-                PRINT_rd_rs1_rs2();
-            case 0x10: {
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fsgnj.s";
-                    break;
-                case 0x1:
-                    insn.name = "fsgnjn.s";
-                    break;
-                case 0x2:
-                    insn.name = "fsgnjx.s";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_rd_rs1_rs2();
-            }
-            case 0x11: {
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fsgnj.d";
-                    break;
-                case 0x1:
-                    insn.name = "fsgnjn.d";
-                    break;
-                case 0x2:
-                    insn.name = "fsgnjx.d";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_rd_rs1_rs2();
-            }
-            case 0x14: {
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fmin.s";
-                    break;
-                case 0x1:
-                    insn.name = "fmax.s";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_rd_rs1_rs2();
-            }
-            case 0x15: {
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fmin.d";
-                    break;
-                case 0x1:
-                    insn.name = "fmax.d";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_rd_rs1_rs2();
-            }
-            case 0x20:
-                assert(RS2(data) == 1);
-                insn.name = "fcvt.s.d";
-                PRINT_fd_fs1();
-            case 0x21:
-                assert(RS2(data) == 0);
-                insn.name = "fcvt.d.s";
-                PRINT_fd_fs1();
-            case 0x2c:
-                assert(insn.rs2 == 0);
-                insn.name = "fsqrt.s";
-                PRINT_fd_fs1();
-            case 0x2d:
-                assert(insn.rs2 == 0);
-                insn.name = "fsqrt.d";
-                PRINT_fd_fs1();
-            case 0x50: {
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fle.s";
-                    break;
-                case 0x1:
-                    insn.name = "flt.s";
-                    break;
-                case 0x2:
-                    insn.name = "feq.s";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_rd_fs1_fs2();
-            }
-            case 0x51: {
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fle.d";
-                    break;
-                case 0x1:
-                    insn.name = "flt.d";
-                    break;
-                case 0x2:
-                    insn.name = "feq.d";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_rd_fs1_fs2();
-            }
-            case 0x60: {
-                uint32_t rs2 = RS2(data);
-
-                switch (rs2) {
-                case 0x0:
-                    insn.name = "fcvt.w.s";
-                    break;
-                case 0x1:
-                    insn.name = "fcvt.wu.s";
-                    break;
-                case 0x2:
-                    insn.name = "fcvt.l.s";
-                    break;
-                case 0x3:
-                    insn.name = "fcvt.lu.s";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_xd_fs1();
-            }
-            case 0x61: {
-                uint32_t rs2 = RS2(data);
-
-                switch (rs2) {
-                case 0x0:
-                    insn.name = "fcvt.w.d";
-                    break;
-                case 0x1:
-                    insn.name = "fcvt.wu.d";
-                    break;
-                case 0x2:
-                    insn.name = "fcvt.l.d";
-                    break;
-                case 0x3:
-                    insn.name = "fcvt.lu.d";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_xd_fs1();
-            }
-            case 0x68: {
-                uint32_t rs2 = RS2(data);
-
-                switch (rs2) {
-                case 0x0:
-                    insn.name = "fcvt.s.w";
-                    break;
-                case 0x1:
-                    insn.name = "fcvt.s.wu";
-                    break;
-                case 0x2:
-                    insn.name = "fcvt.s.l";
-                    break;
-                case 0x3:
-                    insn.name = "fcvt.s.lu";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_fd_xs1();
-            }
-            case 0x69: {
-                uint32_t rs2 = RS2(data);
-
-                switch (rs2) {
-                case 0x0:
-                    insn.name = "fcvt.d.w";
-                    break;
-                case 0x1:
-                    insn.name = "fcvt.d.wu";
-                    break;
-                case 0x2:
-                    insn.name = "fcvt.d.l";
-                    break;
-                case 0x3:
-                    insn.name = "fcvt.d.lu";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_fd_xs1();
-            }
-            case 0x70: {
-                assert(RS2(data) == 0);
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fmv.x.w";
-                    break;
-                case 0x1:
-                    insn.name = "fclass.s";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_xd_fs1();
-            }
-            case 0x71: {
-                assert(RS2(data) == 0);
-                uint32_t funct3 = FUNCT3(data);
-
-                switch (funct3) {
-                case 0x0:
-                    insn.name = "fmv.x.d";
-                    break;
-                case 0x1:
-                    insn.name = "fclass.d";
-                    break;
-                default:
-                    goto unknown;
-                }
-                PRINT_xd_fs1();
-            }
-            case 0x78:
-                assert(RS2(data) == 0 && FUNCT3(data) == 0);
-                insn.name = "fmv.w.x";
-                PRINT_fd_xs1();
-            case 0x79:
-                assert(RS2(data) == 0 && FUNCT3(data) == 0);
-                insn.name = "fmv.d.x";
-                PRINT_fd_xs1();
-            }
-            default:
-                goto unknown;
-        }
-        case 0x18: {
-            insn =  insn_btype_read(data);
-
-            uint32_t funct3 = FUNCT3(data);
-            switch (funct3) {
-            case 0x0:
-                insn.name = "beq";
-                break;
-            case 0x1:
-                insn.name = "bne";
-                break;
-            case 0x4:
-                insn.name = "blt";
-                break;
-            case 0x5:
-                insn.name = "bge";
-                break;
-            case 0x6:
-                insn.name = "bltu";
-                break;
-            case 0x7:
-                insn.name = "bgeu";
-                break;
-            default:
-                goto unknown;
-            }
-
-            PRINT_rs1_rs2_imm_rel();
-        }
-        case 0x19: {
-            insn =  insn_itype_read(data);
-            insn.name = "jalr";
-            PRINT_rd_imm_rs1();
-        }
-        case 0x1b: {
-            insn =  insn_jtype_read(data);
-            if (insn.rd != 0) {
-                insn.name = "jal";
-                PRINT_rd_imm_rel();
-            } else {
-                insn.name = "j";
-                PRINT_imm_rel();
-            }
-        }
-        case 0x1c: {
-            if (data == 0x73) {
-                insn.name = "ecall";
-                PRINT_none();
-            }
-
-            uint32_t funct3 = FUNCT3(data);
-            insn =  insn_csrtype_read(data);
-            switch(funct3) {
-            case 0x1:
-                insn.name = "csrrw";
-                PRINT_rd_csr_rs1();
-            case 0x2:
-                insn.name = "csrrs";
-                PRINT_rd_csr_rs1();
-            case 0x3:
-                insn.name = "csrrc";
-                PRINT_rd_csr_rs1();
-            case 0x5:
-                insn.name = "csrrwi";
-                PRINT_rd_csr_uimm();
-            case 0x6:
-                insn.name = "csrrsi";
-                PRINT_rd_csr_uimm();
-            case 0x7:
-                insn.name = "csrrci";
-                PRINT_rd_csr_uimm();
-            }
-        }
-        }
-    }
+    static char buff[200];
+    rv64_print_t a;
+
+    /****************
+     *  Generated by https://github.com/ksco/riscv-opcodes/tree/box64_printer
+     *  Command: python parse.py -box64 rv_a rv_d rv_f rv_i rv_m rv_v rv_zba rv_zbb rv_zbc rv_zicsr rv_zbs rv64_a rv64_d rv64_f rv64_i rv64_m rv64_zba rv64_zbb rv64_zbs > code.c
+     *  Please do NOT edit the following code manually.
+     */
+
+    //    rv_i, ADD
+    if ((opcode & 0xfe00707f) == 0x33) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
     }
 
-unknown:
-    snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(data));
+    // rv64_zba, ADD.UW
+    if ((opcode & 0xfe00707f) == 0x800003b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADD.UW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, ADDI
+    if ((opcode & 0x707f) == 0x13) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "ADDI", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv64_i, ADDIW
+    if ((opcode & 0x707f) == 0x1b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "ADDIW", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv64_i, ADDW
+    if ((opcode & 0xfe00707f) == 0x3b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ADDW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_a, AMOADD.D
+    if ((opcode & 0xf800707f) == 0x302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOADD.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOADD.W
+    if ((opcode & 0xf800707f) == 0x202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOADD.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOAND.D
+    if ((opcode & 0xf800707f) == 0x6000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOAND.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOAND.W
+    if ((opcode & 0xf800707f) == 0x6000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOAND.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOMAX.D
+    if ((opcode & 0xf800707f) == 0xa000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMAX.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOMAX.W
+    if ((opcode & 0xf800707f) == 0xa000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMAX.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOMAXU.D
+    if ((opcode & 0xf800707f) == 0xe000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMAXU.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOMAXU.W
+    if ((opcode & 0xf800707f) == 0xe000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMAXU.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOMIN.D
+    if ((opcode & 0xf800707f) == 0x8000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMIN.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOMIN.W
+    if ((opcode & 0xf800707f) == 0x8000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMIN.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOMINU.D
+    if ((opcode & 0xf800707f) == 0xc000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMINU.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOMINU.W
+    if ((opcode & 0xf800707f) == 0xc000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOMINU.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOOR.D
+    if ((opcode & 0xf800707f) == 0x4000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOOR.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOOR.W
+    if ((opcode & 0xf800707f) == 0x4000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOOR.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOSWAP.D
+    if ((opcode & 0xf800707f) == 0x800302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOSWAP.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOSWAP.W
+    if ((opcode & 0xf800707f) == 0x800202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOSWAP.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_a, AMOXOR.D
+    if ((opcode & 0xf800707f) == 0x2000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOXOR.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, AMOXOR.W
+    if ((opcode & 0xf800707f) == 0x2000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "AMOXOR.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_i, AND
+    if ((opcode & 0xfe00707f) == 0x7033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "AND", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, ANDI
+    if ((opcode & 0x707f) == 0x7013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "ANDI", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv_zbb, ANDN
+    if ((opcode & 0xfe00707f) == 0x40007033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ANDN", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, AUIPC
+    if ((opcode & 0x7f) == 0x17) {
+        a.rd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 31, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "AUIPC", gpr[a.rd], SIGN_EXTEND(a.imm, 20), SIGN_EXTEND(a.imm, 20));
+        return buff;
+    }
+
+    //  rv_zbs, BCLR
+    if ((opcode & 0xfe00707f) == 0x48001033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "BCLR", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zbs, BCLRI
+    if ((opcode & 0xfc00707f) == 0x48001013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BCLRI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_i, BEQ
+    if ((opcode & 0x707f) == 0x63) {
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm |= BX(opcode, 7) << 11;
+        a.imm |= FX(opcode, 30, 25) << 5;
+        a.imm |= FX(opcode, 11, 8) << 1;
+        a.imm = SIGN_EXTEND(a.imm, 13);
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BEQ", gpr[a.rs1], gpr[a.rs2], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv_zbs, BEXT
+    if ((opcode & 0xfe00707f) == 0x48005033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "BEXT", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zbs, BEXTI
+    if ((opcode & 0xfc00707f) == 0x48005013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BEXTI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_i, BGE
+    if ((opcode & 0x707f) == 0x5063) {
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm |= BX(opcode, 7) << 11;
+        a.imm |= FX(opcode, 30, 25) << 5;
+        a.imm |= FX(opcode, 11, 8) << 1;
+        a.imm = SIGN_EXTEND(a.imm, 13);
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BGE", gpr[a.rs1], gpr[a.rs2], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_i, BGEU
+    if ((opcode & 0x707f) == 0x7063) {
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm |= BX(opcode, 7) << 11;
+        a.imm |= FX(opcode, 30, 25) << 5;
+        a.imm |= FX(opcode, 11, 8) << 1;
+        a.imm = SIGN_EXTEND(a.imm, 13);
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BGEU", gpr[a.rs1], gpr[a.rs2], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv_zbs, BINV
+    if ((opcode & 0xfe00707f) == 0x68001033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "BINV", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zbs, BINVI
+    if ((opcode & 0xfc00707f) == 0x68001013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BINVI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_i, BLT
+    if ((opcode & 0x707f) == 0x4063) {
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm |= BX(opcode, 7) << 11;
+        a.imm |= FX(opcode, 30, 25) << 5;
+        a.imm |= FX(opcode, 11, 8) << 1;
+        a.imm = SIGN_EXTEND(a.imm, 13);
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BLT", gpr[a.rs1], gpr[a.rs2], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_i, BLTU
+    if ((opcode & 0x707f) == 0x6063) {
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm |= BX(opcode, 7) << 11;
+        a.imm |= FX(opcode, 30, 25) << 5;
+        a.imm |= FX(opcode, 11, 8) << 1;
+        a.imm = SIGN_EXTEND(a.imm, 13);
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BLTU", gpr[a.rs1], gpr[a.rs2], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_i, BNE
+    if ((opcode & 0x707f) == 0x1063) {
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm |= BX(opcode, 7) << 11;
+        a.imm |= FX(opcode, 30, 25) << 5;
+        a.imm |= FX(opcode, 11, 8) << 1;
+        a.imm = SIGN_EXTEND(a.imm, 13);
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BNE", gpr[a.rs1], gpr[a.rs2], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv_zbs, BSET
+    if ((opcode & 0xfe00707f) == 0x28001033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "BSET", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zbs, BSETI
+    if ((opcode & 0xfc00707f) == 0x28001013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "BSETI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv_zbc, CLMUL
+    if ((opcode & 0xfe00707f) == 0xa001033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CLMUL", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbc, CLMULH
+    if ((opcode & 0xfe00707f) == 0xa003033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CLMULH", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbc, CLMULR
+    if ((opcode & 0xfe00707f) == 0xa002033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CLMULR", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbb, CLZ
+    if ((opcode & 0xfff0707f) == 0x60001013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "CLZ", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    // rv64_zbb, CLZW
+    if ((opcode & 0xfff0707f) == 0x6000101b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "CLZW", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //  rv_zbb, CPOP
+    if ((opcode & 0xfff0707f) == 0x60201013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "CPOP", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    // rv64_zbb, CPOPW
+    if ((opcode & 0xfff0707f) == 0x6020101b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "CPOPW", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    // rv_zicsr, CSRRC
+    if ((opcode & 0x707f) == 0x3073) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRC", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    // rv_zicsr, CSRRCI
+    if ((opcode & 0x707f) == 0x7073) {
+        a.rd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 31, 20);
+        a.imm = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRCI", gpr[a.rd], a.imm, a.imm, a.imm, a.imm);
+        return buff;
+    }
+
+    // rv_zicsr, CSRRS
+    if ((opcode & 0x707f) == 0x2073) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRS", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    // rv_zicsr, CSRRSI
+    if ((opcode & 0x707f) == 0x6073) {
+        a.rd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 31, 20);
+        a.imm = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRSI", gpr[a.rd], a.imm, a.imm, a.imm, a.imm);
+        return buff;
+    }
+
+    // rv_zicsr, CSRRW
+    if ((opcode & 0x707f) == 0x1073) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    // rv_zicsr, CSRRWI
+    if ((opcode & 0x707f) == 0x5073) {
+        a.rd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 31, 20);
+        a.imm = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRWI", gpr[a.rd], a.imm, a.imm, a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv_zbb, CTZ
+    if ((opcode & 0xfff0707f) == 0x60101013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "CTZ", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    // rv64_zbb, CTZW
+    if ((opcode & 0xfff0707f) == 0x6010101b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "CTZW", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_m, DIV
+    if ((opcode & 0xfe00707f) == 0x2004033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "DIV", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_m, DIVU
+    if ((opcode & 0xfe00707f) == 0x2005033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "DIVU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_m, DIVUW
+    if ((opcode & 0xfe00707f) == 0x200503b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "DIVUW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_m, DIVW
+    if ((opcode & 0xfe00707f) == 0x200403b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "DIVW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, EBREAK
+    if ((opcode & 0xffffffff) == 0x100073) {
+
+        snprintf(buff, sizeof(buff), "%-15s ", "EBREAK");
+        return buff;
+    }
+
+    //    rv_i, ECALL
+    if ((opcode & 0xffffffff) == 0x73) {
+
+        snprintf(buff, sizeof(buff), "%-15s ", "ECALL");
+        return buff;
+    }
+
+    //    rv_d, FADD.D
+    if ((opcode & 0xfe00007f) == 0x2000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FADD.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FADD.S
+    if ((opcode & 0xfe00007f) == 0x53) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FADD.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FCLASS.D
+    if ((opcode & 0xfff0707f) == 0xe2001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FCLASS.D", gpr[a.rd], fpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_f, FCLASS.S
+    if ((opcode & 0xfff0707f) == 0xe0001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FCLASS.S", gpr[a.rd], fpr[a.rs1]);
+        return buff;
+    }
+
+    //  rv64_d, FCVT.D.L
+    if ((opcode & 0xfff0007f) == 0xd2200053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.D.L", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_d, FCVT.D.LU
+    if ((opcode & 0xfff0007f) == 0xd2300053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.D.LU", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FCVT.D.S
+    if ((opcode & 0xfff0007f) == 0x42000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.D.S", fpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FCVT.D.W
+    if ((opcode & 0xfff0007f) == 0xd2000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.D.W", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FCVT.D.WU
+    if ((opcode & 0xfff0007f) == 0xd2100053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.D.WU", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_d, FCVT.L.D
+    if ((opcode & 0xfff0007f) == 0xc2200053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.L.D", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_f, FCVT.L.S
+    if ((opcode & 0xfff0007f) == 0xc0200053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.L.S", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_d, FCVT.LU.D
+    if ((opcode & 0xfff0007f) == 0xc2300053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.LU.D", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_f, FCVT.LU.S
+    if ((opcode & 0xfff0007f) == 0xc0300053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.LU.S", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FCVT.S.D
+    if ((opcode & 0xfff0007f) == 0x40100053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.S.D", fpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_f, FCVT.S.L
+    if ((opcode & 0xfff0007f) == 0xd0200053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.S.L", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_f, FCVT.S.LU
+    if ((opcode & 0xfff0007f) == 0xd0300053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.S.LU", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FCVT.S.W
+    if ((opcode & 0xfff0007f) == 0xd0000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.S.W", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FCVT.S.WU
+    if ((opcode & 0xfff0007f) == 0xd0100053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.S.WU", fpr[a.rd], gpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FCVT.W.D
+    if ((opcode & 0xfff0007f) == 0xc2000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.W.D", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FCVT.W.S
+    if ((opcode & 0xfff0007f) == 0xc0000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.W.S", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FCVT.WU.D
+    if ((opcode & 0xfff0007f) == 0xc2100053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.WU.D", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FCVT.WU.S
+    if ((opcode & 0xfff0007f) == 0xc0100053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FCVT.WU.S", gpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FDIV.D
+    if ((opcode & 0xfe00007f) == 0x1a000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FDIV.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FDIV.S
+    if ((opcode & 0xfe00007f) == 0x18000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FDIV.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_i, FENCE
+    if ((opcode & 0x707f) == 0xf) {
+        snprintf(buff, sizeof(buff), "%-15s", "FENCE");
+        return buff;
+    }
+
+    //    rv_d, FEQ.D
+    if ((opcode & 0xfe00707f) == 0xa2002053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FEQ.D", gpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FEQ.S
+    if ((opcode & 0xfe00707f) == 0xa0002053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FEQ.S", gpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_d, FLD
+    if ((opcode & 0x707f) == 0x3007) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FLD", fpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_d, FLE.D
+    if ((opcode & 0xfe00707f) == 0xa2000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLE.D", gpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FLE.S
+    if ((opcode & 0xfe00707f) == 0xa0000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLE.S", gpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_d, FLT.D
+    if ((opcode & 0xfe00707f) == 0xa2001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLT.D", gpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FLT.S
+    if ((opcode & 0xfe00707f) == 0xa0001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FLT.S", gpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FLW
+    if ((opcode & 0x707f) == 0x2007) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FLW", fpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_d, FMADD.D
+    if ((opcode & 0x600007f) == 0x2000043) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FMADD.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FMADD.S
+    if ((opcode & 0x600007f) == 0x43) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FMADD.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FMAX.D
+    if ((opcode & 0xfe00707f) == 0x2a001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FMAX.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FMAX.S
+    if ((opcode & 0xfe00707f) == 0x28001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FMAX.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_d, FMIN.D
+    if ((opcode & 0xfe00707f) == 0x2a000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FMIN.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FMIN.S
+    if ((opcode & 0xfe00707f) == 0x28000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FMIN.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_d, FMSUB.D
+    if ((opcode & 0x600007f) == 0x2000047) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FMSUB.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FMSUB.S
+    if ((opcode & 0x600007f) == 0x47) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FMSUB.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FMUL.D
+    if ((opcode & 0xfe00007f) == 0x12000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FMUL.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FMUL.S
+    if ((opcode & 0xfe00007f) == 0x10000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FMUL.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //  rv64_d, FMV.D.X
+    if ((opcode & 0xfff0707f) == 0xf2000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FMV.D.X", fpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_f, FMV.W.X
+    if ((opcode & 0xfff0707f) == 0xf0000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FMV.W.X", fpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //  rv64_d, FMV.X.D
+    if ((opcode & 0xfff0707f) == 0xe2000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FMV.X.D", gpr[a.rd], fpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_f, FMV.X.W
+    if ((opcode & 0xfff0707f) == 0xe0000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "FMV.X.W", gpr[a.rd], fpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_d, FNMADD.D
+    if ((opcode & 0x600007f) == 0x200004f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FNMADD.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FNMADD.S
+    if ((opcode & 0x600007f) == 0x4f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FNMADD.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FNMSUB.D
+    if ((opcode & 0x600007f) == 0x200004b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FNMSUB.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FNMSUB.S
+    if ((opcode & 0x600007f) == 0x4b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs3 = FX(opcode, 31, 27);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "FNMSUB.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], fpr[a.rs3], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FSD
+    if ((opcode & 0x707f) == 0x3027) {
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FSD", fpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_d, FSGNJ.D
+    if ((opcode & 0xfe00707f) == 0x22000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSGNJ.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FSGNJ.S
+    if ((opcode & 0xfe00707f) == 0x20000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSGNJ.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_d, FSGNJN.D
+    if ((opcode & 0xfe00707f) == 0x22001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSGNJN.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FSGNJN.S
+    if ((opcode & 0xfe00707f) == 0x20001053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSGNJN.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_d, FSGNJX.D
+    if ((opcode & 0xfe00707f) == 0x22002053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSGNJX.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_f, FSGNJX.S
+    if ((opcode & 0xfe00707f) == 0x20002053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSGNJX.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_d, FSQRT.D
+    if ((opcode & 0xfff0007f) == 0x5a000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSQRT.D", fpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FSQRT.S
+    if ((opcode & 0xfff0007f) == 0x58000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "FSQRT.S", fpr[a.rd], fpr[a.rs1], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_d, FSUB.D
+    if ((opcode & 0xfe00007f) == 0xa000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FSUB.D", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FSUB.S
+    if ((opcode & 0xfe00007f) == 0x8000053) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.rm = FX(opcode, 14, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "FSUB.S", fpr[a.rd], fpr[a.rs1], fpr[a.rs2], rm[a.rm]);
+        return buff;
+    }
+
+    //    rv_f, FSW
+    if ((opcode & 0x707f) == 0x2027) {
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FSW", fpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_i, JAL
+    if ((opcode & 0x7f) == 0x6f) {
+        a.rd = FX(opcode, 11, 7);
+        a.imm = a.imm = BX(opcode, 31) << 20;
+        a.imm |= FX(opcode, 19, 12) << 12;
+        a.imm |= BX(opcode, 20) << 11;
+        a.imm |= FX(opcode, 30, 21) << 1;
+        a.imm = SIGN_EXTEND(a.imm, 21);
+
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "JAL", gpr[a.rd], SIGN_EXTEND(a.imm, 20), SIGN_EXTEND(a.imm, 20));
+        return buff;
+    }
+
+    //    rv_i, JALR
+    if ((opcode & 0x707f) == 0x67) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "JALR", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_i, LB
+    if ((opcode & 0x707f) == 0x3) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "LB", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_i, LBU
+    if ((opcode & 0x707f) == 0x4003) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "LBU", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv64_i, LD
+    if ((opcode & 0x707f) == 0x3003) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "LD", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_i, LH
+    if ((opcode & 0x707f) == 0x1003) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "LH", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_i, LHU
+    if ((opcode & 0x707f) == 0x5003) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "LHU", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv64_a, LR.D
+    if ((opcode & 0xf9f0707f) == 0x1000302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "LR.D", gpr[a.rd], gpr[a.rs1], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, LR.W
+    if ((opcode & 0xf9f0707f) == 0x1000202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "LR.W", gpr[a.rd], gpr[a.rs1], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_i, LUI
+    if ((opcode & 0x7f) == 0x37) {
+        a.rd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 31, 12);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "LUI", gpr[a.rd], SIGN_EXTEND(a.imm, 20), SIGN_EXTEND(a.imm, 20));
+        return buff;
+    }
+
+    //    rv_i, LW
+    if ((opcode & 0x707f) == 0x2003) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "LW", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv64_i, LWU
+    if ((opcode & 0x707f) == 0x6003) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "LWU", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv_zbb, MAX
+    if ((opcode & 0xfe00707f) == 0xa006033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MAX", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbb, MAXU
+    if ((opcode & 0xfe00707f) == 0xa007033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MAXU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbb, MIN
+    if ((opcode & 0xfe00707f) == 0xa004033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MIN", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbb, MINU
+    if ((opcode & 0xfe00707f) == 0xa005033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MINU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_m, MUL
+    if ((opcode & 0xfe00707f) == 0x2000033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MUL", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_m, MULH
+    if ((opcode & 0xfe00707f) == 0x2001033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MULH", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_m, MULHSU
+    if ((opcode & 0xfe00707f) == 0x2002033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MULHSU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_m, MULHU
+    if ((opcode & 0xfe00707f) == 0x2003033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MULHU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_m, MULW
+    if ((opcode & 0xfe00707f) == 0x200003b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "MULW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, OR
+    if ((opcode & 0xfe00707f) == 0x6033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "OR", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbb, ORC.B
+    if ((opcode & 0xfff0707f) == 0x28705013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "ORC.B", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_i, ORI
+    if ((opcode & 0x707f) == 0x6013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "ORI", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //  rv_zbb, ORN
+    if ((opcode & 0xfe00707f) == 0x40006033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ORN", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_m, REM
+    if ((opcode & 0xfe00707f) == 0x2006033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "REM", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_m, REMU
+    if ((opcode & 0xfe00707f) == 0x2007033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "REMU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_m, REMUW
+    if ((opcode & 0xfe00707f) == 0x200703b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "REMUW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_m, REMW
+    if ((opcode & 0xfe00707f) == 0x200603b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "REMW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zbb, REV8
+    if ((opcode & 0xfff0707f) == 0x6b805013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "REV8", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //  rv_zbb, ROL
+    if ((opcode & 0xfe00707f) == 0x60001033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ROL", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zbb, ROLW
+    if ((opcode & 0xfe00707f) == 0x6000103b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ROLW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zbb, ROR
+    if ((opcode & 0xfe00707f) == 0x60005033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "ROR", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zbb, RORI
+    if ((opcode & 0xfc00707f) == 0x60005013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "RORI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    // rv64_zbb, RORIW
+    if ((opcode & 0xfe00707f) == 0x6000501b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "RORIW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    // rv64_zbb, RORW
+    if ((opcode & 0xfe00707f) == 0x6000503b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "RORW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SB
+    if ((opcode & 0x707f) == 0x23) {
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SB", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv64_a, SC.D
+    if ((opcode & 0xf800707f) == 0x1800302f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "SC.D", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //    rv_a, SC.W
+    if ((opcode & 0xf800707f) == 0x1800202f) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.aq = FX(opcode, 26, 26);
+        a.rl = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "SC.W", gpr[a.rd], gpr[a.rs1], gpr[a.rs2], aq[a.aq], rl[a.rl]);
+        return buff;
+    }
+
+    //  rv64_i, SD
+    if ((opcode & 0x707f) == 0x3023) {
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SD", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv_zbb, SEXT.B
+    if ((opcode & 0xfff0707f) == 0x60401013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "SEXT.B", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //  rv_zbb, SEXT.H
+    if ((opcode & 0xfff0707f) == 0x60501013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "SEXT.H", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_i, SH
+    if ((opcode & 0x707f) == 0x1023) {
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SH", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv_zba, SH1ADD
+    if ((opcode & 0xfe00707f) == 0x20002033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SH1ADD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zba, SH1ADD.UW
+    if ((opcode & 0xfe00707f) == 0x2000203b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SH1ADD.UW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zba, SH2ADD
+    if ((opcode & 0xfe00707f) == 0x20004033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SH2ADD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zba, SH2ADD.UW
+    if ((opcode & 0xfe00707f) == 0x2000403b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SH2ADD.UW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv_zba, SH3ADD
+    if ((opcode & 0xfe00707f) == 0x20006033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SH3ADD", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    // rv64_zba, SH3ADD.UW
+    if ((opcode & 0xfe00707f) == 0x2000603b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SH3ADD.UW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SLL
+    if ((opcode & 0xfe00707f) == 0x1033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SLL", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_i, SLLI
+    if ((opcode & 0xfc00707f) == 0x1013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SLLI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    // rv64_zba, SLLI.UW
+    if ((opcode & 0xfc00707f) == 0x800101b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SLLI.UW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv64_i, SLLIW
+    if ((opcode & 0xfe00707f) == 0x101b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SLLIW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv64_i, SLLW
+    if ((opcode & 0xfe00707f) == 0x103b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SLLW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SLT
+    if ((opcode & 0xfe00707f) == 0x2033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SLT", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SLTI
+    if ((opcode & 0x707f) == 0x2013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SLTI", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_i, SLTIU
+    if ((opcode & 0x707f) == 0x3013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SLTIU", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    //    rv_i, SLTU
+    if ((opcode & 0xfe00707f) == 0x3033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SLTU", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SRA
+    if ((opcode & 0xfe00707f) == 0x40005033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRA", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_i, SRAI
+    if ((opcode & 0xfc00707f) == 0x40005013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SRAI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv64_i, SRAIW
+    if ((opcode & 0xfe00707f) == 0x4000501b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SRAIW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv64_i, SRAW
+    if ((opcode & 0xfe00707f) == 0x4000503b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRAW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SRL
+    if ((opcode & 0xfe00707f) == 0x5033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRL", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_i, SRLI
+    if ((opcode & 0xfc00707f) == 0x5013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 25, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SRLI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv64_i, SRLIW
+    if ((opcode & 0xfe00707f) == 0x501b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SRLIW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //  rv64_i, SRLW
+    if ((opcode & 0xfe00707f) == 0x503b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SRLW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SUB
+    if ((opcode & 0xfe00707f) == 0x40000033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SUB", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //  rv64_i, SUBW
+    if ((opcode & 0xfe00707f) == 0x4000003b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "SUBW", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, SW
+    if ((opcode & 0x707f) == 0x2023) {
+        a.rs2 = FX(opcode, 24, 20);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SW", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_v, VAADD.VV
+    if ((opcode & 0xfc00707f) == 0x24002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VAADD.VX
+    if ((opcode & 0xfc00707f) == 0x24006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADD.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VAADDU.VV
+    if ((opcode & 0xfc00707f) == 0x20002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADDU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VAADDU.VX
+    if ((opcode & 0xfc00707f) == 0x20006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADDU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VADC.VIM
+    if ((opcode & 0xfe00707f) == 0x40003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s", "VADC.VIM", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VADC.VVM
+    if ((opcode & 0xfe00707f) == 0x40000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VADC.VVM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VADC.VXM
+    if ((opcode & 0xfe00707f) == 0x40004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VADC.VXM", vpr[a.vd], gpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VADD.VI
+    if ((opcode & 0xfc00707f) == 0x3057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VADD.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VADD.VV
+    if ((opcode & 0xfc00707f) == 0x57) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VADD.VX
+    if ((opcode & 0xfc00707f) == 0x4057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VADD.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VAND.VI
+    if ((opcode & 0xfc00707f) == 0x24003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VAND.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VAND.VV
+    if ((opcode & 0xfc00707f) == 0x24000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAND.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VAND.VX
+    if ((opcode & 0xfc00707f) == 0x24004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAND.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VASUB.VV
+    if ((opcode & 0xfc00707f) == 0x2c002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VASUB.VX
+    if ((opcode & 0xfc00707f) == 0x2c006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUB.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VASUBU.VV
+    if ((opcode & 0xfc00707f) == 0x28002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUBU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VASUBU.VX
+    if ((opcode & 0xfc00707f) == 0x28006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUBU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VCOMPRESS.VM
+    if ((opcode & 0xfe00707f) == 0x5e002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VCOMPRESS.VM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VCPOP.M
+    if ((opcode & 0xfc0ff07f) == 0x40082057) {
+        a.rd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VCPOP.M", gpr[a.rd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VDIV.VV
+    if ((opcode & 0xfc00707f) == 0x84002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIV.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VDIV.VX
+    if ((opcode & 0xfc00707f) == 0x84006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIV.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VDIVU.VV
+    if ((opcode & 0xfc00707f) == 0x80002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIVU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VDIVU.VX
+    if ((opcode & 0xfc00707f) == 0x80006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIVU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFADD.VF
+    if ((opcode & 0xfc00707f) == 0x5057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFADD.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFADD.VV
+    if ((opcode & 0xfc00707f) == 0x1057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFCLASS.V
+    if ((opcode & 0xfc0ff07f) == 0x4c081057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCLASS.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFCVT.F.X.V
+    if ((opcode & 0xfc0ff07f) == 0x48019057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.F.X.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFCVT.F.XU.V
+    if ((opcode & 0xfc0ff07f) == 0x48011057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.F.XU.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFCVT.RTZ.X.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48039057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.RTZ.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFCVT.RTZ.XU.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48031057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.RTZ.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFCVT.X.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48009057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFCVT.XU.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFDIV.VF
+    if ((opcode & 0xfc00707f) == 0x80005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFDIV.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFDIV.VV
+    if ((opcode & 0xfc00707f) == 0x80001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFDIV.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFIRST.M
+    if ((opcode & 0xfc0ff07f) == 0x4008a057) {
+        a.rd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFIRST.M", fpr[a.rd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMACC.VF
+    if ((opcode & 0xfc00707f) == 0xb0005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMACC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMACC.VV
+    if ((opcode & 0xfc00707f) == 0xb0001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMACC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMADD.VF
+    if ((opcode & 0xfc00707f) == 0xa0005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMADD.VV
+    if ((opcode & 0xfc00707f) == 0xa0001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMAX.VF
+    if ((opcode & 0xfc00707f) == 0x18005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMAX.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMAX.VV
+    if ((opcode & 0xfc00707f) == 0x18001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMAX.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMERGE.VFM
+    if ((opcode & 0xfe00707f) == 0x5c005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFMERGE.VFM", vpr[a.vd], fpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VFMIN.VF
+    if ((opcode & 0xfc00707f) == 0x10005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMIN.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMIN.VV
+    if ((opcode & 0xfc00707f) == 0x10001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMIN.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMSAC.VF
+    if ((opcode & 0xfc00707f) == 0xb8005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSAC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMSAC.VV
+    if ((opcode & 0xfc00707f) == 0xb8001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSAC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMSUB.VF
+    if ((opcode & 0xfc00707f) == 0xa8005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMSUB.VV
+    if ((opcode & 0xfc00707f) == 0xa8001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMUL.VF
+    if ((opcode & 0xfc00707f) == 0x90005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMUL.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMUL.VV
+    if ((opcode & 0xfc00707f) == 0x90001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMUL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFMV.F.S
+    if ((opcode & 0xfe0ff07f) == 0x42001057) {
+        a.rd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.F.S", fpr[a.rd], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VFMV.S.F
+    if ((opcode & 0xfff0707f) == 0x42005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.S.F", vpr[a.vd], fpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VFMV.V.F
+    if ((opcode & 0xfff0707f) == 0x5e005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.V.F", vpr[a.vd], fpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.F.F.W
+    if ((opcode & 0xfc0ff07f) == 0x480a1057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.F.X.W
+    if ((opcode & 0xfc0ff07f) == 0x48099057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.X.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.F.XU.W
+    if ((opcode & 0xfc0ff07f) == 0x48091057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.XU.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.ROD.F.F.W
+    if ((opcode & 0xfc0ff07f) == 0x480a9057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.ROD.F.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.RTZ.X.F.W
+    if ((opcode & 0xfc0ff07f) == 0x480b9057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.RTZ.X.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.RTZ.XU.F.W
+    if ((opcode & 0xfc0ff07f) == 0x480b1057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.RTZ.XU.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.X.F.W
+    if ((opcode & 0xfc0ff07f) == 0x48089057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.X.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNCVT.XU.F.W
+    if ((opcode & 0xfc0ff07f) == 0x48081057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.XU.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMACC.VF
+    if ((opcode & 0xfc00707f) == 0xb4005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMACC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMACC.VV
+    if ((opcode & 0xfc00707f) == 0xb4001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMACC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMADD.VF
+    if ((opcode & 0xfc00707f) == 0xa4005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMADD.VV
+    if ((opcode & 0xfc00707f) == 0xa4001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMSAC.VF
+    if ((opcode & 0xfc00707f) == 0xbc005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSAC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMSAC.VV
+    if ((opcode & 0xfc00707f) == 0xbc001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSAC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMSUB.VF
+    if ((opcode & 0xfc00707f) == 0xac005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFNMSUB.VV
+    if ((opcode & 0xfc00707f) == 0xac001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFRDIV.VF
+    if ((opcode & 0xfc00707f) == 0x84005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFRDIV.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFREC7.V
+    if ((opcode & 0xfc0ff07f) == 0x4c029057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFREC7.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFREDMAX.VS
+    if ((opcode & 0xfc00707f) == 0x1c001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDMAX.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFREDMIN.VS
+    if ((opcode & 0xfc00707f) == 0x14001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDMIN.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFREDOSUM.VS
+    if ((opcode & 0xfc00707f) == 0xc001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDOSUM.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFREDUSUM.VS
+    if ((opcode & 0xfc00707f) == 0x4001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDUSUM.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFRSQRT7.V
+    if ((opcode & 0xfc0ff07f) == 0x4c021057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFRSQRT7.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFRSUB.VF
+    if ((opcode & 0xfc00707f) == 0x9c005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFRSUB.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSGNJ.VF
+    if ((opcode & 0xfc00707f) == 0x20005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJ.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSGNJ.VV
+    if ((opcode & 0xfc00707f) == 0x20001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJ.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSGNJN.VF
+    if ((opcode & 0xfc00707f) == 0x24005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJN.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSGNJN.VV
+    if ((opcode & 0xfc00707f) == 0x24001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJN.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSGNJX.VF
+    if ((opcode & 0xfc00707f) == 0x28005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJX.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSGNJX.VV
+    if ((opcode & 0xfc00707f) == 0x28001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJX.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSLIDE1DOWN.VF
+    if ((opcode & 0xfc00707f) == 0x3c005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSLIDE1DOWN.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSLIDE1UP.VF
+    if ((opcode & 0xfc00707f) == 0x38005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSLIDE1UP.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSQRT.V
+    if ((opcode & 0xfc0ff07f) == 0x4c001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFSQRT.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSUB.VF
+    if ((opcode & 0xfc00707f) == 0x8005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSUB.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFSUB.VV
+    if ((opcode & 0xfc00707f) == 0x8001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWADD.VF
+    if ((opcode & 0xfc00707f) == 0xc0005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWADD.VV
+    if ((opcode & 0xfc00707f) == 0xc0001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWADD.WF
+    if ((opcode & 0xfc00707f) == 0xd0005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.WF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWADD.WV
+    if ((opcode & 0xfc00707f) == 0xd0001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWCVT.F.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48061057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWCVT.F.X.V
+    if ((opcode & 0xfc0ff07f) == 0x48059057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.X.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWCVT.F.XU.V
+    if ((opcode & 0xfc0ff07f) == 0x48051057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.XU.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWCVT.RTZ.X.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48079057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.RTZ.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWCVT.RTZ.XU.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48071057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.RTZ.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWCVT.X.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48049057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWCVT.XU.F.V
+    if ((opcode & 0xfc0ff07f) == 0x48041057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWMACC.VF
+    if ((opcode & 0xfc00707f) == 0xf0005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMACC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWMACC.VV
+    if ((opcode & 0xfc00707f) == 0xf0001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMACC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWMSAC.VF
+    if ((opcode & 0xfc00707f) == 0xf8005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMSAC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWMSAC.VV
+    if ((opcode & 0xfc00707f) == 0xf8001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMSAC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWMUL.VF
+    if ((opcode & 0xfc00707f) == 0xe0005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMUL.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWMUL.VV
+    if ((opcode & 0xfc00707f) == 0xe0001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMUL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWNMACC.VF
+    if ((opcode & 0xfc00707f) == 0xf4005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMACC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWNMACC.VV
+    if ((opcode & 0xfc00707f) == 0xf4001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMACC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWNMSAC.VF
+    if ((opcode & 0xfc00707f) == 0xfc005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMSAC.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWNMSAC.VV
+    if ((opcode & 0xfc00707f) == 0xfc001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMSAC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWREDOSUM.VS
+    if ((opcode & 0xfc00707f) == 0xcc001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWREDOSUM.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWREDUSUM.VS
+    if ((opcode & 0xfc00707f) == 0xc4001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWREDUSUM.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWSUB.VF
+    if ((opcode & 0xfc00707f) == 0xc8005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.VF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWSUB.VV
+    if ((opcode & 0xfc00707f) == 0xc8001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWSUB.WF
+    if ((opcode & 0xfc00707f) == 0xd8005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.WF", vpr[a.vd], fpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VFWSUB.WV
+    if ((opcode & 0xfc00707f) == 0xd8001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VID.V
+    if ((opcode & 0xfdfff07f) == 0x5008a057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VID.V", vpr[a.vd], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VIOTA.M
+    if ((opcode & 0xfc0ff07f) == 0x50082057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VIOTA.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VL1RE16.V
+    if ((opcode & 0xfff0707f) == 0x2805007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE16.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL1RE32.V
+    if ((opcode & 0xfff0707f) == 0x2806007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE32.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL1RE64.V
+    if ((opcode & 0xfff0707f) == 0x2807007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE64.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL1RE8.V
+    if ((opcode & 0xfff0707f) == 0x2800007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE8.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL2RE16.V
+    if ((opcode & 0xfff0707f) == 0x22805007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE16.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL2RE32.V
+    if ((opcode & 0xfff0707f) == 0x22806007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE32.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL2RE64.V
+    if ((opcode & 0xfff0707f) == 0x22807007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE64.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL2RE8.V
+    if ((opcode & 0xfff0707f) == 0x22800007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE8.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL4RE16.V
+    if ((opcode & 0xfff0707f) == 0x62805007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE16.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL4RE32.V
+    if ((opcode & 0xfff0707f) == 0x62806007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE32.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL4RE64.V
+    if ((opcode & 0xfff0707f) == 0x62807007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE64.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL4RE8.V
+    if ((opcode & 0xfff0707f) == 0x62800007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE8.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL8RE16.V
+    if ((opcode & 0xfff0707f) == 0xe2805007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE16.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL8RE32.V
+    if ((opcode & 0xfff0707f) == 0xe2806007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE32.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL8RE64.V
+    if ((opcode & 0xfff0707f) == 0xe2807007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE64.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VL8RE8.V
+    if ((opcode & 0xfff0707f) == 0xe2800007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE8.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VLE16.V
+    if ((opcode & 0x1df0707f) == 0x5007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE16.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLE16FF.V
+    if ((opcode & 0x1df0707f) == 0x1005007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE16FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLE32.V
+    if ((opcode & 0x1df0707f) == 0x6007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE32.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLE32FF.V
+    if ((opcode & 0x1df0707f) == 0x1006007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE32FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLE64.V
+    if ((opcode & 0x1df0707f) == 0x7007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE64.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLE64FF.V
+    if ((opcode & 0x1df0707f) == 0x1007007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE64FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLE8.V
+    if ((opcode & 0x1df0707f) == 0x7) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE8.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLE8FF.V
+    if ((opcode & 0x1df0707f) == 0x1000007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE8FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLM.V
+    if ((opcode & 0xfff0707f) == 0x2b00007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VLM.V", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VLOXEI16.V
+    if ((opcode & 0x1c00707f) == 0xc005007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI16.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLOXEI32.V
+    if ((opcode & 0x1c00707f) == 0xc006007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI32.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLOXEI64.V
+    if ((opcode & 0x1c00707f) == 0xc007007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI64.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLOXEI8.V
+    if ((opcode & 0x1c00707f) == 0xc000007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI8.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLSE16.V
+    if ((opcode & 0x1c00707f) == 0x8005007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE16.V", vpr[a.vd], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLSE32.V
+    if ((opcode & 0x1c00707f) == 0x8006007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE32.V", vpr[a.vd], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLSE64.V
+    if ((opcode & 0x1c00707f) == 0x8007007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE64.V", vpr[a.vd], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLSE8.V
+    if ((opcode & 0x1c00707f) == 0x8000007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE8.V", vpr[a.vd], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLUXEI16.V
+    if ((opcode & 0x1c00707f) == 0x4005007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI16.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLUXEI32.V
+    if ((opcode & 0x1c00707f) == 0x4006007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI32.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLUXEI64.V
+    if ((opcode & 0x1c00707f) == 0x4007007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI64.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VLUXEI8.V
+    if ((opcode & 0x1c00707f) == 0x4000007) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI8.V", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VMACC.VV
+    if ((opcode & 0xfc00707f) == 0xb4002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMACC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMACC.VX
+    if ((opcode & 0xfc00707f) == 0xb4006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMACC.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMADC.VI
+    if ((opcode & 0xfe00707f) == 0x46003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s", "VMADC.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMADC.VIM
+    if ((opcode & 0xfe00707f) == 0x44003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s", "VMADC.VIM", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMADC.VV
+    if ((opcode & 0xfe00707f) == 0x46000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMADC.VVM
+    if ((opcode & 0xfe00707f) == 0x44000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VVM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMADC.VX
+    if ((opcode & 0xfe00707f) == 0x46004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMADC.VXM
+    if ((opcode & 0xfe00707f) == 0x44004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VXM", vpr[a.vd], gpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMADD.VV
+    if ((opcode & 0xfc00707f) == 0xa4002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMADD.VX
+    if ((opcode & 0xfc00707f) == 0xa4006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMADD.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMAND.MM
+    if ((opcode & 0xfe00707f) == 0x66002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMAND.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMANDN.MM
+    if ((opcode & 0xfe00707f) == 0x62002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMANDN.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMAX.VV
+    if ((opcode & 0xfc00707f) == 0x1c000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAX.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMAX.VX
+    if ((opcode & 0xfc00707f) == 0x1c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAX.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMAXU.VV
+    if ((opcode & 0xfc00707f) == 0x18000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAXU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMAXU.VX
+    if ((opcode & 0xfc00707f) == 0x18004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAXU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMERGE.VIM
+    if ((opcode & 0xfe00707f) == 0x5c003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s", "VMERGE.VIM", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMERGE.VVM
+    if ((opcode & 0xfe00707f) == 0x5c000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMERGE.VVM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMERGE.VXM
+    if ((opcode & 0xfe00707f) == 0x5c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMERGE.VXM", vpr[a.vd], gpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMFEQ.VF
+    if ((opcode & 0xfc00707f) == 0x60005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFEQ.VF", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFEQ.VV
+    if ((opcode & 0xfc00707f) == 0x60001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFEQ.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFGE.VF
+    if ((opcode & 0xfc00707f) == 0x7c005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFGE.VF", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFGT.VF
+    if ((opcode & 0xfc00707f) == 0x74005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFGT.VF", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFLE.VF
+    if ((opcode & 0xfc00707f) == 0x64005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLE.VF", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFLE.VV
+    if ((opcode & 0xfc00707f) == 0x64001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLE.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFLT.VF
+    if ((opcode & 0xfc00707f) == 0x6c005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLT.VF", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFLT.VV
+    if ((opcode & 0xfc00707f) == 0x6c001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLT.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFNE.VF
+    if ((opcode & 0xfc00707f) == 0x70005057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFNE.VF", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMFNE.VV
+    if ((opcode & 0xfc00707f) == 0x70001057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFNE.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMIN.VV
+    if ((opcode & 0xfc00707f) == 0x14000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMIN.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMIN.VX
+    if ((opcode & 0xfc00707f) == 0x14004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMIN.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMINU.VV
+    if ((opcode & 0xfc00707f) == 0x10000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMINU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMINU.VX
+    if ((opcode & 0xfc00707f) == 0x10004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMINU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMNAND.MM
+    if ((opcode & 0xfe00707f) == 0x76002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMNAND.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMNOR.MM
+    if ((opcode & 0xfe00707f) == 0x7a002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMNOR.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMOR.MM
+    if ((opcode & 0xfe00707f) == 0x6a002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMOR.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMORN.MM
+    if ((opcode & 0xfe00707f) == 0x72002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMORN.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMSBC.VV
+    if ((opcode & 0xfe00707f) == 0x4e000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMSBC.VVM
+    if ((opcode & 0xfe00707f) == 0x4c000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VVM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMSBC.VX
+    if ((opcode & 0xfe00707f) == 0x4e004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMSBC.VXM
+    if ((opcode & 0xfe00707f) == 0x4c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VXM", vpr[a.vd], gpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMSBF.M
+    if ((opcode & 0xfc0ff07f) == 0x5000a057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSEQ.VI
+    if ((opcode & 0xfc00707f) == 0x60003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VMSEQ.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSEQ.VV
+    if ((opcode & 0xfc00707f) == 0x60000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSEQ.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSEQ.VX
+    if ((opcode & 0xfc00707f) == 0x60004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSEQ.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSGT.VI
+    if ((opcode & 0xfc00707f) == 0x7c003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VMSGT.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSGT.VX
+    if ((opcode & 0xfc00707f) == 0x7c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSGT.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSGTU.VI
+    if ((opcode & 0xfc00707f) == 0x78003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VMSGTU.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSGTU.VX
+    if ((opcode & 0xfc00707f) == 0x78004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSGTU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSIF.M
+    if ((opcode & 0xfc0ff07f) == 0x5001a057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSIF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLE.VI
+    if ((opcode & 0xfc00707f) == 0x74003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VMSLE.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLE.VV
+    if ((opcode & 0xfc00707f) == 0x74000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLE.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLE.VX
+    if ((opcode & 0xfc00707f) == 0x74004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLE.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLEU.VI
+    if ((opcode & 0xfc00707f) == 0x70003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VMSLEU.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLEU.VV
+    if ((opcode & 0xfc00707f) == 0x70000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLEU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLEU.VX
+    if ((opcode & 0xfc00707f) == 0x70004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLEU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLT.VV
+    if ((opcode & 0xfc00707f) == 0x6c000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLT.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLT.VX
+    if ((opcode & 0xfc00707f) == 0x6c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLT.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLTU.VV
+    if ((opcode & 0xfc00707f) == 0x68000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLTU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSLTU.VX
+    if ((opcode & 0xfc00707f) == 0x68004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLTU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSNE.VI
+    if ((opcode & 0xfc00707f) == 0x64003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VMSNE.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSNE.VV
+    if ((opcode & 0xfc00707f) == 0x64000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSNE.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSNE.VX
+    if ((opcode & 0xfc00707f) == 0x64004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSNE.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMSOF.M
+    if ((opcode & 0xfc0ff07f) == 0x50012057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSOF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMUL.VV
+    if ((opcode & 0xfc00707f) == 0x94002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMUL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMUL.VX
+    if ((opcode & 0xfc00707f) == 0x94006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMUL.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMULH.VV
+    if ((opcode & 0xfc00707f) == 0x9c002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULH.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMULH.VX
+    if ((opcode & 0xfc00707f) == 0x9c006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULH.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMULHSU.VV
+    if ((opcode & 0xfc00707f) == 0x98002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHSU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMULHSU.VX
+    if ((opcode & 0xfc00707f) == 0x98006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHSU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMULHU.VV
+    if ((opcode & 0xfc00707f) == 0x90002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMULHU.VX
+    if ((opcode & 0xfc00707f) == 0x90006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VMV1R.V
+    if ((opcode & 0xfe0ff07f) == 0x9e003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV1R.V", vpr[a.vd], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMV2R.V
+    if ((opcode & 0xfe0ff07f) == 0x9e00b057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV2R.V", vpr[a.vd], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMV4R.V
+    if ((opcode & 0xfe0ff07f) == 0x9e01b057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV4R.V", vpr[a.vd], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMV8R.V
+    if ((opcode & 0xfe0ff07f) == 0x9e03b057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV8R.V", vpr[a.vd], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMV.S.X
+    if ((opcode & 0xfff0707f) == 0x42006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.S.X", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VMV.V.I
+    if ((opcode & 0xfff0707f) == 0x5e003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "VMV.V.I", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5));
+        return buff;
+    }
+
+    //    rv_v, VMV.V.V
+    if ((opcode & 0xfff0707f) == 0x5e000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.V.V", vpr[a.vd], vpr[a.vs1]);
+        return buff;
+    }
+
+    //    rv_v, VMV.V.X
+    if ((opcode & 0xfff0707f) == 0x5e004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.V.X", vpr[a.vd], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VMV.X.S
+    if ((opcode & 0xfe0ff07f) == 0x42002057) {
+        a.rd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.X.S", gpr[a.rd], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMXNOR.MM
+    if ((opcode & 0xfe00707f) == 0x7e002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMXNOR.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VMXOR.MM
+    if ((opcode & 0xfe00707f) == 0x6e002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMXOR.MM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VNCLIP.WI
+    if ((opcode & 0xfc00707f) == 0xbc003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VNCLIP.WI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNCLIP.WV
+    if ((opcode & 0xfc00707f) == 0xbc000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIP.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNCLIP.WX
+    if ((opcode & 0xfc00707f) == 0xbc004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIP.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNCLIPU.WI
+    if ((opcode & 0xfc00707f) == 0xb8003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VNCLIPU.WI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNCLIPU.WV
+    if ((opcode & 0xfc00707f) == 0xb8000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIPU.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNCLIPU.WX
+    if ((opcode & 0xfc00707f) == 0xb8004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIPU.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNMSAC.VV
+    if ((opcode & 0xfc00707f) == 0xbc002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSAC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNMSAC.VX
+    if ((opcode & 0xfc00707f) == 0xbc006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSAC.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNMSUB.VV
+    if ((opcode & 0xfc00707f) == 0xac002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNMSUB.VX
+    if ((opcode & 0xfc00707f) == 0xac006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSUB.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNSRA.WI
+    if ((opcode & 0xfc00707f) == 0xb4003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VNSRA.WI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNSRA.WV
+    if ((opcode & 0xfc00707f) == 0xb4000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRA.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNSRA.WX
+    if ((opcode & 0xfc00707f) == 0xb4004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRA.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNSRL.WI
+    if ((opcode & 0xfc00707f) == 0xb0003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VNSRL.WI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNSRL.WV
+    if ((opcode & 0xfc00707f) == 0xb0000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRL.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VNSRL.WX
+    if ((opcode & 0xfc00707f) == 0xb0004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRL.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VOR.VI
+    if ((opcode & 0xfc00707f) == 0x28003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VOR.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VOR.VV
+    if ((opcode & 0xfc00707f) == 0x28000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VOR.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VOR.VX
+    if ((opcode & 0xfc00707f) == 0x28004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VOR.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDAND.VS
+    if ((opcode & 0xfc00707f) == 0x4002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDAND.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDMAX.VS
+    if ((opcode & 0xfc00707f) == 0x1c002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMAX.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDMAXU.VS
+    if ((opcode & 0xfc00707f) == 0x18002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMAXU.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDMIN.VS
+    if ((opcode & 0xfc00707f) == 0x14002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMIN.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDMINU.VS
+    if ((opcode & 0xfc00707f) == 0x10002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMINU.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDOR.VS
+    if ((opcode & 0xfc00707f) == 0x8002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDOR.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDSUM.VS
+    if ((opcode & 0xfc00707f) == 0x2057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDSUM.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREDXOR.VS
+    if ((opcode & 0xfc00707f) == 0xc002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDXOR.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREM.VV
+    if ((opcode & 0xfc00707f) == 0x8c002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREM.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREM.VX
+    if ((opcode & 0xfc00707f) == 0x8c006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREM.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREMU.VV
+    if ((opcode & 0xfc00707f) == 0x88002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREMU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VREMU.VX
+    if ((opcode & 0xfc00707f) == 0x88006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREMU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VRGATHER.VI
+    if ((opcode & 0xfc00707f) == 0x30003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VRGATHER.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VRGATHER.VV
+    if ((opcode & 0xfc00707f) == 0x30000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHER.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VRGATHER.VX
+    if ((opcode & 0xfc00707f) == 0x30004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHER.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VRGATHEREI16.VV
+    if ((opcode & 0xfc00707f) == 0x38000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHEREI16.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VRSUB.VI
+    if ((opcode & 0xfc00707f) == 0xc003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VRSUB.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VRSUB.VX
+    if ((opcode & 0xfc00707f) == 0xc004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRSUB.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VS1R.V
+    if ((opcode & 0xfff0707f) == 0x2800027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS1R.V", vpr[a.vs3], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VS2R.V
+    if ((opcode & 0xfff0707f) == 0x22800027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS2R.V", vpr[a.vs3], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VS4R.V
+    if ((opcode & 0xfff0707f) == 0x62800027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS4R.V", vpr[a.vs3], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VS8R.V
+    if ((opcode & 0xfff0707f) == 0xe2800027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS8R.V", vpr[a.vs3], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VSADD.VI
+    if ((opcode & 0xfc00707f) == 0x84003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSADD.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSADD.VV
+    if ((opcode & 0xfc00707f) == 0x84000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSADD.VX
+    if ((opcode & 0xfc00707f) == 0x84004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADD.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSADDU.VI
+    if ((opcode & 0xfc00707f) == 0x80003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSADDU.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSADDU.VV
+    if ((opcode & 0xfc00707f) == 0x80000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADDU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSADDU.VX
+    if ((opcode & 0xfc00707f) == 0x80004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADDU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSBC.VVM
+    if ((opcode & 0xfe00707f) == 0x48000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSBC.VVM", vpr[a.vd], vpr[a.vs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VSBC.VXM
+    if ((opcode & 0xfe00707f) == 0x48004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSBC.VXM", vpr[a.vd], gpr[a.rs1], vpr[a.vs2]);
+        return buff;
+    }
+
+    //    rv_v, VSE16.V
+    if ((opcode & 0x1df0707f) == 0x5027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE16.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSE32.V
+    if ((opcode & 0x1df0707f) == 0x6027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE32.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSE64.V
+    if ((opcode & 0x1df0707f) == 0x7027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE64.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSE8.V
+    if ((opcode & 0x1df0707f) == 0x27) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE8.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSETIVLI
+    if ((opcode & 0xc000707f) == 0xc0007057) {
+        a.rd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 29, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "VSETIVLI", gpr[a.rd], a.imm, a.imm, a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_v, VSETVL
+    if ((opcode & 0xfe00707f) == 0x80007057) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSETVL", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_v, VSETVLI
+    if ((opcode & 0x8000707f) == 0x7057) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 30, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VSETVLI", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        return buff;
+    }
+
+    //    rv_v, VSEXT.VF2
+    if ((opcode & 0xfc0ff07f) == 0x4803a057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF2", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSEXT.VF4
+    if ((opcode & 0xfc0ff07f) == 0x4802a057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF4", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSEXT.VF8
+    if ((opcode & 0xfc0ff07f) == 0x4801a057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF8", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLIDE1DOWN.VX
+    if ((opcode & 0xfc00707f) == 0x3c006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDE1DOWN.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLIDE1UP.VX
+    if ((opcode & 0xfc00707f) == 0x38006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDE1UP.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLIDEDOWN.VI
+    if ((opcode & 0xfc00707f) == 0x3c003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSLIDEDOWN.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLIDEDOWN.VX
+    if ((opcode & 0xfc00707f) == 0x3c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDEDOWN.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLIDEUP.VI
+    if ((opcode & 0xfc00707f) == 0x38003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSLIDEUP.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLIDEUP.VX
+    if ((opcode & 0xfc00707f) == 0x38004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDEUP.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLL.VI
+    if ((opcode & 0xfc00707f) == 0x94003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSLL.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLL.VV
+    if ((opcode & 0xfc00707f) == 0x94000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSLL.VX
+    if ((opcode & 0xfc00707f) == 0x94004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLL.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSM.V
+    if ((opcode & 0xfff0707f) == 0x2b00027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VSM.V", vpr[a.vs3], gpr[a.rs1]);
+        return buff;
+    }
+
+    //    rv_v, VSMUL.VV
+    if ((opcode & 0xfc00707f) == 0x9c000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSMUL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSMUL.VX
+    if ((opcode & 0xfc00707f) == 0x9c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSMUL.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSOXEI16.V
+    if ((opcode & 0x1c00707f) == 0xc005027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI16.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSOXEI32.V
+    if ((opcode & 0x1c00707f) == 0xc006027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI32.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSOXEI64.V
+    if ((opcode & 0x1c00707f) == 0xc007027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI64.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSOXEI8.V
+    if ((opcode & 0x1c00707f) == 0xc000027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI8.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSRA.VI
+    if ((opcode & 0xfc00707f) == 0xa4003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSRA.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSRA.VV
+    if ((opcode & 0xfc00707f) == 0xa4000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRA.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSRA.VX
+    if ((opcode & 0xfc00707f) == 0xa4004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRA.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSRL.VI
+    if ((opcode & 0xfc00707f) == 0xa0003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSRL.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSRL.VV
+    if ((opcode & 0xfc00707f) == 0xa0000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSRL.VX
+    if ((opcode & 0xfc00707f) == 0xa0004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRL.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSE16.V
+    if ((opcode & 0x1c00707f) == 0x8005027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE16.V", vpr[a.vs3], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSSE32.V
+    if ((opcode & 0x1c00707f) == 0x8006027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE32.V", vpr[a.vs3], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSSE64.V
+    if ((opcode & 0x1c00707f) == 0x8007027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE64.V", vpr[a.vs3], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSSE8.V
+    if ((opcode & 0x1c00707f) == 0x8000027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE8.V", vpr[a.vs3], gpr[a.rs1], gpr[a.rs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSSRA.VI
+    if ((opcode & 0xfc00707f) == 0xac003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSSRA.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSRA.VV
+    if ((opcode & 0xfc00707f) == 0xac000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRA.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSRA.VX
+    if ((opcode & 0xfc00707f) == 0xac004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRA.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSRL.VI
+    if ((opcode & 0xfc00707f) == 0xa8003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VSSRL.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSRL.VV
+    if ((opcode & 0xfc00707f) == 0xa8000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSRL.VX
+    if ((opcode & 0xfc00707f) == 0xa8004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRL.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSUB.VV
+    if ((opcode & 0xfc00707f) == 0x8c000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSUB.VX
+    if ((opcode & 0xfc00707f) == 0x8c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUB.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSUBU.VV
+    if ((opcode & 0xfc00707f) == 0x88000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUBU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSSUBU.VX
+    if ((opcode & 0xfc00707f) == 0x88004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUBU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSUB.VV
+    if ((opcode & 0xfc00707f) == 0x8000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSUB.VX
+    if ((opcode & 0xfc00707f) == 0x8004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSUB.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VSUXEI16.V
+    if ((opcode & 0x1c00707f) == 0x4005027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI16.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSUXEI32.V
+    if ((opcode & 0x1c00707f) == 0x4006027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI32.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSUXEI64.V
+    if ((opcode & 0x1c00707f) == 0x4007027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI64.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VSUXEI8.V
+    if ((opcode & 0x1c00707f) == 0x4000027) {
+        a.vs3 = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        a.nf = FX(opcode, 31, 29);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI8.V", vpr[a.vs3], gpr[a.rs1], vpr[a.vs2], vm[a.vm], nf[a.nf]);
+        return buff;
+    }
+
+    //    rv_v, VWADD.VV
+    if ((opcode & 0xfc00707f) == 0xc4002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWADD.VX
+    if ((opcode & 0xfc00707f) == 0xc4006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWADD.WV
+    if ((opcode & 0xfc00707f) == 0xd4002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWADD.WX
+    if ((opcode & 0xfc00707f) == 0xd4006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWADDU.VV
+    if ((opcode & 0xfc00707f) == 0xc0002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWADDU.VX
+    if ((opcode & 0xfc00707f) == 0xc0006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWADDU.WV
+    if ((opcode & 0xfc00707f) == 0xd0002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWADDU.WX
+    if ((opcode & 0xfc00707f) == 0xd0006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMACC.VV
+    if ((opcode & 0xfc00707f) == 0xf4002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACC.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMACC.VX
+    if ((opcode & 0xfc00707f) == 0xf4006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACC.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMACCSU.VV
+    if ((opcode & 0xfc00707f) == 0xfc002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCSU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMACCSU.VX
+    if ((opcode & 0xfc00707f) == 0xfc006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCSU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMACCU.VV
+    if ((opcode & 0xfc00707f) == 0xf0002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMACCU.VX
+    if ((opcode & 0xfc00707f) == 0xf0006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMACCUS.VX
+    if ((opcode & 0xfc00707f) == 0xf8006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCUS.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMUL.VV
+    if ((opcode & 0xfc00707f) == 0xec002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMUL.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMUL.VX
+    if ((opcode & 0xfc00707f) == 0xec006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMUL.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMULSU.VV
+    if ((opcode & 0xfc00707f) == 0xe8002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULSU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMULSU.VX
+    if ((opcode & 0xfc00707f) == 0xe8006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULSU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMULU.VV
+    if ((opcode & 0xfc00707f) == 0xe0002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWMULU.VX
+    if ((opcode & 0xfc00707f) == 0xe0006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWREDSUM.VS
+    if ((opcode & 0xfc00707f) == 0xc4000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWREDSUM.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWREDSUMU.VS
+    if ((opcode & 0xfc00707f) == 0xc0000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWREDSUMU.VS", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUB.VV
+    if ((opcode & 0xfc00707f) == 0xcc002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUB.VX
+    if ((opcode & 0xfc00707f) == 0xcc006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUB.WV
+    if ((opcode & 0xfc00707f) == 0xdc002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUB.WX
+    if ((opcode & 0xfc00707f) == 0xdc006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUBU.VV
+    if ((opcode & 0xfc00707f) == 0xc8002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUBU.VX
+    if ((opcode & 0xfc00707f) == 0xc8006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUBU.WV
+    if ((opcode & 0xfc00707f) == 0xd8002057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.WV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VWSUBU.WX
+    if ((opcode & 0xfc00707f) == 0xd8006057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.WX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VXOR.VI
+    if ((opcode & 0xfc00707f) == 0x2c003057) {
+        a.vd = FX(opcode, 11, 7);
+        a.imm = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), %s, %s", "VXOR.VI", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VXOR.VV
+    if ((opcode & 0xfc00707f) == 0x2c000057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VXOR.VV", vpr[a.vd], vpr[a.vs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VXOR.VX
+    if ((opcode & 0xfc00707f) == 0x2c004057) {
+        a.vd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VXOR.VX", vpr[a.vd], gpr[a.rs1], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VZEXT.VF2
+    if ((opcode & 0xfc0ff07f) == 0x48032057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF2", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VZEXT.VF4
+    if ((opcode & 0xfc0ff07f) == 0x48022057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF4", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //    rv_v, VZEXT.VF8
+    if ((opcode & 0xfc0ff07f) == 0x48012057) {
+        a.vd = FX(opcode, 11, 7);
+        a.vs2 = FX(opcode, 24, 20);
+        a.vm = FX(opcode, 25, 25);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF8", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
+        return buff;
+    }
+
+    //  rv_zbb, XNOR
+    if ((opcode & 0xfe00707f) == 0x40004033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XNOR", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, XOR
+    if ((opcode & 0xfe00707f) == 0x4033) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.rs2 = FX(opcode, 24, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "XOR", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+        return buff;
+    }
+
+    //    rv_i, XORI
+    if ((opcode & 0x707f) == 0x4013) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        a.imm = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "XORI", gpr[a.rd], gpr[a.rs1], SIGN_EXTEND(a.imm, 12), SIGN_EXTEND(a.imm, 12));
+        return buff;
+    }
+
+    // rv64_zbb, ZEXT.H
+    if ((opcode & 0xfff0707f) == 0x800403b) {
+        a.rd = FX(opcode, 11, 7);
+        a.rs1 = FX(opcode, 19, 15);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "ZEXT.H", gpr[a.rd], gpr[a.rs1]);
+        return buff;
+    }
+
+
+    snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
 }
