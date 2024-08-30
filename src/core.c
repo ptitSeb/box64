@@ -171,6 +171,7 @@ int box64_dummy_crashhandler = 1;
 int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
+int box64_steamcmd = 0;
 int box64_wine = 0;
 int box64_musl = 0;
 int box64_nopulse = 0;
@@ -1918,9 +1919,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         }
         ++nextarg;
         prog = argv[nextarg];
-    }
-    // check if this is wineserver
-    if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
+    } else if(!strcmp(prog, "steam") || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/steam"))) {
+        printf_log(LOG_INFO, "steam detected\n");
+        box64_steam = 1;
+    } else if(!strcmp(prog, "steamcmd") || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/steamcmd"))) {
+        printf_log(LOG_INFO, "steamcmd detected\n");
+        box64_steamcmd = 1;
+    } else  if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
+        // check if this is wineserver
         box64_wine = 1;
     }
     // Create a new context
