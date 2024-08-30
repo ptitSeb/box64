@@ -79,10 +79,29 @@ void UnalignStatFS64_32(const void* source, void* dest)
     i386st->f_spare[3]  = st->f_spare[3];
 }
 
+struct native_statvfs {
+    unsigned long int f_bsize;
+    unsigned long int f_frsize;
+    __fsblkcnt64_t f_blocks;
+    __fsblkcnt64_t f_bfree;
+    __fsblkcnt64_t f_bavail;
+    __fsfilcnt64_t f_files;
+    __fsfilcnt64_t f_ffree;
+    __fsfilcnt64_t f_favail;
+    unsigned long int f_fsid;
+#ifdef _STATVFSBUF_F_UNUSED
+    int __f_unused;
+#endif
+    unsigned long int f_flag;
+    unsigned long int f_namemax;
+    unsigned int f_type;
+    int __f_spare[5];
+};
+
 void UnalignStatVFS64_32(const void* source, void* dest)
 {
     struct i386_statvfs64 *i386st = (struct i386_statvfs64*)dest;
-    struct statvfs *st = (struct statvfs*) source;
+    struct native_statvfs *st = (struct native_statvfs*) source;
 
     i386st->f_bsize     = st->f_bsize;
     i386st->f_frsize    = st->f_frsize;
