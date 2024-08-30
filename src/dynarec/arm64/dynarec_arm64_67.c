@@ -220,6 +220,39 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0x38:  /* MAP 0F38 */
+                    opcode = F8;
+                    switch(opcode) {
+                        case 0xF6:
+                            switch(rep) {
+                                case 2:
+                                    INST_NAME("ADOX Gd, Ed");
+                                    nextop = F8;
+                                    READFLAGS(X_OF);
+                                    SETFLAGS(X_OF, SF_SUBSET);
+                                    GETED32(0);
+                                    GETGD;
+                                    MRS_nzvc(x3);
+                                    LSRw(x4, xFlags, F_OF);
+                                    BFIx(x3, x4, 29, 1); // set C
+                                    MSR_nzvc(x3);      // load CC into ARM CF
+                                    IFX(X_OF) {
+                                        ADCSxw_REG(gd, gd, ed);
+                                        CSETw(x3, cCS);
+                                        BFIw(xFlags, x3, F_OF, 1);
+                                    } else {
+                                        ADCxw_REG(gd, gd, ed);
+                                    }
+                                    break;
+                                default:
+                                    DEFAULT;
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+
                 case 0x6F:
                     switch(rep) {
                         case 0:
