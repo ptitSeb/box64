@@ -1274,6 +1274,8 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = SIGN_EXTEND(a.imm, 12);
+
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FSD", fpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
         return buff;
     }
@@ -1375,6 +1377,8 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = SIGN_EXTEND(a.imm, 12);
+
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FSW", fpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
         return buff;
     }
@@ -1711,6 +1715,8 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = SIGN_EXTEND(a.imm, 12);
+
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SB", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
         return buff;
     }
@@ -1742,6 +1748,8 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = SIGN_EXTEND(a.imm, 12);
+
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SD", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
         return buff;
     }
@@ -1767,6 +1775,8 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = SIGN_EXTEND(a.imm, 12);
+
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SH", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
         return buff;
     }
@@ -2001,6 +2011,8 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = SIGN_EXTEND(a.imm, 12);
+
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SW", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
         return buff;
     }
@@ -5675,7 +5687,6 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         snprintf(buff, sizeof(buff), "%-15s %s, %s", "ZEXT.H", gpr[a.rd], gpr[a.rs1]);
         return buff;
     }
-
 
     snprintf(buff, sizeof(buff), "%08X ???", __builtin_bswap32(opcode));
     return buff;
