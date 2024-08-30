@@ -98,6 +98,46 @@ uintptr_t Run670F(x64emu_t *emu, rex_t rex, int rep, uintptr_t addr)
             }
             break;
 
+        case 0x38:  /* MAP 0F38 */
+            opcode = F8;
+            switch(opcode) {
+
+                case 0xF6: 
+                    switch(rep) {
+                        case 2:
+                            /* ADOX Gd, Rd */
+                            nextop = F8;
+                            GETED32(0);
+                            GETGD;
+                            CHECK_FLAGS(emu);
+                            if(rex.w) {
+                                if (ACCESS_FLAG(F_OF)) {
+                                    tmp64u = 1 + (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                                    tmp64u2 = 1 + GD->q[0] + ED->q[0];
+                                    }
+                                else {
+                                    tmp64u = (GD->q[0] & 0xFFFFFFFF) + (ED->q[0] & 0xFFFFFFFF);
+                                    tmp64u2 = GD->q[0] + ED->q[0];
+                                    }
+                                tmp64u = (tmp64u >> 32) + (GD->q[0] >> 32) + (ED->q[0] >> 32);
+                                CONDITIONAL_SET_FLAG(tmp64u & 0x100000000L, F_OF);
+                                GD->q[0] = tmp64u2;
+                            } else {
+                                if (ACCESS_FLAG(F_OF))
+                                    GD->q[0] = 1LL + GD->dword[0] + ED->dword[0];
+                                else
+                                    GD->q[0] = (uint64_t)GD->dword[0] + ED->dword[0];
+                                CONDITIONAL_SET_FLAG(GD->q[0] & 0x100000000LL, F_OF);
+                            }
+                            break;
+                        default:
+                            return 0;
+                    }
+                default:
+                    return 0;
+            }
+            break;
+
         case 0x6F:
             switch(rep) {
                 case 0: /* MOVQ Gm, Em */
