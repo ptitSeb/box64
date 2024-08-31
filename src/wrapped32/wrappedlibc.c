@@ -798,20 +798,14 @@ EXPORT void *my32_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);
     return result;
 }
-
+#endif
 EXPORT int my32_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vsnprintf;
-    return ((iFpLpp_t)f)(buff, s, fmt, VARARGS_32);
-    #else
-    return vsnprintf((char*)buff, s, (char*)fmt, b);
-    #endif
+    return vsnprintf(buff, s, fmt, VARARGS_32);
 }
 EXPORT int my32___snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) __attribute__((alias("my32_snprintf")));
-#endif
 
 EXPORT int my32___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int f1, int f2, void * fmt, void * b) {
     (void)f1; (void)f2;
@@ -946,22 +940,16 @@ EXPORT int my32___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void*
     return vasprintf((char**)result_ptr, (char*)fmt, b);
     #endif
 }
-
+#endif
 EXPORT int my32_vswprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
     // need to align on arm
-    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
+    myStackAlignW32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS_32);
+    int r = vswprintf(buff, s, fmt, VARARGS_32);
     return r;
-    #else
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
-    return r;
-    #endif
 }
 EXPORT int my32___vswprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vswprintf")));
+#if 0
 EXPORT int my32___vswprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t m, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
     // need to align on arm
@@ -976,7 +964,18 @@ EXPORT int my32___vswprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, 
     return r;
     #endif
 }
+#endif
+EXPORT int my32_vswscanf(x64emu_t* emu, void* buff, void* fmt, void* b)
+{
+    myStackAlignScanfW32((const char*)fmt, (uint32_t*)b, emu->scratch);
+    PREPARE_VALIST_32;
+    vswscanf(buff, fmt, VARARGS_32);
+}
 
+EXPORT int my32__vswscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vswscanf")));
+EXPORT int my32_swscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vswscanf")));
+
+#if 0
 EXPORT void my32_verr(x64emu_t* emu, int eval, void* fmt, void* b) {
     #ifndef NOALIGN
     myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
@@ -1015,21 +1014,15 @@ EXPORT int my32___swprintf_chk(x64emu_t* emu, void* s, uint32_t n, int32_t flag,
     return r;
     #endif
 }
+#endif
 EXPORT int my32_swprintf(x64emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
 {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlignW32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, VARARGS_32);
+    int r = vswprintf(s, n, fmt, VARARGS_32);
     return r;
-    #else
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, b);
-    return r;
-    #endif
 }
-
+#if 0
 EXPORT void my32__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, void* c)
 {
     // disabled for now... Are all this _ITM_ stuff really mendatory?
@@ -2426,6 +2419,18 @@ EXPORT void* my32___ctype_tolower_loc(x64emu_t* emu)
         emu->tolower = emu->libctolower+128;
     }
     return &emu->tolower;
+}
+EXPORT void* my32___ctype_toupper_loc(x64emu_t* emu)
+{
+    const int** src =__ctype_toupper_loc();
+    if((uintptr_t)src<0x100000000LL)
+        return src;
+    if(src != emu->ref_toupper) {
+        memcpy(emu->libctoupper, &((*src)[-128]), 384*sizeof(int));
+        emu->ref_toupper = src;
+        emu->toupper = emu->libctoupper+128;
+    }
+    return &emu->toupper;
 }
 
 // Backtrace stuff: TODO in 32bits

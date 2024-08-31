@@ -16,6 +16,7 @@
 #() iFH -> iFH
 #() IFf -> IFf
 #() IFd -> IFd
+#() IFh -> IFh
 #() uFv -> uFv
 #() uFu -> uFu
 #() uFU -> uFU
@@ -25,6 +26,7 @@
 #() dFd -> dFd
 #() lFi -> lFi
 #() lFp -> lFp
+#() lFh -> lFh
 #() LFv -> LFv
 #() LFL -> LFL
 #() LFp -> LFp
@@ -53,6 +55,7 @@
 #() iFiu -> iFiu
 #() iFip -> iFip
 #() iFih -> iFih
+#() iFia -> iFia
 #() iFuu -> iFuu
 #() iFup -> iFup
 #() iFli -> iFli
@@ -84,6 +87,7 @@
 #() LFpp -> LFpp
 #() pFEv -> pFEv
 #() pFEp -> pFEp
+#() pFia -> pFia
 #() pFLL -> pFLL
 #() pFpi -> pFpi
 #() pFpL -> pFpL
@@ -134,20 +138,27 @@
 #() iFppu -> iFppu
 #() iFppL -> iFppL
 #() iFppp -> iFppp
+#() iFppa -> iFppa
 #() iFpOu -> iFpOu
+#() iFhIi -> iFhIi
+#() iFhli -> iFhli
 #() iFhpL -> iFhpL
 #() IFiIi -> IFiIi
 #() fFfff -> fFfff
 #() fFffp -> fFffp
+#() fFppa -> fFppa
 #() dFddd -> dFddd
 #() dFddp -> dFddp
+#() dFppa -> dFppa
 #() lFipL -> lFipL
 #() lFlpi -> lFlpi
+#() LFpip -> LFpip
 #() pFEip -> pFEip
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
 #() pFpiL -> pFpiL
 #() pFpih -> pFpih
+#() pFpuL -> pFpuL
 #() pFppL -> pFppL
 #() pFpOM -> pFpOM
 #() hFEpp -> hFEpp
@@ -155,6 +166,7 @@
 #() aFipa -> aFipa
 #() tFipu -> tFipu
 #() IFpBp_i -> IFpBi
+#() UFpBp_i -> UFpBi
 #() lFpBp_i -> lFpBi
 #() vFEipV -> vFEipV
 #() vFEppp -> vFEppp
@@ -179,20 +191,30 @@
 #() iFhpiL -> iFhpiL
 #() lFipLi -> lFipLi
 #() LFpLLh -> LFpLLh
+#() LFppLp -> LFppLp
+#() LFppLa -> LFppLa
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
 #() pFpiLL -> pFpiLL
 #() pFppLL -> pFppLL
+#() LFpbp_Lp -> LFpBLp
 #() iFEpprLL_ -> iFEppB
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
 #() vFEpLLp -> vFEpLLp
+#() iFEpupV -> iFEpupV
+#() iFEpLpV -> iFEpLpV
 #() iFEppiV -> iFEppiV
 #() iFEpppi -> iFEpppi
 #() iFEpppp -> iFEpppp
 #() iFiiipu -> iFiiipu
 #() iFiLLLL -> iFiLLLL
 #() iFpppup -> iFpppup
+#() LFpLppa -> LFpLppa
 #() iFEBh_ppp -> iFEBppp
+#() LFpbp_LLp -> LFpBLLp
+#() LFpBp_LLp -> LFpBLLp
+#() LFLbp_bL_Bp_BL_ -> LFLBBBB
+#() LFpLpriiiiiiiiilt_a -> LFpLpBa
 #() iFEpippp -> iFEpippp
 #() iFEpuppp -> iFEpuppp
 #() iFEpLppp -> iFEpLppp
@@ -204,9 +226,11 @@
 #defined(HAVE_LD80BITS) DFD -> DFD
 #defined(HAVE_LD80BITS) DFDD -> DFDD
 #defined(HAVE_LD80BITS) DFDp -> DFDp
+#defined(HAVE_LD80BITS) DFpBp_a -> DFpBa
 #!defined(HAVE_LD80BITS) KFK -> KFK
 #!defined(HAVE_LD80BITS) KFKK -> KFKK
 #!defined(HAVE_LD80BITS) KFKp -> KFKp
+#!defined(HAVE_LD80BITS) KFpBp_a -> KFpBa
 #() iFEvpV -> iFEpV
 #() UFsvvs -> UFss
 #() pFEppv -> pFEpp
@@ -229,6 +253,8 @@ wrappedlibc:
   - __close_nocancel
 - iFL:
 - iFp:
+- iFh:
+  - getwc
 - iFO:
 - uFu:
 - uFV:
@@ -236,6 +262,7 @@ wrappedlibc:
 - pFv:
   - __ctype_b_loc
   - __ctype_tolower_loc
+  - __ctype_toupper_loc
   - __errno_location
 - pFL:
 - pFp:
@@ -274,8 +301,13 @@ wrappedlibc:
 - iFpLi:
 - iFppL:
 - iFppp:
+  - vswscanf
 - iFppV:
+  - swscanf
 - iFpOu:
+- KFppa:
+  - __strtold_l
+  - strtold_l
 - lFipL:
 - pFppv:
   - __realpath_chk
@@ -285,12 +317,15 @@ wrappedlibc:
 - iFiiII:
 - iFLLLL:
 - iFpvpp:
+- iFpupV:
+- iFpLpV:
 - iFppiV:
 - iFpppp:
   - getaddrinfo
 - iFhvpV:
 - iFpvvpV:
 - iFpippp:
+- iFpuppp:
 - iFpLppp:
 - iFpLiipV:
 - pFpLiiii:

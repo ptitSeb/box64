@@ -101,7 +101,7 @@ GOWM(backtrace_symbols, pFEpi)
 GOW(bind, iFipu)
 // bindresvport
 //GOW(bindtextdomain, pFpp)
-//GOW(bind_textdomain_codeset, pFpp)
+GOW(bind_textdomain_codeset, pFpp)
 //GOW(brk, iFp)
 // __bsd_getpgrp
 // bsd_signal   // Weak
@@ -171,11 +171,11 @@ GO(ctime, pFrL_)
 GO(ctime_r, pFrL_p)
 //DATAM(__ctype_b, 4)
 GOM(__ctype_b_loc, pFEv)
-//GOW(__ctype_get_mb_cur_max, LFv)
+GOW(__ctype_get_mb_cur_max, LFv)
 //DATAM(__ctype_tolower, 4)
 GOM(__ctype_tolower_loc, pFEv)
 //DATAM(__ctype_toupper, 4)
-//GO(__ctype_toupper_loc, pFv)
+GOM(__ctype_toupper_loc, pFEv)
 // __curbrk // type B
 //GO(cuserid, pFp)
 GOM(__cxa_atexit, iFEppp) //%%
@@ -198,8 +198,8 @@ DATAV(daylight, 4)
 // __default_sa_restorer_v2
 // delete_module
 // des_setparity
-//GOW(dgettext, pFpp)
-//GO(__dgettext, pFpp)
+GOW(dgettext, pFpp)
+GO(__dgettext, pFpp)
 //GO(difftime, dFuu)
 //GO(dirfd, iFp)
 //GO(dirname, pFp)
@@ -222,7 +222,7 @@ GOW(dup2, iFii)
 GO(__dup2, iFii)
 GO(dup3, iFiiO)
 //GOW(duplocale, pFp)
-//GO(__duplocale, pFp)
+GO(__duplocale, aFa)
 // dysize
 //GOW(eaccess, iFpi)
 // ecb_crypt
@@ -367,7 +367,7 @@ GOM(__fork, iFEv)           //%%
 // __fortify_fail
 GOW(fpathconf, iFii)
 //GO(__fpending, uFp)
-//GOM(fprintf, iFEppV) //%%
+GOM(fprintf, iFEppV) //%%
 GOM(__fprintf_chk, iFEhvpV) //%%
 // __fpu_control    // type B
 //GO(__fpurge, vFp)
@@ -375,7 +375,7 @@ GOW(fputc, iFih)
 //GO(fputc_unlocked, iFip)
 GOW(fputs, iFph)    // Weak
 //GO(fputs_unlocked, iFpp)
-//GO(fputwc, iFip)
+GO(fputwc, iFih)
 //GO(fputwc_unlocked, iFip)
 //GO(fputws, iFpp)
 //GO(fputws_unlocked, iFpp)
@@ -399,8 +399,8 @@ GO(freopen64, hFppH)
 // frexpl   // Weak
 //GO2(fscanf, iFppV, vfscanf)
 //GO(fseek, iFpli)
-//GO(fseeko, iFpli)
-//GO(fseeko64, iFpIi)
+GO(fseeko, iFhli)
+GO(fseeko64, iFhIi)
 //GO(__fsetlocking, iFpi)
 //GO(fsetpos, iFpp)
 //GO(fsetpos64, iFpp)
@@ -411,8 +411,8 @@ GOWM(fstatfs64, iFip)    //%%,noE
 //GOW(fstatvfs64, iFip)   // alignment?
 GOW(fsync, iFi)
 //GOW(ftell, lFp)
-//GO(ftello, lFp)
-//GO(ftello64, IFp)
+GO(ftello, lFh)
+GO(ftello64, IFh)
 //GO(ftime, iFp)
 //GO(ftok, iFpi)
 GOW(ftruncate, iFiu)
@@ -453,7 +453,7 @@ GOM(getaddrinfo, iFEpppp)
 // getaliasent
 // getaliasent_r
 // get_avphys_pages // Weak
-//GOW(getc, iFp)
+GOW(getc, iFh)
 GOW(getchar, iFv)
 GO(getchar_unlocked, iFv)
 GOM(getcontext, iFEp)         //%%
@@ -605,7 +605,7 @@ GOW(getuid, uFv)
 // getutxid
 // getutxline
 // getw
-//GO2(getwc, iFp, fgetwc)
+GO2(getwc, iFh, fgetwc)
 GO(getwchar, iFv)
 GO(getwchar_unlocked, iFv)
 //GOW(getwc_unlocked, iFp)
@@ -647,10 +647,10 @@ GO(grantpt, iFi)
 //GO(hstrerror, pFi)
 GO(htonl, uFu)
 GO(htons, uFu)
-//GO(iconv, LFLpppp)
+GO(iconv, LFLbp_bL_Bp_BL_)
 //GO(iconv_canonicalize, pFp)
 GO(iconv_close, iFL)
-//GO(iconv_open, LFpp)
+GO(iconv_open, pFpp)
 //GO(if_freenameindex, vFp)
 //GO(if_indextoname, pFup)
 //GO(if_nameindex, pFv)
@@ -1063,12 +1063,12 @@ GOW(mallopt, iFii)  // Weak
 //GO(mblen, iFpL)
 //GOW(mbrlen, LFpLp)
 //GO(__mbrlen, LFpLp)
-//GOW(mbrtowc, LFppLp)
-//GO(__mbrtowc, LFppLp)
+GOW(mbrtowc, LFppLp)
+GO(__mbrtowc, LFppLp)
 //GOW(mbsinit, iFp)
-//GOW(mbsnrtowcs, LFppLLp)
+GOW(mbsnrtowcs, LFpbp_LLp)
 // __mbsnrtowcs_chk
-//GOW(mbsrtowcs, LFppLp)
+GOW(mbsrtowcs, LFpbp_Lp)
 // __mbsrtowcs_chk
 //GO(mbstowcs, LFppL)
 // __mbstowcs_chk
@@ -1150,7 +1150,7 @@ GO(nice, iFi)
 // _nl_default_dirname   // type R
 // _nl_domain_bindings   // type B
 //GO(nl_langinfo, pFu)
-//GO(__nl_langinfo_l, pFup)
+GO(__nl_langinfo_l, pFia)
 //GOW(nl_langinfo_l, pFup)
 //DATAB(_nl_msg_cat_cntr, 4) // type B
 // nrand48
@@ -1301,7 +1301,7 @@ GOW(puts, iFp)
 //GOW(pututline, pFp)
 // pututxline
 // putw
-//GO(putwc, iFip)
+GO(putwc, iFih)
 // putwchar
 GO(putwchar_unlocked, iFi)
 //GO(putwc_unlocked, iFip)
@@ -1571,14 +1571,14 @@ GOW(sigsetmask, iFi)
 //GOW(sigwait, iFpp)
 //GOW(sigwaitinfo, iFpp)
 GOW(sleep, uFu)
-//GOM(snprintf, iFEpLpV) //%%
+GOM(snprintf, iFEpLpV) //%%
 GOM(__snprintf_chk, iFEpLiipV) //%%
 //GOM(__snprintf, iFEpLpV) //%%
 // sockatmark
 GOW(socket, iFiii)
 //GOW(socketpair, iFiiip)
 //GO(splice, iFipipuu)
-//GOM(sprintf, iFEppV) //%%
+GOM(sprintf, iFEppV) //%%
 GOM(__sprintf_chk, iFEpvvpV) //%%
 // sprofil  // Weak
 GOW(srand, vFu)
@@ -1621,7 +1621,7 @@ GO(strchr, pFpi)
 //GOW(strchrnul, pFpi)
 GO(strcmp, iFpp)
 //GO(strcoll, iFpp)
-//GO(__strcoll_l, iFppp)
+GO(__strcoll_l, iFppa)
 //GOW(strcoll_l, iFppp)
 GO(strcpy, pFpp)
 GO(__strcpy_chk, pFppL)
@@ -1641,8 +1641,8 @@ GO(strerror, tFi)
 // strfmon_l    // Weak
 // strfry
 GO(strftime, LFpLpriiiiiiiiilt_)
-//GO(__strftime_l, LFpLppL)
-//GOW(strftime_l, LFpLppL)
+GO(__strftime_l, LFpLpriiiiiiiiilt_a)
+GOW(strftime_l, LFpLpriiiiiiiiilt_a)
 GO(strlen, LFp)
 GOW(strncasecmp, iFppL)
 // __strncasecmp_l
@@ -1674,11 +1674,11 @@ GO(strrchr, pFpi)
 GO(strstr, pFpp)
 GO(strtod, dFpBp_)
 //GO(__strtod_internal, dFppi)
-//GO(__strtod_l, dFppp)
-//GOW(strtod_l, dFppu)
+GO(__strtod_l, dFppa)
+GOW(strtod_l, dFppa)
 GO(strtof, fFpBp_)
 //GO(__strtof_internal, fFppp)
-//GO(__strtof_l, fFppp)
+GO(__strtof_l, fFppa)
 //GOW(strtof_l, fFppu)
 //GO(strtoimax, IFppi)
 //GO(strtok, pFpp)
@@ -1689,13 +1689,13 @@ GO(strtol, lFpBp_i)
 #ifdef HAVE_LD80BITS
 //GO(strtold, DFpp)
 //GO(__strtold_internal, DFppi)
-//GO(__strtold_l, DFppip)
-//GOW(strtold_l, DFppu)
+GO(__strtold_l, DFpBp_a)
+GOW(strtold_l, DFpBp_a)
 #else
 //GO(strtold, KFpp)
 //GO2(__strtold_internal, KFppi, __strtod_internal)
-//GO2(__strtold_l, KFppip, __strtod_l)
-//GOW2(strtold_l, KFppu, strtod_l)
+GO2(__strtold_l, KFpBp_a, __strtod_l)
+GOW2(strtold_l, KFpBp_a, strtod_l)
 #endif
 //GO(__strtol_internal, lFppi)
 GO(strtoll, IFpBp_i)
@@ -1707,7 +1707,7 @@ GO(strtoll, IFpBp_i)
 //GOW(strtoq, IFppi)  // is that ok?
 //GO(strtoul, LFppi)
 //GO(__strtoul_internal, LFppii)
-//GO(strtoull, UFppi)
+GO(strtoull, UFpBp_i)
 //GO(__strtoul_l, uFppip)
 //GOW(strtoul_l, LFppip)
 //GO(__strtoull_internal, UFppii)
@@ -1718,7 +1718,7 @@ GO(strtoll, IFpBp_i)
 //GOW(strverscmp, iFpp)
 // __strverscmp
 //GO(strxfrm, uFppu)
-//GO(__strxfrm_l, uFppup)
+GO(__strxfrm_l, LFppLa)
 //GO(strxfrm_l, uFppup)
 // stty
 // svcauthdes_stats // type B
@@ -1753,9 +1753,9 @@ GO(strtoll, IFpBp_i)
 GOM(swapcontext, iFEpp) //%%
 // swapoff  // Weak
 // swapon   // Weak
-//GOM(swprintf, iFEpupV) //%%
+GOM(swprintf, iFEpupV) //%%
 //GOM(__swprintf_chk, iFEpuiupV) //%%
-//GO2(swscanf, iFppV, vswscanf)     // swscanf va_list is only pointer, no realign to do
+GOM(swscanf, iFEppV)
 GOW(symlink, iFpp)
 //GO(symlinkat, iFpip)
 GO(sync, vFv)
@@ -1823,11 +1823,11 @@ GO(toupper, iFi)
 // __towctrans_l
 // towctrans_l  // Weak
 GO(towlower, iFi)
-//GO(__towlower_l, iFip)
-//GOW(towlower_l, iFip)
-//GO(towupper, iFi)
-//GO(__towupper_l, iFip)
-//GOW(towupper_l, iFip)
+GO(__towlower_l, iFia)
+GOW(towlower_l, iFia)
+GO(towupper, iFi)
+GO(__towupper_l, iFia)
+GOW(towupper_l, iFia)
 // tr_break
 //GOW(truncate, iFpu)
 //GO(truncate64, iFpU)
@@ -1849,8 +1849,8 @@ GOW(umask, uFu)
 //GOW(umount2, iFpi)
 GOWM(uname, iFp) //%%,noE
 //GO(__underflow, iFp)
-//GOW(ungetc, iFip)
-//GO(ungetwc, iFip)
+GOW(ungetc, iFih)
+GO(ungetwc, iFih)
 GOW(unlink, iFp)
 //GO(unlinkat, iFipi)
 GO(unlockpt, iFi)
@@ -1900,9 +1900,9 @@ GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
 //GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 //GOM(vsscanf, iFEppp) //%%
 // __vsscanf    // Weak
-//GOWM(vswprintf, iFEpuppp)         //%%
+GOWM(vswprintf, iFEpuppp)         //%%
 //GOWM(__vswprintf_chk, iFEpLiLppp) //%%
-//GO(vswscanf, iFppp)
+GOM(vswscanf, iFEppp)
 //GO(vsyslog, vFipp)
 //GO(__vsyslog_chk, vFiipp)
 // vtimes
@@ -1924,7 +1924,7 @@ GOW(__waitpid, lFlpi)
 // __wcpcpy_chk
 //GOW(wcpncpy, pFpp)
 // __wcpncpy_chk
-//GOW(wcrtomb, LFpip)
+GOW(wcrtomb, LFpip)
 // __wcrtomb_chk
 //GOW(wcscasecmp, iFpp)
 // __wcscasecmp_l
@@ -1933,28 +1933,28 @@ GOW(__waitpid, lFlpi)
 //GO(__wcscat_chk, pFppu)
 //GO(wcschr, pFpi)
 // wcschrnul    // Weak
-//GO(wcscmp, iFpp)
-//GOW(wcscoll, iFpp)
-//GO(__wcscoll_l, iFppp)
-//GOW(wcscoll_l, iFppp)
+GO(wcscmp, iFpp)
+GOW(wcscoll, iFpp)
+GO(__wcscoll_l, iFppa)
+GOW(wcscoll_l, iFppa)
 GO(wcscpy, pFpp)
-//GO(__wcscpy_chk, pFppu)
+GO(__wcscpy_chk, pFppL)
 //GO(wcscspn, uFpp)
 GO(wcsdup, pFp)
 //GO(wcsftime, LFpLpp)
-//GO(__wcsftime_l, LFpLppp)
-//GOW(wcsftime_l, LFpLppp)
+GO(__wcsftime_l, LFpLppa)
+GOW(wcsftime_l, LFpLppa)
 GOW(wcslen, LFp)
 GOW(wcsncasecmp, iFppL)
 // __wcsncasecmp_l
 //GOW(wcsncasecmp_l, iFppup)
-//GO(wcsncat, pFppu)
+GO(wcsncat, pFppL)
 // __wcsncat_chk
-//GO(wcsncmp, iFppu)
-//GOW(wcsncpy, pFppu)
-//GO(__wcsncpy_chk, pFppuu)
-//GOW(wcsnlen, LFpL)
-//GOW(wcsnrtombs, LFppLLp)
+GO(wcsncmp, iFppL)
+GOW(wcsncpy, pFppL)
+GO(__wcsncpy_chk, pFppLL)
+GOW(wcsnlen, LFpL)
+GOW(wcsnrtombs, LFpBp_LLp)
 // __wcsnrtombs_chk
 //GO(wcspbrk, pFpp)
 //GO(wcsrchr, pFpi)
@@ -1978,7 +1978,7 @@ GOW(wcsncasecmp, iFppL)
 // __wcstold_l
 // wcstold_l    // Weak
 //GO(__wcstol_internal, iFppii)
-//GO(wcstoll, IFppi)
+GO(wcstoll, IFpBp_i)
 // __wcstol_l
 // wcstol_l // Weak
 // __wcstoll_internal
@@ -1989,7 +1989,7 @@ GOW(wcsncasecmp, iFppL)
 // wcstoq   // Weak
 //GO(wcstoul, iFppi)
 //GO(__wcstoul_internal, LFppii)
-//GO(wcstoull, UFppi)
+GO(wcstoull, UFpBp_i)
 // __wcstoul_l
 // wcstoul_l    // Weak
 // __wcstoull_internal
@@ -2001,7 +2001,7 @@ GOW(wcsncasecmp, iFppL)
 //GO(wcswidth, iFpu)
 //GO(wcsxfrm, uFppu)
 //GOW(wcsxfrm_l, uFppup)
-//GO(__wcsxfrm_l, uFppup)
+GO(__wcsxfrm_l, LFppLa)
 GO(wctob, iFi)
 //GO(wctomb, iFpi)
 //GO(__wctomb_chk, iFpuL)
@@ -2012,7 +2012,7 @@ GO(wctob, iFi)
 GO(__wctype_l, uFpa)
 GOW(wctype_l, uFpa)
 //GO(wcwidth, iFu)
-//GOW(wmemchr, pFpuL)
+GOW(wmemchr, pFpuL)
 GO(wmemcmp, iFppL)
 GOW(wmemcpy, pFppL)
 GO(__wmemcpy_chk, pFppLL)
@@ -2020,7 +2020,7 @@ GOW(wmemmove, pFppL)
 // __wmemmove_chk
 // wmempcpy // Weak
 // __wmempcpy_chk
-//GO(wmemset, pFpuL)
+GO(wmemset, pFpuL)
 // __wmemset_chk
 //GO(wordexp, iFppi)
 //GO(wordfree, vFp)

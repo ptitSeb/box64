@@ -237,6 +237,105 @@ void myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack)
     }
 }
 
+void myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack)
+{
+    
+    if(!fmt)
+        return;
+    // loop...
+    const wchar_t* p = (const wchar_t*)fmt;
+    int state = 0;
+    int ign = 0;
+    while(*p)
+    {
+        switch(state) {
+            case 0:
+                ign = 0;
+                switch(*p) {
+                    case '%': state = 1; ++p; break;
+                    default:
+                        ++p;
+                }
+                break;
+            case 1: // normal
+            case 2: // l
+            case 3: // ll
+            case 4: // L
+            case 5: // z
+                switch(*p) {
+                    case '%': state = 0;  ++p; break; //%% = back to 0
+                    case 'l': ++state; if (state>3) state=3; ++p; break;
+                    case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
+                    case 'a':
+                    case 'A':
+                    case 'e':
+                    case 'E':
+                    case 'g':
+                    case 'G':
+                    case 'F':
+                    case 'f': state += 10; break;    //  float
+                    case 'd':
+                    case 'i':
+                    case 'o':
+                    case 'u':
+                    case 'x':
+                    case 'X': state += 20; break;   // int
+                    case 'h': ++p; break;  // ignored...
+                    case '\'':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                    case '.': 
+                    case '#':
+                    case '+': 
+                    case '-': ++p; break; // formating, ignored
+                    case 'm': state = 0; ++p; break; // no argument
+                    case 'n':
+                    case 'p':
+                    case 'S':
+                    case 's': state = 30; break; // pointers
+                    case '$': ++p; break; // should issue a warning, it's not handled...
+                    case '*': ign=1; ++p; break; // ignore arg
+                    case ' ': state=0; ++p; break;
+                    default:
+                        state=20; // other stuff, put an int...
+                }
+                break;
+            case 11:    //double
+            case 12:    //%lg, still double
+            case 13:    //%llg, still double
+            case 14:    //%Lg long double
+            case 15:    //%zg
+            case 20:    // fallback
+            case 21:
+            case 22:
+            case 23:    // 64bits int
+            case 24:    // normal int / pointer
+            case 25:    // size_t int
+            case 30:
+                if(!ign) {
+                    *mystack = *st;
+                    ++st;
+                    ++mystack;
+                }
+                state = 0;
+                ++p;
+                break;
+            default:
+                // whaaaat?
+                state = 0;
+        }
+    }
+}
+
 void myStackAlignGVariantNew32(const char* fmt, uint32_t* st, uint64_t* mystack)
 {
     if (!fmt)
@@ -455,7 +554,7 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 'o': state += 20; break;   // int
                     case 'x':
                     case 'X':
-                    case 'u': state += 40; break;   // unsigned
+                    case 'u': state += 40; break;   // uint
                     case 'h': ++p; break;  // ignored...
                     case '\'':
                     case '0':
@@ -477,7 +576,7 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 'S':
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
-                    case '*': *(mystack++) = *(st++); ++p; break; //fetch an int in the stack
+                    case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
                     case ' ': state=0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
@@ -524,9 +623,10 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                 ++p;
                 break;
             case 20:    // fallback
-            case 40:
             case 21:
             case 24:    // normal int / pointer
+            case 40:
+            case 41:
                 *mystack = *st;
                 ++mystack;
                 ++st;

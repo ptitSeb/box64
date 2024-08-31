@@ -141,6 +141,9 @@ typedef struct x64emu_s {
     int         libctolower[384];   // copy from __ctype_b_tolower address might be too high
     const int** ref_tolower;
     const int*  tolower;
+    int         libctoupper[384];   // copy from __ctype_b_toupper address might be too high
+    const int** ref_toupper;
+    const int*  toupper;
     #endif
 } x64emu_t;
 
