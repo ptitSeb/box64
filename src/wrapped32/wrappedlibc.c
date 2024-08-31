@@ -655,7 +655,6 @@ int of_unconvert32(int a)
 }
 #undef SUPER
 
-#if 0
 EXPORT void* my32__ZGTtnaX (size_t a) { printf("warning _ZGTtnaX called\n"); return NULL; }
 EXPORT void my32__ZGTtdlPv (void* a) { printf("warning _ZGTtdlPv called\n"); }
 EXPORT uint8_t my32__ITM_RU1(const uint8_t * a) { printf("warning _ITM_RU1 called\n"); return 0; }
@@ -663,7 +662,7 @@ EXPORT uint32_t my32__ITM_RU4(const uint32_t * a) { printf("warning _ITM_RU4 cal
 EXPORT uint64_t my32__ITM_RU8(const uint64_t * a) { printf("warning _ITM_RU8 called\n"); return 0; }
 EXPORT void my32__ITM_memcpyRtWn(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n");  }
 EXPORT void my32__ITM_memcpyRnWt(void * a, const void * b, size_t c) {printf("warning _ITM_memcpyRtWn called\n"); }
-#endif
+
 EXPORT void my32_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 EXPORT void my32__longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my32_longjmp")));
 EXPORT void my32_siglongjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val) __attribute__((alias("my32_longjmp")));
@@ -1022,7 +1021,7 @@ EXPORT int my32_swprintf(x64emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
     int r = vswprintf(s, n, fmt, VARARGS_32);
     return r;
 }
-#if 0
+
 EXPORT void my32__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, void* c)
 {
     // disabled for now... Are all this _ITM_ stuff really mendatory?
@@ -1036,7 +1035,7 @@ EXPORT void my32__ITM_addUserCommitAction(x64emu_t* emu, void* cb, uint32_t b, v
     printf("warning _ITM_addUserCommitAction called\n");
     #endif
 }
-#endif
+
 EXPORT void my32__ITM_registerTMCloneTable(x64emu_t* emu, void* p, uint32_t s) {}
 EXPORT void my32__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) {}
 

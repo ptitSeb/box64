@@ -311,7 +311,7 @@ GO(fdatasync, iFi)
 // fdetach
 //GO(fdopen, pFip)
 GOW(fdopendir, pFi)
-//GOW(feof, iFp)
+GOW(feof, iFh)
 //GO(feof_unlocked, iFp)
 //GOW(ferror, iFp)
 //GO(ferror_unlocked, iFp)
@@ -343,7 +343,7 @@ GOW(fgets, pFpih)
 //GO(fgetws_unlocked, pFpip)
 // __fgetws_unlocked_chk
 //GO(fgetxattr, iFippu)
-//GO(fileno, iFp)
+GO(fileno, iFh)
 //GOW(fileno_unlocked, iFp)
 GOW(finite, iFd)
 GO(__finite, iFd)
@@ -358,7 +358,7 @@ GOW(flock, iFii)
 GOW(_flushlbf, vFv)
 //GO(fmemopen, pFpup)
 // fmtmsg
-//GO(fnmatch, iFppi)
+GO(fnmatch, iFppi)
 GOM(fopen, hFEpp)           //%%
 GOWM(fopen64, hFEpp)         //%%
 //GOM(fopencookie, pFEpppppp) //%% last 4p are a struct with 4 callbacks...
@@ -398,7 +398,7 @@ GO(freopen64, hFppH)
 // frexpf   // Weak
 // frexpl   // Weak
 //GO2(fscanf, iFppV, vfscanf)
-//GO(fseek, iFpli)
+GO(fseek, iFhli)
 GO(fseeko, iFhli)
 GO(fseeko64, iFhIi)
 //GO(__fsetlocking, iFpi)
@@ -1108,7 +1108,7 @@ GO(mkfifo, iFpu)
 //GO(mkstemp, iFp)
 //GO(mkstemp64, iFp)
 //GO(mktemp, pFp)
-//GO(mktime, LFp)
+GO(mktime, LFriiiiiiiiilt_)
 //GO(mlock, iFpL)
 //GO(mlockall, iFi)
 GOM(mmap, pFEpLiiii)    //%%
@@ -1125,7 +1125,7 @@ GOW(mount, iFpppup)
 GOM(mprotect, iFEpLi)   //%%
 // mrand48
 // mrand48_r
-//GOWM(mremap, pFEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
+GOWM(mremap, pFEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MREMAP_FIXED
 //GO(msgctl, iFiip)
 //GOW(msgget, iFpi)
 //GOW(msgrcv, lFipLli)
@@ -1375,7 +1375,7 @@ GO(recv, lFipLi)
 // remap_file_pages // Weak
 //GOW(re_match, iFppiip)
 // re_match_2   // Weak
-//GO(remove, iFp)
+GO(remove, iFp)
 //GO(removexattr, iFpp)
 // remque
 GO(rename, iFpp)
@@ -1470,7 +1470,7 @@ GOW(send, lFipLi)
 GOM(setcontext, iFEp) //%%
 // setdomainname
 GO(setegid, iFu)
-//GOW(setenv, iFppi)
+GOW(setenv, iFppi)
 // _seterr_reply
 GO(seteuid, iFu)
 // setfsent
@@ -1705,7 +1705,7 @@ GO(strtoll, IFpBp_i)
 //GO(__strtoll_l, IFppip)
 //GOW(strtoll_l, IFppip)
 //GOW(strtoq, IFppi)  // is that ok?
-//GO(strtoul, LFppi)
+GO(strtoul, LFpBp_i)
 //GO(__strtoul_internal, LFppii)
 GO(strtoull, UFpBp_i)
 //GO(__strtoul_l, uFppip)
@@ -1782,11 +1782,11 @@ GOW(system, iFp)          // Need to wrap to use box86 if needed?
 GOW(tcdrain, iFi)
 GO(tcflow, iFii)
 GO(tcflush, iFii)
-//GOW(tcgetattr, iFip)
+GOW(tcgetattr, iFip)
 GO(tcgetpgrp, iFi)
 // tcgetsid
 GO(tcsendbreak, iFii)
-//GO(tcsetattr, iFiip)
+GO(tcsetattr, iFiip)
 GO(tcsetpgrp, iFii)
 // tdelete  // Weak
 // tdestroy // Weak
@@ -1926,7 +1926,7 @@ GOW(__waitpid, lFlpi)
 // __wcpncpy_chk
 GOW(wcrtomb, LFpip)
 // __wcrtomb_chk
-//GOW(wcscasecmp, iFpp)
+GOW(wcscasecmp, iFpp)
 // __wcscasecmp_l
 //GOW(wcscasecmp_l, iFppp)
 //GOW(wcscat, pFpp)
@@ -1972,7 +1972,7 @@ GOW(wcsnrtombs, LFpBp_LLp)
 // wcstof_l // Weak
 // wcstoimax
 //GO(wcstok, pFppp)
-//GO(wcstol, iFppi)
+GO(wcstol, iFpBp_i)
 //GO(wcstold, DFpp)
 // __wcstold_internal
 // __wcstold_l
@@ -2136,12 +2136,12 @@ GO2(__close_nocancel, iFi, close)
 
 // not found (libitm???), but it seems OK to declare dummies:
 
-//GOM(_ITM_RU1, uFp)          //%%,noE
-//GOM(_ITM_RU4, uFp)          //%%,noE
-//GOM(_ITM_RU8, UFp)
-//GOM(_ITM_memcpyRtWn, vFppu) //%%,noE register(2)
-//GOM(_ITM_memcpyRnWt, vFppu) //%%,noE register(2)
-//GOM(_ITM_addUserCommitAction, vFEpup)
+GOM(_ITM_RU1, uFp)          //%%,noE
+GOM(_ITM_RU4, uFp)          //%%,noE
+GOM(_ITM_RU8, UFp)          //%%,noE
+GOM(_ITM_memcpyRtWn, vFppu) //%%,noE register(2)
+GOM(_ITM_memcpyRnWt, vFppu) //%%,noE register(2)
+GOM(_ITM_addUserCommitAction, vFEpup)
 GOM(_ITM_registerTMCloneTable, vFEpu)  //%%
 GOM(_ITM_deregisterTMCloneTable, vFEp) //%%
 

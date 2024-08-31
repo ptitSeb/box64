@@ -20,6 +20,8 @@
 #() uFv -> uFv
 #() uFu -> uFu
 #() uFU -> uFU
+#() uFp -> uFp
+#() UFp -> UFp
 #() UFs -> UFs
 #() fFf -> fFf
 #() dFv -> dFv
@@ -108,6 +110,7 @@
 #() vFEpu -> vFEpu
 #() vFfpp -> vFfpp
 #() vFdpp -> vFdpp
+#() vFppu -> vFppu
 #() iFEip -> iFEip
 #() iFEpi -> iFEpi
 #() iFEpL -> iFEpL
@@ -117,6 +120,7 @@
 #() iFiii -> iFiii
 #() iFiiI -> iFiiI
 #() iFiiu -> iFiiu
+#() iFiip -> iFiip
 #() iFiiO -> iFiiO
 #() iFiII -> iFiII
 #() iFiuu -> iFiuu
@@ -135,6 +139,7 @@
 #() iFpuu -> iFpuu
 #() iFpLi -> iFpLi
 #() iFpLL -> iFpLL
+#() iFppi -> iFppi
 #() iFppu -> iFppu
 #() iFppL -> iFppL
 #() iFppp -> iFppp
@@ -165,10 +170,13 @@
 #() hFppH -> hFppH
 #() aFipa -> aFipa
 #() tFipu -> tFipu
+#() iFpBp_i -> iFpBi
 #() IFpBp_i -> IFpBi
 #() UFpBp_i -> UFpBi
 #() lFpBp_i -> lFpBi
+#() LFpBp_i -> LFpBi
 #() vFEipV -> vFEipV
+#() vFEpup -> vFEpup
 #() vFEppp -> vFEppp
 #() iFEiip -> iFEiip
 #() iFEiiN -> iFEiiN
@@ -218,6 +226,7 @@
 #() iFEpippp -> iFEpippp
 #() iFEpuppp -> iFEpuppp
 #() iFEpLppp -> iFEpLppp
+#() pFEpLLiN -> pFEpLLiN
 #() iFEpLiipV -> iFEpLiipV
 #() pFEpLiiii -> pFEpLiiii
 #() pFEpLiiiI -> pFEpLiiiI
@@ -257,7 +266,9 @@ wrappedlibc:
   - getwc
 - iFO:
 - uFu:
+- uFp:
 - uFV:
+- UFp:
 - LFL:
 - pFv:
   - __ctype_b_loc
@@ -295,6 +306,9 @@ wrappedlibc:
   - localtime_r
 - hFpp:
 - vFipV:
+- vFpup:
+  - _ITM_addUserCommitAction
+- vFppu:
 - iFvpV:
 - iFiip:
 - iFiiN:
@@ -328,6 +342,7 @@ wrappedlibc:
 - iFpippp:
 - iFpuppp:
 - iFpLppp:
+- pFpLLiN:
 - iFpLiipV:
 - pFpLiiii:
 - pFpLiiiI:
