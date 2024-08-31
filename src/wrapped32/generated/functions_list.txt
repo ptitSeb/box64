@@ -264,6 +264,7 @@ wrappedlibc:
   - __ctype_tolower_loc
   - __ctype_toupper_loc
   - __errno_location
+  - localeconv
 - pFL:
 - pFp:
   - gethostbyname

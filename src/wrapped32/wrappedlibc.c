@@ -2495,6 +2495,50 @@ EXPORT void* my32_backtrace_symbols(x64emu_t* emu, ptr_t* buffer, int size)
     return ret;
 }
 
+struct i386_lconv
+{
+  ptr_t decimal_point;  // char *
+  ptr_t thousands_sep;  // char *
+  ptr_t grouping;       // char *
+  ptr_t int_curr_symbol; // char *
+  ptr_t currency_symbol; // char *
+  ptr_t mon_decimal_point; // char *
+  ptr_t mon_thousands_sep; // char *
+  ptr_t mon_grouping; // char *
+  ptr_t positive_sign; // char *
+  ptr_t negative_sign; // char *
+  char int_frac_digits;
+  char frac_digits;
+  char p_cs_precedes;
+  char p_sep_by_space;
+  char n_cs_precedes;
+  char n_sep_by_space;
+  char p_sign_posn;
+  char n_sign_posn;
+  char int_p_cs_precedes;
+  char int_p_sep_by_space;
+  char int_n_cs_precedes;
+  char int_n_sep_by_space;
+  char int_p_sign_posn;
+  char int_n_sign_posn;
+};
+EXPORT void* my32_localeconv(x64emu_t* emu)
+{
+    static struct i386_lconv ret = {0};
+    struct lconv* l = localeconv();
+    ret.decimal_point = to_cstring(l->decimal_point);
+    ret.grouping = to_cstring(l->grouping);
+    ret.int_curr_symbol = to_cstring(l->int_curr_symbol);
+    ret.currency_symbol = to_cstring(l->currency_symbol);
+    ret.mon_decimal_point = to_cstring(l->mon_decimal_point);
+    ret.mon_thousands_sep = to_cstring(l->mon_thousands_sep);
+    ret.mon_grouping = to_cstring(l->mon_grouping);
+    ret.positive_sign = to_cstring(l->positive_sign);
+    ret.negative_sign = to_cstring(l->negative_sign);
+    memcpy(&ret.int_frac_digits, &l->int_frac_digits, 14);
+    return &ret;
+}
+
 
 EXPORT struct __processor_model
 {

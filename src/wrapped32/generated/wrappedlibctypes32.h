@@ -81,6 +81,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(__ctype_tolower_loc, pFv_t) \
 	GO(__ctype_toupper_loc, pFv_t) \
 	GO(__errno_location, pFv_t) \
+	GO(localeconv, pFv_t) \
 	GO(gethostbyname, pFp_t) \
 	GO(getrlimit, iFip_t) \
 	GO(setrlimit, iFip_t) \

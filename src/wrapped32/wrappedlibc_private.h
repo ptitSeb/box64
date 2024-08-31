@@ -1027,7 +1027,7 @@ GOW(listen, iFii)
 // llseek   // Weak
 // loc1 // type B
 // loc2 // type B
-//GOW(localeconv, pFv)
+GOWM(localeconv, pFEv)
 //GO(localtime, pFp)
 GOWM(localtime_r, pFEpp)
 GO(lockf, iFiiu)
