@@ -153,7 +153,6 @@ typedef void* (*pFu_t)(uint32_t);
 
 //#include "wrappercallback.h"
 
-#if 0
 // utility functions
 #define SUPER() \
 GO(0)   \
@@ -173,6 +172,7 @@ GO(13)  \
 GO(14)  \
 GO(15)
 
+#if 0
 // compare
 #define GO(A)   \
 static uintptr_t my32_compare_fct_##A = 0;        \
@@ -363,13 +363,13 @@ static void* findcompare_dirFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare_dir callback\n");
     return NULL;
 }
-
+#endif
 // filter64
 #define GO(A)   \
-static uintptr_t my32_filter64_fct_##A = 0;                               \
-static int my32_filter64_##A(const struct dirent64* a)                    \
-{                                                                       \
-    return (int)RunFunction(my_context, my32_filter64_fct_##A, 1, a);     \
+static uintptr_t my32_filter64_fct_##A = 0;                                 \
+static int my32_filter64_##A(const struct dirent64* a)                      \
+{                                                                           \
+    return (int)RunFunctionFmt(my32_filter64_fct_##A, "p", a);  \
 }
 SUPER()
 #undef GO
@@ -389,10 +389,10 @@ static void* findfilter64Fct(void* fct)
 }
 // compare64
 #define GO(A)   \
-static uintptr_t my32_compare64_fct_##A = 0;                                      \
-static int my32_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
-{                                                                               \
-    return (int)RunFunction(my_context, my32_compare64_fct_##A, 2, a, b);         \
+static uintptr_t my32_compare64_fct_##A = 0;                                        \
+static int my32_compare64_##A(const struct dirent64* a, const struct dirent64* b)   \
+{                                                                                   \
+    return (int)RunFunctionFmt(my32_compare64_fct_##A, "pp", a, b);                 \
 }
 SUPER()
 #undef GO
@@ -410,6 +410,7 @@ static void* findcompare64Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc compare64 callback\n");
     return NULL;
 }
+#if 0
 // on_exit
 #define GO(A)   \
 static uintptr_t my32_on_exit_fct_##A = 0;                    \
@@ -433,8 +434,8 @@ static void* findon_exitFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libc on_exit callback\n");
     return NULL;
 }
-#undef SUPER
 #endif
+#undef SUPER
 
 EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
 {
@@ -817,20 +818,15 @@ EXPORT int my32___snprintf_chk(x64emu_t* emu, void* buff, size_t s, int f1, int 
     return vsnprintf(buff, s, fmt, VARARGS_32);
 }
 
-#if 0
 EXPORT int my32_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vsprintf;
-    return ((iFppp_t)f)(buff, fmt, VARARGS_32);
-    #else
-    return vsprintf((char*)buff, (char*)fmt, b);
-    #endif
+    return vsprintf(buff, fmt, VARARGS_32);
 }
 EXPORT int my32___sprintf_chk(x64emu_t* emu, void* buff, void * fmt, void * b) __attribute__((alias("my32_sprintf")));
 
+#if 0
 EXPORT int my32_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b) {
     #ifndef NOALIGN
     // need to align on arm
@@ -1232,31 +1228,16 @@ EXPORT int my32___xstat64(x64emu_t* emu, int v, void* path, void* buf)
     UnalignStat64_32(&st, buf);
     return r;
 }
-#if 0
+
 EXPORT int my32___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
-    if (v == 1)
-    {
-        static iFipp_t f = NULL;
-        if(!f) {
-            library_t* lib = my_lib;
-            if(!lib)
-            {
-                errno = EINVAL;
-                return -1;
-            }
-            f = (iFipp_t)dlsym(lib->priv.w.lib, "__lxstat");
-        }
-
-        return f(v, name, buf);
-    }
     struct stat64 st;
     int r = lstat64((const char*)name, &st);
     if (r) return r;
     r = FillStatFromStat64(v, &st, buf);
     return r;
 }
-#endif
+
 EXPORT int my32___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 {
     struct stat64 st;
@@ -1859,12 +1840,12 @@ EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc
     return glob64(pat, flags, findgloberrFct(errfnc), pglob);
 }
 #endif
-
+#endif
 EXPORT int my32_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
-
+#if 0
 EXPORT int my32_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     static iFpppp_t f = NULL;
@@ -2353,6 +2334,37 @@ EXPORT void my32_freeaddrinfo(x64emu_t* emu, void* a) {
     box_free(a);
 }
 
+EXPORT void* my32_gethostbyname(x64emu_t* emu, const char* a)
+{
+    static struct i386_hostent ret = {0};
+    static ptr_t strings[128] = {0};
+    struct hostent* h = gethostbyname(a);
+    if(!h) return NULL;
+    // convert...
+    ret.h_name = to_cstring(h->h_name);
+    ret.h_addrtype = h->h_addrtype;
+    ret.h_length = h->h_length;
+    ptr_t s = to_ptrv(&strings);
+    int idx = 0;
+    ret.h_aliases = h->h_aliases?s:0;
+    if(h->h_aliases) {
+        char* p = *h->h_aliases;
+        while(p) {
+            strings[idx++] = to_cstring(p++);
+        }
+        strings[idx++] = 0;
+    }
+    ret.h_addr_list = h->h_addr_list?to_ptrv(&strings[idx]):0;
+    if(h->h_addr_list) {
+        void* p = *h->h_addr_list;
+        while(p)
+            strings[idx++] = to_ptrv(p++);
+        strings[idx++] = 0;
+    }
+    // done
+    return &ret;
+}
+
 EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 {
     const struct dirent64* d1 = NULL;
@@ -2385,6 +2397,44 @@ EXPORT void* my32___ctype_tolower_loc(x64emu_t* emu)
         emu->tolower = emu->libctolower+128;
     }
     return &emu->tolower;
+}
+
+// Backtrace stuff: TODO in 32bits
+
+//#include "elfs/elfdwarf_private.h"
+EXPORT int my32_backtrace(x64emu_t* emu, void** buffer, int size)
+{
+    if (!size) return 0;
+    #if 0
+    dwarf_unwind_t *unwind = init_dwarf_unwind_registers(emu);
+    int idx = 0;
+    char success = 0;
+    uintptr_t addr = *(uintptr_t*)R_RSP;
+    buffer[0] = (void*)addr;
+    while (++idx < size) {
+        uintptr_t ret_addr = get_parent_registers(unwind, FindElfAddress(my_context, addr), addr, &success);
+        if (ret_addr == my_context->exit_bridge) {
+            // TODO: do something to be able to get the function name
+            buffer[idx] = (void*)ret_addr;
+            success = 2;
+            // See elfdwarf_private.c for the register mapping
+            unwind->regs[7] = unwind->regs[6]; // mov rsp, rbp
+            unwind->regs[6] = *(uint64_t*)unwind->regs[7]; // pop rbp
+            unwind->regs[7] += 8;
+            ret_addr = *(uint64_t*)unwind->regs[7]; // ret
+            unwind->regs[7] += 8;
+            if (++idx < size) buffer[idx] = (void*)ret_addr;
+        } else if (!success) break;
+        else buffer[idx] = (void*)ret_addr;
+        addr = ret_addr;
+    }
+    free_dwarf_unwind_registers(&unwind);
+    return idx;
+    #else
+    uintptr_t addr = from_ptr(*(ptr_t*)from_ptrv(R_ESP));
+    buffer[0] = (void*)addr;
+    return 1;
+    #endif
 }
 
 EXPORT struct __processor_model

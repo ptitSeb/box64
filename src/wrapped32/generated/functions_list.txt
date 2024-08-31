@@ -37,6 +37,7 @@
 #() aFa -> aFa
 #() tFp -> tFp
 #() LFrL_ -> LFB
+#() pFrL_ -> pFB
 #() vFEv -> vFEv
 #() vFEp -> vFEp
 #() iFEv -> iFEv
@@ -89,6 +90,7 @@
 #() iFHBp_ -> iFHB
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
+#() pFrL_p -> pFBp
 #() iFuBLL_ -> iFuB
 #() iFprLL_ -> iFpB
 #() iFrLL_BLL_ -> iFBB
@@ -164,6 +166,8 @@
 #() iFiiiN -> iFiiiN
 #() iFiiII -> iFiiII
 #() iFiuui -> iFiuui
+#() iFipup -> iFipup
+#() iFuupi -> iFuupi
 #() iFhpiL -> iFhpiL
 #() lFipLi -> lFipLi
 #() LFpLLh -> LFpLLh
@@ -179,6 +183,7 @@
 #() iFEpppp -> iFEpppp
 #() iFiiipu -> iFiiipu
 #() iFiLLLL -> iFiLLLL
+#() iFpppup -> iFpppup
 #() iFEBh_ppp -> iFEBppp
 #() iFEpippp -> iFEpippp
 #() iFEpuppp -> iFEpuppp
@@ -195,6 +200,7 @@
 #() iFEvpV -> iFEpV
 #() UFsvvs -> UFss
 #() iFEhvpV -> iFEhpV
+#() iFEpvvpV -> iFEppV
 #() iFEpuvvppp -> iFEpuppp
 wrappedcrashhandler:
 wrappedldlinux:
@@ -220,12 +226,16 @@ wrappedlibc:
   - __ctype_tolower_loc
   - __errno_location
 - pFL:
+- pFp:
+  - gethostbyname
 - vFip:
 - vFpi:
 - vFpu:
 - iFip:
   - getrlimit
   - setrlimit
+- iFpi:
+  - backtrace
 - iFpp:
   - alphasort64
 - iFpV:
@@ -258,6 +268,7 @@ wrappedlibc:
 - iFpppp:
   - getaddrinfo
 - iFhvpV:
+- iFpvvpV:
 - iFpippp:
 - iFpLppp:
 - iFpLiipV:

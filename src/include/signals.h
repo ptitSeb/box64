@@ -24,6 +24,29 @@ typedef struct x64_sigaction_restorer_s {
 	sigset_t sa_mask;
 } x64_sigaction_restorer_t;
 
+#ifdef BOX32
+typedef struct i386_sigaction_s {
+	union {
+	  ptr_t _sa_handler;	// sighandler_t
+	  ptr_t _sa_sigaction; //void (*_sa_sigaction)(int, siginfo_t *, void *);
+	} _u;
+	sigset_t sa_mask;
+	uint32_t sa_flags;
+	ptr_t sa_restorer; //void (*sa_restorer)(void);
+} i386_sigaction_t;
+
+typedef struct i386_sigaction_restorer_s {
+	union {
+	  ptr_t _sa_handler;	//sighandler_t
+	  ptr_t _sa_sigaction; //void (*_sa_sigaction)(int, siginfo_t *, void *);
+	} _u;
+	uint32_t sa_flags;
+	ptr_t sa_restorer; //void (*sa_restorer)(void);
+	sigset_t sa_mask;
+} i386_sigaction_restorer_t;
+
+#endif
+
 sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler);
 sighandler_t my___sysv_signal(x64emu_t* emu, int signum, sighandler_t handler);
 sighandler_t my_sysv_signal(x64emu_t* emu, int signum, sighandler_t handler);

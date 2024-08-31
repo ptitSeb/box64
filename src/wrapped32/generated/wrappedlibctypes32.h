@@ -23,10 +23,12 @@ typedef uint32_t (*uFV_t)(...);
 typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void* (*pFv_t)(void);
 typedef void* (*pFL_t)(uintptr_t);
+typedef void* (*pFp_t)(void*);
 typedef void (*vFip_t)(int32_t, void*);
 typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
 typedef int32_t (*iFip_t)(int32_t, void*);
+typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpV_t)(void*, ...);
 typedef int32_t (*iFhp_t)(uintptr_t, void*);
@@ -52,6 +54,7 @@ typedef int32_t (*iFLLLL_t)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFhvpV_t)(uintptr_t, void, void*, ...);
+typedef int32_t (*iFpvvpV_t)(void*, void, void, void*, ...);
 typedef int32_t (*iFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef int32_t (*iFpLppp_t)(void*, uintptr_t, void*, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
@@ -64,8 +67,10 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(__ctype_b_loc, pFv_t) \
 	GO(__ctype_tolower_loc, pFv_t) \
 	GO(__errno_location, pFv_t) \
+	GO(gethostbyname, pFp_t) \
 	GO(getrlimit, iFip_t) \
 	GO(setrlimit, iFip_t) \
+	GO(backtrace, iFpi_t) \
 	GO(alphasort64, iFpp_t) \
 	GO(statvfs64, iFhp_t) \
 	GO(signal, pFip_t) \

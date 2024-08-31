@@ -439,5 +439,12 @@ struct i386_addrinfo
   ptr_t ai_next;        // struct addrinfo *
 } __attribute__((packed));
 
+struct i386_hostent {
+    ptr_t  h_name;     // char  *
+    ptr_t  h_aliases;  // char **
+    int    h_addrtype;
+    int    h_length;
+    ptr_t  h_addr_list;// char **
+} __attribute__((packed));
 
 #endif//__MY_ALIGN32__H_

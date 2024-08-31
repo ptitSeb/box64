@@ -738,6 +738,85 @@ void my_sigactionhandler_oldcode_32(int32_t sig, int simple, siginfo_t* info, vo
     relockMutex(Locks);
 }
 
+void my32_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
+{
+    #ifdef DYNAREC
+    ucontext_t *p = (ucontext_t *)ucntx;
+    #ifdef ARM64
+    void * pc = (void*)p->uc_mcontext.pc;
+    #elif defined(LA64)
+    void * pc = (void*)p->uc_mcontext.__pc;
+    #elif defined(RV64)
+    void * pc = (void*)p->uc_mcontext.__gregs[0];
+    #else
+    #error Unsupported architecture
+    #endif
+    dynablock_t* db = FindDynablockFromNativeAddress(pc);
+    #else
+    void* db = NULL;
+    #endif
+
+    my_sigactionhandler_oldcode_32(sig, 0, info, ucntx, NULL, db);
+}
+
+
+EXPORT int my32_sigaction(x64emu_t* emu, int signum, const i386_sigaction_t *act, i386_sigaction_t *oldact)
+{
+    printf_log(LOG_DEBUG, "Sigaction(signum=%d, act=%p(f=%p, flags=0x%x), old=%p)\n", signum, act, act?from_ptrv(act->_u._sa_handler):NULL, act?act->sa_flags:0, oldact);
+    if(signum<0 || signum>MAX_SIGNAL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    if(signum==SIGSEGV && emu->context->no_sigsegv)
+        return 0;
+
+    if(signum==SIGILL && emu->context->no_sigill)
+        return 0;
+    struct sigaction newact = {0};
+    struct sigaction old = {0};
+    uintptr_t old_handler = my_context->signals[signum];
+    if(act) {
+        newact.sa_mask = act->sa_mask;
+        newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
+        if(act->sa_flags&0x04) {
+            my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+            my_context->is_sigaction[signum] = 1;
+            if(act->_u._sa_handler!=0 && act->_u._sa_handler!=(ptr_t)1) {
+                newact.sa_sigaction = my32_sigactionhandler;
+            } else
+                newact.sa_sigaction = from_ptrv(act->_u._sa_sigaction);
+        } else {
+            my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+            my_context->is_sigaction[signum] = 0;
+            if(act->_u._sa_handler!=0 && act->_u._sa_handler!=(ptr_t)1) {
+                newact.sa_flags|=0x04;
+                newact.sa_sigaction = my32_sigactionhandler;
+            } else
+                newact.sa_handler = from_ptrv(act->_u._sa_handler);
+        }
+        my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+        my_context->onstack[signum] = (act->sa_flags&SA_ONSTACK)?1:0;
+    }
+    int ret = 0;
+    if(signum!=SIGSEGV && signum!=SIGBUS && signum!=SIGILL && signum!=SIGABRT)
+        ret = sigaction(signum, act?&newact:NULL, oldact?&old:NULL);
+    if(oldact) {
+        oldact->sa_flags = old.sa_flags;
+        oldact->sa_mask = old.sa_mask;
+        if(old.sa_flags & 0x04)
+            oldact->_u._sa_sigaction = to_ptrv(old.sa_sigaction); //TODO should wrap...
+        else
+            oldact->_u._sa_handler = to_ptrv(old.sa_handler);  //TODO should wrap...
+        if(oldact->_u._sa_sigaction == to_ptrv(my32_sigactionhandler) && old_handler)
+            oldact->_u._sa_sigaction = to_ptr(old_handler);
+        oldact->sa_restorer = 0; // no handling for now...
+    }
+    return ret;
+}
+EXPORT int my32___sigaction(x64emu_t* emu, int signum, const i386_sigaction_t *act, i386_sigaction_t *oldact)
+__attribute__((alias("my32_sigaction")));
+
 EXPORT int my32_getcontext(x64emu_t* emu, void* ucp)
 {
 //    printf_log(LOG_NONE, "Warning: call to partially implemented getcontext\n");
