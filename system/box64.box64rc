@@ -69,6 +69,15 @@ BOX64_MAXCPU=4  # surprisingly, having too much cpu core slow down things.4 is m
 [chrome]
 BOX64_MALLOC_HACK=2
 
+[cursor]
+BOX64_MALLOC_HACK=2
+#BOX64_DYNAREC_BIGBLOCK=3
+#BOX64_DYNAREC_CALLRET=1
+#BOX64_DYNAREC_SAFEFLAGS=0
+
+[chrome_crashpad_handler]
+BOX64_MALLOC_HACK=2
+
 [deadcells]
 BOX64_PREFER_EMULATED=1
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
