@@ -29,12 +29,14 @@ typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
+typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpV_t)(void*, ...);
 typedef int32_t (*iFhp_t)(uintptr_t, void*);
 typedef int64_t (*IFII_t)(int64_t, int64_t);
 typedef uint64_t (*UFUU_t)(uint64_t, uint64_t);
 typedef void* (*pFip_t)(int32_t, void*);
+typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef uintptr_t (*hFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
@@ -42,15 +44,18 @@ typedef int32_t (*iFvpV_t)(void, void*, ...);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
+typedef int32_t (*iFpLi_t)(void*, uintptr_t, int32_t);
 typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFpOu_t)(void*, int32_t, uint32_t);
 typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
+typedef void* (*pFppv_t)(void*, void*, void);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFiiII_t)(int32_t, int32_t, int64_t, int64_t);
 typedef int32_t (*iFLLLL_t)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
+typedef int32_t (*iFpvpp_t)(void*, void, void*, void*);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFhvpV_t)(uintptr_t, void, void*, ...);
@@ -58,6 +63,8 @@ typedef int32_t (*iFpvvpV_t)(void*, void, void, void*, ...);
 typedef int32_t (*iFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef int32_t (*iFpLppp_t)(void*, uintptr_t, void*, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
+typedef void* (*pFpLiiii_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int32_t);
+typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*);
 
@@ -72,10 +79,14 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(setrlimit, iFip_t) \
 	GO(backtrace, iFpi_t) \
 	GO(alphasort64, iFpp_t) \
+	GO(statvfs, iFpp_t) \
+	GO(utimes, iFpp_t) \
 	GO(statvfs64, iFhp_t) \
 	GO(signal, pFip_t) \
+	GO(backtrace_symbols, pFpi_t) \
 	GO(gmtime_r, pFpp_t) \
 	GO(localtime_r, pFpp_t) \
+	GO(__realpath_chk, pFppv_t) \
 	GO(__libc_init, vFpppp_t) \
 	GO(getaddrinfo, iFpppp_t)
 

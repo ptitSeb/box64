@@ -5,6 +5,7 @@
 #include <asm/stat.h>
 #include <sys/vfs.h>
 #include <sys/statvfs.h>
+#include <dirent.h>
 
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
@@ -56,10 +57,31 @@ struct native_statfs64 {
   uint32_t    f_spare[4];
 };  // f_flags is not always defined, but then f_spare is [5] in that case
 
-
 void UnalignStatFS64_32(const void* source, void* dest)
 {
     struct i386_statfs64 *i386st = (struct i386_statfs64*)dest;
+    struct native_statfs64 *st = (struct native_statfs64*) source;
+
+    i386st->f_type      = st->f_type;
+    i386st->f_bsize     = st->f_bsize;
+    i386st->f_blocks    = st->f_blocks;
+    i386st->f_bfree     = st->f_bfree;
+    i386st->f_bavail    = st->f_bavail;
+    i386st->f_files     = st->f_files;
+    i386st->f_ffree     = st->f_ffree;
+    memcpy(&i386st->f_fsid, &st->f_fsid, sizeof(i386st->f_fsid));
+    i386st->f_namelen   = st->f_namelen;
+    i386st->f_frsize    = st->f_frsize;
+    i386st->f_flags     = st->f_flags;
+    i386st->f_spare[0]  = st->f_spare[0];
+    i386st->f_spare[1]  = st->f_spare[1];
+    i386st->f_spare[2]  = st->f_spare[2];
+    i386st->f_spare[3]  = st->f_spare[3];
+}
+
+void UnalignStatFS_32(const void* source, void* dest)
+{
+    struct i386_statfs *i386st = (struct i386_statfs*)dest;
     struct native_statfs64 *st = (struct native_statfs64*) source;
 
     i386st->f_type      = st->f_type;
@@ -115,6 +137,37 @@ void UnalignStatVFS64_32(const void* source, void* dest)
     i386st->f_flag      = st->f_flag;
     i386st->f_namemax   = st->f_namemax;
     i386st->f_type      = st->f_type;
+}
+
+void UnalignStatVFS_32(const void* source, void* dest)
+{
+    struct i386_statvfs *i386st = (struct i386_statvfs*)dest;
+    struct native_statvfs *st = (struct native_statvfs*) source;
+
+    i386st->f_bsize     = st->f_bsize;
+    i386st->f_frsize    = st->f_frsize;
+    i386st->f_blocks    = st->f_blocks;
+    i386st->f_bfree     = st->f_bfree;
+    i386st->f_bavail    = st->f_bavail;
+    i386st->f_files     = st->f_files;
+    i386st->f_ffree     = st->f_ffree;
+    i386st->f_favail    = st->f_favail;
+    i386st->f_fsid      = st->f_fsid;
+    i386st->f_flag      = st->f_flag;
+    i386st->f_namemax   = st->f_namemax;
+    i386st->f_type      = st->f_type;
+}
+
+void UnalignDirent_32(const void* source, void* dest)
+{
+    struct i386_dirent* i386d = (struct i386_dirent*)dest;
+    struct dirent* d = (struct dirent*)source;
+
+    i386d->d_ino = d->d_ino ^ (d->d_ino >> 32);
+    i386d->d_off = d->d_off;
+    i386d->d_reclen = d->d_reclen - 8;
+    i386d->d_type = d->d_type;
+    memcpy(i386d->d_name, d->d_name, d->d_reclen - (8+2+1));
 }
 
 #define TRANSFERT   \

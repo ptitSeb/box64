@@ -83,6 +83,7 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack);
 
 void UnalignStat64_32(const void* source, void* dest);
 
+void UnalignStatFS_32(const void* source, void* dest);
 void UnalignStatFS64_32(const void* source, void* dest);
 #if 0
 void UnalignOggVorbis(void* dest, void* source); // Arm -> x86
@@ -180,7 +181,36 @@ struct i386_statvfs64 {
   int __f_spare[5];
 } __attribute__((packed));
 
+struct i386_statvfs {
+  ulong_t f_bsize;
+  ulong_t f_frsize;
+  uint32_t f_blocks;
+  uint32_t f_bfree;
+  uint32_t f_bavail;
+  uint32_t f_files;
+  uint32_t f_ffree;
+  uint32_t f_favail;
+  ulong_t f_fsid;
+  int __f_unused;
+  ulong_t f_flag;
+  ulong_t f_namemax;
+  unsigned int f_type;
+  int __f_spare[5];
+} __attribute__((packed));
+
+void UnalignStatVFS_32(const void* source, void* dest);
 void UnalignStatVFS64_32(const void* source, void* dest);
+
+struct i386_dirent
+{
+  ulong_t d_ino;
+  ulong_t d_off;
+  uint16_t d_reclen;
+  uint8_t d_type;
+  char d_name[256];
+};
+void UnalignDirent_32(const void* source, void* dest);
+
 #if 0
 typedef struct {
   unsigned char *data;
