@@ -29,12 +29,21 @@
 
 typedef void  (*vFppip_t)(void*, void*, int, void*);
 
+#ifdef HAVE_LD80LIBS
+#define ADDED_FUNCTIONS_2()
+#else
+typedef void (*vFppippDpDC_t)(void*, void*, int32_t, void*, void*, double, void*, double, uint8_t);
+#define ADDED_FUNCTIONS_2() \
+    GO(g_assertion_message_cmpnum, vFppippDpDC_t)
+#endif
+
 #define ADDED_FUNCTIONS() \
     GO(g_build_filenamev, pFp_t)                \
     GO(g_variant_get_va, vFpppp_t)              \
     GO(g_build_pathv, pFpp_t)                   \
     GO(g_set_error_literal, vFppip_t)           \
     GO(g_variant_builder_add_value, vFpp_t)     \
+    ADDED_FUNCTIONS_2()
 
 #include "wrappedglib2types.h"
 
@@ -1448,6 +1457,13 @@ EXPORT void* my_g_bytes_new_with_free_func(x64emu_t* emu, void* data, unsigned l
 {
     return my->g_bytes_new_with_free_func(data, n, findGDestroyNotifyFct(notify), user);
 }
+
+#ifndef HAVE_LD80BITS
+EXPORT void my_g_assertion_message_cmpnum(void* domain, void* file, int32_t line, void* func, void* expr, double arg1, void* comp, double arg2, uint8_t numtype)
+{
+    my->g_assertion_message_cmpnum(domain, file, line, func, expr, arg1, comp, arg2, numtype);
+}
+#endif
 
 #define PRE_INIT    \
     if(box64_nogtk) \

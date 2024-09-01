@@ -77,10 +77,13 @@
 #() dFd
 #() dFL
 #() dFp
+#() DFD
+#() DFY
 #() lFE
 #() lFv
 #() lFi
 #() lFu
+#() lFD
 #() lFl
 #() lFp
 #() LFv
@@ -108,6 +111,7 @@
 #() HFp
 #() xFx
 #() XFX
+#() YFY
 #() vWp
 #() iWp
 #() uWp
@@ -214,6 +218,7 @@
 #() IFEi
 #() IFEf
 #() IFEd
+#() IFED
 #() IFEp
 #() IFip
 #() IFII
@@ -278,6 +283,7 @@
 #() dFpu
 #() dFpd
 #() dFpp
+#() DFiD
 #() DFDi
 #() DFDD
 #() DFDp
@@ -286,6 +292,7 @@
 #() lFii
 #() lFip
 #() lFui
+#() lFDD
 #() lFll
 #() lFpi
 #() lFpd
@@ -344,6 +351,7 @@
 #() HFpp
 #() xFxx
 #() XFXX
+#() YFYY
 #() iWpi
 #() iWpu
 #() iWpf
@@ -409,6 +417,7 @@
 #() vFfpp
 #() vFddd
 #() vFdpp
+#() vFDpp
 #() vFlii
 #() vFlip
 #() vFllp
@@ -637,6 +646,7 @@
 #() dFppu
 #() dFppd
 #() dFppp
+#() DFDDD
 #() DFppi
 #() DFppp
 #() lFili
@@ -3105,28 +3115,6 @@
 #() vFpppppppppppppppppppppppp
 #() pFpupuupppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
-#defined(HAVE_LD80BITS) DFD
-#defined(HAVE_LD80BITS) DFY
-#defined(HAVE_LD80BITS) lFD
-#defined(HAVE_LD80BITS) YFY
-#defined(HAVE_LD80BITS) IFED
-#defined(HAVE_LD80BITS) DFiD
-#defined(HAVE_LD80BITS) lFDD
-#defined(HAVE_LD80BITS) YFYY
-#defined(HAVE_LD80BITS) vFDpp
-#defined(HAVE_LD80BITS) DFDDD
-#!defined(HAVE_LD80BITS) KFK
-#!defined(HAVE_LD80BITS) KFy
-#!defined(HAVE_LD80BITS) lFK
-#!defined(HAVE_LD80BITS) yFy
-#!defined(HAVE_LD80BITS) IFEK
-#!defined(HAVE_LD80BITS) KFiK
-#!defined(HAVE_LD80BITS) KFKK
-#!defined(HAVE_LD80BITS) KFKp
-#!defined(HAVE_LD80BITS) lFKK
-#!defined(HAVE_LD80BITS) yFyy
-#!defined(HAVE_LD80BITS) vFKpp
-#!defined(HAVE_LD80BITS) KFKKK
 #defined(NOALIGN) iFipiip
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
@@ -4615,8 +4603,6 @@ wrappedlibm:
   - llrint
 - IFD:
   - llrintl
-- IFK:
-  - llrintl
 - fFf:
   - __acosf_finite
   - __acoshf_finite
@@ -4648,8 +4634,6 @@ wrappedlibm:
   - pow10
   - rint
 - DFD:
-  - pow10l
-- KFK:
   - pow10l
 - fFff:
   - __atan2f_finite

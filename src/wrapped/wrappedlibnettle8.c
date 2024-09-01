@@ -131,22 +131,22 @@ EXPORT int my_nettle_ccm_decrypt_message(x64emu_t* emu, void* cipher, void* f, s
     return my->nettle_ccm_decrypt_message(cipher, findnettle_cipher_funcFct(f), nlen, nonce, alen, adata, tlen, mlen, dst, src);
 }
 
-EXPORT int my_nettle_cfb_decrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
+EXPORT void my_nettle_cfb_decrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
 {
     my->nettle_cfb_decrypt(cipher, findnettle_cipher_funcFct(f), blen, iv, len, dst, src);
 }
 
-EXPORT int my_nettle_cfb_encrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
+EXPORT void my_nettle_cfb_encrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
 {
     my->nettle_cfb_encrypt(cipher, findnettle_cipher_funcFct(f), blen, iv, len, dst, src);
 }
 
-EXPORT int my_nettle_cfb8_decrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
+EXPORT void my_nettle_cfb8_decrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
 {
     my->nettle_cfb8_decrypt(cipher, findnettle_cipher_funcFct(f), blen, iv, len, dst, src);
 }
 
-EXPORT int my_nettle_cfb8_encrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
+EXPORT void my_nettle_cfb8_encrypt(x64emu_t* emu, void* cipher, void* f, size_t blen, void* iv, size_t len, void* dst, void* src)
 {
     my->nettle_cfb8_encrypt(cipher, findnettle_cipher_funcFct(f), blen, iv, len, dst, src);
 }
