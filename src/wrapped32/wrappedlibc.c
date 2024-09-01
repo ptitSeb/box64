@@ -3015,6 +3015,10 @@ EXPORT void* my32___errno_location(x64emu_t* emu)
     "ld-linux.so.2", "libpthread.so.0", "librt.so.1", "libdl.so.2"
 #endif
 
+extern void* my__IO_2_1_stderr_;
+extern void* my__IO_2_1_stdin_ ;
+extern void* my__IO_2_1_stdout_;
+
 #define CUSTOM_INIT         \
     box64->libclib = lib;   \
     my_lib = lib;           \
@@ -3025,8 +3029,8 @@ EXPORT void* my32___errno_location(x64emu_t* emu)
     my32___progname_full = my32_program_invocation_name = box64->argv[0];   \
     my32___progname = my32_program_invocation_short_name =                  \
         strrchr(box64->argv[0], '/');                                       \
-    my32_stdin = to_hashv(stdin);  \
-    my32_stdout = to_hashv(stdout);\
-    my32_stderr = to_hashv(stderr);
+    my32_stdin = to_ptrv(my__IO_2_1_stdin_);                                \
+    my32_stdout = to_ptrv(my__IO_2_1_stdout_);                              \
+    my32_stderr = to_ptrv(my__IO_2_1_stderr_);
 
 #include "wrappedlib_init32.h"

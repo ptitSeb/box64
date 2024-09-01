@@ -41,9 +41,9 @@
 #include "../tools/bridge_private.h"
 #include "x64tls.h"
 
-void* my__IO_2_1_stderr_ = NULL;
-void* my__IO_2_1_stdin_  = NULL;
-void* my__IO_2_1_stdout_ = NULL;
+void* my__IO_2_1_stderr_ = (void*)1;
+void* my__IO_2_1_stdin_  = (void*)2;
+void* my__IO_2_1_stdout_ = (void*)3;
 
 // return the index of header (-1 if it doesn't exist)
 static int getElfIndex(box64context_t* ctx, elfheader_t* head) {

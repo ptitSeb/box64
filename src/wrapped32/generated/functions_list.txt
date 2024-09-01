@@ -2,8 +2,8 @@
 #() vFi -> vFi
 #() vFu -> vFu
 #() vFp -> vFp
-#() vFh -> vFh
 #() vFA -> vFA
+#() vFS -> vFS
 #() iFv -> iFv
 #() iFi -> iFi
 #() iFI -> iFI
@@ -13,10 +13,10 @@
 #() iFL -> iFL
 #() iFp -> iFp
 #() iFh -> iFh
-#() iFH -> iFH
+#() iFS -> iFS
 #() IFf -> IFf
 #() IFd -> IFd
-#() IFh -> IFh
+#() IFS -> IFS
 #() uFv -> uFv
 #() uFu -> uFu
 #() uFU -> uFU
@@ -28,7 +28,7 @@
 #() dFd -> dFd
 #() lFi -> lFi
 #() lFp -> lFp
-#() lFh -> lFh
+#() lFS -> lFS
 #() LFv -> LFv
 #() LFL -> LFL
 #() LFp -> LFp
@@ -56,8 +56,8 @@
 #() iFiI -> iFiI
 #() iFiu -> iFiu
 #() iFip -> iFip
-#() iFih -> iFih
 #() iFia -> iFia
+#() iFiS -> iFiS
 #() iFui -> iFui
 #() iFuu -> iFuu
 #() iFup -> iFup
@@ -66,8 +66,8 @@
 #() iFpu -> iFpu
 #() iFpL -> iFpL
 #() iFpp -> iFpp
-#() iFph -> iFph
 #() iFpV -> iFpV
+#() iFpS -> iFpS
 #() iFhp -> iFhp
 #() iFhh -> iFhh
 #() IFII -> IFII
@@ -97,7 +97,7 @@
 #() pFpi -> pFpi
 #() pFpL -> pFpL
 #() pFpp -> pFpp
-#() hFpp -> hFpp
+#() SFpp -> SFpp
 #() tFip -> tFip
 #() tFpL -> tFpL
 #() iFEbp_ -> iFEB
@@ -122,7 +122,7 @@
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
 #() iFEhi -> iFEhi
-#() iFEhp -> iFEhp
+#() iFESp -> iFESp
 #() iFiii -> iFiii
 #() iFiiI -> iFiiI
 #() iFiiu -> iFiiu
@@ -151,9 +151,9 @@
 #() iFppp -> iFppp
 #() iFppa -> iFppa
 #() iFpOu -> iFpOu
-#() iFhIi -> iFhIi
-#() iFhli -> iFhli
 #() iFhpL -> iFhpL
+#() iFSIi -> iFSIi
+#() iFSli -> iFSli
 #() IFiIi -> IFiIi
 #() fFfff -> fFfff
 #() fFffp -> fFffp
@@ -169,13 +169,13 @@
 #() pFipi -> pFipi
 #() pFpii -> pFpii
 #() pFpiL -> pFpiL
-#() pFpih -> pFpih
+#() pFpiS -> pFpiS
 #() pFpuL -> pFpuL
 #() pFppL -> pFppL
 #() pFpOM -> pFpOM
-#() hFEpp -> hFEpp
-#() hFppH -> hFppH
 #() aFipa -> aFipa
+#() SFEpp -> SFEpp
+#() SFppS -> SFppS
 #() tFipu -> tFipu
 #() iFpBp_i -> iFpBi
 #() IFpBp_i -> IFpBi
@@ -201,8 +201,8 @@
 #() iFEppp -> iFEppp
 #() iFEppV -> iFEppV
 #() iFEpOu -> iFEpOu
-#() iFEhpp -> iFEhpp
-#() iFEhpV -> iFEhpV
+#() iFESpp -> iFESpp
+#() iFESpV -> iFESpV
 #() iFiiip -> iFiiip
 #() iFiiiN -> iFiiiN
 #() iFiill -> iFiill
@@ -215,7 +215,7 @@
 #() lFEipi -> lFEipi
 #() lFiipL -> lFiipL
 #() lFipLi -> lFipLi
-#() LFpLLh -> LFpLLh
+#() LFpLLS -> LFpLLS
 #() LFppLp -> LFppLp
 #() LFppLa -> LFppLa
 #() pFEppi -> pFEppi
@@ -241,7 +241,7 @@
 #() iFiLLLL -> iFiLLLL
 #() iFipLLi -> iFipLLi
 #() iFpppup -> iFpppup
-#() uFpLLLh -> uFpLLLh
+#() uFpLLLS -> uFpLLLS
 #() LFpLppa -> LFpLppa
 #() iFEBh_ppp -> iFEBppp
 #() LFpbp_LLp -> LFpBLLp
@@ -274,8 +274,8 @@
 #() pFEppv -> pFEpp
 #() LFpBp_iv -> LFpBp_i
 #() iFEivpV -> iFEipV
-#() iFEhvpp -> iFEhpp
-#() iFEhvpV -> iFEhpV
+#() iFESvpp -> iFESpp
+#() iFESvpV -> iFESpV
 #() iFEpvvpV -> iFEppV
 #() iFEpuvvppp -> iFEpuppp
 wrappedcrashhandler:
@@ -334,7 +334,7 @@ wrappedlibc:
 - iFpV:
   - execl
   - execlp
-- iFhp:
+- iFSp:
   - statvfs64
 - IFII:
 - UFUU:
@@ -345,7 +345,7 @@ wrappedlibc:
 - pFpp:
   - gmtime_r
   - localtime_r
-- hFpp:
+- SFpp:
 - vFipV:
 - vFpup:
   - _ITM_addUserCommitAction
@@ -359,10 +359,11 @@ wrappedlibc:
 - iFppp:
   - vswscanf
 - iFppV:
-  - fscanf
   - swscanf
 - iFpOu:
-- iFhpp:
+- iFSpp:
+- iFSpV:
+  - fscanf
 - KFppa:
   - __strtold_l
   - strtold_l
@@ -387,8 +388,8 @@ wrappedlibc:
 - iFppiV:
 - iFpppp:
   - getaddrinfo
-- iFhvpp:
-- iFhvpV:
+- iFSvpp:
+- iFSvpV:
 - LFppiv:
 - iFpvvpV:
 - iFpippp:

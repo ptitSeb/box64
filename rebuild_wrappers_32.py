@@ -1138,7 +1138,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"R_EAX = to_locale_d(fn({0}));",                                      # A
 		"\n#error Invalid return type: va_list\n",                            # V
 		"\n#error Invalid return type: at_flags\n",                           # O
-		"\n#error Invalid return type: _io_file*\n",                          # S
+		"R_EAX = to_ptrv(io_convert_from(fn({0})));",                         # S
 		"\n#error Invalid return type: _2uint_struct\n",                      # 2
 		"\n#error Invalid return type: Vulkan Struct\n",                      # P
 		"\n#error Invalid return type: ... with 1 arg\n",                     # N
@@ -1236,7 +1236,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		extern void* my__IO_2_1_stdin_ ;
 		extern void* my__IO_2_1_stdout_;
 		
-		static void* io_convert(void* v)
+		static void* io_convert32(void* v)
 		{lbr}
 			if(!v)
 				return v;
@@ -1246,6 +1246,19 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 				return stdin;
 			if(v==my__IO_2_1_stdout_)
 				return stdout;
+			return v;
+		{rbr}
+
+		static void* io_convert_from(void* v)
+		{lbr}
+			if(!v)
+				return v;
+			if(v==stderr)
+				return my__IO_2_1_stderr_;
+			if(v==stdin)
+				return my__IO_2_1_stdin_;
+			if(v==stdout)
+				return my__IO_2_1_stdout_;
 			return v;
 		{rbr}
 		
