@@ -1535,7 +1535,7 @@ static int hasDBFromAddress(uintptr_t addr)
 }
 #endif
 
-EXPORT int32_t my32_read(int fd, void* buf, uint32_t count)
+EXPORT ssize_t my32_read(int fd, void* buf, size_t count)
 {
     int ret = read(fd, buf, count);
 #ifdef DYNAREC
@@ -2874,7 +2874,7 @@ EXPORT int my32_futimes(x64emu_t* emu, int fd, uint32_t* times)
     return futimes(fd, tm);
 }
 
-EXPORT int my32_strtol(const char* s, char** endp, int base)
+EXPORT long my32_strtol(const char* s, char** endp, int base)
 {
     long ret = strtol(s, endp, base);
     if (ret<INT_MIN) {
@@ -2887,7 +2887,7 @@ EXPORT int my32_strtol(const char* s, char** endp, int base)
     return ret;
 }
 
-EXPORT unsigned int my32_strtoul(const char* s, char** endp, int base)
+EXPORT unsigned long my32_strtoul(const char* s, char** endp, int base)
 {
     unsigned long ret = strtoul(s, endp, base);
     if(ret>UINT_MAX) {

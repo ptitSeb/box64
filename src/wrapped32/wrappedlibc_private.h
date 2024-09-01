@@ -1700,7 +1700,7 @@ GOW(strtold_l, DFpBp_a)
 GO2(__strtold_l, KFpBp_a, __strtod_l)
 GOW2(strtold_l, KFpBp_a, strtod_l)
 #endif
-GO(__strtol_internal, lFpBp_i)
+GO2(__strtol_internal, lFpBp_i, my32_strtol)    //%%,noE
 GO(strtoll, IFpBp_i)
 //GO(__strtol_l, lFppiip)
 //GOW(strtol_l, lFppiip)
