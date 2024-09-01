@@ -140,8 +140,8 @@ static void emuthread_destroy(void* p)
         free_tlsdatasize(ptr);*/
 	// free x64emu
 	#ifdef BOX32
-	if(box64_is32bits && !et->join)
-		to_hash_d(et->self);
+	/*if(box64_is32bits && !et->join)	// not removing  hash key from old pthread_t
+		to_hash_d(et->self);*/
 	#endif
 	if(et) {
 		FreeX64Emu(&et->emu);
@@ -161,8 +161,8 @@ static void emuthread_cancel(void* p)
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
 	#ifdef BOX32
-	if(box64_is32bits)
-		to_hash_d(et->self);
+	/*if(box64_is32bits)
+		to_hash_d(et->self);*/ // not removing hash for old pthread_t
 	#endif
 	box_free(et->cancels);
 	et->cancels=NULL;

@@ -201,6 +201,7 @@
 #() iFEppp -> iFEppp
 #() iFEppV -> iFEppV
 #() iFEpOu -> iFEpOu
+#() iFEhpp -> iFEhpp
 #() iFEhpV -> iFEhpV
 #() iFiiip -> iFiiip
 #() iFiiiN -> iFiiiN
@@ -273,7 +274,7 @@
 #() pFEppv -> pFEpp
 #() LFpBp_iv -> LFpBp_i
 #() iFEivpV -> iFEipV
-#() iFEpvpp -> iFEppp
+#() iFEhvpp -> iFEhpp
 #() iFEhvpV -> iFEhpV
 #() iFEpvvpV -> iFEppV
 #() iFEpuvvppp -> iFEpuppp
@@ -361,6 +362,7 @@ wrappedlibc:
   - fscanf
   - swscanf
 - iFpOu:
+- iFhpp:
 - KFppa:
   - __strtold_l
   - strtold_l
@@ -380,12 +382,12 @@ wrappedlibc:
 - iFiiip:
 - iFipii:
 - iFLLLL:
-- iFpvpp:
 - iFpupV:
 - iFpLpV:
 - iFppiV:
 - iFpppp:
   - getaddrinfo
+- iFhvpp:
 - iFhvpV:
 - LFppiv:
 - iFpvvpV:

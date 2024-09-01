@@ -158,7 +158,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 292, __NR_inotify_add_watch, 3},
     //{ 293, __NR_inotify_rm_watch, 2},
     //{ 311, __NR_set_robust_list, 2 },
-    //{ 312, __NR_get_robust_list, 4 },
+    //{ 312, __NR_get_robust_list, 4 }, // need wrapping of 3rd arg
     //{ 318, __NR_getcpu, 3},
     //{ 328, __NR_eventfd2, 2},
     //{ 329, __NR_epoll_create1, 1 },
@@ -231,6 +231,17 @@ struct i386_user_desc {
     unsigned int  useable:1;
 };
 
+struct i386_robust_list {
+        ptr_t next; // struct i386_robust_list *
+};
+struct i386_robust_list_head {
+        struct i386_robust_list list;
+        long_t futex_offset;
+        ptr_t  list_op_pending; // struct robust_list *
+};
+
+
+
 int32_t my32_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 int32_t my32_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 ssize_t my32_read(int fd, void* buf, size_t count);
@@ -242,6 +253,8 @@ void EXPORT x86Syscall(x64emu_t *emu)
     printf_log(LOG_DEBUG, "%p: Calling 32bits syscall 0x%02X (%d) %p %p %p %p %p", (void*)R_RIP, s, s, (void*)(uintptr_t)R_EBX, (void*)(uintptr_t)R_ECX, (void*)(uintptr_t)R_EDX, (void*)(uintptr_t)R_ESI, (void*)(uintptr_t)R_EDI); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
+    void* tmp;
+    size_t tmps;
     for (int i=0; i<cnt; i++) {
         if(syscallwrap[i].x86s == s) {
             int sc = syscallwrap[i].nats;
@@ -295,6 +308,28 @@ void EXPORT x86Syscall(x64emu_t *emu)
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;
+        case 312: // get_robust_list
+            {
+                static struct i386_robust_list_head h;
+                ulong_t *arg2 = from_ptrv(R_EDX);
+                ptr_t* arg1 = from_ptrv(R_ECX);
+                tmp = arg1?(from_ptrv(*arg1)):NULL;
+                tmps = arg2?(from_ulong(*arg2)):0;
+                tmp = R_ECX?from_ptrv(*(ptr_t*)from_ptrv(R_ECX)):NULL;
+                tmps = R_EDX?from_ulong(*(ulong_t*)from_ptrv(R_EDX)):0;
+                R_EAX = syscall(__NR_get_robust_list, S_EBX, arg1?(&tmp):NULL, arg2?(&tmps):NULL);
+                if(!R_EAX) {
+                    if(arg1) {
+                        h.list.next = (*(void**)tmp==tmp)?to_ptrv(&h):to_ptrv(*(void**)tmp); // set head
+                        h.futex_offset = to_long(((long*)tmp)[1]);
+                        h.list_op_pending = to_ptrv(((void**)tmp)[2]);
+                        *arg1 = to_ptrv(&h);   // should wrap all the structures, and keep it alive...
+                    }
+                    if(arg2) *arg2 = to_ulong(tmps/2);    // it's 2 times smaller in x86
+                } else if(R_EAX==0xffffffff && errno>0)
+                    R_EAX = (uint32_t)-errno;
+            }
+            break;
         default:
             printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             R_EAX = (uint32_t)-ENOSYS;
@@ -316,6 +351,9 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
     printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", from_ptrv(R_EIP), s, s, from_ptrv(u32(4)), from_ptrv(u32(8)), from_ptrv(u32(12)), from_ptrv(u32(16)), from_ptrv(u32(20))); 
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
+    size_t tmps;
+    void* tmp;
+    int ret;
     for (int i=0; i<cnt; i++) {
         if(syscallwrap[i].x86s == s) {
             int sc = syscallwrap[i].nats;
@@ -422,6 +460,37 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                 printf_log(LOG_INFO, "Warning: ignoring libc Syscall tgkill (%u, %u, %u)\n", u32(4), u32(8), u32(12));
             }*/
             return 0;
+#endif
+        case 312: // get_robust_list
+            {
+                // will wrap only head for now
+                static uint8_t i386_nothing[0x14] = {0};  // for faking steamcmd use of get_robust_list
+                static struct i386_robust_list_head h;
+                ulong_t *arg2 = p(12);
+                ptr_t* arg1 = p(8);
+                tmp = arg1?(from_ptrv(*arg1)):NULL;
+                tmps = arg2?(from_ulong(*arg2)):0;
+                ret = syscall(__NR_get_robust_list, u32(4), arg1?(&tmp):NULL, arg2?(&tmps):NULL);
+                if(!ret) {
+                    if(box64_steamcmd) {
+                        h.list.next = to_ptrv(&h);
+                        h.futex_offset = -0x14;
+                        h.list_op_pending = 0;
+                        *arg1 = to_ptrv(&h);
+                        *arg2 = 12;
+                    } else {
+                        if(arg1) {
+                            h.list.next = to_ptrv(((void**)tmp)[0]);//(*(void**)tmp==tmp)?to_ptrv(&h):to_ptrv(*(void**)tmp); // set head
+                            h.futex_offset = to_long(((long*)tmp)[1]);
+                            h.list_op_pending = to_ptrv(((void**)tmp)[2]);
+                            *arg1 = to_ptrv(&h);   // should wrap all the structures, and keep it alive...
+                        }
+                        if(arg2) *arg2 = to_ulong(tmps/2);    // it's 2 times smaller in x86
+                    }
+                }
+            }
+            return ret;
+#if 0
 #ifndef NOALIGN
         case 329:   // epoll_create1
             return my32_epoll_create1(emu, of_convert32(i32(4)));
@@ -432,7 +501,7 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
 #endif
 #ifndef __NR_memfd_create
         case 356:  // memfd_create
-            return (uint32_t)my32_memfd_create(emu, (void*)R_EBX, R_ECX);
+            return (uint32_t)my32_memfd_create(emu, p(4), u32(8));
 #endif
 #endif
         default:
