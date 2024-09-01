@@ -19,6 +19,7 @@ option(PHYTIUM "Set to ON if targeting an Phytium (D2000 or FT2000/4) based devi
 option(SD845 "Set to ON if targeting a Snapragon 845 based device" ${SD845})
 option(SD888 "Set to ON if targeting a Snapragon 888 based device" ${SD888})
 option(SD8G2 "Set to ON if targeting a Snapragon 8 Gen 2 based device" ${SD8G2})
+option(SDORYON1 "Set to ON if targeting a Snapdragon Oryon 1 (X1E80100/X1E78100) based device" ${SDORYON1})
 option(ADLINK "Set to ON if targeting an ADLink AmpereAltra based device" ${ADLINK})
 option(M1 "Set to ON if targeting a AppleM1 running on Asahi computer" ${M1})
 option(LARCH64 "Set to ON if targeting an Loongarch64 based device" ${LARCH64})
@@ -64,7 +65,7 @@ if(PPC64LE)
     set(RV64_DYNAREC OFF CACHE BOOL "")
     set(LARCH64_DYNAREC OFF CACHE BOOL "")
 endif()
-if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR PHYTIUM OR SD845 OR SD888 OR SD8G2 OR LX2160A OR M1 OR ARM64 OR ADLINK)
+if(RK3399 OR RK3588 OR ODROIDN2 OR RPI3ARM64 OR RPI4ARM64 OR RPI5ARM64 OR RK3326 OR TEGRAX1 OR TEGRA_T194 OR TEGRA_T234 OR PHYTIUM OR SD845 OR SD888 OR SD8G2 OR SDORYON1 OR LX2160A OR M1 OR ARM64 OR ADLINK)
     set(LD80BITS OFF CACHE BOOL "")
     set(NOALIGN OFF CACHE BOOL "")
     set(ARM_DYNAREC ON CACHE BOOL "")
@@ -182,6 +183,24 @@ elseif(SD8G2)
     add_definitions(-DSD8G2)
     add_definitions(-pipe -march=armv9-a+i8mm+sm4+sha3+rcpc+crypto+nosve+nosve2)
     set(CMAKE_ASM_FLAGS  "-pipe -march=armv9-a+i8mm+sm4+sha3+rcpc+crypto+nosve+nosve2")
+elseif(SDORYON1)
+    add_definitions(-DSDORYON1)
+    # NOTE
+    #
+    # 1.
+    # GCC 14 and Clang 19 support oryon-1 as a -mcpu/-mtune argument,
+    # however it seems like fedora (the system I tested this on) does not work.
+    # see https://gcc.gnu.org/onlinedocs/gcc-14.2.0/gcc/AArch64-Options.html if you're interested
+    #
+    # 2.
+    # gcc/gcc/config/aarch64/aarch64-cores.def:157 defines oryon1 as
+    # AARCH64_CORE("oryon-1", oryon1, cortexa57, V8_6A, (CRYPTO, SM4, SHA3, F16), cortexa72,   0x51, 0x001, -1)
+    # where
+    #  * the 3rd positional argument is represented as the "scheduler"
+    #  * the 6th positional argument is represented as the "cost"
+    #  I've chosen the a57 because I don't know if I should choose the a72
+    add_definitions(-pipe -march=armv8.6-a+crypto+sm4+sha3+fp16 -mtune=cortex-a57)
+    set(CMAKE_ASM_FLAGS  "-pipe -march=armv8.6-a+crypto+sm4+sha3+fp16 -mtune=cortex-a57")
 elseif(ADLINK)
     add_definitions(-DADLINK)
     add_definitions(-pipe -mcpu=neoverse-n1 -fuse-ld=gold -fuse-linker-plugin)
