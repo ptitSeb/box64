@@ -136,7 +136,7 @@ GOW(chmod, iFpu)
 GOW(chown, iFpuu)
 //GO(chroot, iFp)
 //GOW(clearenv, iFv)
-GO(clearerr, vFh)
+GO(clearerr, vFS)
 //GO(clearerr_unlocked, vFp)
 // clnt_broadcast
 // clnt_create
@@ -303,7 +303,7 @@ GOW(fchmod, iFiu)
 //GO(fchmodat, iFipui)
 GOW(fchown, iFiuu)
 //GO(fchownat, iFipuii)
-GO(fclose, iFH)
+GO(fclose, iFS)
 GOW(fcloseall, iFv)
 GOM(fcntl, iFEiiN)   //%% this also use a vararg for 3rd argument
 GOM(__fcntl, iFEiiN) //%%
@@ -314,26 +314,26 @@ GO(fdatasync, iFi)
 // fdetach
 //GO(fdopen, pFip)
 GOW(fdopendir, pFi)
-GOW(feof, iFh)
+GOW(feof, iFS)
 //GO(feof_unlocked, iFp)
-GOW(ferror, iFh)
+GOW(ferror, iFS)
 //GO(ferror_unlocked, iFp)
 //GO(fexecve, iFipp)  //TODO: Check if needed to be wrapped, and target checked for x86 / native?
-GOW(fflush, iFh)
+GOW(fflush, iFS)
 //GO(fflush_unlocked, iFS)
 GO(ffs, iFi)
 // __ffs
 GOW(ffsl, iFi)
 GO(ffsll, iFI)
-GOW(fgetc, iFh)
-GOW(fgetc_unlocked, iFh)
+GOW(fgetc, iFS)
+GOW(fgetc_unlocked, iFS)
 // fgetgrent
 // fgetgrent_r  // Weak
 //GO(fgetpos, iFpp)
 //GO(fgetpos64, iFpp)
 // fgetpwent
 // fgetpwent_r  // Weak
-GOW(fgets, pFpih)
+GOW(fgets, pFpiS)
 //GO(__fgets_chk, pFpuip)
 // fgetspent
 // fgetspent_r  // Weak
@@ -346,7 +346,7 @@ GOW(fgets, pFpih)
 //GO(fgetws_unlocked, pFpip)
 // __fgetws_unlocked_chk
 //GO(fgetxattr, iFippu)
-GO(fileno, iFh)
+GO(fileno, iFS)
 //GOW(fileno_unlocked, iFp)
 GOW(finite, iFd)
 GO(__finite, iFd)
@@ -362,29 +362,29 @@ GOW(_flushlbf, vFv)
 //GO(fmemopen, pFpup)
 // fmtmsg
 GO(fnmatch, iFppi)
-GOM(fopen, hFEpp)           //%%
-GOWM(fopen64, hFEpp)         //%%
+GOM(fopen, SFEpp)           //%%
+GOWM(fopen64, SFEpp)         //%%
 //GOM(fopencookie, pFEpppppp) //%% last 4p are a struct with 4 callbacks...
 GOWM(fork, iFEv)             //%%
 GOM(__fork, iFEv)           //%%
 // __fortify_fail
 GOW(fpathconf, iFii)
 //GO(__fpending, uFp)
-GOM(fprintf, iFEppV) //%%
-GOM(__fprintf_chk, iFEhvpV) //%%
+GOM(fprintf, iFESpV) //%%
+GOM(__fprintf_chk, iFESvpV) //%%
 // __fpu_control    // type B
 //GO(__fpurge, vFp)
-GOW(fputc, iFih)
+GOW(fputc, iFiS)
 //GO(fputc_unlocked, iFip)
-GOW(fputs, iFph)    // Weak
+GOW(fputs, iFpS)    // Weak
 //GO(fputs_unlocked, iFpp)
-GO(fputwc, iFih)
+GO(fputwc, iFiS)
 //GO(fputwc_unlocked, iFip)
 //GO(fputws, iFpp)
 //GO(fputws_unlocked, iFpp)
-GOW(fread, LFpLLh)
+GOW(fread, LFpLLS)
 //GO(__freadable, iFp)
-GO(__fread_chk, uFpLLLh)
+GO(__fread_chk, uFpLLLS)
 //GO(__freading, iFp)
 //GO(fread_unlocked, uFpuup)
 //GO(__fread_unlocked_chk, uFpuuup)
@@ -395,15 +395,15 @@ GO(freeifaddrs, vFp)
 GOW(freelocale, vFA)
 GO(__freelocale, vFA)
 //GO(fremovexattr, iFip)
-GO(freopen, hFppH)
-GO(freopen64, hFppH)
+GO(freopen, SFppS)
+GO(freopen64, SFppS)
 // frexp    // Weak
 // frexpf   // Weak
 // frexpl   // Weak
-GOM(fscanf, iFEppV)
-GO(fseek, iFhli)
-GO(fseeko, iFhli)
-GO(fseeko64, iFhIi)
+GOM(fscanf, iFESpV)
+GO(fseek, iFSli)
+GO(fseeko, iFSli)
+GO(fseeko64, iFSIi)
 //GO(__fsetlocking, iFpi)
 //GO(fsetpos, iFpp)
 //GO(fsetpos64, iFpp)
@@ -413,9 +413,9 @@ GOWM(fstatfs64, iFip)    //%%,noE
 //GO(fstatvfs, iFip)
 //GOW(fstatvfs64, iFip)   // alignment?
 GOW(fsync, iFi)
-GOW(ftell, lFh)
-GO(ftello, lFh)
-GO(ftello64, IFh)
+GOW(ftell, lFS)
+GO(ftello, lFS)
+GO(ftello64, IFS)
 //GO(ftime, iFp)
 //GO(ftok, iFpi)
 GOW(ftruncate, iFiu)
@@ -436,7 +436,7 @@ GOWM(futimes, iFEip)
 //GOWM(fwprintf, iFEppV)   //%%
 //GOM(__fwprintf_chk, iFEpvpV) //%%
 //GO(__fwritable, iFp)
-GOW(fwrite, LFpLLh)
+GOW(fwrite, LFpLLS)
 //GO(fwrite_unlocked, uFpuup)
 //GO(__fwriting, iFp)
 // fwscanf
@@ -456,7 +456,7 @@ GOM(getaddrinfo, iFEpppp)
 // getaliasent
 // getaliasent_r
 // get_avphys_pages // Weak
-GOW(getc, iFh)
+GOW(getc, iFS)
 GOW(getchar, iFv)
 GO(getchar_unlocked, iFv)
 GOM(getcontext, iFEp)         //%%
@@ -1222,7 +1222,7 @@ GOW(opendir, pFp)
 // passwd2des
 //GOW(pathconf, iFpi)
 GOW(pause, iFv)
-GO(pclose, iFh)
+GO(pclose, iFS)
 //GO(perror, vFp)
 // personality  // Weak
 GOW(pipe, iFp)
@@ -1236,7 +1236,7 @@ GOW(pipe, iFp)
 // pmap_unset
 GOW(poll, iFpLi)    // poll have an array of struct as 1st argument
 GO(__poll, iFpLi)
-GO(popen, hFpp)
+GO(popen, SFpp)
 GO(posix_fadvise, iFiuui)
 GO(posix_fadvise64, iFiuui)
 GO(posix_fallocate, iFiii)
@@ -1304,7 +1304,7 @@ GOW(puts, iFp)
 //GOW(pututline, pFp)
 // pututxline
 // putw
-GO(putwc, iFih)
+GO(putwc, iFiS)
 // putwchar
 GO(putwchar_unlocked, iFi)
 //GO(putwc_unlocked, iFip)
@@ -1400,7 +1400,7 @@ GO(__res_init, iFv)
 //GO(__res_state, pFv)
 //DATA(re_syntax_options, 4)    // type B
 // revoke
-GO(rewind, vFh)
+GO(rewind, vFS)
 //GO(rewinddir, vFp)
 // rexec
 // rexec_af
@@ -1599,7 +1599,7 @@ GOWM(statfs, iFpp)  //%%,noE
 // __statfs
 GOWM(statfs64, iFpp)     //%%,noE
 GOM(statvfs, iFEpp)
-GOWM(statvfs64, iFEhp)
+GOWM(statvfs64, iFESp)
 DATAM(stderr, 4)
 DATAM(stdin, 4)
 DATAM(stdout, 4)
@@ -1852,8 +1852,8 @@ GOW(umask, uFu)
 //GOW(umount2, iFpi)
 GOWM(uname, iFp) //%%,noE
 //GO(__underflow, iFp)
-GOW(ungetc, iFih)
-GO(ungetwc, iFih)
+GOW(ungetc, iFiS)
+GO(ungetwc, iFiS)
 GOW(unlink, iFp)
 //GO(unlinkat, iFipi)
 GO(unlockpt, iFi)
@@ -1883,8 +1883,8 @@ GOM(__vasprintf_chk, iFEpippp) //%%
 //GO(versionsort64, iFpp) //need to align dirent64?
 GOWM(vfork, iFEv) //%%
 // __vfork
-GOM(vfprintf, iFEhpp) //%%
-GOM(__vfprintf_chk, iFEhvpp) //%%
+GOM(vfprintf, iFESpp) //%%
+GOM(__vfprintf_chk, iFESvpp) //%%
 //GOWM(vfscanf, iFEppp)  //%%
 // __vfscanf
 //GOWM(vfwprintf, iFEppp)    //%%
