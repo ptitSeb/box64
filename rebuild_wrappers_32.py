@@ -758,7 +758,8 @@ class Function:
 			gotype = gotype[1:]
 		if self.retS:
 			self.ismy = True
-			assert isinstance(funtype, StructFunctionType) and funtype.returnsstruct, \
+			assert((self.no_dlsym and (funtype.orig.name.startswith("pFp") or funtype.orig.name.startswith("pFEp")))
+			 or (isinstance(funtype, StructFunctionType) and funtype.returnsstruct)), \
 				"Maybe TODO? (Returns unregistered structure)"
 			self._noE = self._noE or self.no_dlsym
 		if isinstance(funtype, StructFunctionType) and funtype.returnsstruct and not self.retS:

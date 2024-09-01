@@ -5,6 +5,7 @@
 #include <wchar.h>
 #include <sys/epoll.h>
 #include <fts.h>
+#include <sys/socket.h>
 
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
@@ -974,46 +975,46 @@ void AlignVorbisBlock(void* dest, void* source)
 }
 
 #undef TRANSFERT
-
-typedef union __attribute__((packed)) x64_epoll_data {
-    void    *ptr;
+#endif
+typedef union __attribute__((packed)) i386_epoll_data {
+    ptr_t    ptr;   //void*
     int      fd;
     uint32_t u32;
     uint64_t u64;
-} x64_epoll_data_t;
+} i386_epoll_data_t;
 
-struct __attribute__((packed)) x64_epoll_event {
+struct __attribute__((packed)) i386_epoll_event {
     uint32_t            events;
-    x64_epoll_data_t    data;
+    i386_epoll_data_t    data;
 };
-// Arm -> x64
-void UnalignEpollEvent(void* dest, void* source, int nbr)
+// Arm -> i386
+void UnalignEpollEvent32(void* dest, void* source, int nbr)
 {
-    struct x64_epoll_event *x64_struct = (struct x64_epoll_event*)dest;
+    struct i386_epoll_event *i386_struct = (struct i386_epoll_event*)dest;
     struct epoll_event *arm_struct = (struct epoll_event*)source;
     while(nbr) {
-        x64_struct->events = arm_struct->events;
-        x64_struct->data.u64 = arm_struct->data.u64;
-        ++x64_struct;
+        i386_struct->events = arm_struct->events;
+        i386_struct->data.u64 = arm_struct->data.u64;
+        ++i386_struct;
         ++arm_struct;
         --nbr;
     }
 }
 
-// x64 -> Arm
-void AlignEpollEvent(void* dest, void* source, int nbr)
+// i386 -> Arm
+void AlignEpollEvent32(void* dest, void* source, int nbr)
 {
-    struct x64_epoll_event *x64_struct = (struct x64_epoll_event*)source;
+    struct i386_epoll_event *i386_struct = (struct i386_epoll_event*)source;
     struct epoll_event *arm_struct = (struct epoll_event*)dest;
     while(nbr) {
-        arm_struct->events = x64_struct->events;
-        arm_struct->data.u64 = x64_struct->data.u64;
-        ++x64_struct;
+        arm_struct->events = i386_struct->events;
+        arm_struct->data.u64 = i386_struct->data.u64;
+        ++i386_struct;
         ++arm_struct;
         --nbr;
     }
 }
-
+#if 0
 typedef struct __attribute__((packed)) x64_SMPEG_Info_s {
     int has_audio;
     int has_video;
@@ -1130,5 +1131,47 @@ void unalignNGValue(void* value, my_GValue_t* v, int n)
         --n;
     }
 }
-
 #endif
+
+// x86 -> Native
+void AlignIOV_32(void* dest, void* source)
+{
+    struct iovec* d = dest;
+    struct i386_iovec* s = source;
+
+    d->iov_base = from_ptrv(s->iov_base);
+    d->iov_len = s->iov_len;
+}
+
+// Native -> x86
+void UnalignIOV_32(void* dest, void* source)
+{
+    struct iovec* s = source;
+    struct i386_iovec* d = dest;
+
+    d->iov_base = to_ptrv(s->iov_base);
+    d->iov_len = s->iov_len;
+}
+
+
+// x86 -> Native
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* source)
+{
+    struct iovec* iov = dest_iov;
+    struct msghdr* d = dest;
+    struct i386_msghdr* s = source;
+    struct i386_iovec* s_iov = from_ptrv(s->msg_iov);
+
+    d->msg_name = from_ptrv(s->msg_name);
+    d->msg_namelen = s->msg_namelen;
+    d->msg_iov = iov;
+    // TODO: check if iovlen is too big
+    for(int i=0; i<s->msg_iovlen; ++i) {
+        AlignIOV_32(d->msg_iov+i, s_iov+i);
+    }
+    d->msg_iovlen = s->msg_iovlen;
+    d->msg_control = from_ptrv(s->msg_control);
+    d->msg_controllen = s->msg_controllen;
+    d->msg_flags = s->msg_flags;
+}
+

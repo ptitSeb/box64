@@ -236,7 +236,7 @@ uint64_t RunFunctionFmt(uintptr_t fnc, const char* fmt, ...)
         if(box64_is32bits) {
             R_RSP = R_EBP;          // mov esp, ebp
             R_RBP = Pop_32(emu);    // pop ebp
-        }
+        } else
         #endif
         {
             R_RSP = R_RBP;          // mov rsp, rbp

@@ -380,6 +380,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/libtools/myalign64_32.c"
         "${BOX64_ROOT}/src/libtools/signal32.c"
         "${BOX64_ROOT}/src/libtools/threads32.c"
+        "${BOX64_ROOT}/src/libtools/libc_net32.c"
         "${BOX64_ROOT}/src/emu/x86syscall_32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/converter32.c"

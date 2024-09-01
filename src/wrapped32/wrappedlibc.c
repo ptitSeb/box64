@@ -18,15 +18,12 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <search.h>
-#include <sys/types.h>
 #include <poll.h>
 #include <sys/epoll.h>
 #include <ftw.h>
 #include <sys/syscall.h> 
-#include <sys/socket.h>
 #include <sys/utsname.h>
 #include <sys/mman.h>
-#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <setjmp.h>
@@ -37,8 +34,6 @@
 #include <locale.h>
 #include <sys/resource.h>
 #include <sys/statvfs.h>
-#include <sys/socket.h>
-#include <netdb.h>
 
 #include "wrappedlibs.h"
 
@@ -355,11 +350,12 @@ static int my32_compare_dir_##A(const struct dirent* a, const struct dirent* b) 
 }
 SUPER()
 #undef GO
+int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_);
 static void* findcompare_dirFct(void* fct)
 {
     if(!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort64; else return p; }
     #define GO(A) if(my32_compare_dir_fct_##A == (uintptr_t)fct) return my32_compare_dir_##A;
     SUPER()
     #undef GO
@@ -792,12 +788,12 @@ EXPORT int my32_vwprintf(x64emu_t *emu, void* fmt, void* b) {
     return ((iFpp_t)f)(fmt, b);
     #endif
 }
-
+#endif
 EXPORT void *my32_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);
     return result;
 }
-#endif
+
 EXPORT int my32_snprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) {
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
@@ -864,42 +860,28 @@ EXPORT int my32___vsprintf_chk(x64emu_t* emu, void* buff, int flags, size_t len,
     return r;
     #endif
 }
-
-#ifdef POWERPCLE
+#endif
 EXPORT int my32_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
 {
-    //myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST_32_(b);
-    void* f = vfscanf;
-
-    return ((iFppp_t)f)(stream, fmt, VARARGS_32_(b));
+    myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch);
+    PREPARE_VALIST_32;
+    return vfscanf(stream, fmt, VARARGS_32);
 }
-
-
 EXPORT int my32__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vfscanf")));
-EXPORT int my32___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
-
 EXPORT int my32___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vfscanf")));
 EXPORT int my32___isoc99_fscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vfscanf")));
+EXPORT int my32_fscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vfscanf")));
 
-EXPORT int my32___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b)
-{
-  void* f = sscanf;
-  PREPARE_VALIST_32;
-
-  return ((iFppp_t)f)(stream, fmt, VARARGS_32);
-}
-#endif
-#endif
 EXPORT int my32_vsscanf(x64emu_t* emu, void* buff, void* fmt, void* b)
 {
     myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    vsscanf(buff, fmt, VARARGS_32);
+    return vsscanf(buff, fmt, VARARGS_32);
 }
-
+EXPORT int my32___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
 EXPORT int my32__vsscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
 EXPORT int my32_sscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
+EXPORT int my32___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
 
 EXPORT int my32_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
     // need to align on arm
@@ -1117,13 +1099,12 @@ static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
     i386st->__unused5 = 0;
     return 0;
 }
-#if 0
-#ifdef ANDROID
+
 EXPORT int my32_stat(char* path, void* buf)
 {
     struct stat64 st;
     int r = stat64(path, &st);
-    UnalignStat64(&st, buf);
+    UnalignStat64_32(&st, buf);
     return r;
 }
 
@@ -1131,7 +1112,7 @@ EXPORT int my32_fstat(int fd, void* buf)
 {
     struct stat64 st;
     int r = fstat64(fd, &st);
-    UnalignStat64(&st, buf);
+    UnalignStat64_32(&st, buf);
     return r;
 }
 
@@ -1139,35 +1120,19 @@ EXPORT int my32_lstat(char* path, void* buf)
 {
     struct stat64 st;
     int r = lstat64(path, &st);
-    UnalignStat64(&st, buf);
+    UnalignStat64_32(&st, buf);
     return r;
 }
-#endif
 
 EXPORT int my32___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 {
-    if (vers == 1)
-    {
-        static iFiip_t f = NULL;
-        if(!f) {
-            library_t* lib = my_lib;
-            if(!lib)
-            {
-                errno = EINVAL;
-                return -1;
-            }
-            f = (iFiip_t)dlsym(lib->priv.w.lib, "__fxstat");
-        }
-
-        return f(vers, fd, buf);
-    }
     struct stat64 st;
     int r = fstat64(fd, &st);
     if (r) return r;
     r = FillStatFromStat64(vers, &st, buf);
     return r;
 }
-#endif
+
 EXPORT int my32___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
 {
     struct stat64 st;
@@ -1574,7 +1539,7 @@ EXPORT int32_t my32_read(int fd, void* buf, uint32_t count)
 {
     int ret = read(fd, buf, count);
 #ifdef DYNAREC
-    if(ret!=count && ret>0) {
+    if(ret!=count && ret>0 && box64_dynarec) {
         // continue reading...
         void* p = buf+ret;
         if(hasDBFromAddress((uintptr_t)p)) {
@@ -1764,8 +1729,7 @@ EXPORT void* my32_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
     *((ldiv_t*)p) = ldiv(num, den);
     return p;
 }
-
-#ifndef NOALIGN
+#endif
 EXPORT int my32_epoll_create(x64emu_t* emu, int size)
 {
     return epoll_create(size);
@@ -1778,7 +1742,7 @@ EXPORT int32_t my32_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t f
 {
     struct epoll_event _event[1] = {0};
     if(event && (op!=EPOLL_CTL_DEL))
-        AlignEpollEvent(_event, event, 1);
+        AlignEpollEvent32(_event, event, 1);
     return epoll_ctl(epfd, op, fd, event?_event:event);
 }
 EXPORT int32_t my32_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t maxevents, int32_t timeout)
@@ -1787,11 +1751,10 @@ EXPORT int32_t my32_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_
     //AlignEpollEvent(_events, events, maxevents);
     int32_t ret = epoll_wait(epfd, events?_events:NULL, maxevents, timeout);
     if(ret>0)
-        UnalignEpollEvent(events, _events, ret);
+        UnalignEpollEvent32(events, _events, ret);
     return ret;
 }
-#endif
-
+#if 0
 EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     static iFpipp_t f = NULL;
@@ -1951,45 +1914,43 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
 
     return execve(path, (void*)newargv, newenvp);
 }
-#if 0
+
 // execvp should use PATH to search for the program first
-EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, char* const argv[])
+EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
 {
     // need to use BOX32_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box32_path);
-    // use fullpath...
+    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    // use fullpath now
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
-    int x64 = my_context->box64path?FileIsX64ELF(path):0;
-    printf_log(LOG_DEBUG, "execvp(\"%s\", %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, x86, fullpath);
-    free(fullpath);
-    if (x86 || self) {
+    int x64 = FileIsX64ELF(fullpath);
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x86=%d\n", fullpath, argv, x86);
+    if (x86 || x64 || self) {
+        int skip_first = 0;
+        if(strlen(fullpath)>=strlen("wine-preloader") && strcmp(fullpath+strlen(fullpath)-strlen("wine-preloader"), "wine-preloader")==0)
+            skip_first++;
         // count argv...
-        int i=0;
-        while(argv[i]) ++i;
-        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        int n=skip_first;
+        while(argv[n]) ++n;
+        const char** newargv = (const char**)calloc(n+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box64path;
-        for (int j=0; j<i; ++j)
-            newargv[j+1] = argv[j];
+        for(int i=0; i<n; ++i)
+            newargv[i+1] = from_ptrv(argv[skip_first+i]);
         if(self) newargv[1] = emu->context->fullpath;
-        printf_log(LOG_DEBUG, " => execvp(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
-        int ret = execvp(newargv[0], newargv);
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", emu->context->box64path, newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
+        int ret = execv(newargv[0], (char* const*)newargv);
         free(newargv);
         return ret;
     }
-    if((!strcmp(path + strlen(path) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
-     && argv[1] && (!strcmp(argv[1], "-m") || !strcmp(argv[1], "-p") || !strcmp(argv[1], "-i"))
-     && !argv[2]) {
-        // uname -m is redirected to box32 -m
-        path = my_context->box64path;
-        char *argv2[3] = { my_context->box64path, argv[1], NULL };
-        return execvp(path, argv2);
-    }
-
-    // fullpath is gone, so the search will only be on PATH, not on BOX32_PATH (is that an issue?)
-    return execvp(path, argv);
+    // count argv and create the 64bits argv version
+    int n=0;
+    while(argv[n]) ++n;
+    char** newargv = (char**)calloc(n+1, sizeof(char*));
+    for(int i=0; i<=n; ++i)
+        newargv[i+1] = from_ptrv(argv[i]);
+    return execv(fullpath, (void*)newargv);
 }
-
+#if 0
 // execvp should use PATH to search for the program first
 EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
@@ -2057,6 +2018,19 @@ EXPORT int my32_setrlimit(x64emu_t* emu, int what, uint32_t* pr)
     return setrlimit64(what, &l);
 }
 
+EXPORT void* my32_localtime(x64emu_t* emu, void* t)
+{
+    struct_L_t t_ = {0};
+    static struct_iiiiiiiiilt_t res_ = {0};
+    if(t) from_struct_L(&t_, to_ptrv(t));
+    void* ret = localtime(t?((void*)&t_):NULL);
+    if(ret) {
+        to_struct_iiiiiiiiilt(to_ptrv(&res_), ret);
+        return &res_;
+    }
+    return NULL;
+}
+
 EXPORT void* my32_localtime_r(x64emu_t* emu, void* t, void* res)
 {
     struct_L_t t_ = {0};
@@ -2067,6 +2041,19 @@ EXPORT void* my32_localtime_r(x64emu_t* emu, void* t, void* res)
     if(ret==&res_) {
         to_struct_iiiiiiiiilt(to_ptrv(res), &res_);
         return res;
+    }
+    return NULL;
+}
+
+EXPORT void* my32_gmtime(x64emu_t* emu, void* t)
+{
+    struct_L_t t_ = {0};
+    static struct_iiiiiiiiilt_t res_ = {0};
+    if(t) from_struct_L(&t_, to_ptrv(t));
+    void* ret = gmtime(t?((void*)&t_):NULL);
+    if(ret) {
+        to_struct_iiiiiiiiilt(to_ptrv(&res_), ret);
+        return &res_;
     }
     return NULL;
 }
@@ -2100,31 +2087,36 @@ EXPORT int32_t my32_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_
     fclose(rnd);
     return r;
 }
+#endif
 
-static struct passwd fakepwd = {};
+struct i386_passwd
+{
+  ptr_t     pw_name;    // char *
+  ptr_t     pw_passwd;  // char *
+  uint32_t  pw_uid;
+  uint32_t  pw_gid;
+  ptr_t     pw_gecos;   // char *
+  ptr_t     pw_dir;     // char *
+  ptr_t     pw_shell;   // char *
+};
+
 EXPORT void* my32_getpwuid(x64emu_t* emu, uint32_t uid)
 {
-    void *ret = NULL;
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "getpwuid");
-    if(f)
-        ret = ((pFu_t)f)(uid);
-    
-    // In case of failure, provide a fake one. Evil hack :/
-    if (!ret && !fakepwd.pw_name) {
-        fakepwd.pw_name = strdup("root");
-        fakepwd.pw_passwd = strdup("fakehash");
-        fakepwd.pw_uid = 0;
-        fakepwd.pw_gid = 0;
-        fakepwd.pw_gecos = strdup("root");
-        fakepwd.pw_dir = getenv("HOME");
-        fakepwd.pw_shell = strdup("/bin/bash");
+    static struct i386_passwd ret;
+    struct passwd* p = getpwuid(uid);
+    if(p) {
+        ret.pw_name = to_cstring(p->pw_name);
+        ret.pw_passwd = to_cstring(p->pw_passwd);
+        ret.pw_uid = p->pw_uid;
+        ret.pw_gid = p->pw_gid;
+        ret.pw_gecos = to_cstring(p->pw_gecos);
+        ret.pw_dir = to_cstring(p->pw_dir);
+        ret.pw_shell = to_cstring(p->pw_shell);
+        return &ret;
     }
-
-    return ret ? ret : (void*)&fakepwd;
+    return NULL;
 }
-
+#if 0
 EXPORT int32_t my32_recvmmsg(x64emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
 {
     // Implemented starting glibc 2.12+
@@ -2148,7 +2140,7 @@ EXPORT int32_t my32___sendmmsg(x64emu_t* emu, int32_t fd, void* msgvec, uint32_t
     // Use the syscall
     return syscall(__NR_sendmmsg, fd, msgvec, vlen, flags);
 }
-
+#endif
 EXPORT int32_t my32___register_atfork(x64emu_t *emu, void* prepare, void* parent, void* child, void* handle)
 {
     // this is partly incorrect, because the emulated funcionts should be executed by actual fork and not by my32_atfork...
@@ -2181,7 +2173,6 @@ EXPORT int32_t my32___poll_chk(void* a, uint32_t b, int c, int l)
     return poll(a, b, c);   // no check...
 }
 
-#endif
 EXPORT int32_t my32_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint32_t d2, uint32_t d3, uint32_t d4, uint32_t d5, uint32_t d6)
 {
     // Implemented starting glibc 2.14+
@@ -2273,22 +2264,6 @@ EXPORT int32_t my32_accept4(x64emu_t* emu, int32_t fd, void* a, void* l, int32_t
     return syscall(__NR_accept4, fd, a, l, flags);
 }
 
-EXPORT  int32_t my32_fallocate64(int fd, int mode, int64_t offs, int64_t len)
-{
-    iFiiII_t f = NULL;
-    static int done = 0;
-    if(!done) {
-        library_t* lib = my_lib;
-        f = (iFiiII_t)dlsym(lib->priv.w.lib, "fallocate64");
-        done = 1;
-    }
-    if(f)
-        return f(fd, mode, offs, len);
-    else
-        return syscall(__NR_fallocate, fd, mode, (uint32_t)(offs&0xffffffff), (uint32_t)((offs>>32)&0xffffffff), (uint32_t)(len&0xffffffff), (uint32_t)((len>>32)&0xffffffff));
-        //return posix_fallocate64(fd, offs, len);
-}
-
 EXPORT int my32_getopt(int argc, char* const argv[], const char *optstring)
 {
     int ret = getopt(argc, argv, optstring);
@@ -2310,81 +2285,6 @@ EXPORT int my32_getopt_long_only(int argc, char* const argv[], const char* optst
     return ret;
 }
 #endif
-
-EXPORT int my32_getaddrinfo(x64emu_t* emu, void* node, void* service, struct i386_addrinfo* hints, ptr_t* res)
-{
-    struct addrinfo* hints_ = (struct addrinfo*)hints;  // only first part is used, wich is identical
-    struct addrinfo* p = {0};
-    int ret = getaddrinfo(node, service, hints_, &p);
-    if(!ret && p) {
-        // counting the number of "next"
-        struct addrinfo* p2 = p;
-        int idx = 0;
-        while(p2) {++idx; p2 = p2->ai_next;}
-        // doing the malloc!
-        void* r = box_malloc(idx*sizeof(struct i386_addrinfo)+sizeof(void*));
-        ptr_t p3 = to_ptrv(r);
-        *res = p3;
-        p2 = p;
-        for(int i=0; i<idx; ++i) {
-            struct i386_addrinfo* dest = (struct i386_addrinfo*)from_ptrv(p3);
-            p3+=sizeof(struct i386_addrinfo);
-            if(!i) {
-                *(void**)from_ptrv(p3) = p;
-                p3+=sizeof(void*);
-            }
-            dest->ai_flags = p2->ai_flags;
-            dest->ai_family = p2->ai_family;
-            dest->ai_socktype = p2->ai_socktype;
-            dest->ai_protocol = p2->ai_protocol;
-            dest->ai_addrlen = p2->ai_addrlen;
-            dest->ai_addr = to_ptrv(p2->ai_addr);
-            dest->ai_canonname = to_cstring(p2->ai_canonname);
-            p2 = p2->ai_next;
-            dest->ai_next = p2?p3:0;
-        }
-    } else
-        *res = 0;
-    return ret;
-}
-
-EXPORT void my32_freeaddrinfo(x64emu_t* emu, void* a) {
-    if(!a) return;
-    void* orig = *(void**)(a+sizeof(struct i386_addrinfo));
-    freeaddrinfo(orig);
-    box_free(a);
-}
-
-EXPORT void* my32_gethostbyname(x64emu_t* emu, const char* a)
-{
-    static struct i386_hostent ret = {0};
-    static ptr_t strings[128] = {0};
-    struct hostent* h = gethostbyname(a);
-    if(!h) return NULL;
-    // convert...
-    ret.h_name = to_cstring(h->h_name);
-    ret.h_addrtype = h->h_addrtype;
-    ret.h_length = h->h_length;
-    ptr_t s = to_ptrv(&strings);
-    int idx = 0;
-    ret.h_aliases = h->h_aliases?s:0;
-    if(h->h_aliases) {
-        char* p = *h->h_aliases;
-        while(p) {
-            strings[idx++] = to_cstring(p++);
-        }
-        strings[idx++] = 0;
-    }
-    ret.h_addr_list = h->h_addr_list?to_ptrv(&strings[idx]):0;
-    if(h->h_addr_list) {
-        void* p = *h->h_addr_list;
-        while(p)
-            strings[idx++] = to_ptrv(p++);
-        strings[idx++] = 0;
-    }
-    // done
-    return &ret;
-}
 
 EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 {
@@ -2537,7 +2437,6 @@ EXPORT void* my32_localeconv(x64emu_t* emu)
     memcpy(&ret.int_frac_digits, &l->int_frac_digits, 14);
     return &ret;
 }
-
 
 EXPORT struct __processor_model
 {
@@ -2965,6 +2864,39 @@ EXPORT int my32_utimes(x64emu_t* emu, const char* name, uint32_t* times)
     return utimes(name, tm);
 }
 
+EXPORT int my32_futimes(x64emu_t* emu, int fd, uint32_t* times)
+{
+    struct timeval tm[2];
+    tm[0].tv_sec = times[0];
+    tm[0].tv_usec = times[1];
+    tm[1].tv_sec = times[2];
+    tm[1].tv_usec = times[3];
+    return futimes(fd, tm);
+}
+
+EXPORT int my32_strtol(const char* s, char** endp, int base)
+{
+    long ret = strtol(s, endp, base);
+    if (ret<INT_MIN) {
+        ret = INT_MIN;
+        errno = ERANGE;
+    } else if(ret>INT_MAX) {
+        ret = INT_MAX;
+        errno = ERANGE;
+    }
+    return ret;
+}
+
+EXPORT unsigned int my32_strtoul(const char* s, char** endp, int base)
+{
+    unsigned long ret = strtoul(s, endp, base);
+    if(ret>UINT_MAX) {
+        ret = UINT_MAX;
+        errno = ERANGE;
+    }
+    return ret;
+}
+
 // wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
 EXPORT void* my32_malloc(unsigned long size)
 {
@@ -3039,15 +2971,6 @@ EXPORT int my32_on_exit(x64emu_t* emu, void* f, void* args)
 }
 #endif
 #endif
-
-EXPORT long my32_strtol(void* nptr, ptr_t* endptr, int base)
-{
-    void* endp;
-    long ret = strtol(nptr, (char**)(endptr?(&endp):NULL), base);
-    if(endptr)
-        *endptr = to_ptrv(endp);
-    return ret;
-}
 
 EXPORT char** my32_environ = NULL;
 EXPORT char** my32__environ = NULL;

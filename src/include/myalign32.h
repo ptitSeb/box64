@@ -95,10 +95,10 @@ void AlignVorbisDspState(void* dest, void* source);   // x86 -> Arm
 
 void UnalignVorbisBlock(void* dest, void* source); // Arm -> x86
 void AlignVorbisBlock(void* dest, void* source);   // x86 -> Arm
-
-void UnalignEpollEvent(void* dest, void* source, int nbr); // Arm -> x86
-void AlignEpollEvent(void* dest, void* source, int nbr); // x86 -> Arm
-
+#endif
+void UnalignEpollEvent32(void* dest, void* source, int nbr); // Arm -> x86
+void AlignEpollEvent32(void* dest, void* source, int nbr); // x86 -> Arm
+#if 0
 void UnalignSmpegInfo(void* dest, void* source); // Arm -> x86
 void AlignSmpegInfo(void* dest, void* source);   // x86 -> Arm
 #endif
@@ -477,5 +477,28 @@ struct i386_hostent {
     int    h_length;
     ptr_t  h_addr_list;// char **
 } __attribute__((packed));
+
+struct i386_iovec
+{
+  ptr_t     iov_base; // void *
+  uint32_t  iov_len;
+};
+
+struct i386_msghdr
+{
+  ptr_t     msg_name;		// void *
+  uint32_t  msg_namelen;
+  ptr_t     msg_iov;	// struct i386_iovec *
+  uint32_t  msg_iovlen;
+  ptr_t     msg_control;  // void *
+  ulong_t   msg_controllen;
+  int msg_flags;
+};
+void AlignIOV_32(void* dest, void* source);   // x86 -> Native
+void UnalignIOV_32(void* dest, void* source); // Native -> x86
+
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* source);   // x86 -> Native
+//void UnalignMsgHdr_32(void* dest, void* source, void* source_iov); // Native -> x86
+
 
 #endif//__MY_ALIGN32__H_

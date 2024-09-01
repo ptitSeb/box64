@@ -25,6 +25,7 @@ typedef uint32_t (*uFV_t)(...);
 typedef uint64_t (*UFp_t)(void*);
 typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void* (*pFv_t)(void);
+typedef void* (*pFu_t)(uint32_t);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFip_t)(int32_t, void*);
@@ -55,11 +56,17 @@ typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFpOu_t)(void*, int32_t, uint32_t);
 typedef double (*KFppa_t)(void*, void*, void*);
+typedef intptr_t (*lFipi_t)(int32_t, void*, int32_t);
 typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
+typedef intptr_t (*lFppi_t)(void*, void*, int32_t);
+typedef uintptr_t (*LFppi_t)(void*, void*, int32_t);
+typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef void* (*pFppv_t)(void*, void*, void);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
-typedef int32_t (*iFiiII_t)(int32_t, int32_t, int64_t, int64_t);
+typedef int32_t (*iFivpV_t)(int32_t, void, void*, ...);
+typedef int32_t (*iFiiip_t)(int32_t, int32_t, int32_t, void*);
+typedef int32_t (*iFipii_t)(int32_t, void*, int32_t, int32_t);
 typedef int32_t (*iFLLLL_t)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 typedef int32_t (*iFpvpp_t)(void*, void, void*, void*);
 typedef int32_t (*iFpupV_t)(void*, uint32_t, void*, ...);
@@ -67,6 +74,7 @@ typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef int32_t (*iFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFhvpV_t)(uintptr_t, void, void*, ...);
+typedef uintptr_t (*LFppiv_t)(void*, void*, int32_t, void);
 typedef int32_t (*iFpvvpV_t)(void*, void, void, void*, ...);
 typedef int32_t (*iFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef int32_t (*iFpuppp_t)(void*, uint32_t, void*, void*, void*);
@@ -81,19 +89,28 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(freeaddrinfo, vFp_t) \
 	GO(__close_nocancel, iFi_t) \
+	GO(getifaddrs, iFp_t) \
 	GO(getwc, iFh_t) \
 	GO(__ctype_b_loc, pFv_t) \
 	GO(__ctype_tolower_loc, pFv_t) \
 	GO(__ctype_toupper_loc, pFv_t) \
 	GO(__errno_location, pFv_t) \
+	GO(__h_errno_location, pFv_t) \
 	GO(localeconv, pFv_t) \
+	GO(getpwuid, pFu_t) \
 	GO(gethostbyname, pFp_t) \
+	GO(gmtime, pFp_t) \
+	GO(localtime, pFp_t) \
+	GO(futimes, iFip_t) \
 	GO(getrlimit, iFip_t) \
 	GO(setrlimit, iFip_t) \
 	GO(backtrace, iFpi_t) \
 	GO(alphasort64, iFpp_t) \
+	GO(execvp, iFpp_t) \
 	GO(statvfs, iFpp_t) \
 	GO(utimes, iFpp_t) \
+	GO(execl, iFpV_t) \
+	GO(execlp, iFpV_t) \
 	GO(statvfs64, iFhp_t) \
 	GO(signal, pFip_t) \
 	GO(backtrace_symbols, pFpi_t) \
@@ -101,9 +118,12 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(localtime_r, pFpp_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
 	GO(vswscanf, iFppp_t) \
+	GO(fscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
 	GO(__strtold_l, KFppa_t) \
 	GO(strtold_l, KFppa_t) \
+	GO(recvmsg, lFipi_t) \
+	GO(sendmsg, lFipi_t) \
 	GO(__realpath_chk, pFppv_t) \
 	GO(__libc_init, vFpppp_t) \
 	GO(getaddrinfo, iFpppp_t)

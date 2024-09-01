@@ -92,8 +92,8 @@ GOWM(ccosf, UFs)    //%noE return complex
 GOWM(ccoshf, UFs)   //%noE return complex
 // ccoshl   // Weak
 // ccosl    // Weak
-//GOW(ceil, dFd)
-//GOW(ceilf, fFf)
+GOW(ceil, dFd)
+GOW(ceilf, fFf)
 // ceill    // Weak
 //GOWS(cexp, pFps)     //%%   return complex
 GOWM(cexpf, UFs)     //%noE return complex

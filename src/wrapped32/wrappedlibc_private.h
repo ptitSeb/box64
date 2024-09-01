@@ -6,14 +6,17 @@
 // locale_t needs special handling, with to_locale / from_locale (and is a / A)
 // struct utimbuf is: LL
 // struct timespec is: LL
+// struct timeval is: LL
 // struct tm is: iiiiiiiiilt
 // time_t is: L
+// socklen_t is u
+// struct sockaddr is fine, no wrap needed
 
 // a64l
 GO(abort, vFv)
-//GO(abs, iFi)
-//GOW(accept, iFipp)
-//GOM(accept4, iFEippi)   //%% glibc 2.10+
+GO(abs, iFi)
+GOW(accept, iFipp)
+GOW(accept4, iFippi)
 GOW(access, iFpi)
 // acct
 //GOW(addmntent, iFpp)
@@ -75,7 +78,7 @@ GOW(asctime_r, pFriiiiiiiiilt_p)
 //GOM(__asprintf, iFEppV)      //%%
 //GOM(__asprintf_chk, iFEpipV) //%%
 // __assert
-//GO(__assert_fail, vFppup)
+GO(__assert_fail, vFppip)
 //GO(__assert_perror_fail, vFipup)
 //GO(atof, dFp)
 //GO(atoi, iFp)
@@ -133,7 +136,7 @@ GOW(chmod, iFpu)
 GOW(chown, iFpuu)
 //GO(chroot, iFp)
 //GOW(clearenv, iFv)
-//GO(clearerr, vFp)
+GO(clearerr, vFh)
 //GO(clearerr_unlocked, vFp)
 // clnt_broadcast
 // clnt_create
@@ -203,7 +206,7 @@ GO(__dgettext, pFpp)
 //GO(difftime, dFuu)
 //GO(dirfd, iFp)
 //GO(dirname, pFp)
-//GOS(div, pFpii) //%%,noE
+GOS(div, pFpii) //%%,noE
 // _dl_addr
 GO2(dl_iterate_phdr, iFEpp, my_dl_iterate_phdr) //%%
 // _dl_mcount_wrapper
@@ -214,7 +217,7 @@ GO2(dl_iterate_phdr, iFEpp, my_dl_iterate_phdr) //%%
 // _dl_vsym
 //GOW(dngettext, pFpppu)
 //GOM(dprintf, iFEipV)
-//GOM(__dprintf_chk, iFEivpV)	//%%
+GOM(__dprintf_chk, iFEivpV)	//%%
 GO(drand48, dFv)
 // drand48_r
 GOW(dup, iFi)
@@ -256,9 +259,9 @@ GOW(endutent, vFv)
 // envz_strip
 GOM(epoll_create, iFEi)     //%% not needed, but used in syscall
 GOM(epoll_create1, iFEO)    //%%
-//GOM(epoll_ctl, iFEiiip)     //%% align epool_event structure
+GOM(epoll_ctl, iFEiiip)     //%% align epool_event structure
 // epoll_pwait
-//GOM(epoll_wait, iFEipii)    //%% need realign of epoll_event structure
+GOM(epoll_wait, iFEipii)    //%% need realign of epoll_event structure
 // erand48
 // erand48_r    // Weak
 //GO(err, vFippppppppp)
@@ -278,15 +281,15 @@ GOM(__errno_location, pFEv)
 //GO(ether_ntoa_r, pFpp)
 //GO(ether_ntohost, iFpp)
 //GOW(euidaccess, iFpi)
-//GO(eventfd, iFui)
+GO(eventfd, iFui)
 //GO(eventfd_read, iFip)
 //GO(eventfd_write, iFiU)
-//GO2(execl, iFEpV, my_execv)
-//GO2(execle, iFEpV, my_execve)  // Nope! This one needs wrapping, because is char*, char*, ..., char*[]
-//GO2(execlp, iFpV, execvp)
+GO2(execl, iFEpV, my32_execv)
+//GO2(execle, iFEpV, my_32execve)  // Nope! This one needs wrapping, because is char*, char*, ..., char*[]
+GO2(execlp, iFpV, my32_execvp)
 GOWM(execv, iFEpp)     //%%
-//GOM(execve, iFEppp)   //%% and this one too...
-//GOWM(execvp, iFEpp)
+GOM(execve, iFEppp)   //%% and this one too...
+GOWM(execvp, iFEpp)
 GO(exit, vFi)
 GO(_exit, vFi)
 GOW(_Exit, vFi)
@@ -313,7 +316,7 @@ GO(fdatasync, iFi)
 GOW(fdopendir, pFi)
 GOW(feof, iFh)
 //GO(feof_unlocked, iFp)
-//GOW(ferror, iFp)
+GOW(ferror, iFh)
 //GO(ferror_unlocked, iFp)
 //GO(fexecve, iFipp)  //TODO: Check if needed to be wrapped, and target checked for x86 / native?
 GOW(fflush, iFh)
@@ -381,14 +384,14 @@ GO(fputwc, iFih)
 //GO(fputws_unlocked, iFpp)
 GOW(fread, LFpLLh)
 //GO(__freadable, iFp)
-//GO(__fread_chk, uFpuuup)
+GO(__fread_chk, uFpLLLh)
 //GO(__freading, iFp)
 //GO(fread_unlocked, uFpuup)
 //GO(__fread_unlocked_chk, uFpuuup)
 GO(free, vFp)
 GOM(freeaddrinfo, vFEp)
 //DATAV(__free_hook, 4)
-//GO(freeifaddrs, vFp)
+GO(freeifaddrs, vFp)
 GOW(freelocale, vFA)
 GO(__freelocale, vFA)
 //GO(fremovexattr, iFip)
@@ -397,7 +400,7 @@ GO(freopen64, hFppH)
 // frexp    // Weak
 // frexpf   // Weak
 // frexpl   // Weak
-//GO2(fscanf, iFppV, vfscanf)
+GOM(fscanf, iFEppV)
 GO(fseek, iFhli)
 GO(fseeko, iFhli)
 GO(fseeko64, iFhIi)
@@ -410,7 +413,7 @@ GOWM(fstatfs64, iFip)    //%%,noE
 //GO(fstatvfs, iFip)
 //GOW(fstatvfs64, iFip)   // alignment?
 GOW(fsync, iFi)
-//GOW(ftell, lFp)
+GOW(ftell, lFh)
 GO(ftello, lFh)
 GO(ftello64, IFh)
 //GO(ftime, iFp)
@@ -427,7 +430,7 @@ GOW(ftruncate64, iFiI)
 //GOM(ftw64, iFEppi)       //%%
 //GOW(funlockfile, vFp)
 //GO(futimens, iFip)
-//GOW(futimes, iFip) //int futimes(int fd, const struct timeval tv[2])
+GOWM(futimes, iFEip)
 //GO(futimesat, iFippp)
 // fwide
 //GOWM(fwprintf, iFEppV)   //%%
@@ -437,12 +440,12 @@ GOW(fwrite, LFpLLh)
 //GO(fwrite_unlocked, uFpuup)
 //GO(__fwriting, iFp)
 // fwscanf
-//GOM(__fxstat, iFEiip)       //%%
+GOM(__fxstat, iFEiip)       //%%
 GOM(__fxstat64, iFEiip)     //%% need reaalign of struct stat64
 //GOM(__fxstatat, iFEiippi)   //%%
 //GOM(__fxstatat64, iFEiippi) //%% struct stat64 again
 // __gai_sigqueue
-//GO(gai_strerror, pFi)
+GO(gai_strerror, tFi)
 // __gconv_get_alias_db
 // __gconv_get_cache
 // __gconv_get_modules_db
@@ -498,7 +501,7 @@ GOM(gethostbyname, pFEp)
 // gethostid
 GOW(gethostname, iFpL)
 // __gethostname_chk
-//GO(getifaddrs, iFp)
+GOM(getifaddrs, iFEbp_)
 // getipv4sourcefilter
 //GOW(getitimer, iFip)
 // get_kernel_syms  // Weak
@@ -512,7 +515,7 @@ GOW(gethostname, iFpL)
 //GOW(getmntent_r, pFpppi)
 // getmsg
 // get_myaddress
-//GO(getnameinfo, iFpupupui)
+GO(getnameinfo, iFpupLpLi)
 // getnetbyaddr
 // getnetbyaddr_r
 // getnetbyname
@@ -530,7 +533,7 @@ GOW(gethostname, iFpL)
 GOW(getpagesize, iFv)
 GO(__getpagesize, iFv)
 //GO(getpass, pFp)
-//GOW(getpeername, iFipp)
+GOW(getpeername, iFipp)
 GOW(getpgid, uFu)
 // __getpgid
 GO(getpgrp, iFv)
@@ -554,7 +557,7 @@ GOW(getpt, iFv)
 // getpwent_r
 //GO(getpwnam, pFp)
 //GO(getpwnam_r, iFpppup)
-//GOM(getpwuid, pFEu)
+GOM(getpwuid, pFEu)
 //GO(getpwuid_r, iFuppup)
 //GOW(getresgid, iFppp)
 //GOW(getresuid, iFppp)
@@ -579,7 +582,7 @@ GO(getrlimit64, iFip)
 //GO(getservent_r, iFppup)
 GO(getsid, uFu)
 GOW(getsockname, iFipp)
-//GOW(getsockopt, iFiiipp)
+GOW(getsockopt, iFiiipp)
 // getsourcefilter
 //GO(getspent, pFv)
 // getspent_r
@@ -617,7 +620,7 @@ GO(getwchar_unlocked, iFv)
 //GO(globfree, vFp)
 //GO(globfree64, vFp)
 // glob_pattern_p   // Weak
-//GO(gmtime, pFp)
+GOM(gmtime, pFEp)
 //GO(__gmtime_r, pFpp)
 GOWM(gmtime_r, pFEpp)
 GO(gnu_dev_major, uFU)
@@ -638,7 +641,7 @@ GO(grantpt, iFi)
 // hdestroy_r
 //DATA(h_errlist, 4)
 // h_errno  // type B
-//GO(__h_errno_location, pFv)
+GOM(__h_errno_location, pFEv)
 //GO(herror, vFp)
 // h_nerr   // type R
 // host2netname
@@ -680,8 +683,8 @@ GOW(imaxdiv, IFII)
 // inet6_rth_reverse
 // inet6_rth_segments
 // inet6_rth_space
-//GO(inet_addr, uFp)
-//GOW(inet_aton, iFpp)
+GO(inet_addr, uFp)
+GOW(inet_aton, iFpp)
 // inet_lnaof
 // inet_makeaddr
 // inet_netof
@@ -884,7 +887,7 @@ GO(__isnanf, iFf)
 //GOM(__isoc99_fscanf, iFEppV)  //%%
 // __isoc99_fwscanf
 // __isoc99_scanf
-//GOM(__isoc99_sscanf, iFEppV)  //%%
+GOM(__isoc99_sscanf, iFEppV)  //%%
 // __isoc99_swscanf
 //GOM(__isoc99_vfscanf, iFEppp) //%%
 // __isoc99_vfwscanf
@@ -1028,7 +1031,7 @@ GOW(listen, iFii)
 // loc1 // type B
 // loc2 // type B
 GOWM(localeconv, pFEv)
-//GO(localtime, pFp)
+GOM(localtime, pFEp)
 GOWM(localtime_r, pFEpp)
 GO(lockf, iFiiu)
 GO(lockf64, iFiiI)
@@ -1089,12 +1092,12 @@ GO(__memcpy_chk, pFppLL)
 // memfrob
 //GO(memmem, pFpupu)
 GO(memmove, pFppL)
-//GO(__memmove_chk, pFppLL)
-//GO(mempcpy, pFppL)
-//GO(__mempcpy, pFppu)
+GO(__memmove_chk, pFppLL)
+GO(mempcpy, pFppL)
+GO(__mempcpy, pFppL)
 // __mempcpy_chk
 // __mempcpy_small
-//GOW(memrchr, pFpiL)
+GOW(memrchr, pFpiL)
 GO(memset, pFpiL)
 GO(__memset_chk, pFpiLL)
 //GO(mincore, iFpLp)
@@ -1105,11 +1108,11 @@ GO(mkfifo, iFpu)
 //GO(mkfifoat, iFipu)
 //GO(mkostemp, iFpi)
 //GO(mkostemp64, iFpi)
-//GO(mkstemp, iFp)
+GO(mkstemp, iFp)
 //GO(mkstemp64, iFp)
 //GO(mktemp, pFp)
 GO(mktime, LFriiiiiiiiilt_)
-//GO(mlock, iFpL)
+GO(mlock, iFpL)
 //GO(mlockall, iFi)
 GOM(mmap, pFEpLiiii)    //%%
 GOM(mmap64, pFEpLiiiI)  //%%
@@ -1132,7 +1135,7 @@ GOWM(mremap, pFEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MR
 //GOW(msgsnd, iFipLi)
 //GOW(msync, iFpLi)
 // mtrace
-//GO(munlock, iFpL)
+GO(munlock, iFpL)
 //GO(munlockall, iFv)
 GOM(munmap, iFEpL)       //%%
 // muntrace
@@ -1219,10 +1222,10 @@ GOW(opendir, pFp)
 // passwd2des
 //GOW(pathconf, iFpi)
 GOW(pause, iFv)
-//GO(pclose, iFp)
+GO(pclose, iFh)
 //GO(perror, vFp)
 // personality  // Weak
-//GOW(pipe, iFp)  // the array of 2 int seems to converted as a pointer, on both x86 and arm (and x86_64 too)
+GOW(pipe, iFp)
 // __pipe
 //GOW(pipe2, iFpO) // assuming this works the same as pipe, so pointer for array of 2 int
 // pivot_root
@@ -1233,7 +1236,7 @@ GOW(pause, iFv)
 // pmap_unset
 GOW(poll, iFpLi)    // poll have an array of struct as 1st argument
 GO(__poll, iFpLi)
-//GO(popen, pFpp)
+GO(popen, hFpp)
 GO(posix_fadvise, iFiuui)
 GO(posix_fadvise64, iFiuui)
 GO(posix_fallocate, iFiii)
@@ -1359,17 +1362,17 @@ GO2(__realpath_chk, pFEppv, my32_realpath)
 // re_compile_fastmap   // Weak
 //GOW(re_compile_pattern, pFpup)
 GO(recv, lFipLi)
-//GO(__recv_chk, iFipuui)
-//GOW(recvfrom, lFipLipp)
+GO(__recv_chk, iFipLLi)
+GOW(recvfrom, lFipLipp)
 // __recvfrom_chk
 //GOM(recvmmsg, iFEipuup)    //%% actual recvmmsg is glibc 2.12+. The syscall is Linux 2.6.33+, so use syscall...
-//GOW(recvmsg, lFipi)
+GOWM(recvmsg, lFEipi)
 // re_exec  // Weak
 //GOW(regcomp, iFppi)
 //GOW(regerror, uFippu)
 //GO(regexec, iFppupi)
 //GOW(regfree, vFp)
-//GOM(__register_atfork, iFEpppp) //%%
+GOM(__register_atfork, iFEpppp) //%%
 // register_printf_function // Weak
 // registerrpc
 // remap_file_pages // Weak
@@ -1442,8 +1445,8 @@ GOW(sched_getscheduler, iFi)
 //GOW(sched_rr_get_interval, iFip)
 //GO(sched_setaffinity, iFiup)
 //GOW(sched_setparam, iFip)
-//GO(__sched_setscheduler, iFiip)
-//GOW(sched_setscheduler, iFiip)
+GO(__sched_setscheduler, iFiip)
+GOW(sched_setscheduler, iFiip)
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
 GO(__secure_getenv, pFp)
@@ -1451,19 +1454,19 @@ GO(secure_getenv, pFp)
 // seed48
 // seed48_r // Weak
 //GO(seekdir, vFpi)
-//GOW(select, iFipppp)
-//GO(__select, iFipppp)
+GOW(select, iFippprLL_)
+GO(__select, iFippprLL_)
 GO(semctl, iFiiiN)
 GOW(semget, iFuii)
 GOW(semop, iFipL)
 //GO(semtimedop, iFipup)
 GOW(send, lFipLi)
 // __send   // Weak
-//GO(sendfile, lFiipL)
-//GO(sendfile64, lFiipL)
-//GOW(sendmsg, lFipi)
+GO(sendfile, lFiibp_L)
+GO(sendfile64, lFiipL)
+GOWM(sendmsg, lFEipi)
 //GOM(__sendmmsg, iFEipuu)    //%% actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...
-//GOW(sendto, lFipLipu)
+GOW(sendto, lFipLipu)
 // setaliasent
 //GOW(setbuf, vFpp)
 //GOW(setbuffer, vFppL)
@@ -1524,9 +1527,9 @@ GOW(setvbuf, iFhpiL)
 //GO(setxattr, iFpppui)
 // sgetspent
 // sgetspent_r  // Weak
-//GOW(shmat, pFipi)
+GOW(shmat, pFipi)
 //GOW(shmctl, iFiip)
-//GOW(shmdt, iFp)
+GOW(shmdt, iFp)
 GOW(shmget, iFuui)
 GOW(shutdown, iFii)
 GOWM(sigaction, iFEipp)    //%%
@@ -1576,7 +1579,7 @@ GOM(__snprintf_chk, iFEpLiipV) //%%
 //GOM(__snprintf, iFEpLpV) //%%
 // sockatmark
 GOW(socket, iFiii)
-//GOW(socketpair, iFiiip)
+GOW(socketpair, iFiiip)
 //GO(splice, iFipipuu)
 GOM(sprintf, iFEppV) //%%
 GOM(__sprintf_chk, iFEpvvpV) //%%
@@ -1658,7 +1661,7 @@ GO(strnlen, LFpL)
 GO(strpbrk, pFpp)
 // __strpbrk_c2
 // __strpbrk_c3
-//GO(strptime, pFppp)
+GO(strptime, pFppriiiiiiiiilt_)
 // strptime_l   // Weak
 GO(strrchr, pFpi)
 //GOW(strsep, pFpp)
@@ -1667,25 +1670,25 @@ GO(strrchr, pFpi)
 // __strsep_3c
 // __strsep_g
 //GO(strsignal, pFi)
-//GO(strspn, LFpp)
+GO(strspn, LFpp)
 // __strspn_c1
 // __strspn_c2
 // __strspn_c3
 GO(strstr, pFpp)
 GO(strtod, dFpBp_)
-//GO(__strtod_internal, dFppi)
-GO(__strtod_l, dFppa)
-GOW(strtod_l, dFppa)
+GO(__strtod_internal, dFpBp_i)
+GO(__strtod_l, dFpBp_a)
+GOW(strtod_l, dFpBp_a)
 GO(strtof, fFpBp_)
 //GO(__strtof_internal, fFppp)
 GO(__strtof_l, fFppa)
 //GOW(strtof_l, fFppu)
 //GO(strtoimax, IFppi)
-//GO(strtok, pFpp)
+GO(strtok, pFpp)
 //GO(__strtok_r, pFppp)
 //GOW(strtok_r, pFppp)
 // __strtok_r_1c
-GO(strtol, lFpBp_i)
+GOM(strtol, lFpBp_i)    //%%,noE
 #ifdef HAVE_LD80BITS
 //GO(strtold, DFpp)
 //GO(__strtold_internal, DFppi)
@@ -1697,20 +1700,20 @@ GOW(strtold_l, DFpBp_a)
 GO2(__strtold_l, KFpBp_a, __strtod_l)
 GOW2(strtold_l, KFpBp_a, strtod_l)
 #endif
-//GO(__strtol_internal, lFppi)
+GO(__strtol_internal, lFpBp_i)
 GO(strtoll, IFpBp_i)
 //GO(__strtol_l, lFppiip)
 //GOW(strtol_l, lFppiip)
-//GO(__strtoll_internal, IFppii)
+GO(__strtoll_internal, IFpBp_ii)
 //GO(__strtoll_l, IFppip)
 //GOW(strtoll_l, IFppip)
 //GOW(strtoq, IFppi)  // is that ok?
-GO(strtoul, LFpBp_i)
-//GO(__strtoul_internal, LFppii)
+GOM(strtoul, LFpBp_i)   //%%,noE
+GO2(__strtoul_internal, LFpBp_iv, my32_strtoul) //%%,noE
 GO(strtoull, UFpBp_i)
 //GO(__strtoul_l, uFppip)
 //GOW(strtoul_l, LFppip)
-//GO(__strtoull_internal, UFppii)
+GO(__strtoull_internal, UFpBp_ii)
 //GO(__strtoull_l, UFppip)
 //GOW(strtoull_l, UFppip)
 //GO(strtoumax, UFppi)
@@ -1854,7 +1857,7 @@ GO(ungetwc, iFih)
 GOW(unlink, iFp)
 //GO(unlinkat, iFipi)
 GO(unlockpt, iFi)
-//GOW(unsetenv, iFp)
+GOW(unsetenv, iFp)
 // unshare
 //GOW(updwtmp, vFpp)
 // updwtmpx
@@ -2150,7 +2153,7 @@ GOM(__udivdi3, UFUU)        //%%,noE
 GOM(__divdi3, IFII)         //%%,noE
 //GOM(__poll_chk, iFpuii)     //%%,noE
 
-GOM(fallocate64, iFiiII)    //%%,noE
+GO(fallocate64, iFiill)
 
 //DATAM(__libc_stack_end, sizeof(void*))
 
