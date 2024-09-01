@@ -573,6 +573,14 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "BIC %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
         return buff;
     }
+    if(isMask(opcode, "f1101010hh1mmmmmiiiiiinnnnnddddd", &a)) {
+        const char* shifts[] = { "LSL", "LSR", "ASR", "ROR" };
+        if(shift==0 && imm==0)
+            snprintf(buff, sizeof(buff), "BICS %s, %s, %s", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm]);
+        else
+            snprintf(buff, sizeof(buff), "BICS %s, %s, %s, %s %d", sf?Xt[Rd]:Wt[Rd], sf?Xt[Rn]:Wt[Rn], sf?Xt[Rm]:Wt[Rm], shifts[shift], imm);
+        return buff;
+    }
     if(isMask(opcode, "f01100100Nrrrrrrssssssnnnnnddddd", &a)) {
         uint64_t i = DecodeBitMasks(a.N, imms, immr);
         if(!sf) i&=0xffffffff;
