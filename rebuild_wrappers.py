@@ -150,13 +150,17 @@ class FunctionConvention(object):
 		self.ident = ident
 		self.name = convname
 		self.values = valid_chars
-# Free letters:  B   FG  J      QR T    YZa   e gh jk mno qrst    z
+# Free letters:  B   FG  JK     QR T    YZa   e gh jk mno qrst   yz
 conventions = {
-	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'y', 'b']),
-	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M',      'P', 'A'])
+	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'b']),
+	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M',      'P', 'A'])
 }
-sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'y', 'b', '0', '1']
+sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'b', '0', '1']
 assert(all(all(c not in conv.values[:i] and c in sortedvalues for i, c in enumerate(conv.values)) for conv in conventions.values()))
+
+# Some type depend on HAVE_LD80BITS; define this here so we can use it in readFiles and main
+depends_on_ld: str = "DY"
+assert(all(c in sortedvalues for c in depends_on_ld))
 
 class FunctionType(str):
 	@staticmethod
@@ -369,7 +373,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 		
 		# typedefs is a list of all "*FE*" types for the current file
 		# mystructs  is a map  of all char -> (structure C name, replacement) for structures
-		typedefs  : JumbledTypedefs   = {}
+		typedefs    : JumbledTypedefs   = {}
 		mystructs   : JumbledStructures = {}
 		mystructuses: JumbledStructUses = {}
 		filespec[filename[:-10]] = (typedefs, mystructs, mystructuses)
@@ -531,6 +535,19 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 					if ln not in gbl[str(dependants)]:
 						gbl[str(dependants)].append(FunctionType(ln))
 					
+					if any(c in origLine for c in depends_on_ld):
+						if (gotype != "GOM") and (gotype != "GOWM") and (gotype != "GOD") and (gotype != "GODW"):
+							print("\033[91mError:\033[m type depends on HAVE_LD80BITS but the GO type doesn't support that ({0}:{1})"
+			 					.format(filename, line[:-1]))
+							halt_required = True
+					if (gotype == "GO2") or (gotype == "GOW2") or (gotype == "GOD") or (gotype == "GODW"):
+						altfun = line.split(',')[2].split(')')[0].strip()
+						if altfun == "":
+							print("\033[91mError:\033[m empty alt function ({0}:{1})".format(filename, line[:-1]))
+							halt_required = True
+						elif altfun == funname:
+							print("\033[91mError:\033[m alt function is the original function ({0}:{1})".format(filename, line[:-1]))
+							halt_required = True
 					if origLine[2] == "E":
 						if (gotype != "GOM") and (gotype != "GOWM"):
 							if (gotype != "GO2") or not (line.split(',')[2].split(')')[0].strip().startswith('my_')):
@@ -829,10 +846,10 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	
 	# Detect functions which return in an x87 register
 	retx87_wraps: Dict[ClausesStr, List[FunctionType]] = {}
-	return_x87: str = "DK"
+	return_x87: str = "D"
 	
 	# Sanity checks
-	forbidden_simple: Dict[str, str] = {"ARM64": "EDKVOSNMHPAxXYyb", "RV64": "EcwiDKVOSNMHPAxXYyb"}
+	forbidden_simple: Dict[str, str] = {"ARM64": "EDVOSNMHPAxXYb", "RV64": "EcwiDVOSNMHPAxXYb"}
 	assert(all(k in allowed_simply for k in forbidden_simple))
 	assert(all(k in allowed_regs for k in forbidden_simple))
 	assert(all(k in allowed_fpr for k in forbidden_simple))
@@ -843,6 +860,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		assert(all(c not in allowed_simply[k1] + allowed_regs[k1] + allowed_fpr[k1] for c in forbidden_simple[k1]))
 		assert(all(c in allowed_simply[k1] + allowed_regs[k1] + allowed_fpr[k1] + forbidden_simple[k1] for c in allowed_conv.values))
 	assert(all(c in allowed_conv.values for c in return_x87))
+	assert(all(c in forbidden_simple[k] for c in depends_on_ld for k in forbidden_simple))
 	
 	simple_wraps: Dict[str, Dict[ClausesStr, List[Tuple[FunctionType, int]]]] = {
 		k1: {} for k1 in forbidden_simple
@@ -852,7 +870,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		regs_count: int = 0
 		fpr_count : int = 0
 		
-		ret = {}
+		ret: Dict[str, int] = {}
 		for k in forbidden_simple:
 			if v.get_convention() is not allowed_conv:
 				continue
@@ -1034,20 +1052,53 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	# Rewrite the wrapper.c file:
 	# i and u should only be 32 bits
 	td_types = {
-		#      E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        V        O          S        N      M      H                    P        A			x				X           Y              y         b
-		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*", "complexf_t", "complex_t", "complexl_t", "complex_t", "void*"],
-		#      E            v       c         w          i          I          C          W           u           U           f        d         K         l           L            p        V        O          S        N      M      P        A
-		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "void*", "void*"]
+		#      E            v       c         w          i          I          C          W           u           U           f        d         D              l           L            p        V        O          S        N      M      H                    P        A        x             X            Y             b
+		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*", "complexf_t", "complex_t", "complexl_t", "void*"],
+		#      E            v       c         w          i          I          C          W           u           U           f        d                        l           L            p        V        O          S        N      M                           P        A
+		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double",                "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...",                      "void*", "void*"]
+	}
+	td_types_nold = {
+		'F': {'D': "double", 'Y': "complex_t"},
+		'W': {}
+	}
+	td_types_ld = {
+		k: {t: td_types[k][conventions[k].values.index(t)] for t in td_types_nold[k]} for k in td_types_nold
 	}
 	assert(all(k in conventions for k in td_types))
+	assert(all(k in conventions for k in td_types_nold))
+	assert(all(t in depends_on_ld for k in td_types_nold for t in td_types_nold[k]))
 	for k in conventions:
 		if len(conventions[k].values) != len(td_types[k]):
 			raise NotImplementedError("len(values) = {lenval} != len(td_types) = {lentypes}".format(lenval=len(conventions[k].values), lentypes=len(td_types[k])))
 	
 	def generate_typedefs(arr: Iterable[FunctionType], file) -> None:
+		any_depends_on_ld = False
 		for v in arr:
+			if any(c in v for c in depends_on_ld):
+				any_depends_on_ld = True
+				continue
 			file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + v + "_t)"
 				+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
+		if any_depends_on_ld:
+			file.write("\n#ifdef HAVE_LD80BITS\n")
+			for v in arr:
+				if all(c not in v for c in depends_on_ld):
+					continue
+				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + v + "_t)"
+					+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
+			file.write("#else // HAVE_LD80BITS\n")
+			for k in td_types_nold:
+				for t in td_types_nold[k]:
+					td_types[k][conventions[k].values.index(t)] = td_types_nold[k][t]
+			for v in arr:
+				if all(c not in v for c in depends_on_ld):
+					continue
+				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + v + "_t)"
+					+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
+			for k in td_types_nold:
+				for t in td_types_ld[k]:
+					td_types[k][conventions[k].values.index(t)] = td_types_ld[k][t]
+			file.write("#endif\n")
 	
 	with open(os.path.join(root, "src", "wrapped", "generated", "wrapper.c"), 'w') as file:
 		file.write(files_header["wrapper.c"].format(lbr="{", rbr="}", version=ver))
@@ -1081,7 +1132,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"emu->xmm[0].f[0]=fn({0});",                               # f
 				"emu->xmm[0].d[0]=fn({0});",                               # d
 				"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",  # D
-				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
 				"R_RAX=(intptr_t)fn({0});",                                # l
 				"R_RAX=(uintptr_t)fn({0});",                               # L
 				"R_RAX=(uintptr_t)fn({0});",                               # p
@@ -1093,10 +1143,9 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
 				"\n#error Invalid return type: pointer in the stack\n",    # P
 				"\n#error Invalid return type: va_list\n",                 # A
-				'from_complexf(emu, fn({0}));', 	                       # x
-				'from_complex(emu, fn({0}));',                             # X
-				'from_complexl(emu, fn({0}));', 	                       # Y
-				'from_complexk(emu, fn({0}));',                            # y
+				"from_complexf(emu, fn({0}));",                            # x
+				"from_complex(emu, fn({0}));",                             # X
+				"from_complexl(emu, fn({0}));",                            # Y
 				"\n#error Invalid return type: xcb_connection_t*\n",       # b
 			],
 			conventions['W']: [
@@ -1112,7 +1161,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"R_RAX=fn({0});",                                          # U
 				"emu->xmm[0].f[0]=fn({0});",                               # f
 				"emu->xmm[0].d[0]=fn({0});",                               # d
-				"double db=fn({0}); fpu_do_push(emu); ST0val = db;",       # K
 				"R_RAX=(intptr_t)fn({0});",                                # l
 				"R_RAX=(uintptr_t)fn({0});",                               # L
 				"R_RAX=(uintptr_t)fn({0});",                               # p
@@ -1125,19 +1173,29 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"\n#error Invalid return type: va_list\n",                 # A
 			]
 		}
+		vals_nold = {
+			conventions['F']: {
+				'D': "double db=fn({0}); fpu_do_push(emu); ST0val = db;",
+				'Y': "from_complexk(emu, fn({0}));",
+			},
+			conventions['W']: {}
+		}
+		vals_ld = {
+			k: {t: vals[k][k.values.index(t)] for t in vals_nold[k]} for k in vals_nold
+		}
 		
 		# vreg: value is in a general register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
-		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1, 0, 0, 0, 0, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
+		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1, 0, 0, 0, 1]
 		# vxmm: value is in a XMM register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0]
 		# vother: value is elsewere
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
-		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
+		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  K  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  y  b
-		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 1, 2, 4, 4, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
+		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 1, 2, 4, 1]
 		arg_r = [
 			"",                            # E
 			"",                            # v
@@ -1152,7 +1210,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                            # f
 			"",                            # d
 			"",                            # D
-			"",                            # K
 			"(intptr_t){p}, ",             # l
 			"(uintptr_t){p}, ",            # L
 			"(void*){p}, ",                # p
@@ -1164,10 +1221,9 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"\n#error Use pp instead\n",   # H
 			"",                            # P
 			"(void*){p}, ",                # A
-			"",	                           # x
+			"",                            # x
 			"",                            # X
-			"",							   # Y
-			"",							   # y
+			"",                            # Y
 			"aligned_xcb, ",               # b
 		]
 		arg_x = [
@@ -1184,7 +1240,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"emu->xmm[{p}].f[0], ",   # f
 			"emu->xmm[{p}].d[0], ",   # d
 			"",                       # D
-			"",                       # K
 			"",                       # l
 			"",                       # L
 			"",                       # p
@@ -1198,8 +1253,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                       # A
 			"to_complexf(emu, {p}), ", # x
 			"to_complex(emu, {p}), ",  # X
-			"", 				      # Y
-			"", 				      # y
+			"",                       # Y
 			"",                       # b
 		]
 		arg_o = [
@@ -1216,7 +1270,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                       # f
 			"",                       # d
 			"",                       # D
-			"",                       # K
 			"",                       # l
 			"",                       # L
 			"",                       # p
@@ -1230,8 +1283,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                       # A
 			"",                       # x
 			"",                       # X
-			"",						  # Y
-			"",						  # y
+			"",                       # Y
 			"",                       # b
 		]
 		arg_s = [
@@ -1248,7 +1300,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"*(float*)(R_RSP + {p}), ",                 # f
 			"*(double*)(R_RSP + {p}), ",                # d
 			"LD2localLD((void*)(R_RSP + {p})), ",       # D
-			"FromLD((void*)(R_RSP + {p})), ",           # K
 			"*(intptr_t*)(R_RSP + {p}), ",              # l
 			"*(uintptr_t*)(R_RSP + {p}), ",             # L
 			"*(void**)(R_RSP + {p}), ",                 # p
@@ -1262,10 +1313,16 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"*(void**)(R_RSP + {p}), ",                 # A
 			"*(complexf_t*)(R_RSP + {p}), ",            # x
 			"*(complex_t*)(R_RSP + {p}), ",             # X
-			"to_complexl(emu, R_RSP + {p}), ",		    # Y
-			"to_complexk(emu, R_RSP + {p}), ",		    # y
+			"to_complexl(emu, R_RSP + {p}), ",          # Y
 			"aligned_xcb, ",                            # b
 		]
+		arg_s_nold = {
+			'D': "FromLD((void*)(R_RSP + {p})), ",      # K
+			'Y': "to_complexk(emu, R_RSP + {p}), ",     # y
+		}
+		arg_s_ld = {
+			t: arg_s[conventions['F'].values.index(t)] for t in arg_s_nold
+		}
 		
 		# Asserts
 		for k in conventions:
@@ -1446,22 +1503,82 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			f.write(" }\n")
 		
 		for k in gbls:
+			any_depends_on_ld = False
 			if k != str(Clauses()):
 				file.write("\n#if " + k + "\n")
 			for v in gbls[k]:
+				if any(c in v for c in depends_on_ld):
+					any_depends_on_ld = True
+					continue
 				if v == FunctionType("vFv"):
 					# Suppress all warnings...
 					file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
 				else:
 					function_writer(file, v, v + "_t")
+			if any_depends_on_ld:
+				file.write("\n#ifdef HAVE_LD80BITS\n")
+				for v in gbls[k]:
+					if all(c not in v for c in depends_on_ld):
+						continue
+					if v == FunctionType("vFv"):
+						# Suppress all warnings...
+						file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
+					else:
+						function_writer(file, v, v + "_t")
+				file.write("#else // HAVE_LD80BITS\n")
+				for c in vals_nold:
+					for t in vals_nold[c]:
+						vals[c][c.values.index(t)] = vals_nold[c][t]
+				for t in arg_s_nold:
+					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+				for v in gbls[k]:
+					if all(c not in v for c in depends_on_ld):
+						continue
+					if v == FunctionType("vFv"):
+						# Suppress all warnings...
+						file.write("void vFv(x64emu_t *emu, uintptr_t fcn) { vFv_t fn = (vFv_t)fcn; fn(); (void)emu; }\n")
+					else:
+						function_writer(file, v, v + "_t")
+				for c in vals_nold:
+					for t in vals_ld[c]:
+						vals[c][c.values.index(t)] = vals_ld[c][t]
+				for t in arg_s_nold:
+					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+				file.write("#endif\n")
 			if k != str(Clauses()):
 				file.write("#endif\n")
 		file.write("\n")
 		for k in redirects:
+			any_depends_on_ld = False
 			if k != str(Clauses()):
 				file.write("\n#if " + k + "\n")
 			for vr, vf in redirects[k]:
+				if any(c in vr for c in depends_on_ld):
+					any_depends_on_ld = True
+					continue
 				function_writer(file, vr, vf + "_t")
+			if any_depends_on_ld:
+				file.write("\n#ifdef HAVE_LD80BITS\n")
+				for vr, vf in redirects[k]:
+					if all(c not in vr for c in depends_on_ld):
+						continue
+					function_writer(file, vr, vf + "_t")
+				file.write("#else // HAVE_LD80BITS\n")
+				for c in vals_nold:
+					for t in vals_nold[c]:
+						vals[c][c.values.index(t)] = vals_nold[c][t]
+				for t in arg_s_nold:
+					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+				for vr, vf in redirects[k]:
+					if all(c not in vr for c in depends_on_ld):
+						continue
+					function_writer(file, vr, vf + "_t")
+				for c in vals_nold:
+					for t in vals_ld[c]:
+						vals[c][c.values.index(t)] = vals_ld[c][t]
+				for t in arg_s_nold:
+					arg_s[conventions['F'].values.index(t)] = arg_s_nold[t]
+				file.write("#endif\n")
 			if k != str(Clauses()):
 				file.write("#endif\n")
 		
@@ -1561,11 +1678,11 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	return 0
 
 if __name__ == '__main__':
-	limit = []
+	limit: List[int] = []
 	for i, v in enumerate(sys.argv):
 		if v == "--":
 			limit.append(i)
 	Define.defines = list(map(DefineType, sys.argv[2:limit[0]]))
-	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.4.0.23") != 0:
+	if main(sys.argv[1], sys.argv[limit[0]+1:], "2.5.0.24") != 0:
 		exit(2)
 	exit(0)

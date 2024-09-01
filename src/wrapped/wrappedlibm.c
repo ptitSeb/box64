@@ -191,6 +191,14 @@ EXPORT double my_llrintl(x64emu_t* emu, double val)
     }
     return llrint(val);
 }
+EXPORT double my_nexttoward(x64emu_t* emu, double val, double to)
+{
+    return nexttoward(val, to);
+}
+EXPORT float my_nexttowardf(x64emu_t* emu, float val, double to)
+{
+    return nexttowardf(val, to);
+}
 #endif
 
 #ifdef ANDROID
