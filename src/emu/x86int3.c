@@ -289,7 +289,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else  if(!strcmp(s, "syscall")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, *(int32_t*)from_ptr(R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(void**)from_ptr(R_ESP+12), *(void**)from_ptr(R_ESP+16));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, *(int32_t*)from_ptr(R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+16)));
                     perr = 1;
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));

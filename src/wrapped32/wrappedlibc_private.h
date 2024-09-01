@@ -1883,8 +1883,8 @@ GOM(__vasprintf_chk, iFEpippp) //%%
 //GO(versionsort64, iFpp) //need to align dirent64?
 GOWM(vfork, iFEv) //%%
 // __vfork
-//GOM(vfprintf, iFEppp) //%%
-GOM(__vfprintf_chk, iFEpvpp) //%%
+GOM(vfprintf, iFEhpp) //%%
+GOM(__vfprintf_chk, iFEhvpp) //%%
 //GOWM(vfscanf, iFEppp)  //%%
 // __vfscanf
 //GOWM(vfwprintf, iFEppp)    //%%
