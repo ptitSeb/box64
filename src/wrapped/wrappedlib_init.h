@@ -20,6 +20,19 @@
 #define DOIT(P,Q) _DOIT(P,Q)
 #include DOIT(LIBNAME,defs)
 
+// regular symbol mapped to itself or another one (depending on HAVE_LD80BITS)
+#ifdef HAVE_LD80BITS
+#define GOD(N, W, O) GO(N, W)
+#else
+#define GOD(N, W, O) GO2(N, W, O)
+#endif
+// regular symbol mapped to itself or another one (depending on HAVE_LD80BITS), but weak
+#ifdef HAVE_LD80BITS
+#define GODW(N, W, O) GOW(N, W)
+#else
+#define GODW(N, W, O) GOW2(N, W, O)
+#endif
+
 // regular symbol mapped to itself
 #define GO(N, W)
 // regular symbol mapped to itself, but weak
@@ -32,6 +45,8 @@
 #define GOS(N, W)
 // symbol mapped to another one
 #define GO2(N, W, O)
+// symbol mapped to another one, but weak
+#define GOW2(N, W, O)
 // data
 #define DATA(N, S)
 // data, Weak (type V)
@@ -85,17 +100,22 @@ static const map_onesymbol_t MAPNAME(stsymbolmap)[] = {
 };
 #undef GOS
 #undef GO2
+#undef GOW2
 #define GOS(N, W)
 #ifdef STATICBUILD
 #define GO2(N, W, O) {#N, W, 0, #O, &O},
+#define GOW2(N, W, O) {#N, W, 1, #O, &O},
 #else
 #define GO2(N, W, O) {#N, W, 0, #O},
+#define GOW2(N, W, O) {#N, W, 1, #O},
 #endif
 static const map_onesymbol2_t MAPNAME(symbol2map)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GO2
+#undef GOW2
 #define GO2(N, W, O)
+#define GOW2(N, W, O)
 #undef DATA
 #undef DATAV
 #undef DATAB
@@ -129,9 +149,12 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 
 #undef GO
 #undef GOW
+#undef GOD
+#undef GODW
 #undef GOM
 #undef GOWM
 #undef GO2
+#undef GOW2
 #undef GOS
 #undef DATA
 #undef DATAV

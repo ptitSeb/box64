@@ -1449,6 +1449,13 @@ EXPORT void* my_g_bytes_new_with_free_func(x64emu_t* emu, void* data, unsigned l
     return my->g_bytes_new_with_free_func(data, n, findGDestroyNotifyFct(notify), user);
 }
 
+#ifndef HAVE_LD80BITS
+EXPORT void my_g_assertion_message_cmpnum(void* domain, void* file, int32_t line, void* func, void* expr, double arg1, void* comp, double arg2, uint8_t numtype)
+{
+    my->g_assertion_message_cmpnum(domain, file, line, func, expr, arg1, comp, arg2, numtype);
+}
+#endif
+
 #define PRE_INIT    \
     if(box64_nogtk) \
         return -1;
