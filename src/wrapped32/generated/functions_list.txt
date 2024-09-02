@@ -68,6 +68,7 @@
 #() iFpp -> iFpp
 #() iFpV -> iFpV
 #() iFpS -> iFpS
+#() iFhi -> iFhi
 #() iFhp -> iFhp
 #() iFhh -> iFhh
 #() IFII -> IFII
@@ -101,7 +102,7 @@
 #() tFip -> tFip
 #() tFpL -> tFpL
 #() iFEbp_ -> iFEB
-#() iFHBp_ -> iFHB
+#() iFhBp_ -> iFhB
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
 #() pFrL_p -> pFBp
@@ -135,23 +136,22 @@
 #() iFipL -> iFipL
 #() iFipp -> iFipp
 #() iFuii -> iFuii
-#() iFuip -> iFuip
 #() iFuui -> iFuui
 #() iFuuu -> iFuuu
 #() iFuLp -> iFuLp
-#() iFupp -> iFupp
 #() iFpiu -> iFpiu
 #() iFpip -> iFpip
 #() iFpuu -> iFpuu
 #() iFpLi -> iFpLi
-#() iFpLL -> iFpLL
 #() iFppi -> iFppi
 #() iFppu -> iFppu
 #() iFppL -> iFppL
 #() iFppp -> iFppp
 #() iFppa -> iFppa
 #() iFpOu -> iFpOu
+#() iFhip -> iFhip
 #() iFhpL -> iFhpL
+#() iFhpp -> iFhpp
 #() iFSIi -> iFSIi
 #() iFSli -> iFSli
 #() IFiIi -> IFiIi
@@ -178,6 +178,7 @@
 #() SFppS -> SFppS
 #() tFipu -> tFipu
 #() iFpBp_i -> iFpBi
+#() iFBp_LL -> iFBLL
 #() IFpBp_i -> IFpBi
 #() UFpBp_i -> UFpBi
 #() dFpBp_i -> dFpBi
@@ -193,7 +194,6 @@
 #() iFEiiN -> iFEiiN
 #() iFEipp -> iFEipp
 #() iFEipV -> iFEipV
-#() iFELup -> iFELup
 #() iFEpip -> iFEpip
 #() iFEpup -> iFEpup
 #() iFEpLi -> iFEpLi
@@ -201,6 +201,7 @@
 #() iFEppp -> iFEppp
 #() iFEppV -> iFEppV
 #() iFEpOu -> iFEpOu
+#() iFEhup -> iFEhup
 #() iFESpp -> iFESpp
 #() iFESpV -> iFESpV
 #() iFiiip -> iFiiip
@@ -567,17 +568,17 @@ wrappedlibpthread:
 - vFppp:
   - _pthread_cleanup_push
   - _pthread_cleanup_push_defer
-- iFLup:
-  - pthread_setaffinity_np
 - iFpup:
   - pthread_attr_setaffinity_np
-  - pthread_getaffinity_np
 - iFppL:
   - pthread_attr_setstack
 - iFppp:
   - __pthread_atfork
   - pthread_atfork
   - pthread_attr_getstack
+- iFhup:
+  - pthread_getaffinity_np
+  - pthread_setaffinity_np
 - iFppLL:
   - pthread_cond_timedwait
   - pthread_cond_timedwait@GLIBC_2.0

@@ -1242,7 +1242,7 @@ GO(posix_fadvise64, iFiuui)
 GO(posix_fallocate, iFiii)
 GO(posix_fallocate64, iFiII)
 // posix_madvise
-GOW(posix_memalign, iFpLL)
+GOW(posix_memalign, iFBp_LL)
 // posix_openpt // Weak
 //GO(posix_spawn, iFpppppp)
 // posix_spawnattr_destroy
