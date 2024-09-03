@@ -1854,11 +1854,11 @@ GO(strerror_r, pFipL)
 GOW(strfmon_l, lFpLppdddddd)    // should be V, but only double are allowed...
 GO(strfromd, iFpLpd)
 GO(strfromf, iFpLpf)
-//GO(strfromf128, iFpLpD)
+GOD(strfromf128, iFpLpD, strfromf64)
 GO(strfromf32, iFpLpf)
 GO(strfromf32x, iFpLpd)
 GO(strfromf64, iFpLpd)
-//GO(strfromf64x, iFpLpD)
+GOD(strfromf64x, iFpLpD, strfromf64)
 GOD(strfroml, iFpLpD, strfromd)
 GO(strfry, pFp)
 GO(strftime, LFpLpp)
@@ -1899,7 +1899,7 @@ GO(__strtod_l, dFppp)
 GOW(strtod_l, dFppp)
 //GO(__strtod_nan, 
 GO(strtof, fFpp)
-//GO(strtof128, DFpp)
+GOD(strtof128, DFpp, strtof64)
 //GO(__strtof128_internal, 
 //GOW(strtof128_l, 
 //GO(__strtof128_nan, 
@@ -1909,7 +1909,7 @@ GOW(strtof32x, dFpp)
 //GOW(strtof32x_l, dFpp!)
 GOW(strtof64, dFpp)
 //GOW(strtof64_l, dFpp!)
-//GOW(strtof64x, DFpp)
+GODW(strtof64x, DFpp, strtof64)
 //GOW(strtof64x_l, DFpp!)
 GO(__strtof_internal, fFppi)
 GO(__strtof_l, fFppL)
@@ -2253,7 +2253,7 @@ GO(wcstod, dFpp)
 //GO(__wcstod_l, 
 GOW(wcstod_l, dFppp)
 GO(wcstof, fFpp)
-//GO(wcstof128, DFpp)
+GOD(wcstof128, DFpp, wcstof64)
 //GO(__wcstof128_internal, 
 //GOW(wcstof128_l, 
 GOW(wcstof32, fFpp)
@@ -2262,7 +2262,7 @@ GOW(wcstof32x, dFpp)
 //GOW(wcstof32x_l, dFpp!)
 GOW(wcstof64, dFpp)
 //GOW(wcstof64_l, dFpp!)
-//GOW(wcstof64x, DFpp)
+GODW(wcstof64x, DFpp, wcstof64)
 //GOW(wcstof64x_l, DFpp!)
 //GO(__wcstof_internal, 
 //GO(__wcstof_l, 
