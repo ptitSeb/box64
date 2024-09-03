@@ -235,7 +235,7 @@ GO(__duplocale, aFa)
 // endfsent
 GO(endgrent, vFv)
 GO(endhostent, vFv)
-//GOW(endmntent, iFp)
+GOW(endmntent, iFS)
 // __endmntent
 // endnetent
 // endnetgrent
@@ -510,7 +510,7 @@ GOM(getifaddrs, iFEbp_)
 //GO(getlogin, pFv)
 //GO(getlogin_r, iFpu)
 // __getlogin_r_chk
-//GO(getmntent, pFp)
+GOM(getmntent, pFES)
 // __getmntent_r
 //GOW(getmntent_r, pFpppi)
 // getmsg
@@ -1073,7 +1073,7 @@ GOW(mbsnrtowcs, LFpbp_LLp)
 // __mbsnrtowcs_chk
 GOW(mbsrtowcs, LFpbp_Lp)
 // __mbsrtowcs_chk
-//GO(mbstowcs, LFppL)
+GO(mbstowcs, LFppL)
 // __mbstowcs_chk
 //GO(mbtowc, iFppL)
 // mcheck
@@ -1109,7 +1109,7 @@ GO(mkfifo, iFpu)
 //GO(mkostemp, iFpi)
 //GO(mkostemp64, iFpi)
 GO(mkstemp, iFp)
-//GO(mkstemp64, iFp)
+GO(mkstemp64, iFp)
 //GO(mktemp, pFp)
 GO(mktime, LFriiiiiiiiilt_)
 GO(mlock, iFpL)
@@ -1220,7 +1220,7 @@ GOW(opendir, pFp)
 //GO(__overflow, iFpi)
 //GO(parse_printf_format, uFpup)
 // passwd2des
-//GOW(pathconf, iFpi)
+GOW(pathconf, iFpi)
 GOW(pause, iFv)
 GO(pclose, iFS)
 //GO(perror, vFp)
@@ -1294,7 +1294,7 @@ GOW(putc, iFip)
 GO(putchar, iFi)
 GO(putchar_unlocked, iFi)
 //GO(putc_unlocked, iFip)
-//GO(putenv, iFp)
+GO(putenv, iFp)
 // putgrent
 // putmsg
 // putpmsg
@@ -1493,7 +1493,7 @@ GOM(_setjmp, iFEp) //%%
 GO(setlocale, tFip)
 // setlogin
 GO(setlogmask, iFi)
-//GOW(setmntent, pFpp)
+GOW(setmntent, SFpp)
 // __setmntent
 // setnetent
 // setnetgrent
@@ -1607,7 +1607,7 @@ DATAM(stdout, 4)
 // stime
 //GO(stpcpy, pFpp)
 // __stpcpy
-//GO(__stpcpy_chk, pFppL)
+GO(__stpcpy_chk, pFppL)
 // __stpcpy_small
 //GOW(stpncpy, pFppL)
 //GO(__stpncpy, pFppL)
@@ -1932,7 +1932,7 @@ GOW(wcrtomb, LFpip)
 GOW(wcscasecmp, iFpp)
 // __wcscasecmp_l
 //GOW(wcscasecmp_l, iFppp)
-//GOW(wcscat, pFpp)
+GOW(wcscat, pFpp)
 //GO(__wcscat_chk, pFppu)
 //GO(wcschr, pFpi)
 // wcschrnul    // Weak
@@ -1964,7 +1964,7 @@ GOW(wcsnrtombs, LFpBp_LLp)
 //GOW(wcsrtombs, uFppup)
 // __wcsrtombs_chk
 //GO(wcsspn, uFpp)
-//GO(wcsstr, pFpp)
+GO(wcsstr, pFpp)
 //GO(wcstod, dFpp)
 //GO(__wcstod_internal, dFppi)
 // __wcstod_l
@@ -1987,7 +1987,7 @@ GO(wcstoll, IFpBp_i)
 // __wcstoll_internal
 // __wcstoll_l
 // wcstoll_l    // Weak
-//GO(wcstombs, uFppu)
+GO(wcstombs, LFppL)
 // __wcstombs_chk
 // wcstoq   // Weak
 //GO(wcstoul, iFppi)

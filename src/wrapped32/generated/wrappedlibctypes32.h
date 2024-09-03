@@ -28,6 +28,7 @@ typedef void* (*pFv_t)(void);
 typedef void* (*pFu_t)(uint32_t);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
+typedef void* (*pFS_t)(void*);
 typedef void (*vFip_t)(int32_t, void*);
 typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
@@ -103,6 +104,7 @@ typedef int32_t (*iFpuvvppp_t)(void*, uint32_t, void, void, void*, void*, void*)
 	GO(gethostbyname, pFp_t) \
 	GO(gmtime, pFp_t) \
 	GO(localtime, pFp_t) \
+	GO(getmntent, pFS_t) \
 	GO(futimes, iFip_t) \
 	GO(getrlimit, iFip_t) \
 	GO(setrlimit, iFip_t) \

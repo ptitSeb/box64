@@ -34,6 +34,7 @@
 #include <locale.h>
 #include <sys/resource.h>
 #include <sys/statvfs.h>
+#include <mntent.h>
 
 #include "wrappedlibs.h"
 
@@ -2579,6 +2580,29 @@ EXPORT int my32_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t 
         return (l>bufsize)?bufsize:(l+1);
     }
     return readlinkat(fd, path, buf, bufsize);
+}
+
+struct i386_mntent {
+    ptr_t mnt_fsname;   // char *
+    ptr_t mnt_dir;      // char *
+    ptr_t mnt_type;     // char *
+    ptr_t mnt_opts;     // char *
+    int   mnt_freq;
+    int   mnt_passno;
+};
+
+EXPORT void* my32_getmntent(x64emu_t* emu, void* f)
+{
+    static struct i386_mntent ret;
+    struct mntent* r = getmntent(f);
+    if(!r) return NULL;
+    ret.mnt_fsname = to_cstring(r->mnt_fsname);
+    ret.mnt_dir = to_cstring(r->mnt_dir);
+    ret.mnt_type = to_cstring(r->mnt_type);
+    ret.mnt_opts = to_cstring(r->mnt_opts);
+    ret.mnt_freq = r->mnt_freq;
+    ret.mnt_passno = r->mnt_passno;
+    return &ret;
 }
 
 EXPORT void* my32_mmap(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int offset)
