@@ -166,7 +166,7 @@ int FUNC(_init32)(library_t* lib, box64context_t* box64)
     (void)box64;
 
     // Init first
-    free(lib->path); lib->path=NULL;
+    box_free(lib->path); lib->path=NULL;
 #ifdef PRE_INIT
     PRE_INIT
 #endif
