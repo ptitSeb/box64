@@ -242,7 +242,7 @@ ptr_t to_locale(void* p) {
         pthread_rwlock_unlock(&hash_lock);
         pthread_rwlock_wrlock(&hash_lock);
         // a locale_t is 5 pointer!
-        void* m = calloc(13+3+13+3, sizeof(ptr_t)); // the 3 ctype value are also inside the locale struct
+        void* m = calloc(13+3+13+4, sizeof(ptr_t)); // the 3 ctype value are also inside the locale struct
         ret = to_ptrv(m);
         // add to hash maps
         int r;
