@@ -282,6 +282,10 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if(!strcmp(s, "fmod")) {
                     post = 4;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, *(double*)from_ptr(R_ESP+4), *(double*)from_ptr(R_ESP+12));
+                } else if(!strcmp(s, "posix_memalign")) {
+                    post = 8;
+                    pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, 0x%x)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                 } else if(strstr(s, "SDL_GetWindowSurface")==s) {
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
@@ -320,7 +324,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                             break;
                     case 6: snprintf(buff2, 63, "(%S)", pu32?((wchar_t*)pu32):L"nil");
                             break;
-                    case 7: if(R_EAX) snprintf(buff2, 63, " (error=\"%s\")", strerror(R_EAX));
+                    case 7: if(R_EAX) snprintf(buff2, 63, " (error=\"%s\")", strerror(R_EAX)); break;
+                    case 8: if(!R_EAX) snprintf(buff2, 63, " [%p]", from_ptrv(*pu32)); break;
                 }
                 if(perr==1 && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
