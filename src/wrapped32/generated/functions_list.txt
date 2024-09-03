@@ -93,6 +93,7 @@
 #() pFEv -> pFEv
 #() pFEu -> pFEu
 #() pFEp -> pFEp
+#() pFES -> pFES
 #() pFia -> pFia
 #() pFLL -> pFLL
 #() pFpi -> pFpi
@@ -163,6 +164,7 @@
 #() lFipL -> lFipL
 #() lFlpi -> lFlpi
 #() LFpip -> LFpip
+#() LFppL -> LFppL
 #() pFEip -> pFEip
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
@@ -317,6 +319,8 @@ wrappedlibc:
   - gethostbyname
   - gmtime
   - localtime
+- pFS:
+  - getmntent
 - vFip:
 - vFpi:
 - vFpu:
