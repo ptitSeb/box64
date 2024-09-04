@@ -118,8 +118,8 @@ B<BOX64_LOG> > 1 (may need B<BOX64_SHOWSEGV=1> also)
 =item B<BOX64_LD_LIBRARY_PATH>=I</path/to/libs>
 
 Path to look for x86_64 libraries. Default is current folder and C<lib> in
-current folder.  Also, F</usr/lib/x86_64-linux-gnu> and
-F</lib/x86_64-linux-gnu> are added if they exist.
+current folder.  Also, F</usr/lib/x86_64-linux-gnu>,
+F</lib/x86_64-linux-gnu> and F</usr/lib/box64-x86_64-linux-gnu> are added if they exist.
 
 =item B<BOX64_PATH>=I</path/to/bins>
 

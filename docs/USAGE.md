@@ -30,7 +30,7 @@ Disables Box64 printing its version and build
 
 #### BOX64_LD_LIBRARY_PATH *
 Path to look for x86_64 libraries. Default is current folder and `lib` in current folder.
-Also, `/usr/lib/x86_64-linux-gnu` and `/lib/x86_64-linux-gnu` are added if they exist.
+Also, `/usr/lib/x86_64-linux-gnu`, `/lib/x86_64-linux-gnu` and `/usr/lib/box64-x86_64-linux-gnu` are added if they exist.
 
 #### BOX64_PATH *
 Path to look for x86_64 executable. Default is current folder and `bin` in current folder.
