@@ -66,6 +66,7 @@ static int inited = 0;
 
 rbtree*  mapallmem = NULL;
 static rbtree*  mmapmem = NULL;
+static rbtree*  blockstree = NULL;
 
 typedef struct blocklist_s {
     void*               block;
@@ -359,7 +360,7 @@ void testAllBlocks()
     size_t max_free = 0;
     for(int i=0; i<n_blocks; ++i) {
         if(!printBlockCoherent(i))
-            printBlock(p_blocks[i].block, p_blocks[i].block);
+            printBlock(p_blocks[i].block, p_blocks[i].first);
         total += p_blocks[i].size;
         if(max_free<p_blocks[i].maxfree)
             max_free = p_blocks[i].maxfree;
@@ -383,6 +384,21 @@ static size_t roundSize(size_t size)
         size = THRESHOLD;
 
     return size;
+}
+
+blocklist_t* findBlock(uintptr_t addr)
+{
+    if(blockstree) {
+        uint32_t i;
+        uintptr_t end;
+        if(rb_get_end(blockstree, addr, &i, &end))
+            return &p_blocks[i];
+    } else {
+        for(int i=0; i<n_blocks; ++i)
+            if((addr>=(uintptr_t)p_blocks[i].block) && (addr<=(uintptr_t)p_blocks[i].block+p_blocks[i].size))
+                return &p_blocks[i];
+    }
+    return NULL;
 }
 
 #ifdef DYNAREC
@@ -491,6 +507,8 @@ void* internal_customMalloc(size_t size, int is32bits)
     void* ret  = allocBlock(p_blocks[i].block, p, size, &p_blocks[i].first);
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
     mutex_unlock(&mutex_blocks);
+    if(blockstree)
+        rb_set(blockstree, (uintptr_t)p, (uintptr_t)p+allocsize, i);
     if(mapallmem) {
         // defer the setProtection...
         //setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
@@ -533,19 +551,23 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if (p_blocks[i].block && (addr>(uintptr_t)p_blocks[i].block) 
-         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
+        blocklist_t* l = findBlock(addr);
+        if(l) {
             blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
-            if(expandBlock(p_blocks[i].block, sub, size, &p_blocks[i].first)) {
-                p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
+            if(expandBlock(l->block, sub, size, &l->first)) {
+                l->maxfree = getMaxFreeBlock(l->block, l->size, l->first);
                 mutex_unlock(&mutex_blocks);
                 return p;
             }
             mutex_unlock(&mutex_blocks);
             void* newp = internal_customMalloc(size, is32bits);
             memcpy(newp, p, sizeBlock(sub));
-            size_t newfree = freeBlock(p_blocks[i].block, p_blocks[i].size, sub, &p_blocks[i].first);
-            if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
+            // disabling the "fast free", as mutex has been released, so things are not garantied to stay as-is
+            internal_customFree(p, is32bits);
+            //mutex_lock(&mutex_blocks);
+            //size_t newfree = freeBlock(l->block, l->size, sub, &l->first);
+            //if(l->maxfree < newfree) l->maxfree = newfree;
+            //mutex_unlock(&mutex_blocks);
             return newp;
         }
     }
@@ -573,11 +595,11 @@ void internal_customFree(void* p, int is32bits)
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if (p_blocks[i].block && (addr>(uintptr_t)p_blocks[i].block) 
-         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
+        blocklist_t* l = findBlock(addr);
+        if(l) {
             blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
-            size_t newfree = freeBlock(p_blocks[i].block, p_blocks[i].size, sub, &p_blocks[i].first);
-            if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
+            size_t newfree = freeBlock(l->block, l->size, sub, &l->first);
+            if(l->maxfree < newfree) l->maxfree = newfree;
             mutex_unlock(&mutex_blocks);
             return;
         }
@@ -705,6 +727,8 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     mutex_unlock(&mutex_blocks);
     if(mapallmem)
         setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
+    if(blockstree)
+        rb_set(blockstree, (uintptr_t)p, (uintptr_t)p+allocsize, i);
     return ret;
 }
 void* customMemAligned(size_t align, size_t size)
@@ -1858,6 +1882,11 @@ void init_custommem_helper(box64context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
+    blockstree = init_rbtree();
+    // if there is some blocks already
+    if(n_blocks)
+        for(int i=0; i<n_blocks; ++i)
+            rb_set(blockstree, (uintptr_t)p_blocks[i].block, (uintptr_t)p_blocks[i].block+p_blocks[i].size, i);
     memprot = init_rbtree();
     sigfillset(&critical_prot);
     init_mutexes();
@@ -1978,6 +2007,8 @@ void fini_custommem_helper(box64context_t *ctx)
     mmapmem = NULL;
     delete_rbtree(mapallmem);
     mapallmem = NULL;
+    delete_rbtree(blockstree);
+    blockstree = NULL;
 
     for(int i=0; i<n_blocks; ++i)
         internal_munmap(p_blocks[i].block, p_blocks[i].size);
