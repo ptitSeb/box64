@@ -2830,7 +2830,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     }
     #endif
     void* ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
-    #if !defined(NOALIGN) || defined(BOX32)
+    #if !defined(NOALIGN)
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || ((box64_wine) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
         int olderr = errno;
