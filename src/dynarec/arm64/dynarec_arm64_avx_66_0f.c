@@ -295,6 +295,29 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 BFIx(gd, x2, 3, 1);
             }
             break;
+        case 0x51:
+            INST_NAME("VSQRTPD Gx, Ex");
+            nextop = F8;
+            if(!box64_dynarec_fastnan) {
+                d0 = fpu_get_scratch(dyn, ninst);
+                d1 = fpu_get_scratch(dyn, ninst);
+            }
+            for(int l=0; l<1+vex.l; ++l) {
+                if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
+                if(!box64_dynarec_fastnan) {
+                    // check if any input value was NAN
+                    VFCMEQQD(d0, v1, v1);    // 0 if NAN, 1 if not NAN
+                    VFSQRTQD(v0, v1);
+                    VFCMEQQD(d1, v0, v0);    // 0 => out is NAN
+                    VBICQ(d1, d0, d1);      // forget it in any input was a NAN already
+                    VSHLQ_64(d1, d1, 63);   // only keep the sign bit
+                    VORRQ(v0, v0, d1);      // NAN -> -NAN
+                } else {
+                    VFSQRTQD(v0, v1);
+                }
+            }
+            if(!vex.l) YMM0(gd);
+            break;
 
         case 0x54:
             INST_NAME("VANDPD Gx, Vx, Ex");
