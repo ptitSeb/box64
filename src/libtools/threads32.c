@@ -29,6 +29,10 @@
 #include "dynablock.h"
 #endif
 
+#ifndef MAP_32BIT
+#define MAP_32BIT 0x40
+#endif
+
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
 //starting with glibc 2.34+, those 2 functions are in libc.so as versionned symbol only
@@ -205,7 +209,7 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 		own = 0;
 	} else {
 		//stack = malloc(stacksize);
-		stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+		stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN|MAP_32BIT, -1, 0);
 		own = 1;
 	}
 
@@ -250,7 +254,7 @@ void* my32_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** p
 {
 	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
 	//void* stack = malloc(stacksize);
-	void* stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+	void* stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN|MAP_32BIT, -1, 0);
 	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX64Emu(emuthread, emu);

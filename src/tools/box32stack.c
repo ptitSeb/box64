@@ -48,7 +48,7 @@ void SetupInitialStack32(x64emu_t *emu)
     for (int i=emu->context->argc-1; i>=0; --i) {
         PushString32(emu, emu->context->argv[i]);
         p_argv[i] = R_ESP;
-        free(emu->context->argv[i]);
+        box_free(emu->context->argv[i]);
         emu->context->argv[i] = (char*)p_argv[i];
     }
     // align
