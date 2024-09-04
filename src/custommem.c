@@ -32,8 +32,6 @@
 #include "dynarec/native_lock.h"
 #include "dynarec/dynarec_next.h"
 
-#define USE_MMAP
-
 // init inside dynablocks.c
 static mmaplist_t          *mmaplist = NULL;
 static uint64_t jmptbl_allocated = 0, jmptbl_allocated1 = 0, jmptbl_allocated2 = 0, jmptbl_allocated3 = 0;
@@ -85,7 +83,7 @@ static blocklist_t*        p_blocks = NULL;    // actual blocks for custom mallo
 
 typedef union mark_s {
     struct {
-        unsigned int    size:31;
+        unsigned int    offs:31;
         unsigned int    fill:1;
     };
     uint32_t            x32;
@@ -93,30 +91,44 @@ typedef union mark_s {
 typedef struct blockmark_s {
     mark_t  prev;
     mark_t  next;
+    uint8_t mark[];
 } blockmark_t;
 
-#define NEXT_BLOCK(b) (blockmark_t*)((uintptr_t)(b) + (b)->next.size + sizeof(blockmark_t))
-#define PREV_BLOCK(b) (blockmark_t*)(((uintptr_t)(b) - (b)->prev.size) - sizeof(blockmark_t))
+#define NEXT_BLOCK(b) (blockmark_t*)((uintptr_t)(b) + (b)->next.offs)
+#define PREV_BLOCK(b) (blockmark_t*)(((uintptr_t)(b) - (b)->prev.offs))
 #define LAST_BLOCK(b, s) (blockmark_t*)(((uintptr_t)(b)+(s))-sizeof(blockmark_t))
+#define SIZE_BLOCK(b) (((ssize_t)b.offs)-sizeof(blockmark_t))
 
 void printBlock(blockmark_t* b, void* start)
 {
+    if(!b) return;
     printf_log(LOG_NONE, "========== Block is:\n");
     do {
-        printf_log(LOG_NONE, "%c%p, fill=%d, size=0x%x (prev=%d/0x%x)\n", b==start?'*':' ', b, b->next.fill, b->next.size, b->prev.fill, b->prev.size);
+        printf_log(LOG_NONE, "%c%p, fill=%d, size=0x%x (prev=%d/0x%x)\n", b==start?'*':' ', b, b->next.fill, SIZE_BLOCK(b->next), b->prev.fill, SIZE_BLOCK(b->prev));
         b = NEXT_BLOCK(b);
     } while(b->next.x32);
     printf_log(LOG_NONE, "===================\n");
 }
 
+blockmark_t* checkPrevNextCoherent(blockmark_t* b)
+{
+    while(b->next.x32) {
+        blockmark_t* next = NEXT_BLOCK(b);
+        if(b->next.x32 != next->prev.x32)
+            return next;
+        b = next;
+    }
+    return NULL;
+}
+
 // get first subblock free in block. Return NULL if no block, else first subblock free (mark included), filling size
-static void* getFirstBlock(void* block, size_t maxsize, size_t* size, void* start)
+static blockmark_t* getFirstBlock(void* block, size_t maxsize, size_t* size, void* start)
 {
     // get start of block
     blockmark_t *m = (blockmark_t*)((start)?start:block);
     while(m->next.x32) {    // while there is a subblock
-        if(!m->next.fill && m->next.size>=maxsize) {
-            *size = m->next.size;
+        if(!m->next.fill && SIZE_BLOCK(m->next)>=maxsize) {
+            *size = SIZE_BLOCK(m->next);
             return m;
         }
         m = NEXT_BLOCK(m);
@@ -125,7 +137,7 @@ static void* getFirstBlock(void* block, size_t maxsize, size_t* size, void* star
     return NULL;
 }
 
-static void* getNextFreeBlock(void* block)
+static blockmark_t* getNextFreeBlock(void* block)
 {
     blockmark_t *m = (blockmark_t*)block;
     while (m->next.fill) {
@@ -133,12 +145,12 @@ static void* getNextFreeBlock(void* block)
     };
     return m;
 }
-static void* getPrevFreeBlock(void* block)
+static blockmark_t* getPrevFreeBlock(void* block)
 {
     blockmark_t *m = (blockmark_t*)block;
     do {
          m = PREV_BLOCK(m);
-    } while (m->next.fill);
+    } while (m->prev.x32 && m->next.fill);
     return m;
 }
 
@@ -147,52 +159,69 @@ static size_t getMaxFreeBlock(void* block, size_t block_size, void* start)
     // get start of block
     if(start) {
         blockmark_t *m = (blockmark_t*)start;
-        unsigned int maxsize = 0;
+        ssize_t maxsize = 0;
         while(m->next.x32) {    // while there is a subblock
-            if(!m->next.fill && m->next.size>maxsize) {
-                maxsize = m->next.size;
+            if(!m->next.fill && SIZE_BLOCK(m->next)>maxsize) {
+                maxsize = SIZE_BLOCK(m->next);
             }
             m = NEXT_BLOCK(m);
         }
-        return (maxsize>=sizeof(blockmark_t))?maxsize:0;
+        return maxsize;
     } else {
         blockmark_t *m = LAST_BLOCK(block, block_size); // start with the end
-        unsigned int maxsize = 0;
-        while(m->prev.x32) {    // while there is a subblock
-            if(!m->prev.fill && m->prev.size>maxsize) {
-                maxsize = m->prev.size;
-                if((uintptr_t)block+maxsize>(uintptr_t)m)
-                    return (maxsize>=sizeof(blockmark_t))?maxsize:0; // no block large enough left...
+        ssize_t maxsize = 0;
+        while(m->prev.x32 && (((uintptr_t)block+maxsize)<(uintptr_t)m)) {    // while there is a subblock
+            if(!m->prev.fill && SIZE_BLOCK(m->prev)>maxsize) {
+                maxsize = SIZE_BLOCK(m->prev);
             }
             m = PREV_BLOCK(m);
         }
-        return (maxsize>=sizeof(blockmark_t))?maxsize:0;
+        return maxsize;
     }
 }
 
-#define THRESHOLD   (128-2*sizeof(blockmark_t))
+#define THRESHOLD   (128-1*sizeof(blockmark_t))
 
-static void* allocBlock(void* block, void *sub, size_t size, void** pstart)
+static void* createAlignBlock(void* block, void *sub, size_t size)
 {
     (void)block;
 
     blockmark_t *s = (blockmark_t*)sub;
     blockmark_t *n = NEXT_BLOCK(s);
 
+    s->next.fill = 0;
+    size_t old_size = s->next.offs;
+    s->next.offs = size;
+    blockmark_t *m = NEXT_BLOCK(s);
+    m->prev.x32 = s->next.x32;
+    m->next.fill = 0;
+    m->next.offs = old_size - size;
+    n->prev.x32 = m->next.x32;
+    n = m;
+    return m;
+}
+static void* allocBlock(void* block, blockmark_t* sub, size_t size, void** pstart)
+{
+    (void)block;
+
+    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *n = NEXT_BLOCK(s);
+
+    size+=sizeof(blockmark_t); // count current blockmark
     s->next.fill = 1;
     // check if a new mark is worth it
-    if(s->next.size>size+2*sizeof(blockmark_t)+THRESHOLD) {
-        size_t old_size = s->next.size;
-        s->next.size = size;
+    if(SIZE_BLOCK(s->next)>size+2*sizeof(blockmark_t)+THRESHOLD) {
+        // create a new mark
+        size_t old_offs = s->next.offs;
+        s->next.offs = size;
         blockmark_t *m = NEXT_BLOCK(s);
-        m->prev.fill = 1;
-        m->prev.size = s->next.size;
+        m->prev.x32 = s->next.x32;
         m->next.fill = 0;
-        m->next.size = old_size - (size + sizeof(blockmark_t));
-        n->prev.fill = 0;
-        n->prev.size = m->next.size;
+        m->next.offs = old_offs - size;
+        n->prev.x32 = m->next.x32;
         n = m;
     } else {
+        // just fill the blok
         n->prev.fill = 1;
     }
 
@@ -202,69 +231,77 @@ static void* allocBlock(void* block, void *sub, size_t size, void** pstart)
             n = NEXT_BLOCK(n);
         *pstart = (void*)n;
     }
-    return (void*)((uintptr_t)sub + sizeof(blockmark_t));
+    return sub->mark;
 }
-static size_t freeBlock(void *block, void* sub, void** pstart)
+static size_t freeBlock(void *block, size_t bsize, blockmark_t* sub, void** pstart)
 {
     blockmark_t *m = (blockmark_t*)block;
-    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *s = sub;
     blockmark_t *n = NEXT_BLOCK(s);
-    if(block!=sub)
-        m = PREV_BLOCK(s);
     s->next.fill = 0;
     n->prev.fill = 0;
-    // check if merge with previous
-    if (m!=s && s->prev.x32 && !s->prev.fill) {
-        // remove s...
-        m->next.size += s->next.size + sizeof(blockmark_t);
-        n->prev.size = m->next.size;
-        s = m;
-    }
     // check if merge with next
-    if(n->next.x32 && !n->next.fill) {
+    while (n->next.x32 && !n->next.fill) {
         blockmark_t *n2 = NEXT_BLOCK(n);
         //remove n
-        s->next.size += n->next.size + sizeof(blockmark_t);
-        n2->prev.size = s->next.size;
+        s->next.offs += n->next.offs;
+        n2->prev.offs = s->next.offs;
+        n = n2;
+    }
+    // check if merge with previous
+    while (s->prev.x32 && !s->prev.fill) {
+        m = PREV_BLOCK(s);
+        // remove s...
+        m->next.offs += s->next.offs;
+        n->prev.offs = m->next.offs;
+        s = m;
     }
     if(pstart && (uintptr_t)*pstart>(uintptr_t)s) {
         *pstart = (void*)s;
     }
     // return free size at current block (might be bigger)
-    return s->next.size;
+    return SIZE_BLOCK(s->next);
 }
 // return 1 if block has been expanded to new size, 0 if not
-static int expandBlock(void* block, void* sub, size_t newsize)
+static int expandBlock(void* block, blockmark_t* sub, size_t newsize, void** pstart)
 {
     (void)block;
 
-    newsize = (newsize+3)&~3;
-    blockmark_t *s = (blockmark_t*)sub;
+    blockmark_t *s = sub;
     blockmark_t *n = NEXT_BLOCK(s);
-    if(s->next.size>=newsize)
-        // big enough, no shrinking...
+    int re_first = (pstart && (n==*pstart))?1:0;
+    // big enough, nothing to do...
+    if(SIZE_BLOCK(s->next)>=newsize)
         return 1;
-    if(s->next.fill)
+    if(n->next.fill)
         return 0;   // next block is filled
-    // unsigned bitfield of this length gets "promoted" to *signed* int...
-    if((size_t)(s->next.size + n->next.size + sizeof(blockmark_t)) < newsize)
+    // check the total size of the new block (so both offset - blocklist)
+    if(((size_t)s->next.offs + n->next.offs - sizeof(blockmark_t)) < newsize)
         return 0;   // free space too short
-    // ok, doing the alloc!
-    if((s->next.size+n->next.size+sizeof(blockmark_t))-newsize<THRESHOLD+2*sizeof(blockmark_t))
-        s->next.size += n->next.size+sizeof(blockmark_t);
-    else
-        s->next.size = newsize+sizeof(blockmark_t);
-    blockmark_t *m = NEXT_BLOCK(s);   // this is new n
-    m->prev.fill = 1;
-    m->prev.size = s->next.size;
-    if(n!=m) {
+    // ok, expanding block!
+    if((s->next.offs+n->next.offs)-newsize<THRESHOLD+2*sizeof(blockmark_t)) {
+        // just remove n
+        s->next.offs += n->next.offs;
+        blockmark_t *m = NEXT_BLOCK(s);
+        m->prev.x32 = s->next.x32;
+        n = m;
+    } else {
+        // remove n and create a new mark (or, move n farther)
+        blockmark_t *next = NEXT_BLOCK(n);// thenext of old n
+        s->next.offs = newsize + sizeof(blockmark_t);
+        blockmark_t *m = NEXT_BLOCK(s);   // this is new n
+        m->prev.x32 = s->next.x32;
         // new mark
-        m->prev.fill = 1;
-        m->prev.size = s->next.size;
         m->next.fill = 0;
-        m->next.size = (uintptr_t)n - (uintptr_t)m;
-        n->prev.fill = 0;
-        n->prev.size = m->next.size;
+        m->next.offs = (uintptr_t)next - (uintptr_t)m;
+        next->prev.x32 = m->next.x32;
+        n = m;
+    }
+    if(re_first) {
+        // get the next free block
+        while(n->next.fill)
+            n = NEXT_BLOCK(n);
+        *pstart = (void*)n;
     }
     return 1;
 }
@@ -272,7 +309,7 @@ static int expandBlock(void* block, void* sub, size_t newsize)
 static size_t sizeBlock(void* sub)
 {
     blockmark_t *s = (blockmark_t*)sub;
-    return s->next.size;
+    return SIZE_BLOCK(s->next);
 }
 
 // return 1 if block is coherent, 0 if not (and printf the issues)
@@ -284,6 +321,7 @@ int printBlockCoherent(int i)
     }
     int ret = 1;
     blockmark_t* m = (blockmark_t*)p_blocks[i].block;
+    if(!m) {printf_log(LOG_NONE, "Warning, block #%d is NULL\n", i); return 0;}
     // check if first is correct
     blockmark_t* first = getNextFreeBlock(m);
     if(p_blocks[i].first && p_blocks[i].first!=first) {printf_log(LOG_NONE, "First %p and stored first %p differs for block %d\n", first, p_blocks[i].first, i); ret = 0;}
@@ -293,18 +331,21 @@ int printBlockCoherent(int i)
     // check if maxfree from first is correct
     maxfree = getMaxFreeBlock(m, p_blocks[i].size, p_blocks[i].first);
     if(maxfree != p_blocks[i].maxfree) {printf_log(LOG_NONE, "Maxfree with hint %zd and stored maxfree %zd differs for block %d\n", maxfree, p_blocks[i].maxfree, i); ret = 0;}
+    // check next/ prev coehrency
+    blockmark_t *nope = checkPrevNextCoherent(m);
+    if(nope) { printf_log(LOG_NONE, "Next/Prev incoherency for block %d, at %p\n", i, nope); ret = 0;}
     // check chain
-    blockmark_t* last = (blockmark_t*)(((uintptr_t)m)+p_blocks[i].size-sizeof(blockmark_t));
-    while(m<last) {
+    blockmark_t* last = LAST_BLOCK(p_blocks[i].block, p_blocks[i].size);
+    while(m->next.x32) {
         blockmark_t* n = NEXT_BLOCK(m);
         if(!m->next.fill && !n->next.fill && n!=last) {
-            printf_log(LOG_NONE, "Chain contains 2 subsequent free blocks %p (%d) and %p (%d) for block %d\n", m, m->next.size, n, n->next.size, i);
+            printf_log(LOG_NONE, "Chain contains 2 subsequent free blocks %p (%d) and %p (%d) for block %d\n", m, SIZE_BLOCK(m->next), n, SIZE_BLOCK(n->next), i);
             ret = 0;
         }
         m = n;
     }
     if(m!=last) {
-        printf_log(LOG_NONE, "Last block %p is beyond expected block %p for block %d\n", m, last, i);
+        printf_log(LOG_NONE, "Last block %p is not the expected last block %p for block %d\n", m, last, i);
         ret = 0;
     }
 
@@ -317,18 +358,19 @@ void testAllBlocks()
     size_t fragmented_free = 0;
     size_t max_free = 0;
     for(int i=0; i<n_blocks; ++i) {
-        printBlockCoherent(i);
+        if(!printBlockCoherent(i))
+            printBlock(p_blocks[i].block, p_blocks[i].block);
         total += p_blocks[i].size;
         if(max_free<p_blocks[i].maxfree)
             max_free = p_blocks[i].maxfree;
         blockmark_t* m = (blockmark_t*)p_blocks[i].block;
         while(m->next.x32) {
             if(!m->next.fill)
-                fragmented_free += m->next.size;
+                fragmented_free += SIZE_BLOCK(m->next);
             m = NEXT_BLOCK(m);
         }
     }
-    printf_log(LOG_NONE, "Total %d blocks, for %zd allocated memory, max_free %zd, toatal fragmented free %zd\n", n_blocks, total, max_free, fragmented_free);
+    printf_log(LOG_NONE, "CustomMem: Total %d blocks, for %zd allocated memory, max_free %zd, total fragmented free %zd\n", n_blocks, total, max_free, fragmented_free);
 }
 
 static size_t roundSize(size_t size)
@@ -389,18 +431,21 @@ static sigset_t     critical_prot = {0};
 #ifdef TRACE_MEMSTAT
 static uint64_t customMalloc_allocated = 0;
 #endif
-void* customMalloc(size_t size)
+void* internal_customMalloc(size_t size, int is32bits)
 {
+    size_t init_size = size;
     size = roundSize(size);
     // look for free space
-    void* sub = NULL;
+    blockmark_t* sub = NULL;
     size_t fullsize = size+2*sizeof(blockmark_t);
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if(p_blocks[i].maxfree>=size) {
+        if(p_blocks[i].block && p_blocks[i].maxfree>=init_size && ((!is32bits) || (p_blocks[i].block<(void*)0x100000000LL))) {
             size_t rsize = 0;
-            sub = getFirstBlock(p_blocks[i].block, size, &rsize, p_blocks[i].first);
+            sub = getFirstBlock(p_blocks[i].block, init_size, &rsize, p_blocks[i].first);
             if(sub) {
+                if(size>rsize)
+                    size = init_size;
                 if(rsize-size<THRESHOLD)
                     size = rsize;
                 void* ret = allocBlock(p_blocks[i].block, sub, size, &p_blocks[i].first);
@@ -418,12 +463,16 @@ void* customMalloc(size_t size)
         p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
     }
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
-    #ifdef USE_MMAP
-    void* p = internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-    memset(p, 0, allocsize);
-    #else
-    void* p = box_calloc(1, allocsize);
-    #endif
+    p_blocks[i].block = NULL;   // incase there is a re-entrance
+    p_blocks[i].first = NULL;
+    p_blocks[i].size = 0;
+    if(is32bits)    // unlocking, because mmap might use it
+        mutex_unlock(&mutex_blocks);
+    void* p = is32bits
+                ?mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0)
+                :internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    if(is32bits)
+        mutex_lock(&mutex_blocks);
 #ifdef TRACE_MEMSTAT
     customMalloc_allocated += allocsize;
 #endif
@@ -434,11 +483,10 @@ void* customMalloc(size_t size)
     blockmark_t* m = (blockmark_t*)p;
     m->prev.x32 = 0;
     m->next.fill = 0;
-    m->next.size = allocsize-2*sizeof(blockmark_t);
+    m->next.offs = allocsize-sizeof(blockmark_t);
     blockmark_t* n = NEXT_BLOCK(m);
     n->next.x32 = 0;
-    n->prev.fill = 0;
-    n->prev.size = m->next.size;
+    n->prev.x32 = m->next.x32;
     // alloc 1st block
     void* ret  = allocBlock(p_blocks[i].block, p, size, &p_blocks[i].first);
     p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
@@ -452,54 +500,83 @@ void* customMalloc(size_t size)
     }
     return ret;
 }
+void* customMalloc(size_t size)
+{
+    return internal_customMalloc(size, 0);
+}
+void* customMalloc32(size_t size)
+{
+    return internal_customMalloc(size, 1);
+}
+
 void* customCalloc(size_t n, size_t size)
 {
     size_t newsize = roundSize(n*size);
-    void* ret = customMalloc(newsize);
+    void* ret = internal_customMalloc(newsize, 0);
     memset(ret, 0, newsize);
     return ret;
 }
-void* customRealloc(void* p, size_t size)
+void* customCalloc32(size_t n, size_t size)
+{
+    size_t newsize = roundSize(n*size);
+    void* ret = internal_customMalloc(newsize, 1);
+    memset(ret, 0, newsize);
+    return ret;
+}
+
+void internal_customFree(void*, int);
+void* internal_customRealloc(void* p, size_t size, int is32bits)
 {
     if(!p)
-        return customMalloc(size);
+        return internal_customMalloc(size, is32bits);
     size = roundSize(size);
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if ((addr>(uintptr_t)p_blocks[i].block) 
+        if (p_blocks[i].block && (addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
-            void* sub = (void*)(addr-sizeof(blockmark_t));
-            if(expandBlock(p_blocks[i].block, sub, size)) {
-                if(sub<p_blocks[i].first && p+size>=p_blocks[i].first)
-                    p_blocks[i].first = getNextFreeBlock(sub);
+            blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
+            if(expandBlock(p_blocks[i].block, sub, size, &p_blocks[i].first)) {
                 p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
                 mutex_unlock(&mutex_blocks);
                 return p;
             }
             mutex_unlock(&mutex_blocks);
-            void* newp = customMalloc(size);
+            void* newp = internal_customMalloc(size, is32bits);
             memcpy(newp, p, sizeBlock(sub));
-            customFree(p);
+            size_t newfree = freeBlock(p_blocks[i].block, p_blocks[i].size, sub, &p_blocks[i].first);
+            if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
             return newp;
         }
     }
     mutex_unlock(&mutex_blocks);
     if(n_blocks)
-        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
-    return customMalloc(size);
+        if(is32bits) {
+            return box_realloc(p, size);
+        } else
+            dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
+    return internal_customMalloc(size, is32bits);
 }
-void customFree(void* p)
+void* customRealloc(void* p, size_t size)
+{
+    return internal_customRealloc(p, size, 0);
+}
+void* customRealloc32(void* p, size_t size)
+{
+    return internal_customRealloc(p, size, 1);
+}
+
+void internal_customFree(void* p, int is32bits)
 {
     if(!p)
         return;
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
     for(int i=0; i<n_blocks; ++i) {
-        if ((addr>(uintptr_t)p_blocks[i].block) 
+        if (p_blocks[i].block && (addr>(uintptr_t)p_blocks[i].block) 
          && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
-            void* sub = (void*)(addr-sizeof(blockmark_t));
-            size_t newfree = freeBlock(p_blocks[i].block, sub, &p_blocks[i].first);
+            blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
+            size_t newfree = freeBlock(p_blocks[i].block, p_blocks[i].size, sub, &p_blocks[i].first);
             if(p_blocks[i].maxfree < newfree) p_blocks[i].maxfree = newfree;
             mutex_unlock(&mutex_blocks);
             return;
@@ -507,7 +584,160 @@ void customFree(void* p)
     }
     mutex_unlock(&mutex_blocks);
     if(n_blocks)
-        dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
+        if(is32bits)
+            box_free(p);
+        else
+            dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
+}
+void customFree(void* p)
+{
+    internal_customFree(p, 0);
+}
+void customFree32(void* p)
+{
+    internal_customFree(p, 1);
+}
+
+void internal_print_block(int i)
+{
+    blockmark_t* m = p_blocks[i].block;
+    size_t sz = p_blocks[i].size;
+    while(m) {
+        blockmark_t *next = NEXT_BLOCK(m);
+        printf_log(LOG_INFO, " block %p(%p)->%p : %d\n", m, (void*)m+sizeof(blockmark_t), next, m->next.fill);
+        if(next!=m)
+            m = next;
+    }
+}
+
+void* internal_customMemAligned(size_t align, size_t size, int is32bits)
+{
+    size_t init_size = size;
+    size = roundSize(size);
+    if(align<8) align = 8;
+    // look for free space
+    blockmark_t* sub = NULL;
+    size_t fullsize = size+2*sizeof(blockmark_t);
+    mutex_lock(&mutex_blocks);
+    for(int i=0; i<n_blocks; ++i) {
+        if(p_blocks[i].block && p_blocks[i].maxfree>=size && ((!is32bits) || ((uintptr_t)p_blocks[i].block<0x100000000LL))) {
+            size_t rsize = 0;
+            sub = getFirstBlock(p_blocks[i].block, init_size, &rsize, p_blocks[i].first);
+            uintptr_t p = (uintptr_t)sub+sizeof(blockmark_t);
+            uintptr_t aligned_p = (p+(align-1))&~(align-1);
+            uintptr_t empty_size = 0;
+            if(aligned_p!=p)
+                empty_size = aligned_p-p;
+            if(empty_size<=sizeof(blockmark_t)) {
+                empty_size += align;
+                aligned_p += align;
+            }
+            if(sub && (empty_size+init_size<=rsize)) {
+                if(size<empty_size+init_size)
+                    size = empty_size+init_size;
+                if(rsize<size)
+                    size = rsize;
+                if(rsize-size<THRESHOLD)
+                    size = rsize;
+                blockmark_t* new_sub = sub;
+                if(empty_size)
+                    new_sub = createAlignBlock(p_blocks[i].block, sub, empty_size);
+                void* ret = allocBlock(p_blocks[i].block, new_sub, size-empty_size, &p_blocks[i].first);
+                if((uintptr_t)p_blocks[i].first>(uintptr_t)sub && (sub!=new_sub))
+                    p_blocks[i].first = sub;
+                if(rsize==p_blocks[i].maxfree)
+                    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
+                mutex_unlock(&mutex_blocks);
+                return ret;
+            }
+        }
+    }
+    // add a new block
+    int i = n_blocks++;
+    if(n_blocks>c_blocks) {
+        c_blocks += 4;
+        p_blocks = (blocklist_t*)box_realloc(p_blocks, c_blocks*sizeof(blocklist_t));
+    }
+    p_blocks[i].block = NULL;   // incase there is a re-entrance
+    p_blocks[i].first = NULL;
+    p_blocks[i].size = 0;
+    fullsize += 2*align+sizeof(blockmark_t);
+    size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
+    allocsize = (allocsize+box64_pagesize-1)&~(box64_pagesize-1);
+    if(is32bits)
+        mutex_unlock(&mutex_blocks);
+    void* p = is32bits
+                ?mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_32BIT, -1, 0)
+                :internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+    if(is32bits)
+        mutex_lock(&mutex_blocks);
+#ifdef TRACE_MEMSTAT
+    customMalloc_allocated += allocsize;
+#endif
+    p_blocks[i].block = p;
+    p_blocks[i].first = p;
+    p_blocks[i].size = allocsize;
+    // setup marks
+    blockmark_t* m = (blockmark_t*)p;
+    m->prev.x32 = 0;
+    m->next.fill = 0;
+    m->next.offs = allocsize-2*sizeof(blockmark_t);
+    blockmark_t* n = NEXT_BLOCK(m);
+    n->next.x32 = 0;
+    n->prev.x32 = m->next.x32;
+    uintptr_t aligned_p = ((uintptr_t)p+sizeof(blockmark_t)+align-1)&~(align-1);
+    size_t empty_size = 0;
+    if(aligned_p!=(uintptr_t)p+sizeof(blockmark_t))
+        empty_size = aligned_p-sizeof(blockmark_t)-(uintptr_t)p;
+    if(empty_size<=sizeof(blockmark_t)) {
+        empty_size += align;
+        aligned_p += align;
+    }
+    void* new_sub = NULL;
+    sub = p;
+    if(empty_size)
+        new_sub = createAlignBlock(p_blocks[i].block, sub, empty_size);
+    // alloc 1st block
+    void* ret  = allocBlock(p_blocks[i].block, new_sub, size, &p_blocks[i].first);
+    if(sub!=new_sub)
+        p_blocks[i].first = sub;
+    p_blocks[i].maxfree = getMaxFreeBlock(p_blocks[i].block, p_blocks[i].size, p_blocks[i].first);
+    mutex_unlock(&mutex_blocks);
+    if(mapallmem)
+        setProtection((uintptr_t)p, allocsize, PROT_READ | PROT_WRITE);
+    return ret;
+}
+void* customMemAligned(size_t align, size_t size)
+{
+    return internal_customMemAligned(align, size, 0);
+}
+void* customMemAligned32(size_t align, size_t size)
+{
+    void* ret = internal_customMemAligned(align, size, 1);
+    if(((uintptr_t)ret)>=0x100000000LL) {
+        printf_log(LOG_NONE, "Error, customAligned32(0x%lx, 0x%lx) return 64bits point %p\n", align, size, ret);
+    }
+    return ret;
+}
+
+size_t customGetUsableSize(void* p)
+{
+    if(!p)
+        return 0;
+    uintptr_t addr = (uintptr_t)p;
+    mutex_lock(&mutex_blocks);
+    for(int i=0; i<n_blocks && p_blocks[i].block; ++i) {
+        if ((addr>(uintptr_t)p_blocks[i].block) 
+         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
+            void* sub = (void*)(addr-sizeof(blockmark_t));
+
+            size_t size = SIZE_BLOCK(((blockmark_t*)sub)->next);
+            mutex_unlock(&mutex_blocks);
+            return size;
+        }
+    }
+    mutex_unlock(&mutex_blocks);
+    return 0;
 }
 
 #ifdef DYNAREC
@@ -574,9 +804,7 @@ uintptr_t AllocDynarecMap(size_t size)
             size_t rsize = 0;
             void* sub = getFirstBlock(list->chunks[i].block, size, &rsize, list->chunks[i].first);
             if(sub) {
-                void* ret = allocBlock(list->chunks[i].block, sub, size, NULL);
-                if(sub==list->chunks[i].first)
-                    list->chunks[i].first = getNextFreeBlock(sub);
+                void* ret = allocBlock(list->chunks[i].block, sub, size, &list->chunks[i].first);
                 if(rsize==list->chunks[i].maxfree)
                     list->chunks[i].maxfree = getMaxFreeBlock(list->chunks[i].block, list->chunks[i].size, list->chunks[i].first);
                 return (uintptr_t)ret;
@@ -588,14 +816,6 @@ uintptr_t AllocDynarecMap(size_t size)
             size_t allocsize = (sz>DYNMMAPSZ)?sz:DYNMMAPSZ;
             // allign sz with pagesize
             allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
-            #ifndef USE_MMAP
-            void *p = NULL;
-            if(!(p=box_memalign(box64_pagesize, allocsize))) {
-                dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes\n", allocsize), allocsize, strerror(errno);
-                return 0;
-            }
-            mprotect(p, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC);
-            #else
             void* p=MAP_FAILED;
             // disabling for now. explicit hugepage needs to be enabled to be used on userspace 
             // with`/sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages` as the number of allowaed 2M huge page
@@ -616,7 +836,6 @@ uintptr_t AllocDynarecMap(size_t size)
             #ifdef MADV_HUGEPAGE
             madvise(p, allocsize, MADV_HUGEPAGE);
             #endif
-            #endif
 #ifdef TRACE_MEMSTAT
             dynarec_allocated += allocsize;
 #endif
@@ -628,14 +847,13 @@ uintptr_t AllocDynarecMap(size_t size)
             blockmark_t* m = (blockmark_t*)p;
             m->prev.x32 = 0;
             m->next.fill = 0;
-            m->next.size = allocsize-2*sizeof(blockmark_t);
+            m->next.offs = allocsize-2*sizeof(blockmark_t);
             blockmark_t* n = NEXT_BLOCK(m);
             n->next.x32 = 0;
-            n->prev.fill = 0;
-            n->prev.size = m->next.size;
+            n->prev.x32 = m->next.x32;
             // alloc 1st block
-            void* ret  = allocBlock(list->chunks[i].block, p, size, NULL);
-            list->chunks[i].maxfree = getMaxFreeBlock(list->chunks[i].block, list->chunks[i].size, NULL);
+            void* ret  = allocBlock(list->chunks[i].block, p, size, &list->chunks[i].first);
+            list->chunks[i].maxfree = getMaxFreeBlock(list->chunks[i].block, list->chunks[i].size, list->chunks[i].first);
             if(list->chunks[i].maxfree)
                 list->chunks[i].first = getNextFreeBlock(m);
             return (uintptr_t)ret;
@@ -663,7 +881,7 @@ void FreeDynarecMap(uintptr_t addr)
         if ((addr>(uintptr_t)list->chunks[i].block) 
          && (addr<((uintptr_t)list->chunks[i].block+list->chunks[i].size))) {
             void* sub = (void*)(addr-sizeof(blockmark_t));
-            size_t newfree = freeBlock(list->chunks[i].block, sub, &list->chunks[i].first);
+            size_t newfree = freeBlock(list->chunks[i].block, list->chunks[i].size, sub, &list->chunks[i].first);
             if(list->chunks[i].maxfree < newfree)
                 list->chunks[i].maxfree = newfree;
             return;
@@ -1541,6 +1759,35 @@ void reverveHigMem32(void)
             //printf_log(LOG_DEBUG, "Reserved high %p (%zx)\n", cur, cur_size);
         }
     }
+    // try again, but specifying a high address, just in case
+    if(0)
+    {
+        uintptr_t cur = 0xffff00000000LL;
+        uintptr_t bend = 0;
+        uint32_t prot;
+        while (bend!=0xffffffffffffffffLL) {
+            if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
+                // create a border at 48bits
+                if(cur<(1ULL<<48) && bend>(1ULL<<48))
+                    bend = 1ULL<<48;
+                cur = (cur+0xffffLL)&~0xffffLL; // round to 64K page size
+                if(bend>cur) {
+                    void* p = internal_mmap((void*)cur, bend-cur, 0, MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+                    if((p==MAP_FAILED) || (p<(void*)0x100000000LL)) {
+                        if(p!=MAP_FAILED) {
+                            printf_log(LOG_DEBUG, " Failed to reserve high %p (%zx) => %p\n", (void*)cur, bend-cur, p);
+                            internal_munmap(p, bend-cur);
+                        } else 
+                        printf_log(LOG_DEBUG, " Failed to reserve %zx sized block (%s)\n", bend-cur, strerror(errno));
+                    } else {
+                        rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)bend, 1);
+                        printf_log(LOG_DEBUG, "Reserved high %p (%zx)\n", cur, bend-cur);
+                    }
+                }
+            }
+            cur = bend;
+        }
+    }
     printf_log(LOG_INFO, "Memory higher than 32bits reserved\n");
     if(box64_log>=LOG_DEBUG) {
         uintptr_t start=0x100000000LL;
@@ -1548,7 +1795,7 @@ void reverveHigMem32(void)
         uintptr_t bend;
         while (bend!=0xffffffffffffffffLL) {
             if(rb_get_end(mapallmem, start, &prot, &bend)) {
-                    printf_log(LOG_DEBUG, " Reserved: %p - %p (%d)\n", (void*)start, (void*)bend, prot);
+                printf_log(LOG_NONE, " Reserved: %p - %p (%d)\n", (void*)start, (void*)bend, prot);
             }
             start = bend;
         }
@@ -1673,10 +1920,12 @@ void fini_custommem_helper(box64context_t *ctx)
     }
     #ifdef JMPTABL_SHIFT4
     }
-    if(box64_log) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- memprot: %lld kio (peak at %lld kio)\n- jump table: %lld kio (%lld level 4, %lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, memprot_allocated / 1024, memprot_max_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated4, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
+    if(box64_log) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- jump table: %lld kio (%lld level 4, %lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated4, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
     #else
-    if(box64_log) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- memprot: %lld kio (peak at %lld kio)\n- jump table: %lld kio (%lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, memprot_allocated / 1024, memprot_max_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
+    if(box64_log) printf("Allocation:\n- dynarec: %lld kio\n- customMalloc: %lld kio\n- jump table: %lld kio (%lld level 3, %lld level 2, %lld level 1 table allocated, for %lld jumps, with at most %lld per level 1)\n", dynarec_allocated / 1024, customMalloc_allocated / 1024, jmptbl_allocated / 1024, jmptbl_allocated3, jmptbl_allocated2, jmptbl_allocated1, njmps, njmps_in_lv1_max);
     #endif
+    if(box64_log)
+        testAllBlocks();
 #endif
     if(!inited)
         return;
@@ -1689,11 +1938,7 @@ void fini_custommem_helper(box64context_t *ctx)
         while(head) {
             for (int i=0; i<NCHUNK; ++i) {
                 if(head->chunks[i].block)
-                    #ifdef USE_MMAP
                     internal_munmap(head->chunks[i].block, head->chunks[i].size);
-                    #else
-                    box_free(head->chunks[i].block);
-                    #endif
             }
             mmaplist_t *old = head;
             head = head->next;
@@ -1735,11 +1980,7 @@ void fini_custommem_helper(box64context_t *ctx)
     mapallmem = NULL;
 
     for(int i=0; i<n_blocks; ++i)
-        #ifdef USE_MMAP
         internal_munmap(p_blocks[i].block, p_blocks[i].size);
-        #else
-        box_free(p_blocks[i].block);
-        #endif
     box_free(p_blocks);
     #ifndef USE_CUSTOM_MUTEX
     pthread_mutex_destroy(&mutex_prot);
