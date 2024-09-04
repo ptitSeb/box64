@@ -27,19 +27,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, OTHER_ARM, RISCV, RPI4ARM64, RPI5ARM64, RK3326, RK3399, RK3588, PHYTIUM, SD845, SD888, ADLINK, ARM64, ANDROID, TERMUX, LARCH64]
+        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64]
         type: [Release, Trace, StaticBuild, Box32]
         os: [ubuntu-latest]
-        include:
-          - platform: TEGRAX1
-            type: Release
-            os: ubuntu-20.04
-          - platform: TEGRAX1
-            type: Trace
-            os: ubuntu-20.04
         exclude:
-          - platform: TEGRAX1
-            type: StaticBuild
           - platform: ANDROID
             type: StaticBuild
           - platform: TERMUX
@@ -59,7 +50,7 @@ jobs:
       - name: "Environment preparation"
         run: |
           sudo apt-get update
-          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'OTHER_ARM' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
+          if [[ ${{ matrix.platform }} != 'X64' && ${{ matrix.platform }} != 'RISCV' && ${{ matrix.platform }} != 'LARCH64' ]]; then
             sudo apt-get -y install git cmake make python3
             if [[ ${{ matrix.platform }} == 'ANDROID' || ${{ matrix.platform }} == 'TERMUX' ]]; then
               wget https://dl.google.com/android/repository/android-ndk-r26b-linux.zip
@@ -166,8 +157,6 @@ jobs:
           make -j$(nproc) VERBOSE=1
 
       - name: "Test Box64"
-        ## Qemu doesn't like Box32 test, so disabling it on non-native platform
-        if: ${{ matrix.platform != 'TEGRAX1' }}
         run: |
           if [[ ${{ matrix.platform }} != 'X64' ]]; then
             mkdir qemu9.0.0
@@ -188,7 +177,7 @@ jobs:
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=false,zba=true,zbb=true,zbc=true,zbs=true ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=true,vlen=128,vext_spec=v1.0 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=true,vlen=256,vext_spec=v1.0 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
-            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=rv64,v=false,xtheadba=true,xtheadba=true,xtheadbb=true,xtheadbs=true,xtheadcondmov=true,xtheadmemidx=true,xtheadmempair=true,xtheadfmemidx=true,xtheadmac=true,xtheadfmv=true ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
+            INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=thead-c906 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
             fi
           elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
             if [[ ${{ env.BOX64_BOX32 }} != 1 ]]; then
