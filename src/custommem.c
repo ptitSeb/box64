@@ -550,26 +550,24 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
     size = roundSize(size);
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
-    for(int i=0; i<n_blocks; ++i) {
-        blocklist_t* l = findBlock(addr);
-        if(l) {
-            blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
-            if(expandBlock(l->block, sub, size, &l->first)) {
-                l->maxfree = getMaxFreeBlock(l->block, l->size, l->first);
-                mutex_unlock(&mutex_blocks);
-                return p;
-            }
+    blocklist_t* l = findBlock(addr);
+    if(l) {
+        blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
+        if(expandBlock(l->block, sub, size, &l->first)) {
+            l->maxfree = getMaxFreeBlock(l->block, l->size, l->first);
             mutex_unlock(&mutex_blocks);
-            void* newp = internal_customMalloc(size, is32bits);
-            memcpy(newp, p, sizeBlock(sub));
-            // disabling the "fast free", as mutex has been released, so things are not garantied to stay as-is
-            internal_customFree(p, is32bits);
-            //mutex_lock(&mutex_blocks);
-            //size_t newfree = freeBlock(l->block, l->size, sub, &l->first);
-            //if(l->maxfree < newfree) l->maxfree = newfree;
-            //mutex_unlock(&mutex_blocks);
-            return newp;
+            return p;
         }
+        mutex_unlock(&mutex_blocks);
+        void* newp = internal_customMalloc(size, is32bits);
+        memcpy(newp, p, sizeBlock(sub));
+        // disabling the "fast free", as mutex has been released, so things are not garantied to stay as-is
+        internal_customFree(p, is32bits);
+        //mutex_lock(&mutex_blocks);
+        //size_t newfree = freeBlock(l->block, l->size, sub, &l->first);
+        //if(l->maxfree < newfree) l->maxfree = newfree;
+        //mutex_unlock(&mutex_blocks);
+        return newp;
     }
     mutex_unlock(&mutex_blocks);
     if(n_blocks)
@@ -594,15 +592,13 @@ void internal_customFree(void* p, int is32bits)
         return;
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
-    for(int i=0; i<n_blocks; ++i) {
-        blocklist_t* l = findBlock(addr);
-        if(l) {
-            blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
-            size_t newfree = freeBlock(l->block, l->size, sub, &l->first);
-            if(l->maxfree < newfree) l->maxfree = newfree;
-            mutex_unlock(&mutex_blocks);
-            return;
-        }
+    blocklist_t* l = findBlock(addr);
+    if(l) {
+        blockmark_t* sub = (blockmark_t*)(addr-sizeof(blockmark_t));
+        size_t newfree = freeBlock(l->block, l->size, sub, &l->first);
+        if(l->maxfree < newfree) l->maxfree = newfree;
+        mutex_unlock(&mutex_blocks);
+        return;
     }
     mutex_unlock(&mutex_blocks);
     if(n_blocks)
@@ -750,15 +746,13 @@ size_t customGetUsableSize(void* p)
         return 0;
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
-    for(int i=0; i<n_blocks && p_blocks[i].block; ++i) {
-        if ((addr>(uintptr_t)p_blocks[i].block) 
-         && (addr<((uintptr_t)p_blocks[i].block+p_blocks[i].size))) {
-            void* sub = (void*)(addr-sizeof(blockmark_t));
+    blocklist_t* l = findBlock(addr);
+    if(l) {
+        blockmark_t* sub = (void*)(addr-sizeof(blockmark_t));
 
-            size_t size = SIZE_BLOCK(((blockmark_t*)sub)->next);
-            mutex_unlock(&mutex_blocks);
-            return size;
-        }
+        size_t size = SIZE_BLOCK(sub->next);
+        mutex_unlock(&mutex_blocks);
+        return size;
     }
     mutex_unlock(&mutex_blocks);
     return 0;
