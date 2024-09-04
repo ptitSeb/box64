@@ -711,6 +711,31 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 0x0F:
                     nextop = F8;
                     switch(nextop) {
+                        case 0x7E:
+                            INST_NAME("MOVD Ed,Gx");
+                            nextop = F8;
+                            GETGX(v0, 0);
+                            if(rex.w) {
+                                if(MODREG) {
+                                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                                    VMOVQDto(ed, v0, 0);
+                                } else {
+                                    addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
+                                    VST64(v0, ed, fixedaddress);
+                                    SMWRITE2();
+                                }
+                            } else {
+                                if(MODREG) {
+                                    ed = xRAX + (nextop&7) + (rex.b<<3);
+                                    VMOVSto(ed, v0, 0);
+                                } else {
+                                    addr = geted32(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<2, 3, rex, NULL, 0, 0);
+                                    VST32(v0, ed, fixedaddress);
+                                    SMWRITE2();
+                                }
+                            }
+                            break;
+
                         case 0xD6:
                             INST_NAME("MOVQ Ex, Gx");
                             nextop = F8;
