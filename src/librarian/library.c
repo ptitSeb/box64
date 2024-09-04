@@ -452,7 +452,7 @@ library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* ve
     printf_dump(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     //library_t *lib = (library_t*)box_calloc(1, sizeof(library_t));
     if(cur_lib==lib_cap) {
-        lib_brick_t *new_brick = calloc(1, sizeof(lib_brick_t));
+        lib_brick_t *new_brick = box_calloc(1, sizeof(lib_brick_t));
         if(!lib_head)
             cur_brick = lib_head = new_brick;
         else {
@@ -1211,23 +1211,23 @@ void AddMainElfToLinkmap(elfheader_t* elf)
 
 needed_libs_t* new_neededlib(int n)
 {
-    needed_libs_t* ret = (needed_libs_t*)calloc(1, sizeof(needed_libs_t));
+    needed_libs_t* ret = (needed_libs_t*)box_calloc(1, sizeof(needed_libs_t));
     ret->cap = ret->size = n;
     ret->init_size = n;
-    ret->libs = (library_t**)calloc(n, sizeof(library_t*));
-    ret->names = (char**)calloc(n, sizeof(char*));
+    ret->libs = (library_t**)box_calloc(n, sizeof(library_t*));
+    ret->names = (char**)box_calloc(n, sizeof(char*));
     return ret;
 }
 void free_neededlib(needed_libs_t* needed)
 {
     if(!needed)
         return;
-    free(needed->libs);
-    free(needed->names);
+    box_free(needed->libs);
+    box_free(needed->names);
     needed->libs = NULL;
     needed->names = NULL;
     needed->cap = needed->size = 0;
-    free(needed);
+    box_free(needed);
 }
 void add1_neededlib(needed_libs_t* needed)
 {
@@ -1236,8 +1236,8 @@ void add1_neededlib(needed_libs_t* needed)
     if(needed->size+1<=needed->cap)
         return;
     needed->cap = needed->size+1;
-    needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
-    needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+    needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
+    needed->names = (char**)box_realloc(needed->names, needed->cap*sizeof(char*));
     needed->size++;
     needed->init_size++;
 }
@@ -1252,8 +1252,8 @@ void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name)
     // add it
     if(needed->size==needed->cap) {
         needed->cap = needed->size+1;
-        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
-        needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+        needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
+        needed->names = (char**)box_realloc(needed->names, needed->cap*sizeof(char*));
     }
     needed->libs[needed->size] = lib;
     needed->names[needed->size] = (char*)name;
@@ -1271,8 +1271,8 @@ void add1lib_neededlib_name(needed_libs_t* needed, library_t* lib, const char* n
     // add it
     if(needed->size==needed->cap) {
         needed->cap = needed->size+1;
-        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
-        needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+        needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
+        needed->names = (char**)box_realloc(needed->names, needed->cap*sizeof(char*));
     }
     needed->libs[needed->size] = lib;
     needed->names[needed->size] = (char*)name;
@@ -1290,8 +1290,8 @@ void add1libref_neededlib(needed_libs_t* needed, library_t* lib)
     // add it
     if(needed->size==needed->cap) {
         needed->cap = needed->size+4;
-        needed->libs = (library_t**)realloc(needed->libs, needed->cap*sizeof(library_t*));
-        needed->names = (char**)realloc(needed->names, needed->cap*sizeof(char*));
+        needed->libs = (library_t**)box_realloc(needed->libs, needed->cap*sizeof(library_t*));
+        needed->names = (char**)box_realloc(needed->names, needed->cap*sizeof(char*));
     }
     needed->libs[needed->size] = lib;
     needed->names[needed->size] = (char*)lib->name;
@@ -1302,12 +1302,12 @@ needed_libs_t* copy_neededlib(needed_libs_t* needed)
 {
     if(!needed)
         return NULL;
-    needed_libs_t* ret = (needed_libs_t*)calloc(1, sizeof(needed_libs_t));
+    needed_libs_t* ret = (needed_libs_t*)box_calloc(1, sizeof(needed_libs_t));
     ret->cap = needed->cap;
     ret->size = needed->size;
     ret->init_size = needed->init_size;
-    ret->libs = (library_t**)calloc(ret->cap, sizeof(library_t*));
-    ret->names = (char**)calloc(ret->cap, sizeof(char*));
+    ret->libs = (library_t**)box_calloc(ret->cap, sizeof(library_t*));
+    ret->names = (char**)box_calloc(ret->cap, sizeof(char*));
     memcpy(ret->libs, needed->libs, ret->size*sizeof(library_t*));
     memcpy(ret->names, needed->names, ret->size*sizeof(char*));
     return ret;

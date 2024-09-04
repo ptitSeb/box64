@@ -2816,45 +2816,45 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     (void)emu;
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
-    if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mmap64(%p, 0x%lx, 0x%x, 0x%x, %d, %ld) => ", addr, length, prot, flags, fd, offset);}
+    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mmap64(%p, 0x%lx, 0x%x, 0x%x, %d, %ld) => ", addr, length, prot, flags, fd, offset);}
     int new_flags = flags;
     #ifndef NOALIGN
     void* old_addr = addr;
     new_flags&=~MAP_32BIT;   // remove MAP_32BIT
     if(flags&MAP_32BIT) {
         // MAP_32BIT only exist on x86_64!
-        addr = find31bitBlockNearHint(addr, length, 0);
+        addr = find31bitBlockNearHint(old_addr, length, 0);
     } else if (box64_wine || 1) {   // other mmap should be restricted to 47bits
         if(!addr)
             addr = find47bitBlock(length);
     }
     #endif
     void* ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
-    #ifndef NOALIGN
+    #if !defined(NOALIGN) || defined(BOX32)
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || ((box64_wine) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
         int olderr = errno;
-        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
-        munmap(ret, length);
+        if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 32bits didn't worked, ask %p, got %p ", addr, ret);
+        internal_munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find31bitBlockNearHint(old_addr, length, 0); // is this the best way?
         new_flags = (addr && isBlockFree(addr, length) )? (new_flags|MAP_FIXED) : new_flags;
         if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
-        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, " tried again with %p, got %p\n", addr, ret);
+        if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, " tried again with %p, got %p\n", addr, ret);
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED)
             errno = olderr;
     } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && ((box64_wine)) && (addr && (addr!=ret)) &&
              (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
         int olderr = errno;
-        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
-        munmap(ret, length);
+        if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, "Warning, mmap on 47bits didn't worked, ask %p, got %p ", addr, ret);
+        internal_munmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
         addr = find47bitBlockNearHint(old_addr, length, 0); // is this the best way?
         new_flags = (addr && isBlockFree(addr, length)) ? (new_flags|MAP_FIXED) : new_flags;
         if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
         ret = internal_mmap(addr, length, prot, new_flags, fd, offset);
-        if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, " tried again with %p, got %p\n", addr, ret);
+        if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) printf_log(LOG_NONE, " tried again with %p, got %p\n", addr, ret);
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED) {
             errno = olderr;
             if(old_addr>(void*)0x7fffffffff && !have48bits)
@@ -2867,7 +2867,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
         errno = EEXIST;
         return MAP_FAILED;
     }
-    if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
+    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     #ifdef DYNAREC
     if(box64_dynarec && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)
@@ -2918,9 +2918,9 @@ EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, 
 EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
     (void)emu;
-    if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);}
+    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mremap(%p, %lu, %lu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);}
     void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
-    if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
+    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     if(ret!=(void*)-1) {
         uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
         if(ret==old_addr) {
@@ -2968,7 +2968,7 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
 EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 {
     (void)emu;
-    if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, %lu)\n", addr, length);}
+    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, %lu)\n", addr, length);}
     int ret = internal_munmap(addr, length);
     #ifdef DYNAREC
     if(!ret && box64_dynarec && length) {

@@ -13,6 +13,10 @@
 #define EXPORTDYN
 #endif
 
+#ifndef MAP_32BIT
+#define MAP_32BIT   0x40
+#endif
+
 typedef void x64emu_t;
 extern void* mapallmem;
 extern int box64_is32bits;
@@ -29,8 +33,8 @@ extern int box64_mmap32;
 EXPORT void* mmap64(void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
 {
     void* ret;
-    if(!addr && ((running32bits && box64_mmap32) || (flags&0x40) || box64_is32bits))
-        ret = my_mmap64(NULL, addr, length, prot, flags | 0x40, fd, offset);
+    if(!addr && ((running32bits && box64_mmap32) || (flags&MAP_32BIT) || box64_is32bits))
+        ret = my_mmap64(NULL, addr, length, prot, flags | MAP_32BIT, fd, offset);
     else
         ret = internal_mmap(addr, length, prot, flags, fd, offset);
     if(ret!=MAP_FAILED && mapallmem)

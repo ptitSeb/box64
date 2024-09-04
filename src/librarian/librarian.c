@@ -511,7 +511,7 @@ int GetGlobalSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, u
     if(GetGlobalSymbolStartEnd_internal(maplib, name, start, end, self, &version, &vername, &veropt, elfsym)) {
         if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
             uintptr_t start2, end2;
-            char* buff = (char*)malloc(strlen(name) + strlen("_END") + 1);
+            char* buff = (char*)box_malloc(strlen(name) + strlen("_END") + 1);
             strcpy(buff, name);
             strcat(buff, "_END");
             if(GetGlobalSymbolStartEnd_internal(maplib, buff, &start2, &end2, self, &version, &vername, &veropt, elfsym)) {
@@ -584,7 +584,7 @@ int GetGlobalWeakSymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* star
     if(GetGlobalWeakSymbolStartEnd_internal(maplib, name, start, end, self, &version, &vername, &veropt, elfsym)) {
         if(start && end && *end==*start) {  // object is of 0 sized, try to see an "_END" object of null size
             uintptr_t start2, end2;
-            char* buff = (char*)malloc(strlen(name) + strlen("_END") + 1);
+            char* buff = (char*)box_malloc(strlen(name) + strlen("_END") + 1);
             strcpy(buff, name);
             strcat(buff, "_END");
             if(GetGlobalWeakSymbolStartEnd_internal(maplib, buff, &start2, &end2, self, &version, &vername, &veropt, elfsym)) {
