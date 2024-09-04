@@ -7,9 +7,16 @@
 typedef struct box64context_s box64context_t;
 
 void* customMalloc(size_t size);
+void* customMalloc32(size_t size);
 void* customCalloc(size_t n, size_t size);
+void* customCalloc32(size_t n, size_t size);
 void* customRealloc(void* p, size_t size);
+void* customRealloc32(void* p, size_t size);
+void* customMemAligned(size_t align, size_t size);
+void* customMemAligned32(size_t align, size_t size);
 void customFree(void* p);
+void customFree32(void* p);
+size_t customGetUsableSize(void* p);
 
 #define kcalloc     customCalloc
 #define kmalloc     customMalloc
@@ -17,6 +24,10 @@ void customFree(void* p);
 #define kfree       customFree
 
 #define ALIGN(p) (((p)+box64_pagesize-1)&~(box64_pagesize-1))
+
+#ifndef MAP_32BIT
+#define MAP_32BIT       0x40
+#endif
 
 #ifdef DYNAREC
 typedef struct dynablock_s dynablock_t;
