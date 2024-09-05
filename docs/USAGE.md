@@ -152,7 +152,6 @@ Forbid dynablock creation in the interval specified (helpful for debugging behav
 Dynarec will compare it's execution with the interpreter (super slow, only for testing)
  * 0 : No comparison. (Default.)
  * 1 : Each opcode runs on interpreter and on Dynarec, and regs and memory are compared and print if different.
- * 2 : Thread-safe tests, extremely slow.
  * 0xXXXXXXXX-0xYYYYYYYY : define the interval where dynarec is tested (inclusive-exclusive)
 
 #### BOX64_DYNAREC_BIGBLOCK *
