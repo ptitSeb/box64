@@ -1242,18 +1242,18 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     #ifdef TEST_INTERPRETER
                     emu->sw.f.F87_TOP = emu->top&7;
                     #else
-                    if(rex.w)
-                        fpu_fxsave64(emu, ED);
-                    else
+                    if(rex.is32bits)
                         fpu_fxsave32(emu, ED);
+                    else
+                        fpu_fxsave64(emu, ED);
                     #endif
                     break;
                 case 1:                 /* FXRSTOR Ed */
                     _GETED(0);
-                    if(rex.w)
-                        fpu_fxrstor64(emu, ED);
-                    else
+                    if(rex.is32bits)
                         fpu_fxrstor32(emu, ED);
+                    else
+                        fpu_fxrstor64(emu, ED);
                     break;
                 case 2:                 /* LDMXCSR Md */
                     GETED(0);

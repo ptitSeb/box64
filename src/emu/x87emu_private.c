@@ -295,6 +295,7 @@ void fpu_savenv(x64emu_t* emu, char* p, int b16)
     // other stuff are not pushed....
 }
 
+// this is the 64bits version (slightly different than the 32bits!)
 typedef struct xsave32_s {
     uint16_t ControlWord;        /* 000 */
     uint16_t StatusWord;         /* 002 */
@@ -311,9 +312,8 @@ typedef struct xsave32_s {
     uint32_t MxCsr_Mask;         /* 01c */
     sse_regs_t FloatRegisters[8];/* 020 */  // fpu/mmx are store in 128bits here
     sse_regs_t XmmRegisters[8];  /* 0a0 */
-    uint8_t  Reserved4[56*4];    /* 1a0 */
+    uint8_t  Reserved4[56*4];    /* 120 */
 } xsave32_t;
-// this is the 64bits version (slightly different than the 32bits!)
 typedef struct xsave64_s {
     uint16_t ControlWord;        /* 000 */
     uint16_t StatusWord;         /* 002 */
@@ -359,6 +359,7 @@ void fpu_fxsave32(x64emu_t* emu, void* ed)
 
 void fpu_fxsave64(x64emu_t* emu, void* ed)
 {
+    // the subtelties of the REX.W are not handled in fxsave64/fxrstor64
     xsave64_t *p = (xsave64_t*)ed;
     // should save flags & all
     int top = emu->top&7;
@@ -409,6 +410,7 @@ void fpu_fxrstor32(x64emu_t* emu, void* ed)
 
 void fpu_fxrstor64(x64emu_t* emu, void* ed)
 {
+    // the subtelties of the REX.W are not handled in fxsave64/fxrstor64
     xsave64_t *p = (xsave64_t*)ed;
     emu->cw.x16 = p->ControlWord;
     emu->sw.x16 = p->StatusWord;
