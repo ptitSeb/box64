@@ -550,7 +550,6 @@ static int get_sdl_priv(x64emu_t* emu, const char *sym_str, void **w, void **f)
             *f = dlsym(emu->context->box64lib, "my2_"#sym); \
             return *f != NULL; \
         }
-    #define GOS(sym, _w) GOM(sym, _w)
     #define DATA
 
     if(0);
@@ -559,7 +558,6 @@ static int get_sdl_priv(x64emu_t* emu, const char *sym_str, void **w, void **f)
     #undef GO
     #undef GOM
     #undef GO2
-    #undef GOS
     #undef DATA
     return 0;
 }
