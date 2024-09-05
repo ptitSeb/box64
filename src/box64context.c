@@ -223,10 +223,6 @@ box64context_t *NewBox64Context(int argc)
 
     init_custommem_helper(context);
 
-    #ifdef DYNAREC
-    x64test_init();
-    #endif
-
     context->maplib = NewLibrarian(context);
     context->local_maplib = NewLibrarian(context);
     context->versym = NewDictionnary();
