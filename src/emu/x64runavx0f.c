@@ -287,9 +287,6 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0x53:                      /* VRCPPS Gx, Ex */
             nextop = F8;
@@ -303,9 +300,6 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->f[i] = 1.0f/EY->f[i];
             } else
                 GY->u128 = 0;
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0x54:                      /* VANDPS Gx, Vx, Ex */
             nextop = F8;

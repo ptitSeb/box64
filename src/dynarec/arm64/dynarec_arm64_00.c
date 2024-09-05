@@ -996,7 +996,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
 
         #define GO(GETFLAGS, NO, YES, F)                                \
-            if (box64_dynarec_test == 2) { NOTEST(x1); }                \
             READFLAGS(F);                                               \
             i8 = F8S;                                                   \
             BARRIER(BARRIER_MAYBE);                                     \
@@ -3151,7 +3150,6 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE9:
         case 0xEB:
             BARRIER(BARRIER_MAYBE);
-            if (box64_dynarec_test == 2) { NOTEST(x1); }
             if(opcode==0xEB && PK(0)==0xFF) {
                 INST_NAME("JMP ib");
                 MESSAGE(LOG_DEBUG, "Hack for EB FF opcode");

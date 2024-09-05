@@ -40,7 +40,6 @@ typedef struct x64test_s {
     int         memsize;
     int         test;
     int         clean;
-    int         notest;
     uint8_t     mem[32];
 } x64test_t;
 
