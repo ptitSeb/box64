@@ -764,7 +764,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
                             if (ed != x1) { MV(x1, ed); }
-                            CALL(rex.w ? ((void*)fpu_fxsave64) : ((void*)fpu_fxsave32), -1);
+                            CALL(rex.is32bits ? ((void*)fpu_fxsave32) : ((void*)fpu_fxsave64), -1);
                         }
                         break;
                     case 2:

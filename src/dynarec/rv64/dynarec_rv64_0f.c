@@ -1860,7 +1860,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
                         if (ed != x1) { MV(x1, ed); }
-                        CALL(rex.w ? ((void*)fpu_fxsave64) : ((void*)fpu_fxsave32), -1);
+                        CALL(rex.is32bits ? ((void*)fpu_fxsave32) : ((void*)fpu_fxsave64), -1);
                         break;
                     case 1:
                         INST_NAME("FXRSTOR Ed");
@@ -1869,7 +1869,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
                         if (ed != x1) { MV(x1, ed); }
-                        CALL(rex.w ? ((void*)fpu_fxrstor64) : ((void*)fpu_fxrstor32), -1);
+                        CALL(rex.is32bits ? ((void*)fpu_fxrstor32) : ((void*)fpu_fxrstor64), -1);
                         break;
                     case 2:
                         INST_NAME("LDMXCSR Md");
