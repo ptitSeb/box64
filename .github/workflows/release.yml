@@ -180,10 +180,10 @@ jobs:
             INTERPRETER=qemu-riscv64-static QEMU_LD_PREFIX=/usr/riscv64-linux-gnu/ BOX64_DYNAREC_TEST=2 QEMU_CPU=thead-c906 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
             fi
           elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
-            if [[ ${{ env.BOX64_BOX32 }} != 1 ]]; then
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_LA64NOEXT=1 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
-            INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_TEST=2 BOX64_DYNAREC_LA64NOEXT=1 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
             INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC=0 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
+            if [[ ${{ env.BOX64_BOX32 }} != 1 ]]; then
+            INTERPRETER=qemu-loongarch64-static QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/ BOX64_DYNAREC_TEST=2 BOX64_DYNAREC_LA64NOEXT=1 ctest --timeout 60 -j$(nproc) --repeat until-pass:20 --output-on-failure
             fi
           elif [[ ${{ matrix.platform }} == 'ANDROID' ]]; then
             if [[ ${{ env.BOX64_BOX32 }} != 1 ]]; then
