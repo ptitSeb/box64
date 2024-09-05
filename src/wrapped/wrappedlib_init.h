@@ -28,9 +28,9 @@
 #endif
 // regular symbol mapped to itself or another one (depending on HAVE_LD80BITS), but weak
 #ifdef HAVE_LD80BITS
-#define GODW(N, W, O) GOW(N, W)
+#define GOWD(N, W, O) GOW(N, W)
 #else
-#define GODW(N, W, O) GOW2(N, W, O)
+#define GOWD(N, W, O) GOW2(N, W, O)
 #endif
 
 // regular symbol mapped to itself
@@ -41,8 +41,6 @@
 #define GOM(N, W)
 // symbol mapped to my_symbol, but weak
 #define GOWM(N, W)
-// regular symbol mapped to itself, that returns a structure
-#define GOS(N, W)
 // symbol mapped to another one
 #define GO2(N, W, O)
 // symbol mapped to another one, but weak
@@ -87,21 +85,10 @@ static const map_onesymbol_t MAPNAME(mysymbolmap)[] = {
 };
 #undef GOM
 #undef GOWM
-#undef GOS
 #define GOM(N, W)
 #define GOWM(N, W)
-#ifdef STATICBUILD
-#define GOS(N, W) {#N, W, 0, &my_##N},
-#else
-#define GOS(N, W) {#N, W, 0},
-#endif
-static const map_onesymbol_t MAPNAME(stsymbolmap)[] = {
-    #include PRIVATE(LIBNAME)
-};
-#undef GOS
 #undef GO2
 #undef GOW2
-#define GOS(N, W)
 #ifdef STATICBUILD
 #define GO2(N, W, O) {#N, W, 0, #O, &O},
 #define GOW2(N, W, O) {#N, W, 1, #O, &O},
@@ -150,12 +137,11 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef GO
 #undef GOW
 #undef GOD
-#undef GODW
+#undef GOWD
 #undef GOM
 #undef GOWM
 #undef GO2
 #undef GOW2
-#undef GOS
 #undef DATA
 #undef DATAV
 #undef DATAB
@@ -255,19 +241,6 @@ int FUNC(_init)(library_t* lib, box64context_t* box64)
     DOIT(symbolmap)
     DOIT(mysymbolmap)
 #undef DOIT
-    cnt = sizeof(MAPNAME(stsymbolmap))/sizeof(map_onesymbol_t);
-    for (int i=0; i<cnt; ++i) {
-        k = kh_put(symbolmap, lib->w.stsymbolmap, MAPNAME(stsymbolmap)[i].name, &ret);
-        kh_value(lib->w.stsymbolmap, k).w = MAPNAME(stsymbolmap)[i].w;
-        #ifdef STATICBUILD
-        kh_value(lib->w.stsymbolmap, k).resolved = 1;
-        kh_value(lib->w.stsymbolmap, k).addr = (uintptr_t)MAPNAME(stsymbolmap)[i].addr;
-        #else
-        kh_value(lib->w.stsymbolmap, k).resolved = 0;
-        #endif
-        if(strchr(MAPNAME(stsymbolmap)[i].name, '@'))
-            AddDictionnary(box64->versym, MAPNAME(stsymbolmap)[i].name);
-    }
     cnt = sizeof(MAPNAME(symbol2map))/sizeof(map_onesymbol2_t);
     for (int i=0; i<cnt; ++i) {
         k = kh_put(symbol2map, lib->w.symbol2map, MAPNAME(symbol2map)[i].name, &ret);
