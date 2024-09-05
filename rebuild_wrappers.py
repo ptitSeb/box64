@@ -536,7 +536,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 						gbl[str(dependants)].append(FunctionType(ln))
 					
 					if any(c in origLine for c in depends_on_ld):
-						if (gotype != "GOM") and (gotype != "GOWM") and (gotype != "GOD") and (gotype != "GODW"):
+						if (gotype != "GOM") and (gotype != "GOWM") and (gotype != "GOD") and (gotype != "GOWD"):
 							print("\033[91mError:\033[m type depends on HAVE_LD80BITS but the GO type doesn't support that ({0}:{1})"
 			 					.format(filename, line[:-1]))
 							halt_required = True
