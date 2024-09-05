@@ -22,8 +22,6 @@
 #include "bridge.h"
 #include "signals.h"
 
-static pthread_mutex_t mutex_global_test;
-
 void print_banner(x64emu_t* ref)
 {
     printf_log(LOG_NONE, "Warning, difference between %s Interpreter and Dynarec in %p (%02x %02x %02x %02x %02x %02x %02x %02x)\n"\
@@ -154,8 +152,6 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
         test->emu = NewX64Emu(my_context, ip, (uintptr_t)ref->init_stack, ref->size_stack, 0);
         CopyEmu(test->emu, ref);
     } else {
-        if (box64_dynarec_test == 2 && test->test && test->clean)
-            pthread_mutex_unlock(&mutex_global_test);
         // check if IP is same, else, sync
         uintptr_t prev_ip = test->emu->ip.q[0];
         if(test->clean)
@@ -167,20 +163,8 @@ void x64test_step(x64emu_t* ref, uintptr_t ip)
     // do a dry single step
     test->memsize = 0;
     test->clean = 1;
-    test->notest = 0;
     ref->old_ip = ip;
 
-    if (box64_dynarec_test == 2) pthread_mutex_lock(&mutex_global_test);
     RunTest(test);
-    if (box64_dynarec_test == 2 && test->notest) pthread_mutex_unlock(&mutex_global_test);
     // this will be analyzed next step
-}
-
-void x64test_init()
-{
-    pthread_mutexattr_t attr;
-    pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
-    pthread_mutex_init(&mutex_global_test, &attr);
-    pthread_mutexattr_destroy(&attr);
 }

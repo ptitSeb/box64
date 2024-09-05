@@ -560,19 +560,14 @@ x64emurun:
         case 0x6D:                      /* INSD DX */
         case 0x6E:                      /* OUTSB DX */
         case 0x6F:                      /* OUTSD DX */
-            #ifndef TEST_INTERPRETER
+#ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
-            #else
-            test->notest = 1;
             #endif
             break;
 
         GOCOND(0x70
             ,   tmp8s = F8S; CHECK_FLAGS(emu);
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             ,   addr += tmp8s;
             ,,STEP2
             )                           /* Jxx Ib */
@@ -1336,16 +1331,10 @@ x64emurun:
             addr = rex.is32bits?Pop32(emu):Pop64(emu);
             R_RSP += tmp16u;
             STEP2
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0xC3:                      /* RET */
             addr = rex.is32bits?Pop32(emu):Pop64(emu);
             STEP2
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0xC4:                      /* LES Gd,Ed */
             nextop = F8;
@@ -1496,8 +1485,6 @@ x64emurun:
             x64Int3(emu, &addr);
             if(emu->quit) goto fini;    // R_RIP is up to date when returning from x64Int3
             addr = R_RIP;
-            #else
-            test->notest = 1;
             #endif
             break;
         case 0xCD:                      /* INT n */
@@ -1520,23 +1507,17 @@ x64emurun:
                 #ifndef TEST_INTERPRETER
                 x86Syscall(emu);
                 STEP2;
-                #else
-                test->notest = 1;
                 #endif
             } else if (tmp8u==0x03) {
                 R_RIP = addr;
                 #ifndef TEST_INTERPRETER
                 emit_signal(emu, SIGTRAP, NULL, 3);
                 STEP2;
-                #else
-                test->notest = 1;
                 #endif
             } else {
                 #ifndef TEST_INTERPRETER
                 emit_interruption(emu, tmp8u, (void*)R_RIP);
                 STEP2;
-                #else
-                test->notest = 1;
                 #endif
             }
             break;
@@ -1570,8 +1551,6 @@ x64emurun:
             #ifndef TEST_INTERPRETER
             if(is32bits)
                 running32bits = 1;
-            #else
-            test->notest = 1;
             #endif
             break;
         case 0xD0:                      /* GRP2 Eb,1 */
@@ -1817,8 +1796,6 @@ x64emurun:
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
-            #else
-            test->notest = 1;
             #endif
             break;
         case 0xE8:                      /* CALL Id */
@@ -1833,9 +1810,6 @@ x64emurun:
                 addr += tmp32s;
             addr = (uintptr_t)getAlternate((void*)addr);
             STEP2
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0xE9:                      /* JMP Id */
             tmp32s = F32S; // jmp is relative
@@ -1845,18 +1819,12 @@ x64emurun:
                 addr += tmp32s;
             addr = (uintptr_t)getAlternate((void*)addr);
             STEP2
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
 
         case 0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
             addr += tmp32s;
             STEP2
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0xEC:                      /* IN AL, DX */
         case 0xED:                      /* IN EAX, DX */
@@ -1866,8 +1834,6 @@ x64emurun:
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
-            #else
-            test->notest = 1;
             #endif
             break;
         case 0xF0:                      /* LOCK prefix */
@@ -1897,8 +1863,6 @@ x64emurun:
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
-            #else
-            test->notest = 1;
             #endif
             break;
         case 0xF5:                      /* CMC */
@@ -1936,9 +1900,6 @@ x64emurun:
                     if(!EB->byte[0])
                         emit_div0(emu, (void*)R_RIP, 0);
                     idiv8(emu, EB->byte[0]);
-                    #ifdef TEST_INTERPRETER
-                    test->notest = 1;
-                    #endif
                     break;
             }
             break;
@@ -1974,9 +1935,6 @@ x64emurun:
                         if(!ED->q[0])
                             emit_div0(emu, (void*)R_RIP, 0);
                         idiv64(emu, ED->q[0]);
-                        #ifdef TEST_INTERPRETER
-                        test->notest = 1;
-                        #endif
                         break;
                 }
             } else {
@@ -2037,17 +1995,11 @@ x64emurun:
             // this is a privilege opcode
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0xFB:                      /* STI */
             // this is a privilege opcode
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
             STEP;
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0xFC:                      /* CLD */
             CLEAR_FLAG(F_DF);
@@ -2106,9 +2058,6 @@ x64emurun:
                     }
                     addr = tmp64u;
                     STEP2
-                    #ifdef TEST_INTERPRETER
-                    test->notest = 1;
-                    #endif
                     break;
                 case 3:                 /* CALL FAR Ed */
                     GETET(0);
@@ -2133,8 +2082,6 @@ x64emurun:
                         #ifndef TEST_INTERPRETER
                         if(is32bits)
                             running32bits = 1;
-                        #else
-                        test->notest = 1;
                         #endif
                     }
                     break;

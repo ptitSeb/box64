@@ -649,7 +649,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_DUMP");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
+            if (p[0] >= '0' && p[0] <= '1')
                 box64_dynarec_dump = p[0]-'0';
         }
         if (box64_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box64_dynarec_dump>1)?" in color":"");
@@ -870,9 +870,7 @@ void LoadLogEnv()
             box64_dynarec_x87double = 1;
             box64_dynarec_div0 = 1;
             box64_dynarec_callret = 0;
-            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter%s (%s slow, only for testing)\n",
-                                 box64_dynarec_test == 2 ? " thread-safely" : "",
-                                 box64_dynarec_test == 2 ? "extremely" : "super");
+            printf_log(LOG_INFO, "Dynarec will compare it's execution with the interpreter (super slow, only for testing)\n");
         }
     }
 

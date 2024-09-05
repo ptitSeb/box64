@@ -94,8 +94,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     if(R_RCX) {
                         #ifndef TEST_INTERPRETER
                         emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-                        #else
-                        test->notest = 1;
                         #endif
                     } else {
                         R_RAX = 0b111;   // x87 & SSE & AVX for now
@@ -119,9 +117,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     R_RAX = tmp64u & 0xffffffff;
                     R_RDX = tmp64u >> 32;
                     R_RCX = helper_getcpu(emu);
-                    #ifdef TEST_INTERPRETER
-                    test->notest = 1;
-                    #endif
                     break;
                 default:
                     return 0;
@@ -156,8 +151,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             #ifndef TEST_INTERPRETER
             R_RIP = addr;
             x64Syscall(emu);
-            #else
-            test->notest = 1;
             #endif
             break;
         case 0x06:                      /* CLTS */
@@ -172,16 +165,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             // this is a privilege opcode...
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGSEGV, (void*)R_RIP, 0);
-            #else
-            test->notest = 1;
             #endif
             break;
 
         case 0x0B:                      /* UD2 */
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-            #else
-            test->notest = 1;
             #endif
             break;
 
@@ -199,8 +188,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x0E:                      /* FEMMS */
             #ifndef TEST_INTERPRETER
             emit_signal(emu, SIGILL, (void*)R_RIP, 0);
-            #else
-            test->notest = 1;
             #endif
             break;
 
@@ -392,9 +379,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 tmp64u<<=box64_rdtsc_shift;
             R_RDX = tmp64u>>32;
             R_RAX = tmp64u&0xFFFFFFFF;
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
 
         case 0x38:  // these are some SSE3 opcodes
@@ -710,9 +694,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 else
                     GX->f[i] = 1.0f/sqrtf(EX->f[i]);
             }
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0x53:                      /* RCPPS Gx, Ex */
             nextop = F8;
@@ -720,9 +701,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETGX;
             for(int i=0; i<4; ++i)
                 GX->f[i] = 1.0f/EX->f[i];
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0x54:                      /* ANDPS Gx, Ex */
             nextop = F8;
@@ -1089,9 +1067,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             , addr += tmp32s;
             ,,
         )                               /* 0x80 -> 0x8F Jxx */ //STEP3
@@ -1118,9 +1093,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0xA2:                      /* CPUID */
             tmp32u = R_EAX;
             my_cpuid(emu, tmp32u);
-            #ifdef TEST_INTERPRETER
-            test->notest = 1;
-            #endif
             break;
         case 0xA3:                      /* BT Ed,Gd */
             CHECK_FLAGS(emu);
