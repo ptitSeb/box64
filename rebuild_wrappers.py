@@ -550,7 +550,7 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							halt_required = True
 					if origLine[2] == "E":
 						if (gotype != "GOM") and (gotype != "GOWM"):
-							if (gotype != "GO2") or not (line.split(',')[2].split(')')[0].strip().startswith('my_')):
+							if ((gotype != "GO2") and (gotype != "GOW2")) or not (line.split(',')[2].split(')')[0].strip().startswith('my_')):
 								print("\033[91mThis is probably not what you meant!\033[m ({0}:{1})".format(filename, line[:-1]))
 								halt_required = True
 						if len(origLine) > 3:
@@ -949,6 +949,19 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			return v;
 		{rbr}
 		
+		static void* io_convert_back(void* v)
+		{lbr}
+			if(!v)
+				return v;
+			if(v == stdin)
+				return my__IO_2_1_stdin_;
+			if(v == stdout)
+				return my__IO_2_1_stdout_;
+			if(v == stderr)
+				return my__IO_2_1_stderr_;
+			return v;
+		{rbr}
+		
 		#define ST0val ST0.d
 		
 		int of_convert(int);
@@ -1137,7 +1150,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"R_RAX=(uintptr_t)fn({0});",                               # p
 				"\n#error Invalid return type: va_list\n",                 # V
 				"\n#error Invalid return type: at_flags\n",                # O
-				"\n#error Invalid return type: _io_file*\n",               # S
+				"R_RAX=(uintptr_t)io_convert_back(fn({0}));",              # S
 				"\n#error Invalid return type: ... with 1 arg\n",          # N
 				"\n#error Invalid return type: ... with 2 args\n",         # M
 				"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
@@ -1166,7 +1179,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"R_RAX=(uintptr_t)fn({0});",                               # p
 				"\n#error Invalid return type: va_list\n",                 # V
 				"\n#error Invalid return type: at_flags\n",                # O
-				"\n#error Invalid return type: _io_file*\n",               # S
+				"R_RAX=io_convert_back(fn({0}));",                         # S
 				"\n#error Invalid return type: ... with 1 arg\n",          # N
 				"\n#error Invalid return type: ... with 2 args\n",         # M
 				"\n#error Invalid return type: pointer in the stack\n",    # P
