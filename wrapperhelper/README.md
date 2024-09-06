@@ -4,6 +4,10 @@ This folder is semi-independent from the parent project (`box64`). This sub-proj
 
 As such, **this sub-project is mainly aimed at people who know how to read code and are familiar with the wrapped libraries part of `box64`**.
 
+## Licensing
+
+This program is under the MIT license. However, some system header files under the LGPL license (copied from a GNU libc Arch Linux installation) have been adapted into the `include-fixed` folder; these files are not copied into the output and simply serve as data. As such, I believe this falls under fair use, and does not lead to the output of this program (used in the parent `box64` project) being under the (L)GPL license.
+
 ## Compiling
 
 You need a C compiler and GNU Make. No library is required.

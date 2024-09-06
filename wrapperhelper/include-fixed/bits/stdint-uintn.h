@@ -14,7 +14,10 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
-   <https://www.gnu.org/licenses/>.  */
+   <https://www.gnu.org/licenses/>.
+
+This file has been adapted to work with the 'wrapperhelper' project on the 09/06/2024.
+*/
 
 #ifndef _BITS_STDINT_UINTN_H
 #define _BITS_STDINT_UINTN_H	1
