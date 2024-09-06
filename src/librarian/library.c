@@ -836,9 +836,10 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
 }
 static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, uintptr_t *addr, uintptr_t *size, int* weak)
 {
+    const khint_t hash = kh_hash(symbolmap, name);
     void* symbol;
     // check in mysymbolmap
-    khint_t k = kh_get(symbolmap, lib->w.mysymbolmap, name);
+    khint_t k = kh_get_with_hash(symbolmap, lib->w.mysymbolmap, name, hash);
     if (k!=kh_end(lib->w.mysymbolmap)) {
         symbol1_t *s = &kh_value(lib->w.mysymbolmap, k);
         if(!s->resolved) {
@@ -866,7 +867,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         return 1;
     }
     // check in stsymbolmap (return struct...)
-    k = kh_get(symbolmap, lib->w.stsymbolmap, name);
+    k = kh_get_with_hash(symbolmap, lib->w.stsymbolmap, name, hash);
     if (k!=kh_end(lib->w.stsymbolmap)) {
         symbol1_t *s = &kh_value(lib->w.stsymbolmap, k);
         if(!s->resolved) {
@@ -894,7 +895,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         return 1;
     }
     // check in symbolmap
-    k = kh_get(symbolmap, lib->w.symbolmap, name);
+    k = kh_get_with_hash(symbolmap, lib->w.symbolmap, name, hash);
     if (k!=kh_end(lib->w.symbolmap)) {
         symbol1_t *s = &kh_value(lib->w.symbolmap, k);
         if(!s->resolved) {
@@ -931,7 +932,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
     }
     if(!noweak) {
         // check in wmysymbolmap
-        khint_t k = kh_get(symbolmap, lib->w.wmysymbolmap, name);
+        khint_t k = kh_get_with_hash(symbolmap, lib->w.wmysymbolmap, name, hash);
         if (k!=kh_end(lib->w.wmysymbolmap)) {
             symbol1_t *s = &kh_value(lib->w.wmysymbolmap, k);
             if(!s->resolved) {
@@ -958,7 +959,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             *weak = 1;
             return 1;
         }
-        k = kh_get(symbolmap, lib->w.wsymbolmap, name);
+        k = kh_get_with_hash(symbolmap, lib->w.wsymbolmap, name, hash);
         if (k!=kh_end(lib->w.wsymbolmap)) {
             symbol1_t *s = &kh_value(lib->w.wsymbolmap, k);
             if(!s->resolved) {
@@ -995,7 +996,9 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         }
     }
     // check in symbol2map
-    k = kh_get(symbol2map, lib->w.symbol2map, name);
+    // 
+    // NOTE: symbol2map & symbolmap share the same hash function, so we can use the same hash
+    k = kh_get_with_hash(symbol2map, lib->w.symbol2map, name, hash);
     if (k!=kh_end(lib->w.symbol2map))  {
         symbol2_t *s = &kh_value(lib->w.symbol2map, k);
         if(!noweak || !s->weak)
