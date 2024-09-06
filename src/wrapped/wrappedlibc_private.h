@@ -1101,7 +1101,7 @@ GO(key_decryptsession, iFpp)
 #endif
 //DATAB(__key_decryptsession_pk_LOCAL, 
 #ifdef STATICBUILD
-GO(key_encryptsession, iFpp)
+//GO(key_encryptsession, iFpp)
 //GO(key_encryptsession_pk, "iFp!!")
 #else
 GO(key_encryptsession, iFpp)
@@ -1109,7 +1109,7 @@ GO(key_encryptsession, iFpp)
 #endif
 //DATAB(__key_encryptsession_pk_LOCAL, 
 #ifdef STATICBUILD
-GO(key_gendes, iFp)
+//GO(key_gendes, iFp)
 #else
 GO(key_gendes, iFp)
 #endif
@@ -1807,8 +1807,8 @@ GO(setutxent, vFv)
 GO(setvbuf, iFSpiL)
 GO(setxattr, iFpppLi)
 #ifdef STATICBUILD
-GO(sgetsgent, pFp)
-GOW(sgetsgent_r, iFpppLp)
+//GO(sgetsgent, pFp)
+//GOW(sgetsgent_r, iFpppLp)
 #else
 GO(sgetsgent, pFp)
 GOW(sgetsgent_r, iFpppLp)
