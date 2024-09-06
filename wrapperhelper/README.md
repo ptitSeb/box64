@@ -1,99 +1,122 @@
 # Wrapper helper
 
-**WARNING: There are still many problems with this tool. Please do NOT submit code generated directly by the tool, you should only use it as a preliminary reference.**
+This folder is semi-independent from the parent project (`box64`). This sub-project aims to (partially) automating the generation of the private headers in `src/wrapped`. This is, however, still a work-in-progress and in alpha.
 
+As such, **this sub-project is mainly aimed at people who know how to read code and are familiar with the wrapped libraries part of `box64`**.
 
-This tool is based on libclangtooling.
+## Licensing
 
-It parses the AST of the library header files, generating the required structures of the wrapping library, including:
-- structure definitions,
-- export function signatures,
-- callback function wrapping,
-etc. Of course, this cannot completely automate everything, it can only be used as a reference.
+This program is under the MIT license. However, some system header files under the LGPL license (copied from a GNU libc Arch Linux installation) have been adapted into the `include-fixed` folder; these files are not copied into the output and simply serve as data. As such, I believe this falls under fair use, and does not lead to the output of this program (used in the parent `box64` project) being under the (L)GPL license.
 
-At the same time, this tool is also quite rough, and may even have errors.
+## Compiling
 
-## Build
+You need a C compiler and GNU Make. No library is required.
 
+Go to this folder, then run the `make` command. This will produce a binary called `bin/wrapperhelper`.
+
+This project has been compiled and tested with `GCC 14.2.1 20240805` on an `x86_64` machine, with no warning emitted.
+
+You may also use the `make clean` and `make distclean` commands to remove output files (`clean`) and directories (`distclean`).
+
+## Usage
+
+To use the wrapper helper, run the following command in the folder containing this `README.md`:
+```sh
+bin/wrapperhelper "path_to_support_file" "path_to_private.h" "path_to_private.h"
 ```
-sudo apt install libclang-14-dev
-cd wrapperhelper
-mkdir build; cd build; cmake ..
-make
-```
 
-## Usage:
+The first file is a `C` file containing every declaration required. The second file is the "requests" input. The third file is the output file, which may be a different file.
 
-    helper <filename> <libname> [guest_triple] [host_triple] -- <clang_flags>
-            <filename>    : set the header file to be parsed
-            <libname>     : set libname required for wrapping func
-            [guest_triple]: set guest triple: can be arm32/arm64/x86/x64, default is x64
-            [host_triple] : set host triple: can be arm32/arm64/x86/x64, default is arm64
-            --            : mandatory
-            <clang_flags> : extra compiler flags
-
-### Usage example:
-
-`./helper /usr/include/jpeglib.h libjpeg x64 arm64 -- -I /usr/lib/gcc/x86_*/12.2.0/include --include /usr/lib/gcc/x86_*/12.2.0/include/stddef.h --include /usr/include/stdio.h`
-
-You would see an output similar to the files `src/wrapped/wrappedlibjpeg.c` and `src/wrapped/wrappedlibjpeg_private.h`, should they exist.
-
-If there are multiple header files to process, write them into a custom header file as input.
-
-### Output sample
-
-Using the command above, we get the following (trimmed) files:
-
-In `wrappedlibjpeg_private.h`:
+The support file may contain pragma declarations of the form
 ```c
-...
-GO(jpeg_quality_scaling, iFi)
-...
-GOM(jpeg_destroy, vFEp)
-...
+#pragma wrappers explicit_simple TYPE
 ```
+where `TYPE` is a `typedef` to a structure. This marks the structure pointed to by `TYPE` as "simple", which means that functions taking such structures are not required to be `GOM`-like.
 
-In `wrappedlibjpeg.c`:
+System headers included (directly or indirectly) by the support file are overriden by the files in `include-fixed`.
+
+The first three lines of the input are ignored.
+
+A "request" is a structure containing an object name and, eventually, a default value (`GO`, `GO2` with type `vFiV` to function `xxx`, `DATA`...) and/or a "solved" value (which is similar, but deduced from the support file).
+
+Valid requests (in the reference file) are:
 ```c
-...
-typedef struct jpeg_source_mgr {
-    void *next_input_byte;
-    unsigned long bytes_in_buffer;
-    vFp_t init_source;
-    iFp_t fill_input_buffer;
-    vFpI_t skip_input_data;
-    iFpi_t resync_to_restart;
-    vFp_t term_source;
-} jpeg_source_mgr, *jpeg_source_mgr_ptr;
-...
-#define GO(A) \
-static uintptr_t my_term_source_fct_##A = 0; \
-void  my_term_source_##A(struct jpeg_decompress_struct * a0) { \
-    return RunFunction(my_context, my_term_source_fct_##A, 1, a0); \
-}
-SUPER()
-#undef GO
-static void* findterm_sourceFct(void* fct) {
-    if(!fct) return fct;
-    if(GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
-    #define GO(A) if(my_term_source_fct_##A == (uintptr_t)fct) return my_term_source_##A;}
-    SUPER()
-    #undef GO
-    #define GO(A) if(my_term_source_fct_##A == 0) {my_term_source_fct_##A = (uintptr_t)fct;return my_term_source_##A;}
-    SUPER()
-    #undef GO
-    return NULL;
-}
-...
-EXPORT int my_jpeg_quality_scaling(void *emu, int  quality) {
-    libjpeg_my_t *my = (libjpeg_my_t*)my_lib->priv.w.p2;
-    my->jpeg_quality_scaling(quality);
-}
-...
-EXPORT void my_jpeg_destroy(void *emu, struct jpeg_common_struct * cinfo) {
-    // WARN: This function's arg has a structure ptr which is special, may need to wrap it for the host
-    libjpeg_my_t *my = (libjpeg_my_t*)my_lib->priv.w.p2;
-    my->jpeg_destroy(cinfo);
-}
-...
+{GO/GOM/GOW/GOWM} ( name , type )
+{GOD/GO2/GOWD/GOW2} ( name , type , name )
+// {GO/GOM/GOW/GOWM} ( name ,
+// {GO/GOM/GOW/GOWM} ( name , type )
+// {GOD/GO2/GOWD/GOW2} ( name ,
+// {GOD/GO2/GOWD/GOW2} ( name , type , name )
+DATA[V/B/M] ( name , int )
+// DATA[V/B/M] ( name ,
+// DATA[V/B/M] ( name , int )
 ```
+(where `{A/B}` means `A` or `B` and `[A/B]` means `A`, `B` or nothing). All other comments are ignored.
+
+If you want to explore the output of the different stages of the helper, you can use the following forms:
+```sh
+bin/wrapperhelper --prepare "path_to_support_file" # (1)
+bin/wrapperhelper --preproc "path_to_support_file" # (2)
+bin/wrapperhelper --proc "path_to_support_file"    # (3)
+bin/wrapperhelper "path_to_support_file"           # (3) as well
+```
+1. This form outputs the list of preprocessor tokens (the "post-prepare" phase).
+2. This form outputs the list of processor tokens (the "post-preprocessor" phase).
+3. This form outputs the list of constants, type definitions, structure definitions, and declarations (the "post-processor" phase).
+
+### Example
+
+To remake the `wrappedlibc_private.h` file, use the following command:
+```sh
+bin/wrapperhelper example-libc.h ../src/wrapped/wrappedlibc_private.h ../src/wrapped/wrappedlibc_private.h
+```
+This will emit a few marnings and (non-fatal) errors, then write the result directly in `wrappedlibc_private.h`.
+
+## Maintaining
+
+All of the source code is included in the `src` folder.
+
+The `main` function is in `main.c`.
+
+The first phase of compilation (steps 1-3 and a part of step 5 of the translation phases) is implemented in `prepare.c`.
+
+The second phase of compilation (steps 4 and 6) is implemented in `preproc.c`.
+
+The third phase of compilation (step 7) is implemented in `parse.c`, though no actual parsing of function definitions takes place.
+
+The reading and writing of the `_private.h` files is implemented in `generator.c`.
+
+## Known issues
+
+This project only works for `box64`; more work is required for this to be compatible with `box32`.
+
+Only native structures are read. This means that the current version of `wrapperhelper` does not detect an issue when a structure has different members or alignments in two different architectures.
+
+The include paths are hard-coded. There should instead be a structure passed around containing all arch-dependent informations.
+
+Similarly, structure letters (i.e. `S` for `struct _IO_FILE*`) are hard-coded. A pragma should be used instead (`#pragma wrappers type_letter IDENT type-name`, parsed as `PTOK_PRAGMA: Type is letter: <char>`, followed by `type-name`, followed by `PTOK_NEWLINE`).
+
+Conditionals in the `_private.h` files are ignored, except for taking only the negative branch. Manual cleanup of the output is required.
+
+Line numbers are missing entirely. For most errors, finding the corresponding file is difficult (though possible).
+
+Phase 5 is partially implemented, but could be greatly improved.
+
+The following features are missing from the generator:
+- Large structures as a parameter
+- Large structure as a return type (more than 16 bytes)
+- Atomic types
+
+The following features are missing from the preprocessor:
+- Error display (`#error` will stop the compilation, but a generic error message will be written)
+- General token concatenation (though the concatenation of two `PTOK_IDENT` works without issue)
+- Stringify
+- Skipped unexpected token warnings
+- Proper out-of-memory error handling
+
+The following features are missing from the parser:
+- `inline` and `_Noreturn`
+- `_Atomic(type-name)`
+- `_Alignas(type-name)` and `_Alignas(constant-expression)`
+- `(type-name){initializer-list}`
+- Function definitions are ignored, not parsed

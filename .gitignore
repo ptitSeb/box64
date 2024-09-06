@@ -60,11 +60,13 @@ build*/
 src/git_head.h
 backup/
 
-# LLVMprivateGenerator
-/LLVMprivateGenerator/*
-!/LLVMprivateGenerator/Makefile
-!/LLVMprivateGenerator/main.cpp
-!/LLVMprivateGenerator/registered_structs.cpp
+# Wrapper helper
+/wrapperhelper/bin
+/wrapperhelper/makedir
+/wrapperhelper/obj
+/wrapperhelper/sanaddress
+/wrapperhelper/sanleak
+/wrapperhelper/sanundefined
 
 # macOS
 .DS_Store
