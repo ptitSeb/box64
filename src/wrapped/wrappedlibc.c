@@ -2337,7 +2337,7 @@ EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
-    printf_log(LOG_DEBUG, "execle(\"%s\", ...), IsX86=%d, self=%d\n", path, x64, self);
+    printf_log(LOG_DEBUG, "execl(\"%s\", ...), IsX86=%d, self=%d\n", path, x64, self);
     // count argv...
     int i=0;
     while(getVargN(emu, i+1)) ++i;
@@ -2350,7 +2350,7 @@ EXPORT int32_t my_execl(x64emu_t* emu, const char* path)
     for (int k=0; k<i; ++k)
         newargv[j++] = getVargN(emu, k+1);
     if(self) newargv[1] = emu->context->fullpath;
-    printf_log(LOG_DEBUG, " => execle(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
+    printf_log(LOG_DEBUG, " => execl(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
     int ret = 0;
     if (!(x64 || x86 || script || self)) {
         ret = execv(path, newargv);
@@ -2367,7 +2367,7 @@ EXPORT int32_t my_execle(x64emu_t* emu, const char* path)
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
-    printf_log(LOG_DEBUG, "execl(\"%s\", ...), IsX86=%d, self=%d\n", path, x64, self);
+    printf_log(LOG_DEBUG, "execle(\"%s\", ...), IsX86=%d, self=%d\n", path, x64, self);
     // hack to update the environ var if needed
     // count argv...
     int i=0;
