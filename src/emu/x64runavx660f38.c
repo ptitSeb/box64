@@ -1322,7 +1322,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
-        case 0x8C:  /*VMASKMOVD/Q Gx, Vx, Ex */
+        case 0x8C:  /*VPMASKMOVD/Q Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
@@ -1350,7 +1350,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->u128 = 0;
             }
             break;
-        case 0x8E:  /*VMASKMOVD/Q Ex, Vx, Gx */
+        case 0x8E:  /*VPMASKMOVD/Q Ex, Vx, Gx */
             nextop = F8;
             GETEX(0);
             GETGX;
