@@ -17,7 +17,6 @@ typedef void (*vFp_t)(void*);
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFi_t)(int32_t);
 typedef int32_t (*iFp_t)(void*);
-typedef uint64_t (*UFv_t)(void);
 typedef intptr_t (*lFv_t)(void);
 typedef intptr_t (*lFi_t)(int32_t);
 typedef uintptr_t (*LFL_t)(uintptr_t);
@@ -52,7 +51,6 @@ typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int32_t (*iFppA_t)(void*, void*, va_list);
-typedef int32_t (*iFpOu_t)(void*, int32_t, uint32_t);
 typedef int32_t (*iFpON_t)(void*, int32_t, ...);
 typedef int32_t (*iFSpV_t)(void*, void*, ...);
 typedef int32_t (*iFSpA_t)(void*, void*, va_list);
@@ -121,12 +119,12 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(setjmp, iFp_t) \
 	GO(stime, iFp_t) \
 	GO(uname, iFp_t) \
-	GO(mallinfo, UFv_t) \
 	GO(syscall, lFv_t) \
 	GO(__sysconf, lFi_t) \
 	GO(sysconf, lFi_t) \
 	GO(getauxval, LFL_t) \
 	GO(__deregister_frame_info, pFp_t) \
+	GO(mallinfo, pFp_t) \
 	GO(__longjmp_chk, vFpi_t) \
 	GO(_longjmp, vFpi_t) \
 	GO(_obstack_newchunk, vFpi_t) \
@@ -226,8 +224,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(vsprintf, iFppA_t) \
 	GO(vsscanf, iFppA_t) \
 	GO(vswscanf, iFppA_t) \
-	GO(open, iFpOu_t) \
 	GO(__open, iFpON_t) \
+	GO(open, iFpON_t) \
 	GO(open64, iFpON_t) \
 	GO(fprintf, iFSpV_t) \
 	GO(fscanf, iFSpV_t) \

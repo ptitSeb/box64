@@ -68,7 +68,6 @@
 #() uFp
 #() uFS
 #() uFb
-#() UFE
 #() UFv
 #() UFu
 #() UFp
@@ -304,7 +303,6 @@
 #() lFEi
 #() lFii
 #() lFip
-#() lFiV
 #() lFui
 #() lFDD
 #() lFll
@@ -593,7 +591,6 @@
 #() iFSli
 #() iFSpL
 #() iFSpp
-#() iFSpV
 #() iFSpA
 #() iFbpp
 #() IFiIi
@@ -996,7 +993,6 @@
 #() iFEppp
 #() iFEppV
 #() iFEppA
-#() iFEpOu
 #() iFEpON
 #() iFESpV
 #() iFESpA
@@ -1151,7 +1147,6 @@
 #() CFpLLi
 #() CFppip
 #() CFbupp
-#() WFpLLu
 #() uFEipp
 #() uFEupp
 #() uFEpup
@@ -1212,7 +1207,6 @@
 #() lFplip
 #() lFplpp
 #() lFpLpp
-#() lFpLpV
 #() lFppii
 #() lFppip
 #() lFppiS
@@ -1885,7 +1879,6 @@
 #() vFiiiuil
 #() vFiiilpi
 #() vFiiuilp
-#() vFiipupV
 #() vFiffiff
 #() vFiddidd
 #() vFilipli
@@ -3164,15 +3157,17 @@
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEipiip
+#!defined(STATICBUILD) lFiV
 #!defined(STATICBUILD) iFlip
 #!defined(STATICBUILD) iFLLi
 #!defined(STATICBUILD) iFLLii
+#!defined(STATICBUILD) WFpLLu
+#!defined(STATICBUILD) lFpLpV
 #!defined(STATICBUILD) iFEipup
 #!defined(STATICBUILD) iFEiipup
 #!defined(STATICBUILD) iFpipppL
 #() vFEv -> vFE
 #() iFEv -> iFE
-#() UFEv -> UFE
 #() lFEv -> lFE
 #() pFEv -> pFE
 #() iFEvpp -> iFEpp
@@ -4190,8 +4185,6 @@ wrappedlibc:
   - setjmp
   - stime
   - uname
-- UFv:
-  - mallinfo
 - lFv:
   - syscall
 - lFi:
@@ -4201,6 +4194,7 @@ wrappedlibc:
   - getauxval
 - pFp:
   - __deregister_frame_info
+  - mallinfo
 - vFpi:
   - __longjmp_chk
   - _longjmp
@@ -4330,10 +4324,9 @@ wrappedlibc:
   - vsprintf
   - vsscanf
   - vswscanf
-- iFpOu:
-  - open
 - iFpON:
   - __open
+  - open
   - open64
 - iFSpV:
   - fprintf
