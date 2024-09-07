@@ -1114,6 +1114,7 @@ void my_sigactionhandler_oldcode(int32_t sig, int simple, siginfo_t* info, void 
     fpu_xsave_mask(emu, xstate, 0, 0b111);
     memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
     ((struct x64_fpstate*)xstate)->res[12] = 0x46505853;   // magic number to signal an XSTATE type of fpregs
+    ((struct x64_fpstate*)xstate)->res[13] = 0; // offset to xstate after this?
     // get signal mask
 
     if(new_ss) {
