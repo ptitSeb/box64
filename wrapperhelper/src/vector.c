@@ -14,6 +14,7 @@ VECTOR(voidp) *vector_new_impl(void) {
 }
 
 VECTOR(voidp) *vector_new_cap_impl(size_t elem_size, size_t cap) {
+	if (!cap) return vector_new_impl();
 	VECTOR(voidp) *ret = malloc(sizeof(*ret));
 	if (!ret) return NULL;
 	cap = (cap < VECTOR_MIN_CAP) ? VECTOR_MIN_CAP : cap * 2;

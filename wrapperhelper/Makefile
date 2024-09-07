@@ -226,6 +226,7 @@ endef
 $(eval $(call compile_wrapperhelper_c,,cstring,cstring))
 $(eval $(call compile_wrapperhelper_c,,generator,generator))
 $(eval $(call compile_wrapperhelper_c,,lang,lang))
+$(eval $(call compile_wrapperhelper_c,,machine,machine))
 $(eval $(call compile_wrapperhelper_c,,main,main))
 $(eval $(call compile_wrapperhelper_c,,parse,parse))
 $(eval $(call compile_wrapperhelper_c,,prepare,prepare))

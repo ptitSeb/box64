@@ -1,10 +1,6 @@
-#define __x86_64__
-#define __WCHAR_MAX__ 2147483647
-#define __WCHAR_MIN__ (-__WCHAR_MAX - 1)
 #define _GNU_SOURCE 1
 #define __USE_MISC 1
 #define PORTMAP
-#define __WORDSIZE 64
 
 // Based on /usr/include/clang/Basic/TokenKinds.def
 // Alternate spelling for various tokens.  There are GCC extensions in all
