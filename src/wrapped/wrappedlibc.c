@@ -100,20 +100,24 @@ typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFppii_t)(void*, void*, int32_t, int32_t);
-typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
+typedef int32_t (*iFipiup_t)(int, void*, int, uint32_t, void*);
 typedef int32_t (*iFipiI_t)(int32_t, void*, int32_t, int64_t);
+typedef int32_t (*iFipuu_t)(int32_t, void*, uint32_t, uint32_t);
 typedef int32_t (*iFipuup_t)(int32_t, void*, uint32_t, uint32_t, void*);
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpip_t)(void*, int, void*);
 
-#define SUPER() \
+#define ADDED_FUNCTIONS() \
     GO(_ITM_addUserCommitAction, iFpup_t)   \
     GO(_IO_file_stat, iFpp_t)               \
     GO(fts64_open, pFpip_t)                 \
     GO(register_printf_specifier, iFipp_t)  \
-    GO(register_printf_type, iFp_t)
+    GO(register_printf_type, iFp_t)         \
+    GO(statx, iFipiup_t)
 
+
+#include "generated/wrappedlibcupstypes.h"
 
 #include "wrappercallback.h"
 
@@ -1207,6 +1211,23 @@ EXPORT int my___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
     if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
+}
+
+EXPORT int my_statx(x64emu_t* emu, int dirfd, void* path, int flags, uint32_t mask, void* buf)
+{
+    if(my->statx)
+        return my->statx(dirfd, path, flags, mask, buf);
+    #ifdef __NR_statx
+    int ret = syscall(__NR_statx, dirfd, path, flags, mask, buf);
+    if(ret<0) {
+        errno = -ret;
+        ret = -1;
+    }
+    return ret;
+    #else
+    errno = ENOSYS;
+    return -1;
+    #endif
 }
 
 EXPORT int my___xmknod(x64emu_t* emu, int v, char* path, uint32_t mode, dev_t* dev)
