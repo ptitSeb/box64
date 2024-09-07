@@ -11,18 +11,23 @@ machine_t machine_x86_64;
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
 #define MACHINE_STR STRINGIFY(CUR_MACHINE)
-#define EXTRA_PATHS \
-	PASTE(machine_, CUR_MACHINE).npaths = PASTE(CUR_MACHINE, _NPATHS) + npaths;                                  \
-	if (!(PASTE(machine_, CUR_MACHINE).include_path =                                                            \
-	      malloc((PASTE(CUR_MACHINE, _NPATHS) + npaths) * sizeof *PASTE(machine_, CUR_MACHINE).include_path))) { \
-		printf("Failed to add include path to " MACHINE_STR " platform\n");                                      \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _nopath));                                                        \
-	}                                                                                                            \
-	for (failure_id = 0; failure_id < npaths; ++failure_id) {                                                    \
-		if (!(PASTE(machine_, CUR_MACHINE).include_path[failure_id] = strdup(extra_include_path[failure_id]))) { \
-			printf("Failed to add include path to " MACHINE_STR " platform\n");                                  \
-			goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                                                     \
-		}                                                                                                        \
+#define INIT_PATHS \
+	PASTE(machine_, CUR_MACHINE).npaths = 1 + npaths;
+#define INCR_NPATHS(_path) \
+	++PASTE(machine_, CUR_MACHINE).npaths;
+#define DO_PATHS \
+	if (!(PASTE(machine_, CUR_MACHINE).include_path =                                                                \
+	      malloc(PASTE(machine_, CUR_MACHINE).npaths * sizeof *PASTE(machine_, CUR_MACHINE).include_path))) {        \
+		printf("Failed to add include path to " MACHINE_STR " platform\n");                                          \
+		goto PASTE(failed_, PASTE(CUR_MACHINE, _nopath));                                                            \
+	}                                                                                                                \
+	failure_id = 0;                                                                                                  \
+	ADD_PATH("include-fixed")                                                                                        \
+	for (; failure_id < npaths + 1; ++failure_id) {                                                                  \
+		if (!(PASTE(machine_, CUR_MACHINE).include_path[failure_id] = strdup(extra_include_path[failure_id - 1]))) { \
+			printf("Failed to add include path to " MACHINE_STR " platform\n");                                      \
+			goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                                                         \
+		}                                                                                                            \
 	}
 #define ADD_PATH(path) \
 	if (!(PASTE(machine_, CUR_MACHINE).include_path[failure_id] = strdup(path))) { \
@@ -97,13 +102,14 @@ int init_machines(size_t npaths, const char *const *extra_include_path) {
 #pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
 #define CUR_MACHINE x86_64
 	machine_x86_64.size_long = 8;
-#define x86_64_NPATHS 5
-	EXTRA_PATHS
-	ADD_PATH("include-fixed")
-	ADD_PATH("/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include")
-	ADD_PATH("/usr/local/include")
-	ADD_PATH("/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include-fixed")
-	ADD_PATH("/usr/include")
+	INIT_PATHS
+#define DO_PATH INCR_NPATHS
+#include "machine.gen"
+#undef DO_PATH
+	DO_PATHS
+#define DO_PATH ADD_PATH
+#include "machine.gen"
+#undef DO_PATH
 #define x86_64_NPREDEFS 9
 	EXTRA_MACROS
 	ADD_NAME(__x86_64__)

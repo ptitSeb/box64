@@ -2,34 +2,6 @@
 #define __USE_MISC 1
 #define PORTMAP
 
-// Based on /usr/include/clang/Basic/TokenKinds.def
-// Alternate spelling for various tokens.  There are GCC extensions in all
-// languages, but should not be disabled in strict conformance mode.
-#define __alignof__   __alignof
-#define __asm         asm
-#define __asm__       asm
-#define __complex     _Complex
-#define __complex__   _Complex
-#define __const       const
-#define __const__     const
-#define __decltype    decltype
-#define __imag__      __imag
-#define __inline      inline
-#define __inline__    inline
-#define __nullptr     nullptr
-#define __real__      __real
-#define __restrict    restrict
-#define __restrict__  restrict
-#define __signed      signed
-#define __signed__    signed
-#define __typeof      typeof
-#define __typeof__    typeof
-#define __volatile    volatile
-#define __volatile__  volatile
-
-typedef __int128 __int128_t;
-typedef unsigned __int128 __uint128_t;
-
 // TODO
 #define inline
 

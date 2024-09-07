@@ -685,6 +685,30 @@ expr_new_token:
 		string_del(tok->tokv.str);
 		*tok = proc_next_token(prep);
 		goto expr_new_token;
+	} else if ((tok->tokt == PTOK_STRING) && !tok->tokv.sisstr) {
+		if (has_level != -1) {
+			printf("Error: invalid expression: unexpected character constant '%s'\n", string_content(tok->tokv.sstr));
+			string_del(tok->tokv.sstr);
+			goto failed;
+		}
+		if (string_len(tok->tokv.sstr) != 1) {
+			printf("Error: TODO: invalid expression: multibyte character constant '%s'\n", string_content(tok->tokv.sstr));
+			string_del(tok->tokv.sstr);
+			goto failed;
+		}
+		has_level = 0;
+		e = malloc(sizeof *e);
+		if (!e) {
+			printf("Error: failed to create new expression atom\n");
+			string_del(tok->tokv.sstr);
+			goto failed;
+		}
+		e->typ = ETY_CONST;
+		e->val.cst.typ = NCT_INT32;
+		e->val.cst.val.i32 = (int32_t)string_content(tok->tokv.sstr)[0];
+		string_del(tok->tokv.sstr);
+		*tok = proc_next_token(prep);
+		goto expr_new_token;
 	}
 	
 #define UNOP(toksym, opt, main_lv, right_lv) \
@@ -1397,6 +1421,18 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 		
 		if (e->val.cast.typ->typ == TYPE_BUILTIN) {
 			switch (e->val.cast.typ->val.builtin) {
+			case BTT_UCHAR:
+				switch (dest->typ) {
+				case NCT_FLOAT:   dest->val.u32 = (uint8_t)dest->val.f; break;
+				case NCT_DOUBLE:  dest->val.u32 = (uint8_t)dest->val.d; break;
+				case NCT_LDOUBLE: dest->val.u32 = (uint8_t)dest->val.l; break;
+				case NCT_INT32:   dest->val.u32 = (uint8_t)dest->val.i32; break;
+				case NCT_UINT32:  dest->val.u32 = (uint8_t)dest->val.u32; break;
+				case NCT_INT64:   dest->val.u32 = (uint8_t)dest->val.i64; break;
+				case NCT_UINT64:  dest->val.u32 = (uint8_t)dest->val.u64; break;
+				}
+				dest->typ = NCT_UINT32;
+				return 1;
 			case BTT_INT:
 				switch (dest->typ) {
 				case NCT_FLOAT:   dest->val.i32 = (int32_t)dest->val.f; break;
@@ -1409,11 +1445,35 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 				}
 				dest->typ = NCT_INT32;
 				return 1;
+			case BTT_ULONG:
+				// Warning: assuming sizeof(long) == 8 on the current target
+				switch (dest->typ) {
+				case NCT_FLOAT:   dest->val.u64 = (uint64_t)dest->val.f; break;
+				case NCT_DOUBLE:  dest->val.u64 = (uint64_t)dest->val.d; break;
+				case NCT_LDOUBLE: dest->val.u64 = (uint64_t)dest->val.l; break;
+				case NCT_INT32:   dest->val.u64 = (uint64_t)dest->val.i32; break;
+				case NCT_UINT32:  dest->val.u64 = (uint64_t)dest->val.u32; break;
+				case NCT_INT64:   dest->val.u64 = (uint64_t)dest->val.i64; break;
+				case NCT_UINT64: break;
+				}
+				dest->typ = NCT_UINT64;
+				return 1;
+			case BTT_U32:
+				switch (dest->typ) {
+				case NCT_FLOAT:   dest->val.u32 = (uint32_t)dest->val.f; break;
+				case NCT_DOUBLE:  dest->val.u32 = (uint32_t)dest->val.d; break;
+				case NCT_LDOUBLE: dest->val.u32 = (uint32_t)dest->val.l; break;
+				case NCT_INT32:   dest->val.u32 = (uint32_t)dest->val.i32; break;
+				case NCT_UINT32: break;
+				case NCT_INT64:   dest->val.u32 = (uint32_t)dest->val.i64; break;
+				case NCT_UINT64:  dest->val.u32 = (uint32_t)dest->val.u64; break;
+				}
+				dest->typ = NCT_UINT32;
+				return 1;
 			case BTT_VOID:
 			case BTT_BOOL:
 			case BTT_CHAR:
 			case BTT_SCHAR:
-			case BTT_UCHAR:
 			case BTT_SHORT:
 			case BTT_SSHORT:
 			case BTT_USHORT:
@@ -1421,7 +1481,6 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 			case BTT_UINT:
 			case BTT_LONG:
 			case BTT_SLONG:
-			case BTT_ULONG:
 			case BTT_LONGLONG:
 			case BTT_SLONGLONG:
 			case BTT_ULONGLONG:
@@ -1433,7 +1492,6 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 			case BTT_S16:
 			case BTT_U16:
 			case BTT_S32:
-			case BTT_U32:
 			case BTT_S64:
 			case BTT_U64:
 			case BTT_FLOAT:
@@ -1447,7 +1505,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 			case BTT_ILONGDOUBLE:
 			case BTT_VA_LIST:
 			default:
-				printf("Error: TODO: cast to builtin in constant expression\n");
+				printf("Error: TODO: cast to builtin %s in constant expression\n", builtin2str[e->val.cast.typ->val.builtin]);
 				return 0;
 			}
 		} else {

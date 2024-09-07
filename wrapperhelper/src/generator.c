@@ -692,7 +692,7 @@ static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, i
 		case BTT_LONGDOUBLE: *needs_D = 1; has_char = 1; c = 'D'; break;
 		case BTT_CLONGDOUBLE: *needs_D = 1; has_char = 1; c = 'Y'; break;
 		case BTT_ILONGDOUBLE: *needs_D = 1; has_char = 1; c = 'D'; break;
-		case BTT_VA_LIST: has_char = 1; c = 'A'; break;
+		case BTT_VA_LIST: *needs_my = 1; has_char = 1; c = 'A'; break;
 		default:
 			printf("Error: convert_type on unknown builtin %u\n", typ->val.builtin);
 			return 0;
@@ -847,6 +847,7 @@ int solve_request(request_t *req, type_t *typ) {
 				if (!convert_type(req->val.fun.typ, typ->val.fun.args[i], 0, &needs_D, &needs_my, req->obj_name)) goto fun_fail;
 			}
 			if (typ->val.fun.has_varargs) {
+				needs_my = 1;
 				if (!string_add_char(req->val.fun.typ, 'V')) {
 					printf("Error: failed to add type char for %s\n", builtin2str[typ->val.builtin]);
 					goto fun_fail;

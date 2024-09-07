@@ -67,6 +67,7 @@ backup/
 /wrapperhelper/sanaddress
 /wrapperhelper/sanleak
 /wrapperhelper/sanundefined
+/wrapperhelper/src/machine.gen
 
 # macOS
 .DS_Store

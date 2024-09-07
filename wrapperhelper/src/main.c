@@ -12,12 +12,13 @@
 
 static void help(char *arg0) {
 	printf("Usage: %s --help\n"
-	       "       %s [--prepare|--preproc|--proc] <filename_in>\n"
-	       "       %s <filename_in> <filename_reqs> <filename_out>\n"
+	       "       %s {-I/path/to/include}* [--prepare|--preproc|--proc] <filename_in>\n"
+	       "       %s {-I/path/to/include}* <filename_in> <filename_reqs> <filename_out>\n"
 	       "\n"
 	       "  --prepare  Dump all preprocessor tokens (prepare phase)\n"
 	       "  --preproc  Dump all processor tokens (preprocessor phase)\n"
 	       "  --proc     Dump all typedefs, declarations and constants (processor phase)\n"
+	       "  -I         Add a path to the list of system includes\n"
 	       "\n"
 	       "  <filename_in>    Parsing file\n"
 	       "  <filename_reqs>  Reference file (example: wrappedlibc_private.h)\n"
@@ -53,11 +54,14 @@ int main(int argc, char **argv) {
 			ms = MAIN_PREPROC;
 		} else if (!strcmp(argv[i], "--proc")) {
 			ms = MAIN_PROC;
+		} else if (!strcmp(argv[i], "-pthread")) {
+			// Ignore
 		} else if (!strcmp(argv[i], "-I") && (i + 1 < argc)) {
 			if (!vector_push(charp, paths, argv[i + 1])) {
 				printf("Error: failed to add path to buffer\n");
 				return 2;
 			}
+			++i;
 		} else if ((argv[i][0] == '-') && (argv[i][1] == 'I') && (argv[i][2] != '\0')) {
 			if (!vector_push(charp, paths, argv[i] + 2)) {
 				printf("Error: failed to add path to buffer\n");
