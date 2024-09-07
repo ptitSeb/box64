@@ -22,8 +22,10 @@ You may also use the `make clean` and `make distclean` commands to remove output
 
 To use the wrapper helper, run the following command in the folder containing this `README.md`:
 ```sh
-bin/wrapperhelper "path_to_support_file" "path_to_private.h" "path_to_private.h"
+bin/wrapperhelper -I/path/to/system/include "path_to_support_file" "path_to_private.h" "path_to_private.h"
 ```
+
+You may add as many `-I` options as needed.
 
 The first file is a `C` file containing every declaration required. The second file is the "requests" input. The third file is the output file, which may be a different file.
 
@@ -92,13 +94,11 @@ This project only works for `box64`; more work is required for this to be compat
 
 Only native structures are read. This means that the current version of `wrapperhelper` does not detect an issue when a structure has different members or alignments in two different architectures.
 
-The include paths are hard-coded. There should instead be a structure passed around containing all arch-dependent informations.
-
-Similarly, structure letters (i.e. `S` for `struct _IO_FILE*`) are hard-coded. A pragma should be used instead (`#pragma wrappers type_letter IDENT type-name`, parsed as `PTOK_PRAGMA: Type is letter: <char>`, followed by `type-name`, followed by `PTOK_NEWLINE`).
+Structure letters (i.e. `S` for `struct _IO_FILE*`) are hard-coded. A pragma should be used instead (`#pragma wrappers type_letter IDENT type-name`, parsed as `PTOK_PRAGMA: Type is letter: <char>`, followed by `type-name`, followed by `PTOK_NEWLINE`).
 
 Conditionals in the `_private.h` files are ignored, except for taking only the negative branch. Manual cleanup of the output is required.
 
-Line numbers are missing entirely. For most errors, finding the corresponding file is difficult (though possible).
+Line numbers are missing entirely. For most errors, the corresponding file is not written with the error message.
 
 Phase 5 is partially implemented, but could be greatly improved.
 
@@ -108,7 +108,6 @@ The following features are missing from the generator:
 - Atomic types
 
 The following features are missing from the preprocessor:
-- Error display (`#error` will stop the compilation, but a generic error message will be written)
 - General token concatenation (though the concatenation of two `PTOK_IDENT` works without issue)
 - Stringify
 - Skipped unexpected token warnings
