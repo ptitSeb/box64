@@ -1044,6 +1044,7 @@
 #() iFpwww
 #() iFpwpp
 #() iFpiii
+#() iFpiiC
 #() iFpiiu
 #() iFpiid
 #() iFpiiL
@@ -4959,6 +4960,8 @@ wrappedlibtinfo6:
   - tputs
 wrappedlibunistring2:
 wrappedlibusb1:
+- vFp:
+  - libusb_free_transfer
 - iFp:
   - libusb_cancel_transfer
   - libusb_submit_transfer

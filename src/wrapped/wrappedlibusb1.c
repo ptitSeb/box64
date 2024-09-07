@@ -152,4 +152,10 @@ EXPORT int my_libusb_cancel_transfer(x64emu_t* emu, my_libusb_transfer_t* t)
     return my->libusb_cancel_transfer(t);
 }
 
+EXPORT void my_libusb_free_transfer(x64emu_t* emu, my_libusb_transfer_t* t)
+{
+    t->callback = findtransfertFct(t->callback);
+    my->libusb_free_transfer(t);
+}
+
 #include "wrappedlib_init.h"
