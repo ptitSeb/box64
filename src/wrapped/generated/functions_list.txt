@@ -1574,7 +1574,6 @@
 #() iFiuUip
 #() iFillLL
 #() iFipiii
-#() iFipiup
 #() iFipipi
 #() iFipipu
 #() iFipuip
@@ -2019,6 +2018,7 @@
 #() iFEiippi
 #() iFEiippp
 #() iFEiLLLL
+#() iFEipiup
 #() iFEippLp
 #() iFElpppp
 #() iFEpiipp
@@ -4417,6 +4417,8 @@ wrappedlibc:
   - prctl
 - iFipiip:
   - epoll_pwait
+- iFipiup:
+  - statx
 - iFipppp:
   - getopt_long
   - getopt_long_only
