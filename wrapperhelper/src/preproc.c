@@ -1,29 +1,18 @@
 // I think this file is too big for GCC to handle properly, there are curious false-positive analyzer warnings
 //  that didn't appear before adding preproc_eval
 #include "preproc.h"
+#include "preproc_private.h"
 
 #include <stdint.h>
 #include <string.h>
 
 #include "cstring.h"
 #include "khash.h"
+#include "machine.h"
 #include "prepare.h"
 
-typedef struct mtoken_s {
-	enum mtoken_e {
-		MTOK_TOKEN,
-		MTOK_ARG,
-		MTOK_STRINGIFY,
-		MTOK_CONCAT,
-	} typ;
-	union {
-		preproc_token_t tok;
-		unsigned argid;
-		struct { struct mtoken_s *l, *r; } concat;
-	} val;
-} mtoken_t;
 KHASH_MAP_INIT_STR(argid_map, unsigned)
-void argid_map_del(khash_t(argid_map) *args) {
+static void argid_map_del(khash_t(argid_map) *args) {
 	kh_cstr_t str;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
@@ -31,46 +20,73 @@ void argid_map_del(khash_t(argid_map) *args) {
 #pragma GCC diagnostic pop
 	kh_destroy(argid_map, args);
 }
-static mtoken_t *mtoken_new_token(preproc_token_t tok) {
+mtoken_t *mtoken_new_token(preproc_token_t tok) {
 	mtoken_t *ret = malloc(sizeof *ret);
 	if (!ret) return NULL;
 	ret->typ = MTOK_TOKEN;
 	ret->val.tok = tok;
 	return ret;
 }
-static mtoken_t *mtoken_new_arg(unsigned argid, int as_string) {
+mtoken_t *mtoken_new_arg(unsigned argid, int as_string) {
 	mtoken_t *ret = malloc(sizeof *ret);
 	if (!ret) return NULL;
 	ret->typ = as_string ? MTOK_STRINGIFY : MTOK_ARG;
 	ret->val.argid = argid;
 	return ret;
 }
-static mtoken_t *mtoken_new_concat(mtoken_t *l, mtoken_t *r) { // Takes ownership of l and r
+mtoken_t *mtoken_new_concat(mtoken_t *l, mtoken_t *r) { // Takes ownership of l and r
 	mtoken_t *ret = malloc(sizeof *ret);
-	if (!ret) return NULL;
+	if (!ret) {
+		mtoken_del(l);
+		mtoken_del(r);
+		return NULL;
+	}
 	ret->typ = MTOK_CONCAT;
 	ret->val.concat.l = l;
 	ret->val.concat.r = r;
 	return ret;
 }
-static void mtoken_del(mtoken_t **tok) {
-	switch ((*tok)->typ) {
+void mtoken_del(mtoken_t *tok) {
+	switch (tok->typ) {
 	case MTOK_TOKEN:
-		preproc_token_del(&(*tok)->val.tok);
-		free(*tok);
+		preproc_token_del(&tok->val.tok);
+		free(tok);
 		return;
 		
 	case MTOK_CONCAT:
-		mtoken_del(&(*tok)->val.concat.l);
-		mtoken_del(&(*tok)->val.concat.r);
-		free(*tok);
+		mtoken_del(tok->val.concat.l);
+		mtoken_del(tok->val.concat.r);
+		free(tok);
 		return;
 		
 	case MTOK_ARG:
 	case MTOK_STRINGIFY:
-		free(*tok);
+		free(tok);
 		return;
 	}
+}
+mtoken_t *mtoken_dup(mtoken_t *src) {
+	switch (src->typ) {
+	case MTOK_TOKEN:
+		return mtoken_new_token(preproc_token_dup(src->val.tok));
+		
+	case MTOK_ARG:
+		return mtoken_new_arg(src->val.argid, 0);
+		
+	case MTOK_STRINGIFY:
+		return mtoken_new_arg(src->val.argid, 1);
+		
+	case MTOK_CONCAT: {
+		mtoken_t *l = mtoken_dup(src->val.concat.l);
+		if (!l) return NULL;
+		mtoken_t *r = mtoken_dup(src->val.concat.r);
+		if (!r) {
+			mtoken_del(l);
+			return NULL;
+		}
+		return mtoken_new_concat(l, r); }
+	}
+	return NULL;
 }
 
 static inline void print_macro_tok(mtoken_t *m) {
@@ -100,19 +116,13 @@ static inline void print_macro_tok(mtoken_t *m) {
 	}
 }
 
-VECTOR_DECLARE_STATIC(mtoken, mtoken_t*)
-VECTOR_IMPL_STATIC(mtoken, mtoken_del)
-
-typedef struct macro_s {
-	int is_funlike;
-	int has_varargs;
-	unsigned nargs;
-	VECTOR(mtoken) *toks;
-} macro_t;
+#define mtoken_ptr_del(m) mtoken_del(*(m))
+VECTOR_IMPL(mtoken, mtoken_ptr_del)
+#undef mtoken_ptr_del
 
 KHASH_MAP_INIT_STR(macros_map, macro_t)
 KHASH_SET_INIT_STR(string_set)
-static void macro_del(macro_t *m) {
+void macro_del(macro_t *m) {
 	vector_del(mtoken, m->toks);
 }
 static void macros_map_del(khash_t(macros_map) *args) {
@@ -131,6 +141,32 @@ static void macros_set_del(khash_t(string_set) *strset) {
 	kh_foreach_key(strset, str, free((void*)str))
 #pragma GCC diagnostic pop
 	kh_destroy(string_set, strset);
+}
+
+VECTOR(mtoken) *mtokens_dup(const VECTOR(mtoken) *src) {
+	VECTOR(mtoken) *ret = vector_new_cap(mtoken, vector_size(mtoken, src));
+	if (!ret) return NULL;
+	vector_for(mtoken, mtok, src) {
+		mtoken_t *mtok2 = mtoken_dup(*mtok);
+		if (!mtok2) {
+			vector_del(mtoken, ret);
+			return NULL;
+		}
+		if (!vector_push(mtoken, ret, mtok2)) {
+			mtoken_del(mtok2);
+			vector_del(mtoken, ret);
+			return NULL;
+		}
+	}
+	return ret;
+}
+int macro_dup(macro_t *dest, const macro_t *src) {
+	dest->is_funlike = src->is_funlike;
+	dest->has_varargs = src->has_varargs;
+	dest->nargs = src->nargs;
+	dest->toks = mtokens_dup(src->toks);
+	if (!dest->toks) return 0;
+	return 1;
 }
 
 typedef struct ppsource_s {
@@ -189,6 +225,7 @@ VECTOR_DECLARE_STATIC(ppsource, ppsource_t)
 VECTOR_IMPL_STATIC(ppsource, ppsource_del)
 
 struct preproc_s {
+	machine_t *target;
 	VECTOR(ppsource) *prep;
 	enum preproc_state_e {
 		PPST_NONE,
@@ -237,12 +274,13 @@ static preproc_token_t ppsrc_next_token(preproc_t *src) {
 	}
 }
 
-preproc_t *preproc_new_file(FILE *f, char *dirname, const char *filename) {
+preproc_t *preproc_new_file(machine_t *target, FILE *f, char *dirname, const char *filename) {
 	preproc_t *ret = malloc(sizeof *ret);
 	if (!ret) {
 		fclose(f);
 		return NULL;
 	}
+	ret->target = target;
 	ret->macros_map = kh_init(macros_map);
 	if (!ret->macros_map) {
 		fclose(f);
@@ -274,7 +312,45 @@ preproc_t *preproc_new_file(FILE *f, char *dirname, const char *filename) {
 		return NULL;
 	}
 	ret->dirname = NULL;
+	ret->cur_file = NULL;
 	// ret can now be deleted by preproc_del
+	
+	// First add predefined macros
+	for (size_t i = 0; i < target->npredefs; ++i) {
+		// NL and EOF have empty destructors
+		khiter_t kh_k;
+		int iret;
+		char *mname_dup = strdup(target->predef_macros_name[i]);
+		if (!mname_dup) {
+			printf("Error: failed to initialize preprocessor (predefined macros), aborting\n");
+			preproc_del(ret);
+			return NULL;
+		}
+		kh_k = kh_put(string_set, ret->macros_defined, mname_dup, &iret);
+		// TODO: check iret?
+		if (iret >= 1) {
+			mname_dup = strdup(mname_dup);
+		}
+		kh_k = kh_put(macros_map, ret->macros_map, mname_dup, &iret);
+		if (iret < 0) {
+			printf("Error: failed to initialize preprocessor (predefined macros), aborting\n");
+			preproc_del(ret);
+			return NULL;
+		} else if (iret == 0) {
+			printf("Error: duplicated predefined macros, aborting\n");
+			preproc_del(ret);
+			return NULL;
+		}
+		if (!macro_dup(&kh_val(ret->macros_map, kh_k), target->predef_macros[i])) {
+			printf("Error: failed to initialize preprocessor (predefined macros), aborting\n");
+			free(mname_dup);
+			kh_del(macros_map, ret->macros_map, kh_k);
+			preproc_del(ret);
+			return NULL;
+		}
+	}
+	
+	// Next include the first file
 	if (!vector_push(ppsource, ret->prep, PREPARE_NEW_FILE(f, filename, NULL, NULL, 0, 0))) {
 		preproc_del(ret);
 		return NULL;
@@ -283,6 +359,7 @@ preproc_t *preproc_new_file(FILE *f, char *dirname, const char *filename) {
 		preproc_del(ret);
 		return NULL;
 	}
+	// Last finish setting up ret
 	ret->st = PPST_NL;
 	ret->is_sys = 0;
 	ret->dirname = dirname;
@@ -291,14 +368,6 @@ preproc_t *preproc_new_file(FILE *f, char *dirname, const char *filename) {
 	return ret;
 }
 
-const char *incl_paths[] = {
-	"include-fixed",
-	"/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include",
-	"/usr/local/include",
-	"/usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include-fixed",
-	"/usr/include",
-	"/usr/include/tirpc",
-};
 static int try_open_dir(preproc_t *src, string_t *filename) {
 	size_t fnlen = string_len(filename);
 	size_t incl_len = src->dirname ? strlen(src->dirname) : 1;
@@ -332,11 +401,11 @@ static int try_open_dir(preproc_t *src, string_t *filename) {
 }
 static int try_open_sys(preproc_t *src, string_t *filename, size_t array_off) {
 	size_t fnlen = string_len(filename);
-	for (; array_off < sizeof incl_paths / sizeof *incl_paths; ++array_off) {
-		size_t incl_len = strlen(incl_paths[array_off]);
+	for (; array_off < src->target->npaths; ++array_off) {
+		size_t incl_len = strlen(src->target->include_path[array_off]);
 		char *fn = malloc(incl_len + fnlen + 2);
 		if (!fn) return 0;
-		memcpy(fn, incl_paths[array_off], incl_len);
+		memcpy(fn, src->target->include_path[array_off], incl_len);
 		fn[incl_len] = '/';
 		strcpy(fn + incl_len + 1, string_content(filename));
 		FILE *f = fopen(fn, "r");
@@ -1005,7 +1074,7 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 		return 0;
 	}
 	vector_push(ppeaux, stack, (preproc_eval_aux_t){0}); // vector_cap >= 1
-	int64_t acc;
+	int64_t acc; _Bool is_unsigned = 0;
 	vector_for(preproc, tok, cond) {
 		if (tok->tokt == PPTOK_NUM) {
 			// Evaluate token as an integer if st0 == 0, error otherwise
@@ -1015,10 +1084,10 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 					goto eval_fail;
 				}
 				switch (cst.typ) {
-				case NCT_INT32:  acc =          cst.val.i32; break;
-				case NCT_UINT32: acc =          cst.val.u32; break;
-				case NCT_INT64:  acc =          cst.val.i64; break;
-				case NCT_UINT64: acc = (int64_t)cst.val.u64; break;
+				case NCT_INT32:                   acc =          cst.val.i32; break;
+				case NCT_UINT32: is_unsigned = 1; acc =          cst.val.u32; break;
+				case NCT_INT64:                   acc =          cst.val.i64; break;
+				case NCT_UINT64: is_unsigned = 1; acc = (int64_t)cst.val.u64; break;
 				case NCT_FLOAT:
 				case NCT_DOUBLE:
 				case NCT_LDOUBLE:
@@ -1034,6 +1103,7 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 		} else if ((tok->tokt == PPTOK_IDENT) || (tok->tokt == PPTOK_IDENT_UNEXP)) {
 			// Evaluate token as 0 if st0 == 0, error otherwise
 			if (vector_last(ppeaux, stack).st0 == 0) {
+				is_unsigned = 0;
 				acc = 0;
 				goto push_acc_to_st0;
 			} else {
@@ -1284,6 +1354,10 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 					acc = vector_last(ppeaux, stack).v2 * acc;
 					vector_last(ppeaux, stack).st2 = 0;
 				} else if (vector_last(ppeaux, stack).st2 == OPTYP_DIV) {
+					if (!acc) {
+						printf("Error: division by zero\n");
+						goto eval_fail;
+					}
 					acc = vector_last(ppeaux, stack).v2 / acc;
 					vector_last(ppeaux, stack).st2 = 0;
 				} else if (vector_last(ppeaux, stack).st2) {
@@ -1304,23 +1378,27 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 					acc = vector_last(ppeaux, stack).v4 << acc;
 					vector_last(ppeaux, stack).st4 = 0;
 				} else if (vector_last(ppeaux, stack).st4 == OPTYP_LSR) {
-					acc = vector_last(ppeaux, stack).v4 >> acc;
+					acc = is_unsigned ? (int64_t)((uint64_t)vector_last(ppeaux, stack).v4 >> (uint64_t)acc) : (vector_last(ppeaux, stack).v4 >> acc);
 					vector_last(ppeaux, stack).st4 = 0;
 				} else if (vector_last(ppeaux, stack).st4) {
 					printf("<internal error> Unknown st4 %d during #if evaluation\n", vector_last(ppeaux, stack).st4);
 					goto eval_fail;
 				}
 				if (vector_last(ppeaux, stack).st5 == OPTYP_LET) {
-					acc = vector_last(ppeaux, stack).v5 < acc;
+					acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 < (uint64_t)acc) : (vector_last(ppeaux, stack).v5 < acc);
+					is_unsigned = 0;
 					vector_last(ppeaux, stack).st5 = 0;
 				} else if (vector_last(ppeaux, stack).st5 == OPTYP_LEE) {
-					acc = vector_last(ppeaux, stack).v5 <= acc;
+					acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 <= (uint64_t)acc) : (vector_last(ppeaux, stack).v5 <= acc);
+					is_unsigned = 0;
 					vector_last(ppeaux, stack).st5 = 0;
 				} else if (vector_last(ppeaux, stack).st5 == OPTYP_GRT) {
-					acc = vector_last(ppeaux, stack).v5 > acc;
+					acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 > (uint64_t)acc) : (vector_last(ppeaux, stack).v5 > acc);
+					is_unsigned = 0;
 					vector_last(ppeaux, stack).st5 = 0;
 				} else if (vector_last(ppeaux, stack).st5 == OPTYP_GRE) {
-					acc = vector_last(ppeaux, stack).v5 >= acc;
+					acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 >= (uint64_t)acc) : (vector_last(ppeaux, stack).v5 >= acc);
+					is_unsigned = 0;
 					vector_last(ppeaux, stack).st5 = 0;
 				} else if (vector_last(ppeaux, stack).st5) {
 					printf("<internal error> Unknown st5 %d during #if evaluation\n", vector_last(ppeaux, stack).st5);
@@ -1368,6 +1446,7 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 					goto push_acc_to_st0;
 				} else {
 				eval_question_acc:
+					is_unsigned = 0;
 					if (acc) {
 						// Increase n_colons
 						++vector_last(ppeaux, stack).n_colons;
@@ -1473,6 +1552,10 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 				acc = vector_last(ppeaux, stack).v2 * acc;
 				vector_last(ppeaux, stack).st2 = 0;
 			} else if (vector_last(ppeaux, stack).st2 == OPTYP_DIV) {
+				if (!acc) {
+					printf("Error: division by zero\n");
+					goto eval_fail;
+				}
 				acc = vector_last(ppeaux, stack).v2 / acc;
 				vector_last(ppeaux, stack).st2 = 0;
 			} else if (vector_last(ppeaux, stack).st2) {
@@ -1503,7 +1586,7 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 				acc = vector_last(ppeaux, stack).v4 << acc;
 				vector_last(ppeaux, stack).st4 = 0;
 			} else if (vector_last(ppeaux, stack).st4 == OPTYP_LSR) {
-				acc = vector_last(ppeaux, stack).v4 >> acc;
+				acc = is_unsigned ? (int64_t)((uint64_t)vector_last(ppeaux, stack).v4 >> (uint64_t)acc) : (vector_last(ppeaux, stack).v4 >> acc);
 				vector_last(ppeaux, stack).st4 = 0;
 			} else if (vector_last(ppeaux, stack).st4) {
 				printf("<internal error> Unknown st4 %d during #if evaluation\n", vector_last(ppeaux, stack).st4);
@@ -1515,16 +1598,20 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 				goto done_partial_eval;
 			}
 			if (vector_last(ppeaux, stack).st5 == OPTYP_LET) {
-				acc = vector_last(ppeaux, stack).v5 < acc;
+				acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 < (uint64_t)acc) : (vector_last(ppeaux, stack).v5 < acc);
+				is_unsigned = 0;
 				vector_last(ppeaux, stack).st5 = 0;
 			} else if (vector_last(ppeaux, stack).st5 == OPTYP_LEE) {
-				acc = vector_last(ppeaux, stack).v5 <= acc;
+				acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 <= (uint64_t)acc) : (vector_last(ppeaux, stack).v5 <= acc);
+				is_unsigned = 0;
 				vector_last(ppeaux, stack).st5 = 0;
 			} else if (vector_last(ppeaux, stack).st5 == OPTYP_GRT) {
-				acc = vector_last(ppeaux, stack).v5 > acc;
+				acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 > (uint64_t)acc) : (vector_last(ppeaux, stack).v5 > acc);
+				is_unsigned = 0;
 				vector_last(ppeaux, stack).st5 = 0;
 			} else if (vector_last(ppeaux, stack).st5 == OPTYP_GRE) {
-				acc = vector_last(ppeaux, stack).v5 >= acc;
+				acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 >= (uint64_t)acc) : (vector_last(ppeaux, stack).v5 >= acc);
+				is_unsigned = 0;
 				vector_last(ppeaux, stack).st5 = 0;
 			} else if (vector_last(ppeaux, stack).st5) {
 				printf("<internal error> Unknown st5 %d during #if evaluation\n", vector_last(ppeaux, stack).st5);
@@ -1589,6 +1676,7 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 			if (op_lvl == 10) {
 				// We know that sym == SYM_AMPAMP, so we need to skip evaluating the remainder if it equals 0
 				if (acc) goto done_partial_eval;
+				is_unsigned = 0;
 				unsigned nparens = 0;
 				// 0 && y ? z : w => w
 				// 0 && y || z => z
@@ -1622,6 +1710,7 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 			if (op_lvl == 11) {
 				// We know that sym == SYM_PIPEPIPE, so we need to skip evaluating the remainder if it equals 1
 				if (!acc) goto done_partial_eval;
+				is_unsigned = 0;
 				unsigned nparens = 0;
 				// 0 || y ? z : w => w
 				// Otherwise, keep skipping to the next token
@@ -1698,6 +1787,10 @@ done_complete_stack:
 		acc = vector_last(ppeaux, stack).v2 * acc;
 		vector_last(ppeaux, stack).st2 = 0;
 	} else if (vector_last(ppeaux, stack).st2 == OPTYP_DIV) {
+		if (!acc) {
+			printf("Error: division by zero\n");
+			goto eval_fail;
+		}
 		acc = vector_last(ppeaux, stack).v2 / acc;
 		vector_last(ppeaux, stack).st2 = 0;
 	} else if (vector_last(ppeaux, stack).st2) {
@@ -1718,23 +1811,27 @@ done_complete_stack:
 		acc = vector_last(ppeaux, stack).v4 << acc;
 		vector_last(ppeaux, stack).st4 = 0;
 	} else if (vector_last(ppeaux, stack).st4 == OPTYP_LSR) {
-		acc = vector_last(ppeaux, stack).v4 >> acc;
+		acc = is_unsigned ? (int64_t)((uint64_t)vector_last(ppeaux, stack).v4 >> (uint64_t)acc) : (vector_last(ppeaux, stack).v4 >> acc);
 		vector_last(ppeaux, stack).st4 = 0;
 	} else if (vector_last(ppeaux, stack).st4) {
 		printf("<internal error> Unknown st4 %d during #if evaluation\n", vector_last(ppeaux, stack).st4);
 		goto eval_fail;
 	}
 	if (vector_last(ppeaux, stack).st5 == OPTYP_LET) {
-		acc = vector_last(ppeaux, stack).v5 < acc;
+		acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 < (uint64_t)acc) : (vector_last(ppeaux, stack).v5 < acc);
+		is_unsigned = 0;
 		vector_last(ppeaux, stack).st5 = 0;
 	} else if (vector_last(ppeaux, stack).st5 == OPTYP_LEE) {
-		acc = vector_last(ppeaux, stack).v5 <= acc;
+		acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 <= (uint64_t)acc) : (vector_last(ppeaux, stack).v5 <= acc);
+		is_unsigned = 0;
 		vector_last(ppeaux, stack).st5 = 0;
 	} else if (vector_last(ppeaux, stack).st5 == OPTYP_GRT) {
-		acc = vector_last(ppeaux, stack).v5 > acc;
+		acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 > (uint64_t)acc) : (vector_last(ppeaux, stack).v5 > acc);
+		is_unsigned = 0;
 		vector_last(ppeaux, stack).st5 = 0;
 	} else if (vector_last(ppeaux, stack).st5 == OPTYP_GRE) {
-		acc = vector_last(ppeaux, stack).v5 >= acc;
+		acc = is_unsigned ? ((uint64_t)vector_last(ppeaux, stack).v5 >= (uint64_t)acc) : (vector_last(ppeaux, stack).v5 >= acc);
+		is_unsigned = 0;
 		vector_last(ppeaux, stack).st5 = 0;
 	} else if (vector_last(ppeaux, stack).st5) {
 		printf("<internal error> Unknown st5 %d during #if evaluation\n", vector_last(ppeaux, stack).st5);
@@ -2191,49 +2288,155 @@ start_cur_token:
 				}
 			}
 			if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) goto preproc_hash_err;
-			if (!strcmp(string_content(tok.tokv.str), "include")) {
+			if (!strcmp(string_content(tok.tokv.str), "include") || !strcmp(string_content(tok.tokv.str), "include_next")) {
+				int is_next = string_content(tok.tokv.str)[7] == '_';
 				string_del(tok.tokv.str);
 				tok = ppsrc_next_token(src);
-				if (tok.tokt != PPTOK_INCL) {
-					printf("Invalid token type %u after '#include' preprocessor command\n", tok.tokt);
-					goto preproc_hash_err;
-				}
-				string_t *incl_file = tok.tokv.sstr;
-				int is_sys = src->is_sys || !tok.tokv.sisstr;
-				tok = ppsrc_next_token(src); // Token was moved
-				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
-					// TODO: Print warning 'ignored token(s)'
-					preproc_token_del(&tok);
-					tok = ppsrc_next_token(src);
-				}
-				if ((is_sys || !try_open_dir(src, incl_file)) && !try_open_sys(src, incl_file, 0)) {
-					printf("Failed to open %s\n", string_content(incl_file));
-					string_del(incl_file);
-					goto preproc_hash_err;
-				}
-				string_del(incl_file);
-				if (tok.tokt == PPTOK_NEWLINE) goto check_next_token;
-				else goto start_cur_token;
-			} else if (!strcmp(string_content(tok.tokv.str), "include_next")) {
-				string_del(tok.tokv.str);
-				tok = ppsrc_next_token(src);
-				if (tok.tokt != PPTOK_INCL) {
-					printf("Invalid token type %u after '#include_next' preprocessor command\n", tok.tokt);
-					goto preproc_hash_err;
-				}
-				string_t *incl_file = tok.tokv.sstr;
-				// Assume we only have one #include "..." path
-				tok = ppsrc_next_token(src); // Token was moved
-				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
-					// TODO: Print warning 'ignored token(s)'
-					preproc_token_del(&tok);
-					tok = ppsrc_next_token(src);
+				string_t *incl_file;
+				int is_sys;
+				if (tok.tokt == PPTOK_INCL) {
+					incl_file = tok.tokv.sstr;
+					// Assume we only have one #include "..." path, so include_next is always a system include
+					is_sys = is_next || src->is_sys || !tok.tokv.sisstr;
+					tok = ppsrc_next_token(src); // Token was moved
+					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+						printf("Warning: ignored tokens after #include directive (%s)\n", src->cur_file);
+						preproc_token_del(&tok);
+						tok = ppsrc_next_token(src);
+					}
+				} else {
+					// Expand macro, then try again
+					VECTOR(preproc) *incl = vector_new(preproc);
+					if (!incl) {
+						printf("Error: failed to allocate #include tokens vector (%s)\n", src->cur_file);
+						src->st = PPST_NONE;
+						ret.tokt = PTOK_INVALID;
+						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						return ret;
+					}
+					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+						if (!vector_push(preproc, incl, tok)) {
+							printf("Error: failed to add token to #include tokens vector (%s)\n", src->cur_file);
+							vector_del(preproc, incl);
+							src->st = PPST_NONE;
+							ret.tokt = PTOK_INVALID;
+							ret.tokv = (union proc_token_val_u){.c = '\0'};
+							return ret;
+						}
+						tok = ppsrc_next_token(src);
+					}
+					vector_trim(preproc, incl);
+					khash_t(string_set) *solved_macros = kh_init(string_set);
+					if (!solved_macros) {
+						printf("Error: failed to allocate #include solved_macros set (%s)\n", src->cur_file);
+						vector_del(preproc, incl);
+						src->st = PPST_NONE;
+						ret.tokt = PTOK_INVALID;
+						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						return ret;
+					}
+					
+					VECTOR(preproc) *expanded = proc_do_expand(src->macros_map, incl, solved_macros, src->macros_used);
+					vector_del(preproc, incl);
+					macros_set_del(solved_macros);
+					if (!expanded) {
+						printf("Error: failed to expand #include tokens (%s)\n", src->cur_file);
+						src->st = PPST_NONE;
+						ret.tokt = PTOK_INVALID;
+						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						return ret;
+					}
+					
+					// Now we need to check what is pointed by expanded
+					if (!vector_size(preproc, expanded)) {
+						printf("Error: missing #include name (%s)\n", src->cur_file);
+						src->st = PPST_NONE;
+						ret.tokt = PTOK_INVALID;
+						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						return ret;
+					}
+					if (vector_content(preproc, expanded)[0].tokt == PPTOK_STRING) {
+						is_sys = is_next || src->is_sys;
+						preproc_token_t *exp = vector_content(preproc, expanded);
+						// TODO
+						printf("Error: TODO: #include <expanded, first is string '%s' (%d)> (%s)\n",
+							string_content(exp->tokv.sstr), exp->tokv.sisstr, src->cur_file);
+						vector_del(preproc, expanded);
+						src->st = PPST_NONE;
+						ret.tokt = PTOK_INVALID;
+						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						return ret;
+					} else if ((vector_content(preproc, expanded)[0].tokt == PPTOK_SYM) && (vector_content(preproc, expanded)[0].tokv.sym == SYM_LT)
+					        && (vector_last(preproc, expanded).tokt == PPTOK_SYM) && (vector_last(preproc, expanded).tokv.sym == SYM_GT)
+					        && (vector_size(preproc, expanded) >= 3)) {
+						printf("Warning: #include command with macro expansion, assuming no space is present in the file name\n");
+						is_sys = 0;
+						incl_file = string_new();
+						for (vector_preproc_elem *tok2 = expanded->content + 1; tok2 < expanded->content + expanded->vsize - 1; ++tok2) {
+							switch (tok2->tokt) {
+							case PPTOK_IDENT:
+							case PPTOK_IDENT_UNEXP:
+								if (!string_add_string(incl_file, tok2->tokv.str)) {
+									printf("Error: failed to add ident to include string (%s)\n", src->cur_file);
+									vector_del(preproc, expanded);
+									string_del(incl_file);
+									src->st = PPST_NONE;
+									ret.tokt = PTOK_INVALID;
+									ret.tokv = (union proc_token_val_u){.c = '\0'};
+									return ret;
+								}
+								break;
+							case PPTOK_SYM:
+								for (const char *s = sym2str[tok2->tokv.sym]; *s; ++s) {
+									if (!string_add_char(incl_file, *s)) {
+										printf("Error: failed to add symbol to include string (%s)\n", src->cur_file);
+										vector_del(preproc, expanded);
+										string_del(incl_file);
+										src->st = PPST_NONE;
+										ret.tokt = PTOK_INVALID;
+										ret.tokv = (union proc_token_val_u){.c = '\0'};
+										return ret;
+									}
+								}
+								break;
+								
+							case PPTOK_INVALID:
+							case PPTOK_NUM:
+							case PPTOK_STRING:
+							case PPTOK_INCL:
+							case PPTOK_NEWLINE:
+							case PPTOK_BLANK:
+							case PPTOK_START_LINE_COMMENT:
+							case PPTOK_EOF:
+							default:
+								printf("Error: TODO: add token type %u to include string (%s)\n", tok2->tokt, src->cur_file);
+								vector_del(preproc, expanded);
+								string_del(incl_file);
+								src->st = PPST_NONE;
+								ret.tokt = PTOK_INVALID;
+								ret.tokv = (union proc_token_val_u){.c = '\0'};
+								return ret;
+							}
+						}
+						vector_del(preproc, expanded);
+					} else {
+						printf("Error: invalid #include command (macro expansion does not result in string or <...>) (%s)\n", src->cur_file);
+						vector_del(preproc, expanded);
+						src->st = PPST_NONE;
+						ret.tokt = PTOK_INVALID;
+						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						return ret;
+					}
 				}
 				// cur_pathno == 0 if cur_file was from an #include "...", otherwise idx + 1
-				if (!try_open_sys(src, incl_file, src->cur_pathno)) {
+				if ((is_sys || !try_open_dir(src, incl_file)) && !try_open_sys(src, incl_file, is_next ? src->cur_pathno : 0)) {
 					printf("Failed to open %s\n", string_content(incl_file));
 					string_del(incl_file);
-					goto preproc_hash_err;
+					src->st = PPST_NONE;
+					ret.tokt = PTOK_INVALID;
+					ret.tokv = (union proc_token_val_u){.c = tok.tokv.sisstr ? '<' : '"'};
+					string_del(tok.tokv.sstr);
+					return ret;
 				}
 				string_del(incl_file);
 				if (tok.tokt == PPTOK_NEWLINE) goto check_next_token;
@@ -2254,18 +2457,19 @@ start_cur_token:
 					ret.tokv = (union proc_token_val_u){.c = (char)EOF};
 					return ret;
 				}
-				khash_t(argid_map) *args = kh_init(argid_map);
-				if (!args) {
-					printf("Failed to allocate args map for macro %s, returning EOF\n", string_content(defname));
-					string_del(defname); // Token is now freed
-					vector_del(mtoken, m.toks);
-					ret.tokt = PTOK_EOF;
-					ret.tokv = (union proc_token_val_u){.c = (char)EOF};
-					return ret;
-				}
+				khash_t(argid_map) *args = NULL;
 				tok = ppsrc_next_token(src);
 				if ((tok.tokt == PPTOK_SYM) && (tok.tokv.sym == SYM_LPAREN)) {
 					m.is_funlike = 1;
+					args = kh_init(argid_map);
+					if (!args) {
+						printf("Failed to allocate args map for macro %s, returning EOF\n", string_content(defname));
+						string_del(defname); // Token is now freed
+						vector_del(mtoken, m.toks);
+						ret.tokt = PTOK_EOF;
+						ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+						return ret;
+					}
 					m.nargs = 0;
 					tok = ppsrc_next_token(src);
 					int ok;
@@ -2449,7 +2653,7 @@ start_cur_token:
 				}
 #undef ST_CONCAT
 #undef ST_STR
-				argid_map_del(args);
+				if (args) argid_map_del(args);
 				if (tok.tokt == PPTOK_INVALID) {
 					// Abort
 					string_del(defname);
@@ -2522,12 +2726,68 @@ start_cur_token:
 				if (tok.tokt == PPTOK_NEWLINE) goto check_next_token;
 				else goto start_cur_token;
 			} else if (!strcmp(string_content(tok.tokv.str), "error")) {
-				printf("Error: #error command <TODO: add reason>\n");
+				printf("Error: #error command (%s):", src->cur_file);
 				string_del(tok.tokv.str);
+				tok = ppsrc_next_token(src);
+				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+					switch (tok.tokt) {
+					case PPTOK_IDENT:
+					case PPTOK_IDENT_UNEXP:
+						printf(" %s", string_content(tok.tokv.str));
+						break;
+					case PPTOK_SYM:
+						printf("%s%s", (tok.tokv.sym == SYM_COMMA) ? "" : " ", sym2str[tok.tokv.sym]);
+						break;
+					case PPTOK_STRING:
+						printf(" %c%s%c", tok.tokv.sisstr ? '"' : '\'', string_content(tok.tokv.sstr), tok.tokv.sisstr ? '"' : '\'');
+						break;
+						
+					case PPTOK_INVALID:
+					case PPTOK_NUM:
+					case PPTOK_INCL:
+					case PPTOK_NEWLINE:
+					case PPTOK_BLANK:
+					case PPTOK_START_LINE_COMMENT:
+					case PPTOK_EOF:
+					default:
+						printf(" <unknown token type %u>", tok.tokt);
+					}
+					preproc_token_del(&tok);
+					tok = ppsrc_next_token(src);
+				}
+				printf("\n");
 				vector_clear(ppsource, src->prep);
-				goto check_next_token; // Returns EOF
+				ret.tokt = PTOK_INVALID;
+				ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+				return ret;
 			} else if (!strcmp(string_content(tok.tokv.str), "warning")) {
-				printf("Warning: #warning command <TODO: add reason>\n");
+				printf("Warning: #warning command (%s):", src->cur_file);
+				tok = ppsrc_next_token(src);
+				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+					switch (tok.tokt) {
+					case PPTOK_IDENT:
+					case PPTOK_IDENT_UNEXP:
+						printf(" %s", string_content(tok.tokv.str));
+						break;
+					case PPTOK_SYM:
+						printf("%s%s", (tok.tokv.sym == SYM_COMMA) ? "" : " ", sym2str[tok.tokv.sym]);
+						break;
+						
+					case PPTOK_INVALID:
+					case PPTOK_NUM:
+					case PPTOK_STRING:
+					case PPTOK_INCL:
+					case PPTOK_NEWLINE:
+					case PPTOK_BLANK:
+					case PPTOK_START_LINE_COMMENT:
+					case PPTOK_EOF:
+					default:
+						printf(" <unknown token type %u>", tok.tokt);
+					}
+					preproc_token_del(&tok);
+					tok = ppsrc_next_token(src);
+				}
+				printf("\n");
 				goto preproc_hash_err;
 			} else if (!strcmp(string_content(tok.tokv.str), "pragma")) {
 				string_del(tok.tokv.str);

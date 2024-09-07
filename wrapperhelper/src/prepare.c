@@ -99,7 +99,7 @@ static void fill_str(prepare_t *src, string_t *buf, char end_c, int can_esc) {
 			} else {
 				string_add_char(buf, '\\');
 			}
-		} else if ((c >= 0) && (c <= 0x7F) && (c != end_c)) {
+		} else if ((c >= 0) && (c <= 0x7F) && (c != '\n') && (c != end_c)) {
 			has_esc = 0;
 			string_add_char(buf, (char)c);
 		} else {

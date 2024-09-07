@@ -6,6 +6,7 @@
 
 #include "generator.h"
 #include "lang.h"
+#include "machine.h"
 #include "parse.h"
 #include "khash.h"
 
@@ -38,59 +39,98 @@ int main(int argc, char **argv) {
 		return 2;
 	}
 	
-	enum main_state ms;
-	int off;
+	enum main_state ms = MAIN_RUN;
+	const char *in_file = NULL, *ref_file = NULL, *out_file = NULL;
+	VECTOR(charp) *paths = vector_new(charp);
 	
-	if ((argc == 2) && !strcmp(argv[1], "--help")) {
-		help(argv[0]);
-		return 0;
-	} else if (argc == 2) {
-		ms = MAIN_PROC;
-		off = 1;
-	} else if ((argc == 3) && !strcmp(argv[1], "--prepare")) {
-		ms = MAIN_PREPARE;
-		off = 2;
-	} else if ((argc == 3) && !strcmp(argv[1], "--preproc")) {
-		ms = MAIN_PREPROC;
-		off = 2;
-	} else if ((argc == 3) && !strcmp(argv[1], "--proc")) {
-		ms = MAIN_PROC;
-		off = 2;
-	} else if (argc == 4) {
-		ms = MAIN_RUN;
-		off = 1;
-	} else {
-		help(argv[0]);
-		return 2;
+	for (int i = 1; i < argc; ++i) {
+		if (!strcmp(argv[i], "--help")) {
+			help(argv[0]);
+			return 0;
+		} else if (!strcmp(argv[i], "--prepare")) {
+			ms = MAIN_PREPARE;
+		} else if (!strcmp(argv[i], "--preproc")) {
+			ms = MAIN_PREPROC;
+		} else if (!strcmp(argv[i], "--proc")) {
+			ms = MAIN_PROC;
+		} else if (!strcmp(argv[i], "-I") && (i + 1 < argc)) {
+			if (!vector_push(charp, paths, argv[i + 1])) {
+				printf("Error: failed to add path to buffer\n");
+				return 2;
+			}
+		} else if ((argv[i][0] == '-') && (argv[i][1] == 'I') && (argv[i][2] != '\0')) {
+			if (!vector_push(charp, paths, argv[i] + 2)) {
+				printf("Error: failed to add path to buffer\n");
+				return 2;
+			}
+		} else if (!in_file) {
+			in_file = argv[i];
+		} else if (!ref_file) {
+			ref_file = argv[i];
+		} else if (!out_file) {
+			out_file = argv[i];
+		} else {
+			printf("Error: too many unknown options considered as file\n");
+			help(argv[0]);
+			return 2;
+		}
+	}
+	switch (ms) {
+	case MAIN_PREPARE:
+	case MAIN_PREPROC:
+	case MAIN_PROC:
+		if (!in_file || ref_file || out_file) {
+			printf("Error: too many unknown options/not enough arguments\n");
+			help(argv[0]);
+			return 2;
+		}
+		break;
+	case MAIN_RUN:
+		if (in_file && !ref_file && !out_file) {
+			ms = MAIN_PROC;
+		} else if (!in_file || !ref_file || !out_file) {
+			printf("Error: too many unknown options/not enough arguments\n");
+			help(argv[0]);
+			return 2;
+		}
+		break;
 	}
 	
 	if (!init_str2kw()) {
 		return 2;
 	}
+	if (!init_machines(vector_size(charp, paths), (const char*const*)vector_content(charp, paths))) {
+		vector_del(charp, paths);
+		return 2;
+	}
+	vector_del(charp, paths);
 	
-	FILE *f = fopen(argv[off], "r");
+	FILE *f = fopen(in_file, "r");
 	if (!f) {
-		err(2, "Error: failed to open %s", argv[off]);
+		err(2, "Error: failed to open %s", in_file);
 		return 2;
 	}
 	switch (ms) {
 	case MAIN_RUN: {
-		file_t *content = parse_file(argv[off], f); // Takes ownership of f
+		file_t *content = parse_file(&machine_x86_64, in_file, f); // Takes ownership of f
 		if (!content) {
 			printf("Error: failed to parse the file\n");
+			del_machines();
 			del_str2kw();
 			return 0;
 		}
 		
-		FILE *ref = fopen(argv[off + 1], "r");
+		FILE *ref = fopen(ref_file, "r");
 		if (!ref) {
-			err(2, "Error: failed to open %s", argv[off + 1]);
+			err(2, "Error: failed to open %s", ref_file);
+			del_machines();
 			del_str2kw();
 			return 2;
 		}
-		VECTOR(requests) *reqs = requests_from_file(argv[off + 1], ref);
+		VECTOR(requests) *reqs = requests_from_file(ref_file, ref);
 		if (!reqs) {
 			file_del(content);
+			del_machines();
 			del_str2kw();
 			return 2;
 		}
@@ -100,11 +140,12 @@ int main(int argc, char **argv) {
 		}
 		// vector_for(requests, req, reqs) request_print(req);
 		//vector_for(requests, req, reqs) request_print_check(req);
-		FILE *out = fopen(argv[off + 2], "w");
+		FILE *out = fopen(out_file, "w");
 		if (!out) {
-			err(2, "Error: failed to open %s", argv[off + 1]);
+			err(2, "Error: failed to open %s", ref_file);
 			file_del(content);
 			vector_del(requests, reqs);
+			del_machines();
 			del_str2kw();
 			return 2;
 		}
@@ -112,12 +153,14 @@ int main(int argc, char **argv) {
 		fclose(out);
 		vector_del(requests, reqs);
 		file_del(content);
+		del_machines();
 		del_str2kw();
 		return 0; }
 	case MAIN_PROC: {
-		file_t *content = parse_file(argv[off], f); // Takes ownership of f
+		file_t *content = parse_file(&machine_x86_64, in_file, f); // Takes ownership of f
 		if (!content) {
 			printf("Error: failed to parse the file\n");
+			del_machines();
 			del_str2kw();
 			return 0;
 		}
@@ -165,16 +208,19 @@ int main(int argc, char **argv) {
 			printf("\n")
 		)
 		file_del(content);
+		del_machines();
 		del_str2kw();
 		return 0; }
 		
 	case MAIN_PREPARE:
-		dump_prepare(argv[off], f); // Takes ownership of f
+		dump_prepare(in_file, f); // Takes ownership of f
+		del_machines();
 		del_str2kw();
 		return 0;
 		
 	case MAIN_PREPROC:
-		dump_preproc(argv[off], f); // Takes ownership of f
+		dump_preproc(&machine_x86_64, in_file, f); // Takes ownership of f
+		del_machines();
 		del_str2kw();
 		return 0;
 	}

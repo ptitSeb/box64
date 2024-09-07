@@ -32,9 +32,37 @@ string_t *string_new_cap(size_t cap) {
 	return ret;
 }
 
+string_t *string_new_cstr(const char *s) {
+	string_t *ret = malloc(sizeof(*ret));
+	if (!ret) return NULL;
+	size_t len = strlen(s);
+	size_t cap = (len < STRING_MIN_CAP) ? STRING_MIN_CAP : len;
+	ret->buf = malloc((cap + 1) * sizeof(char));
+	if (!ret->buf) {
+		free(ret);
+		return NULL;
+	}
+	strcpy(ret->buf, s);
+	ret->scap = cap;
+	ret->ssize = len;
+	return ret;
+}
+
 int string_reserve(string_t *s, size_t cap) {
 	size_t new_cap = (cap < STRING_MIN_CAP) ? STRING_MIN_CAP : cap;
 	if (new_cap <= s->scap) return 1;
+	
+	void *new_buf = realloc(s->buf, sizeof(char) * (new_cap + 1));
+	if (!new_buf) return 0;
+	s->buf = new_buf;
+	s->scap = new_cap;
+	return 1;
+}
+int string_reserve_grow(string_t *s, size_t cap) {
+	cap = (cap < STRING_MIN_CAP) ? STRING_MIN_CAP : cap;
+	if (cap <= s->scap) return 1;
+	size_t new_cap = (s->scap < STRING_MIN_CAP) ? STRING_MIN_CAP : s->scap * 2;
+	while (new_cap < cap) new_cap *= 2;
 	
 	void *new_buf = realloc(s->buf, sizeof(char) * (new_cap + 1));
 	if (!new_buf) return 0;
@@ -55,32 +83,25 @@ char *string_steal(string_t *s) {
 }
 
 int string_add_char(string_t *s, char elem) {
-	if (s->ssize >= s->scap) {
-		size_t new_cap = (s->scap < STRING_MIN_CAP) ? STRING_MIN_CAP : s->scap * 2;
-		char *new_buf = realloc(s->buf, sizeof(char) * (new_cap + 1));
-		if (!new_buf) return 0;
-		s->buf = new_buf;
-		s->scap = new_cap;
-	}
+	if (!string_reserve_grow(s, s->ssize + 1)) return 0;
 	s->buf[s->ssize++] = elem;
 	s->buf[s->ssize] = '\0';
 	return 1;
 }
 
 int string_add_string(string_t *s1, string_t *s2) {
-	if (s1->ssize + s2->ssize > s1->scap) {
-		size_t new_cap = (s1->scap < STRING_MIN_CAP) ? STRING_MIN_CAP : s1->scap * 2;
-		while (s1->ssize + s2->ssize > new_cap) {
-			new_cap = new_cap * 2;
-		}
-		char *new_buf = realloc(s1->buf, sizeof(char) * (new_cap + 1));
-		if (!new_buf) return 0;
-		s1->buf = new_buf;
-		s1->scap = new_cap;
-	}
+	if (!string_reserve_grow(s1, s1->ssize + s2->ssize)) return 0;
 	memcpy(s1->buf + s1->ssize, s2->buf, s2->ssize);
 	s1->ssize += s2->ssize;
 	s1->buf[s1->ssize] = '\0';
+	return 1;
+}
+
+int string_add_cstr(string_t *s1, const char *s2) {
+	size_t len = strlen(s2);
+	if (!string_reserve_grow(s1, s1->ssize + len)) return 0;
+	strcpy(s1->buf + s1->ssize, s2);
+	s1->ssize += len;
 	return 1;
 }
 

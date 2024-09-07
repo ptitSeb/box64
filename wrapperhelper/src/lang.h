@@ -87,6 +87,7 @@ typedef struct preproc_token_s {
 	} tokv;
 } preproc_token_t;
 VECTOR_DECLARE(preproc, preproc_token_t)
+preproc_token_t preproc_token_dup(preproc_token_t tok);
 void preproc_token_del(preproc_token_t *tok);
 
 enum token_keyword_type_e {
