@@ -5,6 +5,7 @@
 
 #include "cstring.h"
 #include "khash.h"
+#include "machine.h"
 #include "prepare.h"
 #include "preproc.h"
 
@@ -25,9 +26,9 @@ void dump_prepare(const char *filename, FILE *file) {
 		preproc_token_del(&tok);
 	}
 }
-void dump_preproc(const char *filename, FILE *file) {
+void dump_preproc(machine_t *target, const char *filename, FILE *file) {
 	char *dirname = strchr(filename, '/') ? strndup(filename, (size_t)(strrchr(filename, '/') - filename)) : NULL;
-	preproc_t *prep = preproc_new_file(file, dirname, filename);
+	preproc_t *prep = preproc_new_file(target, file, dirname, filename);
 	if (!prep) {
 		printf("Failed to create the preproc structure\n");
 		if (dirname) free(dirname);
@@ -3051,9 +3052,9 @@ failed0:
 	return 0;
 }
 
-file_t *parse_file(const char *filename, FILE *file) {
+file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 	char *dirname = strchr(filename, '/') ? strndup(filename, (size_t)(strrchr(filename, '/') - filename)) : NULL;
-	preproc_t *prep = preproc_new_file(file, dirname, filename);
+	preproc_t *prep = preproc_new_file(target, file, dirname, filename);
 	if (!prep) {
 		printf("Failed to create the preproc structure\n");
 		if (dirname) free(dirname);

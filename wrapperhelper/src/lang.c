@@ -15,6 +15,41 @@
 #define DISP_ADDR_ARG(v) v,
 #endif
 
+preproc_token_t preproc_token_dup(preproc_token_t tok) {
+	preproc_token_t ret;
+	ret.tokt = tok.tokt;
+	switch (tok.tokt) {
+	case PPTOK_IDENT:
+	case PPTOK_IDENT_UNEXP:
+	case PPTOK_NUM:
+		ret.tokv.str = string_dup(tok.tokv.str);
+		if (!ret.tokv.str) {
+			ret.tokt = PPTOK_INVALID;
+			ret.tokv.c = '\0';
+		}
+		break;
+	case PPTOK_STRING:
+	case PPTOK_INCL:
+		ret.tokv.sisstr = tok.tokv.sisstr;
+		ret.tokv.sstr = string_dup(tok.tokv.sstr);
+		if (!ret.tokv.sstr) {
+			ret.tokt = PPTOK_INVALID;
+			ret.tokv.c = '\0';
+		}
+		string_del(tok.tokv.sstr);
+		break;
+	case PPTOK_INVALID:
+	case PPTOK_SYM:
+	case PPTOK_NEWLINE:
+	case PPTOK_BLANK:
+	case PPTOK_START_LINE_COMMENT:
+	case PPTOK_EOF:
+		ret.tokv.c = tok.tokv.c;
+		break;
+	}
+	return ret;
+}
+
 void preproc_token_del(preproc_token_t *tok) {
 	switch (tok->tokt) {
 	case PPTOK_IDENT:
