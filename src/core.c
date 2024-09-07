@@ -649,7 +649,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_DUMP");
     if(p) {
         if(strlen(p)==1) {
-            if (p[0] >= '0' && p[0] <= '1')
+            if (p[0] >= '0' && p[0] <= '2')
                 box64_dynarec_dump = p[0]-'0';
         }
         if (box64_dynarec_dump) printf_log(LOG_INFO, "Dynarec blocks are dumped%s\n", (box64_dynarec_dump>1)?" in color":"");
@@ -846,7 +846,7 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_TEST");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='2')
+            if(p[0]>='0' && p[0]<='1')
                 box64_dynarec_test = p[0]-'0';
             box64_dynarec_test_start = 0x0;
             box64_dynarec_test_end = 0x0;
