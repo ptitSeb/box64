@@ -1082,6 +1082,7 @@ void iFLppp(x64emu_t *emu, uintptr_t fnc);
 void iFpwww(x64emu_t *emu, uintptr_t fnc);
 void iFpwpp(x64emu_t *emu, uintptr_t fnc);
 void iFpiii(x64emu_t *emu, uintptr_t fnc);
+void iFpiiC(x64emu_t *emu, uintptr_t fnc);
 void iFpiiu(x64emu_t *emu, uintptr_t fnc);
 void iFpiid(x64emu_t *emu, uintptr_t fnc);
 void iFpiiL(x64emu_t *emu, uintptr_t fnc);
