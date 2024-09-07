@@ -136,7 +136,7 @@ void request_print_check(request_t *req) {
 		}
 	}
 }
-void request_del(request_t *req) {
+static void request_del(request_t *req) {
 	string_del(req->obj_name);
 	if (req->has_default) {
 		switch (req->def.rty) {
@@ -161,6 +161,16 @@ void request_del(request_t *req) {
 		case RQT_DATAB:  break;
 		case RQT_DATAM:  break;
 		}
+	}
+}
+static void reference_del(reference_t *ref) {
+	switch (ref->typ) {
+	case REF_REQ:
+		request_del(&ref->req);
+		break;
+	case REF_LINE:
+		string_del(ref->line);
+		break;
 	}
 }
 
@@ -244,23 +254,34 @@ static void request_output(FILE *f, request_t *req) {
 		}
 	}
 }
-void output_from_requests(FILE *f, VECTOR(requests) *reqs) {
+static void reference_output(FILE *f, reference_t *ref) {
+	switch (ref->typ) {
+	case REF_REQ:
+		request_output(f, &ref->req);
+		break;
+	case REF_LINE:
+		fputs(string_content(ref->line), f);
+		fputc('\n', f);
+		break;
+	}
+}
+void output_from_references(FILE *f, VECTOR(references) *reqs) {
 	fprintf(f, "#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))\n#error Meh...\n#endif\n\n");
-	vector_for(requests, req, reqs) {
-		request_output(f, req);
+	vector_for(references, req, reqs) {
+		reference_output(f, req);
 	}
 }
 
-VECTOR_IMPL(requests, request_del)
+VECTOR_IMPL(references, reference_del)
 
-VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
+VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 	prepare_t *prep = prepare_new_file(f, filename);
 	if (!prep) {
-		printf("Failed to create the prepare structure for the requests file\n");
+		printf("Failed to create the prepare structure for the reference file\n");
 		return NULL;
 	}
 	
-	VECTOR(requests) *ret = vector_new(requests);
+	VECTOR(references) *ret = vector_new(references);
 	if (!ret) {
 		prepare_del(prep);
 		return NULL;
@@ -273,40 +294,80 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 	do {
 		tok = pre_next_token(prep, 0);
 		if (tok.tokt == PPTOK_NEWLINE) ++lineno;
+		else preproc_token_del(&tok); // NEWLINE has no destructor
 	} while (!preproc_token_isend(&tok) && (lineno < 4));
 	
 	// TODO: better conditionals handling
 	// Also, for now assume we have no definition
 	int if_depth = 0, entered_depth = 0;
+	string_t *line = string_new();
+	if (!line) {
+		printf("Error: failed to allocate new string for new reference line\n");
+	}
+	
+#define ADD_CHAR(c, has_destr, what) \
+		if (!string_add_char(line, c)) {               \
+			printf("Error: failed to add " what "\n"); \
+			if (has_destr) preproc_token_del(&tok);    \
+			goto failed;                               \
+		}
+#define ADD_CSTR(cstr, has_destr, what) \
+		if (!string_add_cstr(line, cstr)) {            \
+			printf("Error: failed to add " what "\n"); \
+			if (has_destr) preproc_token_del(&tok);    \
+			goto failed;                               \
+		}
+#define ADD_STR(str, has_destr, what) \
+		if (!string_add_string(line, str)) {              \
+			printf("Error: failed to add " what "\n"); \
+			if (has_destr) preproc_token_del(&tok);    \
+			goto failed;                               \
+		}
+#define PUSH_LINE(has_destr) \
+		string_trim(line);                                                                   \
+		if (!vector_push(references, ret, ((reference_t){.typ = REF_LINE, .line = line}))) { \
+			printf("Error: failed to memorize reference line %d\n", lineno);                 \
+			if (has_destr) preproc_token_del(&tok);                                          \
+			goto failed;                                                                     \
+		}                                                                                    \
+		line = string_new();                                                                 \
+		if (!line) {                                                                         \
+			printf("Error: failed to allocate new string for new reference line\n");         \
+		}
+	
 	while (1) {
 		int is_comment = 0;
 		tok = pre_next_token(prep, 1);
-		while (tok.tokt == PPTOK_START_LINE_COMMENT) {
+		if (tok.tokt == PPTOK_START_LINE_COMMENT) {
+			ADD_CSTR("//", 0, "start of comment")
 			is_comment = 1;
 			// Empty destructor
-			tok = pre_next_token(prep, 1);
+			tok = pre_next_token(prep, 0); // tok is IDENT, NEWLINE, INVALID or BLANK
+			while ((tok.tokt == PPTOK_BLANK) && ((tok.tokv.c == ' ') || (tok.tokv.c == '\t'))) {
+				ADD_CHAR(tok.tokv.c, 0, "start of comment")
+				// Empty destructor
+				tok = pre_next_token(prep, 0); // tok is IDENT, NEWLINE, INVALID or BLANK
+			}
 		}
 		if ((tok.tokt == PPTOK_SYM) && (tok.tokv.sym == SYM_HASH)) {
-			if (is_comment) {
-				preproc_token_del(&tok);
-				tok = pre_next_newline_token(prep); // Returns a newline
-				++lineno;
-				continue;
-			}
+			ADD_CHAR('#', 0, "start of preprocessor command")
 			tok = pre_next_token(prep, 0);
 			if (tok.tokt != PPTOK_IDENT) {
-				printf("Error: invalid requests file: invalid preprocessor line\n");
+				printf("Error: invalid reference file: invalid preprocessor line\n");
 				preproc_token_del(&tok);
 				goto failed;
 			}
+			ADD_STR(tok.tokv.str, 1, "preprocessor command")
 			if (!strcmp(string_content(tok.tokv.str), "ifdef")) {
 				string_del(tok.tokv.str);
 				tok = pre_next_token(prep, 0);
 				if (tok.tokt != PPTOK_IDENT) {
-					printf("Error: invalid requests file: invalid '#ifdef' line\n");
+					printf("Error: invalid reference file: invalid '#ifdef' line\n");
 					preproc_token_del(&tok);
 					goto failed;
 				}
+				ADD_CHAR(' ', 1, "preprocessor command")
+				ADD_STR(tok.tokv.str, 1, "preprocessor command")
 				++if_depth;
 				string_del(tok.tokv.str);
 				tok = pre_next_token(prep, 0);
@@ -314,10 +375,12 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				string_del(tok.tokv.str);
 				tok = pre_next_token(prep, 0);
 				if (tok.tokt != PPTOK_IDENT) {
-					printf("Error: invalid requests file: invalid '#ifndef' line\n");
+					printf("Error: invalid reference file: invalid '#ifndef' line\n");
 					preproc_token_del(&tok);
 					goto failed;
 				}
+				ADD_CHAR(' ', 1, "preprocessor command")
+				ADD_STR(tok.tokv.str, 1, "preprocessor command")
 				if (if_depth == entered_depth) ++entered_depth;
 				++if_depth;
 				string_del(tok.tokv.str);
@@ -333,7 +396,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				if (if_depth == entered_depth) --entered_depth;
 				--if_depth;
 			} else {
-				printf("Error: invalid requests file: invalid preprocessor command '%s'\n", string_content(tok.tokv.str));
+				printf("Error: invalid reference file: invalid preprocessor command '%s'\n", string_content(tok.tokv.str));
 				string_del(tok.tokv.str);
 				goto failed;
 			}
@@ -341,6 +404,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				preproc_token_del(&tok);
 				tok = pre_next_token(prep, 0);
 			}
+			PUSH_LINE(0)
 			++lineno;
 			if (preproc_token_isend(&tok)) {
 				if (tok.tokt == PPTOK_EOF) goto success;
@@ -350,6 +414,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				}
 			}
 		} else if (tok.tokt == PPTOK_NEWLINE) {
+			PUSH_LINE(0)
 			++lineno;
 		} else if (tok.tokt == PPTOK_EOF) {
 			goto success;
@@ -362,6 +427,8 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 		         || !strcmp(string_content(tok.tokv.str), "GOW2")
 		         || !strcmp(string_content(tok.tokv.str), "GOWD")
 		         || !strcmp(string_content(tok.tokv.str), "GOWM"))) {
+			string_clear(line);
+			if (is_comment) prepare_mark_nocomment(prep);
 			int isweak = (string_content(tok.tokv.str)[2] == 'W');
 			request_t req = {
 				.has_default = 0,
@@ -381,14 +448,14 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 			string_del(tok.tokv.str);
 			tok = pre_next_token(prep, 0);
 			if ((tok.tokt != PPTOK_SYM) || (tok.tokv.sym != SYM_LPAREN)) {
-				printf("Error: invalid requests file: invalid GO line %d (lparen)\n", lineno);
+				printf("Error: invalid reference file: invalid GO line %d (lparen)\n", lineno);
 				preproc_token_del(&tok);
 				goto failed;
 			}
 			// Empty destructor
 			tok = pre_next_token(prep, 0);
 			if (tok.tokt != PPTOK_IDENT) {
-				printf("Error: invalid requests file: invalid GO line %d (obj_name)\n", lineno);
+				printf("Error: invalid reference file: invalid GO line %d (obj_name)\n", lineno);
 				preproc_token_del(&tok);
 				goto failed;
 			}
@@ -396,7 +463,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 			// Token moved
 			tok = pre_next_token(prep, 0);
 			if ((tok.tokt != PPTOK_SYM) || (tok.tokv.sym != SYM_COMMA)) {
-				printf("Error: invalid requests file: invalid GO line %d (comma)\n", lineno);
+				printf("Error: invalid reference file: invalid GO line %d (comma)\n", lineno);
 				string_del(req.obj_name);
 				preproc_token_del(&tok);
 				goto failed;
@@ -410,7 +477,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				tok = pre_next_token(prep, 0);
 				if ((req.def.rty == RQT_FUN_2) || (req.def.rty == RQT_FUN_D)) {
 					if ((tok.tokt != PPTOK_SYM) || (tok.tokv.sym != SYM_COMMA)) {
-						printf("Error: invalid requests file: invalid GO line %d (comma 2)\n", lineno);
+						printf("Error: invalid reference file: invalid GO line %d (comma 2)\n", lineno);
 						string_del(req.obj_name);
 						string_del(req.def.fun.typ);
 						preproc_token_del(&tok);
@@ -419,7 +486,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 					// Empty destructor
 					tok = pre_next_token(prep, 0);
 					if (tok.tokt != PPTOK_IDENT) {
-						printf("Error: invalid requests file: invalid GO line %d (redirect)\n", lineno);
+						printf("Error: invalid reference file: invalid GO line %d (redirect)\n", lineno);
 						string_del(req.obj_name);
 						string_del(req.def.fun.typ);
 						preproc_token_del(&tok);
@@ -430,7 +497,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 					tok = pre_next_token(prep, 0);
 				}
 				if ((tok.tokt != PPTOK_SYM) || (tok.tokv.sym != SYM_RPAREN)) {
-					printf("Error: invalid requests file: invalid GO line %d (rparen)\n", lineno);
+					printf("Error: invalid reference file: invalid GO line %d (rparen)\n", lineno);
 					string_del(req.obj_name);
 					string_del(req.def.fun.typ);
 					if (req.def.fun.fun2) string_del(req.def.fun.fun2);
@@ -441,7 +508,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				tok = pre_next_token(prep, 0);
 			}
 			if (tok.tokt != PPTOK_NEWLINE) {
-				printf("Error: invalid requests file: invalid GO line %d (newline)\n", lineno);
+				printf("Error: invalid reference file: invalid GO line %d (newline)\n", lineno);
 				string_del(req.obj_name);
 				if (req.def.fun.typ) string_del(req.def.fun.typ);
 				if (req.def.fun.fun2) string_del(req.def.fun.fun2);
@@ -449,14 +516,16 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				goto failed;
 			}
 			if (if_depth == entered_depth) {
-				if (!vector_push(requests, ret, req)) {
-					printf("Error: failed to add request for %s\n", string_content(req.obj_name));
+				if (!vector_push(references, ret, ((reference_t){.typ = REF_REQ, .req = req}))) {
+					printf("Error: failed to add reference for %s\n", string_content(req.obj_name));
 					string_del(req.obj_name);
 					if (req.def.fun.typ) string_del(req.def.fun.typ);
 					if (req.def.fun.fun2) string_del(req.def.fun.fun2);
 					// Empty destructor
 					goto failed;
 				}
+			} else {
+				request_del(&req);
 			}
 			++lineno;
 		} else if ((tok.tokt == PPTOK_IDENT)
@@ -464,6 +533,8 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 		         || !strcmp(string_content(tok.tokv.str), "DATAV")
 		         || !strcmp(string_content(tok.tokv.str), "DATAB")
 		         || !strcmp(string_content(tok.tokv.str), "DATAM"))) {
+			string_clear(line);
+			if (is_comment) prepare_mark_nocomment(prep);
 			request_t req = {
 				.has_default = 1,
 				.default_comment = is_comment,
@@ -482,14 +553,14 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 			string_del(tok.tokv.str);
 			tok = pre_next_token(prep, 0);
 			if ((tok.tokt != PPTOK_SYM) || (tok.tokv.sym != SYM_LPAREN)) {
-				printf("Error: invalid requests file: invalid DATA line %d (lparen)\n", lineno);
+				printf("Error: invalid reference file: invalid DATA line %d (lparen)\n", lineno);
 				preproc_token_del(&tok);
 				goto failed;
 			}
 			// Empty destructor
 			tok = pre_next_token(prep, 0);
 			if (tok.tokt != PPTOK_IDENT) {
-				printf("Error: invalid requests file: invalid DATA line %d (obj_name)\n", lineno);
+				printf("Error: invalid reference file: invalid DATA line %d (obj_name)\n", lineno);
 				preproc_token_del(&tok);
 				goto failed;
 			}
@@ -497,7 +568,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 			// Token moved
 			tok = pre_next_token(prep, 0);
 			if ((tok.tokt != PPTOK_SYM) || (tok.tokv.sym != SYM_COMMA)) {
-				printf("Error: invalid requests file: invalid DATA line %d (comma)\n", lineno);
+				printf("Error: invalid reference file: invalid DATA line %d (comma)\n", lineno);
 				string_del(req.obj_name);
 				preproc_token_del(&tok);
 				goto failed;
@@ -507,7 +578,7 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 			if (tok.tokt == PPTOK_NUM) {
 				num_constant_t cst;
 				if (!num_constant_convert(tok.tokv.str, &cst)) {
-					printf("Error: invalid requests file: invalid DATA line %d (num conversion)\n", lineno);
+					printf("Error: invalid reference file: invalid DATA line %d (num conversion)\n", lineno);
 					string_del(req.obj_name);
 					preproc_token_del(&tok);
 					goto failed;
@@ -516,9 +587,9 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				case NCT_FLOAT:
 				case NCT_DOUBLE:
 				case NCT_LDOUBLE:
-					printf("Error: invalid requests file: invalid DATA line %d (num conversion)\n", lineno);
+					printf("Error: invalid reference file: invalid DATA line %d (num conversion)\n", lineno);
 					string_del(req.obj_name);
-					preproc_token_del(&tok);
+					string_del(tok.tokv.str);
 					goto failed;
 				case NCT_INT32:  req.def.dat.sz = (size_t)cst.val.i32; break;
 				case NCT_UINT32: req.def.dat.sz = (size_t)cst.val.u32; break;
@@ -526,10 +597,10 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				case NCT_UINT64: req.def.dat.sz = (size_t)cst.val.u64; break;
 				}
 				req.def.dat.has_size = 1;
-				// Token moved
+				string_del(tok.tokv.str); // Delete token
 				tok = pre_next_token(prep, 0);
 				if ((tok.tokt != PPTOK_SYM) || (tok.tokv.sym != SYM_RPAREN)) {
-					printf("Error: invalid requests file: invalid DATA line %d (rparen)\n", lineno);
+					printf("Error: invalid reference file: invalid DATA line %d (rparen)\n", lineno);
 					string_del(req.obj_name);
 					preproc_token_del(&tok);
 					goto failed;
@@ -538,28 +609,41 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 				tok = pre_next_token(prep, 0);
 			}
 			if (tok.tokt != PPTOK_NEWLINE) {
-				printf("Error: invalid requests file: invalid DATA line %d (newline)\n", lineno);
+				printf("Error: invalid reference file: invalid DATA line %d (newline)\n", lineno);
 				string_del(req.obj_name);
 				preproc_token_del(&tok);
 				goto failed;
 			}
 			if (if_depth == entered_depth) {
-				if (!vector_push(requests, ret, req)) {
-					printf("Error: failed to add request for %s\n", string_content(req.obj_name));
-					string_del(req.obj_name);
+				if (!vector_push(references, ret, ((reference_t){.typ = REF_REQ, .req = req}))) {
+					printf("Error: failed to add reference for %s\n", string_content(req.obj_name));
+					request_del(&req);
 					// Empty destructor
 					goto failed;
 				}
+			} else {
+				request_del(&req);
 			}
 			++lineno;
-		} else {
-			if (is_comment) {
+		} else if (is_comment) {
+			if (tok.tokt == PPTOK_IDENT) {
+				ADD_STR(tok.tokv.str, 1, "comment content")
+				string_del(tok.tokv.str);
+			} else if (tok.tokt == PPTOK_BLANK) {
+				ADD_CHAR(tok.tokv.c, 0, "comment content")
+			} else {
+				printf("Error: unknown token type in comment %u\n", tok.tokt);
 				preproc_token_del(&tok);
-				tok = pre_next_newline_token(prep); // Returns a newline
-				++lineno;
-				continue;
+				goto failed;
 			}
-			printf("Error: invalid requests file: invalid token:\n");
+			if (!pre_next_newline_token(prep, line)) {
+				printf("Error: failed to add comment content\n");
+				goto failed;
+			}
+			PUSH_LINE(0)
+			++lineno;
+		} else {
+			printf("Error: invalid reference file: invalid token:\n");
 			preproc_token_print(&tok);
 			preproc_token_del(&tok);
 			goto failed;
@@ -567,11 +651,13 @@ VECTOR(requests) *requests_from_file(const char *filename, FILE *f) {
 	}
 	
 failed:
+	string_del(line);
 	prepare_del(prep);
-	vector_del(requests, ret);
+	vector_del(references, ret);
 	return NULL;
 	
 success:
+	string_del(line);
 	prepare_del(prep);
 	return ret;
 }
@@ -914,10 +1000,11 @@ int solve_request_map(request_t *req, khash_t(type_map) *decl_map) {
 	}
 	return solve_request(req, kh_val(decl_map, it));
 }
-int solve_requests(VECTOR(requests) *reqs, khash_t(type_map) *decl_map) {
+int solve_references(VECTOR(references) *refs, khash_t(type_map) *decl_map) {
 	int ret = 1;
-	vector_for(requests, req, reqs) {
-		if (!solve_request_map(req, decl_map)) ret = 0;
+	vector_for(references, ref, refs) {
+		if (ref->typ != REF_REQ) continue;
+		if (!solve_request_map(&ref->req, decl_map)) ret = 0;
 	}
 	return ret;
 }

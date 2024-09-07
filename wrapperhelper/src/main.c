@@ -131,31 +131,31 @@ int main(int argc, char **argv) {
 			del_str2kw();
 			return 2;
 		}
-		VECTOR(requests) *reqs = requests_from_file(ref_file, ref);
+		VECTOR(references) *reqs = references_from_file(ref_file, ref);
 		if (!reqs) {
 			file_del(content);
 			del_machines();
 			del_str2kw();
 			return 2;
 		}
-		// vector_for(requests, req, reqs) request_print(req);
-		if (!solve_requests(reqs, content->decl_map)) {
+		// vector_for(references, req, reqs) request_print(req);
+		if (!solve_references(reqs, content->decl_map)) {
 			printf("Warning: failed to solve all default requests\n");
 		}
-		// vector_for(requests, req, reqs) request_print(req);
-		//vector_for(requests, req, reqs) request_print_check(req);
+		// vector_for(references, req, reqs) request_print(req);
+		//vector_for(references, req, reqs) request_print_check(req);
 		FILE *out = fopen(out_file, "w");
 		if (!out) {
 			err(2, "Error: failed to open %s", ref_file);
 			file_del(content);
-			vector_del(requests, reqs);
+			vector_del(references, reqs);
 			del_machines();
 			del_str2kw();
 			return 2;
 		}
-		output_from_requests(out, reqs);
+		output_from_references(out, reqs);
 		fclose(out);
-		vector_del(requests, reqs);
+		vector_del(references, reqs);
 		file_del(content);
 		del_machines();
 		del_str2kw();
