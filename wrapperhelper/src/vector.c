@@ -40,6 +40,7 @@ int vector_reserve_impl(VECTOR(voidp) *v, size_t elem_size, size_t cap) {
 }
 
 int vector_trim_impl(VECTOR(voidp) *v, size_t elem_size) {
+	if (v->vsize == v->vcap) return 1;
 	if (v->vsize) {
 		void *new_content_v = realloc(v->content_v, elem_size * v->vsize);
 		if (!new_content_v) return 0;

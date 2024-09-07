@@ -71,6 +71,15 @@ int string_reserve_grow(string_t *s, size_t cap) {
 	return 1;
 }
 
+int string_trim(string_t *s) {
+	if (s->ssize == s->scap) return 1;
+	void *new_buf = realloc(s->buf, sizeof(char) * (s->ssize + 1));
+	if (!new_buf) return 0;
+	s->buf = new_buf;
+	s->scap = s->ssize;
+	return 1;
+}
+
 void string_del(string_t *s) {
 	if (s->buf) free(s->buf);
 	free(s);
@@ -116,6 +125,16 @@ void string_pop(string_t *s) {
 		s->buf = new_buf;
 		s->scap = new_cap;
 	}
+}
+
+void string_clear(string_t *s) {
+	if (!s->ssize) return;
+	if (!s->scap) return;
+	s->buf[s->ssize = 0] = '\0';
+	void *new_buf = realloc(s->buf, sizeof(char));
+	if (!new_buf) return; // We don't really care if the realloc fails, we just need to not update anything
+	s->buf = new_buf;
+	s->scap = 0;
 }
 
 string_t *string_dup(string_t const *s) {

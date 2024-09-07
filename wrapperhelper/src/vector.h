@@ -26,7 +26,7 @@
  * vector_new --------------- Creates a new vector. Takes the name.
  * vector_new_cap ----------- Creates a new vector with a given capacity. Takes the name and the capacity.
  * vector_reserve ----------- Ensures a vector has at least a given capacity. Takes the name, the vector and the capacity. May not reduce the vector capacity.
- * vector_trim -------------- Ensures a vector has a capacity equal to its size. Takes the name, the vector. May reduce the vector capacity.
+ * vector_trim -------------- Ensures a vector has a capacity equal to its size. Takes the name and the vector. May reduce the vector capacity.
  * vector_del --------------- Frees a vector. Takes the name and the vector. Destructs the content of the vector.
  * vector_steal ------------- Frees a vector and returns the content. Takes the name and the vector. May reduce the vector capacity.
  * vector_del_freed --------- Frees a vector without freeing the content. Takes the name and the vector. Does not interact with the content of the vector.
