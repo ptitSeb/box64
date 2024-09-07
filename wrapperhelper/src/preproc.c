@@ -1000,6 +1000,7 @@ static VECTOR(preproc) *proc_do_expand(const khash_t(macros_map) *macros, const 
 
 #define OPLVL_MUL 2
 #define OPLVL_DIV 2
+#define OPLVL_MOD 2
 #define OPLVL_ADD 3
 #define OPLVL_SUB 3
 #define OPLVL_LSL 4
@@ -1017,6 +1018,7 @@ static VECTOR(preproc) *proc_do_expand(const khash_t(macros_map) *macros, const 
 #define OPLVL_BOR 11 // Boolean
 #define OPTYP_MUL 1
 #define OPTYP_DIV 2
+#define OPTYP_MOD 3
 #define OPTYP_ADD 1
 #define OPTYP_SUB 2
 #define OPTYP_LSL 1
@@ -1186,6 +1188,16 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 				} else {
 					op_lvl = OPLVL_DIV;
 					op_typ = OPTYP_DIV;
+					break;
+				}
+			case SYM_PERCENT:
+				// Binary (st0 != 0)
+				if (vector_last(ppeaux, stack).st0 == 0) {
+					printf("Invalid %snary '%s' in #if expression\n", "bi", sym2str[tok->tokv.sym]);
+					goto eval_fail;
+				} else {
+					op_lvl = OPLVL_MOD;
+					op_typ = OPTYP_MOD;
 					break;
 				}
 			case SYM_HAT:
@@ -1360,6 +1372,13 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 					}
 					acc = vector_last(ppeaux, stack).v2 / acc;
 					vector_last(ppeaux, stack).st2 = 0;
+				} else if (vector_last(ppeaux, stack).st2 == OPTYP_MOD) {
+					if (!acc) {
+						printf("Error: division by zero\n");
+						goto eval_fail;
+					}
+					acc = vector_last(ppeaux, stack).v2 % acc;
+					vector_last(ppeaux, stack).st2 = 0;
 				} else if (vector_last(ppeaux, stack).st2) {
 					printf("<internal error> Unknown st2 %d during #if evaluation\n", vector_last(ppeaux, stack).st2);
 					goto eval_fail;
@@ -1518,7 +1537,6 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 			case SYM_VARIADIC:
 			case SYM_DOT:
 			case SYM_DASHGT:
-			case SYM_PERCENT:
 			case SYM_EQ:
 			case SYM_PLUSEQ:
 			case SYM_DASHEQ:
@@ -1557,6 +1575,13 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 					goto eval_fail;
 				}
 				acc = vector_last(ppeaux, stack).v2 / acc;
+				vector_last(ppeaux, stack).st2 = 0;
+			} else if (vector_last(ppeaux, stack).st2 == OPTYP_MOD) {
+				if (!acc) {
+					printf("Error: division by zero\n");
+					goto eval_fail;
+				}
+				acc = vector_last(ppeaux, stack).v2 % acc;
 				vector_last(ppeaux, stack).st2 = 0;
 			} else if (vector_last(ppeaux, stack).st2) {
 				printf("<internal error> Unknown st2 %d during #if evaluation\n", vector_last(ppeaux, stack).st2);
@@ -1792,6 +1817,13 @@ done_complete_stack:
 			goto eval_fail;
 		}
 		acc = vector_last(ppeaux, stack).v2 / acc;
+		vector_last(ppeaux, stack).st2 = 0;
+	} else if (vector_last(ppeaux, stack).st2 == OPTYP_MOD) {
+		if (!acc) {
+			printf("Error: division by zero\n");
+			goto eval_fail;
+		}
+		acc = vector_last(ppeaux, stack).v2 % acc;
 		vector_last(ppeaux, stack).st2 = 0;
 	} else if (vector_last(ppeaux, stack).st2) {
 		printf("<internal error> Unknown st2 %d during #if evaluation\n", vector_last(ppeaux, stack).st2);
@@ -2068,6 +2100,7 @@ check_if_depth:
 						// Forbidding this code would require another 64-bits bitfield, which is redundant, thus not implemented.
 						// Also, we only need to goto check_if_depth if we actually update ok_depth
 						if ((ppsrc->srcv.prep.ok_depth == ppsrc->srcv.prep.cond_depth - 1) && !ppsrc->srcv.prep.entered_next_ok_cond) {
+							vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 							++ppsrc->srcv.prep.ok_depth;
 							goto preproc_ignore_remaining_goto;
 						} else goto preproc_ignore_remaining;
@@ -2297,7 +2330,7 @@ start_cur_token:
 				if (tok.tokt == PPTOK_INCL) {
 					incl_file = tok.tokv.sstr;
 					// Assume we only have one #include "..." path, so include_next is always a system include
-					is_sys = is_next || src->is_sys || !tok.tokv.sisstr;
+					is_sys = is_next || !tok.tokv.sisstr;
 					tok = ppsrc_next_token(src); // Token was moved
 					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
 						printf("Warning: ignored tokens after #include directive (%s)\n", src->cur_file);
@@ -2435,7 +2468,6 @@ start_cur_token:
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
 					ret.tokv = (union proc_token_val_u){.c = tok.tokv.sisstr ? '<' : '"'};
-					string_del(tok.tokv.sstr);
 					return ret;
 				}
 				string_del(incl_file);
@@ -3133,7 +3165,7 @@ proc_token_t proc_next_token(preproc_t *src) {
 	if ((ret.tokt == PTOK_STRING) && ret.tokv.sisstr) {
 		while (1) {
 			proc_token_t ret2 = proc_next_token_aux(src);
-			if ((ret.tokt == PTOK_STRING) && ret.tokv.sisstr) {
+			if ((ret2.tokt == PTOK_STRING) && ret2.tokv.sisstr) {
 				if (!string_add_string(ret.tokv.sstr, ret2.tokv.sstr)) {
 					printf("Error: failed to concatenate adjacent strings\n");
 					string_del(ret.tokv.sstr);

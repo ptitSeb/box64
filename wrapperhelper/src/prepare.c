@@ -14,6 +14,7 @@ struct prepare_s {
 		PREPST_INCL,
 		PREPST_DEF,
 		PREPST_DEFID,
+		PREPST_COMMENT,
 	} st;
 };
 
@@ -154,6 +155,37 @@ static const struct symbs_s {
 };
 
 preproc_token_t pre_next_token(prepare_t *src, int allow_comments) {
+	if (src->st == PREPST_COMMENT) {
+		// In comments, keep everything as 'BLANK' except for idents, newlines and EOF
+		int c = get_char(src);
+		if (c == EOF) {
+			// Force newline at EOF
+			unget_char(src, c);
+			src->st = PREPST_NL;
+			return (preproc_token_t){
+				.tokt = PPTOK_NEWLINE,
+				.tokv.c = (char)c
+			};
+		} else if ((c == '_') || ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z'))) {
+			preproc_token_t ret;
+			ret.tokt = PPTOK_IDENT;
+			ret.tokv.str = string_new_cap(1);
+			string_add_char(ret.tokv.str, (char)c);
+			fill_ident(src, ret.tokv.str);
+			return ret;
+		} else if ((c >= 0) && (c <= 0x7F)) {
+			return (preproc_token_t){
+				.tokt = PPTOK_BLANK,
+				.tokv.c = (char)c
+			};
+		} else {
+			return (preproc_token_t){
+				.tokt = PPTOK_INVALID,
+				.tokv.c = (char)c
+			};
+		}
+	}
+	
 start_next_token:
 	int c = get_char(src);
 	if (c == EOF) {
@@ -259,7 +291,7 @@ start_next_token:
 		c = get_char(src);
 		if (c == '/') {
 			if (allow_comments) {
-				src->st = PREPST_NONE;
+				src->st = PREPST_COMMENT;
 				return (preproc_token_t){
 					.tokt = PPTOK_START_LINE_COMMENT,
 					.tokv.c = '/'
@@ -288,6 +320,14 @@ start_next_token:
 				.tokv.c = (char)c
 			};
 		} else if (c == '*') {
+			if (allow_comments) {
+				printf("Unsupported multiline comment with allow_comment in %s\n", src->srcn);
+				return (preproc_token_t){
+					.tokt = PPTOK_INVALID,
+					.tokv.c = (char)c
+				};
+			}
+			
 			c = get_char(src);
 			int last_star = 0;
 			while ((c != EOF) && (!last_star || (c != '/'))) {
@@ -349,24 +389,26 @@ start_next_token:
 		.tokv.c = (char)c
 	};
 }
-preproc_token_t pre_next_newline_token(prepare_t *src) {
-start_next_token:
-	int c = get_char(src);
-	if (c == EOF) {
-		// Force newline at EOF
-		unget_char(src, c);
-		src->st = PREPST_NL;
-		return (preproc_token_t){
-			.tokt = PPTOK_NEWLINE,
-			.tokv.c = (char)c
-		};
+
+// Warning: unsafe method
+void prepare_mark_nocomment(prepare_t *src) {
+	src->st = PREPST_NONE;
+}
+int pre_next_newline_token(prepare_t *src, string_t *buf) {
+	while (1) {
+		int c = get_char(src);
+		if (c == EOF) {
+			// Force newline at EOF
+			unget_char(src, c);
+			src->st = PREPST_NL;
+			return 1;
+		} else if (c == '\n') {
+			src->st = PREPST_NL;
+			return 1;
+		} else if ((c >= 0) && (c <= 0x7F)) {
+			if (!string_add_char(buf, (char)c)) return 0;
+		} else {
+			return 0;
+		}
 	}
-	if (c == '\n') {
-		src->st = PREPST_NL;
-		return (preproc_token_t){
-			.tokt = PPTOK_NEWLINE,
-			.tokv.c = (char)c
-		};
-	}
-	goto start_next_token;
 }

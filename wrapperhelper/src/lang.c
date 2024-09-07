@@ -349,9 +349,9 @@ int init_str2kw(void) {
 		printf("Failed to create the string to keyword map (init)\n");
 		return 0;
 	}
+	int iret; khiter_t it;
 	for (enum token_keyword_type_e kw = 0; kw <= LAST_KEYWORD; ++kw) {
-		int iret;
-		khiter_t it = kh_put(str2kw, str2kw, kw2str[kw], &iret);
+		it = kh_put(str2kw, str2kw, kw2str[kw], &iret);
 		if (iret < 0) {
 			printf("Failed to create the string to keyword map (keyword %u)\n", kw);
 			kh_destroy(str2kw, str2kw);
@@ -359,6 +359,35 @@ int init_str2kw(void) {
 		}
 		kh_val(str2kw, it) = kw;
 	}
+#define ADD_ALIAS(alias, k) \
+	it = kh_put(str2kw, str2kw, #alias, &iret);                                            \
+	if (iret < 0) {                                                                        \
+		printf("Failed to create the string to keyword map (keyword alias " #alias ")\n"); \
+		kh_destroy(str2kw, str2kw);                                                        \
+		return 0;                                                                          \
+	}                                                                                      \
+	kh_val(str2kw, it) = KW_ ## k;
+	ADD_ALIAS(__alignof__,   ALIGNOF)
+	// ADD_ALIAS(__asm,         asm)
+	// ADD_ALIAS(__asm__,       asm)
+	ADD_ALIAS(__complex,     COMPLEX)
+	ADD_ALIAS(__complex__,   COMPLEX)
+	ADD_ALIAS(__const,       CONST)
+	ADD_ALIAS(__const__,     CONST)
+	// ADD_ALIAS(__decltype,    decltype)
+	// ADD_ALIAS(__imag__,      __imag)
+	ADD_ALIAS(__inline,      INLINE)
+	ADD_ALIAS(__inline__,    INLINE)
+	// ADD_ALIAS(__nullptr,     nullptr)
+	// ADD_ALIAS(__real__,      __real)
+	ADD_ALIAS(__restrict,    RESTRICT)
+	ADD_ALIAS(__restrict__,  RESTRICT)
+	ADD_ALIAS(__signed,      SIGNED)
+	ADD_ALIAS(__signed__,    SIGNED)
+	// ADD_ALIAS(__typeof,      typeof)
+	// ADD_ALIAS(__typeof__,    typeof)
+	ADD_ALIAS(__volatile,    VOLATILE)
+	ADD_ALIAS(__volatile__,  VOLATILE)
 	return 1;
 }
 void del_str2kw(void) {
@@ -1109,7 +1138,7 @@ file_t *file_new(void) {
 	}
 	
 	// Now fill in the builtin types
-	int iret;
+	int iret; khiter_t it;
 	for (enum type_builtin_e i = 0; i < LAST_BUILTIN + 1; ++i) {
 		type_t *t = malloc(sizeof *t);
 		if (!t) {
@@ -1162,26 +1191,33 @@ file_t *file_new(void) {
 	}
 	// ret is valid
 	
-	// Add __builtin_va_list as a typedef
-	char *sdup = strdup("__builtin_va_list");
-	if (!sdup) {
-		printf("Failed to create a new translation unit structure (va_list name)\n");
-		file_del(ret);
-		return NULL;
-	}
-	khiter_t it = kh_put(type_map, ret->type_map, sdup, &iret);
-	if (iret < 0) {
-		printf("Failed to create a new translation unit structure (add va_list typedef)\n");
-		free(sdup);
-		file_del(ret);
-		return NULL;
-	} else if (iret == 0) {
-		printf("Failed to create a new translation unit structure (__builtin_va_list is already a typedef)\n");
-		file_del(ret);
-		return NULL;
-	}
-	kh_val(ret->type_map, it) = ret->builtins[BTT_VA_LIST];
-	++ret->builtins[BTT_VA_LIST]->nrefs;
+	// Add __builtin_va_list, __int128_t, __uint128_t as typedef
+	char *sdup;
+#define ADD_TYPEDEF(name, btt) \
+	sdup = strdup(#name);                                                                               \
+	if (!sdup) {                                                                                        \
+		printf("Failed to create a new translation unit structure (" #name " name)\n");                 \
+		file_del(ret);                                                                                  \
+		return NULL;                                                                                    \
+	}                                                                                                   \
+	it = kh_put(type_map, ret->type_map, sdup, &iret);                                                  \
+	if (iret < 0) {                                                                                     \
+		printf("Failed to create a new translation unit structure (add " #name " typedef)\n");          \
+		free(sdup);                                                                                     \
+		file_del(ret);                                                                                  \
+		return NULL;                                                                                    \
+	} else if (iret == 0) {                                                                             \
+		printf("Failed to create a new translation unit structure (" #name " is already a typedef)\n"); \
+		free(sdup);                                                                                     \
+		file_del(ret);                                                                                  \
+		return NULL;                                                                                    \
+	}                                                                                                   \
+	kh_val(ret->type_map, it) = ret->builtins[BTT_ ## btt];                                             \
+	++ret->builtins[BTT_ ## btt]->nrefs;
+	
+	ADD_TYPEDEF(__builtin_va_list, VA_LIST)
+	ADD_TYPEDEF(__int128_t, INT128)
+	ADD_TYPEDEF(__uint128_t, UINT128)
 	
 	return ret;
 }
