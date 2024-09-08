@@ -8,6 +8,7 @@
 #include "vector.h"
 
 struct macro_s; // preproc_private.h
+struct type_s;  // lang.h
 
 typedef struct machine_s {
 	// Preprocessor
@@ -20,6 +21,7 @@ typedef struct machine_s {
 	
 	// Parsing
 	size_t size_long;
+	size_t align_valist, size_valist;
 	// TODO: also have info on unnamed bitfields, etc
 } machine_t;
 
@@ -29,5 +31,7 @@ extern machine_t machine_x86_64;
 
 int init_machines(size_t npaths, const char *const *extra_include_path);
 void del_machines(void);
+
+int validate_type(machine_t *target, struct type_s *typ);
 
 #endif // MACHINE_H

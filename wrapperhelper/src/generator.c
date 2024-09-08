@@ -626,7 +626,8 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 			tok = pre_next_token(prep, 0);
 			if (tok.tokt == PPTOK_NUM) {
 				num_constant_t cst;
-				if (!num_constant_convert(tok.tokv.str, &cst)) {
+				// Assume target is 64 bits (box64)
+				if (!num_constant_convert(tok.tokv.str, &cst, 0)) {
 					printf("Error: invalid reference file: invalid DATA line %d (num conversion)\n", lineno);
 					string_del(req.obj_name);
 					preproc_token_del(&tok);
