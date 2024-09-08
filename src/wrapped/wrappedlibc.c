@@ -41,6 +41,7 @@
 #include <sys/resource.h>
 #include <sys/prctl.h>
 #include <sys/ptrace.h>
+#include <error.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -1118,6 +1119,21 @@ EXPORT int my_swscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
     return vswscanf(stream, fmt, VARARGS);
 }
 
+EXPORT void my_error(x64emu_t *emu, int status, int errnum, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
+    PREPARE_VALIST;
+    char buf[512];
+    vsnprintf(buf, 512, (const char*)fmt, VARARGS);
+    error(status, errnum, "%s", buf);
+}
+EXPORT void my_error_at_line(x64emu_t *emu, int status, int errnum, void* filename, uint32_t linenum, void* fmt, void* b) {
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 5);
+    PREPARE_VALIST;
+    char buf[512];
+    vsnprintf(buf, 512, (const char*)fmt, VARARGS);
+    error_at_line(status, errnum, filename, linenum, "%s", buf);
+}
+
 EXPORT void my_verr(x64emu_t* emu, int eval, void* fmt, x64_va_list_t b) {
     if (!fmt)
         return err(eval, NULL);
@@ -1129,6 +1145,16 @@ EXPORT void my_verr(x64emu_t* emu, int eval, void* fmt, x64_va_list_t b) {
     PREPARE_VALIST;
     #endif
     return verr(eval, fmt, VARARGS);
+}
+EXPORT void my_verrx(x64emu_t* emu, int eval, void* fmt, x64_va_list_t b) {
+    #ifdef CONVERT_VALIST
+    (void)emu;
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return verrx(eval, fmt, VARARGS);
 }
 EXPORT void my_err(x64emu_t *emu, int eval, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);

@@ -824,6 +824,7 @@
 #() vFiiip
 #() vFiiCp
 #() vFiill
+#() vFiipV
 #() vFiIII
 #() vFiuip
 #() vFiuuu
@@ -1870,6 +1871,7 @@
 #() vFiiiuil
 #() vFiiilpi
 #() vFiiuilp
+#() vFiipupV
 #() vFiffiff
 #() vFiddidd
 #() vFilipli
@@ -4343,6 +4345,7 @@ wrappedlibc:
   - fopencookie
 - vFiipV:
   - __syslog_chk
+  - error
 - vFiipA:
   - __vsyslog_chk
 - vFpLLp:
@@ -4425,6 +4428,8 @@ wrappedlibc:
 - pFpppLp:
   - lfind
   - lsearch
+- vFiipupV:
+  - error_at_line
 - iFpLiLpp:
   - __vsnprintf_chk
 - iFpLiLpV:
