@@ -902,6 +902,14 @@ EXPORT int my_vsprintf(x64emu_t* emu, void* buff,  void * fmt, x64_va_list_t b) 
 }
 EXPORT int my___vsprintf_chk(x64emu_t* emu, void* buff, void * fmt, x64_va_list_t b) __attribute__((alias("my_vsprintf")));
 
+EXPORT int my_scanf(x64emu_t* emu, void* fmt, uint64_t* b)
+{
+    myStackAlignScanf(emu, (const char*)fmt, b, emu->scratch, 1);
+    PREPARE_VALIST;
+
+    return vscanf(fmt, VARARGS);
+}
+
 EXPORT int my_vfscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
     (void)emu;
@@ -927,6 +935,38 @@ EXPORT int my_vsscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 }
 
 EXPORT int my___vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my_vsscanf")));
+
+EXPORT int my_vfwscanf(x64emu_t* emu, void* F, void* fmt, x64_va_list_t b)
+{
+    (void)emu;
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignScanfWValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vfwscanf(F, fmt, VARARGS);
+}
+
+EXPORT int my_vwscanf(x64emu_t* emu, void* fmt, x64_va_list_t b)
+{
+    (void)emu;
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignScanfWValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vwscanf(fmt, VARARGS);
+}
+
+EXPORT int my_wscanf(x64emu_t* emu, void* fmt, uint64_t* b)
+{
+    myStackAlignScanfW(emu, (const char*)fmt, b, emu->scratch, 1);
+    PREPARE_VALIST;
+
+    return vwscanf(fmt, VARARGS);
+}
 
 EXPORT int my_vswscanf(x64emu_t* emu, void* stream, void* fmt, x64_va_list_t b)
 {
@@ -1078,31 +1118,18 @@ EXPORT int my_swscanf(x64emu_t* emu, void* stream, void* fmt, uint64_t* b)
     return vswscanf(stream, fmt, VARARGS);
 }
 
-#if 0
-EXPORT void my_verr(x64emu_t* emu, int eval, void* fmt, void* b) {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
-    PREPARE_VALIST;
-    void* f = verr;
-    ((vFipp_t)f)(eval, fmt, VARARGS);
+EXPORT void my_verr(x64emu_t* emu, int eval, void* fmt, x64_va_list_t b) {
+    if (!fmt)
+        return err(eval, NULL);
+    #ifdef CONVERT_VALIST
+    (void)emu;
+    CONVERT_VALIST(b);
     #else
-    void* f = verr;
-    ((vFipp_t)f)(eval, fmt, (uint32_t*)b);
-    #endif
-}
-
-EXPORT void my_vwarn(x64emu_t* emu, void* fmt, void* b) {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
     PREPARE_VALIST;
-    void* f = vwarn;
-    ((vFpp_t)f)(fmt, VARARGS);
-    #else
-    void* f = vwarn;
-    ((vFpp_t)f)(fmt, (uint32_t*)b);
     #endif
+    return verr(eval, fmt, VARARGS);
 }
-#endif
 EXPORT void my_err(x64emu_t *emu, int eval, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
@@ -1112,6 +1139,18 @@ EXPORT void my_errx(x64emu_t *emu, int eval, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     verrx(eval, (const char*)fmt, VARARGS);
+}
+EXPORT void my_vwarn(x64emu_t* emu, void* fmt, x64_va_list_t b) {
+    if (!fmt)
+        return warn(NULL);
+    #ifdef CONVERT_VALIST
+    (void)emu;
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vwarn(fmt, VARARGS);
 }
 EXPORT void my_warn(x64emu_t *emu, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);

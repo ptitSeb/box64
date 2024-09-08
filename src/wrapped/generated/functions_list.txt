@@ -394,7 +394,6 @@
 #() vFipu
 #() vFipL
 #() vFipp
-#() vFipA
 #() vFCCC
 #() vFWWW
 #() vFucc
@@ -825,7 +824,6 @@
 #() vFiiip
 #() vFiiCp
 #() vFiill
-#() vFiipV
 #() vFiIII
 #() vFiuip
 #() vFiuuu
@@ -3143,15 +3141,14 @@
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
 #!defined(NOALIGN) iFEipiip
-#!defined(STATICBUILD) lFiV
 #!defined(STATICBUILD) iFlip
 #!defined(STATICBUILD) iFLLi
 #!defined(STATICBUILD) iFLLii
 #!defined(STATICBUILD) WFpLLu
-#!defined(STATICBUILD) lFpLpV
 #!defined(STATICBUILD) iFEipup
 #!defined(STATICBUILD) iFEiipup
 #!defined(STATICBUILD) iFpipppL
+#!defined(STATICBUILD) lFpLpdddddd
 #() vFEv -> vFE
 #() iFEv -> iFE
 #() lFEv -> lFE
@@ -4226,12 +4223,15 @@ wrappedlibc:
   - execle
   - execlp
   - printf
+  - scanf
   - wprintf
+  - wscanf
 - iFpA:
   - __isoc99_vscanf
   - vprintf
   - vscanf
   - vwprintf
+  - vwscanf
 - iFSp:
   - _IO_file_stat
 - pFip:
@@ -4253,6 +4253,8 @@ wrappedlibc:
   - errx
   - syslog
 - vFipA:
+  - verr
+  - verrx
   - vsyslog
 - vFpii:
   - backtrace_symbols_fd
@@ -4322,6 +4324,7 @@ wrappedlibc:
   - vfprintf
   - vfscanf
   - vfwprintf
+  - vfwscanf
 - lFipV:
   - __wprintf_chk
 - lFppL:

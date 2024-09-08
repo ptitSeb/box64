@@ -307,7 +307,7 @@ GOW(erand48_r, iFppp)
 GOM(err, vFEipV)
 //DATAB(errno, 
 GO(__errno_location, pFv)
-GOW(error, vFiipV)
+//GOWM(error, vFiipV)
 //GOWM(error_at_line, vFiipupV)
 //DATAB(error_message_count, 4)
 //DATAB(error_one_per_line, 4)
@@ -1702,7 +1702,7 @@ GOWM(scandir, iFEpppp)
 GOWM(scandir64, iFEpppp)
 GOWM(scandirat, iFipppp)
 //GOM(scandirat64, iFipppp)
-GO(scanf, iFpV)
+GOM(scanf, iFpV)
 GO(__sched_cpualloc, pFL)
 GO(__sched_cpucount, iFLp)
 GO(__sched_cpufree, vFp)
@@ -1945,7 +1945,7 @@ GO(strerror_r, pFipL)
 //GO(strfmon, lFpLpV)
 //GO(__strfmon_l, 
 #else
-GO(strfmon, lFpLpV)
+GO(strfmon, lFpLpdddddd)        // should be V, but only double are allowed...
 //GO(__strfmon_l, 
 #endif
 GOW(strfmon_l, lFpLppdddddd)    // should be V, but only double are allowed...
@@ -2237,7 +2237,7 @@ GOW(ulckpwdf, iFv)
 #ifdef STATICBUILD
 //GOW(ulimit, lFiV)
 #else
-GOW(ulimit, lFiV)
+//GOWM(ulimit, lFiV)
 #endif
 GOW(umask, uFu)
 GOW(umount, iFp)
@@ -2273,8 +2273,8 @@ GOWM(vasprintf, iFEppA)
 GOM(__vasprintf_chk, iFEpipp)
 GOM(vdprintf, iFEipA)
 GOM(__vdprintf_chk, iFEiipA)
-GO(verr, vFipA)
-GO(verrx, vFipA)
+GOM(verr, vFEipA)
+GOM(verrx, vFEipA)
 GOW(versionsort, iFpp)
 GOW(versionsort64, iFpp)
 //GO(__vfork, 
@@ -2285,7 +2285,7 @@ GOM(__vfprintf_chk, iFEpvpp)
 GOWM(vfscanf, iFESpA)
 GOWM(vfwprintf, iFESpA)
 GOM(__vfwprintf_chk, iFEpipA)
-GOW(vfwscanf, iFSpA)
+GOWM(vfwscanf, iFSpA)
 GO(vhangup, iFv)
 //GO(vlimit, 
 GO(vmsplice, lFipLu)
@@ -2309,7 +2309,7 @@ GO(vwarn, vFpA)
 GO(vwarnx, vFpA)
 GOM(vwprintf, iFEpA)
 //GO(__vwprintf_chk, 
-GO(vwscanf, iFpA)
+GOM(vwscanf, iFpA)
 GOW(__wait, iFp)
 GOW(wait, iFp)
 GOW(wait3, iFpip)
@@ -2441,7 +2441,7 @@ GOW(__write, lFipL)
 GO(write, lFipL)
 //GO(__write_nocancel, 
 GOW(writev, lFipi)
-GO(wscanf, iFpV)
+GOM(wscanf, iFEpV)
 //GO(__wuflow, 
 //GO(__wunderflow, 
 //GO(xdecrypt, 
@@ -2633,8 +2633,8 @@ GOM(__libc_init, vFEpppp)
 GO(__errno, pFv)
 #else
 // Those symbols don't exist in non-Android builds
-//GOM(__libc_init,
-//GO(__errno,
+//GOM(__libc_init, 
+//GO(__errno, 
 #endif
 #ifdef STATICBUILD
 GO(dummy_pFLp, pFLp)

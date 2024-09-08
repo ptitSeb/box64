@@ -161,11 +161,14 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(execle, iFpV_t) \
 	GO(execlp, iFpV_t) \
 	GO(printf, iFpV_t) \
+	GO(scanf, iFpV_t) \
 	GO(wprintf, iFpV_t) \
+	GO(wscanf, iFpV_t) \
 	GO(__isoc99_vscanf, iFpA_t) \
 	GO(vprintf, iFpA_t) \
 	GO(vscanf, iFpA_t) \
 	GO(vwprintf, iFpA_t) \
+	GO(vwscanf, iFpA_t) \
 	GO(_IO_file_stat, iFSp_t) \
 	GO(__sysv_signal, pFip_t) \
 	GO(bsd_signal, pFip_t) \
@@ -180,6 +183,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(err, vFipV_t) \
 	GO(errx, vFipV_t) \
 	GO(syslog, vFipV_t) \
+	GO(verr, vFipA_t) \
+	GO(verrx, vFipA_t) \
 	GO(vsyslog, vFipA_t) \
 	GO(backtrace_symbols_fd, vFpii_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
@@ -234,6 +239,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(vfprintf, iFSpA_t) \
 	GO(vfscanf, iFSpA_t) \
 	GO(vfwprintf, iFSpA_t) \
+	GO(vfwscanf, iFSpA_t) \
 	GO(__wprintf_chk, lFipV_t) \
 	GO(readlink, lFppL_t) \
 	GO(strlcat, LFppL_t) \

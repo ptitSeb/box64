@@ -432,7 +432,6 @@ void vFipi(x64emu_t *emu, uintptr_t fnc);
 void vFipu(x64emu_t *emu, uintptr_t fnc);
 void vFipL(x64emu_t *emu, uintptr_t fnc);
 void vFipp(x64emu_t *emu, uintptr_t fnc);
-void vFipA(x64emu_t *emu, uintptr_t fnc);
 void vFCCC(x64emu_t *emu, uintptr_t fnc);
 void vFWWW(x64emu_t *emu, uintptr_t fnc);
 void vFucc(x64emu_t *emu, uintptr_t fnc);
@@ -863,7 +862,6 @@ void vFiiii(x64emu_t *emu, uintptr_t fnc);
 void vFiiip(x64emu_t *emu, uintptr_t fnc);
 void vFiiCp(x64emu_t *emu, uintptr_t fnc);
 void vFiill(x64emu_t *emu, uintptr_t fnc);
-void vFiipV(x64emu_t *emu, uintptr_t fnc);
 void vFiIII(x64emu_t *emu, uintptr_t fnc);
 void vFiuip(x64emu_t *emu, uintptr_t fnc);
 void vFiuuu(x64emu_t *emu, uintptr_t fnc);
@@ -3189,15 +3187,14 @@ void iFEipiip(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(STATICBUILD)
-void lFiV(x64emu_t *emu, uintptr_t fnc);
 void iFlip(x64emu_t *emu, uintptr_t fnc);
 void iFLLi(x64emu_t *emu, uintptr_t fnc);
 void iFLLii(x64emu_t *emu, uintptr_t fnc);
 void WFpLLu(x64emu_t *emu, uintptr_t fnc);
-void lFpLpV(x64emu_t *emu, uintptr_t fnc);
 void iFEipup(x64emu_t *emu, uintptr_t fnc);
 void iFEiipup(x64emu_t *emu, uintptr_t fnc);
 void iFpipppL(x64emu_t *emu, uintptr_t fnc);
+void lFpLpdddddd(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 void vFEv(x64emu_t *emu, uintptr_t fnc);
