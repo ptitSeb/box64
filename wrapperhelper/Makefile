@@ -238,7 +238,7 @@ $(call wrapperhelper_o,,parse,parse): CFLAGS+= -fno-analyzer
 
 src/machine.gen:
 	$(call colorize,96,GEN,33,Generating $@)
-	$(SILENCER)echo | LC_ALL=C LANG=C $(CC) $(CPPFLAGS) -E -v - |& sed ':l; $$ ! { N; b l }; s/.*#include <...> search starts here:\n//; s/End of search list.*//; s/^ /DO_PATH("/; s/\n /")\nDO_PATH("/g; s/\n$$/")/' >src/machine.gen
+	$(SILENCER)echo | LC_ALL=C LANG=C $(CC) $(CPPFLAGS) -E -v - 2>&1 | sed ':l; $$ ! { N; b l }; s/.*#include <...> search starts here:\n//; s/End of search list.*//; s/^ /DO_PATH("/; s/\n /")\nDO_PATH("/g; s/\n$$/")/' >src/machine.gen
 
 #$(eval $(call compile_test_cxx,core/number))
 
