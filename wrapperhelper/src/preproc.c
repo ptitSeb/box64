@@ -1063,7 +1063,7 @@ typedef struct preproc_eval_aux_s {
 } preproc_eval_aux_t;
 VECTOR_DECLARE_STATIC(ppeaux, preproc_eval_aux_t)
 VECTOR_IMPL_STATIC(ppeaux, (void))
-static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
+static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret, int ptr_is_32bits) {
 	VECTOR(ppeaux) *stack = vector_new_cap(ppeaux, 1);
 	if (!stack) {
 		printf("Failed to allocate #if evaluation stack vector\n");
@@ -1083,7 +1083,7 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 			// Evaluate token as an integer if st0 == 0, error otherwise
 			if (vector_last(ppeaux, stack).st0 == 0) {
 				num_constant_t cst;
-				if (!num_constant_convert(tok->tokv.str, &cst)) {
+				if (!num_constant_convert(tok->tokv.str, &cst, ptr_is_32bits)) {
 					goto eval_fail;
 				}
 				switch (cst.typ) {
@@ -1106,7 +1106,6 @@ static int64_t preproc_eval(const VECTOR(preproc) *cond, int *aux_ret) {
 		} else if ((tok->tokt == PPTOK_IDENT) || (tok->tokt == PPTOK_IDENT_UNEXP)) {
 			// Evaluate token as 0 if st0 == 0, error otherwise
 			if (vector_last(ppeaux, stack).st0 == 0) {
-				is_unsigned = 0;
 				acc = 0;
 				goto push_acc_to_st0;
 			} else {
@@ -2021,7 +2020,7 @@ check_if_depth:
 							
 							// Now we need to compute what is pointed by expanded, and increase cond_depth and ok_depth as needed
 							int st;
-							int64_t res = preproc_eval(expanded, &st);
+							int64_t res = preproc_eval(expanded, &st, src->target->size_long == 4);
 							vector_del(preproc, expanded);
 							if (!st) {
 								printf("Error: failed to evaluate #elif condition in (%s)\n", src->cur_file);
@@ -2029,7 +2028,6 @@ check_if_depth:
 								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = {.c = '\0'} };
 							}
 							if (res) {
-								vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 								++vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 								if (tok.tokt == PPTOK_NEWLINE) {
 									src->st = PPST_NL;
@@ -2064,8 +2062,8 @@ check_if_depth:
 							// We may enter the following block, check it
 							khiter_t it = kh_get(macros_map, src->macros_map, string_content(tok.tokv.str));
 							if (it != kh_end(src->macros_map)) {
-								ppsrc->srcv.prep.entered_next_ok_cond = 1;
 								++ppsrc->srcv.prep.ok_depth;
+								goto preproc_ignore_remaining_goto;
 							}
 							goto preproc_ignore_remaining;
 						}
@@ -2080,13 +2078,14 @@ check_if_depth:
 							// We may enter the following block, check it
 							khiter_t it = kh_get(macros_map, src->macros_map, string_content(tok.tokv.str));
 							if (it == kh_end(src->macros_map)) {
-								ppsrc->srcv.prep.entered_next_ok_cond = 1;
 								++ppsrc->srcv.prep.ok_depth;
+								goto preproc_ignore_remaining_goto;
 							}
 							goto preproc_ignore_remaining;
 						}
 					} else if (!strcmp(string_content(tok.tokv.str), "else")) {
 						// Maybe increase ok_depth if ok_depth = cond_depth - 1; also goto check_if_depth
+						// Also, we only need to goto check_if_depth if we actually update ok_depth
 						// Note that this (very naive) approach allows code such as:
 						/* #ifdef M
 						 * ... // Not preprocessed                       *** Preprocessed
@@ -2098,10 +2097,8 @@ check_if_depth:
 						 * ... // Preprocessed                           *** Not preprocessed
 						 * #endif
 						 */
-						// Forbidding this code would require another 64-bits bitfield, which is redundant, thus not implemented.
-						// Also, we only need to goto check_if_depth if we actually update ok_depth
+						// Forbidding this code would require a 256-bits bitfield, which is big, thus not implemented.
 						if ((ppsrc->srcv.prep.ok_depth == ppsrc->srcv.prep.cond_depth - 1) && !ppsrc->srcv.prep.entered_next_ok_cond) {
-							vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 							++ppsrc->srcv.prep.ok_depth;
 							goto preproc_ignore_remaining_goto;
 						} else goto preproc_ignore_remaining;
@@ -2852,11 +2849,10 @@ start_cur_token:
 							printf("Invalid pragma wrappers explicit_simple directive, skipping until EOL\n");
 							goto preproc_hash_err;
 						}
-						string_t *id = tok.tokv.str;
 						src->st = PPST_PRAGMA_EXPLICIT;
 						ret.tokt = PTOK_PRAGMA;
 						ret.tokv.pragma.typ = PRAGMA_EXPLICIT_CONV;
-						ret.tokv.pragma.val = id;
+						ret.tokv.pragma.val = tok.tokv.str;
 						return ret;
 					} else {
 						printf("Unknown pragma wrappers directive '%s', skipping until EOL\n", string_content(tok.tokv.str));
@@ -2919,7 +2915,7 @@ start_cur_token:
 				
 				// Now we need to compute what is pointed by expanded, and increase cond_depth and ok_depth as needed
 				int st;
-				int64_t res = preproc_eval(expanded, &st);
+				int64_t res = preproc_eval(expanded, &st, src->target->size_long == 4);
 				vector_del(preproc, expanded);
 				if (!st) {
 					printf("Error: failed to evaluate #if condition (%s)\n", src->cur_file);
@@ -2930,7 +2926,6 @@ start_cur_token:
 				}
 				++vector_last(ppsource, src->prep).srcv.prep.cond_depth;
 				if (res) {
-					vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 					++vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 					if (tok.tokt == PPTOK_NEWLINE) goto check_next_token;
 					else goto start_cur_token;
@@ -2963,7 +2958,6 @@ start_cur_token:
 				// TODO: check iret, error if needed
 				++vector_last(ppsource, src->prep).srcv.prep.cond_depth;
 				if (it != kh_end(src->macros_map)) {
-					vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 					++vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 					goto preproc_hash_err;
 				} else {
@@ -2994,7 +2988,6 @@ start_cur_token:
 				// TODO: check iret, error if needed
 				++vector_last(ppsource, src->prep).srcv.prep.cond_depth;
 				if (it == kh_end(src->macros_map)) {
-					vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 					++vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 					goto preproc_hash_err;
 				} else {
@@ -3008,6 +3001,7 @@ start_cur_token:
 					goto preproc_hash_err;
 				}
 				if (vector_last(ppsource, src->prep).srcv.prep.ok_depth) {
+					vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 					--vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 					goto preproc_hash_err_goto;
 				} else {
@@ -3033,6 +3027,7 @@ start_cur_token:
 				// We don't care about iret(?)
 				// TODO: check iret, error if needed
 				if (vector_last(ppsource, src->prep).srcv.prep.ok_depth) {
+					vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 					--vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 					goto preproc_hash_err_goto;
 				} else {
@@ -3058,6 +3053,7 @@ start_cur_token:
 				// We don't care about iret(?)
 				// TODO: check iret, error if needed
 				if (vector_last(ppsource, src->prep).srcv.prep.ok_depth) {
+					vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
 					--vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 					goto preproc_hash_err_goto;
 				} else {
@@ -3071,6 +3067,7 @@ start_cur_token:
 					goto preproc_hash_err;
 				}
 				if (vector_last(ppsource, src->prep).srcv.prep.ok_depth) {
+					// We can safely ignore setting entered_next_ok since two #else is illegal (though this parser doesn't actually detect this)
 					--vector_last(ppsource, src->prep).srcv.prep.ok_depth;
 					goto preproc_hash_err_goto;
 				} else {

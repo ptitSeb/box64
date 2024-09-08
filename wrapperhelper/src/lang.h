@@ -5,9 +5,8 @@
 
 #include "cstring.h"
 #include "khash.h"
+#include "machine.h"
 #include "vector.h"
-
-#define LONG_IS_32BITS 0
 
 enum token_sym_type_e {
 	SYM_LBRACKET,
@@ -191,7 +190,7 @@ typedef struct num_constant_s {
 		uint64_t u64;
 	} val;
 } num_constant_t;
-int num_constant_convert(string_t *str, num_constant_t *cst);
+int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits);
 KHASH_MAP_DECLARE_STR(const_map, num_constant_t)
 
 typedef struct expr_s {
@@ -381,6 +380,7 @@ typedef struct st_member_s {
 	type_t *typ;
 	_Bool is_bitfield;
 	size_t bitfield_width;
+	// TODO: add byte_offset then check in generator against both archs for every named members
 } st_member_t;
 typedef struct struct_s {
 	string_t *tag;
@@ -421,7 +421,7 @@ typedef struct file_s {
 	khash_t(const_map) *const_map;
 	khash_t(type_set) *type_set;
 } file_t;
-file_t *file_new(void);
+file_t *file_new(machine_t *target);
 void file_del(file_t *f);
 
 extern const char *sym2str[LAST_SYM + 1];

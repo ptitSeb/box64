@@ -394,7 +394,8 @@ void del_str2kw(void) {
 	kh_destroy(str2kw, str2kw);
 }
 
-int num_constant_convert(string_t *str, num_constant_t *cst) {
+// ptr_is_32bits is actially long_is_32bits
+int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits) {
 	if (string_len(str) == 0) return 0; // Should never happen
 #define contains(c) strchr(string_content(str), c)
 	if (contains('.')
@@ -486,10 +487,10 @@ int num_constant_convert(string_t *str, num_constant_t *cst) {
 		// If base == 10, keep the signness; in any case, try 32 bits if available else use 64 bits
 		cst->typ =
 			((suffix_type & SUFFIX_SGN) == SUFFIX_U) ?
-				((suffix_type & SUFFIX_SZ) == SUFFIX_L) ? LONG_IS_32BITS ? NCT_UINT32 : NCT_UINT64 :
+				((suffix_type & SUFFIX_SZ) == SUFFIX_L) ? ptr_is_32bits ? NCT_UINT32 : NCT_UINT64 :
 				((suffix_type & SUFFIX_SZ) == SUFFIX_LL) ? NCT_UINT64 :
 					NCT_UINT32 :
-				((suffix_type & SUFFIX_SZ) == SUFFIX_L) ? LONG_IS_32BITS ? NCT_INT32 : NCT_INT64 :
+				((suffix_type & SUFFIX_SZ) == SUFFIX_L) ? ptr_is_32bits ? NCT_INT32 : NCT_INT64 :
 				((suffix_type & SUFFIX_SZ) == SUFFIX_LL) ? NCT_INT64 :
 					NCT_INT32;
 		if (cst->typ == NCT_INT32) {
@@ -795,7 +796,6 @@ struct_t *struct_new(int is_struct, string_t *tag) {
 	return ret;
 }
 
-_Static_assert(sizeof(type_t*) == sizeof(khint64_t), "Not a 64-bits machine");
 khint_t type_t_hash(type_t *typ) {
 	switch (typ->typ) {
 	case TYPE_BUILTIN: return kh_int_hash_func(typ->val.builtin);
@@ -1043,49 +1043,7 @@ void struct_print(const struct_t *st) {
 	}
 }
 
-// TODO: per-arch array
-size_t sizeof_btt[LAST_BUILTIN + 1] = {
-	[BTT_VOID] = 0,
-	[BTT_BOOL] = 1,
-	[BTT_CHAR] = 1,
-	[BTT_SCHAR] = 1,
-	[BTT_UCHAR] = 1,
-	[BTT_SHORT] = 2,
-	[BTT_SSHORT] = 2,
-	[BTT_USHORT] = 2,
-	[BTT_INT] = 4,
-	[BTT_SINT] = 4,
-	[BTT_UINT] = 4,
-	[BTT_LONG] = LONG_IS_32BITS ? 4 : 8,
-	[BTT_SLONG] = LONG_IS_32BITS ? 4 : 8,
-	[BTT_ULONG] = LONG_IS_32BITS ? 4 : 8,
-	[BTT_LONGLONG] = 8,
-	[BTT_SLONGLONG] = 8,
-	[BTT_ULONGLONG] = 8,
-	[BTT_INT128] = 16,
-	[BTT_SINT128] = 16,
-	[BTT_UINT128] = 16,
-	[BTT_S8] = 1,
-	[BTT_U8] = 1,
-	[BTT_S16] = 2,
-	[BTT_U16] = 2,
-	[BTT_S32] = 4,
-	[BTT_U32] = 4,
-	[BTT_S64] = 8,
-	[BTT_U64] = 8,
-	[BTT_FLOAT] = 4,
-	[BTT_CFLOAT] = 8,
-	[BTT_IFLOAT] = 4,
-	[BTT_DOUBLE] = 8,
-	[BTT_CDOUBLE] = 16,
-	[BTT_IDOUBLE] = 8,
-	[BTT_LONGDOUBLE] = 16,
-	[BTT_CLONGDOUBLE] = 32,
-	[BTT_ILONGDOUBLE] = 16,
-	[BTT_VA_LIST] = LONG_IS_32BITS ? 0 : 24, // TODO
-};
-// The following assumes sizeof(unsigned long) == sizeof(void*)
-file_t *file_new(void) {
+file_t *file_new(machine_t *target) {
 	file_t *ret = malloc(sizeof *ret);
 	if (!ret) {
 		printf("Failed to create a new translation unit structure (init)\n");
@@ -1140,7 +1098,7 @@ file_t *file_new(void) {
 	// Now fill in the builtin types
 	int iret; khiter_t it;
 	for (enum type_builtin_e i = 0; i < LAST_BUILTIN + 1; ++i) {
-		type_t *t = malloc(sizeof *t);
+		type_t *t = type_new();
 		if (!t) {
 			printf("Failed to create a new translation unit structure (builtin type)\n");
 			for (; i--;) {
@@ -1155,14 +1113,11 @@ file_t *file_new(void) {
 			free(ret);
 			return NULL;
 		}
-		t->is_atomic = t->is_const = t->is_restrict = t->is_volatile = t->_internal_use = 0;
 		t->is_incomplete = (i == BTT_VOID);
-		t->converted = NULL; // Maybe should be something else?
-		t->is_validated = 1;
 		t->nrefs = 2;
 		t->typ = TYPE_BUILTIN;
 		t->val.builtin = i;
-		t->szinfo.align = t->szinfo.size = sizeof_btt[i];
+		validate_type(target, t);
 		ret->builtins[i] = t;
 		kh_put(type_set, ret->type_set, t, &iret);
 		if (iret < 0) {
@@ -1196,26 +1151,25 @@ file_t *file_new(void) {
 	char *sdup;
 #define ADD_TYPEDEF(name, btt) \
 	sdup = strdup(#name);                                                                               \
-	if (!sdup) {                                                                                        \
-		printf("Failed to create a new translation unit structure (" #name " name)\n");                 \
-		file_del(ret);                                                                                  \
-		return NULL;                                                                                    \
-	}                                                                                                   \
-	it = kh_put(type_map, ret->type_map, sdup, &iret);                                                  \
-	if (iret < 0) {                                                                                     \
-		printf("Failed to create a new translation unit structure (add " #name " typedef)\n");          \
-		free(sdup);                                                                                     \
-		file_del(ret);                                                                                  \
-		return NULL;                                                                                    \
-	} else if (iret == 0) {                                                                             \
-		printf("Failed to create a new translation unit structure (" #name " is already a typedef)\n"); \
-		free(sdup);                                                                                     \
-		file_del(ret);                                                                                  \
-		return NULL;                                                                                    \
-	}                                                                                                   \
-	kh_val(ret->type_map, it) = ret->builtins[BTT_ ## btt];                                             \
-	++ret->builtins[BTT_ ## btt]->nrefs;
-	
+		if (!sdup) {                                                                                        \
+			printf("Failed to create a new translation unit structure (" #name " name)\n");                 \
+			file_del(ret);                                                                                  \
+			return NULL;                                                                                    \
+		}                                                                                                   \
+		it = kh_put(type_map, ret->type_map, sdup, &iret);                                                  \
+		if (iret < 0) {                                                                                     \
+			printf("Failed to create a new translation unit structure (add " #name " typedef)\n");          \
+			free(sdup);                                                                                     \
+			file_del(ret);                                                                                  \
+			return NULL;                                                                                    \
+		} else if (iret == 0) {                                                                             \
+			printf("Failed to create a new translation unit structure (" #name " is already a typedef)\n"); \
+			free(sdup);                                                                                     \
+			file_del(ret);                                                                                  \
+			return NULL;                                                                                    \
+		}                                                                                                   \
+		kh_val(ret->type_map, it) = ret->builtins[BTT_ ## btt];                                             \
+		++ret->builtins[BTT_ ## btt]->nrefs;
 	ADD_TYPEDEF(__builtin_va_list, VA_LIST)
 	ADD_TYPEDEF(__int128_t, INT128)
 	ADD_TYPEDEF(__uint128_t, UINT128)

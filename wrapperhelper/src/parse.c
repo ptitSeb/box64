@@ -79,179 +79,10 @@ VECTOR_IMPL_STATIC(size_t, (void))
 #define VALIDATION_DECL 1
 #define VALIDATION_LAST_DECL 2
 #define VALIDATION_FUN 3
-// Assumes sizeof(void*) == sizeof(unsigned long)
-static int validate_type(type_t *typ, type_t *(*builtins)[LAST_BUILTIN + 1]) {
-	if (typ->is_validated) return 1;
-	typ->is_validated = 1;
-	if (typ->is_restrict) {
-		if (typ->typ != TYPE_PTR) {
-			printf("Error: only pointers to object types may be restrict-qualified\n");
-			return 0;
-		}
-		if (typ->val.typ->typ == TYPE_FUNCTION) {
-			printf("Error: only pointers to object types may be restrict-qualified\n");
-			return 0;
-		}
-	}
-	if (typ->is_atomic) {
-		if ((typ->typ == TYPE_ARRAY) || (typ->typ == TYPE_FUNCTION)) {
-			printf("Error: array types and function types may not be atomic-qualified\n");
-			return 0;
-		}
-	}
-	switch (typ->typ) {
-	case TYPE_BUILTIN:
-		typ->szinfo = (*builtins)[typ->val.builtin]->szinfo;
-		return 1;
-	case TYPE_ARRAY:
-		if (typ->val.array.typ->is_incomplete || (typ->val.array.typ->typ == TYPE_FUNCTION)) {
-			printf("Error: array types must point to complete object types\n");
-			return 0;
-		}
-		if ((typ->val.array.typ->typ == TYPE_STRUCT_UNION) && typ->val.array.typ->val.st->has_incomplete) {
-			printf("Error: array types may not (inductively) point to structures which last element is incomplete\n");
-			return 0;
-		}
-		if ((typ->is_atomic) || (typ->is_const) || (typ->is_restrict) || (typ->is_volatile)) {
-			// qualifier-type-list in array declaration is only allowed in function argument declaration under certain circumstances
-			printf("Error: array types may not be qualified\n");
-			return 0;
-		}
-		if (!validate_type(typ->val.array.typ, builtins)) return 0;
-		if (typ->val.array.array_sz == (size_t)-1) {
-			typ->szinfo.size = 0;
-			typ->szinfo.align = (typ->val.array.typ->szinfo.align < 16) ? 16 : typ->val.array.typ->szinfo.align;
-		} else {
-			typ->szinfo.size = typ->val.array.array_sz * typ->val.array.typ->szinfo.size;
-			typ->szinfo.align =
-				((typ->szinfo.size >= 16) && (typ->val.array.typ->szinfo.align < 16)) ?
-				16 :
-				typ->val.array.typ->szinfo.align;
-		}
-		return 1;
-	case TYPE_PTR:
-		typ->szinfo.size = LONG_IS_32BITS ? 4 : 8;
-		typ->szinfo.align = LONG_IS_32BITS ? 4 : 8;
-		return validate_type(typ->val.typ, builtins);
-	case TYPE_FUNCTION:
-		if ((typ->val.fun.ret->typ == TYPE_FUNCTION) || (typ->val.fun.ret->typ == TYPE_ARRAY)) {
-			printf("Error: function types may not return function or array types\n");
-			return 0;
-		}
-		if (typ->val.fun.nargs != (size_t)-1) {
-			for (size_t i = 0; i < typ->val.fun.nargs; ++i) {
-				// Adjust the argument if necessary
-				if (typ->val.fun.args[i]->typ == TYPE_ARRAY) {
-					// Adjustment to pointer
-					typ->val.fun.args[i]->typ = TYPE_PTR;
-					typ->val.fun.args[i]->val.typ = typ->val.fun.args[i]->val.array.typ;
-				} else if (typ->val.fun.args[i]->typ == TYPE_FUNCTION) {
-					// Adjustment to pointer
-					type_t *t2 = type_new_ptr(typ->val.fun.args[i]);
-					if (!t2) {
-						printf("Error: failed to adjust type of argument from function to pointer\n");
-						return 0;
-					}
-					typ->val.fun.args[i] = t2;
-				}
-				if (!validate_type(typ->val.fun.args[i], builtins)) return 0;
-			}
-		}
-		typ->szinfo.size = 0;
-		typ->szinfo.align = 0;
-		return validate_type(typ->val.fun.ret, builtins);
-	case TYPE_STRUCT_UNION: {
-		if (!typ->val.st->is_defined) return typ->is_incomplete;
-		size_t max_align = 1, cur_sz = 0, cur_bit = 0;
-		for (size_t i = 0; i < typ->val.st->nmembers; ++i) {
-			// Adjust the argument if necessary
-			st_member_t *mem = &typ->val.st->members[i];
-			if (mem->typ->typ == TYPE_FUNCTION) {
-				printf("Error: structures may not contain function members\n");
-				return 0;
-			}
-			if (mem->typ->is_incomplete) {
-				if ((i != typ->val.st->nmembers - 1) || !typ->val.st->is_struct || (mem->typ->typ != TYPE_ARRAY)) {
-					// The last element of a structure may be a VLA
-					printf("Error: structures may not contain incomplete members\n");
-					return 0;
-				}
-				typ->val.st->has_incomplete = 1;
-			}
-			if (!validate_type(mem->typ, builtins)) return 0;
-			if (!typ->val.st->is_struct && (mem->typ->typ == TYPE_STRUCT_UNION)) {
-				typ->val.st->has_incomplete |= mem->typ->val.st->has_incomplete;
-			}
-			if (mem->is_bitfield) {
-				if (!typ->val.st->is_struct) {
-					printf("Error: TODO: bitfield in union\n");
-					return 0;
-				}
-				if (mem->typ->is_atomic) {
-					printf("Error: atomic bitfields are not supported\n");
-					return 0;
-				}
-				if (mem->typ->typ != TYPE_BUILTIN) {
-					printf("Error: bitfields can only have a specific subset of types\n");
-					return 0;
-				}
-				if ((mem->typ->val.builtin != BTT_BOOL) && (mem->typ->val.builtin != BTT_INT)
-				 && (mem->typ->val.builtin != BTT_SINT) && (mem->typ->val.builtin != BTT_UINT)) {
-					printf("Error: bitfields can only have a specific subset of types\n");
-					return 0;
-				}
-				if (!mem->name && (mem->typ->szinfo.align > max_align)) {
-					printf("Error: TODO: unnamed bitfield member with greater alignment (width=%zu)\n", mem->bitfield_width);
-					return 0;
-				}
-				if (mem->bitfield_width) {
-					if (mem->name && (max_align < mem->typ->szinfo.align)) max_align = mem->typ->szinfo.align;
-					size_t cur_block = cur_sz / mem->typ->szinfo.align;
-					size_t end_block = (cur_sz + (cur_bit + mem->bitfield_width - 1) / 8) / mem->typ->szinfo.align;
-					if (cur_block == end_block) {
-						cur_bit += mem->bitfield_width;
-						cur_sz += cur_bit / 8;
-						cur_bit %= 8;
-					} else {
-						cur_sz = ((cur_sz + mem->typ->szinfo.align - 1) & ~(mem->typ->szinfo.align - 1)) + (mem->bitfield_width / 8);
-						cur_bit = mem->bitfield_width % 8;
-					}
-				} else {
-					if (max_align < mem->typ->szinfo.align) max_align = mem->typ->szinfo.align;
-					cur_sz = ((cur_sz + mem->typ->szinfo.align - 1) & ~(mem->typ->szinfo.align - 1)) + mem->typ->szinfo.size;
-					printf("Error: TODO: unnamed zero-width bitfield member\n");
-					return 0;
-				}
-			} else {
-				if (max_align < mem->typ->szinfo.align) max_align = mem->typ->szinfo.align;
-				if (typ->val.st->is_struct) {
-					if (cur_bit) {
-						cur_bit = 0;
-						++cur_sz;
-					}
-					cur_sz = ((cur_sz + mem->typ->szinfo.align - 1) & ~(mem->typ->szinfo.align - 1)) + mem->typ->szinfo.size;
-				} else {
-					if (cur_sz < mem->typ->szinfo.size) cur_sz = mem->typ->szinfo.size;
-				}
-			}
-		}
-		if (cur_bit) {
-			cur_bit = 0;
-			++cur_sz;
-		}
-		typ->szinfo.align = max_align;
-		typ->szinfo.size = (cur_sz + max_align - 1) & ~(max_align - 1);
-		return 1; }
-	case TYPE_ENUM:
-		if (typ->val.typ->typ != TYPE_BUILTIN) return 0;
-		typ->szinfo = typ->val.typ->szinfo;
-		return 1;
-	}
-	return 0;
-}
-static int validate_storage_type(enum decl_storage storage, type_t *(*builtins)[LAST_BUILTIN + 1], type_t *typ, enum token_sym_type_e sym) {
+static int validate_storage_type(machine_t *target, enum decl_storage storage,
+                                 type_t *typ, enum token_sym_type_e sym) {
 	// We may still do adjustments here
-	if (!validate_type(typ, builtins)) return 0;
+	if (!validate_type(target, typ)) return 0;
 	if (typ->typ == TYPE_FUNCTION) {
 		if ((storage == STORAGE_TLS) || (storage == STORAGE_TLS_EXTERN) || (storage == STORAGE_TLS_STATIC)) {
 			printf("Error: functions cannot be thread local\n");
@@ -459,12 +290,12 @@ struct parse_declarator_dest_s {
 #define PDECL_TYPE_SET ((is_init && is_list) ? dest->f->type_set : (!is_init && is_list) ? dest->structms.type_set : dest->argt.type_set)
 #define PDECL_BUILTINS ((is_init && is_list) ? &dest->f->builtins : (!is_init && is_list) ? dest->structms.builtins : dest->argt.builtins)
 #define PDECL_CONST_MAP ((is_init && is_list) ? dest->f->const_map : (!is_init && is_list) ? dest->structms.const_map : dest->argt.const_map)
-static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage, enum fun_spec fspec,
-      type_t *base_type, int is_init, int is_list, int allow_decl, int allow_abstract);
+static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage,
+      enum fun_spec fspec, type_t *base_type, int is_init, int is_list, int allow_decl, int allow_abstract);
 
 // declaration-specifier with storage != NULL
 // specifier-qualifier-list + static_assert-declaration with storage == NULL
-static int parse_declaration_specifier(khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
+static int parse_declaration_specifier(machine_t *target, khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
         type_t *(*builtins)[LAST_BUILTIN + 1], khash_t(const_map) *const_map,
         khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum decl_storage *storage, enum fun_spec *fspec, enum decl_spec *spec, type_t *typ);
 
@@ -584,17 +415,17 @@ static int is_type_spec_qual_kw(enum token_keyword_type_e kw) {
 #define IS_BEGIN_TYPE_NAME \
 	(((tok->tokt == PTOK_KEYWORD) && is_type_spec_qual_kw(tok->tokv.kw)) || \
 	 ((tok->tokt == PTOK_IDENT) && ((it = kh_get(type_map, type_map, string_content(tok->tokv.str))) != kh_end(type_map))))
-static int parse_type_name(khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
+static int parse_type_name(machine_t *target, khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
         type_t *(*builtins)[LAST_BUILTIN + 1], khash_t(const_map) *const_map,
         khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum token_sym_type_e end_sym, type_t **typ) {
 	enum decl_spec spec = SPEC_NONE;
-	if (!parse_declaration_specifier(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, NULL, NULL, &spec, *typ)) {
+	if (!parse_declaration_specifier(target, struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, NULL, NULL, &spec, *typ)) {
 		type_del(*typ);
 		goto failed;
 	}
 	*typ = type_try_merge(*typ, type_set);
 	if ((tok->tokt == PTOK_SYM) && (tok->tokv.sym == end_sym)) {
-		return validate_type(*typ, builtins);
+		return validate_type(target, *typ);
 	}
 	struct parse_declarator_dest_s dest2;
 	dest2.argt.dest = NULL;
@@ -604,7 +435,7 @@ static int parse_type_name(khash_t(struct_map) *struct_map, khash_t(type_map) *t
 	dest2.argt.type_set = type_set;
 	dest2.argt.builtins = builtins;
 	dest2.argt.const_map = const_map;
-	if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, *typ, 0, 0, 0, 1)) {
+	if (!parse_declarator(target, &dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, *typ, 0, 0, 0, 1)) {
 		// Token is deleted
 		type_del(*typ);
 		goto failed;
@@ -622,13 +453,13 @@ static int parse_type_name(khash_t(struct_map) *struct_map, khash_t(type_map) *t
 	}
 	*typ = dest2.argt.dest;
 	*typ = type_try_merge(*typ, type_set);
-	return validate_type(*typ, builtins);
+	return validate_type(target, *typ);
 	
 failed:
 	return 0;
 }
 
-static expr_t *parse_expression(khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
+static expr_t *parse_expression(machine_t *target, khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
         type_t *(*builtins)[LAST_BUILTIN + 1], khash_t(const_map) *const_map,
         khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, int expr_level) {
 	// Note that expr_level >= 1; expr_level = 0 doesn't appear in the grammar
@@ -684,7 +515,7 @@ expr_new_token:
 			goto failed;
 		}
 		e->typ = ETY_CONST;
-		if (!num_constant_convert(tok->tokv.str, &e->val.cst)) {
+		if (!num_constant_convert(tok->tokv.str, &e->val.cst, target->size_long == 4)) {
 			string_del(tok->tokv.str);
 			goto failed;
 		}
@@ -919,7 +750,7 @@ expr_new_token:
 				proc_token_del(tok);
 				goto failed;
 			}
-			if (!parse_type_name(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, SYM_RPAREN, &typ)) {
+			if (!parse_type_name(target, struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, SYM_RPAREN, &typ)) {
 				goto failed;
 			}
 			if (!typ->is_validated || typ->is_incomplete) {
@@ -1032,7 +863,7 @@ expr_new_token:
 					proc_token_del(tok);
 					goto failed;
 				}
-				if (!parse_type_name(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, SYM_RPAREN, &typ)) {
+				if (!parse_type_name(target, struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, SYM_RPAREN, &typ)) {
 					type_del(typ);
 					proc_token_del(tok);
 					goto failed;
@@ -1525,7 +1356,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 
 // declaration-specifier with storage != NULL
 // specifier-qualifier-list + static_assert-declaration with storage == NULL
-static int parse_declaration_specifier(khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
+static int parse_declaration_specifier(machine_t *target, khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
         type_t *(*builtins)[LAST_BUILTIN + 1], khash_t(const_map) *const_map,
         khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum decl_storage *storage,
         enum fun_spec *fspec, enum decl_spec *spec, type_t *typ) {
@@ -1540,7 +1371,7 @@ static int parse_declaration_specifier(khash_t(struct_map) *struct_map, khash_t(
 		}
 		// Empty destructor
 		*tok = proc_next_token(prep);
-		expr_t *e = parse_expression(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, 14);
+		expr_t *e = parse_expression(target, struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, 14);
 		if (!e) {
 			goto failed;
 		}
@@ -2010,7 +1841,8 @@ parse_cur_token_decl:
 			*tok = proc_next_token(prep);
 			while (!proc_token_isend(tok) && ((tok->tokt != PTOK_SYM) || (tok->tokv.sym != SYM_RBRACKET))) {
 				enum decl_spec spec2 = SPEC_NONE;
-				if (!parse_declaration_specifier(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, NULL, NULL, &spec2, typ2)) {
+				if (!parse_declaration_specifier(target, struct_map, type_map, enum_map, builtins,
+				                                 const_map, type_set, prep, tok, NULL, NULL, &spec2, typ2)) {
 					vector_del(st_members, members);
 					type_del(typ2);
 					goto failed;
@@ -2057,7 +1889,7 @@ parse_cur_token_decl:
 				dest2.structms.builtins = builtins;
 				dest2.structms.const_map = const_map;
 				dest2.structms.dest = members;
-				if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, typ2, 0, 1, 1, 1)) {
+				if (!parse_declarator(target, &dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, typ2, 0, 1, 1, 1)) {
 					printf("Error parsing struct-declarator-list\n");
 					vector_del(st_members, members);
 					type_del(typ2);
@@ -2215,7 +2047,7 @@ parse_cur_token_decl:
 			} else if ((tok->tokt == PTOK_SYM) && (tok->tokv.sym == SYM_EQ)) {
 				// Empty destructor
 				*tok = proc_next_token(prep);
-				expr_t *e = parse_expression(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, 14);
+				expr_t *e = parse_expression(target, struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, 14);
 				if (!e) {
 					goto failed;
 				}
@@ -2330,7 +2162,7 @@ parse_cur_token_decl:
 			typ->val.typ = new_typ->val.typ = (*builtins)[btt];
 			typ->val.typ->nrefs += 2;
 			new_typ = type_try_merge(new_typ, type_set);
-			validate_type(new_typ, builtins); // Assume it returns 1
+			validate_type(target, new_typ); // Assume it returns 1
 			kh_val(enum_map, it) = new_typ;
 		} else {
 			typ->typ = TYPE_ENUM;
@@ -2366,8 +2198,8 @@ failed:
 	return 0;
 }
 
-static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage, enum fun_spec fspec,
-      type_t *base_type, int is_init, int is_list, int allow_decl, int allow_abstract) {
+static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage,
+      enum fun_spec fspec, type_t *base_type, int is_init, int is_list, int allow_decl, int allow_abstract) {
 	int has_list = 0, has_ident = 0;
 	// TODO: allow_abstract and 'direct-abstract-declarator(opt) ( parameter-type-list(opt) )'
 	
@@ -2476,8 +2308,8 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 							}
 							enum decl_storage storage2 = STORAGE_NONE;
 							enum decl_spec spec2 = SPEC_NONE;
-							if (!parse_declaration_specifier(PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS,
-							         PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, &storage2, NULL, &spec2, typ2)) {
+							if (!parse_declaration_specifier(target, PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS,
+							                                 PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, &storage2, NULL, &spec2, typ2)) {
 								// Token is deleted
 								vector_del(types, args);
 								type_del(typ2);
@@ -2522,7 +2354,7 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 							dest2.argt.type_set = PDECL_TYPE_SET;
 							dest2.argt.builtins = PDECL_BUILTINS;
 							dest2.argt.const_map = PDECL_CONST_MAP;
-							if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, typ2, 0, 0, 1, 1)) {
+							if (!parse_declarator(target, &dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, typ2, 0, 0, 1, 1)) {
 								// Token is deleted
 								vector_del(types, args);
 								type_del(typ2);
@@ -2644,7 +2476,8 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 				} else {
 					// Constant expression, followed by ']'
 					is_incomplete = 0;
-					expr_t *e = parse_expression(PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS, PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, 15);
+					expr_t *e = parse_expression(target, PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS,
+					                             PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, 15);
 					if (!e) {
 						goto failed;
 					}
@@ -2767,7 +2600,7 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 				// Try to free some redundant types
 				typ = type_try_merge(typ, PDECL_TYPE_SET);
 				
-				int validation = validate_storage_type(storage, PDECL_BUILTINS, typ, tok->tokv.sym);
+				int validation = validate_storage_type(target, storage, typ, tok->tokv.sym);
 				if (!validation) {
 					// Empty destructor
 					goto failed;
@@ -2921,7 +2754,8 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 							goto failed;
 						}
 					} else {
-						expr_t *e = parse_expression(PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS, PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, 15);
+						expr_t *e = parse_expression(target, PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS,
+						                             PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, 15);
 						if (!e) {
 							printf("Error: invalid declaration initializer\n");
 							goto failed;
@@ -2955,7 +2789,7 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 				
 				// storage == STORAGE_NONE
 				*tok = proc_next_token(prep);
-				expr_t *e = parse_expression(dest->structms.struct_map, dest->structms.type_map, dest->structms.enum_map,
+				expr_t *e = parse_expression(target, dest->structms.struct_map, dest->structms.type_map, dest->structms.enum_map,
 				                             dest->structms.builtins, dest->structms.const_map, dest->structms.type_set,
 				                             prep, tok, 14);
 				if (!e) {
@@ -2975,7 +2809,7 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 				}
 				expr_del(e);
 				
-				int validation = validate_storage_type(storage, PDECL_BUILTINS, typ, tok->tokv.sym);
+				int validation = validate_storage_type(target, storage, typ, tok->tokv.sym);
 				if (!validation) {
 					// Empty destructor
 					goto failed;
@@ -3146,7 +2980,7 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 		if (dirname) free(dirname);
 		return NULL;
 	}
-	file_t *ret = file_new();
+	file_t *ret = file_new(target);
 	if (!ret) {
 		printf("Failed to create the file structure\n");
 		preproc_del(prep);
@@ -3201,7 +3035,7 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 					goto failed;
 				}
 				tok = proc_next_token(prep);
-				if (!parse_type_name(ret->struct_map, ret->type_map, ret->enum_map, &ret->builtins, ret->const_map, ret->type_set,
+				if (!parse_type_name(target, ret->struct_map, ret->type_map, ret->enum_map, &ret->builtins, ret->const_map, ret->type_set,
 				                     prep, &tok, SYM_SEMICOLON, &typ2)) {
 					string_del(converted);
 					goto failed;
@@ -3226,16 +3060,16 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 			enum decl_storage storage = STORAGE_NONE;
 			enum fun_spec fspec = FSPEC_NONE;
 			enum decl_spec spec = SPEC_NONE;
-			if (!parse_declaration_specifier(ret->struct_map, ret->type_map, ret->enum_map, &ret->builtins, ret->const_map,
+			if (!parse_declaration_specifier(target, ret->struct_map, ret->type_map, ret->enum_map, &ret->builtins, ret->const_map,
 			                                 ret->type_set, prep, &tok, &storage, &fspec, &spec, typ)) {
 				goto failed;
 			}
 			if (spec == SPEC_NONE) continue; // Declaration was an assert, typ is unchanged
 			typ = type_try_merge(typ, ret->type_set);
 			if ((tok.tokt != PTOK_SYM) || (tok.tokv.sym != SYM_SEMICOLON)) {
-			    if (!parse_declarator(&(struct parse_declarator_dest_s){.f = ret}, prep, &tok, storage, fspec, typ, 1, 1, 1, 0)) goto failed;
+				if (!parse_declarator(target, &(struct parse_declarator_dest_s){.f = ret}, prep, &tok, storage, fspec, typ, 1, 1, 1, 0)) goto failed;
 			} else {
-				if (validate_storage_type(storage, &ret->builtins, typ, tok.tokv.sym) != VALIDATION_LAST_DECL) goto failed;
+				if (validate_storage_type(target, storage, typ, tok.tokv.sym) != VALIDATION_LAST_DECL) goto failed;
 				if (fspec != FSPEC_NONE) {
 					printf("Error: unexpected function specifier\n");
 					// Empty destructor
