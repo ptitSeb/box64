@@ -2332,8 +2332,17 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
         case SF_SET_PENDING:
             if(dyn->f.pending!=SF_SET
             && dyn->f.pending!=SF_SET_PENDING
-            && dyn->f.pending!=SF_PENDING)
-                go = 1;
+            && dyn->f.pending!=SF_PENDING
+            ) {
+                // only sync if some previous flags are used or if all flags are not regenerated at the instuction
+                if(dyn->insts[jmp].x64.use_flags || (dyn->insts[jmp].x64.set_flags!=X_ALL))
+                    go = 1;
+                else if(go) {
+                    // just clear df flags
+                    go = 0;
+                    STRw_U12(xZR, xEmu, offsetof(x64emu_t, df));
+                }
+            }
             break;
         case SF_PENDING:
             if(dyn->f.pending!=SF_SET
