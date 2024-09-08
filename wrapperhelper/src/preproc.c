@@ -230,6 +230,7 @@ struct preproc_s {
 	enum preproc_state_e {
 		PPST_NONE,
 		PPST_NL,
+		PPST_PRAGMA_EXPLICIT,
 	} st;
 	khash_t(macros_map) *macros_map;
 	khash_t(string_set) *macros_defined, *macros_used;
@@ -1917,7 +1918,7 @@ int proc_unget_token(preproc_t *src, proc_token_t *tok) {
 }
 static proc_token_t proc_next_token_aux(preproc_t *src) {
 	if (!vector_size(ppsource, src->prep)) {
-		return (proc_token_t){ .tokt = PTOK_EOF, .tokv = (union proc_token_val_u){.c = (char)EOF} };
+		return (proc_token_t){ .tokt = PTOK_EOF, .tokv = {.c = (char)EOF} };
 	}
 	if (vector_last(ppsource, src->prep).srct == PPSRC_PTOKEN) {
 		proc_token_t ret = vector_last(ppsource, src->prep).srcv.ptok;
@@ -1927,7 +1928,7 @@ static proc_token_t proc_next_token_aux(preproc_t *src) {
 check_if_depth:
 	{
 		if (!vector_size(ppsource, src->prep)) {
-			return (proc_token_t){ .tokt = PTOK_EOF, .tokv = (union proc_token_val_u){.c = (char)EOF} };
+			return (proc_token_t){ .tokt = PTOK_EOF, .tokv = {.c = (char)EOF} };
 		}
 		ppsource_t *ppsrc = &vector_last(ppsource, src->prep);
 		if ((ppsrc->srct == PPSRC_PREPARE) && (ppsrc->srcv.prep.ok_depth != ppsrc->srcv.prep.cond_depth)) {
@@ -1944,7 +1945,7 @@ check_if_depth:
 					src->st = PPST_NONE;
 					proc_token_t ret;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = tok.tokv.c};
+					ret.tokv.c = tok.tokv.c;
 					return ret;
 				} else if (tok.tokt == PPTOK_NEWLINE) {
 					src->st = PPST_NL;
@@ -1988,7 +1989,7 @@ check_if_depth:
 							if (!cond) {
 								printf("Error: failed to allocate #elif condition vector\n");
 								src->st = PPST_NONE;
-								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = (union proc_token_val_u){.c = '\0'} };
+								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = {.c = '\0'} };
 							}
 							tok = ppsrc_next_token(src);
 							while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
@@ -1996,7 +1997,7 @@ check_if_depth:
 									printf("Error: failed to add token to #elif condition vector\n");
 									vector_del(preproc, cond);
 									src->st = PPST_NONE;
-									return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = (union proc_token_val_u){.c = '\0'} };
+									return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = {.c = '\0'} };
 								}
 								tok = ppsrc_next_token(src);
 							}
@@ -2006,7 +2007,7 @@ check_if_depth:
 								printf("Error: failed to allocate #elif solved_macros set\n");
 								vector_del(preproc, cond);
 								src->st = PPST_NONE;
-								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = (union proc_token_val_u){.c = '\0'} };
+								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = {.c = '\0'} };
 							}
 							
 							VECTOR(preproc) *expanded = proc_do_expand(src->macros_map, cond, solved_macros, src->macros_used);
@@ -2015,7 +2016,7 @@ check_if_depth:
 							if (!expanded) {
 								printf("Error: failed to expand #elif condition\n");
 								src->st = PPST_NONE;
-								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = (union proc_token_val_u){.c = '\0'} };
+								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = {.c = '\0'} };
 							}
 							
 							// Now we need to compute what is pointed by expanded, and increase cond_depth and ok_depth as needed
@@ -2025,7 +2026,7 @@ check_if_depth:
 							if (!st) {
 								printf("Error: failed to evaluate #elif condition in (%s)\n", src->cur_file);
 								src->st = PPST_NONE;
-								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = (union proc_token_val_u){.c = '\0'} };
+								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv = {.c = '\0'} };
 							}
 							if (res) {
 								vector_last(ppsource, src->prep).srcv.prep.entered_next_ok_cond = 1;
@@ -2142,7 +2143,7 @@ check_if_depth:
 check_next_token:
 	if (!vector_size(ppsource, src->prep)) {
 		ret.tokt = PTOK_EOF;
-		ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+		ret.tokv.c = (char)EOF;
 		return ret;
 	}
 start_next_token:
@@ -2152,10 +2153,10 @@ start_cur_token:
 	case PPTOK_INVALID:
 		src->st = PPST_NONE;
 		ret.tokt = PTOK_INVALID;
-		ret.tokv = (union proc_token_val_u){.c = tok.tokv.c};
+		ret.tokv.c = tok.tokv.c;
 		return ret;
 	case PPTOK_IDENT:
-		src->st = PPST_NONE;
+		src->st = (src->st == PPST_PRAGMA_EXPLICIT) ? PPST_PRAGMA_EXPLICIT : PPST_NONE;
 		{
 			khiter_t it = kh_get(macros_map, src->macros_map, string_content(tok.tokv.str));
 			if (it != kh_end(src->macros_map)) {
@@ -2203,7 +2204,7 @@ start_cur_token:
 							string_del(tok.tokv.str);
 							src->st = PPST_NONE;
 							ret.tokt = PTOK_INVALID;
-							ret.tokv = (union proc_token_val_u){.c = tok.tokv.c};
+							ret.tokv.c = tok.tokv.c;
 							return ret;
 						}
 						// margs finishes with a SYM_RPAREN token
@@ -2221,7 +2222,7 @@ start_cur_token:
 							preproc_token_del(&tok2);
 							src->st = PPST_NONE;
 							ret.tokt = PTOK_INVALID;
-							ret.tokv = (union proc_token_val_u){.c = '\0'};
+							ret.tokv.c = '\0';
 							return ret;
 						}
 						vector_push(ppsource, src->prep, ((ppsource_t){.srct = PPSRC_PPTOKEN, .srcv.pptok = tok2}));
@@ -2245,7 +2246,7 @@ start_cur_token:
 					if (!solved) {
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					}
 					// If the expansion is empty, don't push it
@@ -2255,7 +2256,7 @@ start_cur_token:
 							vector_del(preproc, solved);
 							src->st = PPST_NONE;
 							ret.tokt = PTOK_INVALID;
-							ret.tokv = (union proc_token_val_u){.c = '\0'};
+							ret.tokv.c = '\0';
 							return ret;
 						}
 					} else {
@@ -2274,7 +2275,7 @@ start_cur_token:
 					string_del(tok.tokv.str);
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 			}
@@ -2284,27 +2285,27 @@ start_cur_token:
 		khiter_t it = kh_get(str2kw, str2kw, string_content(tok.tokv.str));
 		if (it == kh_end(str2kw)) {
 			ret.tokt = PTOK_IDENT;
-			ret.tokv = (union proc_token_val_u){.str = tok.tokv.str};
+			ret.tokv.str = tok.tokv.str;
 		} else {
 			string_del(tok.tokv.str);
 			ret.tokt = PTOK_KEYWORD;
-			ret.tokv = (union proc_token_val_u){.kw = kh_val(str2kw, it)};
+			ret.tokv.kw = kh_val(str2kw, it);
 		}
 		return ret; }
 	case PPTOK_NUM:
-		src->st = PPST_NONE;
+		src->st = (src->st == PPST_PRAGMA_EXPLICIT) ? PPST_PRAGMA_EXPLICIT : PPST_NONE;
 		ret.tokt = PTOK_NUM;
-		ret.tokv = (union proc_token_val_u){.str = tok.tokv.str};
+		ret.tokv.str = tok.tokv.str;
 		return ret;
 	case PPTOK_STRING:
-		src->st = PPST_NONE;
+		src->st = (src->st == PPST_PRAGMA_EXPLICIT) ? PPST_PRAGMA_EXPLICIT : PPST_NONE;
 		ret.tokt = PTOK_STRING;
 		ret.tokv = (union proc_token_val_u){.sstr = tok.tokv.sstr, .sisstr = tok.tokv.sisstr};
 		return ret;
 	case PPTOK_INCL:
 		src->st = PPST_NONE;
 		ret.tokt = PTOK_INVALID;
-		ret.tokv = (union proc_token_val_u){.c = tok.tokv.sisstr ? '<' : '"'};
+		ret.tokv.c = tok.tokv.sisstr ? '<' : '"';
 		string_del(tok.tokv.sstr);
 		return ret;
 	case PPTOK_SYM:
@@ -2314,7 +2315,7 @@ start_cur_token:
 				// Empty preprocessor command
 				if (tok.tokt == PPTOK_NEWLINE) {
 					ret.tokt = PTOK_EOF;
-					ret.tokv = (union proc_token_val_u){.c = tok.tokv.c};
+					ret.tokv.c = tok.tokv.c;
 					return ret;
 				} else {
 					goto check_next_token;
@@ -2344,7 +2345,7 @@ start_cur_token:
 						printf("Error: failed to allocate #include tokens vector (%s)\n", src->cur_file);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					}
 					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
@@ -2353,7 +2354,7 @@ start_cur_token:
 							vector_del(preproc, incl);
 							src->st = PPST_NONE;
 							ret.tokt = PTOK_INVALID;
-							ret.tokv = (union proc_token_val_u){.c = '\0'};
+							ret.tokv.c = '\0';
 							return ret;
 						}
 						tok = ppsrc_next_token(src);
@@ -2365,7 +2366,7 @@ start_cur_token:
 						vector_del(preproc, incl);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					}
 					
@@ -2376,7 +2377,7 @@ start_cur_token:
 						printf("Error: failed to expand #include tokens (%s)\n", src->cur_file);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					}
 					
@@ -2385,7 +2386,7 @@ start_cur_token:
 						printf("Error: missing #include name (%s)\n", src->cur_file);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					}
 					if (vector_content(preproc, expanded)[0].tokt == PPTOK_STRING) {
@@ -2397,7 +2398,7 @@ start_cur_token:
 						vector_del(preproc, expanded);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					} else if ((vector_content(preproc, expanded)[0].tokt == PPTOK_SYM) && (vector_content(preproc, expanded)[0].tokv.sym == SYM_LT)
 					        && (vector_last(preproc, expanded).tokt == PPTOK_SYM) && (vector_last(preproc, expanded).tokv.sym == SYM_GT)
@@ -2415,7 +2416,7 @@ start_cur_token:
 									string_del(incl_file);
 									src->st = PPST_NONE;
 									ret.tokt = PTOK_INVALID;
-									ret.tokv = (union proc_token_val_u){.c = '\0'};
+									ret.tokv.c = '\0';
 									return ret;
 								}
 								break;
@@ -2427,7 +2428,7 @@ start_cur_token:
 										string_del(incl_file);
 										src->st = PPST_NONE;
 										ret.tokt = PTOK_INVALID;
-										ret.tokv = (union proc_token_val_u){.c = '\0'};
+										ret.tokv.c = '\0';
 										return ret;
 									}
 								}
@@ -2447,7 +2448,7 @@ start_cur_token:
 								string_del(incl_file);
 								src->st = PPST_NONE;
 								ret.tokt = PTOK_INVALID;
-								ret.tokv = (union proc_token_val_u){.c = '\0'};
+								ret.tokv.c = '\0';
 								return ret;
 							}
 						}
@@ -2457,7 +2458,7 @@ start_cur_token:
 						vector_del(preproc, expanded);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					}
 				}
@@ -2467,7 +2468,7 @@ start_cur_token:
 					string_del(incl_file);
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = tok.tokv.sisstr ? '<' : '"'};
+					ret.tokv.c = tok.tokv.sisstr ? '<' : '"';
 					return ret;
 				}
 				string_del(incl_file);
@@ -2486,7 +2487,7 @@ start_cur_token:
 					printf("Failed to allocate token vector for macro %s, returning EOF\n", string_content(defname));
 					string_del(defname); // Token is now freed
 					ret.tokt = PTOK_EOF;
-					ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+					ret.tokv.c = (char)EOF;
 					return ret;
 				}
 				khash_t(argid_map) *args = NULL;
@@ -2499,7 +2500,7 @@ start_cur_token:
 						string_del(defname); // Token is now freed
 						vector_del(mtoken, m.toks);
 						ret.tokt = PTOK_EOF;
-						ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+						ret.tokv.c = (char)EOF;
 						return ret;
 					}
 					m.nargs = 0;
@@ -2522,7 +2523,7 @@ start_cur_token:
 									vector_del(mtoken, m.toks);
 									argid_map_del(args);
 									ret.tokt = PTOK_EOF;
-									ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+									ret.tokv.c = (char)EOF;
 									return ret;
 								}
 								if (kh_ret == 0) {
@@ -2555,7 +2556,7 @@ start_cur_token:
 									vector_del(mtoken, m.toks);
 									argid_map_del(args);
 									ret.tokt = PTOK_EOF;
-									ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+									ret.tokv.c = (char)EOF;
 									return ret;
 								}
 								if (kh_ret == 0) {
@@ -2718,7 +2719,7 @@ start_cur_token:
 						macro_del(&m);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = tok.tokv.c};
+						ret.tokv.c = tok.tokv.c;
 						return ret;
 					} else if (iret == 0) {
 						// Ignore
@@ -2790,7 +2791,7 @@ start_cur_token:
 				printf("\n");
 				vector_clear(ppsource, src->prep);
 				ret.tokt = PTOK_INVALID;
-				ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+				ret.tokv.c = (char)EOF;
 				return ret;
 			} else if (!strcmp(string_content(tok.tokv.str), "warning")) {
 				printf("Warning: #warning command (%s):", src->cur_file);
@@ -2844,7 +2845,7 @@ start_cur_token:
 							ret.tokv.pragma.typ = PRAGMA_ALLOW_INTS;
 							return ret;
 						}
-					} else if (!strcmp(string_content(tok.tokv.str), "explicit_simple")) {
+					} else if (!strcmp(string_content(tok.tokv.str), "type_letters")) {
 						string_del(tok.tokv.str);
 						tok = ppsrc_next_token(src);
 						if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
@@ -2852,20 +2853,11 @@ start_cur_token:
 							goto preproc_hash_err;
 						}
 						string_t *id = tok.tokv.str;
-						tok = ppsrc_next_token(src);
-						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
-							preproc_token_del(&tok);
-							tok = ppsrc_next_token(src);
-						}
-						if (tok.tokt == PPTOK_INVALID) {
-							string_del(id);
-							goto start_cur_token;
-						} else {
-							ret.tokt = PTOK_PRAGMA;
-							ret.tokv.pragma.typ = PRAGMA_MARK_SIMPLE;
-							ret.tokv.pragma.val = id;
-							return ret;
-						}
+						src->st = PPST_PRAGMA_EXPLICIT;
+						ret.tokt = PTOK_PRAGMA;
+						ret.tokv.pragma.typ = PRAGMA_EXPLICIT_CONV;
+						ret.tokv.pragma.val = id;
+						return ret;
 					} else {
 						printf("Unknown pragma wrappers directive '%s', skipping until EOL\n", string_content(tok.tokv.str));
 						goto preproc_hash_err;
@@ -2879,7 +2871,7 @@ start_cur_token:
 					printf("Error: invalid #if source type %u\n", vector_last(ppsource, src->prep).srct);
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 				string_del(tok.tokv.str);
@@ -2888,7 +2880,7 @@ start_cur_token:
 					printf("Error: failed to allocate #if condition vector\n");
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 				tok = ppsrc_next_token(src);
@@ -2898,7 +2890,7 @@ start_cur_token:
 						vector_del(preproc, cond);
 						src->st = PPST_NONE;
 						ret.tokt = PTOK_INVALID;
-						ret.tokv = (union proc_token_val_u){.c = '\0'};
+						ret.tokv.c = '\0';
 						return ret;
 					}
 					tok = ppsrc_next_token(src);
@@ -2910,7 +2902,7 @@ start_cur_token:
 					vector_del(preproc, cond);
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 				
@@ -2921,7 +2913,7 @@ start_cur_token:
 					printf("Error: failed to expand #if condition\n");
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 				
@@ -2933,7 +2925,7 @@ start_cur_token:
 					printf("Error: failed to evaluate #if condition (%s)\n", src->cur_file);
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 				++vector_last(ppsource, src->prep).srcv.prep.cond_depth;
@@ -3116,22 +3108,28 @@ start_cur_token:
 			if (tok.tokt == PPTOK_NEWLINE) goto check_if_depth;
 			else goto start_cur_token; // Returns immediately
 		}
-		src->st = PPST_NONE;
+		src->st = (src->st == PPST_PRAGMA_EXPLICIT) ? PPST_PRAGMA_EXPLICIT : PPST_NONE;
 		ret.tokt = PTOK_SYM;
-		ret.tokv = (union proc_token_val_u){.sym = tok.tokv.sym};
+		ret.tokv.sym = tok.tokv.sym;
 		return ret;
 	case PPTOK_NEWLINE:
+		if (src->st == PPST_PRAGMA_EXPLICIT) {
+			src->st = PPST_NL;
+			ret.tokt = PTOK_SYM;
+			ret.tokv.sym = SYM_SEMICOLON;
+			return ret;
+		}
 		src->st = PPST_NL;
 		goto check_next_token;
 	case PPTOK_BLANK:
 		src->st = PPST_NONE;
 		ret.tokt = PTOK_INVALID;
-		ret.tokv = (union proc_token_val_u){.c = tok.tokv.c};
+		ret.tokv.c = tok.tokv.c;
 		return ret;
 	case PPTOK_START_LINE_COMMENT:
 		src->st = PPST_NONE;
 		ret.tokt = PTOK_INVALID;
-		ret.tokv = (union proc_token_val_u){.c = tok.tokv.c};
+		ret.tokv.c = tok.tokv.c;
 		return ret;
 	case PPTOK_EOF:
 		if ((vector_last(ppsource, src->prep).srct == PPSRC_PREPARE) && vector_last(ppsource, src->prep).srcv.prep.cond_depth) {
@@ -3148,6 +3146,12 @@ start_cur_token:
 			vector_last(ppsource, src->prep).srcv.prep.old_filename = NULL;
 		}
 		vector_pop(ppsource, src->prep);
+		if (src->st == PPST_PRAGMA_EXPLICIT) {
+			src->st = PPST_NL;
+			ret.tokt = PTOK_SYM;
+			ret.tokv.sym = SYM_SEMICOLON;
+			return ret;
+		}
 		src->st = PPST_NL; // Should be redundant since TOK_NEWLINE is added before TOK_EOF if required
 		// EOF has an empty destructor
 		// Note that since we have opened the file, the previous file also had ok_depth == cond_depth
@@ -3156,7 +3160,7 @@ start_cur_token:
 	default:
 		printf("Unknown next pp token type %u, sending EOF\n", tok.tokt);
 		ret.tokt = PTOK_EOF;
-		ret.tokv = (union proc_token_val_u){.c = (char)EOF};
+		ret.tokv.c = (char)EOF;
 		return ret;
 	}
 }
@@ -3172,7 +3176,7 @@ proc_token_t proc_next_token(preproc_t *src) {
 					string_del(ret2.tokv.sstr);
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 				string_del(ret2.tokv.sstr);
@@ -3183,7 +3187,7 @@ proc_token_t proc_next_token(preproc_t *src) {
 					proc_token_del(&ret2);
 					src->st = PPST_NONE;
 					ret.tokt = PTOK_INVALID;
-					ret.tokv = (union proc_token_val_u){.c = '\0'};
+					ret.tokv.c = '\0';
 					return ret;
 				}
 				return ret;

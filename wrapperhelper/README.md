@@ -31,9 +31,11 @@ The first file is a `C` file containing every declaration required. The second f
 
 The support file may contain pragma declarations of the form
 ```c
-#pragma wrappers explicit_simple TYPE
+#pragma wrappers type-letters c TYPE
 ```
-where `TYPE` is a `typedef` to a structure. This marks the structure pointed to by `TYPE` as "simple", which means that functions taking such structures are not required to be `GOM`-like.
+where `TYPE` is a `type-name`. This marks the *exact* type `TYPE` as being a complex type though with a conversion as `c` (which may be multiple characters). Meaning:
+- if a parameter has type `TYPE`, the character output will be `c`;
+- if a parameter has a pointer to `TYPE`, or a structure containing `TYPE`, the output will be a `GOM` function.
 
 System headers included (directly or indirectly) by the support file are overriden by the files in `include-fixed`.
 
@@ -94,9 +96,7 @@ This project only works for `box64`; more work is required for this to be compat
 
 Only native structures are read. This means that the current version of `wrapperhelper` does not detect an issue when a structure has different members or alignments in two different architectures.
 
-Structure letters (i.e. `S` for `struct _IO_FILE*`) are hard-coded. A pragma should be used instead (`#pragma wrappers type_letter IDENT type-name`, parsed as `PTOK_PRAGMA: Type is letter: <char>`, followed by `type-name`, followed by `PTOK_NEWLINE`).
-
-Conditionals in the `_private.h` files are ignored, except for taking only the negative branch. Manual cleanup of the output is required.
+No checking of signatures under `#ifdef`s is made.
 
 Line numbers are missing entirely. For most errors, the corresponding file is not written with the error message.
 
@@ -114,8 +114,8 @@ The following features are missing from the preprocessor:
 - Proper out-of-memory error handling
 
 The following features are missing from the parser:
-- `inline` and `_Noreturn`
 - `_Atomic(type-name)`
 - `_Alignas(type-name)` and `_Alignas(constant-expression)`
 - `(type-name){initializer-list}`
+- Old style function declarations
 - Function definitions are ignored, not parsed

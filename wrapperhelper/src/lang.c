@@ -84,7 +84,7 @@ void proc_token_del(proc_token_t *tok) {
 		break;
 	case PTOK_PRAGMA:
 		switch (tok->tokv.pragma.typ) {
-		case PRAGMA_MARK_SIMPLE:
+		case PRAGMA_EXPLICIT_CONV:
 			string_del(tok->tokv.pragma.val);
 			break;
 		case PRAGMA_ALLOW_INTS:
@@ -288,8 +288,8 @@ void proc_token_print(const proc_token_t *tok) {
 		case PRAGMA_ALLOW_INTS:
 			printf("Token: %7s Allow ints\n", "PRAGMA");
 			break;
-		case PRAGMA_MARK_SIMPLE:
-			printf("Token: %7s Mark simple: %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
+		case PRAGMA_EXPLICIT_CONV:
+			printf("Token: %7s Explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
 			break;
 		default:
 			printf("Token: %7s ???\n", "PRAGMA");
@@ -585,6 +585,7 @@ void struct_del_weak(struct_t *st) {
 }
 void type_del(type_t *typ) {
 	if (--typ->nrefs) return;
+	if (typ->converted) string_del(typ->converted);
 	switch (typ->typ) {
 	case TYPE_BUILTIN:
 		break;
@@ -670,6 +671,7 @@ type_t *type_new(void) {
 	}
 	ret->szinfo.align = ret->szinfo.size = 0;
 	ret->is_atomic = ret->is_const = ret->is_restrict = ret->is_volatile = ret->is_incomplete = ret->is_validated = ret->_internal_use = 0;
+	ret->converted = NULL;
 	ret->nrefs = 1;
 	ret->typ = TYPE_BUILTIN;
 	ret->val.builtin = BTT_INT;
@@ -683,6 +685,7 @@ type_t *type_new_ptr(type_t *target) {
 	}
 	ret->szinfo.align = ret->szinfo.size = 0;
 	ret->is_atomic = ret->is_const = ret->is_restrict = ret->is_volatile = ret->is_incomplete = ret->is_validated = ret->_internal_use = 0;
+	ret->converted = NULL;
 	ret->nrefs = 1;
 	ret->typ = TYPE_PTR;
 	ret->val.typ = target;
@@ -789,7 +792,6 @@ struct_t *struct_new(int is_struct, string_t *tag) {
 	ret->tag = tag;
 	ret->is_defined = 0;
 	ret->nrefs = 1;
-	ret->explicit_simple = 0;
 	return ret;
 }
 
@@ -973,6 +975,7 @@ void type_print(type_t *typ) {
 	if (!typ->is_validated) printf("!<not validated> ");
 	if (typ->is_incomplete) printf("<incomplete> ");
 	if (typ->is_validated && !typ->is_incomplete) printf("<size=%zu align=%zu> ", typ->szinfo.size, typ->szinfo.align);
+	if (typ->converted) printf("<converted: %s> ", string_content(typ->converted));
 	if (typ->is_const) printf("const ");
 	if (typ->is_restrict) printf("restrict ");
 	if (typ->is_volatile) printf("volatile ");
@@ -1019,9 +1022,6 @@ void type_print(type_t *typ) {
 }
 void struct_print(const struct_t *st) {
 	printf("<" DISP_ADDR_FMT "n_uses=%zu> ", DISP_ADDR_ARG(st) st->nrefs);
-	if (st->explicit_simple) {
-		printf("<explicitly simple> ");
-	}
 	if (st->is_defined) {
 		printf(
 			"%s %s <with %zu members%s> { ",
@@ -1157,6 +1157,7 @@ file_t *file_new(void) {
 		}
 		t->is_atomic = t->is_const = t->is_restrict = t->is_volatile = t->_internal_use = 0;
 		t->is_incomplete = (i == BTT_VOID);
+		t->converted = NULL; // Maybe should be something else?
 		t->is_validated = 1;
 		t->nrefs = 2;
 		t->typ = TYPE_BUILTIN;

@@ -67,6 +67,12 @@ enum decl_spec {
 	SPEC_BUILTIN_NOINT,
 	SPEC_TYPE,
 };
+enum fun_spec {
+	FSPEC_NONE            = 0b00,
+	FSPEC_INLINE          = 0b01,
+	FSPEC_NORETURN        = 0b10,
+	FSPEC_INLINE_NORETURN = 0b11,
+};
 VECTOR_DECLARE_STATIC(size_t, size_t)
 VECTOR_IMPL_STATIC(size_t, (void))
 
@@ -453,14 +459,14 @@ struct parse_declarator_dest_s {
 #define PDECL_TYPE_SET ((is_init && is_list) ? dest->f->type_set : (!is_init && is_list) ? dest->structms.type_set : dest->argt.type_set)
 #define PDECL_BUILTINS ((is_init && is_list) ? &dest->f->builtins : (!is_init && is_list) ? dest->structms.builtins : dest->argt.builtins)
 #define PDECL_CONST_MAP ((is_init && is_list) ? dest->f->const_map : (!is_init && is_list) ? dest->structms.const_map : dest->argt.const_map)
-static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage, type_t *base_type,
-      int is_init, int is_list, int allow_decl, int allow_abstract);
+static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage, enum fun_spec fspec,
+      type_t *base_type, int is_init, int is_list, int allow_decl, int allow_abstract);
 
 // declaration-specifier with storage != NULL
 // specifier-qualifier-list + static_assert-declaration with storage == NULL
 static int parse_declaration_specifier(khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
         type_t *(*builtins)[LAST_BUILTIN + 1], khash_t(const_map) *const_map,
-        khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum decl_storage *storage, enum decl_spec *spec, type_t *typ);
+        khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum decl_storage *storage, enum fun_spec *fspec, enum decl_spec *spec, type_t *typ);
 
 
 void expr_print(expr_t *e) {
@@ -582,7 +588,7 @@ static int parse_type_name(khash_t(struct_map) *struct_map, khash_t(type_map) *t
         type_t *(*builtins)[LAST_BUILTIN + 1], khash_t(const_map) *const_map,
         khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum token_sym_type_e end_sym, type_t **typ) {
 	enum decl_spec spec = SPEC_NONE;
-	if (!parse_declaration_specifier(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, NULL, &spec, *typ)) {
+	if (!parse_declaration_specifier(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, NULL, NULL, &spec, *typ)) {
 		type_del(*typ);
 		goto failed;
 	}
@@ -598,7 +604,7 @@ static int parse_type_name(khash_t(struct_map) *struct_map, khash_t(type_map) *t
 	dest2.argt.type_set = type_set;
 	dest2.argt.builtins = builtins;
 	dest2.argt.const_map = const_map;
-	if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, *typ, 0, 0, 0, 1)) {
+	if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, *typ, 0, 0, 0, 1)) {
 		// Token is deleted
 		type_del(*typ);
 		goto failed;
@@ -914,11 +920,11 @@ expr_new_token:
 				goto failed;
 			}
 			if (!parse_type_name(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, SYM_RPAREN, &typ)) {
-				proc_token_del(tok);
 				goto failed;
 			}
 			if (!typ->is_validated || typ->is_incomplete) {
 				printf("Error: cannot get the size of an incomplete type\n");
+				type_del(typ);
 				proc_token_del(tok);
 				goto failed;
 			}
@@ -1521,7 +1527,8 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 // specifier-qualifier-list + static_assert-declaration with storage == NULL
 static int parse_declaration_specifier(khash_t(struct_map) *struct_map, khash_t(type_map) *type_map, khash_t(type_map) *enum_map,
         type_t *(*builtins)[LAST_BUILTIN + 1], khash_t(const_map) *const_map,
-        khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum decl_storage *storage, enum decl_spec *spec, type_t *typ) {
+        khash_t(type_set) *type_set, preproc_t *prep, proc_token_t *tok, enum decl_storage *storage,
+        enum fun_spec *fspec, enum decl_spec *spec, type_t *typ) {
 	if ((tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_STATIC_ASSERT)) {
 		// _Static_assert ( constant-expression , string-literal ) ;
 		// Empty destructor
@@ -1649,6 +1656,17 @@ parse_cur_token_decl:
 			printf("Error: unexpected storage class specifier '%s' in declaration\n", kw2str[tok->tokv.kw]);
 			goto failed;
 		}
+		*tok = proc_next_token(prep);
+		goto parse_cur_token_decl;
+	}
+	
+	// Function specifier
+	if (fspec && (tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_INLINE)) {
+		*fspec |= FSPEC_INLINE;
+		*tok = proc_next_token(prep);
+		goto parse_cur_token_decl;
+	} else if (fspec && (tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_NORETURN)) {
+		*fspec |= FSPEC_NORETURN;
 		*tok = proc_next_token(prep);
 		goto parse_cur_token_decl;
 	}
@@ -1992,7 +2010,7 @@ parse_cur_token_decl:
 			*tok = proc_next_token(prep);
 			while (!proc_token_isend(tok) && ((tok->tokt != PTOK_SYM) || (tok->tokv.sym != SYM_RBRACKET))) {
 				enum decl_spec spec2 = SPEC_NONE;
-				if (!parse_declaration_specifier(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, NULL, &spec2, typ2)) {
+				if (!parse_declaration_specifier(struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, NULL, NULL, &spec2, typ2)) {
 					vector_del(st_members, members);
 					type_del(typ2);
 					goto failed;
@@ -2039,7 +2057,7 @@ parse_cur_token_decl:
 				dest2.structms.builtins = builtins;
 				dest2.structms.const_map = const_map;
 				dest2.structms.dest = members;
-				if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, typ2, 0, 1, 1, 1)) {
+				if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, typ2, 0, 1, 1, 1)) {
 					printf("Error parsing struct-declarator-list\n");
 					vector_del(st_members, members);
 					type_del(typ2);
@@ -2348,8 +2366,8 @@ failed:
 	return 0;
 }
 
-static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage, type_t *base_type,
-      int is_init, int is_list, int allow_decl, int allow_abstract) {
+static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *prep, proc_token_t *tok, enum decl_storage storage, enum fun_spec fspec,
+      type_t *base_type, int is_init, int is_list, int allow_decl, int allow_abstract) {
 	int has_list = 0, has_ident = 0;
 	// TODO: allow_abstract and 'direct-abstract-declarator(opt) ( parameter-type-list(opt) )'
 	
@@ -2459,7 +2477,7 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 							enum decl_storage storage2 = STORAGE_NONE;
 							enum decl_spec spec2 = SPEC_NONE;
 							if (!parse_declaration_specifier(PDECL_STRUCT_MAP, PDECL_TYPE_MAP, PDECL_ENUM_MAP, PDECL_BUILTINS,
-							         PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, &storage2, &spec2, typ2)) {
+							         PDECL_CONST_MAP, PDECL_TYPE_SET, prep, tok, &storage2, NULL, &spec2, typ2)) {
 								// Token is deleted
 								vector_del(types, args);
 								type_del(typ2);
@@ -2504,7 +2522,7 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 							dest2.argt.type_set = PDECL_TYPE_SET;
 							dest2.argt.builtins = PDECL_BUILTINS;
 							dest2.argt.const_map = PDECL_CONST_MAP;
-							if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, typ2, 0, 0, 1, 1)) {
+							if (!parse_declarator(&dest2, prep, tok, STORAGE_NONE, FSPEC_NONE, typ2, 0, 0, 1, 1)) {
 								// Token is deleted
 								vector_del(types, args);
 								type_del(typ2);
@@ -2799,6 +2817,11 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 					printf("Error: unexpected token in function body\n");
 					goto failed;
 				}
+				if (fspec != FSPEC_NONE) {
+					printf("Error: unexpected function specifier\n");
+					// Empty destructor
+					goto failed;
+				}
 				
 				if (storage == STORAGE_TYPEDEF) {
 					if (!is_init || !is_list) {
@@ -2962,6 +2985,11 @@ static int parse_declarator(struct parse_declarator_dest_s *dest, preproc_t *pre
 					// We are not at the top-level or we have an initialization list
 					// Should never happen
 					printf("Error: invalid function definition in structure definition\n");
+					// Empty destructor
+					goto failed;
+				}
+				if (fspec != FSPEC_NONE) {
+					printf("Error: unexpected function specifier\n");
 					// Empty destructor
 					goto failed;
 				}
@@ -3163,19 +3191,31 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 					}
 				}
 				break; }
-			case PRAGMA_MARK_SIMPLE: {
-				khiter_t it = kh_get(type_map, ret->type_map, string_content(tok.tokv.pragma.val));
-				string_del(tok.tokv.pragma.val);
-				if (it == kh_end(ret->type_map)) {
-					printf("Invalid explicit_simple pragma: ident is not a typedef\n");
+			case PRAGMA_EXPLICIT_CONV: {
+				string_t *converted = tok.tokv.pragma.val;
+				type_t *typ2 = type_new();
+				if (!typ2) {
+					printf("Error: failed to create new type info structure\n");
+					string_del(converted);
+					type_del(typ2);
 					goto failed;
 				}
-				type_t *typ0 = kh_val(ret->type_map, it);
-				if (typ0->typ != TYPE_STRUCT_UNION) {
-					printf("Invalid explicit_simple pragma: ident is not a typedef to a structure or union\n");
+				tok = proc_next_token(prep);
+				if (!parse_type_name(ret->struct_map, ret->type_map, ret->enum_map, &ret->builtins, ret->const_map, ret->type_set,
+				                     prep, &tok, SYM_SEMICOLON, &typ2)) {
+					string_del(converted);
 					goto failed;
 				}
-				typ0->val.st->explicit_simple = 1;
+				type_del(typ2); // typ2 is in the type set, so it is already used
+				if (typ2->converted) {
+					printf("Error: type already has a conversion\n");
+					string_del(converted);
+					// Empty destructor
+					goto failed;
+				}
+				string_trim(converted);
+				typ2->converted = converted;
+				// Empty destructor
 				break; }
 			}
 		} else if (proc_token_iserror(&tok)) {
@@ -3184,29 +3224,30 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 			goto failed;
 		} else {
 			enum decl_storage storage = STORAGE_NONE;
+			enum fun_spec fspec = FSPEC_NONE;
 			enum decl_spec spec = SPEC_NONE;
 			if (!parse_declaration_specifier(ret->struct_map, ret->type_map, ret->enum_map, &ret->builtins, ret->const_map,
-			                                 ret->type_set, prep, &tok, &storage, &spec, typ)) {
+			                                 ret->type_set, prep, &tok, &storage, &fspec, &spec, typ)) {
 				goto failed;
 			}
 			if (spec == SPEC_NONE) continue; // Declaration was an assert, typ is unchanged
-			int ok;
 			typ = type_try_merge(typ, ret->type_set);
 			if ((tok.tokt != PTOK_SYM) || (tok.tokv.sym != SYM_SEMICOLON)) {
-			    ok = parse_declarator(&(struct parse_declarator_dest_s){.f = ret}, prep, &tok, storage, typ, 1, 1, 1, 0);
+			    if (!parse_declarator(&(struct parse_declarator_dest_s){.f = ret}, prep, &tok, storage, fspec, typ, 1, 1, 1, 0)) goto failed;
 			} else {
-				ok = validate_storage_type(storage, &ret->builtins, typ, tok.tokv.sym);
-			}
-			if (!ok) {
-				goto failed;
-			} else {
-				// Current token is ';' (or '}' for functions), ie. end of declaration
-				type_del(typ);
-				typ = type_new();
-				if (!typ) {
-					printf("Failed to create a type info structure\n");
+				if (validate_storage_type(storage, &ret->builtins, typ, tok.tokv.sym) != VALIDATION_LAST_DECL) goto failed;
+				if (fspec != FSPEC_NONE) {
+					printf("Error: unexpected function specifier\n");
+					// Empty destructor
 					goto failed;
 				}
+			}
+			// Current token is ';' (or '}' for functions), ie. end of declaration
+			type_del(typ);
+			typ = type_new();
+			if (!typ) {
+				printf("Failed to create a type info structure\n");
+				goto failed;
 			}
 		}
 	}
