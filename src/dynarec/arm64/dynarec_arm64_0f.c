@@ -2322,16 +2322,28 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VMOVeS(v0, 1, v0, 0);
             } else if(v0==v1 && (u8==0xe5)) {   // easy special case
                 VMOVeS(v0, 0, v0, 1);
+            } else if(u8==0x4E && MODREG) {
+                VEXTQ_8(v0, v0, v1, 8);
             } else {
                 d0 = fpu_get_scratch(dyn, ninst);
                 // first two elements from Gx
-                for(int i=0; i<2; ++i) {
-                    VMOVeS(d0, i, v0, (u8>>(i*2))&3);
+                if((u8&0xf)==0x04)
+                    VMOVeD(d0, 0, v0, 0);
+                else if((u8&0xf)==0x0e)
+                    VMOVeD(d0, 0, v0, 1);
+                else
+                    for(int i=0; i<2; ++i) {
+                        VMOVeS(d0, i, v0, (u8>>(i*2))&3);
                 }
                 // second two from Ex
                 if(MODREG) {
-                    for(int i=2; i<4; ++i) {
-                        VMOVeS(d0, i, v1, (u8>>(i*2))&3);
+                    if((u8&0xf0)==0x40)
+                        VMOVeD(d0, 1, v1, 0);
+                    else if((u8&0xf0)==0xe0)
+                        VMOVeD(d0, 1, v1, 1);
+                    else
+                        for(int i=2; i<4; ++i) {
+                            VMOVeS(d0, i, v1, (u8>>(i*2))&3);
                     }
                 } else {
                     SMREAD();
