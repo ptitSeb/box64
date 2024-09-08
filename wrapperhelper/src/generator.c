@@ -6,149 +6,173 @@
 static const char *rft2str[8] = {
 	[RQT_FUN] = "",
 	[RQT_FUN_2] = "",
-	[RQT_FUN_MY] = "(my) ",
-	[RQT_FUN_D] = "(D) ",
+	[RQT_FUN_MY] = " (my)",
+	[RQT_FUN_D] = " (D)",
 	[RQT_DATA] = "",
-	[RQT_DATAV] = "(V) ",
-	[RQT_DATAB] = "(B) ",
-	[RQT_DATAM] = "(my) ",
+	[RQT_DATAV] = " (V)",
+	[RQT_DATAB] = " (B)",
+	[RQT_DATAM] = " (my)",
 };
 #define IS_RQT_FUN2(rty) (((rty) == RQT_FUN_2) || ((rty) == RQT_FUN_D))
 #define IS_RQT_FUNCTION(rty) ((rty) < RQT_DATA)
 
-void request_print(request_t *req) {
-	printf("%s", string_content(req->obj_name));
-	if (req->has_default && req->has_val && (IS_RQT_FUNCTION(req->def.rty) != IS_RQT_FUNCTION(req->val.rty))) {
-		printf(" => conflict: was/is data, is/was function\n");
-	}
-	int is_fun;
-	if (req->has_default) is_fun = IS_RQT_FUNCTION(req->def.rty);
-	else if (req->has_val) is_fun = IS_RQT_FUNCTION(req->val.rty);
-	else {
-		printf(" => (no value)\n");
-		return;
-	}
-	
-	if (is_fun) {
-		printf(" => %sfunction", req->weak ? "weak " : "");
-		if (req->has_default) {
-			printf(" with %sdefault %s%s%s%s",
-				req->default_comment ? "commented " : "",
+void request_print(const request_t *req) {
+	printf("%s%s: %sdefault", string_content(req->obj_name), req->weak ? " (weak)" : "", req->default_comment ? "commented " : "");
+	switch (req->def.rty) {
+	case RQT_FUN:
+	case RQT_FUN_2:
+	case RQT_FUN_MY:
+	case RQT_FUN_D:
+		if (req->def.fun.typ) {
+			printf(" function%s %s%s%s",
 				rft2str[req->def.rty],
 				string_content(req->def.fun.typ),
-				(req->def.rty == RQT_FUN_2) ? " -> " : "",
-				(req->def.rty == RQT_FUN_2) ? string_content(req->def.fun.fun2) : "");
+				req->def.fun.fun2 ? " -> " : "",
+				req->def.fun.fun2 ? string_content(req->def.fun.fun2) : "");
+		} else {
+			printf(" untyped function%s", rft2str[req->def.rty]);
 		}
-		if (req->has_val) {
-			printf(" with solved %s%s%s%s",
-				rft2str[req->val.rty],
-				string_content(req->val.fun.typ),
-				(req->val.rty == RQT_FUN_2) ? " -> " : "",
-				(req->val.rty == RQT_FUN_2) ? string_content(req->val.fun.fun2) : "");
+		break;
+	case RQT_DATA:
+	case RQT_DATAV:
+	case RQT_DATAB:
+	case RQT_DATAM:
+		if (req->def.dat.has_size) {
+			printf(" data%s %zu", rft2str[req->def.rty], req->def.dat.sz);
+		} else {
+			printf(" unsized data%s", rft2str[req->def.rty]);
 		}
-	} else {
-		printf(" => %sdata", req->weak ? "weak " : "");
-		if (req->has_default) {
-			if (req->def.dat.has_size) printf(" with default %zu", req->def.dat.sz);
-			else printf(" with no default");
-		}
-		if (req->has_val) {
-			if (req->def.dat.has_size) printf(" with solved %zu", req->def.dat.sz);
-			else printf(" with no solved");
+		break;
+	}
+	if (req->has_val) {
+		printf(" => solved");
+		switch (req->val.rty) {
+		case RQT_FUN:
+		case RQT_FUN_2:
+		case RQT_FUN_MY:
+		case RQT_FUN_D:
+			if (req->val.fun.typ) {
+				printf(" function%s %s%s%s",
+					rft2str[req->val.rty],
+					string_content(req->val.fun.typ),
+					req->val.fun.fun2 ? " -> " : "",
+					req->val.fun.fun2 ? string_content(req->val.fun.fun2) : "");
+			} else {
+				printf(" untyped function%s", rft2str[req->val.rty]);
+			}
+			break;
+		case RQT_DATA:
+		case RQT_DATAV:
+		case RQT_DATAB:
+		case RQT_DATAM:
+			if (req->val.dat.has_size) {
+				printf(" data%s %zu", rft2str[req->val.rty], req->val.dat.sz);
+			} else {
+				printf(" unsized data%s", rft2str[req->val.rty]);
+			}
+			break;
 		}
 	}
 	printf("\n");
 }
-void request_print_check(request_t *req) {
-	if (req->has_default && req->has_val && (IS_RQT_FUNCTION(req->def.rty) != IS_RQT_FUNCTION(req->val.rty))) {
-		printf("%s => conflict: was/is data, is/was function\n", string_content(req->obj_name));
-	}
-	int is_fun;
-	if (req->has_default) is_fun = IS_RQT_FUNCTION(req->def.rty);
-	else if (req->has_val) is_fun = IS_RQT_FUNCTION(req->val.rty);
-	else {
-		printf(" => (no value)\n");
+void request_print_check(const request_t *req) {
+	if (req->ignored) {
 		return;
 	}
-	if (is_fun) {
-		if (req->has_val) {
-			if (req->has_default) {
-				int similar = 1;
-				// if (req->def.rty != req->val.rty) similar = 0;
-				if (similar && strcmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ))) {
-					// similar = 0;
-					// TODO
-					if (req->def.rty == RQT_FUN_MY) {
-						similar =
-							string_len(req->def.fun.typ) >= 3 &&
-							string_content(req->def.fun.typ)[2] == 'E' &&
-							!strncmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ), 2) &&
-							!strcmp(string_content(req->def.fun.typ) + 3, string_content(req->val.fun.typ) + 2);
-						if (similar) {
-							// We need to add the 'E' back here
-						}
-					} else {
-						similar = 0;
-					}
-				}
-				if (!similar) {
-					printf("%s => %sfunction with %sdefault %s%s%s%s and different solved %s%s%s%s\n",
-						string_content(req->obj_name),
-						req->weak ? "weak " : "",
-						req->default_comment ? "commented " : "",
-						rft2str[req->def.rty],
-						string_content(req->def.fun.typ),
-						(req->def.rty == RQT_FUN_2) ? " -> " : "",
-						(req->def.rty == RQT_FUN_2) ? string_content(req->def.fun.fun2) : "",
-						rft2str[req->val.rty],
-						string_content(req->val.fun.typ),
-						(req->val.rty == RQT_FUN_2) ? " -> " : "",
-						(req->val.rty == RQT_FUN_2) ? string_content(req->val.fun.fun2) : "");
-				}
-			} else {
-				printf("%s => %sfunction with solved %s%s%s%s\n",
-					string_content(req->obj_name),
-					req->weak ? "weak " : "",
-					rft2str[req->val.rty],
-					string_content(req->val.fun.typ),
-					(req->val.rty == RQT_FUN_2) ? " -> " : "",
-					(req->val.rty == RQT_FUN_2) ? string_content(req->val.fun.fun2) : "");
-			}
-		} else if (req->has_default) {
-			/* printf("%s => unsolved %sfunction with %sdefault %s%s%s%s\n",
+	if (!req->has_val) {
+		// printf("%s: no value\n", string_content(req->obj_name));
+		return;
+	}
+	if ((IS_RQT_FUNCTION(req->def.rty) != IS_RQT_FUNCTION(req->val.rty))) {
+		printf("%s: conflict: %s data, %s function\n",
+			string_content(req->obj_name),
+			IS_RQT_FUNCTION(req->def.rty) ? "is" : "was",
+			IS_RQT_FUNCTION(req->def.rty) ? "was" : "is");
+		return;
+	}
+	if (IS_RQT_FUNCTION(req->def.rty) && !req->def.fun.typ) return;       // No default (function)
+	if (!IS_RQT_FUNCTION(req->def.rty) && !req->def.dat.has_size) return; // No default (data)
+	// We have a default and a value, both are functions or data
+	int similar;
+	switch (req->def.rty) {
+	case RQT_FUN:
+	case RQT_FUN_2:
+	case RQT_FUN_MY:
+	case RQT_FUN_D:
+		similar = !req->default_comment || (req->val.rty != RQT_FUN); // From comment to no comment is dissimilar
+		if (similar && (req->def.rty != req->val.rty)) similar = 0;
+		if (similar && strcmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ))) {
+			similar = 0;
+		}
+		if (!similar) {
+			printf("%s%s: function with %s%sdefault%s%s%s%s%s and dissimilar %ssolved%s%s%s%s%s\n",
 				string_content(req->obj_name),
-				req->weak ? "weak " : "",
+				req->weak ? " (weak)" : "",
 				req->default_comment ? "commented " : "",
+				req->def.fun.typ ? "" : "untyped ",
 				rft2str[req->def.rty],
+				req->def.fun.typ ? " " : "",
 				string_content(req->def.fun.typ),
-				(req->def.rty == RQT_FUN_2) ? " -> " : "",
-				(req->def.rty == RQT_FUN_2) ? string_content(req->def.fun.fun2) : ""); */
+				req->def.fun.fun2 ? " -> " : "",
+				req->def.fun.fun2 ? string_content(req->def.fun.fun2) : "",
+				req->val.fun.typ ? "" : "untyped ",
+				rft2str[req->val.rty],
+				req->val.fun.typ ? " " : "",
+				string_content(req->val.fun.typ),
+				req->val.fun.fun2 ? " -> " : "",
+				req->val.fun.fun2 ? string_content(req->val.fun.fun2) : "");
 		}
-	} else {
-		printf("%s => %sdata", string_content(req->obj_name), req->weak ? "weak " : "");
-		if (req->has_default) {
-			if (req->def.dat.has_size) printf(" with default %zu", req->def.dat.sz);
-			else printf(" with no default");
+		break;
+	case RQT_DATA:
+	case RQT_DATAV:
+	case RQT_DATAB:
+	case RQT_DATAM:
+		similar = 1;
+		if (similar && (req->def.rty != req->val.rty)) similar = 0;
+		if (similar && (!!req->def.dat.has_size != !!req->val.dat.has_size)) similar = 0;
+		if (similar && req->def.dat.has_size && (req->def.dat.sz != req->val.dat.sz)) similar = 0;
+		if (!similar) {
+			printf("%s%s: data with %s%sdefault%s",
+				string_content(req->obj_name),
+				req->weak ? " (weak)" : "",
+				req->default_comment ? "commented " : "",
+				req->def.fun.typ ? "" : "untyped ",
+				rft2str[req->def.rty]);
+			if (req->def.dat.has_size) {
+				printf(" %zu", req->def.dat.sz);
+			} else {
+				printf(" unsized");
+			}
+			printf(" and dissimilar %ssolved%s",
+				req->val.fun.typ ? "" : "untyped ",
+				rft2str[req->val.rty]);
+			if (req->val.dat.has_size) {
+				printf(" %zu", req->val.dat.sz);
+			} else {
+				printf(" unsized");
+			}
+			printf("\n");
 		}
-		if (req->has_val) {
-			if (req->def.dat.has_size) printf(" with solved %zu", req->def.dat.sz);
-			else printf(" with no solved");
-		}
+		break;
 	}
 }
+void references_print_check(const VECTOR(references) *refs) {
+	vector_for(references, ref, refs) {
+		if (ref->typ == REF_REQ) request_print_check(&ref->req);
+	}
+}
+
 static void request_del(request_t *req) {
 	string_del(req->obj_name);
-	if (req->has_default) {
-		switch (req->def.rty) {
-		case RQT_FUN:    string_del(req->def.fun.typ);                                break;
-		case RQT_FUN_2:  string_del(req->def.fun.typ); string_del(req->def.fun.fun2); break;
-		case RQT_FUN_MY: string_del(req->def.fun.typ);                                break;
-		case RQT_FUN_D:  string_del(req->def.fun.typ); string_del(req->def.fun.fun2); break;
-		case RQT_DATA:   break;
-		case RQT_DATAV:  break;
-		case RQT_DATAB:  break;
-		case RQT_DATAM:  break;
-		}
+	switch (req->def.rty) {
+	case RQT_FUN:    if (req->def.fun.typ) string_del(req->def.fun.typ);                                                       break;
+	case RQT_FUN_2:  if (req->def.fun.typ) string_del(req->def.fun.typ); if (req->def.fun.fun2) string_del(req->def.fun.fun2); break;
+	case RQT_FUN_MY: if (req->def.fun.typ) string_del(req->def.fun.typ);                                                       break;
+	case RQT_FUN_D:  if (req->def.fun.typ) string_del(req->def.fun.typ); if (req->def.fun.fun2) string_del(req->def.fun.fun2); break;
+	case RQT_DATA:   break;
+	case RQT_DATAV:  break;
+	case RQT_DATAB:  break;
+	case RQT_DATAM:  break;
 	}
 	if (req->has_val) {
 		switch (req->val.rty) {
@@ -169,7 +193,12 @@ static void reference_del(reference_t *ref) {
 		request_del(&ref->req);
 		break;
 	case REF_LINE:
+	case REF_IFDEF:
+	case REF_IFNDEF:
 		string_del(ref->line);
+		break;
+	case REF_ELSE:
+	case REF_ENDIF:
 		break;
 	}
 }
@@ -194,31 +223,33 @@ static const char *rqt_suffix[8] = {
 	[RQT_DATAM] = "M",
 };
 
-static void request_output(FILE *f, request_t *req) {
+static void request_output(FILE *f, const request_t *req) {
 	if (!req->has_val) {
-		if (!req->has_default) {
-			// printf("Warning: %s has no value and no default, assuming function\n", string_content(req->obj_name));
-			fprintf(f, "//GO%s(%s, \n", req->weak ? "W" : "", string_content(req->obj_name));
-		} else if (IS_RQT_FUNCTION(req->def.rty)) {
-			fprintf(f, "%sGO%s%s(%s, %s%s%s%s%s)%s\n",
-				req->default_comment ? "//" : "",
-				req->weak ? "W" : "",
-				rqt_suffix[req->def.rty],
-				string_content(req->obj_name),
-				valid_reqtype(req->def.fun.typ) ? "" : "\"",
-				string_content(req->def.fun.typ),
-				valid_reqtype(req->def.fun.typ) ? "" : "\"",
-				IS_RQT_FUN2(req->def.rty) ? ", " : "",
-				IS_RQT_FUN2(req->def.rty) ? string_content(req->def.fun.fun2) : "",
-				req->default_comment ? "" : " // Warning: failed to confirm");
-		} else {
-			if (req->def.dat.has_size) {
-				fprintf(f, "%sDATA%s%s(%s, %zu) // Warning: failed to confirm\n",
+		if (IS_RQT_FUNCTION(req->def.rty)) {
+			if (!req->def.fun.typ) {
+				fprintf(f, "//GO%s%s(%s, \n", req->weak ? "W" : "", rqt_suffix[req->def.rty], string_content(req->obj_name));
+			} else {
+				fprintf(f, "%sGO%s%s(%s, %s%s%s%s%s)%s\n",
 					req->default_comment ? "//" : "",
 					req->weak ? "W" : "",
 					rqt_suffix[req->def.rty],
 					string_content(req->obj_name),
-					req->def.dat.sz);
+					valid_reqtype(req->def.fun.typ) ? "" : "\"",
+					string_content(req->def.fun.typ),
+					valid_reqtype(req->def.fun.typ) ? "" : "\"",
+					IS_RQT_FUN2(req->def.rty) ? ", " : "",
+					IS_RQT_FUN2(req->def.rty) ? string_content(req->def.fun.fun2) : "",
+					(req->ignored || req->default_comment) ? "" : " // Warning: failed to confirm");
+			}
+		} else {
+			if (req->def.dat.has_size) {
+				fprintf(f, "%sDATA%s%s(%s, %zu)%s\n",
+					req->default_comment ? "//" : "",
+					req->weak ? "W" : "",
+					rqt_suffix[req->def.rty],
+					string_content(req->obj_name),
+					req->def.dat.sz,
+					(req->ignored || req->default_comment) ? "" : " // Warning: failed to confirm");
 			} else {
 				fprintf(f, "//DATA%s%s(%s, \n",
 					req->weak ? "W" : "",
@@ -229,7 +260,8 @@ static void request_output(FILE *f, request_t *req) {
 	} else {
 		if (IS_RQT_FUNCTION(req->val.rty)) {
 			int is_comment =
-				(req->has_default && !req->default_comment) ? (req->val.rty != req->def.rty) : (req->val.rty != RQT_FUN);
+				(IS_RQT_FUNCTION(req->def.rty) && req->def.fun.typ && !req->default_comment)
+				  ? (req->val.rty != req->def.rty) : (req->val.rty != RQT_FUN);
 			fprintf(f, "%sGO%s%s(%s, %s%s%s)\n",
 				is_comment ? "//" : "",
 				req->weak ? "W" : "",
@@ -240,7 +272,7 @@ static void request_output(FILE *f, request_t *req) {
 				IS_RQT_FUN2(req->val.rty) ? req->val.fun.fun2 ? string_content(req->val.fun.fun2) : "<error: no val>" : "");
 		} else {
 			if (req->val.dat.has_size) {
-				int is_comment = !req->has_default || req->default_comment || (req->def.rty != req->val.rty);
+				int is_comment = IS_RQT_FUNCTION(req->def.rty) || !req->def.dat.has_size || req->default_comment || (req->def.rty != req->val.rty);
 				fprintf(f, "%sDATA%s(%s, %zu)\n",
 					is_comment ? "//" : "",
 					rqt_suffix[req->val.rty],
@@ -254,7 +286,7 @@ static void request_output(FILE *f, request_t *req) {
 		}
 	}
 }
-static void reference_output(FILE *f, reference_t *ref) {
+static void reference_output(FILE *f, const reference_t *ref) {
 	switch (ref->typ) {
 	case REF_REQ:
 		request_output(f, &ref->req);
@@ -263,12 +295,24 @@ static void reference_output(FILE *f, reference_t *ref) {
 		fputs(string_content(ref->line), f);
 		fputc('\n', f);
 		break;
+	case REF_IFDEF:
+		fprintf(f, "#ifdef %s\n", string_content(ref->line));
+		break;
+	case REF_IFNDEF:
+		fprintf(f, "#ifndef %s\n", string_content(ref->line));
+		break;
+	case REF_ELSE:
+		fputs("#else\n", f);
+		break;
+	case REF_ENDIF:
+		fputs("#endif\n", f);
+		break;
 	}
 }
-void output_from_references(FILE *f, VECTOR(references) *reqs) {
-	fprintf(f, "#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))\n#error Meh...\n#endif\n\n");
-	vector_for(references, req, reqs) {
-		reference_output(f, req);
+void output_from_references(FILE *f, const VECTOR(references) *refs) {
+	fprintf(f, "#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))\n#error Meh...\n#endif\n");
+	vector_for(references, ref, refs) {
+		reference_output(f, ref);
 	}
 }
 
@@ -350,14 +394,13 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 			}
 		}
 		if ((tok.tokt == PPTOK_SYM) && (tok.tokv.sym == SYM_HASH)) {
-			ADD_CHAR('#', 0, "start of preprocessor command")
+			string_clear(line);
 			tok = pre_next_token(prep, 0);
 			if (tok.tokt != PPTOK_IDENT) {
 				printf("Error: invalid reference file: invalid preprocessor line\n");
 				preproc_token_del(&tok);
 				goto failed;
 			}
-			ADD_STR(tok.tokv.str, 1, "preprocessor command")
 			if (!strcmp(string_content(tok.tokv.str), "ifdef")) {
 				string_del(tok.tokv.str);
 				tok = pre_next_token(prep, 0);
@@ -366,10 +409,12 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 					preproc_token_del(&tok);
 					goto failed;
 				}
-				ADD_CHAR(' ', 1, "preprocessor command")
-				ADD_STR(tok.tokv.str, 1, "preprocessor command")
 				++if_depth;
-				string_del(tok.tokv.str);
+				if (!vector_push(references, ret, ((reference_t){.typ = REF_IFDEF, .line = tok.tokv.str}))) {
+					printf("Error: failed to memorize reference line %d\n", lineno);
+					string_del(tok.tokv.str);
+					goto failed;
+				}
 				tok = pre_next_token(prep, 0);
 			} else if (!strcmp(string_content(tok.tokv.str), "ifndef")) {
 				string_del(tok.tokv.str);
@@ -379,22 +424,32 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 					preproc_token_del(&tok);
 					goto failed;
 				}
-				ADD_CHAR(' ', 1, "preprocessor command")
-				ADD_STR(tok.tokv.str, 1, "preprocessor command")
 				if (if_depth == entered_depth) ++entered_depth;
 				++if_depth;
-				string_del(tok.tokv.str);
+				if (!vector_push(references, ret, ((reference_t){.typ = REF_IFNDEF, .line = tok.tokv.str}))) {
+					printf("Error: failed to memorize reference line %d\n", lineno);
+					string_del(tok.tokv.str);
+					goto failed;
+				}
 				tok = pre_next_token(prep, 0);
 			} else if (!strcmp(string_content(tok.tokv.str), "else")) {
 				string_del(tok.tokv.str);
 				tok = pre_next_token(prep, 0);
 				if (if_depth == entered_depth + 1) ++entered_depth;
 				else if (if_depth == entered_depth) --entered_depth;
+				if (!vector_push(references, ret, ((reference_t){.typ = REF_ELSE}))) {
+					printf("Error: failed to memorize reference line %d\n", lineno);
+					goto failed;
+				}
 			} else if (!strcmp(string_content(tok.tokv.str), "endif")) {
 				string_del(tok.tokv.str);
 				tok = pre_next_token(prep, 0);
 				if (if_depth == entered_depth) --entered_depth;
 				--if_depth;
+				if (!vector_push(references, ret, ((reference_t){.typ = REF_ENDIF}))) {
+					printf("Error: failed to memorize reference line %d\n", lineno);
+					goto failed;
+				}
 			} else {
 				printf("Error: invalid reference file: invalid preprocessor command '%s'\n", string_content(tok.tokv.str));
 				string_del(tok.tokv.str);
@@ -404,7 +459,6 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 				preproc_token_del(&tok);
 				tok = pre_next_token(prep, 0);
 			}
-			PUSH_LINE(0)
 			++lineno;
 			if (preproc_token_isend(&tok)) {
 				if (tok.tokt == PPTOK_EOF) goto success;
@@ -431,9 +485,9 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 			if (is_comment) prepare_mark_nocomment(prep);
 			int isweak = (string_content(tok.tokv.str)[2] == 'W');
 			request_t req = {
-				.has_default = 0,
 				.default_comment = is_comment,
 				.has_val = 0,
+				.ignored = 0,
 				.obj_name = NULL,
 				.weak = isweak,
 				.def = {
@@ -472,7 +526,6 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 			tok = pre_next_token(prep, 0);
 			if ((tok.tokt == PPTOK_IDENT) || (tok.tokt == PPTOK_STRING)) {
 				req.def.fun.typ = (tok.tokt == PPTOK_STRING) ? tok.tokv.sstr : tok.tokv.str;
-				req.has_default = 1;
 				// Token moved
 				tok = pre_next_token(prep, 0);
 				if ((req.def.rty == RQT_FUN_2) || (req.def.rty == RQT_FUN_D)) {
@@ -515,17 +568,13 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 				preproc_token_del(&tok);
 				goto failed;
 			}
-			if (if_depth == entered_depth) {
-				if (!vector_push(references, ret, ((reference_t){.typ = REF_REQ, .req = req}))) {
-					printf("Error: failed to add reference for %s\n", string_content(req.obj_name));
-					string_del(req.obj_name);
-					if (req.def.fun.typ) string_del(req.def.fun.typ);
-					if (req.def.fun.fun2) string_del(req.def.fun.fun2);
-					// Empty destructor
-					goto failed;
-				}
-			} else {
-				request_del(&req);
+			if (!vector_push(references, ret, ((reference_t){.typ = REF_REQ, .req = req}))) {
+				printf("Error: failed to add reference for %s\n", string_content(req.obj_name));
+				string_del(req.obj_name);
+				if (req.def.fun.typ) string_del(req.def.fun.typ);
+				if (req.def.fun.fun2) string_del(req.def.fun.fun2);
+				// Empty destructor
+				goto failed;
 			}
 			++lineno;
 		} else if ((tok.tokt == PPTOK_IDENT)
@@ -536,9 +585,9 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 			string_clear(line);
 			if (is_comment) prepare_mark_nocomment(prep);
 			request_t req = {
-				.has_default = 1,
 				.default_comment = is_comment,
 				.has_val = 0,
+				.ignored = 0,
 				.obj_name = NULL,
 				.weak = (string_content(tok.tokv.str)[4] == 'V'),
 				.def = {
@@ -614,15 +663,11 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 				preproc_token_del(&tok);
 				goto failed;
 			}
-			if (if_depth == entered_depth) {
-				if (!vector_push(references, ret, ((reference_t){.typ = REF_REQ, .req = req}))) {
-					printf("Error: failed to add reference for %s\n", string_content(req.obj_name));
-					request_del(&req);
-					// Empty destructor
-					goto failed;
-				}
-			} else {
+			if (!vector_push(references, ret, ((reference_t){.typ = REF_REQ, .req = req}))) {
+				printf("Error: failed to add reference for %s\n", string_content(req.obj_name));
 				request_del(&req);
+				// Empty destructor
+				goto failed;
 			}
 			++lineno;
 		} else if (is_comment) {
@@ -663,6 +708,10 @@ success:
 }
 
 static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my) {
+	if (typ->converted) {
+		// printf("Warning: %s uses a converted type but is not the converted type\n", string_content(obj_name));
+		*needs_my = 1;
+	}
 	switch (typ->typ) {
 	case TYPE_BUILTIN:
 		return 1; // Assume pointers to builtin are simple
@@ -670,7 +719,6 @@ static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my) {
 		if (typ->val.array.array_sz == (size_t)-1) return 0; // VLA are not simple
 		return is_simple_type_ptr_to(typ->val.array.typ, needs_D, needs_my);
 	case TYPE_STRUCT_UNION:
-		if (typ->val.st->explicit_simple) return 1;
 		if (typ->_internal_use) return 1; // Recursive structures are OK as long as every other members are OK
 		if (!typ->val.st->is_defined) return 1; // Undefined structures are OK since they are opaque
 		typ->_internal_use = 1;
@@ -696,6 +744,10 @@ static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my) {
 	}
 }
 static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
+	if (typ->converted) {
+		// printf("Warning: %s uses a converted type but is not the converted type\n", string_content(obj_name));
+		*needs_my = 1;
+	}
 	switch (typ->typ) {
 	case TYPE_BUILTIN:
 		return 1; // Assume pointers to builtin are simple
@@ -703,7 +755,6 @@ static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
 		if (typ->val.array.array_sz == (size_t)-1) return 0; // VLA are not simple
 		return is_simple_type_ptr_to(typ->val.array.typ, needs_D, needs_my);
 	case TYPE_STRUCT_UNION:
-		if (typ->val.st->explicit_simple) return 1;
 		if (typ->_internal_use) return 1; // Recursive structures are OK as long as every other members are OK
 		// if (!typ->val.st->is_defined) return 1; // Undefined structures are OK since they are opaque
 		// To be safe, don't allow opaque structures
@@ -732,6 +783,13 @@ static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
 }
 
 static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, int *needs_my, string_t *obj_name) {
+	if (typ->converted) {
+		if (!string_add_string(dest, typ->converted)) {
+			printf("Error: failed to add explicit type char\n");
+			return 0;
+		}
+		return 1;
+	}
 	if (typ->is_atomic) {
 		printf("TODO: convert_type for atomic types\n");
 		return 0;
@@ -831,13 +889,6 @@ static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, i
 	case TYPE_ENUM:
 		return convert_type(dest, typ->val.typ, is_ret, needs_D, needs_my, obj_name);
 	case TYPE_PTR:
-		if ((typ->val.typ->typ == TYPE_STRUCT_UNION) && typ->val.typ->val.st->tag && !strcmp(string_content(typ->val.typ->val.st->tag), "_IO_FILE")) {
-			if (!string_add_char(dest, 'S')) {
-				printf("Error: failed to add type char for %s\n", builtin2str[typ->val.builtin]);
-				return 0;
-			}
-			return 1;
-		}
 		if (is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my)) {
 			if (!string_add_char(dest, 'p')) {
 				printf("Error: failed to add type char for simple pointer\n");
@@ -861,6 +912,7 @@ static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, i
 	}
 }
 static int convert_type_post(string_t *dest, type_t *typ, string_t *obj_name) {
+	if (typ->converted) return 1;
 	if (typ->is_atomic) {
 		printf("TODO: convert_type_post for atomic types\n");
 		return 0;
@@ -893,7 +945,7 @@ static int convert_type_post(string_t *dest, type_t *typ, string_t *obj_name) {
 
 int solve_request(request_t *req, type_t *typ) {
 	if (typ->typ == TYPE_FUNCTION) {
-		int needs_D = 0, needs_my = req->has_default && (req->def.rty == RQT_FUN_MY), needs_2 = 0;
+		int needs_D = 0, needs_my = req->def.fun.typ && (req->def.rty == RQT_FUN_MY), needs_2 = 0;
 		int convert_post;
 		req->val.fun.typ = string_new();
 		if (!req->val.fun.typ) {
@@ -905,7 +957,7 @@ int solve_request(request_t *req, type_t *typ) {
 			printf("Error: failed to add convention char\n");
 			goto fun_fail;
 		}
-		if (req->has_default && (req->def.rty == RQT_FUN_MY) && (string_content(req->def.fun.typ)[2] == 'E')) {
+		if (req->def.fun.typ && (req->def.rty == RQT_FUN_MY) && (string_content(req->def.fun.typ)[2] == 'E')) {
 			if (!string_add_char(req->val.fun.typ, 'E')) {
 				printf("Error: failed to add emu char\n");
 				goto fun_fail;
@@ -933,23 +985,36 @@ int solve_request(request_t *req, type_t *typ) {
 				if (!convert_type(req->val.fun.typ, typ->val.fun.args[i], 0, &needs_D, &needs_my, req->obj_name)) goto fun_fail;
 			}
 			if (typ->val.fun.has_varargs) {
-				needs_my = 1;
-				if (!string_add_char(req->val.fun.typ, 'V')) {
-					printf("Error: failed to add type char for %s\n", builtin2str[typ->val.builtin]);
-					goto fun_fail;
+				if (req->def.fun.typ
+				      && (string_len(req->def.fun.typ) == string_len(req->val.fun.typ) + 1)
+				      && !strncmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ), string_len(req->val.fun.typ))
+				      && ((string_content(req->def.fun.typ)[string_len(req->val.fun.typ)] == 'M')
+				       || (string_content(req->def.fun.typ)[string_len(req->val.fun.typ)] == 'N'))) {
+					if (!string_add_char(req->val.fun.typ, string_content(req->def.fun.typ)[string_len(req->val.fun.typ)])) {
+						printf("Error: failed to add type char '%c' for %s\n",
+							string_content(req->def.fun.typ)[string_len(req->val.fun.typ)],
+							builtin2str[typ->val.builtin]);
+						goto fun_fail;
+					}
+				} else {
+					needs_my = 1;
+					if (!string_add_char(req->val.fun.typ, 'V')) {
+						printf("Error: failed to add type char 'V' for %s\n", builtin2str[typ->val.builtin]);
+						goto fun_fail;
+					}
 				}
 			}
 		}
 		
 	// fun_succ:
-		if (req->has_default && (req->def.rty == RQT_FUN_2) && !needs_my) {
+		if (req->def.fun.typ && (req->def.rty == RQT_FUN_2) && !needs_my) {
 			needs_2 = 1;
 			req->val.fun.fun2 = string_dup(req->def.fun.fun2);
 			if (!req->val.fun.fun2) {
 				printf("Error: failed to duplicate string (request for function %s with default redirection)\n", string_content(req->obj_name));
 				return 0;
 			}
-		} else if (req->has_default && (req->def.rty == RQT_FUN_D) && !needs_my) {
+		} else if (req->def.fun.typ && (req->def.rty == RQT_FUN_D) && !needs_my) {
 			needs_2 = 0;
 			req->val.fun.fun2 = string_dup(req->def.fun.fun2);
 			if (!req->val.fun.fun2) {
@@ -974,10 +1039,10 @@ int solve_request(request_t *req, type_t *typ) {
 		string_del(req->val.fun.typ);
 		return 0;
 	} else {
-		int needs_D = 0, needs_my = req->has_default && (req->def.rty == RQT_FUN_MY);
+		int needs_D = 0, needs_my = req->def.dat.has_size && (req->def.rty == RQT_DATAM);
 		if (is_simple_type(typ, &needs_D, &needs_my)) {
 			// TODO: Hmm...
-			req->val.rty = needs_my ? RQT_DATAM : req->has_default ? req->def.rty : req->weak ? RQT_DATAV : RQT_DATA;
+			req->val.rty = needs_my ? RQT_DATAM : req->def.dat.has_size ? req->def.rty : req->weak ? RQT_DATAV : RQT_DATA;
 			req->val.dat.has_size = 1;
 			req->val.dat.sz = typ->szinfo.size;
 			req->has_val = 1;
@@ -1002,9 +1067,34 @@ int solve_request_map(request_t *req, khash_t(type_map) *decl_map) {
 }
 int solve_references(VECTOR(references) *refs, khash_t(type_map) *decl_map) {
 	int ret = 1;
+	int cond_depth = 0, ok_depth = 0;
 	vector_for(references, ref, refs) {
-		if (ref->typ != REF_REQ) continue;
-		if (!solve_request_map(&ref->req, decl_map)) ret = 0;
+		switch (ref->typ) {
+		case REF_REQ:
+			if (ok_depth == cond_depth) {
+				if (!solve_request_map(&ref->req, decl_map)) ret = 0;
+			} else {
+				ref->req.ignored = 1;
+			}
+			break;
+		case REF_LINE:
+			break;
+		case REF_IFDEF:
+			++cond_depth;
+			break;
+		case REF_IFNDEF:
+			if (cond_depth == ok_depth) ++ok_depth;
+			++cond_depth;
+			break;
+		case REF_ELSE:
+			if (cond_depth == ok_depth) --ok_depth;
+			else if (cond_depth == ok_depth + 1) ++ok_depth;
+			break;
+		case REF_ENDIF:
+			if (cond_depth == ok_depth) --ok_depth;
+			--cond_depth;
+			break;
+		}
 	}
 	return ret;
 }

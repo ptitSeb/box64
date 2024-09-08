@@ -2,9 +2,6 @@
 #define __USE_MISC 1
 #define PORTMAP
 
-// TODO
-#define inline
-
 #include <stdint.h>
 
 #include <aliases.h>
@@ -132,7 +129,13 @@
 #include <wctype.h>
 #include <wordexp.h>
 
-#pragma wrappers explicit_simple FTS
-#pragma wrappers explicit_simple FTS64
-#pragma wrappers explicit_simple glob_t
-#pragma wrappers explicit_simple glob64_t
+#pragma wrappers type_letters S FILE*
+#pragma wrappers type_letters S const FILE*
+#pragma wrappers type_letters p FTS*
+#pragma wrappers type_letters p const FTS*
+#pragma wrappers type_letters p FTS64*
+#pragma wrappers type_letters p const FTS64*
+#pragma wrappers type_letters p glob_t*
+#pragma wrappers type_letters p const glob_t*
+#pragma wrappers type_letters p glob64_t*
+#pragma wrappers type_letters p const glob64_t*

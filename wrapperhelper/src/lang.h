@@ -162,7 +162,7 @@ typedef struct proc_token_s {
 		struct {
 			enum proc_pragma_e {
 				PRAGMA_ALLOW_INTS,
-				PRAGMA_MARK_SIMPLE,
+				PRAGMA_EXPLICIT_CONV,
 			} typ;
 			string_t *val;
 		} pragma;
@@ -368,6 +368,7 @@ typedef struct type_s {
 		} fun;
 	} val;
 	size_info_t szinfo;
+	string_t *converted; // NULL for default behavior
 } type_t;
 void type_del(type_t *typ);
 KHASH_MAP_DECLARE_STR(type_map, type_t*)
@@ -387,7 +388,6 @@ typedef struct struct_s {
 	size_t nrefs;
 	int is_struct; // 0 = union, 1 = struct
 	int has_incomplete; // 1 if the last element of the structure is a VLA or if an element of the union recursively contains a VLA
-	int explicit_simple;
 	size_t nmembers;
 	st_member_t *members;
 } struct_t;

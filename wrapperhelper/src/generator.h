@@ -10,8 +10,8 @@
 
 typedef struct request_s {
 	string_t *obj_name;
-	_Bool has_default, default_comment;
-	_Bool has_val;
+	_Bool default_comment;
+	_Bool has_val, ignored;
 	_Bool weak;
 	struct {
 		enum request_type_e {
@@ -41,6 +41,10 @@ typedef struct reference_s {
 	enum {
 		REF_REQ,
 		REF_LINE,
+		REF_IFDEF,
+		REF_IFNDEF,
+		REF_ELSE,
+		REF_ENDIF,
 	} typ;
 	union {
 		request_t req;
@@ -48,9 +52,10 @@ typedef struct reference_s {
 	};
 } reference_t;
 VECTOR_DECLARE(references, reference_t)
-void request_print(request_t *req);
-void request_print_check(request_t *req);
-void output_from_references(FILE *f, VECTOR(references) *reqs);
+void request_print(const request_t *req);
+void request_print_check(const request_t *req);
+void references_print_check(const VECTOR(references) *refs);
+void output_from_references(FILE *f, const VECTOR(references) *reqs);
 
 VECTOR(references) *references_from_file(const char *filename, FILE *f); // Takes ownership of f
 int solve_request(request_t *req, type_t *typ);

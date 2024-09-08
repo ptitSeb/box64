@@ -131,31 +131,31 @@ int main(int argc, char **argv) {
 			del_str2kw();
 			return 2;
 		}
-		VECTOR(references) *reqs = references_from_file(ref_file, ref);
-		if (!reqs) {
+		VECTOR(references) *refs = references_from_file(ref_file, ref);
+		if (!refs) {
 			file_del(content);
 			del_machines();
 			del_str2kw();
 			return 2;
 		}
-		// vector_for(references, req, reqs) request_print(req);
-		if (!solve_references(reqs, content->decl_map)) {
+		// vector_for(references, req, refs) request_print(req);
+		if (!solve_references(refs, content->decl_map)) {
 			printf("Warning: failed to solve all default requests\n");
 		}
-		// vector_for(references, req, reqs) request_print(req);
-		//vector_for(references, req, reqs) request_print_check(req);
+		// vector_for(references, req, refs) request_print(req);
+		references_print_check(refs);
 		FILE *out = fopen(out_file, "w");
 		if (!out) {
 			err(2, "Error: failed to open %s", ref_file);
 			file_del(content);
-			vector_del(references, reqs);
+			vector_del(references, refs);
 			del_machines();
 			del_str2kw();
 			return 2;
 		}
-		output_from_references(out, reqs);
+		output_from_references(out, refs);
 		fclose(out);
-		vector_del(references, reqs);
+		vector_del(references, refs);
 		file_del(content);
 		del_machines();
 		del_str2kw();
@@ -181,6 +181,11 @@ int main(int argc, char **argv) {
 		kh_foreach(content->struct_map, name, st,
 			printf("Struct: %s -> %p = ", name, st);
 			struct_print(st);
+			printf("\n")
+		)
+		kh_foreach_key(content->type_set, typ,
+			printf("Type: %p = ", typ);
+			type_print(typ);
 			printf("\n")
 		)
 		kh_foreach(content->type_map, name, typ,
