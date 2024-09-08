@@ -500,6 +500,29 @@ static void* find_GtkFileFilterFunc_Fct(void* fct)
     return NULL;
 }
 
+// GtkListBoxUpdateHeaderFunc
+#define GO(A)   \
+static uintptr_t my_GtkListBoxUpdateHeaderFunc_fct_##A = 0;                 \
+static void my_GtkListBoxUpdateHeaderFunc_##A(void* a, void* b, void* c)    \
+{                                                                           \
+    RunFunctionFmt(my_GtkListBoxUpdateHeaderFunc_fct_##A, "ppp", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* findGtkListBoxUpdateHeaderFunc(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkListBoxUpdateHeaderFunc_fct_##A == (uintptr_t)fct) return my_GtkListBoxUpdateHeaderFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkListBoxUpdateHeaderFunc_fct_##A == 0) {my_GtkListBoxUpdateHeaderFunc_fct_##A = (uintptr_t)fct; return my_GtkListBoxUpdateHeaderFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkListBoxUpdateHeaderFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -753,7 +776,7 @@ EXPORT void* my3_gtk_tree_store_new(x64emu_t* emu, uint32_t n, uintptr_t* b)
     return my->gtk_tree_store_newv(n, c);
 }
 
-EXPORT void my3_gtk_style_context_get_valist(x64emu_t* emu, void* context, int state, x64_va_list_t V)
+EXPORT void my3_gtk_style_context_get_valist(x64emu_t* emu, void* context, uint32_t state, x64_va_list_t V)
 {
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
@@ -772,6 +795,13 @@ EXPORT void my3_gtk_style_context_get_style_valist(x64emu_t* emu, void* context,
     #endif
     my->gtk_style_context_get_style_valist(context, VARARGS);
 }
+
+EXPORT void my3_gtk_style_context_get_style(x64emu_t* emu, void* context, uintptr_t* b)
+{
+    CREATE_VALIST_FROM_VAARG(b, emu->scratch, 1);
+    my->gtk_style_context_get_style_valist(context, VARARGS);
+}
+
 
 EXPORT void my3_gtk_enumerate_printers(x64emu_t* emu, void* f, void* data, void* d, int i)
 {
@@ -842,6 +872,11 @@ EXPORT void my3_gtk_tree_store_set(x64emu_t* emu, void* tree, void* iter, uintpt
 {
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
     my->gtk_tree_store_set_valist(tree, iter, VARARGS);
+}
+
+EXPORT void my3_gtk_list_box_set_header_func(x64emu_t* emu, void* box, void* f, void* data, void* d)
+{
+    my->gtk_list_box_set_header_func(box, findGtkListBoxUpdateHeaderFunc(f), data, findGDestroyNotifyFct(d));
 }
 
 

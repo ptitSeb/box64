@@ -708,7 +708,6 @@
 #() pFEip
 #() pFEiV
 #() pFEup
-#() pFEuV
 #() pFEpi
 #() pFEpu
 #() pFEpp
@@ -813,8 +812,9 @@
 #() vFELLp
 #() vFEpii
 #() vFEpip
-#() vFEpiA
 #() vFEpup
+#() vFEpuV
+#() vFEpuA
 #() vFEpUp
 #() vFEppp
 #() vFEppV
@@ -3948,15 +3948,19 @@ wrappedgtk3:
 - vFpp:
   - gtk_builder_connect_signals
   - gtk_init
+- vFpV:
+  - gtk_style_context_get_style
 - vFpA:
   - gtk_style_context_get_style_valist
 - iFLp:
   - gtk_type_unique
 - iFpp:
   - gtk_init_check
-- pFuV:
+- pFiV:
   - gtk_tree_store_new
-- vFpiA:
+- vFpuV:
+  - gtk_style_context_get
+- vFpuA:
   - gtk_style_context_get_valist
 - vFppp:
   - gtk_builder_connect_signals_full
@@ -3968,7 +3972,6 @@ wrappedgtk3:
   - gtk_dialog_add_buttons
   - gtk_message_dialog_format_secondary_markup
   - gtk_message_dialog_format_secondary_text
-  - gtk_style_context_get
   - gtk_tree_store_set
   - gtk_widget_style_get
 - vFppA:
@@ -3980,6 +3983,7 @@ wrappedgtk3:
 - vFpppi:
   - gtk_enumerate_printers
 - vFpppp:
+  - gtk_list_box_set_header_func
   - gtk_object_set_data_full
   - gtk_print_job_send
   - gtk_stock_set_translate_func

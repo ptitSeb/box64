@@ -13,11 +13,13 @@
 
 typedef void* (*pFi_t)(int32_t);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFpV_t)(void*, ...);
 typedef void (*vFpA_t)(void*, va_list);
 typedef int32_t (*iFLp_t)(uintptr_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
-typedef void* (*pFuV_t)(uint32_t, ...);
-typedef void (*vFpiA_t)(void*, int32_t, va_list);
+typedef void* (*pFiV_t)(int32_t, ...);
+typedef void (*vFpuV_t)(void*, uint32_t, ...);
+typedef void (*vFpuA_t)(void*, uint32_t, va_list);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppV_t)(void*, void*, ...);
 typedef void (*vFppA_t)(void*, void*, va_list);
@@ -43,11 +45,13 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_type_class, pFi_t) \
 	GO(gtk_builder_connect_signals, vFpp_t) \
 	GO(gtk_init, vFpp_t) \
+	GO(gtk_style_context_get_style, vFpV_t) \
 	GO(gtk_style_context_get_style_valist, vFpA_t) \
 	GO(gtk_type_unique, iFLp_t) \
 	GO(gtk_init_check, iFpp_t) \
-	GO(gtk_tree_store_new, pFuV_t) \
-	GO(gtk_style_context_get_valist, vFpiA_t) \
+	GO(gtk_tree_store_new, pFiV_t) \
+	GO(gtk_style_context_get, vFpuV_t) \
+	GO(gtk_style_context_get_valist, vFpuA_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
 	GO(gtk_clipboard_request_text, vFppp_t) \
 	GO(gtk_container_forall, vFppp_t) \
@@ -56,13 +60,13 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_dialog_add_buttons, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_markup, vFppV_t) \
 	GO(gtk_message_dialog_format_secondary_text, vFppV_t) \
-	GO(gtk_style_context_get, vFppV_t) \
 	GO(gtk_tree_store_set, vFppV_t) \
 	GO(gtk_widget_style_get, vFppV_t) \
 	GO(gtk_tree_store_set_valist, vFppA_t) \
 	GO(gtk_timeout_add, uFupp_t) \
 	GO(gtk_list_store_insert_with_values, vFppiV_t) \
 	GO(gtk_enumerate_printers, vFpppi_t) \
+	GO(gtk_list_box_set_header_func, vFpppp_t) \
 	GO(gtk_object_set_data_full, vFpppp_t) \
 	GO(gtk_print_job_send, vFpppp_t) \
 	GO(gtk_stock_set_translate_func, vFpppp_t) \
