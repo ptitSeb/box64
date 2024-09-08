@@ -2237,7 +2237,7 @@ GOW(ulckpwdf, iFv)
 #ifdef STATICBUILD
 //GOW(ulimit, lFiV)
 #else
-//GOWM(ulimit, lFiV)
+GOW(ulimit, lFiN)
 #endif
 GOW(umask, uFu)
 GOW(umount, iFp)
