@@ -195,6 +195,53 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
 
+                case 0x28:
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("MOVAPS Gx,Seg:Ex");
+                            nextop = F8;
+                            GETG;
+                            if(MODREG) {
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                v1 = sse_get_reg(dyn, ninst, x1, (nextop&7)+(rex.b<<3), 0);
+                                VMOVQ(v0, v1);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg);
+                                v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                                SMREAD();
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                                ADDz_REG(x4, x4, ed);
+                                VLD128(v0, ed, fixedaddress);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+                case 0x29:
+                    switch(rep) {
+                        case 0:
+                            INST_NAME("MOVAPS Seg:Ex,Gx");
+                            nextop = F8;
+                            GETG;
+                            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+                            if(MODREG) {
+                                ed = (nextop&7)+(rex.b<<3);
+                                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                                VMOVQ(v1, v0);
+                            } else {
+                                grab_segdata(dyn, addr, ninst, x4, seg);
+                                addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
+                                ADDz_REG(x4, x4, ed);
+                                VST128(v0, x4, fixedaddress);
+                                SMWRITE2();
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
+
                 case 0x6F:
                     switch(rep) {
                         case 2:
