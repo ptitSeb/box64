@@ -124,6 +124,7 @@ ENTRYSTRING_(BOX64_ENV2, new_env2)                      \
 ENTRYSTRING_(BOX64_ENV3, new_env3)                      \
 ENTRYSTRING_(BOX64_ENV4, new_env4)                      \
 ENTRYSTRING_(BOX64_ARGS, new_args)                      \
+ENTRYSTRING_(BOX64_INSERT_ARGS, insert_args)            \
 ENTRYBOOL(BOX64_RESERVE_HIGH, new_reserve_high)         \
 
 #ifdef HAVE_TRACE
@@ -501,6 +502,7 @@ extern int ftrace_has_pid;
 extern FILE* ftrace;
 extern char* ftrace_name;
 extern char* box64_new_args;
+extern char* box64_insert_args;
 void openFTrace(const char* newtrace);
 void addNewEnvVar(const char* s);
 void AddNewLibs(const char* libs);
@@ -654,6 +656,12 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
         if(box64_new_args)
             box_free(box64_new_args);
         box64_new_args = box_strdup(param->new_args);
+    }
+    if(param->is_insert_args_present) {
+        printf_log(LOG_INFO, "Adding \"%s\" arguments to command line\n", param->insert_args);
+        if(box64_insert_args)
+            box_free(box64_insert_args);
+        box64_insert_args = box_strdup(param->insert_args);
     }
     if(param->is_bash_present && FileIsX64ELF(param->bash)) {
         if(my_context->bashpath)
