@@ -24,7 +24,7 @@ GO(gcry_check_version, pFp)
 //GO(gcry_cipher_setctr, 
 //GO(gcry_cipher_setiv, 
 //GO(gcry_cipher_setkey, 
-GO(gcry_control, uFuM)
+GO(gcry_control, uFuNN)
 //GO(gcry_create_nonce, 
 //GO(gcry_ctx_release, 
 //GO(gcry_ecc_get_algo_keylen, 

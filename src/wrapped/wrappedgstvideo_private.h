@@ -366,7 +366,7 @@ GO(gst_video_scaler_get_max_taps, uFp)
 GO(gst_video_scaler_horizontal, vFpuppuu)
 GO(gst_video_scaler_new, pFuuuuup)
 GO(gst_video_scaler_vertical, vFpuppuu)
-GO(gst_video_sink_center_rect, vFpppppi)    // this is vFHHpi, with 2 GstVideoRectangle struct that are 4 ints
+GO(gst_video_sink_center_rect, vFHHpi)
 GO(gst_video_sink_get_type, LFv)
 GO(gst_video_tile_get_index, uFuiiii)
 GO(gst_video_tile_mode_get_type, LFv)
