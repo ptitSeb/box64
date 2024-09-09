@@ -138,7 +138,7 @@ void relockMutex(int locks)
     #undef GO
 }
 
-static void init_mutexes(box64context_t* context)
+void init_mutexes(box64context_t* context)
 {
 #ifndef DYNAREC
     pthread_mutexattr_t attr;
