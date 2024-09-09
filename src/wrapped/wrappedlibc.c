@@ -3598,8 +3598,10 @@ typedef struct clone_arg_s {
  uintptr_t fnc;
  void* args;
  int stack_clone_used;
+ int flags;
  void* tls;
 } clone_arg_t;
+void init_mutexes(box64context_t* context);
 static int clone_fn(void* p)
 {
     clone_arg_t* arg = (clone_arg_t*)p;
@@ -3608,6 +3610,10 @@ static int clone_fn(void* p)
     R_RSP = arg->stack;
     emu->flags.quitonexit = 1;
     thread_set_emu(emu);
+    if(arg->flags&CLONE_NEWUSER) {
+        init_mutexes(my_context);
+        ResetSegmentsCache(emu);
+    }
     int ret = RunFunctionWithEmu(emu, 0, arg->fnc, 1, arg->args);
     int exited = (emu->flags.quitonexit==2);
     thread_set_emu(NULL);
@@ -3644,6 +3650,7 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     arg->fnc = (uintptr_t)fn;
     arg->tls = tls;
     arg->emu = newemu;
+    arg->flags = flags;
     if((flags|(CLONE_VM|CLONE_VFORK|CLONE_SETTLS))==flags)   // that's difficult to setup, so lets ignore all those flags :S
         flags&=~(CLONE_VM|CLONE_VFORK|CLONE_SETTLS);
     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
