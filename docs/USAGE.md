@@ -391,7 +391,10 @@ Those variables are only valid inside a rcfile:
  * 1 : Added "-cef-disable-gpu-compositor" to command line arguments (usefull for steamwebhelper/cef based programs)
 
 #### BOX64_ARGS
-If that var exist, it will be added as argument(s) to the command line. Note that "" are supported, but not ''
+If that var exist, it will be added as argument(s) to the command line if there is no current argument (it's ignored else). Note that "" are supported, but not ''
+
+#### BOX64_INSERT_ARGS
+If that var exist, it will be inserted as firsts argument(s) to the command line. Note that "" are supported, but not ''
 
 #### BOX64_EXIT
  * 0 : Nothing special

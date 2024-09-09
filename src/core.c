@@ -68,6 +68,7 @@ int box64_ignoreint3 = 0;
 int box64_rdtsc = 0;
 int box64_rdtsc_1ghz = 0;
 uint8_t box64_rdtsc_shift = 0;
+char* box64_insert_args = NULL;
 char* box64_new_args = NULL;
 #ifdef DYNAREC
 int box64_dynarec = 1;
@@ -1716,10 +1717,16 @@ static void add_argv(const char* what) {
         if(!strcmp(my_context->argv[i], what))
             there = 1;
     if(!there) {
-        printf_log(LOG_INFO, "Inserting \"%s\" to the arguments\n", what);
+        // try to prepend the arg, not appending
+        static int where = 0;
+        if(!where)
+            where = (box64_wine)?2:1;
+        printf_log(LOG_INFO, "Inserting \"%s\" to the argument %d\n", what, where);
         my_context->argv = (char**)box_realloc(my_context->argv, (my_context->argc+1)*sizeof(char*));
-        my_context->argv[my_context->argc] = box_strdup(what);
+        memmove(my_context->argv+where+1, my_context->argv+where, (my_context->argc-where)*sizeof(char*));
+        my_context->argv[where] = box_strdup(what);
         my_context->argc++;
+        where++;
     }
 }
 
@@ -2069,9 +2076,37 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     {
         add_argv("-cef-disable-gpu-compositor");
     }
+    // add new args only if there is no args already
     if(box64_new_args) {
         char tmp[256];
         char* p = box64_new_args;
+        int state = 0;
+        char* p2 = p;
+        if(my_context->argc==1 || (my_context->argc==2 && box64_wine))
+            while(state>=0) {
+                switch(*p2) {
+                    case 0: // end of flux
+                        if(state && (p2!=p)) add_argv(p);
+                        state = -1;
+                        break;
+                    case '"': // start/end of quotes
+                        if(state<2) {if(!state) p=p2; state=2;} else state=1;
+                        break;
+                    case ' ':
+                        if(state==1) {strncpy(tmp, p, p2-p); tmp[p2-p]='\0'; add_argv(tmp); state=0;}
+                        break;
+                    default:
+                        if(state==0) {state=1; p=p2;}
+                        break;
+                }
+                ++p2;
+            }
+        box_free(box64_new_args);
+        box64_new_args = NULL;
+    }
+    if(box64_insert_args) {
+        char tmp[256];
+        char* p = box64_insert_args;
         int state = 0;
         char* p2 = p;
         while(state>=0) {
@@ -2092,8 +2127,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             }
             ++p2;
         }
-        box_free(box64_new_args);
-        box64_new_args = NULL;
+        box_free(box64_insert_args);
+        box64_insert_args = NULL;
     }
     // check if file exist
     if(!my_context->argv[0] || !FileExist(my_context->argv[0], IS_FILE)) {
