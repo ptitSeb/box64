@@ -79,7 +79,7 @@ GO(__atomic_load_16, HFpi)
 //GO(atomic_signal_fence, 
 GO(__atomic_store, vFLppi)
 //GO(__atomic_store_1, 
-GO(__atomic_store_16, vFpUUi)   // T is a __uint128 (probably), so will be splited in 2 UU
+GO(__atomic_store_16, vFpHi)
 //GO(__atomic_store_2, 
 //GO(__atomic_store_4, 
 //GO(__atomic_store_8, 

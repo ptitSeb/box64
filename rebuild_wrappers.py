@@ -152,10 +152,10 @@ class FunctionConvention(object):
 		self.values = valid_chars
 # Free letters:  B   FG  JK     QR T    YZa   e gh jk mno qrst   yz
 conventions = {
-	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'b']),
-	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M',      'P', 'A'])
+	'F': FunctionConvention('F', "System V", ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'H', 'P', 'A', 'x', 'X', 'Y', 'b']),
+	'W': FunctionConvention('W', "Windows",  ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd',      'l', 'L', 'p', 'V', 'O', 'S', 'N',      'P', 'A'])
 }
-sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'M', 'H', 'P', 'A', 'x', 'X', 'Y', 'b', '0', '1']
+sortedvalues = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'l', 'L', 'p', 'V', 'O', 'S', 'N', 'H', 'P', 'A', 'x', 'X', 'Y', 'b', '0', '1']
 assert(all(all(c not in conv.values[:i] and c in sortedvalues for i, c in enumerate(conv.values)) for conv in conventions.values()))
 
 # Some type depend on HAVE_LD80BITS; define this here so we can use it in readFiles and main
@@ -849,7 +849,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	return_x87: str = "D"
 	
 	# Sanity checks
-	forbidden_simple: Dict[str, str] = {"ARM64": "EDVOSNMHPAxXYb", "RV64": "EcwiDVOSNMHPAxXYb"}
+	forbidden_simple: Dict[str, str] = {"ARM64": "EDVOSNHPAxXYb", "RV64": "EcwiDVOSNHPAxXYb"}
 	assert(all(k in allowed_simply for k in forbidden_simple))
 	assert(all(k in allowed_regs for k in forbidden_simple))
 	assert(all(k in allowed_fpr for k in forbidden_simple))
@@ -998,7 +998,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		// o = stdout
 		// S = _IO_2_1_stdXXX_ pointer (or FILE*)
 		// N = ... automatically sending 1 arg
-		// M = ... automatically sending 2 args
 		// A = va_list
 		// 0 = constant 0, 1 = constant 1
 		// x = float complex
@@ -1065,10 +1064,10 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	# Rewrite the wrapper.c file:
 	# i and u should only be 32 bits
 	td_types = {
-		#      E            v       c         w          i          I          C          W           u           U           f        d         D              l           L            p        V        O          S        N      M      H                    P        A        x             X            Y             b
-		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...", "unsigned __int128", "void*", "void*", "complexf_t", "complex_t", "complexl_t", "void*"],
-		#      E            v       c         w          i          I          C          W           u           U           f        d                        l           L            p        V        O          S        N      M                           P        A
-		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double",                "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "...",                      "void*", "void*"]
+		#      E            v       c         w          i          I          C          W           u           U           f        d         D              l           L            p        V        O          S        N      H                    P        A        x             X            Y             b
+		'F': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...", "unsigned __int128", "void*", "void*", "complexf_t", "complex_t", "complexl_t", "void*"],
+		#      E            v       c         w          i          I          C          W           u           U           f        d                        l           L            p        V        O          S        N                           P        A
+		'W': ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double",                "intptr_t", "uintptr_t", "void*", "void*", "int32_t", "void*", "...",                      "void*", "void*"]
 	}
 	td_types_nold = {
 		'F': {'D': "double", 'Y': "complex_t"},
@@ -1090,14 +1089,18 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			if any(c in v for c in depends_on_ld):
 				any_depends_on_ld = True
 				continue
-			file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + v + "_t)"
+			name = v + "_t"
+			v = v[:-1] if v.endswith('NN') else v # FIXME
+			file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + name + ")"
 				+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
 		if any_depends_on_ld:
 			file.write("\n#ifdef HAVE_LD80BITS\n")
 			for v in arr:
 				if all(c not in v for c in depends_on_ld):
 					continue
-				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + v + "_t)"
+				name = v + "_t"
+				v = v[:-1] if v.endswith('NN') else v # FIXME
+				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + name + ")"
 					+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
 			file.write("#else // HAVE_LD80BITS\n")
 			for k in td_types_nold:
@@ -1106,7 +1109,9 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			for v in arr:
 				if all(c not in v for c in depends_on_ld):
 					continue
-				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + v + "_t)"
+				name = v + "_t"
+				v = v[:-1] if v.endswith('NN') else v # FIXME
+				file.write("typedef " + td_types[v.get_convention().ident][v.get_convention().values.index(v[0])] + " (*" + name + ")"
 					+ "(" + ', '.join(td_types[v.get_convention().ident][v.get_convention().values.index(t)] for t in v[2:]) + ");\n")
 			for k in td_types_nold:
 				for t in td_types_ld[k]:
@@ -1152,7 +1157,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"\n#error Invalid return type: at_flags\n",                # O
 				"R_RAX=(uintptr_t)io_convert_back(fn({0}));",              # S
 				"\n#error Invalid return type: ... with 1 arg\n",          # N
-				"\n#error Invalid return type: ... with 2 args\n",         # M
 				"unsigned __int128 u128 = fn({0}); R_RAX=(u128&0xFFFFFFFFFFFFFFFFL); R_RDX=(u128>>64)&0xFFFFFFFFFFFFFFFFL;", # H
 				"\n#error Invalid return type: pointer in the stack\n",    # P
 				"\n#error Invalid return type: va_list\n",                 # A
@@ -1181,7 +1185,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"\n#error Invalid return type: at_flags\n",                # O
 				"R_RAX=io_convert_back(fn({0}));",                         # S
 				"\n#error Invalid return type: ... with 1 arg\n",          # N
-				"\n#error Invalid return type: ... with 2 args\n",         # M
 				"\n#error Invalid return type: pointer in the stack\n",    # P
 				"\n#error Invalid return type: va_list\n",                 # A
 			]
@@ -1198,17 +1201,17 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		}
 		
 		# vreg: value is in a general register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
-		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 2, 0, 1, 0, 0, 0, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  H  P  A  x  X  Y  b
+		vreg   = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 2, 0, 1, 0, 0, 0, 1]
 		# vxmm: value is in a XMM register
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
-		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  H  P  A  x  X  Y  b
+		vxmm   = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0]
 		# vother: value is elsewere
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
-		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  H  P  A  x  X  Y  b
+		vother = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		# vstack: value is on the stack (or out of register)
-		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  M  H  P  A  x  X  Y  b
-		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 1, 1, 1, 2, 2, 1, 1, 1, 2, 4, 1]
+		#         E  v  c  w  i  I  C  W  u  U  f  d  D  l  L  p  V  O  S  N  H  P  A  x  X  Y  b
+		vstack = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 0, 1, 1, 1, 2, 1, 1, 1, 2, 4, 1]
 		arg_r = [
 			"",                            # E
 			"",                            # v
@@ -1230,8 +1233,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"of_convert((int32_t){p}), ",  # O
 			"io_convert((void*){p}), ",    # S
 			"(void*){p}, ",                # N
-			"(void*){p}, ",                # M
-			"\n#error Use pp instead\n",   # H
+			"(unsigned __int128){p} + ((unsigned __int128){p2} << 64), ", # H
 			"",                            # P
 			"(void*){p}, ",                # A
 			"",                            # x
@@ -1260,7 +1262,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                       # O
 			"",                       # S
 			"",                       # N
-			"",                       # M
 			"",                       # H
 			"",                       # P
 			"",                       # A
@@ -1290,7 +1291,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"",                       # O
 			"",                       # S
 			"",                       # N
-			"",                       # M
 			"",                       # H
 			"",                       # P
 			"",                       # A
@@ -1320,7 +1320,6 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"of_convert(*(int32_t*)(R_RSP + {p})), ",   # O
 			"io_convert(*(void**)(R_RSP + {p})), ",     # S
 			"*(void**)(R_RSP + {p}), ",                 # N
-			"*(void**)(R_RSP + {p}),*(void**)(R_RSP + {p} + 8), ", # M
 			"*(unsigned __int128*)(R_RSP + {p}), ",     # H
 			"*(void**)(R_RSP + {p}), ",                 # P
 			"*(void**)(R_RSP + {p}), ",                 # A
@@ -1449,16 +1448,26 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			reg_arg = ["R_RDI", "R_RSI", "R_RDX", "R_RCX", "R_R8", "R_R9"]
 			if (r < len(reg_arg)) and (vreg[idx] > 0):
 				ret = ""
-				for _ in range(vreg[idx]):
-					# There may be values in multiple registers
+				if (vreg[idx] == 2) and ("{p2}" in arg_r[idx]):
 					if r < len(reg_arg):
 						# Value is in a general register
-						ret = ret + arg_r[idx].format(p=reg_arg[r])
-						r = r + 1
+						ret = ret + arg_r[idx].format(p=reg_arg[r], p2=reg_arg[r+1])
+						r = r + 2
 					else:
 						# Remaining is in the stack
 						ret = ret + arg_s[idx].format(p=d)
 						d = d + 8
+				else:
+					for _ in range(vreg[idx]):
+						# There may be values in multiple registers
+						if r < len(reg_arg):
+							# Value is in a general register
+							ret = ret + arg_r[idx].format(p=reg_arg[r])
+							r = r + 1
+						else:
+							# Remaining is in the stack
+							ret = ret + arg_s[idx].format(p=d)
+							d = d + 8
 				return ret + function_args_systemV(args[1:], d, r, x)
 			elif (x < 8) and (vxmm[idx] > 0):
 				# Value is in an XMM register
