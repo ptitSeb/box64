@@ -1261,7 +1261,9 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                 if(!printFunctionAddr(*(uint32_t*)(R_RSP), " STACK_TOP: "))
                     printf_log(LOG_NONE, " STACK_TOP: %p ", (void*)(uintptr_t)*(uint32_t*)(R_RSP));
             } else if(peek==0xF3 && PK(1)==0x0F && PK(2)==0x1E && PK(3)==0xFA && !is32bits) {
-                printFunctionAddr(*(uintptr_t*)(R_RSP), " STACK_TOP: ");
+                uintptr_t nextaddr = *(uintptr_t*)(R_RSP);
+                if(!printFunctionAddr(nextaddr, "=> "))
+                    printf_log(LOG_NONE, " => %p", (void*)nextaddr);
             } else if(peek==0xE8 || peek==0xE9) { // Call & Jmp
                 uintptr_t nextaddr = ip + 5 + PK32(1);
                 printFunctionAddr(nextaddr, "=> ");
