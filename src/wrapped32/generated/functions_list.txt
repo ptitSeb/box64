@@ -37,7 +37,6 @@
 #() pFu -> pFu
 #() pFL -> pFL
 #() pFp -> pFp
-#() hFv -> hFv
 #() aFa -> aFa
 #() tFi -> tFi
 #() tFp -> tFp
@@ -50,7 +49,6 @@
 #() iFEi -> iFEi
 #() iFEL -> iFEL
 #() iFEp -> iFEp
-#() iFEh -> iFEh
 #() iFEO -> iFEO
 #() iFii -> iFii
 #() iFiI -> iFiI
@@ -62,15 +60,16 @@
 #() iFuu -> iFuu
 #() iFup -> iFup
 #() iFli -> iFli
+#() iFLi -> iFLi
+#() iFLL -> iFLL
+#() iFLp -> iFLp
 #() iFpi -> iFpi
 #() iFpu -> iFpu
 #() iFpL -> iFpL
 #() iFpp -> iFpp
 #() iFpV -> iFpV
 #() iFpS -> iFpS
-#() iFhi -> iFhi
 #() iFhp -> iFhp
-#() iFhh -> iFhh
 #() IFII -> IFII
 #() uFEu -> uFEu
 #() uFEV -> uFEV
@@ -103,7 +102,7 @@
 #() tFip -> tFip
 #() tFpL -> tFpL
 #() iFEbp_ -> iFEB
-#() iFhBp_ -> iFhB
+#() iFHBp_ -> iFHB
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
 #() pFrL_p -> pFBp
@@ -119,11 +118,11 @@
 #() vFdpp -> vFdpp
 #() vFppu -> vFppu
 #() iFEip -> iFEip
+#() iFELi -> iFELi
 #() iFEpi -> iFEpi
 #() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
-#() iFEhi -> iFEhi
 #() iFESp -> iFESp
 #() iFiii -> iFiii
 #() iFiiI -> iFiiI
@@ -140,6 +139,9 @@
 #() iFuui -> iFuui
 #() iFuuu -> iFuuu
 #() iFuLp -> iFuLp
+#() iFLip -> iFLip
+#() iFLpL -> iFLpL
+#() iFLpp -> iFLpp
 #() iFpiu -> iFpiu
 #() iFpip -> iFpip
 #() iFpuu -> iFpuu
@@ -150,9 +152,6 @@
 #() iFppp -> iFppp
 #() iFppa -> iFppa
 #() iFpOu -> iFpOu
-#() iFhip -> iFhip
-#() iFhpL -> iFhpL
-#() iFhpp -> iFhpp
 #() iFSIi -> iFSIi
 #() iFSli -> iFSli
 #() IFiIi -> IFiIi
@@ -196,6 +195,7 @@
 #() iFEiiN -> iFEiiN
 #() iFEipp -> iFEipp
 #() iFEipV -> iFEipV
+#() iFELup -> iFELup
 #() iFEpip -> iFEpip
 #() iFEpup -> iFEpup
 #() iFEpLi -> iFEpLi
@@ -203,7 +203,6 @@
 #() iFEppp -> iFEppp
 #() iFEppV -> iFEppV
 #() iFEpOu -> iFEpOu
-#() iFEhup -> iFEhup
 #() iFESpp -> iFESpp
 #() iFESpV -> iFESpV
 #() iFiiip -> iFiiip
@@ -246,7 +245,7 @@
 #() iFpppup -> iFpppup
 #() uFpLLLS -> uFpLLLS
 #() LFpLppa -> LFpLppa
-#() iFEBh_ppp -> iFEBppp
+#() iFEBL_ppp -> iFEBppp
 #() LFpbp_LLp -> LFpBLLp
 #() LFpBp_LLp -> LFpBLLp
 #() iFippprLL_ -> iFipppB
@@ -507,6 +506,8 @@ wrappedlibpthread:
   - __pthread_register_cancel
   - __pthread_unregister_cancel
   - __pthread_unwind_next
+- iFL:
+  - pthread_detach
 - iFp:
   - __pthread_mutex_destroy
   - __pthread_mutex_lock
@@ -529,11 +530,11 @@ wrappedlibpthread:
   - pthread_rwlock_rdlock
   - pthread_rwlock_unlock
   - pthread_rwlock_wrlock
-- iFh:
-  - pthread_detach
 - vFpi:
   - _pthread_cleanup_pop
   - _pthread_cleanup_pop_restore
+- iFLi:
+  - pthread_kill
 - iFpi:
   - pthread_attr_setdetachstate
   - pthread_attr_setinheritsched
@@ -567,11 +568,12 @@ wrappedlibpthread:
   - pthread_mutex_timedlock
   - pthread_once
   - pthread_rwlock_init
-- iFhi:
-  - pthread_kill
 - vFppp:
   - _pthread_cleanup_push
   - _pthread_cleanup_push_defer
+- iFLup:
+  - pthread_getaffinity_np
+  - pthread_setaffinity_np
 - iFpup:
   - pthread_attr_setaffinity_np
 - iFppL:
@@ -580,12 +582,9 @@ wrappedlibpthread:
   - __pthread_atfork
   - pthread_atfork
   - pthread_attr_getstack
-- iFhup:
-  - pthread_getaffinity_np
-  - pthread_setaffinity_np
+- iFLppp:
+  - pthread_create
 - iFppLL:
   - pthread_cond_timedwait
   - pthread_cond_timedwait@GLIBC_2.0
-- iFhppp:
-  - pthread_create
 wrappedlibrt:
