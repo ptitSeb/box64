@@ -9,7 +9,6 @@ static const char *rft2str[8] = {
 	[RQT_FUN_MY] = " (my)",
 	[RQT_FUN_D] = " (D)",
 	[RQT_DATA] = "",
-	[RQT_DATAV] = " (V)",
 	[RQT_DATAB] = " (B)",
 	[RQT_DATAM] = " (my)",
 };
@@ -34,7 +33,6 @@ void request_print(const request_t *req) {
 		}
 		break;
 	case RQT_DATA:
-	case RQT_DATAV:
 	case RQT_DATAB:
 	case RQT_DATAM:
 		if (req->def.dat.has_size) {
@@ -62,7 +60,6 @@ void request_print(const request_t *req) {
 			}
 			break;
 		case RQT_DATA:
-		case RQT_DATAV:
 		case RQT_DATAB:
 		case RQT_DATAM:
 			if (req->val.dat.has_size) {
@@ -124,7 +121,6 @@ void request_print_check(const request_t *req) {
 		}
 		break;
 	case RQT_DATA:
-	case RQT_DATAV:
 	case RQT_DATAB:
 	case RQT_DATAM:
 		similar = 1;
@@ -170,7 +166,6 @@ static void request_del(request_t *req) {
 	case RQT_FUN_MY: if (req->def.fun.typ) string_del(req->def.fun.typ);                                                       break;
 	case RQT_FUN_D:  if (req->def.fun.typ) string_del(req->def.fun.typ); if (req->def.fun.fun2) string_del(req->def.fun.fun2); break;
 	case RQT_DATA:   break;
-	case RQT_DATAV:  break;
 	case RQT_DATAB:  break;
 	case RQT_DATAM:  break;
 	}
@@ -181,7 +176,6 @@ static void request_del(request_t *req) {
 		case RQT_FUN_MY: string_del(req->val.fun.typ);                                break;
 		case RQT_FUN_D:  string_del(req->val.fun.typ); string_del(req->val.fun.fun2); break;
 		case RQT_DATA:   break;
-		case RQT_DATAV:  break;
 		case RQT_DATAB:  break;
 		case RQT_DATAM:  break;
 		}
@@ -218,7 +212,6 @@ static const char *rqt_suffix[8] = {
 	[RQT_FUN_MY] = "M",
 	[RQT_FUN_D] = "D",
 	[RQT_DATA] = "",
-	[RQT_DATAV] = "V",
 	[RQT_DATAB] = "B",
 	[RQT_DATAM] = "M",
 };
@@ -245,14 +238,14 @@ static void request_output(FILE *f, const request_t *req) {
 			if (req->def.dat.has_size) {
 				fprintf(f, "%sDATA%s%s(%s, %zu)%s\n",
 					req->default_comment ? "//" : "",
-					req->weak ? "W" : "",
+					req->weak ? "V" : "",
 					rqt_suffix[req->def.rty],
 					string_content(req->obj_name),
 					req->def.dat.sz,
 					(req->ignored || req->default_comment) ? "" : " // Warning: failed to confirm");
 			} else {
 				fprintf(f, "//DATA%s%s(%s, \n",
-					req->weak ? "W" : "",
+					req->weak ? "V" : "",
 					rqt_suffix[req->def.rty],
 					string_content(req->obj_name));
 			}
@@ -273,13 +266,15 @@ static void request_output(FILE *f, const request_t *req) {
 		} else {
 			if (req->val.dat.has_size) {
 				int is_comment = IS_RQT_FUNCTION(req->def.rty) || !req->def.dat.has_size || req->default_comment || (req->def.rty != req->val.rty);
-				fprintf(f, "%sDATA%s(%s, %zu)\n",
+				fprintf(f, "%sDATA%s%s(%s, %zu)\n",
 					is_comment ? "//" : "",
+					req->weak ? "V" : "",
 					rqt_suffix[req->val.rty],
 					string_content(req->obj_name),
 					req->val.dat.sz);
 			} else {
-				fprintf(f, "//DATA%s(%s, \n",
+				fprintf(f, "//DATA%s%s(%s, \n",
+					req->weak ? "V" : "",
 					rqt_suffix[req->val.rty],
 					string_content(req->obj_name));
 			}
@@ -584,17 +579,17 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 		         || !strcmp(string_content(tok.tokv.str), "DATAM"))) {
 			string_clear(line);
 			if (is_comment) prepare_mark_nocomment(prep);
+			int isweak = (string_content(tok.tokv.str)[4] == 'V');
 			request_t req = {
 				.default_comment = is_comment,
 				.has_val = 0,
 				.ignored = 0,
 				.obj_name = NULL,
-				.weak = (string_content(tok.tokv.str)[4] == 'V'),
+				.weak = isweak,
 				.def = {
 					.rty =
-						(string_content(tok.tokv.str)[4] == 'V') ? RQT_DATAV :
-						(string_content(tok.tokv.str)[4] == 'B') ? RQT_DATAB :
-						(string_content(tok.tokv.str)[4] == 'M') ? RQT_DATAM : RQT_DATA,
+						(string_content(tok.tokv.str)[isweak ? 5 : 4] == 'B') ? RQT_DATAB :
+						(string_content(tok.tokv.str)[isweak ? 5 : 4] == 'M') ? RQT_DATAM : RQT_DATA,
 					.dat.has_size = 0,
 					.dat.sz = 0,
 				},
@@ -751,7 +746,9 @@ static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
 	}
 	switch (typ->typ) {
 	case TYPE_BUILTIN:
-		return 1; // Assume pointers to builtin are simple
+		return (typ->val.builtin != BTT_FLOAT128)
+		    && (typ->val.builtin != BTT_CFLOAT128)
+		    && (typ->val.builtin != BTT_IFLOAT128); // Assume builtin are simple except for __float128
 	case TYPE_ARRAY:
 		if (typ->val.array.array_sz == (size_t)-1) return 0; // VLA are not simple
 		return is_simple_type_ptr_to(typ->val.array.typ, needs_D, needs_my);
@@ -837,6 +834,9 @@ static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, i
 		case BTT_LONGDOUBLE: *needs_D = 1; has_char = 1; c = 'D'; break;
 		case BTT_CLONGDOUBLE: *needs_D = 1; has_char = 1; c = 'Y'; break;
 		case BTT_ILONGDOUBLE: *needs_D = 1; has_char = 1; c = 'D'; break;
+		case BTT_FLOAT128: printf("Error: TODO: %s\n", builtin2str[typ->val.builtin]); has_char = 0; break;
+		case BTT_CFLOAT128: printf("Error: TODO: %s\n", builtin2str[typ->val.builtin]); has_char = 0; break;
+		case BTT_IFLOAT128: printf("Error: TODO: %s\n", builtin2str[typ->val.builtin]); has_char = 0; break;
 		case BTT_VA_LIST: *needs_my = 1; has_char = 1; c = 'A'; break;
 		default:
 			printf("Error: convert_type on unknown builtin %u\n", typ->val.builtin);
@@ -1043,7 +1043,7 @@ int solve_request(request_t *req, type_t *typ) {
 		int needs_D = 0, needs_my = req->def.dat.has_size && (req->def.rty == RQT_DATAM);
 		if (is_simple_type(typ, &needs_D, &needs_my)) {
 			// TODO: Hmm...
-			req->val.rty = needs_my ? RQT_DATAM : req->def.dat.has_size ? req->def.rty : req->weak ? RQT_DATAV : RQT_DATA;
+			req->val.rty = needs_my ? RQT_DATAM : req->def.rty;
 			req->val.dat.has_size = 1;
 			req->val.dat.sz = typ->szinfo.size;
 			req->has_val = 1;

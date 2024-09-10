@@ -114,7 +114,7 @@ ifneq ($(MAKECMDGOALS:distclean=clean),clean)
 bin obj: ; $(SILENCER)test -d $@ || mkdir $@
 # $(eval $(call reproduce_tree,<base>))
 define reproduce_tree =
-$(1) $(1)/parser: | $$$$(@D) ; $(SILENCER)test -d $$@ || mkdir $$@
+$(1): | $$$$(@D) ; $(SILENCER)test -d $$@ || mkdir $$@
 endef
 $(eval $(call reproduce_tree,obj/$(OBJDIR)))
 $(eval $(call reproduce_tree,obj/$(OBJDIR)/tests))

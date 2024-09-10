@@ -1,7 +1,6 @@
 // I think this file is too big for GCC to handle properly, there are curious false-positive analyzer warnings
 //  that didn't appear before adding preproc_eval
 #include "preproc.h"
-#include "preproc_private.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -11,42 +10,20 @@
 #include "machine.h"
 #include "prepare.h"
 
-KHASH_MAP_INIT_STR(argid_map, unsigned)
-static void argid_map_del(khash_t(argid_map) *args) {
-	kh_cstr_t str;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-qual"
-	kh_foreach_key(args, str, free((void*)str))
-#pragma GCC diagnostic pop
-	kh_destroy(argid_map, args);
-}
-mtoken_t *mtoken_new_token(preproc_token_t tok) {
-	mtoken_t *ret = malloc(sizeof *ret);
-	if (!ret) return NULL;
-	ret->typ = MTOK_TOKEN;
-	ret->val.tok = tok;
-	return ret;
-}
-mtoken_t *mtoken_new_arg(unsigned argid, int as_string) {
-	mtoken_t *ret = malloc(sizeof *ret);
-	if (!ret) return NULL;
-	ret->typ = as_string ? MTOK_STRINGIFY : MTOK_ARG;
-	ret->val.argid = argid;
-	return ret;
-}
-mtoken_t *mtoken_new_concat(mtoken_t *l, mtoken_t *r) { // Takes ownership of l and r
-	mtoken_t *ret = malloc(sizeof *ret);
-	if (!ret) {
-		mtoken_del(l);
-		mtoken_del(r);
-		return NULL;
-	}
-	ret->typ = MTOK_CONCAT;
-	ret->val.concat.l = l;
-	ret->val.concat.r = r;
-	return ret;
-}
-void mtoken_del(mtoken_t *tok) {
+typedef struct mtoken_s {
+	enum mtoken_e {
+		MTOK_TOKEN,
+		MTOK_ARG,
+		MTOK_STRINGIFY,
+		MTOK_CONCAT,
+	} typ;
+	union {
+		preproc_token_t tok;
+		unsigned argid;
+		struct { struct mtoken_s *l, *r; } concat;
+	} val;
+} mtoken_t;
+static void mtoken_del(mtoken_t *tok) {
 	switch (tok->typ) {
 	case MTOK_TOKEN:
 		preproc_token_del(&tok->val.tok);
@@ -65,28 +42,41 @@ void mtoken_del(mtoken_t *tok) {
 		return;
 	}
 }
-mtoken_t *mtoken_dup(mtoken_t *src) {
-	switch (src->typ) {
-	case MTOK_TOKEN:
-		return mtoken_new_token(preproc_token_dup(src->val.tok));
-		
-	case MTOK_ARG:
-		return mtoken_new_arg(src->val.argid, 0);
-		
-	case MTOK_STRINGIFY:
-		return mtoken_new_arg(src->val.argid, 1);
-		
-	case MTOK_CONCAT: {
-		mtoken_t *l = mtoken_dup(src->val.concat.l);
-		if (!l) return NULL;
-		mtoken_t *r = mtoken_dup(src->val.concat.r);
-		if (!r) {
-			mtoken_del(l);
-			return NULL;
-		}
-		return mtoken_new_concat(l, r); }
+
+KHASH_MAP_INIT_STR(argid_map, unsigned)
+static void argid_map_del(khash_t(argid_map) *args) {
+	kh_cstr_t str;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+	kh_foreach_key(args, str, free((void*)str))
+#pragma GCC diagnostic pop
+	kh_destroy(argid_map, args);
+}
+static mtoken_t *mtoken_new_token(preproc_token_t tok) {
+	mtoken_t *ret = malloc(sizeof *ret);
+	if (!ret) return NULL;
+	ret->typ = MTOK_TOKEN;
+	ret->val.tok = tok;
+	return ret;
+}
+static mtoken_t *mtoken_new_arg(unsigned argid, int as_string) {
+	mtoken_t *ret = malloc(sizeof *ret);
+	if (!ret) return NULL;
+	ret->typ = as_string ? MTOK_STRINGIFY : MTOK_ARG;
+	ret->val.argid = argid;
+	return ret;
+}
+static mtoken_t *mtoken_new_concat(mtoken_t *l, mtoken_t *r) { // Takes ownership of l and r
+	mtoken_t *ret = malloc(sizeof *ret);
+	if (!ret) {
+		mtoken_del(l);
+		mtoken_del(r);
+		return NULL;
 	}
-	return NULL;
+	ret->typ = MTOK_CONCAT;
+	ret->val.concat.l = l;
+	ret->val.concat.r = r;
+	return ret;
 }
 
 static inline void print_macro_tok(mtoken_t *m) {
@@ -116,13 +106,21 @@ static inline void print_macro_tok(mtoken_t *m) {
 	}
 }
 
+VECTOR_DECLARE_STATIC(mtoken, mtoken_t*)
 #define mtoken_ptr_del(m) mtoken_del(*(m))
-VECTOR_IMPL(mtoken, mtoken_ptr_del)
+VECTOR_IMPL_STATIC(mtoken, mtoken_ptr_del)
 #undef mtoken_ptr_del
+
+typedef struct macro_s {
+	int is_funlike;
+	int has_varargs;
+	unsigned nargs;
+	VECTOR(mtoken) *toks;
+} macro_t;
 
 KHASH_MAP_INIT_STR(macros_map, macro_t)
 KHASH_SET_INIT_STR(string_set)
-void macro_del(macro_t *m) {
+static void macro_del(macro_t *m) {
 	vector_del(mtoken, m->toks);
 }
 static void macros_map_del(khash_t(macros_map) *args) {
@@ -141,32 +139,6 @@ static void macros_set_del(khash_t(string_set) *strset) {
 	kh_foreach_key(strset, str, free((void*)str))
 #pragma GCC diagnostic pop
 	kh_destroy(string_set, strset);
-}
-
-VECTOR(mtoken) *mtokens_dup(const VECTOR(mtoken) *src) {
-	VECTOR(mtoken) *ret = vector_new_cap(mtoken, vector_size(mtoken, src));
-	if (!ret) return NULL;
-	vector_for(mtoken, mtok, src) {
-		mtoken_t *mtok2 = mtoken_dup(*mtok);
-		if (!mtok2) {
-			vector_del(mtoken, ret);
-			return NULL;
-		}
-		if (!vector_push(mtoken, ret, mtok2)) {
-			mtoken_del(mtok2);
-			vector_del(mtoken, ret);
-			return NULL;
-		}
-	}
-	return ret;
-}
-int macro_dup(macro_t *dest, const macro_t *src) {
-	dest->is_funlike = src->is_funlike;
-	dest->has_varargs = src->has_varargs;
-	dest->nargs = src->nargs;
-	dest->toks = mtokens_dup(src->toks);
-	if (!dest->toks) return 0;
-	return 1;
 }
 
 typedef struct ppsource_s {
@@ -275,100 +247,6 @@ static preproc_token_t ppsrc_next_token(preproc_t *src) {
 	}
 }
 
-preproc_t *preproc_new_file(machine_t *target, FILE *f, char *dirname, const char *filename) {
-	preproc_t *ret = malloc(sizeof *ret);
-	if (!ret) {
-		fclose(f);
-		return NULL;
-	}
-	ret->target = target;
-	ret->macros_map = kh_init(macros_map);
-	if (!ret->macros_map) {
-		fclose(f);
-		free(ret);
-		return NULL;
-	}
-	ret->macros_defined = kh_init(string_set);
-	if (!ret->macros_defined) {
-		kh_destroy(macros_map, ret->macros_map);
-		fclose(f);
-		free(ret);
-		return NULL;
-	}
-	ret->macros_used = kh_init(string_set);
-	if (!ret->macros_used) {
-		kh_destroy(macros_map, ret->macros_map);
-		kh_destroy(string_set, ret->macros_defined);
-		fclose(f);
-		free(ret);
-		return NULL;
-	}
-	ret->prep = vector_new_cap(ppsource, 1);
-	if (!ret->prep) {
-		kh_destroy(macros_map, ret->macros_map);
-		kh_destroy(string_set, ret->macros_defined);
-		kh_destroy(string_set, ret->macros_used);
-		fclose(f);
-		free(ret);
-		return NULL;
-	}
-	ret->dirname = NULL;
-	ret->cur_file = NULL;
-	// ret can now be deleted by preproc_del
-	
-	// First add predefined macros
-	for (size_t i = 0; i < target->npredefs; ++i) {
-		// NL and EOF have empty destructors
-		khiter_t kh_k;
-		int iret;
-		char *mname_dup = strdup(target->predef_macros_name[i]);
-		if (!mname_dup) {
-			printf("Error: failed to initialize preprocessor (predefined macros), aborting\n");
-			preproc_del(ret);
-			return NULL;
-		}
-		kh_k = kh_put(string_set, ret->macros_defined, mname_dup, &iret);
-		// TODO: check iret?
-		if (iret >= 1) {
-			mname_dup = strdup(mname_dup);
-		}
-		kh_k = kh_put(macros_map, ret->macros_map, mname_dup, &iret);
-		if (iret < 0) {
-			printf("Error: failed to initialize preprocessor (predefined macros), aborting\n");
-			preproc_del(ret);
-			return NULL;
-		} else if (iret == 0) {
-			printf("Error: duplicated predefined macros, aborting\n");
-			preproc_del(ret);
-			return NULL;
-		}
-		if (!macro_dup(&kh_val(ret->macros_map, kh_k), target->predef_macros[i])) {
-			printf("Error: failed to initialize preprocessor (predefined macros), aborting\n");
-			free(mname_dup);
-			kh_del(macros_map, ret->macros_map, kh_k);
-			preproc_del(ret);
-			return NULL;
-		}
-	}
-	
-	// Next include the first file
-	if (!vector_push(ppsource, ret->prep, PREPARE_NEW_FILE(f, filename, NULL, NULL, 0, 0))) {
-		preproc_del(ret);
-		return NULL;
-	}
-	if (!vector_last(ppsource, ret->prep).srcv.prep.st) {
-		preproc_del(ret);
-		return NULL;
-	}
-	// Last finish setting up ret
-	ret->st = PPST_NL;
-	ret->is_sys = 0;
-	ret->dirname = dirname;
-	ret->cur_file = strdup(filename);
-	ret->cur_pathno = 0;
-	return ret;
-}
-
 static int try_open_dir(preproc_t *src, string_t *filename) {
 	size_t fnlen = string_len(filename);
 	size_t incl_len = src->dirname ? strlen(src->dirname) : 1;
@@ -427,6 +305,81 @@ static int try_open_sys(preproc_t *src, string_t *filename, size_t array_off) {
 	return 0;
 }
 
+preproc_t *preproc_new_file(machine_t *target, FILE *f, char *dirname, const char *filename) {
+	preproc_t *ret = malloc(sizeof *ret);
+	if (!ret) {
+		fclose(f);
+		return NULL;
+	}
+	ret->target = target;
+	ret->macros_map = kh_init(macros_map);
+	if (!ret->macros_map) {
+		fclose(f);
+		free(ret);
+		return NULL;
+	}
+	ret->macros_defined = kh_init(string_set);
+	if (!ret->macros_defined) {
+		kh_destroy(macros_map, ret->macros_map);
+		fclose(f);
+		free(ret);
+		return NULL;
+	}
+	ret->macros_used = kh_init(string_set);
+	if (!ret->macros_used) {
+		kh_destroy(macros_map, ret->macros_map);
+		kh_destroy(string_set, ret->macros_defined);
+		fclose(f);
+		free(ret);
+		return NULL;
+	}
+	ret->prep = vector_new_cap(ppsource, 1);
+	if (!ret->prep) {
+		kh_destroy(macros_map, ret->macros_map);
+		kh_destroy(string_set, ret->macros_defined);
+		kh_destroy(string_set, ret->macros_used);
+		fclose(f);
+		free(ret);
+		return NULL;
+	}
+	ret->dirname = NULL;
+	ret->cur_file = NULL;
+	// ret can now be deleted by preproc_del
+	
+	// Include the first file
+	if (!vector_push(ppsource, ret->prep, PREPARE_NEW_FILE(f, filename, NULL, NULL, 0, 0))) {
+		preproc_del(ret);
+		return NULL;
+	}
+	if (!vector_last(ppsource, ret->prep).srcv.prep.st) {
+		preproc_del(ret);
+		return NULL;
+	}
+	// Next finish setting up ret
+	ret->st = PPST_NL;
+	ret->is_sys = 0;
+	ret->dirname = dirname;
+	ret->cur_file = strdup(filename);
+	ret->cur_pathno = 0;
+	
+	// Also include 'stdc-predef.h' (it will be parsed before the requested file)
+	string_t *stdc_predef = string_new_cstr("stdc-predef.h");
+	if (!stdc_predef) {
+		printf("Error: failed to create new string 'stdc-predef.h'\n");
+		preproc_del(ret);
+		return NULL;
+	}
+	if (!try_open_sys(ret, stdc_predef, 0)) {
+		printf("Error: failed to open file 'stdc-predef.h'\n");
+		string_del(stdc_predef);
+		preproc_del(ret);
+		return NULL;
+	}
+	string_del(stdc_predef);
+	
+	return ret;
+}
+
 static void preprocs_del(VECTOR(preproc) **p) {
 	if (!*p) return;
 	vector_del(preproc, *p);
@@ -446,8 +399,7 @@ static VECTOR(preproc) *
 	// May change margs if m->has_varargs, but takes no ownership
 	// opt_used_macros is NULL in regular expansion, non-NULL in #if-expansions
 
-static VECTOR(preproc) *
-proc_solve_macro(const khash_t(macros_map) *macros, char *mname, const macro_t *m, VECTOR(preprocs) *margs,
+static VECTOR(preproc) *proc_solve_macro(const khash_t(macros_map) *macros, char *mname, const macro_t *m, VECTOR(preprocs) *margs,
                  khash_t(string_set) *solved_macros, khash_t(string_set) *opt_used_macros) {
 	if (m->is_funlike && !margs) {
 		printf("<internal error: m->is_funlike && !margs>\n");
@@ -3132,6 +3084,7 @@ start_cur_token:
 		if ((vector_last(ppsource, src->prep).srct == PPSRC_PREPARE) && vector_last(ppsource, src->prep).srcv.prep.cond_depth) {
 			printf("Error: file ended before closing all conditionals (ignoring)\n");
 		}
+		// printf("Closing %s\n", src->cur_file);
 		if (vector_last(ppsource, src->prep).srct == PPSRC_PREPARE) {
 			if (src->dirname) free(src->dirname);
 			if (src->cur_file) free(src->cur_file);

@@ -131,6 +131,8 @@
 
 #pragma wrappers type_letters S FILE*
 #pragma wrappers type_letters S const FILE*
+#pragma wrappers type_letters S FILE* restrict
+#pragma wrappers type_letters S const FILE* restrict
 #pragma wrappers type_letters p FTS*
 #pragma wrappers type_letters p const FTS*
 #pragma wrappers type_letters p FTS64*
