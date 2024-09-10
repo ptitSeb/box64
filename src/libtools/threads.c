@@ -243,7 +243,6 @@ static void* pthread_routine(void* p)
 	R_RBP = R_RSP;	// MOV BP, SP
 	R_RSP -= 64;	// Guard zone
 	R_RSP &= ~15LL;
-	R_RSP-=8;		// make sure RSP is aligned inside thread function
 	PushExit(emu);
 	R_RIP = et->fnc;
 	R_RDI = (uintptr_t)et->arg;
