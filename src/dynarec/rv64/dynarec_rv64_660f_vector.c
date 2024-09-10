@@ -123,8 +123,44 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     DEFAULT_VECTOR;
             }
             break;
+        case 0x6C:
+            INST_NAME("PUNPCKLQDQ Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            // GX->q[0] = GX->q[0]; -> unchanged
+            // GX->q[1] = EX->q[0];
+            GETGX_vector(v0, 1, VECTOR_SEW64);
+            q0 = fpu_get_scratch(dyn);
+            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+            VMV_V_I(VMASK, 0b10);
+            if (MODREG) {
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                if (v0 == v1) {
+                    // for vrgather.vv, cannot be overlapped
+                    v1 = fpu_get_scratch(dyn);
+                    VMV_V_V(v1, v0);
+                }
+                VRGATHER_VV(v0, q0, v1, VECTOR_MASKED);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                VLUXEI64_V(v0, ed, q0, VECTOR_MASKED, VECTOR_NFIELD1);
+            }
+            break;
         case 0x6E:
-            return 0;
+            INST_NAME("MOVD Gx, Ed");
+            nextop = F8;
+            GETED(0);
+            GETGX_empty_vector(v0);
+            if (rex.w) {
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW64, 1);
+            } else {
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
+            }
+            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            VMV_V_I(VMASK, 1);
+            VMERGE_VXM(v0, ed, v0);
+            break;
         case 0x6F:
             INST_NAME("MOVDQA Gx, Ex");
             nextop = F8;

@@ -157,10 +157,11 @@ typedef struct dynarec_rv64_s {
     uint8_t             vector_eew; // effective element width
 } dynarec_rv64_t;
 
-// convert idx (0..24) to reg index (10..31 0..1)
-#define EXTREG(A)   (((A)+10)&31)
-// convert reg index (10..31 0..1) to idx (0..24)
-#define EXTIDX(A)   (((A)-10)&31)
+// v0 is hardware wired to vector mask register, which should be always reserved
+// convert idx (0..23) to reg index (10..31 1..2)
+#define EXTREG(A) (((A) + 10 + ((A) > 21)) & 31)
+// convert reg index (10..31 1..2) to idx (0..23)
+#define EXTIDX(A) (((A) - 10 - ((A) < 3)) & 31)
 
 void add_next(dynarec_rv64_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_rv64_t *dyn, uintptr_t addr);
