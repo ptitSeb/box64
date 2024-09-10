@@ -194,6 +194,14 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VXOR_VV(q0, q0, q1, VECTOR_UNMASKED);
             }
             break;
+        case 0xD4:
+            INST_NAME("PADDQ Gx,Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW64);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW64);
+            VADD_VV(q0, q0, q1, VECTOR_UNMASKED);
+            break;
         default:
             DEFAULT_VECTOR;
     }
