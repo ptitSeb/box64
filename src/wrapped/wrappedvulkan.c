@@ -685,6 +685,7 @@ DESTROY(vkDestroyDebugUtilsMessengerEXT)
 
 DESTROY64(vkDestroySurfaceKHR)
 
+CREATE(vkCreateSamplerYcbcrConversionKHR)
 DESTROY64(vkDestroySamplerYcbcrConversionKHR)
 
 DESTROY64(vkDestroyValidationCacheEXT)
