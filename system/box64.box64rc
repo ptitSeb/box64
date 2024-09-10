@@ -146,6 +146,9 @@ BOX64_EMULATED_LIBS=libmpg123.so.0:libvorbisfile.so.3:libvorbis.so.0:libogg.so.0
 [Kingdom.x86_64]
 BOX64_MAXCPU=4
 
+[legendary]
+BOX64_DYNAREC_STRONGMEM=1
+
 [LotCG.x86_64]
 BOX64_DYNAREC_FASTROUND=0
 

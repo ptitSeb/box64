@@ -574,7 +574,7 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
         if(is32bits) {
             return box_realloc(p, size);
         } else
-            dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
+            printf_log(LOG_INFO, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
     return internal_customMalloc(size, is32bits);
 }
 void* customRealloc(void* p, size_t size)
@@ -605,7 +605,7 @@ void internal_customFree(void* p, int is32bits)
         if(is32bits)
             box_free(p);
         else
-            dynarec_log(LOG_NONE, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
+            printf_log(LOG_INFO, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
 }
 void customFree(void* p)
 {
