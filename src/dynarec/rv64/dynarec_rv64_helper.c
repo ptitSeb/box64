@@ -2601,7 +2601,7 @@ int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew)
      * sew:  selected element width
      * lmul: vector register group multiplier
      *
-     *           mu            tu          sew      lmul=1 */
+     *                    mu            tu          sew      lmul=1 */
     uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | 0b000;
     ADDI(s1, xZR, 16 >> sew);
     VSETVLI(xZR, s1, vtypei);

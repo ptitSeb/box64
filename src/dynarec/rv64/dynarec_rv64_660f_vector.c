@@ -36,6 +36,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     int q0, q1;
     int d0, d1, d2;
     int64_t fixedaddress, gdoffset;
+    uint32_t vtypei;
     int unscaled;
     MAYUSE(d0);
     MAYUSE(d1);
@@ -150,6 +151,13 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             d1 = fpu_get_scratch(dyn);
             VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
             VMAX_VX(d1, xZR, q1, VECTOR_UNMASKED);
+            if (rv64_vlen >= 256) {
+                /*           mu            tu              sew           lmul=1 */
+                vtypei = (0b0 << 7) | (0b0 << 6) | (VECTOR_SEW16 << 3) | 0b000;
+                ADDI(x1, xZR, 16); // double the vl for slideup.
+                VSETVLI(xZR, x1, vtypei);
+                VSLIDEUP_VI(d0, 8, d1, VECTOR_UNMASKED); // splice d0 and d1 here!
+            }
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VNCLIPU_WI(q0, 0, d0, VECTOR_UNMASKED);
             break;
