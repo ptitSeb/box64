@@ -1,6 +1,8 @@
 #include "machine.h"
 
-#include "preproc_private.h"
+#include <stdio.h>
+
+#include "lang.h"
 
 machine_t machine_x86_64;
 // machine_t machine_x86;
@@ -11,92 +13,35 @@ machine_t machine_x86_64;
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
 #define MACHINE_STR STRINGIFY(CUR_MACHINE)
-#define INIT_PATHS \
-	PASTE(machine_, CUR_MACHINE).npaths = 1 + npaths;
-#define INCR_NPATHS(_path) \
-	++PASTE(machine_, CUR_MACHINE).npaths;
-#define DO_PATHS \
-	if (!(PASTE(machine_, CUR_MACHINE).include_path =                                                                \
-	      malloc(PASTE(machine_, CUR_MACHINE).npaths * sizeof *PASTE(machine_, CUR_MACHINE).include_path))) {        \
-		printf("Failed to add include path to " MACHINE_STR " platform\n");                                          \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _nopath));                                                            \
-	}                                                                                                                \
-	failure_id = 0;                                                                                                  \
-	ADD_PATH("include-fixed")                                                                                        \
-	for (; failure_id < npaths + 1; ++failure_id) {                                                                  \
-		if (!(PASTE(machine_, CUR_MACHINE).include_path[failure_id] = strdup(extra_include_path[failure_id - 1]))) { \
-			printf("Failed to add include path to " MACHINE_STR " platform\n");                                      \
-			goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                                                         \
-		}                                                                                                            \
-	}
+
+#define PATHS_OFFSET_PRE 2 // There are two paths that are always included before any other
 #define ADD_PATH(path) \
 	if (!(PASTE(machine_, CUR_MACHINE).include_path[failure_id] = strdup(path))) { \
 		printf("Failed to add include path to " MACHINE_STR " platform\n");        \
 		goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                           \
 	}                                                                              \
 	++failure_id;
-#define EXTRA_MACROS \
-	PASTE(machine_, CUR_MACHINE).npredefs = PASTE(CUR_MACHINE, _NPREDEFS);                                       \
-	if (!(PASTE(machine_, CUR_MACHINE).predef_macros_name =                                                      \
-	      malloc((PASTE(CUR_MACHINE, _NPREDEFS)) * sizeof *PASTE(machine_, CUR_MACHINE).predef_macros_name))) {  \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");                                  \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                                                         \
-	}                                                                                                            \
-	if (!(PASTE(machine_, CUR_MACHINE).predef_macros =                                                           \
-	      malloc((PASTE(CUR_MACHINE, _NPREDEFS)) * sizeof *PASTE(machine_, CUR_MACHINE).predef_macros))) {       \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");                                  \
-		free(machine_x86_64.predef_macros_name);                                                                 \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                                                         \
-	}                                                                                                            \
-	failure_id = 0;
-#define ADD_NAME(mname) \
-	if (!(PASTE(machine_, CUR_MACHINE).predef_macros_name[failure_id] = strdup(#mname))) { \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");            \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _macros));                                  \
+#define INIT_PATHS \
+	PASTE(machine_, CUR_MACHINE).npaths = PATHS_OFFSET_PRE + npaths + paths_offset_post;                      \
+	if (!(PASTE(machine_, CUR_MACHINE).include_path =                                                         \
+	      malloc(PASTE(machine_, CUR_MACHINE).npaths * sizeof *PASTE(machine_, CUR_MACHINE).include_path))) { \
+		printf("Failed to add include path to " MACHINE_STR " platform\n");                                   \
+		goto PASTE(failed_, PASTE(CUR_MACHINE, _nopath));                                                     \
+	}                                                                                                         \
+	failure_id = 0;                                                                                           \
+	ADD_PATH("include-override/" MACHINE_STR)                                                                 \
+	ADD_PATH("include-override/common")                                                                       \
+	while (failure_id < PATHS_OFFSET_PRE + npaths) {                                                          \
+		ADD_PATH(extra_include_path[failure_id - PATHS_OFFSET_PRE])                                           \
 	}
-#define ADD_MACRO(ntoks) \
-	if (!(PASTE(machine_, CUR_MACHINE).predef_macros[failure_id] =                   \
-	      malloc(sizeof *PASTE(machine_, CUR_MACHINE).predef_macros[failure_id]))) { \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");      \
-		free(machine_x86_64.predef_macros_name[failure_id]);                         \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _macros));                            \
-	}                                                                                \
-	*PASTE(machine_, CUR_MACHINE).predef_macros[failure_id] = (macro_t){             \
-		.is_funlike = 0,                                                             \
-		.has_varargs = 0,                                                            \
-		.nargs = 0,                                                                  \
-		.toks = vector_new_cap(mtoken, (ntoks)),                                     \
-	};                                                                               \
-	++failure_id;                                                                    \
-	if (!PASTE(machine_, CUR_MACHINE).predef_macros[failure_id - 1]->toks) {         \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");      \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _macros));                            \
-	}
-#define ADD_SYM(s) \
-	mtok = mtoken_new_token((preproc_token_t){.tokt = PPTOK_SYM, .tokv.sym = SYM_ ## s}); \
-	if (!mtok) {                                                                          \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");           \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _macros));                                 \
-	}                                                                                     \
-	vector_push(mtoken, PASTE(machine_, CUR_MACHINE).predef_macros[failure_id - 1]->toks, mtok);
-#define ADD_STR(typ, n) \
-	s = string_new_cstr(#n);                                                          \
-	if (!s) {                                                                         \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");       \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _macros));                             \
-	}                                                                                 \
-	mtok = mtoken_new_token((preproc_token_t){.tokt = PPTOK_ ## typ, .tokv.str = s}); \
-	if (!mtok) {                                                                      \
-		printf("Failed to add predefined macro to " MACHINE_STR " platform\n");       \
-		string_del(s);                                                                \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _macros));                             \
-	}                                                                                 \
-	vector_push(mtoken, PASTE(machine_, CUR_MACHINE).predef_macros[failure_id - 1]->toks, mtok);
 
 int init_machines(size_t npaths, const char *const *extra_include_path) {
 	size_t failure_id;
-	string_t *s;
-	mtoken_t *mtok;
+	
+	size_t paths_offset_post = 0;
+#define DO_PATH(_path) ++paths_offset_post;
+#include "machine.gen"
+#undef DO_PATH
 	
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
@@ -105,60 +50,14 @@ int init_machines(size_t npaths, const char *const *extra_include_path) {
 	machine_x86_64.align_valist = 8;
 	machine_x86_64.size_valist = 24;
 	INIT_PATHS
-#define DO_PATH INCR_NPATHS
-#include "machine.gen"
-#undef DO_PATH
-	DO_PATHS
 #define DO_PATH ADD_PATH
 #include "machine.gen"
 #undef DO_PATH
-#define x86_64_NPREDEFS 9
-	EXTRA_MACROS
-	ADD_NAME(__x86_64__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 1)
-	ADD_NAME(__WCHAR_MAX__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 2147483647)
-	ADD_NAME(__WCHAR_MIN__)
-	ADD_MACRO(5)
-	ADD_SYM(LPAREN)
-	ADD_SYM(DASH)
-	ADD_STR(IDENT, __WCHAR_MAX__)
-	ADD_SYM(DASH)
-	ADD_STR(NUM, 1)
-	ADD_NAME(__CHAR_BIT__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 8)
-	ADD_NAME(__SCHAR_MAX__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 127)
-	ADD_NAME(__SHRT_MAX__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 32767)
-	ADD_NAME(__INT_MAX__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 2147483647)
-	ADD_NAME(__LONG_MAX__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 9223372036854775807L)
-	ADD_NAME(__LONG_LONG_MAX__)
-	ADD_MACRO(1)
-	ADD_STR(NUM, 9223372036854775807LL)
 #undef CUR_MACHINE
 #pragma GCC diagnostic pop
 	
 	return 1;
 	
-failed_x86_64_macros:
-	while (failure_id--) {
-		macro_del(machine_x86_64.predef_macros[failure_id]);
-		free(machine_x86_64.predef_macros[failure_id]);
-		free(machine_x86_64.predef_macros_name[failure_id]);
-	}
-	free(machine_x86_64.predef_macros);
-	free(machine_x86_64.predef_macros_name);
-	failure_id = machine_x86_64.npaths;
 failed_x86_64_paths:
 	while (failure_id--) {
 		free(machine_x86_64.include_path[failure_id]);
@@ -169,13 +68,6 @@ failed_x86_64_nopath:
 }
 
 static void machine_del(machine_t *m) {
-	for (size_t predef_id = m->npredefs; predef_id--;) {
-		macro_del(m->predef_macros[predef_id]);
-		free(m->predef_macros[predef_id]);
-		free(m->predef_macros_name[predef_id]);
-	}
-	free(m->predef_macros);
-	free(m->predef_macros_name);
 	for (size_t path_no = m->npaths; path_no--;) {
 		free(m->include_path[path_no]);
 	}
@@ -242,8 +134,11 @@ int validate_type(machine_t *target, type_t *typ) {
 		case BTT_CDOUBLE:     typ->szinfo.align = typ->szinfo.size = 16; break;
 		case BTT_IDOUBLE:     typ->szinfo.align = typ->szinfo.size = 8; break;
 		case BTT_LONGDOUBLE:  typ->szinfo.align = typ->szinfo.size = 16; break;
-		case BTT_CLONGDOUBLE: typ->szinfo.align = typ->szinfo.size = 32; break;
+		case BTT_CLONGDOUBLE: typ->szinfo.align = 16; typ->szinfo.size = 32; break;
 		case BTT_ILONGDOUBLE: typ->szinfo.align = typ->szinfo.size = 16; break;
+		case BTT_FLOAT128:    typ->szinfo.align = typ->szinfo.size = 16; break;
+		case BTT_CFLOAT128:   typ->szinfo.align = 16; typ->szinfo.size = 32; break;
+		case BTT_IFLOAT128:   typ->szinfo.align = typ->szinfo.size = 16; break;
 		case BTT_VA_LIST:     typ->szinfo.align = target->align_valist; typ->szinfo.size = target->size_valist; break;
 		default:
 			printf("Unknown builtin %u, cannot fill size info\n", typ->val.builtin);
@@ -288,11 +183,12 @@ int validate_type(machine_t *target, type_t *typ) {
 		if (typ->val.fun.nargs != (size_t)-1) {
 			for (size_t i = 0; i < typ->val.fun.nargs; ++i) {
 				// Adjust the argument if necessary
+				// Assume arrays are already converted
 				if (typ->val.fun.args[i]->typ == TYPE_ARRAY) {
-					// Adjustment to pointer
-					typ->val.fun.args[i]->typ = TYPE_PTR;
-					typ->val.fun.args[i]->val.typ = typ->val.fun.args[i]->val.array.typ;
-				} else if (typ->val.fun.args[i]->typ == TYPE_FUNCTION) {
+					printf("Error: function argument %zu is an array\n", i + 1);
+					return 0;
+				}
+				if (typ->val.fun.args[i]->typ == TYPE_FUNCTION) {
 					// Adjustment to pointer
 					type_t *t2 = type_new_ptr(typ->val.fun.args[i]);
 					if (!t2) {
@@ -390,7 +286,10 @@ int validate_type(machine_t *target, type_t *typ) {
 		typ->szinfo.size = (cur_sz + max_align - 1) & ~(max_align - 1);
 		return 1; }
 	case TYPE_ENUM:
-		if (typ->val.typ->typ != TYPE_BUILTIN) return 0;
+		if (typ->val.typ->typ != TYPE_BUILTIN) {
+			printf("Error: the underlying type of an enum is not a builtin type\n");
+			return 0;
+		}
 		typ->szinfo = typ->val.typ->szinfo;
 		return 1;
 	}

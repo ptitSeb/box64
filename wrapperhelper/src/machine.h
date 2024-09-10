@@ -7,17 +7,12 @@
 #include "khash.h"
 #include "vector.h"
 
-struct macro_s; // preproc_private.h
 struct type_s;  // lang.h
 
 typedef struct machine_s {
 	// Preprocessor
 	size_t npaths;
 	char **include_path;
-	
-	size_t npredefs;
-	char **predef_macros_name;
-	struct macro_s **predef_macros;
 	
 	// Parsing
 	size_t size_long;
