@@ -2437,13 +2437,14 @@ static void sewTransform(dynarec_rv64_t* dyn, int ninst, int s1)
     vector_vsetvl_emul1(dyn, ninst, s1, dyn->insts[jmp].vector_sew);
 }
 
-void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
-    if (cacheupd & 4)
-        sewTransform(dyn, ninst, s1);
+void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)
+{
     if (cacheupd & 2)
         fpuCacheTransform(dyn, ninst, s1, s2, s3);
     if (cacheupd & 1)
         flagsCacheTransform(dyn, ninst, s1);
+    if (cacheupd & 4)
+        sewTransform(dyn, ninst, s1);
 }
 
 
