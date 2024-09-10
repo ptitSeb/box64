@@ -134,6 +134,10 @@ static void emuthread_destroy(void* p)
 	emuthread_t *et = (emuthread_t*)p;
 	if(!et)
 		return;
+	#ifdef BOX32
+	if(!et->join && et->fnc)
+		to_hash_d(et->self);
+	#endif
 	FreeX64Emu(&et->emu);
 	box_free(et);
 }
@@ -177,6 +181,7 @@ void thread_set_emu(x64emu_t* emu)
 	#ifdef BOX32
 	if(box64_is32bits) {
 		et->self = (uintptr_t)pthread_self();
+		et->hself = to_hash(et->self);
 	}
 	#endif
 	pthread_setspecific(thread_key, et);
