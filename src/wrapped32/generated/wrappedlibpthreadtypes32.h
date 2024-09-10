@@ -13,26 +13,27 @@
 
 typedef void (*vFv_t)(void);
 typedef void (*vFp_t)(void*);
+typedef int32_t (*iFL_t)(uintptr_t);
 typedef int32_t (*iFp_t)(void*);
-typedef int32_t (*iFh_t)(uintptr_t);
 typedef void (*vFpi_t)(void*, int32_t);
+typedef int32_t (*iFLi_t)(uintptr_t, int32_t);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
-typedef int32_t (*iFhi_t)(uintptr_t, int32_t);
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef int32_t (*iFLup_t)(uintptr_t, uint32_t, void*);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
-typedef int32_t (*iFhup_t)(uintptr_t, uint32_t, void*);
+typedef int32_t (*iFLppp_t)(uintptr_t, void*, void*, void*);
 typedef int32_t (*iFppLL_t)(void*, void*, uintptr_t, uintptr_t);
-typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__pthread_initialize, vFv_t) \
 	GO(__pthread_register_cancel, vFp_t) \
 	GO(__pthread_unregister_cancel, vFp_t) \
 	GO(__pthread_unwind_next, vFp_t) \
+	GO(pthread_detach, iFL_t) \
 	GO(__pthread_mutex_destroy, iFp_t) \
 	GO(__pthread_mutex_lock, iFp_t) \
 	GO(__pthread_mutex_trylock, iFp_t) \
@@ -54,9 +55,9 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_rwlock_rdlock, iFp_t) \
 	GO(pthread_rwlock_unlock, iFp_t) \
 	GO(pthread_rwlock_wrlock, iFp_t) \
-	GO(pthread_detach, iFh_t) \
 	GO(_pthread_cleanup_pop, vFpi_t) \
 	GO(_pthread_cleanup_pop_restore, vFpi_t) \
+	GO(pthread_kill, iFLi_t) \
 	GO(pthread_attr_setdetachstate, iFpi_t) \
 	GO(pthread_attr_setinheritsched, iFpi_t) \
 	GO(pthread_attr_setschedpolicy, iFpi_t) \
@@ -87,18 +88,17 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_mutex_timedlock, iFpp_t) \
 	GO(pthread_once, iFpp_t) \
 	GO(pthread_rwlock_init, iFpp_t) \
-	GO(pthread_kill, iFhi_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
+	GO(pthread_getaffinity_np, iFLup_t) \
+	GO(pthread_setaffinity_np, iFLup_t) \
 	GO(pthread_attr_setaffinity_np, iFpup_t) \
 	GO(pthread_attr_setstack, iFppL_t) \
 	GO(__pthread_atfork, iFppp_t) \
 	GO(pthread_atfork, iFppp_t) \
 	GO(pthread_attr_getstack, iFppp_t) \
-	GO(pthread_getaffinity_np, iFhup_t) \
-	GO(pthread_setaffinity_np, iFhup_t) \
+	GO(pthread_create, iFLppp_t) \
 	GO(pthread_cond_timedwait, iFppLL_t) \
-	GO(pthread_cond_timedwait@GLIBC_2.0, iFppLL_t) \
-	GO(pthread_create, iFhppp_t)
+	GO(pthread_cond_timedwait@GLIBC_2.0, iFppLL_t)
 
 #endif // __wrappedlibpthreadTYPES32_H_

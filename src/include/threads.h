@@ -10,7 +10,6 @@ typedef struct emuthread_s {
 	x64emu_t*	emu;
 	int			join;
 	uintptr_t	self;
-	ulong_t		hself;
 	int			cancel_cap, cancel_size;
 	void**		cancels;
 } emuthread_t;

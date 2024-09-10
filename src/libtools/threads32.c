@@ -98,14 +98,9 @@ static void emuthread_destroy(void* p)
 	emuthread_t *et = (emuthread_t*)p;
 	if(!et)
 		return;
-	// destroy the hash key if thread is not joinable
-	if(!et->join)
-		to_hash_d(et->self);
 	// destroy thread emu and all
-	if(et) {
-		FreeX64Emu(&et->emu);
-		free(et);
-	}
+	FreeX64Emu(&et->emu);
+	free(et);
 }
 
 static void emuthread_cancel(void* p)
@@ -120,7 +115,6 @@ static void emuthread_cancel(void* p)
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
 	free(et->cancels);
-	to_hash_d(et->self);
 	et->cancels=NULL;
 	et->cancel_size = et->cancel_cap = 0;
 }
@@ -141,7 +135,6 @@ static void* pthread_routine(void* p)
 	emuthread_t *et = (emuthread_t*)p;
 	et->emu->type = EMUTYPE_MAIN;
 	et->self = (uintptr_t)pthread_self();
-	et->hself = to_hash(et->self);
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
 	Push_32(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
@@ -213,7 +206,7 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 		own = 1;
 	}
 
-	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(my_context, (uintptr_t)start_routine, (uintptr_t)stack, stacksize, own);
 	SetupX64Emu(emuthread, emu);
 	et->emu = emuthread;
@@ -583,7 +576,7 @@ static pthread_attr_t* get_attr(void* attr)
 		return NULL;
 	my32_x64_attr_t* my32_attr = (my32_x64_attr_t*)attr;
 	if(my32_attr->sign!=ATTR_SIGN) {
-		my32_attr->attr = (pthread_attr_t*)calloc(1, sizeof(pthread_attr_t));
+		my32_attr->attr = (pthread_attr_t*)box_calloc(1, sizeof(pthread_attr_t));
 		my32_attr->sign = ATTR_SIGN;
 	}
 	return my32_attr->attr;
@@ -595,7 +588,7 @@ static void del_attr(void* attr)
 	my32_x64_attr_t* my32_attr = (my32_x64_attr_t*)attr;
 	if(my32_attr->sign==ATTR_SIGN) {
 		my32_attr->sign = 0;
-		free(my32_attr->attr);
+		box_free(my32_attr->attr);
 	}
 }
 
@@ -811,6 +804,7 @@ EXPORT int my32_pthread_mutex_destroy(pthread_mutex_t *m)
 	if(k!=kh_end(unaligned_mutex)) {
 		pthread_mutex_t *n = kh_value(unaligned_mutex, k);
 		kh_del(mutex, unaligned_mutex, k);
+		pthread_rwlock_unlock(&m_lock);
 		int ret = pthread_mutex_destroy(n);
 		free(n);
 		return ret;
