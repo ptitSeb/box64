@@ -36,7 +36,6 @@
 #() iFp
 #() iFO
 #() iFS
-#() iFP
 #() iFb
 #() IFv
 #() IFi
@@ -4205,6 +4204,9 @@ wrappedlibc:
 - vFpV:
   - warn
   - warnx
+- vFpA:
+  - vwarn
+  - vwarnx
 - iFip:
   - fstat
   - fstat64
@@ -4304,7 +4306,6 @@ wrappedlibc:
   - execve
 - iFppV:
   - __asprintf
-  - __isoc23_fscanf
   - __isoc23_sscanf
   - __isoc99_fscanf
   - __isoc99_sscanf
@@ -4327,6 +4328,7 @@ wrappedlibc:
   - open
   - open64
 - iFSpV:
+  - __isoc23_fscanf
   - fprintf
   - fscanf
   - fwprintf

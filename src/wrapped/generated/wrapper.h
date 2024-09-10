@@ -73,7 +73,6 @@ void iFL(x64emu_t *emu, uintptr_t fnc);
 void iFp(x64emu_t *emu, uintptr_t fnc);
 void iFO(x64emu_t *emu, uintptr_t fnc);
 void iFS(x64emu_t *emu, uintptr_t fnc);
-void iFP(x64emu_t *emu, uintptr_t fnc);
 void iFb(x64emu_t *emu, uintptr_t fnc);
 void IFv(x64emu_t *emu, uintptr_t fnc);
 void IFi(x64emu_t *emu, uintptr_t fnc);

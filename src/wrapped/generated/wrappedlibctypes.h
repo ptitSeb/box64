@@ -25,6 +25,7 @@ typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
+typedef void (*vFpA_t)(void*, va_list);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFup_t)(uint32_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
@@ -140,6 +141,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(twalk, vFpp_t) \
 	GO(warn, vFpV_t) \
 	GO(warnx, vFpV_t) \
+	GO(vwarn, vFpA_t) \
+	GO(vwarnx, vFpA_t) \
 	GO(fstat, iFip_t) \
 	GO(fstat64, iFip_t) \
 	GO(setrlimit, iFup_t) \
@@ -214,7 +217,6 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__vsscanf, iFppp_t) \
 	GO(execve, iFppp_t) \
 	GO(__asprintf, iFppV_t) \
-	GO(__isoc23_fscanf, iFppV_t) \
 	GO(__isoc23_sscanf, iFppV_t) \
 	GO(__isoc99_fscanf, iFppV_t) \
 	GO(__isoc99_sscanf, iFppV_t) \
@@ -234,6 +236,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__open, iFpON_t) \
 	GO(open, iFpON_t) \
 	GO(open64, iFpON_t) \
+	GO(__isoc23_fscanf, iFSpV_t) \
 	GO(fprintf, iFSpV_t) \
 	GO(fscanf, iFSpV_t) \
 	GO(fwprintf, iFSpV_t) \

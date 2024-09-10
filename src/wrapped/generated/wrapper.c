@@ -86,7 +86,6 @@ typedef int32_t (*iFL_t)(uintptr_t);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFO_t)(int32_t);
 typedef int32_t (*iFS_t)(void*);
-typedef int32_t (*iFP_t)(void*);
 typedef int32_t (*iFb_t)(void*);
 typedef int64_t (*IFv_t)(void);
 typedef int64_t (*IFi_t)(int32_t);
@@ -3281,7 +3280,6 @@ void iFL(x64emu_t *emu, uintptr_t fcn) { iFL_t fn = (iFL_t)fcn; R_RAX=(int32_t)f
 void iFp(x64emu_t *emu, uintptr_t fcn) { iFp_t fn = (iFp_t)fcn; R_RAX=(int32_t)fn((void*)R_RDI); }
 void iFO(x64emu_t *emu, uintptr_t fcn) { iFO_t fn = (iFO_t)fcn; R_RAX=(int32_t)fn(of_convert((int32_t)R_RDI)); }
 void iFS(x64emu_t *emu, uintptr_t fcn) { iFS_t fn = (iFS_t)fcn; R_RAX=(int32_t)fn(io_convert((void*)R_RDI)); }
-void iFP(x64emu_t *emu, uintptr_t fcn) { iFP_t fn = (iFP_t)fcn; R_RAX=(int32_t)fn(*(void**)(R_RSP + 8)); }
 void iFb(x64emu_t *emu, uintptr_t fcn) { iFb_t fn = (iFb_t)fcn; void *aligned_xcb = align_xcb_connection((void*)R_RDI); R_RAX=(int32_t)fn(aligned_xcb); unalign_xcb_connection(aligned_xcb, (void*)R_RDI); }
 void IFv(x64emu_t *emu, uintptr_t fcn) { IFv_t fn = (IFv_t)fcn; R_RAX=(int64_t)fn(); }
 void IFi(x64emu_t *emu, uintptr_t fcn) { IFi_t fn = (IFi_t)fcn; R_RAX=(int64_t)fn((int32_t)R_RDI); }
