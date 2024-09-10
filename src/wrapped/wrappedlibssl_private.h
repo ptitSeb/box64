@@ -430,7 +430,7 @@ GO(SSL_get_version, pFp)
 //GO(SSL_get_wfd, 
 //GO(SSL_has_matching_session_id, 
 //GO(ssl_init_wbio_buffer, 
-GO(SSL_in_init, iFP)
+GO(SSL_in_init, iFp)
 GO(SSL_is_init_finished, iFp)
 GO(SSL_is_server, iFp)
 GO(SSL_library_init, iFv)
