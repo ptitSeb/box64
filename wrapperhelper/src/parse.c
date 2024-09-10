@@ -398,6 +398,7 @@ static int is_type_spec_qual_kw(enum token_keyword_type_e kw) {
 		(kw == KW_DOUBLE)    ||
 		(kw == KW_ENUM)      ||
 		(kw == KW_FLOAT)     ||
+		(kw == KW_FLOAT128)  ||
 		(kw == KW_IMAGINARY) ||
 		(kw == KW_INT)       ||
 		(kw == KW_INT128)    ||
@@ -1064,7 +1065,7 @@ failed:
 	if (e) expr_del(e);
 	return NULL;
 }
-static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constant_t *dest) {
+static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constant_t *dest, int fatal) {
 	// Evaluate the expression (we suppose it is constant)
 	switch (e->typ) {
 	case ETY_VAR: {
@@ -1073,7 +1074,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 			*dest = kh_val(const_map, it);
 			return 1;
 		}
-		printf("Error: failed to evaluate expression: expression is not constant (variable)\n");
+		if (fatal) printf("Error: failed to evaluate expression: expression is not constant (variable)\n");
 		return 0; }
 		
 	case ETY_CONST:
@@ -1083,18 +1084,18 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 	// case ETY_GENERIC:
 		
 	case ETY_CALL:
-		printf("Error: failed to evaluate expression: expression is not constant (function call)\n");
+		if (fatal) printf("Error: failed to evaluate expression: expression is not constant (function call)\n");
 		return 0;
 		
 	case ETY_ACCESS:
 	case ETY_PTRACCESS:
-		printf("Error: failed to evaluate expression: expression is not constant (member access)\n");
+		if (fatal) printf("Error: failed to evaluate expression: expression is not constant (member access)\n");
 		return 0;
 		
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 	case ETY_UNARY:
-		if (!eval_expression(e->val.unary.e, const_map, dest)) return 0;
+		if (!eval_expression(e->val.unary.e, const_map, dest, fatal)) return 0;
 		
 		switch (e->val.unary.typ) {
 		case UOT_POSTINCR:
@@ -1103,7 +1104,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 		case UOT_PREDECR:
 		case UOT_REF:
 		case UOT_DEREF:
-			printf("Error: failed to evaluate expression: expression is not constant (assignment or memory accesses)\n");
+			if (fatal) printf("Error: failed to evaluate expression: expression is not constant (assignment or memory accesses)\n");
 			return 0;
 		case UOT_POS:
 			return 1; // Nothing to do
@@ -1123,7 +1124,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 			case NCT_FLOAT:
 			case NCT_DOUBLE:
 			case NCT_LDOUBLE:
-				printf("Error: failed to evaluate expression: cannot bitwise-negate a floating point number\n");
+				if (fatal) printf("Error: failed to evaluate expression: cannot bitwise-negate a floating point number\n");
 				return 0;
 			case NCT_INT32:  dest->val.i32 = ~dest->val.i32; return 1;
 			case NCT_UINT32: dest->val.u32 = ~dest->val.u32; return 1;
@@ -1147,8 +1148,8 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 		
 	case ETY_BINARY: {
 		num_constant_t dest1, dest2;
-		if (!eval_expression(e->val.binary.e1, const_map, &dest1)) return 0;
-		if (!eval_expression(e->val.binary.e2, const_map, &dest2)) return 0;
+		if (!eval_expression(e->val.binary.e1, const_map, &dest1, fatal)) return 0;
+		if (!eval_expression(e->val.binary.e2, const_map, &dest2, fatal)) return 0;
 		
 		switch (e->val.binary.typ) {
 		case BOT_ASSGN_EQ:
@@ -1163,7 +1164,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 		case BOT_ASSGN_AXOR:
 		case BOT_ASSGN_AOR:
 		case BOT_ARRAY: // Is this possible?
-			printf("Error: failed to evaluate expression: expression is not constant (assignments)\n");
+			if (fatal) printf("Error: failed to evaluate expression: expression is not constant (assignments)\n");
 			return 0;
 #define DOIT(op) \
 			promote_csts(&dest1, &dest2); \
@@ -1183,7 +1184,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 			case NCT_FLOAT: \
 			case NCT_DOUBLE: \
 			case NCT_LDOUBLE: \
-				printf("Error: failed to evaluate expression: binary operation %u incompatible with floating point numbers\n", e->val.binary.typ); \
+				if (fatal) printf("Error: failed to evaluate expression: binary operation %u incompatible with floating point numbers\n", e->val.binary.typ); \
 				return 0; \
 			case NCT_INT32:   dest->val.i32 = dest1.val.i32 op dest2.val.i32; return 1; \
 			case NCT_UINT32:  dest->val.u32 = dest1.val.u32 op dest2.val.u32; return 1; \
@@ -1230,9 +1231,9 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 		
 	case ETY_TERNARY: {
 		num_constant_t dest1, dest2, dest3;
-		if (!eval_expression(e->val.ternary.e1, const_map, &dest1)) return 0;
-		if (!eval_expression(e->val.ternary.e2, const_map, &dest2)) return 0;
-		if (!eval_expression(e->val.ternary.e3, const_map, &dest3)) return 0;
+		if (!eval_expression(e->val.ternary.e1, const_map, &dest1, fatal)) return 0;
+		if (!eval_expression(e->val.ternary.e2, const_map, &dest2, fatal)) return 0;
+		if (!eval_expression(e->val.ternary.e3, const_map, &dest3, fatal)) return 0;
 		
 		switch (e->val.ternary.typ) {
 		case TOT_COND:
@@ -1254,7 +1255,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 	// case ETY_INIT_LIST:
 		
 	case ETY_CAST:
-		if (!eval_expression(e->val.cast.e, const_map, dest)) return 0;
+		if (!eval_expression(e->val.cast.e, const_map, dest, fatal)) return 0;
 		
 		if (e->val.cast.typ->typ == TYPE_BUILTIN) {
 			switch (e->val.cast.typ->val.builtin) {
@@ -1340,13 +1341,16 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 			case BTT_LONGDOUBLE:
 			case BTT_CLONGDOUBLE:
 			case BTT_ILONGDOUBLE:
+			case BTT_FLOAT128:
+			case BTT_CFLOAT128:
+			case BTT_IFLOAT128:
 			case BTT_VA_LIST:
 			default:
-				printf("Error: TODO: cast to builtin %s in constant expression\n", builtin2str[e->val.cast.typ->val.builtin]);
+				if (fatal) printf("Error: TODO: cast to builtin %s in constant expression\n", builtin2str[e->val.cast.typ->val.builtin]);
 				return 0;
 			}
 		} else {
-			printf("Error: cast in constant expression\n");
+			if (fatal) printf("Error: cast in constant expression\n");
 			return 0;
 		}
 		
@@ -1382,7 +1386,7 @@ static int parse_declaration_specifier(machine_t *target, khash_t(struct_map) *s
 			goto failed;
 		}
 		num_constant_t eval;
-		if (!eval_expression(e, const_map, &eval)) {
+		if (!eval_expression(e, const_map, &eval, 1)) {
 			expr_del(e);
 			// Empty destructor
 			goto failed;
@@ -1567,6 +1571,8 @@ parse_cur_token_decl:
 			*spec = SPEC_LONGCOMPLEX;
 		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_FLOAT)) {
 			typ->val.builtin = BTT_CFLOAT;
+		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_FLOAT128)) {
+			typ->val.builtin = BTT_CFLOAT128;
 		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_DOUBLE)) {
 			typ->val.builtin = BTT_CDOUBLE;
 		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_LONGDOUBLE)) {
@@ -1584,6 +1590,8 @@ parse_cur_token_decl:
 			*spec = SPEC_LONGIMAGINARY;
 		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_FLOAT)) {
 			typ->val.builtin = BTT_IFLOAT;
+		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_FLOAT128)) {
+			typ->val.builtin = BTT_IFLOAT128;
 		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_DOUBLE)) {
 			typ->val.builtin = BTT_IDOUBLE;
 		} else if ((*spec == SPEC_BUILTIN) && (typ->val.builtin == BTT_LONGDOUBLE)) {
@@ -1637,6 +1645,25 @@ parse_cur_token_decl:
 			*spec = SPEC_BUILTIN;
 			typ->typ = TYPE_BUILTIN;
 			typ->val.builtin = BTT_IFLOAT;
+		} else {
+			printf("Error: unexpected type specifier '%s' in declaration\n", kw2str[tok->tokv.kw]);
+			goto failed;
+		}
+		*tok = proc_next_token(prep);
+		goto parse_cur_token_decl;
+	} else if ((tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_FLOAT128)) {
+		if (*spec == SPEC_NONE) {
+			*spec = SPEC_BUILTIN;
+			typ->typ = TYPE_BUILTIN;
+			typ->val.builtin = BTT_FLOAT128;
+		} else if (*spec == SPEC_COMPLEX) {
+			*spec = SPEC_BUILTIN;
+			typ->typ = TYPE_BUILTIN;
+			typ->val.builtin = BTT_CFLOAT128;
+		} else if (*spec == SPEC_IMAGINARY) {
+			*spec = SPEC_BUILTIN;
+			typ->typ = TYPE_BUILTIN;
+			typ->val.builtin = BTT_IFLOAT128;
 		} else {
 			printf("Error: unexpected type specifier '%s' in declaration\n", kw2str[tok->tokv.kw]);
 			goto failed;
@@ -2058,7 +2085,7 @@ parse_cur_token_decl:
 					proc_token_del(tok);
 					goto failed;
 				}
-				if (!eval_expression(e, const_map, &cst)) {
+				if (!eval_expression(e, const_map, &cst, 1)) {
 					expr_del(e);
 					if (tag) string_del(tag);
 					// Empty destructor
@@ -2203,6 +2230,7 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 	int has_list = 0, has_ident = 0;
 	// TODO: allow_abstract and 'direct-abstract-declarator(opt) ( parameter-type-list(opt) )'
 	
+	_Bool array_atomic = 0, array_const = 0, array_restrict = 0, array_static = 0, array_volatile = 0;
 	string_t *cur_ident = NULL;
 	type_t *typ = base_type; ++typ->nrefs;
 	type_t *cur_bottom = NULL;
@@ -2324,6 +2352,27 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 							}
 							if ((tok->tokt == PTOK_SYM) && (tok->tokv.sym == SYM_RPAREN)) {
 								// Unnamed argument
+								if (typ2->typ == TYPE_ARRAY) {
+									// Need to convert type to a pointer
+									type_t *typ3 = type_new();
+									if (!typ3) {
+										printf("Error: failed to allocate new type\n");
+										type_del(typ2);
+										// Empty destructor
+										goto failed;
+									}
+									if (!type_copy_into(typ3, typ2)) {
+										printf("Error: failed to duplicate array type to temporary type\n");
+										type_del(typ3);
+										type_del(typ2);
+										// Empty destructor
+										goto failed;
+									}
+									type_del(typ2);
+									typ3->typ = TYPE_PTR;
+									typ3->val.typ = typ3->val.array.typ;
+									typ2 = type_try_merge(typ3, PDECL_TYPE_SET);
+								}
 								if (!vector_push(types, args, typ2)) {
 									printf("Error: failed to add argument to argument vector\n");
 									vector_del(types, args);
@@ -2452,23 +2501,76 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 					}
 					has_ident = 1;
 				}
+				if (array_atomic || array_const || array_restrict || array_static || array_volatile) {
+					printf("Error: invalid array after array with type qualifier(s) and/or 'static'\n");
+					// Empty destructor
+					goto failed;
+				}
 				// Empty destructor
 				*tok = proc_next_token(prep);
-				// Here we have only two array constructors:
-				//  direct-declaration [ assignment-expression(opt) ]
-				//  direct-declaration [ * ]   (complete VLA)
+				// From the standard:
+				//   direct-declarator [ type-qualifier-list(opt) assignment-expression(opt) ]
+				//   direct-declarator [ static type-qualifier-list(opt) assignment-expression ]
+				//   direct-declarator [ type-qualifier-list static assignment-expression ]
+				//   direct-declarator [ type-qualifier-list(opt) * ]
+				//  The optional type qualifiers and the keyword static shall appear only in a
+				//  declaration of a function parameter with an array type, and then only in the outermost
+				//  array type derivation.
 				size_t nelems; _Bool is_incomplete;
+				while (1) {
+#define DO_CHECKS \
+	if (is_init || is_list || !allow_decl || (cur_bottom && (typ->typ != TYPE_ARRAY))) {                         \
+		printf("Error: type qualifiers and 'static' may only appear in function argument array declarations\n"); \
+		/* Empty destructor */                                                                                   \
+		goto failed;                                                                                             \
+	}
+					if ((tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_ATOMIC)) {
+						DO_CHECKS
+						array_atomic = 1;
+						*tok = proc_next_token(prep);
+					} else if ((tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_CONST)) {
+						DO_CHECKS
+						array_const = 1;
+						*tok = proc_next_token(prep);
+					} else if ((tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_RESTRICT)) {
+						DO_CHECKS
+						array_restrict = 1;
+						*tok = proc_next_token(prep);
+					} else if ((tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_STATIC)) {
+						DO_CHECKS
+						array_static = 1;
+						*tok = proc_next_token(prep);
+					} else if ((tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_VOLATILE)) {
+						DO_CHECKS
+						array_volatile = 1;
+						*tok = proc_next_token(prep);
+					} else break;
+#undef DO_CHECKS
+				}
 				if ((tok->tokt == PTOK_SYM) && (tok->tokv.sym == SYM_RSQBRACKET)) {
+					if (array_static) {
+						// Missing expression
+						printf("Error: unexpected token ']' in static length array declaration\n");
+						// Empty destructor
+						goto failed;
+					}
 					// Incomplete VLA
 					nelems = (size_t)-1;
 					is_incomplete = 1;
 				} else if ((tok->tokt == PTOK_SYM) && (tok->tokv.sym == SYM_STAR)) {
+					if (array_static) {
+						// Missing expression
+						printf("Error: unexpected token '*' in static length array declaration\n");
+						// Empty destructor
+						goto failed;
+					}
 					// Complete VLA, expecting a ']'
 					nelems = (size_t)-1;
 					is_incomplete = 0;
 					// Empty destructor
 					*tok = proc_next_token(prep);
 					if ((tok->tokt != PTOK_SYM) || (tok->tokv.sym != SYM_RSQBRACKET)) {
+						// TODO: ...[*expr]
 						printf("Error: unexpected token during variable length array declaration\n");
 						proc_token_del(tok);
 						goto failed;
@@ -2488,27 +2590,32 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 						goto failed;
 					}
 					num_constant_t cst;
-					if (!eval_expression(e, PDECL_CONST_MAP, &cst)) {
+					if (eval_expression(e, PDECL_CONST_MAP, &cst, is_init || is_list || !allow_decl)) {
 						expr_del(e);
-						// Empty destructor
-						goto failed;
-					}
-					expr_del(e);
-					int is_neg;
-					switch (cst.typ) {
-					case NCT_FLOAT:   is_neg = cst.val.f < 0; nelems = (size_t)cst.val.f; break;
-					case NCT_DOUBLE:  is_neg = cst.val.d < 0; nelems = (size_t)cst.val.d; break;
-					case NCT_LDOUBLE: is_neg = cst.val.l < 0; nelems = (size_t)cst.val.l; break;
-					case NCT_INT32:   is_neg = cst.val.i32 < 0; nelems = (size_t)cst.val.i32; break;
-					case NCT_UINT32:  is_neg = 0; nelems = (size_t)cst.val.u32; break;
-					case NCT_INT64:   is_neg = cst.val.i64 < 0; nelems = (size_t)cst.val.i64; break;
-					case NCT_UINT64:  is_neg = 0; nelems = (size_t)cst.val.u64; break;
-					default: is_neg = 1;
-					}
-					if (is_neg) {
-						printf("Error: the size of an array must be nonnegative");
-						// Empty destructor
-						goto failed;
+						int is_neg;
+						switch (cst.typ) {
+						case NCT_FLOAT:   is_neg = cst.val.f < 0; nelems = (size_t)cst.val.f; break;
+						case NCT_DOUBLE:  is_neg = cst.val.d < 0; nelems = (size_t)cst.val.d; break;
+						case NCT_LDOUBLE: is_neg = cst.val.l < 0; nelems = (size_t)cst.val.l; break;
+						case NCT_INT32:   is_neg = cst.val.i32 < 0; nelems = (size_t)cst.val.i32; break;
+						case NCT_UINT32:  is_neg = 0; nelems = (size_t)cst.val.u32; break;
+						case NCT_INT64:   is_neg = cst.val.i64 < 0; nelems = (size_t)cst.val.i64; break;
+						case NCT_UINT64:  is_neg = 0; nelems = (size_t)cst.val.u64; break;
+						default: is_neg = 1;
+						}
+						if (is_neg) {
+							printf("Error: the size of an array must be nonnegative");
+							// Empty destructor
+							goto failed;
+						}
+					} else {
+						expr_del(e);
+						// Treated as '*' as function argument (TODO: as anything else)
+						if (is_init || is_list || !allow_decl) {
+							// Empty destructor
+							goto failed;
+						}
+						nelems = (size_t)-1;
 					}
 				}
 				// Token is ']'
@@ -2713,6 +2820,32 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 							kh_val(dest->f->decl_map, it) = typ;
 						}
 					} else if (!is_init && !is_list) {
+						if (allow_decl) {
+							// Function argument
+							if (typ->typ == TYPE_ARRAY) {
+								// Convert to pointer
+								if (typ == base_type) {
+									typ = type_new();
+									if (!typ) {
+										printf("Error: failed to allocate new type\n");
+										// Empty destructor
+										goto failed;
+									}
+									if (!type_copy_into(typ, base_type)) {
+										printf("Error: failed to allocate new type\n");
+										// Empty destructor
+										goto failed;
+									}
+								}
+								typ->typ = TYPE_PTR;
+								typ->val.typ = typ->val.array.typ;
+								if (array_atomic)   typ->is_atomic   = 1;
+								if (array_const)    typ->is_const    = 1;
+								if (array_restrict) typ->is_restrict = 1;
+								if (array_volatile) typ->is_volatile = 1;
+								typ = type_try_merge(typ, PDECL_TYPE_SET);
+							}
+						}
 						dest->argt.dest = typ;
 						if (cur_ident) string_del(cur_ident);
 						goto success;
@@ -2802,7 +2935,7 @@ static int parse_declarator(machine_t *target, struct parse_declarator_dest_s *d
 					goto failed;
 				}
 				num_constant_t eval;
-				if (!eval_expression(e, dest->structms.const_map, &eval)) {
+				if (!eval_expression(e, dest->structms.const_map, &eval, 1)) {
 					expr_del(e);
 					// Empty destructor
 					goto failed;
@@ -3067,9 +3200,13 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 			if (spec == SPEC_NONE) continue; // Declaration was an assert, typ is unchanged
 			typ = type_try_merge(typ, ret->type_set);
 			if ((tok.tokt != PTOK_SYM) || (tok.tokv.sym != SYM_SEMICOLON)) {
-				if (!parse_declarator(target, &(struct parse_declarator_dest_s){.f = ret}, prep, &tok, storage, fspec, typ, 1, 1, 1, 0)) goto failed;
+				if (!parse_declarator(target, &(struct parse_declarator_dest_s){.f = ret}, prep, &tok, storage, fspec, typ, 1, 1, 1, 0)) {
+					goto failed;
+				}
 			} else {
-				if (validate_storage_type(target, storage, typ, tok.tokv.sym) != VALIDATION_LAST_DECL) goto failed;
+				if (validate_storage_type(target, storage, typ, tok.tokv.sym) != VALIDATION_LAST_DECL) {
+					goto failed;
+				}
 				if (fspec != FSPEC_NONE) {
 					printf("Error: unexpected function specifier\n");
 					// Empty destructor

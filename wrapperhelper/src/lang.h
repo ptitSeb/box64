@@ -108,6 +108,7 @@ enum token_keyword_type_e {
 	KW_ENUM,
 	KW_EXTERN,
 	KW_FLOAT,
+	KW_FLOAT128,
 	KW_FOR,
 	KW_GENERIC,
 	KW_GOTO,
@@ -350,6 +351,9 @@ typedef struct type_s {
 			BTT_LONGDOUBLE,
 			BTT_CLONGDOUBLE,
 			BTT_ILONGDOUBLE,
+			BTT_FLOAT128,
+			BTT_CFLOAT128,
+			BTT_IFLOAT128,
 			BTT_VA_LIST,
 		} builtin;
 #define LAST_BUILTIN BTT_VA_LIST

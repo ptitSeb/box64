@@ -233,6 +233,7 @@ const char *kw2str[LAST_KEYWORD + 1] = {
 	[KW_ENUM] = "enum",
 	[KW_EXTERN] = "extern",
 	[KW_FLOAT] = "float",
+	[KW_FLOAT128] = "__float128",
 	[KW_FOR] = "for",
 	[KW_GENERIC] = "_Generic",
 	[KW_GOTO] = "goto",
@@ -963,6 +964,9 @@ const char *builtin2str[LAST_BUILTIN + 1] = {
 	[BTT_LONGDOUBLE] = "long double",
 	[BTT_CLONGDOUBLE] = "long double _Complex",
 	[BTT_ILONGDOUBLE] = "long double _Imaginary",
+	[BTT_FLOAT128] = "__float128",
+	[BTT_CFLOAT128] = "__float128 _Complex",
+	[BTT_IFLOAT128] = "__float128 _Imaginary",
 	[BTT_VA_LIST] = "__builtin_va_list",
 };
 void type_print(type_t *typ) {

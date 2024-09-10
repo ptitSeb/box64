@@ -21,7 +21,6 @@ typedef struct request_s {
 			RQT_FUN_D,
 			
 			RQT_DATA,
-			RQT_DATAV,
 			RQT_DATAB,
 			RQT_DATAM,
 		} rty;
