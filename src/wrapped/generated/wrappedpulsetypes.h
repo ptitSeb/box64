@@ -19,19 +19,18 @@ typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void* (*pFipp_t)(int32_t, void*, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
-typedef int32_t (*iFppip_t)(void*, void*, int32_t, void*);
+typedef int32_t (*iFppup_t)(void*, void*, uint32_t, void*);
 typedef int32_t (*iFpppV_t)(void*, void*, void*, ...);
 typedef void* (*pFpipp_t)(void*, int32_t, void*, void*);
 typedef void* (*pFpupp_t)(void*, uint32_t, void*, void*);
 typedef void* (*pFpUpp_t)(void*, uint64_t, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpiupp_t)(void*, int32_t, uint32_t, void*, void*);
-typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void* (*pFpuipp_t)(void*, uint32_t, int32_t, void*, void*);
 typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 typedef void* (*pFpuppp_t)(void*, uint32_t, void*, void*, void*);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
-typedef int32_t (*iFppLpIi_t)(void*, void*, uintptr_t, void*, int64_t, int32_t);
+typedef int32_t (*iFppLpIu_t)(void*, void*, uintptr_t, void*, int64_t, uint32_t);
 typedef void* (*pFpiuCppp_t)(void*, int32_t, uint32_t, uint8_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -77,7 +76,7 @@ typedef void* (*pFpiuCppp_t)(void*, int32_t, uint32_t, uint8_t, void*, void*, vo
 	GO(pa_stream_prebuf, pFppp_t) \
 	GO(pa_stream_trigger, pFppp_t) \
 	GO(pa_stream_update_timing_info, pFppp_t) \
-	GO(pa_context_connect, iFppip_t) \
+	GO(pa_context_connect, iFppup_t) \
 	GO(pa_proplist_setf, iFpppV_t) \
 	GO(pa_ext_device_restore_subscribe, pFpipp_t) \
 	GO(pa_stream_cork, pFpipp_t) \
@@ -101,23 +100,23 @@ typedef void* (*pFpiuCppp_t)(void*, int32_t, uint32_t, uint8_t, void*, void*, vo
 	GO(pa_stream_set_buffer_attr, pFpppp_t) \
 	GO(pa_stream_set_name, pFpppp_t) \
 	GO(pa_ext_device_restore_read_formats, pFpiupp_t) \
-	GO(pa_context_proplist_update, pFpippp_t) \
-	GO(pa_stream_proplist_update, pFpippp_t) \
 	GO(pa_context_set_sink_input_mute, pFpuipp_t) \
 	GO(pa_context_set_sink_mute_by_index, pFpuipp_t) \
 	GO(pa_context_set_source_mute_by_index, pFpuipp_t) \
 	GO(pa_context_move_sink_input_by_index, pFpuupp_t) \
 	GO(pa_context_move_source_output_by_index, pFpuupp_t) \
+	GO(pa_context_proplist_update, pFpuppp_t) \
 	GO(pa_context_set_card_profile_by_index, pFpuppp_t) \
 	GO(pa_context_set_sink_input_volume, pFpuppp_t) \
 	GO(pa_context_set_sink_port_by_index, pFpuppp_t) \
 	GO(pa_context_set_sink_volume_by_index, pFpuppp_t) \
 	GO(pa_context_set_source_port_by_index, pFpuppp_t) \
 	GO(pa_context_set_source_volume_by_index, pFpuppp_t) \
+	GO(pa_stream_proplist_update, pFpuppp_t) \
 	GO(pa_context_load_module, pFppppp_t) \
 	GO(pa_context_set_sink_port_by_name, pFppppp_t) \
 	GO(pa_context_set_source_volume_by_name, pFppppp_t) \
-	GO(pa_stream_write, iFppLpIi_t) \
+	GO(pa_stream_write, iFppLpIu_t) \
 	GO(pa_ext_device_restore_save_formats, pFpiuCppp_t)
 
 #endif // __wrappedpulseTYPES_H_
