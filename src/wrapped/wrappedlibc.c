@@ -1178,6 +1178,18 @@ EXPORT void my_vwarn(x64emu_t* emu, void* fmt, x64_va_list_t b) {
     #endif
     return vwarn(fmt, VARARGS);
 }
+EXPORT void my_vwarnx(x64emu_t* emu, void* fmt, x64_va_list_t b) {
+    if (!fmt)
+        return warnx(NULL);
+    #ifdef CONVERT_VALIST
+    (void)emu;
+    CONVERT_VALIST(b);
+    #else
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, b);
+    PREPARE_VALIST;
+    #endif
+    return vwarnx(fmt, VARARGS);
+}
 EXPORT void my_warn(x64emu_t *emu, void* fmt, void* b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
