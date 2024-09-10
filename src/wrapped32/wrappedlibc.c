@@ -493,7 +493,7 @@ void EXPORT my32___cxa_finalize(x64emu_t* emu, void* p)
         CallAllCleanup(emu);
         return;
     }
-        CallCleanup(emu, p);
+    CallCleanup(emu, FindElfAddress(my_context, (uintptr_t)p));
 }
 int EXPORT my32_atexit(x64emu_t* emu, void *p)
 {
