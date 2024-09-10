@@ -15,9 +15,9 @@ KHASH_MAP_INIT_STR(strings, ptr_t);
 
 static kh_from_t*   hash_from;
 static kh_to_t*     hash_to;
-#define CNT_INIT 0x80000001
-#define HASH_MASK 0x7fffffff
-static uint32_t     hash_cnt = CNT_INIT;
+#define HASH_MSK    0xff000000
+#define HASH_VAL    0x00ffffff
+static uint32_t     hash_cnt = 1;
 static pthread_rwlock_t hash_lock = {0};
 static int          hash_running = 0;
 // locale
@@ -41,7 +41,7 @@ void fini_hash_helper() {
     hash_from = NULL;
     kh_destroy(to, hash_to);
     hash_to = NULL;
-    hash_cnt = CNT_INIT;
+    hash_cnt = 1;
     kh_destroy(from, locale_from);
     locale_from = NULL;
     kh_destroy(to, locale_to);
@@ -54,7 +54,7 @@ void fini_hash_helper() {
 // Convert from hash key to original 64bits value
 uintptr_t from_hash(ulong_t l) {
     // easy case first
-    if((l&HASH_MASK)==l) {
+    if((l&HASH_MSK)!=HASH_MSK) {
         return (uintptr_t)l;
     }
     if(l==0xffffffff) {
@@ -83,9 +83,8 @@ uintptr_t from_hash_d(ulong_t l) {
 
 // Convert from 64bits to hash key, creating it if needed
 ulong_t to_hash(uintptr_t p) {
-    if((p&(uintptr_t)HASH_MASK)==p) {
+    if((p<0x100000000LL) && (p&HASH_MSK!=HASH_MSK))
         return (ulong_t)p;
-    }
     if(p==0xffffffffffffffffll) {
         return 0xffffffff;
     }
@@ -101,9 +100,8 @@ ulong_t to_hash(uintptr_t p) {
         // create a new key, but need write lock!
         pthread_rwlock_unlock(&hash_lock);
         pthread_rwlock_wrlock(&hash_lock);
-        ret = hash_cnt++;
-        if(hash_cnt==0xffffffff)
-            hash_cnt = CNT_INIT;
+        ret = HASH_MSK | hash_cnt++;
+        hash_cnt&=HASH_VAL;
         int r;
         k = kh_put(to, hash_to, p, &r);
         kh_value(hash_to, k) = ret;
@@ -118,7 +116,7 @@ ulong_t to_hash(uintptr_t p) {
 
 // Convert from 64bits to hash key and delete the entry from both hash table
 ulong_t to_hash_d(uintptr_t p) {
-    if((p&(uintptr_t)HASH_MASK)==p)
+    if((p<0x100000000LL) && (p&HASH_MSK!=HASH_MSK))
         return (ulong_t)p;
     if(p==0xffffffffffffffffll)
         return 0xffffffff;

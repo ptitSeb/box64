@@ -99,6 +99,8 @@ static void emuthread_destroy(void* p)
 	if(!et)
 		return;
 	// destroy thread emu and all
+	if(!et->join && et->fnc)	// if there is no function, that this thread was not built from a create_thread, don't touch the hash...
+		to_hash_d(et->self);
 	FreeX64Emu(&et->emu);
 	free(et);
 }
@@ -135,6 +137,7 @@ static void* pthread_routine(void* p)
 	emuthread_t *et = (emuthread_t*)p;
 	et->emu->type = EMUTYPE_MAIN;
 	et->self = (uintptr_t)pthread_self();
+	et->hself = to_hash(et->self);
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
 	Push_32(emu, 0);	// PUSH 0 (backtrace marker: return address is 0)
