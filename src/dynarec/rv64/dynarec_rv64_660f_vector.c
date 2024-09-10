@@ -123,6 +123,53 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     DEFAULT_VECTOR;
             }
             break;
+        case 0x61:
+            INST_NAME("PUNPCKLWD Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            ADDI(x1, xZR, 0b10101010);
+            VMV_V_X(VMASK, x1); // VMASK = 0b10101010
+            v0 = fpu_get_scratch(dyn);
+            VIOTA_M(v0, VMASK, VECTOR_UNMASKED); // v0 = 3 3 2 2 1 1 0 0
+            GETGX_vector(q0, 1, VECTOR_SEW16);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VRGATHER_VV(d0, v0, q0, VECTOR_UNMASKED);
+            VRGATHER_VV(d1, v0, q1, VECTOR_UNMASKED);
+            VMERGE_VVM(q0, d1, d0);
+            break;
+        case 0x67:
+            INST_NAME("PACKUSWB Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW16);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+            fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
+            VMAX_VX(d1, xZR, q1, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VNCLIPU_WI(q0, 0, d0, VECTOR_UNMASKED);
+            break;
+        case 0x69:
+            INST_NAME("PUNPCKHWD Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            ADDI(x1, xZR, 0b10101010);
+            VMV_V_X(VMASK, x1); // VMASK = 0b10101010
+            v0 = fpu_get_scratch(dyn);
+            VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
+            VADD_VI(v0, 4, v0, VECTOR_UNMASKED); // v0 = 7 7 6 6 5 5 4 4
+            GETGX_vector(q0, 1, VECTOR_SEW16);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VRGATHER_VV(d0, v0, q0, VECTOR_UNMASKED);
+            VRGATHER_VV(d1, v0, q1, VECTOR_UNMASKED);
+            VMERGE_VVM(q0, d1, d0);
+            break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx, Ex");
             nextop = F8;
@@ -190,17 +237,25 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else {
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
                 q0 = sse_get_reg_vector(dyn, ninst, x1, gd, 1, dyn->vector_eew);
-                GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                GETEX_vector(q1, 0, 0, dyn->vector_eew);
                 VXOR_VV(q0, q0, q1, VECTOR_UNMASKED);
             }
             break;
         case 0xD4:
-            INST_NAME("PADDQ Gx,Ex");
+            INST_NAME("PADDQ Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETGX_vector(q0, 1, VECTOR_SEW64);
             GETEX_vector(q1, 0, 0, VECTOR_SEW64);
             VADD_VV(q0, q0, q1, VECTOR_UNMASKED);
+            break;
+        case 0xDB:
+            INST_NAME("PAND Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+            GETGX_vector(q0, 1, dyn->vector_eew);
+            GETEX_vector(q1, 0, 0, dyn->vector_eew);
+            VAND_VV(q0, q0, q1, VECTOR_UNMASKED);
             break;
         default:
             DEFAULT_VECTOR;
