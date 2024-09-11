@@ -568,7 +568,7 @@ wrappedlibpthread:
   - pthread_once
   - pthread_rwlock_init
 - iFhi:
-  - pthread_kill
+  - pthread_kill@GLIBC_2.0
 - vFppp:
   - _pthread_cleanup_push
   - _pthread_cleanup_push_defer
