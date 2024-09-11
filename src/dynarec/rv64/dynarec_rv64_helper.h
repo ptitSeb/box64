@@ -1134,6 +1134,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F20F   STEPNAME(dynarec64_F20F)
 #define dynarec64_F30F   STEPNAME(dynarec64_F30F)
 
+#define dynarec64_0F_vector   STEPNAME(dynarec64_0F_vector)
 #define dynarec64_660F_vector STEPNAME(dynarec64_660F_vector)
 
 #define geted               STEPNAME(geted)
@@ -1546,6 +1547,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
+uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 #if STEP < 2
