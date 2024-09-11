@@ -1795,4 +1795,16 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         break;                                                                       \
     }
 
+#define VECTOR_SPLAT_IMM(vreg, imm, s1)                 \
+    do {                                                \
+        if (imm == 0) {                                 \
+            VXOR_VV(vreg, vreg, vreg, VECTOR_UNMASKED); \
+        } else if ((imm & 0xf) == imm) {                \
+            VMV_V_I(vreg, imm);                         \
+        } else {                                        \
+            MOV64x(s1, imm);                            \
+            VMV_V_X(vreg, s1);                          \
+        }                                               \
+    } while (0)
+
 #endif //__DYNAREC_RV64_HELPER_H__
