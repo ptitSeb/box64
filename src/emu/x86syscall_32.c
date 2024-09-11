@@ -22,6 +22,7 @@
 #endif
 #include <sys/resource.h>
 #include <poll.h>
+#include <linux/futex.h> 
 
 #include "debug.h"
 #include "box64stack.h"
@@ -35,6 +36,7 @@
 #include "signals.h"
 #include "x64tls.h"
 #include "box32.h"
+#include "converter32.h"
 
 
 // Syscall table for x86_64 can be found 
@@ -143,7 +145,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 220, __NR_getdents64, 3 },
     //{ 221, __NR_fcntl64, 3 },
     { 224, __NR_gettid, 0 },
-    //{ 240, __NR_futex, 6 },
+    //{ 240, __NR_futex, 6 },   // needs wrapping for the optionnal timespec part
     //{ 241, __NR_sched_setaffinity, 3 },
     //{ 242, __NR_sched_getaffinity, 3 },
     //{ 252, __NR_exit_group, 1 },
@@ -303,6 +305,38 @@ void EXPORT x86Syscall(x64emu_t *emu)
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;*/
+        case 240: // futex
+            {
+                struct_LL_t tspec;
+                int need_tspec = 1;
+                switch(R_ECX&FUTEX_CMD_MASK) {
+                    case FUTEX_WAIT:
+                    case FUTEX_WAIT_BITSET:
+                    case FUTEX_LOCK_PI:
+                    case FUTEX_LOCK_PI2:
+                    case FUTEX_WAIT_REQUEUE_PI:
+                        need_tspec = 1;
+                        break;
+                    case FUTEX_CMP_REQUEUE_PI:
+                    case FUTEX_UNLOCK_PI:
+                    case FUTEX_TRYLOCK_PI:
+                    case FUTEX_WAKE_BITSET:
+                    case FUTEX_WAKE_OP:
+                    case FUTEX_REQUEUE:
+                    case FUTEX_CMP_REQUEUE:
+                    case FUTEX_FD:
+                    case FUTEX_WAKE:
+                    default: need_tspec = 0;
+                }
+                if(need_tspec && R_ESI)
+                    from_struct_LL(&tspec, R_ESI);
+                else
+                    need_tspec = 0;
+                S_EAX = syscall(__NR_futex, R_EBX, R_ECX, R_EDX, need_tspec?&tspec:from_ptrv(R_ESI), R_EDI, R_EBP);
+                if(S_EAX==-1 && errno>0)
+                    R_EAX = (uint32_t)-errno;
+            }
+            break;
         case 243: // set_thread_area
             R_EAX = my_set_thread_area_32(emu, (thread_area_32_t*)(uintptr_t)R_EBX);
             if(R_EAX==0xffffffff && errno>0)
@@ -346,7 +380,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
 
 uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
 {
-    static uint32_t warned = 0;
+    static uint64_t warned[10] = {0};
     uint32_t s = u32(0);
     printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", from_ptrv(R_EIP), s, s, from_ptrv(u32(4)), from_ptrv(u32(8)), from_ptrv(u32(12)), from_ptrv(u32(16)), from_ptrv(u32(20))); 
     // check wrapper first
@@ -440,16 +474,46 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
             return (uint32_t)my32_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
         case 192:   // mmap2
             return (uint32_t)my32_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24));
+#endif
+        case 240: // futex
+            {
+                struct_LL_t tspec;
+                int need_tspec = 1;
+                switch(u32(16)&FUTEX_CMD_MASK) {
+                    case FUTEX_WAIT:
+                    case FUTEX_WAIT_BITSET:
+                    case FUTEX_LOCK_PI:
+                    case FUTEX_LOCK_PI2:
+                    case FUTEX_WAIT_REQUEUE_PI:
+                        need_tspec = 1;
+                        break;
+                    case FUTEX_CMP_REQUEUE_PI:
+                    case FUTEX_UNLOCK_PI:
+                    case FUTEX_TRYLOCK_PI:
+                    case FUTEX_WAKE_BITSET:
+                    case FUTEX_WAKE_OP:
+                    case FUTEX_REQUEUE:
+                    case FUTEX_CMP_REQUEUE:
+                    case FUTEX_FD:
+                    case FUTEX_WAKE:
+                    default: need_tspec = 0;
+                }
+                if(need_tspec && u32(16))
+                    from_struct_LL(&tspec, u32(12));
+                else
+                    need_tspec = 0;
+                return syscall(__NR_futex,  p(4), i32(8), u32(12), need_tspec?(&tspec):p(16), p(20), u32(24));
+            }
+            break;
+#if 0
         case 243: // set_thread_area
             return my32_set_thread_area((thread_area_t*)p(4));
-#ifndef NOALIGN
         case 254: // epoll_create
             return my32_epoll_create(emu, i32(4));
         case 255: // epoll_ctl
             return my32_epoll_ctl(emu, i32(4), i32(8), i32(12), p(16));
         case 256: // epoll_wait
             return my32_epoll_wait(emu, i32(4), p(8), i32(12), i32(16));
-#endif
         case 270: //_NR_tgkill
             /*if(!u32(12))*/ {
                 //printf("tgkill(%u, %u, %u) => ", u32(4), u32(8), u32(12));
@@ -505,10 +569,13 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
 #endif
 #endif
         default:
-            if(!(warned&(1<<s))) {
+            if((s>>6)<sizeof(warned)/sizeof(warned[0])) {
+                if(!(warned[s>>6]&(1<<(s&0x3f)))) {
+                    printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
+                    warned[s>>6] |= (1<<(s&0x3f));
+                }
+            } else
                 printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
-                warned|=(1<<s);
-            }
             errno = ENOSYS;
             return -1;
     }
