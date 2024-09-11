@@ -2434,7 +2434,7 @@ static void sewTransform(dynarec_rv64_t* dyn, int ninst, int s1)
     if (jmp < 0) return;
     if (dyn->insts[jmp].vector_sew == VECTOR_SEWNA) return;
     MESSAGE(LOG_DUMP, "\tSEW changed to %d ---- ninst=%d -> %d\n", dyn->insts[jmp].vector_sew, ninst, jmp);
-    vector_vsetvl_emul1(dyn, ninst, s1, dyn->insts[jmp].vector_sew);
+    vector_vsetvl_emul1(dyn, ninst, s1, dyn->insts[jmp].vector_sew, 1);
 }
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)
@@ -2590,9 +2590,8 @@ void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
     dyn->e.swapped = 0;
 }
 
-// Use vector extension as like SIMD for now, this function sets the specified element width,
-// other configs are set automatically.
-int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew)
+// Simple wrapper for vsetvli
+int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int multiple)
 {
     if (sew == VECTOR_SEWNA) return VECTOR_SEW8;
     if (sew == VECTOR_SEWANY) sew = VECTOR_SEW8;
@@ -2603,7 +2602,7 @@ int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew)
      *
      *                    mu            tu          sew      lmul=1 */
     uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | 0b000;
-    ADDI(s1, xZR, 16 >> sew);
+    ADDI(s1, xZR, (16 >> sew) * multiple);
     VSETVLI(xZR, s1, vtypei);
     return sew;
 }

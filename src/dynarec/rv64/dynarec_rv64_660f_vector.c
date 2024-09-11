@@ -149,14 +149,13 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
-            VMAX_VX(d1, xZR, q1, VECTOR_UNMASKED);
             if (rv64_vlen >= 256) {
-                /*           mu            tu              sew           lmul=1 */
-                vtypei = (0b0 << 7) | (0b0 << 6) | (VECTOR_SEW16 << 3) | 0b000;
-                ADDI(x1, xZR, 16); // double the vl for slideup.
-                VSETVLI(xZR, x1, vtypei);
-                VSLIDEUP_VI(d0, 8, d1, VECTOR_UNMASKED); // splice d0 and d1 here!
+                vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW16, 2); // double the vl for slideup.
+                VSLIDEUP_VI(q0, 8, q1, VECTOR_UNMASKED);              // splice q0 and q1 here!
+                VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
+            } else {
+                VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
+                VMAX_VX(d1, xZR, q1, VECTOR_UNMASKED);
             }
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VNCLIPU_WI(q0, 0, d0, VECTOR_UNMASKED);
@@ -185,18 +184,18 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             // GX->q[0] = GX->q[0]; -> unchanged
             // GX->q[1] = EX->q[0];
             GETGX_vector(v0, 1, VECTOR_SEW64);
-            q0 = fpu_get_scratch(dyn);
-            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-            VMV_V_I(VMASK, 0b10);
             if (MODREG) {
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
                 if (v0 == v1) {
-                    // for vrgather.vv, cannot be overlapped
+                    // for vslideup.vi, cannot be overlapped
                     v1 = fpu_get_scratch(dyn);
                     VMV_V_V(v1, v0);
                 }
-                VRGATHER_VV(v0, q0, v1, VECTOR_MASKED);
+                VSLIDEUP_VI(v0, 1, v1, VECTOR_UNMASKED);
             } else {
+                q0 = fpu_get_scratch(dyn);
+                VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                VMV_V_I(VMASK, 0b10);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                 VLUXEI64_V(v0, ed, q0, VECTOR_MASKED, VECTOR_NFIELD1);
