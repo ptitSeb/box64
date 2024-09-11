@@ -35,10 +35,14 @@
 
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
+typedef int  (*iFLi_t)(unsigned long, int);
 //starting with glibc 2.34+, those 2 functions are in libc.so as versionned symbol only
 // So use dlsym to get the symbol unversionned, as simple link will not work.
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
 static vFpi_t real_pthread_cleanup_pop_restore = NULL;
+// with glibc 2.34+, pthread_kill changed behaviour and might break some program, so using old version if possible
+// it will be pthread_kill@GLIBC_2.0+, need to be found, while it's GLIBC_2.0 on i386
+static iFLi_t real_phtread_kill_old = NULL;
 // those function can be used simply
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
 void _pthread_cleanup_pop(void* buffer, int exec);
@@ -762,12 +766,12 @@ EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t 
 }
 #endif
 
-EXPORT int my32_pthread_kill(x64emu_t* emu, void* thread, int sig)
+EXPORT int my32_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
 {
     // check for old "is everything ok?"
     if((thread==NULL) && (sig==0))
-        return pthread_kill(pthread_self(), 0);
-    return pthread_kill((pthread_t)thread, sig);
+        return real_phtread_kill_old(pthread_self(), 0);
+    return real_phtread_kill_old((pthread_t)thread, sig);
 }
 
 //EXPORT void my32_pthread_exit(x64emu_t* emu, void* retval)
@@ -865,6 +869,19 @@ void init_pthread_helper_32()
 	done = 1;
 	real_pthread_cleanup_push_defer = (vFppp_t)dlsym(NULL, "_pthread_cleanup_push_defer");
 	real_pthread_cleanup_pop_restore = (vFpi_t)dlsym(NULL, "_pthread_cleanup_pop_restore");
+
+	// search for older symbol for pthread_kill
+	{
+		char buff[50];
+		for(int i=0; i<34 && !real_phtread_kill_old; ++i) {
+			snprintf(buff, 50, "GLIBC_2.%d", i);
+			real_phtread_kill_old = (iFLi_t)dlvsym(NULL, "pthread_kill", buff);
+		}
+	}
+	if(!real_phtread_kill_old) {
+		printf_log(LOG_INFO, "Warning, older than 2.34 pthread_kill not found, using current one\n");
+		real_phtread_kill_old = (iFLi_t)pthread_kill;
+	}
 
 	mapcond = kh_init(mapcond);
 	unaligned_mutex = kh_init(mutex);
