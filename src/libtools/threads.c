@@ -1114,6 +1114,8 @@ void init_pthread_helper()
 			real_phtread_kill_old = (iFli_t)dlvsym(NULL, "pthread_kill", buff);
 		}
 	}
+	if(!real_phtread_kill_old)
+		real_phtread_kill_old = (iFli_t)dlvsym(NULL, "pthread_kill", "GLIBC_2.2.5");
 	if(!real_phtread_kill_old) {
 		printf_log(LOG_INFO, "Warning, older then 2.34 pthread_kill not found, using current one\n");
 		real_phtread_kill_old = (iFli_t)pthread_kill;
