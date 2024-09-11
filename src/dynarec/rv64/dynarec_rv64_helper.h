@@ -1081,16 +1081,16 @@
 #define MODREG ((nextop & 0xC0) == 0xC0)
 
 #ifndef SET_ELEMENT_WIDTH
-#define SET_ELEMENT_WIDTH(s1, sew, set)                                 \
-    do {                                                                \
-        if (sew == VECTOR_SEWANY && dyn->vector_sew != VECTOR_SEWNA) {  \
-            dyn->vector_eew = dyn->vector_sew;                          \
-        } else if (sew == dyn->vector_sew) {                            \
-            dyn->vector_eew = dyn->vector_sew;                          \
-        } else {                                                        \
-            dyn->vector_eew = vector_vsetvl_emul1(dyn, ninst, s1, sew); \
-        }                                                               \
-        if (set) dyn->vector_sew = dyn->vector_eew;                     \
+#define SET_ELEMENT_WIDTH(s1, sew, set)                                    \
+    do {                                                                   \
+        if (sew == VECTOR_SEWANY && dyn->vector_sew != VECTOR_SEWNA) {     \
+            dyn->vector_eew = dyn->vector_sew;                             \
+        } else if (sew == dyn->vector_sew) {                               \
+            dyn->vector_eew = dyn->vector_sew;                             \
+        } else {                                                           \
+            dyn->vector_eew = vector_vsetvl_emul1(dyn, ninst, s1, sew, 1); \
+        }                                                                  \
+        if (set) dyn->vector_sew = dyn->vector_eew;                        \
     } while (0)
 #endif
 
@@ -1441,7 +1441,7 @@ void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val);
 void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup);
 
-int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew);
+int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int multiple);
 
 #if STEP < 2
 #define CHECK_CACHE() 0
