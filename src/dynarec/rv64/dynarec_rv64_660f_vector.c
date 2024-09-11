@@ -184,18 +184,18 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             // GX->q[0] = GX->q[0]; -> unchanged
             // GX->q[1] = EX->q[0];
             GETGX_vector(v0, 1, VECTOR_SEW64);
-            q0 = fpu_get_scratch(dyn);
-            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-            VMV_V_I(VMASK, 0b10);
             if (MODREG) {
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
                 if (v0 == v1) {
-                    // for vrgather.vv, cannot be overlapped
+                    // for vslideup.vi, cannot be overlapped
                     v1 = fpu_get_scratch(dyn);
                     VMV_V_V(v1, v0);
                 }
-                VRGATHER_VV(v0, q0, v1, VECTOR_MASKED);
+                VSLIDEUP_VI(v0, 1, v1, VECTOR_UNMASKED);
             } else {
+                q0 = fpu_get_scratch(dyn);
+                VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                VMV_V_I(VMASK, 0b10);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                 VLUXEI64_V(v0, ed, q0, VECTOR_MASKED, VECTOR_NFIELD1);
