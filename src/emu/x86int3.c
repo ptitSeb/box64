@@ -273,6 +273,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(strstr(s, "pthread_mutex_lock")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
+                } else if(strstr(s, "pthread_setname_np")==s) {
+                    post = 7;
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)),from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(strstr(s, "pthread_create")==s) {
                     post = 7;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %p, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+16)));
