@@ -42,7 +42,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     int q0, q1;
     int d0, d1;
     int s0, s1;
-    uint64_t tmp64u;
+    uint64_t tmp64u0, tmp64u1;
     int64_t j64;
     int64_t fixedaddress, gdoffset;
     int unscaled;
@@ -116,6 +116,23 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VLUXEI64_V(v0, ed, q0, VECTOR_MASKED, VECTOR_NFIELD1);
             }
             break;
+        case 0x28:
+            INST_NAME("MOVAPS Gx, Ex");
+            nextop = F8;
+            GETG;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, dyn->vector_eew);
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                VMV_V_V(v0, v1);
+            } else {
+                SMREAD();
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                VLE_V(v0, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            break;
         case 0x29:
             INST_NAME("MOVAPS Ex, Gx");
             nextop = F8;
@@ -130,6 +147,27 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VSE_V(v0, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 SMWRITE2();
             }
+            break;
+        case 0xC6:
+            INST_NAME("SHUFPS Gx, Ex, Ib");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW32);
+            GETEX_vector(v1, 0, 1, VECTOR_SEW32);
+            u8 = F8;
+            q0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            tmp64u0 = (((u8 >> 2) & 3) << 16) | (u8 & 3);
+            VECTOR_SPLAT_IMM(q0, tmp64u0, x4);
+            VRGATHEREI16_VV(d0, q0, v0, VECTOR_UNMASKED);
+            tmp64u1 = (((u8 >> 6) & 3) << 16) | ((u8 >> 4) & 3);
+            if (tmp64u1 != tmp64u0) {
+                VECTOR_SPLAT_IMM(q0, tmp64u1, x4);
+            }
+            VRGATHEREI16_VV(d1, q0, v1, VECTOR_UNMASKED);
+            VMV_V_V(v0, d0);
+            VSLIDEUP_VI(v0, 2, d1, VECTOR_UNMASKED);
             break;
         case 0x00 ... 0x0F:
         case 0x18:
