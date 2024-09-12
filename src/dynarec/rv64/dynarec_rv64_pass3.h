@@ -13,8 +13,6 @@
 
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST                                                                                                  \
-    if (reset_n != -1)                                                                                            \
-        dyn->vector_sew = ninst ? dyn->insts[ninst - 1].vector_sew : VECTOR_SEWNA;                                \
     if (box64_dynarec_dump) print_newinst(dyn, ninst);                                                            \
     if (ninst) {                                                                                                  \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \

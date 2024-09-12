@@ -2432,9 +2432,9 @@ static void sewTransform(dynarec_rv64_t* dyn, int ninst, int s1)
     int j64;
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if (jmp < 0) return;
-    if (dyn->insts[jmp].vector_sew == VECTOR_SEWNA) return;
-    MESSAGE(LOG_DUMP, "\tSEW changed to %d ---- ninst=%d -> %d\n", dyn->insts[jmp].vector_sew, ninst, jmp);
-    vector_vsetvl_emul1(dyn, ninst, s1, dyn->insts[jmp].vector_sew, 1);
+    if (dyn->insts[jmp].vector_sew_entry == VECTOR_SEWNA) return;
+    MESSAGE(LOG_DUMP, "\tSEW changed to %d ---- ninst=%d -> %d\n", dyn->insts[jmp].vector_sew_entry, ninst, jmp);
+    vector_vsetvl_emul1(dyn, ninst, s1, dyn->insts[jmp].vector_sew_entry, 1);
 }
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)
@@ -2528,10 +2528,10 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
     #if STEP > 1
     // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
     dyn->e = dyn->insts[ninst].e;
-    dyn->vector_sew = dyn->insts[ninst].vector_sew;
+    dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
     #else
     dyn->e = dyn->insts[reset_n].e;
-    dyn->vector_sew = dyn->insts[reset_n].vector_sew;
+    dyn->vector_sew = dyn->insts[reset_n].vector_sew_exit;
     #endif
     extcacheUnwind(&dyn->e);
     #if STEP == 0

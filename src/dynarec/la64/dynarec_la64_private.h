@@ -85,7 +85,7 @@ typedef struct instruction_la64_s {
     uint16_t            ymm0_in;    // bitmap of ymm to zero at purge
     uint16_t            ymm0_add;   // the ymm0 added by the opcode
     uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
-    uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
+    uint16_t            ymm0_out;   // the ymm0 at th end of the opcode
     uint16_t            ymm0_pass2, ymm0_pass3;
     uint8_t             barrier_maybe;
     uint8_t             will_write;

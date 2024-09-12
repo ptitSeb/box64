@@ -19,25 +19,24 @@
 #define JUMP(A, C)         add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); SMEND(); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C; dyn->insts[ninst].x64.jmp_insts = 0
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET()    dyn->insts[ninst].x64.has_callret = 1
-#define NEW_INST                                                                   \
-    ++dyn->size;                                                                   \
-    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));                   \
-    dyn->insts[ninst].x64.addr = ip;                                               \
-    dyn->e.combined1 = dyn->e.combined2 = 0;                                       \
-    dyn->e.swapped = 0;                                                            \
-    dyn->e.barrier = 0;                                                            \
-    for (int i = 0; i < 16; ++i)                                                   \
-        dyn->e.olds[i].v = 0;                                                      \
-    dyn->insts[ninst].f_entry = dyn->f;                                            \
-    if (reset_n == -1)                                                             \
-        dyn->vector_sew = ninst ? dyn->insts[ninst - 1].vector_sew : VECTOR_SEWNA; \
-    if (ninst)                                                                     \
+#define NEW_INST                                                 \
+    ++dyn->size;                                                 \
+    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t)); \
+    dyn->insts[ninst].x64.addr = ip;                             \
+    dyn->e.combined1 = dyn->e.combined2 = 0;                     \
+    dyn->e.swapped = 0;                                          \
+    dyn->e.barrier = 0;                                          \
+    for (int i = 0; i < 16; ++i)                                 \
+        dyn->e.olds[i].v = 0;                                    \
+    dyn->insts[ninst].f_entry = dyn->f;                          \
+    dyn->insts[ninst].vector_sew_entry = dyn->vector_sew;        \
+    if (ninst)                                                   \
         dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;
 
-#define INST_EPILOG                                 \
-    dyn->insts[ninst].f_exit = dyn->f;              \
-    dyn->insts[ninst].e = dyn->e;                   \
-    dyn->insts[ninst].vector_sew = dyn->vector_sew; \
+#define INST_EPILOG                                      \
+    dyn->insts[ninst].f_exit = dyn->f;                   \
+    dyn->insts[ninst].e = dyn->e;                        \
+    dyn->insts[ninst].vector_sew_exit = dyn->vector_sew; \
     dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0;
 #define INST_NAME(name)
 #define DEFAULT                         \
