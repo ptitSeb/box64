@@ -492,6 +492,29 @@ static void del_cond(void* cond)
 	}
 	mutex_unlock(&my_context->mutex_thread);
 }
+
+typedef struct pthread_cond_2_0_s {
+	ptr_t cond;	// pthread_cond_t*
+} pthread_cond_2_0_t;
+
+static pthread_cond_t* get_cond_old(pthread_cond_2_0_t* cond) {
+	if(!cond->cond) {
+		ptr_t newcond = to_ptrv(box_calloc(1, sizeof(pthread_cond_t)));
+		#ifdef DYNAREC
+		if(native_lock_storeifnull_d(&cond->cond, newcond))
+			box_free(from_ptrv(newcond));
+		#else
+		static pthread_mutex_t mutex_cond = PTHREAD_MUTEX_INITIALIZER;
+		pthread_mutex_lock(&mutex_cond);
+		if(!cond->cond)
+			cond->cond = newcond;
+		else
+			box_free(from_ptrv(newcond));
+		#endif
+	}
+	return from_ptrv(cond->cond);
+}
+
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m);
 
 EXPORT int my32_pthread_cond_broadcast(x64emu_t* emu, void* cond)
@@ -499,9 +522,9 @@ EXPORT int my32_pthread_cond_broadcast(x64emu_t* emu, void* cond)
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_broadcast(c);
 }
-EXPORT int my32_pthread_cond_broadcast_old(x64emu_t* emu, void* cond)
+EXPORT int my32_pthread_cond_broadcast_old(x64emu_t* emu, pthread_cond_2_0_t* cond)
 {
-	pthread_cond_t * c = get_cond(cond);
+	pthread_cond_t * c = get_cond_old(cond);
 	return pthread_cond_broadcast(c);
 }
 
@@ -512,11 +535,11 @@ EXPORT int my32_pthread_cond_destroy(x64emu_t* emu, void* cond)
 	if(c!=cond) del_cond(cond);
 	return ret;
 }
-EXPORT int my32_pthread_cond_destroy_old(x64emu_t* emu, void* cond)
+EXPORT int my32_pthread_cond_destroy_old(x64emu_t* emu, pthread_cond_2_0_t* cond)
 {
-	pthread_cond_t * c = get_cond(cond);
+	pthread_cond_t * c = get_cond_old(cond);
 	int ret = pthread_cond_destroy(c);
-	if(c!=cond) del_cond(cond);
+	box_free(from_ptrv(cond->cond));
 	return ret;
 }
 
@@ -525,9 +548,9 @@ EXPORT int my32_pthread_cond_init(x64emu_t* emu, void* cond, void* attr)
 	pthread_cond_t *c = add_cond(cond);
 	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
 }
-EXPORT int my32_pthread_cond_init_old(x64emu_t* emu, void* cond, void* attr)
+EXPORT int my32_pthread_cond_init_old(x64emu_t* emu, void* cond, pthread_cond_2_0_t* attr)
 {
-	pthread_cond_t *c = add_cond(cond);
+	pthread_cond_t *c = get_cond_old(cond);
 	return pthread_cond_init(c, (const pthread_condattr_t*)attr);
 }
 
@@ -536,20 +559,20 @@ EXPORT int my32_pthread_cond_signal(x64emu_t* emu, void* cond)
 	pthread_cond_t * c = get_cond(cond);
 	return pthread_cond_signal(c);
 }
-EXPORT int my32_pthread_cond_signal_old(x64emu_t* emu, void* cond)
+EXPORT int my32_pthread_cond_signal_old(x64emu_t* emu, pthread_cond_2_0_t* cond)
 {
-	pthread_cond_t * c = get_cond(cond);
+	pthread_cond_t * c = get_cond_old(cond);
 	return pthread_cond_signal(c);
 }
 
-EXPORT int my32_pthread_cond_timedwait_old(x64emu_t* emu, void* cond, void* mutex, void* abstime)
+EXPORT int my32_pthread_cond_timedwait_old(x64emu_t* emu, pthread_cond_2_0_t* cond, void* mutex, void* abstime)
 {
-	pthread_cond_t * c = get_cond(cond);
+	pthread_cond_t * c = get_cond_old(cond);
 	return pthread_cond_timedwait(c, getAlignedMutex((pthread_mutex_t*)mutex), (const struct timespec*)abstime);
 }
-EXPORT int my32_pthread_cond_wait_old(x64emu_t* emu, void* cond, void* mutex)
+EXPORT int my32_pthread_cond_wait_old(x64emu_t* emu, pthread_cond_2_0_t* cond, void* mutex)
 {
-	pthread_cond_t * c = get_cond(cond);
+	pthread_cond_t * c = get_cond_old(cond);
 	return pthread_cond_wait(c, getAlignedMutex((pthread_mutex_t*)mutex));
 }
 
