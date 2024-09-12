@@ -39,8 +39,11 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_barrierattr_destroy, iFp_t) \
 	GO(pthread_barrierattr_init, iFp_t) \
 	GO(pthread_cond_broadcast, iFp_t) \
+	GO(pthread_cond_broadcast@GLIBC_2.2.5, iFp_t) \
 	GO(pthread_cond_destroy, iFp_t) \
+	GO(pthread_cond_destroy@GLIBC_2.2.5, iFp_t) \
 	GO(pthread_cond_signal, iFp_t) \
+	GO(pthread_cond_signal@GLIBC_2.2.5, iFp_t) \
 	GO(pthread_condattr_destroy, iFp_t) \
 	GO(pthread_condattr_init, iFp_t) \
 	GO(pthread_getattr_default_np, iFp_t) \
@@ -78,13 +81,17 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_attr_getscope, iFpp_t) \
 	GO(pthread_attr_getstackaddr, iFpp_t) \
 	GO(pthread_attr_getstacksize, iFpp_t) \
+	GO(pthread_attr_setaffinity_np@GLIBC_2.3.3, iFpp_t) \
 	GO(pthread_attr_setschedparam, iFpp_t) \
 	GO(pthread_attr_setstackaddr, iFpp_t) \
 	GO(pthread_barrierattr_getpshared, iFpp_t) \
 	GO(pthread_cond_init, iFpp_t) \
+	GO(pthread_cond_init@GLIBC_2.2.5, iFpp_t) \
 	GO(pthread_cond_wait, iFpp_t) \
+	GO(pthread_cond_wait@GLIBC_2.2.5, iFpp_t) \
 	GO(pthread_condattr_getclock, iFpp_t) \
 	GO(pthread_condattr_getpshared, iFpp_t) \
+	GO(pthread_getaffinity_np@GLIBC_2.3.3, iFpp_t) \
 	GO(pthread_key_create, iFpp_t) \
 	GO(pthread_mutex_init, iFpp_t) \
 	GO(pthread_mutexattr_getkind_np, iFpp_t) \
@@ -92,6 +99,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_mutexattr_getrobust, iFpp_t) \
 	GO(pthread_mutexattr_gettype, iFpp_t) \
 	GO(pthread_once, iFpp_t) \
+	GO(pthread_setaffinity_np@GLIBC_2.3.3, iFpp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
 	GO(pthread_attr_setaffinity_np, iFpLp_t) \
@@ -103,6 +111,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_atfork, iFppp_t) \
 	GO(pthread_attr_getstack, iFppp_t) \
 	GO(pthread_cond_timedwait, iFppp_t) \
+	GO(pthread_cond_timedwait@GLIBC_2.2.5, iFppp_t) \
 	GO(pthread_cond_clockwait, iFppip_t) \
 	GO(pthread_create, iFpppp_t)
 
