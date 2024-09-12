@@ -1392,7 +1392,7 @@ GO(g_unicode_script_to_iso15924, uFi)
 //GO(g_unix_fd_add, 
 //GO(g_unix_fd_add_full, 
 GO(g_unix_fd_source_new, pFii)
-//GO(g_unix_open_pipe, 
+GO(g_unix_open_pipe, iFpip)
 //GO(g_unix_set_fd_nonblocking, 
 //GO(g_unix_signal_add, 
 //GO(g_unix_signal_add_full, 
