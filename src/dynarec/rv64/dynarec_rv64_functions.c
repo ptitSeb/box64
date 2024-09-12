@@ -379,11 +379,11 @@ int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst)
 {
     int i2 = dyn->insts[ninst].x64.jmp_insts;
 
-    if (dyn->insts[i2].vector_sew == VECTOR_SEWNA)
+    if (dyn->insts[i2].vector_sew_entry == VECTOR_SEWNA)
         return 0;
-    else if (dyn->insts[i2].vector_sew == VECTOR_SEWANY && dyn->insts[ninst].vector_sew != VECTOR_SEWNA)
+    else if (dyn->insts[i2].vector_sew_entry == VECTOR_SEWANY && dyn->insts[ninst].vector_sew_exit != VECTOR_SEWNA)
         return 0;
-    else if (dyn->insts[i2].vector_sew == dyn->insts[ninst].vector_sew)
+    else if (dyn->insts[i2].vector_sew_entry == dyn->insts[ninst].vector_sew_exit)
         return 0;
 
     return 1;
@@ -616,7 +616,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     };
     if(box64_dynarec_dump) {
         printf_x64_instruction(rex.is32bits?my_context->dec32:my_context->dec, &dyn->insts[ninst].x64, name);
-        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d/%d, sew=%d",
+        dynarec_log(LOG_NONE, "%s%p: %d emitted opcodes, inst=%d, barrier=%d state=%d/%d(%d), %s=%X/%X, use=%X, need=%X/%X, sm=%d/%d, sew@entry=%d, sew@exit=%d",
             (box64_dynarec_dump > 1) ? "\e[32m" : "",
             (void*)(dyn->native_start + dyn->insts[ninst].address),
             dyn->insts[ninst].size / 4,
@@ -631,7 +631,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dyn->insts[ninst].x64.use_flags,
             dyn->insts[ninst].x64.need_before,
             dyn->insts[ninst].x64.need_after,
-            dyn->smread, dyn->smwrite, dyn->insts[ninst].vector_sew);
+            dyn->smread, dyn->smwrite, dyn->insts[ninst].vector_sew_entry, dyn->insts[ninst].vector_sew_exit);
         if(dyn->insts[ninst].pred_sz) {
             dynarec_log(LOG_NONE, ", pred=");
             for(int ii=0; ii<dyn->insts[ninst].pred_sz; ++ii)
@@ -722,6 +722,7 @@ void fpu_reset(dynarec_rv64_t* dyn)
     mmx_reset(&dyn->e);
     sse_reset(&dyn->e);
     fpu_reset_reg(dyn);
+    dyn->vector_sew = VECTOR_SEWNA;
 }
 
 void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
@@ -730,6 +731,7 @@ void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
     mmx_reset(&dyn->insts[ninst].e);
     sse_reset(&dyn->insts[ninst].e);
     fpu_reset_reg_extcache(&dyn->insts[ninst].e);
+    dyn->vector_sew = VECTOR_SEWNA;
 }
 
 int fpu_is_st_freed(dynarec_rv64_t* dyn, int ninst, int st)

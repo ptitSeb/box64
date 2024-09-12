@@ -108,13 +108,14 @@ typedef struct instruction_rv64_s {
     uint16_t            ymm0_in;    // bitmap of ymm to zero at purge
     uint16_t            ymm0_add;   // the ymm0 added by the opcode
     uint16_t            ymm0_sub;   // the ymm0 removed by the opcode
-    uint16_t            ymm0_out;   // the ymmm0 at th end of the opcode
+    uint16_t            ymm0_out;   // the ymm0 at th end of the opcode
     uint16_t            ymm0_pass2, ymm0_pass3;
     int                 barrier_maybe;
     flagcache_t         f_exit;     // flags status at end of instruction
     extcache_t          e;          // extcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
-    uint8_t             vector_sew;
+    uint8_t             vector_sew_entry; // sew status before the instruction begin
+    uint8_t             vector_sew_exit;  // sew status at the end of instruction
 } instruction_rv64_t;
 
 typedef struct dynarec_rv64_s {
@@ -153,8 +154,8 @@ typedef struct dynarec_rv64_s {
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint8_t             always_test;
     uint8_t             abort;
-    uint8_t             vector_sew;
-    uint8_t             vector_eew; // effective element width
+    uint8_t             vector_sew; // current sew status
+    uint8_t             vector_eew; // current effective sew status, should only be used after SET_ELEMENT_WIDTH
 } dynarec_rv64_t;
 
 // v0 is hardware wired to vector mask register, which should be always reserved
