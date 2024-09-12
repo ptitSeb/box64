@@ -94,6 +94,7 @@ int my_pthread_cond_timedwait_old(x64emu_t* emu, pthread_cond_old_t* cond, void*
 int my_pthread_cond_wait_old(x64emu_t* emu, pthread_cond_old_t* cond, void* mutex);
 int my_pthread_getaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset);
 int my_pthread_setaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset);
+int my_pthread_attr_setaffinity_np_old(x64emu_t* emu, pthread_attr_t* attr, void* cpuset);
 
 
 extern int __pthread_mutexattr_destroy(pthread_mutexattr_t *attr);
