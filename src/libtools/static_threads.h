@@ -5,6 +5,7 @@ typedef struct x64_unwind_buff_s x64_unwind_buff_t;
 typedef union my_mutexattr_s my_mutexattr_t;
 typedef union my_barrierattr_s my_barrierattr_t;
 typedef union my_condattr_s my_condattr_t;
+typedef struct pthread_cond_old_s pthread_cond_old_t;
 int my_pthread_atfork(x64emu_t *emu, void* prepare, void* parent, void* child);
 int my_pthread_attr_destroy(x64emu_t* emu, void* attr);
 int my_pthread_attr_getstack(x64emu_t* emu, void* attr, void** stackaddr, size_t* stacksize);
@@ -85,6 +86,15 @@ void my__pthread_cleanup_push_defer(x64emu_t* emu, void* buffer, void* routine, 
 void my__pthread_cleanup_push(x64emu_t* emu, void* buffer, void* routine, void* arg);
 void my__pthread_cleanup_pop_restore(x64emu_t* emu, void* buffer, int exec);
 void my__pthread_cleanup_pop(x64emu_t* emu, void* buffer, int exec);
+int my_pthread_cond_broadcast_old(x64emu_t* emu, pthread_cond_old_t* cond);
+int my_pthread_cond_destroy_old(x64emu_t* emu, pthread_cond_old_t* cond);
+int my_pthread_cond_init_old(x64emu_t* emu, pthread_cond_old_t* cond, void* attr);
+int my_pthread_cond_signal_old(x64emu_t* emu, pthread_cond_old_t* cond);
+int my_pthread_cond_timedwait_old(x64emu_t* emu, pthread_cond_old_t* cond, void* mutex, void* abstime);
+int my_pthread_cond_wait_old(x64emu_t* emu, pthread_cond_old_t* cond, void* mutex);
+int my_pthread_getaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset);
+int my_my_pthread_setaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset);
+
 
 extern int __pthread_mutexattr_destroy(pthread_mutexattr_t *attr);
 extern int __pthread_mutexattr_init(pthread_mutexattr_t *attr);
