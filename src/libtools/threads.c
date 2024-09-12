@@ -799,7 +799,7 @@ EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpu
 
     return ret;
 }
-EXPORT int my_my_pthread_setaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset)
+EXPORT int my_pthread_setaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset)
 {
 	return my_pthread_setaffinity_np(emu, thread, 128, cpuset);
 }
