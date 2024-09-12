@@ -29,7 +29,7 @@
     for (int i = 0; i < 16; ++i)                                                   \
         dyn->e.olds[i].v = 0;                                                      \
     dyn->insts[ninst].f_entry = dyn->f;                                            \
-    if (reset_n != -1)                                                             \
+    if (reset_n == -1)                                                             \
         dyn->vector_sew = ninst ? dyn->insts[ninst - 1].vector_sew : VECTOR_SEWNA; \
     if (ninst)                                                                     \
         dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;
