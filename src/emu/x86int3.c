@@ -212,6 +212,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else  if(strstr(s, "strncasecmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %u)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
+                } else  if(strstr(s, "strtol")==s || strstr(s, "strtoul")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %p, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(int*)from_ptr(R_ESP+12));
+                    ret_fmt = 1;
                 } else  if(strstr(s, "memcmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %u)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
