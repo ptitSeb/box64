@@ -2434,7 +2434,7 @@ static void sewTransform(dynarec_rv64_t* dyn, int ninst, int s1)
     if (jmp < 0) return;
     if (dyn->insts[jmp].vector_sew_entry == VECTOR_SEWNA) return;
     MESSAGE(LOG_DUMP, "\tSEW changed to %d ---- ninst=%d -> %d\n", dyn->insts[jmp].vector_sew_entry, ninst, jmp);
-    vector_vsetvl_emul1(dyn, ninst, s1, dyn->insts[jmp].vector_sew_entry, 1);
+    vector_vsetvli(dyn, ninst, s1, dyn->insts[jmp].vector_sew_entry, VECTOR_LMUL1, 1);
 }
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)
@@ -2528,7 +2528,7 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
     #if STEP > 1
     // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
     dyn->e = dyn->insts[ninst].e;
-    dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
+    dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;
     #else
     dyn->e = dyn->insts[reset_n].e;
     dyn->vector_sew = dyn->insts[reset_n].vector_sew_exit;
@@ -2591,7 +2591,7 @@ void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
 }
 
 // Simple wrapper for vsetvli
-int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int multiple)
+int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, int multiple)
 {
     if (sew == VECTOR_SEWNA) return VECTOR_SEW8;
     if (sew == VECTOR_SEWANY) sew = VECTOR_SEW8;
@@ -2600,9 +2600,9 @@ int vector_vsetvl_emul1(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int mul
      * sew:  selected element width
      * lmul: vector register group multiplier
      *
-     *                    mu            tu          sew      lmul=1 */
-    uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | 0b000;
-    ADDI(s1, xZR, (16 >> sew) * multiple);
+     *                    mu            tu          sew      lmul */
+    uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | vlmul;
+    ADDI(s1, xZR, (16 >> sew) * multiple); // TODO: it's possible to reuse s1 sometimes
     VSETVLI(xZR, s1, vtypei);
     return sew;
 }

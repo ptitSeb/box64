@@ -172,6 +172,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x00 ... 0x0F:
         case 0x18:
         case 0x1F:
+        case 0x2C ... 0x2F:
         case 0x31:
         case 0x40 ... 0x4F:
         case 0x80 ... 0xBF:

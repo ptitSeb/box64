@@ -65,6 +65,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VLE_V(v0, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             break;
+        case 0x2E:
+        case 0x2F:
+            return 0;
         case 0x38: // SSSE3 opcodes
             nextop = F8;
             switch (nextop) {
@@ -85,7 +88,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 case 0x01 ... 0x07:
                     // pairwise opcodes are complicated, fallback to scalar.
                     return 0;
-                case 0x08 ... 0x0a:
+                case 0x08 ... 0x0A:
                     if (nextop == 0x08) {
                         INST_NAME("PSIGNB Gx, Ex");
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -120,6 +123,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VADC_VIM(v0, 0x1f, v0); // implies VECTOR_MASKREG
                     VAND_VV(q0, v1, v0, VECTOR_UNMASKED);
                     break;
+                case 0x0B:
+                    INST_NAME("PMULHRSW Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW16);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    fpu_get_scratch(dyn);
+                    VWMUL_VV(v0, q0, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
+                    VSRL_VI(v0, 14, v0, VECTOR_UNMASKED);
+                    VADD_VI(v0, 1, v0, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    VNSRL_WI(q0, 1, v0, VECTOR_UNMASKED);
+                    break;
                 default:
                     DEFAULT_VECTOR;
             }
@@ -150,8 +169,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
             if (rv64_vlen >= 256) {
-                vector_vsetvl_emul1(dyn, ninst, x1, VECTOR_SEW16, 2); // double the vl for slideup.
-                VSLIDEUP_VI(q0, 8, q1, VECTOR_UNMASKED);              // splice q0 and q1 here!
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
+                VSLIDEUP_VI(q0, 8, q1, VECTOR_UNMASKED);                       // splice q0 and q1 here!
                 VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
             } else {
                 VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
