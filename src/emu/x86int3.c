@@ -302,7 +302,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %d, %d, %u, %u, %u, %d, %u, %p, %u, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), *(uint32_t*)from_ptr(R_ESP+20), *(uint32_t*)from_ptr(R_ESP+24), *(uint32_t*)from_ptr(R_ESP+28), *(int32_t*)from_ptr(R_ESP+32), *(uint32_t*)from_ptr(R_ESP+36), *(void**)from_ptr(R_ESP+40), *(uint32_t*)from_ptr(R_ESP+44), *(void**)from_ptr(R_ESP+48));
                 } else if(strstr(s, "XLoadQueryFont")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
-                } else if(strstr(s, "pthread_mutex_lock")==s) {
+                } else if(strstr(s, "pthread_mutex_lock")==s || strstr(s, "pthread_mutex_unlock")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
                 } else if(strstr(s, "pthread_setname_np")==s) {
                     post = 7;
@@ -316,6 +316,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if(!strcmp(s, "fmod")) {
                     post = 4;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%f, %f)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, *(double*)from_ptr(R_ESP+4), *(double*)from_ptr(R_ESP+12));
+                } else if(strstr(s, "pthread_once")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p[%d], %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(int*)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(!strcmp(s, "posix_memalign")) {
                     post = 8;
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
