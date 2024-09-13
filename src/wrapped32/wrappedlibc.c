@@ -2427,6 +2427,7 @@ EXPORT void* my32_localeconv(x64emu_t* emu)
     static struct i386_lconv ret = {0};
     struct lconv* l = localeconv();
     ret.decimal_point = to_cstring(l->decimal_point);
+    ret.thousands_sep = to_cstring(l->thousands_sep);
     ret.grouping = to_cstring(l->grouping);
     ret.int_curr_symbol = to_cstring(l->int_curr_symbol);
     ret.currency_symbol = to_cstring(l->currency_symbol);
