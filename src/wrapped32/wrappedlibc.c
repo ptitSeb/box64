@@ -884,16 +884,16 @@ EXPORT int my32__vsscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attrib
 EXPORT int my32_sscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
 EXPORT int my32___isoc99_sscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
 
-EXPORT int my32_vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+EXPORT int my32_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) {
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
     int r = vsnprintf(buff, s, fmt, VARARGS_32);
     return r;
 }
-EXPORT int my32___vsnprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vsnprintf")));
-EXPORT int my32___vsnprintf_chk(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vsnprintf")));
-EXPORT int my32_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list V)
+EXPORT int my32___vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) __attribute__((alias("my32_vsnprintf")));
+EXPORT int my32___vsnprintf_chk(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) __attribute__((alias("my32_vsnprintf")));
+EXPORT int my32_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b)
 {
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
@@ -901,7 +901,7 @@ EXPORT int my32_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b, va_list
     int r = vasprintf(strp, fmt, VARARGS_32);
     return r;
 }
-EXPORT int my32___vasprintf_chk(x64emu_t* emu, void* strp, int flags, void* fmt, void* b, va_list V)
+EXPORT int my32___vasprintf_chk(x64emu_t* emu, void* strp, int flags, void* fmt, void* b)
 {
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
