@@ -114,17 +114,20 @@ EXPORT void* my32_gethostbyname(x64emu_t* emu, const char* a)
     int idx = 0;
     ret.h_aliases = h->h_aliases?s:0;
     if(h->h_aliases) {
-        char* p = *h->h_aliases;
-        while(p) {
-            strings[idx++] = to_cstring(p++);
+        char** p = h->h_aliases;
+        while(*p) {
+            strings[idx++] = to_cstring(*p);
+            ++p;
         }
         strings[idx++] = 0;
     }
     ret.h_addr_list = h->h_addr_list?to_ptrv(&strings[idx]):0;
     if(h->h_addr_list) {
-        void* p = *h->h_addr_list;
-        while(p)
-            strings[idx++] = to_ptrv(p++);
+        char** p = h->h_addr_list;
+        while(*p) {
+            strings[idx++] = to_ptrv(*p);
+            ++p;
+        }   
         strings[idx++] = 0;
     }
     // done
