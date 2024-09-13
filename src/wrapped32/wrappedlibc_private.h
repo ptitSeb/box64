@@ -1873,8 +1873,8 @@ GOWM(utimes, iFEpp)
 //GOW(utmpname, iFp)
 // utmpxname
 //GOW(valloc, pFu)
-GOM(vasprintf, iFEpppp) //%%
-GOM(__vasprintf_chk, iFEpippp) //%%
+GOM(vasprintf, iFEppp) //%%
+GOM(__vasprintf_chk, iFEpipp) //%%
 // vdprintf // Weak
 // __vdprintf_chk
 //GOM(verr, vFEpV) //%%
@@ -1896,14 +1896,14 @@ GOM(__vfprintf_chk, iFESvpp) //%%
 //GOM(vprintf, iFEpp)               //%%
 //GOM(__vprintf_chk, iFEvpp)        //%%
 // vscanf   // Weak
-GOWM(vsnprintf, iFEpLppp)         //%%
-//GOWM(__vsnprintf, iFEpuppp)       //%%
-GOM(__vsnprintf_chk, iFEpuvvppp)  //%%
+GOWM(vsnprintf, iFEpLpp)         //%%
+GOWM(__vsnprintf, iFEpLpp)       //%%
+GOM(__vsnprintf_chk, iFEpLvvpp)  //%%
 //GOWM(vsprintf, iFEppp)            //%%
 //GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 //GOM(vsscanf, iFEppp) //%%
 // __vsscanf    // Weak
-GOWM(vswprintf, iFEpuppp)         //%%
+GOWM(vswprintf, iFEpLppp)         //%%
 //GOWM(__vswprintf_chk, iFEpLiLppp) //%%
 GOM(vswscanf, iFEppp)
 //GO(vsyslog, vFipp)

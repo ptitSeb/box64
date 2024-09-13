@@ -234,7 +234,9 @@
 #() vFEpLLp -> vFEpLLp
 #() iFEiiip -> iFEiiip
 #() iFEipii -> iFEipii
+#() iFEpipp -> iFEpipp
 #() iFEpupV -> iFEpupV
+#() iFEpLpp -> iFEpLpp
 #() iFEpLpV -> iFEpLpV
 #() iFEppiV -> iFEppiV
 #() iFEpppi -> iFEpppi
@@ -252,8 +254,6 @@
 #() iFippprLL_ -> iFipppB
 #() LFLbp_bL_Bp_BL_ -> LFLBBBB
 #() LFpLpriiiiiiiiilt_a -> LFpLpBa
-#() iFEpippp -> iFEpippp
-#() iFEpuppp -> iFEpuppp
 #() iFEpLppp -> iFEpLppp
 #() lFipLipu -> lFipLipu
 #() lFipLipp -> lFipLipp
@@ -280,7 +280,7 @@
 #() iFESvpp -> iFESpp
 #() iFESvpV -> iFESpV
 #() iFEpvvpV -> iFEppV
-#() iFEpuvvppp -> iFEpuppp
+#() iFEpLvvpp -> iFEpLpp
 wrappedcrashhandler:
 wrappedldlinux:
 - pFv:
@@ -388,7 +388,9 @@ wrappedlibc:
 - iFiiip:
 - iFipii:
 - iFLLLL:
+- iFpipp:
 - iFpupV:
+- iFpLpp:
 - iFpLpV:
 - iFppiV:
 - iFpppp:
@@ -397,15 +399,13 @@ wrappedlibc:
 - iFSvpV:
 - LFppiv:
 - iFpvvpV:
-- iFpippp:
-- iFpuppp:
 - iFpLppp:
 - pFpLLiN:
+- iFpLvvpp:
 - iFpLiipV:
 - pFpLiiii:
 - pFpLiiiI:
 - iFpippppp:
-- iFpuvvppp:
 wrappedlibdl:
 - iFp:
   - dlclose
