@@ -80,10 +80,10 @@ GOW(asctime_r, pFriiiiiiiiilt_p)
 // __assert
 GO(__assert_fail, vFppip)
 //GO(__assert_perror_fail, vFipup)
-//GO(atof, dFp)
-//GO(atoi, iFp)
+GO(atof, dFp)
+GO(atoi, iFp)
 //GO(atol, lFp)
-//GO(atoll, IFp)
+GO(atoll, IFp)
 // authdes_create
 // authdes_getucred
 // authdes_pk_create

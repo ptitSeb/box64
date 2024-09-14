@@ -111,6 +111,7 @@ typedef int32_t (*iFh_t)(uintptr_t);
 typedef int32_t (*iFS_t)(void*);
 typedef int64_t (*IFf_t)(float);
 typedef int64_t (*IFd_t)(double);
+typedef int64_t (*IFp_t)(void*);
 typedef int64_t (*IFS_t)(void*);
 typedef uint8_t (*CFu_t)(uint32_t);
 typedef uint8_t (*CFU_t)(uint64_t);
@@ -128,6 +129,7 @@ typedef uint64_t (*UFs_t)(void*);
 typedef float (*fFf_t)(float);
 typedef double (*dFv_t)(void);
 typedef double (*dFd_t)(double);
+typedef double (*dFp_t)(void*);
 typedef intptr_t (*lFi_t)(int32_t);
 typedef intptr_t (*lFu_t)(uint32_t);
 typedef intptr_t (*lFp_t)(void*);
@@ -957,6 +959,7 @@ void iFh_32(x64emu_t *emu, uintptr_t fcn) { iFh_t fn = (iFh_t)fcn; R_EAX = fn(fr
 void iFS_32(x64emu_t *emu, uintptr_t fcn) { iFS_t fn = (iFS_t)fcn; R_EAX = fn(io_convert32(from_ptriv(R_ESP + 4))); }
 void IFf_32(x64emu_t *emu, uintptr_t fcn) { IFf_t fn = (IFf_t)fcn; ui64_t r; r.i = fn(from_ptri(float, R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void IFd_32(x64emu_t *emu, uintptr_t fcn) { IFd_t fn = (IFd_t)fcn; ui64_t r; r.i = fn(from_ptri(double, R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
+void IFp_32(x64emu_t *emu, uintptr_t fcn) { IFp_t fn = (IFp_t)fcn; ui64_t r; r.i = fn(from_ptriv(R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void IFS_32(x64emu_t *emu, uintptr_t fcn) { IFS_t fn = (IFS_t)fcn; ui64_t r; r.i = fn(io_convert32(from_ptriv(R_ESP + 4))); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void CFu_32(x64emu_t *emu, uintptr_t fcn) { CFu_t fn = (CFu_t)fcn; R_EAX = (unsigned char)fn(from_ptri(uint32_t, R_ESP + 4)); }
 void CFU_32(x64emu_t *emu, uintptr_t fcn) { CFU_t fn = (CFU_t)fcn; R_EAX = (unsigned char)fn(from_ptri(uint64_t, R_ESP + 4)); }
@@ -974,6 +977,7 @@ void UFs_32(x64emu_t *emu, uintptr_t fcn) { UFs_t fn = (UFs_t)fcn; ui64_t r; r.u
 void fFf_32(x64emu_t *emu, uintptr_t fcn) { fFf_t fn = (fFf_t)fcn; float fl = fn(from_ptri(float, R_ESP + 4)); fpu_do_push(emu); ST0val = fl; }
 void dFv_32(x64emu_t *emu, uintptr_t fcn) { dFv_t fn = (dFv_t)fcn; double db = fn(); fpu_do_push(emu); ST0val = db; }
 void dFd_32(x64emu_t *emu, uintptr_t fcn) { dFd_t fn = (dFd_t)fcn; double db = fn(from_ptri(double, R_ESP + 4)); fpu_do_push(emu); ST0val = db; }
+void dFp_32(x64emu_t *emu, uintptr_t fcn) { dFp_t fn = (dFp_t)fcn; double db = fn(from_ptriv(R_ESP + 4)); fpu_do_push(emu); ST0val = db; }
 void lFi_32(x64emu_t *emu, uintptr_t fcn) { lFi_t fn = (lFi_t)fcn; R_EAX = to_long(fn(from_ptri(int32_t, R_ESP + 4))); }
 void lFu_32(x64emu_t *emu, uintptr_t fcn) { lFu_t fn = (lFu_t)fcn; R_EAX = to_long(fn(from_ptri(uint32_t, R_ESP + 4))); }
 void lFp_32(x64emu_t *emu, uintptr_t fcn) { lFp_t fn = (lFp_t)fcn; R_EAX = to_long(fn(from_ptriv(R_ESP + 4))); }
@@ -1791,6 +1795,7 @@ int isRetX87Wrapper32(wrapper_t fun) {
 	if (fun == &fFf_32) return 1;
 	if (fun == &dFv_32) return 1;
 	if (fun == &dFd_32) return 1;
+	if (fun == &dFp_32) return 1;
 	if (fun == &fFif_32) return 1;
 	if (fun == &fFfi_32) return 1;
 	if (fun == &fFff_32) return 1;
