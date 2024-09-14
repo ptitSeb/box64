@@ -94,16 +94,16 @@ static Elf32_Sym* ElfLocateSymbol(elfheader_t* head, uintptr_t *offs, uintptr_t 
 
 static void GrabX32CopyMainElfReloc(elfheader_t* head)
 {
-    if(head->rela) {
-        int cnt = head->relasz / head->relaent;
-        Elf32_Rela* rela = (Elf32_Rela *)(head->rela + head->delta);
+    if(head->rel) {
+        int cnt = head->relsz / head->relent;
+        Elf32_Rel* rel = (Elf32_Rel *)(head->rel + head->delta);
         printf_dump(LOG_DEBUG, "Grabbing R_386_COPY Relocation(s) in advance for %s\n", head->name);
         for (int i=0; i<cnt; ++i) {
-            int t = ELF32_R_TYPE(rela[i].r_info);
+            int t = ELF32_R_TYPE(rel[i].r_info);
             if(t == R_386_COPY) {
-                Elf32_Sym *sym = &head->DynSym._32[ELF32_R_SYM(rela[i].r_info)];
+                Elf32_Sym *sym = &head->DynSym._32[ELF32_R_SYM(rel[i].r_info)];
                 const char* symname = SymName32(head, sym);
-                int version = head->VerSym?((Elf32_Half*)((uintptr_t)head->VerSym+head->delta))[ELF32_R_SYM(rela[i].r_info)]:-1;
+                int version = head->VerSym?((Elf32_Half*)((uintptr_t)head->VerSym+head->delta))[ELF32_R_SYM(rel[i].r_info)]:-1;
                 if(version!=-1) version &=0x7fff;
                 const char* vername = GetSymbolVersion(head, version);
                 Elf32_Half flags = GetSymbolVersionFlag(head, version);
@@ -358,9 +358,9 @@ static elfheader_t* FindElfSymbol(box64context_t *context, Elf32_Sym* sym)
 
 void GrabR386CopyMainElfReloc(elfheader_t* head)
 {
-    if(head->rela) {
-        int cnt = head->relasz / head->relaent;
-        Elf32_Rel* rel = (Elf32_Rel *)(head->rela + head->delta);
+    if(head->rel) {
+        int cnt = head->relsz / head->relent;
+        Elf32_Rel* rel = (Elf32_Rel *)(head->rel + head->delta);
         printf_dump(LOG_DEBUG, "Grabbing R_386_COPY Relocation(s) in advance for %s\n", head->name);
         for (int i=0; i<cnt; ++i) {
             int t = ELF32_R_TYPE(rel[i].r_info);
@@ -506,7 +506,7 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
                 if(!offs) {offs = globoffs; end = globend;}
                 if(offs) {
                     // add r_addend to p?
-                    printf_dump(LOG_NEVER, "Apply R_386_COPY @%p with sym=%s (%sver=%d/%s), @%p size=%ld\n", p, symname, veropt?"opt":"", version, vername?vername:"(none)", from_ptrv(offs), sym->st_size);
+                    printf_dump(LOG_NEVER, "Apply R_386_COPY @%p with sym=%s (%sver=%d/%s), @%p size=%d\n", p, symname, veropt?"opt":"", version, vername?vername:"(none)", from_ptrv(offs), sym->st_size);
                     if(p!=from_ptrv(offs))
                         memmove(p, from_ptrv(offs), sym->st_size);
                     sym_elf = FindElfAddress(my_context, offs);
@@ -518,8 +518,8 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
             case R_386_GLOB_DAT:
                 if(GetSymbolStartEnd(my_context->globdata, symname, &globoffs, &globend, version, vername, 1, veropt)) {
                     globp = (uint32_t*)globoffs;
-                    printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) size=%zd on sym=%s (%sver=%d/%s) \n", 
-                        BindSym(bind), p, globp, from_ptrv(p?(*p):0), 
+                    printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) size=%d on sym=%s (%sver=%d/%s) \n", 
+                        BindSymFriendly(bind), p, globp, from_ptrv(p?(*p):0), 
                         from_ptrv(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname, veropt?"opt":"", version, vername?vername:"(none)");
                     sym_elf = my_context->elfs[0];
                     *p = globoffs;
@@ -528,7 +528,7 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start") && strcmp(symname, "collector_func_load"))
                             printf_log((bind==STB_WEAK)?LOG_DEBUG:LOG_NONE, "%s: Global Symbol %s not found, cannot apply R_386_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, p, *(void**)p, head->name);
                     } else {
-                        printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT @%p (%p -> %p) on sym=%s (%sver=%d/%s, elf=%s)\n", BindSym(bind), p, from_ptrv(p?(*p):0), from_ptrv(offs), symname, veropt?"opt":"", version, vername?vername:"(none)", sym_elf?sym_elf->name:"(native)");
+                        printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT @%p (%p -> %p) on sym=%s (%sver=%d/%s, elf=%s)\n", BindSymFriendly(bind), p, from_ptrv(p?(*p):0), from_ptrv(offs), symname, veropt?"opt":"", version, vername?vername:"(none)", sym_elf?sym_elf->name:"(native)");
                         *p = offs;
                         if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                     }
@@ -567,6 +567,13 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
                 }
                 break;
             case R_386_32:
+                if(GetSymbolStartEnd(my_context->globdata, symname, &globoffs, &globend, version, vername, 1, veropt)) {
+                    if(offs!=globoffs) {
+                        offs = globoffs;
+                        sym_elf = my_context->elfs[0];
+                        elfsym = ElfDynSymLookup32(sym_elf, symname);
+                    }
+                }
                 if (!offs) {
                         if(strcmp(symname, "__gmon_start__") && strcmp(symname, "data_start") && strcmp(symname, "__data_start")) {
                             printf_log(LOG_NONE, "Error: Symbol sym=%s(%s%s%s/version %d) not found, cannot apply R_386_32 %p (%p) in %s\n", symname, symname, vername?"@":"", vername?vername:"", version, p, from_ptrv(*p), head->name);

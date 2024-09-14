@@ -409,3 +409,16 @@ const char* BindSym(int bind)
     sprintf(tmp, "??? 0x%x", bind);
     return tmp;
 }
+
+const char* BindSymFriendly(int bind)
+{
+    switch(bind) {
+        case STB_GLOBAL: return "Global";
+        case STB_WEAK: return "Weak";
+        case STB_LOCAL: return "Local";
+        case STB_GNU_UNIQUE: return "Unique";
+    }
+    static char tmp[50];
+    sprintf(tmp, "??? 0x%x", bind);
+    return tmp;
+}

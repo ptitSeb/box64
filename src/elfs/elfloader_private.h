@@ -206,6 +206,7 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec);
 elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec);
 
 const char* BindSym(int bind);
+const char* BindSymFriendly(int bind);
 
 uint16_t GetSymbolVersionFlag(elfheader_t* h, int index);
 

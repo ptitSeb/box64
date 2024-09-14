@@ -227,6 +227,7 @@ void AddUniqueSymbol(kh_mapsymbols_t *mapsymbols, const char* name, uintptr_t ad
     v->syms[idx].sym.offs = addr;
     v->syms[idx].sym.sz = sz;
     v->syms[idx].veropt = veropt;
+    printf_dump(LOG_DEBUG, " Adding unique %s (ver:%d/%s%s) with offert=%p sz=%d\n", name, ver, vername?vername:"(none)", veropt?" veropt":"", (void*)addr, sz);
 }
 
 int GetSymbolStartEnd(kh_mapsymbols_t* mapsymbols, const char* name, uintptr_t* start, uintptr_t* end, int ver, const char* vername, int local, int veropt)
