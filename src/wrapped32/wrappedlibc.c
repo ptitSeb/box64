@@ -728,10 +728,17 @@ EXPORT int my32_fprintf(x64emu_t *emu, void* F, void* fmt, void* V)  {
     return vfprintf(F, fmt, VARARGS_32);
 }
 EXPORT int my32___fprintf_chk(x64emu_t *emu, void* F, void* fmt, void* V) __attribute__((alias("my32_fprintf")));
+extern int box64_stdout_no_w;
 EXPORT int my32_wprintf(x64emu_t *emu, void* fmt, void* V) {
     // need to align on arm
     myStackAlignW32((const char*)fmt, V, emu->scratch);
     PREPARE_VALIST_32;
+    if(box64_stdout_no_w) {
+        wchar_t buff[2048];
+        int ret = vswprintf(buff, 2047, fmt, VARARGS_32);
+        printf("%S", buff);
+        return ret;
+    }
     return vwprintf(fmt, VARARGS_32);
 }
 #if 0

@@ -46,6 +46,7 @@ int box64_exit_code = 0;
 int box64_log = LOG_INFO; //LOG_NONE;
 int box64_dump = 0;
 int box64_nobanner = 0;
+int box64_stdout_no_w = 0;
 int box64_dynarec_log = LOG_NONE;
 uintptr_t box64_pagesize;
 uintptr_t box64_load_addr = 0;
@@ -252,8 +253,10 @@ void openFTrace(const char* newtrace)
                 ftrace_name = strdup(p);
                 /*fclose(ftrace);
                 ftrace = NULL;*/
-                if(!box64_nobanner)
+                if(!box64_nobanner) {
                     printf("BOX64 Trace %s to \"%s\"\n", append?"appended":"redirected", p);
+                    box64_stdout_no_w = 1;
+                }
                 PrintBox64Version();
             }
         }
@@ -611,6 +614,8 @@ void LoadLogEnv()
         if(!box64_nobanner)
             printf_log(LOG_INFO, "Debug level is %d\n", box64_log);
     }
+    if((box64_nobanner || box64_log) && ftrace==stdout)
+        box64_stdout_no_w = 1;
 
 #if !defined(DYNAREC) && (defined(ARM64) || defined(RV64) || defined(LA64))
     printf_log(LOG_INFO, "Warning: DynaRec is available on this host architecture, an interpreter-only build is probably not intended.\n");
