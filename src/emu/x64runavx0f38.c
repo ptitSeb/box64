@@ -62,6 +62,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         case 0xF2:  /* ANDN Gd, Vd, Ed */
             nextop = F8;
             if(vex.l) emit_signal(emu, SIGILL, (void*)R_RIP, 0);
+            ResetFlags(emu);
             GETGD;
             GETED(0);
             GETVD;
@@ -73,6 +74,12 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 else
                     GD->dword[0] = ED->dword[0] & ~VD->dword[0];
             }
+            CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]==0):(GD->dword[0]==0), F_ZF);
+            CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]>>63):(GD->dword[0]>>31), F_SF);
+            CLEAR_FLAG(F_CF);
+            CLEAR_FLAG(F_OF);
+            CLEAR_FLAG(F_AF);   // Undef
+            CLEAR_FLAG(F_PF);   // Undef
             break;
         case 0xF3:
             nextop = F8;

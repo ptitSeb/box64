@@ -68,7 +68,22 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             GETGD;
             GETED(0);
             GETVD;
-            BICxw(gd, ed, vd);
+            IFX(X_ZF)
+                BICSxw(gd, ed, vd);
+            else
+                BICxw(gd, ed, vd);
+            IFX(X_ZF) {
+                CSETw(x1, cEQ);
+                BFIw(xFlags, x1, F_ZF, 1);
+            }
+            IFX(X_OF)
+                BFCw(xFlags, F_OF, 1);
+            IFX(X_CF)
+                BFCw(xFlags, F_CF, 1);
+            IFX(X_SF) {
+                LSRxw_IMM(x1, gd, rex.w?63:31);
+                BFIw(xFlags, x1, F_SF, 1);
+            }
             break;
         case 0xF3:
             nextop = F8;
