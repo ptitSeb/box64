@@ -56,6 +56,27 @@ uintptr_t dynarec64_66F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
 
     switch(opcode) {
 
+        case 0xBD:
+            INST_NAME("LZCNT Gw, Ew");
+            SETFLAGS(X_CF|X_ZF, SF_SUBSET);
+            SET_DFNONE(x1);
+            nextop = F8;
+            GETEW(x1, 0);
+            GETGW(x2);
+            IFX(X_CF) {
+                TSTxw_REG(ed, ed);
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_CF, 1);  // CF = is source 0?
+            }
+            LSLw_IMM(ed, ed, 16);
+            CLZw(gd, ed);
+            IFX(X_ZF) {
+                TSTxw_REG(gd, gd);
+                CSETw(x3, cEQ);
+                BFIw(xFlags, x3, F_ZF, 1);  // ZF = is dest 0?
+            }
+            EWBACK;
+            break;
 
         default:
             DEFAULT;

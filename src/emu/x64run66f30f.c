@@ -56,6 +56,24 @@ uintptr_t Run66F30F(x64emu_t *emu, rex_t rex, uintptr_t addr)
 
     switch(opcode) {
 
+    case 0xBD:  /* LZCNT Ed,Gd */
+        CHECK_FLAGS(emu);
+        nextop = F8;
+        GETEW(0);
+        GETGW;
+        if(rex.w) {
+            tmp64u = ED->q[0];
+            tmp8u = (tmp64u)?__builtin_clzl(tmp64u):64;
+            CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
+            CONDITIONAL_SET_FLAG(tmp8u==64, F_CF);
+        } else {
+            tmp32u = EW->word[0];
+            tmp8u = (tmp32u)?__builtin_clz(tmp32u<<16):16;
+            CONDITIONAL_SET_FLAG(tmp8u==0, F_ZF);
+            CONDITIONAL_SET_FLAG(tmp8u==16, F_CF);
+        }
+        GD->q[0] = tmp8u;
+        break;
 
     default:
         return 0;
