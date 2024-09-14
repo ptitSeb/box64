@@ -400,6 +400,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/libtools/signal32.c"
         "${BOX64_ROOT}/src/libtools/threads32.c"
         "${BOX64_ROOT}/src/libtools/libc_net32.c"
+        "${BOX64_ROOT}/src/libtools/sdl1align32.c"
         "${BOX64_ROOT}/src/emu/x86syscall_32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/converter32.c"
@@ -782,6 +783,8 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibgl.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedsdl1.c"
     )
     endif()
     string(REPLACE ".c" "_private.h" MODROOT ${BOX64_ROOT})

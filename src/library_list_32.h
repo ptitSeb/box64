@@ -9,4 +9,8 @@ GO("libm.so.6", libm)
 GO("libdl.so.2", libdl)
 GO("ld-linux.so.2", ldlinux)
 
+GO("libGL.so", libgl)
+GO("libGL.so.1", libgl)
+GO("libSDL-1.2.so.0", sdl1)
+
 GO("crashhandler.so", crashhandler)

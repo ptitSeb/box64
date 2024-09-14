@@ -51,7 +51,7 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_mutex_trylock, iFp_t) \
 	GO(pthread_mutex_unlock, iFp_t) \
 	GO(pthread_mutexattr_init, iFp_t) \
-	GO(pthread_rwlock_rdlock, iFp_t) \
+	GO(pthread_rwlock_destroy, iFp_t) \
 	GO(pthread_rwlock_unlock, iFp_t) \
 	GO(pthread_rwlock_wrlock, iFp_t) \
 	GO(pthread_detach, iFh_t) \
