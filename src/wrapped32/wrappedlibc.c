@@ -728,19 +728,13 @@ EXPORT int my32_fprintf(x64emu_t *emu, void* F, void* fmt, void* V)  {
     return vfprintf(F, fmt, VARARGS_32);
 }
 EXPORT int my32___fprintf_chk(x64emu_t *emu, void* F, void* fmt, void* V) __attribute__((alias("my32_fprintf")));
-#if 0
 EXPORT int my32_wprintf(x64emu_t *emu, void* fmt, void* V) {
-    #ifndef NOALIGN
     // need to align on arm
-    myStackAlignW((const char*)fmt, V, emu->scratch);
+    myStackAlignW32((const char*)fmt, V, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vwprintf;
-    return ((iFpp_t)f)(fmt, VARARGS_32);
-    #else
-    // other platform don't need that
-    return vwprintf((const wchar_t*)fmt, (va_list)V);
-    #endif
+    return vwprintf(fmt, VARARGS_32);
 }
+#if 0
 EXPORT int my32___wprintf_chk(x64emu_t *emu, int flag, void* fmt, void* V) {
     #ifndef NOALIGN
     // need to align on arm
@@ -923,14 +917,14 @@ EXPORT int my32___asprintf_chk(x64emu_t* emu, void* result_ptr, int flags, void*
     #endif
 }
 #endif
-EXPORT int my32_vswprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) {
+EXPORT int my32_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint32_t * b) {
     // need to align on arm
-    myStackAlignW32((const char*)fmt, (uint32_t*)b, emu->scratch);
+    myStackAlignW32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
     int r = vswprintf(buff, s, fmt, VARARGS_32);
     return r;
 }
-EXPORT int my32___vswprintf(x64emu_t* emu, void* buff, uint32_t s, void * fmt, void * b, va_list V) __attribute__((alias("my32_vswprintf")));
+EXPORT int my32___vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint32_t* b) __attribute__((alias("my32_vswprintf")));
 #if 0
 EXPORT int my32___vswprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t m, void * fmt, void * b, va_list V) {
     #ifndef NOALIGN
@@ -2073,6 +2067,15 @@ EXPORT void* my32_gmtime_r(x64emu_t* emu, void* t, void* res)
     return NULL;
 }
 
+EXPORT void* my32_asctime(void* t)
+{
+    static char ret[200];
+    char* r = asctime(t);
+    if(!r) return NULL;
+    strncpy(ret, r, sizeof(ret)-1);
+    return &ret;
+}
+
 #if 0
 EXPORT int32_t my32_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {
@@ -2915,6 +2918,29 @@ EXPORT long my32_strtol(const char* s, char** endp, int base)
 EXPORT unsigned long my32_strtoul(const char* s, char** endp, int base)
 {
     unsigned long ret = strtoul(s, endp, base);
+    if(ret>UINT_MAX) {
+        ret = UINT_MAX;
+        errno = ERANGE;
+    }
+    return ret;
+}
+
+EXPORT long my32_wcstol(const wchar_t* s, wchar_t** endp, int base)
+{
+    long ret = wcstol(s, endp, base);
+    if (ret<INT_MIN) {
+        ret = INT_MIN;
+        errno = ERANGE;
+    } else if(ret>INT_MAX) {
+        ret = INT_MAX;
+        errno = ERANGE;
+    }
+    return ret;
+}
+
+EXPORT unsigned long my32_wcstoul(const wchar_t* s, wchar_t** endp, int base)
+{
+    unsigned long ret = wcstoul(s, endp, base);
     if(ret>UINT_MAX) {
         ret = UINT_MAX;
         errno = ERANGE;

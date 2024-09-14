@@ -194,14 +194,18 @@ EXPORT int my32_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
     return ret;
 }
 
-//EXPORT void *my32_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
-//{
-//    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
-//    void* r = my->SDL_LoadBMP_RW(rw, b);
-//    if(b==0)
-//        RWNativeEnd(rw);
-//    return r;
-//}
+EXPORT void *my32_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
+{
+    inplace_SDL_RWops_to_64(a);
+    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
+    void* r = my->SDL_LoadBMP_RW(rw, b);
+    if(b==0) {
+        RWNativeEnd(rw);
+        inplace_SDL_RWops_to_32(a);
+    }
+    inplace_SDL_Surface_to_32(r);
+    return r;
+}
 //EXPORT int32_t my32_SDL_SaveBMP_RW(x64emu_t* emu, void* a, void* b, int c)
 //{
 //    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -316,19 +320,64 @@ EXPORT int my32_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
 //    RWSetType(r, 2);
 //    return AddNativeRW(emu, r);
 //}
-//EXPORT void *my32_SDL_RWFromFile(x64emu_t* emu, void* a, void* b)
-//{
-//    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromFile(a, b);
-//    RWSetType(r, 2);
-//    return AddNativeRW(emu, r);
-//}
+EXPORT void *my32_SDL_RWFromFile(x64emu_t* emu, void* a, void* b)
+{
+    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromFile(a, b);
+    RWSetType(r, 2);
+    void* ret = AddNativeRW(emu, r);
+    inplace_SDL_RWops_to_32(ret);
+    return ret;
+}
 //EXPORT void *my32_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
 //{
 //    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromMem(a, b);
 //    RWSetType(r, 4);
 //    return AddNativeRW(emu, r);
 //}
-//
+
+EXPORT void my32_SDL_WM_SetIcon(void* s, void* mask)
+{
+    inplace_SDL_Surface_to_64(s);
+    my->SDL_WM_SetIcon(s, mask);
+    inplace_SDL_Surface_to_32(s);
+}
+
+EXPORT void my32_SDL_GetRGB(uint32_t pixel, void* format, void* r, void* g, void* b)
+{
+    inplace_SDL_PixelFormat_to_64(format);
+    my->SDL_GetRGB(pixel, format, r, g, b);
+    inplace_SDL_PixelFormat_to_32(format);
+}
+
+EXPORT void* my32_SDL_GetVideoInfo()
+{
+    static my_SDL_Palette_t vm_palette;
+    static my_SDL_PixelFormat_t vm_format;
+    static my_SDL_VideoInfo_32_t vm = {0};
+    my_SDL_VideoInfo_t* r = my->SDL_GetVideoInfo();
+    if(!r) return NULL;
+    vm.hw_available = r->hw_available;
+    vm.wm_available = r->wm_available;
+    vm.blit_hw = r->blit_hw;
+    vm.blit_hw_CC = r->blit_hw_CC;
+    vm.blit_hw_A = r->blit_hw_A;
+    vm.blit_sw = r->blit_sw;
+    vm.blit_sw_CC = r->blit_sw_CC;
+    vm.blit_sw_A = r->blit_sw_A;
+    vm.blit_fill = r->blit_fill;
+    vm.video_mem = r->video_mem;
+    if(r->vfmt) {
+        vm.vfmt = to_ptrv(&vm_format);
+        memcpy(&vm_format, r->vfmt, sizeof(vm_format));
+        if(r->vfmt->palette) {
+            vm_format.palette = &vm_palette;
+            memcpy(&vm_palette, r->vfmt->palette, sizeof(vm_palette));
+        }
+    } else vm.vfmt = 0;
+    inplace_SDL_PixelFormat_to_32(&vm);
+    return &vm;
+}
+
 //EXPORT void *my32_SDL_AddTimer(x64emu_t* emu, uint32_t a, void* cb, void* p)
 //{
 //    return my->SDL_AddTimer(a, find_TimerCallback_Fct(cb), p);
@@ -436,7 +485,7 @@ static void* wrapSurface(void* s)
 static void* unwrapSurface(void* s)
 {
     if(!s) return s;
-    if(s==&sdl_vm_surface) {
+    if(s==&sdl_vm_surface || s==sdl1_videomode_org) {
         my_SDL_Surface_32_t* dst = s;
         // refressh surface...
         dst->h = sdl1_videomode_org->h;
@@ -501,6 +550,12 @@ EXPORT int my32_SDL_Flip(void* s)
     int ret = my->SDL_Flip(wrapSurface(s));
     unwrapSurface(s);
     return ret;
+}
+
+EXPORT void* my32_SDL_GetVideoSurface()
+{
+    void* ret = my->SDL_GetVideoSurface();
+    return unwrapSurface(ret);
 }
 
 EXPORT int my32_SDL_PollEvent(my_SDL_Event_32_t* evt)

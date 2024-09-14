@@ -26,6 +26,7 @@
 #() IFd -> IFd
 #() IFp -> IFp
 #() IFS -> IFS
+#() CFv -> CFv
 #() CFu -> CFu
 #() CFU -> CFU
 #() CFl -> CFl
@@ -62,6 +63,7 @@
 #() LFrL_ -> LFB
 #() pFrL_ -> pFB
 #() LFriiiiiiiiilt_ -> LFB
+#() pFriiiiiiiiilt_ -> pFB
 #() vFEv -> vFEv
 #() vFEp -> vFEp
 #() vFcc -> vFcc
@@ -94,6 +96,7 @@
 #() vFlu -> vFlu
 #() vFlp -> vFlp
 #() vFpp -> vFpp
+#() vFSp -> vFSp
 #() wFpi -> wFpi
 #() iFEv -> iFEv
 #() iFEi -> iFEi
@@ -122,6 +125,7 @@
 #() iFhh -> iFhh
 #() IFII -> IFII
 #() CFip -> CFip
+#() CFCi -> CFCi
 #() CFuu -> CFuu
 #() CFuU -> CFuU
 #() CFpi -> CFpi
@@ -146,6 +150,7 @@
 #() dFdd -> dFdd
 #() dFdD -> dFdD
 #() dFdp -> dFdp
+#() dFLL -> dFLL
 #() lFui -> lFui
 #() LFpL -> LFpL
 #() LFpp -> LFpp
@@ -423,6 +428,7 @@
 #() iFEhup -> iFEhup
 #() iFESpp -> iFESpp
 #() iFESpV -> iFESpV
+#() iFiiiu -> iFiiiu
 #() iFiiip -> iFiiip
 #() iFiiiN -> iFiiiN
 #() iFiill -> iFiill
@@ -549,6 +555,7 @@
 #() vFupupp -> vFupupp
 #() vFuplii -> vFuplii
 #() vFuppip -> vFuppip
+#() vFupppp -> vFupppp
 #() vFfffff -> vFfffff
 #() vFluipp -> vFluipp
 #() vFpilpp -> vFpilpp
@@ -654,7 +661,6 @@
 #() vFdddddd -> vFdddddd
 #() vFppiiii -> vFppiiii
 #() vFppupii -> vFppupii
-#() iFEpLppp -> iFEpLppp
 #() iFpiiipp -> iFpiiipp
 #() iFpiippp -> iFpiippp
 #() iFppiiii -> iFppiiii
@@ -924,6 +930,9 @@ wrappedlibc:
 - iFiiN:
 - iFipp:
 - iFpLi:
+- iFppi:
+  - wcstol
+  - wcstoul
 - iFppL:
 - iFppp:
   - vswscanf
@@ -963,13 +972,14 @@ wrappedlibc:
 - iFSvpV:
 - LFppiv:
 - iFpvvpV:
-- iFpLppp:
 - pFpLLiN:
 - iFpLvvpp:
 - iFpLiipV:
 - pFpLiiii:
 - pFpLiiiI:
 - iFpippppp:
+- pFiiiiiiiiilt:
+  - asctime
 wrappedlibdl:
 - iFp:
   - dlclose
@@ -1192,13 +1202,23 @@ wrappedsdl1:
   - SDL_Flip
   - SDL_LockSurface
   - SDL_PollEvent
+- pFv:
+  - SDL_GetVideoInfo
+  - SDL_GetVideoSurface
 - pFp:
   - SDL_GL_GetProcAddress
   - SDL_LoadObject
+- vFpp:
+  - SDL_WM_SetIcon
 - iFpp:
   - SDL_OpenAudio
+- pFpi:
+  - SDL_LoadBMP_RW
 - pFpp:
   - SDL_CreateThread
   - SDL_LoadFunction
+  - SDL_RWFromFile
 - pFiiiu:
   - SDL_SetVideoMode
+- vFupppp:
+  - SDL_GetRGB

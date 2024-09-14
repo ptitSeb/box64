@@ -72,7 +72,7 @@ GOM(alphasort64, iFEpp)
 // argz_replace // Weak
 // __argz_stringify
 //GOW(argz_stringify, vFpLi)
-//GO(asctime, pFp)
+GOM(asctime, pFriiiiiiiiilt_)   //%noE
 GOW(asctime_r, pFriiiiiiiiilt_p)
 //GOWM(asprintf, iFEppV)        //%%
 //GOM(__asprintf, iFEppV)      //%%
@@ -203,7 +203,7 @@ DATAV(daylight, 4)
 // des_setparity
 GOW(dgettext, pFpp)
 GO(__dgettext, pFpp)
-//GO(difftime, dFuu)
+GO(difftime, dFLL)
 //GO(dirfd, iFp)
 //GO(dirname, pFp)
 GOS(div, pFpii) //%%,noE
@@ -507,8 +507,8 @@ GOM(getifaddrs, iFEbp_)
 // get_kernel_syms  // Weak
 //GOW(getline, iFppp)
 //GO(getloadavg, iFpi)
-//GO(getlogin, pFv)
-//GO(getlogin_r, iFpu)
+GO(getlogin, pFv)
+GO(getlogin_r, iFpu)
 // __getlogin_r_chk
 GOM(getmntent, pFES)
 // __getmntent_r
@@ -1468,7 +1468,7 @@ GOWM(sendmsg, lFEipi)
 //GOM(__sendmmsg, iFEipuu)    //%% actual __sendmmsg is glibc 2.14+. The syscall is Linux 3.0+, so use syscall...
 GOW(sendto, lFipLipu)
 // setaliasent
-//GOW(setbuf, vFpp)
+GOW(setbuf, vFSp)
 //GOW(setbuffer, vFppL)
 GOM(setcontext, iFEp) //%%
 // setdomainname
@@ -1903,7 +1903,8 @@ GOM(__vsnprintf_chk, iFEpLvvpp)  //%%
 //GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 //GOM(vsscanf, iFEppp) //%%
 // __vsscanf    // Weak
-GOWM(vswprintf, iFEpLppp)         //%%
+GOWM(vswprintf, iFEpLpp)         //%%
+GOWM(__vswprintf, iFEpLpp)         //%%
 //GOWM(__vswprintf_chk, iFEpLiLppp) //%%
 GOM(vswscanf, iFEppp)
 //GO(vsyslog, vFipp)
@@ -1975,7 +1976,7 @@ GO(wcsstr, pFpp)
 // wcstof_l // Weak
 // wcstoimax
 //GO(wcstok, pFppp)
-GO(wcstol, iFpBp_i)
+GOM(wcstol, iFpBp_i)    //%noE
 //GO(wcstold, DFpp)
 // __wcstold_internal
 // __wcstold_l
@@ -1990,7 +1991,7 @@ GO(wcstoll, IFpBp_i)
 GO(wcstombs, LFppL)
 // __wcstombs_chk
 // wcstoq   // Weak
-//GO(wcstoul, iFppi)
+GOM(wcstoul, iFpBp_i)    //%noE
 //GO(__wcstoul_internal, LFppii)
 GO(wcstoull, UFpBp_i)
 // __wcstoul_l
@@ -2028,7 +2029,7 @@ GO(wmemset, pFpuL)
 //GO(wordexp, iFppi)
 //GO(wordfree, vFp)
 // __woverflow
-//GOM(wprintf, iFEpV) //%%
+GOM(wprintf, iFEpV) //%%
 //GOM(__wprintf_chk, iFEipV) //%%
 GOW(write, lFipL)
 //GOW(__write, lFipL)

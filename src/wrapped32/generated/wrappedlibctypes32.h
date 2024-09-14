@@ -52,6 +52,7 @@ typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpLi_t)(void*, uintptr_t, int32_t);
+typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
@@ -81,13 +82,13 @@ typedef int32_t (*iFSvpp_t)(void*, void, void*, void*);
 typedef int32_t (*iFSvpV_t)(void*, void, void*, ...);
 typedef uintptr_t (*LFppiv_t)(void*, void*, int32_t, void);
 typedef int32_t (*iFpvvpV_t)(void*, void, void, void*, ...);
-typedef int32_t (*iFpLppp_t)(void*, uintptr_t, void*, void*, void*);
 typedef void* (*pFpLLiN_t)(void*, uintptr_t, uintptr_t, int32_t, ...);
 typedef int32_t (*iFpLvvpp_t)(void*, uintptr_t, void, void, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef void* (*pFpLiiii_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int32_t);
 typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
+typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, intptr_t, char*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(freeaddrinfo, vFp_t) \
@@ -121,6 +122,8 @@ typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*
 	GO(gmtime_r, pFpp_t) \
 	GO(localtime_r, pFpp_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
+	GO(wcstol, iFppi_t) \
+	GO(wcstoul, iFppi_t) \
 	GO(vswscanf, iFppp_t) \
 	GO(swscanf, iFppV_t) \
 	GO(fscanf, iFSpV_t) \
@@ -130,6 +133,7 @@ typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*
 	GO(sendmsg, lFipi_t) \
 	GO(__realpath_chk, pFppv_t) \
 	GO(__libc_init, vFpppp_t) \
-	GO(getaddrinfo, iFpppp_t)
+	GO(getaddrinfo, iFpppp_t) \
+	GO(asctime, pFiiiiiiiiilt_t)
 
 #endif // __wrappedlibcTYPES32_H_

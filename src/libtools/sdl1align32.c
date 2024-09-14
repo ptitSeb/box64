@@ -163,3 +163,29 @@ void convert_SDL_Event_to_32(void* dst_, const void* src_)
             memcpy(dst, src, sizeof(my_SDL_Event_32_t));
     }
 }
+
+void inplace_SDL_RWops_to_64(void* a)
+{
+    if(!a) return;
+    my_SDL_RWops_32_t* src = a;
+    my_SDL_RWops_t* dst = a;
+    memmove(&dst->hidden, &src->hidden, sizeof(dst->hidden));
+    dst->type = src->type;
+    dst->close = from_ptrv(src->close);
+    dst->write = from_ptrv(src->write);
+    dst->read = from_ptrv(src->read);
+    dst->seek = from_ptrv(src->seek);
+
+}
+void inplace_SDL_RWops_to_32(void* a)
+{
+    if(!a) return;
+    my_SDL_RWops_t* src = a;
+    my_SDL_RWops_32_t* dst = a;
+    dst->seek = to_ptrv(src->seek);
+    dst->read = to_ptrv(src->read);
+    dst->write = to_ptrv(src->write);
+    dst->close = to_ptrv(src->close);
+    dst->type = src->type;
+    memmove(&dst->hidden, &src->hidden, sizeof(dst->hidden));
+}

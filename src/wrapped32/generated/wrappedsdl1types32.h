@@ -15,10 +15,14 @@ typedef void (*vFv_t)(void);
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFp_t)(void*);
+typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
+typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFiiiu_t)(int32_t, int32_t, int32_t, uint32_t);
+typedef void (*vFupppp_t)(uint32_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_Quit, vFv_t) \
@@ -35,11 +39,17 @@ typedef void* (*pFiiiu_t)(int32_t, int32_t, int32_t, uint32_t);
 	GO(SDL_Flip, iFp_t) \
 	GO(SDL_LockSurface, iFp_t) \
 	GO(SDL_PollEvent, iFp_t) \
+	GO(SDL_GetVideoInfo, pFv_t) \
+	GO(SDL_GetVideoSurface, pFv_t) \
 	GO(SDL_GL_GetProcAddress, pFp_t) \
 	GO(SDL_LoadObject, pFp_t) \
+	GO(SDL_WM_SetIcon, vFpp_t) \
 	GO(SDL_OpenAudio, iFpp_t) \
+	GO(SDL_LoadBMP_RW, pFpi_t) \
 	GO(SDL_CreateThread, pFpp_t) \
 	GO(SDL_LoadFunction, pFpp_t) \
-	GO(SDL_SetVideoMode, pFiiiu_t)
+	GO(SDL_RWFromFile, pFpp_t) \
+	GO(SDL_SetVideoMode, pFiiiu_t) \
+	GO(SDL_GetRGB, vFupppp_t)
 
 #endif // __wrappedsdl1TYPES32_H_

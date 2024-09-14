@@ -495,4 +495,54 @@ typedef union my_SDL_Event_32_s
 
 void convert_SDL_Event_to_32(void* dst, const void* src);
 
+// simplified RWops
+typedef struct my_SDL_RWops_s {
+    void*  seek;    //sdl1_seek
+    void*  read;    //sdl1_read
+    void* write;    //sdl1_write
+    void* close;    //sdl1_close
+    uint32_t type;
+    void* hidden[3]; // not converting hidden, just moving it
+} my_SDL_RWops_t;
+
+typedef struct my_SDL_RWops_32_s {
+    ptr_t  seek;    //sdl1_seek
+    ptr_t  read;    //sdl1_read
+    ptr_t write;    //sdl1_write
+    ptr_t close;    //sdl1_close
+    uint32_t type;
+    void* hidden[3]; // not converting hidden, just moving it
+} my_SDL_RWops_32_t;
+
+void inplace_SDL_RWops_to_64(void* a);
+void inplace_SDL_RWops_to_32(void* a);
+
+typedef struct my_SDL_VideoInfo_s {
+  uint32_t hw_available:1;
+  uint32_t wm_available:1;
+  uint32_t blit_hw:1;
+  uint32_t blit_hw_CC:1;
+  uint32_t blit_hw_A:1;
+  uint32_t blit_sw:1;
+  uint32_t blit_sw_CC:1;
+  uint32_t blit_sw_A:1;
+  uint32_t blit_fill;
+  uint32_t video_mem;
+  my_SDL_PixelFormat_t *vfmt;
+} my_SDL_VideoInfo_t;
+
+typedef struct my_SDL_VideoInfo_32_s {
+  uint32_t hw_available:1;
+  uint32_t wm_available:1;
+  uint32_t blit_hw:1;
+  uint32_t blit_hw_CC:1;
+  uint32_t blit_hw_A:1;
+  uint32_t blit_sw:1;
+  uint32_t blit_sw_CC:1;
+  uint32_t blit_sw_A:1;
+  uint32_t blit_fill;
+  uint32_t video_mem;
+  ptr_t vfmt;   // my_SDL_PixelFormat_t *
+} my_SDL_VideoInfo_32_t;
+
 #endif//__MY_SDL1ALIGN32_H_
