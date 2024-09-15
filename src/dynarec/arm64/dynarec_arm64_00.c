@@ -2438,6 +2438,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
                 GETIP(ip);  // priviledged instruction, IP not updated
                 STORE_XEMU_CALL(xRIP);
+                MOV32w(x1,u8);
                 CALL(native_int, -1);
                 LOAD_XEMU_CALL(xRIP);
                 jump_to_epilog(dyn, 0, xRIP, ninst);
