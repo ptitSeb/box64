@@ -201,6 +201,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else  if(strstr(s, "strcasecmp")==s || strstr(s, "__strcasecmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                     ret_fmt = 1;
+                } else  if(strstr(s, "wcsncasecmp")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%S\", \"%S\", %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(int*)from_ptr(R_ESP+12));
+                    ret_fmt = 1;
                 } else  if(strstr(s, "gtk_signal_connect_full")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\", %p, %p, %p, %p, %d, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), "gtk_signal_connect_full", from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)), *(void**)from_ptr(R_ESP+16), *(void**)from_ptr(R_ESP+20), *(void**)from_ptr(R_ESP+24), *(int32_t*)from_ptr(R_ESP+28), *(int32_t*)from_ptr(R_ESP+32));
                 } else  if(strstr(s, "strcmp")==s || strstr(s, "__strcmp")==s) {
@@ -322,9 +325,13 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     post = 8;
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, 0x%x)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
+                } else  if(strstr(s, "SDL_GL_LoadLibrary")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
                 } else if(strstr(s, "SDL_GetWindowSurface")==s) {
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
+                } else  if(strstr(s, "___tls_get_addr")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p[%d, %d])", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(R_EAX), ((int*)from_ptrv(R_EAX))[0], ((int*)from_ptrv(R_EAX))[1]);
                 } else if(strstr(s, "udev_monitor_new_from_netlink")==s) {
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
