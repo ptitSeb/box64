@@ -146,6 +146,7 @@ typedef void* (*pFp_t)(void*);
 typedef uintptr_t (*hFv_t)(void);
 typedef void* (*aFa_t)(void*);
 typedef char* (*tFi_t)(int32_t);
+typedef char* (*tFu_t)(uint32_t);
 typedef char* (*tFp_t)(void*);
 typedef uintptr_t (*LFrL__t)(struct_L_t*);
 typedef void* (*pFrL__t)(struct_L_t*);
@@ -1000,6 +1001,7 @@ void pFp_32(x64emu_t *emu, uintptr_t fcn) { pFp_t fn = (pFp_t)fcn; R_EAX = to_pt
 void hFv_32(x64emu_t *emu, uintptr_t fcn) { hFv_t fn = (hFv_t)fcn; R_EAX = to_hash(fn()); }
 void aFa_32(x64emu_t *emu, uintptr_t fcn) { aFa_t fn = (aFa_t)fcn; R_EAX = to_locale(fn(from_locale(from_ptri(ptr_t, R_ESP + 4)))); }
 void tFi_32(x64emu_t *emu, uintptr_t fcn) { tFi_t fn = (tFi_t)fcn; R_EAX = to_cstring(fn(from_ptri(int32_t, R_ESP + 4))); }
+void tFu_32(x64emu_t *emu, uintptr_t fcn) { tFu_t fn = (tFu_t)fcn; R_EAX = to_cstring(fn(from_ptri(uint32_t, R_ESP + 4))); }
 void tFp_32(x64emu_t *emu, uintptr_t fcn) { tFp_t fn = (tFp_t)fcn; R_EAX = to_cstring(fn(from_ptriv(R_ESP + 4))); }
 void LFrL__32(x64emu_t *emu, uintptr_t fcn) { LFrL__t fn = (LFrL__t)fcn; struct_L_t arg_4; from_struct_L(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); R_EAX = to_ulong(fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL)); }
 void pFrL__32(x64emu_t *emu, uintptr_t fcn) { pFrL__t fn = (pFrL__t)fcn; struct_L_t arg_4; from_struct_L(&arg_4, *(ptr_t*)(from_ptr((R_ESP + 4)))); R_EAX = to_ptrv(fn(*(ptr_t*)(from_ptr((R_ESP + 4))) ? &arg_4 : NULL)); }

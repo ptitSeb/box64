@@ -691,7 +691,7 @@ GOW(inet_aton, iFpp)
 //GO(inet_network, iFp)
 // inet_nsap_addr
 //GO(inet_nsap_ntoa, pFipp)
-//GO(inet_ntoa, pFu)
+GO(inet_ntoa, tFu)
 //GO(inet_ntop, pFippu)
 //GO(inet_pton, iFipp)
 //GO(initgroups, iFpi)

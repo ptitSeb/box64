@@ -99,6 +99,7 @@ void pFp_32(x64emu_t *emu, uintptr_t fnc);
 void hFv_32(x64emu_t *emu, uintptr_t fnc);
 void aFa_32(x64emu_t *emu, uintptr_t fnc);
 void tFi_32(x64emu_t *emu, uintptr_t fnc);
+void tFu_32(x64emu_t *emu, uintptr_t fnc);
 void tFp_32(x64emu_t *emu, uintptr_t fnc);
 void LFrL__32(x64emu_t *emu, uintptr_t fnc);
 void pFrL__32(x64emu_t *emu, uintptr_t fnc);
