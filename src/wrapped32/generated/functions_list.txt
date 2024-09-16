@@ -1214,6 +1214,8 @@ wrappedsdl1:
   - SDL_OpenAudio
 - pFpi:
   - SDL_LoadBMP_RW
+- pFpu:
+  - SDL_ListModes
 - pFpp:
   - SDL_CreateThread
   - SDL_LoadFunction

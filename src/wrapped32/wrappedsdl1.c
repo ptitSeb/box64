@@ -366,6 +366,8 @@ EXPORT void* my32_SDL_GetVideoInfo()
     vm.blit_sw_A = r->blit_sw_A;
     vm.blit_fill = r->blit_fill;
     vm.video_mem = r->video_mem;
+    vm.current_h = r->current_h;
+    vm.current_w = r->current_w;
     if(r->vfmt) {
         vm.vfmt = to_ptrv(&vm_format);
         memcpy(&vm_format, r->vfmt, sizeof(vm_format));
@@ -373,8 +375,8 @@ EXPORT void* my32_SDL_GetVideoInfo()
             vm_format.palette = &vm_palette;
             memcpy(&vm_palette, r->vfmt->palette, sizeof(vm_palette));
         }
+        inplace_SDL_PixelFormat_to_32(&vm_format);
     } else vm.vfmt = 0;
-    inplace_SDL_PixelFormat_to_32(&vm);
     return &vm;
 }
 
@@ -486,7 +488,7 @@ static void* unwrapSurface(void* s)
 {
     if(!s) return s;
     if(s==&sdl_vm_surface || s==sdl1_videomode_org) {
-        my_SDL_Surface_32_t* dst = s;
+        my_SDL_Surface_32_t* dst = (my_SDL_Surface_32_t*)&sdl_vm_surface;
         // refressh surface...
         dst->h = sdl1_videomode_org->h;
         dst->w = sdl1_videomode_org->w;
@@ -566,6 +568,35 @@ EXPORT int my32_SDL_PollEvent(my_SDL_Event_32_t* evt)
         convert_SDL_Event_to_32(evt, &event);
     }
     return ret;
+}
+
+EXPORT void* my32_SDL_ListModes(my_SDL_PixelFormat_32_t* fmt, uint32_t flags)
+{
+    my_SDL_PixelFormat_t format;
+    my_SDL_Palette_t palette;
+    if(fmt) {
+        memcpy(&format, fmt, sizeof(format));
+        inplace_SDL_PixelFormat_to_64_nopalette(&format);
+        if(fmt->palette) {
+            memcpy(&palette, from_ptrv(fmt->palette), sizeof(palette));
+            format.palette = &palette;
+            inplace_SDL_Palette_to_64(&palette);
+        }
+    }
+    void** ret = my->SDL_ListModes(fmt?(&format):NULL, flags);
+    if(!ret)
+        return ret;
+    if(ret==(void**)-1LL)
+        return ret;
+    static ptr_t available[256];
+    void** p = ret;
+    int idx = 0;
+    while((*p) && (idx<255)) {
+        available[idx++] = to_ptrv(*p);
+        ++p;
+    }
+    available[idx++] = 0;
+    return &available;
 }
 
 //EXPORT int32_t my32_SDL_GetWMInfo(x64emu_t* emu, void* p)

@@ -131,6 +131,7 @@ typedef struct __attribute__((packed)) my_SDL_Surface_32_s
 void inplace_SDL_Surface_to_64(void* a);
 void inplace_SDL_Surface_to_32(void* a);
 void inplace_SDL_PixelFormat_to_64(void* a);
+void inplace_SDL_PixelFormat_to_64_nopalette(void* a);
 void inplace_SDL_PixelFormat_to_32(void* a);
 void inplace_SDL_Palette_to_64(void* a);
 void inplace_SDL_Palette_to_32(void* a);
@@ -520,29 +521,39 @@ void inplace_SDL_RWops_to_32(void* a);
 typedef struct my_SDL_VideoInfo_s {
   uint32_t hw_available:1;
   uint32_t wm_available:1;
+  uint32_t UnusedBits1:6;
+  uint32_t UnusedBits2:1;
   uint32_t blit_hw:1;
   uint32_t blit_hw_CC:1;
   uint32_t blit_hw_A:1;
   uint32_t blit_sw:1;
   uint32_t blit_sw_CC:1;
   uint32_t blit_sw_A:1;
-  uint32_t blit_fill;
+  uint32_t blit_fill:1;
+  uint32_t UnusedBits3:16;
   uint32_t video_mem;
   my_SDL_PixelFormat_t *vfmt;
+  int current_w;
+  int current_h;
 } my_SDL_VideoInfo_t;
 
 typedef struct my_SDL_VideoInfo_32_s {
   uint32_t hw_available:1;
   uint32_t wm_available:1;
+  uint32_t UnusedBits1:6;
+  uint32_t UnusedBits2:1;
   uint32_t blit_hw:1;
   uint32_t blit_hw_CC:1;
   uint32_t blit_hw_A:1;
   uint32_t blit_sw:1;
   uint32_t blit_sw_CC:1;
   uint32_t blit_sw_A:1;
-  uint32_t blit_fill;
+  uint32_t blit_fill:1;
+  uint32_t UnusedBits3:16;
   uint32_t video_mem;
   ptr_t vfmt;   // my_SDL_PixelFormat_t *
+  int current_w;
+  int current_h;
 } my_SDL_VideoInfo_32_t;
 
 #endif//__MY_SDL1ALIGN32_H_

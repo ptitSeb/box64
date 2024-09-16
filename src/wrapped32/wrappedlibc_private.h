@@ -1605,7 +1605,7 @@ DATAM(stdin, 4)
 DATAM(stdout, 4)
 // step // Weak
 // stime
-//GO(stpcpy, pFpp)
+GO(stpcpy, pFpp)
 // __stpcpy
 GO(__stpcpy_chk, pFppL)
 // __stpcpy_small

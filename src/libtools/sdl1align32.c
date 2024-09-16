@@ -28,6 +28,13 @@ void inplace_SDL_Palette_to_32(void* a) {
     my_SDL_Palette_32_t* dst = a;
     dst->colors = to_ptrv(src->colors);
 }
+void inplace_SDL_PixelFormat_to_64_nopalette(void* a) {
+    if(!a) return;
+    my_SDL_PixelFormat_32_t* src = a;
+    my_SDL_PixelFormat_t* dst = a;
+    memmove(&dst->BitsPerPixel, &src->BitsPerPixel, sizeof(my_SDL_PixelFormat_t)-offsetof(my_SDL_PixelFormat_t, BitsPerPixel));
+    dst->palette = from_ptrv(src->palette);
+}
 void inplace_SDL_PixelFormat_to_64(void* a) {
     if(!a) return;
     my_SDL_PixelFormat_32_t* src = a;

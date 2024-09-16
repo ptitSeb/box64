@@ -20,6 +20,7 @@ typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
+typedef void* (*pFpu_t)(void*, uint32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFiiiu_t)(int32_t, int32_t, int32_t, uint32_t);
 typedef void (*vFupppp_t)(uint32_t, void*, void*, void*, void*);
@@ -46,6 +47,7 @@ typedef void (*vFupppp_t)(uint32_t, void*, void*, void*, void*);
 	GO(SDL_WM_SetIcon, vFpp_t) \
 	GO(SDL_OpenAudio, iFpp_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
+	GO(SDL_ListModes, pFpu_t) \
 	GO(SDL_CreateThread, pFpp_t) \
 	GO(SDL_LoadFunction, pFpp_t) \
 	GO(SDL_RWFromFile, pFpp_t) \
