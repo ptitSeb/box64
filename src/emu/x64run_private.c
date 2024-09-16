@@ -26,6 +26,8 @@
 #include "bridge.h"
 #ifdef BOX32
 #include "box32.h"
+#else
+#define from_ptrv(A) ((void*)(uintptr_t)(A))
 #endif
 
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
