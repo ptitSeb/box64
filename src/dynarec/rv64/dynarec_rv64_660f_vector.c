@@ -197,6 +197,190 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VXOR_VV(q0, q1, v0, VECTOR_UNMASKED);
                     VSUB_VV(q0, v0, q0, VECTOR_UNMASKED);
                     break;
+                case 0x20:
+                    INST_NAME("PMOVSXBW Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.5);
+                    VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    VMV_V_V(q0, v0);
+                    break;
+                case 0x21:
+                    INST_NAME("PMOVSXBD Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.25);
+                    VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
+                    VWADD_VX(v1, xZR, v0, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    VMV_V_V(q0, v1);
+                    break;
+                case 0x22:
+                    INST_NAME("PMOVSXBQ Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.125);
+                    VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
+                    VWADD_VX(v1, xZR, v0, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                    VWADD_VX(v0, xZR, v1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    VMV_V_V(q0, v0);
+                    break;
+                case 0x23:
+                    INST_NAME("PMOVSXWD Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
+                    VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    VMV_V_V(q0, v0);
+                    break;
+                case 0x24:
+                    INST_NAME("PMOVSXWQ Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
+                    VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                    VWADD_VX(v1, xZR, v0, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    VMV_V_V(q0, v1);
+                    break;
+                case 0x25:
+                    INST_NAME("PMOVSXDQ Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                    VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    VMV_V_V(q0, v0);
+                    break;
+                case 0x30:
+                    INST_NAME("PMOVZXBW Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.5);
+                    VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    VMV_V_V(q0, v0);
+                    break;
+                case 0x31:
+                    INST_NAME("PMOVZXBD Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.25);
+                    VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
+                    VWADDU_VX(v1, xZR, v0, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    VMV_V_V(q0, v1);
+                    break;
+                case 0x32:
+                    INST_NAME("PMOVZXBQ Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.125);
+                    VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
+                    VWADDU_VX(v1, xZR, v0, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                    VWADDU_VX(v0, xZR, v1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    VMV_V_V(q0, v0);
+                    break;
+                case 0x33:
+                    INST_NAME("PMOVZXWD Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
+                    VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    VMV_V_V(q0, v0);
+                    break;
+                case 0x34:
+                    INST_NAME("PMOVZXWQ Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
+                    VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                    VWADDU_VX(v1, xZR, v0, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    VMV_V_V(q0, v1);
+                    break;
+                case 0x35:
+                    INST_NAME("PMOVZXDQ Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETGX_empty_vector(q0);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+                    v0 = fpu_get_scratch(dyn);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                    VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    VMV_V_V(q0, v0);
+                    break;
                 default:
                     DEFAULT_VECTOR;
             }

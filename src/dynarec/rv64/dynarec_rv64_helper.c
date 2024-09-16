@@ -2594,7 +2594,7 @@ void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
 }
 
 // Simple wrapper for vsetvli
-int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, int multiple)
+int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, float multiple)
 {
     if (sew == VECTOR_SEWNA) return VECTOR_SEW8;
     if (sew == VECTOR_SEWANY) sew = VECTOR_SEW8;
@@ -2605,7 +2605,7 @@ int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, i
      *
      *                    mu            tu          sew      lmul */
     uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | vlmul;
-    ADDI(s1, xZR, (16 >> sew) * multiple); // TODO: it's possible to reuse s1 sometimes
+    ADDI(s1, xZR, (int)((float)(16 >> sew) * multiple)); // TODO: it's possible to reuse s1 sometimes
     VSETVLI(xZR, s1, vtypei);
     return sew;
 }

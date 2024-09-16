@@ -1442,7 +1442,7 @@ void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val);
 void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup);
 
-int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, int multiple);
+int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, float multiple);
 
 #if STEP < 2
 #define CHECK_CACHE() 0
