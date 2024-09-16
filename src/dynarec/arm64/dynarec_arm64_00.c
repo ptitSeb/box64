@@ -3050,7 +3050,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 #endif
             }
             #if STEP < 2
-            if(!rex.is32bits && isNativeCall(dyn, addr+i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+            if(!rex.is32bits && isNativeCall(dyn, addr+i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
             else
                 tmp = dyn->insts[ninst].pass2choice = 0;
@@ -3144,7 +3144,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         *ok = 0;
                         *need_epilog = 0;
                     }
-                    jump_to_next(dyn, addr+i32, 0, ninst, rex.is32bits);
+                    if(rex.is32bits)
+                        j64 = (uint32_t)(addr+i32);
+                    else
+                        j64 = addr+i32;
+                    jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                     break;
             }
             break;

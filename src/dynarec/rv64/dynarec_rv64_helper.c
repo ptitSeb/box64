@@ -502,6 +502,9 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
 
+    if(is32bits)
+        ip &= 0xffffffffLL;
+
     if(reg) {
         if(reg!=xRIP) {
             MV(xRIP, reg);

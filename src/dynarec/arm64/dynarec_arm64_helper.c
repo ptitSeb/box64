@@ -569,6 +569,9 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     MAYUSE(dyn); MAYUSE(ninst);
     MESSAGE(LOG_DUMP, "Jump to next\n");
 
+    if(is32bits)
+        ip &= 0xffffffffLL;
+
     SMEND();
     if(reg) {
         if(reg!=xRIP) {

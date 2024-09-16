@@ -568,8 +568,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         #define GO(GETFLAGS, NO, YES, F, I)                                                         \
             READFLAGS(F);                                                                           \
             i32_ = F32S;                                                                            \
+            if(rex.is32bits)                                                                        \
+                j64 = (uint32_t)(addr+i32_);                                                        \
+            else                                                                                    \
+                j64 = addr+i32_;                                                                    \
             BARRIER(BARRIER_MAYBE);                                                                 \
-            JUMP(addr + i32_, 1);                                                                   \
+            JUMP(j64, 1);                                                                           \
             if (la64_lbt) {                                                                         \
                 X64_SETJ(x1, I);                                                                    \
             } else {                                                                                \
@@ -585,7 +589,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
                     if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
                         fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-                    jump_to_next(dyn, addr + i32_, 0, ninst, rex.is32bits);                         \
+                    jump_to_next(dyn, j64, 0, ninst, rex.is32bits);                                 \
                 } else {                                                                            \
                     CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
                     i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \

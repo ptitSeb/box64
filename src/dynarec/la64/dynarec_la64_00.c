@@ -1862,7 +1862,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #endif
             }
 #if STEP < 2
-            if (!rex.is32bits && isNativeCall(dyn, addr + i32, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+            if (!rex.is32bits && isNativeCall(dyn, addr + i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
             else
                 tmp = dyn->insts[ninst].pass2choice = 0;
@@ -1969,7 +1969,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         *ok = 0;
                         *need_epilog = 0;
                     }
-                    jump_to_next(dyn, addr + i32, 0, ninst, rex.is32bits);
+                    if(rex.is32bits)
+                        j64 = (uint32_t)(addr+i32);
+                    else
+                        j64 = addr+i32;
+                    jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                     break;
             }
             break;
@@ -1983,11 +1987,15 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("JMP Ib");
                 i32 = F8S;
             }
-            JUMP((uintptr_t)getAlternate((void*)(addr + i32)), 0);
+            if(rex.is32bits)
+                j64 = (uint32_t)(addr+i32);
+            else
+                j64 = addr+i32;
+            JUMP((uintptr_t)getAlternate((void*)j64), 0);
             if (dyn->insts[ninst].x64.jmp_insts == -1) {
                 // out of the block
                 fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
-                jump_to_next(dyn, (uintptr_t)getAlternate((void*)(addr + i32)), 0, ninst, rex.is32bits);
+                jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
             } else {
                 // inside the block
                 CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);

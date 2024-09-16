@@ -592,9 +592,11 @@ uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 }
 #undef F8
 
-int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, uintptr_t* calladdress, uint16_t* retn)
+int isNativeCall(dynarec_native_t* dyn, uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn)
 {
     (void)dyn;
+    if(is32bits)
+        addr &= 0xFFFFFFFFLL;
 
 #define PK(a)       *(uint8_t*)(addr+a)
 #define PK32(a)     *(int32_t*)(addr+a)
