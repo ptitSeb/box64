@@ -1500,8 +1500,14 @@ static void* find_dl_iterate_phdr_Fct(void* fct)
 }
 #undef SUPER
 
+EXPORT int my32_dl_iterate_phdr(x64emu_t *emu, void* F, void *data)
+#ifndef BOX32
+{ }
+#else
+ ;
+#endif
 EXPORT int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data) {
-    if(box64_is32bits) {printf_log(LOG_NONE, "Error, calling unsuppoeted dl_iterate_phdr in 32bits\n"); return 0; }
+    if(box64_is32bits) return my32_dl_iterate_phdr(emu, F, data);
     printf_log(LOG_DEBUG, "Call to partially implemented dl_iterate_phdr(%p, %p)\n", F, data);
     box64context_t *context = GetEmuContext(emu);
     const char* empty = "";

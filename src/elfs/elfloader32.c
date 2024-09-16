@@ -904,3 +904,38 @@ EXPORT void PltResolver32(x64emu_t* emu)
     // jmp to function
     R_EIP = offs;
 }
+
+
+typedef struct my_dl_phdr_info_32_s {
+    ptr_t           dlpi_addr;  //void*
+    ptr_t           dlpi_name;  //const char*
+    ptr_t           dlpi_phdr;  //Elf32_Phdr*
+    Elf32_Half      dlpi_phnum;
+} my_dl_phdr_info_32_t;
+
+static int dl_iterate_phdr_callback(x64emu_t *emu, void* F, my_dl_phdr_info_32_t *info, size_t size, void* data)
+{
+    int ret = RunFunctionWithEmu(emu, 0, (uintptr_t)F, 3, to_ptrv(info), to_ulong(size), to_ptrv(data));
+    return ret;
+}
+
+EXPORT int my32_dl_iterate_phdr(x64emu_t *emu, void* F, void *data) {
+    printf_log(LOG_DEBUG, "Call to partially implemented 32bits dl_iterate_phdr(%p, %p)\n", F, data);
+    box64context_t *context = GetEmuContext(emu);
+    const char* empty = "";
+    int ret = 0;
+    for (int idx=0; idx<context->elfsize; ++idx) {
+        if(context->elfs[idx]) {
+            static my_dl_phdr_info_32_t info;
+            info.dlpi_addr = to_ptrv(GetElfDelta(context->elfs[idx]));
+            info.dlpi_name = to_ptrv((void*)(idx?context->elfs[idx]->name:empty));    //1st elf is program, and this one doesn't get a name
+            info.dlpi_phdr = to_ptrv(context->elfs[idx]->PHEntries._32);
+            info.dlpi_phnum = context->elfs[idx]->numPHEntries;
+            if((ret = dl_iterate_phdr_callback(emu, F, &info, sizeof(info), data))) {
+                return ret;
+            }
+        }
+    }
+    // not iterationg on native libs
+    return ret;
+}
