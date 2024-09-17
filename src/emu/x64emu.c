@@ -592,6 +592,18 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     uint64_t old_rsi = R_RSI;
     uint64_t old_rbp = R_RBP;
     uint64_t old_rip = R_RIP;
+    x64flags_t old_eflags = emu->eflags;
+    // save defered flags
+    deferred_flags_t old_df = emu->df;
+    multiuint_t old_op1 = emu->op1;
+    multiuint_t old_op2 = emu->op2;
+    multiuint_t old_res = emu->res;
+    multiuint_t old_op1_sav= emu->op1_sav;
+    multiuint_t old_res_sav= emu->res_sav;
+    deferred_flags_t old_df_sav= emu->df_sav;
+    // uc_link
+    void* old_uc_link = emu->uc_link;
+    emu->uc_link = NULL;
     //Push64(emu, GetRBP(emu));   // set frame pointer
     //SetRBP(emu, GetRSP(emu));   // save RSP
     //R_RSP -= 200;
@@ -607,10 +619,21 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     Run(emu, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
+    emu->uc_link = old_uc_link;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
         if(emu->flags.quitonlongjmp==1)
             emu->flags.longjmp = 0;   // don't change anything because of the longjmp
     } else {
+        // restore defered flags
+        emu->df = old_df;
+        emu->op1 = old_op1;
+        emu->op2 = old_op2;
+        emu->res = old_res;
+        emu->op1_sav = old_op1_sav;
+        emu->res_sav = old_res_sav;
+        emu->df_sav = old_df_sav;
+        // and the old registers
+        emu->eflags = old_eflags;
         R_RBX = old_rbx;
         R_RDI = old_rdi;
         R_RSI = old_rsi;
