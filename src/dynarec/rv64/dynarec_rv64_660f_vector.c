@@ -381,8 +381,98 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     VMV_V_V(q0, v0);
                     break;
+                case 0x39:
+                    INST_NAME("PMINSD Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW32);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+                    VMIN_VV(q0, q0, q1, VECTOR_UNMASKED);
+                    break;
+                case 0x3D:
+                    INST_NAME("PMAXSD Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW32);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+                    VMAX_VV(q0, q0, q1, VECTOR_UNMASKED);
+                    break;
                 default:
                     DEFAULT_VECTOR;
+            }
+            break;
+        case 0x3A: // these are some more SSSE3+ opcodes
+            opcode = F8;
+            switch (opcode) {
+                case 0x0E:
+                    INST_NAME("PBLENDW Gx, Ex, Ib");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW16);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    u8 = F8;
+                    ADDI(x4, xZR, u8);
+                    VMV_V_X(VMASK, x4);
+                    VADD_VI(q0, 0, q1, VECTOR_MASKED);
+                    break;
+                case 0x0F:
+                    INST_NAME("PALIGNR Gx, Ex, Ib");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW8);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    u8 = F8;
+                    if (u8 > 31) {
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                    } else if (u8 > 16) {
+                        v0 = fpu_get_scratch(dyn);
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        VSLIDEDOWN_VI(v0, u8 - 16, q0, VECTOR_UNMASKED);
+                        VMV_V_V(q0, v0);
+                    } else if (u8 == 16) {
+                        // nop
+                    } else if (u8 > 0) {
+                        v0 = fpu_get_scratch(dyn);
+                        v1 = fpu_get_scratch(dyn);
+                        VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                        VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
+                        VSLIDEUP_VI(v0, 16 - u8, q0, VECTOR_UNMASKED);
+                        VSLIDEDOWN_VI(v1, u8, q1, VECTOR_UNMASKED);
+                        VOR_VV(q0, v0, v1, VECTOR_UNMASKED);
+                    } else {
+                        if (q0 != q1) VMV_V_V(q0, q1);
+                    }
+                    break;
+                default: DEFAULT_VECTOR;
+            }
+            break;
+        case 0x50:
+            INST_NAME("PMOVMSKD Gd, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGD;
+            GETEX_vector(q0, 0, 0, VECTOR_SEW64);
+            v0 = fpu_get_scratch(dyn);
+            ADDI(x4, xZR, 63);
+            VSRL_VX(v0, x4, q0, VECTOR_UNMASKED);
+            VMSNE_VX(VMASK, xZR, v0, VECTOR_UNMASKED);
+            VMV_X_S(gd, VMASK);
+            ANDI(gd, gd, 0b11);
+            break;
+        case 0x51:
+            INST_NAME("SQRTPD Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW64);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW64);
+            if (!box64_dynarec_fastnan) {
+                v0 = fpu_get_scratch(dyn);
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                VMFLT_VV(VMASK, v0, q1, VECTOR_UNMASKED);
+            }
+            VFSQRT_V(q0, q1, VECTOR_UNMASKED);
+            if (!box64_dynarec_fastnan) {
+                VFSGNJN_VV(q0, q0, q0, VECTOR_MASKED);
             }
             break;
         case 0x61:
