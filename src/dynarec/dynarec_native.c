@@ -514,7 +514,7 @@ uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int alternate, int
 uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits);
 uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits);
 
-void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
+void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr, int is32bits) {
     block->isize = 0;
     block->done = 0;
     size_t sz = 4*sizeof(void*);
@@ -529,6 +529,7 @@ void* CreateEmptyBlock(dynablock_t* block, uintptr_t addr) {
     block->actual_block = actual_p;
     block->block = p;
     block->jmpnext = p;
+    block->is32bits = is32bits;
     *(dynablock_t**)actual_p = block;
     *(void**)(p+2*sizeof(void*)) = native_epilog;
     CreateJmpNext(block->jmpnext, p+2*sizeof(void*));
@@ -553,7 +554,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     */
     if(addr>=box64_nodynarec_start && addr<box64_nodynarec_end) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
-        return CreateEmptyBlock(block, addr);
+        return CreateEmptyBlock(block, addr, is32bits);
     }
     if(current_helper) {
         dynarec_log(LOG_DEBUG, "Canceling dynarec FillBlock at %p as another one is going on\n", (void*)addr);
@@ -586,7 +587,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     if(!helper.size) {
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block (%p)\n", (void*)addr);
         CancelBlock64(0);
-        return CreateEmptyBlock(block, addr);
+        return CreateEmptyBlock(block, addr, is32bits);
     }
     if(!isprotectedDB(addr, 1)) {
         dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
@@ -676,7 +677,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         // NULL block after removing dead code, how is that possible?
         dynarec_log(LOG_INFO, "Warning, null-sized dynarec block after trimming dead code (%p)\n", (void*)addr);
         CancelBlock64(0);
-        return CreateEmptyBlock(block, addr);
+        return CreateEmptyBlock(block, addr, is32bits);
     }
     updateYmm0s(&helper, 0, 0);
 
@@ -755,6 +756,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
     block->jmpnext = next+sizeof(void*);
     block->always_test = helper.always_test;
     block->dirty = block->always_test;
+    block->is32bits = is32bits;
     *(dynablock_t**)next = block;
     *(void**)(next+3*sizeof(void*)) = native_next;
     CreateJmpNext(block->jmpnext, next+3*sizeof(void*));
