@@ -149,24 +149,6 @@ static void my3_input_function(my_signal_t* sig, int source, int condition)
     RunFunctionFmt(sig->c_handler, "pii", sig->data, source, condition)       ;
 }
 
-EXPORT int my3_gdk_input_add(x64emu_t* emu, int source, int condition, void* f, void* data)
-{
-    if(!f)
-        return my->gdk_input_add_full(source, condition, f, data, NULL);
-
-    my_signal_t* sig = new_mysignal(f, data, NULL);
-    return my->gdk_input_add_full(source, condition, my3_input_function, sig, my_signal_delete);
-}
-
-EXPORT int my3_gdk_input_add_full(x64emu_t* emu, int source, int condition, void* f, void* data, void* notify)
-{
-    if(!f)
-        return my->gdk_input_add_full(source, condition, f, data, notify);
-
-    my_signal_t* sig = new_mysignal(f, data, notify);
-    return my->gdk_input_add_full(source, condition, my3_input_function, sig, my_signal_delete);
-}
-
 EXPORT void my3_gdk_init(x64emu_t* emu, void* argc, void* argv)
 {
     my->gdk_init(argc, argv);

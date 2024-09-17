@@ -1245,7 +1245,6 @@
 #() pFiipi
 #() pFiIIi
 #() pFillu
-#() pFipii
 #() pFipip
 #() pFippi
 #() pFippu
@@ -1760,7 +1759,6 @@
 #() pFEpppV
 #() pFEpppA
 #() pFiiiii
-#() pFiiipL
 #() pFipipL
 #() pFipipp
 #() pFuiiiu
@@ -1969,6 +1967,7 @@
 #() vFpLLLLu
 #() vFpLpLLL
 #() vFppiiii
+#() vFppiiiu
 #() vFppiiip
 #() vFppiiuu
 #() vFppiipi
@@ -2349,6 +2348,7 @@
 #() vFpuuUUuu
 #() vFpuupupu
 #() vFpuupppp
+#() vFpupiiiu
 #() vFpupuuup
 #() vFpupppui
 #() vFpUiUiup
@@ -2370,6 +2370,7 @@
 #() vFppipppp
 #() vFppCuupp
 #() vFppuiiip
+#() vFppuuuii
 #() vFppuupii
 #() vFppupipp
 #() vFppUuupp
@@ -2495,6 +2496,7 @@
 #() uFpuupppp
 #() uFppiuppi
 #() uFppiuppp
+#() uFppuiupu
 #() uFppuuuup
 #() uFppppppp
 #() uFbCuuuuu
@@ -2932,7 +2934,6 @@
 #() vFffffffffff
 #() vFpiuippppip
 #() vFpuupuuuuuu
-#() vFppiiiiipip
 #() vFppiiiiupip
 #() vFppuipppiip
 #() vFppuuuiiiii
@@ -3055,7 +3056,6 @@
 #() vFppiipppiiiii
 #() vFppuuppuiiiii
 #() vFppuupppiiiiu
-#() vFpppiiiiiiiii
 #() vFpppiiiiiiuii
 #() vFpppppppppppp
 #() iFEpppippppppp
@@ -3083,7 +3083,6 @@
 #() vFpipppiiiiiiuu
 #() vFpippppppppppp
 #() vFpuppppppppppp
-#() vFppiiiiiiiiiii
 #() vFppiiiiiiuiuii
 #() vFppuuppiiiiuii
 #() vFppuupppuiiiii
@@ -3456,12 +3455,8 @@ wrappedgdk3:
   - gdk_event_handler_set
   - gdk_window_add_filter
   - gdk_window_remove_filter
-- iFiipp:
-  - gdk_input_add
 - uFippp:
   - gdk_threads_add_idle_full
-- iFiippp:
-  - gdk_input_add_full
 - uFiuppp:
   - gdk_threads_add_timeout_full
 wrappedgdkpixbuf2:
