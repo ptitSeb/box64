@@ -170,7 +170,6 @@
 #() vFpl
 #() vFpL
 #() vFpp
-#() vFpV
 #() vFpS
 #() vFpA
 #() vFSi
@@ -486,7 +485,6 @@
 #() iFEWW
 #() iFEup
 #() iFEUU
-#() iFELp
 #() iFEpi
 #() iFEpU
 #() iFEpL
@@ -774,6 +772,7 @@
 #() pFppu
 #() pFppU
 #() pFppf
+#() pFppd
 #() pFppl
 #() pFppL
 #() pFppp
@@ -901,12 +900,10 @@
 #() vFpiid
 #() vFpiip
 #() vFpiui
-#() vFpiuu
 #() vFpiuL
 #() vFpiup
 #() vFpiUu
 #() vFpiUU
-#() vFpifi
 #() vFpipi
 #() vFpipu
 #() vFpipp
@@ -1164,6 +1161,7 @@
 #() uFppiu
 #() uFppip
 #() uFppuu
+#() uFppup
 #() uFpplp
 #() uFppLp
 #() uFpppi
@@ -1256,6 +1254,7 @@
 #() pFuuii
 #() pFuuip
 #() pFuuuu
+#() pFuddd
 #() pFullu
 #() pFupii
 #() pFuppp
@@ -1997,8 +1996,10 @@
 #() vFpppiui
 #() vFpppiff
 #() vFpppipu
+#() vFpppipp
 #() vFpppuii
 #() vFpppuuu
+#() vFpppuup
 #() vFpppLpp
 #() vFppppii
 #() vFppppLp
@@ -2143,9 +2144,11 @@
 #() iFppppii
 #() iFppppiu
 #() iFppppip
+#() iFppppui
 #() iFppppup
 #() iFppppLp
 #() iFpppppi
+#() iFpppppu
 #() iFpppppL
 #() iFpppppp
 #() uFEiippp
@@ -2168,6 +2171,7 @@
 #() uFppippp
 #() uFppuuup
 #() uFppuupu
+#() uFppLpLp
 #() uFppLppL
 #() uFpppppi
 #() uFpppppp
@@ -2241,6 +2245,7 @@
 #() pFpLppip
 #() pFpLppup
 #() pFppiiii
+#() pFppiiup
 #() pFppiipp
 #() pFppiCCC
 #() pFppiupp
@@ -2337,7 +2342,6 @@
 #() vFpiiliip
 #() vFpiiLiip
 #() vFpiipCpp
-#() vFpiipppp
 #() vFpipipii
 #() vFpippppu
 #() vFpuiippp
@@ -2356,9 +2360,7 @@
 #() vFpLiLiLp
 #() vFpLpiipi
 #() vFppiiiii
-#() vFppiiiip
 #() vFppiiipi
-#() vFppiipii
 #() vFppiipuu
 #() vFppiippp
 #() vFppilppi
@@ -2369,6 +2371,7 @@
 #() vFppCuupp
 #() vFppuiiip
 #() vFppuupii
+#() vFppupipp
 #() vFppUuupp
 #() vFppddddu
 #() vFppddpiu
@@ -2531,9 +2534,11 @@
 #() pFpLppLLi
 #() pFppiiipp
 #() pFppiiCCC
+#() pFppiipup
 #() pFppiippp
 #() pFppipipp
 #() pFppipLpp
+#() pFppuipii
 #() pFppuippp
 #() pFppuuupp
 #() pFppuuppp
@@ -2557,6 +2562,7 @@
 #() pFpppllli
 #() pFpppLLLi
 #() pFppppiii
+#() pFppppiip
 #() pFppppuuu
 #() pFpppppuu
 #() pFppppppu
@@ -2643,6 +2649,7 @@
 #() vFpppLpppp
 #() vFppppiipi
 #() vFpppppuuu
+#() vFppppppui
 #() vFpppppppp
 #() iFEuipuupp
 #() iFEpippppp
@@ -2662,7 +2669,6 @@
 #() iFdiippppL
 #() iFpiiiuuup
 #() iFpipiipip
-#() iFpippuuii
 #() iFpippuupp
 #() iFpCCWWpWu
 #() iFpWCuWCuu
@@ -2811,7 +2817,6 @@
 #() vFppiupiiii
 #() vFppippDpDC
 #() vFppipppiii
-#() vFppipppiip
 #() vFppuippiip
 #() vFppuuiiiii
 #() vFppuuiiiiu
@@ -2927,10 +2932,8 @@
 #() vFffffffffff
 #() vFpiuippppip
 #() vFpuupuuuuuu
-#() vFppiiiiiiii
 #() vFppiiiiipip
 #() vFppiiiiupip
-#() vFppiippppii
 #() vFppuipppiip
 #() vFppuuuiiiii
 #() vFppuuuuuuuu
@@ -3113,10 +3116,12 @@
 #() vFppppppppppppppp
 #() pFpuiippppppppppp
 #() pFppipppppppppppp
+#() pFppupppppppppppp
 #() pFppppppppppppppp
 #() vFpppppppppppppppp
 #() iFpppppppppppppppp
 #() pFppipipipipipipip
+#() pFppupupupupupupup
 #() pFpppppppppppppppp
 #() pFbuuWWWWWWwwCCCuu
 #() vFuuuuiiiiuuiiiiiii
@@ -3141,6 +3146,7 @@
 #() pFpupuupppppppppppppppppppp
 #() iFpppppppppppppppppppppppppppppppppp
 #defined(NOALIGN) iFipiip
+#!defined(NOALIGN) iFELp
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
@@ -3945,8 +3951,6 @@ wrappedgthread2:
   - g_thread_init
   - g_thread_init_with_errorcheck_mutexes
 wrappedgtk3:
-- pFi:
-  - gtk_type_class
 - vFpp:
   - gtk_builder_connect_signals
   - gtk_init
@@ -3954,8 +3958,6 @@ wrappedgtk3:
   - gtk_style_context_get_style
 - vFpA:
   - gtk_style_context_get_style_valist
-- iFLp:
-  - gtk_type_unique
 - iFpp:
   - gtk_init_check
 - pFiV:
@@ -3978,15 +3980,12 @@ wrappedgtk3:
   - gtk_widget_style_get
 - vFppA:
   - gtk_tree_store_set_valist
-- uFupp:
-  - gtk_timeout_add
 - vFppiV:
   - gtk_list_store_insert_with_values
 - vFpppi:
   - gtk_enumerate_printers
 - vFpppp:
   - gtk_list_box_set_header_func
-  - gtk_object_set_data_full
   - gtk_print_job_send
   - gtk_stock_set_translate_func
   - gtk_tree_sortable_set_default_sort_func
@@ -4007,20 +4006,6 @@ wrappedgtk3:
   - gtk_init_with_args
 - vFpppppuu:
   - gtk_menu_popup
-- pFppppppi:
-  - gtk_toolbar_insert_stock
-- pFppppppp:
-  - gtk_toolbar_append_item
-  - gtk_toolbar_prepend_item
-- LFppppppii:
-  - gtk_signal_connect_full
-- pFpppppppi:
-  - gtk_toolbar_insert_item
-- pFpippppppp:
-  - gtk_toolbar_append_element
-  - gtk_toolbar_prepend_element
-- pFpipppppppi:
-  - gtk_toolbar_insert_element
 wrappedgtkx112:
 - fFp:
   - gtk_spin_button_get_value_as_float
