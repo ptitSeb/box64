@@ -129,8 +129,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     GETGX_vector(q0, 1, VECTOR_SEW16);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     fpu_get_scratch(dyn);
                     VWMUL_VV(v0, q0, q1, VECTOR_UNMASKED);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
@@ -203,8 +202,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.5);
                     VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
@@ -216,8 +214,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.25);
@@ -233,8 +230,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.125);
@@ -252,8 +248,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
                     VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -265,8 +260,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
@@ -282,8 +276,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
                     VWADD_VX(v0, xZR, q1, VECTOR_UNMASKED);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -295,8 +288,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.5);
                     VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
@@ -308,8 +300,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.25);
@@ -325,8 +316,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 0.125);
@@ -344,8 +334,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
                     VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -357,8 +346,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.25);
@@ -374,8 +362,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                     GETGX_empty_vector(q0);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-                    fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
                     VWADDU_VX(v0, xZR, q1, VECTOR_UNMASKED);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -677,8 +664,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             GETGX_vector(q0, 1, VECTOR_SEW16);
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-            fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-            d0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d1 = fpu_get_scratch(dyn);
             if (rv64_vlen >= 256) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
@@ -722,8 +708,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             GETGX_vector(q0, 1, VECTOR_SEW16);
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-            fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-            d0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d1 = fpu_get_scratch(dyn);
             if (rv64_vlen >= 256) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
@@ -784,8 +769,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETGX_vector(q0, 1, VECTOR_SEW32);
             GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-            fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
-            d0 = fpu_get_scratch(dyn);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d1 = fpu_get_scratch(dyn);
             if (rv64_vlen >= 256) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 2); // double the vl for slideup.

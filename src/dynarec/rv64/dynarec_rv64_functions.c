@@ -37,6 +37,16 @@ int fpu_get_scratch(dynarec_rv64_t* dyn)
 {
     return SCRATCH0 + dyn->e.fpu_scratch++;  // return an Sx
 }
+
+// Get a FPU scratch reg aligned to LMUL
+int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
+{
+    int reg = SCRATCH0 + dyn->e.fpu_scratch;
+    int skip = (1 << lmul) - (reg % (1 << lmul));
+    dyn->e.fpu_scratch += skip + 1;
+    return reg + skip;
+}
+
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_rv64_t* dyn)
 {
