@@ -106,14 +106,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VSLIDEUP_VI(v0, 1, v1, VECTOR_UNMASKED);
             } else {
                 INST_NAME("MOVHPS Gx, Ex");
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-                GETGX_vector(v0, 1, VECTOR_SEW64);
-                q0 = fpu_get_scratch(dyn);
-                VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-                VMV_V_I(VMASK, 0b10);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW8);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
-                VLUXEI64_V(v0, ed, q0, VECTOR_MASKED, VECTOR_NFIELD1);
+                v1 = fpu_get_scratch(dyn);
+                MOV64x(x4, 0xFF);
+                VMV_S_X(VMASK, x4);
+                VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                VSLIDEUP_VI(v0, 8, v1, VECTOR_UNMASKED);
             }
             break;
         case 0x28:
