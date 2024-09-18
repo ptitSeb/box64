@@ -640,7 +640,7 @@ EXPORT int my_g_boxed_type_register_static(x64emu_t* emu, void* name, void* boxe
     return my->g_boxed_type_register_static(name, bc, bf);
 }
 
-EXPORT uint32_t my_g_signal_new(x64emu_t* emu, void* name, size_t itype, int flags, uint32_t offset, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, void** b)
+EXPORT uint32_t my_g_signal_new(x64emu_t* emu, void* name, size_t itype, uint32_t flags, uint32_t offset, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, void** b)
 {
     printf_log(LOG_DEBUG, "g_signal_new for \"%s\", with offset=%d and %d args\n", (const char*)name, offset, n);
 
@@ -661,14 +661,14 @@ EXPORT uint32_t my_g_signal_new(x64emu_t* emu, void* name, size_t itype, int fla
     return my->g_signal_new(name, itype, flags, offset, cb_acc, accu_data, cb_marsh, rtype, n, b[0], b[1], b[2]);
 }
 
-EXPORT uint32_t my_g_signal_newv(x64emu_t* emu, void* name, size_t itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, void* types)
+EXPORT uint32_t my_g_signal_newv(x64emu_t* emu, void* name, size_t itype, uint32_t flags, void* closure, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, void* types)
 {
     printf_log(LOG_DEBUG, "g_signal_newv for \"%s\", with %d args\n", (const char*)name, n);
 
     return my->g_signal_newv(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, types);
 }
 
-EXPORT uint32_t my_g_signal_new_valist(x64emu_t* emu, void* name, size_t itype, int flags, void* closure, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, x64_va_list_t b)
+EXPORT uint32_t my_g_signal_new_valist(x64emu_t* emu, void* name, size_t itype, uint32_t flags, void* closure, void* acc, void* accu_data, void* marsh, size_t rtype, uint32_t n, x64_va_list_t b)
 {
     printf_log(LOG_DEBUG, "g_signal_new_valist for \"%s\", with %d args\n", (const char*)name, n);
     #ifdef CONVERT_VALIST
@@ -679,7 +679,7 @@ EXPORT uint32_t my_g_signal_new_valist(x64emu_t* emu, void* name, size_t itype, 
     return my->g_signal_new_valist(name, itype, flags, closure, findAccumulatorFct(acc), accu_data, findMarshalFct(marsh), rtype, n, VARARGS);
 }
 
-EXPORT uint32_t my_g_signal_handlers_block_matched(x64emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+EXPORT uint32_t my_g_signal_handlers_block_matched(x64emu_t* emu, void* instance, uint32_t mask, uint32_t signal, uint32_t detail, void* closure, void* fnc, void* data)
 {
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handlers_block_matched called with non null function \n");
@@ -687,7 +687,7 @@ EXPORT uint32_t my_g_signal_handlers_block_matched(x64emu_t* emu, void* instance
     return my->g_signal_handlers_block_matched(instance, mask, signal, detail, closure, fnc, data);
 }
 
-EXPORT uint32_t my_g_signal_handlers_unblock_matched(x64emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+EXPORT uint32_t my_g_signal_handlers_unblock_matched(x64emu_t* emu, void* instance, uint32_t mask, uint32_t signal, uint32_t detail, void* closure, void* fnc, void* data)
 {
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handlers_unblock_matched called with non null function \n");
@@ -695,7 +695,7 @@ EXPORT uint32_t my_g_signal_handlers_unblock_matched(x64emu_t* emu, void* instan
     return my->g_signal_handlers_unblock_matched(instance, mask, signal, detail, closure, fnc, data);
 }
 
-EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x64emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x64emu_t* emu, void* instance, uint32_t mask, uint32_t signal, uint32_t detail, void* closure, void* fnc, void* data)
 {
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handlers_disconnect_matched called with non null function \n");
@@ -703,7 +703,7 @@ EXPORT uint32_t my_g_signal_handlers_disconnect_matched(x64emu_t* emu, void* ins
     return my->g_signal_handlers_disconnect_matched(instance, mask, signal, detail, closure, fnc, data);
 }
 
-EXPORT unsigned long my_g_signal_handler_find(x64emu_t* emu, void* instance, int mask, uint32_t signal, void* detail, void* closure, void* fnc, void* data)
+EXPORT unsigned long my_g_signal_handler_find(x64emu_t* emu, void* instance, uint32_t mask, uint32_t signal, uint32_t detail, void* closure, void* fnc, void* data)
 {
     // NOTE that I have no idea of the fnc signature!...
     if (fnc) printf_log(LOG_DEBUG, "Warning, gobject g_signal_handler_find called with non null function \n");
@@ -756,7 +756,7 @@ static int my_signal_emission_hook(void* ihint, uint32_t n, void* values, my_sig
     printf_log(LOG_DEBUG, "gobject2 Signal Emission Hook called, sig=%p\n", sig);
     return (int)RunFunctionFmt(sig->c_handler, "pupp", ihint, n, values, sig->data);
 }
-EXPORT unsigned long my_g_signal_add_emission_hook(x64emu_t* emu, uint32_t signal, void* detail, void* f, void* data, void* notify)
+EXPORT unsigned long my_g_signal_add_emission_hook(x64emu_t* emu, uint32_t signal, uint32_t detail, void* f, void* data, void* notify)
 {
     // there can be many signals connected, so something "light" is needed here
 
@@ -801,7 +801,7 @@ EXPORT void my_g_param_spec_set_qdata_full(x64emu_t* emu, void* pspec, uint32_t 
     my->g_param_spec_set_qdata_full(pspec, quark, data, findFreeFct(notify));
 }
 
-EXPORT int my_g_param_type_register_static(x64emu_t* emu, void* name, void* pspec_info)
+EXPORT size_t my_g_param_type_register_static(x64emu_t* emu, void* name, void* pspec_info)
 {
 
     return my->g_param_type_register_static(name, findFreeGParamSpecTypeInfo(pspec_info));
@@ -833,7 +833,7 @@ EXPORT void* my_g_type_class_peek_parent(x64emu_t* emu, void* object)
     return wrapCopyGTKClass(klass, type);
 }
 
-EXPORT void my_g_signal_emit_valist(x64emu_t* emu, void* inst, uint32_t id, void* quark, x64_va_list_t b)
+EXPORT void my_g_signal_emit_valist(x64emu_t* emu, void* inst, uint32_t id, uint32_t quark, x64_va_list_t b)
 {
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
@@ -843,7 +843,7 @@ EXPORT void my_g_signal_emit_valist(x64emu_t* emu, void* inst, uint32_t id, void
     my->g_signal_emit_valist(inst, id, quark, VARARGS);
 }
 
-EXPORT void my_g_signal_emit(x64emu_t* emu, void* inst, uint32_t id, void* quark, uintptr_t* b)
+EXPORT void my_g_signal_emit(x64emu_t* emu, void* inst, uint32_t id, uint32_t quark, uintptr_t* b)
 {
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 3);
     my->g_signal_emit_valist(inst, id, quark, VARARGS);
@@ -882,7 +882,7 @@ EXPORT void my_g_object_set(x64emu_t* emu, void* a1, void* a2, uintptr_t* b)
     my->g_object_set_valist(a1, a2, VARARGS);
 }
 
-EXPORT void my_g_object_set_qdata_full(x64emu_t* emu, void* o, void* q, void* data, void* d)
+EXPORT void my_g_object_set_qdata_full(x64emu_t* emu, void* o, uint32_t q, void* data, void* d)
 {
     my->g_object_set_qdata_full(o, q, data, findDestroyFct(d));
 }
@@ -897,7 +897,7 @@ EXPORT void my_g_object_weak_ref(x64emu_t* emu, void* object, void* notify, void
     my->g_object_weak_ref(object, findWeakNotifyFct(notify), data);
 }
 
-EXPORT void my_g_signal_override_class_handler(x64emu_t* emu, char* name, void* gtype, void* callback)
+EXPORT void my_g_signal_override_class_handler(x64emu_t* emu, char* name, size_t gtype, void* callback)
 {
     my->g_signal_override_class_handler(name, gtype, findGCallbackFct(callback));
 }

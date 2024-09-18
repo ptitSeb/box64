@@ -682,6 +682,7 @@
 #() lFppp
 #() lFppS
 #() lFSpl
+#() LFEpp
 #() LFEpA
 #() LFipL
 #() LFuui
@@ -805,7 +806,6 @@
 #() iWppp
 #() uWpui
 #() uWpup
-#() vFEiip
 #() vFEipp
 #() vFEipV
 #() vFEipA
@@ -816,6 +816,7 @@
 #() vFEpuV
 #() vFEpuA
 #() vFEpUp
+#() vFEpLp
 #() vFEppp
 #() vFEppV
 #() vFEppA
@@ -1360,8 +1361,8 @@
 #() vFEpipA
 #() vFEpuup
 #() vFEpuuV
+#() vFEpuuA
 #() vFEpupp
-#() vFEpupA
 #() vFEpLLp
 #() vFEppip
 #() vFEppiV
@@ -1734,11 +1735,11 @@
 #() lFppupp
 #() lFppLpL
 #() lFppLpp
-#() LFELppi
+#() LFELppu
 #() LFEpppp
 #() LFLpppL
 #() LFpuipp
-#() LFpuppi
+#() LFpuupi
 #() LFpLuuu
 #() LFpLLLp
 #() LFpLpuu
@@ -2192,10 +2193,10 @@
 #() lFpuuLLp
 #() lFppLipp
 #() lFpppLpp
-#() LFEupppp
-#() LFELpppi
+#() LFEuuppp
+#() LFELpppu
 #() LFEpippp
-#() LFEppppi
+#() LFEppppu
 #() LFpipipi
 #() LFpLippp
 #() LFpLLLLL
@@ -2718,7 +2719,7 @@
 #() iFbupppWWu
 #() CFuiifpppp
 #() uFEipupppp
-#() uFEpiupppp
+#() uFEpuuuppp
 #() uFEppupppp
 #() uFEpppuppp
 #() uFEppppppp
@@ -2734,7 +2735,7 @@
 #() uFbCuuuCup
 #() uFbWWWWWWp
 #() LFELpupupu
-#() LFEpiupppp
+#() LFEpuuuppp
 #() LFpLpuuLLu
 #() pFEiplllpp
 #() pFEipLLLpp
@@ -3031,9 +3032,9 @@
 #() iFppuppLLpupp
 #() iFpppiiuuiiuu
 #() iFpppppiiuupp
-#() uFEpLiupppLuV
-#() uFEpLippppLup
-#() uFEpLippppLuA
+#() uFEpLuupppLuV
+#() uFEpLuppppLup
+#() uFEpLuppppLuA
 #() uFEppppppuppp
 #() uFppppppppppp
 #() pFEpipppppppi
@@ -3739,21 +3740,21 @@ wrappedgobject2:
   - g_type_class_peek_parent
 - vFpp:
   - g_closure_set_marshal
-- iFpp:
+- LFpp:
   - g_param_type_register_static
 - pFpp:
   - g_value_array_sort
-- vFiip:
-  - g_value_register_transform_func
 - vFLLp:
   - g_type_add_interface_static
+  - g_value_register_transform_func
 - vFpup:
   - g_object_class_install_properties
+- vFpLp:
+  - g_signal_override_class_handler
 - vFppp:
   - g_closure_add_finalize_notifier
   - g_closure_remove_finalize_notifier
   - g_object_weak_ref
-  - g_signal_override_class_handler
 - vFppV:
   - g_object_get
   - g_object_set
@@ -3774,36 +3775,36 @@ wrappedgobject2:
   - g_object_connect
 - vFpuuV:
   - g_signal_emit
-- vFpupp:
-  - g_param_spec_set_qdata_full
-- vFpupA:
+- vFpuuA:
   - g_signal_emit_valist
+- vFpupp:
+  - g_object_set_qdata_full
+  - g_param_spec_set_qdata_full
 - vFpppp:
   - g_object_set_data_full
-  - g_object_set_qdata_full
-- LFLppi:
+- LFLppu:
   - g_type_register_static
-- LFupppp:
+- LFuuppp:
   - g_signal_add_emission_hook
-- LFLpppi:
+- LFLpppu:
   - g_type_register_fundamental
-- LFppppi:
+- LFppppu:
   - g_signal_connect_object
 - LFpppppu:
   - g_signal_connect_data
-- uFpiupppp:
+- uFpuuuppp:
   - g_signal_handlers_block_matched
   - g_signal_handlers_disconnect_matched
   - g_signal_handlers_unblock_matched
 - LFLpupupu:
   - g_type_register_static_simple
-- LFpiupppp:
+- LFpuuuppp:
   - g_signal_handler_find
-- uFpLiupppLuV:
+- uFpLuupppLuV:
   - g_signal_new
-- uFpLippppLup:
+- uFpLuppppLup:
   - g_signal_newv
-- uFpLippppLuA:
+- uFpLuppppLuA:
   - g_signal_new_valist
 wrappedgomp:
 - vFppuu:
