@@ -11,6 +11,8 @@ typedef struct dynarec_rv64_s dynarec_rv64_t;
 
 // Get an FPU scratch reg
 int fpu_get_scratch(dynarec_rv64_t* dyn);
+// Get a FPU scratch reg aligned to LMUL
+int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul);
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_rv64_t* dyn);
 // Get an x87 double reg
