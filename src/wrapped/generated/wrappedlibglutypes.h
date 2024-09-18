@@ -11,11 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void (*vFpip_t)(void*, int32_t, void*);
+typedef void (*vFpup_t)(void*, uint32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(gluNurbsCallback, vFpip_t) \
-	GO(gluQuadricCallback, vFpip_t) \
-	GO(gluTessCallback, vFpip_t)
+	GO(gluNurbsCallback, vFpup_t) \
+	GO(gluQuadricCallback, vFpup_t) \
+	GO(gluTessCallback, vFpup_t)
 
 #endif // __wrappedlibgluTYPES_H_

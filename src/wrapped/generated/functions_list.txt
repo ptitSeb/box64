@@ -1476,7 +1476,7 @@
 #() vFpiUUu
 #() vFpiUUp
 #() vFpilpp
-#() vFpipii
+#() vFpipiu
 #() vFpippi
 #() vFpippp
 #() vFpuiip
@@ -2031,7 +2031,6 @@
 #() iFEpUppp
 #() iFEppppi
 #() iFEppppp
-#() iFiiiiip
 #() iFiiiipp
 #() iFiiiuwp
 #() iFiWiipi
@@ -2047,6 +2046,7 @@
 #() iFipuppp
 #() iFipppLp
 #() iFippppp
+#() iFuiiuup
 #() iFdipppL
 #() iFDipppL
 #() iFlpippp
@@ -2349,7 +2349,7 @@
 #() vFpiiliip
 #() vFpiiLiip
 #() vFpiipCpp
-#() vFpipipii
+#() vFpipipiu
 #() vFpippppu
 #() vFpuiippp
 #() vFpuuuuuu
@@ -2411,12 +2411,12 @@
 #() iFEpppLpp
 #() iFEpppppL
 #() iFEpppppp
-#() iFiiiiiip
 #() iFiupuuup
 #() iFiupuppp
 #() iFipupupi
 #() iFippuIup
 #() iFipppppp
+#() iFuiiiuup
 #() iFuippLpp
 #() iFpiiiiii
 #() iFpiiiuwp
@@ -2668,11 +2668,11 @@
 #() iFEppppLpp
 #() iFEpppppuu
 #() iFEppppppp
-#() iFiiiiiiip
 #() iFiiupiupi
 #() iFiuuCCuup
 #() iFiuuuupip
 #() iFipippppp
+#() iFuiiiiuup
 #() iFuuuuuuuu
 #() iFdiippppL
 #() iFpiiiuuup
@@ -2846,9 +2846,9 @@
 #() iFEpppppupp
 #() iFEppppppuu
 #() iFEppPPPPPP
-#() iFiiiiiiiip
-#() iFiiiipiiip
 #() iFipiipippi
+#() iFuiiuuiiip
+#() iFuiiupiiup
 #() iFdddpppppp
 #() iFpipippppi
 #() iFpipLpiiip
@@ -2954,7 +2954,7 @@
 #() iFEpiiiiippp
 #() iFEpupppLppL
 #() iFEppppppipp
-#() iFiiiiiiiiip
+#() iFuiiiuuiiip
 #() iFpiipiiipip
 #() iFpippddiidd
 #() iFpCuWCCCCup
@@ -3005,7 +3005,7 @@
 #() vFuUuuuuuuuuu
 #() vFuffffffffff
 #() vFUufffffffff
-#() vFpipipiipiii
+#() vFpipipiipiiu
 #() vFpipppiiiipi
 #() vFpupuuupupup
 #() vFppiiiiiiiii
@@ -3024,7 +3024,7 @@
 #() iFEpppupppppp
 #() iFEppppiiiiuu
 #() iFEpppppppppp
-#() iFiiiiiiiiiip
+#() iFuiiiiuuiiip
 #() iFpiippiiipip
 #() iFpippupppppp
 #() iFpuppppppppp
@@ -4514,7 +4514,7 @@ wrappedlibgl:
 - vFppp:
   - eglSetBlobCacheFuncsANDROID
 wrappedlibglu:
-- vFpip:
+- vFpup:
   - gluNurbsCallback
   - gluQuadricCallback
   - gluTessCallback

@@ -110,12 +110,12 @@ static void* findglu_callback5Fct(void* fct)
 // except for GLU_TESS_COMBINE and GLU_TESS_COMBINE_DATA
 #define GLU_TESS_COMBINE                   100105
 #define GLU_TESS_COMBINE_DATA              100111
-void EXPORT my_gluQuadricCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
+void EXPORT my_gluQuadricCallback(x64emu_t* emu, void* a, uint32_t b, void* cb)
 {
     (void)emu;
     my->gluQuadricCallback(a, b, findglu_callbackFct(cb));
 }
-void EXPORT my_gluTessCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
+void EXPORT my_gluTessCallback(x64emu_t* emu, void* a, uint32_t b, void* cb)
 {
     (void)emu;
     if(b==GLU_TESS_COMBINE)
@@ -125,7 +125,7 @@ void EXPORT my_gluTessCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
     else
         my->gluTessCallback(a, b, findglu_callbackFct(cb));
 }
-void EXPORT my_gluNurbsCallback(x64emu_t* emu, void* a, int32_t b, void* cb)
+void EXPORT my_gluNurbsCallback(x64emu_t* emu, void* a, uint32_t b, void* cb)
 {
     (void)emu;
     my->gluNurbsCallback(a, b, findglu_callbackFct(cb));
