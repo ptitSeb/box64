@@ -20,30 +20,29 @@ typedef uintptr_t (*LFpppp_t)(void*, void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef void (*vFpippp_t)(void*, int32_t, void*, void*, void*);
 typedef void (*vFpuipV_t)(void*, uint32_t, int32_t, void*, ...);
-typedef void (*vFppipV_t)(void*, void*, int32_t, void*, ...);
-typedef void (*vFppipA_t)(void*, void*, int32_t, void*, va_list);
-typedef void* (*pFppppV_t)(void*, void*, void*, void*, ...);
-typedef void* (*pFppApp_t)(void*, void*, va_list, void*, void*);
-typedef void (*vFpipppp_t)(void*, int32_t, void*, void*, void*, void*);
-typedef void (*vFiippppV_t)(int32_t, int32_t, void*, void*, void*, void*, ...);
-typedef void (*vFiupippp_t)(int32_t, uint32_t, void*, int32_t, void*, void*, void*);
-typedef void (*vFipAippp_t)(int32_t, void*, va_list, int32_t, void*, void*, void*);
-typedef void (*vFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
+typedef void (*vFpuipA_t)(void*, uint32_t, int32_t, void*, va_list);
+typedef void* (*pFLpppV_t)(uintptr_t, void*, void*, void*, ...);
+typedef void* (*pFLpApp_t)(uintptr_t, void*, va_list, void*, void*);
+typedef void (*vFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
+typedef void (*vFLippppV_t)(uintptr_t, int32_t, void*, void*, void*, void*, ...);
+typedef void (*vFLupippp_t)(uintptr_t, uint32_t, void*, int32_t, void*, void*, void*);
+typedef void (*vFLpAippp_t)(uintptr_t, void*, va_list, int32_t, void*, void*, void*);
+typedef void (*vFppupppp_t)(void*, void*, uint32_t, void*, void*, void*, void*);
 typedef void (*vFppLippp_t)(void*, void*, uintptr_t, int32_t, void*, void*, void*);
 typedef void (*vFpppuipV_t)(void*, void*, void*, uint32_t, int32_t, void*, ...);
-typedef uint32_t (*uFipipppp_t)(int32_t, void*, int32_t, void*, void*, void*, void*);
-typedef uint32_t (*uFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
+typedef uint32_t (*uFipupppp_t)(int32_t, void*, uint32_t, void*, void*, void*, void*);
+typedef uint32_t (*uFppupppp_t)(void*, void*, uint32_t, void*, void*, void*, void*);
 typedef uint32_t (*uFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpppuipV_t)(void*, void*, void*, uint32_t, int32_t, void*, ...);
-typedef void (*vFppiipppp_t)(void*, void*, int32_t, int32_t, void*, void*, void*, void*);
-typedef void (*vFpppiippp_t)(void*, void*, void*, int32_t, int32_t, void*, void*, void*);
-typedef uint32_t (*uFipippppp_t)(int32_t, void*, int32_t, void*, void*, void*, void*, void*);
-typedef void (*vFiippppppp_t)(int32_t, int32_t, void*, void*, void*, void*, void*, void*, void*);
-typedef void (*vFpippppppp_t)(void*, int32_t, void*, void*, void*, void*, void*, void*, void*);
-typedef void (*vFpppiipppp_t)(void*, void*, void*, int32_t, int32_t, void*, void*, void*, void*);
-typedef void* (*pFiippppppp_t)(int32_t, int32_t, void*, void*, void*, void*, void*, void*, void*);
-typedef uint32_t (*uFppppppippp_t)(void*, void*, void*, void*, void*, void*, int32_t, void*, void*, void*);
-typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*, int32_t, int32_t, void*, void*, void*);
+typedef void (*vFppuipppp_t)(void*, void*, uint32_t, int32_t, void*, void*, void*, void*);
+typedef void (*vFpppuippp_t)(void*, void*, void*, uint32_t, int32_t, void*, void*, void*);
+typedef uint32_t (*uFipuppppp_t)(int32_t, void*, uint32_t, void*, void*, void*, void*, void*);
+typedef void (*vFiuppppppp_t)(int32_t, uint32_t, void*, void*, void*, void*, void*, void*, void*);
+typedef void (*vFpuppppppp_t)(void*, uint32_t, void*, void*, void*, void*, void*, void*, void*);
+typedef void (*vFpppuipppp_t)(void*, void*, void*, uint32_t, int32_t, void*, void*, void*, void*);
+typedef void* (*pFiuppppppp_t)(int32_t, uint32_t, void*, void*, void*, void*, void*, void*, void*);
+typedef uint32_t (*uFppppppuppp_t)(void*, void*, void*, void*, void*, void*, uint32_t, void*, void*, void*);
+typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*, uint32_t, int32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_simple_async_result_set_op_res_gpointer, vFppp_t) \
@@ -61,31 +60,31 @@ typedef void (*vFpppppppiippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_simple_async_result_new_take_error, pFpppp_t) \
 	GO(g_task_new, pFpppp_t) \
 	GO(g_async_initable_init_async, vFpippp_t) \
+	GO(g_simple_async_result_set_error, vFpuipV_t) \
 	GO(g_task_return_new_error, vFpuipV_t) \
-	GO(g_simple_async_result_set_error, vFppipV_t) \
-	GO(g_simple_async_result_set_error_va, vFppipA_t) \
-	GO(g_initable_new, pFppppV_t) \
-	GO(g_initable_new_valist, pFppApp_t) \
-	GO(g_dbus_connection_new_for_address, vFpipppp_t) \
-	GO(g_async_initable_new_async, vFiippppV_t) \
-	GO(g_async_initable_newv_async, vFiupippp_t) \
-	GO(g_async_initable_new_valist_async, vFipAippp_t) \
-	GO(g_dbus_connection_new, vFppipppp_t) \
+	GO(g_simple_async_result_set_error_va, vFpuipA_t) \
+	GO(g_initable_new, pFLpppV_t) \
+	GO(g_initable_new_valist, pFLpApp_t) \
+	GO(g_dbus_connection_new_for_address, vFpupppp_t) \
+	GO(g_async_initable_new_async, vFLippppV_t) \
+	GO(g_async_initable_newv_async, vFLupippp_t) \
+	GO(g_async_initable_new_valist_async, vFLpAippp_t) \
+	GO(g_dbus_connection_new, vFppupppp_t) \
 	GO(g_input_stream_read_async, vFppLippp_t) \
 	GO(g_simple_async_report_error_in_idle, vFpppuipV_t) \
-	GO(g_bus_watch_name, uFipipppp_t) \
-	GO(g_bus_own_name_on_connection, uFppipppp_t) \
-	GO(g_bus_watch_name_on_connection, uFppipppp_t) \
+	GO(g_bus_watch_name, uFipupppp_t) \
+	GO(g_bus_own_name_on_connection, uFppupppp_t) \
+	GO(g_bus_watch_name_on_connection, uFppupppp_t) \
 	GO(g_dbus_connection_register_object, uFppppppp_t) \
 	GO(g_simple_async_result_new_error, pFpppuipV_t) \
-	GO(g_dbus_connection_send_message_with_reply, vFppiipppp_t) \
-	GO(g_dbus_proxy_call, vFpppiippp_t) \
-	GO(g_bus_own_name, uFipippppp_t) \
-	GO(g_dbus_proxy_new_for_bus, vFiippppppp_t) \
-	GO(g_dbus_proxy_new, vFpippppppp_t) \
-	GO(g_dbus_proxy_call_with_unix_fd_list, vFpppiipppp_t) \
-	GO(g_dbus_object_manager_client_new_for_bus_sync, pFiippppppp_t) \
-	GO(g_dbus_connection_signal_subscribe, uFppppppippp_t) \
-	GO(g_dbus_connection_call, vFpppppppiippp_t)
+	GO(g_dbus_connection_send_message_with_reply, vFppuipppp_t) \
+	GO(g_dbus_proxy_call, vFpppuippp_t) \
+	GO(g_bus_own_name, uFipuppppp_t) \
+	GO(g_dbus_proxy_new_for_bus, vFiuppppppp_t) \
+	GO(g_dbus_proxy_new, vFpuppppppp_t) \
+	GO(g_dbus_proxy_call_with_unix_fd_list, vFpppuipppp_t) \
+	GO(g_dbus_object_manager_client_new_for_bus_sync, pFiuppppppp_t) \
+	GO(g_dbus_connection_signal_subscribe, uFppppppuppp_t) \
+	GO(g_dbus_connection_call, vFpppppppuippp_t)
 
 #endif // __wrappedgio2TYPES_H_

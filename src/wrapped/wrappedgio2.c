@@ -383,27 +383,27 @@ EXPORT void my_g_task_return_pointer(x64emu_t* emu, void* task, void* result, vo
     my->g_task_return_pointer(task, result, findGDestroyNotifyFct(destroy));
 }
 
-EXPORT void my_g_dbus_proxy_new(x64emu_t* emu, void* connection, int flags, void* info, void* name, void* path, void* interface, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_proxy_new(x64emu_t* emu, void* connection, uint32_t flags, void* info, void* name, void* path, void* interface, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_proxy_new(connection, flags, info, name, path, interface, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_dbus_proxy_new_for_bus(x64emu_t* emu, int bus_type, int flags, void* info, void* name, void* path, void* interface, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_proxy_new_for_bus(x64emu_t* emu, int bus_type, uint32_t flags, void* info, void* name, void* path, void* interface, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_proxy_new_for_bus(bus_type, flags, info, name, path, interface, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_dbus_proxy_call(x64emu_t* emu, void* proxy, void* name, void* param, int flags, int timeout, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_proxy_call(x64emu_t* emu, void* proxy, void* name, void* param, uint32_t flags, int timeout, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_proxy_call(proxy, name, param, flags, timeout, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_dbus_proxy_call_with_unix_fd_list(x64emu_t* emu, void* proxy, void* name, void* param, int flags, int timeout, void* fd_list, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_proxy_call_with_unix_fd_list(x64emu_t* emu, void* proxy, void* name, void* param, uint32_t flags, int timeout, void* fd_list, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_proxy_call_with_unix_fd_list(proxy, name, param, flags, timeout, fd_list, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void* my_g_dbus_object_manager_client_new_for_bus_sync(x64emu_t* emu, size_t bus, int flags, void* name, void* path, void* cb, void* data, void* destroy, void* cancellable, void* error)
+EXPORT void* my_g_dbus_object_manager_client_new_for_bus_sync(x64emu_t* emu, size_t bus, uint32_t flags, void* name, void* path, void* cb, void* data, void* destroy, void* cancellable, void* error)
 {
     return my->g_dbus_object_manager_client_new_for_bus_sync(bus, flags, name, path, findGDBusProxyTypeFuncFct(cb), data, findGDestroyNotifyFct(destroy), cancellable, error);
 }
@@ -498,12 +498,12 @@ EXPORT void my_g_bus_get(x64emu_t* emu, size_t type, void* cancellable, void* cb
     my->g_bus_get(type, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_dbus_connection_new(x64emu_t* emu, void* stream, void* guid, int flags, void* observer, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_connection_new(x64emu_t* emu, void* stream, void* guid, uint32_t flags, void* observer, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_connection_new(stream, guid, flags, observer, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_dbus_connection_new_for_address(x64emu_t* emu, void* address, int flags, void* observer, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_connection_new_for_address(x64emu_t* emu, void* address, uint32_t flags, void* observer, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_connection_new_for_address(address, flags, observer, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
@@ -518,17 +518,17 @@ EXPORT void my_g_dbus_connection_flush(x64emu_t* emu, void* connection, void* ca
     my->g_dbus_connection_flush(connection, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT void my_g_dbus_connection_call(x64emu_t* emu, void* connection, void* bus, void* object, void* interface, void* method, void* param, void* reply, int flags, int timeout, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_connection_call(x64emu_t* emu, void* connection, void* bus, void* object, void* interface, void* method, void* param, void* reply, uint32_t flags, int timeout, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_connection_call(connection, bus, object, interface, method, param, reply, flags, timeout, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
-EXPORT uint32_t my_g_dbus_connection_signal_subscribe(x64emu_t* emu, void* connection, void* sender, void* interface, void* member, void* object, void* arg0, int flags, void* cb, void* data, void* notify)
+EXPORT uint32_t my_g_dbus_connection_signal_subscribe(x64emu_t* emu, void* connection, void* sender, void* interface, void* member, void* object, void* arg0, uint32_t flags, void* cb, void* data, void* notify)
 {
     return my->g_dbus_connection_signal_subscribe(connection, sender, interface, member, object, arg0, flags, findGDBusSignalCallbackFct(cb), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT void my_g_dbus_connection_send_message_with_reply(x64emu_t* emu, void* connection, void* message, int flags, int timeout, void* serial, void* cancellable, void* cb, void* data)
+EXPORT void my_g_dbus_connection_send_message_with_reply(x64emu_t* emu, void* connection, void* message, uint32_t flags, int timeout, void* serial, void* cancellable, void* cb, void* data)
 {
     my->g_dbus_connection_send_message_with_reply(connection, message, flags, timeout, serial, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
@@ -543,27 +543,27 @@ EXPORT uint32_t my_g_dbus_connection_register_object(x64emu_t* emu, void* connec
     return my->g_dbus_connection_register_object(connection, object, info, findFreeGDBusInterfaceVTable(vtable), data, findGDestroyNotifyFct(notify), error);
 }
 
-EXPORT uint32_t my_g_bus_watch_name(x64emu_t* emu, size_t type, void* name, int flags, void* appeared, void* vanished, void* data, void* notify)
+EXPORT uint32_t my_g_bus_watch_name(x64emu_t* emu, int type, void* name, uint32_t flags, void* appeared, void* vanished, void* data, void* notify)
 {
     return my->g_bus_watch_name(type, name, flags, findGBusNameAppearedCallbackFct(appeared), findGBusNameVanishedCallbackFct(vanished), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT uint32_t my_g_bus_watch_name_on_connection(x64emu_t* emu, void* connection, void* name, int flags, void* appeared, void* vanished, void* data, void* notify)
+EXPORT uint32_t my_g_bus_watch_name_on_connection(x64emu_t* emu, void* connection, void* name, uint32_t flags, void* appeared, void* vanished, void* data, void* notify)
 {
     return my->g_bus_watch_name_on_connection(connection, name, flags, findGBusNameAppearedCallbackFct(appeared), findGBusNameVanishedCallbackFct(vanished), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT uint32_t my_g_bus_own_name(x64emu_t* emu, size_t type, void* name, int flags, void* bus_acquired, void* name_acquired, void* name_lost, void* data, void* notify)
+EXPORT uint32_t my_g_bus_own_name(x64emu_t* emu, size_t type, void* name, uint32_t flags, void* bus_acquired, void* name_acquired, void* name_lost, void* data, void* notify)
 {
     return my->g_bus_own_name(type, name, flags, findGBusAcquiredCallbackFct(bus_acquired), findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT uint32_t my_g_bus_own_name_on_connection(x64emu_t* emu, void* connection, void* name, int flags, void* name_acquired, void* name_lost, void* data, void* notify)
+EXPORT uint32_t my_g_bus_own_name_on_connection(x64emu_t* emu, void* connection, void* name, uint32_t flags, void* name_acquired, void* name_lost, void* data, void* notify)
 {
     return my->g_bus_own_name_on_connection(connection, name, flags, findGBusNameAcquiredCallbackFct(name_acquired), findGBusNameLostCallbackFct(name_lost), data, findGDestroyNotifyFct(notify));
 }
 
-EXPORT void my_g_simple_async_result_set_error_va(x64emu_t* emu, void* simple, void* domain, int code, void* fmt, x64_va_list_t V)
+EXPORT void my_g_simple_async_result_set_error_va(x64emu_t* emu, void* simple, uint32_t domain, int code, void* fmt, x64_va_list_t V)
 {
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
@@ -573,14 +573,14 @@ EXPORT void my_g_simple_async_result_set_error_va(x64emu_t* emu, void* simple, v
     my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
 }
 
-EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, void* domain, int code, void* fmt, uintptr_t* b)
+EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, uint32_t domain, int code, void* fmt, uintptr_t* b)
 {
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 4);
     PREPARE_VALIST;
     my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
 }
 
-EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* err, void* first, uintptr_t* b)
+EXPORT void* my_g_initable_new(x64emu_t* emu, size_t type, void* cancel, void* err, void* first, uintptr_t* b)
 {
     #if 0
     // look for number of pairs
@@ -601,7 +601,7 @@ EXPORT void* my_g_initable_new(x64emu_t* emu, void* type, void* cancel, void* er
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
 
-EXPORT void* my_g_initable_new_valist(x64emu_t* emu, void* type, void* first, x64_va_list_t V, void* cancel, void* err)
+EXPORT void* my_g_initable_new_valist(x64emu_t* emu, size_t type, void* first, x64_va_list_t V, void* cancel, void* err)
 {
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
