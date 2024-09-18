@@ -668,13 +668,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             d1 = fpu_get_scratch(dyn);
             if (rv64_vlen >= 256) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
-                if (q0 == q1) {
-                    VMV_V_V(d0, q0);
-                    VSLIDEUP_VI(d0, 8, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
-                } else {
-                    VSLIDEUP_VI(q0, 8, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
-                    d0 = q0;
-                }
+                VMV_V_V(d0, q0);
+                VSLIDEUP_VI(d0, 8, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
             } else {
                 VMV_V_V(d0, q0);
                 VMV_V_V(d1, q1);
@@ -773,13 +768,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             d1 = fpu_get_scratch(dyn);
             if (rv64_vlen >= 256) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 2); // double the vl for slideup.
-                if (q0 == q1) {
-                    VMV_V_V(d0, q0);
-                    VSLIDEUP_VI(d0, 4, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
-                } else {
-                    VSLIDEUP_VI(q0, 4, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
-                    d0 = q0;
-                }
+                VMV_V_V(d0, q0);
+                VSLIDEUP_VI(d0, 4, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
             } else {
                 VMV_V_V(d0, q0);
                 VMV_V_V(d1, q1);
