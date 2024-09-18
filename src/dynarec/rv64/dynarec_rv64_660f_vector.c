@@ -655,12 +655,62 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VRGATHER_VV(d1, v0, q1, VECTOR_UNMASKED);
             VMERGE_VVM(q0, d1, d0);
             break;
-        case 0x66:
-            INST_NAME("PCMPGTD Gx, Ex");
+        case 0x62:
+            INST_NAME("PUNPCKLDQ Gx,Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            ADDI(x1, xZR, 0b1010);
+            VMV_V_X(VMASK, x1); // VMASK = 0b1010
+            v0 = fpu_get_scratch(dyn);
+            VIOTA_M(v0, VMASK, VECTOR_UNMASKED); // v0 = 1 1 0 0
             GETGX_vector(q0, 1, VECTOR_SEW32);
             GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VRGATHER_VV(d0, v0, q0, VECTOR_UNMASKED);
+            VRGATHER_VV(d1, v0, q1, VECTOR_UNMASKED);
+            VMERGE_VVM(q0, d1, d0);
+            break;
+        case 0x63:
+            INST_NAME("PACKSSWB Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW16);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+            fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (rv64_vlen >= 256) {
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
+                if (q0 == q1) {
+                    VMV_V_V(d0, q0);
+                    VSLIDEUP_VI(d0, 8, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
+                } else {
+                    VSLIDEUP_VI(q0, 8, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
+                    d0 = q0;
+                }
+            } else {
+                VMV_V_V(d0, q0);
+                VMV_V_V(d1, q1);
+            }
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            VNCLIP_WI(q0, 0, d0, VECTOR_UNMASKED);
+            break;
+        case 0x64 ... 0x66:
+            if (opcode == 0x64) {
+                INST_NAME("PCMPGTB Gx,Ex");
+                u8 = VECTOR_SEW8;
+            } else if (opcode == 0x65) {
+                INST_NAME("PCMPGTW Gx,Ex");
+                u8 = VECTOR_SEW16;
+            } else {
+                INST_NAME("PCMPGTD Gx, Ex");
+                u8 = VECTOR_SEW32;
+            }
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            GETGX_vector(q0, 1, dyn->vector_eew);
+            GETEX_vector(q1, 0, 0, dyn->vector_eew);
             VMSLT_VV(VMASK, q0, q1, VECTOR_UNMASKED);
             VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
             VMERGE_VIM(q0, 1, q0); // implies vmask and widened it
@@ -677,8 +727,14 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             d1 = fpu_get_scratch(dyn);
             if (rv64_vlen >= 256) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 2); // double the vl for slideup.
-                VSLIDEUP_VI(q0, 8, q1, VECTOR_UNMASKED);                       // splice q0 and q1 here!
-                VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
+                if (q0 == q1) {
+                    VMV_V_V(d0, q0);
+                    VSLIDEUP_VI(d0, 8, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
+                    VMAX_VX(d0, xZR, d0, VECTOR_UNMASKED);
+                } else {
+                    VSLIDEUP_VI(q0, 8, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
+                    VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
+                }
             } else {
                 VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
                 VMAX_VX(d1, xZR, q1, VECTOR_UNMASKED);
@@ -686,22 +742,66 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             VNCLIPU_WI(q0, 0, d0, VECTOR_UNMASKED);
             break;
-        case 0x69:
-            INST_NAME("PUNPCKHWD Gx, Ex");
-            nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
-            ADDI(x1, xZR, 0b10101010);
-            VMV_V_X(VMASK, x1); // VMASK = 0b10101010
-            v0 = fpu_get_scratch(dyn);
-            VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
-            VADD_VI(v0, 4, v0, VECTOR_UNMASKED); // v0 = 7 7 6 6 5 5 4 4
-            GETGX_vector(q0, 1, VECTOR_SEW16);
-            GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+        case 0x68 ... 0x6A:
+            if (opcode == 0x68) {
+                INST_NAME("PUNPCKHBW Gx,Ex");
+                nextop = F8;
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                ADDI(x1, xZR, 0b1010101010101010);
+                VMV_V_X(VMASK, x1); // VMASK = 0b1010101010101010
+                v0 = fpu_get_scratch(dyn);
+                VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
+                VADD_VI(v0, 8, v0, VECTOR_UNMASKED); // v0 = 15 15 14 14 13 13 12 12 11 11 10 10 9 9 8 8
+            } else if (opcode == 0x69) {
+                INST_NAME("PUNPCKHWD Gx, Ex");
+                nextop = F8;
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                ADDI(x1, xZR, 0b10101010);
+                VMV_V_X(VMASK, x1); // VMASK = 0b10101010
+                v0 = fpu_get_scratch(dyn);
+                VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
+                VADD_VI(v0, 4, v0, VECTOR_UNMASKED); // v0 = 7 7 6 6 5 5 4 4
+            } else {
+                INST_NAME("PUNPCKHDQ Gx, Ex");
+                nextop = F8;
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                VMV_V_I(VMASK, 0b1010);
+                v0 = fpu_get_scratch(dyn);
+                VIOTA_M(v0, VMASK, VECTOR_UNMASKED);
+                VADD_VI(v0, 2, v0, VECTOR_UNMASKED); // v0 = 3 3 2 2
+            }
+            GETGX_vector(q0, 1, dyn->vector_eew);
+            GETEX_vector(q1, 0, 0, dyn->vector_eew);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
             VRGATHER_VV(d0, v0, q0, VECTOR_UNMASKED);
             VRGATHER_VV(d1, v0, q1, VECTOR_UNMASKED);
             VMERGE_VVM(q0, d1, d0);
+            break;
+        case 0x6B:
+            INST_NAME("PACKSSDW Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW32);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+            fpu_get_scratch(dyn); // HACK: skip v3, for vector register group alignment!
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (rv64_vlen >= 256) {
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 2); // double the vl for slideup.
+                if (q0 == q1) {
+                    VMV_V_V(d0, q0);
+                    VSLIDEUP_VI(d0, 4, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
+                } else {
+                    VSLIDEUP_VI(q0, 4, q1, VECTOR_UNMASKED); // splice q0 and q1 here!
+                    d0 = q0;
+                }
+            } else {
+                VMV_V_V(d0, q0);
+                VMV_V_V(d1, q1);
+            }
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+            VNCLIP_WI(q0, 0, d0, VECTOR_UNMASKED);
             break;
         case 0x6C:
             INST_NAME("PUNPCKLQDQ Gx, Ex");
