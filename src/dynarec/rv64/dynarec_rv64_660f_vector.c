@@ -424,6 +424,15 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
                         VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
                         VSLIDEUP_VI(v0, 16 - u8, q0, VECTOR_UNMASKED);
+                        if (rv64_vlen >= 256) {
+                            // clear high bits before slidedown!
+                            d0 = fpu_get_scratch(dyn);
+                            d1 = fpu_get_scratch(dyn);
+                            VMV_V_I(d0, 0x1F);
+                            VSLIDEUP_VI(d1, 16, d0, VECTOR_UNMASKED);
+                            VXOR_VI(d1, 0x1F, d1, VECTOR_UNMASKED);
+                            VAND_VV(q1, q1, d1, VECTOR_UNMASKED);
+                        }
                         VSLIDEDOWN_VI(v1, u8, q1, VECTOR_UNMASKED);
                         VOR_VV(q0, v0, v1, VECTOR_UNMASKED);
                     } else {
