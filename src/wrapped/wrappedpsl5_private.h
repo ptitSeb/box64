@@ -1,7 +1,26 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-error Meh...
+#error Meh...
 #endif
 
-GO(psl_str_to_utf8lower, pFp)
+GO(psl_builtin, pFv)
+GO(psl_builtin_filename, pFv)
+GO(psl_builtin_file_time, lFv)
+GO(psl_builtin_outdated, iFv)
+GO(psl_builtin_sha1sum, pFv)
+GO(psl_check_version_number, iFi)
+GO(psl_dist_filename, pFv)
+GO(psl_free, vFp)
+GO(psl_free_string, vFp)
+GO(psl_get_version, pFv)
 GO(psl_is_cookie_domain_acceptable, iFppp)
+GO(psl_is_public_suffix, iFpp)
+GO(psl_is_public_suffix2, iFppi)
 GO(psl_latest, pFp)
+GO(psl_load_file, pFp)
+GO(psl_load_fp, pFp)
+GO(psl_registrable_domain, pFpp)
+GO(psl_str_to_utf8lower, iFpppp)
+GO(psl_suffix_count, iFp)
+GO(psl_suffix_exception_count, iFp)
+GO(psl_suffix_wildcard_count, iFp)
+GO(psl_unregistrable_domain, pFpp)
