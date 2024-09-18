@@ -945,17 +945,17 @@ EXPORT void* my_g_hash_table_find(x64emu_t* emu, void* table, void* f, void* dat
     return my->g_hash_table_find(table, findGHRFuncFct(f), data);
 }
 
-EXPORT int my_g_spawn_async_with_pipes(x64emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* child, void* input, void* output, void* err, void* error)
+EXPORT int my_g_spawn_async_with_pipes(x64emu_t* emu, void* dir, void* argv, void* envp, uint32_t flags, void* f, void* data, void* child, void* input, void* output, void* err, void* error)
 {
     return my->g_spawn_async_with_pipes(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, input, output, err, error);
 }
 
-EXPORT int my_g_spawn_async(x64emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* child, void* error)
+EXPORT int my_g_spawn_async(x64emu_t* emu, void* dir, void* argv, void* envp, uint32_t flags, void* f, void* data, void* child, void* error)
 {
     return my->g_spawn_async(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, error);
 }
 
-EXPORT int my_g_spawn_sync(x64emu_t* emu, void* dir, void* argv, void* envp, int flags, void* f, void* data, void* input, void* output, void* status, void* error)
+EXPORT int my_g_spawn_sync(x64emu_t* emu, void* dir, void* argv, void* envp, uint32_t flags, void* f, void* data, void* input, void* output, void* status, void* error)
 {
     return my->g_spawn_sync(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, input, output, status, error);
 }
@@ -1021,7 +1021,7 @@ EXPORT void* my_g_thread_create(x64emu_t* emu, void* func, void* data, int joina
     return my->g_thread_create(my_prepare_thread(emu, func, data, 0, &et), et, joinable, error);
 }
 
-EXPORT void* my_g_thread_create_full(x64emu_t* emu, void* func, void* data, unsigned long stack, int joinable, int bound, int priority, void* error)
+EXPORT void* my_g_thread_create_full(x64emu_t* emu, void* func, void* data, unsigned long stack, int joinable, int bound, uint32_t priority, void* error)
 {
     void* et = NULL;
     return my->g_thread_create_full(my_prepare_thread(emu, func, data, stack, &et), et, stack, joinable, bound, priority, error);
@@ -1117,12 +1117,12 @@ EXPORT void* my_g_log_set_default_handler(x64emu_t *emu, void* f, void* data)
     return reverseGLogFuncFct(my->g_log_set_default_handler(findGLogFuncFct(f), data));
 }
 
-EXPORT uint32_t my_g_io_add_watch_full(x64emu_t* emu, void* channel, int priority, int cond, void* f, void* data, void* notify)
+EXPORT uint32_t my_g_io_add_watch_full(x64emu_t* emu, void* channel, int priority, uint32_t cond, void* f, void* data, void* notify)
 {
     return my->g_io_add_watch_full(channel, priority, cond, findGIOFuncFct(f), data, findDestroyFct(notify));
 }
 
-EXPORT uint32_t my_g_io_add_watch(x64emu_t* emu, void* channel, int cond, void* f, void* data)
+EXPORT uint32_t my_g_io_add_watch(x64emu_t* emu, void* channel, uint32_t cond, void* f, void* data)
 {
     return my->g_io_add_watch(channel, cond, findGIOFuncFct(f), data);
 }
@@ -1204,7 +1204,7 @@ EXPORT uint32_t my_g_log_set_handler(x64emu_t *emu, void* domain, int level, voi
     return my->g_log_set_handler(domain, level, findGLogFuncFct(f), data);
 }
 
-EXPORT void my_g_set_error(x64emu_t *emu, void* err, void* domain, int code, void* fmt, uintptr_t* stack)
+EXPORT void my_g_set_error(x64emu_t *emu, void* err, void* domain, uint32_t code, void* fmt, uintptr_t* stack)
 {
     char buf[1000];
     myStackAlign(emu, fmt, stack, emu->scratch, R_EAX, 4);
@@ -1213,13 +1213,13 @@ EXPORT void my_g_set_error(x64emu_t *emu, void* err, void* domain, int code, voi
     my->g_set_error_literal(err, domain, code, buf);
 }
 
-EXPORT void* my_g_error_new(x64emu_t* emu, void* domain, int code, void* fmt, uintptr_t* b)
+EXPORT void* my_g_error_new(x64emu_t* emu, uint32_t domain, int code, void* fmt, uintptr_t* b)
 {
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     return my->g_error_new_valist(domain, code, fmt, VARARGS);
 }
-EXPORT void* my_g_error_new_valist(x64emu_t* emu, void* domain, int code, void* fmt, x64_va_list_t V)
+EXPORT void* my_g_error_new_valist(x64emu_t* emu, uint32_t domain, int code, void* fmt, x64_va_list_t V)
 {
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
@@ -1393,7 +1393,7 @@ EXPORT void* my_g_strconcat(x64emu_t* emu, void* first, uintptr_t* data)
     return p;
 }
 
-EXPORT void* my_g_markup_parse_context_new(x64emu_t* emu, void* parser, int flags, void* data, void* destroy)
+EXPORT void* my_g_markup_parse_context_new(x64emu_t* emu, void* parser, uint32_t flags, void* data, void* destroy)
 {
     return my->g_markup_parse_context_new(parser, flags, data, findDestroyFct(destroy));
 }

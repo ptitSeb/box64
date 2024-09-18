@@ -15,6 +15,7 @@
 #() vFS
 #() vFb
 #() cFv
+#() cFc
 #() cFi
 #() cFu
 #() cFf
@@ -22,6 +23,7 @@
 #() wFp
 #() iFE
 #() iFv
+#() iFc
 #() iFw
 #() iFi
 #() iFI
@@ -333,11 +335,12 @@
 #() pFli
 #() pFll
 #() pFlp
+#() pFLc
 #() pFLi
-#() pFLC
 #() pFLu
 #() pFLL
 #() pFLp
+#() pFpc
 #() pFpi
 #() pFpC
 #() pFpW
@@ -543,7 +546,6 @@
 #() iFpil
 #() iFpiL
 #() iFpip
-#() iFpIi
 #() iFpII
 #() iFpCp
 #() iFpWp
@@ -579,6 +581,7 @@
 #() iFppl
 #() iFppL
 #() iFppp
+#() iFpOi
 #() iFpOu
 #() iFSIi
 #() iFSli
@@ -627,6 +630,7 @@
 #() uFpup
 #() uFpfu
 #() uFpli
+#() uFplu
 #() uFpLu
 #() uFpLL
 #() uFpLp
@@ -758,7 +762,7 @@
 #() pFpUu
 #() pFpdu
 #() pFpdd
-#() pFplC
+#() pFplc
 #() pFplu
 #() pFpll
 #() pFplp
@@ -766,9 +770,9 @@
 #() pFpLu
 #() pFpLL
 #() pFpLp
+#() pFppc
 #() pFppi
 #() pFppI
-#() pFppC
 #() pFppu
 #() pFppU
 #() pFppf
@@ -1050,7 +1054,6 @@
 #() iFpipL
 #() iFpipp
 #() iFpipV
-#() iFpIip
 #() iFpCCC
 #() iFpCpi
 #() iFpCpp
@@ -1158,6 +1161,7 @@
 #() uFpupu
 #() uFpupp
 #() uFpubp
+#() uFplup
 #() uFppiu
 #() uFppip
 #() uFppuu
@@ -1687,6 +1691,7 @@
 #() IFppIII
 #() uFEippp
 #() uFEpipp
+#() uFEpupp
 #() uFEppuu
 #() uFEpppp
 #() uFEpppV
@@ -1707,6 +1712,7 @@
 #() uFppuup
 #() uFppupp
 #() uFpplip
+#() uFpplpp
 #() uFppLpp
 #() uFppppL
 #() uFppppp
@@ -1742,11 +1748,11 @@
 #() LFppLpL
 #() LFpppii
 #() LFppppp
+#() pFEuipV
+#() pFEuipA
 #() pFEpiii
 #() pFEpipL
 #() pFEpipp
-#() pFEpipV
-#() pFEpipA
 #() pFEpupp
 #() pFEpUpp
 #() pFEpLpp
@@ -1862,7 +1868,6 @@
 #() vFEpupup
 #() vFEpuppp
 #() vFEpLLpp
-#() vFEppipV
 #() vFEppupp
 #() vFEpppLp
 #() vFEppppp
@@ -2278,8 +2283,8 @@
 #() iWpuiiii
 #() iWpppppi
 #() iWpppppu
-#() vFEpiiipp
 #() vFEpuipuV
+#() vFEpuuipp
 #() vFEpupppp
 #() vFEppippp
 #() vFEpppLpp
@@ -2463,7 +2468,6 @@
 #() iFppuuppp
 #() iFppupupp
 #() iFppliupp
-#() iFppLiipp
 #() iFppLippp
 #() iFppLuuii
 #() iFppLLLLu
@@ -2485,7 +2489,7 @@
 #() iFppppppu
 #() iFppppppp
 #() uFEiipppp
-#() uFEpiippp
+#() uFEpiuppp
 #() uFEpuuppp
 #() uFEpppppp
 #() uFiiiuuuu
@@ -2509,7 +2513,7 @@
 #() pFEpupppp
 #() pFEpLiiiI
 #() pFEpLiiil
-#() pFEppuipp
+#() pFEppLipp
 #() pFEppppip
 #() pFEpppppi
 #() pFifffppp
@@ -2548,7 +2552,6 @@
 #() pFppupuuu
 #() pFppliuip
 #() pFpplipup
-#() pFppLipip
 #() pFppLLiLi
 #() pFpppccci
 #() pFpppiiii
@@ -2736,7 +2739,7 @@
 #() pFEiplllpp
 #() pFEipLLLpp
 #() pFEpiuCppp
-#() pFEppLiiip
+#() pFEppLiiup
 #() pFEpppuipV
 #() pFEpppppiV
 #() pFEppppppi
@@ -2817,7 +2820,7 @@
 #() vFppiiiiupi
 #() vFppiiipiii
 #() vFppiupiiii
-#() vFppippDpDC
+#() vFppippDpDc
 #() vFppipppiii
 #() vFppuippiip
 #() vFppuuiiiii
@@ -2835,7 +2838,7 @@
 #() vFpppppippp
 #() iFEpiiiiipi
 #() iFEppuppppp
-#() iFEpppipppp
+#() iFEpppupppp
 #() iFEppplPPPP
 #() iFEpppppupp
 #() iFEppppppuu
@@ -3015,7 +3018,7 @@
 #() vFppppppppppp
 #() iFEiipppppppp
 #() iFEppLpLpLLpp
-#() iFEpppipppppp
+#() iFEpppupppppp
 #() iFEppppiiiiuu
 #() iFEpppppppppp
 #() iFiiiiiiiiiip
@@ -3058,7 +3061,7 @@
 #() vFppuupppiiiiu
 #() vFpppiiiiiiuii
 #() vFpppppppppppp
-#() iFEpppippppppp
+#() iFEpppuppppppp
 #() iFEppppiiiiuui
 #() iFpipllipppppp
 #() iFpipppppppppp
@@ -3082,7 +3085,7 @@
 #() vFuffffffffffff
 #() vFpipppiiiiiiuu
 #() vFpippppppppppp
-#() vFpuppppppppppp
+#() vFpLppppppppppp
 #() vFppiiiiiiuiuii
 #() vFppuuppiiiiuii
 #() vFppuupppuiiiii
@@ -3616,6 +3619,7 @@ wrappedglib2:
   - g_ptr_array_foreach
   - g_ptr_array_sort_with_data
   - g_queue_foreach
+  - g_slist_foreach
   - g_static_private_set
 - vFppV:
   - g_string_append_printf
@@ -3649,7 +3653,6 @@ wrappedglib2:
   - g_once_impl
   - g_queue_find_custom
   - g_slist_find_custom
-  - g_slist_foreach
   - g_slist_insert_sorted
   - g_slist_sort_with_data
   - g_thread_new
@@ -3671,16 +3674,16 @@ wrappedglib2:
 - uFippp:
   - g_idle_add_full
 - uFpipp:
-  - g_io_add_watch
   - g_log_set_handler
-- pFpipp:
-  - g_markup_parse_context_new
-- pFpipV:
+- uFpupp:
+  - g_io_add_watch
+- pFuipV:
   - g_error_new
-- pFpipA:
+- pFuipA:
   - g_error_new_valist
 - pFpupp:
   - g_datalist_id_dup_data
+  - g_markup_parse_context_new
 - pFpLpp:
   - g_bytes_new_with_free_func
 - pFppip:
@@ -3692,7 +3695,7 @@ wrappedglib2:
   - g_thread_try_new
 - vFpiLpp:
   - g_qsort_with_data
-- vFppipV:
+- vFpuipV:
   - g_set_error
 - uFiippp:
   - g_child_watch_add_full
@@ -3701,21 +3704,21 @@ wrappedglib2:
   - g_timeout_add_seconds_full
 - pFppppp:
   - g_option_group_new
-- vFpiiipp:
+- vFpuuipp:
   - g_node_traverse
 - iFpupppp:
   - g_datalist_id_replace_data
-- uFpiippp:
+- uFpiuppp:
   - g_io_add_watch_full
-- pFppuipp:
+- pFppLipp:
   - g_variant_new_from_data
-- pFppLiiip:
+- pFppLiiup:
   - g_thread_create_full
-- iFpppipppp:
+- iFpppupppp:
   - g_spawn_async
-- iFpppipppppp:
+- iFpppupppppp:
   - g_spawn_sync
-- iFpppippppppp:
+- iFpppuppppppp:
   - g_spawn_async_with_pipes
 wrappedgmodule2:
 wrappedgmp:
