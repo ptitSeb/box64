@@ -1163,6 +1163,7 @@
 #() uFpupp
 #() uFpubp
 #() uFplup
+#() uFppii
 #() uFppiu
 #() uFppip
 #() uFppuu
@@ -1715,6 +1716,7 @@
 #() uFpplip
 #() uFpplpp
 #() uFppLpp
+#() uFpppip
 #() uFppppL
 #() uFppppp
 #() uFbCuuu
