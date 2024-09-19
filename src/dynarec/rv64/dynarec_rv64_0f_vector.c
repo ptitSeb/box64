@@ -63,13 +63,14 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("MOVUPS Gx, Ex");
             nextop = F8;
             GETG;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, dyn->vector_eew);
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
                 VMV_V_V(v0, v1);
             } else {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1); // unaligned!
                 SMREAD();
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
@@ -79,13 +80,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x11:
             INST_NAME("MOVUPS Ex, Gx");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
-            GETGX_vector(v0, 0, dyn->vector_eew);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+                GETGX_vector(v0, 0, dyn->vector_eew);
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg_empty_vector(dyn, ninst, x1, ed);
                 VMV_V_V(v1, v0);
             } else {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1); // unaligned!
+                GETGX_vector(v0, 0, dyn->vector_eew);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
                 VSE_V(v0, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 SMWRITE2();
