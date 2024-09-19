@@ -504,16 +504,15 @@
         a = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, sew);         \
     } else {                                                                                 \
         SMREAD();                                                                            \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, D); \
         a = fpu_get_scratch(dyn);                                                            \
-        ADDI(x2, ed, fixedaddress);                                                          \
-        VLE_V(a, x2, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
+        VLE_V(a, ed, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
     }
 
 // Put Back EX if it was a memory and not an emm register
 #define PUTEX_vector(a, sew)                                \
     if (!MODREG) {                                          \
-        VSE_V(a, x2, sew, VECTOR_UNMASKED, VECTOR_NFIELD1); \
+        VSE_V(a, ed, sew, VECTOR_UNMASKED, VECTOR_NFIELD1); \
         SMWRITE2();                                         \
     }
 
