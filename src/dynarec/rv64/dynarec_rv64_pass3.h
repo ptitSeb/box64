@@ -27,7 +27,7 @@
 
 #define DEFAULT_VECTOR                                                                                       \
     if (box64_dynarec_log >= LOG_INFO || box64_dynarec_dump || box64_dynarec_missing) {                      \
-        dynarec_log(LOG_NONE, "%p: Dynarec fallback to scalar version because of %s Opcode"                  \
+        dynarec_log(LOG_NONE, "%p: Dynarec fallback to scalar version because of %sOpcode"                   \
                               " %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
             (void*)ip, rex.is32bits ? "x86 " : "x64 ",                                                       \
             PKip(0),                                                                                         \
