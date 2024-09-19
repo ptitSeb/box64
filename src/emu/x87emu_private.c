@@ -264,7 +264,7 @@ void fpu_loadenv(x64emu_t* emu, char* p, int b16)
         emu->cw.x16 = *p32++;
         emu->sw.x16 = *p32++;
         // tagword: 2bits*8
-        // tags... (only full = 0b11 / free = 0b00)
+        // tags... (only free = 0b11 / full = 0b00)
         emu->fpu_tags = *(p32++);
         // intruction pointer: 16bits
         // data (operand) pointer: 16bits
