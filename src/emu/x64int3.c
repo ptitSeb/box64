@@ -256,6 +256,8 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (!strcmp(s, "vfprintf") || !strcmp(s, "my_vfprintf")) {
                     tmp = (char*)((R_RSI>2)?R_RSI:R_RDX);
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\", ...)", tid, *(void**)(R_RSP), s, (void*)R_RDI, (tmp)?tmp:"(nil)");
+                } else if (!strcmp(s, "g_source_set_name")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, \"%s\")", tid, *(void**)(R_RSP), s, (void*)R_RDI, (char*)R_RSI);
                 } else if (!strcmp(s, "getcwd")) {
                     post = 2;
                     snprintf(buff, 256, "%04d|%p: Calling %s(%p, %zu)", tid, *(void**)(R_RSP), s, (void*)R_RDI, R_RSI);
@@ -263,6 +265,9 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     tmp = (char*)(R_RDI);
                     perr = 1;
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, tmp?tmp:"nil", R_ESI);
+                } else if (!strcmp(s, "xcb_wait_for_event") || !strcmp(s, "xcb_poll_for_queued_event") || !strcmp(s, "xcb_poll_for_event")) {
+                    post = 9;
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p)", tid, *(void**)(R_RSP), s, (void*)R_RDI);
                 } else if (!strcmp(s, "glXGetProcAddress") || !strcmp(s, "SDL_GL_GetProcAddress") || !strcmp(s, "glXGetProcAddressARB")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)");
@@ -349,6 +354,11 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                             strcat(buff5, buff6);
                         }
                         snprintf(buff2, 64, "[%s%s] ", buff5, (n==S_EAX)?"":"...");
+                    }
+                    break;
+                    case 9: if(R_RAX) {
+                        uint8_t type = *(uint8_t*)(R_RAX);
+                        snprintf(buff2, 64, "[type=%d]", type);
                     }
                     break;
                 }
