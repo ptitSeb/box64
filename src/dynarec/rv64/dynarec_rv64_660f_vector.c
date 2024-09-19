@@ -413,30 +413,30 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     if (u8 > 31) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
                     } else if (u8 > 16) {
-                        v0 = fpu_get_scratch(dyn);
-                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
-                        VSLIDEDOWN_VI(v0, u8 - 16, q0, VECTOR_UNMASKED);
-                        VMV_V_V(q0, v0);
+                        d0 = fpu_get_scratch(dyn);
+                        if (rv64_vlen >= 256) {
+                            // clear high bits before slidedown!
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 2);
+                            VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 1);
+                        }
+                        VMV_V_V(d0, q0);
+                        VSLIDEDOWN_VI(q0, u8 - 16, d0, VECTOR_UNMASKED);
                     } else if (u8 == 16) {
                         // nop
                     } else if (u8 > 0) {
                         v0 = fpu_get_scratch(dyn);
                         v1 = fpu_get_scratch(dyn);
                         VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                        VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
                         VSLIDEUP_VI(v0, 16 - u8, q0, VECTOR_UNMASKED);
                         if (rv64_vlen >= 256) {
                             // clear high bits before slidedown!
                             d0 = fpu_get_scratch(dyn);
-                            d1 = fpu_get_scratch(dyn);
-                            VMV_V_I(d0, 0x1F);
                             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 2);
-                            VXOR_VV(d1, d1, d1, VECTOR_UNMASKED);
-                            VSLIDEUP_VI(d1, 16, d0, VECTOR_UNMASKED);
-                            VXOR_VI(d1, 0x1F, d1, VECTOR_UNMASKED);
-                            VAND_VV(d1, q1, d1, VECTOR_UNMASKED);
+                            VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
                             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 1);
-                            q1 = d1;
+                            VMV_V_V(d0, q1);
+                            q1 = d0;
                         }
                         VSLIDEDOWN_VI(v1, u8, q1, VECTOR_UNMASKED);
                         VOR_VV(q0, v0, v1, VECTOR_UNMASKED);
@@ -921,9 +921,15 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     if (u8 > 15) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
                     } else {
-                        v0 = fpu_get_scratch(dyn);
-                        VMV_V_V(v0, q0);
-                        VSLIDEDOWN_VI(q0, u8, v0, VECTOR_UNMASKED);
+                        d0 = fpu_get_scratch(dyn);
+                        if (rv64_vlen >= 256) {
+                            // clear high bits before slidedown!
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 2);
+                            VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 1);
+                        }
+                        VMV_V_V(d0, q0);
+                        VSLIDEDOWN_VI(q0, u8, d0, VECTOR_UNMASKED);
                     }
                     PUTEX_vector(q0, VECTOR_SEW8);
                     break;
@@ -988,9 +994,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VXOR_VV(q1, q1, q1, VECTOR_UNMASKED);
                 VMV_S_X(q1, x4);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                VMV_V_I(VMASK, 0b01);
-                VSE64_V(q0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                VMV_X_S(x4, q0);
+                SD(x4, ed, fixedaddress);
                 SMWRITE2();
             }
             break;

@@ -200,6 +200,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x31:
         case 0x40 ... 0x4F:
         case 0x80 ... 0xBF:
+        case 0xC8 ... 0xCF:
             return 0;
         default:
             DEFAULT_VECTOR;
