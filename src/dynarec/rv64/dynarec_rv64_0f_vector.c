@@ -94,6 +94,26 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("MOVHLPS Gx, Ex");
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 1, dyn->vector_eew);
+                GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                q0 = fpu_get_scratch(dyn);
+                VSLIDEDOWN_VI(q0, 1, v1, VECTOR_UNMASKED);
+                VMV_X_S(x4, q0);
+                VMV_S_X(v0, x4);
+            } else {
+                INST_NAME("MOVLPS Gx, Ex");
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW64);
+                GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                VMV_X_S(x4, v1);
+                VMV_S_X(v0, x4);
+            }
+            break;
         case 0x16:
             nextop = F8;
             if (MODREG) {

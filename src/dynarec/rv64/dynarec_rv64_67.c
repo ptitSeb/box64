@@ -763,6 +763,9 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         #undef GO
 
+        case 0xE8:
+            return dynarec64_00(dyn, addr - 1, ip, ninst, rex, rep, ok, need_epilog); // addr-1, to "put back" opcode)
+
         case 0xF7:
             nextop = F8;
             switch ((nextop >> 3) & 7) {

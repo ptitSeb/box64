@@ -510,6 +510,13 @@
         VLE_V(a, x2, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
     }
 
+// Put Back EX if it was a memory and not an emm register
+#define PUTEX_vector(a, sew)                                \
+    if (!MODREG) {                                          \
+        VSE_V(a, x2, sew, VECTOR_UNMASKED, VECTOR_NFIELD1); \
+        SMWRITE2();                                         \
+    }
+
 #define GETGM()                     \
     gd = ((nextop & 0x38) >> 3);    \
     mmx_forget_reg(dyn, ninst, gd); \
