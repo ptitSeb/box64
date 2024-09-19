@@ -175,28 +175,27 @@ SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
 #define GO(A)   \
-static uintptr_t fct_funcs_prepare_##A = 0;                                                \
-static int my_funcs_prepare_##A(void* source, int *timeout_) {                             \
-    return (int)RunFunctionFmt(fct_funcs_prepare_##A, "pp", source, timeout_); \
-}                                                                                          \
-static uintptr_t fct_funcs_check_##A = 0;                                     \
-static int my_funcs_check_##A(void* source) {                                 \
-    return (int)RunFunctionFmt(fct_funcs_check_##A, "p", source); \
-}                                                                             \
-static uintptr_t fct_funcs_dispatch_cb_##A = 0;                                            \
-static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {                  \
-    return (int)RunFunctionFmt(fct_funcs_dispatch_cb_##A, "pppp", a, b, c, d); \
-}                                                                                          \
-static uintptr_t fct_funcs_dispatch_##A = 0;                           \
-static int my_funcs_dispatch_##A(void* source, void* cb, void* data) { \
-    uintptr_t old = fct_funcs_dispatch_cb_##A;                         \
-    fct_funcs_dispatch_cb_##A = (uintptr_t)cb;                         \
-    return (int)RunFunctionFmt(fct_funcs_dispatch_##A, "ppp", source, cb?my_funcs_dispatch_cb_##A:NULL, data); \
-    fct_funcs_dispatch_cb_##A = old;                                   \
-}                                                                      \
-static uintptr_t fct_funcs_finalize_##A = 0;                           \
-static int my_funcs_finalize_##A(void* source) {                       \
-    return (int)RunFunctionFmt(fct_funcs_finalize_##A, "p", source); \
+static int my_funcs_prepare_##A(void* source, int *timeout_) {                                      \
+    return (int)RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->prepare, "pp", source, timeout_);   \
+}                                                                                                   \
+static uintptr_t fct_funcs_check_##A = 0;                                                           \
+static int my_funcs_check_##A(void* source) {                                                       \
+    return (int)RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->check, "p", source);                \
+}                                                                                                   \
+static uintptr_t fct_funcs_dispatch_cb_##A = 0;                                                     \
+static int my_funcs_dispatch_cb_##A(void* a, void* b, void* c, void* d) {                           \
+    return (int)RunFunctionFmt(fct_funcs_dispatch_cb_##A, "pppp", a, b, c, d);                      \
+}                                                                                                   \
+static uintptr_t fct_funcs_dispatch_##A = 0;                                                        \
+static int my_funcs_dispatch_##A(void* source, void* cb, void* data) {                              \
+    uintptr_t old = fct_funcs_dispatch_cb_##A;                                                      \
+    fct_funcs_dispatch_cb_##A = (uintptr_t)cb;                                                      \
+    return (int)RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->dispatch, "ppp", source, cb?my_funcs_dispatch_cb_##A:NULL, data); \
+    fct_funcs_dispatch_cb_##A = old;                                                                \
+}                                                                                                   \
+static uintptr_t fct_funcs_finalize_##A = 0;                                                        \
+static int my_funcs_finalize_##A(void* source) {                                                    \
+    return (int)RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->finalize, "p", source);             \
 }
 SUPER()
 #undef GO
@@ -207,16 +206,14 @@ static my_GSourceFuncs_t* findFreeGSourceFuncs(my_GSourceFuncs_t* fcts)
     #define GO(A) if(ref_gsourcefuncs_##A == fcts) return &my_gsourcefuncs_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(ref_gsourcefuncs_##A == 0) {   \
-        ref_gsourcefuncs_##A = fcts;                 \
-        my_gsourcefuncs_##A.prepare = (fcts->prepare)?((GetNativeFnc((uintptr_t)fcts->prepare))?GetNativeFnc((uintptr_t)fcts->prepare):my_funcs_prepare_##A):NULL;    \
-        fct_funcs_prepare_##A = (uintptr_t)fcts->prepare;                            \
-        my_gsourcefuncs_##A.check = (fcts->check)?((GetNativeFnc((uintptr_t)fcts->check))?GetNativeFnc((uintptr_t)fcts->check):my_funcs_check_##A):NULL;    \
-        fct_funcs_check_##A = (uintptr_t)fcts->check;                            \
-        my_gsourcefuncs_##A.dispatch = (fcts->dispatch)?((GetNativeFnc((uintptr_t)fcts->dispatch))?GetNativeFnc((uintptr_t)fcts->dispatch):my_funcs_dispatch_##A):NULL;    \
-        fct_funcs_dispatch_##A = (uintptr_t)fcts->dispatch;                            \
-        my_gsourcefuncs_##A.finalize = (fcts->finalize)?((GetNativeFnc((uintptr_t)fcts->finalize))?GetNativeFnc((uintptr_t)fcts->finalize):my_funcs_finalize_##A):NULL;    \
-        fct_funcs_finalize_##A = (uintptr_t)fcts->finalize;                            \
+    #define GO(A) if(ref_gsourcefuncs_##A == 0) {                                       \
+        ref_gsourcefuncs_##A = fcts;                                                    \
+        my_gsourcefuncs_##A.closure = fcts->closure;                                    \
+        my_gsourcefuncs_##A.marshal = fcts->marshal;                                    \
+        my_gsourcefuncs_##A.prepare = (fcts->prepare)?GetNativeOrAlt(fcts->prepare, my_funcs_prepare_##A):NULL;     \
+        my_gsourcefuncs_##A.check = (fcts->check)?GetNativeOrAlt(fcts->check, my_funcs_check_##A):NULL;             \
+        my_gsourcefuncs_##A.dispatch = (fcts->dispatch)?GetNativeOrAlt(fcts->dispatch, my_funcs_dispatch_##A):NULL; \
+        my_gsourcefuncs_##A.finalize = (fcts->finalize)?GetNativeOrAlt(fcts->finalize, my_funcs_finalize_##A):NULL; \
         return &my_gsourcefuncs_##A;                \
     }
     SUPER()

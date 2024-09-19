@@ -155,22 +155,22 @@ uintptr_t AddAutomaticBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, co
     return ret;
 }
 
-void* GetNativeFnc(uintptr_t fnc)
+void* GetNativeOrAlt(void* fnc, void* alt)
 {
     if(!fnc) return NULL;
     // check if function exist in some loaded lib
-    if(!FindElfAddress(my_context, fnc)) {
+    if(!FindElfAddress(my_context, (uintptr_t)fnc)) {
         Dl_info info;
-        if(dladdr((void*)fnc, &info))
-            return (void*)fnc;
+        if(dladdr(fnc, &info))
+            return fnc;
     }
-    if(!getProtection(fnc))
-        return NULL;
+    if(!getProtection((uintptr_t)fnc))
+        return alt;
     // check if it's an indirect jump
     #define PK(a)       *(uint8_t*)(fnc+a)
     #define PK32(a)     *(uint32_t*)(fnc+a)
     if(PK(0)==0xff && PK(1)==0x25) {    // "absolute" jump, maybe the GOT (it's a RIP+relative in fact)
-        uintptr_t a1 = fnc+6+(PK32(2)); // need to add a check to see if the address is from the GOT !
+        uintptr_t a1 = (uintptr_t)fnc+6+(PK32(2)); // need to add a check to see if the address is from the GOT !
         a1 = *(uintptr_t*)a1;
         if(a1 && a1>0x10000) {
             a1 = (uintptr_t)GetNativeFnc(a1);
@@ -183,10 +183,13 @@ void* GetNativeFnc(uintptr_t fnc)
     // check if bridge exist
     onebridge_t *b = (onebridge_t*)fnc;
     if(b->CC != 0xCC || b->S!='S' || b->C!='C' || (b->C3!=0xC3 && b->C3!=0xC2))
-        return NULL;    // not a bridge?!
+        return alt;    // not a bridge?!
     return (void*)b->f;
 }
-
+void* GetNativeFnc(uintptr_t fnc)
+{
+    return GetNativeOrAlt((void*)fnc, NULL);
+}
 void* GetNativeFncOrFnc(uintptr_t fnc)
 {
     onebridge_t *b = (onebridge_t*)fnc;

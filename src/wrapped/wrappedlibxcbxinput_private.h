@@ -335,7 +335,7 @@ GO(xcb_input_xi_query_version, uFbWW)
 GO(xcb_input_xi_query_version_reply, pFbup)
 //GO(xcb_input_button_class_state, 
 GO(xcb_input_button_class_labels_length, iFp)
-GO(xcb_input_button_class_labels_end, pFp)
+GO(xcb_input_button_class_labels_end, HFp)
 GO(xcb_input_button_class_labels, pFp)
 //GO(xcb_input_button_class_next, 
 //GO(xcb_input_button_class_end, 
@@ -359,14 +359,14 @@ GO(xcb_input_button_class_labels, pFp)
 //GO(xcb_input_device_class_data_serialize, 
 //GO(xcb_input_device_class_data_unpack, 
 GO(xcb_input_device_class_next, vFp)
-GO(xcb_input_device_class_end, HFpp)
+GO(xcb_input_device_class_end, HFH)
 GO(xcb_input_xi_device_info_classes_length, iFp)
 GO(xcb_input_xi_device_info_classes_iterator, HFp)
 GO(xcb_input_xi_device_info_name, pFp)
 GO(xcb_input_xi_device_info_name_length, iFp)
 GO(xcb_input_xi_device_info_name_end, pFp)
 GO(xcb_input_xi_device_info_next, vFp)
-GO(xcb_input_xi_device_info_end, HFpp)
+GO(xcb_input_xi_device_info_end, HFH)
 GO(xcb_input_xi_query_device, uFbu)
 GO(xcb_input_xi_query_device_unchecked, uFbu)
 GO(xcb_input_xi_query_device_infos_length, iFp)

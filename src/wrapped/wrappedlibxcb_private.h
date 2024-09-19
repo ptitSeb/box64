@@ -417,7 +417,7 @@ GO(xcb_poly_arc, pFbuuup)
 //GO(xcb_poly_fill_arc_checked, 
 //GO(xcb_poly_fill_arc_sizeof, 
 GO(xcb_poly_fill_rectangle, pFbuuup)
-//GO(xcb_poly_fill_rectangle_checked, 
+GO(xcb_poly_fill_rectangle_checked, pFbuuup)
 //GO(xcb_poly_fill_rectangle_rectangles, 
 //GO(xcb_poly_fill_rectangle_rectangles_iterator, 
 //GO(xcb_poly_fill_rectangle_rectangles_length, 

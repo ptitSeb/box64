@@ -16,6 +16,7 @@ uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const 
 uintptr_t AddAutomaticBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name);
 void* GetNativeFnc(uintptr_t fnc);
 void* GetNativeFncOrFnc(uintptr_t fnc);
+void* GetNativeOrAlt(void* fnc, void* alt);
 
 uintptr_t AddVSyscall(bridge_t* bridge, int num);
 
