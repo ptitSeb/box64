@@ -32,7 +32,7 @@ static void default_error_handler(const char *file, int line, const char *functi
 }
 
 #define ADDED_INIT() \
-    my_snd_lib_error = AddCheckBridge(my_context->system, vFpipipV, default_error_handler, 0, "ASoundCustomErrorHandler");
+    my_snd_lib_error = AddCheckBridge(my_lib->w.bridge, vFpipipV, default_error_handler, 0, "ASoundCustomErrorHandler");
 
 #define ADDED_FINI() \
     my_snd_lib_error = 0;   // no removing of bridge
@@ -89,6 +89,94 @@ static void* findElemFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for Asound Elem callback\n");
     return NULL;
 }
+// snd_pcm_hook_func_t
+#define GO(A)   \
+static uintptr_t my_pcm_hook_fct_##A = 0;                       \
+static int my_pcm_hook_##A(void* a)                             \
+{                                                               \
+    return (int)RunFunctionFmt(my_pcm_hook_fct_##A, "p", a);    \
+}
+SUPER()
+#undef GO
+static void* findPCMHookFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_pcm_hook_fct_##A == (uintptr_t)fct) return my_elem_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_pcm_hook_fct_##A == 0) {my_pcm_hook_fct_##A = (uintptr_t)fct; return my_pcm_hook_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Asound PCMHook callback\n");
+    return NULL;
+}
+//  snd_mixer_compare_t
+#define GO(A)   \
+static uintptr_t my_mixer_compare_fct_##A = 0;                       \
+static int my_mixer_compare_##A(void* a)                             \
+{                                                               \
+    return (int)RunFunctionFmt(my_mixer_compare_fct_##A, "p", a);    \
+}
+SUPER()
+#undef GO
+static void* findMixerCompareFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_mixer_compare_fct_##A == (uintptr_t)fct) return my_elem_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_mixer_compare_fct_##A == 0) {my_mixer_compare_fct_##A = (uintptr_t)fct; return my_mixer_compare_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Asound Mixer Compare callback\n");
+    return NULL;
+}
+//  private_free
+#define GO(A)   \
+static uintptr_t my_private_free_fct_##A = 0;                       \
+static int my_private_free_##A(void* a)                             \
+{                                                               \
+    return (int)RunFunctionFmt(my_private_free_fct_##A, "p", a);    \
+}
+SUPER()
+#undef GO
+static void* findPrivateFreeFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_private_free_fct_##A == (uintptr_t)fct) return my_elem_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_private_free_fct_##A == 0) {my_private_free_fct_##A = (uintptr_t)fct; return my_private_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Asound PrivateFree callback\n");
+    return NULL;
+}
+//  snd_mixer_event_t
+#define GO(A)   \
+static uintptr_t my_mixer_event_fct_##A = 0;                                \
+static int my_mixer_event_##A(void* a, uint32_t b, void* c, void* d)        \
+{                                                                           \
+    return (int)RunFunctionFmt(my_mixer_event_fct_##A, "pupp", a, b, c, d); \
+}
+SUPER()
+#undef GO
+static void* findMixerEventFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_mixer_event_fct_##A == (uintptr_t)fct) return my_elem_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_mixer_event_fct_##A == 0) {my_mixer_event_fct_##A = (uintptr_t)fct; return my_mixer_event_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for Asound MixerEvent callback\n");
+    return NULL;
+}
 
 
 EXPORT int my_snd_async_add_handler(x64emu_t *emu, void *handler, int fd, void* callback, void *private_data)
@@ -140,6 +228,50 @@ EXPORT int my_snd_lib_error_set_handler(x64emu_t* emu, void* handler)
 EXPORT void my_snd_mixer_elem_set_callback(x64emu_t* emu, void* handler, void* f)
 {
     my->snd_mixer_elem_set_callback(handler, findElemFct(f));
+}
+
+EXPORT int my_snd_pcm_hook_add(x64emu_t* emu, void* hook, void* pcm, uint32_t type, void* f, void* data)
+{
+    return my->snd_pcm_hook_add(hook, pcm, type, findPCMHookFct(f), data);
+}
+
+EXPORT int my_snd_mixer_set_compare(x64emu_t* emu, void* mixer, void* f)
+{
+    return my->snd_mixer_set_compare(mixer, findMixerCompareFct(f));
+}
+
+EXPORT int my_snd_mixer_elem_new(x64emu_t* emu, void* elem, uint32_t type, int weight, void* data, void* f)
+{
+    return my->snd_mixer_elem_new(elem, type, weight, data, findPrivateFreeFct(f));
+}
+
+EXPORT void* my_snd_mixer_class_get_event(x64emu_t* emu, void* class)
+{
+    void* ret = my->snd_mixer_class_get_event(class);
+    AddAutomaticBridge(my_lib->w.bridge, iFpupp, ret, 0, "snd_event_t");
+    return ret;
+}
+
+EXPORT void* my_snd_mixer_class_get_compare(x64emu_t* emu, void* class)
+{
+    void* ret = my->snd_mixer_class_get_compare(class);
+    AddAutomaticBridge(my_lib->w.bridge, iFpp, ret, 0, "snd_mixer_compare_t");
+    return ret;
+}
+
+EXPORT int my_snd_mixer_class_set_event(x64emu_t* emu, void* class, void* f)
+{
+    return my->snd_mixer_class_set_event(class, findMixerEventFct(f));
+}
+
+EXPORT int my_snd_mixer_class_set_private_free(x64emu_t* emu, void* class, void* f)
+{
+    return my->snd_mixer_class_set_private_free(class, findPrivateFreeFct(f));
+}
+
+EXPORT int my_snd_mixer_class_set_compare(x64emu_t* emu, void* class, void* f)
+{
+    return my->snd_mixer_class_set_compare(class, findMixerCompareFct(f));
 }
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);   // defined in wrappedlibdl.c
