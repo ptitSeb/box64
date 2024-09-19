@@ -728,7 +728,7 @@ int GetAnySymbolStartEnd(lib_t *maplib, const char* name, uintptr_t* start, uint
         return 0;
     for(int i=0; i<maplib->libsz; ++i) {
         elfheader_t* h = GetElf(maplib->libraries[i]);
-        if(h && ElfGetSymbolStartEnd(h, start, end, name, NULL, NULL, 1, &veropt))
+        if(h && ElfGetSymbolStartEnd(h, start, end, name, &version, &vername, 1, &veropt))
             return 1;
     }
     return 0;
