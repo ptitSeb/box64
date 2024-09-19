@@ -255,7 +255,7 @@ void fpu_loadenv(x64emu_t* emu, char* p, int b16)
         emu->sw.x16 = *p16++;
         // tagword: 2bits*8
         // tags... (only full = 0b11 / free = 0b00)
-        emu->fpu_tags = ~*(p16++);
+        emu->fpu_tags = *(p16++);
         // intruction pointer: 16bits
         // data (operand) pointer: 16bits
         // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
@@ -265,7 +265,7 @@ void fpu_loadenv(x64emu_t* emu, char* p, int b16)
         emu->sw.x16 = *p32++;
         // tagword: 2bits*8
         // tags... (only full = 0b11 / free = 0b00)
-        emu->fpu_tags = ~*(p32++);
+        emu->fpu_tags = *(p32++);
         // intruction pointer: 16bits
         // data (operand) pointer: 16bits
         // last opcode: 11bits save: 16bits restaured (1st and 2nd opcode only)
@@ -282,14 +282,14 @@ void fpu_savenv(x64emu_t* emu, char* p, int b16)
         *p16++ = emu->sw.x16;
         // tagword: 2bits*8
         // tags...
-        *p16++ = ~emu->fpu_tags;
+        *p16++ = emu->fpu_tags;
     } else {
         uint32_t* p32 = (uint32_t*)p;
         *p32++ = emu->cw.x16;
         *p32++ = emu->sw.x16;
         // tagword: 2bits*8
         // tags...
-        *p32++ = ~emu->fpu_tags;
+        *p32++ = emu->fpu_tags;
 
     }
     // other stuff are not pushed....
