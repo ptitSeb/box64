@@ -153,6 +153,7 @@
 #() dFdp -> dFdp
 #() dFLL -> dFLL
 #() lFui -> lFui
+#() lFpl -> lFpl
 #() LFpL -> LFpL
 #() LFpp -> LFpp
 #() pFEv -> pFEv
@@ -171,6 +172,8 @@
 #() tFip -> tFip
 #() tFpL -> tFpL
 #() iFEbp_ -> iFEB
+#() iFiBp_ -> iFiB
+#() iFpBL_ -> iFpB
 #() iFHBp_ -> iFHB
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
@@ -304,6 +307,7 @@
 #() dFddp -> dFddp
 #() lFipL -> lFipL
 #() lFlpi -> lFlpi
+#() lFppL -> lFppL
 #() LFpip -> LFpip
 #() LFppL -> LFppL
 #() pFEip -> pFEip
@@ -325,7 +329,9 @@
 #() SFEpp -> SFEpp
 #() SFppS -> SFppS
 #() tFipu -> tFipu
+#() iFppbL_ -> iFppB
 #() iFpBp_i -> iFpBi
+#() iFpbL_p -> iFpBp
 #() iFBp_LL -> iFBLL
 #() IFpBp_i -> IFpBi
 #() UFpBp_i -> UFpBi
@@ -446,6 +452,8 @@
 #() iFppii -> iFppii
 #() iFppiU -> iFppiU
 #() iFppip -> iFppip
+#() iFppui -> iFppui
+#() iFppLi -> iFppLi
 #() iFpppi -> iFpppi
 #() iFpppp -> iFpppp
 #() iFhpiL -> iFhpiL
@@ -470,6 +478,7 @@
 #() pFppLL -> pFppLL
 #() pFpppi -> pFpppi
 #() pFpppp -> pFpppp
+#() iFBp_pui -> iFBpui
 #() IFpBp_ii -> IFpBii
 #() UFpBp_ii -> UFpBii
 #() lFiibp_L -> lFiiBL
@@ -660,6 +669,7 @@
 #() vFuppppu -> vFuppppu
 #() vFffffff -> vFffffff
 #() vFdddddd -> vFdddddd
+#() vFpipipV -> vFpipipV
 #() vFppiiii -> vFppiiii
 #() vFppupii -> vFppupii
 #() iFpiiipp -> iFpiiipp
@@ -858,6 +868,7 @@ wrappedldlinux:
   - ___tls_get_addr
 - pFp:
   - __tls_get_addr
+wrappedlibasound:
 wrappedlibc:
 - vFv:
 - vFp:
