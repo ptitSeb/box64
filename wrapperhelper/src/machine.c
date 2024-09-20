@@ -6,33 +6,34 @@
 
 machine_t machine_x86_64;
 // machine_t machine_x86;
-// machine_t machine_arm64;
+machine_t machine_aarch64;
 
 #define PASTE2(a, b) a ## b
 #define PASTE(a, b) PASTE2(a, b)
 #define STRINGIFY2(a) #a
 #define STRINGIFY(a) STRINGIFY2(a)
 #define MACHINE_STR STRINGIFY(CUR_MACHINE)
+#define MACHINE_VAL PASTE(machine_, CUR_MACHINE)
 
 #define PATHS_OFFSET_PRE 2 // There are two paths that are always included before any other
 #define ADD_PATH(path) \
-	if (!(PASTE(machine_, CUR_MACHINE).include_path[failure_id] = strdup(path))) { \
-		printf("Failed to add include path to " MACHINE_STR " platform\n");        \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                           \
-	}                                                                              \
+	if (!(MACHINE_VAL.include_path[failure_id] = strdup(path))) {           \
+		printf("Failed to add include path to " MACHINE_STR " platform\n"); \
+		goto PASTE(failed_, PASTE(CUR_MACHINE, _paths));                    \
+	}                                                                       \
 	++failure_id;
 #define INIT_PATHS \
-	PASTE(machine_, CUR_MACHINE).npaths = PATHS_OFFSET_PRE + npaths + paths_offset_post;                      \
-	if (!(PASTE(machine_, CUR_MACHINE).include_path =                                                         \
-	      malloc(PASTE(machine_, CUR_MACHINE).npaths * sizeof *PASTE(machine_, CUR_MACHINE).include_path))) { \
-		printf("Failed to add include path to " MACHINE_STR " platform\n");                                   \
-		goto PASTE(failed_, PASTE(CUR_MACHINE, _nopath));                                                     \
-	}                                                                                                         \
-	failure_id = 0;                                                                                           \
-	ADD_PATH("include-override/" MACHINE_STR)                                                                 \
-	ADD_PATH("include-override/common")                                                                       \
-	while (failure_id < PATHS_OFFSET_PRE + npaths) {                                                          \
-		ADD_PATH(extra_include_path[failure_id - PATHS_OFFSET_PRE])                                           \
+	MACHINE_VAL.npaths = PATHS_OFFSET_PRE + npaths + paths_offset_post;     \
+	if (!(MACHINE_VAL.include_path =                                        \
+	      malloc(MACHINE_VAL.npaths * sizeof *MACHINE_VAL.include_path))) { \
+		printf("Failed to add include path to " MACHINE_STR " platform\n"); \
+		goto PASTE(failed_, PASTE(CUR_MACHINE, _nopath));                   \
+	}                                                                       \
+	failure_id = 0;                                                         \
+	ADD_PATH("include-override/" MACHINE_STR)                               \
+	ADD_PATH("include-override/common")                                     \
+	while (failure_id < PATHS_OFFSET_PRE + npaths) {                        \
+		ADD_PATH(extra_include_path[failure_id - PATHS_OFFSET_PRE])         \
 	}
 
 int init_machines(size_t npaths, const char *const *extra_include_path) {
@@ -49,6 +50,23 @@ int init_machines(size_t npaths, const char *const *extra_include_path) {
 	machine_x86_64.size_long = 8;
 	machine_x86_64.align_valist = 8;
 	machine_x86_64.size_valist = 24;
+	machine_x86_64.unsigned_char = 1;
+	machine_x86_64.unnamed_bitfield_aligns = 0;
+	INIT_PATHS
+#define DO_PATH ADD_PATH
+#include "machine.gen"
+#undef DO_PATH
+#undef CUR_MACHINE
+#pragma GCC diagnostic pop
+	
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
+#define CUR_MACHINE aarch64
+	machine_aarch64.size_long = 8;
+	machine_aarch64.align_valist = 8;
+	machine_aarch64.size_valist = 32;
+	machine_aarch64.unsigned_char = 0;
+	machine_aarch64.unnamed_bitfield_aligns = 1;
 	INIT_PATHS
 #define DO_PATH ADD_PATH
 #include "machine.gen"
@@ -58,6 +76,13 @@ int init_machines(size_t npaths, const char *const *extra_include_path) {
 	
 	return 1;
 	
+failed_aarch64_paths:
+	while (failure_id--) {
+		free(machine_aarch64.include_path[failure_id]);
+	}
+	free(machine_aarch64.include_path);
+failed_aarch64_nopath:
+	failure_id = machine_x86_64.npaths;
 failed_x86_64_paths:
 	while (failure_id--) {
 		free(machine_x86_64.include_path[failure_id]);
@@ -71,10 +96,19 @@ static void machine_del(machine_t *m) {
 	for (size_t path_no = m->npaths; path_no--;) {
 		free(m->include_path[path_no]);
 	}
-	free(machine_x86_64.include_path);
+	free(m->include_path);
 }
 void del_machines(void) {
 	machine_del(&machine_x86_64);
+	machine_del(&machine_aarch64);
+}
+
+machine_t *convert_machine_name(const char *archname) {
+	if (!strcmp(archname, "x86_64"))
+		return &machine_x86_64;
+	if (!strcmp(archname, "aarch64"))
+		return &machine_aarch64;
+	return NULL;
 }
 
 int validate_type(machine_t *target, type_t *typ) {
@@ -238,17 +272,33 @@ int validate_type(machine_t *target, type_t *typ) {
 					printf("Error: bitfields can only have a specific subset of types\n");
 					return 0;
 				}
-				if ((mem->typ->val.builtin != BTT_BOOL) && (mem->typ->val.builtin != BTT_INT)
-				 && (mem->typ->val.builtin != BTT_SINT) && (mem->typ->val.builtin != BTT_UINT)) {
+				if ((mem->typ->val.builtin != BTT_BOOL) && (mem->typ->val.builtin != BTT_CHAR)
+				 && (mem->typ->val.builtin != BTT_SHORT) && (mem->typ->val.builtin != BTT_INT)
+				 && (mem->typ->val.builtin != BTT_LONG) && (mem->typ->val.builtin != BTT_LONGLONG)
+				 && (mem->typ->val.builtin != BTT_SCHAR) && (mem->typ->val.builtin != BTT_UCHAR)
+				 && (mem->typ->val.builtin != BTT_SSHORT) && (mem->typ->val.builtin != BTT_USHORT)
+				 && (mem->typ->val.builtin != BTT_SINT) && (mem->typ->val.builtin != BTT_UINT)
+				 && (mem->typ->val.builtin != BTT_SLONG) && (mem->typ->val.builtin != BTT_ULONG)
+				 && (mem->typ->val.builtin != BTT_S8) && (mem->typ->val.builtin != BTT_U8)
+				 && (mem->typ->val.builtin != BTT_S16) && (mem->typ->val.builtin != BTT_U16)
+				 && (mem->typ->val.builtin != BTT_S32) && (mem->typ->val.builtin != BTT_U32)
+				 && (mem->typ->val.builtin != BTT_S64) && (mem->typ->val.builtin != BTT_U64)) {
+					// C standard: allow _Bool, (s/u)int
+					// Implementation: also allow (u/s)char, (u/s)short, (u/s)long, (u/s)long long, [u]intx_t
 					printf("Error: bitfields can only have a specific subset of types\n");
 					return 0;
 				}
-				if (!mem->name && (mem->typ->szinfo.align > max_align)) {
-					printf("Error: TODO: unnamed bitfield member with greater alignment (width=%zu)\n", mem->bitfield_width);
+				if (mem->typ->szinfo.size < mem->bitfield_width / 8) {
+					printf("Error: bitfield member %c%s%c has width (%zu) greater than its container size (%zu * 8)\n",
+						mem->name ? '\'' : '<',
+						mem->name ? string_content(mem->name) : "unnamed",
+						mem->name ? '\'' : '>',
+						mem->bitfield_width,
+						mem->typ->szinfo.size);
 					return 0;
 				}
 				if (mem->bitfield_width) {
-					if (mem->name && (max_align < mem->typ->szinfo.align)) max_align = mem->typ->szinfo.align;
+					if ((target->unnamed_bitfield_aligns || mem->name) && (max_align < mem->typ->szinfo.align)) max_align = mem->typ->szinfo.align;
 					size_t cur_block = cur_sz / mem->typ->szinfo.align;
 					size_t end_block = (cur_sz + (cur_bit + mem->bitfield_width - 1) / 8) / mem->typ->szinfo.align;
 					if (cur_block == end_block) {

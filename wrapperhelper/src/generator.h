@@ -57,8 +57,8 @@ void references_print_check(const VECTOR(references) *refs);
 void output_from_references(FILE *f, const VECTOR(references) *reqs);
 
 VECTOR(references) *references_from_file(const char *filename, FILE *f); // Takes ownership of f
-int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map);
-int solve_request_map(request_t *req, khash_t(decl_map) *decl_map, khash_t(conv_map) *conv_map);
-int solve_references(VECTOR(references) *reqs, khash_t(decl_map) *decl_map, khash_t(conv_map) *conv_map);
+int solve_request(request_t *req, type_t *emu_typ, type_t *target_typ, khash_t(conv_map) *conv_map);
+int solve_request_map(request_t *req, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map);
+int solve_references(VECTOR(references) *reqs, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map);
 
 #endif // GENERATOR_H

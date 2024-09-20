@@ -783,6 +783,7 @@ struct_t *struct_new(int is_struct, string_t *tag) {
 	ret->is_struct = is_struct;
 	ret->tag = tag;
 	ret->is_defined = 0;
+	ret->is_simple = 0;
 	ret->nrefs = 1;
 	return ret;
 }
