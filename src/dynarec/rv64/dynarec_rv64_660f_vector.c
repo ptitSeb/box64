@@ -815,6 +815,28 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VLUXEI64_V(v0, ed, q0, VECTOR_MASKED, VECTOR_NFIELD1);
             }
             break;
+        case 0x6D:
+            INST_NAME("PUNPCKHQDQ Gx,Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            // GX->q[0] = GX->q[1];
+            // GX->q[1] = EX->q[1];
+            GETGX_vector(v0, 1, VECTOR_SEW64);
+            if (MODREG) {
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                VSLIDE1DOWN_VX(v0, xZR, v0, VECTOR_UNMASKED);
+                VMV_X_S(x4, v0);
+                VMV_V_V(v0, v1);
+                VMV_S_X(v0, x4);
+            } else {
+                q0 = fpu_get_scratch(dyn);
+                VMV_V_I(VMASK, 0b10);
+                VSLIDE1DOWN_VX(v0, xZR, v0, VECTOR_UNMASKED);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                VLE64_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+            }
+            break;
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
