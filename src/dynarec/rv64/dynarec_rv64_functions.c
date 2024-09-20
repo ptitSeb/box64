@@ -42,7 +42,7 @@ int fpu_get_scratch(dynarec_rv64_t* dyn)
 int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
 {
     int reg = SCRATCH0 + dyn->e.fpu_scratch;
-    int skip = (1 << lmul) - (reg % (1 << lmul));
+    int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
     dyn->e.fpu_scratch += skip + 1;
     return reg + skip;
 }
@@ -92,17 +92,18 @@ int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
     return EXTREG(i);
 }
 // Reset fpu regs counter
-void fpu_reset_reg_extcache(extcache_t* e)
+void fpu_reset_reg_extcache(dynarec_rv64_t* dyn, extcache_t* e)
 {
     e->fpu_reg = 0;
     for (int i=0; i<24; ++i) {
         e->fpuused[i]=0;
         e->extcache[i].v = 0;
     }
+    dyn->vector_sew = VECTOR_SEWNA;
 }
 void fpu_reset_reg(dynarec_rv64_t* dyn)
 {
-    fpu_reset_reg_extcache(&dyn->e);
+    fpu_reset_reg_extcache(dyn, &dyn->e);
 }
 
 int extcache_no_i64(dynarec_rv64_t* dyn, int ninst, int st, int a)
@@ -732,7 +733,6 @@ void fpu_reset(dynarec_rv64_t* dyn)
     mmx_reset(&dyn->e);
     sse_reset(&dyn->e);
     fpu_reset_reg(dyn);
-    dyn->vector_sew = VECTOR_SEWNA;
 }
 
 void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
@@ -740,8 +740,7 @@ void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
     x87_reset(&dyn->insts[ninst].e);
     mmx_reset(&dyn->insts[ninst].e);
     sse_reset(&dyn->insts[ninst].e);
-    fpu_reset_reg_extcache(&dyn->insts[ninst].e);
-    dyn->vector_sew = VECTOR_SEWNA;
+    fpu_reset_reg_extcache(dyn, &dyn->insts[ninst].e);
 }
 
 int fpu_is_st_freed(dynarec_rv64_t* dyn, int ninst, int st)
