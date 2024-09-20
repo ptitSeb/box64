@@ -3178,6 +3178,64 @@ failed0:
 	return 0;
 }
 
+int finalize_file(file_t *file) {
+#define MARK_SIMPLE(sname) \
+	it = kh_get(struct_map, file->struct_map, #sname);                          \
+	if (it != kh_end(file->struct_map)) {                                       \
+		kh_val(file->struct_map, it)->is_simple = 1;                            \
+	} else {                                                                    \
+		it = kh_get(type_map, file->type_map, #sname);                          \
+		if (it != kh_end(file->struct_map)) {                                   \
+			type_t *typ2 = kh_val(file->type_map, it);                          \
+			if (typ2->typ != TYPE_STRUCT_UNION) {                               \
+				printf("Error: invalid typedef " #sname ": not a structure\n"); \
+				return 0;                                                       \
+			}                                                                   \
+			typ2->val.st->is_simple = 1;                                        \
+		}                                                                       \
+	}
+#define SET_WEAK(converted) \
+	typ = type_try_merge(typ, file->type_set);                               \
+	it = kh_put(conv_map, file->relaxed_type_conversion, typ, &iret);        \
+	if (iret < 0) {                                                          \
+		printf("Error: failed to add relaxed conversion to type map\n");     \
+		type_del(typ);                                                       \
+		return 0;                                                            \
+	} else if (iret == 0) {                                                  \
+		printf("Error: type already has a relaxed conversion\n");            \
+		type_del(typ);                                                       \
+		return 0;                                                            \
+	}                                                                        \
+	kh_val(file->relaxed_type_conversion, it) = string_new_cstr(#converted); \
+	type_del(typ);
+#define SET_WEAK_PTR_TO(to_typ, converted) \
+	it = kh_get(type_map, file->type_map, #to_typ);         \
+	if (it != kh_end(file->type_map)) {                     \
+		typ = type_new_ptr(kh_val(file->type_map, it));     \
+		if (!typ) {                                         \
+			printf("Failed to create type " #to_typ "*\n"); \
+			return 0;                                       \
+		}                                                   \
+		SET_WEAK(converted)                                 \
+	}
+	
+	type_t *typ;
+	int iret;
+	khiter_t it;
+	// #pragma type_letters S FILE*
+	SET_WEAK_PTR_TO(FILE, S)
+	// #pragma type_letters b xcb_connection_t*
+	SET_WEAK_PTR_TO(xcb_connection_t, S)
+	// #pragma mark_simple ...
+	MARK_SIMPLE(FTS)
+	MARK_SIMPLE(FTS64)
+	MARK_SIMPLE(glob_t)
+	MARK_SIMPLE(glob64_t)
+#undef MARK_SIMPLE
+#undef SET_WEAK
+	return 1;
+}
+
 file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 	char *dirname = strchr(filename, '/') ? strndup(filename, (size_t)(strrchr(filename, '/') - filename)) : NULL;
 	preproc_t *prep = preproc_new_file(target, file, dirname, filename);
@@ -3359,6 +3417,11 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 success:
 	preproc_del(prep);
 	type_del(typ);
+	if (!finalize_file(ret)) {
+		printf("Error: failed to add builtin aliases\n");
+		file_del(ret);
+		return NULL;
+	}
 	return ret;
 failed:
 	preproc_del(prep);
