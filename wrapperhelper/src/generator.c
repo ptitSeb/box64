@@ -964,8 +964,12 @@ static int convert_type_post(string_t *dest, type_t *typ, string_t *obj_name) {
 	}
 }
 
-int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
-	if (typ->typ == TYPE_FUNCTION) {
+int solve_request(request_t *req, type_t *emu_typ, type_t *target_typ, khash_t(conv_map) *conv_map) {
+	if (!type_t_equal(emu_typ, target_typ)) {
+		printf("Error: TODO: %s: emulated and target types are different\n", string_content(req->obj_name));
+		return 0;
+	}
+	if (emu_typ->typ == TYPE_FUNCTION) {
 		int needs_D = 0, needs_my = req->def.fun.typ && (req->def.rty == RQT_FUN_MY), needs_2 = 0;
 		int convert_post;
 		size_t idx_conv;
@@ -974,15 +978,15 @@ int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
 			printf("Error: failed to create function type string\n");
 			return 0;
 		}
-		if (!convert_type(req->val.fun.typ, typ->val.fun.ret, 1, &needs_D, &needs_my, conv_map, req->obj_name)) goto fun_fail;
+		if (!convert_type(req->val.fun.typ, emu_typ->val.fun.ret, 1, &needs_D, &needs_my, conv_map, req->obj_name)) goto fun_fail;
 		idx_conv = string_len(req->val.fun.typ);
 		if (!string_add_char(req->val.fun.typ, 'F')) {
 			printf("Error: failed to add convention char\n");
 			goto fun_fail;
 		}
-		convert_post = convert_type_post(req->val.fun.typ, typ->val.fun.ret, req->obj_name);
+		convert_post = convert_type_post(req->val.fun.typ, emu_typ->val.fun.ret, req->obj_name);
 		if (!convert_post) goto fun_fail;
-		if (typ->val.fun.nargs == (size_t)-1) {
+		if (emu_typ->val.fun.nargs == (size_t)-1) {
 			printf("Warning: assuming empty specification is void specification\n");
 			if (convert_post == 1) {
 				if (!string_add_char(req->val.fun.typ, 'v')) {
@@ -990,7 +994,7 @@ int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
 					goto fun_fail;
 				}
 			}
-		} else if (!typ->val.fun.nargs && !typ->val.fun.has_varargs) {
+		} else if (!emu_typ->val.fun.nargs && !emu_typ->val.fun.has_varargs) {
 			if (convert_post == 1) {
 				if (!string_add_char(req->val.fun.typ, 'v')) {
 					printf("Error: failed to add void specification char\n");
@@ -998,10 +1002,10 @@ int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
 				}
 			}
 		} else {
-			for (size_t i = 0; i < typ->val.fun.nargs; ++i) {
-				if (!convert_type(req->val.fun.typ, typ->val.fun.args[i], 0, &needs_D, &needs_my, conv_map, req->obj_name)) goto fun_fail;
+			for (size_t i = 0; i < emu_typ->val.fun.nargs; ++i) {
+				if (!convert_type(req->val.fun.typ, emu_typ->val.fun.args[i], 0, &needs_D, &needs_my, conv_map, req->obj_name)) goto fun_fail;
 			}
-			if (typ->val.fun.has_varargs) {
+			if (emu_typ->val.fun.has_varargs) {
 				if (req->def.fun.typ
 				      && (string_len(req->def.fun.typ) == string_len(req->val.fun.typ) + 1)
 				      && !strncmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ), string_len(req->val.fun.typ))
@@ -1010,13 +1014,13 @@ int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
 					if (!string_add_char(req->val.fun.typ, string_content(req->def.fun.typ)[string_len(req->val.fun.typ)])) {
 						printf("Error: failed to add type char '%c' for %s\n",
 							string_content(req->def.fun.typ)[string_len(req->val.fun.typ)],
-							builtin2str[typ->val.builtin]);
+							builtin2str[emu_typ->val.builtin]);
 						goto fun_fail;
 					}
 				} else {
 					needs_my = 1;
 					if (!string_add_char(req->val.fun.typ, 'V')) {
-						printf("Error: failed to add type char 'V' for %s\n", builtin2str[typ->val.builtin]);
+						printf("Error: failed to add type char 'V' for %s\n", builtin2str[emu_typ->val.builtin]);
 						goto fun_fail;
 					}
 				}
@@ -1024,8 +1028,10 @@ int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
 		}
 		
 	// fun_succ:
-		// Add 'E' by default
-		if (needs_my) {
+		// Add 'E' by default, unless we have the same function as before
+		if (needs_my && (req->default_comment
+		                  || (req->def.rty != RQT_FUN_MY)
+		                  || strcmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ)))) {
 			if (!string_add_char_at(req->val.fun.typ, 'E', idx_conv + 1)) {
 				printf("Error: failed to add emu char\n");
 				goto fun_fail;
@@ -1064,45 +1070,62 @@ int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
 		return 0;
 	} else {
 		int needs_D = 0, needs_my = req->def.dat.has_size && (req->def.rty == RQT_DATAM);
-		if (is_simple_type(typ, &needs_D, &needs_my, conv_map)) {
+		if (is_simple_type(emu_typ, &needs_D, &needs_my, conv_map)) {
 			// TODO: Hmm...
 			req->val.rty = needs_my ? RQT_DATAM : req->def.rty;
 			req->val.dat.has_size = 1;
-			req->val.dat.sz = typ->szinfo.size;
+			req->val.dat.sz = emu_typ->szinfo.size;
 			req->has_val = 1;
 			return 1;
 		} else {
 			printf("Error: TODO: solve_request for data %s with non-simple type ", string_content(req->obj_name));
-			type_print(typ);
+			type_print(emu_typ);
 			printf("\n");
 			return 0;
 		}
 	}
 }
-int solve_request_map(request_t *req, khash_t(decl_map) *decl_map, khash_t(conv_map) *conv_map) {
-	khiter_t it = kh_get(decl_map, decl_map, string_content(req->obj_name));
-	if (it == kh_end(decl_map)) {
-		if (string_content(req->obj_name)[0] != '_') {
-			printf("Error: %s was not declared\n", string_content(req->obj_name));
-		}
-		return 0;
+int solve_request_map(request_t *req, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map) {
+	int hasemu = 0, hastarget = 0;
+	khiter_t emuit, targetit;
+	emuit = kh_get(decl_map, emu_decl_map, string_content(req->obj_name));
+	if (emuit == kh_end(emu_decl_map)) {
+		goto failed;
 	}
-	if ((kh_val(decl_map, it)->storage == STORAGE_STATIC) || (kh_val(decl_map, it)->storage == STORAGE_TLS_STATIC)) {
-		if (string_content(req->obj_name)[0] != '_') {
-			printf("Error: %s was not declared\n", string_content(req->obj_name));
-		}
-		return 0;
+	if ((kh_val(emu_decl_map, emuit)->storage == STORAGE_STATIC) || (kh_val(emu_decl_map, emuit)->storage == STORAGE_TLS_STATIC)) {
+		goto failed;
 	}
-	return solve_request(req, kh_val(decl_map, it)->typ, conv_map);
+	targetit = kh_get(decl_map, target_decl_map, string_content(req->obj_name));
+	if (targetit == kh_end(target_decl_map)) {
+		goto failed;
+	}
+	if ((kh_val(target_decl_map, targetit)->storage == STORAGE_STATIC) || (kh_val(target_decl_map, targetit)->storage == STORAGE_TLS_STATIC)) {
+		goto failed;
+	}
+	return solve_request(req, kh_val(emu_decl_map, emuit)->typ, kh_val(target_decl_map, targetit)->typ, conv_map);
+	
+failed:
+	if (string_content(req->obj_name)[0] != '_') {
+		if (!hasemu && !hastarget) {
+			printf("Error: %s was not declared in the emulated and target architectures\n", string_content(req->obj_name));
+		} else if (!hasemu) {
+			printf("Error: %s was not declared only in the emulated architecture\n", string_content(req->obj_name));
+		} else if (!hastarget) {
+			printf("Error: %s was not declared only in the target architecture\n", string_content(req->obj_name));
+		} else {
+			printf("Error: internal error: failed but found for %s\n", string_content(req->obj_name));
+		}
+	}
+	return 0;
 }
-int solve_references(VECTOR(references) *refs, khash_t(decl_map) *decl_map, khash_t(conv_map) *conv_map) {
+int solve_references(VECTOR(references) *refs, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map) {
 	int ret = 1;
 	int cond_depth = 0, ok_depth = 0;
 	vector_for(references, ref, refs) {
 		switch (ref->typ) {
 		case REF_REQ:
 			if (ok_depth == cond_depth) {
-				if (!solve_request_map(&ref->req, decl_map, conv_map)) ret = 0;
+				if (!solve_request_map(&ref->req, emu_decl_map, target_decl_map, conv_map)) ret = 0;
 			} else {
 				ref->req.ignored = 1;
 			}

@@ -14,7 +14,6 @@
 #define __pic__                 2
 #define __PIE__                 2
 #define __pie__                 2
-#define __SSP_STRONG__          3
 #define __USER_LABEL_PREFIX__
 #define __gnu_linux__           1
 #define __linux__               1
@@ -55,20 +54,21 @@
 //#define __PRAGMA_REDEFINE_EXTNAME 1
 //#define __VERSION__ "14.2.1 20240805"
 // Specific x86_64 architecture
-#define __FXSR__                      1
 #define __FINITE_MATH_ONLY__          0
 #define __HAVE_SPECULATION_SAFE_VALUE 1
 #define __LP64__                      1
 #define _LP64                         1
+#define __REGISTER_PREFIX__
+#define __FXSR__                      1
 #define __MMX__                       1
 #define __MMX_WITH_SSE__              1
-#define __REGISTER_PREFIX__
 #define __SEG_FS                      1
 #define __SEG_GS                      1
 #define __SSE__                       1
 #define __SSE_MATH__                  1
 #define __SSE2__                      1
 #define __SSE2_MATH__                 1
+#define __SSP_STRONG__          3
 #define __amd64__                     1
 #define __amd64                       1
 #define __code_model_small__          1
@@ -88,8 +88,8 @@
 // Metainfo on types
 #define __BIGGEST_ALIGNMENT__  16
 #define __BYTE_ORDER__         __ORDER_LITTLE_ENDIAN__
-#define __FLOAT_WORD_ORDER__   __ORDER_LITTLE_ENDIAN__
 #define __CHAR_BIT__           8
+#define __FLOAT_WORD_ORDER__   __ORDER_LITTLE_ENDIAN__
 #define __SIZEOF_SHORT__       2
 #define __SIZEOF_WCHAR_T__     4
 #define __SIZEOF_INT__         4
@@ -291,16 +291,16 @@
 //#define __FLT32_DIG__ 6
 //#define __FLT32_EPSILON__ 1.19209289550781250000000000000000000e-7F32
 //#define __FLT32_HAS_DENORM__ 1
-//#define __FLT32_HAS_QUIET_NAN__ 1
 //#define __FLT32_HAS_INFINITY__ 1
+//#define __FLT32_HAS_QUIET_NAN__ 1
 //#define __FLT32_IS_IEC_60559__ 1
+//#define __FLT32_MANT_DIG__ 24
 //#define __FLT32_MAX_10_EXP__ 38
 //#define __FLT32_MAX__ 3.40282346638528859811704183484516925e+38F32
 //#define __FLT32_MAX_EXP__ 128
 //#define __FLT32_MIN_10_EXP__ (-37)
 //#define __FLT32_MIN__ 1.17549435082228750796873653722224568e-38F32
 //#define __FLT32_MIN_EXP__ (-125)
-//#define __FLT32_MANT_DIG__ 24
 //#define __FLT32_NORM_MAX__ 3.40282346638528859811704183484516925e+38F32
 //#define __FLT32X_DECIMAL_DIG__ 17
 //#define __FLT32X_DENORM_MIN__ 4.94065645841246544176568792868221372e-324F32x
@@ -359,8 +359,8 @@
 //#define __FLT128_HAS_QUIET_NAN__ 1
 //#define __FLT128_IS_IEC_60559__ 1
 //#define __FLT128_MANT_DIG__ 113
-//#define __FLT128_MAX__ 1.18973149535723176508575932662800702e+4932F128
 //#define __FLT128_MAX_10_EXP__ 4932
+//#define __FLT128_MAX__ 1.18973149535723176508575932662800702e+4932F128
 //#define __FLT128_MAX_EXP__ 16384
 //#define __FLT128_MIN_10_EXP__ (-4931)
 //#define __FLT128_MIN__ 3.36210314311209350626267781732175260e-4932F128
@@ -403,7 +403,3 @@
 #define __LDBL_NORM_MAX__ 1.18973149535723176502126385303097021e+4932L
 
 #include_next "stdc-predef.h"
-
-#define __attribute__(_)
-#define inline
-#define _Noreturn

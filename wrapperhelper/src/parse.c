@@ -735,7 +735,7 @@ expr_new_token:
 	// expr2 ::= sizeof expr2
 	// which includes expr2 ::= sizeof ( expr16 )
 	// expr2 ::= sizeof ( type-name )
-	if ((has_level == -1) && (expr_level >= 2) && (tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw = KW_SIZEOF)) {
+	if ((has_level == -1) && (expr_level >= 2) && (tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_SIZEOF)) {
 		*tok = proc_next_token(prep);
 		if ((tok->tokt != PTOK_SYM) || (tok->tokv.sym != SYM_LPAREN)) {
 			struct expr_partial_op pop = {
@@ -765,8 +765,8 @@ expr_new_token:
 			if (!parse_type_name(target, struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, SYM_RPAREN, &typ)) {
 				goto failed;
 			}
-			if (!typ->is_validated || typ->is_incomplete) {
-				printf("Error: cannot get the size of an incomplete type\n");
+			if (!typ->is_validated || typ->is_incomplete || (typ->typ == TYPE_FUNCTION)) {
+				printf("Error: cannot get the size of a function or incomplete type\n");
 				type_del(typ);
 				proc_token_del(tok);
 				goto failed;
@@ -816,6 +816,51 @@ expr_new_token:
 			expr_level = 16;
 			goto pushed_expr;
 		}
+	}
+	// expr2 ::= _Alignof ( type-name )
+	if ((has_level == -1) && (expr_level >= 2) && (tok->tokt == PTOK_KEYWORD) && (tok->tokv.kw == KW_ALIGNOF)) {
+		*tok = proc_next_token(prep);
+		if ((tok->tokt != PTOK_SYM) || (tok->tokv.sym != SYM_LPAREN)) {
+			printf("Error: invalid _Alignof expression\n");
+			proc_token_del(tok);
+			goto failed;
+		}
+		// Empty destructor
+		*tok = proc_next_token(prep);
+		type_t *typ = type_new();
+		if (!typ) {
+			printf("Error: failed to create new type info structure\n");
+			proc_token_del(tok);
+			goto failed;
+		}
+		if (!parse_type_name(target, struct_map, type_map, enum_map, builtins, const_map, type_set, prep, tok, SYM_RPAREN, &typ)) {
+			goto failed;
+		}
+		if (!typ->is_validated || typ->is_incomplete || (typ->typ == TYPE_FUNCTION)) {
+			printf("Error: cannot get the alignment of a function or incomplete type\n");
+			type_del(typ);
+			proc_token_del(tok);
+			goto failed;
+		}
+		e = malloc(sizeof *e);
+		if (!e) {
+			printf("Error: failed to create new expression atom\n");
+			type_del(typ);
+			proc_token_del(tok);
+			goto failed;
+		}
+		e->typ = ETY_CONST;
+		e->val.cst.typ = NCT_UINT64;
+		e->val.cst.val.u64 = typ->szinfo.align;
+		has_level = 2;
+		type_del(typ);
+		if (!e->val.cst.val.u64) {
+			proc_token_del(tok);
+			goto failed;
+		}
+		// Empty destructor
+		*tok = proc_next_token(prep);
+		goto expr_new_token;
 	}
 	
 	// expr0 ::= ( expr16 )
@@ -1327,7 +1372,7 @@ static int eval_expression(expr_t *e, khash_t(const_map) *const_map, num_constan
 				return 1;
 			case BTT_VOID:
 			case BTT_BOOL:
-			case BTT_CHAR:
+			case BTT_CHAR: // May be signed or unsigned depending on the machine
 			case BTT_SCHAR:
 			case BTT_SHORT:
 			case BTT_SSHORT:
@@ -1960,6 +2005,7 @@ parse_cur_token_decl:
 			}
 			
 			typ->is_incomplete = 0;
+			typ->is_validated = 0;
 			typ->val.st->has_incomplete = 0; // Filled by the validate_type step
 			typ->val.st->nmembers = vector_size(st_members, members);
 			typ->val.st->members = vector_steal(st_members, members);
@@ -3178,14 +3224,14 @@ failed0:
 	return 0;
 }
 
-int finalize_file(file_t *file) {
+static int finalize_file(machine_t *target, file_t *file) {
 #define MARK_SIMPLE(sname) \
 	it = kh_get(struct_map, file->struct_map, #sname);                          \
 	if (it != kh_end(file->struct_map)) {                                       \
 		kh_val(file->struct_map, it)->is_simple = 1;                            \
 	} else {                                                                    \
 		it = kh_get(type_map, file->type_map, #sname);                          \
-		if (it != kh_end(file->struct_map)) {                                   \
+		if (it != kh_end(file->type_map)) {                                     \
 			type_t *typ2 = kh_val(file->type_map, it);                          \
 			if (typ2->typ != TYPE_STRUCT_UNION) {                               \
 				printf("Error: invalid typedef " #sname ": not a structure\n"); \
@@ -3195,6 +3241,7 @@ int finalize_file(file_t *file) {
 		}                                                                       \
 	}
 #define SET_WEAK(converted) \
+	validate_type(target, typ);                                              \
 	typ = type_try_merge(typ, file->type_set);                               \
 	it = kh_put(conv_map, file->relaxed_type_conversion, typ, &iret);        \
 	if (iret < 0) {                                                          \
@@ -3206,8 +3253,7 @@ int finalize_file(file_t *file) {
 		type_del(typ);                                                       \
 		return 0;                                                            \
 	}                                                                        \
-	kh_val(file->relaxed_type_conversion, it) = string_new_cstr(#converted); \
-	type_del(typ);
+	kh_val(file->relaxed_type_conversion, it) = string_new_cstr(#converted);
 #define SET_WEAK_PTR_TO(to_typ, converted) \
 	it = kh_get(type_map, file->type_map, #to_typ);         \
 	if (it != kh_end(file->type_map)) {                     \
@@ -3216,6 +3262,7 @@ int finalize_file(file_t *file) {
 			printf("Failed to create type " #to_typ "*\n"); \
 			return 0;                                       \
 		}                                                   \
+		++kh_val(file->type_map, it)->nrefs;                \
 		SET_WEAK(converted)                                 \
 	}
 	
@@ -3417,7 +3464,7 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 success:
 	preproc_del(prep);
 	type_del(typ);
-	if (!finalize_file(ret)) {
+	if (!finalize_file(target, ret)) {
 		printf("Error: failed to add builtin aliases\n");
 		file_del(ret);
 		return NULL;
