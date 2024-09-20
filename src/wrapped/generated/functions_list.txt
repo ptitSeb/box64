@@ -1248,6 +1248,7 @@
 #() pFELpA
 #() pFEpii
 #() pFEpip
+#() pFEpiV
 #() pFEpuL
 #() pFEppi
 #() pFEppp
@@ -2014,6 +2015,7 @@
 #() vFpppipu
 #() vFpppipp
 #() vFpppuii
+#() vFpppuip
 #() vFpppuuu
 #() vFpppuup
 #() vFpppLpp
@@ -2642,6 +2644,7 @@
 #() vFpiiiiiip
 #() vFpiiiipii
 #() vFpiUuupup
+#() vFpiLLiipi
 #() vFpippiiuu
 #() vFpippiipi
 #() vFpuiULipp
@@ -2664,6 +2667,7 @@
 #() vFpplppppi
 #() vFpplppppp
 #() vFppLpLpLp
+#() vFpppiipui
 #() vFpppipppu
 #() vFpppuiiii
 #() vFpppLpppp
@@ -2825,6 +2829,7 @@
 #() vFffCCCCfff
 #() vFddddddddd
 #() vFpiuippppi
+#() vFpiLpLiipi
 #() vFpipiuiipp
 #() vFpipppiipi
 #() vFpuuuuuuuu
@@ -3017,6 +3022,7 @@
 #() vFuUuuuuuuuuu
 #() vFuffffffffff
 #() vFUufffffffff
+#() vFpiLpLiiiipi
 #() vFpipipiipiiu
 #() vFpipppiiiipi
 #() vFpupuuupupup
@@ -3066,6 +3072,7 @@
 #() vFuuiiiiiiiuup
 #() vFuuuuuuuuuuuu
 #() vFffffffffffff
+#() vFpiLpLiiiipui
 #() vFpipppiiiipii
 #() vFpippppiiiipi
 #() vFpupppppppppp
@@ -3137,6 +3144,7 @@
 #() pFppppppppppppppp
 #() vFpppppppppppppppp
 #() iFpppppppppppppppp
+#() pFpipppppppppppppp
 #() pFppipipipipipipip
 #() pFppupupupupupupup
 #() pFpppppppppppppppp
@@ -3155,7 +3163,6 @@
 #() vFpiiiiiiiiiiiiiiiiii
 #() uFbWWWCCCCCCCCWCCCCCC
 #() pFiiiippppppppppppppp
-#() pFpippppppppppppppppp
 #() pFpupupppppppppppppppp
 #() iFpppppppppppppppppppppp
 #() uFippuuuuiiiiuuiiiiiiiipp
@@ -5096,6 +5103,10 @@ wrappedlibxext:
   - XShmPutImage
 wrappedlibxfixes:
 wrappedlibxft:
+- pFpiV:
+  - XftFontOpen
+- pFpipppppppppppppp:
+  - XftListFonts
 wrappedlibxi:
 wrappedlibxmu:
 wrappedlibxpm:

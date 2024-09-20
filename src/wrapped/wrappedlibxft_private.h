@@ -1,81 +1,81 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
-//GO(XftCharExists, 
-//GO(XftCharFontSpecRender, 
-//GO(XftCharIndex, 
-//GO(XftCharSpecRender, 
-GO(XftColorAllocName, iFppupp)
-//GO(XftColorAllocValue, 
-GO(XftColorFree, vFppup)
-//GO(XftDefaultHasRender, 
-//GO(XftDefaultSet, 
-//GO(XftDefaultSubstitute, 
-GO(XftDrawChange, vFpp)
-//GO(XftDrawCharFontSpec, 
-//GO(XftDrawCharSpec, 
-//GO(XftDrawColormap, 
-GO(XftDrawCreate, pFpppp)
-//GO(XftDrawCreateAlpha, 
-//GO(XftDrawCreateBitmap, 
+GO(XftCharExists, iFppu)
+GO(XftCharFontSpecRender, vFpiLLiipi)
+GO(XftCharIndex, uFppu)
+GO(XftCharSpecRender, vFpiLpLiipi)
+GO(XftColorAllocName, iFppLpp)
+GO(XftColorAllocValue, iFppLpp)
+GO(XftColorFree, vFppLp)
+GO(XftDefaultHasRender, iFp)
+GO(XftDefaultSet, iFpp)
+GO(XftDefaultSubstitute, vFpip)
+GO(XftDrawChange, vFpL)
+GO(XftDrawCharFontSpec, vFpppi)
+GO(XftDrawCharSpec, vFppppi)
+GO(XftDrawColormap, LFp)
+GO(XftDrawCreate, pFpLpL)
+GO(XftDrawCreateAlpha, pFpLi)
+GO(XftDrawCreateBitmap, pFpL)
 GO(XftDrawDestroy, vFp)
-//GO(XftDrawDisplay, 
-//GO(XftDrawDrawable, 
-//GO(XftDrawGlyphFontSpec, 
-//GO(XftDrawGlyphs, 
-//GO(XftDrawGlyphSpec, 
-//GO(XftDrawPicture, 
+GO(XftDrawDisplay, pFp)
+GO(XftDrawDrawable, LFp)
+GO(XftDrawGlyphFontSpec, vFpppi)
+GO(XftDrawGlyphs, vFpppiipi)
+GO(XftDrawGlyphSpec, vFppppi)
+GO(XftDrawPicture, LFp)
 GO(XftDrawRect, vFppiiuu)
 GO(XftDrawSetClip, iFpp)
-//GO(XftDrawSetClipRectangles, 
-//GO(XftDrawSetSubwindowMode, 
-//GO(XftDrawSrcPicture, 
+GO(XftDrawSetClipRectangles, iFpiipi)
+GO(XftDrawSetSubwindowMode, vFpi)
+GO(XftDrawSrcPicture, LFpp)
 GO(XftDrawString16, vFpppiipi)
 GO(XftDrawString32, vFpppiipi)
-//GO(XftDrawString8, 
-//GO(XftDrawStringUtf16, 
-//GO(XftDrawStringUtf8, 
-//GO(XftDrawVisual, 
-//GO(XftFontCheckGlyph, 
+GO(XftDrawString8, vFpppiipi)
+GO(XftDrawStringUtf16, vFpppiipui)
+GO(XftDrawStringUtf8, vFpppiipi)
+GO(XftDrawVisual, pFp)
+GO(XftFontCheckGlyph, iFppiupp)
 GO(XftFontClose, vFpp)
 GO(XftFontCopy, pFpp)
-//GO(XftFontInfoCreate, 
-//GO(XftFontInfoDestroy, 
-//GO(XftFontInfoEqual, 
-//GO(XftFontInfoHash, 
-//GO(XftFontLoadGlyphs, 
+GO(XftFontInfoCreate, pFpp)
+GO(XftFontInfoDestroy, vFpp)
+GO(XftFontInfoEqual, iFpp)
+GO(XftFontInfoHash, uFp)
+GO(XftFontLoadGlyphs, vFppipi)
 GO(XftFontMatch, pFpipp)
-GO(XftFontOpen, pFpippppppppppppppppp)  // use ...
-//GO(XftFontOpenInfo, 
+GOM(XftFontOpen, pFEpiV)
+GO(XftFontOpenInfo, pFppp)
 GO(XftFontOpenName, pFpip)
 GO(XftFontOpenPattern, pFpp)
 GO(XftFontOpenXlfd, pFpip)
-//GO(XftFontUnloadGlyphs, 
-//GO(XftGetVersion, 
-//GO(XftGlyphExtents, 
-//GO(XftGlyphFontSpecRender, 
-//GO(XftGlyphRender, 
-//GO(XftGlyphSpecRender, 
-//GO(XftInit, 
-//GO(XftInitFtLibrary, 
-//GO(XftListFonts, 
-//GO(XftLockFace, 
-//GO(XftNameParse, 
+GO(XftFontUnloadGlyphs, vFpppi)
+GO(XftGetVersion, iFv)
+GO(XftGlyphExtents, vFpppip)
+GO(XftGlyphFontSpecRender, vFpiLLiipi)
+GO(XftGlyphRender, vFpiLpLiiiipi)
+GO(XftGlyphSpecRender, vFpiLpLiipi)
+GO(XftInit, iFp)
+GO(XftInitFtLibrary, iFv)
+GO(XftListFonts, pFpipppppppppppppp)    // actually pFpiV
+GO(XftLockFace, pFp)
+GO(XftNameParse, pFp)
 GO(XftNameUnparse, iFppi)
 GO(XftTextExtents16, vFpppip)
 GO(XftTextExtents32, vFpppip)
-//GO(XftTextExtents8, 
-//GO(XftTextExtentsUtf16, 
-//GO(XftTextExtentsUtf8, 
-//GO(XftTextRender16, 
-//GO(XftTextRender16BE, 
-//GO(XftTextRender16LE, 
-//GO(XftTextRender32, 
-//GO(XftTextRender32BE, 
-//GO(XftTextRender32LE, 
-//GO(XftTextRender8, 
-//GO(XftTextRenderUtf16, 
-//GO(XftTextRenderUtf8, 
-//GO(XftUnlockFace, 
-//GO(XftXlfdParse, 
+GO(XftTextExtents8, vFpppip)
+GO(XftTextExtentsUtf16, vFpppuip)
+GO(XftTextExtentsUtf8, vFpppip)
+GO(XftTextRender16, vFpiLpLiiiipi)
+GO(XftTextRender16BE, vFpiLpLiiiipi)
+GO(XftTextRender16LE, vFpiLpLiiiipi)
+GO(XftTextRender32, vFpiLpLiiiipi)
+GO(XftTextRender32BE, vFpiLpLiiiipi)
+GO(XftTextRender32LE, vFpiLpLiiiipi)
+GO(XftTextRender8, vFpiLpLiiiipi)
+GO(XftTextRenderUtf16, vFpiLpLiiiipui)
+GO(XftTextRenderUtf8, vFpiLpLiiiipi)
+GO(XftUnlockFace, vFp)
+GO(XftXlfdParse, pFpii)
