@@ -5006,6 +5006,7 @@ wrappedlibx11:
 - iFp:
   - XDestroyImage
   - XInitImage
+  - _XInitImageFuncPtrs
 - pFp:
   - XOpenDisplay
   - XSetErrorHandler

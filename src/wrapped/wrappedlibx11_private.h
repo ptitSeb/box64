@@ -482,7 +482,7 @@ DATAB(_XInitDisplayLock_fn, sizeof(void*))
 //GO(_XInitDynamicOM, 
 GO(XInitExtension, pFpp)
 GOM(XInitImage, iFEp)
-//GO(_XInitImageFuncPtrs, 
+GOM(_XInitImageFuncPtrs, iFEp)
 //GO(_XInitKeysymDB, 
 GO(XInitThreads, iFv)
 GO(XInsertModifiermapEntry, pFpCi)

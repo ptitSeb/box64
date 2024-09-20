@@ -1278,6 +1278,12 @@ EXPORT void* my_XGetImage(x64emu_t* emu, void* disp, void* drawable, int32_t x, 
     return img;
 }
 
+EXPORT void my__XInitImageFuncPtrs(x64emu_t* emu, XImage* img)
+{
+    my->_XInitImageFuncPtrs(img);
+    BridgeImageFunc(emu, img);
+}
+
 EXPORT int32_t my_XPutImage(x64emu_t* emu, void* disp, void* drawable, void* gc, void* image
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h)
