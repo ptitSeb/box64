@@ -715,16 +715,16 @@ void* my_XCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, int3
 
 int32_t my_XInitImage(x64emu_t* emu, void* img);
 
-void* my_XGetImage(x64emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
+void* my_XGetImage(x64emu_t* emu, void* disp, size_t drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt);
 
-int32_t my_XPutImage(x64emu_t* emu, void* disp, void* drawable, void* gc, void* image
+int32_t my_XPutImage(x64emu_t* emu, void* disp, size_t drawable, void* gc, void* image
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h);
 
-void* my_XGetSubImage(x64emu_t* emu, void* disp, void* drawable
+void* my_XGetSubImage(x64emu_t* emu, void* disp, size_t drawable
                     , int32_t x, int32_t y
-                    , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt
+                    , uint32_t w, uint32_t h, size_t plane, int32_t fmt
                     , void* image, int32_t dst_x, int32_t dst_y);
 
 void my_XDestroyImage(x64emu_t* emu, void* image);
@@ -1266,7 +1266,7 @@ EXPORT int32_t my_XInitImage(x64emu_t* emu, void* img)
     return ret;
 }
 
-EXPORT void* my_XGetImage(x64emu_t* emu, void* disp, void* drawable, int32_t x, int32_t y
+EXPORT void* my_XGetImage(x64emu_t* emu, void* disp, size_t drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt)
 {
 
@@ -1284,7 +1284,7 @@ EXPORT void my__XInitImageFuncPtrs(x64emu_t* emu, XImage* img)
     BridgeImageFunc(emu, img);
 }
 
-EXPORT int32_t my_XPutImage(x64emu_t* emu, void* disp, void* drawable, void* gc, void* image
+EXPORT int32_t my_XPutImage(x64emu_t* emu, void* disp, size_t drawable, void* gc, void* image
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h)
 {
@@ -1295,9 +1295,9 @@ EXPORT int32_t my_XPutImage(x64emu_t* emu, void* disp, void* drawable, void* gc,
     return r;
 }
 
-EXPORT void* my_XGetSubImage(x64emu_t* emu, void* disp, void* drawable
+EXPORT void* my_XGetSubImage(x64emu_t* emu, void* disp, size_t drawable
                     , int32_t x, int32_t y
-                    , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt
+                    , uint32_t w, uint32_t h, size_t plane, int32_t fmt
                     , void* image, int32_t dst_x, int32_t dst_y)
 {
 
@@ -1377,9 +1377,9 @@ EXPORT int my_XAddConnectionWatch(x64emu_t* emu, void* display, char* f, void* d
     return my->XAddConnectionWatch(display, findXConnectionWatchProcFct(f), data);
 }
 
-EXPORT int my_XRemoveConnectionWatch(x64emu_t* emu, void* display, char* f, void* data)
+EXPORT void my_XRemoveConnectionWatch(x64emu_t* emu, void* display, char* f, void* data)
 {
-    return my->XRemoveConnectionWatch(display, findXConnectionWatchProcFct(f), data);
+    my->XRemoveConnectionWatch(display, findXConnectionWatchProcFct(f), data);
 }
 
 EXPORT void* my_XSetAfterFunction(x64emu_t* emu, void* display, void* f)
@@ -1601,7 +1601,7 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
     return ret;
 }
 
-EXPORT void* my__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, int type, size_t len)
+EXPORT void* my__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, size_t len)
 {
     // check if asynchandler needs updated wrapping
     struct my_XInternalAsync * p = dpy->async_handlers;

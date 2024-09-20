@@ -48,7 +48,6 @@
 #() IFS
 #() CFv
 #() CFi
-#() CFC
 #() CFW
 #() CFu
 #() CFU
@@ -1231,6 +1230,7 @@
 #() LFpLCL
 #() LFpLLp
 #() LFpLLS
+#() LFpLpi
 #() LFpLpL
 #() LFpLpp
 #() LFppii
@@ -1249,7 +1249,7 @@
 #() pFEpii
 #() pFEpip
 #() pFEpiV
-#() pFEpuL
+#() pFEpCL
 #() pFEppi
 #() pFEppp
 #() pFEppV
@@ -2162,7 +2162,6 @@
 #() iFpppupu
 #() iFpppupp
 #() iFpppLpp
-#() iFppppii
 #() iFppppiu
 #() iFppppip
 #() iFppppui
@@ -2384,6 +2383,7 @@
 #() vFppcuupp
 #() vFppiiiii
 #() vFppiiipi
+#() vFppiipii
 #() vFppiipuu
 #() vFppiippp
 #() vFppilppi
@@ -2489,7 +2489,6 @@
 #() iFppLuuii
 #() iFppLLLLu
 #() iFppLpppp
-#() iFpppiiuu
 #() iFpppiiup
 #() iFpppiuwu
 #() iFpppippi
@@ -2719,7 +2718,6 @@
 #() iFppiiipip
 #() iFppillppp
 #() iFppipiipi
-#() iFppippppp
 #() iFppIIIppp
 #() iFppuiiuuu
 #() iFppuuuuuu
@@ -2855,7 +2853,6 @@
 #() vFpppiiiiii
 #() vFpppffffff
 #() vFppppipiip
-#() vFpppppippp
 #() iFEpiiiiipi
 #() iFEppuppppp
 #() iFEpppupppp
@@ -2888,7 +2885,6 @@
 #() iFppupppupp
 #() iFppLpiuppp
 #() iFpppiiipip
-#() iFpppiiuuii
 #() iFpppiipiiu
 #() iFpppippipi
 #() iFpppLLLupp
@@ -2908,7 +2904,7 @@
 #() lFpppippppp
 #() LFEppppppii
 #() LFpLiiuuuLL
-#() pFEppiiuuLi
+#() pFEpLiiuuLi
 #() pFEppuippuu
 #() pFEpppppiiV
 #() pFEpppppppi
@@ -3038,9 +3034,9 @@
 #() vFppupppuiiii
 #() vFppppppppppp
 #() iFEiipppppppp
+#() iFEpLppiiiiuu
 #() iFEppLpLpLLpp
 #() iFEpppupppppp
-#() iFEppppiiiiuu
 #() iFEpppppppppp
 #() iFuiiiiuuiiip
 #() iFpiippiiipip
@@ -3091,10 +3087,10 @@
 #() iFpLLlliLppppp
 #() iFpppllipppppp
 #() iFpppppppppppp
-#() pFEppiiuuuipii
+#() LFpLiiuuuiupLp
+#() pFEpLiiuuLipii
 #() pFEppppppppppp
 #() pFWWiCCCCiipup
-#() pFppiiuuuiupLp
 #() pFppippLLLiLpp
 #() pFppuuppppuppp
 #() pFpppppppppppp
@@ -3163,6 +3159,7 @@
 #() vFpiiiiiiiiiiiiiiiiii
 #() uFbWWWCCCCCCCCWCCCCCC
 #() pFiiiippppppppppppppp
+#() pFppppppppppppppppppp
 #() pFpupupppppppppppppppp
 #() iFpppppppppppppppppppppp
 #() uFippuuuuiiiiuuiiiiiiiipp
@@ -5030,15 +5027,16 @@ wrappedlibx11:
   - XCreateIC
   - XSetICValues
   - XSetIMValues
+- vFppp:
+  - XRemoveConnectionWatch
 - iFppp:
   - XAddConnectionWatch
-  - XRemoveConnectionWatch
 - pFpip:
   - XESetCloseDisplay
   - XESetError
   - XESetEventToWire
   - XESetWireToEvent
-- pFpuL:
+- pFpCL:
   - _XGetRequest
 - iFpppp:
   - XCheckIfEvent
@@ -5049,13 +5047,13 @@ wrappedlibx11:
 - iFpppppp:
   - XRegisterIMInstantiateCallback
   - XUnregisterIMInstantiateCallback
-- pFppiiuuLi:
+- pFpLiiuuLi:
   - XGetImage
-- iFppppiiiiuu:
+- iFpLppiiiiuu:
   - XPutImage
 - pFppuiipuuii:
   - XCreateImage
-- pFppiiuuuipii:
+- pFpLiiuuLipii:
   - XGetSubImage
 wrappedlibx11xcb:
 - pFp:
@@ -5105,8 +5103,6 @@ wrappedlibxfixes:
 wrappedlibxft:
 - pFpiV:
   - XftFontOpen
-- pFpipppppppppppppp:
-  - XftListFonts
 wrappedlibxi:
 wrappedlibxmu:
 wrappedlibxpm:

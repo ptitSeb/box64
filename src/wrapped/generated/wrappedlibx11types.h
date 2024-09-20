@@ -18,16 +18,17 @@ typedef void* (*pFiV_t)(int32_t, ...);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
+typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
-typedef void* (*pFpuL_t)(void*, uint32_t, uintptr_t);
+typedef void* (*pFpCL_t)(void*, uint8_t, uintptr_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
-typedef void* (*pFppiiuuLi_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
-typedef int32_t (*iFppppiiiiuu_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
+typedef void* (*pFpLiiuuLi_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
+typedef int32_t (*iFpLppiiiiuu_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
 typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
-typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, void*, int32_t, int32_t);
+typedef void* (*pFpLiiuuLipii_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t, void*, int32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XDestroyImage, iFp_t) \
@@ -43,22 +44,22 @@ typedef void* (*pFppiiuuuipii_t)(void*, void*, int32_t, int32_t, uint32_t, uint3
 	GO(XCreateIC, pFpV_t) \
 	GO(XSetICValues, pFpV_t) \
 	GO(XSetIMValues, pFpV_t) \
+	GO(XRemoveConnectionWatch, vFppp_t) \
 	GO(XAddConnectionWatch, iFppp_t) \
-	GO(XRemoveConnectionWatch, iFppp_t) \
 	GO(XESetCloseDisplay, pFpip_t) \
 	GO(XESetError, pFpip_t) \
 	GO(XESetEventToWire, pFpip_t) \
 	GO(XESetWireToEvent, pFpip_t) \
-	GO(_XGetRequest, pFpuL_t) \
+	GO(_XGetRequest, pFpCL_t) \
 	GO(XCheckIfEvent, iFpppp_t) \
 	GO(XIfEvent, iFpppp_t) \
 	GO(XPeekIfEvent, iFpppp_t) \
 	GO(XQueryExtension, iFppppp_t) \
 	GO(XRegisterIMInstantiateCallback, iFpppppp_t) \
 	GO(XUnregisterIMInstantiateCallback, iFpppppp_t) \
-	GO(XGetImage, pFppiiuuLi_t) \
-	GO(XPutImage, iFppppiiiiuu_t) \
+	GO(XGetImage, pFpLiiuuLi_t) \
+	GO(XPutImage, iFpLppiiiiuu_t) \
 	GO(XCreateImage, pFppuiipuuii_t) \
-	GO(XGetSubImage, pFppiiuuuipii_t)
+	GO(XGetSubImage, pFpLiiuuLipii_t)
 
 #endif // __wrappedlibx11TYPES_H_

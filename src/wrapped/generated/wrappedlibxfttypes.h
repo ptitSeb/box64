@@ -12,10 +12,8 @@
 #endif
 
 typedef void* (*pFpiV_t)(void*, int32_t, ...);
-typedef void* (*pFpipppppppppppppp_t)(void*, int32_t, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(XftFontOpen, pFpiV_t) \
-	GO(XftListFonts, pFpipppppppppppppp_t)
+	GO(XftFontOpen, pFpiV_t)
 
 #endif // __wrappedlibxftTYPES_H_
