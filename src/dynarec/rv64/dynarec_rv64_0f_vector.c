@@ -140,6 +140,27 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VSLIDEUP_VI(v0, 8, v1, VECTOR_UNMASKED);
             }
             break;
+        case 0x17:
+            INST_NAME("MOVHPS Ex, Gx");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW64);
+            // EX->q[0] = GX->q[1];
+            if (MODREG) {
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                q0 = fpu_get_scratch(dyn);
+                VSLIDE1DOWN_VX(q0, xZR, v0, VECTOR_UNMASKED);
+                VMV_X_S(x4, q0);
+                VMV_S_X(v1, x4);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                q0 = fpu_get_scratch(dyn);
+                VSLIDE1DOWN_VX(q0, xZR, v0, VECTOR_UNMASKED);
+                VMV_X_S(x4, q0);
+                SD(x4, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x28:
             INST_NAME("MOVAPS Gx, Ex");
             nextop = F8;
