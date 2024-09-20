@@ -1073,6 +1073,15 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VXOR_VI(q0, 0x1F, q0, VECTOR_UNMASKED);
             VAND_VV(q0, q0, q1, VECTOR_UNMASKED);
             break;
+        case 0xE0:
+            INST_NAME("PAVGB Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW8);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+            CSRRWI(xZR, 0b00 /* rnu */, 0x00A /* vxrm */);
+            VAADDU_VV(q0, q1, q0, VECTOR_UNMASKED);
+            break;
         case 0xE1:
             INST_NAME("PSRAW Gx,Ex");
             nextop = F8;
