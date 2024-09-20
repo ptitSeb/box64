@@ -403,3 +403,7 @@
 #define __LDBL_NORM_MAX__ 1.18973149535723176502126385303097021e+4932L
 
 #include_next "stdc-predef.h"
+
+#define __attribute__(_)
+#define inline
+#define _Noreturn
