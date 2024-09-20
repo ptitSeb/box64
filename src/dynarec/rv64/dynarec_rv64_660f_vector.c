@@ -1049,12 +1049,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, u8, 1);
             GETGX_vector(q0, 1, u8);
             GETEX_vector(q1, 0, 0, u8);
-            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            VWSUBU_VV(v0, q1, q0, VECTOR_UNMASKED);
-            vector_vsetvli(dyn, ninst, x1, u8 + 1, rv64_vlen == 128 ? VECTOR_LMUL2 : VECTOR_LMUL1, 2);
-            VMAX_VX(v0, xZR, v0, VECTOR_UNMASKED);
-            vector_vsetvli(dyn, ninst, x1, u8, VECTOR_LMUL1, 1);
-            VNSRL_WX(q0, xZR, v0, VECTOR_UNMASKED);
+            VSSUBU_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xDB:
             INST_NAME("PAND Gx, Ex");
@@ -1063,6 +1058,21 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
             VAND_VV(q0, q0, q1, VECTOR_UNMASKED);
+            break;
+        case 0xDC:
+        case 0xDD:
+            if (opcode == 0xDC) {
+                INST_NAME("PADDUSB Gx, Ex");
+                u8 = VECTOR_SEW8;
+            } else {
+                INST_NAME("PADDUSW Gx, Ex");
+                u8 = VECTOR_SEW16;
+            }
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            GETGX_vector(q0, 1, u8);
+            GETEX_vector(q1, 0, 0, u8);
+            VSADDU_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xDF:
             INST_NAME("PANDN Gx, Ex");
@@ -1173,12 +1183,19 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VXOR_VV(q0, q0, q1, VECTOR_UNMASKED);
             }
             break;
+        case 0xF8:
         case 0xF9:
-            INST_NAME("PSUBW Gx, Ex");
+            if (opcode == 0xF8) {
+                INST_NAME("PSUBB Gx, Ex");
+                u8 = VECTOR_SEW8;
+            } else {
+                INST_NAME("PSUBW Gx, Ex");
+                u8 = VECTOR_SEW16;
+            }
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
-            GETGX_vector(q0, 1, VECTOR_SEW16);
-            GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
+            GETGX_vector(q0, 1, u8);
+            GETEX_vector(q1, 0, 0, u8);
             VSUB_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xFC ... 0xFE:
