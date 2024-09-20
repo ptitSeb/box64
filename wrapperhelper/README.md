@@ -31,11 +31,19 @@ The first file is a `C` file containing every declaration required. The second f
 
 The support file may contain pragma declarations of the form
 ```c
-#pragma wrappers type-letters c TYPE
+#pragma wrappers type_letters c TYPE
+#pragma wrappers type_letters_strict c TYPE
 ```
-where `TYPE` is a `type-name`. This marks the *exact* type `TYPE` as being a complex type though with a conversion as `c` (which may be multiple characters). Meaning:
+where `TYPE` is a `type-name`. The second form marks the *exact* type `TYPE` as being a complex type though with a conversion as `c` (which may be multiple characters), while the first marks the type `TYPE`, regardless of type qualifers (`_Atomic`, `const`, `restrict`, `volatile`). Meaning:
 - if a parameter has type `TYPE`, the character output will be `c`;
 - if a parameter has a pointer to `TYPE`, or a structure containing `TYPE`, the output will be a `GOM` function.
+
+Declarations of the form
+```c
+#pragma wrappers mark_simple TAG
+```
+will mark the structure or union with tag `TAG`, or the structure or union aliased to `TAG` by a `typedef` if no such structure exist, as simple. This means that a pointer to such a structure will have a character output of `p`.
+This is not the same as making the pointer to the structure a complex type with conversion as `p` as e.g. pointers to pointers will behave differently.
 
 System headers included (directly or indirectly) by the support file are overriden by the files in `include-fixed`.
 

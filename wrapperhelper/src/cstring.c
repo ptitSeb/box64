@@ -98,6 +98,16 @@ int string_add_char(string_t *s, char elem) {
 	return 1;
 }
 
+int string_add_char_at(string_t *s, char elem, size_t idx) {
+	if (idx == s->ssize) return string_add_char(s, elem);
+	if (idx > s->ssize) return 0;
+	if (!string_reserve_grow(s, s->ssize + 1)) return 0;
+	memmove(s->buf + idx + 1, s->buf + idx, s->ssize + 1 - idx);
+	++s->ssize;
+	s->buf[idx] = elem;
+	return 1;
+}
+
 int string_add_string(string_t *s1, string_t *s2) {
 	if (!string_reserve_grow(s1, s1->ssize + s2->ssize)) return 0;
 	memcpy(s1->buf + s1->ssize, s2->buf, s2->ssize);

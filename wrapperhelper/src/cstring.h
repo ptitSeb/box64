@@ -19,6 +19,7 @@
  * string_del ---------- Frees a string. Takes the string.
  * string_steal -------- Frees a string, keeping the content alive. Takes the string. The content (also returned) needs to be freed separately.
  * string_add_char ----- Add a character at the end. Takes the string and the new character. May increase the string capacity.
+ * string_add_char_at -- Add a character at a given index. Takes the string, the new character and the index. May increase the string capacity.
  * string_add_string --- Add a string at the end in-place. Takes both strings. May increase the string capacity.
  * string_add_cstr ----- Add a C string at the end in-place. Takes both strings. May increase the string capacity.
  * string_pop ---------- Pops the last character. Takes the string. May reduce the string capacity.
@@ -68,6 +69,7 @@ int       string_trim(string_t *s);
 void      string_del(string_t *s);
 char     *string_steal(string_t *s);
 int       string_add_char(string_t *s, char elem);
+int       string_add_char_at(string_t *s, char elem, size_t idx);
 int       string_add_string(string_t *s1, string_t *s2);
 int       string_add_cstr(string_t *s1, const char *s2);
 void      string_pop(string_t *s);
