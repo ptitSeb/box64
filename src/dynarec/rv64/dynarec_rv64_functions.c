@@ -42,7 +42,7 @@ int fpu_get_scratch(dynarec_rv64_t* dyn)
 int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
 {
     int reg = SCRATCH0 + dyn->e.fpu_scratch;
-    int skip = (1 << lmul) - (reg % (1 << lmul));
+    int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
     dyn->e.fpu_scratch += skip + 1;
     return reg + skip;
 }
