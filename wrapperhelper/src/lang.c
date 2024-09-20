@@ -815,11 +815,16 @@ khint_t type_t_hash(type_t *typ) {
 	default: return 0;
 	}
 }
-int type_t_equal_lax(type_t *typ1, type_t *typ2) {
+int type_t_equal_aux(type_t *typ1, type_t *typ2, int is_strict) {
+	if (is_strict && (
+	    (typ1->is_atomic != typ2->is_atomic) || (typ1->is_const != typ2->is_const)
+	 || (typ1->is_restrict != typ2->is_restrict) || (typ1->is_volatile != typ2->is_volatile))) {
+		return 0;
+	}
 	if (typ1->typ != typ2->typ) return 0;
 	switch (typ1->typ) {
 	case TYPE_BUILTIN: return typ1->val.builtin == typ2->val.builtin;
-	case TYPE_ARRAY: return (typ1->val.array.array_sz == typ2->val.array.array_sz) && type_t_equal(typ1->val.array.typ, typ2->val.array.typ);
+	case TYPE_ARRAY: return (typ1->val.array.array_sz == typ2->val.array.array_sz) && type_t_equal_aux(typ1->val.array.typ, typ2->val.array.typ, is_strict);
 	case TYPE_STRUCT_UNION:
 		// This will not do an infinite recursion since only unnamed struct/unions will compare their members
 		if (!typ1->val.st->tag != !typ2->val.st->tag) return 0;
@@ -834,31 +839,30 @@ int type_t_equal_lax(type_t *typ1, type_t *typ2) {
 			if (typ1->val.st->members[i].name
 			     && strcmp(string_content(typ1->val.st->members[i].name), string_content(typ2->val.st->members[i].name)))
 				return 0;
-			if (!type_t_equal(typ1->val.st->members[i].typ, typ2->val.st->members[i].typ)) return 0;
+			if (!type_t_equal_aux(typ1->val.st->members[i].typ, typ2->val.st->members[i].typ, is_strict)) return 0;
 		}
 		return 1;
 	case TYPE_ENUM:
 	case TYPE_PTR:
-		return type_t_equal(typ1->val.typ, typ2->val.typ);
+		return type_t_equal_aux(typ1->val.typ, typ2->val.typ, is_strict);
 	case TYPE_FUNCTION:
 		if (typ1->val.fun.nargs != typ2->val.fun.nargs) return 0;
 		if (typ1->val.fun.has_varargs != typ2->val.fun.has_varargs) return 0;
-		if (!type_t_equal(typ1->val.fun.ret, typ2->val.fun.ret)) return 0;
+		if (!type_t_equal_aux(typ1->val.fun.ret, typ2->val.fun.ret, is_strict)) return 0;
 		if (typ1->val.fun.nargs != (size_t)-1) {
 			for (size_t i = 0; i < typ1->val.fun.nargs; ++i) {
-				if (!type_t_equal(typ1->val.fun.args[i], typ2->val.fun.args[i])) return 0;
+				if (!type_t_equal_aux(typ1->val.fun.args[i], typ2->val.fun.args[i], is_strict)) return 0;
 			}
 		}
 		return 1;
 	default: return 0;
 	}
 }
+int type_t_equal_lax(type_t *typ1, type_t *typ2) {
+	return type_t_equal_aux(typ1, typ2, 0);
+}
 int type_t_equal(type_t *typ1, type_t *typ2) {
-	if ((typ1->is_atomic != typ2->is_atomic) || (typ1->is_const != typ2->is_const)
-	 || (typ1->is_restrict != typ2->is_restrict) || (typ1->is_volatile != typ2->is_volatile)) {
-		return 0;
-	}
-	return type_t_equal_lax(typ1, typ2);
+	return type_t_equal_aux(typ1, typ2, 1);
 }
 __KHASH_IMPL(type_set, , type_t*, char, 0, type_t_hash, type_t_equal)
 __KHASH_IMPL(conv_map, , type_t*, string_t*, 1, type_t_hash, type_t_equal_lax)
