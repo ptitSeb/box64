@@ -162,7 +162,9 @@ typedef struct proc_token_s {
 		struct {
 			enum proc_pragma_e {
 				PRAGMA_ALLOW_INTS,
+				PRAGMA_SIMPLE_SU,
 				PRAGMA_EXPLICIT_CONV,
+				PRAGMA_EXPLICIT_CONV_STRICT,
 			} typ;
 			string_t *val;
 		} pragma;
@@ -375,6 +377,7 @@ typedef struct type_s {
 } type_t;
 void type_del(type_t *typ);
 KHASH_MAP_DECLARE_STR(type_map, type_t*)
+KHASH_DECLARE(conv_map, type_t*, string_t*)
 void type_map_del(khash_t(type_map) *map);
 
 int type_t_equal(type_t*, type_t*);
@@ -391,6 +394,7 @@ typedef struct struct_s {
 	int is_defined;
 	size_t nrefs;
 	int is_struct; // 0 = union, 1 = struct
+	int is_simple; // Pointers to the structure (in 64 bits) are simple pointers
 	int has_incomplete; // 1 if the last element of the structure is a VLA or if an element of the union recursively contains a VLA
 	size_t nmembers;
 	st_member_t *members;
@@ -401,9 +405,6 @@ KHASH_MAP_DECLARE_STR(struct_map, struct_t*)
 
 type_t *type_new(void); // Create a new (complete) builtin type
 type_t *type_new_ptr(type_t *target); // Create a new pointer type; doesn't increment the use counter of the target
-// type_t *type_do_copy(type_t *ref); // Always duplicate ref; decrements the use counter
-// type_t *type_do_copy_nodec(const type_t *ref); // Always duplicate ref; doesn't decrements the use counter
-// type_t *type_maybe_copy(type_t *ref); // Only duplicate ref if it is used elsewhere; in that case, decrements the use counter
 int type_copy_into(type_t *dest, const type_t *ref); // Copy ref into dest, keeping additional qualifiers and without changing any use counter
 
 struct_t *struct_new(int is_struct, string_t *tag); // Create a new struct
@@ -416,11 +417,28 @@ extern const char *builtin2str[LAST_BUILTIN + 1];
 void type_print(type_t *typ);
 void struct_print(const struct_t *st);
 
+typedef struct declaration_s {
+	enum decl_storage_e {
+		STORAGE_NONE,
+		STORAGE_EXTERN,
+		STORAGE_STATIC,
+		STORAGE_TLS,
+		STORAGE_TLS_EXTERN,
+		STORAGE_TLS_STATIC,
+		STORAGE_AUTO,
+		STORAGE_REG,
+	} storage;
+	int defined;
+	type_t *typ;
+} declaration_t;
+KHASH_MAP_DECLARE_STR(decl_map, declaration_t*)
+
 typedef struct file_s {
 	khash_t(struct_map) *struct_map;
 	khash_t(type_map) *type_map;
+	khash_t(conv_map) *relaxed_type_conversion;
 	khash_t(type_map) *enum_map;
-	khash_t(type_map) *decl_map;
+	khash_t(decl_map) *decl_map;
 	type_t *builtins[LAST_BUILTIN + 1];
 	khash_t(const_map) *const_map;
 	khash_t(type_set) *type_set;

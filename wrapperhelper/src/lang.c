@@ -84,7 +84,9 @@ void proc_token_del(proc_token_t *tok) {
 		break;
 	case PTOK_PRAGMA:
 		switch (tok->tokv.pragma.typ) {
+		case PRAGMA_SIMPLE_SU:
 		case PRAGMA_EXPLICIT_CONV:
+		case PRAGMA_EXPLICIT_CONV_STRICT:
 			string_del(tok->tokv.pragma.val);
 			break;
 		case PRAGMA_ALLOW_INTS:
@@ -289,8 +291,14 @@ void proc_token_print(const proc_token_t *tok) {
 		case PRAGMA_ALLOW_INTS:
 			printf("Token: %7s Allow ints\n", "PRAGMA");
 			break;
+		case PRAGMA_SIMPLE_SU:
+			printf("Token: %7s Mark simple: struct or union %s is simple\n", "PRAGMA", string_content(tok->tokv.pragma.val));
+			break;
 		case PRAGMA_EXPLICIT_CONV:
-			printf("Token: %7s Explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
+			printf("Token: %7s Relaxed explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
+			break;
+		case PRAGMA_EXPLICIT_CONV_STRICT:
+			printf("Token: %7s Strict explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
 			break;
 		default:
 			printf("Token: %7s ???\n", "PRAGMA");
@@ -340,6 +348,7 @@ int proc_token_isend(const proc_token_t *tok) {
 #pragma GCC diagnostic ignored "-Wanalyzer-null-dereference"
 KHASH_MAP_IMPL_STR(str2kw, enum token_keyword_type_e)
 KHASH_MAP_IMPL_STR(type_map, type_t*)
+KHASH_MAP_IMPL_STR(decl_map, declaration_t*)
 KHASH_MAP_IMPL_STR(struct_map, struct_t*)
 KHASH_MAP_IMPL_STR(const_map, num_constant_t)
 #pragma GCC diagnostic pop
@@ -622,11 +631,21 @@ void type_map_del(khash_t(type_map) *map) {
 #pragma GCC diagnostic pop
 	kh_destroy(type_map, map);
 }
+void conv_map_del(khash_t(conv_map) *map) {
+	type_t *typ;
+	string_t **conv;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+	kh_foreach_key_value_ref(map, typ, conv, type_del(typ); string_del(*conv))
+#pragma GCC diagnostic pop
+	kh_destroy(conv_map, map);
+}
 void type_set_del(khash_t(type_set) *set) {
 	type_t *it;
 	kh_foreach_key(set, it, type_del(it))
 	kh_destroy(type_set, set);
 }
+
 void const_map_del(khash_t(const_map) *map) {
 	kh_cstr_t str;
 #pragma GCC diagnostic push
@@ -634,6 +653,20 @@ void const_map_del(khash_t(const_map) *map) {
 	kh_foreach_key(map, str, free((void*)str))
 #pragma GCC diagnostic pop
 	kh_destroy(const_map, map);
+}
+
+void decl_del(declaration_t *decl) {
+	type_del(decl->typ);
+	free(decl);
+}
+void decl_map_del(khash_t(decl_map) *map) {
+	kh_cstr_t str;
+	declaration_t **it;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-qual"
+	kh_foreach_key_value_ref(map, str, it, free((void*)str); decl_del(*it))
+#pragma GCC diagnostic pop
+	kh_destroy(decl_map, map);
 }
 
 void st_member_del(st_member_t *member) {
@@ -693,49 +726,6 @@ type_t *type_new_ptr(type_t *target) {
 	ret->val.typ = target;
 	return ret;
 }
-// The following functions do not work for functions (val.args needs to be duplicated)
-/* type_t *type_do_copy(type_t *ref) {
-	type_t *ret = type_do_copy_nodec(ref);
-	if (!ret) return NULL;
-	type_del(ref);
-	return ret;
-}
-type_t *type_do_copy_nodec(const type_t *ref) {
-	type_t *ret = malloc(sizeof *ret);
-	if (!ret) {
-		printf("Failed to duplicate type\n");
-		return NULL;
-	}
-	memcpy(ret, ref, sizeof *ret);
-	switch (ref->typ) {
-	case TYPE_BUILTIN:
-		break;
-	case TYPE_ARRAY:
-		++ref->val.array.typ->nrefs;
-		break;
-	case TYPE_STRUCT_UNION:
-		++ret->val.st->nrefs;
-		break;
-	case TYPE_ENUM:
-	case TYPE_PTR:
-		++ref->val.typ->nrefs;
-		break;
-	case TYPE_FUNCTION:
-		++ref->val.fun.ret->nrefs;
-		if (ref->val.fun.nargs != (size_t)-1) {
-			for (size_t i = 0; i < ref->val.fun.nargs; ++i) {
-				++ref->val.fun.args[i]->nrefs;
-			}
-		}
-		break;
-	}
-	ret->nrefs = 1;
-	return ret;
-}
-type_t *type_maybe_copy(type_t *ref) {
-	if (ref->nrefs == 1) return ref;
-	else return type_do_copy(ref);
-} */
 int type_copy_into(type_t *dest, const type_t *ref) {
 	size_t nrefs = dest->nrefs;
 	_Bool is_atomic = dest->is_atomic;
@@ -825,12 +815,8 @@ khint_t type_t_hash(type_t *typ) {
 	default: return 0;
 	}
 }
-int type_t_equal(type_t *typ1, type_t *typ2) {
+int type_t_equal_lax(type_t *typ1, type_t *typ2) {
 	if (typ1->typ != typ2->typ) return 0;
-	if ((typ1->is_atomic != typ2->is_atomic) || (typ1->is_const != typ2->is_const)
-	 || (typ1->is_restrict != typ2->is_restrict) || (typ1->is_volatile != typ2->is_volatile)) {
-		return 0;
-	}
 	switch (typ1->typ) {
 	case TYPE_BUILTIN: return typ1->val.builtin == typ2->val.builtin;
 	case TYPE_ARRAY: return (typ1->val.array.array_sz == typ2->val.array.array_sz) && type_t_equal(typ1->val.array.typ, typ2->val.array.typ);
@@ -867,7 +853,15 @@ int type_t_equal(type_t *typ1, type_t *typ2) {
 	default: return 0;
 	}
 }
+int type_t_equal(type_t *typ1, type_t *typ2) {
+	if ((typ1->is_atomic != typ2->is_atomic) || (typ1->is_const != typ2->is_const)
+	 || (typ1->is_restrict != typ2->is_restrict) || (typ1->is_volatile != typ2->is_volatile)) {
+		return 0;
+	}
+	return type_t_equal_lax(typ1, typ2);
+}
 __KHASH_IMPL(type_set, , type_t*, char, 0, type_t_hash, type_t_equal)
+__KHASH_IMPL(conv_map, , type_t*, string_t*, 1, type_t_hash, type_t_equal_lax)
 
 type_t *type_try_merge(type_t *typ, khash_t(type_set) *set) {
 	int iret;
@@ -1026,6 +1020,9 @@ void type_print(type_t *typ) {
 }
 void struct_print(const struct_t *st) {
 	printf("<" DISP_ADDR_FMT "n_uses=%zu> ", DISP_ADDR_ARG(st) st->nrefs);
+	if (st->is_simple) {
+		printf("<simple> ");
+	}
 	if (st->is_defined) {
 		printf(
 			"%s %s <with %zu members%s> { ",
@@ -1071,7 +1068,7 @@ file_t *file_new(machine_t *target) {
 		free(ret);
 		return NULL;
 	}
-	if (!(ret->decl_map = kh_init(type_map))) {
+	if (!(ret->decl_map = kh_init(decl_map))) {
 		printf("Failed to create a new translation unit structure (declaration map)\n");
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
@@ -1084,7 +1081,7 @@ file_t *file_new(machine_t *target) {
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
 		kh_destroy(type_map, ret->enum_map);
-		kh_destroy(type_map, ret->decl_map);
+		kh_destroy(decl_map, ret->decl_map);
 		free(ret);
 		return NULL;
 	}
@@ -1093,8 +1090,19 @@ file_t *file_new(machine_t *target) {
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
 		kh_destroy(type_map, ret->enum_map);
-		kh_destroy(type_map, ret->decl_map);
+		kh_destroy(decl_map, ret->decl_map);
 		kh_destroy(type_set, ret->type_set);
+		free(ret);
+		return NULL;
+	}
+	if (!(ret->relaxed_type_conversion = kh_init(conv_map))) {
+		printf("Failed to create a new translation unit structure (relaxed type conversion map)\n");
+		kh_destroy(struct_map, ret->struct_map);
+		kh_destroy(type_map, ret->type_map);
+		kh_destroy(type_map, ret->enum_map);
+		kh_destroy(decl_map, ret->decl_map);
+		kh_destroy(type_set, ret->type_set);
+		kh_destroy(const_map, ret->const_map);
 		free(ret);
 		return NULL;
 	}
@@ -1110,8 +1118,9 @@ file_t *file_new(machine_t *target) {
 			}
 			kh_destroy(struct_map, ret->struct_map);
 			kh_destroy(type_map, ret->type_map);
+			kh_destroy(conv_map, ret->relaxed_type_conversion);
 			kh_destroy(type_map, ret->enum_map);
-			kh_destroy(type_map, ret->decl_map);
+			kh_destroy(decl_map, ret->decl_map);
 			kh_destroy(type_set, ret->type_set);
 			kh_destroy(const_map, ret->const_map);
 			free(ret);
@@ -1128,8 +1137,9 @@ file_t *file_new(machine_t *target) {
 			printf("Failed to create a new translation unit structure (failed to add intrinsic type to type_set)\n");
 			kh_destroy(struct_map, ret->struct_map);
 			kh_destroy(type_map, ret->type_map);
+			kh_destroy(conv_map, ret->relaxed_type_conversion);
 			kh_destroy(type_map, ret->enum_map);
-			kh_destroy(type_map, ret->decl_map);
+			kh_destroy(decl_map, ret->decl_map);
 			kh_destroy(type_set, ret->type_set);
 			kh_destroy(const_map, ret->const_map);
 			free(ret);
@@ -1141,15 +1151,16 @@ file_t *file_new(machine_t *target) {
 			}
 			kh_destroy(struct_map, ret->struct_map);
 			kh_destroy(type_map, ret->type_map);
+			kh_destroy(conv_map, ret->relaxed_type_conversion);
 			kh_destroy(type_map, ret->enum_map);
-			kh_destroy(type_map, ret->decl_map);
+			kh_destroy(decl_map, ret->decl_map);
 			kh_destroy(type_set, ret->type_set);
 			kh_destroy(const_map, ret->const_map);
 			free(ret);
 			return NULL;
 		}
 	}
-	// ret is valid
+	// ret is valid and can now be deleted by file_del
 	
 	// Add __builtin_va_list, __int128_t, __uint128_t as typedef
 	char *sdup;
@@ -1183,8 +1194,9 @@ file_t *file_new(machine_t *target) {
 void file_del(file_t *f) {
 	struct_map_del(f->struct_map);
 	type_map_del(f->type_map);
+	conv_map_del(f->relaxed_type_conversion);
 	type_map_del(f->enum_map);
-	type_map_del(f->decl_map);
+	decl_map_del(f->decl_map);
 	type_set_del(f->type_set);
 	const_map_del(f->const_map);
 	for (enum type_builtin_e i = 0; i < LAST_BUILTIN + 1; ++i) {

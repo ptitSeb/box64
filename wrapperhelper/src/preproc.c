@@ -2794,6 +2794,28 @@ start_cur_token:
 							ret.tokv.pragma.typ = PRAGMA_ALLOW_INTS;
 							return ret;
 						}
+					} else if (!strcmp(string_content(tok.tokv.str), "mark_simple")) {
+						string_del(tok.tokv.str);
+						tok = ppsrc_next_token(src);
+						if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
+							printf("Invalid pragma wrappers explicit_simple directive, skipping until EOL\n");
+							goto preproc_hash_err;
+						}
+						src->st = PPST_NL;
+						ret.tokt = PTOK_PRAGMA;
+						ret.tokv.pragma.typ = PRAGMA_SIMPLE_SU;
+						ret.tokv.pragma.val = tok.tokv.str;
+						tok = ppsrc_next_token(src);
+						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+							preproc_token_del(&tok);
+							tok = ppsrc_next_token(src);
+						}
+						if (tok.tokt == PPTOK_INVALID) {
+							string_del(ret.tokv.pragma.val);
+							goto start_cur_token;
+						} else {
+							return ret;
+						}
 					} else if (!strcmp(string_content(tok.tokv.str), "type_letters")) {
 						string_del(tok.tokv.str);
 						tok = ppsrc_next_token(src);
@@ -2804,6 +2826,18 @@ start_cur_token:
 						src->st = PPST_PRAGMA_EXPLICIT;
 						ret.tokt = PTOK_PRAGMA;
 						ret.tokv.pragma.typ = PRAGMA_EXPLICIT_CONV;
+						ret.tokv.pragma.val = tok.tokv.str;
+						return ret;
+					} else if (!strcmp(string_content(tok.tokv.str), "type_letters_exact")) {
+						string_del(tok.tokv.str);
+						tok = ppsrc_next_token(src);
+						if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
+							printf("Invalid pragma wrappers explicit_simple directive, skipping until EOL\n");
+							goto preproc_hash_err;
+						}
+						src->st = PPST_PRAGMA_EXPLICIT;
+						ret.tokt = PTOK_PRAGMA;
+						ret.tokv.pragma.typ = PRAGMA_EXPLICIT_CONV_STRICT;
 						ret.tokv.pragma.val = tok.tokv.str;
 						return ret;
 					} else {

@@ -99,7 +99,12 @@ void request_print_check(const request_t *req) {
 		similar = !req->default_comment || (req->val.rty != RQT_FUN); // From comment to no comment is dissimilar
 		if (similar && (req->def.rty != req->val.rty)) similar = 0;
 		if (similar && strcmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ))) {
-			similar = 0;
+			// "//GOM(_, .F...)" == "//GOM(_, .FE...)"
+			similar = req->default_comment
+			       && (req->def.rty == RQT_FUN_MY)
+			       && !strncmp(string_content(req->def.fun.typ), string_content(req->val.fun.typ), 2)
+			       && (string_content(req->val.fun.typ)[2] == 'E')
+			       && !strcmp(string_content(req->def.fun.typ) + 2, string_content(req->val.fun.typ) + 3);
 		}
 		if (!similar) {
 			printf("%s%s: function with %s%sdefault%s%s%s%s%s and dissimilar %ssolved%s%s%s%s%s\n",
@@ -703,8 +708,11 @@ success:
 	return ret;
 }
 
-static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my) {
+static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my, khash_t(conv_map) *conv_map) {
 	if (typ->converted) {
+		// printf("Warning: %s uses a converted type but is not the converted type\n", string_content(obj_name));
+		*needs_my = 1;
+	} else if (kh_get(conv_map, conv_map, typ) != kh_end(conv_map)) {
 		// printf("Warning: %s uses a converted type but is not the converted type\n", string_content(obj_name));
 		*needs_my = 1;
 	}
@@ -713,14 +721,15 @@ static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my) {
 		return 1; // Assume pointers to builtin are simple
 	case TYPE_ARRAY:
 		if (typ->val.array.array_sz == (size_t)-1) return 0; // VLA are not simple
-		return is_simple_type_ptr_to(typ->val.array.typ, needs_D, needs_my);
+		return is_simple_type_ptr_to(typ->val.array.typ, needs_D, needs_my, conv_map);
 	case TYPE_STRUCT_UNION:
 		if (typ->_internal_use) return 1; // Recursive structures are OK as long as every other members are OK
 		if (!typ->val.st->is_defined) return 1; // Undefined structures are OK since they are opaque
+		if (typ->val.st->is_simple) return 1;
 		typ->_internal_use = 1;
 		for (size_t i = 0; i < typ->val.st->nmembers; ++i) {
 			st_member_t *mem = &typ->val.st->members[i];
-			if (!is_simple_type_ptr_to(mem->typ, needs_D, needs_my)) {
+			if (!is_simple_type_ptr_to(mem->typ, needs_D, needs_my, conv_map)) {
 				typ->_internal_use = 0;
 				return 0;
 			}
@@ -728,9 +737,9 @@ static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my) {
 		typ->_internal_use = 0;
 		return 1;
 	case TYPE_ENUM:
-		return is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my);
+		return is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my, conv_map);
 	case TYPE_PTR:
-		return is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my);
+		return is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my, conv_map);
 	case TYPE_FUNCTION:
 		*needs_my = 1;
 		return 1;
@@ -739,8 +748,11 @@ static int is_simple_type_ptr_to(type_t *typ, int *needs_D, int *needs_my) {
 		return 0;
 	}
 }
-static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
+static int is_simple_type(type_t *typ, int *needs_D, int *needs_my, khash_t(conv_map) *conv_map) {
 	if (typ->converted) {
+		// printf("Warning: %s uses a converted type but is not the converted type\n", string_content(obj_name));
+		*needs_my = 1;
+	} else if (kh_get(conv_map, conv_map, typ) != kh_end(conv_map)) {
 		// printf("Warning: %s uses a converted type but is not the converted type\n", string_content(obj_name));
 		*needs_my = 1;
 	}
@@ -751,7 +763,7 @@ static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
 		    && (typ->val.builtin != BTT_IFLOAT128); // Assume builtin are simple except for __float128
 	case TYPE_ARRAY:
 		if (typ->val.array.array_sz == (size_t)-1) return 0; // VLA are not simple
-		return is_simple_type_ptr_to(typ->val.array.typ, needs_D, needs_my);
+		return is_simple_type_ptr_to(typ->val.array.typ, needs_D, needs_my, conv_map);
 	case TYPE_STRUCT_UNION:
 		if (typ->_internal_use) return 1; // Recursive structures are OK as long as every other members are OK
 		// if (!typ->val.st->is_defined) return 1; // Undefined structures are OK since they are opaque
@@ -760,7 +772,7 @@ static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
 		typ->_internal_use = 1;
 		for (size_t i = 0; i < typ->val.st->nmembers; ++i) {
 			st_member_t *mem = &typ->val.st->members[i];
-			if (!is_simple_type(mem->typ, needs_D, needs_my)) {
+			if (!is_simple_type(mem->typ, needs_D, needs_my, conv_map)) {
 				typ->_internal_use = 0;
 				return 0;
 			}
@@ -768,9 +780,9 @@ static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
 		typ->_internal_use = 0;
 		return 1;
 	case TYPE_ENUM:
-		return is_simple_type(typ->val.typ, needs_D, needs_my);
+		return is_simple_type(typ->val.typ, needs_D, needs_my, conv_map);
 	case TYPE_PTR:
-		return is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my);
+		return is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my, conv_map);
 	case TYPE_FUNCTION:
 		// Functions should be handled differently (GO instead of DATA)
 		return 0;
@@ -780,10 +792,18 @@ static int is_simple_type(type_t *typ, int *needs_D, int *needs_my) {
 	}
 }
 
-static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, int *needs_my, string_t *obj_name) {
+static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, int *needs_my, khash_t(conv_map) *conv_map, string_t *obj_name) {
 	if (typ->converted) {
 		if (!string_add_string(dest, typ->converted)) {
-			printf("Error: failed to add explicit type char\n");
+			printf("Error: failed to add explicit type conversion\n");
+			return 0;
+		}
+		return 1;
+	}
+	khiter_t it = kh_get(conv_map, conv_map, typ);
+	if (it != kh_end(conv_map)) {
+		if (!string_add_string(dest, kh_val(conv_map, it))) {
+			printf("Error: failed to add explicit type conversion\n");
 			return 0;
 		}
 		return 1;
@@ -882,15 +902,15 @@ static int convert_type(string_t *dest, type_t *typ, int is_ret, int *needs_D, i
 			}
 		} else {
 			if (typ->val.st->nmembers == 1) {
-				return convert_type(dest, typ->val.st->members[0].typ, is_ret, needs_D, needs_my, obj_name);
+				return convert_type(dest, typ->val.st->members[0].typ, is_ret, needs_D, needs_my, conv_map, obj_name);
 			}
 			printf("TODO: convert_type on structure as argument (%s)\n", string_content(obj_name));
 			return 0;
 		}
 	case TYPE_ENUM:
-		return convert_type(dest, typ->val.typ, is_ret, needs_D, needs_my, obj_name);
+		return convert_type(dest, typ->val.typ, is_ret, needs_D, needs_my, conv_map, obj_name);
 	case TYPE_PTR:
-		if (is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my)) {
+		if (is_simple_type_ptr_to(typ->val.typ, needs_D, needs_my, conv_map)) {
 			if (!string_add_char(dest, 'p')) {
 				printf("Error: failed to add type char for simple pointer\n");
 				return 0;
@@ -944,25 +964,21 @@ static int convert_type_post(string_t *dest, type_t *typ, string_t *obj_name) {
 	}
 }
 
-int solve_request(request_t *req, type_t *typ) {
+int solve_request(request_t *req, type_t *typ, khash_t(conv_map) *conv_map) {
 	if (typ->typ == TYPE_FUNCTION) {
 		int needs_D = 0, needs_my = req->def.fun.typ && (req->def.rty == RQT_FUN_MY), needs_2 = 0;
 		int convert_post;
+		size_t idx_conv;
 		req->val.fun.typ = string_new();
 		if (!req->val.fun.typ) {
 			printf("Error: failed to create function type string\n");
 			return 0;
 		}
-		if (!convert_type(req->val.fun.typ, typ->val.fun.ret, 1, &needs_D, &needs_my, req->obj_name)) goto fun_fail;
+		if (!convert_type(req->val.fun.typ, typ->val.fun.ret, 1, &needs_D, &needs_my, conv_map, req->obj_name)) goto fun_fail;
+		idx_conv = string_len(req->val.fun.typ);
 		if (!string_add_char(req->val.fun.typ, 'F')) {
 			printf("Error: failed to add convention char\n");
 			goto fun_fail;
-		}
-		if (req->def.fun.typ && (req->def.rty == RQT_FUN_MY) && (string_content(req->def.fun.typ)[2] == 'E')) {
-			if (!string_add_char(req->val.fun.typ, 'E')) {
-				printf("Error: failed to add emu char\n");
-				goto fun_fail;
-			}
 		}
 		convert_post = convert_type_post(req->val.fun.typ, typ->val.fun.ret, req->obj_name);
 		if (!convert_post) goto fun_fail;
@@ -983,7 +999,7 @@ int solve_request(request_t *req, type_t *typ) {
 			}
 		} else {
 			for (size_t i = 0; i < typ->val.fun.nargs; ++i) {
-				if (!convert_type(req->val.fun.typ, typ->val.fun.args[i], 0, &needs_D, &needs_my, req->obj_name)) goto fun_fail;
+				if (!convert_type(req->val.fun.typ, typ->val.fun.args[i], 0, &needs_D, &needs_my, conv_map, req->obj_name)) goto fun_fail;
 			}
 			if (typ->val.fun.has_varargs) {
 				if (req->def.fun.typ
@@ -1008,6 +1024,13 @@ int solve_request(request_t *req, type_t *typ) {
 		}
 		
 	// fun_succ:
+		// Add 'E' by default
+		if (needs_my) {
+			if (!string_add_char_at(req->val.fun.typ, 'E', idx_conv + 1)) {
+				printf("Error: failed to add emu char\n");
+				goto fun_fail;
+			}
+		}
 		if (req->def.fun.typ && (req->def.rty == RQT_FUN_2) && !needs_my) {
 			needs_2 = 1;
 			req->val.fun.fun2 = string_dup(req->def.fun.fun2);
@@ -1041,7 +1064,7 @@ int solve_request(request_t *req, type_t *typ) {
 		return 0;
 	} else {
 		int needs_D = 0, needs_my = req->def.dat.has_size && (req->def.rty == RQT_DATAM);
-		if (is_simple_type(typ, &needs_D, &needs_my)) {
+		if (is_simple_type(typ, &needs_D, &needs_my, conv_map)) {
 			// TODO: Hmm...
 			req->val.rty = needs_my ? RQT_DATAM : req->def.rty;
 			req->val.dat.has_size = 1;
@@ -1056,24 +1079,30 @@ int solve_request(request_t *req, type_t *typ) {
 		}
 	}
 }
-int solve_request_map(request_t *req, khash_t(type_map) *decl_map) {
-	khiter_t it = kh_get(type_map, decl_map, string_content(req->obj_name));
+int solve_request_map(request_t *req, khash_t(decl_map) *decl_map, khash_t(conv_map) *conv_map) {
+	khiter_t it = kh_get(decl_map, decl_map, string_content(req->obj_name));
 	if (it == kh_end(decl_map)) {
 		if (string_content(req->obj_name)[0] != '_') {
 			printf("Error: %s was not declared\n", string_content(req->obj_name));
 		}
 		return 0;
 	}
-	return solve_request(req, kh_val(decl_map, it));
+	if ((kh_val(decl_map, it)->storage == STORAGE_STATIC) || (kh_val(decl_map, it)->storage == STORAGE_TLS_STATIC)) {
+		if (string_content(req->obj_name)[0] != '_') {
+			printf("Error: %s was not declared\n", string_content(req->obj_name));
+		}
+		return 0;
+	}
+	return solve_request(req, kh_val(decl_map, it)->typ, conv_map);
 }
-int solve_references(VECTOR(references) *refs, khash_t(type_map) *decl_map) {
+int solve_references(VECTOR(references) *refs, khash_t(decl_map) *decl_map, khash_t(conv_map) *conv_map) {
 	int ret = 1;
 	int cond_depth = 0, ok_depth = 0;
 	vector_for(references, ref, refs) {
 		switch (ref->typ) {
 		case REF_REQ:
 			if (ok_depth == cond_depth) {
-				if (!solve_request_map(&ref->req, decl_map)) ret = 0;
+				if (!solve_request_map(&ref->req, decl_map, conv_map)) ret = 0;
 			} else {
 				ref->req.ignored = 1;
 			}

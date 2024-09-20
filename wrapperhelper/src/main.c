@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
 			return 2;
 		}
 		// vector_for(references, req, refs) request_print(req);
-		if (!solve_references(refs, content->decl_map)) {
+		if (!solve_references(refs, content->decl_map, content->relaxed_type_conversion)) {
 			printf("Warning: failed to solve all default requests\n");
 		}
 		// vector_for(references, req, refs) request_print(req);
@@ -171,7 +171,9 @@ int main(int argc, char **argv) {
 		// print content
 		const char *name;
 		struct_t *st;
+		string_t *str;
 		type_t *typ;
+		declaration_t *decl;
 		num_constant_t cst;
 		/* for (enum type_builtin_e i = 0; i < LAST_BUILTIN; ++i) {
 			printf("Builtin %u: %p, ", i, content->builtins[i]);
@@ -187,6 +189,9 @@ int main(int argc, char **argv) {
 			printf("Type: %p = ", typ);
 			type_print(typ);
 			printf("\n")
+		)
+		kh_foreach(content->relaxed_type_conversion, typ, str,
+			printf("Type conversion: %p -> %s\n", typ, string_content(str));
 		)
 		kh_foreach(content->type_map, name, typ,
 			printf("Typedef: %s -> %p = ", name, typ);
@@ -211,9 +216,9 @@ int main(int argc, char **argv) {
 			}
 			printf("\n")
 		)
-		kh_foreach(content->decl_map, name, typ,
-			printf("Declaration: %s -> %p = ", name, typ);
-			type_print(typ);
+		kh_foreach(content->decl_map, name, decl,
+			printf("Declaration: %s -> %p = %u/%p: ", name, decl, decl->storage, decl->typ);
+			type_print(decl->typ);
 			printf("\n")
 		)
 		file_del(content);
