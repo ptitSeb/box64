@@ -998,9 +998,17 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VSE_V(v1, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             break;
-            break;
+        case 0xD1:
         case 0xD2:
-            INST_NAME("PSRLD Gx, Ex");
+            if (opcode == 0xD1) {
+                INST_NAME("PSRLW Gx, Ex");
+                u8 = VECTOR_SEW16;
+                i32 = 16;
+            } else {
+                INST_NAME("PSRLD Gx, Ex");
+                u8 = VECTOR_SEW32;
+                i32 = 32;
+            }
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETGX_vector(q0, 1, VECTOR_SEW64);
@@ -1014,12 +1022,12 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VLE_V(q1, ed, VECTOR_SEW64, VECTOR_MASKED, VECTOR_NFIELD1);
             }
             VMV_X_S(x4, q1);
-            ADDI(x5, xZR, 32);
+            ADDI(x5, xZR, i32);
             BLTU_MARK(x4, x5);
             VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
             B_NEXT_nocond;
             MARK;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            SET_ELEMENT_WIDTH(x1, u8, 1);
             VSRL_VX(q0, x4, q0, VECTOR_UNMASKED);
             break;
         case 0xD4:
