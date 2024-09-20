@@ -207,6 +207,7 @@ static const scwrap_t syscallwrap[] = {
     [160] = {__NR_setrlimit, 2},
     #endif
     [161] = {__NR_chroot, 1},
+    [165] = {__NR_mount, 5},
     [186] = {__NR_gettid, 0 },    //0xBA
     [194] = {__NR_listxattr, 3},
     [195] = {__NR_llistxattr, 3},
