@@ -128,9 +128,3 @@
 #include <wchar.h>
 #include <wctype.h>
 #include <wordexp.h>
-
-#pragma wrappers type_letters S FILE*
-#pragma wrappers mark_simple FTS
-#pragma wrappers mark_simple FTS64
-#pragma wrappers mark_simple glob_t
-#pragma wrappers mark_simple glob64_t
