@@ -2488,12 +2488,12 @@ static void ctSetup()
 #else
 static void ctSetup()
 {
-    memcpy(my32_toupper, *__ctype_b_loc()-128*sizeof(short), 384*sizeof(short));
-    my32___ctype_b = to_ptrv(&my32_ctype[128]);
-    memcpy(my32_toupper, *__ctype_toupper_loc()-128*sizeof(int), 384*sizeof(int));
-    my32___ctype_toupper = to_ptrv(&my32_toupper[128]);
-    memcpy(my32_tolower, *__ctype_tolower_loc()-128*sizeof(int), 384*sizeof(int));
-    my32___ctype_tolower = to_ptrv(&my32_tolower[128]);
+    memcpy(my32_ctype, &((*__ctype_b_loc())[-128]), 384*sizeof(short));
+    my32___ctype_b = to_ptrv(my32_ctype+128);
+    memcpy(my32_toupper, &((*__ctype_toupper_loc())[-128]), 384*sizeof(int));
+    my32___ctype_toupper = to_ptrv(my32_toupper+128);
+    memcpy(my32_tolower, &((*__ctype_tolower_loc())[-128]), 384*sizeof(int));
+    my32___ctype_tolower = to_ptrv(my32_tolower+128);
 }
 #endif
 
