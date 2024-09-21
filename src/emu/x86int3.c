@@ -228,9 +228,11 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %u)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strstr")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%.127s\", \"%.127s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p\"%.127s\", \"%.127s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else  if(strstr(s, "strlen")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p(\"%s\"))", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), ((R_ESP+4))?((char*)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4))):"nil");
+                } else  if(strstr(s, "strchr")==s || strstr(s, "strrchr")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p\"%.127s\", 0x%x'%c')", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(char*)from_ptr(R_ESP+8), *(char*)from_ptr(R_ESP+8));
                 } else  if(strstr(s, "vsnprintf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%08X, %u, %08X...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
