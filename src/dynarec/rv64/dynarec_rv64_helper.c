@@ -784,6 +784,10 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
     XORI(xMASK, xZR, -1);
     SRLI(xMASK, xMASK, 32);
 
+    // reinitialize sew
+    if (dyn->vector_sew != VECTOR_SEWNA)
+        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
+
     fpu_popcache(dyn, ninst, reg, 0);
     if(saveflags) {
         LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
@@ -847,6 +851,10 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     // regenerate mask
     XORI(xMASK, xZR, -1);
     SRLI(xMASK, xMASK, 32);
+
+    // reinitialize sew
+    if (dyn->vector_sew != VECTOR_SEWNA)
+        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
 
     fpu_popcache(dyn, ninst, x3, 1);
     LD(xFlags, xEmu, offsetof(x64emu_t, eflags));
