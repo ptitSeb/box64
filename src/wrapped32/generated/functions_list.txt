@@ -98,6 +98,7 @@
 #() vFlp -> vFlp
 #() vFpC -> vFpC
 #() vFpu -> vFpu
+#() vFpL -> vFpL
 #() vFpp -> vFpp
 #() vFSp -> vFSp
 #() wFpi -> wFpi
@@ -172,6 +173,7 @@
 #() pFpu -> pFpu
 #() pFpL -> pFpL
 #() pFpp -> pFpp
+#() SFip -> SFip
 #() SFpp -> SFpp
 #() tFip -> tFip
 #() tFpL -> tFpL
@@ -928,6 +930,7 @@ wrappedlibc:
 - pFL:
 - pFp:
   - gethostbyname
+  - getpwnam
   - gmtime
   - localtime
 - pFS:

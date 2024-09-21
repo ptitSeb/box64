@@ -110,8 +110,8 @@ GOW(bind_textdomain_codeset, pFpp)
 // bsd_signal   // Weak
 //GOM(bsearch, pFEppLLp) //%%
 GOW(btowc, iFi)
-//GOW(bzero, vFpL)
-//GO(__bzero, vFpL)
+GOW(bzero, vFpL)
+GO(__bzero, vFpL)
 GOW(calloc, pFLL)
 // callrpc
 //GOW(canonicalize_file_name, pFp)
@@ -312,7 +312,7 @@ GOM(fcntl64, iFEiiN) //%%
 //GO(fcvt_r, iFdipppL)
 GO(fdatasync, iFi)
 // fdetach
-//GO(fdopen, pFip)
+GO(fdopen, SFip)
 GOW(fdopendir, pFi)
 GOW(feof, iFS)
 //GO(feof_unlocked, iFp)
@@ -555,7 +555,7 @@ GOW(getpt, iFv)
 // getpw    // Weak
 //GO(getpwent, pFv)
 // getpwent_r
-//GO(getpwnam, pFp)
+GOM(getpwnam, pFEp)
 //GO(getpwnam_r, iFpppup)
 GOM(getpwuid, pFEu)
 //GO(getpwuid_r, iFuppup)
@@ -1223,7 +1223,7 @@ GOW(opendir, pFp)
 GOW(pathconf, iFpi)
 GOW(pause, iFv)
 GO(pclose, iFS)
-//GO(perror, vFp)
+GO(perror, vFp)
 // personality  // Weak
 GOW(pipe, iFp)
 // __pipe

@@ -2099,17 +2099,6 @@ EXPORT int32_t my32_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_
 }
 #endif
 
-struct i386_passwd
-{
-  ptr_t     pw_name;    // char *
-  ptr_t     pw_passwd;  // char *
-  uint32_t  pw_uid;
-  uint32_t  pw_gid;
-  ptr_t     pw_gecos;   // char *
-  ptr_t     pw_dir;     // char *
-  ptr_t     pw_shell;   // char *
-};
-
 EXPORT void* my32_getpwuid(x64emu_t* emu, uint32_t uid)
 {
     static struct i386_passwd ret;
@@ -2577,6 +2566,22 @@ EXPORT int32_t my32_setjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void 
 EXPORT void my32___explicit_bzero_chk(x64emu_t* emu, void* dst, uint32_t len, uint32_t dstlen)
 {
     memset(dst, 0, len);
+}
+
+EXPORT void* my32_getpwnam(x64emu_t* emu, const char* name)
+{
+    static struct i386_passwd ret;
+    struct passwd *r = getpwnam(name);
+    if(!r)
+        return NULL;
+    ret.pw_name = to_ptrv(r->pw_name);
+    ret.pw_passwd = to_ptrv(r->pw_passwd);
+    ret.pw_uid = r->pw_uid;
+    ret.pw_gid = r->pw_gid;
+    ret.pw_gecos = to_ptrv(r->pw_gecos);
+    ret.pw_dir = to_ptrv(r->pw_dir);
+    ret.pw_shell = to_ptrv(r->pw_shell);
+    return &ret;
 }
 
 EXPORT void* my32_realpath(x64emu_t* emu, void* path, void* resolved_path)

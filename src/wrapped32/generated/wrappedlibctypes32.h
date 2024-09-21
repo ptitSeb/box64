@@ -105,6 +105,7 @@ typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, in
 	GO(localeconv, pFv_t) \
 	GO(getpwuid, pFu_t) \
 	GO(gethostbyname, pFp_t) \
+	GO(getpwnam, pFp_t) \
 	GO(gmtime, pFp_t) \
 	GO(localtime, pFp_t) \
 	GO(getmntent, pFS_t) \
