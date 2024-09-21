@@ -54,5 +54,11 @@ typedef struct struct_iiiiiiiiilt_s {
 } struct_iiiiiiiiilt_t;
 void from_struct_iiiiiiiiilt(struct_iiiiiiiiilt_t* dest, ptr_t src);
 void to_struct_iiiiiiiiilt(ptr_t dest, const struct_iiiiiiiiilt_t* src);
+typedef struct struct_up_s {
+	uint32_t u0;
+	void* p1;
+} struct_up_t;
+void from_struct_up(struct_up_t *dest, ptr_t src);
+void to_struct_up(ptr_t dest, const struct_up_t *src);
 
 #endif // __CONVERTER_H_

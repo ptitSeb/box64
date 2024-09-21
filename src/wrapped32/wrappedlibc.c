@@ -35,6 +35,7 @@
 #include <sys/resource.h>
 #include <sys/statvfs.h>
 #include <mntent.h>
+#include <sys/uio.h>
 
 #include "wrappedlibs.h"
 
@@ -833,36 +834,23 @@ EXPORT int my32_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b) {
     #endif
 }
 EXPORT int my32___asprintf(x64emu_t* emu, void** buff, void * fmt, void * b) __attribute__((alias("my32_asprintf")));
+#endif
 
 EXPORT int my32_vsprintf(x64emu_t* emu, void* buff,  void * fmt, uint32_t * b) {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, VARARGS_32);
+    int r = vsprintf(buff, fmt, VARARGS_32);
     return r;
-    #else
-    void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, b);
-    return r;
-    #endif
 }
 EXPORT int my32___vsprintf_chk(x64emu_t* emu, void* buff, int flags, size_t len, void * fmt, uint32_t * b)  {
-    #ifndef NOALIGN
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, VARARGS_32);
+    int r = vsprintf(buff, fmt, VARARGS_32);
     return r;
-    #else
-    void* f = vsprintf;
-    int r = ((iFppp_t)f)(buff, fmt, b);
-    return r;
-    #endif
 }
-#endif
+
 EXPORT int my32_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
 {
     myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch);
@@ -1820,6 +1808,17 @@ EXPORT int my32_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, v
     }
     return ret;
 }
+
+EXPORT long my32_writev(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
+{
+    struct iovec vec[niov];
+    for(int i=0; i<niov; ++i) {
+        vec[i].iov_base = from_ptrv(iov[i].iov_base);
+        vec[i].iov_len = from_ulong(iov[i].iov_len);
+    }
+    return writev(fd, vec, niov);
+}
+
 #if 0
 
 EXPORT int my32_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
@@ -2475,9 +2474,12 @@ void InitCpuModel()
                                      | (1<<FEATURE_ADX);
 }
 
-EXPORT const unsigned short int *my32___ctype_b;
-EXPORT const int32_t *my32___ctype_tolower;
-EXPORT const int32_t *my32___ctype_toupper;
+unsigned short int my32_ctype[384];
+int my32_toupper[384];
+int my32_tolower[384];
+EXPORT ptr_t my32___ctype_b;    //const unsigned short int *
+EXPORT ptr_t my32___ctype_tolower;    //int*
+EXPORT ptr_t my32___ctype_toupper;    //int*
 
 #ifdef ANDROID
 static void ctSetup()
@@ -2486,9 +2488,12 @@ static void ctSetup()
 #else
 static void ctSetup()
 {
-    my32___ctype_b = *(__ctype_b_loc());
-    my32___ctype_toupper = *(__ctype_toupper_loc());
-    my32___ctype_tolower = *(__ctype_tolower_loc());
+    memcpy(my32_toupper, *__ctype_b_loc()-128*sizeof(short), 384*sizeof(short));
+    my32___ctype_b = to_ptrv(&my32_ctype[128]);
+    memcpy(my32_toupper, *__ctype_toupper_loc()-128*sizeof(int), 384*sizeof(int));
+    my32___ctype_toupper = to_ptrv(&my32_toupper[128]);
+    memcpy(my32_tolower, *__ctype_tolower_loc()-128*sizeof(int), 384*sizeof(int));
+    my32___ctype_tolower = to_ptrv(&my32_tolower[128]);
 }
 #endif
 
@@ -2955,6 +2960,20 @@ EXPORT unsigned long my32_wcstoul(const wchar_t* s, wchar_t** endp, int base)
     return ret;
 }
 
+EXPORT long my32_ftell(x64emu_t* emu, FILE* f)
+{
+    long ret = ftell(f);
+    if(ret==-1)
+        return ret;
+    if(ret==LONG_MAX)
+        return INT_MAX;
+    if(ret>INT_MAX) {
+        ret = -1;
+        errno = ERANGE;
+    }
+    return ret;
+}
+
 // wrapped malloc using calloc, it seems x86 malloc set alloc'd block to zero somehow
 EXPORT void* my32_malloc(unsigned long size)
 {
@@ -3030,9 +3049,9 @@ EXPORT int my32_on_exit(x64emu_t* emu, void* f, void* args)
 #endif
 #endif
 
-EXPORT char** my32_environ = NULL;
-EXPORT char** my32__environ = NULL;
-EXPORT char** my32___environ = NULL;  // all aliases
+EXPORT ptr_t my32_environ = 0; //char**
+EXPORT ptr_t my32__environ = 0; //char**
+EXPORT ptr_t my32___environ = 0;  //char**
 
 EXPORT char* my32___progname = NULL;
 EXPORT char* my32___progname_full = NULL;
@@ -3051,6 +3070,8 @@ EXPORT void my32_tzset()
 }
 
 EXPORT int my32___libc_single_threaded = 0;
+
+EXPORT char my32__libc_intl_domainname[] = "libc";
 
 EXPORT void* my32___errno_location(x64emu_t* emu)
 {
@@ -3083,7 +3104,7 @@ extern void* my__IO_2_1_stdout_;
     InitCpuModel();         \
     ctSetup();              \
     /*obstackSetup();*/     \
-    my32_environ = my32__environ = my32___environ = box64->envv;            \
+    my32_environ = my32__environ = my32___environ = box64->envv32;          \
     my32___progname_full = my32_program_invocation_name = box64->argv[0];   \
     my32___progname = my32_program_invocation_short_name =                  \
         strrchr(box64->argv[0], '/');                                       \

@@ -152,6 +152,7 @@
 #() dFdD -> dFdD
 #() dFdp -> dFdp
 #() dFLL -> dFLL
+#() lFES -> lFES
 #() lFui -> lFui
 #() lFpl -> lFpl
 #() LFpL -> LFpL
@@ -180,6 +181,7 @@
 #() pFrL_p -> pFBp
 #() iFuBLL_ -> iFuB
 #() iFprLL_ -> iFpB
+#() iFpbup_ -> iFpB
 #() iFBLL_p -> iFBp
 #() iFrLL_BLL_ -> iFBB
 #() pFriiiiiiiiilt_p -> pFBp
@@ -886,6 +888,8 @@ wrappedlibc:
 - uFp:
 - uFV:
 - UFp:
+- lFS:
+  - ftell
 - LFL:
 - pFv:
   - __ctype_b_loc
@@ -960,6 +964,7 @@ wrappedlibc:
 - lFipi:
   - recvmsg
   - sendmsg
+  - writev
 - lFipL:
 - lFppi:
 - LFppi:
@@ -1199,6 +1204,7 @@ wrappedsdl1:
 - vFv:
   - SDL_Quit
 - vFp:
+  - SDL_FreeSurface
   - SDL_KillThread
   - SDL_UnlockSurface
 - iFv:
@@ -1226,6 +1232,7 @@ wrappedsdl1:
   - SDL_OpenAudio
 - pFpi:
   - SDL_LoadBMP_RW
+  - SDL_RWFromMem
 - pFpu:
   - SDL_ListModes
 - pFpp:

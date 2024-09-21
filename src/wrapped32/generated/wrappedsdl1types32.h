@@ -27,6 +27,7 @@ typedef void (*vFupppp_t)(uint32_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_Quit, vFv_t) \
+	GO(SDL_FreeSurface, vFp_t) \
 	GO(SDL_KillThread, vFp_t) \
 	GO(SDL_UnlockSurface, vFp_t) \
 	GO(SDL_Has3DNow, iFv_t) \
@@ -47,6 +48,7 @@ typedef void (*vFupppp_t)(uint32_t, void*, void*, void*, void*);
 	GO(SDL_WM_SetIcon, vFpp_t) \
 	GO(SDL_OpenAudio, iFpp_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
+	GO(SDL_RWFromMem, pFpi_t) \
 	GO(SDL_ListModes, pFpu_t) \
 	GO(SDL_CreateThread, pFpp_t) \
 	GO(SDL_LoadFunction, pFpp_t) \

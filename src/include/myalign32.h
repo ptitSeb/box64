@@ -481,7 +481,7 @@ struct i386_hostent {
 struct i386_iovec
 {
   ptr_t     iov_base; // void *
-  uint32_t  iov_len;
+  ulong_t   iov_len;
 };
 
 struct i386_msghdr

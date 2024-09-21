@@ -328,12 +328,14 @@ EXPORT void *my32_SDL_RWFromFile(x64emu_t* emu, void* a, void* b)
     inplace_SDL_RWops_to_32(ret);
     return ret;
 }
-//EXPORT void *my32_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
-//{
-//    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromMem(a, b);
-//    RWSetType(r, 4);
-//    return AddNativeRW(emu, r);
-//}
+EXPORT void *my32_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
+{
+    SDL1_RWops_t* r = (SDL1_RWops_t*)my->SDL_RWFromMem(a, b);
+    RWSetType(r, 4);
+    void* ret = AddNativeRW(emu, r);
+    inplace_SDL_RWops_to_32(ret);
+    return ret;
+}
 
 EXPORT void my32_SDL_WM_SetIcon(void* s, void* mask)
 {
@@ -560,6 +562,13 @@ EXPORT void* my32_SDL_GetVideoSurface()
     return unwrapSurface(ret);
 }
 
+EXPORT void my32_SDL_FreeSurface(void* s)
+{
+    my->SDL_FreeSurface(wrapSurface(s));
+    if(s==&sdl_vm_surface)
+        sdl1_videomode_org = NULL;
+}
+
 EXPORT int my32_SDL_PollEvent(my_SDL_Event_32_t* evt)
 {
     my_SDL_Event_t event;
@@ -611,14 +620,14 @@ EXPORT void* my32_SDL_ListModes(my_SDL_PixelFormat_32_t* fmt, uint32_t flags)
 //    return ret;
 //}
 
-//#define CUSTOM_INIT \
-//    box64->sdl1allocrw = my->SDL_AllocRW;   \
-//    box64->sdl1freerw  = my->SDL_FreeRW;
+#define CUSTOM_INIT \
+    box64->sdl1allocrw = my->SDL_AllocRW;   \
+    box64->sdl1freerw  = my->SDL_FreeRW;
 
 #define NEEDED_LIBS "libm.so.6", "libdl.so.2", "librt.so.1"
 
-//#define CUSTOM_FINI \
-//    my32_context->sdl1allocrw = NULL;         \
-//    my32_context->sdl1freerw = NULL;
+#define CUSTOM_FINI \
+    my_context->sdl1allocrw = NULL;         \
+    my_context->sdl1freerw = NULL;
 
 #include "wrappedlib_init32.h"

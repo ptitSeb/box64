@@ -5,7 +5,7 @@
 // _fini
 // _init
 //GOM(SDL_AddTimer, pFEupp)
-//GO(SDL_AllocRW, pFv)    // no need to use a my_ version here
+GO(SDL_AllocRW, pFv)    // no need to use a my_ version here
 //GO(SDL_CDClose, vFp)
 //GO(SDL_CDEject, iFp)
 //GO(SDL_CDName, pFi)
@@ -45,8 +45,8 @@ GO(SDL_EventState, CFCi)
 //GO(SDL_FillRect, iFppu)
 GOM(SDL_Flip, iFp)  //%noE
 GO(SDL_FreeCursor, vFp)
-//GO(SDL_FreeRW, vFp)
-//GO(SDL_FreeSurface, vFp)
+GO(SDL_FreeRW, vFp)
+GOM(SDL_FreeSurface, vFp)    //%noE
 //GO(SDL_FreeYUVOverlay, vFp)
 GO(SDL_GL_GetAttribute, iFup)
 GOM(SDL_GL_GetProcAddress, pFEp)
@@ -102,7 +102,7 @@ GO(SDL_JoystickOpen, pFi)
 GO(SDL_JoystickOpened, iFi)
 GO(SDL_JoystickUpdate, vFv)
 GOM(SDL_KillThread, vFEp)
-//GO(SDL_Linked_Version, pFv)
+GO(SDL_Linked_Version, pFv)
 GOM(SDL_ListModes, pFpu)    //%noE
 GOM(SDL_LoadBMP_RW, pFEpi)
 GOM(SDL_LoadFunction, pFEpp)
@@ -122,7 +122,7 @@ GO(SDL_QuitSubSystem, vFu)
 //GOM(SDL_RWFromConstMem, pFEpi)
 //GOM(SDL_RWFromFP, pFEpi)
 GOM(SDL_RWFromFile, pFEpp)
-//GOM(SDL_RWFromMem, pFEpi)
+GOM(SDL_RWFromMem, pFEpi)
 //GOM(SDL_ReadBE16, uFEp)
 //GOM(SDL_ReadBE32, uFEp)
 //GOM(SDL_ReadBE64, UFEp)

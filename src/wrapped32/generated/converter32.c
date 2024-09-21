@@ -102,3 +102,14 @@ void to_struct_iiiiiiiiilt(ptr_t d, const struct_iiiiiiiiilt_t* src) {
 	*(long_t*)dest = to_long(src->l9); dest += 4;
 	*(ptr_t*)dest = to_cstring(src->p10); dest += 4;
 }
+void from_struct_up(struct_up_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->p1 = *(void**)src; src += 4;
+}
+void to_struct_up(ptr_t d, const struct_up_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+}

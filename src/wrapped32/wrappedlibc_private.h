@@ -172,12 +172,12 @@ GOW(__connect, iFipu)
 //GO(ctermid, pFp)
 GO(ctime, pFrL_)
 GO(ctime_r, pFrL_p)
-//DATAM(__ctype_b, 4)
+DATAM(__ctype_b, 4)
 GOM(__ctype_b_loc, pFEv)
 GOW(__ctype_get_mb_cur_max, LFv)
-//DATAM(__ctype_tolower, 4)
+DATAM(__ctype_tolower, 4)
 GOM(__ctype_tolower_loc, pFEv)
-//DATAM(__ctype_toupper, 4)
+DATAM(__ctype_toupper, 4)
 GOM(__ctype_toupper_loc, pFEv)
 // __curbrk // type B
 //GO(cuserid, pFp)
@@ -250,7 +250,7 @@ GOW(endutent, vFv)
 // endutxent
 //DATAM(environ, 4)
 //DATAM(_environ, 4)
-//DATAM(__environ, 4)    // type B
+DATAM(__environ, 4)    // type B
 // envz_add
 // envz_entry
 // envz_get
@@ -413,7 +413,7 @@ GOWM(fstatfs64, iFip)    //%%,noE
 //GO(fstatvfs, iFip)
 //GOW(fstatvfs64, iFip)   // alignment?
 GOW(fsync, iFi)
-GOW(ftell, lFS)
+GOWM(ftell, lFES)
 GO(ftello, lFS)
 GO(ftello64, IFS)
 //GO(ftime, iFp)
@@ -1001,7 +1001,7 @@ GO(__libc_current_sigrtmin, iFv)
 //GO(__libc_free, vFp)
 // __libc_freeres
 GOM(__libc_init_first, vFEipV)  //%%
-// _libc_intl_domainname    // type R
+DATAM(_libc_intl_domainname, 4)    // type R
 //GO2(__libc_open, iFEpOu, my_open)
 // __libc_longjmp
 // __libc_mallinfo
@@ -1899,7 +1899,7 @@ GOM(__vfprintf_chk, iFESvpp) //%%
 GOWM(vsnprintf, iFEpLpp)         //%%
 GOWM(__vsnprintf, iFEpLpp)       //%%
 GOM(__vsnprintf_chk, iFEpLvvpp)  //%%
-//GOWM(vsprintf, iFEppp)            //%%
+GOWM(vsprintf, iFEppp)            //%%
 //GOM(__vsprintf_chk, iFEpiLpp)     //%% 
 //GOM(vsscanf, iFEppp) //%%
 // __vsscanf    // Weak
@@ -2033,7 +2033,7 @@ GOM(wprintf, iFEpV) //%%
 //GOM(__wprintf_chk, iFEipV) //%%
 GOW(write, lFipL)
 //GOW(__write, lFipL)
-//GOW(writev, lFipi)
+GOWM(writev, lFEipi)
 // wscanf
 // __wuflow
 // __wunderflow
@@ -2043,7 +2043,7 @@ GOW(write, lFipL)
 // xdr_authdes_cred
 // xdr_authdes_verf
 // xdr_authunix_parms
-// xdr_bool
+GO(xdr_bool, iFpp)
 // xdr_bytes
 // xdr_callhdr
 // xdr_callmsg
@@ -2071,7 +2071,7 @@ GOW(write, lFipL)
 // xdr_longlong_t
 // xdrmem_create
 // xdr_netnamestr
-// xdr_netobj
+GO(xdr_netobj, iFpbup_)
 // xdr_opaque
 // xdr_opaque_auth
 // xdr_pmap
@@ -2093,7 +2093,7 @@ GOW(write, lFipL)
 // xdr_string
 // xdr_u_char
 // xdr_u_hyper
-//GO(xdr_u_int, iFpp)
+GO(xdr_u_int, iFpp)
 // xdr_uint16_t
 // xdr_uint32_t
 // xdr_uint64_t
@@ -2105,7 +2105,7 @@ GOW(write, lFipL)
 // xdr_u_quad_t
 // xdr_u_short
 // xdr_vector
-// xdr_void
+GO(xdr_void, iFv)
 // xdr_wrapstring
 // xencrypt
 GO(__xmknod, iFipup)
