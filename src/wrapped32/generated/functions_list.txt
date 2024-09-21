@@ -96,6 +96,8 @@
 #() vFdd -> vFdd
 #() vFlu -> vFlu
 #() vFlp -> vFlp
+#() vFpC -> vFpC
+#() vFpu -> vFpu
 #() vFpp -> vFpp
 #() vFSp -> vFSp
 #() wFpi -> wFpi
@@ -130,6 +132,7 @@
 #() CFuu -> CFuu
 #() CFuU -> CFuU
 #() CFpi -> CFpi
+#() CFpp -> CFpp
 #() uFEu -> uFEu
 #() uFEV -> uFEV
 #() uFuu -> uFuu
@@ -243,6 +246,9 @@
 #() vFlpp -> vFlpp
 #() vFpip -> vFpip
 #() vFpuU -> vFpuU
+#() vFpuf -> vFpuf
+#() vFpud -> vFpud
+#() vFpup -> vFpup
 #() vFplp -> vFplp
 #() vFppi -> vFppi
 #() vFppu -> vFppu
@@ -420,6 +426,8 @@
 #() vFllii -> vFllii
 #() vFpiii -> vFpiii
 #() vFpipp -> vFpipp
+#() vFpdii -> vFpdii
+#() vFpddd -> vFpddd
 #() vFplpp -> vFplpp
 #() vFppip -> vFppip
 #() vFpppp -> vFpppp
@@ -569,9 +577,12 @@
 #() vFuppip -> vFuppip
 #() vFupppp -> vFupppp
 #() vFfffff -> vFfffff
+#() vFddddp -> vFddddp
 #() vFluipp -> vFluipp
 #() vFpilpp -> vFpilpp
+#() vFpipiu -> vFpipiu
 #() vFpuipp -> vFpuipp
+#() vFpddii -> vFpddii
 #() vFpppii -> vFpppii
 #() vFppppu -> vFppppu
 #() vFppppp -> vFppppp
@@ -672,8 +683,10 @@
 #() vFffffff -> vFffffff
 #() vFdddddd -> vFdddddd
 #() vFpipipV -> vFpipipV
+#() vFpdddii -> vFpdddii
 #() vFppiiii -> vFppiiii
 #() vFppupii -> vFppupii
+#() iFuiiuup -> iFuiiuup
 #() iFpiiipp -> iFpiiipp
 #() iFpiippp -> iFpiippp
 #() iFppiiii -> iFppiiii
@@ -732,7 +745,10 @@
 #() vFuffffff -> vFuffffff
 #() vFudddddd -> vFudddddd
 #() vFlliiiip -> vFlliiiip
+#() vFpipipiu -> vFpipipiu
+#() vFpddiidd -> vFpddiidd
 #() iFEpLiipV -> iFEpLiipV
+#() iFuiiiuup -> iFuiiiuup
 #() iFpupLpLi -> iFpupLpLi
 #() uFuippppp -> uFuippppp
 #() pFEpLiiii -> pFEpLiiii
@@ -765,6 +781,7 @@
 #() vFuuufffff -> vFuuufffff
 #() vFffffffff -> vFffffffff
 #() iFEpippppp -> iFEpippppp
+#() iFuiiiiuup -> iFuiiiiuup
 #() iFppIIIppp -> iFppIIIppp
 #() CFuiifpppp -> CFuiifpppp
 #() uFuipppppp -> uFuipppppp
@@ -793,6 +810,10 @@
 #() vFuupuuiuuf -> vFuupuuiuuf
 #() vFuffffffff -> vFuffffffff
 #() vFffCCCCfff -> vFffCCCCfff
+#() vFddddddddd -> vFddddddddd
+#() iFuiiuuiiip -> iFuiiuuiiip
+#() iFuiiupiiup -> iFuiiupiiup
+#() iFdddpppppp -> iFdddpppppp
 #() uFuulpiuiuf -> uFuulpiuiuf
 #() vFiiiiiiiiii -> vFiiiiiiiiii
 #() vFiiiiiiiiui -> vFiiiiiiiiui
@@ -812,6 +833,7 @@
 #() vFuffiiffiip -> vFuffiiffiip
 #() vFuddiiddiip -> vFuddiiddiip
 #() vFffffffffff -> vFffffffffff
+#() iFuiiiuuiiip -> iFuiiiuuiiip
 #() vFiiiiillliip -> vFiiiiillliip
 #() vFiiiiilllilp -> vFiiiiilllilp
 #() vFuiiiiiiiuip -> vFuiiiiiiiuip
@@ -826,6 +848,8 @@
 #() vFuUuuuuuuuuu -> vFuUuuuuuuuuu
 #() vFuffffffffff -> vFuffffffffff
 #() vFUufffffffff -> vFUufffffffff
+#() vFpipipiipiiu -> vFpipipiipiiu
+#() iFuiiiiuuiiip -> iFuiiiiuuiiip
 #() vFuiiiiiiiiuUC -> vFuiiiiiiiiuUC
 #() vFuiiiiiiiuuip -> vFuiiiiiiiuuip
 #() vFuuiiiiiiiiuu -> vFuuiiiiiiiiuu
@@ -837,6 +861,7 @@
 #() vFuuuuuuuuuuuuu -> vFuuuuuuuuuuuuu
 #() vFuUuuuuuuuuuuu -> vFuUuuuuuuuuuuu
 #() vFuffffffffffff -> vFuffffffffffff
+#() iFddddpppddpppp -> iFddddpppddpppp
 #() uFippuuuulllipp -> uFippuuuulllipp
 #() vFuffiiffiiffiip -> vFuffiiffiiffiip
 #() vFuddiiddiiddiip -> vFuddiiddiiddiip
@@ -1037,6 +1062,11 @@ wrappedlibgl:
   - glXSwapIntervalEXT
 - vFppp:
   - eglSetBlobCacheFuncsANDROID
+wrappedlibglu:
+- vFpup:
+  - gluNurbsCallback
+  - gluQuadricCallback
+  - gluTessCallback
 wrappedlibm:
 - UFs:
   - cacosf

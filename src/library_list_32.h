@@ -11,6 +11,7 @@ GO("ld-linux.so.2", ldlinux)
 
 GO("libGL.so", libgl)
 GO("libGL.so.1", libgl)
+GO("libGLU.so.1", libglu)
 GO("libSDL-1.2.so.0", sdl1)
 GO("libasound.so.2", libasound)
 GO("libasound.so", libasound)
