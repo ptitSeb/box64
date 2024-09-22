@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <errno.h>
 #include <pthread.h>
+#include <semaphore.h>
 
 #include "wrappedlibs.h"
 
@@ -54,6 +55,64 @@ EXPORT void my32___pthread_initialize()
 {
     // nothing, the lib initialize itself now
 }
+
+EXPORT int my32_sem_close(void** sem)
+{
+    int ret = 0;
+    ret = sem_close(*sem);
+    box_free(sem);
+    return ret;
+}
+EXPORT int my32_sem_destroy(void** sem)
+{
+    int ret = 0;
+    ret = sem_destroy(*sem);
+    box_free(*sem);
+    *sem = NULL;
+    return ret;
+}
+EXPORT int my32_sem_getvalue(void** sem, int* val)
+{
+    int ret = 0;
+    ret = sem_getvalue(*sem, val);
+    box_free(*sem);
+    *sem = NULL;
+    return ret;
+}
+EXPORT int my32_sem_init(void** sem, int pshared, uint32_t val)
+{
+    int ret = 0;
+    *sem = box_calloc(1, sizeof(sem_t));
+    ret = sem_init(*sem, pshared, val);
+    return ret;
+}
+EXPORT void* my32_sem_open(const char* name, int flags)
+{
+    sem_t* sem = sem_open(name, flags);
+    if(!sem)
+        return sem;
+    void** ret = (void**)box_calloc(1, sizeof(void*));
+    *ret = sem;
+    return ret;
+}
+EXPORT int my32_sem_post(void** sem)
+{
+    return sem_post(*sem);
+}
+EXPORT int my32_sem_timedwait(void** sem, void* t)
+{
+    return sem_timedwait(*sem, t);
+}
+EXPORT int my32_sem_trywait(void** sem)
+{
+    return sem_trywait(*sem);
+}
+EXPORT int my32_sem_wait(void** sem)
+{
+    return sem_wait(*sem);
+}
+
+
 
 #define PRE_INIT\
     if(1)                                                       \

@@ -172,16 +172,16 @@ GOM(__pthread_unwind_next, vFEp)
 GO(pthread_yield, iFv)
 // raise
 // __res_state
-GO(sem_close, iFp)
-GO(sem_destroy, iFp)
-GO(sem_getvalue, iFpp)
-GO(sem_init, iFpiu)
-GO(sem_open, pFpOM)
-GO(sem_post, iFp)
-GO(sem_timedwait, iFpp)
-GO(sem_trywait, iFp)
-GO(sem_unlink, iFp)
-GO(sem_wait, iFp)
+GOM(sem_close, iFp) //%noE
+GOM(sem_destroy, iFp)   //%noE
+GOM(sem_getvalue, iFpp) //%noE
+GOM(sem_init, iFpiu)    //%noE
+GOM(sem_open, pFpOM)    //%noE
+GOM(sem_post, iFp)  //%noE
+GOM(sem_timedwait, iFprLL_) //%noE
+GOM(sem_trywait, iFp)   //%noE
+GO(sem_unlink, iFp)    // no need for M here?
+GOM(sem_wait, iFp)  //%noE
 // __sigaction
 // system
 // __vfork

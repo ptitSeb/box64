@@ -113,3 +113,18 @@ void to_struct_up(ptr_t d, const struct_up_t *src) {
 	*(uint32_t*)dest = src->u0; dest += 4;
 	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
 }
+void from_struct_hWcc(struct_hWcc_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_hash(*(uint32_t*)src); src += 4;
+	dest->W1 = *(uint16_t*)src; src += 2;
+	dest->c2 = *(char*)src; src += 1;
+	dest->c3 = *(char*)src; src += 1;
+}
+void to_struct_hWcc(ptr_t d, const struct_hWcc_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = to_hash(src->L0); dest += 4;
+	*(uint16_t*)dest = src->W1; dest += 2;
+	*(char*)dest = src->c2; dest += 1;
+	*(char*)dest = src->c3; dest += 1;
+}

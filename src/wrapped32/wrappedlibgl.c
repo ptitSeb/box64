@@ -19,7 +19,10 @@
 
 extern const char* libglName;
 #define LIBNAME libgl
-static library_t* my_lib = NULL;
+
+#include "generated/wrappedlibgltypes32.h"
+
+#include "wrappercallback32.h"
 
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
 void* getGLProcAddress32(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);
@@ -36,6 +39,7 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppi_t)(void*, void*, int);
 typedef void*(*pFp_t)(void*);
+typedef void (*vFuipp_t)(uint32_t, int, void*, void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
 typedef struct gl_wrappers_s {
@@ -408,6 +412,31 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL glGetVkProcAddrNV callback\n");
     return NULL;
 }
+// glShaderSource ...
+#define GO(A)                                                                                               \
+static vFuipp_t my32_glShaderSource_fct_##A = NULL;                                                         \
+static void my32_glShaderSource_##A(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)  \
+{                                                                                                           \
+    if(!my32_glShaderSource_fct_##A)                                                                        \
+        return;                                                                                             \
+    char* str[count];                                                                                       \
+    if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);                                    \
+    my32_glShaderSource_fct_##A (shader, count, string?str:NULL, length);                                   \
+}
+SUPER()
+#undef GO
+static void* find_glShaderSource_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glShaderSource_fct_##A == (vFuipp_t)fct) return my32_glShaderSource_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glShaderSource_fct_##A == 0) {my32_glShaderSource_fct_##A = (vFuipp_t)fct; return my32_glShaderSource_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glShaderSource callback\n");
+    return NULL;
+}
 #undef SUPER
 
 #define PRE_INIT if(box64_libGL) {lib->w.lib = dlopen(box64_libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(box64_libGL);} else
@@ -436,6 +465,14 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
         s->addr = AddBridge(lib->w.bridge, s->w, find_glXSwapIntervalEXT_Fct(symb), 0, "glXSwapIntervalEXT"); \
     }                                                                           \
 
+// creating function for direct access, just in case
+EXPORT  void my32_glShaderSource(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)
+{
+    char* str[count];
+    if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);
+    my->glShaderSource(shader, count, string?str:NULL, length);
+}
+
 #include "wrappedlib_init32.h"
 
 #define SUPER()                             \
@@ -449,6 +486,7 @@ static void* find_glGetVkProcAddrNV_Fct(void* fct)
  GO(vFpp_t, glProgramCallbackMESA)          \
  GO(pFp_t, glGetVkProcAddrNV)               \
  GO(vFppp_t, eglSetBlobCacheFuncsANDROID)   \
+ GO(vFuipp_t, glShaderSource)               \
 
 
 gl_wrappers_t* getGLProcWrapper32(box64context_t* context, glprocaddress_t procaddress)

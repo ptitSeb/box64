@@ -11,6 +11,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
@@ -31,6 +32,7 @@ typedef void* (*pFppuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*,
 typedef void* (*pFpLiiuuLipii_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t, void*, int32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(XcmsFreeCCC, vFp_t) \
 	GO(XDestroyImage, iFp_t) \
 	GO(XInitImage, iFp_t) \
 	GO(_XInitImageFuncPtrs, iFp_t) \

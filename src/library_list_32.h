@@ -15,5 +15,6 @@ GO("libGLU.so.1", libglu)
 GO("libSDL-1.2.so.0", sdl1)
 GO("libasound.so.2", libasound)
 GO("libasound.so", libasound)
+GO("libX11.so.6", libx11)
 
 GO("crashhandler.so", crashhandler)

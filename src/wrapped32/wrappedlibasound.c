@@ -23,6 +23,13 @@
 #define LIBNAME libasound
 static const char* libasoundName = "libasound.so.2";
 
+typedef void  (*vFp_t)(void*);
+typedef void* (*pFp_t)(void*);
+
+#define ADDED_FUNCTIONS() \
+    GO(snd_pcm_query_chmaps, pFp_t) \
+    GO(snd_pcm_free_chmaps, vFp_t) \
+
 #include "generated/wrappedlibasoundtypes32.h"
 
 EXPORT uintptr_t my32_snd_lib_error = 0;
@@ -274,6 +281,45 @@ static void empty_error_handler(const char *file, int line, const char *function
 //{
 //    return my->snd_mixer_class_set_compare(class, findMixerCompareFct(f));
 //}
+
+typedef struct _my_snd_pcm_channel_area_s {
+    void *addr;
+    unsigned int first;
+    unsigned int step;
+} my_snd_pcm_channel_area_t;
+typedef struct _my_snd_pcm_channel_area_32_s {
+    ptr_t addr;
+    unsigned int first;
+    unsigned int step;
+} my_snd_pcm_channel_area_32_t;
+
+EXPORT int my32_snd_pcm_mmap_begin(x64emu_t* emu, void* pcm, ptr_t* areas, ulong_t* offset, ulong_t* frames)
+{
+    my_snd_pcm_channel_area_t *l_areas;
+    unsigned long l_offset;
+    unsigned long l_frames = from_ulong(*frames);
+    int ret = my->snd_pcm_mmap_begin(pcm, &l_areas, &l_offset, &l_frames);
+    if(ret)
+        return ret;
+    *offset = to_ulong(l_offset);
+    *frames = to_ulong(l_frames);
+    static my_snd_pcm_channel_area_32_t my_areas[15] = {0};
+    // get the number of channels
+    void** chmaps = my->snd_pcm_query_chmaps(pcm);
+    int nch = 1;
+    if(chmaps) {
+        while(chmaps[nch]) nch++;
+        my->snd_pcm_free_chmaps(chmaps);
+    } else printf_log(LOG_INFO, "Warning, could not get number of pcm channels in 32bits alsa for pcm_mmap_begin");
+    if(nch>15) {printf_log(LOG_INFO, "Warning, too many channels in pcm of 32bits alsa: %d\n", nch); nch=15; }
+    for(int i=0; i<nch; ++i) {
+        my_areas[i].addr = to_ptrv(l_areas[i].addr);
+        my_areas[i].first = l_areas[i].first;
+        my_areas[i].step = l_areas[i].step;
+    }
+    *areas = to_ptrv(&my_areas);
+    return ret;
+}
 
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);   // defined in wrappedlibdl.c
 char* my_dlerror(x64emu_t* emu);

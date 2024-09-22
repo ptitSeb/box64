@@ -58,7 +58,7 @@ static inline long_t to_long(long l) {
 }
 static inline ulong_t to_ulong(unsigned long l) {
     if(l!=0xffffffffffffffffLL && (l>>32))
-        printf_log(LOG_NONE, "Warning, ulong 0x%p is not a 32bits value\n", (void*)l);
+        printf_log(LOG_NONE, "Warning, ulong %p is not a 32bits value\n", (void*)l);
     return (ulong_t)l;
 }
 #else //TEST32

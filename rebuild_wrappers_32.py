@@ -583,8 +583,8 @@ class FileSpec:
 	# CONSTANT- rvalues: valid replacement values (outside of structures)
 	# CONSTANT- validrepl: valid replacement values (for structures)
 	#           structs: structure ids and additional data
-	values:    Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't']
-	rvalues:   Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't']
+	values:    Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't', 'X']
+	rvalues:   Sequence[str] = ['E', 'v', 'c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_', 't', 'X']
 	validrepl: Sequence[str] = ['c', 'w', 'i', 'I', 'C', 'W', 'u', 'U', 'f', 'd', 'D', 'K', 'l', 'L', 'p', 'h', 'H', 'a', 'A', 'V', 'O', 'S', '2', 'P', 'N', 'M', 's', 'r', 'b', 'B', '_']
 	
 	def __init__(self) -> None:
@@ -1149,6 +1149,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"\n#error Invalid return type: wo structure declaration\n",           # B
 		"\n#error Invalid return type: end of structure declaration\n",       # _
 		"R_EAX = to_cstring(fn({0}));",                                       # t
+		"\n#error Invalid return type: Display* declaration\n",           	  # X
 	]
 	asargs = [
 		"emu, ",                                              # E
@@ -1184,7 +1185,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"\n#error Invalid argument type: rw structure declaration\n",     # b
 		"\n#error Invalid argument type: wo structure declaration\n",     # B
 		"\n#error Invalid argument type: end of structure declaration\n", # _
-		"\n#error Invalid argument type: maybe-high string\n", # t
+		"\n#error Invalid argument type: maybe-high string\n",# t
+		"getDisplay(from_ptriv(R_ESP + {p})), ", 		      # X
 	]
 	if len(FileSpec.values) != len(asreturns):
 		raise NotImplementedError("len(values) = {lenval} != len(asreturns) = {lenvals}".format(lenval=len(FileSpec.values), lenvals=len(asreturns)))
@@ -1292,6 +1294,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		#define ST0val ST0.d
 		
 		int of_convert32(int);
+
+		void* getDisplay(void*);
 		
 		""",
 		"wrapper32.h": """
@@ -1331,6 +1335,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		// B..._ = pointer to write-only structure
 		// b..._ = pointer to read-write structure
 		// t = char* as a return value (copies to a lower address if the return address is too high)
+		// X = Display*
 		
 		""",
 		"converter32.c": """
@@ -1397,8 +1402,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		files_guard[fhdr] = trim(files_guard[fhdr])
 	
 	# Typedefs
-	#           E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        h            H            a        A        V        O          S        2                  P        N      M      s        r               b               B               _               t
-	tdtypes = ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "uintptr_t", "uintptr_t", "void*", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "...", "...", "void*", "\n#error _\n", "\n#error _\n", "\n#error _\n", "\n#error _\n", "char*"]
+	#           E            v       c         w          i          I          C          W           u           U           f        d         D              K         l           L            p        h            H            a        A        V        O          S        2                  P        N      M      s        r               b               B               _               t          X
+	tdtypes = ["x64emu_t*", "void", "int8_t", "int16_t", "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", "float", "double", "long double", "double", "intptr_t", "uintptr_t", "void*", "uintptr_t", "uintptr_t", "void*", "void*", "void*", "int32_t", "void*", "_2uint_struct_t", "void*", "...", "...", "void*", "\n#error _\n", "\n#error _\n", "\n#error _\n", "\n#error _\n", "char*", "void*"]
 	if len(FileSpec.values) != len(tdtypes):
 		raise NotImplementedError("len(values) = {lenval} != len(tdtypes) = {lentypes}".format(lenval=len(FileSpec.values), lentypes=len(tdtypes)))
 	def generate_typedefs(funs: Iterable[FunctionType], file):
@@ -1423,8 +1428,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 				                                   for i in range(2, len(funtype.orig.replaced))) + ");\n")
 	
 	# Wrappers
-	#         E  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  h  H  a  A  V  O  S  2  P  N  M  s  r  b  B  _  t
-	deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 8, 4, 0, 0, 0, 1, 1, 4, 1, 4]
+	#         E  v  c  w  i  I  C  W  u  U  f  d  D   K   l  L  p  h  H  a  A  V  O  S  2  P  N  M  s  r  b  B  _  t  X
+	deltas = [0, 4, 4, 4, 4, 8, 4, 4, 4, 8, 4, 8, 12, 12, 4, 4, 4, 4, 4, 4, 4, 1, 4, 4, 8, 4, 0, 0, 0, 1, 1, 4, 1, 4, 4]
 	# Asserts
 	if len(FileSpec.values) != len(deltas):
 		raise NotImplementedError("len(values) = {lenval} != len(deltas) = {lendeltas}".format(lenval=len(FileSpec.values), lendeltas=len(deltas)))

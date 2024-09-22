@@ -5007,6 +5007,8 @@ wrappedlibvdpau:
   - vdp_device_create_x11
 wrappedlibvorbis:
 wrappedlibx11:
+- vFp:
+  - XcmsFreeCCC
 - iFp:
   - XDestroyImage
   - XInitImage
