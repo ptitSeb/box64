@@ -688,23 +688,14 @@ EXPORT int my32_printf(x64emu_t *emu, void* fmt, void* b) {
     return vprintf((const char*)fmt, VARARGS_32);
 }
 EXPORT int my32___printf_chk(x64emu_t *emu, void* fmt, void* b) __attribute__((alias("my32_printf")));
-#if 0
 
 EXPORT int my32_vprintf(x64emu_t *emu, void* fmt, void* b) {
-    #ifndef NOALIGN
-    // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vprintf;
-    return ((iFpp_t)f)(fmt, VARARGS_32);
-    #else
-    // other platform don't need that
-    return vprintf(fmt, b);
-    #endif
+    return vprintf(fmt, VARARGS_32);
 }
 EXPORT int my32___vprintf_chk(x64emu_t *emu, void* fmt, void* b) __attribute__((alias("my32_vprintf")));
 
-#endif
 EXPORT int my32_vfprintf(x64emu_t *emu, void* F, void* fmt, void* b) {
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);

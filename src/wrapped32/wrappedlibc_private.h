@@ -248,8 +248,8 @@ GO(endspent, vFv)
 // endusershell
 GOW(endutent, vFv)
 // endutxent
-//DATAM(environ, 4)
-//DATAM(_environ, 4)
+DATAM(environ, 4)
+DATAM(_environ, 4)
 DATAM(__environ, 4)    // type B
 // envz_add
 // envz_entry
@@ -1082,7 +1082,7 @@ GO(mbstowcs, LFppL)
 // _mcleanup
 //GOWM(mcount, vFpp)   //%%,noE
 // _mcount
-//GOW(memalign, pFLL)
+GOW(memalign, pFLL)
 //DATAV(__memalign_hook, 4)
 //GOW(memccpy, pFppiL)
 GO(memchr, pFpiL)
@@ -1893,7 +1893,7 @@ GOM(__vfprintf_chk, iFESvpp) //%%
 // vhangup
 // vlimit
 // vmsplice
-//GOM(vprintf, iFEpp)               //%%
+GOM(vprintf, iFEpp)               //%%
 //GOM(__vprintf_chk, iFEvpp)        //%%
 // vscanf   // Weak
 GOWM(vsnprintf, iFEpLpp)         //%%

@@ -346,6 +346,7 @@
 #() pFEip -> pFEip
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
+#() pFEpV -> pFEpV
 #() pFipi -> pFipi
 #() pFulu -> pFulu
 #() pFpii -> pFpii
@@ -519,6 +520,7 @@
 #() pFXiii -> pFXiii
 #() pFXLLp -> pFXLLp
 #() pFXppi -> pFXppi
+#() pFXppp -> pFXppp
 #() iFppbp_p -> iFppBp
 #() iFBp_pui -> iFBpui
 #() IFpBp_ii -> IFpBii
@@ -1299,6 +1301,8 @@ wrappedlibx11:
   - XOpenDisplay
 - iFXp:
   - XNextEvent
+- pFpV:
+  - XCreateIC
 - LFXii:
   - XGetPixel
 - pFpiiuu:
@@ -1313,6 +1317,10 @@ wrappedlibx11:
   - XGetSubImage
 - LFXLiiuuuiupLp:
   - XCreateWindow
+wrappedlibxcursor:
+wrappedlibxfixes:
+wrappedlibxrandr:
+wrappedlibxrender:
 wrappedsdl1:
 - vFv:
   - SDL_Quit

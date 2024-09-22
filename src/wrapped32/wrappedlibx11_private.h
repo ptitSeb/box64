@@ -213,7 +213,7 @@ GO(XCreateColormap, LFXLpi)
 //GO(XCreateFontSet, pFppppp)
 GO(XCreateGC, pFXLLp)
 //GO(XCreateGlyphCursor, LFpLLuupp)
-//GOM(XCreateIC, pFEpV)     // use vararg
+GOM(XCreateIC, pFEpV)     // use vararg
 GOM(XCreateImage, pFEXpuiipuuii)
 GO(dummy_XCreateImage, pFXpuiipuuii)    // to have the wrapper
 //DATAB(_XCreateMutex_fn, 4)
@@ -935,7 +935,7 @@ GOM(XNextEvent, iFEXp)
 //GO(_XomInitConverter, 
 //GO(XOMOfOC, pFp)
 GOM(XOpenDisplay, pFEp)
-//GO(XOpenIM, pFpppp)
+GO(XOpenIM, pFXppp)
 //GO(_XOpenLC, 
 //GO(XOpenOM, pFpppp)
 //GO(_XParseBaseFontNameList, 
