@@ -303,6 +303,26 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     if (v0 != q0) VMV_V_V(q0, v0);
                     break;
+                case 0x2B:
+                    INST_NAME("PACKUSDW Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+                    GETGX_vector(q0, 1, VECTOR_SEW32);
+                    d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    VMAX_VX(d0, xZR, q0, VECTOR_UNMASKED);
+                    if (q0 != q1) VMAX_VX(d1, xZR, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
+                    VNCLIPU_WX(q0, xZR, d0, VECTOR_UNMASKED);
+                    if (q0 != q1) VNCLIPU_WX(v0, xZR, d1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    if (q0 == q1) VMV_V_V(v0, q0);
+                    VSLIDEUP_VI(q0, 4, v0, VECTOR_UNMASKED);
+
+                    break;
                 case 0x30:
                     INST_NAME("PMOVZXBW Gx, Ex");
                     nextop = F8;
@@ -1076,6 +1096,26 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         PUTEX_vector(q0, VECTOR_SEW64);
                     }
                     break;
+                case 7:
+                    INST_NAME("PSLLDQ Ex, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETEX_vector(q0, 1, 1, VECTOR_SEW8);
+                    u8 = F8;
+                    if (!u8) break;
+                    if (u8 > 15) {
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        PUTEX_vector(q0, VECTOR_SEW8);
+                    } else {
+                        d0 = fpu_get_scratch(dyn);
+                        VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
+                        VSLIDEUP_VI(d0, u8, q0, VECTOR_UNMASKED);
+                        if (MODREG) {
+                            VMV_V_V(q0, d0);
+                        } else {
+                            PUTEX_vector(d0, VECTOR_SEW8);
+                        }
+                    }
+                    break;
                 default: DEFAULT_VECTOR;
             }
             break;
@@ -1118,6 +1158,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VSE_V(v1, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             break;
+        case 0xBE: return 0;
         case 0xC4:
             INST_NAME("PINSRW Gx, Ed, Ib");
             nextop = F8;
