@@ -1156,7 +1156,7 @@ GO(_XUnknownWireEvent, iFppp)
 GO(_XUnknownWireEventCookie, iFppp)
 GO(XUnloadFont, iFpL)
 GO(XUnlockDisplay, vFp)
-DATAM(_XUnlockMutex_fn, sizeof(void*))
+DATA(_XUnlockMutex_fn, sizeof(void*))
 GO(XUnmapSubwindows, iFpL)
 GO(XUnmapWindow, iFpL)
 //GO(_XUnregisterFilter, 
