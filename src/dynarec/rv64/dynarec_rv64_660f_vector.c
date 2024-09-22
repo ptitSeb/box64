@@ -283,6 +283,26 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                     VMV_V_V(q0, v0);
                     break;
+                case 0x28:
+                    INST_NAME("PMULDQ Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETGX_vector(q0, 0, VECTOR_SEW64);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW64);
+                    d0 = fpu_get_scratch(dyn);
+                    d1 = fpu_get_scratch(dyn);
+                    // make sure the alignments before vnclip...
+                    v0 = (q0 & 1) ? fpu_get_scratch_lmul(dyn, VECTOR_LMUL2) : q0;
+                    v1 = (q1 & 1) ? fpu_get_scratch_lmul(dyn, VECTOR_LMUL2) : q1;
+                    if (v0 != q0) VMV_V_V(v0, q0);
+                    if (v1 != q1) VMV_V_V(v1, q1);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+                    VNSRL_WX(d0, xZR, v0, VECTOR_UNMASKED);
+                    VNSRL_WX(d1, xZR, v1, VECTOR_UNMASKED);
+                    VWMUL_VV(v0, d0, d1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    if (v0 != q0) VMV_V_V(q0, v0);
+                    break;
                 case 0x30:
                     INST_NAME("PMOVZXBW Gx, Ex");
                     nextop = F8;
@@ -946,8 +966,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     }
                     PUTEX_vector(q0, VECTOR_SEW32);
                     break;
+                case 6:
+                    INST_NAME("PSLLD Ex, Ib");
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETEX_vector(q0, 1, 1, VECTOR_SEW32);
+                    u8 = F8;
+                    if (u8) {
+                        if (u8 > 31) {
+                            VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        } else {
+                            VSLL_VI(q0, u8, q0, VECTOR_UNMASKED);
+                        }
+                        PUTEX_vector(q0, VECTOR_SEW32);
+                    }
+                    break;
                 default:
-                    DEFAULT;
+                    DEFAULT_VECTOR;
             }
             break;
         case 0x73:
@@ -1302,18 +1336,19 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             VADD_VV(q0, d0, v1, VECTOR_UNMASKED);
             break;
-        case 0xF8:
-        case 0xF9:
-        case 0xFA:
+        case 0xF8 ... 0xFB:
             if (opcode == 0xF8) {
                 INST_NAME("PSUBB Gx, Ex");
                 u8 = VECTOR_SEW8;
             } else if (opcode == 0xF9) {
                 INST_NAME("PSUBW Gx, Ex");
                 u8 = VECTOR_SEW16;
-            } else {
+            } else if (opcode == 0xFA) {
                 INST_NAME("PSUBD Gx, Ex");
                 u8 = VECTOR_SEW32;
+            } else {
+                INST_NAME("PSUBQ Gx, Ex");
+                u8 = VECTOR_SEW64;
             }
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, u8, 1);
