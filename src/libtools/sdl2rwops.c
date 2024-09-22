@@ -19,8 +19,8 @@ typedef struct SDL2_RWops_s SDL2_RWops_t;
 
 typedef int64_t (*sdl2_size)(SDL2_RWops_t *context);
 typedef int64_t (*sdl2_seek)(SDL2_RWops_t *context, int64_t offset, int32_t whence);
-typedef int32_t (*sdl2_read)(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum);
-typedef int32_t (*sdl2_write)(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num);
+typedef size_t (*sdl2_read)(SDL2_RWops_t *context, void *ptr, size_t size, size_t maxnum);
+typedef size_t (*sdl2_write)(SDL2_RWops_t *context, const void *ptr, size_t size, size_t num);
 typedef int32_t (*sdl2_close)(SDL2_RWops_t *context);
 
 #define BOX64RW 0x79 // random signature value
@@ -69,11 +69,11 @@ EXPORT int64_t my2_native_seek(SDL2_RWops_t *context, int64_t offset, int32_t wh
 {
     return context->hidden.my.orig->seek(context->hidden.my.orig, offset, whence);
 }
-EXPORT int32_t my2_native_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
+EXPORT size_t my2_native_read(SDL2_RWops_t *context, void *ptr, size_t size, size_t maxnum)
 {
     return context->hidden.my.orig->read(context->hidden.my.orig, ptr, size, maxnum);
 }
-EXPORT int32_t my2_native_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
+EXPORT size_t my2_native_write(SDL2_RWops_t *context, const void *ptr, size_t size, size_t num)
 {
     return context->hidden.my.orig->write(context->hidden.my.orig, ptr, size, num);
 }
@@ -91,13 +91,13 @@ EXPORT int64_t my2_emulated_seek(SDL2_RWops_t *context, int64_t offset, int32_t 
 {
     return (int64_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->seek, "pIi", context->hidden.my.orig, offset, whence);
 }
-EXPORT int32_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
+EXPORT size_t my2_emulated_read(SDL2_RWops_t *context, void *ptr, size_t size, size_t maxnum)
 {
-    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->read, "ppii", context->hidden.my.orig, ptr, size, maxnum);
+    return (size_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->read, "ppLL", context->hidden.my.orig, ptr, size, maxnum);
 }
-EXPORT int32_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, int32_t size, int32_t num)
+EXPORT size_t my2_emulated_write(SDL2_RWops_t *context, const void *ptr, size_t size, size_t num)
 {
-    return (int32_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->write, "ppii", context->hidden.my.orig, ptr, size, num);
+    return (size_t)RunFunctionFmt((uintptr_t)context->hidden.my.orig->write, "ppLL", context->hidden.my.orig, ptr, size, num);
 }
 EXPORT int32_t my2_emulated_close(SDL2_RWops_t *context)
 {
@@ -218,11 +218,11 @@ int64_t RWNativeSeek2(SDL2_RWops_t *ops, int64_t offset, int32_t whence)
 {
     return ops->seek(ops, offset, whence);
 }
-uint32_t RWNativeRead2(SDL2_RWops_t* ops, void* ptr, uint32_t size, uint32_t maxnum)
+size_t RWNativeRead2(SDL2_RWops_t* ops, void* ptr, size_t size, size_t maxnum)
 {
     return ops->read(ops, ptr, size, maxnum);
 }
-int32_t RWNativeWrite2(SDL2_RWops_t *ops, const void *ptr, int32_t size, int32_t num)
+size_t RWNativeWrite2(SDL2_RWops_t *ops, const void *ptr, size_t size, size_t num)
 {
     return ops->write(ops, ptr, size, num);
 }
