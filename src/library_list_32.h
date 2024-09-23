@@ -22,4 +22,9 @@ GO("libXcursor.so.1", libxcursor)
 GO("libXrandr.so.2", libxrandr)
 GO("libxrandr.so.2", libxrandr)
 
+GO("libopenal.so.1", openal)
+GO("libopenal.so.0", openal)
+GO("libopenal.so", openal)
+GO("openal.so", openal)
+
 GO("crashhandler.so", crashhandler)

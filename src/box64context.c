@@ -363,6 +363,8 @@ void FreeBox64Context(box64context_t** context)
     #ifndef STATICBUILD
     freeGLProcWrapper(ctx);
     freeALProcWrapper(ctx);
+    #ifdef BOX32
+    #endif
     #endif
 
     if(ctx->stack_clone)

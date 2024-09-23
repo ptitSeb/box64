@@ -13,6 +13,9 @@
 #() vFA -> vFA
 #() vFS -> vFS
 #() vFX -> vFX
+#() cFi -> cFi
+#() cFu -> cFu
+#() cFp -> cFp
 #() iFv -> iFv
 #() iFi -> iFi
 #() iFI -> iFI
@@ -42,8 +45,10 @@
 #() UFu -> UFu
 #() UFp -> UFp
 #() UFs -> UFs
+#() fFi -> fFi
 #() fFf -> fFf
 #() dFv -> dFv
+#() dFi -> dFi
 #() dFd -> dFd
 #() dFp -> dFp
 #() lFi -> lFi
@@ -107,6 +112,7 @@
 #() vFpp -> vFpp
 #() vFSp -> vFSp
 #() vFXp -> vFXp
+#() cFpp -> cFpp
 #() wFpi -> wFpi
 #() iFEv -> iFEv
 #() iFEi -> iFEi
@@ -176,6 +182,7 @@
 #() pFEu -> pFEu
 #() pFEp -> pFEp
 #() pFES -> pFES
+#() pFii -> pFii
 #() pFiu -> pFiu
 #() pFia -> pFia
 #() pFuu -> pFuu
@@ -398,6 +405,7 @@
 #() vFilpp -> vFilpp
 #() vFipup -> vFipup
 #() vFipll -> vFipll
+#() vFippp -> vFippp
 #() vFCCCC -> vFCCCC
 #() vFWWWW -> vFWWWW
 #() vFuccc -> vFuccc
@@ -452,6 +460,7 @@
 #() vFffff -> vFffff
 #() vFdddd -> vFdddd
 #() vFllii -> vFllii
+#() vFpiip -> vFpiip
 #() vFpipp -> vFpipp
 #() vFpdii -> vFpdii
 #() vFpddd -> vFpddd
@@ -460,6 +469,7 @@
 #() vFpppp -> vFpppp
 #() vFXiiL -> vFXiiL
 #() vFXpip -> vFXpip
+#() cFpiii -> cFpiii
 #() iFEiip -> iFEiip
 #() iFEiiN -> iFEiiN
 #() iFEipp -> iFEipp
@@ -515,6 +525,7 @@
 #() pFullu -> pFullu
 #() pFlfff -> pFlfff
 #() pFpiLL -> pFpiLL
+#() pFpuii -> pFpuii
 #() pFppLL -> pFppLL
 #() pFpppp -> pFpppp
 #() pFXiii -> pFXiii
@@ -572,6 +583,7 @@
 #() vFuiUUU -> vFuiUUU
 #() vFuifff -> vFuifff
 #() vFuiddd -> vFuiddd
+#() vFuipii -> vFuipii
 #() vFuipip -> vFuipip
 #() vFuipup -> vFuipup
 #() vFuippp -> vFuippp
@@ -658,6 +670,7 @@
 #() iFippprLL_ -> iFipppB
 #() LFLbp_bL_Bp_BL_ -> LFLBBBB
 #() LFpLpriiiiiiiiilt_a -> LFpLpBa
+#() vFEiiipp -> vFEiiipp
 #() vFiiiiii -> vFiiiiii
 #() vFiiiuil -> vFiiiuil
 #() vFiiilpi -> vFiiilpi
@@ -669,6 +682,7 @@
 #() vFipiplp -> vFipiplp
 #() vFCCCCff -> vFCCCCff
 #() vFuiiiii -> vFuiiiii
+#() vFuiiiip -> vFuiiiip
 #() vFuiiuii -> vFuiiuii
 #() vFuiiuup -> vFuiiuup
 #() vFuiIIII -> vFuiIIII
@@ -757,6 +771,7 @@
 #() vFuuiiiii -> vFuuiiiii
 #() vFuuiiiiC -> vFuuiiiiC
 #() vFuuiiiiu -> vFuuiiiiu
+#() vFuuiiiip -> vFuuiiiip
 #() vFuuiiuup -> vFuuiiuup
 #() vFuuiCiui -> vFuuiCiui
 #() vFuuiCiuu -> vFuuiCiuu
@@ -1321,6 +1336,15 @@ wrappedlibxcursor:
 wrappedlibxfixes:
 wrappedlibxrandr:
 wrappedlibxrender:
+wrappedopenal:
+- vFv:
+  - alRequestFoldbackStop
+- pFp:
+  - alGetProcAddress
+- pFpp:
+  - alcGetProcAddress
+- vFiiipp:
+  - alRequestFoldbackStart
 wrappedsdl1:
 - vFv:
   - SDL_Quit
