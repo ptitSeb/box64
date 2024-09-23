@@ -242,8 +242,10 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         image = raw = mmap64((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         if(head->vaddr&(box64_pagesize-1)) {
             // load address might be lower
-            if((uintptr_t)image == (head->vaddr&~(box64_pagesize-1)))
+            if((uintptr_t)image == (head->vaddr&~(box64_pagesize-1))) {
                 image = (void*)head->vaddr;
+                sz += ((uintptr_t)image)-((uintptr_t)raw);
+            }
         }
     }
     if(image!=MAP_FAILED && !head->vaddr && image!=(void*)offs) {
@@ -330,7 +332,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 size_t asize = head->multiblocks[n].asize+(head->multiblocks[n].paddr-paddr);
                 void* p = MAP_FAILED;
                 if(paddr==(paddr&~(box64_pagesize-1)) && (asize==ALIGN(asize))) {
-                    printf_dump(log_level, "Mmapping 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
+                    printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                     p = mmap64(
                         (void*)paddr,
                         asize,

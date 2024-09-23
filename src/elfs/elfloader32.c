@@ -160,8 +160,10 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
         image = raw = mmap64(from_ptrv(head->vaddr), sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         if(from_ptr(head->vaddr)&(box64_pagesize-1)) {
             // load address might be lower
-            if((uintptr_t)image == (from_ptr(head->vaddr)&~(box64_pagesize-1)))
+            if((uintptr_t)image == (from_ptr(head->vaddr)&~(box64_pagesize-1))) {
                 image = from_ptrv(head->vaddr);
+                sz += ((uintptr_t)image)-((uintptr_t)raw);
+            }
         }
     }
     if(image!=MAP_FAILED && !head->vaddr && image!=from_ptrv(offs)) {
@@ -260,14 +262,18 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 } else {
                     // difference in pagesize, so need to mmap only what needed to be...
                     //check startint point
-                    uintptr_t new_addr = paddr;
-                    ssize_t new_size = asize;
-                    while(getProtection(new_addr) && (new_size>0)) {
-                        new_size -= ALIGN(new_addr) - new_addr;
-                        new_addr = ALIGN(new_addr);
+                    uintptr_t new_addr = paddr&~(box64_pagesize-1); // new_addr might be smaller than paddr
+                    ssize_t new_size = asize + (paddr-new_addr);    // so need new_size to compensate
+                    while(getProtection(new_addr) && (new_size>0)) {// but then, there might be some overlap
+                        uintptr_t diff = ALIGN(new_addr+1) - new_addr; // next page
+                        if(diff<(size_t)new_size)
+                            new_size -= diff;
+                        else
+                            new_size = 0;
+                        new_addr = ALIGN(new_addr+1);
                     }
                     if(new_size>0) {
-                        printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", ALIGN(new_size), e->p_memsz, (void*)new_addr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
+                        printf_dump(log_level, "Allocating 0x%zx (0x%zx/0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", ALIGN(new_size), paddr, e->p_memsz, (void*)new_addr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                         p = mmap64(
                             (void*)new_addr,
                             ALIGN(new_size),
