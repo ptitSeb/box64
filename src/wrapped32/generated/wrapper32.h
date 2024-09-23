@@ -161,6 +161,7 @@ void iFEL_32(x64emu_t *emu, uintptr_t fnc);
 void iFEp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEh_32(x64emu_t *emu, uintptr_t fnc);
 void iFEO_32(x64emu_t *emu, uintptr_t fnc);
+void iFEX_32(x64emu_t *emu, uintptr_t fnc);
 void iFii_32(x64emu_t *emu, uintptr_t fnc);
 void iFiI_32(x64emu_t *emu, uintptr_t fnc);
 void iFiu_32(x64emu_t *emu, uintptr_t fnc);

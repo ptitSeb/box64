@@ -59,7 +59,7 @@ GOM(XCheckTypedEvent, iFEXip)
 //GO(XClearArea, iFpLiiuui)
 //GO(XClearWindow, iFpL)
 //GO(XClipBox, iFpp)
-//GO(XCloseDisplay, iFp)
+GOM(XCloseDisplay, iFEX)
 //GO(XCloseIM, iFp)
 //GO(_XCloseLC, 
 //GO(XCloseOM, iFp)

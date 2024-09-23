@@ -120,6 +120,7 @@
 #() iFEp -> iFEp
 #() iFEh -> iFEh
 #() iFEO -> iFEO
+#() iFEX -> iFEX
 #() iFii -> iFii
 #() iFiI -> iFiI
 #() iFiu -> iFiu
@@ -1320,6 +1321,8 @@ wrappedlibx11:
   - XDestroyImage
   - XInitImage
   - _XInitImageFuncPtrs
+- iFX:
+  - XCloseDisplay
 - pFp:
   - XOpenDisplay
 - iFXp:

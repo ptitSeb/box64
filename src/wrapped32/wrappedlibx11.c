@@ -1674,6 +1674,21 @@ EXPORT void* my32_XOpenDisplay(x64emu_t* emu, void* d)
     return ret;
 }
 
+EXPORT int my32_XCloseDisplay(x64emu_t* emu, void* dpy)
+{
+    int ret = my->XCloseDisplay(dpy);
+    if(ret)
+        for(int i=0; i<N_DISPLAY; ++i) {
+            // crude free of ressources... not perfect
+            if(my32_Displays_64[i]==dpy) {
+                my32_Displays_64[i] = NULL;
+                return ret;
+            }
+        }
+    return ret;
+}
+
+
 EXPORT XID my32_XCreateWindow(x64emu_t* emu, void* d, XID Window, int x, int y, uint32_t width, uint32_t height, uint32_t border_width, int depth, uint32_t cl, void* visual,  unsigned long mask, my_XSetWindowAttributes_32_t* attr)
 {
     my_XSetWindowAttributes_t attrib;

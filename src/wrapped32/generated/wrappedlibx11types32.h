@@ -12,6 +12,7 @@
 #endif
 
 typedef int32_t (*iFp_t)(void*);
+typedef int32_t (*iFX_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFXp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
@@ -31,6 +32,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XDestroyImage, iFp_t) \
 	GO(XInitImage, iFp_t) \
 	GO(_XInitImageFuncPtrs, iFp_t) \
+	GO(XCloseDisplay, iFX_t) \
 	GO(XOpenDisplay, pFp_t) \
 	GO(XNextEvent, iFXp_t) \
 	GO(XCreateIC, pFpV_t) \
