@@ -158,6 +158,11 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
         image = (void*)(((uintptr_t)raw+max_align)&~max_align);
     } else {
         image = raw = mmap64(from_ptrv(head->vaddr), sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
+        if(from_ptr(head->vaddr)&(box64_pagesize-1)) {
+            // load address might be lower
+            if((uintptr_t)image == from_ptr(head->vaddr)&~(box64_pagesize-1))
+                image = from_ptrv(head->vaddr);
+        }
     }
     if(image!=MAP_FAILED && !head->vaddr && image!=from_ptrv(offs)) {
         printf_log(LOG_INFO, "%s: Mmap64 for (@%p 0x%zx) for elf \"%s\" returned %p(%p/0x%zx) instead\n", (((uintptr_t)image)&max_align)?"Error":"Warning", from_ptrv(head->vaddr?head->vaddr:offs), head->memsz, head->name, image, raw, head->align);
