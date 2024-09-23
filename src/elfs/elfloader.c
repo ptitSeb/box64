@@ -242,7 +242,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         image = raw = mmap64((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         if(head->vaddr&(box64_pagesize-1)) {
             // load address might be lower
-            if((uintptr_t)image == head->vaddr&~(box64_pagesize-1))
+            if((uintptr_t)image == (head->vaddr&~(box64_pagesize-1)))
                 image = (void*)head->vaddr;
         }
     }
