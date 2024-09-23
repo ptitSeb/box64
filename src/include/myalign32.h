@@ -510,4 +510,13 @@ struct i386_passwd
   ptr_t pw_dir; // char*
   ptr_t pw_shell; // char*
 };
+
+struct i386_group
+{
+  ptr_t gr_name; // char *
+  ptr_t gr_passwd; // char *
+  __gid_t gr_gid;
+  ptr_t gr_mem; // char **
+};
+
 #endif//__MY_ALIGN32__H_

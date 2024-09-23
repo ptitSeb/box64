@@ -23,6 +23,7 @@ typedef uint32_t (*uFu_t)(uint32_t);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint32_t (*uFV_t)(...);
 typedef uint64_t (*UFp_t)(void*);
+typedef intptr_t (*lFp_t)(void*);
 typedef intptr_t (*lFS_t)(void*);
 typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void* (*pFv_t)(void);
@@ -48,6 +49,7 @@ typedef void* (*SFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
 typedef void (*vFpup_t)(void*, uint32_t, void*);
 typedef void (*vFppu_t)(void*, void*, uint32_t);
+typedef int32_t (*iFvpp_t)(void, void*, void*);
 typedef int32_t (*iFvpV_t)(void, void*, ...);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
@@ -82,8 +84,13 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFSvpp_t)(void*, void, void*, void*);
 typedef int32_t (*iFSvpV_t)(void*, void, void*, ...);
 typedef uintptr_t (*LFppiv_t)(void*, void*, int32_t, void);
+typedef int32_t (*iFuppup_t)(uint32_t, void*, void*, uint32_t, void*);
+typedef int32_t (*iFuppLp_t)(uint32_t, void*, void*, uintptr_t, void*);
 typedef int32_t (*iFpvvpV_t)(void*, void, void, void*, ...);
+typedef int32_t (*iFpiLpp_t)(void*, int32_t, uintptr_t, void*, void*);
+typedef int32_t (*iFpppup_t)(void*, void*, void*, uint32_t, void*);
 typedef void* (*pFpLLiN_t)(void*, uintptr_t, uintptr_t, int32_t, ...);
+typedef void* (*pFppLLp_t)(void*, void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFpLvvpp_t)(void*, uintptr_t, void, void, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef void* (*pFpLiiii_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int32_t);
@@ -96,6 +103,7 @@ typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, in
 	GO(__close_nocancel, iFi_t) \
 	GO(getifaddrs, iFp_t) \
 	GO(getwc, iFh_t) \
+	GO(atol, lFp_t) \
 	GO(ftell, lFS_t) \
 	GO(__ctype_b_loc, pFv_t) \
 	GO(__ctype_tolower_loc, pFv_t) \
@@ -105,6 +113,7 @@ typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, in
 	GO(localeconv, pFv_t) \
 	GO(getpwuid, pFu_t) \
 	GO(gethostbyname, pFp_t) \
+	GO(getprotobyname, pFp_t) \
 	GO(getpwnam, pFp_t) \
 	GO(gmtime, pFp_t) \
 	GO(localtime, pFp_t) \
@@ -138,6 +147,10 @@ typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, in
 	GO(__realpath_chk, pFppv_t) \
 	GO(__libc_init, vFpppp_t) \
 	GO(getaddrinfo, iFpppp_t) \
+	GO(getgrgid_r, iFuppup_t) \
+	GO(getpwuid_r, iFuppLp_t) \
+	GO(getgrnam_r, iFpppup_t) \
+	GO(getpwnam_r, iFpppup_t) \
 	GO(asctime, pFiiiiiiiiilt_t)
 
 #endif // __wrappedlibcTYPES32_H_

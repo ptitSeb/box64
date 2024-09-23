@@ -210,6 +210,7 @@
 #() iFBLL_p -> iFBp
 #() iFrLL_BLL_ -> iFBB
 #() pFriiiiiiiiilt_p -> pFBp
+#() iFiBLLLLLLLLLLLLLLLLLL_ -> iFiB
 #() vFEip -> vFEip
 #() vFEpi -> vFEpi
 #() vFEpu -> vFEpu
@@ -275,6 +276,7 @@
 #() vFppi -> vFppi
 #() vFppu -> vFppu
 #() vFppp -> vFppp
+#() vFXLp -> vFXLp
 #() vFXpi -> vFXpi
 #() iFEip -> iFEip
 #() iFEpi -> iFEpi
@@ -282,6 +284,7 @@
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
 #() iFEhi -> iFEhi
+#() iFEhp -> iFEhp
 #() iFESp -> iFESp
 #() iFEXp -> iFEXp
 #() iFiii -> iFiii
@@ -291,6 +294,7 @@
 #() iFiiO -> iFiiO
 #() iFiII -> iFiII
 #() iFiuu -> iFiuu
+#() iFiup -> iFiup
 #() iFiLN -> iFiLN
 #() iFipu -> iFipu
 #() iFipL -> iFipL
@@ -383,7 +387,9 @@
 #() dFpBp_a -> dFpBa
 #() lFpBp_i -> lFpBi
 #() LFpBp_i -> LFpBi
+#() pFppbp_ -> pFppB
 #() iFXLbLWWWcc_ -> iFXLB
+#() iFirLLLL_BLLLL_ -> iFiBB
 #() pFppriiiiiiiiilt_ -> pFppB
 #() vFEipp -> vFEipp
 #() vFEipV -> vFEipV
@@ -471,6 +477,7 @@
 #() vFppip -> vFppip
 #() vFpppp -> vFpppp
 #() vFXiiL -> vFXiiL
+#() vFXLpL -> vFXLpL
 #() vFXpip -> vFXpip
 #() cFpiii -> cFpiii
 #() iFEiip -> iFEiip
@@ -528,10 +535,12 @@
 #() pFEppp -> pFEppp
 #() pFiiiu -> pFiiiu
 #() pFillu -> pFillu
+#() pFippu -> pFippu
 #() pFullu -> pFullu
 #() pFlfff -> pFlfff
 #() pFpiLL -> pFpiLL
 #() pFpuii -> pFpuii
+#() pFpLiS -> pFpLiS
 #() pFppLL -> pFppLL
 #() pFpppp -> pFpppp
 #() pFXiii -> pFXiii
@@ -743,6 +752,12 @@
 #() vFpipipV -> vFpipipV
 #() vFpdddii -> vFpdddii
 #() vFppupii -> vFppupii
+#() iFEuppup -> iFEuppup
+#() iFEuppLp -> iFEuppLp
+#() iFEpiLpp -> iFEpiLpp
+#() iFEpppup -> iFEpppup
+#() iFEXLilp -> iFEXLilp
+#() iFEXpiup -> iFEXpiup
 #() iFuiiuup -> iFuiiuup
 #() iFpiippp -> iFpiippp
 #() iFppiiii -> iFppiiii
@@ -753,6 +768,7 @@
 #() lFipLipp -> lFipLipp
 #() pFEpiiuu -> pFEpiiuu
 #() pFEpLLiN -> pFEpLLiN
+#() pFEppLLp -> pFEppLLp
 #() vFiiiiiip -> vFiiiiiip
 #() vFiiiiuup -> vFiiiiuup
 #() vFiiuilil -> vFiiuilil
@@ -949,6 +965,7 @@
 #!defined(HAVE_LD80BITS) KFKK -> KFKK
 #!defined(HAVE_LD80BITS) KFKp -> KFKp
 #!defined(HAVE_LD80BITS) KFpBp_a -> KFpBa
+#() iFEvpp -> iFEpp
 #() iFEvpV -> iFEpV
 #() UFsvvs -> UFss
 #() pFEppv -> pFEpp
@@ -984,6 +1001,8 @@ wrappedlibc:
 - uFp:
 - uFV:
 - UFp:
+- lFp:
+  - atol
 - lFS:
   - ftell
 - LFL:
@@ -999,6 +1018,7 @@ wrappedlibc:
 - pFL:
 - pFp:
   - gethostbyname
+  - getprotobyname
   - getpwnam
   - gmtime
   - localtime
@@ -1038,6 +1058,7 @@ wrappedlibc:
 - vFpup:
   - _ITM_addUserCommitAction
 - vFppu:
+- iFvpp:
 - iFvpV:
 - iFiip:
 - iFiiN:
@@ -1085,8 +1106,17 @@ wrappedlibc:
 - iFSvpp:
 - iFSvpV:
 - LFppiv:
+- iFuppup:
+  - getgrgid_r
+- iFuppLp:
+  - getpwuid_r
 - iFpvvpV:
+- iFpiLpp:
+- iFpppup:
+  - getgrnam_r
+  - getpwnam_r
 - pFpLLiN:
+- pFppLLp:
 - iFpLvvpp:
 - iFpLiipV:
 - pFpLiiii:
@@ -1290,6 +1320,8 @@ wrappedlibpthread:
   - sem_getvalue
 - iFhi:
   - pthread_kill@GLIBC_2.0
+- iFhp:
+  - pthread_getattr_np
 - vFppp:
   - _pthread_cleanup_push
   - _pthread_cleanup_push_defer
@@ -1331,6 +1363,8 @@ wrappedlibx11:
   - XCreateIC
 - vFXLp:
   - XSetWMNormalHints
+- iFpip:
+  - XStringListToTextProperty
 - iFXip:
   - XCheckTypedEvent
 - iFXLp:
@@ -1339,6 +1373,10 @@ wrappedlibx11:
   - XGetPixel
 - iFXLpi:
   - XSetWMProtocols
+- iFXLilp:
+  - XSendEvent
+- iFXpiup:
+  - Xutf8TextListToTextProperty
 - pFpiiuu:
   - XSubImage
 - pFXLiiuuLi:

@@ -129,13 +129,13 @@ void my_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t
 
 static pthread_key_t thread_key;
 
-static void emuthread_destroy(void* p)
+void emuthread_destroy(void* p)
 {
 	emuthread_t *et = (emuthread_t*)p;
 	if(!et)
 		return;
 	#ifdef BOX32
-	if(!et->join && et->fnc)
+	if(et->is32bits && !et->join && et->fnc)
 		to_hash_d(et->self);
 	#endif
 	FreeX64Emu(&et->emu);
@@ -180,6 +180,7 @@ void thread_set_emu(x64emu_t* emu)
 	et->emu->type = EMUTYPE_MAIN;
 	#ifdef BOX32
 	if(box64_is32bits) {
+		et->is32bits = 1;
 		et->self = (uintptr_t)pthread_self();
 		et->hself = to_hash(et->self);
 	}
@@ -211,6 +212,16 @@ x64emu_t* thread_get_emu()
 		return emu;
 	}
 	return et->emu;
+}
+
+emuthread_t* thread_get_et()
+{
+	return (emuthread_t*)pthread_getspecific(thread_key);
+}
+
+void thread_set_et(emuthread_t* et)
+{
+	pthread_setspecific(thread_key, et);
 }
 
 static void* pthread_routine(void* p)

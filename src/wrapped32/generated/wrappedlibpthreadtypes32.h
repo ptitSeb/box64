@@ -20,6 +20,7 @@ typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFhi_t)(uintptr_t, int32_t);
+typedef int32_t (*iFhp_t)(uintptr_t, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpiu_t)(void*, int32_t, uint32_t);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
@@ -97,6 +98,7 @@ typedef int32_t (*iFhppp_t)(uintptr_t, void*, void*, void*);
 	GO(pthread_rwlock_init, iFpp_t) \
 	GO(sem_getvalue, iFpp_t) \
 	GO(pthread_kill@GLIBC_2.0, iFhi_t) \
+	GO(pthread_getattr_np, iFhp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
 	GO(sem_init, iFpiu_t) \

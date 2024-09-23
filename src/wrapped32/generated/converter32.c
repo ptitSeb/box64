@@ -35,6 +35,68 @@ void to_struct_LL(ptr_t d, const struct_LL_t *src) {
 	*(ulong_t*)dest = to_ulong(src->L1); dest += 4;
 }
 
+void from_struct_LLLL(struct_LLLL_t *dest, ptr_t s) {
+	if(!s) return;
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L1 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L2 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L3 = from_ulong(*(ulong_t*)src); src += 4;
+}
+void to_struct_LLLL(ptr_t d, const struct_LLLL_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L1); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L2); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L3); dest += 4;
+}
+
+void from_struct_LLLLLLLLLLLLLLLLLL(struct_LLLLLLLLLLLLLLLLLL_t *dest, ptr_t s) {
+	if(!s) return;
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L1 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L2 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L3 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L4 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L5 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L6 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L7 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L8 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L9 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L10 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L11 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L12 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L13 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L14 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L15 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L16 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->L17 = from_ulong(*(ulong_t*)src); src += 4;
+}
+void to_struct_LLLLLLLLLLLLLLLLLL(ptr_t d, const struct_LLLLLLLLLLLLLLLLLL_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L1); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L2); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L3); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L4); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L5); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L6); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L7); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L8); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L9); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L10); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L11); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L12); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L13); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L14); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L15); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L16); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L17); dest += 4;
+}
+
 void from_struct_h(struct_h_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->h0 = from_hash(*(ulong_t*)src); src += 4;

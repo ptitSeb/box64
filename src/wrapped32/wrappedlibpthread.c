@@ -62,6 +62,7 @@ typedef struct my_sem_32_s {
     sem_t   *sem;
 } my_sem_32_t;
 
+#define GET_SEM(sem) sem_t* _sem = (sem->sign != SEM_SIGN)?((sem_t*)sem):(sem->sem)
 EXPORT int my32_sem_close(sem_t* sem)
 {
     return sem_close(sem);
@@ -78,11 +79,8 @@ EXPORT int my32_sem_destroy(my_sem_32_t* sem)
 }
 EXPORT int my32_sem_getvalue(my_sem_32_t* sem, int* val)
 {
-    if(sem->sign != SEM_SIGN)
-        return sem_getvalue((sem_t*)sem, val);
-    int ret = 0;
-    ret = sem_getvalue(sem->sem, val);
-    return ret;
+    GET_SEM(sem);
+    return sem_getvalue(_sem, val);
 }
 EXPORT int my32_sem_init(my_sem_32_t* sem, int pshared, uint32_t val)
 {
@@ -98,32 +96,31 @@ EXPORT void* my32_sem_open(const char* name, int flags)
 }
 EXPORT int my32_sem_post(my_sem_32_t* sem)
 {
-    if(sem->sign != SEM_SIGN)
-        return sem_post((sem_t*)sem);
-    return sem_post(sem->sem);
+    GET_SEM(sem);
+    return sem_post(_sem);
 }
 EXPORT int my32_sem_timedwait(my_sem_32_t* sem, struct timespec * t)
 {
+    GET_SEM(sem);
+    // Not sure it's usefull
+    //if(!sem_trywait(_sem)))
+    //    return 0;
     // some x86 game are not computing timeout correctly (ex: Anomaly Warzone Earth linux version)
     while(t->tv_nsec>=1000000000) {
         t->tv_nsec-=1000000000;
         t->tv_sec+=1;
     }
-    if(sem->sign != SEM_SIGN)
-        return sem_timedwait((sem_t*)sem, t);
-    return sem_timedwait(sem->sem, t);
+    return sem_timedwait(_sem, t);
 }
 EXPORT int my32_sem_trywait(my_sem_32_t* sem)
 {
-    if(sem->sign != SEM_SIGN)
-        return sem_trywait((sem_t*)sem);
-    return sem_trywait(sem->sem);
+    GET_SEM(sem);
+    return sem_trywait(_sem);
 }
 EXPORT int my32_sem_wait(my_sem_32_t* sem)
 {
-    if(sem->sign != SEM_SIGN)
-        return sem_wait((sem_t*)sem);
-    return sem_wait(sem->sem);
+    GET_SEM(sem);
+    return sem_wait(_sem);
 }
 
 

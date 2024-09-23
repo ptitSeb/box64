@@ -36,6 +36,7 @@
 #include <sys/statvfs.h>
 #include <mntent.h>
 #include <sys/uio.h>
+#include <grp.h>
 
 #include "wrappedlibs.h"
 
@@ -471,10 +472,12 @@ uint32_t my32_syscall(x64emu_t *emu); // implemented in x64syscall.c
 void EXPORT my32___stack_chk_fail(x64emu_t* emu)
 {
     char buff[200];
+    void* addr = from_ptrv(*(ptr_t*)from_ptrv(R_ESP));
+    const char* name = getAddrFunctionName((uintptr_t)addr);
     #ifdef HAVE_TRACE
-    sprintf(buff, "%p: Stack is corrupted, aborting (prev IP=%p)\n", (void*)emu->old_ip, (void*)emu->prev2_ip);
+    sprintf(buff, "%p: Stack is corrupted, aborting (prev IP=%p) ESP=0x%x %s\n", addr, (void*)emu->prev2_ip, R_ESP, name);
     #else
-    sprintf(buff, "%p: Stack is corrupted, aborting\n", (void*)emu->old_ip);
+    sprintf(buff, "%p: Stack is corrupted, aborting ESP=0x%x %s\n", addr, R_ESP, name);
     #endif
     StopEmu(emu, buff, 1);
 }
@@ -2106,6 +2109,64 @@ EXPORT void* my32_getpwuid(x64emu_t* emu, uint32_t uid)
     }
     return NULL;
 }
+
+EXPORT int my32_getpwuid_r(x64emu_t* emu, uint32_t uid, struct i386_passwd* pwd, char *buf, size_t buflen, ptr_t* result)
+{
+    struct passwd _result = {0};
+    struct passwd *r = NULL;
+    int ret = getpwuid_r(uid, &_result, buf, buflen, &r);
+    if(!r) {
+        *result = 0;
+        return ret;
+    }
+    *result = to_ptrv(pwd);
+    struct i386_passwd *res = pwd;
+    res->pw_name = to_ptrv(r->pw_name);
+    res->pw_passwd = to_ptrv(r->pw_passwd);
+    res->pw_uid = r->pw_uid;
+    res->pw_gid = r->pw_gid;
+    res->pw_gecos = to_ptrv(r->pw_gecos);
+    res->pw_dir = to_ptrv(r->pw_dir);
+    res->pw_shell = to_ptrv(r->pw_shell);
+    return ret;
+}
+
+EXPORT int my32_getgrnam_r(x64emu_t* emu, const char* name, struct i386_group *grp, char *buf, size_t buflen, ptr_t* result)
+{
+    struct group _result = {0};
+    struct group *r = NULL;
+    int ret = getgrnam_r(name, &_result, buf, buflen, &r);
+    if(!r) {
+        *result = 0;
+        return ret;
+    }
+    *result = to_ptrv(grp);
+    struct i386_group *res = grp;
+    res->gr_name = to_ptrv(r->gr_name);
+    res->gr_passwd = to_ptrv(r->gr_passwd);
+    res->gr_gid = r->gr_gid;
+    res->gr_mem = to_ptrv(r->gr_mem);
+    return ret;
+}
+
+EXPORT int my32_getgrgid_r(x64emu_t* emu, gid_t gid, struct i386_group *grp, char *buf, size_t buflen, ptr_t* result)
+{
+    struct group _result = {0};
+    struct group *r = NULL;
+    int ret = getgrgid_r(gid, &_result, buf, buflen, &r);
+    if(!r) {
+        *result = 0;
+        return ret;
+    }
+    *result = to_ptrv(grp);
+    struct i386_group *res = grp;
+    res->gr_name = to_ptrv(r->gr_name);
+    res->gr_passwd = to_ptrv(r->gr_passwd);
+    res->gr_gid = r->gr_gid;
+    res->gr_mem = to_ptrv(r->gr_mem);
+    return ret;
+}
+
 #if 0
 EXPORT int32_t my32_recvmmsg(x64emu_t* emu, int32_t fd, void* msgvec, uint32_t vlen, uint32_t flags, void* timeout)
 {
@@ -2288,11 +2349,9 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 EXPORT void* my32___ctype_b_loc(x64emu_t* emu)
 {
     const unsigned short** src =__ctype_b_loc();
-    if((uintptr_t)src<0x100000000LL)
-        return src;
-    if(src != emu->ref_ctype) {
+    if(*src != emu->ref_ctype) {
         memcpy(emu->libctype, &((*src)[-128]), 384*sizeof(short));
-        emu->ref_ctype = src;
+        emu->ref_ctype = *src;
         emu->ctype = emu->libctype+128;
     }
     return &emu->ctype;
@@ -2300,11 +2359,9 @@ EXPORT void* my32___ctype_b_loc(x64emu_t* emu)
 EXPORT void* my32___ctype_tolower_loc(x64emu_t* emu)
 {
     const int** src =__ctype_tolower_loc();
-    if((uintptr_t)src<0x100000000LL)
-        return src;
-    if(src != emu->ref_tolower) {
+    if(*src != emu->ref_tolower) {
         memcpy(emu->libctolower, &((*src)[-128]), 384*sizeof(int));
-        emu->ref_tolower = src;
+        emu->ref_tolower = *src;
         emu->tolower = emu->libctolower+128;
     }
     return &emu->tolower;
@@ -2312,11 +2369,9 @@ EXPORT void* my32___ctype_tolower_loc(x64emu_t* emu)
 EXPORT void* my32___ctype_toupper_loc(x64emu_t* emu)
 {
     const int** src =__ctype_toupper_loc();
-    if((uintptr_t)src<0x100000000LL)
-        return src;
-    if(src != emu->ref_toupper) {
+    if(*src != emu->ref_toupper) {
         memcpy(emu->libctoupper, &((*src)[-128]), 384*sizeof(int));
-        emu->ref_toupper = src;
+        emu->ref_toupper = *src;
         emu->toupper = emu->libctoupper+128;
     }
     return &emu->toupper;
@@ -2573,6 +2628,27 @@ EXPORT void* my32_getpwnam(x64emu_t* emu, const char* name)
     ret.pw_dir = to_ptrv(r->pw_dir);
     ret.pw_shell = to_ptrv(r->pw_shell);
     return &ret;
+}
+
+EXPORT int my32_getpwnam_r(x64emu_t* emu, const char *name, struct i386_passwd *pwd, char *buf, size_t buflen, ptr_t *result)
+{
+    struct passwd _result = {0};
+    struct passwd *r = NULL;
+    int ret = getpwnam_r(name, &_result, buf, buflen, &r);
+    if(!r) {
+        *result = 0;
+        return ret;
+    }
+    *result = to_ptrv(pwd);
+    struct i386_passwd *res = pwd;
+    res->pw_name = to_ptrv(r->pw_name);
+    res->pw_passwd = to_ptrv(r->pw_passwd);
+    res->pw_uid = r->pw_uid;
+    res->pw_gid = r->pw_gid;
+    res->pw_gecos = to_ptrv(r->pw_gecos);
+    res->pw_dir = to_ptrv(r->pw_dir);
+    res->pw_shell = to_ptrv(r->pw_shell);
+    return ret;
 }
 
 EXPORT void* my32_realpath(x64emu_t* emu, void* path, void* resolved_path)

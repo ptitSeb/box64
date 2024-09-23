@@ -136,13 +136,13 @@ typedef struct x64emu_s {
     int         libc_err;   // copy of errno from libc
     int         libc_herr;  // copy of h_errno from libc
     unsigned short          libctype[384];   // copy from __ctype_b address might be too high
-    const unsigned short**  ref_ctype;
+    const unsigned short*   ref_ctype;
     const unsigned short*   ctype;
     int         libctolower[384];   // copy from __ctype_b_tolower address might be too high
-    const int** ref_tolower;
+    const int*  ref_tolower;
     const int*  tolower;
     int         libctoupper[384];   // copy from __ctype_b_toupper address might be too high
-    const int** ref_toupper;
+    const int*  ref_toupper;
     const int*  toupper;
     #endif
 } x64emu_t;

@@ -1357,7 +1357,7 @@ GOW(ngettext, pFppL)
 GO(nice, iFi)
 //DATAB(_nl_domain_bindings, 
 GO(nl_langinfo, pFi)
-GO(__nl_langinfo_l, pFup)
+GO(__nl_langinfo_l, pFip)
 GOW(nl_langinfo_l, pFip)
 //DATAB(_nl_msg_cat_cntr, 
 GO(nrand48, lFp)

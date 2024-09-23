@@ -69,14 +69,19 @@ typedef struct __jmp_buf_tag_s {
     sigset_t         __saved_mask;
 } __jmp_buf_tag_t;
 
-typedef struct x64_unwind_buff_s {
+typedef struct i386_unwind_buff_s {
 	struct {
 		jump_buff_i386_t	__cancel_jmp_buf;	
 		int					__mask_was_saved;
 	} __cancel_jmp_buf[1];
 	ptr_t __pad[2];
 	void* __pad3;
-} x64_unwind_buff_t __attribute__((__aligned__));
+} i386_unwind_buff_t __attribute__((__aligned__));
+
+// those are define in thread.c
+emuthread_t* thread_get_et();
+void thread_set_et(emuthread_t* et);
+void emuthread_destroy(void* p);
 
 static pthread_attr_t* get_attr(void* attr);
 static void del_attr(void* attr);
@@ -93,21 +98,7 @@ void FreeStackSize(kh_threadstack_t* map, uintptr_t attr);
 void AddStackSize(kh_threadstack_t* map, uintptr_t attr, void* stack, size_t stacksize);
 int GetStackSize(x64emu_t* emu, uintptr_t attr, void** stack, size_t* stacksize);
 
-static pthread_key_t thread_key;
-
 void my32_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
-
-static void emuthread_destroy(void* p)
-{
-	emuthread_t *et = (emuthread_t*)p;
-	if(!et)
-		return;
-	// destroy thread emu and all
-	if(!et->join && et->fnc)	// if there is no function, that this thread was not built from a create_thread, don't touch the hash...
-		to_hash_d(et->self);
-	FreeX64Emu(&et->emu);
-	free(et);
-}
 
 static void emuthread_cancel(void* p)
 {
@@ -117,7 +108,7 @@ static void emuthread_cancel(void* p)
 	// check cancels threads
 	for(int i=et->cancel_size-1; i>=0; --i) {
 		et->emu->flags.quitonlongjmp = 0;
-		my32_longjmp(et->emu, ((x64_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
+		my32_longjmp(et->emu, ((i386_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
 	free(et->cancels);
@@ -129,16 +120,16 @@ static void* pthread_routine(void* p)
 {
 	// free current emuthread if it exist
 	{
-		void* t = pthread_getspecific(thread_key);
+		void* t = thread_get_et();
 		if(t) {
 			// not sure how this could happens
 			printf_log(LOG_INFO, "Clean of an existing ET for Thread %04d\n", GetTID());
 			emuthread_destroy(t);
 		}
 	}
-	pthread_setspecific(thread_key, p);
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
+	thread_set_et(et);
 	et->emu->type = EMUTYPE_MAIN;
 	et->self = (uintptr_t)pthread_self();
 	et->hself = to_hash(et->self);
@@ -244,7 +235,7 @@ EXPORT int my32_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_r
 EXPORT int my32_pthread_detach(x64emu_t* emu, pthread_t p)
 {
 	if(pthread_equal(p ,pthread_self())) {
-		emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+		emuthread_t *et = (emuthread_t*)thread_get_et();
 		et->join = 0;
 	}
 	return pthread_detach(p);
@@ -274,24 +265,24 @@ void* my32_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** p
 
 void my32_longjmp(x64emu_t* emu, /*struct __jmp_buf_tag __env[1]*/void *p, int32_t __val);
 
-EXPORT void my32___pthread_register_cancel(x64emu_t* emu, x64_unwind_buff_t* buff)
+EXPORT void my32___pthread_register_cancel(x64emu_t* emu, i386_unwind_buff_t* buff)
 {
-	buff = (x64_unwind_buff_t*)from_ptr(R_EAX);	// param is in fact on register
-	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	buff = (i386_unwind_buff_t*)from_ptr(R_EAX);	// param is in fact on register
+	emuthread_t *et = (emuthread_t*)thread_get_et();
 	if(et->cancel_cap == et->cancel_size) {
 		et->cancel_cap+=8;
-		et->cancels = realloc(et->cancels, sizeof(x64_unwind_buff_t*)*et->cancel_cap);
+		et->cancels = realloc(et->cancels, sizeof(i386_unwind_buff_t*)*et->cancel_cap);
 	}
 	et->cancels[et->cancel_size++] = buff;
 }
 
-EXPORT void my32___pthread_unregister_cancel(x64emu_t* emu, x64_unwind_buff_t* buff)
+EXPORT void my32___pthread_unregister_cancel(x64emu_t* emu, i386_unwind_buff_t* buff)
 {
-	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	emuthread_t *et = (emuthread_t*)thread_get_et();
 	for (int i=et->cancel_size-1; i>=0; --i) {
 		if(et->cancels[i] == buff) {
 			if(i!=et->cancel_size-1)
-				memmove(et->cancels+i, et->cancels+i+1, sizeof(x64_unwind_buff_t*)*(et->cancel_size-i-1));
+				memmove(et->cancels+i, et->cancels+i+1, sizeof(i386_unwind_buff_t*)*(et->cancel_size-i-1));
 			et->cancel_size--;
 		}
 	}
@@ -364,9 +355,9 @@ GO(29)
 
 // cleanup_routine
 #define GO(A)   \
-static uintptr_t my32_cleanup_routine_fct_##A = 0;  						\
-static void my32_cleanup_routine_##A(void* a)    							\
-{                                       								\
+static uintptr_t my32_cleanup_routine_fct_##A = 0;  				\
+static void my32_cleanup_routine_##A(void* a)    					\
+{                                       							\
     RunFunctionFmt(my32_cleanup_routine_fct_##A, "p", to_ptrv(a));	\
 }
 SUPER()
@@ -387,9 +378,9 @@ static void* findcleanup_routineFct(void* fct)
 
 // key_destructor
 #define GO(A)   \
-static uintptr_t my32_key_destructor_fct_##A = 0;  						\
-static void my32_key_destructor_##A(void* a)    							\
-{                                       								\
+static uintptr_t my32_key_destructor_fct_##A = 0;  					\
+static void my32_key_destructor_##A(void* a)    					\
+{                                       							\
     RunFunctionFmt(my32_key_destructor_fct_##A, "p", to_ptrv(a));	\
 }
 SUPER()
@@ -637,6 +628,11 @@ static void del_attr(void* attr)
 EXPORT int my32_pthread_attr_init(x64emu_t* emu, void* attr)
 {
 	return pthread_attr_init(get_attr(attr));
+}
+
+EXPORT int my32_pthread_getattr_np(x64emu_t* emu, uintptr_t th, void* attr)
+{
+	return pthread_getattr_np(th, get_attr(attr));
 }
 
 EXPORT int my32_pthread_attr_getdetachstate(x64emu_t* emu, void* attr, void* p)
@@ -920,16 +916,14 @@ void init_pthread_helper_32()
 
 	mapcond = kh_init(mapcond);
 	unaligned_mutex = kh_init(mutex);
-	pthread_key_create(&thread_key, emuthread_destroy);
-	pthread_setspecific(thread_key, NULL);
 }
 
 void clean_current_emuthread_32()
 {
-	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
+	emuthread_t *et = (emuthread_t*)thread_get_et();
 	if(et) {
 		emuthread_destroy(et);
-		pthread_setspecific(thread_key, NULL);
+		thread_set_et(NULL);
 	}
 }
 

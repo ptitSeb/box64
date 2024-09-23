@@ -174,3 +174,33 @@ EXPORT void* my32___h_errno_location(x64emu_t* emu)
     emu->libc_herr = h_errno;
     return &emu->libc_herr;
 }
+
+struct protoent_32
+{
+  ptr_t p_name; //char*
+  ptr_t p_aliases;// char**
+  int p_proto;
+};
+
+EXPORT void* my32_getprotobyname(x64emu_t* emu, void* name)
+{
+    static struct protoent_32 my_protoent = {0};
+    static ptr_t strings[256];
+    struct protoent *ret = getprotobyname(name);
+    if(!ret)
+        return NULL;
+    my_protoent.p_name = to_cstring(ret->p_name);
+    my_protoent.p_proto = ret->p_proto;
+    if(ret->p_aliases) {
+        my_protoent.p_aliases = to_ptrv(&strings);
+        int i = 0;
+        while(ret->p_aliases[i]) {
+            strings[i] = to_cstring(ret->p_aliases[i]);
+            ++i;
+        }
+        strings[i] = 0;
+    } else 
+        my_protoent.p_aliases = 0;
+
+    return &my_protoent;
+}

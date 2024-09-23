@@ -1539,15 +1539,17 @@ my_XDisplay_32_t my32_Displays_32[N_DISPLAY] = {0};
 
 void* getDisplay(void* d)
 {
+    if(!d) return d;
     for(int i=0; i<N_DISPLAY; ++i)
         if(&my32_Displays_32[i]==d)
             return my32_Displays_64[i];
-        printf_log(LOG_INFO, "BOX32: Warning, 32bits Display not found");
+        printf_log(LOG_INFO, "BOX32: Warning, 32bits Display %p not found\n", d);
     return d;
 }
 
 void* FindDisplay(void* d)
 {
+    if(!d) return d;
     for(int i=0; i<N_DISPLAY; ++i)
         if(my32_Displays_64[i]==d)
             return &my32_Displays_32[i];
@@ -1922,6 +1924,216 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
             printf_log(LOG_INFO, "Warning, unsupported 32bits XEvent type=%d\n", src->type);
     }
 }
+void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
+{
+    // convert the XAnyEvent first, as it's a common set
+    dst->type = src->type;
+    dst->xany.display = getDisplay(from_ptrv(src->xany.display));
+    dst->xany.window = from_ulong(src->xany.window);
+    dst->xany.send_event = src->xany.serial;
+    dst->xany.serial = from_ulong(src->xany.serial);
+    switch(src->type) {
+        case XEVT_KeyPress:
+        case XEVT_KeyRelease:
+            dst->xkey.root = from_ulong(src->xkey.root);
+            dst->xkey.subwindow = from_ulong(src->xkey.subwindow);
+            dst->xkey.time = from_ulong(src->xkey.time);
+            dst->xkey.x = src->xkey.x;
+            dst->xkey.y = src->xkey.y;
+            dst->xkey.x_root = src->xkey.x_root;
+            dst->xkey.y_root = src->xkey.y_root;
+            dst->xkey.state = src->xkey.state;
+            dst->xkey.keycode = src->xkey.keycode;
+            dst->xkey.same_screen = src->xkey.same_screen;
+            break;
+        case XEVT_ButtonPress:
+        case XEVT_ButtonRelease:
+            dst->xbutton.root = from_ulong(src->xbutton.root);
+            dst->xbutton.subwindow = from_ulong(src->xbutton.subwindow);
+            dst->xbutton.time = from_ulong(src->xbutton.time);
+            dst->xbutton.x = src->xbutton.x;
+            dst->xbutton.y = src->xbutton.y;
+            dst->xbutton.x_root = src->xbutton.x_root;
+            dst->xbutton.y_root = src->xbutton.y_root;
+            dst->xbutton.state = src->xbutton.state;
+            dst->xbutton.button = src->xbutton.button;
+            dst->xbutton.same_screen = src->xbutton.same_screen;
+            break;
+        case XEVT_MotionNotify:
+            dst->xmotion.root = from_ulong(src->xmotion.root);
+            dst->xmotion.subwindow = from_ulong(src->xmotion.subwindow);
+            dst->xmotion.time = from_ulong(src->xmotion.time);
+            dst->xmotion.x = src->xmotion.x;
+            dst->xmotion.y = src->xmotion.y;
+            dst->xmotion.x_root = src->xmotion.x_root;
+            dst->xmotion.y_root = src->xmotion.y_root;
+            dst->xmotion.state = src->xmotion.state;
+            dst->xmotion.is_hint = src->xmotion.is_hint;
+            dst->xmotion.same_screen = src->xmotion.same_screen;
+            break;
+        case XEVT_EnterNotify:
+        case XEVT_LeaveNotify:
+            dst->xcrossing.root = from_ulong(src->xcrossing.root);
+            dst->xcrossing.subwindow = from_ulong(src->xcrossing.subwindow);
+            dst->xcrossing.time = from_ulong(src->xcrossing.time);
+            dst->xcrossing.x = src->xcrossing.x;
+            dst->xcrossing.y = src->xcrossing.y;
+            dst->xcrossing.x_root = src->xcrossing.x_root;
+            dst->xcrossing.y_root = src->xcrossing.y_root;
+            dst->xcrossing.mode = src->xcrossing.mode;
+            dst->xcrossing.detail = src->xcrossing.detail;
+            dst->xcrossing.same_screen = src->xcrossing.same_screen;
+            dst->xcrossing.focus = src->xcrossing.focus;
+            dst->xcrossing.state = src->xcrossing.state;
+            break;
+        case XEVT_FocusIn:
+        case XEVT_FocusOut:
+            dst->xfocus.mode = src->xfocus.mode;
+            dst->xfocus.detail = src->xfocus.detail;
+            break;
+        case XEVT_KeymapNotify:
+            memcpy(dst->xkeymap.key_vector, src->xkeymap.key_vector, 32);
+            break;
+        case XEVT_Expose:
+            dst->xexpose.x = src->xexpose.x;
+            dst->xexpose.y = src->xexpose.y;
+            dst->xexpose.width = src->xexpose.width;
+            dst->xexpose.height = src->xexpose.height;
+            dst->xexpose.count = src->xexpose.count;
+            break;
+        case XEVT_GraphicsExpose:
+            dst->xgraphicsexpose.x = src->xgraphicsexpose.x;
+            dst->xgraphicsexpose.y = src->xgraphicsexpose.y;
+            dst->xgraphicsexpose.width = src->xgraphicsexpose.width;
+            dst->xgraphicsexpose.height = src->xgraphicsexpose.height;
+            dst->xgraphicsexpose.count = src->xgraphicsexpose.count;
+            dst->xgraphicsexpose.major_code = src->xgraphicsexpose.major_code;
+            dst->xgraphicsexpose.minor_code = src->xgraphicsexpose.minor_code;
+            break;
+        case XEVT_NoExpose:
+            dst->xnoexpose.major_code = src->xnoexpose.major_code;
+            dst->xnoexpose.minor_code = src->xnoexpose.minor_code;
+            break;
+        case XEVT_VisibilityNotify:
+            dst->xvisibility.state = src->xvisibility.state;
+            break;
+        case XEVT_CreateNotify:
+            dst->xcreatewindow.window = from_ulong(src->xcreatewindow.window);
+            dst->xcreatewindow.x = src->xcreatewindow.x;
+            dst->xcreatewindow.y = src->xcreatewindow.y;
+            dst->xcreatewindow.width = src->xcreatewindow.width;
+            dst->xcreatewindow.height = src->xcreatewindow.height;
+            dst->xcreatewindow.border_width = src->xcreatewindow.border_width;
+            dst->xcreatewindow.override_redirect = src->xcreatewindow.override_redirect;
+            break;
+        case XEVT_DestroyNotify:
+            dst->xdestroywindow.window = from_ulong(src->xdestroywindow.window);
+            break;
+        case XEVT_UnmapNotify:
+            dst->xunmap.window = from_ulong(src->xunmap.window);
+            dst->xunmap.from_configure = src->xunmap.from_configure;
+            break;
+        case XEVT_MapNotify:
+            dst->xmap.window = from_ulong(src->xmap.window);
+            dst->xmap.override_redirect = src->xmap.override_redirect;
+            break;
+        case XEVT_MapRequest:
+            dst->xmaprequest.window = from_ulong(src->xmaprequest.window);
+            break;
+        case XEVT_ReparentNotify:
+            dst->xreparent.window = from_ulong(src->xreparent.window);
+            dst->xreparent.parent = from_ulong(src->xreparent.parent);
+            dst->xreparent.x = src->xreparent.x;
+            dst->xreparent.y = src->xreparent.y;
+            dst->xreparent.override_redirect = src->xreparent.override_redirect;
+            break;
+        case XEVT_ConfigureNotify:
+            dst->xconfigure.window = from_ulong(src->xconfigure.window);
+            dst->xconfigure.x = src->xconfigure.x;
+            dst->xconfigure.y = src->xconfigure.y;
+            dst->xconfigure.width = src->xconfigure.width;
+            dst->xconfigure.height = src->xconfigure.height;
+            dst->xconfigure.border_width = src->xconfigure.border_width;
+            dst->xconfigure.above = from_ulong(src->xconfigure.above);
+            dst->xconfigure.override_redirect = src->xconfigure.override_redirect;
+            break;
+        case XEVT_ConfigureRequest:
+            dst->xconfigurerequest.window = from_ulong(src->xconfigurerequest.window);
+            dst->xconfigurerequest.x = src->xconfigurerequest.x;
+            dst->xconfigurerequest.y = src->xconfigurerequest.y;
+            dst->xconfigurerequest.width = src->xconfigurerequest.width;
+            dst->xconfigurerequest.height = src->xconfigurerequest.height;
+            dst->xconfigurerequest.border_width = src->xconfigurerequest.border_width;
+            dst->xconfigurerequest.above = from_ulong(src->xconfigurerequest.above);
+            dst->xconfigurerequest.detail = src->xconfigurerequest.detail;
+            dst->xconfigurerequest.value_mask = from_ulong(src->xconfigurerequest.value_mask);
+            break;
+        case XEVT_GravityNotify:
+            dst->xgravity.window = from_ulong(src->xgravity.window);
+            dst->xgravity.x = src->xgravity.x;
+            dst->xgravity.y = src->xgravity.y;
+            break;
+        case XEVT_ResizeRequest:
+            dst->xresizerequest.width = src->xresizerequest.width;
+            dst->xresizerequest.height = src->xresizerequest.height;
+            break;
+        case XEVT_CirculateNotify:
+            dst->xcirculate.window = from_ulong(src->xcirculate.window);
+            dst->xcirculate.place = src->xcirculate.place;
+            break;
+        case XEVT_CirculateRequest:
+            dst->xcirculaterequest.window = from_ulong(src->xcirculaterequest.window);
+            dst->xcirculaterequest.place = src->xcirculaterequest.place;
+            break;
+        case XEVT_PropertyNotify:
+            dst->xproperty.atom = from_ulong(src->xproperty.atom);
+            dst->xproperty.time = from_ulong(src->xproperty.time);
+            dst->xproperty.state = src->xproperty.state;
+            break;
+        case XEVT_SelectionClear:
+            dst->xselectionclear.selection = from_ulong(src->xselectionclear.selection);
+            dst->xselectionclear.time = from_ulong(src->xselectionclear.time);
+            break;
+        case XEVT_SelectionRequest:
+            dst->xselectionrequest.requestor = from_ulong(src->xselectionrequest.requestor);
+            dst->xselectionrequest.selection = from_ulong(src->xselectionrequest.selection);
+            dst->xselectionrequest.target = from_ulong(src->xselectionrequest.target);
+            dst->xselectionrequest.property = from_ulong(src->xselectionrequest.property);
+            dst->xselectionrequest.time = from_ulong(src->xselectionrequest.time);
+            break;
+        case XEVT_SelectionNotify:
+            dst->xselection.selection = from_ulong(src->xselection.selection);
+            dst->xselection.target = from_ulong(src->xselection.target);
+            dst->xselection.property = from_ulong(src->xselection.property);
+            dst->xselection.time = from_ulong(src->xselection.time);
+            break;
+        case XEVT_ColormapNotify:
+            dst->xcolormap.colormap = from_ulong(src->xcolormap.colormap);
+            dst->xcolormap.c_new = src->xcolormap.c_new;
+            dst->xcolormap.state = src->xcolormap.state;
+            break;
+        case XEVT_ClientMessage:
+            dst->xclient.message_type = from_ulong(src->xclient.message_type);
+            dst->xclient.format = src->xclient.format;
+            if(src->xclient.format==32)
+                for(int i=0; i<5; ++i) dst->xclient.data.l[i] = from_ulong(src->xclient.data.l[i]);
+            else
+                memcpy(dst->xclient.data.b, src->xclient.data.b, 20);
+            break;
+        case XEVT_MappingNotify:
+            dst->xmapping.request = src->xmapping.request;
+            dst->xmapping.first_keycode = src->xmapping.first_keycode;
+            dst->xmapping.count = src->xmapping.count;
+            break;
+        case XEVT_GenericEvent:
+            dst->xgeneric.extension = src->xgeneric.extension;
+            dst->xgeneric.evtype = src->xgeneric.evtype;
+            break;
+
+        default:
+            printf_log(LOG_INFO, "Warning, unsupported 32bits (un)XEvent type=%d\n", src->type);
+    }
+}
 
 EXPORT int my32_XNextEvent(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
 {
@@ -1937,6 +2149,13 @@ EXPORT int my32_XCheckTypedEvent(x64emu_t* emu, void* dpy, int type, my_XEvent_3
     int ret = my->XCheckTypedEvent(dpy, type, &event);
     if(ret) convertXEvent(evt, &event);
     return ret;
+}
+
+EXPORT int my32_XSendEvent(x64emu_t* emu, void* dpy, XID window, int propagate, long mask, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    if(evt) unconvertXEvent(&event, evt);
+    return my->XSendEvent(dpy, window, propagate, mask, evt?(&event):NULL);
 }
 
 EXPORT int my32_XSetWMProtocols(x64emu_t* emu, void* dpy, XID window, XID_32* protocol, int count)
@@ -2030,6 +2249,27 @@ EXPORT void* my32__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, 
     return my->_XGetRequest(dpy, type, len);
 }
 #endif
+
+EXPORT int my32_XStringListToTextProperty(x64emu_t* emu, ptr_t* list, int count, void* text)
+{
+    char* l_list[count];
+    if(list)
+        for(int i=0; i<count; ++i)
+            l_list[i] = from_ptrv(list[i]);
+    //TODO: Need to wrap the XTextProperty produced?
+    return my->XStringListToTextProperty(list?(&l_list):NULL, count, text);
+}
+
+EXPORT int my32_Xutf8TextListToTextProperty(x64emu_t* emu, void* dpy, ptr_t* list, int count, uint32_t style, void* text)
+{
+    char* l_list[count];
+    if(list)
+        for(int i=0; i<count; ++i)
+            l_list[i] = from_ptrv(list[i]);
+    //TODO: Need to wrap the XTextProperty produced?
+    return my->Xutf8TextListToTextProperty(dpy, list?(&l_list):NULL, count, style, text);
+}
+
 #define CUSTOM_INIT                 \
     AddAutomaticBridge(lib->w.bridge, vFp_32, *(void**)dlsym(lib->w.lib, "_XLockMutex_fn"), 0, "_XLockMutex_fn"); \
     AddAutomaticBridge(lib->w.bridge, vFp_32, *(void**)dlsym(lib->w.lib, "_XUnlockMutex_fn"), 0, "_XUnlockMutex_fn"); \
