@@ -86,9 +86,69 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VRGATHER_VV(v1, v0, q0, VECTOR_UNMASKED); // registers cannot be overlapped!!
                     VMV_V_V(q0, v1);
                     break;
-                case 0x01 ... 0x07:
-                    // pairwise opcodes are complicated, fallback to scalar.
-                    return 0;
+                case 0x01:
+                    INST_NAME("PHADDW Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW16);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
+                    VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                    VMV_V_V(v0, q0);
+                    if (q1 & 1) VMV_V_V(d1, q1);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 2);
+                    VSLIDEUP_VI(v0, 8, (q1 & 1) ? d1 : q1, VECTOR_UNMASKED);
+                    MOV64x(x4, 0b0101010101010101);
+                    VMV_S_X(VMASK, x4);
+                    VCOMPRESS_VM(d0, VMASK, v0);
+                    VXOR_VI(VMASK, 0x1F, VMASK, VECTOR_UNMASKED);
+                    VCOMPRESS_VM(d1, VMASK, v0);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    VADD_VV(q0, d0, d1, VECTOR_UNMASKED);
+                    break;
+                case 0x02:
+                    INST_NAME("PHADDD Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW32);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
+                    VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                    VMV_V_V(v0, q0);
+                    if (q1 & 1) VMV_V_V(d1, q1);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
+                    VSLIDEUP_VI(v0, 4, (q1 & 1) ? d1 : q1, VECTOR_UNMASKED);
+                    MOV64x(x4, 0b01010101);
+                    VMV_S_X(VMASK, x4);
+                    VCOMPRESS_VM(d0, VMASK, v0);
+                    VXOR_VI(VMASK, 0x1F, VMASK, VECTOR_UNMASKED);
+                    VCOMPRESS_VM(d1, VMASK, v0);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+                    VADD_VV(q0, d0, d1, VECTOR_UNMASKED);
+                    break;
+                case 0x04:
+                    INST_NAME("PMADDUBSW Gx, Ex");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW8);
+                    GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
+                    VWMULSU_VV(v0, q0, q1, VECTOR_UNMASKED);
+                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 2);
+                    MOV64x(x4, 0b0101010101010101);
+                    VMV_S_X(VMASK, x4);
+                    VCOMPRESS_VM(d0, VMASK, v0);
+                    VXOR_VI(VMASK, 0x1F, VMASK, VECTOR_UNMASKED);
+                    VCOMPRESS_VM(d1, VMASK, v0);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
+                    VSADD_VV(q0, d0, d1, VECTOR_UNMASKED);
+                    break;
                 case 0x08 ... 0x0A:
                     if (nextop == 0x08) {
                         INST_NAME("PSIGNB Gx, Ex");
