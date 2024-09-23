@@ -738,4 +738,27 @@ typedef union my_XEvent_s {
 #define XEVT_GenericEvent            35
 
 
+// WMHints 
+typedef struct my_XWMHints_s {
+    long flags;
+    int input;
+    int initial_state;
+    XID icon_pixmap;
+    XID icon_window;
+    int icon_x;
+    int icon_y;
+    XID icon_mask;
+    XID window_group;
+} my_XWMHints_t;
+
+#define XWMHint_InputHint               (1L << 0)
+#define XWMHint_StateHint               (1L << 1)
+#define XWMHint_IconPixmapHint          (1L << 2)
+#define XWMHint_IconWindowHint          (1L << 3)
+#define XWMHint_IconPositionHint        (1L << 4)
+#define XWMHint_IconMaskHint            (1L << 5)
+#define XWMHint_WindowGroupHint         (1L << 6)
+#define XWMHint_XUrgencyHint            (1L << 8)
+
+
 #endif//MY_X11_DEFS

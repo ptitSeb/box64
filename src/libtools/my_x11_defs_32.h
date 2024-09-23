@@ -682,4 +682,18 @@ typedef union my_XEvent_32_s {
         long_t pad[24];
 } my_XEvent_32_t;
 
+// WMHints 
+typedef struct my_XWMHints_32_s {
+    long_t flags;
+    int input;
+    int initial_state;
+    XID_32 icon_pixmap;
+    XID_32 icon_window;
+    int icon_x;
+    int icon_y;
+    XID_32 icon_mask;
+    XID_32 window_group;
+} my_XWMHints_32_t;
+
+
 #endif//MY_X11_DEFS_32

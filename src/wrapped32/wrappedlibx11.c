@@ -1915,6 +1915,88 @@ EXPORT int my32_XNextEvent(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
     convertXEvent(evt, &event);
     return ret;
 }
+
+EXPORT int my32_XCheckTypedEvent(x64emu_t* emu, void* dpy, int type, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    int ret = my->XCheckTypedEvent(dpy, type, &event);
+    if(ret) convertXEvent(evt, &event);
+    return ret;
+}
+
+EXPORT int my32_XSetWMProtocols(x64emu_t* emu, void* dpy, XID window, XID_32* protocol, int count)
+{
+    XID list[count];
+    if(protocol)
+        for(int i=0; i<count; ++i)
+            list[i] = from_ulong(protocol[i]);
+    return my->XSetWMProtocols(dpy, window, protocol?list:NULL, count);
+}
+
+void inplace_enlarge_wmhints(void* hints)
+{
+    if(!hints) return;
+    my_XWMHints_32_t* src = hints;
+    my_XWMHints_t* dst = hints;
+    long flags = from_long(src->flags);
+    // reverse order
+    if(flags&XWMHint_WindowGroupHint)   dst->window_group = from_ulong(src->window_group);
+    if(flags&XWMHint_IconMaskHint)      dst->icon_mask = from_ulong(src->icon_mask);
+    if(flags&XWMHint_IconPositionHint)  {dst->icon_y = src->icon_y; dst->icon_x = src->icon_x;}
+    if(flags&XWMHint_IconWindowHint)    dst->icon_window = from_ulong(src->icon_window);
+    if(flags&XWMHint_IconPixmapHint)    dst->icon_pixmap = from_ulong(src->icon_pixmap);
+    if(flags&XWMHint_StateHint)         dst->initial_state = src->initial_state;
+    if(flags&XWMHint_InputHint)         dst->input = src->input;
+
+    dst->flags = flags;
+}
+void inplace_shrink_wmhints(void* hints)
+{
+    if(!hints) return;
+    my_XWMHints_t* src = hints;
+    my_XWMHints_32_t* dst = hints;
+    long_t flags = to_long(src->flags);
+    // forward order
+    if(flags&XWMHint_InputHint)         dst->input = src->input;
+    if(flags&XWMHint_StateHint)         dst->initial_state = src->initial_state;
+    if(flags&XWMHint_IconPixmapHint)    dst->icon_pixmap = to_ulong(src->icon_pixmap);
+    if(flags&XWMHint_IconWindowHint)    dst->icon_window = to_ulong(src->icon_window);
+    if(flags&XWMHint_IconPositionHint)  {dst->icon_y = src->icon_y; dst->icon_x = src->icon_x;}
+    if(flags&XWMHint_IconMaskHint)      dst->icon_mask = to_ulong(src->icon_mask);
+    if(flags&XWMHint_WindowGroupHint)   dst->window_group = to_ulong(src->window_group);
+
+    dst->flags = flags;
+}
+
+void inplace_enlarge_wmsizehints(void* hints)
+{
+    //XSizeHints is a long flag and 17*int...
+    long flags = to_long(*(long_t*)hints);
+    memmove(hints+8, hints+4, 17*4);
+    *(long*)hints = flags;
+}
+void inplace_shrink_wmsizehints(void* hints)
+{
+    //XSizeHints is a long flag and 17*int...
+    long_t flags = from_long(*(long*)hints);
+    memmove(hints+4, hints+8, 17*4);
+    *(long_t*)hints = flags;
+}
+
+EXPORT int my32_XSetWMHints(x64emu_t* emu, void* dpy, XID window, void* hints)
+{
+    inplace_enlarge_wmhints(hints);
+    int ret = my->XSetWMHints(dpy, window, hints);
+    inplace_shrink_wmhints(hints);
+    return ret;
+}
+
+EXPORT int my32_XSetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hints)
+{
+    inplace_enlarge_wmsizehints(hints);
+    my->XSetWMNormalHints(dpy, window, hints);
+    inplace_shrink_wmsizehints(hints);
+}
 #if 0
 EXPORT void* my32__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, size_t len)
 {

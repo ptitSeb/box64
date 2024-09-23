@@ -350,6 +350,7 @@
 #() LFpip -> LFpip
 #() LFppL -> LFppL
 #() LFXCi -> LFXCi
+#() LFXpi -> LFXpi
 #() pFEip -> pFEip
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
@@ -381,12 +382,13 @@
 #() dFpBp_a -> dFpBa
 #() lFpBp_i -> lFpBi
 #() LFpBp_i -> LFpBi
-#() iFXLbhWcc_ -> iFXLB
+#() iFXLbLWWWcc_ -> iFXLB
 #() pFppriiiiiiiiilt_ -> pFppB
 #() vFEipp -> vFEipp
 #() vFEipV -> vFEipV
 #() vFEpup -> vFEpup
 #() vFEppp -> vFEppp
+#() vFEXLp -> vFEXLp
 #() vFcccc -> vFcccc
 #() vFwwww -> vFwwww
 #() vFiiii -> vFiiii
@@ -484,6 +486,8 @@
 #() iFEhup -> iFEhup
 #() iFESpp -> iFESpp
 #() iFESpV -> iFESpV
+#() iFEXip -> iFEXip
+#() iFEXLp -> iFEXLp
 #() iFiiiu -> iFiiiu
 #() iFiiip -> iFiiip
 #() iFiiiN -> iFiiiN
@@ -506,6 +510,7 @@
 #() iFpppp -> iFpppp
 #() iFhpiL -> iFhpiL
 #() iFXipp -> iFXipp
+#() iFXLii -> iFXLii
 #() iFXppp -> iFXppp
 #() CFuuff -> CFuuff
 #() uFuuuu -> uFuuuu
@@ -539,7 +544,7 @@
 #() lFiibp_L -> lFiiBL
 #() LFpbp_Lp -> LFpBLp
 #() iFEpprLL_ -> iFEppB
-#() iFXLpBhWcc_ -> iFXLpB
+#() iFXLpBLWWWcc_ -> iFXLpB
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
 #() vFEuipp -> vFEuipp
 #() vFEpLLp -> vFEpLLp
@@ -643,6 +648,7 @@
 #() iFEppiV -> iFEppiV
 #() iFEpppi -> iFEpppi
 #() iFEpppp -> iFEpppp
+#() iFEXLpi -> iFEXLpi
 #() iFiiipu -> iFiiipu
 #() iFiiipp -> iFiiipp
 #() iFiLLLL -> iFiLLLL
@@ -670,6 +676,7 @@
 #() iFippprLL_ -> iFipppB
 #() LFLbp_bL_Bp_BL_ -> LFLBBBB
 #() LFpLpriiiiiiiiilt_a -> LFpLpBa
+#() iFXLpBLWWWcc_BLWWWcc_ -> iFXLpBB
 #() vFEiiipp -> vFEiiipp
 #() vFiiiiii -> vFiiiiii
 #() vFiiiuil -> vFiiiuil
@@ -868,6 +875,7 @@
 #() iFuiiupiiup -> iFuiiupiiup
 #() iFdddpppppp -> iFdddpppppp
 #() iFXLiuiiLLL -> iFXLiuiiLLL
+#() iFXLLiiuuii -> iFXLLiiuuii
 #() uFuulpiuiuf -> uFuulpiuiuf
 #() pFEXLiiuuLi -> pFEXLiiuuLi
 #() vFiiiiiiiiii -> vFiiiiiiiiii
@@ -1318,8 +1326,16 @@ wrappedlibx11:
   - XNextEvent
 - pFpV:
   - XCreateIC
+- vFXLp:
+  - XSetWMNormalHints
+- iFXip:
+  - XCheckTypedEvent
+- iFXLp:
+  - XSetWMHints
 - LFXii:
   - XGetPixel
+- iFXLpi:
+  - XSetWMProtocols
 - pFpiiuu:
   - XSubImage
 - pFXLiiuuLi:

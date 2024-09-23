@@ -555,7 +555,7 @@ class CType(metaclass=FirstArgumentSingletonMeta):
 			return # Already done: probably a base type
 		
 		self.asret = "\n#error TODO? Cannot return custom structure\n"
-		self.aspre = f"struct_{self.name}_t arg_{{p}}; " + ("" if not self.type.pre else \
+		self.aspre = f"struct_{self.name}_t arg_{{p}}={{{{0}}}}; " + ("" if not self.type.pre else \
 			f"from_{self.structname2}(&arg_{{p}}, *(ptr_t*)(from_ptr((R_ESP + {{p}})))); ")
 		self.asarg = "*(ptr_t*)(from_ptr((R_ESP + {p}))) ? &arg_{p} : NULL, "
 		self.aspost = "" if not self.type.post else \

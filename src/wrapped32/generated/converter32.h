@@ -60,13 +60,15 @@ typedef struct struct_up_s {
 } struct_up_t;
 void from_struct_up(struct_up_t *dest, ptr_t src);
 void to_struct_up(ptr_t dest, const struct_up_t *src);
-typedef struct struct_hWcc_s {
+typedef struct struct_LWWWcc_s {
 	unsigned long L0;
 	unsigned short W1;
-	char c2;
-	char c3;
-} struct_hWcc_t;
-void from_struct_hWcc(struct_hWcc_t *dest, ptr_t src);
-void to_struct_hWcc(ptr_t dest, const struct_hWcc_t *src);
+	unsigned short W2;
+	unsigned short W3;
+	char c4;
+	char c5;
+} struct_LWWWcc_t;
+void from_struct_LWWWcc(struct_LWWWcc_t *dest, ptr_t src);
+void to_struct_LWWWcc(ptr_t dest, const struct_LWWWcc_t *src);
 
 #endif // __CONVERTER_H_
