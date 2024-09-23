@@ -56,60 +56,74 @@ EXPORT void my32___pthread_initialize()
     // nothing, the lib initialize itself now
 }
 
-EXPORT int my32_sem_close(void** sem)
+#define SEM_SIGN 0x542554aabc123578LL     // just some random stuff
+typedef struct my_sem_32_s {
+    uint64_t sign;
+    sem_t   *sem;
+} my_sem_32_t;
+
+EXPORT int my32_sem_close(sem_t* sem)
 {
+    return sem_close(sem);
+}
+EXPORT int my32_sem_destroy(my_sem_32_t* sem)
+{
+    if(sem->sign != SEM_SIGN)
+        return sem_destroy((sem_t*)sem);
     int ret = 0;
-    ret = sem_close(*sem);
-    box_free(sem);
+    ret = sem_destroy(sem->sem);
+    box_free(sem->sem);
+    sem->sem = NULL;
     return ret;
 }
-EXPORT int my32_sem_destroy(void** sem)
+EXPORT int my32_sem_getvalue(my_sem_32_t* sem, int* val)
 {
+    if(sem->sign != SEM_SIGN)
+        return sem_getvalue((sem_t*)sem, val);
     int ret = 0;
-    ret = sem_destroy(*sem);
-    box_free(*sem);
-    *sem = NULL;
+    ret = sem_getvalue(sem->sem, val);
     return ret;
 }
-EXPORT int my32_sem_getvalue(void** sem, int* val)
+EXPORT int my32_sem_init(my_sem_32_t* sem, int pshared, uint32_t val)
 {
     int ret = 0;
-    ret = sem_getvalue(*sem, val);
-    box_free(*sem);
-    *sem = NULL;
-    return ret;
-}
-EXPORT int my32_sem_init(void** sem, int pshared, uint32_t val)
-{
-    int ret = 0;
-    *sem = box_calloc(1, sizeof(sem_t));
-    ret = sem_init(*sem, pshared, val);
+    sem->sign = SEM_SIGN;
+    sem->sem = box_calloc(1, sizeof(sem_t));
+    ret = sem_init(sem->sem, pshared, val);
     return ret;
 }
 EXPORT void* my32_sem_open(const char* name, int flags)
 {
-    sem_t* sem = sem_open(name, flags);
-    if(!sem)
-        return sem;
-    void** ret = (void**)box_calloc(1, sizeof(void*));
-    *ret = sem;
-    return ret;
+    return sem_open(name, flags);
 }
-EXPORT int my32_sem_post(void** sem)
+EXPORT int my32_sem_post(my_sem_32_t* sem)
 {
-    return sem_post(*sem);
+    if(sem->sign != SEM_SIGN)
+        return sem_post((sem_t*)sem);
+    return sem_post(sem->sem);
 }
-EXPORT int my32_sem_timedwait(void** sem, void* t)
+EXPORT int my32_sem_timedwait(my_sem_32_t* sem, struct timespec * t)
 {
-    return sem_timedwait(*sem, t);
+    // some x86 game are not computing timeout correctly (ex: Anomaly Warzone Earth linux version)
+    while(t->tv_nsec>=1000000000) {
+        t->tv_nsec-=1000000000;
+        t->tv_sec+=1;
+    }
+    if(sem->sign != SEM_SIGN)
+        return sem_timedwait((sem_t*)sem, t);
+    return sem_timedwait(sem->sem, t);
 }
-EXPORT int my32_sem_trywait(void** sem)
+EXPORT int my32_sem_trywait(my_sem_32_t* sem)
 {
-    return sem_trywait(*sem);
+    if(sem->sign != SEM_SIGN)
+        return sem_trywait((sem_t*)sem);
+    return sem_trywait(sem->sem);
 }
-EXPORT int my32_sem_wait(void** sem)
+EXPORT int my32_sem_wait(my_sem_32_t* sem)
 {
-    return sem_wait(*sem);
+    if(sem->sign != SEM_SIGN)
+        return sem_wait((sem_t*)sem);
+    return sem_wait(sem->sem);
 }
 
 
