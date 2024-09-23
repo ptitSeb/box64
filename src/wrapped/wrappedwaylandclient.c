@@ -3,6 +3,7 @@
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <stdarg.h>
 
 #include "wrappedlibs.h"
 
@@ -33,6 +34,40 @@ GO(1)   \
 GO(2)   \
 GO(3)   \
 GO(4)
+
+//wl_log_func_t
+#ifdef CONVERT_VALIST
+#define GO(A)                                                       \
+static uintptr_t my_wl_log_func_t_fct_##A = 0;                      \
+static void my_wl_log_func_t_##A(void* fmt, x64_va_list_t args)     \
+{                                                                   \
+    CONVERT_VALIST(args)                                            \
+    RunFunction(my_wl_log_func_t_fct_##A, 2, fmt, VARARGS);         \
+    }
+    #else
+#define GO(A)                                                       \
+static uintptr_t my_wl_log_func_t_fct_##A = 0;                      \
+static void my_wl_log_func_t_##A(void* fmt, x64_va_list_t args)     \
+{                                                                   \
+    CREATE_VALIST_FROM_VALIST(args, thread_get_emu()->scratch);     \
+    RunFunction(my_wl_log_func_t_fct_##A, 2, fmt, VARARGS);         \
+}
+#endif
+SUPER()
+#undef GO
+static void* find_wl_log_func_t_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_wl_log_func_t_fct_##A == (uintptr_t)fct) return my_wl_log_func_t_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_wl_log_func_t_fct_##A == 0) {my_wl_log_func_t_fct_##A = (uintptr_t)fct; return my_wl_log_func_t_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_log_func_t callback\n");
+    return NULL;
+}
 
 // wl_registry_listener ...
 typedef struct my_wl_registry_listener_s {
@@ -559,6 +594,11 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
     } else
         printf_log(LOG_INFO, "BOX64: Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
+}
+
+EXPORT void my_wl_log_set_handler_client(x64emu_t* emu, void* f)
+{
+    my->wl_log_set_handler_client(find_wl_log_func_t_Fct(f));
 }
 
 #include "wrappedlib_init.h"
