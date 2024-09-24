@@ -427,6 +427,32 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else
                 emit_cmp32_0(dyn, ninst, rex, xRAX, x3, x4);
             break;
+        case 0x40:
+        case 0x41:
+        case 0x42:
+        case 0x43:
+        case 0x44:
+        case 0x45:
+        case 0x46:
+        case 0x47:
+            INST_NAME("INC Reg (32bits)");
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            gd = TO_LA64(opcode & 7);
+            emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
+            break;
+        case 0x48:
+        case 0x49:
+        case 0x4A:
+        case 0x4B:
+        case 0x4C:
+        case 0x4D:
+        case 0x4E:
+        case 0x4F:
+            INST_NAME("DEC Reg (32bits)");
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING);
+            gd = TO_LA64(opcode & 7);
+            emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
+            break;
         case 0x50:
         case 0x51:
         case 0x52:
@@ -740,21 +766,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_adc32(dyn, ninst, rex, ed, x5, x3, x4, x6, x1);
                     WBACK;
                     break;
-                case 4: // AND
-                    if (opcode == 0x81) {
-                        INST_NAME("AND Ed, Id");
-                    } else {
-                        INST_NAME("AND Ed, Ib");
-                    }
-                    SETFLAGS(X_ALL, SF_SET_PENDING);
-                    GETED((opcode == 0x81) ? 4 : 1);
-                    if (opcode == 0x81)
-                        i64 = F32S;
-                    else
-                        i64 = F8S;
-                    emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
-                    WBACK;
-                    break;
                 case 3: // SBB
                     if (opcode == 0x81) {
                         INST_NAME("SBB Ed, Id");
@@ -770,6 +781,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         i64 = F8S;
                     MOV64xw(x5, i64);
                     emit_sbb32(dyn, ninst, rex, ed, x5, x3, x4, x6);
+                    WBACK;
+                    break;
+                case 4: // AND
+                    if (opcode == 0x81) {
+                        INST_NAME("AND Ed, Id");
+                    } else {
+                        INST_NAME("AND Ed, Ib");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
+                    GETED((opcode == 0x81) ? 4 : 1);
+                    if (opcode == 0x81)
+                        i64 = F32S;
+                    else
+                        i64 = F8S;
+                    emit_and32c(dyn, ninst, rex, ed, i64, x3, x4);
                     WBACK;
                     break;
                 case 5: // SUB
@@ -825,8 +851,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         emit_cmp32_0(dyn, ninst, rex, ed, x3, x4);
                     }
                     break;
-                default:
-                    DEFAULT;
             }
             break;
         case 0x84:
@@ -1065,6 +1089,26 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BSTRPICK_D(xRDX, xRDX, 31, 0);
             }
             break;
+        case 0x9C:
+            INST_NAME("PUSHF");
+            READFLAGS(X_ALL);
+            PUSH1z(xFlags);
+            break;
+        case 0x9D:
+            INST_NAME("POPF");
+            SETFLAGS(X_ALL, SF_SET);
+            POP1z(xFlags);
+            MOV32w(x1, 0x3F7FD7);
+            AND(xFlags, xFlags, x1);
+            ORI(xFlags, xFlags, 0x202);
+            SET_DFNONE();
+            if (box64_wine) { // should this be done all the time?
+                ANDI(x1, xFlags, 1 << F_TF);
+                CBZ_NEXT(x1);
+                // go to epilog, TF should trigger at end of next opcode, so using Interpreter only
+                jump_to_epilog(dyn, addr, 0, ninst);
+            }
+            break;
         case 0xA0:
             INST_NAME("MOV AL,Ob");
             if (rex.is32bits)
@@ -1074,6 +1118,35 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             MOV64z(x1, u64);
             LD_BU(x2, x1, 0);
             BSTRINS_D(xRAX, x2, 7, 0);
+            break;
+        case 0xA1:
+            INST_NAME("MOV EAX, Od");
+            if (rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
+            LDxw(xRAX, x1, 0);
+            break;
+        case 0xA2:
+            INST_NAME("MOV Ob, AL");
+            if (rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
+            ST_B(xRAX, x1, 0);
+            SMWRITE();
+            break;
+        case 0xA3:
+            INST_NAME("MOV Od, EAX");
+            if (rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
+            SDxw(xRAX, x1, 0);
+            SMWRITE();
             break;
         case 0xA4:
             if (rep) {
