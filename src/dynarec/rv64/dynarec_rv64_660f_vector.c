@@ -1217,7 +1217,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VSE_V(v1, ed, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             break;
-        case 0xBE: return 0;
+        case 0xA3 ... 0xC1: return 0;
         case 0xC4:
             INST_NAME("PINSRW Gx, Ed, Ib");
             nextop = F8;
