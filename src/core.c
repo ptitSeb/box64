@@ -509,9 +509,14 @@ HWCAP2_AFP
     }
 #elif defined(RV64)
     void RV64_Detect_Function();
+    // private env. variable for the developer ;)
     char *p = getenv("BOX64_DYNAREC_RV64NOEXT");
     if(p == NULL || p[0] == '0')
         RV64_Detect_Function();
+    if (p != NULL && !strcasecmp(p, "vector")) {
+        RV64_Detect_Function();
+        rv64_vector = 0;
+    }
     printf_log(LOG_INFO, "Dynarec for RISC-V ");
     printf_log(LOG_INFO, "With extension: I M A F D C");
     if(rv64_zba) printf_log(LOG_INFO, " Zba");
