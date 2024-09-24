@@ -847,6 +847,15 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SMWRITE2();
             break;
 
+        case 0xA8:
+            INST_NAME("TEST AL, Ib");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            UXTBx(x1, xRAX);
+            u8 = F8;
+            MOV32w(x2, u8);
+            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            break;
+
         case 0xC6:
             INST_NAME("MOV Seg:Eb, Ib");
             grab_segdata(dyn, addr, ninst, x4, seg);
