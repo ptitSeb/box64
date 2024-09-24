@@ -60,6 +60,7 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     while(opcode==0x67) opcode = F8;
     
     rep = 0;
+    rex.rex = 0;    // reset rex after 67
     while((opcode==0xF2) || (opcode==0xF3) || (opcode>=0x40 && opcode<=0x4F)) {
         if((opcode==0xF2) || (opcode==0xF3))
             rep = opcode-0xF1;
@@ -1120,6 +1121,14 @@ uintptr_t dynarec64_67(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(xRAX, gd);
                 MOVxw_REG(gd, x2);
             }
+            break;
+
+        case 0xA9:
+            INST_NAME("TEST EAX, Id");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            i64 = F32S;
+            MOV64xw(x2, i64);
+            emit_test32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
 
         case 0xC1:
