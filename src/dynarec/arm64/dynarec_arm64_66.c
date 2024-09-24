@@ -330,7 +330,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             gd = xRAX + (opcode&7);
             UXTHw(x1, gd);
             emit_inc16(dyn, ninst, x1, x2, x3);
-            BFIw(gd, x1, 0, 16);
+            BFIz(gd, x1, 0, 16);
             break;
         case 0x48:
         case 0x49:
@@ -345,7 +345,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             gd = xRAX + (opcode&7);
             UXTHw(x1, gd);
             emit_dec16(dyn, ninst, x1, x2, x3);
-            BFIw(gd, x1, 0, 16);
+            BFIz(gd, x1, 0, 16);
             break;
         case 0x50:
         case 0x51:
@@ -375,7 +375,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("POP reg");
             gd = xRAX+(opcode&0x07)+(rex.b<<3);
             POP1_16(x1);
-            BFIw(gd, x1, 0, 16);
+            BFIz(gd, x1, 0, 16);
             break;
         case 0x60:
             if(rex.is32bits) {
@@ -397,20 +397,20 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.is32bits) {
                 INST_NAME("POPA 16bits (32bits)");
                 POP1_16(x1);
-                BFIw(xRDI, x1, 0, 16);
+                BFIz(xRDI, x1, 0, 16);
                 POP1_16(x1);
-                BFIw(xRSI, x1, 0, 16);
+                BFIz(xRSI, x1, 0, 16);
                 POP1_16(x1);
-                BFIw(xRBP, x1, 0, 16);
+                BFIz(xRBP, x1, 0, 16);
                 POP1_16(x1); // RSP ignored
                 POP1_16(x1);
-                BFIw(xRBX, x1, 0, 16);
+                BFIz(xRBX, x1, 0, 16);
                 POP1_16(x1);
-                BFIw(xRDX, x1, 0, 16);
+                BFIz(xRDX, x1, 0, 16);
                 POP1_16(x1);
-                BFIw(xRCX, x1, 0, 16);
+                BFIz(xRCX, x1, 0, 16);
                 POP1_16(x1);
-                BFIw(xRAX, x1, 0, 16);
+                BFIz(xRAX, x1, 0, 16);
             } else {
                 DEFAULT;
             }
