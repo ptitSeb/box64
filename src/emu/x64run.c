@@ -1464,7 +1464,11 @@ x64emurun:
             }
             emu->segs_serial[_CS] = 0;
             R_RSP += tmp16u;
-            // need to check status of CS register!
+            is32bits = (R_CS==0x23);    // checking if CS changed
+            #ifndef TEST_INTERPRETER
+            if(is32bits)
+                running32bits = 1;
+            #endif
             STEP2;
             break;
         case 0xCB:                      /* FAR RET */
@@ -1476,7 +1480,11 @@ x64emurun:
                 emu->segs[_CS] = Pop64(emu);    // no check, no use....
             }
             emu->segs_serial[_CS] = 0;
-            // need to check status of CS register!
+            is32bits = (R_CS==0x23);    // checking if CS changed
+            #ifndef TEST_INTERPRETER
+            if(is32bits)
+                running32bits = 1;
+            #endif
             STEP2;
             break;
         case 0xCC:                      /* INT 3 */
