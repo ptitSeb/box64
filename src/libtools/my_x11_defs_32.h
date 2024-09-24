@@ -755,4 +755,42 @@ typedef struct my_XRROutputInfo_32_s {
     ptr_t           modes; //XID_32*
 } my_XRROutputInfo_32_t;
 
+typedef struct my_XWindowAttributes_32_s {
+    int x, y;
+    int width, height;
+    int border_width;
+    int depth;
+    ptr_t visual;   //Visual*
+    XID_32 root;
+    int c_class;
+    int bit_gravity;
+    int win_gravity;
+    int backing_store;
+    ulong_t backing_planes;
+    ulong_t backing_pixel;
+    int save_under;
+    XID_32 colormap;
+    int map_installed;
+    int map_state;
+    long_t all_event_masks;
+    long_t your_event_mask;
+    long_t do_not_propagate_mask;
+    int override_redirect;
+    ptr_t screen;   //Screen*
+} my_XWindowAttributes_32_t;
+
+typedef struct my_XVisualInfo_32_s {
+  ptr_t visual; //Visual*
+  ulong_t visualid;
+  int screen;
+  int depth;
+  int c_class;
+  ulong_t red_mask;
+  ulong_t green_mask;
+  ulong_t blue_mask;
+  int colormap_size;
+  int bits_per_rgb;
+} my_XVisualInfo_32_t;
+
+
 #endif//MY_X11_DEFS_32

@@ -17,6 +17,7 @@
 #include "emu/x64emu_private.h"
 #include "myalign32.h"
 #include "elfloader.h"
+#include "converter32.h"
 
 #ifdef ANDROID
     static const char* libx11Name = "libX11.so";
@@ -25,9 +26,10 @@
 #endif
 
 #define LIBNAME libx11
-#if 0
+
 typedef int (*XErrorHandler)(void *, void *);
 void* my32_XSetErrorHandler(x64emu_t* t, XErrorHandler handler);
+#if 0
 typedef int (*XIOErrorHandler)(void *);
 void* my32_XSetIOErrorHandler(x64emu_t* t, XIOErrorHandler handler);
 void* my32_XESetCloseDisplay(x64emu_t* emu, void* display, int32_t extension, void* handler);
@@ -58,7 +60,21 @@ typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
 
 #include "wrappercallback32.h"
 
+void convert_Screen_to_32(void* d, void* s);
 void* FindDisplay(void* d);
+void* getDisplay(void* d);
+void convert_XErrorEvent_to_32(void* d, void* s)
+{
+    my_XErrorEvent_t* src = s;
+    my_XErrorEvent_32_t* dst = d;
+    dst->type = src->type;
+    dst->display = to_ptrv(FindDisplay(src->display));
+    dst->resourceid = to_ulong(src->resourceid);
+    dst->serial = to_ulong(src->serial);
+    dst->error_code = src->error_code;
+    dst->request_code = src->request_code;
+    dst->minor_code = src->minor_code;
+}
 
 #define SUPER() \
 GO(0)   \
@@ -143,13 +159,15 @@ static void* reverse_event_to_wireFct(library_t* lib, void* fct)
     #undef GO
     return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
 }
-
+#endif
 // error_handler
 #define GO(A)   \
-static uintptr_t my32_error_handler_fct_##A = 0;                      \
-static int my32_error_handler_##A(void* dpy, void* error)   \
-{                                                                   \
-    return (int)RunFunctionFmt(my32_error_handler_fct_##A, "pp", dpy, error);\
+static uintptr_t my32_error_handler_fct_##A = 0;                                            \
+static int my32_error_handler_##A(void* dpy, void* error)                                   \
+{                                                                                           \
+    static my_XErrorEvent_32_t evt = {0};                                                   \
+    convert_XErrorEvent_to_32(&evt, error);                                                 \
+    return (int)RunFunctionFmt(my32_error_handler_fct_##A, "pp", getDisplay(dpy), &evt);   \
 }
 SUPER()
 #undef GO
@@ -174,9 +192,9 @@ static void* reverse_error_handlerFct(library_t* lib, void* fct)
     #define GO(A) if(my32_error_handler_##A == fct) return (void*)my32_error_handler_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFpp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, iFpp_32, fct, 0, NULL);
 }
-
+#if 0
 // ioerror_handler
 #define GO(A)   \
 static uintptr_t my32_ioerror_handler_fct_##A = 0;                      \
@@ -1262,12 +1280,12 @@ EXPORT void* my32_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
 #endif
 #undef VA_CALL
 #undef SUPER
-#if 0
 EXPORT void* my32_XSetErrorHandler(x64emu_t* emu, XErrorHandler handler)
 {
     void* ret = my->XSetErrorHandler(finderror_handlerFct(handler));
     return reverse_error_handlerFct(my_lib, ret);
 }
+#if 0
 
 EXPORT void* my32_XSetIOErrorHandler(x64emu_t* emu, XIOErrorHandler handler)
 {
@@ -1541,7 +1559,7 @@ void* getDisplay(void* d)
 {
     if(!d) return d;
     for(int i=0; i<N_DISPLAY; ++i)
-        if(&my32_Displays_32[i]==d)
+        if(&my32_Displays_32[i]==d || my32_Displays_64[i]==d)
             return my32_Displays_64[i];
         printf_log(LOG_INFO, "BOX32: Warning, 32bits Display %p not found\n", d);
     return d;
@@ -1551,12 +1569,12 @@ void* FindDisplay(void* d)
 {
     if(!d) return d;
     for(int i=0; i<N_DISPLAY; ++i)
-        if(my32_Displays_64[i]==d)
+        if(my32_Displays_64[i]==d || &my32_Displays_32[i]==d)
             return &my32_Displays_32[i];
     return d;
 }
 
-void refreshScreen(void* d, void* s)
+void convert_Screen_to_32(void* d, void* s)
 {
     my_Screen_t* src = s;
     my_Screen_32_t* dst = d;
@@ -1638,7 +1656,7 @@ EXPORT void* my32_XOpenDisplay(x64emu_t* emu, void* d)
                 printf_log(LOG_INFO, "BOX32: Warning, no more libX11 Screen slots!");
                 break;
             }
-            refreshScreen(&my32_screens[n_screeens++], &dpy->screens[i]);
+            convert_Screen_to_32(&my32_screens[n_screeens++], &dpy->screens[i]);
         }
     } else
         ret->screens = 0;
@@ -2167,6 +2185,22 @@ EXPORT int my32_XSetWMProtocols(x64emu_t* emu, void* dpy, XID window, XID_32* pr
     return my->XSetWMProtocols(dpy, window, protocol?list:NULL, count);
 }
 
+void convert_XWMints_to_64(void* d, void* s)
+{
+    my_XWMHints_t* dst = d;
+    my_XWMHints_32_t* src = s;
+    long flags = from_long(src->flags);
+    // reverse order
+    if(flags&XWMHint_WindowGroupHint)   dst->window_group = from_ulong(src->window_group);
+    if(flags&XWMHint_IconMaskHint)      dst->icon_mask = from_ulong(src->icon_mask);
+    if(flags&XWMHint_IconPositionHint)  {dst->icon_y = src->icon_y; dst->icon_x = src->icon_x;}
+    if(flags&XWMHint_IconWindowHint)    dst->icon_window = from_ulong(src->icon_window);
+    if(flags&XWMHint_IconPixmapHint)    dst->icon_pixmap = from_ulong(src->icon_pixmap);
+    if(flags&XWMHint_StateHint)         dst->initial_state = src->initial_state;
+    if(flags&XWMHint_InputHint)         dst->input = src->input;
+
+    dst->flags = flags;
+}
 void inplace_enlarge_wmhints(void* hints)
 {
     if(!hints) return;
@@ -2202,6 +2236,13 @@ void inplace_shrink_wmhints(void* hints)
     dst->flags = flags;
 }
 
+void convert_XSizeHints_to_64(void* d, void *s)
+{
+    //XSizeHints is a long flag and 17*int...
+    long flags = to_long(*(long_t*)s);
+    memcpy(d+8, s+4, 17*4);
+    *(long*)d = flags;
+}
 void inplace_enlarge_wmsizehints(void* hints)
 {
     //XSizeHints is a long flag and 17*int...
@@ -2268,6 +2309,86 @@ EXPORT int my32_Xutf8TextListToTextProperty(x64emu_t* emu, void* dpy, ptr_t* lis
             l_list[i] = from_ptrv(list[i]);
     //TODO: Need to wrap the XTextProperty produced?
     return my->Xutf8TextListToTextProperty(dpy, list?(&l_list):NULL, count, style, text);
+}
+
+void convert_XWindowAttributes_to_32(void* d, void* s)
+{
+    my_XWindowAttributes_t* src = s;
+    my_XWindowAttributes_32_t* dst = d;
+    dst->x = src->x;
+    dst->y = src->y;
+    dst->width = src->width;
+    dst->height = src->height;
+    dst->border_width = src->border_width;
+    dst->depth = src->depth;
+    dst->visual = to_ptrv(src->visual);
+    dst->root = to_ulong(src->root);
+    dst->c_class = src->c_class;
+    dst->bit_gravity = src->bit_gravity;
+    dst->win_gravity = src->win_gravity;
+    dst->backing_store = src->backing_store;
+    dst->backing_planes = to_ulong(src->backing_planes);
+    dst->backing_pixel = to_ulong(src->backing_pixel);
+    dst->save_under = src->save_under;
+    dst->colormap = to_ulong(src->colormap);
+    dst->map_installed = src->map_installed;
+    dst->map_state = src->map_state;
+    dst->all_event_masks = to_long(src->all_event_masks);
+    dst->your_event_mask = to_long(src->your_event_mask);
+    dst->do_not_propagate_mask = to_long(src->do_not_propagate_mask);
+    dst->override_redirect = src->override_redirect;
+    dst->screen = to_ptrv(src->screen);
+}
+
+EXPORT int my32_XGetWindowAttributes(x64emu_t* emu, void* dpy, XID window, my_XWindowAttributes_32_t* attr)
+{
+    static my_Screen_32_t screen32 = {0};
+    my_XWindowAttributes_t l_attr = {0};
+    int ret = my->XGetWindowAttributes(dpy, window, &l_attr);
+    convert_XWindowAttributes_to_32(attr, &l_attr);
+    attr->screen = to_ptrv(&screen32);
+    convert_Screen_to_32(&screen32, l_attr.screen);
+    return ret;
+}
+
+EXPORT int my32_XChangeProperty(x64emu_t* emu, void* dpy, XID window, XID prop, XID type, int fmt, int mode, void* data, int n)
+{
+    unsigned long data_l[n];
+    if(fmt==32) {
+        for(int i=0; i<n; ++i)
+            data_l[i] = from_ulong(((ulong_t*)data)[i]);
+        data = data_l;
+    }
+    return my->XChangeProperty(dpy, window, prop, type, fmt, mode, data, n);
+}
+
+EXPORT void my32_XSetWMProperties(x64emu_t* emu, void* dpy, XID window, void* window_name, void* icon_name, ptr_t* argv, int argc, void* normal_hints, my_XWMHints_32_t* wm_hints, ptr_t* class_hints)
+{
+    struct_pLiL_t window_name_l;
+    struct_pLiL_t icon_name_l;
+    int wm_size_l[17+2] = {0};
+    my_XWMHints_t wm_hints_l = {0};
+    char* class_hints_l[2] = {0};
+    char* argv_l[argc+1];
+
+    if(window_name)
+        from_struct_pLiL(&window_name_l, to_ptrv(window_name));
+    if(icon_name)
+        from_struct_pLiL(&icon_name_l, to_ptrv(icon_name));
+    if(normal_hints)
+        convert_XSizeHints_to_64(&wm_size_l, normal_hints);
+    if(wm_hints)
+        convert_XWMints_to_64(&wm_hints_l, wm_hints);
+    if(class_hints) {
+        class_hints_l[0] = from_ptrv(class_hints[0]);
+        class_hints_l[1] = from_ptrv(class_hints[1]);
+    }
+    if(argv) {
+        memset(argv_l, 0, sizeof(argv_l));
+        for(int i=0; i<argc; ++i)
+            argv_l[i] = from_ptrv(argv[i]);
+    }
+    my->XSetWMProperties(dpy, window, window_name?(&window_name_l):NULL, icon_name?(&icon_name_l):NULL, argv?argv_l:NULL, argc, normal_hints?(&wm_size_l):NULL, wm_hints?(&wm_hints_l):NULL, class_hints?(&class_hints_l):NULL);
 }
 
 #define CUSTOM_INIT                 \

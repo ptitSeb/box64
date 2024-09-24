@@ -16,6 +16,8 @@
 #include "librarian.h"
 #include "callback.h"
 #include "gltools.h"
+#include "libtools/my_x11_defs.h"
+#include "libtools/my_x11_defs_32.h"
 
 extern const char* libglName;
 #define LIBNAME libgl
@@ -23,6 +25,24 @@ extern const char* libglName;
 #include "generated/wrappedlibgltypes32.h"
 
 #include "wrappercallback32.h"
+
+void* getDisplay(void* d); // define in 32bits wrappedx11.c
+
+void convert_XVisualInfo_to_32(void* d, void* s)
+{
+    my_XVisualInfo_t* src = s;
+    my_XVisualInfo_32_t* dst = d;
+    dst->visual = to_ptrv(src->visual);
+    dst->visualid = to_ulong(src->visualid);
+    dst->screen = src->screen;
+    dst->depth = src->depth;
+    dst->c_class = src->c_class;
+    dst->red_mask = to_ulong(src->red_mask);
+    dst->green_mask = to_ulong(src->green_mask);
+    dst->blue_mask = to_ulong(src->blue_mask);
+    dst->colormap_size = src->colormap_size;
+    dst->bits_per_rgb     = src->bits_per_rgb;
+}
 
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
 void* getGLProcAddress32(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);
@@ -36,10 +56,12 @@ EXPORT void* my32_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__(
 
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
+typedef void*(*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppi_t)(void*, void*, int);
 typedef void*(*pFp_t)(void*);
 typedef void (*vFuipp_t)(uint32_t, int, void*, void*);
+typedef void*(*pFpipp_t)(void*, int, void*, void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
 typedef struct gl_wrappers_s {
@@ -437,6 +459,63 @@ static void* find_glShaderSource_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL glShaderSource callback\n");
     return NULL;
 }
+// glXChooseFBConfig ...
+#define GO(A)                                                                                               \
+static pFpipp_t my32_glXChooseFBConfig_fct_##A = NULL;                                                      \
+static void* my32_glXChooseFBConfig_##A(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)     \
+{                                                                                                           \
+    if(!my32_glXChooseFBConfig_fct_##A)                                                                     \
+        return NULL;                                                                                        \
+    static ptr_t fbconfig[1024];                                                                            \
+    void** res = my32_glXChooseFBConfig_fct_##A (dpy, screen, list, nelement);                              \
+    if(!res)                                                                                                \
+        return NULL;                                                                                        \
+    for(int i=0; i<*nelement; ++i)                                                                          \
+        fbconfig[i] = to_ptrv(res[i]);                                                                      \
+    return &fbconfig;                                                                                       \
+}
+SUPER()
+#undef GO
+static void* find_glXChooseFBConfig_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXChooseFBConfig_fct_##A == (pFpipp_t)fct) return my32_glXChooseFBConfig_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXChooseFBConfig_fct_##A == 0) {my32_glXChooseFBConfig_fct_##A = (pFpipp_t)fct; return my32_glXChooseFBConfig_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXChooseFBConfig callback\n");
+    return NULL;
+}
+// glXGetVisualFromFBConfig ...
+#define GO(A)                                                                                               \
+static pFpp_t my32_glXGetVisualFromFBConfig_fct_##A = NULL;                                                 \
+static void* my32_glXGetVisualFromFBConfig_##A(x64emu_t* emu, void* dpy, void* config)                      \
+{                                                                                                           \
+    if(!my32_glXGetVisualFromFBConfig_fct_##A)                                                              \
+        return NULL;                                                                                        \
+    static my_XVisualInfo_32_t vinfo = {0};                                                                 \
+    void* res = my32_glXGetVisualFromFBConfig_fct_##A (dpy, config);                                        \
+    if(!res)                                                                                                \
+        return NULL;                                                                                        \
+    convert_XVisualInfo_to_32(&vinfo, res);                                                                 \
+    return &vinfo;                                                                                          \
+}
+SUPER()
+#undef GO
+static void* find_glXGetVisualFromFBConfig_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXGetVisualFromFBConfig_fct_##A == (pFpp_t)fct) return my32_glXGetVisualFromFBConfig_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXGetVisualFromFBConfig_fct_##A == 0) {my32_glXGetVisualFromFBConfig_fct_##A = (pFpp_t)fct; return my32_glXGetVisualFromFBConfig_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXGetVisualFromFBConfig callback\n");
+    return NULL;
+}
 #undef SUPER
 
 #define PRE_INIT if(box64_libGL) {lib->w.lib = dlopen(box64_libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(box64_libGL);} else
@@ -473,6 +552,26 @@ EXPORT  void my32_glShaderSource(x64emu_t* emu, uint32_t shader, int count, ptr_
     my->glShaderSource(shader, count, string?str:NULL, length);
 }
 
+EXPORT void* my32_glXChooseFBConfig(x64emu_t* emu, void* dpy, int screen, int* list, int* nelement)
+{
+    static ptr_t fbconfig[1024];
+    void** res = my->glXChooseFBConfig(dpy, screen, list, nelement);
+    if(!res)
+        return NULL;
+    for(int i=0; i<*nelement; ++i)
+        fbconfig[i] = to_ptrv(res[i]);
+    return &fbconfig;
+}
+
+EXPORT void* my32_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* config)
+{
+    static my_XVisualInfo_32_t vinfo = {0};
+    void* res = my->glXGetVisualFromFBConfig(dpy, config);
+    if(!res) return NULL;
+    convert_XVisualInfo_to_32(&vinfo, res);
+    return &vinfo;
+}
+
 #include "wrappedlib_init32.h"
 
 #define SUPER()                             \
@@ -487,6 +586,8 @@ EXPORT  void my32_glShaderSource(x64emu_t* emu, uint32_t shader, int count, ptr_
  GO(pFp_t, glGetVkProcAddrNV)               \
  GO(vFppp_t, eglSetBlobCacheFuncsANDROID)   \
  GO(vFuipp_t, glShaderSource)               \
+ GO(pFpipp_t, glXChooseFBConfig)            \
+ GO(pFpp_t, glXGetVisualFromFBConfig)       \
 
 
 gl_wrappers_t* getGLProcWrapper32(box64context_t* context, glprocaddress_t procaddress)

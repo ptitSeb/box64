@@ -194,3 +194,18 @@ void to_struct_LWWWcc(ptr_t d, const struct_LWWWcc_t *src) {
 	*(char*)dest = src->c4; dest += 1;
 	*(char*)dest = src->c5; dest += 1;
 }
+void from_struct_pLiL(struct_pLiL_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = *(void**)src; src += 4;
+	dest->L1 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->i2 = *(int*)src; src += 4;
+	dest->L3 = from_ulong(*(ulong_t*)src); src += 4;
+}
+void to_struct_pLiL(ptr_t d, const struct_pLiL_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L1); dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L3); dest += 4;
+}

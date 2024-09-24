@@ -15,10 +15,12 @@ typedef int32_t (*iFi_t)(int32_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef void* (*pFXp_t)(void*, void*);
 typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFXpi_t)(void*, void*, int32_t);
 typedef void (*vFuipp_t)(uint32_t, int32_t, void*, void*);
+typedef void* (*pFXipp_t)(void*, int32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(glXSwapIntervalMESA, iFi_t) \
@@ -30,9 +32,11 @@ typedef void (*vFuipp_t)(uint32_t, int32_t, void*, void*);
 	GO(glDebugMessageCallbackARB, vFpp_t) \
 	GO(glDebugMessageCallbackKHR, vFpp_t) \
 	GO(eglDebugMessageControlKHR, iFpp_t) \
+	GO(glXGetVisualFromFBConfig, pFXp_t) \
 	GO(glProgramCallbackMESA, vFipp_t) \
 	GO(eglSetBlobCacheFuncsANDROID, vFppp_t) \
 	GO(glXSwapIntervalEXT, vFXpi_t) \
-	GO(glShaderSource, vFuipp_t)
+	GO(glShaderSource, vFuipp_t) \
+	GO(glXChooseFBConfig, pFXipp_t)
 
 #endif // __wrappedlibglTYPES32_H_

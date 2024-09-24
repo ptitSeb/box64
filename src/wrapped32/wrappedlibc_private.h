@@ -331,8 +331,8 @@ GOW(fgetc, iFS)
 GOW(fgetc_unlocked, iFS)
 // fgetgrent
 // fgetgrent_r  // Weak
-//GO(fgetpos, iFpp)
-//GO(fgetpos64, iFpp)
+//GO(fgetpos, iFSBLii_)
+GO(fgetpos64, iFSp)
 // fgetpwent
 // fgetpwent_r  // Weak
 GOW(fgets, pFpiS)

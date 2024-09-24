@@ -100,5 +100,13 @@ typedef struct struct_LWWWcc_s {
 } struct_LWWWcc_t;
 void from_struct_LWWWcc(struct_LWWWcc_t *dest, ptr_t src);
 void to_struct_LWWWcc(ptr_t dest, const struct_LWWWcc_t *src);
+typedef struct struct_pLiL_s {
+	void* p0;
+	unsigned long L1;
+	int i2;
+	unsigned long L3;
+} struct_pLiL_t;
+void from_struct_pLiL(struct_pLiL_t *dest, ptr_t src);
+void to_struct_pLiL(ptr_t dest, const struct_pLiL_t *src);
 
 #endif // __CONVERTER_H_

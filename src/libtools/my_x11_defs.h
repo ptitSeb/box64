@@ -624,13 +624,13 @@ typedef struct my_XMappingEvent_s
 
 typedef struct my_XErrorEvent_s
 {
-        int type;
-        my_XDisplay_t *display;
-        XID resourceid;
-        unsigned long serial;
-        unsigned char error_code;
-        unsigned char request_code;
-        unsigned char minor_code;
+    int type;
+    my_XDisplay_t *display;
+    XID resourceid;
+    unsigned long serial;
+    unsigned char error_code;
+    unsigned char request_code;
+    unsigned char minor_code;
 } my_XErrorEvent_t;
 
 typedef struct my_XAnyEvent_s
@@ -819,6 +819,44 @@ typedef struct my_XRROutputInfo_s {
     int             npreferred;
     XID             *modes;
 } my_XRROutputInfo_t;
+
+// Window Attribute
+typedef struct my_XWindowAttributes_s {
+    int x, y;
+    int width, height;
+    int border_width;
+    int depth;
+    void* visual;   //Visual*
+    XID root;
+    int c_class;
+    int bit_gravity;
+    int win_gravity;
+    int backing_store;
+    unsigned long backing_planes;
+    unsigned long backing_pixel;
+    int save_under;
+    XID colormap;
+    int map_installed;
+    int map_state;
+    long all_event_masks;
+    long your_event_mask;
+    long do_not_propagate_mask;
+    int override_redirect;
+    void* screen;   //Screen*
+} my_XWindowAttributes_t;
+
+typedef struct my_XVisualInfo_s {
+  void* visual; //Visual*
+  unsigned long  visualid;
+  int screen;
+  int depth;
+  int c_class;
+  unsigned long red_mask;
+  unsigned long green_mask;
+  unsigned long blue_mask;
+  int colormap_size;
+  int bits_per_rgb;
+} my_XVisualInfo_t;
 
 
 #endif//MY_X11_DEFS

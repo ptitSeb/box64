@@ -142,6 +142,7 @@
 #() iFhi -> iFhi
 #() iFhp -> iFhp
 #() iFhh -> iFhh
+#() iFSp -> iFSp
 #() iFXi -> iFXi
 #() iFXL -> iFXL
 #() iFXp -> iFXp
@@ -280,7 +281,6 @@
 #() vFppi -> vFppi
 #() vFppu -> vFppu
 #() vFppp -> vFppp
-#() vFXLp -> vFXLp
 #() vFXpi -> vFXpi
 #() iFEip -> iFEip
 #() iFEup -> iFEup
@@ -367,6 +367,7 @@
 #() pFEpp -> pFEpp
 #() pFEpV -> pFEpV
 #() pFEXL -> pFEXL
+#() pFEXp -> pFEXp
 #() pFipi -> pFipi
 #() pFulu -> pFulu
 #() pFpii -> pFpii
@@ -395,6 +396,7 @@
 #() lFpBp_i -> lFpBi
 #() LFpBp_i -> LFpBi
 #() pFppbp_ -> pFppB
+#() vFXLrpLiL_ -> vFXLB
 #() iFXLbLWWWcc_ -> iFXLB
 #() iFirLLLL_BLLLL_ -> iFiBB
 #() pFppriiiiiiiiilt_ -> pFppB
@@ -485,7 +487,6 @@
 #() vFppui -> vFppui
 #() vFpppp -> vFpppp
 #() vFXiiL -> vFXiiL
-#() vFXLpL -> vFXLpL
 #() vFXpip -> vFXpip
 #() cFpiii -> cFpiii
 #() iFEiip -> iFEiip
@@ -525,8 +526,10 @@
 #() iFpppi -> iFpppi
 #() iFpppp -> iFpppp
 #() iFhpiL -> iFhpiL
+#() iFXipi -> iFXipi
 #() iFXipp -> iFXipp
 #() iFXLii -> iFXLii
+#() iFXpip -> iFXpip
 #() iFXppp -> iFXppp
 #() CFuuff -> CFuuff
 #() uFuuuu -> uFuuuu
@@ -566,6 +569,7 @@
 #() lFiibp_L -> lFiiBL
 #() LFpbp_Lp -> LFpBLp
 #() iFEpprLL_ -> iFEppB
+#() vFXLrpLiL_L -> vFXLBL
 #() iFXLpBLWWWcc_ -> iFXLpB
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
 #() vFEuipp -> vFEuipp
@@ -688,6 +692,8 @@
 #() lFpuipC -> lFpuipC
 #() LFpLppa -> LFpLppa
 #() LFXLuuu -> LFXLuuu
+#() LFXLpuu -> LFXLpuu
+#() pFEXipp -> pFEXipp
 #() pFuiupp -> pFuiupp
 #() pFpiiuu -> pFpiiuu
 #() pFpippp -> pFpippp
@@ -903,6 +909,7 @@
 #() vFuffffffff -> vFuffffffff
 #() vFffCCCCfff -> vFffCCCCfff
 #() vFddddddddd -> vFddddddddd
+#() iFEXLLLiipi -> iFEXLLLiipi
 #() iFuiiuuiiip -> iFuiiuuiiip
 #() iFuiiupiiup -> iFuiiupiiup
 #() iFdddpppppp -> iFdddpppppp
@@ -910,6 +917,7 @@
 #() iFXLLiiuuii -> iFXLLiiuuii
 #() uFuulpiuiuf -> uFuulpiuiuf
 #() pFEXLiiuuLi -> pFEXLiiuuLi
+#() vFEXLpppippp -> vFEXLpppippp
 #() vFiiiiiiiiii -> vFiiiiiiiiii
 #() vFiiiiiiiiui -> vFiiiiiiiiui
 #() vFiiiiiiiiuu -> vFiiiiiiiiuu
@@ -1174,6 +1182,8 @@ wrappedlibgl:
   - glDebugMessageCallbackKHR
 - iFpp:
   - eglDebugMessageControlKHR
+- pFXp:
+  - glXGetVisualFromFBConfig
 - vFipp:
   - glProgramCallbackMESA
 - vFppp:
@@ -1182,6 +1192,8 @@ wrappedlibgl:
   - glXSwapIntervalEXT
 - vFuipp:
   - glShaderSource
+- pFXipp:
+  - glXChooseFBConfig
 wrappedlibglu:
 - vFpup:
   - gluNurbsCallback
@@ -1373,6 +1385,7 @@ wrappedlibx11:
   - XCloseDisplay
 - pFp:
   - XOpenDisplay
+  - XSetErrorHandler
 - iFXp:
   - XNextEvent
 - pFpV:
@@ -1384,6 +1397,7 @@ wrappedlibx11:
 - iFXip:
   - XCheckTypedEvent
 - iFXLp:
+  - XGetWindowAttributes
   - XSetWMHints
 - LFXii:
   - XGetPixel
@@ -1395,8 +1409,12 @@ wrappedlibx11:
   - Xutf8TextListToTextProperty
 - pFpiiuu:
   - XSubImage
+- iFXLLLiipi:
+  - XChangeProperty
 - pFXLiiuuLi:
   - XGetImage
+- vFXLpppippp:
+  - XSetWMProperties
 - iFXLppiiiiuu:
   - XPutImage
 - pFXpuiipuuii:
