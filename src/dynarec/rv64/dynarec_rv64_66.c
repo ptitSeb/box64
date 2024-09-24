@@ -1199,6 +1199,20 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     emit_neg16(dyn, ninst, ed, x2, x4);
                     EWBACK;
                     break;
+                case 4:
+                    INST_NAME("MUL AX, Ew");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 0);
+                    ZEXTH(x2, xRAX);
+                    MULW(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    INSHz(xRAX, x1, x4, x5, 1, 1);
+                    SRLI(xRDX, xRDX, 16);
+                    SLLI(xRDX, xRDX, 16);
+                    SRLI(x1, x1, 48);
+                    OR(xRDX, xRDX, x1);
+                    UFLAG_DF(x1, d_mul16);
+                    break;
                 case 5:
                     INST_NAME("IMUL AX, Ew");
                     SETFLAGS(X_ALL, SF_PENDING);
