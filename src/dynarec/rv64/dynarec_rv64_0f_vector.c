@@ -193,6 +193,21 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x57:
+            INST_NAME("XORPS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
+            GETG;
+            if (MODREG && ((nextop & 7) + (rex.b << 3) == gd)) {
+                // special case for XORPS Gx, Gx
+                q0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+            } else {
+                q0 = sse_get_reg_vector(dyn, ninst, x1, gd, 1, dyn->vector_eew);
+                GETEX_vector(q1, 0, 0, dyn->vector_eew);
+                VXOR_VV(q0, q0, q1, VECTOR_UNMASKED);
+            }
+            break;
         case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
