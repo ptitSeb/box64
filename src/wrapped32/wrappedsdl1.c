@@ -250,13 +250,15 @@ EXPORT void *my32_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
 //    RWNativeEnd(rw);
 //    return r;
 //}
-//EXPORT uint32_t my32_SDL_ReadLE32(x64emu_t* emu, void* a)
-//{
-//    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
-//    uint32_t r = my->SDL_ReadLE32(rw);
-//    RWNativeEnd(rw);
-//    return r;
-//}
+EXPORT uint32_t my32_SDL_ReadLE32(x64emu_t* emu, void* a)
+{
+    inplace_SDL_RWops_to_64(a);
+    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
+    uint32_t r = my->SDL_ReadLE32(rw);
+    RWNativeEnd(rw);
+    inplace_SDL_RWops_to_32(a);
+    return r;
+}
 //EXPORT uint64_t my32_SDL_ReadLE64(x64emu_t* emu, void* a)
 //{
 //    SDL1_RWops_t* rw = RWNativeStart(emu, (SDL1_RWops_t*)a);
@@ -382,20 +384,20 @@ EXPORT void* my32_SDL_GetVideoInfo()
     return &vm;
 }
 
-//EXPORT void *my32_SDL_AddTimer(x64emu_t* emu, uint32_t a, void* cb, void* p)
-//{
-//    return my->SDL_AddTimer(a, find_TimerCallback_Fct(cb), p);
-//}
-//
-//EXPORT int my32_SDL_RemoveTimer(x64emu_t* emu, void *t)
-//{
-//    return my->SDL_RemoveTimer(t);
-//}
+EXPORT void *my32_SDL_AddTimer(x64emu_t* emu, uint32_t a, void* cb, void* p)
+{
+    return my->SDL_AddTimer(a, find_TimerCallback_Fct(cb), p);
+}
 
-//EXPORT int32_t my32_SDL_SetTimer(x64emu_t* emu, uint32_t t, void* p)
-//{
-//    return my->SDL_SetTimer(t, find_TimerCallback_Fct(p));
-//}
+EXPORT int my32_SDL_RemoveTimer(x64emu_t* emu, void *t)
+{
+    return my->SDL_RemoveTimer(t);
+}
+
+EXPORT int32_t my32_SDL_SetTimer(x64emu_t* emu, uint32_t t, void* p)
+{
+    return my->SDL_SetTimer(t, find_TimerCallback_Fct(p));
+}
 #if 0
 EXPORT int32_t my32_SDL_BuildAudioCVT(x64emu_t* emu, void* a, uint32_t b, uint32_t c, int32_t d, uint32_t e, uint32_t f, int32_t g)
 {
@@ -569,6 +571,13 @@ EXPORT void my32_SDL_FreeSurface(void* s)
         sdl1_videomode_org = NULL;
 }
 
+EXPORT int my32_SDL_SetColorKey(void* s, uint32_t flags, uint32_t key)
+{
+    int ret = my->SDL_SetColorKey(wrapSurface(s), flags, key);
+    unwrapSurface(s);
+    return ret;
+}
+
 EXPORT int my32_SDL_PollEvent(my_SDL_Event_32_t* evt)
 {
     my_SDL_Event_t event;
@@ -577,6 +586,13 @@ EXPORT int my32_SDL_PollEvent(my_SDL_Event_32_t* evt)
         convert_SDL_Event_to_32(evt, &event);
     }
     return ret;
+}
+
+EXPORT int my32_SDL_PushEvent(my_SDL_Event_32_t* evt)
+{
+    my_SDL_Event_t event;
+    convert_SDL_Event_to_64(&event, evt);
+    return my->SDL_PushEvent(&event);
 }
 
 EXPORT void* my32_SDL_ListModes(my_SDL_PixelFormat_32_t* fmt, uint32_t flags)
@@ -606,6 +622,40 @@ EXPORT void* my32_SDL_ListModes(my_SDL_PixelFormat_32_t* fmt, uint32_t flags)
     }
     available[idx++] = 0;
     return &available;
+}
+
+EXPORT uint32_t my32_SDL_MapRGB(my_SDL_PixelFormat_32_t* fmt, uint8_t r, uint8_t g, uint8_t b)
+{
+    my_SDL_PixelFormat_t format;
+    my_SDL_Palette_t palette;
+    if(fmt) {
+        memcpy(&format, fmt, sizeof(format));
+        inplace_SDL_PixelFormat_to_64_nopalette(&format);
+        if(fmt->palette) {
+            memcpy(&palette, from_ptrv(fmt->palette), sizeof(palette));
+            format.palette = &palette;
+            inplace_SDL_Palette_to_64(&palette);
+        }
+    }
+    return my->SDL_MapRGB(fmt?(&format):NULL, r, g, b);
+}
+
+EXPORT int my32_SDL_BuildAudioCVT(my_SDL_AudioCVT_32_t* cvt, uint16_t src_fmt, uint16_t src_chn, int src_rate, uint16_t dst_fmt, uint16_t dst_ch, int dst_rate)
+{
+    my_SDL_AudioCVT_t l_cvt;
+    int ret = my->SDL_BuildAudioCVT(&l_cvt, src_fmt, src_chn, src_rate, dst_fmt, dst_ch, dst_rate);
+    if(ret!=-1)
+        convert_AudioCVT_to_32(cvt, &l_cvt);
+    return ret;
+}
+
+EXPORT int my32_SDL_ConvertAudio(my_SDL_AudioCVT_32_t* cvt)
+{
+    my_SDL_AudioCVT_t l_cvt;
+    convert_AudioCVT_to_64(&l_cvt, cvt);
+    int ret = my->SDL_ConvertAudio(&l_cvt);
+    convert_AudioCVT_to_32(cvt, &l_cvt);
+    return ret;
 }
 
 //EXPORT int32_t my32_SDL_GetWMInfo(x64emu_t* emu, void* p)

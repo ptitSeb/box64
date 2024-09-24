@@ -495,6 +495,7 @@ typedef union my_SDL_Event_32_s
 
 
 void convert_SDL_Event_to_32(void* dst, const void* src);
+void convert_SDL_Event_to_64(void* dst, const void* src);
 
 // simplified RWops
 typedef struct my_SDL_RWops_s {
@@ -555,5 +556,36 @@ typedef struct my_SDL_VideoInfo_32_s {
   int current_w;
   int current_h;
 } my_SDL_VideoInfo_32_t;
+
+typedef struct my_SDL_AudioCVT_s {
+  int needed;
+  uint16_t src_format;
+  uint16_t dest_format;
+  double rate_incr;
+  uint8_t *buf;
+  int len;
+  int len_cvt;
+  int len_mult;
+  double len_ratio;
+  void (*filters[10])(struct my_SDL_AudioCVT_s *cvt, uint16_t format);
+  int filter_index;
+} my_SDL_AudioCVT_t;
+
+typedef struct my_SDL_AudioCVT_32_s {
+  int needed;
+  uint16_t src_format;
+  uint16_t dest_format;
+  double rate_incr;
+  ptr_t buf;    //uint8_t *
+  int len;
+  int len_cvt;
+  int len_mult;
+  double len_ratio;
+  ptr_t filters[10]; //void (*filters[10])(struct my_SDL_AudioCVT_s *cvt, uint16_t format);
+  int filter_index;
+} my_SDL_AudioCVT_32_t;
+
+void convert_AudioCVT_to_32(void* d, void* s);
+void convert_AudioCVT_to_64(void* d, void* s);
 
 #endif//__MY_SDL1ALIGN32_H_

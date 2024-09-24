@@ -170,6 +170,84 @@ void convert_SDL_Event_to_32(void* dst_, const void* src_)
             memcpy(dst, src, sizeof(my_SDL_Event_32_t));
     }
 }
+void convert_SDL_Event_to_64(void* dst_, const void* src_)
+{
+    if(!src_|| !dst_) return;
+    const my_SDL_Event_32_t *src = src_;
+    my_SDL_Event_t* dst = dst_;
+    dst->type = src->type;
+    switch(src->type) {
+        case SDL_ACTIVEEVENT:
+            dst->active.gain = src->active.gain;
+            dst->active.state = src->active.state;
+            break;
+        case SDL_KEYUP:
+        case SDL_KEYDOWN:
+            dst->key.keysym.mod = src->key.keysym.mod;
+            dst->key.keysym.scancode = src->key.keysym.scancode;
+            dst->key.keysym.sym = src->key.keysym.sym;
+            dst->key.keysym.unicode = src->key.keysym.unicode;
+            dst->key.state = src->key.state;
+            dst->key.which = dst->key.which;
+            break;
+        case SDL_MOUSEMOTION:
+            dst->motion.state = src->motion.state;
+            dst->motion.which = src->motion.which;
+            dst->motion.x = src->motion.x;
+            dst->motion.y = src->motion.y;
+            dst->motion.xrel = src->motion.xrel;
+            dst->motion.yrel = src->motion.yrel;
+            break;
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEBUTTONDOWN:
+            dst->button.button = src->button.button;
+            dst->button.state = src->button.state;
+            dst->button.which = src->button.which;
+            dst->button.x = src->button.x;
+            dst->button.y = src->button.y;
+            break;
+        case SDL_JOYAXISMOTION:
+            dst->jaxis.axis = src->jaxis.axis;
+            dst->jaxis.value = src->jaxis.value;
+            dst->jaxis.which = src->jaxis.which;
+            break;
+        case SDL_JOYBALLMOTION:
+            dst->jball.ball = src->jball.ball;
+            dst->jball.which = src->jball.which;
+            dst->jball.xrel = src->jball.xrel;
+            dst->jball.yrel = src->jball.yrel;
+            break;
+        case SDL_JOYHATMOTION:
+            dst->jhat.hat = src->jhat.hat;
+            dst->jhat.value = src->jhat.value;
+            dst->jhat.which = src->jhat.which;
+            break;
+        case SDL_JOYBUTTONUP:
+        case SDL_JOYBUTTONDOWN:
+            dst->jbutton.button = src->jbutton.button;
+            dst->jbutton.state = src->jbutton.state;
+            dst->jbutton.which = src->jbutton.which;
+            break;
+        case SDL_VIDEORESIZE:
+            dst->resize.h = src->resize.h;
+            dst->resize.w = src->resize.w;
+            break;
+        case SDL_VIDEOEXPOSE:
+        case SDL_QUIT:
+            break;
+        case SDL_USEREVENT:
+            dst->user.code = src->user.code;
+            dst->user.data1 = from_ptrv(src->user.data1);
+            dst->user.data2 = from_ptrv(src->user.data2);
+        case SDL_SYSWMEVENT:
+            printf_log(LOG_NONE, "TODO: Convert SDL_SYSWMEVENT\n");
+            abort();
+            break;
+        default:
+            printf_log(LOG_INFO, "Warning, unsuported SDL1.2 (un)event %d\n", src->type);
+            memcpy(dst, src, sizeof(my_SDL_Event_32_t));
+    }
+}
 
 void inplace_SDL_RWops_to_64(void* a)
 {
@@ -195,4 +273,39 @@ void inplace_SDL_RWops_to_32(void* a)
     dst->close = to_ptrv(src->close);
     dst->type = src->type;
     memmove(&dst->hidden, &src->hidden, sizeof(dst->hidden));
+}
+
+void convert_AudioCVT_to_32(void* d, void* s)
+{
+    my_SDL_AudioCVT_32_t* dst = d;
+    my_SDL_AudioCVT_t* src = s;
+    dst->needed = src->needed;
+    dst->src_format = src->src_format;
+    dst->dest_format = src->dest_format;
+    dst->rate_incr = src->rate_incr;
+    dst->buf = to_ptrv(src->buf);
+    dst->len = src->len;
+    dst->len_cvt = src->len_cvt;
+    dst->len_mult = src->len_mult;
+    dst->len_ratio = src->len_ratio;
+    for(int i=0; i<10; ++i)
+        dst->filters[i] = to_ptrv(src->filters[i]);
+    dst->filter_index = src->filter_index;
+}
+void convert_AudioCVT_to_64(void* d, void* s)
+{
+    my_SDL_AudioCVT_t* dst = d;
+    my_SDL_AudioCVT_32_t* src = s;
+    dst->needed = src->needed;
+    dst->src_format = src->src_format;
+    dst->dest_format = src->dest_format;
+    dst->rate_incr = src->rate_incr;
+    dst->buf = from_ptrv(src->buf);
+    dst->len = src->len;
+    dst->len_cvt = src->len_cvt;
+    dst->len_mult = src->len_mult;
+    dst->len_ratio = src->len_ratio;
+    for(int i=0; i<10; ++i)
+        dst->filters[i] = from_ptrv(src->filters[i]);
+    dst->filter_index = src->filter_index;
 }

@@ -207,7 +207,7 @@ GOW(dgettext, pFpp)
 GO(__dgettext, pFpp)
 GO(difftime, dFLL)
 //GO(dirfd, iFp)
-//GO(dirname, pFp)
+GO(dirname, pFp)
 GOS(div, pFpii) //%%,noE
 // _dl_addr
 GO2(dl_iterate_phdr, iFEpp, my_dl_iterate_phdr) //%%

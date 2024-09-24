@@ -6,6 +6,10 @@
 #include "sdl1rwops.h"
 #include "debug.h"
 #include "wrapper.h"
+#ifdef BOX32
+#include "wrapper32.h"
+#include "sdl1align32.h"
+#endif
 #include "box64context.h"
 #include "x64run.h"
 #include "x64emu.h"
@@ -54,18 +58,47 @@ typedef struct SDL1_RWops_s {
 
 EXPORT int32_t my_native_seek(SDL1_RWops_t *context, int32_t offset, int32_t whence)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL_RWops_to_64(context);
+        int ret = context->hidden.my.orig->seek(context->hidden.my.orig, offset, whence);
+        inplace_SDL_RWops_to_32(context);
+        return ret;
+    }
+    #endif
     return context->hidden.my.orig->seek(context->hidden.my.orig, offset, whence);
 }
 EXPORT int32_t my_native_read(SDL1_RWops_t *context, void *ptr, int32_t size, int32_t maxnum)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL_RWops_to_64(context);
+        int ret = context->hidden.my.orig->read(context->hidden.my.orig, ptr, size, maxnum);
+        inplace_SDL_RWops_to_32(context);
+        return ret;
+    }
+    #endif
     return context->hidden.my.orig->read(context->hidden.my.orig, ptr, size, maxnum);
 }
 EXPORT int32_t my_native_write(SDL1_RWops_t *context, const void *ptr, int32_t size, int32_t num)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL_RWops_to_64(context);
+        int ret = context->hidden.my.orig->write(context->hidden.my.orig, ptr, size, num);
+        inplace_SDL_RWops_to_32(context);
+        return ret;
+    }
+    #endif
     return context->hidden.my.orig->write(context->hidden.my.orig, ptr, size, num);
 }
 EXPORT int32_t my_native_close(SDL1_RWops_t *context)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL_RWops_to_64(context);
+    }
+    #endif
     int32_t ret = context->hidden.my.orig->close(context->hidden.my.orig);
     context->hidden.my.custom_free(context);
     return ret;
@@ -109,10 +142,21 @@ SDL1_RWops_t* AddNativeRW(x64emu_t* emu, SDL1_RWops_t* ops)
     fnc = AddCheckBridge(system, W, my_native_##A, 0, NULL); \
     newrw->A = (sdl1_##A)fnc;
 
-    GO(seek, iFpii)
-    GO(read, iFppii)
-    GO(write, iFppii)
-    GO(close, iFp)
+    #ifdef BOX32
+    if(box64_is32bits)
+    {
+        GO(seek, iFpii_32)
+        GO(read, iFppii_32)
+        GO(write, iFppii_32)
+        GO(close, iFp_32)
+    } else
+    #endif
+    {
+        GO(seek, iFpii)
+        GO(read, iFppii)
+        GO(write, iFppii)
+        GO(close, iFp)
+    }
 
     #undef GO
 

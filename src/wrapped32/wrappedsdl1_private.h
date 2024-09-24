@@ -4,7 +4,7 @@
 
 // _fini
 // _init
-//GOM(SDL_AddTimer, pFEupp)
+GOM(SDL_AddTimer, pFEupp)
 GO(SDL_AllocRW, pFv)    // no need to use a my_ version here
 //GO(SDL_CDClose, vFp)
 //GO(SDL_CDEject, iFp)
@@ -110,13 +110,13 @@ GOM(SDL_LoadObject, pFEp)
 GOM(SDL_LockSurface, iFp)   //%noE
 //GO(SDL_LockYUVOverlay, iFp)
 //GO(SDL_LowerBlit, iFpppp)
-//GO(SDL_MapRGB, uFpCCC)
+GOM(SDL_MapRGB, uFpCCC) //%noE
 //GO(SDL_MapRGBA, uFpCCCC)
 GO(SDL_NumJoysticks, iFv)
 //GO(SDL_PeepEvents, iFpiuu)
 GOM(SDL_PollEvent, iFp) //%noE
 //GO(SDL_PumpEvents, vFv)
-//GO(SDL_PushEvent, iFp)
+GOM(SDL_PushEvent, iFp) //%noE
 GOM(SDL_Quit, vFv)  //%noE
 GO(SDL_QuitSubSystem, vFu)
 //GOM(SDL_RWFromConstMem, pFEpi)
@@ -127,10 +127,10 @@ GOM(SDL_RWFromMem, pFEpi)
 //GOM(SDL_ReadBE32, uFEp)
 //GOM(SDL_ReadBE64, UFEp)
 //GOM(SDL_ReadLE16, uFEp)
-//GOM(SDL_ReadLE32, uFEp)
+GOM(SDL_ReadLE32, uFEp)
 //GOM(SDL_ReadLE64, UFEp)
 //GO(SDL_RegisterApp, iFpup)
-//GOM(SDL_RemoveTimer, iFEp)
+GOM(SDL_RemoveTimer, iFEp)
 //GOM(SDL_SaveBMP_RW, iFEppi)
 GO(SDL_SemPost, iFp)
 GO(SDL_SemTryWait, iFp)
@@ -139,17 +139,17 @@ GO(SDL_SemWait, iFp)
 GO(SDL_SemWaitTimeout, iFpu)
 GO(SDL_SetAlpha, iFpuC)
 //GO(SDL_SetClipRect, uFpp)
-//GO(SDL_SetColorKey, iFpuu)
+GOM(SDL_SetColorKey, iFpuu)  //%noE
 //GO(SDL_SetColors, iFppii)
 //GO(SDL_SetCursor, vFp)
-//GO(SDL_SetError, vFpppppp)      // use ..., so putting arbitrary number of arguments...
+GO(SDL_SetError, vFpppppp)      // use ..., so putting arbitrary number of arguments...
 //GOM(SDL_SetEventFilter, vFEp)
 GO(SDL_SetGamma, iFfff)
 GO(SDL_SetGammaRamp, iFppp)
 GO(SDL_SetModState, vFu)
 //GO(SDL_SetModuleHandle, vFp)
 //GO(SDL_SetPalette, iFpipii)
-//GOM(SDL_SetTimer, iFEup)
+GOM(SDL_SetTimer, iFEup)
 GOM(SDL_SetVideoMode, pFiiiu)   //%noE
 GO(SDL_ShowCursor, iFi)
 //GO(SDL_SoftStretch, iFpppp)
@@ -229,10 +229,10 @@ GO(SDL_GetAudioStatus, uFv)
 //GO(SDL_LoadWAV, pFpppp)
 //GO(SDL_FreeWAV, vFp)
 //GOM(SDL_LoadWAV_RW, pFEpippp)
-//GO(SDL_BuildAudioCVT, iFpWCiWCi)
-//GO(SDL_ConvertAudio, iFp)
+GOM(SDL_BuildAudioCVT, iFpWCiWCi)   //%noE
+GOM(SDL_ConvertAudio, iFp)  //%noE
 //GO(SDL_AudioInit, iFp)
 GO(SDL_AudioQuit, vFv)
-//GO(SDL_MixAudio, vFppui)
+GO(SDL_MixAudio, vFppui)
 GO(SDL_CloseAudio, vFv)
 //GO(SDL_AudioDriverName, pFpi)

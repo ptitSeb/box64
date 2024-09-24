@@ -153,6 +153,7 @@
 #() CFpi -> CFpi
 #() CFpp -> CFpp
 #() uFEu -> uFEu
+#() uFEp -> uFEp
 #() uFEV -> uFEV
 #() uFuu -> uFuu
 #() uFup -> uFup
@@ -281,6 +282,7 @@
 #() vFXLp -> vFXLp
 #() vFXpi -> vFXpi
 #() iFEip -> iFEip
+#() iFEup -> iFEup
 #() iFEpi -> iFEpi
 #() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
@@ -311,6 +313,7 @@
 #() iFpii -> iFpii
 #() iFpiu -> iFpiu
 #() iFpip -> iFpip
+#() iFpui -> iFpui
 #() iFpuC -> iFpuC
 #() iFpuu -> iFpuu
 #() iFpuU -> iFpuU
@@ -477,6 +480,7 @@
 #() vFpddd -> vFpddd
 #() vFplpp -> vFplpp
 #() vFppip -> vFppip
+#() vFppui -> vFppui
 #() vFpppp -> vFpppp
 #() vFXiiL -> vFXiiL
 #() vFXLpL -> vFXLpL
@@ -524,6 +528,7 @@
 #() iFXppp -> iFXppp
 #() CFuuff -> CFuuff
 #() uFuuuu -> uFuuuu
+#() uFpCCC -> uFpCCC
 #() lFEipi -> lFEipi
 #() lFiipL -> lFiipL
 #() lFipLi -> lFipLi
@@ -533,6 +538,7 @@
 #() LFppLp -> LFppLp
 #() LFppLa -> LFppLa
 #() LFXLpi -> LFXLpi
+#() pFEupp -> pFEupp
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
 #() pFiiiu -> pFiiiu
@@ -549,6 +555,7 @@
 #() pFXLLp -> pFXLLp
 #() pFXppi -> pFXppi
 #() pFXppp -> pFXppp
+#() iFpplBp_ -> iFpplB
 #() iFppbp_p -> iFppBp
 #() iFBp_pui -> iFBpui
 #() IFpBp_ii -> IFpBii
@@ -665,6 +672,7 @@
 #() iFiiipp -> iFiiipp
 #() iFiLLLL -> iFiLLLL
 #() iFipLLi -> iFipLLi
+#() iFplluu -> iFplluu
 #() iFpLuLi -> iFpLuLi
 #() iFpppip -> iFpppip
 #() iFpppup -> iFpppup
@@ -754,6 +762,7 @@
 #() vFpipipV -> vFpipipV
 #() vFpdddii -> vFpdddii
 #() vFppupii -> vFppupii
+#() vFpppppp -> vFpppppp
 #() iFEuppup -> iFEuppup
 #() iFEuppLp -> iFEuppLp
 #() iFEpiLpp -> iFEpiLpp
@@ -825,6 +834,7 @@
 #() vFpddiidd -> vFpddiidd
 #() iFEpLiipV -> iFEpLiipV
 #() iFuiiiuup -> iFuiiiuup
+#() iFpWCiWCi -> iFpWCiWCi
 #() iFpupLpLi -> iFpupLpLi
 #() iFXiuLiii -> iFXiuLiii
 #() uFuippppp -> uFuippppp
@@ -1422,9 +1432,14 @@ wrappedsdl1:
   - SDL_HasSSE
   - SDL_HasSSE2
 - iFp:
+  - SDL_ConvertAudio
   - SDL_Flip
   - SDL_LockSurface
   - SDL_PollEvent
+  - SDL_PushEvent
+  - SDL_RemoveTimer
+- uFp:
+  - SDL_ReadLE32
 - pFv:
   - SDL_GetVideoInfo
   - SDL_GetVideoSurface
@@ -1433,6 +1448,8 @@ wrappedsdl1:
   - SDL_LoadObject
 - vFpp:
   - SDL_WM_SetIcon
+- iFup:
+  - SDL_SetTimer
 - iFpp:
   - SDL_OpenAudio
 - pFpi:
@@ -1444,7 +1461,15 @@ wrappedsdl1:
   - SDL_CreateThread
   - SDL_LoadFunction
   - SDL_RWFromFile
+- iFpuu:
+  - SDL_SetColorKey
+- pFupp:
+  - SDL_AddTimer
+- uFpCCC:
+  - SDL_MapRGB
 - pFiiiu:
   - SDL_SetVideoMode
 - vFupppp:
   - SDL_GetRGB
+- iFpWCiWCi:
+  - SDL_BuildAudioCVT
