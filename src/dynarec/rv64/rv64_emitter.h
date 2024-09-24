@@ -862,6 +862,11 @@ f28–31  ft8–11  FP temporaries                  Caller
         OR(rd, rd, rs);                         \
     }
 
+// Insert low 16bits in rs to low 16bits of rd
+#define INSHz(rd, rs, s1, s2, init_s1, zexth_rs) \
+    INSH(rd, rs, s1, s2, init_s1, zexth_rs)      \
+    if (rex.is32bits) AND(rd, rd, xMASK);
+
 // Rotate left (register)
 #define ROL(rd, rs1, rs2) EMIT(R_type(0b0110000, rs2, rs1, 0b001, rd, 0b0110011))
 // Rotate left word (register)
