@@ -349,6 +349,20 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             }
             break;
+        case 0xA1:
+            INST_NAME("MOV EAX, FS:Od");
+            grab_segdata(dyn, addr, ninst, x4, seg);
+            if (rex.is32bits)
+                u64 = F32;
+            else
+                u64 = F64;
+            MOV64z(x1, u64);
+            if (rex.is32bits) {
+                ADDz(x4, x1, x4);
+                LDxw(xRAX, x4, 0);
+            } else
+                LDXxw(xRAX, x4, x1);
+            break;
         case 0xC6:
             INST_NAME("MOV Seg:Eb, Ib");
             grab_segdata(dyn, addr, ninst, x4, seg);
