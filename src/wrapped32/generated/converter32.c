@@ -196,7 +196,7 @@ void to_struct_LWWWcc(ptr_t d, const struct_LWWWcc_t *src) {
 }
 void from_struct_pLiL(struct_pLiL_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
-	dest->p0 = *(void**)src; src += 4;
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
 	dest->L1 = from_ulong(*(ulong_t*)src); src += 4;
 	dest->i2 = *(int*)src; src += 4;
 	dest->L3 = from_ulong(*(ulong_t*)src); src += 4;

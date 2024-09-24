@@ -2297,8 +2297,10 @@ EXPORT int my32_XStringListToTextProperty(x64emu_t* emu, ptr_t* list, int count,
     if(list)
         for(int i=0; i<count; ++i)
             l_list[i] = from_ptrv(list[i]);
-    //TODO: Need to wrap the XTextProperty produced?
-    return my->XStringListToTextProperty(list?(&l_list):NULL, count, text);
+    struct_pLiL_t text_l = {0};
+    int ret = my->XStringListToTextProperty(list?(&l_list):NULL, count, &text_l);
+    to_struct_pLiL(to_ptrv(text), &text_l);
+    return ret;
 }
 
 EXPORT int my32_Xutf8TextListToTextProperty(x64emu_t* emu, void* dpy, ptr_t* list, int count, uint32_t style, void* text)
@@ -2307,8 +2309,10 @@ EXPORT int my32_Xutf8TextListToTextProperty(x64emu_t* emu, void* dpy, ptr_t* lis
     if(list)
         for(int i=0; i<count; ++i)
             l_list[i] = from_ptrv(list[i]);
-    //TODO: Need to wrap the XTextProperty produced?
-    return my->Xutf8TextListToTextProperty(dpy, list?(&l_list):NULL, count, style, text);
+    struct_pLiL_t text_l = {0};
+    int ret = my->Xutf8TextListToTextProperty(dpy, list?(&l_list):NULL, count, style, &text_l);
+    to_struct_pLiL(to_ptrv(text), &text_l);
+    return ret;
 }
 
 void convert_XWindowAttributes_to_32(void* d, void* s)
