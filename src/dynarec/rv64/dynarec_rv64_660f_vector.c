@@ -378,10 +378,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 0.5);
                     VNCLIPU_WX(q0, xZR, d0, VECTOR_UNMASKED);
                     if (q0 != q1) VNCLIPU_WX(v0, xZR, d1, VECTOR_UNMASKED);
-                    vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     if (q0 == q1) VMV_V_V(v0, q0);
                     VSLIDEUP_VI(q0, 4, v0, VECTOR_UNMASKED);
-
                     break;
                 case 0x30:
                     INST_NAME("PMOVZXBW Gx, Ex");
