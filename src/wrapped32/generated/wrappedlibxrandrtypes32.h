@@ -11,7 +11,12 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFXL_t)(void*, uintptr_t);
+typedef void* (*pFXpL_t)(void*, void*, uintptr_t);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(XRRGetScreenResources, pFXL_t) \
+	GO(XRRGetCrtcInfo, pFXpL_t) \
+	GO(XRRGetOutputInfo, pFXpL_t)
 
 #endif // __wrappedlibxrandrTYPES32_H_

@@ -695,5 +695,64 @@ typedef struct my_XWMHints_32_s {
     XID_32 window_group;
 } my_XWMHints_32_t;
 
+typedef struct my_XRRModeInfo_32_s {
+    XID_32              id;
+    unsigned int        width;
+    unsigned int        height;
+    ulong_t             dotClock;
+    unsigned int        hSyncStart;
+    unsigned int        hSyncEnd;
+    unsigned int        hTotal;
+    unsigned int        hSkew;
+    unsigned int        vSyncStart;
+    unsigned int        vSyncEnd;
+    unsigned int        vTotal;
+    ptr_t               name;   //char*
+    unsigned int        nameLength;
+    ulong_t             modeFlags;
+} my_XRRModeInfo_32_t;
+
+
+typedef struct my_XRRScreenResources_32_s {
+    ulong_t     timestamp;
+    ulong_t     configTimestamp;
+    int         ncrtc;
+    ptr_t       crtcs;  //XID_32*
+    int         noutput;
+    ptr_t       outputs;    //XID_32*
+    int         nmode;
+    ptr_t       modes;  //my_XRRModeInfo_32_t *
+} my_XRRScreenResources_32_t;
+
+typedef struct my_XRRCrtcInfo_32_s {
+    ulong_t         timestamp;
+    int             x, y;
+    unsigned int    width, height;
+    XID_32          mode;
+    uint16_t        rotation;
+    int             noutput;
+    ptr_t           outputs;    //XID_32*
+    uint16_t        rotations;
+    int             npossible;
+    ptr_t           possible;   //XID_32*
+} my_XRRCrtcInfo_32_t;
+
+typedef struct my_XRROutputInfo_32_s {
+    ulong_t         timestamp;
+    XID_32          crtc;
+    ptr_t           name;   //char*
+    int             nameLen;
+    ulong_t         mm_width;
+    ulong_t         mm_height;
+    uint16_t        connection;
+    uint16_t        subpixel_order;
+    int             ncrtc;
+    ptr_t           crtcs; //XID_32*
+    int             nclone;
+    ptr_t           clones; //XID_32*
+    int             nmode;
+    int             npreferred;
+    ptr_t           modes; //XID_32*
+} my_XRROutputInfo_32_t;
 
 #endif//MY_X11_DEFS_32

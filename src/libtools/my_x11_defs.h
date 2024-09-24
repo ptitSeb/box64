@@ -760,5 +760,65 @@ typedef struct my_XWMHints_s {
 #define XWMHint_WindowGroupHint         (1L << 6)
 #define XWMHint_XUrgencyHint            (1L << 8)
 
+typedef struct my_XRRModeInfo_s {
+    XID                 id;
+    unsigned int        width;
+    unsigned int        height;
+    unsigned long       dotClock;
+    unsigned int        hSyncStart;
+    unsigned int        hSyncEnd;
+    unsigned int        hTotal;
+    unsigned int        hSkew;
+    unsigned int        vSyncStart;
+    unsigned int        vSyncEnd;
+    unsigned int        vTotal;
+    char                *name;
+    unsigned int        nameLength;
+    unsigned long       modeFlags;
+} my_XRRModeInfo_t;
+
+
+typedef struct my_XRRScreenResources_s {
+    unsigned long   timestamp;
+    unsigned long   configTimestamp;
+    int             ncrtc;
+    XID             *crtcs;
+    int             noutput;
+    XID             *outputs;
+    int             nmode;
+    my_XRRModeInfo_t *modes;
+} my_XRRScreenResources_t;
+
+typedef struct my_XRRCrtcInfo_s {
+    unsigned long   timestamp;
+    int             x, y;
+    unsigned int    width, height;
+    XID             mode;
+    uint16_t        rotation;
+    int             noutput;
+    XID             *outputs;
+    uint16_t        rotations;
+    int             npossible;
+    XID             *possible;
+} my_XRRCrtcInfo_t;
+
+typedef struct my_XRROutputInfo_s {
+    unsigned long   timestamp;
+    XID             crtc;
+    char            *name;
+    int             nameLen;
+    unsigned long   mm_width;
+    unsigned long   mm_height;
+    uint16_t        connection;
+    uint16_t        subpixel_order;
+    int             ncrtc;
+    XID             *crtcs;
+    int             nclone;
+    XID             *clones;
+    int             nmode;
+    int             npreferred;
+    XID             *modes;
+} my_XRROutputInfo_t;
+
 
 #endif//MY_X11_DEFS
