@@ -2323,7 +2323,35 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             MOVz_REG(xRSP, xRBP);
             POP1z(xRBP);
             break;
-
+        case 0xCA:
+            INST_NAME("FAR RETN");
+            u16 = F16;
+            READFLAGS(X_PEND);
+            BARRIER(BARRIER_FLOAT);
+            POP2z(xRIP, x3);
+            STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+            STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+            if(u16<0x1000)
+                ADDz_U12(xRSP, xRSP, u16);
+            else {
+                MOV32w(x1, u16);
+                ADDz_REG(xRSP, xRSP, x1);
+            }
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+        case 0xCB:
+            INST_NAME("FAR RET");
+            READFLAGS(X_PEND);
+            BARRIER(BARRIER_FLOAT);
+            POP2z(xRIP, x3);
+            STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+            STW(xZR, xEmu, offsetof(x64emu_t, segs_serial[_CS]));
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xCC:
             SETFLAGS(X_ALL, SF_SET_NODF);    // Hack, set all flags (to an unknown state...)
             NOTEST(x1);
