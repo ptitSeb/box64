@@ -3238,6 +3238,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xF0:
             addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;
+        case 0xF1:
+            INST_NAME("INT1");
+            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_priv, -1);  // is that a privileged opcodes or an int 1??
+            LOAD_XEMU_CALL(xRIP);
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
 
         case 0xF4:
             INST_NAME("HLT");
