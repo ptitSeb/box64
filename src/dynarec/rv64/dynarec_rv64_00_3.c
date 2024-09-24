@@ -1010,6 +1010,24 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             *need_epilog = 0;
             *ok = 0;
             break;
+        case 0xEC ... 0xEF:
+            if (opcode == 0xEC)
+                INST_NAME("IN AL, DX");
+            else if (opcode == 0xED)
+                INST_NAME("IN EAX, DX");
+            else if (opcode == 0xEE)
+                INST_NAME("OUT DX, AL");
+            else
+                INST_NAME("OUT DX, EAX");
+            SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+            GETIP(ip);
+            STORE_XEMU_CALL(xRIP);
+            CALL(native_priv, -1);
+            LOAD_XEMU_CALL();
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0xF0:
             addr = dynarec64_F0(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
             break;

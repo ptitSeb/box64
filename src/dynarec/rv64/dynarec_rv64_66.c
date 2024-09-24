@@ -379,10 +379,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = xRAX + (opcode&7);
             ZEXTH(x1, gd);
             emit_inc16(dyn, ninst, x1, x2, x3, x4);
-            LUI(x3, 0xffff0);
-            AND(gd, gd, x3);
-            OR(gd, gd, x1);
-            ZEROUP(gd);
+            INSHz(gd, x1, x3, x4, 1, 0);
             break;
         case 0x48:
         case 0x49:
@@ -397,10 +394,32 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             gd = xRAX + (opcode&7);
             ZEXTH(x1, gd);
             emit_dec16(dyn, ninst, x1, x2, x3, x4, x5);
-            LUI(x3, 0xffff0);
-            AND(gd, gd, x3);
-            OR(gd, gd, x1);
-            ZEROUP(gd);
+            INSHz(gd, x1, x3, x4, 1, 0);
+            break;
+        case 0x50:
+        case 0x51:
+        case 0x52:
+        case 0x53:
+        case 0x54:
+        case 0x55:
+        case 0x56:
+        case 0x57:
+            INST_NAME("PUSH reg");
+            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
+            PUSH1_16(gd);
+            break;
+        case 0x58:
+        case 0x59:
+        case 0x5A:
+        case 0x5B:
+        case 0x5C:
+        case 0x5D:
+        case 0x5E:
+        case 0x5F:
+            INST_NAME("POP reg");
+            gd = xRAX + (opcode & 0x07) + (rex.b << 3);
+            POP1_16(x1);
+            INSHz(gd, x1, x2, x3, 1, 0);
             break;
         case 0x64:
             addr = dynarec64_6664(dyn, addr, ip, ninst, rex, _FS, ok, need_epilog);
@@ -1179,6 +1198,35 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEW(x1, 0);
                     emit_neg16(dyn, ninst, ed, x2, x4);
                     EWBACK;
+                    break;
+                case 4:
+                    INST_NAME("MUL AX, Ew");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETEW(x1, 0);
+                    ZEXTH(x2, xRAX);
+                    MULW(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    INSHz(xRAX, x1, x4, x5, 1, 1);
+                    SRLI(xRDX, xRDX, 16);
+                    SLLI(xRDX, xRDX, 16);
+                    SRLI(x1, x1, 48);
+                    OR(xRDX, xRDX, x1);
+                    UFLAG_DF(x1, d_mul16);
+                    break;
+                case 5:
+                    INST_NAME("IMUL AX, Ew");
+                    SETFLAGS(X_ALL, SF_PENDING);
+                    GETSEW(x1, 0);
+                    SLLI(x2, xRAX, 16);
+                    SRAIW(x2, x2, 16);
+                    MULW(x1, x2, x1);
+                    UFLAG_RES(x1);
+                    INSHz(xRAX, x1, x4, x5, 1, 1);
+                    SRLI(xRDX, xRDX, 16);
+                    SLLI(xRDX, xRDX, 16);
+                    SRLI(x1, x1, 48);
+                    OR(xRDX, xRDX, x1);
+                    UFLAG_DF(x1, d_imul16);
                     break;
                 case 6:
                     INST_NAME("DIV Ew");
