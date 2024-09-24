@@ -596,18 +596,18 @@ EXPORT int my32_pthread_mutexattr_setkind_np(x64emu_t* emu, void* t, int kind)
     return pthread_mutexattr_settype(t, kind);
 }
 
-// pthread_attr_t on x64 is 36 bytes
+// pthread_attr_t on x86 is 36 bytes
 static uint64_t ATTR_SIGN = 0xA055E10CDE98LL;	// random signature
-typedef struct my32_x64_attr_s {
+typedef struct my32_x86_attr_s {
 	uint64_t		sign;
 	pthread_attr_t*	attr;
-} my32_x64_attr_t;
+} my32_x86_attr_t;
 
 static pthread_attr_t* get_attr(void* attr)
 {
 	if(!attr)
 		return NULL;
-	my32_x64_attr_t* my32_attr = (my32_x64_attr_t*)attr;
+	my32_x86_attr_t* my32_attr = (my32_x86_attr_t*)attr;
 	if(my32_attr->sign!=ATTR_SIGN) {
 		my32_attr->attr = (pthread_attr_t*)box_calloc(1, sizeof(pthread_attr_t));
 		my32_attr->sign = ATTR_SIGN;
@@ -618,7 +618,7 @@ static void del_attr(void* attr)
 {
 	if(!attr)
 		return;
-	my32_x64_attr_t* my32_attr = (my32_x64_attr_t*)attr;
+	my32_x86_attr_t* my32_attr = (my32_x86_attr_t*)attr;
 	if(my32_attr->sign==ATTR_SIGN) {
 		my32_attr->sign = 0;
 		box_free(my32_attr->attr);
@@ -714,6 +714,9 @@ EXPORT int my32_pthread_attr_setstackaddr(x64emu_t* emu, void* attr, void* p)
 }
 EXPORT int my32_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t p)
 {
+	// PTHREAD_STACK_MIN on x86 might be lower than the current platform...
+	if(p>=65536 && p<PTHREAD_STACK_MIN && !(p&4095))
+		p = PTHREAD_STACK_MIN;
 	return pthread_attr_setstacksize(get_attr(attr), p);
 }
 
