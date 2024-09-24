@@ -119,11 +119,11 @@ void to_struct_H(ptr_t d, const struct_H_t *src) {
 
 void from_struct_ppppp(struct_ppppp_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
-	dest->p0 = *(void**)src; src += 4;
-	dest->p1 = *(void**)src; src += 4;
-	dest->p2 = *(void**)src; src += 4;
-	dest->p3 = *(void**)src; src += 4;
-	dest->p4 = *(void**)src; src += 4;
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p4 = from_ptrv(*(ptr_t*)src); src += 4;
 }
 void to_struct_ppppp(ptr_t d, const struct_ppppp_t *src) {
 	if (!src) return;
