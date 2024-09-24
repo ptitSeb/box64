@@ -788,6 +788,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedsdl1.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibasound.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedopenal.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedfreetype.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibx11.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxfixes.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxrender.c"

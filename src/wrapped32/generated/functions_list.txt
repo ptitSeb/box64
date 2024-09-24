@@ -53,6 +53,7 @@
 #() dFp -> dFp
 #() lFi -> lFi
 #() lFu -> lFu
+#() lFl -> lFl
 #() lFp -> lFp
 #() lFS -> lFS
 #() LFv -> LFv
@@ -175,6 +176,7 @@
 #() dFLL -> dFLL
 #() lFES -> lFES
 #() lFui -> lFui
+#() lFll -> lFll
 #() lFpl -> lFpl
 #() LFpL -> LFpL
 #() LFpp -> LFpp
@@ -976,6 +978,7 @@
 #() iFEpvvpV -> iFEppV
 #() iFEpLvvpp -> iFEpLpp
 wrappedcrashhandler:
+wrappedfreetype:
 wrappedldlinux:
 - pFv:
   - ___tls_get_addr
