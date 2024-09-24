@@ -2123,9 +2123,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEW(0);
         GETGW;
         if(rex.w)
-            GW->sq[0] = EB->sword[0];
+            GW->sq[0] = EW->sword[0];
         else
-            GW->sword[0] = EB->sword[0];
+            GW->sword[0] = EW->sword[0];
         break;
 
     case 0xC1:                      /* XADD Gw,Ew */ // Xchange and Add

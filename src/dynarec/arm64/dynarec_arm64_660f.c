@@ -2635,6 +2635,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             BFIx(gd, x1, 0, 16);
             break;
+        case 0xBF:
+            INST_NAME("MOVSX Gw, Ew");
+            nextop = F8;
+            GETGW(x1);
+            if(MODREG) {
+                ed = xRAX+(nextop&7)+(rex.b<<3);
+                SXTHxw(gd, ed);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, &unscaled, 0xfff<<1, 1, rex, NULL, 0, 0);
+                LDSHxw(gd, ed, fixedaddress);
+            }
+            GWBACK;
+            break;
 
         case 0xC1:
             INST_NAME("XADD Gw, Ew");
