@@ -3065,6 +3065,17 @@ GO(glXFreeMemoryNV, vFp)
 //GLX_ARB_????
 GO(glSpecializeShaderARB, vFupupp)
 
+//GLX_AMD_gpu_association
+GO(glXGetGPUIDsAMD, uFup)
+GO(glXGetGPUInfoAMD, iFuiuup)
+GO(glXGetContextGPUIDAMD, uFp)
+GO(glXCreateAssociatedContextAMD, pFup)
+GO(glXCreateAssociatedContextAttribsAMD, pFupp)
+GO(glXDeleteAssociatedContextAMD, iFp)
+GO(glXMakeAssociatedContextCurrentAMD, iFp)
+GO(glXGetCurrentAssociatedContextAMD, pFv)
+GO(glXBlitContextFramebufferAMD, vFpiiiiiiiiuu)
+
 //GL_EXT_debug_label
 GO(glGetObjectLabelEXT, vFuuipp)
 GO(glLabelObjectEXT, vFuuip)
