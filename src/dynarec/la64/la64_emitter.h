@@ -505,6 +505,12 @@ f24-f31  fs0-fs7   Static registers                Callee
 #define ZEROUP(rd)      BSTRPICK_D(rd, rd, 31, 0)
 #define ZEROUP2(rd, rj) BSTRPICK_D(rd, rj, 31, 0)
 
+#define BSTRINSz(rd, rj, msbd6, lsbd6)   \
+    do {                                 \
+        BSTRINS_D(rd, rj, msbd6, lsbd6); \
+        if (rex.is32bits) ZEROUP(rd);    \
+    } while (0)
+
 #define CLO_W(rd, rj)     EMIT(type_2R(0b0000000000000000000100, rj, rd))
 #define CLZ_W(rd, rj)     EMIT(type_2R(0b0000000000000000000101, rj, rd))
 #define CTO_W(rd, rj)     EMIT(type_2R(0b0000000000000000000110, rj, rd))
