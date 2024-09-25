@@ -524,6 +524,7 @@ EXPORT void my32_SDL_Quit()
 EXPORT void*  my32_SDL_SetVideoMode(int width, int height, int bpp, uint32_t flags)
 {
     my_SDL_Surface_t* ret = my->SDL_SetVideoMode(width, height, bpp, flags);
+    if (!ret) return ret;
     sdl1_videomode_org = ret;
     memcpy(&sdl_vm_surface, ret, sizeof(sdl_vm_surface));
     if(ret->format) {
