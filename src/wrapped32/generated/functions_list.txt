@@ -70,6 +70,7 @@
 #() tFi -> tFi
 #() tFu -> tFu
 #() tFp -> tFp
+#() XFv -> XFv
 #() iFBp_ -> iFB
 #() LFrL_ -> LFB
 #() pFrL_ -> pFB
@@ -272,6 +273,7 @@
 #() vFlip -> vFlip
 #() vFllp -> vFllp
 #() vFlpp -> vFlpp
+#() vFpii -> vFpii
 #() vFpip -> vFpip
 #() vFpuU -> vFpuU
 #() vFpuf -> vFpuf
@@ -319,6 +321,7 @@
 #() iFpuu -> iFpuu
 #() iFpuU -> iFpuU
 #() iFpLi -> iFpLi
+#() iFpLp -> iFpLp
 #() iFppi -> iFppi
 #() iFppu -> iFppu
 #() iFppL -> iFppL
@@ -332,6 +335,7 @@
 #() iFSli -> iFSli
 #() iFXip -> iFXip
 #() iFXuu -> iFXuu
+#() iFXLl -> iFXLl
 #() iFXLL -> iFXLL
 #() iFXLp -> iFXLp
 #() iFXpu -> iFXpu
@@ -350,7 +354,6 @@
 #() fFuii -> fFuii
 #() fFfff -> fFfff
 #() fFffp -> fFffp
-#() fFppa -> fFppa
 #() dFddd -> dFddd
 #() dFddp -> dFddp
 #() lFipL -> lFipL
@@ -369,6 +372,7 @@
 #() pFEXL -> pFEXL
 #() pFEXp -> pFEXp
 #() pFipi -> pFipi
+#() pFipL -> pFipL
 #() pFulu -> pFulu
 #() pFpii -> pFpii
 #() pFpiL -> pFpiL
@@ -391,6 +395,7 @@
 #() iFBp_pi -> iFBpi
 #() IFpBp_i -> IFpBi
 #() UFpBp_i -> UFpBi
+#() fFpBp_a -> fFpBa
 #() dFpBp_i -> dFpBi
 #() dFpBp_a -> dFpBa
 #() lFpBp_i -> lFpBi
@@ -538,11 +543,13 @@
 #() lFEipi -> lFEipi
 #() lFiipL -> lFiipL
 #() lFipLi -> lFipLi
+#() lFipLl -> lFipLl
 #() lFpuip -> lFpuip
 #() LFEXii -> LFEXii
 #() LFpLLS -> LFpLLS
 #() LFppLp -> LFppLp
 #() LFppLa -> LFppLa
+#() LFXCii -> LFXCii
 #() LFXLpi -> LFXLpi
 #() pFEupp -> pFEupp
 #() pFEppi -> pFEppi
@@ -571,6 +578,7 @@
 #() LFpbp_Lp -> LFpBLp
 #() iFEpprLL_ -> iFEppB
 #() vFXLrpLiL_L -> vFXLBL
+#() iFuirLL_BLL_ -> iFuiBB
 #() iFXLpBLWWWcc_ -> iFXLpB
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
 #() vFEuipp -> vFEuipp
@@ -676,6 +684,8 @@
 #() iFEpppi -> iFEpppi
 #() iFEpppp -> iFEpppp
 #() iFEXLpi -> iFEXLpi
+#() iFEXpLp -> iFEXpLp
+#() iFEXppp -> iFEXppp
 #() iFiiipu -> iFiiipu
 #() iFiiipp -> iFiiipp
 #() iFiLLLL -> iFiLLLL
@@ -700,6 +710,7 @@
 #() pFpippp -> pFpippp
 #() pFppuup -> pFppuup
 #() pFppupp -> pFppupp
+#() pFXpipi -> pFXpipi
 #() iFEBh_ppp -> iFEBppp
 #() LFpbp_LLp -> LFpBLLp
 #() LFpBp_LLp -> LFpBLLp
@@ -773,16 +784,19 @@
 #() vFpdddii -> vFpdddii
 #() vFppupii -> vFppupii
 #() vFpppppp -> vFpppppp
+#() vFXLiiii -> vFXLiiii
 #() iFEuppup -> iFEuppup
 #() iFEuppLp -> iFEuppLp
 #() iFEpiLpp -> iFEpiLpp
 #() iFEpppup -> iFEpppup
 #() iFEXLilp -> iFEXLilp
 #() iFEXpiup -> iFEXpiup
+#() iFEXpppp -> iFEXpppp
 #() iFuiiuup -> iFuiiuup
 #() iFpiippp -> iFpiippp
 #() iFppiiii -> iFppiiii
 #() iFXLiiiL -> iFXLiiiL
+#() iFXLpppp -> iFXLpppp
 #() iFXpIppp -> iFXpIppp
 #() uFupuufp -> uFupuufp
 #() lFipLipu -> lFipLipu
@@ -843,6 +857,7 @@
 #() vFpipipiu -> vFpipipiu
 #() vFpddiidd -> vFpddiidd
 #() iFEpLiipV -> iFEpLiipV
+#() iFEXLpppp -> iFEXLpppp
 #() iFuiiiuup -> iFuiiiuup
 #() iFpWCiWCi -> iFpWCiWCi
 #() iFpupLpLi -> iFpupLpLi
@@ -886,6 +901,7 @@
 #() uFuupuuiuf -> uFuupuuiuf
 #() uFulpppppp -> uFulpppppp
 #() LFXLpuuLLu -> LFXLpuuLLu
+#() iFXLLiippBL_ -> iFXLLiippB
 #() vFiiiiiiiii -> vFiiiiiiiii
 #() vFiiiiiiill -> vFiiiiiiill
 #() vFiiiiillli -> vFiiiiillli
@@ -939,6 +955,7 @@
 #() vFffffffffff -> vFffffffffff
 #() iFuiiiuuiiip -> iFuiiiuuiiip
 #() iFXuuLiuiiLL -> iFXuuLiuiiLL
+#() pFpppppppppp -> pFpppppppppp
 #() pFXpuiipuuii -> pFXpuiipuuii
 #() vFiiiiillliip -> vFiiiiillliip
 #() vFiiiiilllilp -> vFiiiiilllilp
@@ -956,6 +973,7 @@
 #() vFUufffffffff -> vFUufffffffff
 #() vFpipipiipiiu -> vFpipipiipiiu
 #() iFEXLppiiiiuu -> iFEXLppiiiiuu
+#() iFEXpLLiiLWpi -> iFEXpLLiiLWpi
 #() iFuiiiiuuiiip -> iFuiiiiuuiiip
 #() pFEXpuiipuuii -> pFEXpuiipuuii
 #() vFuiiiiiiiiuUC -> vFuiiiiiiiiuUC
@@ -966,6 +984,7 @@
 #() vFuuuuuuuuuuuu -> vFuuuuuuuuuuuu
 #() vFffffffffffff -> vFffffffffffff
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
+#() iFXLLlliLBL_pBL_BL_Bp_ -> iFXLLlliLBpBBB
 #() vFuiiiiiiiiiuup -> vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu -> vFuuuuuuuuuuuuu
 #() vFuUuuuuuuuuuuu -> vFuUuuuuuuuuuuu
@@ -1380,6 +1399,7 @@ wrappedlibrt:
 wrappedlibx11:
 - iFp:
   - XDestroyImage
+  - XFreeExtensionList
   - XInitImage
   - _XInitImageFuncPtrs
 - iFX:
@@ -1387,10 +1407,14 @@ wrappedlibx11:
 - pFp:
   - XOpenDisplay
   - XSetErrorHandler
+- iFpL:
+  - XFilterEvent
 - iFXp:
   - XNextEvent
 - pFpV:
   - XCreateIC
+- pFXp:
+  - XListExtensions
 - vFXLp:
   - XSetWMNormalHints
 - iFpip:
@@ -1404,18 +1428,25 @@ wrappedlibx11:
   - XGetPixel
 - iFXLpi:
   - XSetWMProtocols
+- iFXppp:
+  - XIfEvent
 - iFXLilp:
   - XSendEvent
 - iFXpiup:
   - Xutf8TextListToTextProperty
+- iFXpppp:
+  - XQueryExtension
 - pFpiiuu:
   - XSubImage
+- iFXLpppp:
+  - XQueryTree
 - iFXLLLiipi:
   - XChangeProperty
 - pFXLiiuuLi:
   - XGetImage
 - vFXLpppippp:
   - XSetWMProperties
+  - Xutf8SetWMProperties
 - iFXLppiiiiuu:
   - XPutImage
 - pFXpuiipuuii:
@@ -1432,6 +1463,11 @@ wrappedlibxrandr:
 - pFXpL:
   - XRRGetCrtcInfo
   - XRRGetOutputInfo
+  - XRRGetPanning
+- iFXpLp:
+  - XRRSetPanning
+- iFXpLLiiLWpi:
+  - XRRSetCrtcConfig
 wrappedlibxrender:
 wrappedopenal:
 - vFv:

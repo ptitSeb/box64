@@ -14,17 +14,22 @@
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFX_t)(void*);
 typedef void* (*pFp_t)(void*);
+typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFXp_t)(void*, void*);
 typedef void* (*pFpV_t)(void*, ...);
+typedef void* (*pFXp_t)(void*, void*);
 typedef void (*vFXLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
 typedef uintptr_t (*LFXii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
+typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFXLilp_t)(void*, uintptr_t, int32_t, intptr_t, void*);
 typedef int32_t (*iFXpiup_t)(void*, void*, int32_t, uint32_t, void*);
+typedef int32_t (*iFXpppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
+typedef int32_t (*iFXLpppp_t)(void*, uintptr_t, void*, void*, void*, void*);
 typedef int32_t (*iFXLLLiipi_t)(void*, uintptr_t, uintptr_t, uintptr_t, int32_t, int32_t, void*, int32_t);
 typedef void* (*pFXLiiuuLi_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
 typedef void (*vFXLpppippp_t)(void*, uintptr_t, void*, void*, void*, int32_t, void*, void*, void*);
@@ -35,13 +40,16 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XDestroyImage, iFp_t) \
+	GO(XFreeExtensionList, iFp_t) \
 	GO(XInitImage, iFp_t) \
 	GO(_XInitImageFuncPtrs, iFp_t) \
 	GO(XCloseDisplay, iFX_t) \
 	GO(XOpenDisplay, pFp_t) \
 	GO(XSetErrorHandler, pFp_t) \
+	GO(XFilterEvent, iFpL_t) \
 	GO(XNextEvent, iFXp_t) \
 	GO(XCreateIC, pFpV_t) \
+	GO(XListExtensions, pFXp_t) \
 	GO(XSetWMNormalHints, vFXLp_t) \
 	GO(XStringListToTextProperty, iFpip_t) \
 	GO(XCheckTypedEvent, iFXip_t) \
@@ -49,12 +57,16 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XSetWMHints, iFXLp_t) \
 	GO(XGetPixel, LFXii_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
+	GO(XIfEvent, iFXppp_t) \
 	GO(XSendEvent, iFXLilp_t) \
 	GO(Xutf8TextListToTextProperty, iFXpiup_t) \
+	GO(XQueryExtension, iFXpppp_t) \
 	GO(XSubImage, pFpiiuu_t) \
+	GO(XQueryTree, iFXLpppp_t) \
 	GO(XChangeProperty, iFXLLLiipi_t) \
 	GO(XGetImage, pFXLiiuuLi_t) \
 	GO(XSetWMProperties, vFXLpppippp_t) \
+	GO(Xutf8SetWMProperties, vFXLpppippp_t) \
 	GO(XPutImage, iFXLppiiiiuu_t) \
 	GO(XCreateImage, pFXpuiipuuii_t) \
 	GO(XGetSubImage, pFXLiiuuLipii_t) \

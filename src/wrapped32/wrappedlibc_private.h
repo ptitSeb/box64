@@ -702,7 +702,7 @@ GO(inet_pton, iFipp)
 //GOW(initstate_r, iFupup)
 // inl  // Weak
 // innetgr
-//GO(inotify_add_watch, iFipu)
+GO(inotify_add_watch, iFipu)
 GO(inotify_init, iFv)
 GO(inotify_init1, iFi)
 GO(inotify_rm_watch, iFii)
@@ -1102,10 +1102,10 @@ GO(__mempcpy, pFppL)
 GOW(memrchr, pFpiL)
 GO(memset, pFpiL)
 GO(__memset_chk, pFpiLL)
-//GO(mincore, iFpLp)
+GO(mincore, iFpLp)
 GOW(mkdir, iFpu)
 //GO(mkdirat, iFipu)
-//GO(mkdtemp, pFp)
+GO(mkdtemp, pFp)
 GO(mkfifo, iFpu)
 //GO(mkfifoat, iFipu)
 //GO(mkostemp, iFpi)
@@ -1135,7 +1135,7 @@ GOWM(mremap, pFEpLLiN)	//%% 5th hidden paramerer "void* new_addr" if flags is MR
 //GOW(msgget, iFpi)
 //GOW(msgrcv, lFipLli)
 //GOW(msgsnd, iFipLi)
-//GOW(msync, iFpLi)
+GOW(msync, iFpLi)
 // mtrace
 GO(munlock, iFpL)
 //GO(munlockall, iFv)
@@ -1209,7 +1209,7 @@ GOWM(open64, iFEpOu)  //%%
 //GO(__openat64_2, iFipON)
 // __open_catalog
 GOW(opendir, pFp)
-//GO(openlog, vFpii)
+GO(openlog, vFpii)
 // open_memstream
 // open_wmemstream
 //DATAB(optarg, 4)
@@ -1269,7 +1269,7 @@ GOW(posix_memalign, iFBp_LL)
 //GOM(posix_spawnp, iFEpppppp) //%%
 //GO(ppoll, iFpupp)
 GOW(prctl, iFiLLLL)
-//GOW(pread, lFipLl)
+GOW(pread, lFipLl)
 //GOW(pread64, lFipLI)
 // __pread64    // Weak
 // __pread64_chk
@@ -1432,9 +1432,9 @@ GOM(scandir, iFEpppp) //%%
 GOM(scandir64, iFEpppp) //%%
 //GO2(scanf, iFpp, vscanf)
 //GO(__sched_cpualloc, pFu)   //TODO: check, return cpu_set_t* : should this be aligned/changed?
-//GO(__sched_cpucount, iFup)
+GO(__sched_cpucount, iFup)
 //GO(__sched_cpufree, vFp)
-//GO(sched_getaffinity, iFiup)
+GO(sched_getaffinity, iFiup)
 GO(sched_getcpu, iFv)
 //GO(__sched_getparam, iFip)
 //GOW(sched_getparam, iFip)
@@ -1639,8 +1639,8 @@ GOW(strdup, pFp)
 GO(__strdup, pFp)
 GO(strerror, tFi)
 //GO(strerror_l, pFip)
-//GO(__strerror_r, pFipu)
-//GOW(strerror_r, pFipu)
+GO(__strerror_r, pFipL)
+GOW(strerror_r, pFipL)
 //GO(strfmon, lFpLpppppppppp) //vaarg, probably needs align, there are just double...
 // __strfmon_l
 // strfmon_l    // Weak
@@ -1671,7 +1671,7 @@ GO(strrchr, pFpi)
 // __strsep_2c
 // __strsep_3c
 // __strsep_g
-//GO(strsignal, pFi)
+GO(strsignal, tFi)
 GO(strspn, LFpp)
 // __strspn_c1
 // __strspn_c2
@@ -1683,7 +1683,7 @@ GO(__strtod_l, dFpBp_a)
 GOW(strtod_l, dFpBp_a)
 GO(strtof, fFpBp_)
 //GO(__strtof_internal, fFppp)
-GO(__strtof_l, fFppa)
+GO(__strtof_l, fFpBp_a)
 //GOW(strtof_l, fFppu)
 //GO(strtoimax, IFppi)
 GO(strtok, pFpp)
@@ -1782,7 +1782,7 @@ GO(__sysconf, lFi)
 //DATA(_sys_siglist, 4)
 //DATA(sys_siglist, 4)
 GOW(system, iFp)          // Need to wrap to use box86 if needed?
-//GOM(__sysv_signal, pFEip) //%%
+GO2(__sysv_signal, pFEip, my___sysv_signal) //%%
 //GOWM(sysv_signal, pFEip)  //%%
 GOW(tcdrain, iFi)
 GO(tcflow, iFii)

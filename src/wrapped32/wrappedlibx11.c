@@ -27,6 +27,11 @@
 
 #define LIBNAME libx11
 
+#include "libtools/my_x11_defs.h"
+#include "libtools/my_x11_defs_32.h"
+
+void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src);
+void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src);
 typedef int (*XErrorHandler)(void *, void *);
 void* my32_XSetErrorHandler(x64emu_t* t, XErrorHandler handler);
 #if 0
@@ -34,12 +39,9 @@ typedef int (*XIOErrorHandler)(void *);
 void* my32_XSetIOErrorHandler(x64emu_t* t, XIOErrorHandler handler);
 void* my32_XESetCloseDisplay(x64emu_t* emu, void* display, int32_t extension, void* handler);
 typedef int (*WireToEventProc)(void*, void*, void*);
+#endif
 typedef int(*EventHandler) (void*,void*,void*);
 int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg);
-#endif
-
-#include "libtools/my_x11_defs.h"
-#include "libtools/my_x11_defs_32.h"
 
 void UnwrapXImage(void* d, void* s);
 void WrapXImage(void* d, void* s);
@@ -349,12 +351,15 @@ static void* findXConnectionWatchProcFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 XConnectionWatchProc callback\n");
     return NULL;
 }
+#endif
 // xifevent
 #define GO(A)   \
-static uintptr_t my32_xifevent_fct_##A = 0;                                   \
-static int my32_xifevent_##A(void* dpy, void* event, void* d)                 \
+static uintptr_t my32_xifevent_fct_##A = 0;                                 \
+static int my32_xifevent_##A(void* dpy, my_XEvent_t* event, void* d)        \
 {                                                                           \
-    return RunFunctionFmt(my32_xifevent_fct_##A, "ppp", dpy, event, d);  \
+    static my_XEvent_32_t evt = {0};                                        \
+    convertXEvent(&evt, event);                                             \
+    return RunFunctionFmt(my32_xifevent_fct_##A, "ppp", dpy, &evt, d);      \
 }
 SUPER()
 #undef GO
@@ -371,6 +376,7 @@ static void* findxifeventFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 xifevent callback\n");
     return NULL;
 }
+#if 0
 // XInternalAsyncHandler
 #define GO(A)   \
 static uintptr_t my32_XInternalAsyncHandler_fct_##A = 0;                                              \
@@ -1304,13 +1310,15 @@ EXPORT void* my32_XESetCloseDisplay(x64emu_t* emu, void* display, int32_t extens
     void* ret = my->XESetCloseDisplay(display, extension, findclose_displayFct(handler));
     return reverse_close_displayFct(my_lib, ret);
 }
-
+#endif
 EXPORT int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
-    int32_t ret = my->XIfEvent(d, ev, findxifeventFct(h), arg);
+    my_XEvent_t event = {0};
+    int32_t ret = my->XIfEvent(d, &event, findxifeventFct(h), arg);
+    convertXEvent(ev, &event);
     return ret;
 }
-
+#if 0
 EXPORT int32_t my32_XCheckIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
     int32_t ret = my->XCheckIfEvent(d, ev, findxifeventFct(h), arg);
@@ -1322,8 +1330,15 @@ EXPORT int32_t my32_XPeekIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h
     int32_t ret = my->XPeekIfEvent(d, ev, findxifeventFct(h), arg);
     return ret;
 }
-
 #endif
+
+EXPORT int my32_XFilterEvent(x64emu_t* emu, my_XEvent_32_t* evt, XID window)
+{
+    my_XEvent_t event = {0};
+    unconvertXEvent(&event, evt);
+    return my->XFilterEvent(&event, window);
+}
+
 void WrapXImage(void* d, void* s)
 {
     XImage *src = s;
@@ -1512,7 +1527,7 @@ EXPORT int my32_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* d
 {
     return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, reverse_register_imFct(my_lib, cb), data);
 }
-
+#endif
 EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
@@ -1523,7 +1538,7 @@ EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* m
     }
     return ret;
 }
-
+#if 0
 EXPORT int my32_XAddConnectionWatch(x64emu_t* emu, void* display, char* f, void* data)
 {
     return my->XAddConnectionWatch(display, findXConnectionWatchProcFct(f), data);
@@ -1924,7 +1939,12 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
             dst->xclient.message_type = to_ulong(src->xclient.message_type);
             dst->xclient.format = src->xclient.format;
             if(src->xclient.format==32)
-                for(int i=0; i<5; ++i) dst->xclient.data.l[i] = to_ulong(src->xclient.data.l[i]);
+                for(int i=0; i<5; ++i) {
+                    if(((src->xclient.data.l[i]&0xffffffff80000000LL))==0xffffffff80000000LL)
+                        dst->xclient.data.l[i] = to_ulong(src->xclient.data.l[i]&0xffffffff);   // negative value...
+                    else
+                        dst->xclient.data.l[i] = to_ulong(src->xclient.data.l[i]);
+                }
             else
                 memcpy(dst->xclient.data.b, src->xclient.data.b, 20);
             break;
@@ -2393,6 +2413,70 @@ EXPORT void my32_XSetWMProperties(x64emu_t* emu, void* dpy, XID window, void* wi
             argv_l[i] = from_ptrv(argv[i]);
     }
     my->XSetWMProperties(dpy, window, window_name?(&window_name_l):NULL, icon_name?(&icon_name_l):NULL, argv?argv_l:NULL, argc, normal_hints?(&wm_size_l):NULL, wm_hints?(&wm_hints_l):NULL, class_hints?(&class_hints_l):NULL);
+}
+
+EXPORT void my32_Xutf8SetWMProperties(x64emu_t* emu, void* dpy, XID window, void* window_name, void* icon_name, ptr_t* argv, int argc, void* normal_hints, my_XWMHints_32_t* wm_hints, ptr_t* class_hints)
+{
+    int wm_size_l[17+2] = {0};
+    my_XWMHints_t wm_hints_l = {0};
+    char* class_hints_l[2] = {0};
+    char* argv_l[argc+1];
+
+    if(normal_hints)
+        convert_XSizeHints_to_64(&wm_size_l, normal_hints);
+    if(wm_hints)
+        convert_XWMints_to_64(&wm_hints_l, wm_hints);
+    if(class_hints) {
+        class_hints_l[0] = from_ptrv(class_hints[0]);
+        class_hints_l[1] = from_ptrv(class_hints[1]);
+    }
+    if(argv) {
+        memset(argv_l, 0, sizeof(argv_l));
+        for(int i=0; i<argc; ++i)
+            argv_l[i] = from_ptrv(argv[i]);
+    }
+    my->Xutf8SetWMProperties(dpy, window, window_name, icon_name, argv?argv_l:NULL, argc, normal_hints?(&wm_size_l):NULL, wm_hints?(&wm_hints_l):NULL, class_hints?(&class_hints_l):NULL);
+}
+
+
+EXPORT void* my32_XListExtensions(x64emu_t* emu, void* dpy, int* n)
+{
+    char** ret = my->XListExtensions(dpy, n);
+    if(!ret) return NULL;
+    ptr_t* ret_s = (ptr_t*)ret;
+    // shrinking
+    for(int i=0; i<*n; ++i)
+        ret_s[i] = to_ptrv(ret[i]);
+    ret_s[*n] = 0;
+    return ret;
+}
+
+EXPORT int my32_XFreeExtensionList(x64emu_t* emu, ptr_t* list)
+{
+    // need to expand back the list
+    int n = 0;
+    //first grab n
+    while(list[n]) ++n;
+    // now expand, backward order
+    void** list_l = (void**)list;
+    for(int i=n-1; i>=0; --i)
+        list_l[i] = from_ptrv(list[i]);
+    return my->XFreeExtensionList(list);
+}
+
+EXPORT int my32_XQueryTree(x64emu_t* emu, void* dpy, XID window, XID_32* root, XID_32* parent, ptr_t* children, uint32_t* n)
+{
+    XID root_l = 0;
+    XID parent_l = 0;
+    XID* children_l = NULL;
+    int ret = my->XQueryTree(dpy, window, &root_l, &parent_l, &children_l, n);
+    *root = to_ulong(root_l);
+    *parent = to_ulong(parent_l);
+    *children = to_ptrv(children_l);
+    if(children_l)
+        for(int i=0; i<*n; ++i)
+            ((XID_32*)children_l)[i] = to_ulong(children_l[i]);
+    return ret;
 }
 
 #define CUSTOM_INIT                 \
