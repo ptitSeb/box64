@@ -290,6 +290,7 @@
 #() iFEip -> iFEip
 #() iFEup -> iFEup
 #() iFEpi -> iFEpi
+#() iFEpu -> iFEpu
 #() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
@@ -319,7 +320,6 @@
 #() iFpii -> iFpii
 #() iFpiu -> iFpiu
 #() iFpip -> iFpip
-#() iFpui -> iFpui
 #() iFpuC -> iFpuC
 #() iFpuu -> iFpuu
 #() iFpuU -> iFpuU
@@ -347,6 +347,7 @@
 #() CFipp -> CFipp
 #() CFuUu -> CFuUu
 #() CFuff -> CFuff
+#() uFEpL -> uFEpL
 #() uFilp -> uFilp
 #() uFipu -> uFipu
 #() uFuip -> uFuip
@@ -505,6 +506,7 @@
 #() iFEipp -> iFEipp
 #() iFEipV -> iFEipV
 #() iFEpip -> iFEpip
+#() iFEpui -> iFEpui
 #() iFEpup -> iFEpup
 #() iFEpLi -> iFEpLi
 #() iFEppL -> iFEppL
@@ -574,7 +576,6 @@
 #() pFXLLp -> pFXLLp
 #() pFXppi -> pFXppi
 #() pFXppp -> pFXppp
-#() iFpplBp_ -> iFpplB
 #() iFppbp_p -> iFppBp
 #() iFBp_pui -> iFBpui
 #() IFpBp_ii -> IFpBii
@@ -686,6 +687,7 @@
 #() iFEpLpp -> iFEpLpp
 #() iFEpLpV -> iFEpLpV
 #() iFEppiV -> iFEppiV
+#() iFEpplp -> iFEpplp
 #() iFEpppi -> iFEpppi
 #() iFEpppp -> iFEpppp
 #() iFEXLpi -> iFEXLpi
@@ -696,7 +698,6 @@
 #() iFiLLLL -> iFiLLLL
 #() iFipLLi -> iFipLLi
 #() iFuiuup -> iFuiuup
-#() iFplluu -> iFplluu
 #() iFpLuLi -> iFpLuLi
 #() iFpppip -> iFpppip
 #() iFpppup -> iFpppup
@@ -794,6 +795,7 @@
 #() iFEuppup -> iFEuppup
 #() iFEuppLp -> iFEuppLp
 #() iFEpiLpp -> iFEpiLpp
+#() iFEplluu -> iFEplluu
 #() iFEpppup -> iFEpppup
 #() iFEXLilp -> iFEXLilp
 #() iFEXpiup -> iFEXpiup
@@ -1027,6 +1029,20 @@
 #() iFEpLvvpp -> iFEpLpp
 wrappedcrashhandler:
 wrappedfreetype:
+- iFp:
+  - FT_Done_Face
+- vFpp:
+  - FT_Outline_Get_CBox
+- iFpu:
+  - FT_Render_Glyph
+- uFpL:
+  - FT_Get_Char_Index
+- iFpui:
+  - FT_Load_Glyph
+- iFpplp:
+  - FT_New_Face
+- iFplluu:
+  - FT_Set_Char_Size
 wrappedldlinux:
 - pFv:
   - ___tls_get_addr
