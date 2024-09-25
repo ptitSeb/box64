@@ -83,7 +83,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BSTRPICK_D(x1, xRAX, 15, 0);
             MOV32w(x2, i32);
             emit_add16(dyn, ninst, x1, x2, x3, x4, x6);
-            BSTRINS_D(xRAX, x1, 15, 0);
+            BSTRINSz(xRAX, x1, 15, 0);
             break;
         case 0x09:
             INST_NAME("OR Ew, Gw");
@@ -110,7 +110,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BSTRPICK_D(x1, xRAX, 15, 0);
             MOV32w(x2, i32);
             emit_or16(dyn, ninst, x1, x2, x3, x4);
-            BSTRINS_D(xRAX, x1, 15, 0);
+            BSTRINSz(xRAX, x1, 15, 0);
             break;
         case 0x0F:
             switch (rep) {
@@ -154,7 +154,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BSTRPICK_D(x1, xRAX, 15, 0);
             MOV32w(x2, i32);
             emit_and16(dyn, ninst, x1, x2, x3, x4);
-            BSTRINS_D(xRAX, x1, 15, 0);
+            BSTRINSz(xRAX, x1, 15, 0);
             break;
         case 0x29:
             INST_NAME("SUB Ew, Gw");
@@ -181,7 +181,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BSTRPICK_D(x1, xRAX, 15, 0);
             MOV32w(x2, i32);
             emit_sub16(dyn, ninst, x1, x2, x3, x4, x5);
-            BSTRINS_D(xRAX, x1, 15, 0);
+            BSTRINSz(xRAX, x1, 15, 0);
             break;
         case 0x31:
             INST_NAME("XOR Ew, Gw");
@@ -380,7 +380,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 if (ed != gd) {
-                    BSTRINS_D(ed, gd, 15, 0);
+                    BSTRINSz(ed, gd, 15, 0);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
@@ -395,13 +395,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 if (ed != gd) {
-                    BSTRINS_D(gd, ed, 15, 0);
+                    BSTRINSz(gd, ed, 15, 0);
                 }
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
                 SMREADLOCK(lock);
                 LD_HU(x1, ed, fixedaddress);
-                BSTRINS_D(gd, x1, 15, 0);
+                BSTRINSz(gd, x1, 15, 0);
             }
             break;
         case 0x90:
@@ -418,11 +418,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("XCHG AX, Reg");
                 MV(x2, xRAX);
-                BSTRINS_D(xRAX, gd, 15, 0);
-                BSTRINS_D(gd, x2, 15, 0);
+                BSTRINSz(xRAX, gd, 15, 0);
+                BSTRINSz(gd, x2, 15, 0);
             }
             break;
-
         case 0xA4:
             if (rep) {
                 INST_NAME("REP MOVSB");
@@ -530,7 +529,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             u16 = F16;
             MOV32w(x1, u16);
             gd = TO_LA64((opcode & 7) + (rex.b << 3));
-            BSTRINS_D(gd, x1, 15, 0);
+            BSTRINSz(gd, x1, 15, 0);
             break;
         case 0xC1:
             nextop = F8;
@@ -612,7 +611,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 u16 = F16;
                 MOV32w(x1, u16);
-                BSTRINS_D(ed, x1, 15, 0);
+                BSTRINSz(ed, x1, 15, 0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 2);
                 u16 = F16;
@@ -717,8 +716,8 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     OR(x2, x2, x3);
                     DIV_W(x3, x2, ed);
                     MOD_W(x4, x2, ed);
-                    BSTRINS_D(xRAX, x3, 15, 0);
-                    BSTRINS_D(xRAX, x4, 15, 0);
+                    BSTRINSz(xRAX, x3, 15, 0);
+                    BSTRINSz(xRAX, x4, 15, 0);
                     break;
                 default:
                     DEFAULT;
