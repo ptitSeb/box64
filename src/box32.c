@@ -144,39 +144,47 @@ ulong_t to_hash_d(uintptr_t p) {
 
 typedef struct struct_locale_s {
 	void* p0[13];
-	void* p1;
-	void* p2;
-	void* p3;
+	void* p1;   //const unsigned short int *__ctype_b;
+	void* p2;   //const int *__ctype_tolower;
+	void* p3;   //const int *__ctype_toupper;
 	void* p4[13];
 } struct_locale_t;
-void from_struct_locale(struct_locale_t *dest, ptr_t s) {
-	uint8_t* src = (uint8_t*)from_ptrv(s);
-    for(int i=0; i<13; ++i) {
-	    dest->p0[i] = (void*)from_hash(*(ptr_t*)src); src += 4;
-    }
-	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
-	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
-	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
-    for(int i=0; i<13; ++i) {
-	    dest->p4[i] = (void*)from_hash(*(ptr_t*)src); src += 4;
-    }
-}
+// not a real structure
+#define LOCALE_SIGN 0x54abcd845412LL
+typedef struct struct_locale_32_s {
+    ptr_t p0[13];
+    ptr_t p1;
+    ptr_t p2;
+    ptr_t p3;
+    ptr_t p4[13];
+    uint64_t sign;
+    struct_locale_t* org;   // save the orginal locale
+    // copy of the array, in case some apps use them
+    unsigned short int type_b[384];
+    int tolower[384];
+    int tohigher[384];
+} struct_locale_32_t;
+
 void to_struct_locale(ptr_t d, const struct_locale_t *src) {
 	if (!src) return;
-	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	struct_locale_32_t* dest = from_ptrv(d);
+    // save the original locale
+    dest->sign = LOCALE_SIGN;
+    dest->org = src;
+    //copy the 2 arrays
     for(int i=0; i<13; ++i) {
-	    *(ptr_t*)dest = to_hashv(src->p0[i]); dest += 4;
+	    dest->p0[i] = to_hashv(src->p0[i]);
+    }
+    for(int i=0; i<13; ++i) {
+	    dest->p4[i] = to_hashv(src->p4[i]);
     }
     // copy the 3 ctype int (1st is short int, but int will do)
-    *(unsigned short int*)(d+(13+3+13)*sizeof(ptr_t)) = *(unsigned short int*)src->p1;
-	*(ptr_t*)dest = d+(13+3+13)*sizeof(ptr_t); dest += 4;
-    *(int*)(d+(13+3+13+1)*sizeof(ptr_t)) = *(int*)src->p2;
-	*(ptr_t*)dest = d+(13+3+13+1)*sizeof(ptr_t); dest += 4;
-    *(int*)(d+(13+3+13+3)*sizeof(ptr_t)) = *(int*)src->p3;
-	*(ptr_t*)dest = d+(13+3+13+2)*sizeof(ptr_t); dest += 4;
-    for(int i=0; i<13; ++i) {
-	    *(ptr_t*)dest = to_hashv(src->p4[i]); dest += 4;
-    }
+    memcpy(dest->type_b, src->p1-128*sizeof(short), 384*sizeof(short));
+    memcpy(dest->tolower, src->p2-128*sizeof(int), 384*sizeof(int));
+    memcpy(dest->tohigher, src->p3-128*sizeof(int), 384*sizeof(int));
+    dest->p1 = to_ptrv(dest->type_b)+128*sizeof(short);
+    dest->p2 = to_ptrv(dest->tolower)+128*sizeof(int);
+    dest->p3 = to_ptrv(dest->tohigher)+128*sizeof(int);
 }
 void free_struct_locale(const struct_locale_t *src) {
     for(int i=0; i<13; ++i) {
@@ -202,6 +210,9 @@ void* from_locale(ptr_t l) {
         //printf_log(LOG_INFO, "Warning, from_locale used but hash not running\n");
         return ret;
     }
+    struct_locale_32_t* loc = from_ptrv(l);
+    if(loc->sign==LOCALE_SIGN)
+        return loc->org;
     pthread_rwlock_rdlock(&hash_lock);
     khint_t k = kh_get(from, locale_from, l);
     if (k==kh_end(locale_from)) {
@@ -240,7 +251,7 @@ ptr_t to_locale(void* p) {
         pthread_rwlock_unlock(&hash_lock);
         pthread_rwlock_wrlock(&hash_lock);
         // a locale_t is 5 pointer!
-        void* m = calloc(13+3+13+4, sizeof(ptr_t)); // the 3 ctype value are also inside the locale struct
+        void* m = calloc(1, sizeof(struct_locale_32_t)); // the 3 ctype value are also inside the locale struct
         ret = to_ptrv(m);
         // add to hash maps
         int r;
