@@ -170,7 +170,7 @@ void to_struct_locale(ptr_t d, const struct_locale_t *src) {
 	struct_locale_32_t* dest = from_ptrv(d);
     // save the original locale
     dest->sign = LOCALE_SIGN;
-    dest->org = src;
+    dest->org = (void*)src;
     //copy the 2 arrays
     for(int i=0; i<13; ++i) {
 	    dest->p0[i] = to_hashv(src->p0[i]);
