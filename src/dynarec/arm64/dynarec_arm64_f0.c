@@ -688,7 +688,11 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     nextop = F8;
                     switch((nextop>>3)&7) {
                         case 1:
-                        INST_NAME("LOCK CMPXCHG8B Gq, Eq");
+                        if (rex.w) {
+                            INST_NAME("LOCK CMPXCHG16B Gq, Eq");
+                        } else {
+                            INST_NAME("LOCK CMPXCHG8B Gq, Eq");
+                        }
                         SETFLAGS(X_ZF, SF_SUBSET);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         if(!ALIGNED_ATOMICxw) {
