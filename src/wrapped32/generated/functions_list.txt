@@ -380,6 +380,7 @@
 #() pFulu -> pFulu
 #() pFupp -> pFupp
 #() pFpii -> pFpii
+#() pFpiu -> pFpiu
 #() pFpiL -> pFpiL
 #() pFpiS -> pFpiS
 #() pFpuL -> pFpuL
@@ -698,6 +699,7 @@
 #() iFiLLLL -> iFiLLLL
 #() iFipLLi -> iFipLLi
 #() iFuiuup -> iFuiuup
+#() iFpCCCC -> iFpCCCC
 #() iFpLuLi -> iFpLuLi
 #() iFpppip -> iFpppip
 #() iFpppup -> iFpppup
@@ -715,6 +717,7 @@
 #() pFuiupp -> pFuiupp
 #() pFpiiuu -> pFpiiuu
 #() pFpippp -> pFpippp
+#() pFpuiii -> pFpuiii
 #() pFppuup -> pFppuup
 #() pFppupp -> pFppupp
 #() pFXpipi -> pFXpipi
@@ -812,6 +815,7 @@
 #() pFEpiiuu -> pFEpiiuu
 #() pFEpLLiN -> pFEpLLiN
 #() pFEppLLp -> pFEppLLp
+#() pFpiiiiu -> pFpiiiiu
 #() vFiiiiiip -> vFiiiiiip
 #() vFiiiiuup -> vFiiiiuup
 #() vFiiuilil -> vFiiuilil
@@ -1559,3 +1563,11 @@ wrappedsdl1:
   - SDL_GetRGB
 - iFpWCiWCi:
   - SDL_BuildAudioCVT
+wrappedsdl2:
+% G SDL_JoystickGUID UU
+- iFp:
+  - SDL_PollEvent
+- iFip:
+  - SDL_GetDesktopDisplayMode
+- iFpp:
+  - SDL_OpenAudio
