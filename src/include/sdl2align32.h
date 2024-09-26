@@ -763,6 +763,7 @@ typedef enum SDL2_EventType {
 
 void inplace_SDL2_DisplayMode_to_64(void* a);
 void inplace_SDL2_DisplayMode_to_32(void* a);
+void convert_SDL2_DisplayMode_to_32(void* dst_, void* src_);
 
 void convert_SDL2_Event_to_32(void* dst_, const void* src_);
 void convert_SDL2_Event_to_64(void* dst_, const void* src_);
