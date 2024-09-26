@@ -96,7 +96,7 @@ static void* find_AudioCallback_Fct(void* fct)
 
 EXPORT int my32_2_SDL_GetDesktopDisplayMode(int displayIndex, void* mode)
 {
-    my_SDL2_DisplayMode_t my_mode;
+    my_SDL2_DisplayMode_t my_mode = { 0 };
     int ret = my->SDL_GetDesktopDisplayMode(displayIndex, &my_mode);
     convert_SDL2_DisplayMode_to_32(mode, &my_mode);
     return ret;
