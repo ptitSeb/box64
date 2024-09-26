@@ -305,6 +305,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else  if(strstr(s, "glXGetProcAddress")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
+                } else if (!strcmp(s, "glTexImage2D")) {
+                    snprintf(buff, 256, "%04d|%p: Calling %s(0x%x, %d, 0x%x, %d, %d, %d, 0x%x, 0x%x, %p)", tid, from_ptrv(*(ptr_t*)from_ptrv(R_ESP)), s, *(uint32_t*)from_ptrv(R_ESP+4), *(int*)from_ptrv(R_ESP+8), *(int*)from_ptrv(R_ESP+12), *(int*)from_ptrv(R_ESP+16), *(int*)from_ptrv(R_ESP+20), *(int*)from_ptrv(R_ESP+24), *(uint32_t*)from_ptrv(R_ESP+28), *(uint32_t*)from_ptrv(R_ESP+32), from_ptrv(*(ptr_t*)from_ptrv(R_ESP+36)));
                 } else  if(strstr(s, "sscanf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else  if(!strcmp(s, "vsscanf")) {
@@ -340,6 +342,10 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
                 } else  if(strstr(s, "___tls_get_addr")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p[%d, %d])", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(R_EAX), ((int*)from_ptrv(R_EAX))[0], ((int*)from_ptrv(R_EAX))[1]);
+                } else if (!strcmp(s, "FT_Outline_Get_CBox")) {
+                    pu32 = *(uint32_t**)from_ptrv(R_ESP+8);
+                    snprintf(buff, 256, "%04d|%p: Calling %s(%p, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
+                    post = 11;
                 } else if(strstr(s, "udev_monitor_new_from_netlink")==s) {
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
@@ -387,6 +393,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                                 default:
                                     snprintf(buff2, 63, " [type=%hhd]", *pu8); 
                             }
+                            break;
+                    case 11: snprintf(buff2, 63, " [%d / %d / %d /%d]", pu32[0], pu32[1], pu32[2], pu32[3]);
                             break;
 
                 }

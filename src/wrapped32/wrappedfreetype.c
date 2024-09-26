@@ -433,8 +433,8 @@ void inplace_FT_GlyphSlot_enlarge(void* a)
     dst->outline.points = from_ptrv(src->outline.points);
     dst->outline.n_points = src->outline.n_points;
     for(int i=dst->outline.n_points-1; i>=0; --i) {
-        dst->outline.points[i].y = from_long(((FT_Vector_32_t*)from_ptrv(src->outline.points))[i].y);
-        dst->outline.points[i].x = from_long(((FT_Vector_32_t*)from_ptrv(src->outline.points))[i].x);
+        dst->outline.points[i].y = from_long(((FT_Vector_32_t*)dst->outline.points)[i].y);
+        dst->outline.points[i].x = from_long(((FT_Vector_32_t*)dst->outline.points)[i].x);
     }
     dst->outline.n_contours = src->outline.n_contours;
     dst->bitmap_top = src->bitmap_top;
