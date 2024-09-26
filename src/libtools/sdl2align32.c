@@ -112,8 +112,21 @@ void convert_SDL2_Event_to_32(void* dst_, const void* src_)
             dst->text.windowID = src->text.windowID;
             memcpy(dst->text.text, src->text.text, 32);
             break;
+        case SDL2_MOUSEWHEEL:
+            dst->wheel.type = src->wheel.type;
+            dst->wheel.timestamp = src->wheel.timestamp;
+            dst->wheel.windowID = src->wheel.windowID;
+            dst->wheel.which = src->wheel.which;
+            dst->wheel.x = src->wheel.x;
+            dst->wheel.y = src->wheel.y;
+            dst->wheel.direction = src->wheel.direction;
+            dst->wheel.preciseX = src->wheel.preciseX;
+            dst->wheel.preciseY = src->wheel.preciseY;
+            dst->wheel.mouseX = src->wheel.mouseX;
+            dst->wheel.mouseY = src->wheel.mouseY;
+            break;
         default:
-            printf_log(LOG_INFO, "Warning, unsuported SDL1.2 event %d\n", src->type);
+            printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
             memcpy(dst, src, sizeof(my_SDL2_Event_32_t));
     }
 }
