@@ -2181,6 +2181,14 @@ EXPORT int my32_XNextEvent(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
     return ret;
 }
 
+EXPORT int my32_XPeekEvent(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    int ret = my->XPeekEvent(dpy, &event);
+    convertXEvent(evt, &event);
+    return ret;
+}
+
 EXPORT int my32_XCheckTypedEvent(x64emu_t* emu, void* dpy, int type, my_XEvent_32_t* evt)
 {
     my_XEvent_t event = {0};
@@ -2194,6 +2202,20 @@ EXPORT int my32_XSendEvent(x64emu_t* emu, void* dpy, XID window, int propagate, 
     my_XEvent_t event = {0};
     if(evt) unconvertXEvent(&event, evt);
     return my->XSendEvent(dpy, window, propagate, mask, evt?(&event):NULL);
+}
+
+EXPORT unsigned long my32_XLookupKeysym(x64emu_t* emu, my_XEvent_32_t* evt, int index)
+{
+    my_XEvent_t event = {0};
+    if(evt) unconvertXEvent(&event, evt);
+    return my->XLookupKeysym(evt?(&event):NULL, index);
+}
+
+EXPORT int my32_XLookupString(x64emu_t* emu, my_XEvent_32_t* evt, void* buff, int len, void* keysym, void* status)
+{
+    my_XEvent_t event = {0};
+    if(evt) unconvertXEvent(&event, evt);
+    return my->XLookupString(evt?(&event):NULL, buff, len, keysym, status);
 }
 
 EXPORT int my32_XSetWMProtocols(x64emu_t* emu, void* dpy, XID window, XID_32* protocol, int count)

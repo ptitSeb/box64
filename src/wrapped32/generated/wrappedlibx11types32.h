@@ -16,6 +16,7 @@ typedef int32_t (*iFX_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFXp_t)(void*, void*);
+typedef uintptr_t (*LFpi_t)(void*, int32_t);
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFXp_t)(void*, void*);
 typedef void (*vFXLp_t)(void*, uintptr_t, void*);
@@ -25,6 +26,7 @@ typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
 typedef uintptr_t (*LFXii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
+typedef int32_t (*iFppipp_t)(void*, void*, int32_t, void*, void*);
 typedef int32_t (*iFXLilp_t)(void*, uintptr_t, int32_t, intptr_t, void*);
 typedef int32_t (*iFXpiup_t)(void*, void*, int32_t, uint32_t, void*);
 typedef int32_t (*iFXpppp_t)(void*, void*, void*, void*, void*);
@@ -48,6 +50,8 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XFilterEvent, iFpL_t) \
 	GO(XNextEvent, iFXp_t) \
+	GO(XPeekEvent, iFXp_t) \
+	GO(XLookupKeysym, LFpi_t) \
 	GO(XCreateIC, pFpV_t) \
 	GO(XListExtensions, pFXp_t) \
 	GO(XSetWMNormalHints, vFXLp_t) \
@@ -58,6 +62,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XGetPixel, LFXii_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
 	GO(XIfEvent, iFXppp_t) \
+	GO(XLookupString, iFppipp_t) \
 	GO(XSendEvent, iFXLilp_t) \
 	GO(Xutf8TextListToTextProperty, iFXpiup_t) \
 	GO(XQueryExtension, iFXpppp_t) \

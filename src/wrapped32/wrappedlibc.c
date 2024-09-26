@@ -37,6 +37,7 @@
 #include <mntent.h>
 #include <sys/uio.h>
 #include <grp.h>
+#include <sys/sysinfo.h>
 
 #include "wrappedlibs.h"
 
@@ -3050,6 +3051,45 @@ EXPORT long my32_ftell(x64emu_t* emu, FILE* f)
 EXPORT void* my32_malloc(unsigned long size)
 {
     return calloc(1, size);
+}
+
+struct sysinfo_32 {
+	long_t uptime;
+	ulong_t loads[3];
+	ulong_t totalram;
+	ulong_t freeram;
+	ulong_t sharedram;
+	ulong_t bufferram;
+	ulong_t totalswap;
+	ulong_t freeswap;
+	uint16_t procs;
+	uint16_t pad;
+	ulong_t totalhigh;
+	ulong_t freehigh;
+	uint32_t mem_unit;
+    // removed padding
+};
+
+EXPORT int my32_sysinfo(struct sysinfo_32* p)
+{
+    struct sysinfo info = {0};
+    int ret = sysinfo(&info);
+    p->uptime = from_long(info.uptime);
+    p->loads[0] = from_ulong(info.loads[0]);
+    p->loads[1] = from_ulong(info.loads[1]);
+    p->loads[2] = from_ulong(info.loads[2]);
+    p->totalram = from_ulong(info.totalram);
+    p->freeram = from_ulong(info.freeram);
+    p->sharedram = from_ulong(info.sharedram);
+    p->bufferram = from_ulong(info.bufferram);
+    p->totalswap = from_ulong(info.totalswap);
+    p->freeswap = from_ulong(info.freeswap);
+    p->procs = info.procs;
+    p->pad = info.pad;
+    p->totalhigh = from_ulong(info.totalhigh);
+    p->freehigh = from_ulong(info.freehigh);
+    p->mem_unit = info.mem_unit;
+    return ret;
 }
 #if 0
 #ifndef __NR_memfd_create

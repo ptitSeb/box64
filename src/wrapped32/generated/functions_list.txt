@@ -336,6 +336,7 @@
 #() iFhpp -> iFhpp
 #() iFSIi -> iFSIi
 #() iFSli -> iFSli
+#() iFXii -> iFXii
 #() iFXip -> iFXip
 #() iFXuu -> iFXuu
 #() iFXLl -> iFXLl
@@ -364,6 +365,7 @@
 #() lFlpi -> lFlpi
 #() lFpLL -> lFpLL
 #() lFppL -> lFppL
+#() LFEpi -> LFEpi
 #() LFpii -> LFpii
 #() LFpip -> LFpip
 #() LFppL -> LFppL
@@ -508,6 +510,7 @@
 #() iFEipV -> iFEipV
 #() iFEpip -> iFEpip
 #() iFEpui -> iFEpui
+#() iFEpuu -> iFEpuu
 #() iFEpup -> iFEpup
 #() iFEpLi -> iFEpLi
 #() iFEppL -> iFEppL
@@ -799,6 +802,8 @@
 #() iFEuppLp -> iFEuppLp
 #() iFEpiLpp -> iFEpiLpp
 #() iFEplluu -> iFEplluu
+#() iFEppipp -> iFEppipp
+#() iFEppllp -> iFEppllp
 #() iFEpppup -> iFEpppup
 #() iFEXLilp -> iFEXLilp
 #() iFEXpiup -> iFEXpiup
@@ -806,6 +811,7 @@
 #() iFuiiuup -> iFuiiuup
 #() iFpiippp -> iFpiippp
 #() iFppiiii -> iFppiiii
+#() iFXiippp -> iFXiippp
 #() iFXLiiiL -> iFXLiiiL
 #() iFXLpppp -> iFXLpppp
 #() iFXpIppp -> iFXpIppp
@@ -1043,10 +1049,14 @@ wrappedfreetype:
   - FT_Get_Char_Index
 - iFpui:
   - FT_Load_Glyph
+- iFpuu:
+  - FT_Set_Pixel_Sizes
 - iFpplp:
   - FT_New_Face
 - iFplluu:
   - FT_Set_Char_Size
+- iFppllp:
+  - FT_New_Memory_Face
 wrappedldlinux:
 - pFv:
   - ___tls_get_addr
@@ -1065,6 +1075,7 @@ wrappedlibc:
 - iFL:
 - iFp:
   - getifaddrs
+  - sysinfo
 - iFh:
   - getwc
 - iFO:
@@ -1438,6 +1449,9 @@ wrappedlibx11:
   - XFilterEvent
 - iFXp:
   - XNextEvent
+  - XPeekEvent
+- LFpi:
+  - XLookupKeysym
 - pFpV:
   - XCreateIC
 - pFXp:
@@ -1457,6 +1471,8 @@ wrappedlibx11:
   - XSetWMProtocols
 - iFXppp:
   - XIfEvent
+- iFppipp:
+  - XLookupString
 - iFXLilp:
   - XSendEvent
 - iFXpiup:

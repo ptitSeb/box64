@@ -88,6 +88,15 @@ typedef struct  FT_Vector_s
     long  y;
 } FT_Vector_t;
 
+typedef struct  FT_Bitmap_Size_s
+{
+    short  height;
+    short  width;
+    long   size;
+    long   x_ppem;
+    long   y_ppem;
+} FT_Bitmap_Size_t;
+
 typedef struct  FT_Glyph_Metrics_s
 {
     long        width;
@@ -158,7 +167,7 @@ typedef struct  FT_FaceRec_s
     char*               family_name;
     char*               style_name;
     int                 num_fixed_sizes;
-    void*               available_sizes;
+    FT_Bitmap_Size_t*   available_sizes;
     int                 num_charmaps;
     void*               charmaps;
     FT_Generic_t        generic;
@@ -250,6 +259,15 @@ typedef struct  FT_Vector_32_s
     long_t  y;
 } FT_Vector_32_t;
 
+typedef struct  FT_Bitmap_Size_32_s
+{
+    short  height;
+    short  width;
+    long_t size;
+    long_t x_ppem;
+    long_t y_ppem;
+} FT_Bitmap_Size_32_t;
+
 typedef struct  FT_Glyph_Metrics_32_s
 {
     long_t      width;
@@ -316,16 +334,16 @@ typedef struct  FT_FaceRec_32_s
     long_t          face_index;
     long_t          face_flags;
     long_t          style_flags;
-    long_t          num_glyphs;
+    long_t          num_glyphs; //0x10
     ptr_t           family_name;    //char*
     ptr_t           style_name; //char*
     int             num_fixed_sizes;
-    ptr_t           available_sizes; //void*
+    ptr_t           available_sizes; //FT_Bitmap_32_t*  //0x20
     int             num_charmaps;
     ptr_t           charmaps; //void*
-    FT_Generic_32_t generic;
-    FT_BBox_32_t    bbox;
-    uint16_t        units_per_EM;
+    FT_Generic_32_t generic;    //0x28
+    FT_BBox_32_t    bbox;       //0x30
+    uint16_t        units_per_EM;   //0x40
     int16_t         ascender;
     int16_t         descender;
     int16_t         height;
@@ -333,11 +351,11 @@ typedef struct  FT_FaceRec_32_s
     int16_t         max_advance_height;
     int16_t         underline_position;
     int16_t         underline_thickness;
-    ptr_t           glyph; //FT_GlyphSlotRec_t*
+    ptr_t           glyph; //FT_GlyphSlotRec_t* //0x50
     ptr_t           size; //void*
     ptr_t           charmap; //void*
     /*@private begin */
-    ptr_t           driver; //void*
+    ptr_t           driver; //void*     //0x5c
     ptr_t           memory; //void*
     ptr_t           stream; //FT_StreamDesc_t*
     FT_ListRec_32_t sizes_list;
@@ -485,6 +503,16 @@ void inplace_FT_FaceRec_shrink(void* a)
     dst->num_glyphs = to_long(src->num_glyphs);
     dst->family_name = to_ptrv(src->family_name);
     dst->style_name = to_ptrv(src->style_name);
+    {
+        FT_Bitmap_Size_32_t* dst_sizes = (void*)src->available_sizes;
+        for(int i=0; i<src->num_fixed_sizes; ++i) {
+            dst_sizes[i].height = src->available_sizes[i].height;
+            dst_sizes[i].width = src->available_sizes[i].width;
+            dst_sizes[i].size = to_long(src->available_sizes[i].size);
+            dst_sizes[i].x_ppem = to_long(src->available_sizes[i].x_ppem);
+            dst_sizes[i].y_ppem = to_long(src->available_sizes[i].y_ppem);
+        }
+    }
     dst->num_fixed_sizes = src->num_fixed_sizes;
     dst->available_sizes = to_ptrv(src->available_sizes);
     dst->num_charmaps = src->num_charmaps;
@@ -560,6 +588,16 @@ void inplace_FT_FaceRec_enlarge(void* a)
     dst->num_charmaps = src->num_charmaps;
     dst->available_sizes = from_ptrv(src->available_sizes);
     dst->num_fixed_sizes = src->num_fixed_sizes;
+    {
+        FT_Bitmap_Size_32_t* src_sizes = (void*)dst->available_sizes;
+        for(int i=dst->num_fixed_sizes-1; i>=0; --i) {
+            dst->available_sizes[i].height = src_sizes[i].height;
+            dst->available_sizes[i].width = src_sizes[i].width;
+            dst->available_sizes[i].size = from_long(src_sizes[i].size);
+            dst->available_sizes[i].x_ppem = from_long(src_sizes[i].x_ppem);
+            dst->available_sizes[i].y_ppem = from_long(src_sizes[i].y_ppem);
+        }
+    }
     dst->style_name = from_ptrv(src->style_name);
     dst->family_name = from_ptrv(src->family_name);
     dst->num_glyphs = from_long(src->num_glyphs);
@@ -906,6 +944,16 @@ EXPORT int my32_FT_New_Face(x64emu_t* emu, void* lib, void* name, long index, pt
     return ret;
 }
 
+EXPORT int my32_FT_New_Memory_Face(x64emu_t* emu, void* lib, void* base, long size, long index, ptr_t* face)
+{
+    FT_FaceRec_t* res = NULL;
+    int ret = my->FT_New_Memory_Face(lib, base, size, index, &res);
+    if(ret) return ret;
+    *face = to_ptrv(res);
+    inplace_FT_FaceRec_shrink(res);
+    return ret;
+}
+
 EXPORT int my32_FT_Done_Face(x64emu_t* emu, void* face)
 {
     inplace_FT_FaceRec_enlarge(face);
@@ -916,6 +964,14 @@ EXPORT int my32_FT_Set_Char_Size(x64emu_t* emu, void* face, long char_width, lon
 {
     inplace_FT_FaceRec_enlarge(face);
     int ret = my->FT_Set_Char_Size(face, char_width, char_height, horz, vert);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Set_Pixel_Sizes(x64emu_t* emu, void* face, uint32_t width, uint32_t height)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Set_Pixel_Sizes(face, width, height);
     inplace_FT_FaceRec_shrink(face);
     return ret;
 }

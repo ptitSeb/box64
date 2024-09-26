@@ -1773,7 +1773,7 @@ GO(__sysconf, lFi)
 //GO(__sysctl, iFp)
 //DATA(_sys_errlist, 4)
 //DATA(sys_errlist, 4)
-//GO(sysinfo, iFp)
+GOM(sysinfo, iFp)   //%noE
 //GO2(syslog, vFipV, vsyslog)
 //GO2(__syslog_chk, vFiipV, __vsyslog_chk)
 //DATA(_sys_nerr, 4)    // type R

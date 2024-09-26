@@ -102,6 +102,7 @@ typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, in
 	GO(freeaddrinfo, vFp_t) \
 	GO(__close_nocancel, iFi_t) \
 	GO(getifaddrs, iFp_t) \
+	GO(sysinfo, iFp_t) \
 	GO(getwc, iFh_t) \
 	GO(atol, lFp_t) \
 	GO(ftell, lFS_t) \
