@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(XF86VidModeGetViewPort, iFpipp)
@@ -17,7 +17,7 @@ GO(XF86VidModeSetGammaRamp, iFpiippp)
 GO(XF86VidModeGetPermissions, iFpip)
 GO(XF86VidModeModModeLine, iFpip)
 GO(XF86VidModeSetViewPort, iFpiii)
-GO(XF86VidModeSwitchMode, iFpip)
+GO(XF86VidModeSwitchMode, iFpii)
 GO(XF86VidModeAddModeLine, iFpipp)
 GO(XF86VidModeSwitchToMode, iFpip)
 GO(XF86VidModeQueryExtension, iFppp)
