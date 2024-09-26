@@ -441,6 +441,8 @@
 #define GETMARKSEG  dyn->insts[ninst].markseg
 #define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
 #define GETMARKLOCK dyn->insts[ninst].marklock
+#define MARKLOCK2    dyn->insts[ninst].marklock2 = dyn->native_size
+#define GETMARKLOCK2 dyn->insts[ninst].marklock2
 
 #define Bxx_gen(OP, M, reg1, reg2)   \
     j64 = GET##M - dyn->native_size; \
@@ -462,6 +464,8 @@
 #define BNE_MARK3(reg1, reg2) Bxx_gen(NE, MARK3, reg1, reg2)
 // Branch to MARKLOCK if reg1!=reg2 (use j64)
 #define BNE_MARKLOCK(reg1, reg2) Bxx_gen(NE, MARKLOCK, reg1, reg2)
+// Branch to MARKLOCK2 if reg1!=reg2 (use j64)
+#define BNE_MARKLOCK2(reg1, reg2) Bxx_gen(NE, MARKLOCK2, reg1, reg2)
 
 // Branch to MARK if reg1==reg2 (use j64)
 #define BEQ_MARK(reg1, reg2) Bxx_gen(EQ, MARK, reg1, reg2)
@@ -471,12 +475,16 @@
 #define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
 // Branch to MARKLOCK if reg1==reg2 (use j64)
 #define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
+// Branch to MARKLOCK2 if reg1==reg2 (use j64)
+#define BEQ_MARKLOCK2(reg1, reg2) Bxx_gen(EQ, MARKLOCK2, reg1, reg2)
 // Branch to MARK if reg1==0 (use j64)
 #define BEQZ_MARK(reg) BxxZ_gen(EQ, MARK, reg)
 // Branch to MARK2 if reg1==0 (use j64)
 #define BEQZ_MARK2(reg) BxxZ_gen(EQ, MARK2, reg)
 // Branch to MARKLOCK if reg1==0 (use j64)
 #define BEQZ_MARKLOCK(reg) BxxZ_gen(EQ, MARKLOCK, reg)
+// Branch to MARKLOCK2 if reg1==0 (use j64)
+#define BEQZ_MARKLOCK2(reg) BxxZ_gen(EQ, MARKLOCK2, reg)
 
 // Branch to MARK if reg1!=0 (use j64)
 #define BNEZ_MARK(reg) BxxZ_gen(NE, MARK, reg)
@@ -486,6 +494,8 @@
 #define BNEZ_MARK3(reg) BxxZ_gen(NE, MARK3, reg)
 // Branch to MARKLOCK if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK(reg) BxxZ_gen(NE, MARKLOCK, reg)
+// Branch to MARKLOCK2 if reg1!=0 (use j64)
+#define BNEZ_MARKLOCK2(reg) BxxZ_gen(NE, MARKLOCK2, reg)
 
 // Branch to MARK if fcc!=0 (use j64)
 #define BCNEZ_MARK(fcc) BCxxZ_gen(NE, MARK, fcc)
@@ -495,6 +505,8 @@
 #define BCNEZ_MARK3(fcc) BCxxZ_gen(NE, MARK3, fcc)
 // Branch to MARKLOCK if fcc!=0 (use j64)
 #define BCNEZ_MARKLOCK(fcc) BxxZ_gen(NE, MARKLOCK, fcc)
+// Branch to MARKLOCK2 if fcc!=0 (use j64)
+#define BCNEZ_MARKLOCK2(fcc) BxxZ_gen(NE, MARKLOCK2, fcc)
 
 // Branch to MARK if fcc==0 (use j64)
 #define BCEQZ_MARK(fcc) BCxxZ_gen(EQ, MARK, fcc)
@@ -504,6 +516,8 @@
 #define BCEQZ_MARK3(fcc) BCxxZ_gen(EQ, MARK3, fcc)
 // Branch to MARKLOCK if fcc==0 (use j64)
 #define BCEQZ_MARKLOCK(fcc) BxxZ_gen(EQ, MARKLOCK, fcc)
+// Branch to MARKLOCK2 if fcc==0 (use j64)
+#define BCEQZ_MARKLOCK2(fcc) BxxZ_gen(EQ, MARKLOCK2, fcc)
 
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
