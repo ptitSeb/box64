@@ -31,6 +31,17 @@ void inplace_SDL2_DisplayMode_to_32(void* a)
     dst->driverdata = to_ptrv(src->driverdata);
 }
 
+void convert_SDL2_DisplayMode_to_32(void* dst_, void* src_)
+{
+    if (!src_ || !dst_) return;
+    my_SDL2_DisplayMode_t* src = src_;
+    my_SDL2_DisplayMode_32_t* dst = dst_;
+    dst->format = src->format;
+    dst->w = src->w;
+    dst->h = src->h;
+    dst->refresh_rate = src->refresh_rate;
+    dst->driverdata = to_ptrv(src->driverdata);
+}
 
 void convert_SDL2_Event_to_32(void* dst_, const void* src_)
 {
