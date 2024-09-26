@@ -1496,6 +1496,7 @@ wrappedlibxrandr:
 - iFXpLLiiLWpi:
   - XRRSetCrtcConfig
 wrappedlibxrender:
+wrappedlibxxf86vm:
 wrappedopenal:
 - vFv:
   - alRequestFoldbackStop

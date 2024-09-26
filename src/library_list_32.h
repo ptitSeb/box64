@@ -23,6 +23,7 @@ GO("libXrender.so.1", libxrender)
 GO("libXcursor.so.1", libxcursor)
 GO("libXrandr.so.2", libxrandr)
 GO("libxrandr.so.2", libxrandr)
+GO("libXxf86vm.so.1", libxxf86vm)
 
 GO("libopenal.so.1", openal)
 GO("libopenal.so.0", openal)
