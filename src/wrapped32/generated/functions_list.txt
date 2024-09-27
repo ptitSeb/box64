@@ -1051,6 +1051,8 @@ wrappedfreetype:
   - FT_Load_Glyph
 - iFpuu:
   - FT_Set_Pixel_Sizes
+- iFpLi:
+  - FT_Load_Char
 - iFpplp:
   - FT_New_Face
 - iFplluu:

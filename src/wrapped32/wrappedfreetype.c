@@ -984,6 +984,14 @@ EXPORT uint32_t my32_FT_Get_Char_Index(x64emu_t* emu, void* face, unsigned long 
     return ret;
 }
 
+EXPORT int my32_FT_Load_Char(x64emu_t* emu, void* face, unsigned long code, int flags)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Load_Char(face, code, flags);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
 EXPORT int my32_FT_Load_Glyph(x64emu_t* emu, void* face, uint32_t index, int flags)
 {
     inplace_FT_FaceRec_enlarge(face);

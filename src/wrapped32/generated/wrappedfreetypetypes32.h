@@ -17,6 +17,7 @@ typedef int32_t (*iFpu_t)(void*, uint32_t);
 typedef uint32_t (*uFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpui_t)(void*, uint32_t, int32_t);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
+typedef int32_t (*iFpLi_t)(void*, uintptr_t, int32_t);
 typedef int32_t (*iFpplp_t)(void*, void*, intptr_t, void*);
 typedef int32_t (*iFplluu_t)(void*, intptr_t, intptr_t, uint32_t, uint32_t);
 typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
@@ -28,6 +29,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Get_Char_Index, uFpL_t) \
 	GO(FT_Load_Glyph, iFpui_t) \
 	GO(FT_Set_Pixel_Sizes, iFpuu_t) \
+	GO(FT_Load_Char, iFpLi_t) \
 	GO(FT_New_Face, iFpplp_t) \
 	GO(FT_Set_Char_Size, iFplluu_t) \
 	GO(FT_New_Memory_Face, iFppllp_t)

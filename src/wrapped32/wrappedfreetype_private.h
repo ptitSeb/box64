@@ -21,7 +21,7 @@
 GO(FT_Cos, lFl)
 GO(FT_DivFix, lFll)
 GOM(FT_Done_Face, iFEp)
-//GO(FT_Done_FreeType, iFp)
+GO(FT_Done_FreeType, iFp)
 //GO(FT_Done_Glyph, vFp)
 //GO(FT_Done_Library, iFp)
 //GO(FT_Done_MM_Var, iFpp)
@@ -107,7 +107,7 @@ GO(FT_Init_FreeType, iFBp_)
 //GO(FT_List_Iterate, 
 //GO(FT_List_Remove, 
 //GO(FT_List_Up, vFpp)
-//GO(FT_Load_Char, iFpLi)
+GOM(FT_Load_Char, iFEpLi)
 GOM(FT_Load_Glyph, iFEpui)
 //GO(FT_Load_Sfnt_Table, iFpLlpp)
 //GO(FT_Matrix_Invert, iFp)
