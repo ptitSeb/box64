@@ -349,6 +349,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if(strstr(s, "udev_monitor_new_from_netlink")==s) {
                     post = 5;
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
+                } else if(!strcmp(s, "recv")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, 0x%x, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, from_ptri(int, R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptri(uint32_t, R_ESP+12), from_ptri(int, R_ESP+16));
                 } else  if(!strcmp(s, "syscall")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), s, *(int32_t*)from_ptr(R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+16)));
                     perr = 1;
@@ -396,7 +398,6 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                             break;
                     case 11: snprintf(buff2, 63, " [%d / %d / %d /%d]", pu32[0], pu32[1], pu32[2], pu32[3]);
                             break;
-
                 }
                 if(perr==1 && ((int)R_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
