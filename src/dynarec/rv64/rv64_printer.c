@@ -2207,7 +2207,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2217,7 +2217,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2227,7 +2227,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADDU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADDU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2237,7 +2237,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADDU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAADDU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2246,7 +2246,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VADC.VIM", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5)); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VADC.VIM", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5));
         return buff;
     }
 
@@ -2255,7 +2255,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VADC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VADC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -2264,7 +2264,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VADC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VADC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -2274,7 +2274,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VADD.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VADD.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -2284,7 +2284,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2294,7 +2294,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2304,7 +2304,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VAND.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VAND.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -2314,7 +2314,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAND.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAND.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2324,7 +2324,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAND.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VAND.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2334,7 +2334,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2344,7 +2344,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2354,7 +2354,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUBU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUBU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2364,7 +2364,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUBU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VASUBU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2373,7 +2373,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VCOMPRESS.VM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VCOMPRESS.VM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -2382,7 +2382,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VCPOP.M", gpr[a.rd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VCPOP.M", gpr[a.rd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2392,7 +2392,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIV.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIV.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2402,7 +2402,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIV.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIV.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2412,7 +2412,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIVU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIVU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2422,7 +2422,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIVU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VDIVU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2432,7 +2432,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2442,7 +2442,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2451,7 +2451,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCLASS.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCLASS.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2460,7 +2460,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.F.X.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.F.X.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2469,7 +2469,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.F.XU.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.F.XU.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2478,7 +2478,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.RTZ.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.RTZ.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2487,7 +2487,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.RTZ.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.RTZ.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2496,7 +2496,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2505,7 +2505,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFCVT.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2515,7 +2515,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFDIV.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFDIV.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2525,7 +2525,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFDIV.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFDIV.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2534,7 +2534,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFIRST.M", fpr[a.rd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFIRST.M", fpr[a.rd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2544,7 +2544,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2554,7 +2554,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2564,7 +2564,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2574,7 +2574,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2584,7 +2584,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMAX.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMAX.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2594,7 +2594,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMAX.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMAX.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2603,7 +2603,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFMERGE.VFM", vpr[a.vd], vpr[a.vs2], fpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFMERGE.VFM", vpr[a.vd], vpr[a.vs2], fpr[a.rs1]);
         return buff;
     }
 
@@ -2613,7 +2613,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMIN.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMIN.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2623,7 +2623,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMIN.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMIN.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2633,7 +2633,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2643,7 +2643,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2653,7 +2653,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2663,7 +2663,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2673,7 +2673,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMUL.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMUL.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2683,7 +2683,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2691,7 +2691,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfe0ff07f) == 0x42001057) {
         a.rd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.F.S", fpr[a.rd], vpr[a.vs2]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.F.S", fpr[a.rd], vpr[a.vs2]);
         return buff;
     }
 
@@ -2699,7 +2699,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x42005057) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.S.F", vpr[a.vd], fpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.S.F", vpr[a.vd], fpr[a.rs1]);
         return buff;
     }
 
@@ -2707,7 +2707,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x5e005057) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.V.F", vpr[a.vd], fpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VFMV.V.F", vpr[a.vd], fpr[a.rs1]);
         return buff;
     }
 
@@ -2716,7 +2716,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2725,7 +2725,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.X.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.X.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2734,7 +2734,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.XU.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.F.XU.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2743,7 +2743,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.ROD.F.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.ROD.F.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2752,7 +2752,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.RTZ.X.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.RTZ.X.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2761,7 +2761,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.RTZ.XU.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.RTZ.XU.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2770,7 +2770,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.X.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.X.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2779,7 +2779,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.XU.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFNCVT.XU.F.W", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2789,7 +2789,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2799,7 +2799,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2809,7 +2809,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2819,7 +2819,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2829,7 +2829,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2839,7 +2839,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2849,7 +2849,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2859,7 +2859,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFNMSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2869,7 +2869,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFRDIV.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFRDIV.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2878,7 +2878,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFREC7.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFREC7.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2888,7 +2888,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDMAX.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDMAX.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2898,7 +2898,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDMIN.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDMIN.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2908,7 +2908,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDOSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDOSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2918,7 +2918,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDUSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFREDUSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2927,7 +2927,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFRSQRT7.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFRSQRT7.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -2937,7 +2937,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFRSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFRSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2947,7 +2947,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJ.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJ.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2957,7 +2957,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJ.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJ.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2967,7 +2967,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJN.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJN.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2977,7 +2977,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJN.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJN.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -2987,7 +2987,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJX.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJX.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -2997,7 +2997,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJX.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSGNJX.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3007,7 +3007,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSLIDE1DOWN.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSLIDE1DOWN.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3017,7 +3017,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSLIDE1UP.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSLIDE1UP.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3026,7 +3026,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFSQRT.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFSQRT.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3036,7 +3036,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3046,7 +3046,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3056,7 +3056,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3066,7 +3066,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3076,7 +3076,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.WF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.WF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3086,7 +3086,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWADD.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3095,7 +3095,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3104,7 +3104,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.X.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.X.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3113,7 +3113,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.XU.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.F.XU.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3122,7 +3122,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.RTZ.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.RTZ.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3131,7 +3131,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.RTZ.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.RTZ.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3140,7 +3140,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.X.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3149,7 +3149,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFWCVT.XU.F.V", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3159,7 +3159,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3169,7 +3169,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3179,7 +3179,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3189,7 +3189,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3199,7 +3199,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMUL.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMUL.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3209,7 +3209,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3219,7 +3219,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMACC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3229,7 +3229,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3239,7 +3239,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMSAC.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3249,7 +3249,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWNMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3259,7 +3259,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWREDOSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWREDOSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3269,7 +3269,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWREDUSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWREDUSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3279,7 +3279,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.VF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3289,7 +3289,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3299,7 +3299,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.WF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.WF", vpr[a.vd], vpr[a.vs2], fpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3309,7 +3309,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VFWSUB.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3317,7 +3317,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfdfff07f) == 0x5008a057) {
         a.vd = FX(opcode, 11, 7);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VID.V", vpr[a.vd], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VID.V", vpr[a.vd], vm[a.vm]);
         return buff;
     }
 
@@ -3326,7 +3326,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VIOTA.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VIOTA.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -3334,7 +3334,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x2805007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE16.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE16.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3342,7 +3342,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x2806007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE32.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE32.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3350,7 +3350,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x2807007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE64.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE64.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3358,7 +3358,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x2800007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE8.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL1RE8.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3366,7 +3366,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x22805007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE16.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE16.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3374,7 +3374,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x22806007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE32.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE32.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3382,7 +3382,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x22807007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE64.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE64.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3390,7 +3390,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x22800007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE8.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL2RE8.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3398,7 +3398,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x62805007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE16.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE16.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3406,7 +3406,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x62806007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE32.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE32.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3414,7 +3414,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x62807007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE64.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE64.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3422,7 +3422,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x62800007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE8.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL4RE8.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3430,7 +3430,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0xe2805007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE16.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE16.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3438,7 +3438,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0xe2806007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE32.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE32.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3446,7 +3446,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0xe2807007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE64.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE64.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3454,7 +3454,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0xe2800007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE8.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VL8RE8.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3464,7 +3464,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE16.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE16.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3474,7 +3474,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE16FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE16FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3484,7 +3484,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE32.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE32.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3494,7 +3494,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE32FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE32FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3504,7 +3504,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE64.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE64.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3514,7 +3514,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE64FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE64FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3524,7 +3524,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE8.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE8.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3534,7 +3534,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE8FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VLE8FF.V", vpr[a.vd], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3542,7 +3542,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x2b00007) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VLM.V", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VLM.V", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -3553,7 +3553,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI16.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI16.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3564,7 +3564,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI32.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI32.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3575,7 +3575,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI64.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI64.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3586,7 +3586,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI8.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLOXEI8.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3597,7 +3597,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE16.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE16.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3608,7 +3608,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE32.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE32.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3619,7 +3619,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE64.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE64.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3630,7 +3630,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE8.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLSE8.V", vpr[a.vd], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3641,7 +3641,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI16.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI16.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3652,7 +3652,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI32.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI32.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3663,7 +3663,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI64.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI64.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3674,7 +3674,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI8.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VLUXEI8.V", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -3684,7 +3684,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3694,7 +3694,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMACC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMACC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3703,7 +3703,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VMADC.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5)); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VMADC.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5));
         return buff;
     }
 
@@ -3712,7 +3712,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VMADC.VIM", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5)); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VMADC.VIM", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5));
         return buff;
     }
 
@@ -3721,7 +3721,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -3730,7 +3730,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -3739,7 +3739,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -3748,7 +3748,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMADC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -3758,7 +3758,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3768,7 +3768,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3777,7 +3777,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMAND.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMAND.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -3786,7 +3786,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMANDN.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMANDN.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -3796,7 +3796,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAX.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAX.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3806,7 +3806,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAX.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAX.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3816,7 +3816,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAXU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAXU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3826,7 +3826,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAXU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMAXU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3835,7 +3835,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VMERGE.VIM", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5)); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "VMERGE.VIM", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5));
         return buff;
     }
 
@@ -3844,7 +3844,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMERGE.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMERGE.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -3853,7 +3853,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMERGE.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMERGE.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -3863,7 +3863,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFEQ.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFEQ.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3873,7 +3873,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFEQ.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFEQ.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3883,7 +3883,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFGE.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFGE.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3893,7 +3893,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFGT.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFGT.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3903,7 +3903,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLE.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLE.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3913,7 +3913,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3923,7 +3923,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLT.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLT.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3933,7 +3933,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLT.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFLT.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3943,7 +3943,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFNE.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFNE.VF", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3953,7 +3953,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFNE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMFNE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3963,7 +3963,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMIN.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMIN.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3973,7 +3973,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMIN.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMIN.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -3983,7 +3983,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMINU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMINU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -3993,7 +3993,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMINU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMINU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4002,7 +4002,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMNAND.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMNAND.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4011,7 +4011,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMNOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMNOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4020,7 +4020,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4029,7 +4029,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMORN.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMORN.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4038,7 +4038,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4047,7 +4047,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4056,7 +4056,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -4065,7 +4065,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -4074,7 +4074,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSBF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -4084,7 +4084,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSEQ.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSEQ.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4094,7 +4094,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSEQ.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSEQ.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4104,7 +4104,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSEQ.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSEQ.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4114,7 +4114,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSGT.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSGT.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4124,7 +4124,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSGT.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSGT.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4134,7 +4134,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSGTU.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSGTU.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4144,7 +4144,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSGTU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSGTU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4153,7 +4153,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSIF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSIF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -4163,7 +4163,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSLE.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSLE.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4173,7 +4173,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4183,7 +4183,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLE.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLE.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4193,7 +4193,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSLEU.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSLEU.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4203,7 +4203,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLEU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLEU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4213,7 +4213,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLEU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLEU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4223,7 +4223,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLT.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLT.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4233,7 +4233,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLT.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLT.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4243,7 +4243,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLTU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLTU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4253,7 +4253,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLTU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSLTU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4263,7 +4263,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSNE.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VMSNE.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4273,7 +4273,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSNE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSNE.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4283,7 +4283,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSNE.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMSNE.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4292,7 +4292,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSOF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMSOF.M", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -4302,7 +4302,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4312,7 +4312,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMUL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMUL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4322,7 +4322,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULH.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULH.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4332,7 +4332,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULH.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULH.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4342,7 +4342,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHSU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHSU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4352,7 +4352,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHSU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHSU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4362,7 +4362,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4372,7 +4372,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VMULHU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4380,7 +4380,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfe0ff07f) == 0x9e003057) {
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV1R.V", vpr[a.vd], vpr[a.vs2]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV1R.V", vpr[a.vd], vpr[a.vs2]);
         return buff;
     }
 
@@ -4388,7 +4388,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfe0ff07f) == 0x9e00b057) {
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV2R.V", vpr[a.vd], vpr[a.vs2]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV2R.V", vpr[a.vd], vpr[a.vs2]);
         return buff;
     }
 
@@ -4396,7 +4396,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfe0ff07f) == 0x9e01b057) {
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV4R.V", vpr[a.vd], vpr[a.vs2]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV4R.V", vpr[a.vd], vpr[a.vs2]);
         return buff;
     }
 
@@ -4404,7 +4404,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfe0ff07f) == 0x9e03b057) {
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV8R.V", vpr[a.vd], vpr[a.vs2]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV8R.V", vpr[a.vd], vpr[a.vs2]);
         return buff;
     }
 
@@ -4412,7 +4412,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x42006057) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.S.X", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.S.X", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -4420,7 +4420,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x5e003057) {
         a.vd = FX(opcode, 11, 7);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "VMV.V.I", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5)); 
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d)", "VMV.V.I", vpr[a.vd], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5));
         return buff;
     }
 
@@ -4428,7 +4428,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x5e000057) {
         a.vd = FX(opcode, 11, 7);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.V.V", vpr[a.vd], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.V.V", vpr[a.vd], vpr[a.vs1]);
         return buff;
     }
 
@@ -4436,7 +4436,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x5e004057) {
         a.vd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.V.X", vpr[a.vd], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.V.X", vpr[a.vd], gpr[a.rs1]);
         return buff;
     }
 
@@ -4444,7 +4444,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfe0ff07f) == 0x42002057) {
         a.rd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.X.S", gpr[a.rd], vpr[a.vs2]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VMV.X.S", gpr[a.rd], vpr[a.vs2]);
         return buff;
     }
 
@@ -4453,7 +4453,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMXNOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMXNOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4462,7 +4462,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMXOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VMXOR.MM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4472,7 +4472,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNCLIP.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNCLIP.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4482,7 +4482,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIP.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIP.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4492,7 +4492,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIP.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIP.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4502,7 +4502,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNCLIPU.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNCLIPU.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4512,7 +4512,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIPU.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIPU.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4522,7 +4522,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIPU.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNCLIPU.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4532,7 +4532,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSAC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4542,7 +4542,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSAC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSAC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4552,7 +4552,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4562,7 +4562,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNMSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4572,7 +4572,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNSRA.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNSRA.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4582,7 +4582,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRA.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRA.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4592,7 +4592,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRA.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRA.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4602,7 +4602,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNSRL.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VNSRL.WI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4612,7 +4612,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRL.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRL.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4622,7 +4622,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRL.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VNSRL.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4632,7 +4632,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VOR.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VOR.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4642,7 +4642,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VOR.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VOR.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4652,7 +4652,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VOR.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VOR.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4662,7 +4662,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDAND.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDAND.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4672,7 +4672,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMAX.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMAX.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4682,7 +4682,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMAXU.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMAXU.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4692,7 +4692,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMIN.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMIN.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4702,7 +4702,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMINU.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDMINU.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4712,7 +4712,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDOR.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDOR.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4722,7 +4722,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4732,7 +4732,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDXOR.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREDXOR.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4742,7 +4742,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREM.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREM.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4752,7 +4752,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREM.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREM.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4762,7 +4762,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREMU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREMU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4772,7 +4772,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREMU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VREMU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4782,7 +4782,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VRGATHER.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VRGATHER.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4792,7 +4792,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHER.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHER.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4802,7 +4802,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHER.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHER.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4812,7 +4812,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHEREI16.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRGATHEREI16.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4822,7 +4822,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VRSUB.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VRSUB.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4832,7 +4832,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VRSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4840,7 +4840,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x2800027) {
         a.vs3 = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS1R.V", vpr[a.vs3], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS1R.V", vpr[a.vs3], gpr[a.rs1]);
         return buff;
     }
 
@@ -4848,7 +4848,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x22800027) {
         a.vs3 = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS2R.V", vpr[a.vs3], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS2R.V", vpr[a.vs3], gpr[a.rs1]);
         return buff;
     }
 
@@ -4856,7 +4856,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x62800027) {
         a.vs3 = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS4R.V", vpr[a.vs3], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS4R.V", vpr[a.vs3], gpr[a.rs1]);
         return buff;
     }
 
@@ -4864,7 +4864,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0xe2800027) {
         a.vs3 = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS8R.V", vpr[a.vs3], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VS8R.V", vpr[a.vs3], gpr[a.rs1]);
         return buff;
     }
 
@@ -4874,7 +4874,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSADD.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSADD.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4884,7 +4884,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4894,7 +4894,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4904,7 +4904,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSADDU.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSADDU.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -4914,7 +4914,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADDU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADDU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -4924,7 +4924,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADDU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSADDU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -4933,7 +4933,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSBC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSBC.VVM", vpr[a.vd], vpr[a.vs2], vpr[a.vs1]);
         return buff;
     }
 
@@ -4942,7 +4942,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSBC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSBC.VXM", vpr[a.vd], vpr[a.vs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -4952,7 +4952,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE16.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE16.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -4962,7 +4962,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE32.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE32.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -4972,7 +4972,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE64.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE64.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -4982,7 +4982,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE8.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSE8.V", vpr[a.vs3], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -4992,29 +4992,33 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.imm2 = FX(opcode, 19, 15);
         a.rd = FX(opcode, 11, 7);
         const char *vta_str, *vma_str, *lmul_str, *sew_str;
-        if (a.imm & 0b01000000) vta_str = "ta";
-        else vta_str = "tu";
-        if (a.imm & 0b10000000) vma_str = "ma";
-        else vma_str = "mu";
+        if (a.imm & 0b01000000)
+            vta_str = "ta";
+        else
+            vta_str = "tu";
+        if (a.imm & 0b10000000)
+            vma_str = "ma";
+        else
+            vma_str = "mu";
         switch (a.imm & 0b00000111) {
-        case 0b101: lmul_str = "mf8"; break;
-        case 0b110: lmul_str = "mf4"; break;
-        case 0b111: lmul_str = "mf2"; break;
-        case 0b000: lmul_str = "m1"; break;
-        case 0b001: lmul_str = "m2"; break;
-        case 0b010: lmul_str = "m4"; break;
-        case 0b011: lmul_str = "m8"; break;
-        default: lmul_str = "reserved"; break;
+            case 0b101: lmul_str = "mf8"; break;
+            case 0b110: lmul_str = "mf4"; break;
+            case 0b111: lmul_str = "mf2"; break;
+            case 0b000: lmul_str = "m1"; break;
+            case 0b001: lmul_str = "m2"; break;
+            case 0b010: lmul_str = "m4"; break;
+            case 0b011: lmul_str = "m8"; break;
+            default: lmul_str = "reserved"; break;
         }
         switch ((a.imm & 0b00111000) >> 3) {
-        case 0b000: sew_str = "e8"; break;
-        case 0b001: sew_str = "e16"; break;
-        case 0b010: sew_str = "e32"; break;
-        case 0b011: sew_str = "e64"; break;
-        default: sew_str = "reserved"; break;
+            case 0b000: sew_str = "e8"; break;
+            case 0b001: sew_str = "e16"; break;
+            case 0b010: sew_str = "e32"; break;
+            case 0b011: sew_str = "e64"; break;
+            default: sew_str = "reserved"; break;
         }
-        
-        snprintf(buff, sizeof(buff), "%-15s %s, %d, %s, %s, %s, %s", "VSETVLI", gpr[a.rd], a.imm2, sew_str, lmul_str, vta_str, vma_str); 
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %d, %s, %s, %s, %s", "VSETVLI", gpr[a.rd], a.imm2, sew_str, lmul_str, vta_str, vma_str);
         return buff;
     }
 
@@ -5023,7 +5027,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rd = FX(opcode, 11, 7);
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSETVL", gpr[a.rd], gpr[a.rs2], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSETVL", gpr[a.rd], gpr[a.rs2], gpr[a.rs1]);
         return buff;
     }
 
@@ -5033,29 +5037,33 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.rd = FX(opcode, 11, 7);
         const char *vta_str, *vma_str, *lmul_str, *sew_str;
-        if (a.imm & 0b01000000) vta_str = "ta";
-        else vta_str = "tu";
-        if (a.imm & 0b10000000) vma_str = "ma";
-        else vma_str = "mu";
+        if (a.imm & 0b01000000)
+            vta_str = "ta";
+        else
+            vta_str = "tu";
+        if (a.imm & 0b10000000)
+            vma_str = "ma";
+        else
+            vma_str = "mu";
         switch (a.imm & 0b00000111) {
-        case 0b101: lmul_str = "mf8"; break;
-        case 0b110: lmul_str = "mf4"; break;
-        case 0b111: lmul_str = "mf2"; break;
-        case 0b000: lmul_str = "m1"; break;
-        case 0b001: lmul_str = "m2"; break;
-        case 0b010: lmul_str = "m4"; break;
-        case 0b011: lmul_str = "m8"; break;
-        default: lmul_str = "reserved"; break;
+            case 0b101: lmul_str = "mf8"; break;
+            case 0b110: lmul_str = "mf4"; break;
+            case 0b111: lmul_str = "mf2"; break;
+            case 0b000: lmul_str = "m1"; break;
+            case 0b001: lmul_str = "m2"; break;
+            case 0b010: lmul_str = "m4"; break;
+            case 0b011: lmul_str = "m8"; break;
+            default: lmul_str = "reserved"; break;
         }
         switch ((a.imm & 0b00111000) >> 3) {
-        case 0b000: sew_str = "e8"; break;
-        case 0b001: sew_str = "e16"; break;
-        case 0b010: sew_str = "e32"; break;
-        case 0b011: sew_str = "e64"; break;
-        default: sew_str = "reserved"; break;
+            case 0b000: sew_str = "e8"; break;
+            case 0b001: sew_str = "e16"; break;
+            case 0b010: sew_str = "e32"; break;
+            case 0b011: sew_str = "e64"; break;
+            default: sew_str = "reserved"; break;
         }
-        
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s, %s", "VSETVLI", gpr[a.rd], gpr[a.rs1], sew_str, lmul_str, vta_str, vma_str); 
+
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s, %s", "VSETVLI", gpr[a.rd], gpr[a.rs1], sew_str, lmul_str, vta_str, vma_str);
         return buff;
     }
 
@@ -5064,7 +5072,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF2", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF2", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -5073,7 +5081,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF4", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF4", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -5082,7 +5090,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF8", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VSEXT.VF8", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -5092,7 +5100,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDE1DOWN.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDE1DOWN.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5102,7 +5110,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDE1UP.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDE1UP.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5112,7 +5120,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSLIDEDOWN.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSLIDEDOWN.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5122,7 +5130,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDEDOWN.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDEDOWN.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5132,7 +5140,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSLIDEUP.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSLIDEUP.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5142,7 +5150,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDEUP.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLIDEUP.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5152,7 +5160,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSLL.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSLL.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5162,7 +5170,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5172,7 +5180,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSLL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5180,7 +5188,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0xfff0707f) == 0x2b00027) {
         a.vs3 = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VSM.V", vpr[a.vs3], gpr[a.rs1]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s", "VSM.V", vpr[a.vs3], gpr[a.rs1]);
         return buff;
     }
 
@@ -5190,7 +5198,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5200,7 +5208,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSMUL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSMUL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5211,7 +5219,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI16.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI16.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5222,7 +5230,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI32.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI32.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5233,7 +5241,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI64.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI64.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5244,7 +5252,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI8.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSOXEI8.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5254,7 +5262,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSRA.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSRA.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5264,7 +5272,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRA.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRA.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5274,7 +5282,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRA.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRA.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5284,7 +5292,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSRL.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSRL.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5294,7 +5302,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5304,7 +5312,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSRL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5315,7 +5323,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE16.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE16.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5326,7 +5334,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE32.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE32.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5337,7 +5345,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE64.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE64.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5348,7 +5356,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE8.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSSE8.V", vpr[a.vs3], gpr[a.rs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5358,7 +5366,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSSRA.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSSRA.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5368,7 +5376,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRA.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRA.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5378,7 +5386,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRA.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRA.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5388,7 +5396,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSSRL.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VSSRL.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5398,7 +5406,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5408,7 +5416,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSRL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5418,7 +5426,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5428,7 +5436,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5438,7 +5446,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUBU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUBU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5448,7 +5456,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUBU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSSUBU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5458,7 +5466,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5468,7 +5476,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5479,7 +5487,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI16.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI16.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5490,7 +5498,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI32.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI32.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5501,7 +5509,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI64.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI64.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5512,7 +5520,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
         a.nf = FX(opcode, 31, 29);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI8.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s, %s", "VSUXEI8.V", vpr[a.vs3], vpr[a.vs2], gpr[a.rs1], vm[a.vm], nf[a.nf]);
         return buff;
     }
 
@@ -5522,7 +5530,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5532,7 +5540,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5542,7 +5550,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5552,7 +5560,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADD.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5562,7 +5570,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5572,7 +5580,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5582,7 +5590,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5592,7 +5600,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWADDU.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5602,7 +5610,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACC.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5612,7 +5620,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACC.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5622,7 +5630,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCSU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCSU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5632,7 +5640,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCSU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCSU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5642,7 +5650,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5652,7 +5660,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5662,7 +5670,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCUS.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMACCUS.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5672,7 +5680,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMUL.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5682,7 +5690,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMUL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMUL.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5692,7 +5700,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULSU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULSU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5702,7 +5710,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULSU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULSU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5712,7 +5720,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5722,7 +5730,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWMULU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5732,7 +5740,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWREDSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWREDSUM.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5742,7 +5750,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWREDSUMU.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWREDSUMU.VS", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5752,7 +5760,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5762,7 +5770,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5772,7 +5780,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5782,7 +5790,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUB.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5792,7 +5800,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5802,7 +5810,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5812,7 +5820,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.WV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5822,7 +5830,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VWSUBU.WX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5832,7 +5840,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.imm = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VXOR.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d), %s", "VXOR.VI", vpr[a.vd], vpr[a.vs2], SIGN_EXTEND(a.imm, 5), SIGN_EXTEND(a.imm, 5), vm[a.vm]);
         return buff;
     }
 
@@ -5842,7 +5850,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.vs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VXOR.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VXOR.VV", vpr[a.vd], vpr[a.vs2], vpr[a.vs1], vm[a.vm]);
         return buff;
     }
 
@@ -5852,7 +5860,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VXOR.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s, %s", "VXOR.VX", vpr[a.vd], vpr[a.vs2], gpr[a.rs1], vm[a.vm]);
         return buff;
     }
 
@@ -5861,7 +5869,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF2", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF2", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -5870,7 +5878,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF4", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF4", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
@@ -5879,7 +5887,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         a.vd = FX(opcode, 11, 7);
         a.vs2 = FX(opcode, 24, 20);
         a.vm = FX(opcode, 25, 25);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF8", vpr[a.vd], vpr[a.vs2], vm[a.vm]); 
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VZEXT.VF8", vpr[a.vd], vpr[a.vs2], vm[a.vm]);
         return buff;
     }
 
