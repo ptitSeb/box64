@@ -141,3 +141,159 @@ void convert_SDL2_Event_to_32(void* dst_, const void* src_)
             memcpy(dst, src, sizeof(my_SDL2_Event_32_t));
     }
 }
+
+void inplace_SDL2_Palette_to_32(void* a)
+{
+    if (!a) return;
+    my_SDL2_Palette_t* src = a;
+    my_SDL2_Palette_32_t* dst = a;
+    dst->ncolors = src->ncolors;
+    dst->colors = to_ptrv(src->colors);
+    dst->version = src->version;
+    dst->refcount = src->refcount;
+}
+
+void inplace_SDL2_PixelFormat_to_32(void* a)
+{
+    while (a) {
+        my_SDL2_PixelFormat_t* src = a;
+        my_SDL2_PixelFormat_32_t* dst = a;
+        dst->format = src->format;
+        inplace_SDL2_Palette_to_32(src->palette);
+        dst->palette = to_ptrv(src->palette);
+        dst->BitsPerPixel = src->BitsPerPixel;
+        dst->BytesPerPixel = src->BytesPerPixel;
+        dst->Rmask = src->Rmask;
+        dst->Gmask = src->Gmask;
+        dst->Bmask = src->Bmask;
+        dst->Amask = src->Amask;
+        dst->Rloss = src->Rloss;
+        dst->Gloss = src->Gloss;
+        dst->Bloss = src->Bloss;
+        dst->Aloss = src->Aloss;
+        dst->Rshift = src->Rshift;
+        dst->Gshift = src->Gshift;
+        dst->Bshift = src->Bshift;
+        dst->Ashift = src->Ashift;
+        dst->refcount = src->refcount;
+        a = (void*)src->next;
+        dst->next = to_ptrv(src->next);
+    }
+}
+
+void inplace_SDL2_Surface_to_32(void* a)
+{
+    if (!a) return;
+    my_SDL2_Surface_t* src = a;
+    my_SDL2_Surface_32_t* dst = a;
+    dst->flags = src->flags;
+    inplace_SDL2_PixelFormat_to_32(src->format);
+    dst->format = to_ptrv(src->format);
+    dst->w = src->w;
+    dst->h = src->h;
+    dst->pitch = src->pitch;
+    dst->pixels = to_ptrv(src->pixels);
+    dst->userdata = to_ptrv(src->userdata);
+    dst->locked = src->locked;
+    dst->list_blitmap = to_ptrv(src->list_blitmap);
+    dst->clip_rect.x = src->clip_rect.x;
+    dst->clip_rect.y = src->clip_rect.y;
+    dst->clip_rect.w = src->clip_rect.w;
+    dst->clip_rect.h = src->clip_rect.h;
+    dst->map = to_ptrv(src->map);
+    dst->refcount = src->refcount;
+}
+
+
+void inplace_SDL2_Palette_to_64(void* a)
+{
+    if (!a) return;
+    my_SDL2_Palette_32_t* src = a;
+    my_SDL2_Palette_t* dst = a;
+    dst->refcount = src->refcount;
+    dst->version = src->version;
+    dst->colors = from_ptrv(src->colors);
+    dst->ncolors = src->ncolors;
+}
+
+void inplace_SDL2_PixelFormat_to_64(void* a)
+{
+    while (a) {
+        my_SDL2_PixelFormat_32_t* src = a;
+        my_SDL2_PixelFormat_t* dst = a;
+        uintptr_t p = (uintptr_t)(src->next);
+        a = (void*)p;
+        dst->next = from_ptrv(src->next);
+        dst->refcount = src->refcount;
+        dst->Ashift = src->Ashift;
+        dst->Bshift = src->Bshift;
+        dst->Gshift = src->Gshift;
+        dst->Rshift = src->Rshift;
+        dst->Aloss = src->Aloss;
+        dst->Bloss = src->Bloss;
+        dst->Gloss = src->Gloss;
+        dst->Rloss = src->Rloss;
+        dst->Amask = src->Amask;
+        dst->Bmask = src->Bmask;
+        dst->Gmask = src->Gmask;
+        dst->Rmask = src->Rmask;
+        dst->BytesPerPixel = src->BytesPerPixel;
+        dst->BitsPerPixel = src->BitsPerPixel;
+        p = (uintptr_t)(src->palette);
+        inplace_SDL2_Palette_to_64((void*)p);
+        dst->palette = from_ptrv(src->palette);
+        dst->format = src->format;
+    }
+}
+
+void inplace_SDL2_Surface_to_64(void* a)
+{
+    if (!a) return;
+    my_SDL2_Surface_32_t* src = a;
+    my_SDL2_Surface_t* dst = a;
+    dst->refcount = src->refcount;
+    dst->map = from_ptrv(src->map);
+    dst->clip_rect.h = src->clip_rect.h;
+    dst->clip_rect.w = src->clip_rect.w;
+    dst->clip_rect.y = src->clip_rect.y;
+    dst->clip_rect.x = src->clip_rect.x;
+    dst->list_blitmap = from_ptrv(src->list_blitmap);
+    dst->locked = src->locked;
+    dst->userdata = from_ptrv(src->userdata);
+    dst->pixels = from_ptrv(src->pixels);
+    dst->pitch = src->pitch;
+    dst->h = src->h;
+    dst->w = src->w;
+    uintptr_t p = (uintptr_t)(src->format);
+    inplace_SDL2_PixelFormat_to_64((void*)p);
+    dst->format = from_ptrv(src->format);
+    dst->flags = src->flags;
+}
+
+void inplace_SDL2_RWops_to_32(void* a)
+{
+    if (!a) return;
+    my_SDL2_RWops_t* src = a;
+    my_SDL2_RWops_32_t* dst = a;
+    dst->size = to_ptrv(src->size);
+    dst->seek = to_ptrv(src->seek);
+    dst->read = to_ptrv(src->read);
+    dst->write = to_ptrv(src->write);
+    dst->close = to_ptrv(src->close);
+    dst->type = src->type;
+    memmove(&dst->hidden, &src->hidden, sizeof(dst->hidden));
+}
+
+void inplace_SDL2_RWops_to_64(void* a)
+{
+    if(!a) return;
+    my_SDL2_RWops_32_t* src = a;
+    my_SDL2_RWops_t* dst = a;
+    memmove(&dst->hidden, &src->hidden, sizeof(dst->hidden));
+    dst->type = src->type;
+    dst->close = from_ptrv(src->close);
+    dst->write = from_ptrv(src->write);
+    dst->read = from_ptrv(src->read);
+    dst->seek = from_ptrv(src->seek);
+    dst->size = from_ptrv(src->size);
+}

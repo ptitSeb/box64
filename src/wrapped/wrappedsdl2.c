@@ -237,19 +237,15 @@ EXPORT int64_t my2_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
     return ret;
 }
 
-EXPORT int64_t my2_SDL_OpenAudioDevice(x64emu_t* emu, void* device, int64_t iscapture, void* d, void* o, int64_t allowed)
+EXPORT uint32_t my2_SDL_OpenAudioDevice(x64emu_t* emu, void* device, int iscapture, void* d, void* o, int allowed)
 {
-    SDL2_AudioSpec *desired = (SDL2_AudioSpec*)d;
+    SDL2_AudioSpec* desired = (SDL2_AudioSpec*)d;
 
     // create a callback
-    void *fnc = (void*)desired->callback;
+    void* fnc = (void*)desired->callback;
     desired->callback = find_AudioCallback_Fct(fnc);
-    int ret = my->SDL_OpenAudioDevice(device, iscapture, desired, (SDL2_AudioSpec*)o, allowed);
-    if (ret<=0) {
-        // error, clean the callback...
-        desired->callback = fnc;
-        return ret;
-    }
+    uint32_t ret = my->SDL_OpenAudioDevice(device, iscapture, desired, (SDL2_AudioSpec*)o, allowed);
+
     // put back stuff in place?
     desired->callback = fnc;
 

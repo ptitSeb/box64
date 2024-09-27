@@ -11,13 +11,37 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
+typedef void* (*pFv_t)(void);
+typedef void* (*pFp_t)(void*);
+typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFpV_t)(void*, ...);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef void* (*pFpp_t)(void*, void*);
+typedef int32_t (*iFppV_t)(void*, void*, ...);
+typedef void* (*pFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
+typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
+typedef uint32_t (*uFpippi_t)(void*, int32_t, void*, void*, int32_t);
+typedef void* (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(SDL_FreeSurface, vFp_t) \
 	GO(SDL_PollEvent, iFp_t) \
+	GO(SDL_GetBasePath, pFv_t) \
+	GO(SDL_GL_GetProcAddress, pFp_t) \
+	GO(SDL_SetWindowIcon, vFpp_t) \
+	GO(SDL_Log, vFpV_t) \
 	GO(SDL_GetDesktopDisplayMode, iFip_t) \
-	GO(SDL_OpenAudio, iFpp_t)
+	GO(SDL_OpenAudio, iFpp_t) \
+	GO(SDL_RWFromFile, pFpp_t) \
+	GO(SDL_sscanf, iFppV_t) \
+	GO(SDL_CreateThread, pFppp_t) \
+	GO(SDL_vsnprintf, iFpLpp_t) \
+	GO(SDL_snprintf, iFpLpV_t) \
+	GO(SDL_OpenAudioDevice, uFpippi_t) \
+	GO(SDL_CreateRGBSurfaceWithFormatFrom, pFpiiiiu_t)
 
 #endif // __wrappedsdl2TYPES32_H_
