@@ -55,6 +55,26 @@ typedef struct SDL1_RWops_s {
     } hidden;
 } SDL1_RWops_t;
 
+#ifdef BOX32
+#define SUPER()                 \
+    if (box64_is32bits) {       \
+        GO(seek, iFpii_32)      \
+        GO(read, iFppii_32)     \
+        GO(write, iFppii_32)    \
+        GO(close, iFp_32)       \
+    } else {                    \
+        GO(seek, iFpii)         \
+        GO(read, iFppii)        \
+        GO(write, iFppii)       \
+        GO(close, iFp)          \
+    }
+#else
+#define SUPER()                 \
+        GO(seek, iFpii)         \
+        GO(read, iFppii)        \
+        GO(write, iFppii)       \
+        GO(close, iFp)
+#endif
 
 EXPORT int32_t my_native_seek(SDL1_RWops_t *context, int32_t offset, int32_t whence)
 {
@@ -142,21 +162,7 @@ SDL1_RWops_t* AddNativeRW(x64emu_t* emu, SDL1_RWops_t* ops)
     fnc = AddCheckBridge(system, W, my_native_##A, 0, NULL); \
     newrw->A = (sdl1_##A)fnc;
 
-    #ifdef BOX32
-    if(box64_is32bits)
-    {
-        GO(seek, iFpii_32)
-        GO(read, iFppii_32)
-        GO(write, iFppii_32)
-        GO(close, iFp_32)
-    } else
-    #endif
-    {
-        GO(seek, iFpii)
-        GO(read, iFppii)
-        GO(write, iFppii)
-        GO(close, iFp)
-    }
+    SUPER()
 
     #undef GO
 
@@ -181,10 +187,7 @@ SDL1_RWops_t* RWNativeStart(x64emu_t* emu, SDL1_RWops_t* ops)
     #define GO(A, W) \
     newrw->A = my_emulated_##A;
 
-    GO(seek, iFpii)
-    GO(read, iFppii)
-    GO(write, iFppii)
-    GO(close, iFp)
+    SUPER()
 
     #undef GO
 

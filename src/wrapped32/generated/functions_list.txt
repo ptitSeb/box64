@@ -107,6 +107,7 @@
 #() vFdd -> vFdd
 #() vFlu -> vFlu
 #() vFlp -> vFlp
+#() vFpi -> vFpi
 #() vFpC -> vFpC
 #() vFpu -> vFpu
 #() vFpl -> vFpl
@@ -160,6 +161,7 @@
 #() uFuu -> uFuu
 #() uFup -> uFup
 #() uFpi -> uFpi
+#() uFpu -> uFpu
 #() uFpp -> uFpp
 #() uFpa -> uFpa
 #() UFii -> UFii
@@ -177,6 +179,7 @@
 #() dFdD -> dFdD
 #() dFdp -> dFdp
 #() dFLL -> dFLL
+#() dFpp -> dFpp
 #() lFES -> lFES
 #() lFui -> lFui
 #() lFll -> lFll
@@ -222,6 +225,7 @@
 #() vFEpi -> vFEpi
 #() vFEpu -> vFEpu
 #() vFEpp -> vFEpp
+#() vFEpV -> vFEpV
 #() vFccc -> vFccc
 #() vFwww -> vFwww
 #() vFiii -> vFiii
@@ -345,6 +349,7 @@
 #() iFXpu -> iFXpu
 #() iFXpp -> iFXpp
 #() IFiIi -> IFiIi
+#() IFpIi -> IFpIi
 #() CFipp -> CFipp
 #() CFuUu -> CFuUu
 #() CFuff -> CFuff
@@ -356,6 +361,7 @@
 #() uFuup -> uFuup
 #() uFupp -> uFupp
 #() uFpuU -> uFpuU
+#() uFppu -> uFppu
 #() fFuii -> fFuii
 #() fFfff -> fFfff
 #() fFffp -> fFffp
@@ -364,10 +370,12 @@
 #() lFipL -> lFipL
 #() lFlpi -> lFlpi
 #() lFpLL -> lFpLL
+#() lFppi -> lFppi
 #() lFppL -> lFppL
 #() LFEpi -> LFEpi
 #() LFpii -> LFpii
 #() LFpip -> LFpip
+#() LFppi -> LFppi
 #() LFppL -> LFppL
 #() LFXCi -> LFXCi
 #() LFXpi -> LFXpi
@@ -380,7 +388,9 @@
 #() pFipi -> pFipi
 #() pFipL -> pFipL
 #() pFulu -> pFulu
+#() pFupi -> pFupi
 #() pFupp -> pFupp
+#() pFLpi -> pFLpi
 #() pFpii -> pFpii
 #() pFpiu -> pFpiu
 #() pFpiL -> pFpiL
@@ -430,6 +440,7 @@
 #() vFiuip -> vFiuip
 #() vFiuuu -> vFiuuu
 #() vFiulp -> vFiulp
+#() vFiupV -> vFiupV
 #() vFiUUU -> vFiUUU
 #() vFifff -> vFifff
 #() vFiddd -> vFiddd
@@ -681,6 +692,7 @@
 #() vFpipiu -> vFpipiu
 #() vFpuipp -> vFpuipp
 #() vFpddii -> vFpddii
+#() vFppWui -> vFppWui
 #() vFpppii -> vFpppii
 #() vFppppu -> vFppppu
 #() vFppppp -> vFppppp
@@ -815,12 +827,14 @@
 #() iFXLiiiL -> iFXLiiiL
 #() iFXLpppp -> iFXLpppp
 #() iFXpIppp -> iFXpIppp
+#() uFEpippi -> uFEpippi
 #() uFupuufp -> uFupuufp
 #() lFipLipu -> lFipLipu
 #() lFipLipp -> lFipLipp
 #() pFEpiiuu -> pFEpiiuu
 #() pFEpLLiN -> pFEpLLiN
 #() pFEppLLp -> pFEppLLp
+#() pFWCiWCi -> pFWCiWCi
 #() pFpiiiiu -> pFpiiiiu
 #() vFiiiiiip -> vFiiiiiip
 #() vFiiiiuup -> vFiiiiuup
@@ -882,6 +896,7 @@
 #() iFXiuLiii -> iFXiuLiii
 #() uFuippppp -> uFuippppp
 #() LFXLLppuu -> LFXLLppuu
+#() pFEpiiiiu -> pFEpiiiiu
 #() pFEpLiiii -> pFEpLiiii
 #() pFEpLiiiI -> pFEpLiiiI
 #() vFiiiiuuip -> vFiiiiuuip
@@ -1582,9 +1597,33 @@ wrappedsdl1:
   - SDL_BuildAudioCVT
 wrappedsdl2:
 % G SDL_JoystickGUID UU
+- vFp:
+  - SDL_FreeSurface
 - iFp:
   - SDL_PollEvent
+- pFv:
+  - SDL_GetBasePath
+- pFp:
+  - SDL_GL_GetProcAddress
+- vFpp:
+  - SDL_SetWindowIcon
+- vFpV:
+  - SDL_Log
 - iFip:
   - SDL_GetDesktopDisplayMode
 - iFpp:
   - SDL_OpenAudio
+- pFpp:
+  - SDL_RWFromFile
+- iFppV:
+  - SDL_sscanf
+- pFppp:
+  - SDL_CreateThread
+- iFpLpp:
+  - SDL_vsnprintf
+- iFpLpV:
+  - SDL_snprintf
+- uFpippi:
+  - SDL_OpenAudioDevice
+- pFpiiiiu:
+  - SDL_CreateRGBSurfaceWithFormatFrom

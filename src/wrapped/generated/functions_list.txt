@@ -2183,6 +2183,7 @@
 #() iFpppppp
 #() uFEiippp
 #() uFEiuppp
+#() uFEpippi
 #() uFEpippp
 #() uFEpCppp
 #() uFEpuppp
@@ -5581,7 +5582,7 @@ wrappedsdl2:
   - SDL_RWwrite
 - vFGpppp:
   - SDL_GetJoystickGUIDInfo
-- iFpippi:
+- uFpippi:
   - SDL_OpenAudioDevice
 - pFpippp:
   - SDL_LoadWAV_RW

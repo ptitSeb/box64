@@ -6,6 +6,10 @@
 #include "sdl2rwops.h"
 #include "debug.h"
 #include "wrapper.h"
+#ifdef BOX32
+#include "wrapper32.h"
+#include "sdl2align32.h"
+#endif
 #include "box64context.h"
 #include "x64run.h"
 #include "x64emu.h"
@@ -54,31 +58,85 @@ typedef struct SDL2_RWops_s {
     } hidden;
 } SDL2_RWops_t;
 
-#define SUPER()         \
-    GO(size, IFp)       \
-    GO(seek, IFpIi)     \
-    GO(read, iFppii)    \
-    GO(write, iFppii)   \
-    GO(close, iFp)
+#ifdef BOX32
+#define SUPER()                 \
+    if (box64_is32bits) {       \
+        GO(size, IFp_32)        \
+        GO(seek, IFpIi_32)      \
+        GO(read, iFppii_32)     \
+        GO(write, iFppii_32)    \
+        GO(close, iFp_32)       \
+    } else {                    \
+        GO(size, IFp)           \
+        GO(seek, IFpIi)         \
+        GO(read, iFppii)        \
+        GO(write, iFppii)       \
+        GO(close, iFp)          \
+    }
+#else
+#define SUPER()                 \
+        GO(size, IFp)           \
+        GO(seek, IFpIi)         \
+        GO(read, iFppii)        \
+        GO(write, iFppii)       \
+        GO(close, iFp)
+#endif
 
 EXPORT int64_t my2_native_size(SDL2_RWops_t *context)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL2_RWops_to_64(context);
+        int ret = context->hidden.my.orig->size(context->hidden.my.orig);
+        inplace_SDL2_RWops_to_32(context);
+        return ret;
+    }
+    #endif
     return context->hidden.my.orig->size(context->hidden.my.orig);
 }
 EXPORT int64_t my2_native_seek(SDL2_RWops_t *context, int64_t offset, int32_t whence)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL2_RWops_to_64(context);
+        int ret = context->hidden.my.orig->seek(context->hidden.my.orig, offset, whence);
+        inplace_SDL2_RWops_to_32(context);
+        return ret;
+    }
+    #endif
     return context->hidden.my.orig->seek(context->hidden.my.orig, offset, whence);
 }
 EXPORT size_t my2_native_read(SDL2_RWops_t *context, void *ptr, size_t size, size_t maxnum)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL2_RWops_to_64(context);
+        int ret = context->hidden.my.orig->read(context->hidden.my.orig, ptr, size, maxnum);
+        inplace_SDL2_RWops_to_32(context);
+        return ret;
+    }
+    #endif
     return context->hidden.my.orig->read(context->hidden.my.orig, ptr, size, maxnum);
 }
 EXPORT size_t my2_native_write(SDL2_RWops_t *context, const void *ptr, size_t size, size_t num)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL2_RWops_to_64(context);
+        int ret = context->hidden.my.orig->write(context->hidden.my.orig, ptr, size, num);
+        inplace_SDL2_RWops_to_32(context);
+        return ret;
+    }
+    #endif
     return context->hidden.my.orig->write(context->hidden.my.orig, ptr, size, num);
 }
 EXPORT int32_t my2_native_close(SDL2_RWops_t *context)
 {
+    #ifdef BOX32
+    if(box64_is32bits) {
+        inplace_SDL2_RWops_to_64(context);
+    }
+    #endif
     int32_t ret = context->hidden.my.orig->close(context->hidden.my.orig);
     context->hidden.my.custom_free(context);
     return ret;
