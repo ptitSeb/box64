@@ -1317,6 +1317,7 @@ wrappedlibgl:
   - glXSwapIntervalEXT
 - vFuipp:
   - glShaderSource
+  - glShaderSourceARB
 - pFXipp:
   - glXChooseFBConfig
 wrappedlibglu:

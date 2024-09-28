@@ -37,6 +37,7 @@ typedef void* (*pFXipp_t)(void*, int32_t, void*, void*);
 	GO(eglSetBlobCacheFuncsANDROID, vFppp_t) \
 	GO(glXSwapIntervalEXT, vFXpi_t) \
 	GO(glShaderSource, vFuipp_t) \
+	GO(glShaderSourceARB, vFuipp_t) \
 	GO(glXChooseFBConfig, pFXipp_t)
 
 #endif // __wrappedlibglTYPES32_H_
