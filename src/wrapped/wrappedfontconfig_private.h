@@ -1,16 +1,16 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(FcAtomicCreate, pFp)
 GO(FcAtomicDeleteNew, vFp)
 GO(FcAtomicDestroy, vFp)
 GO(FcAtomicLock, iFp)
-//GO(FcAtomicNewFile, 
+GO(FcAtomicNewFile, pFp)
 GO(FcAtomicOrigFile, pFp)
 GO(FcAtomicReplaceOrig, iFp)
-//GO(FcAtomicUnlock, 
-//GO(FcBlanksAdd, 
+GO(FcAtomicUnlock, vFp)
+GO(FcBlanksAdd, iFpu)
 GO(FcBlanksCreate, pFv)
 GO(FcBlanksDestroy, vFp)
 GO(FcBlanksIsMember, iFpu)
@@ -25,11 +25,11 @@ GO(FcCharSetCount, uFp)
 GO(FcCharSetCoverage, uFpup)
 GO(FcCharSetCreate, pFv)
 GO(FcCharSetDestroy, vFp)
-//GO(FcCharSetEqual, 
-GO(FcCharSetFirstPage, iFppp)   // second p is a fixed sized array
+GO(FcCharSetEqual, iFpp)
+GO(FcCharSetFirstPage, uFppp)   // second p is a fixed sized array
 GO(FcCharSetHasChar, iFpu)
-//GO(FcCharSetIntersect, 
-//GO(FcCharSetIntersectCount, 
+GO(FcCharSetIntersect, pFpp)
+GO(FcCharSetIntersectCount, uFpp)
 GO(FcCharSetIsSubset, iFpp)
 GO(FcCharSetMerge, iFppp)
 GO(FcCharSetNew, pFv)
@@ -44,12 +44,12 @@ GO(FcConfigBuildFonts, iFp)
 GO(FcConfigCreate, pFv)
 GO(FcConfigDestroy, vFp)
 GO(FcConfigEnableHome, iFi)
-//GO(FcConfigFilename, 
+GO(FcConfigFilename, pFp)
 GO(FcConfigGetBlanks, pFp)
 GO(FcConfigGetCache, pFp)
 GO(FcConfigGetCacheDirs, pFp)
-//GO(FcConfigGetConfigDirs, 
-//GO(FcConfigGetConfigFiles, 
+GO(FcConfigGetConfigDirs, pFp)
+GO(FcConfigGetConfigFiles, pFp)
 GO(FcConfigGetCurrent, pFv)
 GO(FcConfigGetFontDirs, pFp)
 GO(FcConfigGetFonts, pFpu)
@@ -57,25 +57,25 @@ GO(FcConfigGetRescanInterval, iFp)
 //GO(FcConfigGetRescanInverval, 
 GO(FcConfigGetSysRoot, pFp)
 GO(FcConfigHome, pFv)
-//GO(FcConfigParseAndLoad, 
+GO(FcConfigParseAndLoad, iFppi)
 GO(FcConfigReference, pFp)
-//GO(FcConfigSetCurrent, 
+GO(FcConfigSetCurrent, iFp)
 GO(FcConfigSetRescanInterval, iFpi)
 //GO(FcConfigSetRescanInverval, 
 GO(FcConfigSubstitute, iFppu)
 GO(FcConfigSubstituteWithPat, iFpppu)
-//GO(FcConfigUptoDate, 
+GO(FcConfigUptoDate, iFp)
 GO(FcDefaultSubstitute, vFp)
 GO(FcDirCacheLoad, pFppp)
 GO(FcDirCacheLoadFile, pFpp)
 GO(FcDirCacheRead, pFpip)
-//GO(FcDirCacheUnlink, 
+GO(FcDirCacheUnlink, iFpp)
 GO(FcDirCacheUnload, vFp)
-//GO(FcDirCacheValid, 
+GO(FcDirCacheValid, iFp)
 GO(FcDirSave, iFppp)
 GO(FcDirScan, iFpppppi)
 GO(FcFileIsDir, iFp)
-//GO(FcFileScan, 
+GO(FcFileScan, iFpppppi)
 GO(FcFini, vFv)
 GO(FcFontList, pFppp)
 GO(FcFontMatch, pFppp)
@@ -94,17 +94,17 @@ GO(FcFreeTypeCharIndex, uFpu)
 //GO(FcFreeTypeCharSetAndSpacing, 
 GO(FcFreeTypeQuery, pFpupp)
 GO(FcFreeTypeQueryFace, pFppip)
-//GO(FcGetLangs, 
+GO(FcGetLangs, pFv)
 GO(FcGetVersion, iFv)
 GO(FcInit, iFv)
 GO(FcInitBringUptoDate, iFv)
-//GO(FcInitLoadConfig, 
+GO(FcInitLoadConfig, pFv)
 GO(FcInitLoadConfigAndFonts, pFv)
 GO(FcInitReinitialize, iFv)
 GO(FcLangGetCharSet, pFp)
 GO(FcLangSetAdd, iFpp)
 GO(FcLangSetCompare, uFpp)
-//GO(FcLangSetContains, 
+GO(FcLangSetContains, iFpp)
 GO(FcLangSetCopy, pFp)
 GO(FcLangSetCreate, pFv)
 GO(FcLangSetDestroy, vFp)
@@ -115,15 +115,15 @@ GO(FcLangSetHasLang, uFpp)
 GO(FcMatrixCopy, pFp)
 GO(FcMatrixEqual, iFpp)
 GO(FcMatrixMultiply, vFppp)
-//GO(FcMatrixRotate, 
-//GO(FcMatrixScale, 
+GO(FcMatrixRotate, vFpdd)
+GO(FcMatrixScale, vFpdd)
 GO(FcMatrixShear, vFpdd)
 GO(FcNameConstant, iFpp)
 GO(FcNameGetConstant, pFp)
 GO(FcNameGetObjectType, pFp)
 GO(FcNameParse, pFp)
-//GO(FcNameRegisterConstants, 
-//GO(FcNameRegisterObjectTypes, 
+GO(FcNameRegisterConstants, iFpi)
+GO(FcNameRegisterObjectTypes, iFpi)
 GO(FcNameUnparse, pFp)
 GO(FcNameUnregisterConstants, iFpi)
 GO(FcNameUnregisterObjectTypes, iFpi)
@@ -132,16 +132,16 @@ GOM(FcObjectSetBuild, pFEpV)
 GO(FcObjectSetCreate, pFv)
 GO(FcObjectSetDestroy, vFp)
 GOM(FcObjectSetVaBuild, pFEpA)
-GO(FcPatternAdd, iFppiLi)  // FcValue is a typedef with int+union, with biggest part is a double => so 1 int and 1"L"
+GO(FcPatternAdd, iFppiLi) // Warning: failed to confirm
 GO(FcPatternAddBool, iFppi)
 GO(FcPatternAddCharSet, iFppp)
 GO(FcPatternAddDouble, iFppd)
-GO(FcPatternAddFTFace, iFppp)
+GO(FcPatternAddFTFace, iFppp) // Warning: failed to confirm
 GO(FcPatternAddInteger, iFppi)
 GO(FcPatternAddLangSet, iFppp)
 GO(FcPatternAddMatrix, iFppp)
 GO(FcPatternAddString, iFppp)
-GO(FcPatternAddWeak, iFppiLi)
+GO(FcPatternAddWeak, iFppiLi) // Warning: failed to confirm
 GOM(FcPatternBuild, pFEpV)
 GO(FcPatternCreate, pFv)
 GO(FcPatternDel, iFpp)
@@ -155,7 +155,7 @@ GO(FcPatternGet, uFppip)
 GO(FcPatternGetBool, uFppip)
 GO(FcPatternGetCharSet, uFppip)
 GO(FcPatternGetDouble, uFppip)
-GO(FcPatternGetFTFace, iFppip)
+GO(FcPatternGetFTFace, iFppip) // Warning: failed to confirm
 GO(FcPatternGetInteger, uFppip)
 GO(FcPatternGetLangSet, uFppip)
 GO(FcPatternGetMatrix, uFppip)
@@ -175,7 +175,7 @@ GO(FcStrDowncase, pFp)
 GO(FcStrFree, vFp)
 GO(FcStrListCreate, pFp)
 GO(FcStrListDone, vFp)
-GO(FcStrListFirst, vFp) //2.11.0+
+GO(FcStrListFirst, vFp)
 GO(FcStrListNext, pFp)
 GO(FcStrPlus, pFpp)
 GO(FcStrSetAdd, iFpp)
