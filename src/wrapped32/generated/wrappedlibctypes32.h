@@ -74,6 +74,7 @@ typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFivpV_t)(int32_t, void, void*, ...);
 typedef int32_t (*iFiiip_t)(int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFipii_t)(int32_t, void*, int32_t, int32_t);
+typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
 typedef int32_t (*iFLLLL_t)(uintptr_t, uintptr_t, uintptr_t, uintptr_t);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFpupV_t)(void*, uint32_t, void*, ...);
@@ -149,6 +150,7 @@ typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, in
 	GO(writev, lFipi_t) \
 	GO(__realpath_chk, pFppv_t) \
 	GO(__libc_init, vFpppp_t) \
+	GO(utimensat, iFippi_t) \
 	GO(getaddrinfo, iFpppp_t) \
 	GO(getgrgid_r, iFuppup_t) \
 	GO(getpwuid_r, iFuppLp_t) \

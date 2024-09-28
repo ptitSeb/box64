@@ -105,7 +105,7 @@ GOWM(backtrace_symbols, pFEpi)
 // bdflush
 GOW(bind, iFipu)
 // bindresvport
-//GOW(bindtextdomain, pFpp)
+GOW(bindtextdomain, pFpp)
 GOW(bind_textdomain_codeset, pFpp)
 //GOW(brk, iFp)
 // __bsd_getpgrp
@@ -187,7 +187,7 @@ GOM(__cxa_atexit, iFEppp) //%%
 GOM(atexit, iFEp)           //%% just in case
 GOM(__cxa_finalize, vFEp) //%%
 DATAM(__cpu_model, 16)
-//GOM(__cxa_thread_atexit_impl, iFEppp) //%%
+GOM(__cxa_thread_atexit_impl, iFEppp) //%%
 // __cyg_profile_func_enter
 // __cyg_profile_func_exit
 // daemon
@@ -302,7 +302,7 @@ GO(faccessat, iFipii)
 GOW(fchdir, iFi)
 // fchflags
 GOW(fchmod, iFiu)
-//GO(fchmodat, iFipui)
+GO(fchmodat, iFipui)
 GOW(fchown, iFiuu)
 //GO(fchownat, iFipuii)
 GO(fclose, iFS)
@@ -527,7 +527,7 @@ GO(getnameinfo, iFpupLpLi)
 // getnetgrent
 // getnetgrent_r    // Weak
 // getnetname
-//GOW(get_nprocs, iFv)
+GOW(get_nprocs, iFv)
 //GOW(get_nprocs_conf, iFv)
 //GOM(getopt, iFipp)             //%noE
 //GOM(getopt_long, iFipppp)      //%noE
@@ -1835,7 +1835,7 @@ GO(__towupper_l, iFia)
 GOW(towupper_l, iFia)
 // tr_break
 //GOW(truncate, iFpu)
-//GO(truncate64, iFpU)
+GO(truncate64, iFSU)
 // tsearch  // Weak
 //GO(ttyname, pFi)
 //GOW(ttyname_r, iFipu)
@@ -1870,7 +1870,7 @@ GO(__uselocale, aFa)
 GO(usleep, iFu)
 // ustat
 GO(utime, iFprLL_)
-//GO(utimensat, iFippi)
+GOM(utimensat, iFippi)  //%noE
 GOWM(utimes, iFEpp)
 //GOW(utmpname, iFp)
 // utmpxname

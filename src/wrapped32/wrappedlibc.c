@@ -2061,6 +2061,37 @@ EXPORT void* my32_asctime(void* t)
     return &ret;
 }
 
+EXPORT int my32_utimensat(int dirfd, void* name, void* times, int flags)
+{
+    struct timespec times_l[2] = {0};
+    from_struct_LL((struct_LL_t*)&times_l[0], to_ptrv(times));
+    from_struct_LL((struct_LL_t*)&times_l[1], to_ptrv(times)+8);
+    return utimensat(dirfd, name, times_l, flags);
+}
+
+
+struct mallinfo {
+    int arena;
+    int ordblks;
+    int smblks;
+    int hblks;
+    int hblkhd;
+    int usmblks;
+    int fsmblks;
+    int uordblks;
+    int fordblks;
+    int keepcost;
+};
+EXPORT void* my32_mallinfo(x86emu_t* emu, void* p)
+{
+    (void)emu;
+    static struct mallinfo(*p_mallinfo)() = NULL;
+    if(!p_mallinfo) p_mallinfo = dlsym(NULL, "mallinfo");
+    *((struct mallinfo*)p) = p_mallinfo();
+    return p;
+}
+
+
 #if 0
 EXPORT int32_t my32_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
 {

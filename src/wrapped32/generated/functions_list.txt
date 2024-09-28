@@ -146,6 +146,7 @@
 #() iFhi -> iFhi
 #() iFhp -> iFhp
 #() iFhh -> iFhh
+#() iFSU -> iFSU
 #() iFSp -> iFSp
 #() iFXi -> iFXi
 #() iFXL -> iFXL
@@ -547,6 +548,7 @@
 #() iFiill -> iFiill
 #() iFiuui -> iFiuui
 #() iFipii -> iFipii
+#() iFipui -> iFipui
 #() iFipup -> iFipup
 #() iFippi -> iFippi
 #() iFuiup -> iFuiup
@@ -1253,6 +1255,8 @@ wrappedlibc:
 - iFivpV:
 - iFiiip:
 - iFipii:
+- iFippi:
+  - utimensat
 - iFLLLL:
 - iFpipp:
 - iFpupV:
