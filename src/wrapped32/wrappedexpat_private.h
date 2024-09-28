@@ -25,7 +25,7 @@ GO(XML_GetErrorCode, uFp)
 //GO(XML_MemMalloc, pFpL)
 //GO(XML_MemRealloc, pFppL)
 //GO(XML_Parse, uFppii)
-GO(XML_ParseBuffer, uFpii)
+GOM(XML_ParseBuffer, uFEpii)
 GO(XML_ParserCreate, pFp)
 //GO(XML_ParserCreate_MM, pFpppp) // return a structure
 //GO(XML_ParserCreateNS, pFpc)

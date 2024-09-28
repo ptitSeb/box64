@@ -364,7 +364,6 @@
 #() uFuuu -> uFuuu
 #() uFuup -> uFuup
 #() uFupp -> uFupp
-#() uFpii -> uFpii
 #() uFpuU -> uFpuU
 #() uFppu -> uFppu
 #() fFuii -> fFuii
@@ -420,6 +419,7 @@
 #() iFBp_pi -> iFBpi
 #() IFpBp_i -> IFpBi
 #() UFpBp_i -> UFpBi
+#() fFpBp_p -> fFpBp
 #() fFpBp_a -> fFpBa
 #() dFpBp_i -> dFpBi
 #() dFpBp_a -> dFpBa
@@ -567,6 +567,7 @@
 #() iFXpip -> iFXpip
 #() iFXppp -> iFXppp
 #() CFuuff -> CFuuff
+#() uFEpii -> uFEpii
 #() uFuuuu -> uFuuuu
 #() uFpCCC -> uFpCCC
 #() lFEipi -> lFEipi
@@ -1073,6 +1074,8 @@ wrappedexpat:
 - vFppp:
   - XML_SetDoctypeDeclHandler
   - XML_SetElementHandler
+- uFpii:
+  - XML_ParseBuffer
 wrappedfreetype:
 - iFp:
   - FT_Done_Face

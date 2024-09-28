@@ -3,6 +3,8 @@
 #include <string.h>
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
+#include <ucontext.h>
+#include <sys/mman.h>
 
 #include "wrappedlibs.h"
 
@@ -32,6 +34,55 @@ GO(2)   \
 GO(3)   \
 GO(4)
 
+// StartElementHandler ...
+#define GO(A)   \
+static uintptr_t my_StartElementHandler_fct_##A = 0;                                                \
+static void* my_StartElementHandler_##A(void* data, void* name, void** attr)                        \
+{                                                                                                   \
+    int cnt = 0;                                                                                    \
+    while(attr[cnt]) cnt+=2;                                                                        \
+    ++cnt;                                                                                          \
+    ptr_t attr_s[cnt];                                                                              \
+    for(int i=0; i<cnt; ++i) attr_s[i] = to_ptrv(attr[i]);                                          \
+    return (void*)RunFunctionFmt(my_StartElementHandler_fct_##A, "ppp", data, name, attr_s);        \
+}
+SUPER()
+#undef GO
+static void* find_StartElementHandler_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_StartElementHandler_fct_##A == (uintptr_t)fct) return my_StartElementHandler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_StartElementHandler_fct_##A == 0) {my_StartElementHandler_fct_##A = (uintptr_t)fct; return my_StartElementHandler_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat StartElementHandler callback\n");
+    return NULL;
+}
+// XML_StartDoctypeDecl ...
+#define GO(A)   \
+static uintptr_t my_XML_StartDoctypeDecl_fct_##A = 0;                                                               \
+static void* my_XML_StartDoctypeDecl_##A(void* data, void* name, void* sysid, void* pubid, int has_internal)        \
+{                                                                                                                   \
+    return (void*)RunFunctionFmt(my_XML_StartDoctypeDecl_fct_##A, "ppppi", data, name, sysid, pubid, has_internal); \
+}
+SUPER()
+#undef GO
+static void* find_XML_StartDoctypeDecl_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XML_StartDoctypeDecl_fct_##A == (uintptr_t)fct) return my_XML_StartDoctypeDecl_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XML_StartDoctypeDecl_fct_##A == 0) {my_XML_StartDoctypeDecl_fct_##A = (uintptr_t)fct; return my_XML_StartDoctypeDecl_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat XML_StartDoctypeDecl callback\n");
+    return NULL;
+}
 // Start ...
 #define GO(A)   \
 static uintptr_t my_Start_fct_##A = 0;                                                      \
@@ -51,7 +102,29 @@ static void* find_Start_Fct(void* fct)
     #define GO(A) if(my_Start_fct_##A == 0) {my_Start_fct_##A = (uintptr_t)fct; return my_Start_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat Start callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat Start callback\n");
+    return NULL;
+}
+// XML_EndDoctypeDecl ...
+#define GO(A)   \
+static uintptr_t my_XML_EndDoctypeDecl_fct_##A = 0;             \
+static void my_XML_EndDoctypeDecl_##A(void* data)               \
+{                                                               \
+    RunFunctionFmt(my_XML_EndDoctypeDecl_fct_##A, "p", data);   \
+}
+SUPER()
+#undef GO
+static void* find_XML_EndDoctypeDecl_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_XML_EndDoctypeDecl_fct_##A == (uintptr_t)fct) return my_XML_EndDoctypeDecl_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_XML_EndDoctypeDecl_fct_##A == 0) {my_XML_EndDoctypeDecl_fct_##A = (uintptr_t)fct; return my_XML_EndDoctypeDecl_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat XML_EndDoctypeDecl callback\n");
     return NULL;
 }
 // End ...
@@ -73,7 +146,7 @@ static void* find_End_Fct(void* fct)
     #define GO(A) if(my_End_fct_##A == 0) {my_End_fct_##A = (uintptr_t)fct; return my_End_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat End callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat End callback\n");
     return NULL;
 }
 // CharData ...
@@ -95,7 +168,7 @@ static void* find_CharData_Fct(void* fct)
     #define GO(A) if(my_CharData_fct_##A == 0) {my_CharData_fct_##A = (uintptr_t)fct; return my_CharData_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat CharData callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat CharData callback\n");
     return NULL;
 }
 // StartNamespaceDecl ...
@@ -117,7 +190,7 @@ static void* find_StartNamespaceDecl_Fct(void* fct)
     #define GO(A) if(my_StartNamespaceDecl_fct_##A == 0) {my_StartNamespaceDecl_fct_##A = (uintptr_t)fct; return my_StartNamespaceDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat StartNamespaceDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat StartNamespaceDecl callback\n");
     return NULL;
 }
 // EndNamespaceDecl ...
@@ -139,7 +212,7 @@ static void* find_EndNamespaceDecl_Fct(void* fct)
     #define GO(A) if(my_EndNamespaceDecl_fct_##A == 0) {my_EndNamespaceDecl_fct_##A = (uintptr_t)fct; return my_EndNamespaceDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat EndNamespaceDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat EndNamespaceDecl callback\n");
     return NULL;
 }
 // StartElement ...
@@ -161,7 +234,7 @@ static void* find_StartElement_Fct(void* fct)
     #define GO(A) if(my_StartElement_fct_##A == 0) {my_StartElement_fct_##A = (uintptr_t)fct; return my_StartElement_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat StartElement callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat StartElement callback\n");
     return NULL;
 }
 // EndElement ...
@@ -183,7 +256,7 @@ static void* find_EndElement_Fct(void* fct)
     #define GO(A) if(my_EndElement_fct_##A == 0) {my_EndElement_fct_##A = (uintptr_t)fct; return my_EndElement_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat EndElement callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat EndElement callback\n");
     return NULL;
 }
 // ProcessingInstruction ...
@@ -205,7 +278,7 @@ static void* find_ProcessingInstruction_Fct(void* fct)
     #define GO(A) if(my_ProcessingInstruction_fct_##A == 0) {my_ProcessingInstruction_fct_##A = (uintptr_t)fct; return my_ProcessingInstruction_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat ProcessingInstruction callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat ProcessingInstruction callback\n");
     return NULL;
 }
 // Comment ...
@@ -227,7 +300,7 @@ static void* find_Comment_Fct(void* fct)
     #define GO(A) if(my_Comment_fct_##A == 0) {my_Comment_fct_##A = (uintptr_t)fct; return my_Comment_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat Comment callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat Comment callback\n");
     return NULL;
 }
 // StartCdataSection ...
@@ -249,7 +322,7 @@ static void* find_StartCdataSection_Fct(void* fct)
     #define GO(A) if(my_StartCdataSection_fct_##A == 0) {my_StartCdataSection_fct_##A = (uintptr_t)fct; return my_StartCdataSection_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat StartCdataSection callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat StartCdataSection callback\n");
     return NULL;
 }
 // EndCdataSection ...
@@ -271,7 +344,7 @@ static void* find_EndCdataSection_Fct(void* fct)
     #define GO(A) if(my_EndCdataSection_fct_##A == 0) {my_EndCdataSection_fct_##A = (uintptr_t)fct; return my_EndCdataSection_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat EndCdataSection callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat EndCdataSection callback\n");
     return NULL;
 }
 // Default ...
@@ -293,7 +366,7 @@ static void* find_Default_Fct(void* fct)
     #define GO(A) if(my_Default_fct_##A == 0) {my_Default_fct_##A = (uintptr_t)fct; return my_Default_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat Default callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat Default callback\n");
     return NULL;
 }
 // StartDoctypeDecl ...
@@ -315,7 +388,7 @@ static void* find_StartDoctypeDecl_Fct(void* fct)
     #define GO(A) if(my_StartDoctypeDecl_fct_##A == 0) {my_StartDoctypeDecl_fct_##A = (uintptr_t)fct; return my_StartDoctypeDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat StartDoctypeDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat StartDoctypeDecl callback\n");
     return NULL;
 }
 // EndDoctypeDecl ...
@@ -337,7 +410,7 @@ static void* find_EndDoctypeDecl_Fct(void* fct)
     #define GO(A) if(my_EndDoctypeDecl_fct_##A == 0) {my_EndDoctypeDecl_fct_##A = (uintptr_t)fct; return my_EndDoctypeDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat EndDoctypeDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat EndDoctypeDecl callback\n");
     return NULL;
 }
 // EntityDecl ...
@@ -359,7 +432,7 @@ static void* find_EntityDecl_Fct(void* fct)
     #define GO(A) if(my_EntityDecl_fct_##A == 0) {my_EntityDecl_fct_##A = (uintptr_t)fct; return my_EntityDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat EntityDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat EntityDecl callback\n");
     return NULL;
 }
 // ElementDecl ...
@@ -381,7 +454,7 @@ static void* find_ElementDecl_Fct(void* fct)
     #define GO(A) if(my_ElementDecl_fct_##A == 0) {my_ElementDecl_fct_##A = (uintptr_t)fct; return my_ElementDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat ElementDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat ElementDecl callback\n");
     return NULL;
 }
 // UnknownEncoding ...
@@ -403,7 +476,7 @@ static void* find_UnknownEncoding_Fct(void* fct)
     #define GO(A) if(my_UnknownEncoding_fct_##A == 0) {my_UnknownEncoding_fct_##A = (uintptr_t)fct; return my_UnknownEncoding_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat UnknownEncoding callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat UnknownEncoding callback\n");
     return NULL;
 }
 // UnparsedEntityDecl ...
@@ -425,7 +498,7 @@ static void* find_UnparsedEntityDecl_Fct(void* fct)
     #define GO(A) if(my_UnparsedEntityDecl_fct_##A == 0) {my_UnparsedEntityDecl_fct_##A = (uintptr_t)fct; return my_UnparsedEntityDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat UnparsedEntityDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat UnparsedEntityDecl callback\n");
     return NULL;
 }
 // NotationDecl ...
@@ -447,7 +520,7 @@ static void* find_NotationDecl_Fct(void* fct)
     #define GO(A) if(my_NotationDecl_fct_##A == 0) {my_NotationDecl_fct_##A = (uintptr_t)fct; return my_NotationDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat NotationDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat NotationDecl callback\n");
     return NULL;
 }
 // NotStandalone ...
@@ -469,7 +542,7 @@ static void* find_NotStandalone_Fct(void* fct)
     #define GO(A) if(my_NotStandalone_fct_##A == 0) {my_NotStandalone_fct_##A = (uintptr_t)fct; return my_NotStandalone_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat NotStandalone callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat NotStandalone callback\n");
     return NULL;
 }
 // ExternalEntityRef ...
@@ -491,7 +564,7 @@ static void* find_ExternalEntityRef_Fct(void* fct)
     #define GO(A) if(my_ExternalEntityRef_fct_##A == 0) {my_ExternalEntityRef_fct_##A = (uintptr_t)fct; return my_ExternalEntityRef_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat ExternalEntityRef callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat ExternalEntityRef callback\n");
     return NULL;
 }
 // XmlDecl ...
@@ -513,7 +586,7 @@ static void* find_XmlDecl_Fct(void* fct)
     #define GO(A) if(my_XmlDecl_fct_##A == 0) {my_XmlDecl_fct_##A = (uintptr_t)fct; return my_XmlDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat XmlDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat XmlDecl callback\n");
     return NULL;
 }
 // AttlistDecl ...
@@ -535,7 +608,7 @@ static void* find_AttlistDecl_Fct(void* fct)
     #define GO(A) if(my_AttlistDecl_fct_##A == 0) {my_AttlistDecl_fct_##A = (uintptr_t)fct; return my_AttlistDecl_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat AttlistDecl callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat AttlistDecl callback\n");
     return NULL;
 }
 // SkippedEntity ...
@@ -557,14 +630,14 @@ static void* find_SkippedEntity_Fct(void* fct)
     #define GO(A) if(my_SkippedEntity_fct_##A == 0) {my_SkippedEntity_fct_##A = (uintptr_t)fct; return my_SkippedEntity_##A; }
     SUPER()
     #undef GO
-    printf_log(LOG_NONE, "Warning, no more slot for expat SkippedEntity callback\n");
+    printf_log(LOG_NONE, "Warning, no more slot for 32bits expat SkippedEntity callback\n");
     return NULL;
 }
 #undef SUPER
 
 EXPORT void my32_XML_SetElementHandler(x64emu_t* emu, void* p, void* start, void* end)
 {
-    my->XML_SetElementHandler(p, find_Start_Fct(start), find_End_Fct(end));
+    my->XML_SetElementHandler(p, find_StartElementHandler_Fct(start), find_End_Fct(end));
 }
 
 EXPORT void my32_XML_SetCharacterDataHandler(x64emu_t* emu, void* p, void* h)
@@ -690,7 +763,30 @@ EXPORT void my32_XML_SetCharacterDataHandler(x64emu_t* emu, void* p, void* h)
 EXPORT void my32_XML_SetDoctypeDeclHandler(x64emu_t* emu, void* p, void* start, void* end)
 {
     (void)emu;
-    my->XML_SetDoctypeDeclHandler(p, find_Start_Fct(start), find_End_Fct(end));
+    my->XML_SetDoctypeDeclHandler(p, find_StartDoctypeDecl_Fct(start), find_EndDoctypeDecl_Fct(end));
+}
+
+// this function will call the callbacks with many structures created on the stack, wich might be a 64bits walue on the initial thred
+// so using a swapcontext trick to use a 32bits stack temporarily
+// TODO: generalise this on main?
+static void func1(uint32_t* ret, void* p, int a, int b)
+{
+    *ret = my->XML_ParseBuffer(p, a, b);
+}
+ucontext_t uctx_main, uctx_func1;
+EXPORT uint32_t my32_XML_ParseBuffer(x64emu_t* emu, void* p, int a, int b)
+{
+    getcontext(&uctx_func1);
+    size_t stack_size = 1024*1024;
+    void* func1_stack = mmap(NULL, stack_size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_32BIT|MAP_ANONYMOUS|MAP_GROWSDOWN, -1, 0);
+    uctx_func1.uc_stack.ss_sp = func1_stack;
+    uctx_func1.uc_stack.ss_size = stack_size;
+    uctx_func1.uc_link = &uctx_main;
+    uint32_t ret = 0;
+    makecontext(&uctx_func1, (void*)func1, 4, &ret, p, a, b);
+    swapcontext(&uctx_main, &uctx_func1);
+    munmap(func1_stack, stack_size);
+    return ret;
 }
 
 #include "wrappedlib_init32.h"

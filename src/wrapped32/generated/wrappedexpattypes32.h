@@ -13,10 +13,12 @@
 
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef uint32_t (*uFpii_t)(void*, int32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XML_SetCharacterDataHandler, vFpp_t) \
 	GO(XML_SetDoctypeDeclHandler, vFppp_t) \
-	GO(XML_SetElementHandler, vFppp_t)
+	GO(XML_SetElementHandler, vFppp_t) \
+	GO(XML_ParseBuffer, uFpii_t)
 
 #endif // __wrappedexpatTYPES32_H_
