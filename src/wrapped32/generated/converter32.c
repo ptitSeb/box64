@@ -209,3 +209,26 @@ void to_struct_pLiL(ptr_t d, const struct_pLiL_t *src) {
 	*(int*)dest = src->i2; dest += 4;
 	*(ulong_t*)dest = to_ulong(src->L3); dest += 4;
 }
+void from_struct_uuipWCCp(struct_uuipWCCp_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->u0 = *(uint32_t*)src; src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+	dest->i2 = *(int*)src; src += 4;
+	dest->p3 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->u4 = *(uint16_t*)src; src += 2;
+	dest->u5 = *(uint8_t*)src; src += 1;
+	dest->u6 = *(uint8_t*)src; src += 1;
+	dest->p7 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_uuipWCCp(ptr_t d, const struct_uuipWCCp_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint32_t*)dest = src->u0; dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p3); dest += 4;
+	*(uint16_t*)dest = src->u4; dest += 2;
+	*(uint8_t*)dest = src->u5; dest += 1;
+	*(uint8_t*)dest = src->u6; dest += 1;
+	*(ptr_t*)dest = to_ptrv(src->p7); dest += 4;
+}

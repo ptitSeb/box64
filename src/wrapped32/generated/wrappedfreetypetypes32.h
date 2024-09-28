@@ -29,6 +29,7 @@ typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef uintptr_t (*LFpLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFpupu_t)(void*, uint32_t, void*, uint32_t);
 typedef int32_t (*iFpplp_t)(void*, void*, intptr_t, void*);
+typedef int32_t (*iFpuuup_t)(void*, uint32_t, uint32_t, uint32_t, void*);
 typedef int32_t (*iFplluu_t)(void*, intptr_t, intptr_t, uint32_t, uint32_t);
 typedef int32_t (*iFpLlpp_t)(void*, uintptr_t, intptr_t, void*, void*);
 typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
@@ -44,6 +45,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Select_Size, iFpi_t) \
 	GO(FT_Render_Glyph, iFpu_t) \
 	GO(FT_Get_PS_Font_Info, iFpp_t) \
+	GO(FT_Request_Size, iFpp_t) \
 	GO(FT_Get_Char_Index, uFpL_t) \
 	GO(FT_Get_First_Char, LFpp_t) \
 	GO(FT_Get_Sfnt_Table, pFpi_t) \
@@ -55,6 +57,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Get_Next_Char, LFpLp_t) \
 	GO(FT_Get_Glyph_Name, iFpupu_t) \
 	GO(FT_New_Face, iFpplp_t) \
+	GO(FT_Get_Kerning, iFpuuup_t) \
 	GO(FT_Set_Char_Size, iFplluu_t) \
 	GO(FT_Load_Sfnt_Table, iFpLlpp_t) \
 	GO(FT_New_Memory_Face, iFppllp_t)

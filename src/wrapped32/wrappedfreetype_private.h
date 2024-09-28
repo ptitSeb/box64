@@ -2,6 +2,8 @@
 #error meh!
 #endif
 
+// FT_Bitmap is struct uuipWCCp
+
 //GO(FT_Activate_Size, iFp)
 //GO(FT_Add_Default_Modules, vFp)
 //GO(FT_Add_Module, 
@@ -9,12 +11,12 @@
 //GO(FT_Atan2, lFll)
 //GO(FT_Attach_File, iFpp)
 //GO(FT_Attach_Stream, iFpp)
-//GO(FT_Bitmap_Convert, iFpppi)
+GO(FT_Bitmap_Convert, iFpruuipWCCp_buuipWCCp_i)
 //GO(FT_Bitmap_Copy, iFppp)
-//GO(FT_Bitmap_Done, iFpp)
+GO(FT_Bitmap_Done, iFpruuipWCCp_)
 //GO(FT_Bitmap_Embolden, iFppll)
-//GO(FT_Bitmap_Init, vFp)
-//GO(FT_Bitmap_New, vFp)
+GO(FT_Bitmap_Init, vFbuuipWCCp_)
+GO(FT_Bitmap_New, vFbuuipWCCp_)
 //GO(FT_CeilFix, 
 //GO(FT_ClassicKern_Free, 
 //GO(FT_ClassicKern_Validate, 
@@ -56,7 +58,7 @@ GOM(FT_Get_First_Char, LFEpp)
 //GO(FT_Get_Gasp, 
 //GO(FT_Get_Glyph, iFpp)
 GOM(FT_Get_Glyph_Name, iFEpupu)
-//GO(FT_Get_Kerning, iFpuuup)
+GOM(FT_Get_Kerning, iFEpuuup)
 //GO(FT_Get_MM_Blend_Coordinates, 
 //GO(FT_Get_MM_Var, iFpp)
 //GO(FT_Get_Module, pFpp)
@@ -147,7 +149,7 @@ GOM(FT_Outline_Get_CBox, vFEpp)
 //GO(FT_Reference_Library, 
 //GO(FT_Remove_Module, iFpp)
 GOM(FT_Render_Glyph, iFEpu)
-//GO(FT_Request_Size, iFpp)
+GOM(FT_Request_Size, iFEpp)
 //GO(FT_RoundFix, 
 GOM(FT_Select_Charmap, iFEpi)
 GOM(FT_Select_Size, iFEpi)

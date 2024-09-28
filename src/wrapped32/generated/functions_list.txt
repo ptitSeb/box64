@@ -75,6 +75,7 @@
 #() iFBp_ -> iFB
 #() LFrL_ -> LFB
 #() pFrL_ -> pFB
+#() vFbuuipWCCp_ -> vFB
 #() LFriiiiiiiiilt_ -> LFB
 #() pFriiiiiiiiilt_ -> pFB
 #() vFEv -> vFEv
@@ -220,6 +221,7 @@
 #() iFpbup_ -> iFpB
 #() iFBLL_p -> iFBp
 #() iFrLL_BLL_ -> iFBB
+#() iFpruuipWCCp_ -> iFpB
 #() pFriiiiiiiiilt_p -> pFBp
 #() iFiBLLLLLLLLLLLLLLLLLL_ -> iFiB
 #() vFEip -> vFEip
@@ -608,6 +610,7 @@
 #() iFuirLL_BLL_ -> iFuiBB
 #() iFXLpBLWWWcc_ -> iFXLpB
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
+#() iFpruuipWCCp_buuipWCCp_i -> iFpBBi
 #() vFEuipp -> vFEuipp
 #() vFEpLLp -> vFEpLLp
 #() vFiiiii -> vFiiiii
@@ -820,6 +823,7 @@
 #() iFEuppup -> iFEuppup
 #() iFEuppLp -> iFEuppLp
 #() iFEpiLpp -> iFEpiLpp
+#() iFEpuuup -> iFEpuuup
 #() iFEplluu -> iFEplluu
 #() iFEpLlpp -> iFEpLlpp
 #() iFEppipp -> iFEppipp
@@ -1087,6 +1091,7 @@ wrappedfreetype:
   - FT_Render_Glyph
 - iFpp:
   - FT_Get_PS_Font_Info
+  - FT_Request_Size
 - uFpL:
   - FT_Get_Char_Index
 - LFpp:
@@ -1109,6 +1114,8 @@ wrappedfreetype:
   - FT_Get_Glyph_Name
 - iFpplp:
   - FT_New_Face
+- iFpuuup:
+  - FT_Get_Kerning
 - iFplluu:
   - FT_Set_Char_Size
 - iFpLlpp:

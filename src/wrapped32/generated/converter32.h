@@ -108,5 +108,17 @@ typedef struct struct_pLiL_s {
 } struct_pLiL_t;
 void from_struct_pLiL(struct_pLiL_t *dest, ptr_t src);
 void to_struct_pLiL(ptr_t dest, const struct_pLiL_t *src);
+typedef struct struct_uuipWCCp_s {
+	uint32_t u0;
+	uint32_t u1;
+	int i2;
+	void* p3;
+	uint16_t u4;
+	uint8_t u5;
+	uint8_t u6;
+	void* p7;
+} struct_uuipWCCp_t;
+void from_struct_uuipWCCp(struct_uuipWCCp_t *dest, ptr_t src);
+void to_struct_uuipWCCp(ptr_t dest, const struct_uuipWCCp_t *src);
 
 #endif // __CONVERTER_H_

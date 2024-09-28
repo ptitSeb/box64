@@ -4,7 +4,7 @@
 #include <string.h>
 #define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
-
+#include <sys/mman.h>
 #include "wrappedlibs.h"
 
 #include "debug.h"
@@ -84,7 +84,7 @@ typedef void (*vFiupV_t)(int, uint32_t, void*, va_list);
 static uintptr_t my_eventfilter_fct_##A = 0;                                    \
 static int my_eventfilter_##A(void* userdata, void* event)                      \
 {                                                                               \
-    my_SDL2_Event_32_t evt = {0};                                               \
+    static my_SDL2_Event_32_t evt = {0};                                        \
     convert_SDL2_Event_to_32(&evt, event);                                      \
     return (int)RunFunctionFmt(my_eventfilter_fct_##A, "pp", userdata, &evt);   \
 }
@@ -170,7 +170,7 @@ EXPORT int my32_2_SDL_GetWindowDisplayMode(void* window, void* mode)
 
 EXPORT int my32_2_SDL_SetWindowDisplayMode(void* window, void* mode)
 {
-    my_SDL2_DisplayMode_t* mode_l = { 0 };
+    my_SDL2_DisplayMode_t mode_l = { 0 };
     convert_SDL2_DisplayMode_to_64(&mode_l, mode);
     return my->SDL_SetWindowDisplayMode(window, &mode_l);
 }

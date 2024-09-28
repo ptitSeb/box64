@@ -241,6 +241,15 @@ typedef struct  BDF_PropertyRec_s
     } u;
 } BDF_PropertyRec_t;
 
+typedef struct  FT_Size_RequestRec_s
+{
+    int         type;
+    long        width;
+    long        height;
+    uint32_t    horiResolution;
+    uint32_t    vertResolution;
+} FT_Size_RequestRec_t;
+
 // 32bits FreeType structures
 typedef union  FT_StreamDesc_32_s
 {
@@ -451,6 +460,15 @@ typedef struct  BDF_PropertyRec_32_s
 
     } u;
 } BDF_PropertyRec_32_t;
+
+typedef struct  FT_Size_RequestRec_32_s
+{
+    int         type;
+    long_t      width;
+    long_t      height;
+    uint32_t    horiResolution;
+    uint32_t    vertResolution;
+} FT_Size_RequestRec_32_t;
 
 
 void inplace_FT_GlyphSlot_shrink(void* a)
@@ -735,6 +753,18 @@ void convert_BDF_PropertyRec_to_32(void* d, void* s)
         case 2: dst->u.integer = src->u.integer; break;
         case 3: dst->u.cardinal = src->u.cardinal; break;
     }
+}
+
+void convert_FT_Size_RequestRec_to_64(void* d, void* s)
+{
+    FT_Size_RequestRec_t* src = s;
+    FT_Size_RequestRec_32_t* dst = d;
+
+    dst->type = src->type;
+    dst->width = from_long(src->width);
+    dst->height = from_long(src->height);
+    dst->horiResolution = src->horiResolution;
+    dst->vertResolution = src->vertResolution;
 }
 
 #define ADDED_FUNCTIONS()                   \
@@ -1207,6 +1237,17 @@ EXPORT int my32_FT_Done_Face(x64emu_t* emu, void* face)
     return my->FT_Done_Face(face);
 }
 
+EXPORT int my32_FT_Get_Kerning(x64emu_t* emu, void* face, uint32_t left, uint32_t right, uint32_t kern, FT_Vector_32_t* kerning)
+{
+    FT_Vector_t kerning_l = {0};
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_Kerning(face, left, right, kern, &kerning_l);
+    inplace_FT_FaceRec_shrink(face);
+    kerning->x = kerning_l.x;
+    kerning->y = kerning_l.y;
+    return ret;
+}
+
 EXPORT int my32_FT_Set_Char_Size(x64emu_t* emu, void* face, long char_width, long char_height, uint32_t horz, uint32_t vert)
 {
     inplace_FT_FaceRec_enlarge(face);
@@ -1220,6 +1261,16 @@ EXPORT int my32_FT_Set_Pixel_Sizes(x64emu_t* emu, void* face, uint32_t width, ui
     inplace_FT_FaceRec_enlarge(face);
     int ret = my->FT_Set_Pixel_Sizes(face, width, height);
     inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Request_Size(x64emu_t* emu, void* face, FT_Size_RequestRec_32_t* req)
+{
+    FT_Size_RequestRec_t req_l = {0};
+    convert_FT_Size_RequestRec_to_64(&req_l, req);
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Request_Size(face, &req_l);
+    inplace_FT_FaceRec_enlarge(face);
     return ret;
 }
 
