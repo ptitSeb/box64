@@ -38,7 +38,7 @@ GO(FT_FloorFix, lFl)
 //GO(FT_Get_Advance, iFpiup)
 //GO(FT_Get_Advances, iFpuuip)
 //GO(FT_Get_BDF_Charset_ID, 
-//GO(FT_Get_BDF_Property, 
+GOM(FT_Get_BDF_Property, iFEppp)
 GOM(FT_Get_Char_Index, uFEpL)
 //GO(FT_Get_Charmap_Index, iFp)
 //GO(FT_Get_Color_Glyph_Layer, iFpupp)
@@ -50,33 +50,33 @@ GOM(FT_Get_Char_Index, uFEpL)
 //GO(FT_Get_CID_Registry_Ordering_Supplement, 
 //GO(FT_Get_CMap_Format, 
 //GO(FT_Get_CMap_Language_ID, 
-//GO(FT_Get_First_Char, LFpp)
+GOM(FT_Get_First_Char, LFEpp)
 //GO(FT_Get_Font_Format, pFp)
 //GO(FT_Get_FSType_Flags, WFp)
 //GO(FT_Get_Gasp, 
 //GO(FT_Get_Glyph, iFpp)
-//GO(FT_Get_Glyph_Name, iFpupu)
+GOM(FT_Get_Glyph_Name, iFEpupu)
 //GO(FT_Get_Kerning, iFpuuup)
 //GO(FT_Get_MM_Blend_Coordinates, 
 //GO(FT_Get_MM_Var, iFpp)
 //GO(FT_Get_Module, pFpp)
 //GO(FT_Get_Multi_Master, 
 //GO(FT_Get_Name_Index, uFpp)
-//GO(FT_Get_Next_Char, LFpLp)
+GOM(FT_Get_Next_Char, LFEpLp)
 //GO(FT_Get_Paint, iFppip)    // FT_OpaquePaint is a struct with "pi"
 //GO(FT_Get_Paint_Layers, iFppp)
 //GO(FT_Get_PFR_Advance, 
 //GO(FT_Get_PFR_Kerning, 
 //GO(FT_Get_PFR_Metrics, 
-//GO(FT_Get_Postscript_Name, pFp)
-//GO(FT_Get_PS_Font_Info, iFpp)
+GOM(FT_Get_Postscript_Name, pFEp)
+GOM(FT_Get_PS_Font_Info, iFEpp)
 //GO(FT_Get_PS_Font_Private, 
 //GO(FT_Get_PS_Font_Value, 
 //GO(FT_Get_Renderer, pFpu)
 //GO(FT_Get_Sfnt_LangTag, 
-//GO(FT_Get_Sfnt_Name, iFpip)
-//GO(FT_Get_Sfnt_Name_Count, uFp)
-//GO(FT_Get_Sfnt_Table, pFpi)
+GOM(FT_Get_Sfnt_Name, iFEpip)
+GOM(FT_Get_Sfnt_Name_Count, uFEp)
+GOM(FT_Get_Sfnt_Table, pFEpi)
 //GO(FT_Get_SubGlyph_Info, iFpuppppp)
 //GO(FT_Get_Track_Kerning, iFplip)
 //GO(FT_Get_Transform, vFppp)
@@ -84,7 +84,7 @@ GOM(FT_Get_Char_Index, uFEpL)
 //GO(FT_Get_Var_Blend_Coordinates, iFpup)
 //GO(FT_Get_Var_Design_Coordinates, 
 //GO(FT_Get_WinFNT_Header, iFpp)  // does FT_WinFNT_HeaderRec_ needs alignment?
-//GO(FT_Get_X11_Font_Format, pFp)
+GOM(FT_Get_X11_Font_Format, pFEp)
 //GO(FT_Glyph_Copy, iFpp)
 //GO(FT_Glyph_Get_CBox, vFpup)
 //GO(FT_GlyphSlot_Embolden, vFp)
@@ -95,7 +95,7 @@ GOM(FT_Get_Char_Index, uFEpL)
 //GO(FT_Glyph_To_Bitmap, iFpupC)
 //GO(FT_Glyph_Transform, iFppp)
 //GO(FT_Gzip_Uncompress, 
-//GO(FT_Has_PS_Glyph_Names, 
+GOM(FT_Has_PS_Glyph_Names, iFEp)
 GO(FT_Init_FreeType, iFBp_)
 //GO(FT_Library_SetLcdFilter, iFpu)
 //GO(FT_Library_SetLcdFilterWeights, iFpp)
@@ -109,7 +109,7 @@ GO(FT_Init_FreeType, iFBp_)
 //GO(FT_List_Up, vFpp)
 GOM(FT_Load_Char, iFEpLi)
 GOM(FT_Load_Glyph, iFEpui)
-//GO(FT_Load_Sfnt_Table, iFpLlpp)
+GOM(FT_Load_Sfnt_Table, iFEpLlpp)
 //GO(FT_Matrix_Invert, iFp)
 //GO(FT_Matrix_Multiply, vFpp)
 //GO(FT_MulDiv, lFlll)
@@ -149,8 +149,8 @@ GOM(FT_Outline_Get_CBox, vFEpp)
 GOM(FT_Render_Glyph, iFEpu)
 //GO(FT_Request_Size, iFpp)
 //GO(FT_RoundFix, 
-//GO(FT_Select_Charmap, iFpi)
-//GO(FT_Select_Size, iFpi)
+GOM(FT_Select_Charmap, iFEpi)
+GOM(FT_Select_Size, iFEpi)
 //GO(FT_Set_Charmap, iFpp)
 GOM(FT_Set_Char_Size, iFEplluu)
 //GO(FT_Set_Debug_Hook, 

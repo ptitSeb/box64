@@ -362,6 +362,7 @@
 #() uFuuu -> uFuuu
 #() uFuup -> uFuup
 #() uFupp -> uFupp
+#() uFpii -> uFpii
 #() uFpuU -> uFpuU
 #() uFppu -> uFppu
 #() fFuii -> fFuii
@@ -375,6 +376,7 @@
 #() lFppi -> lFppi
 #() lFppL -> lFppL
 #() LFEpi -> LFEpi
+#() LFEpp -> LFEpp
 #() LFpii -> LFpii
 #() LFpip -> LFpip
 #() LFppi -> LFppi
@@ -570,6 +572,7 @@
 #() lFipLi -> lFipLi
 #() lFipLl -> lFipLl
 #() lFpuip -> lFpuip
+#() LFEpLp -> LFEpLp
 #() LFEXii -> LFEXii
 #() LFpLLS -> LFpLLS
 #() LFppLp -> LFppLp
@@ -702,6 +705,7 @@
 #() iFEiiip -> iFEiiip
 #() iFEipii -> iFEipii
 #() iFEpipp -> iFEpipp
+#() iFEpupu -> iFEpupu
 #() iFEpupV -> iFEpupV
 #() iFEpLpp -> iFEpLpp
 #() iFEpLpV -> iFEpLpV
@@ -817,6 +821,7 @@
 #() iFEuppLp -> iFEuppLp
 #() iFEpiLpp -> iFEpiLpp
 #() iFEplluu -> iFEplluu
+#() iFEpLlpp -> iFEpLlpp
 #() iFEppipp -> iFEppipp
 #() iFEppllp -> iFEppllp
 #() iFEpppup -> iFEpppup
@@ -1058,25 +1063,56 @@
 #() iFEpvvpV -> iFEppV
 #() iFEpLvvpp -> iFEpLpp
 wrappedcrashhandler:
+wrappedexpat:
+- vFpp:
+  - XML_SetCharacterDataHandler
+- vFppp:
+  - XML_SetDoctypeDeclHandler
+  - XML_SetElementHandler
 wrappedfreetype:
 - iFp:
   - FT_Done_Face
+  - FT_Has_PS_Glyph_Names
+- uFp:
+  - FT_Get_Sfnt_Name_Count
+- pFp:
+  - FT_Get_Postscript_Name
+  - FT_Get_X11_Font_Format
 - vFpp:
   - FT_Outline_Get_CBox
+- iFpi:
+  - FT_Select_Charmap
+  - FT_Select_Size
 - iFpu:
   - FT_Render_Glyph
+- iFpp:
+  - FT_Get_PS_Font_Info
 - uFpL:
   - FT_Get_Char_Index
+- LFpp:
+  - FT_Get_First_Char
+- pFpi:
+  - FT_Get_Sfnt_Table
+- iFpip:
+  - FT_Get_Sfnt_Name
 - iFpui:
   - FT_Load_Glyph
 - iFpuu:
   - FT_Set_Pixel_Sizes
 - iFpLi:
   - FT_Load_Char
+- iFppp:
+  - FT_Get_BDF_Property
+- LFpLp:
+  - FT_Get_Next_Char
+- iFpupu:
+  - FT_Get_Glyph_Name
 - iFpplp:
   - FT_New_Face
 - iFplluu:
   - FT_Set_Char_Size
+- iFpLlpp:
+  - FT_Load_Sfnt_Table
 - iFppllp:
   - FT_New_Memory_Face
 wrappedldlinux:

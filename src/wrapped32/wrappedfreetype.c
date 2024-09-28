@@ -201,6 +201,46 @@ typedef struct  FT_MemoryRec_s
     void*           realloc;
 } FT_MemoryRec_t;
 
+typedef struct  PS_PrivateRec_s
+{
+    int        unique_id;
+    int        lenIV;
+    uint8_t    num_blue_values;
+    uint8_t    num_other_blues;
+    uint8_t    num_family_blues;
+    uint8_t    num_family_other_blues;
+    int16_t    blue_values[14];
+    int16_t    other_blues[10];
+    int16_t    family_blues      [14];
+    int16_t    family_other_blues[10];
+    long       blue_scale;
+    int        blue_shift;
+    int        blue_fuzz;
+    uint16_t   standard_width[1];
+    uint16_t   standard_height[1];
+    uint8_t    num_snap_widths;
+    uint8_t    num_snap_heights;
+    uint8_t    force_bold;
+    uint8_t    round_stem_up;
+    int16_t    snap_widths [13];
+    int16_t    snap_heights[13];
+    long       expansion_factor;
+    long       language_group;
+    long       password;
+    int16_t    min_feature[2];
+} PS_PrivateRec_t;
+
+typedef struct  BDF_PropertyRec_s
+{
+    int  type;
+    union {
+        void*     atom; //const char*
+        int       integer;
+        uint32_t  cardinal;
+
+    } u;
+} BDF_PropertyRec_t;
+
 // 32bits FreeType structures
 typedef union  FT_StreamDesc_32_s
 {
@@ -371,6 +411,47 @@ typedef struct  FT_MemoryRec_32_s
     ptr_t           free;   //void*
     ptr_t           realloc;//void*
 } FT_MemoryRec_32_t;
+
+typedef struct  PS_PrivateRec_32_s
+{
+    int        unique_id;
+    int        lenIV;
+    uint8_t    num_blue_values;
+    uint8_t    num_other_blues;
+    uint8_t    num_family_blues;
+    uint8_t    num_family_other_blues;
+    int16_t    blue_values[14];
+    int16_t    other_blues[10];
+    int16_t    family_blues      [14];
+    int16_t    family_other_blues[10];
+    long_t     blue_scale;
+    int        blue_shift;
+    int        blue_fuzz;
+    uint16_t   standard_width[1];
+    uint16_t   standard_height[1];
+    uint8_t    num_snap_widths;
+    uint8_t    num_snap_heights;
+    uint8_t    force_bold;
+    uint8_t    round_stem_up;
+    int16_t    snap_widths [13];
+    int16_t    snap_heights[13];
+    long_t     expansion_factor;
+    long_t     language_group;
+    long_t     password;
+    int16_t    min_feature[2];
+} PS_PrivateRec_32_t;
+
+typedef struct  BDF_PropertyRec_32_s
+{
+    int  type;
+    union {
+        ptr_t     atom; //const char*
+        int       integer;
+        uint32_t  cardinal;
+
+    } u;
+} BDF_PropertyRec_32_t;
+
 
 void inplace_FT_GlyphSlot_shrink(void* a)
 {
@@ -607,6 +688,53 @@ void inplace_FT_FaceRec_enlarge(void* a)
     dst->num_faces = from_long(src->num_faces);
 
     inplace_FT_GlyphSlot_enlarge(glyphslot);
+}
+
+void convert_PS_PrivateRec_to_32(void* d, void* s)
+{
+    PS_PrivateRec_t* src = s;
+    PS_PrivateRec_32_t* dst = d;
+
+    dst->unique_id = src->unique_id;
+    dst->lenIV = src->lenIV;
+    dst->num_blue_values = src->num_blue_values;
+    dst->num_other_blues = src->num_other_blues;
+    dst->num_family_blues = src->num_family_blues;
+    dst->num_family_other_blues = src->num_family_other_blues;
+    memcpy(dst->blue_values, src->blue_values, sizeof(dst->blue_values));
+    memcpy(dst->other_blues, src->other_blues, sizeof(dst->other_blues));
+    memcpy(dst->family_blues, src->family_blues, sizeof(dst->family_blues));
+    memcpy(dst->family_other_blues, src->family_other_blues, sizeof(dst->family_other_blues));
+    dst->blue_scale = src->blue_scale;
+    dst->blue_shift = src->blue_shift;
+    dst->blue_fuzz = src->blue_fuzz;
+    dst->standard_width[0] = src->standard_width[0];
+    dst->standard_height[0] = src->standard_height[0];
+    dst->num_snap_widths = src->num_snap_widths;
+    dst->num_snap_heights = src->num_snap_heights;
+    dst->force_bold = src->force_bold;
+    dst->round_stem_up = src->round_stem_up;
+    memcpy(dst->snap_widths, src->snap_widths, sizeof(dst->snap_widths));
+    memcpy(dst->snap_heights, src->snap_heights, sizeof(dst->snap_heights));
+    dst->expansion_factor = src->expansion_factor;
+    dst->language_group = src->language_group;
+    dst->password = src->password;
+    dst->min_feature[0] = src->min_feature[0];
+    dst->min_feature[1] = src->min_feature[1];
+}
+
+void convert_BDF_PropertyRec_to_32(void* d, void* s)
+{
+    BDF_PropertyRec_t* src = s;
+    BDF_PropertyRec_32_t* dst = d;
+
+    dst->type = src->type;
+    switch(dst->type) {
+        case 0: break;
+        case 1: dst->u.atom = to_ptrv(src->u.atom); break;
+        case 2: dst->u.integer = src->u.integer; break;
+        case 3: dst->u.cardinal = src->u.cardinal; break;
+    }
 }
 
 #define ADDED_FUNCTIONS()                   \
@@ -951,6 +1079,125 @@ EXPORT int my32_FT_New_Memory_Face(x64emu_t* emu, void* lib, void* base, long si
     if(ret) return ret;
     *face = to_ptrv(res);
     inplace_FT_FaceRec_shrink(res);
+    return ret;
+}
+
+EXPORT uint32_t my32_FT_Get_Sfnt_Name_Count(x64emu_t* emu, void* face)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    uint32_t ret = my->FT_Get_Sfnt_Name_Count(face);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT uint32_t my32_FT_Get_Sfnt_Name(x64emu_t* emu, void* face, uint32_t idx, void* name)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    uint32_t ret = my->FT_Get_Sfnt_Name(face, idx, name);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_Glyph_Name(x64emu_t* emu, void* face, uint32_t index, void* buff, uint32_t size)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_Glyph_Name(face, index, buff, size);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT void* my32_FT_Get_X11_Font_Format(x64emu_t* emu, void* face)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    void* ret = my->FT_Get_X11_Font_Format(face);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT void* my32_FT_Get_Postscript_Name(x64emu_t* emu, void* face)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    void* ret = my->FT_Get_Postscript_Name(face);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Load_Sfnt_Table(x64emu_t* emu, void* face, unsigned long tag, long offset, void*  buff, ulong_t* length)
+{
+    unsigned long len_l = 0;
+    if(length) len_l = from_ulong(*length);
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Load_Sfnt_Table(face, tag, offset, buff, length?(&len_l):NULL);
+    inplace_FT_FaceRec_shrink(face);
+    if(length) *length = to_ulong(len_l);
+    return ret;
+}
+
+EXPORT unsigned long my32_FT_Get_First_Char(x64emu_t* emu, void* face, uint32_t* index)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    unsigned long ret = my->FT_Get_First_Char(face, index);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_PS_Font_Info(x64emu_t* emu, void* face, PS_PrivateRec_32_t* info)
+{
+    PS_PrivateRec_t info_l = {0};
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_PS_Font_Info(face, &info_l);
+    inplace_FT_FaceRec_shrink(face);
+    convert_PS_PrivateRec_to_32(info, &info_l);
+    return ret;
+}
+
+EXPORT int my32_FT_Select_Charmap(x64emu_t* emu, void* face, int encoding)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Select_Charmap(face, encoding);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT void* my32_FT_Get_Sfnt_Table(x64emu_t* emu, void* face, int tag)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    void* ret = my->FT_Get_Sfnt_Table(face, tag);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Select_Size(x64emu_t* emu, void* face, int index)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Select_Size(face, index);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT unsigned long my32_FT_Get_Next_Char(x64emu_t* emu, void* face, unsigned long code, void* buff)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    unsigned long ret = my->FT_Get_Next_Char(face, code, buff);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Has_PS_Glyph_Names(x64emu_t* emu, void* face)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Has_PS_Glyph_Names(face);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
+EXPORT int my32_FT_Get_BDF_Property(x64emu_t* emu, void* face, void* name, BDF_PropertyRec_32_t* prop)
+{
+    BDF_PropertyRec_t prop_l = {0};
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_BDF_Property(face, name, &prop_l);
+    inplace_FT_FaceRec_shrink(face);
+    convert_BDF_PropertyRec_to_32(prop, &prop_l);
     return ret;
 }
 

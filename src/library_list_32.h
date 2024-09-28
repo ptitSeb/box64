@@ -30,4 +30,7 @@ GO("libopenal.so.0", openal)
 GO("libopenal.so", openal)
 GO("openal.so", openal)
 
+GO("libexpat.so.1", expat)
+GO("libexpat.so", expat)
+
 GO("crashhandler.so", crashhandler)
