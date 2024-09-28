@@ -127,7 +127,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 185, __NR_capset, 2},
     //{ 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
     //{ 191, __NR_ugetrlimit, 2 },
-//    { 192, __NR_mmap2, 6},
+    //{ 192, __NR_mmap2, 6},
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 196, __NR_lstat64, 2 }, // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change

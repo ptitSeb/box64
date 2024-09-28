@@ -84,6 +84,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 83, __NR_symlink, 2 },
     //{ 82, __NR_select, 5 },
     //{ 85, __NR_readlink, 3 },
+    //{ 90, __NR_old_mmap, 1 },
     //{ 91, __NR_munmap, 2 },
     //{ 94, __NR_fchmod, 2 },
     //{ 99, __NR_statfs, 2 },
@@ -130,7 +131,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 185, __NR_capset, 2},
     //{ 186, __NR_sigaltstack, 2 },    // neeed wrap or something?
     //{ 191, __NR_ugetrlimit, 2 },
-//    { 192, __NR_mmap2, 6},
+    //{ 192, __NR_mmap2, 6},
     //{ 195, __NR_stat64, 2 },  // need proprer wrap because of structure size change
     //{ 196, __NR_lstat64, 2 }, // need proprer wrap because of structure size change
     //{ 197, __NR_fstat64, 2 },  // need proprer wrap because of structure size change
@@ -172,12 +173,12 @@ static const scwrap_t syscallwrap[] = {
 };
 
 struct mmap_arg_struct {
-    unsigned long addr;
-    unsigned long len;
-    unsigned long prot;
-    unsigned long flags;
-    unsigned long fd;
-    unsigned long offset;
+    ulong_t addr;
+    ulong_t len;
+    ulong_t prot;
+    ulong_t flags;
+    ulong_t fd;
+    ulong_t offset;
 };
 
 #undef st_atime
@@ -247,6 +248,7 @@ struct i386_robust_list_head {
 int32_t my32_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 int32_t my32_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 ssize_t my32_read(int fd, void* buf, size_t count);
+void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int64_t offset);
 int my32_munmap(x64emu_t* emu, void* addr, unsigned long length);
 
 void EXPORT x86Syscall(x64emu_t *emu)
@@ -300,11 +302,27 @@ void EXPORT x86Syscall(x64emu_t *emu)
         case 6:  // sys_close
             S_EAX = close((int)R_EBX);
             break;
+        case 90:    // old_mmap
+            {
+                struct mmap_arg_struct *st = from_ptrv(R_EBX);
+                R_EAX = to_ptrv(my32_mmap64(emu, from_ptrv(st->addr), st->len, st->prot, st->flags, st->fd, st->offset));
+            }
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
+            break;
+        case 91:   // munmap
+            S_EAX = my32_munmap(emu, from_ptrv(R_EBX), (unsigned long)R_ECX);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
+            break;
         /*case 123:   // SYS_modify_ldt
             R_EAX = my32_modify_ldt(emu, R_EBX, (thread_area_t*)(uintptr_t)R_ECX, R_EDX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;*/
+        case 192:   // mmap2
+            R_EAX = to_ptrv(my32_mmap64(emu, from_ptrv(R_EBX), (unsigned long)R_ECX, R_EDX, R_ESI, R_EDI, R_EBP));
+            break;
         case 240: // futex
             {
                 struct_LL_t tspec;
@@ -472,9 +490,9 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
             return (uint32_t)my32_mprotect(emu, p(4), u32(8), i32(12));
         case 174:   // sys_rt_sigaction
             return (uint32_t)my32_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
-        case 192:   // mmap2
-            return (uint32_t)my32_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24));
 #endif
+        case 192:   // mmap2
+            return to_ptrv(my32_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24)));
         case 240: // futex
             {
                 struct_LL_t tspec;
