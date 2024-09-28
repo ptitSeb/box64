@@ -570,6 +570,7 @@
 #() uFEpii -> uFEpii
 #() uFuuuu -> uFuuuu
 #() uFpCCC -> uFpCCC
+#() uFppip -> uFppip
 #() lFEipi -> lFEipi
 #() lFiipL -> lFiipL
 #() lFipLi -> lFipLi
@@ -603,6 +604,7 @@
 #() iFppbp_p -> iFppBp
 #() iFBp_pui -> iFBpui
 #() IFpBp_ii -> IFpBii
+#() uFppiBp_ -> uFppiB
 #() UFpBp_ii -> UFpBii
 #() lFiibp_L -> lFiiBL
 #() LFpbp_Lp -> LFpBLp
@@ -727,6 +729,7 @@
 #() iFuiuup -> iFuiuup
 #() iFpCCCC -> iFpCCCC
 #() iFpLuLi -> iFpLuLi
+#() iFppiUi -> iFppiUi
 #() iFpppip -> iFpppip
 #() iFpppup -> iFpppup
 #() iFppppp -> iFppppp
@@ -751,7 +754,7 @@
 #() LFpbp_LLp -> LFpBLLp
 #() LFpBp_LLp -> LFpBLLp
 #() iFippprLL_ -> iFipppB
-#() LFLbp_bL_Bp_BL_ -> LFLBBBB
+#() LFLbp_bL_bp_bL_ -> LFLBBBB
 #() LFpLpriiiiiiiiilt_a -> LFpLpBa
 #() iFXLpBLWWWcc_BLWWWcc_ -> iFXLpBB
 #() vFEiiipp -> vFEiiipp
@@ -1076,6 +1079,9 @@ wrappedexpat:
   - XML_SetElementHandler
 - uFpii:
   - XML_ParseBuffer
+wrappedfontconfig:
+- iFppiUi:
+  - FcPatternAdd
 wrappedfreetype:
 - iFp:
   - FT_Done_Face
