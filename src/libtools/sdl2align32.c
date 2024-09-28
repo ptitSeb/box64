@@ -148,6 +148,10 @@ void convert_SDL2_Event_to_64(void* dst_, const void* src_)
             dst->wheel.mouseX = src->wheel.mouseX;
             dst->wheel.mouseY = src->wheel.mouseY;
             break;
+        case SDL2_POLLSENTINEL:
+            dst->common.type = src->common.type;
+            dst->common.timestamp = src->common.timestamp;
+            break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
             memcpy(dst, src, sizeof(my_SDL2_Event_32_t));
@@ -245,6 +249,10 @@ void convert_SDL2_Event_to_32(void* dst_, const void* src_)
             dst->wheel.preciseY = src->wheel.preciseY;
             dst->wheel.mouseX = src->wheel.mouseX;
             dst->wheel.mouseY = src->wheel.mouseY;
+            break;
+        case SDL2_POLLSENTINEL:
+            dst->common.type = src->common.type;
+            dst->common.timestamp = src->common.timestamp;
             break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
