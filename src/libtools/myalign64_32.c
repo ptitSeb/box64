@@ -104,12 +104,21 @@ void UnalignStatFS_32(const void* source, void* dest)
 struct native_statvfs {
     unsigned long int f_bsize;
     unsigned long int f_frsize;
+#ifndef ANDROID
     __fsblkcnt64_t f_blocks;
     __fsblkcnt64_t f_bfree;
     __fsblkcnt64_t f_bavail;
     __fsfilcnt64_t f_files;
     __fsfilcnt64_t f_ffree;
     __fsfilcnt64_t f_favail;
+#else
+    fsblkcnt_t f_blocks;
+    fsblkcnt_t f_bfree;
+    fsblkcnt_t f_bavail;
+    fsblkcnt_t f_files;
+    fsblkcnt_t f_ffree;
+    fsblkcnt_t f_favail;
+#endif
     unsigned long int f_fsid;
 #ifdef _STATVFSBUF_F_UNUSED
     int __f_unused;

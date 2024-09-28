@@ -4,9 +4,17 @@
 
 GO("libpthread.so.0", libpthread)
 GO("librt.so.1", librt)
+
+#ifdef ANDROID
+GO("libc.so", libc)
+GO("libm.so", libm)
+GO("libdl.so", libdl)
+#else
 GO("libc.so.6", libc)
 GO("libm.so.6", libm)
 GO("libdl.so.2", libdl)
+#endif
+
 GO("ld-linux.so.2", ldlinux)
 
 GO("libGL.so", libgl)

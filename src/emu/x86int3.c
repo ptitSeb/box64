@@ -32,6 +32,7 @@
 #include "elfs/elfloader_private.h"
 
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
+typedef unsigned long ulong;
 
 static uint64_t F64(uintptr_t* addr) {
     uint64_t ret = *(uint64_t*)*addr;

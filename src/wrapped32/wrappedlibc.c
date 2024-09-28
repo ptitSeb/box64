@@ -38,6 +38,7 @@
 #include <sys/uio.h>
 #include <grp.h>
 #include <sys/sysinfo.h>
+#include <sys/time.h>
 
 #include "wrappedlibs.h"
 
@@ -1272,6 +1273,8 @@ static int my32_compare_r_cb(void* a, void* b, compare_r_t* arg)
 {
     return (int)RunFunctionWithEmu(arg->emu, 0, arg->f, 2+arg->r, a, b, arg->data);
 }
+
+#ifndef ANDROID
 EXPORT void my32_qsort(x64emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
 {
     compare_r_t args;
@@ -1284,6 +1287,8 @@ EXPORT void my32_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, v
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
     qsort_r(base, nmemb, size, (__compar_d_fn_t)my32_compare_r_cb, &args);
 }
+#endif
+
 EXPORT void* my32_bsearch(x64emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
     return bsearch(key, base, nmemb, size, findcompareFct(fnc));
@@ -2069,7 +2074,7 @@ EXPORT int my32_utimensat(int dirfd, void* name, void* times, int flags)
     return utimensat(dirfd, name, times_l, flags);
 }
 
-
+#ifndef ANDROID
 struct mallinfo {
     int arena;
     int ordblks;
@@ -2082,6 +2087,8 @@ struct mallinfo {
     int fordblks;
     int keepcost;
 };
+#endif
+
 EXPORT void* my32_mallinfo(x86emu_t* emu, void* p)
 {
     (void)emu;
@@ -2362,6 +2369,7 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
     return alphasort64(d1_?(&d1):NULL, d2_?(&d2):NULL);
 }
 
+#ifndef ANDROID
 EXPORT void* my32___ctype_b_loc(x64emu_t* emu)
 {
     const unsigned short** src =__ctype_b_loc();
@@ -2392,6 +2400,7 @@ EXPORT void* my32___ctype_toupper_loc(x64emu_t* emu)
     }
     return &emu->toupper;
 }
+#endif
 
 // Backtrace stuff: TODO in 32bits
 
