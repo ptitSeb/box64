@@ -4,5 +4,7 @@
 #ifndef __wrappedsdl2DEFS32_H_
 #define __wrappedsdl2DEFS32_H_
 
+#define JFEi pFEpi
+#define JFEi_32 pFEpi_32
 
 #endif // __wrappedsdl2DEFS32_H_

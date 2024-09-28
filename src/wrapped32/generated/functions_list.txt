@@ -62,6 +62,7 @@
 #() pFv -> pFv
 #() pFi -> pFi
 #() pFu -> pFu
+#() pFl -> pFl
 #() pFL -> pFL
 #() pFp -> pFp
 #() pFX -> pFX
@@ -327,6 +328,7 @@
 #() iFpuC -> iFpuC
 #() iFpuu -> iFpuu
 #() iFpuU -> iFpuU
+#() iFpfu -> iFpfu
 #() iFpLi -> iFpLi
 #() iFpLp -> iFpLp
 #() iFppi -> iFppi
@@ -501,6 +503,7 @@
 #() vFupii -> vFupii
 #() vFuppi -> vFuppi
 #() vFuppu -> vFuppu
+#() vFUUpi -> vFUUpi
 #() vFffff -> vFffff
 #() vFdddd -> vFdddd
 #() vFllii -> vFllii
@@ -888,6 +891,7 @@
 #() vFlliiiip -> vFlliiiip
 #() vFpipipiu -> vFpipipiu
 #() vFpddiidd -> vFpddiidd
+#() iFEpuiupV -> iFEpuiupV
 #() iFEpLiipV -> iFEpLiipV
 #() iFEXLpppp -> iFEXLpppp
 #() iFuiiiuup -> iFuiiiuup
@@ -927,6 +931,7 @@
 #() vFuuufffff -> vFuuufffff
 #() vFffffffff -> vFffffffff
 #() iFEpippppp -> iFEpippppp
+#() iFEpLiLppp -> iFEpLiLppp
 #() iFuiiiiuup -> iFuiiiiuup
 #() iFXpIIIppp -> iFXpIIIppp
 #() CFuiifpppp -> CFuiifpppp
@@ -1216,11 +1221,13 @@ wrappedlibc:
   - getpwnam_r
 - pFpLLiN:
 - pFppLLp:
+- iFpuiupV:
 - iFpLvvpp:
 - iFpLiipV:
 - pFpLiiii:
 - pFpLiiiI:
 - iFpippppp:
+- iFpLiLppp:
 - pFiiiiiiiiilt:
   - asctime
 wrappedlibdl:
@@ -1598,27 +1605,42 @@ wrappedsdl1:
 - iFpWCiWCi:
   - SDL_BuildAudioCVT
 wrappedsdl2:
-% G SDL_JoystickGUID UU
+% J SDL2_GUID_t uuuu
 - vFp:
   - SDL_FreeSurface
 - iFp:
   - SDL_PollEvent
+  - SDL_PushEvent
 - pFv:
   - SDL_GetBasePath
 - pFp:
   - SDL_GL_GetProcAddress
+- JFi:
+  - SDL_JoystickGetDeviceGUID
 - vFpp:
+  - SDL_AddEventWatch
+  - SDL_DelEventWatch
   - SDL_SetWindowIcon
 - vFpV:
   - SDL_Log
 - iFip:
+  - SDL_GetCurrentDisplayMode
   - SDL_GetDesktopDisplayMode
+- iFpi:
+  - SDL_WaitEventTimeout
 - iFpp:
+  - SDL_GetWindowDisplayMode
   - SDL_OpenAudio
+  - SDL_SetWindowDisplayMode
+- pFpi:
+  - SDL_LoadBMP_RW
+  - SDL_notreal
 - pFpp:
   - SDL_RWFromFile
 - iFppV:
   - SDL_sscanf
+- pFpii:
+  - SDL_CreateColorCursor
 - pFppp:
   - SDL_CreateThread
 - iFpLpp:
@@ -1629,3 +1651,4 @@ wrappedsdl2:
   - SDL_OpenAudioDevice
 - pFpiiiiu:
   - SDL_CreateRGBSurfaceWithFormatFrom
+% JFEi -> pFEpi

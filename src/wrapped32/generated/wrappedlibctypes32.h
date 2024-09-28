@@ -91,11 +91,13 @@ typedef int32_t (*iFpiLpp_t)(void*, int32_t, uintptr_t, void*, void*);
 typedef int32_t (*iFpppup_t)(void*, void*, void*, uint32_t, void*);
 typedef void* (*pFpLLiN_t)(void*, uintptr_t, uintptr_t, int32_t, ...);
 typedef void* (*pFppLLp_t)(void*, void*, uintptr_t, uintptr_t, void*);
+typedef int32_t (*iFpuiupV_t)(void*, uint32_t, int32_t, uint32_t, void*, ...);
 typedef int32_t (*iFpLvvpp_t)(void*, uintptr_t, void, void, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef void* (*pFpLiiii_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int32_t);
 typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
+typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void*, void*);
 typedef void* (*pFiiiiiiiiilt_t)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, intptr_t, char*);
 
 #define SUPER() ADDED_FUNCTIONS() \

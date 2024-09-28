@@ -915,22 +915,14 @@ EXPORT int my32_vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint3
     return r;
 }
 EXPORT int my32___vswprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, uint32_t* b) __attribute__((alias("my32_vswprintf")));
-#if 0
+
 EXPORT int my32___vswprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, size_t m, void * fmt, void * b, va_list V) {
-    #ifndef NOALIGN
     // need to align on arm
-    myStackAlignW((const char*)fmt, (uint32_t*)b, emu->scratch);
+    myStackAlignW32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, VARARGS_32);
-    return r;
-    #else
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(buff, s, fmt, (uint32_t*)b);
-    return r;
-    #endif
+    return vswprintf(buff, s, fmt, VARARGS_32);
 }
-#endif
+
 EXPORT int my32_vswscanf(x64emu_t* emu, void* buff, void* fmt, void* b)
 {
     myStackAlignScanfW32((const char*)fmt, (uint32_t*)b, emu->scratch);
@@ -966,21 +958,13 @@ EXPORT void my32_vwarn(x64emu_t* emu, void* fmt, void* b) {
     #endif
 }
 
+#endif
 EXPORT int my32___swprintf_chk(x64emu_t* emu, void* s, uint32_t n, int32_t flag, uint32_t slen, void* fmt, void * b)
 {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, b, emu->scratch);
+    myStackAlignW32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, VARARGS_32);
-    return r;
-    #else
-    void* f = vswprintf;
-    int r = ((iFpupp_t)f)(s, n, fmt, b);
-    return r;
-    #endif
+    return vswprintf(s, n, fmt, VARARGS_32);
 }
-#endif
 EXPORT int my32_swprintf(x64emu_t* emu, void* s, uint32_t n, void* fmt, void *b)
 {
     myStackAlignW32((const char*)fmt, b, emu->scratch);

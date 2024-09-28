@@ -1584,12 +1584,14 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 			for defined in filespecs[fn].structsuses:
 				assert defined.redirected is not None, "Unreachable?"
 				file.write("#define {defined} {define}\n".format(defined=defined.orig.name, define=defined.redirected.orig.name))
+				file.write("#define {defined}_32 {define}_32\n".format(defined=defined.orig.name, define=defined.redirected.orig.name))
 			file.write(files_guard["fndefs32.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
 		
 		with open(os.path.join(root, "src", "wrapped32", "generated", fn + "undefs32.h"), 'w') as file:
 			file.write(files_header["fnundefs32.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
 			for defined in filespecs[fn].structsuses:
-				file.write("#undef {defined}\n".format(defined=defined.orig))
+				file.write("#undef {defined}\n".format(defined=defined.orig.name))
+				file.write("#undef {defined}_32\n".format(defined=defined.orig.name))
 			file.write(files_guard["fnundefs32.h"].format(lbr="{", rbr="}", version=ver, filename=fn))
 
 def main(root: str, files: Iterable[str], ver: str):

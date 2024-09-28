@@ -47,7 +47,7 @@ GOW(access, iFpi)
 //DATAV(__after_morecore_hook, 4)
 GO(alarm, iFu)
 //GO2(aligned_alloc, pFuu, memalign)
-//GO(alphasort, iFpp)
+GO(alphasort, iFpp)
 GOM(alphasort64, iFEpp)
 //DATA(argp_err_exit_status, 4)
 // argp_error   // Weak
@@ -349,7 +349,7 @@ GO(__fgets_chk, pFpLiS)
 // __fgetws_unlocked_chk
 //GO(fgetxattr, iFippu)
 GO(fileno, iFS)
-//GOW(fileno_unlocked, iFp)
+GOW(fileno_unlocked, iFS)
 GOW(finite, iFd)
 GO(__finite, iFd)
 GOW(finitef, iFf)
@@ -508,7 +508,7 @@ GOM(getifaddrs, iFEbp_)
 //GOW(getitimer, iFip)
 // get_kernel_syms  // Weak
 //GOW(getline, iFppp)
-//GO(getloadavg, iFpi)
+GO(getloadavg, iFpi)
 GO(getlogin, pFv)
 GO(getlogin_r, iFpu)
 // __getlogin_r_chk
@@ -767,7 +767,7 @@ GO(ioctl, iFiLN)   //the vararg is just to have optional arg of various type, bu
 // _IO_ftrylockfile
 //GO(_IO_funlockfile, vFS)
 // _IO_fwrite
-//GO(_IO_getc, iFS)
+GO(_IO_getc, iFS)
 // _IO_getline
 //GO(_IO_getline_info, LFSpLiip)
 // _IO_gets
@@ -794,7 +794,7 @@ GOW(iopl, iFi)
 // _IO_printf
 //GO(_IO_proc_close, iFS)
 //GO(_IO_proc_open, pFSpp)
-//GO(_IO_putc, iFip)
+GO(_IO_putc, iFiS)
 // _IO_puts
 //GO(_IO_remove_marker, vFp)
 //GO(_IO_seekmark, iFSpi)
@@ -955,7 +955,7 @@ GO(isxdigit, iFi)
 // isxdigit_l   // Weak
 // _itoa_lower_digits   // type R
 // __ivaliduser
-//GO(jrand48, iFp)
+GO(jrand48, lFp)
 // jrand48_r    // Weak
 // key_decryptsession
 // key_decryptsession_pk
@@ -1284,8 +1284,8 @@ GOM(__printf_chk, iFEvpV) //%%
 // __profile_frequency
 //DATAM(__progname, 4)
 //DATAM(__progname_full, 4)
-//DATAM(program_invocation_name, 4)
-//DATAM(program_invocation_short_name, 4)
+DATAM(program_invocation_name, 4)
+DATAM(program_invocation_short_name, 4)
 //GOW(pselect, iFippppp)
 // psignal
 //GO(ptrace, iFiupp)  // will that work???
@@ -1423,8 +1423,8 @@ GOW(rmdir, iFp)
 // ruserok
 // ruserok_af
 // ruserpass
-//GOW(sbrk, pFl)
-//GO(__sbrk, pFl)
+GOW(sbrk, pFl)
+GO(__sbrk, pFl)
 // scalbn   // Weak
 // scalbnf  // Weak
 // scalbnl  // Weak
@@ -1759,7 +1759,7 @@ GOM(swapcontext, iFEpp) //%%
 // swapoff  // Weak
 // swapon   // Weak
 GOM(swprintf, iFEpupV) //%%
-//GOM(__swprintf_chk, iFEpuiupV) //%%
+GOM(__swprintf_chk, iFEpuiupV) //%%
 GOM(swscanf, iFEppV)
 GOW(symlink, iFpp)
 //GO(symlinkat, iFpip)
@@ -1809,9 +1809,9 @@ GO(timerfd_create, iFii)
 //GOW(times, iFp)
 DATAM(timezone, 4)
 //DATAB(__timezone, 4)   // type B
-//GO(tmpfile, pFv)
+GO(tmpfile, pFv)
 //GO(tmpfile64, pFv)
-//GO(tmpnam, pFp)
+GO(tmpnam, pFp)
 //GO(tmpnam_r, pFp)
 GO(toascii, iFi)
 // __toascii_l  // Weak
@@ -1907,7 +1907,7 @@ GOM(__vsprintf_chk, iFEpiLpp)     //%%
 // __vsscanf    // Weak
 GOWM(vswprintf, iFEpLpp)         //%%
 GOWM(__vswprintf, iFEpLpp)         //%%
-//GOWM(__vswprintf_chk, iFEpLiLppp) //%%
+GOWM(__vswprintf_chk, iFEpLiLppp) //%%
 GOM(vswscanf, iFEppp)
 //GO(vsyslog, vFipp)
 //GO(__vsyslog_chk, vFiipp)
@@ -1917,7 +1917,7 @@ GOM(vswscanf, iFEppp)
 //GOM(vwprintf, iFEpp) //%%
 //GO2(__vwprintf_chk, iFEvpp, my_vwprintf)
 //GO(vwscanf, iFpp)
-//GOW(wait, iFp)
+GOW(wait, iFp)
 //GOW(__wait, iFp)
 //GOW(wait3, iFpip)
 //GOW(wait4, iFipip)
@@ -1972,7 +1972,7 @@ GO(wcsstr, pFpp)
 //GO(__wcstod_internal, dFppi)
 // __wcstod_l
 // wcstod_l // Weak
-//GO(wcstof, fFpp)
+GO(wcstof, fFpBp_)
 // __wcstof_internal
 // __wcstof_l
 // wcstof_l // Weak

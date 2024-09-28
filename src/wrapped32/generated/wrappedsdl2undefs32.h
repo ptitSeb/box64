@@ -4,5 +4,7 @@
 #ifndef __wrappedsdl2UNDEFS32_H_
 #define __wrappedsdl2UNDEFS32_H_
 
+#undef JFEi
+#undef JFEi_32
 
 #endif // __wrappedsdl2UNDEFS32_H_
