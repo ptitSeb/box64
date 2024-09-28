@@ -774,6 +774,8 @@ static void func1(uint32_t* ret, void* p, int a, int b)
     *ret = my->XML_ParseBuffer(p, a, b);
 }
 ucontext_t uctx_main, uctx_func1;
+
+#ifndef ANDROID
 EXPORT uint32_t my32_XML_ParseBuffer(x64emu_t* emu, void* p, int a, int b)
 {
     getcontext(&uctx_func1);
@@ -788,5 +790,6 @@ EXPORT uint32_t my32_XML_ParseBuffer(x64emu_t* emu, void* p, int a, int b)
     munmap(func1_stack, stack_size);
     return ret;
 }
+#endif
 
 #include "wrappedlib_init32.h"
