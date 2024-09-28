@@ -186,6 +186,7 @@
 #() lFui -> lFui
 #() lFll -> lFll
 #() lFpl -> lFpl
+#() LFLi -> LFLi
 #() LFpL -> LFpL
 #() LFpp -> LFpp
 #() LFXi -> LFXi
@@ -747,6 +748,7 @@
 #() pFpiiuu -> pFpiiuu
 #() pFpippp -> pFpippp
 #() pFpuiii -> pFpuiii
+#() pFpuuip -> pFpuuip
 #() pFppuup -> pFppuup
 #() pFppupp -> pFppupp
 #() pFXpipi -> pFXpipi
@@ -1705,3 +1707,11 @@ wrappedsdl2:
 - pFpiiiiu:
   - SDL_CreateRGBSurfaceWithFormatFrom
 % JFEi -> pFEpi
+wrappedtcmallocminimal:
+- pFp:
+- iFpL:
+  - munmap
+- pFpLiiii:
+  - mmap
+- pFpLiiiI:
+  - mmap64

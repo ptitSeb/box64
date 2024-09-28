@@ -35,3 +35,5 @@ GO("libexpat.so.1", expat)
 GO("libexpat.so", expat)
 
 GO("crashhandler.so", crashhandler)
+GO("libtcmalloc_minimal.so.0", tcmallocminimal)
+GO("libtcmalloc_minimal.so.4", tcmallocminimal)
