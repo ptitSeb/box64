@@ -573,8 +573,9 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
     if(n_blocks)
         if(is32bits) {
             return box_realloc(p, size);
-        } else
+        } else {
             printf_log(LOG_INFO, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
+        }
     return internal_customMalloc(size, is32bits);
 }
 void* customRealloc(void* p, size_t size)
