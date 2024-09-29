@@ -9,6 +9,8 @@
 #define EMIT(A)     do {dyn->insts[ninst].size+=4; dyn->native_size+=4;}while(0)
 #define NEW_INST                                                                                                                                                               \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;                                                                                                                      \
+    dyn->inst_sew = VECTOR_SEWNA;                                                                                                                                              \
+    dyn->inst_vl = 0;                                                                                                                                                          \
     if (ninst) {                                                                                                                                                               \
         dyn->insts[ninst].address = (dyn->insts[ninst - 1].address + dyn->insts[ninst - 1].size);                                                                              \
         dyn->insts_size += 1 + ((dyn->insts[ninst - 1].x64.size > (dyn->insts[ninst - 1].size / 4)) ? dyn->insts[ninst - 1].x64.size : (dyn->insts[ninst - 1].size / 4)) / 15; \

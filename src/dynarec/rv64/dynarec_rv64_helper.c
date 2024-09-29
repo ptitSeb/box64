@@ -2614,11 +2614,16 @@ int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, f
      *                    mu            tu          sew      lmul */
     uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | vlmul;
     uint32_t vl = (int)((float)(16 >> sew) * multiple);
-    if (vl <= 31) {
-        VSETIVLI(xZR, vl, vtypei);
-    } else {
-        ADDI(s1, xZR, vl);
-        VSETVLI(xZR, s1, vtypei);
+
+    if (dyn->inst_sew == VECTOR_SEWNA || dyn->inst_vl == 0 || dyn->inst_sew != sew || dyn->inst_vl != vl) {
+        if (vl <= 31) {
+            VSETIVLI(xZR, vl, vtypei);
+        } else {
+            ADDI(s1, xZR, vl);
+            VSETVLI(xZR, s1, vtypei);
+        }
     }
+    dyn->inst_sew = sew;
+    dyn->inst_vl = vl;
     return sew;
 }
