@@ -1248,8 +1248,6 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VECTOR_NFIELD7 0b110
 #define VECTOR_NFIELD8 0b111
 
-#define VECTOR_MASKREG 0 // fixed to v0
-
 //  configuration setting
 //  https://github.com/riscv/riscv-v-spec/blob/master/vcfg-format.adoc
 #define VSETIVLI(rd, zimm, zimm10) EMIT(I_type(0b110000000000 | (zimm10), zimm, 0b111, rd, 0b1010111)) // 11...............111.....1010111
@@ -1280,38 +1278,38 @@ f28–31  ft8–11  FP temporaries                  Caller
 //  Vector Indexed-Unordered Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#76-vector-indexed-instructions
 
-#define VLUXEI8_V(vd, rs1, vs2, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
-#define VLUXEI16_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
-#define VLUXEI32_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
-#define VLUXEI64_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
-#define VSUXEI8_V(vs3, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
-#define VSUXEI16_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
-#define VSUXEI32_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
-#define VSUXEI64_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
+#define VLUXEI8_V(vd, vs2, rs1, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
+#define VLUXEI16_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
+#define VLUXEI32_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
+#define VLUXEI64_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
+#define VSUXEI8_V(vs3, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
+#define VSUXEI16_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
+#define VSUXEI32_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
+#define VSUXEI64_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
 
 //  Vector Strided Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#75-vector-strided-instructions
 
-#define VLSE8_V(vd, rs1, rs2, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vd, 0b0000111))  // ...010...........000.....0000111
-#define VLSE16_V(vd, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vd, 0b0000111))  // ...010...........101.....0000111
-#define VLSE32_V(vd, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vd, 0b0000111))  // ...010...........110.....0000111
-#define VLSE64_V(vd, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vd, 0b0000111))  // ...010...........111.....0000111
-#define VSSE8_V(vs3, rs1, rs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vs3, 0b0100111)) // ...010...........000.....0100111
-#define VSSE16_V(vs3, rs1, rs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vs3, 0b0100111)) // ...010...........101.....0100111
-#define VSSE32_V(vs3, rs1, rs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vs3, 0b0100111)) // ...010...........110.....0100111
-#define VSSE64_V(vs3, rs1, rs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vs3, 0b0100111)) // ...010...........111.....0100111
+#define VLSE8_V(vd, rs2, rs1, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vd, 0b0000111))  // ...010...........000.....0000111
+#define VLSE16_V(vd, rs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vd, 0b0000111))  // ...010...........101.....0000111
+#define VLSE32_V(vd, rs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vd, 0b0000111))  // ...010...........110.....0000111
+#define VLSE64_V(vd, rs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vd, 0b0000111))  // ...010...........111.....0000111
+#define VSSE8_V(vs3, rs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b000, vs3, 0b0100111)) // ...010...........000.....0100111
+#define VSSE16_V(vs3, rs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b101, vs3, 0b0100111)) // ...010...........101.....0100111
+#define VSSE32_V(vs3, rs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b110, vs3, 0b0100111)) // ...010...........110.....0100111
+#define VSSE64_V(vs3, rs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0100, rs2, rs1, 0b111, vs3, 0b0100111)) // ...010...........111.....0100111
 
 //  Vector Indexed-Ordered Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#76-vector-indexed-instructions
 
-#define VLOXEI8_V(vd, rs1, vs2, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vd, 0b0000111))  // ...011...........000.....0000111
-#define VLOXEI16_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vd, 0b0000111))  // ...011...........101.....0000111
-#define VLOXEI32_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vd, 0b0000111))  // ...011...........110.....0000111
-#define VLOXEI64_V(vd, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vd, 0b0000111))  // ...011...........111.....0000111
-#define VSOXEI8_V(vs3, rs1, vs2, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vs3, 0b0100111)) // ...011...........000.....0100111
-#define VSOXEI16_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vs3, 0b0100111)) // ...011...........101.....0100111
-#define VSOXEI32_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vs3, 0b0100111)) // ...011...........110.....0100111
-#define VSOXEI64_V(vs3, rs1, vs2, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vs3, 0b0100111)) // ...011...........111.....0100111
+#define VLOXEI8_V(vd, vs2, rs1, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vd, 0b0000111))  // ...011...........000.....0000111
+#define VLOXEI16_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vd, 0b0000111))  // ...011...........101.....0000111
+#define VLOXEI32_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vd, 0b0000111))  // ...011...........110.....0000111
+#define VLOXEI64_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vd, 0b0000111))  // ...011...........111.....0000111
+#define VSOXEI8_V(vs3, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b000, vs3, 0b0100111)) // ...011...........000.....0100111
+#define VSOXEI16_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b101, vs3, 0b0100111)) // ...011...........101.....0100111
+#define VSOXEI32_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b110, vs3, 0b0100111)) // ...011...........110.....0100111
+#define VSOXEI64_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0110, vs2, rs1, 0b111, vs3, 0b0100111)) // ...011...........111.....0100111
 
 //  Unit-stride F31..29=0ault-Only-First Loads
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#77-unit-stride-fault-only-first-loads
@@ -1349,78 +1347,78 @@ f28–31  ft8–11  FP temporaries                  Caller
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#14-vector-floating-point-instructions
 
 //  OPFVF
-#define VFADD_VF(vd, rs1, vs2, vm)        EMIT(R_type(0b0000000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000000...........101.....1010111
-#define VFSUB_VF(vd, rs1, vs2, vm)        EMIT(R_type(0b0000100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000010...........101.....1010111
-#define VFMIN_VF(vd, rs1, vs2, vm)        EMIT(R_type(0b0001000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000100...........101.....1010111
-#define VFMAX_VF(vd, rs1, vs2, vm)        EMIT(R_type(0b0001100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000110...........101.....1010111
-#define VFSGNJ_VF(vd, rs1, vs2, vm)       EMIT(R_type(0b0010000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001000...........101.....1010111
-#define VFSGNJN_VF(vd, rs1, vs2, vm)      EMIT(R_type(0b0010010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001001...........101.....1010111
-#define VFSGNJX_VF(vd, rs1, vs2, vm)      EMIT(R_type(0b0010100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001010...........101.....1010111
-#define VFSLIDE1UP_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001110...........101.....1010111
-#define VFSLIDE1DOWN_VF(vd, rs1, vs2, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001111...........101.....1010111
+#define VFADD_VF(vd, vs2, rs1, vm)        EMIT(R_type(0b0000000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000000...........101.....1010111
+#define VFSUB_VF(vd, vs2, rs1, vm)        EMIT(R_type(0b0000100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000010...........101.....1010111
+#define VFMIN_VF(vd, vs2, rs1, vm)        EMIT(R_type(0b0001000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000100...........101.....1010111
+#define VFMAX_VF(vd, vs2, rs1, vm)        EMIT(R_type(0b0001100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 000110...........101.....1010111
+#define VFSGNJ_VF(vd, vs2, rs1, vm)       EMIT(R_type(0b0010000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001000...........101.....1010111
+#define VFSGNJN_VF(vd, vs2, rs1, vm)      EMIT(R_type(0b0010010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001001...........101.....1010111
+#define VFSGNJX_VF(vd, vs2, rs1, vm)      EMIT(R_type(0b0010100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001010...........101.....1010111
+#define VFSLIDE1UP_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001110...........101.....1010111
+#define VFSLIDE1DOWN_VF(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001111...........101.....1010111
 
 #define VFMV_S_F(vd, rs1) EMIT(I_type(0b010000100000, rs1, 0b101, vd, 0b1010111)) // 010000100000.....101.....1010111
 #define VFMV_V_F(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b101, vd, 0b1010111)) // 010111100000.....101.....1010111
 
-#define VFMERGE_VFM(vd, rs1, vs2) EMIT(R_type(0b0101110, vs2, rs1, 0b101, vd, 0b1010111)) // 0101110..........101.....1010111
+#define VFMERGE_VFM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b101, vd, 0b1010111)) // 0101110..........101.....1010111
 
-#define VMFEQ_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b0110000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011000...........101.....1010111
-#define VMFLE_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b0110010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011001...........101.....1010111
-#define VMFLT_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b0110110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011011...........101.....1010111
-#define VMFNE_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b0111000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011100...........101.....1010111
-#define VMFGT_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b0111010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011101...........101.....1010111
-#define VMFGE_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b0111110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011111...........101.....1010111
-#define VFDIV_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100000...........101.....1010111
-#define VFRDIV_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100001...........101.....1010111
-#define VFMUL_VF(vd, rs1, vs2, vm)    EMIT(R_type(0b1001000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100100...........101.....1010111
-#define VFRSUB_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1001110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100111...........101.....1010111
-#define VFMADD_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1010000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101000...........101.....1010111
-#define VFNMADD_VF(vd, rs1, vs2, vm)  EMIT(R_type(0b1010010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101001...........101.....1010111
-#define VFMSUB_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1010100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101010...........101.....1010111
-#define VFNMSUB_VF(vd, rs1, vs2, vm)  EMIT(R_type(0b1010110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101011...........101.....1010111
-#define VFMACC_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1011000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101100...........101.....1010111
-#define VFNMACC_VF(vd, rs1, vs2, vm)  EMIT(R_type(0b1011010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101101...........101.....1010111
-#define VFMSAC_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1011100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101110...........101.....1010111
-#define VFNMSAC_VF(vd, rs1, vs2, vm)  EMIT(R_type(0b1011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101111...........101.....1010111
-#define VFWADD_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1100000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110000...........101.....1010111
-#define VFWSUB_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1100100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110010...........101.....1010111
-#define VFWADD_WF(vd, rs1, vs2, vm)   EMIT(R_type(0b1101000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110100...........101.....1010111
-#define VFWSUB_WF(vd, rs1, vs2, vm)   EMIT(R_type(0b1101100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110110...........101.....1010111
-#define VFWMUL_VF(vd, rs1, vs2, vm)   EMIT(R_type(0b1110000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111000...........101.....1010111
-#define VFWMACC_VF(vd, rs1, vs2, vm)  EMIT(R_type(0b1111000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111100...........101.....1010111
-#define VFWNMACC_VF(vd, rs1, vs2, vm) EMIT(R_type(0b1111010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111101...........101.....1010111
-#define VFWMSAC_VF(vd, rs1, vs2, vm)  EMIT(R_type(0b1111100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111110...........101.....1010111
-#define VFWNMSAC_VF(vd, rs1, vs2, vm) EMIT(R_type(0b1111110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111111...........101.....1010111
+#define VMFEQ_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b0110000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011000...........101.....1010111
+#define VMFLE_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b0110010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011001...........101.....1010111
+#define VMFLT_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b0110110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011011...........101.....1010111
+#define VMFNE_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b0111000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011100...........101.....1010111
+#define VMFGT_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b0111010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011101...........101.....1010111
+#define VMFGE_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b0111110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 011111...........101.....1010111
+#define VFDIV_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100000...........101.....1010111
+#define VFRDIV_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100001...........101.....1010111
+#define VFMUL_VF(vd, vs2, rs1, vm)    EMIT(R_type(0b1001000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100100...........101.....1010111
+#define VFRSUB_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1001110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 100111...........101.....1010111
+#define VFMADD_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1010000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101000...........101.....1010111
+#define VFNMADD_VF(vd, vs2, rs1, vm)  EMIT(R_type(0b1010010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101001...........101.....1010111
+#define VFMSUB_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1010100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101010...........101.....1010111
+#define VFNMSUB_VF(vd, vs2, rs1, vm)  EMIT(R_type(0b1010110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101011...........101.....1010111
+#define VFMACC_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1011000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101100...........101.....1010111
+#define VFNMACC_VF(vd, vs2, rs1, vm)  EMIT(R_type(0b1011010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101101...........101.....1010111
+#define VFMSAC_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1011100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101110...........101.....1010111
+#define VFNMSAC_VF(vd, vs2, rs1, vm)  EMIT(R_type(0b1011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 101111...........101.....1010111
+#define VFWADD_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1100000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110000...........101.....1010111
+#define VFWSUB_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1100100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110010...........101.....1010111
+#define VFWADD_WF(vd, vs2, rs1, vm)   EMIT(R_type(0b1101000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110100...........101.....1010111
+#define VFWSUB_WF(vd, vs2, rs1, vm)   EMIT(R_type(0b1101100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 110110...........101.....1010111
+#define VFWMUL_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b1110000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111000...........101.....1010111
+#define VFWMACC_VF(vd, vs2, rs1, vm)  EMIT(R_type(0b1111000 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111100...........101.....1010111
+#define VFWNMACC_VF(vd, vs2, rs1, vm) EMIT(R_type(0b1111010 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111101...........101.....1010111
+#define VFWMSAC_VF(vd, vs2, rs1, vm)  EMIT(R_type(0b1111100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111110...........101.....1010111
+#define VFWNMSAC_VF(vd, vs2, rs1, vm) EMIT(R_type(0b1111110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 111111...........101.....1010111
 
 //  OPFVV
-#define VFADD_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0000000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000000...........001.....1010111
-#define VFREDUSUM_VS(vd, vs1, vs2, vm) EMIT(R_type(0b0000010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000001...........001.....1010111
-#define VFSUB_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0000100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000010...........001.....1010111
-#define VFREDOSUM_VS(vd, vs1, vs2, vm) EMIT(R_type(0b0000110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000011...........001.....1010111
-#define VFMIN_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0001000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000100...........001.....1010111
-#define VFREDMIN_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b0001010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000101...........001.....1010111
-#define VFMAX_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0001100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000110...........001.....1010111
-#define VFREDMAX_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b0001110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000111...........001.....1010111
-#define VFSGNJ_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001000...........001.....1010111
-#define VFSGNJN_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001001...........001.....1010111
-#define VFSGNJX_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001010...........001.....1010111
+#define VFADD_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0000000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000000...........001.....1010111
+#define VFREDUSUM_VS(vd, vs2, vs1, vm) EMIT(R_type(0b0000010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000001...........001.....1010111
+#define VFSUB_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0000100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000010...........001.....1010111
+#define VFREDOSUM_VS(vd, vs2, vs1, vm) EMIT(R_type(0b0000110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000011...........001.....1010111
+#define VFMIN_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0001000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000100...........001.....1010111
+#define VFREDMIN_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0001010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000101...........001.....1010111
+#define VFMAX_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0001100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000110...........001.....1010111
+#define VFREDMAX_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0001110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 000111...........001.....1010111
+#define VFSGNJ_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001000...........001.....1010111
+#define VFSGNJN_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001001...........001.....1010111
+#define VFSGNJX_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001010...........001.....1010111
 
 #define VFMV_F_S(rd, vs2) EMIT(R_type(0b0100001, vs2, 0b00000, 0b001, rd, 0b1010111)) // 0100001.....00000001.....1010111
 
-#define VMFEQ_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0110000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011000...........001.....1010111
-#define VMFLE_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0110010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011001...........001.....1010111
-#define VMFLT_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0110110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011011...........001.....1010111
-#define VMFNE_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0111000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011100...........001.....1010111
-#define VFDIV_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 100000...........001.....1010111
-#define VFMUL_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1001000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 100100...........001.....1010111
-#define VFMADD_VV(vd, vs1, vs2, vm)  EMIT(R_type(0b1010000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101000...........001.....1010111
-#define VFNMADD_VV(vd, vs1, vs2, vm) EMIT(R_type(0b1010010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101001...........001.....1010111
-#define VFMSUB_VV(vd, vs1, vs2, vm)  EMIT(R_type(0b1010100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101010...........001.....1010111
-#define VFNMSUB_VV(vd, vs1, vs2, vm) EMIT(R_type(0b1010110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101011...........001.....1010111
-#define VFMACC_VV(vd, vs1, vs2, vm)  EMIT(R_type(0b1011000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101100...........001.....1010111
-#define VFNMACC_VV(vd, vs1, vs2, vm) EMIT(R_type(0b1011010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101101...........001.....1010111
-#define VFMSAC_VV(vd, vs1, vs2, vm)  EMIT(R_type(0b1011100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101110...........001.....1010111
-#define VFNMSAC_VV(vd, vs1, vs2, vm) EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101111...........001.....1010111
+#define VMFEQ_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0110000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011000...........001.....1010111
+#define VMFLE_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0110010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011001...........001.....1010111
+#define VMFLT_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0110110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011011...........001.....1010111
+#define VMFNE_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0111000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011100...........001.....1010111
+#define VFDIV_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 100000...........001.....1010111
+#define VFMUL_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1001000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 100100...........001.....1010111
+#define VFMADD_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1010000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101000...........001.....1010111
+#define VFNMADD_VV(vd, vs2, vs1, vm) EMIT(R_type(0b1010010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101001...........001.....1010111
+#define VFMSUB_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1010100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101010...........001.....1010111
+#define VFNMSUB_VV(vd, vs2, vs1, vm) EMIT(R_type(0b1010110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101011...........001.....1010111
+#define VFMACC_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1011000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101100...........001.....1010111
+#define VFNMACC_VV(vd, vs2, vs1, vm) EMIT(R_type(0b1011010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101101...........001.....1010111
+#define VFMSAC_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1011100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101110...........001.....1010111
+#define VFNMSAC_VV(vd, vs2, vs1, vm) EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101111...........001.....1010111
 
 #define VFCVT_XU_F_V(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010010......00000001.....1010111
 #define VFCVT_X_F_V(vd, vs2, vm)       EMIT(R_type(0b0100100 | (vm), vs2, 0b00001, 0b001, vd, 0b1010111)) // 010010......00001001.....1010111
@@ -1448,147 +1446,147 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VFREC7_V(vd, vs2, vm)          EMIT(R_type(0b0100110 | (vm), vs2, 0b00101, 0b001, vd, 0b1010111)) // 010011......00101001.....1010111
 #define VFCLASS_V(vd, vs2, vm)         EMIT(R_type(0b0100110 | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010011......10000001.....1010111
 
-#define VFWADD_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110000...........001.....1010111
-#define VFWREDUSUM_VS(vd, vs1, vs2, vm) EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110001...........001.....1010111
-#define VFWSUB_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1100100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110010...........001.....1010111
-#define VFWREDOSUM_VS(vd, vs1, vs2, vm) EMIT(R_type(0b1100110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110011...........001.....1010111
-#define VFWADD_WV(vd, vs1, vs2, vm)     EMIT(R_type(0b1101000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110100...........001.....1010111
-#define VFWSUB_WV(vd, vs1, vs2, vm)     EMIT(R_type(0b1101100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110110...........001.....1010111
-#define VFWMUL_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1110000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111000...........001.....1010111
-#define VFWMACC_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1111000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111100...........001.....1010111
-#define VFWNMACC_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1111010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111101...........001.....1010111
-#define VFWMSAC_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1111100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111110...........001.....1010111
-#define VFWNMSAC_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1111110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111111...........001.....1010111
+#define VFWADD_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110000...........001.....1010111
+#define VFWREDUSUM_VS(vd, vs2, vs1, vm) EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110001...........001.....1010111
+#define VFWSUB_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1100100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110010...........001.....1010111
+#define VFWREDOSUM_VS(vd, vs2, vs1, vm) EMIT(R_type(0b1100110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110011...........001.....1010111
+#define VFWADD_WV(vd, vs2, vs1, vm)     EMIT(R_type(0b1101000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110100...........001.....1010111
+#define VFWSUB_WV(vd, vs2, vs1, vm)     EMIT(R_type(0b1101100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110110...........001.....1010111
+#define VFWMUL_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1110000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111000...........001.....1010111
+#define VFWMACC_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1111000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111100...........001.....1010111
+#define VFWNMACC_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1111010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111101...........001.....1010111
+#define VFWMSAC_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1111100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111110...........001.....1010111
+#define VFWNMSAC_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1111110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 111111...........001.....1010111
 
 //  OPIVX
-#define VADD_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0000000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000000...........100.....1010111
-#define VSUB_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0000100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000010...........100.....1010111
-#define VRSUB_VX(vd, rs1, vs2, vm)      EMIT(R_type(0b0000110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000011...........100.....1010111
-#define VMINU_VX(vd, rs1, vs2, vm)      EMIT(R_type(0b0001000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000100...........100.....1010111
-#define VMIN_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0001010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000101...........100.....1010111
-#define VMAXU_VX(vd, rs1, vs2, vm)      EMIT(R_type(0b0001100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000110...........100.....1010111
-#define VMAX_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0001110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000111...........100.....1010111
-#define VAND_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0010010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001001...........100.....1010111
-#define VOR_VX(vd, rs1, vs2, vm)        EMIT(R_type(0b0010100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001010...........100.....1010111
-#define VXOR_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0010110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001011...........100.....1010111
-#define VRGATHER_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0011000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001100...........100.....1010111
-#define VSLIDEUP_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001110...........100.....1010111
-#define VSLIDEDOWN_VX(vd, rs1, vs2, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001111...........100.....1010111
+#define VADD_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0000000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000000...........100.....1010111
+#define VSUB_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0000100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000010...........100.....1010111
+#define VRSUB_VX(vd, vs2, rs1, vm)      EMIT(R_type(0b0000110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000011...........100.....1010111
+#define VMINU_VX(vd, vs2, rs1, vm)      EMIT(R_type(0b0001000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000100...........100.....1010111
+#define VMIN_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0001010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000101...........100.....1010111
+#define VMAXU_VX(vd, vs2, rs1, vm)      EMIT(R_type(0b0001100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000110...........100.....1010111
+#define VMAX_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0001110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 000111...........100.....1010111
+#define VAND_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0010010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001001...........100.....1010111
+#define VOR_VX(vd, vs2, rs1, vm)        EMIT(R_type(0b0010100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001010...........100.....1010111
+#define VXOR_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0010110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001011...........100.....1010111
+#define VRGATHER_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0011000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001100...........100.....1010111
+#define VSLIDEUP_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001110...........100.....1010111
+#define VSLIDEDOWN_VX(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001111...........100.....1010111
 
-#define VADC_VXM(vd, rs1, vs2)   EMIT(R_type(0b0100000, vs2, rs1, 0b100, vd, 0b1010111)) // 0100000..........100.....1010111
-#define VMADC_VXM(vd, rs1, vs2)  EMIT(R_type(0b0100010, vs2, rs1, 0b100, vd, 0b1010111)) // 0100010..........100.....1010111
-#define VMADC_VX(vd, rs1, vs2)   EMIT(R_type(0b0100011, vs2, rs1, 0b100, vd, 0b1010111)) // 0100011..........100.....1010111
-#define VSBC_VXM(vd, rs1, vs2)   EMIT(R_type(0b0100100, vs2, rs1, 0b100, vd, 0b1010111)) // 0100100..........100.....1010111
-#define VMSBC_VXM(vd, rs1, vs2)  EMIT(R_type(0b0100110, vs2, rs1, 0b100, vd, 0b1010111)) // 0100110..........100.....1010111
-#define VMSBC_VX(vd, rs1, vs2)   EMIT(R_type(0b0100111, vs2, rs1, 0b100, vd, 0b1010111)) // 0100111..........100.....1010111
-#define VMERGE_VXM(vd, rs1, vs2) EMIT(R_type(0b0101110, vs2, rs1, 0b100, vd, 0b1010111)) // 0101110..........100.....1010111
+#define VADC_VXM(vd, vs2, rs1)   EMIT(R_type(0b0100000, vs2, rs1, 0b100, vd, 0b1010111)) // 0100000..........100.....1010111
+#define VMADC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100010, vs2, rs1, 0b100, vd, 0b1010111)) // 0100010..........100.....1010111
+#define VMADC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100011, vs2, rs1, 0b100, vd, 0b1010111)) // 0100011..........100.....1010111
+#define VSBC_VXM(vd, vs2, rs1)   EMIT(R_type(0b0100100, vs2, rs1, 0b100, vd, 0b1010111)) // 0100100..........100.....1010111
+#define VMSBC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100110, vs2, rs1, 0b100, vd, 0b1010111)) // 0100110..........100.....1010111
+#define VMSBC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100111, vs2, rs1, 0b100, vd, 0b1010111)) // 0100111..........100.....1010111
+#define VMERGE_VXM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b100, vd, 0b1010111)) // 0101110..........100.....1010111
 
 #define VMV_V_X(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b100, vd, 0b1010111)) // 010111100000.....100.....1010111
 
-#define VMSEQ_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0110000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011000...........100.....1010111
-#define VMSNE_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0110010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011001...........100.....1010111
-#define VMSLTU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b0110100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011010...........100.....1010111
-#define VMSLT_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0110110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011011...........100.....1010111
-#define VMSLEU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b0111000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011100...........100.....1010111
-#define VMSLE_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0111010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011101...........100.....1010111
-#define VMSGTU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b0111100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011110...........100.....1010111
-#define VMSGT_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0111110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011111...........100.....1010111
-#define VSADDU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100000...........100.....1010111
-#define VSADD_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100001...........100.....1010111
-#define VSSUBU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b1000100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100010...........100.....1010111
-#define VSSUB_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1000110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100011...........100.....1010111
-#define VSLL_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1001010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100101...........100.....1010111
-#define VSMUL_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1001110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100111...........100.....1010111
-#define VSRL_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1010000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101000...........100.....1010111
-#define VSRA_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1010010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101001...........100.....1010111
-#define VSSRL_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1010100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101010...........100.....1010111
-#define VSSRA_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1010110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101011...........100.....1010111
-#define VNSRL_WX(vd, rs1, vs2, vm)   EMIT(R_type(0b1011000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101100...........100.....1010111
-#define VNSRA_WX(vd, rs1, vs2, vm)   EMIT(R_type(0b1011010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101101...........100.....1010111
-#define VNCLIPU_WX(vd, rs1, vs2, vm) EMIT(R_type(0b1011100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101110...........100.....1010111
-#define VNCLIP_WX(vd, rs1, vs2, vm)  EMIT(R_type(0b1011110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101111...........100.....1010111
+#define VMSEQ_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0110000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011000...........100.....1010111
+#define VMSNE_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0110010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011001...........100.....1010111
+#define VMSLTU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b0110100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011010...........100.....1010111
+#define VMSLT_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0110110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011011...........100.....1010111
+#define VMSLEU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b0111000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011100...........100.....1010111
+#define VMSLE_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0111010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011101...........100.....1010111
+#define VMSGTU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b0111100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011110...........100.....1010111
+#define VMSGT_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0111110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 011111...........100.....1010111
+#define VSADDU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100000...........100.....1010111
+#define VSADD_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100001...........100.....1010111
+#define VSSUBU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b1000100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100010...........100.....1010111
+#define VSSUB_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1000110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100011...........100.....1010111
+#define VSLL_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1001010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100101...........100.....1010111
+#define VSMUL_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1001110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 100111...........100.....1010111
+#define VSRL_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1010000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101000...........100.....1010111
+#define VSRA_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1010010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101001...........100.....1010111
+#define VSSRL_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1010100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101010...........100.....1010111
+#define VSSRA_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1010110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101011...........100.....1010111
+#define VNSRL_WX(vd, vs2, rs1, vm)   EMIT(R_type(0b1011000 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101100...........100.....1010111
+#define VNSRA_WX(vd, vs2, rs1, vm)   EMIT(R_type(0b1011010 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101101...........100.....1010111
+#define VNCLIPU_WX(vd, vs2, rs1, vm) EMIT(R_type(0b1011100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101110...........100.....1010111
+#define VNCLIP_WX(vd, vs2, rs1, vm)  EMIT(R_type(0b1011110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 101111...........100.....1010111
 
 //  OPIVV
-#define VADD_VV(vd, vs1, vs2, vm)         EMIT(R_type(0b0000000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000000...........000.....1010111
-#define VSUB_VV(vd, vs1, vs2, vm)         EMIT(R_type(0b0000100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000010...........000.....1010111
-#define VMINU_VV(vd, vs1, vs2, vm)        EMIT(R_type(0b0001000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000100...........000.....1010111
-#define VMIN_VV(vd, vs1, vs2, vm)         EMIT(R_type(0b0001010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000101...........000.....1010111
-#define VMAXU_VV(vd, vs1, vs2, vm)        EMIT(R_type(0b0001100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000110...........000.....1010111
-#define VMAX_VV(vd, vs1, vs2, vm)         EMIT(R_type(0b0001110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000111...........000.....1010111
-#define VAND_VV(vd, vs1, vs2, vm)         EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001001...........000.....1010111
-#define VOR_VV(vd, vs1, vs2, vm)          EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001010...........000.....1010111
-#define VXOR_VV(vd, vs1, vs2, vm)         EMIT(R_type(0b0010110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001011...........000.....1010111
-#define VRGATHER_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0011000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001100...........000.....1010111
-#define VRGATHEREI16_VV(vd, vs1, vs2, vm) EMIT(R_type(0b0011100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001110...........000.....1010111
+#define VADD_VV(vd, vs2, vs1, vm)         EMIT(R_type(0b0000000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000000...........000.....1010111
+#define VSUB_VV(vd, vs2, vs1, vm)         EMIT(R_type(0b0000100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000010...........000.....1010111
+#define VMINU_VV(vd, vs2, vs1, vm)        EMIT(R_type(0b0001000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000100...........000.....1010111
+#define VMIN_VV(vd, vs2, vs1, vm)         EMIT(R_type(0b0001010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000101...........000.....1010111
+#define VMAXU_VV(vd, vs2, vs1, vm)        EMIT(R_type(0b0001100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000110...........000.....1010111
+#define VMAX_VV(vd, vs2, vs1, vm)         EMIT(R_type(0b0001110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 000111...........000.....1010111
+#define VAND_VV(vd, vs2, vs1, vm)         EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001001...........000.....1010111
+#define VOR_VV(vd, vs2, vs1, vm)          EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001010...........000.....1010111
+#define VXOR_VV(vd, vs2, vs1, vm)         EMIT(R_type(0b0010110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001011...........000.....1010111
+#define VRGATHER_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0011000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001100...........000.....1010111
+#define VRGATHEREI16_VV(vd, vs2, vs1, vm) EMIT(R_type(0b0011100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001110...........000.....1010111
 
-#define VADC_VVM(vd, vs1, vs2)   EMIT(R_type(0b0100000, vs2, vs1, 0b000, vd, 0b1010111)) // 0100000..........000.....1010111
-#define VMADC_VVM(vd, vs1, vs2)  EMIT(R_type(0b0100010, vs2, vs1, 0b000, vd, 0b1010111)) // 0100010..........000.....1010111
-#define VMADC_VV(vd, vs1, vs2)   EMIT(R_type(0b0100011, vs2, vs1, 0b000, vd, 0b1010111)) // 0100011..........000.....1010111
-#define VSBC_VVM(vd, vs1, vs2)   EMIT(R_type(0b0100100, vs2, vs1, 0b000, vd, 0b1010111)) // 0100100..........000.....1010111
-#define VMSBC_VVM(vd, vs1, vs2)  EMIT(R_type(0b0100110, vs2, vs1, 0b000, vd, 0b1010111)) // 0100110..........000.....1010111
-#define VMSBC_VV(vd, vs1, vs2)   EMIT(R_type(0b0100111, vs2, vs1, 0b000, vd, 0b1010111)) // 0100111..........000.....1010111
-#define VMERGE_VVM(vd, vs1, vs2) EMIT(R_type(0b0101110, vs2, vs1, 0b000, vd, 0b1010111)) // 0101110..........000.....1010111
+#define VADC_VVM(vd, vs2, vs1)   EMIT(R_type(0b0100000, vs2, vs1, 0b000, vd, 0b1010111)) // 0100000..........000.....1010111
+#define VMADC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100010, vs2, vs1, 0b000, vd, 0b1010111)) // 0100010..........000.....1010111
+#define VMADC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100011, vs2, vs1, 0b000, vd, 0b1010111)) // 0100011..........000.....1010111
+#define VSBC_VVM(vd, vs2, vs1)   EMIT(R_type(0b0100100, vs2, vs1, 0b000, vd, 0b1010111)) // 0100100..........000.....1010111
+#define VMSBC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100110, vs2, vs1, 0b000, vd, 0b1010111)) // 0100110..........000.....1010111
+#define VMSBC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100111, vs2, vs1, 0b000, vd, 0b1010111)) // 0100111..........000.....1010111
+#define VMERGE_VVM(vd, vs2, vs1) EMIT(R_type(0b0101110, vs2, vs1, 0b000, vd, 0b1010111)) // 0101110..........000.....1010111
 
 #define VMV_V_V(vd, vs1) EMIT(I_type(0b010111100000, vs1, 0b000, vd, 0b1010111)) // 010111100000.....000.....1010111
 
-#define VMSEQ_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0110000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011000...........000.....1010111
-#define VMSNE_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0110010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011001...........000.....1010111
-#define VMSLTU_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b0110100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011010...........000.....1010111
-#define VMSLT_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0110110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011011...........000.....1010111
-#define VMSLEU_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b0111000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011100...........000.....1010111
-#define VMSLE_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b0111010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011101...........000.....1010111
-#define VSADDU_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100000...........000.....1010111
-#define VSADD_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1000010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100001...........000.....1010111
-#define VSSUBU_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1000100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100010...........000.....1010111
-#define VSSUB_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1000110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100011...........000.....1010111
-#define VSLL_VV(vd, vs1, vs2, vm)      EMIT(R_type(0b1001010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100101...........000.....1010111
-#define VSMUL_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1001110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100111...........000.....1010111
-#define VSRL_VV(vd, vs1, vs2, vm)      EMIT(R_type(0b1010000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101000...........000.....1010111
-#define VSRA_VV(vd, vs1, vs2, vm)      EMIT(R_type(0b1010010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101001...........000.....1010111
-#define VSSRL_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1010100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101010...........000.....1010111
-#define VSSRA_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1010110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101011...........000.....1010111
-#define VNSRL_WV(vd, vs1, vs2, vm)     EMIT(R_type(0b1011000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101100...........000.....1010111
-#define VNSRA_WV(vd, vs1, vs2, vm)     EMIT(R_type(0b1011010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101101...........000.....1010111
-#define VNCLIPU_WV(vd, vs1, vs2, vm)   EMIT(R_type(0b1011100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101110...........000.....1010111
-#define VNCLIP_WV(vd, vs1, vs2, vm)    EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101111...........000.....1010111
-#define VWREDSUMU_VS(vd, vs1, vs2, vm) EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 110000...........000.....1010111
-#define VWREDSUM_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 110001...........000.....1010111
+#define VMSEQ_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0110000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011000...........000.....1010111
+#define VMSNE_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0110010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011001...........000.....1010111
+#define VMSLTU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0110100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011010...........000.....1010111
+#define VMSLT_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0110110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011011...........000.....1010111
+#define VMSLEU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0111000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011100...........000.....1010111
+#define VMSLE_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0111010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 011101...........000.....1010111
+#define VSADDU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100000...........000.....1010111
+#define VSADD_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1000010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100001...........000.....1010111
+#define VSSUBU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1000100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100010...........000.....1010111
+#define VSSUB_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1000110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100011...........000.....1010111
+#define VSLL_VV(vd, vs2, vs1, vm)      EMIT(R_type(0b1001010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100101...........000.....1010111
+#define VSMUL_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1001110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 100111...........000.....1010111
+#define VSRL_VV(vd, vs2, vs1, vm)      EMIT(R_type(0b1010000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101000...........000.....1010111
+#define VSRA_VV(vd, vs2, vs1, vm)      EMIT(R_type(0b1010010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101001...........000.....1010111
+#define VSSRL_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1010100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101010...........000.....1010111
+#define VSSRA_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1010110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101011...........000.....1010111
+#define VNSRL_WV(vd, vs2, vs1, vm)     EMIT(R_type(0b1011000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101100...........000.....1010111
+#define VNSRA_WV(vd, vs2, vs1, vm)     EMIT(R_type(0b1011010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101101...........000.....1010111
+#define VNCLIPU_WV(vd, vs2, vs1, vm)   EMIT(R_type(0b1011100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101110...........000.....1010111
+#define VNCLIP_WV(vd, vs2, vs1, vm)    EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 101111...........000.....1010111
+#define VWREDSUMU_VS(vd, vs2, vs1, vm) EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 110000...........000.....1010111
+#define VWREDSUM_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 110001...........000.....1010111
 
 //  OPIVI
-#define VADD_VI(vd, simm5, vs2, vm)       EMIT(R_type(0b0000000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 000000...........011.....1010111
-#define VRSUB_VI(vd, simm5, vs2, vm)      EMIT(R_type(0b0000110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 000011...........011.....1010111
-#define VAND_VI(vd, simm5, vs2, vm)       EMIT(R_type(0b0010010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001001...........011.....1010111
-#define VOR_VI(vd, simm5, vs2, vm)        EMIT(R_type(0b0010100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001010...........011.....1010111
-#define VXOR_VI(vd, simm5, vs2, vm)       EMIT(R_type(0b0010110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001011...........011.....1010111
-#define VRGATHER_VI(vd, simm5, vs2, vm)   EMIT(R_type(0b0011000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001100...........011.....1010111
-#define VSLIDEUP_VI(vd, simm5, vs2, vm)   EMIT(R_type(0b0011100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001110...........011.....1010111
-#define VSLIDEDOWN_VI(vd, simm5, vs2, vm) EMIT(R_type(0b0011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001111...........011.....1010111
+#define VADD_VI(vd, vs2, simm5, vm)       EMIT(R_type(0b0000000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 000000...........011.....1010111
+#define VRSUB_VI(vd, vs2, simm5, vm)      EMIT(R_type(0b0000110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 000011...........011.....1010111
+#define VAND_VI(vd, vs2, simm5, vm)       EMIT(R_type(0b0010010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001001...........011.....1010111
+#define VOR_VI(vd, vs2, simm5, vm)        EMIT(R_type(0b0010100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001010...........011.....1010111
+#define VXOR_VI(vd, vs2, simm5, vm)       EMIT(R_type(0b0010110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001011...........011.....1010111
+#define VRGATHER_VI(vd, vs2, simm5, vm)   EMIT(R_type(0b0011000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001100...........011.....1010111
+#define VSLIDEUP_VI(vd, vs2, simm5, vm)   EMIT(R_type(0b0011100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001110...........011.....1010111
+#define VSLIDEDOWN_VI(vd, vs2, simm5, vm) EMIT(R_type(0b0011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001111...........011.....1010111
 
-#define VADC_VIM(vd, simm5, vs2)   EMIT(R_type(0b0100000, vs2, simm5, 0b011, vd, 0b1010111)) // 0100000..........011.....1010111
-#define VMADC_VIM(vd, simm5, vs2)  EMIT(R_type(0b0100010, vs2, simm5, 0b011, vd, 0b1010111)) // 0100010..........011.....1010111
-#define VMADC_VI(vd, simm5, vs2)   EMIT(R_type(0b0100011, vs2, simm5, 0b011, vd, 0b1010111)) // 0100011..........011.....1010111
-#define VMERGE_VIM(vd, simm5, vs2) EMIT(R_type(0b0101110, vs2, simm5, 0b011, vd, 0b1010111)) // 0101110..........011.....1010111
+#define VADC_VIM(vd, vs2, simm5)   EMIT(R_type(0b0100000, vs2, simm5, 0b011, vd, 0b1010111)) // 0100000..........011.....1010111
+#define VMADC_VIM(vd, vs2, simm5)  EMIT(R_type(0b0100010, vs2, simm5, 0b011, vd, 0b1010111)) // 0100010..........011.....1010111
+#define VMADC_VI(vd, vs2, simm5)   EMIT(R_type(0b0100011, vs2, simm5, 0b011, vd, 0b1010111)) // 0100011..........011.....1010111
+#define VMERGE_VIM(vd, vs2, simm5) EMIT(R_type(0b0101110, vs2, simm5, 0b011, vd, 0b1010111)) // 0101110..........011.....1010111
 
 #define VMV_V_I(vd, simm5) EMIT(I_type(0b010111100000, simm5, 0b011, vd, 0b1010111)) // 010111100000.....011.....1010111
 
-#define VMSEQ_VI(vd, simm5, vs2, vm)  EMIT(R_type(0b0110000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011000...........011.....1010111
-#define VMSNE_VI(vd, simm5, vs2, vm)  EMIT(R_type(0b0110010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011001...........011.....1010111
-#define VMSLEU_VI(vd, simm5, vs2, vm) EMIT(R_type(0b0111000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011100...........011.....1010111
-#define VMSLE_VI(vd, simm5, vs2, vm)  EMIT(R_type(0b0111010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011101...........011.....1010111
-#define VMSGTU_VI(vd, simm5, vs2, vm) EMIT(R_type(0b0111100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011110...........011.....1010111
-#define VMSGT_VI(vd, simm5, vs2, vm)  EMIT(R_type(0b0111110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011111...........011.....1010111
+#define VMSEQ_VI(vd, vs2, simm5, vm)  EMIT(R_type(0b0110000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011000...........011.....1010111
+#define VMSNE_VI(vd, vs2, simm5, vm)  EMIT(R_type(0b0110010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011001...........011.....1010111
+#define VMSLEU_VI(vd, vs2, simm5, vm) EMIT(R_type(0b0111000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011100...........011.....1010111
+#define VMSLE_VI(vd, vs2, simm5, vm)  EMIT(R_type(0b0111010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011101...........011.....1010111
+#define VMSGTU_VI(vd, vs2, simm5, vm) EMIT(R_type(0b0111100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011110...........011.....1010111
+#define VMSGT_VI(vd, vs2, simm5, vm)  EMIT(R_type(0b0111110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 011111...........011.....1010111
 
-#define VSADDU_VI(vd, simm5, vs2, vm)  EMIT(R_type(0b1000000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 100000...........011.....1010111
-#define VSADD_VI(vd, simm5, vs2, vm)   EMIT(R_type(0b1000010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 100001...........011.....1010111
-#define VSLL_VI(vd, simm5, vs2, vm)    EMIT(R_type(0b1001010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 100101...........011.....1010111
-#define VSRL_VI(vd, simm5, vs2, vm)    EMIT(R_type(0b1010000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101000...........011.....1010111
-#define VSRA_VI(vd, simm5, vs2, vm)    EMIT(R_type(0b1010010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101001...........011.....1010111
-#define VSSRL_VI(vd, simm5, vs2, vm)   EMIT(R_type(0b1010100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101010...........011.....1010111
-#define VSSRA_VI(vd, simm5, vs2, vm)   EMIT(R_type(0b1010110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101011...........011.....1010111
-#define VNSRL_WI(vd, simm5, vs2, vm)   EMIT(R_type(0b1011000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101100...........011.....1010111
-#define VNSRA_WI(vd, simm5, vs2, vm)   EMIT(R_type(0b1011010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101101...........011.....1010111
-#define VNCLIPU_WI(vd, simm5, vs2, vm) EMIT(R_type(0b1011100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101110...........011.....1010111
-#define VNCLIP_WI(vd, simm5, vs2, vm)  EMIT(R_type(0b1011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101111...........011.....1010111
+#define VSADDU_VI(vd, vs2, simm5, vm)  EMIT(R_type(0b1000000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 100000...........011.....1010111
+#define VSADD_VI(vd, vs2, simm5, vm)   EMIT(R_type(0b1000010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 100001...........011.....1010111
+#define VSLL_VI(vd, vs2, simm5, vm)    EMIT(R_type(0b1001010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 100101...........011.....1010111
+#define VSRL_VI(vd, vs2, simm5, vm)    EMIT(R_type(0b1010000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101000...........011.....1010111
+#define VSRA_VI(vd, vs2, simm5, vm)    EMIT(R_type(0b1010010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101001...........011.....1010111
+#define VSSRL_VI(vd, vs2, simm5, vm)   EMIT(R_type(0b1010100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101010...........011.....1010111
+#define VSSRA_VI(vd, vs2, simm5, vm)   EMIT(R_type(0b1010110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101011...........011.....1010111
+#define VNSRL_WI(vd, vs2, simm5, vm)   EMIT(R_type(0b1011000 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101100...........011.....1010111
+#define VNSRA_WI(vd, vs2, simm5, vm)   EMIT(R_type(0b1011010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101101...........011.....1010111
+#define VNCLIPU_WI(vd, vs2, simm5, vm) EMIT(R_type(0b1011100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101110...........011.....1010111
+#define VNCLIP_WI(vd, vs2, simm5, vm)  EMIT(R_type(0b1011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101111...........011.....1010111
 
 #define VMV1R_V(vd, vs2) EMIT(R_type(0b1001111, vs2, 0b00000, 0b011, vd, 0b1010111)) // 1001111.....00000011.....1010111
 #define VMV2R_V(vd, vs2) EMIT(R_type(0b1001111, vs2, 0b00001, 0b011, vd, 0b1010111)) // 1001111.....00001011.....1010111
@@ -1596,18 +1594,18 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VMV8R_V(vd, vs2) EMIT(R_type(0b1001111, vs2, 0b00111, 0b011, vd, 0b1010111)) // 1001111.....00111011.....1010111
 
 //  OPMVV
-#define VREDSUM_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b0000000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000000...........010.....1010111
-#define VREDAND_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b0000010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000001...........010.....1010111
-#define VREDOR_VS(vd, vs1, vs2, vm)   EMIT(R_type(0b0000100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000010...........010.....1010111
-#define VREDXOR_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b0000110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000011...........010.....1010111
-#define VREDMINU_VS(vd, vs1, vs2, vm) EMIT(R_type(0b0001000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000100...........010.....1010111
-#define VREDMIN_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b0001010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000101...........010.....1010111
-#define VREDMAXU_VS(vd, vs1, vs2, vm) EMIT(R_type(0b0001100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000110...........010.....1010111
-#define VREDMAX_VS(vd, vs1, vs2, vm)  EMIT(R_type(0b0001110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000111...........010.....1010111
-#define VAADDU_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001000...........010.....1010111
-#define VAADD_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001001...........010.....1010111
-#define VASUBU_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
-#define VASUB_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b0010110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001011...........010.....1010111
+#define VREDSUM_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0000000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000000...........010.....1010111
+#define VREDAND_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0000010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000001...........010.....1010111
+#define VREDOR_VS(vd, vs2, vs1, vm)   EMIT(R_type(0b0000100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000010...........010.....1010111
+#define VREDXOR_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0000110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000011...........010.....1010111
+#define VREDMINU_VS(vd, vs2, vs1, vm) EMIT(R_type(0b0001000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000100...........010.....1010111
+#define VREDMIN_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0001010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000101...........010.....1010111
+#define VREDMAXU_VS(vd, vs2, vs1, vm) EMIT(R_type(0b0001100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000110...........010.....1010111
+#define VREDMAX_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0001110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000111...........010.....1010111
+#define VAADDU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001000...........010.....1010111
+#define VAADD_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001001...........010.....1010111
+#define VASUBU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
+#define VASUB_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0010110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001011...........010.....1010111
 
 #define VMV_X_S(rd, vs2) EMIT(R_type(0b0100001, vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111
 
@@ -1621,15 +1619,15 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VZEXT_VF2(vd, vs2, vm) EMIT(R_type(0b0100100 | (vm), vs2, 0b00110, 0b010, vd, 0b1010111)) // 010010......00110010.....1010111
 #define VSEXT_VF2(vd, vs2, vm) EMIT(R_type(0b0100100 | (vm), vs2, 0b00111, 0b010, vd, 0b1010111)) // 010010......00111010.....1010111
 
-#define VCOMPRESS_VM(vd, vs1, vs2) EMIT(R_type(0b0101111, vs2, vs1, 0b010, vd, 0b1010111)) // 0101111..........010.....1010111
-#define VMANDN_MM(vd, vs1, vs2)    EMIT(R_type(0b0110001, vs2, vs1, 0b010, vd, 0b1010111)) // 0110001..........010.....1010111
-#define VMAND_MM(vd, vs1, vs2)     EMIT(R_type(0b0110011, vs2, vs1, 0b010, vd, 0b1010111)) // 0110011..........010.....1010111
-#define VMOR_MM(vd, vs1, vs2)      EMIT(R_type(0b0110101, vs2, vs1, 0b010, vd, 0b1010111)) // 0110101..........010.....1010111
-#define VMXOR_MM(vd, vs1, vs2)     EMIT(R_type(0b0110111, vs2, vs1, 0b010, vd, 0b1010111)) // 0110111..........010.....1010111
-#define VMORN_MM(vd, vs1, vs2)     EMIT(R_type(0b0111001, vs2, vs1, 0b010, vd, 0b1010111)) // 0111001..........010.....1010111
-#define VMNAND_MM(vd, vs1, vs2)    EMIT(R_type(0b0111011, vs2, vs1, 0b010, vd, 0b1010111)) // 0111011..........010.....1010111
-#define VMNOR_MM(vd, vs1, vs2)     EMIT(R_type(0b0111101, vs2, vs1, 0b010, vd, 0b1010111)) // 0111101..........010.....1010111
-#define VMXNOR_MM(vd, vs1, vs2)    EMIT(R_type(0b0111111, vs2, vs1, 0b010, vd, 0b1010111)) // 0111111..........010.....1010111
+#define VCOMPRESS_VM(vd, vs2, vs1) EMIT(R_type(0b0101111, vs2, vs1, 0b010, vd, 0b1010111)) // 0101111..........010.....1010111
+#define VMANDN_MM(vd, vs2, vs1)    EMIT(R_type(0b0110001, vs2, vs1, 0b010, vd, 0b1010111)) // 0110001..........010.....1010111
+#define VMAND_MM(vd, vs2, vs1)     EMIT(R_type(0b0110011, vs2, vs1, 0b010, vd, 0b1010111)) // 0110011..........010.....1010111
+#define VMOR_MM(vd, vs2, vs1)      EMIT(R_type(0b0110101, vs2, vs1, 0b010, vd, 0b1010111)) // 0110101..........010.....1010111
+#define VMXOR_MM(vd, vs2, vs1)     EMIT(R_type(0b0110111, vs2, vs1, 0b010, vd, 0b1010111)) // 0110111..........010.....1010111
+#define VMORN_MM(vd, vs2, vs1)     EMIT(R_type(0b0111001, vs2, vs1, 0b010, vd, 0b1010111)) // 0111001..........010.....1010111
+#define VMNAND_MM(vd, vs2, vs1)    EMIT(R_type(0b0111011, vs2, vs1, 0b010, vd, 0b1010111)) // 0111011..........010.....1010111
+#define VMNOR_MM(vd, vs2, vs1)     EMIT(R_type(0b0111101, vs2, vs1, 0b010, vd, 0b1010111)) // 0111101..........010.....1010111
+#define VMXNOR_MM(vd, vs2, vs1)    EMIT(R_type(0b0111111, vs2, vs1, 0b010, vd, 0b1010111)) // 0111111..........010.....1010111
 
 #define VMSBF_M(vd, vs2, vm)  EMIT(R_type(0b0101000 | (vm), vs2, 0b00001, 0b010, vd, 0b1010111)) // 010100......00001010.....1010111
 #define VMSOF_M(vd, vs2, vm)  EMIT(R_type(0b0101000 | (vm), vs2, 0b00010, 0b010, vd, 0b1010111)) // 010100......00010010.....1010111
@@ -1640,69 +1638,69 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 #define VID_V(vd, vm) EMIT(R_type(0b0101000 | (vm), 0b00000, 0b10001, 0b010, vd, 0b1010111)) // 010100.0000010001010.....1010111
 
-#define VDIVU_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100000...........010.....1010111
-#define VDIV_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1000010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100001...........010.....1010111
-#define VREMU_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1000100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100010...........010.....1010111
-#define VREM_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1000110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100011...........010.....1010111
-#define VMULHU_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1001000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100100...........010.....1010111
-#define VMUL_VV(vd, vs1, vs2, vm)     EMIT(R_type(0b1001010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100101...........010.....1010111
-#define VMULHSU_VV(vd, vs1, vs2, vm)  EMIT(R_type(0b1001100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100110...........010.....1010111
-#define VMULH_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1001110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100111...........010.....1010111
-#define VMADD_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1010010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101001...........010.....1010111
-#define VNMSUB_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1010110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101011...........010.....1010111
-#define VMACC_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1011010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101101...........010.....1010111
-#define VNMSAC_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101111...........010.....1010111
-#define VWADDU_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110000...........010.....1010111
-#define VWADD_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110001...........010.....1010111
-#define VWSUBU_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1100100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110010...........010.....1010111
-#define VWSUB_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1100110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110011...........010.....1010111
-#define VWADDU_WV(vd, vs1, vs2, vm)   EMIT(R_type(0b1101000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110100...........010.....1010111
-#define VWADD_WV(vd, vs1, vs2, vm)    EMIT(R_type(0b1101010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110101...........010.....1010111
-#define VWSUBU_WV(vd, vs1, vs2, vm)   EMIT(R_type(0b1101100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110110...........010.....1010111
-#define VWSUB_WV(vd, vs1, vs2, vm)    EMIT(R_type(0b1101110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110111...........010.....1010111
-#define VWMULU_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1110000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111000...........010.....1010111
-#define VWMULSU_VV(vd, vs1, vs2, vm)  EMIT(R_type(0b1110100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111010...........010.....1010111
-#define VWMUL_VV(vd, vs1, vs2, vm)    EMIT(R_type(0b1110110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111011...........010.....1010111
-#define VWMACCU_VV(vd, vs1, vs2, vm)  EMIT(R_type(0b1111000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111100...........010.....1010111
-#define VWMACC_VV(vd, vs1, vs2, vm)   EMIT(R_type(0b1111010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111101...........010.....1010111
-#define VWMACCSU_VV(vd, vs1, vs2, vm) EMIT(R_type(0b1111110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111111...........010.....1010111
+#define VDIVU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100000...........010.....1010111
+#define VDIV_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1000010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100001...........010.....1010111
+#define VREMU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1000100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100010...........010.....1010111
+#define VREM_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1000110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100011...........010.....1010111
+#define VMULHU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1001000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100100...........010.....1010111
+#define VMUL_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1001010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100101...........010.....1010111
+#define VMULHSU_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1001100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100110...........010.....1010111
+#define VMULH_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1001110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100111...........010.....1010111
+#define VMADD_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1010010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101001...........010.....1010111
+#define VNMSUB_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1010110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101011...........010.....1010111
+#define VMACC_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1011010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101101...........010.....1010111
+#define VNMSAC_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 101111...........010.....1010111
+#define VWADDU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110000...........010.....1010111
+#define VWADD_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110001...........010.....1010111
+#define VWSUBU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1100100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110010...........010.....1010111
+#define VWSUB_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1100110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110011...........010.....1010111
+#define VWADDU_WV(vd, vs2, vs1, vm)   EMIT(R_type(0b1101000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110100...........010.....1010111
+#define VWADD_WV(vd, vs2, vs1, vm)    EMIT(R_type(0b1101010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110101...........010.....1010111
+#define VWSUBU_WV(vd, vs2, vs1, vm)   EMIT(R_type(0b1101100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110110...........010.....1010111
+#define VWSUB_WV(vd, vs2, vs1, vm)    EMIT(R_type(0b1101110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 110111...........010.....1010111
+#define VWMULU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1110000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111000...........010.....1010111
+#define VWMULSU_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1110100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111010...........010.....1010111
+#define VWMUL_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1110110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111011...........010.....1010111
+#define VWMACCU_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1111000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111100...........010.....1010111
+#define VWMACC_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b1111010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111101...........010.....1010111
+#define VWMACCSU_VV(vd, vs2, vs1, vm) EMIT(R_type(0b1111110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 111111...........010.....1010111
 
 //  OPMVX
-#define VAADDU_VX(vd, rs1, vs2, vm)      EMIT(R_type(0b0010000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001000...........110.....1010111
-#define VAADD_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0010010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001001...........110.....1010111
-#define VASUBU_VX(vd, rs1, vs2, vm)      EMIT(R_type(0b0010100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001010...........110.....1010111
-#define VASUB_VX(vd, rs1, vs2, vm)       EMIT(R_type(0b0010110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001011...........110.....1010111
-#define VSLIDE1UP_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001110...........110.....1010111
-#define VSLIDE1DOWN_VX(vd, rs1, vs2, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001111...........110.....1010111
+#define VAADDU_VX(vd, vs2, rs1, vm)      EMIT(R_type(0b0010000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001000...........110.....1010111
+#define VAADD_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0010010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001001...........110.....1010111
+#define VASUBU_VX(vd, vs2, rs1, vm)      EMIT(R_type(0b0010100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001010...........110.....1010111
+#define VASUB_VX(vd, vs2, rs1, vm)       EMIT(R_type(0b0010110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001011...........110.....1010111
+#define VSLIDE1UP_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001110...........110.....1010111
+#define VSLIDE1DOWN_VX(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001111...........110.....1010111
 
 #define VMV_S_X(vd, rs1) EMIT(I_type(0b010000100000, rs1, 0b110, vd, 0b1010111)) // 010000100000.....110.....1010111
 
-#define VDIVU_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100000...........110.....1010111
-#define VDIV_VX(vd, rs1, vs2, vm)     EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100001...........110.....1010111
-#define VREMU_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1000100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100010...........110.....1010111
-#define VREM_VX(vd, rs1, vs2, vm)     EMIT(R_type(0b1000110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100011...........110.....1010111
-#define VMULHU_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1001000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100100...........110.....1010111
-#define VMUL_VX(vd, rs1, vs2, vm)     EMIT(R_type(0b1001010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100101...........110.....1010111
-#define VMULHSU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b1001100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100110...........110.....1010111
-#define VMULH_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1001110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100111...........110.....1010111
-#define VMADD_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1010010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101001...........110.....1010111
-#define VNMSUB_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1010110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101011...........110.....1010111
-#define VMACC_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1011010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101101...........110.....1010111
-#define VNMSAC_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1011110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101111...........110.....1010111
-#define VWADDU_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1100000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110000...........110.....1010111
-#define VWADD_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1100010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110001...........110.....1010111
-#define VWSUBU_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1100100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110010...........110.....1010111
-#define VWSUB_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1100110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110011...........110.....1010111
-#define VWADDU_WX(vd, rs1, vs2, vm)   EMIT(R_type(0b1101000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110100...........110.....1010111
-#define VWADD_WX(vd, rs1, vs2, vm)    EMIT(R_type(0b1101010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110101...........110.....1010111
-#define VWSUBU_WX(vd, rs1, vs2, vm)   EMIT(R_type(0b1101100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110110...........110.....1010111
-#define VWSUB_WX(vd, rs1, vs2, vm)    EMIT(R_type(0b1101110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110111...........110.....1010111
-#define VWMULU_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1110000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111000...........110.....1010111
-#define VWMULSU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b1110100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111010...........110.....1010111
-#define VWMUL_VX(vd, rs1, vs2, vm)    EMIT(R_type(0b1110110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111011...........110.....1010111
-#define VWMACCU_VX(vd, rs1, vs2, vm)  EMIT(R_type(0b1111000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111100...........110.....1010111
-#define VWMACC_VX(vd, rs1, vs2, vm)   EMIT(R_type(0b1111010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111101...........110.....1010111
-#define VWMACCUS_VX(vd, rs1, vs2, vm) EMIT(R_type(0b1111100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111110...........110.....1010111
-#define VWMACCSU_VX(vd, rs1, vs2, vm) EMIT(R_type(0b1111110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111111...........110.....1010111
+#define VDIVU_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100000...........110.....1010111
+#define VDIV_VX(vd, vs2, rs1, vm)     EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100001...........110.....1010111
+#define VREMU_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1000100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100010...........110.....1010111
+#define VREM_VX(vd, vs2, rs1, vm)     EMIT(R_type(0b1000110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100011...........110.....1010111
+#define VMULHU_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1001000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100100...........110.....1010111
+#define VMUL_VX(vd, vs2, rs1, vm)     EMIT(R_type(0b1001010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100101...........110.....1010111
+#define VMULHSU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b1001100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100110...........110.....1010111
+#define VMULH_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1001110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100111...........110.....1010111
+#define VMADD_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1010010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101001...........110.....1010111
+#define VNMSUB_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1010110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101011...........110.....1010111
+#define VMACC_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1011010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101101...........110.....1010111
+#define VNMSAC_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1011110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 101111...........110.....1010111
+#define VWADDU_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1100000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110000...........110.....1010111
+#define VWADD_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1100010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110001...........110.....1010111
+#define VWSUBU_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1100100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110010...........110.....1010111
+#define VWSUB_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1100110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110011...........110.....1010111
+#define VWADDU_WX(vd, vs2, rs1, vm)   EMIT(R_type(0b1101000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110100...........110.....1010111
+#define VWADD_WX(vd, vs2, rs1, vm)    EMIT(R_type(0b1101010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110101...........110.....1010111
+#define VWSUBU_WX(vd, vs2, rs1, vm)   EMIT(R_type(0b1101100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110110...........110.....1010111
+#define VWSUB_WX(vd, vs2, rs1, vm)    EMIT(R_type(0b1101110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 110111...........110.....1010111
+#define VWMULU_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1110000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111000...........110.....1010111
+#define VWMULSU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b1110100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111010...........110.....1010111
+#define VWMUL_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1110110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111011...........110.....1010111
+#define VWMACCU_VX(vd, vs2, rs1, vm)  EMIT(R_type(0b1111000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111100...........110.....1010111
+#define VWMACC_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b1111010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111101...........110.....1010111
+#define VWMACCUS_VX(vd, vs2, rs1, vm) EMIT(R_type(0b1111100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111110...........110.....1010111
+#define VWMACCSU_VX(vd, vs2, rs1, vm) EMIT(R_type(0b1111110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 111111...........110.....1010111
 
 #endif //__RV64_EMITTER_H__
