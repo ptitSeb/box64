@@ -152,6 +152,26 @@ void convert_SDL2_Event_to_64(void* dst_, const void* src_)
             dst->common.type = src->common.type;
             dst->common.timestamp = src->common.timestamp;
             break;
+        case SDL2_DISPLAYEVENT:
+            dst->display.type = src->display.type;
+            dst->display.timestamp = src->display.timestamp;
+            dst->display.display = src->display.display;
+            dst->display.event = src->display.event;
+            dst->display.padding1 = src->display.padding1;
+            dst->display.padding2 = src->display.padding2;
+            dst->display.padding3 = src->display.padding3;
+            dst->display.data1 = src->display.data1;
+            break;
+        case SDL2_JOYDEVICEADDED:
+            dst->jdevice.type = src->jdevice.type;
+            dst->jdevice.timestamp = src->jdevice.timestamp;
+            dst->jdevice.which = src->jdevice.which;
+            break;
+        case SDL2_CONTROLLERDEVICEADDED:
+            dst->cdevice.type = src->cdevice.type;
+            dst->cdevice.timestamp = src->cdevice.timestamp;
+            dst->cdevice.which = src->cdevice.which;
+            break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
             memcpy(dst, src, sizeof(my_SDL2_Event_32_t));
@@ -253,6 +273,26 @@ void convert_SDL2_Event_to_32(void* dst_, const void* src_)
         case SDL2_POLLSENTINEL:
             dst->common.type = src->common.type;
             dst->common.timestamp = src->common.timestamp;
+            break;
+        case SDL2_DISPLAYEVENT:
+            dst->display.type = src->display.type;
+            dst->display.timestamp = src->display.timestamp;
+            dst->display.display = src->display.display;
+            dst->display.event = src->display.event;
+            dst->display.padding1 = src->display.padding1;
+            dst->display.padding2 = src->display.padding2;
+            dst->display.padding3 = src->display.padding3;
+            dst->display.data1 = src->display.data1;
+            break;
+        case SDL2_JOYDEVICEADDED:
+            dst->jdevice.type = src->jdevice.type;
+            dst->jdevice.timestamp = src->jdevice.timestamp;
+            dst->jdevice.which = src->jdevice.which;
+            break;
+        case SDL2_CONTROLLERDEVICEADDED:
+            dst->cdevice.type = src->cdevice.type;
+            dst->cdevice.timestamp = src->cdevice.timestamp;
+            dst->cdevice.which = src->cdevice.which;
             break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
