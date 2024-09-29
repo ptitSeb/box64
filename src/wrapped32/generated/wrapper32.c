@@ -1151,10 +1151,6 @@ typedef void (*vFfffffffffffffff_t)(float, float, float, float, float, float, fl
 typedef void (*vFuuuuiiiiuuiiiiiii_t)(uint32_t, uint32_t, uint32_t, uint32_t, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t);
 typedef uint32_t (*uFippuuuuiiiiuuiiiiiiiipp_t)(int32_t, void*, void*, uint32_t, uint32_t, uint32_t, uint32_t, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, void*, void*);
 
-#if defined(ANDROID)
-typedef void (*vFEpppp_t)(x64emu_t*, void*, void*, void*, void*);
-#endif
-
 #if defined(HAVE_LD80BITS)
 typedef long double (*DFD_t)(long double);
 typedef long double (*DFDD_t)(long double, long double);
@@ -2231,10 +2227,6 @@ void vFuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fcn) { vFuuiiiiuuiiiiiii_t fn
 void vFfffffffffffffff_32(x64emu_t *emu, uintptr_t fcn) { vFfffffffffffffff_t fn = (vFfffffffffffffff_t)fcn; fn(from_ptri(float, R_ESP + 4), from_ptri(float, R_ESP + 8), from_ptri(float, R_ESP + 12), from_ptri(float, R_ESP + 16), from_ptri(float, R_ESP + 20), from_ptri(float, R_ESP + 24), from_ptri(float, R_ESP + 28), from_ptri(float, R_ESP + 32), from_ptri(float, R_ESP + 36), from_ptri(float, R_ESP + 40), from_ptri(float, R_ESP + 44), from_ptri(float, R_ESP + 48), from_ptri(float, R_ESP + 52), from_ptri(float, R_ESP + 56), from_ptri(float, R_ESP + 60)); }
 void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fcn) { vFuuuuiiiiuuiiiiiii_t fn = (vFuuuuiiiiuuiiiiiii_t)fcn; fn(from_ptri(uint32_t, R_ESP + 4), from_ptri(uint32_t, R_ESP + 8), from_ptri(uint32_t, R_ESP + 12), from_ptri(uint32_t, R_ESP + 16), from_ptri(int32_t, R_ESP + 20), from_ptri(int32_t, R_ESP + 24), from_ptri(int32_t, R_ESP + 28), from_ptri(int32_t, R_ESP + 32), from_ptri(uint32_t, R_ESP + 36), from_ptri(uint32_t, R_ESP + 40), from_ptri(int32_t, R_ESP + 44), from_ptri(int32_t, R_ESP + 48), from_ptri(int32_t, R_ESP + 52), from_ptri(int32_t, R_ESP + 56), from_ptri(int32_t, R_ESP + 60), from_ptri(int32_t, R_ESP + 64), from_ptri(int32_t, R_ESP + 68)); }
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fcn) { uFippuuuuiiiiuuiiiiiiiipp_t fn = (uFippuuuuiiiiuuiiiiiiiipp_t)fcn; R_EAX = (uint32_t)fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12), from_ptri(uint32_t, R_ESP + 16), from_ptri(uint32_t, R_ESP + 20), from_ptri(uint32_t, R_ESP + 24), from_ptri(uint32_t, R_ESP + 28), from_ptri(int32_t, R_ESP + 32), from_ptri(int32_t, R_ESP + 36), from_ptri(int32_t, R_ESP + 40), from_ptri(int32_t, R_ESP + 44), from_ptri(uint32_t, R_ESP + 48), from_ptri(uint32_t, R_ESP + 52), from_ptri(int32_t, R_ESP + 56), from_ptri(int32_t, R_ESP + 60), from_ptri(int32_t, R_ESP + 64), from_ptri(int32_t, R_ESP + 68), from_ptri(int32_t, R_ESP + 72), from_ptri(int32_t, R_ESP + 76), from_ptri(int32_t, R_ESP + 80), from_ptri(int32_t, R_ESP + 84), from_ptriv(R_ESP + 88), from_ptriv(R_ESP + 92)); }
-
-#if defined(ANDROID)
-void vFEpppp_32(x64emu_t *emu, uintptr_t fcn) { vFEpppp_t fn = (vFEpppp_t)fcn; fn(emu, from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8), from_ptriv(R_ESP + 12), from_ptriv(R_ESP + 16)); }
-#endif
 
 #if defined(HAVE_LD80BITS)
 void DFD_32(x64emu_t *emu, uintptr_t fcn) { DFD_t fn = (DFD_t)fcn; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4))); fpu_do_push(emu); ST0val = ld; }

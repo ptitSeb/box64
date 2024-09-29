@@ -1102,10 +1102,6 @@ void vFfffffffffffffff_32(x64emu_t *emu, uintptr_t fnc);
 void vFuuuuiiiiuuiiiiiii_32(x64emu_t *emu, uintptr_t fnc);
 void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fnc);
 
-#if defined(ANDROID)
-void vFEpppp_32(x64emu_t *emu, uintptr_t fnc);
-#endif
-
 #if defined(HAVE_LD80BITS)
 void DFD_32(x64emu_t *emu, uintptr_t fnc);
 void DFDD_32(x64emu_t *emu, uintptr_t fnc);
