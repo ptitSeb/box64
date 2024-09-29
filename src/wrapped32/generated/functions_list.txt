@@ -151,6 +151,7 @@
 #() iFXi -> iFXi
 #() iFXL -> iFXL
 #() iFXp -> iFXp
+#() IFEp -> IFEp
 #() IFII -> IFII
 #() CFip -> CFip
 #() CFCi -> CFCi
@@ -533,6 +534,7 @@
 #() iFEpuu -> iFEpuu
 #() iFEpup -> iFEpup
 #() iFEpLi -> iFEpLi
+#() iFEppu -> iFEppu
 #() iFEppL -> iFEppL
 #() iFEppp -> iFEppp
 #() iFEppV -> iFEppV
@@ -569,6 +571,7 @@
 #() iFXLii -> iFXLii
 #() iFXpip -> iFXpip
 #() iFXppp -> iFXppp
+#() IFEpIi -> IFEpIi
 #() CFuuff -> CFuuff
 #() uFEpii -> uFEpii
 #() uFuuuu -> uFuuuu
@@ -742,6 +745,7 @@
 #() uFpLLLS -> uFpLLLS
 #() UFuiCiu -> UFuiCiu
 #() lFpuipC -> lFpuipC
+#() LFEppLL -> LFEppLL
 #() LFpLppa -> LFpLppa
 #() LFXLuuu -> LFXLuuu
 #() LFXLpuu -> LFXLpuu
@@ -988,6 +992,7 @@
 #() iFXLiuiiLLL -> iFXLiuiiLLL
 #() iFXLLiiuuii -> iFXLLiiuuii
 #() uFuulpiuiuf -> uFuulpiuiuf
+#() pFEuiiiuuuu -> pFEuiiiuuuu
 #() pFEXLiiuuLi -> pFEXLiiuuLi
 #() vFEXLpppippp -> vFEXLpppippp
 #() vFiiiiiiiiii -> vFiiiiiiiiii
@@ -1105,6 +1110,7 @@ wrappedfreetype:
 - iFpp:
   - FT_Get_PS_Font_Info
   - FT_Request_Size
+  - FT_Set_Charmap
 - uFpL:
   - FT_Get_Char_Index
 - LFpp:
@@ -1127,6 +1133,7 @@ wrappedfreetype:
   - FT_Get_Glyph_Name
 - iFpplp:
   - FT_New_Face
+  - FT_Open_Face
 - iFpuuup:
   - FT_Get_Kerning
 - iFplluu:
@@ -1670,6 +1677,10 @@ wrappedsdl2:
 - iFp:
   - SDL_PollEvent
   - SDL_PushEvent
+  - SDL_RWclose
+- IFp:
+  - SDL_RWsize
+  - SDL_RWtell
 - pFv:
   - SDL_GetBasePath
 - pFp:
@@ -1696,8 +1707,12 @@ wrappedsdl2:
   - SDL_notreal
 - pFpp:
   - SDL_RWFromFile
+- iFppu:
+  - SDL_FillRect
 - iFppV:
   - SDL_sscanf
+- IFpIi:
+  - SDL_RWseek
 - pFpii:
   - SDL_CreateColorCursor
 - pFppp:
@@ -1706,10 +1721,15 @@ wrappedsdl2:
   - SDL_vsnprintf
 - iFpLpV:
   - SDL_snprintf
+- LFppLL:
+  - SDL_RWread
+  - SDL_RWwrite
 - uFpippi:
   - SDL_OpenAudioDevice
 - pFpiiiiu:
   - SDL_CreateRGBSurfaceWithFormatFrom
+- pFuiiiuuuu:
+  - SDL_CreateRGBSurface
 % JFEi -> pFEpi
 wrappedtcmallocminimal:
 - pFp:

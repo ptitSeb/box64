@@ -46,6 +46,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Render_Glyph, iFpu_t) \
 	GO(FT_Get_PS_Font_Info, iFpp_t) \
 	GO(FT_Request_Size, iFpp_t) \
+	GO(FT_Set_Charmap, iFpp_t) \
 	GO(FT_Get_Char_Index, uFpL_t) \
 	GO(FT_Get_First_Char, LFpp_t) \
 	GO(FT_Get_Sfnt_Table, pFpi_t) \
@@ -57,6 +58,7 @@ typedef int32_t (*iFppllp_t)(void*, void*, intptr_t, intptr_t, void*);
 	GO(FT_Get_Next_Char, LFpLp_t) \
 	GO(FT_Get_Glyph_Name, iFpupu_t) \
 	GO(FT_New_Face, iFpplp_t) \
+	GO(FT_Open_Face, iFpplp_t) \
 	GO(FT_Get_Kerning, iFpuuup_t) \
 	GO(FT_Set_Char_Size, iFplluu_t) \
 	GO(FT_Load_Sfnt_Table, iFpLlpp_t) \

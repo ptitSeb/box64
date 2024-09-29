@@ -42,29 +42,14 @@ typedef struct  FT_StreamRec_s
     unsigned char*       base;
     unsigned long        size;
     unsigned long        pos;
-
     FT_StreamDesc_t      descriptor;
     FT_StreamDesc_t      pathname;
     void*                read;
     void*                close;
-
     void*                memory;
     unsigned char*       cursor;
     unsigned char*       limit;
-
 } FT_StreamRec_t;
-
-typedef struct  FT_Open_Args_s
-{
-    uint32_t        flags;
-    const uint8_t*  memory_base;
-    intptr_t        memory_size;
-    char*           pathname;
-    FT_StreamRec_t* stream;
-    void*           driver;
-    int32_t         num_params;
-    void*           params;
-} FT_Open_Args_t;
 
 typedef struct  FT_BBox_s
 {
@@ -157,6 +142,34 @@ typedef struct  FT_GlyphSlotRec_s
     void*                       internal;
 } FT_GlyphSlotRec_t;
 
+typedef struct  FT_CharMapRec_s
+{
+    void*       face;   //FT_FaceRec_t*
+    int         encoding;
+    uint16_t    platform_id;
+    uint16_t    encoding_id;
+} FT_CharMapRec_t;
+
+typedef struct  FT_Size_Metrics_s
+{
+    uint16_t    x_ppem;
+    uint16_t    y_ppem;
+    long        x_scale;
+    long        y_scale;
+    long        ascender;
+    long        descender;
+    long        height;
+    long        max_advance;
+} FT_Size_Metrics_t;
+
+typedef struct  FT_SizeRec_s
+{
+    void*               face;   //FT_FaceRec_t*
+    FT_Generic_t        generic;
+    FT_Size_Metrics_t   metrics;
+    void*               internal;   //FT_Size_Internal
+} FT_SizeRec_t;
+
 typedef struct  FT_FaceRec_s
 {
     signed long         num_faces;
@@ -169,7 +182,7 @@ typedef struct  FT_FaceRec_s
     int                 num_fixed_sizes;
     FT_Bitmap_Size_t*   available_sizes;
     int                 num_charmaps;
-    void*               charmaps;
+    FT_CharMapRec_t**   charmaps;
     FT_Generic_t        generic;
     FT_BBox_t           bbox;
     uint16_t            units_per_EM;
@@ -181,8 +194,8 @@ typedef struct  FT_FaceRec_s
     int16_t             underline_position;
     int16_t             underline_thickness;
     FT_GlyphSlotRec_t*  glyph;
-    void*               size;
-    void*               charmap;
+    FT_SizeRec_t*       size;
+    void*               charmap;    //FT_CharMapRec_t*
     /*@private begin */
     void*               driver;
     void*               memory;
@@ -250,6 +263,24 @@ typedef struct  FT_Size_RequestRec_s
     uint32_t    vertResolution;
 } FT_Size_RequestRec_t;
 
+typedef struct  FT_Parameter_s
+{
+    unsigned long   tag;
+    void*           data;
+} FT_Parameter_t;
+
+typedef struct  FT_Open_Args_s
+{
+    uint32_t        flags;
+    uint8_t*        memory_base;
+    long            memory_size;
+    char*           pathname;
+    FT_StreamRec_t* stream;
+    void*           driver; //FT_ModuleRec
+    int             num_params;
+    FT_Parameter_t* params;
+} FT_Open_Args_t;
+
 // 32bits FreeType structures
 typedef union  FT_StreamDesc_32_s
 {
@@ -273,18 +304,6 @@ typedef struct  FT_StreamRec_32_s
     ptr_t                limit; //unsigned char*
 
 } FT_StreamRec_32_t;
-
-typedef struct  FT_Open_Args_32_s
-{
-    uint32_t        flags;
-    ptr_t           memory_base; //const uint8_t*
-    long_t          memory_size; //intptr_t
-    ptr_t           pathname; //char*
-    ptr_t           stream; //FT_StreamRec_t*
-    ptr_t           driver; //void*
-    int32_t         num_params;
-    ptr_t           params; //void*
-} FT_Open_Args_32_t;
 
 typedef struct  FT_BBox_32_s
 {
@@ -377,6 +396,34 @@ typedef struct  FT_GlyphSlotRec_32_s
     ptr_t                       internal;
 } FT_GlyphSlotRec_32_t;
 
+typedef struct  FT_CharMapRec_32_s
+{
+    ptr_t       face;   //FT_FaceRec_t*
+    int         encoding;
+    uint16_t    platform_id;
+    uint16_t    encoding_id;
+} FT_CharMapRec_32_t;
+
+typedef struct  FT_Size_Metrics_32_s
+{
+    uint16_t    x_ppem;
+    uint16_t    y_ppem;
+    long_t      x_scale;
+    long_t      y_scale;
+    long_t      ascender;
+    long_t      descender;
+    long_t      height;
+    long_t      max_advance;
+} FT_Size_Metrics_32_t;
+
+typedef struct  FT_SizeRec_32_s
+{
+    ptr_t                   face;   //FT_FaceRec_t*
+    FT_Generic_32_t         generic;
+    FT_Size_Metrics_32_t    metrics;
+    ptr_t                   internal;   //FT_Size_Internal
+} FT_SizeRec_32_t;
+
 typedef struct  FT_FaceRec_32_s
 {
     long_t          num_faces;
@@ -389,7 +436,7 @@ typedef struct  FT_FaceRec_32_s
     int             num_fixed_sizes;
     ptr_t           available_sizes; //FT_Bitmap_32_t*  //0x20
     int             num_charmaps;
-    ptr_t           charmaps; //void*
+    ptr_t           charmaps; //FT_CharMapRec_32_t**
     FT_Generic_32_t generic;    //0x28
     FT_BBox_32_t    bbox;       //0x30
     uint16_t        units_per_EM;   //0x40
@@ -401,7 +448,7 @@ typedef struct  FT_FaceRec_32_s
     int16_t         underline_position;
     int16_t         underline_thickness;
     ptr_t           glyph; //FT_GlyphSlotRec_t* //0x50
-    ptr_t           size; //void*
+    ptr_t           size; //FT_SizeRec_32_t*
     ptr_t           charmap; //void*
     /*@private begin */
     ptr_t           driver; //void*     //0x5c
@@ -470,13 +517,65 @@ typedef struct  FT_Size_RequestRec_32_s
     uint32_t    vertResolution;
 } FT_Size_RequestRec_32_t;
 
-
-void inplace_FT_GlyphSlot_shrink(void* a)
+typedef struct  FT_Parameter_32_s
 {
-    if(!a) return;
-    FT_GlyphSlotRec_t* src = a;
-    FT_GlyphSlotRec_32_t* dst = a;
-    void* next = src->next;
+    ulong_t   tag;
+    ptr_t     data; //void*
+} FT_Parameter_32_t;
+
+typedef struct  FT_Open_Args_32_s
+{
+    uint32_t        flags;
+    ptr_t           memory_base; //uint8_t*
+    long_t          memory_size;
+    ptr_t           pathname;   //char*
+    ptr_t           stream; //FT_StreamRec_t*
+    ptr_t           driver; //FT_ModuleRec
+    int             num_params;
+    ptr_t           params; //FT_Parameter_t*
+} FT_Open_Args_32_t;
+
+void convert_FT_StreamRec_to_32(void* d, void* s)
+{
+    FT_StreamRec_t* src = s;
+    FT_StreamRec_32_t* dst = d;
+
+    dst-> base = to_ptrv(src->base);
+    dst-> size = to_ulong(src->size);
+    dst-> pos = to_ulong(src->pos);
+    dst-> descriptor.value = to_long(src->descriptor.value);
+    dst-> descriptor.pointer = to_ptrv(src->descriptor.pointer);
+    dst-> pathname.value = to_long(src->pathname.value);
+    dst-> pathname.pointer = to_ptrv(src->pathname.pointer);
+    dst-> read = to_ptrv(src->read);
+    dst-> close = to_ptrv(src->close);
+    dst-> memory = to_ptrv(src->memory);
+    dst-> cursor = to_ptrv(src->cursor);
+    dst-> limit = to_ptrv(src->limit);
+}
+void convert_FT_StreamRec_to_64(void* d, void* s)
+{
+    FT_StreamRec_32_t* src = s;
+    FT_StreamRec_t* dst = d;
+
+    dst-> limit = from_ptrv(src->limit);
+    dst-> cursor = from_ptrv(src->cursor);
+    dst-> memory = from_ptrv(src->memory);
+    dst-> close = from_ptrv(src->close);
+    dst-> read = from_ptrv(src->read);
+    dst-> pathname.pointer = from_ptrv(src->pathname.pointer);
+    dst-> pathname.value = from_long(src->pathname.value);
+    dst-> descriptor.pointer = from_ptrv(src->descriptor.pointer);
+    dst-> descriptor.value = from_long(src->descriptor.value);
+    dst-> pos = from_ulong(src->pos);
+    dst-> size = from_ulong(src->size);
+    dst-> base = from_ptrv(src->base);
+}
+
+void convert_FT_GlyphSlot_to_32(void* d, void* s)
+{
+    FT_GlyphSlotRec_t* src = s;
+    FT_GlyphSlotRec_32_t* dst = d;
 
     dst->library = to_ptrv(src->library);
     dst->face = to_ptrv(src->face);
@@ -525,16 +624,12 @@ void inplace_FT_GlyphSlot_shrink(void* a)
     dst->rsb_delta = to_long(src->rsb_delta);
     dst->other = to_ptrv(src->other);
     dst->internal = to_ptrv(src->internal);
-
-    inplace_FT_GlyphSlot_shrink(next);
 }
 
-void inplace_FT_GlyphSlot_enlarge(void* a)
+void convert_FT_GlyphSlot_to_64(void* d, void* s)
 {
-    if(!a) return;
-    FT_GlyphSlotRec_32_t* src = a;
-    FT_GlyphSlotRec_t* dst = a;
-    void* next = from_ptrv(src->next);
+    FT_GlyphSlotRec_32_t* src = s;
+    FT_GlyphSlotRec_t* dst = d;
 
     dst->internal = from_ptrv(src->internal);
     dst->other = from_ptrv(src->other);
@@ -583,9 +678,116 @@ void inplace_FT_GlyphSlot_enlarge(void* a)
     dst->next = from_ptrv(src->next); // no shinking of the whole chain?
     dst->face = from_ptrv(src->face);
     dst->library = from_ptrv(src->library);
+}
+
+void inplace_FT_GlyphSlot_shrink(void* a)
+{
+    if(!a) return;
+    FT_GlyphSlotRec_t* src = a;
+    FT_GlyphSlotRec_32_t* dst = a;
+    void* next = src->next;
+
+    convert_FT_GlyphSlot_to_32(dst, src);
+
+    inplace_FT_GlyphSlot_shrink(next);
+}
+
+void inplace_FT_GlyphSlot_enlarge(void* a)
+{
+    if(!a) return;
+    FT_GlyphSlotRec_32_t* src = a;
+    FT_GlyphSlotRec_t* dst = a;
+    void* next = from_ptrv(src->next);
+
+    convert_FT_GlyphSlot_to_64(dst, src);
 
     inplace_FT_GlyphSlot_enlarge(next);
 }
+
+void convert_FT_CharMapRec_to_32(void* d, void* s)
+{
+    FT_CharMapRec_t* src = s;
+    FT_CharMapRec_32_t* dst = d;
+
+    dst->face = to_ptrv(src->face);
+    dst->encoding = src->encoding;
+    dst->platform_id = src->platform_id;
+    dst->encoding_id = src->encoding_id;
+}
+void convert_FT_CharMapRec_to_64(void* d, void* s)
+{
+    FT_CharMapRec_32_t* src = s;
+    FT_CharMapRec_t* dst = d;
+
+    dst->encoding_id = src->encoding_id;
+    dst->platform_id = src->platform_id;
+    dst->encoding = src->encoding;
+    dst->face = from_ptrv(src->face);
+}
+
+void inplace_FT_CharMapRec_shrink(void* a)
+{
+    if(!a) return;
+
+    convert_FT_CharMapRec_to_32(a, a);
+}
+void inplace_FT_CharMapRec_enlarge(void* a)
+{
+    if(!a) return;
+
+    convert_FT_CharMapRec_to_64(a, a);
+}
+
+void convert_FT_SizeRec_to_32(void* d, void* s)
+{
+    FT_SizeRec_t* src = s;
+    FT_SizeRec_32_t* dst = d;
+
+    dst->face = to_ptrv(src->face);
+    dst->generic.data = to_ptrv(src->generic.data);
+    dst->generic.finalizer = to_ptrv(src->generic.finalizer);
+    dst->metrics.x_ppem = src->metrics.x_ppem;
+    dst->metrics.y_ppem = src->metrics.y_ppem;
+    dst->metrics.x_scale = to_long(src->metrics.x_scale);
+    dst->metrics.y_scale = to_long(src->metrics.y_scale);
+    dst->metrics.ascender = to_long(src->metrics.ascender);
+    dst->metrics.descender = to_long(src->metrics.descender);
+    dst->metrics.height = to_long(src->metrics.height);
+    dst->metrics.max_advance = to_long(src->metrics.max_advance);
+    dst->internal = to_ptrv(src->internal);
+}
+void convert_FT_SizeRec_to_64(void* d, void* s)
+{
+    FT_SizeRec_32_t* src = s;
+    FT_SizeRec_t* dst = d;
+
+    dst->internal = from_ptrv(src->internal);
+    dst->metrics.max_advance = from_long(src->metrics.max_advance);
+    dst->metrics.height = from_long(src->metrics.height);
+    dst->metrics.descender = from_long(src->metrics.descender);
+    dst->metrics.ascender = from_long(src->metrics.ascender);
+    dst->metrics.y_scale = from_long(src->metrics.y_scale);
+    dst->metrics.x_scale = from_long(src->metrics.x_scale);
+    dst->metrics.y_ppem = src->metrics.y_ppem;
+    dst->metrics.x_ppem = src->metrics.x_ppem;
+    dst->generic.finalizer = from_ptrv(src->generic.finalizer);
+    dst->generic.data = from_ptrv(src->generic.data);
+    dst->face = from_ptrv(src->face);
+}
+
+void inplace_FT_SizeRec_shrink(void* a)
+{
+    if(!a) return;
+
+    convert_FT_SizeRec_to_32(a, a);
+}
+void inplace_FT_SizeRec_enlarge(void* a)
+{
+    if(!a) return;
+
+    convert_FT_SizeRec_to_64(a, a);
+}
+
 
 // Convertion function
 void inplace_FT_FaceRec_shrink(void* a)
@@ -614,6 +816,11 @@ void inplace_FT_FaceRec_shrink(void* a)
     }
     dst->num_fixed_sizes = src->num_fixed_sizes;
     dst->available_sizes = to_ptrv(src->available_sizes);
+    //convert charmaps content then pointers array
+    for(int i=0; i<src->num_charmaps; ++i)
+        inplace_FT_CharMapRec_shrink(src->charmaps[i]);
+    for(int i=0; i<src->num_charmaps; ++i)
+        ((ptr_t*)src->charmaps)[i] = to_ptrv(src->charmaps[i]);
     dst->num_charmaps = src->num_charmaps;
     dst->charmaps = to_ptrv(src->charmaps);
     dst->generic.data = to_ptrv(src->generic.data);
@@ -630,6 +837,7 @@ void inplace_FT_FaceRec_shrink(void* a)
     dst->max_advance_height = src->max_advance_height;
     dst->underline_position = src->underline_position;
     dst->underline_thickness = src->underline_thickness;
+    inplace_FT_SizeRec_shrink(src->size);
     dst->glyph = to_ptrv(src->glyph);
     dst->size = to_ptrv(src->size);
     dst->charmap = to_ptrv(src->charmap);
@@ -668,6 +876,7 @@ void inplace_FT_FaceRec_enlarge(void* a)
     dst->driver = from_ptrv(src->driver);
     dst->charmap = from_ptrv(src->charmap);
     dst->size = from_ptrv(src->size);
+    inplace_FT_SizeRec_enlarge(dst->size);
     dst->glyph = from_ptrv(src->glyph);
     dst->underline_thickness = src->underline_thickness;
     dst->underline_position = src->underline_position;
@@ -685,6 +894,11 @@ void inplace_FT_FaceRec_enlarge(void* a)
     dst->generic.data = from_ptrv(src->generic.data);
     dst->charmaps = from_ptrv(src->charmaps);
     dst->num_charmaps = src->num_charmaps;
+    //convert charmaps pointer array then content
+    for(int i=dst->num_charmaps-1; i>=0; --i)
+        dst->charmaps[i] = from_ptrv(((ptr_t*)dst->charmaps)[i]);
+    for(int i=dst->num_charmaps-1; i>=0; --i)
+        inplace_FT_CharMapRec_enlarge(dst->charmaps[i]);
     dst->available_sizes = from_ptrv(src->available_sizes);
     dst->num_fixed_sizes = src->num_fixed_sizes;
     {
@@ -1025,37 +1239,84 @@ static FT_MemoryRec_t* find_FT_MemoryRec_Struct(FT_MemoryRec_t* s)
 
 #undef SUPER
 
-//static uintptr_t my_iofunc = 0;
-//static unsigned long my_FT_Stream_IoFunc(FT_StreamRec_t* stream, unsigned long offset, unsigned char* buffer, unsigned long count )
-//{
-//    return (unsigned long)RunFunctionFmt(my_iofunc, "pLpL", stream, offset, buffer, count)        ;
-//}
+static uintptr_t my_iofunc = 0;
+static unsigned long my_FT_Stream_IoFunc(FT_StreamRec_t* stream, unsigned long offset, unsigned char* buffer, unsigned long count )
+{
+    static FT_StreamRec_32_t stream_s;
+    convert_FT_StreamRec_to_32(&stream_s, stream);
+    unsigned char* buffer_s = buffer;
+    if((uintptr_t)buffer_s>=0x100000000LL) {
+        buffer_s = malloc(count);
+        memcpy(buffer_s, buffer, count);
+    }
+    unsigned long ret = (unsigned long)RunFunctionFmt(my_iofunc, "pLpL", &stream_s, offset, buffer_s, count);
+    convert_FT_StreamRec_to_64(stream, &stream_s);
+    if(buffer_s!=buffer) {
+        memcpy(buffer, buffer_s, count);
+        free(buffer_s);
+    }
+    return ret;
+}
 
-//static uintptr_t my_closefunc = 0;
-//static void my_FT_Stream_CloseFunc(FT_StreamRec_t* stream)
-//{
-//    RunFunctionFmt(my_closefunc, "p", stream)     ;
-//}
+static uintptr_t my_closefunc = 0;
+static void my_FT_Stream_CloseFunc(FT_StreamRec_t* stream)
+{
+    static FT_StreamRec_32_t stream_s;
+    convert_FT_StreamRec_to_32(&stream_s, stream);
+    RunFunctionFmt(my_closefunc, "p", &stream_s);
+    convert_FT_StreamRec_to_64(stream, &stream_s);
+}
 
-//EXPORT int my_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_t* args, long face_index, void* aface)
-//{
-//    (void)emu;
-//    int wrapstream = (args->flags&0x02)?1:0;
-//    if(wrapstream) {
-//        my_iofunc = (uintptr_t)args->stream->read;
-//        if(my_iofunc)
-//            args->stream->read = my_FT_Stream_IoFunc;
-//        my_closefunc = (uintptr_t)args->stream->close;
-//        if(my_closefunc)
-//            args->stream->close = my_FT_Stream_CloseFunc;
-//    }
-//    int ret = my->FT_Open_Face(library, args, face_index, aface);
-//    /*if(wrapstream) {
-//        args->stream->read = (void*)my_iofunc;
-//        args->stream->close = (void*)my_closefunc;
-//    }*/
-//    return ret;
-//}
+EXPORT int my32_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_32_t* args, long face_index, ptr_t* aface)
+{
+    (void)emu;
+    void* aface_l = NULL;
+    FT_Open_Args_t args_l = {0};
+    // keep streams alive and in low memory, as they are living until FT_Face_Done is done. A better way would be to dynamicaly allocate it
+    // and free when done, but needs to detect when stream is actualy allocated on box side...
+    static FT_StreamRec_t streams[16] = {0};
+    static int streams_idx = 0;
+    FT_StreamRec_t *stream = &streams[streams_idx];
+    streams_idx = (streams_idx+1)&15;
+    FT_Parameter_t params[50];
+    args_l.flags = args->flags;
+    args_l.memory_base = from_ptrv(args->memory_base);
+    args_l.memory_size = from_long(args->memory_size);
+    args_l.pathname = from_ptrv(args->pathname);
+    args_l.stream = args->stream?stream:NULL;
+    if(args->stream)
+        convert_FT_StreamRec_to_64(stream, from_ptrv(args->stream));
+    args_l.driver = from_ptrv(args->driver);
+    args_l.num_params = args->num_params;
+    args_l.params = args->params?params:NULL;
+    for(int i=0; args_l.num_params; ++i) {
+        params[i].tag = from_ulong(((FT_Parameter_32_t*)from_ptrv(args->params))[i].tag);
+        params[i].data = from_ptrv(((FT_Parameter_32_t*)from_ptrv(args->params))[i].data);
+    }
+    int wrapstream = (args->flags&0x02)?1:0;
+    if(wrapstream) {
+        my_iofunc = (uintptr_t)args_l.stream->read;
+        if(my_iofunc) {
+            args_l.stream->read = GetNativeFnc(my_iofunc);
+            if(!args_l.stream->read)
+                args_l.stream->read = my_FT_Stream_IoFunc;
+        }
+        my_closefunc = (uintptr_t)args_l.stream->close;
+        if(my_closefunc) {
+            args_l.stream->close = GetNativeFnc(my_closefunc);
+            if(!args_l.stream->close)
+                args_l.stream->close = my_FT_Stream_CloseFunc;
+        }
+    }
+    int ret = my->FT_Open_Face(library, &args_l, face_index, &aface_l);
+    /*if(wrapstream) {
+        args->stream->read = (void*)my_iofunc;
+        args->stream->close = (void*)my_closefunc;
+    }*/
+    *aface = to_ptrv(aface_l);
+    inplace_FT_FaceRec_shrink(aface_l);
+    return ret;
+}
 
 //EXPORT int my_FTC_Manager_New(x64emu_t* emu, void* l, uint32_t max_faces, uint32_t max_sizes, uintptr_t max_bytes, void* req, void* data, void* aman)
 //{
@@ -1298,6 +1559,15 @@ EXPORT int my32_FT_Load_Glyph(x64emu_t* emu, void* face, uint32_t index, int fla
     return ret;
 }
 
+EXPORT int my32_FT_Set_Charmap(x64emu_t* emu, void* face, void* charmap)
+{
+    // do not enlarge charmap, as it's already part of the face and so is expanded already
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Set_Charmap(face, charmap);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
+}
+
 EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT_BBox_32_t* bbox)
 {
     int n = outline->n_points;
@@ -1324,9 +1594,17 @@ EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT
 
 EXPORT int my32_FT_Render_Glyph(x64emu_t* emu, FT_GlyphSlotRec_32_t* glyph, uint32_t mode)
 {
-    inplace_FT_GlyphSlot_enlarge(glyph);
+    #if 1
+    void* face = from_ptrv(glyph->face);
+    inplace_FT_FaceRec_enlarge(face);
     int ret = my->FT_Render_Glyph(glyph, mode);
-    inplace_FT_GlyphSlot_shrink(glyph);
+    inplace_FT_FaceRec_shrink(face);
+    #else
+    FT_GlyphSlotRec_t slot = {0};
+    convert_FT_GlyphSlot_to_64(&slot, glyph);
+    int ret = my->FT_Render_Glyph(&slot, mode);
+    convert_FT_GlyphSlot_to_32(glyph, &slot);
+    #endif
     return ret;
 }
 

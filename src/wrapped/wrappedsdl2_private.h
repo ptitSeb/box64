@@ -731,8 +731,8 @@ GOM(SDL_WriteU8, uFEpu)
 
 GOM(SDL_RWseek, IFEpIi)
 GOM(SDL_RWtell, IFEp)
-GOM(SDL_RWread, uFEppuu)
-GOM(SDL_RWwrite, uFEppuu)
+GOM(SDL_RWread, LFEppLL)
+GOM(SDL_RWwrite, LFEppLL)
 GOM(SDL_RWclose, iFEp)
 
 GO2(SDL_mutexP, iFp, SDL_LockMutex)

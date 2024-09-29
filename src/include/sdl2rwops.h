@@ -25,6 +25,7 @@ void RWNativeEnd2(SDL2_RWops_t* ops);                           // put emulated 
 int isRWops(SDL2_RWops_t* ops); // 1 if ops seems to be a valid RWops, 0 if not
 
 int64_t RWNativeSeek2(SDL2_RWops_t *ops, int64_t offset, int32_t whence);
+int64_t RWNativeSize2(SDL2_RWops_t *ops);
 size_t RWNativeRead2(SDL2_RWops_t* ops, void* ptr, size_t size, size_t maxnum);
 size_t RWNativeWrite2(SDL2_RWops_t *ops, const void *ptr, size_t size, size_t num);
 int32_t RWNativeClose2(SDL2_RWops_t* ops);

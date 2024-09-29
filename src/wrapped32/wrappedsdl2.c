@@ -302,6 +302,13 @@ EXPORT void* my32_2_SDL_CreateRGBSurfaceWithFormatFrom(x64emu_t* emu, void* pixe
     return p;
 }
 
+EXPORT void* my32_2_SDL_CreateRGBSurface(x64emu_t* emu, uint32_t flags, int width, int height, int depth, uint32_t Rmask, uint32_t Gmask, uint32_t Bmask, uint32_t Amask)
+{
+    void* p = my->SDL_CreateRGBSurface(flags, width, height, depth, Rmask, Gmask, Bmask, Amask);
+    inplace_SDL2_Surface_to_32(p);
+    return p;
+}
+
 EXPORT void my32_2_SDL_SetWindowIcon(x64emu_t* emu, void* window, void* icon)
 {
     inplace_SDL2_Surface_to_64(icon);
@@ -313,6 +320,14 @@ EXPORT void* my32_2_SDL_CreateColorCursor(void* s, int x, int y)
 {
     inplace_SDL2_Surface_to_64(s);
     void* ret = my->SDL_CreateColorCursor(s, x, y);
+    inplace_SDL2_Surface_to_32(s);
+    return ret;
+}
+
+EXPORT int my32_2_SDL_FillRect(x64emu_t* emu, void* s, void* rect, uint32_t color)
+{
+    inplace_SDL2_Surface_to_64(s);
+    int ret = my->SDL_FillRect(s, rect, color);
     inplace_SDL2_Surface_to_32(s);
     return ret;
 }
@@ -375,6 +390,50 @@ EXPORT void *my32_2_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
     inplace_SDL2_Surface_to_32(r);
     return r;
 }
+
+EXPORT int64_t my32_2_SDL_RWseek(x64emu_t* emu, void* a, int64_t offset, int whence)
+{
+    //sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int64_t ret = RWNativeSeek2(rw, offset, whence);
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT int64_t my32_2_SDL_RWtell(x64emu_t* emu, void* a)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int64_t ret = RWNativeSeek2(rw, 0, 1);  //1 == RW_SEEK_CUR
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT int64_t my32_2_SDL_RWsize(x64emu_t* emu, void* a)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int64_t ret = RWNativeSize2(rw);  //1 == RW_SEEK_CUR
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT uint64_t my32_2_SDL_RWread(x64emu_t* emu, void* a, void* ptr, uint64_t size, uint64_t maxnum)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t ret = RWNativeRead2(rw, ptr, size, maxnum);
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT uint64_t my32_2_SDL_RWwrite(x64emu_t* emu, void* a, const void* ptr, uint64_t size, uint64_t maxnum)
+{
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    uint64_t ret = RWNativeWrite2(rw, ptr, size, maxnum);
+    RWNativeEnd2(rw);
+    return ret;
+}
+EXPORT int my32_2_SDL_RWclose(x64emu_t* emu, void* a)
+{
+    //sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    return RWNativeClose2(rw);
+}
+
 
 #define ALTMY my32_2_
 

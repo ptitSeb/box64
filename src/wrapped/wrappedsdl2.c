@@ -412,7 +412,7 @@ EXPORT void *my2_SDL_RWFromMem(x64emu_t* emu, void* a, int b)
     return AddNativeRW2(emu, (SDL2_RWops_t*)r);
 }
 
-EXPORT int64_t my2_SDL_RWseek(x64emu_t* emu, void* a, int64_t offset, int64_t whence)
+EXPORT int64_t my2_SDL_RWseek(x64emu_t* emu, void* a, int64_t offset, int whence)
 {
     //sdl2_my_t *my = (sdl2_my_t *)emu->context->sdl2lib->priv.w.p2;
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
@@ -427,17 +427,17 @@ EXPORT int64_t my2_SDL_RWtell(x64emu_t* emu, void* a)
     RWNativeEnd2(rw);
     return ret;
 }
-EXPORT uint64_t my2_SDL_RWread(x64emu_t* emu, void* a, void* ptr, uint64_t size, uint64_t maxnum)
+EXPORT size_t my2_SDL_RWread(x64emu_t* emu, void* a, void* ptr, size_t size, size_t maxnum)
 {
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint64_t ret = RWNativeRead2(rw, ptr, size, maxnum);
+    size_t ret = RWNativeRead2(rw, ptr, size, maxnum);
     RWNativeEnd2(rw);
     return ret;
 }
-EXPORT uint64_t my2_SDL_RWwrite(x64emu_t* emu, void* a, const void* ptr, uint64_t size, uint64_t maxnum)
+EXPORT size_t my2_SDL_RWwrite(x64emu_t* emu, void* a, const void* ptr, size_t size, size_t maxnum)
 {
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    uint64_t ret = RWNativeWrite2(rw, ptr, size, maxnum);
+    size_t ret = RWNativeWrite2(rw, ptr, size, maxnum);
     RWNativeEnd2(rw);
     return ret;
 }

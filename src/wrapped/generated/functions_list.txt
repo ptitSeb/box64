@@ -1710,7 +1710,6 @@
 #() uFEippp
 #() uFEpipp
 #() uFEpupp
-#() uFEppuu
 #() uFEpppp
 #() uFEpppV
 #() uFiuuuu
@@ -1754,6 +1753,7 @@
 #() lFppLpL
 #() lFppLpp
 #() LFELppu
+#() LFEppLL
 #() LFEpppp
 #() LFLpppL
 #() LFpuipp
@@ -5577,7 +5577,7 @@ wrappedsdl2:
   - SDL_vsnprintf
 - iFpLpV:
   - SDL_snprintf
-- uFppuu:
+- LFppLL:
   - SDL_RWread
   - SDL_RWwrite
 - vFGpppp:
