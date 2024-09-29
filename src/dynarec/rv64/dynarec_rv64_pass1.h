@@ -8,6 +8,8 @@
     for (int i = 0; i < 16; ++i)                          \
         dyn->e.olds[i].v = 0;                             \
     dyn->insts[ninst].vector_sew_entry = dyn->vector_sew; \
+    dyn->inst_sew = VECTOR_SEWNA;                         \
+    dyn->inst_vl = 0;                                     \
     dyn->e.swapped = 0;                                   \
     dyn->e.barrier = 0
 
