@@ -570,11 +570,13 @@ void* internal_customRealloc(void* p, size_t size, int is32bits)
         return newp;
     }
     mutex_unlock(&mutex_blocks);
-    if(n_blocks)
+    if(n_blocks) {
         if(is32bits) {
             return box_realloc(p, size);
-        } else
+        } else {
             printf_log(LOG_INFO, "Warning, block %p not found in p_blocks for realloc, malloc'ing again without free\n", (void*)addr);
+        }
+    }
     return internal_customMalloc(size, is32bits);
 }
 void* customRealloc(void* p, size_t size)
@@ -588,8 +590,9 @@ void* customRealloc32(void* p, size_t size)
 
 void internal_customFree(void* p, int is32bits)
 {
-    if(!p)
+    if(!p) {
         return;
+    }
     uintptr_t addr = (uintptr_t)p;
     mutex_lock(&mutex_blocks);
     blocklist_t* l = findBlock(addr);
@@ -601,11 +604,13 @@ void internal_customFree(void* p, int is32bits)
         return;
     }
     mutex_unlock(&mutex_blocks);
-    if(n_blocks)
-        if(is32bits)
+    if(n_blocks) {
+        if(is32bits) {
             box_free(p);
-        else
+        } else {
             printf_log(LOG_INFO, "Warning, block %p not found in p_blocks for Free\n", (void*)addr);
+        }
+    }
 }
 void customFree(void* p)
 {

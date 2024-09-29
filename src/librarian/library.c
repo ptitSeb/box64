@@ -695,7 +695,7 @@ int IsSameLib(library_t* lib, const char* path)
             ret=1;
     } else {
         char rpath[PATH_MAX];
-        box_realpath(path, rpath);
+        (void) box_realpath(path, rpath);
         if(!strcmp(rpath, lib->path))
             ret=1;
         if(lib->type==LIB_EMULATED && lib->e.elf->path && !strcmp(lib->e.elf->path, rpath)) {

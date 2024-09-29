@@ -16,7 +16,7 @@ static const char* DumpSection(Elf64_Shdr *s, char* SST) {
             return "SHT_NULL";
         #define GO(A) \
         case A:     \
-            sprintf(buff, #A " Name=\"%s\"(%d) off=0x%lX, size=%ld, attr=0x%04lX, addr=%p(%02lX), link/info=%d/%d", \
+            sprintf(buff, #A " Name=\"%s\"(%d) off=0x%llX, size=%lld, attr=0x%04llX, addr=%p(%02llX), link/info=%d/%d", \
                 SST+s->sh_name, s->sh_name, s->sh_offset, s->sh_size, s->sh_flags, (void*)s->sh_addr, s->sh_addralign, s->sh_link, s->sh_info); \
             break
         GO(SHT_PROGBITS);
@@ -67,7 +67,7 @@ static const char* DumpDynamic(Elf64_Dyn *s) {
             return "DT_NULL: End Dynamic Section";
         #define GO(A, Add) \
         case A:     \
-            sprintf(buff, #A " %s=0x%lX", (Add)?"Addr":"Val", (Add)?s->d_un.d_ptr:s->d_un.d_val); \
+            sprintf(buff, #A " %s=0x%llX", (Add)?"Addr":"Val", (Add)?s->d_un.d_ptr:s->d_un.d_val); \
             break
             GO(DT_NEEDED, 0);
             GO(DT_PLTRELSZ, 0);
@@ -139,7 +139,7 @@ static const char* DumpDynamic(Elf64_Dyn *s) {
             #endif
         #undef GO
         default:
-            sprintf(buff, "0x%lX unknown type", s->d_tag);
+            sprintf(buff, "0x%llX unknown type", s->d_tag);
     }
     return buff;
 }
@@ -150,7 +150,7 @@ static const char* DumpPHEntry(Elf64_Phdr *e)
     memset(buff, 0, sizeof(buff));
     switch(e->p_type) {
         case PT_NULL: sprintf(buff, "type: %s", "PT_NULL"); break;
-        #define GO(T) case T: sprintf(buff, "type: %s, Off=%lx vaddr=%p paddr=%p filesz=%lu memsz=%lu flags=%x align=%lu", #T, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break
+        #define GO(T) case T: sprintf(buff, "type: %s, Off=%llx vaddr=%p paddr=%p filesz=%llu memsz=%llu flags=%x align=%llu", #T, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break
         GO(PT_LOAD);
         GO(PT_DYNAMIC);
         GO(PT_INTERP);
@@ -166,7 +166,7 @@ static const char* DumpPHEntry(Elf64_Phdr *e)
         GO(PT_GNU_RELRO);
         #endif
         #undef GO
-        default: sprintf(buff, "type: %x, Off=%lx vaddr=%p paddr=%p filesz=%lu memsz=%lu flags=%x align=%lu", e->p_type, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break;
+        default: sprintf(buff, "type: %x, Off=%llx vaddr=%p paddr=%p filesz=%llu memsz=%llu flags=%x align=%llu", e->p_type, e->p_offset, (void*)e->p_vaddr, (void*)e->p_paddr, e->p_filesz, e->p_memsz, e->p_flags, e->p_align); break;
     }
     return buff;
 }
@@ -233,7 +233,7 @@ static const char* DumpSym(elfheader_t *h, Elf64_Sym* sym, int version)
     const char* vername = (version==-1)?"(none)":((version==0)?"*local*":((version==1)?"*global*":GetSymbolVersion(h, version)));
     int veropt = GetSymbolVersionFlag(h, version)?0:1;
     memset(buff, 0, sizeof(buff));
-    sprintf(buff, "\"%s\", value=%p, size=%ld, info/other=%d/%d index=%d (%sver=%d/%s)", 
+    sprintf(buff, "\"%s\", value=%p, size=%lld, info/other=%d/%d index=%d (%sver=%d/%s)", 
         h->DynStr+sym->st_name, (void*)sym->st_value, sym->st_size,
         sym->st_info, sym->st_other, sym->st_shndx, veropt?"opt":"", version, vername);
     return buff;
@@ -379,7 +379,7 @@ void DumpRelTable64(elfheader_t *h, int cnt, Elf64_Rel *rel, const char* name)
         const char* elfname = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump %s Table(%d) @%p\n", name, cnt, rel);
         for (int i = 0; i<cnt; ++i)
-            printf_dump(LOG_NEVER, "  %s:Rel[%d] = %p (0x%lX: %s, sym=0x%0lX/%s)\n", elfname,
+            printf_dump(LOG_NEVER, "  %s:Rel[%d] = %p (0x%llX: %s, sym=0x%0lX/%s)\n", elfname,
                 i, (void*)rel[i].r_offset, rel[i].r_info, DumpRelType64(ELF64_R_TYPE(rel[i].r_info)), 
                 ELF64_R_SYM(rel[i].r_info), IdxSymName(h, ELF64_R_SYM(rel[i].r_info)));
         printf_dump(LOG_NEVER, "ELF Dump Rel Table=====\n");
@@ -394,7 +394,7 @@ void DumpRelATable64(elfheader_t *h, int cnt, Elf64_Rela *rela, const char* name
         const char* elfname = ElfName(h);
         printf_dump(LOG_NEVER, "ELF Dump %s Table(%d) @%p\n", name, cnt, rela);
         for (int i = 0; i<cnt; ++i)
-            printf_dump(LOG_NEVER, "  %s:%s[%d] = %p (0x%lX: %s, sym=0x%lX/%s) Addend=0x%lx\n", elfname, name,
+            printf_dump(LOG_NEVER, "  %s:%s[%d] = %p (0x%llX: %s, sym=0x%llX/%s) Addend=0x%llx\n", elfname, name,
                 i, (void*)rela[i].r_offset, rela[i].r_info, DumpRelType64(ELF64_R_TYPE(rela[i].r_info)), 
                 ELF64_R_SYM(rela[i].r_info), IdxSymName(h, ELF64_R_SYM(rela[i].r_info)), 
                 rela[i].r_addend);

@@ -63,8 +63,6 @@ void my_alRequestFoldbackStop(x64emu_t* emu);
 
 #include "wrappedlib_init.h"
 
-
-
 void fillALProcWrapper()
 {
     int cnt, ret;

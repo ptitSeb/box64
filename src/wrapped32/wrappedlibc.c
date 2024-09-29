@@ -462,14 +462,20 @@ EXPORT int my32_statvfs(x64emu_t* emu, void* f, void* r)
 }
 
 // some my32_XXX declare and defines
+#ifdef ANDROID
+void my32___libc_init(x64emu_t* emu, void* raw_args , void (*onexit)(void) , int (*main)(int, char**, char**), void const * const structors );
+#else
 int32_t my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *, char * *), 
     int argc, char * * ubp_av, void (*init) (void), void (*fini) (void), 
     void (*rtld_fini) (void), void (* stack_end)); // implemented in x64run_private.c
+#endif
+
 EXPORT void my32___libc_init_first(x64emu_t* emu, int argc, char* arg0, char** b)
 {
     // do nothing specific for now
     return;
 }
+
 uint32_t my32_syscall(x64emu_t *emu); // implemented in x64syscall.c
 void EXPORT my32___stack_chk_fail(x64emu_t* emu)
 {
