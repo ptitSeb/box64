@@ -5543,7 +5543,7 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent)
         my_gtktypeinfo_##A.class_size = fcts->class_size; \
         my_gtktypeinfo_##A.class_init_func = (fcts->class_init_func)?((GetNativeFnc((uintptr_t)fcts->class_init_func))?GetNativeFnc((uintptr_t)fcts->class_init_func):my_gtk_class_init_##A):NULL;    \
         fct_gtk_class_init_##A = (uintptr_t)fcts->class_init_func;           \
-        my_gtktypeinfo_##A.object_init_func = (fcts->object_init_func)?((GetNativeFnc((uintptr_t)fcts->object_init_func))?GetNativeFnc((uintptr_t)fcts->object_init_func):my_gtk_object_init_##A):NULL;    \
+        my_gtktypeinfo_##A.object_init_func = (fcts->object_init_func)?((GetNativeFnc((uintptr_t)fcts->object_init_func))?(void (*)(void *, void *))GetNativeFnc((uintptr_t)fcts->object_init_func):my_gtk_object_init_##A):NULL;    \
         fct_gtk_object_init_##A = (uintptr_t)fcts->object_init_func;         \
         my_gtktypeinfo_##A.reserved_1 = fcts->reserved_1;                 \
         my_gtktypeinfo_##A.reserved_2 = fcts->reserved_2;                 \
@@ -5551,6 +5551,7 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent)
         fct_gtk_base_class_init_##A = (uintptr_t)fcts->base_class_init_func;   \
         return &my_gtktypeinfo_##A;                       \
     }
+
     SUPER()
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for GtkTypeInfo callback\n");

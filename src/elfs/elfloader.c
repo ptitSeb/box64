@@ -1512,10 +1512,12 @@ static void* find_dl_iterate_phdr_Fct(void* fct)
 #undef SUPER
 
 EXPORT int my32_dl_iterate_phdr(x64emu_t *emu, void* F, void *data)
-#ifndef BOX32
-{ }
+#ifdef BOX32
+;
 #else
- ;
+{ 
+    return -1;
+}
 #endif
 EXPORT int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data) {
     if(box64_is32bits) return my32_dl_iterate_phdr(emu, F, data);
