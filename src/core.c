@@ -192,7 +192,7 @@ char* box64_custom_gstreamer = NULL;
 uintptr_t fmod_smc_start = 0;
 uintptr_t fmod_smc_end = 0;
 uint32_t default_gs = 0x53;
-uint32_t default_fs = 0x53;
+uint32_t default_fs = 0;
 int jit_gdb = 0;
 int box64_tcmalloc_minimal = 0;
 
