@@ -2045,7 +2045,7 @@ GOWM(writev, lFEipi)
 // xdr_authdes_cred
 // xdr_authdes_verf
 // xdr_authunix_parms
-//GO(xdr_bool, iFpp)
+GO(xdr_bool, iFpp)
 // xdr_bytes
 // xdr_callhdr
 // xdr_callmsg
@@ -2060,7 +2060,7 @@ GOWM(writev, lFEipi)
 // xdr_free
 // xdr_getcredres
 // xdr_hyper
-//GO(xdr_int, iFpp)
+GO(xdr_int, iFpp)
 // xdr_int16_t
 // xdr_int32_t
 // xdr_int64_t
@@ -2073,7 +2073,7 @@ GOWM(writev, lFEipi)
 // xdr_longlong_t
 // xdrmem_create
 // xdr_netnamestr
-//GO(xdr_netobj, iFpbup_)
+GO(xdr_netobj, iFpbup_)
 // xdr_opaque
 // xdr_opaque_auth
 // xdr_pmap
@@ -2095,7 +2095,7 @@ GOWM(writev, lFEipi)
 // xdr_string
 // xdr_u_char
 // xdr_u_hyper
-//GO(xdr_u_int, iFpp)
+GO(xdr_u_int, iFpp)
 // xdr_uint16_t
 // xdr_uint32_t
 // xdr_uint64_t
