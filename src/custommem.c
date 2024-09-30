@@ -1615,7 +1615,7 @@ int getMmapped(uintptr_t addr)
 void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
     uint32_t prot;
-    if(hint<LOWEST) hint = box64_wine?WINE_LOWEST:LOWEST;
+    if(hint<LOWEST) hint = WINE_LOWEST;
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
     if(!mask) mask = 0xffff;
