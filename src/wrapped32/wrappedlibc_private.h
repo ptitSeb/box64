@@ -1155,8 +1155,8 @@ GO(__newlocale, aFipa)
 GO(nice, iFi)
 // _nl_default_dirname   // type R
 // _nl_domain_bindings   // type B
-GO(nl_langinfo, pFi)
-GO(__nl_langinfo_l, pFia)
+GO(nl_langinfo, tFi)
+GO(__nl_langinfo_l, tFia)
 //GOW(nl_langinfo_l, pFup)
 //DATAB(_nl_msg_cat_cntr, 4) // type B
 // nrand48
