@@ -1169,8 +1169,12 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
                 RunElfInit(lib_elf, emu);
         }
     printf_dump(LOG_DEBUG, "Calling Init for %s @%p\n", ElfName(h), (void*)p);
-    if(h->initentry)
-        RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
+    if(h->initentry) {
+        if(box64_is32bits)
+            RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv32, my_context->envv32);
+        else
+            RunFunctionWithEmu(emu, 0, p, 3, my_context->argc, my_context->argv, my_context->envv);
+    }
     printf_dump(LOG_DEBUG, "Done Init for %s\n", ElfName(h));
     // and check init array now
     #ifdef BOX32
@@ -1179,7 +1183,7 @@ void RunElfInit(elfheader_t* h, x64emu_t *emu)
         for (size_t i=0; i<h->initarray_sz; ++i) {
             if(addr[i]) {
                 printf_dump(LOG_DEBUG, "Calling Init[%zu] for %s @%p\n", i, ElfName(h), from_ptrv(addr[i]));
-                RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+                RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv32, my_context->envv32);
             }
         }
     } else
