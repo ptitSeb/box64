@@ -9,11 +9,22 @@ typedef struct struct_p_s {
 } struct_p_t;
 void from_struct_p(struct_p_t *dest, ptr_t src);
 void to_struct_p(ptr_t dest, const struct_p_t *src);
+typedef struct struct_l_s {
+	long L0;
+} struct_l_t;
+void from_struct_l(struct_l_t *dest, ptr_t src);
+void to_struct_l(ptr_t dest, const struct_l_t *src);
 typedef struct struct_L_s {
 	unsigned long L0;
 } struct_L_t;
 void from_struct_L(struct_L_t *dest, ptr_t src);
 void to_struct_L(ptr_t dest, const struct_L_t *src);
+typedef struct struct_ll_s {
+	long L0;
+	long L1;
+} struct_ll_t;
+void from_struct_ll(struct_ll_t *dest, ptr_t src);
+void to_struct_ll(ptr_t dest, const struct_ll_t *src);
 typedef struct struct_LL_s {
 	unsigned long L0;
 	unsigned long L1;

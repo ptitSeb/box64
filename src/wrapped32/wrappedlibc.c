@@ -516,7 +516,7 @@ int EXPORT my32_atexit(x64emu_t* emu, void *p)
 
 int my32_getcontext(x64emu_t* emu, void* ucp);
 int my32_setcontext(x64emu_t* emu, void* ucp);
-int my32_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv);
+void my32_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, void* argv);
 int my32_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2);
 
 // All signal and context functions defined in signals.c

@@ -1,6 +1,7 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
+
 //VERSION_1_0
 GO(glAccum, vFuf)
 GO(glAlphaFunc, vFuf)
