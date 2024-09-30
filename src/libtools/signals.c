@@ -2240,7 +2240,7 @@ EXPORT int my_setcontext(x64emu_t* emu, void* ucp)
     return R_EAX;
 }
 
-EXPORT int my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int64_t* argv)
+EXPORT void my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int64_t* argv)
 {
 //    printf_log(LOG_NONE, "Warning: call to unimplemented makecontext\n");
     x64_ucontext_t *u = (x64_ucontext_t*)ucp;
@@ -2276,8 +2276,6 @@ EXPORT int my_makecontext(x64emu_t* emu, void* ucp, void* fnc, int32_t argc, int
     --rsp;
     *rsp = my_context->exit_bridge;
     u->uc_mcontext.gregs[X64_RSP] = (uintptr_t)rsp;
-
-    return 0;
 }
 
 EXPORT int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2)

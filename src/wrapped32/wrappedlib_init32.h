@@ -30,6 +30,8 @@
 #define GOWM(N, W)
 // regular symbol mapped to itself, that returns a structure
 #define GOS(N, W)
+// weak symbol mapped to itself, that returns a structure
+#define GOWS(N, W)
 // symbol mapped to another one
 #define GO2(N, W, O)
 // weak symbol mapped to another one
@@ -74,19 +76,24 @@ static const map_onesymbol_t MAPNAME(mysymbolmap)[] = {
 };
 #undef GOM
 #undef GOWM
-#undef GOS
 #define GOM(N, W)
 #define GOWM(N, W)
+#undef GOS
+#undef GOWS
 #ifdef STATICBUILD
 #define GOS(N, W) {#N, W##_32, 0, &my32_##N},
+#define GOWS(N, W) {#N, W##_32, 1, &my32_##N},
 #else
 #define GOS(N, W) {#N, W##_32, 0},
+#define GOWS(N, W) {#N, W##_32, 1},
 #endif
 static const map_onesymbol_t MAPNAME(stsymbolmap)[] = {
     #include PRIVATE(LIBNAME)
 };
 #undef GOS
+#undef GOWS
 #define GOS(N, W)
+#define GOWS(N, W)
 #undef GO2
 #undef GOW2
 #ifdef STATICBUILD
@@ -140,6 +147,7 @@ static const map_onedata_t MAPNAME(mydatamap)[] = {
 #undef GOWM
 #undef GO2
 #undef GOS
+#undef GOWS
 #undef DATA
 #undef DATAV
 #undef DATAB
