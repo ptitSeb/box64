@@ -13,6 +13,7 @@
 // time_t is: L
 // socklen_t is u
 // struct sockaddr is fine, no wrap needed
+// wctype_t is h (used with locale_t)
 
 // a64l
 GO(abort, vFv)
@@ -2015,8 +2016,8 @@ GO(wctob, iFu)
 // __wctrans_l
 // wctrans_l    // Weak
 //GOW(wctype, uFp)
-GO(__wctype_l, LFpa)
-GOW(wctype_l, LFpa)
+GO(__wctype_l, hFpa)
+GOW(wctype_l, hFpa)
 //GO(wcwidth, iFu)
 GOW(wmemchr, pFpiL)
 GO(wmemcmp, iFppL)

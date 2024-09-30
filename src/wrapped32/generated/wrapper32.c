@@ -289,7 +289,6 @@ typedef uintptr_t (*LFEL_t)(x64emu_t*, uintptr_t);
 typedef uintptr_t (*LFLi_t)(uintptr_t, int32_t);
 typedef uintptr_t (*LFpL_t)(void*, uintptr_t);
 typedef uintptr_t (*LFpp_t)(void*, void*);
-typedef uintptr_t (*LFpa_t)(void*, void*);
 typedef uintptr_t (*LFXi_t)(void*, int32_t);
 typedef uintptr_t (*LFXL_t)(void*, uintptr_t);
 typedef void* (*pFEv_t)(x64emu_t*);
@@ -307,6 +306,7 @@ typedef void* (*pFpu_t)(void*, uint32_t);
 typedef void* (*pFpL_t)(void*, uintptr_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*pFXi_t)(void*, int32_t);
+typedef uintptr_t (*hFpa_t)(void*, void*);
 typedef void* (*SFip_t)(int32_t, void*);
 typedef void* (*SFpp_t)(void*, void*);
 typedef char* (*tFip_t)(int32_t, void*);
@@ -1379,7 +1379,6 @@ void LFEL_32(x64emu_t *emu, uintptr_t fcn) { LFEL_t fn = (LFEL_t)fcn; R_EAX = to
 void LFLi_32(x64emu_t *emu, uintptr_t fcn) { LFLi_t fn = (LFLi_t)fcn; R_EAX = to_ulong(fn(to_ulong(from_ptri(ulong_t, R_ESP + 4)), from_ptri(int32_t, R_ESP + 8))); }
 void LFpL_32(x64emu_t *emu, uintptr_t fcn) { LFpL_t fn = (LFpL_t)fcn; R_EAX = to_ulong(fn(from_ptriv(R_ESP + 4), to_ulong(from_ptri(ulong_t, R_ESP + 8)))); }
 void LFpp_32(x64emu_t *emu, uintptr_t fcn) { LFpp_t fn = (LFpp_t)fcn; R_EAX = to_ulong(fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8))); }
-void LFpa_32(x64emu_t *emu, uintptr_t fcn) { LFpa_t fn = (LFpa_t)fcn; R_EAX = to_ulong(fn(from_ptriv(R_ESP + 4), from_locale(from_ptri(ptr_t, R_ESP + 8)))); }
 void LFXi_32(x64emu_t *emu, uintptr_t fcn) { LFXi_t fn = (LFXi_t)fcn; R_EAX = to_ulong(fn(getDisplay(from_ptriv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 8))); }
 void LFXL_32(x64emu_t *emu, uintptr_t fcn) { LFXL_t fn = (LFXL_t)fcn; R_EAX = to_ulong(fn(getDisplay(from_ptriv(R_ESP + 4)), to_ulong(from_ptri(ulong_t, R_ESP + 8)))); }
 void pFEv_32(x64emu_t *emu, uintptr_t fcn) { pFEv_t fn = (pFEv_t)fcn; R_EAX = to_ptrv(fn(emu)); }
@@ -1397,6 +1396,7 @@ void pFpu_32(x64emu_t *emu, uintptr_t fcn) { pFpu_t fn = (pFpu_t)fcn; R_EAX = to
 void pFpL_32(x64emu_t *emu, uintptr_t fcn) { pFpL_t fn = (pFpL_t)fcn; R_EAX = to_ptrv(fn(from_ptriv(R_ESP + 4), to_ulong(from_ptri(ulong_t, R_ESP + 8)))); }
 void pFpp_32(x64emu_t *emu, uintptr_t fcn) { pFpp_t fn = (pFpp_t)fcn; R_EAX = to_ptrv(fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8))); }
 void pFXi_32(x64emu_t *emu, uintptr_t fcn) { pFXi_t fn = (pFXi_t)fcn; R_EAX = to_ptrv(fn(getDisplay(from_ptriv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 8))); }
+void hFpa_32(x64emu_t *emu, uintptr_t fcn) { hFpa_t fn = (hFpa_t)fcn; R_EAX = to_hash(fn(from_ptriv(R_ESP + 4), from_locale(from_ptri(ptr_t, R_ESP + 8)))); }
 void SFip_32(x64emu_t *emu, uintptr_t fcn) { SFip_t fn = (SFip_t)fcn; R_EAX = to_ptrv(io_convert_from(fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8)))); }
 void SFpp_32(x64emu_t *emu, uintptr_t fcn) { SFpp_t fn = (SFpp_t)fcn; R_EAX = to_ptrv(io_convert_from(fn(from_ptriv(R_ESP + 4), from_ptriv(R_ESP + 8)))); }
 void tFip_32(x64emu_t *emu, uintptr_t fcn) { tFip_t fn = (tFip_t)fcn; R_EAX = to_cstring(fn(from_ptri(int32_t, R_ESP + 4), from_ptriv(R_ESP + 8))); }
