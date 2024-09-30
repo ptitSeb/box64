@@ -554,7 +554,7 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                 tmps = arg2?(from_ulong(*arg2)):0;
                 ret = syscall(__NR_get_robust_list, u32(4), arg1?(&tmp):NULL, arg2?(&tmps):NULL);
                 if(!ret) {
-                    if(box64_steamcmd) {
+                    if(box64_steamcmd || 1) {
                         h.list.next = to_ptrv(&h);
                         h.futex_offset = -0x14;
                         h.list_op_pending = 0;
