@@ -271,6 +271,7 @@ void dFpBp__32(x64emu_t *emu, uintptr_t fnc);
 void pFrl_p_32(x64emu_t *emu, uintptr_t fnc);
 void iFuBLL__32(x64emu_t *emu, uintptr_t fnc);
 void iFprll__32(x64emu_t *emu, uintptr_t fnc);
+void iFpbup__32(x64emu_t *emu, uintptr_t fnc);
 void iFprLL__32(x64emu_t *emu, uintptr_t fnc);
 void iFBll_p_32(x64emu_t *emu, uintptr_t fnc);
 void iFrLL_BLL__32(x64emu_t *emu, uintptr_t fnc);
