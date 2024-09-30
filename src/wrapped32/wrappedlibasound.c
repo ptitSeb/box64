@@ -23,12 +23,13 @@
 #define LIBNAME libasound
 static const char* libasoundName = "libasound.so.2";
 
-typedef void  (*vFp_t)(void*);
-typedef void* (*pFp_t)(void*);
+typedef int (*iFpp_t)(void*, void*);
+typedef size_t(*LFv_t)();
 
 #define ADDED_FUNCTIONS() \
-    GO(snd_pcm_query_chmaps, pFp_t) \
-    GO(snd_pcm_free_chmaps, vFp_t) \
+    GO(snd_pcm_hw_params_current, iFpp_t) \
+    GO(snd_pcm_hw_params_get_channels, iFpp_t) \
+    GO(snd_pcm_hw_params_sizeof, LFv_t) \
 
 #include "generated/wrappedlibasoundtypes32.h"
 
@@ -304,13 +305,19 @@ EXPORT int my32_snd_pcm_mmap_begin(x64emu_t* emu, void* pcm, ptr_t* areas, ulong
     *offset = to_ulong(l_offset);
     *frames = to_ulong(l_frames);
     static my_snd_pcm_channel_area_32_t my_areas[15] = {0};
+    static void* last_pcm = NULL;
+    static int last_nch = 0;
     // get the number of channels
-    void** chmaps = my->snd_pcm_query_chmaps(pcm);
-    int nch = 1;
-    if(chmaps) {
-        while(chmaps[nch]) nch++;
-        my->snd_pcm_free_chmaps(chmaps);
-    } else printf_log(LOG_INFO, "Warning, could not get number of pcm channels in 32bits alsa for pcm_mmap_begin");
+    unsigned int nch = 0;
+    if(pcm==last_pcm)
+        nch = last_nch;
+    else {
+        void* hw=alloca(my->snd_pcm_hw_params_sizeof());
+        my->snd_pcm_hw_params_current(pcm, hw);
+        my->snd_pcm_hw_params_get_channels(hw, &nch);
+        last_pcm = pcm;
+        last_nch = nch;
+    }
     if(nch>15) {printf_log(LOG_INFO, "Warning, too many channels in pcm of 32bits alsa: %d\n", nch); nch=15; }
     for(int i=0; i<nch; ++i) {
         my_areas[i].addr = to_ptrv(l_areas[i].addr);

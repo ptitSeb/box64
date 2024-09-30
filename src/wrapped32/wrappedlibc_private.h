@@ -1349,7 +1349,6 @@ GOM(read, lFipL) //%%,noE
 //GO(__read_chk, lFipLL)
 GOWM(readdir, pFEp)  //%%
 GO(readdir64, pFp)  // check if alignement is correct
-// readdir64_r
 //GOM(readdir_r, iFEppp)  //%% should also be weak
 GOM(readlink, lFEppL) //%%
 //GOM(readlinkat, iFEippL)
@@ -1410,7 +1409,7 @@ GO(rewind, vFS)
 // rexecoptions // type B
 //GOW(rindex, pFpi)
 GOW(rmdir, iFp)
-//GO(readdir64_r, iFppp)  // is this present?
+GO(readdir64_r, iFppBp_)
 // rpc_createerr    // type B
 // _rpc_dtablesize
 // __rpc_thread_createerr
@@ -1798,7 +1797,7 @@ GO(tcsetpgrp, iFii)
 // tdestroy // Weak
 // tee
 //GO(telldir, iFp)
-//GO(tempnam, pFpp)
+GO(tempnam, pFpp)
 //GOW(textdomain, pFp)
 // tfind    // Weak
 GO(time, LFrl_)

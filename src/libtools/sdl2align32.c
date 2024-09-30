@@ -194,6 +194,14 @@ void convert_SDL2_Event_to_64(void* dst_, const void* src_)
             dst->caxis.timestamp = src->caxis.timestamp;
             dst->caxis.type = src->caxis.type;
             break;
+        case SDL2_QUIT:
+            dst->quit.timestamp = src->quit.timestamp;
+            dst->quit.type = src->quit.type;
+            break;
+        case SDL2_CLIPBOARDUPDATE:
+            dst->common.timestamp = src->common.timestamp;
+            dst->common.type = src->common.type;
+            break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
             if(dst_!=src_)
@@ -338,6 +346,14 @@ void convert_SDL2_Event_to_32(void* dst_, const void* src_)
             dst->caxis.padding3 = src->caxis.padding3;
             dst->caxis.value = src->caxis.value;
             dst->caxis.padding4 = src->caxis.padding4;
+            break;
+        case SDL2_QUIT:
+            dst->quit.type = src->quit.type;
+            dst->quit.timestamp = src->quit.timestamp;
+            break;
+        case SDL2_CLIPBOARDUPDATE:
+            dst->common.type = src->common.type;
+            dst->common.timestamp = src->common.timestamp;
             break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);

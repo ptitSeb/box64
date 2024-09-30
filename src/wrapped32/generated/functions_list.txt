@@ -164,6 +164,7 @@
 #() CFpi -> CFpi
 #() CFpp -> CFpp
 #() uFEp -> uFEp
+#() uFii -> uFii
 #() uFiS -> uFiS
 #() uFuu -> uFuu
 #() uFup -> uFup
@@ -430,6 +431,7 @@
 #() SFEpp -> SFEpp
 #() SFppS -> SFppS
 #() tFipu -> tFipu
+#() iFppBp_ -> iFppB
 #() iFppbL_ -> iFppB
 #() iFpbL_p -> iFpBp
 #() iFBp_LL -> iFBLL
@@ -1724,9 +1726,11 @@ wrappedsdl2:
   - SDL_GetCurrentDisplayMode
   - SDL_GetDesktopDisplayMode
 - iFpi:
+  - SDL_GameControllerAddMappingsFromRW
   - SDL_WaitEventTimeout
 - iFpp:
   - SDL_GetWindowDisplayMode
+  - SDL_GetWindowWMInfo
   - SDL_OpenAudio
   - SDL_SetWindowDisplayMode
 - pFpi:
@@ -1734,6 +1738,8 @@ wrappedsdl2:
   - SDL_notreal
 - pFpp:
   - SDL_RWFromFile
+- iFiip:
+  - SDL_GetDisplayMode
 - iFppu:
   - SDL_FillRect
 - iFppV:
@@ -1760,6 +1766,7 @@ wrappedsdl2:
 % JFEi -> pFEpi
 wrappedsdl2image:
 - pFp:
+  - IMG_Load
   - IMG_LoadBMP_RW
   - IMG_LoadCUR_RW
   - IMG_LoadGIF_RW

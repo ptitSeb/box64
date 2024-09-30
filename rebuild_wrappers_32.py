@@ -1149,7 +1149,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"\n#error Invalid return type: wo structure declaration\n",           # B
 		"\n#error Invalid return type: end of structure declaration\n",       # _
 		"R_EAX = to_cstring(fn({0}));",                                       # t
-		"R_EAX = to_ptrv(FindDisplay(fn({0})));",           	  			  # X
+		"R_EAX = to_ptrv(addDisplay(fn({0})));",           	  			  # X
 	]
 	asargs = [
 		"emu, ",                                              # E
@@ -1296,7 +1296,7 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		int of_convert32(int);
 
 		void* getDisplay(void*);
-		void* FindDisplay(void*);
+		void* addDisplay(void*);
 		
 		""",
 		"wrapper32.h": """

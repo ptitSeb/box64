@@ -1574,7 +1574,7 @@ void* getDisplay(void* d)
 {
     if(!d) return d;
     for(int i=0; i<N_DISPLAY; ++i)
-        if(&my32_Displays_32[i]==d || my32_Displays_64[i]==d)
+        if(((&my32_Displays_32[i])==d) || (my32_Displays_64[i]==d))
             return my32_Displays_64[i];
         printf_log(LOG_INFO, "BOX32: Warning, 32bits Display %p not found\n", d);
     return d;
@@ -1584,7 +1584,7 @@ void* FindDisplay(void* d)
 {
     if(!d) return d;
     for(int i=0; i<N_DISPLAY; ++i)
-        if(my32_Displays_64[i]==d || &my32_Displays_32[i]==d)
+        if((my32_Displays_64[i]==d) || ((&my32_Displays_32[i])==d))
             return &my32_Displays_32[i];
     return d;
 }
@@ -1612,22 +1612,18 @@ void convert_Screen_to_32(void* d, void* s)
     dst->root_input_mask = to_long(src->root_input_mask);
 }
 
-EXPORT void* my32_XOpenDisplay(x64emu_t* emu, void* d)
+void* addDisplay(void* d)
 {
-    void* r = my->XOpenDisplay(d);
-    // Added automatic bridge because of thos macro from Xlibint.h
-    //#define LockDisplay(d)       if ((d)->lock_fns) (*(d)->lock_fns->lock_display)(d)
-    //#define UnlockDisplay(d)     if ((d)->lock_fns) (*(d)->lock_fns->unlock_display)(d)
-    if(!r)
-        return r;
-
-    my_XDisplay_t* dpy = (my_XDisplay_t*)r;
+    my_XDisplay_t* dpy = (my_XDisplay_t*)d;
     // look for a free slot, or a display already there
     my_XDisplay_32_t* ret = NULL;
     struct my_XFreeFuncs_32 *free_funcs = NULL;
     struct my_XLockPtrs_32 *lock_fns = NULL;
+    for(int i=0; i<N_DISPLAY && !ret; ++i)
+        if(my32_Displays_64[i]==dpy)
+            return &my32_Displays_32[i];
     for(int i=0; i<N_DISPLAY && !ret; ++i) {
-        if(my32_Displays_64[i]==dpy || !my32_Displays_64[i]) {
+        if(!my32_Displays_64[i]) {
             my32_Displays_64[i] = dpy;
             ret = &my32_Displays_32[i];
             free_funcs = &my32_free_funcs_32[i];
@@ -1638,7 +1634,7 @@ EXPORT void* my32_XOpenDisplay(x64emu_t* emu, void* d)
     }
     if(!ret) {
         printf_log(LOG_INFO, "BOX32: No more slot available for libX11 Display!");
-        return r;
+        return d;
     }
 
     bridge_t* system = my_lib->w.bridge;
@@ -1705,6 +1701,20 @@ EXPORT void* my32_XOpenDisplay(x64emu_t* emu, void* d)
 
     #undef GO
     #undef GO2
+
+    return ret;
+}
+
+EXPORT void* my32_XOpenDisplay(x64emu_t* emu, void* d)
+{
+    void* r = my->XOpenDisplay(d);
+    // Added automatic bridge because of thos macro from Xlibint.h
+    //#define LockDisplay(d)       if ((d)->lock_fns) (*(d)->lock_fns->lock_display)(d)
+    //#define UnlockDisplay(d)     if ((d)->lock_fns) (*(d)->lock_fns->unlock_display)(d)
+    if(!r)
+        return r;
+
+    void* ret = addDisplay(r);
 
     return ret;
 }

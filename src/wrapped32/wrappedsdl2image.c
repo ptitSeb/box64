@@ -53,7 +53,14 @@ GO(IMG_LoadXPM_RW)
 GO(IMG_LoadXV_RW)
 #undef GO
 
- EXPORT void *my32_2_IMG_LoadTyped_RW(x64emu_t* emu, void* a, int32_t b, void* c)
+EXPORT void *my32_2_IMG_Load(x64emu_t* emu, void* path)
+{
+    void* r = my->IMG_Load(path);
+    inplace_SDL2_Surface_to_32(r);
+    return r;
+}
+
+EXPORT void *my32_2_IMG_LoadTyped_RW(x64emu_t* emu, void* a, int32_t b, void* c)
 {
     inplace_SDL2_RWops_to_64(a);
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);

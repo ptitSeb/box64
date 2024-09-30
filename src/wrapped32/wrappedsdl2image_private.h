@@ -6,7 +6,7 @@
 GO(IMG_Init,iFi)
 GO(IMG_InvertAlpha,iFi)
 GO(IMG_Linked_Version,pFv)
-//GO(IMG_Load,pFp)
+GOM(IMG_Load,pFEp)
 GOM(IMG_LoadBMP_RW,pFEp)
 GOM(IMG_LoadCUR_RW,pFEp)
 GOM(IMG_LoadGIF_RW,pFEp)

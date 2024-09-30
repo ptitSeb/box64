@@ -169,6 +169,14 @@ EXPORT int my32_2_SDL_GetWindowDisplayMode(void* window, void* mode)
     return ret;
 }
 
+EXPORT int my32_2_SDL_GetDisplayMode(int dispIndex, int modeIndex, void* mode)
+{
+    my_SDL2_DisplayMode_t mode_l = { 0 };
+    int ret = my->SDL_GetDisplayMode(dispIndex, modeIndex, &mode_l);
+    convert_SDL2_DisplayMode_to_32(mode, &mode_l);
+    return ret;
+}
+
 EXPORT int my32_2_SDL_SetWindowDisplayMode(void* window, void* mode)
 {
     my_SDL2_DisplayMode_t mode_l = { 0 };
@@ -391,6 +399,17 @@ EXPORT void *my32_2_SDL_LoadBMP_RW(x64emu_t* emu, void* a, int b)
     inplace_SDL2_Surface_to_32(r);
     return r;
 }
+EXPORT int my32_2_SDL_GameControllerAddMappingsFromRW(x64emu_t* emu, void* a, int b)
+{
+    inplace_SDL2_RWops_to_64(a);
+    SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
+    int r = my->SDL_GameControllerAddMappingsFromRW(rw, b);
+    if(b==0) {
+        RWNativeEnd2(rw);
+        inplace_SDL2_RWops_to_32(a);
+    }
+    return r;
+}
 
 EXPORT int64_t my32_2_SDL_RWseek(x64emu_t* emu, void* a, int64_t offset, int whence)
 {
@@ -435,6 +454,55 @@ EXPORT int my32_2_SDL_RWclose(x64emu_t* emu, void* a)
     return RWNativeClose2(rw);
 }
 
+typedef struct SDL_version_s
+{
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+} SDL_version_t;
+
+typedef struct SDL_SysWMinfo_s
+{
+    SDL_version_t version;
+    int subsystem;  // 1=Windows, 2 =X11, 6=Wayland
+    union
+    {
+        struct
+        {
+            void* display;  //Display
+            unsigned long window;   //Window
+        } x11;
+        uint8_t dummy[64];
+    } info;
+} SDL_SysWMinfo_t;
+
+typedef struct SDL_SysWMinfo_32_s
+{
+    SDL_version_t version;
+    int subsystem;  // 1=Windows, 2 =X11, 6=Wayland
+    union
+    {
+        struct
+        {
+            ptr_t display;  //Display*
+            ulong_t window;   //Window
+        } x11;
+        uint8_t dummy[64];
+    } info;
+} SDL_SysWMinfo_32_t;
+void* FindDisplay(void* d);
+EXPORT int my32_2_SDL_GetWindowWMInfo(void* w, SDL_SysWMinfo_32_t* i)
+{
+    // 32bits and  64bits have the same size...
+    int ret = my->SDL_GetWindowWMInfo(w, i);
+    if(i->subsystem==2) {
+        // inplace conversion
+        SDL_SysWMinfo_t* i_l = (SDL_SysWMinfo_t*) i;
+        i->info.x11.display = to_ptrv(FindDisplay(i_l->info.x11.display));
+        i->info.x11.window = to_ulong(i_l->info.x11.window);
+    }
+    return ret;
+}
 
 #define ALTMY my32_2_
 

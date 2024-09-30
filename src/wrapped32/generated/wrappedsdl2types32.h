@@ -24,6 +24,7 @@ typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
+typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int64_t (*IFpIi_t)(void*, int64_t, int32_t);
@@ -52,13 +53,16 @@ typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uin
 	GO(SDL_Log, vFpV_t) \
 	GO(SDL_GetCurrentDisplayMode, iFip_t) \
 	GO(SDL_GetDesktopDisplayMode, iFip_t) \
+	GO(SDL_GameControllerAddMappingsFromRW, iFpi_t) \
 	GO(SDL_WaitEventTimeout, iFpi_t) \
 	GO(SDL_GetWindowDisplayMode, iFpp_t) \
+	GO(SDL_GetWindowWMInfo, iFpp_t) \
 	GO(SDL_OpenAudio, iFpp_t) \
 	GO(SDL_SetWindowDisplayMode, iFpp_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
 	GO(SDL_notreal, pFpi_t) \
 	GO(SDL_RWFromFile, pFpp_t) \
+	GO(SDL_GetDisplayMode, iFiip_t) \
 	GO(SDL_FillRect, iFppu_t) \
 	GO(SDL_sscanf, iFppV_t) \
 	GO(SDL_RWseek, IFpIi_t) \

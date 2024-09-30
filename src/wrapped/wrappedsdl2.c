@@ -284,10 +284,10 @@ EXPORT void *my2_SDL_LoadWAV_RW(x64emu_t* emu, void* a, int b, void* c, void* d,
         RWNativeEnd2(rw);
     return r;
 }
-EXPORT int64_t my2_SDL_GameControllerAddMappingsFromRW(x64emu_t* emu, void* a, int b)
+EXPORT int my2_SDL_GameControllerAddMappingsFromRW(x64emu_t* emu, void* a, int b)
 {
     SDL2_RWops_t *rw = RWNativeStart2(emu, (SDL2_RWops_t*)a);
-    int64_t r = my->SDL_GameControllerAddMappingsFromRW(rw, b);
+    int r = my->SDL_GameControllerAddMappingsFromRW(rw, b);
     if(b==0)
         RWNativeEnd2(rw);
     return r;
