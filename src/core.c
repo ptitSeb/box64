@@ -2445,7 +2445,7 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
         Push64(emu, my_context->exit_bridge);  // push to pop it just after
         SetRDX(emu, Pop64(emu));    // RDX is exit function
     }
-    Run(emu, 0);
+    DynaRun(emu);
     // Get EAX
     int ret = GetEAX(emu);
     printf_log(LOG_DEBUG, "Emulation finished, EAX=%d\n", ret);
