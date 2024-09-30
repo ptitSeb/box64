@@ -5,6 +5,7 @@
 
 #include "cstring.h"
 #include "khash.h"
+#include "log.h"
 #include "machine.h"
 #include "vector.h"
 
@@ -75,6 +76,7 @@ typedef struct preproc_token_s {
 		PPTOK_START_LINE_COMMENT,
 		PPTOK_EOF
 	} tokt;
+	loginfo_t loginfo;
 	union {
 		string_t *str;
 		struct {
@@ -150,6 +152,7 @@ typedef struct proc_token_s {
 		PTOK_PRAGMA,
 		PTOK_EOF
 	} tokt;
+	loginfo_t loginfo;
 	union proc_token_val_u {
 		string_t *str;
 		struct {
@@ -193,7 +196,7 @@ typedef struct num_constant_s {
 		uint64_t u64;
 	} val;
 } num_constant_t;
-int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits);
+int num_constant_convert(loginfo_t *li, string_t *str, num_constant_t *cst, int ptr_is_32bits);
 KHASH_MAP_DECLARE_STR(const_map, num_constant_t)
 
 typedef struct expr_s {
@@ -288,6 +291,7 @@ typedef struct expr_s {
 	} val;
 } expr_t;
 void expr_del(expr_t *e);
+void expr_print(expr_t *e);
 
 typedef struct size_info_s {
 	size_t size, align;
@@ -387,7 +391,8 @@ typedef struct st_member_s {
 	type_t *typ;
 	_Bool is_bitfield;
 	size_t bitfield_width;
-	// TODO: add byte_offset then check in generator against both archs for every named members
+	// Filled by validate_type
+	size_t byte_offset; unsigned char bit_offset;
 } st_member_t;
 typedef struct struct_s {
 	string_t *tag;
@@ -396,6 +401,7 @@ typedef struct struct_s {
 	int is_struct; // 0 = union, 1 = struct
 	int is_simple; // Pointers to the structure (in 64 bits) are simple pointers
 	int has_incomplete; // 1 if the last element of the structure is a VLA or if an element of the union recursively contains a VLA
+	int has_self_recursion; // 1 if the structure contains a reference to itself
 	size_t nmembers;
 	st_member_t *members;
 } struct_t;

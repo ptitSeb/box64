@@ -56,26 +56,23 @@
 // Specific x86_64 architecture
 #define __FINITE_MATH_ONLY__          0
 #define __HAVE_SPECULATION_SAFE_VALUE 1
-#define __LP64__                      1
-#define _LP64                         1
+#define __ILP32__                     1
+#define _ILP32                        1
 #define __REGISTER_PREFIX__
 #define __FXSR__                      1
+#define __LAHF_SAHF__ 1
 #define __MMX__                       1
-#define __MMX_WITH_SSE__              1
 #define __SEG_FS                      1
 #define __SEG_GS                      1
 #define __SSE__                       1
-#define __SSE_MATH__                  1
 #define __SSE2__                      1
-#define __SSE2_MATH__                 1
 #define __SSP_STRONG__                3
-#define __amd64__                     1
-#define __amd64                       1
-#define __code_model_small__          1
+#define __code_model_32__             1
+#define __i386__                      1
+#define __i386                        1
+#define i386                          1
 #define __k8__                        1
 #define __k8                          1
-#define __x86_64__                    1
-#define __x86_64                      1
 // Atomic
 #define __ATOMIC_RELAXED     0
 #define __ATOMIC_CONSUME     1
@@ -94,16 +91,15 @@
 #define __SIZEOF_WCHAR_T__     4
 #define __SIZEOF_INT__         4
 #define __SIZEOF_WINT_T__      4
-#define __SIZEOF_LONG__        8
+#define __SIZEOF_LONG__        4
 #define __SIZEOF_LONG_LONG__   8
-#define __SIZEOF_POINTER__     8
-#define __SIZEOF_PTRDIFF_T__   8
-#define __SIZEOF_SIZE_T__      8
-#define __SIZEOF_INT128__      16
+#define __SIZEOF_POINTER__     4
+#define __SIZEOF_PTRDIFF_T__   4
+#define __SIZEOF_SIZE_T__      4
 #define __SIZEOF_FLOAT__       4
 #define __SIZEOF_DOUBLE__      8
-#define __SIZEOF_LONG_DOUBLE__ 16
-#define __SIZEOF_FLOAT80__     16
+#define __SIZEOF_LONG_DOUBLE__ 12
+#define __SIZEOF_FLOAT80__     12
 #define __SIZEOF_FLOAT128__    16
 // Integers
 //#define __BITINT_MAXWIDTH__ 65535
@@ -118,20 +114,20 @@
 //#define __INT32_C(c) c
 #define __INT32_MAX__ 0x7fffffff
 //#define __INT32_TYPE__ int
-//#define __INT64_C(c) c ## L
-#define __INT64_MAX__ 0x7fffffffffffffffL
-//#define __INT64_TYPE__ long int
+//#define __INT64_C(c) c ## LL
+#define __INT64_MAX__ 0x7fffffffffffffffLL
+//#define __INT64_TYPE__ long long int
 #define __INT_FAST8_MAX__ 0x7f
 //#define __INT_FAST8_TYPE__ signed char
 #define __INT_FAST8_WIDTH__ 8
-#define __INT_FAST16_MAX__ 0x7fffffffffffffffL
-//#define __INT_FAST16_TYPE__ long int
-#define __INT_FAST16_WIDTH__ 64
-#define __INT_FAST32_MAX__ 0x7fffffffffffffffL
-//#define __INT_FAST32_TYPE__ long int
-#define __INT_FAST32_WIDTH__ 64
-#define __INT_FAST64_MAX__ 0x7fffffffffffffffL
-//#define __INT_FAST64_TYPE__ long int
+#define __INT_FAST16_MAX__ 0x7fffffff
+//#define __INT_FAST16_TYPE__ int
+#define __INT_FAST16_WIDTH__ 32
+#define __INT_FAST32_MAX__ 0x7fffffff
+//#define __INT_FAST32_TYPE__ int
+#define __INT_FAST32_WIDTH__ 32
+#define __INT_FAST64_MAX__ 0x7fffffffffffffffLL
+//#define __INT_FAST64_TYPE__ long long int
 #define __INT_FAST64_WIDTH__ 64
 #define __INT_LEAST8_MAX__ 0x7f
 //#define __INT_LEAST8_TYPE__ signed char
@@ -142,25 +138,25 @@
 #define __INT_LEAST32_MAX__ 0x7fffffff
 //#define __INT_LEAST32_TYPE__ int
 #define __INT_LEAST32_WIDTH__ 32
-#define __INT_LEAST64_MAX__ 0x7fffffffffffffffL
-//#define __INT_LEAST64_TYPE__ long int
+#define __INT_LEAST64_MAX__ 0x7fffffffffffffffLL
+//#define __INT_LEAST64_TYPE__ long long int
 #define __INT_LEAST64_WIDTH__ 64
 #define __INT_MAX__ 0x7fffffff
 #define __INT_WIDTH__ 32
-#define __INTMAX_C(c) c ## L
-#define __INTMAX_MAX__ 0x7fffffffffffffffL
-//#define __INTMAX_TYPE__ long int
+#define __INTMAX_C(c) c ## LL
+#define __INTMAX_MAX__ 0x7fffffffffffffffLL
+//#define __INTMAX_TYPE__ long long int
 #define __INTMAX_WIDTH__ 64
-#define __INTPTR_MAX__ 0x7fffffffffffffffL
-//#define __INTPTR_TYPE__ long int
-#define __INTPTR_WIDTH__ 64
+#define __INTPTR_MAX__ 0x7fffffff
+//#define __INTPTR_TYPE__ int
+#define __INTPTR_WIDTH__ 32
 #define __LONG_LONG_MAX__ 0x7fffffffffffffffLL
 #define __LONG_LONG_WIDTH__ 64
-#define __LONG_MAX__ 0x7fffffffffffffffL
-#define __LONG_WIDTH__ 64
-#define __PTRDIFF_MAX__ 0x7fffffffffffffffL
-//#define __PTRDIFF_TYPE__ long int
-#define __PTRDIFF_WIDTH__ 64
+#define __LONG_MAX__ 0x7fffffffL
+#define __LONG_WIDTH__ 32
+#define __PTRDIFF_MAX__ 0x7fffffff
+//#define __PTRDIFF_TYPE__ int
+#define __PTRDIFF_WIDTH__ 32
 #define __SCHAR_MAX__ 0x7f
 #define __SCHAR_WIDTH__ 8
 #define __SHRT_MAX__ 0x7fff
@@ -169,9 +165,9 @@
 #define __SIG_ATOMIC_MIN__ (-__SIG_ATOMIC_MAX__ - 1)
 //#define __SIG_ATOMIC_TYPE__ int
 #define __SIG_ATOMIC_WIDTH__ 32
-#define __SIZE_MAX__ 0xffffffffffffffffUL
-//#define __SIZE_TYPE__ long unsigned int
-#define __SIZE_WIDTH__ 64
+#define __SIZE_MAX__ 0xffffffffU
+//#define __SIZE_TYPE__ unsigned int
+#define __SIZE_WIDTH__ 32
 #define __UINT8_C(c) c
 #define __UINT8_MAX__ 0xff
 //#define __UINT8_TYPE__ unsigned char
@@ -181,33 +177,33 @@
 #define __UINT32_C(c) c ## U
 #define __UINT32_MAX__ 0xffffffffU
 //#define __UINT32_TYPE__ unsigned int
-#define __UINT64_C(c) c ## UL
-#define __UINT64_MAX__ 0xffffffffffffffffUL
-//#define __UINT64_TYPE__ long unsigned int
+#define __UINT64_C(c) c ## ULL
+#define __UINT64_MAX__ 0xffffffffffffffffULL
+//#define __UINT64_TYPE__ long long unsigned int
 #define __UINT_FAST8_MAX__ 0xff
 //#define __UINT_FAST8_TYPE__ unsigned char
-#define __UINT_FAST16_MAX__ 0xffffffffffffffffUL
-//#define __UINT_FAST16_TYPE__ long unsigned int
-#define __UINT_FAST32_MAX__ 0xffffffffffffffffUL
-//#define __UINT_FAST32_TYPE__ long unsigned int
-#define __UINT_FAST64_MAX__ 0xffffffffffffffffUL
-//#define __UINT_FAST64_TYPE__ long unsigned int
+#define __UINT_FAST16_MAX__ 0xffffffffU
+//#define __UINT_FAST16_TYPE__ unsigned int
+#define __UINT_FAST32_MAX__ 0xffffffffU
+//#define __UINT_FAST32_TYPE__ unsigned int
+#define __UINT_FAST64_MAX__ 0xffffffffffffffffULL
+//#define __UINT_FAST64_TYPE__ long long unsigned int
 #define __UINT_LEAST8_MAX__ 0xff
 //#define __UINT_LEAST8_TYPE__ unsigned char
 #define __UINT_LEAST16_MAX__ 0xffff
 //#define __UINT_LEAST16_TYPE__ short unsigned int
 #define __UINT_LEAST32_MAX__ 0xffffffffU
 //#define __UINT_LEAST32_TYPE__ unsigned int
-#define __UINT_LEAST64_MAX__ 0xffffffffffffffffUL
-//#define __UINT_LEAST64_TYPE__ long unsigned int
-#define __UINTMAX_C(c) c ## UL
-#define __UINTMAX_MAX__ 0xffffffffffffffffUL
-//#define __UINTMAX_TYPE__ long unsigned int
-#define __UINTPTR_MAX__ 0xffffffffffffffffUL
-//#define __UINTPTR_TYPE__ long unsigned int
-#define __WCHAR_MAX__ 0x7fffffff
+#define __UINT_LEAST64_MAX__ 0xffffffffffffffffULL
+//#define __UINT_LEAST64_TYPE__ long long unsigned int
+#define __UINTMAX_C(c) c ## ULL
+#define __UINTMAX_MAX__ 0xffffffffffffffffULL
+//#define __UINTMAX_TYPE__ long long unsigned int
+#define __UINTPTR_MAX__ 0xffffffffU
+//#define __UINTPTR_TYPE__ unsigned int
+#define __WCHAR_MAX__ 0x7fffffffL
 #define __WCHAR_MIN__ (-__WCHAR_MAX__ - 1)
-//#define __WCHAR_TYPE__ int
+//#define __WCHAR_TYPE__ long int
 #define __WCHAR_WIDTH__ 32
 #define __WINT_MAX__ 0xffffffffU
 #define __WINT_MIN__ 0U
@@ -370,8 +366,8 @@
 #define __FLT_DENORM_MIN__ 1.40129846432481707092372958328991613e-45F
 #define __FLT_DIG__ 6
 #define __FLT_EPSILON__ 1.19209289550781250000000000000000000e-7F
-#define __FLT_EVAL_METHOD__ 0
-#define __FLT_EVAL_METHOD_TS_18661_3__ 0
+#define __FLT_EVAL_METHOD__ 2
+#define __FLT_EVAL_METHOD_TS_18661_3__ 2
 #define __FLT_HAS_DENORM__ 1
 #define __FLT_HAS_INFINITY__ 1
 #define __FLT_HAS_QUIET_NAN__ 1

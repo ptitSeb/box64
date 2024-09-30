@@ -123,16 +123,16 @@
 //#define __BITINT_MAXWIDTH__ 65535
 //#define __CHAR16_TYPE__ short unsigned int
 //#define __CHAR32_TYPE__ unsigned int
-#define __INT8_C(c) c
+//#define __INT8_C(c) c
 #define __INT8_MAX__ 0x7f
 //#define __INT8_TYPE__ signed char
-#define __INT16_C(c) c
+//#define __INT16_C(c) c
 #define __INT16_MAX__ 0x7fff
 //#define __INT16_TYPE__ short int
-#define __INT32_C(c) c
+//#define __INT32_C(c) c
 #define __INT32_MAX__ 0x7fffffff
 //#define __INT32_TYPE__ int
-#define __INT64_C(c) c ## L
+//#define __INT64_C(c) c ## L
 #define __INT64_MAX__ 0x7fffffffffffffffL
 //#define __INT64_TYPE__ long int
 #define __INT_FAST8_MAX__ 0x7f
