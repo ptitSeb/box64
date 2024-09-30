@@ -11,9 +11,13 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFp_t)(void*);
+typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(snd_device_name_free_hint, iFp_t) \
+	GO(snd_device_name_hint, iFipp_t) \
 	GO(snd_pcm_mmap_begin, iFpppp_t)
 
 #endif // __wrappedlibasoundTYPES32_H_

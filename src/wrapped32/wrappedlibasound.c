@@ -321,6 +321,31 @@ EXPORT int my32_snd_pcm_mmap_begin(x64emu_t* emu, void* pcm, ptr_t* areas, ulong
     return ret;
 }
 
+EXPORT int my32_snd_device_name_hint(x64emu_t* emu, int card, void* iface, ptr_t* hints)
+{
+    void** hints_l = NULL;
+    int ret = my->snd_device_name_hint(card, iface, &hints_l);
+    if(ret) return ret;
+    *hints = to_ptrv(hints_l);
+    // inplace shrink
+    int n = 0;
+    while(hints_l[n]) ++n;
+    ++n;
+    for(int i=0; i<n; ++i)
+        ((ptr_t*)hints_l)[i] = to_ptrv(hints_l[i]);
+    return ret;
+}
+
+EXPORT int my32_snd_device_name_free_hint(x64emu_t* emu, ptr_t* hints)
+{
+    void** hints_l = (void**)hints;
+    int n=0;
+    while(hints[n]) ++n;
+    for(int i=n; i>=0; --i)
+        hints_l[i] = from_ptrv(hints[i]);
+    return my->snd_device_name_free_hint(hints_l);
+}
+
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);   // defined in wrappedlibdl.c
 char* my_dlerror(x64emu_t* emu);
 int my_dlclose(x64emu_t* emu, void *handle);

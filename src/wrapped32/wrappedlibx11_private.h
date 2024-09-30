@@ -387,7 +387,7 @@ GO(XGetErrorText, iFXipi)
 GO(XGetICValues, pFpppppppppp)      // use varargs...
 GOM(XGetImage, pFEXLiiuuLi)     // return an XImage with callbacks that needs wrapping
 //GO(XGetIMValues, pFppppppp)     // use varargs
-//GO(XGetInputFocus, iFppp)
+GO(XGetInputFocus, iFXBL_p)
 //GO(XGetKeyboardControl, iFpp)
 //GO(XGetKeyboardMapping, pFpCip)
 //GO(_XGetLCValues, 

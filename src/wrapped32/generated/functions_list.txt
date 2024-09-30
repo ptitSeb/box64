@@ -215,6 +215,7 @@
 #() pFpL -> pFpL
 #() pFpp -> pFpp
 #() pFXi -> pFXi
+#() pFXu -> pFXu
 #() hFpa -> hFpa
 #() SFip -> SFip
 #() SFpp -> SFpp
@@ -362,6 +363,7 @@
 #() iFXii -> iFXii
 #() iFXip -> iFXip
 #() iFXuu -> iFXuu
+#() iFXup -> iFXup
 #() iFXLl -> iFXLl
 #() iFXLL -> iFXLL
 #() iFXLp -> iFXLp
@@ -432,6 +434,7 @@
 #() iFpbL_p -> iFpBp
 #() iFBp_LL -> iFBLL
 #() iFBp_pi -> iFBpi
+#() iFXBL_p -> iFXBp
 #() IFpBp_i -> IFpBi
 #() UFpBp_i -> UFpBi
 #() fFpBp_p -> fFpBp
@@ -579,10 +582,13 @@
 #() iFpppi -> iFpppi
 #() iFpppp -> iFpppp
 #() iFSpiL -> iFSpiL
+#() iFXiip -> iFXiip
 #() iFXipi -> iFXipi
 #() iFXipp -> iFXipp
+#() iFXuup -> iFXuup
 #() iFXLii -> iFXLii
 #() iFXpip -> iFXpip
+#() iFXppi -> iFXppi
 #() iFXppp -> iFXppp
 #() IFEpIi -> IFEpIi
 #() CFuuff -> CFuuff
@@ -746,6 +752,7 @@
 #() iFiLLLL -> iFiLLLL
 #() iFipLLi -> iFipLLi
 #() iFuiuup -> iFuiuup
+#() iFpippp -> iFpippp
 #() iFpCCCC -> iFpCCCC
 #() iFpLuLi -> iFpLuLi
 #() iFppiUi -> iFppiUi
@@ -753,6 +760,7 @@
 #() iFpppLp -> iFpppLp
 #() iFppppp -> iFppppp
 #() iFXiiip -> iFXiiip
+#() iFXpipi -> iFXpipi
 #() iFXpppp -> iFXpppp
 #() IFXpIII -> IFXpIII
 #() uFpLLLS -> uFpLLLS
@@ -771,6 +779,7 @@
 #() pFppuup -> pFppuup
 #() pFppupp -> pFppupp
 #() pFXpipi -> pFXpipi
+#() pFXppip -> pFXppip
 #() iFEBh_ppp -> iFEBppp
 #() LFpbp_LLp -> LFpBLLp
 #() LFpBp_LLp -> LFpBLLp
@@ -1072,6 +1081,7 @@
 #() vFuuiiiiuuiiiiiii -> vFuuiiiiuuiiiiiii
 #() vFfffffffffffffff -> vFfffffffffffffff
 #() vFuuuuiiiiuuiiiiiii -> vFuuuuiiiiuuiiiiiii
+#() vFXpuiiiiipuiiiiiiii -> vFXpuiiiiipuiiiiiiii
 #() uFippuuuuiiiiuuiiiiiiiipp -> uFippuuuuiiiiuuiiiiiiiipp
 #defined(HAVE_LD80BITS) DFD -> DFD
 #defined(HAVE_LD80BITS) DFDD -> DFDD
@@ -1160,6 +1170,10 @@ wrappedldlinux:
 - pFp:
   - __tls_get_addr
 wrappedlibasound:
+- iFp:
+  - snd_device_name_free_hint
+- iFipp:
+  - snd_device_name_hint
 - iFpppp:
   - snd_pcm_mmap_begin
 wrappedlibc:
