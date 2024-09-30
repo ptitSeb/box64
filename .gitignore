@@ -69,6 +69,7 @@ backup/
 /wrapperhelper/sanundefined
 /wrapperhelper/src/machine.gen
 /wrapperhelper/*.h
+!/wrapperhelper/example-libc.h
 
 # macOS
 .DS_Store

@@ -12,8 +12,8 @@
 
 static void help(char *arg0) {
 	printf("Usage: %s --help\n"
-	       "       %s {-I/path/to/include}* [--prepare|--preproc|--proc] [--arch <arch>] <filename_in>\n"
-	       "       %s {-I/path/to/include}* [--emu <arch>] [--target <arch>] <filename_in> <filename_reqs> <filename_out>\n"
+	       "       %s {-I/path/to/include}* [--prepare|--preproc|--proc] [--arch <arch>|-32|-64|--32|--64] <filename_in>\n"
+	       "       %s {-I/path/to/include}* [[--emu <arch>] [--target <arch>]|-32|-64|--32|--64] <filename_in> <filename_reqs> <filename_out>\n"
 	       "\n"
 	       "  --prepare  Dump all preprocessor tokens (prepare phase)\n"
 	       "  --preproc  Dump all processor tokens (preprocessor phase)\n"
@@ -29,8 +29,10 @@ static void help(char *arg0) {
 	       "  --arch <arch>    Use the architecture <arch>\n"
 	       "  --emu <arch>     Use the architecture <arch> as emulated architecture\n"
 	       "  --target <arch>  Use the architecture <arch> as target/running architecture\n"
+	       "  -32  --32        Use the x86 architecture as arch/emulated, aarch64 as target\n"
+	       "  -64  --64        Use the x86_64 architecture as arch/emulated, aarch64 as target\n"
 	       "\n"
-	       "  <arch> is one of 'x86_64', 'aarch64'\n",
+	       "  <arch> is one of 'x86', 'x86_64', 'aarch64'\n",
 	       arg0, arg0, arg0);
 }
 
@@ -41,14 +43,21 @@ enum main_state {
 	MAIN_PROC,
 };
 
+enum bits_state {
+	BITS_NONE,
+	BITS_32,
+	BITS_64,
+};
+
 int main(int argc, char **argv) {
 	setbuf(stdout, NULL);
 	if (!setlocale(LC_NUMERIC, "C")) {
-		printf("Error: failed to set LC_NUMERIC to C\n");
+		log_error_nopos("failed to set LC_NUMERIC to C\n");
 		return 2;
 	}
 	
 	enum main_state ms = MAIN_RUN;
+	enum bits_state bs = BITS_NONE;
 	const char *in_file = NULL, *ref_file = NULL, *out_file = NULL;
 	VECTOR(charp) *paths = vector_new(charp);
 	const char *archname = NULL, *emuname = NULL, *targetname = NULL;
@@ -69,13 +78,13 @@ int main(int argc, char **argv) {
 			// Ignore
 		} else if (!strcmp(argv[i], "-I") && (i + 1 < argc)) {
 			if (!vector_push(charp, paths, argv[i + 1])) {
-				printf("Error: failed to add path to buffer\n");
+				log_memory("failed to add path to buffer\n");
 				return 2;
 			}
 			++i;
 		} else if ((argv[i][0] == '-') && (argv[i][1] == 'I') && (argv[i][2] != '\0')) {
 			if (!vector_push(charp, paths, argv[i] + 2)) {
-				printf("Error: failed to add path to buffer\n");
+				log_memory("failed to add path to buffer\n");
 				return 2;
 			}
 		} else if (!strcmp(argv[i], "--arch")) {
@@ -83,7 +92,7 @@ int main(int argc, char **argv) {
 			if (i < argc) {
 				archname = argv[i];
 			} else {
-				printf("Error: invalid '--arch' option in last position\n");
+				log_error_nopos("invalid '--arch' option in last position\n");
 				help(argv[0]);
 				return 0;
 			}
@@ -92,7 +101,7 @@ int main(int argc, char **argv) {
 			if (i < argc) {
 				emuname = argv[i];
 			} else {
-				printf("Error: invalid '--emu' option in last position\n");
+				log_error_nopos("invalid '--emu' option in last position\n");
 				help(argv[0]);
 				return 0;
 			}
@@ -101,16 +110,20 @@ int main(int argc, char **argv) {
 			if (i < argc) {
 				targetname = argv[i];
 			} else {
-				printf("Error: invalid '--target' option in last position\n");
+				log_error_nopos("invalid '--target' option in last position\n");
 				help(argv[0]);
 				return 0;
 			}
+		} else if (!strcmp(argv[i], "-32") || !strcmp(argv[i], "--32")) {
+			bs = BITS_32;
+		} else if (!strcmp(argv[i], "-64") || !strcmp(argv[i], "--64")) {
+			bs = BITS_64;
 		} else if (!strcmp(argv[i], "-f") || !strcmp(argv[i], "--filename")) {
 			++i;
 			if (i < argc) {
 				isfile = 1;
 			} else {
-				printf("Error: invalid '--filename' option in last position\n");
+				log_error_nopos("invalid '--filename' option in last position\n");
 				help(argv[0]);
 				return 0;
 			}
@@ -125,7 +138,7 @@ int main(int argc, char **argv) {
 			} else if (!out_file) {
 				out_file = argv[i];
 			} else {
-				printf("Error: too many unknown options considered as file\n");
+				log_error_nopos("too many unknown options considered as file\n");
 				help(argv[0]);
 				return 2;
 			}
@@ -137,14 +150,22 @@ int main(int argc, char **argv) {
 	case MAIN_PROC:
 	check_proc:
 		if (!in_file || ref_file || out_file) {
-			printf("Error: too many unknown options/not enough arguments\n");
+			log_error_nopos("too many unknown options/not enough arguments\n");
 			help(argv[0]);
 			return 2;
 		}
 		if (emuname || targetname) {
-			printf("Error: invalid option '--emu' or '--target' in prepare/preprocessor/processor mode\n");
+			log_error_nopos("invalid option '--emu' or '--target' in prepare/preprocessor/processor mode\n");
 			help(argv[0]);
 			return 2;
+		}
+		if (bs != BITS_NONE) {
+			if (archname) {
+				log_error_nopos("invalid option '--arch' with '--32' or '--64' in prepare/preprocessor/processor mode\n");
+				help(argv[0]);
+				return 2;
+			}
+			archname = (bs == BITS_32) ? "x86" : "x86_64";
 		}
 		if (!archname) archname = "x86_64";
 		break;
@@ -154,14 +175,23 @@ int main(int argc, char **argv) {
 			goto check_proc;
 		}
 		if (!in_file || !ref_file || !out_file) {
-			printf("Error: too many unknown options/not enough arguments\n");
+			log_error_nopos("too many unknown options/not enough arguments\n");
 			help(argv[0]);
 			return 2;
 		}
 		if (archname) {
-			printf("Error: invalid option '--arch' in run mode\n");
+			log_error_nopos("invalid option '--arch' in run mode\n");
 			help(argv[0]);
 			return 2;
+		}
+		if (bs != BITS_NONE) {
+			if (emuname || targetname) {
+				log_error_nopos("invalid option '--emu' or '--target' with '--32' or '--64' in run mode\n");
+				help(argv[0]);
+				return 2;
+			}
+			emuname = (bs == BITS_32) ? "x86" : "x86_64";
+			targetname = "aarch64";
 		}
 		if (!emuname) emuname = "x86_64";
 		if (!targetname) targetname = "aarch64";
@@ -173,6 +203,7 @@ int main(int argc, char **argv) {
 	}
 	if (!init_machines(vector_size(charp, paths), (const char*const*)vector_content(charp, paths))) {
 		vector_del(charp, paths);
+		del_str2kw();
 		return 2;
 	}
 	vector_del(charp, paths);
@@ -180,22 +211,30 @@ int main(int argc, char **argv) {
 	FILE *f = fopen(in_file, "r");
 	if (!f) {
 		err(2, "Error: failed to open %s", in_file);
+		del_machines();
+		del_str2kw();
 		return 2;
 	}
 	switch (ms) {
 	case MAIN_RUN: {
 		machine_t *emu = convert_machine_name(emuname);
 		if (!emu) {
-			printf("Error: invalid emulation architecture '%s'\n", emuname);
+			log_error_nopos("invalid emulation architecture '%s'\n", emuname);
+			del_machines();
+			del_str2kw();
+			return 0;
 		}
 		machine_t *target = convert_machine_name(targetname);
 		if (!target) {
-			printf("Error: invalid target architecture '%s'\n", targetname);
+			log_error_nopos("invalid target architecture '%s'\n", targetname);
+			del_machines();
+			del_str2kw();
+			return 0;
 		}
 		
 		file_t *emu_content = parse_file(emu, in_file, f); // Takes ownership of f
 		if (!emu_content) {
-			printf("Error: failed to parse the file\n");
+			log_error_nopos("failed to parse the file\n");
 			del_machines();
 			del_str2kw();
 			return 0;
@@ -204,11 +243,14 @@ int main(int argc, char **argv) {
 		f = fopen(in_file, "r");
 		if (!f) {
 			err(2, "Error: failed to re-open %s", in_file);
+			file_del(emu_content);
+			del_machines();
+			del_str2kw();
 			return 2;
 		}
 		file_t *target_content = parse_file(target, in_file, f); // Takes ownership of f
 		if (!target_content) {
-			printf("Error: failed to parse the file\n");
+			log_error_nopos("failed to parse the file\n");
 			file_del(emu_content);
 			del_machines();
 			del_str2kw();
@@ -218,6 +260,8 @@ int main(int argc, char **argv) {
 		FILE *ref = fopen(ref_file, "r");
 		if (!ref) {
 			err(2, "Error: failed to open %s", ref_file);
+			file_del(emu_content);
+			file_del(target_content);
 			del_machines();
 			del_str2kw();
 			return 2;
@@ -231,8 +275,14 @@ int main(int argc, char **argv) {
 			return 2;
 		}
 		// vector_for(references, req, refs) request_print(req);
-		if (!solve_references(refs, emu_content->decl_map, target_content->decl_map, emu_content->relaxed_type_conversion)) {
-			printf("Warning: failed to solve all default requests\n");
+		if (target->size_long != emu->size_long) {
+			if (!solve_references(refs, emu_content->decl_map, target_content->decl_map, emu_content->relaxed_type_conversion)) {
+				log_warning_nopos("failed to solve all default requests\n");
+			}
+		} else {
+			if (!solve_references_simple(refs, emu_content->decl_map, target_content->decl_map, emu_content->relaxed_type_conversion)) {
+				log_warning_nopos("failed to solve all default requests\n");
+			}
 		}
 		// vector_for(references, req, refs) request_print(req);
 		references_print_check(refs);
@@ -254,14 +304,15 @@ int main(int argc, char **argv) {
 		del_machines();
 		del_str2kw();
 		return 0; }
+		
 	case MAIN_PROC: {
 		machine_t *arch = convert_machine_name(archname);
 		if (!arch) {
-			printf("Error: invalid architecture '%s'\n", archname);
+			log_error_nopos("invalid architecture '%s'\n", archname);
 		}
 		file_t *content = parse_file(arch, in_file, f); // Takes ownership of f
 		if (!content) {
-			printf("Error: failed to parse the file\n");
+			log_error_nopos("failed to parse the file\n");
 			del_machines();
 			del_str2kw();
 			return 0;
@@ -334,7 +385,7 @@ int main(int argc, char **argv) {
 	case MAIN_PREPROC: {
 		machine_t *arch = convert_machine_name(archname);
 		if (!arch) {
-			printf("Error: invalid architecture '%s'\n", archname);
+			log_error_nopos("invalid architecture '%s'\n", archname);
 		}
 		dump_preproc(arch, in_file, f); // Takes ownership of f
 		del_machines();
@@ -342,6 +393,6 @@ int main(int argc, char **argv) {
 		return 0; }
 	}
 	
-	printf("Internal error: failed to run mode %u\n", ms);
+	log_internal_nopos("failed to run mode %u\n", ms);
 	return 2;
 }

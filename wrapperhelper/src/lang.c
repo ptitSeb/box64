@@ -156,44 +156,46 @@ const char *sym2str[LAST_SYM + 1] = {
 };
 
 void preproc_token_print(const preproc_token_t *tok) {
+	printf("Token: ");
+	loginfo_print(&tok->loginfo, 50);
 	switch (tok->tokt) {
 	case PPTOK_INVALID:
-		printf("Token: %7s %hhd (%c)\n", "#INVAL#", tok->tokv.c, (tok->tokv.c >= 0x20) && (tok->tokv.c < 0x7F) ? tok->tokv.c : '?');
+		printf("%7s %hhd (%c)\n", "#INVAL#", tok->tokv.c, (tok->tokv.c >= 0x20) && (tok->tokv.c < 0x7F) ? tok->tokv.c : '?');
 		break;
 	case PPTOK_IDENT:
-		printf("Token: %7s '%s'\n", "IDENT", string_content(tok->tokv.str));
+		printf("%7s '%s'\n", "IDENT", string_content(tok->tokv.str));
 		break;
 	case PPTOK_IDENT_UNEXP:
-		printf("Token: %7s '%s'\n", "IDENT'", string_content(tok->tokv.str));
+		printf("%7s '%s'\n", "IDENT'", string_content(tok->tokv.str));
 		break;
 	case PPTOK_NUM:
-		printf("Token: %7s '%s'\n", "NUM", string_content(tok->tokv.str));
+		printf("%7s '%s'\n", "NUM", string_content(tok->tokv.str));
 		break;
 	case PPTOK_STRING:
-		printf("Token: %7s %c%s%c\n", "STRING",
+		printf("%7s %c%s%c\n", "STRING",
 			tok->tokv.sisstr ? '"' : '\'', string_content(tok->tokv.sstr), tok->tokv.sisstr ? '"' : '\'');
 		break;
 	case PPTOK_INCL:
-		printf("Token: %7s %c%s%c\n", "INCL",
+		printf("%7s %c%s%c\n", "INCL",
 			tok->tokv.sisstr ? '"' : '<', string_content(tok->tokv.sstr), tok->tokv.sisstr ? '"' : '>');
 		break;
 	case PPTOK_SYM:
-		printf("Token: %7s  %-3s (%u)\n", "SYM", sym2str[tok->tokv.sym], tok->tokv.sym);
+		printf("%7s  %-3s (%u)\n", "SYM", sym2str[tok->tokv.sym], tok->tokv.sym);
 		break;
 	case PPTOK_NEWLINE:
-		printf("Token: %7s\n", "NEWLINE");
+		printf("%7s\n", "NEWLINE");
 		break;
 	case PPTOK_BLANK:
-		printf("Token: %7s\n", "\e[2;31m(blank)\e[m");
+		printf("%7s\n", "\e[2;31m(blank)\e[m");
 		break;
 	case PPTOK_START_LINE_COMMENT:
-		printf("Token: %7s\n", "\e[2;31m( // ) \e[m");
+		printf("%7s\n", "\e[2;31m( // ) \e[m");
 		break;
 	case PPTOK_EOF:
-		printf("Token: %7s\n", "EOF");
+		printf("%7s\n", "EOF");
 		break;
 	default:
-		printf("Token: ??? %u\n", tok->tokt);
+		printf("??? %u\n", tok->tokt);
 	}
 }
 
@@ -266,49 +268,51 @@ const char *kw2str[LAST_KEYWORD + 1] = {
 };
 
 void proc_token_print(const proc_token_t *tok) {
+	printf("Token: ");
+	loginfo_print(&tok->loginfo, 50);
 	switch (tok->tokt) {
 	case PTOK_INVALID:
-		printf("Token: %7s %hhd (%c)\n", "#INVAL#", tok->tokv.c, (tok->tokv.c >= 0x20) && (tok->tokv.c < 0x7F) ? tok->tokv.c : '?');
+		printf("%7s %hhd (%c)\n", "#INVAL#", tok->tokv.c, (tok->tokv.c >= 0x20) && (tok->tokv.c < 0x7F) ? tok->tokv.c : '?');
 		break;
 	case PTOK_IDENT:
-		printf("Token: %7s '%s'\n", "IDENT", string_content(tok->tokv.str));
+		printf("%7s '%s'\n", "IDENT", string_content(tok->tokv.str));
 		break;
 	case PTOK_KEYWORD:
-		printf("Token: %7s '%s' (%u)\n", "KEYWORD", kw2str[tok->tokv.kw], tok->tokv.kw);
+		printf("%7s '%s' (%u)\n", "KEYWORD", kw2str[tok->tokv.kw], tok->tokv.kw);
 		break;
 	case PTOK_NUM:
-		printf("Token: %7s '%s'\n", "NUM", string_content(tok->tokv.str));
+		printf("%7s '%s'\n", "NUM", string_content(tok->tokv.str));
 		break;
 	case PTOK_STRING:
-		printf("Token: %7s %c%s%c\n", "STRING",
+		printf("%7s %c%s%c\n", "STRING",
 			tok->tokv.sisstr ? '"' : '\'', string_content(tok->tokv.sstr), tok->tokv.sisstr ? '"' : '\'');
 		break;
 	case PTOK_SYM:
-		printf("Token: %7s  %-3s (%u)\n", "SYM", sym2str[tok->tokv.sym], tok->tokv.sym);
+		printf("%7s  %-3s (%u)\n", "SYM", sym2str[tok->tokv.sym], tok->tokv.sym);
 		break;
 	case PTOK_PRAGMA:
 		switch (tok->tokv.pragma.typ) {
 		case PRAGMA_ALLOW_INTS:
-			printf("Token: %7s Allow ints\n", "PRAGMA");
+			printf("%7s Allow ints\n", "PRAGMA");
 			break;
 		case PRAGMA_SIMPLE_SU:
-			printf("Token: %7s Mark simple: struct or union %s is simple\n", "PRAGMA", string_content(tok->tokv.pragma.val));
+			printf("%7s Mark simple: struct or union %s is simple\n", "PRAGMA", string_content(tok->tokv.pragma.val));
 			break;
 		case PRAGMA_EXPLICIT_CONV:
-			printf("Token: %7s Relaxed explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
+			printf("%7s Relaxed explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
 			break;
 		case PRAGMA_EXPLICIT_CONV_STRICT:
-			printf("Token: %7s Strict explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
+			printf("%7s Strict explicit conversion: destination is %s\n", "PRAGMA", string_content(tok->tokv.pragma.val));
 			break;
 		default:
-			printf("Token: %7s ???\n", "PRAGMA");
+			printf("%7s ??? %u\n", "PRAGMA", tok->tokv.pragma.typ);
 		}
 		break;
 	case PTOK_EOF:
-		printf("Token: %7s\n", "EOF");
+		printf("%7s\n", "EOF");
 		break;
 	default:
-		printf("Token: ??? %u\n", tok->tokt);
+		printf("??? %u\n", tok->tokt);
 	}
 }
 
@@ -356,26 +360,26 @@ khash_t(str2kw) *str2kw;
 
 int init_str2kw(void) {
 	if (!(str2kw = kh_init(str2kw))) {
-		printf("Failed to create the string to keyword map (init)\n");
+		log_memory("failed to create the string to keyword map (init)\n");
 		return 0;
 	}
 	int iret; khiter_t it;
 	for (enum token_keyword_type_e kw = 0; kw <= LAST_KEYWORD; ++kw) {
 		it = kh_put(str2kw, str2kw, kw2str[kw], &iret);
 		if (iret < 0) {
-			printf("Failed to create the string to keyword map (keyword %u)\n", kw);
+			log_memory("failed to create the string to keyword map (keyword %u)\n", kw);
 			kh_destroy(str2kw, str2kw);
 			return 0;
 		}
 		kh_val(str2kw, it) = kw;
 	}
 #define ADD_ALIAS(alias, k) \
-	it = kh_put(str2kw, str2kw, #alias, &iret);                                            \
-	if (iret < 0) {                                                                        \
-		printf("Failed to create the string to keyword map (keyword alias " #alias ")\n"); \
-		kh_destroy(str2kw, str2kw);                                                        \
-		return 0;                                                                          \
-	}                                                                                      \
+	it = kh_put(str2kw, str2kw, #alias, &iret);                                                \
+	if (iret < 0) {                                                                            \
+		log_memory("failed to create the string to keyword map (keyword alias " #alias ")\n"); \
+		kh_destroy(str2kw, str2kw);                                                            \
+		return 0;                                                                              \
+	}                                                                                          \
 	kh_val(str2kw, it) = KW_ ## k;
 	ADD_ALIAS(__alignof__,   ALIGNOF)
 	// ADD_ALIAS(__asm,         asm)
@@ -404,8 +408,8 @@ void del_str2kw(void) {
 	kh_destroy(str2kw, str2kw);
 }
 
-// ptr_is_32bits is actially long_is_32bits
-int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits) {
+// ptr_is_32bits is actually long_is_32bits
+int num_constant_convert(loginfo_t *li, string_t *str, num_constant_t *cst, int ptr_is_32bits) {
 	if (string_len(str) == 0) return 0; // Should never happen
 #define contains(c) strchr(string_content(str), c)
 	if (contains('.')
@@ -430,10 +434,10 @@ int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits) 
 			ok = (endc == string_end(str));
 		}
 		if (!ok) {
-			printf("Error: '%s' is not a valid number\n", string_content(str));
+			log_error(li, "'%s' is not a valid number\n", string_content(str));
 			return 0;
 		} else if (errno == ERANGE) {
-			printf("Warning: floating point constant is too large\n");
+			log_warning(li, "floating point constant is too large\n");
 			return 1;
 		}
 		return 1;
@@ -451,14 +455,14 @@ int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits) 
 	remove_suffix:
 		if ((string_content(str)[endidx - 1] == 'l') || (string_content(str)[endidx - 1] == 'L')) {
 			if (suffix_type & SUFFIX_SZ) {
-				printf("Error: '%s' is not a valid number (invalid suffix)\n", string_content(str));
+				log_error(li, "'%s' is not a valid number (invalid suffix)\n", string_content(str));
 				return 0;
 			}
 			if (endidx == 1) return 0; // Should never happen
 			if ((string_content(str)[endidx - 2] == 'l') || (string_content(str)[endidx - 2] == 'L')) {
 				if (endidx == 2) return 0; // Should never happen
 				if (string_content(str)[endidx - 2] != string_content(str)[endidx - 1]) {
-					printf("Error: '%s' is not a valid number (invalid suffix)\n", string_content(str));
+					log_error(li, "'%s' is not a valid number (invalid suffix)\n", string_content(str));
 					return 0;
 				}
 				endidx -= 2;
@@ -471,7 +475,7 @@ int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits) 
 		}
 		if ((string_content(str)[endidx - 1] == 'u') || (string_content(str)[endidx - 1] == 'U')) {
 			if (suffix_type & SUFFIX_SGN) {
-				printf("Error: '%s' is not a valid number (invalid suffix)\n", string_content(str));
+				log_error(li, "'%s' is not a valid number (invalid suffix)\n", string_content(str));
 				return 0;
 			}
 			endidx -= 1;
@@ -480,7 +484,7 @@ int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits) 
 		}
 		// 0u has startidx=0 endidx=1
 		if (endidx <= startidx) {
-			printf("Error: '%s' is not a valid number\n", string_content(str));
+			log_error(li, "'%s' is not a valid number\n", string_content(str));
 		}
 		for (size_t i = startidx; i < endidx; ++i) {
 			if ((string_content(str)[i] >= '0') && (string_content(str)[i] <= ((base == 8) ? '7' : '9'))) {
@@ -490,7 +494,7 @@ int num_constant_convert(string_t *str, num_constant_t *cst, int ptr_is_32bits) 
 			} else if ((base == 16) && (string_content(str)[i] >= 'a') && (string_content(str)[i] <= 'f')) {
 				ret = base * ret + 10 + (unsigned)(string_content(str)[i] - 'a');
 			} else {
-				printf("Error: '%s' is not a valid number\n", string_content(str));
+				log_error(li, "'%s' is not a valid number\n", string_content(str));
 				return 0;
 			}
 		}
@@ -588,6 +592,151 @@ void expr_del(expr_t *e) {
 		break;
 	}
 	free(e);
+}
+
+static void expr_print_aux(expr_t *e, int parent_level) {
+	switch (e->typ) {
+	case ETY_VAR:
+		// Level 0, no parenthesis
+		printf("%s", string_content(e->val.var));
+		break;
+		
+	case ETY_CONST:
+		// Level 0, no parenthesis
+		switch (e->val.cst.typ) {
+		case NCT_FLOAT: printf("%ff", e->val.cst.val.f); break;
+		case NCT_DOUBLE: printf("%f", e->val.cst.val.d); break;
+		case NCT_LDOUBLE: printf("%Lfl", e->val.cst.val.l); break;
+		case NCT_INT32: printf("%d", e->val.cst.val.i32); break;
+		case NCT_UINT32: printf("%uu", e->val.cst.val.u32); break;
+		case NCT_INT64: printf("%ldll", e->val.cst.val.i64); break;
+		case NCT_UINT64: printf("%lullu", e->val.cst.val.u64); break;
+		}
+		break;
+		
+	case ETY_CALL:
+		// Level 1, no parenthesis
+		expr_print_aux(e->val.call.fun, 1);
+		printf("(");
+		for (size_t i = 0; i < e->val.call.nargs; ++i) {
+			expr_print_aux(e->val.call.fun, 15);
+		}
+		printf(")");
+		break;
+		
+	case ETY_ACCESS:
+		// Level 1, no parenthesis
+		expr_print_aux(e->val.access.val, 1);
+		printf(".%s", string_content(e->val.access.member));
+		break;
+		
+	case ETY_PTRACCESS:
+		// Level 1, no parenthesis
+		expr_print_aux(e->val.access.val, 1);
+		printf(".%s", string_content(e->val.access.member));
+		break;
+		
+	case ETY_UNARY: {
+		const char *preop = NULL;
+		switch (e->val.unary.typ) {
+		case UOT_POSTINCR:
+			// Level 1, no parenthesis
+			expr_print_aux(e->val.unary.e, 1);
+			printf("++");
+			break;
+		case UOT_POSTDECR:
+			// Level 1, no parenthesis
+			expr_print_aux(e->val.unary.e, 1);
+			printf("--");
+			break;
+		case UOT_PREINCR: preop = "++"; break;
+		case UOT_PREDECR: preop = "--"; break;
+		case UOT_REF: preop = "&"; break;
+		case UOT_POS: preop = "+"; break;
+		case UOT_NEG: preop = "-"; break;
+		case UOT_DEREF: preop = "*"; break;
+		case UOT_ANOT: preop = "~"; break;
+		case UOT_BNOT: preop = "!"; break;
+		}
+		if (preop) {
+			if (parent_level < 2) printf("(");
+			printf("%s", preop);
+			expr_print_aux(e->val.unary.e, 2);
+			if (parent_level < 2) printf(")");
+		}
+		break; }
+		
+	case ETY_BINARY: {
+		const char *midop, *postop = NULL;
+		int mlevel, llevel, rlevel;
+		switch (e->val.binary.typ) {
+		case BOT_ADD:        mlevel =  5; llevel =  5; rlevel =  4; midop = " + "; break;
+		case BOT_SUB:        mlevel =  5; llevel =  5; rlevel =  4; midop = " - "; break;
+		case BOT_MUL:        mlevel =  4; llevel =  4; rlevel =  3; midop = " * "; break;
+		case BOT_DIV:        mlevel =  4; llevel =  4; rlevel =  3; midop = " / "; break;
+		case BOT_MOD:        mlevel =  4; llevel =  4; rlevel =  3; midop = " % "; break;
+		case BOT_LSH:        mlevel =  6; llevel =  6; rlevel =  5; midop = " << "; break;
+		case BOT_RSH:        mlevel =  6; llevel =  6; rlevel =  5; midop = " >> "; break;
+		case BOT_LT:         mlevel =  7; llevel =  7; rlevel =  6; midop = " < "; break;
+		case BOT_GT:         mlevel =  7; llevel =  7; rlevel =  6; midop = " > "; break;
+		case BOT_LE:         mlevel =  7; llevel =  7; rlevel =  6; midop = " <= "; break;
+		case BOT_GE:         mlevel =  7; llevel =  7; rlevel =  6; midop = " >= "; break;
+		case BOT_EQ:         mlevel =  8; llevel =  8; rlevel =  7; midop = " == "; break;
+		case BOT_NE:         mlevel =  8; llevel =  8; rlevel =  7; midop = " != "; break;
+		case BOT_AAND:       mlevel =  9; llevel =  9; rlevel =  8; midop = " & "; break;
+		case BOT_AXOR:       mlevel = 10; llevel = 10; rlevel =  9; midop = " ^ "; break;
+		case BOT_AOR:        mlevel = 11; llevel = 11; rlevel = 10; midop = " | "; break;
+		case BOT_BAND:       mlevel = 12; llevel = 12; rlevel = 11; midop = " && "; break;
+		case BOT_BOR:        mlevel = 13; llevel = 13; rlevel = 12; midop = " || "; break;
+		case BOT_ASSGN_EQ:   mlevel = 15; llevel =  2; rlevel = 15; midop = " = "; break;
+		case BOT_ASSGN_ADD:  mlevel = 15; llevel =  2; rlevel = 15; midop = " += "; break;
+		case BOT_ASSGN_SUB:  mlevel = 15; llevel =  2; rlevel = 15; midop = " -= "; break;
+		case BOT_ASSGN_MUL:  mlevel = 15; llevel =  2; rlevel = 15; midop = " *= "; break;
+		case BOT_ASSGN_DIV:  mlevel = 15; llevel =  2; rlevel = 15; midop = " /= "; break;
+		case BOT_ASSGN_MOD:  mlevel = 15; llevel =  2; rlevel = 15; midop = " %= "; break;
+		case BOT_ASSGN_LSH:  mlevel = 15; llevel =  2; rlevel = 15; midop = " <<= "; break;
+		case BOT_ASSGN_RSH:  mlevel = 15; llevel =  2; rlevel = 15; midop = " >>= "; break;
+		case BOT_ASSGN_AAND: mlevel = 15; llevel =  2; rlevel = 15; midop = " &= "; break;
+		case BOT_ASSGN_AXOR: mlevel = 15; llevel =  2; rlevel = 15; midop = " ^= "; break;
+		case BOT_ASSGN_AOR:  mlevel = 15; llevel =  2; rlevel = 15; midop = " |= "; break;
+		case BOT_COMMA:      mlevel = 16; llevel = 16; rlevel = 15; midop = ", "; break;
+		case BOT_ARRAY:      mlevel =  1; llevel =  1; rlevel = 16; midop = "["; postop = "]"; break;
+		default: mlevel = 17; llevel = rlevel = -1; midop = " ? "; break;
+		}
+		if (parent_level < mlevel) printf("(");
+		expr_print_aux(e->val.binary.e1, llevel);
+		printf("%s", midop);
+		expr_print_aux(e->val.binary.e2, rlevel);
+		if (postop) printf("%s", midop);
+		if (parent_level < mlevel) printf(")");
+		break; }
+		
+	case ETY_TERNARY:
+		switch (e->val.ternary.typ) {
+		case TOT_COND:
+			if (parent_level < 15) printf("(");
+			expr_print_aux(e->val.ternary.e1, 14);
+			printf(" ? ");
+			expr_print_aux(e->val.ternary.e2, 16);
+			expr_print_aux(e->val.ternary.e2, 15);
+			printf(" : ");
+			if (parent_level < 15) printf(")");
+			break;
+		}
+		break;
+		
+	case ETY_CAST:
+		if (parent_level < 3) printf("(");
+		printf("(");
+		type_print(e->val.cast.typ);
+		printf(")");
+		expr_print(e->val.cast.e);
+		if (parent_level < 3) printf(")");
+		break;
+	}
+}
+void expr_print(expr_t *e) {
+	return expr_print_aux(e, 16);
 }
 
 void struct_del_weak(struct_t *st) {
@@ -701,7 +850,7 @@ void struct_map_del(khash_t(struct_map) *map) {
 type_t *type_new(void) {
 	type_t *ret = malloc(sizeof *ret);
 	if (!ret) {
-		printf("Failed to create a new type\n");
+		log_memory("failed to create a new type\n");
 		return NULL;
 	}
 	ret->szinfo.align = ret->szinfo.size = 0;
@@ -715,7 +864,7 @@ type_t *type_new(void) {
 type_t *type_new_ptr(type_t *target) {
 	type_t *ret = malloc(sizeof *ret);
 	if (!ret) {
-		printf("Failed to create a new pointer type\n");
+		log_memory("failed to create a new pointer type\n");
 		return NULL;
 	}
 	ret->szinfo.align = ret->szinfo.size = 0;
@@ -755,7 +904,7 @@ int type_copy_into(type_t *dest, const type_t *ref) {
 			}
 			type_t **args = malloc(sizeof *args * ref->val.fun.nargs);
 			if (!args) {
-				printf("Error: failed to allocate new argument array\n");
+				log_memory("failed to allocate new argument array\n");
 				return 0;
 			}
 			for (size_t i = 0; i < ref->val.fun.nargs; ++i) {
@@ -777,7 +926,7 @@ int type_copy_into(type_t *dest, const type_t *ref) {
 struct_t *struct_new(int is_struct, string_t *tag) {
 	struct_t *ret = malloc(sizeof *ret);
 	if (!ret) {
-		printf("Failed to create a new struct\n");
+		log_memory("Error: failed to create a new struct\n");
 		return NULL;
 	}
 	ret->is_struct = is_struct;
@@ -785,6 +934,7 @@ struct_t *struct_new(int is_struct, string_t *tag) {
 	ret->is_defined = 0;
 	ret->is_simple = 0;
 	ret->nrefs = 1;
+	ret->has_self_recursion = 0; // Undefined structures cannot have self recursion
 	return ret;
 }
 
@@ -831,7 +981,7 @@ int type_t_equal_aux(type_t *typ1, type_t *typ2, int is_strict) {
 		if (!typ1->val.st->tag != !typ2->val.st->tag) return 0;
 		if (typ1->val.st->tag) return !strcmp(string_content(typ1->val.st->tag), string_content(typ2->val.st->tag));
 		if (!typ1->val.st->is_defined || !typ2->val.st->is_defined) {
-			printf("Warning: incomplete anonymous structure/union\n");
+			log_warning_nopos("comparing against incomplete anonymous structure/union\n");
 			return 0;
 		}
 		if (typ1->val.st->nmembers != typ2->val.st->nmembers) return 0;
@@ -872,7 +1022,7 @@ type_t *type_try_merge(type_t *typ, khash_t(type_set) *set) {
 	int iret;
 	khiter_t it = kh_put(type_set, set, typ, &iret);
 	if (iret < 0) {
-		printf("Error: failed to add type to type_set\n");
+		log_memory("Error: failed to add type to type_set\n");
 		return NULL;
 	} else if (iret == 0) {
 		if (typ == kh_key(set, it)) return typ;
@@ -1030,11 +1180,12 @@ void struct_print(const struct_t *st) {
 	}
 	if (st->is_defined) {
 		printf(
-			"%s %s <with %zu members%s> { ",
+			"%s %s <with %zu members%s%s> { ",
 			st->is_struct ? "struct" : "union",
 			st->tag ? string_content(st->tag) : "<no tag>",
 			st->nmembers,
-			st->has_incomplete ? ", with incomplete" : "");
+			st->has_incomplete ? ", with incomplete" : "",
+			st->has_self_recursion ? ", with self-recursion" : "");
 		for (size_t i = 0; i < st->nmembers; ++i) {
 			if (i) printf(", ");
 			type_print(st->members[i].typ);
@@ -1052,29 +1203,29 @@ void struct_print(const struct_t *st) {
 file_t *file_new(machine_t *target) {
 	file_t *ret = malloc(sizeof *ret);
 	if (!ret) {
-		printf("Failed to create a new translation unit structure (init)\n");
+		log_memory("failed to create a new translation unit structure (init)\n");
 		return NULL;
 	}
 	if (!(ret->struct_map = kh_init(struct_map))) {
-		printf("Failed to create a new translation unit structure (structure map)\n");
+		log_memory("failed to create a new translation unit structure (structure map)\n");
 		free(ret);
 		return NULL;
 	}
 	if (!(ret->type_map = kh_init(type_map))) {
-		printf("Failed to create a new translation unit structure (type map)\n");
+		log_memory("failed to create a new translation unit structure (type map)\n");
 		kh_destroy(struct_map, ret->struct_map);
 		free(ret);
 		return NULL;
 	}
 	if (!(ret->enum_map = kh_init(type_map))) {
-		printf("Failed to create a new translation unit structure (enumeration map)\n");
+		log_memory("failed to create a new translation unit structure (enumeration map)\n");
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
 		free(ret);
 		return NULL;
 	}
 	if (!(ret->decl_map = kh_init(decl_map))) {
-		printf("Failed to create a new translation unit structure (declaration map)\n");
+		log_memory("failed to create a new translation unit structure (declaration map)\n");
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
 		kh_destroy(type_map, ret->enum_map);
@@ -1082,7 +1233,7 @@ file_t *file_new(machine_t *target) {
 		return NULL;
 	}
 	if (!(ret->type_set = kh_init(type_set))) {
-		printf("Failed to create a new translation unit structure (type set)\n");
+		log_memory("failed to create a new translation unit structure (type set)\n");
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
 		kh_destroy(type_map, ret->enum_map);
@@ -1091,7 +1242,7 @@ file_t *file_new(machine_t *target) {
 		return NULL;
 	}
 	if (!(ret->const_map = kh_init(const_map))) {
-		printf("Failed to create a new translation unit structure (const map)\n");
+		log_memory("failed to create a new translation unit structure (const map)\n");
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
 		kh_destroy(type_map, ret->enum_map);
@@ -1101,7 +1252,7 @@ file_t *file_new(machine_t *target) {
 		return NULL;
 	}
 	if (!(ret->relaxed_type_conversion = kh_init(conv_map))) {
-		printf("Failed to create a new translation unit structure (relaxed type conversion map)\n");
+		log_memory("failed to create a new translation unit structure (relaxed type conversion map)\n");
 		kh_destroy(struct_map, ret->struct_map);
 		kh_destroy(type_map, ret->type_map);
 		kh_destroy(type_map, ret->enum_map);
@@ -1117,7 +1268,7 @@ file_t *file_new(machine_t *target) {
 	for (enum type_builtin_e i = 0; i < LAST_BUILTIN + 1; ++i) {
 		type_t *t = type_new();
 		if (!t) {
-			printf("Failed to create a new translation unit structure (builtin type)\n");
+			log_memory("failed to create a new translation unit structure (builtin type)\n");
 			for (; i--;) {
 				free(ret->builtins[i]);
 			}
@@ -1135,11 +1286,14 @@ file_t *file_new(machine_t *target) {
 		t->nrefs = 2;
 		t->typ = TYPE_BUILTIN;
 		t->val.builtin = i;
-		validate_type(target, t);
+		if (!target->has_int128 && ((i == BTT_INT128) || (i == BTT_SINT128) || (i == BTT_UINT128))) {
+			t->converted = string_new_cstr("<invalid int128>");
+		}
+		validate_type(&(loginfo_t){0}, target, t);
 		ret->builtins[i] = t;
 		kh_put(type_set, ret->type_set, t, &iret);
 		if (iret < 0) {
-			printf("Failed to create a new translation unit structure (failed to add intrinsic type to type_set)\n");
+			log_memory("failed to create a new translation unit structure (failed to add intrinsic type to type_set)\n");
 			kh_destroy(struct_map, ret->struct_map);
 			kh_destroy(type_map, ret->type_map);
 			kh_destroy(conv_map, ret->relaxed_type_conversion);
@@ -1150,7 +1304,7 @@ file_t *file_new(machine_t *target) {
 			free(ret);
 			return NULL;
 		} else if (iret == 0) {
-			printf("Failed to create a new translation unit structure (duplicate intrinsic type in type_set)\n");
+			log_memory("failed to create a new translation unit structure (duplicate intrinsic type in type_set)\n");
 			for (++i; i--;) {
 				free(ret->builtins[i]);
 			}
@@ -1167,32 +1321,34 @@ file_t *file_new(machine_t *target) {
 	}
 	// ret is valid and can now be deleted by file_del
 	
-	// Add __builtin_va_list, __int128_t, __uint128_t as typedef
+	// Add __builtin_va_list, __int128_t, __uint128_t as builtin typedef
 	char *sdup;
 #define ADD_TYPEDEF(name, btt) \
-	sdup = strdup(#name);                                                                               \
-		if (!sdup) {                                                                                        \
-			printf("Failed to create a new translation unit structure (" #name " name)\n");                 \
-			file_del(ret);                                                                                  \
-			return NULL;                                                                                    \
-		}                                                                                                   \
-		it = kh_put(type_map, ret->type_map, sdup, &iret);                                                  \
-		if (iret < 0) {                                                                                     \
-			printf("Failed to create a new translation unit structure (add " #name " typedef)\n");          \
-			free(sdup);                                                                                     \
-			file_del(ret);                                                                                  \
-			return NULL;                                                                                    \
-		} else if (iret == 0) {                                                                             \
-			printf("Failed to create a new translation unit structure (" #name " is already a typedef)\n"); \
-			free(sdup);                                                                                     \
-			file_del(ret);                                                                                  \
-			return NULL;                                                                                    \
-		}                                                                                                   \
-		kh_val(ret->type_map, it) = ret->builtins[BTT_ ## btt];                                             \
+		sdup = strdup(#name);                                                                                   \
+		if (!sdup) {                                                                                            \
+			log_memory("failed to create a new translation unit structure (" #name " name)\n");                 \
+			file_del(ret);                                                                                      \
+			return NULL;                                                                                        \
+		}                                                                                                       \
+		it = kh_put(type_map, ret->type_map, sdup, &iret);                                                      \
+		if (iret < 0) {                                                                                         \
+			log_memory("failed to create a new translation unit structure (add " #name " typedef)\n");          \
+			free(sdup);                                                                                         \
+			file_del(ret);                                                                                      \
+			return NULL;                                                                                        \
+		} else if (iret == 0) {                                                                                 \
+			log_memory("failed to create a new translation unit structure (" #name " is already a typedef)\n"); \
+			free(sdup);                                                                                         \
+			file_del(ret);                                                                                      \
+			return NULL;                                                                                        \
+		}                                                                                                       \
+		kh_val(ret->type_map, it) = ret->builtins[BTT_ ## btt];                                                 \
 		++ret->builtins[BTT_ ## btt]->nrefs;
 	ADD_TYPEDEF(__builtin_va_list, VA_LIST)
-	ADD_TYPEDEF(__int128_t, INT128)
-	ADD_TYPEDEF(__uint128_t, UINT128)
+	if (target->has_int128) {
+		ADD_TYPEDEF(__int128_t, INT128)
+		ADD_TYPEDEF(__uint128_t, UINT128)
+	}
 	
 	return ret;
 }

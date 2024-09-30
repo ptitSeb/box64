@@ -25,7 +25,9 @@ To use the wrapper helper, run the following command in the folder containing th
 bin/wrapperhelper -I/path/to/system/include "path_to_support_file" "path_to_private.h" "path_to_private.h"
 ```
 
-You may add as many `-I` options as needed.
+You may add as many `-I` options as needed. The folders `include-override/<arch>` and `include-override/common` are always prioritized, as if they appeared first in the command line.
+
+You may also use the `-32` and `-64` switches to generate `box32` or `box64` files respectively. Alterately, you can use the `--emu arch` and `--target arch` options to select more precisely the emlated and executing platforms, though only `x86`, `x86_64` and `aarch64` are supported for now. By default, everything is as if `-64` was supplied.
 
 The first file is a `C` file containing every declaration required. The second file is the "requests" input. The third file is the output file, which may be a different file.
 
@@ -100,30 +102,25 @@ The reading and writing of the `_private.h` files is implemented in `generator.c
 
 ## Known issues
 
-This project only works for `box64`; more work is required for this to be compatible with `box32`.
-
 Only native structures are read. This means that the current version of `wrapperhelper` does not detect an issue when a structure has different members or alignments in two different architectures.
 
 No checking of signatures under `#ifdef`s is made.
 
-Line numbers are missing entirely. For most errors, the corresponding file is not written with the error message.
-
 Phase 5 is partially implemented, but could be greatly improved.
 
 The following features are missing from the generator:
-- Large structures as a parameter
-- Large structure as a return type (more than 16 bytes)
+- Structures with at least two elements as a parameter
+- Large structure as a return type (more than 16 bytes on 64bits, or 8 bytes on 32bits)
 - Atomic types
 
 The following features are missing from the preprocessor:
 - General token concatenation (though the concatenation of two `PTOK_IDENT` works without issue)
 - Stringify
 - Skipped unexpected token warnings
-- Proper out-of-memory error handling
 
 The following features are missing from the parser:
-- `_Atomic(type-name)`
 - `_Alignas(type-name)` and `_Alignas(constant-expression)`
 - `(type-name){initializer-list}`
 - Old style function declarations
 - Function definitions are ignored, not parsed
+- Attributes are ignored everywhere (with a  `#define __attribute__(_)`)
