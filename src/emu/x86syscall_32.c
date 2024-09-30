@@ -149,6 +149,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 240, __NR_futex, 6 },   // needs wrapping for the optionnal timespec part
     //{ 241, __NR_sched_setaffinity, 3 },
     //{ 242, __NR_sched_getaffinity, 3 },
+    //{ 243, __NR_set_thread_area, 1 },
     //{ 252, __NR_exit_group, 1 },
     //{ 254, __NR_epoll_create, 1 },
     //{ 255, __NR_epoll_ctl, 4 },
@@ -243,13 +244,14 @@ struct i386_robust_list_head {
         ptr_t  list_op_pending; // struct robust_list *
 };
 
-
+typedef struct i386_stack_s i386_stack_t;
 
 int32_t my32_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 int32_t my32_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 ssize_t my32_read(int fd, void* buf, size_t count);
 void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int64_t offset);
 int my32_munmap(x64emu_t* emu, void* addr, unsigned long length);
+int my32_sigaltstack(x64emu_t* emu, const i386_stack_t* ss, i386_stack_t* oss);
 
 void EXPORT x86Syscall(x64emu_t *emu)
 {
@@ -320,6 +322,11 @@ void EXPORT x86Syscall(x64emu_t *emu)
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
             break;*/
+        case 186:   // sigaltstack
+            S_EAX = my32_sigaltstack(emu, from_ptrv(R_EBX), from_ptrv(R_ECX));
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
+            break;
         case 192:   // mmap2
             R_EAX = to_ptrv(my32_mmap64(emu, from_ptrv(R_EBX), (unsigned long)R_ECX, R_EDX, R_ESI, R_EDI, R_EBP));
             break;
@@ -491,6 +498,8 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
         case 174:   // sys_rt_sigaction
             return (uint32_t)my32_sigaction(emu, i32(4), (x86_sigaction_t*)p(8), (x86_sigaction_t*)p(12));
 #endif
+        case 186:   // sigaltstack
+            return my32_sigaltstack(emu, p(4), p(8));
         case 192:   // mmap2
             return to_ptrv(my32_mmap64(emu, p(4), u32(8), i32(12), i32(16), i32(20), u32(24)));
         case 240: // futex
@@ -523,9 +532,9 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                 return syscall(__NR_futex,  p(4), i32(8), u32(12), need_tspec?(&tspec):p(16), p(20), u32(24));
             }
             break;
-#if 0
         case 243: // set_thread_area
-            return my32_set_thread_area((thread_area_t*)p(4));
+            return my_set_thread_area_32(emu, (thread_area_32_t*)p(4));
+#if 0
         case 254: // epoll_create
             return my32_epoll_create(emu, i32(4));
         case 255: // epoll_ctl
