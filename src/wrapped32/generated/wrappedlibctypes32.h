@@ -21,6 +21,7 @@ typedef int32_t (*iFO_t)(int32_t);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint32_t (*uFS_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
+typedef intptr_t (*lFi_t)(int32_t);
 typedef intptr_t (*lFp_t)(void*);
 typedef intptr_t (*lFV_t)(...);
 typedef intptr_t (*lFS_t)(void*);
@@ -103,6 +104,8 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(__close_nocancel, iFi_t) \
 	GO(sysinfo, iFp_t) \
 	GO(getwc, uFS_t) \
+	GO(__sysconf, lFi_t) \
+	GO(sysconf, lFi_t) \
 	GO(atol, lFp_t) \
 	GO(ftell, lFS_t) \
 	GO(__ctype_b_loc, pFv_t) \

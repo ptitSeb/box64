@@ -55,7 +55,6 @@
 #() dFd -> dFd
 #() dFp -> dFp
 #() lFv -> lFv
-#() lFi -> lFi
 #() lFu -> lFu
 #() lFl -> lFl
 #() lFp -> lFp
@@ -188,6 +187,7 @@
 #() dFdp -> dFdp
 #() dFll -> dFll
 #() dFpp -> dFpp
+#() lFEi -> lFEi
 #() lFEV -> lFEV
 #() lFES -> lFES
 #() lFii -> lFii
@@ -1177,6 +1177,9 @@ wrappedlibc:
 - uFS:
   - getwc
 - UFp:
+- lFi:
+  - __sysconf
+  - sysconf
 - lFp:
   - atol
 - lFV:

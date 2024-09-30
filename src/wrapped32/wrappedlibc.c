@@ -1658,6 +1658,23 @@ EXPORT FILE* my32_fopen64(x64emu_t* emu, const char* path, const char* mode)
     return fopen64(path, mode);
 }
 
+#ifndef _SC_NPROCESSORS_ONLN
+#define _SC_NPROCESSORS_ONLN    84
+#endif 
+#ifndef _SC_NPROCESSORS_CONF
+#define _SC_NPROCESSORS_CONF    83
+#endif 
+EXPORT long my32_sysconf(x64emu_t* emu, int what) {
+    if(what==_SC_NPROCESSORS_ONLN) {
+        return getNCpu();
+    }
+    if(what==_SC_NPROCESSORS_CONF) {
+        return getNCpu();
+    }
+    return sysconf(what);
+}
+EXPORT long my32___sysconf(x64emu_t* emu, int what) __attribute__((alias("my32_sysconf")));
+
 #if 0
 EXPORT int my32_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
 {

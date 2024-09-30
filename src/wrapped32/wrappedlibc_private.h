@@ -1768,8 +1768,8 @@ GO(sync, vFv)
 GO(syncfs, iFi)
 // sync_file_range
 GOM(syscall, lFEV) //%%
-GOW(sysconf, lFi)
-GO(__sysconf, lFi)
+GOWM(sysconf, lFEi)
+GOM(__sysconf, lFEi)
 // sysctl   // Weak
 //GO(__sysctl, iFp)
 //DATA(_sys_errlist, 4)
