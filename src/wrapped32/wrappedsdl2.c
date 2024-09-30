@@ -81,12 +81,13 @@ typedef void (*vFiupV_t)(int, uint32_t, void*, va_list);
 
 // eventfilter
 #define GO(A)   \
-static uintptr_t my_eventfilter_fct_##A = 0;                                    \
-static int my_eventfilter_##A(void* userdata, void* event)                      \
-{                                                                               \
-    static my_SDL2_Event_32_t evt = {0};                                        \
-    convert_SDL2_Event_to_32(&evt, event);                                      \
-    return (int)RunFunctionFmt(my_eventfilter_fct_##A, "pp", userdata, &evt);   \
+static uintptr_t my_eventfilter_fct_##A = 0;                                            \
+static my_SDL2_Event_32_t event_##A = {0};                                              \
+static int my_eventfilter_##A(void* userdata, void* event)                              \
+{                                                                                       \
+    convert_SDL2_Event_to_32(&event_##A, event);                                        \
+    int ret = (int)RunFunctionFmt(my_eventfilter_fct_##A, "pp", userdata, &event_##A);  \
+    return ret;                                                                         \
 }
 SUPER()
 #undef GO
