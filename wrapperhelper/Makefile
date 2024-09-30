@@ -232,6 +232,7 @@ $(eval $(call compile_wrapperhelper_c,,parse,parse))
 $(eval $(call compile_wrapperhelper_c,,prepare,prepare))
 $(eval $(call compile_wrapperhelper_c,,preproc,preproc))
 $(eval $(call compile_wrapperhelper_c,,vector,vector))
+$(eval $(call compile_wrapperhelper_c,,log,log))
 $(call wrapperhelper_o,,machine,machine): src/machine.gen
 $(call wrapperhelper_o,,preproc,preproc): CFLAGS+= -fno-analyzer
 $(call wrapperhelper_o,,parse,parse): CFLAGS+= -fno-analyzer

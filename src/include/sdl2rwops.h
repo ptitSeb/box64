@@ -2,6 +2,9 @@
 #define __SDL2RWOPS_H__
 
 typedef struct SDL2_RWops_s SDL2_RWops_t;   // the actual SDL2 SDL_RWops
+#ifdef BOX32
+typedef struct my_SDL2_RWops_32_s my_SDL2_RWops_32_t;
+#endif
 typedef struct x64emu_s x64emu_t;
 
 typedef SDL2_RWops_t* (*sdl2_allocrw)(void);
@@ -23,6 +26,9 @@ SDL2_RWops_t* AddNativeRW2(x64emu_t* emu, SDL2_RWops_t* ops);
 SDL2_RWops_t* RWNativeStart2(x64emu_t* emu, SDL2_RWops_t* ops); // put native RW functions, wrapping the emulated (callback style) ones if needed
 void RWNativeEnd2(SDL2_RWops_t* ops);                           // put emulated function back in place
 int isRWops(SDL2_RWops_t* ops); // 1 if ops seems to be a valid RWops, 0 if not
+#ifdef BOX32
+int isRWops32(my_SDL2_RWops_32_t* ops);
+#endif
 
 int64_t RWNativeSeek2(SDL2_RWops_t *ops, int64_t offset, int32_t whence);
 int64_t RWNativeSize2(SDL2_RWops_t *ops);

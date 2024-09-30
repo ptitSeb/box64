@@ -868,14 +868,14 @@ typedef struct my_SDL2_RWops_s {
     void* hidden[3];
 } my_SDL2_RWops_t;
 
-typedef struct __attribute__((packed)) my_SDL2_RWops_32_s {
+typedef struct my_SDL2_RWops_32_s {
     ptr_t size;
     ptr_t seek;
     ptr_t read;
     ptr_t write;
     ptr_t close;
     uint32_t type;
-    void* hidden[3]; // not converting hidden, just moving it
+    ptr_t hidden[3]; // not converting hidden, just moving it
 } my_SDL2_RWops_32_t;
 
 void inplace_SDL2_DisplayMode_to_64(void* a);

@@ -322,6 +322,26 @@ int isRWops(SDL2_RWops_t* ops)
         return 0;
     return 1;
 }
+#ifdef BOX32
+int isRWops32(my_SDL2_RWops_32_t* ops)
+{
+    if(!ops)
+        return 0;
+    #define GO(A, W)      \
+    if(!ops->A || (uintptr_t)ops->A < 0x1000) return 0;
+
+    SUPER()
+
+    #undef GO
+    // check if all then hidden content is just full of 0
+    if(ops->hidden[0]==0 && ops->hidden[1]==0 && ops->hidden[2]==0)
+        return 0;
+    // check the type (not sure it's a good check here)
+    if (ops->type>5 && ops->type!=BOX64RW)
+        return 0;
+    return 1;
+}
+#endif
 
 int64_t RWNativeSeek2(SDL2_RWops_t *ops, int64_t offset, int32_t whence)
 {

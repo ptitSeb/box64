@@ -610,6 +610,7 @@
 #() LFXCii -> LFXCii
 #() LFXLpi -> LFXLpi
 #() pFEupp -> pFEupp
+#() pFEpip -> pFEpip
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
 #() pFEXpL -> pFEXpL
@@ -770,6 +771,7 @@
 #() LFpLppa -> LFpLppa
 #() LFXLuuu -> LFXLuuu
 #() LFXLpuu -> LFXLpuu
+#() pFEppip -> pFEppip
 #() pFEXipp -> pFEXipp
 #() pFuiupp -> pFuiupp
 #() pFpiiuu -> pFpiiuu
@@ -1756,6 +1758,31 @@ wrappedsdl2:
 - pFuiiiuuuu:
   - SDL_CreateRGBSurface
 % JFEi -> pFEpi
+wrappedsdl2image:
+- pFp:
+  - IMG_LoadBMP_RW
+  - IMG_LoadCUR_RW
+  - IMG_LoadGIF_RW
+  - IMG_LoadICO_RW
+  - IMG_LoadJPG_RW
+  - IMG_LoadLBM_RW
+  - IMG_LoadPCX_RW
+  - IMG_LoadPNG_RW
+  - IMG_LoadPNM_RW
+  - IMG_LoadTGA_RW
+  - IMG_LoadTIF_RW
+  - IMG_LoadWEBP_RW
+  - IMG_LoadXCF_RW
+  - IMG_LoadXPM_RW
+  - IMG_LoadXV_RW
+- pFpi:
+  - IMG_Load_RW
+- pFpip:
+  - IMG_LoadTyped_RW
+- pFppi:
+  - IMG_LoadTexture_RW
+- pFppip:
+  - IMG_LoadTextureTyped_RW
 wrappedtcmallocminimal:
 - pFp:
 - iFpL:
