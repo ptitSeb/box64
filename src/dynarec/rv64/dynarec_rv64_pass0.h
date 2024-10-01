@@ -30,7 +30,8 @@
         dyn->e.olds[i].v = 0;                                    \
     dyn->insts[ninst].f_entry = dyn->f;                          \
     dyn->insts[ninst].vector_sew_entry = dyn->vector_sew;        \
-    dyn->inst_sew = VECTOR_SEWNA;                                \
+    dyn->inst_sew = dyn->vector_sew;                             \
+    dyn->inst_vlmul = VECTOR_LMUL1;                              \
     dyn->inst_vl = 0;                                            \
     if (ninst)                                                   \
         dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;

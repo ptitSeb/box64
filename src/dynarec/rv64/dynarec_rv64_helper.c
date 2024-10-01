@@ -2606,17 +2606,11 @@ int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, f
 {
     if (sew == VECTOR_SEWNA) return VECTOR_SEW8;
     if (sew == VECTOR_SEWANY) sew = VECTOR_SEW8;
-    /* mu:   mask undisturbed
-     * tu:   tail undisturbed
-     * sew:  selected element width
-     * lmul: vector register group multiplier
-     *
-     *                    mu            tu          sew      lmul */
-    uint32_t vtypei = (0b0 << 7) | (0b0 << 6) | (sew << 3) | vlmul;
-    uint32_t vl = (int)((float)(16 >> sew) * multiple);
 
+    uint32_t vl = (int)((float)(16 >> sew) * multiple);
+    uint32_t vtypei = (sew << (3 - !!rv64_xtheadvector)) | vlmul;
     if (dyn->inst_sew == VECTOR_SEWNA || dyn->inst_vl == 0 || dyn->inst_sew != sew || dyn->inst_vl != vl) {
-        if (vl <= 31) {
+        if (vl <= 31 && !rv64_xtheadvector) {
             VSETIVLI(xZR, vl, vtypei);
         } else {
             ADDI(s1, xZR, vl);
@@ -2625,5 +2619,96 @@ int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, f
     }
     dyn->inst_sew = sew;
     dyn->inst_vl = vl;
+    dyn->inst_vlmul = vlmul;
     return sew;
+}
+
+void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int s1, float multiple)
+{
+#if STEP > 1
+    uint8_t sew = dyn->inst_sew;
+    uint8_t vlmul = dyn->inst_vlmul;
+    if (rv64_xtheadvector) {
+        if (sew == VECTOR_SEW64 && vlmul == VECTOR_LMUL1) {
+            switch (imm) {
+                case 0:
+                    VXOR_VV(vreg, vreg, vreg, VECTOR_UNMASKED);
+                    return;
+                case 1:
+                    ADDI(s1, xZR, 1);
+                    VMV_S_X(vreg, s1);
+                    return;
+                case 2:
+                    int scratch = fpu_get_scratch(dyn);
+                    VMV_V_I(scratch, 1);
+                    VSLIDE1UP_VX(vreg, scratch, xZR, VECTOR_UNMASKED);
+                    return;
+                case 3:
+                    VMV_V_I(vreg, 1);
+                    return;
+                default: abort();
+            }
+        } else if ((sew == VECTOR_SEW32 && vlmul == VECTOR_LMUL1) || (sew == VECTOR_SEW64 && vlmul == VECTOR_LMUL2)) {
+            switch (imm) {
+                case 0b0001:
+                    ADDI(s1, xZR, 1);
+                    VMV_S_X(vreg, s1);
+                    return;
+                case 0b1010:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    MOV64x(s1, 0x100000000ULL);
+                    VMV_V_X(vreg, s1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
+                default: abort();
+            }
+        } else if ((sew == VECTOR_SEW16 && vlmul == VECTOR_LMUL1) || (sew == VECTOR_SEW32 && vlmul == VECTOR_LMUL2)) {
+            switch (imm) {
+                case 0b01010101:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    MOV64x(s1, 0x100000001ULL);
+                    VMV_V_X(vreg, s1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
+                case 0b10101010:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    MOV64x(s1, 0x1000000010000ULL);
+                    VMV_V_X(vreg, s1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
+                default: abort();
+            }
+        } else if ((sew == VECTOR_SEW8 && vlmul == VECTOR_LMUL1) || (sew == VECTOR_SEW16 && vlmul == VECTOR_LMUL2)) {
+            switch (imm) {
+                case 0b0000000011111111:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    MOV64x(s1, 0xFFFFFFFFFFFFFFFFULL);
+                    VMV_S_X(vreg, s1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
+                case 0b0101010101010101:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    MOV64x(s1, 0x0001000100010001ULL);
+                    VMV_V_X(vreg, s1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
+                case 0b1010101010101010:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    MOV64x(s1, 0x0100010001000100ULL);
+                    VMV_V_X(vreg, s1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
+                default: abort();
+            }
+        } else
+            abort();
+    } else {
+        if (imm <= 0xF && (dyn->vector_eew == VECTOR_SEW32 || dyn->vector_eew == VECTOR_SEW64)) {
+            VMV_V_I(vreg, imm);
+        } else {
+            MOV64x(s1, imm);
+            VMV_V_X(vreg, s1);
+        }
+    }
+#endif
 }

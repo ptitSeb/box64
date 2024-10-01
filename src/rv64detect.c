@@ -68,11 +68,17 @@ void RV64_Detect_Function()
     BR(xRA);
     rv64_zbs = Check(my_block);
 
-    // Test Vector v1.0 with CSRR zero, vcsr
     block = (uint32_t*)my_block;
-    CSRRS(xZR, xZR, 0x00f);
+    CSRRS(xZR, xZR, 0xc22 /* vlenb */);
     BR(xRA);
     rv64_vector = Check(my_block);
+
+    if (rv64_vector) {
+        block = (uint32_t*)my_block;
+        CSRRS(xZR, xZR, 0x00f /* vcsr */); // vcsr does not exists in xtheadvector
+        BR(xRA);
+        rv64_xtheadvector = !Check(my_block);
+    }
 
     if (rv64_vector) {
         int vlenb = 0;

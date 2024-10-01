@@ -14,7 +14,8 @@
 #define MESSAGE(A, ...)  if(box64_dynarec_dump) dynarec_log(LOG_NONE, __VA_ARGS__)
 #define NEW_INST                                                                                                  \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;                                                         \
-    dyn->inst_sew = VECTOR_SEWNA;                                                                                 \
+    dyn->inst_sew = dyn->vector_sew;                                                                              \
+    dyn->inst_vlmul = VECTOR_LMUL1;                                                                               \
     dyn->inst_vl = 0;                                                                                             \
     if (box64_dynarec_dump) print_newinst(dyn, ninst);                                                            \
     if (ninst) {                                                                                                  \
