@@ -237,7 +237,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0xC6:
-            if (rv64_xtheadvector) return 0; // lack of vrgatherei16.vv
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vrgatherei16.vv
 
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;

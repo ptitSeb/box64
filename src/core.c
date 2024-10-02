@@ -842,11 +842,13 @@ void LoadLogEnv()
     p = getenv("BOX64_DYNAREC_MISSING");
     if(p) {
         if(strlen(p)==1) {
-            if(p[0]>='0' && p[0]<='1')
+            if(p[0]>='0' && p[0]<='2')
                 box64_dynarec_missing = p[0]-'0';
         }
-        if(box64_dynarec_missing)
+        if(box64_dynarec_missing==1)
             printf_log(LOG_INFO, "Dynarec will print missing opcodes\n");
+        else if (box64_dynarec_missing==2)
+            printf_log(LOG_INFO, "Dynarec will print fallback to scalar opcodes\n");
     }
     p = getenv("BOX64_NODYNAREC");
     if(p) {

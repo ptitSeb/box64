@@ -309,7 +309,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VADD_VX(q0, q1, xZR, VECTOR_MASKED);
                     break;
                 case 0x17:
-                    if (rv64_xtheadvector) return 0; // TODO: VMASK convertion
+                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
 
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
@@ -617,7 +617,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             opcode = F8;
             switch (opcode) {
                 case 0x0E:
-                    if (rv64_xtheadvector) return 0; // TODO: VMASK convertion
+                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
 
                     INST_NAME("PBLENDW Gx, Ex, Ib");
                     nextop = F8;
@@ -674,7 +674,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x50:
-            if (rv64_xtheadvector) return 0; // TODO: VMASK convertion
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
 
             INST_NAME("PMOVMSKD Gd, Ex");
             nextop = F8;
@@ -1096,7 +1096,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x70:
-            if (rv64_xtheadvector) return 0; // lack of vrgatherei16.vv
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vrgatherei16.vv
 
             INST_NAME("PSHUFD Gx, Ex, Ib");
             nextop = F8;
@@ -1326,7 +1326,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             break;
         case 0xA3 ... 0xC1: return 0;
         case 0xC4:
-            if (rv64_xtheadvector) return 0; // TODO: VMASK convertion
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
 
             INST_NAME("PINSRW Gx, Ed, Ib");
             nextop = F8;
@@ -1441,7 +1441,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0xD7:
-            if (rv64_xtheadvector) return 0; // TODO: VMASK convertion
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
 
             INST_NAME("PMOVMSKB Gd, Ex");
             nextop = F8;
@@ -1519,7 +1519,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VAND_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xE0:
-            if (rv64_xtheadvector) return 0; // lack of vaddu.vv
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vaddu.vv
 
             INST_NAME("PAVGB Gx, Ex");
             nextop = F8;
@@ -1572,7 +1572,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VSRA_VX(q0, q0, x4, VECTOR_UNMASKED);
             break;
         case 0xE3:
-            if (rv64_xtheadvector) return 0; // lack of vaddu.vv
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vaddu.vv
 
             INST_NAME("PAVGW Gx, Ex");
             nextop = F8;
@@ -1708,7 +1708,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VSLL_VX(q0, q0, x4, VECTOR_UNMASKED);
             break;
         case 0xF5:
-            if (rv64_xtheadvector) return 0; // lack of vrgatherei16.vv
+            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vrgatherei16.vv
 
             INST_NAME("PMADDWD Gx, Ex");
             nextop = F8;
