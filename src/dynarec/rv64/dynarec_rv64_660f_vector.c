@@ -452,7 +452,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETEX_vector(q1, 0, 0, VECTOR_SEW64);
                     d0 = fpu_get_scratch(dyn);
                     d1 = fpu_get_scratch(dyn);
-                    // make sure the alignments before vnclip...
+                    // make sure the alignments before vnsrl...
                     v0 = (q0 & 1) ? fpu_get_scratch_lmul(dyn, VECTOR_LMUL2) : q0;
                     v1 = (q1 & 1) ? fpu_get_scratch_lmul(dyn, VECTOR_LMUL2) : q1;
                     if (v0 != q0) VMV_V_V(v0, q0);
@@ -1096,24 +1096,53 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x70:
-            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vrgatherei16.vv
-
             INST_NAME("PSHUFD Gx, Ex, Ib");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_vector(q0, 1, VECTOR_SEW64);
+            GETGX_empty_vector(q0);
             GETEX_vector(q1, 0, 0, VECTOR_SEW64);
             v0 = fpu_get_scratch(dyn);
             tmp64u0 = F8;
-            tmp64u0 = ((tmp64u0 >> 6) << 48) | (((tmp64u0 >> 4) & 3) << 32) | (((tmp64u0 >> 2) & 3) << 16) | (tmp64u0 & 3);
-            VECTOR_SPLAT_IMM(v0, tmp64u0, x4);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
-            if (q0 == q1) {
+            if (rv64_xtheadvector) { // lack of vrgatherei16.vv
                 v1 = fpu_get_scratch(dyn);
-                VRGATHEREI16_VV(v1, q1, v0, VECTOR_UNMASKED);
-                VMV_V_V(q0, v1);
+                if (tmp64u0 == 0) {
+                    VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                } else {
+                    tmp64u1 = (((tmp64u0 >> 6) & 3) << 32) | ((tmp64u0 >> 4) & 3);
+                    tmp64u0 = (((tmp64u0 >> 2) & 3) << 32) | (tmp64u0 & 3);
+                    if (tmp64u1 == 0) {
+                        VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
+                    } else {
+                        MOV64x(x4, tmp64u1);
+                        VMV_S_X(v1, x4); // clears upper bits!
+                    }
+                    if (tmp64u0 == tmp64u1) {
+                        VSLIDE1UP_VX(v0, v1, x4, VECTOR_UNMASKED);
+                    } else if (tmp64u0 == 0) {
+                        VSLIDE1UP_VX(v0, v1, xZR, VECTOR_UNMASKED);
+                    } else {
+                        MOV64x(x4, tmp64u0);
+                        VSLIDE1UP_VX(v0, v1, x4, VECTOR_UNMASKED);
+                    }
+                }
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                if (q0 == q1) {
+                    VRGATHER_VV(v1, q1, v0, VECTOR_UNMASKED);
+                    VMV_V_V(q0, v1);
+                } else {
+                    VRGATHER_VV(q0, q1, v0, VECTOR_UNMASKED);
+                }
             } else {
-                VRGATHEREI16_VV(q0, q1, v0, VECTOR_UNMASKED);
+                tmp64u0 = ((tmp64u0 >> 6) << 48) | (((tmp64u0 >> 4) & 3) << 32) | (((tmp64u0 >> 2) & 3) << 16) | (tmp64u0 & 3);
+                VECTOR_SPLAT_IMM(v0, tmp64u0, x4);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                if (q0 == q1) {
+                    v1 = fpu_get_scratch(dyn);
+                    VRGATHEREI16_VV(v1, q1, v0, VECTOR_UNMASKED);
+                    VMV_V_V(q0, v1);
+                } else {
+                    VRGATHEREI16_VV(q0, q1, v0, VECTOR_UNMASKED);
+                }
             }
             break;
         case 0x71:
