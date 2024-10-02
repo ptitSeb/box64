@@ -98,9 +98,16 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             if (MODREG) {
                 INST_NAME("MOVHLPS Gx, Ex");
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-                GETGX_vector(v0, 1, dyn->vector_eew);
-                GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                if (MODREG) {
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETGX_vector(v0, 1, VECTOR_SEW64);
+                    GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                } else {
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1); // unaligned!
+                    GETGX_vector(v0, 1, VECTOR_SEW8);
+                    GETEX_vector(v1, 0, 0, VECTOR_SEW8);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                }
                 q0 = fpu_get_scratch(dyn);
                 VSLIDEDOWN_VI(q0, v1, 1, VECTOR_UNMASKED);
                 if (rv64_xtheadvector) {
@@ -112,9 +119,16 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             } else {
                 INST_NAME("MOVLPS Gx, Ex");
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-                GETGX_vector(v0, 1, VECTOR_SEW64);
-                GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                if (MODREG) {
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                    GETGX_vector(v0, 1, VECTOR_SEW64);
+                    GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                } else {
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1); // unaligned!
+                    GETGX_vector(v0, 1, VECTOR_SEW8);
+                    GETEX_vector(v1, 0, 0, VECTOR_SEW8);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                }
                 if (rv64_xtheadvector) {
                     vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
                     VMERGE_VVM(v0, v0, v1); // implies VMASK
