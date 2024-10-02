@@ -88,7 +88,7 @@ jobs:
             elif [[ ${{ matrix.platform }} == 'RISCV' ]]; then
               echo BOX64_PLATFORM_MARCRO="-DRV64=ON" >> $GITHUB_ENV
               echo "BOX64_COMPILER=riscv64-linux-gnu-gcc" >> $GITHUB_ENV
-              sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3
+              sudo apt-get -y install git gcc-riscv64-linux-gnu cmake make python3 ninja-build
             elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
               sudo mkdir /usr/local/larch
               wget -O- -q https://github.com/loongson/build-tools/releases/download/2023.08.08/CLFS-loongarch64-8.1-x86_64-cross-tools-gcc-glibc.tar.xz | sudo tar -C /usr/local/larch --strip-components=1 --xz -xf -
@@ -131,6 +131,36 @@ jobs:
             echo BOX64_STATICBUILD=0 >> $GITHUB_ENV
             echo BOX64_BOX32=0 >> $GITHUB_ENV
           fi
+
+      - name: "Get XuanTie QEMU Cache Key"
+        if: matrix.platform == 'RISCV'
+        id: get-xuantie-qemu-cache-key
+        run: |
+          echo "key=f2dfdd13014d51f957c7172acc2e791cb42dc400" >> $GITHUB_OUTPUT
+
+      - name: "Cache XuanTie QEMU"
+        if: matrix.platform == 'RISCV'
+        id: cache-xuantie-qemu
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/xuantie_qemu_install
+          key: ${{ runner.os }}-${{ steps.get-xuantie-qemu-cache-key.outputs.key }}-xuantie-qemu
+
+      - name: "Checkout XuanTie QEMU"
+        if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true'
+        uses: actions/checkout@v3
+        with:
+          repository: revyos/qemu
+          path: xuantie_qemu
+          ref: f2dfdd13014d51f957c7172acc2e791cb42dc400
+
+      - name: "Build XuanTie QEMU for XTheadVector"
+        if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true'
+        run: |
+          cd xuantie_qemu
+          ./configure --prefix=$GITHUB_WORKSPACE/xuantie_qemu_install --target-list=riscv64-linux-user --disable-system
+          make -j$(nproc)
+          make install
 
       - name: "Display Build info"
         run: |
@@ -182,6 +212,10 @@ jobs:
             BOX64_DYNAREC_TEST=1 QEMU_CPU=rv64,v=true,vlen=128,vext_spec=v1.0 ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC_TEST=1 QEMU_CPU=rv64,v=true,vlen=256,vext_spec=v1.0 ctest $CTEST_OPTIONS -E nocosim
             BOX64_DYNAREC_TEST=1 QEMU_CPU=thead-c906 ctest $CTEST_OPTIONS -E nocosim
+
+            export INTERPRETER=$GITHUB_WORKSPACE/xuantie_qemu_install/bin/qemu-riscv64
+            QEMU_CPU=c910v ctest $CTEST_OPTIONS
+            BOX64_DYNAREC_TEST=1 QEMU_CPU=c910v ctest $CTEST_OPTIONS -E nocosim
           elif [[ ${{ matrix.platform }} == 'LARCH64' ]]; then
             export INTERPRETER=qemu-loongarch64-static
             export QEMU_LD_PREFIX=/usr/loongarch64-linux-gnu/
