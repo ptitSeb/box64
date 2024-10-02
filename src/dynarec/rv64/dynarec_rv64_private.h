@@ -154,10 +154,11 @@ typedef struct dynarec_rv64_s {
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
     uint8_t             always_test;
     uint8_t             abort;
-    uint8_t             vector_sew; // current sew status
-    uint8_t             vector_eew; // current effective sew status, should only be used after SET_ELEMENT_WIDTH
-    uint8_t             inst_sew;   // sew inside current instruction, for vsetvli elimination
-    uint8_t             inst_vl;    // vl inside current instruction, for vsetvli elimination
+    uint8_t             vector_sew;     // current sew status
+    uint8_t             vector_eew;     // current effective sew status, should only be used after SET_ELEMENT_WIDTH
+    uint8_t             inst_sew;       // sew inside current instruction, for vsetvli elimination
+    uint8_t             inst_vl;        // vl inside current instruction, for vsetvli elimination
+    uint8_t             inst_vlmul;     // vlmul inside current instruction
 } dynarec_rv64_t;
 
 // v0 is hardware wired to vector mask register, which should be always reserved

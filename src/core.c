@@ -112,7 +112,8 @@ int rv64_zba = 0;
 int rv64_zbb = 0;
 int rv64_zbc = 0;
 int rv64_zbs = 0;
-int rv64_vector = 0;
+int rv64_vector = 0; // rvv 1.0 or xtheadvector
+int rv64_xtheadvector = 0;
 int rv64_vlen = 0;
 int rv64_xtheadba = 0;
 int rv64_xtheadbb = 0;
@@ -516,6 +517,7 @@ HWCAP2_AFP
     if (p != NULL && !strcasecmp(p, "vector")) {
         RV64_Detect_Function();
         rv64_vector = 0;
+        rv64_xtheadvector = 0;
     }
     printf_log(LOG_INFO, "Dynarec for RISC-V ");
     printf_log(LOG_INFO, "With extension: I M A F D C");
@@ -523,16 +525,18 @@ HWCAP2_AFP
     if(rv64_zbb) printf_log(LOG_INFO, " Zbb");
     if(rv64_zbc) printf_log(LOG_INFO, " Zbc");
     if(rv64_zbs) printf_log(LOG_INFO, " Zbs");
-    if (rv64_vector) printf_log(LOG_INFO, " Vector (vlen: %d)", rv64_vlen);
+    if (rv64_vector && !rv64_xtheadvector) printf_log(LOG_INFO, " Vector (vlen: %d)", rv64_vlen);
+    if (rv64_xtheadvector) printf_log(LOG_INFO, " XTheadVector (vlen: %d)", rv64_vlen);
     if(rv64_xtheadba) printf_log(LOG_INFO, " XTheadBa");
     if(rv64_xtheadbb) printf_log(LOG_INFO, " XTheadBb");
     if(rv64_xtheadbs) printf_log(LOG_INFO, " XTheadBs");
-    if(rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
-    if(rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
-    if(rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
-    if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
-    if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
-    if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
+    if (rv64_xtheadmempair) printf_log(LOG_INFO, " XTheadMemPair");
+    // Disable the display since these are only detected but never used.
+    // if(rv64_xtheadcondmov) printf_log(LOG_INFO, " XTheadCondMov");
+    // if(rv64_xtheadmemidx) printf_log(LOG_INFO, " XTheadMemIdx");
+    // if(rv64_xtheadfmemidx) printf_log(LOG_INFO, " XTheadFMemIdx");
+    // if(rv64_xtheadmac) printf_log(LOG_INFO, " XTheadMac");
+    // if(rv64_xtheadfmv) printf_log(LOG_INFO, " XTheadFmv");
 #else
 #error Unsupported architecture
 #endif

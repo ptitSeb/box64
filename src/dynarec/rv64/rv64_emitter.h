@@ -1224,6 +1224,26 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 // Vector extension emitter
 
+/* Warning: mind the differences between RVV 1.0 and XTheadVector!
+ *
+ * - Different encoding of vsetvl/th.vsetvl.
+ * - No vsetivli instruction.
+ * - Cannot configure vta and vma vsetvl instruction, the fixed value is TAMU.
+ * - No whole register move instructions.
+ * - No fractional lmul.
+ * - Different load/store instructions.
+ * - Different name of vector indexed instructions.
+ * - Destination vector register cannot overlap source vector register group for vmadc/vmsbc/widen arithmetic/narrow arithmetic.
+ * - No vlm/vsm instructions.
+ * - Different vnsrl/vnsra/vfncvt suffix (vv/vx/vi vs wv/wx/wi).
+ * - Different size of mask mode (1.0 is vl and xtheadvector is vlen).
+ * - No vrgatherei16.vv instruction.
+ * - Different encoding of vmv.s.x instruction.
+ *
+ * We ignore all the naming differences and use the RVV 1.0 naming convention.
+
+ */
+
 #define VECTOR_SEW8  0b000
 #define VECTOR_SEW16 0b001
 #define VECTOR_SEW32 0b010
@@ -1277,15 +1297,16 @@ f28–31  ft8–11  FP temporaries                  Caller
 
 //  Vector Indexed-Unordered Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#76-vector-indexed-instructions
+//  Note: Make sure SEW in vtype is always the same as EEW, for xtheadvector compatibility!
 
-#define VLUXEI8_V(vd, vs2, rs1, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
-#define VLUXEI16_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
-#define VLUXEI32_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
-#define VLUXEI64_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
-#define VSUXEI8_V(vs3, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
-#define VSUXEI16_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
-#define VSUXEI32_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
-#define VSUXEI64_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | 0b0010, vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
+#define VLUXEI8_V(vd, vs2, rs1, vm, nf)   EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b000, vd, 0b0000111))  // ...001...........000.....0000111
+#define VLUXEI16_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b101, vd, 0b0000111))  // ...001...........101.....0000111
+#define VLUXEI32_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b110, vd, 0b0000111))  // ...001...........110.....0000111
+#define VLUXEI64_V(vd, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b0110 : 0b0010), vs2, rs1, 0b111, vd, 0b0000111))  // ...001...........111.....0000111
+#define VSUXEI8_V(vs3, vs2, rs1, vm, nf)  EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b000, vs3, 0b0100111)) // ...001...........000.....0100111
+#define VSUXEI16_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b101, vs3, 0b0100111)) // ...001...........101.....0100111
+#define VSUXEI32_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b110, vs3, 0b0100111)) // ...001...........110.....0100111
+#define VSUXEI64_V(vs3, vs2, rs1, vm, nf) EMIT(R_type(((nf) << 4) | (vm) | (rv64_xtheadvector ? 0b1110 : 0b0010), vs2, rs1, 0b111, vs3, 0b0100111)) // ...001...........111.....0100111
 
 //  Vector Strided Instructions (including segment part)
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#75-vector-strided-instructions
@@ -1420,31 +1441,32 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VFMSAC_VV(vd, vs2, vs1, vm)  EMIT(R_type(0b1011100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101110...........001.....1010111
 #define VFNMSAC_VV(vd, vs2, vs1, vm) EMIT(R_type(0b1011110 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 101111...........001.....1010111
 
-#define VFCVT_XU_F_V(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010010......00000001.....1010111
-#define VFCVT_X_F_V(vd, vs2, vm)       EMIT(R_type(0b0100100 | (vm), vs2, 0b00001, 0b001, vd, 0b1010111)) // 010010......00001001.....1010111
-#define VFCVT_F_XU_V(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b00010, 0b001, vd, 0b1010111)) // 010010......00010001.....1010111
-#define VFCVT_F_X_V(vd, vs2, vm)       EMIT(R_type(0b0100100 | (vm), vs2, 0b00011, 0b001, vd, 0b1010111)) // 010010......00011001.....1010111
-#define VFCVT_RTZ_XU_F_V(vd, vs2, vm)  EMIT(R_type(0b0100100 | (vm), vs2, 0b00110, 0b001, vd, 0b1010111)) // 010010......00110001.....1010111
-#define VFCVT_RTZ_X_F_V(vd, vs2, vm)   EMIT(R_type(0b0100100 | (vm), vs2, 0b00111, 0b001, vd, 0b1010111)) // 010010......00111001.....1010111
-#define VFWCVT_XU_F_V(vd, vs2, vm)     EMIT(R_type(0b0100100 | (vm), vs2, 0b01000, 0b001, vd, 0b1010111)) // 010010......01000001.....1010111
-#define VFWCVT_X_F_V(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b01001, 0b001, vd, 0b1010111)) // 010010......01001001.....1010111
-#define VFWCVT_F_XU_V(vd, vs2, vm)     EMIT(R_type(0b0100100 | (vm), vs2, 0b01010, 0b001, vd, 0b1010111)) // 010010......01010001.....1010111
-#define VFWCVT_F_X_V(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b01011, 0b001, vd, 0b1010111)) // 010010......01011001.....1010111
-#define VFWCVT_F_F_V(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b01100, 0b001, vd, 0b1010111)) // 010010......01100001.....1010111
-#define VFWCVT_RTZ_XU_F_V(vd, vs2, vm) EMIT(R_type(0b0100100 | (vm), vs2, 0b01110, 0b001, vd, 0b1010111)) // 010010......01110001.....1010111
-#define VFWCVT_RTZ_X_F_V(vd, vs2, vm)  EMIT(R_type(0b0100100 | (vm), vs2, 0b01111, 0b001, vd, 0b1010111)) // 010010......01111001.....1010111
-#define VFNCVT_XU_F_W(vd, vs2, vm)     EMIT(R_type(0b0100100 | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010010......10000001.....1010111
-#define VFNCVT_X_F_W(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b10001, 0b001, vd, 0b1010111)) // 010010......10001001.....1010111
-#define VFNCVT_F_XU_W(vd, vs2, vm)     EMIT(R_type(0b0100100 | (vm), vs2, 0b10010, 0b001, vd, 0b1010111)) // 010010......10010001.....1010111
-#define VFNCVT_F_X_W(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b10011, 0b001, vd, 0b1010111)) // 010010......10011001.....1010111
-#define VFNCVT_F_F_W(vd, vs2, vm)      EMIT(R_type(0b0100100 | (vm), vs2, 0b10100, 0b001, vd, 0b1010111)) // 010010......10100001.....1010111
-#define VFNCVT_ROD_F_F_W(vd, vs2, vm)  EMIT(R_type(0b0100100 | (vm), vs2, 0b10101, 0b001, vd, 0b1010111)) // 010010......10101001.....1010111
-#define VFNCVT_RTZ_XU_F_W(vd, vs2, vm) EMIT(R_type(0b0100100 | (vm), vs2, 0b10110, 0b001, vd, 0b1010111)) // 010010......10110001.....1010111
-#define VFNCVT_RTZ_X_F_W(vd, vs2, vm)  EMIT(R_type(0b0100100 | (vm), vs2, 0b10111, 0b001, vd, 0b1010111)) // 010010......10111001.....1010111
-#define VFSQRT_V(vd, vs2, vm)          EMIT(R_type(0b0100110 | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010011......00000001.....1010111
+#define VFCVT_XU_F_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010010......00000001.....1010111
+#define VFCVT_X_F_V(vd, vs2, vm)       EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00001, 0b001, vd, 0b1010111)) // 010010......00001001.....1010111
+#define VFCVT_F_XU_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00010, 0b001, vd, 0b1010111)) // 010010......00010001.....1010111
+#define VFCVT_F_X_V(vd, vs2, vm)       EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00011, 0b001, vd, 0b1010111)) // 010010......00011001.....1010111
+#define VFCVT_RTZ_XU_F_V(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00110, 0b001, vd, 0b1010111)) // 010010......00110001.....1010111
+#define VFCVT_RTZ_X_F_V(vd, vs2, vm)   EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b00111, 0b001, vd, 0b1010111)) // 010010......00111001.....1010111
+#define VFWCVT_XU_F_V(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01000, 0b001, vd, 0b1010111)) // 010010......01000001.....1010111
+#define VFWCVT_X_F_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01001, 0b001, vd, 0b1010111)) // 010010......01001001.....1010111
+#define VFWCVT_F_XU_V(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01010, 0b001, vd, 0b1010111)) // 010010......01010001.....1010111
+#define VFWCVT_F_X_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01011, 0b001, vd, 0b1010111)) // 010010......01011001.....1010111
+#define VFWCVT_F_F_V(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01100, 0b001, vd, 0b1010111)) // 010010......01100001.....1010111
+#define VFWCVT_RTZ_XU_F_V(vd, vs2, vm) EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01110, 0b001, vd, 0b1010111)) // 010010......01110001.....1010111
+#define VFWCVT_RTZ_X_F_V(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b01111, 0b001, vd, 0b1010111)) // 010010......01111001.....1010111
+#define VFNCVT_XU_F_W(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010010......10000001.....1010111
+#define VFNCVT_X_F_W(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10001, 0b001, vd, 0b1010111)) // 010010......10001001.....1010111
+#define VFNCVT_F_XU_W(vd, vs2, vm)     EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10010, 0b001, vd, 0b1010111)) // 010010......10010001.....1010111
+#define VFNCVT_F_X_W(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10011, 0b001, vd, 0b1010111)) // 010010......10011001.....1010111
+#define VFNCVT_F_F_W(vd, vs2, vm)      EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10100, 0b001, vd, 0b1010111)) // 010010......10100001.....1010111
+#define VFNCVT_ROD_F_F_W(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10101, 0b001, vd, 0b1010111)) // 010010......10101001.....1010111
+#define VFNCVT_RTZ_XU_F_W(vd, vs2, vm) EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10110, 0b001, vd, 0b1010111)) // 010010......10110001.....1010111
+#define VFNCVT_RTZ_X_F_W(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b1000100 : 0b0100100) | (vm), vs2, 0b10111, 0b001, vd, 0b1010111)) // 010010......10111001.....1010111
+#define VFSQRT_V(vd, vs2, vm)          EMIT(R_type((rv64_xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b00000, 0b001, vd, 0b1010111)) // 010011......00000001.....1010111
+#define VFCLASS_V(vd, vs2, vm)         EMIT(R_type((rv64_xtheadvector ? 0b1000110 : 0b0100110) | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010011......10000001.....1010111
+
 #define VFRSQRT7_V(vd, vs2, vm)        EMIT(R_type(0b0100110 | (vm), vs2, 0b00100, 0b001, vd, 0b1010111)) // 010011......00100001.....1010111
 #define VFREC7_V(vd, vs2, vm)          EMIT(R_type(0b0100110 | (vm), vs2, 0b00101, 0b001, vd, 0b1010111)) // 010011......00101001.....1010111
-#define VFCLASS_V(vd, vs2, vm)         EMIT(R_type(0b0100110 | (vm), vs2, 0b10000, 0b001, vd, 0b1010111)) // 010011......10000001.....1010111
 
 #define VFWADD_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1100000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110000...........001.....1010111
 #define VFWREDUSUM_VS(vd, vs2, vs1, vm) EMIT(R_type(0b1100010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 110001...........001.....1010111
@@ -1473,10 +1495,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VSLIDEUP_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001110...........100.....1010111
 #define VSLIDEDOWN_VX(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b100, vd, 0b1010111)) // 001111...........100.....1010111
 
-#define VADC_VXM(vd, vs2, rs1)   EMIT(R_type(0b0100000, vs2, rs1, 0b100, vd, 0b1010111)) // 0100000..........100.....1010111
+#define VADC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100000..........100.....1010111
 #define VMADC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100010, vs2, rs1, 0b100, vd, 0b1010111)) // 0100010..........100.....1010111
 #define VMADC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100011, vs2, rs1, 0b100, vd, 0b1010111)) // 0100011..........100.....1010111
-#define VSBC_VXM(vd, vs2, rs1)   EMIT(R_type(0b0100100, vs2, rs1, 0b100, vd, 0b1010111)) // 0100100..........100.....1010111
+#define VSBC_VXM(vd, vs2, rs1)   EMIT(R_type((0b0100100 | rv64_xtheadvector), vs2, rs1, 0b100, vd, 0b1010111)) // 0100100..........100.....1010111
 #define VMSBC_VXM(vd, vs2, rs1)  EMIT(R_type(0b0100110, vs2, rs1, 0b100, vd, 0b1010111)) // 0100110..........100.....1010111
 #define VMSBC_VX(vd, vs2, rs1)   EMIT(R_type(0b0100111, vs2, rs1, 0b100, vd, 0b1010111)) // 0100111..........100.....1010111
 #define VMERGE_VXM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b100, vd, 0b1010111)) // 0101110..........100.....1010111
@@ -1519,10 +1541,10 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VRGATHER_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b0011000 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001100...........000.....1010111
 #define VRGATHEREI16_VV(vd, vs2, vs1, vm) EMIT(R_type(0b0011100 | (vm), vs2, vs1, 0b000, vd, 0b1010111)) // 001110...........000.....1010111
 
-#define VADC_VVM(vd, vs2, vs1)   EMIT(R_type(0b0100000, vs2, vs1, 0b000, vd, 0b1010111)) // 0100000..........000.....1010111
+#define VADC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100000..........000.....1010111
 #define VMADC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100010, vs2, vs1, 0b000, vd, 0b1010111)) // 0100010..........000.....1010111
 #define VMADC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100011, vs2, vs1, 0b000, vd, 0b1010111)) // 0100011..........000.....1010111
-#define VSBC_VVM(vd, vs2, vs1)   EMIT(R_type(0b0100100, vs2, vs1, 0b000, vd, 0b1010111)) // 0100100..........000.....1010111
+#define VSBC_VVM(vd, vs2, vs1)   EMIT(R_type((0b0100100 | rv64_xtheadvector), vs2, vs1, 0b000, vd, 0b1010111)) // 0100100..........000.....1010111
 #define VMSBC_VVM(vd, vs2, vs1)  EMIT(R_type(0b0100110, vs2, vs1, 0b000, vd, 0b1010111)) // 0100110..........000.....1010111
 #define VMSBC_VV(vd, vs2, vs1)   EMIT(R_type(0b0100111, vs2, vs1, 0b000, vd, 0b1010111)) // 0100111..........000.....1010111
 #define VMERGE_VVM(vd, vs2, vs1) EMIT(R_type(0b0101110, vs2, vs1, 0b000, vd, 0b1010111)) // 0101110..........000.....1010111
@@ -1562,7 +1584,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VSLIDEUP_VI(vd, vs2, simm5, vm)   EMIT(R_type(0b0011100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001110...........011.....1010111
 #define VSLIDEDOWN_VI(vd, vs2, simm5, vm) EMIT(R_type(0b0011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 001111...........011.....1010111
 
-#define VADC_VIM(vd, vs2, simm5)   EMIT(R_type(0b0100000, vs2, simm5, 0b011, vd, 0b1010111)) // 0100000..........011.....1010111
+#define VADC_VIM(vd, vs2, simm5)   EMIT(R_type((0b0100000 | rv64_xtheadvector), vs2, simm5, 0b011, vd, 0b1010111)) // 0100000..........011.....1010111
 #define VMADC_VIM(vd, vs2, simm5)  EMIT(R_type(0b0100010, vs2, simm5, 0b011, vd, 0b1010111)) // 0100010..........011.....1010111
 #define VMADC_VI(vd, vs2, simm5)   EMIT(R_type(0b0100011, vs2, simm5, 0b011, vd, 0b1010111)) // 0100011..........011.....1010111
 #define VMERGE_VIM(vd, vs2, simm5) EMIT(R_type(0b0101110, vs2, simm5, 0b011, vd, 0b1010111)) // 0101110..........011.....1010111
@@ -1602,12 +1624,13 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VREDMIN_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0001010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000101...........010.....1010111
 #define VREDMAXU_VS(vd, vs2, vs1, vm) EMIT(R_type(0b0001100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000110...........010.....1010111
 #define VREDMAX_VS(vd, vs2, vs1, vm)  EMIT(R_type(0b0001110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 000111...........010.....1010111
-#define VAADDU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001000...........010.....1010111
 #define VAADD_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001001...........010.....1010111
-#define VASUBU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
 #define VASUB_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b0010110 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001011...........010.....1010111
+// Warning, no unsigned edition in Xtheadvector
+#define VAADDU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001000...........010.....1010111
+#define VASUBU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
 
-#define VMV_X_S(rd, vs2) EMIT(R_type(0b0100001, vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111
+#define VMV_X_S(rd, vs2) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111
 
 //  Vector Integer Extension Instructions
 //  https://github.com/riscv/riscv-v-spec/blob/e49574c92b072fd4d71e6cb20f7e8154de5b83fe/v-spec.adoc#123-vector-integer-extension
@@ -1629,12 +1652,12 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VMNOR_MM(vd, vs2, vs1)     EMIT(R_type(0b0111101, vs2, vs1, 0b010, vd, 0b1010111)) // 0111101..........010.....1010111
 #define VMXNOR_MM(vd, vs2, vs1)    EMIT(R_type(0b0111111, vs2, vs1, 0b010, vd, 0b1010111)) // 0111111..........010.....1010111
 
-#define VMSBF_M(vd, vs2, vm)  EMIT(R_type(0b0101000 | (vm), vs2, 0b00001, 0b010, vd, 0b1010111)) // 010100......00001010.....1010111
-#define VMSOF_M(vd, vs2, vm)  EMIT(R_type(0b0101000 | (vm), vs2, 0b00010, 0b010, vd, 0b1010111)) // 010100......00010010.....1010111
-#define VMSIF_M(vd, vs2, vm)  EMIT(R_type(0b0101000 | (vm), vs2, 0b00011, 0b010, vd, 0b1010111)) // 010100......00011010.....1010111
-#define VIOTA_M(vd, vs2, vm)  EMIT(R_type(0b0101000 | (vm), vs2, 0b10000, 0b010, vd, 0b1010111)) // 010100......10000010.....1010111
-#define VCPOP_M(rd, vs2, vm)  EMIT(R_type(0b0100000 | (vm), vs2, 0b10000, 0b010, rd, 0b1010111)) // 010000......10000010.....1010111
-#define VFIRST_M(rd, vs2, vm) EMIT(R_type(0b0100000 | (vm), vs2, 0b10001, 0b010, rd, 0b1010111)) // 010000......10001010.....1010111
+#define VMSBF_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00001, 0b010, vd, 0b1010111)) // 010100......00001010.....1010111
+#define VMSOF_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00010, 0b010, vd, 0b1010111)) // 010100......00010010.....1010111
+#define VMSIF_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b00011, 0b010, vd, 0b1010111)) // 010100......00011010.....1010111
+#define VIOTA_M(vd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), vs2, 0b10000, 0b010, vd, 0b1010111)) // 010100......10000010.....1010111
+#define VCPOP_M(rd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10000, 0b010, rd, 0b1010111)) // 010000......10000010.....1010111
+#define VFIRST_M(rd, vs2, vm) EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10001, 0b010, rd, 0b1010111)) // 010000......10001010.....1010111
 
 #define VID_V(vd, vm) EMIT(R_type(0b0101000 | (vm), 0b00000, 0b10001, 0b010, vd, 0b1010111)) // 010100.0000010001010.....1010111
 
@@ -1673,7 +1696,8 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VSLIDE1UP_VX(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001110...........110.....1010111
 #define VSLIDE1DOWN_VX(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 001111...........110.....1010111
 
-#define VMV_S_X(vd, rs1) EMIT(I_type(0b010000100000, rs1, 0b110, vd, 0b1010111)) // 010000100000.....110.....1010111
+// Warning, upper elements will be cleared in xtheadvector!
+#define VMV_S_X(vd, rs1) EMIT(I_type((rv64_xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b110, vd, 0b1010111))
 
 #define VDIVU_VX(vd, vs2, rs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100000...........110.....1010111
 #define VDIV_VX(vd, vs2, rs1, vm)     EMIT(R_type(0b1000010 | (vm), vs2, rs1, 0b110, vd, 0b1010111)) // 100001...........110.....1010111
