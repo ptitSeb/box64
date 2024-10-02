@@ -29,7 +29,7 @@
 #define FTABLE64(A, V)  {mmx87_regs_t v = {.d = V}; int val64offset = Table64(dyn, v.q, 3); MESSAGE(LOG_DUMP, "  FTable64: %g\n", v.d); AUIPC(x1, SPLIT20(val64offset)); FLD(A, x1, SPLIT12(val64offset));}
 
 #define DEFAULT_VECTOR                                                                                       \
-    if (box64_dynarec_log >= LOG_INFO || box64_dynarec_dump || box64_dynarec_missing) {                      \
+    if (box64_dynarec_log >= LOG_INFO || box64_dynarec_dump || box64_dynarec_missing==2) {                   \
         dynarec_log(LOG_NONE, "%p: Dynarec fallback to scalar version because of %sOpcode"                   \
                               " %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X", \
             (void*)ip, rex.is32bits ? "x86 " : "x64 ",                                                       \

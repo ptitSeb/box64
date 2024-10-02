@@ -223,6 +223,7 @@ Behavior with FillBlock is not available (FillBlock build Dynarec blocks and is 
 Dynarec print the missing opcodes
 * 0 : not print the missing opcode (Default, unless DYNAREC_LOG>=1 or DYNAREC_DUMP>=1 is used)
 * 1 : Will print the missing opcodes
+* 2 : Will print the fallback to scalar opcodes (only valid on RISC-V)
 
 #### BOX64_SSE_FLUSHTO0 *
 Handling of SSE Flush to 0 flags
