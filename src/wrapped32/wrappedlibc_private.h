@@ -9,6 +9,7 @@
 // struct timeval is: LL
 // struct itimerval is LLLL
 // struct tm is: iiiiiiiiilt
+// struct tms is: llll
 // struct rusage is LLLLLLLLLLLLLLLLLL (2 timeval + 14 longs)
 // time_t is: L
 // socklen_t is u
@@ -77,7 +78,7 @@ GOM(alphasort64, iFEpp)
 //GOW(argz_stringify, vFpLi)
 GOM(asctime, pFriiiiiiiiilt_)   //%noE
 GOW(asctime_r, pFriiiiiiiiilt_p)
-//GOWM(asprintf, iFEppV)        //%%
+GOWM(asprintf, iFEppV)        //%%
 //GOM(__asprintf, iFEppV)      //%%
 //GOM(__asprintf_chk, iFEpipV) //%%
 // __assert
@@ -348,7 +349,7 @@ GO(__fgets_chk, pFpLiS)
 // __fgetws_chk
 //GO(fgetws_unlocked, pFpip)
 // __fgetws_unlocked_chk
-//GO(fgetxattr, iFippu)
+GO(fgetxattr, iFippL)
 GO(fileno, iFS)
 GOW(fileno_unlocked, iFS)
 GOW(finite, iFd)
@@ -397,7 +398,7 @@ GOM(freeaddrinfo, vFEp)
 GO(freeifaddrs, vFp)
 GOW(freelocale, vFA)
 GO(__freelocale, vFA)
-//GO(fremovexattr, iFip)
+GO(fremovexattr, iFip)
 GO(freopen, SFppS)
 GO(freopen64, SFppS)
 // frexp    // Weak
@@ -410,7 +411,7 @@ GO(fseeko64, iFSIi)
 //GO(__fsetlocking, iFpi)
 //GO(fsetpos, iFpp)
 //GO(fsetpos64, iFpp)
-//GO(fsetxattr, iFippui)
+GO(fsetxattr, iFippLi)
 GOWM(fstatfs, iFip) //%%,noE
 GOWM(fstatfs64, iFip)    //%%,noE
 //GO(fstatvfs, iFip)
@@ -432,7 +433,7 @@ GOW(ftruncate64, iFiI)
 //GOM(ftw, iFEppi)         //%%
 //GOM(ftw64, iFEppi)       //%%
 //GOW(funlockfile, vFp)
-//GO(futimens, iFip)
+GOM(futimens, iFEip)
 GOWM(futimes, iFEip)
 //GO(futimesat, iFippp)
 // fwide
@@ -446,7 +447,7 @@ GOW(fwrite, LFpLLS)
 GOM(__fxstat, iFEiip)       //%%
 GOM(__fxstat64, iFEiip)     //%% need reaalign of struct stat64
 //GOM(__fxstatat, iFEiippi)   //%%
-//GOM(__fxstatat64, iFEiippi) //%% struct stat64 again
+GOM(__fxstatat64, iFEiippi) //%% struct stat64 again
 // __gai_sigqueue
 GO(gai_strerror, tFi)
 // __gconv_get_alias_db
@@ -546,7 +547,7 @@ GO(__getpid, uFv)
 // getpmsg
 GOW(getppid, iFv)
 GO(getpriority, iFuu)
-//GOM(getrandom, iFEpuu)          //%%
+GO(getrandom, iFpLu)
 GOM(getprotobyname, pFEp)
 //GO(getprotobyname_r, iFpppup)
 //GO(getprotobynumber, pFi)
@@ -617,7 +618,7 @@ GO(getwchar_unlocked, uFv)
 //GOW(getwc_unlocked, iFp)
 //GO(getwd, pFp)
 // __getwd_chk
-//GO(getxattr, iFpppu)
+GO(getxattr, iFpppL)
 //GOM(glob, iFEpipp)             //%%
 //GOM(glob64, iFEpipp)           //%%
 //GO(globfree, vFp)
@@ -1105,7 +1106,7 @@ GO(memset, pFpiL)
 GO(__memset_chk, pFpiLL)
 GO(mincore, iFpLp)
 GOW(mkdir, iFpu)
-//GO(mkdirat, iFipu)
+GO(mkdirat, iFipu)
 GO(mkdtemp, pFp)
 GO(mkfifo, iFpu)
 //GO(mkfifoat, iFipu)
@@ -1206,7 +1207,7 @@ GOWM(open64, iFEpON)  //%%
 //GO(__open64_2, iFpO)
 //GOW(openat, iFipON)
 // __openat_2
-//GOW(openat64, iFipON)
+GOW(openat64, iFipON)
 //GO(__openat64_2, iFipON)
 // __open_catalog
 GOW(opendir, pFp)
@@ -1230,7 +1231,7 @@ GO(perror, vFp)
 // personality  // Weak
 GOW(pipe, iFp)
 // __pipe
-//GOW(pipe2, iFpO) // assuming this works the same as pipe, so pointer for array of 2 int
+GOW(pipe2, iFpO) // assuming this works the same as pipe, so pointer for array of 2 int
 // pivot_root
 // pmap_getmaps
 // pmap_getport
@@ -1247,7 +1248,7 @@ GO(posix_fallocate64, iFiII)
 // posix_madvise
 GOW(posix_memalign, iFBp_LL)
 // posix_openpt // Weak
-//GO(posix_spawn, iFpppppp)
+GOM(posix_spawn, iFEpppppp)
 // posix_spawnattr_destroy
 // posix_spawnattr_getflags
 // posix_spawnattr_getpgroup
@@ -1267,11 +1268,11 @@ GOW(posix_memalign, iFBp_LL)
 //GO(posix_spawn_file_actions_addopen, iFpipii)
 //GO(posix_spawn_file_actions_destroy, iFp)
 //GO(posix_spawn_file_actions_init, iFp)
-//GOM(posix_spawnp, iFEpppppp) //%%
-//GO(ppoll, iFpupp)
+GOM(posix_spawnp, iFEpppppp) //%%
+GO(ppoll, iFpurLL_p)
 GOW(prctl, iFiLLLL)
 GOW(pread, lFipLl)
-//GOW(pread64, lFipLI)
+GOW(pread64, lFipLI)
 // __pread64    // Weak
 // __pread64_chk
 //GOM(preadv64, lFEipiI)  //%% not always present
@@ -1313,7 +1314,7 @@ GO(putwchar_unlocked, uFi)
 //GO(putwc_unlocked, iFip)
 // pvalloc  // Weak
 // pwrite   // Weak
-//GOW(pwrite64, lFipLI)
+GOW(pwrite64, lFipLI)
 // __pwrite64   // Weak
 //GOM(pwritev64, lFEipiI)  //%% not always present
 // qecvt
@@ -1351,7 +1352,7 @@ GOWM(readdir, pFEp)  //%%
 GO(readdir64, pFp)  // check if alignement is correct
 //GOM(readdir_r, iFEppp)  //%% should also be weak
 GOM(readlink, lFEppL) //%%
-//GOM(readlinkat, iFEippL)
+GOM(readlinkat, iFEippL)
 // __readlinkat_chk
 // __readlink_chk
 //GO(readv, lFipi)
@@ -1384,7 +1385,7 @@ GO(remove, iFp)
 //GO(removexattr, iFpp)
 // remque
 GO(rename, iFpp)
-//GO(renameat, iFipip)
+GO(renameat, iFipip)
 //GO(renameat2, iFipipu)
 // _res // type B
 //GOW(re_search, iFppiiip)
@@ -1762,7 +1763,7 @@ GOM(swprintf, iFEpLpV) //%%
 GOM(__swprintf_chk, iFEpLiLpV) //%%
 GOM(swscanf, iFEppV)
 GOW(symlink, iFpp)
-//GO(symlinkat, iFpip)
+GO(symlinkat, iFpip)
 GO(sync, vFv)
 GO(syncfs, iFi)
 // sync_file_range
@@ -1806,7 +1807,7 @@ GO(timegm, LFriiiiiiiiilt_)
 GO(timerfd_create, iFii)
 //GO(timerfd_gettime, iFip)
 //GO(timerfd_settime, iFiipp)
-//GOW(times, iFp)
+GOW(times, iFBllll_)
 DATAM(timezone, 4)
 //DATAB(__timezone, 4)   // type B
 GO(tmpfile, pFv)
@@ -1857,7 +1858,7 @@ GOWM(uname, iFp) //%%,noE
 GOW(ungetc, iFiS)
 GO(ungetwc, uFuS)
 GOW(unlink, iFp)
-//GO(unlinkat, iFipi)
+GO(unlinkat, iFipi)
 GO(unlockpt, iFi)
 GOW(unsetenv, iFp)
 // unshare
@@ -2112,7 +2113,7 @@ GO(xdr_void, iFv)
 // xencrypt
 GO(__xmknod, iFipup)
 //GO(__xmknodat, iFiipip)
-//GO(__xpg_basename, pFp)
+GO(__xpg_basename, pFp)
 // __xpg_sigpause   // Weak
 GO(__xpg_strerror_r, tFipu)
 // xprt_register

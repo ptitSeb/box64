@@ -78,6 +78,7 @@
 #() iFBp_ -> iFB
 #() LFrl_ -> LFB
 #() pFrl_ -> pFB
+#() iFBllll_ -> iFB
 #() vFbuuipWCCp_ -> vFB
 #() LFriiiiiiiiilt_ -> LFB
 #() pFriiiiiiiiilt_ -> pFB
@@ -147,6 +148,7 @@
 #() iFpL -> iFpL
 #() iFpp -> iFpp
 #() iFpV -> iFpV
+#() iFpO -> iFpO
 #() iFpS -> iFpS
 #() iFhi -> iFhi
 #() iFhp -> iFhp
@@ -351,6 +353,7 @@
 #() iFpUU -> iFpUU
 #() iFpfu -> iFpfu
 #() iFpLi -> iFpLi
+#() iFpLu -> iFpLu
 #() iFpLp -> iFpLp
 #() iFppi -> iFppi
 #() iFppu -> iFppu
@@ -571,9 +574,12 @@
 #() iFiIIi -> iFiIIi
 #() iFilli -> iFilli
 #() iFipii -> iFipii
+#() iFipip -> iFipip
 #() iFipui -> iFipui
 #() iFipup -> iFipup
 #() iFippi -> iFippi
+#() iFippL -> iFippL
+#() iFipON -> iFipON
 #() iFuiup -> iFuiup
 #() iFuupi -> iFuupi
 #() iFpiiL -> iFpiiL
@@ -585,6 +591,7 @@
 #() iFppui -> iFppui
 #() iFppLi -> iFppLi
 #() iFpppi -> iFpppi
+#() iFpppL -> iFpppL
 #() iFpppp -> iFpppp
 #() iFSpiL -> iFSpiL
 #() iFXiip -> iFXiip
@@ -605,6 +612,7 @@
 #() lFEppL -> lFEppL
 #() lFiipL -> lFiipL
 #() lFipLi -> lFipLi
+#() lFipLI -> lFipLI
 #() lFipLl -> lFipLl
 #() lFpuip -> lFpuip
 #() LFEpLp -> LFEpLp
@@ -641,6 +649,7 @@
 #() lFiibl_L -> lFiiBL
 #() LFpbp_Lp -> LFpBLp
 #() iFEpprLL_ -> iFEppB
+#() iFpurLL_p -> iFpuBp
 #() vFXLrpLiL_L -> vFXLBL
 #() iFuirLL_BLL_ -> iFuiBB
 #() iFXLpBLWWWcc_ -> iFXLpB
@@ -743,6 +752,7 @@
 #() vFppppp -> vFppppp
 #() iFEiiip -> iFEiiip
 #() iFEipii -> iFEipii
+#() iFEippL -> iFEippL
 #() iFEpipp -> iFEpipp
 #() iFEpupu -> iFEpupu
 #() iFEpLpp -> iFEpLpp
@@ -759,6 +769,7 @@
 #() iFiiipp -> iFiiipp
 #() iFiLLLL -> iFiLLLL
 #() iFipLLi -> iFipLLi
+#() iFippLi -> iFippLi
 #() iFuiuup -> iFuiuup
 #() iFpippp -> iFpippp
 #() iFpCCCC -> iFpCCCC
@@ -863,6 +874,7 @@
 #() vFppupii -> vFppupii
 #() vFpppppp -> vFpppppp
 #() vFXLiiii -> vFXLiiii
+#() iFEiippi -> iFEiippi
 #() iFEuppLp -> iFEuppLp
 #() iFEpiLpp -> iFEpiLpp
 #() iFEpuuup -> iFEpuuup
@@ -944,6 +956,7 @@
 #() vFpddiidd -> vFpddiidd
 #() iFEpLiipV -> iFEpLiipV
 #() iFEpLiLpV -> iFEpLiLpV
+#() iFEpppppp -> iFEpppppp
 #() iFEXLpppp -> iFEXLpppp
 #() iFuiiiuup -> iFuiiiuup
 #() iFpWCiWCi -> iFpWCiWCi
@@ -1235,6 +1248,7 @@ wrappedlibc:
 - vFpi:
 - vFpu:
 - iFip:
+  - futimens
   - futimes
 - iFup:
   - getrlimit
@@ -1304,6 +1318,8 @@ wrappedlibc:
 - iFipii:
 - iFippi:
   - utimensat
+- iFippL:
+  - readlinkat
 - iFpipp:
 - iFpLpp:
 - iFpLpV:
@@ -1312,6 +1328,7 @@ wrappedlibc:
 - iFSvpp:
 - iFSvpV:
 - LFpBp_iv:
+- iFiippi:
 - iFuppLp:
   - getgrgid_r
   - getpwuid_r
@@ -1325,6 +1342,8 @@ wrappedlibc:
 - iFpLvvpp:
 - iFpLiipV:
 - iFpLiLpV:
+- iFpppppp:
+  - posix_spawn
 - pFpLiiiI:
 - pFpLiiil:
 - iFpippppp:

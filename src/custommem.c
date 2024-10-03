@@ -1579,14 +1579,14 @@ void loadProtectionFromMap()
     box64_mapclean = 1;
 }
 
-int isAddrInPrereserve(uintptr_t addr);
+int isAddrInPrereserve(uintptr_t addr, size_t len);
 void freeProtection(uintptr_t addr, size_t size)
 {
     size = ALIGN(size);
     addr &= ~(box64_pagesize-1);
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     LOCK_PROT();
-    if(!isAddrInPrereserve(addr)) {
+    if(!isAddrInPrereserve(addr, size)) {
         rb_unset(mapallmem, addr, addr+size);
         rb_unset(mmapmem, addr, addr+size);
     }
@@ -1612,14 +1612,28 @@ int getMmapped(uintptr_t addr)
 #define MEDIUM (void*)0x40000000
 #define HIGH   (void*)0x60000000
 
-void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
+void* find31bitBlockNearHint(void* hint_, size_t size, uintptr_t mask)
 {
     uint32_t prot;
-    if(hint<LOWEST) hint = WINE_LOWEST;
+    uintptr_t hint = (uintptr_t)hint_;
+    if(hint_<LOWEST) hint = (uintptr_t)WINE_LOWEST;
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
+    uintptr_t upper = 0xc0000000LL;
+    if(cur>upper) upper = 0x100000000LL;
     if(!mask) mask = 0xffff;
-    while(bend<0xc0000000LL) {
+    while(cur<upper) {
+        if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
+            if(bend-cur>=size)
+                return (void*)cur;
+        }
+        // granularity 0x10000
+        cur = (bend+mask)&~mask;
+    }
+    if(hint_)
+        return NULL;
+    cur = (uintptr_t)LOWEST;
+    while(cur<(uintptr_t)hint) {
         if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
             if(bend-cur>=size)
                 return (void*)cur;

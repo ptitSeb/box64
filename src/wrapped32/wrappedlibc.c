@@ -824,20 +824,16 @@ EXPORT int my32_sprintf(x64emu_t* emu, void* buff, void * fmt, void * b) {
 }
 EXPORT int my32___sprintf_chk(x64emu_t* emu, void* buff, void * fmt, void * b) __attribute__((alias("my32_sprintf")));
 
-#if 0
-EXPORT int my32_asprintf(x64emu_t* emu, void** buff, void * fmt, void * b) {
-    #ifndef NOALIGN
+EXPORT int my32_asprintf(x64emu_t* emu, ptr_t* buff, void * fmt, void * b) {
     // need to align on arm
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;
-    void* f = vasprintf;
-    return ((iFppp_t)f)(buff, fmt, VARARGS_32);
-    #else
-    return vasprintf((char**)buff, (char*)fmt, b);
-    #endif
+    char* res = NULL;
+    int ret = vasprintf(&res, fmt, VARARGS_32);
+    *buff = to_ptrv(res);
+    return ret;
 }
 EXPORT int my32___asprintf(x64emu_t* emu, void** buff, void * fmt, void * b) __attribute__((alias("my32_asprintf")));
-#endif
 
 EXPORT int my32_vsprintf(x64emu_t* emu, void* buff,  void * fmt, uint32_t * b) {
     // need to align on arm
@@ -889,12 +885,14 @@ EXPORT int my32_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void 
 }
 EXPORT int my32___vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) __attribute__((alias("my32_vsnprintf")));
 EXPORT int my32___vsnprintf_chk(x64emu_t* emu, void* buff, size_t s, void * fmt, void * b) __attribute__((alias("my32_vsnprintf")));
-EXPORT int my32_vasprintf(x64emu_t* emu, void* strp, void* fmt, void* b)
+EXPORT int my32_vasprintf(x64emu_t* emu, ptr_t* strp, void* fmt, void* b)
 {
     // need to align on arm
     myStackAlign32((const char*)fmt, (uint32_t*)b, emu->scratch);
     PREPARE_VALIST_32;
-    int r = vasprintf(strp, fmt, VARARGS_32);
+    char* res = NULL;
+    int r = vasprintf(&res, fmt, VARARGS_32);
+    *strp = to_ptrv(res);
     return r;
 }
 EXPORT int my32___vasprintf_chk(x64emu_t* emu, void* strp, int flags, void* fmt, void* b)
@@ -1181,15 +1179,15 @@ EXPORT int my32___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, i
     r = FillStatFromStat64(v, &st, buf);
     return r;
 }
-
+#endif
 EXPORT int my32___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
     struct  stat64 st;
     int r = fstatat64(d, path, &st, flags);
-    UnalignStat64(&st, buf);
+    UnalignStat64_32(&st, buf);
     return r;
 }
-
+#if 0
 EXPORT int my32__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
     struct stat64 st;
@@ -1965,17 +1963,94 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
         newargv[i+1] = from_ptrv(argv[i]);
     return execv(fullpath, (void*)newargv);
 }
-#if 0
 // execvp should use PATH to search for the program first
-EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
-    const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
+typedef struct
 {
-    // need to use BOX32_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box32_path);
+  int __allocated;
+  int __used;
+  ptr_t __actions;//struct __spawn_action *
+  int __pad[16];
+} posix_spawn_file_actions_32_t;
+
+EXPORT int32_t my32_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath, 
+    const posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
+{
+    posix_spawn_file_actions_t actions_l = {0};
+    posix_spawn_file_actions_t *actions = NULL;
+    if(actions_s) {
+        actions = &actions_l;
+        actions->__allocated = actions_s->__allocated;
+        actions->__used = actions_s->__used;
+        actions->__actions = from_ptrv(actions_s->__actions);
+    }
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
-    int x64 = my_context->box64path?FileIsX64ELF(path):0;
+    int x64 = FileIsX64ELF(fullpath);
+    char** newenvp = NULL;
+    // hack to update the environ var if needed
+    if(envp == from_ptrv(my_context->envv32) && environ)
+        newenvp = environ;
+    else {
+        int n=0;
+        while(envp[n]) ++n;
+        const char** newenvp = (const char**)calloc(n+1, sizeof(char*));
+        for(int i=0; i<=n; ++i)
+            newenvp[i+1] = from_ptrv(envp[i]);
+    }
+    printf_log(LOG_DEBUG, "posix_spawn(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, fullpath, actions, attrp, argv, envp, x86, fullpath);
+    if ((x86 || self)) {
+        // count argv...
+        int i=0;
+        while(argv[i]) ++i;
+        char** newargv = (char**)calloc(i+2, sizeof(char*));
+        newargv[0] = x64?emu->context->box64path:emu->context->box64path;
+        for (int j=0; j<i; ++j)
+            newargv[j+1] = from_ptrv(argv[j]);
+        if(self) newargv[1] = emu->context->fullpath;
+        printf_log(LOG_DEBUG, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
+        int ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, newenvp);
+        printf_log(LOG_DEBUG, "posix_spawn returned %d\n", ret);
+        //free(newargv);
+        return ret;
+    }
+    // count argv and create the 64bits argv version
+    int n=0;
+    while(argv[n]) ++n;
+    char** newargv = (char**)calloc(n+1, sizeof(char*));
+    for(int i=0; i<=n; ++i)
+        newargv[i+1] = from_ptrv(argv[i]);
+    return posix_spawn(pid, fullpath, actions, attrp, newargv, newenvp);
+}
+
+EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
+    const posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
+{
+    posix_spawn_file_actions_t actions_l = {0};
+    posix_spawn_file_actions_t *actions = NULL;
+    if(actions_s) {
+        actions = &actions_l;
+        actions->__allocated = actions_s->__allocated;
+        actions->__used = actions_s->__used;
+        actions->__actions = from_ptrv(actions_s->__actions);
+    }
+    // need to use BOX32_PATH / PATH here...
+    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    // use fullpath...
+    int self = isProcSelf(fullpath, "exe");
+    int x86 = FileIsX86ELF(fullpath);
+    int x64 = FileIsX64ELF(fullpath);
+    char** newenvp = NULL;
+    // hack to update the environ var if needed
+    if(envp == from_ptrv(my_context->envv32) && environ)
+        newenvp = environ;
+    else {
+        int n=0;
+        while(envp[n]) ++n;
+        const char** newenvp = (const char**)calloc(n+1, sizeof(char*));
+        for(int i=0; i<=n; ++i)
+            newenvp[i+1] = from_ptrv(envp[i]);
+    }
     printf_log(LOG_DEBUG, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x86, fullpath);
     free(fullpath);
     if ((x86 || self)) {
@@ -1985,18 +2060,23 @@ EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         char** newargv = (char**)calloc(i+2, sizeof(char*));
         newargv[0] = x64?emu->context->box64path:emu->context->box64path;
         for (int j=0; j<i; ++j)
-            newargv[j+1] = argv[j];
+            newargv[j+1] = from_ptrv(argv[j]);
         if(self) newargv[1] = emu->context->fullpath;
         printf_log(LOG_DEBUG, " => posix_spawnp(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[1], i?newargv[2]:"", i, envp);
-        int ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, envp);
+        int ret = posix_spawnp(pid, newargv[0], actions, attrp, newargv, newenvp);
         printf_log(LOG_DEBUG, "posix_spawnp returned %d\n", ret);
         //free(newargv);
         return ret;
     }
-    // fullpath is gone, so the search will only be on PATH, not on BOX32_PATH (is that an issue?)
-    return posix_spawnp(pid, path, actions, attrp, argv, envp);
+    // count argv and create the 64bits argv version
+    int n=0;
+    while(argv[n]) ++n;
+    char** newargv = (char**)calloc(n+1, sizeof(char*));
+    for(int i=0; i<=n; ++i)
+        newargv[i+1] = from_ptrv(argv[i]);
+    return posix_spawnp(pid, path, actions, attrp, newargv, newenvp);
 }
-#endif
+
 EXPORT void my32__Jv_RegisterClasses() {}
 
 EXPORT int32_t my32___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj, void* dso)
@@ -2128,23 +2208,6 @@ EXPORT void* my32_mallinfo(x86emu_t* emu, void* p)
     return p;
 }
 
-
-#if 0
-EXPORT int32_t my32_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags)
-{
-    // not always implemented on old linux version...
-    library_t* lib = my_lib;
-    if(!lib) return 0;
-    void* f = dlsym(lib->priv.w.lib, "getrandom");
-    if(f)
-        return ((iFpuu_t)f)(buf, buflen, flags);
-    // do what should not be done, but it's better then nothing....
-    FILE * rnd = fopen("/dev/urandom", "rb");
-    uint32_t r = fread(buf, 1, buflen, rnd);
-    fclose(rnd);
-    return r;
-}
-#endif
 
 EXPORT void* my32_getpwuid(x64emu_t* emu, uint32_t uid)
 {
@@ -2748,172 +2811,45 @@ EXPORT void* my32_getmntent(x64emu_t* emu, void* f)
     return &ret;
 }
 
-EXPORT void* my32_mmap(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int offset)
-{
-    if(prot&PROT_WRITE) 
-        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
-    #ifdef __x86_64__
-    flags |= MAP_32BIT;
-    #endif
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap(%p, %zu, 0x%x, 0x%x, %d, %d) =>", addr, length, prot, flags, fd, offset);}
-    void* new_addr = addr?addr:find32bitBlock(length);
-    void* ret = mmap(new_addr, length, prot, flags, fd, offset);
-    if(!addr && ret!=new_addr && ret!=(void*)-1) {
-        munmap(ret, length);
-        loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = find31bitBlockNearHint(addr, length, 0); // is this the best way?
-        ret = mmap(new_addr, length, prot, flags, fd, offset);
-    }
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
-    #ifdef DYNAREC
-    if(box64_dynarec && ret!=(void*)-1) {
-        if(flags&0x100000 && addr!=ret)
-        {
-            // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
-            // and responded with a different address, so ignore it
-        } else {
-            if(prot& PROT_EXEC)
-                addDBFromAddressRange((uintptr_t)ret, length);
-            else
-                cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);
-        }
-    } 
-    #endif
-    if(ret!=(void*)-1)
-        setProtection((uintptr_t)ret, length, prot);
-    return ret;
-}
+void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, ssize_t offset);
+void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr);
+int my_munmap(x64emu_t* emu, void* addr, size_t length);
+int my_mprotect(x64emu_t* emu, void *addr, size_t len, int prot);
 
 EXPORT void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int64_t offset)
 {
-    if(prot&PROT_WRITE) 
-        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "mmap64(%p, %zu, 0x%x, 0x%x, %d, %ld) =>", addr, length, prot, flags, fd, offset);}
-    void* new_addr = (flags&MAP_FIXED)?addr:find31bitBlockNearHint(addr, length, 0);
-    void* ret = mmap64(new_addr, length, prot, flags, fd, offset);
-    if(!addr && ret!=new_addr && ret!=(void*)-1) {
-        munmap(ret, length);
-        loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = find31bitBlockNearHint(addr, length, 0);
-        ret = mmap64(new_addr, length, prot, flags, fd, offset);
-    } else if(addr && ret!=(void*)-1 && ret!=new_addr && 
-      ((uintptr_t)ret&0xffff) && !(flags&MAP_FIXED) && box64_wine) {
-        munmap(ret, length);
-        loadProtectionFromMap();    // reload map, because something went wrong previously
-        new_addr = find31bitBlockNearHint(addr, length, 0);
-        ret = mmap64(new_addr, length, prot, flags, fd, offset);
-        if(ret!=(void*)-1 && ret!=addr && ((uintptr_t)ret&0xffff) && box64_wine) {
-            // addr is probably too high, start again with a low address
-            munmap(ret, length);
-            loadProtectionFromMap();    // reload map, because something went wrong previously
-            new_addr = find31bitBlockNearHint(NULL, length, 0); // is this the best way?
-            ret = mmap64(new_addr, length, prot, flags, fd, offset);
-            if(ret!=(void*)-1 && (uintptr_t)ret&0xffff) {
-                munmap(ret, length);
-                ret = (void*)-1;
-            }
-        }
+    void* ret = my_mmap64(emu, addr, length, prot, flags|MAP_32BIT, fd, offset);
+    if((ret!=MAP_FAILED && ((uintptr_t)ret>0xffffffff) || ((uintptr_t)ret+length>0xffffffff))) {
+        my_munmap(emu, ret, length);
+        errno = EEXIST;
+        return MAP_FAILED;
     }
-    if(box64_log<LOG_DEBUG) {dynarec_log(LOG_DEBUG, "%p\n", ret);}
-    #ifdef DYNAREC
-    if(box64_dynarec && ret!=(void*)-1) {
-        if(flags&0x100000 && addr!=ret)
-        {
-            // program used MAP_FIXED_NOREPLACE but the host linux didn't support it
-            // and responded with a different address, so ignore it
-        } else {
-            if(prot& PROT_EXEC)
-                addDBFromAddressRange((uintptr_t)ret, length);
-            else
-                cleanDBFromAddressRange((uintptr_t)ret, length, prot?0:1);
-        }
+    if((ret!=MAP_FAILED) && addr && (ret<addr)) {
+        my_munmap(emu, ret, length);
+        errno = EEXIST;
+        return MAP_FAILED;
     }
-    #endif
-    if(ret!=(void*)-1)
-        setProtection((uintptr_t)ret, length, prot);
     return ret;
+}
+
+EXPORT void* my32_mmap(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int offset)
+{
+    return my32_mmap64(emu, addr, length, prot, flags|MAP_32BIT, fd, offset);
 }
 
 EXPORT void* my32_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
-    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "mremap(%p, %zu, %zu, %d, %p)=>", old_addr, old_size, new_size, flags, new_addr);
-    void* ret = mremap(old_addr, old_size, new_size, flags, new_addr);
-    dynarec_log(/*LOG_DEBUG*/LOG_NONE, "%p\n", ret);
-    if(ret==(void*)-1)
-        return ret; // failed...
-    uint32_t prot = getProtection((uintptr_t)old_addr)&~PROT_CUSTOM;
-    if(ret==old_addr) {
-        if(old_size && old_size<new_size) {
-            setProtection((uintptr_t)ret+old_size, new_size-old_size, prot);
-            #ifdef DYNAREC
-            if(box64_dynarec)
-                addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
-            #endif
-        } else if(old_size && new_size<old_size) {
-            freeProtection((uintptr_t)ret+new_size, old_size-new_size);
-            #ifdef DYNAREC
-            if(box64_dynarec)
-                cleanDBFromAddressRange((uintptr_t)ret+new_size, new_size-old_size, 1);
-            #endif
-        } else if(!old_size) {
-            setProtection((uintptr_t)ret, new_size, prot);
-            #ifdef DYNAREC
-            if(box64_dynarec)
-                addDBFromAddressRange((uintptr_t)ret, new_size);
-            #endif
-        }
-    } else {
-        if(old_size
-        #ifdef MREMAP_DONTUNMAP
-        && !(flags&MREMAP_DONTUNMAP)
-        #endif
-        ) {
-            freeProtection((uintptr_t)old_addr, old_size);
-            #ifdef DYNAREC
-            if(box64_dynarec)
-                cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
-            #endif
-        }
-        setProtection((uintptr_t)ret, new_size, prot); // should copy the protection from old block
-        #ifdef DYNAREC
-        if(box64_dynarec)
-            addDBFromAddressRange((uintptr_t)ret, new_size);
-        #endif
-    }
-    return ret;
+    return my_mremap(emu, old_addr, old_size, new_size, flags, new_addr);
 }
 
 EXPORT int my32_munmap(x64emu_t* emu, void* addr, unsigned long length)
 {
-    dynarec_log(LOG_DEBUG, "munmap(%p, %lu)\n", addr, length);
-    #ifdef DYNAREC
-    if(box64_dynarec) {
-        cleanDBFromAddressRange((uintptr_t)addr, length, 1);
-    }
-    #endif
-    int ret = munmap(addr, length);
-    if(!ret)
-        freeProtection((uintptr_t)addr, length);
-    return ret;
+    return my_munmap(emu, addr, length);
 }
 
 EXPORT int my32_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
 {
-    dynarec_log(LOG_DEBUG, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);
-    if(prot&PROT_WRITE) 
-        prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
-    int ret = mprotect(addr, len, prot);
-    #ifdef DYNAREC
-    if(box64_dynarec) {
-        if(prot& PROT_EXEC)
-            addDBFromAddressRange((uintptr_t)addr, len);
-        else
-            cleanDBFromAddressRange((uintptr_t)addr, len, 0);
-    }
-    #endif
-    if(!ret)
-        updateProtection((uintptr_t)addr, len, prot);
-    return ret;
+    return my_mprotect(emu, addr, len, prot);
 }
 #if 0
 #ifndef ANDROID
@@ -3039,6 +2975,16 @@ EXPORT int my32_futimes(x64emu_t* emu, int fd, uint32_t* times)
     tm[1].tv_sec = times[2];
     tm[1].tv_usec = times[3];
     return futimes(fd, tm);
+}
+
+EXPORT int my32_futimens(x64emu_t* emu, int fd, uint32_t* times)
+{
+    struct timespec tm[2];
+    tm[0].tv_sec = times[0];
+    tm[0].tv_nsec = times[1];
+    tm[1].tv_sec = times[2];
+    tm[1].tv_nsec = times[3];
+    return futimens(fd, tm);
 }
 
 EXPORT long my32_strtol(const char* s, char** endp, int base)

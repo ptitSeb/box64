@@ -49,8 +49,25 @@ unsigned long real_getauxval(unsigned long type)
     return 0;
 }
 
+#ifdef BOX32
+EXPORT unsigned long my32_getauxval(x64emu_t* emu, unsigned long type)
+{
+    ptr_t* p = (ptr_t*)emu->context->auxval_start;
+    while(*p) {
+        if(*p == type)
+            return p[1];
+        p+=2;
+    }
+    return 0;
+}
+#endif
+
 EXPORT unsigned long my_getauxval(x64emu_t* emu, unsigned long type)
 {
+    #ifdef BOX32
+    if(box64_is32bits)
+        return my32_getauxval(emu, type);
+    #endif
     uintptr_t* p = emu->context->auxval_start;
     while(*p) {
         if(*p == type)

@@ -59,6 +59,23 @@ void to_struct_LL(ptr_t d, const struct_LL_t *src) {
 	*(ulong_t*)dest = to_ulong(src->L1); dest += 4;
 }
 
+void from_struct_llll(struct_llll_t *dest, ptr_t s) {
+	if(!s) return;
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->l0 = from_long(*(ulong_t*)src); src += 4;
+	dest->l1 = from_long(*(ulong_t*)src); src += 4;
+	dest->l2 = from_long(*(ulong_t*)src); src += 4;
+	dest->l3 = from_long(*(ulong_t*)src); src += 4;
+}
+void to_struct_llll(ptr_t d, const struct_llll_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_long(src->l0); dest += 4;
+	*(ulong_t*)dest = to_long(src->l1); dest += 4;
+	*(ulong_t*)dest = to_long(src->l2); dest += 4;
+	*(ulong_t*)dest = to_long(src->l3); dest += 4;
+}
+
 void from_struct_LLLL(struct_LLLL_t *dest, ptr_t s) {
 	if(!s) return;
 	uint8_t* src = (uint8_t*)from_ptrv(s);

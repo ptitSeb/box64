@@ -94,13 +94,13 @@ void* get_wine_prereserve()
 }
 
 extern int box64_quit;
-int isAddrInPrereserve(uintptr_t addr)
+int isAddrInPrereserve(uintptr_t addr, size_t len)
 {
     if(!wine_preloaded || box64_quit)
         return 0;
     int idx = 0;
     while(my_wine_reserve[idx].addr && my_wine_reserve[idx].size) {
-        if(addr>=(uintptr_t)my_wine_reserve[idx].addr && addr<((uintptr_t)my_wine_reserve[idx].addr+my_wine_reserve[idx].size))
+        if((addr>=(uintptr_t)my_wine_reserve[idx].addr) && (addr+len)<((uintptr_t)my_wine_reserve[idx].addr+my_wine_reserve[idx].size))
             return 1;
         ++idx;
     }

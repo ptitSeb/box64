@@ -31,6 +31,14 @@ typedef struct struct_LL_s {
 } struct_LL_t;
 void from_struct_LL(struct_LL_t *dest, ptr_t src);
 void to_struct_LL(ptr_t dest, const struct_LL_t *src);
+typedef struct struct_llll_s {
+	long l0;
+	long l1;
+	long l2;
+	long l3;
+} struct_llll_t;
+void from_struct_llll(struct_llll_t *dest, ptr_t src);
+void to_struct_llll(ptr_t dest, const struct_llll_t *src);
 typedef struct struct_LLLL_s {
 	unsigned long L0;
 	unsigned long L1;

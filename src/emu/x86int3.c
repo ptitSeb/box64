@@ -212,10 +212,10 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(int*)from_ptr(R_ESP+4), p16, *(int*)from_ptr(R_ESP+12));
                     perr = 1;
                 } else  if(!strcmp(s, "mmap64")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %ld)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(ulong_t*)from_ptr(R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), *(int*)from_ptr(R_ESP+20), *(int64_t*)from_ptr(R_ESP+24));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %ld)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(ulong_t, R_ESP+8), from_ptri(int, R_ESP+12), from_ptri(int, R_ESP+16), from_ptri(int, R_ESP+20),from_ptri(int64_t, R_ESP+24));
                     perr = 3;
                 } else  if(!strcmp(s, "mmap")) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(ulong_t*)from_ptr(R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), *(int*)from_ptr(R_ESP+20), *(int*)from_ptr(R_ESP+24));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, 0x%x, %d, 0x%x, %d, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(ulong_t, R_ESP+8), from_ptri(int, R_ESP+12), from_ptri(int, R_ESP+16), from_ptri(int, R_ESP+20), from_ptri(int, R_ESP+24));
                     perr = 3;
                 } else  if(strstr(s, "strcasecmp")==s || strstr(s, "__strcasecmp")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));

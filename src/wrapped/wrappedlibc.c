@@ -2916,7 +2916,7 @@ EXPORT int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bu
 #define MAP_32BIT 0x40
 #endif
 extern int have48bits;
-EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset)
+EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, ssize_t offset)
 {
     (void)emu;
     if(prot&PROT_WRITE)
@@ -2926,7 +2926,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     #ifndef NOALIGN
     void* old_addr = addr;
     new_flags&=~MAP_32BIT;   // remove MAP_32BIT
-    if(flags&MAP_32BIT) {
+    if((flags&MAP_32BIT) && !(flags&MAP_FIXED)) {
         // MAP_32BIT only exist on x86_64!
         addr = find31bitBlockNearHint(old_addr, length, 0);
     } else if (box64_wine || 1) {   // other mmap should be restricted to 47bits
@@ -3018,7 +3018,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot
     }
     return ret;
 }
-EXPORT void* my_mmap(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, ssize_t offset) __attribute__((alias("my_mmap64")));
+EXPORT void* my_mmap(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, ssize_t offset) __attribute__((alias("my_mmap64")));
 
 EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr)
 {
@@ -3070,10 +3070,10 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
     return ret;
 }
 
-EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
+EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
 {
     (void)emu;
-    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, %lu)\n", addr, length);}
+    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, 0x%lx)\n", addr, length);}
     int ret = internal_munmap(addr, length);
     #ifdef DYNAREC
     if(!ret && box64_dynarec && length) {
@@ -3089,7 +3089,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, unsigned long length)
 EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
 {
     (void)emu;
-    if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mprotect(%p, %lu, 0x%x)\n", addr, len, prot);}
+    if(emu && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "mprotect(%p, 0x%lx, 0x%x)\n", addr, len, prot);}
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     int ret = mprotect(addr, len, prot);

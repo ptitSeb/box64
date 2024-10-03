@@ -1166,8 +1166,8 @@ def generate_files(root: str, files: Iterable[str], ver: str, gbls: SortedGlobal
 		"from_ptri(double, R_ESP + {p}), ",                   # d
 		"LD2localLD(from_ptrv(R_ESP + {p})), ",       		  # D
 		"FromLD(from_ptrv(R_ESP + {p})), ",           		  # K
-		"to_long(from_ptri(long_t, R_ESP + {p})), ",       	  # l
-		"to_ulong(from_ptri(ulong_t, R_ESP + {p})), ",     	  # L
+		"from_long(from_ptri(long_t, R_ESP + {p})), ",        # l
+		"from_ulong(from_ptri(ulong_t, R_ESP + {p})), ",      # L
 		"from_ptriv(R_ESP + {p}), ",      					  # p
 		"from_hash(from_ptri(ptr_t, R_ESP + {p})), ",         # h
 		"from_hash_d(from_ptri(ptr_t, R_ESP + {p})), ",       # H

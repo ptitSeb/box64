@@ -78,6 +78,7 @@ typedef int32_t (*iFivpV_t)(int32_t, void, void*, ...);
 typedef int32_t (*iFiiip_t)(int32_t, int32_t, int32_t, void*);
 typedef int32_t (*iFipii_t)(int32_t, void*, int32_t, int32_t);
 typedef int32_t (*iFippi_t)(int32_t, void*, void*, int32_t);
+typedef int32_t (*iFippL_t)(int32_t, void*, void*, uintptr_t);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 typedef int32_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
@@ -85,6 +86,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFSvpp_t)(void*, void, void*, void*);
 typedef int32_t (*iFSvpV_t)(void*, void, void*, ...);
 typedef uintptr_t (*LFpBp_iv_t)(void*, struct_p_t*, int32_t, void);
+typedef int32_t (*iFiippi_t)(int32_t, int32_t, void*, void*, int32_t);
 typedef int32_t (*iFuppLp_t)(uint32_t, void*, void*, uintptr_t, void*);
 typedef int32_t (*iFpvvpV_t)(void*, void, void, void*, ...);
 typedef int32_t (*iFpiLpp_t)(void*, int32_t, uintptr_t, void*, void*);
@@ -94,6 +96,7 @@ typedef void* (*pFppLLp_t)(void*, void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFpLvvpp_t)(void*, uintptr_t, void, void, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef int32_t (*iFpLiLpV_t)(void*, uintptr_t, int32_t, uintptr_t, void*, ...);
+typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 typedef void* (*pFpLiiil_t)(void*, uintptr_t, int32_t, int32_t, int32_t, intptr_t);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
@@ -123,6 +126,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(getmntent, pFS_t) \
 	GO(getifaddrs, iFbp__t) \
 	GO(asctime, pFriiiiiiiiilt__t) \
+	GO(futimens, iFip_t) \
 	GO(futimes, iFip_t) \
 	GO(getrlimit, iFup_t) \
 	GO(setrlimit, iFup_t) \
@@ -151,10 +155,12 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(wcstol, lFpBp_i_t) \
 	GO(wcstoul, LFpBp_i_t) \
 	GO(utimensat, iFippi_t) \
+	GO(readlinkat, iFippL_t) \
 	GO(getaddrinfo, iFpppp_t) \
 	GO(getgrgid_r, iFuppLp_t) \
 	GO(getpwuid_r, iFuppLp_t) \
 	GO(getgrnam_r, iFpppLp_t) \
-	GO(getpwnam_r, iFpppLp_t)
+	GO(getpwnam_r, iFpppLp_t) \
+	GO(posix_spawn, iFpppppp_t)
 
 #endif // __wrappedlibcTYPES32_H_
