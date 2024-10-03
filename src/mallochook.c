@@ -257,7 +257,9 @@ EXPORT int posix_memalign(void** p, size_t align, size_t size)
     if(malloc_hack_2 && ALLOC && real_posix_memalign) {
         return RunFunctionFmt(real_posix_memalign, "pLL", p, align, size);
     }
-    if(align%sizeof(void*) || pot(align)!=align)
+    if(box64_is32bits && align==4)
+        align = sizeof(void*);
+    if((align%sizeof(void*)) || (pot(align)!=align))
         return EINVAL;
     void* ret = box_memalign(align, size);
     if(!ret)
