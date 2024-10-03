@@ -1630,6 +1630,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VAADDU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001000...........010.....1010111
 #define VASUBU_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 001010...........010.....1010111
 
+// Warning: zero-extended on xtheadvector!
 #define VMV_X_S(rd, vs2) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b010, rd, 0b1010111)) // 0100001.....00000010.....1010111
 
 //  Vector Integer Extension Instructions
@@ -1659,7 +1660,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VCPOP_M(rd, vs2, vm)  EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10000, 0b010, rd, 0b1010111)) // 010000......10000010.....1010111
 #define VFIRST_M(rd, vs2, vm) EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0100000) | (vm), vs2, 0b10001, 0b010, rd, 0b1010111)) // 010000......10001010.....1010111
 
-#define VID_V(vd, vm) EMIT(R_type(0b0101000 | (vm), 0b00000, 0b10001, 0b010, vd, 0b1010111)) // 010100.0000010001010.....1010111
+#define VID_V(vd, vm) EMIT(R_type((rv64_xtheadvector ? 0b0101100 : 0b0101000) | (vm), 0b00000, 0b10001, 0b010, vd, 0b1010111)) // 010100.0000010001010.....1010111
 
 #define VDIVU_VV(vd, vs2, vs1, vm)    EMIT(R_type(0b1000000 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100000...........010.....1010111
 #define VDIV_VV(vd, vs2, vs1, vm)     EMIT(R_type(0b1000010 | (vm), vs2, vs1, 0b010, vd, 0b1010111)) // 100001...........010.....1010111
