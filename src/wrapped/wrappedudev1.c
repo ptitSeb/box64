@@ -35,23 +35,14 @@ GO(3)   \
 GO(4)
 
 // log_fn ...
-#ifdef CONVERT_VALIST
 #define GO(A)   \
 static uintptr_t my_log_fn_fct_##A = 0;                                                                 \
-static void my_log_fn_##A(void* udev, int p, void *f, int l, void* fn, void* fmt, x64_va_list_t args)   \
+static void my_log_fn_##A(void* udev, int p, void *f, int l, void* fn, void* fmt, va_list args)         \
 {                                                                                                       \
-    CONVERT_VALIST(args)                                                                                \
-    RunFunction(my_log_fn_fct_##A, 7, udev, p, f, l, fn, fmt, VARARGS);                                 \
+    char buff[1024] = {0};                                                                              \
+    vsnprintf(buff, 1023, fmt, args);                                                                   \
+    RunFunction(my_log_fn_fct_##A, 7, udev, p, f, l, fn, "%s", buff);                                   \
 }
-#else
-#define GO(A)   \
-static uintptr_t my_log_fn_fct_##A = 0;                                                                 \
-static void my_log_fn_##A(void* udev, int p, void *f, int l, void* fn, void* fmt, x64_va_list_t args)   \
-{                                                                                                       \
-    CREATE_VALIST_FROM_VALIST(args, thread_get_emu()->scratch);                                         \
-    RunFunction(my_log_fn_fct_##A, 7, udev, p, f, l, fn, fmt, VARARGS);                                 \
-}
-#endif
 SUPER()
 #undef GO
 static void* find_log_fn_Fct(void* fct)
