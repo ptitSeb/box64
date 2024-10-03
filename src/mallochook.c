@@ -236,18 +236,23 @@ EXPORT void* realloc(void* p, size_t s)
     return box_realloc(p, s);
 }
 
+EXPORT void* memalign(size_t align, size_t size)
+{
+    if(malloc_hack_2 && ALLOC && real_aligned_alloc) {
+        return (void*)RunFunctionFmt(real_aligned_alloc, "LL", align, size);
+    }
+    if(box64_is32bits && align==4)
+        align = sizeof(void*);
+    return box_memalign(align, size);
+}
+
 EXPORT void* aligned_alloc(size_t align, size_t size)
 {
     if(malloc_hack_2 && ALLOC && real_aligned_alloc) {
         return (void*)RunFunctionFmt(real_aligned_alloc, "LL", align, size);
     }
-    return box_memalign(align, size);
-}
-
-EXPORT void* memalign(size_t align, size_t size)
-{
-    if(malloc_hack_2 && ALLOC && real_aligned_alloc) {
-        return (void*)RunFunctionFmt(real_aligned_alloc, "LL", align, size);
+    if(box64_is32bits && align==4) {
+        return memalign(align, size);
     }
     return box_memalign(align, size);
 }
