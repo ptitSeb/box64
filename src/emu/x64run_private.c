@@ -1294,6 +1294,11 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
                     uintptr_t nextaddr = *(uintptr_t*)(R_RAX+PK(2));
                     if(!printFunctionAddr(nextaddr, "=> "))
                         printf_log(LOG_NONE, " => %p", (void*)nextaddr);
+                } else if(PK(1)==0xE0) {
+                    uintptr_t nextaddr = R_RAX;
+                    if(is32bits) nextaddr &= 0xffffffff;
+                    if(!printFunctionAddr(nextaddr, "=> "))
+                        printf_log(LOG_NONE, " => %p", (void*)nextaddr);
                 } else if((PK(1)==0x14) && (PK(2)==0x25)) {
                     uintptr_t nextaddr = is32bits?(*(uint32_t*)(uintptr_t)PK32(3)):(*(uintptr_t*)(uintptr_t)PK32(3));
                     printf_log(LOG_NONE, " => %p", (void*)nextaddr);

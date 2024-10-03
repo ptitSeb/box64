@@ -146,6 +146,18 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else  if(!strcmp(s, "chdir")) {
                     pu32=(uint32_t*)from_ptrv(R_ESP+4);
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, pu32?((pu32==(uint32_t*)1)?"/1/":(char*)pu32):"/0/");
+                } else  if(!strcmp(s, "poll")) {
+                    pu32=from_ptrv(*(ptr_t*)from_ptrv(R_ESP+4));
+                    char tmp[50];
+                    char tmp2[50] = {0};
+                    uint32_t n = from_ptri(uint32_t, R_ESP+8);
+                    for(int ii=0; ii<n; ++ii) {
+                        snprintf(tmp, 49, "%s%d/0x%hx", ii?" ,":"", ((int*)pu32)[ii*2], ((uint16_t*)pu32)[ii*4+2]);
+                        strncat(tmp2, tmp, 49);
+                    }
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p[%s], %u, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(R_ESP+4), tmp2, from_ptri(uint32_t, R_ESP+8), from_ptri(int, R_ESP+12));
+                    post = 12;
+                    perr = 1;
                 } else  if(strstr(s, "getenv")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
                     post = 2;
@@ -226,7 +238,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %p, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(int*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "memcmp")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong*)from_ptr(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptri(ulong, R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strstr")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p\"%.127s\", \"%.127s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
@@ -352,6 +364,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(!strcmp(s, "recv")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, 0x%x, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptri(int, R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptri(uint32_t, R_ESP+12), from_ptri(int, R_ESP+16));
+                    post = 13;
                 } else  if(!strcmp(s, "syscall")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(int32_t*)from_ptr(R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+16)));
                     perr = 1;
@@ -398,6 +411,19 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                             }
                             break;
                     case 11: snprintf(buff2, 63, " [%d / %d / %d /%d]", pu32[0], pu32[1], pu32[2], pu32[3]);
+                            break;
+                    case 12: if(R_EAX>0) {
+                        char tmp[50];
+                        char tmp2[50] = {0};
+                        uint32_t n = from_ptri(uint32_t, R_ESP+8);
+                        for(int ii=0; ii<n; ++ii) {
+                            snprintf(tmp, 49, "%s%d/0x%hx", ii?" ,":"", pu32[ii*2], pu32[ii*2+1]>>16);
+                            strncat(tmp2, tmp, 49);
+                        }
+                        snprintf(buff2, 63, "[%s]", tmp2);
+                    }
+                    case 13: if(R_EAX==0x25E)
+                                snprintf(buff2, 63, "%s", "here");
                             break;
                 }
                 if(perr==1 && ((int)R_EAX)<0)
