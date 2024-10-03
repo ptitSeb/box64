@@ -309,8 +309,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VADD_VX(q0, q1, xZR, VECTOR_MASKED);
                     break;
                 case 0x17:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
-
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
                     SETFLAGS(X_ALL, SF_SET);
@@ -319,21 +317,35 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETEX_vector(q1, 0, 0, VECTOR_SEW64);
                     CLEAR_FLAGS();
                     SET_DFNONE();
-                    v0 = fpu_get_scratch(dyn);
+                    v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     IFX (X_ZF) {
                         VAND_VV(v0, q1, q0, VECTOR_MASKED);
+                        if (rv64_xtheadvector) {
+                            // Force the mask element width to 32
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 1);
+                        }
                         VMSGT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                        if (rv64_xtheadvector) {
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                        }
                         VMV_X_S(x4, VMASK);
-                        ANDI(x4, x4, 0b11);
+                        if (!rv64_xtheadvector) ANDI(x4, x4, 0b11);
                         BNEZ(x3, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);
                     }
                     IFX (X_CF) {
                         VXOR_VI(v0, q0, 0x1F, VECTOR_UNMASKED);
                         VAND_VV(v0, q1, v0, VECTOR_MASKED);
+                        if (rv64_xtheadvector) {
+                            // Force the mask element width to 32
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 1);
+                        }
                         VMSGT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                        if (rv64_xtheadvector) {
+                            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                        }
                         VMV_X_S(x4, VMASK);
-                        ANDI(x4, x4, 0b11);
+                        if (!rv64_xtheadvector) ANDI(x4, x4, 0b11);
                         BNEZ(x3, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);
                     }
@@ -359,8 +371,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VSUB_VV(q0, q0, v0, VECTOR_UNMASKED);
                     break;
                 case 0x20:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVSXBW Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -373,8 +383,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v0);
                     break;
                 case 0x21:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVSXBD Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -391,8 +399,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v1);
                     break;
                 case 0x22:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVSXBQ Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -411,8 +417,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v0);
                     break;
                 case 0x23:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVSXWD Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -425,8 +429,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v0);
                     break;
                 case 0x24:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVSXWQ Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -443,8 +445,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v1);
                     break;
                 case 0x25:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVSXDQ Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -457,8 +457,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v0);
                     break;
                 case 0x28:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMULDQ Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -467,7 +465,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     d0 = fpu_get_scratch(dyn);
                     d1 = fpu_get_scratch(dyn);
                     // make sure the alignments before vnsrl...
-                    v0 = (q0 & 1) ? fpu_get_scratch_lmul(dyn, VECTOR_LMUL2) : q0;
+                    // v0 cannot be the same with q0 in xtheadvector for the lack of tail undisturbed
+                    v0 = ((q0 & 1) || rv64_xtheadvector) ? fpu_get_scratch_lmul(dyn, VECTOR_LMUL2) : q0;
                     v1 = (q1 & 1) ? fpu_get_scratch_lmul(dyn, VECTOR_LMUL2) : q1;
                     if (v0 != q0) VMV_V_V(v0, q0);
                     if (v1 != q1) VMV_V_V(v1, q1);
@@ -479,8 +478,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     if (v0 != q0) VMV_V_V(q0, v0);
                     break;
                 case 0x2B:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PACKUSDW Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -500,8 +497,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VSLIDEUP_VI(q0, v0, 4, VECTOR_UNMASKED);
                     break;
                 case 0x30:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVZXBW Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -514,8 +509,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v0);
                     break;
                 case 0x31:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVZXBD Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -532,8 +525,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v1);
                     break;
                 case 0x32:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVZXBQ Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -552,8 +543,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v0);
                     break;
                 case 0x33:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVZXWD Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -566,8 +555,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v0);
                     break;
                 case 0x34:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVZXWQ Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -584,8 +571,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMV_V_V(q0, v1);
                     break;
                 case 0x35:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: lack of tail undisturbed
-
                     INST_NAME("PMOVZXDQ Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
@@ -645,16 +630,13 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             opcode = F8;
             switch (opcode) {
                 case 0x0E:
-                    if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
-
                     INST_NAME("PBLENDW Gx, Ex, Ib");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     GETGX_vector(q0, 1, VECTOR_SEW16);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                     u8 = F8;
-                    ADDI(x4, xZR, u8);
-                    VMV_V_X(VMASK, x4);
+                    vector_loadmask(dyn, ninst, VMASK, u8, x4, 1);
                     VADD_VI(q0, q1, 0, VECTOR_MASKED);
                     break;
                 case 0x0F:
@@ -702,19 +684,29 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x50:
-            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
-
             INST_NAME("PMOVMSKD Gd, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETGD;
             GETEX_vector(q0, 0, 0, VECTOR_SEW64);
-            v0 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             ADDI(x4, xZR, 63);
             VSRL_VX(v0, q0, x4, VECTOR_UNMASKED);
+            if (rv64_xtheadvector) {
+                // Force the mask element width to 32
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 1);
+            }
             VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-            VMV_X_S(gd, VMASK);
-            ANDI(gd, gd, 0b11);
+            if (rv64_xtheadvector) {
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                VMV_X_S(x4, VMASK);
+                ANDI(gd, x4, 1);
+                SRLI(x4, x4, 31);
+                OR(gd, gd, x4);
+            } else {
+                VMV_X_S(x4, VMASK);
+                ANDI(gd, x4, 0b11);
+            }
             break;
         case 0x51:
             INST_NAME("SQRTPD Gx, Ex");
@@ -1383,8 +1375,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             break;
         case 0xA3 ... 0xC1: return 0;
         case 0xC4:
-            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // TODO: VMASK convertion
-
             INST_NAME("PINSRW Gx, Ed, Ib");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
@@ -1399,8 +1389,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LHU(x4, ed, 0);
                 ed = x4;
             }
-            ADDI(x5, xZR, 1 << u8);
-            VMV_S_X(VMASK, x5);
+            vector_loadmask(dyn, ninst, VMASK, (1 << u8), x5, 1);
             v0 = fpu_get_scratch(dyn);
             VMERGE_VXM(v0, q0, ed); // uses VMASK
             VMV_V_V(q0, v0);
@@ -1506,7 +1495,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
             VSRL_VI(v0, q0, 7, VECTOR_UNMASKED);
             if (rv64_xtheadvector) {
-                // Force VMASK element size to 1bit
+                // Force the element width to 1bit
                 vector_vsetvli(dyn, ninst, x4, VECTOR_SEW8, VECTOR_LMUL8, 1);
             }
             VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
@@ -1578,15 +1567,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VAND_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xE0:
-            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vaddu.vv
-
             INST_NAME("PAVGB Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             GETGX_vector(q0, 1, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-            CSRRWI(xZR, 0b00 /* rnu */, 0x00A /* vxrm */);
-            VAADDU_VV(q0, q0, q1, VECTOR_UNMASKED);
+            if (rv64_xtheadvector) { // lack of vaddu.vv
+                v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                VWADDU_VV(v0, q0, q1, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 2);
+                VADD_VI(v0, v0, 1, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 1);
+                VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
+            } else {
+                CSRRWI(xZR, 0b00 /* rnu */, 0x00A /* vxrm */);
+                VAADDU_VV(q0, q0, q1, VECTOR_UNMASKED);
+            }
             break;
         case 0xE1:
             INST_NAME("PSRAW Gx, Ex");
@@ -1631,15 +1627,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VSRA_VX(q0, q0, x4, VECTOR_UNMASKED);
             break;
         case 0xE3:
-            if (rv64_xtheadvector) { DEFAULT_VECTOR; } // lack of vaddu.vv
-
             INST_NAME("PAVGW Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
             GETGX_vector(q0, 1, VECTOR_SEW16);
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-            CSRRWI(xZR, 0b00 /* rnu */, 0x00A /* vxrm */);
-            VAADDU_VV(q0, q0, q1, VECTOR_UNMASKED);
+            if (rv64_xtheadvector) { // lack of vaddu.vv
+                v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                VWADDU_VV(v0, q0, q1, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
+                VADD_VI(v0, v0, 1, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
+            } else {
+                CSRRWI(xZR, 0b00 /* rnu */, 0x00A /* vxrm */);
+                VAADDU_VV(q0, q0, q1, VECTOR_UNMASKED);
+            }
             break;
         case 0xE4:
             INST_NAME("PMULHUW Gx, Ex");

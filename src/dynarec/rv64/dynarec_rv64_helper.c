@@ -2623,6 +2623,25 @@ int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, f
     return sew;
 }
 
+static uint64_t xtheadvector_16bitmasks[16] = {
+    0x0000000000000000,
+    0x0000000000000001,
+    0x0000000000010000,
+    0x0000000000010001,
+    0x0000000100000000,
+    0x0000000100000001,
+    0x0000000100010000,
+    0x0000000100010001,
+    0x0001000000000000,
+    0x0001000000000001,
+    0x0001000000010000,
+    0x0001000000010001,
+    0x0001000100000000,
+    0x0001000100000001,
+    0x0001000100010000,
+    0x0001000100010001,
+};
+
 void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int s1, float multiple)
 {
 #if STEP > 1
@@ -2663,21 +2682,37 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                 default: abort();
             }
         } else if ((sew == VECTOR_SEW16 && vlmul == VECTOR_LMUL1) || (sew == VECTOR_SEW32 && vlmul == VECTOR_LMUL2)) {
-            switch (imm) {
-                case 0b01010101:
-                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
-                    MOV64x(s1, 0x100000001ULL);
-                    VMV_V_X(vreg, s1);
-                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
-                    return;
-                case 0b10101010:
-                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
-                    MOV64x(s1, 0x1000000010000ULL);
-                    VMV_V_X(vreg, s1);
-                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
-                    return;
-                default: abort();
+            if (imm > 255) abort();
+            if (imm == 0) {
+                VXOR_VV(vreg, vreg, vreg, VECTOR_UNMASKED);
+                return;
             }
+            int low = imm & 0xF;
+            int high = (imm >> 4) & 0xF;
+            int scratch;
+            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+            if (low == high) {
+                MOV64x(s1, xtheadvector_16bitmasks[low]);
+                VMV_V_X(vreg, s1);
+                vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                return;
+            }
+            if (high != 0) {
+                scratch = fpu_get_scratch(dyn);
+                MOV64x(s1, xtheadvector_16bitmasks[high]);
+                VMV_S_X(scratch, s1);
+            }
+            if (low != 0)
+                MOV64x(s1, xtheadvector_16bitmasks[low]);
+            else
+                s1 = xZR;
+            if (high != 0) {
+                VSLIDE1UP_VX(vreg, scratch, s1, VECTOR_UNMASKED);
+            } else {
+                VMV_S_X(vreg, s1);
+            }
+            vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+            return;
         } else if ((sew == VECTOR_SEW8 && vlmul == VECTOR_LMUL1) || (sew == VECTOR_SEW16 && vlmul == VECTOR_LMUL2)) {
             switch (imm) {
                 case 0b0000000011111111:
