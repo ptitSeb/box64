@@ -487,6 +487,7 @@ void EXPORT my32___stack_chk_fail(x64emu_t* emu)
     #else
     sprintf(buff, "%p: Stack is corrupted, aborting ESP=0x%x %s\n", addr, R_ESP, name);
     #endif
+    print_cycle_log(LOG_INFO);
     StopEmu(emu, buff, 1);
 }
 void EXPORT my32___gmon_start__(x64emu_t *emu)
