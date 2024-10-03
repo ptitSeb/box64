@@ -44,6 +44,10 @@ GO("openal.so", openal)
 GO("libexpat.so.1", expat)
 GO("libexpat.so", expat)
 
+GO("libudev.so.0", udev0)
+GO("libudev.so.1", udev1)
+GO("libudev.so", udev1)
+
 GO("crashhandler.so", crashhandler)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)
 GO("libtcmalloc_minimal.so.4", tcmallocminimal)

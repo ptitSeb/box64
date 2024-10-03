@@ -56,7 +56,7 @@ typedef struct  va_list {
 #define CONVERT_VALIST_32(A)                                     \
   va_list sysv_varargs;                                          \
   sysv_varargs.__gr_offs=(8*8);                                  \
-  sysv_varargs.__vr_offs=(8*16));                                \
+  sysv_varargs.__vr_offs=(8*16);                                 \
   sysv_varargs.__stack=(A);
 
 

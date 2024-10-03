@@ -142,6 +142,7 @@
 #() iFua -> iFua
 #() iFpi -> iFpi
 #() iFpu -> iFpu
+#() iFpU -> iFpU
 #() iFpl -> iFpl
 #() iFpL -> iFpL
 #() iFpp -> iFpp
@@ -347,6 +348,7 @@
 #() iFpuC -> iFpuC
 #() iFpuu -> iFpuu
 #() iFpuU -> iFpuU
+#() iFpUU -> iFpUU
 #() iFpfu -> iFpfu
 #() iFpLi -> iFpLi
 #() iFpLp -> iFpLp
@@ -415,6 +417,7 @@
 #() pFupi -> pFupi
 #() pFupp -> pFupp
 #() pFLpi -> pFLpi
+#() pFpcU -> pFpcU
 #() pFpii -> pFpii
 #() pFpiu -> pFpiu
 #() pFpiL -> pFpiL
@@ -1804,3 +1807,7 @@ wrappedtcmallocminimal:
   - mmap
 - pFpLiiiI:
   - mmap64
+wrappedudev0:
+wrappedudev1:
+- vFpp:
+  - udev_set_log_fn
