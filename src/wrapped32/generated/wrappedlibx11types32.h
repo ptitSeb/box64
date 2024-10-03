@@ -24,6 +24,8 @@ typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
 typedef uintptr_t (*LFXii_t)(void*, int32_t, int32_t);
+typedef int32_t (*iFXLip_t)(void*, uintptr_t, int32_t, void*);
+typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFppipp_t)(void*, void*, int32_t, void*, void*);
@@ -60,6 +62,8 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XGetWindowAttributes, iFXLp_t) \
 	GO(XSetWMHints, iFXLp_t) \
 	GO(XGetPixel, LFXii_t) \
+	GO(XCheckTypedWindowEvent, iFXLip_t) \
+	GO(XCheckWindowEvent, iFXLlp_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
 	GO(XIfEvent, iFXppp_t) \
 	GO(XLookupString, iFppipp_t) \

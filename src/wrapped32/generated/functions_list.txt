@@ -747,6 +747,8 @@
 #() iFEpplp -> iFEpplp
 #() iFEpppi -> iFEpppi
 #() iFEpppp -> iFEpppp
+#() iFEXLip -> iFEXLip
+#() iFEXLlp -> iFEXLlp
 #() iFEXLpi -> iFEXLpi
 #() iFEXpLp -> iFEXpLp
 #() iFEXppp -> iFEXppp
@@ -1586,6 +1588,10 @@ wrappedlibx11:
   - XSetWMHints
 - LFXii:
   - XGetPixel
+- iFXLip:
+  - XCheckTypedWindowEvent
+- iFXLlp:
+  - XCheckWindowEvent
 - iFXLpi:
   - XSetWMProtocols
 - iFXppp:

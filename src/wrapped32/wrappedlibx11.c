@@ -2207,9 +2207,29 @@ EXPORT int my32_XCheckTypedEvent(x64emu_t* emu, void* dpy, int type, my_XEvent_3
     return ret;
 }
 
+EXPORT int my32_XCheckTypedWindowEvent(x64emu_t* emu, void* dpy, XID window, int type, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    int ret = my->XCheckTypedWindowEvent(dpy, window, type, &event);
+    if(ret) convertXEvent(evt, &event);
+    return ret;
+}
+
+EXPORT int my32_XCheckWindowEvent(x64emu_t* emu, void* dpy, XID window, long mask, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    int ret = my->XCheckWindowEvent(dpy, window, mask, &event);
+    if(ret) convertXEvent(evt, &event);
+    return ret;
+}
+
+
 EXPORT int my32_XSendEvent(x64emu_t* emu, void* dpy, XID window, int propagate, long mask, my_XEvent_32_t* evt)
 {
     my_XEvent_t event = {0};
+    if(evt->type==XEVT_ClientMessage && evt->xclient.send_event) {
+        evt->xany.display = to_ptrv(dpy);    // some program don't setup this data because the server will
+    }
     if(evt) unconvertXEvent(&event, evt);
     return my->XSendEvent(dpy, window, propagate, mask, evt?(&event):NULL);
 }

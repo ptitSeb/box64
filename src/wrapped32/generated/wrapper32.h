@@ -788,6 +788,8 @@ void iFEpLpV_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpplp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpppi_32(x64emu_t *emu, uintptr_t fnc);
 void iFEpppp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEXLip_32(x64emu_t *emu, uintptr_t fnc);
+void iFEXLlp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEXLpi_32(x64emu_t *emu, uintptr_t fnc);
 void iFEXpLp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEXppp_32(x64emu_t *emu, uintptr_t fnc);
