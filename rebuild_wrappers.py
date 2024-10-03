@@ -867,11 +867,11 @@ def main(root: str, files: Iterable[Filename], ver: str):
 	}
 	
 	def check_simple(v: FunctionType) -> Dict[str, int]:
-		regs_count: int = 0
-		fpr_count : int = 0
-		
 		ret: Dict[str, int] = {}
 		for k in forbidden_simple:
+			regs_count: int = 0
+			fpr_count : int = 0
+    		
 			if v.get_convention() is not allowed_conv:
 				continue
 			if v[0] in forbidden_simple[k]:
