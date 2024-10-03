@@ -564,7 +564,13 @@ void StopEmu(x64emu_t* emu, const char* reason, int is32bits)
     }
     printf_log(LOG_NONE, "Old IP: %tX\n", emu->old_ip);
 #ifdef HAVE_TRACE
-    printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec, emu->old_ip));
+    if(box64_is32bits) {
+        if(my_context->dec32)
+            printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec32, emu->old_ip));
+    } else {
+        if(my_context->dec)
+            printf_log(LOG_NONE, "%s\n", DecodeX64Trace(my_context->dec, emu->old_ip));
+    }
 #endif
 }
 
