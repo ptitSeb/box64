@@ -139,13 +139,14 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
     }
 }
 
-void myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack)
+size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem)
 {
     
     if(!fmt)
-        return;
+        return 0;
     // loop...
     const char* p = fmt;
+    size_t conv = 0;
     int state = 0;
     int ign = 0;
     while(*p)
@@ -179,10 +180,10 @@ void myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 'f': state += 10; break;    //  float
                     case 'd':
                     case 'i':
-                    case 'o':
+                    case 'o': state += 20; break;   // int
                     case 'u':
                     case 'x':
-                    case 'X': state += 20; break;   // int
+                    case 'X': state += 40; break;   // usigned int
                     case 'h': ++p; break;  // ignored...
                     case '\'':
                     case '0':
@@ -211,6 +212,22 @@ void myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack)
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 22:    // long uint
+            case 25:    // size_t int
+            case 42:    // long uint
+            case 45:
+            case 30:    // pointer
+                if(!ign) {
+                    ++conv;
+                    mystack[nb_elem-conv] = 0;
+                    *mystack = (uintptr_t)&mystack[nb_elem-conv];
+                    ++st;
+                    ++mystack;
+                }
+                state = 0;
+                ++p;
+                break;
+            
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
@@ -218,11 +235,12 @@ void myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack)
             case 15:    //%zg
             case 20:    // fallback
             case 21:
-            case 22:
             case 23:    // 64bits int
             case 24:    // normal int / pointer
-            case 25:    // size_t int
-            case 30:
+            case 40:
+            case 41:
+            case 43:
+            case 44:
                 if(!ign) {
                     *mystack = *st;
                     ++st;
@@ -236,15 +254,17 @@ void myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack)
                 state = 0;
         }
     }
+    return conv;
 }
 
-void myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack)
+void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem, int n)
 {
     
-    if(!fmt)
+    if(!fmt || n<=0)
         return;
     // loop...
-    const wchar_t* p = (const wchar_t*)fmt;
+    const char* p = fmt;
+    size_t conv = 0;
     int state = 0;
     int ign = 0;
     while(*p)
@@ -278,10 +298,10 @@ void myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 'f': state += 10; break;    //  float
                     case 'd':
                     case 'i':
-                    case 'o':
+                    case 'o': state += 20; break;   // int
                     case 'u':
                     case 'x':
-                    case 'X': state += 20; break;   // int
+                    case 'X': state += 40; break;   // usigned int
                     case 'h': ++p; break;  // ignored...
                     case '\'':
                     case '0':
@@ -310,6 +330,31 @@ void myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 22:    // long int
+            case 25:    // size_t int
+            case 42:    // long uint
+            case 45:
+            case 30:    // pointer
+                if(!ign) {
+                    ++conv;
+                    if(state==22 || state==0x25) {
+                        int32_t* dst = from_ptrv(*st);
+                        *dst = to_long(mystack[nb_elem-conv]);
+                    } else if(state==30) {
+                        ptr_t* dst = from_ptrv(*st);
+                        *dst = to_ptr(mystack[nb_elem-conv]);
+                    } else {
+                        uint32_t* dst = from_ptrv(*st);
+                        *dst = to_ulong(mystack[nb_elem-conv]);
+                    }
+                    ++st;
+                    ++mystack;
+                }
+                state = 0;
+                ++p;
+                if(!--n) return;
+                break;
+            
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
@@ -317,11 +362,12 @@ void myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack)
             case 15:    //%zg
             case 20:    // fallback
             case 21:
-            case 22:
             case 23:    // 64bits int
             case 24:    // normal int / pointer
-            case 25:    // size_t int
-            case 30:
+            case 40:
+            case 41:
+            case 43:
+            case 44:
                 if(!ign) {
                     *mystack = *st;
                     ++st;
@@ -329,6 +375,252 @@ void myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                 }
                 state = 0;
                 ++p;
+                if(!--n) return;
+                break;
+            default:
+                // whaaaat?
+                state = 0;
+        }
+    }
+}
+
+size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem)
+{
+    
+    if(!fmt)
+        return 0;
+    // loop...
+    const wchar_t* p = (const wchar_t*)fmt;
+    int state = 0;
+    size_t conv = 0;
+    int ign = 0;
+    while(*p)
+    {
+        switch(state) {
+            case 0:
+                ign = 0;
+                switch(*p) {
+                    case '%': state = 1; ++p; break;
+                    default:
+                        ++p;
+                }
+                break;
+            case 1: // normal
+            case 2: // l
+            case 3: // ll
+            case 4: // L
+            case 5: // z
+                switch(*p) {
+                    case '%': state = 0;  ++p; break; //%% = back to 0
+                    case 'l': ++state; if (state>3) state=3; ++p; break;
+                    case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
+                    case 'a':
+                    case 'A':
+                    case 'e':
+                    case 'E':
+                    case 'g':
+                    case 'G':
+                    case 'F':
+                    case 'f': state += 10; break;    //  float
+                    case 'd':
+                    case 'i':
+                    case 'o': state += 20; break;   // int
+                    case 'u':
+                    case 'x':
+                    case 'X': state += 40; break;   // usigned int
+                    case 'h': ++p; break;  // ignored...
+                    case '\'':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                    case '.': 
+                    case '#':
+                    case '+': 
+                    case '-': ++p; break; // formating, ignored
+                    case 'm': state = 0; ++p; break; // no argument
+                    case 'n':
+                    case 'p':
+                    case 'S':
+                    case 's': state = 30; break; // pointers
+                    case '$': ++p; break; // should issue a warning, it's not handled...
+                    case '*': ign=1; ++p; break; // ignore arg
+                    case ' ': state=0; ++p; break;
+                    default:
+                        state=20; // other stuff, put an int...
+                }
+                break;
+            case 22:    // long uint
+            case 25:    // size_t int
+            case 42:    // long uint
+            case 45:
+            case 30:    // pointer
+                if(!ign) {
+                    ++conv;
+                    mystack[nb_elem-conv] = 0;
+                    *mystack = (uintptr_t)&mystack[nb_elem-conv];
+                    ++st;
+                    ++mystack;
+                }
+                state = 0;
+                ++p;
+                break;
+            
+            case 11:    //double
+            case 12:    //%lg, still double
+            case 13:    //%llg, still double
+            case 14:    //%Lg long double
+            case 15:    //%zg
+            case 20:    // fallback
+            case 21:
+            case 23:    // 64bits int
+            case 24:    // normal int / pointer
+            case 40:
+            case 41:
+            case 43:
+            case 44:
+                if(!ign) {
+                    *mystack = *st;
+                    ++st;
+                    ++mystack;
+                }
+                state = 0;
+                ++p;
+                break;
+            default:
+                // whaaaat?
+                state = 0;
+        }
+    }
+    return conv;
+}
+
+void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack, size_t nb_elem, int n)
+{
+    
+    if(!fmt || n<=0)
+        return;
+    // loop...
+    const wchar_t* p = (const wchar_t*)fmt;
+    int state = 0;
+    size_t conv = 0;
+    int ign = 0;
+    while(*p)
+    {
+        switch(state) {
+            case 0:
+                ign = 0;
+                switch(*p) {
+                    case '%': state = 1; ++p; break;
+                    default:
+                        ++p;
+                }
+                break;
+            case 1: // normal
+            case 2: // l
+            case 3: // ll
+            case 4: // L
+            case 5: // z
+                switch(*p) {
+                    case '%': state = 0;  ++p; break; //%% = back to 0
+                    case 'l': ++state; if (state>3) state=3; ++p; break;
+                    case 'L': state = 4; ++p; break;
+                    case 'z': state = 5; ++p; break;
+                    case 'a':
+                    case 'A':
+                    case 'e':
+                    case 'E':
+                    case 'g':
+                    case 'G':
+                    case 'F':
+                    case 'f': state += 10; break;    //  float
+                    case 'd':
+                    case 'i':
+                    case 'o': state += 20; break;   // int
+                    case 'u':
+                    case 'x':
+                    case 'X': state += 40; break;   // usigned int
+                    case 'h': ++p; break;  // ignored...
+                    case '\'':
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                    case '.': 
+                    case '#':
+                    case '+': 
+                    case '-': ++p; break; // formating, ignored
+                    case 'm': state = 0; ++p; break; // no argument
+                    case 'n':
+                    case 'p':
+                    case 'S':
+                    case 's': state = 30; break; // pointers
+                    case '$': ++p; break; // should issue a warning, it's not handled...
+                    case '*': ign=1; ++p; break; // ignore arg
+                    case ' ': state=0; ++p; break;
+                    default:
+                        state=20; // other stuff, put an int...
+                }
+                break;
+            case 22:    // long uint
+            case 25:    // size_t int
+            case 42:    // long uint
+            case 45:
+            case 30:    // pointer
+                if(!ign) {
+                    ++conv;
+                    if(state==22 || state==0x25) {
+                        int32_t* dst = from_ptrv(*st);
+                        *dst = to_long(mystack[nb_elem-conv]);
+                    } else if(state==30) {
+                        ptr_t* dst = from_ptrv(*st);
+                        *dst = to_ptr(mystack[nb_elem-conv]);
+                    } else {
+                        uint32_t* dst = from_ptrv(*st);
+                        *dst = to_ulong(mystack[nb_elem-conv]);
+                    }
+                    ++st;
+                    ++mystack;
+                }
+                state = 0;
+                ++p;
+                if(!--n) return;
+                break;
+            
+            case 11:    //double
+            case 12:    //%lg, still double
+            case 13:    //%llg, still double
+            case 14:    //%Lg long double
+            case 15:    //%zg
+            case 20:    // fallback
+            case 21:
+            case 23:    // 64bits int
+            case 24:    // normal int / pointer
+            case 40:
+            case 41:
+            case 43:
+            case 44:
+                if(!ign) {
+                    *mystack = *st;
+                    ++st;
+                    ++mystack;
+                }
+                state = 0;
+                ++p;
+                if(!--n) return;
                 break;
             default:
                 // whaaaat?

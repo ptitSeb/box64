@@ -856,9 +856,11 @@ EXPORT int my32___vsprintf_chk(x64emu_t* emu, void* buff, int flags, size_t len,
 
 EXPORT int my32_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) // probably uneeded to do a GOM, a simple wrap should enough
 {
-    myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch);
+    int n = myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch, N_SCRATCH);
     PREPARE_VALIST_32;
-    return vfscanf(stream, fmt, VARARGS_32);
+    int ret = vfscanf(stream, fmt, VARARGS_32);
+    if(n) myStackAlignScanf32_final((const char*)fmt, (uint32_t*)b, emu->scratch, N_SCRATCH, ret);
+    return ret;
 }
 EXPORT int my32__IO_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vfscanf")));
 EXPORT int my32___isoc99_vfscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vfscanf")));
@@ -867,9 +869,11 @@ EXPORT int my32_fscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attrib
 
 EXPORT int my32_vsscanf(x64emu_t* emu, void* buff, void* fmt, void* b)
 {
-    myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch);
+    int n = myStackAlignScanf32((const char*)fmt, (uint32_t*)b, emu->scratch, N_SCRATCH);
     PREPARE_VALIST_32;
-    return vsscanf(buff, fmt, VARARGS_32);
+    int ret = vsscanf(buff, fmt, VARARGS_32);
+    if(ret>0) myStackAlignScanf32_final((const char*)fmt, (uint32_t*)b, emu->scratch, N_SCRATCH, ret);
+    return ret;
 }
 EXPORT int my32___isoc99_vsscanf(x64emu_t* emu, void* stream, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
 EXPORT int my32__vsscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vsscanf")));
@@ -933,9 +937,11 @@ EXPORT int my32___vswprintf_chk(x64emu_t* emu, void* buff, size_t s, int flags, 
 
 EXPORT int my32_vswscanf(x64emu_t* emu, void* buff, void* fmt, void* b)
 {
-    myStackAlignScanfW32((const char*)fmt, (uint32_t*)b, emu->scratch);
+    int n = myStackAlignScanfW32((const char*)fmt, (uint32_t*)b, emu->scratch, N_SCRATCH);
     PREPARE_VALIST_32;
-    vswscanf(buff, fmt, VARARGS_32);
+    int ret = vswscanf(buff, fmt, VARARGS_32);
+    if(n) myStackAlignScanfW32_final((const char*)fmt, (uint32_t*)b, emu->scratch, N_SCRATCH, ret);
+    return ret;
 }
 
 EXPORT int my32__vswscanf(x64emu_t* emu, void* buff, void* fmt, void* b) __attribute__((alias("my32_vswscanf")));

@@ -58,6 +58,8 @@ typedef struct emu_flags_s {
 #define JUMPBUFF struct __jmp_buf_tag
 #endif
 
+#define N_SCRATCH 200
+
 typedef struct x64emu_s {
     // cpu
     reg64_t     regs[16];
@@ -119,7 +121,7 @@ typedef struct x64emu_s {
     #endif
     // scratch stack, used for alignment of double and 64bits ints on arm. 200 elements should be enough
     __int128_t  dummy_align;    // here to have scratch 128bits aligned
-    uint64_t    scratch[200];
+    uint64_t    scratch[N_SCRATCH];
     // local stack, do be deleted when emu is freed
     void*       stack2free; // this is the stack to free (can be NULL)
     void*       init_stack; // initial stack (owned or not)
