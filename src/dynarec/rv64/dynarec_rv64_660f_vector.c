@@ -1127,8 +1127,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("PSHUFD Gx, Ex, Ib");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_empty_vector(q0);
             GETEX_vector(q1, 0, 0, VECTOR_SEW64);
+            GETGX_empty_vector(q0);
             v0 = fpu_get_scratch(dyn);
             tmp64u0 = F8;
             if (rv64_xtheadvector) { // lack of vrgatherei16.vv
@@ -1774,21 +1774,21 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            d1 = fpu_get_scratch(dyn);                    // use this at caution!
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // warning, no more scratches!
+            d1 = fpu_get_scratch(dyn);                    // use this at caution!
             VWMUL_VV(v0, q1, q0, VECTOR_UNMASKED);
             if (rv64_xtheadvector) { // lack of vrgatherei16.vv
                 ADDI(x4, xZR, 6);
-                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 1);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
                 VID_V(d0, VECTOR_UNMASKED);
                 VSLL_VI(d0, d0, 1, VECTOR_UNMASKED); // times 2
                 VMIN_VX(d0, d0, x4, VECTOR_UNMASKED);
                 VRGATHER_VV(v1, v0, d0, VECTOR_UNMASKED); // 6 4 2 0
-                // out of scratches, go back to lmul1 and slideup....
+                // out of scratches, go back to lmul1 and vmv....
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
-                VSLIDEUP_VX(d1, v1, 0, VECTOR_UNMASKED);
-                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 1);
+                VMV_V_V(d1, v1);
                 VADD_VI(d0, d0, 1, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
                 VRGATHER_VV(v1, v0, d0, VECTOR_UNMASKED); // 7 5 3 1
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 VADD_VV(q0, v1, d1, VECTOR_UNMASKED);
@@ -1798,7 +1798,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VSLL_VI(d0, d0, 1, VECTOR_UNMASKED); // times 2
                 VMIN_VX(d0, d0, x4, VECTOR_UNMASKED);
                 VADD_VI(q0, d0, 1, VECTOR_UNMASKED);
-                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 1);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
                 VRGATHEREI16_VV(v1, v0, d0, VECTOR_UNMASKED); // 6 4 2 0
                 VRGATHEREI16_VV(d0, v0, q0, VECTOR_UNMASKED); // 7 5 3 1
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
