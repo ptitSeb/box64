@@ -3015,6 +3015,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             setProtection_mmap((uintptr_t)ret, length, prot);
         else
             setProtection((uintptr_t)ret, length, prot);
+        if(old_addr && ret!=old_addr)
+            errno = EEXIST;
     }
     return ret;
 }
