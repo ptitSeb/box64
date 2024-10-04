@@ -1115,7 +1115,7 @@ GO(mkfifo, iFpu)
 GO(mkstemp, iFp)
 GO(mkstemp64, iFp)
 //GO(mktemp, pFp)
-GO(mktime, LFriiiiiiiiilt_)
+GO(mktime, LFbiiiiiiiiilt_)
 GO(mlock, iFpL)
 //GO(mlockall, iFi)
 GOM(mmap, pFEpLiiil)    //%%

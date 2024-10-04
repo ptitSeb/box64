@@ -121,6 +121,7 @@ void LFrl__32(x64emu_t *emu, uintptr_t fnc);
 void pFrl__32(x64emu_t *emu, uintptr_t fnc);
 void iFBllll__32(x64emu_t *emu, uintptr_t fnc);
 void vFbuuipWCCp__32(x64emu_t *emu, uintptr_t fnc);
+void LFbiiiiiiiiilt__32(x64emu_t *emu, uintptr_t fnc);
 void LFriiiiiiiiilt__32(x64emu_t *emu, uintptr_t fnc);
 void pFriiiiiiiiilt__32(x64emu_t *emu, uintptr_t fnc);
 void vFEv_32(x64emu_t *emu, uintptr_t fnc);
