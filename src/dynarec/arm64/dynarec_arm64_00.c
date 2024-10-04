@@ -2491,7 +2491,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             INST_NAME("IRET");
             SETFLAGS(X_ALL, SF_SET_NODF);    // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
-            iret_to_epilog(dyn, ninst, rex.w);
+            iret_to_epilog(dyn, ninst, rex.is32bits, rex.w);
             *need_epilog = 0;
             *ok = 0;
             break;

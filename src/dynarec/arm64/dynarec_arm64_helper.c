@@ -693,10 +693,12 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     CLEARIP();
 }
 
-void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
+void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is32bits, int is64bits)
 {
+    int64_t j64;
     //#warning TODO: is64bits
     MAYUSE(ninst);
+    MAYUSE(j64);
     MESSAGE(LOG_DUMP, "IRet to epilog\n");
     SMEND();
     SET_DFNONE(x2);
@@ -719,6 +721,12 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     ANDx_REG(xFlags, xFlags, x1);
     ORRx_mask(xFlags, xFlags, 1, 0b111111, 0); // xFlags | 0b10
     SET_DFNONE(x1);
+    if(is32bits) {
+        ANDw_mask(x2, x2, 0, 7);   // mask 0xff
+        // check if return segment is 64bits, then restore rsp too
+        CMPSw_U12(x2, 0x23);
+        B_MARKSEG(cEQ);
+    }
     // POP RSP
     if(is64bits) {
         POP1(x3);   //rsp
@@ -732,6 +740,7 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is64bits)
     STRw_U12(xZR, xEmu, offsetof(x64emu_t, segs_serial[_SS]));
     // set new RSP
     MOVx_REG(xRSP, x3);
+    MARKSEG;
     // Ret....
     MOV64x(x2, (uintptr_t)arm64_epilog);  // epilog on purpose, CS might have changed!
     BR(x2);
