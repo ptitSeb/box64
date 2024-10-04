@@ -239,11 +239,10 @@ EXPORT void* my32_XRRGetOutputInfo(x64emu_t* emu, void* dpy, void* res, XID wind
     return ret;
 }
 
-#if 0
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"
 #else
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6", "libXrender.so.1"
 #endif
-#endif
+
 #include "wrappedlib_init32.h"

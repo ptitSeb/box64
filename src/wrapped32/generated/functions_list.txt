@@ -957,6 +957,7 @@
 #() iFEpLiipV -> iFEpLiipV
 #() iFEpLiLpV -> iFEpLiLpV
 #() iFEpppppp -> iFEpppppp
+#() iFEXLpiiL -> iFEXLpiiL
 #() iFEXLpppp -> iFEXLpppp
 #() iFuiiiuup -> iFuiiiuup
 #() iFpWCiWCi -> iFpWCiWCi
@@ -1038,6 +1039,7 @@
 #() uFuulpiuiuf -> uFuulpiuiuf
 #() pFEuiiiuuuu -> pFEuiiiuuuu
 #() pFEXLiiuuLi -> pFEXLiiuuLi
+#() pFEXpuippuu -> pFEXpuippuu
 #() vFEXLpppippp -> vFEXLpppippp
 #() vFiiiiiiiiii -> vFiiiiiiiiii
 #() vFiiiiiiiiui -> vFiiiiiiiiui
@@ -1088,6 +1090,7 @@
 #() vFuuiiiiiiiuup -> vFuuiiiiiiiuup
 #() vFuuuuuuuuuuuu -> vFuuuuuuuuuuuu
 #() vFffffffffffff -> vFffffffffffff
+#() iFEXLppiiiiuui -> iFEXLppiiiiuui
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
 #() iFXLLlliLBL_pBL_BL_Bp_ -> iFXLLlliLBpBBB
 #() vFuiiiiiiiiiuup -> vFuiiiiiiiiiuup
@@ -1647,6 +1650,13 @@ wrappedlibx11:
 - LFXLiiuuuiupLp:
   - XCreateWindow
 wrappedlibxcursor:
+wrappedlibxext:
+- iFXLpiiL:
+  - XShmGetImage
+- pFXpuippuu:
+  - XShmCreateImage
+- iFXLppiiiiuui:
+  - XShmPutImage
 wrappedlibxfixes:
 wrappedlibxrandr:
 - pFXL:
