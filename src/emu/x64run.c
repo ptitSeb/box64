@@ -1544,14 +1544,16 @@ x64emurun:
             #endif
             break;
         case 0xCF:                      /* IRET */
-            addr = rex.is32bits?Pop32(emu):Pop64(emu);
-            emu->segs[_CS] = (rex.is32bits?Pop32(emu):Pop64(emu))&0xffff;
+            addr = (!rex.w)?Pop32(emu):Pop64(emu);
+            emu->segs[_CS] = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
             emu->segs_serial[_CS] = 0;
-            emu->eflags.x64 = (((rex.is32bits?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
-            tmp64u = rex.is32bits?Pop32(emu):Pop64(emu);  //RSP
-            emu->segs[_SS] = (rex.is32bits?Pop32(emu):Pop64(emu))&0xffff;
-            emu->segs_serial[_SS] = 0;
-            R_RSP = tmp64u;
+            emu->eflags.x64 = ((((!rex.w)?Pop32(emu):Pop64(emu)) & 0x3F7FD7)/* & (0xffff-40)*/ ) | 0x2; // mask off res2 and res3 and on res1
+            if(!is32bits || (is32bits && emu->segs[_CS]!=0x23)) {
+                tmp64u = (!rex.w)?Pop32(emu):Pop64(emu);  //RSP
+                emu->segs[_SS] = ((!rex.w)?Pop32(emu):Pop64(emu))&0xffff;
+                emu->segs_serial[_SS] = 0;
+                R_RSP = tmp64u;
+            }
             RESET_FLAGS(emu);
             R_RIP = addr;
             STEP;
