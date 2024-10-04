@@ -373,7 +373,6 @@ void iFiuu_32(x64emu_t *emu, uintptr_t fnc);
 void iFiup_32(x64emu_t *emu, uintptr_t fnc);
 void iFill_32(x64emu_t *emu, uintptr_t fnc);
 void iFiLi_32(x64emu_t *emu, uintptr_t fnc);
-void iFiLN_32(x64emu_t *emu, uintptr_t fnc);
 void iFipi_32(x64emu_t *emu, uintptr_t fnc);
 void iFipu_32(x64emu_t *emu, uintptr_t fnc);
 void iFipL_32(x64emu_t *emu, uintptr_t fnc);

@@ -428,11 +428,11 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                                 snprintf(buff2, 63, "%s", "here");
                             break;
                 }
-                if(perr==1 && ((int)R_EAX)<0)
+                if(perr==1 && (S_EAX)<0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 else if(perr==2 && R_EAX==0)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
-                else if(perr==3 && ((int)R_EAX)==-1)
+                else if(perr==3 && (S_EAX)==-1)
                     snprintf(buff3, 63, " (errno=%d:\"%s\")", errno, strerror(errno));
                 if(cycle_log) {
                     if(ret_fmt==1)
