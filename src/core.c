@@ -518,7 +518,32 @@ HWCAP2_AFP
         RV64_Detect_Function();
         rv64_vector = 0;
         rv64_xtheadvector = 0;
+    } else if (p != NULL && !strcasecmp(p, "zba")) {
+        RV64_Detect_Function();
+        rv64_zba = 0;
+    } else if (p != NULL && !strcasecmp(p, "zbb")) {
+        RV64_Detect_Function();
+        rv64_zbb = 0;
+    } else if (p != NULL && !strcasecmp(p, "zbc")) {
+        RV64_Detect_Function();
+        rv64_zbc = 0;
+    } else if (p != NULL && !strcasecmp(p, "zbs")) {
+        RV64_Detect_Function();
+        rv64_zbs = 0;
+    } else if (p != NULL && !strcasecmp(p, "xtheadba")) {
+        RV64_Detect_Function();
+        rv64_xtheadba = 0;
+    } else if (p != NULL && !strcasecmp(p, "xtheadbb")) {
+        RV64_Detect_Function();
+        rv64_xtheadbb = 0;
+    } else if (p != NULL && !strcasecmp(p, "xtheadbs")) {
+        RV64_Detect_Function();
+        rv64_xtheadbs = 0;
+    } else if (p != NULL && !strcasecmp(p, "xtheadmempair")) {
+        RV64_Detect_Function();
+        rv64_xtheadmempair = 0;
     }
+
     printf_log(LOG_INFO, "Dynarec for RISC-V ");
     printf_log(LOG_INFO, "With extension: I M A F D C");
     if(rv64_zba) printf_log(LOG_INFO, " Zba");
