@@ -37,6 +37,13 @@ typedef struct struct_LC_s {
 } struct_LC_t;
 void from_struct_LC(struct_LC_t *dest, ptr_t src);
 void to_struct_LC(ptr_t dest, const struct_LC_t *src);
+typedef struct struct_liu_s {
+	long l0;
+	int i1;
+	uint32_t u2;
+} struct_liu_t;
+void from_struct_liu(struct_liu_t *dest, ptr_t src);
+void to_struct_liu(ptr_t dest, const struct_liu_t *src);
 typedef struct struct_llll_s {
 	long l0;
 	long l1;

@@ -404,7 +404,7 @@ GO(dummy_XGetPixel, LFpii)     // for the wrapper
 //GO(XGetRGBColormaps, iFpLppL)
 //GO(_XGetScanlinePad, 
 //GO(XGetScreenSaver, iFppppp)
-//GO(XGetSelectionOwner, LFpL)
+GO(XGetSelectionOwner, LFXL)
 //GO(XGetSizeHints, iFpLpL)
 //GO(XGetStandardColormap, iFpLpL)
 GOM(XGetSubImage, pFEXLiiuuLipii)
@@ -998,7 +998,7 @@ GO(XRaiseWindow, iFXL)
 //GO(XReparentWindow, iFpLLii)
 //GO(_XReply, iFppii)
 //GO(XResetScreenSaver, iFp)
-//GO(XResizeWindow, iFpLuu)
+GO(XResizeWindow, iFXLuu)
 //GO(XResourceManagerString, pFp)
 //GO(XRestackWindows, iFppi)
 //GO(_XReverse_Bytes, 

@@ -71,6 +71,21 @@ void to_struct_LC(ptr_t d, const struct_LC_t *src) {
 	*(uint8_t*)dest = to_ulong(src->C1); dest += 1;
 }
 
+void from_struct_liu(struct_liu_t *dest, ptr_t s) {
+	if(!s) return;
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->l0 = from_long(*(long_t*)src); src += 4;
+	dest->i1 = *(int*)src; src += 4;
+	dest->u2 = *(uint32_t*)src; src += 4;
+}
+void to_struct_liu(ptr_t d, const struct_liu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(long_t*)dest = to_long(src->l0); dest += 4;
+	*(int*)dest = src->i1; dest += 2;
+	*(uint32_t*)dest = src->u2; dest += 2;
+}
+
 void from_struct_llll(struct_llll_t *dest, ptr_t s) {
 	if(!s) return;
 	uint8_t* src = (uint8_t*)from_ptrv(s);

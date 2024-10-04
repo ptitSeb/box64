@@ -184,6 +184,17 @@ EXPORT int my32_2_SDL_SetWindowDisplayMode(void* window, void* mode)
     return my->SDL_SetWindowDisplayMode(window, &mode_l);
 }
 
+EXPORT void* my32_2_SDL_GetClosestDisplayMode(int index, void* mode, void* closest)
+{
+    my_SDL2_DisplayMode_t mode_l = { 0 };
+    my_SDL2_DisplayMode_t closest_l = { 0 };
+    convert_SDL2_DisplayMode_to_64(&mode_l, mode);
+    void* ret = my->SDL_GetClosestDisplayMode(index, &mode_l, &closest_l);
+    if(!ret) return NULL;
+    convert_SDL2_DisplayMode_to_32(closest, &closest_l);
+    return closest;
+}
+
 EXPORT void* my32_2_SDL_JoystickGetDeviceGUID(void* ret, int index)
 {
    *(SDL2_GUID_t*)ret = my->SDL_JoystickGetDeviceGUID(index);
@@ -337,6 +348,14 @@ EXPORT int my32_2_SDL_FillRect(x64emu_t* emu, void* s, void* rect, uint32_t colo
 {
     inplace_SDL2_Surface_to_64(s);
     int ret = my->SDL_FillRect(s, rect, color);
+    inplace_SDL2_Surface_to_32(s);
+    return ret;
+}
+
+EXPORT void* my32_2_SDL_CreateTextureFromSurface(void* r, void* s)
+{
+    inplace_SDL2_Surface_to_64(s);
+    void* ret = my->SDL_CreateTextureFromSurface(r, s);
     inplace_SDL2_Surface_to_32(s);
     return ret;
 }

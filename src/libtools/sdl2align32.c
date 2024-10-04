@@ -202,6 +202,26 @@ void convert_SDL2_Event_to_64(void* dst_, const void* src_)
             dst->common.timestamp = src->common.timestamp;
             dst->common.type = src->common.type;
             break;
+        case SDL2_JOYBUTTONDOWN:
+        case SDL2_JOYBUTTONUP:
+            dst->jbutton.type = src->jbutton.type;
+            dst->jbutton.timestamp = src->jbutton.timestamp;
+            dst->jbutton.which = src->jbutton.which;
+            dst->jbutton.button = src->jbutton.button;
+            dst->jbutton.state = src->jbutton.state;
+            dst->jbutton.padding1 = src->jbutton.padding1;
+            dst->jbutton.padding2 = src->jbutton.padding2;
+            break;
+        case SDL2_CONTROLLERBUTTONDOWN:
+        case SDL2_CONTROLLERBUTTONUP:
+            dst->cbutton.type = src->cbutton.type;
+            dst->cbutton.timestamp = src->cbutton.timestamp;
+            dst->cbutton.which = src->cbutton.which;
+            dst->cbutton.button = src->cbutton.button;
+            dst->cbutton.state = src->cbutton.state;
+            dst->cbutton.padding1 = src->cbutton.padding1;
+            dst->cbutton.padding2 = src->cbutton.padding2;
+            break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
             if(dst_!=src_)
@@ -354,6 +374,26 @@ void convert_SDL2_Event_to_32(void* dst_, const void* src_)
         case SDL2_CLIPBOARDUPDATE:
             dst->common.type = src->common.type;
             dst->common.timestamp = src->common.timestamp;
+            break;
+        case SDL2_JOYBUTTONDOWN:
+        case SDL2_JOYBUTTONUP:
+            dst->jbutton.type = src->jbutton.type;
+            dst->jbutton.timestamp = src->jbutton.timestamp;
+            dst->jbutton.which = src->jbutton.which;
+            dst->jbutton.button = src->jbutton.button;
+            dst->jbutton.state = src->jbutton.state;
+            dst->jbutton.padding1 = src->jbutton.padding1;
+            dst->jbutton.padding2 = src->jbutton.padding2;
+            break;
+        case SDL2_CONTROLLERBUTTONDOWN:
+        case SDL2_CONTROLLERBUTTONUP:
+            dst->cbutton.type = src->cbutton.type;
+            dst->cbutton.timestamp = src->cbutton.timestamp;
+            dst->cbutton.which = src->cbutton.which;
+            dst->cbutton.button = src->cbutton.button;
+            dst->cbutton.state = src->cbutton.state;
+            dst->cbutton.padding1 = src->cbutton.padding1;
+            dst->cbutton.padding2 = src->cbutton.padding2;
             break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);

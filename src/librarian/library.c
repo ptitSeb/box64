@@ -886,7 +886,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
                 return 0;
             }
-            s->addr = AddBridge(lib->w.bridge, s->w, symbol, sizeof(void*), name);
+            s->addr = AddBridge(lib->w.bridge, s->w, symbol, box64_is32bits?4:sizeof(void*), name);
             s->resolved = 1;
         }
         *addr = s->addr;

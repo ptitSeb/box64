@@ -28,6 +28,7 @@ typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int64_t (*IFpIi_t)(void*, int64_t, int32_t);
+typedef void* (*pFipp_t)(int32_t, void*, void*);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
@@ -61,11 +62,13 @@ typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uin
 	GO(SDL_SetWindowDisplayMode, iFpp_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
 	GO(SDL_notreal, pFpi_t) \
+	GO(SDL_CreateTextureFromSurface, pFpp_t) \
 	GO(SDL_RWFromFile, pFpp_t) \
 	GO(SDL_GetDisplayMode, iFiip_t) \
 	GO(SDL_FillRect, iFppu_t) \
 	GO(SDL_sscanf, iFppV_t) \
 	GO(SDL_RWseek, IFpIi_t) \
+	GO(SDL_GetClosestDisplayMode, pFipp_t) \
 	GO(SDL_CreateColorCursor, pFpii_t) \
 	GO(SDL_CreateThread, pFppp_t) \
 	GO(SDL_vsnprintf, iFpLpp_t) \

@@ -333,7 +333,7 @@ GOW(fgetc, iFS)
 GOW(fgetc_unlocked, iFS)
 // fgetgrent
 // fgetgrent_r  // Weak
-//GO(fgetpos, iFSBLii_)
+GO(fgetpos, iFSBliu_)
 GO(fgetpos64, iFSp)
 // fgetpwent
 // fgetpwent_r  // Weak

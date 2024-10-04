@@ -243,6 +243,7 @@
 #() iFpbup_ -> iFpB
 #() iFprLL_ -> iFpB
 #() iFBll_p -> iFBp
+#() iFSBliu_ -> iFSB
 #() iFXbLipi_ -> iFXB
 #() iFrLL_BLL_ -> iFBB
 #() iFpruuipWCCp_ -> iFpB
@@ -426,6 +427,7 @@
 #() pFEXp -> pFEXp
 #() pFipi -> pFipi
 #() pFipL -> pFipL
+#() pFipp -> pFipp
 #() pFulu -> pFulu
 #() pFupi -> pFupi
 #() pFupp -> pFupp
@@ -616,6 +618,7 @@
 #() iFXWWW -> iFXWWW
 #() iFXuup -> iFXuup
 #() iFXLii -> iFXLii
+#() iFXLuu -> iFXLuu
 #() iFXpii -> iFXpii
 #() iFXpip -> iFXpip
 #() iFXppi -> iFXppi
@@ -828,6 +831,7 @@
 #() LFpbp_LLp -> LFpBLLp
 #() LFpBp_LLp -> LFpBLLp
 #() iFippprLL_ -> iFipppB
+#() iFiiuBp_Bp_ -> iFiiuBB
 #() LFLbp_bL_bp_bL_ -> LFLBBBB
 #() LFpLpriiiiiiiiilt_a -> LFpLpBa
 #() iFXLpBLWWWcc_BLWWWcc_ -> iFXLpBB
@@ -1810,6 +1814,7 @@ wrappedsdl2:
   - SDL_LoadBMP_RW
   - SDL_notreal
 - pFpp:
+  - SDL_CreateTextureFromSurface
   - SDL_RWFromFile
 - iFiip:
   - SDL_GetDisplayMode
@@ -1819,6 +1824,8 @@ wrappedsdl2:
   - SDL_sscanf
 - IFpIi:
   - SDL_RWseek
+- pFipp:
+  - SDL_GetClosestDisplayMode
 - pFpii:
   - SDL_CreateColorCursor
 - pFppp:
