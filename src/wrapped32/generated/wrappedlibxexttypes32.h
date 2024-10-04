@@ -12,12 +12,12 @@
 #endif
 
 typedef int32_t (*iFXLpiiL_t)(void*, uintptr_t, void*, int32_t, int32_t, uintptr_t);
-typedef void* (*pFXpuippuu_t)(void*, void*, uint32_t, int32_t, void*, void*, uint32_t, uint32_t);
+typedef void* (*pFXbpLiLLLii_uipbLipi_uu_t)(void*, struct_pLiLLLii_t*, uint32_t, int32_t, void*, struct_Lipi_t*, uint32_t, uint32_t);
 typedef int32_t (*iFXLppiiiiuui_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XShmGetImage, iFXLpiiL_t) \
-	GO(XShmCreateImage, pFXpuippuu_t) \
+	GO(XShmCreateImage, pFXbpLiLLLii_uipbLipi_uu_t) \
 	GO(XShmPutImage, iFXLppiiiiuui_t)
 
 #endif // __wrappedlibxextTYPES32_H_

@@ -16,6 +16,7 @@
 #include "librarian.h"
 #include "box32context.h"
 #include "emu/x64emu_private.h"
+#include "converter32.h"
 
 #ifdef ANDROID
     static const char* libxextName = "libXext.so";

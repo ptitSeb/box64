@@ -31,6 +31,12 @@ typedef struct struct_LL_s {
 } struct_LL_t;
 void from_struct_LL(struct_LL_t *dest, ptr_t src);
 void to_struct_LL(ptr_t dest, const struct_LL_t *src);
+typedef struct struct_LC_s {
+	unsigned long L0;
+	uint8_t C1;
+} struct_LC_t;
+void from_struct_LC(struct_LC_t *dest, ptr_t src);
+void to_struct_LC(ptr_t dest, const struct_LC_t *src);
 typedef struct struct_llll_s {
 	long l0;
 	long l1;
@@ -127,6 +133,22 @@ typedef struct struct_pLiL_s {
 } struct_pLiL_t;
 void from_struct_pLiL(struct_pLiL_t *dest, ptr_t src);
 void to_struct_pLiL(ptr_t dest, const struct_pLiL_t *src);
+typedef struct struct_Lipi_s {
+	unsigned long L0;
+	int i1;
+	void* p2;
+	int i3;
+} struct_Lipi_t;
+void from_struct_Lipi(struct_Lipi_t *dest, ptr_t src);
+void to_struct_Lipi(ptr_t dest, const struct_Lipi_t *src);
+typedef struct struct_LLii_s {
+	unsigned long L0;
+	unsigned long L1;
+	int i2;
+	int i3;
+} struct_LLii_t;
+void from_struct_LLii(struct_LLii_t *dest, ptr_t src);
+void to_struct_LLii(ptr_t dest, const struct_LLii_t *src);
 typedef struct struct_uuipWCCp_s {
 	uint32_t u0;
 	uint32_t u1;
@@ -139,5 +161,30 @@ typedef struct struct_uuipWCCp_s {
 } struct_uuipWCCp_t;
 void from_struct_uuipWCCp(struct_uuipWCCp_t *dest, ptr_t src);
 void to_struct_uuipWCCp(ptr_t dest, const struct_uuipWCCp_t *src);
+typedef struct struct_pLiLLLii_s {
+	void* p0;
+	unsigned long L1;
+	int i2;
+	unsigned long L3;
+	unsigned long L4;
+	unsigned long L5;
+	int i6;
+	int i7;
+} struct_pLiLLLii_t;
+void from_struct_pLiLLLii(struct_pLiLLLii_t *dest, ptr_t src);
+void to_struct_pLiLLLii(ptr_t dest, const struct_pLiLLLii_t *src);
+typedef struct struct_WWpWpWpWp_s {
+	uint16_t W0;
+	uint16_t W1;
+	void* p2;
+	uint16_t W3;
+	void* p4;
+	uint16_t W5;
+	void* p6;
+	uint16_t W7;
+	void* p8;
+} struct_WWpWpWpWp_t;
+void from_struct_WWpWpWpWp(struct_WWpWpWpWp_t *dest, ptr_t src);
+void to_struct_WWpWpWpWp(ptr_t dest, const struct_WWpWpWpWp_t *src);
 
 #endif // __CONVERTER_H_
