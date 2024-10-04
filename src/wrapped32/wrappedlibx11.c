@@ -1612,8 +1612,17 @@ void convert_Screen_to_32(void* d, void* s)
     dst->root_input_mask = to_long(src->root_input_mask);
 }
 
+void* my_dlopen(x64emu_t* emu, void *filename, int flag);
 void* addDisplay(void* d)
 {
+    if(!my_lib) {
+        // the lib has not be loaded directly... need to open it! leaking the lib handle...
+        #ifdef ANDROID
+        my_dlopen(thread_get_emu(), "libX11.so", RTLD_NOW);
+        #else
+        my_dlopen(thread_get_emu(), "libX11.so.6", RTLD_NOW);
+        #endif
+    }
     my_XDisplay_t* dpy = (my_XDisplay_t*)d;
     // look for a free slot, or a display already there
     my_XDisplay_32_t* ret = NULL;
