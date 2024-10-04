@@ -259,11 +259,11 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "__snprintf_chk")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %d, \"%s\", %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(size_t*)from_ptr(R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), (char*)from_ptrv(*(ptr_t*)from_ptr(R_ESP+20)), *(void**)from_ptr(R_ESP+24));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, %d, %d, \"%s\", %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(ulong_t, R_ESP+8), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), (char*)from_ptrv(*(ptr_t*)from_ptr(R_ESP+20)), *(void**)from_ptr(R_ESP+24));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "snprintf")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), *(size_t*)from_ptr(R_ESP+8), (char*)from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %zu, \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(ulong_t, R_ESP+8), (char*)from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)));
                     pu32 = (uint32_t*)from_ptr(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 3;
                 } else  if(strstr(s, "sprintf")==s) {
@@ -320,6 +320,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char*)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
                 } else if (!strcmp(s, "glTexImage2D")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(0x%x, %d, 0x%x, %d, %d, %d, 0x%x, 0x%x, %p)", tid, from_ptrv(*(ptr_t*)from_ptrv(R_ESP)), (char *)s, *(uint32_t*)from_ptrv(R_ESP+4), *(int*)from_ptrv(R_ESP+8), *(int*)from_ptrv(R_ESP+12), *(int*)from_ptrv(R_ESP+16), *(int*)from_ptrv(R_ESP+20), *(int*)from_ptrv(R_ESP+24), *(uint32_t*)from_ptrv(R_ESP+28), *(uint32_t*)from_ptrv(R_ESP+32), from_ptrv(*(ptr_t*)from_ptrv(R_ESP+36)));
+                } else  if(strstr(s, "fscanf")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else  if(strstr(s, "sscanf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else  if(!strcmp(s, "vsscanf")) {

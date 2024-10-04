@@ -140,6 +140,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(execlp, iFpV_t) \
 	GO(signal, pFip_t) \
 	GO(backtrace_symbols, pFpi_t) \
+	GO(__cmsg_nxthdr, pFpp_t) \
 	GO(gmtime_r, pFpp_t) \
 	GO(localtime_r, pFpp_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \

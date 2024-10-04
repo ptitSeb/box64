@@ -389,6 +389,14 @@ void EXPORT x86Syscall(x64emu_t *emu)
                     R_EAX = (uint32_t)-errno;
             }
             break;
+        case 449:
+            #ifdef __NR_futex_waitv
+            if(box64_futex_waitv)
+                S_RAX = syscall(__NR_futex_waitv, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI);
+            else
+            #endif
+                S_RAX = -ENOSYS;
+            break;
         default:
             printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
             R_EAX = (uint32_t)-ENOSYS;
@@ -595,6 +603,17 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
             return (uint32_t)my32_memfd_create(emu, p(4), u32(8));
 #endif
 #endif
+        case 449:
+            #ifdef __NR_futex_waitv
+            if(box64_futex_waitv)
+                return syscall(__NR_futex_waitv, u32(4), u32(8), u32(12), u32(16), u32(20));
+            else
+            #endif
+                {
+                    errno = ENOSYS;
+                    return -1;
+                }
+            break;
         default:
             if((s>>6)<sizeof(warned)/sizeof(warned[0])) {
                 if(!(warned[s>>6]&(1<<(s&0x3f)))) {

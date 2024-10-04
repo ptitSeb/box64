@@ -36,24 +36,41 @@
 #include "box32.h"
 #include "converter32.h"
 
-EXPORT ssize_t my32_recvmsg(x64emu_t* emu, int socket, void* msg, int flags)
+EXPORT ssize_t my32_recvmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, int flags)
 {
-    struct iovec iov;
+    struct iovec iov[msg->msg_iovlen];
     struct msghdr m;
-    AlignMsgHdr_32(&m, &iov, msg);
+    uint8_t buff[msg->msg_controllen+256];
+    AlignMsgHdr_32(&m, iov, buff, msg, 0);
     ssize_t ret = recvmsg(socket, &m, flags);
-    // put back msg_flags in place
-    ((struct i386_msghdr*)msg)->msg_flags = m.msg_flags;
+    UnalignMsgHdr_32(msg, &m);
     return ret;
 }
 
-EXPORT ssize_t my32_sendmsg(x64emu_t* emu, int socket, void* msg, int flags)
+EXPORT ssize_t my32_sendmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, int flags)
 {
-    struct iovec iov[256];
+    struct iovec iov[msg->msg_iovlen];
     struct msghdr m;
-    AlignMsgHdr_32(&m, &iov, msg);
+    uint8_t buff[msg->msg_controllen+256];
+    AlignMsgHdr_32(&m, iov, buff, msg, 1);
     ssize_t ret = sendmsg(socket, &m, flags);
+    UnalignMsgHdr_32(msg, &m);
     return ret;
+}
+
+EXPORT void* my32___cmsg_nxthdr(struct i386_msghdr* mhdr, struct i386_cmsghdr* cmsg)
+{
+    // simpler to redo, also, will be used internaly
+    if(cmsg->cmsg_len < sizeof(struct i386_cmsghdr))
+        return NULL;
+    // compute next
+    cmsg = (struct i386_cmsghdr*)(((uintptr_t)cmsg) + ((cmsg->cmsg_len+3)&~3));
+    // check it still inside limits
+    if((uintptr_t)(cmsg+1) > mhdr->msg_control+mhdr->msg_controllen)
+        return NULL;
+    if((uintptr_t)(cmsg)+cmsg->cmsg_len > mhdr->msg_control+mhdr->msg_controllen)
+        return NULL;
+    return cmsg;
 }
 
 EXPORT int my32_getaddrinfo(x64emu_t* emu, void* node, void* service, struct i386_addrinfo* hints, ptr_t* res)

@@ -149,6 +149,7 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
     size_t conv = 0;
     int state = 0;
     int ign = 0;
+    uint64_t* saved = mystack;
     while(*p)
     {
         switch(state) {
@@ -202,9 +203,9 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
-                    case 'p':
+                    case 'p': state = 30; break; // pointers
                     case 'S':
-                    case 's': state = 30; break; // pointers
+                    case 's': state = 50; break; // string
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
                     case ' ': state=0; ++p; break;
@@ -219,8 +220,8 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
             case 30:    // pointer
                 if(!ign) {
                     ++conv;
-                    mystack[nb_elem-conv] = 0;
-                    *mystack = (uintptr_t)&mystack[nb_elem-conv];
+                    saved[nb_elem-conv] = 0;
+                    *mystack = (uintptr_t)&saved[nb_elem-conv];
                     ++st;
                     ++mystack;
                 }
@@ -241,6 +242,7 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
             case 41:
             case 43:
             case 44:
+            case 50:
                 if(!ign) {
                     *mystack = *st;
                     ++st;
@@ -267,6 +269,7 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
     size_t conv = 0;
     int state = 0;
     int ign = 0;
+    uint64_t* saved = mystack;
     while(*p)
     {
         switch(state) {
@@ -320,9 +323,9 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
-                    case 'p':
+                    case 'p': state = 30; break; // pointers
                     case 'S':
-                    case 's': state = 30; break; // pointers
+                    case 's': state = 50; break; // strings
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
                     case ' ': state=0; ++p; break;
@@ -337,22 +340,22 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
             case 30:    // pointer
                 if(!ign) {
                     ++conv;
-                    if(state==22 || state==0x25) {
-                        int32_t* dst = from_ptrv(*st);
-                        *dst = to_long(mystack[nb_elem-conv]);
+                    if((state==22) || (state==25)) {
+                        long_t* dst = from_ptrv(*st);
+                        *dst = to_long(saved[nb_elem-conv]);
                     } else if(state==30) {
                         ptr_t* dst = from_ptrv(*st);
-                        *dst = to_ptr(mystack[nb_elem-conv]);
+                        *dst = to_ptr(saved[nb_elem-conv]);
                     } else {
-                        uint32_t* dst = from_ptrv(*st);
-                        *dst = to_ulong(mystack[nb_elem-conv]);
+                        ulong_t* dst = from_ptrv(*st);
+                        *dst = to_ulong(saved[nb_elem-conv]);
                     }
                     ++st;
                     ++mystack;
+                    if(!--n) return;
                 }
                 state = 0;
                 ++p;
-                if(!--n) return;
                 break;
             
             case 11:    //double
@@ -368,6 +371,7 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
             case 41:
             case 43:
             case 44:
+            case 50:
                 if(!ign) {
                     *mystack = *st;
                     ++st;
@@ -394,6 +398,7 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
     int state = 0;
     size_t conv = 0;
     int ign = 0;
+    uint64_t* saved = mystack;
     while(*p)
     {
         switch(state) {
@@ -447,9 +452,9 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
-                    case 'p':
+                    case 'p': state = 30; break; // pointers
                     case 'S':
-                    case 's': state = 30; break; // pointers
+                    case 's': state = 50; break; // strings
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
                     case ' ': state=0; ++p; break;
@@ -464,8 +469,8 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
             case 30:    // pointer
                 if(!ign) {
                     ++conv;
-                    mystack[nb_elem-conv] = 0;
-                    *mystack = (uintptr_t)&mystack[nb_elem-conv];
+                    saved[nb_elem-conv] = 0;
+                    *mystack = (uintptr_t)&saved[nb_elem-conv];
                     ++st;
                     ++mystack;
                 }
@@ -486,6 +491,7 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
             case 41:
             case 43:
             case 44:
+            case 50:
                 if(!ign) {
                     *mystack = *st;
                     ++st;
@@ -512,6 +518,7 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
     int state = 0;
     size_t conv = 0;
     int ign = 0;
+    uint64_t* saved = mystack;
     while(*p)
     {
         switch(state) {
@@ -565,9 +572,9 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
-                    case 'p':
+                    case 'p': state = 30; break; // pointers
                     case 'S':
-                    case 's': state = 30; break; // pointers
+                    case 's': state = 50; break; // string
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
                     case ' ': state=0; ++p; break;
@@ -584,13 +591,13 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
                     ++conv;
                     if(state==22 || state==0x25) {
                         int32_t* dst = from_ptrv(*st);
-                        *dst = to_long(mystack[nb_elem-conv]);
+                        *dst = to_long(saved[nb_elem-conv]);
                     } else if(state==30) {
                         ptr_t* dst = from_ptrv(*st);
-                        *dst = to_ptr(mystack[nb_elem-conv]);
+                        *dst = to_ptr(saved[nb_elem-conv]);
                     } else {
                         uint32_t* dst = from_ptrv(*st);
-                        *dst = to_ulong(mystack[nb_elem-conv]);
+                        *dst = to_ulong(saved[nb_elem-conv]);
                     }
                     ++st;
                     ++mystack;
@@ -613,6 +620,7 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
             case 41:
             case 43:
             case 44:
+            case 50:
                 if(!ign) {
                     *mystack = *st;
                     ++st;
@@ -1445,9 +1453,10 @@ void UnalignIOV_32(void* dest, void* source)
     d->iov_len = s->iov_len;
 }
 
+void* my32___cmsg_nxthdr(struct i386_msghdr* mhdr, struct i386_cmsghdr* cmsg);
 
 // x86 -> Native
-void AlignMsgHdr_32(void* dest, void* dest_iov, void* source)
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, int convert_control)
 {
     struct iovec* iov = dest_iov;
     struct msghdr* d = dest;
@@ -1462,8 +1471,64 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* source)
         AlignIOV_32(d->msg_iov+i, s_iov+i);
     }
     d->msg_iovlen = s->msg_iovlen;
-    d->msg_control = from_ptrv(s->msg_control);
     d->msg_controllen = s->msg_controllen;
+    if(convert_control) {
+        if(s->msg_control) {
+            d->msg_control = dest_cmsg;
+            struct i386_cmsghdr* cmsg = from_ptrv(s->msg_control);
+            struct cmsghdr* dcmsg = dest_cmsg;
+            while(cmsg) {
+                dcmsg->cmsg_len = to_ulong(cmsg->cmsg_len);
+                dcmsg->cmsg_level = cmsg->cmsg_level;
+                dcmsg->cmsg_type = cmsg->cmsg_type;
+                if(cmsg->cmsg_len) {
+                    dcmsg->cmsg_len += 4;
+                    memcpy(CMSG_DATA(dcmsg), cmsg+1, cmsg->cmsg_len-sizeof(struct i386_cmsghdr));
+                    d->msg_controllen += 4;
+                }
+                dcmsg = (struct cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+7)&~7));
+                cmsg = my32___cmsg_nxthdr(s, cmsg);
+            }
+        } else 
+            d->msg_control = NULL;
+    } else {
+        d->msg_control = (s->msg_control)?dest_cmsg:NULL;
+        if(d->msg_control) memset(d->msg_control, 0, d->msg_controllen);
+    }
     d->msg_flags = s->msg_flags;
 }
 
+void UnalignMsgHdr_32(void* dest, void* source)
+{
+    struct msghdr* s = source;
+    struct i386_msghdr* d = dest;
+    struct iovec* s_iov = s->msg_iov;
+    struct i386_iovec* d_iov = from_ptrv(d->msg_iov);
+
+    d->msg_name = to_ptrv(s->msg_name);
+    d->msg_namelen = s->msg_namelen;
+    // TODO: check if iovlen is too big
+    for(int i=0; i<s->msg_iovlen; ++i) {
+        UnalignIOV_32(d_iov+i, s_iov+i);
+    }
+    d->msg_iovlen = s->msg_iovlen;
+    d->msg_controllen = s->msg_controllen;
+    if(s->msg_control) {
+        struct i386_cmsghdr* dcmsg = from_ptrv(d->msg_control);
+        struct cmsghdr* scmsg = s->msg_control;
+        while(scmsg) {
+            dcmsg->cmsg_len = from_ulong(scmsg->cmsg_len);
+            dcmsg->cmsg_level = scmsg->cmsg_level;
+            dcmsg->cmsg_type = scmsg->cmsg_type;
+            if(dcmsg->cmsg_len) {
+                dcmsg->cmsg_len -= 4;
+                memcpy(dcmsg+1, CMSG_DATA(scmsg), dcmsg->cmsg_len-sizeof(struct i386_cmsghdr));
+                d->msg_controllen -= 4;
+            }
+            (struct i386_cmsghdr*)(((uintptr_t)dcmsg) + ((dcmsg->cmsg_len+3)&~3));
+            scmsg = CMSG_NXTHDR(s, scmsg);
+        }
+    } else 
+        d->msg_control = 0;
+    d->msg_flags = s->msg_flags;
+}

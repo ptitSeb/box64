@@ -496,11 +496,19 @@ struct i386_msghdr
   ulong_t   msg_controllen;
   int msg_flags;
 };
+
+struct i386_cmsghdr
+{
+  ulong_t cmsg_len;
+  int cmsg_level;
+  int cmsg_type;
+};
+
 void AlignIOV_32(void* dest, void* source);   // x86 -> Native
 void UnalignIOV_32(void* dest, void* source); // Native -> x86
 
-void AlignMsgHdr_32(void* dest, void* dest_iov, void* source);   // x86 -> Native
-//void UnalignMsgHdr_32(void* dest, void* source, void* source_iov); // Native -> x86
+void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, int convert_control);   // x86 -> Native
+void UnalignMsgHdr_32(void* dest, void* source); // back to Native -> x86
 
 struct i386_passwd
 {

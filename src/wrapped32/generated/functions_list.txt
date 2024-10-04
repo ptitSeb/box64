@@ -1272,6 +1272,7 @@ wrappedlibc:
 - pFpi:
   - backtrace_symbols
 - pFpp:
+  - __cmsg_nxthdr
   - gmtime_r
   - localtime_r
 - SFpp:
