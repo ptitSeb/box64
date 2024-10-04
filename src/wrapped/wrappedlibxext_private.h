@@ -1,119 +1,119 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
 GO(DPMSCapable, iFp)
 GO(DPMSDisable, iFp)
 GO(DPMSEnable, iFp)
-GO(DPMSForceLevel, iFpu)
+GO(DPMSForceLevel, iFpW)
 GO(DPMSGetTimeouts, iFpppp)
 GO(DPMSGetVersion, iFppp)
 GO(DPMSInfo, iFppp)
 GO(DPMSQueryExtension, iFppp)
-GO(DPMSSetTimeouts, iFpuuu)
-//GO(XagCreateAssociation, 
-//GO(XagCreateEmbeddedApplicationGroup, 
-//GO(XagCreateNonembeddedApplicationGroup, 
-//GO(XagDestroyApplicationGroup, 
-//GO(XagDestroyAssociation, 
-//GO(XagGetApplicationGroupAttributes, 
-//GO(XagQueryApplicationGroup, 
-//GO(XagQueryVersion, 
-//GO(XcupGetReservedColormapEntries, 
-//GO(XcupQueryVersion, 
-//GO(XcupStoreColors, 
-GO(XdbeAllocateBackBufferName, pFppu)
+GO(DPMSSetTimeouts, iFpWWW)
+GO(XagCreateAssociation, iFppp)
+GO(XagCreateEmbeddedApplicationGroup, iFpLLLLp)
+GO(XagCreateNonembeddedApplicationGroup, iFpp)
+GO(XagDestroyApplicationGroup, iFpL)
+GO(XagDestroyAssociation, iFpL)
+//GOM(XagGetApplicationGroupAttributes, iFEpLV)
+GO(XagQueryApplicationGroup, iFpLp)
+GO(XagQueryVersion, iFppp)
+GO(XcupGetReservedColormapEntries, iFpipp)
+GO(XcupQueryVersion, iFppp)
+GO(XcupStoreColors, iFpLpi)
+GO(XdbeAllocateBackBufferName, LFpLC)
 GO(XdbeBeginIdiom, iFp)
-GO(XdbeDeallocateBackBufferName, iFpp)
+GO(XdbeDeallocateBackBufferName, iFpL)
 GO(XdbeEndIdiom, iFp)
 GO(XdbeFreeVisualInfo, vFp)
-GO(XdbeGetBackBufferAttributes, pFpp)
+GO(XdbeGetBackBufferAttributes, pFpL)
 GO(XdbeGetVisualInfo, pFppp)
 GO(XdbeQueryExtension, iFppp)
 GO(XdbeSwapBuffers, iFppi)
-//GO(XeviGetVisualInfo, 
-//GO(XeviQueryExtension, 
-//GO(XeviQueryVersion, 
+GO(XeviGetVisualInfo, iFppipp)
+GO(XeviQueryExtension, iFp)
+GO(XeviQueryVersion, iFppp)
 GOM(XextAddDisplay, pFEppppip)
 GO(XextCreateExtension, pFv)
 GO(XextDestroyExtension, vFp)
-DATAB(_XExtensionErrorFunction, 4)
+DATAB(_XExtensionErrorFunction, sizeof(void*))
 GO(XextFindDisplay, pFpp)
 GO(XextRemoveDisplay, iFpp)
-//GO(XGEQueryExtension, 
-//GO(XGEQueryVersion, 
-//GO(XLbxGetEventBase, 
-//GO(XLbxQueryExtension, 
-//GO(XLbxQueryVersion, 
-//GO(XmbufChangeBufferAttributes, 
-//GO(XmbufChangeWindowAttributes, 
-//GO(XmbufClearBufferArea, 
-//GO(XmbufCreateBuffers, 
-//GO(XmbufCreateStereoWindow, 
-//GO(XmbufDestroyBuffers, 
-//GO(XmbufDisplayBuffers, 
-//GO(XmbufGetBufferAttributes, 
-//GO(XmbufGetScreenInfo, 
-//GO(XmbufGetVersion, 
-//GO(XmbufGetWindowAttributes, 
-//GO(XmbufQueryExtension, 
+GO(XGEQueryExtension, iFppp)
+GO(XGEQueryVersion, iFppp)
+GO(XLbxGetEventBase, iFp)
+GO(XLbxQueryExtension, iFpppp)
+GO(XLbxQueryVersion, iFppp)
+GO(XmbufChangeBufferAttributes, vFpLLp)
+GO(XmbufChangeWindowAttributes, vFpLLp)
+GO(XmbufClearBufferArea, vFpLiiuui)
+GO(XmbufCreateBuffers, iFpLiiip)
+//GOM(XmbufCreateStereoWindow, LFEpLiiuuuiupLppp)
+GO(XmbufDestroyBuffers, vFpL)
+GO(XmbufDisplayBuffers, vFpipii)
+GO(XmbufGetBufferAttributes, iFpLp)
+GO(XmbufGetScreenInfo, iFpLpppp)
+GO(XmbufGetVersion, iFppp)
+GO(XmbufGetWindowAttributes, iFpLp)
+GO(XmbufQueryExtension, iFppp)
 GO(XMissingExtension, iFpp)
-//GO(XMITMiscGetBugMode, 
-//GO(XMITMiscQueryExtension, 
-//GO(XMITMiscSetBugMode, 
-//GO(XSecurityAllocXauth, 
-//GO(XSecurityFreeXauth, 
-//GO(XSecurityGenerateAuthorization, 
-//GO(XSecurityQueryExtension, 
-//GO(XSecurityRevokeAuthorization, 
+GO(XMITMiscGetBugMode, iFp)
+GO(XMITMiscQueryExtension, iFppp)
+GO(XMITMiscSetBugMode, iFpi)
+GO(XSecurityAllocXauth, pFv)
+GO(XSecurityFreeXauth, vFp)
+GO(XSecurityGenerateAuthorization, pFppLpp)
+GO(XSecurityQueryExtension, iFppp)
+GO(XSecurityRevokeAuthorization, iFpL)
 GOM(XSetExtensionErrorHandler, pFEp)
-GO(XShapeCombineMask, vFppiiipi)
-GO(XShapeCombineRectangles, vFppiiipiii)
-GO(XShapeCombineRegion, vFppiiipi)
-GO(XShapeCombineShape, vFppiiipii)
-GO(XShapeGetRectangles, pFppipp)
-GO(XShapeInputSelected, uFpp)
-GO(XShapeOffsetShape, vFppiii)
+GO(XShapeCombineMask, vFpLiiiLi)
+GO(XShapeCombineRectangles, vFpLiiipiii)
+GO(XShapeCombineRegion, vFpLiiipi)
+GO(XShapeCombineShape, vFpLiiiLii)
+GO(XShapeGetRectangles, pFpLipp)
+GO(XShapeInputSelected, LFpL)
+GO(XShapeOffsetShape, vFpLiii)
 GO(XShapeQueryExtension, iFppp)
-GO(XShapeQueryExtents, iFpppppppppppp)
+GO(XShapeQueryExtents, iFpLpppppppppp)
 GO(XShapeQueryVersion, iFppp)
-GO(XShapeSelectInput, vFppu)
+GO(XShapeSelectInput, vFpLL)
 GO(XShmAttach, iFpp)
 GOM(XShmCreateImage, pFEppuippuu)       //need brige/unbridge...
-GO(XShmCreatePixmap, pFppppuuu)
+GO(XShmCreatePixmap, LFpLppuuu)
 GO(XShmDetach, iFpp)
 GO(XShmGetEventBase, iFp)
-GOM(XShmGetImage, iFEpppiiu)        //need brige/unbridge...
+GOM(XShmGetImage, iFEpLpiiL)        //need brige/unbridge...
 GO(XShmPixmapFormat, iFp)
-GOM(XShmPutImage, iFEppppiiiiuui)       //need brige/unbridge...
+GOM(XShmPutImage, iFEpLppiiiiuui)       //need brige/unbridge...
 GO(XShmQueryExtension, iFp)
 GO(XShmQueryVersion, iFpppp)
 GO(XSyncAwait, iFppi)
-//GO(XSyncAwaitFence, 
-GO(XSyncChangeAlarm, iFpuLp)
+GO(XSyncAwaitFence, iFppi)
+GO(XSyncChangeAlarm, iFpLLp)
 GO(XSyncChangeCounter, iFpuU)
-GO(XSyncCreateAlarm, uFpLp)     // XSyncAlarm is an XID
+GO(XSyncCreateAlarm, LFpLp)     // XSyncAlarm is an XID
 GO(XSyncCreateCounter, uFpU)    // XSyncValue is a struct of 2 int
-//GO(XSyncCreateFence, 
-GO(XSyncDestroyAlarm, iFpu)
-GO(XSyncDestroyCounter, iFpu)
-//GO(XSyncDestroyFence, 
+GO(XSyncCreateFence, LFpLi)
+GO(XSyncDestroyAlarm, iFpL)
+GO(XSyncDestroyCounter, iFpL)
+GO(XSyncDestroyFence, iFpL)
 GO(XSyncFreeSystemCounterList, vFp)
-GO(XSyncGetPriority, iFpup)
+GO(XSyncGetPriority, iFpLp)
 GO(XSyncInitialize, iFppp)
 GO(XSyncIntsToValue, vFpui)
 GO(XSyncIntToValue, vFpi)
 GO(XSyncListSystemCounters, pFpp)
-//GO(XSyncMaxValue, 
-//GO(XSyncMinValue, 
-GO(XSyncQueryAlarm, iFpup)
-GO(XSyncQueryCounter, iFpup)
+GO(XSyncMaxValue, vFp)
+GO(XSyncMinValue, vFp)
+GO(XSyncQueryAlarm, iFpLp)
+GO(XSyncQueryCounter, iFpLp)
 GO(XSyncQueryExtension, iFppp)
-//GO(XSyncQueryFence, 
-//GO(XSyncResetFence, 
+GO(XSyncQueryFence, iFpLp)
+GO(XSyncResetFence, iFpL)
 GO(XSyncSetCounter, iFpuU)      // XSyncCounter is an XID
-GO(XSyncSetPriority, iFpui)
-//GO(XSyncTriggerFence, 
+GO(XSyncSetPriority, iFpLi)
+GO(XSyncTriggerFence, iFpL)
 //GO(XSyncValueAdd, 
 //GO(XSyncValueEqual, 
 //GO(XSyncValueGreaterOrEqual, 
@@ -127,13 +127,13 @@ GO(XSyncValueIsZero, iFp)
 //GO(XSyncValueLow32, 
 //GO(XSyncValueSubtract, 
 DATA(XTestFakeAckType, sizeof(void*))
-//GO(XTestFakeInput, 
-//GO(XTestFlush, 
-//GO(XTestGetInput, 
+GO(XTestFakeInput, iFppii)
+GO(XTestFlush, iFp)
+GO(XTestGetInput, iFpi)
 DATAB(XTestInputActionType, sizeof(void*))
-//GO(XTestMovePointer, 
-//GO(XTestPressButton, 
-//GO(XTestPressKey, 
-//GO(XTestQueryInputSize, 
-//GO(XTestReset, 
-//GO(XTestStopInput, 
+GO(XTestMovePointer, iFpipppu)
+GO(XTestPressButton, iFpiLuu)
+GO(XTestPressKey, iFpiLuu)
+GO(XTestQueryInputSize, iFpp)
+GO(XTestReset, iFp)
+GO(XTestStopInput, iFp)

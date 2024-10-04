@@ -12,16 +12,16 @@
 #endif
 
 typedef void* (*pFp_t)(void*);
-typedef int32_t (*iFpppiiu_t)(void*, void*, void*, int32_t, int32_t, uint32_t);
+typedef int32_t (*iFpLpiiL_t)(void*, uintptr_t, void*, int32_t, int32_t, uintptr_t);
 typedef void* (*pFppppip_t)(void*, void*, void*, void*, int32_t, void*);
 typedef void* (*pFppuippuu_t)(void*, void*, uint32_t, int32_t, void*, void*, uint32_t, uint32_t);
-typedef int32_t (*iFppppiiiiuui_t)(void*, void*, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t);
+typedef int32_t (*iFpLppiiiiuui_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XSetExtensionErrorHandler, pFp_t) \
-	GO(XShmGetImage, iFpppiiu_t) \
+	GO(XShmGetImage, iFpLpiiL_t) \
 	GO(XextAddDisplay, pFppppip_t) \
 	GO(XShmCreateImage, pFppuippuu_t) \
-	GO(XShmPutImage, iFppppiiiiuui_t)
+	GO(XShmPutImage, iFpLppiiiiuui_t)
 
 #endif // __wrappedlibxextTYPES_H_

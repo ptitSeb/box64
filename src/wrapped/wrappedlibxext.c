@@ -344,7 +344,7 @@ EXPORT void* my_XShmCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t d
     return img;
 }
 
-EXPORT int32_t my_XShmPutImage(x64emu_t* emu, void* disp, void* drawable, void* gc, void* image
+EXPORT int32_t my_XShmPutImage(x64emu_t* emu, void* disp, size_t drawable, void* gc, void* image
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h, int32_t sendevt)
 {
@@ -355,7 +355,7 @@ EXPORT int32_t my_XShmPutImage(x64emu_t* emu, void* disp, void* drawable, void* 
     return r;
 }
 
-EXPORT int32_t my_XShmGetImage(x64emu_t* emu, void* disp, void* drawable, void* image, int32_t x, int32_t y, uint32_t plane)
+EXPORT int32_t my_XShmGetImage(x64emu_t* emu, void* disp, size_t drawable, void* image, int32_t x, int32_t y, size_t plane)
 {
     UnbridgeImageFunc(emu, (XImage*)image);
     int32_t r = my->XShmGetImage(disp, drawable, image, x, y, plane);
