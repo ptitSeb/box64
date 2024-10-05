@@ -26,6 +26,9 @@
 
 #define LIBNAME libxext
 
+#include "libtools/my_x11_defs.h"
+#include "libtools/my_x11_defs_32.h"
+
 typedef struct _XImage XImage;
 void BridgeImageFunc(x64emu_t *emu, XImage *img);
 void UnbridgeImageFunc(x64emu_t *emu, XImage *img);
@@ -390,6 +393,66 @@ EXPORT int32_t my32_XShmGetImage(x64emu_t* emu, void* disp, size_t drawable, voi
 //    void *ret = my->XextAddDisplay(extinfo, dpy, extname, &natives, nevents, data);
 //    return ret;
 //}
+void inplace_XdbeVisualInfo_shrink(void* a)
+{
+    if(!a) return;
+    my_XdbeVisualInfo_t *src = a;
+    my_XdbeVisualInfo_32_t* dst = a;
+
+    dst->visual = to_ulong(src->visual);
+    dst->depth = src->depth;
+    dst->perflevel = src->perflevel;
+}
+void inplace_XdbeScreenVisualInfo_shrink(void* a)
+{
+    if(!a) return;
+    my_XdbeScreenVisualInfo_t *src = a;
+    my_XdbeScreenVisualInfo_32_t* dst = a;
+
+    for(int i=0; i<src->count; ++i)
+        inplace_XdbeVisualInfo_shrink(src->visinfo+i);
+    dst->count = src->count;
+    dst->visinfo = to_ptrv(src->visinfo);
+}
+void inplace_XdbeVisualInfo_enlarge(void* a)
+{
+    if(!a) return;
+    my_XdbeVisualInfo_32_t *src = a;
+    my_XdbeVisualInfo_t* dst = a;
+
+    dst->perflevel = src->perflevel;
+    dst->depth = src->depth;
+    dst->visual = from_ulong(src->visual);
+}
+void inplace_XdbeScreenVisualInfo_enlarge(void* a)
+{
+    if(!a) return;
+    my_XdbeScreenVisualInfo_32_t *src = a;
+    my_XdbeScreenVisualInfo_t* dst = a;
+
+    dst->visinfo = from_ptrv(src->visinfo);
+    dst->count = src->count;
+    for(int i=dst->count-1; i>=0; --i)
+        inplace_XdbeVisualInfo_enlarge(dst->visinfo+i);
+}
+
+EXPORT void* my32_XdbeGetVisualInfo(x64emu_t* emu, void* dpy, XID_32* draws, int* num)
+{
+    XID draws_l[*num];
+    if(*num)
+        for(int i=0; i<*num; ++i)
+            draws_l[i] = from_ulong(draws[i]);
+    my_XdbeScreenVisualInfo_t* ret = my->XdbeGetVisualInfo(dpy, draws_l, num);
+    inplace_XdbeScreenVisualInfo_shrink(ret);
+    return ret;
+}
+
+EXPORT void my32_XdbeFreeVisualInfo(x64emu_t* emu, void* infos)
+{
+    inplace_XdbeScreenVisualInfo_enlarge(infos);
+    my->XdbeFreeVisualInfo(infos);
+}
+
 #if 0
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libxcb.so", "libXau.so", "libdl.so", "libXdmcp.so"

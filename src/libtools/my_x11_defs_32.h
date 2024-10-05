@@ -797,4 +797,17 @@ typedef struct my_XModifierKeymap_32_s {
     ptr_t           modifiermap;    //uint8_t*
 } my_XModifierKeymap_32_t;
 
+typedef struct my_XdbeVisualInfo_32_s
+{
+    XID_32      visual;
+    int         depth;
+    int         perflevel;
+} my_XdbeVisualInfo_32_t;
+
+typedef struct my_XdbeScreenVisualInfo_32_s
+{
+    int         count;
+    ptr_t       visinfo;    //my_XdbeVisualInfo_t*
+} my_XdbeScreenVisualInfo_32_t;
+
 #endif//MY_X11_DEFS_32

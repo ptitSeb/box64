@@ -1696,6 +1696,22 @@ EXPORT int my32_FT_Done_Face(x64emu_t* emu, void* face)
     return my->FT_Done_Face(face);
 }
 
+EXPORT void my32_FT_Set_Transform(x64emu_t* emu, void* face, FT_Matrix_32_t* matrix, FT_Vector_32_t* delta)
+{
+    FT_Matrix_t matrix_l = {0};
+    FT_Vector_t delta_l = {0};
+    inplace_FT_FaceRec_enlarge(face);
+    if(matrix)
+        convert_FT_Matrix_to_64(&delta_l, matrix);
+    if(delta) {
+        delta_l.x = from_long(delta->x);
+        delta_l.y = from_long(delta->y);
+    }
+    my->FT_Set_Transform(face, matrix?(&matrix_l):NULL, delta?(&delta_l):NULL);
+    inplace_FT_FaceRec_shrink(face);
+}
+
+
 EXPORT int my32_FT_Get_Kerning(x64emu_t* emu, void* face, uint32_t left, uint32_t right, uint32_t kern, FT_Vector_32_t* kerning)
 {
     FT_Vector_t kerning_l = {0};

@@ -150,14 +150,15 @@ typedef struct FcConfig_32_s {
 
 #define LIBNAME fontconfig
 
-//#define ADDED_FUNCTIONS()                   \
+#define ADDED_STRUCT()                          \
+    iFppSi_t FcPatternAdd_;                     \
 
-//#include "generated/wrappedfontconfigtypes32.h"
+#define ADDED_INIT()                            \
+    my->FcPatternAdd_ = (void*)my->FcPatternAdd;\
 
 typedef int (*iFppSi_t)(void*, void*, FcValue_t, int);
 
-#define SUPER() \
-    GO(FcPatternAdd, iFppSi_t)              \
+#include "generated/wrappedfontconfigtypes32.h"
 
 #include "wrappercallback32.h"
 
@@ -221,7 +222,17 @@ EXPORT int my32_FcPatternAdd(void* p, void* object, int type, fcvalue_32_t t, in
             val.u.i = t.i;
             break;
     }
-    return my->FcPatternAdd(p, object, val, append);
+    return my->FcPatternAdd_(p, object, val, append);
+}
+
+void inplace_FT_FaceRec_shrink(void* face);
+void inplace_FT_FaceRec_enlarge(void* face);
+EXPORT uint32_t my32_FcFreeTypeCharIndex(x64emu_t* emu, void* face, uint32_t u)
+{
+    inplace_FT_FaceRec_enlarge(face);
+    uint32_t ret = my->FcFreeTypeCharIndex(face, u);
+    inplace_FT_FaceRec_shrink(face);
+    return ret;
 }
 
 #define NEEDED_LIBS "libexpat.so.1", "libfreetype.so.6"

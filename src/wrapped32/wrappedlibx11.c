@@ -34,12 +34,10 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src);
 void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src);
 typedef int (*XErrorHandler)(void *, void *);
 void* my32_XSetErrorHandler(x64emu_t* t, XErrorHandler handler);
-#if 0
 typedef int (*XIOErrorHandler)(void *);
 void* my32_XSetIOErrorHandler(x64emu_t* t, XIOErrorHandler handler);
 void* my32_XESetCloseDisplay(x64emu_t* emu, void* display, int32_t extension, void* handler);
 typedef int (*WireToEventProc)(void*, void*, void*);
-#endif
 typedef int(*EventHandler) (void*,void*,void*);
 int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg);
 
@@ -196,7 +194,7 @@ static void* reverse_error_handlerFct(library_t* lib, void* fct)
     #undef GO
     return (void*)AddBridge(lib->w.bridge, iFpp_32, fct, 0, NULL);
 }
-#if 0
+
 // ioerror_handler
 #define GO(A)   \
 static uintptr_t my32_ioerror_handler_fct_##A = 0;                      \
@@ -227,9 +225,9 @@ static void* reverse_ioerror_handlerFct(library_t* lib, void* fct)
     #define GO(A) if(my32_ioerror_handler_##A == fct) return (void*)my32_ioerror_handler_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, iFp_32, fct, 0, NULL);
 }
-
+#if 0
 // exterror_handler
 #define GO(A)   \
 static uintptr_t my32_exterror_handler_fct_##A = 0;                      \
@@ -262,7 +260,7 @@ static void* reverse_exterror_handlerFct(library_t* lib, void* fct)
     #undef GO
     return (void*)AddBridge(lib->w.bridge, iFpppp, fct, 0, NULL);
 }
-
+#endif
 // close_display
 #define GO(A)   \
 static uintptr_t my32_close_display_fct_##A = 0;                      \
@@ -293,9 +291,9 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
     #define GO(A) if(my32_close_display_##A == fct) return (void*)my32_close_display_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFpp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, iFpp_32, fct, 0, NULL);
 }
-#endif
+
 // register_im
 #define GO(A)   \
 static uintptr_t my32_register_im_fct_##A = 0;                        \
@@ -1235,7 +1233,7 @@ EXPORT void* my32_XCreateIC(x64emu_t* emu, void* xim, ptr_t* va) {
     return res;
 }
 
-EXPORT void* my32_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
+EXPORT void* my32_XVaCreateNestedList(x64emu_t* emu, int unused, ptr_t* va) {
     int n = 0;
     while (va[n]) n+=2 ;
 
@@ -1288,7 +1286,6 @@ EXPORT void* my32_XSetErrorHandler(x64emu_t* emu, XErrorHandler handler)
     void* ret = my->XSetErrorHandler(finderror_handlerFct(handler));
     return reverse_error_handlerFct(my_lib, ret);
 }
-#if 0
 
 EXPORT void* my32_XSetIOErrorHandler(x64emu_t* emu, XIOErrorHandler handler)
 {
@@ -1296,18 +1293,19 @@ EXPORT void* my32_XSetIOErrorHandler(x64emu_t* emu, XIOErrorHandler handler)
     return reverse_ioerror_handlerFct(my_lib, ret);
 }
 
+#if 0
 EXPORT void* my32_XESetError(x64emu_t* emu, void* display, int32_t extension, void* handler)
 {
     void* ret = my->XESetError(display, extension, findexterror_handlerFct(handler));
     return reverse_exterror_handlerFct(my_lib, ret);
 }
-
+#endif
 EXPORT void* my32_XESetCloseDisplay(x64emu_t* emu, void* display, int32_t extension, void* handler)
 {
     void* ret = my->XESetCloseDisplay(display, extension, findclose_displayFct(handler));
     return reverse_close_displayFct(my_lib, ret);
 }
-#endif
+
 EXPORT int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
     my_XEvent_t event = {0};
@@ -2662,6 +2660,72 @@ EXPORT int my32_XInternAtoms(x64emu_t* emu, void* dpy, ptr_t* names, int count, 
     int ret = my->XInternAtoms(dpy, names_l, count, only, atoms_l);
     for(int i=0; i<count; ++i)
         atoms[i] = to_ulong(atoms_l[i]);
+    return ret;
+}
+
+EXPORT void* my32_XGetIMValues(x64emu_t* emu, void* xim, ptr_t* b)
+{
+    int n = 0;
+    void* r;
+    while(b[n]) {
+        void* ret = my->XGetIMValues(xim, from_ptrv(b[n]), &r, NULL, NULL);
+        if(ret)
+            return ret;
+        b[n+1] = to_ptrv(r);
+        n+=2;
+    }
+    return NULL;
+}
+
+void convert_XVisualInfo_to_32(my_XVisualInfo_32_t* dst, my_XVisualInfo_t* src)
+{
+    dst->visual = to_ptrv(src->visual);
+    dst->visualid = to_ulong(src->visualid);
+    dst->screen = src->screen;
+    dst->depth = src->depth;
+    dst->c_class = src->c_class;
+    dst->red_mask = to_ulong(src->red_mask);
+    dst->green_mask = to_ulong(src->green_mask);
+    dst->blue_mask = to_ulong(src->blue_mask);
+    dst->colormap_size = src->colormap_size;
+    dst->bits_per_rgb = src->bits_per_rgb;
+}
+void convert_XVisualInfo_to_64(my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src)
+{
+    dst->bits_per_rgb = src->bits_per_rgb;
+    dst->colormap_size = src->colormap_size;
+    dst->blue_mask = from_ulong(src->blue_mask);
+    dst->green_mask = from_ulong(src->green_mask);
+    dst->red_mask = from_ulong(src->red_mask);
+    dst->c_class = src->c_class;
+    dst->depth = src->depth;
+    dst->screen = src->screen;
+    dst->visualid = from_ulong(src->visualid);
+    dst->visual = from_ptrv(src->visual);
+}
+void inplace_XVisualInfo_shrink(void *a)
+{
+    if(!a) return;
+    my_XVisualInfo_t *src = a;
+    my_XVisualInfo_32_t* dst = a;
+
+    convert_XVisualInfo_to_32(dst, src);
+}
+void inplace_XVisualInfo_enlarge(void *a)
+{
+    if(!a) return;
+    my_XVisualInfo_32_t *src = a;
+    my_XVisualInfo_t* dst = a;
+
+    convert_XVisualInfo_to_64(dst, src);
+}
+
+EXPORT void* my32_XGetVisualInfo(x64emu_t* emu, void* dpy, long mask, my_XVisualInfo_32_t* template, int* n)
+{
+    my_XVisualInfo_t template_l = {0};
+    if(template) convert_XVisualInfo_to_64(&template_l, template);
+    my_XVisualInfo_t* ret = my->XGetVisualInfo(dpy, mask, template?(&template_l):NULL, n);
+    inplace_XVisualInfo_shrink(ret);
     return ret;
 }
 

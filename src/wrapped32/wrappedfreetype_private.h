@@ -161,7 +161,7 @@ GOM(FT_Set_Char_Size, iFEplluu)
 //GO(FT_Set_MM_Design_Coordinates, iFpup)
 GOM(FT_Set_Pixel_Sizes, iFEpuu)
 //GO(FT_Set_Renderer, iFppup)
-//GO(FT_Set_Transform, vFppp)
+GOM(FT_Set_Transform, vFEppp)
 //GO(FT_Set_Var_Blend_Coordinates, 
 //GO(FT_Set_Var_Design_Coordinates, iFpup)
 //GO(FT_Sfnt_Table_Info, iFpupp)

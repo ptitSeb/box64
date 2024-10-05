@@ -344,6 +344,7 @@
 #() vFppu -> vFppu
 #() vFppp -> vFppp
 #() vFXLL -> vFXLL
+#() vFXLp -> vFXLp
 #() vFXpi -> vFXpi
 #() vFXpu -> vFXpu
 #() vFXpl -> vFXpl
@@ -424,6 +425,7 @@
 #() CFipp -> CFipp
 #() CFuUu -> CFuUu
 #() CFuff -> CFuff
+#() uFEpu -> uFEpu
 #() uFEpL -> uFEpL
 #() uFilp -> uFilp
 #() uFipu -> uFipu
@@ -454,6 +456,7 @@
 #() LFpip -> LFpip
 #() LFppi -> LFppi
 #() LFppL -> LFppL
+#() LFXip -> LFXip
 #() LFXCi -> LFXCi
 #() LFXLi -> LFXLi
 #() LFXLC -> LFXLC
@@ -480,12 +483,14 @@
 #() pFpip -> pFpip
 #() pFpiS -> pFpiS
 #() pFpII -> pFpII
+#() pFpuu -> pFpuu
 #() pFpup -> pFpup
 #() pFppu -> pFppu
 #() pFppL -> pFppL
 #() pFppp -> pFppp
 #() pFpOM -> pFpOM
 #() pFXip -> pFXip
+#() pFXLp -> pFXLp
 #() pFXpi -> pFXpi
 #() pFXpp -> pFXpp
 #() aFipa -> aFipa
@@ -517,6 +522,7 @@
 #() lFpBp_i -> lFpBi
 #() LFpBp_i -> LFpBi
 #() pFppbp_ -> pFppB
+#() pFXLbL_ -> pFXLB
 #() iFXLbpp_ -> iFXLB
 #() iFXbLC_i -> iFXBi
 #() vFLbL_bL_ -> vFLBB
@@ -618,7 +624,11 @@
 #() vFppui -> vFppui
 #() vFpppp -> vFpppp
 #() vFXiiL -> vFXiiL
+#() vFXLii -> vFXLii
+#() vFXLLL -> vFXLLL
 #() vFXLLp -> vFXLLp
+#() vFXLpi -> vFXLpi
+#() vFXLpL -> vFXLpL
 #() vFXpip -> vFXpip
 #() cFpiii -> cFpiii
 #() iFEiip -> iFEiip
@@ -709,12 +719,15 @@
 #() LFppLp -> LFppLp
 #() LFppLa -> LFppLa
 #() LFXCii -> LFXCii
+#() LFXLuu -> LFXLuu
 #() LFXLpi -> LFXLpi
 #() pFEupp -> pFEupp
 #() pFEpip -> pFEpip
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
+#() pFEXip -> pFEXip
 #() pFEXpL -> pFEXpL
+#() pFEXpp -> pFEXpp
 #() pFiiiu -> pFiiiu
 #() pFillu -> pFillu
 #() pFippu -> pFippu
@@ -728,7 +741,8 @@
 #() pFpppp -> pFpppp
 #() pFXiii -> pFXiii
 #() pFXCip -> pFXCip
-#() pFXlpp -> pFXlpp
+#() pFXLpi -> pFXLpi
+#() pFXLpp -> pFXLpp
 #() pFXppi -> pFXppi
 #() pFXppp -> pFXppp
 #() vFbp_ppp -> vFBppp
@@ -858,6 +872,9 @@
 #() vFppppu -> vFppppu
 #() vFppppp -> vFppppp
 #() vFXLiii -> vFXLiii
+#() vFXLiiL -> vFXLiiL
+#() vFXLppi -> vFXLppi
+#() vFXpiiL -> vFXpiiL
 #() iFEiiip -> iFEiiip
 #() iFEipii -> iFEipii
 #() iFEippL -> iFEippL
@@ -908,8 +925,11 @@
 #() LFpLppa -> LFpLppa
 #() LFXLuuu -> LFXLuuu
 #() LFXLpuu -> LFXLpuu
+#() LFXLpLp -> LFXLpLp
+#() LFXpppi -> LFXpppi
 #() pFEppip -> pFEppip
 #() pFEXipp -> pFEXipp
+#() pFEXlpp -> pFEXlpp
 #() pFuiupp -> pFuiupp
 #() pFpiiuu -> pFpiiuu
 #() pFpippp -> pFpippp
@@ -1007,9 +1027,13 @@
 #() vFpdddii -> vFpdddii
 #() vFppupii -> vFppupii
 #() vFpppppp -> vFpppppp
+#() vFXiLppi -> vFXiLppi
 #() vFXLiiii -> vFXLiiii
+#() vFXLiiiL -> vFXLiiiL
+#() vFXLiipi -> vFXLiipi
 #() iFEiippi -> iFEiippi
 #() iFEuppLp -> iFEuppLp
+#() iFEpiuuu -> iFEpiuuu
 #() iFEpiLpp -> iFEpiLpp
 #() iFEpuuup -> iFEpuuup
 #() iFEplluu -> iFEplluu
@@ -1114,6 +1138,8 @@
 #() vFXLiiiLi -> vFXLiiiLi
 #() vFXLiiipi -> vFXLiiipi
 #() vFXLiiuui -> vFXLiiuui
+#() vFXLLuuuu -> vFXLLuuuu
+#() vFXLppipi -> vFXLppipi
 #() vFXpiipii -> vFXpiipii
 #() vFXppiiii -> vFXppiiii
 #() iFEpLiipV -> iFEpLiipV
@@ -1140,7 +1166,6 @@
 #() pFEpLiiii -> pFEpLiiii
 #() pFEpLiiiI -> pFEpLiiiI
 #() pFEpLiiil -> pFEpLiiil
-#() pFppppppp -> pFppppppp
 #() iFEpppibL_p -> iFEpppiBp
 #() iFXLibL_ubL_u -> iFXLiBuBu
 #() vFXLpiibpiip_i -> vFXLpiiBi
@@ -1175,6 +1200,7 @@
 #() vFuuuuuuuu -> vFuuuuuuuu
 #() vFuuufffff -> vFuuufffff
 #() vFffffffff -> vFffffffff
+#() vFXiLpiiuu -> vFXiLpiiuu
 #() vFXLiiiLii -> vFXLiiiLii
 #() vFXLppiipi -> vFXLppiipi
 #() iFEpippppp -> iFEpippppp
@@ -1214,6 +1240,7 @@
 #() vFuffffffff -> vFuffffffff
 #() vFffCCCCfff -> vFffCCCCfff
 #() vFddddddddd -> vFddddddddd
+#() vFXiLLpiipi -> vFXiLLpiipi
 #() vFXLiiipiii -> vFXLiiipiii
 #() iFEXLLLiipi -> iFEXLLLiipi
 #() iFuiiuuiiip -> iFuiiuuiiip
@@ -1226,6 +1253,7 @@
 #() iFXLLiiuuii -> iFXLLiiuuii
 #() iFXLpiiuuii -> iFXLpiiuuii
 #() uFuulpiuiuf -> uFuulpiuiuf
+#() LFXLiiiiiip -> LFXLiiiiiip
 #() LFXLiiuuuLL -> LFXLiiuuuLL
 #() pFEuiiiuuuu -> pFEuiiiuuuu
 #() pFEXLiiuuLi -> pFEXLiiuuLi
@@ -1272,6 +1300,7 @@
 #() vFUufffffffff -> vFUufffffffff
 #() vFpiiiiiiiiuu -> vFpiiiiiiiiuu
 #() vFpipipiipiiu -> vFpipipiipiiu
+#() vFXiLLpiiiipi -> vFXiLLpiiiipi
 #() iFEXLppiiiiuu -> iFEXLppiiiiuu
 #() iFEXpLLiiLWpi -> iFEXpLLiiLWpi
 #() iFuiiiiuuiiip -> iFuiiiiuuiiip
@@ -1285,6 +1314,8 @@
 #() vFuuiiiiiiiuup -> vFuuiiiiiiiuup
 #() vFuuuuuuuuuuuu -> vFuuuuuuuuuuuu
 #() vFffffffffffff -> vFffffffffffff
+#() vFXiLLpiiiipii -> vFXiLLpiiiipii
+#() vFXiLLpLiiiipi -> vFXiLLpLiiiipi
 #() iFEXLppiiiiuui -> iFEXLppiiiiuui
 #() iFXLpppppppppp -> iFXLpppppppppp
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
@@ -1293,6 +1324,7 @@
 #() vFuuuuuuuuuuuuu -> vFuuuuuuuuuuuuu
 #() vFuUuuuuuuuuuuu -> vFuUuuuuuuuuuuu
 #() vFuffffffffffff -> vFuffffffffffff
+#() vFXiLLLiiiiiiuu -> vFXiLLLiiiiiiuu
 #() iFddddpppddpppp -> iFddddpppddpppp
 #() iFXippuuuiipppp -> iFXippuuuiipppp
 #() uFippuuuulllipp -> uFippuuuulllipp
@@ -1333,6 +1365,8 @@ wrappedexpat:
 - uFpii:
   - XML_ParseBuffer
 wrappedfontconfig:
+- uFpu:
+  - FcFreeTypeCharIndex
 - iFppiUi:
   - FcPatternAdd
 wrappedfreetype:
@@ -1368,6 +1402,8 @@ wrappedfreetype:
   - FT_Get_Sfnt_Table
 - vFpll:
   - FT_Outline_Translate
+- vFppp:
+  - FT_Set_Transform
 - iFpip:
   - FT_Get_Sfnt_Name
 - iFpui:
@@ -1800,6 +1836,7 @@ wrappedlibx11:
   - XCloseDisplay
 - pFp:
   - XSetErrorHandler
+  - XSetIOErrorHandler
 - pFX:
   - XGetModifierMapping
 - vFXp:
@@ -1816,6 +1853,7 @@ wrappedlibx11:
   - XVaCreateNestedList
 - pFpV:
   - XCreateIC
+  - XGetIMValues
   - XSetICValues
   - XSetIMValues
 - pFXi:
@@ -1833,6 +1871,8 @@ wrappedlibx11:
   - XSetWMHints
 - LFXii:
   - XGetPixel
+- pFXip:
+  - XESetCloseDisplay
 - iFpLlp:
   - XWindowEvent
 - iFpppp:
@@ -1845,6 +1885,8 @@ wrappedlibx11:
   - XSetWMProtocols
 - iFXppp:
   - XIfEvent
+- pFXlpp:
+  - XGetVisualInfo
 - iFXbpLiL_pp:
   - XmbTextPropertyToTextList
 - iFppipp:
@@ -1887,6 +1929,10 @@ wrappedlibx11:
   - XCreateWindow
 wrappedlibxcursor:
 wrappedlibxext:
+- vFp:
+  - XdbeFreeVisualInfo
+- pFXpp:
+  - XdbeGetVisualInfo
 - iFXLpiiL:
   - XShmGetImage
 - pFXbpLiLLLii_uipbLipi_uu:
@@ -2016,6 +2062,8 @@ wrappedsdl2:
   - SDL_RWFromFile
 - iFiip:
   - SDL_GetDisplayMode
+- iFpiu:
+  - SDL_SetColorKey
 - iFppu:
   - SDL_FillRect
 - iFppV:
@@ -2026,6 +2074,8 @@ wrappedsdl2:
   - SDL_GetClosestDisplayMode
 - pFpii:
   - SDL_CreateColorCursor
+- pFpuu:
+  - SDL_ConvertSurfaceFormat
 - pFppp:
   - SDL_CreateThread
 - iFpLpp:
@@ -2035,6 +2085,8 @@ wrappedsdl2:
 - LFppLL:
   - SDL_RWread
   - SDL_RWwrite
+- iFpiuuu:
+  - SDL_PeepEvents
 - uFpippi:
   - SDL_OpenAudioDevice
 - pFpiiiiu:

@@ -28,22 +28,7 @@ extern const char* libglName;
 
 void* getDisplay(void* d); // define in 32bits wrappedx11.c
 
-void convert_XVisualInfo_to_32(void* d, void* s)
-{
-    my_XVisualInfo_t* src = s;
-    my_XVisualInfo_32_t* dst = d;
-    dst->visual = to_ptrv(src->visual);
-    dst->visualid = to_ulong(src->visualid);
-    dst->screen = src->screen;
-    dst->depth = src->depth;
-    dst->c_class = src->c_class;
-    dst->red_mask = to_ulong(src->red_mask);
-    dst->green_mask = to_ulong(src->green_mask);
-    dst->blue_mask = to_ulong(src->blue_mask);
-    dst->colormap_size = src->colormap_size;
-    dst->bits_per_rgb     = src->bits_per_rgb;
-}
-
+void convert_XVisualInfo_to_32(void* d, void* s);
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
 void* getGLProcAddress32(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);
 EXPORT void* my32_glXGetProcAddress(x64emu_t* emu, void* name)

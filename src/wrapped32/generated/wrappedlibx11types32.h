@@ -29,12 +29,14 @@ typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
 typedef uintptr_t (*LFXii_t)(void*, int32_t, int32_t);
+typedef void* (*pFXip_t)(void*, int32_t, void*);
 typedef int32_t (*iFpLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFXLip_t)(void*, uintptr_t, int32_t, void*);
 typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
+typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
 typedef int32_t (*iFXbpLiL_pp_t)(void*, struct_pLiL_t*, void*, void*);
 typedef int32_t (*iFppipp_t)(void*, void*, int32_t, void*, void*);
 typedef int32_t (*iFXLilp_t)(void*, uintptr_t, int32_t, intptr_t, void*);
@@ -65,6 +67,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(_XInitImageFuncPtrs, iFp_t) \
 	GO(XCloseDisplay, iFX_t) \
 	GO(XSetErrorHandler, pFp_t) \
+	GO(XSetIOErrorHandler, pFp_t) \
 	GO(XGetModifierMapping, pFX_t) \
 	GO(XFreeEventData, vFXp_t) \
 	GO(XFilterEvent, iFpL_t) \
@@ -74,6 +77,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XLookupKeysym, LFpi_t) \
 	GO(XVaCreateNestedList, pFiV_t) \
 	GO(XCreateIC, pFpV_t) \
+	GO(XGetIMValues, pFpV_t) \
 	GO(XSetICValues, pFpV_t) \
 	GO(XSetIMValues, pFpV_t) \
 	GO(XSynchronize, pFXi_t) \
@@ -84,12 +88,14 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XGetWindowAttributes, iFXLp_t) \
 	GO(XSetWMHints, iFXLp_t) \
 	GO(XGetPixel, LFXii_t) \
+	GO(XESetCloseDisplay, pFXip_t) \
 	GO(XWindowEvent, iFpLlp_t) \
 	GO(XCheckIfEvent, iFpppp_t) \
 	GO(XCheckTypedWindowEvent, iFXLip_t) \
 	GO(XCheckWindowEvent, iFXLlp_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
 	GO(XIfEvent, iFXppp_t) \
+	GO(XGetVisualInfo, pFXlpp_t) \
 	GO(XmbTextPropertyToTextList, iFXbpLiL_pp_t) \
 	GO(XLookupString, iFppipp_t) \
 	GO(XSendEvent, iFXLilp_t) \

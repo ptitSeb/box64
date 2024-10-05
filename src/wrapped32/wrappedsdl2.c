@@ -277,6 +277,17 @@ EXPORT int my32_2_SDL_PollEvent(my_SDL2_Event_32_t* evt)
     return ret;
 }
 
+EXPORT int my32_2_SDL_PeepEvents(x64emu_t* emu, my_SDL2_Event_32_t* evt, int n, uint32_t action, uint32_t minType, uint32_t maxType)
+{
+    my_SDL2_Event_t event[n];
+    int ret = my->SDL_PeepEvents(event, n, action, minType, maxType);
+    if (ret>0) {
+        for(int i=0; i<ret; ++i)
+            convert_SDL2_Event_to_32(evt+i, event+i);
+    }
+    return ret;
+}
+
 EXPORT char* my32_2_SDL_GetBasePath(x64emu_t* emu)
 {
     char* p = strdup(emu->context->fullpath);
@@ -357,6 +368,23 @@ EXPORT void* my32_2_SDL_CreateTextureFromSurface(void* r, void* s)
     inplace_SDL2_Surface_to_64(s);
     void* ret = my->SDL_CreateTextureFromSurface(r, s);
     inplace_SDL2_Surface_to_32(s);
+    return ret;
+}
+
+EXPORT int my32_2_SDL_SetColorKey(void* s, int flag, uint32_t color)
+{
+    inplace_SDL2_Surface_to_64(s);
+    int ret = my->SDL_SetColorKey(s, flag, color);
+    inplace_SDL2_Surface_to_32(s);
+    return ret;
+}
+
+EXPORT void* my32_2_SDL_ConvertSurfaceFormat(void* s, uint32_t fmt, uint32_t flags)
+{
+    inplace_SDL2_Surface_to_64(s);
+    void* ret = my->SDL_ConvertSurfaceFormat(s, fmt, flags);
+    inplace_SDL2_Surface_to_32(s);
+    inplace_SDL2_Surface_to_32(ret);
     return ret;
 }
 

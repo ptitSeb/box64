@@ -11,9 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef uint32_t (*uFpu_t)(void*, uint32_t);
 typedef int32_t (*iFppiUi_t)(void*, void*, int32_t, uint64_t, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(FcFreeTypeCharIndex, uFpu_t) \
 	GO(FcPatternAdd, iFppiUi_t)
 
 #endif // __wrappedfontconfigTYPES32_H_

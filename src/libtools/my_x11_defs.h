@@ -864,4 +864,17 @@ typedef struct my_XModifierKeymap_s {
 } my_XModifierKeymap_t;
 
 
+typedef struct my_XdbeVisualInfo_s
+{
+    XID         visual;
+    int         depth;
+    int         perflevel;
+} my_XdbeVisualInfo_t;
+
+typedef struct my_XdbeScreenVisualInfo_s
+{
+    int                     count;
+    my_XdbeVisualInfo_t*    visinfo;
+} my_XdbeScreenVisualInfo_t;
+
 #endif//MY_X11_DEFS

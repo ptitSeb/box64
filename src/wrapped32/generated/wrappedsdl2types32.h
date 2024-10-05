@@ -25,15 +25,18 @@ typedef int32_t (*iFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
+typedef int32_t (*iFpiu_t)(void*, int32_t, uint32_t);
 typedef int32_t (*iFppu_t)(void*, void*, uint32_t);
 typedef int32_t (*iFppV_t)(void*, void*, ...);
 typedef int64_t (*IFpIi_t)(void*, int64_t, int32_t);
 typedef void* (*pFipp_t)(int32_t, void*, void*);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
+typedef void* (*pFpuu_t)(void*, uint32_t, uint32_t);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef uintptr_t (*LFppLL_t)(void*, void*, uintptr_t, uintptr_t);
+typedef int32_t (*iFpiuuu_t)(void*, int32_t, uint32_t, uint32_t, uint32_t);
 typedef uint32_t (*uFpippi_t)(void*, int32_t, void*, void*, int32_t);
 typedef void* (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t);
 typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
@@ -65,16 +68,19 @@ typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uin
 	GO(SDL_CreateTextureFromSurface, pFpp_t) \
 	GO(SDL_RWFromFile, pFpp_t) \
 	GO(SDL_GetDisplayMode, iFiip_t) \
+	GO(SDL_SetColorKey, iFpiu_t) \
 	GO(SDL_FillRect, iFppu_t) \
 	GO(SDL_sscanf, iFppV_t) \
 	GO(SDL_RWseek, IFpIi_t) \
 	GO(SDL_GetClosestDisplayMode, pFipp_t) \
 	GO(SDL_CreateColorCursor, pFpii_t) \
+	GO(SDL_ConvertSurfaceFormat, pFpuu_t) \
 	GO(SDL_CreateThread, pFppp_t) \
 	GO(SDL_vsnprintf, iFpLpp_t) \
 	GO(SDL_snprintf, iFpLpV_t) \
 	GO(SDL_RWread, LFppLL_t) \
 	GO(SDL_RWwrite, LFppLL_t) \
+	GO(SDL_PeepEvents, iFpiuuu_t) \
 	GO(SDL_OpenAudioDevice, uFpippi_t) \
 	GO(SDL_CreateRGBSurfaceWithFormatFrom, pFpiiiiu_t) \
 	GO(SDL_CreateRGBSurface, pFuiiiuuuu_t)

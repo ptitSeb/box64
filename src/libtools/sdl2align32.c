@@ -423,32 +423,36 @@ void inplace_SDL2_Palette_to_32(void* a)
     dst->version = src->version;
     dst->refcount = src->refcount;
 }
-
+#define SDL2_PIXELFORMAT_SIGN 0xBADC0FEE
 void inplace_SDL2_PixelFormat_to_32(void* a)
 {
     while (a) {
         my_SDL2_PixelFormat_t* src = a;
         my_SDL2_PixelFormat_32_t* dst = a;
-        dst->format = src->format;
-        inplace_SDL2_Palette_to_32(src->palette);
-        dst->palette = to_ptrv(src->palette);
-        dst->BitsPerPixel = src->BitsPerPixel;
-        dst->BytesPerPixel = src->BytesPerPixel;
-        dst->Rmask = src->Rmask;
-        dst->Gmask = src->Gmask;
-        dst->Bmask = src->Bmask;
-        dst->Amask = src->Amask;
-        dst->Rloss = src->Rloss;
-        dst->Gloss = src->Gloss;
-        dst->Bloss = src->Bloss;
-        dst->Aloss = src->Aloss;
-        dst->Rshift = src->Rshift;
-        dst->Gshift = src->Gshift;
-        dst->Bshift = src->Bshift;
-        dst->Ashift = src->Ashift;
-        dst->refcount = src->refcount;
-        a = (void*)src->next;
-        dst->next = to_ptrv(src->next);
+        if(*(uint32_t*)(dst+1) != SDL2_PIXELFORMAT_SIGN) {
+            dst->format = src->format;
+            inplace_SDL2_Palette_to_32(src->palette);
+            dst->palette = to_ptrv(src->palette);
+            dst->BitsPerPixel = src->BitsPerPixel;
+            dst->BytesPerPixel = src->BytesPerPixel;
+            dst->Rmask = src->Rmask;
+            dst->Gmask = src->Gmask;
+            dst->Bmask = src->Bmask;
+            dst->Amask = src->Amask;
+            dst->Rloss = src->Rloss;
+            dst->Gloss = src->Gloss;
+            dst->Bloss = src->Bloss;
+            dst->Aloss = src->Aloss;
+            dst->Rshift = src->Rshift;
+            dst->Gshift = src->Gshift;
+            dst->Bshift = src->Bshift;
+            dst->Ashift = src->Ashift;
+            dst->refcount = src->refcount;
+            a = (void*)src->next;
+            dst->next = to_ptrv(src->next);
+            // put a signature to avoid muultiple unpack because of the next handling
+            *(uint32_t*)(dst+1) = SDL2_PIXELFORMAT_SIGN;
+        } else a = from_ptrv(dst->next);
     }
 }
 
@@ -492,28 +496,31 @@ void inplace_SDL2_PixelFormat_to_64(void* a)
     while (a) {
         my_SDL2_PixelFormat_32_t* src = a;
         my_SDL2_PixelFormat_t* dst = a;
-        uintptr_t p = (uintptr_t)(src->next);
-        a = (void*)p;
-        dst->next = from_ptrv(src->next);
-        dst->refcount = src->refcount;
-        dst->Ashift = src->Ashift;
-        dst->Bshift = src->Bshift;
-        dst->Gshift = src->Gshift;
-        dst->Rshift = src->Rshift;
-        dst->Aloss = src->Aloss;
-        dst->Bloss = src->Bloss;
-        dst->Gloss = src->Gloss;
-        dst->Rloss = src->Rloss;
-        dst->Amask = src->Amask;
-        dst->Bmask = src->Bmask;
-        dst->Gmask = src->Gmask;
-        dst->Rmask = src->Rmask;
-        dst->BytesPerPixel = src->BytesPerPixel;
-        dst->BitsPerPixel = src->BitsPerPixel;
-        p = (uintptr_t)(src->palette);
-        inplace_SDL2_Palette_to_64((void*)p);
-        dst->palette = from_ptrv(src->palette);
-        dst->format = src->format;
+        // check signatue
+        if(*(uint32_t*)(src+1) == SDL2_PIXELFORMAT_SIGN) {
+            uintptr_t p = (uintptr_t)(src->next);
+            a = (void*)p;
+            dst->next = from_ptrv(src->next);
+            dst->refcount = src->refcount;
+            dst->Ashift = src->Ashift;
+            dst->Bshift = src->Bshift;
+            dst->Gshift = src->Gshift;
+            dst->Rshift = src->Rshift;
+            dst->Aloss = src->Aloss;
+            dst->Bloss = src->Bloss;
+            dst->Gloss = src->Gloss;
+            dst->Rloss = src->Rloss;
+            dst->Amask = src->Amask;
+            dst->Bmask = src->Bmask;
+            dst->Gmask = src->Gmask;
+            dst->Rmask = src->Rmask;
+            dst->BytesPerPixel = src->BytesPerPixel;
+            dst->BitsPerPixel = src->BitsPerPixel;
+            p = (uintptr_t)(src->palette);
+            inplace_SDL2_Palette_to_64((void*)p);
+            dst->palette = from_ptrv(src->palette);
+            dst->format = src->format;
+        } else a = dst->next;   // already 64bits!
     }
 }
 
