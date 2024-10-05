@@ -384,3 +384,29 @@ void to_struct_WWpWpWpWp(ptr_t d, const struct_WWpWpWpWp_t *src)
 	*(uint16_t*)dest = src->W7; dest += 2;
 	*(ptr_t*)dest = to_ptrv(src->p8); dest += 4;
 }
+
+void from_struct_pi(struct_pi_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->i1 = *(int*)src; src += 4;
+}
+void to_struct_pi(ptr_t d, const struct_pi_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(int*)dest = src->i1; dest += 4;
+}
+
+void from_struct_ppi(struct_ppi_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->p1 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->i2 = *(int*)src; src += 4;
+}
+void to_struct_ppi(ptr_t d, const struct_ppi_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p1); dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+}

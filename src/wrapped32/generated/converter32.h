@@ -193,5 +193,18 @@ typedef struct struct_WWpWpWpWp_s {
 } struct_WWpWpWpWp_t;
 void from_struct_WWpWpWpWp(struct_WWpWpWpWp_t *dest, ptr_t src);
 void to_struct_WWpWpWpWp(ptr_t dest, const struct_WWpWpWpWp_t *src);
+typedef struct struct_pi_s {
+	void* p0;
+	int i1;
+} struct_pi_t;
+void from_struct_pi(struct_pi_t *dest, ptr_t src);
+void to_struct_pi(ptr_t dest, const struct_pi_t *src);
+typedef struct struct_ppi_s {
+	void* p0;
+	void* p1;
+	int i2;
+} struct_ppi_t;
+void from_struct_ppi(struct_ppi_t *dest, ptr_t src);
+void to_struct_ppi(ptr_t dest, const struct_ppi_t *src);
 
 #endif // __CONVERTER_H_
