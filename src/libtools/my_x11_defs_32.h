@@ -792,5 +792,9 @@ typedef struct my_XVisualInfo_32_s {
   int bits_per_rgb;
 } my_XVisualInfo_32_t;
 
+typedef struct my_XModifierKeymap_32_s {
+    int             max_keypermod;
+    ptr_t           modifiermap;    //uint8_t*
+} my_XModifierKeymap_32_t;
 
 #endif//MY_X11_DEFS_32

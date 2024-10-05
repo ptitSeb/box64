@@ -295,7 +295,7 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
     #undef GO
     return (void*)AddBridge(lib->w.bridge, iFpp, fct, 0, NULL);
 }
-
+#endif
 // register_im
 #define GO(A)   \
 static uintptr_t my32_register_im_fct_##A = 0;                        \
@@ -326,9 +326,9 @@ static void* reverse_register_imFct(library_t* lib, void* fct)
     #define GO(A) if(my32_register_im_##A == fct) return (void*)my32_register_im_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, iFppp_32, fct, 0, NULL);
 }
-
+#if 0
 // XConnectionWatchProc
 #define GO(A)   \
 static uintptr_t my32_XConnectionWatchProc_fct_##A = 0;                               \
@@ -399,7 +399,7 @@ static void* findXInternalAsyncHandlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 XInternalAsyncHandler callback\n");
     return NULL;
 }
-
+#endif
 // XSynchronizeProc
 #define GO(A)   \
 static uintptr_t my32_XSynchronizeProc_fct_##A = 0;                       \
@@ -430,9 +430,9 @@ static void* reverse_XSynchronizeProcFct(library_t* lib, void* fct)
     #define GO(A) if(my32_XSynchronizeProc_##A == fct) return (void*)my32_XSynchronizeProc_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, iFppp_32, fct, 0, NULL);
 }
-
+#if 0
 // XLockDisplay
 #define GO(A)   \
 static uintptr_t my32_XLockDisplay_fct_##A = 0;                   \
@@ -1235,10 +1235,9 @@ EXPORT void* my32_XCreateIC(x64emu_t* emu, void* xim, ptr_t* va) {
     return res;
 }
 
-#if 0
 EXPORT void* my32_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) {
     int n = 0;
-    while (getVArgs(emu, 1, va, n)) n+=2 ;
+    while (va[n]) n+=2 ;
 
     for (int i = 0; i < n; i += 2) {
         SUPER()
@@ -1249,9 +1248,9 @@ EXPORT void* my32_XVaCreateNestedList(x64emu_t* emu, int unused, uintptr_t* va) 
     return res;
 }
 
-EXPORT void* my32_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
+EXPORT void* my32_XSetICValues(x64emu_t* emu, void* xic, ptr_t* va) {
     int n = 0;
-    while (getVArgs(emu, 1, va, n)) n+=2;
+    while (va[n]) n+=2;
 
     for (int i = 0; i < n; i += 2) {
         SUPER()
@@ -1261,18 +1260,16 @@ EXPORT void* my32_XSetICValues(x64emu_t* emu, void* xic, uintptr_t* va) {
     VA_CALL(my->XSetICValues, xic, 1, n, res);
     return res;
 }
-#endif
 #undef GO
-#if 0
 
-EXPORT void* my32_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
+EXPORT void* my32_XSetIMValues(x64emu_t* emu, void* xim, ptr_t* va) {
     int n = 0;
-    while (getVArgs(emu, 1, va, n)) n+=2;
+    while (va[n]) n+=2;
 
-    #define GO(A)                                                                       \
-    if (getVArgs(emu, 1, va, i) && strcmp((char*)getVArgs(emu, 1, va, i), A) == 0) {    \
-        XIMCallback* origin = (XIMCallback*)getVArgs(emu, 1, va, i+1);                  \
-        setVArgs(emu, 1, va, i+1, (uintptr_t)find##A##Fct(origin));                     \
+    #define GO(A)                                                       \
+    if (va[i] && strcmp((char*)from_ptrv(va[i]), A) == 0) {             \
+        XIMCallback* origin = (XIMCallback*)from_ptrv(va[i+1]);         \
+        va[i+1] = to_ptrv(find##A##Fct(origin));                        \
     }
     for (int i = 0; i < n; i += 2) {
         SUPER()
@@ -1283,7 +1280,7 @@ EXPORT void* my32_XSetIMValues(x64emu_t* emu, void* xim, uintptr_t* va) {
     VA_CALL(my->XSetIMValues, xim, 1, n, res)
     return res;
 }
-#endif
+
 #undef VA_CALL
 #undef SUPER
 EXPORT void* my32_XSetErrorHandler(x64emu_t* emu, XErrorHandler handler)
@@ -1318,13 +1315,13 @@ EXPORT int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, vo
     convertXEvent(ev, &event);
     return ret;
 }
-#if 0
+
 EXPORT int32_t my32_XCheckIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
     int32_t ret = my->XCheckIfEvent(d, ev, findxifeventFct(h), arg);
     return ret;
 }
-
+#if 0
 EXPORT int32_t my32_XPeekIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
     int32_t ret = my->XPeekIfEvent(d, ev, findxifeventFct(h), arg);
@@ -1517,6 +1514,7 @@ EXPORT void* my32_XESetEventToWire(x64emu_t* emu, void* display, int32_t event_n
 
     return reverse_event_to_wireFct(my_lib, ret);
 }
+#endif
 
 EXPORT int my32_XRegisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
 {
@@ -1527,7 +1525,6 @@ EXPORT int my32_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* d
 {
     return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, reverse_register_imFct(my_lib, cb), data);
 }
-#endif
 EXPORT int my32_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
 {
     int ret = my->XQueryExtension(display, name, major, first_event, first_error);
@@ -1554,12 +1551,12 @@ EXPORT void* my32_XSetAfterFunction(x64emu_t* emu, void* display, void* f)
 
     return reverse_XSynchronizeProcFct(my_lib, my->XSetAfterFunction(display, findXSynchronizeProcFct(f)));
 }
+#endif
 
 EXPORT void* my32_XSynchronize(x64emu_t* emu, void* display, int onoff)
 {
     return reverse_XSynchronizeProcFct(my_lib, my->XSynchronize(display, onoff));
 }
-#endif
 
 #define N_DISPLAY 4
 #define N_SCREENS 16
@@ -1710,20 +1707,6 @@ void* addDisplay(void* d)
 
     #undef GO
     #undef GO2
-
-    return ret;
-}
-
-EXPORT void* my32_XOpenDisplay(x64emu_t* emu, void* d)
-{
-    void* r = my->XOpenDisplay(d);
-    // Added automatic bridge because of thos macro from Xlibint.h
-    //#define LockDisplay(d)       if ((d)->lock_fns) (*(d)->lock_fns->lock_display)(d)
-    //#define UnlockDisplay(d)     if ((d)->lock_fns) (*(d)->lock_fns->unlock_display)(d)
-    if(!r)
-        return r;
-
-    void* ret = addDisplay(r);
 
     return ret;
 }
@@ -2232,6 +2215,13 @@ EXPORT int my32_XCheckWindowEvent(x64emu_t* emu, void* dpy, XID window, long mas
     return ret;
 }
 
+EXPORT int my32_XWindowEvent(x64emu_t* emu, void* dpy, XID window, long mask, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    int ret = my->XWindowEvent(dpy, window, mask, &event);
+    if(ret) convertXEvent(evt, &event);
+    return ret;
+}
 
 EXPORT int my32_XSendEvent(x64emu_t* emu, void* dpy, XID window, int propagate, long mask, my_XEvent_32_t* evt)
 {
@@ -2241,6 +2231,37 @@ EXPORT int my32_XSendEvent(x64emu_t* emu, void* dpy, XID window, int propagate, 
     }
     if(evt) unconvertXEvent(&event, evt);
     return my->XSendEvent(dpy, window, propagate, mask, evt?(&event):NULL);
+}
+
+EXPORT int my32_XGetEventData(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    if(evt) unconvertXEvent(&event, evt);
+    int ret = my->XGetEventData(dpy, &event);
+    if(ret) convertXEvent(evt, &event);
+    return ret;
+}
+
+EXPORT void my32_XFreeEventData(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
+{
+    my_XEvent_t event = {0};
+    if(evt) unconvertXEvent(&event, evt);
+    my->XFreeEventData(dpy, &event);
+    convertXEvent(evt, &event);
+}
+
+EXPORT int my32_XRefreshKeyboardMapping(x64emu_t* emu, my_XMappingEvent_32_t* evt)
+{
+    my_XMappingEvent_t event = {0};
+    event.type = evt->type;
+    event.serial = from_ulong(evt->serial);
+    event.send_event = evt->send_event;
+    event.display = getDisplay(from_ptrv(evt->display));
+    event.window = from_ulong(evt->window);
+    event.request = evt->request;
+    event.first_keycode = evt->first_keycode;
+    event.count = evt->count;
+    return my->XRefreshKeyboardMapping(&event);
 }
 
 EXPORT unsigned long my32_XLookupKeysym(x64emu_t* emu, my_XEvent_32_t* evt, int index)
@@ -2256,6 +2277,14 @@ EXPORT int my32_XLookupString(x64emu_t* emu, my_XEvent_32_t* evt, void* buff, in
     if(evt) unconvertXEvent(&event, evt);
     return my->XLookupString(evt?(&event):NULL, buff, len, keysym, status);
 }
+
+EXPORT int my32_XmbLookupString(x64emu_t* emu, void* xic, my_XEvent_32_t* evt, void* buff, int len, void* keysym, void* status)
+{
+    my_XEvent_t event = {0};
+    if(evt) unconvertXEvent(&event, evt);
+    return my->XmbLookupString(xic, evt?(&event):NULL, buff, len, keysym, status);
+}
+
 
 EXPORT int my32_XSetWMProtocols(x64emu_t* emu, void* dpy, XID window, XID_32* protocol, int count)
 {
@@ -2537,6 +2566,102 @@ EXPORT int my32_XQueryTree(x64emu_t* emu, void* dpy, XID window, XID_32* root, X
     if(children_l)
         for(int i=0; i<*n; ++i)
             ((XID_32*)children_l)[i] = to_ulong(children_l[i]);
+    return ret;
+}
+
+EXPORT void* my32_XCreateFontSet(x64emu_t* emu, void* dpy, void* name, ptr_t* missing, int* missing_count, ptr_t* string)
+{
+    void** missing_l = NULL;
+    void* string_l = NULL;
+    void* ret = my->XCreateFontSet(dpy, name, &missing_l, missing_count, &string_l);
+    if(string) *string = to_ptrv(string_l);
+    // inplace string list shrink
+    if(missing_l && *missing_count) {
+        for(int i=0; i<*missing_count; ++i)
+            ((ptr_t*)missing_l)[i] = to_ptrv(missing_l[i]);
+    }
+    // put end marker, for expansion
+    if(missing_l)
+        ((ptr_t*)missing_l)[*missing_count] = 0;
+    *string = to_ptrv(missing_l);
+    return ret;
+}
+
+EXPORT int my32_XmbTextPropertyToTextList(x64emu_t* emu, void* dpy, void* prop, ptr_t* list, int* count)
+{
+    void** list_l = NULL;
+    int ret = my->XmbTextPropertyToTextList(dpy, prop, &list_l, count);
+    if(list_l && *count) {
+        for(int i=0; i<*count; ++i)
+            ((ptr_t*)list_l)[i] = to_ptrv(list_l[i]);
+    }
+    // put end marker, for expansion
+    if(list_l)
+        ((ptr_t*)list_l)[*count] = 0;
+    *list = to_ptrv(list_l);
+    return ret;
+}
+
+EXPORT void my32_XFreeStringList(x64emu_t* emu, ptr_t* list)
+{
+    // need to find size of list
+    int n = 0;
+    while(list[n]) ++n;
+    // inplace string list expand
+    for(int i=n-1; i>=0; ++i)
+        ((void**)list)[i] = from_ptrv(list[i]);
+
+    my->XFreeStringList(list);
+}
+
+EXPORT int my32_XFreeColors(x64emu_t* emu, void* dpy, XID map, ulong_t* pixels, int npixels, unsigned long planes)
+{
+    unsigned long pixels_l[npixels];
+    for(int i=0; i<npixels; ++i)
+        pixels_l[i] = from_ulong(pixels[i]);
+    return my->XFreeColors(dpy, map, pixels_l, npixels, planes);
+}
+
+void inplace_XModifierKeymap_shrink(void* a)
+{
+    my_XModifierKeymap_32_t *d = a;
+    my_XModifierKeymap_t* s = a;
+
+    d->max_keypermod = s->max_keypermod;
+    d->modifiermap = to_ptrv(s->modifiermap);
+}
+void inplace_XModifierKeymap_enlarge(void* a)
+{
+    my_XModifierKeymap_t *d = a;
+    my_XModifierKeymap_32_t* s = a;
+
+    d->modifiermap = from_ptrv(s->modifiermap);
+    d->max_keypermod = s->max_keypermod;
+}
+
+EXPORT void* my32_XGetModifierMapping(x64emu_t* emu, void* dpy)
+{
+    void *ret = my->XGetModifierMapping(dpy);
+    inplace_XModifierKeymap_shrink(ret);
+    return ret;
+}
+
+EXPORT int my32_XFreeModifiermap(x64emu_t* emu, void* map)
+{
+    inplace_XModifierKeymap_enlarge(map);
+    return my->XFreeModifiermap(map);
+}
+
+EXPORT int my32_XInternAtoms(x64emu_t* emu, void* dpy, ptr_t* names, int count, int only, XID_32* atoms)
+{
+    char* names_l[count];
+    XID atoms_l[count];
+    for(int i=0; i<count; ++i)
+        names_l[i] = from_ptrv(names[i]);
+    memset(atoms_l, 0, sizeof(atoms_l));
+    int ret = my->XInternAtoms(dpy, names_l, count, only, atoms_l);
+    for(int i=0; i<count; ++i)
+        atoms[i] = to_ulong(atoms_l[i]);
     return ret;
 }
 

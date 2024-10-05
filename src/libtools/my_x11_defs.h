@@ -858,5 +858,10 @@ typedef struct my_XVisualInfo_s {
   int bits_per_rgb;
 } my_XVisualInfo_t;
 
+typedef struct my_XModifierKeymap_s {
+    int             max_keypermod;
+    uint8_t*        modifiermap;
+} my_XModifierKeymap_t;
+
 
 #endif//MY_X11_DEFS

@@ -60,6 +60,20 @@ typedef struct struct_LLLL_s {
 } struct_LLLL_t;
 void from_struct_LLLL(struct_LLLL_t *dest, ptr_t src);
 void to_struct_LLLL(ptr_t dest, const struct_LLLL_t *src);
+typedef struct struct_LLLLLLLLLL_s {
+	unsigned long L0;
+	unsigned long L1;
+	unsigned long L2;
+	unsigned long L3;
+	unsigned long L4;
+	unsigned long L5;
+	unsigned long L6;
+	unsigned long L7;
+	unsigned long L8;
+	unsigned long L9;
+} struct_LLLLLLLLLL_t;
+void from_struct_LLLLLLLLLL(struct_LLLLLLLLLL_t *dest, ptr_t src);
+void to_struct_LLLLLLLLLL(ptr_t dest, const struct_LLLLLLLLLL_t *src);
 typedef struct struct_LLLLLLLLLLLLLLLLLL_s {
 	unsigned long L0;
 	unsigned long L1;
@@ -193,12 +207,24 @@ typedef struct struct_WWpWpWpWp_s {
 } struct_WWpWpWpWp_t;
 void from_struct_WWpWpWpWp(struct_WWpWpWpWp_t *dest, ptr_t src);
 void to_struct_WWpWpWpWp(ptr_t dest, const struct_WWpWpWpWp_t *src);
+typedef struct struct_ip_s {
+	int i0;
+	void* p1;
+} struct_ip_t;
+void from_struct_ip(struct_ip_t *dest, ptr_t src);
+void to_struct_ip(ptr_t dest, const struct_ip_t *src);
 typedef struct struct_pi_s {
 	void* p0;
 	int i1;
 } struct_pi_t;
 void from_struct_pi(struct_pi_t *dest, ptr_t src);
 void to_struct_pi(ptr_t dest, const struct_pi_t *src);
+typedef struct struct_pp_s {
+	void* p0;
+	void* p1;
+} struct_pp_t;
+void from_struct_pp(struct_pp_t *dest, ptr_t src);
+void to_struct_pp(ptr_t dest, const struct_pp_t *src);
 typedef struct struct_ppi_s {
 	void* p0;
 	void* p1;
@@ -206,5 +232,119 @@ typedef struct struct_ppi_s {
 } struct_ppi_t;
 void from_struct_ppi(struct_ppi_t *dest, ptr_t src);
 void to_struct_ppi(ptr_t dest, const struct_ppi_t *src);
+typedef struct struct_iip_s {
+	int i0;
+	int i1;
+	void* p2;
+} struct_iip_t;
+void from_struct_iip(struct_iip_t *dest, ptr_t src);
+void to_struct_iip(ptr_t dest, const struct_iip_t *src);
+typedef struct struct_piiL_s {
+	void* p0;
+	int i1;
+	int i2;
+	unsigned long L3;
+} struct_piiL_t;
+void from_struct_piiL(struct_piiL_t *dest, ptr_t src);
+void to_struct_piiL(ptr_t dest, const struct_piiL_t *src);
+typedef struct struct_piip_s {
+	void* p0;
+	int i1;
+	int i2;
+	void* p3;
+} struct_piip_t;
+void from_struct_piip(struct_piip_t *dest, ptr_t src);
+void to_struct_piip(ptr_t dest, const struct_piip_t *src);
+typedef struct struct_ppup_s {
+	void* p0;
+	void* p1;
+	uint32_t u2;
+	void* p3;
+} struct_ppup_t;
+void from_struct_ppup(struct_ppup_t *dest, ptr_t src);
+void to_struct_ppup(ptr_t dest, const struct_ppup_t *src);
+typedef struct struct_iiiiiLi_s {
+	int i0;
+	int i1;
+	int i2;
+	int i3;
+	int i4;
+	unsigned long L5;
+	int i6;
+} struct_iiiiiLi_t;
+void from_struct_iiiiiLi(struct_iiiiiLi_t* dest, ptr_t src);
+void to_struct_iiiiiLi(ptr_t dest, const struct_iiiiiLi_t* src);
+typedef struct struct_iLLLiiiiiiiLLiiLiiiiLic_s {
+	int i0;
+	unsigned long L1;
+	unsigned long L2;
+	unsigned long L3;
+	int i4;
+	int i5;
+	int i6;
+	int i7;
+	int i8;
+	int i9;
+	int i10;
+	unsigned long L11;
+	unsigned long L12;
+	int i13;
+	int i14;
+	unsigned long L15;
+	int i16;
+	int i17;
+	int i18;
+	int i19;
+	unsigned long L20;
+	int i21;
+	int8_t c22;
+} struct_iLLLiiiiiiiLLiiLiiiiLic_t;
+void from_struct_iLLLiiiiiiiLLiiLiiiiLic(struct_iLLLiiiiiiiLLiiLiiiiLic_t* dest, ptr_t src);
+void to_struct_iLLLiiiiiiiLLiiLiiiiLic(ptr_t dest, const struct_iLLLiiiiiiiLLiiLiiiiLic_t* src);
+typedef struct struct_LLLLiiiLLilliLL_s {
+	unsigned long L0;
+	unsigned long L1;
+	unsigned long L2;
+	unsigned long L3;
+	int i4;
+	int i5;
+	int i6;
+	int i7;
+	unsigned long L8;
+	unsigned long L9;
+	int i10;
+	long l11;
+	long l12;
+	int i13;
+	unsigned long L14;
+	unsigned long L15;
+} struct_LLLLiiiLLilliLL_t;
+void from_struct_LLLLiiiLLilliLL(struct_LLLLiiiLLilliLL_t* dest, ptr_t src);
+void to_struct_LLLLiiiLLilliLL(ptr_t dest, const struct_LLLLiiiLLilliLL_t* src);
+typedef struct struct_iiuuLip_s {
+	int i0;
+	int i1;
+	uint32_t u2;
+	uint32_t u3;
+	unsigned long L4;
+	int i5;
+	void* p6;
+} struct_iiuuLip_t;
+void from_struct_iiuuLip(struct_iiuuLip_t *dest, ptr_t src);
+void to_struct_iiuuLip(ptr_t dest, const struct_iiuuLip_t *src);
+typedef struct struct_pLiiiLLLii_s {
+	void* p0;
+	unsigned long L1;
+	int i2;
+	int i3;
+	int i4;
+	unsigned long L5;
+	unsigned long L6;
+	unsigned long L7;
+	int i8;
+	int i9;
+} struct_pLiiiLLLii_t;
+void from_struct_pLiiiLLLii(struct_pLiiiLLLii_t *dest, ptr_t src);
+void to_struct_pLiiiLLLii(ptr_t dest, const struct_pLiiiLLLii_t *src);
 
 #endif // __CONVERTER_H_

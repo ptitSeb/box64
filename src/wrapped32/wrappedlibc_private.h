@@ -1531,7 +1531,7 @@ GOW(setvbuf, iFSpiL)
 // sgetspent
 // sgetspent_r  // Weak
 GOW(shmat, pFipi)
-//GOW(shmctl, iFiip)
+GOW(shmctl, iFiip)
 GOW(shmdt, iFp)
 GOW(shmget, iFiLi)
 GOW(shutdown, iFii)
