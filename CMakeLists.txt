@@ -800,6 +800,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxcursor.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxrandr.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxxf86vm.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedxinerama.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedexpat.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedudev0.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedudev1.c"
