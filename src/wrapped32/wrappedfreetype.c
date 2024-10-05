@@ -281,7 +281,56 @@ typedef struct  FT_Open_Args_s
     FT_Parameter_t* params;
 } FT_Open_Args_t;
 
+typedef struct  FT_WinFNT_HeaderRec_s
+{
+    uint16_t        version;
+    unsigned long   file_size;
+    uint8_t         copyright[60];
+    uint16_t        file_type;
+    uint16_t        nominal_point_size;
+    uint16_t        vertical_resolution;
+    uint16_t        horizontal_resolution;
+    uint16_t        ascent;
+    uint16_t        internal_leading;
+    uint16_t        external_leading;
+    uint8_t         italic;
+    uint8_t         underline;
+    uint8_t         strike_out;
+    uint16_t        weight;
+    uint8_t         charset;
+    uint16_t        pixel_width;
+    uint16_t        pixel_height;
+    uint8_t         pitch_and_family;
+    uint16_t        avg_width;
+    uint16_t        max_width;
+    uint8_t         first_char;
+    uint8_t         last_char;
+    uint8_t         default_char;
+    uint8_t         break_char;
+    uint16_t        bytes_per_row;
+    unsigned long   device_offset;
+    unsigned long   face_name_offset;
+    unsigned long   bits_pointer;
+    unsigned long   bits_offset;
+    uint8_t         reserved;
+    unsigned long   flags;
+    uint16_t        A_space;
+    uint16_t        B_space;
+    uint16_t        C_space;
+    uint16_t        color_table_offset;
+    unsigned long   reserved1[4];
+} FT_WinFNT_HeaderRec_t;
+
+typedef struct  FT_Matrix_s
+{
+    long    xx, xy;
+    long    yx, yy;
+} FT_Matrix_t;
+
+// ===============================================
 // 32bits FreeType structures
+// ===============================================
+
 typedef union  FT_StreamDesc_32_s
 {
     long_t value;
@@ -534,6 +583,56 @@ typedef struct  FT_Open_Args_32_s
     int             num_params;
     ptr_t           params; //FT_Parameter_t*
 } FT_Open_Args_32_t;
+
+typedef struct  FT_WinFNT_HeaderRec_32_s
+{
+    uint16_t        version;
+    ulong_t         file_size;
+    uint8_t         copyright[60];
+    uint16_t        file_type;
+    uint16_t        nominal_point_size;
+    uint16_t        vertical_resolution;
+    uint16_t        horizontal_resolution;
+    uint16_t        ascent;
+    uint16_t        internal_leading;
+    uint16_t        external_leading;
+    uint8_t         italic;
+    uint8_t         underline;
+    uint8_t         strike_out;
+    uint16_t        weight;
+    uint8_t         charset;
+    uint16_t        pixel_width;
+    uint16_t        pixel_height;
+    uint8_t         pitch_and_family;
+    uint16_t        avg_width;
+    uint16_t        max_width;
+    uint8_t         first_char;
+    uint8_t         last_char;
+    uint8_t         default_char;
+    uint8_t         break_char;
+    uint16_t        bytes_per_row;
+    ulong_t         device_offset;
+    ulong_t         face_name_offset;
+    ulong_t         bits_pointer;
+    ulong_t         bits_offset;
+    uint8_t         reserved;
+    ulong_t         flags;
+    uint16_t        A_space;
+    uint16_t        B_space;
+    uint16_t        C_space;
+    uint16_t        color_table_offset;
+    ulong_t         reserved1[4];
+} FT_WinFNT_HeaderRec_32_t;
+
+typedef struct  FT_Matrix_32_s
+{
+    long_t  xx, xy;
+    long_t  yx, yy;
+} FT_Matrix_32_t;
+
+// ==================================
+// Convertions
+// ==================================
 
 void convert_FT_StreamRec_to_32(void* d, void* s)
 {
@@ -789,7 +888,6 @@ void inplace_FT_SizeRec_enlarge(void* a)
 }
 
 
-// Convertion function
 void inplace_FT_FaceRec_shrink(void* a)
 {
     if(!a) return;
@@ -980,6 +1078,106 @@ void convert_FT_Size_RequestRec_to_64(void* d, void* s)
     dst->horiResolution = src->horiResolution;
     dst->vertResolution = src->vertResolution;
 }
+
+void convert_FT_WinFNT_HeaderRec_to_32(void* d, void* s)
+{
+    FT_WinFNT_HeaderRec_t* src = s;
+    FT_WinFNT_HeaderRec_32_t* dst = d;
+
+    dst->version = src->version;
+    dst->file_size = to_ulong(src->file_size);
+    memcpy(dst->copyright, src->copyright, sizeof(dst->copyright));
+    dst->file_type = src->file_type;
+    dst->nominal_point_size = src->nominal_point_size;
+    dst->vertical_resolution = src->vertical_resolution;
+    dst->horizontal_resolution = src->horizontal_resolution;
+    dst->ascent = src->ascent;
+    dst->internal_leading = src->internal_leading;
+    dst->external_leading = src->external_leading;
+    dst->italic = src->italic;
+    dst->underline = src->underline;
+    dst->strike_out = src->strike_out;
+    dst->weight = src->weight;
+    dst->charset = src->charset;
+    dst->pixel_width = src->pixel_width;
+    dst->pixel_height = src->pixel_height;
+    dst->pitch_and_family = src->pitch_and_family;
+    dst->avg_width = src->avg_width;
+    dst->max_width = src->max_width;
+    dst->first_char = src->first_char;
+    dst->last_char = src->last_char;
+    dst->default_char = src->default_char;
+    dst->break_char = src->break_char;
+    dst->bytes_per_row = src->bytes_per_row;
+    dst->device_offset = to_ulong(src->device_offset);
+    dst->face_name_offset = to_ulong(src->face_name_offset);
+    dst->bits_pointer = to_ulong(src->bits_pointer);
+    dst->bits_offset = to_ulong(src->bits_offset);
+    dst->reserved = src->reserved;
+    dst->flags = to_ulong(src->flags);
+    dst->A_space = src->A_space;
+    dst->B_space = src->B_space;
+    dst->C_space = src->C_space;
+    dst->color_table_offset = src->color_table_offset;
+    dst->reserved1[0] = to_ulong(src->reserved1[0]);
+    dst->reserved1[1] = to_ulong(src->reserved1[1]);
+    dst->reserved1[2] = to_ulong(src->reserved1[2]);
+    dst->reserved1[3] = to_ulong(src->reserved1[3]);
+}
+
+void convert_FT_Matrix_to_32(void* d, void* s)
+{
+    FT_Matrix_t* src = s;
+    FT_Matrix_32_t* dst = d;
+
+    dst->xx = to_long(src->xx);
+    dst->xy = to_long(src->xy);
+    dst->yx = to_long(src->yx);
+    dst->yy = to_long(src->yy);
+}
+void convert_FT_Matrix_to_64(void* d, void* s)
+{
+    FT_Matrix_32_t* src = s;
+    FT_Matrix_t* dst = d;
+
+    dst->yy = from_long(src->yy);
+    dst->yx = from_long(src->yx);
+    dst->xy = from_long(src->xy);
+    dst->xx = from_long(src->xx);
+}
+
+void convert_FT_Bitmap_to_32(void* d, void* s)
+{
+    FT_Bitmap_t* src = s;
+    FT_Bitmap_32_t* dst = d;
+
+    dst->rows = src->rows;
+    dst->width = src->width;
+    dst->pitch = src->pitch;
+    dst->buffer = to_ptrv(src->buffer);
+    dst->num_grays = src->num_grays;
+    dst->pixel_mode = src->pixel_mode;
+    dst->palette_mode = src->palette_mode;
+    dst->palette = to_ptrv(src->palette);
+}
+void convert_FT_Bitmap_to_64(void* d, void* s)
+{
+    FT_Bitmap_32_t* src = s;
+    FT_Bitmap_t* dst = d;
+
+    dst->palette = from_ptrv(src->palette);
+    dst->palette_mode = src->palette_mode;
+    dst->pixel_mode = src->pixel_mode;
+    dst->num_grays = src->num_grays;
+    dst->buffer = from_ptrv(src->buffer);
+    dst->pitch = src->pitch;
+    dst->width = src->width;
+    dst->rows = src->rows;
+}
+
+// ==================================
+// Wrapping
+// ==================================
 
 #define ADDED_FUNCTIONS()                   \
 
@@ -1570,6 +1768,7 @@ EXPORT int my32_FT_Set_Charmap(x64emu_t* emu, void* face, void* charmap)
 
 EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT_BBox_32_t* bbox)
 {
+    // convert outline to 64
     int n = outline->n_points;
     FT_Outline_t outline_l;
     FT_Vector_t vector[n];
@@ -1584,6 +1783,7 @@ EXPORT void my32_FT_Outline_Get_CBox(x64emu_t* emu, FT_Outline_32_t* outline, FT
     outline_l.tags = from_ptrv(outline->tags);
     outline_l.contours = from_ptrv(outline->contours);
     outline_l.flags = outline->flags;
+    //
     FT_BBox_t res = {0};
     my->FT_Outline_Get_CBox(&outline_l, &res);
     bbox->xMin = to_long(res.xMin);
@@ -1606,6 +1806,147 @@ EXPORT int my32_FT_Render_Glyph(x64emu_t* emu, FT_GlyphSlotRec_32_t* glyph, uint
     convert_FT_GlyphSlot_to_32(glyph, &slot);
     #endif
     return ret;
+}
+
+EXPORT int my32_FT_Get_WinFNT_Header(x64emu_t* emu, void* face, FT_WinFNT_HeaderRec_32_t* aheader)
+{
+    FT_WinFNT_HeaderRec_t aheader_l = {0};
+    inplace_FT_FaceRec_enlarge(face);
+    int ret = my->FT_Get_WinFNT_Header(face, &aheader_l);
+    inplace_FT_FaceRec_shrink(face);
+    if(!ret)
+        convert_FT_WinFNT_HeaderRec_to_32(aheader, &aheader_l);
+    return ret;
+}
+
+EXPORT void my32_FT_Matrix_Multiply(x64emu_t* emu, FT_Matrix_32_t* a, FT_Matrix_32_t* b)
+{
+    FT_Matrix_t a_l, b_l;
+    convert_FT_Matrix_to_64(&a_l, a);
+    convert_FT_Matrix_to_64(&b_l, b);
+    my->FT_Matrix_Multiply(&a_l, &b_l);
+    convert_FT_Matrix_to_32(b, &b_l);
+}
+
+EXPORT int my32_FT_Outline_Get_Bitmap(x64emu_t* emu, void* lib, FT_Outline_32_t* outline, FT_Bitmap_32_t* bitmap)
+{
+    FT_Bitmap_t bitmap_l;
+    // convert outline to 64
+    int n = outline->n_points;
+    FT_Outline_t outline_l;
+    FT_Vector_t vector[n];
+    outline_l.n_contours = outline->n_contours;
+    outline_l.n_points = outline->n_points;
+    outline_l.points = vector;
+    FT_Vector_32_t* vec = from_ptrv(outline->points);
+    for(int i=0; i<n; ++i) {
+        vector[i].x = from_long(vec[i].x);
+        vector[i].y = from_long(vec[i].y);
+    }
+    outline_l.tags = from_ptrv(outline->tags);
+    outline_l.contours = from_ptrv(outline->contours);
+    outline_l.flags = outline->flags;
+    //
+    convert_FT_Bitmap_to_64(&bitmap_l, bitmap);
+    
+    int ret = my->FT_Outline_Get_Bitmap(lib, &outline_l, &bitmap_l);
+    convert_FT_Bitmap_to_32(bitmap, &bitmap_l);
+    return ret;
+}
+
+EXPORT void my32_FT_Outline_Transform(x64emu_t* emu, FT_Outline_32_t* outline, FT_Matrix_32_t* matrix)
+{
+    FT_Matrix_t matrix_l;
+    // convert outline to 64
+    int n = outline->n_points;
+    FT_Outline_t outline_l;
+    FT_Vector_t vector[n];
+    outline_l.n_contours = outline->n_contours;
+    outline_l.n_points = outline->n_points;
+    outline_l.points = vector;
+    FT_Vector_32_t* vec = from_ptrv(outline->points);
+    for(int i=0; i<n; ++i) {
+        vector[i].x = from_long(vec[i].x);
+        vector[i].y = from_long(vec[i].y);
+    }
+    outline_l.tags = from_ptrv(outline->tags);
+    outline_l.contours = from_ptrv(outline->contours);
+    outline_l.flags = outline->flags;
+    //
+    convert_FT_Matrix_to_64(&matrix_l, matrix);
+    my->FT_Outline_Transform(&outline_l, &matrix_l);
+    // convert outline to 32
+    outline->n_contours = outline_l.n_contours;
+    outline->n_points = outline_l.n_points;
+    for(int i=0; i<n; ++i) {
+        vec[i].x = to_long(vector[i].x);
+        vec[i].y = to_long(vector[i].y);
+    }
+    outline->tags = to_ptrv(outline_l.tags);
+    outline->contours = to_ptrv(outline_l.contours);
+    outline->flags = outline_l.flags;
+}
+
+EXPORT void my32_FT_Outline_Translate(x64emu_t* emu, FT_Outline_32_t* outline, long x, long y)
+{
+    // convert outline to 64
+    int n = outline->n_points;
+    FT_Outline_t outline_l;
+    FT_Vector_t vector[n];
+    outline_l.n_contours = outline->n_contours;
+    outline_l.n_points = outline->n_points;
+    outline_l.points = vector;
+    FT_Vector_32_t* vec = from_ptrv(outline->points);
+    for(int i=0; i<n; ++i) {
+        vector[i].x = from_long(vec[i].x);
+        vector[i].y = from_long(vec[i].y);
+    }
+    outline_l.tags = from_ptrv(outline->tags);
+    outline_l.contours = from_ptrv(outline->contours);
+    outline_l.flags = outline->flags;
+    //
+    my->FT_Outline_Translate(&outline_l, x, y);
+    // convert outline to 32
+    outline->n_contours = outline_l.n_contours;
+    outline->n_points = outline_l.n_points;
+    for(int i=0; i<n; ++i) {
+        vec[i].x = to_long(vector[i].x);
+        vec[i].y = to_long(vector[i].y);
+    }
+    outline->tags = to_ptrv(outline_l.tags);
+    outline->contours = to_ptrv(outline_l.contours);
+    outline->flags = outline_l.flags;
+}
+
+EXPORT void my32_FT_Outline_Embolden(x64emu_t* emu, FT_Outline_32_t* outline, long strength)
+{
+    // convert outline to 64
+    int n = outline->n_points;
+    FT_Outline_t outline_l;
+    FT_Vector_t vector[n];
+    outline_l.n_contours = outline->n_contours;
+    outline_l.n_points = outline->n_points;
+    outline_l.points = vector;
+    FT_Vector_32_t* vec = from_ptrv(outline->points);
+    for(int i=0; i<n; ++i) {
+        vector[i].x = from_long(vec[i].x);
+        vector[i].y = from_long(vec[i].y);
+    }
+    outline_l.tags = from_ptrv(outline->tags);
+    outline_l.contours = from_ptrv(outline->contours);
+    outline_l.flags = outline->flags;
+    //
+    my->FT_Outline_Embolden(&outline_l, strength);
+    // convert outline to 32
+    outline->n_contours = outline_l.n_contours;
+    outline->n_points = outline_l.n_points;
+    for(int i=0; i<n; ++i) {
+        vec[i].x = to_long(vector[i].x);
+        vec[i].y = to_long(vector[i].y);
+    }
+    outline->tags = to_ptrv(outline_l.tags);
+    outline->contours = to_ptrv(outline_l.contours);
+    outline->flags = outline_l.flags;
 }
 
 #include "wrappedlib_init32.h"

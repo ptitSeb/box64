@@ -78,6 +78,7 @@
 #() iFBp_ -> iFB
 #() LFrl_ -> LFB
 #() pFrl_ -> pFB
+#() lFrll_ -> lFB
 #() iFBllll_ -> iFB
 #() vFbuuipWCCp_ -> vFB
 #() vFbWWpWpWpWp_ -> vFB
@@ -238,6 +239,7 @@
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
 #() pFrl_p -> pFBp
+#() vFBll_l -> vFBl
 #() iFuBLL_ -> iFuB
 #() iFprll_ -> iFpB
 #() iFpbup_ -> iFpB
@@ -246,6 +248,7 @@
 #() iFSBliu_ -> iFSB
 #() iFXbLipi_ -> iFXB
 #() iFrLL_BLL_ -> iFBB
+#() vFbll_rllll_ -> vFBB
 #() iFpruuipWCCp_ -> iFpB
 #() pFriiiiiiiiilt_p -> pFBp
 #() iFiBLLLLLLLLLLLLLLLLLL_ -> iFiB
@@ -325,6 +328,7 @@
 #() iFEup -> iFEup
 #() iFEpi -> iFEpi
 #() iFEpu -> iFEpu
+#() iFEpl -> iFEpl
 #() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
@@ -405,6 +409,7 @@
 #() dFddp -> dFddp
 #() lFili -> lFili
 #() lFipL -> lFipL
+#() lFlll -> lFlll
 #() lFlpi -> lFlpi
 #() lFpLL -> lFpLL
 #() lFppi -> lFppi
@@ -477,6 +482,7 @@
 #() vFEipp -> vFEipp
 #() vFEipV -> vFEipV
 #() vFEpup -> vFEpup
+#() vFEpll -> vFEpll
 #() vFEppp -> vFEppp
 #() vFEXLp -> vFEXLp
 #() vFcccc -> vFcccc
@@ -1186,14 +1192,19 @@ wrappedfreetype:
   - FT_Get_Postscript_Name
   - FT_Get_X11_Font_Format
 - vFpp:
+  - FT_Matrix_Multiply
   - FT_Outline_Get_CBox
+  - FT_Outline_Transform
 - iFpi:
   - FT_Select_Charmap
   - FT_Select_Size
 - iFpu:
   - FT_Render_Glyph
+- iFpl:
+  - FT_Outline_Embolden
 - iFpp:
   - FT_Get_PS_Font_Info
+  - FT_Get_WinFNT_Header
   - FT_Request_Size
   - FT_Set_Charmap
 - uFpL:
@@ -1202,6 +1213,8 @@ wrappedfreetype:
   - FT_Get_First_Char
 - pFpi:
   - FT_Get_Sfnt_Table
+- vFpll:
+  - FT_Outline_Translate
 - iFpip:
   - FT_Get_Sfnt_Name
 - iFpui:
@@ -1212,6 +1225,7 @@ wrappedfreetype:
   - FT_Load_Char
 - iFppp:
   - FT_Get_BDF_Property
+  - FT_Outline_Get_Bitmap
 - LFpLp:
   - FT_Get_Next_Char
 - iFpupu:
