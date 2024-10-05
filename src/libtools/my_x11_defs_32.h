@@ -810,4 +810,21 @@ typedef struct my_XdbeScreenVisualInfo_32_s
     ptr_t       visinfo;    //my_XdbeVisualInfo_t*
 } my_XdbeScreenVisualInfo_32_t;
 
+typedef struct my_XF86VidModeModeInfo_32_s
+{
+    unsigned int        dotclock;
+    unsigned short      hdisplay;
+    unsigned short      hsyncstart;
+    unsigned short      hsyncend;
+    unsigned short      htotal;
+    unsigned short      hskew;
+    unsigned short      vdisplay;
+    unsigned short      vsyncstart;
+    unsigned short      vsyncend;
+    unsigned short      vtotal;
+    unsigned int        flags;
+    int                 privsize;
+    ptr_t               tc_private;
+} my_XF86VidModeModeInfo_32_t;
+
 #endif//MY_X11_DEFS_32

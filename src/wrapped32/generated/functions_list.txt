@@ -679,6 +679,7 @@
 #() iFpppL -> iFpppL
 #() iFpppp -> iFpppp
 #() iFSpiL -> iFSpiL
+#() iFXiii -> iFXiii
 #() iFXiip -> iFXiip
 #() iFXiuL -> iFXiuL
 #() iFXipi -> iFXipi
@@ -743,7 +744,6 @@
 #() pFXCip -> pFXCip
 #() pFXLpi -> pFXLpi
 #() pFXLpp -> pFXLpp
-#() pFXppi -> pFXppi
 #() pFXppp -> pFXppp
 #() vFbp_ppp -> vFBppp
 #() vFXLLbL_ -> vFXLLB
@@ -886,6 +886,7 @@
 #() iFEpplp -> iFEpplp
 #() iFEpppi -> iFEpppi
 #() iFEpppp -> iFEpppp
+#() iFEXipp -> iFEXipp
 #() iFEXLip -> iFEXLip
 #() iFEXLlp -> iFEXLlp
 #() iFEXLpi -> iFEXLpi
@@ -930,6 +931,7 @@
 #() pFEppip -> pFEppip
 #() pFEXipp -> pFEXipp
 #() pFEXlpp -> pFEXlpp
+#() pFEXppi -> pFEXppi
 #() pFuiupp -> pFuiupp
 #() pFpiiuu -> pFpiiuu
 #() pFpippp -> pFpippp
@@ -1208,6 +1210,7 @@
 #() iFuiiiiuup -> iFuiiiiuup
 #() iFXuupuupp -> iFXuupuupp
 #() iFXLpipppp -> iFXLpipppp
+#() iFXLppLpip -> iFXLppLpip
 #() iFXpIIIppp -> iFXpIIIppp
 #() CFuiifpppp -> CFuiifpppp
 #() uFuipppppp -> uFuipppppp
@@ -1635,11 +1638,15 @@ wrappedlibgl:
   - eglSetBlobCacheFuncsANDROID
 - vFXpi:
   - glXSwapIntervalEXT
+- pFXip:
+  - glXChooseVisual
 - vFuipp:
   - glShaderSource
   - glShaderSourceARB
 - pFXipp:
   - glXChooseFBConfig
+- pFXppi:
+  - glXCreateContext
 wrappedlibglu:
 - vFpup:
   - gluNurbsCallback
@@ -1953,6 +1960,8 @@ wrappedlibxrandr:
   - XRRSetCrtcConfig
 wrappedlibxrender:
 wrappedlibxxf86vm:
+- iFXipp:
+  - XF86VidModeGetAllModeLines
 wrappedopenal:
 - vFv:
   - alRequestFoldbackStop

@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFXipp_t)(void*, int32_t, void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(XF86VidModeGetAllModeLines, iFXipp_t)
 
 #endif // __wrappedlibxxf86vmTYPES32_H_

@@ -31,4 +31,26 @@
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6"
 #endif
 
+
+#include "libtools/my_x11_defs.h"
+#include "libtools/my_x11_defs_32.h"
+
+#include "generated/wrappedlibxxf86vmtypes32.h"
+
+#include "wrappercallback32.h"
+
+EXPORT int my32_XF86VidModeGetAllModeLines(x64emu_t* emu, void* dpy, int screen, int* num, ptr_t* infos)
+{
+    my_XF86VidModeModeInfo_t** infos_l;
+    int ret = my->XF86VidModeGetAllModeLines(dpy, screen, num, &infos_l);
+    *infos = to_ptrv(infos_l);
+    ptr_t* small = from_ptrv(*infos);
+    // shrink the array, the structure is fine
+    for(int i=0; i<*num; ++i)
+        small[i] = to_ptrv(infos_l[i]);
+    // mark the end
+    small[*num] = 0;
+    return ret;
+}
+
 #include "wrappedlib_init32.h"

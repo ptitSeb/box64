@@ -29,6 +29,7 @@ extern const char* libglName;
 void* getDisplay(void* d); // define in 32bits wrappedx11.c
 
 void convert_XVisualInfo_to_32(void* d, void* s);
+void convert_XVisualInfo_to_64(void* d, void* s);
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
 void* getGLProcAddress32(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);
 EXPORT void* my32_glXGetProcAddress(x64emu_t* emu, void* name)
@@ -44,9 +45,11 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void*(*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppi_t)(void*, void*, int);
+typedef void*(*pFpip_t)(void*, int, void*);
 typedef void*(*pFp_t)(void*);
 typedef void (*vFuipp_t)(uint32_t, int, void*, void*);
 typedef void*(*pFpipp_t)(void*, int, void*, void*);
+typedef void*(*pFpppi_t)(void*, void*, void*, int);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
 typedef struct gl_wrappers_s {
@@ -505,6 +508,59 @@ static void* find_glXGetVisualFromFBConfig_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL glXGetVisualFromFBConfig callback\n");
     return NULL;
 }
+// glXChooseVisual ...
+#define GO(A)                                                                                      \
+static pFpip_t my32_glXChooseVisual_fct_##A = NULL;                                                \
+static void* my32_glXChooseVisual_##A(x64emu_t* emu, void* dpy, int screen, int* attr)             \
+{                                                                                                  \
+    if(!my32_glXChooseVisual_fct_##A)                                                              \
+        return NULL;                                                                               \
+    void* res = my32_glXChooseVisual_fct_##A (dpy, screen, attr);                                  \
+    if(!res)                                                                                       \
+        return NULL;                                                                               \
+    my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;                                        \
+    convert_XVisualInfo_to_32(vinfo, res);                                                         \
+    return vinfo;                                                                                  \
+}
+SUPER()
+#undef GO
+static void* find_glXChooseVisual_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXChooseVisual_fct_##A == (pFpip_t)fct) return my32_glXChooseVisual_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXChooseVisual_fct_##A == 0) {my32_glXChooseVisual_fct_##A = (pFpip_t)fct; return my32_glXChooseVisual_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXChooseVisual callback\n");
+    return NULL;
+}
+// glXCreateContext ...
+#define GO(A)                                                                                                           \
+static pFpppi_t my32_glXCreateContext_fct_##A = NULL;                                                                   \
+static void* my32_glXCreateContext_##A(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info, void* shared, int direct)   \
+{                                                                                                                       \
+    if(!my32_glXCreateContext_fct_##A)                                                                                  \
+        return NULL;                                                                                                    \
+    my_XVisualInfo_t info_l = {0};                                                                                      \
+    convert_XVisualInfo_to_64(&info_l, info);                                                                           \
+    return my32_glXCreateContext_fct_##A (dpy, &info_l, shared, direct);                                                \
+}
+SUPER()
+#undef GO
+static void* find_glXCreateContext_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXCreateContext_fct_##A == (pFpppi_t)fct) return my32_glXCreateContext_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXCreateContext_fct_##A == 0) {my32_glXCreateContext_fct_##A = (pFpppi_t)fct; return my32_glXCreateContext_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXCreateContext callback\n");
+    return NULL;
+}
 #undef SUPER
 
 #define PRE_INIT if(box64_libGL) {lib->w.lib = dlopen(box64_libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(box64_libGL);} else
@@ -565,6 +621,22 @@ EXPORT void* my32_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* confi
     return vinfo;
 }
 
+EXPORT void* my32_glXChooseVisual(x64emu_t* emu, void* dpy, int screen, int* attr)
+{
+    void* res = my->glXChooseVisual(dpy, screen, attr);
+    if(!res) return NULL;
+    my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;
+    convert_XVisualInfo_to_32(vinfo, res);
+    return vinfo;
+}
+
+EXPORT void* my32_glXCreateContext(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info, void* shared, int direct)
+{
+    my_XVisualInfo_t info_l = {0};
+    convert_XVisualInfo_to_64(&info_l, info);
+    return my->glXCreateContext(dpy, &info_l, shared, direct);
+}
+
 #include "wrappedlib_init32.h"
 
 #define SUPER()                             \
@@ -582,6 +654,8 @@ EXPORT void* my32_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* confi
  GO(vFuipp_t, glShaderSourceARB)            \
  GO(pFpipp_t, glXChooseFBConfig)            \
  GO(pFpp_t, glXGetVisualFromFBConfig)       \
+ GO(pFpp_t, glXChooseVisual)                \
+ GO(pFpp_t, glXCreateContext)               \
 
 
 gl_wrappers_t* getGLProcWrapper32(box64context_t* context, glprocaddress_t procaddress)
