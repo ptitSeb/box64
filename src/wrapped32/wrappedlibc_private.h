@@ -101,7 +101,7 @@ GOWM(backtrace, iFEpi)
 GOWM(backtrace_symbols, pFEpi)
 //GO(__backtrace_symbols_fd, vFpii)
 //GOW(backtrace_symbols_fd, vFpii)
-//GO(basename, pFp)
+GO(basename, pFp)
 //GOW(bcmp, iFppL)
 //GO(bcopy, vFppL)
 // bdflush
@@ -1079,7 +1079,7 @@ GOW(mbsrtowcs, LFpbp_Lp)
 // __mbsrtowcs_chk
 GO(mbstowcs, LFppL)
 // __mbstowcs_chk
-//GO(mbtowc, iFppL)
+GO(mbtowc, iFppL)
 // mcheck
 // mcheck_check_all
 // mcheck_pedantic
@@ -1978,7 +1978,7 @@ GO(wcstof, fFpBp_)
 // __wcstof_l
 // wcstof_l // Weak
 // wcstoimax
-//GO(wcstok, pFppp)
+GO(wcstok, pFppBp_)
 GOM(wcstol, lFpBp_i)    //%noE
 //GO(wcstold, DFpp)
 // __wcstold_internal
