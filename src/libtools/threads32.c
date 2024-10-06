@@ -53,7 +53,7 @@ typedef struct threadstack_s {
 } threadstack_t;
 
 // longjmp / setjmp
-typedef struct jump_buff_i386_s {
+typedef struct __attribute__((packed, aligned(4))) jump_buff_i386_s {
  uint32_t save_ebx;
  uint32_t save_esi;
  uint32_t save_edi;
@@ -63,7 +63,7 @@ typedef struct jump_buff_i386_s {
 } jump_buff_i386_t;
 
 // sigset_t should have the same size on 32bits and 64bits machine (64bits)
-typedef struct __jmp_buf_tag_s {
+typedef struct __attribute__((packed, aligned(4))) __jmp_buf_tag_s {
     jump_buff_i386_t __jmpbuf;
     int              __mask_was_saved;
     sigset_t         __saved_mask;
@@ -75,8 +75,8 @@ typedef struct i386_unwind_buff_s {
 		int					__mask_was_saved;
 	} __cancel_jmp_buf[1];
 	ptr_t __pad[2];
-	void* __pad3;
-} i386_unwind_buff_t __attribute__((__aligned__));
+	ptr_t __pad3;
+} __attribute__((packed, aligned(4))) i386_unwind_buff_t;
 
 // those are define in thread.c
 emuthread_t* thread_get_et();
@@ -496,7 +496,7 @@ static void del_cond(void* cond)
 	mutex_unlock(&my_context->mutex_thread);
 }
 
-typedef struct pthread_cond_2_0_s {
+typedef struct __attribute__((packed, aligned(4))) pthread_cond_2_0_s {
 	ptr_t cond;	// pthread_cond_t*
 } pthread_cond_2_0_t;
 

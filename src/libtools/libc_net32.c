@@ -160,7 +160,7 @@ struct i386_ifaddrs
   ptr_t     ifa_netmask;// struct sockaddr *
   ptr_t     ifa_ifu;    // union of struct sockaddr
   ptr_t     ifa_data;   // void *
-};
+} __attribute__((packed, aligned(4)));
 
 EXPORT int my32_getifaddrs(x64emu_t* emu, void** res)
 {
@@ -197,7 +197,7 @@ struct protoent_32
   ptr_t p_name; //char*
   ptr_t p_aliases;// char**
   int p_proto;
-};
+} __attribute__((packed, aligned(4)));
 
 EXPORT void* my32_getprotobyname(x64emu_t* emu, void* name)
 {
