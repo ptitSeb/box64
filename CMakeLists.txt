@@ -798,6 +798,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxext.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxfixes.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxrender.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibxcomposite.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxcursor.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxrandr.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxxf86vm.c"
