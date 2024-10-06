@@ -5,7 +5,7 @@
 
 typedef ulong_t XID_32;
 
-typedef struct ximage_32_s {
+typedef struct __attribute__((packed, aligned(4))) ximage_32_s {
     ptr_t create_image;
     ptr_t destroy_image;
     ptr_t get_pixel;
@@ -14,7 +14,7 @@ typedef struct ximage_32_s {
     ptr_t add_pixel;
 } ximage_32_t;
 
-typedef struct _XImage_32 {
+typedef struct __attribute__((packed, aligned(4))) _XImage_32 {
     int32_t width, height;
     int32_t xoffset;
     int32_t format;
@@ -43,7 +43,7 @@ struct my_XFreeFuncs_32 {
     ptr_t intensityMaps;    // void*
     ptr_t im_filters;   // void*
     ptr_t xkb;  // void*
-};
+} __attribute__((packed, aligned(4)));
 
 struct my_XExten_32 {
     ptr_t next; //struct my_XExten *
@@ -61,18 +61,18 @@ struct my_XExten_32 {
     ptr_t error_values; // PrintErrorType
     ptr_t before_flush; // BeforeFlushType
     ptr_t next_flush;   //struct my_XExten *
-};
+} __attribute__((packed, aligned(4)));
 
 struct my_XInternalAsync_32 {
     ptr_t next; //struct my_XInternalAsync_32 *
     ptr_t handler; //int (*handler)(void*, void*, char*, int, void*);
     ptr_t data; //void*
-};
+} __attribute__((packed, aligned(4)));
 
 struct my_XLockPtrs_32 {
     ptr_t lock_display;// void (*lock_display)(void* dpy);
     ptr_t unlock_display;// void (*unlock_display)(void *dpy);
-};
+} __attribute__((packed, aligned(4)));
 
 struct my_XConnectionInfo_32 {
     int fd;
@@ -80,15 +80,15 @@ struct my_XConnectionInfo_32 {
     ptr_t call_data;
     ptr_t watch_data;   // void**
     struct my_XConnectionInfo *next;
-};
+} __attribute__((packed, aligned(4)));
 
 struct my_XConnWatchInfo_32 {
     ptr_t fn;   // XConnectionWatchProc
     ptr_t client_data;
     ptr_t next; //struct _XConnWatchInfo *
-};
+} __attribute__((packed, aligned(4)));
 
-typedef struct my_Screen_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_Screen_32_s {
         ptr_t ext_data;         //XExtData *
         ptr_t display;      //struct my_XDisplay_s *
         XID_32 root;
@@ -108,7 +108,7 @@ typedef struct my_Screen_32_s {
         long_t root_input_mask;
 } my_Screen_32_t;
 
-typedef struct my_XDisplay_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XDisplay_32_s
 {
         ptr_t ext_data; //void *                            //offset = 0x00
         ptr_t free_funcs;   //struct my_XFreeFuncs_32 *
@@ -201,7 +201,7 @@ typedef struct my_XDisplay_32_s
         ptr_t exit_handler_data;    //void *
 } my_XDisplay_32_t;
 
-typedef struct my_XSetWindowAttributes_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XSetWindowAttributes_32_s {
     XID_32 background_pixmap;
     ulong_t background_pixel;
     XID_32 border_pixmap;
@@ -221,7 +221,7 @@ typedef struct my_XSetWindowAttributes_32_s {
 
 // Events
 
-typedef struct my_XKeyEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XKeyEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -240,7 +240,7 @@ typedef struct my_XKeyEvent_32_s
 typedef my_XKeyEvent_32_t my_XKeyPressedEvent_32_t;
 typedef my_XKeyEvent_32_t my_XKeyReleasedEvent_32_t;
 
-typedef struct my_XButtonEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XButtonEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -259,7 +259,7 @@ typedef struct my_XButtonEvent_32_s
 typedef my_XButtonEvent_32_t my_XButtonPressedEvent_32_t;
 typedef my_XButtonEvent_32_t my_XButtonReleasedEvent_32_t;
 
-typedef struct my_XMotionEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XMotionEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -277,7 +277,7 @@ typedef struct my_XMotionEvent_32_s
 } my_XMotionEvent_32_t;
 typedef my_XMotionEvent_32_t my_XPointerMovedEvent_32_t;
 
-typedef struct my_XCrossingEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XCrossingEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -299,7 +299,7 @@ typedef struct my_XCrossingEvent_32_s
 typedef my_XCrossingEvent_32_t my_XEnterWindowEvent_32_t;
 typedef my_XCrossingEvent_32_t my_XLeaveWindowEvent_32_t;
 
-typedef struct my_XFocusChangeEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XFocusChangeEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -312,7 +312,7 @@ typedef struct my_XFocusChangeEvent_32_s
 typedef my_XFocusChangeEvent_32_t my_XFocusInEvent_32_t;
 typedef my_XFocusChangeEvent_32_t my_XFocusOutEvent_32_t;
 
-typedef struct my_XKeymapEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XKeymapEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -322,7 +322,7 @@ typedef struct my_XKeymapEvent_32_s
     char key_vector[32];
 } my_XKeymapEvent_32_t;
 
-typedef struct my_XExposeEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XExposeEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -334,7 +334,7 @@ typedef struct my_XExposeEvent_32_s
     int count;
 } my_XExposeEvent_32_t;
 
-typedef struct my_XGraphicsExposeEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XGraphicsExposeEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -348,7 +348,7 @@ typedef struct my_XGraphicsExposeEvent_32_s
     int minor_code;
 } my_XGraphicsExposeEvent_32_t;
 
-typedef struct my_XNoExposeEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XNoExposeEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -359,7 +359,7 @@ typedef struct my_XNoExposeEvent_32_s
     int minor_code;
 } my_XNoExposeEvent_32_t;
 
-typedef struct my_XVisibilityEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XVisibilityEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -369,7 +369,7 @@ typedef struct my_XVisibilityEvent_32_s
     int state;
 } my_XVisibilityEvent_32_t;
 
-typedef struct my_XCreateWindowEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XCreateWindowEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -383,7 +383,7 @@ typedef struct my_XCreateWindowEvent_32_s
     int override_redirect;
 } my_XCreateWindowEvent_32_t;
 
-typedef struct my_XDestroyWindowEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XDestroyWindowEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -393,7 +393,7 @@ typedef struct my_XDestroyWindowEvent_32_s
     XID_32 window;
 } my_XDestroyWindowEvent_32_t;
 
-typedef struct my_XUnmapEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XUnmapEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -404,7 +404,7 @@ typedef struct my_XUnmapEvent_32_s
     int from_configure;
 } my_XUnmapEvent_32_t;
 
-typedef struct my_XMapEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XMapEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -415,7 +415,7 @@ typedef struct my_XMapEvent_32_s
     int override_redirect;
 } my_XMapEvent_32_t;
 
-typedef struct my_XMapRequestEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XMapRequestEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -425,7 +425,7 @@ typedef struct my_XMapRequestEvent_32_s
     XID_32 window;
 } my_XMapRequestEvent_32_t;
 
-typedef struct my_XReparentEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XReparentEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -438,7 +438,7 @@ typedef struct my_XReparentEvent_32_s
     int override_redirect;
 } my_XReparentEvent_32_t;
 
-typedef struct my_XConfigureEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XConfigureEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -453,7 +453,7 @@ typedef struct my_XConfigureEvent_32_s
     int override_redirect;
 } my_XConfigureEvent_32_t;
 
-typedef struct my_XGravityEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XGravityEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -464,7 +464,7 @@ typedef struct my_XGravityEvent_32_s
     int x, y;
 } my_XGravityEvent_32_t;
 
-typedef struct my_XResizeRequestEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XResizeRequestEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -474,7 +474,7 @@ typedef struct my_XResizeRequestEvent_32_s
     int width, height;
 } my_XResizeRequestEvent_32_t;
 
-typedef struct my_XConfigureRequestEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XConfigureRequestEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -490,7 +490,7 @@ typedef struct my_XConfigureRequestEvent_32_s
     ulong_t       value_mask;
 } my_XConfigureRequestEvent_32_t;
 
-typedef struct my_XCirculateEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XCirculateEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -501,7 +501,7 @@ typedef struct my_XCirculateEvent_32_s
     int place;
 } my_XCirculateEvent_32_t;
 
-typedef struct my_XCirculateRequestEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XCirculateRequestEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -512,7 +512,7 @@ typedef struct my_XCirculateRequestEvent_32_s
     int place;
 } my_XCirculateRequestEvent_32_t;
 
-typedef struct my_XPropertyEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XPropertyEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -524,7 +524,7 @@ typedef struct my_XPropertyEvent_32_s
     int state;
 } my_XPropertyEvent_32_t;
 
-typedef struct my_XSelectionClearEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XSelectionClearEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -535,7 +535,7 @@ typedef struct my_XSelectionClearEvent_32_s
     ulong_t       time;
 } my_XSelectionClearEvent_32_t;
 
-typedef struct my_XSelectionRequestEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XSelectionRequestEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -549,7 +549,7 @@ typedef struct my_XSelectionRequestEvent_32_s
     ulong_t       time;
 } my_XSelectionRequestEvent_32_t;
 
-typedef struct my_XSelectionEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XSelectionEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -562,7 +562,7 @@ typedef struct my_XSelectionEvent_32_s
     ulong_t       time;
 } my_XSelectionEvent_32_t;
 
-typedef struct my_XColormapEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XColormapEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -574,7 +574,7 @@ typedef struct my_XColormapEvent_32_s
     int state;
 } my_XColormapEvent_32_t;
 
-typedef struct my_XClientMessageEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XClientMessageEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -590,7 +590,7 @@ typedef struct my_XClientMessageEvent_32_s
             } data;
 } my_XClientMessageEvent_32_t;
 
-typedef struct my_XMappingEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XMappingEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -602,7 +602,7 @@ typedef struct my_XMappingEvent_32_s
     int count;
 } my_XMappingEvent_32_t;
 
-typedef struct my_XErrorEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XErrorEvent_32_s
 {
         int type;
         ptr_t display;  //Display*
@@ -613,7 +613,7 @@ typedef struct my_XErrorEvent_32_s
         unsigned char minor_code;
 } my_XErrorEvent_32_t;
 
-typedef struct my_XAnyEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XAnyEvent_32_s
 {
     int type;
     ulong_t       serial;
@@ -622,7 +622,7 @@ typedef struct my_XAnyEvent_32_s
     XID_32 window;
 } my_XAnyEvent_32_t;
 
-typedef struct my_XGenericEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XGenericEvent_32_s
 {
     int            type;
     ulong_t        serial;
@@ -632,7 +632,7 @@ typedef struct my_XGenericEvent_32_s
     int            evtype;
 } my_XGenericEvent_32_t;
 
-typedef struct my_XGenericEventCookie_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XGenericEventCookie_32_s
 {
     int            type;
     ulong_t        serial;
@@ -644,7 +644,7 @@ typedef struct my_XGenericEventCookie_32_s
     void           *data;
 } my_XGenericEventCookie_32_t;
 
-typedef union my_XEvent_32_s {
+typedef union __attribute__((packed, aligned(4))) my_XEvent_32_s {
         int type;
         my_XAnyEvent_32_t xany;
         my_XKeyEvent_32_t xkey;
@@ -683,7 +683,7 @@ typedef union my_XEvent_32_s {
 } my_XEvent_32_t;
 
 // WMHints 
-typedef struct my_XWMHints_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XWMHints_32_s {
     long_t flags;
     int input;
     int initial_state;
@@ -695,7 +695,7 @@ typedef struct my_XWMHints_32_s {
     XID_32 window_group;
 } my_XWMHints_32_t;
 
-typedef struct my_XRRModeInfo_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XRRModeInfo_32_s {
     XID_32              id;
     unsigned int        width;
     unsigned int        height;
@@ -713,7 +713,7 @@ typedef struct my_XRRModeInfo_32_s {
 } my_XRRModeInfo_32_t;
 
 
-typedef struct my_XRRScreenResources_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XRRScreenResources_32_s {
     ulong_t     timestamp;
     ulong_t     configTimestamp;
     int         ncrtc;
@@ -724,7 +724,7 @@ typedef struct my_XRRScreenResources_32_s {
     ptr_t       modes;  //my_XRRModeInfo_32_t *
 } my_XRRScreenResources_32_t;
 
-typedef struct my_XRRCrtcInfo_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XRRCrtcInfo_32_s {
     ulong_t         timestamp;
     int             x, y;
     unsigned int    width, height;
@@ -737,7 +737,7 @@ typedef struct my_XRRCrtcInfo_32_s {
     ptr_t           possible;   //XID_32*
 } my_XRRCrtcInfo_32_t;
 
-typedef struct my_XRROutputInfo_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XRROutputInfo_32_s {
     ulong_t         timestamp;
     XID_32          crtc;
     ptr_t           name;   //char*
@@ -755,7 +755,7 @@ typedef struct my_XRROutputInfo_32_s {
     ptr_t           modes; //XID_32*
 } my_XRROutputInfo_32_t;
 
-typedef struct my_XWindowAttributes_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XWindowAttributes_32_s {
     int x, y;
     int width, height;
     int border_width;
@@ -779,7 +779,7 @@ typedef struct my_XWindowAttributes_32_s {
     ptr_t screen;   //Screen*
 } my_XWindowAttributes_32_t;
 
-typedef struct my_XVisualInfo_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XVisualInfo_32_s {
   ptr_t visual; //Visual*
   ulong_t visualid;
   int screen;
@@ -792,25 +792,25 @@ typedef struct my_XVisualInfo_32_s {
   int bits_per_rgb;
 } my_XVisualInfo_32_t;
 
-typedef struct my_XModifierKeymap_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XModifierKeymap_32_s {
     int             max_keypermod;
     ptr_t           modifiermap;    //uint8_t*
 } my_XModifierKeymap_32_t;
 
-typedef struct my_XdbeVisualInfo_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XdbeVisualInfo_32_s
 {
     XID_32      visual;
     int         depth;
     int         perflevel;
 } my_XdbeVisualInfo_32_t;
 
-typedef struct my_XdbeScreenVisualInfo_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XdbeScreenVisualInfo_32_s
 {
     int         count;
     ptr_t       visinfo;    //my_XdbeVisualInfo_t*
 } my_XdbeScreenVisualInfo_32_t;
 
-typedef struct my_XF86VidModeModeInfo_32_s
+typedef struct __attribute__((packed, aligned(4))) my_XF86VidModeModeInfo_32_s
 {
     unsigned int        dotclock;
     unsigned short      hdisplay;
@@ -827,14 +827,14 @@ typedef struct my_XF86VidModeModeInfo_32_s
     ptr_t               tc_private;
 } my_XF86VidModeModeInfo_32_t;
 
-typedef struct my_XColor_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XColor_32_s {
 	ulong_t pixel;
 	unsigned short red, green, blue;
 	char flags;
 	char pad;
 } my_XColor_32_t;
 
-typedef struct my_XRRProviderInfo_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_XRRProviderInfo_32_s {
     unsigned int    capabilities;
     int             ncrtcs;
     ptr_t           crtcs;  //XID*
@@ -847,7 +847,7 @@ typedef struct my_XRRProviderInfo_32_s {
     int             nameLen;
 } my_XRRProviderInfo_32_t;
 
-typedef struct my_XRRProviderResources_32_t {
+typedef struct __attribute__((packed, aligned(4))) my_XRRProviderResources_32_t {
     ulong_t   timestamp;
     int       nproviders;
     ptr_t     providers;    //XID*

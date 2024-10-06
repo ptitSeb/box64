@@ -331,13 +331,13 @@ typedef struct  FT_Matrix_s
 // 32bits FreeType structures
 // ===============================================
 
-typedef union  FT_StreamDesc_32_s
+typedef union  __attribute__((packed, aligned(4))) FT_StreamDesc_32_s
 {
     long_t value;
     ptr_t  pointer; //void*
 } FT_StreamDesc_32_t;
 
-typedef struct  FT_StreamRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_StreamRec_32_s
 {
     ptr_t                base; //unsigned char*
     ulong_t              size;
@@ -354,29 +354,29 @@ typedef struct  FT_StreamRec_32_s
 
 } FT_StreamRec_32_t;
 
-typedef struct  FT_BBox_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_BBox_32_s
 {
     long_t          xMin, yMin;
     long_t          xMax, yMax;
 } FT_BBox_32_t;
-typedef struct  FT_Generic_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Generic_32_s
 {
     ptr_t           data; //void*
     ptr_t           finalizer; //vFp_t
 } FT_Generic_32_t;
-typedef struct  FT_ListRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_ListRec_32_s
 {
   ptr_t             head; //void*
   ptr_t             tail; //void*
 } FT_ListRec_32_t;
 
-typedef struct  FT_Vector_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Vector_32_s
 {
     long_t  x;
     long_t  y;
 } FT_Vector_32_t;
 
-typedef struct  FT_Bitmap_Size_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Bitmap_Size_32_s
 {
     short  height;
     short  width;
@@ -385,7 +385,7 @@ typedef struct  FT_Bitmap_Size_32_s
     long_t y_ppem;
 } FT_Bitmap_Size_32_t;
 
-typedef struct  FT_Glyph_Metrics_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Glyph_Metrics_32_s
 {
     long_t      width;
     long_t      height;
@@ -397,7 +397,7 @@ typedef struct  FT_Glyph_Metrics_32_s
     long_t      vertAdvance;
 } FT_Glyph_Metrics_32_t;
 
-typedef struct  FT_Outline_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Outline_32_s
 {
     unsigned short   n_contours;
     unsigned short   n_points;
@@ -407,7 +407,7 @@ typedef struct  FT_Outline_32_s
     int              flags;
 } FT_Outline_32_t;
 
-typedef struct  FT_Bitmap_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Bitmap_32_s
 {
     unsigned int    rows;
     unsigned int    width;
@@ -419,7 +419,7 @@ typedef struct  FT_Bitmap_32_s
     ptr_t           palette;    //void*
 } FT_Bitmap_32_t;
 
-typedef struct  FT_GlyphSlotRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_GlyphSlotRec_32_s
 {
     ptr_t                       library;  //FT_Library
     ptr_t                       face; //FT_Face
@@ -445,7 +445,7 @@ typedef struct  FT_GlyphSlotRec_32_s
     ptr_t                       internal;
 } FT_GlyphSlotRec_32_t;
 
-typedef struct  FT_CharMapRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_CharMapRec_32_s
 {
     ptr_t       face;   //FT_FaceRec_t*
     int         encoding;
@@ -453,7 +453,7 @@ typedef struct  FT_CharMapRec_32_s
     uint16_t    encoding_id;
 } FT_CharMapRec_32_t;
 
-typedef struct  FT_Size_Metrics_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Size_Metrics_32_s
 {
     uint16_t    x_ppem;
     uint16_t    y_ppem;
@@ -465,7 +465,7 @@ typedef struct  FT_Size_Metrics_32_s
     long_t      max_advance;
 } FT_Size_Metrics_32_t;
 
-typedef struct  FT_SizeRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_SizeRec_32_s
 {
     ptr_t                   face;   //FT_FaceRec_t*
     FT_Generic_32_t         generic;
@@ -473,7 +473,7 @@ typedef struct  FT_SizeRec_32_s
     ptr_t                   internal;   //FT_Size_Internal
 } FT_SizeRec_32_t;
 
-typedef struct  FT_FaceRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_FaceRec_32_s
 {
     long_t          num_faces;
     long_t          face_index;
@@ -509,7 +509,7 @@ typedef struct  FT_FaceRec_32_s
     ptr_t           internal; //void*
 } FT_FaceRec_32_t;
 
-typedef struct  FT_MemoryRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_MemoryRec_32_s
 {
     ptr_t           user;   //void*
     ptr_t           alloc;  //void*
@@ -517,7 +517,7 @@ typedef struct  FT_MemoryRec_32_s
     ptr_t           realloc;//void*
 } FT_MemoryRec_32_t;
 
-typedef struct  PS_PrivateRec_32_s
+typedef struct __attribute__((packed, aligned(4))) PS_PrivateRec_32_s
 {
     int        unique_id;
     int        lenIV;
@@ -546,7 +546,7 @@ typedef struct  PS_PrivateRec_32_s
     int16_t    min_feature[2];
 } PS_PrivateRec_32_t;
 
-typedef struct  BDF_PropertyRec_32_s
+typedef struct __attribute__((packed, aligned(4))) BDF_PropertyRec_32_s
 {
     int  type;
     union {
@@ -557,7 +557,7 @@ typedef struct  BDF_PropertyRec_32_s
     } u;
 } BDF_PropertyRec_32_t;
 
-typedef struct  FT_Size_RequestRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Size_RequestRec_32_s
 {
     int         type;
     long_t      width;
@@ -566,13 +566,13 @@ typedef struct  FT_Size_RequestRec_32_s
     uint32_t    vertResolution;
 } FT_Size_RequestRec_32_t;
 
-typedef struct  FT_Parameter_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Parameter_32_s
 {
     ulong_t   tag;
     ptr_t     data; //void*
 } FT_Parameter_32_t;
 
-typedef struct  FT_Open_Args_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Open_Args_32_s
 {
     uint32_t        flags;
     ptr_t           memory_base; //uint8_t*
@@ -584,7 +584,7 @@ typedef struct  FT_Open_Args_32_s
     ptr_t           params; //FT_Parameter_t*
 } FT_Open_Args_32_t;
 
-typedef struct  FT_WinFNT_HeaderRec_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_WinFNT_HeaderRec_32_s
 {
     uint16_t        version;
     ulong_t         file_size;
@@ -624,7 +624,7 @@ typedef struct  FT_WinFNT_HeaderRec_32_s
     ulong_t         reserved1[4];
 } FT_WinFNT_HeaderRec_32_t;
 
-typedef struct  FT_Matrix_32_s
+typedef struct __attribute__((packed, aligned(4))) FT_Matrix_32_s
 {
     long_t  xx, xy;
     long_t  yx, yy;

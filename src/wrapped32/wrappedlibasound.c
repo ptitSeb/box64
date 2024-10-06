@@ -288,7 +288,7 @@ typedef struct _my_snd_pcm_channel_area_s {
     unsigned int first;
     unsigned int step;
 } my_snd_pcm_channel_area_t;
-typedef struct _my_snd_pcm_channel_area_32_s {
+typedef struct __attribute__((packed, aligned(4))) _my_snd_pcm_channel_area_32_s {
     ptr_t addr;
     unsigned int first;
     unsigned int step;

@@ -253,6 +253,7 @@ if(STATICBUILD)
 endif()
 if(BOX32)
     add_definitions(-DBOX32)
+    add_definitions(-Wno-address-of-packed-member)  #32bits might generated unaligned pointers
 endif()
 
 if(NOGIT)

@@ -1964,7 +1964,7 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
     return execv(fullpath, (void*)newargv);
 }
 // execvp should use PATH to search for the program first
-typedef struct
+typedef struct __attribute__((packed, aligned(4)))
 {
   int __allocated;
   int __used;
@@ -2662,7 +2662,7 @@ EXPORT void* my32___deregister_frame_info(void* a)
 EXPORT void* my32____brk_addr = NULL;
 #endif
 // longjmp / setjmp
-typedef struct jump_buff_i386_s {
+typedef struct __attribute__((packed, aligned(4))) jump_buff_i386_s {
  uint32_t save_ebx;
  uint32_t save_esi;
  uint32_t save_edi;
@@ -2671,7 +2671,7 @@ typedef struct jump_buff_i386_s {
  uint32_t save_eip;
 } jump_buff_i386_t;
 
-typedef struct __jmp_buf_tag_s {
+typedef struct __attribute__((packed, aligned(4))) __jmp_buf_tag_s {
     jump_buff_i386_t __jmpbuf;
     int              __mask_was_saved;
     sigset_t         __saved_mask;

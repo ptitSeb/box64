@@ -48,7 +48,7 @@ typedef struct {
     void* userdata;
 } SDL2_AudioSpec;
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed, aligned(4))) {
     int32_t freq;
     uint16_t format;
     uint8_t channels;
@@ -508,6 +508,13 @@ typedef struct SDL_version_s
     uint8_t patch;
 } SDL_version_t;
 
+typedef struct __attribute__((packed, aligned(4))) SDL_version_32_s
+{
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+} SDL_version_32_t;
+
 typedef struct SDL_SysWMinfo_s
 {
     SDL_version_t version;
@@ -523,9 +530,9 @@ typedef struct SDL_SysWMinfo_s
     } info;
 } SDL_SysWMinfo_t;
 
-typedef struct SDL_SysWMinfo_32_s
+typedef struct __attribute__((packed, aligned(4))) SDL_SysWMinfo_32_s
 {
-    SDL_version_t version;
+    SDL_version_32_t version;
     int subsystem;  // 1=Windows, 2 =X11, 6=Wayland
     union
     {
@@ -541,6 +548,7 @@ void* FindDisplay(void* d);
 EXPORT int my32_2_SDL_GetWindowWMInfo(void* w, SDL_SysWMinfo_32_t* i)
 {
     // 32bits and  64bits have the same size...
+    // TODO: Check if it's true
     int ret = my->SDL_GetWindowWMInfo(w, i);
     if(i->subsystem==2) {
         // inplace conversion

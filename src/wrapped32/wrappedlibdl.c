@@ -51,7 +51,7 @@ void dl_set_error(const char*);
 char* dl_last_error();
 library_t* dl_get_library(void* handle);
 
-typedef struct my_dl_info_32_s
+typedef struct __attribute__((packed, aligned(4))) my_dl_info_32_s
 {
   ptr_t dli_fname;	// const char*
   ptr_t dli_fbase;	// void*
@@ -120,7 +120,7 @@ int my32_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
     return -1;
 }
 
-typedef struct my_dl_find_object_s {
+typedef struct __attribute__((packed, aligned(4))) my_dl_find_object_s {
     uint64_t    dlfo_flags;
     ptr_t       dlfo_map_start;
     ptr_t       dlfo_map_end;

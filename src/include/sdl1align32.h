@@ -66,7 +66,7 @@ typedef struct my_SDL_Surface_s
 
 // x86 version (packed, 32bits pointers and long)
 
-typedef struct __attribute__((packed)) my_SDL_Rect_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_Rect_32_s
 {
     int16_t  x;
     int16_t  y;
@@ -74,7 +74,7 @@ typedef struct __attribute__((packed)) my_SDL_Rect_32_s
     uint16_t h;
 } my_SDL_Rect_32_t;
 
-typedef struct __attribute__((packed)) my_SDL_Color_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_Color_32_s
 {
     uint8_t r;
     uint8_t g;
@@ -82,13 +82,13 @@ typedef struct __attribute__((packed)) my_SDL_Color_32_s
     uint8_t unused;
 } my_SDL_Color_32_t;
 
-typedef struct __attribute__((packed)) my_SDL_Palette_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_Palette_32_s
 {
     int ncolors;
     ptr_t colors;   // my_SDL_Color_t*
 } my_SDL_Palette_32_t;
 
-typedef struct __attribute__((packed)) my_SDL_PixelFormat_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_PixelFormat_32_s
 {
     ptr_t palette;  // my_SDL_Palette_t *
     uint8_t BitsPerPixel;
@@ -109,7 +109,7 @@ typedef struct __attribute__((packed)) my_SDL_PixelFormat_32_s
     uint8_t alpha;
 } my_SDL_PixelFormat_32_t;
 
-typedef struct __attribute__((packed)) my_SDL_Surface_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_Surface_32_s
 {
     uint32_t flags;
     ptr_t format;   // my_SDL_PixelFormat_t *
@@ -144,7 +144,7 @@ typedef struct my_SDL_keysym_s
     uint16_t unicode;
 } my_SDL_keysym_t;
 
-typedef struct my_SDL_keysym_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_keysym_32_s
 {
     uint8_t scancode;
     int sym;
@@ -338,14 +338,14 @@ typedef union my_SDL_Event_s
     my_SDL_SysWMEvent_t syswm;
 } my_SDL_Event_t;
 
-typedef struct my_SDL_ActiveEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_ActiveEvent_32_s
 {
     uint8_t type;
     uint8_t gain;
     uint8_t state;
 } my_SDL_ActiveEvent_32_t;
 
-typedef struct my_SDL_KeyboardEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_KeyboardEvent_32_s
 {
     uint8_t type;
     uint8_t which;
@@ -353,7 +353,7 @@ typedef struct my_SDL_KeyboardEvent_32_s
     my_SDL_keysym_32_t keysym;
 } my_SDL_KeyboardEvent_32_t;
 
-typedef struct my_SDL_MouseMotionEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_MouseMotionEvent_32_s
 {
     uint8_t type;
     uint8_t which;
@@ -364,7 +364,7 @@ typedef struct my_SDL_MouseMotionEvent_32_s
     int16_t yrel;
 } my_SDL_MouseMotionEvent_32_t;
 
-typedef struct my_SDL_MouseButtonEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_MouseButtonEvent_32_s
 {
     uint8_t type;
     uint8_t which;
@@ -374,7 +374,7 @@ typedef struct my_SDL_MouseButtonEvent_32_s
     uint16_t y;
 } my_SDL_MouseButtonEvent_32_t;
 
-typedef struct my_SDL_JoyAxisEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_JoyAxisEvent_32_s
 {
     uint8_t type;
     uint8_t which;
@@ -382,7 +382,7 @@ typedef struct my_SDL_JoyAxisEvent_32_s
     int16_t value;
 } my_SDL_JoyAxisEvent_32_t;
 
-typedef struct my_SDL_JoyBallEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_JoyBallEvent_32_s
 {
     uint8_t type;
     uint8_t which;
@@ -391,7 +391,7 @@ typedef struct my_SDL_JoyBallEvent_32_s
     int16_t yrel;
 } my_SDL_JoyBallEvent_32_t;
 
-typedef struct my_SDL_JoyHatEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_JoyHatEvent_32_s
 {
     uint8_t type;
     uint8_t which;
@@ -399,7 +399,7 @@ typedef struct my_SDL_JoyHatEvent_32_s
     uint8_t value;
 } my_SDL_JoyHatEvent_32_t;
 
-typedef struct my_SDL_JoyButtonEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_JoyButtonEvent_32_s
 {
     uint8_t type;
     uint8_t which;
@@ -407,24 +407,24 @@ typedef struct my_SDL_JoyButtonEvent_32_s
     uint8_t state;
 } my_SDL_JoyButtonEvent_32_t;
 
-typedef struct my_SDL_ResizeEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_ResizeEvent_32_s
 {
     uint8_t type;
     int w;
     int h;
 } my_SDL_ResizeEvent_32_t;
 
-typedef struct my_SDL_ExposeEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_ExposeEvent_32_s
 {
     uint8_t type;
 } my_SDL_ExposeEvent_32_t;
 
-typedef struct my_SDL_QuitEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_QuitEvent_32_s
 {
     uint8_t type;
 } my_SDL_QuitEvent_32_t;
 
-typedef struct my_SDL_UserEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_UserEvent_32_s
 {
     uint8_t type;
     int code;
@@ -432,13 +432,13 @@ typedef struct my_SDL_UserEvent_32_s
     ptr_t data2;    //void*
 } my_SDL_UserEvent_32_t;
 
-typedef struct my_SDL_version_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_SDL_version_32_s {
     uint8_t major;
     uint8_t minor;
     uint8_t patch;
 } my_SDL_version_32_t;
 
-typedef struct my_SDL_SysWMinfo_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_SDL_SysWMinfo_32_s {
   my_SDL_version_32_t version;
   int subsystem;
   union {
@@ -454,12 +454,12 @@ typedef struct my_SDL_SysWMinfo_32_s {
   } info;
 } my_SDL_SysWMinfo_32_t;
 
-typedef union my_XEvent_32_s {
+typedef union __attribute__((packed, aligned(4))) my_XEvent_32_s {
     int Type;
 	long_t pad[24];
 } my_XEvent_32_t;
 
-typedef struct my_SDL_SysWMmsg_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_SysWMmsg_32_s
 {
     my_SDL_version_32_t version;
     int subsystem;
@@ -469,7 +469,7 @@ typedef struct my_SDL_SysWMmsg_32_s
 } my_SDL_SysWMmsg_32_t;
 
 
-typedef struct my_SDL_SysWMEvent_32_s
+typedef struct __attribute__((packed, aligned(4))) my_SDL_SysWMEvent_32_s
 {
     uint8_t type;
     ptr_t msg; //my_SDL_SysWMmsg_t*
@@ -507,7 +507,7 @@ typedef struct my_SDL_RWops_s {
     void* hidden[3]; // not converting hidden, just moving it
 } my_SDL_RWops_t;
 
-typedef struct my_SDL_RWops_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_SDL_RWops_32_s {
     ptr_t  seek;    //sdl1_seek
     ptr_t  read;    //sdl1_read
     ptr_t write;    //sdl1_write
@@ -538,7 +538,7 @@ typedef struct my_SDL_VideoInfo_s {
   int current_h;
 } my_SDL_VideoInfo_t;
 
-typedef struct my_SDL_VideoInfo_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_SDL_VideoInfo_32_s {
   uint32_t hw_available:1;
   uint32_t wm_available:1;
   uint32_t UnusedBits1:6;
@@ -571,7 +571,7 @@ typedef struct my_SDL_AudioCVT_s {
   int filter_index;
 } my_SDL_AudioCVT_t;
 
-typedef struct my_SDL_AudioCVT_32_s {
+typedef struct __attribute__((packed, aligned(4))) my_SDL_AudioCVT_32_s {
   int needed;
   uint16_t src_format;
   uint16_t dest_format;

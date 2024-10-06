@@ -15,7 +15,7 @@
 #include "elfloader.h"
 #include "box32context.h"
 
-typedef struct my32_tls_s {
+typedef struct __attribute__((packed, aligned(4))) my32_tls_s {
     int         i;
     uint32_t     o;
 } my32_tls_t;

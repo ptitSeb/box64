@@ -944,7 +944,7 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
 
 #if 0
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed, aligned(4))) {
   unsigned char   *body_data;
   long    body_storage;
   long    body_fill;
@@ -970,7 +970,7 @@ typedef struct __attribute__((packed)) {
 
 } ogg_stream_state_x64;
 
-typedef struct __attribute__((packed)) vorbis_dsp_state_x64 {
+typedef struct __attribute__((packed, aligned(4))) vorbis_dsp_state_x64 {
   int analysisp;
   void *vi; //vorbis_info
 
@@ -999,7 +999,7 @@ typedef struct __attribute__((packed)) vorbis_dsp_state_x64 {
   void       *backend_state;
 } vorbis_dsp_state_x64;
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed, aligned(4))) {
   long endbyte;
   int  endbit;
 
@@ -1008,7 +1008,7 @@ typedef struct __attribute__((packed)) {
   long storage;
 } oggpack_buffer_x64;
 
-typedef struct __attribute__((packed)) vorbis_block_x64 {
+typedef struct __attribute__((packed, aligned(4))) vorbis_block_x64 {
 
   float  **pcm;
   oggpack_buffer_x64 opb;
@@ -1039,7 +1039,7 @@ typedef struct __attribute__((packed)) vorbis_block_x64 {
 
 } vorbis_block_x64;
 
-typedef struct __attribute__((packed)) OggVorbis_x64  {
+typedef struct __attribute__((packed, aligned(4))) OggVorbis_x64  {
   void            *datasource; /* Pointer to a FILE *, etc. */
   int              seekable;
   int64_t      offset;
@@ -1276,14 +1276,14 @@ void AlignVorbisBlock(void* dest, void* source)
 
 #undef TRANSFERT
 #endif
-typedef union __attribute__((packed)) i386_epoll_data {
+typedef union __attribute__((packed, aligned(4))) i386_epoll_data {
     ptr_t    ptr;   //void*
     int      fd;
     uint32_t u32;
     uint64_t u64;
 } i386_epoll_data_t;
 
-struct __attribute__((packed)) i386_epoll_event {
+struct __attribute__((packed, aligned(4))) i386_epoll_event {
     uint32_t            events;
     i386_epoll_data_t    data;
 };
@@ -1315,7 +1315,7 @@ void AlignEpollEvent32(void* dest, void* source, int nbr)
     }
 }
 #if 0
-typedef struct __attribute__((packed)) x64_SMPEG_Info_s {
+typedef struct __attribute__((packed, aligned(4))) x64_SMPEG_Info_s {
     int has_audio;
     int has_video;
     int width;
