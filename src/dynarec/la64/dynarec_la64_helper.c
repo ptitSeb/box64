@@ -571,7 +571,7 @@ void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 // MOVx(x3, 15);    no access to PC reg
 #endif
     SMEND();
-    JIRL(xRA, x2, 0x0); // save LR...
+    JIRL((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x2, 0x0); // save LR...
 }
 
 void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
@@ -584,11 +584,11 @@ void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
     SMEND();
     if (box64_dynarec_callret) {
         // pop the actual return address from RV64 stack
-        LD_D(x2, xSP, 0);     // native addr
+        LD_D(xRA, xSP, 0);     // native addr
         LD_D(x6, xSP, 8);     // x86 addr
         ADDI_D(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2 * 4); // is it the right address?
-        BR(x2);
+        BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         ADDI_D(xSP, xSavedSP, -16);
     }
@@ -609,7 +609,7 @@ void ret_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex)
     BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
     ALSL_D(x3, x2, x3, 3);
     LD_D(x2, x3, 0);
-    BR(x2); // save LR
+    BR(x2);
     CLEARIP();
 }
 
@@ -629,11 +629,11 @@ void retn_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex, int n)
     SMEND();
     if (box64_dynarec_callret) {
         // pop the actual return address from RV64 stack
-        LD_D(x2, xSP, 0);     // native addr
+        LD_D(xRA, xSP, 0);     // native addr
         LD_D(x6, xSP, 8);     // x86 addr
         ADDI_D(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2 * 4); // is it the right address?
-        BR(x2);
+        BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         ADDI_D(xSP, xSavedSP, -16);
     }
@@ -654,7 +654,7 @@ void retn_to_epilog(dynarec_la64_t* dyn, int ninst, rex_t rex, int n)
     BSTRPICK_D(x2, xRIP, JMPTABL_START0 + JMPTABL_SHIFT0 - 1, JMPTABL_START0);
     ALSL_D(x3, x2, x3, 3);
     LD_D(x2, x3, 0);
-    BR(x2); // save LR
+    BR(x2);
     CLEARIP();
 }
 

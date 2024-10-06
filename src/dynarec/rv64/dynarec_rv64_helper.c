@@ -580,7 +580,7 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     //MOVx(x3, 15);    no access to PC reg
     #endif
     SMEND();
-    JALR(x2); // save LR...
+    JALR((dyn->insts[ninst].x64.has_callret ? xRA : xZR), x2);
 }
 
 void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
@@ -592,11 +592,11 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
     SMEND();
     if (box64_dynarec_callret) {
         // pop the actual return address from RV64 stack
-        LD(x2, xSP, 0);     // native addr
+        LD(xRA, xSP, 0);     // native addr
         LD(x6, xSP, 8);     // x86 addr
         ADDI(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2*4); // is it the right address?
-        JALR(x2);
+        BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
         ADDI(xSP, xSP, -16);
@@ -631,7 +631,7 @@ void ret_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex)
     }
     if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x2, x3, 0);
-    JALR(x2); // save LR
+    BR(x2);
     CLEARIP();
 }
 
@@ -650,11 +650,11 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
     SMEND();
     if (box64_dynarec_callret) {
         // pop the actual return address from RV64 stack
-        LD(x2, xSP, 0);     // native addr
+        LD(xRA, xSP, 0);     // native addr
         LD(x6, xSP, 8);     // x86 addr
         ADDI(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2*4); // is it the right address?
-        JALR(x2);
+        BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
         ADDI(xSP, xSP, -16);
@@ -688,7 +688,7 @@ void retn_to_epilog(dynarec_rv64_t* dyn, int ninst, rex_t rex, int n)
     }
     if(rv64_zba) SH3ADD(x3, x2, x3); else {SLLI(x2, x2, 3); ADD(x3, x3, x2);}
     LD(x2, x3, 0);
-    JALR(x2); // save LR
+    BR(x2);
     CLEARIP();
 }
 
@@ -760,7 +760,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, void* fnc, int reg, int ret, int sav
         SD(xRIP, xEmu, offsetof(x64emu_t, ip));
     }
     TABLE64(reg, (uintptr_t)fnc);
-    JALR(reg);
+    JALR(xRA, reg);
     if(ret>=0) {
         MV(ret, xEmu);
     }
@@ -833,8 +833,8 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     MV(A4, xR8);
     MV(A5, xR9);
     // native call
-    TABLE64(16, (uintptr_t)fnc);    // using x16 as scratch regs for call address
-    JALR(16);
+    TABLE64(xRAX, (uintptr_t)fnc);    // using xRAX as scratch regs for call address
+    JALR(xRA, xRAX);
     // put return value in x64 regs
     if(w>0) {
         MV(xRAX, A0);
