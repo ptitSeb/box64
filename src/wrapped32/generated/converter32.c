@@ -688,3 +688,53 @@ void to_struct_pLiiiLLLii(ptr_t d, const struct_pLiiiLLLii_t *src) {
 	*(int*)dest = src->i8; dest += 4;
 	*(int*)dest = src->i9; dest += 4;
 }
+
+void from_struct_LiiuL(struct_LiiuL_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(long_t*)src); src += 4;
+	dest->i1 = *(int*)src; src += 4;
+	dest->i2 = *(int*)src; src += 4;
+	dest->u3 = *(uint32_t*)src; src += 4;
+	dest->L4 = from_ulong(*(long_t*)src); src += 4;
+}
+void to_struct_LiiuL(ptr_t d, const struct_LiiuL_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
+	*(int*)dest = src->i1; dest += 4;
+	*(int*)dest = src->i2; dest += 4;
+	*(uint32_t*)dest = src->u3; dest += 4;
+	*(ulong_t*)dest = to_ulong(src->L4); dest += 4;
+}
+
+void from_struct_WWWWWWWWWuip(struct_WWWWWWWWWuip_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->W0 = *(uint16_t*)src; src += 2;
+	dest->W1 = *(uint16_t*)src; src += 2;
+	dest->W2 = *(uint16_t*)src; src += 2;
+	dest->W3 = *(uint16_t*)src; src += 2;
+	dest->W4 = *(uint16_t*)src; src += 2;
+	dest->W5 = *(uint16_t*)src; src += 2;
+	dest->W6 = *(uint16_t*)src; src += 2;
+	dest->W7 = *(uint16_t*)src; src += 2;
+	dest->W8 = *(uint16_t*)src; src += 2;
+	dest->u9 = *(uint32_t*)src; src += 4;
+	dest->i10 = *(int*)src; src += 4;
+	dest->p11 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_WWWWWWWWWuip(ptr_t d, const struct_WWWWWWWWWuip_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(uint16_t*)dest = src->W0; dest += 2;
+	*(uint16_t*)dest = src->W1; dest += 2;
+	*(uint16_t*)dest = src->W2; dest += 2;
+	*(uint16_t*)dest = src->W3; dest += 2;
+	*(uint16_t*)dest = src->W4; dest += 2;
+	*(uint16_t*)dest = src->W5; dest += 2;
+	*(uint16_t*)dest = src->W6; dest += 2;
+	*(uint16_t*)dest = src->W7; dest += 2;
+	*(uint16_t*)dest = src->W8; dest += 2;
+	*(uint32_t*)dest = src->u9; dest += 4;
+	*(int*)dest = src->i10; dest += 4;
+	*(ulong_t*)dest = to_ptrv(src->p11); dest += 4;
+}

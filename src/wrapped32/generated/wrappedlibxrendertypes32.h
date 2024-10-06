@@ -11,7 +11,13 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFXi_t)(void*, int32_t);
+typedef void* (*pFXp_t)(void*, void*);
+typedef void* (*pFXLrLiiuL_i_t)(void*, uintptr_t, struct_LiiuL_t*, int32_t);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(XRenderFindStandardFormat, pFXi_t) \
+	GO(XRenderFindVisualFormat, pFXp_t) \
+	GO(XRenderFindFormat, pFXLrLiiuL_i_t)
 
 #endif // __wrappedlibxrenderTYPES32_H_

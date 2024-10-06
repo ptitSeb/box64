@@ -167,7 +167,7 @@ static int my32_error_handler_##A(void* dpy, void* error)                       
 {                                                                                           \
     static my_XErrorEvent_32_t evt = {0};                                                   \
     convert_XErrorEvent_to_32(&evt, error);                                                 \
-    return (int)RunFunctionFmt(my32_error_handler_fct_##A, "pp", getDisplay(dpy), &evt);   \
+    return (int)RunFunctionFmt(my32_error_handler_fct_##A, "pp", getDisplay(dpy), &evt);    \
 }
 SUPER()
 #undef GO
@@ -197,10 +197,10 @@ static void* reverse_error_handlerFct(library_t* lib, void* fct)
 
 // ioerror_handler
 #define GO(A)   \
-static uintptr_t my32_ioerror_handler_fct_##A = 0;                      \
-static int my32_ioerror_handler_##A(void* dpy)   \
-{                                                                   \
-    return (int)RunFunctionFmt(my32_ioerror_handler_fct_##A, "p", dpy);\
+static uintptr_t my32_ioerror_handler_fct_##A = 0;                                  \
+static int my32_ioerror_handler_##A(void* dpy)                                      \
+{                                                                                   \
+    return (int)RunFunctionFmt(my32_ioerror_handler_fct_##A, "p", getDisplay(dpy)); \
 }
 SUPER()
 #undef GO
@@ -263,10 +263,10 @@ static void* reverse_exterror_handlerFct(library_t* lib, void* fct)
 #endif
 // close_display
 #define GO(A)   \
-static uintptr_t my32_close_display_fct_##A = 0;                      \
-static int my32_close_display_##A(void* dpy, void* codes)   \
-{                                                                   \
-    return (int)RunFunctionFmt(my32_close_display_fct_##A, "pp", dpy, codes);\
+static uintptr_t my32_close_display_fct_##A = 0;                                            \
+static int my32_close_display_##A(void* dpy, void* codes)                                   \
+{                                                                                           \
+    return (int)RunFunctionFmt(my32_close_display_fct_##A, "pp", getDisplay(dpy), codes);   \
 }
 SUPER()
 #undef GO
@@ -296,10 +296,10 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
 
 // register_im
 #define GO(A)   \
-static uintptr_t my32_register_im_fct_##A = 0;                        \
-static void my32_register_im_##A(void* dpy, void* u, void* d)         \
-{                                                                   \
-    RunFunctionFmt(my32_register_im_fct_##A, "ppp", dpy, u, d);  \
+static uintptr_t my32_register_im_fct_##A = 0;                              \
+static void my32_register_im_##A(void* dpy, void* u, void* d)               \
+{                                                                           \
+    RunFunctionFmt(my32_register_im_fct_##A, "ppp", getDisplay(dpy), u, d); \
 }
 SUPER()
 #undef GO
@@ -352,12 +352,12 @@ static void* findXConnectionWatchProcFct(void* fct)
 #endif
 // xifevent
 #define GO(A)   \
-static uintptr_t my32_xifevent_fct_##A = 0;                                 \
-static int my32_xifevent_##A(void* dpy, my_XEvent_t* event, void* d)        \
-{                                                                           \
-    static my_XEvent_32_t evt = {0};                                        \
-    convertXEvent(&evt, event);                                             \
-    return RunFunctionFmt(my32_xifevent_fct_##A, "ppp", dpy, &evt, d);      \
+static uintptr_t my32_xifevent_fct_##A = 0;                                         \
+static int my32_xifevent_##A(void* dpy, my_XEvent_t* event, void* d)                \
+{                                                                                   \
+    static my_XEvent_32_t evt = {0};                                                \
+    convertXEvent(&evt, event);                                                     \
+    return RunFunctionFmt(my32_xifevent_fct_##A, "ppp", getDisplay(dpy), &evt, d);  \
 }
 SUPER()
 #undef GO
@@ -1316,13 +1316,17 @@ EXPORT int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, vo
 
 EXPORT int32_t my32_XCheckIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
-    int32_t ret = my->XCheckIfEvent(d, ev, findxifeventFct(h), arg);
+    my_XEvent_t event = {0};
+    int32_t ret = my->XCheckIfEvent(d, &event, findxifeventFct(h), arg);
+    convertXEvent(ev, &event);
     return ret;
 }
 #if 0
 EXPORT int32_t my32_XPeekIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)
 {
-    int32_t ret = my->XPeekIfEvent(d, ev, findxifeventFct(h), arg);
+    my_XEvent_t event = {0};
+    int32_t ret = my->XPeekIfEvent(d, &event, findxifeventFct(h), arg);
+    convertXEvent(ev, &event);
     return ret;
 }
 #endif
@@ -1749,6 +1753,17 @@ EXPORT XID my32_XCreateWindow(x64emu_t* emu, void* d, XID Window, int x, int y, 
 
 void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
 {
+    if(!src->type) {
+        // This is an XErrorEvent, and it's different!
+        dst->xerror.type = src->xerror.type;
+        dst->xerror.display = to_ptrv(FindDisplay(src->xerror.display));
+        dst->xerror.resourceid = to_ulong(src->xerror.resourceid);
+        dst->xerror.serial = to_ulong(src->xerror.serial);
+        dst->xerror.error_code = src->xerror.error_code;
+        dst->xerror.request_code = src->xerror.request_code;
+        dst->xerror.minor_code = src->xerror.minor_code;
+        return;
+    }
     // convert the XAnyEvent first, as it's a common set
     dst->type = src->type;
     dst->xany.display = to_ptrv(FindDisplay(src->xany.display));
@@ -1957,13 +1972,23 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
             dst->xgeneric.extension = src->xgeneric.extension;
             dst->xgeneric.evtype = src->xgeneric.evtype;
             break;
-
         default:
             printf_log(LOG_INFO, "Warning, unsupported 32bits XEvent type=%d\n", src->type);
     }
 }
 void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
 {
+    if(!src->type) {
+        // This is an XErrorEvent, and it's different!
+        dst->xerror.type = src->xerror.type;
+        dst->xerror.display = getDisplay(from_ptrv(src->xerror.display));
+        dst->xerror.resourceid = from_ulong(src->xerror.resourceid);
+        dst->xerror.serial = from_ulong(src->xerror.serial);
+        dst->xerror.error_code = src->xerror.error_code;
+        dst->xerror.request_code = src->xerror.request_code;
+        dst->xerror.minor_code = src->xerror.minor_code;
+        return;
+    }
     // convert the XAnyEvent first, as it's a common set
     dst->type = src->type;
     dst->xany.display = getDisplay(from_ptrv(src->xany.display));
@@ -2571,9 +2596,10 @@ EXPORT void* my32_XCreateFontSet(x64emu_t* emu, void* dpy, void* name, ptr_t* mi
 {
     void** missing_l = NULL;
     void* string_l = NULL;
-    void* ret = my->XCreateFontSet(dpy, name, &missing_l, missing_count, &string_l);
+    void* ret = my->XCreateFontSet(dpy, name, &missing_l, missing_count, string?(&string_l):NULL);
     if(string) *string = to_ptrv(string_l);
     // inplace string list shrink
+    *missing = to_ptrv(missing_l);
     if(missing_l && *missing_count) {
         for(int i=0; i<*missing_count; ++i)
             ((ptr_t*)missing_l)[i] = to_ptrv(missing_l[i]);
@@ -2581,7 +2607,6 @@ EXPORT void* my32_XCreateFontSet(x64emu_t* emu, void* dpy, void* name, ptr_t* mi
     // put end marker, for expansion
     if(missing_l)
         ((ptr_t*)missing_l)[*missing_count] = 0;
-    *string = to_ptrv(missing_l);
     return ret;
 }
 
@@ -2606,7 +2631,7 @@ EXPORT void my32_XFreeStringList(x64emu_t* emu, ptr_t* list)
     int n = 0;
     while(list[n]) ++n;
     // inplace string list expand
-    for(int i=n-1; i>=0; ++i)
+    for(int i=n-1; i>=0; --i)
         ((void**)list)[i] = from_ptrv(list[i]);
 
     my->XFreeStringList(list);
@@ -2726,6 +2751,17 @@ EXPORT void* my32_XGetVisualInfo(x64emu_t* emu, void* dpy, long mask, my_XVisual
     if(template) convert_XVisualInfo_to_64(&template_l, template);
     my_XVisualInfo_t* ret = my->XGetVisualInfo(dpy, mask, template?(&template_l):NULL, n);
     inplace_XVisualInfo_shrink(ret);
+    return ret;
+}
+
+EXPORT int my32_XQueryColors(x64emu_t* emu, void* dpy, XID map, my_XColor_32_t* defs, int ncolor)
+{
+    struct_LWWWcc_t defs_l[ncolor];
+    for(int i=0; i<ncolor; ++i)
+        from_struct_LWWWcc(defs_l+i, to_ptrv(defs+i));
+    int ret = my->XQueryColors(dpy, map, defs_l, ncolor);
+    for(int i=0; i<ncolor; ++i)
+        to_struct_LWWWcc(to_ptrv(defs+i), defs_l+i);
     return ret;
 }
 

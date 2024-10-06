@@ -31,7 +31,6 @@ typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
 typedef uintptr_t (*LFXii_t)(void*, int32_t, int32_t);
 typedef void* (*pFXip_t)(void*, int32_t, void*);
 typedef int32_t (*iFpLlp_t)(void*, uintptr_t, intptr_t, void*);
-typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFXLip_t)(void*, uintptr_t, int32_t, void*);
 typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
@@ -90,10 +89,11 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XGetPixel, LFXii_t) \
 	GO(XESetCloseDisplay, pFXip_t) \
 	GO(XWindowEvent, iFpLlp_t) \
-	GO(XCheckIfEvent, iFpppp_t) \
 	GO(XCheckTypedWindowEvent, iFXLip_t) \
 	GO(XCheckWindowEvent, iFXLlp_t) \
+	GO(XQueryColors, iFXLpi_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
+	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \
 	GO(XGetVisualInfo, pFXlpp_t) \
 	GO(XmbTextPropertyToTextList, iFXbpLiL_pp_t) \

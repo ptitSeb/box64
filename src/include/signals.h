@@ -25,7 +25,7 @@ typedef struct x64_sigaction_restorer_s {
 } x64_sigaction_restorer_t;
 
 #ifdef BOX32
-typedef struct i386_sigaction_s {
+typedef struct __attribute__((packed)) i386_sigaction_s {
 	union {
 	  ptr_t _sa_handler;	// sighandler_t
 	  ptr_t _sa_sigaction; //void (*_sa_sigaction)(int, siginfo_t *, void *);
@@ -35,7 +35,7 @@ typedef struct i386_sigaction_s {
 	ptr_t sa_restorer; //void (*sa_restorer)(void);
 } i386_sigaction_t;
 
-typedef struct i386_sigaction_restorer_s {
+typedef struct __attribute__((packed)) i386_sigaction_restorer_s {
 	union {
 	  ptr_t _sa_handler;	//sighandler_t
 	  ptr_t _sa_sigaction; //void (*_sa_sigaction)(int, siginfo_t *, void *);

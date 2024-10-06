@@ -827,4 +827,30 @@ typedef struct my_XF86VidModeModeInfo_32_s
     ptr_t               tc_private;
 } my_XF86VidModeModeInfo_32_t;
 
+typedef struct my_XColor_32_s {
+	ulong_t pixel;
+	unsigned short red, green, blue;
+	char flags;
+	char pad;
+} my_XColor_32_t;
+
+typedef struct my_XRRProviderInfo_32_s {
+    unsigned int    capabilities;
+    int             ncrtcs;
+    ptr_t           crtcs;  //XID*
+    int             noutputs;
+    ptr_t           outputs;    //XID*
+    ptr_t           name;   //char*
+    int             nassociatedproviders;
+    ptr_t           associated_providers;   //XID*
+    ptr_t           associated_capability;  //unsigned int*
+    int             nameLen;
+} my_XRRProviderInfo_32_t;
+
+typedef struct my_XRRProviderResources_32_t {
+    ulong_t   timestamp;
+    int       nproviders;
+    ptr_t     providers;    //XID*
+} my_XRRProviderResources_32_t;
+
 #endif//MY_X11_DEFS_32

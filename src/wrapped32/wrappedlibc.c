@@ -2650,7 +2650,6 @@ static void ctSetup()
 }
 #endif
 
-#if 0
 EXPORT void my32___register_frame_info(void* a, void* b)
 {
     // nothing
@@ -2659,7 +2658,7 @@ EXPORT void* my32___deregister_frame_info(void* a)
 {
     return NULL;
 }
-
+#if 0
 EXPORT void* my32____brk_addr = NULL;
 #endif
 // longjmp / setjmp

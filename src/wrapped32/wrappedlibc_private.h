@@ -2164,8 +2164,8 @@ GO(fallocate64, iFiiII)
 //DATAM(___brk_addr, 4)
 //DATA(__libc_enable_secure, 4)
 
-//GOM(__register_frame_info, vFpp)  //%%,noE faked function
-//GOM(__deregister_frame_info, pFp) //%%,noE
+GOM(__register_frame_info, vFpp)  //%%,noE faked function
+GOM(__deregister_frame_info, pFp) //%%,noE
 
 //GO(name_to_handle_at, iFipppi) // only glibc 2.14+, so may not be present...
 

@@ -346,5 +346,31 @@ typedef struct struct_pLiiiLLLii_s {
 } struct_pLiiiLLLii_t;
 void from_struct_pLiiiLLLii(struct_pLiiiLLLii_t *dest, ptr_t src);
 void to_struct_pLiiiLLLii(ptr_t dest, const struct_pLiiiLLLii_t *src);
+typedef struct struct_LiiuL_s {
+	unsigned long L0;
+	int i1;
+	int i2;
+	uint32_t u3;
+	unsigned long L4;
+} struct_LiiuL_t;
+void from_struct_LiiuL(struct_LiiuL_t *dest, ptr_t src);
+void to_struct_LiiuL(ptr_t dest, const struct_LiiuL_t *src);
+typedef struct struct_WWWWWWWWWuip_s {
+	uint16_t W0;
+	uint16_t W1;
+	uint16_t W2;
+	uint16_t W3;
+	uint16_t W4;
+	uint16_t W5;
+	uint16_t W6;
+	uint16_t W7;
+	uint16_t W8;
+	uint32_t u9;
+	int i10;
+	void* p11;
+	unsigned long L4;
+} struct_WWWWWWWWWuip_t;
+void from_struct_WWWWWWWWWuip(struct_WWWWWWWWWuip_t *dest, ptr_t src);
+void to_struct_WWWWWWWWWuip(ptr_t dest, const struct_WWWWWWWWWuip_t *src);
 
 #endif // __CONVERTER_H_

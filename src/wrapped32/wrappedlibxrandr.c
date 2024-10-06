@@ -126,6 +126,13 @@ EXPORT void* my32_XRRGetScreenResources(x64emu_t* emu, void* dpy, XID window)
     return ret;
 }
 
+EXPORT void* my32_XRRGetScreenResourcesCurrent(x64emu_t* emu, void* dpy, XID window)
+{
+    void* ret = my->XRRGetScreenResourcesCurrent(dpy, window);
+    inplace_XRRScreenResources_shrink(ret);
+    return ret;
+}
+
 EXPORT int my32_XRRSetCrtcConfig(x64emu_t* emu, void* dpy, void* res, XID crtc, unsigned long timestamp, int x, int y, XID mode, uint16_t rotation, XID_32* outputs, int noutputs)
 {
     XID outputs_l[noutputs];
@@ -238,6 +245,107 @@ EXPORT void* my32_XRRGetOutputInfo(x64emu_t* emu, void* dpy, void* res, XID wind
     inplace_XRROutputInfo_shrink(ret);
     return ret;
 }
+
+void inplace_XRRProviderInfo_shrink(void* a)
+{
+    if(!a) return;
+    my_XRRProviderInfo_32_t *dst = a;
+    my_XRRProviderInfo_t* src = a;
+
+    for(int i=0; i<src->ncrtcs; ++i)
+        ((ulong_t*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
+    for(int i=0; i<src->noutputs; ++i)
+        ((ulong_t*)src->outputs)[i] = to_ulong(src->outputs[i]);
+    for(int i=0; i<src->nassociatedproviders; ++i)
+        ((ulong_t*)src->associated_providers)[i] = to_ulong(src->associated_providers[i]);
+    dst->capabilities = src->capabilities;
+    dst->ncrtcs = src->ncrtcs;
+    dst->crtcs = to_ptrv(src->crtcs);
+    dst->noutputs = src->noutputs;
+    dst->outputs = to_ptrv(src->outputs);
+    dst->name = to_ptrv(src->name);
+    dst->nassociatedproviders = src->nassociatedproviders;
+    dst->associated_providers = to_ptrv(src->associated_providers);
+    dst->associated_capability = to_ptrv(src->associated_capability);
+    dst->nameLen = src->nameLen;
+}
+void inplace_XRRProviderInfo_enlarge(void* a)
+{
+    if(!a) return;
+    my_XRRProviderInfo_t *dst = a;
+    my_XRRProviderInfo_32_t* src = a;
+
+    dst->nameLen = src->nameLen;
+    dst->associated_capability = from_ptrv(src->associated_capability);
+    dst->associated_providers = from_ptrv(src->associated_providers);
+    dst->nassociatedproviders = src->nassociatedproviders;
+    dst->name = from_ptrv(src->name);
+    dst->outputs = from_ptrv(src->outputs);
+    dst->noutputs = src->noutputs;
+    dst->crtcs = from_ptrv(src->crtcs);
+    dst->ncrtcs = src->ncrtcs;
+    dst->capabilities = src->capabilities;
+    for(int i=dst->ncrtcs-1; i>=0; --i)
+        dst->crtcs[i] = from_ulong(((ulong_t*)dst->crtcs)[i]);
+    for(int i=dst->noutputs-1; i>=0; --i)
+        dst->outputs[i] = from_ulong(((ulong_t*)dst->outputs)[i]);
+    for(int i=dst->nassociatedproviders-1; i>=0; --i)
+        dst->associated_providers[i] = from_ulong(((ulong_t*)dst->associated_providers)[i]);
+}
+
+EXPORT void* my32_XRRGetProviderInfo(x64emu_t* emu, void* dpy, void* res, XID provider)
+{
+    inplace_XRRScreenResources_enlarge(res);
+    void* ret = my->XRRGetProviderInfo(dpy, res, provider);
+    inplace_XRRScreenResources_shrink(res);
+    inplace_XRRProviderInfo_shrink(ret);
+    return ret;
+}
+
+EXPORT void my32_XRRFreeProviderInfo(x64emu_t* emu, void* r)
+{
+    inplace_XRRProviderInfo_enlarge(r);
+    my->XRRFreeProviderInfo(r);
+}
+
+void inplace_XRRProviderResources_shrink(void* a)
+{
+    if(!a) return;
+    my_XRRProviderResources_32_t* dst = a;
+    my_XRRProviderResources_t* src = a;
+
+    for(int i=0; i<src->nproviders; ++i)
+        ((ulong_t*)src->providers)[i] = to_ulong(src->providers[i]);
+    dst->timestamp = to_long(src->timestamp);
+    dst->nproviders = src->nproviders;
+    dst->providers = to_ptrv(src->providers);
+}
+void inplace_XRRProviderResources_enlarge(void* a)
+{
+    if(!a) return;
+    my_XRRProviderResources_t* dst = a;
+    my_XRRProviderResources_32_t* src = a;
+
+    dst->timestamp = from_long(src->timestamp);
+    dst->nproviders = src->nproviders;
+    dst->providers = from_ptrv(src->providers);
+    for(int i=dst->nproviders-1; i>=0; --i)
+        dst->providers[i] = from_ulong(((ulong_t*)dst->providers)[i]);
+}
+
+EXPORT void* my32_XRRGetProviderResources(x64emu_t* emu, void* dpy, XID window)
+{
+    void* ret = my->XRRGetProviderResources(dpy, window);
+    inplace_XRRProviderResources_shrink(ret);
+    return ret;
+}
+
+EXPORT void my32_XRRFreeProviderResources(x64emu_t* emu, void* r)
+{
+    inplace_XRRProviderResources_enlarge(r);
+    my->XRRFreeProviderResources(r);
+}
+
 
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"

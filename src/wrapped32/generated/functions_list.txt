@@ -17,6 +17,7 @@
 #() cFi -> cFi
 #() cFu -> cFu
 #() cFp -> cFp
+#() wFp -> wFp
 #() iFv -> iFv
 #() iFi -> iFi
 #() iFI -> iFI
@@ -179,6 +180,7 @@
 #() CFpi -> CFpi
 #() CFpp -> CFpp
 #() CFXL -> CFXL
+#() WFpp -> WFpp
 #() uFEp -> uFEp
 #() uFii -> uFii
 #() uFiS -> uFiS
@@ -254,6 +256,7 @@
 #() iFXbL_ -> iFXB
 #() fFpBp_ -> fFpB
 #() dFpBp_ -> dFpB
+#() LFpbL_ -> LFpB
 #() pFrl_p -> pFBp
 #() vFBll_l -> vFBl
 #() iFuBLL_ -> iFuB
@@ -268,6 +271,7 @@
 #() iFXbiip_ -> iFXB
 #() iFXbLipi_ -> iFXB
 #() iFrLL_BLL_ -> iFBB
+#() LFXrLiiuL_ -> LFXB
 #() vFbll_rllll_ -> vFBB
 #() iFXbiiuuLip_ -> iFXB
 #() iFpruuipWCCp_ -> iFpB
@@ -343,6 +347,7 @@
 #() vFppi -> vFppi
 #() vFppu -> vFppu
 #() vFppp -> vFppp
+#() vFXLi -> vFXLi
 #() vFXLL -> vFXLL
 #() vFXLp -> vFXLp
 #() vFXpi -> vFXpi
@@ -425,6 +430,7 @@
 #() CFipp -> CFipp
 #() CFuUu -> CFuUu
 #() CFuff -> CFuff
+#() WFXip -> WFXip
 #() uFEpu -> uFEpu
 #() uFEpL -> uFEpL
 #() uFilp -> uFilp
@@ -530,6 +536,7 @@
 #() vFXLbpLiL_ -> vFXLB
 #() iFXLbpLiL_ -> iFXLB
 #() iFXLbLLii_ -> iFXLB
+#() pFXrLiiuL_p -> pFXBp
 #() iFXLbLWWWcc_ -> iFXLB
 #() iFirLLLL_BLLLL_ -> iFiBB
 #() pFppriiiiiiiiilt_ -> pFppB
@@ -741,8 +748,8 @@
 #() pFppLL -> pFppLL
 #() pFpppp -> pFpppp
 #() pFXiii -> pFXiii
+#() pFXiip -> pFXiip
 #() pFXCip -> pFXCip
-#() pFXLpi -> pFXLpi
 #() pFXLpp -> pFXLpp
 #() pFXppp -> pFXppp
 #() vFbp_ppp -> vFBppp
@@ -771,6 +778,7 @@
 #() vFXLbLLLLLLLLLL_L -> vFXLBL
 #() iFXLbLLLLLLLLLL_L -> iFXLBL
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
+#() iFXipBWWWWWWWWWuip_ -> iFXipB
 #() iFXLbLWWWcc_bLWWWcc_ -> iFXLBB
 #() iFXLLbLLLLiiiLLilliLL_ -> iFXLLB
 #() iFpruuipWCCp_buuipWCCp_i -> iFpBBi
@@ -926,7 +934,6 @@
 #() LFpLppa -> LFpLppa
 #() LFXLuuu -> LFXLuuu
 #() LFXLpuu -> LFXLpuu
-#() LFXLpLp -> LFXLpLp
 #() LFXpppi -> LFXpppi
 #() pFEppip -> pFEppip
 #() pFEXipp -> pFEXipp
@@ -955,11 +962,13 @@
 #() vFbp_ppibup_ -> vFBppiB
 #() iFEXbpLiL_pp -> iFEXBpp
 #() iFpppbp_bup_ -> iFpppBB
+#() LFXLrLiiuL_Lp -> LFXLBLp
+#() pFEXLrLiiuL_i -> pFEXLBi
 #() iFXbp_iubpLiL_ -> iFXBiuB
 #() iFXLiubiiiiiLi_ -> iFXLiuB
 #() LFLbp_bL_bp_bL_ -> LFLBBBB
 #() vFXLbLLLLLLLLLL_iL -> vFXLBiL
-#() iFXiiibpLiiiLLLii_ -> iFXiiiB
+#() iFXiiiBpLiiiLLLii_ -> iFXiiiB
 #() LFpLpriiiiiiiiilt_a -> LFpLpBa
 #() iFXLpbLWWWcc_bLWWWcc_ -> iFXLpBB
 #() iFXLpBLWWWcc_BLWWWcc_ -> iFXLpBB
@@ -1033,6 +1042,7 @@
 #() vFXLiiii -> vFXLiiii
 #() vFXLiiiL -> vFXLiiiL
 #() vFXLiipi -> vFXLiipi
+#() vFXLpppi -> vFXLpppi
 #() iFEiippi -> iFEiippi
 #() iFEuppLp -> iFEuppLp
 #() iFEpiuuu -> iFEpiuuu
@@ -1064,6 +1074,7 @@
 #() iFXLpppp -> iFXLpppp
 #() iFXpIppp -> iFXpIppp
 #() iFXpuiii -> iFXpuiii
+#() iFXpLiWL -> iFXpLiWL
 #() iFXpLLiL -> iFXpLLiL
 #() iFXppppi -> iFXppppi
 #() iFXppppp -> iFXppppp
@@ -1162,12 +1173,14 @@
 #() iFXLpiipi -> iFXLpiipi
 #() iFXLppiii -> iFXLppiii
 #() iFXpiipii -> iFXpiipii
+#() iFXpLiWwL -> iFXpLiWwL
 #() iFXpLuuii -> iFXpLuuii
 #() uFuippppp -> uFuippppp
 #() pFEpiiiiu -> pFEpiiiiu
 #() pFEpLiiii -> pFEpLiiii
 #() pFEpLiiiI -> pFEpLiiiI
 #() pFEpLiiil -> pFEpLiiil
+#() vFXLLiiibl_ -> vFXLLiiiB
 #() iFEpppibL_p -> iFEpppiBp
 #() iFXLibL_ubL_u -> iFXLiBuBu
 #() vFXLpiibpiip_i -> vFXLpiiBi
@@ -1204,6 +1217,7 @@
 #() vFffffffff -> vFffffffff
 #() vFXiLpiiuu -> vFXiLpiiuu
 #() vFXLiiiLii -> vFXLiiiLii
+#() vFXLLLiipi -> vFXLLLiipi
 #() vFXLppiipi -> vFXLppiipi
 #() iFEpippppp -> iFEpippppp
 #() iFEpLiLppp -> iFEpLiLppp
@@ -1262,6 +1276,7 @@
 #() pFEXLiiuuLi -> pFEXLiiuuLi
 #() iFXLbL_pppppp -> iFXLBpppppp
 #() iFXLbL_bL_ppppp -> iFXLBBppppp
+#() vFXiLLrLiiuL_iipi -> vFXiLLBiipi
 #() pFEXbpLiLLLii_uipbLipi_uu -> pFEXBuipBuu
 #() vFEXLpppippp -> vFEXLpppippp
 #() vFiiiiiiiiii -> vFiiiiiiiiii
@@ -1303,12 +1318,12 @@
 #() vFUufffffffff -> vFUufffffffff
 #() vFpiiiiiiiiuu -> vFpiiiiiiiiuu
 #() vFpipipiipiiu -> vFpipipiipiiu
-#() vFXiLLpiiiipi -> vFXiLLpiiiipi
 #() iFEXLppiiiiuu -> iFEXLppiiiiuu
 #() iFEXpLLiiLWpi -> iFEXpLLiiLWpi
 #() iFuiiiiuuiiip -> iFuiiiiuuiiip
 #() iFXLLpiiuuiiL -> iFXLLpiiuuiiL
 #() pFEXpuiipuuii -> pFEXpuiipuuii
+#() vFXiLLrLiiuL_iiiipi -> vFXiLLBiiiipi
 #() iFXLibL_iiiibL_bL_bL_ -> iFXLiBiiiiBBB
 #() vFuiiiiiiiiuUC -> vFuiiiiiiiiuUC
 #() vFuiiiiiiiuuip -> vFuiiiiiiiuuip
@@ -1318,10 +1333,10 @@
 #() vFuuuuuuuuuuuu -> vFuuuuuuuuuuuu
 #() vFffffffffffff -> vFffffffffffff
 #() vFXiLLpiiiipii -> vFXiLLpiiiipii
-#() vFXiLLpLiiiipi -> vFXiLLpLiiiipi
 #() iFEXLppiiiiuui -> iFEXLppiiiiuui
 #() iFXLpppppppppp -> iFXLpppppppppp
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
+#() vFXiLLrLiiuL_Liiiipi -> vFXiLLBLiiiipi
 #() iFXLLlliLBL_pBL_BL_Bp_ -> iFXLLlliLBpBBB
 #() vFuiiiiiiiiiuup -> vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu -> vFuuuuuuuuuuuuu
@@ -1332,6 +1347,7 @@
 #() iFXippuuuiipppp -> iFXippuuuiipppp
 #() uFippuuuulllipp -> uFippuuuulllipp
 #() LFEXLiiuuuiupLp -> LFEXLiiuuuiupLp
+#() iFXLLlliiLBL_pBL_BL_Bp_ -> iFXLLlliiLBpBBB
 #() vFuffiiffiiffiip -> vFuffiiffiiffiip
 #() vFuddiiddiiddiip -> vFuddiiddiiddiip
 #() vFuiiiiiuiiiiilll -> vFuiiiiiuiiiiilll
@@ -1494,6 +1510,7 @@ wrappedlibc:
 - vFip:
 - vFpi:
 - vFpu:
+- vFpp:
 - iFip:
   - futimens
   - futimes
@@ -1882,15 +1899,15 @@ wrappedlibx11:
   - XESetCloseDisplay
 - iFpLlp:
   - XWindowEvent
-- iFpppp:
-  - XCheckIfEvent
 - iFXLip:
   - XCheckTypedWindowEvent
 - iFXLlp:
   - XCheckWindowEvent
 - iFXLpi:
+  - XQueryColors
   - XSetWMProtocols
 - iFXppp:
+  - XCheckIfEvent
   - XIfEvent
 - pFXlpp:
   - XGetVisualInfo
@@ -1938,6 +1955,8 @@ wrappedlibxcursor:
 wrappedlibxext:
 - vFp:
   - XdbeFreeVisualInfo
+- pFp:
+  - XSetExtensionErrorHandler
 - pFXpp:
   - XdbeGetVisualInfo
 - iFXLpiiL:
@@ -1948,17 +1967,29 @@ wrappedlibxext:
   - XShmPutImage
 wrappedlibxfixes:
 wrappedlibxrandr:
+- vFp:
+  - XRRFreeProviderInfo
+  - XRRFreeProviderResources
 - pFXL:
+  - XRRGetProviderResources
   - XRRGetScreenResources
+  - XRRGetScreenResourcesCurrent
 - pFXpL:
   - XRRGetCrtcInfo
   - XRRGetOutputInfo
   - XRRGetPanning
+  - XRRGetProviderInfo
 - iFXpLp:
   - XRRSetPanning
 - iFXpLLiiLWpi:
   - XRRSetCrtcConfig
 wrappedlibxrender:
+- pFXi:
+  - XRenderFindStandardFormat
+- pFXp:
+  - XRenderFindVisualFormat
+- pFXLrLiiuL_i:
+  - XRenderFindFormat
 wrappedlibxxf86vm:
 - iFXipp:
   - XF86VidModeGetAllModeLines

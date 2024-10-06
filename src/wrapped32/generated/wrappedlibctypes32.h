@@ -36,6 +36,7 @@ typedef void* (*pFriiiiiiiiilt__t)(struct_iiiiiiiiilt_t*);
 typedef void (*vFip_t)(int32_t, void*);
 typedef void (*vFpi_t)(void*, int32_t);
 typedef void (*vFpu_t)(void*, uint32_t);
+typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFip_t)(int32_t, void*);
 typedef int32_t (*iFup_t)(uint32_t, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);

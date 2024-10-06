@@ -53,6 +53,8 @@ typedef struct my32_XExtensionHooks {
 
 #include "wrappercallback32.h"
 
+void* getDisplay(void*);
+
 #define SUPER() \
 GO(0)   \
 GO(1)   \
@@ -62,10 +64,10 @@ GO(4)
 
 // exterrorhandle ...
 #define GO(A)   \
-static uintptr_t my_exterrorhandle_fct_##A = 0;                                                 \
-static int my_exterrorhandle_##A(void* display, void* ext_name, void* reason)                   \
-{                                                                                               \
-    return RunFunctionFmt(my_exterrorhandle_fct_##A, "ppp", display, ext_name, reason);   \
+static uintptr_t my_exterrorhandle_fct_##A = 0;                                                     \
+static int my_exterrorhandle_##A(void* display, void* ext_name, void* reason)                       \
+{                                                                                                   \
+    return RunFunctionFmt(my_exterrorhandle_fct_##A, "ppp", getDisplay(display), ext_name, reason); \
 }
 SUPER()
 #undef GO
@@ -368,11 +370,11 @@ EXPORT int32_t my32_XShmGetImage(x64emu_t* emu, void* disp, size_t drawable, voi
     return r;
 }
 
-//EXPORT void* my32_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
-//{
-//    (void)emu;
-//    return reverse_exterrorhandleFct(my->XSetExtensionErrorHandler(find_exterrorhandle_Fct(handler)));
-//}
+EXPORT void* my32_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
+{
+    (void)emu;
+    return reverse_exterrorhandleFct(my->XSetExtensionErrorHandler(find_exterrorhandle_Fct(handler)));
+}
 
 //EXPORT void* my32_XextAddDisplay(x64emu_t* emu, void* extinfo, void* dpy, void* extname, my32_XExtensionHooks* hooks, int nevents, void* data)
 //{
