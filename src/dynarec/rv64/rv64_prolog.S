@@ -67,4 +67,4 @@ rv64_prolog:
     xori    x5, x0, -1
     srli    x5, x5, 32
     // jump to block
-    jalr    a1
+    jr    a1
