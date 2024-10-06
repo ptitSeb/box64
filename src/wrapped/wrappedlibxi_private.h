@@ -1,88 +1,88 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
-//GO(XAllowDeviceEvents, 
-//GO(XChangeDeviceControl, 
-//GO(XChangeDeviceDontPropagateList, 
-//GO(XChangeDeviceKeyMapping, 
-GO(XChangeDeviceProperty, vFppppiipi)
-//GO(XChangeFeedbackControl, 
-//GO(XChangeKeyboardDevice, 
-//GO(XChangePointerDevice, 
+GO(XAllowDeviceEvents, iFppiL)
+GO(XChangeDeviceControl, iFppip)
+GO(XChangeDeviceDontPropagateList, iFpLipi)
+GO(XChangeDeviceKeyMapping, iFppiipi)
+GO(XChangeDeviceProperty, vFppLLiipi)
+GO(XChangeFeedbackControl, iFppLp)
+GO(XChangeKeyboardDevice, iFpp)
+GO(XChangePointerDevice, iFppii)
 GO(XCloseDevice, iFpp)
-GO(XDeleteDeviceProperty, vFppp)
-//GO(XDeviceBell, 
-//GO(XFreeDeviceControl, 
-GO(XFreeDeviceList, iFp)
-GO(XFreeDeviceMotionEvents, iFv)
+GO(XDeleteDeviceProperty, vFppL)
+GO(XDeviceBell, iFppLLi)
+GO(XFreeDeviceControl, vFp)
+GO(XFreeDeviceList, vFp)
+GO(XFreeDeviceMotionEvents, vFp)
 GO(XFreeDeviceState, vFp)
-//GO(XFreeFeedbackList, 
-GO(XGetDeviceButtonMapping, iFpppi)
-//GO(XGetDeviceControl, 
-//GO(XGetDeviceDontPropagateList, 
-//GO(XGetDeviceFocus, 
-//GO(XGetDeviceKeyMapping, 
-//GO(XGetDeviceModifierMapping, 
-GO(XGetDeviceMotionEvents, pFppuuppp)
-GO(XGetDeviceProperty, iFpppllipppppp)
+GO(XFreeFeedbackList, vFp)
+GO(XGetDeviceButtonMapping, iFpppu)
+GO(XGetDeviceControl, pFppi)
+GO(XGetDeviceDontPropagateList, pFpLp)
+GO(XGetDeviceFocus, iFppppp)
+GO(XGetDeviceKeyMapping, pFppCip)
+GO(XGetDeviceModifierMapping, pFpp)
+GO(XGetDeviceMotionEvents, pFppLLppp)
+GO(XGetDeviceProperty, iFppLlliLppppp)
 GO(XGetExtensionVersion, pFpp)
-//GO(XGetFeedbackControl, 
-//GO(XGetSelectedExtensionEvents, 
-GO(XGrabDevice, iFpppiipiiu)
-//GO(XGrabDeviceButton, 
-//GO(XGrabDeviceKey, 
-//GO(XIAllowEvents, 
-//GO(XIAllowTouchEvents, 
-GO(XIBarrierReleasePointer, vFpipp)
+GO(XGetFeedbackControl, pFppp)
+GO(XGetSelectedExtensionEvents, iFpLpppp)
+GO(XGrabDevice, iFppLiipiiL)
+GO(XGrabDeviceButton, iFppuupLiupii)
+GO(XGrabDeviceKey, iFppuupLiupii)
+GO(XIAllowEvents, iFpiiL)
+GO(XIAllowTouchEvents, iFpiuLi)
+GO(XIBarrierReleasePointer, vFpiLu)
 GO(XIBarrierReleasePointers, vFppi)
-//GO(XIChangeHierarchy, 
-GO(XIChangeProperty, vFpippiipi)
-GO(XIDefineCursor, iFpipp)
-GO(XIDeleteProperty, vFpip)
+GO(XIChangeHierarchy, iFppi)
+GO(XIChangeProperty, vFpiLLiipi)
+GO(XIDefineCursor, iFpiLL)
+GO(XIDeleteProperty, vFpiL)
 GO(XIFreeDeviceInfo, vFp)
-GO(XIGetClientPointer, iFppp)
-//GO(XIGetFocus, 
-GO(XIGetProperty, iFpipllipppppp)
-GO(XIGetSelectedEvents, iFpppi)
-GO(XIGrabButton, iFpiippiiipip)
-GO(XIGrabDevice, iFpipLpiiip)
-//GO(XIGrabEnter, 
-//GO(XIGrabFocusIn, 
-GO(XIGrabKeycode, iFpiipiiipip)
-GO(XIGrabTouchBegin, iFpipipip)
-//GO(XIListProperties, 
+GO(XIGetClientPointer, iFpLp)
+GO(XIGetFocus, iFpip)
+GO(XIGetProperty, iFpiLlliLppppp)
+GO(XIGetSelectedEvents, pFpLp)
+GO(XIGrabButton, iFpiiLLiiipip)
+GO(XIGrabDevice, iFpiLLLiiip)
+GO(XIGrabEnter, iFpiLLiiipip)
+GO(XIGrabFocusIn, iFpiLiiipip)
+GO(XIGrabKeycode, iFpiiLiiipip)
+GO(XIGrabTouchBegin, iFpiLipip)
+GO(XIListProperties, pFpip)
 GO(XIQueryDevice, pFpip)
-GO(XIQueryPointer, iFpipppppppppp)
+GO(XIQueryPointer, iFpiLppppppppp)
 GO(XIQueryVersion, iFppp)
-GO(XISelectEvents, iFpppi)
-GO(XISetClientPointer, iFppi)
-//GO(XISetFocus, 
-GO(XIUndefineCursor, iFpip)
-GO(XIUngrabButton, iFpiipip)
+GO(XISelectEvents, iFpLpi)
+GO(XISetClientPointer, iFpLi)
+GO(XISetFocus, iFpiLL)
+GO(XIUndefineCursor, iFpiL)
+GO(XIUngrabButton, iFpiiLip)
 GO(XIUngrabDevice, iFpiL)
-//GO(XIUngrabEnter, 
-//GO(XIUngrabFocusIn, 
-GO(XIUngrabKeycode, iFpiipip)
-GO(XIUngrabTouchBegin, iFpipip)
-GO(XIWarpPointer, iFpippddiidd)
-//GO(XListDeviceProperties, 
+GO(XIUngrabEnter, iFpiLip)
+GO(XIUngrabFocusIn, iFpiLip)
+GO(XIUngrabKeycode, iFpiiLip)
+GO(XIUngrabTouchBegin, iFpiLip)
+GO(XIWarpPointer, iFpiLLdduudd)
+GO(XListDeviceProperties, pFppp)
 GO(XListInputDevices, pFpp)
-GO(XOpenDevice, pFpp)
+GO(XOpenDevice, pFpL)
 GO(XQueryDeviceState, pFpp)
-GO(XSelectExtensionEvent, iFpppi)
-//GO(XSendExtensionEvent, 
+GO(XSelectExtensionEvent, iFpLpi)
+GO(XSendExtensionEvent, iFppLiipp)
 GO(XSetDeviceButtonMapping, iFpppi)
-//GO(XSetDeviceFocus, 
-//GO(XSetDeviceMode, 
-//GO(XSetDeviceModifierMapping, 
-//GO(XSetDeviceValuators, 
-GO(XUngrabDevice, iFppu)
-//GO(XUngrabDeviceButton, 
-//GO(XUngrabDeviceKey, 
+GO(XSetDeviceFocus, iFppLiL)
+GO(XSetDeviceMode, iFppi)
+GO(XSetDeviceModifierMapping, iFppp)
+GO(XSetDeviceValuators, iFpppii)
+GO(XUngrabDevice, iFppL)
+GO(XUngrabDeviceButton, iFppuupL)
+GO(XUngrabDeviceKey, iFppuupL)
 GO(_XiGetDevicePresenceNotifyEvent, iFp)
-//GO(_xibadclass, 
-//GO(_xibaddevice, 
-//GO(_xibadevent, 
-//GO(_xibadmode, 
-//GO(_xidevicebusy, 
+GO(_xibadclass, vFpp)
+GO(_xibaddevice, vFpp)
+GO(_xibadevent, vFpp)
+GO(_xibadmode, vFpp)
+GO(_xidevicebusy, vFpp)
