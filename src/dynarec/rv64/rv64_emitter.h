@@ -157,9 +157,9 @@ f28–31  ft8–11  FP temporaries                  Caller
 // Unconditionnal branch to r+i12, no return address set
 #define BR_I12(r, imm12) EMIT(JALR_gen(xZR, r, (imm12) & 0b111111111111))
 // Unconditionnal branch to r, return address set to xRA
-#define JALR(r) EMIT(JALR_gen(xRA, r, 0))
+#define JALR(rd, rs) EMIT(JALR_gen(rd, rs, 0))
 // Unconditionnal branch to r+i12, return address set to xRA
-#define JALR_I12(r, imm12) EMIT(JALR_gen(xRA, r, (imm12) & 0b111111111111))
+#define JALR_I12(rd, rs, imm12) EMIT(JALR_gen(rd, rs, (imm12) & 0b111111111111))
 
 // rd = rs1 + imm12
 #define ADDI(rd, rs1, imm12) EMIT(I_type((imm12) & 0b111111111111, rs1, 0b000, rd, 0b0010011))

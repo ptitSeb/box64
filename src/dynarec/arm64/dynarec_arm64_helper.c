@@ -610,7 +610,11 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     #ifdef HAVE_TRACE
     //MOVx(x3, 15);    no access to PC reg
     #endif
-    BLR(x2); // save LR...
+    if (dyn->insts[ninst].x64.has_callret) {
+        BLR(x2); // save LR...
+    } else {
+        BR(x2);
+    }
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
@@ -622,10 +626,10 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     SMEND();
     if(box64_dynarec_callret) {
         // pop the actual return address for ARM stack
-        LDPx_S7_postindex(x2, x6, xSP, 16);
+        LDPx_S7_postindex(xLR, x6, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
         CBNZx(x6, 2*4);
-        BLR(x2);
+        RET(xLR);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         SUBx_U12(xSP, xSavedSP, 16);
     }
@@ -646,7 +650,7 @@ void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
-    BLR(x2); // save LR
+    BR(x2);
     CLEARIP();
 }
 
@@ -665,10 +669,10 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     SMEND();
     if(box64_dynarec_callret) {
         // pop the actual return address for ARM stack
-        LDPx_S7_postindex(x2, x6, xSP, 16);
+        LDPx_S7_postindex(xLR, x6, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
         CBNZx(x6, 2*4);
-        BLR(x2);
+        RET(xLR);
         // not the correct return address, regular jump
         SUBx_U12(xSP, xSavedSP, 16);
     }
@@ -689,7 +693,7 @@ void retn_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex, int n)
     LDRx_REG_LSL3(x2, x2, x3);
     UBFXx(x3, xRIP, JMPTABL_START0, JMPTABL_SHIFT0);
     LDRx_REG_LSL3(x2, x2, x3);
-    BLR(x2); // save LR
+    BR(x2);
     CLEARIP();
 }
 

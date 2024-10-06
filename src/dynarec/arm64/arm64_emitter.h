@@ -505,6 +505,7 @@ int convert_bitmask(uint64_t bitmask);
 #define BR_gen(Z, op, A, M, Rn, Rm)       (0b1101011<<25 | (Z)<<24 | (op)<<21 | 0b11111<<16 | (A)<<11 | (M)<<10 | (Rn)<<5 | (Rm))
 #define BR(Rn)                            EMIT(BR_gen(0, 0b00, 0, 0, Rn, 0))
 #define BLR(Rn)                           EMIT(BR_gen(0, 0b01, 0, 0, Rn, 0))
+#define RET(Rn)                           EMIT(BR_gen(0, 0b10, 0, 0, Rn, 0))
 
 #define CB_gen(sf, op, imm19, Rt)       ((sf)<<31 | 0b011010<<25 | (op)<<24 | (imm19)<<5 | (Rt))
 #define CBNZx(Rt, imm19)                EMIT(CB_gen(1, 1, ((imm19)>>2)&0x7FFFF, Rt))
