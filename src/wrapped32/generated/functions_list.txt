@@ -1846,6 +1846,7 @@ wrappedlibpthread:
 - iFBh_ppp:
   - pthread_create
 wrappedlibrt:
+wrappedlibuuid:
 wrappedlibx11:
 - vFp:
   - XFreeStringList
