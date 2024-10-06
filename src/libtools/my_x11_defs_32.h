@@ -853,4 +853,38 @@ typedef struct __attribute__((packed, aligned(4))) my_XRRProviderResources_32_t 
     ptr_t     providers;    //XID*
 } my_XRRProviderResources_32_t;
 
+typedef struct __attribute__((packed, aligned(4))) my_XIAnyClassInfo_32_s
+{
+    int         type;
+    int         sourceid;
+} my_XIAnyClassInfo_32_t;
+
+typedef struct __attribute__((packed, aligned(4))) my_XIDeviceInfo_32_s
+{
+    int        deviceid;
+    ptr_t      name;   //char*
+    int        use;
+    int        attachment;
+    int        enabled;
+    int        num_classes;
+    ptr_t      classes;    //my_XIAnyClassInfo_t**
+} my_XIDeviceInfo_32_t;
+
+typedef struct __attribute__((packed, aligned(4))) my_XIEventMask_32_s {
+    int deviceid;
+    int mask_len;
+    ptr_t mask; //unsigned char*
+} my_XIEventMask_32_t;
+
+typedef struct __attribute__((packed, aligned(4))) my_XInputClassInfo_32_s {
+     unsigned char input_class;
+     unsigned char event_type_base;
+} my_XInputClassInfo_32_t;
+
+typedef struct __attribute__((packed, aligned(4))) my_XDevice_32_s {
+     XID_32 device_id;
+     int    num_classes;
+     ptr_t  classes;    //my_XInputClassInfo_t*
+} my_XDevice_32_t;
+
 #endif//MY_X11_DEFS_32

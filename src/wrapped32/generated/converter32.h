@@ -154,6 +154,13 @@ typedef struct struct_pLiL_s {
 } struct_pLiL_t;
 void from_struct_pLiL(struct_pLiL_t *dest, ptr_t src);
 void to_struct_pLiL(ptr_t dest, const struct_pLiL_t *src);
+typedef struct struct_Lip_s {
+	unsigned long L0;
+	int i1;
+	void* p2;
+} struct_Lip_t;
+void from_struct_Lip(struct_Lip_t *dest, ptr_t src);
+void to_struct_Lip(ptr_t dest, const struct_Lip_t *src);
 typedef struct struct_Lipi_s {
 	unsigned long L0;
 	int i1;

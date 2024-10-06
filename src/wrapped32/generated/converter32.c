@@ -306,6 +306,19 @@ void to_struct_pLiL(ptr_t d, const struct_pLiL_t *src) {
 	*(int*)dest = src->i2; dest += 4;
 	*(ulong_t*)dest = to_ulong(src->L3); dest += 4;
 }
+void from_struct_Lip(struct_Lip_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;
+	dest->i1 = *(int*)src; src += 4;
+	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
+}
+void to_struct_Lip(ptr_t d, const struct_Lip_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ulong_t*)dest = to_ulong(src->L0); dest += 4;
+	*(int*)dest = src->i1; dest += 4;
+	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
+}
 void from_struct_Lipi(struct_Lipi_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->L0 = from_ulong(*(ulong_t*)src); src += 4;

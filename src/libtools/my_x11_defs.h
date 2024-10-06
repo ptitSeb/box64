@@ -626,7 +626,7 @@ typedef struct my_XErrorEvent_s
 {
     int type;
     my_XDisplay_t *display;
-    XID resourceid;
+    XID           resourceid;
     unsigned long serial;
     unsigned char error_code;
     unsigned char request_code;
@@ -919,5 +919,39 @@ typedef struct my_XRRProviderResources_t {
     int             nproviders;
     XID*            providers;
 } my_XRRProviderResources_t;
+
+typedef struct my_XIAnyClassInfo_s
+{
+    int         type;
+    int         sourceid;
+} my_XIAnyClassInfo_t;
+
+typedef struct my_XIDeviceInfo_s
+{
+    int                     deviceid;
+    char*                   name;
+    int                     use;
+    int                     attachment;
+    int                     enabled;
+    int                     num_classes;
+    my_XIAnyClassInfo_t**   classes;
+} my_XIDeviceInfo_t;
+
+typedef struct my_XIEventMask_s {
+    int deviceid;
+    int mask_len;
+    unsigned char* mask;
+} my_XIEventMask_t;
+
+typedef struct my_XInputClassInfo_s {
+     unsigned char input_class;
+     unsigned char event_type_base;
+} my_XInputClassInfo_t;
+
+typedef struct my_XDevice_s {
+     XID                    device_id;
+     int                    num_classes;
+     my_XInputClassInfo_t*  classes;
+} my_XDevice_t;
 
 #endif//MY_X11_DEFS
