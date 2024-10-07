@@ -151,6 +151,84 @@ EXPORT void* my32_gethostbyname(x64emu_t* emu, const char* a)
     return &ret;
 }
 
+EXPORT int my32_gethostbyname_r(x64emu_t* emu, void* name, struct i386_hostent* ret, void* buff, size_t buflen, ptr_t* result, int* h_err)
+{
+    struct hostent ret_l = {0};
+    struct hostent *result_l = NULL;
+    int r = gethostbyname_r(name, &ret_l, buff, buflen, &result_l, h_err);
+    if(!result_l)
+        *result = 0;
+    else
+        *result = to_ptrv(ret);
+    // convert result, all memory allocated should be in program space
+    if(result_l) {
+        ret->h_name = to_cstring(result_l->h_name);
+        ret->h_addrtype = result_l->h_addrtype;
+        ret->h_length = result_l->h_length;
+        int idx = 0;
+        ret->h_aliases = to_ptrv(result_l->h_aliases);
+        if(result_l->h_aliases) {
+            char** p = result_l->h_aliases;
+            ptr_t* strings = from_ptrv(ret->h_aliases);
+            while(*p) {
+                strings[idx++] = to_cstring(*p);
+                ++p;
+            }
+            strings[idx++] = 0;
+        }
+        ret->h_addr_list = to_ptrv(result_l->h_addr_list);
+        if(result_l->h_addr_list) {
+            char** p = result_l->h_addr_list;
+            ptr_t* strings = from_ptrv(ret->h_addr_list);
+            while(*p) {
+                strings[idx++] = to_ptrv(*p);
+                ++p;
+            }   
+            strings[idx++] = 0;
+        }
+    }
+    return r;
+}
+
+EXPORT int my32_gethostbyaddr_r(x64emu_t* emu, void* addr, uint32_t len, int type, struct i386_hostent* ret, void* buff, size_t buflen, ptr_t* result, int* h_err)
+{
+    struct hostent ret_l = {0};
+    struct hostent *result_l = NULL;
+    int r = gethostbyaddr_r(addr, len, type, &ret_l, buff, buflen, &result_l, h_err);
+    if(!result_l)
+        *result = 0;
+    else
+        *result = to_ptrv(ret);
+    // convert result, all memory allocated should be in program space
+    if(result_l) {
+        ret->h_name = to_cstring(result_l->h_name);
+        ret->h_addrtype = result_l->h_addrtype;
+        ret->h_length = result_l->h_length;
+        int idx = 0;
+        ret->h_aliases = to_ptrv(result_l->h_aliases);
+        if(result_l->h_aliases) {
+            char** p = result_l->h_aliases;
+            ptr_t* strings = from_ptrv(ret->h_aliases);
+            while(*p) {
+                strings[idx++] = to_cstring(*p);
+                ++p;
+            }
+            strings[idx++] = 0;
+        }
+        ret->h_addr_list = to_ptrv(result_l->h_addr_list);
+        if(result_l->h_addr_list) {
+            char** p = result_l->h_addr_list;
+            ptr_t* strings = from_ptrv(ret->h_addr_list);
+            while(*p) {
+                strings[idx++] = to_ptrv(*p);
+                ++p;
+            }   
+            strings[idx++] = 0;
+        }
+    }
+    return r;
+}
+
 struct i386_ifaddrs
 {
   ptr_t     ifa_next;   // struct ifaddrs *

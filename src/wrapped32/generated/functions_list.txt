@@ -1170,6 +1170,7 @@
 #() vFXppiiii -> vFXppiiii
 #() iFEpLiipV -> iFEpLiipV
 #() iFEpLiLpV -> iFEpLiLpV
+#() iFEpppupp -> iFEpppupp
 #() iFEpppppp -> iFEpppppp
 #() iFEXLpiiL -> iFEXLpiiL
 #() iFEXLpppp -> iFEXLpppp
@@ -1237,6 +1238,7 @@
 #() iFEpippppp -> iFEpippppp
 #() iFEpLiLppp -> iFEpLiLppp
 #() iFuiiiiuup -> iFuiiiiuup
+#() iFpuippupp -> iFpuippupp
 #() iFXuupuupp -> iFXuupuupp
 #() iFXLpipppp -> iFXLpipppp
 #() iFXLppLpip -> iFXLppLpip
@@ -1628,6 +1630,8 @@ wrappedlibc:
 - iFpLvvpp:
 - iFpLiipV:
 - iFpLiLpV:
+- iFpppupp:
+  - gethostbyname_r
 - iFpppppp:
   - posix_spawn
 - pFpLiiiI:

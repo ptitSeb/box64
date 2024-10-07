@@ -495,11 +495,11 @@ GOM(getgrnam_r, iFEpppLp)
 GOW(getgroups, iFip)
 // __getgroups_chk
 //GO(gethostbyaddr, pFpui)
-//GO(gethostbyaddr_r, iFpuippupp)
+GO(gethostbyaddr_r, iFpuippupp)
 GOM(gethostbyname, pFEp)
 //GO(gethostbyname2, pFpi)
 //GO(gethostbyname2_r, iFpippupp)
-//GO(gethostbyname_r, iFpppupp)
+GOM(gethostbyname_r, iFEpppupp)
 //GO(gethostent, pFv)
 //GO(gethostent_r, iFppupp)
 // gethostid

@@ -97,6 +97,7 @@ typedef void* (*pFppLLp_t)(void*, void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFpLvvpp_t)(void*, uintptr_t, void, void, void*, void*);
 typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef int32_t (*iFpLiLpV_t)(void*, uintptr_t, int32_t, uintptr_t, void*, ...);
+typedef int32_t (*iFpppupp_t)(void*, void*, void*, uint32_t, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 typedef void* (*pFpLiiil_t)(void*, uintptr_t, int32_t, int32_t, int32_t, intptr_t);
@@ -163,6 +164,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(getpwuid_r, iFuppLp_t) \
 	GO(getgrnam_r, iFpppLp_t) \
 	GO(getpwnam_r, iFpppLp_t) \
+	GO(gethostbyname_r, iFpppupp_t) \
 	GO(posix_spawn, iFpppppp_t)
 
 #endif // __wrappedlibcTYPES32_H_
