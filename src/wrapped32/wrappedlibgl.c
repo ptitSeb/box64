@@ -46,10 +46,16 @@ typedef void*(*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppi_t)(void*, void*, int);
 typedef void*(*pFpip_t)(void*, int, void*);
+typedef void (*vFuip_t)(uint32_t, int, void*);
 typedef void*(*pFp_t)(void*);
 typedef void (*vFuipp_t)(uint32_t, int, void*, void*);
 typedef void*(*pFpipp_t)(void*, int, void*, void*);
 typedef void*(*pFpppi_t)(void*, void*, void*, int);
+typedef void (*vFuipu_t)(uint32_t, int, void*, uint32_t);
+typedef void (*vFupupi_t)(uint32_t, void*, uint32_t, void*, int);
+typedef void (*vFuippp_t)(uint32_t, int, void*, void*, void*);
+typedef void (*vFuuippp_t)(uint32_t, uint32_t, int, void*, void*, void*);
+typedef void (*vFupupip_t)(uint32_t, void*, uint32_t, void*, int, void*);
 typedef void (*debugProc_t)(int32_t, int32_t, uint32_t, int32_t, int32_t, void*, void*);
 
 typedef struct gl_wrappers_s {
@@ -561,6 +567,278 @@ static void* find_glXCreateContext_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL glXCreateContext callback\n");
     return NULL;
 }
+// glMultiDrawElements ...
+#define GO(A)                                                                                                                       \
+static vFupupi_t my32_glMultiDrawElements_fct_##A = NULL;                                                                           \
+static void my32_glMultiDrawElements_##A(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount)   \
+{                                                                                                                                   \
+    if(!my32_glMultiDrawElements_fct_##A)                                                                                           \
+        return;                                                                                                                     \
+    void* indices_l[drawcount];                                                                                                     \
+    for(int i=0; i<drawcount; ++i)                                                                                                  \
+        indices_l[i] = from_ptrv(indices[i]);                                                                                       \
+    my32_glMultiDrawElements_fct_##A (mode, count, type, indices_l, drawcount);                                                     \
+}
+SUPER()
+#undef GO
+static void* find_glMultiDrawElements_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glMultiDrawElements_fct_##A == (vFupupi_t)fct) return my32_glMultiDrawElements_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glMultiDrawElements_fct_##A == 0) {my32_glMultiDrawElements_fct_##A = (vFupupi_t)fct; return my32_glMultiDrawElements_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glMultiDrawElements callback\n");
+    return NULL;
+}
+static void* find_glMultiDrawElementsEXT_Fct(void* fct)
+{
+    return find_glMultiDrawElements_Fct(fct);
+}
+// glTransformFeedbackVaryings ...
+#define GO(A)                                                                                                               \
+static vFuipu_t my32_glTransformFeedbackVaryings_fct_##A = NULL;                                                            \
+static void my32_glTransformFeedbackVaryings_##A(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode)   \
+{                                                                                                                           \
+    if(!my32_glTransformFeedbackVaryings_fct_##A)                                                                           \
+        return;                                                                                                             \
+    void* varyings_l[count];                                                                                                \
+    for(int i=0; i<count; ++i)                                                                                              \
+        varyings_l[i] = from_ptrv(varyings[i]);                                                                             \
+    my32_glTransformFeedbackVaryings_fct_##A (prog, count, varyings_l, mode);                                               \
+}
+SUPER()
+#undef GO
+static void* find_glTransformFeedbackVaryings_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glTransformFeedbackVaryings_fct_##A == (vFuipu_t)fct) return my32_glTransformFeedbackVaryings_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glTransformFeedbackVaryings_fct_##A == 0) {my32_glTransformFeedbackVaryings_fct_##A = (vFuipu_t)fct; return my32_glTransformFeedbackVaryings_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glTransformFeedbackVaryings callback\n");
+    return NULL;
+}
+static void* find_glTransformFeedbackVaryingsEXT_Fct(void* fct)
+{
+    return find_glTransformFeedbackVaryings_Fct(fct);
+}
+// glBindBuffersRange ...
+#define GO(A)                                                                                                                                       \
+static vFuuippp_t my32_glBindBuffersRange_fct_##A = NULL;                                                                                           \
+static void my32_glBindBuffersRange_##A(x64emu_t* emu, uint32_t target, uint32_t first, int count, void* buffers, ptr_t* offsets, ptr_t* sizes)     \
+{                                                                                                                                                   \
+    if(!my32_glBindBuffersRange_fct_##A)                                                                                                            \
+        return;                                                                                                                                     \
+    long offsets_l[count];                                                                                                                          \
+    long sizes_l[count];                                                                                                                            \
+    for(int i=0; i<count; ++i) {                                                                                                                    \
+        offsets_l[i] = from_long(offsets[i]);                                                                                                       \
+        sizes_l[i] = from_long(sizes[i]);                                                                                                           \
+    }                                                                                                                                               \
+    my32_glBindBuffersRange_fct_##A (target, first, count, buffers, offsets_l, sizes);                                                              \
+}
+SUPER()
+#undef GO
+static void* find_glBindBuffersRange_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glBindBuffersRange_fct_##A == (vFuuippp_t)fct) return my32_glBindBuffersRange_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glBindBuffersRange_fct_##A == 0) {my32_glBindBuffersRange_fct_##A = (vFuuippp_t)fct; return my32_glBindBuffersRange_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glBindBuffersRange callback\n");
+    return NULL;
+}
+// glBindVertexBuffers ...
+#define GO(A)                                                                                                                       \
+static vFuippp_t my32_glBindVertexBuffers_fct_##A = NULL;                                                                           \
+static void my32_glBindVertexBuffers_##A(x64emu_t* emu, uint32_t first, int count, void* buffers, ptr_t* offsets, void* strides)    \
+{                                                                                                                                   \
+    if(!my32_glBindVertexBuffers_fct_##A)                                                                                           \
+        return;                                                                                                                     \
+    long offsets_l[count];                                                                                                          \
+    for(int i=0; i<count; ++i)                                                                                                      \
+        offsets_l[i] = from_long(offsets[i]);                                                                                       \
+    my32_glBindVertexBuffers_fct_##A (first, count, buffers, offsets_l, strides);                                                   \
+}
+SUPER()
+#undef GO
+static void* find_glBindVertexBuffers_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glBindVertexBuffers_fct_##A == (vFuippp_t)fct) return my32_glBindVertexBuffers_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glBindVertexBuffers_fct_##A == 0) {my32_glBindVertexBuffers_fct_##A = (vFuippp_t)fct; return my32_glBindVertexBuffers_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glBindVertexBuffers callback\n");
+    return NULL;
+}
+// glVertexArrayVertexBuffers ...
+#define GO(A)                                                                                                                                           \
+static vFuuippp_t my32_glVertexArrayVertexBuffers_fct_##A = NULL;                                                                                       \
+static void my32_glVertexArrayVertexBuffers_##A(x64emu_t* emu, uint32_t vaobj, uint32_t first, int count, void* buffers, ptr_t* offsets, void* strides) \
+{                                                                                                                                                       \
+    if(!my32_glVertexArrayVertexBuffers_fct_##A)                                                                                                        \
+        return;                                                                                                                                         \
+    long offsets_l[count];                                                                                                                              \
+    for(int i=0; i<count; ++i)                                                                                                                          \
+        offsets_l[i] = from_long(offsets[i]);                                                                                                           \
+    my32_glVertexArrayVertexBuffers_fct_##A (vaobj, first, count, buffers, offsets_l, strides);                                                         \
+}
+SUPER()
+#undef GO
+static void* find_glVertexArrayVertexBuffers_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glVertexArrayVertexBuffers_fct_##A == (vFuuippp_t)fct) return my32_glVertexArrayVertexBuffers_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glVertexArrayVertexBuffers_fct_##A == 0) {my32_glVertexArrayVertexBuffers_fct_##A = (vFuuippp_t)fct; return my32_glVertexArrayVertexBuffers_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glVertexArrayVertexBuffers callback\n");
+    return NULL;
+}
+// glMultiDrawElementsBaseVertex ...
+#define GO(A)                                                                                                                                                   \
+static vFupupip_t my32_glMultiDrawElementsBaseVertex_fct_##A = NULL;                                                                                            \
+static void my32_glMultiDrawElementsBaseVertex_##A(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount, void* basevertex)   \
+{                                                                                                                                                               \
+    if(!my32_glMultiDrawElementsBaseVertex_fct_##A)                                                                                                             \
+        return;                                                                                                                                                 \
+    void* indices_l[drawcount];                                                                                                                                 \
+    for(int i=0; i<drawcount; ++i)                                                                                                                              \
+        indices_l[i] = from_ptrv(indices[i]);                                                                                                                   \
+    my32_glMultiDrawElementsBaseVertex_fct_##A (mode, count, type, indices_l, drawcount, basevertex);                                                           \
+}
+SUPER()
+#undef GO
+static void* find_glMultiDrawElementsBaseVertex_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glMultiDrawElementsBaseVertex_fct_##A == (vFupupip_t)fct) return my32_glMultiDrawElementsBaseVertex_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glMultiDrawElementsBaseVertex_fct_##A == 0) {my32_glMultiDrawElementsBaseVertex_fct_##A = (vFupupip_t)fct; return my32_glMultiDrawElementsBaseVertex_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glMultiDrawElementsBaseVertex callback\n");
+    return NULL;
+}
+// glCreateShaderProgramv ...
+#define GO(A)                                                                                           \
+static vFuip_t my32_glCreateShaderProgramv_fct_##A = NULL;                                              \
+static void my32_glCreateShaderProgramv_##A(x64emu_t* emu, uint32_t shader, int count, ptr_t* string)   \
+{                                                                                                       \
+    if(!my32_glCreateShaderProgramv_fct_##A)                                                            \
+        return;                                                                                         \
+    char* str[count];                                                                                   \
+    if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);                                \
+    my32_glCreateShaderProgramv_fct_##A (shader, count, string?str:NULL);                               \
+}
+SUPER()
+#undef GO
+static void* find_glCreateShaderProgramv_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glCreateShaderProgramv_fct_##A == (vFuip_t)fct) return my32_glCreateShaderProgramv_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glCreateShaderProgramv_fct_##A == 0) {my32_glCreateShaderProgramv_fct_##A = (vFuip_t)fct; return my32_glCreateShaderProgramv_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glCreateShaderProgramv callback\n");
+    return NULL;
+}
+// glCompileShaderIncludeARB ...
+#define GO(A)                                                                                                       \
+static vFuipp_t my32_glCompileShaderIncludeARB_fct_##A = NULL;                                                         \
+static void my32_glCompileShaderIncludeARB_##A(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)  \
+{                                                                                                                   \
+    if(!my32_glCompileShaderIncludeARB_fct_##A)                                                                        \
+        return;                                                                                                     \
+    char* str[count];                                                                                               \
+    if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);                                            \
+    my32_glCompileShaderIncludeARB_fct_##A (shader, count, string?str:NULL, length);                                   \
+}
+SUPER()
+#undef GO
+static void* find_glCompileShaderIncludeARB_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glCompileShaderIncludeARB_fct_##A == (vFuipp_t)fct) return my32_glCompileShaderIncludeARB_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glCompileShaderIncludeARB_fct_##A == 0) {my32_glCompileShaderIncludeARB_fct_##A = (vFuipp_t)fct; return my32_glCompileShaderIncludeARB_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glCompileShaderIncludeARB callback\n");
+    return NULL;
+}
+// glXGetFBConfigs ...
+#define GO(A)                                                                       \
+static pFpip_t my32_glXGetFBConfigs_fct_##A = NULL;                                 \
+static void* my32_glXGetFBConfigs_##A(x64emu_t* emu, void* dpy, int screen, int* n) \
+{                                                                                   \
+    if(!my32_glXGetFBConfigs_fct_##A)                                               \
+        return NULL;                                                                \
+    void* ret = my32_glXGetFBConfigs_fct_##A (dpy, screen, n);                      \
+    if(!ret) return NULL;                                                           \
+    void** src = ret;                                                               \
+    ptr_t* dst = ret;                                                               \
+    for(int i=0; i<*n; ++i)                                                         \
+        dst[i] = to_ptrv(src[i]);                                                   \
+    return ret;                                                                     \
+}
+SUPER()
+#undef GO
+static void* find_glXGetFBConfigs_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glXGetFBConfigs_fct_##A == (pFpip_t)fct) return my32_glXGetFBConfigs_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glXGetFBConfigs_fct_##A == 0) {my32_glXGetFBConfigs_fct_##A = (pFpip_t)fct; return my32_glXGetFBConfigs_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glXGetFBConfigs callback\n");
+    return NULL;
+}
+// glGetUniformIndices ...
+#define GO(A)                                                                                                   \
+static vFuipp_t my32_glGetUniformIndices_fct_##A = NULL;                                                        \
+static void my32_glGetUniformIndices_##A(x64emu_t* emu, uint32_t prog, int count, ptr_t* names, void* indices)  \
+{                                                                                                               \
+    if(!my32_glGetUniformIndices_fct_##A)                                                                       \
+        return;                                                                                                 \
+    void* names_l[count];                                                                                       \
+    my32_glGetUniformIndices_fct_##A (prog, count, names?names_l:NULL, indices);                                \
+    if(names) for(int i=0; i<count; ++i) names[i] = to_ptrv(names_l[i]);                                        \
+}
+SUPER()
+#undef GO
+static void* find_glGetUniformIndices_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glGetUniformIndices_fct_##A == (vFuipp_t)fct) return my32_glGetUniformIndices_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glGetUniformIndices_fct_##A == 0) {my32_glGetUniformIndices_fct_##A = (vFuipp_t)fct; return my32_glGetUniformIndices_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glGetUniformIndices callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 #define PRE_INIT if(box64_libGL) {lib->w.lib = dlopen(box64_libGL, RTLD_LAZY | RTLD_GLOBAL); lib->path = strdup(box64_libGL);} else
@@ -637,26 +915,131 @@ EXPORT void* my32_glXCreateContext(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t
     return my->glXCreateContext(dpy, &info_l, shared, direct);
 }
 
+EXPORT void my32_glMultiDrawElements(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount)
+{
+    void* indices_l[drawcount];
+    for(int i=0; i<drawcount; ++i)
+        indices_l[i] = from_ptrv(indices[i]);
+    my->glMultiDrawElements(mode, count, type, indices_l, drawcount);
+}
+EXPORT void my32_glMultiDrawElementsExt(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount)
+{
+    my32_glMultiDrawElements(emu, mode, count, type, indices, drawcount);
+}
+
+EXPORT void my32_glTransformFeedbackVaryings(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode)
+{
+    void* varyings_l[count];
+    for(int i=0; i<count; ++i)
+        varyings_l[i] = from_ptrv(varyings[i]);
+    my->glTransformFeedbackVaryings(prog, count, varyings_l, mode);
+}
+EXPORT void my32_glTransformFeedbackVaryingsEXT(x64emu_t* emu, uint32_t prog, int count, ptr_t* varyings, uint32_t mode)
+{
+    my32_glTransformFeedbackVaryings(emu, prog, count, varyings, mode);
+}
+
+EXPORT void my32_glBindBuffersRange(x64emu_t* emu, uint32_t target, uint32_t first, int count, void* buffers, long_t* offsets, long_t* sizes)
+{
+    long offsets_l[count];
+    long sizes_l[count];
+    for(int i=0; i<count; ++i) {
+        offsets_l[i] = from_long(offsets[i]);
+        sizes_l[i] = from_long(sizes_l[i]);
+    }
+    my->glBindBuffersRange(target, first, count, buffers, offsets_l, sizes_l);
+}
+
+EXPORT void my32_glBindVertexBuffers(x64emu_t* emu, uint32_t first, int count, void* buffers, long_t* offsets, void* strides)
+{
+    long offsets_l[count];
+    for(int i=0; i<count; ++i)
+        offsets_l[i] = from_long(offsets[i]);
+    my->glBindVertexBuffers(first, count, buffers, offsets_l, strides);
+}
+
+EXPORT void my32_glVertexArrayVertexBuffers(x64emu_t* emu, uint32_t vaobj, uint32_t first, int count, void* buffers, long_t* offsets, void* strides)
+{
+    long offsets_l[count];
+    for(int i=0; i<count; ++i)
+        offsets_l[i] = from_long(offsets[i]);
+    my->glVertexArrayVertexBuffers(vaobj, first, count, buffers, offsets_l, strides);
+}
+
+EXPORT void my32_glMultiDrawElementsBaseVertex(x64emu_t* emu, uint32_t mode, void* count, uint32_t type, ptr_t* indices, int drawcount, void* basevertex)
+{
+    void* indices_l[drawcount];
+    for(int i=0; i<drawcount; ++i)
+        indices_l[i] = from_ptrv(indices[i]);
+    my->glMultiDrawElementsBaseVertex(mode, count, type, indices_l, drawcount, basevertex);
+}
+
+EXPORT void my32_glCreateShaderProgramv(x64emu_t* emu, uint32_t shader, int count, ptr_t* string)
+{
+    char* str[count];
+    if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);
+    my->glCreateShaderProgramv(shader, count, string?str:NULL);
+}
+
+EXPORT void my32_glCompileShaderIncludeARB(x64emu_t* emu, uint32_t shader, int count, ptr_t* string, int* length)
+{
+    char* str[count];
+    if(string) for(int i=0; i<count; ++i) str[i] = from_ptrv(string[i]);
+    my->glCompileShaderIncludeARB(shader, count, string?str:NULL, length);
+}
+
+EXPORT void* my32_glXGetFBConfigs(x64emu_t* emu, void* dpy, int screen, int* n)
+{
+    void* ret = my->glXGetFBConfigs(dpy, screen, n);
+    if(!ret) return NULL;
+    ptr_t* dst = ret;
+    void** src = ret;
+    for(int i=0; i<*n; ++i)
+        dst[i] = to_ptrv(src[i]);
+    return ret;
+}
+
+EXPORT void my32_glGetUniformIndices(x64emu_t* emu, uint32_t prog, int count, ptr_t* names, void* indices)
+{
+    void* names_l[count];
+    my->glGetUniformIndices(prog, count, names?names_l:NULL, indices);
+    if(names)
+        for(int i=0; i<count; ++i)
+            names[i] = to_ptrv(names_l[i]);
+}
+
 #include "wrappedlib_init32.h"
 
-#define SUPER()                             \
- GO(vFpp_t, glDebugMessageCallback)         \
- GO(vFpp_t, glDebugMessageCallbackARB)      \
- GO(vFpp_t, glDebugMessageCallbackAMD)      \
- GO(vFpp_t, glDebugMessageCallbackKHR)      \
- GO(vFpp_t, eglDebugMessageControlKHR)      \
- GO(iFi_t, glXSwapIntervalMESA)             \
- GO(vFppi_t, glXSwapIntervalEXT)            \
- GO(vFpp_t, glProgramCallbackMESA)          \
- GO(pFp_t, glGetVkProcAddrNV)               \
- GO(vFppp_t, eglSetBlobCacheFuncsANDROID)   \
- GO(vFuipp_t, glShaderSource)               \
- GO(vFuipp_t, glShaderSourceARB)            \
- GO(pFpipp_t, glXChooseFBConfig)            \
- GO(pFpp_t, glXGetVisualFromFBConfig)       \
- GO(pFpp_t, glXChooseVisual)                \
- GO(pFpp_t, glXCreateContext)               \
-
+#define SUPER()                                 \
+ GO(vFpp_t, glDebugMessageCallback)             \
+ GO(vFpp_t, glDebugMessageCallbackARB)          \
+ GO(vFpp_t, glDebugMessageCallbackAMD)          \
+ GO(vFpp_t, glDebugMessageCallbackKHR)          \
+ GO(vFpp_t, eglDebugMessageControlKHR)          \
+ GO(iFi_t, glXSwapIntervalMESA)                 \
+ GO(vFppi_t, glXSwapIntervalEXT)                \
+ GO(vFpp_t, glProgramCallbackMESA)              \
+ GO(pFp_t, glGetVkProcAddrNV)                   \
+ GO(vFppp_t, eglSetBlobCacheFuncsANDROID)       \
+ GO(vFuipp_t, glShaderSource)                   \
+ GO(vFuipp_t, glShaderSourceARB)                \
+ GO(pFpipp_t, glXChooseFBConfig)                \
+ GO(pFpp_t, glXGetVisualFromFBConfig)           \
+ GO(pFpp_t, glXChooseVisual)                    \
+ GO(pFpp_t, glXCreateContext)                   \
+ GO(vFupupi_t, glMultiDrawElements)             \
+ GO(vFuipu_t, glTransformFeedbackVaryings)      \
+ GO(vFuuippp_t, glBindBuffersRange)             \
+ GO(vFuippp_t, glBindVertexBuffers)             \
+ GO(vFuuippp_t, glVertexArrayVertexBuffers)     \
+ GO(vFupupip_t, glMultiDrawElementsBaseVertex)  \
+ GO(vFuip_t, glCreateShaderProgramv)            \
+ GO(vFuipp_t, glCompileShaderIncludeARB)        \
+ GO(vFupupi_t, glMultiDrawElementsEXT)          \
+ GO(vFuipu_t, glTransformFeedbackVaryingsEXT)   \
+ GO(pFpip_t, glXGetFBConfigs)                   \
+ GO(vFuipp_t, glGetUniformIndices)              \
+ 
 
 gl_wrappers_t* getGLProcWrapper32(box64context_t* context, glprocaddress_t procaddress)
 {
