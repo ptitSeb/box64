@@ -182,13 +182,20 @@ SUPER()
 #undef GO2
 #undef GO
 
+#define actual_calloc(A, B)             box_calloc(A, B)
+#define actual_malloc(A)                box_malloc(A)
+#define actual_realloc(A, B)            box_realloc(A, B)
+#define actual_free(A)                  box_free(A)
+#define actual_memalign(A, B)           box_memalign(A, B)
+#define actual_malloc_usable_size(A)    box_malloc_usable_size(A)
+
 // redefining all libc memory allocation routines
 EXPORT void* malloc(size_t l)
 {
     if(malloc_hack_2 && ALLOC && real_malloc) {
         return (void*)RunFunctionFmt(real_malloc, "L", l);
     }
-    return box_calloc(1, l);
+    return actual_calloc(1, l);
 }
 
 EXPORT void free(void* p)
@@ -202,7 +209,7 @@ EXPORT void free(void* p)
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void* calloc(size_t n, size_t s)
@@ -210,7 +217,7 @@ EXPORT void* calloc(size_t n, size_t s)
     if(malloc_hack_2 && ALLOC && real_calloc) {
         return (void*)RunFunctionFmt(real_calloc, "LL", n,s);
     }
-    return box_calloc(n, s);
+    return actual_calloc(n, s);
 }
 
 EXPORT void* realloc(void* p, size_t s)
@@ -222,7 +229,7 @@ EXPORT void* realloc(void* p, size_t s)
                 ret = (void*)RunFunctionFmt(real_realloc, "pL", p, s);
             } else {
                 // found! Will realloc using regular malloc then copy from old address as much as possible, but need to check size first
-                ret = box_malloc(s);
+                ret = actual_malloc(s);
                 printf_log(LOG_DEBUG, "Malloc_Hack_2: hacking realloc(%p, %zu)", p, s);
                 while(s && !(getProtection((uintptr_t)p+s)&PROT_READ)) {if(s>box64_pagesize) s-=box64_pagesize; else s=0;}
                 memcpy(ret, p, s);
@@ -233,7 +240,7 @@ EXPORT void* realloc(void* p, size_t s)
             }
             return ret;
         }
-    return box_realloc(p, s);
+    return actual_realloc(p, s);
 }
 
 EXPORT void* memalign(size_t align, size_t size)
@@ -243,7 +250,7 @@ EXPORT void* memalign(size_t align, size_t size)
     }
     if(box64_is32bits && align==4)
         align = sizeof(void*);
-    return box_memalign(align, size);
+    return actual_memalign(align, size);
 }
 
 EXPORT void* aligned_alloc(size_t align, size_t size)
@@ -254,7 +261,7 @@ EXPORT void* aligned_alloc(size_t align, size_t size)
     if(box64_is32bits && align==4) {
         return memalign(align, size);
     }
-    return box_memalign(align, size);
+    return actual_memalign(align, size);
 }
 
 EXPORT int posix_memalign(void** p, size_t align, size_t size)
@@ -266,7 +273,7 @@ EXPORT int posix_memalign(void** p, size_t align, size_t size)
         align = sizeof(void*);
     if((align%sizeof(void*)) || (pot(align)!=align))
         return EINVAL;
-    void* ret = box_memalign(align, size);
+    void* ret = actual_memalign(align, size);
     if(!ret)
         return ENOMEM;
     *p = ret;
@@ -278,7 +285,7 @@ EXPORT void* valloc(size_t size)
     if(malloc_hack_2 && ALLOC && real_valloc) {
         return (void*)RunFunctionFmt(real_valloc, "L", size);
     }
-    return box_memalign(box64_pagesize, size);
+    return actual_memalign(box64_pagesize, size);
 }
 
 EXPORT void* pvalloc(size_t size)
@@ -286,7 +293,7 @@ EXPORT void* pvalloc(size_t size)
     if(malloc_hack_2 && ALLOC && real_pvalloc) {
         return (void*)RunFunctionFmt(real_pvalloc, "L", size);
     }
-    return box_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
+    return actual_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
 }
 
 EXPORT void cfree(void* p)
@@ -300,7 +307,7 @@ EXPORT void cfree(void* p)
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT size_t malloc_usable_size(void* p)
@@ -309,7 +316,7 @@ EXPORT size_t malloc_usable_size(void* p)
         if(getMmapped((uintptr_t)p))
             return RunFunctionFmt(real_malloc_usable_size, "p", p);
     }
-    return box_malloc_usable_size(p);
+    return actual_malloc_usable_size(p);
 }
 
 EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
@@ -317,7 +324,7 @@ EXPORT void* my__Znwm(size_t sz)   //operator new(size_t)
     if(malloc_hack_2 && real__Znwm) {
         return (void*)RunFunctionFmt(real__Znwm, "L", sz);
     }
-    return box_malloc(sz);
+    return actual_malloc(sz);
 }
 
 EXPORT void* my__ZnwmRKSt9nothrow_t(size_t sz, void* p)   //operator new(size_t, std::nothrow_t const&)
@@ -325,7 +332,7 @@ EXPORT void* my__ZnwmRKSt9nothrow_t(size_t sz, void* p)   //operator new(size_t,
     if(malloc_hack_2 && real__ZnwmRKSt9nothrow_t) {
         return (void*)RunFunctionFmt(real__ZnwmRKSt9nothrow_t, "Lp", sz, p);
     }
-    return box_malloc(sz);
+    return actual_malloc(sz);
 }
 
 EXPORT void* my__Znam(size_t sz)   //operator new[](size_t)
@@ -333,7 +340,7 @@ EXPORT void* my__Znam(size_t sz)   //operator new[](size_t)
     if(malloc_hack_2 && real__Znam) {
         return (void*)RunFunctionFmt(real__Znam, "L", sz);
     }
-    return box_malloc(sz);
+    return actual_malloc(sz);
 }
 
 EXPORT void* my__ZnamRKSt9nothrow_t(size_t sz, void* p)   //operator new[](size_t, std::nothrow_t const&)
@@ -341,7 +348,7 @@ EXPORT void* my__ZnamRKSt9nothrow_t(size_t sz, void* p)   //operator new[](size_
     if(malloc_hack_2 && real__ZnamRKSt9nothrow_t) {
         return (void*)RunFunctionFmt(real__ZnamRKSt9nothrow_t, "Lp", sz, p);
     }
-    return box_malloc(sz);
+    return actual_malloc(sz);
 }
 
 
@@ -356,7 +363,7 @@ EXPORT void my__ZdaPv(void* p)   //operator delete[](void*)
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
@@ -370,7 +377,7 @@ EXPORT void my__ZdaPvm(void* p, size_t sz)   //operator delete[](void*, size_t)
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete[](void*, unsigned long, std::align_val_t)
@@ -384,7 +391,7 @@ EXPORT void my__ZdaPvmSt11align_val_t(void* p, size_t sz, size_t align)   //oper
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
@@ -398,7 +405,7 @@ EXPORT void my__ZdlPv(void* p)   //operator delete(void*)
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
@@ -412,7 +419,7 @@ EXPORT void my__ZdlPvm(void* p, size_t sz)   //operator delete(void*, size_t)
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void* my__ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new(unsigned long, std::align_val_t)
@@ -420,7 +427,7 @@ EXPORT void* my__ZnwmSt11align_val_t(size_t sz, size_t align)  //// operator new
     if(malloc_hack_2 && real__ZnwmSt11align_val_t) {
         return (void*)RunFunctionFmt(real__ZnwmSt11align_val_t, "LL", sz, align);
     }
-    return box_memalign(align, sz);
+    return actual_memalign(align, sz);
 }
 
 EXPORT void* my__ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new(unsigned long, std::align_val_t, std::nothrow_t const&)
@@ -428,7 +435,7 @@ EXPORT void* my__ZnwmSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void
     if(malloc_hack_2 && real__ZnwmSt11align_val_tRKSt9nothrow_t) {
         return (void*)RunFunctionFmt(real__ZnwmSt11align_val_tRKSt9nothrow_t, "LLp", sz, align, p);
     }
-    return box_memalign(align, sz);
+    return actual_memalign(align, sz);
 }
 
 EXPORT void* my__ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new[](unsigned long, std::align_val_t)
@@ -436,7 +443,7 @@ EXPORT void* my__ZnamSt11align_val_t(size_t sz, size_t align)  //// operator new
     if(malloc_hack_2 && real__ZnamSt11align_val_t) {
         return (void*)RunFunctionFmt(real__ZnamSt11align_val_t, "LL", sz, align);
     }
-    return box_memalign(align, sz);
+    return actual_memalign(align, sz);
 }
 
 EXPORT void* my__ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void* p)  //// operator new[](unsigned long, std::align_val_t, std::nothrow_t const&)
@@ -444,7 +451,7 @@ EXPORT void* my__ZnamSt11align_val_tRKSt9nothrow_t(size_t sz, size_t align, void
     if(malloc_hack_2 && real__ZnamSt11align_val_tRKSt9nothrow_t) {
         return (void*)RunFunctionFmt(real__ZnamSt11align_val_tRKSt9nothrow_t, "LLp", sz, align, p);
     }
-    return box_memalign(align, sz);
+    return actual_memalign(align, sz);
 }
 
 EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*, std::nothrow_t const&)
@@ -458,7 +465,7 @@ EXPORT void my__ZdlPvRKSt9nothrow_t(void* p, void* n)   //operator delete(void*,
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete[](void*, std::align_val_t, std::nothrow_t const&)
@@ -473,7 +480,7 @@ EXPORT void my__ZdaPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* 
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //operator delete(void*, unsigned long, std::align_val_t)
@@ -487,7 +494,7 @@ EXPORT void my__ZdlPvmSt11align_val_t(void* p, size_t sz, size_t align)   //oper
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void*, std::nothrow_t const&)
@@ -501,7 +508,7 @@ EXPORT void my__ZdaPvRKSt9nothrow_t(void* p, void* n)   //operator delete[](void
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[](void*, std::align_val_t)
@@ -515,7 +522,7 @@ EXPORT void my__ZdaPvSt11align_val_t(void* p, size_t align)   //operator delete[
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(void*, std::align_val_t)
@@ -529,7 +536,7 @@ EXPORT void my__ZdlPvSt11align_val_t(void* p, size_t align)   //operator delete(
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* n)   //operator delete(void*, std::align_val_t, std::nothrow_t const&)
@@ -543,92 +550,92 @@ EXPORT void my__ZdlPvSt11align_val_tRKSt9nothrow_t(void* p, size_t align, void* 
             return;
         }
     }
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void* my_tc_calloc(size_t n, size_t s)
 {
-    return box_calloc(n, s);
+    return actual_calloc(n, s);
 }
 
 EXPORT void my_tc_cfree(void* p)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my_tc_delete(void* p)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my_tc_deletearray(void* p)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my_tc_deletearray_nothrow(void* p, void* n)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my_tc_delete_nothrow(void* p, void* n)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void my_tc_free(void* p)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void* my_tc_malloc(size_t s)
 {
-    return box_calloc(1, s);
+    return actual_calloc(1, s);
 }
 
 EXPORT size_t my_tc_malloc_size(void* p)
 {
-    return box_malloc_usable_size(p);
+    return actual_malloc_usable_size(p);
 }
 
 EXPORT void* my_tc_new(size_t s)
 {
-    return box_calloc(1, s);
+    return actual_calloc(1, s);
 }
 
 EXPORT void* my_tc_new_nothrow(size_t s, void* n)
 {
-        return box_calloc(1, s);
+    return actual_calloc(1, s);
 }
 
 EXPORT void* my_tc_newarray(size_t s)
 {
-        return box_calloc(1, s);
+    return actual_calloc(1, s);
 }
 
 EXPORT void* my_tc_newarray_nothrow(size_t s, void* n)
 {
-        return box_calloc(1, s);
+    return actual_calloc(1, s);
 }
 
 EXPORT void* my_tc_pvalloc(size_t size)
 {
-    return box_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
+    return actual_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
 }
 
 EXPORT void* my_tc_valloc(size_t size)
 {
-    return box_memalign(box64_pagesize, size);
+    return actual_memalign(box64_pagesize, size);
 }
 
 EXPORT void* my_tc_memalign(size_t align, size_t size)
 {
-    return box_memalign(align, size);
+    return actual_memalign(align, size);
 }
 
 EXPORT void* my_tc_malloc_skip_new_handler_weak(size_t s)
 {
-    return box_calloc(1, s);
+    return actual_calloc(1, s);
 }
 
 EXPORT int my_tc_mallocopt(int param, int value)
@@ -653,13 +660,13 @@ EXPORT int my_tc_set_new_mode(int mode)
 */
 EXPORT void* my_tc_malloc_skip_new_handler(size_t s)
 {
-    return box_calloc(1, s);
+    return actual_calloc(1, s);
 }
 
 EXPORT void* my_tc_mallinfo(void* p)
 {
     // ignored, returning null stuffs
-    memset(p, 0, sizeof(size_t)*10);
+    memset(p, 0, (box64_is32bits?sizeof(ptr_t):sizeof(size_t))*10);
     return p;
 }
 
@@ -667,7 +674,7 @@ EXPORT int my_tc_posix_memalign(void** p, size_t align, size_t size)
 {
     if(align%sizeof(void*) || pot(align)!=align)
         return EINVAL;
-    void* ret = box_memalign(align, size);
+    void* ret = actual_memalign(align, size);
     if(!ret)
         return ENOMEM;
     *p = ret;
@@ -676,7 +683,7 @@ EXPORT int my_tc_posix_memalign(void** p, size_t align, size_t size)
 
 EXPORT void* my_tc_realloc(void* p, size_t s)
 {
-    return box_realloc(p, s);
+    return actual_realloc(p, s);
 }
 /*
 EXPORT int my_tc_version(int i)
@@ -692,34 +699,34 @@ EXPORT void* my_safer_scalable_aligned_realloc(void* p, size_t size, size_t alig
         return NULL;
     }
     if(align <= 8)
-        return box_realloc(p, size);
-    size_t old_size = box_malloc_usable_size(p);
+        return actual_realloc(p, size);
+    size_t old_size = actual_malloc_usable_size(p);
     if(old_size>=size)
         return p;
-    void* new_p = box_memalign(align, size);
+    void* new_p = actual_memalign(align, size);
     memcpy(new_p, p, (old_size<size)?old_size:size);
-    box_free(p);
+    actual_free(p);
     return p;
 }
 
 EXPORT void my_safer_scalable_free(void*p , void* old)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT size_t my_safer_scalable_msize(void* p, void* old)
 {
-    return box_malloc_usable_size(p);
+    return actual_malloc_usable_size(p);
 }
 
 EXPORT void* my_safer_scalable_realloc(void* p, size_t size, void* old)
 {
-    return box_realloc(p, size);
+    return actual_realloc(p, size);
 }
 
 EXPORT void my_scalable_aligned_free(void* p)
 {
-    box_free(p);
+    actual_free(p);
 }
 
 EXPORT void* my_scalable_aligned_malloc(size_t size, size_t align)
@@ -729,8 +736,8 @@ EXPORT void* my_scalable_aligned_malloc(size_t size, size_t align)
         return NULL;
     }
     if(align <= 8)
-        return box_malloc(size);
-    return box_memalign(align, size);
+        return actual_malloc(size);
+    return actual_memalign(align, size);
 }
 
 EXPORT void* my_scalable_aligned_realloc(void* p, size_t size, size_t align)
@@ -740,19 +747,19 @@ EXPORT void* my_scalable_aligned_realloc(void* p, size_t size, size_t align)
         return NULL;
     }
     if(align <= 8)
-        return box_realloc(p, size);
-    size_t old_size = box_malloc_usable_size(p);
+        return actual_realloc(p, size);
+    size_t old_size = actual_malloc_usable_size(p);
     if(old_size>=size)
         return p;
-    void* new_p = box_memalign(align, size);
+    void* new_p = actual_memalign(align, size);
     memcpy(new_p, p, (old_size<size)?old_size:size);
-    box_free(p);
+    actual_free(p);
     return p;
 }
 
 EXPORT size_t my_scalable_msize(void* p)
 {
-    return box_malloc_usable_size(p);
+    return actual_malloc_usable_size(p);
 }
 
 

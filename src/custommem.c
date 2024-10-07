@@ -485,7 +485,7 @@ void* internal_customMalloc(size_t size, int is32bits)
     if(is32bits)    // unlocking, because mmap might use it
         mutex_unlock(&mutex_blocks);
     void* p = is32bits
-                ?mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0)
+                ?mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE|MAP_32BIT, -1, 0)
                 :internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
     if(is32bits)
         mutex_lock(&mutex_blocks);
