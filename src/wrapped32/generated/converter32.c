@@ -491,6 +491,20 @@ void to_struct_iip(ptr_t d, const struct_iip_t *src) {
 	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
 }
 
+void from_struct_puu(struct_puu_t *dest, ptr_t s) {
+	uint8_t* src = (uint8_t*)from_ptrv(s);
+	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;
+	dest->u1 = *(uint32_t*)src; src += 4;
+	dest->u2 = *(uint32_t*)src; src += 4;
+}
+void to_struct_puu(ptr_t d, const struct_puu_t *src) {
+	if (!src) return;
+	uint8_t* dest = (uint8_t*)from_ptrv(d);
+	*(ptr_t*)dest = to_ptrv(src->p0); dest += 4;
+	*(uint32_t*)dest = src->u1; dest += 4;
+	*(uint32_t*)dest = src->u2; dest += 4;
+}
+
 void from_struct_piiL(struct_piiL_t *dest, ptr_t s) {
 	uint8_t* src = (uint8_t*)from_ptrv(s);
 	dest->p0 = from_ptrv(*(ptr_t*)src); src += 4;

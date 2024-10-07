@@ -246,6 +246,13 @@ typedef struct struct_iip_s {
 } struct_iip_t;
 void from_struct_iip(struct_iip_t *dest, ptr_t src);
 void to_struct_iip(ptr_t dest, const struct_iip_t *src);
+typedef struct struct_puu_s {
+	void* p0;
+	uint32_t u1;
+	uint32_t u2;
+} struct_puu_t;
+void from_struct_puu(struct_puu_t *dest, ptr_t src);
+void to_struct_puu(ptr_t dest, const struct_puu_t *src);
 typedef struct struct_piiL_s {
 	void* p0;
 	int i1;
