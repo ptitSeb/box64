@@ -450,6 +450,12 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GWBACK;
             UFLAG_DF(x1, d_imul16);
             break;
+        case 0x6A:
+            INST_NAME("PUSH Ib");
+            u16 = (uint16_t)F8S;
+            MOV32w(x2, u16);
+            PUSH1_16(x2);
+            break;
 
         case 0x70:
         case 0x71:
