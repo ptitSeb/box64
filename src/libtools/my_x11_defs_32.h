@@ -887,4 +887,11 @@ typedef struct __attribute__((packed, aligned(4))) my_XDevice_32_s {
      ptr_t  classes;    //my_XInputClassInfo_t*
 } my_XDevice_32_t;
 
+typedef struct __attribute__((packed, aligned(4))) my_XcursorCursors_32_s {
+    ptr_t      dpy;     //Display*
+    int        ref;
+    int        ncursor;
+    ptr_t      cursors; //Cursor*
+} my_XcursorCursors_32_t;
+
 #endif//MY_X11_DEFS_32

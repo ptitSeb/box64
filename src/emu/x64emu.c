@@ -202,10 +202,8 @@ void CallAllCleanup(x64emu_t *emu)
 
 static void internalFreeX64(x64emu_t* emu)
 {
-    if(emu && emu->stack2free) {
-        if(!internal_munmap(emu->stack2free, emu->size_stack))
-            freeProtection((uintptr_t)emu->stack2free, emu->size_stack);
-    }
+    if(emu && emu->stack2free)
+        !munmap(emu->stack2free, emu->size_stack);
 }
 
 EXPORTDYN

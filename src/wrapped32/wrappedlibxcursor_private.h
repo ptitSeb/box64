@@ -11,8 +11,8 @@
 //GO(XcursorCommentsDestroy, vFp)
 //GO(_XcursorCreateFontCursor, 
 //GO(_XcursorCreateGlyphCursor, 
-//GO(XcursorCursorsCreate, pFpi)
-//GO(XcursorCursorsDestroy, vFp)
+GOM(XcursorCursorsCreate, pFEXi)
+GOM(XcursorCursorsDestroy, vFEp)
 //GO(XcursorFileLoad, iFSpp)
 //GO(XcursorFileLoadAllImages, pFS)
 //GO(XcursorFileLoadImage, pFSi)

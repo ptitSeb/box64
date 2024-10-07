@@ -905,7 +905,7 @@ GO(XmbDrawText, vFXLpiibpiip_i)
 //GO(_XmbGenericTextExtents, 
 //GO(_XmbGenericTextPerCharExtents, 
 GO(_Xmblen, iFpi)
-GOM(XmbLookupString, iFEpppibL_p)
+GOM(XmbLookupString, iFEpppipp)
 GO(XmbResetIC, pFp)
 //GO(XmbSetWMProperties, vFpLpppippp)
 //GO(_Xmbstoutf8, 
@@ -1182,7 +1182,7 @@ GO(Xutf8DrawText, vFXLpiibpiip_i)
 //GO(_Xutf8GenericTextEscapement, 
 //GO(_Xutf8GenericTextExtents, 
 //GO(_Xutf8GenericTextPerCharExtents, 
-//GO(Xutf8LookupString, iFpbiLiXLLLLiiiiuui_pibL_p)
+GOM(Xutf8LookupString, iFEpppipp)
 GO(Xutf8ResetIC, pFp)
 GOM(Xutf8SetWMProperties, vFEXLpppippp) // Warning: failed to confirm
 GO(Xutf8TextEscapement, iFppi)

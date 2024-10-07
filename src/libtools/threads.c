@@ -166,7 +166,7 @@ void thread_set_emu(x64emu_t* emu)
 {
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(!emu) {
-		if(et) box_free(et);
+		if(et) emuthread_destroy(et);
 		pthread_setspecific(thread_key, NULL);
 		return;
 	}

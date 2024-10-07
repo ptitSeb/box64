@@ -111,7 +111,7 @@ static void emuthread_cancel(void* p)
 		my32_longjmp(et->emu, ((i386_unwind_buff_t*)et->cancels[i])->__cancel_jmp_buf, 1);
 		DynaRun(et->emu);	// will return after a __pthread_unwind_next()
 	}
-	free(et->cancels);
+	box_free(et->cancels);
 	et->cancels=NULL;
 	et->cancel_size = et->cancel_cap = 0;
 }
@@ -246,7 +246,7 @@ void* my32_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** p
 	int stacksize = (ssize)?ssize:(2*1024*1024);	//default stack size is 2Mo
 	//void* stack = malloc(stacksize);
 	void* stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_GROWSDOWN|MAP_32BIT, -1, 0);
-	emuthread_t *et = (emuthread_t*)calloc(1, sizeof(emuthread_t));
+	emuthread_t *et = (emuthread_t*)box_calloc(1, sizeof(emuthread_t));
     x64emu_t *emuthread = NewX64Emu(emu->context, (uintptr_t)f, (uintptr_t)stack, stacksize, 1);
 	SetupX64Emu(emuthread, emu);
 	et->emu = emuthread;
@@ -271,7 +271,7 @@ EXPORT void my32___pthread_register_cancel(x64emu_t* emu, i386_unwind_buff_t* bu
 	emuthread_t *et = (emuthread_t*)thread_get_et();
 	if(et->cancel_cap == et->cancel_size) {
 		et->cancel_cap+=8;
-		et->cancels = realloc(et->cancels, sizeof(i386_unwind_buff_t*)*et->cancel_cap);
+		et->cancels = box_realloc(et->cancels, sizeof(i386_unwind_buff_t*)*et->cancel_cap);
 	}
 	et->cancels[et->cancel_size++] = buff;
 }
@@ -456,7 +456,7 @@ static pthread_cond_t* add_cond(void* cond)
 	if(!ret)
 		c = kh_value(mapcond, k);	// already there... reinit an existing one?
 	else 
-		c = kh_value(mapcond, k) = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
+		c = kh_value(mapcond, k) = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
 	//*(ptr_t*)cond = to_ptrv(cond);
 	mutex_unlock(&my_context->mutex_thread);
 	return c;
@@ -471,7 +471,7 @@ static pthread_cond_t* get_cond(void* cond)
 		khint_t k = kh_get(mapcond, mapcond, (uintptr_t)cond);
 		if(k==kh_end(mapcond)) {
 			printf_log(LOG_DEBUG, "BOX32: Note: phtread_cond not found, create a new empty one\n");
-			ret = (pthread_cond_t*)calloc(1, sizeof(pthread_cond_t));
+			ret = (pthread_cond_t*)box_calloc(1, sizeof(pthread_cond_t));
 			k = kh_put(mapcond, mapcond, (uintptr_t)cond, &r);
 			kh_value(mapcond, k) = ret;
 			//*(ptr_t*)cond = to_ptrv(cond);
@@ -490,7 +490,7 @@ static void del_cond(void* cond)
 	mutex_lock(&my_context->mutex_thread);
 	khint_t k = kh_get(mapcond, mapcond, *(uintptr_t*)cond);
 	if(k!=kh_end(mapcond)) {
-		free(kh_value(mapcond, k));
+		box_free(kh_value(mapcond, k));
 		kh_del(mapcond, mapcond, k);
 	}
 	mutex_unlock(&my_context->mutex_thread);
@@ -715,7 +715,7 @@ EXPORT int my32_pthread_attr_setstackaddr(x64emu_t* emu, void* attr, void* p)
 EXPORT int my32_pthread_attr_setstacksize(x64emu_t* emu, void* attr, size_t p)
 {
 	// PTHREAD_STACK_MIN on x86 might be lower than the current platform...
-	if(p>=65536 && p<PTHREAD_STACK_MIN && !(p&4095))
+	if(p>=0xc000 && p<PTHREAD_STACK_MIN && !(p&4095))
 		p = PTHREAD_STACK_MIN;
 	return pthread_attr_setstacksize(get_attr(attr), p);
 }
@@ -832,7 +832,7 @@ pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 		pthread_rwlock_unlock(&m_lock);
 		pthread_rwlock_wrlock(&m_lock);
 		k = kh_put(mutex, unaligned_mutex, (uintptr_t)m, &r);
-		ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)calloc(1, sizeof(pthread_mutex_t));
+		ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)box_calloc(1, sizeof(pthread_mutex_t));
 		memcpy(ret, m, 24);
 	}
 	pthread_rwlock_unlock(&m_lock);
@@ -847,7 +847,7 @@ EXPORT int my32_pthread_mutex_destroy(pthread_mutex_t *m)
 		kh_del(mutex, unaligned_mutex, k);
 		pthread_rwlock_unlock(&m_lock);
 		int ret = pthread_mutex_destroy(n);
-		free(n);
+		box_free(n);
 		return ret;
 	}
 	pthread_rwlock_unlock(&m_lock);
@@ -939,14 +939,14 @@ void fini_pthread_helper_32(box64context_t* context)
 	pthread_cond_t *cond;
 	kh_foreach_value(mapcond, cond, 
 		pthread_cond_destroy(cond);
-		free(cond);
+		box_free(cond);
 	);
 	kh_destroy(mapcond, mapcond);
 	mapcond = NULL;
 	pthread_mutex_t *m;
 	kh_foreach_value(unaligned_mutex, m, 
 		pthread_mutex_destroy(m);
-		free(m);
+		box_free(m);
 	);
 	kh_destroy(mutex, unaligned_mutex);
 

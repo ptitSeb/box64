@@ -1246,6 +1246,7 @@
 #() vFXppiiii -> vFXppiiii
 #() iFEpLiipV -> iFEpLiipV
 #() iFEpLiLpV -> iFEpLiLpV
+#() iFEpppipp -> iFEpppipp
 #() iFEpppupp -> iFEpppupp
 #() iFEpppppp -> iFEpppppp
 #() iFEXLpiiL -> iFEXLpiiL
@@ -1272,7 +1273,6 @@
 #() pFEpLiiiI -> pFEpLiiiI
 #() pFEpLiiil -> pFEpLiiil
 #() vFXLLiiibl_ -> vFXLLiiiB
-#() iFEpppibL_p -> iFEpppiBp
 #() iFXiLibiip_ip -> iFXiLiBip
 #() iFXLibL_ubL_u -> iFXLiBuBu
 #() vFXLpiibpiip_i -> vFXLpiiBi
@@ -2052,13 +2052,14 @@ wrappedlibx11:
   - XSubImage
 - pFXpppp:
   - XCreateFontSet
+- iFpppipp:
+  - XmbLookupString
+  - Xutf8LookupString
 - iFXLpppp:
   - XQueryTree
 - iFXppppp:
   - XRegisterIMInstantiateCallback
   - XUnregisterIMInstantiateCallback
-- iFpppibL_p:
-  - XmbLookupString
 - iFXLLLiipi:
   - XChangeProperty
 - pFXLiiuuLi:
@@ -2076,6 +2077,10 @@ wrappedlibx11:
   - XCreateWindow
 wrappedlibxcomposite:
 wrappedlibxcursor:
+- vFp:
+  - XcursorCursorsDestroy
+- pFXi:
+  - XcursorCursorsCreate
 wrappedlibxext:
 - vFp:
   - XdbeFreeVisualInfo

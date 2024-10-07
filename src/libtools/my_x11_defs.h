@@ -954,4 +954,11 @@ typedef struct my_XDevice_s {
      my_XInputClassInfo_t*  classes;
 } my_XDevice_t;
 
+typedef struct my_XcursorCursors_s {
+    void*      dpy;     //Display*
+    int        ref;
+    int        ncursor;
+    void*      cursors; //Cursor*
+} my_XcursorCursors_t;
+
 #endif//MY_X11_DEFS

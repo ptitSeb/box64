@@ -2294,20 +2294,35 @@ EXPORT unsigned long my32_XLookupKeysym(x64emu_t* emu, my_XEvent_32_t* evt, int 
     return my->XLookupKeysym(evt?(&event):NULL, index);
 }
 
-EXPORT int my32_XLookupString(x64emu_t* emu, my_XEvent_32_t* evt, void* buff, int len, void* keysym, void* status)
+EXPORT int my32_XLookupString(x64emu_t* emu, my_XEvent_32_t* evt, void* buff, int len, ulong_t* keysym, void* status)
 {
     my_XEvent_t event = {0};
+    XID keysym_l = 0;
     if(evt) unconvertXEvent(&event, evt);
-    return my->XLookupString(evt?(&event):NULL, buff, len, keysym, status);
+    int ret = my->XLookupString(evt?(&event):NULL, buff, len, keysym?(&keysym_l):NULL, status);
+    if(keysym) *keysym = to_ulong(keysym_l);
+    return ret;
 }
 
-EXPORT int my32_XmbLookupString(x64emu_t* emu, void* xic, my_XEvent_32_t* evt, void* buff, int len, void* keysym, void* status)
+EXPORT int my32_XmbLookupString(x64emu_t* emu, void* xic, my_XEvent_32_t* evt, void* buff, int len, ulong_t* keysym, void* status)
 {
     my_XEvent_t event = {0};
+    XID keysym_l = 0;
     if(evt) unconvertXEvent(&event, evt);
-    return my->XmbLookupString(xic, evt?(&event):NULL, buff, len, keysym, status);
+    int ret = my->XmbLookupString(xic, evt?(&event):NULL, buff, len, keysym?(&keysym_l):NULL, status);
+    if(keysym) *keysym = to_ulong(keysym_l);
+    return ret;
 }
 
+EXPORT int my32_Xutf8LookupString(x64emu_t* emu, void* xic, my_XEvent_32_t* evt, void* buff, int len, ulong_t* keysym, void* status)
+{
+    my_XEvent_t event = {0};
+    XID keysym_l = 0;
+    if(evt) unconvertXEvent(&event, evt);
+    int ret = my->Xutf8LookupString(xic, evt?(&event):NULL, buff, len, keysym?(&keysym_l):NULL, status);
+    if(keysym) *keysym = to_ulong(keysym_l);
+    return ret;
+}
 
 EXPORT int my32_XSetWMProtocols(x64emu_t* emu, void* dpy, XID window, XID_32* protocol, int count)
 {

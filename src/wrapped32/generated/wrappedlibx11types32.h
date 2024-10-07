@@ -45,9 +45,9 @@ typedef int32_t (*iFXpiup_t)(void*, void*, int32_t, uint32_t, void*);
 typedef int32_t (*iFXpppp_t)(void*, void*, void*, void*, void*);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
 typedef void* (*pFXpppp_t)(void*, void*, void*, void*, void*);
+typedef int32_t (*iFpppipp_t)(void*, void*, void*, int32_t, void*, void*);
 typedef int32_t (*iFXLpppp_t)(void*, uintptr_t, void*, void*, void*, void*);
 typedef int32_t (*iFXppppp_t)(void*, void*, void*, void*, void*, void*);
-typedef int32_t (*iFpppibL_p_t)(void*, void*, void*, int32_t, struct_L_t*, void*);
 typedef int32_t (*iFXLLLiipi_t)(void*, uintptr_t, uintptr_t, uintptr_t, int32_t, int32_t, void*, int32_t);
 typedef void* (*pFXLiiuuLi_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
 typedef void (*vFXLpppippp_t)(void*, uintptr_t, void*, void*, void*, int32_t, void*, void*, void*);
@@ -105,10 +105,11 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XQueryExtension, iFXpppp_t) \
 	GO(XSubImage, pFpiiuu_t) \
 	GO(XCreateFontSet, pFXpppp_t) \
+	GO(XmbLookupString, iFpppipp_t) \
+	GO(Xutf8LookupString, iFpppipp_t) \
 	GO(XQueryTree, iFXLpppp_t) \
 	GO(XRegisterIMInstantiateCallback, iFXppppp_t) \
 	GO(XUnregisterIMInstantiateCallback, iFXppppp_t) \
-	GO(XmbLookupString, iFpppibL_p_t) \
 	GO(XChangeProperty, iFXLLLiipi_t) \
 	GO(XGetImage, pFXLiiuuLi_t) \
 	GO(XSetWMProperties, vFXLpppippp_t) \

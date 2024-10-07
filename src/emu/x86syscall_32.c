@@ -246,7 +246,7 @@ struct i386_robust_list_head {
 
 typedef struct i386_stack_s i386_stack_t;
 
-int32_t my32_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
+int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
 int32_t my32_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[]);
 ssize_t my32_read(int fd, void* buf, size_t count);
 void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, int64_t offset);
@@ -299,7 +299,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
         case 5: // sys_open
             if(s==5) {printf_log(LOG_DEBUG, " => sys_open(\"%s\", %d, %d)", (char*)from_ptrv(R_EBX), of_convert32(R_ECX), R_EDX);}; 
             //S_EAX = open((void*)R_EBX, of_convert32(R_ECX), R_EDX);
-            S_EAX = my32_open(emu, from_ptrv(R_EBX), of_convert32(R_ECX), R_EDX);
+            S_EAX = my_open(emu, from_ptrv(R_EBX), of_convert32(R_ECX), R_EDX);
             break;
         case 6:  // sys_close
             S_EAX = close((int)R_EBX);
@@ -448,7 +448,7 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
         case 4:  // sys_write
             return (uint32_t)to_long(write(i32(4), p(8), u32(12)));
         case 5: // sys_open
-            return my32_open(emu, p(4), of_convert32(u32(8)), u32(12));
+            return my_open(emu, p(4), of_convert32(u32(8)), u32(12));
         case 6:  // sys_close
             return (uint32_t)close(i32(4));
         case 11: // execve

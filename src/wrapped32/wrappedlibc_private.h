@@ -366,8 +366,8 @@ GOW(_flushlbf, vFv)
 //GO(fmemopen, pFpup)
 // fmtmsg
 GO(fnmatch, iFppi)
-GOM(fopen, SFEpp)           //%%
-GOWM(fopen64, SFEpp)         //%%
+GO2(fopen, SFEpp, my_fopen)           //%%
+GOW2(fopen64, SFEpp, my_fopen64)         //%%
 //GOM(fopencookie, pFEpppppp) //%% last 4p are a struct with 4 callbacks...
 GOWM(fork, iFEv)             //%%
 GOM(__fork, iFEv)           //%%
@@ -1199,10 +1199,10 @@ GOW(ntohs, WFW)
 // __obstack_vprintf_chk
 //GOWM(on_exit, iFEpp)  //%%
 //GO2(__on_exit, iFEpp, my_on_exit)   //%%
-GOWM(open, iFEpON)    //%%
-//GOWM(__open, iFEpON)  //%%
+GOW2(open, iFEpON, my_open)    //%%
+GOW2(__open, iFEpON, my_open)  //%%
 //GO(__open_2, iFpO)
-GOWM(open64, iFEpON)  //%%
+GOW2(open64, iFEpON, my_open64)  //%%
 // __open64 // Weak
 //GO(__open64_2, iFpO)
 //GOW(openat, iFipON)
@@ -1351,7 +1351,7 @@ GOM(read, lFipL) //%%,noE
 GOWM(readdir, pFEp)  //%%
 GO(readdir64, pFp)  // check if alignement is correct
 //GOM(readdir_r, iFEppp)  //%% should also be weak
-GOM(readlink, lFEppL) //%%
+GO2(readlink, lFEppL, my_readlink) //%%
 GOM(readlinkat, iFEippL)
 // __readlinkat_chk
 // __readlink_chk
@@ -1768,8 +1768,8 @@ GO(sync, vFv)
 GO(syncfs, iFi)
 // sync_file_range
 GOM(syscall, lFEV) //%%
-GOWM(sysconf, lFEi)
-GOM(__sysconf, lFEi)
+GOW2(sysconf, lFEi, my_sysconf)
+GO2(__sysconf, lFEi, my_sysconf)
 // sysctl   // Weak
 //GO(__sysctl, iFp)
 //DATA(_sys_errlist, 4)

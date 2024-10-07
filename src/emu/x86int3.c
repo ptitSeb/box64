@@ -370,6 +370,9 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                 } else  if(!strcmp(s, "syscall")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%d, %p, %p, %p...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(int32_t*)from_ptr(R_ESP+4), from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+12)), from_ptrv(*(ptr_t*)from_ptr(R_ESP+16)));
                     perr = 1;
+                } else  if(!strcmp(s, "snd_device_name_get_hint")) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(from_ptri(ptr_t, R_ESP+4)), from_ptrv(from_ptri(ptr_t, R_ESP+8)));
+                    post = 2;
                 } else {
                     snprintf(buff, 255, "%04d|%p: Calling %s (%08X, %08X, %08X...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(uint32_t*)from_ptr(R_ESP+4), *(uint32_t*)from_ptr(R_ESP+8), *(uint32_t*)from_ptr(R_ESP+12));
                 }

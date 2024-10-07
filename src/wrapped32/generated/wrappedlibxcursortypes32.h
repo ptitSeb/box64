@@ -11,7 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
+typedef void* (*pFXi_t)(void*, int32_t);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(XcursorCursorsDestroy, vFp_t) \
+	GO(XcursorCursorsCreate, pFXi_t)
 
 #endif // __wrappedlibxcursorTYPES32_H_

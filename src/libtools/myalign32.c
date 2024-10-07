@@ -201,6 +201,7 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
                     case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
+                    case '[': state += 60; ++p; break;
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
                     case 'p': state = 30; break; // pointers
@@ -250,6 +251,13 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
                 }
                 state = 0;
                 ++p;
+                break;
+            case 61:
+                switch(*p) {
+                    case ']': state = 50; break;
+                    case '\\': ++p; if(*p) ++p; break;
+                    default: ++p; break;
+                }
                 break;
             default:
                 // whaaaat?
@@ -321,6 +329,7 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                     case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
+                    case '[': state += 60; ++p; break;
                     case 'm': state = 0; ++p; break; // no argument
                     case 'n':
                     case 'p': state = 30; break; // pointers
@@ -380,6 +389,13 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                 state = 0;
                 ++p;
                 if(!--n) return;
+                break;
+            case 61:
+                switch(*p) {
+                    case ']': state = 50; break;
+                    case '\\': ++p; if(*p) ++p; break;
+                    default: ++p; break;
+                }
                 break;
             default:
                 // whaaaat?
