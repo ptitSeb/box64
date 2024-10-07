@@ -2030,10 +2030,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
-                            j64 = getJumpTableAddress64(addr);
-                            TABLE64(x4, j64);
-                            LD_D(x4, x4, 0);
+                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                            ADDI_D(x4, x4, j64 & 0xfff);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         }
                         ADDI_D(xSP, xSP, -16);
                         ST_D(x4, xSP, 0);
@@ -2047,6 +2047,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         j64 = addr+i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
+                    if(box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                        // jumps out of current dynablock...
+                        MARK;
+                        j64 = getJumpTableAddress64(addr);
+                        TABLE64(x4, j64);
+                        LD_D(x4, x4, 0);
+                        BR(x4);
+                    }
                     break;
             }
             break;
@@ -2371,10 +2379,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to Jmptable(%p)\n", (void*)addr);
-                            j64 = getJumpTableAddress64(addr);
-                            TABLE64(x4, j64);
-                            LD_D(x4, x4, 0);
+                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                            ADDI_D(x4, x4, j64 & 0xfff);
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         }
                         ADDI_D(xSP, xSP, -16);
                         ST_D(x4, xSP, 0);
@@ -2382,6 +2390,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    if(box64_dynarec_callret && addr >= (dyn->start + dyn->isize)) {
+                        // jumps out of current dynablock...
+                        MARK;
+                        j64 = getJumpTableAddress64(addr);
+                        TABLE64(x4, j64);
+                        LD_D(x4, x4, 0);
+                        BR(x4);
+                    }
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");
