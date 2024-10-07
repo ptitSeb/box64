@@ -15,7 +15,14 @@ typedef struct wine_prereserve_s
     void*   addr;
     size_t  size;
 } wine_prereserve_t;
-
+#ifdef BOX32
+typedef struct wine_prereserve_32_s
+{
+    ptr_t   addr;
+    ulong_t  size;
+} wine_prereserve_32_t;
+#include "box32.h"
+#endif
 // only the prereseve argument is reserved, not the other zone that wine-preloader reserve
 static wine_prereserve_t my_wine_reserve[] = {{(void*)0x00010000, 0x00008000}, {(void*)0x00110000, 0x30000000}, {(void*)0x7f000000, 0x03000000}, {0, 0}, {0, 0}};
 
@@ -57,6 +64,15 @@ static void add_no_overlap(void* addr, size_t size)
     my_wine_reserve[idx].size = size;
 }
 
+static void remove_prereserve(int idx)
+{
+    while(my_wine_reserve[idx].size) {
+        my_wine_reserve[idx].addr = my_wine_reserve[idx+1].addr;
+        my_wine_reserve[idx].size = my_wine_reserve[idx+1].size;
+        ++idx;
+    }
+}
+
 void wine_prereserve(const char* reserve)
 {
     init_custommem_helper(my_context);
@@ -70,12 +86,14 @@ void wine_prereserve(const char* reserve)
     int idx = 0;
     while(my_wine_reserve[idx].addr && my_wine_reserve[idx].size) {
         void* ret = NULL;
-        if(!isBlockFree(my_wine_reserve[idx].addr, my_wine_reserve[idx].size) && ((ret=mmap(my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 0, MAP_ANONYMOUS|MAP_NORESERVE, -1, 0))==my_wine_reserve[idx].addr)) {
-            printf_log(LOG_NONE, "Warning, prereserve of %p:0x%lx is not free\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
+        int isfree = isBlockFree(my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
+        if(isfree) ret=mmap(my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 0, MAP_FIXED|MAP_PRIVATE|MAP_ANON|MAP_NORESERVE, -1, 0); else ret = NULL;
+        if(!isfree || (ret!=my_wine_reserve[idx].addr)) {
+            if(addr>=(void*)0x10000LL)
+                printf_log(LOG_NONE, "Warning, prereserve of %p:0x%lx is not free\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
             if(ret)
                 munmap(ret, my_wine_reserve[idx].size);
-            my_wine_reserve[idx].addr = NULL;
-            my_wine_reserve[idx].size = 0;
+            remove_prereserve(idx);
         } else {
             setProtection_mmap((uintptr_t)my_wine_reserve[idx].addr, my_wine_reserve[idx].size, 0);
             printf_log(/*LOG_DEBUG*/LOG_INFO, "WINE prereserve of %p:0x%lx done\n", my_wine_reserve[idx].addr, my_wine_reserve[idx].size);
@@ -90,7 +108,17 @@ void* get_wine_prereserve()
 {
     if(!wine_preloaded)
         wine_prereserve(NULL);
-    return (void*)my_wine_reserve;
+    #ifdef BOX32
+    if(box64_is32bits) {
+        static wine_prereserve_32_t my_wine_reserve_32[5];
+        for(int i=0; i<5; ++i) {
+            my_wine_reserve_32[i].addr = to_ptrv(my_wine_reserve[i].addr);
+            my_wine_reserve_32[i].size = to_ulong(my_wine_reserve[i].size);
+        }
+        return &my_wine_reserve_32;
+    } else
+    #endif
+        return &my_wine_reserve;
 }
 
 extern int box64_quit;

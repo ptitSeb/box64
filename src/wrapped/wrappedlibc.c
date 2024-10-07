@@ -2928,9 +2928,10 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     new_flags&=~MAP_32BIT;   // remove MAP_32BIT
     if((flags&MAP_32BIT) && !(flags&MAP_FIXED)) {
         // MAP_32BIT only exist on x86_64!
-        addr = find31bitBlockNearHint(old_addr, length, 0);
+        if(!(flags&MAP_FIXED) && (!old_addr || !isBlockFree(old_addr, length)))
+            addr = find31bitBlockNearHint(old_addr, length, 0);
     } else if (box64_wine || 1) {   // other mmap should be restricted to 47bits
-        if(!addr)
+        if(!(flags&MAP_FIXED) && (!addr || !isBlockFree(addr, length)))
             addr = find47bitBlock(length);
     }
     #endif
@@ -2972,7 +2973,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         errno = EEXIST;
         return MAP_FAILED;
     }
-    if((emu || box64_is32bits) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
+    if((ret==MAP_FAILED && (emu || box64_is32bits)) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%s (%d)\n", strerror(errno), errno);}
+    if(((ret!=MAP_FAILED) && (emu || box64_is32bits)) && (box64_log>=LOG_DEBUG || box64_dynarec_log>=LOG_DEBUG)) {printf_log(LOG_NONE, "%p\n", ret);}
     #ifdef DYNAREC
     if(box64_dynarec && ret!=MAP_FAILED) {
         /*if(flags&0x100000 && addr!=ret)

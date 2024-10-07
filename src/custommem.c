@@ -1656,7 +1656,9 @@ void* find47bitBlock(size_t size)
 {
     void* ret = find47bitBlockNearHint(HIGH, size, 0);
     if(!ret)
-        ret = find32bitBlock(size);
+        ret = find31bitBlockNearHint(MEDIUM, size, 0);
+    if(!ret)
+        ret = find31bitBlockNearHint(LOWEST, size, 0);
     return ret;
 }
 void* find47bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
