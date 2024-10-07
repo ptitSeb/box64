@@ -635,7 +635,8 @@ void internal_print_block(int i)
 
 void* internal_customMemAligned(size_t align, size_t size, int is32bits)
 {
-    size_t init_size = size;
+    size_t align_mask = align-1;
+    size_t init_size = (size+align_mask)&~align_mask;
     size = roundSize(size);
     if(align<8) align = 8;
     // look for free space
@@ -647,7 +648,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
             size_t rsize = 0;
             sub = getFirstBlock(p_blocks[i].block, init_size, &rsize, p_blocks[i].first);
             uintptr_t p = (uintptr_t)sub+sizeof(blockmark_t);
-            uintptr_t aligned_p = (p+(align-1))&~(align-1);
+            uintptr_t aligned_p = (p+align_mask)&~align_mask;
             uintptr_t empty_size = 0;
             if(aligned_p!=p)
                 empty_size = aligned_p-p;
