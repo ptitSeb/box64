@@ -181,6 +181,8 @@ static int ispot(size_t l) {
 SUPER()
 #undef GO2
 #undef GO
+
+#ifdef BOX32
 int isCustomAddr(void* p);
 #define SPACE32 (void*)0x100000000LL
 void* box32_calloc(size_t n, size_t s)
@@ -229,7 +231,6 @@ size_t box32_malloc_usable_size(void* p)
     else
         return box_malloc_usable_size(p);
 }
-#ifdef BOX32
 #define actual_calloc(A, B)             box64_is32bits?box32_calloc(A, B):box_calloc(A, B)
 #define actual_malloc(A)                box64_is32bits?box32_malloc(A):box_malloc(A)
 #define actual_realloc(A, B)            box64_is32bits?box32_realloc(A, B):box_realloc(A, B)
