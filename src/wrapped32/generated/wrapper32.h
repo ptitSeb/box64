@@ -91,6 +91,7 @@ void uFU_32(x64emu_t *emu, uintptr_t fnc);
 void uFp_32(x64emu_t *emu, uintptr_t fnc);
 void uFS_32(x64emu_t *emu, uintptr_t fnc);
 void uFX_32(x64emu_t *emu, uintptr_t fnc);
+void UFv_32(x64emu_t *emu, uintptr_t fnc);
 void UFi_32(x64emu_t *emu, uintptr_t fnc);
 void UFu_32(x64emu_t *emu, uintptr_t fnc);
 void UFp_32(x64emu_t *emu, uintptr_t fnc);

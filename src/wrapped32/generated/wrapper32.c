@@ -140,6 +140,7 @@ typedef uint32_t (*uFU_t)(uint64_t);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint32_t (*uFS_t)(void*);
 typedef uint32_t (*uFX_t)(void*);
+typedef uint64_t (*UFv_t)(void);
 typedef uint64_t (*UFi_t)(int32_t);
 typedef uint64_t (*UFu_t)(uint32_t);
 typedef uint64_t (*UFp_t)(void*);
@@ -1623,6 +1624,7 @@ void uFU_32(x64emu_t *emu, uintptr_t fcn) { uFU_t fn = (uFU_t)fcn; R_EAX = (uint
 void uFp_32(x64emu_t *emu, uintptr_t fcn) { uFp_t fn = (uFp_t)fcn; R_EAX = (uint32_t)fn(from_ptriv(R_ESP + 4)); }
 void uFS_32(x64emu_t *emu, uintptr_t fcn) { uFS_t fn = (uFS_t)fcn; R_EAX = (uint32_t)fn(io_convert32(from_ptriv(R_ESP + 4))); }
 void uFX_32(x64emu_t *emu, uintptr_t fcn) { uFX_t fn = (uFX_t)fcn; R_EAX = (uint32_t)fn(getDisplay(from_ptriv(R_ESP + 4))); }
+void UFv_32(x64emu_t *emu, uintptr_t fcn) { UFv_t fn = (UFv_t)fcn; ui64_t r; r.u = (uint64_t)fn(); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void UFi_32(x64emu_t *emu, uintptr_t fcn) { UFi_t fn = (UFi_t)fcn; ui64_t r; r.u = (uint64_t)fn(from_ptri(int32_t, R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void UFu_32(x64emu_t *emu, uintptr_t fcn) { UFu_t fn = (UFu_t)fcn; ui64_t r; r.u = (uint64_t)fn(from_ptri(uint32_t, R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
 void UFp_32(x64emu_t *emu, uintptr_t fcn) { UFp_t fn = (UFp_t)fcn; ui64_t r; r.u = (uint64_t)fn(from_ptriv(R_ESP + 4)); R_EAX = r.d[0]; R_EDX = r.d[1]; }
