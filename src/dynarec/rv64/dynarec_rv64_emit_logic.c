@@ -135,7 +135,7 @@ void emit_xor32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    if (!rex.w && (c > 2047 || c < 0)) {
+    if (!rex.w) {
         ZEROUP(s1);
     }
 
@@ -271,7 +271,7 @@ void emit_or32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
         BGE(s1, xZR, 8);
         ORI(xFlags, xFlags, 1 << F_SF);
     }
-    if (!rex.w && (c > 2047 || c < 0)) {
+    if (!rex.w) {
         ZEROUP(s1);
     }
 
