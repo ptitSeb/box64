@@ -234,7 +234,11 @@ GO(div, UFii)
 //GO(_dl_catch_exception, 
 GOWM(dl_iterate_phdr, iFEpp)
 //GO(_dl_mcount_wrapper, 
+#ifdef STATICBUILD
+//GO(_dl_mcount_wrapper_check, vFp)
+#else
 GO(_dl_mcount_wrapper_check, vFp)
+#endif
 //DATAB(_dl_open_hook, 
 //DATAB(_dl_open_hook2, 
 //GO(_dl_signal_error, 

@@ -447,6 +447,7 @@
 #() vFpid
 #() vFpiL
 #() vFpip
+#() vFpiS
 #() vFpui
 #() vFpuI
 #() vFpuC
@@ -537,6 +538,7 @@
 #() iFupp
 #() iFfff
 #() iFLip
+#() iFLpL
 #() iFLpp
 #() iFpwp
 #() iFpii
@@ -787,6 +789,7 @@
 #() pFppl
 #() pFppL
 #() pFppp
+#() pFppS
 #() pFppA
 #() pFpbi
 #() pFSpl
@@ -1329,6 +1332,7 @@
 #() pFppiu
 #() pFppiL
 #() pFppip
+#() pFppiS
 #() pFppCp
 #() pFppWp
 #() pFppuu
@@ -3121,6 +3125,7 @@
 #() iFpiLppppppppp
 #() iFpCCCWCWCCCWp
 #() iFpLLlliLppppp
+#() iFpLpuuLpLpppL
 #() iFpLpppppppppp
 #() iFppLlliLppppp
 #() iFpppppppppppp
