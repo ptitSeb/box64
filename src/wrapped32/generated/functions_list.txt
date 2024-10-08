@@ -863,7 +863,6 @@
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
 #() iFXipBWWWWWWWWWuip_ -> iFXipB
 #() iFXLbLWWWcc_bLWWWcc_ -> iFXLBB
-#() iFXLLbLLLLiiiLLilliLL_ -> iFXLLB
 #() iFpruuipWCCp_buuipWCCp_i -> iFpBBi
 #() iFXpLbiLLLiiiiiiiLLiiLiiiiLic_ -> iFXpLB
 #() pFXLLbiLLLiiiiiiiLLiiLiiiiLic_ -> pFXLLB
@@ -979,6 +978,7 @@
 #() iFEXipp -> iFEXipp
 #() iFEXLip -> iFEXLip
 #() iFEXLlp -> iFEXLlp
+#() iFEXLLp -> iFEXLLp
 #() iFEXLpi -> iFEXLpi
 #() iFEXpLp -> iFEXpLp
 #() iFEXppu -> iFEXppu
@@ -1998,11 +1998,14 @@ wrappedlibx11:
   - XSetIOErrorHandler
 - pFX:
   - XGetModifierMapping
+- XFp:
+  - XOpenDisplay
 - vFXp:
   - XFreeEventData
 - iFpL:
   - XFilterEvent
 - iFXp:
+  - XFreeFont
   - XGetEventData
   - XNextEvent
   - XPeekEvent
@@ -2044,6 +2047,8 @@ wrappedlibx11:
   - XCheckTypedWindowEvent
 - iFXLlp:
   - XCheckWindowEvent
+- iFXLLp:
+  - XChangeWindowAttributes
 - iFXLpi:
   - XQueryColors
   - XSetWMProtocols

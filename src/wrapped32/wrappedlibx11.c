@@ -1561,6 +1561,13 @@ EXPORT void* my32_XSynchronize(x64emu_t* emu, void* display, int onoff)
     return reverse_XSynchronizeProcFct(my_lib, my->XSynchronize(display, onoff));
 }
 
+EXPORT void* my32_XOpenDisplay(void* name)
+{
+    void* ret = my->XOpenDisplay(name);
+    if(ret && box64_x11sync) my->XSynchronize(ret, 1);
+    return ret;
+}
+
 EXPORT int my32_XCloseDisplay(x64emu_t* emu, void* dpy)
 {
     int ret = my->XCloseDisplay(dpy);
@@ -2025,6 +2032,23 @@ EXPORT int my32_XQueryColors(x64emu_t* emu, void* dpy, XID map, my_XColor_32_t* 
     for(int i=0; i<ncolor; ++i)
         to_struct_LWWWcc(to_ptrv(defs+i), defs_l+i);
     return ret;
+}
+
+EXPORT int my32_XFreeFont(x64emu_t* emu, void* dpy, void* f)
+{
+    inplace_XFontStruct_enlarge(f);
+    return my->XFreeFont(dpy, f);
+}
+
+EXPORT int my32_XChangeWindowAttributes(x64emu_t* emu, void* dpy, XID window, unsigned long mask, my_XSetWindowAttributes_32_t* attrs)
+{
+    my_XSetWindowAttributes_t attrs_l[32];
+    for(int i=0, j=0; i<32; ++i)
+        if(mask&(1<<i)) {
+            convert_XSetWindowAttributes_to_64(attrs_l+j, attrs+j);
+            ++j;
+        }
+    return my->XChangeWindowAttributes(dpy, window, mask, attrs_l);
 }
 
 #define CUSTOM_INIT                 \

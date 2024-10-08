@@ -56,6 +56,7 @@ int box64_cefdisablegpu = 0;
 int box64_cefdisablegpucompositor = 0;
 int box64_malloc_hack = 0;
 int box64_dynarec_test = 0;
+int box64_x11sync = 0;
 path_collection_t box64_addlibs = {0};
 int box64_maxcpu = 0;
 int box64_maxcpu_immutable = 0;
@@ -1224,6 +1225,13 @@ void LoadLogEnv()
         }
         if(box64_ignoreint3)
             printf_log(LOG_INFO, "Will silently ignore INT3 in the code\n");
+    }
+    p = getenv("BOX64_X11SYNC");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='0'+1)
+                box64_x11sync = p[0]-'0';
+        }
     }
     // grab pagesize
     box64_pagesize = sysconf(_SC_PAGESIZE);

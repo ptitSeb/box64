@@ -16,6 +16,7 @@ typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFX_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFX_t)(void*);
+typedef void* (*XFp_t)(void*);
 typedef void (*vFXp_t)(void*, void*);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFXp_t)(void*, void*);
@@ -35,6 +36,7 @@ typedef void* (*pFXip_t)(void*, int32_t, void*);
 typedef int32_t (*iFpLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLip_t)(void*, uintptr_t, int32_t, void*);
 typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
+typedef int32_t (*iFXLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
@@ -70,8 +72,10 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
 	GO(XGetModifierMapping, pFX_t) \
+	GO(XOpenDisplay, XFp_t) \
 	GO(XFreeEventData, vFXp_t) \
 	GO(XFilterEvent, iFpL_t) \
+	GO(XFreeFont, iFXp_t) \
 	GO(XGetEventData, iFXp_t) \
 	GO(XNextEvent, iFXp_t) \
 	GO(XPeekEvent, iFXp_t) \
@@ -97,6 +101,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XWindowEvent, iFpLlp_t) \
 	GO(XCheckTypedWindowEvent, iFXLip_t) \
 	GO(XCheckWindowEvent, iFXLlp_t) \
+	GO(XChangeWindowAttributes, iFXLLp_t) \
 	GO(XQueryColors, iFXLpi_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
 	GO(XCheckIfEvent, iFXppp_t) \

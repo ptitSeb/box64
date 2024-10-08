@@ -17,6 +17,7 @@ extern int box64_rdtsc;
 extern int box64_rdtsc_1ghz;
 extern uint8_t box64_rdtsc_shift;
 extern int box64_is32bits;
+extern int box64_x11sync;
 #ifdef DYNAREC
 extern int box64_dynarec_dump;
 extern int box64_dynarec_trace;

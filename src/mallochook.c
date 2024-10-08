@@ -181,13 +181,69 @@ static int ispot(size_t l) {
 SUPER()
 #undef GO2
 #undef GO
-
+int isCustomAddr(void* p);
+#define SPACE32 (void*)0x100000000LL
+void* box32_calloc(size_t n, size_t s)
+{
+    void* ret = box_calloc(n, s);
+    if(ret<SPACE32) return ret;
+    box_free(ret);
+    return customCalloc32(n, s);
+}
+void* box32_malloc(size_t s)
+{
+    void* ret = box_malloc(s);
+    if(ret<SPACE32) return ret;
+    box_free(ret);
+    return customMalloc32(s);
+}
+void* box32_realloc(void* p, size_t s)
+{
+    if(isCustomAddr(p))
+        return customRealloc32(p, s);
+    void* ret = box_realloc(p, s);
+    if(ret<SPACE32) return ret;
+    void* newret = customMalloc32(s);
+    memcpy(newret, ret, s);
+    box_free(ret);
+    return newret;
+}
+void box32_free(void* p)
+{
+    if(isCustomAddr(p))
+        customFree32(p);
+    else
+        box_free(p);
+}
+void* box32_memalign(size_t align, size_t s)
+{
+    void* ret = box_memalign(align, s);
+    if(ret<SPACE32) return ret;
+    box_free(ret);
+    return customMemAligned32(align, s);
+}
+size_t box32_malloc_usable_size(void* p)
+{
+    if(isCustomAddr(p))
+        return customGetUsableSize(p);
+    else
+        return box_malloc_usable_size(p);
+}
+#ifdef BOX32
+#define actual_calloc(A, B)             box64_is32bits?box32_calloc(A, B):box_calloc(A, B)
+#define actual_malloc(A)                box64_is32bits?box32_malloc(A):box_malloc(A)
+#define actual_realloc(A, B)            box64_is32bits?box32_realloc(A, B):box_realloc(A, B)
+#define actual_free(A)                  box64_is32bits?box32_free(A):box_free(A)
+#define actual_memalign(A, B)           box64_is32bits?box32_memalign(A, B):box_memalign(A, B)
+#define actual_malloc_usable_size(A)    box64_is32bits?box32_malloc_usable_size(A):box_malloc_usable_size(A)
+#else
 #define actual_calloc(A, B)             box_calloc(A, B)
 #define actual_malloc(A)                box_malloc(A)
 #define actual_realloc(A, B)            box_realloc(A, B)
 #define actual_free(A)                  box_free(A)
 #define actual_memalign(A, B)           box_memalign(A, B)
 #define actual_malloc_usable_size(A)    box_malloc_usable_size(A)
+#endif
 
 // redefining all libc memory allocation routines
 EXPORT void* malloc(size_t l)

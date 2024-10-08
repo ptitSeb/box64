@@ -75,7 +75,11 @@ typedef struct blocklist_s {
     void*               first;
 } blocklist_t;
 
+#ifdef BOX32
+#define MMAPSIZE (256*1024)      // allocate 256kb sized blocks
+#else
 #define MMAPSIZE (64*1024)      // allocate 64kb sized blocks
+#endif
 #define DYNMMAPSZ (2*1024*1024) // allocate 2Mb block for dynarec
 
 static int                 n_blocks = 0;       // number of blocks for custom malloc
@@ -400,7 +404,12 @@ blocklist_t* findBlock(uintptr_t addr)
     }
     return NULL;
 }
-
+#ifdef BOX32
+int isCustomAddr(void* p)
+{
+    return findBlock((uintptr_t)p)?1:0;
+}
+#endif
 #ifdef DYNAREC
 #define GET_PROT_WAIT(A, B) \
         uint32_t A;         \

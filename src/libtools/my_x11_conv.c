@@ -965,3 +965,22 @@ void inplace_XFontStruct_enlarge(void* a)
     for(int i=dst->n_properties-1; i>=0;  --i)
         convert_XFontProp_to_64(dst->properties+i, properties_s+i);
 }
+
+void convert_XSetWindowAttributes_to_64(my_XSetWindowAttributes_t* dst, my_XSetWindowAttributes_32_t* src)
+{
+    dst->background_pixmap = from_ulong(src->background_pixmap);
+    dst->background_pixel = from_ulong(src->background_pixel);
+    dst->border_pixmap = from_ulong(src->border_pixmap);
+    dst->border_pixel = from_ulong(src->border_pixel);
+    dst->bit_gravity = src->bit_gravity;
+    dst->win_gravity = src->win_gravity;
+    dst->backing_store = from_ulong(src->backing_store);
+    dst->backing_planes = from_ulong(src->backing_planes);
+    dst->backing_pixel = src->backing_pixel;
+    dst->save_under = src->save_under;
+    dst->event_mask = from_long(src->event_mask);
+    dst->do_not_propagate_mask = from_long(src->do_not_propagate_mask);
+    dst->override_redirect = src->override_redirect;
+    dst->colormap = from_ulong(src->colormap);
+    dst->cursor = from_ulong(src->cursor);
+}

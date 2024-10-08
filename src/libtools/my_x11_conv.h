@@ -49,4 +49,7 @@ void inplace_XFontProp_shrink(void* a);
 void inplace_XFontProp_enlarge(void* a);
 void inplace_XFontStruct_shrink(void* a);
 void inplace_XFontStruct_enlarge(void* a);
+
+void convert_XSetWindowAttributes_to_64(my_XSetWindowAttributes_t* dst, my_XSetWindowAttributes_32_t* src);
+
 #endif//MY_X11_CONV

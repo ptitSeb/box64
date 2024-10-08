@@ -1555,6 +1555,7 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
     if(!ret)
         return ret;
 
+    if(box64_x11sync) my->XSynchronize(ret, 1);
     bridge_t* system = emu->context->system;
 
     #define GO(A, W)\
