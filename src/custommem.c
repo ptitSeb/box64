@@ -806,6 +806,31 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     return NULL;
 }
 
+#ifdef BOX32
+void* box32_dynarec_mmap(size_t size)
+{
+    // find a block that was prereserve before and big enough
+    uint32_t flag;
+    static uintptr_t cur = 0x100000000LL;
+    uintptr_t bend = 0;
+    while(bend<0x800000000000LL) {
+        if(rb_get_end(mapallmem, cur, &flag, &bend)) {
+            if(flag==2 && bend-cur>=size) {
+                void* ret = internal_mmap((void*)cur, size, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_FIXED|MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+                if(ret!=MAP_FAILED)
+                    rb_set(mapallmem, cur, cur+size, 1);    // mark as allocated
+                else
+                    printf_log(LOG_INFO, "BOX32: Error allocating Dynarec memory: %s\n", strerror(errno));
+                cur = cur+size;
+                return ret;
+            }
+        }
+        cur = bend;
+    }
+    return MAP_FAILED;
+}
+#endif
+
 #ifdef TRACE_MEMSTAT
 static uint64_t dynarec_allocated = 0;
 #endif
@@ -841,11 +866,15 @@ uintptr_t AllocDynarecMap(size_t size)
             // allign sz with pagesize
             allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
             void* p=MAP_FAILED;
+            #ifdef BOX32
+            if(box64_is32bits)
+                p = box32_dynarec_mmap(allocsize);
+            #endif
             // disabling for now. explicit hugepage needs to be enabled to be used on userspace 
             // with`/sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages` as the number of allowaed 2M huge page
             // At least with a 2M allocation, transparent huge page should kick-in
             #if 0//def MAP_HUGETLB
-            if(allocsize==DYNMMAPSZ) {
+            if(p==MAP_FAILED && allocsize==DYNMMAPSZ) {
                 p = internal_mmap(NULL, allocsize, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE|MAP_HUGETLB, -1, 0);
                 if(p!=MAP_FAILED) printf_log(LOG_INFO, "Allocated a dynarec memory block with HugeTLB\n");
                 else printf_log(LOG_INFO, "Failled to allocated a dynarec memory block with HugeTLB (%s)\n", strerror(errno));
@@ -1817,7 +1846,7 @@ void reverveHigMem32(void)
                         } else 
                         printf_log(LOG_DEBUG, " Failed to reserve %zx sized block (%s)\n", bend-cur, strerror(errno));
                     } else {
-                        rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)bend, 1);
+                        rb_set(mapallmem, (uintptr_t)cur, (uintptr_t)bend, 2);
                         printf_log(LOG_DEBUG, "Reserved high %p (%zx)\n", cur, bend-cur);
                     }
                 }
