@@ -894,4 +894,71 @@ typedef struct my_XcursorCursors_32_s {
     ptr_t      cursors; //Cursor*
 } my_XcursorCursors_32_t;
 
+typedef struct my_XExtCodes_32_s {
+    int extension;
+    int major_opcode;
+    int first_event;
+    int first_error;
+} my_XExtCodes_32_t;
+
+typedef struct my_XExtDisplayInfo_32_s {
+    ptr_t   next; //struct my_XExtDisplayInfo_s*
+    ptr_t   display;    //Didsplay*
+    ptr_t   codes; //my_XExtCodes_t*
+    ptr_t   data;   //void*
+} my_XExtDisplayInfo_32_t;
+
+typedef struct my_XExtensionInfo_32_s {
+    ptr_t head; //my_XExtDisplayInfo_t*
+    ptr_t cur;  //my_XExtDisplayInfo_t*
+    int   ndisplays;
+} my_XExtensionInfo_32_t;
+
+typedef struct my_XCharStruct_32_t {
+    short       lbearing;
+    short       rbearing;
+    short       width;
+    short       ascent;
+    short       descent;
+    unsigned short attributes;
+} my_XCharStruct_32_t;
+
+typedef struct my_XFontProp_32_s {
+    XID_32  name;
+    ulong_t card32;
+} my_XFontProp_32_t;
+
+typedef struct my_XFontStruct_32_s {
+    ptr_t                   ext_data; //XExtData*
+    XID_32                  fid;
+    unsigned                direction;
+    unsigned                min_char_or_byte2;
+    unsigned                max_char_or_byte2;
+    unsigned                min_byte1;
+    unsigned                max_byte1;
+    int                     all_chars_exist;
+    unsigned                default_char;
+    int                     n_properties;
+    ptr_t                   properties;   //my_XFontProp_t*
+    my_XCharStruct_32_t     min_bounds;
+    my_XCharStruct_32_t     max_bounds;
+    ptr_t                   per_char; //my_XCharStruct_t*
+    int                     ascent;
+    int                     descent;
+} my_XFontStruct_32_t;
+
+typedef struct my_XExtensionHooks_32_s {
+    ptr_t create_gc; //int (*create_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    ptr_t copy_gc; //int (*copy_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    ptr_t flush_gc; //int (*flush_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    ptr_t free_gc; //int (*free_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    ptr_t create_font; //int (*create_font)(void* dpy, my_XFontStruct_t* f, my_XExtCodes_t* e);
+    ptr_t free_font; //int (*free_font)(void* dpy, my_XFontStruct_t* f, my_XExtCodes_t* e);
+    ptr_t close_display; //int (*close_display)(void* dpy, my_XExtCodes_t* e);
+    ptr_t wire_to_event; //int (*wire_to_event)(void* dpy, my_XEvent_t* evt, void* xEvent);
+    ptr_t event_to_wire; //int (*event_to_wire)(void* dpy, my_XEvent_t* evt, void* xEvent);
+    ptr_t error; //int (*error)(void* dpy, void* xError, my_XExtCodes_t* e, int* n);
+    ptr_t error_string; //char*(*error_string)(void* dpy, int, my_XExtCodes_t* e, char* s, int n);
+} my_XExtensionHooks_32_t;
+
 #endif//MY_X11_DEFS_32

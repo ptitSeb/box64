@@ -961,4 +961,71 @@ typedef struct my_XcursorCursors_s {
     void*      cursors; //Cursor*
 } my_XcursorCursors_t;
 
+typedef struct my_XExtCodes_s {
+    int extension;
+    int major_opcode;
+    int first_event;
+    int first_error;
+} my_XExtCodes_t;
+
+typedef struct my_XExtDisplayInfo_s {
+    struct my_XExtDisplayInfo_s *next;
+    void*   display;    //Didsplay*
+    my_XExtCodes_t *codes;
+    void* data;
+} my_XExtDisplayInfo_t;
+
+typedef struct my_XExtensionInfo_s {
+    my_XExtDisplayInfo_t *head;
+    my_XExtDisplayInfo_t *cur;
+    int ndisplays;
+} my_XExtensionInfo_t;
+
+typedef struct my_XCharStruct_s {
+    short       lbearing;
+    short       rbearing;
+    short       width;
+    short       ascent;
+    short       descent;
+    unsigned short attributes;
+} my_XCharStruct_t;
+
+typedef struct my_XFontProp_s {
+    XID name;
+    unsigned long card32;
+} my_XFontProp_t;
+
+typedef struct my_XFontStruct_s {
+    void*             ext_data; //XExtData*
+    XID               fid;
+    unsigned          direction;
+    unsigned          min_char_or_byte2;
+    unsigned          max_char_or_byte2;
+    unsigned          min_byte1;
+    unsigned          max_byte1;
+    int               all_chars_exist;
+    unsigned          default_char;
+    int               n_properties;
+    my_XFontProp_t*   properties;
+    my_XCharStruct_t  min_bounds;
+    my_XCharStruct_t  max_bounds;
+    my_XCharStruct_t* per_char;
+    int               ascent;
+    int               descent;
+} my_XFontStruct_t;
+
+typedef struct my_XExtensionHooks_s {
+    int (*create_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    int (*copy_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    int (*flush_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    int (*free_gc)(void* dpy, void* gc, my_XExtCodes_t* e);
+    int (*create_font)(void* dpy, my_XFontStruct_t* f, my_XExtCodes_t* e);
+    int (*free_font)(void* dpy, my_XFontStruct_t* f, my_XExtCodes_t* e);
+    int (*close_display)(void* dpy, my_XExtCodes_t* e);
+    int (*wire_to_event)(void* dpy, my_XEvent_t* evt, void* xEvent);
+    int (*event_to_wire)(void* dpy, my_XEvent_t* evt, void* xEvent);
+    int (*error)(void* dpy, void* xError, my_XExtCodes_t* e, int* n);
+    char*(*error_string)(void* dpy, int, my_XExtCodes_t* e, char* s, int n);
+} my_XExtensionHooks_t;
+
 #endif//MY_X11_DEFS

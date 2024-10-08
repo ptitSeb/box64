@@ -184,6 +184,7 @@ typedef struct box64context_s {
     library_t           *sdl1mixerlib;
     library_t           *sdl2lib;
     library_t           *sdl2mixerlib;
+    library_t           *libx11;
     linkmap_t           *linkmap;
     linkmap32_t         *linkmap32;
     void*               sdl1allocrw;    // SDL1 AllocRW/FreeRW function

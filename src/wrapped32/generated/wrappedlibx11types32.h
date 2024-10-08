@@ -23,10 +23,12 @@ typedef uintptr_t (*LFpi_t)(void*, int32_t);
 typedef void* (*pFiV_t)(int32_t, ...);
 typedef void* (*pFpV_t)(void*, ...);
 typedef void* (*pFXi_t)(void*, int32_t);
+typedef void* (*pFXL_t)(void*, uintptr_t);
 typedef void* (*pFXp_t)(void*, void*);
 typedef void (*vFXLp_t)(void*, uintptr_t, void*);
 typedef int32_t (*iFpip_t)(void*, int32_t, void*);
 typedef int32_t (*iFXip_t)(void*, int32_t, void*);
+typedef int32_t (*iFXlp_t)(void*, intptr_t, void*);
 typedef int32_t (*iFXLp_t)(void*, uintptr_t, void*);
 typedef uintptr_t (*LFXii_t)(void*, int32_t, int32_t);
 typedef void* (*pFXip_t)(void*, int32_t, void*);
@@ -80,14 +82,18 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XSetICValues, pFpV_t) \
 	GO(XSetIMValues, pFpV_t) \
 	GO(XSynchronize, pFXi_t) \
+	GO(XGetWMHints, pFXL_t) \
 	GO(XListExtensions, pFXp_t) \
 	GO(XSetWMNormalHints, vFXLp_t) \
 	GO(XStringListToTextProperty, iFpip_t) \
 	GO(XCheckTypedEvent, iFXip_t) \
+	GO(XMaskEvent, iFXlp_t) \
 	GO(XGetWindowAttributes, iFXLp_t) \
 	GO(XSetWMHints, iFXLp_t) \
 	GO(XGetPixel, LFXii_t) \
 	GO(XESetCloseDisplay, pFXip_t) \
+	GO(XESetEventToWire, pFXip_t) \
+	GO(XESetWireToEvent, pFXip_t) \
 	GO(XWindowEvent, iFpLlp_t) \
 	GO(XCheckTypedWindowEvent, iFXLip_t) \
 	GO(XCheckWindowEvent, iFXLlp_t) \

@@ -388,6 +388,7 @@
 #() iFEpL -> iFEpL
 #() iFEpp -> iFEpp
 #() iFEpV -> iFEpV
+#() iFEpX -> iFEpX
 #() iFEhi -> iFEhi
 #() iFEhp -> iFEhp
 #() iFEXp -> iFEXp
@@ -501,6 +502,7 @@
 #() pFEpi -> pFEpi
 #() pFEpp -> pFEpp
 #() pFEpV -> pFEpV
+#() pFEpX -> pFEpX
 #() pFEXi -> pFEXi
 #() pFEXL -> pFEXL
 #() pFEXp -> pFEXp
@@ -710,6 +712,7 @@
 #() iFESpp -> iFESpp
 #() iFESpV -> iFESpV
 #() iFEXip -> iFEXip
+#() iFEXlp -> iFEXlp
 #() iFEXLp -> iFEXLp
 #() iFiiii -> iFiiii
 #() iFiiiu -> iFiiiu
@@ -1272,6 +1275,7 @@
 #() pFEpLiiii -> pFEpLiiii
 #() pFEpLiiiI -> pFEpLiiiI
 #() pFEpLiiil -> pFEpLiiil
+#() pFEpXppip -> pFEpXppip
 #() vFXLLiiibl_ -> vFXLLiiiB
 #() iFXiLibiip_ip -> iFXiLiBip
 #() iFXLibL_ubL_u -> iFXLiBuBu
@@ -2005,6 +2009,8 @@ wrappedlibx11:
   - XSetIMValues
 - pFXi:
   - XSynchronize
+- pFXL:
+  - XGetWMHints
 - pFXp:
   - XListExtensions
 - vFXLp:
@@ -2013,6 +2019,8 @@ wrappedlibx11:
   - XStringListToTextProperty
 - iFXip:
   - XCheckTypedEvent
+- iFXlp:
+  - XMaskEvent
 - iFXLp:
   - XGetWindowAttributes
   - XSetWMHints
@@ -2020,6 +2028,8 @@ wrappedlibx11:
   - XGetPixel
 - pFXip:
   - XESetCloseDisplay
+  - XESetEventToWire
+  - XESetWireToEvent
 - iFpLlp:
   - XWindowEvent
 - iFXLip:
@@ -2084,12 +2094,21 @@ wrappedlibxcursor:
 wrappedlibxext:
 - vFp:
   - XdbeFreeVisualInfo
+  - XextDestroyExtension
+- pFv:
+  - XextCreateExtension
 - pFp:
   - XSetExtensionErrorHandler
+- iFpX:
+  - XextRemoveDisplay
+- pFpX:
+  - XextFindDisplay
 - pFXpp:
   - XdbeGetVisualInfo
 - iFXLpiiL:
   - XShmGetImage
+- pFpXppip:
+  - XextAddDisplay
 - pFXbpLiLLLii_uipbLipi_uu:
   - XShmCreateImage
 - iFXLppiiiiuui:

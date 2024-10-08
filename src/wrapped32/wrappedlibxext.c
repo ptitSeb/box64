@@ -26,34 +26,16 @@
 
 #define LIBNAME libxext
 
-#include "libtools/my_x11_defs.h"
-#include "libtools/my_x11_defs_32.h"
+#include "libtools/my_x11_conv.h"
 
 typedef struct _XImage XImage;
 void BridgeImageFunc(x64emu_t *emu, XImage *img);
 void UnbridgeImageFunc(x64emu_t *emu, XImage *img);
 typedef int (*XextErrorHandler)(void *, void *, void*);
 
-typedef struct my32_XExtensionHooks {
-    int (*create_gc)(void*, uint32_t, void*);
-    int (*copy_gc)(void*, uint32_t, void*);
-    int (*flush_gc)(void*, uint32_t, void*);
-    int (*free_gc)(void*, uint32_t, void*);
-    int (*create_font)(void*, void*, void*);
-    int (*free_font)(void*, void*, void*);
-    int (*close_display)(void*, void*);
-    int (*wire_to_event)(void*, void*, void*);
-    int (*event_to_wire)(void*, void*, void*);
-    int (*error)(void*, void*, void*, int*);
-    char *(*error_string)(void*, int, void*, void*, int);
-} my32_XExtensionHooks;
-
-
 #include "generated/wrappedlibxexttypes32.h"
 
 #include "wrappercallback32.h"
-
-void* getDisplay(void*);
 
 #define SUPER() \
 GO(0)   \
@@ -96,10 +78,10 @@ static void* reverse_exterrorhandleFct(void* fct)
 }
 // create_gc ...
 #define GO(A)   \
-static uintptr_t my_create_gc_fct_##A = 0;                          \
-static int my_create_gc_##A(void* a, uint32_t b, void* c)           \
-{                                                                   \
-    return RunFunctionFmt(my_create_gc_fct_##A, "pup", a, b, c);    \
+static uintptr_t my_create_gc_fct_##A = 0;                                      \
+static int my_create_gc_##A(void* a, uint32_t b, void* c)                       \
+{                                                                               \
+    return RunFunctionFmt(my_create_gc_fct_##A, "pup", getDisplay(a), b, c);    \
 }
 SUPER()
 #undef GO
@@ -118,10 +100,10 @@ static void* find_create_gc_Fct(void* fct)
 }
 // copy_gc ...
 #define GO(A)   \
-static uintptr_t my_copy_gc_fct_##A = 0;                        \
-static int my_copy_gc_##A(void* a, uint32_t b, void* c)         \
-{                                                               \
-    return RunFunctionFmt(my_copy_gc_fct_##A, "pup", a, b, c);  \
+static uintptr_t my_copy_gc_fct_##A = 0;                                    \
+static int my_copy_gc_##A(void* a, uint32_t b, void* c)                     \
+{                                                                           \
+    return RunFunctionFmt(my_copy_gc_fct_##A, "pup", getDisplay(a), b, c);  \
 }
 SUPER()
 #undef GO
@@ -140,10 +122,10 @@ static void* find_copy_gc_Fct(void* fct)
 }
 // flush_gc ...
 #define GO(A)   \
-static uintptr_t my_flush_gc_fct_##A = 0;                           \
-static int my_flush_gc_##A(void* a, uint32_t b, void* c)            \
-{                                                                   \
-    return RunFunctionFmt(my_flush_gc_fct_##A, "pup", a, b, c);     \
+static uintptr_t my_flush_gc_fct_##A = 0;                                   \
+static int my_flush_gc_##A(void* a, uint32_t b, void* c)                    \
+{                                                                           \
+    return RunFunctionFmt(my_flush_gc_fct_##A, "pup", getDisplay(a), b, c); \
 }
 SUPER()
 #undef GO
@@ -162,10 +144,10 @@ static void* find_flush_gc_Fct(void* fct)
 }
 // free_gc ...
 #define GO(A)   \
-static uintptr_t my_free_gc_fct_##A = 0;                           \
-static int my_free_gc_##A(void* a, uint32_t b, void* c)            \
-{                                                                  \
-    return RunFunctionFmt(my_free_gc_fct_##A, "pup", a, b, c);     \
+static uintptr_t my_free_gc_fct_##A = 0;                                    \
+static int my_free_gc_##A(void* a, uint32_t b, void* c)                     \
+{                                                                           \
+    return RunFunctionFmt(my_free_gc_fct_##A, "pup", getDisplay(a), b, c);  \
 }
 SUPER()
 #undef GO
@@ -184,10 +166,13 @@ static void* find_free_gc_Fct(void* fct)
 }
 // create_font ...
 #define GO(A)   \
-static uintptr_t my_create_font_fct_##A = 0;                            \
-static int my_create_font_##A(void* a, void* b, void* c)                \
-{                                                                       \
-    return RunFunctionFmt(my_create_font_fct_##A, "ppp", a, b, c);      \
+static uintptr_t my_create_font_fct_##A = 0;                                        \
+static int my_create_font_##A(void* a, void* b, void* c)                            \
+{                                                                                   \
+    inplace_XFontStruct_shrink(b);                                                  \
+    int ret = RunFunctionFmt(my_create_font_fct_##A, "ppp", getDisplay(a), b, c);   \
+    inplace_XFontStruct_enlarge(b);                                                 \
+    return ret;                                                                     \
 }
 SUPER()
 #undef GO
@@ -206,10 +191,13 @@ static void* find_create_font_Fct(void* fct)
 }
 // free_font ...
 #define GO(A)   \
-static uintptr_t my_free_font_fct_##A = 0;                            \
-static int my_free_font_##A(void* a, void* b, void* c)                \
-{                                                                     \
-    return RunFunctionFmt(my_free_font_fct_##A, "ppp", a, b, c);      \
+static uintptr_t my_free_font_fct_##A = 0;                                      \
+static int my_free_font_##A(void* a, void* b, void* c)                          \
+{                                                                               \
+    inplace_XFontStruct_shrink(b);                                              \
+    int ret = RunFunctionFmt(my_free_font_fct_##A, "ppp", getDisplay(a), b, c); \
+    inplace_XFontStruct_enlarge(b);                                             \
+    return ret;                                                                 \
 }
 SUPER()
 #undef GO
@@ -228,10 +216,10 @@ static void* find_free_font_Fct(void* fct)
 }
 // close_display ...
 #define GO(A)   \
-static uintptr_t my_close_display_fct_##A = 0;                  \
-static int my_close_display_##A(void* a, void* b)               \
-{                                                               \
-    return RunFunctionFmt(my_close_display_fct_##A, "pp", a, b);\
+static uintptr_t my_close_display_fct_##A = 0;                                  \
+static int my_close_display_##A(void* a, void* b)                               \
+{                                                                               \
+    return RunFunctionFmt(my_close_display_fct_##A, "pp", getDisplay(a), b);    \
 }
 SUPER()
 #undef GO
@@ -250,10 +238,12 @@ static void* find_close_display_Fct(void* fct)
 }
 // wire_to_event ...
 #define GO(A)   \
-static uintptr_t my_wire_to_event_fct_##A = 0;                          \
-static int my_wire_to_event_##A(void* a, void* b, void* c)              \
-{                                                                       \
-    return RunFunctionFmt(my_wire_to_event_fct_##A, "ppp", a, b, c);    \
+static uintptr_t my_wire_to_event_fct_##A = 0;                                          \
+static int my_wire_to_event_##A(void* a, void* b, void* c)                              \
+{                                                                                       \
+    static my_XEvent_32_t evt;                                                          \
+    int ret = RunFunctionFmt(my_wire_to_event_fct_##A, "ppp", getDisplay(a), &evt, c);  \
+    unconvertXEvent(b, &evt);                                                           \
 }
 SUPER()
 #undef GO
@@ -272,10 +262,12 @@ static void* find_wire_to_event_Fct(void* fct)
 }
 // event_to_wire ...
 #define GO(A)   \
-static uintptr_t my_event_to_wire_fct_##A = 0;                          \
-static int my_event_to_wire_##A(void* a, void* b, void* c)              \
-{                                                                       \
-    return RunFunctionFmt(my_event_to_wire_fct_##A, "ppp", a, b, c);    \
+static uintptr_t my_event_to_wire_fct_##A = 0;                                      \
+static int my_event_to_wire_##A(void* a, void* b, void* c)                          \
+{                                                                                   \
+    static my_XEvent_32_t evt;                                                      \
+    convertXEvent(&evt, b);                                                         \
+    return RunFunctionFmt(my_event_to_wire_fct_##A, "ppp", getDisplay(a), &evt, c); \
 }
 SUPER()
 #undef GO
@@ -294,10 +286,10 @@ static void* find_event_to_wire_Fct(void* fct)
 }
 // error ...
 #define GO(A)   \
-static uintptr_t my_error_fct_##A = 0;                              \
-static int my_error_##A(void* a, void* b, void* c, int* d)          \
-{                                                                   \
-    return RunFunctionFmt(my_error_fct_##A, "pppp", a, b, c, d);    \
+static uintptr_t my_error_fct_##A = 0;                                          \
+static int my_error_##A(void* a, void* b, void* c, int* d)                      \
+{                                                                               \
+    return RunFunctionFmt(my_error_fct_##A, "pppp", getDisplay(a), b, c, d);    \
 }
 SUPER()
 #undef GO
@@ -316,10 +308,10 @@ static void* find_error_Fct(void* fct)
 }
 // error_string ...
 #define GO(A)   \
-static uintptr_t my_error_string_fct_##A = 0;                               \
-static int my_error_string_##A(void* a, int b, void* c, void* d, int e)     \
-{                                                                           \
-    return RunFunctionFmt(my_error_string_fct_##A, "pippi", a, b, c, d, e); \
+static uintptr_t my_error_string_fct_##A = 0;                                           \
+static int my_error_string_##A(void* a, int b, void* c, void* d, int e)                 \
+{                                                                                       \
+    return RunFunctionFmt(my_error_string_fct_##A, "pippi", getDisplay(a), b, c, d, e); \
 }
 SUPER()
 #undef GO
@@ -395,48 +387,6 @@ EXPORT void* my32_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
 //    void *ret = my->XextAddDisplay(extinfo, dpy, extname, &natives, nevents, data);
 //    return ret;
 //}
-void inplace_XdbeVisualInfo_shrink(void* a)
-{
-    if(!a) return;
-    my_XdbeVisualInfo_t *src = a;
-    my_XdbeVisualInfo_32_t* dst = a;
-
-    dst->visual = to_ulong(src->visual);
-    dst->depth = src->depth;
-    dst->perflevel = src->perflevel;
-}
-void inplace_XdbeScreenVisualInfo_shrink(void* a)
-{
-    if(!a) return;
-    my_XdbeScreenVisualInfo_t *src = a;
-    my_XdbeScreenVisualInfo_32_t* dst = a;
-
-    for(int i=0; i<src->count; ++i)
-        inplace_XdbeVisualInfo_shrink(src->visinfo+i);
-    dst->count = src->count;
-    dst->visinfo = to_ptrv(src->visinfo);
-}
-void inplace_XdbeVisualInfo_enlarge(void* a)
-{
-    if(!a) return;
-    my_XdbeVisualInfo_32_t *src = a;
-    my_XdbeVisualInfo_t* dst = a;
-
-    dst->perflevel = src->perflevel;
-    dst->depth = src->depth;
-    dst->visual = from_ulong(src->visual);
-}
-void inplace_XdbeScreenVisualInfo_enlarge(void* a)
-{
-    if(!a) return;
-    my_XdbeScreenVisualInfo_32_t *src = a;
-    my_XdbeScreenVisualInfo_t* dst = a;
-
-    dst->visinfo = from_ptrv(src->visinfo);
-    dst->count = src->count;
-    for(int i=dst->count-1; i>=0; --i)
-        inplace_XdbeVisualInfo_enlarge(dst->visinfo+i);
-}
 
 EXPORT void* my32_XdbeGetVisualInfo(x64emu_t* emu, void* dpy, XID_32* draws, int* num)
 {
@@ -453,6 +403,47 @@ EXPORT void my32_XdbeFreeVisualInfo(x64emu_t* emu, void* infos)
 {
     inplace_XdbeScreenVisualInfo_enlarge(infos);
     my->XdbeFreeVisualInfo(infos);
+}
+
+EXPORT void* my32_XextCreateExtension(x64emu_t* emu)
+{
+    return  inplace_XExtensionInfo_shrink(my->XextCreateExtension());
+}
+
+EXPORT void my32_XextDestroyExtension(x64emu_t* emu, void* ext)
+{
+    my->XextDestroyExtension(inplace_XExtensionInfo_enlarge(ext));
+}
+
+EXPORT void* my32_XextAddDisplay(x64emu_t* emu, void* ext, void* dpy, void* name, my_XExtensionHooks_32_t* hooks, int nevents, void* data)
+{
+    my_XExtensionHooks_t hooks_l = {0};
+    if(hooks) {
+        #define GO(A) hooks_l.A = find_##A##_Fct(from_ptrv(hooks->A))
+        GO(create_gc);
+        GO(copy_gc);
+        GO(flush_gc);
+        GO(free_gc);
+        GO(create_font);
+        GO(free_font);
+        GO(close_display);
+        GO(wire_to_event);
+        GO(event_to_wire);
+        GO(error);
+        GO(error_string);
+        #undef GO
+    }
+    inplace_XExtensionInfo_shrink(my->XextAddDisplay(inplace_XExtensionInfo_enlarge(ext), dpy, name, hooks?(&hooks_l):NULL, nevents, data));
+}
+
+EXPORT void* my32_XextFindDisplay(x64emu_t* emu, void* ext, void* dpy)
+{
+    return inplace_XExtensionInfo_shrink(my->XextFindDisplay(inplace_XExtensionInfo_enlarge(ext), dpy));
+}
+
+EXPORT int my32_XextRemoveDisplay(x64emu_t* emu, void* ext, void* dpy)
+{
+    return my->XextRemoveDisplay(inplace_XExtensionInfo_enlarge(ext), dpy);
 }
 
 #if 0

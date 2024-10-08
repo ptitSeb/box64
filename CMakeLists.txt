@@ -403,6 +403,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/libtools/libc_net32.c"
         "${BOX64_ROOT}/src/libtools/sdl1align32.c"
         "${BOX64_ROOT}/src/libtools/sdl2align32.c"
+        "${BOX64_ROOT}/src/libtools/my_x11_conv.c"
         "${BOX64_ROOT}/src/emu/x86syscall_32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/wrapper32.c"
         "${BOX64_ROOT}/src/wrapped32/generated/converter32.c"
