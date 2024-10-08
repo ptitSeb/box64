@@ -1701,6 +1701,43 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
     return dyn->e.ssecache[a].reg;
 }
 
+// get an ext register for an SSE reg which changes size, with single or not AFTER the change
+int sse_get_reg_size_changed(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
+{
+    if (dyn->e.ssecache[a].v != -1) {
+        if (dyn->e.ssecache[a].vector == 1) {
+            // it's in the fpu, forget it first...
+            sse_forget_reg_vector(dyn, ninst, s1, a);
+            // update olds after the forget...
+            dyn->e.olds[a].changed = 1;
+            dyn->e.olds[a].purged = 0;
+            return sse_get_reg_size_changed(dyn, ninst, s1, a, single);
+        }
+
+        // forget / reload if change of size
+        if (dyn->e.ssecache[a].single == single) {
+            sse_forget_reg(dyn, ninst, s1, a);
+            return sse_get_reg_size_changed(dyn, ninst, s1, a, single);
+        }
+        dyn->e.olds[a].changed = 1;
+        dyn->e.olds[a].purged = 0;
+        dyn->e.olds[a].type = !single;
+        dyn->e.ssecache[a].single = single;
+        dyn->e.ssecache[a].vector = 0;
+        dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t = single ? EXT_CACHE_SS : EXT_CACHE_SD;
+        return dyn->e.ssecache[a].reg;
+    }
+    dyn->e.ssecache[a].reg = fpu_get_reg_xmm(dyn, single ? EXT_CACHE_SS : EXT_CACHE_SD, a);
+    int ret = dyn->e.ssecache[a].reg;
+    dyn->e.ssecache[a].single = single;
+    dyn->e.ssecache[a].vector = 0;
+    if (!single) // load happens before size changed
+        FLW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+    else
+        FLD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+    return ret;
+}
+
 // forget ext register for a SSE reg, does nothing if the regs is not loaded
 void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {

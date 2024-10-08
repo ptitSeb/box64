@@ -1246,32 +1246,33 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 
 #define emit_pf STEPNAME(emit_pf)
 
-#define x87_do_push           STEPNAME(x87_do_push)
-#define x87_do_push_empty     STEPNAME(x87_do_push_empty)
-#define x87_do_pop            STEPNAME(x87_do_pop)
-#define x87_get_current_cache STEPNAME(x87_get_current_cache)
-#define x87_get_cache         STEPNAME(x87_get_cache)
-#define x87_get_extcache      STEPNAME(x87_get_extcache)
-#define x87_get_st            STEPNAME(x87_get_st)
-#define x87_get_st_empty      STEPNAME(x87_get_st)
-#define x87_free              STEPNAME(x87_free)
-#define x87_refresh           STEPNAME(x87_refresh)
-#define x87_forget            STEPNAME(x87_forget)
-#define x87_reget_st          STEPNAME(x87_reget_st)
-#define x87_stackcount        STEPNAME(x87_stackcount)
-#define x87_unstackcount      STEPNAME(x87_unstackcount)
-#define x87_swapreg           STEPNAME(x87_swapreg)
-#define x87_setround          STEPNAME(x87_setround)
-#define x87_restoreround      STEPNAME(x87_restoreround)
-#define sse_setround          STEPNAME(sse_setround)
-#define mmx_get_reg           STEPNAME(mmx_get_reg)
-#define mmx_get_reg_empty     STEPNAME(mmx_get_reg_empty)
-#define mmx_forget_reg        STEPNAME(mmx_forget_reg)
-#define sse_get_reg           STEPNAME(sse_get_reg)
-#define sse_get_reg_empty     STEPNAME(sse_get_reg_empty)
-#define sse_forget_reg        STEPNAME(sse_forget_reg)
-#define sse_purge07cache      STEPNAME(sse_purge07cache)
-#define sse_reflect_reg       STEPNAME(sse_reflect_reg)
+#define x87_do_push              STEPNAME(x87_do_push)
+#define x87_do_push_empty        STEPNAME(x87_do_push_empty)
+#define x87_do_pop               STEPNAME(x87_do_pop)
+#define x87_get_current_cache    STEPNAME(x87_get_current_cache)
+#define x87_get_cache            STEPNAME(x87_get_cache)
+#define x87_get_extcache         STEPNAME(x87_get_extcache)
+#define x87_get_st               STEPNAME(x87_get_st)
+#define x87_get_st_empty         STEPNAME(x87_get_st)
+#define x87_free                 STEPNAME(x87_free)
+#define x87_refresh              STEPNAME(x87_refresh)
+#define x87_forget               STEPNAME(x87_forget)
+#define x87_reget_st             STEPNAME(x87_reget_st)
+#define x87_stackcount           STEPNAME(x87_stackcount)
+#define x87_unstackcount         STEPNAME(x87_unstackcount)
+#define x87_swapreg              STEPNAME(x87_swapreg)
+#define x87_setround             STEPNAME(x87_setround)
+#define x87_restoreround         STEPNAME(x87_restoreround)
+#define sse_setround             STEPNAME(sse_setround)
+#define mmx_get_reg              STEPNAME(mmx_get_reg)
+#define mmx_get_reg_empty        STEPNAME(mmx_get_reg_empty)
+#define mmx_forget_reg           STEPNAME(mmx_forget_reg)
+#define sse_get_reg              STEPNAME(sse_get_reg)
+#define sse_get_reg_empty        STEPNAME(sse_get_reg_empty)
+#define sse_get_reg_size_changed STEPNAME(sse_get_reg_size_changed)
+#define sse_forget_reg           STEPNAME(sse_forget_reg)
+#define sse_purge07cache         STEPNAME(sse_purge07cache)
+#define sse_reflect_reg          STEPNAME(sse_reflect_reg)
 
 #define sse_get_reg_empty_vector STEPNAME(sse_get_reg_empty_vector)
 #define sse_get_reg_vector       STEPNAME(sse_get_reg_vector)
@@ -1499,6 +1500,8 @@ int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
 int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwrite, int sew);
 // get float register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
+// get an ext register for an SSE reg which changes size, with single or not AFTER the change
+int sse_get_reg_size_changed(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
 // get rvv register for an SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 // forget float register for a SSE reg, create the entry if needed
