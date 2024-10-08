@@ -2120,10 +2120,18 @@ EXPORT int32_t my32_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, ui
         d1 = of_convert32(d1);
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
-        my_flock64_t fl;
+        my_flock64_t fl = {0};
         AlignFlock64_32(&fl, from_ptrv(d1));
         int ret = fcntl(a, b, &fl);
         UnalignFlock64_32(from_ptrv(d1), &fl);
+        return ret;
+    }
+    if(b==F_GETLK || b==F_SETLK || b==F_SETLKW)
+    {
+        struct flock fl = {0};
+        AlignFlock_32(&fl, from_ptrv(d1));
+        int ret = fcntl(a, b, &fl);
+        UnalignFlock_32(from_ptrv(d1), &fl);
         return ret;
     }
     //TODO: check if better to use the syscall or regular fcntl?
@@ -2151,10 +2159,18 @@ EXPORT int32_t my32_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
         d1 = of_convert32(d1);
     if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
     {
-        my_flock64_t fl;
+        my_flock64_t fl = {0};
         AlignFlock64_32(&fl, from_ptrv(d1));
         int ret = fcntl(a, b, &fl);
         UnalignFlock64_32(from_ptrv(d1), &fl);
+        return ret;
+    }
+    if(b==F_GETLK || b==F_SETLK || b==F_SETLKW)
+    {
+        struct flock fl = {0};
+        AlignFlock_32(&fl, from_ptrv(d1));
+        int ret = fcntl(a, b, &fl);
+        UnalignFlock_32(from_ptrv(d1), &fl);
         return ret;
     }
     int ret = fcntl(a, b, d1);

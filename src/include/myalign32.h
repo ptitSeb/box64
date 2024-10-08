@@ -435,6 +435,19 @@ typedef struct __attribute__((packed, aligned(4))) x86_flock64_s {  // alignment
 
 void UnalignFlock64_32(void* dest, void* source); // Arm -> x86
 void AlignFlock64_32(void* dest, void* source);   // x86 -> Arm
+
+typedef struct __attribute__((packed, aligned(4))) i386_flock_s
+{
+    short int l_type;
+    short int l_whence;
+    long_t l_start;
+    long_t l_len;
+    int l_pid;
+} i386_flock_t;
+
+void UnalignFlock_32(void* dest, void* source); // Arm -> x86
+void AlignFlock_32(void* dest, void* source);   // x86 -> Arm
+
 #if 0
 // defined in wrapperlibc.c
 int of_convert(int);    // x86->arm

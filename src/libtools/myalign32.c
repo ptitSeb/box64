@@ -1548,3 +1548,27 @@ void UnalignMsgHdr_32(void* dest, void* source)
         d->msg_control = 0;
     d->msg_flags = s->msg_flags;
 }
+
+#define TRANSFERT   \
+GO(l_type)          \
+GO(l_whence)        \
+GO(l_start)         \
+GO(l_len)           \
+GO(l_pid)
+
+// Arm -> x86
+void UnalignFlock_32(void* dest, void* source)
+{
+    #define GO(A) ((i386_flock_t*)dest)->A = ((my_flock64_t*)source)->A;
+    TRANSFERT
+    #undef GO
+}
+
+// x86 -> Arm
+void AlignFlock_32(void* dest, void* source)
+{
+    #define GO(A) ((my_flock64_t*)dest)->A = ((i386_flock_t*)source)->A;
+    TRANSFERT
+    #undef GO
+}
+#undef TRANSFERT
