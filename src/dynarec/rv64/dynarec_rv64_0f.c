@@ -2368,7 +2368,26 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SW(x5, gback, gdoffset + 2 * 4);
             SW(x6, gback, gdoffset + 3 * 4);
             break;
-
+        case 0xC7:
+            // rep has no impact here
+            nextop = F8;
+            if (MODREG) {
+                switch ((nextop >> 3) & 7) {
+                    default:
+                        DEFAULT;
+                }
+            } else {
+                switch ((nextop >> 3) & 7) {
+                    case 4:
+                        INST_NAME("Unsupported XSAVEC Ed");
+                        FAKEED;
+                        UDF();
+                        break;
+                    default:
+                        DEFAULT;
+                }
+            }
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:
