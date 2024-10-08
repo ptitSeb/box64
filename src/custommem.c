@@ -1651,7 +1651,7 @@ void* find32bitBlock(size_t size)
     if(ret)
         return ret;
     ret = find31bitBlockNearHint(LOWEST, size, 0);
-    return ret?ret:find47bitBlock(size);
+    return ret;
 }
 void* find47bitBlock(size_t size)
 {
