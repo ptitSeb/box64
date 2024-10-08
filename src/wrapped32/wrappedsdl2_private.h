@@ -636,8 +636,8 @@ GO(SDL_SetWindowSize, vFpii)
 GO(SDL_SetWindowTitle, vFpp)
 // SDL_SetYUVConversionMode
 GO(SDL_ShowCursor, iFi)
-//GO(SDL_ShowMessageBox, iFpp)
-//GO(SDL_ShowSimpleMessageBox, iFuppp)
+GOM(SDL_ShowMessageBox, iFpp)   //%noE
+GO(SDL_ShowSimpleMessageBox, iFuppp)
 GO(SDL_ShowWindow, vFp)
 //GO(SDL_SIMDAlloc, pFL)
 //GO(SDL_SIMDGetAlignment, LFv)

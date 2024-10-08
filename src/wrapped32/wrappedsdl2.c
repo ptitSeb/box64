@@ -559,6 +559,62 @@ EXPORT int my32_2_SDL_GetWindowWMInfo(void* w, SDL_SysWMinfo_32_t* i)
     return ret;
 }
 
+typedef struct my_SDL_MessageBoxButtonData_s
+{
+    uint32_t    flags;
+    int         buttonid;
+    const char* text;
+} my_SDL_MessageBoxButtonData_t;
+
+typedef struct my_SDL_MessageBoxData_s
+{
+    uint32_t    flags;
+    void*       window; //SDL_Window*
+    const char* title;
+    const char* message;
+    int         numbuttons;
+    my_SDL_MessageBoxButtonData_t*  buttons;
+    void*       colorScheme;    //const SDL_MessageBoxColorScheme
+} my_SDL_MessageBoxData_t;
+
+typedef struct my_SDL_MessageBoxButtonData_32_s
+{
+    uint32_t    flags;
+    int         buttonid;
+    ptr_t       text;   //const char*
+} my_SDL_MessageBoxButtonData_32_t;
+
+typedef struct my_SDL_MessageBoxData_32_s
+{
+    uint32_t    flags;
+    ptr_t       window; //SDL_Window*
+    ptr_t       title;  //const char*
+    ptr_t       message;    //const char*
+    int         numbuttons;
+    ptr_t       buttons;    //my_SDL_MessageBoxButtonData_t*
+    ptr_t       colorScheme;    //const SDL_MessageBoxColorScheme
+} my_SDL_MessageBoxData_32_t;
+
+EXPORT int my32_2_SDL_ShowMessageBox(my_SDL_MessageBoxData_32_t* msgbox, int* btn)
+{
+    my_SDL_MessageBoxData_t msgbox_l;
+    my_SDL_MessageBoxButtonData_t btns_l[msgbox->numbuttons];
+    msgbox_l.flags = msgbox->flags;
+    msgbox_l.window = from_ptrv(msgbox->window);
+    msgbox_l.title = from_ptrv(msgbox->title);
+    msgbox_l.message = from_ptrv(msgbox->message);
+    msgbox_l.numbuttons = msgbox->numbuttons;
+    msgbox_l.buttons = btns_l;
+    msgbox_l.colorScheme = from_ptrv(msgbox->colorScheme);
+    my_SDL_MessageBoxButtonData_32_t* src = from_ptrv(msgbox->buttons);
+    for(int i=0; i<msgbox_l.numbuttons; ++i) {
+        btns_l[i].flags = src[i].buttonid;
+        btns_l[i].buttonid = src[i].buttonid;
+        btns_l[i].text = from_ptrv(src[i].buttonid);
+    }
+    return my->SDL_ShowMessageBox(&msgbox_l, btn);
+}
+
 #define ALTMY my32_2_
 
 #define CUSTOM_INIT                       \

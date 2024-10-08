@@ -63,6 +63,7 @@ typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uin
 	GO(SDL_GetWindowWMInfo, iFpp_t) \
 	GO(SDL_OpenAudio, iFpp_t) \
 	GO(SDL_SetWindowDisplayMode, iFpp_t) \
+	GO(SDL_ShowMessageBox, iFpp_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
 	GO(SDL_notreal, pFpi_t) \
 	GO(SDL_CreateTextureFromSurface, pFpp_t) \

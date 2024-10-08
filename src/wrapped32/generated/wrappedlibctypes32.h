@@ -50,6 +50,7 @@ typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*SFpp_t)(void*, void*);
 typedef int32_t (*iFrLL_BLL__t)(struct_LL_t*, struct_LL_t*);
+typedef void (*vFipp_t)(int32_t, void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
 typedef void (*vFpup_t)(void*, uint32_t, void*);
 typedef void (*vFppu_t)(void*, void*, uint32_t);
@@ -73,6 +74,7 @@ typedef void* (*pFppv_t)(void*, void*, void);
 typedef double (*KFpBp_a_t)(void*, struct_p_t*, void*);
 typedef intptr_t (*lFpBp_i_t)(void*, struct_p_t*, int32_t);
 typedef uintptr_t (*LFpBp_i_t)(void*, struct_p_t*, int32_t);
+typedef void (*vFiipV_t)(int32_t, int32_t, void*, ...);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFppiV_t)(void*, void*, int32_t, ...);
 typedef int32_t (*iFivpV_t)(int32_t, void, void*, ...);
@@ -145,6 +147,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(__cmsg_nxthdr, pFpp_t) \
 	GO(gmtime_r, pFpp_t) \
 	GO(localtime_r, pFpp_t) \
+	GO(vsyslog, vFipp_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
 	GO(vswscanf, iFppp_t) \
 	GO(swscanf, iFppV_t) \
@@ -157,6 +160,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(strtold_l, KFpBp_a_t) \
 	GO(wcstol, lFpBp_i_t) \
 	GO(wcstoul, LFpBp_i_t) \
+	GO(__syslog_chk, vFiipV_t) \
 	GO(utimensat, iFippi_t) \
 	GO(readlinkat, iFippL_t) \
 	GO(getaddrinfo, iFpppp_t) \

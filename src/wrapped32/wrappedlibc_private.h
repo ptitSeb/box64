@@ -139,7 +139,7 @@ GOW(chdir, iFp)
 GOW(chmod, iFpu)
 GOW(chown, iFpuu)
 //GO(chroot, iFp)
-//GOW(clearenv, iFv)
+GOW(clearenv, iFv)
 GO(clearerr, vFS)
 //GO(clearerr_unlocked, vFp)
 // clnt_broadcast
@@ -173,7 +173,7 @@ GOW(__connect, iFipu)
 //GOW(creat, iFpu)
 //GO(creat64, iFpu)
 // create_module    // Weak
-//GO(ctermid, pFp)
+GO(ctermid, pFp)
 GO(ctime, pFrl_)
 GO(ctime_r, pFrl_p)
 DATAM(__ctype_b, 4)
@@ -195,8 +195,8 @@ GOM(__cxa_thread_atexit_impl, iFEppp) //%%
 // daemon
 DATAV(daylight, 4)
 // __daylight   // type B
-//GOW(dcgettext, pFppi)
-//GO(__dcgettext, pFppi)
+GOW(dcgettext, pFppi)
+GO(__dcgettext, pFppi)
 //GOW(dcngettext, pFpppui)
 // __default_morecore
 // __default_rt_sa_restorer_v1
@@ -491,7 +491,7 @@ GOW(getgid, uFv)
 GOM(getgrgid_r, iFEuppLp)
 //GO(getgrnam, pFp)
 GOM(getgrnam_r, iFEpppLp)
-//GO(getgrouplist, iFpipp)
+GO(getgrouplist, iFpipp)
 GOW(getgroups, iFip)
 // __getgroups_chk
 //GO(gethostbyaddr, pFpui)
@@ -563,7 +563,7 @@ GOM(getpwnam, pFEp)
 GOM(getpwnam_r, iFEpppLp)
 GOM(getpwuid, pFEu)
 GOM(getpwuid_r, iFEuppLp)
-//GOW(getresgid, iFppp)
+GOW(getresgid, iFppp)
 GOW(getresuid, iFppp)
 GOM(getrlimit, iFEup)
 GO(getrlimit64, iFup)
@@ -1339,15 +1339,15 @@ GO(rand, iFv)
 GOW(random, lFv)
 //GOW(random_r, iFpp)
 //GO(rand_r, iFp)
-//GOW(rawmemchr, pFpi)
-//GO(__rawmemchr, pFpi)
+GOW(rawmemchr, pFpi)
+GO(__rawmemchr, pFpi)
 // rcmd
 // rcmd_af
 // __rcmd_errstr    // type B
 GOM(read, lFipL) //%%,noE
 //GOW(__read, lFipL)
 // readahead    // Weak
-//GO(__read_chk, lFipLL)
+GO(__read_chk, lFipLL)
 GOWM(readdir, pFEp)  //%%
 GO(readdir64, pFp)  // check if alignement is correct
 //GOM(readdir_r, iFEppp)  //%% should also be weak
@@ -1776,7 +1776,7 @@ GO2(__sysconf, lFEi, my_sysconf)
 //DATA(sys_errlist, 4)
 GOM(sysinfo, iFp)   //%noE
 //GO2(syslog, vFipV, vsyslog)
-//GO2(__syslog_chk, vFiipV, __vsyslog_chk)
+GOM(__syslog_chk, vFEiipV)
 //DATA(_sys_nerr, 4)    // type R
 //DATA(sys_nerr, 4) // type R
 //DATA(sys_sigabbrev, 4)
@@ -1910,7 +1910,7 @@ GOWM(vswprintf, iFEpLpp)         //%%
 GOWM(__vswprintf, iFEpLpp)         //%%
 GOWM(__vswprintf_chk, iFEpLiLppp) //%%
 GOM(vswscanf, iFEppp)
-//GO(vsyslog, vFipp)
+GOM(vsyslog, vFEipp)
 //GO(__vsyslog_chk, vFiipp)
 // vtimes
 //GOM(vwarn, vFEppp) //%%

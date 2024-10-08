@@ -690,10 +690,17 @@ EXPORT void my32_exit(x64emu_t *emu, int32_t status)
 EXPORT void my32__exit(x64emu_t *emu, int32_t status) __attribute__((alias("my32_exit")));
 EXPORT void my32__Exit(x64emu_t *emu, int32_t status) __attribute__((alias("my32_exit")));
 #endif
-void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack); // align st into mystack according to fmt (for v(f)printf(...))
-typedef int (*iFpp_t)(void*, void*);
-typedef int (*iFppp_t)(void*, void*, void*);
-typedef int (*iFpupp_t)(void*, uint32_t, void*, void*);
+extern int vsyslog(int, const char*, va_list);
+EXPORT int my32_vsyslog(x64emu_t* emu, int priority, void* fmt, void* b) {
+    myStackAlign32((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST_32;
+    return vsyslog(priority, (const char*)fmt, VARARGS_32);
+}
+EXPORT int my32___syslog_chk(x64emu_t* emu, int priority, int flags, void* fmt, void* b) {
+    myStackAlign32((const char*)fmt, b, emu->scratch);
+    PREPARE_VALIST_32;
+    return vsyslog(priority, (const char*)fmt, VARARGS_32);
+}
 EXPORT int my32_printf(x64emu_t *emu, void* fmt, void* b) {
     myStackAlign32((const char*)fmt, b, emu->scratch);
     PREPARE_VALIST_32;

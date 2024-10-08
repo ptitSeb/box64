@@ -522,6 +522,7 @@
 #() pFpII -> pFpII
 #() pFpuu -> pFpuu
 #() pFpup -> pFpup
+#() pFppi -> pFppi
 #() pFppu -> pFppu
 #() pFppL -> pFppL
 #() pFppp -> pFppp
@@ -730,6 +731,7 @@
 #() iFipON -> iFipON
 #() iFuiup -> iFuiup
 #() iFuupi -> iFuupi
+#() iFuppp -> iFuppp
 #() iFpiii -> iFpiii
 #() iFpiiL -> iFpiiL
 #() iFpiip -> iFpiip
@@ -789,6 +791,7 @@
 #() lFipLi -> lFipLi
 #() lFipLI -> lFipLI
 #() lFipLl -> lFipLl
+#() lFipLL -> lFipLL
 #() lFpuip -> lFpuip
 #() LFEpLp -> LFEpLp
 #() LFEXii -> LFEXii
@@ -864,6 +867,7 @@
 #() iFpruuipWCCp_buuipWCCp_i -> iFpBBi
 #() iFXpLbiLLLiiiiiiiLLiiLiiiiLic_ -> iFXpLB
 #() pFXLLbiLLLiiiiiiiLLiiLiiiiLic_ -> pFXLLB
+#() vFEiipV -> vFEiipV
 #() vFEuipu -> vFEuipu
 #() vFEuipp -> vFEuipp
 #() vFEpLLp -> vFEpLLp
@@ -1647,6 +1651,8 @@ wrappedlibc:
   - localtime_r
 - SFpp:
 - iFrLL_BLL_:
+- vFipp:
+  - vsyslog
 - vFipV:
 - vFpup:
   - _ITM_addUserCommitAction
@@ -1682,6 +1688,8 @@ wrappedlibc:
   - wcstol
 - LFpBp_i:
   - wcstoul
+- vFiipV:
+  - __syslog_chk
 - vFpLLp:
 - vFppiV:
 - iFivpV:
@@ -2257,6 +2265,7 @@ wrappedsdl2:
   - SDL_GetWindowWMInfo
   - SDL_OpenAudio
   - SDL_SetWindowDisplayMode
+  - SDL_ShowMessageBox
 - pFpi:
   - SDL_LoadBMP_RW
   - SDL_notreal
