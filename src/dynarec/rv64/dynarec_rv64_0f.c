@@ -1889,6 +1889,24 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LWU(x4, xEmu, offsetof(x64emu_t, mxcsr));
                         SW(x4, wback, fixedaddress);
                         break;
+                    case 4:
+                        INST_NAME("XSAVE Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        MOV32w(x2, rex.is32bits);
+                        CALL((void*)fpu_xsave, -1);
+                        break;
+                    case 5:
+                        INST_NAME("XRSTOR Ed");
+                        MESSAGE(LOG_DUMP, "Need Optimization\n");
+                        fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        if (ed != x1) { MV(x1, ed); }
+                        MOV32w(x2, rex.is32bits);
+                        CALL((void*)fpu_xrstor, -1);
+                        break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
                         MESSAGE(LOG_DUMP, "Need Optimization?\n");
