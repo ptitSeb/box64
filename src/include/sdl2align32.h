@@ -11,7 +11,7 @@ typedef struct my_SDL2_DisplayMode_s {
     void* driverdata;
 } my_SDL2_DisplayMode_t;
 
-typedef struct __attribute__((packed, aligned(4))) my_SDL2_DisplayMode_32_s {
+typedef struct my_SDL2_DisplayMode_32_s {
     uint32_t format;
     int w;
     int h;
@@ -358,12 +358,12 @@ typedef union my_SDL2_Event_s {
     my_SDL2_DropEvent_t drop;
 } my_SDL2_Event_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_CommonEvent_32_s {
+typedef struct SDL2_CommonEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
 } my_SDL2_CommonEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_DisplayEvent_32_s {
+typedef struct SDL2_DisplayEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t display;
@@ -374,7 +374,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_DisplayEvent_32_s {
     int32_t data1;
 } my_SDL2_DisplayEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_WindowEvent_32_s {
+typedef struct SDL2_WindowEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -386,14 +386,14 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_WindowEvent_32_s {
     int32_t data2;
 } my_SDL2_WindowEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_Keysym_32_s {
+typedef struct SDL2_Keysym_32_s {
     int32_t scancode;
     int32_t sym;
     uint16_t mod;
     uint32_t unused;
 } my_SDL2_Keysym_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_KeyboardEvent_32_s {
+typedef struct SDL2_KeyboardEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -404,7 +404,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_KeyboardEvent_32_s {
     my_SDL2_Keysym_32_t keysym;
 } my_SDL2_KeyboardEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_TextEditingEvent_32_s {
+typedef struct SDL2_TextEditingEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -414,7 +414,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_TextEditingEvent_32_s {
 } my_SDL2_TextEditingEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_TextEditingExtEvent_32_s {
+typedef struct SDL2_TextEditingExtEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -423,14 +423,14 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_TextEditingExtEvent_32_s
     int32_t length;
 } my_SDL2_TextEditingExtEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_TextInputEvent_32_s {
+typedef struct SDL2_TextInputEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
     char text[32];
 } my_SDL2_TextInputEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_MouseMotionEvent_32_s {
+typedef struct SDL2_MouseMotionEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -442,7 +442,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_MouseMotionEvent_32_s {
     int32_t yrel;
 } my_SDL2_MouseMotionEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_MouseButtonEvent_32_s {
+typedef struct SDL2_MouseButtonEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -455,7 +455,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_MouseButtonEvent_32_s {
     int32_t y;
 } my_SDL2_MouseButtonEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_MouseWheelEvent_32_s {
+typedef struct SDL2_MouseWheelEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -469,7 +469,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_MouseWheelEvent_32_s {
     int32_t mouseY;
 } my_SDL2_MouseWheelEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_JoyAxisEvent_32_s {
+typedef struct SDL2_JoyAxisEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -482,7 +482,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_JoyAxisEvent_32_s {
 } my_SDL2_JoyAxisEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_JoyBallEvent_32_s {
+typedef struct SDL2_JoyBallEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -494,7 +494,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_JoyBallEvent_32_s {
     int16_t yrel;
 } my_SDL2_JoyBallEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_JoyHatEvent_32_s {
+typedef struct SDL2_JoyHatEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -504,7 +504,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_JoyHatEvent_32_s {
     uint8_t padding2;
 } my_SDL2_JoyHatEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_JoyButtonEvent_32_s {
+typedef struct SDL2_JoyButtonEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -514,21 +514,21 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_JoyButtonEvent_32_s {
     uint8_t padding2;
 } my_SDL2_JoyButtonEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_JoyDeviceEvent_32_s {
+typedef struct SDL2_JoyDeviceEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
 } my_SDL2_JoyDeviceEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_JoyBatteryEvent_32_s {
+typedef struct SDL2_JoyBatteryEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
     int32_t level;
 } my_SDL2_JoyBatteryEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerAxisEvent_32_s {
+typedef struct SDL2_ControllerAxisEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -541,7 +541,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerAxisEvent_32_s
 } my_SDL2_ControllerAxisEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerButtonEvent_32_s {
+typedef struct SDL2_ControllerButtonEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -552,13 +552,13 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerButtonEvent_32
 } my_SDL2_ControllerButtonEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerDeviceEvent_32_s {
+typedef struct SDL2_ControllerDeviceEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
 } my_SDL2_ControllerDeviceEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerTouchpadEvent_32_s {
+typedef struct SDL2_ControllerTouchpadEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -569,7 +569,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerTouchpadEvent_
     float pressure;
 } my_SDL2_ControllerTouchpadEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerSensorEvent_32_s {
+typedef struct SDL2_ControllerSensorEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -578,7 +578,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_ControllerSensorEvent_32
     uint64_t timestamp_us;
 } my_SDL2_ControllerSensorEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_AudioDeviceEvent_32_s {
+typedef struct SDL2_AudioDeviceEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t which;
@@ -588,7 +588,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_AudioDeviceEvent_32_s {
     uint8_t padding3;
 } my_SDL2_AudioDeviceEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_TouchFingerEvent_32_s {
+typedef struct SDL2_TouchFingerEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int64_t touchId;
@@ -601,7 +601,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_TouchFingerEvent_32_s {
     uint32_t windowID;
 } my_SDL2_TouchFingerEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_MultiGestureEvent_32_s {
+typedef struct SDL2_MultiGestureEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int64_t touchId;
@@ -614,7 +614,7 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_MultiGestureEvent_32_s {
 } my_SDL2_MultiGestureEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_DollarGestureEvent_32_s {
+typedef struct SDL2_DollarGestureEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int64_t touchId;
@@ -625,14 +625,14 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_DollarGestureEvent_32_s 
     float y;
 } my_SDL2_DollarGestureEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_DropEvent_32_s {
+typedef struct SDL2_DropEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     ptr_t file;
     uint32_t windowID;
 } my_SDL2_DropEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_SensorEvent_32_s {
+typedef struct SDL2_SensorEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     int32_t which;
@@ -641,13 +641,13 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_SensorEvent_32_s {
 } my_SDL2_SensorEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_QuitEvent_32_s {
+typedef struct SDL2_QuitEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
 } my_SDL2_QuitEvent_32_t;
 
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_UserEvent_32_s {
+typedef struct SDL2_UserEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     uint32_t windowID;
@@ -656,14 +656,14 @@ typedef struct __attribute__((packed, aligned(4))) SDL2_UserEvent_32_s {
     ptr_t data2;
 } my_SDL2_UserEvent_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL2_SysWMEvent_32_s {
+typedef struct SDL2_SysWMEvent_32_s {
     uint32_t type;
     uint32_t timestamp;
     ptr_t msg;
 } my_SDL2_SysWMEvent_32_t;
 
 
-typedef union __attribute__((packed, aligned(4))) my_SDL2_Event_32_s {
+typedef union my_SDL2_Event_32_s {
     uint32_t type;
     my_SDL2_CommonEvent_32_t common;
     my_SDL2_DisplayEvent_32_t display;
@@ -809,14 +809,14 @@ typedef struct my_SDL2_Surface_s {
     int refcount;
 } my_SDL2_Surface_t;
 
-typedef struct __attribute__((packed, aligned(4))) my_SDL2_Palette_32_s {
+typedef struct my_SDL2_Palette_32_s {
     int ncolors;
     ptr_t colors;
     uint32_t version;
     int refcount;
 } my_SDL2_Palette_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) my_SDL2_PixelFormat_32_s {
+typedef struct my_SDL2_PixelFormat_32_s {
     uint32_t format;
     ptr_t palette;
     uint8_t BitsPerPixel;
@@ -838,12 +838,12 @@ typedef struct __attribute__((packed, aligned(4))) my_SDL2_PixelFormat_32_s {
     ptr_t next;
 } my_SDL2_PixelFormat_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) my_SDL2_Rect_32_s {
+typedef struct my_SDL2_Rect_32_s {
     int x, y;
     int w, h;
 } my_SDL2_Rect_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) my_SDL2_Surface_32_s {
+typedef struct my_SDL2_Surface_32_s {
     uint32_t flags;
     ptr_t format;
     int w, h;
@@ -868,7 +868,7 @@ typedef struct my_SDL2_RWops_s {
     void* hidden[3];
 } my_SDL2_RWops_t;
 
-typedef struct __attribute__((packed, aligned(4))) my_SDL2_RWops_32_s {
+typedef struct my_SDL2_RWops_32_s {
     ptr_t size;
     ptr_t seek;
     ptr_t read;

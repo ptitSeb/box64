@@ -48,7 +48,7 @@ typedef struct {
   void *userdata;
 } SDL_AudioSpec;
 
-typedef struct __attribute__((packed, aligned(4))) {
+typedef struct {    // removed packed attribute
   int32_t freq;
   uint16_t format;
   uint8_t channels;

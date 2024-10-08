@@ -584,7 +584,7 @@ typedef struct __attribute__((packed, aligned(4))) FT_Open_Args_32_s
     ptr_t           params; //FT_Parameter_t*
 } FT_Open_Args_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) FT_WinFNT_HeaderRec_32_s
+typedef struct FT_WinFNT_HeaderRec_32_s // removed the packed attribute
 {
     uint16_t        version;
     ulong_t         file_size;

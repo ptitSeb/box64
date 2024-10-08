@@ -131,11 +131,11 @@ struct i386_stat64 {
 	uint32_t	st_ctime;
 	uint32_t	st_ctime_nsec;
 	uint64_t	st_ino;
-} __attribute__((packed, aligned(4)));
+} __attribute__((packed, aligned(4)));  // important for this one
 
 struct i386_fsid {
   int     val[2];
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_statfs {
   uint32_t    f_type;
@@ -150,7 +150,7 @@ struct i386_statfs {
   uint32_t    f_frsize;
   uint32_t    f_flags;
   uint32_t    f_spare[4];
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_statfs64 {
   uint32_t    f_type;
@@ -165,7 +165,7 @@ struct i386_statfs64 {
   uint32_t    f_frsize;
   uint32_t    f_flags;
   uint32_t    f_spare[4];
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_statvfs64 {
   ulong_t f_bsize;
@@ -182,7 +182,7 @@ struct i386_statvfs64 {
   ulong_t f_namemax;
   unsigned int f_type;
   int __f_spare[5];
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_statvfs {
   ulong_t f_bsize;
@@ -199,7 +199,7 @@ struct i386_statvfs {
   ulong_t f_namemax;
   unsigned int f_type;
   int __f_spare[5];
-} __attribute__((packed, aligned(4)));
+};
 
 void UnalignStatVFS_32(const void* source, void* dest);
 void UnalignStatVFS64_32(const void* source, void* dest);
@@ -211,7 +211,7 @@ struct i386_dirent
   uint16_t d_reclen;
   uint8_t d_type;
   char d_name[256];
-} __attribute__((packed, aligned(4)));
+};
 void UnalignDirent_32(const void* source, void* dest);
 
 #if 0
@@ -425,7 +425,7 @@ typedef struct my_flock64_s {
 	int       l_pid;
 } my_flock64_t;
 
-typedef struct __attribute__((packed, aligned(4))) x86_flock64_s {
+typedef struct __attribute__((packed, aligned(4))) x86_flock64_s {  // alignment needed here to avoid 8bytes align before the start
 	uint16_t  l_type;
 	uint16_t  l_whence;
 	int64_t   l_start;
@@ -470,7 +470,7 @@ struct i386_addrinfo
   ptr_t ai_addr;	    // struct sockaddr *
   ptr_t ai_canonname;   // char *
   ptr_t ai_next;        // struct addrinfo *
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_hostent {
     ptr_t  h_name;     // char  *
@@ -478,13 +478,13 @@ struct i386_hostent {
     int    h_addrtype;
     int    h_length;
     ptr_t  h_addr_list;// char **
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_iovec
 {
   ptr_t     iov_base; // void *
   ulong_t   iov_len;
-} __attribute__((packed, aligned(4)));
+};
 
 struct i386_msghdr
 {

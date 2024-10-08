@@ -53,7 +53,7 @@ typedef struct threadstack_s {
 } threadstack_t;
 
 // longjmp / setjmp
-typedef struct __attribute__((packed, aligned(4))) jump_buff_i386_s {
+typedef struct jump_buff_i386_s {
  uint32_t save_ebx;
  uint32_t save_esi;
  uint32_t save_edi;

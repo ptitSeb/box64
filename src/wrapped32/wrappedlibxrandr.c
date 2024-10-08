@@ -189,9 +189,9 @@ void inplace_XRRCrtcInfo_shrink(void* s)
     dst->height = src->height;
     dst->mode = to_ulong(src->mode);
     dst->rotation = src->rotation;
-    dst->noutput = src->noutput;
-    for(int i=0; i<dst->noutput; ++i)
+    for(int i=0; i<src->noutput; ++i)
         ((XID_32*)src->outputs)[i] = to_ulong(src->outputs[i]);
+    dst->noutput = src->noutput;
     dst->outputs = to_ptrv(src->outputs);
     dst->rotations = src->rotations;
     dst->npossible = src->npossible;

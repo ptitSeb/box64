@@ -405,11 +405,11 @@ void from_struct_WWpWpWpWp(struct_WWpWpWpWp_t *dest, ptr_t s)
 	dest->W0 = *(uint16_t*)src; src += 2;
 	dest->W1 = *(uint16_t*)src; src += 2;
 	dest->p2 = from_ptrv(*(ptr_t*)src); src += 4;
-	dest->W3 = *(uint16_t*)src; src += 2;
+	dest->W3 = *(uint16_t*)src; src += 4;	// align
 	dest->p4 = from_ptrv(*(ptr_t*)src); src += 4;
-	dest->W5 = *(uint16_t*)src; src += 2;
+	dest->W5 = *(uint16_t*)src; src += 4;	// align
 	dest->p6 = from_ptrv(*(ptr_t*)src); src += 4;
-	dest->W7 = *(uint16_t*)src; src += 2;
+	dest->W7 = *(uint16_t*)src; src += 4;	// align
 	dest->p8 = from_ptrv(*(ptr_t*)src); src += 4;
 }
 void to_struct_WWpWpWpWp(ptr_t d, const struct_WWpWpWpWp_t *src)
@@ -419,11 +419,11 @@ void to_struct_WWpWpWpWp(ptr_t d, const struct_WWpWpWpWp_t *src)
 	*(uint16_t*)dest = src->W0; dest += 2;
 	*(uint16_t*)dest = src->W1; dest += 2;
 	*(ptr_t*)dest = to_ptrv(src->p2); dest += 4;
-	*(uint16_t*)dest = src->W3; dest += 2;
+	*(uint16_t*)dest = src->W3; dest += 4;	// align
 	*(ptr_t*)dest = to_ptrv(src->p4); dest += 4;
-	*(uint16_t*)dest = src->W5; dest += 2;
+	*(uint16_t*)dest = src->W5; dest += 4;	// align
 	*(ptr_t*)dest = to_ptrv(src->p6); dest += 4;
-	*(uint16_t*)dest = src->W7; dest += 2;
+	*(uint16_t*)dest = src->W7; dest += 4;	// align
 	*(ptr_t*)dest = to_ptrv(src->p8); dest += 4;
 }
 

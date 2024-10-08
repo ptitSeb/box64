@@ -95,33 +95,33 @@ typedef struct __attribute__((packed, aligned(4))) FcValue_32_s {
     } u;
 } FcValue_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) FcPattern_32_s {
+typedef struct FcPattern_32_s {
     int		    num;
     int		    size;
     long_t	    elts_offset;
     int		    ref;
 } FcPattern_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) FcFontSet_32_s {
+typedef struct FcFontSet_32_s {
     int		nfont;
     int		sfont;
     ptr_t   fonts;//FcPattern_t	**
 } FcFontSet_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) FcStrSet_32_s {
+typedef struct FcStrSet_32_s {
     int		    ref;
     int		    num;
     int		    size;
     ptr_t       strs;   //void	    **
 } FcStrSet_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) FcBlanks_32_s {
+typedef struct FcBlanks_32_s {
     int		nblank;
     int		sblank;
     ptr_t   blanks; //void	*
 } FcBlanks_32_t;
 
-typedef struct __attribute__((packed, aligned(4))) FcConfig_32_s {
+typedef struct FcConfig_32_s {
     ptr_t       configDirs;     //FcStrSet_t*
     ptr_t       blanks;         //FcBlanks_t*
     ptr_t       fontDirs;       //FcStrSet_t*

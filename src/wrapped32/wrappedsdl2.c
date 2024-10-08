@@ -508,7 +508,7 @@ typedef struct SDL_version_s
     uint8_t patch;
 } SDL_version_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL_version_32_s
+typedef struct SDL_version_32_s //removed packed attribute
 {
     uint8_t major;
     uint8_t minor;
@@ -530,7 +530,7 @@ typedef struct SDL_SysWMinfo_s
     } info;
 } SDL_SysWMinfo_t;
 
-typedef struct __attribute__((packed, aligned(4))) SDL_SysWMinfo_32_s
+typedef struct SDL_SysWMinfo_32_s
 {
     SDL_version_32_t version;
     int subsystem;  // 1=Windows, 2 =X11, 6=Wayland
