@@ -287,7 +287,7 @@ box64context_t *NewBox64Context(int argc)
     initAllHelpers(context);
     
     #ifdef DYNAREC
-    context->db_sizes = init_rbtree();
+    context->db_sizes = init_rbtree("db_sizes");
     #endif
 
     return context;

@@ -27,13 +27,15 @@ typedef struct rbnode {
 
 typedef struct rbtree {
     rbnode *root;
+    const char* name;
     int is_unstable;
 } rbtree;
 
-rbtree* init_rbtree() {
+rbtree* init_rbtree(const char* name) {
     rbtree* tree = rbtreeMalloc(sizeof(rbtree));
     tree->root = NULL;
     tree->is_unstable = 0;
+    tree->name = name?"(rbtree)":name;
     return tree;
 }
 
@@ -591,7 +593,7 @@ int rb_get_end(rbtree* tree, uintptr_t addr, uint32_t* val, uintptr_t* end) {
 
 int rb_set(rbtree *tree, uintptr_t start, uintptr_t end, uint32_t data) {
 // printf("rb_set( "); print_rbtree(tree); printf(" , 0x%lX, 0x%lX, %hhu);\n", start, end, data); fflush(stdout);
-dynarec_log(LOG_DEBUG, "set 0x%lX, 0x%lX, 0x%x\n", start, end, data);
+dynarec_log(LOG_DEBUG, "set %s: 0x%lX, 0x%lX, 0x%x\n", tree->name, start, end, data);
     if (!tree->root) {
         return add_range(tree, start, end, data);
     }
@@ -724,7 +726,7 @@ dynarec_log(LOG_DEBUG, "set 0x%lX, 0x%lX, 0x%x\n", start, end, data);
 
 int rb_unset(rbtree *tree, uintptr_t start, uintptr_t end) {
 // printf("rb_unset( "); print_rbtree(tree); printf(" , 0x%lX, 0x%lX);\n", start, end); fflush(stdout);
-dynarec_log(LOG_DEBUG, "rb_unset(tree, 0x%lX, 0x%lX);\n", start, end);
+dynarec_log(LOG_DEBUG, "unset: %s 0x%lX, 0x%lX);\n", tree->name, start, end);
     if (!tree->root) return 0;
 
     rbnode *node = tree->root, *prev = NULL, *next = NULL;
@@ -784,7 +786,7 @@ dynarec_log(LOG_DEBUG, "rb_unset(tree, 0x%lX, 0x%lX);\n", start, end);
 
 uintptr_t rb_get_righter(rbtree* tree)
 {
-dynarec_log(LOG_DEBUG, "rb_get_righter(tree);\n");
+dynarec_log(LOG_DEBUG, "rb_get_righter(%s);\n", tree->name);
     if (!tree->root) return 0;
 
     rbnode *node = tree->root;
@@ -858,7 +860,7 @@ void print_rbtree(const rbtree *tree) {
 
 #ifdef RBTREE_TEST
 int main() {
-    rbtree* tree = init_rbtree();
+    rbtree* tree = init_rbtree("test");
     print_rbtree(tree); fflush(stdout);
     /*int ret;
     ret = rb_set(tree, 0x43, 0x44, 0x01);

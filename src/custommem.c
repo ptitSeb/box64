@@ -1924,12 +1924,12 @@ void init_custommem_helper(box64context_t* ctx)
     if(inited) // already initialized
         return;
     inited = 1;
-    blockstree = init_rbtree();
+    blockstree = init_rbtree("blockstree");
     // if there is some blocks already
     if(n_blocks)
         for(int i=0; i<n_blocks; ++i)
             rb_set(blockstree, (uintptr_t)p_blocks[i].block, (uintptr_t)p_blocks[i].block+p_blocks[i].size, i);
-    memprot = init_rbtree();
+    memprot = init_rbtree("memprot");
     sigfillset(&critical_prot);
     init_mutexes();
 #ifdef DYNAREC
@@ -1954,9 +1954,9 @@ void init_custommem_helper(box64context_t* ctx)
 #endif
     pthread_atfork(NULL, NULL, atfork_child_custommem);
     // init mapallmem list
-    mapallmem = init_rbtree();
+    mapallmem = init_rbtree("mapallmem");
     // init mmapmem list
-    mmapmem = init_rbtree();
+    mmapmem = init_rbtree("mapmem");
     // Load current MMap
     loadProtectionFromMap();
     reserveHighMem();

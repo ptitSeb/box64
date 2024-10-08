@@ -5,7 +5,7 @@
 
 typedef struct rbtree rbtree;
 
-rbtree* init_rbtree();
+rbtree* init_rbtree(const char* name);
 void delete_rbtree(rbtree *tree);
 
 uint32_t rb_get(rbtree *tree, uintptr_t addr);
