@@ -1580,17 +1580,14 @@ void loadProtectionFromMap()
     box64_mapclean = 1;
 }
 
-int isAddrInPrereserve(uintptr_t addr, size_t len);
 void freeProtection(uintptr_t addr, size_t size)
 {
     size = ALIGN(size);
     addr &= ~(box64_pagesize-1);
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     LOCK_PROT();
-    if(!isAddrInPrereserve(addr, size)) {
-        rb_unset(mapallmem, addr, addr+size);
-        rb_unset(mmapmem, addr, addr+size);
-    }
+    rb_unset(mapallmem, addr, addr+size);
+    rb_unset(mmapmem, addr, addr+size);
     rb_unset(memprot, addr, addr+size);
     UNLOCK_PROT();
 }
