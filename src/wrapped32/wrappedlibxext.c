@@ -335,10 +335,7 @@ EXPORT void* my32_XShmCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t
                     , void* data, void* shminfo, uint32_t w, uint32_t h)
 {
     XImage *img = my->XShmCreateImage(disp, vis, depth, fmt, data, shminfo, w, h);
-    if(!img)
-        return img;
-    // bridge all access functions...
-    BridgeImageFunc(emu, img);
+    inplace_XImage_shrink(img);
     return img;
 }
 
@@ -346,19 +343,17 @@ EXPORT int32_t my32_XShmPutImage(x64emu_t* emu, void* disp, size_t drawable, voi
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h, int32_t sendevt)
 {
-    UnbridgeImageFunc(emu, (XImage*)image);
+    inplace_XImage_enlarge(image);
     int32_t r = my->XShmPutImage(disp, drawable, gc, image, src_x, src_y, dst_x, dst_y, w, h, sendevt);
-    // bridge all access functions...
-    BridgeImageFunc(emu, (XImage*)image);
+    inplace_XImage_shrink(image);
     return r;
 }
 
 EXPORT int32_t my32_XShmGetImage(x64emu_t* emu, void* disp, size_t drawable, void* image, int32_t x, int32_t y, size_t plane)
 {
-    UnbridgeImageFunc(emu, (XImage*)image);
+    inplace_XImage_enlarge(image);
     int32_t r = my->XShmGetImage(disp, drawable, image, x, y, plane);
-    // bridge all access functions...
-    BridgeImageFunc(emu, (XImage*)image);
+    inplace_XImage_shrink(image);
     return r;
 }
 

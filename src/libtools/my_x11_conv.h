@@ -52,4 +52,9 @@ void inplace_XFontStruct_enlarge(void* a);
 
 void convert_XSetWindowAttributes_to_64(my_XSetWindowAttributes_t* dst, my_XSetWindowAttributes_32_t* src);
 
+void WrapXImage(void* d, void* s);  //define in wrappedx11.c because it contains callbacks
+void UnwrapXImage(void* d, void* s);
+void* inplace_XImage_shrink(void* a);
+void* inplace_XImage_enlarge(void* a);
+
 #endif//MY_X11_CONV

@@ -984,3 +984,16 @@ void convert_XSetWindowAttributes_to_64(my_XSetWindowAttributes_t* dst, my_XSetW
     dst->colormap = from_ulong(src->colormap);
     dst->cursor = from_ulong(src->cursor);
 }
+
+void* inplace_XImage_shrink(void* a)
+{
+    if(!a) return NULL;
+    WrapXImage(a, a);
+    return a;
+}
+void* inplace_XImage_enlarge(void* a)
+{
+    if(!a) return NULL;
+    UnwrapXImage(a, a);
+    return a;
+}

@@ -566,6 +566,7 @@ static iFp_t my32_rev_destroy_image_fct_##A = NULL;                 \
 static int my32_rev_destroy_image_##A(void* a)                      \
 {                                                                   \
     UnwrapXImage(a, a);                                             \
+    to_hash_d((uintptr_t)((XImage*)a)->obdata);                     \
     return my32_rev_destroy_image_fct_##A (a);                      \
 }
 SUPER()
@@ -1361,7 +1362,7 @@ void WrapXImage(void* d, void* s)
     dst->red_mask = to_ulong(src->red_mask);
     dst->green_mask = to_ulong(src->green_mask);
     dst->blue_mask = to_ulong(src->blue_mask);
-    dst->obdata = to_ptrv(src->obdata);
+    dst->obdata = to_hash((uintptr_t)src->obdata);
 
     #define GO(A, W) \
     dst->f.A = to_ptrv((W##_t)reverse_##A##_Fct(my_lib, src->f.A));
@@ -1393,7 +1394,7 @@ void UnwrapXImage(void* d, void* s)
     GO(create_image, pFXpuiipuuii)
     #undef GO
 
-    dst->obdata = from_ptrv(src->obdata);
+    dst->obdata = (void*)from_hash(src->obdata);
     dst->blue_mask = from_ulong(src->blue_mask);
     dst->green_mask = from_ulong(src->green_mask);
     dst->red_mask = from_ulong(src->red_mask);
@@ -1481,6 +1482,7 @@ EXPORT void my32_XDestroyImage(x64emu_t* emu, void* image)
 {
 
     UnwrapXImage(image, image);
+    to_hash_d((uintptr_t)((XImage*)image)->obdata);
     my->XDestroyImage(image);
 }
 #if 0

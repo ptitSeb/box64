@@ -29,7 +29,7 @@ typedef struct _XImage_32 {
     ulong_t red_mask;
     ulong_t green_mask;
     ulong_t blue_mask;
-    ptr_t    obdata;
+    ptr_t   obdata;
     ximage_32_t f;
 } XImage_32;
 
