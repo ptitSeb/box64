@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef void (*vFX_t)(void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFX_t)(void*);
 typedef void* (*pFp_t)(void*);
@@ -57,10 +58,12 @@ typedef void (*vFXLpppippp_t)(void*, uintptr_t, void*, void*, void*, int32_t, vo
 typedef int32_t (*iFXLppiiiiuu_t)(void*, uintptr_t, void*, void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t);
 typedef void* (*pFXpuiipuuii_t)(void*, void*, uint32_t, int32_t, int32_t, void*, uint32_t, uint32_t, int32_t, int32_t);
 typedef void* (*pFXLiiuuLipii_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t, void*, int32_t, int32_t);
+typedef int32_t (*iFXLLlliLppppp_t)(void*, uintptr_t, uintptr_t, intptr_t, intptr_t, int32_t, uintptr_t, void*, void*, void*, void*, void*);
 typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uint32_t, int32_t, uint32_t, void*, uintptr_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XFreeStringList, vFp_t) \
+	GO(XLockDisplay, vFX_t) \
 	GO(XDestroyImage, iFp_t) \
 	GO(XFreeExtensionList, iFp_t) \
 	GO(XFreeModifiermap, iFp_t) \
@@ -111,6 +114,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XSendEvent, iFXLilp_t) \
 	GO(XFreeColors, iFXLpiL_t) \
 	GO(XInternAtoms, iFXpiip_t) \
+	GO(XmbTextListToTextProperty, iFXpiup_t) \
 	GO(Xutf8TextListToTextProperty, iFXpiup_t) \
 	GO(XQueryExtension, iFXpppp_t) \
 	GO(XSubImage, pFpiiuu_t) \
@@ -127,6 +131,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XPutImage, iFXLppiiiiuu_t) \
 	GO(XCreateImage, pFXpuiipuuii_t) \
 	GO(XGetSubImage, pFXLiiuuLipii_t) \
+	GO(XGetWindowProperty, iFXLLlliLppppp_t) \
 	GO(XCreateWindow, LFXLiiuuuiupLp_t)
 
 #endif // __wrappedlibx11TYPES32_H_

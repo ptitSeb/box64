@@ -42,7 +42,9 @@ void UnwrapXImage(void* d, void* s);
 void WrapXImage(void* d, void* s);
 
 typedef void (*vFp_t)(void*);
+typedef int  (*iFp_t)(void*);
 typedef uint32_t (*uFv_t)(void);
+typedef int  (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpl_t)(void*, intptr_t);
 typedef uintptr_t (*LFpii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFpiiL_t)(void*, int32_t, int32_t, uintptr_t);
@@ -50,28 +52,11 @@ typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
 
 #define ADDED_FUNCTIONS()       \
     GO(XInitThreads, uFv_t)     \
-    GO(XLockDisplay, vFp_t)     \
     GO(XUnlockDisplay, vFp_t)
 
 #include "generated/wrappedlibx11types32.h"
 
 #include "wrappercallback32.h"
-
-void convert_Screen_to_32(void* d, void* s);
-void* FindDisplay(void* d);
-void* getDisplay(void* d);
-void convert_XErrorEvent_to_32(void* d, void* s)
-{
-    my_XErrorEvent_t* src = s;
-    my_XErrorEvent_32_t* dst = d;
-    dst->type = src->type;
-    dst->display = to_ptrv(FindDisplay(src->display));
-    dst->resourceid = to_ulong(src->resourceid);
-    dst->serial = to_ulong(src->serial);
-    dst->error_code = src->error_code;
-    dst->request_code = src->request_code;
-    dst->minor_code = src->minor_code;
-}
 
 #define SUPER() \
 GO(0)   \
@@ -168,7 +153,17 @@ static int my32_error_handler_##A(void* dpy, void* error)                       
 {                                                                                           \
     static my_XErrorEvent_32_t evt = {0};                                                   \
     convert_XErrorEvent_to_32(&evt, error);                                                 \
-    return (int)RunFunctionFmt(my32_error_handler_fct_##A, "pp", getDisplay(dpy), &evt);    \
+    return (int)RunFunctionFmt(my32_error_handler_fct_##A, "pp", FindDisplay(dpy), &evt);   \
+}
+SUPER()
+#undef GO
+#define GO(A)   \
+static iFpp_t my32_rev_error_handler_fct_##A = NULL;                                        \
+static int my32_rev_error_handler_##A(void* dpy, void* error)                               \
+{                                                                                           \
+    my_XErrorEvent_t evt = {0};                                                             \
+    convert_XErrorEvent_to_64(&evt, error);                                                 \
+    return my32_rev_error_handler_fct_##A (getDisplay(dpy), &evt);                          \
 }
 SUPER()
 #undef GO
@@ -185,15 +180,28 @@ static void* finderror_handlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 error_handler callback\n");
     return NULL;
 }
-static void* reverse_error_handlerFct(library_t* lib, void* fct)
+static void* reverse_error_handler_Fct(library_t* lib, void* fct)
 {
+    //Callsed from x86 world -> native world
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    // first check if it's a wrapped function, that could be easy
     #define GO(A) if(my32_error_handler_##A == fct) return (void*)my32_error_handler_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFpp_32, fct, 0, NULL);
+    if(FindElfAddress(my_context, (uintptr_t)fct))
+        return fct;
+    // it's a naitve one... so bridge it, but need transform XImage32 to XImage
+    void* f = NULL;
+    #define GO(A) if(!f && my32_rev_error_handler_fct_##A == fct) f = (void*)my32_rev_error_handler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(!f && !my32_rev_error_handler_fct_##A) {my32_rev_error_handler_fct_##A = fct; f = my32_rev_error_handler_##A;}
+    SUPER()
+    #undef GO
+    if(f)
+        return (void*)AddCheckBridge(lib->w.bridge, iFpp_32, f, 0, "X11_error_handler");
+    printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 error_handler callback\n");
+    return fct;
 }
 
 // ioerror_handler
@@ -201,7 +209,15 @@ static void* reverse_error_handlerFct(library_t* lib, void* fct)
 static uintptr_t my32_ioerror_handler_fct_##A = 0;                                  \
 static int my32_ioerror_handler_##A(void* dpy)                                      \
 {                                                                                   \
-    return (int)RunFunctionFmt(my32_ioerror_handler_fct_##A, "p", getDisplay(dpy)); \
+    return (int)RunFunctionFmt(my32_ioerror_handler_fct_##A, "p", FindDisplay(dpy));\
+}
+SUPER()
+#undef GO
+#define GO(A)   \
+static iFp_t my32_rev_ioerror_handler_fct_##A = NULL;                               \
+static int my32_rev_ioerror_handler_##A(void* dpy)                                  \
+{                                                                                   \
+    return my32_rev_ioerror_handler_fct_##A (getDisplay(dpy));                      \
 }
 SUPER()
 #undef GO
@@ -218,16 +234,30 @@ static void* findioerror_handlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libX11 ioerror_handler callback\n");
     return NULL;
 }
-static void* reverse_ioerror_handlerFct(library_t* lib, void* fct)
+static void* reverse_ioerror_handler_Fct(library_t* lib, void* fct)
 {
+    //Callsed from x86 world -> native world
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    // first check if it's a wrapped function, that could be easy
     #define GO(A) if(my32_ioerror_handler_##A == fct) return (void*)my32_ioerror_handler_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFp_32, fct, 0, NULL);
+    if(FindElfAddress(my_context, (uintptr_t)fct))
+        return fct;
+    // it's a naitve one... so bridge it, but need transform XImage32 to XImage
+    void* f = NULL;
+    #define GO(A) if(!f && my32_rev_ioerror_handler_fct_##A == fct) f = (void*)my32_rev_ioerror_handler_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(!f && !my32_rev_ioerror_handler_fct_##A) {my32_rev_ioerror_handler_fct_##A = fct; f = my32_rev_ioerror_handler_##A;}
+    SUPER()
+    #undef GO
+    if(f)
+        return (void*)AddCheckBridge(lib->w.bridge, iFp_32, f, 0, "X11_ioerror_handler");
+    printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 ioerror_handler callback\n");
+    return fct;
 }
+
 #if 0
 // exterror_handler
 #define GO(A)   \
@@ -1310,13 +1340,13 @@ EXPORT void* my32_XSetIMValues(x64emu_t* emu, void* xim, ptr_t* va) {
 EXPORT void* my32_XSetErrorHandler(x64emu_t* emu, XErrorHandler handler)
 {
     void* ret = my->XSetErrorHandler(finderror_handlerFct(handler));
-    return reverse_error_handlerFct(my_lib, ret);
+    return reverse_error_handler_Fct(my_lib, ret);
 }
 
 EXPORT void* my32_XSetIOErrorHandler(x64emu_t* emu, XIOErrorHandler handler)
 {
     void* ret = my->XSetIOErrorHandler(findioerror_handlerFct(handler));
-    return reverse_ioerror_handlerFct(my_lib, ret);
+    return reverse_ioerror_handler_Fct(my_lib, ret);
 }
 
 #if 0
@@ -2068,6 +2098,34 @@ EXPORT int my32_XChangeWindowAttributes(x64emu_t* emu, void* dpy, XID window, un
     my_XSetWindowAttributes_t attrs_l[1];
     convert_XSetWindowAttributes_to_64(attrs_l, attrs);
     return my->XChangeWindowAttributes(dpy, window, mask, attrs_l);
+}
+
+EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID prop, long offset, long length, int delete, XID req, XID* type_return, int* fmt_return, ulong_t* nitems_return, ulong_t* bytes, ptr_t*prop_return)
+{
+    unsigned long nitems_l = 0, bytes_l = 0;
+    void* prop_l = NULL;
+    int ret = my->XGetWindowProperty(dpy, window, prop, offset, length, delete, req, type_return, fmt_return, &nitems_l, &bytes_l, &prop_l);
+    *nitems_return = to_ulong(nitems_l);
+    *bytes = to_ulong(bytes_l);
+    *prop_return = to_ptrv(prop_l);
+    if(!ret && *fmt_return==32) {
+        // inplace shrink
+        unsigned long *src = prop_l;
+        ulong_t* dst = prop_l;
+        for(int i=0; i<*nitems_return; ++i)
+            dst[i] = to_ulong(src[i]);
+    }
+    return ret;
+}
+
+EXPORT void my32_XLockDisplay(x64emu_t* emu, void* dpy)
+{
+    my->XLockDisplay(dpy);
+    // update some of the values now that the screen is locked
+    my_XDisplay_t* src = dpy;
+    my_XDisplay_32_t* dst = FindDisplay(dpy);
+    // should do a full sync?
+    dst->request = src->request;
 }
 
 #define CUSTOM_INIT                 \

@@ -99,6 +99,7 @@
 #() pFriiiiiiiiilt_ -> pFB
 #() vFEv -> vFEv
 #() vFEp -> vFEp
+#() vFEX -> vFEX
 #() vFcc -> vFcc
 #() vFww -> vFww
 #() vFii -> vFii
@@ -589,6 +590,7 @@
 #() iFXbiip_i -> iFXBi
 #() iFXbLip_L -> iFXBL
 #() vFXLbpLiL_ -> vFXLB
+#() vFXLrpLiL_ -> vFXLB
 #() iFXLbpLiL_ -> iFXLB
 #() iFXLbLLii_ -> iFXLB
 #() pFXrLiiuL_p -> pFXBp
@@ -858,7 +860,7 @@
 #() iFuirLL_BLL_ -> iFuiBB
 #() iFXLpbLWWWcc_ -> iFXLpB
 #() iFXLbLWWWcc_i -> iFXLBi
-#() iFXLubiiiiiLi_ -> iFXLuB
+#() iFXLuriiiiiLi_ -> iFXLuB
 #() vFXLbLLLLLLLLLL_L -> vFXLBL
 #() iFXLbLLLLLLLLLL_L -> iFXLBL
 #() LFpLpriiiiiiiiilt_ -> LFpLpB
@@ -1055,8 +1057,7 @@
 #() iFpppbp_bup_ -> iFpppBB
 #() LFXLrLiiuL_Lp -> LFXLBLp
 #() pFEXLrLiiuL_i -> pFEXLBi
-#() iFXbp_iubpLiL_ -> iFXBiuB
-#() iFXLiubiiiiiLi_ -> iFXLiuB
+#() iFXLiuriiiiiLi_ -> iFXLiuB
 #() LFLbp_bL_bp_bL_ -> LFLBBBB
 #() vFXLbLLLLLLLLLL_iL -> vFXLBiL
 #() iFXiiiBpLiiiLLLii_ -> iFXiiiB
@@ -1448,12 +1449,12 @@
 #() iFXLpppppppppp -> iFXLpppppppppp
 #() pFEXLiiuuLipii -> pFEXLiiuuLipii
 #() vFXiLLrLiiuL_Liiiipi -> vFXiLLBLiiiipi
-#() iFXLLlliLBL_pBL_BL_Bp_ -> iFXLLlliLBpBBB
 #() vFuiiiiiiiiiuup -> vFuiiiiiiiiiuup
 #() vFuuuuuuuuuuuuu -> vFuuuuuuuuuuuuu
 #() vFuUuuuuuuuuuuu -> vFuUuuuuuuuuuuu
 #() vFuffffffffffff -> vFuffffffffffff
 #() vFXiLLLiiiiiiuu -> vFXiLLLiiiiiiuu
+#() iFEXLLlliLppppp -> iFEXLLlliLppppp
 #() iFddddpppddpppp -> iFddddpppddpppp
 #() iFXippuuuiipppp -> iFXippuuuiipppp
 #() uFippuuuulllipp -> uFippuuuulllipp
@@ -1985,6 +1986,8 @@ wrappedlibuuid:
 wrappedlibx11:
 - vFp:
   - XFreeStringList
+- vFX:
+  - XLockDisplay
 - iFp:
   - XDestroyImage
   - XFreeExtensionList
@@ -2068,6 +2071,7 @@ wrappedlibx11:
 - iFXpiip:
   - XInternAtoms
 - iFXpiup:
+  - XmbTextListToTextProperty
   - Xutf8TextListToTextProperty
 - iFXpppp:
   - XQueryExtension
@@ -2096,6 +2100,8 @@ wrappedlibx11:
   - XCreateImage
 - pFXLiiuuLipii:
   - XGetSubImage
+- iFXLLlliLppppp:
+  - XGetWindowProperty
 - LFXLiiuuuiupLp:
   - XCreateWindow
 wrappedlibxcomposite:

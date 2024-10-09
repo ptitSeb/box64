@@ -9,10 +9,17 @@
 
 void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src);
 void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src);
-void* addDisplay(void* d);  // Adde new Native Display*, return a 32bits one
-void* FindDisplay(void* d); // Find a Native Diplay* and return the 32bits one
-void* getDisplay(void* d); // return the Native Display from a 32bits one
-void delDisplay(void* d); // removed a 32bits Display and associated ressources
+void convert_XErrorEvent_to_32(void* d, void* s);
+void convert_XErrorEvent_to_64(void* d, void* s);
+
+// Add a new Native Display*, return a 32bits one
+void* addDisplay(void* d);
+// Find a Native Diplay* and return the 32bits one
+void* FindDisplay(void* d);
+// return the Native Display from a 32bits one
+void* getDisplay(void* d);
+// removed a 32bits Display and associated ressources
+void delDisplay(void* d);
 
 void convert_Screen_to_32(void* d, void* s);
 

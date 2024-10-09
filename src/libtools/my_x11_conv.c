@@ -459,6 +459,31 @@ void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
     }
 }
 
+void convert_XErrorEvent_to_32(void* d, void* s)
+{
+    my_XErrorEvent_t* src = s;
+    my_XErrorEvent_32_t* dst = d;
+    dst->type = src->type;
+    dst->display = to_ptrv(FindDisplay(src->display));
+    dst->resourceid = to_ulong(src->resourceid);
+    dst->serial = to_ulong(src->serial);
+    dst->error_code = src->error_code;
+    dst->request_code = src->request_code;
+    dst->minor_code = src->minor_code;
+}
+void convert_XErrorEvent_to_64(void* d, void* s)
+{
+    my_XErrorEvent_32_t* src = s;
+    my_XErrorEvent_t* dst = d;
+    dst->minor_code = src->minor_code;
+    dst->request_code = src->request_code;
+    dst->error_code = src->error_code;
+    dst->serial = from_ulong(src->serial);
+    dst->resourceid = from_ulong(src->resourceid);
+    dst->display = getDisplay(from_ptrv(src->display));
+    dst->type = src->type;
+}
+
 #define N_DISPLAY 4
 #define N_SCREENS 16
 my_XDisplay_t* my32_Displays_64[N_DISPLAY] = {0};
