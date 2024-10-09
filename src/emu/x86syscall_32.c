@@ -514,7 +514,7 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
             {
                 struct_LL_t tspec;
                 int need_tspec = 1;
-                switch(u32(16)&FUTEX_CMD_MASK) {
+                switch(u32(8)&FUTEX_CMD_MASK) {
                     case FUTEX_WAIT:
                     case FUTEX_WAIT_BITSET:
                     case FUTEX_LOCK_PI:
@@ -534,7 +534,7 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, ptr_t* b)
                     default: need_tspec = 0;
                 }
                 if(need_tspec && u32(16))
-                    from_struct_LL(&tspec, u32(12));
+                    from_struct_LL(&tspec, u32(16));
                 else
                     need_tspec = 0;
                 return syscall(__NR_futex,  p(4), i32(8), u32(12), need_tspec?(&tspec):p(16), p(20), u32(24));
