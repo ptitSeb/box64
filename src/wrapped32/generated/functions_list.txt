@@ -837,7 +837,7 @@
 #() iFbp_pii -> iFBpii
 #() iFbp_pip -> iFBpip
 #() iFBp_pui -> iFBpui
-#() iFXLibp_ -> iFXLiB
+#() iFXLiBp_ -> iFXLiB
 #() iFXLbp_i -> iFXLBi
 #() iFXLbL_i -> iFXLBi
 #() iFXLbp_p -> iFXLBp
@@ -865,6 +865,7 @@
 #() iFXipBWWWWWWWWWuip_ -> iFXipB
 #() iFXLbLWWWcc_bLWWWcc_ -> iFXLBB
 #() iFpruuipWCCp_buuipWCCp_i -> iFpBBi
+#() iFXpLriLLLiiiiiiiLLiiLiiiiLic_ -> iFXpLB
 #() iFXpLbiLLLiiiiiiiLLiiLiiiiLic_ -> iFXpLB
 #() pFXLLbiLLLiiiiiiiLLiiLiiiiLic_ -> pFXLLB
 #() vFEiipV -> vFEiipV
@@ -970,7 +971,6 @@
 #() iFEippL -> iFEippL
 #() iFEpipp -> iFEpipp
 #() iFEpupu -> iFEpupu
-#() iFEpLlp -> iFEpLlp
 #() iFEpLpp -> iFEpLpp
 #() iFEpLpV -> iFEpLpV
 #() iFEpplp -> iFEpplp
@@ -2042,12 +2042,11 @@ wrappedlibx11:
   - XESetCloseDisplay
   - XESetEventToWire
   - XESetWireToEvent
-- iFpLlp:
-  - XWindowEvent
 - iFXLip:
   - XCheckTypedWindowEvent
 - iFXLlp:
   - XCheckWindowEvent
+  - XWindowEvent
 - iFXLLp:
   - XChangeWindowAttributes
 - iFXLpi:
