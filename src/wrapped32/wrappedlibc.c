@@ -107,6 +107,13 @@
 #undef nftw
 #undef glob
 
+#define MY32_F_GETLK    5
+#define MY32_F_SETLK    6
+#define MY32_F_SETLKW   7
+#define MY32_F_GETLK64  12
+#define MY32_F_SETLK64  13
+#define MY32_F_SETLKW64 14
+
 #define LIBNAME libc
 
 static const char* libcName =
@@ -2118,16 +2125,14 @@ EXPORT int32_t my32_fcntl64(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, ui
     if(!lib) return 0;
     if(b==F_SETFL)
         d1 = of_convert32(d1);
-    if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
-    {
+    if (b == MY32_F_GETLK64 || b == MY32_F_SETLK64 || b == MY32_F_SETLKW64) {
         my_flock64_t fl = {0};
         AlignFlock64_32(&fl, from_ptrv(d1));
-        int ret = fcntl(a, b, &fl);
+        int ret = fcntl(a, b - (MY32_F_GETLK64 - MY32_F_GETLK), &fl);
         UnalignFlock64_32(from_ptrv(d1), &fl);
         return ret;
     }
-    if(b==F_GETLK || b==F_SETLK || b==F_SETLKW)
-    {
+    if (b == MY32_F_GETLK || b == MY32_F_SETLK || b == MY32_F_SETLKW) {
         struct flock fl = {0};
         AlignFlock_32(&fl, from_ptrv(d1));
         int ret = fcntl(a, b, &fl);
@@ -2157,16 +2162,14 @@ EXPORT int32_t my32_fcntl(x64emu_t* emu, int32_t a, int32_t b, uint32_t d1, uint
     }
     if(b==F_SETFL)
         d1 = of_convert32(d1);
-    if(b==F_GETLK64 || b==F_SETLK64 || b==F_SETLKW64)
-    {
+    if (b == MY32_F_GETLK64 || b == MY32_F_SETLK64 || b == MY32_F_SETLKW64) {
         my_flock64_t fl = {0};
         AlignFlock64_32(&fl, from_ptrv(d1));
-        int ret = fcntl(a, b, &fl);
+        int ret = fcntl(a, b - (MY32_F_GETLK64 - MY32_F_GETLK), &fl);
         UnalignFlock64_32(from_ptrv(d1), &fl);
         return ret;
     }
-    if(b==F_GETLK || b==F_SETLK || b==F_SETLKW)
-    {
+    if (b == MY32_F_GETLK || b == MY32_F_SETLK || b == MY32_F_SETLKW) {
         struct flock fl = {0};
         AlignFlock_32(&fl, from_ptrv(d1));
         int ret = fcntl(a, b, &fl);
