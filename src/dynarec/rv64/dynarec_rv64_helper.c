@@ -2752,6 +2752,12 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
             return;
         } else if ((sew == VECTOR_SEW8 && vlmul == VECTOR_LMUL1) || (sew == VECTOR_SEW16 && vlmul == VECTOR_LMUL2)) {
             switch (imm) {
+                case 0b0000000000001111:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+                    MOV64x(s1, 0xFFFFFFFFFFFFFFFFULL);
+                    VMV_S_X(vreg, s1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
                 case 0b0000000011111111:
                     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     MOV64x(s1, 0xFFFFFFFFFFFFFFFFULL);
