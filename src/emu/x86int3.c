@@ -105,7 +105,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     pu8 = from_ptrv(*(ptr_t*)from_ptr(R_ESP+4));
                     post = 10;
                 } else if(strstr(s, "SDL_RWFromFile")==s || strstr(s, "SDL_RWFromFile")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%s, %s)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else if(strstr(s, "SDL_WarpMouse")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%hd, %hd)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, *(uint16_t*)from_ptr(R_ESP+4), *(uint16_t*)from_ptr(R_ESP+8));
                 } else  if(strstr(s, "glColor4f")==s) {
