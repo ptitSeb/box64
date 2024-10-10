@@ -803,6 +803,7 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxcomposite.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxcursor.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxrandr.c"
+        "${BOX64_ROOT}/src/wrapped32/wrappedlibxss.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibxxf86vm.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedxinerama.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedexpat.c"

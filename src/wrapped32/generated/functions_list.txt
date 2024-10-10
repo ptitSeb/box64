@@ -2183,6 +2183,7 @@ wrappedlibxrender:
   - XRenderFindVisualFormat
 - pFXLrLiiuL_i:
   - XRenderFindFormat
+wrappedlibxss:
 wrappedlibxxf86vm:
 - iFXipp:
   - XF86VidModeGetAllModeLines
