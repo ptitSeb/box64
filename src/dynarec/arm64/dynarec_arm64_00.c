@@ -3081,7 +3081,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(!rex.is32bits && isNativeCall(dyn, addr+i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
                 tmp = dyn->insts[ninst].pass2choice = 3;
             else
-                tmp = dyn->insts[ninst].pass2choice = 0;
+                tmp = dyn->insts[ninst].pass2choice = i32?0:1;
             #else
                 tmp = dyn->insts[ninst].pass2choice;
             #endif
@@ -3138,6 +3138,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         jump_to_epilog(dyn, 0, xRIP, ninst);
                         dyn->last_ip = addr;
                     }
+                    break;
+                case 1:
+                    // this is call to next step, so just push the return address to the stack
+                    if(rex.is32bits) {
+                        MOV32w(x2, addr);
+                    } else {
+                        TABLE64(x2, addr);
+                    }
+                    PUSH1z(x2);
                     break;
                 default:
                     if((box64_dynarec_safeflags>1) || (ninst && dyn->insts[ninst-1].x64.set_flags)) {
