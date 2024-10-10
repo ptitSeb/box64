@@ -366,7 +366,14 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     }
     if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
-        elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
+        uintptr_t ret_addr = 0;
+        #ifdef BOX32
+        if(box64_is32bits)
+            ret_addr = from_ptri(ptr_t, R_ESP);
+        else
+        #endif
+            ret_addr = *(uintptr_t*)R_RSP;
+        elfheader_t *elf = FindElfAddress(my_context, ret_addr); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, -1, NULL, 0, NULL)) {
             printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             pthread_mutex_unlock(&mutex);
