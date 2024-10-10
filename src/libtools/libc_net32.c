@@ -242,11 +242,10 @@ struct i386_ifaddrs
 
 EXPORT int my32_getifaddrs(x64emu_t* emu, void** res)
 {
-    struct ifaddrs* addrs;
-    int ret = getifaddrs(&addrs);
+    int ret = getifaddrs((void*)res);
     if(!ret) {
         // convert the chained list of ifaddrs to i386 (narrowed) in place
-        struct ifaddrs* p = addrs;
+        struct ifaddrs* p = *res;
         while(p) {
             struct i386_ifaddrs *i386 = (struct i386_ifaddrs*)p;
             struct ifaddrs* next = p->ifa_next;
