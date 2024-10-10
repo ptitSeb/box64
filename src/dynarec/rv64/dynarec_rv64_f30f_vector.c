@@ -132,6 +132,49 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x38:
+            return 0;
+        case 0x59:
+            INST_NAME("MULSS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW32);
+            v1 = fpu_get_scratch(dyn);
+            vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
+            if (MODREG) {
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
+            } else {
+                SMREAD();
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                VLE32_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+            }
+            VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
+            break;
+        case 0x5A:
+            INST_NAME("CVTSS2SD Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW32);
+            vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
+            if (MODREG) {
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
+            } else {
+                SMREAD();
+                v1 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                VLE32_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+            }
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VFWCVT_F_F_V(d0, v1, VECTOR_MASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            if (rv64_xtheadvector) {
+                vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+                VMERGE_VVM(v0, v0, d0); // implies VMASK
+            } else {
+                VMV_X_S(x4, d0);
+                VMV_S_X(v0, x4);
+            }
+            break;
         case 0xAE:
         case 0xB8:
         case 0xBC:
