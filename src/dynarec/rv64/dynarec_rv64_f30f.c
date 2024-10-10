@@ -212,7 +212,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FADDS(v0, v0, d0);
             break;
         case 0x59:
-            INST_NAME("MULSS Gx, Ex");
+            INST_NAME("MULSS Gx, Ex"); // TODO: box64_dynarec_fastnan
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
