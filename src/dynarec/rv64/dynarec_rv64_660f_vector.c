@@ -1089,8 +1089,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x6E:
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
-            GETED(0);
             GETGX_empty_vector(v0);
+            GETED(0);
             if (rex.w) {
                 SET_ELEMENT_WIDTH(x3, VECTOR_SEW64, 1);
             } else {

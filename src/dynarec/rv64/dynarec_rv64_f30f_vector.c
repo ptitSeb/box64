@@ -104,37 +104,31 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x2A:
             INST_NAME("CVTSI2SS Gx, Ed");
             nextop = F8;
-            GETED(0);
             if (rex.w) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW64, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW64);
+                GETED(0);
                 FCVTSL(v0, ed, RD_RNE);
-                if (rv64_xtheadvector) {
-                    v1 = fpu_get_scratch(dyn);
-                    VFMV_S_F(v1, v0);
-                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
-                    VMERGE_VVM(v0, v0, v1); // implies VMASK
-                } else {
-                    VFMV_S_F(v0, v0);
-                }
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
             } else {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
+                GETED(0);
                 FCVTSW(v0, ed, RD_RNE);
-                if (rv64_xtheadvector) {
-                    v1 = fpu_get_scratch(dyn);
-                    VFMV_S_F(v1, v0);
-                    vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
-                    VMERGE_VVM(v0, v0, v1); // implies VMASK
-                } else {
-                    VFMV_S_F(v0, v0);
-                }
+            }
+            if (rv64_xtheadvector) {
+                v1 = fpu_get_scratch(dyn);
+                VFMV_S_F(v1, v0);
+                vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
+                VMERGE_VVM(v0, v0, v1); // implies VMASK
+            } else {
+                VFMV_S_F(v0, v0);
             }
             break;
         case 0x38:
             return 0;
         case 0x59:
-            INST_NAME("MULSS Gx, Ex");
+            INST_NAME("MULSS Gx, Ex"); // TODO: box64_dynarec_fastnan
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETGX_vector(v0, 1, VECTOR_SEW32);
