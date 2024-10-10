@@ -817,43 +817,57 @@ EXPORT int my32_pthread_kill_old(x64emu_t* emu, void* thread, int sig)
 // TODO: find a better way for mutex. It should be possible to use the actual mutex most of the time, especially for simple ones
 // Having the mutex table behind a mutex is far from ideal!
 
-KHASH_MAP_INIT_INT(mutex, pthread_mutex_t*)
-static kh_mutex_t* unaligned_mutex = NULL;
-static pthread_rwlock_t m_lock = {0};
+typedef struct fake_pthread_mutext_s {
+	int __lock;
+	unsigned int __count;
+  	int __owner;
+	int i386__kind;
+	int __kind;
+	ptr_t real_mutex;
+} fakse_phtread_mutex_t;
+#define KIND_SIGN	0xbad000
+pthread_mutex_t* createNewMutex()
+{
+	pthread_mutex_t* ret = (pthread_mutex_t*)box_calloc(1, sizeof(pthread_mutex_t));
+	return ret;
+}
+// init = 0: just get the mutex
+// init = 1: get the mutex and init it with optione attr (attr will disallow native mutex)
 pthread_mutex_t* getAlignedMutex(pthread_mutex_t* m)
 {
-	pthread_mutex_t* ret = NULL;
-	pthread_rwlock_rdlock(&m_lock);
-	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
-	if(k!=kh_end(unaligned_mutex)) {
-		ret = kh_value(unaligned_mutex, k);
-	} else {
-		int r;
-		pthread_rwlock_unlock(&m_lock);
-		pthread_rwlock_wrlock(&m_lock);
-		k = kh_put(mutex, unaligned_mutex, (uintptr_t)m, &r);
-		ret = kh_value(unaligned_mutex, k) = (pthread_mutex_t*)box_calloc(1, sizeof(pthread_mutex_t));
-		memcpy(ret, m, 24);
+	fakse_phtread_mutex_t* fake = (fakse_phtread_mutex_t*)m;
+	if(fake->__kind==0) {
+		return m;	// type 0 can fit...
 	}
-	pthread_rwlock_unlock(&m_lock);
-	return ret;
+	if(fake->__kind==KIND_SIGN)
+		return from_ptrv(fake->real_mutex);
+	// this should not appens!
+	printf_log(LOG_NONE, "BOX32: Warning, fallback on alligned mutex %p\n", m);
+	fake->real_mutex = to_ptrv(createNewMutex());
+	return from_ptrv(fake->real_mutex);
 }
 EXPORT int my32_pthread_mutex_destroy(pthread_mutex_t *m)
 {
-	pthread_rwlock_wrlock(&m_lock);
-	khint_t k = kh_get(mutex, unaligned_mutex, (uintptr_t)m);
-	if(k!=kh_end(unaligned_mutex)) {
-		pthread_mutex_t *n = kh_value(unaligned_mutex, k);
-		kh_del(mutex, unaligned_mutex, k);
-		pthread_rwlock_unlock(&m_lock);
-		int ret = pthread_mutex_destroy(n);
-		box_free(n);
+	fakse_phtread_mutex_t* fake = (fakse_phtread_mutex_t*)m;
+	if(fake->__kind==0) {
+		//TODO: check if that save/restore is actually needed
+		uint8_t saved[sizeof(pthread_mutex_t)];
+		memcpy(saved, fake+1, sizeof(pthread_mutex_t)-24);
+		int ret = pthread_mutex_destroy(m);
+		memcpy(fake+1, saved, sizeof(pthread_mutex_t)-24);
 		return ret;
 	}
-	pthread_rwlock_unlock(&m_lock);
-	return pthread_mutex_destroy(m);
+	if(fake->__kind!=KIND_SIGN) {
+		printf_log(LOG_NONE, "BOX32: Warning, fallback on alligned mutex %p\n", m);
+		errno = EINVAL;
+		return -1;
+	}
+	pthread_mutex_t *n = from_ptrv(fake->real_mutex);
+	int ret = pthread_mutex_destroy(n);
+	box_free(n);
+	fake->__kind = fake->i386__kind = -1;
+	return ret;
 }
-#define getAlignedMutexWithInit(A, B)	getAlignedMutex(A)
 
 EXPORT int my32_pthread_mutexattr_init(x64emu_t* emu, pthread_mutexattr_t* att)
 {
@@ -868,7 +882,23 @@ EXPORT int my32___pthread_mutex_destroy(pthread_mutex_t *m) __attribute__((alias
 
 EXPORT int my32_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
 {
-	return pthread_mutex_init(getAlignedMutexWithInit(m, 0), att);
+	fakse_phtread_mutex_t* fake = (fakse_phtread_mutex_t*)m;
+	if(fake->__kind==0 && !att) {
+		fake->__lock = 0;
+		fake->__count = 0;
+		fake->i386__kind = 0;
+		fake->__owner = 0;
+		return 0;
+	}
+	if(fake->__kind==KIND_SIGN)
+		return pthread_mutex_init(from_ptrv(fake->real_mutex), att);
+	fake->__lock = 0;
+	fake->__count = 0;
+	fake->__kind = KIND_SIGN;
+	fake->real_mutex = to_ptrv(createNewMutex());
+	int ret = pthread_mutex_init(from_ptrv(fake->real_mutex), att);
+	fake->i386__kind = ((struct __pthread_mutex_s*)from_ptrv(fake->real_mutex))->__kind;
+	return ret;
 }
 EXPORT int my32___pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att) __attribute__((alias("my32_pthread_mutex_init")));
 
@@ -918,7 +948,6 @@ void init_pthread_helper_32()
 	}
 
 	mapcond = kh_init(mapcond);
-	unaligned_mutex = kh_init(mutex);
 }
 
 void clean_current_emuthread_32()
@@ -943,12 +972,6 @@ void fini_pthread_helper_32(box64context_t* context)
 	);
 	kh_destroy(mapcond, mapcond);
 	mapcond = NULL;
-	pthread_mutex_t *m;
-	kh_foreach_value(unaligned_mutex, m, 
-		pthread_mutex_destroy(m);
-		box_free(m);
-	);
-	kh_destroy(mutex, unaligned_mutex);
 
 	clean_current_emuthread_32();
 }
