@@ -1,15 +1,15 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
 GO(XScreenSaverAllocInfo, pFv)
-GO(XScreenSaverGetRegistered, uFpipp)
+GO(XScreenSaverGetRegistered, iFpipp)
 GO(XScreenSaverQueryExtension, iFppp)
-GO(XScreenSaverQueryInfo, iFppp)
+GO(XScreenSaverQueryInfo, iFpLp)
 GO(XScreenSaverQueryVersion, iFppp)
-GO(XScreenSaverRegister, vFpiup)
-GO(XScreenSaverSelectInput, vFppu)
-GO(XScreenSaverSetAttributes, vFppiiuuuiupup)
+GO(XScreenSaverRegister, iFpiLL)
+GO(XScreenSaverSelectInput, vFpLL)
+GO(XScreenSaverSetAttributes, vFpLiiuuuiupLp)   //need GOM?
 GO(XScreenSaverSuspend, vFpi)
 GO(XScreenSaverUnregister, iFpi)
-GO(XScreenSaverUnsetAttributes, vFpp)
+GO(XScreenSaverUnsetAttributes, vFpL)
