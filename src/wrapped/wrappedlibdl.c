@@ -346,6 +346,8 @@ void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
     dlprivate_t *dl = my_context->dlprivate;
     uintptr_t start = 0, end = 0;
     char* rsymbol = (char*)symbol;
+    if(box64_is32bits && handle==(void*)0xffffffff)
+        handle = (void*)~0LL;
     CLEARERR
     printf_dlsym(LOG_DEBUG, "%04d|Call to dlsym(%p, \"%s\")%s", GetTID(), handle, rsymbol, dlsym_error?"":"\n");
     if(handle==NULL) {
