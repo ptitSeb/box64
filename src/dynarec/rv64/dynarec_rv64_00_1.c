@@ -42,6 +42,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     int64_t fixedaddress;
     int lock;
     int cacheupd = 0;
+    uintptr_t retaddr = 0;
 
     opcode = F8;
     MAYUSE(eb1);
@@ -172,10 +173,14 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x64:
-            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
+            if (rv64_vector)
+                retaddr = dynarec64_64_vector(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
+            addr = retaddr ? retaddr : dynarec64_64(dyn, addr, ip, ninst, rex, rep, _FS, ok, need_epilog);
             break;
         case 0x65:
-            addr = dynarec64_64(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
+            if (rv64_vector)
+                retaddr = dynarec64_64_vector(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
+            addr = retaddr ? retaddr : dynarec64_64(dyn, addr, ip, ninst, rex, rep, _GS, ok, need_epilog);
             break;
         case 0x66:
             addr = dynarec64_66(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
@@ -183,8 +188,11 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x67:
             if(rex.is32bits)
                 addr = dynarec64_67_32(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
-            else
-                addr = dynarec64_67(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            else {
+                if (rv64_vector)
+                    retaddr = dynarec64_67_vector(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+                addr = retaddr ? retaddr : dynarec64_67(dyn, addr, ip, ninst, rex, rep, ok, need_epilog);
+            }
             break;
         case 0x68:
             INST_NAME("PUSH Id");
