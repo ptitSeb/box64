@@ -741,6 +741,7 @@
 #() iFpiii -> iFpiii
 #() iFpiiL -> iFpiiL
 #() iFpiip -> iFpiip
+#() iFpiuu -> iFpiuu
 #() iFpili -> iFpili
 #() iFpipp -> iFpipp
 #() iFpuLp -> iFpuLp
@@ -1384,6 +1385,7 @@
 #() LFXLiiuuuLL -> LFXLiiuuuLL
 #() pFEuiiiuuuu -> pFEuiiiuuuu
 #() pFEXLiiuuLi -> pFEXLiiuuLi
+#() pFpiiiiuuuu -> pFpiiiiuuuu
 #() iFXLbL_pppppp -> iFXLBpppppp
 #() iFXiLiiibiip_ip -> iFXiLiiiBip
 #() iFXiLLLiiibiip_ -> iFXiLLLiiiB
@@ -2199,6 +2201,7 @@ wrappedsdl1:
 - vFp:
   - SDL_FreeSurface
   - SDL_KillThread
+  - SDL_UnloadObject
   - SDL_UnlockSurface
 - iFv:
   - SDL_Has3DNow
@@ -2243,6 +2246,8 @@ wrappedsdl1:
   - SDL_SetColorKey
 - pFupp:
   - SDL_AddTimer
+- iFpiuu:
+  - SDL_PeepEvents
 - uFpCCC:
   - SDL_MapRGB
 - pFiiiu:
@@ -2251,6 +2256,8 @@ wrappedsdl1:
   - SDL_GetRGB
 - iFpWCiWCi:
   - SDL_BuildAudioCVT
+- pFpiiiiuuuu:
+  - SDL_CreateRGBSurfaceFrom
 wrappedsdl2:
 % J SDL2_GUID_t uuuu
 - vFp:

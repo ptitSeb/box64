@@ -567,6 +567,13 @@ EXPORT void* my32_SDL_GetVideoSurface()
     return unwrapSurface(ret);
 }
 
+EXPORT void* my32_SDL_CreateRGBSurfaceFrom(void* pixels, int width, int height, int depth, int pitch, uint32_t rmask, uint32_t gmask, uint32_t bmask, uint32_t amask)
+{
+    void* p = my->SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch, rmask, gmask, bmask, amask);
+    return unwrapSurface(p);
+}
+
+
 EXPORT void my32_SDL_FreeSurface(void* s)
 {
     my->SDL_FreeSurface(wrapSurface(s));
@@ -588,6 +595,14 @@ EXPORT int my32_SDL_PollEvent(my_SDL_Event_32_t* evt)
     if(ret && evt) {
         convert_SDL_Event_to_32(evt, &event);
     }
+    return ret;
+}
+
+EXPORT int my32_SDL_PeepEvents(my_SDL_Event_32_t* evts, int num, uint32_t action, uint32_t mask)
+{
+    my_SDL_Event_t events[num];
+    int ret = my->SDL_PeepEvents(events, num, action, mask);
+    for(int i=0; i<ret; ++i) convert_SDL_Event_to_32(evts+i, events+i);
     return ret;
 }
 

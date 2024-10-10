@@ -26,15 +26,18 @@ typedef void* (*pFpu_t)(void*, uint32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
 typedef void* (*pFupp_t)(uint32_t, void*, void*);
+typedef int32_t (*iFpiuu_t)(void*, int32_t, uint32_t, uint32_t);
 typedef uint32_t (*uFpCCC_t)(void*, uint8_t, uint8_t, uint8_t);
 typedef void* (*pFiiiu_t)(int32_t, int32_t, int32_t, uint32_t);
 typedef void (*vFupppp_t)(uint32_t, void*, void*, void*, void*);
 typedef int32_t (*iFpWCiWCi_t)(void*, uint16_t, uint8_t, int32_t, uint16_t, uint8_t, int32_t);
+typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_Quit, vFv_t) \
 	GO(SDL_FreeSurface, vFp_t) \
 	GO(SDL_KillThread, vFp_t) \
+	GO(SDL_UnloadObject, vFp_t) \
 	GO(SDL_UnlockSurface, vFp_t) \
 	GO(SDL_Has3DNow, iFv_t) \
 	GO(SDL_Has3DNowExt, iFv_t) \
@@ -66,9 +69,11 @@ typedef int32_t (*iFpWCiWCi_t)(void*, uint16_t, uint8_t, int32_t, uint16_t, uint
 	GO(SDL_RWFromFile, pFpp_t) \
 	GO(SDL_SetColorKey, iFpuu_t) \
 	GO(SDL_AddTimer, pFupp_t) \
+	GO(SDL_PeepEvents, iFpiuu_t) \
 	GO(SDL_MapRGB, uFpCCC_t) \
 	GO(SDL_SetVideoMode, pFiiiu_t) \
 	GO(SDL_GetRGB, vFupppp_t) \
-	GO(SDL_BuildAudioCVT, iFpWCiWCi_t)
+	GO(SDL_BuildAudioCVT, iFpWCiWCi_t) \
+	GO(SDL_CreateRGBSurfaceFrom, pFpiiiiuuuu_t)
 
 #endif // __wrappedsdl1TYPES32_H_

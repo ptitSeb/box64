@@ -27,7 +27,7 @@ GO(SDL_AllocRW, pFv)    // no need to use a my_ version here
 //GO(SDL_CreateCursor, pFppiiii)
 //GO(SDL_CreateMutex, pFv)
 //GO(SDL_CreateRGBSurface, pFuiiiuuuu)
-//GO(SDL_CreateRGBSurfaceFrom, pFpiiiiuuuu)
+GOM(SDL_CreateRGBSurfaceFrom, pFpiiiiuuuu)  //%noE
 GO(SDL_CreateSemaphore, pFu)
 GOM(SDL_CreateThread, pFEpp)
 //GO(SDL_CreateYUVOverlay, pFiiup)
@@ -113,9 +113,9 @@ GOM(SDL_LockSurface, iFp)   //%noE
 GOM(SDL_MapRGB, uFpCCC) //%noE
 //GO(SDL_MapRGBA, uFpCCCC)
 GO(SDL_NumJoysticks, iFv)
-//GO(SDL_PeepEvents, iFpiuu)
+GOM(SDL_PeepEvents, iFpiuu) //%noE
 GOM(SDL_PollEvent, iFp) //%noE
-//GO(SDL_PumpEvents, vFv)
+GO(SDL_PumpEvents, vFv)
 GOM(SDL_PushEvent, iFp) //%noE
 GOM(SDL_Quit, vFv)  //%noE
 GO(SDL_QuitSubSystem, vFu)
@@ -154,14 +154,14 @@ GOM(SDL_SetVideoMode, pFiiiu)   //%noE
 GO(SDL_ShowCursor, iFi)
 //GO(SDL_SoftStretch, iFpppp)
 GO(SDL_ThreadID, uFv)
-//GOM(SDL_UnloadObject, vFEp)
+GOM(SDL_UnloadObject, vFEp)
 GOM(SDL_UnlockSurface, vFp) //%noE
 //GO(SDL_UnlockYUVOverlay, vFp)
 GO(SDL_UnregisterApp, vFv)
 //GO(SDL_UpdateRect, vFpiiuu)
 //GO(SDL_UpdateRects, vFpip)
 //GO(SDL_UpperBlit, iFpppp)
-//GO(SDL_VideoDriverName, pFpi)
+GO(SDL_VideoDriverName, pFpi)
 //GO(SDL_VideoInit, iFpu)
 GO(SDL_VideoModeOK, iFiiiu)
 GO(SDL_VideoQuit, vFv)
