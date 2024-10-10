@@ -1022,3 +1022,230 @@ void* inplace_XImage_enlarge(void* a)
     UnwrapXImage(a, a);
     return a;
 }
+
+void convert_XRRModeInfo_to_32(void* d, const void* s)
+{
+    my_XRRModeInfo_32_t *dst = d;
+    const my_XRRModeInfo_t *src = s;
+    dst->id = to_ulong(src->id);
+    dst->width = src->width;
+    dst->height = src->height;
+    dst->dotClock = to_ulong(src->dotClock);
+    dst->hSyncStart = src->hSyncStart;
+    dst->hSyncEnd = src->hSyncEnd;
+    dst->hTotal = src->hTotal;
+    dst->hSkew = src->hSkew;
+    dst->vSyncStart = src->vSyncStart;
+    dst->vSyncEnd = src->vSyncEnd;
+    dst->vTotal = src->vTotal;
+    dst->name = to_ptrv(src->name);
+    dst->nameLength = src->nameLength;
+    dst->modeFlags = to_ulong(src->modeFlags);
+}
+
+void convert_XRRModeInfo_to_64(void* d, const void* s)
+{
+    my_XRRModeInfo_t *dst = d;
+    const my_XRRModeInfo_32_t *src = s;
+    dst->modeFlags = from_ulong(src->modeFlags);
+    dst->nameLength = src->nameLength;
+    dst->name = from_ptrv(src->name);
+    dst->vTotal = src->vTotal;
+    dst->vSyncEnd = src->vSyncEnd;
+    dst->vSyncStart = src->vSyncStart;
+    dst->hSkew = src->hSkew;
+    dst->hTotal = src->hTotal;
+    dst->hSyncEnd = src->hSyncEnd;
+    dst->hSyncStart = src->hSyncStart;
+    dst->dotClock = from_ulong(src->dotClock);
+    dst->height = src->height;
+    dst->width = src->width;
+    dst->id = from_ulong(src->id);
+}
+
+void inplace_XRRScreenResources_shrink(void* s)
+{
+    if(!s) return;
+    my_XRRScreenResources_32_t *dst = s;
+    my_XRRScreenResources_t *src = s;
+    // shrinking, so forward...
+    dst->timestamp = to_ulong(src->timestamp);
+    dst->configTimestamp = to_ulong(src->configTimestamp);
+    dst->ncrtc = src->ncrtc;
+    for(int i=0; i<dst->ncrtc; ++i)
+        ((XID_32*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
+    dst->crtcs = to_ptrv(src->crtcs);
+    dst->noutput = src->noutput;
+    for(int i=0; i<dst->noutput; ++i)
+        ((XID_32*)src->outputs)[i] = to_ulong(src->outputs[i]);
+    dst->outputs = to_ptrv(src->outputs);
+    dst->nmode = src->nmode;
+    for(int i=0; i<dst->noutput; ++i)
+        convert_XRRModeInfo_to_32(&((my_XRRModeInfo_32_t*)src->modes)[i], &src->modes[i]);
+    dst->modes = to_ptrv(src->modes);
+}
+
+void inplace_XRRScreenResources_enlarge(void* s)
+{
+    if(!s) return;
+    my_XRRScreenResources_t *dst = s;
+    my_XRRScreenResources_32_t *src = s;
+    // enlarge, so backward...
+    int nmode = src->nmode;
+    int noutput = src->noutput;
+    int ncrtc = src->ncrtc;
+    dst->modes = from_ptrv(src->modes);
+    for(int i=nmode-1; i>=0; --i)
+        convert_XRRModeInfo_to_64(&dst->modes[i], &((my_XRRModeInfo_32_t*)dst->modes)[i]);
+    dst->nmode = src->nmode;
+    dst->outputs = from_ptrv(src->outputs);
+    for(int i=noutput-1; i>=0; --i)
+        dst->outputs[i] = from_ulong(((XID_32*)dst->outputs)[i]);
+    dst->noutput = src->noutput;
+    dst->crtcs = from_ptrv(src->crtcs);
+    for(int i=ncrtc-1; i>=0; --i)
+        dst->crtcs[i] = from_ulong(((XID_32*)dst->crtcs)[i]);
+    dst->ncrtc = src->ncrtc;
+    dst->configTimestamp = to_ulong(src->configTimestamp);
+    dst->timestamp = to_ulong(src->timestamp);
+}
+
+void inplace_XRRCrtcInfo_shrink(void* s)
+{
+    if(!s) return;
+    my_XRRCrtcInfo_32_t *dst = s;
+    my_XRRCrtcInfo_t *src = s;
+    dst->timestamp = to_ulong(src->timestamp);
+    dst->x = src->x;
+    dst->y = src->y;
+    dst->width = src->width;
+    dst->height = src->height;
+    dst->mode = to_ulong(src->mode);
+    dst->rotation = src->rotation;
+    for(int i=0; i<src->noutput; ++i)
+        ((XID_32*)src->outputs)[i] = to_ulong(src->outputs[i]);
+    dst->noutput = src->noutput;
+    dst->outputs = to_ptrv(src->outputs);
+    dst->rotations = src->rotations;
+    dst->npossible = src->npossible;
+    for(int i=0; i<dst->npossible; ++i)
+        ((XID_32*)src->possible)[i] = to_ulong(src->possible[i]);
+    dst->possible = to_ptrv(src->possible);
+}
+
+void inplace_XRROutputInfo_shrink(void* s)
+{
+    if(!s) return;
+    my_XRROutputInfo_32_t *dst = s;
+    my_XRROutputInfo_t *src = s;
+    dst->timestamp = to_ulong(src->timestamp);
+    dst->crtc = src->crtc;
+    dst->name = to_ptrv(src->name);
+    dst->nameLen = src->nameLen;
+    dst->mm_width = to_ulong(src->mm_width);
+    dst->mm_height = to_ulong(src->mm_height);
+    dst->connection = src->connection;
+    dst->subpixel_order = src->subpixel_order;
+    dst->ncrtc = src->ncrtc;
+    for(int i=0; i<dst->ncrtc; ++i)
+        ((XID_32*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
+    dst->crtcs = to_ptrv(src->crtcs);
+    dst->nclone = src->nclone;
+    for(int i=0; i<dst->nclone; ++i)
+        ((XID_32*)src->clones)[i] = to_ulong(src->clones[i]);
+    dst->clones = to_ptrv(src->clones);
+    dst->nmode = src->nmode;
+    dst->npreferred = src->npreferred;
+    for(int i=0; i<dst->nmode; ++i)
+        ((XID_32*)src->modes)[i] = to_ulong(src->modes[i]);
+    dst->modes = to_ptrv(src->modes);
+}
+
+void inplace_XRRProviderInfo_shrink(void* a)
+{
+    if(!a) return;
+    my_XRRProviderInfo_32_t *dst = a;
+    my_XRRProviderInfo_t* src = a;
+
+    for(int i=0; i<src->ncrtcs; ++i)
+        ((ulong_t*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
+    for(int i=0; i<src->noutputs; ++i)
+        ((ulong_t*)src->outputs)[i] = to_ulong(src->outputs[i]);
+    for(int i=0; i<src->nassociatedproviders; ++i)
+        ((ulong_t*)src->associated_providers)[i] = to_ulong(src->associated_providers[i]);
+    dst->capabilities = src->capabilities;
+    dst->ncrtcs = src->ncrtcs;
+    dst->crtcs = to_ptrv(src->crtcs);
+    dst->noutputs = src->noutputs;
+    dst->outputs = to_ptrv(src->outputs);
+    dst->name = to_ptrv(src->name);
+    dst->nassociatedproviders = src->nassociatedproviders;
+    dst->associated_providers = to_ptrv(src->associated_providers);
+    dst->associated_capability = to_ptrv(src->associated_capability);
+    dst->nameLen = src->nameLen;
+}
+void inplace_XRRProviderInfo_enlarge(void* a)
+{
+    if(!a) return;
+    my_XRRProviderInfo_t *dst = a;
+    my_XRRProviderInfo_32_t* src = a;
+
+    dst->nameLen = src->nameLen;
+    dst->associated_capability = from_ptrv(src->associated_capability);
+    dst->associated_providers = from_ptrv(src->associated_providers);
+    dst->nassociatedproviders = src->nassociatedproviders;
+    dst->name = from_ptrv(src->name);
+    dst->outputs = from_ptrv(src->outputs);
+    dst->noutputs = src->noutputs;
+    dst->crtcs = from_ptrv(src->crtcs);
+    dst->ncrtcs = src->ncrtcs;
+    dst->capabilities = src->capabilities;
+    for(int i=dst->ncrtcs-1; i>=0; --i)
+        dst->crtcs[i] = from_ulong(((ulong_t*)dst->crtcs)[i]);
+    for(int i=dst->noutputs-1; i>=0; --i)
+        dst->outputs[i] = from_ulong(((ulong_t*)dst->outputs)[i]);
+    for(int i=dst->nassociatedproviders-1; i>=0; --i)
+        dst->associated_providers[i] = from_ulong(((ulong_t*)dst->associated_providers)[i]);
+}
+
+void inplace_XRRProviderResources_shrink(void* a)
+{
+    if(!a) return;
+    my_XRRProviderResources_32_t* dst = a;
+    my_XRRProviderResources_t* src = a;
+
+    for(int i=0; i<src->nproviders; ++i)
+        ((ulong_t*)src->providers)[i] = to_ulong(src->providers[i]);
+    dst->timestamp = to_long(src->timestamp);
+    dst->nproviders = src->nproviders;
+    dst->providers = to_ptrv(src->providers);
+}
+void inplace_XRRProviderResources_enlarge(void* a)
+{
+    if(!a) return;
+    my_XRRProviderResources_t* dst = a;
+    my_XRRProviderResources_32_t* src = a;
+
+    dst->timestamp = from_long(src->timestamp);
+    dst->nproviders = src->nproviders;
+    dst->providers = from_ptrv(src->providers);
+    for(int i=dst->nproviders-1; i>=0; --i)
+        dst->providers[i] = from_ulong(((ulong_t*)dst->providers)[i]);
+}
+
+void* inplace_XRRPropertyInfo_shrink(void* a)
+{
+    if(!a) return NULL;
+    my_XRRPropertyInfo_t* src = a;
+    my_XRRPropertyInfo_32_t* dst = a;
+
+    for(int i=0; i<src->num_values; ++i)
+        ((long_t*)src->values)[i] = to_long(src->values[i]);
+    dst->pending = src->pending;
+    dst->range = src->range;
+    dst->immutable = src->immutable;
+    dst->num_values = src->num_values;
+    dst->values = to_ptrv(src->values);
+
+    return a;
+}

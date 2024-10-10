@@ -2,7 +2,7 @@
 #error Meh...
 #endif
 
-//GO(XF86VidModeGetViewPort, iFpipp)
+GO(XF86VidModeGetViewPort, iFXipp)
 //GO(XF86VidModeValidateModeLine, iFpip)
 GO(XF86VidModeGetGamma, iFXip)
 GO(XF86VidModeSetGamma, iFXip)

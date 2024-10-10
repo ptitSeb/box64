@@ -1236,34 +1236,34 @@ GO(XNStringConversionCallback)
 switch (VAARGSZ)                                                \
 {                                                               \
 case 2:                                                         \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], NULL);       \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), NULL);       \
     break;                                                      \
 case 4:                                                         \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], NULL);     \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), NULL);     \
     break;                                                                          \
 case 6:                                                                             \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], NULL);   \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), NULL);   \
     break;                                                                                              \
 case 8:                                                                                                 \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7], NULL); \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), from_ulong(va[6]), from_ulong(va[7]), NULL); \
     break;                                                                                                                  \
 case 10:                                                                                                                    \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7], va[8], va[9], NULL);   \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), from_ulong(va[6]), from_ulong(va[7]), from_ulong(va[8]), from_ulong(va[9]), NULL);   \
     break;                                                                                                                                          \
 case 12:                                                                                                                                            \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7], va[8], va[9],  va[10], va[11], NULL);  \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), from_ulong(va[6]), from_ulong(va[7]), from_ulong(va[8]), from_ulong(va[9]),  from_ulong(va[10]), from_ulong(va[11]), NULL);  \
     break;                                                                                                                                                                  \
 case 14:                                                                                                                                                                    \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7], va[8], va[9],  va[10], va[11], va[12], va[13], NULL);  \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), from_ulong(va[6]), from_ulong(va[7]), from_ulong(va[8]), from_ulong(va[9]),  from_ulong(va[10]), from_ulong(va[11]), from_ulong(va[12]), from_ulong(va[13]), NULL);  \
     break;                                                                                                                                                                                          \
 case 16:                                                                                                                                                                                            \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7], va[8], va[9],  va[10], va[11], va[12], va[13], va[14], va[15], NULL);  \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), from_ulong(va[6]), from_ulong(va[7]), from_ulong(va[8]), from_ulong(va[9]),  from_ulong(va[10]), from_ulong(va[11]), from_ulong(va[12]), from_ulong(va[13]), from_ulong(va[14]), from_ulong(va[15]), NULL);  \
     break;                                                                                                                                                                                                                  \
 case 18:                                                                                                                                                                                                                    \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7], va[8], va[9],  va[10], va[11], va[12], va[13], va[14], va[15], va[16], va[17], NULL);  \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), from_ulong(va[6]), from_ulong(va[7]), from_ulong(va[8]), from_ulong(va[9]),  from_ulong(va[10]), from_ulong(va[11]), from_ulong(va[12]), from_ulong(va[13]), from_ulong(va[14]), from_ulong(va[15]), from_ulong(va[16]), from_ulong(va[17]), NULL);  \
     break;                                                                                                                                                                                                                                          \
 case 20:                                                                                                                                                                                                                                            \
-    RESULT = FUNC(FIRST_ARG, va[0], va[1], va[2], va[3], va[4], va[5], va[6], va[7], va[8], va[9],  va[10], va[11], va[12], va[13], va[14], va[15], va[16], va[17], va[18], va[19], NULL);  \
+    RESULT = FUNC(FIRST_ARG, from_ulong(va[0]), from_ulong(va[1]), from_ulong(va[2]), from_ulong(va[3]), from_ulong(va[4]), from_ulong(va[5]), from_ulong(va[6]), from_ulong(va[7]), from_ulong(va[8]), from_ulong(va[9]),  from_ulong(va[10]), from_ulong(va[11]), from_ulong(va[12]), from_ulong(va[13]), from_ulong(va[14]), from_ulong(va[15]), from_ulong(va[16]), from_ulong(va[17]), from_ulong(va[18]), from_ulong(va[19]), NULL);  \
     break;                                                                                                                                                                                                                                                                  \
 default:                                                                                                                \
     printf_log(LOG_NONE, "warning: %s's vasize (%d) is too large, need create new call case!\n", __func__, VAARGSZ);    \
@@ -1804,6 +1804,19 @@ EXPORT int my32_XSetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hi
     my->XSetWMNormalHints(dpy, window, hints);
     inplace_shrink_wmsizehints(hints);
 }
+
+EXPORT int my32_XGetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hints, long_t* supplied)
+{
+    long supplied_l = 0;
+    int hints_l[17+2] = {0};
+    int ret = my->XGetWMNormalHints(dpy, window, hints?hints_l:NULL, supplied?(&supplied_l):NULL);
+    if(supplied) *supplied = to_long(supplied_l);
+    if(hints) {
+        *(long_t*)hints = to_long(*(long*)hints_l);
+        memcpy(hints+4, hints_l+2, 17*4);
+    }
+    return ret;
+}
 #if 0
 EXPORT void* my32__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, size_t len)
 {
@@ -2115,6 +2128,22 @@ EXPORT int my32_XGetWindowProperty(x64emu_t* emu, void* dpy, XID window, XID pro
         for(int i=0; i<*nitems_return; ++i)
             dst[i] = to_ulong(src[i]);
     }
+    return ret;
+}
+
+EXPORT int my32_XTextExtents(x64emu_t* emu, my_XFontStruct_32_t* font_struct, void* string, int nchars, int* dir, int* ascent, int* descent, my_XCharStruct_32_t* overall)
+{
+    //XCharStruct doesn't need any changes
+    inplace_XFontStruct_enlarge(font_struct);
+    int ret = my->XTextExtents(font_struct, string, nchars, dir, ascent, descent, overall);
+    inplace_XFontStruct_shrink(font_struct);
+    return ret;
+}
+
+EXPORT void* my32_XLoadQueryFont(x64emu_t* emu, void* dpy, void* name)
+{
+    void* ret = my->XLoadQueryFont(dpy, name);
+    inplace_XFontStruct_shrink(ret);
     return ret;
 }
 

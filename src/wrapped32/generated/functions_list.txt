@@ -814,6 +814,7 @@
 #() pFEppi -> pFEppi
 #() pFEppp -> pFEppp
 #() pFEXip -> pFEXip
+#() pFEXLL -> pFEXLL
 #() pFEXLp -> pFEXLp
 #() pFEXpL -> pFEXpL
 #() pFEXpp -> pFEXpp
@@ -988,6 +989,7 @@
 #() iFEXLlp -> iFEXLlp
 #() iFEXLLp -> iFEXLLp
 #() iFEXLpi -> iFEXLpi
+#() iFEXLpp -> iFEXLpp
 #() iFEXpLp -> iFEXpLp
 #() iFEXppu -> iFEXppu
 #() iFEXppp -> iFEXppp
@@ -1330,6 +1332,7 @@
 #() vFXppuulll -> vFXppuulll
 #() iFEpippppp -> iFEpippppp
 #() iFEpLiLppp -> iFEpLiLppp
+#() iFEppipppp -> iFEppipppp
 #() iFuiiiiuup -> iFuiiiiuup
 #() iFpuippupp -> iFpuippupp
 #() iFpuuiiuuu -> iFpuuiiuuu
@@ -2039,6 +2042,7 @@ wrappedlibx11:
   - XGetWMHints
 - pFXp:
   - XListExtensions
+  - XLoadQueryFont
 - vFXLp:
   - XSetWMNormalHints
 - iFpip:
@@ -2066,6 +2070,8 @@ wrappedlibx11:
 - iFXLpi:
   - XQueryColors
   - XSetWMProtocols
+- iFXLpp:
+  - XGetWMNormalHints
 - iFXppp:
   - XCheckIfEvent
   - XIfEvent
@@ -2098,6 +2104,8 @@ wrappedlibx11:
 - iFXppppp:
   - XRegisterIMInstantiateCallback
   - XUnregisterIMInstantiateCallback
+- iFppipppp:
+  - XTextExtents
 - iFXLLLiipi:
   - XChangeProperty
 - pFXLiiuuLi:
@@ -2167,6 +2175,10 @@ wrappedlibxrandr:
   - XRRGetProviderResources
   - XRRGetScreenResources
   - XRRGetScreenResourcesCurrent
+- pFXLL:
+  - XRRQueryOutputProperty
+- pFXLp:
+  - XRRListOutputProperties
 - pFXpL:
   - XRRGetCrtcInfo
   - XRRGetOutputInfo

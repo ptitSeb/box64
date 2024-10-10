@@ -38,6 +38,7 @@ typedef int32_t (*iFXLip_t)(void*, uintptr_t, int32_t, void*);
 typedef int32_t (*iFXLlp_t)(void*, uintptr_t, intptr_t, void*);
 typedef int32_t (*iFXLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
+typedef int32_t (*iFXLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
 typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
 typedef int32_t (*iFXbpLiL_pp_t)(void*, struct_pLiL_t*, void*, void*);
@@ -52,6 +53,7 @@ typedef void* (*pFXpppp_t)(void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppipp_t)(void*, void*, void*, int32_t, void*, void*);
 typedef int32_t (*iFXLpppp_t)(void*, uintptr_t, void*, void*, void*, void*);
 typedef int32_t (*iFXppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
 typedef int32_t (*iFXLLLiipi_t)(void*, uintptr_t, uintptr_t, uintptr_t, int32_t, int32_t, void*, int32_t);
 typedef void* (*pFXLiiuuLi_t)(void*, uintptr_t, int32_t, int32_t, uint32_t, uint32_t, uintptr_t, int32_t);
 typedef void (*vFXLpppippp_t)(void*, uintptr_t, void*, void*, void*, int32_t, void*, void*, void*);
@@ -90,6 +92,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XSynchronize, pFXi_t) \
 	GO(XGetWMHints, pFXL_t) \
 	GO(XListExtensions, pFXp_t) \
+	GO(XLoadQueryFont, pFXp_t) \
 	GO(XSetWMNormalHints, vFXLp_t) \
 	GO(XStringListToTextProperty, iFpip_t) \
 	GO(XCheckTypedEvent, iFXip_t) \
@@ -106,6 +109,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XChangeWindowAttributes, iFXLLp_t) \
 	GO(XQueryColors, iFXLpi_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
+	GO(XGetWMNormalHints, iFXLpp_t) \
 	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \
 	GO(XGetVisualInfo, pFXlpp_t) \
@@ -124,6 +128,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XQueryTree, iFXLpppp_t) \
 	GO(XRegisterIMInstantiateCallback, iFXppppp_t) \
 	GO(XUnregisterIMInstantiateCallback, iFXppppp_t) \
+	GO(XTextExtents, iFppipppp_t) \
 	GO(XChangeProperty, iFXLLLiipi_t) \
 	GO(XGetImage, pFXLiiuuLi_t) \
 	GO(XSetWMProperties, vFXLpppippp_t) \

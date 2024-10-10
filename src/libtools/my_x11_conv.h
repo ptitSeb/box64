@@ -64,4 +64,16 @@ void UnwrapXImage(void* d, void* s);
 void* inplace_XImage_shrink(void* a);
 void* inplace_XImage_enlarge(void* a);
 
+void convert_XRRModeInfo_to_32(void* d, const void* s);
+void convert_XRRModeInfo_to_64(void* d, const void* s);
+void inplace_XRRScreenResources_shrink(void* s);
+void inplace_XRRScreenResources_enlarge(void* s);
+void inplace_XRRCrtcInfo_shrink(void* s);
+void inplace_XRROutputInfo_shrink(void* s);
+void inplace_XRRProviderInfo_shrink(void* a);
+void inplace_XRRProviderInfo_enlarge(void* a);
+void inplace_XRRProviderResources_shrink(void* a);
+void inplace_XRRProviderResources_enlarge(void* a);
+void* inplace_XRRPropertyInfo_shrink(void* a);
+
 #endif//MY_X11_CONV

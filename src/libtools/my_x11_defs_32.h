@@ -961,4 +961,12 @@ typedef struct my_XExtensionHooks_32_s {
     ptr_t error_string; //char*(*error_string)(void* dpy, int, my_XExtCodes_t* e, char* s, int n);
 } my_XExtensionHooks_32_t;
 
+typedef struct my_XRRPropertyInfo_32_s {
+    int     pending;
+    int     range;
+    int     immutable;
+    int     num_values;
+    ptr_t   values; //long*
+} my_XRRPropertyInfo_32_t;
+
 #endif//MY_X11_DEFS_32
