@@ -48,7 +48,89 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     MAYUSE(j64);
 
     switch (opcode) {
+        case 0x10:
+            INST_NAME("MOVSS Gx, Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                ed = (nextop & 7) + (rex.b << 3);
+                v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 1, VECTOR_SEW32);
+                v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, VECTOR_SEW32);
+                if (rv64_xtheadvector) {
+                    vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VMV_X_S(x4, v1);
+                    VMV_S_X(v0, x4);
+                }
+            } else {
+                SMREAD();
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                d0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                vector_loadmask(dyn, ninst, VMASK, 0xF, x4, 1);
+                VLE8_V(d0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                VMERGE_VVM(v0, v0, d0); // implies VMASK
+            }
+            break;
+        case 0x11:
+            INST_NAME("MOVSS Ex, Gx");
+            nextop = F8;
+            GETG;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 0, VECTOR_SEW32);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 1, VECTOR_SEW32);
+                if (rv64_xtheadvector) {
+                    vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VMV_X_S(x4, v1);
+                    VMV_S_X(v0, x4);
+                }
+            } else {
+                VMV_X_S(x4, v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                SW(x4, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x1E:
+            return 0;
+        case 0x2A:
+            INST_NAME("CVTSI2SS Gx, Ed");
+            nextop = F8;
+            GETED(0);
+            if (rex.w) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW64);
+                FCVTSL(v0, ed, RD_RNE);
+                if (rv64_xtheadvector) {
+                    v1 = fpu_get_scratch(dyn);
+                    VFMV_S_F(v1, v0);
+                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VFMV_S_F(v0, v0);
+                }
+            } else {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW32);
+                FCVTSW(v0, ed, RD_RNE);
+                if (rv64_xtheadvector) {
+                    v1 = fpu_get_scratch(dyn);
+                    VFMV_S_F(v1, v0);
+                    vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VFMV_S_F(v0, v0);
+                }
+            }
+            break;
         case 0x38:
         case 0xAE:
         case 0xB8:

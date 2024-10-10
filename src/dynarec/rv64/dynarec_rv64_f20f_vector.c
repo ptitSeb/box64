@@ -74,6 +74,29 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMERGE_VVM(v0, v0, d0); // implies VMASK
             }
             break;
+        case 0x11:
+            INST_NAME("MOVSD Ex, Gx");
+            nextop = F8;
+            GETG;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 0, VECTOR_SEW64);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 1, VECTOR_SEW64);
+                if (rv64_xtheadvector) {
+                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VMV_X_S(x4, v1);
+                    VMV_S_X(v0, x4);
+                }
+            } else {
+                VMV_X_S(x4, v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                SD(x4, ed, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x38:
             return 0;
         default: DEFAULT_VECTOR;
