@@ -2777,9 +2777,20 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
     } else {
         if (imm <= 0xF && (dyn->vector_eew == VECTOR_SEW32 || dyn->vector_eew == VECTOR_SEW64)) {
             VMV_V_I(vreg, imm);
+        } else if (dyn->vector_eew == VECTOR_SEW8 && imm >= 0xFF) {
+            if ((imm > 0xFF) && (imm & 0xFF) == (imm >> 8)) {
+                MOV64x(s1, imm);
+                VMV_V_X(vreg, s1);
+            } else if (imm > 0xFF) {
+                abort(); // not used (yet)
+            } else {
+                MOV64x(s1, imm);
+                VXOR_VV(vreg, vreg, vreg, VECTOR_UNMASKED);
+                VMV_S_X(vreg, s1);
+            }
         } else {
             MOV64x(s1, imm);
-            VMV_V_X(vreg, s1);
+            VMV_S_X(vreg, s1);
         }
     }
 #endif
