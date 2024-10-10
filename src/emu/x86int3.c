@@ -32,7 +32,6 @@
 #include "elfs/elfloader_private.h"
 
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
-typedef unsigned long ulong;
 
 static uint64_t F64(uintptr_t* addr) {
     uint64_t ret = *(uint64_t*)*addr;
@@ -229,16 +228,16 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strncmp")==s || strstr(s, "__strncmp")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong*)from_ptr(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong_t*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strncasecmp")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong*)from_ptr(R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(ulong_t*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strtol")==s || strstr(s, "strtoul")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", %p, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(int*)from_ptr(R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "memcmp")==s) {
-                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptri(ulong, R_ESP+12));
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %lu)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), from_ptri(ulong_t, R_ESP+12));
                     ret_fmt = 1;
                 } else  if(strstr(s, "strstr")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p\"%.127s\", \"%.127s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
