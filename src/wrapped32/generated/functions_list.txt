@@ -256,6 +256,7 @@
 #() pFXu -> pFXu
 #() pFXL -> pFXL
 #() pFXp -> pFXp
+#() hFEp -> hFEp
 #() hFpa -> hFpa
 #() SFip -> SFip
 #() SFpp -> SFpp
@@ -470,6 +471,7 @@
 #() uFuuu -> uFuuu
 #() uFuup -> uFuup
 #() uFupp -> uFupp
+#() uFpii -> uFpii
 #() uFpuU -> uFpuU
 #() uFpup -> uFpup
 #() uFppu -> uFppu
@@ -1409,6 +1411,7 @@
 #() iFXiLLdduudd -> iFXiLLdduudd
 #() iFXuuLiuiiLL -> iFXuuLiuiiLL
 #() iFXLLpiiuuii -> iFXLLpiiuuii
+#() pFEpiiiiuuuu -> pFEpiiiiuuuu
 #() pFpppppppppp -> pFpppppppppp
 #() pFXpuiipuuii -> pFXpuiipuuii
 #() iFXiiLiiibiip_ip -> iFXiiLiiiBip
@@ -2257,6 +2260,8 @@ wrappedsdl2:
   - SDL_GetBasePath
 - pFp:
   - SDL_GL_GetProcAddress
+- hFp:
+  - SDL_GetThreadID
 - JFi:
   - SDL_JoystickGetDeviceGUID
 - vFpp:
@@ -2299,6 +2304,8 @@ wrappedsdl2:
   - SDL_CreateColorCursor
 - pFpuu:
   - SDL_ConvertSurfaceFormat
+- pFppu:
+  - SDL_ConvertSurface
 - pFppp:
   - SDL_CreateThread
 - iFpLpp:
@@ -2316,6 +2323,8 @@ wrappedsdl2:
   - SDL_CreateRGBSurfaceWithFormatFrom
 - pFuiiiuuuu:
   - SDL_CreateRGBSurface
+- pFpiiiiuuuu:
+  - SDL_CreateRGBSurfaceFrom
 % JFEi -> pFEpi
 wrappedsdl2image:
 - pFp:

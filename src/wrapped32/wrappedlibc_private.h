@@ -1492,7 +1492,7 @@ GO(sethostent, vFi)
 GOW(setitimer, iFirLLLL_BLLLL_)
 GOM(setjmp, iFEp) //%%
 GOM(_setjmp, iFEp) //%%
-//GO(setlinebuf, vFp)
+GO(setlinebuf, vFS)
 GO(setlocale, tFip)
 // setlogin
 GO(setlogmask, iFi)

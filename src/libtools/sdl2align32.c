@@ -456,14 +456,82 @@ void inplace_SDL2_PixelFormat_to_32(void* a)
     }
 }
 
+// used to mirror the pixelformat on x86 side, as the one in native side is a global static used by SDL2 and so cannot be inplace shrinked
+// TODO: the pixelformats are leaking. There is no mecanism to remove them
+// test of refcount should be done when surface are removed to delete the format, in sync with SDL2
+static my_SDL2_PixelFormat_32_ext_t* pixelformat_head = NULL;
+
+static my_SDL2_PixelFormat_32_ext_t* find_pixelformat_ext(my_SDL2_PixelFormat_t* a)
+{
+    my_SDL2_PixelFormat_32_ext_t* head = pixelformat_head;
+    while(head) {
+        if(head->ref == a)
+            return head;
+        head = head->next;
+    }
+    return NULL;
+}
+
+void* replace_SDL2_PixelFormat_to_32_ext(void* a)
+{
+    if(!a) return NULL;
+    my_SDL2_PixelFormat_t* src = a;
+    my_SDL2_PixelFormat_32_ext_t* dst = find_pixelformat_ext(src);
+    if(dst) return dst;
+    // create a new one
+    dst = calloc(1, sizeof(my_SDL2_PixelFormat_32_ext_t)+(src->palette?sizeof(my_SDL2_Palette_32_t):0));  // not using box_calloc as we want this to be 32bits
+    // copye the values
+    dst->ref = src;
+    dst->fmt.format = src->format;
+    if(src->palette) {
+        my_SDL2_Palette_32_t* pal = (void*)((uintptr_t)dst)+sizeof(my_SDL2_PixelFormat_32_ext_t); 
+        dst->fmt.palette = to_ptrv(pal);
+        pal->ncolors = src->palette->ncolors;
+        pal->colors = to_ptrv(src->palette->colors);
+        pal->version = src->palette->version;
+        pal->refcount = src->palette->refcount;
+    } else dst->fmt.palette = 0;
+    dst->fmt.BitsPerPixel = src->BitsPerPixel;
+    dst->fmt.BytesPerPixel = src->BytesPerPixel;
+    dst->fmt.Rmask = src->Rmask;
+    dst->fmt.Gmask = src->Gmask;
+    dst->fmt.Bmask = src->Bmask;
+    dst->fmt.Amask = src->Amask;
+    dst->fmt.Rloss = src->Rloss;
+    dst->fmt.Gloss = src->Gloss;
+    dst->fmt.Bloss = src->Bloss;
+    dst->fmt.Aloss = src->Aloss;
+    dst->fmt.Rshift = src->Rshift;
+    dst->fmt.Gshift = src->Gshift;
+    dst->fmt.Bshift = src->Bshift;
+    dst->fmt.Ashift = src->Ashift;
+    dst->fmt.refcount = src->refcount;
+    dst->fmt.next = to_ptrv(src->next);
+    // insert at head and return the value
+    dst->next = pixelformat_head;
+    pixelformat_head = dst;
+    return dst;
+}
+
+void* replace_SDL2_PixelFormat_to_64_ext(void* a)
+{
+    if(!a) return a;
+    my_SDL2_PixelFormat_32_ext_t* dst = a;
+    return dst->ref;
+}
+
 void inplace_SDL2_Surface_to_32(void* a)
 {
     if (!a) return;
     my_SDL2_Surface_t* src = a;
     my_SDL2_Surface_32_t* dst = a;
     dst->flags = src->flags;
+    #if 0
     inplace_SDL2_PixelFormat_to_32(src->format);
     dst->format = to_ptrv(src->format);
+    #else
+    dst->format = to_ptrv(replace_SDL2_PixelFormat_to_32_ext(src->format));
+    #endif
     dst->w = src->w;
     dst->h = src->h;
     dst->pitch = src->pitch;
@@ -542,9 +610,13 @@ void inplace_SDL2_Surface_to_64(void* a)
     dst->pitch = src->pitch;
     dst->h = src->h;
     dst->w = src->w;
+    #if 0
     uintptr_t p = (uintptr_t)(src->format);
     inplace_SDL2_PixelFormat_to_64((void*)p);
     dst->format = from_ptrv(src->format);
+    #else
+    dst->format = replace_SDL2_PixelFormat_to_64_ext(from_ptrv(src->format));
+    #endif
     dst->flags = src->flags;
 }
 

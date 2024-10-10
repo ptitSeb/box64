@@ -16,6 +16,7 @@ typedef int32_t (*iFp_t)(void*);
 typedef int64_t (*IFp_t)(void*);
 typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
+typedef uintptr_t (*hFp_t)(void*);
 typedef SDL2_GUID_t (*JFi_t)(int32_t);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
@@ -32,6 +33,7 @@ typedef int64_t (*IFpIi_t)(void*, int64_t, int32_t);
 typedef void* (*pFipp_t)(int32_t, void*, void*);
 typedef void* (*pFpii_t)(void*, int32_t, int32_t);
 typedef void* (*pFpuu_t)(void*, uint32_t, uint32_t);
+typedef void* (*pFppu_t)(void*, void*, uint32_t);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef int32_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
@@ -40,6 +42,7 @@ typedef int32_t (*iFpiuuu_t)(void*, int32_t, uint32_t, uint32_t, uint32_t);
 typedef uint32_t (*uFpippi_t)(void*, int32_t, void*, void*, int32_t);
 typedef void* (*pFpiiiiu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t);
 typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
+typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SDL_FreeSurface, vFp_t) \
@@ -50,6 +53,7 @@ typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uin
 	GO(SDL_RWtell, IFp_t) \
 	GO(SDL_GetBasePath, pFv_t) \
 	GO(SDL_GL_GetProcAddress, pFp_t) \
+	GO(SDL_GetThreadID, hFp_t) \
 	GO(SDL_JoystickGetDeviceGUID, JFi_t) \
 	GO(SDL_AddEventWatch, vFpp_t) \
 	GO(SDL_DelEventWatch, vFpp_t) \
@@ -76,6 +80,7 @@ typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uin
 	GO(SDL_GetClosestDisplayMode, pFipp_t) \
 	GO(SDL_CreateColorCursor, pFpii_t) \
 	GO(SDL_ConvertSurfaceFormat, pFpuu_t) \
+	GO(SDL_ConvertSurface, pFppu_t) \
 	GO(SDL_CreateThread, pFppp_t) \
 	GO(SDL_vsnprintf, iFpLpp_t) \
 	GO(SDL_snprintf, iFpLpV_t) \
@@ -84,6 +89,7 @@ typedef void* (*pFuiiiuuuu_t)(uint32_t, int32_t, int32_t, int32_t, uint32_t, uin
 	GO(SDL_PeepEvents, iFpiuuu_t) \
 	GO(SDL_OpenAudioDevice, uFpippi_t) \
 	GO(SDL_CreateRGBSurfaceWithFormatFrom, pFpiiiiu_t) \
-	GO(SDL_CreateRGBSurface, pFuiiiuuuu_t)
+	GO(SDL_CreateRGBSurface, pFuiiiuuuu_t) \
+	GO(SDL_CreateRGBSurfaceFrom, pFpiiiiuuuu_t)
 
 #endif // __wrappedsdl2TYPES32_H_

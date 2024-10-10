@@ -838,6 +838,13 @@ typedef struct my_SDL2_PixelFormat_32_s {
     ptr_t next;
 } my_SDL2_PixelFormat_32_t;
 
+// used to mirror the pixelformat on x86 side, as the one in native side is a global static used by SDL2 and so cannot be inplace shrinked
+typedef struct my_SDL2_PixelFormat_32_ext_s {
+    my_SDL2_PixelFormat_32_t fmt;
+    my_SDL2_PixelFormat_t*   ref;
+    struct my_SDL2_PixelFormat_32_ext_s* next;
+} my_SDL2_PixelFormat_32_ext_t;
+
 typedef struct my_SDL2_Rect_32_s {
     int x, y;
     int w, h;
@@ -890,9 +897,11 @@ void inplace_SDL2_Event_enlarge(void* e);
 
 void inplace_SDL2_Palette_to_32(void* a);
 void inplace_SDL2_PixelFormat_to_32(void* a);
+void* replace_SDL2_PixelFormat_to_32_ext(void* a);
 void inplace_SDL2_Surface_to_32(void* a);
 void inplace_SDL2_Palette_to_64(void* a);
 void inplace_SDL2_PixelFormat_to_64(void* a);
+void* replace_SDL2_PixelFormat_to_64_ext(void* a);
 void inplace_SDL2_Surface_to_64(void* a);
 
 void inplace_SDL2_RWops_to_32(void* a);

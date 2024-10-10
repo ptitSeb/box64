@@ -340,6 +340,14 @@ EXPORT void* my32_2_SDL_CreateRGBSurface(x64emu_t* emu, uint32_t flags, int widt
     return p;
 }
 
+EXPORT void* my32_2_SDL_CreateRGBSurfaceFrom(x64emu_t* emu, void* pixels, int width, int height, int depth, int pitch, uint32_t rmask, uint32_t gmask, uint32_t bmask, uint32_t amask)
+{
+    void* p = my->SDL_CreateRGBSurfaceFrom(pixels, width, height, depth, pitch, rmask, gmask, bmask, amask);
+    inplace_SDL2_Surface_to_32(p);
+    return p;
+}
+
+
 EXPORT void my32_2_SDL_SetWindowIcon(x64emu_t* emu, void* window, void* icon)
 {
     inplace_SDL2_Surface_to_64(icon);
@@ -379,12 +387,21 @@ EXPORT int my32_2_SDL_SetColorKey(void* s, int flag, uint32_t color)
     return ret;
 }
 
+EXPORT void* my32_2_SDL_ConvertSurface(void* s, my_SDL2_PixelFormat_32_t* fmt, uint32_t flags)
+{
+    inplace_SDL2_Surface_to_64(s);
+    void* ret = my->SDL_ConvertSurface(s, replace_SDL2_PixelFormat_to_64_ext(fmt), flags);
+    inplace_SDL2_Surface_to_32(s);
+    if(ret!=s) inplace_SDL2_Surface_to_32(ret);
+    return ret;
+}
+
 EXPORT void* my32_2_SDL_ConvertSurfaceFormat(void* s, uint32_t fmt, uint32_t flags)
 {
     inplace_SDL2_Surface_to_64(s);
     void* ret = my->SDL_ConvertSurfaceFormat(s, fmt, flags);
     inplace_SDL2_Surface_to_32(s);
-    inplace_SDL2_Surface_to_32(ret);
+    if(ret!=s) inplace_SDL2_Surface_to_32(ret);
     return ret;
 }
 
@@ -613,6 +630,17 @@ EXPORT int my32_2_SDL_ShowMessageBox(my_SDL_MessageBoxData_32_t* msgbox, int* bt
         btns_l[i].text = from_ptrv(src[i].buttonid);
     }
     return my->SDL_ShowMessageBox(&msgbox_l, btn);
+}
+
+EXPORT unsigned long my32_2_SDL_GetThreadID(x64emu_t* emu, void* thread)
+{
+    unsigned long ret = my->SDL_GetThreadID(thread);
+    int max = 10;
+    while (!ret && max--) {
+        sched_yield();
+        ret = my->SDL_GetThreadID(thread);
+    }
+    return ret;
 }
 
 #define ALTMY my32_2_
