@@ -1896,12 +1896,17 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(!strcmp(prog_, "wine-preloader") || !strcmp(prog_, "wine64-preloader")) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
         int x64 = (nextarg<argc)?FileIsX64ELF(argv[nextarg]):0;
-        if(x64) {
+        #ifdef BOX32
+        int x86 = (nextarg<argc)?FileIsX86ELF(argv[nextarg]):0;
+        #else
+        int x86 = 0;
+        #endif
+        if(x64 || x86) {
             prog = argv[++nextarg];
             printf_log(LOG_INFO, "BOX64: Wine preloader detected, loading \"%s\" directly\n", prog);
             wine_preloaded = 1;
             prog_ = strrchr(prog, '/');
-            if(!prog_) prog_ = prog; else ++prog;
+            if(!prog_) prog_ = prog; else ++prog_;
         }
     }
     #ifndef STATICBUILD
