@@ -183,10 +183,14 @@ uintptr_t dynarec64_00_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = retaddr ? retaddr : dynarec64_0F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                 break;
             case 1:
-                addr = dynarec64_F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                if (rv64_vector)
+                    retaddr = dynarec64_F20F_vector(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                addr = retaddr ? retaddr : dynarec64_F20F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                 break;
             case 2:
-                addr = dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                if (rv64_vector)
+                    retaddr = dynarec64_F30F_vector(dyn, addr, ip, ninst, rex, ok, need_epilog);
+                addr = retaddr ? retaddr : dynarec64_F30F(dyn, addr, ip, ninst, rex, ok, need_epilog);
                 break;
             default:
                 DEFAULT;
