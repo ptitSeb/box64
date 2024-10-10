@@ -1891,19 +1891,22 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if(!box64_nobanner)
         PrintBox64Version();
     // precheck, for win-preload
-    if(strstr(prog, "wine-preloader")==(prog+strlen(prog)-strlen("wine-preloader"))
-     || strstr(prog, "wine64-preloader")==(prog+strlen(prog)-strlen("wine64-preloader"))) {
+    const char* prog_ = strrchr(prog, '/');
+    if(!prog_) prog_ = prog; else ++prog_;
+    if(!strcmp(prog_, "wine-preloader") || !strcmp(prog_, "wine64-preloader")) {
         // wine-preloader detecter, skipping it if next arg exist and is an x86 binary
         int x64 = (nextarg<argc)?FileIsX64ELF(argv[nextarg]):0;
         if(x64) {
             prog = argv[++nextarg];
             printf_log(LOG_INFO, "BOX64: Wine preloader detected, loading \"%s\" directly\n", prog);
             wine_preloaded = 1;
+            prog_ = strrchr(prog, '/');
+            if(!prog_) prog_ = prog; else ++prog;
         }
     }
     #ifndef STATICBUILD
     // pre-check for pressure-vessel-wrap
-    if(strstr(prog, "pressure-vessel-wrap")==(prog+strlen(prog)-strlen("pressure-vessel-wrap"))) {
+    if(!strcmp(prog_, "pressure-vessel-wrap")) {
         printf_log(LOG_INFO, "BOX64: pressure-vessel-wrap detected\n");
         pressure_vessel(argc, argv, nextarg+1, prog);
     }
@@ -1912,11 +1915,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     int is_custom_gstreamer = 0;
     const char* wine_prog = NULL;
     // check if this is wine
-    if(!strcmp(prog, "wine64")
-     || !strcmp(prog, "wine64-development")
-     || !strcmp(prog, "wine")
-     || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine"))
-     || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/wine64"))) {
+    if(!strcmp(prog_, "wine64")
+     || !strcmp(prog_, "wine64-development")
+     || !strcmp(prog_, "wine")) {
         const char* prereserve = getenv("WINEPRELOADRESERVE");
         printf_log(LOG_INFO, "BOX64: Wine64 detected, WINEPRELOADRESERVE=\"%s\"\n", prereserve?prereserve:"");
         if(wine_preloaded || 1) {
@@ -1977,13 +1978,13 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         }
         ++nextarg;
         prog = argv[nextarg];
-    } else if(!strcmp(prog, "steam") || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/steam"))) {
+    } else if(!strcmp(prog_, "steam") ) {
         printf_log(LOG_INFO, "steam detected\n");
         box64_steam = 1;
-    } else if(!strcmp(prog, "steamcmd") || (strrchr(prog, '/') && !strcmp(strrchr(prog,'/'), "/steamcmd"))) {
+    } else if(!strcmp(prog_, "steamcmd")) {
         printf_log(LOG_INFO, "steamcmd detected\n");
         box64_steamcmd = 1;
-    } else  if(!strcmp(prog, "wineserver") || !strcmp(prog, "wineserver64") || (strlen(prog)>9 && !strcmp(prog+strlen(prog)-strlen("/wineserver"), "/wineserver"))) {
+    } else  if(!strcmp(prog_, "wineserver")) {
         // check if this is wineserver
         box64_wine = 1;
     }
@@ -1995,7 +1996,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     // Append ld_list if it exist
     if(ld_libs_args!=-1)
         PrependList(&my_context->box64_ld_lib, argv[ld_libs_args], 1);
-    if(is_custom_gstreamer)
+    if(is_custom_gstreamer) //TODO: is this still needed?
         AddPath("libwayland-client.so.0", &my_context->box64_emulated_libs, 0);
 
     my_context->box64path = ResolveFile(argv[0], &my_context->box64_path);
