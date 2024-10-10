@@ -46,6 +46,34 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     MAYUSE(v1);
 
     switch (opcode) {
+        case 0x10:
+            INST_NAME("MOVSD Gx, Ex");
+            nextop = F8;
+            GETG;
+            if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                ed = (nextop & 7) + (rex.b << 3);
+                v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 1, VECTOR_SEW64);
+                v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, VECTOR_SEW64);
+                if (rv64_xtheadvector) {
+                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VMV_X_S(x4, v1);
+                    VMV_S_X(v0, x4);
+                }
+            } else {
+                SMREAD();
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                d0 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VLE8_V(d0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                VMERGE_VVM(v0, v0, d0); // implies VMASK
+            }
+            break;
         case 0x38:
             return 0;
         default: DEFAULT_VECTOR;
