@@ -43,6 +43,7 @@ EXPORT void* my32_glXGetProcAddressARB(x64emu_t* emu, void* name) __attribute__(
 typedef int  (*iFi_t)(int);
 typedef void (*vFpp_t)(void*, void*);
 typedef void*(*pFpp_t)(void*, void*);
+typedef void (*vFip_t)(int, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFppi_t)(void*, void*, int);
 typedef void*(*pFpip_t)(void*, int, void*);
@@ -838,6 +839,56 @@ static void* find_glGetUniformIndices_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libGL glGetUniformIndices callback\n");
     return NULL;
 }
+// glVDPAUMapSurfacesNV ...
+#define GO(A)                                                                                   \
+static vFip_t my32_glVDPAUMapSurfacesNV_fct_##A = NULL;                                         \
+static void my32_glVDPAUMapSurfacesNV_##A(x64emu_t* emu, int count, long_t* surfaces)           \
+{                                                                                               \
+    if(!my32_glVDPAUMapSurfacesNV_fct_##A)                                                      \
+        return;                                                                                 \
+    long surfaces_l[count];                                                                     \
+    if(surfaces) for(int i=0; i<count; ++i) surfaces_l[i] = from_long(surfaces[i]);             \
+    my32_glVDPAUMapSurfacesNV_fct_##A (count, surfaces?surfaces_l:NULL);                        \
+}
+SUPER()
+#undef GO
+static void* find_glVDPAUMapSurfacesNV_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glVDPAUMapSurfacesNV_fct_##A == (vFip_t)fct) return my32_glVDPAUMapSurfacesNV_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glVDPAUMapSurfacesNV_fct_##A == 0) {my32_glVDPAUMapSurfacesNV_fct_##A = (vFip_t)fct; return my32_glVDPAUMapSurfacesNV_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glVDPAUMapSurfacesNV callback\n");
+    return NULL;
+}
+// glVDPAUUnmapSurfacesNV ...
+#define GO(A)                                                                                   \
+static vFip_t my32_glVDPAUUnmapSurfacesNV_fct_##A = NULL;                                       \
+static void my32_glVDPAUUnmapSurfacesNV_##A(x64emu_t* emu, int count, long_t* surfaces)         \
+{                                                                                               \
+    if(!my32_glVDPAUUnmapSurfacesNV_fct_##A)                                                    \
+        return;                                                                                 \
+    long surfaces_l[count];                                                                     \
+    if(surfaces) for(int i=0; i<count; ++i) surfaces_l[i] = from_long(surfaces[i]);             \
+    my32_glVDPAUUnmapSurfacesNV_fct_##A (count, surfaces?surfaces_l:NULL);                      \
+}
+SUPER()
+#undef GO
+static void* find_glVDPAUUnmapSurfacesNV_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(my32_glVDPAUUnmapSurfacesNV_fct_##A == (vFip_t)fct) return my32_glVDPAUUnmapSurfacesNV_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my32_glVDPAUUnmapSurfacesNV_fct_##A == 0) {my32_glVDPAUUnmapSurfacesNV_fct_##A = (vFip_t)fct; return my32_glVDPAUUnmapSurfacesNV_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libGL glVDPAUUnmapSurfacesNV callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -1039,7 +1090,8 @@ EXPORT void my32_glGetUniformIndices(x64emu_t* emu, uint32_t prog, int count, pt
  GO(vFuipu_t, glTransformFeedbackVaryingsEXT)   \
  GO(pFpip_t, glXGetFBConfigs)                   \
  GO(vFuipp_t, glGetUniformIndices)              \
- 
+ GO(vFuipp_t, glVDPAUMapSurfacesNV)             \
+ GO(vFuipp_t, glVDPAUUnmapSurfacesNV)           \
 
 gl_wrappers_t* getGLProcWrapper32(box64context_t* context, glprocaddress_t procaddress)
 {

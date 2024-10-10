@@ -450,6 +450,7 @@
 #() iFXup -> iFXup
 #() iFXLi -> iFXLi
 #() iFXLu -> iFXLu
+#() iFXLf -> iFXLf
 #() iFXLl -> iFXLl
 #() iFXLL -> iFXLL
 #() iFXLp -> iFXLp
@@ -825,6 +826,7 @@
 #() pFpupp -> pFpupp
 #() pFpLiS -> pFpLiS
 #() pFppLL -> pFppLL
+#() pFpppL -> pFpppL
 #() pFpppp -> pFpppp
 #() pFXiii -> pFXiii
 #() pFXiip -> pFXiip
@@ -1324,6 +1326,7 @@
 #() vFXLiiiLii -> vFXLiiiLii
 #() vFXLLLiipi -> vFXLLLiipi
 #() vFXLppiipi -> vFXLppiipi
+#() vFXppuulll -> vFXppuulll
 #() iFEpippppp -> iFEpippppp
 #() iFEpLiLppp -> iFEpLiLppp
 #() iFuiiiiuup -> iFuiiiiuup
@@ -1761,6 +1764,9 @@ wrappedlibgl:
   - glGetVkProcAddrNV
   - glXGetProcAddress
   - glXGetProcAddressARB
+- vFip:
+  - glVDPAUMapSurfacesNV
+  - glVDPAUUnmapSurfacesNV
 - vFpp:
   - glDebugMessageCallback
   - glDebugMessageCallbackAMD

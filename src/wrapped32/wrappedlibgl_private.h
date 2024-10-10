@@ -2454,11 +2454,11 @@ GO(glVDPAUFiniNV, vFv)
 GO(glVDPAUGetSurfaceivNV, vFluipp)
 GO(glVDPAUInitNV, vFpp)
 GO(glVDPAUIsSurfaceNV, CFl)
-//GO(glVDPAUMapSurfacesNV, vFibl_)
+GOM(glVDPAUMapSurfacesNV, vFEip)
 GO(glVDPAURegisterOutputSurfaceNV, lFpuip)
 GO(glVDPAURegisterVideoSurfaceNV, lFpuip)
 GO(glVDPAUSurfaceAccessNV, vFlu)
-//GO(glVDPAUUnmapSurfacesNV, vFibl_)
+GOM(glVDPAUUnmapSurfacesNV, vFEip)
 GO(glVDPAUUnregisterSurfaceNV, vFl)
 //NV_vertex_array_range
 GO(glFlushVertexArrayRangeNV, vFv)
@@ -4072,5 +4072,12 @@ GO(glGetInteger64vEXT, vFup)
 GO(glGetBufferPointervOES, vFuup)
 GO(glMapBufferOES, pFuu)
 GO(glUnmapBufferOES, iFu)
+
+// GLX_NV_copy_buffer
+GO(glXCopyBufferSubDataNV, vFXppuulll)
+GO(glXNamedCopyBufferSubDataNV, vFXppuulll)
+
+// GLX_NV_delay_before_swap
+GO(glXDelayBeforeSwapNV, iFXLf)
 
 GO(dummmy_vFppi, vFppi)
