@@ -212,11 +212,22 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FADDS(v0, v0, d0);
             break;
         case 0x59:
-            INST_NAME("MULSS Gx, Ex"); // TODO: box64_dynarec_fastnan
+            INST_NAME("MULSS Gx, Ex");
             nextop = F8;
             GETGXSS(v0);
             GETEXSS(d0, 0);
+            if (!box64_dynarec_fastnan) {
+                FEQS(x3, v0, v0);
+                FEQS(x4, d0, d0);
+            }
             FMULS(v0, v0, d0);
+            if (!box64_dynarec_fastnan) {
+                AND(x3, x3, x4);
+                CBZ_NEXT(x3);
+                FEQS(x3, v0, v0);
+                CBNZ_NEXT(x3);
+                FNEGS(v0, v0);
+            }
             break;
         case 0x5A:
             INST_NAME("CVTSS2SD Gx, Ex");
