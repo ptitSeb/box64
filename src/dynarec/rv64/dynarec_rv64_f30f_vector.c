@@ -128,11 +128,10 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x38:
             return 0;
         case 0x59:
-            INST_NAME("MULSS Gx, Ex"); // TODO: box64_dynarec_fastnan
+            INST_NAME("MULSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETGX_vector(v0, 1, VECTOR_SEW32);
-            v1 = fpu_get_scratch(dyn);
             vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
             if (MODREG) {
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
@@ -142,7 +141,28 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 VLE32_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
             }
-            VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
+            if (box64_dynarec_fastnan) {
+                VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
+            } else {
+                VFMV_F_S(v0, v0);
+                VFMV_F_S(v1, v1);
+                FEQS(x3, v0, v0);
+                FEQS(x4, v1, v1);
+                FMULS(v0, v0, v1);
+                AND(x3, x3, x4);
+                BEQZ_MARK(x3);
+                FEQS(x3, v0, v0);
+                BNEZ_MARK(x3);
+                FNEGS(v0, v0);
+                MARK;
+                if (rv64_xtheadvector) {
+                    VFMV_S_F(v1, v0);
+                    vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
+                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                } else {
+                    VFMV_S_F(v0, v0);
+                }
+            }
             break;
         case 0x5A:
             INST_NAME("CVTSS2SD Gx, Ex");
