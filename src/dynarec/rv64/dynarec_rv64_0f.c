@@ -1652,69 +1652,67 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LD(x3, gback, gdoffset + 0);
             SD(x3, wback, fixedaddress);
             break;
-#define GO(GETFLAGS, NO, YES, F)                                                            \
-    READFLAGS(F);                                                                           \
-    i32_ = F32S;                                                                            \
-    if(rex.is32bits)                                                                        \
-        j64 = (uint32_t)(addr+i32_);                                                        \
-    else                                                                                    \
-        j64 = addr+i32_;                                                                    \
-    BARRIER(BARRIER_MAYBE);                                                                 \
-    JUMP(j64, 1);                                                                           \
-    GETFLAGS;                                                                               \
-    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-        /* out of the block */                                                              \
-        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-        B##NO##_safe(x1, i32);                                                              \
-        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-            jump_to_next(dyn, j64, 0, ninst, rex.is32bits);                                 \
-        } else {                                                                            \
-            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
-            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-            B(i32);                                                                         \
-        }                                                                                   \
-    } else {                                                                                \
-        /* inside the block */                                                              \
-        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-        B##YES##_safe(x1, i32);                                                             \
-    }
-
+        #define GO(GETFLAGS, NO, YES, F)                                                            \
+            READFLAGS(F);                                                                           \
+            i32_ = F32S;                                                                            \
+            if(rex.is32bits)                                                                        \
+                j64 = (uint32_t)(addr+i32_);                                                        \
+            else                                                                                    \
+                j64 = addr+i32_;                                                                    \
+            BARRIER(BARRIER_MAYBE);                                                                 \
+            JUMP(j64, 1);                                                                           \
+            GETFLAGS;                                                                               \
+            if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+                /* out of the block */                                                              \
+                i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+                B##NO##_safe(x1, i32);                                                              \
+                if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+                    if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                        fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
+                    jump_to_next(dyn, j64, 0, ninst, rex.is32bits);                                 \
+                } else {                                                                            \
+                    CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
+                    i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+                    B(i32);                                                                         \
+                }                                                                                   \
+            } else {                                                                                \
+                /* inside the block */                                                              \
+                i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+                B##YES##_safe(x1, i32);                                                             \
+            }
             GOCOND(0x80, "J", "Id");
-#undef GO
+        #undef GO
 
-#define GO(GETFLAGS, NO, YES, F)                                                             \
-    READFLAGS(F);                                                                            \
-    GETFLAGS;                                                                                \
-    nextop = F8;                                                                             \
-    S##YES(x3, x1);                                                                          \
-    if (MODREG) {                                                                            \
-        if (rex.rex) {                                                                       \
-            eb1 = xRAX + (nextop & 7) + (rex.b << 3);                                        \
-            eb2 = 0;                                                                         \
-        } else {                                                                             \
-            ed = (nextop & 7);                                                               \
-            eb2 = (ed >> 2) * 8;                                                             \
-            eb1 = xRAX + (ed & 3);                                                           \
-        }                                                                                    \
-        if (eb2) {                                                                           \
-            LUI(x1, 0xffff0);                                                                \
-            ORI(x1, x1, 0xff);                                                               \
-            AND(eb1, eb1, x1);                                                               \
-            SLLI(x3, x3, 8);                                                                 \
-        } else {                                                                             \
-            ANDI(eb1, eb1, 0xf00);                                                           \
-        }                                                                                    \
-        OR(eb1, eb1, x3);                                                                    \
-    } else {                                                                                 \
-        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
-        SB(x3, ed, fixedaddress);                                                            \
-        SMWRITE();                                                                           \
-    }
-
+        #define GO(GETFLAGS, NO, YES, F)                                                             \
+            READFLAGS(F);                                                                            \
+            GETFLAGS;                                                                                \
+            nextop = F8;                                                                             \
+            S##YES(x3, x1);                                                                          \
+            if (MODREG) {                                                                            \
+                if (rex.rex) {                                                                       \
+                    eb1 = xRAX + (nextop & 7) + (rex.b << 3);                                        \
+                    eb2 = 0;                                                                         \
+                } else {                                                                             \
+                    ed = (nextop & 7);                                                               \
+                    eb2 = (ed >> 2) * 8;                                                             \
+                    eb1 = xRAX + (ed & 3);                                                           \
+                }                                                                                    \
+                if (eb2) {                                                                           \
+                    LUI(x1, 0xffff0);                                                                \
+                    ORI(x1, x1, 0xff);                                                               \
+                    AND(eb1, eb1, x1);                                                               \
+                    SLLI(x3, x3, 8);                                                                 \
+                } else {                                                                             \
+                    ANDI(eb1, eb1, 0xf00);                                                           \
+                }                                                                                    \
+                OR(eb1, eb1, x3);                                                                    \
+            } else {                                                                                 \
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0); \
+                SB(x3, ed, fixedaddress);                                                            \
+                SMWRITE();                                                                           \
+            }
             GOCOND(0x90, "SET", "Eb");
-#undef GO
+        #undef GO
 
         case 0xA2:
             INST_NAME("CPUID");
