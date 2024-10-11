@@ -156,9 +156,9 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 FNEGS(v0, v0);
                 MARK;
                 if (rv64_xtheadvector) {
-                    VFMV_S_F(v1, v0);
-                    vector_loadmask(dyn, ninst, VMASK, 0b0001, x4, 1);
-                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                    d0 = fpu_get_scratch(dyn);
+                    VFMV_S_F(d0, v0);
+                    VMERGE_VVM(v0, v0, d0); // implies VMASK
                 } else {
                     VFMV_S_F(v0, v0);
                 }

@@ -221,7 +221,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 if (rv64_xtheadvector) {
                     d0 = fpu_get_scratch(dyn);
                     VFMV_S_F(d0, v0);
-                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
                 } else {
                     VFMV_S_F(v0, v0);
