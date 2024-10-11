@@ -124,13 +124,13 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("CVTTSD2SI Gd, Ex");
             nextop = F8;
             GETGD;
-            SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
-            vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             if (MODREG) {
                 v0 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, dyn->vector_eew);
             } else {
                 SMREAD();
                 v0 = fpu_get_scratch(dyn);
+                vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 VLE_V(v0, ed, dyn->vector_eew, VECTOR_MASKED, VECTOR_NFIELD1);
             }
