@@ -2151,10 +2151,15 @@ EXPORT void my32_XLockDisplay(x64emu_t* emu, void* dpy)
 {
     my->XLockDisplay(dpy);
     // update some of the values now that the screen is locked
-    my_XDisplay_t* src = dpy;
-    my_XDisplay_32_t* dst = FindDisplay(dpy);
-    // should do a full sync?
-    dst->request = src->request;
+    refreshDisplay(dpy);
+}
+
+EXPORT int my32_XGrabServer(x64emu_t* emu, void* dpy)
+{
+    int ret = my->XGrabServer(dpy);
+    // update some of the values now that the server is grabbed
+    refreshDisplay(dpy);
+    return ret;
 }
 
 #define CUSTOM_INIT                 \

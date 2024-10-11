@@ -73,6 +73,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XRefreshKeyboardMapping, iFp_t) \
 	GO(_XInitImageFuncPtrs, iFp_t) \
 	GO(XCloseDisplay, iFX_t) \
+	GO(XGrabServer, iFX_t) \
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
 	GO(XGetModifierMapping, pFX_t) \

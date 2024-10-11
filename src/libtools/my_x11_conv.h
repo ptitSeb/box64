@@ -20,6 +20,8 @@ void* FindDisplay(void* d);
 void* getDisplay(void* d);
 // removed a 32bits Display and associated ressources
 void delDisplay(void* d);
+// refresh the 32bits from the 64bits version
+void refreshDisplay(void* dpy);
 
 void convert_Screen_to_32(void* d, void* s);
 

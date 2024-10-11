@@ -485,12 +485,9 @@ void convert_XErrorEvent_to_64(void* d, void* s)
 }
 
 #define N_DISPLAY 4
-#define N_SCREENS 16
 my_XDisplay_t* my32_Displays_64[N_DISPLAY] = {0};
 struct my_XFreeFuncs_32 my32_free_funcs_32[N_DISPLAY] = {0};
 struct my_XLockPtrs_32 my32_lock_fns_32[N_DISPLAY] = {0};
-my_Screen_32_t my32_screens[N_DISPLAY*N_SCREENS] = {0};
-int n_screeens = 0;
 my_XDisplay_32_t my32_Displays_32[N_DISPLAY] = {0};
 
 void* getDisplay(void* d)
@@ -522,7 +519,9 @@ void convert_Screen_to_32(void* d, void* s)
     dst->display = to_ptrv(FindDisplay(src->display));
     dst->root = to_ulong(src->root);
     dst->width = src->width;
+    dst->height = src->height;
     dst->mwidth = src->mwidth;
+    dst->mheight = src->mheight;
     dst->ndepths = src->ndepths;
     dst->depths = to_ptrv(src->depths);
     dst->root_depth = src->root_depth;
@@ -595,13 +594,10 @@ void* addDisplay(void* d)
     ret->default_screen = dpy->default_screen;
     ret->nscreens = dpy->nscreens;
     if(dpy->screens) {
-        ret->screens = to_ptrv(&my32_screens[n_screeens]);
+        my_Screen_32_t* screens = calloc(dpy->nscreens, sizeof(my_Screen_32_t));
+        ret->screens = to_ptrv(screens);
         for(int i=0; i<dpy->nscreens; ++i) {
-            if(n_screeens==N_DISPLAY*N_SCREENS) {
-                printf_log(LOG_INFO, "BOX32: Warning, no more libX11 Screen slots!");
-                break;
-            }
-            convert_Screen_to_32(&my32_screens[n_screeens++], &dpy->screens[i]);
+            convert_Screen_to_32(screens+i, dpy->screens+i);
         }
     } else
         ret->screens = 0;
@@ -645,8 +641,28 @@ void delDisplay(void* d)
         // crude free of ressources... not perfect
         if(my32_Displays_64[i]==d) {
             my32_Displays_64[i] = NULL;
+            free(from_ptrv(my32_Displays_32[i].screens));
+            my32_Displays_32[i].screens = 0;
             return;
         }
+    }
+}
+
+void refreshDisplay(void* dpy)
+{
+    // update some of the values now that the screen is locked
+    my_XDisplay_t* src = dpy;
+    my_XDisplay_32_t* dst = FindDisplay(dpy);
+    // sync last request
+    dst->request = src->request;
+    // sync screens
+    if(dst->nscreens!=src->nscreens) {
+        my_Screen_32_t* screens = from_ptrv(dst->screens);
+        dst->nscreens = src->nscreens;
+        screens = realloc(screens, dst->nscreens*sizeof(my_Screen_32_t));
+        dst->screens = to_ptrv(screens);
+        for(int i=0; i<dst->nscreens; ++i)
+            convert_Screen_to_32(screens+i, src->screens+i);
     }
 }
 
@@ -1069,19 +1085,19 @@ void inplace_XRRScreenResources_shrink(void* s)
     my_XRRScreenResources_32_t *dst = s;
     my_XRRScreenResources_t *src = s;
     // shrinking, so forward...
+    for(int i=0; i<src->ncrtc; ++i)
+        ((XID_32*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
+    for(int i=0; i<src->noutput; ++i)
+        ((XID_32*)src->outputs)[i] = to_ulong(src->outputs[i]);
+    for(int i=0; i<src->nmode; ++i)
+        convert_XRRModeInfo_to_32(&((my_XRRModeInfo_32_t*)src->modes)[i], &src->modes[i]);
     dst->timestamp = to_ulong(src->timestamp);
     dst->configTimestamp = to_ulong(src->configTimestamp);
     dst->ncrtc = src->ncrtc;
-    for(int i=0; i<dst->ncrtc; ++i)
-        ((XID_32*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
     dst->crtcs = to_ptrv(src->crtcs);
     dst->noutput = src->noutput;
-    for(int i=0; i<dst->noutput; ++i)
-        ((XID_32*)src->outputs)[i] = to_ulong(src->outputs[i]);
     dst->outputs = to_ptrv(src->outputs);
     dst->nmode = src->nmode;
-    for(int i=0; i<dst->noutput; ++i)
-        convert_XRRModeInfo_to_32(&((my_XRRModeInfo_32_t*)src->modes)[i], &src->modes[i]);
     dst->modes = to_ptrv(src->modes);
 }
 
@@ -1095,19 +1111,19 @@ void inplace_XRRScreenResources_enlarge(void* s)
     int noutput = src->noutput;
     int ncrtc = src->ncrtc;
     dst->modes = from_ptrv(src->modes);
-    for(int i=nmode-1; i>=0; --i)
-        convert_XRRModeInfo_to_64(&dst->modes[i], &((my_XRRModeInfo_32_t*)dst->modes)[i]);
     dst->nmode = src->nmode;
     dst->outputs = from_ptrv(src->outputs);
-    for(int i=noutput-1; i>=0; --i)
-        dst->outputs[i] = from_ulong(((XID_32*)dst->outputs)[i]);
     dst->noutput = src->noutput;
     dst->crtcs = from_ptrv(src->crtcs);
-    for(int i=ncrtc-1; i>=0; --i)
-        dst->crtcs[i] = from_ulong(((XID_32*)dst->crtcs)[i]);
     dst->ncrtc = src->ncrtc;
     dst->configTimestamp = to_ulong(src->configTimestamp);
     dst->timestamp = to_ulong(src->timestamp);
+    for(int i=nmode-1; i>=0; --i)
+        convert_XRRModeInfo_to_64(&dst->modes[i], &((my_XRRModeInfo_32_t*)dst->modes)[i]);
+    for(int i=noutput-1; i>=0; --i)
+        dst->outputs[i] = from_ulong(((XID_32*)dst->outputs)[i]);
+    for(int i=ncrtc-1; i>=0; --i)
+        dst->crtcs[i] = from_ulong(((XID_32*)dst->crtcs)[i]);
 }
 
 void inplace_XRRCrtcInfo_shrink(void* s)
@@ -1115,6 +1131,10 @@ void inplace_XRRCrtcInfo_shrink(void* s)
     if(!s) return;
     my_XRRCrtcInfo_32_t *dst = s;
     my_XRRCrtcInfo_t *src = s;
+    for(int i=0; i<src->noutput; ++i)
+        ((XID_32*)src->outputs)[i] = to_ulong(src->outputs[i]);
+    for(int i=0; i<src->npossible; ++i)
+        ((XID_32*)src->possible)[i] = to_ulong(src->possible[i]);
     dst->timestamp = to_ulong(src->timestamp);
     dst->x = src->x;
     dst->y = src->y;
@@ -1122,14 +1142,10 @@ void inplace_XRRCrtcInfo_shrink(void* s)
     dst->height = src->height;
     dst->mode = to_ulong(src->mode);
     dst->rotation = src->rotation;
-    for(int i=0; i<src->noutput; ++i)
-        ((XID_32*)src->outputs)[i] = to_ulong(src->outputs[i]);
     dst->noutput = src->noutput;
     dst->outputs = to_ptrv(src->outputs);
     dst->rotations = src->rotations;
     dst->npossible = src->npossible;
-    for(int i=0; i<dst->npossible; ++i)
-        ((XID_32*)src->possible)[i] = to_ulong(src->possible[i]);
     dst->possible = to_ptrv(src->possible);
 }
 
@@ -1138,6 +1154,12 @@ void inplace_XRROutputInfo_shrink(void* s)
     if(!s) return;
     my_XRROutputInfo_32_t *dst = s;
     my_XRROutputInfo_t *src = s;
+    for(int i=0; i<src->ncrtc; ++i)
+        ((XID_32*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
+    for(int i=0; i<src->nclone; ++i)
+        ((XID_32*)src->clones)[i] = to_ulong(src->clones[i]);
+    for(int i=0; i<src->nmode; ++i)
+        ((XID_32*)src->modes)[i] = to_ulong(src->modes[i]);
     dst->timestamp = to_ulong(src->timestamp);
     dst->crtc = src->crtc;
     dst->name = to_ptrv(src->name);
@@ -1147,17 +1169,11 @@ void inplace_XRROutputInfo_shrink(void* s)
     dst->connection = src->connection;
     dst->subpixel_order = src->subpixel_order;
     dst->ncrtc = src->ncrtc;
-    for(int i=0; i<dst->ncrtc; ++i)
-        ((XID_32*)src->crtcs)[i] = to_ulong(src->crtcs[i]);
     dst->crtcs = to_ptrv(src->crtcs);
     dst->nclone = src->nclone;
-    for(int i=0; i<dst->nclone; ++i)
-        ((XID_32*)src->clones)[i] = to_ulong(src->clones[i]);
     dst->clones = to_ptrv(src->clones);
     dst->nmode = src->nmode;
     dst->npreferred = src->npreferred;
-    for(int i=0; i<dst->nmode; ++i)
-        ((XID_32*)src->modes)[i] = to_ulong(src->modes[i]);
     dst->modes = to_ptrv(src->modes);
 }
 

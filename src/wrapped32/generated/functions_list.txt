@@ -2011,6 +2011,7 @@ wrappedlibx11:
   - _XInitImageFuncPtrs
 - iFX:
   - XCloseDisplay
+  - XGrabServer
 - pFp:
   - XSetErrorHandler
   - XSetIOErrorHandler

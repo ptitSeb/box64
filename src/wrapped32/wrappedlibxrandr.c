@@ -48,12 +48,12 @@ EXPORT void* my32_XRRGetScreenResourcesCurrent(x64emu_t* emu, void* dpy, XID win
 EXPORT int my32_XRRSetCrtcConfig(x64emu_t* emu, void* dpy, void* res, XID crtc, unsigned long timestamp, int x, int y, XID mode, uint16_t rotation, XID_32* outputs, int noutputs)
 {
     XID outputs_l[noutputs];
-    memset(outputs_l, 0, sizeof(outputs_l));
+    if(outputs)
+        for(int i=0; i<noutputs; ++i)
+            outputs_l[i] = from_ulong(outputs[i]);
     inplace_XRRScreenResources_enlarge(res);
-    int ret = my->XRRSetCrtcConfig(dpy, res, crtc, timestamp, x, y, mode, rotation, &outputs_l, noutputs);
+    int ret = my->XRRSetCrtcConfig(dpy, res, crtc, timestamp, x, y, mode, rotation, outputs?(&outputs_l):NULL, noutputs);
     inplace_XRRScreenResources_shrink(res);
-    for(int i=0; i<noutputs; ++i)
-        outputs[i] = to_ulong(outputs_l[i]);
     return ret;
 }
 
