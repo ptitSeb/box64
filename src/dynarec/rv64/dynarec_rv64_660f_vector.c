@@ -319,34 +319,34 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_DFNONE();
                     v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     IFX (X_ZF) {
-                        VAND_VV(v0, q1, q0, VECTOR_MASKED);
+                        VAND_VV(v0, q1, q0, VECTOR_UNMASKED);
                         if (rv64_xtheadvector) {
                             // Force the mask element width to 32
                             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 1);
                         }
-                        VMSGT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                        VMSGTU_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
                         if (rv64_xtheadvector) {
                             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                         }
                         VMV_X_S(x4, VMASK);
                         if (!rv64_xtheadvector) ANDI(x4, x4, 0b11);
-                        BNEZ(x3, 8);
+                        BNEZ(x4, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);
                     }
                     IFX (X_CF) {
                         VXOR_VI(v0, q0, 0x1F, VECTOR_UNMASKED);
-                        VAND_VV(v0, q1, v0, VECTOR_MASKED);
+                        VAND_VV(v0, q1, v0, VECTOR_UNMASKED);
                         if (rv64_xtheadvector) {
                             // Force the mask element width to 32
                             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 1);
                         }
-                        VMSGT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                        VMSGTU_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
                         if (rv64_xtheadvector) {
                             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                         }
                         VMV_X_S(x4, VMASK);
                         if (!rv64_xtheadvector) ANDI(x4, x4, 0b11);
-                        BNEZ(x3, 8);
+                        BNEZ(x4, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);
                     }
                     break;
