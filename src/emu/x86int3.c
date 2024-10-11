@@ -329,6 +329,8 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, %p, %d, %d, %u, %u, %u, %d, %u, %p, 0x%x, %p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)), *(int*)from_ptr(R_ESP+12), *(int*)from_ptr(R_ESP+16), *(uint32_t*)from_ptr(R_ESP+20), *(uint32_t*)from_ptr(R_ESP+24), *(uint32_t*)from_ptr(R_ESP+28), *(int32_t*)from_ptr(R_ESP+32), *(uint32_t*)from_ptr(R_ESP+36), from_ptrv(*(ptr_t*)from_ptr(R_ESP+40)), *(uint32_t*)from_ptr(R_ESP+44), from_ptrv(*(ptr_t*)from_ptr(R_ESP+48)));
                 } else if(strstr(s, "XLoadQueryFont")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\")", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
+                } else if(strstr(s, "XRRSetScreenSize")==s) {
+                    snprintf(buff, 255, "%04d|%p: Calling %s(%p, %u, %d, %d, %d, %d)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), from_ptri(ulong_t, R_ESP+8), from_ptri(int, R_ESP+12), from_ptri(int, R_ESP+16), from_ptri(int, R_ESP+20), from_ptri(int, R_ESP+24));
                 } else if(strstr(s, "pthread_mutex_lock")==s || strstr(s, "pthread_mutex_unlock")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)));
                 } else if(strstr(s, "pthread_setname_np")==s) {
