@@ -78,4 +78,17 @@ void inplace_XRRProviderResources_shrink(void* a);
 void inplace_XRRProviderResources_enlarge(void* a);
 void* inplace_XRRPropertyInfo_shrink(void* a);
 
+void inplace_XIDeviceInfo_shrink(void* a, int n);
+int inplace_XIDeviceInfo_enlarge(void* a);
+
+void inplace_XDevice_shrink(void* a);
+void inplace_XDevice_enlarge(void* a);
+
+void register_XDevice_events(my_XDevice_t* a);
+void unregister_XDevice_events(my_XDevice_t* a);
+void register_XFixes_events(int event_base);
+void unregister_XFixes_events();
+void register_XRandR_events(int event_base);
+void unregister_XRandR_events();
+
 #endif//MY_X11_CONV

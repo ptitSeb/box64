@@ -46,6 +46,7 @@ typedef int  (*iFp_t)(void*);
 typedef uint32_t (*uFv_t)(void);
 typedef int  (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpl_t)(void*, intptr_t);
+typedef int  (*iFppp_t)(void*, void*, void*);
 typedef uintptr_t (*LFpii_t)(void*, int32_t, int32_t);
 typedef int32_t (*iFpiiL_t)(void*, int32_t, int32_t, uintptr_t);
 typedef void* (*pFpiiuu_t)(void*, int32_t, int32_t, uint32_t, uint32_t);
@@ -88,6 +89,16 @@ static int my32_wire_to_event_##A(void* dpy, void* re, void* event)             
 }
 SUPER()
 #undef GO
+#define GO(A)   \
+static iFppp_t my32_rev_wire_to_event_fct_##A = NULL;                                               \
+static int my32_rev_wire_to_event_##A(void* dpy, void* re, void* event)                             \
+{                                                                                                   \
+    static my_XEvent_t re_l = {0};                                                                  \
+    int ret = my32_rev_wire_to_event_fct_##A (getDisplay(dpy), &re_l, event);                       \
+    convertXEvent(re, &re_l);                                                                       \
+}
+SUPER()
+#undef GO
 static void* findwire_to_eventFct(void* fct)
 {
     if(!fct) return fct;
@@ -103,13 +114,26 @@ static void* findwire_to_eventFct(void* fct)
 }
 static void* reverse_wire_to_eventFct(library_t* lib, void* fct)
 {
+    //Callsed from x86 world -> native world
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    // first check if it's a wrapped function, that could be easy
     #define GO(A) if(my32_wire_to_event_##A == fct) return (void*)my32_wire_to_event_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFppp_32, fct, 0, NULL);
+    if(FindElfAddress(my_context, (uintptr_t)fct))
+        return fct;
+    // it's a naitve one... so bridge it, but need transform XImage32 to XImage
+    void* f = NULL;
+    #define GO(A) if(!f && my32_rev_wire_to_event_fct_##A == fct) f = (void*)my32_rev_wire_to_event_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(!f && !my32_rev_wire_to_event_fct_##A) {my32_rev_wire_to_event_fct_##A = fct; f = my32_rev_wire_to_event_##A;}
+    SUPER()
+    #undef GO
+    if(f)
+        return (void*)AddCheckBridge(lib->w.bridge, iFppp_32, f, 0, "X11_wire_to_event");
+    printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 wire_to_event callback\n");
+    return fct;
 }
 
 // event_to_wire
@@ -120,6 +144,16 @@ static int my32_event_to_wire_##A(void* dpy, void* re, void* event)             
     my_XEvent_32_t re_s = {0};                                                                      \
     convertXEvent(&re_s, re);                                                                       \
     return (int)RunFunctionFmt(my32_event_to_wire_fct_##A, "ppp", getDisplay(dpy), &re_s, event);   \
+}
+SUPER()
+#undef GO
+#define GO(A)   \
+static iFppp_t my32_rev_event_to_wire_fct_##A = NULL;                                               \
+static int my32_rev_event_to_wire_##A(void* dpy, void* re, void* event)                             \
+{                                                                                                   \
+    static my_XEvent_t re_l = {0};                                                                  \
+    unconvertXEvent(&re_l, re);                                                                     \
+    return my32_rev_event_to_wire_fct_##A (getDisplay(dpy), &re_l, event);                          \
 }
 SUPER()
 #undef GO
@@ -138,13 +172,26 @@ static void* findevent_to_wireFct(void* fct)
 }
 static void* reverse_event_to_wireFct(library_t* lib, void* fct)
 {
+    //Callsed from x86 world -> native world
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    // first check if it's a wrapped function, that could be easy
     #define GO(A) if(my32_event_to_wire_##A == fct) return (void*)my32_event_to_wire_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFppp_32, fct, 0, NULL);
+    if(FindElfAddress(my_context, (uintptr_t)fct))
+        return fct;
+    // it's a naitve one... so bridge it, but need transform XImage32 to XImage
+    void* f = NULL;
+    #define GO(A) if(!f && my32_rev_event_to_wire_fct_##A == fct) f = (void*)my32_rev_event_to_wire_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(!f && !my32_rev_event_to_wire_fct_##A) {my32_rev_event_to_wire_fct_##A = fct; f = my32_rev_event_to_wire_##A;}
+    SUPER()
+    #undef GO
+    if(f)
+        return (void*)AddCheckBridge(lib->w.bridge, iFppp_32, f, 0, "X11_event_to_wire");
+    printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 event_to_wire callback\n");
+    return fct;
 }
 // error_handler
 #define GO(A)   \
@@ -383,12 +430,14 @@ static void* findXConnectionWatchProcFct(void* fct)
 #endif
 // xifevent
 #define GO(A)   \
-static uintptr_t my32_xifevent_fct_##A = 0;                                         \
-static int my32_xifevent_##A(void* dpy, my_XEvent_t* event, void* d)                \
-{                                                                                   \
-    static my_XEvent_32_t evt = {0};                                                \
-    convertXEvent(&evt, event);                                                     \
-    return RunFunctionFmt(my32_xifevent_fct_##A, "ppp", getDisplay(dpy), &evt, d);  \
+static uintptr_t my32_xifevent_fct_##A = 0;                                             \
+static int my32_xifevent_##A(void* dpy, my_XEvent_t* event, void* d)                    \
+{                                                                                       \
+    static my_XEvent_32_t evt[16] = {0};                                                \
+    static int idx = 0;                                                                 \
+    idx=(idx+1)&15;                                                                     \
+    convertXEvent(evt+idx, event);                                                      \
+    return RunFunctionFmt(my32_xifevent_fct_##A, "ppp", getDisplay(dpy), evt+idx, d);   \
 }
 SUPER()
 #undef GO

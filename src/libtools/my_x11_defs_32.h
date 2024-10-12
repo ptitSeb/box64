@@ -887,6 +887,275 @@ typedef struct my_XDevice_32_s {
      ptr_t  classes;    //my_XInputClassInfo_t*
 } my_XDevice_32_t;
 
+typedef struct my_XDeviceKeyEvent_32_s
+{
+    int            type;
+    ulong_t        serial;
+    int            send_event;
+    ptr_t          display; //Display*
+    XID_32         window;
+    XID_32         deviceid;
+    XID_32         root;
+    XID_32         subwindow;
+    ulong_t        time;
+    int            x, y;
+    int            x_root;
+    int            y_root;
+    unsigned int   state;
+    unsigned int   keycode;
+    int            same_screen;
+    unsigned int   device_state;
+    unsigned char  axes_count;
+    unsigned char  first_axis;
+    int            axis_data[6];
+} my_XDeviceKeyEvent_32_t;
+typedef my_XDeviceKeyEvent_32_t my_XDeviceButtonEvent_32_t;
+typedef struct my_XDeviceMotionEvent_32_s
+{
+    int            type;
+    ulong_t        serial;
+    int            send_event;
+    ptr_t          display; //Display*
+    XID_32         window;
+    XID_32         deviceid;
+    XID_32         root;
+    XID_32         subwindow;
+    ulong_t        time;
+    int            x, y;
+    int            x_root;
+    int            y_root;
+    unsigned int   state;
+    char           is_hint;
+    int            same_screen;
+    unsigned int   device_state;
+    unsigned char  axes_count;
+    unsigned char  first_axis;
+    int            axis_data[6];
+} my_XDeviceMotionEvent_32_t;
+typedef struct my_XDeviceFocusChangeEvent_32_s
+{
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;  //Display*
+    XID_32        window;
+    XID_32        deviceid;
+    int           mode;
+    int           detail;
+    ulong_t       time;
+} my_XDeviceFocusChangeEvent_32_t;
+typedef struct my_XProximityNotifyEvent_32_s
+{
+    int            type;
+    ulong_t        serial;
+    int            send_event;
+    ptr_t          display; //Display*
+    XID_32         window;
+    XID_32         deviceid;
+    XID_32         root;
+    XID_32         subwindow;
+    ulong_t        time;
+    int            x, y;
+    int            x_root;
+    int            y_root;
+    unsigned int   state;
+    int            same_screen;
+    unsigned int   device_state;
+    unsigned char  axes_count;
+    unsigned char  first_axis;
+    int            axis_data[6];
+} my_XProximityNotifyEvent_32_t;
+typedef struct my_XDeviceStateNotifyEvent_32_s
+{
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;  //Display*
+    XID_32        window;
+    XID_32        deviceid;
+    ulong_t       time;
+    int           num_classes;
+    char	      data[64];
+} my_XDeviceStateNotifyEvent_32_t;
+typedef struct my_XDeviceMappingEvent_32_s
+{
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    XID_32        window;
+    XID_32        deviceid;
+    ulong_t       time;
+    int           request;
+    int           first_keycode;
+    int           count;
+} my_XDeviceMappingEvent_32_t;
+typedef struct my_XChangeDeviceNotifyEvent_32_s
+{
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    XID_32        window;
+    XID_32        deviceid;
+    ulong_t       time;
+    int           request;
+} my_XChangeDeviceNotifyEvent_32_t;
+typedef struct my_XDevicePresenceNotifyEvent_32_s
+{
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    XID_32        window;
+    ulong_t       time;
+    int           devchange;
+    XID_32        deviceid;
+    XID_32        control;
+} my_XDevicePresenceNotifyEvent_32_t;
+typedef struct my_XDevicePropertyNotifyEvent_32_s
+{
+    int           type;
+    ulong_t       serial;
+    int           send_event;
+    ptr_t         display;
+    XID_32        window;
+    ulong_t       time;
+    XID_32        deviceid;
+    XID_32        atom;
+    int           state;
+} my_XDevicePropertyNotifyEvent_32_t;
+typedef struct my_XFixesSelectionNotifyEvent_32_s
+{
+    int     type;
+    ulong_t serial;
+    int     send_event;
+    ptr_t   display;
+    XID_32  window;
+    int     subtype;
+    ulong_t selection_timestamp;
+    XID_32  owner;
+    XID_32  selection;
+    ulong_t timestamp;
+} my_XFixesSelectionNotifyEvent_32_t;
+typedef struct my_XFixesCursorNotifyEvent_32_s
+{
+    int     type;
+    ulong_t serial;
+    int     send_event;
+    ptr_t   display;
+    XID_32  window;
+    int     subtype;
+    ulong_t cursor_serial;
+    ulong_t timestamp;
+    XID_32  cursor_name;
+} my_XFixesCursorNotifyEvent_32_t;
+
+typedef struct my_XRRScreenChangeNotifyEvent_32_s
+{
+    int         type;
+    ulong_t     serial;
+    int         send_event;
+    ptr_t       display;
+    XID_32      window;
+    XID_32      root;
+    ulong_t     timestamp;
+    ulong_t     config_timestamp;
+    uint16_t    size_index;
+    uint16_t    subpixel_order;
+    uint16_t    rotation;
+    int         width;
+    int         height;
+    int         mwidth;
+    int         mheight;
+} my_XRRScreenChangeNotifyEvent_32_t;
+typedef struct my_XRRNotifyEvent_32_s
+{
+    int     type;
+    ulong_t serial;
+    int     send_event;
+    ptr_t   display;
+    XID_32  window;
+    int     subtype;
+} my_XRRNotifyEvent_32_t;
+typedef struct my_XRROutputChangeNotifyEvent_32_s
+{
+    int         type;
+    ulong_t     serial;
+    int         send_event;
+    ptr_t       display;
+    XID_32      window;
+    int         subtype;
+    XID_32      output;
+    XID_32      crtc;
+    XID_32      mode;
+    uint16_t    rotation;
+    uint16_t    connection;
+    uint16_t    subpixel_order;
+} my_XRROutputChangeNotifyEvent_32_t;
+typedef struct my_XRRCrtcChangeNotifyEvent_32_s
+{
+    int             type;
+    ulong_t         serial;
+    int             send_event;
+    ptr_t           display;
+    XID_32          window;
+    int             subtype;
+    XID_32          crtc;
+    XID_32          mode;
+    uint16_t        rotation;
+    int             x, y;
+    unsigned int    width, height;
+} my_XRRCrtcChangeNotifyEvent_32_t;
+typedef struct my_XRROutputPropertyNotifyEvent_32_s
+{
+    int     type;
+    ulong_t serial;
+    int     send_event;
+    ptr_t   display;
+    XID_32  window;
+    int     subtype;
+    XID_32  output;
+    XID_32  property;
+    ulong_t timestamp;
+    int     state;
+} my_XRROutputPropertyNotifyEvent_32_t;
+typedef struct my_XRRProviderChangeNotifyEvent_32_s
+{
+    int             type;
+    ulong_t         serial;
+    int             send_event;
+    ptr_t           display;
+    XID_32          window;
+    int             subtype;
+    XID_32          provider;
+    ulong_t         timestamp;
+    unsigned int    current_role;
+} my_XRRProviderChangeNotifyEvent_32_t;
+typedef struct my_XRRProviderPropertyNotifyEvent_32_s
+{
+    int     type;
+    ulong_t serial;
+    int     send_event;
+    ptr_t   display;
+    XID_32  window;
+    int     subtype;
+    XID_32  provider;
+    XID_32  property;
+    ulong_t timestamp;
+    int     state;
+} my_XRRProviderPropertyNotifyEvent_32_t;
+typedef struct my_XRRResourceChangeNotifyEvent_32_s
+{
+    int     type;
+    ulong_t serial;
+    int     send_event;
+    ptr_t   display;
+    XID_32  window;
+    int     subtype;
+    ulong_t timestamp;
+} my_XRRResourceChangeNotifyEvent_32_t;
+
 typedef struct my_XcursorCursors_32_s {
     ptr_t      dpy;     //Display*
     int        ref;

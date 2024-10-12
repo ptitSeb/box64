@@ -762,6 +762,7 @@ void iFESpV_32(x64emu_t *emu, uintptr_t fnc);
 void iFEXip_32(x64emu_t *emu, uintptr_t fnc);
 void iFEXlp_32(x64emu_t *emu, uintptr_t fnc);
 void iFEXLp_32(x64emu_t *emu, uintptr_t fnc);
+void iFEXpp_32(x64emu_t *emu, uintptr_t fnc);
 void iFiiii_32(x64emu_t *emu, uintptr_t fnc);
 void iFiiiu_32(x64emu_t *emu, uintptr_t fnc);
 void iFiiip_32(x64emu_t *emu, uintptr_t fnc);

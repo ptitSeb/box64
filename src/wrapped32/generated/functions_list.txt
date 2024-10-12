@@ -721,6 +721,7 @@
 #() iFEXip -> iFEXip
 #() iFEXlp -> iFEXlp
 #() iFEXLp -> iFEXLp
+#() iFEXpp -> iFEXpp
 #() iFiiii -> iFiiii
 #() iFiiiu -> iFiiiu
 #() iFiiip -> iFiiip
@@ -2153,6 +2154,8 @@ wrappedlibxext:
 - iFXLppiiiiuui:
   - XShmPutImage
 wrappedlibxfixes:
+- iFXpp:
+  - XFixesQueryExtension
 wrappedlibxi:
 - vFp:
   - XIFreeDeviceInfo
@@ -2176,6 +2179,8 @@ wrappedlibxrandr:
   - XRRGetProviderResources
   - XRRGetScreenResources
   - XRRGetScreenResourcesCurrent
+- iFXpp:
+  - XRRQueryExtension
 - pFXLL:
   - XRRQueryOutputProperty
 - pFXLp:

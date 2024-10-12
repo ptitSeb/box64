@@ -351,13 +351,13 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                     ++conv;
                     if((state==22) || (state==25)) {
                         long_t* dst = from_ptrv(*st);
-                        *dst = to_long(saved[nb_elem-conv]);
+                        *dst = saved[nb_elem-conv]; // not using to_long on purpose
                     } else if(state==30) {
                         ptr_t* dst = from_ptrv(*st);
                         *dst = to_ptr(saved[nb_elem-conv]);
                     } else {
                         ulong_t* dst = from_ptrv(*st);
-                        *dst = to_ulong(saved[nb_elem-conv]);
+                        *dst = saved[nb_elem-conv]; //not using to to_ulong on pupose
                     }
                     ++st;
                     ++mystack;

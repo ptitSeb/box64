@@ -12,478 +12,6 @@
 #include "my_x11_defs_32.h"
 #include "my_x11_conv.h"
 
-void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
-{
-    if(!src->type) {
-        // This is an XErrorEvent, and it's different!
-        dst->xerror.type = src->xerror.type;
-        dst->xerror.display = to_ptrv(FindDisplay(src->xerror.display));
-        dst->xerror.resourceid = to_ulong(src->xerror.resourceid);
-        dst->xerror.serial = to_ulong(src->xerror.serial);
-        dst->xerror.error_code = src->xerror.error_code;
-        dst->xerror.request_code = src->xerror.request_code;
-        dst->xerror.minor_code = src->xerror.minor_code;
-        return;
-    }
-    // convert the XAnyEvent first, as it's a common set
-    dst->type = src->type;
-    dst->xany.display = to_ptrv(FindDisplay(src->xany.display));
-    dst->xany.window = to_ulong(src->xany.window);
-    dst->xany.send_event = src->xany.serial;
-    dst->xany.serial = to_ulong(src->xany.serial);
-    switch(src->type) {
-        case XEVT_KeyPress:
-        case XEVT_KeyRelease:
-            dst->xkey.root = to_ulong(src->xkey.root);
-            dst->xkey.subwindow = to_ulong(src->xkey.subwindow);
-            dst->xkey.time = to_ulong(src->xkey.time);
-            dst->xkey.x = src->xkey.x;
-            dst->xkey.y = src->xkey.y;
-            dst->xkey.x_root = src->xkey.x_root;
-            dst->xkey.y_root = src->xkey.y_root;
-            dst->xkey.state = src->xkey.state;
-            dst->xkey.keycode = src->xkey.keycode;
-            dst->xkey.same_screen = src->xkey.same_screen;
-            break;
-        case XEVT_ButtonPress:
-        case XEVT_ButtonRelease:
-            dst->xbutton.root = to_ulong(src->xbutton.root);
-            dst->xbutton.subwindow = to_ulong(src->xbutton.subwindow);
-            dst->xbutton.time = to_ulong(src->xbutton.time);
-            dst->xbutton.x = src->xbutton.x;
-            dst->xbutton.y = src->xbutton.y;
-            dst->xbutton.x_root = src->xbutton.x_root;
-            dst->xbutton.y_root = src->xbutton.y_root;
-            dst->xbutton.state = src->xbutton.state;
-            dst->xbutton.button = src->xbutton.button;
-            dst->xbutton.same_screen = src->xbutton.same_screen;
-            break;
-        case XEVT_MotionNotify:
-            dst->xmotion.root = to_ulong(src->xmotion.root);
-            dst->xmotion.subwindow = to_ulong(src->xmotion.subwindow);
-            dst->xmotion.time = to_ulong(src->xmotion.time);
-            dst->xmotion.x = src->xmotion.x;
-            dst->xmotion.y = src->xmotion.y;
-            dst->xmotion.x_root = src->xmotion.x_root;
-            dst->xmotion.y_root = src->xmotion.y_root;
-            dst->xmotion.state = src->xmotion.state;
-            dst->xmotion.is_hint = src->xmotion.is_hint;
-            dst->xmotion.same_screen = src->xmotion.same_screen;
-            break;
-        case XEVT_EnterNotify:
-        case XEVT_LeaveNotify:
-            dst->xcrossing.root = to_ulong(src->xcrossing.root);
-            dst->xcrossing.subwindow = to_ulong(src->xcrossing.subwindow);
-            dst->xcrossing.time = to_ulong(src->xcrossing.time);
-            dst->xcrossing.x = src->xcrossing.x;
-            dst->xcrossing.y = src->xcrossing.y;
-            dst->xcrossing.x_root = src->xcrossing.x_root;
-            dst->xcrossing.y_root = src->xcrossing.y_root;
-            dst->xcrossing.mode = src->xcrossing.mode;
-            dst->xcrossing.detail = src->xcrossing.detail;
-            dst->xcrossing.same_screen = src->xcrossing.same_screen;
-            dst->xcrossing.focus = src->xcrossing.focus;
-            dst->xcrossing.state = src->xcrossing.state;
-            break;
-        case XEVT_FocusIn:
-        case XEVT_FocusOut:
-            dst->xfocus.mode = src->xfocus.mode;
-            dst->xfocus.detail = src->xfocus.detail;
-            break;
-        case XEVT_KeymapNotify:
-            memcpy(dst->xkeymap.key_vector, src->xkeymap.key_vector, 32);
-            break;
-        case XEVT_Expose:
-            dst->xexpose.x = src->xexpose.x;
-            dst->xexpose.y = src->xexpose.y;
-            dst->xexpose.width = src->xexpose.width;
-            dst->xexpose.height = src->xexpose.height;
-            dst->xexpose.count = src->xexpose.count;
-            break;
-        case XEVT_GraphicsExpose:
-            dst->xgraphicsexpose.x = src->xgraphicsexpose.x;
-            dst->xgraphicsexpose.y = src->xgraphicsexpose.y;
-            dst->xgraphicsexpose.width = src->xgraphicsexpose.width;
-            dst->xgraphicsexpose.height = src->xgraphicsexpose.height;
-            dst->xgraphicsexpose.count = src->xgraphicsexpose.count;
-            dst->xgraphicsexpose.major_code = src->xgraphicsexpose.major_code;
-            dst->xgraphicsexpose.minor_code = src->xgraphicsexpose.minor_code;
-            break;
-        case XEVT_NoExpose:
-            dst->xnoexpose.major_code = src->xnoexpose.major_code;
-            dst->xnoexpose.minor_code = src->xnoexpose.minor_code;
-            break;
-        case XEVT_VisibilityNotify:
-            dst->xvisibility.state = src->xvisibility.state;
-            break;
-        case XEVT_CreateNotify:
-            dst->xcreatewindow.window = to_ulong(src->xcreatewindow.window);
-            dst->xcreatewindow.x = src->xcreatewindow.x;
-            dst->xcreatewindow.y = src->xcreatewindow.y;
-            dst->xcreatewindow.width = src->xcreatewindow.width;
-            dst->xcreatewindow.height = src->xcreatewindow.height;
-            dst->xcreatewindow.border_width = src->xcreatewindow.border_width;
-            dst->xcreatewindow.override_redirect = src->xcreatewindow.override_redirect;
-            break;
-        case XEVT_DestroyNotify:
-            dst->xdestroywindow.window = to_ulong(src->xdestroywindow.window);
-            break;
-        case XEVT_UnmapNotify:
-            dst->xunmap.window = to_ulong(src->xunmap.window);
-            dst->xunmap.from_configure = src->xunmap.from_configure;
-            break;
-        case XEVT_MapNotify:
-            dst->xmap.window = to_ulong(src->xmap.window);
-            dst->xmap.override_redirect = src->xmap.override_redirect;
-            break;
-        case XEVT_MapRequest:
-            dst->xmaprequest.window = to_ulong(src->xmaprequest.window);
-            break;
-        case XEVT_ReparentNotify:
-            dst->xreparent.window = to_ulong(src->xreparent.window);
-            dst->xreparent.parent = to_ulong(src->xreparent.parent);
-            dst->xreparent.x = src->xreparent.x;
-            dst->xreparent.y = src->xreparent.y;
-            dst->xreparent.override_redirect = src->xreparent.override_redirect;
-            break;
-        case XEVT_ConfigureNotify:
-            dst->xconfigure.window = to_ulong(src->xconfigure.window);
-            dst->xconfigure.x = src->xconfigure.x;
-            dst->xconfigure.y = src->xconfigure.y;
-            dst->xconfigure.width = src->xconfigure.width;
-            dst->xconfigure.height = src->xconfigure.height;
-            dst->xconfigure.border_width = src->xconfigure.border_width;
-            dst->xconfigure.above = to_ulong(src->xconfigure.above);
-            dst->xconfigure.override_redirect = src->xconfigure.override_redirect;
-            break;
-        case XEVT_ConfigureRequest:
-            dst->xconfigurerequest.window = to_ulong(src->xconfigurerequest.window);
-            dst->xconfigurerequest.x = src->xconfigurerequest.x;
-            dst->xconfigurerequest.y = src->xconfigurerequest.y;
-            dst->xconfigurerequest.width = src->xconfigurerequest.width;
-            dst->xconfigurerequest.height = src->xconfigurerequest.height;
-            dst->xconfigurerequest.border_width = src->xconfigurerequest.border_width;
-            dst->xconfigurerequest.above = to_ulong(src->xconfigurerequest.above);
-            dst->xconfigurerequest.detail = src->xconfigurerequest.detail;
-            dst->xconfigurerequest.value_mask = to_ulong(src->xconfigurerequest.value_mask);
-            break;
-        case XEVT_GravityNotify:
-            dst->xgravity.window = to_ulong(src->xgravity.window);
-            dst->xgravity.x = src->xgravity.x;
-            dst->xgravity.y = src->xgravity.y;
-            break;
-        case XEVT_ResizeRequest:
-            dst->xresizerequest.width = src->xresizerequest.width;
-            dst->xresizerequest.height = src->xresizerequest.height;
-            break;
-        case XEVT_CirculateNotify:
-            dst->xcirculate.window = to_ulong(src->xcirculate.window);
-            dst->xcirculate.place = src->xcirculate.place;
-            break;
-        case XEVT_CirculateRequest:
-            dst->xcirculaterequest.window = to_ulong(src->xcirculaterequest.window);
-            dst->xcirculaterequest.place = src->xcirculaterequest.place;
-            break;
-        case XEVT_PropertyNotify:
-            dst->xproperty.atom = to_ulong(src->xproperty.atom);
-            dst->xproperty.time = to_ulong(src->xproperty.time);
-            dst->xproperty.state = src->xproperty.state;
-            break;
-        case XEVT_SelectionClear:
-            dst->xselectionclear.selection = to_ulong(src->xselectionclear.selection);
-            dst->xselectionclear.time = to_ulong(src->xselectionclear.time);
-            break;
-        case XEVT_SelectionRequest:
-            dst->xselectionrequest.requestor = to_ulong(src->xselectionrequest.requestor);
-            dst->xselectionrequest.selection = to_ulong(src->xselectionrequest.selection);
-            dst->xselectionrequest.target = to_ulong(src->xselectionrequest.target);
-            dst->xselectionrequest.property = to_ulong(src->xselectionrequest.property);
-            dst->xselectionrequest.time = to_ulong(src->xselectionrequest.time);
-            break;
-        case XEVT_SelectionNotify:
-            dst->xselection.selection = to_ulong(src->xselection.selection);
-            dst->xselection.target = to_ulong(src->xselection.target);
-            dst->xselection.property = to_ulong(src->xselection.property);
-            dst->xselection.time = to_ulong(src->xselection.time);
-            break;
-        case XEVT_ColormapNotify:
-            dst->xcolormap.colormap = to_ulong(src->xcolormap.colormap);
-            dst->xcolormap.c_new = src->xcolormap.c_new;
-            dst->xcolormap.state = src->xcolormap.state;
-            break;
-        case XEVT_ClientMessage:
-            dst->xclient.message_type = to_ulong(src->xclient.message_type);
-            dst->xclient.format = src->xclient.format;
-            if(src->xclient.format==32)
-                for(int i=0; i<5; ++i) {
-                    if(((src->xclient.data.l[i]&0xffffffff80000000LL))==0xffffffff80000000LL)
-                        dst->xclient.data.l[i] = to_ulong(src->xclient.data.l[i]&0xffffffff);   // negative value...
-                    else
-                        dst->xclient.data.l[i] = to_ulong(src->xclient.data.l[i]);
-                }
-            else
-                memcpy(dst->xclient.data.b, src->xclient.data.b, 20);
-            break;
-        case XEVT_MappingNotify:
-            dst->xmapping.request = src->xmapping.request;
-            dst->xmapping.first_keycode = src->xmapping.first_keycode;
-            dst->xmapping.count = src->xmapping.count;
-            break;
-        case XEVT_GenericEvent:
-            dst->xgeneric.extension = src->xgeneric.extension;
-            dst->xgeneric.evtype = src->xgeneric.evtype;
-            break;
-        default:
-            printf_log(LOG_INFO, "Warning, unsupported 32bits XEvent type=%d\n", src->type);
-    }
-}
-void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
-{
-    if(!src->type) {
-        // This is an XErrorEvent, and it's different!
-        dst->xerror.type = src->xerror.type;
-        dst->xerror.display = getDisplay(from_ptrv(src->xerror.display));
-        dst->xerror.resourceid = from_ulong(src->xerror.resourceid);
-        dst->xerror.serial = from_ulong(src->xerror.serial);
-        dst->xerror.error_code = src->xerror.error_code;
-        dst->xerror.request_code = src->xerror.request_code;
-        dst->xerror.minor_code = src->xerror.minor_code;
-        return;
-    }
-    // convert the XAnyEvent first, as it's a common set
-    dst->type = src->type;
-    dst->xany.display = getDisplay(from_ptrv(src->xany.display));
-    dst->xany.window = from_ulong(src->xany.window);
-    dst->xany.send_event = src->xany.serial;
-    dst->xany.serial = from_ulong(src->xany.serial);
-    switch(src->type) {
-        case XEVT_KeyPress:
-        case XEVT_KeyRelease:
-            dst->xkey.root = from_ulong(src->xkey.root);
-            dst->xkey.subwindow = from_ulong(src->xkey.subwindow);
-            dst->xkey.time = from_ulong(src->xkey.time);
-            dst->xkey.x = src->xkey.x;
-            dst->xkey.y = src->xkey.y;
-            dst->xkey.x_root = src->xkey.x_root;
-            dst->xkey.y_root = src->xkey.y_root;
-            dst->xkey.state = src->xkey.state;
-            dst->xkey.keycode = src->xkey.keycode;
-            dst->xkey.same_screen = src->xkey.same_screen;
-            break;
-        case XEVT_ButtonPress:
-        case XEVT_ButtonRelease:
-            dst->xbutton.root = from_ulong(src->xbutton.root);
-            dst->xbutton.subwindow = from_ulong(src->xbutton.subwindow);
-            dst->xbutton.time = from_ulong(src->xbutton.time);
-            dst->xbutton.x = src->xbutton.x;
-            dst->xbutton.y = src->xbutton.y;
-            dst->xbutton.x_root = src->xbutton.x_root;
-            dst->xbutton.y_root = src->xbutton.y_root;
-            dst->xbutton.state = src->xbutton.state;
-            dst->xbutton.button = src->xbutton.button;
-            dst->xbutton.same_screen = src->xbutton.same_screen;
-            break;
-        case XEVT_MotionNotify:
-            dst->xmotion.root = from_ulong(src->xmotion.root);
-            dst->xmotion.subwindow = from_ulong(src->xmotion.subwindow);
-            dst->xmotion.time = from_ulong(src->xmotion.time);
-            dst->xmotion.x = src->xmotion.x;
-            dst->xmotion.y = src->xmotion.y;
-            dst->xmotion.x_root = src->xmotion.x_root;
-            dst->xmotion.y_root = src->xmotion.y_root;
-            dst->xmotion.state = src->xmotion.state;
-            dst->xmotion.is_hint = src->xmotion.is_hint;
-            dst->xmotion.same_screen = src->xmotion.same_screen;
-            break;
-        case XEVT_EnterNotify:
-        case XEVT_LeaveNotify:
-            dst->xcrossing.root = from_ulong(src->xcrossing.root);
-            dst->xcrossing.subwindow = from_ulong(src->xcrossing.subwindow);
-            dst->xcrossing.time = from_ulong(src->xcrossing.time);
-            dst->xcrossing.x = src->xcrossing.x;
-            dst->xcrossing.y = src->xcrossing.y;
-            dst->xcrossing.x_root = src->xcrossing.x_root;
-            dst->xcrossing.y_root = src->xcrossing.y_root;
-            dst->xcrossing.mode = src->xcrossing.mode;
-            dst->xcrossing.detail = src->xcrossing.detail;
-            dst->xcrossing.same_screen = src->xcrossing.same_screen;
-            dst->xcrossing.focus = src->xcrossing.focus;
-            dst->xcrossing.state = src->xcrossing.state;
-            break;
-        case XEVT_FocusIn:
-        case XEVT_FocusOut:
-            dst->xfocus.mode = src->xfocus.mode;
-            dst->xfocus.detail = src->xfocus.detail;
-            break;
-        case XEVT_KeymapNotify:
-            memcpy(dst->xkeymap.key_vector, src->xkeymap.key_vector, 32);
-            break;
-        case XEVT_Expose:
-            dst->xexpose.x = src->xexpose.x;
-            dst->xexpose.y = src->xexpose.y;
-            dst->xexpose.width = src->xexpose.width;
-            dst->xexpose.height = src->xexpose.height;
-            dst->xexpose.count = src->xexpose.count;
-            break;
-        case XEVT_GraphicsExpose:
-            dst->xgraphicsexpose.x = src->xgraphicsexpose.x;
-            dst->xgraphicsexpose.y = src->xgraphicsexpose.y;
-            dst->xgraphicsexpose.width = src->xgraphicsexpose.width;
-            dst->xgraphicsexpose.height = src->xgraphicsexpose.height;
-            dst->xgraphicsexpose.count = src->xgraphicsexpose.count;
-            dst->xgraphicsexpose.major_code = src->xgraphicsexpose.major_code;
-            dst->xgraphicsexpose.minor_code = src->xgraphicsexpose.minor_code;
-            break;
-        case XEVT_NoExpose:
-            dst->xnoexpose.major_code = src->xnoexpose.major_code;
-            dst->xnoexpose.minor_code = src->xnoexpose.minor_code;
-            break;
-        case XEVT_VisibilityNotify:
-            dst->xvisibility.state = src->xvisibility.state;
-            break;
-        case XEVT_CreateNotify:
-            dst->xcreatewindow.window = from_ulong(src->xcreatewindow.window);
-            dst->xcreatewindow.x = src->xcreatewindow.x;
-            dst->xcreatewindow.y = src->xcreatewindow.y;
-            dst->xcreatewindow.width = src->xcreatewindow.width;
-            dst->xcreatewindow.height = src->xcreatewindow.height;
-            dst->xcreatewindow.border_width = src->xcreatewindow.border_width;
-            dst->xcreatewindow.override_redirect = src->xcreatewindow.override_redirect;
-            break;
-        case XEVT_DestroyNotify:
-            dst->xdestroywindow.window = from_ulong(src->xdestroywindow.window);
-            break;
-        case XEVT_UnmapNotify:
-            dst->xunmap.window = from_ulong(src->xunmap.window);
-            dst->xunmap.from_configure = src->xunmap.from_configure;
-            break;
-        case XEVT_MapNotify:
-            dst->xmap.window = from_ulong(src->xmap.window);
-            dst->xmap.override_redirect = src->xmap.override_redirect;
-            break;
-        case XEVT_MapRequest:
-            dst->xmaprequest.window = from_ulong(src->xmaprequest.window);
-            break;
-        case XEVT_ReparentNotify:
-            dst->xreparent.window = from_ulong(src->xreparent.window);
-            dst->xreparent.parent = from_ulong(src->xreparent.parent);
-            dst->xreparent.x = src->xreparent.x;
-            dst->xreparent.y = src->xreparent.y;
-            dst->xreparent.override_redirect = src->xreparent.override_redirect;
-            break;
-        case XEVT_ConfigureNotify:
-            dst->xconfigure.window = from_ulong(src->xconfigure.window);
-            dst->xconfigure.x = src->xconfigure.x;
-            dst->xconfigure.y = src->xconfigure.y;
-            dst->xconfigure.width = src->xconfigure.width;
-            dst->xconfigure.height = src->xconfigure.height;
-            dst->xconfigure.border_width = src->xconfigure.border_width;
-            dst->xconfigure.above = from_ulong(src->xconfigure.above);
-            dst->xconfigure.override_redirect = src->xconfigure.override_redirect;
-            break;
-        case XEVT_ConfigureRequest:
-            dst->xconfigurerequest.window = from_ulong(src->xconfigurerequest.window);
-            dst->xconfigurerequest.x = src->xconfigurerequest.x;
-            dst->xconfigurerequest.y = src->xconfigurerequest.y;
-            dst->xconfigurerequest.width = src->xconfigurerequest.width;
-            dst->xconfigurerequest.height = src->xconfigurerequest.height;
-            dst->xconfigurerequest.border_width = src->xconfigurerequest.border_width;
-            dst->xconfigurerequest.above = from_ulong(src->xconfigurerequest.above);
-            dst->xconfigurerequest.detail = src->xconfigurerequest.detail;
-            dst->xconfigurerequest.value_mask = from_ulong(src->xconfigurerequest.value_mask);
-            break;
-        case XEVT_GravityNotify:
-            dst->xgravity.window = from_ulong(src->xgravity.window);
-            dst->xgravity.x = src->xgravity.x;
-            dst->xgravity.y = src->xgravity.y;
-            break;
-        case XEVT_ResizeRequest:
-            dst->xresizerequest.width = src->xresizerequest.width;
-            dst->xresizerequest.height = src->xresizerequest.height;
-            break;
-        case XEVT_CirculateNotify:
-            dst->xcirculate.window = from_ulong(src->xcirculate.window);
-            dst->xcirculate.place = src->xcirculate.place;
-            break;
-        case XEVT_CirculateRequest:
-            dst->xcirculaterequest.window = from_ulong(src->xcirculaterequest.window);
-            dst->xcirculaterequest.place = src->xcirculaterequest.place;
-            break;
-        case XEVT_PropertyNotify:
-            dst->xproperty.atom = from_ulong(src->xproperty.atom);
-            dst->xproperty.time = from_ulong(src->xproperty.time);
-            dst->xproperty.state = src->xproperty.state;
-            break;
-        case XEVT_SelectionClear:
-            dst->xselectionclear.selection = from_ulong(src->xselectionclear.selection);
-            dst->xselectionclear.time = from_ulong(src->xselectionclear.time);
-            break;
-        case XEVT_SelectionRequest:
-            dst->xselectionrequest.requestor = from_ulong(src->xselectionrequest.requestor);
-            dst->xselectionrequest.selection = from_ulong(src->xselectionrequest.selection);
-            dst->xselectionrequest.target = from_ulong(src->xselectionrequest.target);
-            dst->xselectionrequest.property = from_ulong(src->xselectionrequest.property);
-            dst->xselectionrequest.time = from_ulong(src->xselectionrequest.time);
-            break;
-        case XEVT_SelectionNotify:
-            dst->xselection.selection = from_ulong(src->xselection.selection);
-            dst->xselection.target = from_ulong(src->xselection.target);
-            dst->xselection.property = from_ulong(src->xselection.property);
-            dst->xselection.time = from_ulong(src->xselection.time);
-            break;
-        case XEVT_ColormapNotify:
-            dst->xcolormap.colormap = from_ulong(src->xcolormap.colormap);
-            dst->xcolormap.c_new = src->xcolormap.c_new;
-            dst->xcolormap.state = src->xcolormap.state;
-            break;
-        case XEVT_ClientMessage:
-            dst->xclient.message_type = from_ulong(src->xclient.message_type);
-            dst->xclient.format = src->xclient.format;
-            if(src->xclient.format==32)
-                for(int i=0; i<5; ++i) dst->xclient.data.l[i] = from_ulong(src->xclient.data.l[i]);
-            else
-                memcpy(dst->xclient.data.b, src->xclient.data.b, 20);
-            break;
-        case XEVT_MappingNotify:
-            dst->xmapping.request = src->xmapping.request;
-            dst->xmapping.first_keycode = src->xmapping.first_keycode;
-            dst->xmapping.count = src->xmapping.count;
-            break;
-        case XEVT_GenericEvent:
-            dst->xgeneric.extension = src->xgeneric.extension;
-            dst->xgeneric.evtype = src->xgeneric.evtype;
-            break;
-
-        default:
-            printf_log(LOG_INFO, "Warning, unsupported 32bits (un)XEvent type=%d\n", src->type);
-    }
-}
-
-void convert_XErrorEvent_to_32(void* d, void* s)
-{
-    my_XErrorEvent_t* src = s;
-    my_XErrorEvent_32_t* dst = d;
-    dst->type = src->type;
-    dst->display = to_ptrv(FindDisplay(src->display));
-    dst->resourceid = to_ulong(src->resourceid);
-    dst->serial = to_ulong(src->serial);
-    dst->error_code = src->error_code;
-    dst->request_code = src->request_code;
-    dst->minor_code = src->minor_code;
-}
-void convert_XErrorEvent_to_64(void* d, void* s)
-{
-    my_XErrorEvent_32_t* src = s;
-    my_XErrorEvent_t* dst = d;
-    dst->minor_code = src->minor_code;
-    dst->request_code = src->request_code;
-    dst->error_code = src->error_code;
-    dst->serial = from_ulong(src->serial);
-    dst->resourceid = from_ulong(src->resourceid);
-    dst->display = getDisplay(from_ptrv(src->display));
-    dst->type = src->type;
-}
-
 #define N_DISPLAY 4
 my_XDisplay_t* my32_Displays_64[N_DISPLAY] = {0};
 struct my_XFreeFuncs_32 my32_free_funcs_32[N_DISPLAY] = {0};
@@ -531,6 +59,7 @@ void convert_Screen_to_32(void* d, void* s)
     dst->white_pixel = to_ulong(src->white_pixel);
     dst->black_pixel = to_ulong(src->black_pixel);
     dst->max_maps = src->max_maps;
+    dst->min_maps = src->min_maps;
     dst->backing_store = src->backing_store;
     dst->save_unders = src->save_unders;
     dst->root_input_mask = to_long(src->root_input_mask);
@@ -589,7 +118,15 @@ void* addDisplay(void* d)
     ret->conn_checker = dpy->conn_checker;
     ret->proto_major_version = dpy->proto_major_version;
     ret->proto_minor_version = dpy->proto_minor_version;
+    ret->resource_base = to_ulong(dpy->resource_base);
+    ret->resource_mask = to_ulong(dpy->resource_mask);
+    ret->resource_id = to_ulong(dpy->resource_id);
     ret->xdefaults = to_cstring(dpy->xdefaults);
+    ret->resource_shift = dpy->resource_shift;
+    ret->byte_order = dpy->byte_order;
+    ret->bitmap_unit = dpy->bitmap_unit;
+    ret->bitmap_pad = dpy->bitmap_pad;
+    ret->bitmap_bit_order = dpy->bitmap_bit_order;
     ret->display_name = to_cstring(dpy->display_name);
     ret->default_screen = dpy->default_screen;
     ret->nscreens = dpy->nscreens;
@@ -1264,4 +801,70 @@ void* inplace_XRRPropertyInfo_shrink(void* a)
     dst->values = to_ptrv(src->values);
 
     return a;
+}
+
+void inplace_XIDeviceInfo_shrink(void* a, int n)
+{
+    if(!a || !n) return;
+    my_XIDeviceInfo_32_t* dst = a;
+    my_XIDeviceInfo_t* src = a;
+
+    for(int i=0; i<n; ++i, ++src, ++dst) {
+        dst->deviceid = src->deviceid;
+        dst->name = to_ptrv(src->name);
+        dst->use = src->use;
+        dst->attachment = src->attachment;
+        dst->enabled = src->enabled;
+        for(int j=0; j<src->num_classes; ++j)
+            ((ptr_t*)src->classes)[j] = to_ptrv(src->classes[j]);
+        dst->num_classes = src->num_classes;
+        dst->classes = to_ptrv(src->classes);
+    }
+    // mark last record, even on only 1 record, thos last 2 uint32_t are free
+    dst->deviceid = 0;
+    dst->name = 0;
+}
+
+int inplace_XIDeviceInfo_enlarge(void* a)
+{
+    if(!a) return 0;
+    my_XIDeviceInfo_t* dst = a;
+    my_XIDeviceInfo_32_t* src = a;
+    int n = 0;
+    while(src[n].deviceid && src[n].name) ++n;
+    src+=n-1;
+    dst+=n-1;
+    for(int i=n-1; i>=0; --i, --src, --dst) {
+        dst->classes = from_ptrv(src->classes);
+        dst->num_classes = src->num_classes;
+        dst->enabled = src->enabled;
+        dst->attachment = src->attachment;
+        dst->use = src->use;
+        dst->name = from_ptrv(src->name);
+        dst->deviceid = src->deviceid;
+        for(int j=dst->num_classes-1; j>=0; --j)
+            dst->classes[j] = from_ptrv(((ptr_t*)dst->classes)[j]);
+    }
+    return n;
+}
+
+void inplace_XDevice_shrink(void* a)
+{
+    if(!a) return;
+    my_XDevice_t* src = a;
+    my_XDevice_32_t* dst = a;
+
+    dst->device_id = src->device_id;
+    dst->num_classes = src->num_classes;
+    dst->classes = to_ptrv(src->classes);
+}
+void inplace_XDevice_enlarge(void* a)
+{
+    if(!a) return;
+    my_XDevice_32_t* src = a;
+    my_XDevice_t* dst = a;
+
+    dst->classes = from_ptrv(src->classes);
+    dst->num_classes = src->num_classes;
+    dst->device_id = src->device_id;
 }

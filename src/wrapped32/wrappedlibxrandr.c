@@ -151,10 +151,21 @@ EXPORT void* my32_XRRQueryOutputProperty(x64emu_t* emu, void* dpy, XID output, X
     return inplace_XRRPropertyInfo_shrink(ret);
 }
 
+EXPORT int my32_XRRQueryExtension(x64emu_t* emu, void* dpy, int* event_base, int* error_base)
+{
+    int ret = my->XRRQueryExtension(dpy, event_base, error_base);
+    if(!ret) return ret;
+    register_XRandR_events(*event_base);
+    return ret;
+}
+
 #ifdef ANDROID
 #define NEEDED_LIBS "libX11.so", "libXext.so", "libXrender.so"
 #else
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6", "libXrender.so.1"
 #endif
+
+#define CUSTOM_FINI \
+    unregister_XRandR_events();
 
 #include "wrappedlib_init32.h"

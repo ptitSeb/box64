@@ -32,57 +32,11 @@
 #define NEEDED_LIBS "libX11.so.6", "libXext.so.6"
 #endif
 
-#include "libtools/my_x11_defs.h"
-#include "libtools/my_x11_defs_32.h"
+#include "libtools/my_x11_conv.h"
 
 #include "generated/wrappedlibxitypes32.h"
 
 #include "wrappercallback32.h"
-
-void inplace_XIDeviceInfo_shrink(void* a, int n)
-{
-    if(!a || !n) return;
-    my_XIDeviceInfo_32_t* dst = a;
-    my_XIDeviceInfo_t* src = a;
-
-    for(int i=0; i<n; ++i, ++src, ++dst) {
-        dst->deviceid = src->deviceid;
-        dst->name = to_ptrv(src->name);
-        dst->use = src->use;
-        dst->attachment = src->attachment;
-        dst->enabled = src->enabled;
-        for(int j=0; j<src->num_classes; ++j)
-            ((ptr_t*)src->classes)[j] = to_ptrv(src->classes[j]);
-        dst->num_classes = src->num_classes;
-        dst->classes = to_ptrv(src->classes);
-    }
-    // mark last record, even on only 1 record, thos last 2 uint32_t are free
-    dst->deviceid = 0;
-    dst->name = 0;
-}
-
-int inplace_XIDeviceInfo_enlarge(void* a)
-{
-    if(!a) return 0;
-    my_XIDeviceInfo_t* dst = a;
-    my_XIDeviceInfo_32_t* src = a;
-    int n = 0;
-    while(src[n].deviceid && src[n].name) ++n;
-    src+=n-1;
-    dst+=n-1;
-    for(int i=n-1; i>=0; --i, --src, --dst) {
-        dst->classes = from_ptrv(src->classes);
-        dst->num_classes = src->num_classes;
-        dst->enabled = src->enabled;
-        dst->attachment = src->attachment;
-        dst->use = src->use;
-        dst->name = from_ptrv(src->name);
-        dst->deviceid = src->deviceid;
-        for(int j=dst->num_classes-1; j>=0; --j)
-            dst->classes[j] = from_ptrv(((ptr_t*)dst->classes)[j]);
-    }
-    return n;
-}
 
 EXPORT void* my32_XIQueryDevice(x64emu_t* emu, void* dpy, int deviceid, int* ndevices)
 {
@@ -123,30 +77,10 @@ EXPORT void* my32_XIGetSelectedEvents(x64emu_t* emu, void* dpy, XID window, int*
     return ret;
 }
 
-void inplace_XDevice_shrink(void* a)
-{
-    if(!a) return;
-    my_XDevice_t* src = a;
-    my_XDevice_32_t* dst = a;
-
-    dst->device_id = src->device_id;
-    dst->num_classes = src->num_classes;
-    dst->classes = to_ptrv(src->classes);
-}
-void inplace_XDevice_enlarge(void* a)
-{
-    if(!a) return;
-    my_XDevice_32_t* src = a;
-    my_XDevice_t* dst = a;
-
-    dst->classes = from_ptrv(src->classes);
-    dst->num_classes = src->num_classes;
-    dst->device_id = src->device_id;
-}
-
 EXPORT void* my32_XOpenDevice(x64emu_t* emu, void* dpy, XID id)
 {
     void* ret = my->XOpenDevice(dpy, id);
+    register_XDevice_events(ret);
     inplace_XDevice_shrink(ret);
     return ret;
 }
@@ -154,6 +88,7 @@ EXPORT void* my32_XOpenDevice(x64emu_t* emu, void* dpy, XID id)
 EXPORT int my32_XCloseDevice(x64emu_t* emu, void* dpy, void* d)
 {
     inplace_XDevice_enlarge(d);
+    unregister_XDevice_events(d);
     return my->XCloseDevice(dpy, d);
 }
 
@@ -163,6 +98,5 @@ EXPORT int my32_XGetDeviceButtonMapping(x64emu_t* emu, void* dpy, void* d, void*
     return my->XGetDeviceButtonMapping(dpy, d, map, nmap);
     inplace_XDevice_shrink(d);
 }
-
 
 #include "wrappedlib_init32.h"

@@ -954,6 +954,276 @@ typedef struct my_XDevice_s {
      my_XInputClassInfo_t*  classes;
 } my_XDevice_t;
 
+typedef struct my_XDeviceKeyEvent_s
+{
+    int            type;
+    unsigned long  serial;
+    int            send_event;
+    void*          display; //Display*
+    XID            window;
+    XID            deviceid;
+    XID            root;
+    XID            subwindow;
+    unsigned long  time;
+    int            x, y;
+    int            x_root;
+    int            y_root;
+    unsigned int   state;
+    unsigned int   keycode;
+    int            same_screen;
+    unsigned int   device_state;
+    unsigned char  axes_count;
+    unsigned char  first_axis;
+    int            axis_data[6];
+} my_XDeviceKeyEvent_t;
+typedef my_XDeviceKeyEvent_t my_XDeviceButtonEvent_t;
+typedef struct my_XDeviceMotionEvent_s
+{
+    int            type;
+    unsigned long  serial;
+    int            send_event;
+    void*          display; //Display*
+    XID            window;
+    XID            deviceid;
+    XID            root;
+    XID            subwindow;
+    unsigned long  time;
+    int            x, y;
+    int            x_root;
+    int            y_root;
+    unsigned int   state;
+    char           is_hint;
+    int            same_screen;
+    unsigned int   device_state;
+    unsigned char  axes_count;
+    unsigned char  first_axis;
+    int            axis_data[6];
+} my_XDeviceMotionEvent_t;
+typedef struct my_XDeviceFocusChangeEvent_s
+{
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;  //Display*
+    XID           window;
+    XID           deviceid;
+    int           mode;
+    int           detail;
+    unsigned long time;
+} my_XDeviceFocusChangeEvent_t;
+typedef struct my_XProximityNotifyEvent_s
+{
+    int            type;
+    unsigned long  serial;
+    int            send_event;
+    void*          display; //Display*
+    XID            window;
+    XID            deviceid;
+    XID            root;
+    XID            subwindow;
+    unsigned long  time;
+    int            x, y;
+    int            x_root;
+    int            y_root;
+    unsigned int   state;
+    int            same_screen;
+    unsigned int   device_state;
+    unsigned char  axes_count;
+    unsigned char  first_axis;
+    int            axis_data[6];
+} my_XProximityNotifyEvent_t;
+typedef struct my_XDeviceStateNotifyEvent_s
+{
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;  //Display*
+    XID           window;
+    XID           deviceid;
+    unsigned long time;
+    int           num_classes;
+    char	      data[64];
+} my_XDeviceStateNotifyEvent_t;
+typedef struct my_XDeviceMappingEvent_s
+{
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;
+    XID           window;
+    XID           deviceid;
+    unsigned long time;
+    int           request;
+    int           first_keycode;
+    int           count;
+} my_XDeviceMappingEvent_t;
+typedef struct my_XChangeDeviceNotifyEvent_s
+{
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;
+    XID           window;
+    XID           deviceid;
+    unsigned long time;
+    int           request;
+} my_XChangeDeviceNotifyEvent_t;
+typedef struct my_XDevicePresenceNotifyEvent_s
+{
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;
+    XID           window;
+    unsigned long time;
+    int           devchange;
+    XID           deviceid;
+    XID           control;
+} my_XDevicePresenceNotifyEvent_t;
+typedef struct my_XDevicePropertyNotifyEvent_s
+{
+    int           type;
+    unsigned long serial;
+    int           send_event;
+    void*         display;
+    XID           window;
+    unsigned long time;
+    XID           deviceid;
+    XID           atom;
+    int           state;
+} my_XDevicePropertyNotifyEvent_t;
+
+typedef struct my_XFixesSelectionNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    XID owner;
+    XID selection;
+    unsigned long timestamp;
+    unsigned long selection_timestamp;
+} my_XFixesSelectionNotifyEvent_t;
+typedef struct my_XFixesCursorNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    unsigned long cursor_serial;
+    unsigned long timestamp;
+    XID cursor_name;
+} my_XFixesCursorNotifyEvent_t;
+
+typedef struct my_XRRScreenChangeNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    XID root;
+    unsigned long timestamp;
+    unsigned long config_timestamp;
+    uint16_t size_index;
+    uint16_t subpixel_order;
+    uint16_t rotation;
+    int width;
+    int height;
+    int mwidth;
+    int mheight;
+} my_XRRScreenChangeNotifyEvent_t;
+typedef struct my_XRRNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+} my_XRRNotifyEvent_t;
+typedef struct my_XRROutputChangeNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    XID output;
+    XID crtc;
+    XID mode;
+    uint16_t rotation;
+    uint16_t connection;
+    uint16_t subpixel_order;
+} my_XRROutputChangeNotifyEvent_t;
+typedef struct my_XRRCrtcChangeNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    XID crtc;
+    XID mode;
+    uint16_t rotation;
+    int x, y;
+    unsigned int width, height;
+} my_XRRCrtcChangeNotifyEvent_t;
+typedef struct my_XRROutputPropertyNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    XID output;
+    XID property;
+    unsigned long timestamp;
+    int state;
+} my_XRROutputPropertyNotifyEvent_t;
+typedef struct my_XRRProviderChangeNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    XID provider;
+    unsigned long timestamp;
+    unsigned int current_role;
+} my_XRRProviderChangeNotifyEvent_t;
+typedef struct my_XRRProviderPropertyNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    XID provider;
+    XID property;
+    unsigned long timestamp;
+    int state;
+} my_XRRProviderPropertyNotifyEvent_t;
+typedef struct my_XRRResourceChangeNotifyEvent_s
+{
+    int type;
+    unsigned long serial;
+    int send_event;
+    void* display;
+    XID window;
+    int subtype;
+    unsigned long timestamp;
+} my_XRRResourceChangeNotifyEvent_t;
+
 typedef struct my_XcursorCursors_s {
     void*      dpy;     //Display*
     int        ref;
