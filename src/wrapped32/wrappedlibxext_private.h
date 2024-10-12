@@ -78,14 +78,14 @@ GO(XShapeQueryExtension, iFXpp)
 GO(XShapeQueryExtents, iFXLpppppppppp)
 GO(XShapeQueryVersion, iFXpp)
 GO(XShapeSelectInput, vFXLL)
-GO(XShmAttach, iFXbLipi_)
-GOM(XShmCreateImage, pFEXbpLiLLLii_uipbLipi_uu)
-GO(XShmCreatePixmap, LFXLpbLipi_uuu)
-GO(XShmDetach, iFXbLipi_)
+GOM(XShmAttach, iFEXp)    //!\ use shminfo
+GOM(XShmCreateImage, pFEXbpLiLLLii_uippuu)  //!\ use shminfo
+GOM(XShmCreatePixmap, LFEXLppuuu) //!\ use shminfo
+GOM(XShmDetach, iFEXp)    //!\ use shminfo
 GO(XShmGetEventBase, iFX)
 GOM(XShmGetImage, iFEXLpiiL)
 GO(XShmPixmapFormat, iFX)
-GOM(XShmPutImage, iFEXLppiiiiuui) // Warning: failed to confirm
+GOM(XShmPutImage, iFEXLppiiiiuui)
 GO(XShmQueryExtension, iFX)
 GO(XShmQueryVersion, iFXppp)
 //GO(XSyncAwait, iFppi)

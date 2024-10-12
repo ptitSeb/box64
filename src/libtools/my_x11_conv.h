@@ -25,6 +25,9 @@ void refreshDisplay(void* dpy);
 
 void convert_Screen_to_32(void* d, void* s);
 
+void* convert_Visual_to_32(void* dpy, void* a);
+void* convert_Visual_to_64(void* dpy, void* a);
+
 void convert_XWMints_to_64(void* d, void* s);
 void inplace_enlarge_wmhints(void* hints);
 void inplace_shrink_wmhints(void* hints);
@@ -37,10 +40,10 @@ void convert_XWindowAttributes_to_32(void* d, void* s);
 void inplace_XModifierKeymap_shrink(void* a);
 void inplace_XModifierKeymap_enlarge(void* a);
 
-void convert_XVisualInfo_to_32(my_XVisualInfo_32_t* dst, my_XVisualInfo_t* src);
-void convert_XVisualInfo_to_64(my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src);
-void inplace_XVisualInfo_shrink(void *a);
-void inplace_XVisualInfo_enlarge(void *a);
+void convert_XVisualInfo_to_32(void* dpy, my_XVisualInfo_32_t* dst, my_XVisualInfo_t* src);
+void convert_XVisualInfo_to_64(void* dpy, my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src);
+void inplace_XVisualInfo_shrink(void* dpy, void *a);
+void inplace_XVisualInfo_enlarge(void* dpy, void *a);
 
 void inplace_XdbeVisualInfo_shrink(void* a);
 void inplace_XdbeScreenVisualInfo_shrink(void* a);
@@ -91,4 +94,6 @@ void unregister_XFixes_events();
 void register_XRandR_events(int event_base);
 void unregister_XRandR_events();
 
+void convert_XShmSegmentInfo_to_32(void* d, void* s);
+void convert_XShmSegmentInfo_to_64(void* d, void* s);
 #endif//MY_X11_CONV

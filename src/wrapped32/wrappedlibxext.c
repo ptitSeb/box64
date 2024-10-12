@@ -402,10 +402,44 @@ static void* find_error_string_Fct(void* fct)
 
 #undef SUPER
 
+KHASH_MAP_INIT_INT(shminfo, my_XShmSegmentInfo_t*);
+static kh_shminfo_t* shminfos = NULL;
+
+my_XShmSegmentInfo_t* getShmInfo(void* a)
+{
+    if(!a) return NULL;
+    ptr_t key = to_ptrv(a);
+    khint_t k = kh_get(shminfo, shminfos, key);
+    my_XShmSegmentInfo_t* ret = NULL;
+    if(k==kh_end(shminfos)) {
+        int r;
+        k = kh_put(shminfo, shminfos, key, &r);
+        ret = kh_value(shminfos, k) = calloc(1, sizeof(my_XShmSegmentInfo_t));
+    } else
+        ret = kh_value(shminfos, k);
+    convert_XShmSegmentInfo_to_64(ret, a);
+    return ret;
+}
+
+void delShmInfo(my_XShmSegmentInfo_t* a)
+{
+    if(!a) return;
+    my_XShmSegmentInfo_t* b;
+    kh_foreach_value(shminfos, b, 
+        if(a==b) {
+            free(a);
+            kh_del(shminfo, shminfos, __i);
+            return;
+        }
+    );
+}
+
 EXPORT void* my32_XShmCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, int32_t fmt
                     , void* data, void* shminfo, uint32_t w, uint32_t h)
 {
-    XImage *img = my->XShmCreateImage(disp, vis, depth, fmt, data, shminfo, w, h);
+    my_XShmSegmentInfo_t* shminfo_l = getShmInfo(shminfo);
+    XImage *img = my->XShmCreateImage(disp, convert_Visual_to_64(disp, vis), depth, fmt, data, shminfo_l, w, h);
+    convert_XShmSegmentInfo_to_32(shminfo, shminfo_l);
     inplace_XImage_shrink(img);
     return img;
 }
@@ -426,6 +460,30 @@ EXPORT int32_t my32_XShmGetImage(x64emu_t* emu, void* disp, size_t drawable, voi
     int32_t r = my->XShmGetImage(disp, drawable, image, x, y, plane);
     inplace_XImage_shrink(image);
     return r;
+}
+
+EXPORT XID my32_XShmCreatePixmap(x64emu_t* emu, void* dpy, XID d, void* data, void* shminfo, uint32_t width, uint32_t height, uint32_t depth)
+{
+    my_XShmSegmentInfo_t* shminfo_l = getShmInfo(shminfo);
+    XID ret = my->XShmCreatePixmap(dpy, d, data, shminfo_l, width, height, depth);
+    convert_XShmSegmentInfo_to_32(shminfo, shminfo_l);  // just in case
+    return ret;
+}
+
+EXPORT int my32_XShmAttach(x64emu_t* emu, void* dpy, void* shminfo)
+{
+    my_XShmSegmentInfo_t* shminfo_l = getShmInfo(shminfo);
+    int ret = my->XShmAttach(dpy, shminfo_l);
+    convert_XShmSegmentInfo_to_32(shminfo, shminfo_l);  // just in case
+    return ret;
+}
+
+EXPORT int my32_XShmDetach(x64emu_t* emu, void* dpy, void* shminfo)
+{
+    my_XShmSegmentInfo_t* shminfo_l = getShmInfo(shminfo);
+    int ret = my->XShmDetach(dpy, shminfo_l);
+    convert_XShmSegmentInfo_to_32(shminfo, shminfo_l);  // just in case
+    return ret;
 }
 
 EXPORT void* my32_XSetExtensionErrorHandler(x64emu_t* emu, void* handler)
@@ -519,4 +577,14 @@ EXPORT int my32_XextRemoveDisplay(x64emu_t* emu, void* ext, void* dpy)
 #define NEEDED_LIBS "libX11.so.6", "libxcb.so.1", "libXau.so.6", "libdl.so.2", "libXdmcp.so.6"
 #endif
 #endif
+
+#define CUSTOM_INIT \
+    shminfos = kh_init(shminfo);
+
+#define CUSTOM_FINI \
+    my_XShmSegmentInfo_t* info;                     \
+    kh_foreach_value(shminfos, info, free(info));   \
+    kh_destroy(shminfo, shminfos);                  \
+    shminfos = NULL;
+
 #include "wrappedlib_init32.h"

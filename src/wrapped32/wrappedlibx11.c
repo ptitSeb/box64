@@ -38,8 +38,7 @@ typedef int (*WireToEventProc)(void*, void*, void*);
 typedef int(*EventHandler) (void*,void*,void*);
 int32_t my32_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg);
 
-void UnwrapXImage(void* d, void* s);
-void WrapXImage(void* d, void* s);
+void delShmInfo(my_XShmSegmentInfo_t* a);   // edfine in Xext, to remove a saved ShmInfo
 
 typedef void (*vFp_t)(void*);
 typedef int  (*iFp_t)(void*);
@@ -200,6 +199,8 @@ static int my32_error_handler_##A(void* dpy, void* error)                       
 {                                                                                           \
     static my_XErrorEvent_32_t evt = {0};                                                   \
     convert_XErrorEvent_to_32(&evt, error);                                                 \
+    printf_log(LOG_DEBUG, "Calling Xerrorhandler(%p, %p), err=%hhu/%hhu/%hhu\n",            \
+        dpy, error, evt.error_code, evt.request_code, evt.minor_code);                      \
     return (int)RunFunctionFmt(my32_error_handler_fct_##A, "pp", FindDisplay(dpy), &evt);   \
 }
 SUPER()
@@ -584,14 +585,14 @@ static void* find_async_handler_Fct(void* fct)
 static uintptr_t my32_create_image_fct_##A = 0;                                                                                     \
 static void* my32_create_image_##A(void* a, void* b, uint32_t c, int d, int e, void* f, uint32_t g, uint32_t h, int i, int j)       \
 {                                                                                                                                   \
-    void* ret = (void*)RunFunctionFmt(my32_create_image_fct_##A, "ppuiipuuii", FindDisplay(a), b, c, d, e, f, g, h, i, j);          \
+    void* ret = (void*)RunFunctionFmt(my32_create_image_fct_##A, "ppuiipuuii", FindDisplay(a), convert_Visual_to_32(a, b), c, d, e, f, g, h, i, j);          \
     UnwrapXImage(ret, ret);                                                                                                         \
     return ret;                                                                                                                     \
 }                                                                                                                                   \
 static pFXpuiipuuii_t my32_rev_create_image_fct_##A = NULL;                                                                         \
 static void* my32_rev_create_image_##A(void* a, void* b, uint32_t c, int d, int e, void* f, uint32_t g, uint32_t h, int i, int j)   \
 {                                                                                                                                   \
-    void* ret = my32_rev_create_image_fct_##A (getDisplay(a), b, c, d, e, f, g, h, i, j);                                           \
+    void* ret = my32_rev_create_image_fct_##A (getDisplay(a), convert_Visual_to_64(a, b), c, d, e, f, g, h, i, j);                  \
     WrapXImage(ret, ret);                                                                                                           \
     return ret;                                                                                                                     \
 }
@@ -633,24 +634,31 @@ static void* reverse_create_image_Fct(library_t* lib, void* fct)
     SUPER()
     #undef GO
     if(f)
-        return (void*)AddCheckBridge(lib->w.bridge, pFXpuiipuuii_32, f, 0, "ximage_create_image");
+        return (void*)AddCheckBridge(lib->w.bridge, pFXpuiipuuii_32, f, 0, "Ximage_create_image");
     printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 create_image callback\n");
     return fct;
 }
 // destroy_image
 #define GO(A)   \
-static uintptr_t my32_destroy_image_fct_##A = 0;                    \
-static int my32_destroy_image_##A(void* a)                          \
-{                                                                   \
-    inplace_XImage_shrink(a);                                       \
-    return (int)RunFunctionFmt(my32_destroy_image_fct_##A, "p", a); \
-}                                                                   \
-static iFp_t my32_rev_destroy_image_fct_##A = NULL;                 \
-static int my32_rev_destroy_image_##A(void* a)                      \
-{                                                                   \
-    inplace_XImage_enlarge(a);                                      \
-    to_hash_d((uintptr_t)((XImage*)a)->obdata);                     \
-    return my32_rev_destroy_image_fct_##A (a);                      \
+static uintptr_t my32_destroy_image_fct_##A = 0;                        \
+static int my32_destroy_image_##A(void* a)                              \
+{                                                                       \
+    void* obdata = ((XImage*)a)->obdata;                                \
+    inplace_XImage_shrink(a);                                           \
+    int ret = (int)RunFunctionFmt(my32_destroy_image_fct_##A, "p", a);  \
+    to_hash_d((uintptr_t)obdata);                                       \
+    if(obdata) delShmInfo(obdata);                                      \
+    return ret;                                                         \
+}                                                                       \
+static iFp_t my32_rev_destroy_image_fct_##A = NULL;                     \
+static int my32_rev_destroy_image_##A(void* a)                          \
+{                                                                       \
+    inplace_XImage_enlarge(a);                                          \
+    to_hash_d((uintptr_t)((XImage*)a)->obdata);                         \
+    void* obdata = ((XImage*)a)->obdata;                                \
+    int ret = my32_rev_destroy_image_fct_##A (a);                       \
+    if(obdata) delShmInfo(obdata);                                      \
+    return ret;                                                         \
 }
 SUPER()
 #undef GO
@@ -690,7 +698,7 @@ static void* reverse_destroy_image_Fct(library_t* lib, void* fct)
     SUPER()
     #undef GO
     if(f)
-        return (void*)AddCheckBridge(lib->w.bridge, iFp_32, f, 0, "ximage_destroy_image");
+        return (void*)AddCheckBridge(lib->w.bridge, iFp_32, f, 0, "Ximage_destroy_image");
     printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 destroy_image callback\n");
     return fct;
 }
@@ -750,7 +758,7 @@ static void* reverse_get_pixel_Fct(library_t* lib, void* fct)
     SUPER()
     #undef GO
     if(f)
-        return (void*)AddCheckBridge(lib->w.bridge, LFpii_32, f, 0, "ximage_get_pixel");
+        return (void*)AddCheckBridge(lib->w.bridge, LFpii_32, f, 0, "Ximage_get_pixel");
     printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 get_pixel callback\n");
     return fct;
 }
@@ -810,7 +818,7 @@ static void* reverse_put_pixel_Fct(library_t* lib, void* fct)
     SUPER()
     #undef GO
     if(f)
-        return (void*)AddCheckBridge(lib->w.bridge, iFpiiL_32, f, 0, "ximage_put_pixel");
+        return (void*)AddCheckBridge(lib->w.bridge, iFpiiL_32, f, 0, "Ximage_put_pixel");
     printf_log(LOG_NONE, "Warning, no more slot for reverse 32bits libX11 put_pixel callback\n");
     return fct;
 }
@@ -946,16 +954,16 @@ void* my32_XCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t depth, in
 
 int32_t my32_XInitImage(x64emu_t* emu, void* img);
 
-void* my32_XGetImage(x64emu_t* emu, void* disp, size_t drawable, int32_t x, int32_t y
+void* my32_XGetImage(x64emu_t* emu, void* disp, XID drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt);
 
-int32_t my32_XPutImage(x64emu_t* emu, void* disp, size_t drawable, void* gc, void* image
+int32_t my32_XPutImage(x64emu_t* emu, void* disp, XID drawable, void* gc, void* image
                     , int32_t src_x, int32_t src_y, int32_t dst_x, int32_t dst_y
                     , uint32_t w, uint32_t h);
 
-void* my32_XGetSubImage(x64emu_t* emu, void* disp, size_t drawable
+void* my32_XGetSubImage(x64emu_t* emu, void* disp, XID drawable
                     , int32_t x, int32_t y
-                    , uint32_t w, uint32_t h, size_t plane, int32_t fmt
+                    , uint32_t w, uint32_t h, XID plane, int32_t fmt
                     , void* image, int32_t dst_x, int32_t dst_y);
 
 void my32_XDestroyImage(x64emu_t* emu, void* image);
@@ -1519,7 +1527,7 @@ EXPORT void* my32_XCreateImage(x64emu_t* emu, void* disp, void* vis, uint32_t de
                     , void* data, uint32_t w, uint32_t h, int32_t pad, int32_t bpl)
 {
 
-    XImage *img = my->XCreateImage(disp, vis, depth, fmt, off, data, w, h, pad, bpl);
+    XImage *img = my->XCreateImage(disp, convert_Visual_to_64(disp, vis), depth, fmt, off, data, w, h, pad, bpl);
     if(!img)
         return img;
     // bridge all access functions...
@@ -1537,7 +1545,7 @@ EXPORT int32_t my32_XInitImage(x64emu_t* emu, void* img)
     return ret;
 }
 
-EXPORT void* my32_XGetImage(x64emu_t* emu, void* disp, size_t drawable, int32_t x, int32_t y
+EXPORT void* my32_XGetImage(x64emu_t* emu, void* disp, XID drawable, int32_t x, int32_t y
                     , uint32_t w, uint32_t h, uint32_t plane, int32_t fmt)
 {
 
@@ -1549,10 +1557,13 @@ EXPORT void* my32_XGetImage(x64emu_t* emu, void* disp, size_t drawable, int32_t 
     return img;
 }
 
-EXPORT void my32__XInitImageFuncPtrs(x64emu_t* emu, XImage* img)
+EXPORT void my32__XInitImageFuncPtrs(x64emu_t* emu, XImage_32* img)
 {
-    my->_XInitImageFuncPtrs(img);
-    inplace_XImage_shrink(img);
+    XImage img_l = {0};
+    img->f.add_pixel = img->f.create_image = img->f.destroy_image = img->f.get_pixel = img->f.put_pixel = img->f.sub_image = 0;
+    UnwrapXImage(&img_l, img);
+    my->_XInitImageFuncPtrs(&img_l);
+    WrapXImage(img, &img_l);
 }
 
 EXPORT int32_t my32_XPutImage(x64emu_t* emu, void* disp, size_t drawable, void* gc, void* image
@@ -1566,9 +1577,9 @@ EXPORT int32_t my32_XPutImage(x64emu_t* emu, void* disp, size_t drawable, void* 
     return r;
 }
 
-EXPORT void* my32_XGetSubImage(x64emu_t* emu, void* disp, size_t drawable
+EXPORT void* my32_XGetSubImage(x64emu_t* emu, void* disp, XID drawable
                     , int32_t x, int32_t y
-                    , uint32_t w, uint32_t h, size_t plane, int32_t fmt
+                    , uint32_t w, uint32_t h, XID plane, int32_t fmt
                     , void* image, int32_t dst_x, int32_t dst_y)
 {
 
@@ -1686,7 +1697,7 @@ EXPORT XID my32_XCreateWindow(x64emu_t* emu, void* d, XID Window, int x, int y, 
     my_XSetWindowAttributes_t attrib;
     if(attr)
         convert_XSetWindowAttributes_to_64(&attrib, attr);
-    return my->XCreateWindow(d, Window, x, y, width, height, border_width, depth, cl, visual, mask, attr?(&attrib):NULL);
+    return my->XCreateWindow(d, Window, x, y, width, height, border_width, depth, cl, convert_Visual_to_64(d, visual), mask, attr?(&attrib):NULL);
 }
 
 EXPORT int my32_XNextEvent(x64emu_t* emu, void* dpy, my_XEvent_32_t* evt)
@@ -2132,10 +2143,20 @@ EXPORT void* my32_XGetIMValues(x64emu_t* emu, void* xim, ptr_t* b)
 EXPORT void* my32_XGetVisualInfo(x64emu_t* emu, void* dpy, long mask, my_XVisualInfo_32_t* template, int* n)
 {
     my_XVisualInfo_t template_l = {0};
-    if(template) convert_XVisualInfo_to_64(&template_l, template);
+    if(template) convert_XVisualInfo_to_64(dpy, &template_l, template);
     my_XVisualInfo_t* ret = my->XGetVisualInfo(dpy, mask, template?(&template_l):NULL, n);
-    inplace_XVisualInfo_shrink(ret);
+    inplace_XVisualInfo_shrink(dpy, ret);
     return ret;
+}
+
+EXPORT XID my32_XVisualIDFromVisual(x64emu_t* emu, my_Visual_32_t* v)
+{
+    return from_ulong(v->visualid);
+}
+
+EXPORT XID my32_XCreateColormap(x64emu_t* emu, void* dpy, XID w, my_Visual_32_t* v, int alloc)
+{
+    return my->XCreateColormap(dpy, w, convert_Visual_to_64(dpy, v), alloc);
 }
 
 EXPORT int my32_XQueryColors(x64emu_t* emu, void* dpy, XID map, my_XColor_32_t* defs, int ncolor)

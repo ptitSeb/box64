@@ -15,6 +15,7 @@ typedef void (*vFp_t)(void*);
 typedef void (*vFX_t)(void*);
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFX_t)(void*);
+typedef uintptr_t (*LFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFX_t)(void*);
 typedef void* (*XFp_t)(void*);
@@ -40,6 +41,7 @@ typedef int32_t (*iFXLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef int32_t (*iFXLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFXppp_t)(void*, void*, void*, void*);
+typedef uintptr_t (*LFXLpi_t)(void*, uintptr_t, void*, int32_t);
 typedef void* (*pFXlpp_t)(void*, intptr_t, void*, void*);
 typedef int32_t (*iFXbpLiL_pp_t)(void*, struct_pLiL_t*, void*, void*);
 typedef int32_t (*iFppipp_t)(void*, void*, int32_t, void*, void*);
@@ -74,6 +76,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(_XInitImageFuncPtrs, iFp_t) \
 	GO(XCloseDisplay, iFX_t) \
 	GO(XGrabServer, iFX_t) \
+	GO(XVisualIDFromVisual, LFp_t) \
 	GO(XSetErrorHandler, pFp_t) \
 	GO(XSetIOErrorHandler, pFp_t) \
 	GO(XGetModifierMapping, pFX_t) \
@@ -113,6 +116,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XGetWMNormalHints, iFXLpp_t) \
 	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \
+	GO(XCreateColormap, LFXLpi_t) \
 	GO(XGetVisualInfo, pFXlpp_t) \
 	GO(XmbTextPropertyToTextList, iFXbpLiL_pp_t) \
 	GO(XLookupString, iFppipp_t) \

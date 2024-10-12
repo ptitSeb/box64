@@ -108,119 +108,128 @@ struct my_XConnWatchInfo {
     struct _XConnWatchInfo *next;
 };
 
+typedef struct my_Visual_s {
+    void*   ext_data;   //XExtData*
+    XID visualid;
+    int c_class;
+    unsigned long red_mask, green_mask, blue_mask;
+    int bits_per_rgb;
+    int map_entries;
+} my_Visual_t;
+
 typedef struct my_Screen_s {
-        void* ext_data;         //XExtData *
-        struct my_XDisplay_s *display;
-        XID root;
-        int width, height;
-        int mwidth, mheight;
-        int ndepths;
-        void* depths;   //Depth *
-        int root_depth;         /* bits per pixel */
-        void* root_visual;  //Visual *
-        void* default_gc;   //GC == struct _XGC*
-        XID cmap;
-        unsigned long white_pixel;
-        unsigned long black_pixel;
-        int max_maps, min_maps;
-        int backing_store;
-        int save_unders;
-        long root_input_mask;
+    void* ext_data;         //XExtData *
+    struct my_XDisplay_s *display;
+    XID root;
+    int width, height;
+    int mwidth, mheight;
+    int ndepths;
+    void* depths;   //Depth *
+    int root_depth;         /* bits per pixel */
+    my_Visual_t* root_visual;
+    void* default_gc;   //GC == struct _XGC*
+    XID cmap;
+    unsigned long white_pixel;
+    unsigned long black_pixel;
+    int max_maps, min_maps;
+    int backing_store;
+    int save_unders;
+    long root_input_mask;
 } my_Screen_t;
 
 typedef struct my_XDisplay_s
 {
-        void *ext_data;
-        struct my_XFreeFuncs *free_funcs;
-        int fd;
-        int conn_checker;
-        int proto_major_version;
-        int proto_minor_version;
-        char *vendor;
-        XID resource_base;
-        XID resource_mask;
-        XID resource_id;
-        int resource_shift;
-        XID (*resource_alloc)(void*);
-        int byte_order;
-        int bitmap_unit;
-        int bitmap_pad;
-        int bitmap_bit_order;
-        int nformats;
-        void *pixmap_format;
-        int vnumber;
-        int release;
-        void *head, *tail;
-        int qlen;
-        unsigned long last_request_read;
-        unsigned long request;
-        char *last_req;
-        char *buffer;
-        char *bufptr;
-        char *bufmax;
-        unsigned max_request_size;
-        void* *db;
-        int (*synchandler)(void*);
-        char *display_name;
-        int default_screen;
-        int nscreens;
-        my_Screen_t *screens;
-        unsigned long motion_buffer;
-        volatile unsigned long flags;
-        int min_keycode;
-        int max_keycode;
-        void *keysyms;
-        void *modifiermap;
-        int keysyms_per_keycode;
-        char *xdefaults;
-        char *scratch_buffer;
-        unsigned long scratch_length;
-        int ext_number;
-        struct my_XExten *ext_procs;
-        int (*event_vec[128])(void *, void *, void *);
-        int (*wire_vec[128])(void *, void *, void *);
-        XID lock_meaning;
-        void* lock;
-        struct my_XInternalAsync *async_handlers;
-        unsigned long bigreq_size;
-        struct my_XLockPtrs *lock_fns;
-        void (*idlist_alloc)(void *, void *, int);
-        void* key_bindings;
-        XID cursor_font;
-        void* *atoms;
-        unsigned int mode_switch;
-        unsigned int num_lock;
-        void* context_db;
-        int (**error_vec)(void*, void*, void*);
-        struct {
-           void* defaultCCCs;
-           void* clientCmaps;
-           void* perVisualIntensityMaps;
-        } cms;
-        void* im_filters;
-        void* qfree;
-        unsigned long next_event_serial_num;
-        struct my_XExten *flushes;
-        struct my_XConnectionInfo *im_fd_info;
-        int im_fd_length;
-        struct my_XConnWatchInfo *conn_watchers;
-        int watcher_count;
-        void* filedes;
-        int (*savedsynchandler)(void *);
-        XID resource_max;
-        int xcmisc_opcode;
-        void* *xkb_info;
-        void* *trans_conn;
-        void* *xcb;
-        unsigned int next_cookie;
-        int (*generic_event_vec[128])(void*, void*, void*);
-        int (*generic_event_copy_vec[128])(void*, void*, void*);
-        void *cookiejar;
-        unsigned long last_request_read_upper32bit; // 64bits only
-        unsigned long request_upper32bit;   // 64bits only
-        void* error_threads;
-        void* exit_handler;
-        void* exit_handler_data;
+    void *ext_data;
+    struct my_XFreeFuncs *free_funcs;
+    int fd;
+    int conn_checker;
+    int proto_major_version;
+    int proto_minor_version;
+    char *vendor;
+    XID resource_base;
+    XID resource_mask;
+    XID resource_id;
+    int resource_shift;
+    XID (*resource_alloc)(void*);
+    int byte_order;
+    int bitmap_unit;
+    int bitmap_pad;
+    int bitmap_bit_order;
+    int nformats;
+    void *pixmap_format;
+    int vnumber;
+    int release;
+    void *head, *tail;
+    int qlen;
+    unsigned long last_request_read;
+    unsigned long request;
+    char *last_req;
+    char *buffer;
+    char *bufptr;
+    char *bufmax;
+    unsigned max_request_size;
+    void* *db;
+    int (*synchandler)(void*);
+    char *display_name;
+    int default_screen;
+    int nscreens;
+    my_Screen_t *screens;
+    unsigned long motion_buffer;
+    volatile unsigned long flags;
+    int min_keycode;
+    int max_keycode;
+    void *keysyms;
+    void *modifiermap;
+    int keysyms_per_keycode;
+    char *xdefaults;
+    char *scratch_buffer;
+    unsigned long scratch_length;
+    int ext_number;
+    struct my_XExten *ext_procs;
+    int (*event_vec[128])(void *, void *, void *);
+    int (*wire_vec[128])(void *, void *, void *);
+    XID lock_meaning;
+    void* lock;
+    struct my_XInternalAsync *async_handlers;
+    unsigned long bigreq_size;
+    struct my_XLockPtrs *lock_fns;
+    void (*idlist_alloc)(void *, void *, int);
+    void* key_bindings;
+    XID cursor_font;
+    void* *atoms;
+    unsigned int mode_switch;
+    unsigned int num_lock;
+    void* context_db;
+    int (**error_vec)(void*, void*, void*);
+    struct {
+        void* defaultCCCs;
+        void* clientCmaps;
+        void* perVisualIntensityMaps;
+    } cms;
+    void* im_filters;
+    void* qfree;
+    unsigned long next_event_serial_num;
+    struct my_XExten *flushes;
+    struct my_XConnectionInfo *im_fd_info;
+    int im_fd_length;
+    struct my_XConnWatchInfo *conn_watchers;
+    int watcher_count;
+    void* filedes;
+    int (*savedsynchandler)(void *);
+    XID resource_max;
+    int xcmisc_opcode;
+    void* *xkb_info;
+    void* *trans_conn;
+    void* *xcb;
+    unsigned int next_cookie;
+    int (*generic_event_vec[128])(void*, void*, void*);
+    int (*generic_event_copy_vec[128])(void*, void*, void*);
+    void *cookiejar;
+    unsigned long last_request_read_upper32bit; // 64bits only
+    unsigned long request_upper32bit;   // 64bits only
+    void* error_threads;
+    void* exit_handler;
+    void* exit_handler_data;
 } my_XDisplay_t;
 
 typedef struct my_XSetWindowAttributes_s {
@@ -846,7 +855,7 @@ typedef struct my_XWindowAttributes_s {
 } my_XWindowAttributes_t;
 
 typedef struct my_XVisualInfo_s {
-  void* visual; //Visual*
+  my_Visual_t* visual;
   unsigned long  visualid;
   int screen;
   int depth;
@@ -1305,5 +1314,12 @@ typedef struct my_XRRPropertyInfo_s {
     int     num_values;
     long*   values;
 } my_XRRPropertyInfo_t;
+
+typedef struct my_XShmSegmentInfo_s {
+    XID     shmseg;
+    int     shmid;
+    char*   shmaddr;
+    int     readOnly;
+} my_XShmSegmentInfo_t;
 
 #endif//MY_X11_DEFS

@@ -209,7 +209,7 @@ GO(XCopyGC, iFXpLp)
 GO(XCopyPlane, iFXLLpiiuuiiL)
 //GO(_XCopyToArg, 
 GO(XCreateBitmapFromData, LFXLpuu)
-GO(XCreateColormap, LFXLpi)
+GOM(XCreateColormap, LFEXLpi)
 GO(XCreateFontCursor, LFXu)
 GOM(XCreateFontSet, pFEXpppp)
 GO(XCreateGC, pFXLLbiLLLiiiiiiiLLiiLiiiiLic_)
@@ -1195,7 +1195,7 @@ GO(Xutf8TextPerCharExtents, iFppippippp)
 GOM(XVaCreateNestedList, pFEiV)
 GO(XVendorRelease, iFX)
 GO(_XVIDtoVisual, pFXL)
-GO(XVisualIDFromVisual, LFp)
+GOM(XVisualIDFromVisual, LFEp)
 GO(XWarpPointer, iFXLLiiuuii)
 //GO(_XwcDefaultDrawImageString, 
 //GO(_XwcDefaultDrawString, 

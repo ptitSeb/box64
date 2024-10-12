@@ -12,11 +12,19 @@
 #include "my_x11_defs_32.h"
 #include "my_x11_conv.h"
 
+typedef struct Visuals_s {
+    my_Visual_t* _64;
+    my_Visual_32_t* _32;
+    int ref;    // 0 is 64, 1 is 32
+} Visuals_t;
+KHASH_MAP_INIT_INT(visuals, Visuals_t);
+
 #define N_DISPLAY 4
 my_XDisplay_t* my32_Displays_64[N_DISPLAY] = {0};
 struct my_XFreeFuncs_32 my32_free_funcs_32[N_DISPLAY] = {0};
 struct my_XLockPtrs_32 my32_lock_fns_32[N_DISPLAY] = {0};
 my_XDisplay_32_t my32_Displays_32[N_DISPLAY] = {0};
+kh_visuals_t* my32_Displays_Visuals[N_DISPLAY] = {0};
 
 void* getDisplay(void* d)
 {
@@ -65,6 +73,90 @@ void convert_Screen_to_32(void* d, void* s)
     dst->root_input_mask = to_long(src->root_input_mask);
 }
 
+void internal_convert_Visual_to_32(void* d, void* s)
+{
+    my_Visual_t* src = s;
+    my_Visual_32_t* dst = d;
+    dst->ext_data = to_ptrv(src->ext_data);
+    dst->visualid = to_ulong(src->visualid);
+    dst->c_class = src->c_class;
+    dst->red_mask = to_ulong(src->red_mask);
+    dst->green_mask = to_ulong(src->green_mask);
+    dst->blue_mask = to_ulong(src->blue_mask);
+    dst->bits_per_rgb = src->bits_per_rgb;
+    dst->map_entries = src->map_entries;
+}
+void internal_convert_Visual_to_64(void* d, void* s)
+{
+    my_Visual_32_t* src = s;
+    my_Visual_t* dst = d;
+    dst->map_entries = src->map_entries;
+    dst->bits_per_rgb = src->bits_per_rgb;
+    dst->blue_mask = from_ulong(src->blue_mask);
+    dst->green_mask = from_ulong(src->green_mask);
+    dst->red_mask = from_ulong(src->red_mask);
+    dst->c_class = src->c_class;
+    dst->visualid = from_ulong(src->visualid);
+    dst->ext_data = from_ptrv(src->ext_data);
+}
+
+my_Visual_32_t* getVisual32(int N, my_Visual_t* a)
+{
+    if(!a) return NULL;
+    uint32_t key = a->visualid;
+    khint_t k = kh_get(visuals, my32_Displays_Visuals[N], key);
+    Visuals_t* ret = NULL;
+    if(k==kh_end(my32_Displays_Visuals[N])) {
+        int r;
+        k = kh_put(visuals, my32_Displays_Visuals[N], key, &r);
+        ret = &kh_value(my32_Displays_Visuals[N], k);
+        ret->_32 = calloc(1, sizeof(my_Visual_32_t));
+        ret->_64 = a;
+        ret->ref = 0;
+        internal_convert_Visual_to_32(ret->_32, ret->_64);
+    } else
+        ret = &kh_value(my32_Displays_Visuals[N], k);
+    return ret->_32;
+}
+my_Visual_t* getVisual64(int N, my_Visual_32_t* a)
+{
+    if(!a) return NULL;
+    uint32_t key = a->visualid;
+    khint_t k = kh_get(visuals, my32_Displays_Visuals[N], key);
+    Visuals_t* ret = NULL;
+    if(k==kh_end(my32_Displays_Visuals[N])) {
+        int r;
+        k = kh_put(visuals, my32_Displays_Visuals[N], key, &r);
+        ret = &kh_value(my32_Displays_Visuals[N], k);
+        ret->_64 = calloc(1, sizeof(my_Visual_t));
+        ret->_32 = a;
+        ret->ref = 1;
+        internal_convert_Visual_to_64(ret->_64, ret->_32);
+    } else
+        ret = &kh_value(my32_Displays_Visuals[N], k);
+    return ret->_64;
+}
+
+void* convert_Visual_to_32(void* dpy, void* a)
+{
+    if(!dpy) return a;
+    for(int i=0; i<N_DISPLAY; ++i)
+        if(((&my32_Displays_32[i])==dpy) || (my32_Displays_64[i]==dpy)) {
+            return getVisual32(i, a);
+        }
+    return a;
+}
+void* convert_Visual_to_64(void* dpy, void* a)
+{
+    if(!dpy) return a;
+    for(int i=0; i<N_DISPLAY; ++i)
+        if(((&my32_Displays_32[i])==dpy) || (my32_Displays_64[i]==dpy)) {
+            return getVisual64(i, a);
+        }
+    return a;
+}
+
+
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);
 void* addDisplay(void* d)
 {
@@ -92,6 +184,7 @@ void* addDisplay(void* d)
             ret->free_funcs = to_ptrv(free_funcs);
             lock_fns = &my32_lock_fns_32[i];
             ret->lock_fns = to_ptrv(lock_fns);
+            my32_Displays_Visuals[i] = kh_init(visuals);
         }
     }
     if(!ret) {
@@ -135,6 +228,7 @@ void* addDisplay(void* d)
         ret->screens = to_ptrv(screens);
         for(int i=0; i<dpy->nscreens; ++i) {
             convert_Screen_to_32(screens+i, dpy->screens+i);
+            screens[i].root_visual = to_ptrv(getVisual32(i, dpy->screens[i].root_visual));
         }
     } else
         ret->screens = 0;
@@ -180,6 +274,11 @@ void delDisplay(void* d)
             my32_Displays_64[i] = NULL;
             free(from_ptrv(my32_Displays_32[i].screens));
             my32_Displays_32[i].screens = 0;
+            Visuals_t* v;
+            uint32_t k;
+            kh_foreach_ref(my32_Displays_Visuals[i], k, v, if(v->ref) free(v->_64); else free(v->_32));
+            kh_destroy(visuals, my32_Displays_Visuals[i]);
+            my32_Displays_Visuals[i] = NULL;
             return;
         }
     }
@@ -322,9 +421,9 @@ void inplace_XModifierKeymap_enlarge(void* a)
     d->max_keypermod = s->max_keypermod;
 }
 
-void convert_XVisualInfo_to_32(my_XVisualInfo_32_t* dst, my_XVisualInfo_t* src)
+void convert_XVisualInfo_to_32(void* dpy, my_XVisualInfo_32_t* dst, my_XVisualInfo_t* src)
 {
-    dst->visual = to_ptrv(src->visual);
+    dst->visual = to_ptrv(convert_Visual_to_32(dpy, src->visual));
     dst->visualid = to_ulong(src->visualid);
     dst->screen = src->screen;
     dst->depth = src->depth;
@@ -335,7 +434,7 @@ void convert_XVisualInfo_to_32(my_XVisualInfo_32_t* dst, my_XVisualInfo_t* src)
     dst->colormap_size = src->colormap_size;
     dst->bits_per_rgb = src->bits_per_rgb;
 }
-void convert_XVisualInfo_to_64(my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src)
+void convert_XVisualInfo_to_64(void* dpy, my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src)
 {
     dst->bits_per_rgb = src->bits_per_rgb;
     dst->colormap_size = src->colormap_size;
@@ -346,23 +445,23 @@ void convert_XVisualInfo_to_64(my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src)
     dst->depth = src->depth;
     dst->screen = src->screen;
     dst->visualid = from_ulong(src->visualid);
-    dst->visual = from_ptrv(src->visual);
+    dst->visual = convert_Visual_to_64(dpy, from_ptrv(src->visual));
 }
-void inplace_XVisualInfo_shrink(void *a)
+void inplace_XVisualInfo_shrink(void* dpy, void *a)
 {
     if(!a) return;
     my_XVisualInfo_t *src = a;
     my_XVisualInfo_32_t* dst = a;
 
-    convert_XVisualInfo_to_32(dst, src);
+    convert_XVisualInfo_to_32(dpy, dst, src);
 }
-void inplace_XVisualInfo_enlarge(void *a)
+void inplace_XVisualInfo_enlarge(void* dpy, void *a)
 {
     if(!a) return;
     my_XVisualInfo_32_t *src = a;
     my_XVisualInfo_t* dst = a;
 
-    convert_XVisualInfo_to_64(dst, src);
+    convert_XVisualInfo_to_64(dpy, dst, src);
 }
 
 void inplace_XdbeVisualInfo_shrink(void* a)
@@ -867,4 +966,23 @@ void inplace_XDevice_enlarge(void* a)
     dst->classes = from_ptrv(src->classes);
     dst->num_classes = src->num_classes;
     dst->device_id = src->device_id;
+}
+
+void convert_XShmSegmentInfo_to_32(void* d, void* s)
+{
+    my_XShmSegmentInfo_t* src = s;
+    my_XShmSegmentInfo_32_t* dst = d;
+    dst->shmseg = to_ulong(src->shmseg);
+    dst->shmid = src->shmid;
+    dst->shmaddr = to_ptrv(src->shmaddr);
+    dst->readOnly = src->readOnly;
+}
+void convert_XShmSegmentInfo_to_64(void* d, void* s)
+{
+    my_XShmSegmentInfo_32_t* src = s;
+    my_XShmSegmentInfo_t* dst = d;
+    dst->readOnly = src->readOnly;
+    dst->shmaddr = from_ptrv(src->shmaddr);
+    dst->shmid = src->shmid;
+    dst->shmseg = from_ulong(src->shmseg);
 }

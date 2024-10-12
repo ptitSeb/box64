@@ -230,6 +230,7 @@
 #() lFpl -> lFpl
 #() lFpL -> lFpL
 #() LFEL -> LFEL
+#() LFEp -> LFEp
 #() LFLi -> LFLi
 #() LFpL -> LFpL
 #() LFpp -> LFpp
@@ -293,7 +294,6 @@
 #() iFSBliu_ -> iFSB
 #() iFbppi_i -> iFBi
 #() iFXbiip_ -> iFXB
-#() iFXbLipi_ -> iFXB
 #() iFrLL_BLL_ -> iFBB
 #() LFXrLiiuL_ -> LFXB
 #() vFbll_rllll_ -> vFBB
@@ -808,7 +808,6 @@
 #() LFppLa -> LFppLa
 #() LFXCii -> LFXCii
 #() LFXLuu -> LFXLuu
-#() LFXLpi -> LFXLpi
 #() LFXpLp -> LFXpLp
 #() pFEupp -> pFEupp
 #() pFEpip -> pFEpip
@@ -1026,6 +1025,7 @@
 #() UFuiCiu -> UFuiCiu
 #() lFpuipC -> lFpuipC
 #() LFEppLL -> LFEppLL
+#() LFEXLpi -> LFEXLpi
 #() LFpLppa -> LFpLppa
 #() LFXLuuu -> LFXLuuu
 #() LFXLpuu -> LFXLpuu
@@ -1295,7 +1295,6 @@
 #() iFXLibL_ubL_u -> iFXLiBuBu
 #() vFXLpiibpiip_i -> vFXLpiiBi
 #() iFXLpiibpiiL_i -> iFXLpiiBi
-#() LFXLpbLipi_uuu -> LFXLpBuuu
 #() LFXLLuubLWWWcc_bLWWWcc_ -> LFXLLuuBB
 #() LFXLLbLWWWcc_bLWWWcc_uu -> LFXLLBBuu
 #() vFiiiiuuip -> vFiiiiuuip
@@ -1345,6 +1344,7 @@
 #() uFuipppppp -> uFuipppppp
 #() uFuupuuiuf -> uFuupuuiuf
 #() uFulpppppp -> uFulpppppp
+#() LFEXLppuuu -> LFEXLppuuu
 #() LFXLpuuLLu -> LFXLpuuLLu
 #() iFXLLiippBL_ -> iFXLLiippB
 #() iFXLpppbL_pp -> iFXLpppBpp
@@ -1395,7 +1395,7 @@
 #() iFXiLLLiiibiip_ -> iFXiLLLiiiB
 #() iFXLbL_bL_ppppp -> iFXLBBppppp
 #() vFXiLLrLiiuL_iipi -> vFXiLLBiipi
-#() pFEXbpLiLLLii_uipbLipi_uu -> pFEXBuipBuu
+#() pFEXbpLiLLLii_uippuu -> pFEXBuippuu
 #() vFEXLpppippp -> vFEXLpppippp
 #() vFiiiiiiiiii -> vFiiiiiiiiii
 #() vFiiiiiiiiui -> vFiiiiiiiiui
@@ -2013,6 +2013,8 @@ wrappedlibx11:
 - iFX:
   - XCloseDisplay
   - XGrabServer
+- LFp:
+  - XVisualIDFromVisual
 - pFp:
   - XSetErrorHandler
   - XSetIOErrorHandler
@@ -2077,6 +2079,8 @@ wrappedlibx11:
 - iFXppp:
   - XCheckIfEvent
   - XIfEvent
+- LFXLpi:
+  - XCreateColormap
 - pFXlpp:
   - XGetVisualInfo
 - iFXbpLiL_pp:
@@ -2141,6 +2145,9 @@ wrappedlibxext:
   - XSetExtensionErrorHandler
 - iFpX:
   - XextRemoveDisplay
+- iFXp:
+  - XShmAttach
+  - XShmDetach
 - pFpX:
   - XextFindDisplay
 - pFXpp:
@@ -2149,7 +2156,9 @@ wrappedlibxext:
   - XShmGetImage
 - pFpXppip:
   - XextAddDisplay
-- pFXbpLiLLLii_uipbLipi_uu:
+- LFXLppuuu:
+  - XShmCreatePixmap
+- pFXbpLiLLLii_uippuu:
   - XShmCreateImage
 - iFXLppiiiiuui:
   - XShmPutImage

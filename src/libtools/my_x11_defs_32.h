@@ -88,6 +88,15 @@ struct my_XConnWatchInfo_32 {
     ptr_t next; //struct _XConnWatchInfo *
 };
 
+typedef struct my_Visual_32_s {
+    ptr_t   ext_data;   //XExtData*
+    XID_32 visualid;
+    int c_class;
+    ulong_t red_mask, green_mask, blue_mask;
+    int bits_per_rgb;
+    int map_entries;
+} my_Visual_32_t;
+
 typedef struct my_Screen_32_s {
     ptr_t ext_data;         //XExtData *
     ptr_t display;      //struct my_XDisplay_s *
@@ -1237,5 +1246,12 @@ typedef struct my_XRRPropertyInfo_32_s {
     int     num_values;
     ptr_t   values; //long*
 } my_XRRPropertyInfo_32_t;
+
+typedef struct my_XShmSegmentInfo_32_s {
+    XID_32  shmseg;
+    int     shmid;
+    ptr_t   shmaddr;
+    int     readOnly;
+} my_XShmSegmentInfo_32_t;
 
 #endif//MY_X11_DEFS_32

@@ -16,8 +16,7 @@
 #include "librarian.h"
 #include "callback.h"
 #include "gltools.h"
-#include "libtools/my_x11_defs.h"
-#include "libtools/my_x11_defs_32.h"
+#include "libtools/my_x11_conv.h"
 
 extern const char* libglName;
 #define LIBNAME libgl
@@ -28,8 +27,6 @@ extern const char* libglName;
 
 void* getDisplay(void* d); // define in 32bits wrappedx11.c
 
-void convert_XVisualInfo_to_32(void* d, void* s);
-void convert_XVisualInfo_to_64(void* d, void* s);
 // FIXME: old wrapped* type of file, cannot use generated/wrappedlibgltypes.h
 void* getGLProcAddress32(x64emu_t* emu, glprocaddress_t procaddr, const char* rname);
 EXPORT void* my32_glXGetProcAddress(x64emu_t* emu, void* name)
@@ -498,7 +495,7 @@ static void* my32_glXGetVisualFromFBConfig_##A(x64emu_t* emu, void* dpy, void* c
     if(!res)                                                                                                \
         return NULL;                                                                                        \
     my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;                                                 \
-    convert_XVisualInfo_to_32(vinfo, res);                                                                  \
+    convert_XVisualInfo_to_32(dpy, vinfo, res);                                                                  \
     return vinfo;                                                                                           \
 }
 SUPER()
@@ -526,7 +523,7 @@ static void* my32_glXChooseVisual_##A(x64emu_t* emu, void* dpy, int screen, int*
     if(!res)                                                                                       \
         return NULL;                                                                               \
     my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;                                        \
-    convert_XVisualInfo_to_32(vinfo, res);                                                         \
+    convert_XVisualInfo_to_32(dpy, vinfo, res);                                                         \
     return vinfo;                                                                                  \
 }
 SUPER()
@@ -551,7 +548,7 @@ static void* my32_glXCreateContext_##A(x64emu_t* emu, void* dpy, my_XVisualInfo_
     if(!my32_glXCreateContext_fct_##A)                                                                                  \
         return NULL;                                                                                                    \
     my_XVisualInfo_t info_l = {0};                                                                                      \
-    convert_XVisualInfo_to_64(&info_l, info);                                                                           \
+    convert_XVisualInfo_to_64(dpy, &info_l, info);                                                                           \
     return my32_glXCreateContext_fct_##A (dpy, &info_l, shared, direct);                                                \
 }
 SUPER()
@@ -946,7 +943,7 @@ EXPORT void* my32_glXGetVisualFromFBConfig(x64emu_t* emu, void* dpy, void* confi
     void* res = my->glXGetVisualFromFBConfig(dpy, config);
     if(!res) return NULL;
     my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;
-    convert_XVisualInfo_to_32(vinfo, res);
+    convert_XVisualInfo_to_32(dpy, vinfo, res);
     return vinfo;
 }
 
@@ -955,14 +952,14 @@ EXPORT void* my32_glXChooseVisual(x64emu_t* emu, void* dpy, int screen, int* att
     void* res = my->glXChooseVisual(dpy, screen, attr);
     if(!res) return NULL;
     my_XVisualInfo_32_t* vinfo = (my_XVisualInfo_32_t*)res;
-    convert_XVisualInfo_to_32(vinfo, res);
+    convert_XVisualInfo_to_32(dpy, vinfo, res);
     return vinfo;
 }
 
 EXPORT void* my32_glXCreateContext(x64emu_t* emu, void* dpy, my_XVisualInfo_32_t* info, void* shared, int direct)
 {
     my_XVisualInfo_t info_l = {0};
-    convert_XVisualInfo_to_64(&info_l, info);
+    convert_XVisualInfo_to_64(dpy, &info_l, info);
     return my->glXCreateContext(dpy, &info_l, shared, direct);
 }
 

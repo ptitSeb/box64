@@ -33,8 +33,7 @@
 #define NEEDED_LIBS "libX11.so.6"
 #endif
 
-#include "libtools/my_x11_defs.h"
-#include "libtools/my_x11_defs_32.h"
+#include "libtools/my_x11_conv.h"
 
 #include "generated/wrappedlibxrendertypes32.h"
 
@@ -46,12 +45,13 @@ static kh_picformat_t*   hash_picformat;
 EXPORT void* my32_XRenderFindFormat(x64emu_t* emu, void* dpy, unsigned long mask, void* tmpl, int count)
 {
     void* ret = my->XRenderFindFormat(dpy, mask, tmpl, count);
+    if(!ret) return NULL;
     khint_t k = kh_get(picformat, hash_picformat, (uintptr_t)ret);
     if(k!=kh_end(hash_picformat))
         return kh_value(hash_picformat, k);
     int r;
     k = kh_put(picformat, hash_picformat, (uintptr_t)ret, &r);
-    struct_LiiuL_t* res = box_calloc(1, sizeof(struct_LiiuL_t));
+    struct_LiiuL_t* res = calloc(1, sizeof(struct_LiiuL_t));
     to_struct_LiiuL(to_ptrv(res), ret);
     kh_value(hash_picformat, k) = res;
     return res;
@@ -60,12 +60,13 @@ EXPORT void* my32_XRenderFindFormat(x64emu_t* emu, void* dpy, unsigned long mask
 EXPORT void* my32_XRenderFindStandardFormat(x64emu_t* emu, void* dpy, int fmt)
 {
     void* ret = my->XRenderFindStandardFormat(dpy, fmt);
+    if(!ret) return NULL;
     khint_t k = kh_get(picformat, hash_picformat, (uintptr_t)ret);
     if(k!=kh_end(hash_picformat))
         return kh_value(hash_picformat, k);
     int r;
     k = kh_put(picformat, hash_picformat, (uintptr_t)ret, &r);
-    struct_LiiuL_t* res = box_calloc(1, sizeof(struct_LiiuL_t));
+    struct_LiiuL_t* res = calloc(1, sizeof(struct_LiiuL_t));
     to_struct_LiiuL(to_ptrv(res), ret);
     kh_value(hash_picformat, k) = res;
     return res;
@@ -73,25 +74,25 @@ EXPORT void* my32_XRenderFindStandardFormat(x64emu_t* emu, void* dpy, int fmt)
 
 EXPORT void* my32_XRenderFindVisualFormat(x64emu_t* emu, void* dpy, void* visual)
 {
-    void* ret = my->XRenderFindVisualFormat(dpy, visual);
+    void* ret = my->XRenderFindVisualFormat(dpy, convert_Visual_to_64(dpy, visual));
+    if(!ret) return NULL;
     khint_t k = kh_get(picformat, hash_picformat, (uintptr_t)ret);
     if(k!=kh_end(hash_picformat))
         return kh_value(hash_picformat, k);
     int r;
     k = kh_put(picformat, hash_picformat, (uintptr_t)ret, &r);
-    struct_LiiuL_t* res = box_calloc(1, sizeof(struct_LiiuL_t));
+    struct_LiiuL_t* res = calloc(1, sizeof(struct_LiiuL_t));
     to_struct_LiiuL(to_ptrv(res), ret);
     kh_value(hash_picformat, k) = res;
     return res;
 }
-
-#define CUSTOM_INIT         \
-    hash_picformat = kh_init(picformat);
+#define CUSTOM_INIT                                     \
+    hash_picformat = kh_init(picformat);                \
 
 #define CUSTOM_FINI                                     \
     void* p;                                            \
-    kh_foreach_value(hash_picformat, p, box_free(p));   \
+    kh_foreach_value(hash_picformat, p, free(p));       \
     kh_destroy(picformat, hash_picformat);              \
-    hash_picformat = NULL;
+    hash_picformat = NULL;                              \
 
 #include "wrappedlib_init32.h"
