@@ -125,15 +125,17 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("CVTTSD2SI Gd, Ex");
             nextop = F8;
             GETGD;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 v0 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, dyn->vector_eew);
             } else {
                 SMREAD();
                 v0 = fpu_get_scratch(dyn);
-                vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VLE_V(v0, ed, dyn->vector_eew, VECTOR_MASKED, VECTOR_NFIELD1);
+                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VLE8_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             }
             if (box64_dynarec_fastround) {
                 VFMV_F_S(v0, v0);
@@ -158,15 +160,17 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("CVTSD2SI Gd, Ex");
             nextop = F8;
             GETGD;
-            SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
-            vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
                 v0 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, dyn->vector_eew);
             } else {
                 SMREAD();
                 v0 = fpu_get_scratch(dyn);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VLE_V(v0, ed, dyn->vector_eew, VECTOR_MASKED, VECTOR_NFIELD1);
+                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VLE8_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
             }
             if (box64_dynarec_fastround) {
                 VFMV_F_S(v0, v0);
@@ -194,18 +198,22 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_vector(v0, 1, VECTOR_SEW64);
-            vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW64);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
             } else {
                 SMREAD();
                 v1 = fpu_get_scratch(dyn);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VLE64_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW64);
             }
             if (box64_dynarec_fastnan) {
+                vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
                 VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
             } else {
                 VFMV_F_S(v0, v0);
@@ -231,16 +239,19 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_vector(v0, 1, VECTOR_SEW64);
-            vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW64);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
             } else {
                 SMREAD();
                 v1 = fpu_get_scratch(dyn);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VLE64_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 1, VECTOR_SEW64);
             }
             if (!box64_dynarec_fastnan) {
                 VFMV_F_S(v0, v0);
@@ -263,22 +274,26 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VFMV_S_F(v0, v0);
                 }
             } else {
+                vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
                 VFDIV_VV(v0, v0, v1, VECTOR_MASKED);
             }
             break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_vector(d0, 1, VECTOR_SEW64);
             if (MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(d0, 1, VECTOR_SEW64);
                 d1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
             } else {
                 SMREAD();
-                vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
                 d1 = fpu_get_scratch(dyn);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                VLE64_V(d1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VLE8_V(d1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(d0, 1, VECTOR_SEW64);
             }
             u8 = F8;
             VFMV_F_S(d0, d0);
