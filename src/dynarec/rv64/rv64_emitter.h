@@ -1378,7 +1378,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VFSLIDE1UP_VF(vd, vs2, rs1, vm)   EMIT(R_type(0b0011100 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001110...........101.....1010111
 #define VFSLIDE1DOWN_VF(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001111...........101.....1010111
 
-#define VFMV_S_F(vd, rs1) EMIT(I_type(0b010000100000, rs1, 0b101, vd, 0b1010111)) // 010000100000.....101.....1010111
+#define VFMV_S_F(vd, rs1) EMIT(I_type((rv64_xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b101, vd, 0b1010111)) // 010000100000.....101.....1010111
 #define VFMV_V_F(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b101, vd, 0b1010111)) // 010111100000.....101.....1010111
 
 #define VFMERGE_VFM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b101, vd, 0b1010111)) // 0101110..........101.....1010111
@@ -1424,7 +1424,7 @@ f28–31  ft8–11  FP temporaries                  Caller
 #define VFSGNJN_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001001...........001.....1010111
 #define VFSGNJX_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0010100 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 001010...........001.....1010111
 
-#define VFMV_F_S(rd, vs2) EMIT(R_type(0b0100001, vs2, 0b00000, 0b001, rd, 0b1010111)) // 0100001.....00000001.....1010111
+#define VFMV_F_S(rd, vs2) EMIT(R_type((rv64_xtheadvector ? 0b0011001 : 0b0100001), vs2, 0b00000, 0b001, rd, 0b1010111)) // 0100001.....00000001.....1010111
 
 #define VMFEQ_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0110000 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011000...........001.....1010111
 #define VMFLE_VV(vd, vs2, vs1, vm)   EMIT(R_type(0b0110010 | (vm), vs2, vs1, 0b001, vd, 0b1010111)) // 011001...........001.....1010111
