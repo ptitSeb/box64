@@ -528,6 +528,15 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             }
             break;
 
+        case 0x85:                      /* TEST Ed,Gd */
+            nextop = F8;
+            GETED_OFFS(0, tlsdata);
+            GETGD;
+            if(rex.w)
+                test64(emu, ED->q[0], GD->q[0]);
+            else
+                test32(emu, ED->dword[0], GD->dword[0]);
+            break;
         case 0x86:                      /* XCHG Eb,Gb */
             nextop = F8;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)

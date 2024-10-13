@@ -669,6 +669,17 @@ uintptr_t dynarec64_64(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
             }
             break;
+
+        case 0x85:
+            INST_NAME("TEST Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING);
+            nextop=F8;
+            grab_segdata(dyn, addr, ninst, x6, seg);
+            GETGD;
+            GETEDO(x6, 0);
+            emit_test32(dyn, ninst, rex, ed, gd, x3, x5, x6);
+            break;
+
         case 0x88:
             INST_NAME("MOV Eb, Gb");
             nextop = F8;
