@@ -140,6 +140,7 @@ static void* pthread_routine(void* p)
 	R_EBP = R_ESP;	// MOV BP, SP
     R_ESP -= 32;	// guard area
 	R_ESP &=~15;
+	R_ESP -= 3*4;	// prepare alignment
 	Push_32(emu, to_ptrv(et->arg));
 	PushExit_32(emu);
 	R_EIP = to_ptr(et->fnc);

@@ -25,7 +25,7 @@ uint64_t RunFunction(uintptr_t fnc, int nargs, ...)
         Push_32(emu, R_RBP); // push ebp
         R_RBP = R_ESP;       // mov ebp, esp
 
-        R_ESP -= nargs*4;   // need to push in reverse order
+        R_ESP -= nargs*4+(4-(nargs&3))*4;   // need to push in reverse order
 
         ptr_t *p = (ptr_t*)from_ptrv(R_ESP);
 
@@ -141,6 +141,7 @@ uint64_t RunFunctionFmt(uintptr_t fnc, const char* fmt, ...)
         Push_32(emu, R_EBP); // push ebp
         R_RBP = R_ESP;       // mov ebp, esp
         sizeof_ptr = sizeof(ptr_t);
+        align = (4-(nargs&3))&3;
     } else
     #endif
     {
@@ -336,7 +337,7 @@ uint64_t RunFunctionWithEmu(x64emu_t *emu, int QuitOnLongJump, uintptr_t fnc, in
         Push_32(emu, R_RBP); // push ebp
         R_RBP = R_ESP;       // mov ebp, esp
 
-        R_ESP -= nargs*4;   // need to push in reverse order
+        R_ESP -= nargs*4 + ((4-(nargs&3))&3)*4;   // need to push in reverse order
 
         ptr_t *p = (ptr_t*)from_ptrv(R_ESP);
 
