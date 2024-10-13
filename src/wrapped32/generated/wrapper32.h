@@ -776,6 +776,7 @@ void iFipui_32(x64emu_t *emu, uintptr_t fnc);
 void iFipup_32(x64emu_t *emu, uintptr_t fnc);
 void iFippi_32(x64emu_t *emu, uintptr_t fnc);
 void iFippL_32(x64emu_t *emu, uintptr_t fnc);
+void iFippp_32(x64emu_t *emu, uintptr_t fnc);
 void iFipON_32(x64emu_t *emu, uintptr_t fnc);
 void iFuiup_32(x64emu_t *emu, uintptr_t fnc);
 void iFuupi_32(x64emu_t *emu, uintptr_t fnc);
