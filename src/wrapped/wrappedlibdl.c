@@ -506,6 +506,8 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     int version = (vername)?2:-1;
     uintptr_t start, end;
     char* rsymbol = (char*)symbol;
+    if(box64_is32bits && handle==(void*)0xffffffff)
+        handle = (void*)~0LL;
     CLEARERR
     printf_dlsym(LOG_DEBUG, "Call to dlvsym(%p, \"%s\", %s)%s", handle, rsymbol, vername?vername:"(nil)", dlsym_error?"":"\n");
     if(handle==NULL) {
@@ -522,7 +524,14 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
     }
     if(handle==(void*)~0LL) {
         // special case, look globably but no self (RTLD_NEXT)
-        elfheader_t *elf = FindElfAddress(my_context, *(uintptr_t*)R_RSP); // use return address to guess "self"
+        uintptr_t ret_addr = 0;
+        #ifdef BOX32
+        if(box64_is32bits)
+            ret_addr = from_ptri(ptr_t, R_ESP);
+        else
+        #endif
+            ret_addr = *(uintptr_t*)R_RSP;
+        elfheader_t *elf = FindElfAddress(my_context, ret_addr); // use return address to guess "self"
         if(GetNoSelfSymbolStartEnd(my_context->maplib, rsymbol, &start, &end, elf, 0, version, vername, 0, NULL)) {
                 printf_dlsym(LOG_NEVER, "%p\n", (void*)start);
             return (void*)start;
