@@ -503,7 +503,7 @@ extern FILE* ftrace;
 extern char* ftrace_name;
 extern char* box64_new_args;
 extern char* box64_insert_args;
-void openFTrace(const char* newtrace);
+void openFTrace(const char* newtrace, int reopen);
 void addNewEnvVar(const char* s);
 void AddNewLibs(const char* libs);
 void computeRDTSC();
@@ -622,7 +622,7 @@ void internal_ApplyParams(const char* name, const my_params_t* param) {
         if(ftrace_name) {
             fclose(ftrace);
         }
-        openFTrace(param->trace_file);
+        openFTrace(param->trace_file, 0);
     }
     if(param->is_emulated_libs_present) {
         AppendList(&my_context->box64_emulated_libs, param->emulated_libs, 0);
