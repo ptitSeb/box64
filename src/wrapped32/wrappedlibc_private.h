@@ -1263,11 +1263,11 @@ GOM(posix_spawn, iFEpppppp)
 // posix_spawnattr_setschedpolicy
 // posix_spawnattr_setsigdefault
 // posix_spawnattr_setsigmask
-// posix_spawn_file_actions_addclose
-//GO(posix_spawn_file_actions_adddup2, iFpii)
-//GO(posix_spawn_file_actions_addopen, iFpipii)
-//GO(posix_spawn_file_actions_destroy, iFp)
-//GO(posix_spawn_file_actions_init, iFp)
+GOM(posix_spawn_file_actions_addclose, iFEpi)
+GOM(posix_spawn_file_actions_adddup2, iFEpii)
+GOM(posix_spawn_file_actions_addopen, iFEpipOi)
+GOM(posix_spawn_file_actions_destroy, iFEp)
+GOM(posix_spawn_file_actions_init, iFEp)
 GOM(posix_spawnp, iFEpppppp) //%%
 GO(ppoll, iFpurLL_p)
 GOW(prctl, iFiLLLL)

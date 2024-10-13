@@ -705,6 +705,7 @@
 #() iFEiiN -> iFEiiN
 #() iFEipp -> iFEipp
 #() iFEipV -> iFEipV
+#() iFEpii -> iFEpii
 #() iFEpip -> iFEpip
 #() iFEpui -> iFEpui
 #() iFEpuu -> iFEpuu
@@ -1146,6 +1147,7 @@
 #() iFEuppLp -> iFEuppLp
 #() iFEpiuuu -> iFEpiuuu
 #() iFEpiLpp -> iFEpiLpp
+#() iFEpipOi -> iFEpipOi
 #() iFEpuuup -> iFEpuuup
 #() iFEplluu -> iFEplluu
 #() iFEpLlpp -> iFEpLlpp
@@ -1595,6 +1597,8 @@ wrappedlibc:
   - __close_nocancel
 - iFL:
 - iFp:
+  - posix_spawn_file_actions_destroy
+  - posix_spawn_file_actions_init
   - sysinfo
 - iFO:
 - uFp:
@@ -1644,6 +1648,7 @@ wrappedlibc:
   - setrlimit
 - iFpi:
   - backtrace
+  - posix_spawn_file_actions_addclose
 - iFpL:
 - iFpp:
   - alphasort64
@@ -1677,6 +1682,8 @@ wrappedlibc:
 - iFiip:
 - iFiiN:
 - iFipp:
+- iFpii:
+  - posix_spawn_file_actions_adddup2
 - iFpLi:
 - iFppp:
   - vswscanf
@@ -1728,6 +1735,8 @@ wrappedlibc:
   - getpwuid_r
 - iFpvvpV:
 - iFpiLpp:
+- iFpipOi:
+  - posix_spawn_file_actions_addopen
 - iFpppLp:
   - getgrnam_r
   - getpwnam_r

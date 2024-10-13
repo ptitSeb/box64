@@ -1649,7 +1649,7 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
     while(argv[n]) ++n;
     char** newargv = (char**)calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
-        newargv[i+1] = from_ptrv(argv[i]);
+        newargv[i] = from_ptrv(argv[i]);
     return execv(path, (void*)newargv);
 }
 
@@ -1692,7 +1692,7 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
     while(argv[n]) ++n;
     const char** newargv = (const char**)calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
-        newargv[i+1] = from_ptrv(argv[i]);
+        newargv[i] = from_ptrv(argv[i]);
 
     if(!strcmp(path + strlen(path) - strlen("/uname"), "/uname")
      && newargv[1] && (!strcmp(newargv[1], "-m") || !strcmp(newargv[1], "-p") || !strcmp(newargv[1], "-i"))
@@ -1738,7 +1738,7 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
     while(argv[n]) ++n;
     char** newargv = (char**)calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
-        newargv[i+1] = from_ptrv(argv[i]);
+        newargv[i] = from_ptrv(argv[i]);
     return execv(fullpath, (void*)newargv);
 }
 // execvp should use PATH to search for the program first
@@ -1750,16 +1750,74 @@ typedef struct
   int __pad[16];
 } posix_spawn_file_actions_32_t;
 
+void convert_file_action_to_32(void* d, void* s)
+{
+    posix_spawn_file_actions_32_t* dst = d;
+    posix_spawn_file_actions_t* src = s;
+    dst->__allocated = src->__allocated;
+    dst->__used = src->__used;
+    dst->__actions = to_ptrv(src->__actions);
+}
+void convert_file_action_to_64(void* d, void* s)
+{
+    posix_spawn_file_actions_t* dst = d;
+    posix_spawn_file_actions_32_t* src = s;
+    dst->__actions = from_ptrv(src->__actions);
+    dst->__used = src->__used;
+    dst->__allocated = src->__allocated;
+}
+
+EXPORT int my32_posix_spawn_file_actions_init(x64emu_t* emu, posix_spawn_file_actions_32_t* action)
+{
+    posix_spawn_file_actions_t action_l;
+    int ret = posix_spawn_file_actions_init(&action_l);
+    convert_file_action_to_32(action, &action_l);
+    return ret;
+}
+EXPORT int my32_posix_spawn_file_actions_addopen(x64emu_t* emu, posix_spawn_file_actions_32_t* action, int fides, const char* path, int oflag, int modes)
+{
+    posix_spawn_file_actions_t action_l = {0};
+    convert_file_action_to_64(&action_l, action);
+    int ret = posix_spawn_file_actions_addopen(&action_l, fides, path, oflag, modes);
+    convert_file_action_to_32(action, &action_l);
+    return ret;
+}
+
+EXPORT int my32_posix_spawn_file_actions_addclose(x64emu_t* emu, posix_spawn_file_actions_32_t* action, int fides)
+{
+    posix_spawn_file_actions_t action_l = {0};
+    convert_file_action_to_64(&action_l, action);
+    int ret = posix_spawn_file_actions_addclose(&action_l, fides);
+    convert_file_action_to_32(action, &action_l);
+    return ret;
+}
+
+EXPORT int my32_posix_spawn_file_actions_adddup2(x64emu_t* emu, posix_spawn_file_actions_32_t* action, int fides, int newfides)
+{
+    posix_spawn_file_actions_t action_l = {0};
+    convert_file_action_to_64(&action_l, action);
+    int ret = posix_spawn_file_actions_adddup2(&action_l, fides, newfides);
+    convert_file_action_to_32(action, &action_l);
+    return ret;
+}
+
+EXPORT int my32_posix_spawn_file_actions_destroy(x64emu_t* emu, posix_spawn_file_actions_32_t* action)
+{
+    posix_spawn_file_actions_t action_l;
+    convert_file_action_to_64(&action_l, action);
+    int ret = posix_spawn_file_actions_destroy(&action_l);
+    convert_file_action_to_32(action, &action_l);   // just in case?
+    return ret;
+}
+
 EXPORT int32_t my32_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath, 
-    const posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
+    posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
 {
     posix_spawn_file_actions_t actions_l = {0};
     posix_spawn_file_actions_t *actions = NULL;
     if(actions_s) {
         actions = &actions_l;
-        actions->__allocated = actions_s->__allocated;
-        actions->__used = actions_s->__used;
-        actions->__actions = from_ptrv(actions_s->__actions);
+        convert_file_action_to_64(actions, actions_s);
     }
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
@@ -1797,20 +1855,18 @@ EXPORT int32_t my32_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     while(argv[n]) ++n;
     char** newargv = (char**)calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
-        newargv[i+1] = from_ptrv(argv[i]);
+        newargv[i] = from_ptrv(argv[i]);
     return posix_spawn(pid, fullpath, actions, attrp, newargv, newenvp);
 }
 
 EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path, 
-    const posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
+    posix_spawn_file_actions_32_t *actions_s, const posix_spawnattr_t* attrp,  ptr_t const argv[], ptr_t const envp[])
 {
     posix_spawn_file_actions_t actions_l = {0};
     posix_spawn_file_actions_t *actions = NULL;
     if(actions_s) {
         actions = &actions_l;
-        actions->__allocated = actions_s->__allocated;
-        actions->__used = actions_s->__used;
-        actions->__actions = from_ptrv(actions_s->__actions);
+        convert_file_action_to_64(actions, actions_s);
     }
     // need to use BOX32_PATH / PATH here...
     char* fullpath = ResolveFile(path, &my_context->box64_path);
@@ -1851,7 +1907,7 @@ EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     while(argv[n]) ++n;
     char** newargv = (char**)calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
-        newargv[i+1] = from_ptrv(argv[i]);
+        newargv[i] = from_ptrv(argv[i]);
     return posix_spawnp(pid, path, actions, attrp, newargv, newenvp);
 }
 
