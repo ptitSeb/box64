@@ -103,6 +103,7 @@ typedef int32_t (*iFpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef int32_t (*iFpLiLpV_t)(void*, uintptr_t, int32_t, uintptr_t, void*, ...);
 typedef int32_t (*iFpppupp_t)(void*, void*, void*, uint32_t, void*, void*);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef intptr_t (*lFipLpLL_t)(int32_t, void*, uintptr_t, void*, uintptr_t, uintptr_t);
 typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 typedef void* (*pFpLiiil_t)(void*, uintptr_t, int32_t, int32_t, int32_t, intptr_t);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
@@ -150,12 +151,14 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(signal, pFip_t) \
 	GO(backtrace_symbols, pFpi_t) \
 	GO(__cmsg_nxthdr, pFpp_t) \
+	GO(__gmtime_r, pFpp_t) \
 	GO(gmtime_r, pFpp_t) \
 	GO(localtime_r, pFpp_t) \
 	GO(vsyslog, vFipp_t) \
 	GO(_ITM_addUserCommitAction, vFpup_t) \
 	GO(posix_spawn_file_actions_adddup2, iFpii_t) \
 	GO(vswscanf, iFppp_t) \
+	GO(__isoc99_fscanf, iFppV_t) \
 	GO(swscanf, iFppV_t) \
 	GO(fscanf, iFSpV_t) \
 	GO(recvmsg, lFipi_t) \
@@ -176,6 +179,8 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(getgrnam_r, iFpppLp_t) \
 	GO(getpwnam_r, iFpppLp_t) \
 	GO(gethostbyname_r, iFpppupp_t) \
-	GO(posix_spawn, iFpppppp_t)
+	GO(posix_spawn, iFpppppp_t) \
+	GO(process_vm_readv, lFipLpLL_t) \
+	GO(process_vm_writev, lFipLpLL_t)
 
 #endif // __wrappedlibcTYPES32_H_

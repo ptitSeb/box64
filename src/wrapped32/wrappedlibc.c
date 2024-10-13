@@ -2936,6 +2936,27 @@ EXPORT int my32_sysinfo(struct sysinfo_32* p)
     p->mem_unit = info.mem_unit;
     return ret;
 }
+
+EXPORT ssize_t my32_process_vm_readv(x64emu_t* emu, int pid, struct i386_iovec* local_iovec, size_t liovect, struct i386_iovec* remote_iovec, size_t riovect, unsigned long flags)
+{
+    struct iovec local_iovec_l[liovect];
+    struct iovec remove_iovec_l[riovect];
+    for (int i=0; i<liovect; ++i)
+        AlignIOV_32(local_iovec_l+i, local_iovec+i);
+    for (int i=0; i<riovect; ++i)
+        AlignIOV_32(remove_iovec_l+i, remote_iovec+i);
+    return process_vm_readv(pid, local_iovec_l, liovect, remove_iovec_l, riovect, flags);
+}
+EXPORT ssize_t my32_process_vm_writev(x64emu_t* emu, int pid, struct i386_iovec* local_iovec, size_t liovect, struct i386_iovec* remote_iovec, size_t riovect, unsigned long flags)
+{
+    struct iovec local_iovec_l[liovect];
+    struct iovec remove_iovec_l[riovect];
+    for (int i=0; i<liovect; ++i)
+        AlignIOV_32(local_iovec_l+i, local_iovec+i);
+    for (int i=0; i<riovect; ++i)
+        AlignIOV_32(remove_iovec_l+i, remote_iovec+i);
+    return process_vm_writev(pid, local_iovec_l, liovect, remove_iovec_l, riovect, flags);
+}
 #if 0
 #ifndef __NR_memfd_create
 #define MFD_CLOEXEC		    0x0001U

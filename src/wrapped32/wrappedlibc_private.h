@@ -625,7 +625,7 @@ GO(getxattr, iFpppL)
 //GO(globfree64, vFp)
 // glob_pattern_p   // Weak
 GOM(gmtime, pFEp)
-//GO(__gmtime_r, pFpp)
+GO2(__gmtime_r, pFpp, my32_gmtime_r)
 GOWM(gmtime_r, pFEpp)
 GO(gnu_dev_major, uFU)
 GO(gnu_dev_makedev, UFuu)
@@ -664,7 +664,7 @@ GO(iconv_open, pFpp)
 //GO(if_nametoindex, uFp)
 // imaxabs  // Weak
 GOWS(imaxdiv, pFpII) //%%
-//DATA(in6addr_any, 16)  // type R
+DATA(in6addr_any, 16)  // type R
 //DATA(in6addr_loopback, 16) // type R
 // inb  // Weak
 //GOW(index, pFpi)
@@ -888,7 +888,7 @@ GOW(isnanf, iFf)
 GO(__isnanf, iFf)
 // isnanl   // Weak
 // __isnanl
-//GOM(__isoc99_fscanf, iFEppV)  //%%
+GO2(__isoc99_fscanf, iFEppV, my32_fscanf)
 // __isoc99_fwscanf
 // __isoc99_scanf
 GOM(__isoc99_sscanf, iFEppV)  //%%
@@ -1393,7 +1393,7 @@ GO(renameat, iFipip)
 // re_set_registers // Weak
 GOW(re_set_syntax, LFL)
 // _res_hconf   // type B
-//GO(__res_iclose, vFpi)
+GO(__res_iclose, vFpi)
 GO(__res_init, iFv)
 //GO(__res_maybe_init, iFpi)
 //GO(__res_nclose, vFp)
@@ -1452,8 +1452,8 @@ GO(__sched_setscheduler, iFiip)
 GOW(sched_setscheduler, iFiip)
 GO(__sched_yield, iFv)
 GOW(sched_yield, iFv)
-GO(__secure_getenv, pFp)
-GO(secure_getenv, pFp)
+GO(__secure_getenv, tFp)
+GO(secure_getenv, tFp)
 // seed48
 // seed48_r // Weak
 //GO(seekdir, vFpi)
@@ -2131,8 +2131,8 @@ GOM(__fdelt_chk, LFL) //%%,noE
 GOM(getauxval, LFEL)  //%% implemented since glibc 2.16
 
 //GOM(prlimit64, lFpupp)       //%%,noE
-//GO(process_vm_readv, lFipLpLL)
-//GO(process_vm_writev, lFipLpLL)
+GOM(process_vm_readv, lFEipLpLL)
+GOM(process_vm_writev, lFEipLpLL)
 //GOM(reallocarray, pFpLL)     //%%,noE
 //GOM(__open_nocancel, iFEpOV) //%%
 //GO2(__read_nocancel, lFipL, read)

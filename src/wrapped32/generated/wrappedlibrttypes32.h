@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFuBLL__t)(uint32_t, struct_LL_t*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(__clock_gettime, iFuBLL__t)
 
 #endif // __wrappedlibrtTYPES32_H_

@@ -26,6 +26,7 @@ GO(aio_write64, iFp)
 GO(clock_getcpuclockid, iFup)
 GO(clock_getres, iFup)
 GO(clock_gettime, iFuBLL_)   // *timespec
+GO2(__clock_gettime, iFuBLL_, clock_gettime)
 GO(clock_nanosleep, iFuirLL_BLL_)
 //GO(clock_settime, iFup)
 // lio_listio

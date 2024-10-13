@@ -1288,6 +1288,7 @@
 #() iFXpLiWwL -> iFXpLiWwL
 #() iFXpLuuii -> iFXpLuuii
 #() uFuippppp -> uFuippppp
+#() lFEipLpLL -> lFEipLpLL
 #() pFEpiiiiu -> pFEpiiiiu
 #() pFEpLiiii -> pFEpLiiii
 #() pFEpLiiiI -> pFEpLiiiI
@@ -1667,6 +1668,7 @@ wrappedlibc:
   - backtrace_symbols
 - pFpp:
   - __cmsg_nxthdr
+  - __gmtime_r
   - gmtime_r
   - localtime_r
 - SFpp:
@@ -1688,6 +1690,7 @@ wrappedlibc:
 - iFppp:
   - vswscanf
 - iFppV:
+  - __isoc99_fscanf
   - swscanf
 - iFpON:
 - iFSpp:
@@ -1749,6 +1752,9 @@ wrappedlibc:
   - gethostbyname_r
 - iFpppppp:
   - posix_spawn
+- lFipLpLL:
+  - process_vm_readv
+  - process_vm_writev
 - pFpLiiiI:
 - pFpLiiil:
 - iFpippppp:
@@ -2007,6 +2013,8 @@ wrappedlibpthread:
 - iFBh_ppp:
   - pthread_create
 wrappedlibrt:
+- iFuBLL_:
+  - __clock_gettime
 wrappedlibuuid:
 wrappedlibx11:
 - vFp:
