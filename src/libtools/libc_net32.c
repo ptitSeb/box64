@@ -84,7 +84,7 @@ EXPORT int my32_getaddrinfo(x64emu_t* emu, void* node, void* service, struct i38
         int idx = 0;
         while(p2) {++idx; p2 = p2->ai_next;}
         // doing the malloc!
-        void* r = box_malloc(idx*sizeof(struct i386_addrinfo)+sizeof(void*));
+        void* r = actual_malloc(idx*sizeof(struct i386_addrinfo)+sizeof(void*));
         ptr_t p3 = to_ptrv(r);
         *res = p3;
         p2 = p;
@@ -114,7 +114,7 @@ EXPORT void my32_freeaddrinfo(x64emu_t* emu, void* a) {
     if(!a) return;
     void* orig = *(void**)(a+sizeof(struct i386_addrinfo));
     freeaddrinfo(orig);
-    box_free(a);
+    actual_free(a);
 }
 
 EXPORT void* my32_gethostbyname(x64emu_t* emu, const char* a)

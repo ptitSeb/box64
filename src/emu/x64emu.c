@@ -97,7 +97,7 @@ x64emu_t *NewX64Emu(box64context_t *context, uintptr_t start, uintptr_t stack, i
 {
     printf_log(LOG_DEBUG, "Allocate a new X86_64 Emu, with %cIP=%p and Stack=%p/0x%X\n", box64_is32bits?'E':'R', (void*)start, (void*)stack, stacksize);
 
-    x64emu_t *emu = (x64emu_t*)box_calloc(1, sizeof(x64emu_t));
+    x64emu_t *emu = (x64emu_t*)actual_calloc(1, sizeof(x64emu_t));
 
     internalX64Setup(emu, context, start, stack, stacksize, ownstack);
 
@@ -215,12 +215,12 @@ void FreeX64Emu(x64emu_t **emu)
 
     if((*emu)->test.emu) {
         internalFreeX64((*emu)->test.emu);
-        box_free((*emu)->test.emu);
+        actual_free((*emu)->test.emu);
         (*emu)->test.emu = NULL;
     }
     internalFreeX64(*emu);
 
-    box_free(*emu);
+    actual_free(*emu);
     *emu = NULL;
 }
 

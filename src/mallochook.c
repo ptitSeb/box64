@@ -231,19 +231,6 @@ size_t box32_malloc_usable_size(void* p)
     else
         return box_malloc_usable_size(p);
 }
-#define actual_calloc(A, B)             box64_is32bits?box32_calloc(A, B):box_calloc(A, B)
-#define actual_malloc(A)                box64_is32bits?box32_malloc(A):box_malloc(A)
-#define actual_realloc(A, B)            box64_is32bits?box32_realloc(A, B):box_realloc(A, B)
-#define actual_free(A)                  box64_is32bits?box32_free(A):box_free(A)
-#define actual_memalign(A, B)           box64_is32bits?box32_memalign(A, B):box_memalign(A, B)
-#define actual_malloc_usable_size(A)    box64_is32bits?box32_malloc_usable_size(A):box_malloc_usable_size(A)
-#else
-#define actual_calloc(A, B)             box_calloc(A, B)
-#define actual_malloc(A)                box_malloc(A)
-#define actual_realloc(A, B)            box_realloc(A, B)
-#define actual_free(A)                  box_free(A)
-#define actual_memalign(A, B)           box_memalign(A, B)
-#define actual_malloc_usable_size(A)    box_malloc_usable_size(A)
 #endif
 
 // redefining all libc memory allocation routines

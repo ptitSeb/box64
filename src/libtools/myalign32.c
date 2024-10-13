@@ -1494,7 +1494,7 @@ void AlignMsgHdr_32(void* dest, void* dest_iov, void* dest_cmsg, void* source, i
             struct i386_cmsghdr* cmsg = from_ptrv(s->msg_control);
             struct cmsghdr* dcmsg = dest_cmsg;
             while(cmsg) {
-                dcmsg->cmsg_len = to_ulong(cmsg->cmsg_len);
+                dcmsg->cmsg_len = from_ulong(cmsg->cmsg_len);
                 dcmsg->cmsg_level = cmsg->cmsg_level;
                 dcmsg->cmsg_type = cmsg->cmsg_type;
                 if(cmsg->cmsg_len) {
@@ -1533,7 +1533,7 @@ void UnalignMsgHdr_32(void* dest, void* source)
         struct i386_cmsghdr* dcmsg = from_ptrv(d->msg_control);
         struct cmsghdr* scmsg = s->msg_control;
         while(scmsg) {
-            dcmsg->cmsg_len = from_ulong(scmsg->cmsg_len);
+            dcmsg->cmsg_len = to_ulong(scmsg->cmsg_len);
             dcmsg->cmsg_level = scmsg->cmsg_level;
             dcmsg->cmsg_type = scmsg->cmsg_type;
             if(dcmsg->cmsg_len) {
