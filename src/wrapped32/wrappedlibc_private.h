@@ -48,7 +48,7 @@ GOW(access, iFpi)
 // __aeabi_memset8
 //DATAV(__after_morecore_hook, 4)
 GO(alarm, uFu)
-//GO2(aligned_alloc, pFuu, memalign)
+GO2(aligned_alloc, pFLL, memalign)
 GO(alphasort, iFpp)
 GOM(alphasort64, iFEpp)
 //DATA(argp_err_exit_status, 4)
@@ -1056,7 +1056,7 @@ GOM(__lxstat, iFEipp)       //%%
 GOM(__lxstat64, iFEipp)     //%%
 GO(madvise, iFpLi)
 GOWM(makecontext, vFEppiV)   //%%
-//GOW(mallinfo, pFv)
+GOW(mallinfo, pFv)
 GOM(malloc, pFL)            //%%,noE
 // malloc_get_state // Weak
 //DATAV(__malloc_hook, 4)
@@ -1201,7 +1201,7 @@ GOW(ntohs, WFW)
 //GO2(__on_exit, iFEpp, my_on_exit)   //%%
 GOW2(open, iFEpON, my_open)    //%%
 GOW2(__open, iFEpON, my_open)  //%%
-//GO(__open_2, iFpO)
+GO(__open_2, iFpO)
 GOW2(open64, iFEpON, my_open64)  //%%
 // __open64 // Weak
 //GO(__open64_2, iFpO)
@@ -1338,7 +1338,7 @@ GO(raise, iFi)
 GO(rand, iFv)
 GOW(random, lFv)
 //GOW(random_r, iFpp)
-//GO(rand_r, iFp)
+GO(rand_r, iFp)
 GOW(rawmemchr, pFpi)
 GO(__rawmemchr, pFpi)
 // rcmd
@@ -1875,7 +1875,7 @@ GOM(utimensat, iFippi)  //%noE
 GOWM(utimes, iFEpp)
 //GOW(utmpname, iFp)
 // utmpxname
-//GOW(valloc, pFu)
+GOW(valloc, pFL)
 GOM(vasprintf, iFEppp) //%%
 GOM(__vasprintf_chk, iFEpipp) //%%
 // vdprintf // Weak

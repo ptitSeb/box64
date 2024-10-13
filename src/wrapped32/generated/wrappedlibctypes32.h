@@ -46,6 +46,7 @@ typedef int32_t (*iFpV_t)(void*, ...);
 typedef int64_t (*IFII_t)(int64_t, int64_t);
 typedef uint64_t (*UFUU_t)(uint64_t, uint64_t);
 typedef void* (*pFip_t)(int32_t, void*);
+typedef void* (*pFLL_t)(uintptr_t, uintptr_t);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void* (*SFpp_t)(void*, void*);
@@ -149,6 +150,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(execl, iFpV_t) \
 	GO(execlp, iFpV_t) \
 	GO(signal, pFip_t) \
+	GO(aligned_alloc, pFLL_t) \
 	GO(backtrace_symbols, pFpi_t) \
 	GO(__cmsg_nxthdr, pFpp_t) \
 	GO(__gmtime_r, pFpp_t) \
