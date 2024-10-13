@@ -19,6 +19,7 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
+#include "signals.h"
 
 #include "modrm.h"
 
@@ -734,6 +735,40 @@ uintptr_t Run64(x64emu_t *emu, rex_t rex, int seg, uintptr_t addr)
             addr += tmp32s;
             break;
 
+        case 0xF6:                      /* GRP3 Eb(,Ib) */
+            nextop = F8;
+            tmp8u = (nextop>>3)&7;
+            GETEB_OFFS((tmp8u<2)?1:0, tlsdata);
+            switch(tmp8u) {
+                case 0: 
+                case 1:                 /* TEST Eb,Ib */
+                    tmp8u = F8;
+                    test8(emu, EB->byte[0], tmp8u);
+                    break;
+                case 2:                 /* NOT Eb */
+                    EB->byte[0] = not8(emu, EB->byte[0]);
+                    break;
+                case 3:                 /* NEG Eb */
+                    EB->byte[0] = neg8(emu, EB->byte[0]);
+                    break;
+                case 4:                 /* MUL AL,Eb */
+                    mul8(emu, EB->byte[0]);
+                    break;
+                case 5:                 /* IMUL AL,Eb */
+                    imul8(emu, EB->byte[0]);
+                    break;
+                case 6:                 /* DIV Eb */
+                    if(!EB->byte[0])
+                        emit_div0(emu, (void*)R_RIP, 0);
+                    div8(emu, EB->byte[0]);
+                    break;
+                case 7:                 /* IDIV Eb */
+                    if(!EB->byte[0])
+                        emit_div0(emu, (void*)R_RIP, 0);
+                    idiv8(emu, EB->byte[0]);
+                    break;
+            }
+            break;
         case 0xF7:                      /* GRP3 Ed(,Id) */
             nextop = F8;
             tmp8u = (nextop>>3)&7;
