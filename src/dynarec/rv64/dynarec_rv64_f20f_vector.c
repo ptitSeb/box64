@@ -176,12 +176,14 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VFMV_F_S(v0, v0);
                 u8 = sse_setround(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, v0, RD_DYN);
+                if (!rex.w) ZEROUP(gd);
                 x87_restoreround(dyn, ninst, u8);
             } else {
                 VFMV_F_S(v0, v0);
                 FSFLAGSI(0); // // reset all bits
                 u8 = sse_setround(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, v0, RD_DYN);
+                if (!rex.w) ZEROUP(gd);
                 x87_restoreround(dyn, ninst, u8);
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV));
