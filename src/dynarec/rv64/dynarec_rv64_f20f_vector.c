@@ -161,7 +161,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGD;
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 v0 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, dyn->vector_eew);
             } else {
                 SMREAD();
@@ -170,7 +170,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
                 VLE8_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
-                SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             }
             if (box64_dynarec_fastround) {
                 VFMV_F_S(v0, v0);
