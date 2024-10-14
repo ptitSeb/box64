@@ -1384,9 +1384,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 ed = xRAX + (nextop & 7) + (rex.b << 3);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 1);
                 u8 = (F8) & 7;
-                LHU(x4, ed, 0);
+                LHU(x4, ed, fixedaddress);
                 ed = x4;
             }
             vector_loadmask(dyn, ninst, VMASK, (1 << u8), x5, 1);

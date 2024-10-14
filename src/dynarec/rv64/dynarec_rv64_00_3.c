@@ -335,7 +335,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ORI(eb1, eb1, u8);
                 }
             } else {                    // mem <= u8
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 1);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 1);
                 u8 = F8;
                 if(u8) {
                     ADDI(x3, xZR, u8);

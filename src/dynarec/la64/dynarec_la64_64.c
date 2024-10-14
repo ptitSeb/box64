@@ -408,7 +408,7 @@ uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 4);
                 i64 = F32S;
                 if (i64) {
-                    MOV64xw(x3, i64);
+                    MOV64x(x3, i64);
                     ed = x3;
                 } else
                     ed = xZR;
