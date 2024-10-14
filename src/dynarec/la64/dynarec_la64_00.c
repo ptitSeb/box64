@@ -1660,10 +1660,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = TO_LA64((nextop & 7) + (rex.b << 3));
                 MOV64xw(ed, i64);
             } else { // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 0, 4);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 4);
                 i64 = F32S;
                 if (i64) {
-                    MOV64xw(x3, i64);
+                    MOV64x(x3, i64);
                     ed = x3;
                 } else
                     ed = xZR;

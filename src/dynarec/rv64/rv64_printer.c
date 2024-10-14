@@ -177,6 +177,7 @@ typedef struct {
     int8_t vm;
     int8_t rm;
     int8_t nf;
+    int16_t csr;
 
     int32_t imm;
     int32_t imm2;
@@ -699,7 +700,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x63) {
         a.rs1 = FX(opcode, 19, 15);
         a.rs2 = FX(opcode, 24, 20);
-        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm = BX(opcode, 31) << 12;
         a.imm |= BX(opcode, 7) << 11;
         a.imm |= FX(opcode, 30, 25) << 5;
         a.imm |= FX(opcode, 11, 8) << 1;
@@ -731,7 +732,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x5063) {
         a.rs1 = FX(opcode, 19, 15);
         a.rs2 = FX(opcode, 24, 20);
-        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm = BX(opcode, 31) << 12;
         a.imm |= BX(opcode, 7) << 11;
         a.imm |= FX(opcode, 30, 25) << 5;
         a.imm |= FX(opcode, 11, 8) << 1;
@@ -745,7 +746,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x7063) {
         a.rs1 = FX(opcode, 19, 15);
         a.rs2 = FX(opcode, 24, 20);
-        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm = BX(opcode, 31) << 12;
         a.imm |= BX(opcode, 7) << 11;
         a.imm |= FX(opcode, 30, 25) << 5;
         a.imm |= FX(opcode, 11, 8) << 1;
@@ -777,7 +778,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x4063) {
         a.rs1 = FX(opcode, 19, 15);
         a.rs2 = FX(opcode, 24, 20);
-        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm = BX(opcode, 31) << 12;
         a.imm |= BX(opcode, 7) << 11;
         a.imm |= FX(opcode, 30, 25) << 5;
         a.imm |= FX(opcode, 11, 8) << 1;
@@ -791,7 +792,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x6063) {
         a.rs1 = FX(opcode, 19, 15);
         a.rs2 = FX(opcode, 24, 20);
-        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm = BX(opcode, 31) << 12;
         a.imm |= BX(opcode, 7) << 11;
         a.imm |= FX(opcode, 30, 25) << 5;
         a.imm |= FX(opcode, 11, 8) << 1;
@@ -805,7 +806,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x1063) {
         a.rs1 = FX(opcode, 19, 15);
         a.rs2 = FX(opcode, 24, 20);
-        a.imm = a.imm = BX(opcode, 31) << 12;
+        a.imm = BX(opcode, 31) << 12;
         a.imm |= BX(opcode, 7) << 11;
         a.imm |= FX(opcode, 30, 25) << 5;
         a.imm |= FX(opcode, 11, 8) << 1;
@@ -896,17 +897,17 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x3073) {
         a.rd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = FX(opcode, 31, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRC", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        a.csr = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRC", gpr[a.rd], gpr[a.rs1], a.csr, a.csr);
         return buff;
     }
 
     // rv_zicsr, CSRRCI
     if ((opcode & 0x707f) == 0x7073) {
         a.rd = FX(opcode, 11, 7);
-        a.imm = FX(opcode, 31, 20);
+        a.csr = FX(opcode, 31, 20);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRCI", gpr[a.rd], a.imm, a.imm, a.imm, a.imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRCI", gpr[a.rd], a.csr, a.csr, a.imm, a.imm);
         return buff;
     }
 
@@ -914,17 +915,17 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x2073) {
         a.rd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = FX(opcode, 31, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRS", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        a.csr = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRS", gpr[a.rd], gpr[a.rs1], a.csr, a.csr);
         return buff;
     }
 
     // rv_zicsr, CSRRSI
     if ((opcode & 0x707f) == 0x6073) {
         a.rd = FX(opcode, 11, 7);
-        a.imm = FX(opcode, 31, 20);
+        a.csr = FX(opcode, 31, 20);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRSI", gpr[a.rd], a.imm, a.imm, a.imm, a.imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRSI", gpr[a.rd], a.csr, a.csr, a.imm, a.imm);
         return buff;
     }
 
@@ -932,17 +933,17 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x1073) {
         a.rd = FX(opcode, 11, 7);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = FX(opcode, 31, 20);
-        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRW", gpr[a.rd], gpr[a.rs1], a.imm, a.imm);
+        a.csr = FX(opcode, 31, 20);
+        snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "CSRRW", gpr[a.rd], gpr[a.rs1], a.csr, a.csr);
         return buff;
     }
 
     // rv_zicsr, CSRRWI
     if ((opcode & 0x707f) == 0x5073) {
         a.rd = FX(opcode, 11, 7);
-        a.imm = FX(opcode, 31, 20);
+        a.csr = FX(opcode, 31, 20);
         a.imm = FX(opcode, 19, 15);
-        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRWI", gpr[a.rd], a.imm, a.imm, a.imm, a.imm);
+        snprintf(buff, sizeof(buff), "%-15s %s, 0x%x(%d), 0x%x(%d)", "CSRRWI", gpr[a.rd], a.csr, a.csr, a.imm, a.imm);
         return buff;
     }
 
@@ -1488,7 +1489,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x3027) {
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
         a.imm = SIGN_EXTEND(a.imm, 12);
 
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FSD", fpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
@@ -1591,7 +1592,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x2027) {
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
         a.imm = SIGN_EXTEND(a.imm, 12);
 
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "FSW", fpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
@@ -1601,7 +1602,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     //    rv_i, JAL
     if ((opcode & 0x7f) == 0x6f) {
         a.rd = FX(opcode, 11, 7);
-        a.imm = a.imm = BX(opcode, 31) << 20;
+        a.imm = BX(opcode, 31) << 20;
         a.imm |= FX(opcode, 19, 12) << 12;
         a.imm |= BX(opcode, 20) << 11;
         a.imm |= FX(opcode, 30, 21) << 1;
@@ -1929,7 +1930,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x23) {
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
         a.imm = SIGN_EXTEND(a.imm, 12);
 
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SB", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
@@ -1962,7 +1963,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x3023) {
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
         a.imm = SIGN_EXTEND(a.imm, 12);
 
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SD", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
@@ -1989,7 +1990,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x1023) {
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
         a.imm = SIGN_EXTEND(a.imm, 12);
 
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SH", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);
@@ -2225,7 +2226,7 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
     if ((opcode & 0x707f) == 0x2023) {
         a.rs2 = FX(opcode, 24, 20);
         a.rs1 = FX(opcode, 19, 15);
-        a.imm = a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
+        a.imm = (FX(opcode, 31, 25) << 5) | (FX(opcode, 11, 7));
         a.imm = SIGN_EXTEND(a.imm, 12);
 
         snprintf(buff, sizeof(buff), "%-15s %s, %s, 0x%x(%d)", "SW", gpr[a.rs2], gpr[a.rs1], a.imm, a.imm);

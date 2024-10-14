@@ -147,7 +147,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 FCVTLDxw(gd, v0, RD_RTZ);
                 if (!rex.w) ZEROUP(gd);
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                ANDI(x5, x5, (1 << FR_NV));
                 CBZ_NEXT(x5);
                 if (rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
@@ -161,7 +161,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGD;
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 v0 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, dyn->vector_eew);
             } else {
                 SMREAD();
@@ -170,21 +170,23 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                 vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
                 VLE8_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
-                SET_ELEMENT_WIDTH(x1, (rex.w ? VECTOR_SEW64 : VECTOR_SEW32), 1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             }
             if (box64_dynarec_fastround) {
                 VFMV_F_S(v0, v0);
                 u8 = sse_setround(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, v0, RD_DYN);
+                if (!rex.w) ZEROUP(gd);
                 x87_restoreround(dyn, ninst, u8);
             } else {
                 VFMV_F_S(v0, v0);
                 FSFLAGSI(0); // // reset all bits
                 u8 = sse_setround(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, v0, RD_DYN);
+                if (!rex.w) ZEROUP(gd);
                 x87_restoreround(dyn, ninst, u8);
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                ANDI(x5, x5, (1 << FR_NV));
                 CBZ_NEXT(x5);
                 if (rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
@@ -230,6 +232,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 if (rv64_xtheadvector) {
                     d0 = fpu_get_scratch(dyn);
                     VFMV_S_F(d0, v0);
+                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
                 } else {
                     VFMV_S_F(v0, v0);

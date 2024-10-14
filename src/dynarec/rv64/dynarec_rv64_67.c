@@ -698,9 +698,9 @@ uintptr_t dynarec64_67(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = xRAX + (nextop & 7) + (rex.b << 3);
                 MOV64xw(ed, i64);
             } else {     // mem <= i32
-                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                addr = geted32(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 4);
                 i64 = F32S;
-                MOV64xw(x3, i64);
+                MOV64x(x3, i64);
                 SDxw(x3, ed, fixedaddress);
                 SMWRITELOCK(lock);
             }

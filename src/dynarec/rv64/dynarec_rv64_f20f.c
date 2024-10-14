@@ -105,14 +105,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGD;
             GETEXSD(v0, 0);
             if(!box64_dynarec_fastround) {
-                FSFLAGSI(0);  // // reset all bits
+                FSFLAGSI(0); // reset all bits
             }
             FCVTLDxw(gd, v0, RD_RTZ);
-            if(!rex.w)
-                ZEROUP(gd);
+            if (!rex.w) ZEROUP(gd);
             if(!box64_dynarec_fastround) {
-                FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                FRFLAGS(x5); // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1 << FR_NV));
                 CBZ_NEXT(x5);
                 if(rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
@@ -131,10 +130,11 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             u8 = sse_setround(dyn, ninst, x2, x3);
             FCVTLDxw(gd, v0, RD_DYN);
+            if (!rex.w) ZEROUP(gd);
             x87_restoreround(dyn, ninst, u8);
             if(!box64_dynarec_fastround) {
                 FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1<<FR_NV)|(1<<FR_OF));
+                ANDI(x5, x5, (1 << FR_NV));
                 CBZ_NEXT(x5);
                 if(rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
