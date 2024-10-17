@@ -30,6 +30,8 @@
 #define INST_EPILOG                             \
         dyn->insts[ninst].f_exit = dyn->f;      \
         dyn->insts[ninst].n = dyn->n;           \
+        if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH && !dyn->insts[ninst].set_nat_flags)       \
+                dyn->insts[ninst].nat_flags_op=NAT_FLAG_OP_UNUSABLE;                                    \
         dyn->insts[ninst].x64.has_next = (ok>0)?1:0;
 #define INST_NAME(name) 
 #define DEFAULT                         \
@@ -47,3 +49,14 @@
         printFunctionAddr(ip, " => ");  \
         dynarec_log(LOG_NONE, "\n");    \
         }
+
+#define FEMIT(A)        dyn->insts[ninst].nat_flags_op = dyn->insts[ninst].x64.set_flags?NAT_FLAG_OP_TOUCH:NAT_FLAG_OP_UNUSABLE
+#define IFNATIVE(A)     if(mark_natflag(dyn, ninst, A))
+#define IFNATIVEN(A)    if(mark_natflag(dyn, ninst, A))
+#define IFX(A)  if((dyn->insts[ninst].x64.set_flags&(A)))
+#define IFX2(A, B)  if((dyn->insts[ninst].x64.set_flags&(A)) B)
+#define IFX_PENDOR0  if((dyn->insts[ninst].x64.set_flags&(X_PEND) || !dyn->insts[ninst].x64.set_flags))
+#define IFXX(A) if((dyn->insts[ninst].x64.set_flags==(A)))
+#define IFX2X(A, B) if((dyn->insts[ninst].x64.set_flags==(A) || dyn->insts[ninst].x64.set_flags==(B) || dyn->insts[ninst].x64.set_flags==((A)|(B))))
+#define IFXN(A, B)  if((dyn->insts[ninst].x64.set_flags&(A) && !(dyn->insts[ninst].x64.set_flags&(B))))
+#define IFXNATIVE(X, N)  if((dyn->insts[ninst].x64.set_flags&(X)) && mark_natflag(dyn, ninst, N))

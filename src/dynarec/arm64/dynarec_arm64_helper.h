@@ -32,6 +32,10 @@
 #define PK64(a)   *(uint64_t*)(addr+a)
 #define PKip(a)   *(uint8_t*)(ip+a)
 
+#ifndef FEMIT
+#define FEMIT(A)    EMIT(A)
+#endif
+
 // Strong mem emulation helpers
 #define SMREAD_VAL  4
 #define SMWRITE2_MIN 1
@@ -884,12 +888,20 @@
     j64 = GETMARKLOCK-(dyn->native_size);  \
     CBNZx(reg, j64)
 
+#ifndef IFNATIVE
+#define IFNATIVE(A)     if(dyn->insts[ninst].need_nat_flags&(A))
+#define IFNATIVEN(A)    if((dyn->insts[ninst].need_nat_flags&(A))==(A))
+#endif
+
+#ifndef IFX
 #define IFX(A)  if((dyn->insts[ninst].x64.gen_flags&(A)))
 #define IFX2(A, B)  if((dyn->insts[ninst].x64.gen_flags&(A)) B)
 #define IFX_PENDOR0  if((dyn->insts[ninst].x64.gen_flags&(X_PEND) || !dyn->insts[ninst].x64.gen_flags))
 #define IFXX(A) if((dyn->insts[ninst].x64.gen_flags==(A)))
 #define IFX2X(A, B) if((dyn->insts[ninst].x64.gen_flags==(A) || dyn->insts[ninst].x64.gen_flags==(B) || dyn->insts[ninst].x64.gen_flags==((A)|(B))))
 #define IFXN(A, B)  if((dyn->insts[ninst].x64.gen_flags&(A) && !(dyn->insts[ninst].x64.gen_flags&(B))))
+#define IFXNATIVE(X, N) if((dyn->insts[ninst].x64.gen_flags&(X)) && (dyn->insts[ninst].need_nat_flags&(N)))
+#endif
 
 // Generate FCOM with s1 and s2 scratch regs (the VCMP is already done)
 #define FCOM(s1, s2, s3)                                                    \
@@ -1660,13 +1672,21 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
 #define GOCOND(B, T1, T2)                                   \
     case B+0x0:                                             \
         INST_NAME(T1 "O " T2);                              \
+        IFNATIVE(NF_VF) {                                   \
+        GO( , cVC, cVS, X_OF)                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0b010101, 0)                  \
             , cEQ, cNE, X_OF)                               \
+        }                                                   \
         break;                                              \
     case B+0x1:                                             \
         INST_NAME(T1 "NO " T2);                             \
+        IFNATIVE(NF_VF) {                                   \
+        GO( , cVS, cVC, X_OF)                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0b010101, 0)                  \
             , cNE, cEQ, X_OF)                               \
+        }                                                   \
         break;                                              \
     case B+0x2:                                             \
         INST_NAME(T1 "C " T2);                              \
@@ -1680,13 +1700,21 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         break;                                              \
     case B+0x4:                                             \
         INST_NAME(T1 "Z " T2);                              \
+        IFNATIVE(NF_EQ) {                                   \
+        GO( , cNE, cEQ, X_ZF)                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0b011010, 0)                  \
             , cEQ, cNE, X_ZF)                               \
+        }                                                   \
         break;                                              \
     case B+0x5:                                             \
         INST_NAME(T1 "NZ " T2);                             \
+        IFNATIVE(NF_EQ) {                                   \
+        GO( , cEQ, cNE, X_ZF)                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0b011010, 0)                  \
             , cNE, cEQ, X_ZF)                               \
+        }                                                   \
         break;                                              \
     case B+0x6:                                             \
         INST_NAME(T1 "BE " T2);                             \
@@ -1702,13 +1730,21 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         break;                                              \
     case B+0x8:                                             \
         INST_NAME(T1 "S " T2);                              \
+        IFNATIVE(NF_SF) {                                   \
+        GO( , cPL, cMI, X_SF)                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0b011001, 0)                  \
             , cEQ, cNE, X_SF)                               \
+        }                                                   \
         break;                                              \
     case B+0x9:                                             \
         INST_NAME(T1 "NS " T2);                             \
+        IFNATIVE(NF_SF) {                                   \
+        GO( , cMI, cPL, X_SF)                               \
+        } else {                                            \
         GO( TSTw_mask(xFlags, 0b011001, 0)                  \
             , cNE, cEQ, X_SF)                               \
+        }                                                   \
         break;                                              \
     case B+0xA:                                             \
         INST_NAME(T1 "P " T2);                              \
@@ -1722,29 +1758,45 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         break;                                              \
     case B+0xC:                                             \
         INST_NAME(T1 "L " T2);                              \
+        IFNATIVEN(NF_SF|NF_VF) {                            \
+        GO( , cGE, cLT, X_SF|X_OF)                          \
+        } else {                                            \
         GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);    \
             TSTw_mask(x1, 0b010101, 0)                      \
             , cEQ, cNE, X_SF|X_OF)                          \
+        }                                                   \
         break;                                              \
     case B+0xD:                                             \
         INST_NAME(T1 "GE " T2);                             \
+        IFNATIVEN(NF_SF|NF_VF) {                            \
+        GO( , cLT, cGE, X_SF|X_OF)                          \
+        } else {                                            \
         GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);    \
             TSTw_mask(x1, 0b010101, 0)                      \
             , cNE, cEQ, X_SF|X_OF)                          \
+        }                                                   \
         break;                                              \
     case B+0xE:                                             \
         INST_NAME(T1 "LE " T2);                             \
+        IFNATIVEN(NF_SF|NF_VF|NF_EQ) {                      \
+        GO( , cGT, cLE, X_SF|X_OF|X_ZF)                     \
+        } else {                                            \
         GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);    \
             ORRw_REG_LSL(x1, x1, xFlags, F_OF-F_ZF);        \
             TSTw_mask(x1, 0b010101, 0)                      \
             , cEQ, cNE, X_SF|X_OF|X_ZF)                     \
+        }                                                   \
         break;                                              \
     case B+0xF:                                             \
         INST_NAME(T1 "G " T2);                              \
+        IFNATIVEN(NF_SF|NF_VF|NF_EQ) {                      \
+        GO( , cLE, cGT, X_SF|X_OF|X_ZF)                     \
+        } else {                                            \
         GO( EORw_REG_LSL(x1, xFlags, xFlags, F_OF-F_SF);    \
             ORRw_REG_LSL(x1, x1, xFlags, F_OF-F_ZF);        \
             TSTw_mask(x1, 0b010101, 0)                      \
             , cNE, cEQ, X_SF|X_OF|X_ZF)                     \
+        }                                                   \
         break
 
 #define NOTEST(s1)                                          \
@@ -1775,18 +1827,24 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         if(arm64_flagm) {                       \
             SETF##A(s1);                        \
             IFX(X_ZF) {                         \
+                IFNATIVE(NF_EQ) {} else {       \
                 CSETw(s3, cEQ);                 \
                 BFIw(xFlags, s3, F_ZF, 1);      \
+                }                               \
             }                                   \
             IFX(X_SF) {                         \
+                IFNATIVE(NF_SF) {} else {       \
                 CSETw(s3, cMI);                 \
                 BFIw(xFlags, s3, F_SF, 1);      \
+                }                               \
             }                                   \
         } else {                                \
             IFX(X_ZF) {                         \
                 ANDSw_mask(s1, s1, 0, (A)-1);   \
+                IFNATIVE(NF_EQ) {} else {       \
                 CSETw(s3, cEQ);                 \
                 BFIw(xFlags, s3, F_ZF, 1);      \
+                }                               \
             }                                   \
             IFX(X_SF) {                         \
                 LSRw(s3, s1, (A)-1);            \

@@ -9,6 +9,19 @@ typedef struct instsize_s instsize_t;
 
 #define BARRIER_MAYBE   8
 
+#define NF_EQ   (1<<0)
+#define NF_SF   (1<<1)
+#define NF_VF   (1<<2)
+
+// Nothing happens to the native flags
+#define NAT_FLAG_OP_NONE        0
+// Native flags are touched on this opcode
+#define NAT_FLAG_OP_TOUCH       1
+// Native flags are destroyed and unusable
+#define NAT_FLAG_OP_UNUSABLE    2
+// Native flags usaged are canceled here
+#define NAT_FLAG_OP_CANCELED    3
+
 #define NEON_CACHE_NONE     0
 #define NEON_CACHE_ST_D     1
 #define NEON_CACHE_ST_F     2
@@ -94,6 +107,11 @@ typedef struct instruction_arm64_s {
     uint8_t             barrier_maybe;
     uint8_t             will_write;
     uint8_t             last_write;
+    uint8_t             set_nat_flags;  // 0 or combinaison of native flags define
+    uint8_t             use_nat_flags;  // 0 or combinaison of native flags define
+    uint8_t             nat_flags_op;// what happens to native flags here
+    uint8_t             before_nat_flags;  // 0 or combinaison of native flags define
+    uint8_t             need_nat_flags;
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin
@@ -154,9 +172,11 @@ void CreateJmpNext(void* addr, void* next);
 #define GO_TRACE(A, B, s0)  \
     GETIP(addr);            \
     MOVx_REG(x1, xRIP);     \
+    MRS_nzvc(s0);           \
     STORE_XEMU_CALL(xRIP);  \
     MOV32w(x2, B);          \
-    CALL(A, -1);            \
+    CALL_(A, -1, s0);       \
+    MSR_nzvc(s0);           \
     LOAD_XEMU_CALL(xRIP)
 
 #endif //__DYNAREC_ARM_PRIVATE_H_

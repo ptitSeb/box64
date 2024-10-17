@@ -754,6 +754,9 @@ void iret_to_epilog(dynarec_arm_t* dyn, int ninst, int is32bits, int is64bits)
 void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int saveflags, int savereg)
 {
     MAYUSE(fnc);
+    #if STEP == 0
+    dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
+    #endif
     if(savereg==0)
         savereg = 7;
     if(saveflags) {
@@ -799,6 +802,9 @@ void call_c(dynarec_arm_t* dyn, int ninst, void* fnc, int reg, int ret, int save
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
+    #if STEP == 0
+    dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
+    #endif
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     fpu_pushcache(dyn, ninst, x3, 1);
     // x9..x15, x16,x17,x18 those needs to be saved by caller
@@ -2380,11 +2386,63 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst, int s1)
     }
 }
 
+static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
+{
+    int j64;
+    int jmp = dyn->insts[ninst].x64.jmp_insts;
+    if(jmp<0)
+        return;
+    uint8_t flags_before = dyn->insts[ninst].need_nat_flags;
+    uint8_t flags_after = dyn->insts[jmp].need_nat_flags;
+    if(dyn->insts[jmp].nat_flags_op==NAT_FLAG_OP_TOUCH)
+        flags_after = dyn->insts[jmp].before_nat_flags;
+    uint8_t flags_x86 = flag2native(dyn->insts[jmp].x64.need_before);
+    flags_x86 &= ~flags_after;
+    MESSAGE(LOG_DUMP, "\tFNative flags transform ---- ninst=%d -> %d %hhx -> %hhx/%hhx\n", ninst, jmp, flags_before, flags_after, flags_x86);
+    // flags present in before and missing in after
+    if((flags_before&NF_EQ) && (flags_x86&NF_EQ)) {
+        CSETw(s1, cEQ);
+        BFIw(xFlags, s1, F_ZF, 1);
+    }
+    if((flags_before&NF_SF) && (flags_x86&NF_SF)) {
+        CSETw(s1, cMI);
+        BFIw(xFlags, s1, F_SF, 1);
+    }
+    if((flags_before&NF_VF) && (flags_x86&NF_VF)) {
+        CSETw(s1, cVS);
+        BFIw(xFlags, s1, F_OF, 1);
+    }
+    // flags missing and needed later
+    int mrs = 0;
+    #define GO_MRS(A)   if(!mrs) {mrs=1; MRS_nzvc(s2); }
+    if(!(flags_before&NF_EQ) && (flags_after&NF_EQ)) {
+        GO_MRS(s2);
+        BFIw(s1, xFlags, F_ZF, 1);
+        BFIx(s2, s1, NZCV_Z, 1);
+    }
+    if(!(flags_before&NF_SF) && (flags_after&NF_SF)) {
+        GO_MRS(s2);
+        BFIw(s1, xFlags, F_SF, 1);
+        BFIx(s2, s1, NZCV_N, 1);
+    }
+    if(!(flags_before&NF_VF) && (flags_after&NF_VF)) {
+        GO_MRS(s2);
+        BFIw(s1, xFlags, F_OF, 1);
+        BFIx(s2, s1, NZCV_V, 1);
+    }
+    #undef GL_MRS
+    if(mrs) MSR_nzvc(s2);
+
+    MESSAGE(LOG_DUMP, "\tF---- Native flags transform\n");
+}
+
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3) {
     if(cacheupd&1)
         flagsCacheTransform(dyn, ninst, s1);
     if(cacheupd&2)
         fpuCacheTransform(dyn, ninst, s1, s2, s3);
+    if(cacheupd&4)
+        nativeFlagsTransform(dyn, ninst, s1, s2);
 }
 
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)

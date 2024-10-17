@@ -2162,8 +2162,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CLZxw(gd, x1);    // x2 gets leading 0 == BSF
             MARK;
             IFX(X_ZF) {
-                CSETw(x1, cEQ);    //other flags are undefined
-                BFIw(xFlags, x1, F_ZF, 1);
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x1, cEQ);    //other flags are undefined
+                    BFIw(xFlags, x1, F_ZF, 1);
+                }
             }
             break;
         case 0xBD:
@@ -2180,8 +2182,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             NEGxw_REG(gd, gd);   // complement
             MARK;
             IFX(X_ZF) {
-                CSETw(x1, cEQ);    //other flags are undefined
-                BFIw(xFlags, x1, F_ZF, 1);
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x1, cEQ);    //other flags are undefined
+                    BFIw(xFlags, x1, F_ZF, 1);
+                }
             }
             break;
         case 0xBE:

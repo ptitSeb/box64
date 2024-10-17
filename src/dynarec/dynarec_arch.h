@@ -9,14 +9,19 @@
 #define ADDITIONNAL_DEFINITION()  \
     int fpuCacheNeedsTransform(dynarec_native_t* dyn, int ninst);
 
-#define OTHER_CACHE()   \
-    if (fpuCacheNeedsTransform(dyn, ninst)) ret|=2;
+#define OTHER_CACHE()                                   \
+    if (fpuCacheNeedsTransform(dyn, ninst)) ret|=2;     \
+    if (nativeFlagsNeedsTransform(dyn, ninst)) ret|=4;
 
 #include "arm64/arm64_printer.h"
 #include "arm64/dynarec_arm64_private.h"
 #include "arm64/dynarec_arm64_functions.h"
 // Limit here is defined by LD litteral, that is 19bits
 #define MAXBLOCK_SIZE ((1<<19)-200)
+
+#define RAZ_SPECIFIC(A, N)      rasNativeState(A, N)
+#define UPDATE_SPECIFICS(A)     updateNatveFlags(A)
+
 #elif defined(LA64)
 
 #define instruction_native_t        instruction_la64_t
@@ -33,6 +38,9 @@
 #include "la64/dynarec_la64_functions.h"
 // Limit here is unconditionnal jump, that is signed 28bits
 #define MAXBLOCK_SIZE ((1 << 27) - 200)
+
+#define RAZ_SPECIFIC(A, N)
+#define UPDATE_SPECIFICS(A)
 #elif defined(RV64)
 
 #define instruction_native_t        instruction_rv64_t
@@ -51,6 +59,9 @@
 #include "rv64/dynarec_rv64_functions.h"
 // Limit here is unconditionnal jump, that is signed 21bits
 #define MAXBLOCK_SIZE ((1<<20)-200)
+
+#define RAZ_SPECIFIC(A, N)
+#define UPDATE_SPECIFICS(A)
 #else
 #error Unsupported platform
 #endif

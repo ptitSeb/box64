@@ -47,8 +47,10 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         BFIx(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
-        CSETw(s4, cEQ);
-        BFIw(xFlags, s4, F_ZF, 1);
+        IFNATIVE(NF_EQ) {} else {
+            CSETw(s4, cEQ);
+            BFIw(xFlags, s4, F_ZF, 1);
+        }
     }
     IFX(X_CF) {
         // inverted carry
@@ -56,12 +58,16 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         BFIw(xFlags, s4, F_CF, 1);
     }
     IFX(X_OF) {
-        CSETw(s4, cVS);
-        BFIw(xFlags, s4, F_OF, 1);
+        IFNATIVE(NF_VF) {} else {
+            CSETw(s4, cVS);
+            BFIw(xFlags, s4, F_OF, 1);
+        }
     }
     IFX(X_SF) {
-        LSRxw(s3, s5, (rex.w)?63:31);
-        BFIw(xFlags, s3, F_SF, 1);
+        IFNATIVE(NF_SF) {} else {
+            LSRxw(s3, s5, (rex.w)?63:31);
+            BFIw(xFlags, s3, F_SF, 1);
+        }
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s5, s4);
@@ -84,16 +90,27 @@ void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int 
     // and now the tricky ones (and mostly unused), PF and AF
     // bc = (res & (~d | s)) | (~d & s) => is 0 here...
     IFX(X_OF|X_AF|X_CF) {
-        MOV32w(s4, (1<<F_OF)|(1<<F_AF)|(1<<F_CF));
-        BICw(xFlags, xFlags, s4);
+        IFXNATIVE(X_OF, NF_VF) {
+            IFX(X_AF|X_CF) {
+                MOV32w(s4, (1<<F_CF)|(1<<F_AF));
+                BICw(xFlags, xFlags, s4);
+            }
+        } else {
+            MOV32w(s4, (1<<F_OF)|(1<<F_AF)|(1<<F_CF));
+            BICw(xFlags, xFlags, s4);
+        }
     }
     IFX(X_ZF) {
-        CSETw(s4, cEQ);
-        BFIw(xFlags, s4, F_ZF, 1);
+        IFNATIVE(NF_EQ) {} else {
+            CSETw(s4, cEQ);
+            BFIw(xFlags, s4, F_ZF, 1);
+        }
     }
     IFX(X_SF) {
-        LSRxw(s3, s1, (rex.w)?63:31);
-        BFIw(xFlags, s3, F_SF, 1);
+        IFNATIVE(NF_SF) {} else {
+            LSRxw(s3, s1, (rex.w)?63:31);
+            BFIw(xFlags, s3, F_SF, 1);
+        }
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s1, s4);
@@ -237,20 +254,31 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE(s4);
     }
     IFX(X_CF | X_AF | X_OF) {
-        MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
-        BICw(xFlags, xFlags, s3);
+        IFXNATIVE(X_OF, NF_VF) {
+            IFX(X_AF|X_CF) {
+                MOV32w(s3, (1<<F_CF)|(1<<F_AF));
+                BICw(xFlags, xFlags, s3);
+            }
+        } else {
+            MOV32w(s3, (1<<F_CF)|(1<<F_AF)|(1<<F_OF));
+            BICw(xFlags, xFlags, s3);
+        }
     }
     ANDSxw_REG(s3, s1, s2);   // res = s1 & s2
     IFX_PENDOR0 {
         STRxw_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
-        CSETw(s4, cEQ);
-        BFIw(xFlags, s4, F_ZF, 1);
+        IFNATIVE(NF_EQ) {} else {
+            CSETw(s4, cEQ);
+            BFIw(xFlags, s4, F_ZF, 1);
+        }
     }
     IFX(X_SF) {
-        LSRxw(s4, s3, rex.w?63:31);
-        BFIw(xFlags, s4, F_SF, 1);
+        IFNATIVE(NF_SF) {} else {
+            LSRxw(s4, s3, rex.w?63:31);
+            BFIw(xFlags, s4, F_SF, 1);
+        }
     }
     IFX(X_PF) {
         emit_pf(dyn, ninst, s3, s5);
@@ -275,8 +303,10 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
-        CSETw(s4, cEQ);
-        BFIw(xFlags, s4, F_ZF, 1);
+        IFNATIVE(NF_EQ) {} else {
+            CSETw(s4, cEQ);
+            BFIw(xFlags, s4, F_ZF, 1);
+        }
     }
     IFX(X_SF) {
         LSRw(s4, s5, 15);
@@ -305,8 +335,10 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_ZF) {
-        CSETw(s4, cEQ);
-        BFIw(xFlags, s4, F_ZF, 1);
+        IFNATIVE(NF_EQ) {} else {
+            CSETw(s4, cEQ);
+            BFIw(xFlags, s4, F_ZF, 1);
+        }
     }
     IFX(X_SF) {
         LSRw(s4, s5, 7);

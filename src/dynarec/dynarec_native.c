@@ -664,6 +664,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
             while(ii<helper.size && !helper.insts[ii].pred_sz) {
                 fpu_reset_ninst(&helper, ii);
                 helper.insts[ii].ymm0_in = helper.insts[ii].ymm0_sub = helper.insts[ii].ymm0_add = helper.insts[ii].ymm0_out = helper.insts[ii].purge_ymm = 0;
+                RAZ_SPECIFIC(&helper, ii);
                 ++ii;
             }
             i = ii;
@@ -680,6 +681,7 @@ void* FillBlock64(dynablock_t* block, uintptr_t addr, int alternate, int is32bit
         return CreateEmptyBlock(block, addr, is32bits);
     }
     updateYmm0s(&helper, 0, 0);
+    UPDATE_SPECIFICS(&helper);
 
 
     // pass 1, float optimizations, first pass for flags

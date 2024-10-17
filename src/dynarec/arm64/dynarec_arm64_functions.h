@@ -51,6 +51,16 @@ int neoncache_combine_st(dynarec_arm_t* dyn, int ninst, int a, int b);  // with 
 // Do not allow i64 type
 int neoncache_no_i64(dynarec_arm_t* dyn, int ninst, int st, int a);
 
+// transform x86 flags to native flags
+uint8_t flag2native(uint8_t flags);
+// mark a instruction as using/generating flags. return flag
+uint8_t mark_natflag(dynarec_arm_t* dyn, int ninst, uint8_t flag);
+// propage the use of nativeflags or not (done between step 0 and step 1)
+void updateNatveFlags(dynarec_arm_t* dyn);
+// raz arm speicifc state when an opcode is unused
+void rasNativeState(dynarec_arm_t* dyn, int ninst);
+// check if natives flags needs some tranform to/from x86 flags
+int nativeFlagsNeedsTransform(dynarec_arm_t* dyn, int ninst);
 
 // FPU Cache transformation (for loops) // Specific, need to be written by backend
 int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst);
