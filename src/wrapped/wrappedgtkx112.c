@@ -712,6 +712,29 @@ static void* reverse_GtkLinkButtonUri_Fct(void* fct)
     return (void*)AddBridge(my_lib->w.bridge, vFppp, fct, 0, NULL);
 }
 
+// GtkKeySnoopFunc ...
+#define GO(A)   \
+static uintptr_t my_GtkKeySnoopFunc_fct_##A = 0;                    \
+static void my_GtkKeySnoopFunc_##A(void* a, void* b, void* c)       \
+{                                                                   \
+    RunFunctionFmt(my_GtkKeySnoopFunc_fct_##A, "ppp", a, b, c);     \
+}
+SUPER()
+#undef GO
+static void* find_GtkKeySnoopFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkKeySnoopFunc_fct_##A == (uintptr_t)fct) return my_GtkKeySnoopFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkKeySnoopFunc_fct_##A == 0) {my_GtkKeySnoopFunc_fct_##A = (uintptr_t)fct; return my_GtkKeySnoopFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-2 GtkKeySnoopFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -1186,6 +1209,12 @@ EXPORT void my_gtk_print_job_send(x64emu_t* emu, void* job, void* f, void* data,
 {
     (void)emu;
     my->gtk_print_job_send(job, find_GtkPrintJobCompleteFunc_Fct(f), data, findGDestroyNotifyFct(d));
+}
+
+EXPORT uint32_t my_gtk_key_snooper_install(x64emu_t* emu, void* f, void* data)
+{
+    (void)emu;
+    return my->gtk_key_snooper_install(find_GtkKeySnoopFunc_Fct(f), data);
 }
 
 #define PRE_INIT    \

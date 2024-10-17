@@ -4104,6 +4104,8 @@ wrappedgtkx112:
 - iFpp:
   - gtk_init_check
   - gtk_type_unique
+- uFpp:
+  - gtk_key_snooper_install
 - pFiV:
   - gtk_list_store_new
   - gtk_tree_store_new

@@ -1466,7 +1466,7 @@ GO(gtk_item_get_type, LFv)
 //GO(gtk_item_select, 
 GO(gtk_item_toggle, vFp)
 GO(gtk_justification_get_type, LFv)
-//GOM(gtk_key_snooper_install, uFEBp)
+GOM(gtk_key_snooper_install, uFEpp)
 GO(gtk_key_snooper_remove, vFu)
 GO(gtk_label_get, vFpp)
 GO(gtk_label_get_angle, dFp)
