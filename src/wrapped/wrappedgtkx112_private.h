@@ -1595,32 +1595,32 @@ GO(gtk_main_iteration, iFv)
 GO(gtk_main_iteration_do, iFi)
 GO(gtk_main_level, uFv)
 GO(gtk_main_quit, vFv)
-//GO(gtk_marshal_BOOLEAN__POINTER, 
-//GO(gtk_marshal_BOOLEAN__POINTER_INT_INT, 
-//GO(gtk_marshal_BOOLEAN__POINTER_INT_INT_UINT, 
-//GO(gtk_marshal_BOOLEAN__POINTER_POINTER_INT_INT, 
-//GO(gtk_marshal_BOOLEAN__POINTER_STRING_STRING_POINTER, 
-//GO(gtk_marshal_BOOLEAN__VOID, 
-//GO(gtk_marshal_ENUM__ENUM, 
-//GO(gtk_marshal_INT__POINTER, 
-//GO(gtk_marshal_INT__POINTER_CHAR_CHAR, 
-//GO(gtk_marshal_VOID__ENUM_FLOAT, 
-//GO(gtk_marshal_VOID__ENUM_FLOAT_BOOLEAN, 
-//GO(gtk_marshal_VOID__INT_INT, 
-//GO(gtk_marshal_VOID__INT_INT_POINTER, 
-//GO(gtk_marshal_VOID__POINTER_INT, 
-//GO(gtk_marshal_VOID__POINTER_INT_INT_POINTER_UINT_UINT, 
-//GO(gtk_marshal_VOID__POINTER_POINTER, 
-//GO(gtk_marshal_VOID__POINTER_POINTER_POINTER, 
-//GO(gtk_marshal_VOID__POINTER_POINTER_UINT_UINT, 
-//GO(gtk_marshal_VOID__POINTER_STRING_STRING, 
-//GO(gtk_marshal_VOID__POINTER_UINT, 
-//GO(gtk_marshal_VOID__POINTER_UINT_ENUM, 
-//GO(gtk_marshal_VOID__POINTER_UINT_UINT, 
-//GO(gtk_marshal_VOID__STRING_INT_POINTER, 
-//GO(gtk_marshal_VOID__UINT_POINTER_UINT_ENUM_ENUM_POINTER, 
-//GO(gtk_marshal_VOID__UINT_POINTER_UINT_UINT_ENUM, 
-//GO(gtk_marshal_VOID__UINT_STRING, 
+DATA(gtk_marshal_BOOLEAN__POINTER, sizeof(void*))
+DATA(gtk_marshal_BOOLEAN__POINTER_INT_INT, sizeof(void*))
+DATA(gtk_marshal_BOOLEAN__POINTER_INT_INT_UINT, sizeof(void*))
+DATA(gtk_marshal_BOOLEAN__POINTER_POINTER_INT_INT, sizeof(void*))
+DATA(gtk_marshal_BOOLEAN__POINTER_STRING_STRING_POINTER, sizeof(void*))
+DATA(gtk_marshal_BOOLEAN__VOID, sizeof(void*))
+DATA(gtk_marshal_ENUM__ENUM, sizeof(void*))
+DATA(gtk_marshal_INT__POINTER, sizeof(void*))
+DATA(gtk_marshal_INT__POINTER_CHAR_CHAR, sizeof(void*))
+DATA(gtk_marshal_VOID__ENUM_FLOAT, sizeof(void*))
+DATA(gtk_marshal_VOID__ENUM_FLOAT_BOOLEAN, sizeof(void*))
+DATA(gtk_marshal_VOID__INT_INT, sizeof(void*))
+DATA(gtk_marshal_VOID__INT_INT_POINTER, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_INT, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_INT_INT_POINTER_UINT_UINT, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_POINTER, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_POINTER_POINTER, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_POINTER_UINT_UINT, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_STRING_STRING, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_UINT, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_UINT_ENUM, sizeof(void*))
+DATA(gtk_marshal_VOID__POINTER_UINT_UINT, sizeof(void*))
+DATA(gtk_marshal_VOID__STRING_INT_POINTER, sizeof(void*))
+DATA(gtk_marshal_VOID__UINT_POINTER_UINT_ENUM_ENUM_POINTER, sizeof(void*))
+DATA(gtk_marshal_VOID__UINT_POINTER_UINT_UINT_ENUM, sizeof(void*))
+DATA(gtk_marshal_VOID__UINT_STRING, sizeof(void*))
 GO(gtk_match_type_get_type, LFv)
 GO(gtk_menu_attach, vFppuuuu)
 GOM(gtk_menu_attach_to_widget, vFEppp)
