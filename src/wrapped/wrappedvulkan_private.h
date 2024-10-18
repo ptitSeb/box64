@@ -983,3 +983,11 @@ GO(vkCmdSetRenderingInputAttachmentIndicesKHR, vFpp)
 
 // VK_KHR_line_rasterization
 GO(vkCmdSetLineStippleKHR, vFpuW)
+
+// VK_KHR_external_semaphore_win32
+GO(vkGetSemaphoreWin32HandleKHR, iFppp)
+GO(VK_KHR_external_semaphore_win32, iFpp)
+
+// VK_KHR_win32_keyed_mutex
+GO(wine_vkAcquireKeyedMutex, iFpUUu)
+GO(wine_vkReleaseKeyedMutex, iFpUU)
