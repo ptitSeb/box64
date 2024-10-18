@@ -1937,7 +1937,7 @@ EXPORT int my32_XGetWindowAttributes(x64emu_t* emu, void* dpy, XID window, my_XW
     static my_Screen_32_t screen32 = {0};
     my_XWindowAttributes_t l_attr = {0};
     int ret = my->XGetWindowAttributes(dpy, window, &l_attr);
-    convert_XWindowAttributes_to_32(attr, &l_attr);
+    convert_XWindowAttributes_to_32(dpy, attr, &l_attr);
     attr->screen = to_ptrv(&screen32);
     convert_Screen_to_32(&screen32, l_attr.screen);
     return ret;

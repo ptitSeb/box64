@@ -35,7 +35,7 @@ void convert_XSizeHints_to_64(void* d, void *s);
 void inplace_enlarge_wmsizehints(void* hints);
 void inplace_shrink_wmsizehints(void* hints);
 
-void convert_XWindowAttributes_to_32(void* d, void* s);
+void convert_XWindowAttributes_to_32(void* dpy, void* d, void* s);
 
 void inplace_XModifierKeymap_shrink(void* a);
 void inplace_XModifierKeymap_enlarge(void* a);

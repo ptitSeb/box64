@@ -375,7 +375,7 @@ void inplace_shrink_wmsizehints(void* hints)
     *(long_t*)hints = flags;
 }
 
-void convert_XWindowAttributes_to_32(void* d, void* s)
+void convert_XWindowAttributes_to_32(void* dpy, void* d, void* s)
 {
     my_XWindowAttributes_t* src = s;
     my_XWindowAttributes_32_t* dst = d;
@@ -385,7 +385,7 @@ void convert_XWindowAttributes_to_32(void* d, void* s)
     dst->height = src->height;
     dst->border_width = src->border_width;
     dst->depth = src->depth;
-    dst->visual = to_ptrv(src->visual);
+    dst->visual = to_ptrv(convert_Visual_to_32(dpy, src->visual));
     dst->root = to_ulong(src->root);
     dst->c_class = src->c_class;
     dst->bit_gravity = src->bit_gravity;
