@@ -56,6 +56,11 @@ BOX64_PREFER_EMULATED=1
 BOX64_LOG=0
 BOX64_DYNAREC_ALIGNED_ATOMICS=1
 
+[box64-bash]
+# LOG tend to mess up script execution in bash
+BOX64_LOG=0
+BOX64_DYNAREC_ALIGNED_ATOMICS=1
+
 [beyond-all-reason]
 BOX64_MALLOC_HACK=2
 

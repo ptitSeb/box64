@@ -2102,7 +2102,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         box64_zoom = 1;
     }
     // special case for bash (add BOX86_NOBANNER=1 if not there)
-    if(!strcmp(prgname, "bash")) {
+    if(!strcmp(prgname, "bash") || !strcmp(prgname, "box64-bash")) {
         printf_log(LOG_INFO, "bash detected, disabling banner\n");
         if (!box64_nobanner) {
             setenv("BOX86_NOBANNER", "1", 0);
@@ -2113,6 +2113,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             setenv("BOX64_BASH", prog, 1);
         }
     }
+    if(!bashpath)
+        bashpath = ResolveFile("box64-bash", &my_context->box64_path);
     if(bashpath)
         my_context->bashpath = box_strdup(bashpath);
 
