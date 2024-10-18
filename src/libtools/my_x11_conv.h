@@ -42,6 +42,7 @@ void inplace_XModifierKeymap_enlarge(void* a);
 
 void convert_XVisualInfo_to_32(void* dpy, my_XVisualInfo_32_t* dst, my_XVisualInfo_t* src);
 void convert_XVisualInfo_to_64(void* dpy, my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src);
+void convert_XVisualInfo_to_64_novisual(void* dpy, my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src);
 void inplace_XVisualInfo_shrink(void* dpy, void *a);
 void inplace_XVisualInfo_enlarge(void* dpy, void *a);
 

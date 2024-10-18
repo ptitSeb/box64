@@ -434,6 +434,19 @@ void convert_XVisualInfo_to_32(void* dpy, my_XVisualInfo_32_t* dst, my_XVisualIn
     dst->colormap_size = src->colormap_size;
     dst->bits_per_rgb = src->bits_per_rgb;
 }
+void convert_XVisualInfo_to_64_novisual(void* dpy, my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src)
+{
+    dst->bits_per_rgb = src->bits_per_rgb;
+    dst->colormap_size = src->colormap_size;
+    dst->blue_mask = from_ulong(src->blue_mask);
+    dst->green_mask = from_ulong(src->green_mask);
+    dst->red_mask = from_ulong(src->red_mask);
+    dst->c_class = src->c_class;
+    dst->depth = src->depth;
+    dst->screen = src->screen;
+    dst->visualid = from_ulong(src->visualid);
+    dst->visual = NULL;
+}
 void convert_XVisualInfo_to_64(void* dpy, my_XVisualInfo_t* dst, my_XVisualInfo_32_t* src)
 {
     dst->bits_per_rgb = src->bits_per_rgb;

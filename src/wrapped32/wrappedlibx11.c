@@ -2143,7 +2143,7 @@ EXPORT void* my32_XGetIMValues(x64emu_t* emu, void* xim, ptr_t* b)
 EXPORT void* my32_XGetVisualInfo(x64emu_t* emu, void* dpy, long mask, my_XVisualInfo_32_t* template, int* n)
 {
     my_XVisualInfo_t template_l = {0};
-    if(template) convert_XVisualInfo_to_64(dpy, &template_l, template);
+    if(template) convert_XVisualInfo_to_64_novisual(dpy, &template_l, template);
     my_XVisualInfo_t* ret = my->XGetVisualInfo(dpy, mask, template?(&template_l):NULL, n);
     inplace_XVisualInfo_shrink(dpy, ret);
     return ret;
@@ -2165,6 +2165,17 @@ EXPORT int my32_XQueryColors(x64emu_t* emu, void* dpy, XID map, my_XColor_32_t* 
     for(int i=0; i<ncolor; ++i)
         from_struct_LWWWcc(defs_l+i, to_ptrv(defs+i));
     int ret = my->XQueryColors(dpy, map, defs_l, ncolor);
+    for(int i=0; i<ncolor; ++i)
+        to_struct_LWWWcc(to_ptrv(defs+i), defs_l+i);
+    return ret;
+}
+
+EXPORT int my32_XStoreColors(x64emu_t* emu, void* dpy, XID map, my_XColor_32_t* defs, int ncolor)
+{
+    struct_LWWWcc_t defs_l[ncolor];
+    for(int i=0; i<ncolor; ++i)
+        from_struct_LWWWcc(defs_l+i, to_ptrv(defs+i));
+    int ret = my->XStoreColors(dpy, map, defs_l, ncolor);
     for(int i=0; i<ncolor; ++i)
         to_struct_LWWWcc(to_ptrv(defs+i), defs_l+i);
     return ret;

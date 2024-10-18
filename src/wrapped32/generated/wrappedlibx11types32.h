@@ -113,6 +113,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XChangeWindowAttributes, iFXLLp_t) \
 	GO(XQueryColors, iFXLpi_t) \
 	GO(XSetWMProtocols, iFXLpi_t) \
+	GO(XStoreColors, iFXLpi_t) \
 	GO(XGetWMNormalHints, iFXLpp_t) \
 	GO(XCheckIfEvent, iFXppp_t) \
 	GO(XIfEvent, iFXppp_t) \

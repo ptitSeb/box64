@@ -2094,6 +2094,7 @@ wrappedlibx11:
 - iFXLpi:
   - XQueryColors
   - XSetWMProtocols
+  - XStoreColors
 - iFXLpp:
   - XGetWMNormalHints
 - iFXppp:
