@@ -84,6 +84,7 @@ void CFp_32(x64emu_t *emu, uintptr_t fnc);
 void WFi_32(x64emu_t *emu, uintptr_t fnc);
 void WFW_32(x64emu_t *emu, uintptr_t fnc);
 void WFu_32(x64emu_t *emu, uintptr_t fnc);
+void WFp_32(x64emu_t *emu, uintptr_t fnc);
 void uFv_32(x64emu_t *emu, uintptr_t fnc);
 void uFi_32(x64emu_t *emu, uintptr_t fnc);
 void uFu_32(x64emu_t *emu, uintptr_t fnc);

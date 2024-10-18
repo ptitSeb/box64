@@ -133,6 +133,7 @@ typedef uint8_t (*CFp_t)(void*);
 typedef uint16_t (*WFi_t)(int32_t);
 typedef uint16_t (*WFW_t)(uint16_t);
 typedef uint16_t (*WFu_t)(uint32_t);
+typedef uint16_t (*WFp_t)(void*);
 typedef uint32_t (*uFv_t)(void);
 typedef uint32_t (*uFi_t)(int32_t);
 typedef uint32_t (*uFu_t)(uint32_t);
@@ -1634,6 +1635,7 @@ void CFp_32(x64emu_t *emu, uintptr_t fcn) { CFp_t fn = (CFp_t)fcn; R_EAX = (unsi
 void WFi_32(x64emu_t *emu, uintptr_t fcn) { WFi_t fn = (WFi_t)fcn; R_EAX = (unsigned short)fn(from_ptri(int32_t, R_ESP + 4)); }
 void WFW_32(x64emu_t *emu, uintptr_t fcn) { WFW_t fn = (WFW_t)fcn; R_EAX = (unsigned short)fn(from_ptri(uint16_t, R_ESP + 4)); }
 void WFu_32(x64emu_t *emu, uintptr_t fcn) { WFu_t fn = (WFu_t)fcn; R_EAX = (unsigned short)fn(from_ptri(uint32_t, R_ESP + 4)); }
+void WFp_32(x64emu_t *emu, uintptr_t fcn) { WFp_t fn = (WFp_t)fcn; R_EAX = (unsigned short)fn(from_ptriv(R_ESP + 4)); }
 void uFv_32(x64emu_t *emu, uintptr_t fcn) { uFv_t fn = (uFv_t)fcn; R_EAX = (uint32_t)fn(); }
 void uFi_32(x64emu_t *emu, uintptr_t fcn) { uFi_t fn = (uFi_t)fcn; R_EAX = (uint32_t)fn(from_ptri(int32_t, R_ESP + 4)); }
 void uFu_32(x64emu_t *emu, uintptr_t fcn) { uFu_t fn = (uFu_t)fcn; R_EAX = (uint32_t)fn(from_ptri(uint32_t, R_ESP + 4)); }
