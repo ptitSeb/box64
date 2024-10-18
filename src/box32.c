@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <errno.h>
 
 #include "debug.h"
 #include "box32.h"
@@ -13,17 +15,18 @@ KHASH_MAP_INIT_INT64(to, ulong_t);
 KHASH_MAP_INIT_INT(from, uintptr_t);
 KHASH_MAP_INIT_STR(strings, ptr_t);
 
-static kh_from_t*   hash_from;
-static kh_to_t*     hash_to;
-#define HASH_MSK    0xff000000
+static kh_from_t*   hash_from = NULL;
+static kh_to_t*     hash_to = NULL;
+#define HASH_MSK    0xf000000f
 #define HASH_VAL    0x00ffffff
+#define HASH_SHIFT  4
 static uint32_t     hash_cnt = 1;
 static pthread_rwlock_t hash_lock = {0};
 static int          hash_running = 0;
 // locale
-static kh_from_t*   locale_from;
-static kh_to_t*     locale_to;
-static kh_strings_t* const_strings;
+static kh_from_t*   locale_from = NULL;
+static kh_to_t*     locale_to = NULL;
+static kh_strings_t* const_strings = NULL;
 
 
 void init_hash_helper() {
@@ -36,6 +39,8 @@ void init_hash_helper() {
     hash_running = 1;
 }
 void fini_hash_helper() {
+    if(!hash_running)
+        return;
     hash_running = 0;
     kh_destroy(from, hash_from);
     hash_from = NULL;
@@ -100,8 +105,7 @@ ulong_t to_hash(uintptr_t p) {
         // create a new key, but need write lock!
         pthread_rwlock_unlock(&hash_lock);
         pthread_rwlock_wrlock(&hash_lock);
-        ret = HASH_MSK | hash_cnt++;
-        if(hash_cnt==HASH_VAL) hash_cnt = 1;
+        ret = HASH_MSK | (((hash_cnt++)&HASH_VAL)<<HASH_SHIFT);
         int r;
         k = kh_put(to, hash_to, p, &r);
         kh_value(hash_to, k) = ret;
