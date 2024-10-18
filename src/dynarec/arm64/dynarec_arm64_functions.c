@@ -832,6 +832,12 @@ uint8_t flag2native(uint8_t flags)
     return ret;
 }
 
+int flagIsNative(uint8_t flags)
+{
+    if(flags&(X_AF|X_PF|X_CF)) return 0;
+    return 1;
+}
+
 static int markNativeFlags(dynarec_native_t* dyn, int ninst, uint8_t flags, int start)
 {
     while(ninst>=0) {
@@ -844,6 +850,7 @@ static int markNativeFlags(dynarec_native_t* dyn, int ninst, uint8_t flags, int 
         // flags destroyed, cancel native flags
         if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_UNUSABLE) return 0;
         if(dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_CANCELED) return 0;
+        if(!flagIsNative(dyn->insts[ninst].x64.use_flags))  return 0;
         if(start) {
             start = 0;
             flags |= flag2native(dyn->insts[ninst].x64.need_before);
