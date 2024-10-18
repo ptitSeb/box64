@@ -609,12 +609,14 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     CLEARIP();
     #ifdef HAVE_TRACE
     //MOVx(x3, 15);    no access to PC reg
-    #endif
+    BLR(x2); // save LR...
+    #else
     if (dyn->insts[ninst].x64.has_callret) {
         BLR(x2); // save LR...
     } else {
         BR(x2);
     }
+    #endif
 }
 
 void ret_to_epilog(dynarec_arm_t* dyn, int ninst, rex_t rex)
