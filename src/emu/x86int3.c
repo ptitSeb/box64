@@ -321,7 +321,7 @@ void x86Int3(x64emu_t* emu, uintptr_t* addr)
                     snprintf(buff, 256, "%04d|%p: Calling %s(0x%x, %d, 0x%x, %d, %d, %d, 0x%x, 0x%x, %p)", tid, from_ptrv(*(ptr_t*)from_ptrv(R_ESP)), (char *)s, *(uint32_t*)from_ptrv(R_ESP+4), *(int*)from_ptrv(R_ESP+8), *(int*)from_ptrv(R_ESP+12), *(int*)from_ptrv(R_ESP+16), *(int*)from_ptrv(R_ESP+20), *(int*)from_ptrv(R_ESP+24), *(uint32_t*)from_ptrv(R_ESP+28), *(uint32_t*)from_ptrv(R_ESP+32), from_ptrv(*(ptr_t*)from_ptrv(R_ESP+36)));
                 } else  if(strstr(s, "fscanf")==s) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(%p, \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
-                } else  if(strstr(s, "sscanf")==s) {
+                } else  if(strstr(s, "sscanf")==s || !strcmp(s, "__isoc99_sscanf")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
                 } else  if(!strcmp(s, "vsscanf")) {
                     snprintf(buff, 255, "%04d|%p: Calling %s(\"%s\", \"%s\", ...)", tid, from_ptrv(*(ptr_t*)from_ptr(R_ESP)), (char *)s, (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+4)), (char *)from_ptrv(*(ptr_t*)from_ptr(R_ESP+8)));
