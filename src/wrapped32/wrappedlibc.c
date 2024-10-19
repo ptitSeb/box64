@@ -39,6 +39,7 @@
 #include <grp.h>
 #include <sys/sysinfo.h>
 #include <sys/time.h>
+#include <regex.h>
 
 #include "wrappedlibs.h"
 
@@ -2957,6 +2958,44 @@ EXPORT ssize_t my32_process_vm_writev(x64emu_t* emu, int pid, struct i386_iovec*
         AlignIOV_32(remove_iovec_l+i, remote_iovec+i);
     return process_vm_writev(pid, local_iovec_l, liovect, remove_iovec_l, riovect, flags);
 }
+
+EXPORT int my32_regcomp(x64emu_t* emu, void* p, const char* r, int flags)
+{
+    regex_t p_l = {0};
+    int ret = regcomp(&p_l, r, flags);
+    convert_regext_to_32(p, &p_l);
+    return ret;
+}
+
+EXPORT int my32_regexec(x64emu_t* emu, void* p, const char* s, size_t nmatch, void* pmatch, int flags)
+{
+    regmatch_t pmatch_l[nmatch];
+    regex_t p_l;
+    convert_regext_to_64(&p_l, p);
+    memset(pmatch_l, 0, sizeof(pmatch_l));
+    int ret = regexec(&p_l, s, nmatch, pmatch_l, flags);
+    convert_regext_to_32(p, &p_l);
+    for(int i=0; i<nmatch; ++i)
+        to_struct_LL(to_ptrv(pmatch)+i*8, (struct_LL_t*)&pmatch_l[i]);
+    return ret;
+}
+
+EXPORT size_t my32_regerror(x64emu_t* emu, int code, void* p, char* buff, size_t size)
+{
+    regex_t p_l;
+    convert_regext_to_64(&p_l, p);
+    size_t ret = regerror(code, &p_l, buff, size);
+    convert_regext_to_32(p, &p_l);
+    return ret;
+}
+
+EXPORT void my32_regfree(x64emu_t* emu, void* p)
+{
+    regex_t p_l;
+    convert_regext_to_64(&p_l, p);
+    regfree(&p_l);
+}
+
 #if 0
 #ifndef __NR_memfd_create
 #define MFD_CLOEXEC		    0x0001U

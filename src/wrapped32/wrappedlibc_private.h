@@ -1371,10 +1371,10 @@ GOW(recvfrom, lFipLipp)
 //GOM(recvmmsg, iFEipuup)    //%% actual recvmmsg is glibc 2.12+. The syscall is Linux 2.6.33+, so use syscall...
 GOWM(recvmsg, lFEipi)
 // re_exec  // Weak
-//GOW(regcomp, iFppi)
-//GOW(regerror, uFippu)
-//GO(regexec, iFppupi)
-//GOW(regfree, vFp)
+GOWM(regcomp, iFEppi)
+GOWM(regerror, uFEippu)
+GOM(regexec, iFEppupi)
+GOWM(regfree, vFEp)
 GOM(__register_atfork, iFEpppp) //%%
 // register_printf_function // Weak
 // registerrpc

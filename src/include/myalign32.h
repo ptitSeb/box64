@@ -542,4 +542,50 @@ struct i386_group
   ptr_t gr_mem; // char **
 } __attribute__((packed, aligned(4)));
 
+typedef struct my_regex_s
+{
+  void*             buffer;   //struct re_dfa_t
+  size_t            allocated;
+  size_t            used;
+  unsigned long int syntax;
+  char*             fastmap;
+  unsigned char*    translate;
+  size_t            re_nsub;
+  unsigned          flags;
+  /*
+  unsigned          can_be_null : 1;
+  unsigned          regs_allocated : 2;
+  unsigned          fastmap_accurate : 1;
+  unsigned          no_sub : 1;
+  unsigned          not_bol : 1;
+  unsigned          not_eol : 1;
+  unsigned          newline_anchor : 1;
+  */
+} my_regex_t;
+
+typedef struct my_regex_32_s
+{
+  ptr_t             buffer;   //struct re_dfa_t
+  ulong_t           allocated;
+  ulong_t           used;
+  ulong_t           syntax;
+  ptr_t             fastmap;  //char*
+  ptr_t             translate;  //unsigned char*
+  ulong_t           re_nsub;
+  unsigned          flags;
+  /*
+  unsigned          can_be_null : 1;
+  unsigned          regs_allocated : 2;
+  unsigned          fastmap_accurate : 1;
+  unsigned          no_sub : 1;
+  unsigned          not_bol : 1;
+  unsigned          not_eol : 1;
+  unsigned          newline_anchor : 1;
+  */
+} my_regex_32_t;
+
+void convert_regext_to_32(void* d, void* s);
+void convert_regext_to_64(void* d, void* s);
+
+
 #endif//__MY_ALIGN32__H_

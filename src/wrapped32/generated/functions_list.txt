@@ -712,6 +712,7 @@
 #() iFEpuu -> iFEpuu
 #() iFEpup -> iFEpup
 #() iFEpLi -> iFEpLi
+#() iFEppi -> iFEppi
 #() iFEppu -> iFEppu
 #() iFEppL -> iFEppL
 #() iFEppp -> iFEppp
@@ -1025,6 +1026,7 @@
 #() iFXpipi -> iFXpipi
 #() iFXpppp -> iFXpppp
 #() IFXpIII -> IFXpIII
+#() uFEippu -> uFEippu
 #() uFpLLLS -> uFpLLLS
 #() UFuiCiu -> UFuiCiu
 #() lFpuipC -> lFpuipC
@@ -1154,6 +1156,7 @@
 #() iFEplluu -> iFEplluu
 #() iFEpLlpp -> iFEpLlpp
 #() iFEppipp -> iFEppipp
+#() iFEppupi -> iFEppupi
 #() iFEppllp -> iFEppllp
 #() iFEpppLp -> iFEpppLp
 #() iFEXLilp -> iFEXLilp
@@ -1595,6 +1598,7 @@ wrappedlibc:
 - vFv:
 - vFp:
   - freeaddrinfo
+  - regfree
 - iFv:
 - iFi:
   - __close_nocancel
@@ -1691,6 +1695,8 @@ wrappedlibc:
 - iFpii:
   - posix_spawn_file_actions_adddup2
 - iFpLi:
+- iFppi:
+  - regcomp
 - iFppp:
   - vswscanf
 - iFppV:
@@ -1735,6 +1741,8 @@ wrappedlibc:
   - getaddrinfo
 - iFSvpp:
 - iFSvpV:
+- uFippu:
+  - regerror
 - LFpBp_iv:
 - iFiippi:
 - iFipppp:
@@ -1746,6 +1754,8 @@ wrappedlibc:
 - iFpiLpp:
 - iFpipOi:
   - posix_spawn_file_actions_addopen
+- iFppupi:
+  - regexec
 - iFpppLp:
   - getgrnam_r
   - getpwnam_r

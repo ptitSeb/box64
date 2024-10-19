@@ -1572,3 +1572,33 @@ void AlignFlock_32(void* dest, void* source)
     #undef GO
 }
 #undef TRANSFERT
+
+void convert_regext_to_32(void* d, void* s)
+{
+    my_regex_32_t* dst = d;
+    my_regex_t* src = s;
+
+    dst->buffer = to_ptrv(src->buffer);
+    dst->allocated = to_ulong(src->allocated);
+    dst->used = to_ulong(src->used);
+    dst->syntax = to_ulong(src->syntax);
+    dst->fastmap = to_ptrv(src->fastmap);
+    dst->translate = to_ptrv(src->translate);
+    dst->re_nsub = to_ulong(src->re_nsub);
+    dst->flags = src->flags;
+}
+
+void convert_regext_to_64(void* d, void* s)
+{
+    my_regex_t* dst = d;
+    my_regex_32_t* src = s;
+
+    dst->buffer = from_ptrv(src->buffer);
+    dst->allocated = from_ulong(src->allocated);
+    dst->used = from_ulong(src->used);
+    dst->syntax = from_ulong(src->syntax);
+    dst->fastmap = from_ptrv(src->fastmap);
+    dst->translate = from_ptrv(src->translate);
+    dst->re_nsub = from_ulong(src->re_nsub);
+    dst->flags = src->flags;
+}
