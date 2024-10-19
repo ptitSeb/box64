@@ -178,11 +178,17 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETED(0);
             switch((nextop>>3)&7) {
+                case 0: //PREFETCH?
+                    __builtin_prefetch((void*)ED, 0, 0);
+                    break;
                 case 1: //PREFETCHW
                     __builtin_prefetch((void*)ED, 1, 0);
                     break;
-                default:    //???
-                    return 0;
+                case 2: //PREFETCHWT1
+                    __builtin_prefetch((void*)ED, 1, 0);
+                    break;
+                default:    //NOP
+                    break;
             }
             break;
         case 0x0E:                      /* FEMMS */

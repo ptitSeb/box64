@@ -190,13 +190,24 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x0D:
             nextop = F8;
             switch((nextop>>3)&7) {
+                case 0:
+                    INST_NAME("PREFETCH");
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff, 7, rex, NULL, 0, 0);
+                    PLD_L1_STREAM_U12(ed, fixedaddress);
+                    break;
                 case 1:
                     INST_NAME("PREFETCHW");
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff, 7, rex, NULL, 0, 0);
                     PST_L1_STREAM_U12(ed, fixedaddress);
                     break;
-                default:    //???
-                    DEFAULT;
+                case 2:
+                    INST_NAME("PREFETCHWT1");
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0xfff, 7, rex, NULL, 0, 0);
+                    PST_L1_STREAM_U12(ed, fixedaddress);
+                    break;
+                default:    //NOP
+                    FAKEED;
+                    break;
             }
             break;
         case 0x0E:
