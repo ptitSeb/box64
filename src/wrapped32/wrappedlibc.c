@@ -2969,14 +2969,10 @@ EXPORT int my32_regcomp(x64emu_t* emu, void* p, const char* r, int flags)
 
 EXPORT int my32_regexec(x64emu_t* emu, void* p, const char* s, size_t nmatch, void* pmatch, int flags)
 {
-    regmatch_t pmatch_l[nmatch];
     regex_t p_l;
     convert_regext_to_64(&p_l, p);
-    memset(pmatch_l, 0, sizeof(pmatch_l));
-    int ret = regexec(&p_l, s, nmatch, pmatch_l, flags);
+    int ret = regexec(&p_l, s, nmatch, pmatch, flags);
     convert_regext_to_32(p, &p_l);
-    for(int i=0; i<nmatch; ++i)
-        to_struct_LL(to_ptrv(pmatch)+i*8, (struct_LL_t*)&pmatch_l[i]);
     return ret;
 }
 

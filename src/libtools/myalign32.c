@@ -50,6 +50,7 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 'f': state += 10; break;    //  float
                     case 'd':
                     case 'i':
+                    case 'n':
                     case 'o': state += 20; break;   // int
                     case 'x':
                     case 'X':
@@ -70,7 +71,6 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
-                    case 'n':
                     case 'p':
                     case 'S':
                     case 's': state = 30; break; // pointers
@@ -181,6 +181,7 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
                     case 'f': state += 10; break;    //  float
                     case 'd':
                     case 'i':
+                    case 'n':
                     case 'o': state += 20; break;   // int
                     case 'u':
                     case 'x':
@@ -203,7 +204,6 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
                     case '-': ++p; break; // formating, ignored
                     case '[': state += 60; ++p; break;
                     case 'm': state = 0; ++p; break; // no argument
-                    case 'n':
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // string
@@ -309,6 +309,7 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                     case 'f': state += 10; break;    //  float
                     case 'd':
                     case 'i':
+                    case 'n':
                     case 'o': state += 20; break;   // int
                     case 'u':
                     case 'x':
@@ -331,7 +332,6 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                     case '-': ++p; break; // formating, ignored
                     case '[': state += 60; ++p; break;
                     case 'm': state = 0; ++p; break; // no argument
-                    case 'n':
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // strings
@@ -446,6 +446,7 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
                     case 'f': state += 10; break;    //  float
                     case 'd':
                     case 'i':
+                    case 'n':
                     case 'o': state += 20; break;   // int
                     case 'u':
                     case 'x':
@@ -467,7 +468,6 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
-                    case 'n':
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // strings
@@ -566,6 +566,7 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
                     case 'f': state += 10; break;    //  float
                     case 'd':
                     case 'i':
+                    case 'n':
                     case 'o': state += 20; break;   // int
                     case 'u':
                     case 'x':
@@ -587,7 +588,6 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case 'm': state = 0; ++p; break; // no argument
-                    case 'n':
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // string
