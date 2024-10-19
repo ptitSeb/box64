@@ -1001,6 +1001,7 @@
 #() iFiLLLL -> iFiLLLL
 #() iFipLLi -> iFipLLi
 #() iFippLi -> iFippLi
+#() iFipppp -> iFipppp
 #() iFuiuup -> iFuiuup
 #() iFpiiuu -> iFpiiuu
 #() iFpippp -> iFpippp
@@ -1736,6 +1737,8 @@ wrappedlibc:
 - iFSvpV:
 - LFpBp_iv:
 - iFiippi:
+- iFipppp:
+  - getopt_long
 - iFuppLp:
   - getgrgid_r
   - getpwuid_r

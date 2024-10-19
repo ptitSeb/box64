@@ -2284,6 +2284,7 @@ EXPORT int my32_getopt(int argc, char* const argv[], const char *optstring)
     return ret;
 }
 
+#endif
 EXPORT int my32_getopt_long(int argc, char* const argv[], const char* optstring, const struct option *longopts, int *longindex)
 {
     int ret = getopt_long(argc, argv, optstring, longopts, longindex);
@@ -2297,7 +2298,6 @@ EXPORT int my32_getopt_long_only(int argc, char* const argv[], const char* optst
     my32_checkGlobalOpt();
     return ret;
 }
-#endif
 
 EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 {

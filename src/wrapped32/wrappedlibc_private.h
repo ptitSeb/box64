@@ -532,7 +532,7 @@ GO(getnameinfo, iFpupupui)
 GOW(get_nprocs, iFv)
 //GOW(get_nprocs_conf, iFv)
 //GOM(getopt, iFipp)             //%noE
-//GOM(getopt_long, iFipppp)      //%noE
+GOM(getopt_long, iFipppp)      //%noE
 //GOM(getopt_long_only, iFipppp) //%noE
 GOW(getpagesize, iFv)
 GO(__getpagesize, iFv)

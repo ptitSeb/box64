@@ -16,6 +16,16 @@ void my_updateGlobalTInfo(void);
 void my_checkGlobalOpt(void);
 void my_updateGlobalOpt(void);
 
+#ifdef BOX32
+// NCurse / TInfo
+void my32_checkGlobalTInfo(void);
+void my32_updateGlobalTInfo(void);
+
+// getopt
+void my32_checkGlobalOpt(void);
+void my32_updateGlobalOpt(void);
+#endif
+
 // libxslt
 void my_checkGlobalXslt(void);
 void my_updateGlobalXslt(void);

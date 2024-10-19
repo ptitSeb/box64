@@ -92,6 +92,7 @@ typedef int32_t (*iFSvpp_t)(void*, void, void*, void*);
 typedef int32_t (*iFSvpV_t)(void*, void, void*, ...);
 typedef uintptr_t (*LFpBp_iv_t)(void*, struct_p_t*, int32_t, void);
 typedef int32_t (*iFiippi_t)(int32_t, int32_t, void*, void*, int32_t);
+typedef int32_t (*iFipppp_t)(int32_t, void*, void*, void*, void*);
 typedef int32_t (*iFuppLp_t)(uint32_t, void*, void*, uintptr_t, void*);
 typedef int32_t (*iFpvvpV_t)(void*, void, void, void*, ...);
 typedef int32_t (*iFpiLpp_t)(void*, int32_t, uintptr_t, void*, void*);
@@ -175,6 +176,7 @@ typedef int32_t (*iFpLiLppp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void
 	GO(utimensat, iFippi_t) \
 	GO(readlinkat, iFippL_t) \
 	GO(getaddrinfo, iFpppp_t) \
+	GO(getopt_long, iFipppp_t) \
 	GO(getgrgid_r, iFuppLp_t) \
 	GO(getpwuid_r, iFuppLp_t) \
 	GO(posix_spawn_file_actions_addopen, iFpipOi_t) \
