@@ -201,6 +201,13 @@ EXPORT void* my32_2_SDL_JoystickGetDeviceGUID(void* ret, int index)
    return ret;
 }
 
+EXPORT void* my32_2_SDL_JoystickGetGUIDFromString(void* ret, void* s)
+{
+   *(SDL2_GUID_t*)ret = my->SDL_JoystickGetGUIDFromString(s);
+   return ret;
+}
+
+
 EXPORT int my32_2_SDL_OpenAudio(x64emu_t* emu, void* d, void* o)
 {
     SDL2_AudioSpec desired = { 0 };
@@ -441,6 +448,10 @@ EXPORT void my32_2_SDL_AddEventWatch(x64emu_t* emu, void* p, void* userdata)
 EXPORT void my32_2_SDL_DelEventWatch(x64emu_t* emu, void* p, void* userdata)
 {
     my->SDL_DelEventWatch(find_eventfilter_Fct(p), userdata);
+}
+EXPORT void my32_2_SDL_SetEventFilter(x64emu_t* emu, void* p, void* userdata)
+{
+    my->SDL_SetEventFilter(find_eventfilter_Fct(p), userdata);
 }
 
 EXPORT void* my32_2_SDL_RWFromFile(x64emu_t* emu, void* a, void* b)

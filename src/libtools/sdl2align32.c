@@ -222,6 +222,11 @@ void convert_SDL2_Event_to_64(void* dst_, const void* src_)
             dst->cbutton.padding1 = src->cbutton.padding1;
             dst->cbutton.padding2 = src->cbutton.padding2;
             break;
+        case SDL2_SYSWMEVENT:
+            dst->syswm.type = src->syswm.type;
+            dst->syswm.timestamp = src->syswm.timestamp;
+            dst->syswm.msg = from_ptrv(src->syswm.msg);
+            break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);
             if(dst_!=src_)
@@ -394,6 +399,11 @@ void convert_SDL2_Event_to_32(void* dst_, const void* src_)
             dst->cbutton.state = src->cbutton.state;
             dst->cbutton.padding1 = src->cbutton.padding1;
             dst->cbutton.padding2 = src->cbutton.padding2;
+            break;
+        case SDL2_SYSWMEVENT:
+            dst->syswm.type = src->syswm.type;
+            dst->syswm.timestamp = src->syswm.timestamp;
+            dst->syswm.msg = to_ptrv_silent(src->syswm.msg);    // msg would need translation probably!
             break;
         default:
             printf_log(LOG_INFO, "Warning, unsuported SDL2 event %d\n", src->type);

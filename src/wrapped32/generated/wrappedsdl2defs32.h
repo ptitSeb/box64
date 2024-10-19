@@ -6,5 +6,7 @@
 
 #define JFEi pFEpi
 #define JFEi_32 pFEpi_32
+#define JFEp pFEpp
+#define JFEp_32 pFEpp_32
 
 #endif // __wrappedsdl2DEFS32_H_

@@ -186,6 +186,7 @@
 #() IFpu -> IFpu
 #() CFip -> CFip
 #() CFCi -> CFCi
+#() CFui -> CFui
 #() CFuu -> CFuu
 #() CFuU -> CFuU
 #() CFpi -> CFpi
@@ -427,6 +428,7 @@
 #() iFpup -> iFpup
 #() iFpUU -> iFpUU
 #() iFpfu -> iFpfu
+#() iFpff -> iFpff
 #() iFpli -> iFpli
 #() iFpll -> iFpll
 #() iFpLi -> iFpLi
@@ -749,6 +751,8 @@
 #() iFpiuu -> iFpiuu
 #() iFpili -> iFpili
 #() iFpipp -> iFpipp
+#() iFpCCC -> iFpCCC
+#() iFpWWu -> iFpWWu
 #() iFpuLp -> iFpuLp
 #() iFpupi -> iFpupi
 #() iFpupp -> iFpupp
@@ -797,6 +801,7 @@
 #() uFuuuu -> uFuuuu
 #() uFpCCC -> uFpCCC
 #() uFppip -> uFppip
+#() uFpppi -> uFpppi
 #() lFEipi -> lFEipi
 #() lFEppL -> lFEppL
 #() lFiipL -> lFiipL
@@ -2340,9 +2345,12 @@ wrappedsdl2:
   - SDL_GetThreadID
 - JFi:
   - SDL_JoystickGetDeviceGUID
+- JFp:
+  - SDL_JoystickGetGUIDFromString
 - vFpp:
   - SDL_AddEventWatch
   - SDL_DelEventWatch
+  - SDL_SetEventFilter
   - SDL_SetWindowIcon
 - vFpV:
   - SDL_Log
@@ -2402,6 +2410,7 @@ wrappedsdl2:
 - pFpiiiiuuuu:
   - SDL_CreateRGBSurfaceFrom
 % JFEi -> pFEpi
+% JFEp -> pFEpp
 wrappedsdl2image:
 - pFp:
   - IMG_Load

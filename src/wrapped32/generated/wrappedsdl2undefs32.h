@@ -6,5 +6,7 @@
 
 #undef JFEi
 #undef JFEi_32
+#undef JFEp
+#undef JFEp_32
 
 #endif // __wrappedsdl2UNDEFS32_H_

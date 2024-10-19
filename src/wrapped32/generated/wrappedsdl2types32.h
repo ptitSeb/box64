@@ -18,6 +18,7 @@ typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
 typedef uintptr_t (*hFp_t)(void*);
 typedef SDL2_GUID_t (*JFi_t)(int32_t);
+typedef SDL2_GUID_t (*JFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
 typedef int32_t (*iFip_t)(int32_t, void*);
@@ -55,8 +56,10 @@ typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32
 	GO(SDL_GL_GetProcAddress, pFp_t) \
 	GO(SDL_GetThreadID, hFp_t) \
 	GO(SDL_JoystickGetDeviceGUID, JFi_t) \
+	GO(SDL_JoystickGetGUIDFromString, JFp_t) \
 	GO(SDL_AddEventWatch, vFpp_t) \
 	GO(SDL_DelEventWatch, vFpp_t) \
+	GO(SDL_SetEventFilter, vFpp_t) \
 	GO(SDL_SetWindowIcon, vFpp_t) \
 	GO(SDL_Log, vFpV_t) \
 	GO(SDL_GetCurrentDisplayMode, iFip_t) \
