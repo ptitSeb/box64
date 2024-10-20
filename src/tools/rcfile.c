@@ -167,6 +167,7 @@ ENTRYBOOL(BOX64_DYNAREC_TBB, box64_dynarec_tbb)                     \
 IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
 ENTRYBOOL(BOX64_DYNAREC_ALIGNED_ATOMICS, box64_dynarec_aligned_atomics) \
+ENTRYBOOL(BOX64_DYNAREC_NATIVEFLAGS, box64_dynarec_nativeflags)     \
 ENTRYBOOL(BOX64_DYNAREC_WAIT, box64_dynarec_wait)                   \
 ENTRYSTRING_(BOX64_NODYNAREC, box64_nodynarec)                      \
 ENTRYSTRING_(BOX64_DYNAREC_TEST, box64_dynarec_test)                \
@@ -192,6 +193,7 @@ IGNORE(BOX64_DYNAREC_TBB)                                           \
 IGNORE(BOX64_DYNAREC_HOTPAGE)                                       \
 IGNORE(BOX64_DYNAREC_FASTPAGE)                                      \
 IGNORE(BOX64_DYNAREC_ALIGNED_ATOMICS)                               \
+IGNORE(BOX64_DYNAREC_NATIVEFLAGS)                                   \
 IGNORE(BOX64_DYNAREC_WAIT)                                          \
 IGNORE(BOX64_NODYNAREC)                                             \
 IGNORE(BOX64_DYNAREC_TEST)                                          \

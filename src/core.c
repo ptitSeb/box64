@@ -90,6 +90,7 @@ int box64_dynarec_tbb = 1;
 int box64_dynarec_wait = 1;
 int box64_dynarec_missing = 0;
 int box64_dynarec_aligned_atomics = 0;
+int box64_dynarec_nativeflags = 1;
 uintptr_t box64_nodynarec_start = 0;
 uintptr_t box64_nodynarec_end = 0;
 uintptr_t box64_dynarec_test_start = 0;
@@ -882,6 +883,15 @@ void LoadLogEnv()
         }
         if(box64_dynarec_aligned_atomics)
             printf_log(LOG_INFO, "Dynarec will generate only aligned atomics code\n");
+    }
+    p = getenv("BOX64_DYNAREC_NATIVEFLAGS");
+    if(p) {
+        if(strlen(p)==1) {
+            if(p[0]>='0' && p[0]<='1')
+                box64_dynarec_nativeflags = p[0]-'0';
+        }
+        if(!box64_dynarec_nativeflags)
+            printf_log(LOG_INFO, "Dynarec will not use native flags if possible\n");
     }
     p = getenv("BOX64_DYNAREC_MISSING");
     if(p) {

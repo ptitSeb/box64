@@ -204,6 +204,11 @@ Generated code for aligned atomics only
 * 0 : The code generated can handle unaligned atomics (Default)
 * 1 : Generated code only for aligned atomics (faster and less code generated, but will SEGBUS if LOCK prefix is unused on unaligned data)
 
+#### BOX64_DYNAREC_NATIVEFLAGS *
+Generate code will use native flags if possible
+* 0 : The code generated whill not use native flags even when possible
+* 1 : Generated code will use native flags when possible (Arm64 only for now) (Default)
+
 #### BOX64_DYNAREC_BLEEDING_EDGE *
 Detect MonoBleedingEdge and apply conservative settings
 * 0 : Don't detect MonoBleedingEdge
