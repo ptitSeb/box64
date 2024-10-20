@@ -2753,13 +2753,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UFLAG_IF {
                         UFLAG_DF(x2, d_none);
                     }
-                    MOV64xw(x4, (rex.w?64:32));
-                    SUBx_REG(x3, x4, x3);
                     GETED(0);
                     UFLAG_IF {
                         if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                         CBZw_NEXT(x3);
                     }
+                    MOV64xw(x4, (rex.w?64:32));
+                    SUBx_REG(x3, x4, x3);
                     RORxw_REG(ed, ed, x3);
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
@@ -2884,7 +2884,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 7:
                     INST_NAME("SAR Ed, CL");
-                    SETFLAGS(X_ALL, SF_PENDING);
+                    SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     if(rex.w) {
@@ -2897,11 +2897,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                         CBZw_NEXT(x3);
                     }
-                    UFLAG_OP12(ed, x3);
-                    ASRxw_REG(ed, ed, x3);
+                    emit_sar32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, rex.w?d_sar64:d_sar32);
                     break;
             }
             break;

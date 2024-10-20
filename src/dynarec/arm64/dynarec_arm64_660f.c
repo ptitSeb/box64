@@ -2344,11 +2344,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 MAYSETFLAGS();
             GETGW(x2);
             GETEW(x1, 0);
+            ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
             UFLAG_IF {
-                ANDSw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
-                B_NEXT(cEQ);
-            } else {
-                ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
+                CBZw_NEXT(x4);
             }
             emit_shld16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
@@ -2401,11 +2399,10 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 MAYSETFLAGS();
             GETGW(x2);
             GETEW(x1, 0);
+            ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
             UFLAG_IF {
-                ANDSw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
-                B_NEXT(cEQ);
+                CBZw_NEXT(x4);
             } else {
-                ANDw_mask(x4, xRCX, 0, 0b00100);  //mask=0x00000001f
             }
             emit_shrd16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
@@ -2586,14 +2583,22 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEW(x1, 0);  // Get EW
-            TSTw_REG(x1, x1);
-            B_MARK(cEQ);
+            IFX(X_ZF) {
+                TSTw_REG(x1, x1);
+                B_MARK(cEQ);
+            } else {
+                CBZw_MARK(x1);
+            }
             RBITw(x1, x1);   // reverse
             CLZw(x2, x1);    // x2 gets leading 0 == BSF
             BFIx(gd, x2, 0, 16);
             MARK;
-            CSETw(x1, cEQ);    //ZF not set
-            BFIw(xFlags, x1, F_ZF, 1);
+            IFX(X_ZF) {
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x1, cEQ);    //ZF not set
+                    BFIw(xFlags, x1, F_ZF, 1);
+                }
+            }
             break;
         case 0xBD:
             INST_NAME("BSR Gw,Ew");
@@ -2602,16 +2607,24 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGD;
             GETEW(x1, 0);  // Get EW
-            TSTw_REG(x1, x1);   // Don't use CBZ here, as the flag is reused later
-            B_MARK(cEQ);
+            IFX(X_ZF) {
+                TSTw_REG(x1, x1);   // Don't use CBZ here, as the flag is reused later
+                B_MARK(cEQ);
+            } else {
+                CBZw_MARK(x1);
+            }
             LSLw(x1, x1, 16);   // put bits on top
             CLZw(x2, x1);       // x2 gets leading 0
             SUBw_U12(x2, x2, 15);
             NEGw_REG(x2, x2);   // complement
             BFIx(gd, x2, 0, 16);
             MARK;
-            CSETw(x1, cEQ);    //ZF not set
-            BFIw(xFlags, x1, F_ZF, 1);
+            IFX(X_ZF) {
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(x1, cEQ);    //ZF not set
+                    BFIw(xFlags, x1, F_ZF, 1);
+                }
+            }
             break;
         case 0xBE:
             INST_NAME("MOVSX Gw, Eb");

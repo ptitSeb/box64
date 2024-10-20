@@ -69,8 +69,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             switch(nextop) {
                 case 0xD0:
                     INST_NAME("XGETBV");
-                    CMPSw_REG(xRCX, xZR);
-                    B_MARK(cEQ);
+                    CBZw_MARK(xRCX);
                     UDF(0);
                     MARK;
                     MOV32w(xRAX, 0b111);
@@ -154,8 +153,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             CALL_S(x64Syscall, -1);
             LOAD_XEMU_CALL(xRIP);
             TABLE64(x3, addr); // expected return address
-            CMPSx_REG(xRIP, x3);
-            B_MARK(cNE);
+            SUBx_REG(x3, x3, xRIP);
+            CBNZx_MARK(x3);
             LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
             CBZw_NEXT(w1);
             MARK;
@@ -1679,11 +1678,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
             if(rex.w) {
-                ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
             } else {
-                ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
             }
-            B_NEXT(cEQ);
+            CBZw_NEXT(x3);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x5, x4);
             WBACK;
             break;
@@ -1760,11 +1759,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETED(0);
             if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
             if(rex.w) {
-                ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
             } else {
-                ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
             }
-            B_NEXT(cEQ);
+            CBZw_NEXT(x3);
             emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4);
             WBACK;
             break;
@@ -1936,20 +1935,16 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 wback = 0;
                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
                 MOVxw_REG(x1, ed);  // save value
-                CMPSxw_REG(xRAX, x1);
-                if(rex.w) {
-                    CSELxw(ed, gd, ed, cEQ);
-                } else {
-                    B_MARK2(cNE);
-                    MOVw_REG(ed, gd);
-                    MARK2;
-                }
+                SUBxw_REG(x4, xRAX, x1);
+                CBNZxw_MARK2(x4);
+                MOVxw_REG(ed, gd);
+                MARK2;
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
                 LDxw(x1, wback, fixedaddress);
                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, x1, x3, x4, x5);}
-                CMPSxw_REG(xRAX, x1);
-                B_MARK(cNE);
+                SUBxw_REG(x4, xRAX, x1);
+                CBNZxw_MARK(x4);
                 // EAX == Ed
                 STxw(gd, wback, fixedaddress);
                 MARK;
@@ -2167,8 +2162,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
-            TSTxw_REG(ed, ed);
-            B_MARK(cEQ);
+            IFX(X_ZF) {
+                TSTxw_REG(ed, ed);
+                B_MARK(cEQ);
+            } else {
+                CBZxw_MARK(ed);
+            }
             RBITxw(x1, ed);   // reverse
             CLZxw(gd, x1);    // x2 gets leading 0 == BSF
             MARK;
@@ -2186,8 +2185,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
-            TSTxw_REG(ed, ed);
-            B_MARK(cEQ);
+            IFX(X_ZF) {
+                TSTxw_REG(ed, ed);
+                B_MARK(cEQ);
+            } else {
+                CBZxw_MARK(ed);
+            }
             CLZxw(gd, ed);    // x2 gets leading 0
             SUBxw_U12(gd, gd, rex.w?63:31);
             NEGxw_REG(gd, gd);   // complement
@@ -2411,18 +2414,20 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 B_MARK(cNE);    // EAX!=ED[0] || EDX!=Ed[1]
                 STPxw_S7_offset(xRBX, xRCX, wback, 0);
                 UFLAG_IF {
-                    MOV32w(x1, 1);
+                    IFNATIVE(NF_EQ) {} else {MOV32w(x1, 1);}
                 }
                 B_MARK3_nocond;
                 MARK;
                 MOVxw_REG(xRAX, x2);
                 MOVxw_REG(xRDX, x3);
                 UFLAG_IF {
-                    MOV32w(x1, 0);
+                    IFNATIVE(NF_EQ) {} else {MOV32w(x1, 0);}
                 }
                 MARK3;
                 UFLAG_IF {
-                    BFIw(xFlags, x1, F_ZF, 1);
+                    IFNATIVE(NF_EQ) {} else {
+                        BFIw(xFlags, x1, F_ZF, 1);
+                    }
                 }
                 SMWRITE();
                 break;

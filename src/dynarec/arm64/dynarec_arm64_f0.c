@@ -96,7 +96,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
-            if((nextop&0xC0)==0xC0) {
+            if(MODREG) {
                 ed = xRAX+(nextop&7)+(rex.b<<3);
                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4);
             } else {
@@ -271,8 +271,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 wb1 = 0;
                                 ed = x2;
                                 UFLAG_IF {emit_cmp8(dyn, ninst, x6, ed, x3, x4, x5);}
-                                CMPSxw_REG(x6, x2);
-                                B_MARK2(cNE);
+                                SUBxw_REG(x6, x6, x2);
+                                CBNZxw_MARK2(x6);
                                 BFIx(wback, x2, wb2, 8);
                                 MOVxw_REG(ed, gd);
                                 MARK2;
@@ -321,8 +321,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 wback = 0;
                                 UFLAG_IF {emit_cmp32(dyn, ninst, rex, xRAX, ed, x3, x4, x5);}
                                 MOVxw_REG(x1, ed);  // save value
-                                CMPSxw_REG(xRAX, x1);
-                                B_MARK2(cNE);
+                                SUBxw_REG(x3, xRAX, x1);
+                                CBNZxw_MARK2(x3);
                                 MOVxw_REG(ed, gd);
                                 MARK2;
                                 MOVxw_REG(xRAX, x1);
@@ -719,7 +719,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             UFLAG_IF {
                                 CMPSxw_REG(x2, xRAX);
                                 CCMPxw(x3, xRDX, 0, cEQ);
-                                CSETw(x1, cEQ);
+                                IFNATIVE(NF_EQ) {} else {CSETw(x1, cEQ);}
                             }
                             MOVx_REG(xRAX, x2);
                             MOVx_REG(xRDX, x3);
@@ -735,7 +735,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             STLXPxw(x4, xRBX, xRCX, wback);
                             CBNZx_MARKLOCK(x4);
                             UFLAG_IF {
-                                MOV32w(x1, 1);
+                                IFNATIVE(NF_EQ) {} else {MOV32w(x1, 1);}
                             }
                             B_MARK3_nocond;
                             MARK;
@@ -744,7 +744,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVxw_REG(xRAX, x2);
                             MOVxw_REG(xRDX, x3);
                             UFLAG_IF {
-                                MOV32w(x1, 0);
+                                IFNATIVE(NF_EQ) {} else {MOV32w(x1, 0);}
                             }
                             if(!ALIGNED_ATOMICxw) {
                                 B_MARK3_nocond;
@@ -761,7 +761,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             CBNZx_MARK2(x4);
                             STPxw_S7_offset(xRBX, xRCX, wback, 0);
                             UFLAG_IF {
-                                MOV32w(x1, 1);
+                                IFNATIVE(NF_EQ) {} else {MOV32w(x1, 1);}
                             }
                             B_MARK3_nocond;
                             MARKSEG;
@@ -770,13 +770,13 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOVxw_REG(xRAX, x2);
                             MOVxw_REG(xRDX, x3);
                             UFLAG_IF {
-                                MOV32w(x1, 0);
+                                IFNATIVE(NF_EQ) {} else {MOV32w(x1, 0);}
                             }
                         }
                         MARK3;
                         SMDMB();
                         UFLAG_IF {
-                            BFIw(xFlags, x1, F_ZF, 1);
+                            IFNATIVE(NF_EQ) {} else {BFIw(xFlags, x1, F_ZF, 1);}
                         }
                         break;
                     default:

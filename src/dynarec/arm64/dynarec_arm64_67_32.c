@@ -92,9 +92,9 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
             READFLAGS(X_ZF);
             i8 = F8S;
             UXTHw(x1, xRCX);
-            SUBSw_U12(x1, x1, 1);
+            SUBw_U12(x1, x1, 1);
             BFIx(xRCX, x1, 0, 16);
-            B_NEXT(cEQ);    // ECX is 0, no LOOP
+            CBZw_NEXT(x1);    // ECX is 0, no LOOP
             TSTw_mask(xFlags, 0b011010, 0); //mask=0x40
             GO(cNE, cEQ);
             break;
@@ -103,9 +103,9 @@ uintptr_t dynarec64_67_32(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int 
             READFLAGS(X_ZF);
             i8 = F8S;
             UXTHw(x1, xRCX);
-            SUBSw_U12(x1, x1, 1);
+            SUBw_U12(x1, x1, 1);
             BFIx(xRCX, x1, 0, 16);
-            B_NEXT(cEQ);    // ECX is 0, no LOOP
+            CBZw_NEXT(x1);    // ECX is 0, no LOOP
             TSTw_mask(xFlags, 0b011010, 0); //mask=0x40
             GO(cEQ, cNE);
             break;

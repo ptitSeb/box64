@@ -581,8 +581,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 if(!ALIGNED_ATOMICH) {
-                    TSTx_mask(ed, 1, 0, 0);    // mask=1
-                    B_MARK(cNE);
+                    TBNZ_MARK(ed, 0);
                 }
                 if(arm64_atomics) {
                     SWPALH(gd, x1, ed);
@@ -1161,8 +1160,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
-                        TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     ANDw_mask(x2, xRCX, 0, 0b00011);  //mask=0x00000000f
                     MOV32w(x4, 16);
@@ -1172,9 +1171,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LSRw_REG(ed, ed, x2);
                     EWBACK;
                     UFLAG_IF {  // calculate flags directly
-                        CMPSw_U12(x2, 15);
-                        B_MARK(cNE);
-                            ADDxw_REG_LSR(x3, ed, ed, 15);
+                        SUBw_U12(x2, x2, 15);
+                        CBNZw_MARK(x2);
+                            EORw_REG_LSR(x3, ed, ed, 15);
                             BFIw(xFlags, x3, F_OF, 1);
                         MARK;
                         BFIw(xFlags, ed, F_CF, 1);
@@ -1187,8 +1186,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     UFLAG_IF {
-                        TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     ANDw_mask(x2, xRCX, 0, 0b00011);  //mask=0x00000000f
                     GETEW(x1, 0);
@@ -1196,8 +1195,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LSRw_REG(ed, ed, x2);
                     EWBACK;
                     UFLAG_IF {  // calculate flags directly
-                        CMPSw_U12(x2, 1);
-                        B_MARK(cNE);
+                        SUBw_U12(x2, x2, 1);
+                        CBNZw_MARK(x2);
                             LSRxw(x2, ed, 14); // x2 = d>>14
                             EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>14) ^ ((d>>14)>>1))
                             BFIw(xFlags, x2, F_OF, 1);
@@ -1236,11 +1235,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
-                    } else {
-                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     GETEW(x1, 0);
                     emit_shl16(dyn, ninst, x1, x2, x5, x4);
@@ -1251,11 +1248,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
-                    } else {
-                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     GETEW(x1, 0);
                     emit_shr16(dyn, ninst, x1, x2, x5, x4);
@@ -1266,11 +1261,10 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
+                        CBZw_NEXT(x2);
                     } else {
-                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETSEW(x1, 0);
                     emit_sar16(dyn, ninst, x1, x2, x5, x4);
