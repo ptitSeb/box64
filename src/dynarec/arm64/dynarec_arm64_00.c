@@ -2619,8 +2619,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MAYSETFLAGS();
                     UFLAG_IF {
                         UFLAG_DF(x2, d_none);
-                        TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     ANDw_mask(x2, xRCX, 0, 0b00010);  //mask=0x000000007
                     MOV32w(x4, 8);
@@ -2631,8 +2631,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     EBBACK;
                     UFLAG_IF {  // calculate flags directly
                         IFX(X_OF) {
-                            CMPSw_U12(x2, 7);
-                            B_MARK(cNE);
+                            SUBw_U12(x3, x2, 7);
+                            CBNZw_MARK(x3);
                                 EORxw_REG_LSR(x3, ed, ed, 7);
                                 BFIw(xFlags, x3, F_OF, 1);
                             MARK;
@@ -2649,8 +2649,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         MAYSETFLAGS();
                     UFLAG_IF {
                         UFLAG_DF(x2, d_none);
-                        TSTw_mask(xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     ANDw_mask(x2, xRCX, 0, 0b00010);  //mask=0x000000007
                     GETEB(x1, 0);
@@ -2659,8 +2659,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     EBBACK;
                     UFLAG_IF {  // calculate flags directly
                         IFX(X_OF) {
-                            CMPSw_U12(x2, 1);
-                            B_MARK(cNE);
+                            SUBw_U12(x3, x2, 1);
+                            CBNZw_MARK(x3);
                                 LSRxw(x2, ed, 6); // x2 = d>>6
                                 EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>6) ^ ((d>>6)>>1))
                                 BFIw(xFlags, x2, F_OF, 1);
@@ -2678,7 +2678,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    ANDSw_mask(x2, xRCX, 0, 0b00100);
+                    ANDw_mask(x2, xRCX, 0, 0b00100);
                     GETEB(x1, 0);
                     CALL_(rcl8, x1, x3);
                     EBBACK;
@@ -2690,7 +2690,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     SETFLAGS(X_OF|X_CF, SF_SET_DF);
-                    ANDSw_mask(x2, xRCX, 0, 0b00100);
+                    ANDw_mask(x2, xRCX, 0, 0b00100);
                     GETEB(x1, 0);
                     CALL_(rcr8, x1, x3);
                     EBBACK;
@@ -2701,11 +2701,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
-                    } else {
-                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     GETEB(x1, 0);
                     emit_shl8(dyn, ninst, x1, x2, x5, x4);
@@ -2716,11 +2714,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
-                    } else {
-                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     GETEB(x1, 0);
                     emit_shr8(dyn, ninst, x1, x2, x5, x4);
@@ -2731,11 +2727,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     UFLAG_IF {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        B_NEXT(cEQ);
-                    } else {
-                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        CBZw_NEXT(x2);
                     }
                     GETSEB(x1, 0);
                     emit_sar8(dyn, ninst, x1, x2, x5, x4);
@@ -2751,34 +2745,28 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    if(rex.w) {
+                        ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
                     UFLAG_IF {
                         UFLAG_DF(x2, d_none);
-                        if(rex.w) {
-                            ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
-                    } else {
-                        if(rex.w) {
-                            ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
                     }
                     MOV64xw(x4, (rex.w?64:32));
                     SUBx_REG(x3, x4, x3);
                     GETED(0);
                     UFLAG_IF {
                         if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-                        B_NEXT(cEQ);
+                        CBZw_NEXT(x3);
                     }
                     RORxw_REG(ed, ed, x3);
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
                         IFX(X_OF) {
-                            CMPSw_U12(x3, rex.w?63:31);
-                            B_MARK(cNE);
-                                ADDxw_REG_LSR(x1, ed, ed, rex.w?63:31);
+                            SUBw_U12(x3, x3, rex.w?63:31);
+                            CBNZw_MARK(x3);
+                                EORxw_REG_LSR(x1, ed, ed, rex.w?63:31);
                                 BFIw(xFlags, x1, F_OF, 1);
                             MARK;
                         }
@@ -2792,31 +2780,25 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_OF|X_CF, SF_SUBSET);
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
+                    if(rex.w) {
+                        ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                    } else {
+                        ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
+                    }
                     UFLAG_IF {
                         UFLAG_DF(x2, d_none);
-                        if(rex.w) {
-                            ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
-                    } else {
-                        if(rex.w) {
-                            ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
                     }
                     GETED(0);
                     UFLAG_IF {
                         if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-                        B_NEXT(cEQ);
+                        CBZw_NEXT(x3);
                     }
                     RORxw_REG(ed, ed, x3);
                     WBACK;
                     UFLAG_IF {  // calculate flags directly
                         IFX(X_OF) {
-                            CMPSw_U12(x3, 1);
-                            B_MARK(cNE);
+                            SUBw_U12(x2, x3, 1);
+                            CBNZw_MARK(x2);
                                 LSRxw(x2, ed, rex.w?62:30); // x2 = d>>30
                                 EORw_REG_LSR(x2, x2, x2, 1); // x2 = ((d>>30) ^ ((d>>30)>>1))
                                 BFIw(xFlags, x2, F_OF, 1);
@@ -2835,13 +2817,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     if(rex.w) {
-                        ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                        ANDx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETEDW(x4, x1, 0);
                     if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-                    B_NEXT(cEQ);
+                    CBZw_NEXT(x2);
                     CALL_(rex.w?((void*)rcl64):((void*)rcl32), ed, x4);
                     WBACK;
                     break;
@@ -2853,13 +2835,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
                     if(rex.w) {
-                        ANDSx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
+                        ANDx_mask(x2, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
-                        ANDSw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
+                        ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETEDW(x4, x1, 0);
                     if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-                    B_NEXT(cEQ);
+                    CBZw_NEXT(x2);
                     CALL_(rex.w?((void*)rcr64):((void*)rcr32), ed, x4);
                     WBACK;
                     break;
@@ -2869,23 +2851,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    UFLAG_IF {
-                        if(rex.w) {
-                            ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
+                    if(rex.w) {
+                        ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
-                        if(rex.w) {
-                            ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
+                        ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETED(0);
                     UFLAG_IF {
                         if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-                        B_NEXT(cEQ);
+                        CBZw_NEXT(x3);
                     }
                     emit_shl32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
@@ -2895,23 +2869,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);    // some flags are left undefined
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    UFLAG_IF {
-                        if(rex.w) {
-                            ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
+                    if(rex.w) {
+                        ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
-                        if(rex.w) {
-                            ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
+                        ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETED(0);
                     UFLAG_IF {
                         if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-                        B_NEXT(cEQ);
+                        CBZw_NEXT(x3);
                     }
                     emit_shr32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
@@ -2921,23 +2887,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_PENDING);
                     if(box64_dynarec_safeflags>1)
                         MAYSETFLAGS();
-                    UFLAG_IF {
-                        if(rex.w) {
-                            ANDSx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDSw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
+                    if(rex.w) {
+                        ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
                     } else {
-                        if(rex.w) {
-                            ANDx_mask(x3, xRCX, 1, 0, 0b00101);  //mask=0x000000000000003f
-                        } else {
-                            ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
-                        }
+                        ANDw_mask(x3, xRCX, 0, 0b00100);  //mask=0x00000001f
                     }
                     GETED(0);
                     UFLAG_IF {
                         if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
-                        B_NEXT(cEQ);
+                        CBZw_NEXT(x3);
                     }
                     UFLAG_OP12(ed, x3);
                     ASRxw_REG(ed, ed, x3);

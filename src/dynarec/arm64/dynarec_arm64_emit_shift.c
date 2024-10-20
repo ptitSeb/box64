@@ -1195,7 +1195,7 @@ void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint
         BFXILxw(xFlags, s1, c-1, 1);    // set CF
     }
     IFX(X_OF) {
-        if(c==1) {
+        if((c==1) || box64_dynarec_test) {
             LSRxw(s4, s1, rex.w?63:31);
             BFIw(xFlags, s4, F_OF, 1);  // store sign for later use
         }
@@ -1331,8 +1331,8 @@ void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
     IFX(X_OF) {
-        SUBw_U12(s5, s5, 1);
-        CBNZw(s5, 4+2*4);    //flagless jump
+        SUBw_U12(s3, s5, 1);
+        CBNZw(s3, 4+2*4);    //flagless jump
             UBFXx(s3, s1, rex.w?63:31, 1);
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
@@ -1384,8 +1384,8 @@ void emit_shld32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
     IFX(X_OF) {
-        SUBw_U12(s5, s5, 1);
-        CBNZw(s5, 4+2*4);    //flagless jump
+        SUBw_U12(s3, s5, 1);
+        CBNZw(s3, 4+2*4);    //flagless jump
             UBFXx(s3, s1, rex.w?63:31, 1);
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
@@ -1465,8 +1465,8 @@ void emit_shrd16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
     }
     COMP_ZFSF(s1, 16)
     IFX(X_OF) {
-        SUBw_U12(s5, s5, 1);
-        CBNZw(s5, 4+2*4);
+        SUBw_U12(s3, s5, 1);
+        CBNZw(s3, 4+2*4);
             UBFXw(s3, s1, 15, 1);
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
@@ -1556,8 +1556,8 @@ void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
     }
     COMP_ZFSF(s1, 16)
     IFX(X_OF) {
-        SUBw_U12(s5, s5, 1);
-        CBNZw(s5, 4+2*4);
+        SUBw_U12(s3, s5, 1);
+        CBNZw(s3, 4+2*4);
             UBFXw(s3, s1, 15, 1);
             EORw_REG_LSL(xFlags, xFlags, s3, F_OF);  // OF is set if sign changed
     }
