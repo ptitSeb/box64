@@ -215,6 +215,21 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             VMOVeS(v0, 0, d0, 0);
             YMM0(gd);
             break;
+        case 0x53:
+            INST_NAME("VRCPSS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX(v0, 1);
+            GETVX(v2, 0);
+            GETEXSS(v1, 0, 0);
+            d0 = fpu_get_scratch(dyn, ninst);
+            FMOVS_8(d0, 0b01110000);    //1.0f
+            FDIVS(d0, d0, v1);
+            if(v0!=v2) {
+                VMOVQ(v0, v2);
+            }
+            VMOVeS(v0, 0, d0, 0);
+            YMM0(gd);
+            break;
 
         case 0x58:
             INST_NAME("VADDSS Gx, Vx, Ex");
