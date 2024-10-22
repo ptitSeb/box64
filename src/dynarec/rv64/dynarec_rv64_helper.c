@@ -2694,11 +2694,12 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                     ADDI(s1, xZR, 1);
                     VMV_S_X(vreg, s1);
                     return;
-                case 2:
+                case 2: {
                     int scratch = fpu_get_scratch(dyn);
                     VMV_V_I(scratch, 1);
                     VSLIDE1UP_VX(vreg, scratch, xZR, VECTOR_UNMASKED);
                     return;
+                }
                 case 3:
                     VMV_V_I(vreg, 1);
                     return;

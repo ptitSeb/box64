@@ -256,7 +256,7 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
             dst->xcookie.cookie = src->xcookie.cookie;
             dst->xcookie.data = to_ptrv_silent(src->xcookie.data);  // in case data are not initialized
             break;
-        default:
+        default: {
             register_events_t* head = register_events_head;
             while(head) {
                 if(type>=head->start_event && type<=head->end_event) {
@@ -269,6 +269,7 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
                 head = head->next;
             }
             printf_log(LOG_INFO, "Warning, unsupported 32bits XEvent type=%d\n", type);
+        }    
     }
 }
 void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
@@ -492,7 +493,7 @@ void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
             dst->xcookie.data = from_ptrv(src->xcookie.data);
             break;
 
-        default:
+        default: {
             register_events_t* head = register_events_head;
             while(head) {
                 if(type>=head->start_event && type<=head->end_event) {
@@ -505,6 +506,7 @@ void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
                 head = head->next;
             }
             printf_log(LOG_INFO, "Warning, unsupported 32bits (un)XEvent type=%d\n", type);
+        }
     }
 }
 
