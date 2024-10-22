@@ -206,6 +206,7 @@ void iFpi_32(x64emu_t *emu, uintptr_t fnc);
 void iFpI_32(x64emu_t *emu, uintptr_t fnc);
 void iFpu_32(x64emu_t *emu, uintptr_t fnc);
 void iFpU_32(x64emu_t *emu, uintptr_t fnc);
+void iFpf_32(x64emu_t *emu, uintptr_t fnc);
 void iFpd_32(x64emu_t *emu, uintptr_t fnc);
 void iFpl_32(x64emu_t *emu, uintptr_t fnc);
 void iFpL_32(x64emu_t *emu, uintptr_t fnc);
