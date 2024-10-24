@@ -1897,6 +1897,25 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
                 dyn->e.ssecache[i].v = -1;
             }
         }
+    //AVX
+    if(dyn->ymm_zero) {
+        if (old==-1) {
+            MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next?"locally ":"");
+            ++old;
+        }
+        int s1_set = 0;
+        for(int i=0; i<16; ++i)
+            if(is_avx_zero(dyn, ninst, i)) {
+                if(!s1_set) {
+                    ADDI(s1, xEmu, offsetof(x64emu_t, ymm[0]));
+                    s1_set = 1;
+                }
+                SD(xZR, s1, i*16);
+                SD(xZR, s1, i*16+8);
+            }
+        if(!next)
+            avx_mark_zero_reset(dyn, ninst);
+    }
     if(old!=-1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
     }
@@ -1929,6 +1948,19 @@ void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
         FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
     else
         FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+    //AVX
+    if(dyn->ymm_zero) {
+        int s1_set = 0;
+        for(int i=0; i<16; ++i)
+            if(is_avx_zero(dyn, ninst, i)) {
+                if(!s1_set) {
+                    ADDI(s1, xEmu, offsetof(x64emu_t, ymm[0]));
+                    s1_set = 1;
+                }
+                SD(xZR, s1, i*16);
+                SD(xZR, s1, i*16+8);
+            }
+    }
 }
 
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
@@ -2542,6 +2574,14 @@ void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
     x87_reflectcache(dyn, ninst, s1, s2, s3);
     mmx_reflectcache(dyn, ninst, s1);
     sse_reflectcache(dyn, ninst, s1);
+    if(dyn->ymm_zero) {
+        ADDI(s1, xEmu, offsetof(x64emu_t, ymm[0]));
+        for(int i=0; i<16; ++i)
+            if(dyn->ymm_zero&(1<<i)) {
+                SD(xZR, s1, i*16);
+                SD(xZR, s1, i*16+8);
+            }
+    }
 }
 
 void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
