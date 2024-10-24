@@ -2711,6 +2711,11 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                     ADDI(s1, xZR, 1);
                     VMV_S_X(vreg, s1);
                     return;
+                case 0b0101:
+                    vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+                    VMV_V_I(vreg, 1);
+                    vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
+                    return;
                 case 0b1010:
                     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     MOV64x(s1, 0x100000000ULL);

@@ -104,7 +104,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 q0 = fpu_get_scratch(dyn);
                 VSLIDEDOWN_VI(q0, v1, 1, VECTOR_UNMASKED);
                 if (rv64_xtheadvector) {
-                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+                    VECTOR_LOAD_VMASK(0b01, x4, 1);
                     VMERGE_VVM(v0, v0, q0); // implies VMASK
                 } else {
                     VMV_X_S(x4, q0);
@@ -116,7 +116,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1); // unaligned!
                 GETGX_vector(v0, 1, VECTOR_SEW8);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VECTOR_LOAD_VMASK(0xFF, x4, 1);
                 VLE8_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
             }
             break;
@@ -140,7 +140,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                 v1 = fpu_get_scratch(dyn);
-                vector_loadmask(dyn, ninst, VMASK, 0xFF, x4, 1);
+                VECTOR_LOAD_VMASK(0xFF, x4, 1);
                 VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
                 VSLIDEUP_VI(v0, v1, 8, VECTOR_UNMASKED);
             }
@@ -156,7 +156,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 q0 = fpu_get_scratch(dyn);
                 VSLIDE1DOWN_VX(q0, v0, xZR, VECTOR_UNMASKED);
                 if (rv64_xtheadvector) {
-                    vector_loadmask(dyn, ninst, VMASK, 0b01, x4, 1);
+                    VECTOR_LOAD_VMASK(0b01, x4, 1);
                     VMERGE_VVM(v1, v1, q0); // implies VMASK
                 } else {
                     VMV_X_S(x4, q0);
