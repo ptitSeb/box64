@@ -733,6 +733,7 @@ void fpu_reset(dynarec_rv64_t* dyn)
     mmx_reset(&dyn->e);
     sse_reset(&dyn->e);
     fpu_reset_reg(dyn);
+    dyn->ymm_zero = 0;
 }
 
 void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
