@@ -3014,15 +3014,20 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xE6:                      /* OUT Ib, AL */
         case 0xE7:                      /* OUT Ib, EAX */
             INST_NAME(opcode==0xE4?"IN AL, Ib":(opcode==0xE5?"IN EAX, Ib":(opcode==0xE6?"OUT Ib, AL":"OUT Ib, EAX")));
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
-            u8 = F8;
-            GETIP(ip);
-            STORE_XEMU_CALL(xRIP);
-            CALL(native_priv, -1);
-            LOAD_XEMU_CALL(xRIP);
-            jump_to_epilog(dyn, 0, xRIP, ninst);
-            *need_epilog = 0;
-            *ok = 0;
+            if(rex.is32bits && box64_ignoreint3)
+            { 
+                F8;
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                u8 = F8;
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
             break;
         case 0xE8:
             INST_NAME("CALL Id");
@@ -3196,14 +3201,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xEE:                      /* OUT DX, AL */
         case 0xEF:                      /* OUT DX, EAX */
             INST_NAME(opcode==0xEC?"IN AL, DX":(opcode==0xED?"IN EAX, DX":(opcode==0xEE?"OUT DX, AL":"OUT DX, EAX")));
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
-            GETIP(ip);
-            STORE_XEMU_CALL(xRIP);
-            CALL(native_priv, -1);
-            LOAD_XEMU_CALL(xRIP);
-            jump_to_epilog(dyn, 0, xRIP, ninst);
-            *need_epilog = 0;
-            *ok = 0;
+            if(rex.is32bits && box64_ignoreint3)
+            {} else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
             break;
 
         case 0xF0:
@@ -3561,14 +3569,17 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0xFA:                      /* STI */
         case 0xFB:                      /* CLI */
             INST_NAME(opcode==0xFA?"CLI":"STI");
-            SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
-            GETIP(ip);
-            STORE_XEMU_CALL(xRIP);
-            CALL(native_priv, -1);
-            LOAD_XEMU_CALL(xRIP);
-            jump_to_epilog(dyn, 0, xRIP, ninst);
-            *need_epilog = 0;
-            *ok = 0;
+            if(rex.is32bits && box64_ignoreint3)
+            {} else {
+                SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL(native_priv, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+            }
             break;
         case 0xFC:
             INST_NAME("CLD");
