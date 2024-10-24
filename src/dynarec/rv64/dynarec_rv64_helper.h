@@ -1828,4 +1828,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         }                                               \
     } while (0)
 
+#define VECTOR_LOAD_VMASK(mask, s1, multiple) \
+    vector_loadmask(dyn, ninst, VMASK, mask, s1, multiple)
+
 #endif //__DYNAREC_RV64_HELPER_H__
