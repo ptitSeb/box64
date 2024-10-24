@@ -195,18 +195,16 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETGX_vector(q0, 1, VECTOR_SEW16);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                     v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
                     VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
                     VMV_V_V(v0, q0);
                     if (q1 & 1) VMV_V_V(d1, q1);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 2);
                     VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 8, VECTOR_UNMASKED);
-                    vector_loadmask(dyn, ninst, VMASK, 0b0101010101010101, x4, 2);
-                    VCOMPRESS_VM(d0, v0, VMASK);
-                    VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
-                    VCOMPRESS_VM(d1, v0, VMASK);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
+                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
                     VADD_VV(q0, d1, d0, VECTOR_UNMASKED);
                     break;
                 case 0x02:
@@ -216,18 +214,17 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETGX_vector(q0, 1, VECTOR_SEW32);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW32);
                     v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
                     VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
                     VMV_V_V(v0, q0);
                     if (q1 & 1) VMV_V_V(d1, q1);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
                     VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
-                    vector_loadmask(dyn, ninst, VMASK, 0b01010101, x4, 2);
-                    VCOMPRESS_VM(d0, v0, VMASK);
-                    VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
-                    VCOMPRESS_VM(d1, v0, VMASK);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+                    ADDI(x4, xZR, 32);
+                    VNSRL_WX(d0, v0, xZR, VECTOR_UNMASKED);
+                    VNSRL_WX(d1, v0, x4, VECTOR_UNMASKED);
                     VADD_VV(q0, d1, d0, VECTOR_UNMASKED);
                     break;
                 case 0x03:
@@ -237,18 +234,16 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETGX_vector(q0, 1, VECTOR_SEW16);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                     v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
                     VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
                     VMV_V_V(v0, q0);
                     if (q1 & 1) VMV_V_V(d1, q1);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 2);
                     VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 8, VECTOR_UNMASKED);
-                    vector_loadmask(dyn, ninst, VMASK, 0b0101010101010101, x4, 2);
-                    VCOMPRESS_VM(d0, v0, VMASK);
-                    VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
-                    VCOMPRESS_VM(d1, v0, VMASK);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
+                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
                     VSADD_VV(q0, d1, d0, VECTOR_UNMASKED);
                     break;
                 case 0x04:
@@ -276,18 +271,16 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETGX_vector(q0, 1, VECTOR_SEW16);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
                     v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
                     VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
                     VMV_V_V(v0, q0);
                     if (q1 & 1) VMV_V_V(d1, q1);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 2);
                     VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 8, VECTOR_UNMASKED);
-                    vector_loadmask(dyn, ninst, VMASK, 0b0101010101010101, x4, 2);
-                    VCOMPRESS_VM(d0, v0, VMASK);
-                    VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
-                    VCOMPRESS_VM(d1, v0, VMASK);
                     vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
+                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
                     VSUB_VV(q0, d0, d1, VECTOR_UNMASKED);
                     break;
                 case 0x08 ... 0x0A:
