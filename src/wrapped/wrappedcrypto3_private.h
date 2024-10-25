@@ -218,6 +218,7 @@ GO(ASN1_TYPE_set, vFpip)
 GO(ASN1_TYPE_set1, iFpip)
 GO(ASN1_TYPE_set_int_octetstring, iFplpi)
 GO(ASN1_TYPE_set_octetstring, iFppi)
+GO(ASN1_TIME_to_tm, iFpp)
 GO(ASN1_UNIVERSALSTRING_free, vFp)
 GO(ASN1_UNIVERSALSTRING_new, pFv)
 GO(ASN1_UNIVERSALSTRING_to_string, iFp)
@@ -1150,6 +1151,7 @@ GO(DES_set_odd_parity, vFp)
 GO(DES_string_to_2keys, vFppp)
 GO(DES_string_to_key, vFpp)
 GO(DES_xcbc_encrypt, vFpplppppi)
+GO(DH_bits, iFp)
 //GO(DH_check, 
 //GO(DH_check_pub_key, 
 //GO(DH_compute_key, 
@@ -1185,6 +1187,7 @@ GO(DISPLAYTEXT_new, pFv)
 //GO(DIST_POINT_NAME_new, 
 //GO(DIST_POINT_new, 
 //GO(DIST_POINT_set_dpname, 
+GO(DSA_bits, iFp)
 //GO(dsa_builtin_paramgen, 
 //GO(dsa_builtin_paramgen2, 
 //GO(DSA_do_sign, 
@@ -3081,6 +3084,7 @@ GO(RAND_write_file, iFp)
 //GO(RIPEMD160_Init, 
 //GO(RIPEMD160_Transform, 
 //GO(RIPEMD160_Update, 
+GO(RSA_bits, iFp)
 //GO(RSA_blinding_off, 
 //GO(RSA_blinding_on, 
 GO(RSA_check_key, iFp)
@@ -3585,7 +3589,9 @@ GO(X509_get_serialNumber, pFp)
 GO(X509_get_subject_name, pFp)
 GO(X509_get_version, lFp)
 GO(X509_get_X509_PUBKEY, pFp)
-//GO(X509_gmtime_adj, 
+GO(X509_getm_notAfter, pFp)
+GO(X509_getm_notBefore, pFp)
+GO(X509_gmtime_adj, pFpl)
 //GO(X509_http_nbio, 
 GO(X509_INFO_free, vFp)
 GO(X509_INFO_new, pFv)
@@ -3777,7 +3783,7 @@ GO(X509_STORE_CTX_get_chain, pFp)
 GO(X509_STORE_CTX_get_current_cert, pFp)
 GO(X509_STORE_CTX_get_error, iFp)
 GO(X509_STORE_CTX_get_error_depth, iFp)
-//GO(X509_STORE_CTX_get_ex_data, 
+GO(X509_STORE_CTX_get_ex_data, pFpi)
 //GO(X509_STORE_CTX_get_ex_new_index, 
 //GO(X509_STORE_CTX_get_explicit_policy, 
 GO(X509_STORE_CTX_init, iFpppp)

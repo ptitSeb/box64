@@ -338,6 +338,144 @@ static void* find_msg_cb_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libSSL msg_cb callback\n");
     return NULL;
 }
+// info_cb
+#define GO(A)   \
+static uintptr_t my3_info_cb_fct_##A = 0;                   \
+static void my3_info_cb_##A(void* a, int b, int c)          \
+{                                                           \
+    RunFunctionFmt(my3_info_cb_fct_##A, "pii", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_info_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_info_cb_fct_##A == (uintptr_t)fct) return my3_info_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_info_cb_fct_##A == 0) {my3_info_cb_fct_##A = (uintptr_t)fct; return my3_info_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libSSL info_cb callback\n");
+    return NULL;
+}
+// new_seesion_cb
+#define GO(A)   \
+static uintptr_t my_new_seesion_cb_fct_##A = 0;                         \
+static int my_new_seesion_cb_##A(void* a, void* b)                      \
+{                                                                       \
+    return (int)RunFunctionFmt(my_new_seesion_cb_fct_##A, "pp", a, b);  \
+}
+SUPER()
+#undef GO
+static void* find_new_seesion_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_new_seesion_cb_fct_##A == (uintptr_t)fct) return my_new_seesion_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_new_seesion_cb_fct_##A == 0) {my_new_seesion_cb_fct_##A = (uintptr_t)fct; return my_new_seesion_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for ssl3 new_seesion_cb callback\n");
+    return NULL;
+}
+// psk_use_session_cb
+#define GO(A)   \
+static uintptr_t my_psk_use_session_cb_fct_##A = 0;                                     \
+static int my_psk_use_session_cb_##A(void* a, void* b, void* c, void* d, void* e)       \
+{                                                                                       \
+    return (int)RunFunctionFmt(my_psk_use_session_cb_fct_##A, "ppppp", a, b, c, d, e);  \
+}
+SUPER()
+#undef GO
+static void* find_psk_use_session_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_psk_use_session_cb_fct_##A == (uintptr_t)fct) return my_psk_use_session_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_psk_use_session_cb_fct_##A == 0) {my_psk_use_session_cb_fct_##A = (uintptr_t)fct; return my_psk_use_session_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for ssl3 psk_use_session_cb callback\n");
+    return NULL;
+}
+// app_verify_cookie_cb
+#define GO(A)   \
+static uintptr_t my_app_verify_cookie_cb_fct_##A = 0;                               \
+static int my_app_verify_cookie_cb_##A(void* a, void* b, uint32_t c)                \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_app_verify_cookie_cb_fct_##A, "ppu", a, b, c);    \
+}
+SUPER()
+#undef GO
+static void* find_app_verify_cookie_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_app_verify_cookie_cb_fct_##A == (uintptr_t)fct) return my_app_verify_cookie_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_app_verify_cookie_cb_fct_##A == 0) {my_app_verify_cookie_cb_fct_##A = (uintptr_t)fct; return my_app_verify_cookie_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for ssl3 app_verify_cookie_cb callback\n");
+    return NULL;
+}
+// set_cookie_generate_cb
+#define GO(A)   \
+static uintptr_t my_set_cookie_generate_cb_fct_##A = 0;                             \
+static int my_set_cookie_generate_cb_##A(void* a, void* b, void* c)                 \
+{                                                                                   \
+    return (int)RunFunctionFmt(my_set_cookie_generate_cb_fct_##A, "ppp", a, b, c);  \
+}
+SUPER()
+#undef GO
+static void* find_set_cookie_generate_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_set_cookie_generate_cb_fct_##A == (uintptr_t)fct) return my_set_cookie_generate_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_set_cookie_generate_cb_fct_##A == 0) {my_set_cookie_generate_cb_fct_##A = (uintptr_t)fct; return my_set_cookie_generate_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for ssl3 set_cookie_generate_cb callback\n");
+    return NULL;
+}
+// psk_server_cb
+#define GO(A)   \
+static uintptr_t my_psk_server_cb_fct_##A = 0;                                      \
+static uint32_t my_psk_server_cb_##A(void* a, void* b, void* c, uint32_t d)         \
+{                                                                                   \
+    return (uint32_t)RunFunctionFmt(my_psk_server_cb_fct_##A, "pppu", a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_psk_server_cb_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_psk_server_cb_fct_##A == (uintptr_t)fct) return my_psk_server_cb_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_psk_server_cb_fct_##A == 0) {my_psk_server_cb_fct_##A = (uintptr_t)fct; return my_psk_server_cb_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for ssl3 psk_server_cb callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -435,6 +573,36 @@ EXPORT void my3_SSL_CTX_set_msg_callback(x64emu_t* emu, void* ctx, void* cb)
 EXPORT void my3_SSL_set_msg_callback(x64emu_t* emu, void* ctx, void* cb)
 {
     my->SSL_set_msg_callback(ctx, find_msg_cb_Fct(cb));
+}
+
+EXPORT void my3_SSL_CTX_sess_set_new_cb(x64emu_t* emu, void *ctx, void* f)
+{
+    my->SSL_CTX_sess_set_new_cb(ctx, find_new_seesion_cb_Fct(f));
+}
+
+EXPORT void my3_SSL_set_info_callback(x64emu_t* emmu, void* ctx, void* f)
+{
+    my->SSL_set_info_callback(ctx, find_info_cb_Fct(f));
+}
+
+EXPORT void my3_SSL_set_psk_use_session_callback(x64emu_t* emu, void* ctx, void* f)
+{
+    my->SSL_set_psk_use_session_callback(ctx, find_psk_use_session_cb_Fct(f));
+}
+
+EXPORT void my3_SSL_CTX_set_cookie_verify_cb(x64emu_t* emu, void* ctx, void* f)
+{
+    my->SSL_CTX_set_cookie_verify_cb(ctx, find_app_verify_cookie_cb_Fct(f));
+}
+
+EXPORT void my3_SSL_CTX_set_cookie_generate_cb(x64emu_t* emu, void* ctx, void* f)
+{
+    my->SSL_CTX_set_cookie_generate_cb(ctx, find_set_cookie_generate_cb_Fct(f));
+}
+
+EXPORT void my3_SSL_set_psk_server_callback(x64emu_t* emu, void* ctx, void* f)
+{
+    my->SSL_set_psk_server_callback(ctx, find_psk_server_cb_Fct(f));
 }
 
 #define ALTMY my3_
