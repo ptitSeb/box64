@@ -1215,6 +1215,7 @@ void uFiiuu(x64emu_t *emu, uintptr_t fnc);
 void uFifff(x64emu_t *emu, uintptr_t fnc);
 void uFuuuu(x64emu_t *emu, uintptr_t fnc);
 void uFuppd(x64emu_t *emu, uintptr_t fnc);
+void uFLppp(x64emu_t *emu, uintptr_t fnc);
 void uFpiip(x64emu_t *emu, uintptr_t fnc);
 void uFpipu(x64emu_t *emu, uintptr_t fnc);
 void uFpipL(x64emu_t *emu, uintptr_t fnc);

@@ -267,6 +267,8 @@ GO("libunistring.so.2", libunistring2)
 GO("libhogweed.so.6", libhogweed6)
 GO("libsqlite3.so.0", libsqlite3)
 GO("libtiff.so.5", libtiff5)
+GO("libbrotlidec.so", brotlidec)
+GO("libbrotlidec.so.1", brotlidec)
 
 #ifdef ANDROID
 GO("libc.so", libc)

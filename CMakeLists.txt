@@ -719,6 +719,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibhogweed6.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibsqlite3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibtiff5.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedbrotlidec.c"
 )
 endif()
 if(ANDROID)
