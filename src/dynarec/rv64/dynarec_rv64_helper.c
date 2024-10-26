@@ -1933,98 +1933,126 @@ void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 
 void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 {
-    // need to save 0..1 && 10..17 (maybe) && 28..31
-    // so 0..7 (SSE) && 17..23 (x87+MMX)
-    int start = not07?8:0;
-    // only SSE regs needs to be push back to xEmu (needs to be "write")
-    int n=0;
-    for (int i=start; i<8; i++)
-        if(dyn->e.ssecache[i].v!=-1)
-            ++n;
+    // for float registers, we might lost f0..f7, f10..f17 and f28..f31, that means
+    // for extcache, we're saving 0..7 (SSE), 18..23 (MMX).
+    int start = not07 ? 8 : 0;
+    int n = 0;
+    for (int i = start; i < 8; i++)
+        if (dyn->e.ssecache[i].v != -1) ++n;
     if(n) {
-        MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
-        for (int i=start; i<8; ++i)
-            if(dyn->e.ssecache[i].v!=-1) {
-                if (dyn->e.ssecache[i].vector) {
-                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
-                    ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                    VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
-                } else if (dyn->e.ssecache[i].single)
+        MESSAGE(LOG_DUMP, "\tPush (float) XMM Cache (%d)------\n", n);
+        for (int i = start; i < 8; ++i)
+            if (dyn->e.ssecache[i].v != -1) {
+                if (dyn->e.ssecache[i].vector)
+                    continue;
+                else if (dyn->e.ssecache[i].single)
                     FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 else
                     FSD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             }
-        MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
+        MESSAGE(LOG_DUMP, "\t------- Push (float) XMM Cache (%d)\n", n);
     }
     n = 0;
-    for(int i=17; i<24; ++i)
-        if(dyn->e.extcache[i].v!=0)
-            ++n;
-    if(n) {
-        MESSAGE(LOG_DUMP, "\tPush x87/MMX Cache (%d)------\n", n);
-        SUBI(xSP, xSP, 8*((n+1)&~1));
+    for (int i = 18; i < 24; ++i)
+        if (dyn->e.extcache[i].v != 0) ++n;
+    if (n) {
+        MESSAGE(LOG_DUMP, "\tPush (float) x87/MMX Cache (%d)------\n", n);
+        SUBI(xSP, xSP, 8 * ((n + 1) & ~1));
         int p = 0;
-        for(int i=17; i<24; ++i)
-            if(dyn->e.extcache[i].v!=0) {
-                switch(dyn->e.extcache[i].t) {
+        for (int i = 18; i < 24; ++i)
+            if (dyn->e.extcache[i].v != 0) {
+                switch (dyn->e.extcache[i].t) {
                     case EXT_CACHE_ST_F:
                     case EXT_CACHE_SS:
-                        FSW(EXTREG(i), xSP, p*8);
+                        FSW(EXTREG(i), xSP, p * 8);
                         break;
                     default:
-                        FSD(EXTREG(i), xSP, p*8);
+                        FSD(EXTREG(i), xSP, p * 8);
                         break;
                 };
                 ++p;
             }
-        MESSAGE(LOG_DUMP, "\t------- Push x87/MMX Cache (%d)\n", n);
+        MESSAGE(LOG_DUMP, "\t------- Push (float) x87/MMX Cache (%d)\n", n);
+    }
+
+    // for vector registers, we might lost all of them, that means for extcache,
+    // we're saving 0..15 (SSE).
+    // TODO: save MMX registers too when we add support for MMX vector.
+    n = 0;
+    for (int i = start; i < 16; i++)
+        if (dyn->e.ssecache[i].v != -1) ++n;
+    if (n) {
+        MESSAGE(LOG_DUMP, "\tPush (vector) XMM Cache (%d)------\n", n);
+        for (int i = start; i < 16; ++i)
+            if (dyn->e.ssecache[i].v != -1) {
+                if (dyn->e.ssecache[i].vector) {
+                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
+                    ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
+                    VSE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                }
+            }
+        MESSAGE(LOG_DUMP, "\t------- Push (vector) XMM Cache (%d)\n", n);
     }
 }
 void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
 {
-    int start = not07?8:0;
-    // only SSE regs needs to be pop back from xEmu (don't need to be "write" this time)
-    int n=0;
-    for (int i=start; i<8; i++)
-        if(dyn->e.ssecache[i].v!=-1)
-            ++n;
-    if(n) {
-        MESSAGE(LOG_DUMP, "\tPop XMM Cache (%d)------\n", n);
-        for (int i=start; i<8; ++i)
-            if(dyn->e.ssecache[i].v!=-1) {
-                if (dyn->e.ssecache[i].vector) {
-                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
-                    ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
-                    VLE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
-                } else if (dyn->e.ssecache[i].single)
+    // float registers
+    int start = not07 ? 8 : 0;
+    int n = 0;
+    for (int i = start; i < 8; i++)
+        if (dyn->e.ssecache[i].v != -1) ++n;
+    if (n) {
+        MESSAGE(LOG_DUMP, "\tPop (float) XMM Cache (%d)------\n", n);
+        for (int i = start; i < 8; ++i)
+            if (dyn->e.ssecache[i].v != -1) {
+                if (dyn->e.ssecache[i].vector)
+                    continue;
+                else if (dyn->e.ssecache[i].single)
                     FLW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 else
                     FLD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             }
-        MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
+        MESSAGE(LOG_DUMP, "\t------- Pop (float) XMM Cache (%d)\n", n);
     }
     n = 0;
-    for(int i=17; i<24; ++i)
-        if(dyn->e.extcache[i].v!=0)
-            ++n;
-    if(n) {
-        MESSAGE(LOG_DUMP, "\tPush x87/MMX Cache (%d)------\n", n);
+    for (int i = 18; i < 24; ++i)
+        if (dyn->e.extcache[i].v != 0) ++n;
+    if (n) {
+        MESSAGE(LOG_DUMP, "\tPush (float) x87/MMX Cache (%d)------\n", n);
         int p = 0;
-        for(int i=17; i<24; ++i)
-            if(dyn->e.extcache[i].v!=0) {
-                switch(dyn->e.extcache[i].t) {
+        for (int i = 18; i < 24; ++i)
+            if (dyn->e.extcache[i].v != 0) {
+                switch (dyn->e.extcache[i].t) {
                     case EXT_CACHE_ST_F:
                     case EXT_CACHE_SS:
-                        FLW(EXTREG(i), xSP, p*8);
+                        FLW(EXTREG(i), xSP, p * 8);
                         break;
                     default:
-                        FLD(EXTREG(i), xSP, p*8);
+                        FLD(EXTREG(i), xSP, p * 8);
                         break;
                 };
                 ++p;
             }
-        ADDI(xSP, xSP, 8*((n+1)&~1));
-        MESSAGE(LOG_DUMP, "\t------- Push x87/MMX Cache (%d)\n", n);
+        ADDI(xSP, xSP, 8 * ((n + 1) & ~1));
+        MESSAGE(LOG_DUMP, "\t------- Push (float) x87/MMX Cache (%d)\n", n);
+    }
+
+    // vector registers
+    // TODO: restore MMX registers too when we add support for MMX vector.
+    n = 0;
+    for (int i = start; i < 16; i++)
+        if (dyn->e.ssecache[i].v != -1) ++n;
+    if (n) {
+        MESSAGE(LOG_DUMP, "\tPop (vector) XMM Cache (%d)------\n", n);
+        for (int i = start; i < 16; ++i)
+            if (dyn->e.ssecache[i].v != -1) {
+                if (dyn->e.ssecache[i].vector) {
+                    SET_ELEMENT_WIDTH(s1, VECTOR_SEWANY, 0);
+                    ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
+                    VLE_V(dyn->e.ssecache[i].reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                }
+            }
+        MESSAGE(LOG_DUMP, "\t------- Pop (vector) XMM Cache (%d)\n", n);
     }
 }
 
