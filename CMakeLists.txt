@@ -971,6 +971,8 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f20f_vector.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f30f.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_f30f_vector.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_avx.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_avx_f3_0f.c"
     )
 endif()
 

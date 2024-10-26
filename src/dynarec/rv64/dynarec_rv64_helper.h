@@ -420,6 +420,9 @@
         OR(wback, wback, ed);             \
     }
 
+
+#define YMM0(a) ymm_mark_zero(dyn, ninst, a);
+
 // Get direction with size Z and based of F_DF flag, on register r ready for load/store fetching
 // using s as scratch.
 #define GETDIR(r, s, Z)            \
@@ -479,6 +482,11 @@
     sse_forget_reg(dyn, ninst, x3, gd);         \
     gback = xEmu;                               \
     gdoffset = offsetof(x64emu_t, xmm[gd])
+
+#define GETVX()                            \
+    sse_forget_reg(dyn, ninst, x3, vex.v); \
+    vback = xEmu;                          \
+    vxoffset = offsetof(x64emu_t, xmm[vex.v])
 
 // Get Ex address in general register a, will purge SS or SD if it's reg and is loaded. May use x3. Use wback as load address!
 #define GETEX(a, D, I12)                                                                         \
@@ -1148,6 +1156,9 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F20F_vector   STEPNAME(dynarec64_F20F_vector)
 #define dynarec64_F30F_vector   STEPNAME(dynarec64_F30F_vector)
 
+#define dynarec64_AVX       STEPNAME(dynarec64_AVX)
+#define dynarec64_AVX_F3_0F STEPNAME(dynarec64_AVX_F3_0F)
+
 #define geted               STEPNAME(geted)
 #define geted32             STEPNAME(geted32)
 #define geted16             STEPNAME(geted16)
@@ -1279,6 +1290,8 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_purge07cache         STEPNAME(sse_purge07cache)
 #define sse_reflect_reg          STEPNAME(sse_reflect_reg)
 
+#define ymm_mark_zero STEPNAME(ymm_mark_zero)
+
 #define sse_get_reg_empty_vector STEPNAME(sse_get_reg_empty_vector)
 #define sse_get_reg_vector       STEPNAME(sse_get_reg_vector)
 #define sse_forget_reg_vector    STEPNAME(sse_forget_reg_vector)
@@ -1293,6 +1306,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define sse_purgecache      STEPNAME(sse_purgecache)
 #define fpu_reflectcache    STEPNAME(fpu_reflectcache)
 #define fpu_unreflectcache  STEPNAME(fpu_unreflectcache)
+#define avx_purge_ymm       STEPNAME(avx_purge_ymm)
 
 #define CacheTransform STEPNAME(CacheTransform)
 #define rv64_move64    STEPNAME(rv64_move64)
@@ -1450,6 +1464,9 @@ void x87_restoreround(dynarec_rv64_t* dyn, int ninst, int s1);
 // Set rounding according to mxcsr flags, return reg to restore flags
 int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 
+// purge ymm_zero mask according to purge_ymm
+void avx_purge_ymm(dynarec_rv64_t* dyn, int ninst, uint16_t mask, int s1);
+
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
 void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val);
@@ -1518,6 +1535,9 @@ void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
 // Push current value to the cache
 void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
+// mark an ymm upper part has zero (forgetting upper part if needed)
+void ymm_mark_zero(dynarec_rv64_t* dyn, int ninst, int a);
+
 // common coproc helpers
 // reset the cache with n
 void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n);
@@ -1570,6 +1590,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
 uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+
+uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)
@@ -1754,7 +1777,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
 #define FCOMIS(v1, v2, s1, s2, s3, s4, s5) FCOMI(S, v1, v2, s1, s2, s3, s4, s5)
 #define FCOMID(v1, v2, s1, s2, s3, s4, s5) FCOMI(D, v1, v2, s1, s2, s3, s4, s5)
 
-#define PURGE_YMM()    /* TODO */
+#define PURGE_YMM() avx_purge_ymm(dyn, ninst, dyn->insts[ninst + 1].purge_ymm, x1)
 
 // reg = (reg < -32768) ? -32768 : ((reg > 32767) ? 32767 : reg)
 #define SAT16(reg, s)             \

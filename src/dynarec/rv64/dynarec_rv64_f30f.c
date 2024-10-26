@@ -59,7 +59,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd, 1);
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 8, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 FLW(v0, ed, fixedaddress);
                 // reset upper part
                 SW(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 4);
