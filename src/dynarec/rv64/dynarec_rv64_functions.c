@@ -92,11 +92,11 @@ int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
     return EXTREG(i);
 }
 // Reset fpu regs counter
-void fpu_reset_reg_extcache(dynarec_rv64_t* dyn, extcache_t* e)
+static void fpu_reset_reg_extcache(dynarec_rv64_t* dyn, extcache_t* e)
 {
     e->fpu_reg = 0;
-    for (int i=0; i<24; ++i) {
-        e->fpuused[i]=0;
+    for (int i = 0; i < 32; ++i) {
+        e->fpuused[i] = 0;
         e->extcache[i].v = 0;
     }
     dyn->vector_sew = VECTOR_SEWNA;
@@ -492,7 +492,7 @@ void extcacheUnwind(extcache_t* cache)
         cache->ssecache[i*2+1].v = -1;
     }
     int x87reg = 0;
-    for(int i=0; i<24; ++i) {
+    for (int i = 0; i < 32; ++i) {
         if(cache->extcache[i].v) {
             cache->fpuused[i] = 1;
             switch (cache->extcache[i].t) {
@@ -515,6 +515,8 @@ void extcacheUnwind(extcache_t* cache)
                     break;
                 case EXT_CACHE_XMMR:
                 case EXT_CACHE_XMMW:
+                case EXT_CACHE_YMMR:
+                case EXT_CACHE_YMMW:
                     cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 1;
                     cache->ssecache[cache->extcache[i].n].write = (cache->extcache[i].t == EXT_CACHE_XMMW) ? 1 : 0;
@@ -605,6 +607,8 @@ const char* getCacheName(int t, int n)
         case EXT_CACHE_SCR: sprintf(buff, "Scratch"); break;
         case EXT_CACHE_XMMW: sprintf(buff, "XMM%d", n); break;
         case EXT_CACHE_XMMR: sprintf(buff, "xmm%d", n); break;
+        case EXT_CACHE_YMMW: sprintf(buff, "YMM%d", n); break;
+        case EXT_CACHE_YMMR: sprintf(buff, "ymm%d", n); break;
         case EXT_CACHE_NONE: buff[0]='\0'; break;
     }
     return buff;
@@ -654,7 +658,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             dynarec_log(LOG_NONE, ", jmp=out");
         if(dyn->last_ip)
             dynarec_log(LOG_NONE, ", last_ip=%p", (void*)dyn->last_ip);
-        for(int ii=0; ii<24; ++ii) {
+        for (int ii = 0; ii < 32; ++ii) {
             switch(dyn->insts[ninst].e.extcache[ii].t) {
                 case EXT_CACHE_ST_D: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_ST_F: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
@@ -664,11 +668,15 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
                 case EXT_CACHE_SD: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_XMMR: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_XMMW: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+                case EXT_CACHE_YMMW: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+                case EXT_CACHE_YMMR: dynarec_log(LOG_NONE, " %s:%s", vnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_SCR: dynarec_log(LOG_NONE, " %s:%s", fnames[EXTREG(ii)], getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
                 case EXT_CACHE_NONE:
                 default:    break;
             }
         }
+        if (dyn->ymm_zero)
+            dynarec_log(LOG_NONE, " ymm0_mask = %04x", dyn->ymm_zero);
         if(dyn->e.stack || dyn->insts[ninst].e.stack_next || dyn->insts[ninst].e.x87stack)
             dynarec_log(LOG_NONE, " X87:%d/%d(+%d/-%d)%d", dyn->e.stack, dyn->insts[ninst].e.stack_next, dyn->insts[ninst].e.stack_push, dyn->insts[ninst].e.stack_pop, dyn->insts[ninst].e.x87stack);
         if(dyn->insts[ninst].e.combined1 || dyn->insts[ninst].e.combined2)
@@ -733,6 +741,7 @@ void fpu_reset(dynarec_rv64_t* dyn)
     mmx_reset(&dyn->e);
     sse_reset(&dyn->e);
     fpu_reset_reg(dyn);
+    dyn->ymm_zero = 0;
 }
 
 void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)

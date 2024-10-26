@@ -20,6 +20,8 @@ typedef struct instsize_s instsize_t;
 #define EXT_CACHE_SCR    7
 #define EXT_CACHE_XMMW   8
 #define EXT_CACHE_XMMR   9
+#define EXT_CACHE_YMMW   10
+#define EXT_CACHE_YMMR   11
 
 #define EXT_CACHE_OLD_SD   0
 #define EXT_CACHE_OLD_SS   1
@@ -56,7 +58,7 @@ typedef union sse_old_s {
 
 typedef struct extcache_s {
     // ext cache
-    ext_cache_t         extcache[24];
+    ext_cache_t         extcache[32];
     int8_t              stack;
     int8_t              stack_next;
     int8_t              stack_pop;
@@ -75,7 +77,7 @@ typedef struct extcache_s {
     int16_t             tags;           // similar to fpu_tags
     int8_t              mmxcache[8];    // cache status for the 8 MMX registers
     sse_cache_t         ssecache[16];   // cache status for the 16 SSE(2) registers
-    int8_t              fpuused[24];    // all 10..31 & 0..1 double reg from fpu, used by x87, sse and mmx
+    int8_t              fpuused[32];    // all double reg from fpu, used by x87, mmx, sse and avx
     int8_t              x87stack;       // cache stack counter
     int8_t              mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t              fpu_scratch;    // scratch counter
