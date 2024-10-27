@@ -1988,7 +1988,7 @@ void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
     int start = not07 ? 8 : 0;
     int n = 0;
     for (int i = start; i < 8; i++)
-        if (dyn->e.ssecache[i].v != -1) ++n;
+        if (dyn->e.ssecache[i].v != -1 && !dyn->e.ssecache[i].vector) ++n;
     if(n) {
         MESSAGE(LOG_DUMP, "\tPush (float) XMM Cache (%d)------\n", n);
         for (int i = start; i < 8; ++i)
@@ -2039,7 +2039,7 @@ void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
     // TODO: save MMX registers too when we add support for MMX vector.
     n = 0;
     for (int i = start; i < 16; i++)
-        if (dyn->e.ssecache[i].v != -1) ++n;
+        if (dyn->e.ssecache[i].v != -1 && dyn->e.ssecache[i].vector) ++n;
     if (n) {
         MESSAGE(LOG_DUMP, "\tPush (vector) XMM Cache (%d)------\n", n);
         for (int i = start; i < 16; ++i)
@@ -2068,7 +2068,7 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
     int start = not07 ? 8 : 0;
     int n = 0;
     for (int i = start; i < 8; i++)
-        if (dyn->e.ssecache[i].v != -1) ++n;
+        if (dyn->e.ssecache[i].v != -1 && !dyn->e.ssecache[i].vector) ++n;
     if (n) {
         MESSAGE(LOG_DUMP, "\tPop (float) XMM Cache (%d)------\n", n);
         for (int i = start; i < 8; ++i)
@@ -2109,7 +2109,7 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
     // TODO: restore MMX registers too when we add support for MMX vector.
     n = 0;
     for (int i = start; i < 16; i++)
-        if (dyn->e.ssecache[i].v != -1) ++n;
+        if (dyn->e.ssecache[i].v != -1 && dyn->e.ssecache[i].vector) ++n;
     if (n) {
         MESSAGE(LOG_DUMP, "\tPop (vector) XMM Cache (%d)------\n", n);
         for (int i = start; i < 16; ++i)
