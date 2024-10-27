@@ -120,6 +120,54 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VLE8_V(v0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
             }
             break;
+        case 0x14:
+            INST_NAME("UNPCKLPS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW32);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+            if (q0 == q1) {
+                q1 = fpu_get_scratch(dyn);
+                VMV_V_V(q1, q0);
+            }
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
+            // Zvbb VWSLL would help here....
+            VWADDU_VX(v0, q0, xZR, VECTOR_UNMASKED);
+            VWADDU_VX(v1, q1, xZR, VECTOR_UNMASKED);
+            VSLIDE1UP_VX(d0, v1, xZR, VECTOR_UNMASKED);
+            VOR_VV(q0, v0, d0, VECTOR_UNMASKED);
+            break;
+        case 0x15:
+            INST_NAME("UNPCKHPS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW32);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+            if (q0 == q1) {
+                q1 = fpu_get_scratch(dyn);
+                VMV_V_V(q1, q0);
+            }
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
+            if (rv64_vlen >= 256) {
+                VWADDU_VX(v0, q0, xZR, VECTOR_UNMASKED);
+                VWADDU_VX(v1, q1, xZR, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
+                VSLIDEDOWN_VI(d0, v1, 3, VECTOR_UNMASKED);
+                VSLIDEDOWN_VI(v1, v0, 4, VECTOR_UNMASKED);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+                VOR_VV(q0, v1, d0, VECTOR_UNMASKED);
+            } else {
+                // Zvbb VWSLL would help here....
+                VWADDU_VX(v0, q0, xZR, VECTOR_UNMASKED);
+                VWADDU_VX(v1, q1, xZR, VECTOR_UNMASKED);
+                VSLIDE1UP_VX(d0, v1 + 1, xZR, VECTOR_UNMASKED);
+                VOR_VV(q0, v0 + 1, d0, VECTOR_UNMASKED);
+            }
+            break;
         case 0x16:
             nextop = F8;
             if (MODREG) {

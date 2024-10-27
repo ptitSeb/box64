@@ -1831,6 +1831,30 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             MARK;
             VSLL_VX(q0, q0, x4, VECTOR_UNMASKED);
             break;
+        case 0xF4:
+            INST_NAME("PMULUDQ Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW32);
+            GETEX_vector(v1, 0, 0, VECTOR_SEW32);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d1 = fpu_get_scratch(dyn);
+            VWMULU_VV(d0, v0, v1, VECTOR_UNMASKED);
+            if (rv64_vlen >= 256) {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                q0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 2);
+                VSLIDE1DOWN_VX((v0 & 1) ? q0 : v0, d0, xZR, VECTOR_UNMASKED);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                if (v0 & 1) VMV_V_V(v0, q0);
+                VMV_X_S(x4, d0);
+                VMV_S_X(v0, x4);
+            } else {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                VSLIDEUP_VI(d0, d1, 1, VECTOR_UNMASKED);
+                VMV_V_V(v0, d0);
+            }
+            break;
         case 0xF5:
             INST_NAME("PMADDWD Gx, Ex");
             nextop = F8;
