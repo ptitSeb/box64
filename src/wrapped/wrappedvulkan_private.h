@@ -986,7 +986,7 @@ GO(vkCmdSetLineStippleKHR, vFpuW)
 
 // VK_KHR_external_semaphore_win32
 GO(vkGetSemaphoreWin32HandleKHR, iFppp)
-GO(VK_KHR_external_semaphore_win32, iFpp)
+GO(vkImportSemaphoreWin32HandleKHR, iFpp)
 
 // VK_KHR_win32_keyed_mutex
 GO(wine_vkAcquireKeyedMutex, iFpUUu)
