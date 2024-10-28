@@ -88,6 +88,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 GETEY(x2, 0, 16);   
                 SSE_LOOP_MV_Q2(x3);
             }
+            if(!MODREG) SMWRITE2();
             break;
         default:
             DEFAULT;
