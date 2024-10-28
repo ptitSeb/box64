@@ -26,7 +26,8 @@
 
 uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {
-    (void)ip; (void)need_epilog;
+    (void)ip;
+    (void)need_epilog;
 
     uint8_t opcode = F8;
     uint8_t nextop, u8;
@@ -56,13 +57,10 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
     MAYUSE(s0);
     MAYUSE(j64);
     MAYUSE(cacheupd);
-    #if STEP > 1
-    static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
-    #endif
 
     rex_t rex = vex.rex;
 
-    switch(opcode) {
+    switch (opcode) {
 
         case 0x10:
             INST_NAME("VMOVUPS Gx,Ex");
@@ -70,12 +68,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GETGX();
             GETEX(x2, 0, 8);
             SSE_LOOP_MV_Q(x3);
-            if(vex.l) {
+            if (vex.l) {
                 GETGY();
                 GETEY(x2, 0, 16);
                 SSE_LOOP_MV_Q(x3);
             }
-            if(!vex.l) YMM0(gd);
+            if (!vex.l) YMM0(gd);
             break;
         case 0x11:
             INST_NAME("VMOVUPS Ex,Gx");
@@ -83,12 +81,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GETGX();
             GETEX(x2, 0, 8);
             SSE_LOOP_MV_Q2(x3);
-            if(vex.l) {
+            if (vex.l) {
                 GETGY();
-                GETEY(x2, 0, 16);   
+                GETEY(x2, 0, 16);
                 SSE_LOOP_MV_Q2(x3);
             }
-            if(!MODREG) SMWRITE2();
+            if (!MODREG) SMWRITE2();
             break;
         default:
             DEFAULT;

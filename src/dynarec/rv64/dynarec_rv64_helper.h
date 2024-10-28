@@ -516,7 +516,7 @@
         SMREAD();                                                                                \
         ed = 16;                                                                                 \
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
-        fixedaddress+=16;                                                                        \
+        fixedaddress += 16;                                                                      \
     }
 
 // Get GX as a quad (might use x1)
