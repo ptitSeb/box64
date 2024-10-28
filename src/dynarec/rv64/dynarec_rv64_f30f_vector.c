@@ -52,8 +52,8 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("MOVSS Gx, Ex");
             nextop = F8;
             GETG;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 ed = (nextop & 7) + (rex.b << 3);
                 v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 1, VECTOR_SEW32);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, VECTOR_SEW32);
@@ -66,14 +66,11 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             } else {
                 SMREAD();
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                 v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
-                d0 = fpu_get_scratch(dyn);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VECTOR_LOAD_VMASK(0xF, x4, 1);
-                VLE8_V(d0, ed, VECTOR_MASKED, VECTOR_NFIELD1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                LWU(x4, ed, fixedaddress);
                 VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                VMERGE_VVM(v0, v0, d0); // implies VMASK
+                VMV_S_X(v0, x4);
             }
             break;
         case 0x11:
@@ -130,18 +127,17 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x59:
             INST_NAME("MULSS Gx, Ex");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
             } else {
                 SMREAD();
                 v1 = fpu_get_scratch(dyn);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VECTOR_LOAD_VMASK(0xFF, x4, 1);
-                VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                LWU(x4, ed, fixedaddress);
+                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
+                VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
             if (box64_dynarec_fastnan) {
@@ -172,18 +168,17 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x5A:
             INST_NAME("CVTSS2SD Gx, Ex");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
             } else {
                 SMREAD();
                 v1 = fpu_get_scratch(dyn);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VECTOR_LOAD_VMASK(0xFF, x4, 1);
-                VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                LWU(x4, ed, fixedaddress);
+                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
+                VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
@@ -200,18 +195,17 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x5D:
             INST_NAME("MINSS Gx, Ex");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
             } else {
                 SMREAD();
                 v1 = fpu_get_scratch(dyn);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VECTOR_LOAD_VMASK(0xFF, x4, 1);
-                VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                LWU(x4, ed, fixedaddress);
+                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
+                VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
             d0 = fpu_get_scratch(dyn);
@@ -232,18 +226,17 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x5F:
             INST_NAME("MAXSS Gx, Ex");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
                 v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
             } else {
                 SMREAD();
                 v1 = fpu_get_scratch(dyn);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                VECTOR_LOAD_VMASK(0xFF, x4, 1);
-                VLE8_V(v1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                LWU(x4, ed, fixedaddress);
+                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
+                VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
             d0 = fpu_get_scratch(dyn);
@@ -269,18 +262,17 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xC2:
             INST_NAME("CMPSS Gx, Ex, Ib");
             nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             if (MODREG) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 GETGX_vector(d0, 1, VECTOR_SEW32);
                 d1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW32);
             } else {
                 SMREAD();
                 d1 = fpu_get_scratch(dyn);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                VECTOR_LOAD_VMASK(0xFF, x4, 1);
-                VLE8_V(d1, ed, VECTOR_MASKED, VECTOR_NFIELD1);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 1);
+                LWU(x4, ed, fixedaddress);
+                VXOR_VV(d1, d1, d1, VECTOR_UNMASKED);
+                VMV_S_X(d1, x4);
                 GETGX_vector(d0, 1, VECTOR_SEW32);
             }
             u8 = F8;
