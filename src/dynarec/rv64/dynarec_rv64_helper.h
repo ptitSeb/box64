@@ -507,16 +507,13 @@
     gback = xEmu;                               \
     gdoffset = offsetof(x64emu_t, ymm[gd])
 
-#define GETEY(a, D, I12)                                                                         \
-    if (MODREG) {                                                                                \
-        ed = (nextop & 7) + (rex.b << 3);                                                        \
-        fixedaddress = offsetof(x64emu_t, ymm[ed]);                                              \
-        wback = xEmu;                                                                            \
-    } else {                                                                                     \
-        SMREAD();                                                                                \
-        ed = 16;                                                                                 \
-        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
-        fixedaddress += 16;                                                                      \
+#define GETEY(a, D, I12)                            \
+    if (MODREG) {                                   \
+        ed = (nextop & 7) + (rex.b << 3);           \
+        fixedaddress = offsetof(x64emu_t, ymm[ed]); \
+        wback = xEmu;                               \
+    } else {                                        \
+        fixedaddress += 16;                         \
     }
 
 // Get GX as a quad (might use x1)
