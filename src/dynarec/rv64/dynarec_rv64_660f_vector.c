@@ -81,6 +81,28 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMWRITE2();
             }
             break;
+        case 0x12:
+            INST_NAME("MOVLPD Gx, Eq");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW64);
+            if (MODREG) {
+                // access register instead of memory is bad opcode!
+                DEFAULT;
+                return addr;
+            }
+            SMREAD();
+            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            LD(x4, ed, fixedaddress);
+            if (rv64_xtheadvector) {
+                v1 = fpu_get_scratch(dyn);
+                VMV_S_X(v1, x4);
+                VECTOR_LOAD_VMASK(0b01, x3, 1);
+                VMERGE_VVM(v0, v0, v1); // implies VMASK
+            } else {
+                VMV_S_X(v0, x4);
+            }
+            break;
         case 0x14:
             INST_NAME("UNPCKLPD Gx, Ex");
             nextop = F8;
