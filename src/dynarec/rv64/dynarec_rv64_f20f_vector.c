@@ -360,10 +360,8 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGX_vector(v0, 1, VECTOR_SEW64);
             }
             if (box64_dynarec_fastnan) {
-                q0 = fpu_get_scratch(dyn);
                 VECTOR_LOAD_VMASK(0b01, x4, 1);
-                VFMIN_VV(q0, v0, v1, VECTOR_MASKED);
-                VMERGE_VVM(v0, v0, q0);
+                VFMIN_VV(v0, v0, v1, VECTOR_MASKED);
             } else {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
@@ -443,10 +441,8 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGX_vector(v0, 1, VECTOR_SEW64);
             }
             if (box64_dynarec_fastnan) {
-                q0 = fpu_get_scratch(dyn);
                 VECTOR_LOAD_VMASK(0b01, x4, 1);
-                VFMIN_VV(q0, v0, v1, VECTOR_MASKED);
-                VMERGE_VVM(v0, v0, q0);
+                VFMAX_VV(v0, v0, v1, VECTOR_MASKED);
             } else {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
