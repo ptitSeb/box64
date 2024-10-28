@@ -753,6 +753,25 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMERGE_VXM(v0, q0, ed); // uses VMASK
                     VMV_V_V(q0, v0);
                     break;
+                case 0x40:
+                    INST_NAME("DPPS Gx, Ex, Ib");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                    GETGX_vector(q0, 1, VECTOR_SEW32);
+                    GETEX_vector(q1, 0, 1, VECTOR_SEW32);
+                    u8 = F8;
+                    v0 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn);
+                    VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
+                    VECTOR_LOAD_VMASK((u8 >> 4), x4, 1);
+                    VFMUL_VV(v0, q0, q1, VECTOR_MASKED);
+                    VFREDUSUM_VS(d0, v0, v1, VECTOR_MASKED);
+                    VMV_X_S(x4, d0);
+                    VMV_V_X(d0, x4);
+                    VECTOR_LOAD_VMASK((u8 & 0xf), x4, 1);
+                    VMERGE_VVM(q0, v1, d0);
+                    break;
                 default: DEFAULT_VECTOR;
             }
             break;
@@ -875,6 +894,20 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VXOR_VI(v0, v0, 0x1F, VECTOR_UNMASKED);
                 VMAND_MM(VMASK, v0, VMASK);
                 VFSGNJN_VV(q0, q0, q0, VECTOR_MASKED);
+            }
+            break;
+        case 0x5B:
+            INST_NAME("CVTPS2DQ Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETEX_vector(v1, 0, 0, VECTOR_SEW32);
+            GETGX_empty_vector(v0);
+            if (box64_dynarec_fastround) {
+                u8 = sse_setround(dyn, ninst, x6, x4);
+                VFCVT_X_F_V(v0, v1, VECTOR_UNMASKED);
+                x87_restoreround(dyn, ninst, u8);
+            } else {
+                return 0;
             }
             break;
         case 0x5C:
