@@ -501,6 +501,24 @@
         addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
     }
 
+
+#define GETGY()                                 \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    gback = xEmu;                               \
+    gdoffset = offsetof(x64emu_t, ymm[gd])
+
+#define GETEY(a, D, I12)                                                                         \
+    if (MODREG) {                                                                                \
+        ed = (nextop & 7) + (rex.b << 3);                                                        \
+        fixedaddress = offsetof(x64emu_t, ymm[ed]);                                              \
+        wback = xEmu;                                                                            \
+    } else {                                                                                     \
+        SMREAD();                                                                                \
+        ed = 16;                                                                                 \
+        addr = geted(dyn, addr, ninst, nextop, &wback, a, x3, &fixedaddress, rex, NULL, I12, D); \
+        fixedaddress+=16;                                                                        \
+    }
+
 // Get GX as a quad (might use x1)
 #define GETGX_vector(a, w, sew)                 \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
@@ -1157,6 +1175,7 @@ void* rv64_next(x64emu_t* emu, uintptr_t addr);
 #define dynarec64_F30F_vector   STEPNAME(dynarec64_F30F_vector)
 
 #define dynarec64_AVX       STEPNAME(dynarec64_AVX)
+#define dynarec64_AVX_0F    STEPNAME(dynarec64_AVX_0F)
 #define dynarec64_AVX_F3_0F STEPNAME(dynarec64_AVX_F3_0F)
 
 #define geted               STEPNAME(geted)
@@ -1592,6 +1611,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
 uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 
 uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
