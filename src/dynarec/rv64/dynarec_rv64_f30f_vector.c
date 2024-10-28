@@ -204,24 +204,36 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 v1 = fpu_get_scratch(dyn);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 LWU(x4, ed, fixedaddress);
-                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            q0 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VMV_V_V(q1, VMASK);
-            VMFEQ_VV(d0, v0, v0, VECTOR_MASKED);
-            VMFEQ_VV(d1, v1, v1, VECTOR_MASKED);
-            VMAND_MM(d0, d0, d1);
-            VFMIN_VV(q0, v0, v1, VECTOR_MASKED);
-            VMANDN_MM(VMASK, VMASK, d0);
-            VMERGE_VVM(v0, v0, v1);
-            VMAND_MM(VMASK, q1, d0);
-            VMERGE_VVM(v0, v0, q0);
+            if (box64_dynarec_fastnan) {
+                q0 = fpu_get_scratch(dyn);
+                VECTOR_LOAD_VMASK(0b0001, x4, 1);
+                VFMIN_VV(q0, v0, v1, VECTOR_MASKED);
+                VMERGE_VVM(v0, v0, q0);
+            } else {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFMV_F_S(d0, v0);
+                VFMV_F_S(d1, v1);
+                FEQS(x2, d0, d0);
+                FEQS(x3, d1, d1);
+                AND(x2, x2, x3);
+                BEQ_MARK(x2, xZR);
+                FLES(x2, d1, d0);
+                BEQ_MARK2(x2, xZR);
+                MARK;
+                FMVS(d0, d1);
+                MARK2;
+                if (rv64_xtheadvector) {
+                    VFMV_S_F(d0, d0);
+                    VECTOR_LOAD_VMASK(0b0001, x4, 1);
+                    VMERGE_VVM(v0, v0, d0); // implies VMASK
+                } else {
+                    VFMV_S_F(v0, d0);
+                }
+            }
             break;
         case 0x5F:
             INST_NAME("MAXSS Gx, Ex");
@@ -235,24 +247,36 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 v1 = fpu_get_scratch(dyn);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 LWU(x4, ed, fixedaddress);
-                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            q0 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VMV_V_V(q1, VMASK);
-            VMFEQ_VV(d0, v0, v0, VECTOR_MASKED);
-            VMFEQ_VV(d1, v1, v1, VECTOR_MASKED);
-            VMAND_MM(d0, d0, d1);
-            VFMAX_VV(q0, v0, v1, VECTOR_MASKED);
-            VMANDN_MM(VMASK, VMASK, d0);
-            VMERGE_VVM(v0, v0, v1);
-            VMAND_MM(VMASK, q1, d0);
-            VMERGE_VVM(v0, v0, q0);
+            if (box64_dynarec_fastnan) {
+                q0 = fpu_get_scratch(dyn);
+                VECTOR_LOAD_VMASK(0b0001, x4, 1);
+                VFMIN_VV(q0, v0, v1, VECTOR_MASKED);
+                VMERGE_VVM(v0, v0, q0);
+            } else {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFMV_F_S(d0, v0);
+                VFMV_F_S(d1, v1);
+                FEQS(x2, d0, d0);
+                FEQS(x3, d1, d1);
+                AND(x2, x2, x3);
+                BEQ_MARK(x2, xZR);
+                FLES(x2, d0, d1);
+                BEQ_MARK2(x2, xZR);
+                MARK;
+                FMVS(d0, d1);
+                MARK2;
+                if (rv64_xtheadvector) {
+                    VFMV_S_F(d0, d0);
+                    VECTOR_LOAD_VMASK(0b0001, x4, 1);
+                    VMERGE_VVM(v0, v0, d0); // implies VMASK
+                } else {
+                    VFMV_S_F(v0, d0);
+                }
+            }
             break;
         case 0xAE:
         case 0xB8:
