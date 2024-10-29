@@ -6,14 +6,18 @@
 # Generic names
 #
 [*setup*]
+# using safest dynarec settings here, has some installers do crazy things
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_BIGBLOCK=0
 BOX64_DYNAREC_CALLRET=0
+BOX64_DYNAREC_NATIVEFLAGS=0
 
 [*install*]
+# using safest dynarec settings here, has some installers do crazy things
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_BIGBLOCK=0
 BOX64_DYNAREC_CALLRET=0
+BOX64_DYNAREC_NATIVEFLAGS=0
 
 #
 # Linux process
