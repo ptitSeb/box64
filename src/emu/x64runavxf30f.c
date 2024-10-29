@@ -142,12 +142,12 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGD;
             if (rex.w) {
-                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>(float)0x7fffffffffffffffLL)
+                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL)
                     GD->q[0] = 0x8000000000000000LL;
                 else
                     GD->sq[0] = EX->f[0];
             } else {
-                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>(float)0x7fffffff)
+                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffff)
                     GD->dword[0] = 0x80000000;
                 else
                     GD->sdword[0] = EX->f[0];
@@ -159,7 +159,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGD;
             if(rex.w) {
-                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>(float)0x7fffffffffffffffLL)
+                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL)
                     GD->q[0] = 0x8000000000000000LL;
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {
