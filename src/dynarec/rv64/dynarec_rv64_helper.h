@@ -507,7 +507,7 @@
     gback = xEmu;                               \
     gdoffset = offsetof(x64emu_t, ymm[gd])
 
-#define GETEY(a, D, I12)                            \
+#define GETEY()                                     \
     if (MODREG) {                                   \
         ed = (nextop & 7) + (rex.b << 3);           \
         fixedaddress = offsetof(x64emu_t, ymm[ed]); \

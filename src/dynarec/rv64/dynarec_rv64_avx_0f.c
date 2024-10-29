@@ -66,11 +66,11 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             INST_NAME("VMOVUPS Gx,Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, 8);
+            GETEX(x2, 0, 24);
             SSE_LOOP_MV_Q(x3);
             if (vex.l) {
                 GETGY();
-                GETEY(x2, 0, 16);
+                GETEY();
                 SSE_LOOP_MV_Q(x3);
             }
             if (!vex.l) YMM0(gd);
@@ -79,11 +79,11 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             INST_NAME("VMOVUPS Ex,Gx");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, 8);
+            GETEX(x2, 0, 24);
             SSE_LOOP_MV_Q2(x3);
             if (vex.l) {
                 GETGY();
-                GETEY(x2, 0, 16);
+                GETEY();
                 SSE_LOOP_MV_Q2(x3);
             }
             if (!MODREG) SMWRITE2();
