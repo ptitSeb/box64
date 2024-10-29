@@ -877,6 +877,11 @@ static uint8_t getNativeFlagsUsed(dynarec_arm_t* dyn, int start, uint8_t flags)
         // check if flags are destroyed, cancel the use then
         if(dyn->insts[ninst].nat_flags_op && (start!=ninst))
             return 0;
+        // check if flags are used, but not the natives ones
+        if(dyn->insts[ninst].x64.use_flags) {
+            if(flag2native(dyn->insts[ninst].x64.use_flags)&used_flags)
+                return 0;
+        }
         // check if flags are generated without native option
         if((start!=ninst) && dyn->insts[ninst].x64.gen_flags && (flag2native(dyn->insts[ninst].x64.gen_flags&dyn->insts[ninst].x64.need_after)&used_flags)) {
             if(used_flags&~flag2native(dyn->insts[ninst].x64.gen_flags&dyn->insts[ninst].x64.need_after))
