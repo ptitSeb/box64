@@ -589,8 +589,10 @@
 #() iFpOi
 #() iFpOu
 #() iFpSu
+#() iFpSp
 #() iFSIi
 #() iFSli
+#() iFSpi
 #() iFSpL
 #() iFSpp
 #() iFSpA
@@ -794,6 +796,7 @@
 #() pFppp
 #() pFppS
 #() pFppA
+#() pFpSp
 #() pFpbi
 #() pFSpl
 #() pFbCC
@@ -1037,6 +1040,7 @@
 #() iFipLp
 #() iFippi
 #() iFippu
+#() iFippl
 #() iFippL
 #() iFippp
 #() iFipON
@@ -1158,6 +1162,7 @@
 #() iFpppL
 #() iFpppp
 #() iFpONN
+#() iFSpii
 #() iFSpiL
 #() iFbupp
 #() IFEpIi
@@ -1282,11 +1287,13 @@
 #() pFiiup
 #() pFiiLp
 #() pFiipi
+#() pFiipp
 #() pFiIIi
 #() pFillu
 #() pFipip
 #() pFippi
 #() pFippu
+#() pFippl
 #() pFippL
 #() pFippp
 #() pFuuii
@@ -2585,6 +2592,7 @@
 #() iFppppdpu
 #() iFpppppip
 #() iFpppppLp
+#() iFppppppi
 #() iFppppppu
 #() iFppppppp
 #() uFEiipppp
@@ -2808,10 +2816,12 @@
 #() iFppuiiuuu
 #() iFppuuuuuu
 #() iFppuppppp
+#() iFppLpLpLi
 #() iFpppiiipi
 #() iFpppiiipp
 #() iFpppipipi
 #() iFppppiiup
+#() iFppppiipp
 #() iFppppippp
 #() iFppppuplu
 #() iFpppppupp
@@ -3384,9 +3394,8 @@ wrappedcrypto3:
 - pFp:
   - OPENSSL_sk_new
 - vFpp:
-  - X509_STORE_CTX_set_verify_cb
-- pFpp:
   - OPENSSL_sk_pop_free
+  - X509_STORE_CTX_set_verify_cb
 - vFppp:
   - EVP_MD_do_all_provided
 - iFppp:

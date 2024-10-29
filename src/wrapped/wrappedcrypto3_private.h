@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(a2d_ASN1_OBJECT, iFpipi)
@@ -42,7 +42,7 @@ GO(AES_wrap_key, iFppppi)
 //GO(_armv8_sha1_probe, 
 //GO(_armv8_sha256_probe, 
 //GO(asn1_add_error, 
-//GO(ASN1_add_oid_module, 
+GO(ASN1_add_oid_module, vFv)
 GO(ASN1_BIT_STRING_check, iFppi)
 GO(ASN1_BIT_STRING_free, vFp)
 GO(ASN1_BIT_STRING_get_bit, iFpi)
@@ -59,11 +59,11 @@ GO(ASN1_check_infinite_end, iFpl)
 GO(ASN1_const_check_infinite_end, iFpl)
 //GO(asn1_const_Finish, 
 GOM(ASN1_d2i_bio, pFEpppp)
-//GO(ASN1_d2i_fp, 
+//GOM(ASN1_d2i_fp, pFEppSp)
 //GO(ASN1_digest, 
 //GO(asn1_do_adb, 
 //GO(asn1_do_lock, 
-//GO(ASN1_dup, 
+//GOM(ASN1_dup, pFEppp)
 //GO(asn1_enc_free, 
 //GO(asn1_enc_init, 
 //GO(asn1_enc_restore, 
@@ -93,7 +93,7 @@ GO(ASN1_generate_v3, pFpp)
 GO(ASN1_get_object, iFppppl)
 //GO(asn1_GetSequence, 
 GOM(ASN1_i2d_bio, iFEppp)
-//GO(ASN1_i2d_fp, 
+//GOM(ASN1_i2d_fp, iFEpSp)
 GO(ASN1_IA5STRING_free, vFp)
 GO(ASN1_IA5STRING_new, pFv)
 GO(ASN1_INTEGER_cmp, iFpp)
@@ -105,7 +105,7 @@ GO(ASN1_INTEGER_set, iFpl)
 GO(ASN1_INTEGER_to_BN, pFpp)
 GO(ASN1_item_d2i, pFpplp)
 GO(ASN1_item_d2i_bio, pFppp)
-GO(ASN1_item_d2i_fp, pFppp)
+GO(ASN1_item_d2i_fp, pFpSp)
 //GO(ASN1_item_digest, 
 GO(ASN1_item_dup, pFpp)
 //GO(ASN1_item_ex_d2i, 
@@ -113,9 +113,9 @@ GO(ASN1_item_dup, pFpp)
 //GO(ASN1_item_ex_i2d, 
 //GO(ASN1_item_ex_new, 
 GO(ASN1_item_free, vFpp)
-//GO(ASN1_item_i2d, 
+GO(ASN1_item_i2d, iFppp)
 GO(ASN1_item_i2d_bio, iFppp)
-GO(ASN1_item_i2d_fp, iFppp)
+GO(ASN1_item_i2d_fp, iFpSp)
 GO(ASN1_item_ndef_i2d, iFppp)
 GO(ASN1_item_new, pFp)
 GO(ASN1_item_pack, pFppp)
@@ -141,21 +141,21 @@ GO(ASN1_OCTET_STRING_set, iFppi)
 GO(ASN1_parse, iFppli)
 GO(ASN1_parse_dump, iFpplii)
 GO(ASN1_PCTX_free, vFp)
-//GO(ASN1_PCTX_get_cert_flags, 
-//GO(ASN1_PCTX_get_flags, 
-//GO(ASN1_PCTX_get_nm_flags, 
-//GO(ASN1_PCTX_get_oid_flags, 
+GO(ASN1_PCTX_get_cert_flags, LFp)
+GO(ASN1_PCTX_get_flags, LFp)
+GO(ASN1_PCTX_get_nm_flags, LFp)
+GO(ASN1_PCTX_get_oid_flags, LFp)
 GO(ASN1_PCTX_get_str_flags, LFp)
 GO(ASN1_PCTX_new, pFv)
-//GO(ASN1_PCTX_set_cert_flags, 
-//GO(ASN1_PCTX_set_flags, 
-//GO(ASN1_PCTX_set_nm_flags, 
-//GO(ASN1_PCTX_set_oid_flags, 
+GO(ASN1_PCTX_set_cert_flags, vFpL)
+GO(ASN1_PCTX_set_flags, vFpL)
+GO(ASN1_PCTX_set_nm_flags, vFpL)
+GO(ASN1_PCTX_set_oid_flags, vFpL)
 GO(ASN1_PCTX_set_str_flags, vFpL)
 //GO(ASN1_primitive_free, 
 //GO(ASN1_primitive_new, 
-//GO(ASN1_PRINTABLE_free, 
-//GO(ASN1_PRINTABLE_new, 
+GO(ASN1_PRINTABLE_free, vFp)
+GO(ASN1_PRINTABLE_new, pFv)
 GO(ASN1_PRINTABLESTRING_free, vFp)
 GO(ASN1_PRINTABLESTRING_new, pFv)
 GO(ASN1_PRINTABLE_type, iFpi)
@@ -165,7 +165,7 @@ GO(ASN1_put_object, vFpiiii)
 //GO(ASN1_seq_unpack, 
 //GO(asn1_set_choice_selector, 
 //GO(ASN1_sign, 
-//GO(ASN1_STRING_clear_free, 
+GO(ASN1_STRING_clear_free, vFp)
 GO(ASN1_STRING_cmp, iFpp)
 GO(ASN1_STRING_copy, iFpp)
 GO(ASN1_STRING_data, pFp)
@@ -175,17 +175,17 @@ GO(ASN1_STRING_get0_data, pFp)
 GO(ASN1_STRING_get_default_mask, LFv)
 GO(ASN1_STRING_length, iFp)
 GO(ASN1_STRING_length_set, vFpi)
-//GO(ASN1_STRING_new, 
+GO(ASN1_STRING_new, pFv)
 GO(ASN1_STRING_print, iFpp)
 GO(ASN1_STRING_print_ex, iFppL)
-GO(ASN1_STRING_print_ex_fp, iFppL)
+GO(ASN1_STRING_print_ex_fp, iFSpL)
 GO(ASN1_STRING_set, iFppi)
 GO(ASN1_STRING_set0, vFppi)
 GO(ASN1_STRING_set_by_NID, pFppiii)
 GO(ASN1_STRING_set_default_mask, vFL)
 GO(ASN1_STRING_set_default_mask_asc, iFp)
 GO(ASN1_STRING_TABLE_add, iFillLL)
-//GO(ASN1_STRING_TABLE_cleanup, 
+GO(ASN1_STRING_TABLE_cleanup, vFv)
 GO(ASN1_STRING_TABLE_get, pFi)
 GO(ASN1_STRING_to_UTF8, iFpp)
 GO(ASN1_STRING_type, iFp)
@@ -206,7 +206,7 @@ GO(ASN1_TIME_free, vFp)
 GO(ASN1_TIME_new, pFv)
 GO(ASN1_TIME_print, iFpp)
 GO(ASN1_TIME_set, pFpl)
-//GO(ASN1_TIME_set_string, 
+GO(ASN1_TIME_set_string, iFpp)
 GO(ASN1_TIME_to_generalizedtime, pFpp)
 GO(ASN1_TYPE_cmp, iFpp)
 GO(ASN1_TYPE_free, vFp)
@@ -257,48 +257,48 @@ GO(BF_ofb64_encrypt, vFpplppp)
 GO(BF_options, pFv)
 GO(BF_set_key, vFpip)
 GO(BIO_accept, iFip)
-//GO(BIO_asn1_get_prefix, 
-GO(BIO_asn1_get_suffix, iFppp)
-//GO(BIO_asn1_set_prefix, 
-//GO(BIO_asn1_set_suffix, 
-//GO(BIO_callback_ctrl, 
+//GOM(BIO_asn1_get_prefix, iFEppp)
+GO(BIO_asn1_get_suffix, iFppp)  // might need GOM, the 2 last p are functions pointers
+//GOM(BIO_asn1_set_prefix, iFEppp)
+//GOM(BIO_asn1_set_suffix, iFEppp)
+//GOM(BIO_callback_ctrl, lFEpip)
 GO(BIO_clear_flags, vFpi)
 //GO(BIO_CONNECT_free, 
 //GO(BIO_CONNECT_new, 
 GO(BIO_copy_next_retry, vFp)
 GO(BIO_ctrl, lFpilp)
 GO(BIO_ctrl_get_read_request, LFp)
-//GO(BIO_ctrl_get_write_guarantee, 
+GO(BIO_ctrl_get_write_guarantee, LFp)
 GO(BIO_ctrl_pending, LFp)
-//GO(BIO_ctrl_reset_read_request, 
+GO(BIO_ctrl_reset_read_request, iFp)
 GO(BIO_ctrl_wpending, LFp)
 GO(BIO_debug_callback, lFpipill)
-//GO(BIO_dgram_non_fatal_error, 
+GO(BIO_dgram_non_fatal_error, iFi)
 GO(BIO_dump, iFppi)
-//GO(BIO_dump_cb, 
-GO(BIO_dump_fp, iFppi)
+//GOM(BIO_dump_cb, iFEpppi)
+GO(BIO_dump_fp, iFSpi)
 GO(BIO_dump_indent, iFppii)
-//GO(BIO_dump_indent_cb, 
-GO(BIO_dump_indent_fp, iFppii)
+//GOM(BIO_dump_indent_cb, iFEpppii)
+GO(BIO_dump_indent_fp, iFSpii)
 GO(BIO_dup_chain, pFp)
 GO(BIO_eof, iFp)
 GO(BIO_f_asn1, pFv)
-//GO(BIO_f_base64, 
-//GO(BIO_f_buffer, 
-//GO(BIO_f_cipher, 
-//GO(BIO_fd_non_fatal_error, 
-//GO(BIO_fd_should_retry, 
+GO(BIO_f_base64, pFv)
+GO(BIO_f_buffer, pFv)
+GO(BIO_f_cipher, pFv)
+GO(BIO_fd_non_fatal_error, iFi)
+GO(BIO_fd_should_retry, iFi)
 GO(BIO_flush, iFp)
 GO(BIO_find_type, pFpi)
-//GO(BIO_f_md, 
-//GO(BIO_f_nbio_test, 
-//GO(BIO_f_null, 
+GO(BIO_f_md, pFv)
+GO(BIO_f_nbio_test, pFv)
+GO(BIO_f_null, pFv)
 GO(BIO_free, iFp)
 GO(BIO_free_all, vFp)
-//GO(BIO_f_reliable, 
+GO(BIO_f_reliable, pFv)
 //GO(BIO_f_zlib, 
 GO(BIO_get_accept_socket, iFpi)
-GO(BIO_get_callback, pFp)
+GO(BIO_get_callback, pFp)   // might need GOM to unwrap callback?
 GO(BIO_get_callback_arg, pFp)
 GO(BIO_get_close, iFp)
 GO(BIO_get_ex_data, pFpi)
@@ -310,7 +310,7 @@ GO(BIO_get_retry_BIO, pFpp)
 GO(BIO_get_retry_reason, iFp)
 GO(BIO_gets, iFppi)
 GO(BIO_hex_string, iFpiipi)
-//GO(BIO_indent, 
+GO(BIO_indent, iFpii)
 GO(BIO_int_ctrl, lFpili)
 GO(BIO_method_name, pFp)
 GO(BIO_method_type, iFp)
@@ -318,75 +318,75 @@ GO(BIO_new, pFp)
 GO(BIO_new_accept, pFp)
 GO(BIO_new_bio_pair, iFpLpL)
 //GO(BIO_new_CMS, 
-//GO(BIO_new_connect, 
-//GO(BIO_new_dgram, 
+GO(BIO_new_connect, pFp)
+GO(BIO_new_dgram, pFii)
 GO(BIO_new_fd, pFii)
 GO(BIO_new_file, pFpp)
-GO(BIO_new_fp, pFpi)
+GO(BIO_new_fp, pFSi)
 GO(BIO_new_mem_buf, pFpi)
 GO(BIO_new_NDEF, pFppp)
 //GO(BIO_new_PKCS7, 
-//GO(BIO_new_socket, 
-//GO(BIO_next, 
-//GO(BIO_nread, 
-//GO(BIO_nread0, 
-//GO(BIO_number_read, 
-GO(BIO_number_written, LFp)
+GO(BIO_new_socket, pFii)
+GO(BIO_next, pFp)
+GO(BIO_nread, iFppi)
+GO(BIO_nread0, iFpp)
+GO(BIO_number_read, UFp)
+GO(BIO_number_written, UFp)
 GO(BIO_nwrite, iFppi)
 GO(BIO_nwrite0, iFpp)
 GO(BIO_pending, iFp)
-//GO(BIO_pop, 
+GO(BIO_pop, pFp)
 GOM(BIO_printf, iFEppV)
 GO(BIO_ptr_ctrl, pFpil)
 GO(BIO_push, pFpp)
 GO(BIO_puts, iFpp)
 GO(BIO_read, iFppi)
 GO(BIO_reset, iFp)
-//GO(BIO_s_accept, 
-//GO(BIO_s_bio, 
-//GO(BIO_s_connect, 
+GO(BIO_s_accept, pFv)
+GO(BIO_s_bio, pFv)
+GO(BIO_s_connect, pFv)
 GO(BIO_s_datagram, pFv)
 GO(BIO_seek, iFpi)
 GO(BIO_set, iFpp)
-//GO(BIO_set_callback, 
+//GOM(BIO_set_callback, vFEpp)
 GO(BIO_set_callback_arg, vFpp)
 GO(BIO_set_close, iFpl)
-//GO(BIO_set_cipher, 
+GO(BIO_set_cipher, iFppppi)
 GO(BIO_set_ex_data, iFpip)
 GO(BIO_set_flags, vFpi)
 GO(BIO_set_tcp_ndelay, iFii)
-//GO(BIO_s_fd, 
+GO(BIO_s_fd, pFv)
 GO(BIO_s_file, pFv)
-//GO(BIO_s_log, 
+GO(BIO_s_log, pFv)
 GO(BIO_s_mem, pFv)
-//GO(BIO_snprintf, 
-//GO(BIO_s_null, 
+//GOM(BIO_snprintf, iFEpLpV)
+GO(BIO_s_null, pFv)
 //GO(BIO_sock_cleanup, 
-//GO(BIO_sock_error, 
+GO(BIO_sock_error, iFi)
 GO(BIO_socket_ioctl, iFilp)
-//GO(BIO_socket_nbio, 
+GO(BIO_socket_nbio, iFii)
 GO(BIO_sock_init, iFv)
-//GO(BIO_sock_non_fatal_error, 
-//GO(BIO_sock_should_retry, 
-//GO(BIO_s_socket, 
+GO(BIO_sock_non_fatal_error, iFi)
+GO(BIO_sock_should_retry, iFi)
+GO(BIO_s_socket, pFv)
 GO(BIO_tell, iFp)
 GO(BIO_test_flags, iFpi)
 GO(BIO_up_ref, iFp)
 GO(BIO_vfree, vFp)
-//GO(BIO_vprintf, 
-//GO(BIO_vsnprintf, 
+//GOM(BIO_vprintf, iFEppA)
+//GOM(BIO_vsnprintf, iFEpLpA)
 GO(BIO_wpending, iFp)
 GO(BIO_write, iFppi)
 GO(BN_add, iFppp)
 //GO(bn_add_part_words, 
-GO(BN_add_word, iFpu)
+GO(BN_add_word, iFpL)
 //GO(bn_add_words, 
 GO(BN_asc2bn, iFpp)
 GO(BN_bin2bn, pFpip)
-//GO(BN_BLINDING_convert, 
+GO(BN_BLINDING_convert, iFppp)
 GO(BN_BLINDING_convert_ex, iFpppp)
-//GO(BN_BLINDING_create_param, 
-//GO(BN_BLINDING_free, 
+//GOM(BN_BLINDING_create_param, pFEpppppp)
+GO(BN_BLINDING_free, vFp)
 GO(BN_BLINDING_get_flags, LFp)
 //GO(BN_BLINDING_get_thread_id, 
 GO(BN_BLINDING_invert, iFppp)
@@ -414,7 +414,7 @@ GO(BN_CTX_free, vFp)
 GO(BN_CTX_get, pFp)
 GO(BN_CTX_init, vFp)
 GO(BN_CTX_new, pFv)
-//GO(BN_CTX_start, 
+GO(BN_CTX_start, vFp)
 GO(BN_dec2bn, iFpp)
 GO(BN_div, iFppppp)
 GO(BN_div_recp, iFppppp)
@@ -428,60 +428,60 @@ GO(BN_free, vFp)
 GO(BN_from_montgomery, iFpppp)
 GO(BN_gcd, iFpppp)
 GO(BN_GENCB_call, iFpii)
-//GO(BN_generate_prime, pFpiippBp) //callback previous last argument...
+//GOM(BN_generate_prime, pFEpiipppp)
 GO(BN_generate_prime_ex, iFpiippp)
-//GO(BN_get0_nist_prime_192, 
-//GO(BN_get0_nist_prime_224, 
-//GO(BN_get0_nist_prime_256, 
-//GO(BN_get0_nist_prime_384, 
+GO(BN_get0_nist_prime_192, pFv)
+GO(BN_get0_nist_prime_224, pFv)
+GO(BN_get0_nist_prime_256, pFv)
+GO(BN_get0_nist_prime_384, pFv)
 GO(BN_get0_nist_prime_521, pFv)
 GO(BN_get_params, iFi)
 GO(BN_get_word, LFp)
-//GO(BN_GF2m_add, 
+GO(BN_GF2m_add, iFppp)
 GO(BN_GF2m_arr2poly, iFpp)
 GO(BN_GF2m_mod, iFppp)
 GO(BN_GF2m_mod_arr, iFppp)
-//GO(BN_GF2m_mod_div, 
-//GO(BN_GF2m_mod_div_arr, 
+GO(BN_GF2m_mod_div, iFppppp)
+GO(BN_GF2m_mod_div_arr, iFppppp)
 GO(BN_GF2m_mod_exp, iFppppp)
 GO(BN_GF2m_mod_exp_arr, iFppppp)
-//GO(BN_GF2m_mod_inv, 
-//GO(BN_GF2m_mod_inv_arr, 
-//GO(BN_GF2m_mod_mul, 
-//GO(BN_GF2m_mod_mul_arr, 
-//GO(BN_GF2m_mod_solve_quad, 
+GO(BN_GF2m_mod_inv, iFpppp)
+GO(BN_GF2m_mod_inv_arr, iFpppp)
+GO(BN_GF2m_mod_mul, iFppppp)
+GO(BN_GF2m_mod_mul_arr, iFppppp)
+GO(BN_GF2m_mod_solve_quad, iFpppp)
 GO(BN_GF2m_mod_solve_quad_arr, iFpppp)
-//GO(BN_GF2m_mod_sqr, 
-//GO(BN_GF2m_mod_sqr_arr, 
-//GO(BN_GF2m_mod_sqrt, 
-//GO(BN_GF2m_mod_sqrt_arr, 
+GO(BN_GF2m_mod_sqr, iFpppp)
+GO(BN_GF2m_mod_sqr_arr, iFpppp)
+GO(BN_GF2m_mod_sqrt, iFpppp)
+GO(BN_GF2m_mod_sqrt_arr, iFpppp)
 //GO(bn_GF2m_mul_2x2, 
 GO(BN_GF2m_poly2arr, iFppi)
 GO(BN_hex2bn, iFpp)
 //GO(BN_init, 
 GO(BN_is_bit_set, iFpi)
-//GO(BN_is_prime, iFpiBpp)  // third argument is a callback
+//GOM(BN_is_prime, iFEpippp)  // third argument is a callback
 GO(BN_is_prime_ex, iFpipp)
-//GO(BN_is_prime_fasttest, 
+//GOM(BN_is_prime_fasttest, iFEpipppi)
 GO(BN_is_prime_fasttest_ex, iFpipip)
-GO(BN_is_zero, iFp) 
+GO(BN_is_zero, iFp)
 GO(BN_kronecker, iFppp)
 GO(BN_lshift, iFppi)
 GO(BN_lshift1, iFpp)
 GO(BN_mask_bits, iFpi)
 GO(BN_mod_add, iFppppp)
-//GO(BN_mod_add_quick, 
+GO(BN_mod_add_quick, iFpppp)
 GO(BN_mod_exp, iFppppp)
 GO(BN_mod_exp2_mont, iFpppppppp)
-//GO(BN_mod_exp_mont, 
+GO(BN_mod_exp_mont, iFpppppp)
 GO(BN_mod_exp_mont_consttime, iFpppppp)
 GO(BN_mod_exp_mont_word, iFpLpppp)
-//GO(BN_mod_exp_recp, 
-//GO(BN_mod_exp_simple, 
+GO(BN_mod_exp_recp, iFppppp)
+GO(BN_mod_exp_simple, iFppppp)
 GO(BN_mod_inverse, pFpppp)
 GO(BN_mod_lshift, iFppipp)
-//GO(BN_mod_lshift1, 
-//GO(BN_mod_lshift1_quick, 
+GO(BN_mod_lshift1, iFpppp)
+GO(BN_mod_lshift1_quick, iFppp)
 GO(BN_mod_lshift_quick, iFppip)
 GO(BN_mod_mul, iFppppp)
 GO(BN_mod_mul_montgomery, iFppppp)
@@ -509,13 +509,13 @@ GO(BN_mul, iFpppp)
 //GO(bn_mul_normal, 
 //GO(bn_mul_part_recursive, 
 //GO(bn_mul_recursive, 
-GO(BN_mul_word, iFpu)
+GO(BN_mul_word, iFpL)
 //GO(bn_mul_words, 
 GO(BN_new, pFv)
-//GO(BN_nist_mod_192, 
-//GO(BN_nist_mod_224, 
-//GO(BN_nist_mod_256, 
-//GO(BN_nist_mod_384, 
+GO(BN_nist_mod_192, iFpppp)
+GO(BN_nist_mod_224, iFpppp)
+GO(BN_nist_mod_256, iFpppp)
+GO(BN_nist_mod_384, iFpppp)
 GO(BN_nist_mod_521, iFpppp)
 GO(BN_nnmod, iFpppp)
 GO(BN_num_bits, iFp)
@@ -523,11 +523,11 @@ GO(BN_num_bits_word, iFL)
 GO(BN_one, iFp)
 GO(BN_options, pFv)
 GO(BN_print, iFpp)
-GO(BN_print_fp, iFpp)
+GO(BN_print_fp, iFSp)
 GO(BN_pseudo_rand, iFpiii)
 GO(BN_pseudo_rand_range, iFpp)
 GO(BN_rand, iFpiii)
-//GO(BN_rand_range, 
+GO(BN_rand_range, iFpp)
 GO(BN_reciprocal, iFppip)
 GO(BN_RECP_CTX_free, vFp)
 //GO(BN_RECP_CTX_init, 
@@ -547,14 +547,14 @@ GO(BN_sqr, iFppp)
 //GO(bn_sqr_words, 
 GO(BN_sub, iFppp)
 //GO(bn_sub_part_words, 
-GO(BN_sub_word, iFpu)
+GO(BN_sub_word, iFpL)
 //GO(bn_sub_words, 
 GO(BN_swap, vFpp)
 GO(BN_to_ASN1_ENUMERATED, pFpp)
 GO(BN_to_ASN1_INTEGER, pFpp)
-//GO(BN_uadd, 
+GO(BN_uadd, iFppp)
 GO(BN_ucmp, iFpp)
-//GO(BN_usub, 
+GO(BN_usub, iFppp)
 GO(BN_value_one, pFv)
 GO(BN_X931_derive_prime_ex, iFppppppppp)
 GO(BN_X931_generate_prime_ex, iFppppppppp)
@@ -851,7 +851,7 @@ GO(CRYPTO_free_ex_data, vFipp)
 //GO(CRYPTO_get_dynlock_value, 
 GO(CRYPTO_get_ex_data, pFpi)
 //GO(CRYPTO_get_ex_data_implementation, 
-GO(CRYPTO_get_ex_new_index, iFilpppp)
+GO(CRYPTO_get_ex_new_index, iFilpppp)   // might need GOM, last 3 pointers are functions
 //GO(CRYPTO_get_id_callback, 
 //GO(CRYPTO_get_locked_mem_ex_functions, 
 //GO(CRYPTO_get_locked_mem_functions, 
@@ -860,12 +860,12 @@ GO(CRYPTO_get_ex_new_index, iFilpppp)
 //GO(CRYPTO_get_mem_debug_functions, 
 //GO(CRYPTO_get_mem_debug_options, 
 //GO(CRYPTO_get_mem_ex_functions, 
-GO(CRYPTO_get_mem_functions, vFppp)
+GO(CRYPTO_get_mem_functions, vFppp) // might need GOM, 3 function pointers retreived
 //GO(CRYPTO_get_new_dynlockid, 
 //GO(CRYPTO_get_new_lockid, 
 //GO(CRYPTO_is_mem_check_on, 
 //GO(CRYPTO_lock, 
-GO(CRYPTO_malloc, pFupi)
+GO(CRYPTO_malloc, pFLpi)
 //GO(CRYPTO_malloc_locked, 
 GO(CRYPTO_memcmp, iFppL)
 //GO(CRYPTO_mem_ctrl, 
@@ -898,7 +898,7 @@ GOM(CRYPTO_set_locking_callback, vFEp)
 //GO(CRYPTO_set_mem_debug_functions, 
 //GO(CRYPTO_set_mem_debug_options, 
 //GO(CRYPTO_set_mem_ex_functions, 
-//GO(CRYPTO_set_mem_functions, 
+//GOM(CRYPTO_set_mem_functions, iFEppp)
 GO(CRYPTO_strdup, pFppi)
 //GO(CRYPTO_thread_id, 
 //GO(CRYPTO_THREADID_cmp, 
@@ -919,13 +919,13 @@ GO(d2i_ASN1_ENUMERATED, pFppl)
 GO(d2i_ASN1_GENERALIZEDTIME, pFppl)
 GO(d2i_ASN1_GENERALSTRING, pFppl)
 GO(d2i_ASN1_IA5STRING, pFppl)
-//GO(d2i_ASN1_INTEGER, 
+GO(d2i_ASN1_INTEGER, pFppl)
 GO(d2i_ASN1_NULL, pFppl)
 GO(d2i_ASN1_OBJECT, pFppl)
 GO(d2i_ASN1_OCTET_STRING, pFppl)
-//GO(d2i_ASN1_PRINTABLE, 
+GO(d2i_ASN1_PRINTABLE, pFppl)
 GO(d2i_ASN1_PRINTABLESTRING, pFppl)
-//GO(d2i_ASN1_SEQUENCE_ANY, 
+GO(d2i_ASN1_SEQUENCE_ANY, pFppl)
 //GO(d2i_ASN1_SET, 
 GO(d2i_ASN1_SET_ANY, pFppl)
 GO(d2i_ASN1_T61STRING, pFppl)
@@ -948,7 +948,7 @@ GO(d2i_BASIC_CONSTRAINTS, pFppl)
 //GO(d2i_CRL_DIST_POINTS, 
 GO(d2i_DHparams, pFppl)
 //GO(d2i_DHxparams, 
-//GO(d2i_DIRECTORYSTRING, 
+GO(d2i_DIRECTORYSTRING, pFppl)
 GO(d2i_DISPLAYTEXT, pFppl)
 //GO(d2i_DIST_POINT, 
 //GO(d2i_DIST_POINT_NAME, 
@@ -1047,7 +1047,7 @@ GO(d2i_PKCS8_PRIV_KEY_INFO_fp, pFpp)
 //GO(d2i_PKEY_USAGE_PERIOD, 
 //GO(d2i_POLICYINFO, 
 //GO(d2i_POLICYQUALINFO, 
-GO(d2i_PrivateKey, pFppl)
+GO(d2i_PrivateKey, pFippl)
 GO(d2i_PrivateKey_bio, pFpp)
 GO(d2i_PrivateKey_fp, pFpp)
 //GO(d2i_PROXY_CERT_INFO_EXTENSION, 
@@ -1055,7 +1055,7 @@ GO(d2i_PrivateKey_fp, pFpp)
 GO(d2i_PUBKEY, pFppl)
 GO(d2i_PUBKEY_bio, pFpp)
 GO(d2i_PUBKEY_fp, pFpp)
-//GO(d2i_PublicKey, 
+GO(d2i_PublicKey, pFippl)
 //GO(d2i_RSA_NET, 
 //GO(d2i_RSA_OAEP_PARAMS, 
 GO(d2i_RSAPrivateKey, pFppl)
@@ -1178,8 +1178,8 @@ GO(DH_new, pFv)
 //GO(DH_set_method, 
 //GO(DH_size, 
 //GO(DH_up_ref, 
-//GO(DIRECTORYSTRING_free, 
-//GO(DIRECTORYSTRING_new, 
+GO(DIRECTORYSTRING_free, vFp)
+GO(DIRECTORYSTRING_new, pFv)
 GO(DISPLAYTEXT_free, vFp)
 GO(DISPLAYTEXT_new, pFv)
 //GO(DIST_POINT_free, 
@@ -1481,10 +1481,10 @@ GO(EC_POINT_method_of, pFp)
 GO(EC_POINT_mul, iFpppppp)
 GO(EC_POINT_new, pFp)
 //GO(EC_POINT_oct2point, 
-//GO(EC_POINT_point2buf,
+//GO(EC_POINT_point2buf, 
 //GO(EC_POINT_point2bn, 
 //GO(EC_POINT_point2hex, 
-//GO(EC_POINT_point2oct,
+//GO(EC_POINT_point2oct, 
 GO(EC_POINT_set_affine_coordinates, iFppppp)
 GO(EC_POINT_set_affine_coordinates_GF2m, iFppppp)
 GO(EC_POINT_set_affine_coordinates_GFp, iFppppp)
@@ -1671,36 +1671,36 @@ GO(ERR_get_error_line_data, LFpppp)
 //GO(ERR_get_state, 
 //GO(ERR_get_string_table, 
 GO(ERR_lib_error_string, pFu)
-//GO(ERR_load_ASN1_strings, 
-//GO(ERR_load_BIO_strings, 
-//GO(ERR_load_BN_strings, 
-//GO(ERR_load_BUF_strings, 
-//GO(ERR_load_CMS_strings, 
-//GO(ERR_load_COMP_strings, 
-//GO(ERR_load_CONF_strings, 
+GO(ERR_load_ASN1_strings, iFv)
+GO(ERR_load_BIO_strings, iFv)
+GO(ERR_load_BN_strings, iFv)
+GO(ERR_load_BUF_strings, iFv)
+GO(ERR_load_CMS_strings, iFv)
+GO(ERR_load_COMP_strings, iFv)
+GO(ERR_load_CONF_strings, iFv)
 GO(ERR_load_crypto_strings, vFv)
-GO(ERR_load_CRYPTO_strings, vFv)
-//GO(ERR_load_DH_strings, 
-//GO(ERR_load_DSA_strings, 
+GO(ERR_load_CRYPTO_strings, iFv)
+GO(ERR_load_DH_strings, iFv)
+GO(ERR_load_DSA_strings, iFv)
 //GO(ERR_load_DSO_strings, 
 //GO(ERR_load_ECDH_strings, 
 //GO(ERR_load_ECDSA_strings, 
-//GO(ERR_load_EC_strings, 
-//GO(ERR_load_ENGINE_strings, 
-//GO(ERR_load_ERR_strings, 
-GO(ERR_load_EVP_strings, vFv)
-//GO(ERR_load_OBJ_strings, 
-//GO(ERR_load_OCSP_strings, 
-//GO(ERR_load_PEM_strings, 
-//GO(ERR_load_PKCS12_strings, 
-GO(ERR_load_PKCS7_strings, vFv)
-//GO(ERR_load_RAND_strings, 
-//GO(ERR_load_RSA_strings, 
+GO(ERR_load_EC_strings, iFv)
+GO(ERR_load_ENGINE_strings, iFv)
+GO(ERR_load_ERR_strings, iFv)
+GO(ERR_load_EVP_strings, iFv)
+GO(ERR_load_OBJ_strings, iFv)
+GO(ERR_load_OCSP_strings, iFv)
+GO(ERR_load_PEM_strings, iFv)
+GO(ERR_load_PKCS12_strings, iFv)
+GO(ERR_load_PKCS7_strings, iFv)
+GO(ERR_load_RAND_strings, iFv)
+GO(ERR_load_RSA_strings, iFv)
 //GO(ERR_load_strings, 
-//GO(ERR_load_TS_strings, 
-//GO(ERR_load_UI_strings, 
-//GO(ERR_load_X509_strings, 
-//GO(ERR_load_X509V3_strings, 
+GO(ERR_load_TS_strings, iFv)
+GO(ERR_load_UI_strings, iFv)
+GO(ERR_load_X509_strings, iFv)
+GO(ERR_load_X509V3_strings, iFv)
 GO(ERR_new, vFv)
 GO(ERR_peek_error, LFv)
 GO(ERR_peek_error_line, LFpp)
@@ -1733,9 +1733,9 @@ GOM(ERR_vset_error, vFEiipA)
 //GO(ESS_SIGNING_CERT_dup, 
 //GO(ESS_SIGNING_CERT_free, 
 //GO(ESS_SIGNING_CERT_new, 
-//GO(EVP_add_alg_module, 
-//GO(EVP_add_cipher, 
-//GO(EVP_add_digest, 
+GO(EVP_add_alg_module, vFv)
+GO(EVP_add_cipher, iFp)
+GO(EVP_add_digest, iFp)
 GO(EVP_aes_128_cbc, pFv)
 GO(EVP_aes_128_cbc_hmac_sha1, pFv)
 GO(EVP_aes_128_cbc_hmac_sha256, pFv)
@@ -1772,52 +1772,52 @@ GO(EVP_aes_256_cfb8, pFv)
 GO(EVP_aes_256_ctr, pFv)
 GO(EVP_aes_256_ecb, pFv)
 GO(EVP_aes_256_gcm, pFv)
-//GO(EVP_aes_256_ofb, 
-//GO(EVP_aes_256_wrap, 
-//GO(EVP_aes_256_xts, 
-//GO(EVP_bf_cbc, 
+GO(EVP_aes_256_ofb, pFv)
+GO(EVP_aes_256_wrap, pFv)
+GO(EVP_aes_256_xts, pFv)
+GO(EVP_bf_cbc, pFv)
 //GO(EVP_bf_cfb, 
-//GO(EVP_bf_cfb64, 
-//GO(EVP_bf_ecb, 
-//GO(EVP_bf_ofb, 
-//GO(EVP_BytesToKey, 
-//GO(EVP_camellia_128_cbc, 
-//GO(EVP_camellia_128_cfb1, 
-//GO(EVP_camellia_128_cfb128, 
-//GO(EVP_camellia_128_cfb8, 
-//GO(EVP_camellia_128_ecb, 
-//GO(EVP_camellia_128_ofb, 
-//GO(EVP_camellia_192_cbc, 
-//GO(EVP_camellia_192_cfb1, 
-//GO(EVP_camellia_192_cfb128, 
-//GO(EVP_camellia_192_cfb8, 
-//GO(EVP_camellia_192_ecb, 
-//GO(EVP_camellia_192_ofb, 
-//GO(EVP_camellia_256_cbc, 
-//GO(EVP_camellia_256_cfb1, 
-//GO(EVP_camellia_256_cfb128, 
-//GO(EVP_camellia_256_cfb8, 
-//GO(EVP_camellia_256_ecb, 
-//GO(EVP_camellia_256_ofb, 
-//GO(EVP_cast5_cbc, 
+GO(EVP_bf_cfb64, pFv)
+GO(EVP_bf_ecb, pFv)
+GO(EVP_bf_ofb, pFv)
+GO(EVP_BytesToKey, iFppppiipp)
+GO(EVP_camellia_128_cbc, pFv)
+GO(EVP_camellia_128_cfb1, pFv)
+GO(EVP_camellia_128_cfb128, pFv)
+GO(EVP_camellia_128_cfb8, pFv)
+GO(EVP_camellia_128_ecb, pFv)
+GO(EVP_camellia_128_ofb, pFv)
+GO(EVP_camellia_192_cbc, pFv)
+GO(EVP_camellia_192_cfb1, pFv)
+GO(EVP_camellia_192_cfb128, pFv)
+GO(EVP_camellia_192_cfb8, pFv)
+GO(EVP_camellia_192_ecb, pFv)
+GO(EVP_camellia_192_ofb, pFv)
+GO(EVP_camellia_256_cbc, pFv)
+GO(EVP_camellia_256_cfb1, pFv)
+GO(EVP_camellia_256_cfb128, pFv)
+GO(EVP_camellia_256_cfb8, pFv)
+GO(EVP_camellia_256_ecb, pFv)
+GO(EVP_camellia_256_ofb, pFv)
+GO(EVP_cast5_cbc, pFv)
 //GO(EVP_cast5_cfb, 
-//GO(EVP_cast5_cfb64, 
-//GO(EVP_cast5_ecb, 
-//GO(EVP_cast5_ofb, 
+GO(EVP_cast5_cfb64, pFv)
+GO(EVP_cast5_ecb, pFv)
+GO(EVP_cast5_ofb, pFv)
 GO(EVP_chacha20, pFv)
 GO(EVP_chacha20_poly1305, pFv)
-//GO(EVP_Cipher, 
+GO(EVP_Cipher, iFpppu)
 GO(EVP_CIPHER_asn1_to_param, iFpp)
 //GO(EVP_CIPHER_block_size, 
 //GO(EVP_CIPHER_CTX_block_size, 
-//GO(EVP_CIPHER_CTX_cipher, 
+GO(EVP_CIPHER_CTX_cipher, pFp)
 GO(EVP_CIPHER_CTX_cleanup, iFp)
-//GO(EVP_CIPHER_CTX_clear_flags, 
-//GO(EVP_CIPHER_CTX_copy, 
+GO(EVP_CIPHER_CTX_clear_flags, vFpi)
+GO(EVP_CIPHER_CTX_copy, iFpp)
 GO(EVP_CIPHER_CTX_ctrl, iFpiip)
 //GO(EVP_CIPHER_CTX_flags, 
 GO(EVP_CIPHER_CTX_free, vFp)
-//GO(EVP_CIPHER_CTX_get_app_data, 
+GO(EVP_CIPHER_CTX_get_app_data, pFp)
 GO(EVP_CIPHER_CTX_get_original_iv, iFppL)
 GO(EVP_CIPHER_CTX_get_updated_iv, iFppL)
 GO(EVP_CIPHER_CTX_init, vFp)
@@ -1825,33 +1825,33 @@ GO(EVP_CIPHER_CTX_init, vFp)
 //GO(EVP_CIPHER_CTX_key_length, 
 GO(EVP_CIPHER_CTX_new, pFv)
 //GO(EVP_CIPHER_CTX_nid, 
-//GO(EVP_CIPHER_CTX_rand_key, 
+GO(EVP_CIPHER_CTX_rand_key, iFpp)
 GO(EVP_CIPHER_CTX_reset, iFp)
-//GO(EVP_CIPHER_CTX_set_app_data, 
-//GO(EVP_CIPHER_CTX_set_flags, 
+GO(EVP_CIPHER_CTX_set_app_data, vFpp)
+GO(EVP_CIPHER_CTX_set_flags, vFpi)
 GO(EVP_CIPHER_CTX_set_key_length, iFpi)
 GO(EVP_CIPHER_CTX_set_padding, iFpi)
-//GO(EVP_CIPHER_CTX_test_flags, 
-//GO(EVP_CIPHER_do_all, 
-//GO(EVP_CIPHER_do_all_sorted, 
+GO(EVP_CIPHER_CTX_test_flags, iFpi)
+//GOM(EVP_CIPHER_do_all, vFEpp)
+//GOM(EVP_CIPHER_do_all_sorted, vFEpp)
 GO(EVP_CipherFinal, iFppp)
 GO(EVP_CipherFinal_ex, iFppp)
 //GO(EVP_CIPHER_flags, 
-//GO(EVP_CIPHER_get_asn1_iv, 
+GO(EVP_CIPHER_get_asn1_iv, iFpp)
 GO(EVP_CipherInit, iFppppi)
 GO(EVP_CipherInit_ex, iFpppppi)
 //GO(EVP_CIPHER_iv_length, 
 //GO(EVP_CIPHER_key_length, 
 //GO(EVP_CIPHER_nid, 
 GO(EVP_CIPHER_param_to_asn1, iFpp)
-//GO(EVP_CIPHER_set_asn1_iv, 
+GO(EVP_CIPHER_set_asn1_iv, iFpp)
 GO(EVP_CIPHER_type, iFp)
 GO(EVP_CipherUpdate, iFppppi)
 GO(EVP_cleanup, vFv)
 GO(EVP_DecodeBlock, iFppi)
-//GO(EVP_DecodeFinal, 
-//GO(EVP_DecodeInit, 
-//GO(EVP_DecodeUpdate, 
+GO(EVP_DecodeFinal, iFppp)
+GO(EVP_DecodeInit, vFp)
+GO(EVP_DecodeUpdate, iFppppi)
 GO(EVP_DecryptFinal, iFppp)
 GO(EVP_DecryptFinal_ex, iFppp)
 GO(EVP_DecryptInit, iFpppp)
@@ -1879,9 +1879,9 @@ GO(EVP_des_ede_cfb, pFv)
 GO(EVP_des_ede_cfb64, pFv)
 GO(EVP_des_ede_ecb, pFv)
 GO(EVP_des_ede_ofb, pFv)
-//GO(EVP_des_ofb, 
-//GO(EVP_desx_cbc, 
-//GO(EVP_Digest, 
+GO(EVP_des_ofb, pFv)
+GO(EVP_desx_cbc, pFv)
+GO(EVP_Digest, iFpLpppp)
 GO(EVP_DigestFinal, iFppp)
 GO(EVP_DigestFinalXOF, iFppL)
 GO(EVP_DigestFinal_ex, iFppp)
@@ -1892,16 +1892,16 @@ GO(EVP_DigestSignFinal, iFppp)
 GO(EVP_DigestSignInit, iFppppp)
 GO(EVP_DigestUpdate, iFppL)
 GO(EVP_DigestVerify, iFppLpL)
-//GO(EVP_DigestVerifyFinal, 
+GO(EVP_DigestVerifyFinal, iFppL)
 GO(EVP_DigestVerifyInit, iFppppp)
 //GO(EVP_dss, 
 //GO(EVP_dss1, 
 //GO(EVP_ecdsa, 
-//GO(EVP_enc_null, 
+GO(EVP_enc_null, pFv)
 GO(EVP_EncodeBlock, iFppi)
-//GO(EVP_EncodeFinal, 
-//GO(EVP_EncodeInit, 
-//GO(EVP_EncodeUpdate, 
+GO(EVP_EncodeFinal, vFppp)
+GO(EVP_EncodeInit, vFp)
+GO(EVP_EncodeUpdate, iFppppi)
 GO(EVP_EncryptFinal, iFppp)
 GO(EVP_EncryptFinal_ex, iFppp)
 GO(EVP_EncryptInit, iFpppp)
@@ -1909,7 +1909,7 @@ GO(EVP_EncryptInit_ex, iFppppp)
 GO(EVP_EncryptUpdate, iFppppi)
 GO(EVP_get_cipherbyname, pFp)
 GO(EVP_get_digestbyname, pFp)
-//GO(EVP_get_pw_prompt, 
+GO(EVP_get_pw_prompt, pFv)
 //GO(EVP_idea_cbc, 
 //GO(EVP_idea_cfb, 
 //GO(EVP_idea_cfb64, 
@@ -1931,7 +1931,7 @@ GO(EVP_MD_CTX_clear_flags, vFpi)
 GO(EVP_MD_CTX_copy, iFpp)
 GO(EVP_MD_CTX_copy_ex, iFpp)
 GO(EVP_MD_CTX_create, pFv)
-GO(EVP_MD_CTX_ctrl, vFpiip)
+GO(EVP_MD_CTX_ctrl, iFpiip)
 GO(EVP_MD_CTX_destroy, vFp)
 GO(EVP_MD_CTX_free, vFp)
 GO(EVP_MD_CTX_get0_md, pFp)
@@ -1940,10 +1940,10 @@ GO(EVP_MD_CTX_md, pFp)
 GO(EVP_MD_CTX_new, pFv)
 GO(EVP_MD_CTX_reset, iFp)
 GO(EVP_MD_CTX_set_flags, vFpi)
-//GO(EVP_MD_CTX_test_flags, 
-//GO(EVP_MD_do_all, 
+GO(EVP_MD_CTX_test_flags, iFpi)
+//GOM(EVP_MD_do_all, vFEpp)
 GOM(EVP_MD_do_all_provided, vFEppp)
-//GO(EVP_MD_do_all_sorted, 
+//GOM(EVP_MD_do_all_sorted, vFEpp)
 GO(EVP_MD_fetch, pFppp)
 //GO(EVP_MD_flags, 
 GO(EVP_MD_free, vFp)
@@ -1955,13 +1955,13 @@ GO(EVP_md_null, pFv)
 GO(EVP_MD_pkey_type, iFp)
 GO(EVP_MD_type, iFp)
 GO(EVP_MD_up_ref, iFp)
-//GO(EVP_OpenFinal, 
-//GO(EVP_OpenInit, 
-//GO(EVP_PBE_alg_add, 
-//GO(EVP_PBE_alg_add_type, 
-//GO(EVP_PBE_CipherInit, 
-//GO(EVP_PBE_cleanup, 
-//GO(EVP_PBE_find, 
+GO(EVP_OpenFinal, iFppp)
+GO(EVP_OpenInit, iFpppipp)
+//GOM(EVP_PBE_alg_add, iFEippp)
+//GOM(EVP_PBE_alg_add_type, iFEiiiip)
+GO(EVP_PBE_CipherInit, iFppippi)
+GO(EVP_PBE_cleanup, vFv)
+//GOM(EVP_PBE_find, iFEiippp)
 GO(EVP_PBE_scrypt, iFpLpLUUUUpL)
 GO(EVP_PKCS82PKEY, pFp)
 GO(EVP_PKCS82PKEY_ex, pFppp)
@@ -1971,22 +1971,22 @@ GO(EVP_PKEY2PKCS8, pFp)
 //GO(EVP_PKEY_add1_attr_by_NID, 
 //GO(EVP_PKEY_add1_attr_by_OBJ, 
 //GO(EVP_PKEY_add1_attr_by_txt, 
-//GO(EVP_PKEY_asn1_add0, 
-//GO(EVP_PKEY_asn1_add_alias, 
-//GO(EVP_PKEY_asn1_copy, 
-//GO(EVP_PKEY_asn1_find, 
-//GO(EVP_PKEY_asn1_find_str, 
-//GO(EVP_PKEY_asn1_free, 
-//GO(EVP_PKEY_asn1_get0, 
-//GO(EVP_PKEY_asn1_get0_info, 
-//GO(EVP_PKEY_asn1_get_count, 
-//GO(EVP_PKEY_asn1_new, 
-//GO(EVP_PKEY_asn1_set_ctrl, 
-//GO(EVP_PKEY_asn1_set_free, 
-//GO(EVP_PKEY_asn1_set_item, 
-//GO(EVP_PKEY_asn1_set_param, 
-//GO(EVP_PKEY_asn1_set_private, 
-//GO(EVP_PKEY_asn1_set_public, 
+GO(EVP_PKEY_asn1_add0, iFp)
+GO(EVP_PKEY_asn1_add_alias, iFii)
+GO(EVP_PKEY_asn1_copy, vFpp)
+GO(EVP_PKEY_asn1_find, pFpi)
+GO(EVP_PKEY_asn1_find_str, pFppi)
+GO(EVP_PKEY_asn1_free, vFp)
+GO(EVP_PKEY_asn1_get0, pFi)
+GO(EVP_PKEY_asn1_get0_info, iFpppppp)
+GO(EVP_PKEY_asn1_get_count, iFv)
+GO(EVP_PKEY_asn1_new, pFiipp)
+//GOM(EVP_PKEY_asn1_set_ctrl, vFEpp)
+//GOM(EVP_PKEY_asn1_set_free, vFEpp)
+//GOM(EVP_PKEY_asn1_set_item, vFEppp)
+//GOM(EVP_PKEY_asn1_set_param, vFEppppppp)
+//GOM(EVP_PKEY_asn1_set_private, vFEpppp)
+//GOM(EVP_PKEY_asn1_set_public, vFEppppppp)
 GO(EVP_PKEY_assign, iFpip)
 //GO(EVP_PKEY_base_id, 
 //GO(EVP_PKEY_bits, 
@@ -2000,16 +2000,16 @@ GO(EVP_PKEY_CTX_free, vFp)
 GO(EVP_PKEY_CTX_get0_peerkey, pFp)
 GO(EVP_PKEY_CTX_get0_pkey, pFp)
 GO(EVP_PKEY_CTX_get_app_data, pFp)
-//GO(EVP_PKEY_CTX_get_cb, 
-//GO(EVP_PKEY_CTX_get_data, 
+//GOM(EVP_PKEY_CTX_get_cb, pFEp)
+GO(EVP_PKEY_CTX_get_data, pFp)
 GO(EVP_PKEY_CTX_get_keygen_info, iFpi)
-//GO(EVP_PKEY_CTX_get_operation, 
+GO(EVP_PKEY_CTX_get_operation, iFp)
 GO(EVP_PKEY_CTX_new, pFpp)
 GO(EVP_PKEY_CTX_new_id, pFip)
-//GO(EVP_PKEY_CTX_set0_keygen_info, 
+GO(EVP_PKEY_CTX_set0_keygen_info, vFppi)
 GO(EVP_PKEY_CTX_set_app_data, vFpp)
-//GO(EVP_PKEY_CTX_set_cb, 
-//GO(EVP_PKEY_CTX_set_data, 
+//GOM(EVP_PKEY_CTX_set_cb, vFEpp)
+GO(EVP_PKEY_CTX_set_data, vFpp)
 GO(EVP_PKEY_CTX_set_rsa_keygen_bits, iFpi)
 GO(EVP_PKEY_CTX_set_rsa_oaep_md, iFpp)
 GO(EVP_PKEY_CTX_set_rsa_padding, iFpi)
@@ -2018,19 +2018,19 @@ GO(EVP_PKEY_CTX_set_signature_md, iFpp)
 GO(EVP_PKEY_check, iFp)
 GO(EVP_PKEY_decrypt, iFppppL)
 GO(EVP_PKEY_decrypt_init, iFp)
-//GO(EVP_PKEY_decrypt_old, 
+GO(EVP_PKEY_decrypt_old, iFppip)
 //GO(EVP_PKEY_delete_attr, 
 GO(EVP_PKEY_derive, iFppp)
 GO(EVP_PKEY_derive_init, iFp)
-GO(EVP_PKEY_derive_set_peer, iFppi)
+GO(EVP_PKEY_derive_set_peer, iFpp)
 GO(EVP_PKEY_encrypt, iFppppL)
 GO(EVP_PKEY_encrypt_init, iFp)
-//GO(EVP_PKEY_encrypt_old, 
+GO(EVP_PKEY_encrypt_old, iFppip)
 GO(EVP_PKEY_free, vFp)
-//GO(EVP_PKEY_get0, 
-//GO(EVP_PKEY_get0_asn1, 
+GO(EVP_PKEY_get0, pFp)
+GO(EVP_PKEY_get0_asn1, pFp)
 GO(EVP_PKEY_get0_RSA, pFp)
-//GO(EVP_PKEY_get1_DH, 
+GO(EVP_PKEY_get1_DH, pFp)
 GO(EVP_PKEY_get1_DSA, pFp)
 GO(EVP_PKEY_get1_EC_KEY, pFp)
 GO(EVP_PKEY_get1_RSA, pFp)
@@ -2039,61 +2039,61 @@ GO(EVP_PKEY_get1_RSA, pFp)
 //GO(EVP_PKEY_get_attr_by_OBJ, 
 //GO(EVP_PKEY_get_attr_count, 
 GO(EVP_PKEY_get_base_id, iFp)
-//GO(EVP_PKEY_get_default_digest_nid, 
+GO(EVP_PKEY_get_default_digest_nid, iFpp)
 GO(EVP_PKEY_get_raw_private_key, iFppp)
 GO(EVP_PKEY_get_raw_public_key, iFppp)
-GO(EVP_PKEY_new_raw_private_key, pFppppL)
+GO(EVP_PKEY_new_raw_private_key, pFippL)
 GO(EVP_PKEY_new_raw_public_key, pFippL)
 GO(EVP_PKEY_get_size, iFp)
 //GO(EVP_PKEY_id, 
 GO(EVP_PKEY_keygen, iFpp)
 GO(EVP_PKEY_keygen_init, iFp)
-//GO(EVP_PKEY_meth_add0, 
-//GO(EVP_PKEY_meth_copy, 
-//GO(EVP_PKEY_meth_find, 
-//GO(EVP_PKEY_meth_free, 
-//GO(EVP_PKEY_meth_get0_info, 
-//GO(EVP_PKEY_meth_new, 
-//GO(EVP_PKEY_meth_set_cleanup, 
-//GO(EVP_PKEY_meth_set_copy, 
-//GO(EVP_PKEY_meth_set_ctrl, 
-//GO(EVP_PKEY_meth_set_decrypt, 
-//GO(EVP_PKEY_meth_set_derive, 
-//GO(EVP_PKEY_meth_set_encrypt, 
-//GO(EVP_PKEY_meth_set_init, 
-//GO(EVP_PKEY_meth_set_keygen, 
-//GO(EVP_PKEY_meth_set_paramgen, 
-//GO(EVP_PKEY_meth_set_sign, 
-//GO(EVP_PKEY_meth_set_signctx, 
-//GO(EVP_PKEY_meth_set_verify, 
-//GO(EVP_PKEY_meth_set_verifyctx, 
-//GO(EVP_PKEY_meth_set_verify_recover, 
+GO(EVP_PKEY_meth_add0, iFp)
+GO(EVP_PKEY_meth_copy, vFpp)
+GO(EVP_PKEY_meth_find, pFi)
+GO(EVP_PKEY_meth_free, vFp)
+GO(EVP_PKEY_meth_get0_info, vFppp)
+GO(EVP_PKEY_meth_new, pFii)
+//GOM(EVP_PKEY_meth_set_cleanup, vFEpp)
+//GOM(EVP_PKEY_meth_set_copy, vFEpp)
+//GOM(EVP_PKEY_meth_set_ctrl, vFEppp)
+//GOM(EVP_PKEY_meth_set_decrypt, vFEppp)
+//GOM(EVP_PKEY_meth_set_derive, vFEppp)
+//GOM(EVP_PKEY_meth_set_encrypt, vFEppp)
+//GOM(EVP_PKEY_meth_set_init, vFEpp)
+//GOM(EVP_PKEY_meth_set_keygen, vFEppp)
+//GOM(EVP_PKEY_meth_set_paramgen, vFEppp)
+//GOM(EVP_PKEY_meth_set_sign, vFEppp)
+//GOM(EVP_PKEY_meth_set_signctx, vFEppp)
+//GOM(EVP_PKEY_meth_set_verify, vFEppp)
+//GOM(EVP_PKEY_meth_set_verifyctx, vFEppp)
+//GOM(EVP_PKEY_meth_set_verify_recover, vFEppp)
 GO(EVP_PKEY_missing_parameters, iFp)
 GO(EVP_PKEY_new, pFv)
 GO(EVP_PKEY_new_mac_key, pFippi)
 GO(EVP_PKEY_paramgen, iFpp)
 GO(EVP_PKEY_paramgen_init, iFp)
-//GO(EVP_PKEY_print_params, 
-//GO(EVP_PKEY_print_private, 
-//GO(EVP_PKEY_print_public, 
+GO(EVP_PKEY_print_params, iFppip)
+GO(EVP_PKEY_print_private, iFppip)
+GO(EVP_PKEY_print_public, iFppip)
 GO(EVP_PKEY_public_check, iFp)
-//GO(EVP_PKEY_save_parameters, 
-//GO(EVP_PKEY_set1_DH, 
+GO(EVP_PKEY_save_parameters, iFpi)
+GO(EVP_PKEY_set1_DH, iFpp)
 GO(EVP_PKEY_set1_DSA, iFpp)
 GO(EVP_PKEY_set1_EC_KEY, iFpp)
 GO(EVP_PKEY_set1_RSA, iFpp)
 //GO(evp_pkey_set_cb_translate, 
-//GO(EVP_PKEY_set_type, 
-//GO(EVP_PKEY_set_type_str, 
-GO(EVP_PKEY_sign, iFppppp)
+GO(EVP_PKEY_set_type, iFpi)
+GO(EVP_PKEY_set_type_str, iFppi)
+GO(EVP_PKEY_sign, iFppppL)
 GO(EVP_PKEY_sign_init, iFp)
 //GO(EVP_PKEY_size, 
 GO(EVP_PKEY_type, iFi)
 GO(EVP_PKEY_up_ref, iFp)
 GO(EVP_PKEY_verify, iFppLpL)
 GO(EVP_PKEY_verify_init, iFp)
-//GO(EVP_PKEY_verify_recover, 
-//GO(EVP_PKEY_verify_recover_init, 
+GO(EVP_PKEY_verify_recover, iFppppL)
+GO(EVP_PKEY_verify_recover_init, iFp)
 GO(EVP_rc2_40_cbc, pFv)
 GO(EVP_rc2_64_cbc, pFv)
 GO(EVP_rc2_cbc, pFv)
@@ -2101,31 +2101,31 @@ GO(EVP_rc2_cfb, pFv)
 GO(EVP_rc2_cfb64, pFv)
 GO(EVP_rc2_ecb, pFv)
 GO(EVP_rc2_ofb, pFv)
-//GO(EVP_rc4, 
-//GO(EVP_rc4_40, 
-//GO(EVP_rc4_hmac_md5, 
-//GO(EVP_read_pw_string, 
-//GO(EVP_read_pw_string_min, 
-GO(EVP_ripemd160, pFp)
-//GO(EVP_SealFinal, 
-//GO(EVP_SealInit, 
-//GO(EVP_seed_cbc, 
-//GO(EVP_seed_cfb128, 
-//GO(EVP_seed_ecb, 
-//GO(EVP_seed_ofb, 
-//GO(EVP_set_pw_prompt, 
+GO(EVP_rc4, pFv)
+GO(EVP_rc4_40, pFv)
+GO(EVP_rc4_hmac_md5, pFv)
+GO(EVP_read_pw_string, iFpipi)
+GO(EVP_read_pw_string_min, iFpiipi)
+GO(EVP_ripemd160, pFv)
+GO(EVP_SealFinal, iFppp)
+GO(EVP_SealInit, iFppppppi)
+GO(EVP_seed_cbc, pFv)
+GO(EVP_seed_cfb128, pFv)
+GO(EVP_seed_ecb, pFv)
+GO(EVP_seed_ofb, pFv)
+GO(EVP_set_pw_prompt, vFp)
 GO(EVP_sha, pFV)
 GO(EVP_sha1, pFv)
 GO(EVP_sha224, pFv)
 GO(EVP_sha256, pFv)
 GO(EVP_sha384, pFv)
 GO(EVP_sha512, pFv)
-//GO(EVP_SignFinal, 
+GO(EVP_SignFinal, iFpppp)
 GO(EVP_VerifyFinal, iFppup)
-GO(EVP_VerifyInit, iFpp)        // 1.1.0+
-GO(EVP_VerifyInit_ex, iFppp)    // 1.1.0+
-GO(EVP_VerifyUpdate, iFppu)     // 1.1.0+
-//GO(EVP_whirlpool, 
+GO(EVP_VerifyInit, iFpp)
+GO(EVP_VerifyInit_ex, iFppp)
+GO(EVP_VerifyUpdate, iFppu)
+GO(EVP_whirlpool, pFv)
 GO(EXTENDED_KEY_USAGE_free, vFp)
 //GO(EXTENDED_KEY_USAGE_new, 
 //GO(fcrypt_body, 
@@ -2198,9 +2198,9 @@ GO(i2d_ASN1_INTEGER, iFpp)
 GO(i2d_ASN1_NULL, iFpp)
 GO(i2d_ASN1_OBJECT, iFpp)
 GO(i2d_ASN1_OCTET_STRING, iFpp)
-//GO(i2d_ASN1_PRINTABLE, 
+GO(i2d_ASN1_PRINTABLE, iFpp)
 GO(i2d_ASN1_PRINTABLESTRING, iFpp)
-//GO(i2d_ASN1_SEQUENCE_ANY, 
+GO(i2d_ASN1_SEQUENCE_ANY, iFpp)
 //GO(i2d_ASN1_SET, 
 GO(i2d_ASN1_SET_ANY, iFpp)
 GO(i2d_ASN1_T61STRING, iFpp)
@@ -2221,7 +2221,7 @@ GO(i2d_CMS_bio, iFpp)
 //GO(i2d_CRL_DIST_POINTS, 
 GO(i2d_DHparams, iFpp)
 //GO(i2d_DHxparams, 
-//GO(i2d_DIRECTORYSTRING, 
+GO(i2d_DIRECTORYSTRING, iFpp)
 GO(i2d_DISPLAYTEXT, iFpp)
 //GO(i2d_DIST_POINT, 
 //GO(i2d_DIST_POINT_NAME, 
@@ -2334,7 +2334,7 @@ GO(i2d_PROXY_POLICY, iFpp)
 GO(i2d_PUBKEY, iFpp)
 GO(i2d_PUBKEY_bio, iFpp)
 GO(i2d_PUBKEY_fp, iFpp)
-//GO(i2d_PublicKey, 
+GO(i2d_PublicKey, iFpp)
 //GO(i2d_re_X509_tbs, 
 GO(i2d_RSA_NET, iFpp)
 GO(i2d_RSA_OAEP_PARAMS, iFpp)
@@ -2507,33 +2507,33 @@ GO(NETSCAPE_X509_new, pFv)
 //GO(NOTICEREF_free, 
 //GO(NOTICEREF_new, 
 //GO(o2i_ECPublicKey, 
-//GO(OBJ_add_object, 
-//GO(OBJ_add_sigid, 
-//GO(OBJ_bsearch_, 
-//GO(OBJ_bsearch_ex_, 
+GO(OBJ_add_object, iFp)
+GO(OBJ_add_sigid, iFiii)
+//GOM(OBJ_bsearch_, pFEppiip)
+//GOM(OBJ_bsearch_ex_, pFEppiipi)
 GO(OBJ_cleanup, vFv)
 GO(OBJ_cmp, iFpp)
 GO(OBJ_create, iFppp)
-//GO(OBJ_create_objects, 
+GO(OBJ_create_objects, iFp)
 GO(OBJ_dup, pFp)
-//GO(OBJ_find_sigid_algs, 
-//GO(OBJ_find_sigid_by_algs, 
+GO(OBJ_find_sigid_algs, iFipp)
+GO(OBJ_find_sigid_by_algs, iFpii)
 GO(OBJ_ln2nid, iFp)
-//GO(OBJ_NAME_add, 
-//GO(OBJ_NAME_cleanup, 
-//GO(OBJ_NAME_do_all, 
-//GO(OBJ_NAME_do_all_sorted, 
-//GO(OBJ_NAME_get, 
-//GO(OBJ_NAME_init, 
-//GO(OBJ_NAME_new_index, 
-//GO(OBJ_NAME_remove, 
-//GO(OBJ_new_nid, 
+GO(OBJ_NAME_add, iFpip)
+GO(OBJ_NAME_cleanup, vFi)
+//GOM(OBJ_NAME_do_all, vFEipp)
+//GOM(OBJ_NAME_do_all_sorted, vFEipp)
+GO(OBJ_NAME_get, pFpi)
+GO(OBJ_NAME_init, iFv)
+//GOM(OBJ_NAME_new_index, iFEppp)
+GO(OBJ_NAME_remove, iFpi)
+GO(OBJ_new_nid, iFi)
 GO(OBJ_nid2ln, pFi)
 GO(OBJ_nid2obj, pFi)
 GO(OBJ_nid2sn, pFi)
 GO(OBJ_obj2nid, iFp)
 GO(OBJ_obj2txt, iFpipi)
-//GO(OBJ_sigid_free, 
+GO(OBJ_sigid_free, vFv)
 GO(OBJ_sn2nid, iFp)
 GO(OBJ_txt2nid, iFp)
 GO(OBJ_txt2obj, pFpi)
@@ -2674,25 +2674,25 @@ GO(OPENSSL_gmtime, pFpp)
 GO(OPENSSL_gmtime_adj, iFpil)
 GO(OPENSSL_gmtime_diff, iFpppp)
 //GO(OPENSSL_ia32cap_loc, 
-//GO(OPENSSL_init, 
-GO(OPENSSL_init_crypto, iFLp)
+GO(OPENSSL_init, vFv)
+GO(OPENSSL_init_crypto, iFUp)
 //GO(OPENSSL_instrument_bus, 
 //GO(OPENSSL_instrument_bus2, 
-//GO(OPENSSL_isservice, 
-//GO(OPENSSL_issetugid, 
+GO(OPENSSL_isservice, iFv)
+GO(OPENSSL_issetugid, iFv)
 //GO(OPENSSL_load_builtin_modules, 
 //GO(OPENSSL_memcmp, 
 GO(OPENSSL_no_config, vFv)
 //GO(OPENSSL_rdtsc, 
 GO(OPENSSL_sk_find, iFpp)
-GO(OPENSSL_sk_free, vFp)    //1.1+
+GO(OPENSSL_sk_free, vFp)
 GOM(OPENSSL_sk_new, pFEp)
-GO(OPENSSL_sk_new_null, pFv)    //1.1+
-GO(OPENSSL_sk_num, iFp) //1.1+
-GO(OPENSSL_sk_pop, pFp) //1.1+
-GOM(OPENSSL_sk_pop_free, pFEpp) //1.1+
-GO(OPENSSL_sk_push, iFpp)   //1.1+
-GO(OPENSSL_sk_value, pFpi)  //1.1+
+GO(OPENSSL_sk_new_null, pFv)
+GO(OPENSSL_sk_num, iFp)
+GO(OPENSSL_sk_pop, pFp)
+GOM(OPENSSL_sk_pop_free, vFEpp)
+GO(OPENSSL_sk_push, iFpp)
+GO(OPENSSL_sk_value, pFpi)
 //GO(OPENSSL_showfatal, 
 //GO(OPENSSL_stderr, 
 GO(OPENSSL_strcasecmp, iFpp)
@@ -2926,14 +2926,14 @@ GO(PKCS12_PBE_keyivgen, iFppipppi)
 //GO(PKCS1_MGF1, 
 //GO(PKCS5_pbe2_set, 
 //GO(PKCS5_pbe2_set_iv, 
-//GO(PKCS5_PBE_add, 
-//GO(PKCS5_PBE_keyivgen, 
+GO(PKCS5_PBE_add, vFv)
+GO(PKCS5_PBE_keyivgen, iFppipppi)
 //GO(PKCS5_pbe_set, 
 //GO(PKCS5_pbe_set0_algor, 
 GO(PKCS5_PBKDF2_HMAC, iFpipiipip)
 GO(PKCS5_PBKDF2_HMAC_SHA1, iFpipiiip)
 //GO(PKCS5_pbkdf2_set, 
-//GO(PKCS5_v2_PBE_keyivgen, 
+GO(PKCS5_v2_PBE_keyivgen, iFppipppi)
 //GO(PKCS5_v2_PBKDF2_keyivgen, 
 //GO(PKCS7_add0_attrib_signing_time, 
 //GO(PKCS7_add1_attrib_digest, 
