@@ -378,6 +378,50 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VADD_VX(q0, q1, xZR, VECTOR_MASKED);
             }
             break;
+        case 0xC2:
+            INST_NAME("CMPPS Gx, Ex, Ib");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(v0, 1, VECTOR_SEW32);
+            GETEX_vector(v1, 0, 1, VECTOR_SEW32);
+            u8 = F8;
+            if ((u8 & 7) == 0) { // Equal
+                VMFEQ_VV(VMASK, v0, v1, VECTOR_UNMASKED);
+            } else if ((u8 & 7) == 4) { // Not Equal or unordered
+                VMFEQ_VV(VMASK, v0, v1, VECTOR_UNMASKED);
+                VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
+            } else {
+                d0 = fpu_get_scratch(dyn);
+                VMFEQ_VV(VMASK, v0, v0, VECTOR_UNMASKED);
+                VMFEQ_VV(d0, v1, v1, VECTOR_UNMASKED);
+                VMAND_MM(VMASK, VMASK, d0);
+                switch (u8 & 7) {
+                    case 1: // Less than
+                        VMFLT_VV(d0, v0, v1, VECTOR_UNMASKED);
+                        VMAND_MM(VMASK, VMASK, d0);
+                        break;
+                    case 2: // Less or equal
+                        VMFLE_VV(d0, v0, v1, VECTOR_UNMASKED);
+                        VMAND_MM(VMASK, VMASK, d0);
+                        break;
+                    case 3: // NaN
+                        VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
+                        break;
+                    case 5: // Greater or equal or unordered
+                        VMFLE_VV(d0, v1, v0, VECTOR_UNMASKED);
+                        VMORN_MM(VMASK, d0, VMASK);
+                        break;
+                    case 6: // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
+                        VMFLT_VV(d0, v1, v0, VECTOR_UNMASKED);
+                        VMORN_MM(VMASK, d0, VMASK);
+                        break;
+                    case 7: // Not NaN
+                        break;
+                }
+            }
+            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            VXOR_VI(v0, v0, 0x1F, VECTOR_MASKED);
+            break;
         case 0xC6:
             INST_NAME("SHUFPS Gx, Ex, Ib");
             nextop = F8;
