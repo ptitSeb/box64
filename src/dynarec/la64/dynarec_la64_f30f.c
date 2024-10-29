@@ -118,7 +118,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             if (!box64_dynarec_fastround) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
-                MOV32w(x3, (1 << FR_V));
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
                 AND(x5, x5, x3);
                 CBZ_NEXT(x5);
                 if (rex.w) {
@@ -151,7 +151,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             x87_restoreround(dyn, ninst, u8);
             if (!box64_dynarec_fastround) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
-                MOV32w(x3, (1 << FR_V));
+                MOV32w(x3, (1 << FR_V) | (1 << FR_O));
                 AND(x5, x5, x3);
                 CBZ_NEXT(x5);
                 if (rex.w) {

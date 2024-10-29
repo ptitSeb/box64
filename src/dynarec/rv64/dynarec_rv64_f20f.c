@@ -111,7 +111,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (!rex.w) ZEROUP(gd);
             if(!box64_dynarec_fastround) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1 << FR_NV));
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 CBZ_NEXT(x5);
                 if(rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
@@ -134,7 +134,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             x87_restoreround(dyn, ninst, u8);
             if(!box64_dynarec_fastround) {
                 FRFLAGS(x5);   // get back FPSR to check the IOC bit
-                ANDI(x5, x5, (1 << FR_NV));
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 CBZ_NEXT(x5);
                 if(rex.w) {
                     MOV64x(gd, 0x8000000000000000LL);
