@@ -208,6 +208,7 @@ int            vector_push_vec_impl(VECTOR(voidp) *v1, VECTOR(voidp) *v2, size_t
 
 VECTOR_DECLARE(char, char)
 VECTOR_DECLARE(charp, char*)
+VECTOR_DECLARE(ccharp, const char*)
 VECTOR_DECLARE(string, string_t*)
 
 #endif // VECTOR_H

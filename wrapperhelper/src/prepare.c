@@ -2,6 +2,13 @@
 
 #include <string.h>
 
+#include "log.h"
+
+static struct li_filename_s {
+	char *name;
+	struct li_filename_s *next;
+} *li_filenames = NULL;
+
 typedef struct char_s {
 	int c;
 	loginfo_t li;
@@ -32,12 +39,21 @@ prepare_t *prepare_new_file(FILE *f, const char *filename) {
 		return NULL;
 	}
 	
-	char *srcn = strdup(filename);
+	char *srcn = strdup(filename ? filename : "<unknown filename>");
 	if (!srcn) {
 		log_memory("failed to duplicate filename\n");
 		free(ret);
 		return NULL;
 	}
+	struct li_filename_s *new_lifn = malloc(sizeof *new_lifn);
+	if (!new_lifn) {
+		log_memory("failed to remember new filename\n");
+		free(srcn);
+		free(ret);
+		return NULL;
+	}
+	*new_lifn = (struct li_filename_s){ .name = srcn, .next = li_filenames };
+	li_filenames = new_lifn;
 	
 	*ret = (prepare_t){
 		.f = f,
@@ -52,7 +68,6 @@ prepare_t *prepare_new_file(FILE *f, const char *filename) {
 
 void prepare_del(prepare_t *prep) {
 	if (prep->f) fclose(prep->f);
-	if (prep->srcn) free(prep->srcn);
 	free(prep);
 }
 
@@ -504,9 +519,21 @@ start_next_token:
 
 void prepare_set_line(prepare_t *src, char *filename, size_t lineno) {
 	if (filename) {
-		if (src->srcn) free(filename);
-		src->srcn = filename;
-		src->li.filename = filename;
+		char *srcn = strdup(filename ? filename : "<unknown filename>");
+		if (!srcn) {
+			log_memory("failed to duplicate filename from #line command\n");
+			return;
+		}
+		struct li_filename_s *new_lifn = malloc(sizeof *new_lifn);
+		if (!new_lifn) {
+			log_memory("failed to remember new filename from #line command\n");
+			free(srcn);
+			return;
+		}
+		*new_lifn = (struct li_filename_s){ .name = srcn, .next = li_filenames };
+		li_filenames = new_lifn;
+		src->srcn = srcn;
+		src->li.filename = srcn;
 	}
 	size_t colno = 1;
 	for (int i = src->buf_len; i--; ) {
@@ -543,5 +570,14 @@ int pre_next_newline_token(prepare_t *src, string_t *buf) {
 		} else {
 			return 0;
 		}
+	}
+}
+
+void prepare_cleanup(void) {
+	while (li_filenames) {
+		struct li_filename_s *lifn = li_filenames->next;
+		free(li_filenames->name);
+		free(li_filenames);
+		li_filenames = lifn;
 	}
 }
