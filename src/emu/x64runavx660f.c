@@ -1714,21 +1714,21 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             GETGY;
-            if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+            if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff)
                 GX->sd[0] = 0x80000000;
             else
                 GX->sd[0] = EX->d[0];
-            if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>0x7fffffff)
+            if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>(double)0x7fffffff)
                 GX->sd[1] = 0x80000000;
             else
                 GX->sd[1] = EX->d[1];
             if(vex.l) {
                 GETEY;
-                if(isnan(EY->d[0]) || isinf(EY->d[0]) || EY->d[0]>0x7fffffff)
+                if(isnan(EY->d[0]) || isinf(EY->d[0]) || EY->d[0]>(double)0x7fffffff)
                     GX->sd[2] = 0x80000000;
                 else
                     GX->sd[2] = EY->d[0];
-                if(isnan(EY->d[1]) || isinf(EY->d[1]) || EY->d[1]>0x7fffffff)
+                if(isnan(EY->d[1]) || isinf(EY->d[1]) || EY->d[1]>(double)0x7fffffff)
                     GX->sd[3] = 0x80000000;
                 else
                     GX->sd[3] = EY->d[1];

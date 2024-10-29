@@ -119,12 +119,12 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGD;
             if(rex.w)
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffffffffffffLL)
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL)
                     GD->q[0] = 0x8000000000000000LL;
                 else
                     GD->sq[0] = EX->d[0];
             else {
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff)
                     GD->dword[0] = 0x80000000;
                 else
                     GD->sdword[0] = EX->d[0];
@@ -136,7 +136,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGD;
             if(rex.w) {
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffffffffffffLL)
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL)
                     GD->q[0] = 0x8000000000000000LL;
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {
@@ -158,7 +158,7 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                             break;
                     }
             } else {
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>0x7fffffff)
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff)
                     GD->dword[0] = 0x80000000;
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {
